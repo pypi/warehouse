@@ -13,66 +13,6 @@ from ....common.db.observations import ObserverFactory
 from ....common.db.packaging import ProjectObservationFactory
 
 
-class TestClassifyObservation:
-    """Tests for the _classify_observation helper function."""
-
-    @pytest.mark.parametrize(
-        ("actions", "related_id", "expected"),
-        [
-            # No actions cases
-            (None, "some-uuid", "pending"),  # project exists
-            (None, None, "true_positive"),  # project removed
-            ({}, "some-uuid", "pending"),  # empty actions, project exists
-            ({}, None, "true_positive"),  # empty actions, project removed
-            # Single action cases - project exists
-            (
-                {123: {"action": "remove_malware", "actor": "admin"}},
-                "some-uuid",
-                "true_positive",
-            ),
-            (
-                {123: {"action": "verdict_not_malware", "actor": "admin"}},
-                "some-uuid",
-                "false_positive",
-            ),
-            (
-                {123: {"action": "some_other_action", "actor": "admin"}},
-                "some-uuid",
-                "pending",
-            ),
-            # Project removed cases - removal takes precedence
-            (
-                {123: {"action": "remove_malware", "actor": "admin"}},
-                None,
-                "true_positive",
-            ),
-            # Key case: verdict_not_malware but project later removed for other reason
-            # Observer should NOT be penalized - they correctly identified a problem
-            (
-                {123: {"action": "verdict_not_malware", "actor": "admin"}},
-                None,
-                "true_positive",
-            ),
-            (
-                {123: {"action": "some_other_action", "actor": "admin"}},
-                None,
-                "true_positive",
-            ),
-            # Precedence: remove_malware wins over verdict_not_malware
-            (
-                {
-                    123: {"action": "verdict_not_malware", "actor": "admin"},
-                    124: {"action": "remove_malware", "actor": "admin"},
-                },
-                "some-uuid",
-                "true_positive",
-            ),
-        ],
-    )
-    def test_classify_observation(self, actions, related_id, expected):
-        assert views._classify_observation(actions, related_id) == expected
-
-
 class TestParseDaysParam:
     """Tests for the _parse_days_param helper function."""
 

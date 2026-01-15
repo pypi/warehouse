@@ -13,6 +13,7 @@ from sqlalchemy import select
 
 from warehouse.authnz import Permissions
 from warehouse.observations.models import Observation, Observer
+from warehouse.observations.utils import calc_accuracy, classify_observation
 
 if TYPE_CHECKING:
     from pyramid.request import Request
@@ -21,37 +22,6 @@ if TYPE_CHECKING:
 ALLOWED_DAYS = (30, 60, 90)
 ALLOWED_DAYS_DETAIL = (30, 60, 90, 0)  # 0 = lifetime (no limit)
 DEFAULT_DAYS = 30
-
-
-def _classify_observation(actions: dict | None, related_id) -> str:
-    """
-    Classify an observation as true_positive, false_positive, or pending.
-
-    Classification rules:
-    - true_positive: has 'remove_malware' action OR project removed (related_id=None)
-    - false_positive: has 'verdict_not_malware' action AND project still exists
-    - pending: no verdict yet
-
-    Note: If a project was marked 'not malware' but later removed for another reason
-    (e.g., spam), we don't penalize the observer - they correctly identified a
-    problematic project.
-    """
-    # If project was removed, observer correctly identified a problem
-    if related_id is None:
-        return "true_positive"
-
-    if not actions:
-        return "pending"
-
-    has_not_malware = False
-    for action_data in actions.values():
-        action = action_data.get("action", "")
-        if action == "remove_malware":
-            return "true_positive"
-        if action == "verdict_not_malware":
-            has_not_malware = True
-
-    return "false_positive" if has_not_malware else "pending"
 
 
 def _parse_days_param(request: Request, allowed: tuple[int, ...] = ALLOWED_DAYS) -> int:
@@ -109,7 +79,7 @@ def _get_observer_stats(request: Request, observations: list) -> list[dict]:
         stats = stats_by_observer[obs.observer_id]
         stats["total_observations"] += 1
 
-        verdict = _classify_observation(obs.actions, obs.related_id)
+        verdict = classify_observation(obs.actions, obs.related_id)
         if verdict == "true_positive":
             stats["true_positives"] += 1
         elif verdict == "false_positive":
@@ -135,12 +105,7 @@ def _get_observer_stats(request: Request, observations: list) -> list[dict]:
         default = (f"Observer {observer_id}", None)
         username, user_id = observer_map.get(observer_id, default)
 
-        resolved = stats["true_positives"] + stats["false_positives"]
-        accuracy_rate = (
-            round((stats["true_positives"] / resolved) * 100, 1)
-            if resolved > 0
-            else None
-        )
+        accuracy_rate = calc_accuracy(stats["true_positives"], stats["false_positives"])
         score = (stats["true_positives"] * 2) - stats["false_positives"]
 
         result.append(
@@ -187,7 +152,7 @@ def _aggregate_weekly_time_series(observations) -> dict:
         week_start = obs.created - timedelta(days=obs.created.weekday())
         week_key = week_start.strftime("%Y-%m-%d")
 
-        verdict = _classify_observation(obs.actions, obs.related_id)
+        verdict = classify_observation(obs.actions, obs.related_id)
         weekly_data[week_key][
             verdict.replace("true_positive", "true_positives").replace(
                 "false_positive", "false_positives"
@@ -229,7 +194,7 @@ def _get_observer_detail_stats(request: Request, observer: Observer, days: int) 
     }
 
     for obs in observations:
-        verdict = _classify_observation(obs.actions, obs.related_id)
+        verdict = classify_observation(obs.actions, obs.related_id)
         if verdict == "true_positive":
             categorized["true_positives"].append(obs)
         elif verdict == "false_positive":
@@ -290,10 +255,7 @@ def observer_reputation_dashboard(request: Request):
     total_false_positives = sum(s["false_positives"] for s in observer_stats)
     total_pending = sum(s["pending"] for s in observer_stats)
 
-    resolved = total_true_positives + total_false_positives
-    overall_accuracy = (
-        round((total_true_positives / resolved) * 100, 1) if resolved > 0 else None
-    )
+    overall_accuracy = calc_accuracy(total_true_positives, total_false_positives)
 
     return {
         "days": days,
@@ -338,8 +300,7 @@ def observer_detail(request: Request):
     false_pos_count = len(categorized["false_positives"])
     pending_count = len(categorized["pending"])
     total = true_pos_count + false_pos_count + pending_count
-    resolved = true_pos_count + false_pos_count
-    accuracy = round((true_pos_count / resolved) * 100, 1) if resolved > 0 else None
+    accuracy = calc_accuracy(true_pos_count, false_pos_count)
     score = (true_pos_count * 2) - false_pos_count
 
     return {
