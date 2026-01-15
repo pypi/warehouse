@@ -722,32 +722,52 @@ class TestGetResponseTimelineStats:
         assert result["removal_time"] is not None
 
     def test_deleted_project_timeline(self, db_request):
-        """Test timeline stats for deleted projects using journal entries."""
+        """Test timeline stats for deleted projects using journal entries.
+
+        This also tests the project recreation scenario:
+        - Original project created years ago
+        - Original project removed
+        - Malicious project created with same name (name squatting)
+        - We should use the MOST RECENT create date, not the original
+        """
         admin_user = UserFactory.create(username="admin")
+        original_owner = UserFactory.create(username="original-owner")
 
-        # Create a project, then simulate deletion by setting related=None
-        # We need the journal entries to exist for lookup
         project_name = "deleted-test-project"
-        project_created = datetime.now(tz=timezone.utc).replace(
-            tzinfo=None
-        ) - timedelta(hours=48)
+        now = datetime.now(tz=timezone.utc)
 
-        # Create journal entry for project creation (simulates historical record)
+        # Simulate original project lifecycle (years ago)
+        original_created = now.replace(tzinfo=None) - timedelta(days=365 * 3)
         JournalEntryFactory.create(
             name=project_name,
             action="create",
-            submitted_by=admin_user,
-            submitted_date=project_created,
+            submitted_by=original_owner,
+            submitted_date=original_created,
+        )
+        # Original project was removed (not relevant to our query, just context)
+        JournalEntryFactory.create(
+            name=project_name,
+            action="remove project",
+            submitted_by=original_owner,
+            submitted_date=now.replace(tzinfo=None) - timedelta(days=30),
         )
 
-        # Create observation for deleted project (related=None)
-        # The related_name will contain the project name in repr format
-        now = datetime.now(tz=timezone.utc)
+        # Malicious recreation - this is the `create` date we should use
+        malicious_created = now.replace(tzinfo=None) - timedelta(hours=48)
+        JournalEntryFactory.create(
+            name=project_name,
+            action="create",
+            submitted_by=UserFactory.create(username="malicious-actor"),
+            submitted_date=malicious_created,
+        )
+
+        # Create observation for deleted project (related=None after removal)
+        report_time = now.replace(tzinfo=None) - timedelta(hours=24)
         ProjectObservationFactory.create(
             kind="is_malware",
             related=None,
             related_name=f"Project(id=None, name='{project_name}')",
-            created=now.replace(tzinfo=None) - timedelta(hours=24),
+            created=report_time,
             actions={
                 int(now.timestamp()): {
                     "action": "remove_malware",
@@ -771,6 +791,15 @@ class TestGetResponseTimelineStats:
         # Should find the deleted project and calculate timeline stats
         assert result["sample_size"] == 1
         assert result["detection_time"] is not None
+
+        # Detection time should be ~24 hours (malicious_created -> report)
+        # NOT ~3 years (original_created -> report)
+        # malicious_created is 48h ago, report_time is 24h ago = 24h detection
+        detection_hours = result["detection_time"]["median"]
+        assert detection_hours < 100, (
+            f"Detection time {detection_hours}h suggests we're using the old "
+            f"'create' date instead of the most recent one"
+        )
         assert result["quarantine_time"] is not None
         assert result["longest_lived"][0]["name"] == project_name
 
