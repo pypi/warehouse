@@ -400,13 +400,17 @@ def _get_timeline_data(request: Request, observations: list) -> dict:
 
     # Look up creation and quarantine times from journal entries in one query
     # Using conditional aggregation to get both in a single round-trip
+    # NOTE: We use func.max() to get the MOST RECENT create/quarantine times.
+    # Projects can be removed and recreated (e.g., name squatting after removal),
+    # so we need the latest "create" to accurately measure detection time for
+    # the malicious instance, not the original legitimate project.
     journal_stmt = (
         select(
             JournalEntry.name,
-            func.min(JournalEntry.submitted_date)
+            func.max(JournalEntry.submitted_date)
             .filter(JournalEntry.action == "create")
             .label("created_date"),
-            func.min(JournalEntry.submitted_date)
+            func.max(JournalEntry.submitted_date)
             .filter(
                 JournalEntry.action == "project quarantined",
                 JournalEntry._submitted_by == "admin",
