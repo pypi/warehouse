@@ -10,8 +10,8 @@ Run via:
     make tilt-bootstrap
 
 Or manually:
-    cat scripts/bootstrap_cabotage.py | kubectl exec -i -n cabotage-dev deploy/cabotage-app -- \
-        sh -c "cd /opt/cabotage-app/src && python3"
+    cat scripts/bootstrap_cabotage.py | kubectl exec -i -n cabotage-dev \
+        deploy/cabotage-app -- sh -c "cd /opt/cabotage-app/src && python3"
 """
 
 # This runs inside the Cabotage container
@@ -19,16 +19,22 @@ from cabotage.server import create_app, db
 from cabotage.server.models import Organization, User
 from cabotage.server.models.projects import Application, Configuration, Project
 
+# Helper to avoid Tilt secret redaction (splits "warehouse" and "localdev123")
+WH = "ware" + "house"
+WH_DEV = WH + "-dev"
+WH_SVC = WH_DEV + ".svc.cluster.local"
+WH_ORB = WH_DEV + ".orb.local"
+DB_PASS = "local" + "dev123"
+
 # Configuration for Warehouse (PyPI)
-# Note: "ware" + "house" split to avoid Tilt secret redaction
 WAREHOUSE_CONFIG = {
     "org": {
         "name": "Warehouse",
-        "slug": "ware" + "house",
+        "slug": WH,
     },
     "project": {
         "name": "Warehouse Dev",
-        "slug": "ware" + "house-dev",
+        "slug": WH_DEV,
     },
     "apps": {
         "web": {
@@ -45,39 +51,70 @@ WAREHOUSE_CONFIG = {
                 "WAREHOUSE_ENV": "development",
                 "WAREHOUSE_TOKEN": "insecuretoken",
                 "WAREHOUSE_IP_SALT": "insecure himalayan pink salt",
-                # Database - using K8s service discovery
-                "DATABASE_URL": "postgresql+psycopg://pypi:" + "local" + "dev123" + "@postgres." + "ware" + "house-dev.svc.cluster.local/pypi",
-                # OpenSearch - using K8s service discovery
-                "OPENSEARCH_URL": "http://opensearch." + "ware" + "house-dev.svc.cluster.local:9200/development",
-                # Redis - using K8s service discovery
-                "REDIS_URL": "redis://redis." + "ware" + "house-dev.svc.cluster.local:6379",
+                # Database
+                "DATABASE_URL": (
+                    f"postgresql+psycopg://pypi:{DB_PASS}@postgres.{WH_SVC}/pypi"
+                ),
+                # OpenSearch
+                "OPENSEARCH_URL": f"http://opensearch.{WH_SVC}:9200/development",
+                # Redis
+                "REDIS_URL": f"redis://redis.{WH_SVC}:6379",
                 # URLs
                 "USERDOCS_DOMAIN": "http://localhost:10000",
                 "DOCS_URL": "https://pythonhosted.org/{project}/",
                 "WAREHOUSE_LEGACY_DOMAIN": "pypi.python.org",
-                "WAREHOUSE_ALLOWED_DOMAINS": "127.0.0.1,localhost," + "ware" + "house-dev.orb.local",
+                "WAREHOUSE_ALLOWED_DOMAINS": f"127.0.0.1,localhost,{WH_ORB}",
                 # Billing - stripe mock
-                "BILLING_BACKEND": "ware" + "house.subscriptions.services.MockStripeBillingService api_base=http://stripe." + "ware" + "house-dev.svc.cluster.local:12111 api_version=2020-08-27 domain=" + "ware" + "house-dev.orb.local",
+                "BILLING_BACKEND": (
+                    f"{WH}.subscriptions.services.MockStripeBillingService "
+                    f"api_base=http://stripe.{WH_SVC}:12111 "
+                    f"api_version=2020-08-27 domain={WH_ORB}"
+                ),
                 # Camo
-                "CAMO_URL": "http://camo." + "ware" + "house-dev.orb.local/",
+                "CAMO_URL": f"http://camo.{WH_ORB}/",
                 "CAMO_KEY": "insecurecamokey",
-                # File storage backends - local file storage
-                "FILES_BACKEND": "ware" + "house.packaging.services.LocalFileStorage path=/var/opt/warehouse/packages/ url=http://files." + "ware" + "house-dev.orb.local/packages/{path}",
-                "ARCHIVE_FILES_BACKEND": "ware" + "house.packaging.services.LocalArchiveFileStorage path=/var/opt/warehouse/packages-archive/ url=http://files." + "ware" + "house-dev.orb.local/packages-archive/{path}",
-                "SIMPLE_BACKEND": "ware" + "house.packaging.services.LocalSimpleStorage path=/var/opt/warehouse/simple/ url=http://files." + "ware" + "house-dev.orb.local/simple/{path}",
-                "DOCS_BACKEND": "ware" + "house.packaging.services.LocalDocsStorage path=/var/opt/warehouse/docs/",
-                "SPONSORLOGOS_BACKEND": "ware" + "house.admin.services.LocalSponsorLogoStorage path=/var/opt/warehouse/sponsorlogos/",
+                # File storage backends
+                "FILES_BACKEND": (
+                    f"{WH}.packaging.services.LocalFileStorage "
+                    f"path=/var/opt/warehouse/packages/ "
+                    f"url=http://files.{WH_ORB}/packages/{{path}}"
+                ),
+                "ARCHIVE_FILES_BACKEND": (
+                    f"{WH}.packaging.services.LocalArchiveFileStorage "
+                    f"path=/var/opt/warehouse/packages-archive/ "
+                    f"url=http://files.{WH_ORB}/packages-archive/{{path}}"
+                ),
+                "SIMPLE_BACKEND": (
+                    f"{WH}.packaging.services.LocalSimpleStorage "
+                    f"path=/var/opt/warehouse/simple/ "
+                    f"url=http://files.{WH_ORB}/simple/{{path}}"
+                ),
+                "DOCS_BACKEND": (
+                    f"{WH}.packaging.services.LocalDocsStorage "
+                    f"path=/var/opt/warehouse/docs/"
+                ),
+                "SPONSORLOGOS_BACKEND": (
+                    f"{WH}.admin.services.LocalSponsorLogoStorage "
+                    f"path=/var/opt/warehouse/sponsorlogos/"
+                ),
                 # Cache
-                "ORIGIN_CACHE": "ware" + "house.cache.origin.fastly.NullFastlyCache api_key=some_api_key service_id=some_service_id",
-                # Mail - using K8s service discovery
-                "MAIL_BACKEND": "ware" + "house.email.services.ConsoleAndSMTPEmailSender host=maildev." + "ware" + "house-dev.svc.cluster.local port=1025 ssl=false sender=noreply@pypi.org",
+                "ORIGIN_CACHE": (
+                    f"{WH}.cache.origin.fastly.NullFastlyCache "
+                    f"api_key=some_api_key service_id=some_service_id"
+                ),
+                # Mail
+                "MAIL_BACKEND": (
+                    f"{WH}.email.services.ConsoleAndSMTPEmailSender "
+                    f"host=maildev.{WH_SVC} port=1025 ssl=false "
+                    f"sender=noreply@pypi.org"
+                ),
                 # Service backends
-                "BREACHED_EMAILS": "ware" + "house.accounts.NullEmailBreachedService",
-                "BREACHED_PASSWORDS": "ware" + "house.accounts.NullPasswordBreachedService",
-                "OIDC_BACKEND": "ware" + "house.oidc.services.NullOIDCPublisherService",
-                "INTEGRITY_BACKEND": "ware" + "house.attestations.services.NullIntegrityService",
-                "GITHUB_OAUTH_BACKEND": "ware" + "house.accounts.oauth.NullOAuthClient",
-                "METRICS_BACKEND": "ware" + "house.metrics.DataDogMetrics host=notdatadog",
+                "BREACHED_EMAILS": f"{WH}.accounts.NullEmailBreachedService",
+                "BREACHED_PASSWORDS": f"{WH}.accounts.NullPasswordBreachedService",
+                "OIDC_BACKEND": f"{WH}.oidc.services.NullOIDCPublisherService",
+                "INTEGRITY_BACKEND": f"{WH}.attestations.services.NullIntegrityService",
+                "GITHUB_OAUTH_BACKEND": f"{WH}.accounts.oauth.NullOAuthClient",
+                "METRICS_BACKEND": f"{WH}.metrics.DataDogMetrics host=notdatadog",
                 # Feature flags
                 "TWOFACTORREQUIREMENT_ENABLED": "true",
                 "TWOFACTORMANDATE_AVAILABLE": "true",
@@ -86,23 +123,31 @@ WAREHOUSE_CONFIG = {
                 "TERMS_NOTIFICATION_BATCH_SIZE": "0",
                 # Captcha - test keys
                 "RECAPTCHA_SITE_KEY": "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI",
-                "CAPTCHA_BACKEND": "ware" + "house.captcha.hcaptcha.Service",
+                "CAPTCHA_BACKEND": f"{WH}.captcha.hcaptcha.Service",
                 "HCAPTCHA_SITE_KEY": "10000000-ffff-ffff-ffff-000000000001",
                 # Helpdesk
-                "HELPDESK_BACKEND": "ware" + "house.helpdesk.services.ConsoleHelpDeskService",
-                "HELPDESK_NOTIFICATION_BACKEND": "ware" + "house.helpdesk.services.ConsoleAdminNotificationService",
+                "HELPDESK_BACKEND": f"{WH}.helpdesk.services.ConsoleHelpDeskService",
+                "HELPDESK_NOTIFICATION_BACKEND": (
+                    f"{WH}.helpdesk.services.ConsoleAdminNotificationService"
+                ),
                 # Status page
                 "STATUSPAGE_URL": "https://2p66nmmycsj3.statuspage.io",
                 # GitHub token scanning
-                "GITHUB_TOKEN_SCANNING_META_API_URL": "http://notgithub:8000/meta/public_keys/token_scanning",
+                "GITHUB_TOKEN_SCANNING_META_API_URL": (
+                    "http://notgithub:8000/meta/public_keys/token_scanning"
+                ),
             },
             "secrets": {
                 "SESSION_SECRET": "an insecure development secret",
                 "TOKEN_PASSWORD_SECRET": "an insecure password reset secret key",
                 "TOKEN_EMAIL_SECRET": "an insecure email verification secret key",
                 "TOKEN_TWO_FACTOR_SECRET": "an insecure two-factor auth secret key",
-                "TOKEN_REMEMBER_DEVICE_SECRET": "an insecure remember device auth secret key",
-                "TOKEN_CONFIRM_LOGIN_SECRET": "an insecure confirm login auth secret key",
+                "TOKEN_REMEMBER_DEVICE_SECRET": (
+                    "an insecure remember device auth secret key"
+                ),
+                "TOKEN_CONFIRM_LOGIN_SECRET": (
+                    "an insecure confirm login auth secret key"
+                ),
                 "RECAPTCHA_SECRET_KEY": "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe",
                 "HCAPTCHA_SECRET_KEY": "0x0000000000000000000000000000000000000000",
                 "HIBP_API_KEY": "something-not-real",
@@ -126,18 +171,36 @@ WAREHOUSE_CONFIG = {
                 "WAREHOUSE_IP_SALT": "insecure himalayan pink salt",
                 "C_FORCE_ROOT": "1",  # Celery root permission
                 # Database
-                "DATABASE_URL": "postgresql+psycopg://pypi:" + "local" + "dev123" + "@postgres." + "ware" + "house-dev.svc.cluster.local/pypi",
+                "DATABASE_URL": (
+                    f"postgresql+psycopg://pypi:{DB_PASS}@postgres.{WH_SVC}/pypi"
+                ),
                 # Redis
-                "REDIS_URL": "redis://redis." + "ware" + "house-dev.svc.cluster.local:6379",
+                "REDIS_URL": f"redis://redis.{WH_SVC}:6379",
                 # File backends for worker
-                "FILES_BACKEND": "ware" + "house.packaging.services.LocalFileStorage path=/var/opt/warehouse/packages/ url=http://files." + "ware" + "house-dev.orb.local/packages/{path}",
-                "ARCHIVE_FILES_BACKEND": "ware" + "house.packaging.services.LocalArchiveFileStorage path=/var/opt/warehouse/packages-archive/ url=http://files." + "ware" + "house-dev.orb.local/packages-archive/{path}",
-                "SIMPLE_BACKEND": "ware" + "house.packaging.services.LocalSimpleStorage path=/var/opt/warehouse/simple/ url=http://files." + "ware" + "house-dev.orb.local/simple/{path}",
+                "FILES_BACKEND": (
+                    f"{WH}.packaging.services.LocalFileStorage "
+                    f"path=/var/opt/warehouse/packages/ "
+                    f"url=http://files.{WH_ORB}/packages/{{path}}"
+                ),
+                "ARCHIVE_FILES_BACKEND": (
+                    f"{WH}.packaging.services.LocalArchiveFileStorage "
+                    f"path=/var/opt/warehouse/packages-archive/ "
+                    f"url=http://files.{WH_ORB}/packages-archive/{{path}}"
+                ),
+                "SIMPLE_BACKEND": (
+                    f"{WH}.packaging.services.LocalSimpleStorage "
+                    f"path=/var/opt/warehouse/simple/ "
+                    f"url=http://files.{WH_ORB}/simple/{{path}}"
+                ),
                 # Mail
-                "MAIL_BACKEND": "ware" + "house.email.services.ConsoleAndSMTPEmailSender host=maildev." + "ware" + "house-dev.svc.cluster.local port=1025 ssl=false sender=noreply@pypi.org",
+                "MAIL_BACKEND": (
+                    f"{WH}.email.services.ConsoleAndSMTPEmailSender "
+                    f"host=maildev.{WH_SVC} port=1025 ssl=false "
+                    f"sender=noreply@pypi.org"
+                ),
                 # Service backends
-                "BREACHED_EMAILS": "ware" + "house.accounts.NullEmailBreachedService",
-                "BREACHED_PASSWORDS": "ware" + "house.accounts.NullPasswordBreachedService",
+                "BREACHED_EMAILS": f"{WH}.accounts.NullEmailBreachedService",
+                "BREACHED_PASSWORDS": f"{WH}.accounts.NullPasswordBreachedService",
             },
             "secrets": {
                 "SESSION_SECRET": "an insecure development secret",
@@ -178,7 +241,7 @@ def main():
             # Get admin user (created by create_admin script)
             admin_user = User.query.filter_by(username="admin").first()
             if not admin_user:
-                print("ERROR: Admin user not found. Run create_admin script first.")
+                print("ERROR: Admin user not found. Run create_admin first.")
                 return
 
             # Create organization
@@ -218,27 +281,47 @@ def main():
 
             if application:
                 # Update existing app
-                application.auto_deploy_branch = app_config.get("auto_deploy_branch", "main")
-                application.health_check_path = app_config.get("health_check_path", "/_health/")
-                application.deployment_timeout = app_config.get("deployment_timeout", 180)
-                application.process_counts = app_config.get("process_counts", {"web": 1})
-                application.process_pod_classes = app_config.get("process_pod_classes", {"web": "m1.small"})
-                print(f"  Updated application: {application.name} ({application.slug})")
+                application.auto_deploy_branch = app_config.get(
+                    "auto_deploy_branch", "main"
+                )
+                application.health_check_path = app_config.get(
+                    "health_check_path", "/_health/"
+                )
+                application.deployment_timeout = app_config.get(
+                    "deployment_timeout", 180
+                )
+                application.process_counts = app_config.get(
+                    "process_counts", {"web": 1}
+                )
+                application.process_pod_classes = app_config.get(
+                    "process_pod_classes", {"web": "m1.small"}
+                )
+                print(
+                    f"  Updated application: {application.name} ({application.slug})"
+                )
             else:
                 # Create new app
                 application = Application(
                     project_id=proj.id,
                     name=app_config["name"],
                     slug=app_config["slug"],
-                    auto_deploy_branch=app_config.get("auto_deploy_branch", "main"),
-                    health_check_path=app_config.get("health_check_path", "/_health/"),
+                    auto_deploy_branch=app_config.get(
+                        "auto_deploy_branch", "main"
+                    ),
+                    health_check_path=app_config.get(
+                        "health_check_path", "/_health/"
+                    ),
                     deployment_timeout=app_config.get("deployment_timeout", 180),
                     process_counts=app_config.get("process_counts", {"web": 1}),
-                    process_pod_classes=app_config.get("process_pod_classes", {"web": "m1.small"}),
+                    process_pod_classes=app_config.get(
+                        "process_pod_classes", {"web": "m1.small"}
+                    ),
                 )
                 db.session.add(application)
                 db.session.flush()
-                print(f"  Created application: {application.name} ({application.slug})")
+                print(
+                    f"  Created application: {application.name} ({application.slug})"
+                )
 
             # Upsert environment variables
             for key, value in app_config.get("env", {}).items():
@@ -277,13 +360,13 @@ def main():
                     db.session.add(config)
 
             env_count = len(app_config.get("env", {}))
-            secret_count = len(app_config.get("secrets", {}))
-            print(f"    Synced {env_count} env vars, {secret_count} secrets")
+            secrets_count = len(app_config.get("secrets", {}))
+            print(f"    Synced {env_count} env vars, {secrets_count} secrets")
 
         db.session.commit()
         print("\nBootstrap complete!")
         # Split string to avoid Tilt secret redaction
-        print("Visit: http://cabotage.192-168-139-2.nip.io/organizations/" + "ware" + "house")
+        print(f"Visit: http://cabotage.192-168-139-2.nip.io/organizations/{WH}")
 
 
 if __name__ == "__main__":
