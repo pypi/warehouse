@@ -25,7 +25,6 @@ from warehouse.accounts.utils import UserContext
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.models import OIDCPublisher
 from warehouse.oidc.utils import PublisherTokenContext
-from warehouse.rate_limiting import IRateLimiter, RateLimit
 
 from ...common.db.accounts import UserFactory
 from ...common.db.oidc import GitHubPublisherFactory
@@ -150,6 +149,7 @@ def test_includeme(monkeypatch):
         register_service_factory=pretend.call_recorder(
             lambda factory, iface, name=None: None
         ),
+        register_rate_limiter=pretend.call_recorder(lambda limit_string, name: None),
         add_request_method=pretend.call_recorder(lambda f, name, reify=False: None),
         set_security_policy=pretend.call_recorder(lambda p: None),
         maybe_dotted=pretend.call_recorder(lambda path: path),
@@ -192,23 +192,17 @@ def test_includeme(monkeypatch):
             accounts.IOAuthProviderService,
             name="github",
         ),
-        pretend.call(RateLimit("10 per 5 minutes"), IRateLimiter, name="user.login"),
-        pretend.call(RateLimit("10 per 5 minutes"), IRateLimiter, name="ip.login"),
-        pretend.call(
-            RateLimit("1000 per 5 minutes"), IRateLimiter, name="global.login"
-        ),
-        pretend.call(
-            RateLimit("5 per 5 minutes, 20 per hour, 50 per day"),
-            IRateLimiter,
-            name="2fa.user",
-        ),
-        pretend.call(
-            RateLimit("10 per 5 minutes, 50 per hour"), IRateLimiter, name="2fa.ip"
-        ),
-        pretend.call(RateLimit("2 per day"), IRateLimiter, name="email.add"),
-        pretend.call(RateLimit("5 per day"), IRateLimiter, name="password.reset"),
-        pretend.call(RateLimit("3 per 6 hours"), IRateLimiter, name="email.verify"),
-        pretend.call(RateLimit("100 per hour"), IRateLimiter, name="accounts.search"),
+    ]
+    assert config.register_rate_limiter.calls == [
+        pretend.call("10 per 5 minutes", "user.login"),
+        pretend.call("10 per 5 minutes", "ip.login"),
+        pretend.call("1000 per 5 minutes", "global.login"),
+        pretend.call("5 per 5 minutes, 20 per hour, 50 per day", "2fa.user"),
+        pretend.call("10 per 5 minutes, 50 per hour", "2fa.ip"),
+        pretend.call("2 per day", "email.add"),
+        pretend.call("5 per day", "password.reset"),
+        pretend.call("3 per 6 hours", "email.verify"),
+        pretend.call("100 per hour", "accounts.search"),
     ]
     assert config.add_request_method.calls == [
         pretend.call(accounts._user, name="user", reify=True),
