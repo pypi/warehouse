@@ -11,7 +11,6 @@ from urllib3.util import parse_url
 
 from warehouse import db
 from warehouse.packaging.models import LifecycleStatus, Project, Release
-from warehouse.rate_limiting import IRateLimiter, RateLimit
 from warehouse.search.interfaces import ISearchService
 from warehouse.search.services import SearchService
 from warehouse.search.utils import get_index
@@ -81,9 +80,7 @@ def opensearch(request):
 
 def includeme(config):
     ratelimit_string = config.registry.settings.get("warehouse.search.ratelimit_string")
-    config.register_service_factory(
-        RateLimit(ratelimit_string, identifiers=["search"]), IRateLimiter, name="search"
-    )
+    config.register_rate_limiter(ratelimit_string, "search")
 
     p = parse_url(config.registry.settings["opensearch.url"])
     assert p.path, "The URL for the OpenSearch instance must include the index name."
