@@ -8,10 +8,10 @@ Warehouse-specific style rules.
 """
 
 import ast
-from pathlib import Path
-from textwrap import dedent  # for testing
 
 from collections.abc import Generator
+from pathlib import Path
+from textwrap import dedent  # for testing
 from typing import Any
 
 WH001_msg = "WH001 Prefer `urllib3.util.parse_url` over `urllib.parse.urlparse`"
