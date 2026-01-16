@@ -429,6 +429,9 @@ def includeme(config):
 
     # Observation related Admin pages
     config.add_route(
+        "admin.observations.insights", "/admin/observations/insights/", domain=warehouse
+    )
+    config.add_route(
         "admin.observations.list", "/admin/observations/", domain=warehouse
     )
     config.add_route("admin.quarantine.list", "/admin/quarantine/", domain=warehouse)
