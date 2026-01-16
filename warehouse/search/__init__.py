@@ -92,7 +92,7 @@ def includeme(config):
         "hosts": [urllib.parse.urlunparse((p.scheme, p.netloc) + ("",) * 4)],
         "verify_certs": True,
         "ca_certs": certifi.where(),
-        "timeout": 0.5,
+        "timeout": 1,
         "retry_on_timeout": True,
         "serializer": opensearchpy.serializer.serializer,
         "max_retries": 1,

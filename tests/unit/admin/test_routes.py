@@ -417,6 +417,11 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call(
+            "admin.observations.insights",
+            "/admin/observations/insights/",
+            domain=warehouse,
+        ),
+        pretend.call(
             "admin.observations.list",
             "/admin/observations/",
             domain=warehouse,
