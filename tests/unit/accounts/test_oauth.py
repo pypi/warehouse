@@ -13,8 +13,10 @@ from zope.interface.verify import verifyClass
 
 from warehouse.accounts.oauth import (
     GitHubAppClient,
+    GitLabOAuthClient,
     IOAuthProviderService,
-    NullOAuthClient,
+    NullGitHubOAuthClient,
+    NullGitLabOAuthClient,
     generate_state_token,
 )
 from warehouse.utils.exceptions import NullOAuthProviderServiceWarning
@@ -23,7 +25,9 @@ from warehouse.utils.exceptions import NullOAuthProviderServiceWarning
 class TestIOAuthProviderService:
     def test_verify_interface(self):
         assert verifyClass(IOAuthProviderService, GitHubAppClient)
-        assert verifyClass(IOAuthProviderService, NullOAuthClient)
+        assert verifyClass(IOAuthProviderService, GitLabOAuthClient)
+        assert verifyClass(IOAuthProviderService, NullGitHubOAuthClient)
+        assert verifyClass(IOAuthProviderService, NullGitLabOAuthClient)
 
 
 class TestGenerateStateToken:
@@ -38,6 +42,54 @@ class TestGenerateStateToken:
         token1 = generate_state_token()
         token2 = generate_state_token()
         assert token1 != token2
+
+
+class TestOAuthClientHTTPErrors:
+    """Parametrized tests for HTTP error handling across OAuth clients."""
+
+    @responses.activate
+    @pytest.mark.parametrize(
+        "client_class",
+        [GitHubAppClient, GitLabOAuthClient],
+    )
+    def test_exchange_code_for_token_http_error(self, client_class):
+        responses.add(
+            responses.POST,
+            client_class.TOKEN_URL,
+            json={"error": "bad_verification_code"},
+            status=HTTPStatus.BAD_REQUEST,
+        )
+
+        client = client_class(
+            client_id="test_id",
+            client_secret="test_secret",
+            redirect_uri="http://localhost/callback",
+        )
+
+        with pytest.raises(HTTPError):
+            client.exchange_code_for_token("test_code")
+
+    @responses.activate
+    @pytest.mark.parametrize(
+        "client_class",
+        [GitHubAppClient, GitLabOAuthClient],
+    )
+    def test_get_user_info_http_error(self, client_class):
+        responses.add(
+            responses.GET,
+            client_class.USER_API_URL,
+            json={"message": "Bad credentials"},
+            status=HTTPStatus.UNAUTHORIZED,
+        )
+
+        client = client_class(
+            client_id="test_id",
+            client_secret="test_secret",
+            redirect_uri="http://localhost/callback",
+        )
+
+        with pytest.raises(HTTPError):
+            client.get_user_info("test_access_token")
 
 
 class TestGitHubAppClient:
@@ -127,24 +179,6 @@ class TestGitHubAppClient:
         assert responses.calls[0].request.headers["Accept"] == "application/json"
 
     @responses.activate
-    def test_exchange_code_for_token_http_error(self):
-        responses.add(
-            responses.POST,
-            GitHubAppClient.TOKEN_URL,
-            json={"error": "bad_verification_code"},
-            status=HTTPStatus.BAD_REQUEST,
-        )
-
-        client = GitHubAppClient(
-            client_id="test_id",
-            client_secret="test_secret",
-            redirect_uri="http://localhost/callback",
-        )
-
-        with pytest.raises(HTTPError):
-            client.exchange_code_for_token("test_code")
-
-    @responses.activate
     def test_get_user_info_success(self):
         user_data = {
             "id": 12345,
@@ -175,68 +209,175 @@ class TestGitHubAppClient:
         )
         assert responses.calls[0].request.headers["Accept"] == "application/json"
 
-    @responses.activate
-    def test_get_user_info_http_error(self):
-        responses.add(
-            responses.GET,
-            GitHubAppClient.USER_API_URL,
-            json={"message": "Bad credentials"},
-            status=HTTPStatus.UNAUTHORIZED,
+
+class TestGitLabOAuthClient:
+    def test_initialization(self):
+        client = GitLabOAuthClient(
+            client_id="test_id",
+            client_secret="test_secret",
+            redirect_uri="http://localhost/callback",
+        )
+        assert client.client_id == "test_id"
+        assert client.client_secret == "test_secret"
+        assert client.redirect_uri == "http://localhost/callback"
+
+    def test_create_service(self, mocker):
+        request = mocker.Mock()
+        request.registry.settings = {
+            "gitlab.oauth.client_id": "test_id",
+            "gitlab.oauth.client_secret": "test_secret",
+        }
+        request.route_url.return_value = "http://localhost/callback"
+        context = None
+
+        client = GitLabOAuthClient.create_service(context, request)
+
+        assert isinstance(client, GitLabOAuthClient)
+        assert client.client_id == "test_id"
+        assert client.client_secret == "test_secret"
+        assert client.redirect_uri == "http://localhost/callback"
+        request.route_url.assert_called_once_with(
+            "manage.account.associations.gitlab.callback"
         )
 
-        client = GitHubAppClient(
+    def test_generate_authorize_url(self):
+        """GitLab OAuth requests read_user scope at authorization time."""
+        client = GitLabOAuthClient(
+            client_id="test_id",
+            client_secret="test_secret",
+            redirect_uri="http://localhost/callback",
+        )
+        state = "test_state_token"
+
+        url = client.generate_authorize_url(state)
+
+        parsed = parse_url(url)
+        assert parsed.scheme == "https"
+        assert parsed.host == "gitlab.com"
+        assert parsed.path == "/oauth/authorize"
+
+        query_params = urllib.parse.parse_qs(parsed.query)
+        assert query_params["client_id"] == ["test_id"]
+        assert query_params["redirect_uri"] == ["http://localhost/callback"]
+        assert query_params["state"] == ["test_state_token"]
+        assert query_params["response_type"] == ["code"]
+        assert query_params["scope"] == ["read_user"]
+
+    @responses.activate
+    def test_exchange_code_for_token_success(self):
+        response_data = {
+            "access_token": "glpat-test_token",
+            "token_type": "bearer",
+            "expires_in": 7200,
+            "refresh_token": "test_refresh_token",
+            "scope": "read_user",
+        }
+        responses.add(
+            responses.POST,
+            GitLabOAuthClient.TOKEN_URL,
+            json=response_data,
+            status=HTTPStatus.OK,
+        )
+
+        client = GitLabOAuthClient(
             client_id="test_id",
             client_secret="test_secret",
             redirect_uri="http://localhost/callback",
         )
 
-        with pytest.raises(HTTPError):
-            client.get_user_info("test_access_token")
+        result = client.exchange_code_for_token("test_code")
+
+        assert result == response_data
+        assert len(responses.calls) == 1
+
+        # Verify the request payload
+        request_body = dict(urllib.parse.parse_qsl(responses.calls[0].request.body))
+        assert request_body["client_id"] == "test_id"
+        assert request_body["client_secret"] == "test_secret"
+        assert request_body["code"] == "test_code"
+        assert request_body["grant_type"] == "authorization_code"
+        assert request_body["redirect_uri"] == "http://localhost/callback"
+        assert responses.calls[0].request.headers["Accept"] == "application/json"
+
+    @responses.activate
+    def test_get_user_info_success(self):
+        user_data = {
+            "id": 12345,
+            "username": "testuser",
+            "name": "Test User",
+            "public_email": "test@example.com",
+            "state": "active",
+            "web_url": "https://gitlab.com/testuser",
+        }
+        responses.add(
+            responses.GET,
+            GitLabOAuthClient.USER_API_URL,
+            json=user_data,
+            status=HTTPStatus.OK,
+        )
+
+        client = GitLabOAuthClient(
+            client_id="test_id",
+            client_secret="test_secret",
+            redirect_uri="http://localhost/callback",
+        )
+
+        result = client.get_user_info("test_access_token")
+
+        assert result == user_data
+        assert len(responses.calls) == 1
+        assert (
+            responses.calls[0].request.headers["Authorization"]
+            == "Bearer test_access_token"
+        )
+        assert responses.calls[0].request.headers["Accept"] == "application/json"
 
 
-class TestNullOAuthClient:
-    def test_warns_on_init(self):
+class TestNullOAuthClientCommon:
+    """Parametrized tests for common behavior across Null OAuth clients."""
+
+    @pytest.mark.parametrize(
+        "client_class",
+        [NullGitHubOAuthClient, NullGitLabOAuthClient],
+    )
+    def test_warns_on_init(self, client_class):
         with pytest.warns(NullOAuthProviderServiceWarning) as record:
-            client = NullOAuthClient(redirect_uri="http://localhost/callback")
+            client = client_class(redirect_uri="http://localhost/callback")
 
         assert client is not None
         assert len(record) == 1
-        assert record[0].message.args[0] == (
-            "NullOAuthClient is intended only for use in development, "
-            "you should not use it in production due to the creation of "
-            "fake user associations without actual OAuth verification."
-        )
+        assert client_class.__name__ in record[0].message.args[0]
+        assert "development" in record[0].message.args[0]
 
-    def test_initialization(self):
-        client = NullOAuthClient(redirect_uri="http://localhost/callback")
-        assert client.client_id == "null"
-        assert client.client_secret == "null"
-        assert client.redirect_uri == "http://localhost/callback"
+    @pytest.mark.parametrize(
+        "client_class",
+        [NullGitHubOAuthClient, NullGitLabOAuthClient],
+    )
+    def test_get_user_info_consistent_for_same_token(self, client_class):
+        client = client_class(redirect_uri="http://localhost/callback")
 
-    def test_initialization_with_params(self):
-        client = NullOAuthClient(
-            client_id="custom_id",
-            client_secret="custom_secret",
-            redirect_uri="http://localhost/callback",
-        )
-        assert client.client_id == "custom_id"
-        assert client.client_secret == "custom_secret"
+        result1 = client.get_user_info("same_token")
+        result2 = client.get_user_info("same_token")
 
+        # Same token should return same user data
+        assert result1 == result2
+
+
+class TestNullGitHubOAuthClient:
     def test_create_service(self, mocker):
         request = mocker.Mock()
-        request.route_url.return_value = "http://localhost/callback"
-        context = None
+        request.route_url.return_value = "http://localhost/github/callback"
 
-        client = NullOAuthClient.create_service(context, request)
+        client = NullGitHubOAuthClient.create_service(None, request)
 
-        assert isinstance(client, NullOAuthClient)
-        assert client.redirect_uri == "http://localhost/callback"
+        assert isinstance(client, NullGitHubOAuthClient)
+        assert client.redirect_uri == "http://localhost/github/callback"
         request.route_url.assert_called_once_with(
             "manage.account.associations.github.callback"
         )
 
     def test_generate_authorize_url(self):
-        client = NullOAuthClient(redirect_uri="http://localhost/callback")
+        client = NullGitHubOAuthClient(redirect_uri="http://localhost/callback")
         state = "test_state_token"
 
         url = client.generate_authorize_url(state)
@@ -247,22 +388,22 @@ class TestNullOAuthClient:
         assert parsed.path == "/callback"
 
         query_params = urllib.parse.parse_qs(parsed.query)
-        assert query_params["code"] == ["mock_authorization_code"]
+        assert query_params["code"] == ["mock_github_authorization_code"]
         assert query_params["state"] == ["test_state_token"]
 
     def test_exchange_code_for_token(self):
-        client = NullOAuthClient(redirect_uri="http://localhost/callback")
+        client = NullGitHubOAuthClient(redirect_uri="http://localhost/callback")
 
         result = client.exchange_code_for_token("test_code")
 
         assert isinstance(result, dict)
         assert "access_token" in result
-        assert result["access_token"].startswith("mock_access_token_")
+        assert result["access_token"].startswith("mock_github_access_token_")
         assert result["token_type"] == "bearer"
         assert result["scope"] == "read:user user:email"
 
     def test_exchange_code_for_token_unique_tokens(self):
-        client = NullOAuthClient(redirect_uri="http://localhost/callback")
+        client = NullGitHubOAuthClient(redirect_uri="http://localhost/callback")
 
         result1 = client.exchange_code_for_token("test_code")
         result2 = client.exchange_code_for_token("test_code")
@@ -271,7 +412,7 @@ class TestNullOAuthClient:
         assert result1["access_token"] != result2["access_token"]
 
     def test_get_user_info(self):
-        client = NullOAuthClient(redirect_uri="http://localhost/callback")
+        client = NullGitHubOAuthClient(redirect_uri="http://localhost/callback")
 
         result = client.get_user_info("mock_access_token_abc123")
 
@@ -286,17 +427,8 @@ class TestNullOAuthClient:
         assert result["name"].startswith("Mock User ")
         assert result["email"].endswith("@example.com")
 
-    def test_get_user_info_consistent_for_same_token(self):
-        client = NullOAuthClient(redirect_uri="http://localhost/callback")
-
-        result1 = client.get_user_info("same_token")
-        result2 = client.get_user_info("same_token")
-
-        # Same token should return same user data
-        assert result1 == result2
-
     def test_get_user_info_different_for_different_tokens(self):
-        client = NullOAuthClient(redirect_uri="http://localhost/callback")
+        client = NullGitHubOAuthClient(redirect_uri="http://localhost/callback")
 
         result1 = client.get_user_info("token_one")
         result2 = client.get_user_info("token_two")
@@ -304,3 +436,49 @@ class TestNullOAuthClient:
         # Different tokens should return different user data
         assert result1["id"] != result2["id"]
         assert result1["login"] != result2["login"]
+
+
+class TestNullGitLabOAuthClient:
+    def test_create_service(self, mocker):
+        request = mocker.Mock()
+        request.route_url.return_value = "http://localhost/gitlab/callback"
+
+        client = NullGitLabOAuthClient.create_service(None, request)
+
+        assert isinstance(client, NullGitLabOAuthClient)
+        assert client.redirect_uri == "http://localhost/gitlab/callback"
+        request.route_url.assert_called_once_with(
+            "manage.account.associations.gitlab.callback"
+        )
+
+    def test_generate_authorize_url(self):
+        client = NullGitLabOAuthClient(redirect_uri="http://localhost/cb")
+        state = "test_state"
+
+        url = client.generate_authorize_url(state)
+
+        assert "mock_gitlab_authorization_code" in url
+        assert "test_state" in url
+
+    def test_exchange_code_for_token(self):
+        client = NullGitLabOAuthClient(redirect_uri="http://localhost/cb")
+
+        result = client.exchange_code_for_token("test_code")
+
+        assert "access_token" in result
+        assert result["access_token"].startswith("mock_gitlab_access_token_")
+        assert result["scope"] == "read_user"
+        assert result["expires_in"] == "7200"
+
+    def test_get_user_info(self):
+        client = NullGitLabOAuthClient(redirect_uri="http://localhost/cb")
+
+        result = client.get_user_info("mock_gitlab_token")
+
+        assert "id" in result
+        assert "username" in result
+        assert "public_email" in result
+        assert "state" in result
+        assert "web_url" in result
+        assert result["username"].startswith("gitlab_mockuser_")
+        assert result["state"] == "active"
