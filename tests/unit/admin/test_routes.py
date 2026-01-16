@@ -228,6 +228,16 @@ def test_includeme():
             "/admin/ip-addresses/{ip_address}",
             domain=warehouse,
         ),
+        pretend.call(
+            "admin.ip_address.ban",
+            "/admin/ip-addresses/{ip_address}/ban",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.ip_address.unban",
+            "/admin/ip-addresses/{ip_address}/unban",
+            domain=warehouse,
+        ),
         pretend.call("admin.project.list", "/admin/projects/", domain=warehouse),
         pretend.call(
             "admin.project.detail",
