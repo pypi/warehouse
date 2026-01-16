@@ -769,7 +769,7 @@ def send_collaborator_removed_email(
     return {
         "username": user.username,
         "project": project_name,
-        "submitter": submitter.username,
+        "submitter": submitter.username if submitter else "a deleted user",
     }
 
 
@@ -777,7 +777,7 @@ def send_collaborator_removed_email(
 def send_removed_as_collaborator_email(request, user, *, submitter, project_name):
     return {
         "project": project_name,
-        "submitter": submitter.username,
+        "submitter": submitter.username if submitter else "a deleted user",
     }
 
 
