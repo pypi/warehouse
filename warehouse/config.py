@@ -788,6 +788,9 @@ def configure(settings=None):
     )
     config.include("pyramid_tm")
 
+    # Register support for our rate limiting mechanisms
+    config.include(".rate_limiting")
+
     # Register our XMLRPC service
     config.include(".legacy.api.xmlrpc")
 
@@ -816,9 +819,6 @@ def configure(settings=None):
 
     # Register the support for Celery Tasks
     config.include(".tasks")
-
-    # Register support for our rate limiting mechanisms
-    config.include(".rate_limiting")
 
     config.include(".static")
 

@@ -20,7 +20,6 @@ from warehouse.packaging.tasks import (
     check_file_cache_tasks_outstanding,
     update_description_html,
 )
-from warehouse.rate_limiting import IRateLimiter, RateLimit
 
 
 def test_includeme(monkeypatch):
@@ -48,6 +47,7 @@ def test_includeme(monkeypatch):
         register_service_factory=pretend.call_recorder(
             lambda factory, iface, name=None: None
         ),
+        register_rate_limiter=pretend.call_recorder(lambda limit_string, name: None),
         registry=pretend.stub(settings=settings),
         register_origin_cache_keys=pretend.call_recorder(lambda c, **kw: None),
         get_settings=lambda: settings,
@@ -61,11 +61,11 @@ def test_includeme(monkeypatch):
         pretend.call(storage_class.create_service, IFileStorage, name="archive"),
         pretend.call(storage_class.create_service, ISimpleStorage),
         pretend.call(storage_class.create_service, IDocsStorage),
-        pretend.call(
-            RateLimit("20 per hour"), IRateLimiter, name="project.create.user"
-        ),
-        pretend.call(RateLimit("40 per hour"), IRateLimiter, name="project.create.ip"),
         pretend.call(project_service_factory, IProjectService),
+    ]
+    assert config.register_rate_limiter.calls == [
+        pretend.call("20 per hour", "project.create.user"),
+        pretend.call("40 per hour", "project.create.ip"),
     ]
     assert config.register_origin_cache_keys.calls == [
         pretend.call(
