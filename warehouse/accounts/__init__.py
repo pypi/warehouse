@@ -184,50 +184,64 @@ def includeme(config):
         "warehouse.account.user_login_ratelimit_string"
     )
     config.register_service_factory(
-        RateLimit(user_login_ratelimit_string), IRateLimiter, name="user.login"
+        RateLimit(user_login_ratelimit_string, identifiers=["user.login"]),
+        IRateLimiter,
+        name="user.login",
     )
     ip_login_ratelimit_string = config.registry.settings.get(
         "warehouse.account.ip_login_ratelimit_string"
     )
     config.register_service_factory(
-        RateLimit(ip_login_ratelimit_string), IRateLimiter, name="ip.login"
+        RateLimit(ip_login_ratelimit_string, identifiers=["ip.login"]),
+        IRateLimiter,
+        name="ip.login",
     )
     global_login_ratelimit_string = config.registry.settings.get(
         "warehouse.account.global_login_ratelimit_string"
     )
     config.register_service_factory(
-        RateLimit(global_login_ratelimit_string), IRateLimiter, name="global.login"
+        RateLimit(global_login_ratelimit_string, identifiers=["global.login"]),
+        IRateLimiter,
+        name="global.login",
     )
     # Register separate rate limiters for 2FA attempts
     twofa_user_ratelimit_string = config.registry.settings.get(
         "warehouse.account.2fa_user_ratelimit_string"
     )
     config.register_service_factory(
-        RateLimit(twofa_user_ratelimit_string), IRateLimiter, name="2fa.user"
+        RateLimit(twofa_user_ratelimit_string, identifiers=["2fa.user"]),
+        IRateLimiter,
+        name="2fa.user",
     )
     twofa_ip_ratelimit_string = config.registry.settings.get(
         "warehouse.account.2fa_ip_ratelimit_string"
     )
     config.register_service_factory(
-        RateLimit(twofa_ip_ratelimit_string), IRateLimiter, name="2fa.ip"
+        RateLimit(twofa_ip_ratelimit_string, identifiers=["2fa.ip"]),
+        IRateLimiter,
+        name="2fa.ip",
     )
     email_add_ratelimit_string = config.registry.settings.get(
         "warehouse.account.email_add_ratelimit_string"
     )
     config.register_service_factory(
-        RateLimit(email_add_ratelimit_string), IRateLimiter, name="email.add"
+        RateLimit(email_add_ratelimit_string, identifiers=["email.add"]),
+        IRateLimiter,
+        name="email.add",
     )
     password_reset_ratelimit_string = config.registry.settings.get(
         "warehouse.account.password_reset_ratelimit_string"
     )
     config.register_service_factory(
-        RateLimit(password_reset_ratelimit_string), IRateLimiter, name="password.reset"
+        RateLimit(password_reset_ratelimit_string, identifiers=["password.reset"]),
+        IRateLimiter,
+        name="password.reset",
     )
     verify_email_ratelimit_string = config.registry.settings.get(
         "warehouse.account.verify_email_ratelimit_string"
     )
     config.register_service_factory(
-        RateLimit(verify_email_ratelimit_string),
+        RateLimit(verify_email_ratelimit_string, identifiers=["email.verify"]),
         IRateLimiter,
         name="email.verify",
     )
@@ -235,7 +249,7 @@ def includeme(config):
         "warehouse.account.accounts_search_ratelimit_string"
     )
     config.register_service_factory(
-        RateLimit(accounts_search_ratelimit_string),
+        RateLimit(accounts_search_ratelimit_string, identifiers=["accounts.search"]),
         IRateLimiter,
         name="accounts.search",
     )

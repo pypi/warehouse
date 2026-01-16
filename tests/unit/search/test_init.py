@@ -148,7 +148,11 @@ def test_includeme(monkeypatch):
     ]
 
     assert config.register_service_factory.calls == [
-        pretend.call(RateLimit("10 per second"), IRateLimiter, name="search"),
+        pretend.call(
+            RateLimit("10 per second", identifiers=["search"]),
+            IRateLimiter,
+            name="search",
+        ),
         pretend.call(
             search.services.SearchService.create_service,
             iface=search.interfaces.ISearchService,

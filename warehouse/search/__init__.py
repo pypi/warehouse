@@ -82,7 +82,7 @@ def opensearch(request):
 def includeme(config):
     ratelimit_string = config.registry.settings.get("warehouse.search.ratelimit_string")
     config.register_service_factory(
-        RateLimit(ratelimit_string), IRateLimiter, name="search"
+        RateLimit(ratelimit_string, identifiers=["search"]), IRateLimiter, name="search"
     )
 
     p = parse_url(config.registry.settings["opensearch.url"])

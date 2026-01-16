@@ -10,5 +10,7 @@ def includeme(config):
         "warehouse.xmlrpc.client.ratelimit_string"
     )
     config.register_service_factory(
-        RateLimit(ratelimit_string), IRateLimiter, name="xmlrpc.client"
+        RateLimit(ratelimit_string, identifiers=["xmlrpc.client"]),
+        IRateLimiter,
+        name="xmlrpc.client",
     )

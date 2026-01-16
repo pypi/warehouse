@@ -59,7 +59,10 @@ def includeme(config):
         "warehouse.manage.oidc.user_registration_ratelimit_string"
     )
     config.register_service_factory(
-        RateLimit(user_oidc_registration_ratelimit_string),
+        RateLimit(
+            user_oidc_registration_ratelimit_string,
+            identifiers=["user_oidc.publisher.register"],
+        ),
         IRateLimiter,
         name="user_oidc.publisher.register",
     )
@@ -68,7 +71,10 @@ def includeme(config):
         "warehouse.manage.oidc.ip_registration_ratelimit_string"
     )
     config.register_service_factory(
-        RateLimit(ip_oidc_registration_ratelimit_string),
+        RateLimit(
+            ip_oidc_registration_ratelimit_string,
+            identifiers=["ip_oidc.publisher.register"],
+        ),
         IRateLimiter,
         name="ip_oidc.publisher.register",
     )

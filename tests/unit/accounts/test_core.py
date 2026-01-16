@@ -192,23 +192,53 @@ def test_includeme(monkeypatch):
             accounts.IOAuthProviderService,
             name="github",
         ),
-        pretend.call(RateLimit("10 per 5 minutes"), IRateLimiter, name="user.login"),
-        pretend.call(RateLimit("10 per 5 minutes"), IRateLimiter, name="ip.login"),
         pretend.call(
-            RateLimit("1000 per 5 minutes"), IRateLimiter, name="global.login"
+            RateLimit("10 per 5 minutes", identifiers=["user.login"]),
+            IRateLimiter,
+            name="user.login",
         ),
         pretend.call(
-            RateLimit("5 per 5 minutes, 20 per hour, 50 per day"),
+            RateLimit("10 per 5 minutes", identifiers=["ip.login"]),
+            IRateLimiter,
+            name="ip.login",
+        ),
+        pretend.call(
+            RateLimit("1000 per 5 minutes", identifiers=["global.login"]),
+            IRateLimiter,
+            name="global.login",
+        ),
+        pretend.call(
+            RateLimit(
+                "5 per 5 minutes, 20 per hour, 50 per day", identifiers=["2fa.user"]
+            ),
             IRateLimiter,
             name="2fa.user",
         ),
         pretend.call(
-            RateLimit("10 per 5 minutes, 50 per hour"), IRateLimiter, name="2fa.ip"
+            RateLimit("10 per 5 minutes, 50 per hour", identifiers=["2fa.ip"]),
+            IRateLimiter,
+            name="2fa.ip",
         ),
-        pretend.call(RateLimit("2 per day"), IRateLimiter, name="email.add"),
-        pretend.call(RateLimit("5 per day"), IRateLimiter, name="password.reset"),
-        pretend.call(RateLimit("3 per 6 hours"), IRateLimiter, name="email.verify"),
-        pretend.call(RateLimit("100 per hour"), IRateLimiter, name="accounts.search"),
+        pretend.call(
+            RateLimit("2 per day", identifiers=["email.add"]),
+            IRateLimiter,
+            name="email.add",
+        ),
+        pretend.call(
+            RateLimit("5 per day", identifiers=["password.reset"]),
+            IRateLimiter,
+            name="password.reset",
+        ),
+        pretend.call(
+            RateLimit("3 per 6 hours", identifiers=["email.verify"]),
+            IRateLimiter,
+            name="email.verify",
+        ),
+        pretend.call(
+            RateLimit("100 per hour", identifiers=["accounts.search"]),
+            IRateLimiter,
+            name="accounts.search",
+        ),
     ]
     assert config.add_request_method.calls == [
         pretend.call(accounts._user, name="user", reify=True),

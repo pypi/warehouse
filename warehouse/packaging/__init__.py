@@ -77,7 +77,9 @@ def includeme(config):
         "warehouse.packaging.project_create_user_ratelimit_string"
     )
     config.register_service_factory(
-        RateLimit(project_create_user_limit_string),
+        RateLimit(
+            project_create_user_limit_string, identifiers=["project.create.user"]
+        ),
         IRateLimiter,
         name="project.create.user",
     )
@@ -85,7 +87,7 @@ def includeme(config):
         "warehouse.packaging.project_create_ip_ratelimit_string"
     )
     config.register_service_factory(
-        RateLimit(project_create_ip_limit_string),
+        RateLimit(project_create_ip_limit_string, identifiers=["project.create.ip"]),
         IRateLimiter,
         name="project.create.ip",
     )

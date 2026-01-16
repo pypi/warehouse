@@ -62,9 +62,15 @@ def test_includeme(monkeypatch):
         pretend.call(storage_class.create_service, ISimpleStorage),
         pretend.call(storage_class.create_service, IDocsStorage),
         pretend.call(
-            RateLimit("20 per hour"), IRateLimiter, name="project.create.user"
+            RateLimit("20 per hour", identifiers=["project.create.user"]),
+            IRateLimiter,
+            name="project.create.user",
         ),
-        pretend.call(RateLimit("40 per hour"), IRateLimiter, name="project.create.ip"),
+        pretend.call(
+            RateLimit("40 per hour", identifiers=["project.create.ip"]),
+            IRateLimiter,
+            name="project.create.ip",
+        ),
         pretend.call(project_service_factory, IProjectService),
     ]
     assert config.register_origin_cache_keys.calls == [

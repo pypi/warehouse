@@ -99,7 +99,7 @@ def test_includeme(monkeypatch):
         ),
     )
 
-    rate_limit_class = pretend.call_recorder(lambda s: s)
+    rate_limit_class = pretend.call_recorder(lambda s, identifiers=None: s)
     rate_limit_iface = pretend.stub()
     monkeypatch.setattr(manage, "RateLimit", rate_limit_class)
     monkeypatch.setattr(manage, "IRateLimiter", rate_limit_iface)
