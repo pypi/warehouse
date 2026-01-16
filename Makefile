@@ -99,6 +99,13 @@ lint: .state/docker-build-base .state/docker-build-static
 	docker compose run --rm base bin/lint
 	docker compose run --rm static bin/static_lint
 
+##@ CI
+
+ci: .state/docker-build-base .state/docker-build-static ## Run all CI checks (format, lint, translations)
+	prek run --all-files
+
+##@ Documentation
+
 dev-docs: .state/docker-build-docs
 	docker compose run --rm dev-docs bin/dev-docs
 
@@ -187,4 +194,4 @@ purge: stop clean
 stop:
 	docker compose stop
 
-.PHONY: default build serve resetdb initdb shell dbshell tests dev-docs user-docs deps deps_upgrade_all deps_upgrade_project clean purge debug stop compile-pot runmigrations checkdb
+.PHONY: default build serve resetdb initdb shell dbshell tests dev-docs user-docs deps deps_upgrade_all deps_upgrade_project clean purge debug stop compile-pot runmigrations checkdb ci

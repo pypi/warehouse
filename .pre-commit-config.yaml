@@ -1,0 +1,67 @@
+repos:
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.19.1
+    hooks:
+      - id: pyupgrade
+        args: [--py313-plus]
+
+  - repo: https://github.com/pycqa/isort
+    rev: 7.0.0
+    hooks:
+      - id: isort
+
+  - repo: https://github.com/psf/black
+    rev: 24.10.0
+    hooks:
+      - id: black
+
+  - repo: local
+    hooks:
+      - id: flake8
+        name: flake8
+        entry: docker compose run --rm base python -m flake8
+        language: system
+        pass_filenames: false
+        always_run: true
+
+  - repo: https://github.com/Riverside-Healthcare/djLint
+    rev: v1.36.4
+    hooks:
+      - id: djlint-reformat-jinja
+        files: ^(warehouse/templates/|docs/blog/)
+        exclude: ^warehouse/templates/api/simple/
+      - id: djlint
+        args: [--lint]
+        files: ^(warehouse/templates/|docs/blog/)
+        exclude: ^warehouse/templates/api/simple/
+
+  - repo: https://github.com/sphinx-contrib/sphinx-lint
+    rev: v1.0.0
+    hooks:
+      - id: sphinx-lint
+        args: [--enable=all, --disable=line-too-long]
+        files: ^(README\.rst|CONTRIBUTING\.rst|docs/dev/)
+        exclude: ^docs/dev/_build/
+
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy
+        entry: docker compose run --rm base python -m mypy -p warehouse
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: translations
+        name: translations
+        entry: docker compose run --rm base bin/translations
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: flushes
+        name: flushes
+        entry: ./bin/flushes
+        language: system
+        pass_filenames: false
+        always_run: true
