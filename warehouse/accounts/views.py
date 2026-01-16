@@ -1262,7 +1262,9 @@ def verify_organization_role(request):
     )
     organization_service.delete_organization_invite(organization_invite.id)
     submitter_user = user_service.get_user(data.get("submitter_id"))
-    submitter_id = str(submitter_user.id) if submitter_user else data.get("submitter_id")
+    submitter_id = (
+        str(submitter_user.id) if submitter_user else data.get("submitter_id")
+    )
     organization.record_event(
         tag=EventTag.Organization.OrganizationRoleAdd,
         request=request,
