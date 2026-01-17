@@ -941,8 +941,9 @@ def configure(settings=None):
     # Add our extensions to Request
     config.include(".utils.wsgi")
 
-    # We want Sentry to be the last things we add here so that it's the outer
-    # most WSGI middleware.
+    # Initialize Sentry for exception capture. PyramidIntegration wraps
+    # Pyramid's Router with SentryWsgiMiddleware internally, so include
+    # order here no longer affects WSGI middleware nesting.
     config.include(".sentry")
 
     # Register Content-Security-Policy service
