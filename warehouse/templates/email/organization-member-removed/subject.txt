@@ -2,4 +2,4 @@
 
 {% extends "email/_base/subject.txt" %}
 
-{% block subject %}{% trans username=username, organization_name=organization_name %}{{ username }} has been removed from the "{{ organization_nmae }}" organization{% endtrans %}{% endblock %}
+{% block subject %}{% trans username=username, organization_name=organization_name %}{{ username }} has been removed from the "{{ organization_name }}" organization{% endtrans %}{% endblock %}

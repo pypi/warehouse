@@ -567,7 +567,7 @@ class TestSendPasswordResetEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/password-reset/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -661,7 +661,7 @@ class TestSendPasswordResetEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/password-reset-unverified/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         result = email.send_password_reset_unverified_email(
             db_request, (unverified_email.user, unverified_email)
@@ -695,7 +695,7 @@ class TestEmailVerificationEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/verify-email/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -775,7 +775,7 @@ class TestNewEmailAddedEmails:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/new-email-added/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -830,7 +830,7 @@ class TestPasswordChangeEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/password-change/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -900,7 +900,7 @@ class TestPasswordChangeEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/password-change/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -951,7 +951,7 @@ class TestPasswordCompromisedHIBPEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/password-compromised-hibp/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -1029,7 +1029,7 @@ class TestTokenLeakEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/token-compromised-leak/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -1097,7 +1097,7 @@ class TestAccountRecoveryInitiatedEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/account-recovery-initiated/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -1179,7 +1179,7 @@ class TestPasswordCompromisedEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/password-compromised/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -1250,7 +1250,7 @@ class TestPasswordResetByAdminEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/password-reset-by-admin/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -1320,7 +1320,7 @@ class TestAccountDeletionEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/account-deleted/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -1402,7 +1402,7 @@ class TestAccountDeletionEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/account-deleted/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -1448,7 +1448,7 @@ class TestPrimaryEmailChangeEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/primary-email-change/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -1522,7 +1522,7 @@ class TestPrimaryEmailChangeEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/primary-email-change/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -1581,7 +1581,7 @@ class TestSendNewOrganizationRequestedEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/new-organization-requested/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -1661,7 +1661,7 @@ class TestSendNewOrganizationApprovedEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/new-organization-approved/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -1755,7 +1755,7 @@ class TestSendNewOrganizationRequestMoreInfoEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/new-organization-moreinformationneeded/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -1849,7 +1849,7 @@ class TestSendNewOrganizationDeclinedEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/new-organization-declined/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -1971,7 +1971,7 @@ class TestOrganizationProjectEmails:
                     "body_html": (
                         f"<html>\n"
                         f"<head></head>\n"
-                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"<body>{html_renderer.string_response}</body>\n"
                         f"</html>\n"
                     ),
                 },
@@ -2045,7 +2045,7 @@ class TestOrganizationMemberEmails:
                     "body_html": (
                         f"<html>\n"
                         f"<head></head>\n"
-                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"<body>{html_renderer.string_response}</body>\n"
                         f"</html>\n"
                     ),
                 },
@@ -2105,7 +2105,7 @@ class TestOrganizationMemberEmails:
                     "body_html": (
                         f"<html>\n"
                         f"<head></head>\n"
-                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"<body>{html_renderer.string_response}</body>\n"
                         f"</html>\n"
                     ),
                 },
@@ -2158,7 +2158,7 @@ class TestOrganizationMemberEmails:
                     "body_html": (
                         f"<html>\n"
                         f"<head></head>\n"
-                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"<body>{html_renderer.string_response}</body>\n"
                         f"</html>\n"
                     ),
                 },
@@ -2210,7 +2210,7 @@ class TestOrganizationMemberEmails:
                     "body_html": (
                         f"<html>\n"
                         f"<head></head>\n"
-                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"<body>{html_renderer.string_response}</body>\n"
                         f"</html>\n"
                     ),
                 },
@@ -2265,7 +2265,7 @@ class TestOrganizationMemberEmails:
                     "body_html": (
                         f"<html>\n"
                         f"<head></head>\n"
-                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"<body>{html_renderer.string_response}</body>\n"
                         f"</html>\n"
                     ),
                 },
@@ -2317,7 +2317,7 @@ class TestOrganizationMemberEmails:
                     "body_html": (
                         f"<html>\n"
                         f"<head></head>\n"
-                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"<body>{html_renderer.string_response}</body>\n"
                         f"</html>\n"
                     ),
                 },
@@ -2374,7 +2374,7 @@ class TestOrganizationMemberEmails:
                     "body_html": (
                         f"<html>\n"
                         f"<head></head>\n"
-                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"<body>{html_renderer.string_response}</body>\n"
                         f"</html>\n"
                     ),
                 },
@@ -2430,7 +2430,7 @@ class TestOrganizationMemberEmails:
                     "body_html": (
                         f"<html>\n"
                         f"<head></head>\n"
-                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"<body>{html_renderer.string_response}</body>\n"
                         f"</html>\n"
                     ),
                 },
@@ -2485,7 +2485,7 @@ class TestOrganizationMemberEmails:
                     "body_html": (
                         f"<html>\n"
                         f"<head></head>\n"
-                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"<body>{html_renderer.string_response}</body>\n"
                         f"</html>\n"
                     ),
                 },
@@ -2539,7 +2539,7 @@ class TestOrganizationMemberEmails:
                     "body_html": (
                         f"<html>\n"
                         f"<head></head>\n"
-                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"<body>{html_renderer.string_response}</body>\n"
                         f"</html>\n"
                     ),
                 },
@@ -2596,7 +2596,7 @@ class TestOrganizationMemberEmails:
                     "body_html": (
                         f"<html>\n"
                         f"<head></head>\n"
-                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"<body>{html_renderer.string_response}</body>\n"
                         f"</html>\n"
                     ),
                 },
@@ -2652,7 +2652,7 @@ class TestOrganizationMemberEmails:
                     "body_html": (
                         f"<html>\n"
                         f"<head></head>\n"
-                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"<body>{html_renderer.string_response}</body>\n"
                         f"</html>\n"
                     ),
                 },
@@ -2737,7 +2737,7 @@ class TestOrganizationUpdateEmails:
                     "body_html": (
                         f"<html>\n"
                         f"<head></head>\n"
-                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"<body>{html_renderer.string_response}</body>\n"
                         f"</html>\n"
                     ),
                 },
@@ -2799,7 +2799,7 @@ class TestOrganizationRenameEmails:
                     "body_html": (
                         f"<html>\n"
                         f"<head></head>\n"
-                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"<body>{html_renderer.string_response}</body>\n"
                         f"</html>\n"
                     ),
                 },
@@ -2858,7 +2858,7 @@ class TestOrganizationDeleteEmails:
                     "body_html": (
                         f"<html>\n"
                         f"<head></head>\n"
-                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"<body>{html_renderer.string_response}</body>\n"
                         f"</html>\n"
                     ),
                 },
@@ -2947,7 +2947,7 @@ class TestTeamMemberEmails:
                     "body_html": (
                         f"<html>\n"
                         f"<head></head>\n"
-                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"<body>{html_renderer.string_response}</body>\n"
                         f"</html>\n"
                     ),
                 },
@@ -3017,7 +3017,7 @@ class TestTeamEmails:
                     "body_html": (
                         f"<html>\n"
                         f"<head></head>\n"
-                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"<body>{html_renderer.string_response}</body>\n"
                         f"</html>\n"
                     ),
                 },
@@ -3066,7 +3066,7 @@ class TestCollaboratorAddedEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/collaborator-added/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -3191,7 +3191,7 @@ class TestCollaboratorAddedEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/collaborator-added/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -3285,7 +3285,7 @@ class TestProjectRoleVerificationEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/verify-project-role/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -3368,7 +3368,7 @@ class TestAddedAsCollaboratorEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/added-as-collaborator/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -3457,7 +3457,7 @@ class TestAddedAsCollaboratorEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/added-as-collaborator/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -3521,7 +3521,7 @@ class TestCollaboratorRemovedEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/collaborator-removed/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -3625,7 +3625,7 @@ class TestRemovedAsCollaboratorEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/removed-as-collaborator/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -3698,7 +3698,7 @@ class TestRoleChangedEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/collaborator-role-changed/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -3806,7 +3806,7 @@ class TestRoleChangedAsCollaboratorEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/role-changed-as-collaborator/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -3950,7 +3950,7 @@ class TestTeamCollaboratorEmails:
                     "body_html": (
                         f"<html>\n"
                         f"<head></head>\n"
-                        f"<body><p>{html_renderer.string_response}</p></body>\n"
+                        f"<body>{html_renderer.string_response}</body>\n"
                         f"</html>\n"
                     ),
                 },
@@ -3999,7 +3999,7 @@ class TestRemovedProjectEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/removed-project/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -4122,7 +4122,7 @@ class TestRemovedProjectEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/removed-project/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -4248,7 +4248,7 @@ class TestYankedReleaseEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/yanked-project-release/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -4385,7 +4385,7 @@ class TestYankedReleaseEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/yanked-project-release/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -4524,7 +4524,7 @@ class TestUnyankedReleaseEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/unyanked-project-release/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -4660,7 +4660,7 @@ class TestUnyankedReleaseEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/unyanked-project-release/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -4798,7 +4798,7 @@ class TestRemovedReleaseEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/removed-project-release/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -4934,7 +4934,7 @@ class TestRemovedReleaseEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/removed-project-release/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -5072,7 +5072,7 @@ class TestRemovedReleaseFileEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/removed-project-release-file/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -5209,7 +5209,7 @@ class TestRemovedReleaseFileEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/removed-project-release-file/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -5353,7 +5353,7 @@ class TestTwoFactorEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             f"email/two-factor-{action}/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -5435,7 +5435,7 @@ class TestRecoveryCodeEmails:
         html_renderer = pyramid_config.testing_add_renderer(
             f"email/{template_name}/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -5517,7 +5517,7 @@ class TestTrustedPublisherEmails:
         html_renderer = pyramid_config.testing_add_renderer(
             f"email/{template_name}/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -5602,7 +5602,7 @@ class TestTrustedPublisherEmails:
         html_renderer = pyramid_config.testing_add_renderer(
             f"email/{template_name}/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -5707,7 +5707,7 @@ class TestTrustedPublisherEmails:
         html_renderer = pyramid_config.testing_add_renderer(
             f"email/{template_name}/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -5824,7 +5824,7 @@ class TestTrustedPublisherEmails:
         html_renderer = pyramid_config.testing_add_renderer(
             f"email/{template_name}/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -5922,7 +5922,7 @@ class TestTrustedPublisherEmails:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/wheel-record-mismatch-email/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -6010,7 +6010,7 @@ class TestUserTermsOfServiceUpdateEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/user-terms-of-service-updated/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -6091,7 +6091,7 @@ class TestSendUnrecognizedLoginEmail:
         html_renderer = pyramid_config.testing_add_renderer(
             "email/unrecognized-login/body.html"
         )
-        html_renderer.string_response = "Email HTML Body"
+        html_renderer.string_response = "<p>Email HTML Body</p>"
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -6161,3 +6161,313 @@ class TestSendUnrecognizedLoginEmail:
                 },
             )
         ]
+
+
+class TestAccountAssociationAddedEmail:
+    def test_send_account_association_added_email(
+        self, pyramid_request, pyramid_config, monkeypatch
+    ):
+        stub_user = pretend.stub(
+            id="id",
+            username="username",
+            name="",
+            email="email@example.com",
+            primary_email=pretend.stub(email="email@example.com", verified=True),
+        )
+        subject_renderer = pyramid_config.testing_add_renderer(
+            "email/account-association-added/subject.txt"
+        )
+        subject_renderer.string_response = "Email Subject"
+        body_renderer = pyramid_config.testing_add_renderer(
+            "email/account-association-added/body.txt"
+        )
+        body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/account-association-added/body.html"
+        )
+        html_renderer.string_response = "<p>Email HTML Body</p>"
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        monkeypatch.setattr(email, "send_email", send_email)
+
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=stub_user.id)
+                )
+            ),
+        )
+        pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
+
+        result = email.send_account_association_added_email(
+            pyramid_request,
+            stub_user,
+            service="GitHub",
+            external_username="testuser",
+        )
+
+        assert result == {
+            "username": stub_user.username,
+            "service": "GitHub",
+            "external_username": "testuser",
+        }
+        subject_renderer.assert_()
+        body_renderer.assert_(
+            username=stub_user.username,
+            service="GitHub",
+            external_username="testuser",
+        )
+        html_renderer.assert_(
+            username=stub_user.username,
+            service="GitHub",
+            external_username="testuser",
+        )
+        assert pyramid_request.task.calls == [pretend.call(send_email)]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{stub_user.username} <{stub_user.email}>",
+                {
+                    "sender": None,
+                    "subject": "Email Subject",
+                    "body_text": "Email Body",
+                    "body_html": (
+                        "<html>\n<head></head>\n"
+                        "<body><p>Email HTML Body</p></body>\n</html>\n"
+                    ),
+                },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_user.id,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": stub_user.email,
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
+            )
+        ]
+
+    def test_send_account_association_added_email_unverified(
+        self, pyramid_request, pyramid_config, monkeypatch
+    ):
+        stub_user = pretend.stub(
+            username="username",
+            name="",
+            email="email@example.com",
+            primary_email=pretend.stub(email="email@example.com", verified=False),
+        )
+        subject_renderer = pyramid_config.testing_add_renderer(
+            "email/account-association-added/subject.txt"
+        )
+        subject_renderer.string_response = "Email Subject"
+        body_renderer = pyramid_config.testing_add_renderer(
+            "email/account-association-added/body.txt"
+        )
+        body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/account-association-added/body.html"
+        )
+        html_renderer.string_response = "Email HTML Body"
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        monkeypatch.setattr(email, "send_email", send_email)
+
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=stub_user.id)
+                )
+            ),
+        )
+        pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
+
+        result = email.send_account_association_added_email(
+            pyramid_request,
+            stub_user,
+            service="GitHub",
+            external_username="testuser",
+        )
+
+        assert result == {
+            "username": stub_user.username,
+            "service": "GitHub",
+            "external_username": "testuser",
+        }
+        subject_renderer.assert_()
+        body_renderer.assert_(
+            username=stub_user.username,
+            service="GitHub",
+            external_username="testuser",
+        )
+        html_renderer.assert_(
+            username=stub_user.username,
+            service="GitHub",
+            external_username="testuser",
+        )
+        # Email should not be sent for unverified email
+        assert pyramid_request.task.calls == []
+        assert send_email.delay.calls == []
+
+
+class TestAccountAssociationRemovedEmail:
+    def test_send_account_association_removed_email(
+        self, pyramid_request, pyramid_config, monkeypatch
+    ):
+        stub_user = pretend.stub(
+            id="id",
+            username="username",
+            name="",
+            email="email@example.com",
+            primary_email=pretend.stub(email="email@example.com", verified=True),
+        )
+        subject_renderer = pyramid_config.testing_add_renderer(
+            "email/account-association-removed/subject.txt"
+        )
+        subject_renderer.string_response = "Email Subject"
+        body_renderer = pyramid_config.testing_add_renderer(
+            "email/account-association-removed/body.txt"
+        )
+        body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/account-association-removed/body.html"
+        )
+        html_renderer.string_response = "<p>Email HTML Body</p>"
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        monkeypatch.setattr(email, "send_email", send_email)
+
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=stub_user.id)
+                )
+            ),
+        )
+        pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
+
+        result = email.send_account_association_removed_email(
+            pyramid_request,
+            stub_user,
+            service="GitHub",
+            external_username="testuser",
+        )
+
+        assert result == {
+            "username": stub_user.username,
+            "service": "GitHub",
+            "external_username": "testuser",
+        }
+        subject_renderer.assert_()
+        body_renderer.assert_(
+            username=stub_user.username,
+            service="GitHub",
+            external_username="testuser",
+        )
+        html_renderer.assert_(
+            username=stub_user.username,
+            service="GitHub",
+            external_username="testuser",
+        )
+        assert pyramid_request.task.calls == [pretend.call(send_email)]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{stub_user.username} <{stub_user.email}>",
+                {
+                    "sender": None,
+                    "subject": "Email Subject",
+                    "body_text": "Email Body",
+                    "body_html": (
+                        "<html>\n<head></head>\n"
+                        "<body><p>Email HTML Body</p></body>\n</html>\n"
+                    ),
+                },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_user.id,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": stub_user.email,
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
+            )
+        ]
+
+    def test_send_account_association_removed_email_unverified(
+        self, pyramid_request, pyramid_config, monkeypatch
+    ):
+        stub_user = pretend.stub(
+            username="username",
+            name="",
+            email="email@example.com",
+            primary_email=pretend.stub(email="email@example.com", verified=False),
+        )
+        subject_renderer = pyramid_config.testing_add_renderer(
+            "email/account-association-removed/subject.txt"
+        )
+        subject_renderer.string_response = "Email Subject"
+        body_renderer = pyramid_config.testing_add_renderer(
+            "email/account-association-removed/body.txt"
+        )
+        body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/account-association-removed/body.html"
+        )
+        html_renderer.string_response = "Email HTML Body"
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        monkeypatch.setattr(email, "send_email", send_email)
+
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=stub_user.id)
+                )
+            ),
+        )
+        pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
+
+        result = email.send_account_association_removed_email(
+            pyramid_request,
+            stub_user,
+            service="GitHub",
+            external_username="testuser",
+        )
+
+        assert result == {
+            "username": stub_user.username,
+            "service": "GitHub",
+            "external_username": "testuser",
+        }
+        subject_renderer.assert_()
+        body_renderer.assert_(
+            username=stub_user.username,
+            service="GitHub",
+            external_username="testuser",
+        )
+        html_renderer.assert_(
+            username=stub_user.username,
+            service="GitHub",
+            external_username="testuser",
+        )
+        # Email should not be sent for unverified email
+        assert pyramid_request.task.calls == []
+        assert send_email.delay.calls == []

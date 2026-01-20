@@ -30,7 +30,7 @@ from pyramid.httpexceptions import (
 )
 from pyramid.request import Request
 from pyramid.view import view_config
-from sqlalchemy import and_, exists, func, orm
+from sqlalchemy import and_, exists, func, orm, text
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 
 from warehouse.admin.flags import AdminFlagValue
@@ -663,6 +663,14 @@ def file_upload(request):
     if "content" not in request.POST:
         request.metrics.increment("warehouse.upload.failed", tags=["reason:no-file"])
         raise _exc_with_message(HTTPBadRequest, "Upload payload does not have a file.")
+
+    # Set a statement timeout for this connection to prevent long-running
+    # transactions from holding database locks indefinitely. The upload
+    # operation holds a global advisory lock for journal monotonicity,
+    # so limiting transaction duration prevents lock pile-up.
+    # 600 seconds (10 minutes) allows for large file uploads while
+    # providing an upper bound on lock duration.
+    request.db.execute(text("SET statement_timeout = '600s'"))
 
     # Look up the project first before doing anything else, this is so we can
     # automatically register it if we need to and can check permissions before

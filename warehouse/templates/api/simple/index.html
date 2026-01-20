@@ -7,7 +7,7 @@
   </head>
   <body>
     {% for project in projects -%}
-    <a href="{{ request.route_path('api.simple.detail', name=project.name|canonicalize_name) }}">{{ project.name }}</a>
+    <a href="/simple/{{ project.name|canonicalize_name }}/">{{ project.name }}</a>
     {% endfor -%}
   </body>
 </html>

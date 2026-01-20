@@ -427,7 +427,20 @@ def includeme(config):
         domain=warehouse,
     )
 
+    # Observer Reputation pages
+    config.add_route(
+        "admin.observers.reputation", "/admin/observers/reputation/", domain=warehouse
+    )
+    config.add_route(
+        "admin.observers.detail",
+        "/admin/observers/{observer_id}/",
+        domain=warehouse,
+    )
+
     # Observation related Admin pages
+    config.add_route(
+        "admin.observations.insights", "/admin/observations/insights/", domain=warehouse
+    )
     config.add_route(
         "admin.observations.list", "/admin/observations/", domain=warehouse
     )

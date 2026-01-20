@@ -468,6 +468,7 @@ def configure(settings=None):
     maybe_set_compound(settings, "breached_emails", "backend", "BREACHED_EMAILS")
     maybe_set_compound(settings, "breached_passwords", "backend", "BREACHED_PASSWORDS")
     maybe_set_compound(settings, "domain_status", "backend", "DOMAIN_STATUS_BACKEND")
+    maybe_set_compound(settings, "github.oauth", "backend", "GITHUB_OAUTH_BACKEND")
     maybe_set(
         settings,
         "oidc.backend",
@@ -788,6 +789,9 @@ def configure(settings=None):
     )
     config.include("pyramid_tm")
 
+    # Register support for our rate limiting mechanisms
+    config.include(".rate_limiting")
+
     # Register our XMLRPC service
     config.include(".legacy.api.xmlrpc")
 
@@ -816,9 +820,6 @@ def configure(settings=None):
 
     # Register the support for Celery Tasks
     config.include(".tasks")
-
-    # Register support for our rate limiting mechanisms
-    config.include(".rate_limiting")
 
     config.include(".static")
 

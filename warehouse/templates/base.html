@@ -23,7 +23,8 @@
     </p>
   </div>
 {%- endmacro %}
-{% macro main_navigation_logged_out() -%}
+{% macro main_navigation_logged_out(next_url=none) -%}
+  {% set login_url = request.route_path('accounts.login', _query={'next': next_url}) if next_url else request.route_path('accounts.login') %}
   <div id="user-indicator"
        class="horizontal-menu horizontal-menu--light horizontal-menu--tall">
     <nav class="horizontal-menu horizontal-menu--light horizontal-menu--tall hide-on-tablet"
@@ -40,8 +41,7 @@
              class="horizontal-menu__link">{% trans %}Sponsors{% endtrans %}</a>
         </li>
         <li class="horizontal-menu__item">
-          <a href="{{ request.route_path('accounts.login', _query={'next': request.url }) }}"
-             class="horizontal-menu__link">{% trans %}Log in{% endtrans %}</a>
+          <a href="{{ login_url }}" class="horizontal-menu__link">{% trans %}Log in{% endtrans %}</a>
         </li>
         <li class="horizontal-menu__item">
           <a href="{{ request.route_path('accounts.register') }}"
@@ -74,8 +74,7 @@
           <a class="dropdown__link" href="{{ request.route_path('sponsors') }}">{% trans %}Sponsors{% endtrans %}</a>
         </li>
         <li>
-          <a class="dropdown__link"
-             href="{{ request.route_path('accounts.login') }}">{% trans %}Log in{% endtrans %}</a>
+          <a class="dropdown__link" href="{{ login_url }}">{% trans %}Log in{% endtrans %}</a>
         </li>
         <li>
           <a class="dropdown__link"
@@ -96,6 +95,13 @@
 {% endtrans %}
 {% endif %}
 {%- endmacro %}
+{# Template-wide variables #}
+{% if request.registry.settings.get("warehouse.domain") == "test.pypi.org" %}
+  {% set testPyPI = true %}
+{% elif request.registry.settings.get("warehouse.env").value == "development" %}
+  {% set devPyPI = true %}
+{% endif %}
+{% set sitename = "TestPyPI" if testPyPI else "PyPI" %}
 <!DOCTYPE html>
 {# djlint:off H031 #}
 <html lang="{{ request.locale }}" dir="{{ request.locale.text_direction }}">
@@ -107,11 +113,6 @@
     <meta name="defaultLanguage" content="en">
     <meta name="availableLanguages"
           content="{{ ', '.join(KNOWN_LOCALES.keys() ) }}">
-    {% if request.registry.settings.get("warehouse.domain") == "test.pypi.org" %}
-      {% set testPyPI = true %}
-    {% elif request.registry.settings.get("warehouse.env").value == "development" %}
-      {% set devPyPI = true %}
-    {% endif %}
     {# djlint:off #}
     <title>{% block title_base %}{% block title %}{% endblock title %}{% if self.title() %} · {% endif %}{{ request.registry.settings['site.name'] }}{% endblock title_base %}</title>
     {# djlint:on #}
@@ -122,7 +123,7 @@
     <link rel="stylesheet"
           href="{{ request.static_path('warehouse:static/dist/css/fontawesome.css') }}">
     <link rel="stylesheet"
-          href="https://fonts.googleapis.com/css?family=Source+Sans+3:400,400italic,600,600italic,700,700italic%7CSource+Code+Pro:500">
+          href="{{ request.static_path('warehouse:static/dist/css/fonts.css') }}">
     <noscript>
       <link rel="stylesheet"
             href="{{ request.static_path('warehouse:static/dist/css/noscript.css') }}">
@@ -200,8 +201,6 @@
             integrity="sha256-U3hKDidudIaxBDEzwGJApJgPEf2mWk6cfMWghrAa6i0= sha384-UcmsCqcNRSLW/dV3Lo1oCi2/VaurXbib6p4HyUEOeIa/4OpsrnucrugAefzVZJfI sha512-q4t1L4xEjGV2R4hzqCa41P8jrgFUS8xTb8rdNv4FGvw7FpydVj/kkxBJHOiaoxHa8olCcx1Slk9K+3sNbsM4ug=="
             crossorigin="anonymous"></script>
     {% if devPyPI %}<script src="{{ request.registry.settings.get("livereload.url") }}/livereload.js"></script>{% endif %}
-    <script async
-            src="https://donate.python.org/fundraiser-banner/fundraiser-banner.js"></script>
   </head>
   <body data-controller="viewport-toggle"
         data-allowed-domains="{{ request.hashed_domains }}"
@@ -297,7 +296,7 @@
         </div>
       {% endblock %}
       {% csi request.route_path("includes.current-user-indicator") %}
-      {{ main_navigation_logged_out() }}
+      {{ main_navigation_logged_out(next_url=request.url) }}
     {% endcsi %}
   </div>
 </div>

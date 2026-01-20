@@ -1,5 +1,8 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "../settings/breakpoints";
+@use "../settings/grid";
+
 /*
   A form field, with label, input, and help text.
 
@@ -16,14 +19,14 @@
   align-items: center;
 
   &__image {
-    margin-right: $half-spacing-unit;
+    margin-right: grid.$half-spacing-unit;
   }
 
   &__content {
     max-width: 500px;
   }
 
-  @media screen and (max-width: $small-tablet) {
+  @media screen and (max-width: breakpoints.$small-tablet) {
     align-items: start;
 
     &__image {
@@ -31,7 +34,7 @@
     }
   }
 
-  @media screen and (max-width: $mobile) {
+  @media screen and (max-width: breakpoints.$mobile) {
     display: block;
 
     &__image {

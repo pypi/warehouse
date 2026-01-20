@@ -66,3 +66,15 @@
     cursor: help;
   }
 }
+
+/* Chart container for CSP-compliant Chart.js rendering */
+.chart-container {
+  position: relative;
+  height: 300px;
+  width: 100%;
+}
+
+/* Muted text for use on colored card backgrounds */
+.text-white-muted {
+  opacity: 0.8;
+}

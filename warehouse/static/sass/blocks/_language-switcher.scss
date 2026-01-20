@@ -1,5 +1,11 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "sass:color";
+@use "../settings/colours";
+@use "../settings/fonts";
+@use "../settings/grid";
+@use "../tools/link-utilities";
+
 /*
   Language switcher found on the site footer.
 
@@ -12,41 +18,41 @@
 */
 
 .language-switcher {
-  background-color: lighten($primary-color, 1);
-  border-top: 1px solid darken($primary-color, 2);
-  color: $white;
-  padding: $half-spacing-unit 0;
+  background-color: color.adjust(colours.$primary-color, $lightness: 1%);
+  border-top: 1px solid color.adjust(colours.$primary-color, $lightness: -2%);
+  color: colours.$white;
+  padding: grid.$half-spacing-unit 0;
   width: 100%;
   text-align: center;
-  font-size: $small-font-size;
+  font-size: fonts.$small-font-size;
 
   ul {
     list-style-type: none;
 
     li {
       display: inline-block;
-      margin: 0 $quarter-spacing-unit;
+      margin: 0 grid.$quarter-spacing-unit;
     }
 
     button {
-      color: $white;
+      color: colours.$white;
       border: 0;
       background-color: transparent;
       padding: 0;
       text-decoration: underline;
-      @include white-underlined-link;
+      @include link-utilities.white-underlined-link;
     }
 
     button.language-switcher__selected {
       pointer-events: none;
-      @include link-without-underline;
+      @include link-utilities.link-without-underline;
 
       &::before {
-        font-family: "Font Awesome 6 Free";
+        font-family: fonts.$fa-font-family;
         font-weight: 900;
         content: "\f105"#{'/*rtl:"\f104"*/'};
         margin-right: 4px;
-        color: $white;
+        color: colours.$white;
         position: relative;
         top: 0.5px;
       }
