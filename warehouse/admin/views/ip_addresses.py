@@ -86,11 +86,17 @@ def ban_ip(request: Request):
     except NoResultFound:
         raise HTTPBadRequest("No matching IP Address found.")
 
-    ip_address.is_banned = True
-    ip_address.ban_reason = BanReason.ADMINISTRATIVE
-    ip_address.ban_date = datetime.utcnow()
-
-    request.session.flash(f"Banned IP address {ip_address.ip_address}", queue="success")
+    if ip_address.is_banned:
+        request.session.flash(
+            f"IP address {ip_address.ip_address} is already banned.", queue="warning"
+        )
+    else:
+        ip_address.is_banned = True
+        ip_address.ban_reason = BanReason.ADMINISTRATIVE
+        ip_address.ban_date = datetime.utcnow()
+        request.session.flash(
+            f"Banned IP address {ip_address.ip_address}", queue="success"
+        )
 
     return HTTPSeeOther(
         request.route_path("admin.ip_address.detail", ip_address=ip_address.ip_address)
@@ -113,13 +119,17 @@ def unban_ip(request: Request):
     except NoResultFound:
         raise HTTPBadRequest("No matching IP Address found.")
 
-    ip_address.is_banned = False
-    ip_address.ban_reason = None
-    ip_address.ban_date = None
-
-    request.session.flash(
-        f"Unbanned IP address {ip_address.ip_address}", queue="success"
-    )
+    if not ip_address.is_banned:
+        request.session.flash(
+            f"IP address {ip_address.ip_address} is not banned.", queue="warning"
+        )
+    else:
+        ip_address.is_banned = False
+        ip_address.ban_reason = None
+        ip_address.ban_date = None
+        request.session.flash(
+            f"Unbanned IP address {ip_address.ip_address}", queue="success"
+        )
 
     return HTTPSeeOther(
         request.route_path("admin.ip_address.detail", ip_address=ip_address.ip_address)

@@ -92,6 +92,34 @@ class TestBanIpAddress:
         with pytest.raises(HTTPBadRequest):
             ip_views.ban_ip(db_request)
 
+    def test_ban_ip_address_already_banned(self, db_request):
+        ip_address = IpAddressFactory.create(
+            is_banned=True,
+            ban_reason=BanReason.ADMINISTRATIVE,
+            ban_date=datetime.utcnow(),
+        )
+        db_request.matchdict["ip_address"] = str(ip_address.ip_address)
+        db_request.route_path = pretend.stub(
+            __call__=(
+                lambda *args, **kwargs: f"/admin/ip-addresses/{ip_address.ip_address}"
+            )
+        )
+        db_request.session.flash = pretend.call_recorder(lambda *args, **kwargs: None)
+
+        resp = ip_views.ban_ip(db_request)
+
+        assert isinstance(resp, HTTPSeeOther)
+        assert resp.location == f"/admin/ip-addresses/{ip_address.ip_address}"
+        assert ip_address.is_banned
+        assert ip_address.ban_reason == BanReason.ADMINISTRATIVE
+        assert ip_address.ban_date is not None
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"IP address {ip_address.ip_address} is already banned.",
+                queue="warning",
+            )
+        ]
+
     def test_ban_ip_address_banned(self, db_request):
         ip_address = IpAddressFactory.create(is_banned=False)
         db_request.matchdict["ip_address"] = str(ip_address.ip_address)
@@ -123,6 +151,30 @@ class TestUnbanIpAddress:
 
         with pytest.raises(HTTPBadRequest):
             ip_views.unban_ip(db_request)
+
+    def test_unban_ip_address_already_unbanned(self, db_request):
+        ip_address = IpAddressFactory.create(is_banned=False)
+        db_request.matchdict["ip_address"] = str(ip_address.ip_address)
+        db_request.route_path = pretend.stub(
+            __call__=(
+                lambda *args, **kwargs: f"/admin/ip-addresses/{ip_address.ip_address}"
+            )
+        )
+        db_request.session.flash = pretend.call_recorder(lambda *args, **kwargs: None)
+
+        resp = ip_views.unban_ip(db_request)
+
+        assert isinstance(resp, HTTPSeeOther)
+        assert resp.location == f"/admin/ip-addresses/{ip_address.ip_address}"
+        assert not ip_address.is_banned
+        assert ip_address.ban_reason is None
+        assert ip_address.ban_date is None
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"IP address {ip_address.ip_address} is not banned.",
+                queue="warning",
+            )
+        ]
 
     def test_unban_ip_address_unbanned(self, db_request):
         ip_address = IpAddressFactory.create(
