@@ -6,6 +6,11 @@ from warehouse.oidc.models.activestate import (
     ActiveStatePublisher,
     PendingActiveStatePublisher,
 )
+from warehouse.oidc.models.circleci import (
+    CIRCLECI_OIDC_ISSUER_URL,
+    CircleCIPublisher,
+    PendingCircleCIPublisher,
+)
 from warehouse.oidc.models.github import (
     GITHUB_OIDC_ISSUER_URL,
     GitHubPublisher,
@@ -29,11 +34,14 @@ __all__ = [
     "PendingGitLabPublisher",
     "PendingGooglePublisher",
     "PendingActiveStatePublisher",
+    "PendingCircleCIPublisher",
     "GitHubPublisher",
     "GitLabPublisher",
     "GooglePublisher",
     "ActiveStatePublisher",
+    "CircleCIPublisher",
     "ACTIVESTATE_OIDC_ISSUER_URL",
+    "CIRCLECI_OIDC_ISSUER_URL",
     "GITHUB_OIDC_ISSUER_URL",
     "GITLAB_OIDC_ISSUER_URL",
     "GOOGLE_OIDC_ISSUER_URL",
