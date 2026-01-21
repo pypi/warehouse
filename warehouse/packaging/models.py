@@ -1012,12 +1012,10 @@ class File(HasEvents, db.Model):
         return (
             self.events.where(
                 or_(
-                    self.Event.additional[  # type: ignore[attr-defined]
+                    self.Event.additional[
                         "uploaded_via_trusted_publisher"
                     ].as_boolean(),
-                    self.Event.additional["publisher_url"]  # type: ignore[attr-defined]
-                    .as_string()
-                    .is_not(None),
+                    self.Event.additional["publisher_url"].as_string().is_not(None),
                 )
             ).count()
             > 0
