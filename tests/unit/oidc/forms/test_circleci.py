@@ -23,6 +23,7 @@ class TestPendingCircleCIPublisherForm:
             {
                 "circleci_org_id": "00000000-0000-1000-8000-000000000001",
                 "circleci_project_id": "00000000-0000-1000-8000-000000000002",
+                "pipeline_definition_id": "00000000-0000-1000-8000-000000000003",
                 "project_name": "some-project",
             }
         )
@@ -94,6 +95,20 @@ class TestCircleCIPublisherForm:
             {
                 "circleci_org_id": "00000000-0000-1000-8000-000000000001",
                 "circleci_project_id": "00000000-0000-1000-8000-000000000002",
+                "pipeline_definition_id": "00000000-0000-1000-8000-000000000003",
+            }
+        )
+        form = circleci.CircleCIPublisherForm(MultiDict(data))
+
+        assert form.validate()
+
+    def test_validate_with_optional_context_id(self):
+        data = MultiDict(
+            {
+                "circleci_org_id": "00000000-0000-1000-8000-000000000001",
+                "circleci_project_id": "00000000-0000-1000-8000-000000000002",
+                "pipeline_definition_id": "00000000-0000-1000-8000-000000000003",
+                "context_id": "00000000-0000-1000-8000-000000000004",
             }
         )
         form = circleci.CircleCIPublisherForm(MultiDict(data))
@@ -104,6 +119,7 @@ class TestCircleCIPublisherForm:
         data = MultiDict(
             {
                 "circleci_project_id": "00000000-0000-1000-8000-000000000002",
+                "pipeline_definition_id": "00000000-0000-1000-8000-000000000003",
             }
         )
         form = circleci.CircleCIPublisherForm(MultiDict(data))
@@ -115,9 +131,58 @@ class TestCircleCIPublisherForm:
         data = MultiDict(
             {
                 "circleci_org_id": "00000000-0000-1000-8000-000000000001",
+                "pipeline_definition_id": "00000000-0000-1000-8000-000000000003",
             }
         )
         form = circleci.CircleCIPublisherForm(MultiDict(data))
 
         assert not form.validate()
         assert "circleci_project_id" in form.errors
+
+    def test_validate_missing_pipeline_definition_id(self):
+        data = MultiDict(
+            {
+                "circleci_org_id": "00000000-0000-1000-8000-000000000001",
+                "circleci_project_id": "00000000-0000-1000-8000-000000000002",
+            }
+        )
+        form = circleci.CircleCIPublisherForm(MultiDict(data))
+
+        assert not form.validate()
+        assert "pipeline_definition_id" in form.errors
+
+    @pytest.mark.parametrize(
+        "field_name",
+        [
+            "circleci_org_id",
+            "circleci_project_id",
+            "pipeline_definition_id",
+        ],
+    )
+    def test_validate_invalid_uuid(self, field_name):
+        data = MultiDict(
+            {
+                "circleci_org_id": "00000000-0000-1000-8000-000000000001",
+                "circleci_project_id": "00000000-0000-1000-8000-000000000002",
+                "pipeline_definition_id": "00000000-0000-1000-8000-000000000003",
+            }
+        )
+        data[field_name] = "not-a-valid-uuid"
+        form = circleci.CircleCIPublisherForm(MultiDict(data))
+
+        assert not form.validate()
+        assert field_name in form.errors
+
+    def test_validate_invalid_context_id_uuid(self):
+        data = MultiDict(
+            {
+                "circleci_org_id": "00000000-0000-1000-8000-000000000001",
+                "circleci_project_id": "00000000-0000-1000-8000-000000000002",
+                "pipeline_definition_id": "00000000-0000-1000-8000-000000000003",
+                "context_id": "not-a-valid-uuid",
+            }
+        )
+        form = circleci.CircleCIPublisherForm(MultiDict(data))
+
+        assert not form.validate()
+        assert "context_id" in form.errors
