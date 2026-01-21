@@ -19,6 +19,9 @@ class CircleCIPublisherBase(wtforms.Form):
             wtforms.validators.InputRequired(
                 message=_("Specify CircleCI organization ID"),
             ),
+            wtforms.validators.UUID(
+                message=_("CircleCI organization ID must be a valid UUID"),
+            ),
         ]
     )
 
@@ -26,6 +29,9 @@ class CircleCIPublisherBase(wtforms.Form):
         validators=[
             wtforms.validators.InputRequired(
                 message=_("Specify CircleCI project ID"),
+            ),
+            wtforms.validators.UUID(
+                message=_("CircleCI project ID must be a valid UUID"),
             ),
         ]
     )
@@ -35,12 +41,18 @@ class CircleCIPublisherBase(wtforms.Form):
             wtforms.validators.InputRequired(
                 message=_("Specify CircleCI pipeline definition ID"),
             ),
+            wtforms.validators.UUID(
+                message=_("CircleCI pipeline definition ID must be a valid UUID"),
+            ),
         ]
     )
 
     context_id = wtforms.StringField(
         validators=[
             wtforms.validators.Optional(),
+            wtforms.validators.UUID(
+                message=_("CircleCI context ID must be a valid UUID"),
+            ),
         ]
     )
 
