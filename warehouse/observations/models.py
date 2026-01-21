@@ -56,14 +56,20 @@ class Observer(db.Model):
 class HasObservers:
     """A mixin for models that can have observers."""
 
+    observer: AssociationProxy[Observer | None]
+
     @declared_attr
-    def observer_association_id(cls):  # noqa: N805
+    def observer_association_id(
+        cls: type[typing.Any],  # noqa: N805
+    ) -> Mapped[UUID | None]:
         return mapped_column(
             PG_UUID, ForeignKey(f"{ObserverAssociation.__tablename__}.id")
         )
 
     @declared_attr
-    def observer_association(cls):  # noqa: N805
+    def observer_association(
+        cls: type[typing.Any],  # noqa: N805
+    ) -> Mapped[ObserverAssociation]:
         name = cls.__name__
         discriminator = name.lower()
 
@@ -138,6 +144,15 @@ class Observation(AbstractConcreteBase, db.Model):
         "polymorphic_identity": "observation",
     }
 
+    if typing.TYPE_CHECKING:
+        # Attributes defined on concrete subclasses created by HasObservations.
+        # Declared here for type checking when querying via polymorphic union.
+        related_name: Mapped[str]
+        related_id: Mapped[UUID | None]
+        related: HasObservations
+        observer_id: Mapped[UUID]
+        observer: Observer
+
     created: Mapped[datetime_now] = mapped_column(
         comment="The time the observation was created"
     )
@@ -182,10 +197,8 @@ class HasObservations:
         some_model.observations  # a list of Observation objects
     """
 
-    Observation: typing.ClassVar[type]
-
     @declared_attr
-    def observations(cls):  # noqa: N805
+    def observations(cls: type[typing.Any]) -> Mapped[list[Observation]]:  # noqa: N805
         cls.Observation = type(
             f"{cls.__name__}Observation",
             (Observation, db.Model),
