@@ -11,7 +11,6 @@ from uuid import UUID
 from more_itertools import first_true
 from pypi_attestations import GitHubPublisher as GitHubIdentity, Publisher
 from sqlalchemy import ForeignKey, String, UniqueConstraint, and_, exists
-from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, Query, mapped_column
 
 from warehouse.oidc.errors import InvalidPublisherError
@@ -356,9 +355,7 @@ class GitHubPublisher(GitHubPublisherMixin, OIDCPublisher):
         ),
     )
 
-    id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True), ForeignKey(OIDCPublisher.id), primary_key=True
-    )
+    id: Mapped[UUID] = mapped_column(ForeignKey(OIDCPublisher.id), primary_key=True)
 
     def verify_url(self, url: str) -> bool:
         """
@@ -414,7 +411,7 @@ class PendingGitHubPublisher(GitHubPublisherMixin, PendingOIDCPublisher):
     )
 
     id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True), ForeignKey(PendingOIDCPublisher.id), primary_key=True
+        ForeignKey(PendingOIDCPublisher.id), primary_key=True
     )
 
     def reify(self, session: Session) -> GitHubPublisher:

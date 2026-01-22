@@ -37,7 +37,6 @@ from sqlalchemy.dialects.postgresql import (
     CITEXT,
     ENUM,
     REGCLASS,
-    UUID as PG_UUID,
 )
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -1012,12 +1011,10 @@ class File(HasEvents, db.Model):
         return (
             self.events.where(
                 or_(
-                    self.Event.additional[  # type: ignore[attr-defined]
+                    self.Event.additional[
                         "uploaded_via_trusted_publisher"
                     ].as_boolean(),
-                    self.Event.additional["publisher_url"]  # type: ignore[attr-defined]
-                    .as_string()
-                    .is_not(None),
+                    self.Event.additional["publisher_url"].as_string().is_not(None),
                 )
             ).count()
             > 0
@@ -1063,7 +1060,6 @@ class ReleaseClassifiers(db.ModelBase):
         primary_key=True,
     )
     release_id: Mapped[UUID] = mapped_column(
-        PG_UUID,
         ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),
         primary_key=True,
     )
@@ -1149,9 +1145,7 @@ class ProhibitedProjectName(db.Model):
 
     created: Mapped[datetime_now]
     name: Mapped[str] = mapped_column(unique=True)
-    _prohibited_by = mapped_column(
-        "prohibited_by", PG_UUID(as_uuid=True), ForeignKey("users.id"), index=True
-    )
+    _prohibited_by = mapped_column("prohibited_by", ForeignKey("users.id"), index=True)
     prohibited_by: Mapped[User] = orm.relationship()
     comment: Mapped[str] = mapped_column(server_default="")
     observation_kind: Mapped[str] = mapped_column(
