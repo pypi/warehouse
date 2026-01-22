@@ -93,8 +93,6 @@ def _connect_src_settings(config) -> list:
         "https://api.github.com/search/issues",
         "https://gitlab.com/api/",
         "https://analytics.python.org",
-        "fastly-insights.com",
-        "*.fastly-insights.com",
         "*.ethicalads.io",
         "https://api.pwnedpasswords.com",
         # Scoped deeply to prevent other scripts calling other CDN resources
@@ -127,7 +125,6 @@ def _script_src_settings(config) -> list:
     settings = [
         SELF,
         "https://analytics.python.org",
-        "*.fastly-insights.com",
         "*.ethicalads.io",
         # Hash for v1.4.0 of ethicalads.min.js
         "'sha256-U3hKDidudIaxBDEzwGJApJgPEf2mWk6cfMWghrAa6i0='",
@@ -169,7 +166,6 @@ def includeme(config):
                 "img-src": [
                     SELF,
                     config.registry.settings["camo.url"],
-                    "*.fastly-insights.com",
                     "*.ethicalads.io",
                     "ethicalads.blob.core.windows.net",
                 ],
@@ -186,7 +182,6 @@ def includeme(config):
                     "'sha256-OCf+kv5Asiwp++8PIevKBYSgnNLNUZvxAp4a7wMLuKA='",
                     "'sha256-h5LOiLhk6wiJrGsG5ItM0KimwzWQH/yAcmoJDJL//bY='",
                 ],
-                "worker-src": ["*.fastly-insights.com"],
             }
         }
     )
