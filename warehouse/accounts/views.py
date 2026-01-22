@@ -2040,6 +2040,8 @@ class ManageAccountPublishingViews:
                 circleci_project_id=form.circleci_project_id.data,
                 pipeline_definition_id=form.pipeline_definition_id.data,
                 context_id=form.context_id.data or "",
+                vcs_ref=form.vcs_ref.data or "",
+                vcs_origin=form.vcs_origin.data or "",
             ),
             make_existence_filters=lambda form: dict(
                 project_name=form.project_name.data,
@@ -2047,6 +2049,8 @@ class ManageAccountPublishingViews:
                 circleci_project_id=form.circleci_project_id.data,
                 pipeline_definition_id=form.pipeline_definition_id.data,
                 context_id=form.context_id.data or "",
+                vcs_ref=form.vcs_ref.data or "",
+                vcs_origin=form.vcs_origin.data or "",
             ),
         )
 
