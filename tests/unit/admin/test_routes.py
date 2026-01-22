@@ -228,6 +228,16 @@ def test_includeme():
             "/admin/ip-addresses/{ip_address}",
             domain=warehouse,
         ),
+        pretend.call(
+            "admin.ip_address.ban",
+            "/admin/ip-addresses/{ip_address}/ban",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.ip_address.unban",
+            "/admin/ip-addresses/{ip_address}/unban",
+            domain=warehouse,
+        ),
         pretend.call("admin.project.list", "/admin/projects/", domain=warehouse),
         pretend.call(
             "admin.project.detail",
@@ -414,6 +424,11 @@ def test_includeme():
         pretend.call(
             "admin.observers.detail",
             "/admin/observers/{observer_id}/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.observations.insights",
+            "/admin/observations/insights/",
             domain=warehouse,
         ),
         pretend.call(

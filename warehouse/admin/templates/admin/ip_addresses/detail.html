@@ -38,9 +38,24 @@
       <dd class="col-sm-8">{{ ip_address.ban_date }}</dd>
 
       <dt class="col-sm-4">Ban Reason:</dt>
-      <dd class="col-sm-8">{{ ip_address.ban_reason.value }}</dd>
+      <dd class="col-sm-8">{{ ip_address.ban_reason.value if ip_address.ban_reason is not none else 'None' }}</dd>
     </dl>
   </div> <!-- /.card-body -->
+  <div class="card-footer">
+    {% if request.has_permission(Permissions.AdminIpAddressesWrite) %}
+    {% if not ip_address.is_banned %}
+    <form method="POST" action="{{ request.route_path('admin.ip_address.ban', ip_address=ip_address.ip_address) }}">
+      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+      <button type="submit" class="btn btn-danger">Ban this IP address</button>
+    </form>
+    {% else %}
+    <form method="POST" action="{{ request.route_path('admin.ip_address.unban', ip_address=ip_address.ip_address) }}">
+      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+      <button type="submit" class="btn btn-warning">Unban this IP address</button>
+    </form>
+    {% endif %}
+    {% endif %}
+  </div> <!-- /.card-footer -->
 </div> <!-- /.card -->
 
   <div class="card">

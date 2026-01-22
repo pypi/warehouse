@@ -244,8 +244,6 @@ def test_includeme():
                         "https://api.github.com/search/issues",
                         "https://gitlab.com/api/",
                         "https://analytics.python.org",
-                        "fastly-insights.com",
-                        "*.fastly-insights.com",
                         "*.ethicalads.io",
                         "https://api.pwnedpasswords.com",
                         "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/sre/mathmaps/",
@@ -265,14 +263,12 @@ def test_includeme():
                     "img-src": [
                         "'self'",
                         "camo.url.value",
-                        "*.fastly-insights.com",
                         "*.ethicalads.io",
                         "ethicalads.blob.core.windows.net",
                     ],
                     "script-src": [
                         "'self'",
                         "https://analytics.python.org",
-                        "*.fastly-insights.com",
                         "*.ethicalads.io",
                         "'sha256-U3hKDidudIaxBDEzwGJApJgPEf2mWk6cfMWghrAa6i0='",
                         "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/",
@@ -289,7 +285,6 @@ def test_includeme():
                         "'sha256-OCf+kv5Asiwp++8PIevKBYSgnNLNUZvxAp4a7wMLuKA='",
                         "'sha256-h5LOiLhk6wiJrGsG5ItM0KimwzWQH/yAcmoJDJL//bY='",
                     ],
-                    "worker-src": ["*.fastly-insights.com"],
                 }
             }
         )

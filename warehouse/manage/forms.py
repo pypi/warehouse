@@ -12,6 +12,7 @@ from warehouse.accounts.forms import (
     NewEmailMixin,
     NewPasswordMixin,
     PasswordMixin,
+    PreventNullBytesValidator,
     TOTPValueMixin,
     WebAuthnCredentialMixin,
 )
@@ -447,6 +448,7 @@ class OrganizationNameMixin:
             wtforms.validators.InputRequired(
                 message="Specify organization account name"
             ),
+            PreventNullBytesValidator(),
             wtforms.validators.Length(
                 max=50,
                 message=_(

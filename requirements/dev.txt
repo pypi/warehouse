@@ -123,9 +123,9 @@ markupsafe==3.0.3 \
     --hash=sha256:f9e130248f4462aaa8e2552d547f36ddadbeaa573879158d721bbd33dfe4743a \
     --hash=sha256:fed51ac40f757d41b7c48425901843666a6677e3e8eb0abcff09e4ba6e664f50
     # via mako
-packaging==26.0rc2 \
-    --hash=sha256:51c9779f69ab1f6ed1a4d6d0e2f42e2e64b566955a5eff1f7f83bcab688035a4 \
-    --hash=sha256:885e01b9dbe4913e5080fa516b8550d43ef38549088c63e6e8bb51cd25adea4a
+packaging==26.0 \
+    --hash=sha256:00243ae351a257117b6a241061796684b084ed1c516a08c48a3f7e147a9d80b4 \
+    --hash=sha256:b36f1fef9334a5588b4166f8bcd26a14e521f2b55e6b9de3aaa80d3ff7a37529
     # via
     #   -c requirements/main.in
     #   build

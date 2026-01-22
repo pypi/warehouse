@@ -308,9 +308,9 @@ mkdocs-material-extensions==1.3.1 \
     --hash=sha256:10c9511cea88f568257f960358a467d12b970e1f7b2c0e5fb2bb48cab1928443 \
     --hash=sha256:adff8b62700b25cb77b53358dad940f3ef973dd6db797907c49e3c2ef3ab4e31
     # via mkdocs-material
-packaging==26.0rc2 \
-    --hash=sha256:51c9779f69ab1f6ed1a4d6d0e2f42e2e64b566955a5eff1f7f83bcab688035a4 \
-    --hash=sha256:885e01b9dbe4913e5080fa516b8550d43ef38549088c63e6e8bb51cd25adea4a
+packaging==26.0 \
+    --hash=sha256:00243ae351a257117b6a241061796684b084ed1c516a08c48a3f7e147a9d80b4 \
+    --hash=sha256:b36f1fef9334a5588b4166f8bcd26a14e521f2b55e6b9de3aaa80d3ff7a37529
     # via
     #   -c requirements/main.in
     #   mkdocs

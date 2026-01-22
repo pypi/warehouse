@@ -34,7 +34,7 @@ natsort
 nh3
 opensearch-py
 orjson
-packaging==26.0rc2
+packaging==26.0
 packaging_legacy
 paginate>=0.5.2
 paginate_sqlalchemy

@@ -230,6 +230,16 @@ def includeme(config):
         "/admin/ip-addresses/{ip_address}",
         domain=warehouse,
     )
+    config.add_route(
+        "admin.ip_address.ban",
+        "/admin/ip-addresses/{ip_address}/ban",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.ip_address.unban",
+        "/admin/ip-addresses/{ip_address}/unban",
+        domain=warehouse,
+    )
 
     # Project related Admin pages
     config.add_route("admin.project.list", "/admin/projects/", domain=warehouse)
@@ -428,6 +438,9 @@ def includeme(config):
     )
 
     # Observation related Admin pages
+    config.add_route(
+        "admin.observations.insights", "/admin/observations/insights/", domain=warehouse
+    )
     config.add_route(
         "admin.observations.list", "/admin/observations/", domain=warehouse
     )
