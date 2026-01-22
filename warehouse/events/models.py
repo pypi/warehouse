@@ -5,10 +5,11 @@ from __future__ import annotations
 import typing
 
 from dataclasses import dataclass
+from uuid import UUID
 
 from linehaul.ua import parser as linehaul_user_agent_parser
 from sqlalchemy import ForeignKey, Index, orm
-from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, declared_attr, mapped_column
 from ua_parser import user_agent_parser
 
@@ -17,8 +18,6 @@ from warehouse.ip_addresses.models import IpAddress
 from warehouse.utils.db.types import datetime_now
 
 if typing.TYPE_CHECKING:
-    from uuid import UUID
-
     from pyramid.request import Request
 
 
@@ -124,7 +123,6 @@ class Event:
     @declared_attr
     def ip_address_id(cls):  # noqa: N805
         return mapped_column(
-            PG_UUID(as_uuid=True),
             ForeignKey("ip_addresses.id", onupdate="CASCADE", ondelete="CASCADE"),
             nullable=True,
         )
@@ -184,7 +182,6 @@ class HasEvents:
                     Index(f"ix_{cls.__name__.lower()}_events_source_id", "source_id"),
                 ),
                 source_id=mapped_column(
-                    PG_UUID(as_uuid=True),
                     ForeignKey(
                         f"{cls.__tablename__}.id",
                         deferrable=True,

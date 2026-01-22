@@ -9,7 +9,7 @@ import typing
 from uuid import UUID
 
 from sqlalchemy import ForeignKey, String, sql
-from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.associationproxy import AssociationProxy, association_proxy
 from sqlalchemy.ext.declarative import AbstractConcreteBase
 from sqlalchemy.ext.mutable import MutableDict
@@ -62,9 +62,7 @@ class HasObservers:
     def observer_association_id(
         cls: type[typing.Any],  # noqa: N805
     ) -> Mapped[UUID | None]:
-        return mapped_column(
-            PG_UUID, ForeignKey(f"{ObserverAssociation.__tablename__}.id")
-        )
+        return mapped_column(ForeignKey(f"{ObserverAssociation.__tablename__}.id"))
 
     @declared_attr
     def observer_association(
@@ -209,7 +207,6 @@ class HasObservations:
                     "concrete": True,
                 },
                 related_id=mapped_column(
-                    PG_UUID,
                     ForeignKey(f"{cls.__tablename__}.id"),
                     comment="The ID of the related model",
                     nullable=True,
@@ -222,7 +219,6 @@ class HasObservations:
                     nullable=False,
                 ),
                 observer_id=mapped_column(
-                    PG_UUID,
                     ForeignKey("observers.id"),
                     comment="ID of the Observer who created the Observation",
                     nullable=False,
