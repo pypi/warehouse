@@ -186,3 +186,44 @@ class TestCircleCIPublisherForm:
 
         assert not form.validate()
         assert "context_id" in form.errors
+
+    def test_validate_with_optional_vcs_ref(self):
+        data = MultiDict(
+            {
+                "circleci_org_id": "00000000-0000-1000-8000-000000000001",
+                "circleci_project_id": "00000000-0000-1000-8000-000000000002",
+                "pipeline_definition_id": "00000000-0000-1000-8000-000000000003",
+                "vcs_ref": "refs/heads/main",
+            }
+        )
+        form = circleci.CircleCIPublisherForm(MultiDict(data))
+
+        assert form.validate()
+
+    def test_validate_with_optional_vcs_origin(self):
+        data = MultiDict(
+            {
+                "circleci_org_id": "00000000-0000-1000-8000-000000000001",
+                "circleci_project_id": "00000000-0000-1000-8000-000000000002",
+                "pipeline_definition_id": "00000000-0000-1000-8000-000000000003",
+                "vcs_origin": "github.com/some-org/some-repo",
+            }
+        )
+        form = circleci.CircleCIPublisherForm(MultiDict(data))
+
+        assert form.validate()
+
+    def test_validate_with_all_optional_fields(self):
+        data = MultiDict(
+            {
+                "circleci_org_id": "00000000-0000-1000-8000-000000000001",
+                "circleci_project_id": "00000000-0000-1000-8000-000000000002",
+                "pipeline_definition_id": "00000000-0000-1000-8000-000000000003",
+                "context_id": "00000000-0000-1000-8000-000000000004",
+                "vcs_ref": "refs/heads/main",
+                "vcs_origin": "github.com/some-org/some-repo",
+            }
+        )
+        form = circleci.CircleCIPublisherForm(MultiDict(data))
+
+        assert form.validate()
