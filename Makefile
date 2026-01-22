@@ -124,7 +124,7 @@ translations: .state/docker-build-base
 	docker compose run --rm base bin/translations
 
 requirements/%.txt: requirements/%.in
-	docker compose run --rm base pip-compile --constraint requirements/main.in --generate-hashes --output-file=$@ $<
+	docker compose run --rm base pip-compile --generate-hashes --output-file=$@ $<
 
 resetdb: .state/docker-build-base
 	docker compose pause web worker
