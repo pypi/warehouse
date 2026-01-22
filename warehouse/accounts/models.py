@@ -21,7 +21,7 @@ from sqlalchemy import (
     select,
     sql,
 )
-from sqlalchemy.dialects.postgresql import ARRAY, CITEXT, JSONB, UUID as PG_UUID
+from sqlalchemy.dialects.postgresql import ARRAY, CITEXT, JSONB
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column
@@ -377,7 +377,6 @@ class WebAuthn(db.Model):
     )
 
     user_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
         ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
         nullable=False,
         index=True,
@@ -393,7 +392,6 @@ class RecoveryCode(db.Model):
     __tablename__ = "user_recovery_codes"
 
     user_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
         ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
         nullable=False,
         index=True,
@@ -420,7 +418,6 @@ class Email(db.ModelBase):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
         ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
     )
     user: Mapped[User] = orm.relationship(back_populates="emails")
@@ -459,7 +456,6 @@ class ProhibitedEmailDomain(db.Model):
     )
     _prohibited_by: Mapped[UUID | None] = mapped_column(
         "prohibited_by",
-        PG_UUID(as_uuid=True),
         ForeignKey("users.id"),
         index=True,
     )
@@ -485,7 +481,6 @@ class ProhibitedUserName(db.Model):
     name: Mapped[str] = mapped_column(unique=True)
     _prohibited_by: Mapped[UUID | None] = mapped_column(
         "prohibited_by",
-        PG_UUID(as_uuid=True),
         ForeignKey("users.id"),
         index=True,
     )
@@ -515,7 +510,6 @@ class UserUniqueLogin(db.Model):
     )
 
     user_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
         ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
         index=True,
@@ -579,7 +573,6 @@ class AccountAssociation(db.Model):
 
     _user_id: Mapped[UUID] = mapped_column(
         "user_id",
-        PG_UUID(as_uuid=True),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
@@ -623,7 +616,6 @@ class OAuthAccountAssociation(AccountAssociation):
     __repr__ = make_repr("service", "external_username")
 
     id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
         ForeignKey("account_associations.id", ondelete="CASCADE"),
         primary_key=True,
     )

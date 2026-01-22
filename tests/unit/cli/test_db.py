@@ -8,7 +8,6 @@ import pretend
 import pytest
 import sqlalchemy
 
-from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 import warehouse.cli.db.dbml
@@ -325,16 +324,16 @@ EXPECTED_DBML = """Table _clan {
   fetched varchar [default: `FetchedValue()`, Note: "fetched value"]
   for_the_children boolean [default: `True`]
   nice varchar
-  id varchar [pk, not null, default: `gen_random_uuid()`]
+  id uuid [pk, not null, default: `gen_random_uuid()`]
   Note: "various clans"
 }
 
 Table _clan_member {
   name varchar [not null]
-  clan_id varchar
+  clan_id uuid
   joined datetime [not null, default: `now()`]
   departed datetime
-  id varchar [pk, not null, default: `gen_random_uuid()`]
+  id uuid [pk, not null, default: `gen_random_uuid()`]
 }
 
 Ref: _clan_member.clan_id > _clan.id
@@ -363,7 +362,6 @@ def test_generate_dbml_file(tmp_path_factory):
 
         name: Mapped[str]
         clan_id: Mapped[UUID | None] = mapped_column(
-            PG_UUID,
             sqlalchemy.ForeignKey("_clan.id", deferrable=True, initially="DEFERRED"),
         )
         joined: Mapped[datetime_now]
@@ -398,7 +396,6 @@ def test_generate_dbml_console(capsys, monkeypatch):
 
         name: Mapped[str]
         clan_id: Mapped[UUID | None] = mapped_column(
-            PG_UUID,
             sqlalchemy.ForeignKey("_clan.id", deferrable=True, initially="DEFERRED"),
         )
         joined: Mapped[datetime_now]
