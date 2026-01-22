@@ -47,6 +47,23 @@ def _check_context_id(
     return ground_truth in signed_claim
 
 
+def _check_optional_string(
+    ground_truth: str,
+    signed_claim: str | None,
+    _all_signed_claims: SignedClaims,
+    **_kwargs,
+) -> bool:
+    # If we haven't set a value for the publisher, we don't need to check.
+    if ground_truth == "":
+        return True
+
+    # If we require a value but the token doesn't have it, fail.
+    if not signed_claim:
+        return False
+
+    return ground_truth == signed_claim
+
+
 class CircleCIPublisherMixin:
     """
     Common functionality for both pending and concrete CircleCI OIDC publishers.
@@ -59,6 +76,11 @@ class CircleCIPublisherMixin:
     circleci_project_id: Mapped[str] = mapped_column(String, nullable=False)
     pipeline_definition_id: Mapped[str] = mapped_column(String, nullable=False)
     context_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    # Optional VCS claims for additional security constraints
+    # vcs_ref: e.g., "refs/heads/main"
+    # vcs_origin: e.g., "github.com/organization-123/repo-1"
+    vcs_ref: Mapped[str | None] = mapped_column(String, nullable=True)
+    vcs_origin: Mapped[str | None] = mapped_column(String, nullable=True)
 
     __required_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
         "oidc.circleci.com/org-id": oidccore.check_claim_binary(str.__eq__),
@@ -72,13 +94,13 @@ class CircleCIPublisherMixin:
 
     __optional_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
         "oidc.circleci.com/context-ids": _check_context_id,
+        "oidc.circleci.com/vcs-ref": _check_optional_string,
+        "oidc.circleci.com/vcs-origin": _check_optional_string,
     }
 
     __unchecked_claims__: set[str] = {
         "oidc.circleci.com/job-id",
         "oidc.circleci.com/pipeline-id",
-        "oidc.circleci.com/vcs-ref",
-        "oidc.circleci.com/vcs-origin",
         "oidc.circleci.com/workflow-id",
     }
 
@@ -113,6 +135,8 @@ class CircleCIPublisherMixin:
                     cls.circleci_project_id == self.circleci_project_id,
                     cls.pipeline_definition_id == self.pipeline_definition_id,
                     cls.context_id == self.context_id,
+                    cls.vcs_ref == self.vcs_ref,
+                    cls.vcs_origin == self.vcs_origin,
                 )
             )
         ).scalar()
@@ -127,6 +151,10 @@ class CircleCIPublisherMixin:
         ]
         if self.context_id:
             details.append(("Context ID", self.context_id))
+        if self.vcs_ref:
+            details.append(("VCS Ref", self.vcs_ref))
+        if self.vcs_origin:
+            details.append(("VCS Origin", self.vcs_origin))
         return details
 
     @property
@@ -143,6 +171,8 @@ class CircleCIPublisherMixin:
             "oidc.circleci.com/pipeline-definition-id": "pipeline_definition_id",
             "oidc.circleci.com/ssh-rerun": "ssh_rerun",
             "oidc.circleci.com/context-ids": "context_id",
+            "oidc.circleci.com/vcs-ref": "vcs_ref",
+            "oidc.circleci.com/vcs-origin": "vcs_origin",
         }
         if name in claim_to_attr:
             return object.__getattribute__(self, claim_to_attr[name])
@@ -195,6 +225,8 @@ class CircleCIPublisher(CircleCIPublisherMixin, OIDCPublisher):
             "circleci_project_id",
             "pipeline_definition_id",
             "context_id",
+            "vcs_ref",
+            "vcs_origin",
             name="_circleci_oidc_publisher_uc",
         ),
     )
@@ -213,6 +245,8 @@ class PendingCircleCIPublisher(CircleCIPublisherMixin, PendingOIDCPublisher):
             "circleci_project_id",
             "pipeline_definition_id",
             "context_id",
+            "vcs_ref",
+            "vcs_origin",
             name="_pending_circleci_oidc_publisher_uc",
         ),
     )
@@ -233,6 +267,8 @@ class PendingCircleCIPublisher(CircleCIPublisherMixin, PendingOIDCPublisher):
                 CircleCIPublisher.circleci_project_id == self.circleci_project_id,
                 CircleCIPublisher.pipeline_definition_id == self.pipeline_definition_id,
                 CircleCIPublisher.context_id == self.context_id,
+                CircleCIPublisher.vcs_ref == self.vcs_ref,
+                CircleCIPublisher.vcs_origin == self.vcs_origin,
             )
             .one_or_none()
         )
@@ -242,6 +278,8 @@ class PendingCircleCIPublisher(CircleCIPublisherMixin, PendingOIDCPublisher):
             circleci_project_id=self.circleci_project_id,
             pipeline_definition_id=self.pipeline_definition_id,
             context_id=self.context_id,
+            vcs_ref=self.vcs_ref,
+            vcs_origin=self.vcs_origin,
         )
 
         session.delete(self)

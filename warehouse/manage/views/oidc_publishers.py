@@ -787,10 +787,12 @@ class ManageOIDCPublisherViews:
             return response
 
         # CircleCI OIDC publishers are unique on the tuple of
-        # (circleci_org_id, circleci_project_id, pipeline_definition_id, context_id),
-        # so we check for an already registered one before creating.
-        # Empty string is used to represent "no context" (unconstrained).
+        # (circleci_org_id, circleci_project_id, pipeline_definition_id, context_id,
+        # vcs_ref, vcs_origin), so we check for an already registered one before
+        # creating. Empty string is used to represent unconstrained optional fields.
         context_id = form.context_id.data or ""
+        vcs_ref = form.vcs_ref.data or ""
+        vcs_origin = form.vcs_origin.data or ""
         publisher = (
             self.request.db.query(CircleCIPublisher)
             .filter(
@@ -799,6 +801,8 @@ class ManageOIDCPublisherViews:
                 CircleCIPublisher.pipeline_definition_id
                 == form.pipeline_definition_id.data,
                 CircleCIPublisher.context_id == context_id,
+                CircleCIPublisher.vcs_ref == vcs_ref,
+                CircleCIPublisher.vcs_origin == vcs_origin,
             )
             .one_or_none()
         )
@@ -808,6 +812,8 @@ class ManageOIDCPublisherViews:
                 circleci_project_id=form.circleci_project_id.data,
                 pipeline_definition_id=form.pipeline_definition_id.data,
                 context_id=context_id,
+                vcs_ref=vcs_ref,
+                vcs_origin=vcs_origin,
             )
 
             self.request.db.add(publisher)
