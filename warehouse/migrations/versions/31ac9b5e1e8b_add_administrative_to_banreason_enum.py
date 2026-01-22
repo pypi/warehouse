@@ -16,19 +16,7 @@ down_revision = "a6cae8e65f1a"
 
 
 def upgrade():
-    op.sync_enum_values(
-        enum_schema="public",
-        enum_name="banreason",
-        new_values=["authentication-attempts", "administrative"],
-        affected_columns=[
-            TableReference(
-                table_schema="public",
-                table_name="ip_addresses",
-                column_name="ban_reason",
-            )
-        ],
-        enum_values_to_rename=[],
-    )
+    op.execute("ALTER TYPE public.banreason ADD VALUE IF NOT EXISTS 'administrative'")
 
 
 def downgrade():
