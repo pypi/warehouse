@@ -22,7 +22,6 @@ from sqlalchemy import (
     orm,
     text,
 )
-from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import (
     Mapped,
@@ -214,7 +213,6 @@ class OrganizationOIDCIssuer(db.Model):
     __repr__ = make_repr("organization_id", "issuer_type", "issuer_url")
 
     organization_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
     )
     issuer_type: Mapped[OIDCIssuerType] = mapped_column(
@@ -228,7 +226,6 @@ class OrganizationOIDCIssuer(db.Model):
         comment="Datetime when the issuer was added",
     )
     created_by_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
         ForeignKey("users.id"),
         comment="Admin user who created the issuer mapping",
     )
@@ -625,7 +622,6 @@ class OrganizationManualActivation(db.Model):
     __repr__ = make_repr("organization_id", "seat_limit", "expires")
 
     organization_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
         ForeignKey("organizations.id", ondelete="CASCADE"),
         primary_key=True,
         comment="Foreign key to organization",
@@ -644,14 +640,12 @@ class OrganizationManualActivation(db.Model):
         comment="Datetime when manual activation was created"
     )
     created_by_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
         ForeignKey("users.id"),
         comment="Admin user who created the manual activation",
     )
     created_by: Mapped[User] = relationship()
 
     id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
         server_default=text("gen_random_uuid()"),
     )
 
@@ -705,7 +699,6 @@ class OrganizationApplication(OrganizationMixin, HasObservations, db.Model):
         return column_property(func.normalize_pep426_name(cls.name))
 
     submitted_by_id: Mapped[UUID] = mapped_column(
-        PG_UUID,
         ForeignKey(
             User.id,
             deferrable=True,
@@ -743,7 +736,6 @@ class OrganizationApplication(OrganizationMixin, HasObservations, db.Model):
     )
 
     organization_id: Mapped[UUID | None] = mapped_column(
-        PG_UUID,
         ForeignKey(
             Organization.id,
             deferrable=True,
@@ -805,7 +797,7 @@ class OrganizationNameCatalog(db.Model):
     __repr__ = make_repr("normalized_name", "organization_id")
 
     normalized_name: Mapped[str] = mapped_column(index=True)
-    organization_id: Mapped[UUID | None] = mapped_column(PG_UUID, index=True)
+    organization_id: Mapped[UUID | None] = mapped_column(index=True)
 
 
 class OrganizationInvitationStatus(enum.Enum):

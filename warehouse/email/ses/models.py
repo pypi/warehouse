@@ -7,7 +7,7 @@ from uuid import UUID
 import automat
 
 from sqlalchemy import Enum, ForeignKey, orm, sql
-from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -258,7 +258,6 @@ class Event(db.Model):
     created: Mapped[datetime_now]
 
     email_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
         ForeignKey(
             "ses_emails.id", deferrable=True, initially="DEFERRED", ondelete="CASCADE"
         ),
