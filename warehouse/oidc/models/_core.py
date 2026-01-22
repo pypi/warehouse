@@ -10,7 +10,6 @@ import rfc3986
 import sentry_sdk
 
 from sqlalchemy import ForeignKey, Index, String, UniqueConstraint, func, orm
-from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
@@ -103,13 +102,11 @@ class OIDCPublisherProjectAssociation(db.Model):
     __table_args__ = (UniqueConstraint("oidc_publisher_id", "project_id"),)
 
     oidc_publisher_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
         ForeignKey("oidc_publishers.id"),
         nullable=False,
         primary_key=True,
     )
     project_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
         primary_key=True,
@@ -385,11 +382,10 @@ class PendingOIDCPublisher(OIDCPublisherMixin, db.Model):
 
     project_name: Mapped[str] = mapped_column(String, nullable=False)
     added_by_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True
+        ForeignKey("users.id"), nullable=False, index=True
     )
     added_by: Mapped[User] = orm.relationship(back_populates="pending_oidc_publishers")
     organization_id: Mapped[UUID | None] = mapped_column(
-        PG_UUID(as_uuid=True),
         ForeignKey("organizations.id"),
         nullable=True,
         index=True,
