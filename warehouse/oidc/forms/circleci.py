@@ -12,6 +12,8 @@ class CircleCIPublisherBase(wtforms.Form):
         "circleci_project_id",
         "pipeline_definition_id",
         "context_id",
+        "vcs_ref",
+        "vcs_origin",
     ]
 
     circleci_org_id = wtforms.StringField(
@@ -53,6 +55,21 @@ class CircleCIPublisherBase(wtforms.Form):
             wtforms.validators.UUID(
                 message=_("CircleCI context ID must be a valid UUID"),
             ),
+        ]
+    )
+
+    # Optional VCS claims for additional security constraints
+    # vcs_ref: e.g., "refs/heads/main"
+    vcs_ref = wtforms.StringField(
+        validators=[
+            wtforms.validators.Optional(),
+        ]
+    )
+
+    # vcs_origin: e.g., "github.com/organization-123/repo-1"
+    vcs_origin = wtforms.StringField(
+        validators=[
+            wtforms.validators.Optional(),
         ]
     )
 
