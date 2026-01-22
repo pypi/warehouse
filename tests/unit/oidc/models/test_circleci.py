@@ -8,12 +8,20 @@ from tests.common.db.oidc import (
 )
 from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.interfaces import SignedClaims
-from warehouse.oidc.models.circleci import CircleCIPublisher, _check_context_id
+from warehouse.oidc.models.circleci import (
+    CircleCIPublisher,
+    _check_context_id,
+    _check_optional_string,
+)
 
 ORG_ID = "00000000-0000-1000-8000-000000000001"
 PROJECT_ID = "00000000-0000-1000-8000-000000000002"
 PIPELINE_DEF_ID = "00000000-0000-1000-8000-000000000003"
 CONTEXT_ID = "00000000-0000-1000-8000-000000000004"
+
+
+VCS_REF = "refs/heads/main"
+VCS_ORIGIN = "github.com/some-org/some-repo"
 
 
 def new_signed_claims(
@@ -22,6 +30,8 @@ def new_signed_claims(
     pipeline_definition_id: str = PIPELINE_DEF_ID,
     context_ids: list[str] | None = None,
     ssh_rerun: bool = False,
+    vcs_ref: str = VCS_REF,
+    vcs_origin: str = VCS_ORIGIN,
 ) -> SignedClaims:
     claims = SignedClaims(
         {
@@ -32,8 +42,8 @@ def new_signed_claims(
             "oidc.circleci.com/pipeline-definition-id": pipeline_definition_id,
             "oidc.circleci.com/pipeline-id": "fake-pipeline-id",
             "oidc.circleci.com/ssh-rerun": ssh_rerun,
-            "oidc.circleci.com/vcs-ref": "refs/heads/main",
-            "oidc.circleci.com/vcs-origin": "https://github.com/org/repo",
+            "oidc.circleci.com/vcs-ref": vcs_ref,
+            "oidc.circleci.com/vcs-origin": vcs_origin,
             "oidc.circleci.com/workflow-id": "fake-workflow-id",
         }
     )
@@ -56,6 +66,37 @@ class TestCheckContextId:
 
     def test_required_context_not_in_claim_array(self):
         assert _check_context_id("ctx-3", ["ctx-1", "ctx-2"], {}) is False
+
+
+class TestCheckOptionalString:
+    def test_empty_ground_truth_always_passes(self):
+        assert _check_optional_string("", None, {}) is True
+        assert _check_optional_string("", "", {}) is True
+        assert _check_optional_string("", "some-value", {}) is True
+
+    def test_required_value_fails_without_claim(self):
+        assert _check_optional_string("required-value", None, {}) is False
+        assert _check_optional_string("required-value", "", {}) is False
+
+    def test_required_value_matches_claim(self):
+        assert _check_optional_string("refs/heads/main", "refs/heads/main", {}) is True
+        assert (
+            _check_optional_string(
+                "github.com/org/repo", "github.com/org/repo", {}
+            )
+            is True
+        )
+
+    def test_required_value_does_not_match_claim(self):
+        assert (
+            _check_optional_string("refs/heads/main", "refs/heads/develop", {}) is False
+        )
+        assert (
+            _check_optional_string(
+                "github.com/org/repo", "github.com/other-org/repo", {}
+            )
+            is False
+        )
 
 
 class TestCircleCIPublisher:
@@ -122,6 +163,55 @@ class TestCircleCIPublisher:
             ("Context ID", CONTEXT_ID),
         ]
 
+    def test_admin_details_with_vcs_ref(self):
+        publisher = CircleCIPublisher(
+            circleci_org_id=ORG_ID,
+            circleci_project_id=PROJECT_ID,
+            pipeline_definition_id=PIPELINE_DEF_ID,
+            vcs_ref=VCS_REF,
+        )
+
+        assert publisher.admin_details == [
+            ("Organization ID", ORG_ID),
+            ("Project ID", PROJECT_ID),
+            ("Pipeline Definition ID", PIPELINE_DEF_ID),
+            ("VCS Ref", VCS_REF),
+        ]
+
+    def test_admin_details_with_vcs_origin(self):
+        publisher = CircleCIPublisher(
+            circleci_org_id=ORG_ID,
+            circleci_project_id=PROJECT_ID,
+            pipeline_definition_id=PIPELINE_DEF_ID,
+            vcs_origin=VCS_ORIGIN,
+        )
+
+        assert publisher.admin_details == [
+            ("Organization ID", ORG_ID),
+            ("Project ID", PROJECT_ID),
+            ("Pipeline Definition ID", PIPELINE_DEF_ID),
+            ("VCS Origin", VCS_ORIGIN),
+        ]
+
+    def test_admin_details_with_all_optional_fields(self):
+        publisher = CircleCIPublisher(
+            circleci_org_id=ORG_ID,
+            circleci_project_id=PROJECT_ID,
+            pipeline_definition_id=PIPELINE_DEF_ID,
+            context_id=CONTEXT_ID,
+            vcs_ref=VCS_REF,
+            vcs_origin=VCS_ORIGIN,
+        )
+
+        assert publisher.admin_details == [
+            ("Organization ID", ORG_ID),
+            ("Project ID", PROJECT_ID),
+            ("Pipeline Definition ID", PIPELINE_DEF_ID),
+            ("Context ID", CONTEXT_ID),
+            ("VCS Ref", VCS_REF),
+            ("VCS Origin", VCS_ORIGIN),
+        ]
+
     def test_stored_claims(self):
         publisher = CircleCIPublisher(
             circleci_org_id=ORG_ID,
@@ -147,6 +237,8 @@ class TestCircleCIPublisher:
             circleci_project_id=PROJECT_ID,
             pipeline_definition_id=PIPELINE_DEF_ID,
             context_id=CONTEXT_ID,
+            vcs_ref=VCS_REF,
+            vcs_origin=VCS_ORIGIN,
         )
 
         assert getattr(publisher, "oidc.circleci.com/org-id") == ORG_ID
@@ -157,6 +249,8 @@ class TestCircleCIPublisher:
         )
         assert getattr(publisher, "oidc.circleci.com/context-ids") == CONTEXT_ID
         assert getattr(publisher, "oidc.circleci.com/ssh-rerun") is False
+        assert getattr(publisher, "oidc.circleci.com/vcs-ref") == VCS_REF
+        assert getattr(publisher, "oidc.circleci.com/vcs-origin") == VCS_ORIGIN
 
     def test_getattr_raises_for_unknown_attribute(self):
         publisher = CircleCIPublisher(
@@ -307,6 +401,8 @@ class TestPendingCircleCIPublisher:
             circleci_project_id=PROJECT_ID,
             pipeline_definition_id=PIPELINE_DEF_ID,
             context_id=CONTEXT_ID,
+            vcs_ref=VCS_REF,
+            vcs_origin=VCS_ORIGIN,
         )
 
         publisher = pending.reify(db_request.db)
@@ -316,6 +412,8 @@ class TestPendingCircleCIPublisher:
         assert publisher.circleci_project_id == PROJECT_ID
         assert publisher.pipeline_definition_id == PIPELINE_DEF_ID
         assert publisher.context_id == CONTEXT_ID
+        assert publisher.vcs_ref == VCS_REF
+        assert publisher.vcs_origin == VCS_ORIGIN
 
     def test_reify_returns_existing_publisher(self, db_request):
         existing = CircleCIPublisherFactory.create(
@@ -323,12 +421,16 @@ class TestPendingCircleCIPublisher:
             circleci_project_id=PROJECT_ID,
             pipeline_definition_id=PIPELINE_DEF_ID,
             context_id=CONTEXT_ID,
+            vcs_ref=VCS_REF,
+            vcs_origin=VCS_ORIGIN,
         )
         pending = PendingCircleCIPublisherFactory.create(
             circleci_org_id=ORG_ID,
             circleci_project_id=PROJECT_ID,
             pipeline_definition_id=PIPELINE_DEF_ID,
             context_id=CONTEXT_ID,
+            vcs_ref=VCS_REF,
+            vcs_origin=VCS_ORIGIN,
         )
 
         publisher = pending.reify(db_request.db)
