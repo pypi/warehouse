@@ -1110,8 +1110,12 @@ class TestManageOIDCPublisherViews:
                     id="fakeid",
                     publisher_name="CircleCI",
                     publisher_url=lambda x=None: None,
-                    circleci_org_id="some-org-id",
-                    circleci_project_id="some-project-id",
+                    circleci_org_id="00000000-0000-1000-8000-000000000001",
+                    circleci_project_id="00000000-0000-1000-8000-000000000002",
+                    pipeline_definition_id="00000000-0000-1000-8000-000000000003",
+                    context_id="",
+                    vcs_ref="",
+                    vcs_origin="",
                 ),
                 lambda publisher: pretend.stub(
                     validate=pretend.call_recorder(lambda: True),
@@ -1119,6 +1123,12 @@ class TestManageOIDCPublisherViews:
                     circleci_project_id=pretend.stub(
                         data=publisher.circleci_project_id
                     ),
+                    pipeline_definition_id=pretend.stub(
+                        data=publisher.pipeline_definition_id
+                    ),
+                    context_id=pretend.stub(data=publisher.context_id),
+                    vcs_ref=pretend.stub(data=publisher.vcs_ref),
+                    vcs_origin=pretend.stub(data=publisher.vcs_origin),
                 ),
             ),
         ],
@@ -1275,8 +1285,18 @@ class TestManageOIDCPublisherViews:
                 "add_circleci_oidc_publisher",
                 pretend.stub(
                     validate=pretend.call_recorder(lambda: True),
-                    circleci_org_id=pretend.stub(data="fake-org-id"),
-                    circleci_project_id=pretend.stub(data="fake-project-id"),
+                    circleci_org_id=pretend.stub(
+                        data="00000000-0000-1000-8000-000000000001"
+                    ),
+                    circleci_project_id=pretend.stub(
+                        data="00000000-0000-1000-8000-000000000002"
+                    ),
+                    pipeline_definition_id=pretend.stub(
+                        data="00000000-0000-1000-8000-000000000003"
+                    ),
+                    context_id=pretend.stub(data=""),
+                    vcs_ref=pretend.stub(data=""),
+                    vcs_origin=pretend.stub(data=""),
                 ),
                 "CircleCI",
             ),
@@ -1470,13 +1490,18 @@ class TestManageOIDCPublisherViews:
                 "add_circleci_oidc_publisher",
                 "CircleCI",
                 CircleCIPublisher(
-                    circleci_org_id="some-org-id",
-                    circleci_project_id="some-project-id",
+                    circleci_org_id="00000000-0000-1000-8000-000000000001",
+                    circleci_project_id="00000000-0000-1000-8000-000000000002",
+                    pipeline_definition_id="00000000-0000-1000-8000-000000000003",
+                    context_id="",
+                    vcs_ref="",
+                    vcs_origin="",
                 ),
                 MultiDict(
                     {
-                        "circleci_org_id": "some-org-id",
-                        "circleci_project_id": "some-project-id",
+                        "circleci_org_id": "00000000-0000-1000-8000-000000000001",
+                        "circleci_project_id": "00000000-0000-1000-8000-000000000002",
+                        "pipeline_definition_id": "00000000-0000-1000-8000-000000000003",
                     }
                 ),
             ),
