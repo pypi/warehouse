@@ -14,12 +14,10 @@ down_revision = "23a3c4ffe5d"
 
 
 def upgrade():
-    op.execute(
-        """ CREATE UNIQUE INDEX project_name_pep426_normalized
+    op.execute(""" CREATE UNIQUE INDEX project_name_pep426_normalized
             ON packages
             (normalize_pep426_name(name))
-        """
-    )
+        """)
 
 
 def downgrade():

@@ -148,11 +148,11 @@ class SESEmailSender:
 class ConsoleAndSMTPEmailSender(SMTPEmailSender):
     def send(self, recipient, message):
         super().send(recipient=recipient, message=message)
-        print(
-            f"""Email sent
+        print(f"""
+Email sent
 Subject: {message.subject}
 From: {self.sender if message.sender is None else message.sender}
 To: {recipient}
 HTML: Visualize at http://localhost:1080
-Text: {message.body_text}"""
-        )
+Text: {message.body_text}
+""")

@@ -101,7 +101,7 @@ def test_delete_expired_oidc_macaroons(db_request, macaroon_service, metrics):
     publisher = GitHubPublisherFactory.create()
     claims = {"sha": "somesha", "ref": "someref"}
     # Create an OIDC macaroon and set its creation time to 1 day ago
-    (_, old_oidc_macaroon) = macaroon_service.create_macaroon(
+    _, old_oidc_macaroon = macaroon_service.create_macaroon(
         "fake location",
         "fake description",
         [
@@ -135,7 +135,7 @@ def test_delete_expired_oidc_macaroons(db_request, macaroon_service, metrics):
 
     # Create a non-OIDC macaroon and set its creation time to 1 day ago
     user = UserFactory.create()
-    (_, non_oidc_macaroon) = macaroon_service.create_macaroon(
+    _, non_oidc_macaroon = macaroon_service.create_macaroon(
         "fake location",
         "fake description",
         [caveats.RequestUser(user_id=str(user.id))],

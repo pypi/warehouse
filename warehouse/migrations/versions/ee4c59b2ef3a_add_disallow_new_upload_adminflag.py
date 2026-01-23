@@ -14,8 +14,7 @@ down_revision = "8650482fb903"
 
 
 def upgrade():
-    op.execute(
-        """
+    op.execute("""
         INSERT INTO admin_flags(id, description, enabled, notify)
         VALUES (
             'disallow-new-upload',
@@ -23,8 +22,7 @@ def upgrade():
             FALSE,
             FALSE
         )
-    """
-    )
+    """)
 
 
 def downgrade():

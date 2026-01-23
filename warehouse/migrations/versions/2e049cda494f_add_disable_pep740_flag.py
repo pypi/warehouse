@@ -14,8 +14,7 @@ down_revision = "f204918656f1"
 
 
 def upgrade():
-    op.execute(
-        """
+    op.execute("""
         INSERT INTO admin_flags(id, description, enabled, notify)
         VALUES (
             'disable-pep740',
@@ -23,8 +22,7 @@ def upgrade():
             FALSE,
             FALSE
         )
-    """
-    )
+    """)
 
 
 def downgrade():
