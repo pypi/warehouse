@@ -1,4 +1,5 @@
 asyncudp>=0.7
+granian[reload]  # reload extra for development hot-reload
 hupper>=1.9
 pip-tools>=1.0
 pyramid_debugtoolbar>=2.5

@@ -1,2 +1,2 @@
-gunicorn==24.0.0
+granian>=1.6.0
 ddtrace==4.2.1
