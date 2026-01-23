@@ -30,8 +30,7 @@ def upgrade():
 
     # Set packages.last_serial for each package to the current maximum serial
     # as computed by the journals table.
-    op.execute(
-        """ UPDATE packages
+    op.execute(""" UPDATE packages
             SET last_serial = j.last_serial
             FROM (
                 SELECT name,
@@ -40,8 +39,7 @@ def upgrade():
                 GROUP BY name
             ) as j
             WHERE j.name = packages.name
-        """
-    )
+        """)
 
     # Now that data has been backfilled, we'll set nullable to False.
     op.alter_column("packages", "last_serial", nullable=False)
@@ -49,8 +47,7 @@ def upgrade():
     # Setup a trigger function that will ensure that on INSERT/UPDATE/DELETE we
     # populate the packages.last_serial attribute with the new serial number.
     # 113359
-    op.execute(
-        """ CREATE OR REPLACE FUNCTION maintain_project_last_serial()
+    op.execute(""" CREATE OR REPLACE FUNCTION maintain_project_last_serial()
             RETURNS TRIGGER AS $$
             DECLARE
                 targeted_name text;
@@ -75,14 +72,11 @@ def upgrade():
                 RETURN NULL;
             END;
             $$ LANGUAGE plpgsql;
-        """
-    )
-    op.execute(
-        """ CREATE TRIGGER update_project_last_serial
+        """)
+    op.execute(""" CREATE TRIGGER update_project_last_serial
             AFTER INSERT OR UPDATE OR DELETE ON journals
             FOR EACH ROW EXECUTE PROCEDURE maintain_project_last_serial();
-        """
-    )
+        """)
 
 
 def downgrade():

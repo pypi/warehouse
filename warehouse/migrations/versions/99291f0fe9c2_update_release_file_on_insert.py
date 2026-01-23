@@ -23,27 +23,23 @@ down_revision = "e7b09b5c089d"
 
 
 def upgrade():
-    op.execute(
-        """ UPDATE release_files
+    op.execute(""" UPDATE release_files
             SET requires_python = releases.requires_python
             FROM releases
             WHERE
                 release_files.name=releases.name
                 AND release_files.version=releases.version;
-        """
-    )
+        """)
 
     # Establish a trigger such that on INSERT on release_files.
     # The requires_python value is no supposed to be set directly here
     # and UPDATES of the `releases` table already propagate.
     # Also triggering on UPDATE might create a recursion.
-    op.execute(
-        """ CREATE TRIGGER release_files_requires_python
+    op.execute(""" CREATE TRIGGER release_files_requires_python
               AFTER INSERT ON release_files
               FOR EACH ROW
                   EXECUTE PROCEDURE update_release_files_requires_python();
-        """
-    )
+        """)
 
 
 def downgrade():

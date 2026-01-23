@@ -16,8 +16,7 @@ down_revision = "4d1b4fcc4076"
 
 
 def upgrade():
-    op.execute(
-        """
+    op.execute("""
         INSERT INTO admin_flags(id, description, enabled, notify)
         VALUES (
             'disallow-gitlab-oidc',
@@ -25,8 +24,7 @@ def upgrade():
             TRUE,
             FALSE
         )
-        """
-    )
+        """)
     op.create_table(
         "gitlab_oidc_publishers",
         sa.Column("id", sa.UUID(), nullable=False),
