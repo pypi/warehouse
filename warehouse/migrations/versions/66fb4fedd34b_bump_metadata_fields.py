@@ -15,12 +15,14 @@ down_revision = "31ac9b5e1e8b"
 
 
 def upgrade():
-    op.execute(
-        "ALTER TYPE public.release_dynamic_fields ADD VALUE IF NOT EXISTS 'Import-Name'"
-    )
-    op.execute(
-        "ALTER TYPE public.release_dynamic_fields ADD VALUE IF NOT EXISTS 'Import-Namespace'"
-    )
+    op.execute("""
+        ALTER TYPE public.release_dynamic_fields
+        ADD VALUE IF NOT EXISTS 'Import-Name'
+        """)
+    op.execute("""
+        ALTER TYPE public.release_dynamic_fields
+        ADD VALUE IF NOT EXISTS 'Import-Namespace'
+        """)
 
 
 def downgrade():
