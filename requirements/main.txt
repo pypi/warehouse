@@ -2402,9 +2402,9 @@ vine==5.1.0 \
     #   amqp
     #   celery
     #   kombu
-wcwidth==0.2.14 \
-    --hash=sha256:4d478375d31bc5395a3c55c40ccdf3354688364cd61c4f6adacaa9215d0b3605 \
-    --hash=sha256:a7bb560c8aee30f9957e5f9895805edd20602f2d7f720186dfd906e82b4982e1
+wcwidth==0.3.1 \
+    --hash=sha256:5aedb626a9c0d941b990cfebda848d538d45c9493a3384d080aff809143bd3be \
+    --hash=sha256:b2d355df3ec5d51bfc973a22fb4ea9a03b12fdcbf00d0abd22a2c78b12ccc177
     # via prompt-toolkit
 webauthn==2.7.0 \
     --hash=sha256:2ecfee7959b09ebeaaffee9f8982ecdbbdc369a11766d20d4bc0637b36e235b7 \
