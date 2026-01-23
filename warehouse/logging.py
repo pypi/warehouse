@@ -58,17 +58,17 @@ def includeme(config):
             },
             "loggers": {
                 "datadog.dogstatsd": {"level": "ERROR"},
-                "gunicorn": {
+                "_granian": {
                     "propagate": False,
                     "handlers": ["primary"],
                     "level": config.registry.settings.get("logging.level", "INFO"),
                 },
-                "gunicorn.access": {
+                "granian": {
                     "propagate": False,
                     "handlers": ["primary"],
                     "level": config.registry.settings.get("logging.level", "INFO"),
                 },
-                "gunicorn.server": {
+                "granian.access": {
                     "propagate": False,
                     "handlers": ["primary"],
                     "level": config.registry.settings.get("logging.level", "INFO"),
