@@ -2041,13 +2041,11 @@ class TestFileUpload:
 
         db_request.user_agent = "warehouse-tests/6.6.6"
 
-        wheel_metadata = dedent(
-            """
+        wheel_metadata = dedent("""
             Metadata-Version: 2.1
             Name: {project.name}
             Version: {release.version}
-            """
-        ).encode("utf-8")
+            """).encode("utf-8")
 
         wheel_testdata = _get_whl_testdata(
             name=project.normalized_name.replace("-", "_"), version=release.version

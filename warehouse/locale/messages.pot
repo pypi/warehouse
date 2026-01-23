@@ -1017,32 +1017,32 @@ msgstr[1] ""
 msgid "Just now"
 msgstr ""
 
-#: warehouse/subscriptions/models.py:25
+#: warehouse/subscriptions/models.py:24
 #: warehouse/templates/manage/project/history.html:209
 msgid "Active"
 msgstr ""
 
-#: warehouse/subscriptions/models.py:26
+#: warehouse/subscriptions/models.py:25
 msgid "Past Due"
 msgstr ""
 
-#: warehouse/subscriptions/models.py:27
+#: warehouse/subscriptions/models.py:26
 msgid "Unpaid"
 msgstr ""
 
-#: warehouse/subscriptions/models.py:28
+#: warehouse/subscriptions/models.py:27
 msgid "Canceled"
 msgstr ""
 
-#: warehouse/subscriptions/models.py:29
+#: warehouse/subscriptions/models.py:28
 msgid "Incomplete"
 msgstr ""
 
-#: warehouse/subscriptions/models.py:30
+#: warehouse/subscriptions/models.py:29
 msgid "Incomplete Expired"
 msgstr ""
 
-#: warehouse/subscriptions/models.py:31
+#: warehouse/subscriptions/models.py:30
 msgid "Trialing"
 msgstr ""
 

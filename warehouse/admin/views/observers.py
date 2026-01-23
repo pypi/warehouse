@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 """Admin Views for Observer Reputation tracking."""
+
 from __future__ import annotations
 
 from collections import defaultdict
@@ -42,9 +43,9 @@ def _get_malware_observations(request: Request, days: int):
     cutoff_date = datetime.now(tz=timezone.utc) - timedelta(days=days)
 
     stmt = select(
-        Observation.observer_id,  # type: ignore[attr-defined]
+        Observation.observer_id,
         Observation.actions,
-        Observation.related_id,  # type: ignore[attr-defined]
+        Observation.related_id,
         Observation.created,
     ).where(
         Observation.kind == "is_malware",
@@ -176,7 +177,7 @@ def _get_observer_detail_stats(request: Request, observer: Observer, days: int) 
     If days=0, returns all observations (lifetime).
     """
     stmt = select(Observation).where(
-        Observation.observer_id == observer.id,  # type: ignore[attr-defined]
+        Observation.observer_id == observer.id,
         Observation.kind == "is_malware",
     )
 
@@ -214,9 +215,9 @@ def _get_observer_time_series(request: Request, observer: Observer, days: int) -
     stmt = select(
         Observation.created,
         Observation.actions,
-        Observation.related_id,  # type: ignore[attr-defined]
+        Observation.related_id,
     ).where(
-        Observation.observer_id == observer.id,  # type: ignore[attr-defined]
+        Observation.observer_id == observer.id,
         Observation.kind == "is_malware",
     )
 

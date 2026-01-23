@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 """Admin Views related to Quarantine"""
+
 from __future__ import annotations
 
 import typing

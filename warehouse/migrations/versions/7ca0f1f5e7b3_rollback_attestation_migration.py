@@ -7,7 +7,6 @@ Revises: 7f0c9f105f44
 Create Date: 2024-08-21 19:52:40.084048
 """
 
-
 from alembic import op
 
 revision = "7ca0f1f5e7b3"

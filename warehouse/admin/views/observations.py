@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 """Admin Views related to Observations"""
+
 from __future__ import annotations
 
 import re
@@ -71,14 +72,12 @@ def _fetch_malware_observations(request: Request, cutoff_date: datetime) -> list
     Uses a window function to include report_count per package in each row.
     """
     stmt = select(
-        Observation.related_name,  # type: ignore[attr-defined]
-        Observation.related_id,  # type: ignore[attr-defined]
-        Observation.observer_id,  # type: ignore[attr-defined]
+        Observation.related_name,
+        Observation.related_id,
+        Observation.observer_id,
         Observation.actions,
         Observation.created.label("report_created"),
-        func.count()
-        .over(partition_by=Observation.related_name)  # type: ignore[attr-defined]
-        .label("report_count"),
+        func.count().over(partition_by=Observation.related_name).label("report_count"),
     ).where(
         Observation.kind == "is_malware",
         Observation.created >= cutoff_date,

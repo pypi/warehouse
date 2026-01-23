@@ -5,10 +5,11 @@ from __future__ import annotations
 import typing
 
 from dataclasses import dataclass
+from uuid import UUID
 
 from linehaul.ua import parser as linehaul_user_agent_parser
 from sqlalchemy import ForeignKey, Index, orm
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, declared_attr, mapped_column
 from ua_parser import user_agent_parser
 
@@ -113,10 +114,15 @@ class Event:
     time: Mapped[datetime_now]
     additional: Mapped[dict | None] = mapped_column(JSONB)
 
+    if typing.TYPE_CHECKING:
+        # Attributes defined on concrete subclasses created by HasEvents.
+        # Declared here for type checking when querying via polymorphic union.
+        source_id: Mapped[UUID]
+        source: HasEvents
+
     @declared_attr
     def ip_address_id(cls):  # noqa: N805
         return mapped_column(
-            UUID(as_uuid=True),
             ForeignKey("ip_addresses.id", onupdate="CASCADE", ondelete="CASCADE"),
             nullable=True,
         )
@@ -126,7 +132,7 @@ class Event:
         return orm.relationship(IpAddress)
 
     @property
-    def location_info(cls) -> str:  # noqa: N805
+    def location_info(cls) -> str | IpAddress:  # noqa: N805
         """
         Determine "best" location info to display.
 
@@ -156,10 +162,17 @@ class Event:
 
 
 class HasEvents:
-    Event: typing.ClassVar[type]
+    if typing.TYPE_CHECKING:
+        # Dynamically created Event subclass; typed as Any because:
+        # - `type[Event]` breaks instantiation
+        # - Needs to support both `cls.Event(...)` and `cls.Event.column` access
+        Event: typing.Any
 
     @declared_attr
-    def events(cls):  # noqa: N805
+    def events(cls: type[typing.Any]):  # noqa: N805
+        # Returns AppenderQuery at runtime (`lazy="dynamic"`)
+        # No return type annotation: `Mapped[]` implies `uselist=False`,
+        # `typing.Any` triggers SQLAlchemy error
         cls.Event = type(
             f"{cls.__name__}Event",
             (Event, db.Model),
@@ -169,7 +182,6 @@ class HasEvents:
                     Index(f"ix_{cls.__name__.lower()}_events_source_id", "source_id"),
                 ),
                 source_id=mapped_column(
-                    UUID(as_uuid=True),
                     ForeignKey(
                         f"{cls.__tablename__}.id",
                         deferrable=True,

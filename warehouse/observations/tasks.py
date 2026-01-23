@@ -6,6 +6,7 @@ import json
 import typing
 
 from base64 import b64encode
+from datetime import datetime, timedelta, timezone
 from textwrap import dedent
 
 from humanize import naturaldate, naturaltime
@@ -78,17 +79,14 @@ def report_observation_to_helpscout(task, request: Request, model_id: UUID) -> N
     warehouse_domain = request.registry.settings.get("warehouse.domain")
 
     # Add new Conversation to HelpScout for tracking purposes
-    convo_text = dedent(
-        f"""
+    convo_text = dedent(f"""
         Kind: {model.kind}
         Summary: {model.summary}
         Model Name: {model.__class__.__name__}
 
         Project URL: {request.route_url(
-            'packaging.project', name=target_name, _host=warehouse_domain
-        )}
-        """
-    )
+        'packaging.project', name=target_name, _host=warehouse_domain)}
+        """)
     for owner in model.related.owners:
         username = owner.username
         owner_url = request.route_url(
@@ -98,17 +96,14 @@ def report_observation_to_helpscout(task, request: Request, model_id: UUID) -> N
         convo_text += f"Owner URL: {owner_url}\n"
 
     if OBSERVATION_KIND_MAP[model.kind] == ObservationKind.IsMalware:
-        convo_text += dedent(
-            f"""
+        convo_text += dedent(f"""
             Inspector URL: {model.payload.get("inspector_url")}
 
             Malware Reports URL: {request.route_url(
-                "admin.malware_reports.project.list",
-                project_name=target_name,
-                _host=warehouse_domain,
-            )}
-            """
-        )
+            "admin.malware_reports.project.list",
+            project_name=target_name,
+            _host=warehouse_domain)}
+            """)
 
     helpdesk_service = request.find_service(IHelpDeskService)
 
@@ -165,7 +160,9 @@ def evaluate_project_for_quarantine(
 
     - ObservationKind is IsMalware
     - Observed Project is not already quarantined
-    - Observed Project has at least 2 Observations, at least 1 by `User.is_observer`
+    - EITHER:
+      - Trusted observer (`User.is_observer`) reports a young project (<24h old)
+      - OR: Project has at least 2 Observations, at least 1 by `User.is_observer`
     """
     # Fetch the Observation from the database, load the related Project
     observation = request.db.get(Observation, observation_id)
@@ -187,17 +184,30 @@ def evaluate_project_for_quarantine(
     if project.lifecycle_status == LifecycleStatus.QuarantineEnter:
         logger.info("Project is already quarantined. No change needed.")
         return
-    # Check Observers
-    observer_users = {obs.observer.parent for obs in project.observations}
-    if len(observer_users) < 2:
-        logger.info("Project has fewer than 2 observers. Not quarantining.")
-        return
-    if not any(observer.is_observer for observer in observer_users):
-        logger.info("Project has no `User.is_observer` Observers. Not quarantining.")
-        return
 
-    # Quarantine the project
-    logger.info("Auto-quarantining project due to multiple malware observations.")
+    # Fast-track: Trusted observer reporting a young project (< 24 hours old)
+    # A single trusted observer is sufficient for very new projects
+    reporter = observation.observer.parent
+    # Note: project.created is a naive UTC datetime from the database
+    project_is_young = project.created is not None and (
+        datetime.now(timezone.utc) - project.created.replace(tzinfo=timezone.utc)
+    ) < timedelta(hours=24)
+    if reporter.is_observer and project_is_young:
+        logger.info(
+            "Auto-quarantining young project (<24h) reported by trusted observer."
+        )
+    else:
+        # Corroboration required: 2+ observers, at least 1 trusted
+        observer_users = {obs.observer.parent for obs in project.observations}
+        if len(observer_users) < 2:
+            logger.info("Project has fewer than 2 observers. Not quarantining.")
+            return
+        if not any(observer.is_observer for observer in observer_users):
+            logger.info(
+                "Project has no `User.is_observer` Observers. Not quarantining."
+            )
+            return
+        logger.info("Auto-quarantining project due to multiple malware observations.")
 
     # Call a Slack Webhook to notify admins of the quarantine
     warehouse_domain = request.registry.settings.get("warehouse.domain")

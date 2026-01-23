@@ -14,8 +14,7 @@ down_revision = "bf73e785eed9"
 
 
 def upgrade():
-    op.execute(
-        """
+    op.execute("""
         INSERT INTO warehouse_admin_flag(id, description, enabled, notify)
         VALUES (
             'read-only',
@@ -23,8 +22,7 @@ def upgrade():
             FALSE,
             TRUE
         )
-    """
-    )
+    """)
 
 
 def downgrade():
