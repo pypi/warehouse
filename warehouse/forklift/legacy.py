@@ -225,7 +225,7 @@ def _exc_with_message(exc, message, **kwargs):
     resp = exc(detail=message, **kwargs)
     # We need to guard against characters outside of iso-8859-1 per RFC.
     # Specifically here, where user-supplied text may appear in the message,
-    # which our WSGI server may not appropriately handle (indeed gunicorn does not).
+    # which our WSGI server may not appropriately handle.
     status_message = message.encode("iso-8859-1", "replace").decode("iso-8859-1")
     resp.status = f"{resp.status_code} {status_message}"
     return resp

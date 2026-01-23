@@ -201,10 +201,9 @@ the output will cease, and you will see a log message indicating that either
 the `web` service has started listening:
 
 ```console
-warehouse-web-1   | [2022-12-26 19:27:12 +0000] [1] [INFO] Starting gunicorn 20.1.0
-warehouse-web-1   | [2022-12-26 19:27:12 +0000] [1] [INFO] Listening at: http://0.0.0.0:8000 (1)
-warehouse-web-1   | [2022-12-26 19:27:12 +0000] [1] [INFO] Using worker: sync
-warehouse-web-1   | [2022-12-26 19:27:12 +0000] [7] [INFO] Booting worker with pid: 7
+warehouse-web-1   | [INFO] Starting granian (main PID: 1)
+warehouse-web-1   | [INFO] Listening at: http://0.0.0.0:8000
+warehouse-web-1   | [INFO] Spawning worker-1 with PID: 8
 ```
 
 or that the `static` container has finished compiling the static assets:

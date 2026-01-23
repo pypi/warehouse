@@ -65,7 +65,7 @@ We'll split between the "web" and "worker" classes of services for clarity.
 ### Web Container Diagrams
 
 On the web side, we run two types - the main web app, and the web uploads app.
-The main difference between them is their `gunicorn` settings,
+The main difference between them is their `granian` settings,
 allowing the uploads app to handle larger file sizes and longer timeouts.
 
 #### Web Container Diagram - `web`
