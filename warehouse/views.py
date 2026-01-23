@@ -57,6 +57,10 @@ from warehouse.packaging.models import (
     ReleaseClassifiers,
 )
 from warehouse.rate_limiting import IRateLimiter
+from warehouse.rfc9457 import (
+    RFC9457_CONTENT_TYPE,
+    problem_details_from_exception,
+)
 from warehouse.search.queries import SEARCH_FILTER_ORDER, get_opensearch_query
 from warehouse.utils.cors import _CORS_HEADERS
 from warehouse.utils.http import is_safe_url
@@ -93,12 +97,19 @@ def httpexception_view(exc, request):
             }
         )
     try:
-        # Lightweight version of 404 page for `/simple/`
         if isinstance(exc, HTTPNotFound) and request.path.startswith("/simple/"):
-            response = HTTPNotFound(
-                body="404 Not Found",
-                content_type="text/plain",
+            # Return RFC 9457 Problem Details for all /simple/ errors.
+            problem = problem_details_from_exception(exc)
+            response = type(exc)(
+                body=problem.to_json(),
+                charset="utf-8",
+                content_type=RFC9457_CONTENT_TYPE,
             )
+        # if isinstance(exc, HTTPNotFound) and request.path.startswith("/simple/"):
+        #     response = HTTPNotFound(
+        #         body="404 Not Found",
+        #         content_type="text/plain",
+        #     )
         elif isinstance(exc, HTTPNotFound) and json_path.match(request.path):
             response = HTTPNotFound(
                 body='{"message": "Not Found"}',
