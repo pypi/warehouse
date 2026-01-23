@@ -105,11 +105,6 @@ def httpexception_view(exc, request):
                 charset="utf-8",
                 content_type=RFC9457_CONTENT_TYPE,
             )
-        # if isinstance(exc, HTTPNotFound) and request.path.startswith("/simple/"):
-        #     response = HTTPNotFound(
-        #         body="404 Not Found",
-        #         content_type="text/plain",
-        #     )
         elif isinstance(exc, HTTPNotFound) and json_path.match(request.path):
             response = HTTPNotFound(
                 body='{"message": "Not Found"}',
