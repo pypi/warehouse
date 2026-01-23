@@ -226,9 +226,14 @@ def test_update_email_domain_status(db_request, domain_status_service, mocker):
     assert under_threshold.domain_last_status is None  # no default, not updated
 
 
-def test_update_email_domain_status_does_not_update_if_not_needed(
+def test_update_email_domain_status_retries_failures_in_7_days(
     db_request, domain_status_service, mocker
 ):
+    """
+    When domain status lookup fails, we set domain_last_checked to 23 days ago
+    so it will be retried in ~7 days (task selects where checked < now - 30 days).
+    This prevents getting stuck on the same failing emails while still retrying.
+    """
     mocker.patch.object(domain_status_service, "get_domain_status", return_value=None)
 
     fail_check = EmailFactory.create()
@@ -237,7 +242,15 @@ def test_update_email_domain_status_does_not_update_if_not_needed(
 
     domain_status_service.get_domain_status.assert_called_once_with(fail_check.domain)
 
-    assert fail_check.domain_last_checked is None
+    # Timestamp should be set to ~23 days ago for retry in ~7 days
+    assert fail_check.domain_last_checked is not None
+    expected_retry_offset = datetime.now(tz=timezone.utc) - timedelta(days=23)
+    # Allow 1 minute tolerance for test execution time
+    assert (
+        abs((fail_check.domain_last_checked - expected_retry_offset).total_seconds())
+        < 60
+    )
+    # Status should remain None since lookup returned None
     assert fail_check.domain_last_status is None
 
 
