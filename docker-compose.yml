@@ -106,7 +106,7 @@ services:
 
   web:
     image: warehouse:docker-compose
-    command: gunicorn --reload --reload-extra-file=warehouse/api/openapi.yaml -b 0.0.0.0:8000 --access-logfile - --error-logfile - warehouse.wsgi:application
+    command: granian --reload --host 0.0.0.0 --port 8000 --log --access-log --interface wsgi warehouse.wsgi:application
     env_file: dev/environment
     pull_policy: never
     volumes: *base_volumes
