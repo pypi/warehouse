@@ -55,7 +55,7 @@ services:
 
   web:
     # Similar to environment, you can selectively override other settings
-    command: ddtrace-run gunicorn --reload --workers 4 -b 0.0.0.0:8000 --access-logfile - --error-logfile - warehouse.wsgi:application
+    command: ddtrace-run granian --interface wsgi --host 0.0.0.0 --port 8000 --workers 4 --reload --reload-paths ./warehouse --access-log warehouse.wsgi:application
     environment:
       # Using `<<:` overrides merges with the existing values, instead of overwriting it
       <<: *environment-vars

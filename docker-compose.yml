@@ -101,12 +101,12 @@ services:
       - ./bin:/opt/warehouse/src/bin:z
       - ./requirements:/opt/warehouse/src/requirements:z
       # Included to support linters during development
-      - ./gunicorn-prod.conf.py:/opt/warehouse/src/gunicorn-prod.conf.py:z
-      - ./gunicorn-uploads.conf.py:/opt/warehouse/src/gunicorn-uploads.conf.py:z
+      - ./granian-prod.py:/opt/warehouse/src/granian-prod.py:z
+      - ./granian-uploads.py:/opt/warehouse/src/granian-uploads.py:z
 
   web:
     image: warehouse:docker-compose
-    command: gunicorn --reload --reload-extra-file=warehouse/api/openapi.yaml -b 0.0.0.0:8000 --access-logfile - --error-logfile - warehouse.wsgi:application
+    command: granian --interface wsgi --host 0.0.0.0 --port 8000 --reload --reload-paths ./warehouse --access-log warehouse.wsgi:application
     env_file: dev/environment
     pull_policy: never
     volumes: *base_volumes
