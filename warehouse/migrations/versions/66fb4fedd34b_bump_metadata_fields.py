@@ -2,16 +2,16 @@
 """
 Bump metadata fields
 
-Revision ID: 31ca82c94aa6
-Revises: a6cae8e65f1a
-Create Date: 2026-01-12 22:01:38.715040
+Revision ID: 66fb4fedd34b
+Revises: 31ac9b5e1e8b
+Create Date: 2026-01-23 19:31:12.626657
 """
 
 from alembic import op
 from alembic_postgresql_enum import ColumnType, TableReference
 
-revision = "31ca82c94aa6"
-down_revision = "a6cae8e65f1a"
+revision = "66fb4fedd34b"
+down_revision = "31ac9b5e1e8b"
 
 
 def upgrade():
