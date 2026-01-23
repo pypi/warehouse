@@ -93,17 +93,17 @@ def test_includeme(monkeypatch, settings, expected_level):
                 },
                 "loggers": {
                     "datadog.dogstatsd": {"level": "ERROR"},
-                    "gunicorn": {
+                    "_granian": {
                         "propagate": False,
                         "handlers": ["primary"],
                         "level": expected_level,
                     },
-                    "gunicorn.access": {
+                    "granian": {
                         "propagate": False,
                         "handlers": ["primary"],
                         "level": expected_level,
                     },
-                    "gunicorn.server": {
+                    "granian.access": {
                         "propagate": False,
                         "handlers": ["primary"],
                         "level": expected_level,
