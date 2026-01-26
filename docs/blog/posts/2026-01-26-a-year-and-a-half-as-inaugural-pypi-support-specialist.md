@@ -9,7 +9,7 @@ tags:
 ---
 
 Hello there! I am Maria, the inaugural PyPI Support Specialist. 
-I go by "thespibrain" on GitHub. 
+I go by "Thespi-Brain" on GitHub. 
 I wanted to provide a dispatch of how this past year (and a half!) 
 has been regarding my role and PyPI. PyPI has now reached over a million users and has over 700,000 projects. 
 It is, without a doubt, a critical part of the Python ecosystem. 
