@@ -2223,13 +2223,13 @@ sentry-sdk==2.50.0 \
     --hash=sha256:0ef0ed7168657ceb5a0be081f4102d92042a125462d1d1a29277992e344e749e \
     --hash=sha256:873437a989ee1b8b25579847bae8384515bf18cfed231b06c591b735c1781fe3
     # via -r requirements/main.in
-sigstore==4.1.0 \
-    --hash=sha256:312f7f73fe27127784245f523b86b6334978c555fe4ba7831be5602c089807c1 \
-    --hash=sha256:ec3ed0d92bf53ffb23261245a78d4ad3da5af5cc9af889c86461a7d02407249a
+sigstore==4.2.0 \
+    --hash=sha256:bdbb49a42fd5f0ea6765919adb42ccee7254c482330764d0842eec4e11ad78d7 \
+    --hash=sha256:ed2e0f50aae85148a8aa4fc0f57c298927fce430ad1f988f38611ce90c85829f
     # via pypi-attestations
-sigstore-models==0.0.5 \
-    --hash=sha256:8eda90fe16ef3e4e624edd029f4cbbc9832a192dc5c8f66011d94ec4253f9f3f \
-    --hash=sha256:ac3ca1554d5dd509a6710699d83a035a09ba112d1fa180959cbfcdd5d97633b7
+sigstore-models==0.0.6 \
+    --hash=sha256:5201a68f4d7d0f8bec1e2f4378eb646b084c52609a4e31db8c385095fff68b2e \
+    --hash=sha256:c766c09470c2a7e8a4a333c893f07e2001c56a3ff1757b1a246119f53169a849
     # via
     #   pypi-attestations
     #   sigstore
