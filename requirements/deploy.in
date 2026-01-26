@@ -1,2 +1,2 @@
 gunicorn<24.0.0  # pin to below 24 to avoid a restart error
-ddtrace==4.2.1
+ddtrace==4.2.2
