@@ -165,6 +165,11 @@ services:
       FILES_BACKEND: "warehouse.packaging.services.LocalFileStorage path=/var/opt/warehouse/packages/ url=http://files:9001/packages/{path}"
       ARCHIVE_FILES_BACKEND: "warehouse.packaging.services.LocalArchiveFileStorage path=/var/opt/warehouse/packages-archive/ url=http://files:9001/packages-archive/{path}"
       SIMPLE_BACKEND: "warehouse.packaging.services.LocalSimpleStorage path=/var/opt/warehouse/simple/ url=http://files:9001/simple/{path}"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
 
   rstuf-api:
     image: ghcr.io/repository-service-tuf/repository-service-tuf-api:v0.12.0b1
