@@ -1272,13 +1272,13 @@ class TestGetTimelineTrends:
             kind="is_malware",
             observer=observer,
             related=project1,
-            created=now - timedelta(hours=24),
+            created=now - timedelta(hours=4),
         )
         ProjectObservationFactory.create(
             kind="is_malware",
             observer=observer,
             related=project2,
-            created=now - timedelta(hours=20),  # same week
+            created=now - timedelta(hours=2),  # same week
         )
 
         project_data = _get_project_data(db_request)
