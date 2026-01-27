@@ -60,7 +60,7 @@ PyJWT[crypto]>=2.8.0
 readme-renderer[md]>=36.0
 requests
 requests-aws4auth
-redis>=2.8.0,<6.0.0
+redis>=2.8.0,<7.0.0
 rfc3986
 sentry-sdk
 pypi-attestations==0.0.29

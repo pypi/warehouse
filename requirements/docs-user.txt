@@ -311,9 +311,9 @@ paginate==0.5.7 \
     --hash=sha256:22bd083ab41e1a8b4f3690544afb2c60c25e5c9a63a30fa2f483f6c60c8e5945 \
     --hash=sha256:b885e2af73abcf01d9559fd5216b57ef722f8c42affbb63942377668e35c7591
     # via mkdocs-material
-pathspec==1.0.3 \
-    --hash=sha256:bac5cf97ae2c2876e2d25ebb15078eb04d76e4b98921ee31c6f85ade8b59444d \
-    --hash=sha256:e80767021c1cc524aa3fb14bedda9c34406591343cc42797b386ce7b9354fb6c
+pathspec==1.0.4 \
+    --hash=sha256:0210e2ae8a21a9137c0d470578cb0e595af87edaa6ebf12ff176f14a02e0e645 \
+    --hash=sha256:fb6ae2fd4e7c921a165808a552060e722767cfa526f99ca5156ed2ce45a5c723
     # via
     #   mkdocs
     #   mkdocs-macros-plugin
@@ -325,9 +325,9 @@ pygments==2.19.2 \
     --hash=sha256:636cb2477cec7f8952536970bc533bc43743542f70392ae026374600add5b887 \
     --hash=sha256:86540386c03d588bb81d44bc3928634ff26449851e99741617ecb9037ee5ec0b
     # via mkdocs-material
-pymdown-extensions==10.20 \
-    --hash=sha256:5c73566ab0cf38c6ba084cb7c5ea64a119ae0500cce754ccb682761dfea13a52 \
-    --hash=sha256:ea9e62add865da80a271d00bfa1c0fa085b20d133fb3fc97afdc88e682f60b2f
+pymdown-extensions==10.20.1 \
+    --hash=sha256:24af7feacbca56504b313b7b418c4f5e1317bb5fea60f03d57be7fcc40912aa0 \
+    --hash=sha256:e7e39c865727338d434b55f1dd8da51febcffcaebd6e1a0b9c836243f660740a
     # via mkdocs-material
 python-dateutil==2.9.0.post0 \
     --hash=sha256:37dd54208da7e1cd875388217d5e00ebd4179249f90fb72437e91a35459a0ad3 \
