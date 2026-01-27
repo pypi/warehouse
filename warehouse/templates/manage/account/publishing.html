@@ -487,6 +487,40 @@
   </p>
   <div id="context_id-errors">{{ field_errors(pending_circleci_publisher_form.context_id) }}</div>
 </div>
+<div class="form-group">
+  <label for="vcs_ref" class="form-group__label">
+    {% trans %}VCS Ref{% endtrans %}
+    <span class="form-group__required">{% trans %}(optional){% endtrans %}</span>
+  </label>
+  {{ pending_circleci_publisher_form.vcs_ref(placeholder=gettext("refs/heads/main"),
+  autocomplete="off",
+  autocapitalize="off",
+  spellcheck="false",
+  class_="form-group__field",
+  aria_describedby="vcs_ref-errors")
+  }}
+  <p class="form-group__help-text">
+    {% trans %}The git ref (e.g., refs/heads/main) that the job must run from. Leave empty to allow any ref.{% endtrans %}
+  </p>
+  <div id="vcs_ref-errors">{{ field_errors(pending_circleci_publisher_form.vcs_ref) }}</div>
+</div>
+<div class="form-group">
+  <label for="vcs_origin" class="form-group__label">
+    {% trans %}VCS Origin{% endtrans %}
+    <span class="form-group__required">{% trans %}(optional){% endtrans %}</span>
+  </label>
+  {{ pending_circleci_publisher_form.vcs_origin(placeholder=gettext("github.com/org/repo"),
+  autocomplete="off",
+  autocapitalize="off",
+  spellcheck="false",
+  class_="form-group__field",
+  aria_describedby="vcs_origin-errors")
+  }}
+  <p class="form-group__help-text">
+    {% trans %}The VCS origin (e.g., github.com/org/repo) that the job must originate from. Leave empty to allow any origin.{% endtrans %}
+  </p>
+  <div id="vcs_origin-errors">{{ field_errors(pending_circleci_publisher_form.vcs_origin) }}</div>
+</div>
 <div>
   <input type="submit"
          value="{% trans %}Add{% endtrans %}"
