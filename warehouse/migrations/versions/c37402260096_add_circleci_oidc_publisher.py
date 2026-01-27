@@ -86,8 +86,7 @@ def upgrade():
             name="_pending_circleci_oidc_publisher_uc",
         ),
     )
-    op.execute(
-        """
+    op.execute("""
         INSERT INTO admin_flags(id, description, enabled, notify)
         VALUES (
             'disallow-circleci-oidc',
@@ -95,8 +94,7 @@ def upgrade():
             TRUE,
             FALSE
         )
-        """
-    )
+        """)
 
 
 def downgrade():

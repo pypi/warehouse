@@ -452,7 +452,7 @@
     {% trans %}VCS Origin{% endtrans %}
     <span class="form-group__required">{% trans %}(optional){% endtrans %}</span>
   </label>
-  {{ circleci_publisher_form.vcs_origin(placeholder=gettext("github.com/org/repo"),
+  {{ circleci_publisher_form.vcs_origin(placeholder=gettext("github.com/org/repo") ,
   autocomplete="off",
   autocapitalize="off",
   spellcheck="false",
@@ -469,7 +469,7 @@
     {% trans %}VCS Ref{% endtrans %}
     <span class="form-group__required">{% trans %}(optional){% endtrans %}</span>
   </label>
-  {{ circleci_publisher_form.vcs_ref(placeholder=gettext("refs/heads/main"),
+  {{ circleci_publisher_form.vcs_ref(placeholder=gettext("refs/heads/main") ,
   autocomplete="off",
   autocapitalize="off",
   spellcheck="false",
