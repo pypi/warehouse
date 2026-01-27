@@ -1501,7 +1501,9 @@ class TestManageOIDCPublisherViews:
                     {
                         "circleci_org_id": "00000000-0000-1000-8000-000000000001",
                         "circleci_project_id": "00000000-0000-1000-8000-000000000002",
-                        "pipeline_definition_id": "00000000-0000-1000-8000-000000000003",
+                        "pipeline_definition_id": (
+                            "00000000-0000-1000-8000-000000000003"
+                        ),
                     }
                 ),
             ),
