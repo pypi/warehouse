@@ -122,6 +122,16 @@ class TestCircleCIPublisher:
 
         assert publisher.publisher_url() is None
 
+    def test_attestation_identity(self):
+        publisher = CircleCIPublisher(
+            circleci_org_id=ORG_ID,
+            circleci_project_id=PROJECT_ID,
+            pipeline_definition_id=PIPELINE_DEF_ID,
+        )
+
+        # CircleCI attestations pending pypi-attestations library support
+        assert publisher.attestation_identity is None
+
     def test_str(self):
         publisher = CircleCIPublisher(
             circleci_org_id=ORG_ID,
