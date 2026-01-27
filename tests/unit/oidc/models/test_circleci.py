@@ -81,9 +81,7 @@ class TestCheckOptionalString:
     def test_required_value_matches_claim(self):
         assert _check_optional_string("refs/heads/main", "refs/heads/main", {}) is True
         assert (
-            _check_optional_string(
-                "github.com/org/repo", "github.com/org/repo", {}
-            )
+            _check_optional_string("github.com/org/repo", "github.com/org/repo", {})
             is True
         )
 
