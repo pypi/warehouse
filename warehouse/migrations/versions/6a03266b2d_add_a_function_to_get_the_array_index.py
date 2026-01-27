@@ -14,8 +14,7 @@ down_revision = "3bc5176b880"
 
 
 def upgrade():
-    op.execute(
-        """ CREATE FUNCTION array_idx(anyarray, anyelement)
+    op.execute(""" CREATE FUNCTION array_idx(anyarray, anyelement)
             RETURNS INT AS
             $$
                 SELECT i FROM (
@@ -24,8 +23,7 @@ def upgrade():
                 WHERE $1[i] = $2
                 LIMIT 1;
             $$ LANGUAGE SQL IMMUTABLE;
-        """
-    )
+        """)
 
 
 def downgrade():

@@ -6,7 +6,7 @@ b2sdk
 Babel
 bcrypt
 boto3
-celery[redis]>=5.3.5,<5.6
+celery[redis]>=5.6.2,<5.7
 celery-redbeat
 certifi
 click
@@ -24,7 +24,7 @@ html5lib
 humanize
 itsdangerous
 Jinja2>=2.8
-kombu[redis]>=5.4,<5.6  # https://github.com/jazzband/pip-tools/issues/1577
+kombu[redis]>=5.6,<5.7  # https://github.com/jazzband/pip-tools/issues/1577
 limits
 linehaul
 lxml

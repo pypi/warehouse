@@ -79,17 +79,14 @@ def report_observation_to_helpscout(task, request: Request, model_id: UUID) -> N
     warehouse_domain = request.registry.settings.get("warehouse.domain")
 
     # Add new Conversation to HelpScout for tracking purposes
-    convo_text = dedent(
-        f"""
+    convo_text = dedent(f"""
         Kind: {model.kind}
         Summary: {model.summary}
         Model Name: {model.__class__.__name__}
 
         Project URL: {request.route_url(
-            'packaging.project', name=target_name, _host=warehouse_domain
-        )}
-        """
-    )
+        'packaging.project', name=target_name, _host=warehouse_domain)}
+        """)
     for owner in model.related.owners:
         username = owner.username
         owner_url = request.route_url(
@@ -99,17 +96,14 @@ def report_observation_to_helpscout(task, request: Request, model_id: UUID) -> N
         convo_text += f"Owner URL: {owner_url}\n"
 
     if OBSERVATION_KIND_MAP[model.kind] == ObservationKind.IsMalware:
-        convo_text += dedent(
-            f"""
+        convo_text += dedent(f"""
             Inspector URL: {model.payload.get("inspector_url")}
 
             Malware Reports URL: {request.route_url(
-                "admin.malware_reports.project.list",
-                project_name=target_name,
-                _host=warehouse_domain,
-            )}
-            """
-        )
+            "admin.malware_reports.project.list",
+            project_name=target_name,
+            _host=warehouse_domain)}
+            """)
 
     helpdesk_service = request.find_service(IHelpDeskService)
 
