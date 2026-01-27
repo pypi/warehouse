@@ -2,17 +2,39 @@
 """
 Add CircleCI OIDC publisher
 
-Revision ID: 549bdbefa6bd
-Revises: a6cae8e65f1a
-Create Date: 2026-01-13 00:00:00.000000
+Revision ID: c37402260096
+Revises: 31ac9b5e1e8b
+Create Date: 2026-01-27 02:31:38.265440
 """
 
 import sqlalchemy as sa
 
 from alembic import op
 
-revision = "549bdbefa6bd"
-down_revision = "a6cae8e65f1a"
+revision = "c37402260096"
+down_revision = "31ac9b5e1e8b"
+
+# Note: It is VERY important to ensure that a migration does not lock for a
+#       long period of time and to ensure that each individual migration does
+#       not break compatibility with the *previous* version of the code base.
+#       This is because the migrations will be ran automatically as part of the
+#       deployment process, but while the previous version of the code is still
+#       up and running. Thus backwards incompatible changes must be broken up
+#       over multiple migrations inside of multiple pull requests in order to
+#       phase them in over multiple deploys.
+#
+#       By default, migrations cannot wait more than 4s on acquiring a lock
+#       and each individual statement cannot take more than 5s. This helps
+#       prevent situations where a slow migration takes the entire site down.
+#
+#       If you need to increase this timeout for a migration, you can do so
+#       by adding:
+#
+#           op.execute("SET statement_timeout = 5000")
+#           op.execute("SET lock_timeout = 4000")
+#
+#       To whatever values are reasonable for this migration as part of your
+#       migration.
 
 
 def upgrade():
