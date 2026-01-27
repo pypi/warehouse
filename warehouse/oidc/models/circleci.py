@@ -8,6 +8,7 @@ from typing import Any, Self
 from uuid import UUID
 
 from more_itertools import first_true
+from pypi_attestations import Publisher
 from sqlalchemy import ForeignKey, String, UniqueConstraint, and_, exists
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, Query, mapped_column
@@ -116,6 +117,14 @@ class CircleCIPublisherMixin:
 
     def publisher_url(self, claims: SignedClaims | None = None) -> str | None:
         return self.publisher_base_url
+
+    @property
+    def attestation_identity(self) -> Publisher | None:
+        # CircleCI attestation support pending pypi-attestations library support.
+        # Fulcio supports CircleCI OIDC tokens, but pypi-attestations needs to add
+        # a CircleCIPublisher identity class before we can enable attestations.
+        # See: https://github.com/pypi/pypi-attestations
+        return None
 
     def stored_claims(self, claims: SignedClaims | None = None) -> dict:
         return {}
