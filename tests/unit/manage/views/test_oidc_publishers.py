@@ -259,6 +259,19 @@ class TestManageOIDCPublisherViews:
                     "actor": "my_actor",
                 },
             ),
+            # All fields of CircleCI provider
+            (
+                "circleci_publisher_form",
+                {
+                    "provider": "circleci",
+                    "circleci_org_id": "00000000-0000-1000-8000-000000000001",
+                    "circleci_project_id": "00000000-0000-1000-8000-000000000002",
+                    "pipeline_definition_id": "00000000-0000-1000-8000-000000000003",
+                    "context_id": "00000000-0000-1000-8000-000000000004",
+                    "vcs_ref": "refs/heads/main",
+                    "vcs_origin": "https://github.com/my-org/my-repo",
+                },
+            ),
             # All fields of GitHub provider, case-insensitive
             (
                 "github_publisher_form",
@@ -1867,6 +1880,14 @@ class TestManageOIDCPublisherViews:
                 actor="some-user",
                 actor_id="some-user-id",
             ),
+            CircleCIPublisher(
+                circleci_org_id="00000000-0000-1000-8000-000000000001",
+                circleci_project_id="00000000-0000-1000-8000-000000000002",
+                pipeline_definition_id="00000000-0000-1000-8000-000000000003",
+                context_id="",
+                vcs_ref="",
+                vcs_origin="",
+            ),
         ],
     )
     def test_delete_oidc_publisher_registered_to_multiple_projects(
@@ -1981,6 +2002,14 @@ class TestManageOIDCPublisherViews:
                 activestate_project_name="some-project",
                 actor="some-user",
                 actor_id="some-user-id",
+            ),
+            CircleCIPublisher(
+                circleci_org_id="00000000-0000-1000-8000-000000000001",
+                circleci_project_id="00000000-0000-1000-8000-000000000002",
+                pipeline_definition_id="00000000-0000-1000-8000-000000000003",
+                context_id="",
+                vcs_ref="",
+                vcs_origin="",
             ),
         ],
     )
