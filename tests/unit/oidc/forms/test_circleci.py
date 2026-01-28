@@ -7,6 +7,13 @@ import wtforms
 from webob.multidict import MultiDict
 
 from warehouse.oidc.forms import circleci
+from warehouse.packaging.interfaces import (
+    ProjectNameUnavailableExistingError,
+    ProjectNameUnavailableInvalidError,
+    ProjectNameUnavailableProhibitedError,
+    ProjectNameUnavailableSimilarError,
+    ProjectNameUnavailableStdlibError,
+)
 
 from ....common.db.accounts import UserFactory
 from ....common.db.packaging import (
@@ -87,6 +94,30 @@ class TestPendingCircleCIPublisherForm:
 
         # The project settings URL is not shown if the user isn't an owner
         assert route_url.calls == []
+
+    @pytest.mark.parametrize(
+        "reason",
+        [
+            ProjectNameUnavailableExistingError(pretend.stub(owners=[pretend.stub()])),
+            ProjectNameUnavailableInvalidError(),
+            ProjectNameUnavailableStdlibError(),
+            ProjectNameUnavailableProhibitedError(),
+            ProjectNameUnavailableSimilarError(similar_project_name="pkg_name"),
+        ],
+    )
+    def test_validate_project_name_unavailable(self, reason, pyramid_config):
+        def check_project_name(name):
+            raise reason
+
+        form = circleci.PendingCircleCIPublisherForm(
+            route_url=pretend.call_recorder(lambda *args, **kwargs: ""),
+            check_project_name=check_project_name,
+            user=pretend.stub(),
+        )
+
+        field = pretend.stub(data="some-project")
+        with pytest.raises(wtforms.validators.ValidationError):
+            form.validate_project_name(field)
 
 
 class TestCircleCIPublisherForm:
@@ -227,3 +258,142 @@ class TestCircleCIPublisherForm:
         form = circleci.CircleCIPublisherForm(MultiDict(data))
 
         assert form.validate()
+
+    @pytest.mark.parametrize(
+        "data",
+        [
+            {
+                "circleci_org_id": None,
+                "circleci_project_id": "00000000-0000-1000-8000-000000000002",
+                "pipeline_definition_id": "00000000-0000-1000-8000-000000000003",
+            },
+            {
+                "circleci_org_id": "",
+                "circleci_project_id": "00000000-0000-1000-8000-000000000002",
+                "pipeline_definition_id": "00000000-0000-1000-8000-000000000003",
+            },
+            {
+                "circleci_org_id": "00000000-0000-1000-8000-000000000001",
+                "circleci_project_id": None,
+                "pipeline_definition_id": "00000000-0000-1000-8000-000000000003",
+            },
+            {
+                "circleci_org_id": "00000000-0000-1000-8000-000000000001",
+                "circleci_project_id": "",
+                "pipeline_definition_id": "00000000-0000-1000-8000-000000000003",
+            },
+            {
+                "circleci_org_id": "00000000-0000-1000-8000-000000000001",
+                "circleci_project_id": "00000000-0000-1000-8000-000000000002",
+                "pipeline_definition_id": None,
+            },
+            {
+                "circleci_org_id": "00000000-0000-1000-8000-000000000001",
+                "circleci_project_id": "00000000-0000-1000-8000-000000000002",
+                "pipeline_definition_id": "",
+            },
+        ],
+    )
+    def test_validate_basic_invalid_fields(self, data):
+        form = circleci.CircleCIPublisherForm(MultiDict(data))
+
+        assert not form.validate()
+
+    @pytest.mark.parametrize(
+        "vcs_ref",
+        [
+            "refs/heads/main",
+            "",
+        ],
+    )
+    def test_vcs_ref_optional_values(self, vcs_ref):
+        data = MultiDict(
+            {
+                "circleci_org_id": "00000000-0000-1000-8000-000000000001",
+                "circleci_project_id": "00000000-0000-1000-8000-000000000002",
+                "pipeline_definition_id": "00000000-0000-1000-8000-000000000003",
+                "vcs_ref": vcs_ref,
+            }
+        )
+        form = circleci.CircleCIPublisherForm(MultiDict(data))
+
+        assert form.validate(), str(form.errors)
+
+    def test_vcs_ref_none_consistency(self):
+        data = MultiDict(
+            {
+                "circleci_org_id": "00000000-0000-1000-8000-000000000001",
+                "circleci_project_id": "00000000-0000-1000-8000-000000000002",
+                "pipeline_definition_id": "00000000-0000-1000-8000-000000000003",
+            }
+        )
+        form = circleci.CircleCIPublisherForm(MultiDict(data))
+
+        assert form.validate(), str(form.errors)
+        assert form.vcs_ref.data is None
+
+    @pytest.mark.parametrize(
+        "vcs_origin",
+        [
+            "github.com/org/repo",
+            "",
+        ],
+    )
+    def test_vcs_origin_optional_values(self, vcs_origin):
+        data = MultiDict(
+            {
+                "circleci_org_id": "00000000-0000-1000-8000-000000000001",
+                "circleci_project_id": "00000000-0000-1000-8000-000000000002",
+                "pipeline_definition_id": "00000000-0000-1000-8000-000000000003",
+                "vcs_origin": vcs_origin,
+            }
+        )
+        form = circleci.CircleCIPublisherForm(MultiDict(data))
+
+        assert form.validate(), str(form.errors)
+
+    def test_vcs_origin_none_consistency(self):
+        data = MultiDict(
+            {
+                "circleci_org_id": "00000000-0000-1000-8000-000000000001",
+                "circleci_project_id": "00000000-0000-1000-8000-000000000002",
+                "pipeline_definition_id": "00000000-0000-1000-8000-000000000003",
+            }
+        )
+        form = circleci.CircleCIPublisherForm(MultiDict(data))
+
+        assert form.validate(), str(form.errors)
+        assert form.vcs_origin.data is None
+
+    @pytest.mark.parametrize(
+        "context_id",
+        [
+            "00000000-0000-1000-8000-000000000004",
+            "",
+        ],
+    )
+    def test_context_id_optional_values(self, context_id):
+        data = MultiDict(
+            {
+                "circleci_org_id": "00000000-0000-1000-8000-000000000001",
+                "circleci_project_id": "00000000-0000-1000-8000-000000000002",
+                "pipeline_definition_id": "00000000-0000-1000-8000-000000000003",
+                "context_id": context_id,
+            }
+        )
+        form = circleci.CircleCIPublisherForm(MultiDict(data))
+
+        assert form.validate(), str(form.errors)
+
+    def test_context_id_none_consistency(self):
+        data = MultiDict(
+            {
+                "circleci_org_id": "00000000-0000-1000-8000-000000000001",
+                "circleci_project_id": "00000000-0000-1000-8000-000000000002",
+                "pipeline_definition_id": "00000000-0000-1000-8000-000000000003",
+            }
+        )
+        form = circleci.CircleCIPublisherForm(MultiDict(data))
+
+        assert form.validate(), str(form.errors)
+        assert form.context_id.data is None
