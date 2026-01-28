@@ -9,7 +9,7 @@ from warehouse.manage.views import account_associations as views
 
 
 class TestGitHubAssociationConnect:
-    def test_initiates_oauth_flow(self, pyramid_request, oauth_provider_service):
+    def test_initiates_oauth_flow(self, pyramid_request, github_oauth_provider_service):
         """Test that the connect view generates state and redirects to OAuth URL."""
 
         result = views.github_association_connect(pyramid_request)
@@ -17,11 +17,11 @@ class TestGitHubAssociationConnect:
         assert isinstance(result, HTTPSeeOther)
         assert (
             result.location
-            == "http://localhost?code=mock_authorization_code&state="
+            == "http://localhost/callback?code=mock_github_authorization_code&state="
             + pyramid_request.session["github_oauth_state"]
         )
         assert "github_oauth_state" in pyramid_request.session
-        oauth_provider_service.generate_authorize_url.assert_called_once_with(
+        github_oauth_provider_service.generate_authorize_url.assert_called_once_with(
             pyramid_request.session["github_oauth_state"]
         )
 
@@ -94,7 +94,7 @@ class TestGitHubAssociationCallback:
         )
 
     def test_no_access_token_received(
-        self, pyramid_request, oauth_provider_service, mocker
+        self, pyramid_request, github_oauth_provider_service, mocker
     ):
         """Test handling when token exchange returns no access token."""
         session_state = "valid_state"
@@ -104,7 +104,7 @@ class TestGitHubAssociationCallback:
 
         # Mock exchange_code_for_token to return empty response (no access_token)
         mocker.patch.object(
-            oauth_provider_service, "exchange_code_for_token", return_value={}
+            github_oauth_provider_service, "exchange_code_for_token", return_value={}
         )
 
         result = views.github_association_callback(pyramid_request)
@@ -120,7 +120,7 @@ class TestGitHubAssociationCallback:
         self,
         pyramid_request,
         pyramid_user,
-        oauth_provider_service,
+        github_oauth_provider_service,
         mocker,
     ):
         """Test handling when association already exists (ValueError)."""
@@ -139,7 +139,7 @@ class TestGitHubAssociationCallback:
 
         # Mock get_user_info to return the same values as the existing association
         mocker.patch.object(
-            oauth_provider_service,
+            github_oauth_provider_service,
             "get_user_info",
             return_value={"id": 12345, "login": "existinguser"},
         )
@@ -154,7 +154,7 @@ class TestGitHubAssociationCallback:
         )
 
     def test_generic_exception_during_oauth(
-        self, pyramid_request, oauth_provider_service, mocker
+        self, pyramid_request, github_oauth_provider_service, mocker
     ):
         """Test handling of unexpected exceptions during OAuth flow."""
         session_state = "valid_state"
@@ -163,7 +163,7 @@ class TestGitHubAssociationCallback:
         pyramid_request.route_path = lambda *args: "/manage/account/"
         # Mock OAuth service to raise an exception
         mocker.patch.object(
-            oauth_provider_service,
+            github_oauth_provider_service,
             "exchange_code_for_token",
             side_effect=Exception("Network error"),
         )
@@ -180,7 +180,7 @@ class TestGitHubAssociationCallback:
         self,
         pyramid_request,
         pyramid_user,
-        oauth_provider_service,
+        github_oauth_provider_service,
         user_service,
         mocker,
     ):

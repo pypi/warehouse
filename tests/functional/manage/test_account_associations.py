@@ -75,20 +75,20 @@ class TestAccountAssociations:
             with_terms_of_service_agreement=True,
             clear_pwd="password",
         )
-        # NullOAuthClient is configured via GITHUB_OAUTH_BACKEND in dev/environment
+        # NullGitHubOAuthClient is configured via GITHUB_OAUTH_BACKEND
 
         # Login
         self._login_user(webtest, user)
 
         # Click "Connect GitHub" button (initiates OAuth flow)
-        # NullOAuthClient will redirect immediately to callback with mock code
+        # NullGitHubOAuthClient will redirect immediately to callback with mock code
         connect_response = webtest.get(
             "/manage/account/associations/github/connect",
             status=HTTPStatus.SEE_OTHER,
         )
 
         # Follow the redirect to the callback URL
-        # NullOAuthClient creates a redirect to callback with mock parameters
+        # NullGitHubOAuthClient creates a redirect to callback with mock parameters
         # Extract path from absolute URL to preserve webtest session
         parsed_url = parse_url(connect_response.location)
         callback_response = webtest.get(
@@ -102,7 +102,7 @@ class TestAccountAssociations:
 
         # Verify association was created
         assert "Account associations" in account_page.text
-        assert "mockuser_" in account_page.text  # NullOAuthClient generates mock users
+        assert "mockuser_" in account_page.text
 
     def test_connect_github_account_invalid_state(self, webtest):
         """OAuth flow rejects requests with invalid state tokens (CSRF protection)."""
@@ -239,7 +239,7 @@ class TestAccountAssociations:
         first_mockuser = mockuser_match1.group()
 
         # Connect second GitHub account
-        # NullOAuthClient generates different mock users each time
+        # NullGitHubOAuthClient generates different mock users each time
         connect_response2 = webtest.get(
             "/manage/account/associations/github/connect",
             status=HTTPStatus.SEE_OTHER,
