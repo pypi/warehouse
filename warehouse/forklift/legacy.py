@@ -11,6 +11,7 @@ from cgi import FieldStorage
 
 import packaging.requirements
 import packaging.specifiers
+import packaging.tags
 import packaging.utils
 import packaging.version
 import packaging_legacy.version
@@ -280,7 +281,7 @@ def _validate_filename(filename, filetype):
         )
 
 
-def _is_valid_dist_file(filename, filetype):
+def _is_valid_dist_file(filename: str, filetype: str):
     """
     Perform some basic checks to see whether the indicated file could be
     a valid distribution file.
@@ -335,19 +336,6 @@ def _is_valid_dist_file(filename, filetype):
                         zfp.read(target_file)
                     except KeyError:
                         return False, f"PKG-INFO not found at {target_file}"
-                if filename.endswith(".whl"):
-                    try:
-                        name, version, _ = os.path.basename(filename).split("-", 2)
-                    except ValueError:
-                        return (
-                            False,
-                            "Unable to parse name and version from wheel filename",
-                        )
-                    target_file = os.path.join(f"{name}-{version}.dist-info", "WHEEL")
-                    try:
-                        zfp.read(target_file)
-                    except KeyError:
-                        return False, f"WHEEL not found at {target_file}"
 
             # Check the ZIP file record framing
             # to avoid parser differentials.
@@ -387,6 +375,61 @@ def _is_valid_dist_file(filename, filetype):
 
     # If we haven't yet decided it's not valid, then we'll assume it is and
     # allow it.
+    return True, None
+
+
+def _is_valid_wheel_file(
+    contents: bytes, tags: frozenset[packaging.tags.Tag]
+) -> tuple[bool, str | None]:
+    """
+    Check whether the WHEEL file matches the wheel filename tags.
+
+    A mismatch can happen when manually editing the wheel filename without also editing
+    the dist-info WHEEL file.
+    """
+    filename_tags = {str(tag) for tag in tags}
+    dist_info_tags = set()
+    try:
+        decoded = contents.decode("utf-8")
+    except UnicodeDecodeError:
+        return False, "WHEEL file is not valid UTF-8"
+
+    for line in decoded.splitlines():
+        if line.startswith("Tag:"):
+            tag = line.removeprefix("Tag:").strip()
+            if "." in tag:
+                return (
+                    False,
+                    f"Tags in WHEEL file must be expanded, not compressed: {tag}",
+                )
+            dist_info_tags.add(tag)
+
+    # Handle the case that there's no overlap, usually two different tags.
+    if not (dist_info_tags & filename_tags):
+        formatted_filename_tags = ", ".join(sorted(filename_tags))
+        formatted_dist_info_tags = ", ".join(sorted(dist_info_tags))
+        return (
+            False,
+            "Wheel filename and WHEEL file tags mismatch: "
+            + f"{formatted_filename_tags} vs. {formatted_dist_info_tags}",
+        )
+
+    only_dist_info_tags = dist_info_tags - filename_tags
+    if only_dist_info_tags:
+        formatted_tags = ", ".join(sorted(only_dist_info_tags))
+        return (
+            False,
+            f"WHEEL file has tags not in wheel filename: {formatted_tags}",
+        )
+
+    only_filename_tags = filename_tags - dist_info_tags
+    if only_filename_tags:
+        formatted_tags = ", ".join(sorted(only_filename_tags))
+        return (
+            False,
+            f"Wheel filename has tags not in WHEEL file: {formatted_tags}",
+        )
+
     return True, None
 
 
@@ -1499,6 +1542,27 @@ def file_upload(request):
             metadata_file_hashes = {
                 k: h.hexdigest().lower() for k, h in metadata_file_hashes.items()
             }
+
+            with zipfile.ZipFile(temporary_filename) as zfp:
+                target_file = os.path.join(f"{name}-{version}.dist-info", "WHEEL")
+                try:
+                    wheel_file = zfp.read(target_file)
+                    valid, reason = _is_valid_wheel_file(wheel_file, tags)
+                except KeyError:
+                    valid = False
+                    reason = f"WHEEL not found at {target_file}"
+
+                if not valid:
+                    request.metrics.increment(
+                        "warehouse.upload.failed",
+                        tags=[
+                            "reason:invalid-distribution-file",
+                            f"filetype:{form.filetype.data}",
+                        ],
+                    )
+                    raise _exc_with_message(
+                        HTTPBadRequest, f"Invalid distribution file. {reason}"
+                    )
 
         # If the user provided attestations, verify them
         # We persist these attestations subsequently, only after the
