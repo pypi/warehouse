@@ -177,6 +177,122 @@ class GitHubAppClient:
         return data
 
 
+@implementer(IOAuthProviderService)
+class GitLabOAuthClient:
+    """
+    GitLab OAuth client for user authentication.
+
+    Uses GitLab's standard OAuth 2.0 flow with the read_user scope for
+    identity verification. Unlike GitHub Apps, GitLab OAuth requires
+    explicit scope requests at authorization time.
+
+    Configuration required in settings:
+    - gitlab.oauth.client_id: GitLab OAuth client ID
+    - gitlab.oauth.client_secret: GitLab OAuth client secret
+
+    Note: GitLab tokens expire after 2 hours, but since we only use them
+    for immediate identity verification (not stored), this doesn't affect us.
+
+    See: https://docs.gitlab.com/ee/api/oauth2.html
+    """
+
+    AUTHORIZE_URL = "https://gitlab.com/oauth/authorize"
+    TOKEN_URL = "https://gitlab.com/oauth/token"
+    USER_API_URL = "https://gitlab.com/api/v4/user"
+
+    def __init__(self, client_id: str, client_secret: str, redirect_uri: str):
+        self.client_id = client_id
+        self.client_secret = client_secret
+        self.redirect_uri = redirect_uri
+
+    @classmethod
+    def create_service(cls, context, request: Request) -> Self:
+        """
+        Create GitLabOAuthClient from request settings.
+        """
+        settings = request.registry.settings
+        redirect_uri = request.route_url("manage.account.associations.gitlab.callback")
+
+        return cls(
+            client_id=settings["gitlab.oauth.client_id"],
+            client_secret=settings["gitlab.oauth.client_secret"],
+            redirect_uri=redirect_uri,
+        )
+
+    def generate_authorize_url(self, state: str) -> str:
+        """
+        Generate the GitLab OAuth authorization URL.
+
+        Args:
+            state: CSRF protection token (store in session)
+
+        Returns:
+            Authorization URL to redirect user to
+        """
+        params = {
+            "client_id": self.client_id,
+            "redirect_uri": self.redirect_uri,
+            "response_type": "code",
+            "state": state,
+            "scope": "read_user",
+        }
+        return f"{self.AUTHORIZE_URL}?{urllib.parse.urlencode(params)}"
+
+    def exchange_code_for_token(self, code: str) -> dict[str, str]:
+        """
+        Exchange authorization code for access token.
+
+        Args:
+            code: Authorization code from GitLab callback
+
+        Returns:
+            Dict with 'access_token', 'token_type', 'expires_in', etc.
+
+        Raises:
+            requests.HTTPError: If token exchange fails
+        """
+        response = requests.post(
+            self.TOKEN_URL,
+            data={
+                "client_id": self.client_id,
+                "client_secret": self.client_secret,
+                "code": code,
+                "grant_type": "authorization_code",
+                "redirect_uri": self.redirect_uri,
+            },
+            headers={"Accept": "application/json"},
+            timeout=10,
+        )
+        response.raise_for_status()
+        data: dict[str, str] = response.json()
+        return data
+
+    def get_user_info(self, access_token: str) -> dict[str, str | int]:
+        """
+        Fetch user information from GitLab API.
+
+        Args:
+            access_token: OAuth access token
+
+        Returns:
+            Dict with user info including 'id', 'username', 'email', etc.
+
+        Raises:
+            requests.HTTPError: If API request fails
+        """
+        response = requests.get(
+            self.USER_API_URL,
+            headers={
+                "Accept": "application/json",
+                "Authorization": f"Bearer {access_token}",
+            },
+            timeout=10,
+        )
+        response.raise_for_status()
+        data: dict[str, str | int] = response.json()
+        return data
+
+
 class _NullOAuthClientBase:
     """
     Base class for null OAuth clients (testing and development ONLY).
@@ -242,6 +358,28 @@ class NullGitHubOAuthClient(_NullOAuthClientBase):
 
     _provider = "github"
     _callback_route = "manage.account.associations.github.callback"
+
+
+@implementer(IOAuthProviderService)
+class NullGitLabOAuthClient(_NullOAuthClientBase):
+    """
+    Null GitLab OAuth client for testing and development ONLY.
+
+    WARNING: This service should NEVER be used in production environments.
+    """
+
+    _provider = "gitlab"
+    _callback_route = "manage.account.associations.gitlab.callback"
+
+    def get_user_info(self, access_token: str) -> dict[str, str | int]:
+        """Return mock user info with GitLab-specific field names."""
+        mock_id = abs(hash(access_token)) % 1000000
+        return {
+            "id": mock_id,
+            "username": f"mockuser_{mock_id}",  # GitLab uses 'username', not 'login'
+            "name": f"Mock User {mock_id}",
+            "email": f"mock_{mock_id}@example.com",
+        }
 
 
 def generate_state_token() -> str:

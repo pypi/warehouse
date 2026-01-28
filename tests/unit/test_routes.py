@@ -286,6 +286,16 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
+            "manage.account.associations.gitlab.connect",
+            "/manage/account/associations/gitlab/connect",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.account.associations.gitlab.callback",
+            "/manage/account/associations/gitlab/callback",
+            domain=warehouse,
+        ),
+        pretend.call(
             "manage.account.associations.delete",
             "/manage/account/associations/delete",
             domain=warehouse,

@@ -214,6 +214,238 @@ class TestGitHubAssociationCallback:
         assert pyramid_request.session.peek_flash(queue="success")
 
 
+class TestGitLabAssociationConnect:
+    def test_initiates_oauth_flow(self, pyramid_request, mocker):
+        """Test that the connect view generates state and redirects to OAuth URL."""
+        # Create GitLab-specific oauth_provider_service
+        from warehouse.accounts.oauth import NullGitLabOAuthClient
+
+        gitlab_service = NullGitLabOAuthClient(redirect_uri="http://localhost/callback")
+        mocker.spy(gitlab_service, "generate_authorize_url")
+        pyramid_request.find_service = mocker.Mock(return_value=gitlab_service)
+
+        result = views.gitlab_association_connect(pyramid_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert "gitlab_oauth_state" in pyramid_request.session
+        gitlab_service.generate_authorize_url.assert_called_once_with(
+            pyramid_request.session["gitlab_oauth_state"]
+        )
+
+
+class TestGitLabAssociationCallback:
+    def test_invalid_state_csrf_error(self, pyramid_request):
+        """Test that empty state token returns CSRF error."""
+        pyramid_request.GET = MultiDict({"code": "test_code"})
+        pyramid_request.route_path = lambda *args: "/manage/account/"
+
+        result = views.gitlab_association_callback(pyramid_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.location == "/manage/account/"
+        assert (
+            "Invalid OAuth state - possible CSRF attack"
+            in pyramid_request.session.peek_flash(queue="error")
+        )
+
+    def test_oauth_error_from_gitlab(self, pyramid_request):
+        """Test handling of OAuth error response from GitLab."""
+        session_state = "valid_state"
+        pyramid_request.session["gitlab_oauth_state"] = session_state
+        pyramid_request.GET = MultiDict(
+            {
+                "state": session_state,
+                "error": "access_denied",
+                "error_description": "User cancelled",
+            }
+        )
+        pyramid_request.route_path = lambda *args: "/manage/account/"
+
+        result = views.gitlab_association_callback(pyramid_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.location == "/manage/account/"
+        assert "User cancelled" in pyramid_request.session.peek_flash(queue="error")[0]
+
+    def test_missing_authorization_code(self, pyramid_request):
+        """Test handling of missing authorization code."""
+        session_state = "valid_state"
+        pyramid_request.session["gitlab_oauth_state"] = session_state
+        pyramid_request.GET = MultiDict({"state": session_state})
+        pyramid_request.route_path = lambda *args: "/manage/account/"
+
+        result = views.gitlab_association_callback(pyramid_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.location == "/manage/account/"
+        assert (
+            "No authorization code received from GitLab"
+            in pyramid_request.session.peek_flash(queue="error")
+        )
+
+    def test_no_access_token_received(self, pyramid_request, user_service, mocker):
+        """Test handling when token exchange returns no access token."""
+        from warehouse.accounts.oauth import NullGitLabOAuthClient
+
+        gitlab_service = NullGitLabOAuthClient(redirect_uri="http://localhost/callback")
+
+        def find_service_mock(iface, name=None):
+            if name == "gitlab":
+                return gitlab_service
+            return user_service
+
+        pyramid_request.find_service = find_service_mock
+
+        session_state = "valid_state"
+        pyramid_request.session["gitlab_oauth_state"] = session_state
+        pyramid_request.GET = MultiDict({"state": session_state, "code": "auth_code"})
+        pyramid_request.route_path = lambda *args: "/manage/account/"
+
+        # Mock exchange_code_for_token to return empty response (no access_token)
+        mocker.patch.object(gitlab_service, "exchange_code_for_token", return_value={})
+
+        result = views.gitlab_association_callback(pyramid_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.location == "/manage/account/"
+        assert (
+            "No access token received"
+            in pyramid_request.session.peek_flash(queue="error")[0]
+        )
+
+    def test_duplicate_association_value_error(
+        self,
+        pyramid_request,
+        pyramid_user,
+        user_service,
+        mocker,
+    ):
+        """Test handling when association already exists (ValueError)."""
+        from warehouse.accounts.oauth import NullGitLabOAuthClient
+
+        # Pre-create an association with known values
+        OAuthAccountAssociationFactory.create(
+            user=pyramid_user,
+            service="gitlab",
+            external_user_id="12345",
+            external_username="existinguser",
+        )
+
+        gitlab_service = NullGitLabOAuthClient(redirect_uri="http://localhost/callback")
+
+        def find_service_mock(iface, name=None):
+            if name == "gitlab":
+                return gitlab_service
+            return user_service
+
+        pyramid_request.find_service = find_service_mock
+
+        session_state = "valid_state"
+        pyramid_request.session["gitlab_oauth_state"] = session_state
+        pyramid_request.GET = MultiDict({"state": session_state, "code": "auth_code"})
+        pyramid_request.route_path = lambda *args: "/manage/account/"
+
+        # Mock get_user_info to return the same values as the existing association
+        mocker.patch.object(
+            gitlab_service,
+            "get_user_info",
+            return_value={"id": 12345, "username": "existinguser"},
+        )
+
+        # Attempt to create association - should fail as duplicate
+        result = views.gitlab_association_callback(pyramid_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.location == "/manage/account/"
+        assert (
+            "already associated" in pyramid_request.session.peek_flash(queue="error")[0]
+        )
+
+    def test_generic_exception_during_oauth(
+        self, pyramid_request, user_service, mocker
+    ):
+        """Test handling of unexpected exceptions during OAuth flow."""
+        from warehouse.accounts.oauth import NullGitLabOAuthClient
+
+        gitlab_service = NullGitLabOAuthClient(redirect_uri="http://localhost/callback")
+
+        def find_service_mock(iface, name=None):
+            if name == "gitlab":
+                return gitlab_service
+            return user_service
+
+        pyramid_request.find_service = find_service_mock
+
+        session_state = "valid_state"
+        pyramid_request.session["gitlab_oauth_state"] = session_state
+        pyramid_request.GET = MultiDict({"state": session_state, "code": "auth_code"})
+        pyramid_request.route_path = lambda *args: "/manage/account/"
+        # Mock OAuth service to raise an exception
+        mocker.patch.object(
+            gitlab_service,
+            "exchange_code_for_token",
+            side_effect=Exception("Network error"),
+        )
+
+        result = views.gitlab_association_callback(pyramid_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.location == "/manage/account/"
+        assert (
+            "unexpected error" in pyramid_request.session.peek_flash(queue="error")[0]
+        )
+
+    def test_successful_association(
+        self,
+        pyramid_request,
+        pyramid_user,
+        user_service,
+        mocker,
+    ):
+        """Test successful GitLab account association."""
+        from warehouse.accounts.oauth import NullGitLabOAuthClient
+
+        gitlab_service = NullGitLabOAuthClient(redirect_uri="http://localhost/callback")
+        mocker.spy(gitlab_service, "exchange_code_for_token")
+        mocker.spy(gitlab_service, "get_user_info")
+
+        # Set up request to use GitLab service
+        def find_service_mock(iface, name=None):
+            if name == "gitlab":
+                return gitlab_service
+            return user_service
+
+        pyramid_request.find_service = find_service_mock
+
+        session_state = "valid_state"
+        pyramid_request.session["gitlab_oauth_state"] = session_state
+        pyramid_request.GET = MultiDict({"state": session_state, "code": "auth_code"})
+        pyramid_request.route_path = lambda *args: "/manage/account/"
+        # Mock user's record_event method
+        pyramid_user.record_event = mocker.Mock()
+        # Mock the email sending function
+        mock_send_email = mocker.patch.object(
+            views, "send_account_association_added_email"
+        )
+
+        result = views.gitlab_association_callback(pyramid_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.location == "/manage/account/"
+        # Verify association was created
+        assert pyramid_user.account_associations[0].service == "gitlab"
+        # Verify event was recorded
+        pyramid_user.record_event.assert_called_once()
+        assert (
+            pyramid_user.record_event.call_args[1]["tag"]
+            == EventTag.Account.AccountAssociationAdd
+        )
+        # Verify email was sent
+        mock_send_email.assert_called_once()
+        # Verify success flash
+        assert pyramid_request.session.peek_flash(queue="success")
+
+
 class TestDeleteAccountAssociation:
     def test_successful_deletion(
         self, pyramid_request, pyramid_user, user_service, mocker
