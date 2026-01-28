@@ -354,6 +354,7 @@ def get_app_config(database, nondefaults=None):
         "warehouse.oidc.audience": "pypi",
         "oidc.backend": "warehouse.oidc.services.NullOIDCPublisherService",
         "github.oauth.backend": "warehouse.accounts.oauth.NullGitHubOAuthClient",
+        "gitlab.oauth.backend": "warehouse.accounts.oauth.NullGitLabOAuthClient",
         "captcha.backend": "warehouse.captcha.hcaptcha.Service",
     }
 

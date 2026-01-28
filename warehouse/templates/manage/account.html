@@ -502,12 +502,19 @@
               {% if association.service == "github" %}
                 <i class="fab fa-github" aria-hidden="true"></i>
                 {% trans %}GitHub{% endtrans %}
+              {% elif association.service == "gitlab" %}
+                <i class="fab fa-gitlab" aria-hidden="true"></i>
+                {% trans %}GitLab{% endtrans %}
               {% endif %}
             </td>
             <td>
               <span class="table__mobile-label">{% trans %}Account{% endtrans %}</span>
               {% if association.service == "github" %}
                 <a href="https://github.com/{{ association.external_username }}"
+                   target="_blank"
+                   rel="noopener">{{ association.external_username }}</a>
+              {% elif association.service == "gitlab" %}
+                <a href="https://gitlab.com/{{ association.external_username }}"
                    target="_blank"
                    rel="noopener">{{ association.external_username }}</a>
               {% else %}
@@ -579,21 +586,35 @@
   <p>{% trans %}You have not connected any external accounts yet.{% endtrans %}</p>
 </div>
 {% endif %}
-{# Add new association - only show button when no associations exist #}
-{% if not account_associations %}
-  <h3 class="sub-title">{% trans %}Connect GitHub account{% endtrans %}</h3>
+{# Connect account buttons - show for providers not yet connected #}
+{% set connected_services = account_associations|map(attribute='service')|list %}
+{% set has_github = 'github' in connected_services %}
+{% set has_gitlab = 'gitlab' in connected_services %}
+{% if not has_github or not has_gitlab %}
+  <h3 class="sub-title">{% trans %}Connect external accounts{% endtrans %}</h3>
   <p>
-    {% trans %}Link your GitHub account to your PyPI account. You'll be redirected to GitHub to authorize the connection.{% endtrans %}
+    {% trans %}Link your external accounts to your PyPI account. You'll be redirected to authorize the connection.{% endtrans %}
   </p>
-  <a href="{{ request.route_path('manage.account.associations.github.connect') }}"
-     class="button button--primary">
-    <i class="fab fa-github" aria-hidden="true"></i>
-    {% trans %}Connect GitHub{% endtrans %}
-  </a>
-{% else %}
+  <div class="button-group">
+    {% if not has_github %}
+      <a href="{{ request.route_path('manage.account.associations.github.connect') }}"
+         class="button button--primary">
+        <i class="fab fa-github" aria-hidden="true"></i>
+        {% trans %}Connect GitHub{% endtrans %}
+      </a>
+    {% endif %}
+    {% if not has_gitlab %}
+      <a href="{{ request.route_path('manage.account.associations.gitlab.connect') }}"
+         class="button button--primary">
+        <i class="fab fa-gitlab" aria-hidden="true"></i>
+        {% trans %}Connect GitLab{% endtrans %}
+      </a>
+    {% endif %}
+  </div>
+{% endif %}
+{% if has_github or has_gitlab %}
   <p class="form-group__help-text">
-    {% trans %}Need to connect a different GitHub account? Remove the existing connection first, or use a private browser window to{% endtrans %}
-    <a href="{{ request.route_path('manage.account.associations.github.connect') }}">{% trans %}connect an additional account{% endtrans %}</a>.
+    {% trans %}Need to connect a different account from the same service? Remove the existing connection first.{% endtrans %}
   </p>
 {% endif %}
 </section>
