@@ -177,61 +177,44 @@ class GitHubAppClient:
         return data
 
 
-@implementer(IOAuthProviderService)
-class NullOAuthClient:
+class _NullOAuthClientBase:
     """
-    Null OAuth client for testing and development ONLY.
+    Base class for null OAuth clients (testing and development ONLY).
 
-    WARNING: This service should NEVER be used in production environments.
-    It creates fake user associations without any actual OAuth verification,
+    WARNING: These services should NEVER be used in production environments.
+    They create fake user associations without any actual OAuth verification,
     which would allow anyone to associate arbitrary external accounts.
 
-    Returns mock data without making real OAuth requests.
-    Useful for local development without configuring OAuth apps.
+    Subclasses implement IOAuthProviderService for use in development.
     """
 
-    def __init__(
-        self,
-        client_id: str = "null",
-        client_secret: str = "null",
-        redirect_uri: str = "http://localhost",
-    ):
+    _provider: str  # Set by subclasses
+    _callback_route: str  # Set by subclasses
+
+    def __init__(self, redirect_uri: str):
         warnings.warn(
-            "NullOAuthClient is intended only for use in development, "
+            f"{self.__class__.__name__} is intended only for use in development, "
             "you should not use it in production due to the creation of "
             "fake user associations without actual OAuth verification.",
             NullOAuthProviderServiceWarning,
         )
-
-        self.client_id = client_id
-        self.client_secret = client_secret
         self.redirect_uri = redirect_uri
 
     @classmethod
     def create_service(cls, context, request: Request) -> Self:
-        """
-        Create NullOAuthClient for testing/development.
-        """
-        redirect_uri = request.route_url("manage.account.associations.github.callback")
+        redirect_uri = request.route_url(cls._callback_route)
         return cls(redirect_uri=redirect_uri)
 
     def generate_authorize_url(self, state: str) -> str:
-        """
-        Generate mock authorization URL.
-
-        In development, this redirects back to callback with mock code.
-        """
-        # Return a mock URL that includes the state and a test code
+        """Generate mock authorization URL that redirects back with mock code."""
         params = {
-            "code": "mock_authorization_code",
+            "code": f"mock_{self._provider}_authorization_code",
             "state": state,
         }
         return f"{self.redirect_uri}?{urllib.parse.urlencode(params)}"
 
     def exchange_code_for_token(self, code: str) -> dict[str, str]:
-        """
-        Return mock access token.
-        """
+        """Return mock access token."""
         return {
             "access_token": "mock_access_token_" + secrets.token_hex(16),
             "token_type": "bearer",
@@ -239,10 +222,7 @@ class NullOAuthClient:
         }
 
     def get_user_info(self, access_token: str) -> dict[str, str | int]:
-        """
-        Return mock user info.
-        """
-        # Generate consistent mock data based on token
+        """Return mock user info."""
         mock_id = abs(hash(access_token)) % 1000000
         return {
             "id": mock_id,
@@ -250,6 +230,18 @@ class NullOAuthClient:
             "name": f"Mock User {mock_id}",
             "email": f"mock_{mock_id}@example.com",
         }
+
+
+@implementer(IOAuthProviderService)
+class NullGitHubOAuthClient(_NullOAuthClientBase):
+    """
+    Null GitHub OAuth client for testing and development ONLY.
+
+    WARNING: This service should NEVER be used in production environments.
+    """
+
+    _provider = "github"
+    _callback_route = "manage.account.associations.github.callback"
 
 
 def generate_state_token() -> str:
