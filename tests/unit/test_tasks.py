@@ -524,3 +524,26 @@ def test_includeme(env, ssl, broker_redis_url, expected_url, transport_options):
     assert config.add_request_method.calls == [
         pretend.call(tasks._get_task_from_request, name="task", reify=True)
     ]
+
+
+def test_on_after_setup_logger(monkeypatch):
+    configure_celery_logging = pretend.call_recorder(lambda logfile, loglevel: None)
+    monkeypatch.setattr(
+        "warehouse.logging.configure_celery_logging", configure_celery_logging
+    )
+
+    tasks.on_after_setup_logger("logger", "loglevel", "logfile")
+
+    assert configure_celery_logging.calls == [pretend.call("logfile", "loglevel")]
+
+
+def test_on_task_prerun(monkeypatch):
+    bind_contextvars = pretend.call_recorder(lambda **kw: None)
+    monkeypatch.setattr("structlog.contextvars.bind_contextvars", bind_contextvars)
+
+    task = pretend.stub(name="test.task")
+    tasks.on_task_prerun(None, "task-123", task)
+
+    assert bind_contextvars.calls == [
+        pretend.call(task_id="task-123", task_name="test.task")
+    ]
