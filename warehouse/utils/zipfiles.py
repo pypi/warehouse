@@ -194,7 +194,7 @@ def _handle_eocd64(fp: typing.IO[bytes]) -> tuple[int, int, int]:
     See section 4.3.14 of APPNOTE.TXT.
     """
     data = _read_check(fp, 52)
-    (eocd64_size, cd_records_on_disk, cd_records, cd_size, cd_offset) = struct.unpack(
+    eocd64_size, cd_records_on_disk, cd_records, cd_size, cd_offset = struct.unpack(
         "<QxxxxxxxxxxxxQQQQ", data
     )
     if cd_records_on_disk != cd_records:

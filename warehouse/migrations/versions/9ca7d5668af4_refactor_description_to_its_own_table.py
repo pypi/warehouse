@@ -48,8 +48,7 @@ def upgrade():
     )
 
     # Backfill our data into the description table.
-    op.execute(
-        """ WITH inserted_descriptions AS (
+    op.execute(""" WITH inserted_descriptions AS (
                 INSERT INTO release_descriptions
                         (content_type, raw, html, rendered_by, release_id)
                     SELECT
@@ -61,8 +60,7 @@ def upgrade():
             SET description_id = ids.description_id
             FROM inserted_descriptions AS ids
             WHERE id = release_id
-        """
-    )
+        """)
 
     op.alter_column("releases", "description_id", nullable=False)
 

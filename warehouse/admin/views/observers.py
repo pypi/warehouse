@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 """Admin Views for Observer Reputation tracking."""
+
 from __future__ import annotations
 
 from collections import defaultdict

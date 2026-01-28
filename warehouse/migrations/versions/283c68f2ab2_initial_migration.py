@@ -700,21 +700,17 @@ def upgrade():
         sa.PrimaryKeyConstraint("id"),
     )
 
-    op.execute(
-        """ CREATE INDEX releases_name_ts_idx
+    op.execute(""" CREATE INDEX releases_name_ts_idx
             ON releases
             USING gin
             (to_tsvector('english'::regconfig, name))
-        """
-    )
+        """)
 
-    op.execute(
-        """ CREATE INDEX releases_summary_ts_idx
+    op.execute(""" CREATE INDEX releases_summary_ts_idx
             ON releases
             USING gin
             (to_tsvector('english'::regconfig, summary));
-        """
-    )
+        """)
 
 
 def downgrade():

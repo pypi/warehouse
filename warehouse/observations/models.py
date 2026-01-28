@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 """Observations and associated models."""
+
 from __future__ import annotations
 
 import enum
