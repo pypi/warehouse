@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import pretend
+import psycopg
 import pytest
 
 from tests.common.db.oidc import (
@@ -400,6 +402,215 @@ class TestCircleCIPublisher:
             db_request.db.flush()
 
         assert publisher.exists(db_request.db) == exists_in_db
+
+    def test_circleci_publisher_all_known_claims(self):
+        assert CircleCIPublisher.all_known_claims() == {
+            # required verifiable claims
+            "oidc.circleci.com/org-id",
+            "oidc.circleci.com/project-id",
+            "oidc.circleci.com/pipeline-definition-id",
+            "oidc.circleci.com/ssh-rerun",
+            # optional verifiable claims
+            "oidc.circleci.com/context-ids",
+            "oidc.circleci.com/vcs-ref",
+            "oidc.circleci.com/vcs-origin",
+            # preverified claims
+            "iss",
+            "iat",
+            "nbf",
+            "exp",
+            "aud",
+            # unchecked claims
+            "oidc.circleci.com/job-id",
+            "oidc.circleci.com/pipeline-id",
+            "oidc.circleci.com/workflow-id",
+        }
+
+    def test_lookup_by_claims_missing_org_id(self, db_request):
+        signed_claims = SignedClaims(
+            {
+                "oidc.circleci.com/project-id": PROJECT_ID,
+                "oidc.circleci.com/pipeline-definition-id": PIPELINE_DEF_ID,
+            }
+        )
+
+        with pytest.raises(KeyError):
+            CircleCIPublisher.lookup_by_claims(db_request.db, signed_claims)
+
+    def test_lookup_by_claims_missing_project_id(self, db_request):
+        signed_claims = SignedClaims(
+            {
+                "oidc.circleci.com/org-id": ORG_ID,
+                "oidc.circleci.com/pipeline-definition-id": PIPELINE_DEF_ID,
+            }
+        )
+
+        with pytest.raises(KeyError):
+            CircleCIPublisher.lookup_by_claims(db_request.db, signed_claims)
+
+    def test_lookup_by_claims_missing_pipeline_definition_id(self, db_request):
+        signed_claims = SignedClaims(
+            {
+                "oidc.circleci.com/org-id": ORG_ID,
+                "oidc.circleci.com/project-id": PROJECT_ID,
+            }
+        )
+
+        with pytest.raises(KeyError):
+            CircleCIPublisher.lookup_by_claims(db_request.db, signed_claims)
+
+    def test_circleci_publisher_duplicates_cant_be_created(self, db_request):
+        publisher1 = CircleCIPublisher(
+            circleci_org_id=ORG_ID,
+            circleci_project_id=PROJECT_ID,
+            pipeline_definition_id=PIPELINE_DEF_ID,
+            context_id="",
+            vcs_ref="",
+            vcs_origin="",
+        )
+        db_request.db.add(publisher1)
+        db_request.db.commit()
+
+        publisher2 = CircleCIPublisher(
+            circleci_org_id=ORG_ID,
+            circleci_project_id=PROJECT_ID,
+            pipeline_definition_id=PIPELINE_DEF_ID,
+            context_id="",
+            vcs_ref="",
+            vcs_origin="",
+        )
+        db_request.db.add(publisher2)
+
+        with pytest.raises(psycopg.errors.UniqueViolation):
+            db_request.db.commit()
+
+    @pytest.mark.parametrize(
+        "url",
+        [
+            "https://circleci.com/gh/some-org/some-repo",
+            "https://app.circleci.com/pipelines/github/some-org/some-repo",
+            "https://example.com/anything",
+            "",
+        ],
+    )
+    def test_circleci_publisher_verify_url_returns_false(self, url):
+        publisher = CircleCIPublisher(
+            circleci_org_id=ORG_ID,
+            circleci_project_id=PROJECT_ID,
+            pipeline_definition_id=PIPELINE_DEF_ID,
+        )
+
+        assert publisher.verify_url(url) is False
+
+    def test_lookup_with_vcs_ref_constraint(self, db_request):
+        publisher = CircleCIPublisherFactory.create(
+            circleci_org_id=ORG_ID,
+            circleci_project_id=PROJECT_ID,
+            pipeline_definition_id=PIPELINE_DEF_ID,
+            context_id="",
+            vcs_ref=VCS_REF,
+            vcs_origin="",
+        )
+
+        signed_claims = new_signed_claims(vcs_ref=VCS_REF)
+
+        result = CircleCIPublisher.lookup_by_claims(db_request.db, signed_claims)
+        assert result == publisher
+
+    def test_lookup_with_vcs_origin_constraint(self, db_request):
+        publisher = CircleCIPublisherFactory.create(
+            circleci_org_id=ORG_ID,
+            circleci_project_id=PROJECT_ID,
+            pipeline_definition_id=PIPELINE_DEF_ID,
+            context_id="",
+            vcs_ref="",
+            vcs_origin=VCS_ORIGIN,
+        )
+
+        signed_claims = new_signed_claims(vcs_origin=VCS_ORIGIN)
+
+        result = CircleCIPublisher.lookup_by_claims(db_request.db, signed_claims)
+        assert result == publisher
+
+    def test_lookup_with_all_optional_constraints(self, db_request):
+        publisher = CircleCIPublisherFactory.create(
+            circleci_org_id=ORG_ID,
+            circleci_project_id=PROJECT_ID,
+            pipeline_definition_id=PIPELINE_DEF_ID,
+            context_id=CONTEXT_ID,
+            vcs_ref=VCS_REF,
+            vcs_origin=VCS_ORIGIN,
+        )
+
+        signed_claims = new_signed_claims(
+            context_ids=[CONTEXT_ID],
+            vcs_ref=VCS_REF,
+            vcs_origin=VCS_ORIGIN,
+        )
+
+        result = CircleCIPublisher.lookup_by_claims(db_request.db, signed_claims)
+        assert result == publisher
+
+    def test_lookup_by_claims_no_matching_publisher(self, db_request):
+        signed_claims = new_signed_claims()
+
+        with pytest.raises(InvalidPublisherError) as e:
+            CircleCIPublisher.lookup_by_claims(db_request.db, signed_claims)
+        assert str(e.value) == "Publisher with matching claims was not found"
+
+    @pytest.mark.parametrize(
+        ("truth", "claim", "valid"),
+        [
+            ("", None, True),
+            ("", [], True),
+            ("", ["some-context"], True),
+            (CONTEXT_ID, [CONTEXT_ID, "other-context"], True),
+            (CONTEXT_ID, None, False),
+            (CONTEXT_ID, [], False),
+            (CONTEXT_ID, ["other-context"], False),
+        ],
+    )
+    def test_context_id_claim_verification(self, truth, claim, valid):
+        check = CircleCIPublisher.__optional_verifiable_claims__[
+            "oidc.circleci.com/context-ids"
+        ]
+        assert check(truth, claim, pretend.stub()) is valid
+
+    @pytest.mark.parametrize(
+        ("truth", "claim", "valid"),
+        [
+            ("", None, True),
+            ("", "", True),
+            ("", "some-value", True),
+            (VCS_REF, VCS_REF, True),
+            (VCS_REF, None, False),
+            (VCS_REF, "", False),
+            (VCS_REF, "refs/heads/develop", False),
+        ],
+    )
+    def test_vcs_ref_claim_verification(self, truth, claim, valid):
+        check = CircleCIPublisher.__optional_verifiable_claims__[
+            "oidc.circleci.com/vcs-ref"
+        ]
+        assert check(truth, claim, pretend.stub()) is valid
+
+    @pytest.mark.parametrize(
+        ("truth", "claim", "valid"),
+        [
+            ("", None, True),
+            ("", "", True),
+            ("", "some-value", True),
+            (VCS_ORIGIN, VCS_ORIGIN, True),
+            (VCS_ORIGIN, None, False),
+            (VCS_ORIGIN, "", False),
+            (VCS_ORIGIN, "github.com/other-org/other-repo", False),
+        ],
+    )
+    def test_vcs_origin_claim_verification(self, truth, claim, valid):
+        check = CircleCIPublisher.__optional_verifiable_claims__[
+            "oidc.circleci.com/vcs-origin"
+        ]
+        assert check(truth, claim, pretend.stub()) is valid
 
 
 class TestPendingCircleCIPublisher:
