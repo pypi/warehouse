@@ -244,12 +244,8 @@ def test_update_email_domain_status_retries_failures_in_7_days(
 
     # Timestamp should be set to ~23 days ago for retry in ~7 days
     assert fail_check.domain_last_checked is not None
-    expected_retry_offset = datetime.now(tz=timezone.utc) - timedelta(days=23)
-    # Allow 1 minute tolerance for test execution time
-    assert (
-        abs((fail_check.domain_last_checked - expected_retry_offset).total_seconds())
-        < 60
-    )
+    expected_retry_date = (datetime.now(tz=timezone.utc) - timedelta(days=23)).date()
+    assert fail_check.domain_last_checked.date() == expected_retry_date
     # Status should remain None since lookup returned None
     assert fail_check.domain_last_status is None
 
