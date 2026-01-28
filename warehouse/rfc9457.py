@@ -15,6 +15,7 @@ from __future__ import annotations
 import json
 
 from dataclasses import dataclass, field
+from http import HTTPStatus
 from typing import Any
 
 from pyramid.httpexceptions import HTTPException
@@ -41,7 +42,7 @@ class ProblemDetails:
     detail: str | None = None
     type: str = "about:blank"
     instance: str | None = None
-    extensions: dict[str, Any] = field(default_factory=dict)
+    extensions: dict[str, Any] = field(default_factory=dict, kw_only=True)
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary format for JSON serialization.
@@ -62,6 +63,13 @@ class ProblemDetails:
 
         if self.instance:
             result["instance"] = self.instance
+
+        forbidden_keys = {"status", "title", "detail", "type", "instance"}
+        if any(key in self.extensions for key in forbidden_keys):
+            raise ValueError(
+                f"Extensions cannot override required RFC 9457 fields: "
+                f"{forbidden_keys}"
+            )
 
         result.update(self.extensions)
 
@@ -85,22 +93,32 @@ class ProblemDetails:
 
 
 def problem_details_from_exception(
-    exc: HTTPException, detail: str | None = None, **extensions: Any
+    exc: HTTPException,
+    detail: str | None = None,
+    type: str = "about:blank",
+    **extensions: Any,
 ) -> ProblemDetails:
-    problem_detail = detail
-    if problem_detail is None:
+    if detail is None:
         problem_detail = getattr(exc, "detail", None) or getattr(
             exc, "explanation", None
         )
+    else:
+        problem_detail = detail
+
+    title = exc.title or exc.status
+
+    # RFC 9457: When "about:blank" is used, the title SHOULD be the same
+    # as the recommended HTTP status phrase for that code
+    if type == "about:blank":
+        try:
+            title = HTTPStatus(exc.status_code).phrase
+        except ValueError:
+            pass
 
     return ProblemDetails(
         status=exc.status_code,
-        title=exc.title or exc.status,
+        title=title,
         detail=problem_detail,
+        type=type,
         extensions=extensions,
     )
-
-
-def accepts_problem_json(request) -> bool:
-    acceptable = request.accept.acceptable_offers([RFC9457_CONTENT_TYPE])
-    return len(acceptable) > 0

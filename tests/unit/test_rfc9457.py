@@ -2,7 +2,6 @@
 
 import json
 
-import pretend
 import pytest
 
 from pyramid.httpexceptions import (
@@ -13,9 +12,7 @@ from pyramid.httpexceptions import (
 )
 
 from warehouse.rfc9457 import (
-    RFC9457_CONTENT_TYPE,
     ProblemDetails,
-    accepts_problem_json,
     problem_details_from_exception,
 )
 
@@ -39,6 +36,22 @@ class TestProblemDetails:
         assert result["type"] == "https://example.com/problems/not-found"
         assert result["instance"] == "/simple/nonexistent-package"
         assert result["retry_after"] == 60
+
+    @pytest.mark.parametrize(
+        "forbidden_key",
+        ["status", "title", "detail", "type", "instance"],
+    )
+    def test_extensions_cannot_override_required_fields(self, forbidden_key):
+        problem = ProblemDetails(
+            status=400,
+            title="Bad Request",
+            extensions={forbidden_key: "should not be allowed"},
+        )
+
+        with pytest.raises(
+            ValueError, match="Extensions cannot override required RFC 9457 fields"
+        ):
+            problem.to_dict()
 
     def test_to_dict_minimal_fields(self):
         problem = ProblemDetails(
@@ -174,36 +187,29 @@ class TestProblemDetailsFromException:
         assert isinstance(problem.title, str)
         assert len(problem.title) > 0
 
+    @pytest.mark.parametrize(
+        ("exc_class", "expected_status", "expected_title"),
+        [
+            (HTTPForbidden, 403, "Forbidden"),
+            (HTTPInternalServerError, 500, "Internal Server Error"),
+        ],
+    )
+    def test_uses_standard_http_status_phrases(
+        self, exc_class, expected_status, expected_title
+    ):
+        exc = exc_class()
+        problem = problem_details_from_exception(exc)
 
-class TestAcceptsProblemJson:
-    def test_accepts_problem_json(self):
-        request = pretend.stub(
-            accept=pretend.stub(
-                acceptable_offers=lambda offers: [(RFC9457_CONTENT_TYPE, 1.0)]
-            )
-        )
+        assert problem.status == expected_status
+        assert problem.title == expected_title
+        assert problem.type == "about:blank"
 
-        result = accepts_problem_json(request)
+    def test_custom_type_uses_exception_title(self):
+        exc = HTTPNotFound()
+        custom_type = "https://pypi.org/errors/package-not-found"
 
-        assert result is True
+        problem = problem_details_from_exception(exc, type=custom_type)
 
-    def test_does_not_accept_problem_json(self):
-        request = pretend.stub(accept=pretend.stub(acceptable_offers=lambda offers: []))
-
-        result = accepts_problem_json(request)
-
-        assert result is False
-
-    def test_accepts_with_multiple_types(self):
-        request = pretend.stub(
-            accept=pretend.stub(
-                acceptable_offers=lambda offers: [
-                    ("text/html", 1.0),
-                    (RFC9457_CONTENT_TYPE, 0.9),
-                ]
-            )
-        )
-
-        result = accepts_problem_json(request)
-
-        assert result is True
+        assert problem.status == 404
+        assert problem.type == custom_type
+        assert problem.title == exc.title
