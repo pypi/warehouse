@@ -17,7 +17,7 @@ class TestGitHubAssociationConnect:
         assert isinstance(result, HTTPSeeOther)
         assert (
             result.location
-            == "http://localhost?code=mock_authorization_code&state="
+            == "http://localhost/callback?code=mock_github_authorization_code&state="
             + pyramid_request.session["github_oauth_state"]
         )
         assert "github_oauth_state" in pyramid_request.session

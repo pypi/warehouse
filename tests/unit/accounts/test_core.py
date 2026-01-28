@@ -143,7 +143,7 @@ def test_includeme(monkeypatch):
                 "warehouse.account.verify_email_ratelimit_string": "3 per 6 hours",
                 "warehouse.account.password_reset_ratelimit_string": "5 per day",
                 "warehouse.account.accounts_search_ratelimit_string": "100 per hour",
-                "github.oauth.backend": accounts.NullOAuthClient,
+                "github.oauth.backend": accounts.NullGitHubOAuthClient,
             }
         ),
         register_service_factory=pretend.call_recorder(
@@ -188,7 +188,7 @@ def test_includeme(monkeypatch):
         ),
         pretend.call(NullDomainStatusService.create_service, IDomainStatusService),
         pretend.call(
-            accounts.NullOAuthClient.create_service,
+            accounts.NullGitHubOAuthClient.create_service,
             accounts.IOAuthProviderService,
             name="github",
         ),
