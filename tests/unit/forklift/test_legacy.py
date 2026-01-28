@@ -77,34 +77,40 @@ def _get_tar_testdata(compression_type=""):
     return temp_f.getvalue()
 
 
-def _format_tags(tags: str) -> str:
+def _format_tags(tags: str) -> bytes:
+    """
+    Build a mock WHEEL file from the given tags.
+    """
     tags = packaging.tags.parse_tag(tags)
-    return "\n".join(f"Tag: {tag}" for tag in tags)
+    formatted = "Wheel-Version: 1.0\n" + "\n".join(f"Tag: {tag}" for tag in tags)
+    return formatted.encode("utf-8")
 
 
 def _get_whl_testdata(
-    name="fake_package", version="1.0", tags=_format_tags("py3-none-any")
+    name="fake_package",
+    version="1.0",
+    tags: bytes | None = _format_tags("py3-none-any"),
 ):
     temp_f = io.BytesIO()
     with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
         zfp.writestr(f"{name}-{version}.dist-info/METADATA", "Fake metadata")
-        zfp.writestr(f"{name}-{version}.dist-info/WHEEL", tags)
+        if tags:
+            zfp.writestr(f"{name}-{version}.dist-info/WHEEL", tags)
         zfp.writestr(f"{name}-{version}.dist-info/licenses/LICENSE.MIT", "Fake License")
         zfp.writestr(
             f"{name}-{version}.dist-info/licenses/LICENSE.APACHE", "Fake License"
         )
-        zfp.writestr(
-            f"{name}-{version}.dist-info/RECORD",
-            dedent(
-                f"""\
-                {name}-{version}.dist-info/METADATA,
-                {name}-{version}.dist-info/WHEEL,
-                {name}-{version}.dist-info/licenses/LICENSE.MIT,
-                {name}-{version}.dist-info/licenses/LICENSE.APACHE,
-                {name}-{version}.dist-info/RECORD,
-                """,
-            ),
+        record = dedent(
+            f"""\
+            {name}-{version}.dist-info/METADATA,
+            {name}-{version}.dist-info/licenses/LICENSE.MIT,
+            {name}-{version}.dist-info/licenses/LICENSE.APACHE,
+            {name}-{version}.dist-info/RECORD,
+            """,
         )
+        if tags:
+            record += f"{name}-{version}.dist-info/WHEEL,\n"
+        zfp.writestr(f"{name}-{version}.dist-info/RECORD", record)
     return temp_f.getvalue()
 
 
@@ -364,24 +370,34 @@ class TestFileValidation:
         [
             (
                 "py3-none-macosx_11_0_arm64",
-                "Tag: py3-none-macosx_13_0_arm64",
+                b"Tag: py3-none-macosx_13_0_arm64",
                 "Wheel filename and WHEEL file tags mismatch: "
                 + "py3-none-macosx_11_0_arm64 vs. py3-none-macosx_13_0_arm64",
             ),
             (
                 "py2-none-any",
-                "Tag: py2-none-any\nTag: py3-none-any",
+                b"Tag: py2-none-any\nTag: py3-none-any",
                 "WHEEL file has tags not in wheel filename: py3-none-any",
             ),
             (
                 "py2.py3-none-any",
-                "Tag: py3-none-any",
+                b"Tag: py3-none-any",
                 "Wheel filename has tags not in WHEEL file: py2-none-any",
             ),
             (
                 "py2.py3-none-any",
-                "Tag: py2.py3-none-any",
+                b"Tag: py2.py3-none-any",
                 "Tags in WHEEL file must be expanded, not compressed: py2.py3-none-any",
+            ),
+            (
+                "py3-none-macosx_11_0_arm64",
+                b"\xff\x00\xff",
+                "WHEEL file is not valid UTF-8",
+            ),
+            (
+                "py3-none-macosx_11_0_arm64",
+                None,
+                "WHEEL not found at <NAME>-1.0.dist-info/WHEEL",
             ),
         ],
     )
@@ -399,11 +415,10 @@ class TestFileValidation:
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
-        filename = "{}-{}-{}.whl".format(
-            project.normalized_name.replace("-", "_"), release.version, tags_filename
-        )
+        name = project.normalized_name.replace("-", "_")
+        filename = f"{name}-{release.version}-{tags_filename}.whl"
         data = _get_whl_testdata(
-            name=project.normalized_name.replace("-", "_"),
+            name=name,
             version="1.0",
             tags=tags_file,
         )
@@ -440,7 +455,10 @@ class TestFileValidation:
         resp = excinfo.value
 
         assert resp.status_code == 400
-        assert resp.status == f"400 Invalid distribution file. {error}"
+        rendered_error = f"400 Invalid distribution file. {error}".replace(
+            "<NAME>", name
+        )
+        assert resp.status == rendered_error
 
     def test_incorrect_number_of_top_level_directories_sdist_tar(self, tmpdir):
         tar_fn = str(tmpdir.join("test.tar.gz"))
