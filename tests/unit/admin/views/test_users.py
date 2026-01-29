@@ -833,6 +833,7 @@ class TestUserRecoverAccountInitiate:
         }
         assert account_recovery.additional == {"status": "initiated"}
 
+    @pytest.mark.usefixtures("_no_deliverability_check")
     def test_user_recover_account_initiate_override_email(
         self, db_request, db_session, monkeypatch
     ):
@@ -904,6 +905,7 @@ class TestUserRecoverAccountInitiate:
         }
         assert account_recovery.additional == {"status": "initiated"}
 
+    @pytest.mark.usefixtures("_no_deliverability_check")
     def test_user_recover_account_initiate_override_email_exists(
         self, db_request, db_session, monkeypatch
     ):
@@ -978,6 +980,7 @@ class TestUserRecoverAccountInitiate:
         }
         assert account_recovery.additional == {"status": "initiated"}
 
+    @pytest.mark.usefixtures("_no_deliverability_check")
     def test_user_recover_account_initiate_override_email_exists_wrong_user(
         self, db_request, db_session, monkeypatch
     ):
@@ -1034,6 +1037,30 @@ class TestUserRecoverAccountInitiate:
             pretend.call("Email address already associated with a user", queue="error")
         ]
         assert len(user.active_account_recoveries) == 0
+
+    def test_user_recover_account_initiate_invalid_email_format(self, db_request):
+        user = UserFactory.create()
+        db_request.method = "POST"
+        db_request.user = UserFactory.create()
+        db_request.POST["project_name"] = ""
+        db_request.POST["support_issue_link"] = (
+            "https://github.com/pypi/support/issues/1"
+        )
+        db_request.POST["override_to_email"] = "invalid-email"
+        db_request.route_path = pretend.call_recorder(
+            lambda route_name, **kwargs: "/user/the-redirect/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.user_recover_account_initiate(user, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/user/the-redirect/"
+        assert db_request.session.flash.calls == [
+            pretend.call("Invalid or undeliverable email address", queue="error")
+        ]
 
     def test_user_recover_account_initiate_no_support_issue_link_submit(
         self, db_request, db_session
