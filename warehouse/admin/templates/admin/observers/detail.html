@@ -1,0 +1,311 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+
+{% extends "admin/base.html" %}
+
+{% block title %}Observer: {{ username }}{% endblock %}
+
+{% block breadcrumb %}
+  <li class="breadcrumb-item">
+    <a href="{{ request.route_path('admin.observations.list') }}">Observations</a>
+  </li>
+  <li class="breadcrumb-item">
+    <a href="{{ request.route_path('admin.observers.reputation') }}">Observer Reputation</a>
+  </li>
+  <li class="breadcrumb-item active">{{ username }}</li>
+{% endblock %}
+
+{% block content %}
+{# Observer Profile Card #}
+<div class="row">
+  <div class="col-lg-4 col-md-5">
+    <div class="card card-primary card-outline">
+      <div class="card-body box-profile">
+        <h3 class="profile-username text-center">{{ username }}</h3>
+        <p class="text-muted text-center">Observer</p>
+
+        <ul class="list-group list-group-unbordered mb-3">
+          <li class="list-group-item">
+            <b>Observer ID</b> <span class="float-right"><code>{{ observer.id }}</code></span>
+          </li>
+          <li class="list-group-item">
+            <b>Observer Since</b> <span class="float-right">{{ observer.created|format_date() }}</span>
+          </li>
+          {% if user_id %}
+          <li class="list-group-item">
+            <b>User Account</b>
+            <a href="{{ request.route_path('admin.user.detail', username=username) }}" class="float-right">
+              View User <i class="fa fa-external-link-alt"></i>
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+
+        <div class="btn-group btn-group-justified w-100">
+          <a href="{{ request.route_path('admin.observers.detail', observer_id=observer.id, _query={'days': 30}) }}"
+             class="btn btn-sm {{ 'btn-primary' if days == 30 else 'btn-default' }}">30d</a>
+          <a href="{{ request.route_path('admin.observers.detail', observer_id=observer.id, _query={'days': 60}) }}"
+             class="btn btn-sm {{ 'btn-primary' if days == 60 else 'btn-default' }}">60d</a>
+          <a href="{{ request.route_path('admin.observers.detail', observer_id=observer.id, _query={'days': 90}) }}"
+             class="btn btn-sm {{ 'btn-primary' if days == 90 else 'btn-default' }}">90d</a>
+          <a href="{{ request.route_path('admin.observers.detail', observer_id=observer.id, _query={'days': 0}) }}"
+             class="btn btn-sm {{ 'btn-primary' if days == 0 else 'btn-default' }}">Lifetime</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# Statistics Card #}
+  <div class="col-lg-8 col-md-7">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Performance Summary ({% if days == 0 %}Lifetime{% else %}Last {{ days }} Days{% endif %})</h3>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-6 col-lg-4 text-center border-right">
+            <span class="text-muted text-uppercase small">Total Reports</span>
+            <h2 class="mb-0">{{ stats.total }}</h2>
+          </div>
+          <div class="col-6 col-lg-4 text-center border-right">
+            <span class="text-muted text-uppercase small">Score</span>
+            <h2 class="mb-0 {% if stats.score > 0 %}text-success{% elif stats.score < 0 %}text-danger{% endif %}">
+              {{ stats.score }}
+            </h2>
+          </div>
+          <div class="col-12 col-lg-4 text-center mt-3 mt-lg-0">
+            <span class="text-muted text-uppercase small">Accuracy</span>
+            <h2 class="mb-0 {% if stats.accuracy and stats.accuracy >= 80 %}text-success{% elif stats.accuracy and stats.accuracy < 50 %}text-danger{% elif stats.accuracy %}text-warning{% endif %}">
+              {{ stats.accuracy if stats.accuracy is not none else 'N/A' }}{% if stats.accuracy is not none %}%{% endif %}
+            </h2>
+          </div>
+        </div>
+        <hr>
+        <div class="row text-center">
+          <div class="col-4">
+            <span class="text-success"><i class="fa fa-check-circle"></i></span>
+            <span class="text-muted small">True Positives</span>
+            <h4 class="text-success mb-0">{{ stats.true_positives }}</h4>
+          </div>
+          <div class="col-4">
+            <span class="text-danger"><i class="fa fa-times-circle"></i></span>
+            <span class="text-muted small">False Positives</span>
+            <h4 class="text-danger mb-0">{{ stats.false_positives }}</h4>
+          </div>
+          <div class="col-4">
+            <span class="text-warning"><i class="fa fa-hourglass-half"></i></span>
+            <span class="text-muted small">Pending</span>
+            <h4 class="text-warning mb-0">{{ stats.pending }}</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# Time Series Chart #}
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Reports Over Time (Weekly)</h3>
+      </div>
+      <div class="card-body">
+        {% if time_series.labels %}
+        <div class="chart-container">
+          <canvas id="observerChart"></canvas>
+        </div>
+        <script id="observerChartData" type="application/json">
+          {
+            "labels": {{ time_series.labels | tojson }},
+            "truePositives": {{ time_series.true_positives | tojson }},
+            "falsePositives": {{ time_series.false_positives | tojson }},
+            "pending": {{ time_series.pending | tojson }}
+          }
+        </script>
+        {% else %}
+        <p class="text-muted text-center py-4">No report data available for this time period.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{# Observation Tables #}
+<div class="row">
+  {# True Positives - always collapsed by default #}
+  <div class="col-12">
+    <div class="card card-success card-outline collapsed-card">
+      <div class="card-header">
+        <h3 class="card-title">
+          <i class="fa-solid fa-check-circle text-success"></i>
+          True Positives
+          <span class="badge badge-secondary ml-2">{{ stats.true_positives }}</span>
+        </h3>
+        <div class="card-tools">
+          <button type="button" class="btn btn-tool" data-card-widget="collapse">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+      </div>
+      <div class="card-body table-responsive p-0">
+        {% if observations.true_positives %}
+        <table class="table table-hover table-sm">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Project</th>
+              <th>Summary</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for obs in observations.true_positives %}
+            <tr>
+              <td class="text-nowrap">{{ obs.created|format_date() }}</td>
+              <td>
+                <code>{{ obs.related_name }}</code>
+                {% if obs.related_id is none %}<span class="badge badge-danger">Removed</span>{% endif %}
+              </td>
+              <td>{{ obs.summary[:60] }}{% if obs.summary|length > 60 %}...{% endif %}</td>
+              <td>
+                <a href="{{ request.route_path('admin.malware_reports.detail', observation_id=obs.id) }}"
+                   class="btn btn-xs btn-info" title="View Details"><i class="fa fa-eye"></i></a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="p-3 text-muted">No true positives in this period.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  {# False Positives #}
+  <div class="col-12">
+    <div class="card card-danger card-outline {% if not observations.false_positives %}collapsed-card{% endif %}">
+      <div class="card-header">
+        <h3 class="card-title">
+          <i class="fa-solid fa-times-circle text-danger"></i>
+          False Positives
+          <span class="badge badge-secondary ml-2">{{ stats.false_positives }}</span>
+        </h3>
+        <div class="card-tools">
+          <button type="button" class="btn btn-tool" data-card-widget="collapse">
+            <i class="fas fa-{% if observations.false_positives %}minus{% else %}plus{% endif %}"></i>
+          </button>
+        </div>
+      </div>
+      <div class="card-body table-responsive p-0">
+        {% if observations.false_positives %}
+        <table class="table table-hover table-sm">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Project</th>
+              <th>Verdict By</th>
+              <th>Reason</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for obs in observations.false_positives %}
+            <tr>
+              <td class="text-nowrap">{{ obs.created|format_date() }}</td>
+              <td>
+                {% if obs.related %}
+                  <a href="{{ request.route_path('admin.project.detail', project_name=obs.related.normalized_name) }}">
+                    {{ obs.related_name }}
+                  </a>
+                {% else %}
+                  <code>{{ obs.related_name }}</code>
+                {% endif %}
+              </td>
+              <td>
+                {% for ts, action_data in obs.actions.items() %}
+                  {% if action_data.action == 'verdict_not_malware' %}{{ action_data.actor }}{% endif %}
+                {% endfor %}
+              </td>
+              <td>
+                {% for ts, action_data in obs.actions.items() %}
+                  {% if action_data.action == 'verdict_not_malware' %}
+                    {{ action_data.reason[:40] if action_data.reason else '-' }}{% if action_data.reason and action_data.reason|length > 40 %}...{% endif %}
+                  {% endif %}
+                {% endfor %}
+              </td>
+              <td>
+                <a href="{{ request.route_path('admin.malware_reports.detail', observation_id=obs.id) }}"
+                   class="btn btn-xs btn-info" title="View Details"><i class="fa fa-eye"></i></a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="p-3 text-muted">No false positives in this period.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  {# Pending #}
+  <div class="col-12">
+    <div class="card card-warning card-outline">
+      <div class="card-header">
+        <h3 class="card-title">
+          <i class="fa-solid fa-hourglass-half text-warning"></i>
+          Pending Review
+          <span class="badge badge-secondary ml-2">{{ stats.pending }}</span>
+        </h3>
+        <div class="card-tools">
+          <button type="button" class="btn btn-tool" data-card-widget="collapse">
+            <i class="fas fa-minus"></i>
+          </button>
+        </div>
+      </div>
+      <div class="card-body table-responsive p-0">
+        {% if observations.pending %}
+        <table class="table table-hover table-sm">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Project</th>
+              <th>Summary</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for obs in observations.pending %}
+            <tr>
+              <td class="text-nowrap">{{ obs.created|format_date() }}</td>
+              <td>
+                {% if obs.related %}
+                  <a href="{{ request.route_path('admin.project.detail', project_name=obs.related.normalized_name) }}">
+                    {{ obs.related_name }}
+                  </a>
+                {% else %}
+                  <code>{{ obs.related_name }}</code>
+                {% endif %}
+              </td>
+              <td>{{ obs.summary[:60] }}{% if obs.summary|length > 60 %}...{% endif %}</td>
+              <td class="text-nowrap">
+                <a href="{{ request.route_path('admin.malware_reports.detail', observation_id=obs.id) }}"
+                   class="btn btn-xs btn-info" title="View Details"><i class="fa fa-eye"></i></a>
+                {% if obs.related %}
+                <a href="{{ request.route_path('admin.malware_reports.project.list', project_name=obs.related.normalized_name) }}"
+                   class="btn btn-xs btn-warning" title="All Reports for Project"><i class="fa fa-list"></i></a>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="p-3 text-muted">No pending observations in this period.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

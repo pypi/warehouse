@@ -2,7 +2,7 @@ djlint
 flake8
 flake8-pytest-style
 pep8-naming
-black==25.12.0
+black==26.1.0
 isort>=5.13.1
 pyupgrade
 mypy
@@ -20,7 +20,7 @@ types-passlib
 types-python-slugify
 types-pytz
 types-redis
-types-requests==2.32.4.20250913
+types-requests==2.32.4.20260107
 types-stripe
 types-WTForms
 types-WebOb

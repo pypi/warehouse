@@ -1,5 +1,8 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "../settings/breakpoints";
+@use "../tools/layout-utilities";
+
 /*
   A container for filters that are applied to a search result.
   Contains a button to toggle the filter menu on mobile:
@@ -17,12 +20,12 @@
 .applied-filters {
   margin-top: 10px;
   margin-bottom: 15px;
-  @include clearfix;
+  @include layout-utilities.clearfix;
 
   &__add-button {
     display: none;
 
-    @media only screen and (max-width: $desktop) {
+    @media only screen and (max-width: breakpoints.$desktop) {
       display: inline-block;
       float: left;
     }

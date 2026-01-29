@@ -121,19 +121,27 @@ class WebAuthnCredentialMixin:
     credential = wtforms.StringField(validators=[wtforms.validators.InputRequired()])
 
 
+def _remove_whitespace(value):
+    """Filter to remove all whitespace from input."""
+    return "".join(value.split()) if value else value
+
+
 class RecoveryCodeValueMixin:
+    # Recovery codes are exactly 16 hex characters.
+    # Whitespace is removed to allow user-friendly input like "dead beef 0000 1111".
     recovery_code_value = wtforms.StringField(
+        filters=[_remove_whitespace],
         validators=[
             wtforms.validators.InputRequired(),
             PreventNullBytesValidator(),
             wtforms.validators.Regexp(
-                rf"^ *([0-9a-f] *){{{2 * RECOVERY_CODE_BYTES}}}$",
+                rf"^[0-9a-f]{{{2 * RECOVERY_CODE_BYTES}}}$",
                 message=_(
                     "Recovery Codes must be ${recovery_code_length} characters.",
                     mapping={"recovery_code_length": 2 * RECOVERY_CODE_BYTES},
                 ),
             ),
-        ]
+        ],
     )
 
 

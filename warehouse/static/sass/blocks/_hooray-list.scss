@@ -1,5 +1,8 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "../settings/colours";
+@use "../settings/fonts";
+
 /*
   List with check marks, with items divided by a borer:
 
@@ -10,19 +13,19 @@
 
 .hooray-list {
   margin-left: 0;
-  border-top: 1px dotted $border-color;
+  border-top: 1px dotted colours.$border-color;
 
   li {
-    border-bottom: 1px dotted $border-color;
+    border-bottom: 1px dotted colours.$border-color;
     padding: 10px 0 10px 30px;
     list-style-type: none;
     position: relative;
 
     &::before {
-      font-family: "Font Awesome 6 Free";
+      font-family: fonts.$fa-font-family;
       font-weight: 900;
       content: "\f00c";
-      color: $text-color;
+      color: colours.$text-color;
       position: absolute;
       left: 7px;
     }

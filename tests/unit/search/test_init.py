@@ -4,7 +4,6 @@ import opensearchpy
 import pretend
 
 from warehouse import search
-from warehouse.rate_limiting import IRateLimiter, RateLimit
 
 from ...common.db.packaging import ProjectFactory, ReleaseFactory
 
@@ -121,6 +120,7 @@ def test_includeme(monkeypatch):
         register_service_factory=pretend.call_recorder(
             lambda factory, iface, name=None: None
         ),
+        register_rate_limiter=pretend.call_recorder(lambda limit_string, name: None),
     )
 
     search.includeme(config)
@@ -130,7 +130,7 @@ def test_includeme(monkeypatch):
     ]
     assert len(opensearch_client_init.calls) == 1
     assert opensearch_client_init.calls[0].kwargs["hosts"] == ["https://some.url"]
-    assert opensearch_client_init.calls[0].kwargs["timeout"] == 0.5
+    assert opensearch_client_init.calls[0].kwargs["timeout"] == 1
     assert opensearch_client_init.calls[0].kwargs["retry_on_timeout"] is True
     assert opensearch_client_init.calls[0].kwargs["max_retries"] == 1
     assert (
@@ -147,8 +147,10 @@ def test_includeme(monkeypatch):
         pretend.call(search.opensearch, name="opensearch", reify=True)
     ]
 
+    assert config.register_rate_limiter.calls == [
+        pretend.call("10 per second", "search"),
+    ]
     assert config.register_service_factory.calls == [
-        pretend.call(RateLimit("10 per second"), IRateLimiter, name="search"),
         pretend.call(
             search.services.SearchService.create_service,
             iface=search.interfaces.ISearchService,

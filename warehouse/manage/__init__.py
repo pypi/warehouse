@@ -7,7 +7,6 @@ from pyramid.renderers import render_to_response
 
 from warehouse.accounts.forms import ReAuthenticateForm
 from warehouse.accounts.interfaces import IUserService
-from warehouse.rate_limiting import IRateLimiter, RateLimit
 
 DEFAULT_TIME_TO_REAUTH = 30 * 60  # 30 minutes
 
@@ -58,17 +57,13 @@ def includeme(config):
     user_oidc_registration_ratelimit_string = config.registry.settings.get(
         "warehouse.manage.oidc.user_registration_ratelimit_string"
     )
-    config.register_service_factory(
-        RateLimit(user_oidc_registration_ratelimit_string),
-        IRateLimiter,
-        name="user_oidc.publisher.register",
+    config.register_rate_limiter(
+        user_oidc_registration_ratelimit_string, "user_oidc.publisher.register"
     )
 
     ip_oidc_registration_ratelimit_string = config.registry.settings.get(
         "warehouse.manage.oidc.ip_registration_ratelimit_string"
     )
-    config.register_service_factory(
-        RateLimit(ip_oidc_registration_ratelimit_string),
-        IRateLimiter,
-        name="ip_oidc.publisher.register",
+    config.register_rate_limiter(
+        ip_oidc_registration_ratelimit_string, "ip_oidc.publisher.register"
     )

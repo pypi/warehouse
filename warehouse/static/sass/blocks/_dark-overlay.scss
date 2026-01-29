@@ -1,5 +1,8 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "../settings/breakpoints";
+@use "../tools/design-utilities";
+
 /*
   A full screen size overlay that obscures the background.
   Use for laying under overlay divs (modals, etc.)
@@ -7,9 +10,9 @@
   <div class="dark-overlay"></div>
 */
 
-@media only screen and (max-width: $desktop) {
+@media only screen and (max-width: breakpoints.$desktop) {
   .dark-overlay {
     display: none;
-    @include overlay;
+    @include design-utilities.overlay;
   }
 }

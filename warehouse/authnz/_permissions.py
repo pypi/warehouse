@@ -39,6 +39,7 @@ class Permissions(StrEnum):
     AdminFlagsWrite = "admin:flags:write"
 
     AdminIpAddressesRead = "admin:ip-addresses:read"
+    AdminIpAddressesWrite = "admin:ip-addresses:write"
     AdminJournalRead = "admin:journal:read"
 
     AdminMacaroonsRead = "admin:macaroons:read"

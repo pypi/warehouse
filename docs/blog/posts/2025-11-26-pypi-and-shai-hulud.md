@@ -73,5 +73,6 @@ Some blog posts covering the attack behaviors and mitigation steps:
 - [Datadog](https://securitylabs.datadoghq.com/articles/shai-hulud-2.0-npm-worm/)
 - [HelixGuard](https://helixguard.ai/blog/malicious-sha1hulud-2025-11-24)
 - [ReversingLabs](https://www.reversinglabs.com/blog/shai-hulud-worm-npm)
+- [Socket](https://socket.dev/blog/shai-hulud-strikes-again-v2)
 - [StepSecurity](https://www.stepsecurity.io/blog/sha1-hulud-the-second-coming-zapier-ens-domains-and-other-prominent-npm-packages-compromised)
 - [Wiz](https://www.wiz.io/blog/shai-hulud-2-0-ongoing-supply-chain-attack)

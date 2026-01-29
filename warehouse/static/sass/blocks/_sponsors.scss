@@ -1,5 +1,11 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "sass:color";
+@use "../settings/breakpoints";
+@use "../settings/colours";
+@use "../settings/grid";
+@use "../tools/link-utilities";
+
 /*
   The sponsor footer.
 
@@ -19,21 +25,21 @@
 
 .sponsors {
   text-align: center;
-  border-top: 1px solid darken($primary-color, 2);
-  background-color: $primary-color;
+  border-top: 1px solid color.adjust(colours.$primary-color, $lightness: -2%);
+  background-color: colours.$primary-color;
   display: flex;
   flex-wrap: wrap;
   justify-content: center; // place the entire div in center page
-  padding: $half-spacing-unit;
+  padding: grid.$half-spacing-unit;
 
   &__title {
     display: none;
     padding-bottom: 10px;
     margin-bottom: 10px;
-    border-bottom: 1px solid transparentize($white, 0.8);
-    color: $white;
+    border-bottom: 1px solid color.adjust(colours.$white, $alpha: -0.8);
+    color: colours.$white;
 
-    @media only screen and (max-width: $small-tablet) {
+    @media only screen and (max-width: breakpoints.$small-tablet) {
       display: block;
       flex: 1;
     }
@@ -48,10 +54,10 @@
     display: inline-grid;
     grid-template-rows: fit-content(40%);
     text-align: center;
-    padding: $half-spacing-unit 13px 10px 13px;
+    padding: grid.$half-spacing-unit 13px 10px 13px;
     opacity: 0.95;
-    @include link-without-underline;
-    @include link-focus-state($white);
+    @include link-utilities.link-without-underline;
+    @include link-utilities.link-focus-state(colours.$white);
 
     &:hover {
       opacity: 1;
@@ -61,11 +67,11 @@
       }
     }
 
-    @media only screen and (max-width: $tablet) {
+    @media only screen and (max-width: breakpoints.$tablet) {
       padding: 7px 10px;
     }
 
-    @media only screen and (max-width: $small-tablet) {
+    @media only screen and (max-width: breakpoints.$small-tablet) {
       padding: 5px 7px;
     }
   }
@@ -75,7 +81,7 @@
     max-width: 100px;
     opacity: 0.8;
 
-    @media only screen and (max-width: $tablet) {
+    @media only screen and (max-width: breakpoints.$tablet) {
       display: none;
     }
   }
@@ -85,21 +91,21 @@
     max-width: 100px;
     align-self: end;
     font-size: 0.75rem;
-    color: $white;
+    color: colours.$white;
   }
 
   &__name {
     font-weight: 600;
     margin-top: 10px;
 
-    @media only screen and (max-width: $small-tablet) {
+    @media only screen and (max-width: breakpoints.$small-tablet) {
       margin: 0;
       font-weight: normal;
     }
   }
 
   &__service {
-    @media only screen and (max-width: $small-tablet) {
+    @media only screen and (max-width: breakpoints.$small-tablet) {
       display: none;
     }
   }

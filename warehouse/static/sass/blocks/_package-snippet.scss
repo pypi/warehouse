@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-@import "snippet";
+@use "snippet";
 
 /*
   A card that contains information about a package. Often found in package lists.
@@ -17,5 +17,5 @@
 */
 
 .package-snippet {
-  @include snippet(url("../images/white-cubes.png"), url("../images/white-cubes.svg"));
+  @include snippet.snippet(url("../images/white-cubes.png"), url("../images/white-cubes.svg"));
 }

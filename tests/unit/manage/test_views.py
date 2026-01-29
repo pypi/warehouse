@@ -126,7 +126,12 @@ class TestManageAccount:
     )
     def test_default_response(self, monkeypatch, public_email, expected_public_email):
         breach_service = pretend.stub()
-        user_service = pretend.stub()
+        account_associations = pretend.stub()
+        user_service = pretend.stub(
+            get_account_associations=pretend.call_recorder(
+                lambda user_id: account_associations
+            )
+        )
         organization_service = pretend.stub()
         name = pretend.stub()
         user_id = pretend.stub()
@@ -161,9 +166,11 @@ class TestManageAccount:
             "add_email_form": add_email_obj,
             "change_password_form": change_pass_obj,
             "active_projects": view.active_projects,
+            "account_associations": account_associations,
         }
         assert view.request == request
         assert view.user_service == user_service
+        assert user_service.get_account_associations.calls == [pretend.call(user_id)]
         assert save_account_cls.calls == [
             pretend.call(
                 name=name,

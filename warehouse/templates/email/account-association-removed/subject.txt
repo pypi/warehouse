@@ -1,0 +1,5 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+
+{% extends "email/_base/subject.txt" %}
+
+{% block subject %}{% trans service=service %}{{ service }} account disconnected{% endtrans %}{% endblock %}

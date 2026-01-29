@@ -7,7 +7,6 @@ Revises: df52c3746740
 Create Date: 2025-12-02 17:32:29.770684
 """
 
-
 import os
 
 import sqlalchemy as sa
@@ -25,16 +24,12 @@ def _get_remaining_logins_to_update(conn):
 
 
 def _get_remaining_ips_to_insert(conn):
-    return conn.execute(
-        sa.text(
-            """
+    return conn.execute(sa.text("""
 SELECT COUNT(DISTINCT user_unique_logins.ip_address)
 FROM user_unique_logins
 LEFT JOIN ip_addresses ON user_unique_logins.ip_address::inet = ip_addresses.ip_address
 WHERE ip_addresses.id IS NULL AND user_unique_logins.ip_address IS NOT NULL
-"""
-        )
-    ).scalar_one()
+""")).scalar_one()
 
 
 def upgrade():
@@ -55,8 +50,7 @@ def upgrade():
 
     while _get_remaining_ips_to_insert(bind) > 0:
         bind.execute(
-            sa.text(
-                f"""
+            sa.text(f"""
 INSERT INTO ip_addresses (ip_address, hashed_ip_address)
 SELECT
     DISTINCT user_unique_logins.ip_address::inet,
@@ -71,16 +65,14 @@ FROM user_unique_logins
 LEFT JOIN ip_addresses ON user_unique_logins.ip_address::inet = ip_addresses.ip_address
 WHERE ip_addresses.id IS NULL AND user_unique_logins.ip_address IS NOT NULL
 LIMIT :batch_size
-"""
-            ),
+"""),
             {"batch_size": batch_size},
         )
         bind.commit()
 
     while _get_remaining_logins_to_update(bind) > 0:
         bind.execute(
-            sa.text(
-                """
+            sa.text("""
 UPDATE user_unique_logins
 SET ip_address_id = ip_addresses.id
 FROM ip_addresses
@@ -94,8 +86,7 @@ WHERE
         ORDER BY id
         LIMIT :batch_size
     )
-"""
-            ),
+"""),
             {"batch_size": batch_size},
         )
         bind.commit()

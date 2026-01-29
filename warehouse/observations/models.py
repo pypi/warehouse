@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 """Observations and associated models."""
+
 from __future__ import annotations
 
 import enum
@@ -9,7 +10,7 @@ import typing
 from uuid import UUID
 
 from sqlalchemy import ForeignKey, String, sql
-from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.associationproxy import AssociationProxy, association_proxy
 from sqlalchemy.ext.declarative import AbstractConcreteBase
 from sqlalchemy.ext.mutable import MutableDict
@@ -56,14 +57,18 @@ class Observer(db.Model):
 class HasObservers:
     """A mixin for models that can have observers."""
 
-    @declared_attr
-    def observer_association_id(cls):  # noqa: N805
-        return mapped_column(
-            PG_UUID, ForeignKey(f"{ObserverAssociation.__tablename__}.id")
-        )
+    observer: AssociationProxy[Observer | None]
 
     @declared_attr
-    def observer_association(cls):  # noqa: N805
+    def observer_association_id(
+        cls: type[typing.Any],  # noqa: N805
+    ) -> Mapped[UUID | None]:
+        return mapped_column(ForeignKey(f"{ObserverAssociation.__tablename__}.id"))
+
+    @declared_attr
+    def observer_association(
+        cls: type[typing.Any],  # noqa: N805
+    ) -> Mapped[ObserverAssociation]:
         name = cls.__name__
         discriminator = name.lower()
 
@@ -138,6 +143,15 @@ class Observation(AbstractConcreteBase, db.Model):
         "polymorphic_identity": "observation",
     }
 
+    if typing.TYPE_CHECKING:
+        # Attributes defined on concrete subclasses created by HasObservations.
+        # Declared here for type checking when querying via polymorphic union.
+        related_name: Mapped[str]
+        related_id: Mapped[UUID | None]
+        related: HasObservations
+        observer_id: Mapped[UUID]
+        observer: Observer
+
     created: Mapped[datetime_now] = mapped_column(
         comment="The time the observation was created"
     )
@@ -182,10 +196,8 @@ class HasObservations:
         some_model.observations  # a list of Observation objects
     """
 
-    Observation: typing.ClassVar[type]
-
     @declared_attr
-    def observations(cls):  # noqa: N805
+    def observations(cls: type[typing.Any]) -> Mapped[list[Observation]]:  # noqa: N805
         cls.Observation = type(
             f"{cls.__name__}Observation",
             (Observation, db.Model),
@@ -196,7 +208,6 @@ class HasObservations:
                     "concrete": True,
                 },
                 related_id=mapped_column(
-                    PG_UUID,
                     ForeignKey(f"{cls.__tablename__}.id"),
                     comment="The ID of the related model",
                     nullable=True,
@@ -209,7 +220,6 @@ class HasObservations:
                     nullable=False,
                 ),
                 observer_id=mapped_column(
-                    PG_UUID,
                     ForeignKey("observers.id"),
                     comment="ID of the Observer who created the Observation",
                     nullable=False,

@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 // Extend Jest with jest-dom https://github.com/testing-library/jest-dom
-import "@testing-library/jest-dom/extend-expect";
+import "@testing-library/jest-dom";
 
 // Monkeypatch the global fetch API
 import fetchMock from "jest-fetch-mock";
