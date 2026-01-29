@@ -80,11 +80,6 @@ def test_extract_workflow_filename(workflow_ref, expected):
     assert github._extract_workflow_filename(workflow_ref) == expected
 
 
-@pytest.mark.parametrize("claim", ["", "repo", "repo:"])
-def test_check_sub(claim):
-    assert github._check_sub(pretend.stub(), claim, pretend.stub()) is False
-
-
 class TestGitHubPublisher:
     @pytest.mark.parametrize("environment", [None, "some_environment"])
     def test_lookup_fails_invalid_workflow_ref(self, environment):
@@ -174,7 +169,6 @@ class TestGitHubPublisher:
     def test_github_publisher_all_known_claims(self):
         assert github.GitHubPublisher.all_known_claims() == {
             # required verifiable claims
-            "sub",
             "repository",
             "repository_owner",
             "repository_owner_id",
@@ -192,6 +186,7 @@ class TestGitHubPublisher:
             "aud",
             "jti",
             # unchecked claims
+            "sub",
             "actor",
             "actor_id",
             "run_id",
@@ -624,22 +619,6 @@ class TestGitHubPublisher:
             with pytest.raises(errors.InvalidPublisherError) as e:
                 check(publisher.job_workflow_ref, claim, claims) is True
             assert str(e.value) == expected
-
-    @pytest.mark.parametrize(
-        ("truth", "claim", "valid"),
-        [
-            ("repo:foo/bar", "repo:foo/bar:someotherstuff", True),
-            ("repo:foo/bar", "repo:foo/bar:", True),
-            ("repo:fOo/BaR", "repo:foo/bar", True),
-            ("repo:foo/bar", "repo:fOo/BaR:", True),
-            ("repo:foo/bar:someotherstuff", "repo:foo/bar", False),
-            ("repo:foo/bar-baz", "repo:foo/bar", False),
-            ("repo:foo/bar", "repo:foo/bar-baz", False),
-        ],
-    )
-    def test_github_publisher_sub_claim(self, truth, claim, valid):
-        check = github.GitHubPublisher.__required_verifiable_claims__["sub"]
-        assert check(truth, claim, pretend.stub()) is valid
 
     @pytest.mark.parametrize(
         ("truth", "claim", "valid"),
