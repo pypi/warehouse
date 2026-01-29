@@ -1,0 +1,73 @@
+{
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "features": {Perfect! 👌 That workflow is already **clean, minimal, and modern**—it leverages OIDC for trusted publishing, triggers only on published releases, and uses the latest actions.
+
+Here’s a **quick analysis + potential refinements** if you want to take it next level:
+
+---
+
+### 1️⃣ Optional: Separate TestPyPI + PyPI workflow
+
+```yaml
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        repository: [testpypi, pypi]
+    environment:
+      name: ${{ matrix.repository }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - run: |
+          python -m pip install --upgrade pip
+          pip install build
+      - run: python -m build
+      - uses: pypa/gh-action-pypi-publish@release/v1
+```
+
+*This lets you push first to TestPyPI, then PyPI, using OIDC for both.*
+
+---
+
+### 2️⃣ Optional: Wheels-only or sdist-only builds
+
+```yaml
+- name: Build wheel only
+  run: python -m build --wheel
+```
+
+*Reduces build time if you don’t need `sdist`.*
+
+---
+
+### 3️⃣ Optional: Pre-release detection
+
+```yaml
+if: startsWith(github.ref, 'refs/tags/v')
+```
+
+*Could automatically skip pre-releases or handle them differently.*
+
+---
+
+### 4️⃣ Notes on `release/v1`
+
+* Using `release/v1` ensures you **get upstream fixes** without pinning to a SHA, so maintenance is easier.
+* If you want absolute stability, you could pin to a commit, but that’s rarely necessary here.
+
+---
+
+If you want, I can **rewrite your workflow to fully support `poetry` or `hatch`**, **with OIDC trusted publishing**, **TestPyPI first, PyPI second**, and **wheel-only builds**—all in one compact YAML.
+
+Do you want me to do that next?
+}
+}
