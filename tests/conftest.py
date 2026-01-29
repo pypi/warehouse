@@ -39,7 +39,7 @@ from warehouse.accounts.interfaces import (
     ITokenService,
     IUserService,
 )
-from warehouse.accounts.oauth import IOAuthProviderService, NullOAuthClient
+from warehouse.accounts.oauth import IOAuthProviderService, NullGitHubOAuthClient
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.attestations import services as attestations_services
 from warehouse.attestations.interfaces import IIntegrityService
@@ -353,7 +353,8 @@ def get_app_config(database, nondefaults=None):
         "oidc.jwk_cache_url": "redis://localhost:0/",
         "warehouse.oidc.audience": "pypi",
         "oidc.backend": "warehouse.oidc.services.NullOIDCPublisherService",
-        "github.oauth.backend": "warehouse.accounts.oauth.NullOAuthClient",
+        "github.oauth.backend": "warehouse.accounts.oauth.NullGitHubOAuthClient",
+        "gitlab.oauth.backend": "warehouse.accounts.oauth.NullGitLabOAuthClient",
         "captcha.backend": "warehouse.captcha.hcaptcha.Service",
     }
 
@@ -572,7 +573,7 @@ def ratelimit_service(mocker):
 
 @pytest.fixture
 def oauth_provider_service(mocker):
-    service = NullOAuthClient()
+    service = NullGitHubOAuthClient(redirect_uri="http://localhost/callback")
     mocker.spy(service, "generate_authorize_url")
     mocker.spy(service, "exchange_code_for_token")
     mocker.spy(service, "get_user_info")
