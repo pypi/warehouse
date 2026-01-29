@@ -349,7 +349,7 @@ totp-cli instant <<< IU7UP3EMIPI7EBPQUUSEHEJUFNBIWOYG
 This will emit a 6-digit code you can paste into the 2FA form.
 
 For other accounts, you'll need to preserve the Key used
-to genreate the TOTP code the next time you need to log in.
+to generate the TOTP code the next time you need to log in.
 
 To be able to "forget" the initial Key, and use it like a TOTP app,
 create a storage and set a password, like so:

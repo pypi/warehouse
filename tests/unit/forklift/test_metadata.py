@@ -148,7 +148,7 @@ class TestValidation:
     def test_deprecated_classifiers_with_replacement(self, backfill):
         data = (
             b"Metadata-Version: 2.1\nName: spam\nVersion: 2.0\n"
-            b"Classifier: Natural Language :: Ukranian\n"
+            b"Classifier: Natural Language :: Ukranian\n"  # codespell:ignore
         )
 
         if not backfill:
@@ -157,7 +157,9 @@ class TestValidation:
             _assert_invalid_metadata(excinfo.value, "classifier")
         else:
             meta = metadata.parse(data, backfill=True)
-            assert meta.classifiers == ["Natural Language :: Ukranian"]
+            assert meta.classifiers == [
+                "Natural Language :: Ukranian"  # codespell:ignore
+            ]
 
     @pytest.mark.parametrize("backfill", [True, False])
     def test_deprecated_classifiers_no_replacement(self, backfill):

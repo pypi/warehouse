@@ -128,3 +128,20 @@ filterwarnings = [
 # TODO: This can be removed once it becomes the default.
 # See: https://github.com/jazzband/pip-tools/issues/989
 allow-unsafe = true
+
+[tool.codespell]
+ignore-words-list = "deriver"
+skip = [
+  '*.po',
+  './dev/.mypy_cache/*',
+  './dev/.pytest_cache/*',
+  './docs/blog-site/*',
+  './docs/dev/_build/*',
+  './docs/user-site/*',
+  './htmlcov/*',
+  './node_modules/**',
+  './package-lock.json',
+  './warehouse/admin/static/dist/*',
+  './warehouse/static/dist/*',
+  './warehouse/static/js/vendor/zxcvbn.js',
+]

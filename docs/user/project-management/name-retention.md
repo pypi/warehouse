@@ -143,7 +143,7 @@ considered invalid and will be removed from the Index:
 - project uses obfuscation to hide or mask functionality; or
 - project is abusing the Package Index for purposes it was not intended.
 
-The Package Index maintainers pre-emptively declare certain package names as
+The Package Index maintainers preemptively declare certain package names as
 unavailable for security reasons.
 
 ### Intellectual property policy

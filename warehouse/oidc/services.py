@@ -277,7 +277,7 @@ class OIDCPublisherService:
             # released before the token invalidation.
             r.set(
                 f"/warehouse/oidc/{self.issuer_url}/{jti}",
-                exat=expiration + 5,
+                exat=expiration + 5,  # codespell:ignore exat
                 value="",  # empty value to lower memory usage
                 nx=True,
             )
