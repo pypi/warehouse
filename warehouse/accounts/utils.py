@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-import datetime
-
 from dataclasses import dataclass
+from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 
 from warehouse.accounts.models import Email
@@ -50,8 +49,13 @@ def update_email_domain_status(email: Email, request: Request) -> None:
     domain_status_service = request.find_service(IDomainStatusService)
 
     if domain_status := domain_status_service.get_domain_status(email.domain):
-        email.domain_last_checked = datetime.datetime.now(datetime.UTC)
+        # Success: update timestamp to now, won't be checked again for 30 days
+        email.domain_last_checked = datetime.now(UTC)
         email.domain_last_status = domain_status
-        request.db.add(email)
+    else:
+        # Failure: set timestamp so we retry in ~7 days instead of 30
+        # (task selects emails where domain_last_checked < now - 30 days)
+        email.domain_last_checked = datetime.now(UTC) - timedelta(days=23)
+    request.db.add(email)
 
     return None
