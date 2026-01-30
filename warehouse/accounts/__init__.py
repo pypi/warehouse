@@ -11,8 +11,10 @@ from warehouse.accounts.interfaces import (
 )
 from warehouse.accounts.oauth import (
     GitHubAppClient,
+    GitLabOAuthClient,
     IOAuthProviderService,
     NullGitHubOAuthClient,
+    NullGitLabOAuthClient,
 )
 from warehouse.accounts.security_policy import (
     BasicAuthSecurityPolicy,
@@ -46,7 +48,9 @@ __all__ = [
     "NullEmailBreachedService",
     "HaveIBeenPwnedEmailBreachedService",
     "GitHubAppClient",
+    "GitLabOAuthClient",
     "NullGitHubOAuthClient",
+    "NullGitLabOAuthClient",
 ]
 
 
@@ -151,6 +155,13 @@ def includeme(config):
     )
     config.register_service_factory(
         github_oauth_class.create_service, IOAuthProviderService, name="github"
+    )
+    # Register GitLab OAuth service for account associations.
+    gitlab_oauth_class = config.maybe_dotted(
+        config.registry.settings["gitlab.oauth.backend"]
+    )
+    config.register_service_factory(
+        gitlab_oauth_class.create_service, IOAuthProviderService, name="gitlab"
     )
 
     # Register our security policies.
