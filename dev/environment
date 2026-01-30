@@ -51,8 +51,8 @@ BREACHED_PASSWORDS=warehouse.accounts.NullPasswordBreachedService
 OIDC_BACKEND=warehouse.oidc.services.NullOIDCPublisherService
 INTEGRITY_BACKEND=warehouse.attestations.services.NullIntegrityService
 
-# Use NullOAuthClient for local development (no GitHub App needed)
-GITHUB_OAUTH_BACKEND=warehouse.accounts.oauth.NullOAuthClient
+# Use NullGitHubOAuthClient for local development (no GitHub App needed)
+GITHUB_OAUTH_BACKEND=warehouse.accounts.oauth.NullGitHubOAuthClient
 # For real GitHub App integration, uncomment and configure:
 # GITHUB_OAUTH_BACKEND=warehouse.accounts.oauth.GitHubAppClient client_id=Iv2.your_client_id client_secret=your_client_secret
 
