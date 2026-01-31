@@ -3,9 +3,11 @@
 {% extends "email/_base/body.txt" %}
 
 {% set site = request.registry.settings["site.name"] %}
+{% set project_url = request.route_url('packaging.project', name=project_name) %}
+{% set initiator_url = request.route_url('accounts.profile', username=initiator_username) %}
 
 {% block content %}
-{% trans role=role, site=site, project_name=project_name, initiator_username=initiator_username %}You have been added as {{ role }} to the {{ site }} project {{ project_name }} by {{ initiator_username }}.{% endtrans %}
+{% trans role=role, site=site, project_name=project_name, initiator_username=initiator_username, project_url=project_url, initiator_url=initiator_url %}You have been added as {{ role }} to the {{ site }} project {{ project_name }} by {{ initiator_username }}.{% endtrans %}
 {% endblock %}
 
-{% block reason %}{% trans initiator_username=initiator_username, site=site %}You are receiving this because you have been added by {{ initiator_username }} to a project on {{ site }}.{% endtrans %}{% endblock %}
+{% block reason %}{% trans initiator_username=initiator_username, site=site, initiator_url=initiator_url %}You are receiving this because you have been added by {{ initiator_username }} to a project on {{ site }}.{% endtrans %}{% endblock %}
