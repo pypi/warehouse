@@ -450,7 +450,7 @@ class ProhibitedEmailDomain(db.Model):
     __repr__ = make_repr("domain")
 
     created: Mapped[datetime_now]
-    domain: Mapped[str] = mapped_column(unique=True)
+    domain: Mapped[str] = mapped_column(CITEXT, unique=True)
     is_mx_record: Mapped[bool_false] = mapped_column(
         comment="Prohibit any domains that have this domain as an MX record?"
     )
