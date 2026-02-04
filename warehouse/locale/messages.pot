@@ -2267,15 +2267,16 @@ msgstr ""
 msgid "Your PyPI account <strong>%(username)s</strong> has been deleted."
 msgstr ""
 
-#: warehouse/templates/email/added-as-collaborator/body.html:8
+#: warehouse/templates/email/added-as-collaborator/body.html:9
 #, python-format
 msgid ""
-"You have been added as <strong>%(role)s</strong> to the %(site)s project "
+"You have been added as <strong><a "
+"href=\"%(role_faq_url)s\">%(role)s</a></strong> to the %(site)s project "
 "<a href=\"%(project_url)s\">%(project_name)s</a> by <a "
 "href=\"%(initiator_url)s\">%(initiator_username)s</a>."
 msgstr ""
 
-#: warehouse/templates/email/added-as-collaborator/body.html:14
+#: warehouse/templates/email/added-as-collaborator/body.html:15
 #, python-format
 msgid ""
 "You are receiving this because you have been added by <a "
