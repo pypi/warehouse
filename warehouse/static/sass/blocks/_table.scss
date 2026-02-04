@@ -207,7 +207,7 @@
   }
 
   &--files {
-    margin-bottom: $half-spacing-unit;
+    margin-bottom: grid.$half-spacing-unit;
 
     td.file-name {
       padding-top:5px;
@@ -219,7 +219,7 @@
       padding-bottom:5px;
     }
 
-    @media only screen and (max-width: $desktop) {
+    @media only screen and (max-width: breakpoints.$desktop) {
       @include mobile-friendly-table;
     }
   }

@@ -1,5 +1,11 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "sass:color";
+@use "../settings/colours";
+@use "../settings/fonts";
+@use "../settings/grid";
+@use "../settings/breakpoints";
+
 /*
   Search and filter wheels
 
@@ -15,10 +21,10 @@
 
 .filter-wheels {
   display: flex;
-  gap: $spacing-unit / 2;
+  gap: grid.$spacing-unit / 2;
   justify-content: space-between;
 
-  @media only screen and (max-width: $tablet) {
+  @media only screen and (max-width: breakpoints.$tablet) {
     flex-wrap: wrap;
   }
 
@@ -29,7 +35,7 @@
       height: 40px;
     }
 
-    @media only screen and (max-width: $tablet) {
+    @media only screen and (max-width: breakpoints.$tablet) {
       width: 100%;
     }
   }
@@ -38,18 +44,18 @@
     flex: 0 1 auto;
     flex-shrink: 0;
     display: flex;
-    gap: $spacing-unit / 3;
+    gap: grid.$spacing-unit / 3;
     align-items: flex-end;
 
     div {
       flex: 0 1 auto;
     }
 
-    @media only screen and (max-width: $tablet) {
+    @media only screen and (max-width: breakpoints.$tablet) {
       width: 100%;
     }
 
-    @media only screen and (max-width: $small-tablet) {
+    @media only screen and (max-width: breakpoints.$small-tablet) {
       display: block;
     }
   }

@@ -139,13 +139,13 @@
     padding: 0;
     background-color: transparent;
     border: 0;
-    color: $text-color;
+    color: colours.$text-color;
     display: inline-block;
 
     &:focus,
     &:hover,
     &:active {
-      color: $primary-color;
+      color: colours.$primary-color;
     }
   }
 
