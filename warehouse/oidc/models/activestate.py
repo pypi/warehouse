@@ -9,7 +9,6 @@ from typing import Any, Self
 from uuid import UUID
 
 from sqlalchemy import ForeignKey, String, UniqueConstraint, and_, exists
-from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, Query, mapped_column
 
 import warehouse.oidc.models._core as oidccore
@@ -168,9 +167,7 @@ class ActiveStatePublisher(ActiveStatePublisherMixin, OIDCPublisher):
         ),
     )
 
-    id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True), ForeignKey(OIDCPublisher.id), primary_key=True
-    )
+    id: Mapped[UUID] = mapped_column(ForeignKey(OIDCPublisher.id), primary_key=True)
 
 
 class PendingActiveStatePublisher(ActiveStatePublisherMixin, PendingOIDCPublisher):
@@ -186,7 +183,7 @@ class PendingActiveStatePublisher(ActiveStatePublisherMixin, PendingOIDCPublishe
     )
 
     id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True), ForeignKey(PendingOIDCPublisher.id), primary_key=True
+        ForeignKey(PendingOIDCPublisher.id), primary_key=True
     )
 
     def reify(self, session: Session) -> ActiveStatePublisher:

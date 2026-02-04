@@ -20,19 +20,16 @@ def upgrade():
     # backfill our data.
     op.add_column("packages", sa.Column("sitemap_bucket", sa.Text(), nullable=True))
 
-    op.execute(
-        """
+    op.execute("""
         UPDATE packages
         SET sitemap_bucket = sitemap_bucket(name)
         WHERE sitemap_bucket IS NULL
-        """
-    )
+        """)
 
     # Now that data has been backfilled, we'll set nullable to False.
     op.alter_column("packages", "sitemap_bucket", nullable=False)
 
-    op.execute(
-        """ CREATE OR REPLACE FUNCTION maintain_project_sitemap_bucket()
+    op.execute(""" CREATE OR REPLACE FUNCTION maintain_project_sitemap_bucket()
             RETURNS TRIGGER AS $$
                 BEGIN
                     NEW.sitemap_bucket := sitemap_bucket(NEW.name);
@@ -40,18 +37,15 @@ def upgrade():
                 END;
             $$
             LANGUAGE plpgsql
-        """
-    )
+        """)
 
     # Finally, add the trigger which will keep the sitemap_bucket column
     # populated.
-    op.execute(
-        """ CREATE TRIGGER projects_update_sitemap_bucket
+    op.execute(""" CREATE TRIGGER projects_update_sitemap_bucket
             BEFORE INSERT OR UPDATE OF name ON packages
             FOR EACH ROW
             EXECUTE PROCEDURE maintain_project_sitemap_bucket()
-        """
-    )
+        """)
 
 
 def downgrade():

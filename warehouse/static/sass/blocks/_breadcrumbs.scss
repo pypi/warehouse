@@ -1,5 +1,13 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "sass:color";
+@use "../settings/breakpoints";
+@use "../settings/colours";
+@use "../settings/fonts";
+@use "../settings/grid";
+@use "../tools/layout-utilities";
+@use "../tools/link-utilities";
+
 /*
   Navigation breadcrumbs.
 
@@ -15,37 +23,37 @@
 .breadcrumbs {
   font-size: 1.1rem;
   font-weight: 600;
-  margin-bottom: $half-spacing-unit;
-  margin-top: $spacing-unit;
-  padding-left: $half-spacing-unit;
-  padding-right: $half-spacing-unit;
+  margin-bottom: grid.$half-spacing-unit;
+  margin-top: grid.$spacing-unit;
+  padding-left: grid.$half-spacing-unit;
+  padding-right: grid.$half-spacing-unit;
 
   + div {
-    margin-top: $half-spacing-unit;
+    margin-top: grid.$half-spacing-unit;
   }
 
-  @media only screen and (max-width: $tablet) {
+  @media only screen and (max-width: breakpoints.$tablet) {
     display: none;
   }
 
   ul {
     margin: 0;
     padding: 0;
-    @include clearfix;
+    @include layout-utilities.clearfix;
   }
 
   &__breadcrumb {
-    color: grayscale($primary-color);
+    color: color.grayscale(colours.$primary-color);
     display: inline-block;
     float: left;
     list-style-type: none;
 
     &:first-child {
-      color: $text-color;
+      color: colours.$text-color;
     }
 
     a {
-      @include link-without-underline;
+      @include link-utilities.link-without-underline;
     }
 
     .fa {
@@ -55,11 +63,11 @@
 
     &:not(:last-child)::after {
       content: "\f054";
-      font-family: "Font Awesome 6 Free";
+      font-family: fonts.$fa-font-family;
       font-weight: 900;
       margin-left: 4px;
       margin-right: 6px;
-      color: $light-grey;
+      color: colours.$light-grey;
       font-size: 12px;
     }
   }

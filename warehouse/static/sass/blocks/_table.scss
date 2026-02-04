@@ -1,5 +1,12 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "sass:color";
+@use "../settings/breakpoints";
+@use "../settings/colours";
+@use "../settings/fonts";
+@use "../settings/grid";
+@use "../tools/link-utilities";
+
 /*
   Tables for displaying data about a project, release or file.
 
@@ -46,7 +53,7 @@
 
 // TABLE
 @mixin mobile-friendly-table {
-  border-bottom: 1px solid $base-grey;
+  border-bottom: 1px solid colours.$base-grey;
 
   thead {
     display: none;
@@ -68,7 +75,7 @@
 
   tbody tr td:first-child,
   tbody tr th:first-child {
-    border-top: 1px solid $base-grey;
+    border-top: 1px solid colours.$base-grey;
     padding-top: 15px;
 
     .table__mobile-label {
@@ -126,12 +133,12 @@
   }
 
   tbody tr th {
-    font-weight: $bold-font-weight;
+    font-weight: fonts.$bold-font-weight;
   }
 
   th,
   td {
-    border-bottom: 1px solid $base-grey;
+    border-bottom: 1px solid colours.$base-grey;
   }
 
   tr th:first-child,
@@ -164,7 +171,7 @@
 
   &__mobile-label {
     display: none;
-    font-weight: $bold-font-weight;
+    font-weight: fonts.$bold-font-weight;
   }
 
   // Custom table styles
@@ -180,22 +187,22 @@
       vertical-align: baseline;
     }
 
-    @media only screen and (max-width: $mobile) {
+    @media only screen and (max-width: breakpoints.$mobile) {
       @include mobile-friendly-table;
     }
   }
 
   &--downloads {
     word-wrap: break-word;
-    margin-top: $half-spacing-unit;
+    margin-top: grid.$half-spacing-unit;
 
     td .button span {
       display: none;
     }
 
-    @media only screen and (max-width: $tablet) {
+    @media only screen and (max-width: breakpoints.$tablet) {
       @include mobile-friendly-table;
-      margin-bottom: $half-spacing-unit;
+      margin-bottom: grid.$half-spacing-unit;
     }
   }
 
@@ -219,19 +226,19 @@
 
   &--releases {
     word-wrap: break-word;
-    margin-bottom: $spacing-unit;
+    margin-bottom: grid.$spacing-unit;
 
-    @media only screen and (max-width: $small-tablet) {
+    @media only screen and (max-width: breakpoints.$small-tablet) {
       @include mobile-friendly-table;
-      margin-bottom: $half-spacing-unit;
+      margin-bottom: grid.$half-spacing-unit;
     }
   }
 
   &--manage-files,
   &--history {
-    margin-top: $half-spacing-unit;
+    margin-top: grid.$half-spacing-unit;
 
-    @media only screen and (max-width: $tablet) {
+    @media only screen and (max-width: breakpoints.$tablet) {
       @include mobile-friendly-table;
     }
   }
@@ -243,7 +250,7 @@
       word-break: break-all;
     }
 
-    @media only screen and (max-width: $mobile) {
+    @media only screen and (max-width: breakpoints.$mobile) {
       @include mobile-friendly-table;
       margin-top: 0;
 
@@ -261,7 +268,7 @@
           inset: auto, 50%, -5px, auto;
           margin-right: -5px;
           border-color: transparent;
-          border-bottom-color: transparentize($black, 0.3);
+          border-bottom-color: color.adjust(colours.$black, $alpha: -0.3);
         }
       }
     }
@@ -275,7 +282,7 @@
     .table__user-details {
       display: flex;
       align-items: center;
-      @include link-without-underline;
+      @include link-utilities.link-without-underline;
     }
 
     .table__user-gravatar {
@@ -294,7 +301,7 @@
         background-position: 0 1.15em;
         background-repeat: repeat-x;
         background-size: 100% 1.5px;
-        @include primary-underlined-link;
+        @include link-utilities.primary-underlined-link;
       }
     }
 
@@ -309,7 +316,7 @@
       visibility: hidden;
     }
 
-    @media only screen and (max-width: $small-tablet) {
+    @media only screen and (max-width: breakpoints.$small-tablet) {
       @include mobile-friendly-table;
 
       .table__user-details {
@@ -329,12 +336,12 @@
   }
 
   &--emails {
-    margin: 0 0 $spacing-unit;
+    margin: 0 0 grid.$spacing-unit;
 
     .table__email {
       word-wrap: break-word;
       word-break: break-all;
-      font-family: $code-font;
+      font-family: fonts.$code-font;
       font-size: 0.9rem;
     }
 
@@ -346,11 +353,11 @@
     .table__status-detail {
       display: block;
       max-width: 200px;
-      font-size: $small-font-size;
+      font-size: fonts.$small-font-size;
       margin-top: 5px;
     }
 
-    @media only screen and (max-width: $small-tablet) {
+    @media only screen and (max-width: breakpoints.$small-tablet) {
       @include mobile-friendly-table;
 
       .table__status-detail {
@@ -361,9 +368,9 @@
 
   &--2fa,
   &--api-tokens {
-    margin: 0 0 $spacing-unit;
+    margin: 0 0 grid.$spacing-unit;
 
-    @media only screen and (max-width: $small-tablet) {
+    @media only screen and (max-width: breakpoints.$small-tablet) {
       @include mobile-friendly-table;
     }
   }
@@ -374,7 +381,7 @@
     .table__monospace {
       word-wrap: break-word;
       word-break: break-all;
-      font-family: $code-font;
+      font-family: fonts.$code-font;
       font-size: 95%;
     }
 
@@ -385,7 +392,7 @@
       }
     }
 
-    @media only screen and (max-width: $small-tablet) {
+    @media only screen and (max-width: breakpoints.$small-tablet) {
       @include mobile-friendly-table;
     }
   }
@@ -396,7 +403,7 @@
     .table__monospace {
       word-wrap: break-word;
       word-break: break-all;
-      font-family: $code-font;
+      font-family: fonts.$code-font;
       font-size: 95%;
     }
 
@@ -407,7 +414,7 @@
       }
     }
 
-    @media only screen and (max-width: $small-tablet) {
+    @media only screen and (max-width: breakpoints.$small-tablet) {
       @include mobile-friendly-table;
     }
   }

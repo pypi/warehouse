@@ -19,7 +19,10 @@
     "testRegex": ".*_test.js"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^6.2.1",
+    "@fontsource/ewert": "^5.2.8",
+    "@fontsource/source-code-pro": "^5.2.7",
+    "@fontsource/source-sans-3": "^5.2.9",
+    "@fortawesome/fontawesome-free": "^7.1.0",
     "@hotwired/stimulus": "^3.2.1",
     "@hotwired/stimulus-webpack-helpers": "^1.0.1",
     "admin-lte": "^3.2.0",

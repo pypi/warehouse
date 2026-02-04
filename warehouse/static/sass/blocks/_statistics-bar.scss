@@ -1,5 +1,10 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "sass:color";
+@use "../settings/breakpoints";
+@use "../settings/colours";
+@use "../settings/fonts";
+
 /*
   Horizontal bar that displays statistics on the homepage.
 
@@ -14,15 +19,15 @@
   text-align: center;
 
   &__statistic {
-    color: darken($primary-color, 15);
+    color: color.adjust(colours.$primary-color, $lightness: -15%);
     font-size: 1.2rem;
     display: inline-block;
     padding: 10px 20px;
     margin: 0;
     box-sizing: border-box;
 
-    @media only screen and (max-width: $tablet) {
-      font-size: $base-font-size;
+    @media only screen and (max-width: breakpoints.$tablet) {
+      font-size: fonts.$base-font-size;
     }
   }
 }

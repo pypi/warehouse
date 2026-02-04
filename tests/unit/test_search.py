@@ -60,7 +60,14 @@ class TestQueries:
                                             "type": expected_type,
                                         }
                                     },
-                                ]
+                                ],
+                                "should": [
+                                    {
+                                        "match_phrase": {
+                                            "name": {"boost": 1000, "query": terms}
+                                        }
+                                    }
+                                ],
                             }
                         },
                         {"prefix": {"normalized_name": expected_prefix}},
@@ -87,7 +94,10 @@ class TestQueries:
                                 "type": "best_fields",
                             }
                         },
-                    ]
+                    ],
+                    "should": [
+                        {"match_phrase": {"name": {"boost": 1000, "query": "a"}}}
+                    ],
                 }
             },
             "suggest": {"name_suggestion": {"text": "a", "term": {"field": "name"}}},
@@ -120,7 +130,17 @@ class TestQueries:
                                             "type": "best_fields",
                                         }
                                     },
-                                ]
+                                ],
+                                "should": [
+                                    {
+                                        "match_phrase": {
+                                            "name": {
+                                                "boost": 1000,
+                                                "query": '"foo bar" baz',
+                                            }
+                                        }
+                                    }
+                                ],
                             }
                         },
                         {"prefix": {"normalized_name": '"foo bar" baz'}},
@@ -153,7 +173,14 @@ class TestQueries:
                                             "type": "best_fields",
                                         }
                                     },
-                                ]
+                                ],
+                                "should": [
+                                    {
+                                        "match_phrase": {
+                                            "name": {"boost": 1000, "query": terms}
+                                        }
+                                    }
+                                ],
                             }
                         },
                         {"prefix": {"normalized_name": terms}},
@@ -216,7 +243,14 @@ class TestQueries:
                                             ]
                                         }
                                     },
-                                ]
+                                ],
+                                "should": [
+                                    {
+                                        "match_phrase": {
+                                            "name": {"boost": 1000, "query": terms}
+                                        }
+                                    }
+                                ],
                             }
                         },
                         {"prefix": {"normalized_name": terms}},

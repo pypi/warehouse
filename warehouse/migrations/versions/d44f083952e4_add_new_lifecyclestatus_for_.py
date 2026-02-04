@@ -7,7 +7,6 @@ Revises: 6de76386dbf4
 Create Date: 2025-03-27 14:37:10.791465
 """
 
-
 from alembic import op
 from alembic_postgresql_enum import TableReference
 

@@ -342,7 +342,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
                 two_factor_label = two_factor_method
 
                 # Actually perform the login routine for our user.
-                headers = _login_user(
+                _login_user(
                     request,
                     userid,
                     two_factor_method,
@@ -352,7 +352,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
                 # Now that we're logged in we'll want to redirect the user to
                 # either where they were trying to go originally, or to the default
                 # view.
-                resp = HTTPSeeOther(redirect_to, headers=dict(headers))
+                resp = HTTPSeeOther(redirect_to)
                 _set_userid_insecure_cookie(resp, userid)
 
             return resp
@@ -773,9 +773,8 @@ def register(request, _form_class=RegistrationForm):
         send_email_verification_email(request, (user, email))
         email_limiter.hit(user.id)
 
-        resp = HTTPSeeOther(
-            request.route_path("index"), headers=dict(_login_user(request, user.id))
-        )
+        _login_user(request, user.id)
+        resp = HTTPSeeOther(request.route_path("index"))
         _set_userid_insecure_cookie(resp, user.id)
 
         return resp
@@ -1040,8 +1039,8 @@ def confirm_login(request):
 
     unique_login.status = UniqueLoginStatus.CONFIRMED
 
-    headers = _login_user(request, user.id)
-    resp = HTTPSeeOther(request.route_path("manage.projects"), headers=dict(headers))
+    _login_user(request, user.id)
+    resp = HTTPSeeOther(request.route_path("manage.projects"))
     _set_userid_insecure_cookie(resp, user.id)
     request.session.flash(
         request._("Your login has been confirmed and this device is now recognized."),
@@ -1522,7 +1521,7 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
         security_policy.reset(request)
 
     # Remember the userid using the authentication policy.
-    headers = remember(request, str(userid))
+    remember(request, str(userid))
 
     # Cycle the CSRF token since we've crossed an authentication boundary
     # and we don't want to continue using the old one.
@@ -1597,8 +1596,6 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
             request.registry.settings.get("terms.revision"),
             TermsOfServiceEngagement.Flashed,
         )
-
-    return headers
 
 
 @view_config(

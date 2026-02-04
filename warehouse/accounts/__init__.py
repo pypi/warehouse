@@ -9,6 +9,11 @@ from warehouse.accounts.interfaces import (
     ITokenService,
     IUserService,
 )
+from warehouse.accounts.oauth import (
+    GitHubAppClient,
+    IOAuthProviderService,
+    NullGitHubOAuthClient,
+)
 from warehouse.accounts.security_policy import (
     BasicAuthSecurityPolicy,
     SessionSecurityPolicy,
@@ -33,7 +38,6 @@ from warehouse.admin.flags import AdminFlagValue
 from warehouse.macaroons.security_policy import MacaroonSecurityPolicy
 from warehouse.oidc.utils import PublisherTokenContext
 from warehouse.organizations.services import IOrganizationService
-from warehouse.rate_limiting import IRateLimiter, RateLimit
 from warehouse.utils.security_policy import MultiSecurityPolicy
 
 __all__ = [
@@ -41,6 +45,8 @@ __all__ = [
     "HaveIBeenPwnedPasswordBreachedService",
     "NullEmailBreachedService",
     "HaveIBeenPwnedEmailBreachedService",
+    "GitHubAppClient",
+    "NullGitHubOAuthClient",
 ]
 
 
@@ -139,6 +145,14 @@ def includeme(config):
         domain_status_class.create_service, IDomainStatusService
     )
 
+    # Register GitHub OAuth service for account associations.
+    github_oauth_class = config.maybe_dotted(
+        config.registry.settings["github.oauth.backend"]
+    )
+    config.register_service_factory(
+        github_oauth_class.create_service, IOAuthProviderService, name="github"
+    )
+
     # Register our security policies.
     config.set_security_policy(
         MultiSecurityPolicy(
@@ -166,62 +180,40 @@ def includeme(config):
     user_login_ratelimit_string = config.registry.settings.get(
         "warehouse.account.user_login_ratelimit_string"
     )
-    config.register_service_factory(
-        RateLimit(user_login_ratelimit_string), IRateLimiter, name="user.login"
-    )
+    config.register_rate_limiter(user_login_ratelimit_string, "user.login")
     ip_login_ratelimit_string = config.registry.settings.get(
         "warehouse.account.ip_login_ratelimit_string"
     )
-    config.register_service_factory(
-        RateLimit(ip_login_ratelimit_string), IRateLimiter, name="ip.login"
-    )
+    config.register_rate_limiter(ip_login_ratelimit_string, "ip.login")
     global_login_ratelimit_string = config.registry.settings.get(
         "warehouse.account.global_login_ratelimit_string"
     )
-    config.register_service_factory(
-        RateLimit(global_login_ratelimit_string), IRateLimiter, name="global.login"
-    )
+    config.register_rate_limiter(global_login_ratelimit_string, "global.login")
     # Register separate rate limiters for 2FA attempts
     twofa_user_ratelimit_string = config.registry.settings.get(
         "warehouse.account.2fa_user_ratelimit_string"
     )
-    config.register_service_factory(
-        RateLimit(twofa_user_ratelimit_string), IRateLimiter, name="2fa.user"
-    )
+    config.register_rate_limiter(twofa_user_ratelimit_string, "2fa.user")
     twofa_ip_ratelimit_string = config.registry.settings.get(
         "warehouse.account.2fa_ip_ratelimit_string"
     )
-    config.register_service_factory(
-        RateLimit(twofa_ip_ratelimit_string), IRateLimiter, name="2fa.ip"
-    )
+    config.register_rate_limiter(twofa_ip_ratelimit_string, "2fa.ip")
     email_add_ratelimit_string = config.registry.settings.get(
         "warehouse.account.email_add_ratelimit_string"
     )
-    config.register_service_factory(
-        RateLimit(email_add_ratelimit_string), IRateLimiter, name="email.add"
-    )
+    config.register_rate_limiter(email_add_ratelimit_string, "email.add")
     password_reset_ratelimit_string = config.registry.settings.get(
         "warehouse.account.password_reset_ratelimit_string"
     )
-    config.register_service_factory(
-        RateLimit(password_reset_ratelimit_string), IRateLimiter, name="password.reset"
-    )
+    config.register_rate_limiter(password_reset_ratelimit_string, "password.reset")
     verify_email_ratelimit_string = config.registry.settings.get(
         "warehouse.account.verify_email_ratelimit_string"
     )
-    config.register_service_factory(
-        RateLimit(verify_email_ratelimit_string),
-        IRateLimiter,
-        name="email.verify",
-    )
+    config.register_rate_limiter(verify_email_ratelimit_string, "email.verify")
     accounts_search_ratelimit_string = config.registry.settings.get(
         "warehouse.account.accounts_search_ratelimit_string"
     )
-    config.register_service_factory(
-        RateLimit(accounts_search_ratelimit_string),
-        IRateLimiter,
-        name="accounts.search",
-    )
+    config.register_rate_limiter(accounts_search_ratelimit_string, "accounts.search")
 
     # Add a periodic task to generate Account metrics
     config.add_periodic_task(crontab(minute="*/20"), compute_user_metrics)

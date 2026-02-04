@@ -15,7 +15,6 @@ import zope.sqlalchemy
 
 from pyramid.renderers import JSON
 from sqlalchemy import event, func, inspect
-from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.exc import DBAPIError, IntegrityError, OperationalError
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 
@@ -86,7 +85,6 @@ class Model(ModelBase):
     __abstract__ = True
 
     id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
         primary_key=True,
         server_default=func.gen_random_uuid(),
     )

@@ -14,8 +14,7 @@ down_revision = "4297620f7b41"
 
 
 def upgrade():
-    op.execute(
-        """
+    op.execute("""
         INSERT INTO admin_flags(id, description, enabled, notify)
         VALUES (
             '2fa-required',
@@ -23,8 +22,7 @@ def upgrade():
             FALSE,
             FALSE
         )
-    """
-    )
+    """)
 
 
 def downgrade():

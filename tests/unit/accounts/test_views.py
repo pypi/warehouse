@@ -330,7 +330,7 @@ class TestLogin:
     def test_post_validate_redirects(
         self, monkeypatch, db_request, pyramid_services, metrics, with_user
     ):
-        remember = pretend.call_recorder(lambda request, user_id: [("foo", "bar")])
+        remember = pretend.call_recorder(lambda request, user_id: [])
         monkeypatch.setattr(views, "remember", remember)
 
         new_session = {}
@@ -390,7 +390,6 @@ class TestLogin:
         assert db_request.route_path.calls == [pretend.call("manage.projects")]
         assert result.headers["Location"] == "/the-redirect"
         assert result.headers["Set-Cookie"].startswith("user_id__insecure=")
-        assert result.headers["foo"] == "bar"
 
         assert form_class.calls == [
             pretend.call(

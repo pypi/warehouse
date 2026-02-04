@@ -1,5 +1,10 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "sass:color";
+@use "../settings/colours";
+@use "../settings/fonts";
+@use "../settings/grid";
+
 /*
   A form field, with label, input, and help text.
 
@@ -19,12 +24,12 @@
 */
 
 .form-group {
-  margin-bottom: $spacing-unit;
+  margin-bottom: grid.$spacing-unit;
   max-width: 350px;
 
   &__label {
     display: block;
-    font-weight: $bold-font-weight;
+    font-weight: fonts.$bold-font-weight;
   }
 
   &__label:not(:first-child) {
@@ -32,12 +37,12 @@
   }
 
   &__required {
-    font-size: $small-font-size;
+    font-size: fonts.$small-font-size;
     font-weight: normal;
   }
 
   &--wide {
-    margin-bottom: $half-spacing-unit;
+    margin-bottom: grid.$half-spacing-unit;
     max-width: unset;
     width: 100%;
   }
@@ -74,7 +79,7 @@
   }
 
   &__text {
-    font-size: $input-font-size;
+    font-size: fonts.$input-font-size;
     padding: 4px 0 8px;
   }
 
@@ -83,7 +88,7 @@
     margin-top: 5px;
     width: 350px;
     max-width: 100%;
-    font-size: $small-font-size;
+    font-size: fonts.$small-font-size;
 
     > code {
       font-size: 0.7rem;
@@ -92,24 +97,24 @@
 
   // For use with `stimulus-autocomplete`
   &__results {
-    font-size: $input-font-size;
+    font-size: fonts.$input-font-size;
     margin-left: 0;
     margin-top: -1px;
     padding: 0;
-    border: 1px solid $border-color;
+    border: 1px solid colours.$border-color;
     border-bottom: 0;
     position: absolute;
     z-index: 400;
     width: 350px;
-    max-width: calc(100% - $spacing-unit);
+    max-width: calc(100% - grid.$spacing-unit);
 
     li {
-      background-color: $white;
-      border-bottom: 1px solid $border-color;
-      color: $text-color;
+      background-color: colours.$white;
+      border-bottom: 1px solid colours.$border-color;
+      color: colours.$text-color;
       cursor: pointer;
       list-style-type: none;
-      padding: $quarter-spacing-unit;
+      padding: grid.$quarter-spacing-unit;
 
       img {
         margin-right: 4px;
@@ -118,14 +123,14 @@
       &:hover,
       &:active,
       &:focus {
-        background-color: mix($white, $primary-color-light, 90%);
-        color: $primary-color-dark;
+        background-color: color.mix(colours.$white, colours.$primary-color-light, 90%);
+        color: colours.$primary-color-dark;
       }
 
       &:active,
       &:focus {
-        outline: 1px solid $primary-color;
-        border-bottom-color: $primary-color;
+        outline: 1px solid colours.$primary-color;
+        border-bottom-color: colours.$primary-color;
       }
     }
   }
@@ -167,11 +172,11 @@
 
   /* stylelint-disable-next-line selector-id-pattern -- Form sets name */
   input#totp_value:valid {
-    background-color: lighten($success-color, 40%);
+    background-color: color.adjust(colours.$success-color, $lightness: 40%);
   }
 
   /* stylelint-disable-next-line selector-id-pattern -- Form sets name */
   input#totp_value:invalid {
-    background-color: lighten($danger-color, 40%);
+    background-color: color.adjust(colours.$danger-color, $lightness: 40%);
   }
 }

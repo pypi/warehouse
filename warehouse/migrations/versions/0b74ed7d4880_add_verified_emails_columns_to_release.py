@@ -29,13 +29,11 @@ def upgrade():
             nullable=True,
         ),
     )
-    op.execute(
-        """
+    op.execute("""
         UPDATE releases
         SET author_email_verified = false
         WHERE author_email_verified IS NULL
-    """
-    )
+    """)
     op.alter_column("releases", "author_email_verified", nullable=False)
 
     op.add_column(
@@ -47,13 +45,11 @@ def upgrade():
             nullable=True,
         ),
     )
-    op.execute(
-        """
+    op.execute("""
         UPDATE releases
         SET maintainer_email_verified = false
         WHERE maintainer_email_verified IS NULL
-    """
-    )
+    """)
     op.alter_column("releases", "maintainer_email_verified", nullable=False)
 
 

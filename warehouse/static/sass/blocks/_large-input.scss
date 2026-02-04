@@ -1,5 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "../settings/fonts";
+
 /*
   A large input. Aligns with a button with a large modifier.
 
@@ -7,7 +9,7 @@
 */
 
 input.large-input {
-  font-size: $input-font-size * 1.2;
+  font-size: fonts.$input-font-size * 1.2;
   height: 50px;
   line-height: 50px;
 }

@@ -18,8 +18,7 @@ down_revision = "1e61006a47c2"
 def upgrade():
     op.add_column("releases", sa.Column("is_prerelease", sa.Boolean(), nullable=True))
 
-    op.execute(
-        """ CREATE OR REPLACE FUNCTION maintain_releases_is_prerelease()
+    op.execute(""" CREATE OR REPLACE FUNCTION maintain_releases_is_prerelease()
             RETURNS TRIGGER AS $$
                 BEGIN
                     NEW.is_prerelease :=  pep440_is_prerelease(NEW.version);
@@ -27,16 +26,13 @@ def upgrade():
                 END;
             $$
             LANGUAGE plpgsql
-        """
-    )
+        """)
 
-    op.execute(
-        """ CREATE TRIGGER releases_update_is_prerelease
+    op.execute(""" CREATE TRIGGER releases_update_is_prerelease
             BEFORE INSERT OR UPDATE OF version ON releases
             FOR EACH ROW
             EXECUTE PROCEDURE maintain_releases_is_prerelease()
-        """
-    )
+        """)
 
 
 def downgrade():

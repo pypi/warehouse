@@ -1,5 +1,9 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "../settings/breakpoints";
+@use "../settings/grid";
+@use "../tools/layout-utilities";
+
 /*
   Logo and description found on the homepage:
 
@@ -14,8 +18,8 @@
 */
 
 .about-pypi {
-  @include split-table-layout;
-  @include site-container;
+  @include layout-utilities.split-table-layout;
+  @include layout-utilities.site-container;
   table-layout: auto;
   max-width: 1000px;
   margin: 0 auto;
@@ -24,16 +28,16 @@
     padding-top: 10px;
     padding-right: 50px;
 
-    @media only screen and (max-width: $small-tablet) {
+    @media only screen and (max-width: breakpoints.$small-tablet) {
       padding: 0;
     }
 
     img {
       width: 220px;
       max-width: 100%;
-      margin: -$half-spacing-unit 50px 0 0;
+      margin: -(grid.$half-spacing-unit) 50px 0 0;
 
-      @media only screen and (max-width: $small-tablet) {
+      @media only screen and (max-width: breakpoints.$small-tablet) {
         display: none;
       }
     }
@@ -42,7 +46,7 @@
   &__text {
     text-align: left;
 
-    @media only screen and (max-width: $small-tablet) {
+    @media only screen and (max-width: breakpoints.$small-tablet) {
       display: block;
       width: 100%;
       margin-bottom: -10px;
