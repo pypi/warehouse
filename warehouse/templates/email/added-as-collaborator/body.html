@@ -3,7 +3,7 @@
 {% set site = request.registry.settings["site.name"] %}
 {% set project_url = request.route_url('packaging.project', name=project_name) %}
 {% set initiator_url = request.route_url('accounts.profile', username=initiator_username) %}
-{% set role_faq_url = "https://pypi.org/help/#collaborator-roles" %}
+{% set role_faq_url = request.help_url(_anchor='collaborator-roles') %}
 {% block content %}
   <p>
     {% trans role=role, site=site, role_faq_url=role_faq_url, project_name=project_name, initiator_username=initiator_username, project_url=project_url, initiator_url=initiator_url %}
