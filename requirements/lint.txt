@@ -861,9 +861,9 @@ tokenize-rt==6.2.0 \
     --hash=sha256:8439c042b330c553fdbe1758e4a05c0ed460dbbbb24a606f11f0dee75da4cad6 \
     --hash=sha256:a152bf4f249c847a66497a4a95f63376ed68ac6abf092a2f7cfb29d044ecff44
     # via pyupgrade
-tqdm==4.67.1 \
-    --hash=sha256:26445eca388f82e72884e0d580d5464cd801a3ea01e63e5601bdff9ba6a48de2 \
-    --hash=sha256:f8aef9c52c08c13a65f30ea34f4e5aac3fd1a34959879d7e59e63027286627f2
+tqdm==4.67.3 \
+    --hash=sha256:7d825f03f89244ef73f1d4ce193cb1774a8179fd96f31d7e1dcde62092b960bb \
+    --hash=sha256:ee1e4c0e59148062281c49d80b25b67771a127c85fc9676d3be5f243206826bf
     # via djlint
 types-awscrt==0.31.1 \
     --hash=sha256:08b13494f93f45c1a92eb264755fce50ed0d1dc75059abb5e31670feb9a09724 \
