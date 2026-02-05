@@ -2393,8 +2393,8 @@ ua-parser==1.0.1 \
     --hash=sha256:b059f2cb0935addea7e551251cbbf42e9a8872f86134163bc1a4f79e0945ffea \
     --hash=sha256:f9d92bf19d4329019cef91707aecc23c6d65143ad7e29a233f0580fb0d15547d
     # via -r requirements/main.in
-ua-parser-builtins==202601 \
-    --hash=sha256:f5dc93b0f53724dcd5c3eb79edb0aea281cb304a2c02a9436cbeb8cfb8bc4ad1
+ua-parser-builtins==202602 \
+    --hash=sha256:07e44db44e916076cf999cbe2ccc37f25bd689844e8748511caec23e961a04cb
     # via ua-parser
 urllib3==2.6.3 \
     --hash=sha256:1b62b6884944a57dbe321509ab94fd4d3b307075e0c2eae991ac71ee15ad38ed \
