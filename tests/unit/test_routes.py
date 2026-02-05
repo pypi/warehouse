@@ -74,6 +74,11 @@ def test_routes(warehouse):
             "/.well-known/funding-manifest-urls",
             domain=warehouse,
         ),
+        pretend.call(
+            "security-txt",
+            "/.well-known/security.txt",
+            domain=warehouse,
+        ),
         pretend.call("opensearch.xml", "/opensearch.xml", domain=warehouse),
         pretend.call("index.sitemap.xml", "/sitemap.xml", domain=warehouse),
         pretend.call("bucket.sitemap.xml", "/{bucket}.sitemap.xml", domain=warehouse),
