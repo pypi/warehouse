@@ -23,6 +23,7 @@ def includeme(config):
     config.add_route(
         "funding-manifest-urls", "/.well-known/funding-manifest-urls", domain=warehouse
     )
+    config.add_route("security-txt", "/.well-known/security.txt", domain=warehouse)
     config.add_route("opensearch.xml", "/opensearch.xml", domain=warehouse)
     config.add_route("index.sitemap.xml", "/sitemap.xml", domain=warehouse)
     config.add_route("bucket.sitemap.xml", "/{bucket}.sitemap.xml", domain=warehouse)
