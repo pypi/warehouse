@@ -3,7 +3,7 @@
 Add CircleCI OIDC publisher
 
 Revision ID: c37402260096
-Revises: 31ac9b5e1e8b
+Revises: ee66c00f12e6
 Create Date: 2026-01-27 02:31:38.265440
 """
 
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision = "c37402260096"
-down_revision = "31ac9b5e1e8b"
+down_revision = "ee66c00f12e6"
 
 # Note: It is VERY important to ensure that a migration does not lock for a
 #       long period of time and to ensure that each individual migration does
