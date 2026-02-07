@@ -1,4 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
+import email.parser
+import email.policy
 import hashlib
 import hmac
 import os.path
@@ -378,9 +380,7 @@ def _is_valid_dist_file(filename: str, filetype: str):
     return True, None
 
 
-def _is_valid_wheel_file(
-    contents: bytes, tags: frozenset[packaging.tags.Tag]
-) -> tuple[bool, str | None]:
+def _validate_wheel_file(contents: bytes, tags: frozenset[packaging.tags.Tag]):
     """
     Check whether the WHEEL file matches the wheel filename tags.
 
@@ -389,48 +389,39 @@ def _is_valid_wheel_file(
     """
     filename_tags = {str(tag) for tag in tags}
     dist_info_tags = set()
-    try:
-        decoded = contents.decode("utf-8")
-    except UnicodeDecodeError:
-        return False, "WHEEL file is not valid UTF-8"
 
-    for line in decoded.splitlines():
-        if line.startswith("Tag:"):
-            tag = line.removeprefix("Tag:").strip()
-            if "." in tag:
-                return (
-                    False,
-                    f"Tags in WHEEL file must be expanded, not compressed: {tag}",
-                )
-            dist_info_tags.add(tag)
+    data = email.parser.BytesParser(policy=email.policy.compat32).parsebytes(contents)
+    for key, value in data.items():
+        if key != "Tag":
+            continue
+        if "." in value:
+            raise ValueError(
+                f"Tags in WHEEL file must be expanded, not compressed: '{value}'",
+            )
+        dist_info_tags.add(value)
 
     # Handle the case that there's no overlap, usually two different tags.
     if not (dist_info_tags & filename_tags):
-        formatted_filename_tags = ", ".join(sorted(filename_tags))
-        formatted_dist_info_tags = ", ".join(sorted(dist_info_tags))
-        return (
-            False,
+        formatted_filename_tags = "', '".join(sorted(filename_tags))
+        formatted_dist_info_tags = "', '".join(sorted(dist_info_tags))
+        raise ValueError(
             "Wheel filename and WHEEL file tags mismatch: "
-            + f"{formatted_filename_tags} vs. {formatted_dist_info_tags}",
+            + f"'{formatted_filename_tags}' vs. '{formatted_dist_info_tags}'",
         )
 
     only_dist_info_tags = dist_info_tags - filename_tags
     if only_dist_info_tags:
-        formatted_tags = ", ".join(sorted(only_dist_info_tags))
-        return (
-            False,
-            f"WHEEL file has tags not in wheel filename: {formatted_tags}",
+        formatted_tags = "', '".join(sorted(only_dist_info_tags))
+        raise ValueError(
+            f"WHEEL file has tags not in wheel filename: '{formatted_tags}'",
         )
 
     only_filename_tags = filename_tags - dist_info_tags
     if only_filename_tags:
-        formatted_tags = ", ".join(sorted(only_filename_tags))
-        return (
-            False,
-            f"Wheel filename has tags not in WHEEL file: {formatted_tags}",
+        formatted_tags = "', '".join(sorted(only_filename_tags))
+        raise ValueError(
+            f"Wheel filename has tags not in WHEEL file: '{formatted_tags}'",
         )
-
-    return True, None
 
 
 def _is_duplicate_file(db_session, filename, hashes):
@@ -1547,12 +1538,20 @@ def file_upload(request):
                 target_file = os.path.join(f"{name}-{version}.dist-info", "WHEEL")
                 try:
                     wheel_file = zfp.read(target_file)
-                    valid, reason = _is_valid_wheel_file(wheel_file, tags)
+                    _validate_wheel_file(wheel_file, tags)
                 except KeyError:
-                    valid = False
-                    reason = f"WHEEL not found at {target_file}"
-
-                if not valid:
+                    request.metrics.increment(
+                        "warehouse.upload.failed",
+                        tags=[
+                            "reason:invalid-distribution-file",
+                            f"filetype:{form.filetype.data}",
+                        ],
+                    )
+                    raise _exc_with_message(
+                        HTTPBadRequest,
+                        f"Invalid distribution file. WHEEL not found at {target_file}",
+                    )
+                except ValueError as reason:
                     request.metrics.increment(
                         "warehouse.upload.failed",
                         tags=[

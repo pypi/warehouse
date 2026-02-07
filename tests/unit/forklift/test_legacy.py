@@ -372,27 +372,29 @@ class TestFileValidation:
                 "py3-none-macosx_11_0_arm64",
                 b"Tag: py3-none-macosx_13_0_arm64",
                 "Wheel filename and WHEEL file tags mismatch: "
-                + "py3-none-macosx_11_0_arm64 vs. py3-none-macosx_13_0_arm64",
+                + "'py3-none-macosx_11_0_arm64' vs. 'py3-none-macosx_13_0_arm64'",
             ),
             (
                 "py2-none-any",
                 b"Tag: py2-none-any\nTag: py3-none-any",
-                "WHEEL file has tags not in wheel filename: py3-none-any",
+                "WHEEL file has tags not in wheel filename: 'py3-none-any'",
             ),
             (
                 "py2.py3-none-any",
                 b"Tag: py3-none-any",
-                "Wheel filename has tags not in WHEEL file: py2-none-any",
+                "Wheel filename has tags not in WHEEL file: 'py2-none-any'",
             ),
             (
                 "py2.py3-none-any",
                 b"Tag: py2.py3-none-any",
-                "Tags in WHEEL file must be expanded, not compressed: py2.py3-none-any",
+                "Tags in WHEEL file must be expanded, not compressed: "
+                + "'py2.py3-none-any'",
             ),
             (
                 "py3-none-macosx_11_0_arm64",
                 b"\xff\x00\xff",
-                "WHEEL file is not valid UTF-8",
+                "Wheel filename and WHEEL file tags mismatch: "
+                + "'py3-none-macosx_11_0_arm64' vs. ''",
             ),
             (
                 "py3-none-macosx_11_0_arm64",
