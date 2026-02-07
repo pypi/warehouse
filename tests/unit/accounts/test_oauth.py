@@ -14,7 +14,7 @@ from zope.interface.verify import verifyClass
 from warehouse.accounts.oauth import (
     GitHubAppClient,
     IOAuthProviderService,
-    NullOAuthClient,
+    NullGitHubOAuthClient,
     generate_state_token,
 )
 from warehouse.utils.exceptions import NullOAuthProviderServiceWarning
@@ -23,7 +23,7 @@ from warehouse.utils.exceptions import NullOAuthProviderServiceWarning
 class TestIOAuthProviderService:
     def test_verify_interface(self):
         assert verifyClass(IOAuthProviderService, GitHubAppClient)
-        assert verifyClass(IOAuthProviderService, NullOAuthClient)
+        assert verifyClass(IOAuthProviderService, NullGitHubOAuthClient)
 
 
 class TestGenerateStateToken:
@@ -194,49 +194,34 @@ class TestGitHubAppClient:
             client.get_user_info("test_access_token")
 
 
-class TestNullOAuthClient:
+class TestNullGitHubOAuthClient:
     def test_warns_on_init(self):
         with pytest.warns(NullOAuthProviderServiceWarning) as record:
-            client = NullOAuthClient(redirect_uri="http://localhost/callback")
+            client = NullGitHubOAuthClient(redirect_uri="http://localhost/callback")
 
         assert client is not None
         assert len(record) == 1
         assert record[0].message.args[0] == (
-            "NullOAuthClient is intended only for use in development, "
+            "NullGitHubOAuthClient is intended only for use in development, "
             "you should not use it in production due to the creation of "
             "fake user associations without actual OAuth verification."
         )
-
-    def test_initialization(self):
-        client = NullOAuthClient(redirect_uri="http://localhost/callback")
-        assert client.client_id == "null"
-        assert client.client_secret == "null"
-        assert client.redirect_uri == "http://localhost/callback"
-
-    def test_initialization_with_params(self):
-        client = NullOAuthClient(
-            client_id="custom_id",
-            client_secret="custom_secret",
-            redirect_uri="http://localhost/callback",
-        )
-        assert client.client_id == "custom_id"
-        assert client.client_secret == "custom_secret"
 
     def test_create_service(self, mocker):
         request = mocker.Mock()
         request.route_url.return_value = "http://localhost/callback"
         context = None
 
-        client = NullOAuthClient.create_service(context, request)
+        client = NullGitHubOAuthClient.create_service(context, request)
 
-        assert isinstance(client, NullOAuthClient)
+        assert isinstance(client, NullGitHubOAuthClient)
         assert client.redirect_uri == "http://localhost/callback"
         request.route_url.assert_called_once_with(
             "manage.account.associations.github.callback"
         )
 
     def test_generate_authorize_url(self):
-        client = NullOAuthClient(redirect_uri="http://localhost/callback")
+        client = NullGitHubOAuthClient(redirect_uri="http://localhost/callback")
         state = "test_state_token"
 
         url = client.generate_authorize_url(state)
@@ -247,11 +232,11 @@ class TestNullOAuthClient:
         assert parsed.path == "/callback"
 
         query_params = urllib.parse.parse_qs(parsed.query)
-        assert query_params["code"] == ["mock_authorization_code"]
+        assert query_params["code"] == ["mock_github_authorization_code"]
         assert query_params["state"] == ["test_state_token"]
 
     def test_exchange_code_for_token(self):
-        client = NullOAuthClient(redirect_uri="http://localhost/callback")
+        client = NullGitHubOAuthClient(redirect_uri="http://localhost/callback")
 
         result = client.exchange_code_for_token("test_code")
 
@@ -262,7 +247,7 @@ class TestNullOAuthClient:
         assert result["scope"] == "read:user user:email"
 
     def test_exchange_code_for_token_unique_tokens(self):
-        client = NullOAuthClient(redirect_uri="http://localhost/callback")
+        client = NullGitHubOAuthClient(redirect_uri="http://localhost/callback")
 
         result1 = client.exchange_code_for_token("test_code")
         result2 = client.exchange_code_for_token("test_code")
@@ -271,7 +256,7 @@ class TestNullOAuthClient:
         assert result1["access_token"] != result2["access_token"]
 
     def test_get_user_info(self):
-        client = NullOAuthClient(redirect_uri="http://localhost/callback")
+        client = NullGitHubOAuthClient(redirect_uri="http://localhost/callback")
 
         result = client.get_user_info("mock_access_token_abc123")
 
@@ -287,7 +272,7 @@ class TestNullOAuthClient:
         assert result["email"].endswith("@example.com")
 
     def test_get_user_info_consistent_for_same_token(self):
-        client = NullOAuthClient(redirect_uri="http://localhost/callback")
+        client = NullGitHubOAuthClient(redirect_uri="http://localhost/callback")
 
         result1 = client.get_user_info("same_token")
         result2 = client.get_user_info("same_token")
@@ -296,7 +281,7 @@ class TestNullOAuthClient:
         assert result1 == result2
 
     def test_get_user_info_different_for_different_tokens(self):
-        client = NullOAuthClient(redirect_uri="http://localhost/callback")
+        client = NullGitHubOAuthClient(redirect_uri="http://localhost/callback")
 
         result1 = client.get_user_info("token_one")
         result2 = client.get_user_info("token_two")

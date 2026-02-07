@@ -51,8 +51,8 @@ BREACHED_PASSWORDS=warehouse.accounts.NullPasswordBreachedService
 OIDC_BACKEND=warehouse.oidc.services.NullOIDCPublisherService
 INTEGRITY_BACKEND=warehouse.attestations.services.NullIntegrityService
 
-# Use NullOAuthClient for local development (no GitHub App needed)
-GITHUB_OAUTH_BACKEND=warehouse.accounts.oauth.NullOAuthClient
+# Use NullGitHubOAuthClient for local development (no GitHub App needed)
+GITHUB_OAUTH_BACKEND=warehouse.accounts.oauth.NullGitHubOAuthClient
 # For real GitHub App integration, uncomment and configure:
 # GITHUB_OAUTH_BACKEND=warehouse.accounts.oauth.GitHubAppClient client_id=Iv2.your_client_id client_secret=your_client_secret
 
@@ -100,5 +100,3 @@ HELPDESK_NOTIFICATION_BACKEND="warehouse.helpdesk.services.ConsoleAdminNotificat
 
 # Example of Domain Status configuration
 # DOMAIN_STATUS_BACKEND="warehouse.accounts.services.DomainrDomainStatusService client_id=some_client_id"
-
-WAREHOUSE_ALLOWED_DOMAINS=127.0.0.1,localhost

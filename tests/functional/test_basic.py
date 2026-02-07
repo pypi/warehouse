@@ -1,5 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import re
+
+from datetime import datetime, timezone
 from http import HTTPStatus
 
 import pytest
@@ -12,6 +15,32 @@ def test_funding_manifest_urls(app_config):
     assert resp.status_code == HTTPStatus.OK
     assert resp.content_type == "text/plain"
     assert resp.body.decode(resp.charset) == "https://www.python.org/funding.json"
+
+
+def test_security_txt(app_config):
+    testapp = webtest.TestApp(app_config.make_wsgi_app())
+    resp = testapp.get("/.well-known/security.txt")
+    assert resp.status_code == HTTPStatus.OK
+    assert resp.content_type == "text/plain"
+    body = resp.body.decode(resp.charset)
+    # Verify required fields
+    assert "Contact: mailto:security@pypi.org" in body
+    assert "Expires:" in body
+    # Verify optional fields
+    assert "Preferred-Languages: en" in body
+    # In test environment, route_url generates localhost URLs
+    assert "Canonical: http://localhost/.well-known/security.txt" in body
+    assert "Policy: http://localhost/security/" in body
+    # File must end with a newline
+    assert body.endswith("\n")
+    # Verify Expires is 1 year in the future
+    expires_match = re.search(r"Expires: (\d{4})-(\d{2})-\d{2}", body)
+    assert expires_match is not None
+    expires_year = int(expires_match.group(1))
+    expires_month = int(expires_match.group(2))
+    now = datetime.now(timezone.utc)
+    assert expires_year == now.year + 1
+    assert expires_month == now.month
 
 
 @pytest.mark.parametrize(
