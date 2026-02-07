@@ -465,6 +465,8 @@ class TestJSONProject:
                 "home_page": None,
                 "keywords": None,
                 "license": None,
+                "license_expression": None,
+                "license_files": None,
                 "maintainer": None,
                 "maintainer_email": None,
                 "name": project.name,
