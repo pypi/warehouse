@@ -393,8 +393,7 @@ class TestFileValidation:
             (
                 "py3-none-macosx_11_0_arm64",
                 b"\xff\x00\xff",
-                "Wheel filename and WHEEL file tags mismatch: "
-                + "'py3-none-macosx_11_0_arm64' vs. ''",
+                "WHEEL file is not UTF-8 encoded",
             ),
             (
                 "py3-none-macosx_11_0_arm64",

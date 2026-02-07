@@ -390,7 +390,12 @@ def _validate_wheel_file(contents: bytes, tags: frozenset[packaging.tags.Tag]):
     filename_tags = {str(tag) for tag in tags}
     dist_info_tags = set()
 
-    data = email.parser.BytesParser(policy=email.policy.compat32).parsebytes(contents)
+    try:
+        content = contents.decode("utf-8")
+    except UnicodeDecodeError:
+        raise ValueError("WHEEL file is not UTF-8 encoded")
+
+    data = email.parser.Parser(policy=email.policy.compat32).parsestr(content)
     for key, value in data.items():
         if key != "Tag":
             continue
