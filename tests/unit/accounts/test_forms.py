@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import datetime
 import json
@@ -34,11 +24,13 @@ from warehouse.captcha import recaptcha
 from warehouse.events.tags import EventTag
 from warehouse.utils.webauthn import AuthenticationRejectedError
 
+from ...common.constants import REMOTE_ADDR
+
 
 class TestLoginForm:
     def test_validate(self):
         request = pretend.stub(
-            remote_addr="1.2.3.4",
+            remote_addr=REMOTE_ADDR,
             banned=pretend.stub(
                 by_ip=lambda ip_address: False,
             ),
@@ -76,6 +68,32 @@ class TestLoginForm:
 
         assert not form.validate()
         assert str(form.username.errors.pop()) == "Null bytes are not allowed."
+
+    @pytest.mark.parametrize(
+        "email_username",
+        [
+            "user@example.com",
+            "test.user@example.org",
+            "admin@test.co.uk",
+            "  user@example.com  ",
+        ],
+    )
+    def test_validate_username_with_email_address(self, pyramid_config, email_username):
+        request = pretend.stub()
+        user_service = pretend.stub()
+        breach_service = pretend.stub()
+        form = forms.LoginForm(
+            formdata=MultiDict({"username": email_username}),
+            request=request,
+            user_service=user_service,
+            breach_service=breach_service,
+        )
+
+        assert not form.validate()
+        assert str(form.username.errors.pop()) == (
+            "Usernames are not the same as email addresses. "
+            "Enter your username instead of your email address."
+        )
 
     def test_validate_username_with_no_user(self):
         request = pretend.stub()
@@ -119,7 +137,7 @@ class TestLoginForm:
 
     def test_validate_password_no_user(self):
         request = pretend.stub(
-            remote_addr="1.2.3.4",
+            remote_addr=REMOTE_ADDR,
             banned=pretend.stub(
                 by_ip=lambda ip_address: False,
             ),
@@ -145,7 +163,7 @@ class TestLoginForm:
 
     def test_validate_password_disabled_for_compromised_pw(self, db_session):
         request = pretend.stub(
-            remote_addr="1.2.3.4", banned=pretend.stub(by_ip=lambda ip_address: False)
+            remote_addr=REMOTE_ADDR, banned=pretend.stub(by_ip=lambda ip_address: False)
         )
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
@@ -176,7 +194,7 @@ class TestLoginForm:
 
     def test_validate_password_ok(self):
         request = pretend.stub(
-            remote_addr="1.2.3.4",
+            remote_addr=REMOTE_ADDR,
             banned=pretend.stub(
                 by_ip=lambda ip_address: False,
             ),
@@ -216,7 +234,7 @@ class TestLoginForm:
 
     def test_validate_password_notok(self, db_session):
         request = pretend.stub(
-            remote_addr="1.2.3.4",
+            remote_addr=REMOTE_ADDR,
             banned=pretend.stub(
                 by_ip=lambda ip_address: False,
             ),
@@ -259,7 +277,7 @@ class TestLoginForm:
 
     def test_validate_password_too_many_failed(self):
         request = pretend.stub(
-            remote_addr="1.2.3.4",
+            remote_addr=REMOTE_ADDR,
             banned=pretend.stub(
                 by_ip=lambda ip_address: False,
             ),
@@ -297,7 +315,7 @@ class TestLoginForm:
 
         user = pretend.stub(id=1)
         request = pretend.stub(
-            remote_addr="1.2.3.4",
+            remote_addr=REMOTE_ADDR,
             banned=pretend.stub(
                 by_ip=lambda ip_address: False,
             ),
@@ -334,7 +352,7 @@ class TestLoginForm:
 
     def test_validate_password_ok_ip_banned(self):
         request = pretend.stub(
-            remote_addr="1.2.3.4",
+            remote_addr=REMOTE_ADDR,
             banned=pretend.stub(
                 by_ip=lambda ip_address: True,
             ),
@@ -368,7 +386,7 @@ class TestLoginForm:
 
     def test_validate_password_notok_ip_banned(self, db_session):
         request = pretend.stub(
-            remote_addr="1.2.3.4",
+            remote_addr=REMOTE_ADDR,
             banned=pretend.stub(
                 by_ip=lambda ip_address: True,
             ),
@@ -656,7 +674,7 @@ class TestRegistrationForm:
             breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
         )
         assert not form.validate()
-        assert form.g_recaptcha_response.errors.pop() == "Recaptcha error."
+        assert form.g_recaptcha_response.errors.pop() == "Captcha error."
 
     def test_recaptcha_error(self):
         form = forms.RegistrationForm(
@@ -670,7 +688,7 @@ class TestRegistrationForm:
             breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
         )
         assert not form.validate()
-        assert form.g_recaptcha_response.errors.pop() == "Recaptcha error."
+        assert form.g_recaptcha_response.errors.pop() == "Captcha error."
 
     def test_username_exists(self, pyramid_config):
         form = forms.RegistrationForm(
@@ -980,7 +998,7 @@ class TestTOTPAuthenticationForm:
     def test_validate(self, totp_value):
         user = pretend.stub(record_event=pretend.call_recorder(lambda *a, **kw: None))
         get_user = pretend.call_recorder(lambda userid: user)
-        request = pretend.stub(remote_addr="1.2.3.4")
+        request = pretend.stub(remote_addr=REMOTE_ADDR)
 
         form = forms.TOTPAuthenticationForm(
             formdata=MultiDict({"totp_value": totp_value}),
@@ -1003,7 +1021,7 @@ class TestTOTPAuthenticationForm:
     def test_totp_secret_not_valid(self, pyramid_config, totp_value, expected_error):
         user = pretend.stub(record_event=pretend.call_recorder(lambda *a, **kw: None))
         get_user = pretend.call_recorder(lambda userid: user)
-        request = pretend.stub(remote_addr="1.2.3.4")
+        request = pretend.stub(remote_addr=REMOTE_ADDR)
 
         form = forms.TOTPAuthenticationForm(
             formdata=MultiDict({"totp_value": totp_value}),
@@ -1028,7 +1046,7 @@ class TestTOTPAuthenticationForm:
     ):
         user = pretend.stub(record_event=pretend.call_recorder(lambda *a, **kw: None))
         get_user = pretend.call_recorder(lambda userid: user)
-        request = pretend.stub(remote_addr="1.2.3.4")
+        request = pretend.stub(remote_addr=REMOTE_ADDR)
 
         user_service = pretend.stub(
             check_totp_value=pretend.raiser(exception),
@@ -1163,7 +1181,7 @@ class TestReAuthenticateForm:
 
 class TestRecoveryCodeForm:
     def test_validate(self, monkeypatch):
-        request = pretend.stub(remote_addr="1.2.3.4")
+        request = pretend.stub(remote_addr=REMOTE_ADDR)
         user = pretend.stub(id=pretend.stub(), username="foobar")
         user_service = pretend.stub(
             check_recovery_code=pretend.call_recorder(lambda *a, **kw: True),
@@ -1242,12 +1260,20 @@ class TestRecoveryCodeForm:
     @pytest.mark.parametrize(
         ("input_string", "validates"),
         [
-            (" deadbeef00001111 ", True),
-            ("deadbeef00001111 ", True),
-            (" deadbeef00001111", True),
+            # Valid: no spaces
             ("deadbeef00001111", True),
+            # Valid: spaces are stripped before validation
+            ("dead beef 0000 1111", True),
+            ("deadbeef 00001111", True),
+            (" deadbeef00001111 ", True),
+            ("d e a d b e e f 0 0 0 0 1 1 1 1", True),
+            # Invalid: wrong characters
             ("wu-tang", False),
+            ("ghijklmnopqrstuv", False),
+            # Invalid: wrong length (too many hex chars after spaces removed)
             ("deadbeef00001111 deadbeef11110000", False),
+            # Invalid: too short
+            ("deadbeef", False),
         ],
     )
     def test_recovery_code_string_validation(

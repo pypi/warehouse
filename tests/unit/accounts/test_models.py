@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import datetime
 import uuid
@@ -17,14 +7,22 @@ import pytest
 
 from pyramid.authorization import Authenticated
 
-from warehouse.accounts.models import Email, RecoveryCode, User, UserFactory, WebAuthn
+from warehouse.accounts.models import (
+    Email,
+    RecoveryCode,
+    User,
+    UserFactory,
+    WebAuthn,
+)
 from warehouse.authnz import Permissions
 from warehouse.utils.security_policy import principals_for
 
 from ...common.db.accounts import (
     EmailFactory as DBEmailFactory,
+    OAuthAccountAssociationFactory as DBAccountAssociationFactory,
     UserEventFactory as DBUserEventFactory,
     UserFactory as DBUserFactory,
+    UserUniqueLoginFactory,
 )
 from ...common.db.packaging import (
     ProjectFactory as DBProjectFactory,
@@ -169,6 +167,7 @@ class TestUser:
                 "Allow",
                 "group:admins",
                 (
+                    Permissions.AdminProjectsWrite,
                     Permissions.AdminUsersRead,
                     Permissions.AdminUsersWrite,
                     Permissions.AdminUsersEmailWrite,
@@ -318,3 +317,28 @@ class TestUser:
         DBRoleFactory.create(project=project3, user=user)
 
         assert user.projects == [project2, project3, project1]
+
+    def test_account_associations_is_ordered_by_created_desc(self, db_session):
+        user = DBUserFactory.create()
+        assoc1 = DBAccountAssociationFactory.create(
+            user=user, created=datetime.datetime(2020, 1, 1)
+        )
+        assoc2 = DBAccountAssociationFactory.create(
+            user=user, created=datetime.datetime(2021, 1, 1)
+        )
+        assoc3 = DBAccountAssociationFactory.create(
+            user=user, created=datetime.datetime(2022, 1, 1)
+        )
+
+        assert user.account_associations == [assoc3, assoc2, assoc1]
+
+
+class TestUserUniqueLogin:
+    def test_repr(self, db_session):
+        unique_login = UserUniqueLoginFactory.create()
+        assert (
+            repr(unique_login)
+            == f"<UserUniqueLogin(user={unique_login.user.username!r}, "
+            f"ip_address={unique_login.ip_address!r}, "
+            f"status={unique_login.status!r})>"
+        )

@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import pretend
 import pytest
@@ -24,6 +14,9 @@ def test_includeme(forklift_domain, monkeypatch):
 
     _help_url = pretend.stub()
     monkeypatch.setattr(forklift, "_help_url", _help_url)
+
+    _user_docs_url = pretend.stub()
+    monkeypatch.setattr(forklift, "_user_docs_url", _user_docs_url)
 
     config = pretend.stub(
         get_settings=lambda: settings,
@@ -56,7 +49,10 @@ def test_includeme(forklift_domain, monkeypatch):
         ),
     ]
 
-    assert config.add_request_method.calls == [pretend.call(_help_url, name="help_url")]
+    assert config.add_request_method.calls == [
+        pretend.call(_help_url, name="help_url"),
+        pretend.call(_user_docs_url, name="user_docs_url"),
+    ]
     if forklift_domain:
         assert config.add_template_view.calls == [
             pretend.call(
@@ -65,6 +61,13 @@ def test_includeme(forklift_domain, monkeypatch):
                 "upload.html",
                 route_kw={"domain": forklift_domain},
                 view_kw={"has_translations": True},
+            ),
+            pretend.call(
+                "forklift.robots.txt",
+                "/robots.txt",
+                "forklift.robots.txt",
+                route_kw={"domain": forklift_domain},
+                view_kw={"has_translations": False},
             ),
             pretend.call(
                 "forklift.legacy.invalid_request",
@@ -90,3 +93,16 @@ def test_help_url():
     assert request.route_url.calls == [
         pretend.call("help", _host=warehouse_domain, _anchor="foo")
     ]
+
+
+def test_user_docs_url():
+    docs_domain = "http://example.com"
+    request = pretend.stub(
+        registry=pretend.stub(settings={"userdocs.domain": docs_domain}),
+    )
+
+    assert forklift._user_docs_url(request, "/foo") == f"{docs_domain}/foo"
+    assert (
+        forklift._user_docs_url(request, "/foo", anchor="bar")
+        == f"{docs_domain}/foo#bar"
+    )

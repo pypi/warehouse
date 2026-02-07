@@ -1,14 +1,5 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
+
 from webob.multidict import MultiDict
 
 from warehouse.packaging.forms import SubmitMalwareObservationForm
@@ -76,6 +67,19 @@ class TestSubmitObservationForm:
             {
                 "inspector_link": self.inspector_link,
                 "summary": "x" * 2001,
+            }
+        )
+
+        form = SubmitMalwareObservationForm(pyramid_request.POST)
+
+        assert not form.validate()
+        assert "summary" in form.errors
+
+    def test_summary_contains_html_tags(self, pyramid_request):
+        pyramid_request.POST = MultiDict(
+            {
+                "inspector_link": self.inspector_link,
+                "summary": '<img src="https://example.com/image.png">',
             }
         )
 

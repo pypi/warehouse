@@ -1,16 +1,5 @@
-{#
- # Licensed under the Apache License, Version 2.0 (the "License");
- # you may not use this file except in compliance with the License.
- # You may obtain a copy of the License at
- #
- # http://www.apache.org/licenses/LICENSE-2.0
- #
- # Unless required by applicable law or agreed to in writing, software
- # distributed under the License is distributed on an "AS IS" BASIS,
- # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- # See the License for the specific language governing permissions and
- # limitations under the License.
--#}
+{# SPDX-License-Identifier: Apache-2.0 -#}
+
 {% extends "admin/base.html" %}
 
 {% block title %}Application for {{ organization_application.name }}{% endblock %}
@@ -20,6 +9,23 @@
   <li class="breadcrumb-item active">{{ organization_application.name }}</li>
 {% endblock %}
 
+{% macro render_field(label, field, input_id, placeholder=None, class=None) %}
+<div class="form-group{% if field.errors %} has-error{% endif %}">
+  <label>
+    {{ label }}
+  </label>
+  {{ field(id=input_id, class=class, placeholder=placeholder) }}
+
+  {% if field.errors %}
+  <div class="help-block">
+  {% for error in field.errors %}
+    <div class="text-red">{{ error }}</div>
+  {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endmacro %}
+
 {% block content %}
   <div class="row">
     <div class="col-md-3">
@@ -27,6 +33,7 @@
         <div class="card-body card-widget widget-user-1">
           <div class="widget-user-header">
             <h3 class="widget-user-username text-center">{{ organization_application.name }}</h3>
+            <h6 class="widget-user-username text-center">{{ organization_application.display_name }}</h6>
           </div>
         </div>
         <div class="card-body">
@@ -41,25 +48,92 @@
           <h2 class="card-title">Actions</h2>
         </div>
         <div class="card-body">
-          <p>
-            Approve or decline request for organization named <strong>{{ organization_application.name }}</strong>?
-          </p>
           <div class="form-group">
-            <button type="button" class="btn {{ 'btn-primary' if organization_application.is_approved != True else '' }} btn-block" data-toggle="modal" data-target="#approveModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) or organization_application.is_approved == True }} title="{{ 'Admin permission required to approve organization request' if not request.has_permission(Permissions.AdminOrganizationsWrite) else 'Organization request already approved' if organization_application.is_approved == True else 'Approve organization request' }}">
+            <button
+              type="button"
+              class="btn btn-primary btn-block"
+              data-toggle="modal"
+              data-hotkey-binding=65
+              data-target="#approveModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) or organization_application.status.value in ['approved', 'declined'] }}
+              title="Approve organization request"
+            >
               <i class="icon fa fa-check"></i> Approve
             </button>
-            <button type="button" class="btn {{ 'btn-danger' if organization_application.is_approved != False else '' }} btn-block" data-toggle="modal" data-target="#declineModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) or organization_application.is_approved == False }} title="{{ 'Admin permission required to decline organization request' if not request.has_permission(Permissions.AdminOrganizationsWrite) else 'Organization request already declined' if organization_application.is_approved == False else 'Decline organization request' }}">
+
+            <button
+              type="button"
+              class="btn btn-info btn-block"
+              data-toggle="modal"
+              data-hotkey-binding=82
+              data-target="#requestMoreInfoModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) or organization_application.status.value in ['approved', 'declined'] }}
+              title="Request more information on this organization request"
+            >
+              <i class="icon fa fa-question"></i> Request Info
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-danger btn-block"
+              data-toggle="modal"
+              data-hotkey-binding=49
+              data-target="#declineModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) or organization_application.status.value in ['approved', 'declined'] }}
+              title="Decline organization request"
+            >
               <i class="icon fa fa-times"></i> Decline
             </button>
+
+            <button
+              type="button"
+              class="btn btn-secondary btn-block"
+              data-toggle="modal"
+              data-hotkey-binding=68
+              data-target="#deferModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) or organization_application.status in ['deferred', 'approved', 'declined'] }}
+              title="Defer organization request"
+            >
+              <i class="icon fa fa-stopwatch"></i> Defer
+            </button>
+
             {% if user %}
-            <div class="modal fade" id="approveModal" tabindex="-1" role="dialog">
-              <form method="POST" action="{{ request.route_path('admin.organization_application.approve', organization_application_id=organization_application.id) }}">
+            <div class="modal fade" id="editModal" tabindex="-1" role="dialog">
+              <form method="POST" action="{{ request.current_route_path() }}" id="editModalForm" class="{% if form.errors %}edit-form-errors{% endif %}">
                 <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
                 <div class="modal-dialog" role="document">
                   <div class="modal-content">
                     <div class="modal-header">
+                      <h4 class="modal-title" id="editModalLabel">
+                        Edit {{ organization_application.name }}?
+                      </h4>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      {{ render_field("Organization Display Name", form.display_name, "organization-display-name", class="form-control") }}
+                      {{ render_field("Organization Name", form.name, "organization-name", class="form-control") }}
+                      {{ render_field("Organization URL", form.link_url, "organization-link-url", class="form-control") }}
+                      {{ render_field("Organization Description", form.description, "organization-description", class="form-control") }}
+                      {{ render_field("Organization Type", form.orgtype, "organization-type", class="form-control") }}
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-warning">
+                        <i class="icon fa fa-edit"></i> Update Application
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <div class="modal fade" id="approveModal" tabindex="-1" role="dialog">
+              <form method="POST" action="{{ request.route_path('admin.organization_application.approve', organization_application_id=organization_application.id) }}">
+                <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                <input name="organization_applications_turbo_mode" type="hidden" value=0>
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
                       <h4 class="modal-title" id="approveModalLabel">
-                        Are you sure?
+                        Approve {{ organization_application.name }}?
                       </h4>
                       <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
@@ -67,17 +141,8 @@
                     </div>
                     <div class="modal-body">
                       <p>
-                        This will approve <a href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a>'s request for a new organization named <strong>{{ organization_application.name }}</strong>.
+                        This will approve <a href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a>'s request for a new organization named <strong>{{ organization_application.name }}</strong>
                       </p>
-                      <div class="form-group">
-                        <label for="approveModalOrganizationName">
-                          Organization Name
-                        </label>
-                        <input type="text" id="approveModalOrganizationName" class="form-control" aria-describedby="approveModalOrganizationNameHelpBlock" name="organization_name" placeholder="{{ organization_application.name }}" required>
-                        <span id="approveModalOrganizationNameHelpBlock">
-                          Type the organization name "{{ organization_application.name }}" to confirm you are <strong>approving</strong> the request.
-                        </span>
-                      </div>
                       <div class="form-group">
                         <label for="approveModalMessage">
                           Message
@@ -98,14 +163,131 @@
                 </div>
               </form>
             </div>
+
+            <div class="modal fade" id="deferModal" tabindex="-1" role="dialog">
+              <form method="POST" action="{{ request.route_path('admin.organization_application.defer', organization_application_id=organization_application.id) }}">
+                <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                <input name="organization_applications_turbo_mode" type="hidden" value=0>
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h4 class="modal-title" id="deferModalLabel">
+                        Defer {{ organization_application.name }}?
+                      </h4>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p>
+                        This will defer <a href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a>'s request for a new organization named <strong>{{ organization_application.name }}</strong>.
+                      </p>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-secondary">
+                        <i class="icon fa fa-stopwatch"></i> Defer organization request
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <div class="modal fade" id="requestMoreInfoModal" tabindex="-1" role="dialog">
+              <form method="POST" action="{{ request.route_path('admin.organization_application.requestmoreinfo', organization_application_id=organization_application.id) }}">
+                <div class="hidden" id="AddOrgEmailTemplate">
+                    Hello {{ organization_application.submitted_by.username }}!
+                    We'd be happy to approve this organization request,
+                    but ask that you first add an @{% with parsed = organization_application.link_url|urlparse %}{% if parsed.host %}{{ parsed.host[4:] if parsed.host.startswith('www.') else parsed.host }}{% else %}NONE{% endif %}{% endwith %}
+                    email address to your PyPI account,
+                    complete the verification,
+                    and respond using the linked form.
+                </div>
+                <div class="hidden" id="BadURLTemplate">
+                    Hello {{ organization_application.submitted_by.username }}!
+                    Upon reviewing this organization application request, we were unable to find a related organization at the provided URL ({{ organization_application.link_url  }}).
+                    Please let us know if there is an updated URL we should use instead, otherwise we will decline this request.
+                </div>
+                <div class="hidden" id="UnverifiableURLTemplate">
+                    Hello {{ organization_application.submitted_by.username }}!
+                    Upon reviewing this organization application request, we were unable to determine your affiliation with the provided URL ({{ organization_application.link_url  }}).
+                    Please let us know if there is some other way for us to verify this, otherwise we will decline this request.
+                </div>
+                <div class="hidden" id="ShouldBeCompanyTemplate">
+                    Hello {{ organization_application.submitted_by.username }}!
+                    We’re reviewing your organization request and noticed that you might be a better fit for a Company organization.
+                    We can proceed with this request, but would need to change the name to suit, "{{ organization_application.name }}-community" or "{{ organization_application.name }}-opensource".
+                    Let us know if you’d like to do that, or switch this to a Company Organization request.
+                </div>
+                <div class="hidden" id="ReasonForApplicationTemplate">
+                    Hello {{ organization_application.submitted_by.username }}!
+                    We'd be happy to approve this organization request, but we need some more information first.
+                    We noticed that you don't have an existing project on PyPI yet.
+                    Since you don't have a project already, we need to know what your reason for applying for a PyPI Org account is and how having a PyPI Org account might help you.
+                    Let us know and we will go from there, thanks!
+                </div>
+                <div class="hidden" id="GitHubAssociationTemplate">
+                    Please ensure that your membership to the GitHub organization you've linked is public,
+                    and complete an Account Association to link your PyPI and GitHub accounts at
+                    https://pypi.org/manage/account/#account-associations
+
+                    Let us know when that is complete and we can proceed with your request.
+                </div>
+                <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                <input name="organization_applications_turbo_mode" type="hidden" value=0>
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h4 class="modal-title" id="requestMoreInfoModalLabel">
+                        Request More Info for {{ organization_application.name }}?
+                      </h4>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p>
+                        This will request more information for <a href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a>'s request for a new organization named <strong>{{ organization_application.name }}</strong>.
+                      </p>
+                      <div class="form-group">
+                        <button type="button" class="btn btn-outline-primary saved-reply-button" data-template="AddOrgEmailTemplate">Add Org Email</button>
+                        <button type="button" class="btn btn-outline-primary saved-reply-button" data-template="BadURLTemplate">Bad URL</button>
+                        <button type="button" class="btn btn-outline-primary saved-reply-button" data-template="UnverifiableURLTemplate">Unverifiable URL</button>
+                        <button type="button" class="btn btn-outline-primary saved-reply-button" data-template="ShouldBeCompanyTemplate">Should Be Company</button>
+                        <button type="button" class="btn btn-outline-primary saved-reply-button" data-template="ReasonForApplicationTemplate">Reason For Application</button>
+                        <button type="button" class="btn btn-outline-primary saved-reply-button" data-template="GitHubAssociationTemplate">GitHub Organization and Association</button>
+                      </div>
+                      <div class="form-group">
+                        <label for="requestMoreInfoModalMessage">
+                          Message
+                        </label>
+                        <textarea id="requestMoreInfoModalMessage" class="form-control" name="message" placeholder="Information you are requesting" rows=8></textarea>
+                        <span id="requestMoreInfoModalMessageHelpBlock">
+                          This message will be included in the notification email.
+                        </span>
+                      </div>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-info">
+                        <i class="icon fa fa-question"></i> Request More Info
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+
             <div class="modal fade" id="declineModal" tabindex="-1" role="dialog">
               <form method="POST" action="{{ request.route_path('admin.organization_application.decline', organization_application_id=organization_application.id) }}">
                 <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                <input name="organization_applications_turbo_mode" type="hidden" value=0>
                 <div class="modal-dialog" role="document">
                   <div class="modal-content">
                     <div class="modal-header">
                       <h4 class="modal-title" id="declineModalLabel">
-                        Are you sure?
+                        Decline {{ organization_application.name }}?
                       </h4>
                       <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
@@ -115,15 +297,6 @@
                       <p>
                         This will decline <a href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a>'s request for a new organization named <strong>{{ organization_application.name }}</strong>.
                       </p>
-                      <div class="form-group">
-                        <label for="declineModalOrganizationName">
-                          Organization Name
-                        </label>
-                        <input type="text" id="declineModalOrganizationName" class="form-control" aria-describedby="declineModalOrganizationNameHelpBlock" name="organization_name" placeholder="{{ organization_application.name }}" required>
-                        <span id="declineModalOrganizationNameHelpBlock">
-                          Type the organization name "{{ organization_application.name }}" to confirm you are <strong>declining</strong> the request.
-                        </span>
-                      </div>
                       <div class="form-group">
                         <label for="declineModalMessage">
                           Message
@@ -144,82 +317,226 @@
                 </div>
               </form>
             </div>
+
             {% endif %}
           </div>
+          <div class="form-group">
+            <div class="custom-control custom-switch">
+              <input type="checkbox" class="custom-control-input" id="organizationApplicationTurboMode">
+              <label class="custom-control-label" for="organizationApplicationTurboMode">Turbo Mode</label>
+            </div>
+          </div>
+          {% if request.has_permission(Permissions.AdminOrganizationsWrite) %}
+          <div class="form-group">
+            <button
+              type="button"
+              class="btn btn-warning btn-block"
+              id="editModalButton"
+              data-toggle="modal"
+              data-target="#editModal" {{ 'disabled' if organization_application.status.value in ['approved', 'declined'] }}
+              title="Edit organization request"
+            >
+              <i class="fa-solid fa-pen-to-square"></i> Edit
+            </button>
+          </div>
+          {% endif %}
         </div>
       </div>
     </div>
 
-    <div class="col-md-9">
+    {% set information_requests = organization_application.information_requests %}
+    {% set outstanding_information_requests = organization_application.information_requests|selectattr("additional", "defined")|map(attribute="additional")|selectattr("response", "undefined")|list %}
+    <div class="col-md-7 col-lg-6">
       <div class="card">
         <div class="card-header with-border">
-          <h3 class="card-title">Organization Request</h3>
+          <h3 class="card-title">Organization Request{% if information_requests %}{% if outstanding_information_requests %}  <i class="fa-solid fa-envelope text-info"></i>{% else %}  <i class="fa-solid fa-envelope-open text-green"></i><i class="fa-solid fa-reply text-green"></i>{% endif %}{% endif %}
+                - {{ organization_application.status.name }}
+          </h3>
         </div>
         <div class="card-body">
           <div class="form-horizontal">
             <div class="form-group">
-              <label class="col-sm-5 control-label">
-                Approval Status
+              <label class="col-12 control-label">
+                Applicant
               </label>
-              <div class="col-sm-7">
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="col-sm-5 control-label">
-                Requesting User
-              </label>
-              <div class="col-sm-7">
+              <div class="col-12">
                 {% if user %}
                 <a href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a><br>
-                <a href="mailto:{{ user.email }}">{{ user.email }} <i class="fa-solid fa-envelope"></i></a>
+                {% for email in user.emails %}
+                <i class="fa-solid fa-envelope"></i> <a href="mailto:{{ email.email }}">{{ email.email }}</a> {% if email.primary %}(primary){% endif %} {% if email.verified %}<i class="fa fa-check text-green"></i>{% else %}<i class="fa fa-times text-red"></i>{% endif %}<br>
+                {% endfor %}
+
+                {% if user.account_associations %}
+                  {% for association in user.account_associations %}
+                    {% if association.service == 'github' %}
+                      <i class="fa-brands fa-github"></i>
+                      <a href="https://github.com/{{ association.external_username }}" target="_blank" rel="noopener">
+                        {{ association.external_username }}
+                      </a>
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
                 {% else %}
                 <i>n/a</i>
                 {% endif %}
               </div>
             </div>
             <div class="form-group">
-              <label class="col-sm-5 control-label">
+              <label class="col-12 control-label">
                 Organization Account Name
               </label>
-              <div class="col-sm-7">
+              <div class="col-12">
                 <input class="form-control" value="{{ organization_application.name }}" readonly>
               </div>
             </div>
+            {% if conflicting_applications %}
             <div class="form-group">
-              <label class="col-sm-5 control-label">
+              <label class="col-12 control-label">
+                Conflicting Applications <i class="fa fa-clipboard-question text-orange"></i>
+              </label>
+              <div class="col-12">
+                <table class="table">
+                  <tr><th>Application</th><th>Status</th><th>Submitted</th><th>Requestor</th></tr>
+                  {% for application in conflicting_applications %}
+                    <tr>
+                      <td>
+                        {% if application.normalized_name == organization_application.normalized_name %}<i class="fa fa-equals text-red"></i>{% endif %}
+                        <a target="_blank" href="{{ request.route_url('admin.organization_application.detail', organization_application_id=application.id) }}">{{ application.name }}</a>
+                      </td>
+                      <td>{{ application.status }}</td>
+                      <td>{{ application.submitted|format_date() }}</td>
+                      <td><a target="_blank" href="{{ request.route_url('admin.user.detail', username=application.submitted_by.username) }}">{{ application.submitted_by.username }}</a></td>
+                    </tr>
+                  {% endfor %}
+                </table>
+              </div>
+            </div>
+            {% endif %}
+            <div class="form-group">
+              <label class="col-12 control-label">
                 Organization Name
               </label>
-              <div class="col-sm-7">
+              <div class="col-12">
                 <input class="form-control" value="{{ organization_application.display_name }}" readonly>
               </div>
             </div>
             <div class="form-group">
-              <label class="col-sm-5 control-label">
+              <label class="col-12 control-label">
                 Organization URL <i class="fa-solid fa-arrow-up-right-from-square"></i>
               </label>
-              <div class="col-sm-7">
-                <a href="{{ organization_application.link_url }}" rel="nofollow noopener noreferrer" target="_blank"><input class="form-control" value="{{ organization_application.link_url }}" readonly></a>
+              <div class="col-12">
+                <a href="{{ organization_application.link_url }}" rel="nofollow noopener noreferrer" target="_blank" data-check-link-url="{{ request.camo_url(organization_application.link_url) }}"><input class="form-control" value="{{ organization_application.link_url }}" readonly></a>
               </div>
             </div>
             <div class="form-group">
-              <label class="col-sm-5 control-label">
+              <label class="col-12 control-label">
+                Organization Type
+              </label>
+              <div class="col-12">
+                <input class="form-control" value="{{ organization_application.orgtype.value }}" readonly>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-12 control-label">
                 Organization Description
               </label>
-              <div class="col-sm-7">
+              <div class="col-12">
                 <textarea class="form-control" rows="4" readonly>{{ organization_application.description }}</textarea>
               </div>
             </div>
             <div class="form-group">
-              <label class="col-sm-5 control-label">
-                Organization Type
+              <label class="col-12 control-label">
+                Organization Membership Size
               </label>
-              <div class="col-sm-7">
-                <input class="form-control" value="{{ organization_application.orgtype.value }}" readonly>
+              <div class="col-12">
+                <input class="form-control" value="{{ organization_application.membership_size.value }}" readonly>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-12 control-label">
+                Anticipated Usage
+              </label>
+              <div class="col-12">
+                <input class="form-control" value="{{ organization_application.usage }}" readonly>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+    <div class="col-md-2 col-lg-3">
+      <div class="card">
+        <div class="card-header with-border">
+          <h4 class="card-title">User Organizations</h4>
+        </div>
+        <div class="card-body">
+          {% for organization_role in user.organization_roles|sort(attribute='role_name.value', reverse=True) %}
+          <div><a href="{{ request.route_path('admin.organization.detail', organization_id=organization_role.organization.id) }}">{{ organization_role.organization.name }}</a> - {{ organization_role.role_name.value }}</div>
+          {% else %}
+          <i>none!</i>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header with-border">
+          <h4 class="card-title">User Organization Applications</h4>
+        </div>
+        <div class="card-body">
+          {% for org_app in user.organization_applications|sort(attribute='status', reverse=True)|rejectattr('status', 'equalto', 'approved') %}
+          <div><a href="{{ request.route_path('admin.organization_application.detail', organization_application_id=org_app.id) }}">{{ org_app.name }}</a> - {{ org_app.status }}</div>
+          {% else %}
+          <i>none!</i>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header with-border">
+          <h4 class="card-title">User Projects</h4>
+        </div>
+        <div class="card-body">
+          {% for project in user.projects|sort(attribute='name') %}
+          <div><a href="{{ request.route_path('admin.project.detail', project_name=project.normalized_name) }}">{{ project.name }}</a></div>
+          {% else %}
+          <i>none!</i>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <div class="col-md-9 col-lg-6 offset-md-3">
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Information Requests</h3>
+        </div>
+        <div class="card-body">
+        {% for information_request in information_requests|reverse %}
+        <div class="card {% if information_request.additional.response %}card-neutral{% else %}card-warning{% endif %} direct-chat direct-chat-primary"</div>
+          <div class="card-body">
+            <div class="direct-chat-messages unset-height">
+              <div class="direct-chat-msg">
+                <div class="direct-chat-infos clearfix">
+                  <span class="direct-chat-name float-left">{{ information_request.observer.parent.username }} (PyPI)</span>
+                  <span class="direct-chat-timestamp float-right">{{ information_request.created|format_datetime }}</span>
+                </div>
+                <img class="direct-chat-img" src="{{ gravatar(request, information_request.observer.parent.email, size=128) }}" alt="Message User Image">
+                <div class="direct-chat-text preserve-line-breaks">{{ information_request.payload.message }}</div>
+              </div>
+              {% if information_request.additional.response %}
+              <div class="direct-chat-msg right">
+                <div class="direct-chat-infos clearfix">
+                  <span class="direct-chat-name float-right">{{ organization_application.submitted_by.username }}</span>
+                  <span class="direct-chat-timestamp float-left">{{ information_request.additional.response_time|parse_isoformat|format_datetime }}</span>
+                </div>
+                <img class="direct-chat-img" src="{{ gravatar(request, organization_application.submitted_by.email, size=128) }}" alt="Message User Image">
+                <div class="direct-chat-text preserve-line-breaks">{{ information_request.additional.response }}</div>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+        </div>
+      </div>
+    </div>
+
   </div>
 {% endblock %}

@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import pretend
 import pytest
@@ -33,11 +23,7 @@ class TestProjectDetail:
     def test_normalizing_redirects(self, db_request):
         project = ProjectFactory.create()
 
-        name = project.name.lower()
-        if name == project.name:
-            name = project.name.upper()
-
-        db_request.matchdict = {"name": name}
+        db_request.matchdict = {"name": project.name.swapcase()}
         db_request.current_route_path = pretend.call_recorder(
             lambda name: "/project/the-redirect/"
         )
@@ -141,11 +127,7 @@ class TestReleaseDetail:
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="3.0")
 
-        name = release.project.name.lower()
-        if name == release.project.name:
-            name = release.project.name.upper()
-
-        db_request.matchdict = {"name": name}
+        db_request.matchdict = {"name": project.name.swapcase()}
         db_request.current_route_path = pretend.call_recorder(
             lambda name: "/project/the-redirect/3.0/"
         )
@@ -232,6 +214,14 @@ class TestReleaseDetail:
             ],
             "maintainers": sorted(users, key=lambda u: u.username.lower()),
             "license": None,
+            "PEP740AttestationViewer": views.PEP740AttestationViewer,
+            "wheel_filters_all": {"interpreters": [], "abis": [], "platforms": []},
+            "wheel_filters_params": {
+                "filename": "",
+                "interpreters": "",
+                "abis": "",
+                "platforms": "",
+            },
         }
 
     def test_detail_renders_files_natural_sort(self, db_request):
@@ -242,17 +232,27 @@ class TestReleaseDetail:
         files = [
             FileFactory.create(
                 release=release,
-                filename=f"{project.name}-{release.version}-{py_ver}.whl",
+                filename="-".join(
+                    [project.name, release.version, py_ver, py_abi, py_platform]
+                )
+                + ".whl",
                 python_version="py2.py3",
                 packagetype="bdist_wheel",
             )
             for py_ver in ["cp27", "cp310", "cp39"]  # intentionally out of order
+            for py_abi in ["none"]
+            for py_platform in ["any"]
         ]
         sorted_files = natsorted(files, reverse=True, key=lambda f: f.filename)
 
         result = views.release_detail(release, db_request)
 
         assert result["files"] == sorted_files
+        assert [file.wheel_filters for file in result["files"]] == [
+            {"interpreters": ["cp310"], "abis": ["none"], "platforms": ["any"]},
+            {"interpreters": ["cp39"], "abis": ["none"], "platforms": ["any"]},
+            {"interpreters": ["cp27"], "abis": ["none"], "platforms": ["any"]},
+        ]
 
     def test_license_from_classifier(self, db_request):
         """A license label is added when a license classifier exists."""
@@ -324,12 +324,128 @@ class TestReleaseDetail:
         )
 
 
-class TestReportMalwareButton:
-    def test_report_malware_button(self):
-        project = pretend.stub()
-        assert views.includes_submit_malware_observation(project, pretend.stub()) == {
-            "project": project
-        }
+class TestPEP740AttestationViewer:
+
+    @pytest.fixture
+    def gitlab_attestation(self, gitlab_provenance):
+        return gitlab_provenance.attestation_bundles[0].attestations[0]
+
+    @pytest.fixture
+    def github_attestation(self, github_provenance):
+        return github_provenance.attestation_bundles[0].attestations[0]
+
+    def test_github_pep740(self, github_attestation):
+        github_publisher = pretend.stub(
+            kind="GitHub",
+            workflow=".github/workflows/release.yml",
+        )
+
+        viewer = views.PEP740AttestationViewer(
+            publisher=github_publisher,
+            attestation=github_attestation,
+        )
+
+        assert viewer.statement_type == "https://in-toto.io/Statement/v1"
+        assert viewer.predicate_type == "https://docs.pypi.org/attestations/publish/v1"
+        assert viewer.subject_name == "sampleproject-4.0.0.tar.gz"
+        assert (
+            viewer.subject_digest
+            == "0ace7980f82c5815ede4cd7bf9f6693684cec2ae47b9b7ade9add533b8627c6b"
+        )
+        assert viewer.transparency_entry["integratedTime"] == "1730932627"
+
+        assert viewer.repository_url == "https://github.com/pypa/sampleproject"
+        assert viewer.workflow_filename == ".github/workflows/release.yml"
+        assert viewer.workflow_url == (
+            "https://github.com/pypa/sampleproject/blob/"
+            "621e4974ca25ce531773def586ba3ed8e736b3fc/"
+            ".github/workflows/release.yml"
+        )
+        assert viewer.build_digest == "621e4974ca25ce531773def586ba3ed8e736b3fc"
+
+        assert viewer.issuer == "https://token.actions.githubusercontent.com"
+        assert viewer.environment == "github-hosted"
+
+        assert viewer.source == "https://github.com/pypa/sampleproject"
+        assert viewer.source_digest == "621e4974ca25ce531773def586ba3ed8e736b3fc"
+        assert viewer.source_reference == "refs/heads/main"
+        assert viewer.owner == "https://github.com/pypa"
+
+        assert viewer.trigger == "push"
+        assert viewer.access == "public"
+
+        assert viewer.permalink_with_digest == (
+            "https://github.com/pypa/sampleproject/tree/"
+            "621e4974ca25ce531773def586ba3ed8e736b3fc"
+        )
+        assert (
+            viewer.permalink_with_reference
+            == "https://github.com/pypa/sampleproject/tree/refs/heads/main"
+        )
+
+    def test_gitlab_pep740(self, gitlab_attestation):
+        gitlab_publisher = pretend.stub(
+            kind="GitLab",
+            workflow_filepath=".gitlab-ci.yml",
+        )
+
+        viewer = views.PEP740AttestationViewer(
+            publisher=gitlab_publisher,
+            attestation=gitlab_attestation,
+        )
+
+        assert viewer.statement_type == "https://in-toto.io/Statement/v1"
+        assert viewer.predicate_type == "https://docs.pypi.org/attestations/publish/v1"
+        assert viewer.subject_name == "pep740_sampleproject-1.0.0.tar.gz"
+        assert (
+            viewer.subject_digest
+            == "6cdd4a1a0a49aeef47265e7bf8ec1667257b397d34d731dc7b7af349deca1cd8"
+        )
+        assert viewer.transparency_entry["integratedTime"] == "1732724143"
+
+        assert (
+            viewer.repository_url == "https://gitlab.com/pep740-example/sampleproject"
+        )
+        assert viewer.workflow_filename == ".gitlab-ci.yml"
+        assert viewer.workflow_url == (
+            "https://gitlab.com/pep740-example/sampleproject/blob/"
+            "0b706bbf1b50e7266b33762568566d6ec0f76d69//.gitlab-ci.yml"
+        )
+        assert viewer.build_digest == "0b706bbf1b50e7266b33762568566d6ec0f76d69"
+
+        assert viewer.issuer == "https://gitlab.com"
+        assert viewer.environment == "gitlab-hosted"
+
+        assert viewer.source == "https://gitlab.com/pep740-example/sampleproject"
+        assert viewer.source_digest == "0b706bbf1b50e7266b33762568566d6ec0f76d69"
+        assert viewer.source_reference == "refs/heads/main"
+        assert viewer.owner == "https://gitlab.com/pep740-example"
+
+        assert viewer.trigger == "push"
+        assert viewer.access == "private"
+
+        assert viewer.permalink_with_digest == (
+            "https://gitlab.com/pep740-example/sampleproject/-/tree/"
+            "0b706bbf1b50e7266b33762568566d6ec0f76d69"
+        )
+        assert (
+            viewer.permalink_with_reference
+            == "https://gitlab.com/pep740-example/sampleproject/-/tree/main"
+        )
+
+    def test_unknown_publisher(self, github_attestation):
+        viewer = views.PEP740AttestationViewer(
+            publisher=pretend.stub(
+                kind="Unknown",
+            ),
+            attestation=pretend.stub(certificate_claims={}),
+        )
+
+        assert viewer.workflow_filename == ""
+        assert (
+            viewer._format_url("https://example.com", "refs/heads/main")
+            == "https://example.com/refs/heads/main"
+        )
 
 
 class TestProjectSubmitMalwareObservation:

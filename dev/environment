@@ -5,6 +5,10 @@ WAREHOUSE_ENV=development
 WAREHOUSE_TOKEN=insecuretoken
 WAREHOUSE_IP_SALT="insecure himalayan pink salt"
 
+USERDOCS_DOMAIN="http://localhost:10000"
+
+TERMS_NOTIFICATION_BATCH_SIZE=0
+
 AWS_ACCESS_KEY_ID=foo
 AWS_SECRET_ACCESS_KEY=foo
 
@@ -20,8 +24,8 @@ SESSION_SECRET="an insecure development secret"
 # Use Stripe billing service with test keys for development.
 # See Stripe Dashboard for keys. https://dashboard.stripe.com/apikeys
 # See Stripe Docs for more information. https://stripe.com/docs/keys
-BILLING_BACKEND=warehouse.subscriptions.services.MockStripeBillingService api_base=http://stripe:12111 api_version=2020-08-27
-# BILLING_BACKEND=warehouse.subscriptions.services.StripeBillingService api_version=2020-08-27 publishable_key=pk_test_123 secret_key=sk_test_123 webhook_key=whsec_123
+BILLING_BACKEND=warehouse.subscriptions.services.MockStripeBillingService api_base=http://stripe:12111 api_version=2020-08-27 domain=localhost
+# BILLING_BACKEND=warehouse.subscriptions.services.StripeBillingService api_version=2020-08-27 publishable_key=pk_test_123 secret_key=sk_test_123 webhook_key=whsec_123 domain=localhost
 
 CAMO_URL={request.scheme}://{request.domain}:9000/
 CAMO_KEY=insecurecamokey
@@ -47,6 +51,11 @@ BREACHED_PASSWORDS=warehouse.accounts.NullPasswordBreachedService
 OIDC_BACKEND=warehouse.oidc.services.NullOIDCPublisherService
 INTEGRITY_BACKEND=warehouse.attestations.services.NullIntegrityService
 
+# Use NullGitHubOAuthClient for local development (no GitHub App needed)
+GITHUB_OAUTH_BACKEND=warehouse.accounts.oauth.NullGitHubOAuthClient
+# For real GitHub App integration, uncomment and configure:
+# GITHUB_OAUTH_BACKEND=warehouse.accounts.oauth.GitHubAppClient client_id=Iv2.your_client_id client_secret=your_client_secret
+
 METRICS_BACKEND=warehouse.metrics.DataDogMetrics host=notdatadog
 
 STATUSPAGE_URL=https://2p66nmmycsj3.statuspage.io
@@ -55,6 +64,7 @@ TOKEN_PASSWORD_SECRET="an insecure password reset secret key"
 TOKEN_EMAIL_SECRET="an insecure email verification secret key"
 TOKEN_TWO_FACTOR_SECRET="an insecure two-factor auth secret key"
 TOKEN_REMEMBER_DEVICE_SECRET="an insecure remember device auth secret key"
+TOKEN_CONFIRM_LOGIN_SECRET="an insecure confirm login auth secret key"
 
 WAREHOUSE_LEGACY_DOMAIN=pypi.python.org
 
@@ -77,10 +87,16 @@ HCAPTCHA_SECRET_KEY=0x0000000000000000000000000000000000000000
 # HCAPTCHA_SITE_KEY=30000000-ffff-ffff-ffff-000000000003
 
 # Example of Captcha backend configuration
-# CAPTCHA_BACKEND=warehouse.captcha.hcaptcha.Service
+CAPTCHA_BACKEND=warehouse.captcha.hcaptcha.Service
 
 # Example of HelpScout configuration
 # HELPSCOUT_WAREHOUSE_APP_ID="an insecure helpscout app id"
 # HELPSCOUT_WAREHOUSE_APP_SECRET="an insecure helpscout app secret"
 # HELPSCOUT_WAREHOUSE_MAILBOX_ID=123456789
 HELPDESK_BACKEND="warehouse.helpdesk.services.ConsoleHelpDeskService"
+
+# HELPDESK_NOTIFICATION_SERVICE_URL="https://..."
+HELPDESK_NOTIFICATION_BACKEND="warehouse.helpdesk.services.ConsoleAdminNotificationService"
+
+# Example of Domain Status configuration
+# DOMAIN_STATUS_BACKEND="warehouse.accounts.services.DomainrDomainStatusService client_id=some_client_id"

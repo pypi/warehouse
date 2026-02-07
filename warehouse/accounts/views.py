@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import datetime
 import hashlib
@@ -19,6 +9,7 @@ import humanize
 import pytz
 
 from more_itertools import first_true
+from psycopg.errors import UniqueViolation
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPMovedPermanently,
@@ -30,6 +21,7 @@ from pyramid.httpexceptions import (
 from pyramid.interfaces import ISecurityPolicy
 from pyramid.security import forget, remember
 from pyramid.view import view_config, view_defaults
+from sqlalchemy import and_, func, select
 from sqlalchemy.exc import NoResultFound
 from webauthn.helpers import bytes_to_base64url
 from webob.multidict import MultiDict
@@ -58,7 +50,14 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
     TooManyPasswordResetRequests,
 )
-from warehouse.accounts.models import Email, User
+from warehouse.accounts.models import (
+    Email,
+    TermsOfServiceEngagement,
+    UniqueLoginStatus,
+    User,
+    UserUniqueLogin,
+)
+from warehouse.accounts.utils import update_email_domain_status
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.authnz import Permissions
 from warehouse.cache.origin import origin_cache
@@ -73,6 +72,7 @@ from warehouse.email import (
     send_organization_member_invite_declined_email,
     send_password_change_email,
     send_password_reset_email,
+    send_password_reset_unverified_email,
     send_recovery_code_reminder_email,
 )
 from warehouse.events.tags import EventTag
@@ -86,6 +86,7 @@ from warehouse.oidc.forms import (
 )
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.oidc.models import (
+    GITLAB_OIDC_ISSUER_URL,
     PendingActiveStatePublisher,
     PendingGitHubPublisher,
     PendingGitLabPublisher,
@@ -94,10 +95,11 @@ from warehouse.oidc.models import (
 )
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import OrganizationRole, OrganizationRoleType
+from warehouse.packaging.interfaces import IProjectService
 from warehouse.packaging.models import (
     JournalEntry,
+    LifecycleStatus,
     Project,
-    ProjectFactory,
     Release,
     Role,
     RoleInvitation,
@@ -107,6 +109,7 @@ from warehouse.utils.http import is_safe_url
 
 USER_ID_INSECURE_COOKIE = "user_id__insecure"
 REMEMBER_DEVICE_COOKIE = "remember_device"
+PHISHABLE_METHODS = {"totp", "recovery-code"}
 
 
 @view_config(context=TooManyFailedLogins, has_translations=True)
@@ -158,7 +161,7 @@ def incomplete_password_resets(exc, request):
 @view_config(
     route_name="accounts.profile",
     context=User,
-    renderer="accounts/profile.html",
+    renderer="warehouse:templates/accounts/profile.html",
     decorator=[
         origin_cache(1 * 24 * 60 * 60, stale_if_error=1 * 24 * 60 * 60)  # 1 day each.
     ],
@@ -168,20 +171,74 @@ def profile(user, request):
     if user.username != request.matchdict.get("username", user.username):
         return HTTPMovedPermanently(request.current_route_path(username=user.username))
 
-    projects = (
-        request.db.query(Project)
-        .filter(Project.users.contains(user))
-        .join(Project.releases)
+    # Query only for the necessary data that the template needs
+    # Subquery to get the latest release date for each project associated with the user
+    latest_releases_subquery = (
+        select(
+            Release.project_id, func.max(Release.created).label("latest_release_date")
+        )
+        .join(Role, Release.project_id == Role.project_id)
+        .where(Role.user_id == user.id)
+        .group_by(Release.project_id)
+        .subquery()
+    )
+    # Main query to select the latest releases
+    stmt = (
+        select(
+            Project.name,
+            Project.normalized_name,
+            Project.lifecycle_status,
+            Release.created,
+            Release.summary,
+        )
+        .join(Role, Project.id == Role.project_id)
+        .join(
+            latest_releases_subquery,
+            Project.id == latest_releases_subquery.c.project_id,
+        )
+        .outerjoin(
+            Release,
+            and_(
+                Release.project_id == latest_releases_subquery.c.project_id,
+                Release.created == latest_releases_subquery.c.latest_release_date,
+            ),
+        )
+        .where(Role.user_id == user.id)
+        .distinct()
         .order_by(Release.created.desc())
-        .all()
     )
 
-    return {"user": user, "projects": projects}
+    # Construct the list of projects with their latest releases from query results
+    archived_projects = []
+    live_projects = []
+
+    for row in request.db.execute(stmt):
+        project = {
+            "name": row.name,
+            "normalized_name": row.normalized_name,
+            "lifecycle_status": row.lifecycle_status,
+            "created": row.created,
+            "summary": row.summary,
+        }
+
+        if row.lifecycle_status in [
+            LifecycleStatus.Archived,
+            LifecycleStatus.ArchivedNoindex,
+        ]:
+            archived_projects.append(project)
+        else:
+            live_projects.append(project)
+
+    return {
+        "user": user,
+        "live_projects": live_projects,
+        "archived_projects": archived_projects,
+    }
 
 
 @view_config(
     route_name="accounts.search",
-    renderer="api/account_search.html",
+    renderer="warehouse:templates/api/account_search.html",
     uses_session=True,
 )
 def accounts_search(request) -> dict[str, list[User]]:
@@ -219,7 +276,7 @@ def accounts_search(request) -> dict[str, list[User]]:
 
 @view_config(
     route_name="accounts.login",
-    renderer="accounts/login.html",
+    renderer="warehouse:templates/accounts/login.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -253,8 +310,9 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
 
             # If the user has enabled two-factor authentication and they do not have
             # a valid saved device.
+            _two_factor_remembered = _check_remember_device_token(request, userid)
             two_factor_required = user_service.has_two_factor(userid) and (
-                not _check_remember_device_token(request, userid)
+                not _two_factor_remembered
             )
             if two_factor_required:
                 two_factor_data = {"userid": userid}
@@ -277,29 +335,25 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
                 ):
                     redirect_to = request.route_path("manage.projects")
 
+                # Construct necessary two_factor information
+                two_factor_method = (
+                    "remembered-device" if _two_factor_remembered else None
+                )
+                two_factor_label = two_factor_method
+
                 # Actually perform the login routine for our user.
-                headers = _login_user(request, userid)
+                _login_user(
+                    request,
+                    userid,
+                    two_factor_method,
+                    two_factor_label=two_factor_label,
+                )
 
                 # Now that we're logged in we'll want to redirect the user to
                 # either where they were trying to go originally, or to the default
                 # view.
-                resp = HTTPSeeOther(redirect_to, headers=dict(headers))
-
-                # We'll use this cookie so that client side javascript can
-                # Determine the actual user ID (not username, user ID). This is
-                # *not* a security sensitive context and it *MUST* not be used
-                # where security matters.
-                #
-                # We'll also hash this value just to avoid leaking the actual User
-                # IDs here, even though it really shouldn't matter.
-                resp.set_cookie(
-                    USER_ID_INSECURE_COOKIE,
-                    hashlib.blake2b(
-                        str(userid).encode("ascii"), person=b"warehouse.userid"
-                    )
-                    .hexdigest()
-                    .lower(),
-                )
+                resp = HTTPSeeOther(redirect_to)
+                _set_userid_insecure_cookie(resp, userid)
 
             return resp
 
@@ -311,7 +365,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
 
 @view_config(
     route_name="accounts.two-factor",
-    renderer="accounts/two-factor.html",
+    renderer="warehouse:templates/accounts/two-factor.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -356,25 +410,26 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
     if request.method == "POST":
         form = two_factor_state["totp_form"]
         if form.validate():
-            two_factor_method = "totp"
-            _login_user(request, userid, two_factor_method, two_factor_label="totp")
-            user_service.update_user(userid, last_totp_value=form.totp_value.data)
+            if user_service.device_is_known(userid, request):
+                # We've seen this device before for this user and they've
+                # confirmed it, log in the user
+                two_factor_method = "totp"
+                _login_user(request, userid, two_factor_method, two_factor_label="totp")
+                user_service.update_user(userid, last_totp_value=form.totp_value.data)
 
-            resp = HTTPSeeOther(redirect_to)
-            resp.set_cookie(
-                USER_ID_INSECURE_COOKIE,
-                hashlib.blake2b(str(userid).encode("ascii"), person=b"warehouse.userid")
-                .hexdigest()
-                .lower(),
-            )
+                resp = HTTPSeeOther(redirect_to)
+                _set_userid_insecure_cookie(resp, userid)
 
-            if not two_factor_state.get("has_recovery_codes", False):
-                send_recovery_code_reminder_email(request, request.user)
+                if not two_factor_state.get("has_recovery_codes", False):
+                    send_recovery_code_reminder_email(request, request.user)
 
-            if form.remember_device.data:
-                _remember_device(request, resp, userid, two_factor_method)
+                if form.remember_device.data:
+                    _remember_device(request, resp, userid, two_factor_method)
 
-            return resp
+                return resp
+            else:
+                # The devices is unknown, redirect to the confirm login page
+                return HTTPSeeOther(request.route_path("accounts.confirm-login"))
         else:
             form.totp_value.data = ""
 
@@ -455,13 +510,7 @@ def webauthn_authentication_validate(request):
 
         two_factor_method = "webauthn"
         _login_user(request, userid, two_factor_method, two_factor_label=webauthn.label)
-
-        request.response.set_cookie(
-            USER_ID_INSECURE_COOKIE,
-            hashlib.blake2b(str(userid).encode("ascii"), person=b"warehouse.userid")
-            .hexdigest()
-            .lower(),
-        )
+        _set_userid_insecure_cookie(request.response, userid)
 
         if not request.user.has_recovery_codes:
             send_recovery_code_reminder_email(request, request.user)
@@ -476,6 +525,22 @@ def webauthn_authentication_validate(request):
 
     errors = [str(error) for error in form.credential.errors]
     return {"fail": {"errors": errors}}
+
+
+def _set_userid_insecure_cookie(resp, userid):
+    # We'll use this cookie so that client side javascript can
+    # Determine the actual user ID (not username, user ID). This is
+    # *not* a security sensitive context and it *MUST* not be used
+    # where security matters.
+    #
+    # We'll also hash this value just to avoid leaking the actual User
+    # IDs here, even though it really shouldn't matter.
+    resp.set_cookie(
+        USER_ID_INSECURE_COOKIE,
+        hashlib.blake2b(str(userid).encode("ascii"), person=b"warehouse.userid")
+        .hexdigest()
+        .lower(),
+    )
 
 
 def _check_remember_device_token(request, user_id) -> bool:
@@ -521,7 +586,7 @@ def _remember_device(request, response, userid, two_factor_method) -> None:
 
 @view_config(
     route_name="accounts.recovery-code",
-    renderer="accounts/recovery-code.html",
+    renderer="warehouse:templates/accounts/recovery-code.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -540,6 +605,7 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
         return HTTPSeeOther(request.route_path("accounts.login"))
 
     userid = two_factor_data.get("userid")
+    redirect_to = two_factor_data.get("redirect_to")
 
     user_service = request.find_service(IUserService, context=None)
 
@@ -549,30 +615,32 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
 
     if request.method == "POST":
         if form.validate():
-            _login_user(request, userid, two_factor_method="recovery-code")
+            if user_service.device_is_known(userid, request):
+                # We've seen this device before for this user and they've
+                # confirmed it, log in the user
+                _login_user(request, userid, two_factor_method="recovery-code")
 
-            resp = HTTPSeeOther(request.route_path("manage.account"))
-            resp.set_cookie(
-                USER_ID_INSECURE_COOKIE,
-                hashlib.blake2b(str(userid).encode("ascii"), person=b"warehouse.userid")
-                .hexdigest()
-                .lower(),
-            )
+                user = user_service.get_user(userid)
+                user.record_event(
+                    tag=EventTag.Account.RecoveryCodesUsed,
+                    request=request,
+                )
 
-            user = user_service.get_user(userid)
-            user.record_event(
-                tag=EventTag.Account.RecoveryCodesUsed,
-                request=request,
-            )
+                request.session.flash(
+                    request._(
+                        "Recovery code accepted. "
+                        "The supplied code cannot be used again."
+                    ),
+                    queue="success",
+                )
 
-            request.session.flash(
-                request._(
-                    "Recovery code accepted. The supplied code cannot be used again."
-                ),
-                queue="success",
-            )
+                resp = HTTPSeeOther(redirect_to)
+                _set_userid_insecure_cookie(resp, userid)
 
-            return resp
+                return resp
+            else:
+                # The devices is unknown, redirect to the confirm login page
+                return HTTPSeeOther(request.route_path("accounts.confirm-login"))
         else:
             form.recovery_code_value.data = ""
 
@@ -581,7 +649,7 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
 
 @view_config(
     route_name="accounts.logout",
-    renderer="accounts/logout.html",
+    renderer="warehouse:templates/accounts/logout.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -642,7 +710,7 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
 
 @view_config(
     route_name="accounts.register",
-    renderer="accounts/register.html",
+    renderer="warehouse:templates/accounts/register.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -690,6 +758,11 @@ def register(request, _form_class=RegistrationForm):
         user = user_service.create_user(
             form.username.data, form.full_name.data, form.new_password.data
         )
+        user_service.record_tos_engagement(
+            user.id,
+            request.registry.settings.get("terms.revision"),
+            TermsOfServiceEngagement.Agreed,
+        )
         email = user_service.add_email(user.id, form.email.data, primary=True)
         user.record_event(
             tag=EventTag.Account.AccountCreate,
@@ -700,16 +773,18 @@ def register(request, _form_class=RegistrationForm):
         send_email_verification_email(request, (user, email))
         email_limiter.hit(user.id)
 
-        return HTTPSeeOther(
-            request.route_path("index"), headers=dict(_login_user(request, user.id))
-        )
+        _login_user(request, user.id)
+        resp = HTTPSeeOther(request.route_path("index"))
+        _set_userid_insecure_cookie(resp, user.id)
+
+        return resp
 
     return {"form": form}
 
 
 @view_config(
     route_name="accounts.request-password-reset",
-    renderer="accounts/request-password-reset.html",
+    renderer="warehouse:templates/accounts/request-password-reset.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -722,19 +797,43 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
     user_service = request.find_service(IUserService, context=None)
     form = _form_class(request.POST, user_service=user_service)
     if request.method == "POST" and form.validate():
-        user = user_service.get_user_by_username(form.username_or_email.data)
+        form_field_input = form.username_or_email.data
 
-        if user is None:
-            user = user_service.get_user_by_email(form.username_or_email.data)
-        if user is not None:
-            email = first_true(
-                user.emails, pred=lambda e: e.email == form.username_or_email.data
-            )
+        requested_email = None
+        user = user_service.get_user_by_username(form_field_input)
+
+        if user:
+            requested_email = user.primary_email
         else:
+            if user := user_service.get_user_by_email(form_field_input):
+                requested_email = first_true(
+                    user.emails,
+                    pred=lambda e: e.email == form_field_input,
+                )
+            else:
+                # We could not find the user by username nor email.
+                # Return a response as if we did, to avoid leaking registered emails.
+                token_service = request.find_service(ITokenService, name="password")
+                n_hours = token_service.max_age // 60 // 60
+                return {"n_hours": n_hours}
+
+        if requested_email and not requested_email.verified:
+            # No verified email, log the attempt, ping the rate limit,
+            # notify to the email as to why no reset, return generic response.
+            send_password_reset_unverified_email(request, (user, requested_email))
+            user.record_event(
+                tag=EventTag.Account.PasswordResetAttempt,
+                request=request,
+            )
+            request.log.warning(
+                "User requested password reset for unverified email",
+                username=user.username,
+                email_address=requested_email.email,
+            )
+            user_service.ratelimiters["password.reset"].hit(user.id)
+
             token_service = request.find_service(ITokenService, name="password")
             n_hours = token_service.max_age // 60 // 60
-            # We could not find the user by username nor email.
-            # Return a response as if we did, to avoid leaking registered emails.
             return {"n_hours": n_hours}
 
         if not user_service.ratelimiters["password.reset"].test(user.id):
@@ -743,7 +842,7 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
             )
 
         if user.can_reset_password:
-            send_password_reset_email(request, (user, email))
+            send_password_reset_email(request, (user, requested_email))
             user.record_event(
                 tag=EventTag.Account.PasswordResetRequest,
                 request=request,
@@ -774,7 +873,7 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
 
 @view_config(
     route_name="accounts.reset-password",
-    renderer="accounts/reset-password.html",
+    renderer="warehouse:templates/accounts/reset-password.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -879,6 +978,79 @@ def reset_password(request, _form_class=ResetPasswordForm):
 
 
 @view_config(
+    route_name="accounts.confirm-login",
+    renderer="warehouse:templates/accounts/unrecognized-device.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    has_translations=True,
+)
+def confirm_login(request):
+    if request.user is not None:
+        return HTTPSeeOther(request.route_path("index"))
+
+    if not request.params.get("token"):
+        # Show a generic page for when a non-logged-in user lands here without a token
+        return {}
+
+    user_service = request.find_service(IUserService, context=None)
+    token_service = request.find_service(ITokenService, name="confirm_login")
+
+    def _error(message):
+        request.session.flash(message, queue="error")
+        return HTTPSeeOther(request.route_path("accounts.login"))
+
+    try:
+        token = request.params.get("token")
+        data = token_service.loads(token)
+    except TokenExpired:
+        return _error(request._("Expired token: please try to login again"))
+    except TokenInvalid:
+        return _error(request._("Invalid token: please try to login again"))
+    except TokenMissing:
+        return _error(request._("Invalid token: no token supplied"))
+
+    # Check whether this token is being used correctly
+    if data.get("action") != "login-confirmation":
+        return _error(request._("Invalid token: not a login confirmation token"))
+
+    # Check whether a user with the given user ID exists
+    user = user_service.get_user(uuid.UUID(data.get("user.id")))
+    if user is None:
+        return _error(request._("Invalid token: user not found"))
+
+    unique_login_id = data.get("unique_login_id")
+    unique_login = (
+        request.db.query(UserUniqueLogin)
+        .filter(UserUniqueLogin.id == unique_login_id)
+        .one_or_none()
+    )
+
+    if unique_login is None:
+        return _error(request._("Invalid login attempt."))
+
+    if unique_login.ip_address != request.ip_address:
+        return _error(
+            request._(
+                "Device details didn't match, please try again from the device "
+                "you originally used to log in."
+            )
+        )
+
+    unique_login.status = UniqueLoginStatus.CONFIRMED
+
+    _login_user(request, user.id)
+    resp = HTTPSeeOther(request.route_path("manage.projects"))
+    _set_userid_insecure_cookie(resp, user.id)
+    request.session.flash(
+        request._("Your login has been confirmed and this device is now recognized."),
+        queue="success",
+    )
+
+    return resp
+
+
+@view_config(
     route_name="accounts.verify-email",
     uses_session=True,
     permission=Permissions.AccountVerifyEmail,
@@ -918,6 +1090,8 @@ def verify_email(request):
 
     if email.verified:
         return _error(request._("Email already verified"))
+    # Run the domain status update now that the end user has verified it.
+    update_email_domain_status(email, request)
 
     email.verified = True
     email.unverify_reason = None
@@ -982,7 +1156,7 @@ def _get_two_factor_data(request, _redirect_to="/"):
 
 @view_config(
     route_name="accounts.verify-organization-role",
-    renderer="accounts/organization-invite-confirmation.html",
+    renderer="warehouse:templates/accounts/organization-invite-confirmation.html",
     require_methods=False,
     uses_session=True,
     permission=Permissions.AccountVerifyOrgRole,
@@ -1152,7 +1326,7 @@ def verify_organization_role(request):
 
 @view_config(
     route_name="accounts.verify-project-role",
-    renderer="accounts/invite-confirmation.html",
+    renderer="warehouse:templates/accounts/invite-confirmation.html",
     require_methods=False,
     uses_session=True,
     permission=Permissions.AccountVerifyProjectRole,
@@ -1184,11 +1358,14 @@ def verify_project_role(request):
     if user != request.user:
         return _error(request._("Role invitation is not valid."))
 
-    project = (
-        request.db.query(Project).filter(Project.id == data.get("project_id")).one()
-    )
-    desired_role = data.get("desired_role")
+    try:
+        project = (
+            request.db.query(Project).filter(Project.id == data.get("project_id")).one()
+        )
+    except NoResultFound:
+        return _error(request._("Invalid token: project does not exist"))
 
+    desired_role = data.get("desired_role")
     role_invite = (
         request.db.query(RoleInvitation)
         .filter(RoleInvitation.project == project)
@@ -1344,7 +1521,7 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
         security_policy.reset(request)
 
     # Remember the userid using the authentication policy.
-    headers = remember(request, str(userid))
+    remember(request, str(userid))
 
     # Cycle the CSRF token since we've crossed an authentication boundary
     # and we don't want to continue using the old one.
@@ -1353,7 +1530,8 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
     # Whenever we log in the user, we want to update their user so that it
     # records when the last login was.
     user_service = request.find_service(IUserService, context=None)
-    user_service.update_user(userid, last_login=datetime.datetime.now(datetime.UTC))
+    now = datetime.datetime.now(datetime.UTC)
+    user_service.update_user(userid, last_login=now)
     user = user_service.get_user(userid)
     user.record_event(
         tag=EventTag.Account.LoginSuccess,
@@ -1363,17 +1541,83 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
             "two_factor_label": two_factor_label,
         },
     )
+
+    # Create a new UserUniqueLogin if one doesn't already exist for this IP
+    unique_login = (
+        request.db.query(UserUniqueLogin)
+        .filter(
+            UserUniqueLogin.user_id == userid,
+            UserUniqueLogin.ip_address == request.ip_address,
+        )
+        .one_or_none()
+    )
+    if unique_login:
+        unique_login.last_used = now
+
+    if unique_login is None and two_factor_method not in PHISHABLE_METHODS:
+        # We haven't seen this login before. Create a new one and mark it as confirmed
+        # if this is non-phishable.
+        unique_login = UserUniqueLogin(
+            user_id=userid,
+            ip_address=request.ip_address,
+            status=UniqueLoginStatus.CONFIRMED,
+        )
+        request.db.add(unique_login)
+    if (
+        unique_login is not None
+        and unique_login.status == UniqueLoginStatus.PENDING
+        and two_factor_method not in PHISHABLE_METHODS
+    ):
+        # The user had a pending login, but has since logged in with a non-phishable
+        # method, so mark it as confirmed.
+        unique_login.status = UniqueLoginStatus.CONFIRMED
+
     request.session.record_auth_timestamp()
     request.session.record_password_timestamp(
         user_service.get_password_timestamp(userid)
     )
-    return headers
+
+    # Check if we need to notify the user of an updated Terms of Service
+    if user_service.needs_tos_flash(
+        userid,
+        request.registry.settings.get("terms.revision"),
+    ):
+        request.session.flash(
+            request._(
+                'Please review our updated <a href="${tos_url}">Terms of Service</a>.',
+                mapping={
+                    "tos_url": request.route_path("accounts.view-terms-of-service")
+                },
+            ),
+            safe=True,
+        )
+        user_service.record_tos_engagement(
+            userid,
+            request.registry.settings.get("terms.revision"),
+            TermsOfServiceEngagement.Flashed,
+        )
+
+
+@view_config(
+    route_name="accounts.view-terms-of-service",
+    uses_session=True,
+    has_translations=False,
+)
+def view_terms_of_service(request):
+    if request.user is not None:
+        user_service = request.find_service(IUserService, context=None)
+        user_service.record_tos_engagement(
+            request.user.id,
+            request.registry.settings.get("terms.revision"),
+            TermsOfServiceEngagement.Viewed,
+        )
+    return HTTPSeeOther("https://policies.python.org/pypi.org/Terms-of-Service/")
 
 
 @view_config(
     route_name="includes.current-user-profile-callout",
     context=User,
-    renderer="includes/accounts/profile-callout.html",
+    renderer="warehouse:templates/includes/accounts/profile-callout.html",
     uses_session=True,
     has_translations=True,
 )
@@ -1384,7 +1628,7 @@ def profile_callout(user, request):
 @view_config(
     route_name="includes.profile-actions",
     context=User,
-    renderer="includes/accounts/profile-actions.html",
+    renderer="warehouse:templates/includes/accounts/profile-actions.html",
     uses_session=True,
     has_translations=True,
 )
@@ -1395,7 +1639,7 @@ def edit_profile_button(user, request):
 @view_config(
     route_name="includes.profile-public-email",
     context=User,
-    renderer="includes/accounts/profile-public-email.html",
+    renderer="warehouse:templates/includes/accounts/profile-public-email.html",
     uses_session=True,
     has_translations=True,
 )
@@ -1453,7 +1697,7 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
 
 @view_defaults(
     route_name="manage.account.publishing",
-    renderer="manage/account/publishing.html",
+    renderer="warehouse:templates/manage/account/publishing.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -1464,28 +1708,32 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
 class ManageAccountPublishingViews:
     def __init__(self, request):
         self.request = request
-        self.project_factory = ProjectFactory(request)
         self.metrics = self.request.find_service(IMetricsService, context=None)
+        self.project_service = self.request.find_service(IProjectService, context=None)
         self.pending_github_publisher_form = PendingGitHubPublisherForm(
             self.request.POST,
             api_token=self.request.registry.settings.get("github.token"),
             route_url=self.request.route_url,
-            project_factory=self.project_factory,
+            check_project_name=self.project_service.check_project_name,
+            user=request.user,
         )
         self.pending_gitlab_publisher_form = PendingGitLabPublisherForm(
             self.request.POST,
             route_url=self.request.route_url,
-            project_factory=self.project_factory,
+            check_project_name=self.project_service.check_project_name,
+            user=request.user,
         )
         self.pending_google_publisher_form = PendingGooglePublisherForm(
             self.request.POST,
             route_url=self.request.route_url,
-            project_factory=self.project_factory,
+            check_project_name=self.project_service.check_project_name,
+            user=request.user,
         )
         self.pending_activestate_publisher_form = PendingActiveStatePublisherForm(
             self.request.POST,
             route_url=self.request.route_url,
-            project_factory=self.project_factory,
+            check_project_name=self.project_service.check_project_name,
+            user=request.user,
         )
 
     @property
@@ -1596,8 +1844,7 @@ class ManageAccountPublishingViews:
         if len(self.request.user.pending_oidc_publishers) >= 3:
             self.request.session.flash(
                 self.request._(
-                    "You can't register more than 3 pending trusted "
-                    "publishers at once."
+                    "You can't register more than 3 pending trusted publishers at once."
                 ),
                 queue="error",
             )
@@ -1646,8 +1893,15 @@ class ManageAccountPublishingViews:
 
         pending_publisher = make_pending_publisher(self.request, form)
 
-        self.request.db.add(pending_publisher)
-        self.request.db.flush()  # To get the new ID
+        try:
+            self.request.db.add(pending_publisher)
+            self.request.db.flush()  # To get the new ID
+        except UniqueViolation:
+            # The user has probably double-posted and a new publisher was
+            # created after our check for duplicates ran. The success message
+            # is probably already in the flash queue, so just redirect to the
+            # expected page on success if this is the response they are served.
+            return HTTPSeeOther(self.request.path)
 
         self.request.user.record_event(
             tag=EventTag.Account.PendingOIDCPublisherAdded,
@@ -1695,6 +1949,7 @@ class ManageAccountPublishingViews:
                 sub=form.sub.data,
             ),
             make_existence_filters=lambda form: dict(
+                project_name=form.project_name.data,
                 email=form.email.data,
                 sub=form.sub.data,
             ),
@@ -1721,6 +1976,7 @@ class ManageAccountPublishingViews:
                 environment=form.normalized_environment,
             ),
             make_existence_filters=lambda form: dict(
+                project_name=form.project_name.data,
                 repository_name=form.repository.data,
                 repository_owner=form.normalized_owner,
                 workflow_filename=form.workflow_filename.data,
@@ -1748,6 +2004,7 @@ class ManageAccountPublishingViews:
                 actor_id=form.actor_id,
             ),
             make_existence_filters=lambda form: dict(
+                project_name=form.project_name.data,
                 organization=form.organization.data,
                 activestate_project_name=form.project.data,
                 actor_id=form.actor_id,
@@ -1772,8 +2029,10 @@ class ManageAccountPublishingViews:
                 project=form.project.data,
                 workflow_filepath=form.workflow_filepath.data,
                 environment=form.normalized_environment,
+                issuer_url=GITLAB_OIDC_ISSUER_URL,
             ),
             make_existence_filters=lambda form: dict(
+                project_name=form.project_name.data,
                 namespace=form.namespace.data,
                 project=form.project.data,
                 workflow_filepath=form.workflow_filepath.data,

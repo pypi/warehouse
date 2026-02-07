@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import pretend
 import pytest
@@ -17,6 +7,7 @@ from celery.schedules import crontab
 
 from warehouse import accounts
 from warehouse.accounts.interfaces import (
+    IDomainStatusService,
     IEmailBreachedService,
     IPasswordBreachedService,
     ITokenService,
@@ -25,6 +16,7 @@ from warehouse.accounts.interfaces import (
 from warehouse.accounts.services import (
     HaveIBeenPwnedEmailBreachedService,
     HaveIBeenPwnedPasswordBreachedService,
+    NullDomainStatusService,
     TokenServiceFactory,
     database_login_factory,
 )
@@ -33,7 +25,6 @@ from warehouse.accounts.utils import UserContext
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.models import OIDCPublisher
 from warehouse.oidc.utils import PublisherTokenContext
-from warehouse.rate_limiting import IRateLimiter, RateLimit
 
 from ...common.db.accounts import UserFactory
 from ...common.db.oidc import GitHubPublisherFactory
@@ -146,15 +137,19 @@ def test_includeme(monkeypatch):
                 "warehouse.account.user_login_ratelimit_string": "10 per 5 minutes",
                 "warehouse.account.ip_login_ratelimit_string": "10 per 5 minutes",
                 "warehouse.account.global_login_ratelimit_string": "1000 per 5 minutes",
+                "warehouse.account.2fa_user_ratelimit_string": "5 per 5 minutes, 20 per hour, 50 per day",  # noqa: E501
+                "warehouse.account.2fa_ip_ratelimit_string": "10 per 5 minutes, 50 per hour",  # noqa: E501
                 "warehouse.account.email_add_ratelimit_string": "2 per day",
                 "warehouse.account.verify_email_ratelimit_string": "3 per 6 hours",
                 "warehouse.account.password_reset_ratelimit_string": "5 per day",
                 "warehouse.account.accounts_search_ratelimit_string": "100 per hour",
+                "github.oauth.backend": accounts.NullGitHubOAuthClient,
             }
         ),
         register_service_factory=pretend.call_recorder(
             lambda factory, iface, name=None: None
         ),
+        register_rate_limiter=pretend.call_recorder(lambda limit_string, name: None),
         add_request_method=pretend.call_recorder(lambda f, name, reify=False: None),
         set_security_policy=pretend.call_recorder(lambda p: None),
         maybe_dotted=pretend.call_recorder(lambda path: path),
@@ -174,6 +169,11 @@ def test_includeme(monkeypatch):
             TokenServiceFactory(name="two_factor"), ITokenService, name="two_factor"
         ),
         pretend.call(
+            TokenServiceFactory(name="confirm_login"),
+            ITokenService,
+            name="confirm_login",
+        ),
+        pretend.call(
             TokenServiceFactory(name="remember_device"),
             ITokenService,
             name="remember_device",
@@ -186,15 +186,23 @@ def test_includeme(monkeypatch):
             HaveIBeenPwnedEmailBreachedService.create_service,
             IEmailBreachedService,
         ),
-        pretend.call(RateLimit("10 per 5 minutes"), IRateLimiter, name="user.login"),
-        pretend.call(RateLimit("10 per 5 minutes"), IRateLimiter, name="ip.login"),
+        pretend.call(NullDomainStatusService.create_service, IDomainStatusService),
         pretend.call(
-            RateLimit("1000 per 5 minutes"), IRateLimiter, name="global.login"
+            accounts.NullGitHubOAuthClient.create_service,
+            accounts.IOAuthProviderService,
+            name="github",
         ),
-        pretend.call(RateLimit("2 per day"), IRateLimiter, name="email.add"),
-        pretend.call(RateLimit("5 per day"), IRateLimiter, name="password.reset"),
-        pretend.call(RateLimit("3 per 6 hours"), IRateLimiter, name="email.verify"),
-        pretend.call(RateLimit("100 per hour"), IRateLimiter, name="accounts.search"),
+    ]
+    assert config.register_rate_limiter.calls == [
+        pretend.call("10 per 5 minutes", "user.login"),
+        pretend.call("10 per 5 minutes", "ip.login"),
+        pretend.call("1000 per 5 minutes", "global.login"),
+        pretend.call("5 per 5 minutes, 20 per hour, 50 per day", "2fa.user"),
+        pretend.call("10 per 5 minutes, 50 per hour", "2fa.ip"),
+        pretend.call("2 per day", "email.add"),
+        pretend.call("5 per day", "password.reset"),
+        pretend.call("3 per 6 hours", "email.verify"),
+        pretend.call("100 per hour", "accounts.search"),
     ]
     assert config.add_request_method.calls == [
         pretend.call(accounts._user, name="user", reify=True),

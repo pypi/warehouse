@@ -27,11 +27,15 @@ theme:
     - navigation.footer
 markdown_extensions:
   - footnotes
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tilde
   - abbr
   - attr_list
   - md_in_html
@@ -52,6 +56,7 @@ plugins:
       # If we ever want to change the format and thus break old URLs,
       # consider https://github.com/mkdocs/mkdocs-redirects
       post_url_format: "posts/{file}"
+  - material-plausible
   - rss:
       abstract_chars_count: -1
       categories:
@@ -67,8 +72,7 @@ plugins:
       length: 20
       match_path: "posts/.*"
   - search
-  - tags:
-      tags_file: tags.md
+  - tags
 extra:
   homepage: https://pypi.org
   social:
@@ -76,14 +80,17 @@ extra:
       link: https://github.com/pypi
     - icon: fontawesome/brands/mastodon
       link: https://fosstodon.org/@pypi
+    - icon: fontawesome/brands/bluesky
+      link: https://bsky.app/profile/pypi.org
     - icon: fontawesome/brands/twitter
       link: https://twitter.com/pypi
     - icon: material/rss
       link: https://blog.pypi.org/feed_rss_created.xml
-  # See https://squidfunk.github.io/mkdocs-material/setup/setting-up-site-analytics/
+  # See https://material-plausible-plugin.ale.sh
   analytics:
-    provider: google
-    property: G-4L9L0H79CY
+    provider: plausible
+    domain: blog.pypi.org
+    src: https://analytics.python.org/js/script.outbound-links.js
 
 site_url: https://blog.pypi.org/
 repo_url: https://github.com/pypi/warehouse

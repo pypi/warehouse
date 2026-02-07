@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 from collections import defaultdict
 
@@ -89,9 +79,9 @@ def _json_data(request, project, release, *, all_releases):
 
     # Map our releases + files into a dictionary that maps each release to a
     # list of all its files.
-    releases = {}
+    releases_and_files: dict[Release, list[File]] = {}
     for r, file_ in release_files:
-        files = releases.setdefault(r, [])
+        files = releases_and_files.setdefault(r, [])
         if file_ is not None:
             files.append(file_)
 
@@ -126,7 +116,7 @@ def _json_data(request, project, release, *, all_releases):
             }
             for f in fs
         ]
-        for r, fs in releases.items()
+        for r, fs in releases_and_files.items()
     }
 
     # Serialize a list of vulnerabilities for this release
@@ -157,6 +147,8 @@ def _json_data(request, project, release, *, all_releases):
             "description": release_description.raw,
             "keywords": release.keywords,
             "license": release.license,
+            "license_expression": release.license_expression,
+            "license_files": release.license_files,
             "classifiers": list(release.classifiers),
             "author": release.author,
             "author_email": release.author_email,

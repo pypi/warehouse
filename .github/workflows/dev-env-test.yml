@@ -8,9 +8,11 @@ on:
 jobs:
   build:
     # TODO: Should we test on other platforms like Windows and Mac?
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    permissions:
+        contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
       - run: make build

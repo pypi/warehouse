@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import pretend
 
@@ -35,6 +25,61 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call(
+            "admin.organization.rename",
+            "/admin/organizations/{organization_id}/rename/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.organization.add_role",
+            "/admin/organizations/{organization_id}/add_role/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.organization.update_role",
+            "/admin/organizations/{organization_id}/update_role/{role_id}/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.organization.delete_role",
+            "/admin/organizations/{organization_id}/delete_role/{role_id}/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.organization.add_manual_activation",
+            "/admin/organizations/{organization_id}/add_manual_activation/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.organization.update_manual_activation",
+            "/admin/organizations/{organization_id}/update_manual_activation/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.organization.delete_manual_activation",
+            "/admin/organizations/{organization_id}/delete_manual_activation/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.organization.set_upload_limit",
+            "/admin/organizations/{organization_id}/set_upload_limit/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.organization.set_total_size_limit",
+            "/admin/organizations/{organization_id}/set_total_size_limit/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.organization.add_oidc_issuer",
+            "/admin/organizations/{organization_id}/oidc-issuers/add/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.organization.delete_oidc_issuer",
+            "/admin/organizations/{organization_id}/oidc-issuers/{issuer_id}/delete/",
+            domain=warehouse,
+        ),
+        pretend.call(
             "admin.organization_application.list",
             "/admin/organization_applications/",
             domain=warehouse,
@@ -47,6 +92,19 @@ def test_includeme():
         pretend.call(
             "admin.organization_application.approve",
             "/admin/organization_applications/{organization_application_id}/approve/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.organization_application.requestmoreinfo",
+            (
+                "/admin/organization_applications/{organization_application_id}"
+                "/requestmoreinfo/"
+            ),
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.organization_application.defer",
+            "/admin/organization_applications/{organization_application_id}/defer/",
             domain=warehouse,
         ),
         pretend.call(
@@ -72,6 +130,20 @@ def test_includeme():
         pretend.call(
             "admin.user.add_email",
             "/admin/users/{username}/add_email/",
+            domain=warehouse,
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}",
+        ),
+        pretend.call(
+            "admin.user.email_domain_check",
+            "/admin/users/{username}/email_domain_check/",
+            domain=warehouse,
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}",
+        ),
+        pretend.call(
+            "admin.user.delete_email",
+            "/admin/users/{username}/delete_email/",
             domain=warehouse,
             factory="warehouse.accounts.models:UserFactory",
             traverse="/{username}",
@@ -119,6 +191,27 @@ def test_includeme():
             traverse="/{username}",
         ),
         pretend.call(
+            "admin.user.burn_recovery_codes",
+            "/admin/users/{username}/burn_recovery_codes/",
+            domain=warehouse,
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}",
+        ),
+        pretend.call(
+            "admin.user.quarantine_projects",
+            "/admin/users/{username}/quarantine_projects/",
+            domain=warehouse,
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}",
+        ),
+        pretend.call(
+            "admin.user.clear_quarantine_projects",
+            "/admin/users/{username}/clear_quarantine_projects/",
+            domain=warehouse,
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}",
+        ),
+        pretend.call(
             "admin.macaroon.decode_token", "/admin/token/decode", domain=warehouse
         ),
         pretend.call(
@@ -132,7 +225,17 @@ def test_includeme():
         pretend.call("admin.ip_address.list", "/admin/ip-addresses/", domain=warehouse),
         pretend.call(
             "admin.ip_address.detail",
-            "/admin/ip-addresses/{ip_address_id}",
+            "/admin/ip-addresses/{ip_address}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.ip_address.ban",
+            "/admin/ip-addresses/{ip_address}/ban",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.ip_address.unban",
+            "/admin/ip-addresses/{ip_address}/unban",
             domain=warehouse,
         ),
         pretend.call("admin.project.list", "/admin/projects/", domain=warehouse),
@@ -248,6 +351,20 @@ def test_includeme():
             traverse="/{project_name}",
             domain=warehouse,
         ),
+        pretend.call(
+            "admin.project.archive",
+            "/admin/projects/{project_name}/archive/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.project.unarchive",
+            "/admin/projects/{project_name}/unarchive/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
         pretend.call("admin.journals.list", "/admin/journals/", domain=warehouse),
         pretend.call(
             "admin.prohibited_project_names.list",
@@ -300,10 +417,26 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call(
+            "admin.observers.reputation",
+            "/admin/observers/reputation/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.observers.detail",
+            "/admin/observers/{observer_id}/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.observations.insights",
+            "/admin/observations/insights/",
+            domain=warehouse,
+        ),
+        pretend.call(
             "admin.observations.list",
             "/admin/observations/",
             domain=warehouse,
         ),
+        pretend.call("admin.quarantine.list", "/admin/quarantine/", domain=warehouse),
         pretend.call(
             "admin.malware_reports.list",
             "/admin/malware_reports/",
@@ -340,6 +473,11 @@ def test_includeme():
         pretend.call(
             "admin.malware_reports.detail",
             "/admin/malware_reports/{observation_id}/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.malware_reports.detail.add_helpscout_conversation",
+            "/admin/malware_reports/{observation_id}/add_helpscout_conversation/",
             domain=warehouse,
         ),
         pretend.call(

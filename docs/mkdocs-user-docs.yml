@@ -2,6 +2,8 @@ site_name: PyPI Docs
 docs_dir: user
 site_dir: user-site
 plugins:
+  - search
+  - material-plausible
   - macros:
       module_name: user/main
       j2_block_start_string: "<!--[[%"
@@ -16,11 +18,18 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.tabbed:
       alternate_style: true
-      slugify: !!python/object/apply:pymdownx.slugs.slugify {kwds: {case: lower}}
+      slugify:
+        !!python/object/apply:pymdownx.slugs.slugify { kwds: { case: lower } }
   - tables
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.magiclink:
+      repo_url_shorthand: true
+      normalize_issue_symbols: true
+      provider: github
+      user: pypi
+      repo: warehouse
 theme:
   name: material
   logo: assets/logo.png
@@ -42,17 +51,29 @@ theme:
 extra_css:
   - stylesheets/extra.css
 extra:
+  analytics:
+    provider: plausible
+    domain: docs.pypi.org
+    src: https://analytics.python.org/js/script.outbound-links.js
   homepage: https://pypi.org
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/pypi
     - icon: fontawesome/brands/twitter
       link: https://twitter.com/pypi
+    - icon: fontawesome/brands/mastodon
+      link: https://fosstodon.org/@pypi
+    - icon: fontawesome/brands/bluesky
+      link: https://bsky.app/profile/pypi.org
 repo_url: https://github.com/pypi/warehouse
 edit_uri: blob/main/docs/user/
 
 nav:
   - "index.md"
+  - "Project Management":
+      - "project-management/storage-limits.md"
+      - "project-management/yanking.md"
+      - "project-management/name-retention.md"
   - "Organization Accounts":
       - "organization-accounts/index.md"
       - "organization-accounts/org-acc-faq.md"
@@ -63,6 +84,7 @@ nav:
           - "organization-accounts/actions/project-actions.md"
           - "organization-accounts/actions/team-actions.md"
       - "organization-accounts/pricing-and-payments.md"
+      - "organization-accounts/support.md"
   - "Trusted Publishers":
       - "trusted-publishers/index.md"
       - "trusted-publishers/adding-a-publisher.md"
@@ -71,4 +93,20 @@ nav:
       - "trusted-publishers/security-model.md"
       - "trusted-publishers/troubleshooting.md"
       - "trusted-publishers/internals.md"
+  - "Digital Attestations":
+      - "attestations/index.md"
+      - "attestations/producing-attestations.md"
+      - "attestations/consuming-attestations.md"
+      - "attestations/publish/v1.md"
+      - "attestations/security-model.md"
   - "project_metadata.md"
+  - "APIs and Datasets":
+      - "api/index.md"
+      - "api/index-api.md"
+      - "api/json.md"
+      - "api/upload.md"
+      - "api/integrity.md"
+      - "api/stats.md"
+      - "api/bigquery.md"
+      - "api/feeds.md"
+      - "api/secrets.md"

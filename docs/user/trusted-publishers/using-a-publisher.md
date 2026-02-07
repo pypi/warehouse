@@ -4,9 +4,9 @@ title: Publishing with a Trusted Publisher
 
 # Publishing with a Trusted Publisher
 
-Once you have a trusted publisher configured on PyPI (whether "pending" or
+Once you have a Trusted Publisher configured on PyPI (whether "pending" or
 "normal"), you can publish through it on the associated platform. The tabs
-below describe the setup process for each supported trusted publisher.
+below describe the setup process for each supported Trusted Publisher.
 
 === "GitHub Actions"
 
@@ -26,9 +26,9 @@ below describe the setup process for each supported trusted publisher.
         name: upload release to PyPI
         runs-on: ubuntu-latest
         # Specifying a GitHub environment is optional, but strongly encouraged
-        environment: release
+        environment: pypi
         permissions:
-          # IMPORTANT: this permission is mandatory for trusted publishing
+          # IMPORTANT: this permission is mandatory for Trusted Publishing
           id-token: write
         steps:
           # retrieve your distributions here
@@ -46,9 +46,9 @@ below describe the setup process for each supported trusted publisher.
         name: upload release to PyPI
         runs-on: ubuntu-latest
     +    # Specifying a GitHub environment is optional, but strongly encouraged
-    +    environment: release
+    +    environment: pypi
     +    permissions:
-    +      # IMPORTANT: this permission is mandatory for trusted publishing
+    +      # IMPORTANT: this permission is mandatory for Trusted Publishing
     +      id-token: write
         steps:
           # retrieve your distributions here
@@ -72,9 +72,9 @@ below describe the setup process for each supported trusted publisher.
 
     <h3>Publishing to indices other than PyPI</h3>
     The PyPA's [`pypi-publish`](https://github.com/marketplace/actions/pypi-publish)
-    action also supports trusted publishing with other (non-PyPI) indices, provided
-    they have trusted publishing enabled (and you've configured your trusted
-    publisher on them). For example, here's how you can use trusted publishing on
+    action also supports Trusted Publishing with other (non-PyPI) indices, provided
+    they have Trusted Publishing enabled (and you've configured your Trusted
+    Publisher on them). For example, here's how you can use Trusted Publishing on
     [TestPyPI](https://test.pypi.org):
 
     ```yaml
@@ -384,9 +384,8 @@ below describe the setup process for each supported trusted publisher.
       [`id_tokens`](https://docs.gitlab.com/ee/ci/yaml/index.html#id_tokens) is used
       to request an OIDC token from GitLab with name `PYPI_ID_TOKEN` and audience
       `pypi`.
-    - This OIDC token is extracted from the CI/CD environment using the
-      [`id`](https://pypi.org/project/id/) package.
-    - The OIDC token is then sent to PyPI in exchange for a PyPI API token, which
+    - Twine is called to upload the package with no token specified.
+      It sends the OIDC token to PyPI in exchange for a PyPI API token, which
       is then used to publish the package using `twine`.
 
     ```yaml
@@ -411,16 +410,9 @@ below describe the setup process for each supported trusted publisher.
           aud: pypi
       script:
         # Install dependencies
-        - apt update && apt install -y jq
-        - python -m pip install -U twine id
+        - python -m pip install -U twine
 
-        # Retrieve the OIDC token from GitLab CI/CD, and exchange it for a PyPI API token
-        - oidc_token=$(python -m id PYPI)
-        # Replace "https://pypi.org/*" with "https://test.pypi.org/*" if uploading to TestPyPI
-        - resp=$(curl -X POST https://pypi.org/_/oidc/mint-token -d "{\"token\":\"${oidc_token}\"}")
-        - api_token=$(jq --raw-output '.token' <<< "${resp}")
-
-        # Upload to PyPI authenticating via the newly-minted token
-        # Add "--repository testpypi" if uploading to TestPyPI
-        - twine upload -u __token__ -p "${api_token}" python_pkg/dist/*
+        # Upload to PyPI, add "--repository testpypi" if uploading to TestPyPI
+        # With no token specified, twine will use Trusted Publishing
+        - twine upload python_pkg/dist/*
     ```

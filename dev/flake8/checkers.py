@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 """
 Warehouse Flake8 Local Checkers
@@ -18,6 +8,8 @@ Warehouse-specific style rules.
 """
 
 import ast
+from pathlib import Path
+from textwrap import dedent  # for testing
 
 from collections.abc import Generator
 from typing import Any
@@ -27,6 +19,10 @@ WH002_msg = (
     "WH002 Prefer `sqlalchemy.orm.relationship(back_populates=...)` "
     "over `sqlalchemy.orm.relationship(backref=...)`"
 )
+WH003_msg = "WH003 `@view_config.renderer` configured template file not found"
+# TODO: This would be better served by mypy, no types in Pyramid makes this harder.
+#  Support https://github.com/Pylons/pyramid/issues/2638 for general Pyramid type info.
+WH004_msg = "WH004 metrics tags must be a list of strings"
 
 
 class WarehouseVisitor(ast.NodeVisitor):
@@ -57,6 +53,33 @@ class WarehouseVisitor(ast.NodeVisitor):
             ):
                 _check_keywords(node.value.keywords)
 
+    def template_exists(self, template_name: str) -> bool:
+        repo_root = Path(__file__).parent.parent.parent
+
+        # If the template name is a full package path, check if it exists
+        # in the package's templates directory.
+        if ":" in template_name:
+            pkg, resource = template_name.split(":", 1)
+            pkg_path = repo_root.joinpath(*pkg.split("."))
+            resource_path = pkg_path / resource
+            return resource_path.is_file()
+
+        settings = {}
+        # TODO: Replace with actual configuration retrieval if it makes sense
+        # Get Jinja2 search paths from warehouse config
+        # settings = configure().get_settings()
+        search_paths = settings.get("jinja2.searchpath", [])
+        # If not set, fallback to default templates path
+        if not search_paths:
+            search_paths = [
+                str(repo_root / "warehouse" / "templates"),
+                str(repo_root / "warehouse" / "admin" / "templates"),
+            ]
+        for path in search_paths:
+            if Path(path, template_name).is_file():
+                return True
+        return False
+
     def visit_Name(self, node: ast.Name) -> None:  # noqa: N802
         if node.id == "urlparse":
             self.errors.append((node.lineno, node.col_offset, WH001_msg))
@@ -81,15 +104,157 @@ class WarehouseVisitor(ast.NodeVisitor):
         self.check_for_backref(node)
         self.generic_visit(node)
 
+    def is_metrics_method_call(self, node: ast.Call) -> bool:
+        """Check if this is a call to a metrics method."""
+        if not isinstance(node.func, ast.Attribute):
+            return False
+
+        # Check for metrics.<method>()
+        if isinstance(node.func.value, ast.Name) and node.func.value.id == "metrics":
+            return True
+
+        # Check for request.metrics.<method>() or any_obj.metrics.<method>()
+        if (
+            isinstance(node.func.value, ast.Attribute)
+            and node.func.value.attr == "metrics"
+        ):
+            return True
+
+        return False
+
+    def check_metrics_tags(self, node: ast.Call) -> None:
+        """Check that tags parameter in metrics calls is a list."""
+        if not self.is_metrics_method_call(node):
+            return
+
+        # Check keyword arguments for tags=
+        for kw in node.keywords:
+            if kw.arg == "tags":
+                # tags should be None, a variable (Name), or a List
+                # Flag if it's a literal non-list type (string, tuple, dict, set, etc.)
+                if isinstance(kw.value, (ast.Constant, ast.Tuple, ast.Dict, ast.Set)):
+                    # Allow None
+                    if isinstance(kw.value, ast.Constant) and kw.value.value is None:
+                        continue
+                    self.errors.append(
+                        (kw.value.lineno, kw.value.col_offset, WH004_msg)
+                    )
+
+    def visit_Call(self, node: ast.Call) -> None:  # noqa: N802
+        self.check_metrics_tags(node)
+        self.generic_visit(node)
+
+    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:  # noqa: N802
+        for decorator in node.decorator_list:
+            if (
+                isinstance(decorator, ast.Call)
+                and getattr(decorator.func, "id", None) == "view_config"
+            ):
+                for kw in decorator.keywords:
+                    if (
+                        kw.arg == "renderer"
+                        and isinstance(kw.value, ast.Constant)
+                        # TODO: Is there a "string-that-looks-like-a-filename"?
+                        and kw.value.value not in ["json", "xmlrpc", "string"]
+                    ):
+                        if not self.template_exists(kw.value.value):
+                            self.errors.append(
+                                (kw.value.lineno, kw.value.col_offset, WH003_msg)
+                            )
+        self.generic_visit(node)
+
 
 class WarehouseCheck:
     def __init__(self, tree: ast.AST, filename: str) -> None:
         self.tree = tree
         self.filename = filename
 
-    def run(self) -> Generator[tuple[int, int, str, type[Any]], None, None]:
+    def run(self) -> Generator[tuple[int, int, str, type[Any]]]:
         visitor = WarehouseVisitor(self.filename)
         visitor.visit(self.tree)
 
         for e in visitor.errors:
             yield *e, type(self)
+
+
+# Testing
+def test_wh003_renderer_template_not_found():
+    # Simulate a Python file with a @view_config decorator and a non-existent template
+    code = dedent(
+        """
+    from pyramid.view import view_config
+
+    @view_config(renderer="non_existent_template.html")
+    def my_view(request):
+        pass
+    """
+    )
+    tree = ast.parse(code)
+    visitor = WarehouseVisitor(filename="test_file.py")
+    visitor.visit(tree)
+
+    # Assert that the WH003 error is raised
+    assert len(visitor.errors) == 1
+    assert visitor.errors[0][2] == WH003_msg
+
+
+def test_wh003_renderer_template_in_package_path():
+    code = dedent(
+        """
+    from pyramid.view import view_config
+
+    @view_config(renderer="warehouse.admin:templates/admin/dashboard.html")
+    def my_view(request):
+        pass
+    """
+    )
+    tree = ast.parse(code)
+    visitor = WarehouseVisitor(filename="test_file.py")
+    visitor.visit(tree)
+
+    # Assert that no WH003 error is raised
+    assert len(visitor.errors) == 0
+
+
+def test_wh004_metrics_tags_invalid_types():
+    # Test case: Invalid tag types (should error)
+    code = dedent(
+        """
+    metrics.increment("counter", tags="string")
+    request.metrics.gauge("gauge", tags=("tuple",))
+    metrics.histogram("hist", tags={"dict": "value"})
+    """
+    )
+    tree = ast.parse(code)
+    visitor = WarehouseVisitor(filename="test_file.py")
+    visitor.visit(tree)
+
+    # Assert that all 3 errors are raised
+    assert len(visitor.errors) == 3
+    assert all(error[2] == WH004_msg for error in visitor.errors)
+
+
+def test_wh004_metrics_tags_valid_types():
+    # Test case: Valid tag types (should not error)
+    code = dedent(
+        """
+    metrics.increment("counter", tags=["tag1", "tag2"])
+    request.metrics.gauge("gauge", tags=None)
+    tag_list = ["tag1"]
+    metrics.histogram("hist", tags=tag_list)
+    """
+    )
+    tree = ast.parse(code)
+    visitor = WarehouseVisitor(filename="test_file.py")
+    visitor.visit(tree)
+
+    # Assert that no errors are raised
+    assert len(visitor.errors) == 0
+
+
+if __name__ == "__main__":
+    test_wh003_renderer_template_not_found()
+    test_wh003_renderer_template_in_package_path()
+    test_wh004_metrics_tags_invalid_types()
+    test_wh004_metrics_tags_valid_types()
+    print("All tests passed!")

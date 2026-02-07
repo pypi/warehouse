@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import os
 import os.path
@@ -17,6 +7,7 @@ import xmlrpc.client
 
 from collections import defaultdict
 from contextlib import contextmanager
+from pathlib import Path
 from unittest import mock
 
 import alembic.command
@@ -30,7 +21,7 @@ import webtest as _webtest
 
 from jinja2 import Environment, FileSystemLoader
 from psycopg.errors import InvalidCatalogName
-from pypi_attestations import Attestation, Envelope, VerificationMaterial
+from pypi_attestations import Attestation, Envelope, Provenance, VerificationMaterial
 from pyramid.i18n import TranslationString
 from pyramid.static import ManifestCacheBuster
 from pyramid_jinja2 import IJinja2Environment
@@ -43,14 +34,21 @@ import warehouse
 
 from warehouse import admin, config, static
 from warehouse.accounts import services as account_services
-from warehouse.accounts.interfaces import ITokenService, IUserService
+from warehouse.accounts.interfaces import (
+    IDomainStatusService,
+    ITokenService,
+    IUserService,
+)
+from warehouse.accounts.oauth import IOAuthProviderService, NullGitHubOAuthClient
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.attestations import services as attestations_services
 from warehouse.attestations.interfaces import IIntegrityService
+from warehouse.cache import services as cache_services
+from warehouse.cache.interfaces import IQueryResultsCache
 from warehouse.email import services as email_services
 from warehouse.email.interfaces import IEmailSender
 from warehouse.helpdesk import services as helpdesk_services
-from warehouse.helpdesk.interfaces import IHelpDeskService
+from warehouse.helpdesk.interfaces import IAdminNotificationService, IHelpDeskService
 from warehouse.macaroons import services as macaroon_services
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.metrics import IMetricsService
@@ -61,12 +59,19 @@ from warehouse.organizations import services as organization_services
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.packaging import services as packaging_services
 from warehouse.packaging.interfaces import IProjectService
+from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
+from warehouse.search import services as search_services
+from warehouse.search.interfaces import ISearchService
 from warehouse.subscriptions import services as subscription_services
 from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
 
+from .common.constants import REMOTE_ADDR, REMOTE_ADDR_HASHED
 from .common.db import Session
 from .common.db.accounts import EmailFactory, UserFactory
 from .common.db.ip_addresses import IpAddressFactory
+
+_HERE = Path(__file__).parent.resolve()
+_FIXTURES = _HERE / "_fixtures"
 
 
 @contextmanager
@@ -85,7 +90,7 @@ def _event(
     tags=None,
     hostname=None,
 ):
-    return None
+    return None  # pragma: no cover
 
 
 @pytest.fixture
@@ -113,28 +118,6 @@ def metrics():
             )
         ),
     )
-
-
-@pytest.fixture
-def remote_addr():
-    return "1.2.3.4"
-
-
-@pytest.fixture
-def remote_addr_hashed():
-    """
-    Static output of `hashlib.sha256(remote_addr.encode("utf8")).hexdigest()`
-    Created statically to prevent needing to calculate it every run.
-    """
-    return "6694f83c9f476da31f5df6bcc520034e7e57d421d247b9d34f49edbfc84a764c"
-
-
-@pytest.fixture
-def remote_addr_salted():
-    """
-    Output of `hashlib.sha256((remote_addr + "pepa").encode("utf8")).hexdigest()`
-    """
-    return "a69a49383d81404e4b1df297c7baa28e1cd6c4ee1495ed5d0ab165a63a147763"
 
 
 @pytest.fixture
@@ -179,6 +162,12 @@ def pyramid_services(
     integrity_service,
     macaroon_service,
     helpdesk_service,
+    notification_service,
+    query_results_cache_service,
+    search_service,
+    domain_status_service,
+    ratelimit_service,
+    github_oauth_provider_service,
 ):
     services = _Services()
 
@@ -201,22 +190,32 @@ def pyramid_services(
     services.register_service(integrity_service, IIntegrityService, None)
     services.register_service(macaroon_service, IMacaroonService, None, name="")
     services.register_service(helpdesk_service, IHelpDeskService, None)
+    services.register_service(notification_service, IAdminNotificationService)
+    services.register_service(query_results_cache_service, IQueryResultsCache)
+    services.register_service(search_service, ISearchService)
+    services.register_service(domain_status_service, IDomainStatusService)
+    services.register_service(ratelimit_service, IRateLimiter, name="email.add")
+    services.register_service(ratelimit_service, IRateLimiter, name="email.verify")
+    services.register_service(
+        github_oauth_provider_service, IOAuthProviderService, name="github"
+    )
 
     return services
 
 
 @pytest.fixture
-def pyramid_request(pyramid_services, jinja, remote_addr, remote_addr_hashed):
+def pyramid_request(pyramid_services, jinja):
     pyramid.testing.setUp()
     dummy_request = pyramid.testing.DummyRequest()
     dummy_request.find_service = pyramid_services.find_service
-    dummy_request.remote_addr = remote_addr
-    dummy_request.remote_addr_hashed = remote_addr_hashed
+    dummy_request.remote_addr = REMOTE_ADDR
+    dummy_request.remote_addr_hashed = REMOTE_ADDR_HASHED
     dummy_request.authentication_method = pretend.stub()
     dummy_request._unauthenticated_userid = None
     dummy_request.user = None
     dummy_request.oidc_publisher = None
     dummy_request.metrics = dummy_request.find_service(IMetricsService)
+    dummy_request.ip_address = IpAddressFactory.create()
 
     dummy_request.registry.registerUtility(jinja, IJinja2Environment, name=".jinja2")
 
@@ -225,6 +224,12 @@ def pyramid_request(pyramid_services, jinja, remote_addr, remote_addr_hashed):
     )
     dummy_request.task = pretend.call_recorder(
         lambda *a, **kw: dummy_request._task_stub
+    )
+    dummy_request.log = pretend.stub(
+        bind=pretend.call_recorder(lambda *args, **kwargs: dummy_request.log),
+        info=pretend.call_recorder(lambda *args, **kwargs: None),
+        warning=pretend.call_recorder(lambda *args, **kwargs: None),
+        error=pretend.call_recorder(lambda *args, **kwargs: None),
     )
 
     def localize(message, **kwargs):
@@ -314,14 +319,16 @@ def get_app_config(database, nondefaults=None):
         "warehouse.prevent_esi": True,
         "warehouse.token": "insecure token",
         "warehouse.ip_salt": "insecure salt",
+        "token.confirm_login.secret": "insecure token",
         "camo.url": "http://localhost:9000/",
         "camo.key": "insecure key",
-        "celery.broker_url": "amqp://",
+        "celery.broker_redis_url": "redis://localhost:0/",
         "celery.result_url": "redis://localhost:0/",
         "celery.scheduler_url": "redis://localhost:0/",
         "database.url": database,
         "docs.url": "http://docs.example.com/",
         "ratelimit.url": "memory://",
+        "db_results_cache.url": "redis://redis:0/",
         "opensearch.url": "https://localhost/warehouse",
         "files.backend": "warehouse.packaging.services.LocalFileStorage",
         "archive_files.backend": "warehouse.packaging.services.LocalArchiveFileStorage",
@@ -335,12 +342,19 @@ def get_app_config(database, nondefaults=None):
         "billing.api_version": "2020-08-27",
         "mail.backend": "warehouse.email.services.SMTPEmailSender",
         "helpdesk.backend": "warehouse.helpdesk.services.ConsoleHelpDeskService",
+        "helpdesk.notification_backend": "warehouse.helpdesk.services.ConsoleAdminNotificationService",  # noqa: E501
         "files.url": "http://localhost:7000/",
         "archive_files.url": "http://localhost:7000/archive",
         "sessions.secret": "123456",
         "sessions.url": "redis://localhost:0/",
         "statuspage.url": "https://2p66nmmycsj3.statuspage.io",
         "warehouse.xmlrpc.cache.url": "redis://localhost:0/",
+        "terms.revision": "initial",
+        "oidc.jwk_cache_url": "redis://localhost:0/",
+        "warehouse.oidc.audience": "pypi",
+        "oidc.backend": "warehouse.oidc.services.NullOIDCPublisherService",
+        "github.oauth.backend": "warehouse.accounts.oauth.NullGitHubOAuthClient",
+        "captcha.backend": "warehouse.captcha.hcaptcha.Service",
     }
 
     if nondefaults:
@@ -424,9 +438,9 @@ def db_session(app_config):
 
 
 @pytest.fixture
-def user_service(db_session, metrics, remote_addr):
+def user_service(db_session, metrics):
     return account_services.DatabaseUserService(
-        db_session, metrics=metrics, remote_addr=remote_addr
+        db_session, metrics=metrics, remote_addr=REMOTE_ADDR
     )
 
 
@@ -447,91 +461,6 @@ def github_oidc_service(db_session):
         pretend.stub(),
         pretend.stub(),
         pretend.stub(),
-    )
-
-
-@pytest.fixture
-def dummy_github_oidc_jwt():
-    # {
-    #  "jti": "6e67b1cb-2b8d-4be5-91cb-757edb2ec970",
-    #  "sub": "repo:foo/bar",
-    #  "aud": "pypi",
-    #  "ref": "fake",
-    #  "sha": "fake",
-    #  "repository": "foo/bar",
-    #  "repository_owner": "foo",
-    #  "repository_owner_id": "123",
-    #  "run_id": "fake",
-    #  "run_number": "fake",
-    #  "run_attempt": "1",
-    #  "repository_id": "fake",
-    #  "actor_id": "fake",
-    #  "actor": "foo",
-    #  "workflow": "fake",
-    #  "head_ref": "fake",
-    #  "base_ref": "fake",
-    #  "event_name": "fake",
-    #  "ref_type": "fake",
-    #  "environment": "fake",
-    #  "job_workflow_ref": "foo/bar/.github/workflows/example.yml@fake",
-    #  "iss": "https://token.actions.githubusercontent.com",
-    #  "nbf": 1650663265,
-    #  "exp": 1650664165,
-    #  "iat": 1650663865
-    # }
-    return (
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZTY3YjFjYi0yYjhkLTRiZ"
-        "TUtOTFjYi03NTdlZGIyZWM5NzAiLCJzdWIiOiJyZXBvOmZvby9iYXIiLCJhdWQiOiJweXB"
-        "pIiwicmVmIjoiZmFrZSIsInNoYSI6ImZha2UiLCJyZXBvc2l0b3J5IjoiZm9vL2JhciIsI"
-        "nJlcG9zaXRvcnlfb3duZXIiOiJmb28iLCJyZXBvc2l0b3J5X293bmVyX2lkIjoiMTIzIiw"
-        "icnVuX2lkIjoiZmFrZSIsInJ1bl9udW1iZXIiOiJmYWtlIiwicnVuX2F0dGVtcHQiOiIxI"
-        "iwicmVwb3NpdG9yeV9pZCI6ImZha2UiLCJhY3Rvcl9pZCI6ImZha2UiLCJhY3RvciI6ImZ"
-        "vbyIsIndvcmtmbG93IjoiZmFrZSIsImhlYWRfcmVmIjoiZmFrZSIsImJhc2VfcmVmIjoiZ"
-        "mFrZSIsImV2ZW50X25hbWUiOiJmYWtlIiwicmVmX3R5cGUiOiJmYWtlIiwiZW52aXJvbm1"
-        "lbnQiOiJmYWtlIiwiam9iX3dvcmtmbG93X3JlZiI6ImZvby9iYXIvLmdpdGh1Yi93b3JrZ"
-        "mxvd3MvZXhhbXBsZS55bWxAZmFrZSIsImlzcyI6Imh0dHBzOi8vdG9rZW4uYWN0aW9ucy5"
-        "naXRodWJ1c2VyY29udGVudC5jb20iLCJuYmYiOjE2NTA2NjMyNjUsImV4cCI6MTY1MDY2N"
-        "DE2NSwiaWF0IjoxNjUwNjYzODY1fQ.f-FMv5FF5sdxAWeUilYDt9NoE7Et0vbdNhK32c2o"
-        "C-E"
-    )
-
-
-@pytest.fixture
-def dummy_activestate_oidc_jwt():
-    # {
-    #   "jti": "6e67b1cb-2b8d-4be5-91cb-757edb2ec970",
-    #   "sub": "org:fakeorg:project:fakeproject",
-    #   "aud": "pypi",
-    #   "actor_id": "fake",
-    #   "actor": "foo",
-    #   "oraganization_id": "7e67b1cb-2b8d-4be5-91cb-757edb2ec970",
-    #   "organization": "fakeorg",
-    #   "project_visibility": "private",
-    #   "project_id": "8e67b1cb-2b8d-4be5-91cb-757edb2ec970",
-    #   "project_path": "fakeorg/fakeproject",
-    #   "project": "fakeproject",
-    #   "builder": "pypi_builder",
-    #   "ingredient_name": "fakeingredient",
-    #   "artifact_id": "9e67b1cb-2b8d-4be5-91cb-757edb2ec970",
-    #   "iss":"https://platform.activestate.com/api/v1/oauth/oidc",
-    #   "nbf": 1650663265,
-    #   "exp": 1650664165,
-    #   "iat": 1650663865
-    # }
-    return (
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZTY3YjFjYi0yYjhkLTRi"
-        "ZTUtOTFjYi03NTdlZGIyZWM5NzAiLCJzdWIiOiJvcmc6ZmFrZW9yZzpwcm9qZWN0OmZha"
-        "2Vwcm9qZWN0IiwiYXVkIjoicHlwaSIsImFjdG9yX2lkIjoiZmFrZSIsImFjdG9yIjoiZm"
-        "9vIiwib3JhZ2FuaXphdGlvbl9pZCI6IjdlNjdiMWNiLTJiOGQtNGJlNS05MWNiLTc1N2V"
-        "kYjJlYzk3MCIsIm9yZ2FuaXphdGlvbiI6ImZha2VvcmciLCJwcm9qZWN0X3Zpc2liaWxp"
-        "dHkiOiJwcml2YXRlIiwicHJvamVjdF9pZCI6IjhlNjdiMWNiLTJiOGQtNGJlNS05MWNiL"
-        "Tc1N2VkYjJlYzk3MCIsInByb2plY3RfcGF0aCI6ImZha2VvcmcvZmFrZXByb2plY3QiLC"
-        "Jwcm9qZWN0IjoiZmFrZXByb2plY3QiLCJidWlsZGVyIjoicHlwaV9idWlsZGVyIiwiaW5"
-        "ncmVkaWVudF9uYW1lIjoiZmFrZWluZ3JlZGllbnQiLCJhcnRpZmFjdF9pZCI6IjllNjdi"
-        "MWNiLTJiOGQtNGJlNS05MWNiLTc1N2VkYjJlYzk3MCIsImlzcyI6Imh0dHBzOi8vcGxhd"
-        "GZvcm0uYWN0aXZlc3RhdGUuY29tL2FwaS92MS9vYXV0aC9vaWRjIiwibmJmIjoxNjUwNj"
-        "YzMjY1LCJleHAiOjE2NTA2NjQxNjUsImlhdCI6MTY1MDY2Mzg2NX0.R4q-vWAFXHrBSBK"
-        "AZuHHIsGOkqlirPxEtLfjLIDiLr0"
     )
 
 
@@ -586,6 +515,7 @@ def billing_service(app_config):
         api=stripe,
         publishable_key="pk_test_123",
         webhook_secret="whsec_123",
+        domain="localhost",
     )
 
 
@@ -609,6 +539,44 @@ def email_service():
 @pytest.fixture
 def helpdesk_service():
     return helpdesk_services.ConsoleHelpDeskService()
+
+
+@pytest.fixture
+def notification_service():
+    return helpdesk_services.ConsoleAdminNotificationService()
+
+
+@pytest.fixture
+def query_results_cache_service(mockredis):
+    return cache_services.RedisQueryResults(redis_client=mockredis)
+
+
+@pytest.fixture
+def search_service():
+    return search_services.NullSearchService()
+
+
+@pytest.fixture
+def domain_status_service(mocker):
+    service = account_services.NullDomainStatusService()
+    mocker.spy(service, "get_domain_status")
+    return service
+
+
+@pytest.fixture
+def ratelimit_service(mocker):
+    service = DummyRateLimiter()
+    mocker.spy(service, "clear")
+    return service
+
+
+@pytest.fixture
+def github_oauth_provider_service(mocker):
+    service = NullGitHubOAuthClient(redirect_uri="http://localhost/callback")
+    mocker.spy(service, "generate_authorize_url")
+    mocker.spy(service, "exchange_code_for_token")
+    mocker.spy(service, "get_user_info")
+    return service
 
 
 class QueryRecorder:
@@ -647,11 +615,13 @@ def query_recorder(app_config):
         yield recorder
     finally:
         event.remove(engine, "before_cursor_execute", recorder.record)
+        recorder.clear()
 
 
 @pytest.fixture
-def db_request(pyramid_request, db_session):
+def db_request(pyramid_request, db_session, tm):
     pyramid_request.db = db_session
+    pyramid_request.tm = tm
     pyramid_request.flags = admin.flags.Flags(pyramid_request)
     pyramid_request.banned = admin.bans.Bans(pyramid_request)
     pyramid_request.organization_access = True
@@ -660,6 +630,28 @@ def db_request(pyramid_request, db_session):
         hashed_ip_address=pyramid_request.remote_addr_hashed,
     )
     return pyramid_request
+
+
+@pytest.fixture
+def _enable_all_oidc_providers(webtest):
+    flags = (
+        AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC,
+        AdminFlagValue.DISALLOW_GITLAB_OIDC,
+        AdminFlagValue.DISALLOW_GITHUB_OIDC,
+        AdminFlagValue.DISALLOW_GOOGLE_OIDC,
+    )
+    original_flag_values = {}
+    db_sess = webtest.extra_environ["warehouse.db_session"]
+
+    for flag in flags:
+        flag_db = db_sess.get(AdminFlag, flag.value)
+        original_flag_values[flag] = flag_db.enabled
+        flag_db.enabled = False
+    yield
+
+    for flag in flags:
+        flag_db = db_sess.get(AdminFlag, flag.value)
+        flag_db.enabled = original_flag_values[flag]
 
 
 @pytest.fixture
@@ -689,7 +681,7 @@ def make_email_renderers(pyramid_config):
         name,
         subject="Email Subject",
         body="Email Body",
-        html="Email HTML Body",
+        html="<p>Email HTML Body</p>",
     ):
         subject_renderer = pyramid_config.testing_add_renderer(
             f"email/{name}/subject.txt"
@@ -716,7 +708,6 @@ def tm():
     # Create a new transaction manager for dependant test cases
     tm = transaction.TransactionManager(explicit=True)
     tm.begin()
-    tm.doom()
 
     yield tm
 
@@ -725,7 +716,7 @@ def tm():
 
 
 @pytest.fixture
-def webtest(app_config_dbsession_from_env, remote_addr, tm):
+def webtest(app_config_dbsession_from_env, tm):
     """
     This fixture yields a test app with an alternative Pyramid configuration,
     injecting the database session and transaction manager into the app.
@@ -750,7 +741,7 @@ def webtest(app_config_dbsession_from_env, remote_addr, tm):
                 "warehouse.db_session": _db_session,
                 "tm.active": True,  # disable pyramid_tm
                 "tm.manager": tm,  # pass in our own tm for the app to use
-                "REMOTE_ADDR": remote_addr,  # set the same address for all requests
+                "REMOTE_ADDR": REMOTE_ADDR,  # set the same address for all requests
             },
         )
         yield testapp
@@ -766,7 +757,7 @@ class _MockRedis:
     def __init__(self, cache=None):
         self.cache = cache
 
-        if not self.cache:
+        if not self.cache:  # pragma: no cover
             self.cache = dict()
 
     def __enter__(self):
@@ -797,7 +788,7 @@ class _MockRedis:
             return None
 
     def hset(self, hash_, key, value, *_args, **_kwargs):
-        if hash_ not in self.cache:
+        if hash_ not in self.cache:  # pragma: no cover
             self.cache[hash_] = dict()
         self.cache[hash_][key] = value
 
@@ -808,7 +799,7 @@ class _MockRedis:
         return self
 
     def register_script(self, script):
-        return script
+        return script  # pragma: no cover
 
     def scan_iter(self, search, count):
         del count  # unused
@@ -824,3 +815,25 @@ class _MockRedis:
 @pytest.fixture
 def mockredis():
     return _MockRedis()
+
+
+@pytest.fixture
+def gitlab_provenance() -> Provenance:
+    """
+    Provenance from
+    https://test.pypi.org/integrity/pep740-sampleproject/1.0.0/pep740_sampleproject-1.0.0.tar.gz/provenance
+    """
+    return Provenance.model_validate_json(
+        (_FIXTURES / "pep740-sampleproject-1.0.0.tar.gz.provenance").read_text()
+    )
+
+
+@pytest.fixture
+def github_provenance() -> Provenance:
+    """
+    Provenance from
+    https://pypi.org/integrity/sampleproject/4.0.0/sampleproject-4.0.0.tar.gz/provenance
+    """
+    return Provenance.model_validate_json(
+        (_FIXTURES / "sampleproject-4.0.0.tar.gz.provenance").read_text()
+    )

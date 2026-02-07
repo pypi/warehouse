@@ -11,8 +11,8 @@ jobs:
   zizmor:
     # Advanced Security is not enabled on private repositories
     if: github.repository == 'pypi/warehouse'
-    name: Zizmor latest via Cargo
-    runs-on: ubuntu-latest
+    name: Zizmor
+    runs-on: ubuntu-24.04
     permissions:
       security-events: write
       # required for workflows in private repositories
@@ -20,17 +20,15 @@ jobs:
       actions: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-      - name: Setup Rust
-        uses: actions-rust-lang/setup-rust-toolchain@v1
-      - name: Get zizmor
-        run: cargo install zizmor
+      - name: Setup Python
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
       - name: Run zizmor
-        run: zizmor --format sarif . > results.sarif
+        run: pipx run zizmor --format sarif . > results.sarif
       - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@6bc82e05fd0ea64601dd4b465378bbcf57de0314 # v4.32.1
         with:
           # Path to SARIF file relative to the root of the repository
           sarif_file: results.sarif

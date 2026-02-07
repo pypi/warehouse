@@ -1,16 +1,14 @@
-/*!
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/* SPDX-License-Identifier: Apache-2.0 */
+
+@use "sass:color";
+@use "sass:list";
+@use "../settings/breakpoints";
+@use "../settings/colours";
+@use "../settings/fonts";
+@use "../settings/grid";
+@use "../settings/z-index";
+@use "../tools/design-utilities";
+@use "../tools/layout-utilities";
 
 /*
   Individual release information represented as a card with meta data
@@ -36,12 +34,12 @@
 */
 
 .release {
-  @include clearfix;
+  @include layout-utilities.clearfix;
   display: table;
   table-layout: fixed;
   width: 100%;
-  border-left: 1px solid $background-color;
-  padding: 0 $half-spacing-unit;
+  border-left: 1px solid colours.$background-color;
+  padding: 0 grid.$half-spacing-unit;
 
   &__meta {
     width: 110px;
@@ -53,14 +51,14 @@
       float: right;
     }
 
-    @media screen and (max-width: $tablet) {
+    @media screen and (max-width: breakpoints.$tablet) {
       & > .badge {
         float: left;
         margin-right: 10px;
       }
     }
 
-    @media screen and (max-width: $mobile) {
+    @media screen and (max-width: breakpoints.$mobile) {
       display: none;
     }
   }
@@ -72,7 +70,7 @@
     vertical-align: middle;
     position: relative;
 
-    @media screen and (max-width: $tablet) {
+    @media screen and (max-width: breakpoints.$tablet) {
       display: none;
     }
   }
@@ -83,49 +81,55 @@
     bottom: 0;
     width: 100%;
     height: 100%;
-    z-index: index($z-index-scale, "history-line");
+    z-index: list.index(z-index.$z-index-scale, "history-line");
     background: url("../images/history-line.png") repeat-y 50% 50%;
   }
 
   &__node {
-    background-color: $background-color;
+    background-color: colours.$background-color;
     padding: 7px 0;
     position: relative;
-    z-index: index($z-index-scale, "history-node");
+    z-index: list.index(z-index.$z-index-scale, "history-node");
   }
 
   &__card {
     display: block;
-    @include card;
-    padding: $half-spacing-unit;
-    margin: $half-spacing-unit 0;
+    @include design-utilities.card;
+    padding: grid.$half-spacing-unit;
+    margin: grid.$half-spacing-unit 0;
   }
 
   &__version {
     padding-bottom: 0;
     font-size: 1.25rem;
-    font-weight: $bold-font-weight;
+    font-weight: fonts.$bold-font-weight;
   }
 
   &__version-date {
     padding-bottom: 2px;
   }
 
-  &__yanked-reason p {
-    @include ellipsis;
+  &__yanked-reason {
+    display: block;
+
+    p {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
 
   &--current {
-    background-color: darken($background-color, 1);
+    background-color: color.adjust(colours.$background-color, $lightness: -1%);
     border: 1px dotted #ccc;
 
     .release__node {
-      background-color: darken($background-color, 1);
+      background-color: color.adjust(colours.$background-color, $lightness: -1%);
     }
 
     .release__card {
-      background-color: $white;
-      box-shadow: 1px 1px 2px 1px transparentize($black, 0.95);
+      background-color: colours.$white;
+      box-shadow: 1px 1px 2px 1px color.adjust(colours.$black, $alpha: -0.95);
     }
   }
 

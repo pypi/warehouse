@@ -1,16 +1,8 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import datetime
+
+from pathlib import Path
 
 import opensearchpy
 import pretend
@@ -25,6 +17,7 @@ from pyramid.httpexceptions import (
     HTTPServiceUnavailable,
     HTTPTooManyRequests,
 )
+from pyramid.response import FileResponse
 from trove_classifiers import sorted_classifiers
 from webob.multidict import MultiDict
 
@@ -41,6 +34,7 @@ from warehouse.views import (
     forbidden_api,
     forbidden_include,
     force_status,
+    funding_manifest_urls,
     health,
     httpexception_view,
     index,
@@ -363,9 +357,33 @@ class TestServiceUnavailableView:
         _assert_has_cors_headers(resp.headers)
 
 
+def test_favicon(pyramid_request):
+    pyramid_request.static_path = pretend.call_recorder(lambda path: f"/static/{path}")
+    # Construct the path to the favicon.ico file relative to the codebase directory
+    codebase_dir = Path(__file__).resolve().parent.parent.parent
+    favicon_path = (
+        codebase_dir / "warehouse" / "static" / "dist" / "images" / "favicon.ico"
+    )
+    # Create a dummy file to test the favicon
+    favicon_path.parent.mkdir(parents=True, exist_ok=True)
+    favicon_path.touch()
+
+    response = views.favicon(pyramid_request)
+
+    assert isinstance(response, FileResponse)
+    assert pyramid_request.response.content_type == "image/x-icon"
+
+
 def test_robotstxt(pyramid_request):
     assert robotstxt(pyramid_request) == {}
     assert pyramid_request.response.content_type == "text/plain"
+
+
+def test_funding_manifest_urls(pyramid_request):
+    response = funding_manifest_urls(pyramid_request)
+    assert response.text == "https://www.python.org/funding.json"
+    assert response.content_type == "text/plain"
+    assert response.charset == "utf-8"
 
 
 def test_opensearchxml(pyramid_request):

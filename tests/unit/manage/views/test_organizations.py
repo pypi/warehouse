@@ -1,14 +1,5 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
+
 import datetime
 import uuid
 
@@ -17,11 +8,15 @@ import pytest
 
 from freezegun import freeze_time
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
+from psycopg.errors import UniqueViolation
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from webob.multidict import MultiDict
 
 from tests.common.db.accounts import EmailFactory, UserFactory
+from tests.common.db.oidc import PendingGitHubPublisherFactory
 from tests.common.db.organizations import (
+    OrganizationApplicationFactory,
+    OrganizationApplicationObservationFactory,
     OrganizationEventFactory,
     OrganizationFactory,
     OrganizationInvitationFactory,
@@ -39,12 +34,15 @@ from tests.common.db.subscriptions import (
 )
 from warehouse.accounts import ITokenService, IUserService
 from warehouse.accounts.interfaces import TokenExpired
+from warehouse.admin.flags import AdminFlagValue
 from warehouse.authnz import Permissions
 from warehouse.manage import views
 from warehouse.manage.views import organizations as org_views
+from warehouse.oidc.models import PendingGitHubPublisher
 from warehouse.organizations import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
+    OrganizationApplicationStatus,
     OrganizationInvitation,
     OrganizationInvitationStatus,
     OrganizationRole,
@@ -53,6 +51,271 @@ from warehouse.organizations.models import (
 )
 from warehouse.packaging import Project
 from warehouse.utils.paginate import paginate_url_factory
+
+
+class TestManageOrganizationApplication:
+    def test_manage_organization_application(self, db_request):
+        _organization_application = OrganizationApplicationFactory.create(
+            status=OrganizationApplicationStatus.Submitted
+        )
+
+        view = org_views.ManageOrganizationApplicationViews(
+            _organization_application, db_request
+        )
+        assert view.manage_organization_application() == {
+            "organization_application": _organization_application,
+            "information_requests": [],
+            "response_forms": {},
+        }
+        assert (
+            _organization_application.status == OrganizationApplicationStatus.Submitted
+        )
+
+    def test_manage_organization_application_response_with_info_requests(
+        self, db_request, organization_service, monkeypatch
+    ):
+        _organization_application = OrganizationApplicationFactory.create(
+            status=OrganizationApplicationStatus.MoreInformationNeeded
+        )
+
+        with freeze_time() as frozen_datetime:
+            _request_for_more_info0 = OrganizationApplicationObservationFactory(
+                related=_organization_application,
+                payload={"message": "we need more information"},
+                created=datetime.datetime.now(datetime.UTC),
+            )
+            frozen_datetime.tick(1.0)
+            _request_for_more_info1 = OrganizationApplicationObservationFactory(
+                related=_organization_application,
+                payload={"message": "we still need more information"},
+                created=datetime.datetime.now(datetime.UTC),
+            )
+
+        view = org_views.ManageOrganizationApplicationViews(
+            _organization_application, db_request
+        )
+        _response = view.manage_organization_application()
+
+        assert (
+            _organization_application.status
+            == OrganizationApplicationStatus.MoreInformationNeeded
+        )
+        assert _response["organization_application"] == _organization_application
+        assert _response["information_requests"] == [
+            _request_for_more_info1,
+            _request_for_more_info0,
+        ]
+        assert len(_response["response_forms"]) == 2
+        assert _request_for_more_info0.id in _response["response_forms"]
+        assert _request_for_more_info1.id in _response["response_forms"]
+
+    def test_manage_organization_application_response_with_info_requests_and_responses(
+        self, db_request, organization_service, monkeypatch
+    ):
+        _organization_application = OrganizationApplicationFactory.create(
+            status=OrganizationApplicationStatus.MoreInformationNeeded
+        )
+
+        with freeze_time() as frozen_datetime:
+            _request_for_more_info0 = OrganizationApplicationObservationFactory(
+                related=_organization_application,
+                payload={"message": "we need more information"},
+                additional={
+                    "response": "you got it",
+                    "response_time": "2025-03-14T15:40:36.485495+00:00",
+                },
+                created=datetime.datetime.now(datetime.UTC),
+            )
+            frozen_datetime.tick(1.0)
+            _request_for_more_info1 = OrganizationApplicationObservationFactory(
+                related=_organization_application,
+                payload={"message": "we still need more information"},
+                created=datetime.datetime.now(datetime.UTC),
+            )
+
+        view = org_views.ManageOrganizationApplicationViews(
+            _organization_application, db_request
+        )
+        _response = view.manage_organization_application()
+
+        assert (
+            _organization_application.status
+            == OrganizationApplicationStatus.MoreInformationNeeded
+        )
+        assert _response["organization_application"] == _organization_application
+        assert _response["information_requests"] == [
+            _request_for_more_info1,
+            _request_for_more_info0,
+        ]
+        assert len(_response["response_forms"]) == 1
+        assert _request_for_more_info1.id in _response["response_forms"]
+
+    def test_manage_organization_application_response_with_all_responded(
+        self, db_request, organization_service
+    ):
+        _organization_application = OrganizationApplicationFactory.create(
+            status=OrganizationApplicationStatus.Submitted
+        )
+
+        with freeze_time() as frozen_datetime:
+            _request_for_more_info0 = OrganizationApplicationObservationFactory(
+                related=_organization_application,
+                payload={"message": "we need more information"},
+                additional={
+                    "response": "you got it",
+                    "response_time": "2025-03-14T15:40:36.485495+00:00",
+                },
+                created=datetime.datetime.now(datetime.UTC),
+            )
+            frozen_datetime.tick(1.0)
+            _request_for_more_info1 = OrganizationApplicationObservationFactory(
+                related=_organization_application,
+                payload={"message": "we still need more information"},
+                additional={
+                    "response": "you got it",
+                    "response_time": "2025-03-14T15:40:36.485495+00:00",
+                },
+                created=datetime.datetime.now(datetime.UTC),
+            )
+
+        view = org_views.ManageOrganizationApplicationViews(
+            _organization_application, db_request
+        )
+        _response = view.manage_organization_application()
+
+        assert (
+            _organization_application.status == OrganizationApplicationStatus.Submitted
+        )
+        assert _response["organization_application"] == _organization_application
+        assert _response["information_requests"] == [
+            _request_for_more_info1,
+            _request_for_more_info0,
+        ]
+        assert len(_response["response_forms"]) == 0
+
+    def test_manage_organization_application_submit_empty(
+        self, db_request, organization_service
+    ):
+        _organization_application = OrganizationApplicationFactory.create(
+            status=OrganizationApplicationStatus.MoreInformationNeeded
+        )
+
+        with freeze_time() as frozen_datetime:
+            _request_for_more_info0 = OrganizationApplicationObservationFactory(
+                related=_organization_application,
+                payload={"message": "we need more information"},
+                additional={
+                    "response": "you got it",
+                    "response_time": "2025-03-14T15:40:36.485495+00:00",
+                },
+                created=datetime.datetime.now(datetime.UTC),
+            )
+            frozen_datetime.tick(1.0)
+            _request_for_more_info1 = OrganizationApplicationObservationFactory(
+                related=_organization_application,
+                payload={"message": "we still need more information"},
+                created=datetime.datetime.now(datetime.UTC),
+            )
+
+        db_request.POST = MultiDict({})
+
+        view = org_views.ManageOrganizationApplicationViews(
+            _organization_application, db_request
+        )
+        _response = view.manage_organization_application_submit()
+
+        assert (
+            _organization_application.status
+            == OrganizationApplicationStatus.MoreInformationNeeded
+        )
+        assert _response["organization_application"] == _organization_application
+        assert _response["information_requests"] == [
+            _request_for_more_info1,
+            _request_for_more_info0,
+        ]
+        assert len(_response["response_forms"]) == 1
+        assert _request_for_more_info1.id in _response["response_forms"]
+
+    def test_manage_organization_application_submit_response(
+        self, db_request, organization_service
+    ):
+        _organization_application = OrganizationApplicationFactory.create(
+            status=OrganizationApplicationStatus.MoreInformationNeeded
+        )
+
+        with freeze_time() as frozen_datetime:
+            OrganizationApplicationObservationFactory(
+                related=_organization_application,
+                payload={"message": "we need more information"},
+                additional={
+                    "response": "you got it",
+                    "response_time": "2025-03-14T15:40:36.485495+00:00",
+                },
+                created=datetime.datetime.now(datetime.UTC),
+            )
+            frozen_datetime.tick(1.0)
+            _request_for_more_info1 = OrganizationApplicationObservationFactory(
+                related=_organization_application,
+                payload={"message": "we still need more information"},
+                created=datetime.datetime.now(datetime.UTC),
+            )
+
+        db_request.POST = MultiDict(
+            {
+                "response_form-id": _request_for_more_info1.id.__str__(),
+                "response": "This is my response",
+            }
+        )
+
+        view = org_views.ManageOrganizationApplicationViews(
+            _organization_application, db_request
+        )
+        _response = view.manage_organization_application_submit()
+
+        assert (
+            _organization_application.status == OrganizationApplicationStatus.Submitted
+        )
+        assert isinstance(_response, HTTPSeeOther)
+        assert _request_for_more_info1.additional["response"] == "This is my response"
+
+    def test_manage_organization_application_submit_response_correct_request(
+        self, db_request, organization_service
+    ):
+        _organization_application = OrganizationApplicationFactory.create(
+            status=OrganizationApplicationStatus.MoreInformationNeeded
+        )
+
+        with freeze_time() as frozen_datetime:
+            OrganizationApplicationObservationFactory(
+                related=_organization_application,
+                payload={"message": "we need more information"},
+                created=datetime.datetime.now(datetime.UTC),
+            )
+            frozen_datetime.tick(1.0)
+            _request_for_more_info1 = OrganizationApplicationObservationFactory(
+                related=_organization_application,
+                payload={"message": "we still need more information"},
+                created=datetime.datetime.now(datetime.UTC),
+            )
+
+        db_request.POST = MultiDict(
+            {
+                "response_form-id": _request_for_more_info1.id.__str__(),
+                "response": "This is my response",
+            }
+        )
+
+        view = org_views.ManageOrganizationApplicationViews(
+            _organization_application, db_request
+        )
+        _response = view.manage_organization_application_submit()
+
+        assert (
+            _organization_application.status
+            == OrganizationApplicationStatus.MoreInformationNeeded
+        )
+        assert isinstance(_response, HTTPSeeOther)
+        assert _request_for_more_info1.additional["response"] == "This is my response"
 
 
 class TestManageOrganizations:
@@ -658,92 +921,6 @@ class TestManageOrganizationSettings:
         assert organization_service.update_organization.calls == []
 
     @pytest.mark.usefixtures("_enable_organizations")
-    def test_save_organization_name(
-        self,
-        db_request,
-        pyramid_user,
-        organization_service,
-        user_service,
-        monkeypatch,
-    ):
-        organization = OrganizationFactory.create(name="foobar")
-        db_request.POST = {
-            "confirm_current_organization_name": organization.name,
-            "name": "FooBar",
-        }
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, organization_name, **kw: (
-                f"/manage/organization/{organization_name}/settings/"
-            )
-        )
-
-        def rename_organization(organization_id, organization_name):
-            organization.name = organization_name
-
-        monkeypatch.setattr(
-            organization_service,
-            "rename_organization",
-            pretend.call_recorder(rename_organization),
-        )
-
-        admin = None
-        monkeypatch.setattr(
-            user_service,
-            "get_admin_user",
-            pretend.call_recorder(lambda *a, **kw: admin),
-        )
-
-        save_organization_obj = pretend.stub()
-        save_organization_cls = pretend.call_recorder(
-            lambda *a, **kw: save_organization_obj
-        )
-        monkeypatch.setattr(org_views, "SaveOrganizationForm", save_organization_cls)
-
-        save_organization_name_obj = pretend.stub(
-            validate=lambda: True, name=pretend.stub(data=db_request.POST["name"])
-        )
-        save_organization_name_cls = pretend.call_recorder(
-            lambda *a, **kw: save_organization_name_obj
-        )
-        monkeypatch.setattr(
-            org_views, "SaveOrganizationNameForm", save_organization_name_cls
-        )
-
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(
-            org_views, "send_admin_organization_renamed_email", send_email
-        )
-        monkeypatch.setattr(org_views, "send_organization_renamed_email", send_email)
-        monkeypatch.setattr(
-            org_views, "organization_owners", lambda *a, **kw: [pyramid_user]
-        )
-
-        view = org_views.ManageOrganizationSettingsViews(organization, db_request)
-        result = view.save_organization_name()
-
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == (
-            f"/manage/organization/{organization.normalized_name}/settings/#modal-close"
-        )
-        assert organization_service.rename_organization.calls == [
-            pretend.call(organization.id, "FooBar")
-        ]
-        assert send_email.calls == [
-            pretend.call(
-                db_request,
-                admin,
-                organization_name="FooBar",
-                previous_organization_name="foobar",
-            ),
-            pretend.call(
-                db_request,
-                {pyramid_user},
-                organization_name="FooBar",
-                previous_organization_name="foobar",
-            ),
-        ]
-
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_save_organization_name_wrong_confirm(
         self, db_request, organization_service, monkeypatch
     ):
@@ -772,23 +949,29 @@ class TestManageOrganizationSettings:
         ]
 
     @pytest.mark.usefixtures("_enable_organizations")
-    def test_save_organization_name_validation_fails(
-        self, db_request, organization_service, monkeypatch
+    def test_disable_save_organization_name(
+        self,
+        db_request,
+        pyramid_user,
+        user_service,
+        monkeypatch,
     ):
         organization = OrganizationFactory.create(name="foobar")
         db_request.POST = {
             "confirm_current_organization_name": organization.name,
             "name": "FooBar",
         }
-        db_request.user = pretend.stub()
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, organization_name, **kw: (
+                f"/manage/organization/{organization_name}/settings/"
+            )
+        )
 
-        def rename_organization(organization_id, organization_name):
-            organization.name = organization_name
-
+        admin = None
         monkeypatch.setattr(
-            organization_service,
-            "rename_organization",
-            pretend.call_recorder(rename_organization),
+            user_service,
+            "get_admin_user",
+            pretend.call_recorder(lambda *a, **kw: admin),
         )
 
         save_organization_obj = pretend.stub()
@@ -798,7 +981,7 @@ class TestManageOrganizationSettings:
         monkeypatch.setattr(org_views, "SaveOrganizationForm", save_organization_cls)
 
         save_organization_name_obj = pretend.stub(
-            validate=lambda: False, errors=pretend.stub(values=lambda: ["Invalid"])
+            validate=lambda: True, name=pretend.stub(data=db_request.POST["name"])
         )
         save_organization_name_cls = pretend.call_recorder(
             lambda *a, **kw: save_organization_name_obj
@@ -807,14 +990,139 @@ class TestManageOrganizationSettings:
             org_views, "SaveOrganizationNameForm", save_organization_name_cls
         )
 
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+
         view = org_views.ManageOrganizationSettingsViews(organization, db_request)
         result = view.save_organization_name()
 
-        assert result == {
-            **view.default_response,
-            "save_organization_name_form": save_organization_name_obj,
-        }
-        assert organization_service.rename_organization.calls == []
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == (
+            f"/manage/organization/{organization.normalized_name}/settings/"
+        )
+        assert send_email.calls == []
+
+    # When support for renaming orgs is re-introduced
+    # @pytest.mark.usefixtures("_enable_organizations")
+    # def test_save_organization_name(
+    #    self,
+    #    db_request,
+    #    pyramid_user,
+    #    organization_service,
+    #    user_service,
+    #    monkeypatch,
+    # ):
+    #    organization = OrganizationFactory.create(name="foobar")
+    #    db_request.POST = {
+    #        "confirm_current_organization_name": organization.name,
+    #        "name": "FooBar",
+    #    }
+    #    db_request.route_path = pretend.call_recorder(
+    #        lambda *a, organization_name, **kw: (
+    #            f"/manage/organization/{organization_name}/settings/"
+    #        )
+    #    )
+
+    #    def rename_organization(organization_id, organization_name):
+    #        organization.name = organization_name
+
+    #    monkeypatch.setattr(
+    #        organization_service,
+    #        "rename_organization",
+    #        pretend.call_recorder(rename_organization),
+    #    )
+
+    #    admin = None
+    #    monkeypatch.setattr(
+    #        user_service,
+    #        "get_admin_user",
+    #        pretend.call_recorder(lambda *a, **kw: admin),
+    #    )
+
+    #    save_organization_obj = pretend.stub()
+    #    save_organization_cls = pretend.call_recorder(
+    #        lambda *a, **kw: save_organization_obj
+    #    )
+    #    monkeypatch.setattr(org_views, "SaveOrganizationForm", save_organization_cls)
+
+    #    save_organization_name_obj = pretend.stub(
+    #        validate=lambda: True, name=pretend.stub(data=db_request.POST["name"])
+    #    )
+    #    save_organization_name_cls = pretend.call_recorder(
+    #        lambda *a, **kw: save_organization_name_obj
+    #    )
+    #    monkeypatch.setattr(
+    #        org_views, "SaveOrganizationNameForm", save_organization_name_cls
+    #    )
+
+    #    send_email = pretend.call_recorder(lambda *a, **kw: None)
+    #    monkeypatch.setattr(org_views, "send_organization_renamed_email", send_email)
+    #    monkeypatch.setattr(
+    #        org_views, "organization_owners", lambda *a, **kw: [pyramid_user]
+    #    )
+
+    #    view = org_views.ManageOrganizationSettingsViews(organization, db_request)
+    #    result = view.save_organization_name()
+
+    #    assert isinstance(result, HTTPSeeOther)
+    #    assert result.headers["Location"] == (
+    #        f"/manage/organization/{organization.normalized_name}/settings/#modal-close"
+    #    )
+    #    assert organization_service.rename_organization.calls == [
+    #         pretend.call(organization.id, "FooBar")
+    #    ]
+    #    assert send_email.calls == [
+    #        pretend.call(
+    #            db_request,
+    #            {pyramid_user},
+    #            organization_name="FooBar",
+    #            previous_organization_name="foobar",
+    #        ),
+    #    ]
+
+    # @pytest.mark.usefixtures("_enable_organizations")
+    # def test_save_organization_name_validation_fails(
+    #    self, db_request, organization_service, monkeypatch
+    # ):
+    #    organization = OrganizationFactory.create(name="foobar")
+    #    db_request.POST = {
+    #        "confirm_current_organization_name": organization.name,
+    #        "name": "FooBar",
+    #    }
+    #    db_request.user = pretend.stub()
+
+    #    def rename_organization(organization_id, organization_name):
+    #        organization.name = organization_name
+
+    #    monkeypatch.setattr(
+    #        organization_service,
+    #        "rename_organization",
+    #        pretend.call_recorder(rename_organization),
+    #    )
+
+    #    save_organization_obj = pretend.stub()
+    #    save_organization_cls = pretend.call_recorder(
+    #        lambda *a, **kw: save_organization_obj
+    #    )
+    #    monkeypatch.setattr(org_views, "SaveOrganizationForm", save_organization_cls)
+
+    #    save_organization_name_obj = pretend.stub(
+    #        validate=lambda: False, errors=pretend.stub(values=lambda: ["Invalid"])
+    #    )
+    #    save_organization_name_cls = pretend.call_recorder(
+    #        lambda *a, **kw: save_organization_name_obj
+    #    )
+    #    monkeypatch.setattr(
+    #        org_views, "SaveOrganizationNameForm", save_organization_name_cls
+    #    )
+
+    #    view = org_views.ManageOrganizationSettingsViews(organization, db_request)
+    #    result = view.save_organization_name()
+
+    #    assert result == {
+    #        **view.default_response,
+    #        "save_organization_name_form": save_organization_name_obj,
+    #    }
+    #    assert organization_service.rename_organization.calls == []
 
     @pytest.mark.usefixtures("_enable_organizations")
     def test_delete_organization(
@@ -845,9 +1153,6 @@ class TestManageOrganizationSettings:
         )
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(
-            org_views, "send_admin_organization_deleted_email", send_email
-        )
         monkeypatch.setattr(org_views, "send_organization_deleted_email", send_email)
         monkeypatch.setattr(
             org_views, "organization_owners", lambda *a, **kw: [pyramid_user]
@@ -862,11 +1167,6 @@ class TestManageOrganizationSettings:
             pretend.call(organization.id)
         ]
         assert send_email.calls == [
-            pretend.call(
-                db_request,
-                admin,
-                organization_name=organization.name,
-            ),
             pretend.call(
                 db_request,
                 {pyramid_user},
@@ -958,9 +1258,6 @@ class TestManageOrganizationSettings:
         )
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(
-            org_views, "send_admin_organization_deleted_email", send_email
-        )
         monkeypatch.setattr(org_views, "send_organization_deleted_email", send_email)
         monkeypatch.setattr(
             org_views, "organization_owners", lambda *a, **kw: [pyramid_user]
@@ -975,11 +1272,6 @@ class TestManageOrganizationSettings:
             pretend.call(organization.id)
         ]
         assert send_email.calls == [
-            pretend.call(
-                db_request,
-                admin,
-                organization_name=organization.name,
-            ),
             pretend.call(
                 db_request,
                 {pyramid_user},
@@ -1066,16 +1358,67 @@ class TestManageOrganizationBillingViews:
         self,
         db_request,
         organization,
+        monkeypatch,
     ):
+        organization_activate_billing_form_obj = pretend.stub()
+        organization_activate_billing_form_cls = pretend.call_recorder(
+            lambda *a, **kw: organization_activate_billing_form_obj
+        )
+        monkeypatch.setattr(
+            org_views,
+            "OrganizationActivateBillingForm",
+            organization_activate_billing_form_cls,
+        )
+        db_request.POST = MultiDict()
+
         view = org_views.ManageOrganizationBillingViews(organization, db_request)
 
-        # We're not ready for companies to activate their own subscriptions yet.
-        with pytest.raises(HTTPNotFound):
-            assert view.activate_subscription()
+        result = view.activate_subscription()
 
-        # result = view.activate_subscription()
+        assert result == {
+            "organization": organization,
+            "form": organization_activate_billing_form_obj,
+        }
 
-        # assert result == {"organization": organization}
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_post_activate_subscription_valid(
+        self,
+        db_request,
+        organization,
+        monkeypatch,
+    ):
+        db_request.method = "POST"
+        db_request.POST = MultiDict({"terms_of_service_agreement": "1"})
+
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "mock-billing-url"
+        )
+
+        view = org_views.ManageOrganizationBillingViews(organization, db_request)
+
+        result = view.activate_subscription()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "mock-billing-url"
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_post_activate_subscription_invalid(
+        self,
+        db_request,
+        organization,
+        monkeypatch,
+    ):
+        db_request.method = "POST"
+        db_request.POST = MultiDict()
+
+        view = org_views.ManageOrganizationBillingViews(organization, db_request)
+
+        result = view.activate_subscription()
+
+        assert result["organization"] == organization
+        assert result["form"].terms_of_service_agreement.errors == [
+            "Terms of Service must be accepted."
+        ]
 
     @pytest.mark.usefixtures("_enable_organizations")
     def test_create_subscription(
@@ -1502,7 +1845,6 @@ class TestManageOrganizationProjects:
         self,
         db_request,
         pyramid_user,
-        organization_service,
         monkeypatch,
     ):
         organization = OrganizationFactory.create()
@@ -1527,15 +1869,6 @@ class TestManageOrganizationProjects:
         )
         monkeypatch.setattr(
             org_views, "AddOrganizationProjectForm", add_organization_project_cls
-        )
-
-        def add_organization_project(*args, **kwargs):
-            OrganizationProjectFactory.create(
-                organization=organization, project=project
-            )
-
-        monkeypatch.setattr(
-            organization_service, "add_organization_project", add_organization_project
         )
 
         view = org_views.ManageOrganizationProjectsViews(organization, db_request)
@@ -1761,6 +2094,12 @@ class TestManageOrganizationRoles:
         monkeypatch,
     ):
         organization = OrganizationFactory.create(name="foobar", orgtype=orgtype)
+
+        # Company organizations need billing to be in good standing
+        if orgtype == OrganizationType.Company:
+            OrganizationStripeCustomerFactory.create(organization=organization)
+            OrganizationStripeSubscriptionFactory.create(organization=organization)
+
         new_user = UserFactory.create(username="new_user")
         EmailFactory.create(user=new_user, verified=True, primary=True)
         owner_1 = UserFactory.create(username="owner_1")
@@ -2147,6 +2486,43 @@ class TestManageOrganizationRoles:
                 token_age=token_service.max_age,
             )
         ]
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_manage_organization_roles_not_in_good_standing(
+        self, db_request, monkeypatch
+    ):
+        organization = OrganizationFactory.create(orgtype="Company")  # No billing
+        new_user = UserFactory.create(username="new-user")
+        EmailFactory.create(user=new_user, verified=True, primary=True)
+        owner_user = UserFactory.create()
+        OrganizationRoleFactory(
+            user=owner_user,
+            organization=organization,
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        form_obj = pretend.stub(
+            username=pretend.stub(data="new-user"),
+            role_name=pretend.stub(data=OrganizationRoleType.Member),
+            validate=pretend.call_recorder(lambda: True),
+        )
+        form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
+
+        db_request.method = "POST"
+        db_request.user = owner_user
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+
+        result = org_views.manage_organization_roles(
+            organization, db_request, _form_class=form_class
+        )
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Cannot invite new member. Organization is not in good standing.",
+                queue="error",
+            )
+        ]
+        assert isinstance(result, HTTPSeeOther)  # Redirect due to inactive org
 
 
 class TestResendOrganizationInvitations:
@@ -2966,3 +3342,468 @@ class TestManageOrganizationHistory:
 
         with pytest.raises(HTTPNotFound):
             assert org_views.manage_organization_history(organization, db_request)
+
+
+class TestManageOrganizationPublishingViews:
+    def test_manage_organization_publishing_get(self, db_request):
+        """Test GET request returns all forms and pending publishers"""
+        organization = OrganizationFactory.create()
+        user = UserFactory.create()
+        db_request.POST = MultiDict()
+        db_request.user = user
+        db_request.route_url = pretend.call_recorder(lambda *a, **kw: "/fake/route")
+
+        view = org_views.ManageOrganizationPublishingViews(organization, db_request)
+        result = view.manage_organization_publishing()
+
+        assert result["organization"] == organization
+        assert "pending_github_publisher_form" in result
+        assert "pending_gitlab_publisher_form" in result
+        assert "pending_google_publisher_form" in result
+        assert "pending_activestate_publisher_form" in result
+        assert result["pending_oidc_publishers"] == organization.pending_oidc_publishers
+
+    def test_add_pending_github_oidc_publisher_success(self, db_request, monkeypatch):
+        """Test successfully adding a pending GitHub OIDC publisher"""
+        organization = OrganizationFactory.create()
+        user = UserFactory.create(with_verified_primary_email=True)
+        db_request.POST = MultiDict()
+        db_request.route_url = pretend.call_recorder(lambda *a, **kw: "/fake/route")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = user
+
+        # Mock form
+        form = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            project_name=pretend.stub(data="test-project"),
+            repository=pretend.stub(data="test-repo"),
+            normalized_owner="test-owner",
+            owner_id="12345",
+            workflow_filename=pretend.stub(data="release.yml"),
+            normalized_environment="",
+        )
+        monkeypatch.setattr(
+            org_views, "PendingGitHubPublisherForm", lambda *a, **kw: form
+        )
+
+        view = org_views.ManageOrganizationPublishingViews(organization, db_request)
+        result = view.add_pending_github_oidc_publisher()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Registered a new pending publisher to create the project "
+                f"'test-project' owned by the '{organization.name}' organization.",
+                queue="success",
+            )
+        ]
+        assert db_request.metrics.increment.calls == [
+            pretend.call(
+                "warehouse.oidc.add_pending_publisher.attempt",
+                tags=["publisher:GitHub", "organization:true"],
+            ),
+            pretend.call(
+                "warehouse.oidc.add_pending_publisher.ok",
+                tags=["publisher:GitHub", "organization:true"],
+            ),
+        ]
+
+    def test_add_pending_github_oidc_publisher_disabled(self, db_request):
+        """Test adding GitHub publisher when admin flag disables it"""
+        organization = OrganizationFactory.create()
+        user = UserFactory.create(with_verified_primary_email=True)
+        db_request.user = user
+        db_request.flags = pretend.stub(
+            disallow_oidc=pretend.call_recorder(
+                lambda flag: flag == AdminFlagValue.DISALLOW_GITHUB_OIDC
+            )
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.POST = MultiDict()
+        db_request.route_url = pretend.call_recorder(lambda *a, **kw: "/fake/route")
+
+        view = org_views.ManageOrganizationPublishingViews(organization, db_request)
+        result = view.add_pending_github_oidc_publisher()
+
+        assert result == view.default_response
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "GitHub-based trusted publishing is temporarily disabled. "
+                "See https://pypi.org/help#admin-intervention for details.",
+                queue="error",
+            )
+        ]
+
+    def test_add_pending_github_oidc_publisher_over_limit(self, db_request):
+        """Adding GitHub publisher fails when org has too many pending publishers"""
+        organization = OrganizationFactory.create()
+        user = UserFactory.create(with_verified_primary_email=True)
+        # Add 3 existing pending publishers
+        PendingGitHubPublisherFactory.create_batch(3, organization_id=organization.id)
+
+        db_request.user = user
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.POST = MultiDict()
+        db_request.route_url = pretend.call_recorder(lambda *a, **kw: "/fake/route")
+
+        view = org_views.ManageOrganizationPublishingViews(organization, db_request)
+        result = view.add_pending_github_oidc_publisher()
+
+        assert result == view.default_response
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "The trusted publisher could not be registered",
+                queue="error",
+            )
+        ]
+
+    def test_add_pending_gitlab_oidc_publisher_success(self, db_request, monkeypatch):
+        """Test successfully adding a pending GitLab OIDC publisher"""
+        organization = OrganizationFactory.create()
+        user = UserFactory.create(with_verified_primary_email=True)
+        db_request.flags = pretend.stub(
+            disallow_oidc=pretend.call_recorder(lambda *a: False)
+        )
+        db_request.POST = MultiDict()
+        db_request.path = "/fake/path"
+        db_request.route_url = pretend.call_recorder(lambda *a, **kw: "/fake/route")
+        db_request.user = user
+
+        # Mock form
+        form = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            project_name=pretend.stub(data="test-project"),
+            namespace=pretend.stub(data="test-namespace"),
+            project=pretend.stub(data="test-project"),
+            workflow_filepath=pretend.stub(data=".gitlab-ci.yml"),
+            environment=pretend.stub(data=""),
+            issuer_url=pretend.stub(data="https://gitlab.com"),
+        )
+        monkeypatch.setattr(
+            org_views, "PendingGitLabPublisherForm", lambda *a, **kw: form
+        )
+
+        view = org_views.ManageOrganizationPublishingViews(organization, db_request)
+        result = view.add_pending_gitlab_oidc_publisher()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert db_request.metrics.increment.calls[-1] == pretend.call(
+            "warehouse.oidc.add_pending_publisher.ok",
+            tags=["publisher:GitLab", "organization:true"],
+        )
+
+    def test_gitlab_form_includes_issuer_url_choices(self, db_request, monkeypatch):
+        """Test that GitLab form is created with issuer_url_choices"""
+        organization = OrganizationFactory.create()
+        user = UserFactory.create()
+        db_request.POST = MultiDict()
+        db_request.user = user
+        db_request.route_url = pretend.call_recorder(lambda *a, **kw: "/fake/route")
+
+        # Mock GitLabPublisher.get_available_issuer_urls to return multiple issuers
+        mock_issuers = [
+            ("https://gitlab.com", "GitLab.com"),
+            ("https://gitlab.example.com", "Custom GitLab"),
+        ]
+        monkeypatch.setattr(
+            org_views.GitLabPublisher,
+            "get_available_issuer_urls",
+            lambda organization: mock_issuers,
+        )
+
+        # Track the form creation to verify issuer_url_choices are passed
+        form_calls = []
+
+        def track_form_creation(*args, **kwargs):
+            form_calls.append(kwargs)
+            return pretend.stub(
+                validate=lambda: False,
+                project_name=pretend.stub(data=""),
+                namespace=pretend.stub(data=""),
+                project=pretend.stub(data=""),
+                workflow_filepath=pretend.stub(data=""),
+                environment=pretend.stub(data=""),
+                issuer_url=pretend.stub(data="", choices=mock_issuers),
+            )
+
+        monkeypatch.setattr(
+            org_views, "PendingGitLabPublisherForm", track_form_creation
+        )
+
+        view = org_views.ManageOrganizationPublishingViews(organization, db_request)
+
+        # Verify that the form was created with issuer_url_choices
+        assert len(form_calls) == 1
+        assert form_calls[0]["issuer_url_choices"] == mock_issuers
+
+        # Verify the form has the correct choices
+        assert view.pending_gitlab_publisher_form.issuer_url.choices == mock_issuers
+
+    def test_manage_organization_publishing_get_oidc_disabled(
+        self, db_request, monkeypatch
+    ):
+        """Test GET request when global OIDC is disabled"""
+        organization = OrganizationFactory.create()
+        user = UserFactory.create()
+        db_request.POST = MultiDict()
+        db_request.user = user
+        db_request.route_url = pretend.call_recorder(lambda *a, **kw: "/fake/route")
+        db_request.flags = pretend.stub(
+            disallow_oidc=pretend.call_recorder(lambda f=None: True)
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        # Mock all form classes since default_response tries to instantiate them
+        pending_github_publisher_form_obj = pretend.stub()
+        monkeypatch.setattr(
+            org_views,
+            "PendingGitHubPublisherForm",
+            lambda *a, **kw: pending_github_publisher_form_obj,
+        )
+        pending_gitlab_publisher_form_obj = pretend.stub()
+        monkeypatch.setattr(
+            org_views,
+            "PendingGitLabPublisherForm",
+            lambda *a, **kw: pending_gitlab_publisher_form_obj,
+        )
+        pending_google_publisher_form_obj = pretend.stub()
+        monkeypatch.setattr(
+            org_views,
+            "PendingGooglePublisherForm",
+            lambda *a, **kw: pending_google_publisher_form_obj,
+        )
+        pending_activestate_publisher_form_obj = pretend.stub()
+        monkeypatch.setattr(
+            org_views,
+            "PendingActiveStatePublisherForm",
+            lambda *a, **kw: pending_activestate_publisher_form_obj,
+        )
+
+        view = org_views.ManageOrganizationPublishingViews(organization, db_request)
+        result = view.manage_organization_publishing()
+
+        assert result["organization"] == organization
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Trusted publishing is temporarily disabled. "
+                "See https://pypi.org/help#admin-intervention for details.",
+                queue="error",
+            )
+        ]
+
+    def test_add_pending_github_oidc_publisher_already_exists(
+        self, db_request, monkeypatch
+    ):
+        """Test adding GitHub publisher when it already exists"""
+        organization = OrganizationFactory.create()
+        user = UserFactory.create(with_verified_primary_email=True)
+
+        # Create an existing pending publisher with matching attributes
+        existing_publisher = PendingGitHubPublisherFactory.create(
+            project_name="test-project",
+            repository_name="test-repo",
+            repository_owner="test-owner",
+            repository_owner_id="12345",
+            workflow_filename="release.yml",
+            environment="",
+            organization_id=organization.id,
+        )
+        db_request.db.add(existing_publisher)
+        db_request.db.flush()
+
+        db_request.POST = MultiDict()
+        db_request.route_url = pretend.call_recorder(lambda *a, **kw: "/fake/route")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = user
+
+        # Mock form with same data as existing publisher
+        form = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            project_name=pretend.stub(data="test-project"),
+            repository=pretend.stub(data="test-repo"),
+            normalized_owner="test-owner",
+            owner_id="12345",
+            workflow_filename=pretend.stub(data="release.yml"),
+            normalized_environment="",
+        )
+        monkeypatch.setattr(
+            org_views, "PendingGitHubPublisherForm", lambda *a, **kw: form
+        )
+
+        view = org_views.ManageOrganizationPublishingViews(organization, db_request)
+        result = view.add_pending_github_oidc_publisher()
+
+        assert result == view.default_response
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "This publisher has already been registered in your organization. "
+                "See your existing pending publishers below.",
+                queue="error",
+            )
+        ]
+
+    def test_add_pending_github_oidc_publisher_unique_violation(
+        self, db_request, monkeypatch
+    ):
+        """Test UniqueViolation exception handling during publisher creation"""
+        organization = OrganizationFactory.create()
+        user = UserFactory.create(with_verified_primary_email=True)
+        db_request.POST = MultiDict()
+        db_request.path = "/fake/path"
+        db_request.route_url = pretend.call_recorder(lambda *a, **kw: "/fake/route")
+        db_request.user = user
+
+        # Mock db.add to raise UniqueViolation (simulates race condition)
+        db_request.db.add = pretend.raiser(UniqueViolation("foo", "bar", "baz"))
+
+        # Mock form
+        form = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            project_name=pretend.stub(data="test-project"),
+            repository=pretend.stub(data="test-repo"),
+            normalized_owner="test-owner",
+            owner_id="12345",
+            workflow_filename=pretend.stub(data="release.yml"),
+            normalized_environment="",
+        )
+        monkeypatch.setattr(
+            org_views, "PendingGitHubPublisherForm", lambda *a, **kw: form
+        )
+
+        view = org_views.ManageOrganizationPublishingViews(organization, db_request)
+        result = view.add_pending_github_oidc_publisher()
+
+        # Should return HTTPSeeOther redirect (double-post protection)
+        assert isinstance(result, HTTPSeeOther)
+        assert result.location == "/fake/path"
+
+    def test_two_orgs_can_create_pending_publishers_for_same_project_name(
+        self, db_request, monkeypatch
+    ):
+        """
+        Two different organizations can create pending OIDC publishers
+        for the same future project name but with different OIDC credentials.
+        """
+        # Create two separate organizations with different owners
+        org1_owner = UserFactory.create(username="org1-owner")
+        org2_owner = UserFactory.create(username="org2-owner")
+        EmailFactory.create(user=org1_owner, verified=True, primary=True)
+        EmailFactory.create(user=org2_owner, verified=True, primary=True)
+
+        org1 = OrganizationFactory.create(name="org1")
+        org2 = OrganizationFactory.create(name="org2")
+
+        OrganizationRoleFactory.create(
+            organization=org1, user=org1_owner, role_name="Owner"
+        )
+        OrganizationRoleFactory.create(
+            organization=org2, user=org2_owner, role_name="Owner"
+        )
+
+        # Setup request for org1
+        db_request.user = org1_owner
+        db_request.flags = pretend.stub(
+            disallow_oidc=pretend.call_recorder(lambda f=None: False)
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.registry = pretend.stub(settings={"github.token": "fake-api-token"})
+        db_request.POST = MultiDict(
+            {
+                "project_name": "same-project-name",
+                "owner": "org1",
+                "repository": "repo1",
+                "workflow_filename": "release.yml",
+                "environment": "",
+            }
+        )
+
+        # Mock the GitHub API lookup for org1
+        monkeypatch.setattr(
+            org_views.PendingGitHubPublisherForm,
+            "_lookup_owner",
+            lambda *a: {"login": "org1", "id": "11111"},
+        )
+
+        # Org1 creates a pending publisher
+        view1 = org_views.ManageOrganizationPublishingViews(org1, db_request)
+        result1 = view1.add_pending_github_oidc_publisher()
+        assert isinstance(result1, HTTPSeeOther)
+
+        # Verify org1's pending publisher was created
+        pending_publisher_1 = (
+            db_request.db.query(PendingGitHubPublisher)
+            .filter(
+                PendingGitHubPublisher.organization_id == org1.id,
+                PendingGitHubPublisher.project_name == "same-project-name",
+            )
+            .one()
+        )
+        assert pending_publisher_1.repository_owner == "org1"
+        assert pending_publisher_1.repository_name == "repo1"
+        assert pending_publisher_1.organization_id == org1.id
+
+        # Setup request for org2 with SAME project name but different credentials
+        db_request.user = org2_owner
+        db_request.POST = MultiDict(
+            {
+                "project_name": "same-project-name",  # SAME PROJECT NAME
+                "owner": "org2",  # DIFFERENT GitHub org
+                "repository": "repo2",  # DIFFERENT repo
+                "workflow_filename": "release.yml",
+                "environment": "",
+            }
+        )
+
+        # Mock the GitHub API lookup for org2
+        monkeypatch.setattr(
+            org_views.PendingGitHubPublisherForm,
+            "_lookup_owner",
+            lambda *a: {"login": "org2", "id": "22222"},
+        )
+
+        # Org2 creates a pending publisher for the SAME project name
+        view2 = org_views.ManageOrganizationPublishingViews(org2, db_request)
+        result2 = view2.add_pending_github_oidc_publisher()
+        assert isinstance(result2, HTTPSeeOther)
+
+        # Verify org2's pending publisher was also created
+        pending_publisher_2 = (
+            db_request.db.query(PendingGitHubPublisher)
+            .filter(
+                PendingGitHubPublisher.organization_id == org2.id,
+                PendingGitHubPublisher.project_name == "same-project-name",
+            )
+            .one()
+        )
+        assert pending_publisher_2.repository_owner == "org2"
+        assert pending_publisher_2.repository_name == "repo2"
+        assert pending_publisher_2.organization_id == org2.id
+
+        # CRITICAL: Both pending publishers should exist
+        all_pending_publishers = (
+            db_request.db.query(PendingGitHubPublisher)
+            .filter(PendingGitHubPublisher.project_name == "same-project-name")
+            .all()
+        )
+        assert len(all_pending_publishers) == 2
+
+        # Verify they have different credentials (different organizations)
+        assert pending_publisher_1.id != pending_publisher_2.id
+        assert (
+            pending_publisher_1.repository_owner != pending_publisher_2.repository_owner
+        )
+        assert (
+            pending_publisher_1.repository_name != pending_publisher_2.repository_name
+        )

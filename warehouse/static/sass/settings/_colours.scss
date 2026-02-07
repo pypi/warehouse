@@ -1,22 +1,12 @@
-/*!
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/* SPDX-License-Identifier: Apache-2.0 */
+
+@use "sass:color";
 
 // SETTINGS - COLOURS
 
 $primary-color:               #006dad;
-$primary-color-light:         lighten($primary-color, 45);
-$primary-color-dark:          darken($primary-color, 10);
+$primary-color-light:         color.adjust($primary-color, $lightness: 45%);
+$primary-color-dark:          color.adjust($primary-color, $lightness: -10%);
 $success-color:               #148024;
 $warning-color:               #664e04;
 $warning-background-color:    #ffdf76;
@@ -27,9 +17,9 @@ $black:                       #000;
 $background-color:            #fdfdfd;
 $base-grey:                   #ececec;
 $light-grey:                  #bbb;
-$border-color:                darken($base-grey, 10);
+$border-color:                color.adjust($base-grey, $lightness: -10%);
 $accessible-border-color:     #949494;
 $text-color:                  #464646;
-$transparent-white:           transparentize($white, 0.6);
-$header-background-color:     lighten($primary-color, 2);
-$header-border-color:         darken($primary-color, 2);
+$transparent-white:           color.adjust($white, $alpha: -0.6);
+$header-background-color:     color.adjust($primary-color, $lightness: 2%);
+$header-border-color:         color.adjust($primary-color, $lightness: -2%);

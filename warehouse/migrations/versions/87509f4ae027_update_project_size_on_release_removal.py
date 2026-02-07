@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 """
 update_project_size_on_release_removal
 
@@ -24,8 +14,7 @@ down_revision = "bc8f7b526961"
 
 
 def upgrade():
-    op.execute(
-        """CREATE OR REPLACE FUNCTION projects_total_size_release_files()
+    op.execute("""CREATE OR REPLACE FUNCTION projects_total_size_release_files()
         RETURNS TRIGGER AS $$
         DECLARE
             _release_id uuid;
@@ -52,11 +41,9 @@ def upgrade():
             RETURN NULL;
         END;
         $$ LANGUAGE plpgsql;
-        """
-    )
+        """)
 
-    op.execute(
-        """CREATE OR REPLACE FUNCTION projects_total_size_releases()
+    op.execute("""CREATE OR REPLACE FUNCTION projects_total_size_releases()
         RETURNS TRIGGER AS $$
         DECLARE
             _project_id uuid;
@@ -73,28 +60,22 @@ def upgrade():
             RETURN NULL;
         END;
         $$ LANGUAGE plpgsql;
-        """
-    )
+        """)
 
-    op.execute(
-        """CREATE TRIGGER update_project_total_size_release_files
+    op.execute("""CREATE TRIGGER update_project_total_size_release_files
             AFTER INSERT OR UPDATE OR DELETE ON release_files
             FOR EACH ROW EXECUTE PROCEDURE projects_total_size_release_files();
-        """
-    )
-    op.execute(
-        """CREATE TRIGGER update_project_total_size_releases
+        """)
+    op.execute("""CREATE TRIGGER update_project_total_size_releases
             AFTER DELETE ON releases
             FOR EACH ROW EXECUTE PROCEDURE projects_total_size_releases();
-        """
-    )
+        """)
 
     op.execute("DROP TRIGGER update_project_total_size ON release_files;")
     op.execute("DROP FUNCTION projects_total_size;")
 
     # Refresh to reset projects that fell out of sync
-    op.execute(
-        """WITH project_totals AS (
+    op.execute("""WITH project_totals AS (
                 SELECT
                     p.id as project_id,
                     sum(size) as project_total
@@ -109,13 +90,11 @@ def upgrade():
             SET total_size = project_totals.project_total
             FROM project_totals
             WHERE project_totals.project_id = p.id;
-        """
-    )
+        """)
 
 
 def downgrade():
-    op.execute(
-        """CREATE OR REPLACE FUNCTION projects_total_size()
+    op.execute("""CREATE OR REPLACE FUNCTION projects_total_size()
         RETURNS TRIGGER AS $$
         DECLARE
             _release_id uuid;
@@ -142,15 +121,12 @@ def downgrade():
             RETURN NULL;
         END;
         $$ LANGUAGE plpgsql;
-        """
-    )
+        """)
 
-    op.execute(
-        """CREATE TRIGGER update_project_total_size
+    op.execute("""CREATE TRIGGER update_project_total_size
             AFTER INSERT OR UPDATE OR DELETE ON release_files
             FOR EACH ROW EXECUTE PROCEDURE projects_total_size();
-        """
-    )
+        """)
 
     op.execute("DROP TRIGGER update_project_total_size_releases ON releases;")
     op.execute("DROP TRIGGER update_project_total_size_release_files ON release_files;")

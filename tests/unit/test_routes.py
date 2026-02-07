@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import pretend
 import pytest
@@ -77,73 +67,79 @@ def test_routes(warehouse):
         pretend.call("force-status", r"/_force-status/{status:[45]\d\d}/"),
         pretend.call("index", "/", domain=warehouse),
         pretend.call("locale", "/locale/", domain=warehouse),
+        pretend.call("favicon.ico", "/favicon.ico", domain=warehouse),
         pretend.call("robots.txt", "/robots.txt", domain=warehouse),
+        pretend.call(
+            "funding-manifest-urls",
+            "/.well-known/funding-manifest-urls",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "security-txt",
+            "/.well-known/security.txt",
+            domain=warehouse,
+        ),
         pretend.call("opensearch.xml", "/opensearch.xml", domain=warehouse),
         pretend.call("index.sitemap.xml", "/sitemap.xml", domain=warehouse),
         pretend.call("bucket.sitemap.xml", "/{bucket}.sitemap.xml", domain=warehouse),
         pretend.call(
             "includes.current-user-indicator",
-            "/_includes/current-user-indicator/",
+            "/_includes/authed/current-user-indicator/",
             domain=warehouse,
         ),
         pretend.call(
-            "includes.flash-messages", "/_includes/flash-messages/", domain=warehouse
+            "includes.flash-messages",
+            "/_includes/unauthed/flash-messages/",
+            domain=warehouse,
         ),
         pretend.call(
             "includes.session-notifications",
-            "/_includes/session-notifications/",
+            "/_includes/authed/session-notifications/",
             domain=warehouse,
         ),
         pretend.call(
             "includes.current-user-profile-callout",
-            "/_includes/current-user-profile-callout/{username}",
+            "/_includes/authed/current-user-profile-callout/{username}",
             factory="warehouse.accounts.models:UserFactory",
             traverse="/{username}",
             domain=warehouse,
         ),
         pretend.call(
             "includes.edit-project-button",
-            "/_includes/edit-project-button/{project_name}",
+            "/_includes/authed/edit-project-button/{project_name}",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}",
             domain=warehouse,
         ),
         pretend.call(
             "includes.profile-actions",
-            "/_includes/profile-actions/{username}",
+            "/_includes/authed/profile-actions/{username}",
             factory="warehouse.accounts.models:UserFactory",
             traverse="/{username}",
             domain=warehouse,
         ),
         pretend.call(
             "includes.profile-public-email",
-            "/_includes/profile-public-email/{username}",
+            "/_includes/authed/profile-public-email/{username}",
             factory="warehouse.accounts.models:UserFactory",
             traverse="/{username}",
             domain=warehouse,
         ),
         pretend.call(
             "includes.sidebar-sponsor-logo",
-            "/_includes/sidebar-sponsor-logo/",
+            "/_includes/unauthed/sidebar-sponsor-logo/",
             domain=warehouse,
         ),
         pretend.call(
             "includes.administer-project-include",
-            "/_includes/administer-project-include/{project_name}",
+            "/_includes/authed/administer-project-include/{project_name}",
             domain=warehouse,
         ),
         pretend.call(
             "includes.administer-user-include",
-            "/_includes/administer-user-include/{user_name}",
+            "/_includes/authed/administer-user-include/{user_name}",
             factory="warehouse.accounts.models:UserFactory",
             traverse="/{user_name}",
-            domain=warehouse,
-        ),
-        pretend.call(
-            "includes.submit_malware_report",
-            "/_includes/submit-malware-report/{project_name}",
-            factory="warehouse.packaging.models:ProjectFactory",
-            traverse="/{project_name}",
             domain=warehouse,
         ),
         pretend.call("classifiers", "/classifiers/", domain=warehouse),
@@ -199,6 +195,9 @@ def test_routes(warehouse):
             "accounts.reset-password", "/account/reset-password/", domain=warehouse
         ),
         pretend.call(
+            "accounts.confirm-login", "/account/confirm-login/", domain=warehouse
+        ),
+        pretend.call(
             "accounts.verify-email", "/account/verify-email/", domain=warehouse
         ),
         pretend.call(
@@ -209,6 +208,11 @@ def test_routes(warehouse):
         pretend.call(
             "accounts.verify-project-role",
             "/account/verify-project-role/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "accounts.view-terms-of-service",
+            "/account/view-terms-of-service/",
             domain=warehouse,
         ),
         pretend.call(
@@ -272,6 +276,28 @@ def test_routes(warehouse):
             "manage.account.token", "/manage/account/token/", domain=warehouse
         ),
         pretend.call(
+            "manage.account.associations.github.connect",
+            "/manage/account/associations/github/connect",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.account.associations.github.callback",
+            "/manage/account/associations/github/callback",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.account.associations.delete",
+            "/manage/account/associations/delete",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.organizations.application",
+            "/manage/organizations/application/{organization_application_id}/",
+            factory="warehouse.organizations.models:OrganizationApplicationFactory",
+            traverse="/{organization_application_id}",
+            domain=warehouse,
+        ),
+        pretend.call(
             "manage.organizations", "/manage/organizations/", domain=warehouse
         ),
         pretend.call(
@@ -305,6 +331,13 @@ def test_routes(warehouse):
         pretend.call(
             "manage.organization.teams",
             "/manage/organization/{organization_name}/teams/",
+            factory="warehouse.organizations.models:OrganizationFactory",
+            traverse="/{organization_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.organization.publishing",
+            "/manage/organization/{organization_name}/publishing/",
             factory="warehouse.organizations.models:OrganizationFactory",
             traverse="/{organization_name}",
             domain=warehouse,
@@ -493,6 +526,20 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
+            "manage.project.archive",
+            "/manage/project/{project_name}/archive/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.project.unarchive",
+            "/manage/project/{project_name}/unarchive/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
             "manage.project.history",
             "/manage/project/{project_name}/history/",
             factory="warehouse.packaging.models:ProjectFactory",
@@ -529,6 +576,11 @@ def test_routes(warehouse):
             "/rss/project/{name}/releases.xml",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "integrations.secrets.disclose-token",
+            "/_/secrets/disclose-token",
             domain=warehouse,
         ),
         pretend.call(
@@ -625,27 +677,35 @@ def test_routes(warehouse):
             "sitemap",
             "/sitemap/",
             "pages/sitemap.html",
+            route_kw={"domain": warehouse},
             view_kw={"has_translations": True},
         ),
         pretend.call(
-            "help", "/help/", "pages/help.html", view_kw={"has_translations": True}
+            "help",
+            "/help/",
+            "pages/help.html",
+            route_kw={"domain": warehouse},
+            view_kw={"has_translations": True},
         ),
         pretend.call(
             "security",
             "/security/",
             "pages/security.html",
+            route_kw={"domain": warehouse},
             view_kw={"has_translations": True},
         ),
         pretend.call(
             "sponsors",
             "/sponsors/",
             "pages/sponsors.html",
+            route_kw={"domain": warehouse},
             view_kw={"has_translations": True},
         ),
         pretend.call(
             "trademarks",
             "/trademarks/",
             "pages/trademarks.html",
+            route_kw={"domain": warehouse},
             view_kw={"has_translations": True},
         ),
     ]
@@ -655,6 +715,9 @@ def test_routes(warehouse):
         pretend.call("/u/{username}/", "/user/{username}/", domain=warehouse),
         pretend.call("/2fa/", "/manage/account/two-factor/", domain=warehouse),
         pretend.call("/p/{name}/", "/project/{name}/", domain=warehouse),
+        pretend.call(
+            "/p/{name}/{version}/", "/project/{name}/{version}/", domain=warehouse
+        ),
         pretend.call("/pypi/{name}/", "/project/{name}/", domain=warehouse),
         pretend.call(
             "/pypi/{name}/{version}/", "/project/{name}/{version}/", domain=warehouse

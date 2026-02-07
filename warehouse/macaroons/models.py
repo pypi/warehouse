@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import os
 
@@ -16,7 +6,7 @@ from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import CheckConstraint, ForeignKey, UniqueConstraint, orm, sql
-from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
@@ -53,13 +43,11 @@ class Macaroon(db.Model):
     #   project. Instead, depending on how its used (its request context),
     #   it identifies one of the projects scoped in its caveats.
     user_id: Mapped[UUID | None] = mapped_column(
-        PG_UUID(as_uuid=True),
         ForeignKey("users.id"),
         index=True,
     )
 
     oidc_publisher_id: Mapped[UUID | None] = mapped_column(
-        PG_UUID(as_uuid=True),
         ForeignKey("oidc_publishers.id"),
         index=True,
     )
@@ -116,7 +104,7 @@ class Macaroon(db.Model):
 
     # Intentionally not using a back references here, since we express
     # relationships in terms of the "other" side of the relationship.
-    user: Mapped["User"] = orm.relationship(lazy=True, viewonly=True)
+    user: Mapped[User | None] = orm.relationship(lazy=True, viewonly=True)
     # TODO: Can't annotate this as "OIDCPublisher" because that would create a
     #  circular import.
     oidc_publisher = orm.relationship("OIDCPublisher", lazy=True, viewonly=True)

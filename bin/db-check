@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 # When on GitHub Actions, if a label is present on the PR, skip the check.
 if [ -n "$GITHUB_ACTIONS" ]; then

@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import base64
 import datetime
@@ -23,7 +13,6 @@ from pyramid.httpexceptions import (
     HTTPNotFound,
     HTTPOk,
     HTTPSeeOther,
-    HTTPTooManyRequests,
 )
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
@@ -44,15 +33,8 @@ from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage import views
-from warehouse.manage.views import organizations as org_views
-from warehouse.metrics.interfaces import IMetricsService
-from warehouse.oidc.interfaces import TooManyOIDCRegistrations
-from warehouse.oidc.models import (
-    ActiveStatePublisher,
-    GitHubPublisher,
-    GitLabPublisher,
-    GooglePublisher,
-    OIDCPublisher,
+from warehouse.manage.views import (
+    organizations as org_views,
 )
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
@@ -63,6 +45,7 @@ from warehouse.organizations.models import (
 from warehouse.packaging.models import (
     File,
     JournalEntry,
+    LifecycleStatus,
     Project,
     Release,
     Role,
@@ -96,14 +79,14 @@ from ...common.db.packaging import (
 
 
 class TestManageUnverifiedAccount:
-
     def test_manage_account(self, monkeypatch):
         user_service = pretend.stub()
         name = pretend.stub()
         request = pretend.stub(
             find_service=lambda *a, **kw: user_service,
-            user=pretend.stub(name=name),
+            user=pretend.stub(name=name, has_primary_verified_email=False),
             help_url=pretend.call_recorder(lambda *a, **kw: "/the/url"),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the/url"),
         )
         view = views.ManageUnverifiedAccountViews(request)
 
@@ -114,6 +97,27 @@ class TestManageUnverifiedAccount:
         assert view.request == request
         assert view.user_service == user_service
 
+    def test_verified_redirects(self):
+        user_service = pretend.stub()
+        user = pretend.stub(
+            id=pretend.stub(),
+            username="username",
+            name="Name",
+            has_primary_verified_email=True,
+        )
+        request = pretend.stub(
+            find_service=lambda *a, **kw: user_service,
+            user=user,
+            help_url=pretend.call_recorder(lambda *a, **kw: "/the/url"),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the/url"),
+        )
+        view = views.ManageUnverifiedAccountViews(request)
+
+        result = view.manage_unverified_account()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the/url"
+
 
 class TestManageAccount:
     @pytest.mark.parametrize(
@@ -122,7 +126,12 @@ class TestManageAccount:
     )
     def test_default_response(self, monkeypatch, public_email, expected_public_email):
         breach_service = pretend.stub()
-        user_service = pretend.stub()
+        account_associations = pretend.stub()
+        user_service = pretend.stub(
+            get_account_associations=pretend.call_recorder(
+                lambda user_id: account_associations
+            )
+        )
         organization_service = pretend.stub()
         name = pretend.stub()
         user_id = pretend.stub()
@@ -157,9 +166,11 @@ class TestManageAccount:
             "add_email_form": add_email_obj,
             "change_password_form": change_pass_obj,
             "active_projects": view.active_projects,
+            "account_associations": account_associations,
         }
         assert view.request == request
         assert view.user_service == user_service
+        assert user_service.get_account_associations.calls == [pretend.call(user_id)]
         assert save_account_cls.calls == [
             pretend.call(
                 name=name,
@@ -573,6 +584,30 @@ class TestManageAccount:
             pretend.call("Email address not found", queue="error")
         ]
         assert old_primary.primary
+
+    def test_change_primary_email_2fa_disabled(self, monkeypatch, db_request):
+        user = UserFactory.create(totp_secret=None)
+        _ = EmailFactory(primary=True, verified=False, user=user)
+        secondary = EmailFactory(primary=False, verified=True, user=user)
+
+        db_request.user = user
+        db_request.find_service = lambda *a, **kw: pretend.stub(get_user=lambda a: user)
+        db_request.POST = {"primary_email_id": str(secondary.id)}
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        db_request.route_path = pretend.call_recorder(lambda r, **kw: f"/{r}")
+        monkeypatch.setattr(
+            views.ManageVerifiedAccountViews, "default_response", pretend.stub()
+        )
+        view = views.ManageVerifiedAccountViews(db_request)
+
+        assert view.change_primary_email() == view.default_response
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Two factor authentication must be enabled to change primary "
+                "email address.",
+                queue="error",
+            )
+        ]
 
     @pytest.mark.parametrize(
         ("has_primary_verified_email", "expected_redirect"),
@@ -2603,7 +2638,7 @@ class TestManageProjectSettings:
     @pytest.mark.parametrize("enabled", [False, True])
     def test_manage_project_settings(self, enabled, monkeypatch):
         request = pretend.stub(organization_access=enabled)
-        project = pretend.stub(organization=None)
+        project = pretend.stub(organization=None, lifecycle_status=None)
         view = views.ManageProjectSettingsViews(project, request)
         form = pretend.stub()
         view.transfer_organization_project_form_class = lambda *a, **kw: form
@@ -2630,7 +2665,7 @@ class TestManageProjectSettings:
         request = pretend.stub(organization_access=True)
         organization_managed = pretend.stub(name="managed-org", is_active=True)
         organization_owned = pretend.stub(name="owned-org", is_active=True)
-        project = pretend.stub(organization=organization_managed)
+        project = pretend.stub(organization=organization_managed, lifecycle_status=None)
         view = views.ManageProjectSettingsViews(project, request)
         form = pretend.stub()
         view.transfer_organization_project_form_class = pretend.call_recorder(
@@ -2655,14 +2690,14 @@ class TestManageProjectSettings:
             "add_alternate_repository_form_class": form,
         }
         assert view.transfer_organization_project_form_class.calls == [
-            pretend.call(organization_choices={"owned-org"})
+            pretend.call(organization_choices={organization_owned})
         ]
 
     def test_manage_project_settings_in_organization_owned(self, monkeypatch):
         request = pretend.stub(organization_access=True)
         organization_managed = pretend.stub(name="managed-org", is_active=True)
         organization_owned = pretend.stub(name="owned-org", is_active=True)
-        project = pretend.stub(organization=organization_owned)
+        project = pretend.stub(organization=organization_owned, lifecycle_status=None)
         view = views.ManageProjectSettingsViews(project, request)
         form = pretend.stub()
         view.transfer_organization_project_form_class = pretend.call_recorder(
@@ -2687,7 +2722,7 @@ class TestManageProjectSettings:
             "add_alternate_repository_form_class": form,
         }
         assert view.transfer_organization_project_form_class.calls == [
-            pretend.call(organization_choices={"managed-org"})
+            pretend.call(organization_choices={organization_managed})
         ]
 
     def test_add_alternate_repository(self, monkeypatch, db_request):
@@ -3266,7 +3301,7 @@ class TestManageProjectSettings:
 
         db_request.POST = MultiDict(
             {
-                "organization": organization.normalized_name,
+                "organization": str(organization.id),
                 "confirm_transfer_organization_project_name": project.name,
             }
         )
@@ -3360,7 +3395,7 @@ class TestManageProjectSettings:
 
         db_request.POST = MultiDict(
             {
-                "organization": organization.normalized_name,
+                "organization": str(organization.id),
                 "confirm_transfer_organization_project_name": project.name,
             }
         )
@@ -3471,7 +3506,7 @@ class TestManageProjectSettings:
 
         db_request.POST = MultiDict(
             {
-                "organization": organization.normalized_name,
+                "organization": str(organization.id),
                 "confirm_transfer_organization_project_name": project.name,
             }
         )
@@ -3535,7 +3570,9 @@ class TestManageProjectSettings:
             pretend.call("manage.project.settings", project_name="foo")
         ]
         assert transfer_organization_project_form_class.calls == [
-            pretend.call(db_request.POST, organization_choices={"bar-owned", "baz"})
+            pretend.call(
+                db_request.POST, organization_choices={organization, organization_owned}
+            )
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
@@ -3569,7 +3606,7 @@ class TestManageProjectSettings:
 
         db_request.POST = MultiDict(
             {
-                "organization": organization.normalized_name,
+                "organization": str(organization.id),
                 "confirm_transfer_organization_project_name": project.name,
             }
         )
@@ -3633,7 +3670,10 @@ class TestManageProjectSettings:
             pretend.call("manage.project.settings", project_name="foo")
         ]
         assert transfer_organization_project_form_class.calls == [
-            pretend.call(db_request.POST, organization_choices={"bar-managed", "baz"})
+            pretend.call(
+                db_request.POST,
+                organization_choices={organization_managed, organization},
+            )
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
@@ -6055,1415 +6095,94 @@ class TestManageProjectHistory:
             assert views.manage_project_history(project, db_request)
 
 
-class TestManageOIDCPublisherViews:
-    def test_initializes(self, metrics):
-        project = pretend.stub()
-        request = pretend.stub(
-            find_service=pretend.call_recorder(lambda *a, **kw: metrics),
-            registry=pretend.stub(
-                settings={
-                    "github.token": "fake-api-token",
-                },
-            ),
-            POST=MultiDict(),
-        )
-        view = views.ManageOIDCPublisherViews(project, request)
+class TestArchiveProject:
+    def test_archive(self, db_request):
+        project = ProjectFactory.create(name="foo")
+        user = UserFactory.create(username="testuser")
 
-        assert view.project is project
-        assert view.request is request
-        assert view.metrics is metrics
-
-        assert view.request.find_service.calls == [
-            pretend.call(IMetricsService, context=None)
-        ]
-
-    @pytest.mark.parametrize(
-        ("ip_exceeded", "user_exceeded"),
-        [
-            (False, False),
-            (False, True),
-            (True, False),
-        ],
-    )
-    def test_ratelimiting(self, metrics, ip_exceeded, user_exceeded):
-        project = pretend.stub()
-        user_rate_limiter = pretend.stub(
-            hit=pretend.call_recorder(lambda *a, **kw: None),
-            test=pretend.call_recorder(lambda uid: not user_exceeded),
-            resets_in=pretend.call_recorder(lambda uid: pretend.stub()),
-        )
-        ip_rate_limiter = pretend.stub(
-            hit=pretend.call_recorder(lambda *a, **kw: None),
-            test=pretend.call_recorder(lambda ip: not ip_exceeded),
-            resets_in=pretend.call_recorder(lambda uid: pretend.stub()),
-        )
-
-        def find_service(iface, name=None, context=None):
-            if iface is IMetricsService:
-                return metrics
-
-            if name == "user_oidc.publisher.register":
-                return user_rate_limiter
-            else:
-                return ip_rate_limiter
-
-        request = pretend.stub(
-            find_service=pretend.call_recorder(find_service),
-            user=pretend.stub(id=pretend.stub()),
-            remote_addr=pretend.stub(),
-            registry=pretend.stub(
-                settings={
-                    "github.token": "fake-api-token",
-                },
-            ),
-            POST=MultiDict(),
-        )
-
-        view = views.ManageOIDCPublisherViews(project, request)
-
-        assert view._ratelimiters == {
-            "user.oidc": user_rate_limiter,
-            "ip.oidc": ip_rate_limiter,
-        }
-        assert request.find_service.calls == [
-            pretend.call(IMetricsService, context=None),
-            pretend.call(IRateLimiter, name="user_oidc.publisher.register"),
-            pretend.call(IRateLimiter, name="ip_oidc.publisher.register"),
-        ]
-
-        view._hit_ratelimits()
-
-        assert user_rate_limiter.hit.calls == [
-            pretend.call(request.user.id),
-        ]
-        assert ip_rate_limiter.hit.calls == [pretend.call(request.remote_addr)]
-
-        if user_exceeded or ip_exceeded:
-            with pytest.raises(TooManyOIDCRegistrations):
-                view._check_ratelimits()
-        else:
-            view._check_ratelimits()
-
-    def test_manage_project_oidc_publishers(self, monkeypatch):
-        project = pretend.stub(oidc_publishers=[])
-        request = pretend.stub(
-            user=pretend.stub(),
-            registry=pretend.stub(
-                settings={
-                    "github.token": "fake-api-token",
-                },
-            ),
-            find_service=lambda *a, **kw: None,
-            flags=pretend.stub(
-                disallow_oidc=pretend.call_recorder(lambda f=None: False)
-            ),
-            POST=MultiDict(),
-        )
-
-        view = views.ManageOIDCPublisherViews(project, request)
-        assert view.manage_project_oidc_publishers() == {
-            "disabled": {
-                "GitHub": False,
-                "GitLab": False,
-                "Google": False,
-                "ActiveState": False,
-            },
-            "project": project,
-            "github_publisher_form": view.github_publisher_form,
-            "gitlab_publisher_form": view.gitlab_publisher_form,
-            "google_publisher_form": view.google_publisher_form,
-            "activestate_publisher_form": view.activestate_publisher_form,
-            "prefilled_provider": view.prefilled_provider,
-        }
-
-        assert request.flags.disallow_oidc.calls == [
-            pretend.call(),
-            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
-        ]
-
-    def test_manage_project_oidc_publishers_admin_disabled(
-        self, monkeypatch, pyramid_request
-    ):
-        project = pretend.stub(oidc_publishers=[])
-        pyramid_request.user = pretend.stub()
-        pyramid_request.registry = pretend.stub(
-            settings={
-                "github.token": "fake-api-token",
-            },
-        )
-        pyramid_request.find_service = lambda *a, **kw: None
-        pyramid_request.flags = pretend.stub(
-            disallow_oidc=pretend.call_recorder(lambda f=None: True)
-        )
-        pyramid_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        pyramid_request.POST = MultiDict()
-
-        view = views.ManageOIDCPublisherViews(project, pyramid_request)
-
-        assert view.manage_project_oidc_publishers() == {
-            "disabled": {
-                "GitHub": True,
-                "GitLab": True,
-                "Google": True,
-                "ActiveState": True,
-            },
-            "project": project,
-            "github_publisher_form": view.github_publisher_form,
-            "gitlab_publisher_form": view.gitlab_publisher_form,
-            "google_publisher_form": view.google_publisher_form,
-            "activestate_publisher_form": view.activestate_publisher_form,
-            "prefilled_provider": view.prefilled_provider,
-        }
-
-        assert pyramid_request.flags.disallow_oidc.calls == [
-            pretend.call(),
-            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
-        ]
-        assert pyramid_request.session.flash.calls == [
-            pretend.call(
-                (
-                    "Trusted publishing is temporarily disabled. "
-                    "See https://pypi.org/help#admin-intervention for details."
-                ),
-                queue="error",
-            )
-        ]
-
-    @pytest.mark.parametrize(
-        ("form_name", "prefilled_data"),
-        [
-            # All fields of GitHub provider
-            (
-                "github_publisher_form",
-                {
-                    "provider": "github",
-                    "owner": "owner",
-                    "repository": "repo",
-                    "workflow_filename": "file.yml",
-                    "environment": "my_env",
-                },
-            ),
-            # All fields of GitLab provider
-            (
-                "gitlab_publisher_form",
-                {
-                    "provider": "gitlab",
-                    "namespace": "owner",
-                    "project": "repo",
-                    "workflow_filepath": "file.yml",
-                    "environment": "my_env",
-                },
-            ),
-            # All fields of Google provider
-            (
-                "google_publisher_form",
-                {
-                    "provider": "google",
-                    "email": "email@example.com",
-                    "sub": "my_subject",
-                },
-            ),
-            # All fields of ActiveState provider
-            (
-                "activestate_publisher_form",
-                {
-                    "provider": "activestate",
-                    "organization": "my_org",
-                    "project": "my_project",
-                    "actor": "my_actor",
-                },
-            ),
-            # All fields of GitHub provider, case-insensitive
-            (
-                "github_publisher_form",
-                {
-                    "provider": "GitHub",
-                    "owner": "owner",
-                    "repository": "repo",
-                    "workflow_filename": "file.yml",
-                    "environment": "my_env",
-                },
-            ),
-        ],
-    )
-    def test_manage_project_oidc_publishers_prefill(
-        self, monkeypatch, form_name, prefilled_data
-    ):
-        project = pretend.stub(oidc_publishers=[])
-        request = pretend.stub(
-            user=pretend.stub(),
-            registry=pretend.stub(
-                settings={
-                    "github.token": "fake-api-token",
-                },
-            ),
-            find_service=lambda *a, **kw: None,
-            flags=pretend.stub(
-                disallow_oidc=pretend.call_recorder(lambda f=None: False)
-            ),
-            POST=MultiDict(),
-            params=MultiDict(prefilled_data),
-        )
-
-        view = views.ManageOIDCPublisherViews(project, request)
-        assert view.manage_project_oidc_publishers_prefill() == {
-            "disabled": {
-                "GitHub": False,
-                "GitLab": False,
-                "Google": False,
-                "ActiveState": False,
-            },
-            "project": project,
-            "github_publisher_form": view.github_publisher_form,
-            "gitlab_publisher_form": view.gitlab_publisher_form,
-            "google_publisher_form": view.google_publisher_form,
-            "activestate_publisher_form": view.activestate_publisher_form,
-            "prefilled_provider": prefilled_data["provider"].lower(),
-        }
-
-        # The form data does not contain the provider, so we'll remove it from
-        # the prefilled data before comparing them
-        if "provider" in prefilled_data:
-            del prefilled_data["provider"]
-        form = getattr(view, form_name)
-        assert form.data == prefilled_data
-
-    @pytest.mark.parametrize(
-        ("missing_fields", "prefilled_data", "extra_fields"),
-        [
-            # Only some fields present
-            (
-                ["repository", "environment"],
-                {
-                    "provider": "github",
-                    "owner": "owner",
-                    "workflow_filename": "file.yml",
-                },
-                [],
-            ),
-            # Extra fields present
-            (
-                [],
-                {
-                    "provider": "github",
-                    "owner": "owner",
-                    "repository": "repo",
-                    "workflow_filename": "file.yml",
-                    "environment": "my_env",
-                    "extra_field_1": "value1",
-                    "extra_field_2": "value2",
-                },
-                ["extra_field_1", "extra_field_2"],
-            ),
-            # Both missing fields and extra fields present
-            (
-                ["owner", "repository"],
-                {
-                    "provider": "github",
-                    "workflow_filename": "file.yml",
-                    "environment": "my_env",
-                    "extra_field_1": "value1",
-                    "extra_field_2": "value2",
-                },
-                ["extra_field_1", "extra_field_2"],
-            ),
-        ],
-    )
-    def test_manage_project_oidc_publishers_prefill_partial(
-        self, monkeypatch, missing_fields, prefilled_data, extra_fields
-    ):
-        project = pretend.stub(oidc_publishers=[])
-        request = pretend.stub(
-            user=pretend.stub(),
-            registry=pretend.stub(
-                settings={
-                    "github.token": "fake-api-token",
-                },
-            ),
-            find_service=lambda *a, **kw: None,
-            flags=pretend.stub(
-                disallow_oidc=pretend.call_recorder(lambda f=None: False)
-            ),
-            POST=MultiDict(),
-            params=MultiDict(prefilled_data),
-        )
-
-        view = views.ManageOIDCPublisherViews(project, request)
-        assert view.manage_project_oidc_publishers_prefill() == {
-            "disabled": {
-                "GitHub": False,
-                "GitLab": False,
-                "Google": False,
-                "ActiveState": False,
-            },
-            "project": project,
-            "github_publisher_form": view.github_publisher_form,
-            "gitlab_publisher_form": view.gitlab_publisher_form,
-            "google_publisher_form": view.google_publisher_form,
-            "activestate_publisher_form": view.activestate_publisher_form,
-            "prefilled_provider": prefilled_data["provider"].lower(),
-        }
-
-        # The form data does not contain the provider, so we'll remove it from
-        # the prefilled data before comparing them
-        if "provider" in prefilled_data:
-            del prefilled_data["provider"]
-        missing_data = {k: None for k in missing_fields}
-        # The expected form data is the prefilled data plus the missing fields
-        # (set to None) minus the extra fields
-        expected_data = prefilled_data | missing_data
-        expected_data = {
-            k: v for k, v in expected_data.items() if k not in extra_fields
-        }
-        assert view.github_publisher_form.data == expected_data
-
-    def test_manage_project_oidc_publishers_prefill_unknown_provider(self, monkeypatch):
-        project = pretend.stub(oidc_publishers=[])
-        prefilled_data = {
-            "provider": "github2",
-            "owner": "owner",
-            "repository": "repo",
-            "workflow_filename": "file.yml",
-            "environment": "my_env",
-        }
-        request = pretend.stub(
-            user=pretend.stub(),
-            registry=pretend.stub(
-                settings={
-                    "github.token": "fake-api-token",
-                },
-            ),
-            find_service=lambda *a, **kw: None,
-            flags=pretend.stub(
-                disallow_oidc=pretend.call_recorder(lambda f=None: False)
-            ),
-            POST=MultiDict(),
-            params=MultiDict(prefilled_data),
-        )
-
-        view = views.ManageOIDCPublisherViews(project, request)
-        assert view.manage_project_oidc_publishers_prefill() == {
-            "disabled": {
-                "GitHub": False,
-                "GitLab": False,
-                "Google": False,
-                "ActiveState": False,
-            },
-            "project": project,
-            "github_publisher_form": view.github_publisher_form,
-            "gitlab_publisher_form": view.gitlab_publisher_form,
-            "google_publisher_form": view.google_publisher_form,
-            "activestate_publisher_form": view.activestate_publisher_form,
-            "prefilled_provider": None,
-        }
-
-        assert all(v is None for _, v in view.github_publisher_form.data.items())
-
-    @pytest.mark.parametrize(
-        ("view_name", "publisher", "make_form"),
-        [
-            (
-                "add_github_oidc_publisher",
-                pretend.stub(
-                    id="fakeid",
-                    publisher_name="GitHub",
-                    repository_name="fakerepo",
-                    publisher_url=(
-                        lambda x=None: "https://github.com/fakeowner/fakerepo"
-                    ),
-                    owner="fakeowner",
-                    owner_id="1234",
-                    workflow_filename="fakeworkflow.yml",
-                    environment="some-environment",
-                ),
-                lambda publisher: pretend.stub(
-                    validate=pretend.call_recorder(lambda: True),
-                    repository=pretend.stub(data=publisher.repository_name),
-                    normalized_owner=publisher.owner,
-                    workflow_filename=pretend.stub(data=publisher.workflow_filename),
-                    normalized_environment=publisher.environment,
-                ),
-            ),
-            (
-                "add_gitlab_oidc_publisher",
-                pretend.stub(
-                    id="fakeid",
-                    publisher_name="GitLab",
-                    project="fakerepo",
-                    publisher_url=(
-                        lambda x=None: "https://gitlab.com/fakeowner/fakerepo"
-                    ),
-                    namespace="fakeowner",
-                    workflow_filepath="subfolder/fakeworkflow.yml",
-                    environment="some-environment",
-                ),
-                lambda publisher: pretend.stub(
-                    validate=pretend.call_recorder(lambda: True),
-                    project=pretend.stub(data=publisher.project),
-                    namespace=pretend.stub(data=publisher.namespace),
-                    workflow_filepath=pretend.stub(data=publisher.workflow_filepath),
-                    normalized_environment=publisher.environment,
-                ),
-            ),
-            (
-                "add_google_oidc_publisher",
-                pretend.stub(
-                    id="fakeid",
-                    publisher_name="Google",
-                    publisher_url=lambda x=None: None,
-                    email="some-environment@example.com",
-                    sub="some-sub",
-                ),
-                lambda publisher: pretend.stub(
-                    validate=pretend.call_recorder(lambda: True),
-                    email=pretend.stub(data=publisher.email),
-                    sub=pretend.stub(data=publisher.sub),
-                ),
-            ),
-            (
-                "add_activestate_oidc_publisher",
-                pretend.stub(
-                    id="fakeid",
-                    publisher_name="ActiveState",
-                    publisher_url=(
-                        lambda x=None: "https://platform.activestate.com/some-org/some-project"  # noqa
-                    ),
-                    organization="some-org",
-                    activestate_project_name="some-project",
-                    actor="some-user",
-                    actor_id="some-user-id",
-                ),
-                lambda publisher: pretend.stub(
-                    validate=pretend.call_recorder(lambda: True),
-                    organization=pretend.stub(data=publisher.organization),
-                    project=pretend.stub(data=publisher.activestate_project_name),
-                    actor=pretend.stub(data=publisher.actor),
-                    actor_id="some-user-id",
-                ),
-            ),
-        ],
-    )
-    def test_add_oidc_publisher_preexisting(
-        self, metrics, monkeypatch, view_name, publisher, make_form
-    ):
-        # NOTE: Can't set __str__ using pretend.stub()
-        monkeypatch.setattr(publisher.__class__, "__str__", lambda s: "fakespecifier")
-
-        project = pretend.stub(
-            name="fakeproject",
-            oidc_publishers=[],
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
-            users=[],
-        )
-
-        request = pretend.stub(
-            user=pretend.stub(
-                username="some-user",
-            ),
-            registry=pretend.stub(
-                settings={
-                    "github.token": "fake-api-token",
-                }
-            ),
-            find_service=lambda *a, **kw: metrics,
-            flags=pretend.stub(
-                disallow_oidc=pretend.call_recorder(lambda f=None: False)
-            ),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            POST=pretend.stub(),
-            db=pretend.stub(
-                query=lambda *a: pretend.stub(
-                    filter=lambda *a: pretend.stub(one_or_none=lambda: publisher)
-                ),
-                add=pretend.call_recorder(lambda o: None),
-            ),
-            path="request-path",
-        )
-
-        publisher_form_obj = make_form(publisher)
-        publisher_form_cls = pretend.call_recorder(lambda *a, **kw: publisher_form_obj)
-        monkeypatch.setattr(views, "GitHubPublisherForm", publisher_form_cls)
-        monkeypatch.setattr(views, "GitLabPublisherForm", publisher_form_cls)
-        monkeypatch.setattr(views, "GooglePublisherForm", publisher_form_cls)
-        monkeypatch.setattr(views, "ActiveStatePublisherForm", publisher_form_cls)
-
-        view = views.ManageOIDCPublisherViews(project, request)
-        monkeypatch.setattr(
-            view, "_hit_ratelimits", pretend.call_recorder(lambda: None)
-        )
-        monkeypatch.setattr(
-            view, "_check_ratelimits", pretend.call_recorder(lambda: None)
-        )
-
-        assert isinstance(getattr(view, view_name)(), HTTPSeeOther)
-        assert view.metrics.increment.calls == [
-            pretend.call(
-                "warehouse.oidc.add_publisher.attempt",
-                tags=[f"publisher:{publisher.publisher_name}"],
-            ),
-            pretend.call(
-                "warehouse.oidc.add_publisher.ok",
-                tags=[f"publisher:{publisher.publisher_name}"],
-            ),
-        ]
-        assert project.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Project.OIDCPublisherAdded,
-                request=request,
-                additional={
-                    "publisher": publisher.publisher_name,
-                    "id": "fakeid",
-                    "specifier": "fakespecifier",
-                    "url": publisher.publisher_url(),
-                    "submitted_by": "some-user",
-                },
-            )
-        ]
-        assert request.session.flash.calls == [
-            pretend.call(
-                "Added fakespecifier "
-                + (
-                    f"in {publisher.publisher_url()}"
-                    if publisher.publisher_url()
-                    else ""
-                )
-                + " to fakeproject",
-                queue="success",
-            )
-        ]
-        assert request.db.add.calls == []
-        assert publisher_form_obj.validate.calls == [pretend.call()]
-        assert view._hit_ratelimits.calls == [pretend.call()]
-        assert view._check_ratelimits.calls == [pretend.call()]
-        assert project.oidc_publishers == [publisher]
-
-    @pytest.mark.parametrize(
-        ("view_name", "publisher_form_obj", "expected_publisher"),
-        [
-            (
-                "add_github_oidc_publisher",
-                pretend.stub(
-                    validate=pretend.call_recorder(lambda: True),
-                    repository=pretend.stub(data="fakerepo"),
-                    normalized_owner="fakeowner",
-                    workflow_filename=pretend.stub(data="fakeworkflow.yml"),
-                    normalized_environment="some-environment",
-                    owner_id="1234",
-                ),
-                pretend.stub(publisher_name="GitHub"),
-            ),
-            (
-                "add_gitlab_oidc_publisher",
-                pretend.stub(
-                    validate=pretend.call_recorder(lambda: True),
-                    project=pretend.stub(data="fakerepo"),
-                    namespace=pretend.stub(data="fakeowner"),
-                    workflow_filepath=pretend.stub(data="subfolder/fakeworkflow.yml"),
-                    normalized_environment="some-environment",
-                ),
-                pretend.stub(publisher_name="GitLab"),
-            ),
-            (
-                "add_google_oidc_publisher",
-                pretend.stub(
-                    validate=pretend.call_recorder(lambda: True),
-                    email=pretend.stub(data="some-environment@example.com"),
-                    sub=pretend.stub(data="some-sub"),
-                ),
-                "Google",
-            ),
-            (
-                "add_activestate_oidc_publisher",
-                pretend.stub(
-                    validate=pretend.call_recorder(lambda: True),
-                    id="fakeid",
-                    publisher_name="ActiveState",
-                    publisher_url=lambda x=None: None,
-                    organization=pretend.stub(data="fake-org"),
-                    project=pretend.stub(data="fake-project"),
-                    actor=pretend.stub(data="fake-actor"),
-                    actor_id="some-user-id",
-                ),
-                "ActiveState",
-            ),
-        ],
-    )
-    def test_add_oidc_publisher_created(
-        self, metrics, monkeypatch, view_name, publisher_form_obj, expected_publisher
-    ):
-        fakeuser = pretend.stub()
-        project = pretend.stub(
-            name="fakeproject",
-            oidc_publishers=[],
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
-            users=[fakeuser],
-        )
-
-        request = pretend.stub(
-            user=pretend.stub(
-                username="some-user",
-            ),
-            registry=pretend.stub(
-                settings={
-                    "github.token": "fake-api-token",
-                }
-            ),
-            find_service=lambda *a, **kw: metrics,
-            flags=pretend.stub(
-                disallow_oidc=pretend.call_recorder(lambda f=None: False)
-            ),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            POST=pretend.stub(),
-            db=pretend.stub(
-                query=lambda *a: pretend.stub(
-                    filter=lambda *a: pretend.stub(one_or_none=lambda: None)
-                ),
-                add=pretend.call_recorder(lambda o: setattr(o, "id", "fakeid")),
-            ),
-            path="request-path",
-        )
-
-        publisher_form_cls = pretend.call_recorder(lambda *a, **kw: publisher_form_obj)
-        monkeypatch.setattr(views, "GitHubPublisherForm", publisher_form_cls)
-        monkeypatch.setattr(views, "GitLabPublisherForm", publisher_form_cls)
-        monkeypatch.setattr(views, "GooglePublisherForm", publisher_form_cls)
-        monkeypatch.setattr(views, "ActiveStatePublisherForm", publisher_form_cls)
-        monkeypatch.setattr(
-            views,
-            "send_trusted_publisher_added_email",
-            pretend.call_recorder(lambda *a, **kw: None),
-        )
-
-        view = views.ManageOIDCPublisherViews(project, request)
-        monkeypatch.setattr(
-            view, "_hit_ratelimits", pretend.call_recorder(lambda: None)
-        )
-        monkeypatch.setattr(
-            view, "_check_ratelimits", pretend.call_recorder(lambda: None)
-        )
-
-        assert isinstance(getattr(view, view_name)(), HTTPSeeOther)
-
-        assert len(project.oidc_publishers) == 1
-        publisher = project.oidc_publishers[0]
-
-        assert view.metrics.increment.calls == [
-            pretend.call(
-                "warehouse.oidc.add_publisher.attempt",
-                tags=[f"publisher:{publisher.publisher_name}"],
-            ),
-            pretend.call(
-                "warehouse.oidc.add_publisher.ok",
-                tags=[f"publisher:{publisher.publisher_name}"],
-            ),
-        ]
-        assert project.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Project.OIDCPublisherAdded,
-                request=request,
-                additional={
-                    "publisher": publisher.publisher_name,
-                    "id": "fakeid",
-                    "specifier": str(publisher),
-                    "url": publisher.publisher_url(),
-                    "submitted_by": "some-user",
-                },
-            )
-        ]
-        assert request.session.flash.calls == [
-            pretend.call(
-                f"Added {str(publisher)} "
-                + (
-                    f"in {publisher.publisher_url()}"
-                    if publisher.publisher_url()
-                    else ""
-                )
-                + " to fakeproject",
-                queue="success",
-            )
-        ]
-        assert request.db.add.calls == [pretend.call(project.oidc_publishers[0])]
-        assert publisher_form_obj.validate.calls == [pretend.call()]
-        assert views.send_trusted_publisher_added_email.calls == [
-            pretend.call(
-                request,
-                fakeuser,
-                project_name="fakeproject",
-                publisher=publisher,
-            )
-        ]
-        assert view._hit_ratelimits.calls == [pretend.call()]
-        assert view._check_ratelimits.calls == [pretend.call()]
-
-    @pytest.mark.parametrize(
-        ("view_name", "publisher_name", "publisher", "post_body"),
-        [
-            (
-                "add_github_oidc_publisher",
-                "GitHub",
-                GitHubPublisher(
-                    repository_name="some-repository",
-                    repository_owner="some-owner",
-                    repository_owner_id="666",
-                    workflow_filename="some-workflow-filename.yml",
-                    environment="some-environment",
-                ),
-                MultiDict(
-                    {
-                        "owner": "some-owner",
-                        "repository": "some-repository",
-                        "workflow_filename": "some-workflow-filename.yml",
-                        "environment": "some-environment",
-                    }
-                ),
-            ),
-            (
-                "add_gitlab_oidc_publisher",
-                "GitLab",
-                GitLabPublisher(
-                    project="some-repository",
-                    namespace="some-owner",
-                    workflow_filepath="subfolder/some-workflow-filename.yml",
-                    environment="some-environment",
-                ),
-                MultiDict(
-                    {
-                        "namespace": "some-owner",
-                        "project": "some-repository",
-                        "workflow_filepath": "subfolder/some-workflow-filename.yml",
-                        "environment": "some-environment",
-                    }
-                ),
-            ),
-            (
-                "add_google_oidc_publisher",
-                "Google",
-                GooglePublisher(
-                    email="some-email@example.com",
-                    sub="some-sub",
-                ),
-                MultiDict(
-                    {
-                        "email": "some-email@example.com",
-                        "sub": "some-sub",
-                    }
-                ),
-            ),
-            (
-                "add_activestate_oidc_publisher",
-                "ActiveState",
-                ActiveStatePublisher(
-                    organization="some-org",
-                    activestate_project_name="some-project",
-                    actor="some-user",
-                    actor_id="some-user-id",
-                ),
-                MultiDict(
-                    {
-                        "organization": "some-org",
-                        "project": "some-project",
-                        "actor": "some-user",
-                    }
-                ),
-            ),
-        ],
-    )
-    def test_add_oidc_publisher_already_registered_with_project(
-        self, monkeypatch, db_request, view_name, publisher_name, publisher, post_body
-    ):
-        db_request.user = UserFactory.create()
-        EmailFactory(user=db_request.user, verified=True, primary=True)
-        db_request.db.add(publisher)
-        db_request.db.flush()  # To get it in the DB
-
-        project = pretend.stub(
-            name="fakeproject",
-            oidc_publishers=[publisher],
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
-        )
-
-        db_request.registry = pretend.stub(
-            settings={
-                "github.token": "fake-api-token",
-            }
-        )
-        db_request.flags = pretend.stub(
-            disallow_oidc=pretend.call_recorder(lambda f=None: False)
-        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.method = "POST"
+        db_request.user = user
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
-        db_request.POST = post_body
 
-        view = views.ManageOIDCPublisherViews(project, db_request)
-        monkeypatch.setattr(
-            views.GitHubPublisherForm,
-            "_lookup_owner",
-            lambda *a: {"login": "some-owner", "id": "some-owner-id"},
-        )
+        result = views.archive_project_view(project, db_request)
 
-        monkeypatch.setattr(
-            views.ActiveStatePublisherForm,
-            "_lookup_organization",
-            lambda *a: None,
-        )
-
-        monkeypatch.setattr(
-            views.ActiveStatePublisherForm,
-            "_lookup_actor",
-            lambda *a: {"user_id": "some-user-id"},
-        )
-
-        monkeypatch.setattr(
-            view, "_hit_ratelimits", pretend.call_recorder(lambda: None)
-        )
-        monkeypatch.setattr(
-            view, "_check_ratelimits", pretend.call_recorder(lambda: None)
-        )
-
-        assert getattr(view, view_name)() == {
-            "disabled": {
-                "GitHub": False,
-                "GitLab": False,
-                "Google": False,
-                "ActiveState": False,
-            },
-            "project": project,
-            "github_publisher_form": view.github_publisher_form,
-            "gitlab_publisher_form": view.gitlab_publisher_form,
-            "google_publisher_form": view.google_publisher_form,
-            "activestate_publisher_form": view.activestate_publisher_form,
-            "prefilled_provider": view.prefilled_provider,
-        }
-        assert view.metrics.increment.calls == [
-            pretend.call(
-                "warehouse.oidc.add_publisher.attempt",
-                tags=[f"publisher:{publisher_name}"],
-            ),
-        ]
-        assert project.record_event.calls == []
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"{str(publisher)} is already registered with fakeproject",
-                queue="error",
-            )
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert project.lifecycle_status == LifecycleStatus.ArchivedNoindex
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.settings", project_name=project.name)
         ]
 
-    @pytest.mark.parametrize(
-        ("view_name", "publisher_name"),
-        [
-            ("add_github_oidc_publisher", "GitHub"),
-            ("add_gitlab_oidc_publisher", "GitLab"),
-            ("add_google_oidc_publisher", "Google"),
-            ("add_activestate_oidc_publisher", "ActiveState"),
-        ],
-    )
-    def test_add_oidc_publisher_ratelimited(
-        self, metrics, monkeypatch, view_name, publisher_name
-    ):
-        project = pretend.stub()
-
-        request = pretend.stub(
-            user=pretend.stub(),
-            registry=pretend.stub(settings={}),
-            find_service=lambda *a, **kw: metrics,
-            flags=pretend.stub(
-                disallow_oidc=pretend.call_recorder(lambda f=None: False)
-            ),
-            _=lambda s: s,
-            POST=MultiDict(),
+    def test_unarchive_project(self, db_request):
+        project = ProjectFactory.create(
+            name="foo", lifecycle_status=LifecycleStatus.Archived
         )
+        user = UserFactory.create(username="testuser")
 
-        view = views.ManageOIDCPublisherViews(project, request)
-        monkeypatch.setattr(
-            view,
-            "_check_ratelimits",
-            pretend.call_recorder(
-                pretend.raiser(
-                    TooManyOIDCRegistrations(
-                        resets_in=pretend.stub(total_seconds=lambda: 60)
-                    )
-                )
-            ),
-        )
-
-        assert getattr(view, view_name)().__class__ == HTTPTooManyRequests
-        assert view.metrics.increment.calls == [
-            pretend.call(
-                "warehouse.oidc.add_publisher.attempt",
-                tags=[f"publisher:{publisher_name}"],
-            ),
-            pretend.call(
-                "warehouse.oidc.add_publisher.ratelimited",
-                tags=[f"publisher:{publisher_name}"],
-            ),
-        ]
-
-    @pytest.mark.parametrize(
-        ("view_name", "publisher_name"),
-        [
-            ("add_github_oidc_publisher", "GitHub"),
-            ("add_gitlab_oidc_publisher", "GitLab"),
-            ("add_google_oidc_publisher", "Google"),
-            ("add_activestate_oidc_publisher", "ActiveState"),
-        ],
-    )
-    def test_add_oidc_publisher_admin_disabled(
-        self, monkeypatch, view_name, publisher_name
-    ):
-        project = pretend.stub()
-        request = pretend.stub(
-            user=pretend.stub(),
-            find_service=lambda *a, **kw: None,
-            flags=pretend.stub(
-                disallow_oidc=pretend.call_recorder(lambda f=None: True)
-            ),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            _=lambda s: s,
-            POST=MultiDict(),
-            registry=pretend.stub(settings={}),
-        )
-
-        view = views.ManageOIDCPublisherViews(project, request)
-        default_response = {"_": pretend.stub()}
-        monkeypatch.setattr(
-            views.ManageOIDCPublisherViews, "default_response", default_response
-        )
-
-        assert getattr(view, view_name)() == default_response
-        assert request.session.flash.calls == [
-            pretend.call(
-                (
-                    f"{publisher_name}-based trusted publishing is temporarily "
-                    "disabled. See https://pypi.org/help#admin-intervention for "
-                    "details."
-                ),
-                queue="error",
-            )
-        ]
-
-    @pytest.mark.parametrize(
-        ("view_name", "publisher_name"),
-        [
-            ("add_github_oidc_publisher", "GitHub"),
-            ("add_gitlab_oidc_publisher", "GitLab"),
-            ("add_google_oidc_publisher", "Google"),
-            ("add_activestate_oidc_publisher", "ActiveState"),
-        ],
-    )
-    def test_add_oidc_publisher_invalid_form(
-        self, metrics, monkeypatch, view_name, publisher_name
-    ):
-        project = pretend.stub()
-        request = pretend.stub(
-            user=pretend.stub(),
-            find_service=lambda *a, **kw: metrics,
-            flags=pretend.stub(
-                disallow_oidc=pretend.call_recorder(lambda f=None: False)
-            ),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            _=lambda s: s,
-            POST=MultiDict(),
-            registry=pretend.stub(settings={}),
-        )
-
-        publisher_form_obj = pretend.stub(
-            validate=pretend.call_recorder(lambda: False),
-        )
-        publisher_form_cls = pretend.call_recorder(lambda *a, **kw: publisher_form_obj)
-        monkeypatch.setattr(views, "GitHubPublisherForm", publisher_form_cls)
-        monkeypatch.setattr(views, "GitLabPublisherForm", publisher_form_cls)
-        monkeypatch.setattr(views, "GooglePublisherForm", publisher_form_cls)
-        monkeypatch.setattr(views, "ActiveStatePublisherForm", publisher_form_cls)
-
-        view = views.ManageOIDCPublisherViews(project, request)
-        default_response = {
-            "github_publisher_form": publisher_form_obj,
-            "gitlab_publisher_form": publisher_form_obj,
-            "google_publisher_form": publisher_form_obj,
-            "activestate_publisher_form": publisher_form_obj,
-        }
-        monkeypatch.setattr(
-            views.ManageOIDCPublisherViews, "default_response", default_response
-        )
-        monkeypatch.setattr(
-            view, "_check_ratelimits", pretend.call_recorder(lambda: None)
-        )
-        monkeypatch.setattr(
-            view, "_hit_ratelimits", pretend.call_recorder(lambda: None)
-        )
-
-        assert getattr(view, view_name)() == default_response
-        assert view.metrics.increment.calls == [
-            pretend.call(
-                "warehouse.oidc.add_publisher.attempt",
-                tags=[f"publisher:{publisher_name}"],
-            ),
-        ]
-        assert view._hit_ratelimits.calls == [pretend.call()]
-        assert view._check_ratelimits.calls == [pretend.call()]
-        assert publisher_form_obj.validate.calls == [pretend.call()]
-
-    @pytest.mark.parametrize(
-        "publisher",
-        [
-            GitHubPublisher(
-                repository_name="some-repository",
-                repository_owner="some-owner",
-                repository_owner_id="666",
-                workflow_filename="some-workflow-filename.yml",
-                environment="some-environment",
-            ),
-            GitLabPublisher(
-                project="some-repository",
-                namespace="some-owner",
-                workflow_filepath="subfolder/some-workflow-filename.yml",
-                environment="some-environment",
-            ),
-            GooglePublisher(
-                email="some-email@example.com",
-                sub="some-sub",
-            ),
-            ActiveStatePublisher(
-                organization="some-org",
-                activestate_project_name="some-project",
-                actor="some-user",
-                actor_id="some-user-id",
-            ),
-        ],
-    )
-    def test_delete_oidc_publisher_registered_to_multiple_projects(
-        self, monkeypatch, db_request, publisher
-    ):
-        db_request.user = UserFactory.create()
-        EmailFactory(user=db_request.user, verified=True, primary=True)
-        db_request.db.add(publisher)
-        db_request.db.flush()  # To get it in the DB
-
-        project = ProjectFactory.create(oidc_publishers=[publisher])
-        project.record_event = pretend.call_recorder(lambda *a, **kw: None)
-        RoleFactory.create(user=db_request.user, project=project, role_name="Owner")
-        another_project = ProjectFactory.create(oidc_publishers=[publisher])
-
-        db_request.flags = pretend.stub(
-            disallow_oidc=pretend.call_recorder(lambda f=None: False)
-        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.method = "POST"
+        db_request.user = user
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
-        db_request.POST = MultiDict(
-            {
-                "publisher_id": str(publisher.id),
-            }
-        )
 
-        monkeypatch.setattr(
-            views,
-            "send_trusted_publisher_removed_email",
-            pretend.call_recorder(lambda *a, **kw: None),
-        )
+        result = views.unarchive_project_view(project, db_request)
 
-        view = views.ManageOIDCPublisherViews(project, db_request)
-        default_response = {"_": pretend.stub()}
-        monkeypatch.setattr(
-            views.ManageOIDCPublisherViews, "default_response", default_response
-        )
-
-        assert isinstance(view.delete_oidc_publisher(), HTTPSeeOther)
-        assert publisher not in project.oidc_publishers
-
-        assert view.metrics.increment.calls == [
-            pretend.call(
-                "warehouse.oidc.delete_publisher.attempt",
-            ),
-            pretend.call(
-                "warehouse.oidc.delete_publisher.ok",
-                tags=[f"publisher:{publisher.publisher_name}"],
-            ),
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.settings", project_name=project.name)
         ]
+        assert project.lifecycle_status is None
 
-        assert project.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Project.OIDCPublisherRemoved,
-                request=db_request,
-                additional={
-                    "publisher": publisher.publisher_name,
-                    "id": str(publisher.id),
-                    "specifier": str(publisher),
-                    "url": publisher.publisher_url(),
-                    "submitted_by": db_request.user.username,
-                },
-            )
-        ]
+    def test_disallowed_archive(self, db_request):
+        project = ProjectFactory.create(name="foo", lifecycle_status="quarantine-enter")
+        user = UserFactory.create(username="testuser")
 
-        assert db_request.flags.disallow_oidc.calls == [pretend.call()]
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"Removed trusted publisher for project {project.name!r}",
-                queue="success",
-            )
-        ]
-
-        # The publisher is not actually removed entirely from the DB, since it's
-        # registered to other projects that haven't removed it.
-        assert db_request.db.query(OIDCPublisher).one() == publisher
-        assert another_project.oidc_publishers == [publisher]
-
-        assert views.send_trusted_publisher_removed_email.calls == [
-            pretend.call(
-                db_request,
-                db_request.user,
-                project_name=project.name,
-                publisher=publisher,
-            )
-        ]
-
-    @pytest.mark.parametrize(
-        "publisher",
-        [
-            GitHubPublisher(
-                repository_name="some-repository",
-                repository_owner="some-owner",
-                repository_owner_id="666",
-                workflow_filename="some-workflow-filename.yml",
-                environment="some-environment",
-            ),
-            GitLabPublisher(
-                project="some-repository",
-                namespace="some-owner",
-                workflow_filepath="subfolder/some-workflow-filename.yml",
-                environment="some-environment",
-            ),
-            GooglePublisher(
-                email="some-email@example.com",
-                sub="some-sub",
-            ),
-            ActiveStatePublisher(
-                organization="some-org",
-                activestate_project_name="some-project",
-                actor="some-user",
-                actor_id="some-user-id",
-            ),
-        ],
-    )
-    def test_delete_oidc_publisher_entirely(self, monkeypatch, db_request, publisher):
-        db_request.user = UserFactory.create()
-        EmailFactory(user=db_request.user, verified=True, primary=True)
-        db_request.db.add(publisher)
-        db_request.db.flush()  # To get it in the DB
-
-        project = ProjectFactory.create(oidc_publishers=[publisher])
-        RoleFactory.create(user=db_request.user, project=project, role_name="Owner")
-
-        db_request.flags = pretend.stub(
-            disallow_oidc=pretend.call_recorder(lambda f=None: False)
-        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.method = "POST"
+        db_request.user = user
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
-        db_request.POST = MultiDict(
-            {
-                "publisher_id": str(publisher.id),
-            }
-        )
 
-        monkeypatch.setattr(
-            views,
-            "send_trusted_publisher_removed_email",
-            pretend.call_recorder(lambda *a, **kw: None),
-        )
+        result = views.archive_project_view(project, db_request)
 
-        view = views.ManageOIDCPublisherViews(project, db_request)
-        default_response = {"_": pretend.stub()}
-        monkeypatch.setattr(
-            views.ManageOIDCPublisherViews, "default_response", default_response
-        )
-
-        assert isinstance(view.delete_oidc_publisher(), HTTPSeeOther)
-        assert publisher not in project.oidc_publishers
-
-        assert view.metrics.increment.calls == [
-            pretend.call(
-                "warehouse.oidc.delete_publisher.attempt",
-            ),
-            pretend.call(
-                "warehouse.oidc.delete_publisher.ok",
-                tags=[f"publisher:{publisher.publisher_name}"],
-            ),
-        ]
-
-        events = project.events.all()
-        assert len(events) == 1
-        event = events[0]
-        assert event.tag == EventTag.Project.OIDCPublisherRemoved
-        assert str(event.ip_address) == db_request.remote_addr
-        assert event.additional == {
-            "publisher": publisher.publisher_name,
-            "id": str(publisher.id),
-            "specifier": str(publisher),
-            "url": publisher.publisher_url(),
-            "submitted_by": db_request.user.username,
-        }
-
-        assert db_request.flags.disallow_oidc.calls == [pretend.call()]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
         assert db_request.session.flash.calls == [
             pretend.call(
-                f"Removed trusted publisher for project {project.name!r}",
-                queue="success",
-            )
-        ]
-
-        # The publisher is actually removed entirely from the DB.
-        assert db_request.db.query(OIDCPublisher).all() == []
-
-        assert views.send_trusted_publisher_removed_email.calls == [
-            pretend.call(
-                db_request,
-                db_request.user,
-                project_name=project.name,
-                publisher=publisher,
-            )
-        ]
-
-    def test_delete_oidc_publisher_invalid_form(self, metrics, monkeypatch):
-        publisher = pretend.stub()
-        project = pretend.stub(oidc_publishers=[publisher])
-        request = pretend.stub(
-            user=pretend.stub(),
-            find_service=lambda *a, **kw: metrics,
-            flags=pretend.stub(
-                disallow_oidc=pretend.call_recorder(lambda f=None: False)
-            ),
-            POST=MultiDict(),
-            registry=pretend.stub(settings={}),
-        )
-
-        delete_publisher_form_obj = pretend.stub(
-            validate=pretend.call_recorder(lambda: False),
-        )
-        delete_publisher_form_cls = pretend.call_recorder(
-            lambda *a, **kw: delete_publisher_form_obj
-        )
-        monkeypatch.setattr(views, "DeletePublisherForm", delete_publisher_form_cls)
-
-        view = views.ManageOIDCPublisherViews(project, request)
-        default_response = {"_": pretend.stub()}
-        monkeypatch.setattr(
-            views.ManageOIDCPublisherViews, "default_response", default_response
-        )
-
-        assert view.delete_oidc_publisher() == default_response
-        assert len(project.oidc_publishers) == 1
-
-        assert view.metrics.increment.calls == [
-            pretend.call(
-                "warehouse.oidc.delete_publisher.attempt",
-            ),
-        ]
-
-        assert delete_publisher_form_cls.calls == [pretend.call(request.POST)]
-        assert delete_publisher_form_obj.validate.calls == [pretend.call()]
-
-    @pytest.mark.parametrize(
-        "other_publisher", [None, pretend.stub(id="different-fakeid")]
-    )
-    def test_delete_oidc_publisher_not_found(
-        self, metrics, monkeypatch, other_publisher
-    ):
-        publisher = pretend.stub(
-            publisher_name="fakepublisher",
-            id="fakeid",
-        )
-        # NOTE: Can't set __str__ using pretend.stub()
-        monkeypatch.setattr(publisher.__class__, "__str__", lambda s: "fakespecifier")
-
-        project = pretend.stub(
-            oidc_publishers=[publisher],
-            name="fakeproject",
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
-        )
-        request = pretend.stub(
-            user=pretend.stub(),
-            find_service=lambda *a, **kw: metrics,
-            flags=pretend.stub(
-                disallow_oidc=pretend.call_recorder(lambda f=None: False)
-            ),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            POST=MultiDict(),
-            registry=pretend.stub(settings={}),
-            db=pretend.stub(
-                get=pretend.call_recorder(lambda *a, **kw: other_publisher),
-            ),
-            remote_addr="0.0.0.0",
-        )
-
-        delete_publisher_form_obj = pretend.stub(
-            validate=pretend.call_recorder(lambda: True),
-            publisher_id=pretend.stub(data="different-fakeid"),
-        )
-        delete_publisher_form_cls = pretend.call_recorder(
-            lambda *a, **kw: delete_publisher_form_obj
-        )
-        monkeypatch.setattr(views, "DeletePublisherForm", delete_publisher_form_cls)
-
-        view = views.ManageOIDCPublisherViews(project, request)
-        default_response = {"_": pretend.stub()}
-        monkeypatch.setattr(
-            views.ManageOIDCPublisherViews, "default_response", default_response
-        )
-
-        assert view.delete_oidc_publisher() == default_response
-        assert publisher in project.oidc_publishers  # not deleted
-        assert other_publisher not in project.oidc_publishers
-
-        assert view.metrics.increment.calls == [
-            pretend.call(
-                "warehouse.oidc.delete_publisher.attempt",
-            ),
-        ]
-
-        assert project.record_event.calls == []
-        assert request.session.flash.calls == [
-            pretend.call("Invalid publisher for project", queue="error")
-        ]
-
-        assert delete_publisher_form_cls.calls == [pretend.call(request.POST)]
-        assert delete_publisher_form_obj.validate.calls == [pretend.call()]
-
-    def test_delete_oidc_publisher_admin_disabled(self, monkeypatch):
-        project = pretend.stub()
-        request = pretend.stub(
-            user=pretend.stub(),
-            find_service=lambda *a, **kw: None,
-            flags=pretend.stub(
-                disallow_oidc=pretend.call_recorder(lambda f=None: True)
-            ),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            POST=MultiDict(),
-            registry=pretend.stub(settings={}),
-        )
-
-        view = views.ManageOIDCPublisherViews(project, request)
-        default_response = {"_": pretend.stub()}
-        monkeypatch.setattr(
-            views.ManageOIDCPublisherViews, "default_response", default_response
-        )
-
-        assert view.delete_oidc_publisher() == default_response
-        assert request.session.flash.calls == [
-            pretend.call(
-                (
-                    "Trusted publishing is temporarily disabled. "
-                    "See https://pypi.org/help#admin-intervention for details."
-                ),
+                f"Cannot archive project with status {project.lifecycle_status}",
                 queue="error",
             )
         ]
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.settings", project_name="foo")
+        ]
+        assert project.lifecycle_status == "quarantine-enter"
+
+    def test_disallowed_unarchive(self, db_request):
+        project = ProjectFactory.create(name="foo", lifecycle_status="quarantine-enter")
+        user = UserFactory.create(username="testuser")
+
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.method = "POST"
+        db_request.user = user
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.unarchive_project_view(project, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.session.flash.calls == [
+            pretend.call("Can only unarchive an archived project", queue="error")
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.settings", project_name="foo")
+        ]
+        assert project.lifecycle_status == "quarantine-enter"

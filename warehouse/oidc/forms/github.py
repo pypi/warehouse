@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import re
 
@@ -21,6 +11,7 @@ from warehouse.oidc.forms._core import PendingPublisherMixin
 
 _VALID_GITHUB_REPO = re.compile(r"^[a-zA-Z0-9-_.]+$")
 _VALID_GITHUB_OWNER = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9-]*$")
+_INVALID_ENVIRONMENT_CHARS = re.compile(r'[\x00-\x1F\x7F\'"`,;\\]', re.UNICODE)
 
 
 class GitHubPublisherBase(wtforms.Form):
@@ -44,9 +35,10 @@ class GitHubPublisherBase(wtforms.Form):
     )
 
     workflow_filename = wtforms.StringField(
+        filters=[lambda x: x.strip() if x else x],
         validators=[
             wtforms.validators.InputRequired(message=_("Specify workflow filename"))
-        ]
+        ],
     )
 
     # Environment names are not case sensitive. An environment name may not
@@ -54,16 +46,16 @@ class GitHubPublisherBase(wtforms.Form):
     # https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment
     environment = wtforms.StringField(validators=[wtforms.validators.Optional()])
 
-    def __init__(self, *args, api_token, **kwargs):
+    def __init__(self, *args, api_token: str, **kwargs):
         super().__init__(*args, **kwargs)
         self._api_token = api_token
 
-    def _headers_auth(self):
+    def _headers_auth(self) -> dict[str, str]:
         if not self._api_token:
             return {}
         return {"Authorization": f"token {self._api_token}"}
 
-    def _lookup_owner(self, owner):
+    def _lookup_owner(self, owner: str) -> dict[str, str | int]:
         # To actually validate the owner, we ask GitHub's API about them.
         # We can't do this for the repository, since it might be private.
         try:
@@ -122,7 +114,7 @@ class GitHubPublisherBase(wtforms.Form):
 
         return response.json()
 
-    def validate_owner(self, field):
+    def validate_owner(self, field: wtforms.Field) -> None:
         owner = field.data
 
         # We pre-filter owners with a regex, to avoid loading GitHub's API
@@ -138,7 +130,7 @@ class GitHubPublisherBase(wtforms.Form):
         self.normalized_owner = owner_info["login"]
         self.owner_id = owner_info["id"]
 
-    def validate_workflow_filename(self, field):
+    def validate_workflow_filename(self, field: wtforms.Field) -> None:
         workflow_filename = field.data
 
         if not (
@@ -153,25 +145,52 @@ class GitHubPublisherBase(wtforms.Form):
                 _("Workflow filename must be a filename only, without directories")
             )
 
+    def validate_environment(self, field: wtforms.Field) -> None:
+        environment = field.data
+
+        if not environment:
+            return
+
+        if len(environment) > 255:
+            raise wtforms.validators.ValidationError(
+                _("Environment name is too long (maximum is 255 characters)")
+            )
+
+        if environment.startswith(" "):
+            raise wtforms.validators.ValidationError(
+                _("Environment name may not start with whitespace")
+            )
+
+        if environment.endswith(" "):
+            raise wtforms.validators.ValidationError(
+                _("Environment name may not end with whitespace")
+            )
+
+        if _INVALID_ENVIRONMENT_CHARS.search(environment):
+            raise wtforms.validators.ValidationError(
+                _(
+                    "Environment name must not contain non-printable characters "
+                    'or the characters "\'", """, "`", ",", ";", "\\"'
+                )
+            )
+
     @property
-    def normalized_environment(self):
+    def normalized_environment(self) -> str:
+        # The only normalization is due to case-insensitivity.
+        #
         # NOTE: We explicitly do not compare `self.environment.data` to None,
-        # since it might also be falsey via an empty string (or might be
-        # only whitespace, which we also treat as a None case).
-        return (
-            self.environment.data.lower()
-            if self.environment.data and not self.environment.data.isspace()
-            else ""
-        )
+        # since it might also be falsey via an empty string.
+        return self.environment.data.lower() if self.environment.data else ""
 
 
 class PendingGitHubPublisherForm(GitHubPublisherBase, PendingPublisherMixin):
     __params__ = GitHubPublisherBase.__params__ + ["project_name"]
 
-    def __init__(self, *args, route_url, project_factory, **kwargs):
+    def __init__(self, *args, route_url, check_project_name, user, **kwargs):
         super().__init__(*args, **kwargs)
         self._route_url = route_url
-        self._project_factory = project_factory
+        self._check_project_name = check_project_name
+        self._user = user
 
     @property
     def provider(self) -> str:

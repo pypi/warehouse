@@ -1,16 +1,8 @@
-/*!
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/* SPDX-License-Identifier: Apache-2.0 */
+
+@use "../settings/colours";
+@use "../settings/fonts";
+@use "../settings/grid";
 
 /*
   Styles a group of frequently asked questions.
@@ -27,7 +19,7 @@
 .faq-group {
   h2 {
     padding-bottom: 5px;
-    margin-top: $spacing-unit * 2;
+    margin-top: grid.$spacing-unit * 2;
   }
 
   h2.faq-group__first {
@@ -38,17 +30,17 @@
     padding-top: 30px;
 
     &::before {
-      font-family: "Font Awesome 6 Free";
+      font-family: fonts.$fa-font-family;
       font-weight: 900;
       content: "\f059";
       margin-right: 5px;
-      color: $primary-color;
+      color: colours.$primary-color;
     }
   }
 
   &--list {
     h2 {
-      margin-top: $spacing-unit;
+      margin-top: grid.$spacing-unit;
       margin-bottom: 15px;
     }
   }

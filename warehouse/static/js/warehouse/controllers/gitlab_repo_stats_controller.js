@@ -1,16 +1,5 @@
-/**
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/* SPDX-License-Identifier: Apache-2.0 */
+
 import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
@@ -30,16 +19,16 @@ export default class extends Controller {
           "state": "opened",
           "per_page": 1,
         }),
-        fetchParams
+        fetchParams,
       ).then((response) => {
         if(response.ok) {
           return response.json().then(
-            (data) => Object.keys(data).length ? response.headers.get("X-Total-Pages") : 0
+            (data) => Object.keys(data).length ? response.headers.get("X-Total-Pages") : 0,
           );
         }
 
         console.error(
-          `Received ${response.status} HTTP code while fetching Gitlab ${project_object} data. The response is "${response.text}"`
+          `Received ${response.status} HTTP code while fetching Gitlab ${project_object} data. The response is "${response.text}"`,
         );
 
         return 0;
@@ -59,9 +48,9 @@ export default class extends Controller {
     const project_api_url = `${GITLAB_API_URL}/projects/${project_id}`;
     const project_info = fetch(
       project_api_url,
-      fetchParams
+      fetchParams,
     ).then((response) =>
-      response.ok === true ? response.json() : null
+      response.ok === true ? response.json() : null,
     );
 
     const issues = get_project_objects_count(project_api_url, "issues", fetchParams);
@@ -80,7 +69,7 @@ export default class extends Controller {
           MRs_url: project.web_url + "/-/merge_requests",
         };
         this.gitlabRepoInfoOutlets.forEach((outlet) =>
-          outlet.updateStats(stats)
+          outlet.updateStats(stats),
         );
       })
       // swallow errors, we don't want to show them to the user

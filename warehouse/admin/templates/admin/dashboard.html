@@ -1,20 +1,89 @@
-{#
- # Licensed under the Apache License, Version 2.0 (the "License");
- # you may not use this file except in compliance with the License.
- # You may obtain a copy of the License at
- #
- # http://www.apache.org/licenses/LICENSE-2.0
- #
- # Unless required by applicable law or agreed to in writing, software
- # distributed under the License is distributed on an "AS IS" BASIS,
- # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- # See the License for the specific language governing permissions and
- # limitations under the License.
--#}
+{# SPDX-License-Identifier: Apache-2.0 -#}
 
 {% extends "base.html" %}
 
+{% block title_header %}{% endblock %}
+
 {% block content %}
+  <h2>Organizations</h2>
+  <div class="row">
+    <div class="col-lg-4 col-6">
+      <div class="small-box bg-gradient-info">
+        <div class="inner">
+          <h3>{{ organizations_count.Total }} Approved</h3>
+          <h4>Community: {{ organizations_count.Community }}</h4>
+          <h4>Company : {{ organizations_count.Company }}</h4>
+        </div>
+        <div class="icon">
+          <i class="fa-solid fa-people-group"></i>
+        </div>
+        <a href="{{ request.route_path("admin.organization.list") }}"
+           class="small-box-footer">
+          View All <i class="fas fa-arrow-circle-right"></i>
+        </a>
+      </div>
+    </div>
+    <div class="col-lg-4 col-6">
+      <div class="small-box bg-gradient-purple">
+        <div class="inner">
+          <h3>{{ organization_applications_count.submitted }} To Review</h3>
+          <h4>Awaiting Response: {{ organization_applications_count.moreinformationneeded }}</h4>
+          <h4>Deferred: {{ organization_applications_count.deferred }}</h4>
+        </div>
+        <div class="icon">
+          <i class="fa-solid fa-inbox"></i>
+        </div>
+        <a href="{{ request.route_path("admin.organization_application.list") }}"
+           class="small-box-footer">
+          View All Reviewable <i class="fas fa-arrow-circle-right"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+  <h3>Company Orgs</h3>
+  <div class="row">
+    <div class="col-lg-4 col-6">
+      <div class="small-box bg-gradient-success">
+        <div class="inner">
+          <h3>{{ active_company_organizations }} Subscribed</h3>
+          <h4>With {{ active_company_organization_users }} Users</h4>
+          <h4>${{ active_company_organization_users * 5 }} / mo</h4>
+        </div>
+        <div class="icon">
+          <i class="fa-solid fa-money-bill-trend-up"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <h3>Organization Utilization</h3>
+  <div class="row">
+    <div class="col-lg-4 col-6">
+      <div class="small-box bg-gradient-teal utilization-card">
+        <div class="inner">
+          <h3>{{ orgs_with_projects.Total }} With Projects</h3>
+          <h4>Community: {{ orgs_with_projects.get('Community', 0) }}</h4>
+          <h4>Company: {{ orgs_with_projects.get('Company', 0) }}</h4>
+        </div>
+        <div class="icon">
+          <i class="fa-solid fa-folder-open"></i>
+        </div>
+        <i class="fa fa-info-circle info-icon" title="Organizations that have at least one project"></i>
+      </div>
+    </div>
+    <div class="col-lg-4 col-6">
+      <div class="small-box bg-gradient-teal utilization-card">
+        <div class="inner">
+          <h3>{{ orgs_with_multiple_members.Total }} With Members</h3>
+          <h4>Community: {{ orgs_with_multiple_members.get('Community', 0) }}</h4>
+          <h4>Company: {{ orgs_with_multiple_members.get('Company', 0) }}</h4>
+        </div>
+        <div class="icon">
+          <i class="fa-solid fa-users"></i>
+        </div>
+        <i class="fa fa-info-circle info-icon" title="Organizations with more than 1 member"></i>
+      </div>
+    </div>
+  </div>
   <div class="row">
     {% if malware_reports_count %}
       <div class="col-lg-4 col-6">

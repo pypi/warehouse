@@ -1,91 +1,69 @@
-{#
- # Licensed under the Apache License, Version 2.0 (the "License");
- # you may not use this file except in compliance with the License.
- # You may obtain a copy of the License at
- #
- # http://www.apache.org/licenses/LICENSE-2.0
- #
- # Unless required by applicable law or agreed to in writing, software
- # distributed under the License is distributed on an "AS IS" BASIS,
- # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- # See the License for the specific language governing permissions and
- # limitations under the License.
--#}
+{# SPDX-License-Identifier: Apache-2.0 -#}
 {% extends "manage_team_base.html" %}
-
 {% set user = request.user %}
 {% set title = gettext("Team settings") %}
-
-{% set active_tab = 'settings' %}
-
-{% block title %}{% trans team_name=team.name %}Manage '{{ team_name }}' settings{% endtrans %}{% endblock %}
-
+{% set active_tab = "settings" %}
+{% block title %}
+  {% trans team_name=team.name %}Manage '{{ team_name }}' settings{% endtrans %}
+{% endblock %}
 {% block main %}
   <h2>{% trans %}Team settings{% endtrans %}</h2>
-
   {{ form_error_anchor(save_team_form) }}
   <section id="team-details">
-    <form method="POST">
-      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+    <form method="post">
+      <input name="csrf_token"
+             type="hidden"
+             value="{{ request.session.get_csrf_token() }}">
       {{ form_errors(save_team_form) }}
       <div class="form-group">
         <label for="display_name" class="form-group__label">
           {% trans %}Team name{% endtrans %}
           {% if request.has_permission(Permissions.OrganizationTeamsManage) and save_team_form.name.flags.required %}
-          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+            <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
         {% if request.has_permission(Permissions.OrganizationTeamsManage) %}
-        {{ save_team_form.name(
-          placeholder=gettext("Name of your team"),
+          {{ save_team_form.name(placeholder=gettext("Name of your team") ,
           autocomplete="off",
           autocapitalize="off",
           spellcheck="false",
           class_="form-group__field",
           aria_describedby="name-errors",
-        ) }}
+          ) }}
         {% else %}
-        <p class="form-group__text">
-          {{ save_team_form.name.data }}
-        </p>
+          <p class="form-group__text">{{ save_team_form.name.data }}</p>
         {% endif %}
         <div id="name-errors">
           {% if save_team_form.name.errors %}
-          <ul class="form-errors" role="alert">
-            {% for error in save_team_form.name.errors %}
-            <li>{{ error }}</li>
-            {% endfor %}
-          </ul>
+            <ul class="form-errors" role="alert">
+              {% for error in save_team_form.name.errors %}<li>{{ error }}</li>{% endfor %}
+            </ul>
           {% endif %}
         </div>
       </div>
-
       <div class="form-group">
         <span class="form-group__label">{% trans %}Date created{% endtrans %}</span>
-        <p class="form-group__text">
-          {{ humanize(team.created) }}
-        </p>
+        <p class="form-group__text">{{ humanize(team.created) }}</p>
       </div>
-
       {% if request.has_permission(Permissions.OrganizationTeamsManage) %}
-      <input value="{% trans %}Update team{% endtrans %}" class="button button--primary" type="submit">
+        <input value="{% trans %}Update team{% endtrans %}"
+               class="button button--primary"
+               type="submit">
       {% endif %}
     </form>
   </section>
-
   {% if request.has_permission(Permissions.OrganizationTeamsManage) %}
-  <hr>
-
-  <section id="delete-team">
-    <h2>{% trans %}Delete team{% endtrans %}</h2>
-    <div class="callout-block callout-block--danger">
-      <h3>{% trans %}Proceed with caution!{% endtrans %}</h3>
-      <p>
-        <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
-        {% trans %}You will not be able to recover your team after you delete it.{% endtrans %}
-      </p>
-      {{ confirm_button(gettext("Delete team"), gettext("Team Name"), "team_name", team.name) }}
-    </div>
-  </section>
+    <hr>
+    <section id="delete-team">
+      <h2>{% trans %}Delete team{% endtrans %}</h2>
+      <div class="callout-block callout-block--danger">
+        <h3>{% trans %}Proceed with caution!{% endtrans %}</h3>
+        <p>
+          <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
+          {% trans %}You will not be able to recover your team after you delete it.{% endtrans %}
+        </p>
+        {{ confirm_button(gettext("Delete team") , gettext("Team Name"), "team_name", team.name) }}
+      </div>
+    </section>
   {% endif %}
 {% endblock %}

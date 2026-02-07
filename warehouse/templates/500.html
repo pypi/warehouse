@@ -1,51 +1,46 @@
-{#
- # Licensed under the Apache License, Version 2.0 (the "License");
- # you may not use this file except in compliance with the License.
- # You may obtain a copy of the License at
- #
- # http://www.apache.org/licenses/LICENSE-2.0
- #
- # Unless required by applicable law or agreed to in writing, software
- # distributed under the License is distributed on an "AS IS" BASIS,
- # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- # See the License for the specific language governing permissions and
- # limitations under the License.
--#}
+{# SPDX-License-Identifier: Apache-2.0 -#}
 {% extends "error-base.html" %}
-
-{% block title %}{% trans %}Internal server error (500){% endtrans %}{% endblock %}
-
-{% block error_heading %}{% trans %}Something went wrong{% endtrans %}{% endblock %}
-
+{% block title %}
+  {% trans %}Internal server error (500){% endtrans %}
+{% endblock %}
+{% block error_heading %}
+  {% trans %}Something went wrong{% endtrans %}
+{% endblock %}
 {% block error_text %}
-<div class="viewport-section__text no-top-margin no-top-padding">
-  {% trans %}
-  <p>We are experiencing technical issues that are affecting our ability to serve you this site.</p>
-  <p>We are aware of the problem and are working to resolve it as soon as possible.</p>
+  <div class="viewport-section__text no-top-margin no-top-padding">
+    {% trans %}
+    <p>We are experiencing technical issues that are affecting our ability to serve you this site.</p>
+    <p>We are aware of the problem and are working to resolve it as soon as possible.</p>
   {% endtrans %}
-
   <ul class="unstyled">
-    <li><a href="https://status.python.org/" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}Check our status page{% endtrans %}</a></li>
-    <li><a href="https://twitter.com/PythonStatus" title="{% trans %}External link{% endtrans %}" target="_blank" rel="noopener">{% trans %}View Python Status on Twitter{% endtrans %}</a></li>
+    <li>
+      <a href="https://status.python.org/"
+         title="{% trans %}External link{% endtrans %}"
+         target="_blank"
+         rel="noopener">{% trans %}Check our status page{% endtrans %}</a>
+    </li>
   </ul>
   <br>
-  <p class="no-bottom-padding"><strong>{% trans %}Error code 500{% endtrans %}</strong></p>
+  <p class="no-bottom-padding">
+    <strong>{% trans %}Error code 500{% endtrans %}</strong>
+  </p>
   <hr class="viewport-section__rule">
   <p>
     <strong>
-      {% trans %}Rely on PyPI to get your job done?{% endtrans %}<br>
+      {% trans %}Rely on PyPI to get your job done?{% endtrans %}
+      <br>
       {% trans %}
       Consider
-      <a href="https://github.com/pypi/warehouse" target="_blank" rel="noopener">
-        contributing
-      </a>
+      <a href="https://github.com/pypi/warehouse"
+         target="_blank"
+         rel="noopener">contributing</a>
       or
-      <a href="https://psfmember.org/civicrm/contribute/transact?reset=1&id=13" target="_blank" rel="noopener">
-        donating
-      </a>
+      <a href="https://psfmember.org/civicrm/contribute/transact?reset=1&id=13"
+         target="_blank"
+         rel="noopener">donating</a>
       to help us build a more stable and secure platform.
-      {% endtrans %}
-    </strong>
-  </p>
+    {% endtrans %}
+  </strong>
+</p>
 </div>
 {% endblock error_text %}

@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import base64
 import enum
@@ -30,7 +20,6 @@ from pyramid.authorization import Allow, Authenticated
 from pyramid.config import Configurator as _Configurator
 from pyramid.exceptions import HTTPForbidden
 from pyramid.httpexceptions import HTTPBadRequest
-from pyramid.settings import asbool
 from pyramid.tweens import EXCVIEW
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
@@ -80,17 +69,21 @@ class RootFactory:
                 Permissions.AdminFlagsRead,
                 Permissions.AdminFlagsWrite,
                 Permissions.AdminIpAddressesRead,
+                Permissions.AdminIpAddressesWrite,
                 Permissions.AdminJournalRead,
                 Permissions.AdminMacaroonsRead,
                 Permissions.AdminMacaroonsWrite,
                 Permissions.AdminObservationsRead,
                 Permissions.AdminObservationsWrite,
                 Permissions.AdminOrganizationsRead,
+                Permissions.AdminOrganizationsSetLimit,
                 Permissions.AdminOrganizationsWrite,
+                Permissions.AdminOrganizationsNameWrite,
                 Permissions.AdminProhibitedEmailDomainsRead,
                 Permissions.AdminProhibitedEmailDomainsWrite,
                 Permissions.AdminProhibitedProjectsRead,
                 Permissions.AdminProhibitedProjectsWrite,
+                Permissions.AdminProhibitedProjectsRelease,
                 Permissions.AdminProhibitedUsernameRead,
                 Permissions.AdminProhibitedUsernameWrite,
                 Permissions.AdminProjectsDelete,
@@ -99,6 +92,7 @@ class RootFactory:
                 Permissions.AdminProjectsWrite,
                 Permissions.AdminRoleAdd,
                 Permissions.AdminRoleDelete,
+                Permissions.AdminRoleUpdate,
                 Permissions.AdminSponsorsRead,
                 Permissions.AdminUsersRead,
                 Permissions.AdminUsersWrite,
@@ -119,13 +113,18 @@ class RootFactory:
                 Permissions.AdminObservationsRead,
                 Permissions.AdminObservationsWrite,
                 Permissions.AdminOrganizationsRead,
+                Permissions.AdminOrganizationsSetLimit,
+                Permissions.AdminOrganizationsWrite,
+                Permissions.AdminOrganizationsNameWrite,
                 Permissions.AdminProhibitedEmailDomainsRead,
                 Permissions.AdminProhibitedProjectsRead,
+                Permissions.AdminProhibitedProjectsRelease,
                 Permissions.AdminProhibitedUsernameRead,
                 Permissions.AdminProjectsRead,
                 Permissions.AdminProjectsSetLimit,
                 Permissions.AdminRoleAdd,
                 Permissions.AdminRoleDelete,
+                Permissions.AdminRoleUpdate,
                 Permissions.AdminSponsorsRead,
                 Permissions.AdminUsersRead,
                 Permissions.AdminUsersEmailWrite,
@@ -152,6 +151,7 @@ class RootFactory:
                 Permissions.AdminProjectsSetLimit,
                 Permissions.AdminRoleAdd,
                 Permissions.AdminRoleDelete,
+                Permissions.AdminRoleUpdate,
                 Permissions.AdminSponsorsRead,
                 Permissions.AdminUsersRead,
             ),
@@ -329,6 +329,20 @@ def configure(settings=None):
         default=Environment.production,
     )
 
+    maybe_set(
+        settings,
+        "terms.revision",
+        "TERMS_REVISION",
+        default="initial",
+    )
+    maybe_set(
+        settings,
+        "terms.notification_batch_size",
+        "TERMS_NOTIFICATION_BATCH_SIZE",
+        int,
+        default=1000,
+    )
+
     # Pull in default configuration from the environment.
     maybe_set(settings, "warehouse.token", "WAREHOUSE_TOKEN")
     maybe_set(settings, "warehouse.ip_salt", "WAREHOUSE_IP_SALT")
@@ -336,6 +350,9 @@ def configure(settings=None):
     maybe_set(settings, "warehouse.domain", "WAREHOUSE_DOMAIN")
     maybe_set(settings, "forklift.domain", "FORKLIFT_DOMAIN")
     maybe_set(settings, "auth.domain", "AUTH_DOMAIN")
+    maybe_set(
+        settings, "userdocs.domain", "USERDOCS_DOMAIN", default="https://docs.pypi.org"
+    )
     maybe_set(settings, "warehouse.legacy_domain", "WAREHOUSE_LEGACY_DOMAIN")
     maybe_set(settings, "site.name", "SITE_NAME", default="Warehouse")
     maybe_set(settings, "aws.key_id", "AWS_ACCESS_KEY_ID")
@@ -361,7 +378,6 @@ def configure(settings=None):
         default="https://api.github.com/meta/public_keys/token_scanning",
     )
     maybe_set(settings, "warehouse.downloads_table", "WAREHOUSE_DOWNLOADS_TABLE")
-    maybe_set(settings, "celery.broker_url", "BROKER_URL")
     maybe_set_redis(settings, "celery.broker_redis_url", "REDIS_URL", db=10)
     maybe_set_redis(settings, "celery.result_url", "REDIS_URL", db=12)
     maybe_set_redis(settings, "celery.scheduler_url", "REDIS_URL", db=0)
@@ -372,6 +388,7 @@ def configure(settings=None):
     maybe_set(settings, "sentry.transport", "SENTRY_TRANSPORT")
     maybe_set_redis(settings, "sessions.url", "REDIS_URL", db=2)
     maybe_set_redis(settings, "ratelimit.url", "REDIS_URL", db=3)
+    maybe_set_redis(settings, "db_results_cache.url", "REDIS_URL", db=5)
     maybe_set(settings, "captcha.backend", "CAPTCHA_BACKEND")
     maybe_set(settings, "recaptcha.site_key", "RECAPTCHA_SITE_KEY")
     maybe_set(settings, "recaptcha.secret_key", "RECAPTCHA_SECRET_KEY")
@@ -381,21 +398,13 @@ def configure(settings=None):
     maybe_set(settings, "camo.url", "CAMO_URL")
     maybe_set(settings, "camo.key", "CAMO_KEY")
     maybe_set(settings, "docs.url", "DOCS_URL")
-    maybe_set(settings, "ga.tracking_id", "GA_TRACKING_ID")
-    maybe_set(settings, "ga4.tracking_id", "GA4_TRACKING_ID")
     maybe_set(settings, "statuspage.url", "STATUSPAGE_URL")
     maybe_set(settings, "hibp.api_key", "HIBP_API_KEY")
     maybe_set(settings, "token.password.secret", "TOKEN_PASSWORD_SECRET")
     maybe_set(settings, "token.email.secret", "TOKEN_EMAIL_SECRET")
     maybe_set(settings, "token.two_factor.secret", "TOKEN_TWO_FACTOR_SECRET")
     maybe_set(settings, "token.remember_device.secret", "TOKEN_REMEMBER_DEVICE_SECRET")
-    maybe_set(
-        settings,
-        "warehouse.xmlrpc.search.enabled",
-        "WAREHOUSE_XMLRPC_SEARCH",
-        coercer=asbool,
-        default=True,
-    )
+    maybe_set(settings, "token.confirm_login.secret", "TOKEN_CONFIRM_LOGIN_SECRET")
     maybe_set_redis(settings, "warehouse.xmlrpc.cache.url", "REDIS_URL", db=4)
     maybe_set(
         settings,
@@ -440,13 +449,6 @@ def configure(settings=None):
         coercer=int,
         default=100,
     )
-    maybe_set(
-        settings,
-        "metadata_backfill.batch_size",
-        "METADATA_BACKFILL_BATCH_SIZE",
-        coercer=int,
-        default=500,
-    )
     maybe_set_compound(settings, "billing", "backend", "BILLING_BACKEND")
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
     maybe_set_compound(settings, "archive_files", "backend", "ARCHIVE_FILES_BACKEND")
@@ -458,6 +460,8 @@ def configure(settings=None):
     maybe_set_compound(settings, "metrics", "backend", "METRICS_BACKEND")
     maybe_set_compound(settings, "breached_emails", "backend", "BREACHED_EMAILS")
     maybe_set_compound(settings, "breached_passwords", "backend", "BREACHED_PASSWORDS")
+    maybe_set_compound(settings, "domain_status", "backend", "DOMAIN_STATUS_BACKEND")
+    maybe_set_compound(settings, "github.oauth", "backend", "GITHUB_OAUTH_BACKEND")
     maybe_set(
         settings,
         "oidc.backend",
@@ -488,6 +492,15 @@ def configure(settings=None):
     maybe_set(settings, "helpscout.app_id", "HELPSCOUT_WAREHOUSE_APP_ID")
     maybe_set(settings, "helpscout.app_secret", "HELPSCOUT_WAREHOUSE_APP_SECRET")
     maybe_set(settings, "helpscout.mailbox_id", "HELPSCOUT_WAREHOUSE_MAILBOX_ID")
+    # Admin notification service settings
+    maybe_set(
+        settings, "helpdesk.notification_backend", "HELPDESK_NOTIFICATION_BACKEND"
+    )
+    maybe_set(
+        settings,
+        "helpdesk.notification_service_url",
+        "HELPDESK_NOTIFICATION_SERVICE_URL",
+    )
 
     # Configure our ratelimiters
     maybe_set(
@@ -507,6 +520,19 @@ def configure(settings=None):
         "warehouse.account.global_login_ratelimit_string",
         "GLOBAL_LOGIN_RATELIMIT_STRING",
         default="1000 per 5 minutes",
+    )
+    # Separate rate limiters for 2FA attempts to prevent brute-force attacks
+    maybe_set(
+        settings,
+        "warehouse.account.2fa_user_ratelimit_string",
+        "2FA_USER_RATELIMIT_STRING",
+        default="5 per 5 minutes, 20 per hour, 50 per day",
+    )
+    maybe_set(
+        settings,
+        "warehouse.account.2fa_ip_ratelimit_string",
+        "2FA_IP_RATELIMIT_STRING",
+        default="10 per 5 minutes, 50 per hour",
     )
     maybe_set(
         settings,
@@ -691,6 +717,7 @@ def configure(settings=None):
     filters.setdefault(
         "remove_invalid_xml_unicode", "warehouse.filters:remove_invalid_xml_unicode"
     )
+    filters.setdefault("parse_isoformat", "warehouse.filters:parse_isoformat")
 
     # We also want to register some global functions for Jinja
     jglobals = config.get_settings().setdefault("jinja2.globals", {})
@@ -752,6 +779,9 @@ def configure(settings=None):
     )
     config.include("pyramid_tm")
 
+    # Register support for our rate limiting mechanisms
+    config.include(".rate_limiting")
+
     # Register our XMLRPC service
     config.include(".legacy.api.xmlrpc")
 
@@ -781,9 +811,6 @@ def configure(settings=None):
     # Register the support for Celery Tasks
     config.include(".tasks")
 
-    # Register support for our rate limiting mechanisms
-    config.include(".rate_limiting")
-
     config.include(".static")
 
     config.include(".search")
@@ -799,6 +826,8 @@ def configure(settings=None):
     # Register our support for http and origin caching
     config.include(".cache.http")
     config.include(".cache.origin")
+    # Register our support for the database results cache
+    config.include(".cache")
 
     # Register support for sending emails
     config.include(".email")

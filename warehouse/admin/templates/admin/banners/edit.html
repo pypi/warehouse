@@ -1,16 +1,5 @@
-{#
- # Licensed under the Apache License, Version 2.0 (the "License");
- # you may not use this file except in compliance with the License.
- # You may obtain a copy of the License at
- #
- # http://www.apache.org/licenses/LICENSE-2.0
- #
- # Unless required by applicable law or agreed to in writing, software
- # distributed under the License is distributed on an "AS IS" BASIS,
- # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- # See the License for the specific language governing permissions and
- # limitations under the License.
--#}
+{# SPDX-License-Identifier: Apache-2.0 -#}
+
 {% extends "admin/base.html" %}
 
 {% macro render_field(label, field, input_id, placeholder=None, class=None, helper=None) %}
@@ -71,7 +60,7 @@
 
             {{ render_field("Name", form.name, "banner-name", class="form-control", placeholder="Name") }}
 
-            {{ render_field("Icon Name", form.fa_icon, "banner-fa-icon", class="form-control", placeholder="Fontawesome class", helper="<a href='https://fontawesome.com/v6/search?p=1&m=free' target='_blank' rel='noopener nofollow'>Icons list</a>") }}
+            {{ render_field("Icon Name", form.fa_icon, "banner-fa-icon", class="form-control", placeholder="Fontawesome class", helper="<a href='https://fontawesome.com/search?ic=free-collection' target='_blank' rel='noopener nofollow'>Icons list</a>") }}
             {{ render_field("Text", form.text, "banner-text", class="form-control", placeholder="Banner text content") }}
             {{ render_field("Button URL", form.link_url, "banner-link-url", class="form-control", placeholder="https://sample.com") }}
             {{ render_field("Button label", form.link_label, "banner-link-label", class="form-control", placeholder="See more") }}
@@ -100,7 +89,7 @@
 
 {% if banner %}
 <div class="modal fade" id="deleteBanner" tabindex="-1" role="dialog">
-  <form method="POST" action="{{ request.route_path('admin.banner.delete', banner_id=banner.id) }}">
+  <form method="post" action="{{ request.route_path('admin.banner.delete', banner_id=banner.id) }}">
     <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
     <div class="modal-dialog" role="document">
       <div class="modal-content">

@@ -1,0 +1,30 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+
+{% extends "email/_base/body.txt" %}
+
+{% set domain = request.registry.settings.get('warehouse.domain') %}
+
+{% block content %}
+  A Trusted Publisher for project {{ project_name }} ({{ request.route_url('packaging.project', name=project_name, _host=domain) }})
+  was just used from a CI/CD job configured with a {{ publisher.publisher_name }} environment.
+  The environment used was: {{ environment_name }}.
+
+
+  Since the Trusted is configured to allow any environment,
+  for security reasons we recommend constraining it to only one.
+
+
+  If you are an owner of this project, you can automatically constrain this Trusted Publisher to
+  '{{ environment_name }}' by following this link: {{ request.route_url('manage.project.settings.publishing', project_name=project_name, _host=domain, _anchor='constrain_environment-modal', _query={'constrained_publisher_id': publisher.id, 'constrained_environment_name': environment_name }) }}.
+
+
+  Alternatively, you can do this manually by going to the project's
+  publishing settings ({{ request.route_url('manage.project.settings.publishing', project_name=project_name, _host=domain) }}),
+  deleting the existing Trusted Publisher and creating a new one with the environment set to '{{ environment_name }}'.
+
+
+  If you have questions, you can email
+  admin@pypi.org to communicate with the PyPI administrators.
+
+{% endblock %}
+

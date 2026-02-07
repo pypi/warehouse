@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import pretend
 import pytest
@@ -189,6 +179,55 @@ class TestActiveOrganizationPredicate:
     ):
         predicate = ActiveOrganizationPredicate(True, None)
         assert predicate(organization, db_request)
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_active_manual_activation(
+        self,
+        db_request,
+        organization,
+    ):
+        import datetime
+
+        from freezegun import freeze_time
+
+        from ..common.db.organizations import OrganizationManualActivationFactory
+
+        with freeze_time("2024-01-15"):
+            # Create an active manual activation
+            OrganizationManualActivationFactory(
+                organization=organization,
+                expires=datetime.date(2024, 12, 31),  # Future date
+            )
+            predicate = ActiveOrganizationPredicate(True, None)
+            assert predicate(organization, db_request)
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_expired_manual_activation(
+        self,
+        db_request,
+        organization,
+    ):
+        import datetime
+
+        from freezegun import freeze_time
+
+        from ..common.db.organizations import OrganizationManualActivationFactory
+
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/manage/organizations/"
+        )
+
+        with freeze_time("2024-01-15"):
+            # Create an expired manual activation
+            OrganizationManualActivationFactory(
+                organization=organization,
+                expires=datetime.date(2023, 12, 31),  # Past date
+            )
+            predicate = ActiveOrganizationPredicate(True, None)
+            with pytest.raises(HTTPSeeOther):
+                predicate(organization, db_request)
+
+        assert db_request.route_path.calls == [pretend.call("manage.organizations")]
 
 
 def test_includeme():

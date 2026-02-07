@@ -1,14 +1,5 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
+
 import time
 
 from http import HTTPStatus
@@ -19,14 +10,17 @@ import pytest
 
 from webob.multidict import MultiDict
 
+from tests.common.constants import REMOTE_ADDR
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
+from warehouse.accounts.models import UniqueLoginStatus
 from warehouse.manage import views
 from warehouse.manage.views import organizations as org_views
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import OrganizationType
 from warehouse.utils.otp import _get_totp
 
-from ...common.db.accounts import EmailFactory, UserFactory
+from ...common.db.accounts import EmailFactory, UserFactory, UserUniqueLoginFactory
+from ...common.db.ip_addresses import IpAddressFactory
 
 
 class TestManageAccount:
@@ -57,7 +51,13 @@ class TestManageAccount:
         """A user can log in, and change their password."""
         # create a User
         user = UserFactory.create(
-            with_verified_primary_email=True, clear_pwd="password"
+            with_verified_primary_email=True,
+            with_terms_of_service_agreement=True,
+            clear_pwd="password",
+        )
+        ip_address = IpAddressFactory.create(ip_address=REMOTE_ADDR)
+        UserUniqueLoginFactory.create(
+            user=user, ip_address=ip_address, status=UniqueLoginStatus.CONFIRMED
         )
 
         # visit login page
@@ -105,14 +105,14 @@ class TestManageAccount:
         change_password_form.submit().follow(status=HTTPStatus.OK)
 
         # Request the JavaScript-enabled flash messages directly to get the message
-        resp = webtest.get("/_includes/flash-messages/", status=HTTPStatus.OK)
+        resp = webtest.get("/_includes/unauthed/flash-messages/", status=HTTPStatus.OK)
         success_message = resp.html.find("span", {"class": "notification-bar__message"})
         assert success_message.text == "Password updated"
 
 
 class TestManageOrganizations:
     @pytest.mark.usefixtures("_enable_organizations")
-    def test_create_organization(
+    def test_create_organization_application(
         self,
         pyramid_services,
         user_service,
@@ -141,6 +141,8 @@ class TestManageOrganizations:
                     "language, and to support and facilitate the growth of a "
                     "diverse and international community of Python programmers"
                 ),
+                "usage": ("We plan to host projects owned by the PSF"),
+                "membership_size": "2-5",
             }
         )
         db_request.registry.settings[

@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import json
 
@@ -30,6 +20,59 @@ from ...common.db.subscriptions import StripeCustomerFactory, StripeSubscription
 
 class TestHandleBillingWebhookEvent:
     # checkout.session.completed
+    def test_handle_billing_webhook_event_checkout_complete_not_us(
+        self, db_request, subscription_service, monkeypatch, billing_service
+    ):
+        organization = OrganizationFactory.create()
+        stripe_customer = StripeCustomerFactory.create()
+        OrganizationStripeCustomerFactory.create(
+            organization=organization, customer=stripe_customer
+        )
+        subscription = StripeSubscriptionFactory.create(customer=stripe_customer)
+        OrganizationStripeSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
+
+        event = {
+            "type": "checkout.session.completed",
+            "data": {
+                "object": {
+                    "id": "cs_test_12345",
+                    "customer": stripe_customer.customer_id,
+                    "status": "complete",
+                    "subscription": subscription.subscription_id,
+                    # Missing expected metadata tags (billing_service, domain)
+                    "metadata": {},
+                },
+            },
+        }
+
+        checkout_session = {
+            "id": "cs_test_12345",
+            "customer": {
+                "id": stripe_customer.customer_id,
+                "email": "good@day.com",
+            },
+            "status": "complete",
+            "subscription": {
+                "id": subscription.subscription_id,
+                "items": {
+                    "data": [{"id": "si_12345"}],
+                },
+            },
+        }
+
+        get_checkout_session = pretend.call_recorder(lambda *a, **kw: checkout_session)
+        monkeypatch.setattr(
+            billing_service, "get_checkout_session", get_checkout_session
+        )
+
+        billing.handle_billing_webhook_event(db_request, event)
+
+        assert (
+            get_checkout_session.calls == []
+        )  # Should have stopped immediately before this call
+
     def test_handle_billing_webhook_event_checkout_complete_update(
         self, db_request, subscription_service, monkeypatch, billing_service
     ):
@@ -51,6 +94,10 @@ class TestHandleBillingWebhookEvent:
                     "customer": stripe_customer.customer_id,
                     "status": "complete",
                     "subscription": subscription.subscription_id,
+                    "metadata": {
+                        "billing_service": "pypi",
+                        "domain": "localhost",
+                    },
                 },
             },
         }
@@ -94,6 +141,10 @@ class TestHandleBillingWebhookEvent:
                     "customer": stripe_customer.customer_id,
                     "status": "complete",
                     "subscription": "sub_12345",
+                    "metadata": {
+                        "billing_service": "pypi",
+                        "domain": "localhost",
+                    },
                 },
             },
         }
@@ -131,6 +182,10 @@ class TestHandleBillingWebhookEvent:
                     "customer": "cus_1234",
                     "status": "invalid_status",
                     "subscription": "sub_12345",
+                    "metadata": {
+                        "billing_service": "pypi",
+                        "domain": "localhost",
+                    },
                 },
             },
         }
@@ -149,6 +204,10 @@ class TestHandleBillingWebhookEvent:
                     "customer": "",
                     "status": "complete",
                     "subscription": "sub_12345",
+                    "metadata": {
+                        "billing_service": "pypi",
+                        "domain": "localhost",
+                    },
                 },
             },
         }
@@ -187,6 +246,10 @@ class TestHandleBillingWebhookEvent:
                     "customer": "cus_1234",
                     "status": "complete",
                     "subscription": "",
+                    "metadata": {
+                        "billing_service": "pypi",
+                        "domain": "localhost",
+                    },
                 },
             },
         }

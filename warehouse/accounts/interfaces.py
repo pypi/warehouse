@@ -1,14 +1,6 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
+
+from datetime import datetime
 
 from zope.interface import Attribute, Interface
 
@@ -249,6 +241,54 @@ class IUserService(Interface):
         was most recently updated
         """
 
+    def record_tos_engagement(
+        user_id,
+        revision,
+        engagement,
+    ):
+        """
+        Add a record of end user being flashed about, notified of, viewing, or agreeing
+        to a terms of service change.
+        """
+
+    def get_account_associations(user_id: str) -> list:
+        """
+        Return all AccountAssociation objects for the given user.
+        """
+
+    def get_account_association(association_id: str):
+        """
+        Return the AccountAssociation object for the given ID, or None.
+        """
+
+    def get_account_association_by_oauth_service(
+        user_id: str, service: str, external_user_id: str
+    ):
+        """
+        Return the AccountAssociation for a specific external account, or None.
+        """
+
+    def add_account_association(
+        user_id: str,
+        service: str,
+        external_user_id: str,
+        external_username: str,
+        **kwargs,
+    ):
+        """
+        Create a new account association.
+
+        Returns the created AccountAssociation object.
+        Raises ValueError if association already exists.
+        """
+
+    def delete_account_association(association_id: str) -> bool:
+        """
+        Delete an account association by ID.
+
+        Returns True if deleted, False if not found.
+        """
+
 
 class ITokenService(Interface):
     def dumps(data):
@@ -269,9 +309,6 @@ class ITokenService(Interface):
 
 class IPasswordBreachedService(Interface):
     failure_message = Attribute("The message to describe the failure that occurred")
-    failure_message_plain = Attribute(
-        "The message to describe the failure that occurred in plain text"
-    )
 
     def check_password(password, *, tags=None):
         """
@@ -287,4 +324,11 @@ class IEmailBreachedService(Interface):
     def get_email_breach_count(email: str) -> int | None:
         """
         Returns count of times the email appears in verified breaches.
+        """
+
+
+class IDomainStatusService(Interface):
+    def get_domain_status(domain: str) -> list[str] | None:
+        """
+        Returns a list of status strings for the given domain.
         """

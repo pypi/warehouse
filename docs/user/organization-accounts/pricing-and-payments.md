@@ -2,19 +2,17 @@
 title: Pricing and Payments
 ---
 
-<!--[[ preview('org-accounts') ]]-->
-
 # Organization Pricing and Payment Terms
 
 ## Corporate Organizations
 
 ### Pricing
 
-Pricing for Corporate Organizations will be published at launch.
+* $5 per member User, per month
 
 ### Payment Terms
 
-Payment terms for Corporate Organizations will be published at launch.
+Invoiced monthly, based on usage. Payment is due upon receipt and will be charged to the billing information on file.
 
 ## Community Organizations
 

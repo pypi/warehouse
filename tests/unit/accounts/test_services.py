@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import datetime
 import uuid
@@ -30,6 +20,7 @@ import warehouse.utils.webauthn as webauthn
 from warehouse.accounts import services
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
+    IDomainStatusService,
     IEmailBreachedService,
     InvalidRecoveryCode,
     IPasswordBreachedService,
@@ -42,12 +33,24 @@ from warehouse.accounts.interfaces import (
     TooManyEmailsAdded,
     TooManyFailedLogins,
 )
-from warehouse.accounts.models import DisableReason, ProhibitedUserName
+from warehouse.accounts.models import (
+    DisableReason,
+    ProhibitedUserName,
+    TermsOfServiceEngagement,
+    UserTermsOfServiceEngagement,
+)
 from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService, NullMetrics
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
-from ...common.db.accounts import EmailFactory, UserFactory
+from ...common.constants import REMOTE_ADDR
+from ...common.db.accounts import (
+    EmailFactory,
+    OAuthAccountAssociationFactory,
+    UserFactory,
+    UserTermsOfServiceEngagementFactory,
+    UserUniqueLoginFactory,
+)
 from ...common.db.ip_addresses import IpAddressFactory
 
 
@@ -55,14 +58,14 @@ class TestDatabaseUserService:
     def test_verify_service(self):
         assert verifyClass(IUserService, services.DatabaseUserService)
 
-    def test_service_creation(self, monkeypatch, remote_addr):
+    def test_service_creation(self, monkeypatch):
         crypt_context_obj = pretend.stub()
         crypt_context_cls = pretend.call_recorder(lambda **kwargs: crypt_context_obj)
         monkeypatch.setattr(services, "CryptContext", crypt_context_cls)
 
         session = pretend.stub()
         service = services.DatabaseUserService(
-            session, metrics=NullMetrics(), remote_addr=remote_addr
+            session, metrics=NullMetrics(), remote_addr=REMOTE_ADDR
         )
 
         assert service.db is session
@@ -84,7 +87,7 @@ class TestDatabaseUserService:
             )
         ]
 
-    def test_service_creation_ratelimiters(self, monkeypatch, remote_addr):
+    def test_service_creation_ratelimiters(self, monkeypatch):
         crypt_context_obj = pretend.stub()
         crypt_context_cls = pretend.call_recorder(lambda **kwargs: crypt_context_obj)
         monkeypatch.setattr(services, "CryptContext", crypt_context_cls)
@@ -95,7 +98,7 @@ class TestDatabaseUserService:
         service = services.DatabaseUserService(
             session,
             metrics=NullMetrics(),
-            remote_addr=remote_addr,
+            remote_addr=REMOTE_ADDR,
             ratelimiters=ratelimiters,
         )
 
@@ -119,7 +122,7 @@ class TestDatabaseUserService:
             )
         ]
 
-    def test_skips_ip_rate_limiter(self, user_service, metrics, remote_addr):
+    def test_skips_ip_rate_limiter(self, user_service, metrics):
         user = UserFactory.create()
         resets = pretend.stub()
         limiter = pretend.stub(
@@ -214,7 +217,7 @@ class TestDatabaseUserService:
             ),
         ]
 
-    def test_check_password_ip_rate_limited(self, user_service, metrics, remote_addr):
+    def test_check_password_ip_rate_limited(self, user_service, metrics):
         user = UserFactory.create()
         resets = pretend.stub()
         limiter = pretend.stub(
@@ -227,8 +230,8 @@ class TestDatabaseUserService:
             user_service.check_password(user.id, None)
 
         assert excinfo.value.resets_in is resets
-        assert limiter.test.calls == [pretend.call(remote_addr)]
-        assert limiter.resets_in.calls == [pretend.call(remote_addr)]
+        assert limiter.test.calls == [pretend.call(REMOTE_ADDR)]
+        assert limiter.resets_in.calls == [pretend.call(REMOTE_ADDR)]
         assert metrics.increment.calls == [
             pretend.call(
                 "warehouse.authentication.start", tags=["mechanism:check_password"]
@@ -303,7 +306,33 @@ class TestDatabaseUserService:
             ),
         ]
 
-    def test_check_password_updates(self, user_service):
+    @pytest.mark.parametrize(
+        "password",
+        [
+            (
+                "$argon2id$v=19$m=8,t=1,p=1$"
+                "w/gfo5QSQihFyHlvDcE4pw$Hd4KENg+xDlq2bfeGUEYSieIXXL/c1NfTr0ZkYueO2Y"
+            ),
+            (
+                "$bcrypt-sha256$v=2,t=2b,r=12$"
+                "DqC0lms6x9Dh6XesvIJvVe$hBbYe9JfdjyorOFcS3rv5BhmuSIyXD6"
+            ),
+            "$2b$12$2t/EVU3H9b3c5iR6GdELZOwCoyrT518DgCpNxHbX.S1IxV6eEEDhC",
+            "bcrypt$$2b$12$EhhZDxGr/7HIKYRGMngC.O4sQx68vkaISSnSGZ6s8iOfaGy6l9cma",
+        ],
+    )
+    def test_check_password_updates(self, user_service, password):
+        """
+        This test confirms passlib is actually working,
+        see https://github.com/pypi/warehouse/issues/15454
+        """
+        user = UserFactory.create(password=password)
+
+        assert user_service.check_password(user.id, "password")
+        assert user.password.startswith("$argon2id$v=19$m=1024,t=6,p=6$")
+        assert user_service.check_password(user.id, "password")
+
+    def test_hash_is_upgraded(self, user_service):
         user = UserFactory.create()
         password = user.password
         user_service.hasher = pretend.stub(
@@ -356,7 +385,7 @@ class TestDatabaseUserService:
         assert not new_email2.primary
         assert not new_email2.verified
 
-    def test_add_email_rate_limited(self, user_service, metrics, remote_addr):
+    def test_add_email_rate_limited(self, user_service, metrics):
         resets = pretend.stub()
         limiter = pretend.stub(
             hit=pretend.call_recorder(lambda ip: None),
@@ -371,15 +400,15 @@ class TestDatabaseUserService:
             user_service.add_email(user.id, user.email)
 
         assert excinfo.value.resets_in is resets
-        assert limiter.test.calls == [pretend.call(remote_addr)]
-        assert limiter.resets_in.calls == [pretend.call(remote_addr)]
+        assert limiter.test.calls == [pretend.call(REMOTE_ADDR)]
+        assert limiter.resets_in.calls == [pretend.call(REMOTE_ADDR)]
         assert metrics.increment.calls == [
             pretend.call(
                 "warehouse.email.add.ratelimited", tags=["ratelimiter:email.add"]
             )
         ]
 
-    def test_add_email_bypass_ratelimit(self, user_service, metrics, remote_addr):
+    def test_add_email_bypass_ratelimit(self, user_service, metrics):
         resets = pretend.stub()
         limiter = pretend.stub(
             hit=pretend.call_recorder(lambda ip: None),
@@ -607,15 +636,36 @@ class TestDatabaseUserService:
 
         assert not user_service.check_totp_value(user.id, b"123456")
 
+    def test_check_totp_out_of_sync(self, mocker, metrics, user_service):
+        user = UserFactory.create()
+        mocker.patch.object(otp, "verify_totp", side_effect=otp.OutOfSyncTOTPError)
+
+        with pytest.raises(otp.OutOfSyncTOTPError):
+            user_service.check_totp_value(user.id, b"123456")
+
+        assert metrics.increment.calls == [
+            pretend.call(
+                "warehouse.authentication.two_factor.start",
+                tags=["mechanism:check_totp_value"],
+            ),
+            pretend.call(
+                "warehouse.authentication.two_factor.failure",
+                tags=["mechanism:check_totp_value", "failure_reason:out_of_sync"],
+            ),
+        ]
+
     def test_check_totp_value_no_secret(self, user_service):
         user = UserFactory.create()
         with pytest.raises(otp.InvalidTOTPError):
             user_service.check_totp_value(user.id, b"123456")
 
-    def test_check_totp_global_rate_limited(self, user_service, metrics):
+    def test_check_totp_ip_rate_limited(self, user_service, metrics):
         resets = pretend.stub()
-        limiter = pretend.stub(test=lambda: False, resets_in=lambda: resets)
-        user_service.ratelimiters["global.login"] = limiter
+        limiter = pretend.stub(
+            test=pretend.call_recorder(lambda uid: False),
+            resets_in=pretend.call_recorder(lambda uid: resets),
+        )
+        user_service.ratelimiters["2fa.ip"] = limiter
 
         with pytest.raises(TooManyFailedLogins) as excinfo:
             user_service.check_totp_value(uuid.uuid4(), b"123456", tags=["foo"])
@@ -628,7 +678,7 @@ class TestDatabaseUserService:
             ),
             pretend.call(
                 "warehouse.authentication.ratelimited",
-                tags=["foo", "mechanism:check_totp_value", "ratelimiter:global"],
+                tags=["foo", "mechanism:check_totp_value", "ratelimiter:ip"],
             ),
         ]
 
@@ -639,7 +689,7 @@ class TestDatabaseUserService:
             test=pretend.call_recorder(lambda uid: False),
             resets_in=pretend.call_recorder(lambda uid: resets),
         )
-        user_service.ratelimiters["user.login"] = limiter
+        user_service.ratelimiters["2fa.user"] = limiter
 
         with pytest.raises(TooManyFailedLogins) as excinfo:
             user_service.check_totp_value(user.id, b"123456")
@@ -663,28 +713,314 @@ class TestDatabaseUserService:
         limiter = pretend.stub(
             hit=pretend.call_recorder(lambda *a, **kw: None), test=lambda *a, **kw: True
         )
-        user_service.ratelimiters["user.login"] = limiter
-        user_service.ratelimiters["global.login"] = limiter
+        user_service.ratelimiters["2fa.user"] = limiter
+        user_service.ratelimiters["2fa.ip"] = limiter
 
         valid = user_service.check_totp_value(user.id, b"123456")
 
         assert not valid
-        assert limiter.hit.calls == [pretend.call(user.id), pretend.call()]
+        assert limiter.hit.calls == [pretend.call(user.id), pretend.call(REMOTE_ADDR)]
 
     def test_check_totp_value_invalid_totp(self, user_service, monkeypatch):
         user = UserFactory.create()
         limiter = pretend.stub(
-            hit=pretend.call_recorder(lambda *a, **kw: None), test=lambda *a, **kw: True
+            hit=pretend.call_recorder(lambda ip: None),
+            test=pretend.call_recorder(lambda uid: True),
         )
         user_service.get_totp_secret = lambda uid: "secret"
         monkeypatch.setattr(otp, "verify_totp", lambda secret, value: False)
-        user_service.ratelimiters["user.login"] = limiter
-        user_service.ratelimiters["global.login"] = limiter
+        user_service.ratelimiters["2fa.user"] = limiter
+        user_service.ratelimiters["2fa.ip"] = limiter
 
         valid = user_service.check_totp_value(user.id, b"123456")
 
         assert not valid
-        assert limiter.hit.calls == [pretend.call(user.id), pretend.call()]
+        assert limiter.test.calls == [pretend.call(REMOTE_ADDR), pretend.call(user.id)]
+        assert limiter.hit.calls == [pretend.call(user.id), pretend.call(REMOTE_ADDR)]
+
+    def test_check_totp_value_with_2fa_rate_limiters(
+        self, db_session, metrics, monkeypatch
+    ):
+        """Test that check_totp_value uses new 2FA rate limiters when available."""
+        user = UserFactory.create()
+
+        # Create mocked rate limiters
+        ratelimiters = {
+            "user.login": pretend.stub(test=lambda *a: True, hit=lambda *a: None),
+            "ip.login": pretend.stub(test=lambda *a: True, hit=lambda *a: None),
+            "global.login": pretend.stub(test=lambda: True, hit=lambda: None),
+            "2fa.user": pretend.stub(
+                test=pretend.call_recorder(lambda uid: True),
+                hit=pretend.call_recorder(lambda uid: None),
+            ),
+            "2fa.ip": pretend.stub(
+                test=pretend.call_recorder(lambda addr: True),
+                hit=pretend.call_recorder(lambda addr: None),
+            ),
+        }
+
+        user_service = services.DatabaseUserService(
+            db_session,
+            metrics=metrics,
+            remote_addr=REMOTE_ADDR,
+            ratelimiters=ratelimiters,
+        )
+
+        # Mock TOTP verification to fail
+        monkeypatch.setattr(otp, "verify_totp", lambda secret, value: False)
+        user_service.update_user(user.id, totp_secret=b"secret")
+
+        result = user_service.check_totp_value(user.id, b"123456")
+
+        assert not result
+        # Should use 2FA rate limiters, not login rate limiters
+        assert ratelimiters["2fa.user"].test.calls == [pretend.call(user.id)]
+        assert ratelimiters["2fa.ip"].test.calls == [pretend.call(REMOTE_ADDR)]
+
+    def test_check_2fa_ratelimits_ip_limited(self, db_session, metrics):
+        """Test IP-based 2FA rate limiting."""
+        user = UserFactory.create()
+        resets = pretend.stub()
+
+        ratelimiters = {
+            "2fa.ip": pretend.stub(
+                test=pretend.call_recorder(lambda addr: False),
+                resets_in=pretend.call_recorder(lambda addr: resets),
+            ),
+            "2fa.user": pretend.stub(test=lambda *a: True),
+        }
+
+        user_service = services.DatabaseUserService(
+            db_session,
+            metrics=metrics,
+            remote_addr=REMOTE_ADDR,
+            ratelimiters=ratelimiters,
+        )
+
+        with pytest.raises(TooManyFailedLogins) as excinfo:
+            user_service._check_2fa_ratelimits(userid=user.id, tags=["test_tag"])
+
+        assert excinfo.value.resets_in is resets
+        assert ratelimiters["2fa.ip"].test.calls == [pretend.call(REMOTE_ADDR)]
+        assert metrics.increment.calls == [
+            pretend.call(
+                "warehouse.authentication.ratelimited",
+                tags=["test_tag", "ratelimiter:ip"],
+            ),
+        ]
+
+    def test_check_2fa_ratelimits_user_limited(self, db_session, metrics):
+        """Test user-based 2FA rate limiting."""
+        user = UserFactory.create()
+        resets = pretend.stub()
+
+        ratelimiters = {
+            "2fa.ip": pretend.stub(test=lambda *a: True),
+            "2fa.user": pretend.stub(
+                test=pretend.call_recorder(lambda uid: False),
+                resets_in=pretend.call_recorder(lambda uid: resets),
+            ),
+        }
+
+        user_service = services.DatabaseUserService(
+            db_session,
+            metrics=metrics,
+            remote_addr=REMOTE_ADDR,
+            ratelimiters=ratelimiters,
+        )
+
+        with pytest.raises(TooManyFailedLogins) as excinfo:
+            user_service._check_2fa_ratelimits(userid=user.id, tags=["test_tag"])
+
+        assert excinfo.value.resets_in is resets
+        assert ratelimiters["2fa.user"].test.calls == [pretend.call(user.id)]
+        assert metrics.increment.calls == [
+            pretend.call(
+                "warehouse.authentication.ratelimited",
+                tags=["test_tag", "ratelimiter:user"],
+            ),
+        ]
+
+    def test_check_2fa_ratelimits_no_remote_addr(self, db_session, metrics):
+        """Test 2FA rate limiting when remote_addr is None."""
+        user = UserFactory.create()
+
+        ratelimiters = {
+            "2fa.ip": pretend.stub(
+                test=pretend.call_recorder(lambda addr: True),
+            ),
+            "2fa.user": pretend.stub(test=lambda *a: True),
+        }
+
+        user_service = services.DatabaseUserService(
+            db_session,
+            metrics=metrics,
+            remote_addr=None,
+            ratelimiters=ratelimiters,
+        )
+
+        # Should not raise, IP check should be skipped
+        user_service._check_2fa_ratelimits(userid=user.id)
+
+        # IP limiter should not be called
+        assert ratelimiters["2fa.ip"].test.calls == []
+
+    def test_hit_2fa_ratelimits(self, db_session, metrics):
+        """Test hitting 2FA rate limits records properly."""
+        user = UserFactory.create()
+
+        ratelimiters = {
+            "2fa.user": pretend.stub(hit=pretend.call_recorder(lambda uid: None)),
+            "2fa.ip": pretend.stub(hit=pretend.call_recorder(lambda addr: None)),
+        }
+
+        user_service = services.DatabaseUserService(
+            db_session,
+            metrics=metrics,
+            remote_addr=REMOTE_ADDR,
+            ratelimiters=ratelimiters,
+        )
+
+        user_service._hit_2fa_ratelimits(userid=user.id)
+
+        assert ratelimiters["2fa.user"].hit.calls == [pretend.call(user.id)]
+        assert ratelimiters["2fa.ip"].hit.calls == [pretend.call(REMOTE_ADDR)]
+
+    def test_hit_2fa_ratelimits_no_remote_addr(self, db_session, metrics):
+        """Test hitting 2FA rate limits when remote_addr is None."""
+        user = UserFactory.create()
+
+        ratelimiters = {
+            "2fa.user": pretend.stub(hit=pretend.call_recorder(lambda uid: None)),
+            "2fa.ip": pretend.stub(hit=pretend.call_recorder(lambda addr: None)),
+        }
+
+        user_service = services.DatabaseUserService(
+            db_session,
+            metrics=metrics,
+            remote_addr=None,
+            ratelimiters=ratelimiters,
+        )
+
+        user_service._hit_2fa_ratelimits(userid=user.id)
+
+        # Only user limiter should be hit
+        assert ratelimiters["2fa.user"].hit.calls == [pretend.call(user.id)]
+        assert ratelimiters["2fa.ip"].hit.calls == []
+
+    def test_verify_webauthn_assertion_rate_limited(
+        self, db_session, metrics, monkeypatch
+    ):
+        """Test that verify_webauthn_assertion uses 2FA rate limiters."""
+        user = UserFactory.create()
+        resets = pretend.stub()
+
+        ratelimiters = {
+            "2fa.user": pretend.stub(
+                test=pretend.call_recorder(lambda uid: False),
+                resets_in=pretend.call_recorder(lambda uid: resets),
+            ),
+            "2fa.ip": pretend.stub(test=lambda *a: True),
+        }
+
+        user_service = services.DatabaseUserService(
+            db_session,
+            metrics=metrics,
+            remote_addr=REMOTE_ADDR,
+            ratelimiters=ratelimiters,
+        )
+
+        with pytest.raises(TooManyFailedLogins) as excinfo:
+            user_service.verify_webauthn_assertion(
+                user.id,
+                b"assertion",
+                challenge=b"challenge",
+                origin="https://example.com",
+                rp_id="example.com",
+            )
+
+        assert excinfo.value.resets_in is resets
+        assert ratelimiters["2fa.user"].test.calls == [pretend.call(user.id)]
+        assert metrics.increment.calls == [
+            pretend.call(
+                "warehouse.authentication.ratelimited",
+                tags=["mechanism:webauthn", "ratelimiter:user"],
+            ),
+        ]
+
+    def test_verify_webauthn_assertion_failure_hits_ratelimits(
+        self, db_session, metrics, monkeypatch
+    ):
+        """Test that failed WebAuthn assertions hit 2FA rate limiters."""
+        user = UserFactory.create()
+
+        ratelimiters = {
+            "2fa.user": pretend.stub(
+                test=lambda *a: True, hit=pretend.call_recorder(lambda uid: None)
+            ),
+            "2fa.ip": pretend.stub(
+                test=lambda *a: True, hit=pretend.call_recorder(lambda addr: None)
+            ),
+        }
+
+        user_service = services.DatabaseUserService(
+            db_session,
+            metrics=metrics,
+            remote_addr=REMOTE_ADDR,
+            ratelimiters=ratelimiters,
+        )
+
+        # Mock webauthn to raise AuthenticationRejectedError
+        monkeypatch.setattr(
+            webauthn,
+            "verify_assertion_response",
+            pretend.raiser(webauthn.AuthenticationRejectedError("test error")),
+        )
+
+        with pytest.raises(webauthn.AuthenticationRejectedError):
+            user_service.verify_webauthn_assertion(
+                user.id,
+                b"assertion",
+                challenge=b"challenge",
+                origin="https://example.com",
+                rp_id="example.com",
+            )
+
+        assert ratelimiters["2fa.user"].hit.calls == [pretend.call(user.id)]
+        assert ratelimiters["2fa.ip"].hit.calls == [pretend.call(REMOTE_ADDR)]
+
+    def test_check_recovery_code_uses_2fa_ratelimits(self, db_session, metrics):
+        """Test that check_recovery_code uses 2FA rate limiters."""
+        user = UserFactory.create()
+        resets = pretend.stub()
+
+        ratelimiters = {
+            "2fa.ip": pretend.stub(
+                test=pretend.call_recorder(lambda addr: False),
+                resets_in=pretend.call_recorder(lambda addr: resets),
+            ),
+            "2fa.user": pretend.stub(test=lambda *a: True),
+        }
+
+        user_service = services.DatabaseUserService(
+            db_session,
+            metrics=metrics,
+            remote_addr=REMOTE_ADDR,
+            ratelimiters=ratelimiters,
+        )
+
+        with pytest.raises(TooManyFailedLogins) as excinfo:
+            user_service.check_recovery_code(user.id, "code")
+
+        assert excinfo.value.resets_in is resets
+        assert ratelimiters["2fa.ip"].test.calls == [pretend.call(REMOTE_ADDR)]
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.authentication.recovery_code.start"),
+            pretend.call(
+                "warehouse.authentication.ratelimited",
+                tags=["mechanism:check_recovery_code", "ratelimiter:ip"],
+            ),
+        ]
 
     def test_get_webauthn_credential_options(self, user_service):
         user = UserFactory.create()
@@ -951,10 +1287,13 @@ class TestDatabaseUserService:
             ),
         ]
 
-    def test_check_recovery_code_global_rate_limited(self, user_service, metrics):
+    def test_check_recovery_code_ip_rate_limited(self, user_service, metrics):
         resets = pretend.stub()
-        limiter = pretend.stub(test=lambda: False, resets_in=lambda: resets)
-        user_service.ratelimiters["global.login"] = limiter
+        limiter = pretend.stub(
+            test=pretend.call_recorder(lambda uid: False),
+            resets_in=pretend.call_recorder(lambda uid: resets),
+        )
+        user_service.ratelimiters["2fa.ip"] = limiter
 
         with pytest.raises(TooManyFailedLogins) as excinfo:
             user_service.check_recovery_code(uuid.uuid4(), "recovery_code")
@@ -964,7 +1303,7 @@ class TestDatabaseUserService:
             pretend.call("warehouse.authentication.recovery_code.start"),
             pretend.call(
                 "warehouse.authentication.ratelimited",
-                tags=["mechanism:check_recovery_code", "ratelimiter:global"],
+                tags=["mechanism:check_recovery_code", "ratelimiter:ip"],
             ),
         ]
 
@@ -975,19 +1314,19 @@ class TestDatabaseUserService:
             test=pretend.call_recorder(lambda uid: False),
             resets_in=pretend.call_recorder(lambda uid: resets),
         )
-        user_service.ratelimiters["user.login"] = limiter
+        user_service.ratelimiters["2fa.ip"] = limiter
 
         with pytest.raises(TooManyFailedLogins) as excinfo:
             user_service.check_recovery_code(user.id, "recovery_code")
 
         assert excinfo.value.resets_in is resets
-        assert limiter.test.calls == [pretend.call(user.id)]
-        assert limiter.resets_in.calls == [pretend.call(user.id)]
+        assert limiter.test.calls == [pretend.call(REMOTE_ADDR)]
+        assert limiter.resets_in.calls == [pretend.call(REMOTE_ADDR)]
         assert metrics.increment.calls == [
             pretend.call("warehouse.authentication.recovery_code.start"),
             pretend.call(
                 "warehouse.authentication.ratelimited",
-                tags=["mechanism:check_recovery_code", "ratelimiter:user"],
+                tags=["mechanism:check_recovery_code", "ratelimiter:ip"],
             ),
         ]
 
@@ -1021,6 +1360,228 @@ class TestDatabaseUserService:
         user.password_date = None
 
         assert user_service.get_password_timestamp(user.id) == 0
+
+    def test_needs_tos_flash_no_engagements(self, user_service):
+        user = UserFactory.create()
+        assert user_service.needs_tos_flash(user.id, "initial") is True
+
+    def test_needs_tos_flash_with_passive_engagements(self, user_service):
+        user = UserFactory.create()
+        assert user_service.needs_tos_flash(user.id, "initial") is True
+
+        user_service.record_tos_engagement(
+            user.id, "initial", TermsOfServiceEngagement.Notified
+        )
+        assert user_service.needs_tos_flash(user.id, "initial") is True
+
+        user_service.record_tos_engagement(
+            user.id, "initial", TermsOfServiceEngagement.Flashed
+        )
+        assert user_service.needs_tos_flash(user.id, "initial") is True
+
+    def test_needs_tos_flash_with_viewed_engagement(self, user_service):
+        user = UserFactory.create()
+        assert user_service.needs_tos_flash(user.id, "initial") is True
+
+        user_service.record_tos_engagement(
+            user.id, "initial", TermsOfServiceEngagement.Viewed
+        )
+        assert user_service.needs_tos_flash(user.id, "initial") is False
+
+    def test_needs_tos_flash_with_agreed_engagement(self, user_service):
+        user = UserFactory.create()
+        assert user_service.needs_tos_flash(user.id, "initial") is True
+
+        user_service.record_tos_engagement(
+            user.id, "initial", TermsOfServiceEngagement.Agreed
+        )
+        assert user_service.needs_tos_flash(user.id, "initial") is False
+
+    def test_needs_tos_flash_if_engaged_more_than_30_days_ago(self, user_service):
+        user = UserFactory.create()
+        UserTermsOfServiceEngagementFactory.create(
+            user=user,
+            created=(datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=31)),
+            engagement=TermsOfServiceEngagement.Notified,
+        )
+        assert user_service.needs_tos_flash(user.id, "initial") is False
+
+    def test_record_tos_engagement_invalid_engagement(self, user_service):
+        user = UserFactory.create()
+        assert user.terms_of_service_engagements == []
+        with pytest.raises(ValueError):  # noqa: PT011
+            user_service.record_tos_engagement(
+                user.id,
+                "initial",
+                None,
+            )
+
+    @pytest.mark.parametrize(
+        "engagement",
+        [
+            TermsOfServiceEngagement.Flashed,
+            TermsOfServiceEngagement.Notified,
+            TermsOfServiceEngagement.Viewed,
+            TermsOfServiceEngagement.Agreed,
+        ],
+    )
+    def test_record_tos_engagement(self, user_service, db_request, engagement):
+        user = UserFactory.create()
+        assert user.terms_of_service_engagements == []
+        user_service.record_tos_engagement(
+            user.id,
+            "initial",
+            engagement,
+        )
+        assert (
+            db_request.db.query(UserTermsOfServiceEngagement)
+            .filter(
+                UserTermsOfServiceEngagement.user_id == user.id,
+                UserTermsOfServiceEngagement.revision == "initial",
+                UserTermsOfServiceEngagement.engagement == engagement,
+            )
+            .count()
+        ) == 1
+
+    def test_get_account_associations(self, user_service):
+        user = UserFactory.create()
+        # Create multiple associations
+        assoc1 = OAuthAccountAssociationFactory.create(
+            user=user, service="github", external_user_id="123"
+        )
+        assoc2 = OAuthAccountAssociationFactory.create(
+            user=user, service="github", external_user_id="456"
+        )
+        # Create association for different user (should not be returned)
+        other_user = UserFactory.create()
+        OAuthAccountAssociationFactory.create(user=other_user, service="github")
+
+        associations = user_service.get_account_associations(str(user.id))
+
+        assert len(associations) == 2
+        # Verify both associations are returned (order may vary due to same timestamps)
+        assoc_ids = {assoc.id for assoc in associations}
+        assert assoc_ids == {assoc1.id, assoc2.id}
+
+    def test_get_account_associations_empty(self, user_service):
+        user = UserFactory.create()
+
+        associations = user_service.get_account_associations(str(user.id))
+
+        assert associations == []
+
+    def test_get_account_association(self, user_service):
+        user = UserFactory.create()
+        assoc = OAuthAccountAssociationFactory.create(user=user)
+
+        result = user_service.get_account_association(str(assoc.id))
+
+        assert result is not None
+        assert result.id == assoc.id
+        assert result.user == user
+
+    def test_get_account_association_not_found(self, user_service):
+        import uuid
+
+        result = user_service.get_account_association(str(uuid.uuid4()))
+
+        assert result is None
+
+    def test_get_account_association_by_service(self, user_service):
+        user = UserFactory.create()
+        assoc = OAuthAccountAssociationFactory.create(
+            user=user, service="github", external_user_id="123"
+        )
+        # Create another association with different external_user_id
+        OAuthAccountAssociationFactory.create(
+            user=user, service="github", external_user_id="456"
+        )
+
+        result = user_service.get_account_association_by_oauth_service(
+            str(user.id), "github", "123"
+        )
+
+        assert result is not None
+        assert result.id == assoc.id
+        assert result.external_user_id == "123"
+
+    def test_get_account_association_by_service_not_found(self, user_service):
+        user = UserFactory.create()
+
+        result = user_service.get_account_association_by_oauth_service(
+            str(user.id), "github", "999"
+        )
+
+        assert result is None
+
+    def test_add_account_association_minimal(self, user_service):
+        user = UserFactory.create()
+
+        association = user_service.add_account_association(
+            user_id=str(user.id),
+            service="github",
+            external_user_id="123",
+            external_username="testuser",
+        )
+
+        assert association.id is not None
+        assert association.user == user
+        assert association.service == "github"
+        assert association.external_user_id == "123"
+        assert association.external_username == "testuser"
+        # metadata_ defaults to empty dict
+        assert association.metadata_ == {}
+
+    def test_add_account_association_with_metadata(self, user_service):
+        user = UserFactory.create()
+
+        metadata = {"email": "test@example.com", "avatar_url": "https://..."}
+        association = user_service.add_account_association(
+            user_id=str(user.id),
+            service="github",
+            external_user_id="123",
+            external_username="testuser",
+            metadata=metadata,
+        )
+
+        assert association.metadata_ == metadata
+
+    def test_add_account_association_duplicate(self, user_service):
+        user1 = UserFactory.create()
+        user2 = UserFactory.create()
+
+        # User1 creates an association
+        user_service.add_account_association(
+            user_id=str(user1.id),
+            service="github",
+            external_user_id="123",
+            external_username="testuser",
+        )
+
+        # User2 tries to associate the same external account - should raise ValueError
+        with pytest.raises(ValueError, match="already associated"):
+            user_service.add_account_association(
+                user_id=str(user2.id),
+                service="github",
+                external_user_id="123",
+                external_username="testuser",
+            )
+
+    def test_delete_account_association(self, user_service, db_request):
+        user = UserFactory.create()
+        assoc = OAuthAccountAssociationFactory.create(user=user)
+        assoc_id = str(assoc.id)
+
+        result = user_service.delete_account_association(assoc_id)
+
+        assert result is True
+        # Verify it's actually deleted
+        assert user_service.get_account_association(assoc_id) is None
+
+    def test_delete_account_association_not_found(self, user_service):
+        result = user_service.delete_account_association(str(uuid.uuid4()))
+
+        assert result is False
 
 
 class TestTokenService:
@@ -1102,7 +1663,7 @@ class TestTokenService:
         assert token_service.unsafe_load_payload(token) is None
 
 
-def test_database_login_factory(monkeypatch, pyramid_services, metrics, remote_addr):
+def test_database_login_factory(monkeypatch, pyramid_services, metrics):
     service_obj = pretend.stub()
     service_cls = pretend.call_recorder(lambda *a, **kw: service_obj)
     monkeypatch.setattr(services, "DatabaseUserService", service_cls)
@@ -1112,6 +1673,8 @@ def test_database_login_factory(monkeypatch, pyramid_services, metrics, remote_a
     ip_login_ratelimiter = pretend.stub()
     email_add_ratelimiter = pretend.stub()
     password_reset_ratelimiter = pretend.stub()
+    user_2fa_ratelimiter = pretend.stub()
+    ip_2fa_ratelimiter = pretend.stub()
 
     def find_service(iface, name=None, context=None):
         if iface != IRateLimiter and name is None:
@@ -1125,6 +1688,8 @@ def test_database_login_factory(monkeypatch, pyramid_services, metrics, remote_a
             "ip.login",
             "email.add",
             "password.reset",
+            "2fa.user",
+            "2fa.ip",
         }
 
         return (
@@ -1134,12 +1699,14 @@ def test_database_login_factory(monkeypatch, pyramid_services, metrics, remote_a
                 "ip.login": ip_login_ratelimiter,
                 "email.add": email_add_ratelimiter,
                 "password.reset": password_reset_ratelimiter,
+                "2fa.user": user_2fa_ratelimiter,
+                "2fa.ip": ip_2fa_ratelimiter,
             }
         ).get(name)
 
     context = pretend.stub()
     request = pretend.stub(
-        db=pretend.stub(), find_service=find_service, remote_addr=remote_addr
+        db=pretend.stub(), find_service=find_service, remote_addr=REMOTE_ADDR
     )
 
     assert services.database_login_factory(context, request) is service_obj
@@ -1147,13 +1714,15 @@ def test_database_login_factory(monkeypatch, pyramid_services, metrics, remote_a
         pretend.call(
             request.db,
             metrics=metrics,
-            remote_addr=remote_addr,
+            remote_addr=REMOTE_ADDR,
             ratelimiters={
                 "global.login": global_login_ratelimiter,
                 "user.login": user_login_ratelimiter,
                 "ip.login": ip_login_ratelimiter,
                 "email.add": email_add_ratelimiter,
                 "password.reset": password_reset_ratelimiter,
+                "2fa.user": user_2fa_ratelimiter,
+                "2fa.ip": ip_2fa_ratelimiter,
             },
         )
     ]
@@ -1368,40 +1937,6 @@ class TestHaveIBeenPwnedPasswordBreachedService:
         )
         assert svc.failure_message == expected
 
-    @pytest.mark.parametrize(
-        ("help_url", "expected"),
-        [
-            (
-                None,
-                (
-                    "This password appears in a security breach or has been "
-                    "compromised and cannot be used."
-                ),
-            ),
-            (
-                "http://localhost/help/#compromised-password",
-                (
-                    "This password appears in a security breach or has been "
-                    "compromised and cannot be used. See the FAQ entry at "
-                    "http://localhost/help/#compromised-password for more information."
-                ),
-            ),
-        ],
-    )
-    def test_failure_message_plain(self, help_url, expected):
-        context = pretend.stub()
-        request = pretend.stub(
-            http=pretend.stub(),
-            find_service=lambda iface, context: {
-                (IMetricsService, None): NullMetrics()
-            }[(iface, context)],
-            help_url=lambda _anchor=None: help_url,
-        )
-        svc = services.HaveIBeenPwnedPasswordBreachedService.create_service(
-            context, request
-        )
-        assert svc.failure_message_plain == expected
-
 
 class TestNullPasswordBreachedService:
     def test_verify_service(self):
@@ -1517,3 +2052,233 @@ class TestNullEmailBreachedService:
 
         assert isinstance(svc, services.NullEmailBreachedService)
         assert svc.get_email_breach_count("foo@example.com") == 0
+
+
+class TestNullDomainStatusService:
+    def test_verify_service(self):
+        assert verifyClass(IDomainStatusService, services.NullDomainStatusService)
+
+    def test_get_domain_status(self):
+        svc = services.NullDomainStatusService()
+        assert svc.get_domain_status("example.com") == ["active"]
+
+    def test_factory(self):
+        context = pretend.stub()
+        request = pretend.stub()
+        svc = services.NullDomainStatusService.create_service(context, request)
+
+        assert isinstance(svc, services.NullDomainStatusService)
+        assert svc.get_domain_status("example.com") == ["active"]
+
+
+class TestDomainrDomainStatusService:
+    def test_verify_service(self):
+        assert verifyClass(IDomainStatusService, services.DomainrDomainStatusService)
+
+    def test_successful_domain_status_check(self):
+        response = pretend.stub(
+            json=lambda: {
+                "status": [{"domain": "example.com", "status": "undelegated inactive"}]
+            },
+            raise_for_status=lambda: None,
+        )
+        session = pretend.stub(get=pretend.call_recorder(lambda *a, **kw: response))
+        svc = services.DomainrDomainStatusService(
+            session=session, client_id="some_client_id"
+        )
+
+        assert svc.get_domain_status("example.com") == ["undelegated", "inactive"]
+        assert session.get.calls == [
+            pretend.call(
+                "https://api.domainr.com/v2/status",
+                params={"client_id": "some_client_id", "domain": "example.com"},
+                timeout=5,
+            )
+        ]
+
+    def test_domainr_exception_returns_empty(self):
+        class DomainrException(requests.HTTPError):
+            def __init__(self):
+                self.response = pretend.stub(status_code=400)
+
+        response = pretend.stub(raise_for_status=pretend.raiser(DomainrException))
+        session = pretend.stub(get=pretend.call_recorder(lambda *a, **kw: response))
+        svc = services.DomainrDomainStatusService(
+            session=session, client_id="some_client_id"
+        )
+
+        assert svc.get_domain_status("example.com") is None
+        assert session.get.calls == [
+            pretend.call(
+                "https://api.domainr.com/v2/status",
+                params={"client_id": "some_client_id", "domain": "example.com"},
+                timeout=5,
+            )
+        ]
+
+    def test_domainr_response_contains_errors_returns_none(self):
+        response = pretend.stub(
+            json=lambda: {
+                "status": [],
+                "errors": [
+                    {
+                        "code": 400,
+                        "detail": "unknown zone: ocm",
+                        "message": "Bad request",
+                    }
+                ],
+            },
+            raise_for_status=lambda: None,
+        )
+        session = pretend.stub(get=pretend.call_recorder(lambda *a, **kw: response))
+        svc = services.DomainrDomainStatusService(
+            session=session, client_id="some_client_id"
+        )
+
+        assert svc.get_domain_status("example.ocm") is None
+        assert session.get.calls == [
+            pretend.call(
+                "https://api.domainr.com/v2/status",
+                params={"client_id": "some_client_id", "domain": "example.ocm"},
+                timeout=5,
+            )
+        ]
+
+    def test_factory(self):
+        context = pretend.stub()
+        request = pretend.stub(
+            http=pretend.stub(),
+            registry=pretend.stub(
+                settings={"domain_status.client_id": "some_client_id"}
+            ),
+        )
+        svc = services.DomainrDomainStatusService.create_service(context, request)
+
+        assert svc._http is request.http
+        assert svc.client_id == "some_client_id"
+
+
+class TestDeviceIsKnown:
+    def test_device_is_known(self, user_service, db_request):
+        user = UserFactory.create()
+        UserUniqueLoginFactory.create(
+            user=user, ip_address=db_request.ip_address, status="confirmed"
+        )
+        db_request.find_service = lambda *a, **kw: pretend.stub()
+        assert user_service.device_is_known(user.id, db_request)
+
+    def test_device_is_not_known(self, user_service, monkeypatch):
+        user = UserFactory.create(with_verified_primary_email=True)
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(services, "send_unrecognized_login_email", send_email)
+        token_service = pretend.stub(dumps=lambda d: "fake_token", max_age=60)
+        user_service.request = pretend.stub(
+            db=user_service.db,
+            remote_addr=REMOTE_ADDR,
+            headers={
+                "User-Agent": (
+                    "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) "
+                    "Gecko/20100101 Firefox/15.0.1"
+                )
+            },
+            find_service=lambda *a, **kw: token_service,
+            ip_address=IpAddressFactory.create(ip_address=REMOTE_ADDR),
+        )
+
+        assert not user_service.device_is_known(user.id, user_service.request)
+
+        unique_login = (
+            user_service.db.query(services.UserUniqueLogin)
+            .filter(
+                services.UserUniqueLogin.user_id == user.id,
+                services.UserUniqueLogin.ip_address.has(ip_address=REMOTE_ADDR),
+            )
+            .one()
+        )
+        assert unique_login.expires is not None
+
+        assert send_email.calls == [
+            pretend.call(
+                user_service.request,
+                user,
+                ip_address=REMOTE_ADDR,
+                user_agent="Firefox (Ubuntu)",
+                token="fake_token",
+            )
+        ]
+
+    def test_device_is_pending_not_expired(self, user_service, monkeypatch, db_request):
+        user = UserFactory.create(with_verified_primary_email=True)
+        UserUniqueLoginFactory.create(
+            user=user, ip_address=db_request.ip_address, status="pending"
+        )
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(services, "send_unrecognized_login_email", send_email)
+        token_service = pretend.stub(dumps=lambda d: "fake_token", max_age=60)
+        user_service.request = db_request
+        db_request.find_service = lambda *a, **kw: token_service
+
+        assert not user_service.device_is_known(user.id, user_service.request)
+        assert send_email.calls == []
+
+    def test_device_is_pending_and_expired(self, user_service, monkeypatch, db_request):
+        user = UserFactory.create(with_verified_primary_email=True)
+        UserUniqueLoginFactory.create(
+            user=user,
+            status="pending",
+            ip_address=db_request.ip_address,
+            created=datetime.datetime(1970, 1, 1),
+            expires=datetime.datetime(1970, 1, 1),
+        )
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(services, "send_unrecognized_login_email", send_email)
+        token_service = pretend.stub(dumps=lambda d: "fake_token", max_age=60)
+        user_service.request = db_request
+        db_request.find_service = lambda *a, **kw: token_service
+        db_request.headers = {
+            "User-Agent": (
+                "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) "
+                "Gecko/20100101 Firefox/15.0.1"
+            )
+        }
+
+        assert not user_service.device_is_known(user.id, user_service.request)
+        assert send_email.calls == [
+            pretend.call(
+                user_service.request,
+                user,
+                ip_address=REMOTE_ADDR,
+                user_agent="Firefox (Ubuntu)",
+                token="fake_token",
+            )
+        ]
+
+    @pytest.mark.parametrize("ua_string", [None, "no bueno", "Python-urllib/3.7"])
+    def test_device_is_not_known_bad_user_agent(
+        self, user_service, monkeypatch, ua_string
+    ):
+        user = UserFactory.create(with_verified_primary_email=True)
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(services, "send_unrecognized_login_email", send_email)
+        token_service = pretend.stub(dumps=lambda d: "fake_token", max_age=60)
+        headers = {}
+        if ua_string:
+            headers["User-Agent"] = ua_string
+        user_service.request = pretend.stub(
+            db=user_service.db,
+            remote_addr=REMOTE_ADDR,
+            headers=headers,
+            find_service=lambda *a, **kw: token_service,
+            ip_address=IpAddressFactory.create(ip_address=REMOTE_ADDR),
+        )
+
+        assert not user_service.device_is_known(user.id, user_service.request)
+        assert send_email.calls == [
+            pretend.call(
+                user_service.request,
+                user,
+                ip_address=REMOTE_ADDR,
+                user_agent=ua_string or "Unknown User-Agent",
+                token="fake_token",
+            )
+        ]

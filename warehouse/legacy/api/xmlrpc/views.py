@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import datetime
 import functools
@@ -212,7 +202,7 @@ class XMLRPCWrappedError(xmlrpc.client.Fault):
 class TypedMapplyViewMapper(MapplyViewMapper):
     def mapply(self, fn, args, kwargs):
         try:
-            validate_call(fn)(*args, **kwargs)
+            return validate_call(fn)(*args, **kwargs)
         except ValidationError as exc:
             raise XMLRPCInvalidParamTypes(
                 "; ".join(
@@ -229,8 +219,6 @@ class TypedMapplyViewMapper(MapplyViewMapper):
                     ]
                 )
             )
-
-        return super().mapply(fn, args, kwargs)
 
 
 @view_config(route_name="xmlrpc.pypi", context=Exception, renderer="xmlrpc")
@@ -271,8 +259,15 @@ def changelog_since_serial(request, serial: StrictInt):
 
 @xmlrpc_cache_all_projects(method="list_packages_with_serial")
 def list_packages_with_serial(request):
-    serials = request.db.query(Project.name, Project.last_serial).all()
-    return {serial[0]: serial[1] for serial in serials}
+    # Have PostgreSQL create the dictionary directly
+    query = select(
+        func.jsonb_object_agg(Project.name, Project.last_serial).label(
+            "package_serials"
+        )
+    )
+
+    result = request.db.execute(query).scalar()
+    return result or {}
 
 
 # Package querying methods

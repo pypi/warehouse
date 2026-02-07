@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 
 import pytest
@@ -70,7 +60,14 @@ class TestQueries:
                                             "type": expected_type,
                                         }
                                     },
-                                ]
+                                ],
+                                "should": [
+                                    {
+                                        "match_phrase": {
+                                            "name": {"boost": 1000, "query": terms}
+                                        }
+                                    }
+                                ],
                             }
                         },
                         {"prefix": {"normalized_name": expected_prefix}},
@@ -97,7 +94,10 @@ class TestQueries:
                                 "type": "best_fields",
                             }
                         },
-                    ]
+                    ],
+                    "should": [
+                        {"match_phrase": {"name": {"boost": 1000, "query": "a"}}}
+                    ],
                 }
             },
             "suggest": {"name_suggestion": {"text": "a", "term": {"field": "name"}}},
@@ -130,7 +130,17 @@ class TestQueries:
                                             "type": "best_fields",
                                         }
                                     },
-                                ]
+                                ],
+                                "should": [
+                                    {
+                                        "match_phrase": {
+                                            "name": {
+                                                "boost": 1000,
+                                                "query": '"foo bar" baz',
+                                            }
+                                        }
+                                    }
+                                ],
                             }
                         },
                         {"prefix": {"normalized_name": '"foo bar" baz'}},
@@ -163,7 +173,14 @@ class TestQueries:
                                             "type": "best_fields",
                                         }
                                     },
-                                ]
+                                ],
+                                "should": [
+                                    {
+                                        "match_phrase": {
+                                            "name": {"boost": 1000, "query": terms}
+                                        }
+                                    }
+                                ],
                             }
                         },
                         {"prefix": {"normalized_name": terms}},
@@ -226,7 +243,14 @@ class TestQueries:
                                             ]
                                         }
                                     },
-                                ]
+                                ],
+                                "should": [
+                                    {
+                                        "match_phrase": {
+                                            "name": {"boost": 1000, "query": terms}
+                                        }
+                                    }
+                                ],
                             }
                         },
                         {"prefix": {"normalized_name": terms}},

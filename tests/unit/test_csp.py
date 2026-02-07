@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import collections
 
@@ -166,6 +156,7 @@ class TestCSPTween:
                 "frame-src": ["'none'"],
                 "img-src": ["'self'"],
                 "connect-src": [],
+                "style-src": ["'self'"],
             },
             "camo.url": "http://localhost:9000",
         }
@@ -187,7 +178,9 @@ class TestCSPTween:
                 "connect-src http://localhost:9000; "
                 "default-src 'none'; "
                 "frame-src https://inspector.pypi.io; "
-                "img-src 'self' data:"
+                "img-src 'self' data:; "
+                "style-src 'self' "
+                "'sha256-kwpt3lQZ21rs4cld7/uEm9qI5yAbjYzx+9FGm/XmwNU='"
             )
         }
 
@@ -250,36 +243,32 @@ def test_includeme():
                         "https://api.github.com/repos/",
                         "https://api.github.com/search/issues",
                         "https://gitlab.com/api/",
-                        "https://*.google-analytics.com",
-                        "https://*.analytics.google.com",
-                        "https://*.googletagmanager.com",
-                        "fastly-insights.com",
-                        "*.fastly-insights.com",
+                        "https://analytics.python.org",
                         "*.ethicalads.io",
                         "https://api.pwnedpasswords.com",
                         "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/sre/mathmaps/",
                         "https://2p66nmmycsj3.statuspage.io",
                     ],
                     "default-src": ["'none'"],
-                    "font-src": ["'self'", "fonts.gstatic.com"],
-                    "form-action": ["'self'", "https://checkout.stripe.com"],
+                    "font-src": [
+                        "'self'",
+                    ],
+                    "form-action": [
+                        "'self'",
+                        "https://checkout.stripe.com",
+                        "https://billing.stripe.com",
+                    ],
                     "frame-ancestors": ["'none'"],
                     "frame-src": ["'none'"],
                     "img-src": [
                         "'self'",
                         "camo.url.value",
-                        "https://*.google-analytics.com",
-                        "https://*.googletagmanager.com",
-                        "*.fastly-insights.com",
                         "*.ethicalads.io",
                         "ethicalads.blob.core.windows.net",
                     ],
                     "script-src": [
                         "'self'",
-                        "https://*.googletagmanager.com",
-                        "https://www.google-analytics.com",
-                        "https://ssl.google-analytics.com",
-                        "*.fastly-insights.com",
+                        "https://analytics.python.org",
                         "*.ethicalads.io",
                         "'sha256-U3hKDidudIaxBDEzwGJApJgPEf2mWk6cfMWghrAa6i0='",
                         "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/",
@@ -288,7 +277,6 @@ def test_includeme():
                     ],
                     "style-src": [
                         "'self'",
-                        "fonts.googleapis.com",
                         "*.ethicalads.io",
                         "'sha256-2YHqZokjiizkHi1Zt+6ar0XJ0OeEy/egBnlm+MDMtrM='",
                         "'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='",
@@ -297,7 +285,6 @@ def test_includeme():
                         "'sha256-OCf+kv5Asiwp++8PIevKBYSgnNLNUZvxAp4a7wMLuKA='",
                         "'sha256-h5LOiLhk6wiJrGsG5ItM0KimwzWQH/yAcmoJDJL//bY='",
                     ],
-                    "worker-src": ["*.fastly-insights.com"],
                 }
             }
         )

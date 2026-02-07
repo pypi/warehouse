@@ -1,14 +1,6 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
+
+from __future__ import annotations
 
 import collections
 import datetime
@@ -18,15 +10,22 @@ import http
 import logging
 import os
 import secrets
+import typing
 import urllib.parse
 
+from uuid import UUID
+
 import passlib.exc
+import pytz
 import requests
 
+from linehaul.ua import parser as linehaul_user_agent_parser
 from passlib.context import CryptContext
+from psycopg.errors import UniqueViolation
 from sqlalchemy import exists, select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
+from ua_parser import user_agent_parser
 from webauthn.helpers import bytes_to_base64url
 from zope.interface import implementer
 
@@ -35,6 +34,7 @@ import warehouse.utils.webauthn as webauthn
 
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
+    IDomainStatusService,
     IEmailBreachedService,
     InvalidRecoveryCode,
     IPasswordBreachedService,
@@ -48,17 +48,28 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
 )
 from warehouse.accounts.models import (
+    AccountAssociation,
     DisableReason,
     Email,
+    OAuthAccountAssociation,
     ProhibitedUserName,
     RecoveryCode,
+    TermsOfServiceEngagement,
+    UniqueLoginStatus,
     User,
+    UserTermsOfServiceEngagement,
+    UserUniqueLogin,
     WebAuthn,
 )
+from warehouse.email import send_unrecognized_login_email
+from warehouse.events.models import UserAgentInfo
 from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
 from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerializer
+
+if typing.TYPE_CHECKING:
+    from pyramid.request import Request
 
 logger = logging.getLogger(__name__)
 
@@ -209,6 +220,37 @@ class DatabaseUserService:
             self.ratelimiters["user.login"].hit(userid)
         self.ratelimiters["global.login"].hit()
         self.ratelimiters["ip.login"].hit(self.remote_addr)
+
+    def _check_2fa_ratelimits(self, userid: int, tags: list[str] | None = None) -> None:
+        tags = tags if tags is not None else []
+
+        # Check IP-based 2FA rate limit
+        if self.remote_addr is not None:
+            if not self.ratelimiters["2fa.ip"].test(self.remote_addr):
+                logger.warning("IP failed 2FA threshold reached.")
+                self._metrics.increment(
+                    "warehouse.authentication.ratelimited",
+                    tags=tags + ["ratelimiter:ip"],
+                )
+                raise TooManyFailedLogins(
+                    resets_in=self.ratelimiters["2fa.ip"].resets_in(self.remote_addr)
+                )
+
+        # Check user-based 2FA rate limit
+        if not self.ratelimiters["2fa.user"].test(userid):
+            logger.warning("User failed 2FA threshold reached.")
+            self._metrics.increment(
+                "warehouse.authentication.ratelimited",
+                tags=tags + ["ratelimiter:user"],
+            )
+            raise TooManyFailedLogins(
+                resets_in=self.ratelimiters["2fa.user"].resets_in(userid)
+            )
+
+    def _hit_2fa_ratelimits(self, userid: int) -> None:
+        self.ratelimiters["2fa.user"].hit(userid)
+        if self.remote_addr is not None:
+            self.ratelimiters["2fa.ip"].hit(self.remote_addr)
 
     def check_password(self, userid, password, *, tags=None):
         tags = tags if tags is not None else []
@@ -396,7 +438,7 @@ class DatabaseUserService:
         # If we've gotten here, then we'll want to record a failed attempt in our
         # rate limiting before raising an exception to indicate a failed
         # recovery code verification.
-        self._hit_ratelimits(userid=user_id)
+        self._hit_2fa_ratelimits(userid=user_id)
         raise NoRecoveryCodes
 
     def get_recovery_code(self, user_id, code):
@@ -416,7 +458,7 @@ class DatabaseUserService:
         # If we've gotten here, then we'll want to record a failed attempt in our
         # rate limiting before returning False to indicate a failed recovery code
         # verification.
-        self._hit_ratelimits(userid=user_id)
+        self._hit_2fa_ratelimits(userid=user_id)
         raise InvalidRecoveryCode
 
     def get_totp_secret(self, user_id):
@@ -451,7 +493,7 @@ class DatabaseUserService:
         tags.append("mechanism:check_totp_value")
         self._metrics.increment("warehouse.authentication.two_factor.start", tags=tags)
 
-        self._check_ratelimits(userid=user_id, tags=tags)
+        self._check_2fa_ratelimits(userid=user_id, tags=tags)
 
         totp_secret = self.get_totp_secret(user_id)
 
@@ -463,7 +505,7 @@ class DatabaseUserService:
             # If we've gotten here, then we'll want to record a failed attempt in our
             # rate limiting before returning False to indicate a failed totp
             # verification.
-            self._hit_ratelimits(userid=user_id)
+            self._hit_2fa_ratelimits(userid=user_id)
             return False
 
         last_totp_value = self.get_last_totp_value(user_id)
@@ -471,20 +513,27 @@ class DatabaseUserService:
         if last_totp_value is not None and totp_value == last_totp_value.encode():
             return False
 
-        valid = otp.verify_totp(totp_secret, totp_value)
-
-        if valid:
-            self._metrics.increment("warehouse.authentication.two_factor.ok", tags=tags)
-        else:
+        try:
+            if not (valid := otp.verify_totp(totp_secret, totp_value)):
+                self._hit_2fa_ratelimits(userid=user_id)
+        except otp.OutOfSyncTOTPError:
+            self._metrics.increment(
+                "warehouse.authentication.two_factor.failure",
+                tags=tags + ["failure_reason:out_of_sync"],
+            )
+            self._hit_2fa_ratelimits(userid=user_id)
+            raise otp.OutOfSyncTOTPError
+        except otp.InvalidTOTPError:
             self._metrics.increment(
                 "warehouse.authentication.two_factor.failure",
                 tags=tags + ["failure_reason:invalid_totp"],
             )
             # If we've gotten here, then we'll want to record a failed attempt in our
-            # rate limiting before returning False to indicate a failed totp
-            # verification.
-            self._hit_ratelimits(userid=user_id)
+            # rate limiting before raising to indicate a failed totp verification.
+            self._hit_2fa_ratelimits(userid=user_id)
+            raise otp.InvalidTOTPError
 
+        self._metrics.increment("warehouse.authentication.two_factor.ok", tags=tags)
         return valid
 
     def get_webauthn_credential_options(self, user_id, *, challenge, rp_name, rp_id):
@@ -542,11 +591,19 @@ class DatabaseUserService:
         Returns the updated signage count on success, raises
         webauthn.AuthenticationRejectedError on failure.
         """
+        # Check rate limits before attempting verification
+        self._check_2fa_ratelimits(userid=user_id, tags=["mechanism:webauthn"])
+
         user = self.get_user(user_id)
 
-        return webauthn.verify_assertion_response(
-            assertion, challenge=challenge, user=user, origin=origin, rp_id=rp_id
-        )
+        try:
+            return webauthn.verify_assertion_response(
+                assertion, challenge=challenge, user=user, origin=origin, rp_id=rp_id
+            )
+        except webauthn.AuthenticationRejectedError:
+            # Hit rate limits on failure
+            self._hit_2fa_ratelimits(userid=user_id)
+            raise
 
     def add_webauthn(self, user_id, **kwargs):
         """
@@ -604,13 +661,14 @@ class DatabaseUserService:
 
         return recovery_codes
 
-    def check_recovery_code(self, user_id, code):
+    def check_recovery_code(self, user_id, code, skip_ratelimits=False):
         self._metrics.increment("warehouse.authentication.recovery_code.start")
 
-        self._check_ratelimits(
-            userid=user_id,
-            tags=["mechanism:check_recovery_code"],
-        )
+        if not skip_ratelimits:
+            self._check_2fa_ratelimits(
+                userid=user_id,
+                tags=["mechanism:check_recovery_code"],
+            )
 
         user = self.get_user(user_id)
         stored_recovery_code = self.get_recovery_code(user.id, code)
@@ -630,6 +688,235 @@ class DatabaseUserService:
     def get_password_timestamp(self, user_id):
         user = self.get_user(user_id)
         return user.password_date.timestamp() if user.password_date is not None else 0
+
+    def needs_tos_flash(self, user_id, revision):
+        """
+        Check if we need to flash a ToS update to user on login.
+        """
+        query = self.db.query(UserTermsOfServiceEngagement).filter(
+            UserTermsOfServiceEngagement.user_id == user_id,
+            UserTermsOfServiceEngagement.revision == revision,
+        )
+
+        # Find all instances of an engagement with the Terms of Service more than 30
+        # days ago. If we find any, the ToS are already in effect for the user by
+        # default so they do not need to be flashed.
+        engagements_30_days_before_tos_active = (
+            query.filter(
+                UserTermsOfServiceEngagement.created
+                < datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=30)
+            )
+            .order_by(
+                UserTermsOfServiceEngagement.created,
+            )
+            .first()
+        )
+        if engagements_30_days_before_tos_active is not None:
+            return False
+
+        # Find any active engagements with the Terms of Service. If the user has
+        # actively engaged with the updated Terms of Service we skip flashing the
+        # update banner.
+        active_engagements = query.filter(
+            UserTermsOfServiceEngagement.engagement.in_(
+                [TermsOfServiceEngagement.Viewed, TermsOfServiceEngagement.Agreed]
+            )
+        ).first()
+        if active_engagements is None:
+            return True
+
+        return False
+
+    def record_tos_engagement(
+        self,
+        user_id,
+        revision: str,
+        engagement: TermsOfServiceEngagement,
+    ) -> None:
+        """
+        Add a record of end user being flashed about, notified of, viewing, or agreeing
+        to a terms of service change.
+        """
+        if not isinstance(engagement, TermsOfServiceEngagement):
+            raise ValueError(f"{engagement} is not a TermsOfServiceEngagement")
+        self.db.add(
+            UserTermsOfServiceEngagement(
+                user_id=user_id,
+                revision=revision,
+                created=datetime.datetime.now(datetime.UTC),
+                engagement=engagement,
+            )
+        )
+
+    def device_is_known(self, userid, request):
+        user = self.get_user(userid)
+        token_service = request.find_service(ITokenService, name="confirm_login")
+        unique_login = (
+            request.db.query(UserUniqueLogin)
+            .filter(
+                UserUniqueLogin.user_id == userid,
+                UserUniqueLogin.ip_address == request.ip_address,
+            )
+            .one_or_none()
+        )
+        should_send_email = False
+
+        # Check if we've seen this device and it's been confirmed
+        if unique_login and unique_login.status == UniqueLoginStatus.CONFIRMED:
+            return True
+
+        # Create a new login if we haven't seen this device before
+        if not unique_login:
+            unique_login = UserUniqueLogin(
+                user_id=userid,
+                ip_address=request.ip_address,
+                status=UniqueLoginStatus.PENDING,
+                expires=datetime.datetime.now(datetime.UTC)
+                + datetime.timedelta(seconds=token_service.max_age),
+            )
+            request.db.add(unique_login)
+            request.db.flush()  # To get the ID for the token
+            should_send_email = True
+
+        # Check if the login had expired
+        if unique_login.expires and unique_login.expires < datetime.datetime.now(
+            datetime.UTC
+        ):
+            # The previous token has expired, update the expiry for
+            # the login and re-send the email
+            unique_login.expires = datetime.datetime.now(
+                datetime.UTC
+            ) + datetime.timedelta(seconds=token_service.max_age)
+            should_send_email = True
+
+        # If we don't need to send an email, short-circuit
+        if not should_send_email:
+            return False
+
+        # Get User Agent Information
+        user_agent_info_data = {}
+        if user_agent_str := request.headers.get("User-Agent"):
+            user_agent_info_data = {
+                # A hack to get it to fall back to the raw user agent
+                "installer": user_agent_str,
+            }
+            try:
+                parsed = linehaul_user_agent_parser.parse(user_agent_str)
+                if parsed and parsed.installer and parsed.installer.name == "Browser":
+                    parsed_ua = user_agent_parser.Parse(user_agent_str)
+                    user_agent_info_data = {
+                        "installer": "Browser",
+                        "device": parsed_ua["device"]["family"],
+                        "os": parsed_ua["os"]["family"],
+                        "user_agent": parsed_ua["user_agent"]["family"],
+                    }
+            except linehaul_user_agent_parser.UnknownUserAgentError:
+                pass  # Fallback to raw user-agent string
+
+        user_agent_info = UserAgentInfo(**user_agent_info_data)
+
+        # Generate a token
+        token = token_service.dumps(
+            {
+                "action": "login-confirmation",
+                "user.id": str(user.id),
+                "user.last_login": str(
+                    user.last_login or datetime.datetime.min.replace(tzinfo=pytz.UTC)
+                ),
+                "unique_login_id": unique_login.id,
+            }
+        )
+
+        # Send the email
+        send_unrecognized_login_email(
+            request,
+            user,
+            ip_address=str(request.ip_address.ip_address),
+            user_agent=user_agent_info.display(),
+            token=token,
+        )
+
+        return False
+
+    def get_account_associations(self, user_id: str) -> list[AccountAssociation]:
+        """
+        Return all AccountAssociation objects for the given user.
+        """
+        return self.db.scalars(
+            select(AccountAssociation)
+            .where(AccountAssociation._user_id == user_id)
+            .order_by(AccountAssociation.created.desc())
+        ).all()
+
+    def get_account_association(self, association_id: str) -> AccountAssociation | None:
+        """
+        Return the AccountAssociation object for the given ID, or None.
+        """
+        return self.db.get(AccountAssociation, association_id)
+
+    def get_account_association_by_oauth_service(
+        self, user_id: str, service: str, external_user_id: str
+    ) -> OAuthAccountAssociation | None:
+        """
+        Return the OAuth account association for a specific external account, or None.
+
+        Note: This method is specific to OAuth associations.
+        Use get_account_association() for polymorphic access to any association type.
+        """
+        return self.db.scalar(
+            select(OAuthAccountAssociation).where(
+                OAuthAccountAssociation._user_id == UUID(user_id),
+                OAuthAccountAssociation.service == service,
+                OAuthAccountAssociation.external_user_id == external_user_id,
+            )
+        )
+
+    def add_account_association(
+        self,
+        user_id: str,
+        service: str,
+        external_user_id: str,
+        external_username: str,
+        **kwargs,
+    ) -> OAuthAccountAssociation:
+        """
+        Create a new OAuth account association.
+
+        Returns the created OAuthAccountAssociation object.
+        Raises ValueError if association already exists.
+        """
+        # Translate 'metadata' to 'metadata_' for model attribute
+        kwargs["metadata_"] = kwargs.pop("metadata", {})
+
+        association = OAuthAccountAssociation(
+            _user_id=UUID(user_id),
+            service=service,
+            external_user_id=external_user_id,
+            external_username=external_username,
+            **kwargs,
+        )
+        self.db.add(association)
+        try:
+            self.db.flush()  # Flush to get the generated ID
+        except UniqueViolation:
+            self.db.rollback()
+            raise ValueError(
+                f"External account {external_username} on {service} is already "
+                f"associated with another PyPI account"
+            ) from None
+        return association
+
+    def delete_account_association(self, association_id: str) -> bool:
+        """
+        Delete an account association by ID.
+
+        Returns True if deleted, False if not found.
+        """
+        if not (association := self.get_account_association(association_id)):
+            return False
+        self.db.delete(association)
+        # No flush needed - deletion happens at transaction commit
+        return True
 
 
 @implementer(ITokenService)
@@ -685,6 +972,10 @@ def database_login_factory(context, request):
             ),
             "user.login": request.find_service(
                 IRateLimiter, name="user.login", context=None
+            ),
+            "2fa.ip": request.find_service(IRateLimiter, name="2fa.ip", context=None),
+            "2fa.user": request.find_service(
+                IRateLimiter, name="2fa.user", context=None
             ),
             "email.add": request.find_service(
                 IRateLimiter, name="email.add", context=None
@@ -756,13 +1047,6 @@ class HaveIBeenPwnedPasswordBreachedService:
             )
         return message
 
-    @property
-    def failure_message_plain(self):
-        message = self._failure_message_preamble
-        if self._help_url:
-            message += f" See the FAQ entry at {self._help_url} for more information."
-        return message
-
     def _metrics_increment(self, *args, **kwargs):
         self._metrics.increment(*args, **kwargs)
 
@@ -831,7 +1115,6 @@ class HaveIBeenPwnedPasswordBreachedService:
 @implementer(IPasswordBreachedService)
 class NullPasswordBreachedService:
     failure_message = "This password appears in a breach."
-    failure_message_plain = "This password appears in a breach."
 
     @classmethod
     def create_service(cls, context, request):
@@ -900,3 +1183,49 @@ class NullEmailBreachedService:
     def get_email_breach_count(self, email):
         # This service allows *every* email as a non-breached email.
         return 0
+
+
+@implementer(IDomainStatusService)
+class NullDomainStatusService:
+    @classmethod
+    def create_service(cls, _context, _request):
+        return cls()
+
+    def get_domain_status(self, _domain: str) -> list[str]:
+        return ["active"]
+
+
+@implementer(IDomainStatusService)
+class DomainrDomainStatusService:
+    def __init__(self, session, client_id):
+        self._http = session
+        self.client_id = client_id
+
+    @classmethod
+    def create_service(cls, _context, request: Request) -> DomainrDomainStatusService:
+        domainr_client_id = request.registry.settings.get("domain_status.client_id")
+        return cls(session=request.http, client_id=domainr_client_id)
+
+    def get_domain_status(self, domain: str) -> list[str] | None:
+        """
+        Check if a domain is available or not.
+        See https://domainr.com/docs/api/v2/status
+        """
+        try:
+            resp = self._http.get(
+                "https://api.domainr.com/v2/status",
+                params={"client_id": self.client_id, "domain": domain},
+                timeout=5,
+            )
+            resp.raise_for_status()
+        except requests.RequestException as exc:
+            logger.warning("Error contacting Domainr: %r", exc)
+            return None
+
+        if errors := resp.json().get("errors"):
+            logger.warning(
+                {"status": "Error from Domainr", "errors": errors, "domain": domain}
+            )
+            return None
+
+        return resp.json()["status"][0]["status"].split()

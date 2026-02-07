@@ -1,15 +1,4 @@
-/* Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/* SPDX-License-Identifier: Apache-2.0 */
 
 /* global expect, beforeEach, describe, it, jest */
 
@@ -37,14 +26,17 @@ describe("Password strength gauge controller", () => {
     application.register("password-strength-gauge", PasswordStrengthGaugeController);
   });
 
-
   describe("initial state", () => {
     describe("the password strength gauge and screen reader text", () => {
-      it("are at 0 level and reading a password empty text", () => {
+      it("are at 0 level and reading a password empty text", async () => {
+
+        const passwordTarget = getByPlaceholderText(document.body, "Your password");
+        fireEvent.input(passwordTarget, { target: { value: "" } });
+
         const gauge = document.getElementById("gauge");
         const ZXCVBN_LEVELS = [0, 1, 2, 3, 4];
         ZXCVBN_LEVELS.forEach(i =>
-          expect(gauge).not.toHaveClass(`password-strength__gauge--${i}`)
+          expect(gauge).not.toHaveClass(`password-strength__gauge--${i}`),
         );
         expect(gauge).not.toHaveAttribute("data-zxcvbn-score");
         expect(gauge.querySelector(".sr-only")).toHaveTextContent("Password field is empty");
@@ -74,8 +66,8 @@ describe("Password strength gauge controller", () => {
     });
 
     describe("that are strong", () => {
-      it("show high score and suggestions on screen reader", () => {
-        window.zxcvbn = jest.fn(() => {
+      it("show high score and suggestions on screen reader", async () => {
+        window.zxcvbn = jest.fn( () => {
           return {
             score: 5,
             feedback: {
@@ -83,6 +75,7 @@ describe("Password strength gauge controller", () => {
             },
           };
         });
+
         const passwordTarget = getByPlaceholderText(document.body, "Your password");
         fireEvent.input(passwordTarget, { target: { value: "the strongest password ever" } });
 

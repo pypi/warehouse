@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import enum
 
@@ -17,13 +7,13 @@ from uuid import UUID
 import automat
 
 from sqlalchemy import Enum, ForeignKey, orm, sql
-from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.orm.session import object_session
 
 from warehouse import db
 from warehouse.accounts.models import Email as EmailAddress, UnverifyReasons
+from warehouse.utils.db import orm_session_from_obj
 from warehouse.utils.db.types import bool_false, datetime_now
 
 MAX_TRANSIENT_BOUNCES = 5
@@ -217,9 +207,9 @@ class EmailStatus:
         if self._email_message.missing:
             return
 
-        db = object_session(self._email_message)
+        session = orm_session_from_obj(self._email_message)
         email = (
-            db.query(EmailAddress)
+            session.query(EmailAddress)
             .filter(EmailAddress.email == self._email_message.to)
             .first()
         )
@@ -268,7 +258,6 @@ class Event(db.Model):
     created: Mapped[datetime_now]
 
     email_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
         ForeignKey(
             "ses_emails.id", deferrable=True, initially="DEFERRED", ondelete="CASCADE"
         ),

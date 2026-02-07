@@ -1,19 +1,8 @@
-/**
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/* SPDX-License-Identifier: Apache-2.0 */
 
 import { Controller } from "@hotwired/stimulus";
 import { debounce } from "debounce";
+import { gettext } from "../utils/messages-access";
 
 export default class extends Controller {
   static targets = ["password", "message"];
@@ -32,7 +21,7 @@ export default class extends Controller {
           e => {
             console.error(e);  // eslint-disable-line no-console
             this.hideMessage();  // default to hiding the message on errors
-          }
+          },
         );
       }
     }
@@ -44,8 +33,8 @@ export default class extends Controller {
     let hex = this.hexString(digest);
     let response = await fetch(this.getURL(hex));
     if (response.ok === false) {
-      const msg = "Error while validating hashed password, disregard on development";
-      console.error(`${msg}: ${response.status} ${response.statusText}`);  // eslint-disable-line no-console
+      const msgText = gettext("Error while validating hashed password, disregard on development");
+      console.error(`${msgText}: ${response.status} ${response.statusText}`);  // eslint-disable-line no-console
     } else {
       let text = await response.text();
       this.parseResponse(text, hex);
@@ -91,7 +80,7 @@ export default class extends Controller {
     // For our uses, we're going to consider any password that has ever appeared in
     // a breach to be insecure, even if only once.
     let isBreached = responseText.split("\n").some(
-      line => line.toLowerCase().split(":")[0] === hashedPassword.slice(5)
+      line => line.toLowerCase().split(":")[0] === hashedPassword.slice(5),
     );
     if (isBreached) {
       this.showMessage();

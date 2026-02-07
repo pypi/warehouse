@@ -1,58 +1,58 @@
-{#
- # Licensed under the Apache License, Version 2.0 (the "License");
- # you may not use this file except in compliance with the License.
- # You may obtain a copy of the License at
- #
- # http://www.apache.org/licenses/LICENSE-2.0
- #
- # Unless required by applicable law or agreed to in writing, software
- # distributed under the License is distributed on an "AS IS" BASIS,
- # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- # See the License for the specific language governing permissions and
- # limitations under the License.
--#}
+{# SPDX-License-Identifier: Apache-2.0 -#}
 <nav aria-label="{% trans project=project.normalized_name %}Navigation for managing {{ project }}{% endtrans %}">
   <ul class="vertical-tabs__list">
     <li>
-      <a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'releases' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}" {% if active_tab == 'releases' %}aria-selected="true"{% endif %}>
+      <a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name) }}"
+         class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'releases' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}"
+         {% if active_tab == 'releases' %}aria-selected="true"{% endif %}>
         <i class="fa fa-cube" aria-hidden="true"></i>
         {% trans %}Releases{% endtrans %}
-        <span class="badge badge--neutral">{{ project.releases|rejectattr("yanked")|list|length }}</span>
+        <span class="badge badge--neutral">{{ project.active_releases|length }}</span>
       </a>
     </li>
     <li>
-      <a href="{{ request.route_path('manage.project.roles', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'collaborators' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}" {% if active_tab == 'collaborators' %}aria-selected="true"{% endif %}>
+      <a href="{{ request.route_path('manage.project.roles', project_name=project.normalized_name) }}"
+         class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'collaborators' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}"
+         {% if active_tab == 'collaborators' %}aria-selected="true"{% endif %}>
         <i class="fa fa-user" aria-hidden="true"></i>
         {% trans %}Collaborators{% endtrans %}
         {% if request.organization_access and project.organization %}
-        <span class="badge badge--neutral">{{ 1 + project.team_project_roles|length + project.roles|length }}</span>
+          <span class="badge badge--neutral">{{ 1 + project.team_project_roles|length + project.roles|length }}</span>
         {% else %}
-        <span class="badge badge--neutral">{{ project.roles|length }}</span>
+          <span class="badge badge--neutral">{{ project.roles|length }}</span>
         {% endif %}
       </a>
     </li>
     <li>
-      <a href="{{ request.route_path('manage.project.history', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'history' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}" {% if active_tab == 'history' %}aria-selected="true"{% endif %}>
+      <a href="{{ request.route_path('manage.project.history', project_name=project.normalized_name) }}"
+         class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'history' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}"
+         {% if active_tab == 'history' %}aria-selected="true"{% endif %}>
         <i class="fa fa-history" aria-hidden="true"></i>
         {% trans %}Security history{% endtrans %}
       </a>
     </li>
     {% if project.has_docs %}
-    <li>
-      <a href="{{ request.route_path('manage.project.documentation', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'documentation' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}" {% if active_tab == 'documentation' %}aria-selected="true"{% endif %}>
-        <i class="fa fa-book" aria-hidden="true"></i>
-        {% trans %}Documentation{% endtrans %}
-      </a>
-    </li>
+      <li>
+        <a href="{{ request.route_path('manage.project.documentation', project_name=project.normalized_name) }}"
+           class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'documentation' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}"
+           {% if active_tab == 'documentation' %}aria-selected="true"{% endif %}>
+          <i class="fa fa-book" aria-hidden="true"></i>
+          {% trans %}Documentation{% endtrans %}
+        </a>
+      </li>
     {% endif %}
     <li>
-      <a href="{{ request.route_path('manage.project.settings.publishing', project_name=project.normalized_name) }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'publishing' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}" {% if active_tab == 'publishing' %}aria-selected="true"{% endif %}>
+      <a href="{{ request.route_path('manage.project.settings.publishing', project_name=project.normalized_name) }}"
+         class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'publishing' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}"
+         {% if active_tab == 'publishing' %}aria-selected="true"{% endif %}>
         <i class="fa fa-upload" aria-hidden="true"></i>
         {% trans %}Publishing{% endtrans %}
       </a>
     </li>
     <li>
-      <a href="{{ request.route_path('manage.project.settings', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'settings' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}" {% if active_tab == 'settings' %}aria-selected="true"{% endif %}>
+      <a href="{{ request.route_path('manage.project.settings', project_name=project.normalized_name) }}"
+         class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'settings' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}"
+         {% if active_tab == 'settings' %}aria-selected="true"{% endif %}>
         <i class="fa fa-wrench" aria-hidden="true"></i>
         {% trans %}Settings{% endtrans %}
       </a>

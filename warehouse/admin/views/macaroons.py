@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
@@ -24,7 +14,7 @@ from warehouse.macaroons.services import deserialize_raw_macaroon
 
 @view_config(
     route_name="admin.macaroon.decode_token",
-    renderer="admin/macaroons/decode_token.html",
+    renderer="warehouse.admin:templates/admin/macaroons/decode_token.html",
     permission=Permissions.AdminMacaroonsRead,
     request_method="GET",
     uses_session=True,
@@ -33,7 +23,7 @@ from warehouse.macaroons.services import deserialize_raw_macaroon
 )
 @view_config(
     route_name="admin.macaroon.decode_token",
-    renderer="admin/macaroons/decode_token.html",
+    renderer="warehouse.admin:templates/admin/macaroons/decode_token.html",
     permission=Permissions.AdminMacaroonsRead,
     request_method="POST",
     uses_session=True,
@@ -69,7 +59,7 @@ def macaroon_decode_token(request):
 
 @view_config(
     route_name="admin.macaroon.detail",
-    renderer="admin/macaroons/detail.html",
+    renderer="warehouse.admin:templates/admin/macaroons/detail.html",
     permission=Permissions.AdminMacaroonsRead,
     uses_session=True,
 )

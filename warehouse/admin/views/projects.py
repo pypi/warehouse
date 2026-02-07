@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import shlex
 
@@ -21,8 +11,15 @@ from sqlalchemy.orm import joinedload
 
 from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import User
+from warehouse.admin.forms import SetTotalSizeLimitForm, SetUploadLimitForm
 from warehouse.authnz import Permissions
-from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GIB, ONE_MIB
+from warehouse.constants import (
+    MAX_FILESIZE,
+    MAX_PROJECT_SIZE,
+    ONE_GIB,
+    ONE_MIB,
+    UPLOAD_LIMIT_CAP,
+)
 from warehouse.events.tags import EventTag
 from warehouse.observations.models import OBSERVATION_KIND_MAP, ObservationKind
 from warehouse.packaging.models import JournalEntry, Project, Release, Role
@@ -30,17 +27,17 @@ from warehouse.packaging.tasks import update_release_description
 from warehouse.search.tasks import reindex_project as _reindex_project
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import (
+    archive_project,
     clear_project_quarantine,
     confirm_project,
     remove_project,
+    unarchive_project,
 )
-
-UPLOAD_LIMIT_CAP = ONE_GIB
 
 
 @view_config(
     route_name="admin.project.list",
-    renderer="admin/projects/list.html",
+    renderer="warehouse.admin:templates/admin/projects/list.html",
     permission=Permissions.AdminProjectsRead,
     request_method="GET",
     uses_session=True,
@@ -77,7 +74,7 @@ def project_list(request):
 
 @view_config(
     route_name="admin.project.detail",
-    renderer="admin/projects/detail.html",
+    renderer="warehouse.admin:templates/admin/projects/detail.html",
     permission=Permissions.AdminProjectsRead,
     request_method="GET",
     uses_session=True,
@@ -86,7 +83,7 @@ def project_list(request):
 )
 @view_config(
     route_name="admin.project.detail",
-    renderer="admin/projects/detail.html",
+    renderer="warehouse.admin:templates/admin/projects/detail.html",
     permission=Permissions.AdminProjectsWrite,
     request_method="POST",
     uses_session=True,
@@ -156,7 +153,7 @@ def project_detail(project, request):
 
 @view_config(
     route_name="admin.project.observations",
-    renderer="admin/projects/project_observations_list.html",
+    renderer="warehouse.admin:templates/admin/projects/project_observations_list.html",
     permission=Permissions.AdminObservationsRead,
     request_method="GET",
     uses_session=True,
@@ -242,7 +239,7 @@ def add_project_observation(project, request):
 
 @view_config(
     route_name="admin.project.releases",
-    renderer="admin/projects/releases_list.html",
+    renderer="warehouse.admin:templates/admin/projects/releases_list.html",
     permission=Permissions.AdminProjectsRead,
     request_method="GET",
     uses_session=True,
@@ -292,7 +289,7 @@ def releases_list(project, request):
 
 @view_config(
     route_name="admin.project.release",
-    renderer="admin/projects/release_detail.html",
+    renderer="warehouse.admin:templates/admin/projects/release_detail.html",
     permission=Permissions.AdminProjectsRead,
     request_method="GET",
     uses_session=True,
@@ -420,7 +417,7 @@ def release_render(release, request):
 
 @view_config(
     route_name="admin.project.journals",
-    renderer="admin/projects/journals_list.html",
+    renderer="warehouse.admin:templates/admin/projects/journals_list.html",
     permission=Permissions.AdminProjectsRead,
     request_method="GET",
     uses_session=True,
@@ -477,38 +474,19 @@ def journals_list(project, request):
     require_methods=False,
 )
 def set_upload_limit(project, request):
-    upload_limit = request.POST.get("upload_limit", "")
+    form = SetUploadLimitForm(request.POST)
 
-    # Update the project's upload limit.
-    # If the upload limit is an empty string or otherwise falsy, just set the
-    # limit to None, indicating the default limit.
-    if not upload_limit:
-        upload_limit = None
-    else:
-        try:
-            upload_limit = int(upload_limit)
-        except ValueError:
-            raise HTTPBadRequest(
-                f"Invalid value for upload limit: {upload_limit}, "
-                f"must be integer or empty string."
+    if not form.validate():
+        for field, errors in form.errors.items():
+            for error in errors:
+                request.session.flash(f"{field}: {error}", queue="error")
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.project.detail", project_name=project.normalized_name
             )
+        )
 
-        # The form is in MiB, but the database field is in bytes.
-        upload_limit *= ONE_MIB
-
-        if upload_limit > UPLOAD_LIMIT_CAP:
-            raise HTTPBadRequest(
-                f"Upload limit can not be more than the overall limit of "
-                f"{UPLOAD_LIMIT_CAP / ONE_MIB}MiB."
-            )
-
-        if upload_limit < MAX_FILESIZE:
-            raise HTTPBadRequest(
-                f"Upload limit can not be less than the default limit of "
-                f"{MAX_FILESIZE / ONE_MIB}MiB."
-            )
-
-    project.upload_limit = upload_limit
+    project.upload_limit = form.upload_limit.data
 
     request.session.flash(f"Set the upload limit on {project.name!r}", queue="success")
 
@@ -525,29 +503,19 @@ def set_upload_limit(project, request):
     require_methods=False,
 )
 def set_total_size_limit(project, request):
-    total_size_limit = request.POST.get("total_size_limit", "")
+    form = SetTotalSizeLimitForm(request.POST)
 
-    if not total_size_limit:
-        total_size_limit = None
-    else:
-        try:
-            total_size_limit = int(total_size_limit)
-        except ValueError:
-            raise HTTPBadRequest(
-                f"Invalid value for total size limit: {total_size_limit}, "
-                f"must be integer or empty string."
+    if not form.validate():
+        for field, errors in form.errors.items():
+            for error in errors:
+                request.session.flash(f"{field}: {error}", queue="error")
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.project.detail", project_name=project.normalized_name
             )
+        )
 
-        # The form is in GiB, but the database field is in bytes.
-        total_size_limit *= ONE_GIB
-
-        if total_size_limit < MAX_PROJECT_SIZE:
-            raise HTTPBadRequest(
-                f"Total project size can not be less than the default limit of "
-                f"{MAX_PROJECT_SIZE / ONE_GIB}GiB."
-            )
-
-    project.total_size_limit = total_size_limit
+    project.total_size_limit = form.total_size_limit.data
 
     request.session.flash(
         f"Set the total size limit on {project.name!r}", queue="success"
@@ -736,4 +704,38 @@ def reindex_project(project, request):
     )
     return HTTPSeeOther(
         request.route_path("admin.project.detail", project_name=project.normalized_name)
+    )
+
+
+@view_config(
+    route_name="admin.project.archive",
+    permission=Permissions.AdminProjectsWrite,
+    context=Project,
+    uses_session=True,
+    require_methods=["POST"],
+)
+def archive_project_view(project, request) -> HTTPSeeOther:
+    """
+    Archive a Project. Reversible action.
+    """
+    archive_project(project, request)
+    return HTTPSeeOther(
+        request.route_path("admin.project.detail", project_name=project.name)
+    )
+
+
+@view_config(
+    route_name="admin.project.unarchive",
+    permission=Permissions.AdminProjectsWrite,
+    context=Project,
+    uses_session=True,
+    require_methods=["POST"],
+)
+def unarchive_project_view(project, request) -> HTTPSeeOther:
+    """
+    Unarchive a Project. Reversible action.
+    """
+    unarchive_project(project, request)
+    return HTTPSeeOther(
+        request.route_path("admin.project.detail", project_name=project.name)
     )

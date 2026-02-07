@@ -6,8 +6,6 @@
     "stylelint-selector-bem-pattern"
   ],
   "ignoreFiles": [
-    "warehouse/static/sass/tools/bourbon/**/*",
-    "warehouse/static/sass/tools/neat/**/*",
     "warehouse/static/sass/resets/_boxsizing.scss",
     "warehouse/static/sass/resets/_reset.scss"
   ],

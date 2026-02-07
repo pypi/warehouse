@@ -1,16 +1,5 @@
-{#
- # Licensed under the Apache License, Version 2.0 (the "License");
- # you may not use this file except in compliance with the License.
- # You may obtain a copy of the License at
- #
- # http://www.apache.org/licenses/LICENSE-2.0
- #
- # Unless required by applicable law or agreed to in writing, software
- # distributed under the License is distributed on an "AS IS" BASIS,
- # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- # See the License for the specific language governing permissions and
- # limitations under the License.
--#}
+{# SPDX-License-Identifier: Apache-2.0 -#}
+
 {% extends "admin/base.html" %}
 
 {% import "admin/utils/pagination.html" as pagination %}
@@ -96,6 +85,27 @@
   </div>
   <!-- /.modal -->
 
+  {% elif project.lifecycle_status in ["archived", "archived-noindex"] %}
+    <div class="card card-info">
+      <div class="card-header">
+        <h3 class="card-title">
+          <i class="icon fas fa-info-circle"></i> Archived
+        </h3>
+        <div class="card-tools">
+          <span class="time">
+            <i class="fas fa-clock"></i> <time datetime="{{ project.lifecycle_status_changed }}" title="{{ project.lifecycle_status_changed }}">{{ project.lifecycle_status_changed }}</time>
+          </span>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>
+          This project is archived.
+          It should not allow any new uploads unless it's unarchived.
+        </p>
+      </div>
+    </div>
+    <!-- .card -->
+
   {% endif %}
 
 <div class="card card-primary" id="attributes">
@@ -119,50 +129,152 @@
           <td></td>
         </tr>
         <tr>
+          <td rowspan="2">Upload limit</td>
+          <td colspan="3">
+            {# Calculate effective limit #}
+            {% set effective_upload_limit = MAX_FILESIZE %}
+            {% set limit_source = "system default" %}
+            {% if project.upload_limit and project.upload_limit > effective_upload_limit %}
+              {% set effective_upload_limit = project.upload_limit %}
+              {% set limit_source = "project" %}
+            {% endif %}
+            {% if project.organization and project.organization.upload_limit and project.organization.upload_limit > effective_upload_limit %}
+              {% set effective_upload_limit = project.organization.upload_limit %}
+              {% set limit_source = "organization" %}
+            {% endif %}
+
+            <div class="alert alert-info">
+              <strong>Effective limit: {{ effective_upload_limit|filesizeformat(binary=True) }}</strong> (from {{ limit_source }})
+            </div>
+
+            <table class="table table-sm table-bordered">
+              <tr>
+                <td>System default:</td>
+                <td>{{ MAX_FILESIZE|filesizeformat(binary=True) }}</td>
+                <td><small class="text-muted">Not configurable</small></td>
+              </tr>
+              <tr>
+                <td>Project limit:</td>
+                <td>
+                  {% if project.upload_limit %}
+                    {{ project.upload_limit|filesizeformat(binary=True) }}
+                  {% else %}
+                    <span class="text-muted">Not set</span>
+                  {% endif %}
+                  {% if limit_source == "project" %}<span class="badge badge-success">Active</span>{% endif %}
+                </td>
+                <td><small class="text-muted">Configure below</small></td>
+              </tr>
+              {% if project.organization %}
+              <tr>
+                <td>Organization limit:</td>
+                <td>
+                  {% if project.organization.upload_limit %}
+                    {{ project.organization.upload_limit|filesizeformat(binary=True) }}
+                  {% else %}
+                    <span class="text-muted">Not set</span>
+                  {% endif %}
+                  {% if limit_source == "organization" %}<span class="badge badge-success">Active</span>{% endif %}
+                </td>
+                <td><a href="{{ request.route_path('admin.organization.detail', organization_id=project.organization.id) }}#organization-limits" class="btn btn-xs btn-outline-primary">Edit in organization</a></td>
+              </tr>
+              {% endif %}
+            </table>
+          </td>
+        </tr>
+        <tr>
           <form method="POST" action="{{ request.route_path('admin.project.set_upload_limit', project_name=project.normalized_name) }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-            <td>Upload limit</td>
-            <td>
-              {% if project.upload_limit %}
-              {{ project.upload_limit|filesizeformat(binary=True) }}
-              {% else %}
-              Default ({{ MAX_FILESIZE|filesizeformat(binary=True) }})
-              {% endif %}
-            </td>
-            <td>
-              {% if project.upload_limit %}
-              {% set upload_limit_value = project.upload_limit / ONE_MIB %}
-              {% else %}
-              {% set upload_limit_value = '' %}
-              {% endif %}
-              <input type="number" name="upload_limit" id="uploadLimit" min="{{ MAX_FILESIZE / ONE_MIB }}" max="{{ UPLOAD_LIMIT_CAP / ONE_MIB }}" step=1 value="{{ upload_limit_value|int }}"> MiB
-            </td>
-            <td>
-              <button type="submit" class="btn btn-primary btn-sm">Submit</button>
+            <td colspan="3">
+              <div class="form-inline">
+                <label for="uploadLimit" class="mr-3">Set file limit:</label>
+                {% if project.upload_limit %}
+                {% set upload_limit_value = project.upload_limit / ONE_MIB %}
+                {% else %}
+                {% set upload_limit_value = '' %}
+                {% endif %}
+                <input type="number" name="upload_limit" id="uploadLimit" class="form-control form-control-sm mr-2" min="{{ MAX_FILESIZE / ONE_MIB }}" max="{{ UPLOAD_LIMIT_CAP / ONE_MIB }}" step=1 value="{{ upload_limit_value|int }}">
+                <span class="mr-3">MiB</span>
+                <button type="submit" class="btn btn-primary btn-sm">Update</button>
+                {% if project.upload_limit and limit_source != "project" %}
+                  <small class="text-warning ml-3">⚠️ This limit is overridden by a more generous {{ limit_source }} limit</small>
+                {% endif %}
+              </div>
             </td>
           </form>
         </tr>
         <tr>
+          <td rowspan="2">Total size limit</td>
+          <td colspan="3">
+            {# Calculate effective limit #}
+            {% set effective_total_size_limit = MAX_PROJECT_SIZE %}
+            {% set size_limit_source = "system default" %}
+            {% if project.total_size_limit and project.total_size_limit > effective_total_size_limit %}
+              {% set effective_total_size_limit = project.total_size_limit %}
+              {% set size_limit_source = "project" %}
+            {% endif %}
+            {% if project.organization and project.organization.total_size_limit and project.organization.total_size_limit > effective_total_size_limit %}
+              {% set effective_total_size_limit = project.organization.total_size_limit %}
+              {% set size_limit_source = "organization" %}
+            {% endif %}
+
+            <div class="alert alert-info">
+              <strong>Effective limit: {{ effective_total_size_limit|filesizeformat(binary=True) }}</strong> (from {{ size_limit_source }})
+            </div>
+
+            <table class="table table-sm table-bordered">
+              <tr>
+                <td>System default:</td>
+                <td>{{ MAX_PROJECT_SIZE|filesizeformat(binary=True) }}</td>
+                <td><small class="text-muted">Not configurable</small></td>
+              </tr>
+              <tr>
+                <td>Project limit:</td>
+                <td>
+                  {% if project.total_size_limit %}
+                    {{ project.total_size_limit|filesizeformat(binary=True) }}
+                  {% else %}
+                    <span class="text-muted">Not set</span>
+                  {% endif %}
+                  {% if size_limit_source == "project" %}<span class="badge badge-success">Active</span>{% endif %}
+                </td>
+                <td><small class="text-muted">Configure below</small></td>
+              </tr>
+              {% if project.organization %}
+              <tr>
+                <td>Organization limit:</td>
+                <td>
+                  {% if project.organization.total_size_limit %}
+                    {{ project.organization.total_size_limit|filesizeformat(binary=True) }}
+                  {% else %}
+                    <span class="text-muted">Not set</span>
+                  {% endif %}
+                  {% if size_limit_source == "organization" %}<span class="badge badge-success">Active</span>{% endif %}
+                </td>
+                <td><a href="{{ request.route_path('admin.organization.detail', organization_id=project.organization.id) }}#organization-limits" class="btn btn-xs btn-outline-primary">Edit in organization</a></td>
+              </tr>
+              {% endif %}
+            </table>
+          </td>
+        </tr>
+        <tr>
           <form method="POST" action="{{ request.route_path('admin.project.set_total_size_limit', project_name=project.normalized_name) }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-            <td>Total size limit</td>
-            <td>
-              {% if project.total_size_limit %}
-              {{ project.total_size_limit|filesizeformat(binary=True) }}
-              {% else %}
-              Default ({{(MAX_PROJECT_SIZE)|filesizeformat(binary=True) }})
-              {% endif %}
-            </td>
-            <td>
-              {% if project.total_size_limit %}
-              {% set total_size_limit_value = project.total_size_limit // ONE_GIB %}
-              {% else %}
-              {% set total_size_limit_value = '' %}
-              {% endif %}
-              <input type="number" name="total_size_limit" id="totalSizeLimit" min="{{ MAX_PROJECT_SIZE // ONE_GIB }}" value="{{total_size_limit_value}}"> GiB
-            </td>
-            <td>
-              <button type="submit" class="btn btn-primary btn-sm">Submit</button>
+            <td colspan="3">
+              <div class="form-inline">
+                <label for="totalSizeLimit" class="mr-3">Set project limit:</label>
+                {% if project.total_size_limit %}
+                {% set total_size_limit_value = project.total_size_limit // ONE_GIB %}
+                {% else %}
+                {% set total_size_limit_value = '' %}
+                {% endif %}
+                <input type="number" name="total_size_limit" id="totalSizeLimit" class="form-control form-control-sm mr-2" min="{{ MAX_PROJECT_SIZE // ONE_GIB }}" value="{{total_size_limit_value}}">
+                <span class="mr-3">GiB</span>
+                <button type="submit" class="btn btn-primary btn-sm">Update</button>
+                {% if project.total_size_limit and size_limit_source != "project" %}
+                  <small class="text-warning ml-3">⚠️ This limit is overridden by a more generous {{ size_limit_source }} limit</small>
+                {% endif %}
+              </div>
             </td>
           </form>
         </tr>
@@ -172,8 +284,45 @@
   </div>
 </div> <!-- .card #attributes -->
 
+{% if project.organization %}
+<div class="card card-secondary" id="organization">
+  <div class="card-header">Organization</div>
+  <div class="card-body">
+    <div class="table-responsive p-0">
+      <table class="table table-hover table-striped">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Account Name</th>
+            <th>Active</th>
+            <th>Good Standing</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a href="{{ request.route_path('admin.organization.detail', organization_id=project.organization.id) }}">{{ project.organization.display_name }}</a></td>
+            <td>{{ project.organization.name }}</td>
+            <td>{{ project.organization.is_active }}</td>
+            <td>{{ project.organization.good_standing }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endif %}
+
 <div class="card card-secondary" id="maintainers">
-  <div class="card-header">Maintainers</div>
+  <div class="card-header">
+    <div class="card-title">Maintainers</div>
+    <div class="card-tools">
+      {% if maintainers %}
+      <span class="badge badge-primary">{{ maintainers|length }}</span>
+      {% endif %}
+      <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i>
+      </button>
+    </div>
+  </div>
   <div class="card-body">
     <div class="table-responsive p-0">
       <table class="table table-hover table-striped">
@@ -253,10 +402,41 @@
       </table>
     </div>
   </div>
-</div> <!-- .card #maintainers -->
+</div>
+
+<div class="card card-secondary" id="invitations">
+  <div class="card-header">Invitations</div>
+  <div class="card-body">
+  <div class="table-responsive p-0">
+        <table class="table table-hover table-striped">
+          <thead>
+            <tr>
+              <th>Username</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for invitation in project.invitations %}
+            <tr>
+              <td><a href="{{ request.route_path('admin.user.detail', username=invitation.user.username) }}">{{ invitation.user.username }}</a></td>
+              <td>{{ invitation.invite_status.value }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+    </div>
+  </div>
+</div>
 
 <div class="card card-info" id="releases">
-  <div class="card-header">Releases</div>
+  <div class="card-header">
+    <h3 class="card-title">Releases</h3>
+    <div class="card-tools">
+      {% if releases %}
+      <span class="badge badge-secondary">{{ releases|length }}</span>
+      {% endif %}
+    </div>
+  </div>
   <div class="card-body">
     <div class="table-responsive p-0">
       <table class="table table-hover table-striped">
@@ -300,28 +480,72 @@
       <table class="table table-hover table-striped">
         <thead>
           <tr>
-            <th>Publisher name</th>
+            <th>Publisher</th>
+            <th>Configuration</th>
             <th>URL</th>
-            <th>repr</th>
           </tr>
-          <tbody>
-            {% for pub in oidc_publishers %}
-            <tr>
-              <td>{{ pub.publisher_name }}</td>
-              {% if pub.publisher_url() %}
-              <td><a href="{{ pub.publisher_url() }}">{{ pub.publisher_url() }}</a></td>
-              {% else %}
-              <td>N/A</td>
-              {% endif %}
-              <td><code>{{ pub }}</code></td>
-            </tr>
-            {% endfor %}
-          </tbody>
         </thead>
+        <tbody>
+          {% for pub in oidc_publishers %}
+          <tr>
+            <td><strong>{{ pub.publisher_name }}</strong></td>
+            <td>
+              {% if pub.admin_details %}
+                <dl class="mb-0">
+                  {% for label, value in pub.admin_details %}
+                    <dt class="small d-inline-block">{{ label }}:</dt>
+                    <dd class="small d-inline"><code>{{ value }}</code></dd>
+                    <br>
+                  {% endfor %}
+                </dl>
+              {% else %}
+                <code>{{ pub }}</code>
+              {% endif %}
+            </td>
+            <td>
+              {% if pub.publisher_url() %}
+                <a href="{{ pub.publisher_url() }}" target="_blank">{{ pub.publisher_url() }}</a>
+              {% else %}
+                <span class="text-muted">N/A</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
       </table>
     </div>
     {% else %}
     No publishers configured.
+    {% endif %}
+  </div>
+</div> <!-- .card #oidc-publishers -->
+
+<div class="card card-info" id="alternate-repositories">
+  <div class="card-header">Alternate Repositories</div>
+  <div class="card-body">
+    {% if project.alternate_repositories %}
+    <div class="table-responsive p-0">
+      <table class="table table-hover table-striped">
+        <thead>
+          <tr>
+            <th>Repo name</th>
+            <th>URL</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for alt_repo in project.alternate_repositories %}
+          <tr>
+            <td>{{ alt_repo.name }}</td>
+            <td><a href="{{ alt_repo.url }}">{{ alt_repo.url }}</a></td>
+            <td>{{ alt_repo.description }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    No alternate repositories configured.
     {% endif %}
   </div>
 </div> <!-- .card #oidc-publishers -->
@@ -430,6 +654,9 @@
   <div class="card-header">
     <h3 class="card-title">Journals</h3>
     <div class="card-tools">
+      {% if journal %}
+      <span class="badge badge-secondary">{{ journal|length }}</span>
+      {% endif %}
       <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i>
       </button>
     </div>
@@ -551,6 +778,36 @@
     </div>
   </div>
 </form> <!-- .card #prohibitedProjectName -->
+
+<div class="card card-warning card-outline collapsed-card" id="archivedProjectName">
+  <div class="card-header">
+    <h3 class="card-title">Archive project</h3>
+    <div class="card-tools">
+      <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="card-footer">
+    <div class="float-right">
+      {% if project.lifecycle_status in ["archived", "archived-noindex"] %}
+        <form method="POST" action="{{ request.route_path('admin.project.unarchive', project_name=project.name) }}">
+          <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+          <button type="submit" class="btn btn-primary" title="{{ 'Unarchiving requires superuser privileges' if not request.has_permission(Permissions.AdminProjectsWrite) }}" {{ "disabled" if not request.has_permission(Permissions.AdminProjectsWrite) }}>
+            Unarchive project
+          </button>
+        </form>
+      {% else %}
+        <form method="POST" action="{{ request.route_path('admin.project.archive', project_name=project.name) }}">
+          <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+          <button type="submit" class="btn btn-primary {{ 'btn-disabled' if project.lifecycle_status == 'quarantine' }}" title="{{ 'Archiving requires superuser privileges' if not request.has_permission(Permissions.AdminProjectsWrite) }}" {{ "disabled" if not request.has_permission(Permissions.AdminProjectsWrite) }}>
+            Archive project
+          </button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+</div>
 
 <!-- Deletion form -->
 {% include 'delete.html' %}

@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import pretend
 import pytest
@@ -16,7 +6,12 @@ import pytest
 from webob.multidict import MultiDict
 from wtforms.validators import ValidationError
 
-from warehouse.forms import PasswordStrengthValidator, SetLocaleForm, URIValidator
+from warehouse.forms import (
+    PasswordStrengthValidator,
+    PreventHTMLTagsValidator,
+    SetLocaleForm,
+    URIValidator,
+)
 
 
 class TestURIValidator:
@@ -81,6 +76,45 @@ class TestPasswordStrengthValidator:
         with pytest.raises(ValidationError) as exc:
             validator(pretend.stub(), pretend.stub(data=password))
         assert str(exc.value) == expected
+
+
+class TestPreventHTMLTagsValidator:
+    @pytest.mark.parametrize(
+        "inbound_data",
+        [
+            "A link https://example.com",
+            "query string https://example.com?query=string",
+            "anchor https://example.com#fragment",
+            "qs and anchor https://example.com?query=string#fragment",
+            "path, qs, anchor https://example.com/path?query=string#fragment",
+            "A comment with a > character",
+            "A comment with a < character",
+            "A comment with a & character",
+            "A comment with a ' character",
+            'A comment with a " character',
+        ],
+    )
+    def test_valid(self, inbound_data):
+        validator = PreventHTMLTagsValidator()
+        validator(pretend.stub(), pretend.stub(data=inbound_data))
+
+    def test_invalid(self):
+        validator = PreventHTMLTagsValidator()
+        with pytest.raises(ValidationError) as exc:
+            validator(
+                pretend.stub(), pretend.stub(data="<img src='https://example.com'>")
+            )
+
+        assert str(exc.value) == "HTML tags are not allowed"
+
+    def test_custom_message(self):
+        validator = PreventHTMLTagsValidator(message="No HTML allowed")
+        with pytest.raises(ValidationError) as exc:
+            validator(
+                pretend.stub(), pretend.stub(data="<img src='https://example.com'>")
+            )
+
+        assert str(exc.value) == "No HTML allowed"
 
 
 class TestSetLocaleForm:

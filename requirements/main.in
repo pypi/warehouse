@@ -6,7 +6,7 @@ b2sdk
 Babel
 bcrypt
 boto3
-celery[sqs]>=5.3.5,<5.5
+celery[redis]>=5.6.2,<5.7
 celery-redbeat
 certifi
 click
@@ -24,26 +24,26 @@ html5lib
 humanize
 itsdangerous
 Jinja2>=2.8
-kombu[sqs]>=5.4,<5.5  # https://github.com/jazzband/pip-tools/issues/1577
+kombu[redis]>=5.6,<5.7  # https://github.com/jazzband/pip-tools/issues/1577
 limits
 linehaul
 lxml
 more-itertools
 msgpack
 natsort
+nh3
 opensearch-py
 orjson
-packaging>=23.2
+packaging>=24.2
 packaging_legacy
 paginate>=0.5.2
 paginate_sqlalchemy
 passlib>=1.6.4
 platformdirs>=4.2
 premailer
-psycopg[c]
-pycurl
+psycopg[binary]
 pydantic
-pyqrcode
+pyqrcode-binary
 pyramid>=2.0
 pymacaroons
 pyramid_jinja2>=2.5
@@ -60,12 +60,10 @@ PyJWT[crypto]>=2.8.0
 readme-renderer[md]>=36.0
 requests
 requests-aws4auth
-redis>=2.8.0,<6.0.0
+redis>=2.8.0,<7.0.0
 rfc3986
 sentry-sdk
-setuptools
-sigstore~=3.5.1
-pypi-attestations==0.0.13
+pypi-attestations==0.0.29
 sqlalchemy[asyncio]>=2.0,<3.0
 stdlib-list
 stripe

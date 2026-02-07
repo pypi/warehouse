@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 from unittest import mock
 
@@ -21,7 +11,7 @@ import venusian
 import zope.sqlalchemy
 
 from sqlalchemy import event
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.exc import DBAPIError, OperationalError
 
 from warehouse import db
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
@@ -32,6 +22,7 @@ from warehouse.db import (
     _configure_alembic,
     _create_session,
     includeme,
+    unwrap_dbapi_exceptions,
 )
 
 
@@ -68,6 +59,9 @@ def test_listens_for(monkeypatch):
     @db.listens_for(target, identifier, *args, **kwargs)
     def handler(config):
         pass
+
+    # Ensure the function is called
+    handler(None)
 
     assert venusian_attach.calls == [
         pretend.call(handler, mock.ANY, category="warehouse")
@@ -248,3 +242,33 @@ def test_includeme(monkeypatch):
         )
     ]
     assert config.registry["sqlalchemy.engine"] is engine
+
+
+def test_unwrap_dbapi_exceptions():
+    original_exception = psycopg.OperationalError()
+    sqlalchemy_exception = DBAPIError("foo", {}, original_exception)
+    context = pretend.stub(
+        sqlalchemy_exception=sqlalchemy_exception,
+        original_exception=original_exception,
+    )
+
+    with pytest.raises(psycopg.OperationalError) as e:
+        unwrap_dbapi_exceptions(context)
+
+    assert e.value is original_exception
+
+
+def test_unwrap_dbapi_exceptions_no_op():
+    # Not a DBAPIError
+    context = pretend.stub(
+        sqlalchemy_exception=OperationalError("foo", {}, None),
+        original_exception=None,
+    )
+    unwrap_dbapi_exceptions(context)
+
+    # No original exception
+    context = pretend.stub(
+        sqlalchemy_exception=DBAPIError("foo", {}, None),
+        original_exception=None,
+    )
+    unwrap_dbapi_exceptions(context)

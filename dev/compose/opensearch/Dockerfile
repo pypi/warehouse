@@ -1,4 +1,4 @@
-FROM opensearchproject/opensearch:2.12.0
+FROM opensearchproject/opensearch:2.19.4
 
 RUN opensearch-plugin remove opensearch-skills --purge
 RUN opensearch-plugin remove opensearch-ml --purge

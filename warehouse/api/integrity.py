@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 from pyramid.httpexceptions import HTTPForbidden, HTTPNotAcceptable, HTTPNotFound
 from pyramid.request import Request
@@ -20,24 +10,22 @@ from warehouse.cache.origin import origin_cache
 from warehouse.packaging.models import File
 from warehouse.utils.cors import _CORS_HEADERS
 
-MIME_TEXT_HTML = "text/html"
-MIME_PYPI_INTEGRITY_V1_HTML = "application/vnd.pypi.integrity.v1+html"
+MIME_APPLICATION_JSON = "application/json"
 MIME_PYPI_INTEGRITY_V1_JSON = "application/vnd.pypi.integrity.v1+json"
 
 
-def _select_content_type(request: Request) -> str:
+def _select_content_type(request: Request) -> str | None:
     offers = request.accept.acceptable_offers(
         [
             # JSON currently has the highest priority.
             MIME_PYPI_INTEGRITY_V1_JSON,
-            MIME_TEXT_HTML,
-            MIME_PYPI_INTEGRITY_V1_HTML,
+            MIME_APPLICATION_JSON,
         ]
     )
 
-    # Default case: JSON.
+    # Client provided an Accept header, but none of the offers matched.
     if not offers:
-        return MIME_PYPI_INTEGRITY_V1_JSON
+        return None
     else:
         return offers[0][0]
 
@@ -63,7 +51,7 @@ def provenance_for_file(file: File, request: Request):
     # Determine our response content-type. For the time being, only the JSON
     # type is accepted.
     request.response.content_type = _select_content_type(request)
-    if request.response.content_type != MIME_PYPI_INTEGRITY_V1_JSON:
+    if not request.response.content_type:
         return HTTPNotAcceptable(json={"message": "Request not acceptable"})
 
     if request.flags.enabled(AdminFlagValue.DISABLE_PEP740):

@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 """
 Add a table to hold blacklisted projects
 
@@ -52,22 +42,18 @@ def upgrade():
 
     # Setup a trigger that will ensure that we never commit a name that hasn't
     # been normalized to our blacklist.
-    op.execute(
-        """ CREATE OR REPLACE FUNCTION ensure_normalized_blacklist()
+    op.execute(""" CREATE OR REPLACE FUNCTION ensure_normalized_blacklist()
             RETURNS TRIGGER AS $$
             BEGIN
                 NEW.name = normalize_pep426_name(NEW.name);
                 RETURN NEW;
             END;
             $$ LANGUAGE plpgsql;
-        """
-    )
-    op.execute(
-        """ CREATE TRIGGER normalize_blacklist
+        """)
+    op.execute(""" CREATE TRIGGER normalize_blacklist
             AFTER INSERT OR UPDATE OR DELETE ON blacklist
             FOR EACH ROW EXECUTE PROCEDURE ensure_normalized_blacklist();
-        """
-    )
+        """)
 
 
 def downgrade():

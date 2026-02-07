@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 from collections import OrderedDict
 
@@ -19,10 +9,11 @@ from pyramid.authorization import Allow, Authenticated
 from pyramid.location import lineage
 
 from warehouse.authnz import Permissions
+from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GIB, ONE_MIB
 from warehouse.macaroons import caveats
 from warehouse.macaroons.models import Macaroon
 from warehouse.oidc.models import GitHubPublisher
-from warehouse.organizations.models import TeamProjectRoleType
+from warehouse.organizations.models import OrganizationType, TeamProjectRoleType
 from warehouse.packaging.models import (
     File,
     Project,
@@ -155,17 +146,7 @@ class TestProject:
 
         publisher = GitHubPublisherFactory.create(projects=[project])
 
-        acls = []
-        for location in lineage(project):
-            try:
-                acl = location.__acl__
-            except AttributeError:
-                continue
-
-            if acl and callable(acl):
-                acl = acl()
-
-            acls.extend(acl)
+        acls = [item for location in lineage(project) for item in location.__acl__()]
 
         assert acls == [
             (
@@ -289,17 +270,7 @@ class TestProject:
 
         publisher = GitHubPublisherFactory.create(projects=[project])
 
-        acls = []
-        for location in lineage(project):
-            try:
-                acl = location.__acl__
-            except AttributeError:
-                continue
-
-            if acl and callable(acl):
-                acl = acl()
-
-            acls.extend(acl)
+        acls = [item for location in lineage(project) for item in location.__acl__()]
 
         _perms_read_and_upload = [
             Permissions.ProjectsRead,
@@ -361,6 +332,89 @@ class TestProject:
             [
                 (Allow, f"user:{maintainer1.user.id}", _perms_read_and_upload),
                 (Allow, f"user:{maintainer2.user.id}", _perms_read_and_upload),
+            ],
+            key=lambda x: x[1],
+        )
+
+    def test_acl_for_archived_project(self, db_session):
+        """
+        If a Project is archived, the Project ACL should disallow uploads.
+        """
+        project = DBProjectFactory.create(lifecycle_status="archived")
+        owner1 = DBRoleFactory.create(project=project)
+        owner2 = DBRoleFactory.create(project=project)
+
+        # Maintainers should not appear in the ACLs, since they only have
+        # upload permissions, and archived projects don't allow upload
+        DBRoleFactory.create_batch(2, project=project, role_name="Maintainer")
+
+        organization = DBOrganizationFactory.create()
+        owner3 = DBOrganizationRoleFactory.create(organization=organization)
+        DBOrganizationProjectFactory.create(organization=organization, project=project)
+
+        team = DBTeamFactory.create()
+        owner4 = DBTeamRoleFactory.create(team=team)
+        DBTeamProjectRoleFactory.create(
+            team=team, project=project, role_name=TeamProjectRoleType.Owner
+        )
+
+        # Publishers should not appear in the ACLs, since they only have upload
+        # permissions, and archived projects don't allow upload
+        GitHubPublisherFactory.create(projects=[project])
+
+        acls = [item for location in lineage(project) for item in location.__acl__()]
+
+        _perms_read_and_write = [
+            Permissions.ProjectsRead,
+            Permissions.ProjectsWrite,
+        ]
+        assert acls == [
+            (
+                Allow,
+                "group:admins",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProhibitedProjectsWrite,
+                    Permissions.AdminProhibitedUsernameWrite,
+                    Permissions.AdminProjectsDelete,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsSetLimit,
+                    Permissions.AdminProjectsWrite,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                ),
+            ),
+            (
+                Allow,
+                "group:moderators",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsSetLimit,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                ),
+            ),
+            (
+                Allow,
+                "group:observers",
+                Permissions.APIObservationsAdd,
+            ),
+            (
+                Allow,
+                Authenticated,
+                Permissions.SubmitMalwareObservation,
+            ),
+        ] + sorted(
+            [
+                (Allow, f"user:{owner1.user.id}", _perms_read_and_write),
+                (Allow, f"user:{owner2.user.id}", _perms_read_and_write),
+                (Allow, f"user:{owner3.user.id}", _perms_read_and_write),
+                (Allow, f"user:{owner4.user.id}", _perms_read_and_write),
             ],
             key=lambda x: x[1],
         )
@@ -477,6 +531,18 @@ class TestProject:
             .filter_by(macaroon_id=macaroon.id)
             .count()
             == 0
+        )
+
+    def test_active_and_yanked_releases(self, db_session):
+        project = DBProjectFactory.create()
+        active_release0 = DBReleaseFactory.create(project=project)
+        active_release1 = DBReleaseFactory.create(project=project)
+        yanked_release0 = DBReleaseFactory.create(project=project, yanked=True)
+
+        assert len(project.active_releases) == len([active_release0, active_release1])
+        assert len(project.yanked_releases) == len([yanked_release0])
+        assert len(project.releases) == len(
+            [active_release0, active_release1, yanked_release0]
         )
 
 
@@ -836,11 +902,7 @@ class TestRelease:
                 acl = location.__acl__
             except AttributeError:
                 continue
-
-            if acl and callable(acl):
-                acl = acl()
-
-            acls.extend(acl)
+            acls.extend(acl())
 
         assert acls == [
             (
@@ -1250,3 +1312,169 @@ class TestFile:
         )
 
         assert rfile.pretty_wheel_tags == ["Source"]
+
+
+class TestProjectLimitProperties:
+    def test_upload_limit_size_with_no_limits(self, db_session):
+
+        project = DBProjectFactory.create(upload_limit=None)
+        assert project.upload_limit_size == MAX_FILESIZE
+
+    def test_upload_limit_size_with_project_limit(self, db_session):
+
+        project_limit = 50 * ONE_MIB
+        project = DBProjectFactory.create(upload_limit=project_limit)
+
+        # Should use the most generous limit
+        expected = max(MAX_FILESIZE, project_limit)
+        assert project.upload_limit_size == expected
+
+    def test_upload_limit_size_with_organization_limit(self, db_session):
+
+        org_limit = 100 * ONE_MIB
+        organization = DBOrganizationFactory.create(
+            orgtype=OrganizationType.Company, upload_limit=org_limit
+        )
+        project = DBProjectFactory.create(upload_limit=None)
+
+        # Manually set organization relationship since it's complex
+        project.organization = organization
+
+        # Should use the most generous limit
+        expected = max(MAX_FILESIZE, org_limit)
+        assert project.upload_limit_size == expected
+
+    def test_upload_limit_size_with_both_limits(self, db_session):
+
+        project_limit = 50 * ONE_MIB
+        org_limit = 100 * ONE_MIB
+        organization = DBOrganizationFactory.create(
+            orgtype=OrganizationType.Company, upload_limit=org_limit
+        )
+        project = DBProjectFactory.create(upload_limit=project_limit)
+        project.organization = organization
+
+        # Should use the most generous limit
+        expected = max(MAX_FILESIZE, project_limit, org_limit)
+        assert project.upload_limit_size == expected
+
+    def test_total_size_limit_value_with_no_limits(self, db_session):
+
+        project = DBProjectFactory.create(total_size_limit=None)
+        assert project.total_size_limit_value == MAX_PROJECT_SIZE
+
+    def test_total_size_limit_value_with_project_limit(self, db_session):
+
+        project_limit = 50 * ONE_GIB
+        project = DBProjectFactory.create(total_size_limit=project_limit)
+
+        # Should use the most generous limit
+        expected = max(MAX_PROJECT_SIZE, project_limit)
+        assert project.total_size_limit_value == expected
+
+    def test_total_size_limit_value_with_organization_limit(self, db_session):
+
+        org_limit = 100 * ONE_GIB
+        organization = DBOrganizationFactory.create(
+            orgtype=OrganizationType.Company, total_size_limit=org_limit
+        )
+        project = DBProjectFactory.create(total_size_limit=None)
+        project.organization = organization
+
+        # Should use the most generous limit
+        expected = max(MAX_PROJECT_SIZE, org_limit)
+        assert project.total_size_limit_value == expected
+
+    def test_total_size_limit_value_with_both_limits(self, db_session):
+
+        project_limit = 50 * ONE_GIB
+        org_limit = 100 * ONE_GIB
+        organization = DBOrganizationFactory.create(
+            orgtype=OrganizationType.Company, total_size_limit=org_limit
+        )
+        project = DBProjectFactory.create(total_size_limit=project_limit)
+        project.organization = organization
+
+        # Should use the most generous limit
+        expected = max(MAX_PROJECT_SIZE, project_limit, org_limit)
+        assert project.total_size_limit_value == expected
+
+    def test_upload_limit_size_edge_case_with_zero_limits(self, db_session):
+        """Edge case: test behavior with zero/negative limits"""
+
+        # Create organization with zero limit (should be filtered out)
+        organization = DBOrganizationFactory.create(
+            orgtype=OrganizationType.Company, upload_limit=0
+        )
+        project = DBProjectFactory.create(upload_limit=0)
+        project.organization = organization
+
+        # Should fall back to system default since zero limits are filtered out
+        assert project.upload_limit_size == MAX_FILESIZE
+
+    def test_total_size_limit_value_edge_case_with_zero_limits(self, db_session):
+        """Edge case: test behavior with zero/negative limits"""
+
+        # Create organization with zero limit (should be filtered out)
+        organization = DBOrganizationFactory.create(
+            orgtype=OrganizationType.Company, total_size_limit=0
+        )
+        project = DBProjectFactory.create(total_size_limit=0)
+        project.organization = organization
+
+        # Should fall back to system default since zero limits are filtered out
+        assert project.total_size_limit_value == MAX_PROJECT_SIZE
+
+    def test_upload_limit_size_edge_case_all_none_fallback(self, db_session):
+        """Edge case: test fallback when all custom limits are None"""
+
+        # Create project with no organization and no limits
+        project = DBProjectFactory.create(upload_limit=None, total_size_limit=None)
+        # Explicitly ensure no organization
+        project.organization = None
+
+        # Should return system default even with all None values
+        assert project.upload_limit_size == MAX_FILESIZE
+
+    def test_total_size_limit_value_edge_case_all_none_fallback(self, db_session):
+        """Edge case: test fallback when all custom limits are None"""
+
+        # Create project with no organization and no limits
+        project = DBProjectFactory.create(upload_limit=None, total_size_limit=None)
+        # Explicitly ensure no organization
+        project.organization = None
+
+        # Should return system default even with all None values
+        assert project.total_size_limit_value == MAX_PROJECT_SIZE
+
+    def test_upload_limit_size_large_values(self, db_session):
+        """Edge case: test with very large limit values within INTEGER range"""
+
+        # Test with large values (1GB) - within INTEGER range
+        large_limit = 1000 * ONE_MIB  # 1GB
+        organization = DBOrganizationFactory.create(
+            orgtype=OrganizationType.Company, upload_limit=large_limit
+        )
+        project = DBProjectFactory.create(upload_limit=500 * ONE_MIB)  # 500MB
+        project.organization = organization
+
+        # Should use the largest value (1GB org limit)
+        expected = max(MAX_FILESIZE, 500 * ONE_MIB, large_limit)
+        assert project.upload_limit_size == expected
+        assert project.upload_limit_size == large_limit
+
+    def test_total_size_limit_value_large_values(self, db_session):
+        """Edge case: test with very large limit values"""
+
+        # Test with very large values (10TB)
+        large_limit = 10000 * ONE_GIB
+        organization = DBOrganizationFactory.create(
+            orgtype=OrganizationType.Company, total_size_limit=large_limit
+        )
+        project = DBProjectFactory.create(total_size_limit=5000 * ONE_GIB)
+        project.organization = organization
+
+        # Should use the largest value (10TB org limit)
+        expected = max(MAX_PROJECT_SIZE, 5000 * ONE_GIB, large_limit)
+        assert project.total_size_limit_value == expected
+        assert project.total_size_limit_value == large_limit

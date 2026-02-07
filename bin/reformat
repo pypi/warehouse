@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -ex
 
-find . -name '*.py' -exec python -m pyupgrade --py312-plus {} +
+find . -name '*.py' -exec python -m pyupgrade --py313-plus {} +
 python -m isort *.py warehouse/ tests/
 python -m black *.py warehouse/ tests/
+python -m djlint --reformat ./warehouse/templates ./docs/blog

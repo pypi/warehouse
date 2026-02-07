@@ -1,20 +1,11 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import re
 
 from pyramid.httpexceptions import HTTPSeeOther
 from sqlalchemy.sql import func
 
+from warehouse.accounts.services import IUserService
 from warehouse.events.tags import EventTag
 from warehouse.packaging.interfaces import IDocsStorage
 from warehouse.packaging.models import (
@@ -73,7 +64,11 @@ def confirm_project(
 
 
 def prohibit_and_remove_project(
-    project: Project | str, request, comment: str, flash: bool = True
+    project: Project | str,
+    request,
+    comment: str | None = None,
+    observation_kind: str | None = None,
+    flash: bool = True,
 ):
     """
     View helper to prohibit and remove a project.
@@ -83,7 +78,10 @@ def prohibit_and_remove_project(
     # Add our requested prohibition.
     request.db.add(
         ProhibitedProjectName(
-            name=project_name, comment=comment, prohibited_by=request.user
+            name=project_name,
+            comment=comment,
+            observation_kind=observation_kind,
+            prohibited_by=request.user,
         )
     )
     # Go through and delete the project and everything related to it so that
@@ -102,22 +100,32 @@ def quarantine_project(project: Project, request, flash=True) -> None:
     """
     Quarantine a project. Reversible action.
     """
+    # TODO: This should probably be extracted to somewhere more general for tasks,
+    #  but it got confusing where to add it in the context of this PR.
+    #  Since JournalEntry has FK to `User`, it needs to be a real object.
+    user_service = request.find_service(IUserService)
+    actor = request.user or user_service.get_admin_user()
+
     project.lifecycle_status = LifecycleStatus.QuarantineEnter
-    project.lifecycle_status_note = f"Quarantined by {request.user.username}."
+    project.lifecycle_status_note = f"Quarantined by {actor.username}."
 
     project.record_event(
         tag=EventTag.Project.ProjectQuarantineEnter,
         request=request,
-        additional={"submitted_by": request.user.username},
+        additional={"submitted_by": actor.username},
     )
 
     request.db.add(
         JournalEntry(
             name=project.name,
             action="project quarantined",
-            submitted_by=request.user,
+            submitted_by=actor,
         )
     )
+
+    # freeze associated user accounts
+    for user in project.users:
+        user.is_frozen = True
 
     if flash:
         request.session.flash(
@@ -185,3 +193,47 @@ def destroy_docs(project, request, flash=True):
         request.session.flash(
             f"Deleted docs for project {project.name!r}", queue="success"
         )
+
+
+def archive_project(project: Project, request) -> None:
+    if (
+        project.lifecycle_status is not None
+        and project.lifecycle_status != LifecycleStatus.QuarantineExit
+    ):
+        request.session.flash(
+            f"Cannot archive project with status {project.lifecycle_status}",
+            queue="error",
+        )
+        return
+
+    project.lifecycle_status = LifecycleStatus.ArchivedNoindex
+    project.record_event(
+        tag=EventTag.Project.ProjectArchiveEnter,
+        request=request,
+        additional={
+            "submitted_by": request.user.username,
+        },
+    )
+    request.session.flash("Project archived", queue="success")
+
+
+def unarchive_project(project: Project, request) -> None:
+    if project.lifecycle_status not in [
+        LifecycleStatus.Archived,
+        LifecycleStatus.ArchivedNoindex,
+    ]:
+        request.session.flash(
+            "Can only unarchive an archived project",
+            queue="error",
+        )
+        return
+
+    project.lifecycle_status = None
+    project.record_event(
+        tag=EventTag.Project.ProjectArchiveExit,
+        request=request,
+        additional={
+            "submitted_by": request.user.username,
+        },
+    )
+    request.session.flash("Project unarchived", queue="success")

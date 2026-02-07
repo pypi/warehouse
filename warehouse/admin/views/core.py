@@ -1,25 +1,23 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 from pyramid.view import view_config
-from sqlalchemy import func
+from sqlalchemy import distinct, func
 
 from warehouse.authnz import Permissions
 from warehouse.observations.models import Observation, ObservationKind
+from warehouse.organizations.models import (
+    Organization,
+    OrganizationApplication,
+    OrganizationProject,
+    OrganizationRole,
+    OrganizationType,
+)
+from warehouse.subscriptions.models import StripeSubscription, StripeSubscriptionStatus
 
 
 @view_config(
     route_name="admin.dashboard",
-    renderer="admin/dashboard.html",
+    renderer="warehouse.admin:templates/admin/dashboard.html",
     permission=Permissions.AdminDashboardRead,
     uses_session=True,
 )
@@ -36,4 +34,105 @@ def dashboard(request):
     else:
         malware_reports_count = None
 
-    return {"malware_reports_count": malware_reports_count}
+    organizations_count = (
+        request.db.query(Organization.orgtype, func.count(Organization.id))
+        .group_by(Organization.orgtype)
+        .all()
+    )
+    organizations_count = {k.value: v for k, v in organizations_count}
+    organizations_count["Total"] = sum([v for k, v in organizations_count.items()])
+
+    organization_applications_count = (
+        request.db.query(
+            OrganizationApplication.status, func.count(OrganizationApplication.id)
+        )
+        .group_by(OrganizationApplication.status)
+        .all()
+    )
+    organization_applications_count = {
+        k.value: v for k, v in organization_applications_count
+    }
+    organization_applications_count["Total"] = sum(
+        [v for k, v in organization_applications_count.items()]
+    )
+
+    active_company_organizations = (
+        request.db.query(func.count(Organization.id))
+        .filter(Organization.orgtype == OrganizationType.Company)
+        .filter(
+            Organization.subscriptions.any(
+                StripeSubscription.status.in_(
+                    (
+                        StripeSubscriptionStatus.Active.value,
+                        StripeSubscriptionStatus.Trialing.value,
+                    )
+                )
+            )
+        )
+        .scalar()
+    )
+    active_company_organization_users = (
+        request.db.query(func.count(OrganizationRole.id))
+        .join(Organization)
+        .filter(Organization.orgtype == OrganizationType.Company)
+        .filter(
+            Organization.subscriptions.any(
+                StripeSubscription.status.in_(
+                    (
+                        StripeSubscriptionStatus.Active.value,
+                        StripeSubscriptionStatus.Trialing.value,
+                    )
+                )
+            )
+        )
+        .scalar()
+    )
+
+    # New statistics: Organizations with projects by type
+    orgs_with_projects = (
+        request.db.query(
+            Organization.orgtype,
+            func.count(distinct(Organization.id)).label("org_count"),
+        )
+        .join(
+            OrganizationProject, Organization.id == OrganizationProject.organization_id
+        )
+        .group_by(Organization.orgtype)
+        .all()
+    )
+    orgs_with_projects = {k.value: v for k, v in orgs_with_projects}
+    orgs_with_projects["Total"] = sum(orgs_with_projects.values())
+
+    # Organizations with more than 1 member by type
+    orgs_with_members_subquery = (
+        request.db.query(
+            Organization.orgtype,
+            Organization.id,
+            func.count(OrganizationRole.user_id).label("members"),
+        )
+        .join(OrganizationRole, Organization.id == OrganizationRole.organization_id)
+        .group_by(Organization.id, Organization.orgtype)
+        .subquery()
+    )
+
+    orgs_with_multiple_members = (
+        request.db.query(
+            orgs_with_members_subquery.c.orgtype,
+            func.count(orgs_with_members_subquery.c.id).label("org_count"),
+        )
+        .filter(orgs_with_members_subquery.c.members > 1)
+        .group_by(orgs_with_members_subquery.c.orgtype)
+        .all()
+    )
+    orgs_with_multiple_members = {k.value: v for k, v in orgs_with_multiple_members}
+    orgs_with_multiple_members["Total"] = sum(orgs_with_multiple_members.values())
+
+    return {
+        "malware_reports_count": malware_reports_count,
+        "organizations_count": organizations_count,
+        "organization_applications_count": organization_applications_count,
+        "active_company_organizations": active_company_organizations,
+        "active_company_organization_users": active_company_organization_users,
+        "orgs_with_projects": orgs_with_projects,
+        "orgs_with_multiple_members": orgs_with_multiple_members,
+    }

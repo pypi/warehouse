@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 """
 Record when the password was set
 
@@ -34,25 +24,21 @@ def upgrade():
     )
     op.alter_column("accounts_user", "password_date", server_default=sa.text("now()"))
 
-    op.execute(
-        """ CREATE FUNCTION update_password_date()
+    op.execute(""" CREATE FUNCTION update_password_date()
             RETURNS TRIGGER AS $$
                 BEGIN
                     NEW.password_date = now();
                     RETURN NEW;
                 END;
             $$ LANGUAGE plpgsql;
-        """
-    )
+        """)
 
-    op.execute(
-        """ CREATE TRIGGER update_user_password_date
+    op.execute(""" CREATE TRIGGER update_user_password_date
             BEFORE UPDATE OF password ON accounts_user
             FOR EACH ROW
             WHEN (OLD.password IS DISTINCT FROM NEW.password)
             EXECUTE PROCEDURE update_password_date()
-        """
-    )
+        """)
 
 
 def downgrade():

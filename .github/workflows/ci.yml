@@ -15,21 +15,21 @@ concurrency:
 jobs:
   build:
     if: github.repository == 'pypi/warehouse'
-    runs-on: depot-ubuntu-22.04-arm
+    runs-on: depot-ubuntu-24.04-arm
     outputs:
       buildId: ${{ steps.build.outputs.build-id}}
     permissions:
       id-token: write
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
       - name: Set up Depot CLI
-        uses: depot/setup-action@v1
+        uses: depot/setup-action@15c09a5f77a0840ad4bce955686522a257853461 # v1.7.1
       - name: Build image
         id: build
-        uses: depot/build-push-action@v1
+        uses: depot/build-push-action@5f3b3c2e5a00f0093de47f657aeaefcedff27d18 # v1.17.0
         with:
           save: true
           build-args: |
@@ -45,8 +45,10 @@ jobs:
         include:
           - name: Tests
             command: bin/tests --postgresql-host postgres
+            runs_on: depot-ubuntu-24.04-arm-4
           - name: Lint
             command: bin/lint
+            runs_on: depot-ubuntu-24.04-arm-4
           - name: User Documentation
             command: bin/user-docs
           - name: Developer Documentation
@@ -57,7 +59,7 @@ jobs:
             command: bin/licenses
           - name: Translations
             command: bin/translations
-    runs-on: depot-ubuntu-22.04-arm
+    runs-on: ${{ (matrix.runs_on != null) && matrix.runs_on || 'depot-ubuntu-24.04-arm' }}
     container:
       image: registry.depot.dev/rltf7cln5v:${{ needs.build.outputs.buildId }}
       env:
@@ -66,7 +68,7 @@ jobs:
       id-token: write
     services:
       postgres:
-        image: ${{ (matrix.name == 'Tests') && 'postgres:16.1' || '' }}
+        image: ${{ (matrix.name == 'Tests') && 'postgres:17.5' || '' }}
         ports:
           - 5432:5432
         env:
@@ -85,12 +87,12 @@ jobs:
     name: ${{ matrix.name }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
       - name: Cache mypy results
         if: ${{ (matrix.name == 'Lint') }}
-        uses: actions/cache@v4
+        uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
         with:
           path: |
               dev/.mypy_cache
@@ -101,7 +103,7 @@ jobs:
   check_db:
     name: Check Database Consistency
     needs: build
-    runs-on: depot-ubuntu-22.04-arm
+    runs-on: depot-ubuntu-24.04-arm
     continue-on-error: true
     container:
       image: registry.depot.dev/rltf7cln5v:${{ needs.build.outputs.buildId }}
@@ -109,7 +111,7 @@ jobs:
       id-token: write
     services:
       postgres:
-        image: postgres:16.1
+        image: postgres:17.5
         ports:
         - 5432:5432
         env:
@@ -120,17 +122,19 @@ jobs:
         options: --health-cmd "pg_isready --username=postgres --dbname=postgres" --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
       - name: Dotenv Action
         # We need to load the environment variables to run the CLI
         id: dotenv
-        uses: falti/dotenv-action@v1
+        uses: falti/dotenv-action@f4656c46de6bc223dda660f6724d52537bc0642a # v1.1.5
         with:
           path: dev/environment
           export-variables: true
           keys-case: upper
+      - name: Install jq
+        run: apt-get update && apt-get install -y jq
       - name: Check Database
         run: bin/db-check
         env:

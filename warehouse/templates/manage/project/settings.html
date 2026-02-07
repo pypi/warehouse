@@ -1,50 +1,37 @@
-{#
- # Licensed under the Apache License, Version 2.0 (the "License");
- # you may not use this file except in compliance with the License.
- # You may obtain a copy of the License at
- #
- # http://www.apache.org/licenses/LICENSE-2.0
- #
- # Unless required by applicable law or agreed to in writing, software
- # distributed under the License is distributed on an "AS IS" BASIS,
- # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- # See the License for the specific language governing permissions and
- # limitations under the License.
--#}
+{# SPDX-License-Identifier: Apache-2.0 -#}
 {% extends "manage_project_base.html" %}
-
-{% set active_tab = 'settings' %}
-
-{% block title %}{% trans project_name=project.name %}Manage '{{ project_name }}' settings{% endtrans %}{% endblock %}
-
+{% set active_tab = "settings" %}
+{% block title %}
+  {% trans project_name=project.name %}Manage '{{ project_name }}' settings{% endtrans %}
+{% endblock %}
 {% block main %}
   <h2>{% trans %}Project settings{% endtrans %}</h2>
   <ul>
-    <li>{% trans  %}Project size:{% endtrans %}
-    {{ project.total_size|filesizeformat(binary=True) }}</li>
-    <li>Project upload limit:
-    {% if project.upload_limit %}
-      {{ project.upload_limit|filesizeformat(binary=True) }}
-    {% else %}
-      Default ({{  MAX_FILESIZE|filesizeformat(binary=True) }})
-    {% endif %}
-    {% trans help_url=request.help_url(_anchor='file-size-limit') %}
-    <a href="{{ help_url }}"> (request an increase) </a>{% endtrans %}</li>
-    <li>Project total size limit:
-    {% if project.total_size_limit %}
-      {{ project.total_size_limit|filesizeformat(binary=True) }}
-    {% else %}
-      Default ({{  MAX_PROJECT_SIZE|filesizeformat(binary=True) }})
-    {% endif %}
-    {% trans help_url=request.help_url(_anchor='project-size-limit') %}
-    <a href="{{ help_url }}"> (request an increase) </a>{% endtrans %}</li>
+    <li>
+      {% trans %}Project size:{% endtrans %}
+      {{ project.total_size|filesizeformat(binary=True) }}
+    </li>
+    <li>
+      Project upload limit:
+      {% if project.upload_limit_size == MAX_FILESIZE %}Default{% endif %}
+      {{ project.upload_limit_size|filesizeformat(binary=True) }}
+      {% trans help_url=request.user_docs_url("/project-management/storage-limits", anchor="requesting-a-file-size-limit-increase") %}
+      <a href="{{ help_url }}">(request an increase)</a>{% endtrans %}
+    </li>
+    <li>
+      Project total size limit:
+      {% if project.total_size_limit_value == MAX_PROJECT_SIZE %}Default{% endif %}
+      {{ project.total_size_limit_value|filesizeformat(binary=True) }}
+      {% trans help_url=request.user_docs_url("/project-management/storage-limits", anchor="requesting-a-project-size-limit-increase") %}
+      <a href="{{ help_url }}">(request an increase)</a>{% endtrans %}
+    </li>
   </ul>
-
   <h3>{% trans %}API tokens{% endtrans %}</h3>
   <p>{% trans %}API tokens provide an alternative way to authenticate when uploading packages to PyPI.{% endtrans %}</p>
   {% if user.has_primary_verified_email %}
     <p class="no-bottom-padding">
-      <a href="{{ request.route_path('manage.account.token', _query={'selected_project': project.name}) }}" class="button button--primary">
+      <a href="{{ request.route_path('manage.account.token', _query={'selected_project': project.name}) }}"
+         class="button button--primary">
         {% trans project_name=project.name %}Create a token for {{ project_name }}{% endtrans %}
       </a>
     </p>
@@ -52,35 +39,39 @@
     <p class="no-bottom-padding">
       {% trans href='{url}#account-emails'.format(url=request.route_path('manage.account')), project_name=project.name %}
       <a href="{{ href }}">Verify your primary email address</a> to add an API token for {{ project_name }}.
-      {% endtrans %}
-    </p>
-  {% endif %}
-
-  <div class="callout-block" data-controller="dismissable" data-dismissable-identifier="settings">
-    <h3>{% trans %}Project description and sidebar{% endtrans %}</h3>
-    <p>
-      {% trans project_name=project.name, pyproject_args_href='https://packaging.python.org/tutorials/packaging-projects/#creating-pyproject-toml', twine_docs_href='https://twine.readthedocs.io/', distribution_href='https://packaging.python.org/guides/section-build-and-publish/' %}
-        To set the '{{ project_name }}' description, author, links, classifiers,
-        and other details for your next release, use the
-        <a href="{{ pyproject_args_href }}" rel="noopener" target="_blank"><code>project</code>
-        metadata fields in your <code>pyproject.toml</code> file</a>.
-        Updating these fields will not change the metadata for past releases.
-        Additionally, you <strong>must</strong> use <a href="{{ twine_docs_href }}" rel="noopener" target="_blank">Twine</a> to upload your files in order to get full support for these fields.
-        See <a href="{{ distribution_href }}" rel="noopener" target="_blank">the Python Packaging User Guide</a> for more help.
-      {% endtrans %}
-    </p>
-    <button type="button" title="{% trans %}Dismiss{% endtrans %}" data-action="click->dismissable#dismiss" class="callout-block__dismiss" aria-label="{% trans %}Close{% endtrans %}"><i class="fa fa-times" aria-hidden="true"></i></button>
-  </div>
-
-  <hr>
-
-  {#
+    {% endtrans %}
+  </p>
+{% endif %}
+<div class="callout-block"
+     data-controller="dismissable"
+     data-dismissable-identifier="settings">
+  <h3>{% trans %}Project description and sidebar{% endtrans %}</h3>
+  <p>
+    {% trans project_name=project.name, pyproject_args_href='https://packaging.python.org/tutorials/packaging-projects/#creating-pyproject-toml', distribution_href='https://packaging.python.org/guides/section-build-and-publish/' %}
+    To set the '{{ project_name }}' description, author, links, classifiers,
+    and other details for your next release, use the
+    <a href="{{ pyproject_args_href }}" rel="noopener" target="_blank"><code>project</code>
+      metadata fields in your <code>pyproject.toml</code> file</a>.
+      Updating these fields will not change the metadata for past releases.
+      See <a href="{{ distribution_href }}" rel="noopener" target="_blank">the Python Packaging User Guide</a> for more help.
+    {% endtrans %}
+  </p>
+  <button type="button"
+          title="{% trans %}Dismiss{% endtrans %}"
+          data-action="click->dismissable#dismiss"
+          class="callout-block__dismiss"
+          aria-label="{% trans %}Close{% endtrans %}">
+    <i class="fa fa-times" aria-hidden="true"></i>
+  </button>
+</div>
+<hr>
+{#
    # To remove project from an organization:
    # 1. User must be organization owner.
    # 2. There must be an individual project owner.
    #}
-  {% if request.organization_access and (project.organization and request.user in project.organization.owners) %}
-    {% if (project.owners|length) %}
+{% if request.organization_access and (project.organization and request.user in project.organization.owners) %}
+  {% if (project.owners|length) %}
     <div class="callout-block callout-block--danger">
       <h3>{% trans %}Remove project from organization{% endtrans %}</h3>
       <p>
@@ -95,41 +86,38 @@
           {% trans organization_name=project.organization.name %}Revoke project permissions for teams in the '{{ organization_name }}' organization.{% endtrans %}
         </li>
       </ul>
-      <p>
-        {% trans %}Individual owners and maintainers of the project will retain their project permissions.{% endtrans %}
-      </p>
+      <p>{% trans %}Individual owners and maintainers of the project will retain their project permissions.{% endtrans %}</p>
       {% set action = request.route_path('manage.project.remove_organization_project', project_name=project.normalized_name) %}
       {% set extra_description %}
-      <p>
-        {% trans organization_name=project.organization.name %}This will remove the project from the '{{ organization_name }}' organization.{% endtrans %}
-        {% trans %}Individual owners and maintainers of the project will retain their project permissions.{% endtrans %}
-      </p>
+        <p>
+          {% trans organization_name=project.organization.name %}This will remove the project from the '{{ organization_name }}' organization.{% endtrans %}
+          {% trans %}Individual owners and maintainers of the project will retain their project permissions.{% endtrans %}
+        </p>
       {% endset %}
-      {{ confirm_button(gettext("Remove project"), gettext("Project Name"), "remove_organization_project_name", project.name, extra_description=extra_description, action=action) }}
+      {{ confirm_button(gettext("Remove project") , gettext("Project Name"), "remove_organization_project_name", project.name, extra_description=extra_description, action=action) }}
     </div>
-    {% else %}
+  {% else %}
     <div class="callout-block">
       <h3>{% trans %}Cannot remove project from organization{% endtrans %}</h3>
       <p>
         {% trans %}Your organization is currently the <strong>sole owner</strong> of the project. You must add an individual owner to the project before you can remove the project from your organization.{% endtrans %}
       </p>
     </div>
-    {% endif %}
   {% endif %}
-
-  {#
+{% endif %}
+{#
    # To transfer project to an organization:
    # 1. If project is currently in an organization, the user must be organization owner.
    # 2. User must have an organization to transfer the project to.
    #}
-  {% if request.organization_access %}
-    {% if (not project.organization or request.user in project.organization.owners) and (transfer_organization_project_form.organization.choices|length > 1) %}
+{% if request.organization_access %}
+  {% if (not project.organization or request.user in project.organization.owners) and (transfer_organization_project_form.organization.choices|length > 1) %}
     <div class="callout-block callout-block--danger">
       <h3>
         {% if project.organization %}
-        {% trans %}Transfer project to another organization{% endtrans %}
+          {% trans %}Transfer project to another organization{% endtrans %}
         {% else %}
-        {% trans %}Transfer project to an organization{% endtrans %}
+          {% trans %}Transfer project to an organization{% endtrans %}
         {% endif %}
       </h3>
       <p>
@@ -138,118 +126,117 @@
       </p>
       <ul>
         {% if project.organization %}
-        <li>
-          {% trans organization_name=project.organization.name %}Remove this project from the '{{ organization_name }}' organization.{% endtrans %}
-        </li>
-        <li>
-          {% trans organization_name=project.organization.name %}Revoke project permissions for teams in the '{{ organization_name }}' organization.{% endtrans %}
-        </li>
+          <li>
+            {% trans organization_name=project.organization.name %}Remove this project from the '{{ organization_name }}' organization.{% endtrans %}
+          </li>
+          <li>
+            {% trans organization_name=project.organization.name %}Revoke project permissions for teams in the '{{ organization_name }}' organization.{% endtrans %}
+          </li>
         {% else %}
-        <li>
-          {% trans %}Revoke your direct Owner role on the project.{% endtrans %}
-        </li>
-        <li>
-          {% trans %}You will retain Owner permissions on the project through your organization role.{% endtrans %}
-        </li>
+          <li>{% trans %}Revoke your direct Owner role on the project.{% endtrans %}</li>
+          <li>{% trans %}You will retain Owner permissions on the project through your organization role.{% endtrans %}</li>
         {% endif %}
         <li>
           {% if project.organization %}
-          {% trans %}Add the project to another organization that you own.{% endtrans %}
+            {% trans %}Add the project to another organization that you own.{% endtrans %}
           {% else %}
-          {% trans %}Add the project to an organization that you own.{% endtrans %}
+            {% trans %}Add the project to an organization that you own.{% endtrans %}
           {% endif %}
         </li>
-        <li>
-          {% trans %}Grant full project permissions to owners of the organization.{% endtrans %}
-        </li>
+        <li>{% trans %}Grant full project permissions to owners of the organization.{% endtrans %}</li>
       </ul>
       <p>
         {% trans %}All other individual owners and maintainers of the project will retain their project permissions.{% endtrans %}
       </p>
       {% set action = request.route_path('manage.project.transfer_organization_project', project_name=project.normalized_name) %}
       {% set extra_fields %}
-        <label for="transfer-project-modal-organization">Organization account name</label>
-        {{ transfer_organization_project_form.organization(id="transfer-project-modal-organization", class_="form-group__field") }}
+        <label for="transfer_organization_project_name-modal-organization">Organization account name</label>
+        <select id="transfer_organization_project_name-modal-organization"
+                name="organization"
+                class="form-group__field">
+          {% for option in transfer_organization_project_form.organization %}
+            {% if option.data in transfer_organization_project_form.disabled_organizations %}
+              {{ option(disabled="") }}
+            {% else %}
+              {{ option }}
+            {% endif %}
+          {% endfor %}
+        </select>
       {% endset %}
       {% set extra_description %}
-      <p>
-        This will transfer the project to the organization that you select below. You can transfer the project to organizations that you own.
-      </p>
+        <p>
+          This will transfer the project to the organization that you select below. You can transfer the project to organizations that you own. Company organizations must have an active subscription in order to receive project transfers.
+        </p>
       {% endset %}
-      {{ confirm_button(gettext("Transfer project"), gettext("Project Name"), "transfer_organization_project_name", project.name, action=action, extra_fields=extra_fields, extra_description=extra_description) }}
+      {{ confirm_button(gettext("Transfer project") , gettext("Project Name"), "transfer_organization_project_name", project.name, action=action, extra_fields=extra_fields, extra_description=extra_description) }}
     </div>
-    {% else %}
+  {% else %}
     <div class="callout-block">
       <h3>
         {% if project.organization %}
-        {% trans %}Cannot transfer project to another organization{% endtrans %}
+          {% trans %}Cannot transfer project to another organization{% endtrans %}
         {% else %}
-        {% trans %}Cannot transfer project to an organization{% endtrans %}
+          {% trans %}Cannot transfer project to an organization{% endtrans %}
         {% endif %}
       </h3>
       <p>
         {% if project.organization %}
-        {% trans %}Organization owners can transfer the project to organizations that they own or manage.{% endtrans +%}
-        {% trans %}You are not an owner or manager of any other organizations.{% endtrans %}
+          {% trans %}Organization owners can transfer the project to organizations that they own or manage.{% endtrans +%}
+          {% trans %}You are not an owner or manager of any other organizations.{% endtrans %}
         {% else %}
-        {% trans %}Project owners can transfer the project to organizations that they own or manage.{% endtrans +%}
-        {% trans %}You are not an owner or manager of any organizations.{% endtrans %}
+          {% trans %}Project owners can transfer the project to organizations that they own or manage.{% endtrans +%}
+          {% trans %}You are not an owner or manager of any organizations.{% endtrans %}
         {% endif %}
       </p>
     </div>
-    {% endif %}
-
-  <hr>
   {% endif %}
-
-  <h3>{% trans %}Alternate repository locations{% endtrans %}</h3>
-
-  <div class="callout-block">
-    <p>
-        {% trans pep_url="https://peps.python.org/pep-0708/#alternate-locations-metadata"
-            %}Provisional support for <a href="{{ pep_url }}">PEP 708</a> "Alternate Locations" Metadata. {% endtrans %}
-    </p>
-    <p>
-        {% trans pypi_announce_url="https://mail.python.org/mailman3/lists/pypi-announce.python.org/"
-            %}Implementation may change, consider subscribing to <a href="{{ pypi_announce_url }}">pypi-announce</a> to be notified of changes.{% endtrans %}
-    </p>
-  </div>
-
-  {% if project.alternate_repositories %}
+  <hr>
+{% endif %}
+<h3>{% trans %}Alternate repository locations{% endtrans %}</h3>
+<div class="callout-block">
+  <p>
+    {% trans pep_url="https://peps.python.org/pep-0708/#alternate-locations-metadata"
+    %}Provisional support for <a href="{{ pep_url }}">PEP 708</a> "Alternate Locations" Metadata. {% endtrans %}
+  </p>
+  <p>
+    {% trans pypi_announce_url="https://mail.python.org/mailman3/lists/pypi-announce.python.org/"
+    %}Implementation may change, consider subscribing to <a href="{{ pypi_announce_url }}">pypi-announce</a> to be notified of changes.{% endtrans %}
+  </p>
+</div>
+{% if project.alternate_repositories %}
   <table class="table table--alternate-repository-locations">
     <caption class="sr-only">{% trans project_name=project.name %}Alternate repository locations for
-      {{ project_name }}{% endtrans %}</caption>
+    {{ project_name }}{% endtrans %}</caption>
     <thead>
-    <tr>
-      <th scope="col">{% trans %}Name{% endtrans %}</th>
-      <th scope="col">{% trans %}Url{% endtrans %}</th>
-      <th scope="col">{% trans %}Description{% endtrans %}</th>
-      <th scope="col" class="table__align-right"></th>
-    </tr>
+      <tr>
+        <th scope="col">{% trans %}Name{% endtrans %}</th>
+        <th scope="col">{% trans %}Url{% endtrans %}</th>
+        <th scope="col">{% trans %}Description{% endtrans %}</th>
+        <th scope="col" class="table__align-right"></th>
+      </tr>
     </thead>
     <tbody>
-    {% for alternate_repository in project.alternate_repositories|sort(attribute="name") %}
-    <tr>
-      <th scope="row">
-        {{ alternate_repository.name }}
-      </th>
-      <td>
-        <a href="{{ alternate_repository.url }}" rel="nofollow noopener noreferrer" target="_blank">
-          {{ alternate_repository.url }}
-        </a>
-      </td>
-      <td>
-        {{ alternate_repository.description }}
-      </td>
-      <td>
-        {% set extra_description %}{% trans name=alternate_repository.name %}Delete {{ name }} from this
-          project.{% endtrans %}{% endset %}
-        {% set extra_fields %}
-        <input name="alternate_repository_location" type="hidden" value="delete">
-        <input name="alternate_repository_id" type="hidden" value="{{ alternate_repository.id }}">
-        {% endset %}
-        {{ confirm_button(
-            gettext("Delete"),
+      {% for alternate_repository in project.alternate_repositories|sort(attribute="name") %}
+        <tr>
+          <th scope="row">{{ alternate_repository.name }}</th>
+          <td>
+            <a href="{{ alternate_repository.url }}"
+               rel="nofollow noopener noreferrer"
+               target="_blank">{{ alternate_repository.url }}</a>
+          </td>
+          <td>{{ alternate_repository.description }}</td>
+          <td>
+            {% set extra_description %}
+              {% trans name=alternate_repository.name %}Delete {{ name }} from this
+              project.{% endtrans %}
+            {% endset %}
+            {% set extra_fields %}
+              <input name="alternate_repository_location" type="hidden" value="delete">
+              <input name="alternate_repository_id"
+                     type="hidden"
+                     value="{{ alternate_repository.id }}">
+            {% endset %}
+            {{ confirm_button(gettext("Delete") ,
             gettext("Alternate Repository Name"),
             "alternate_repository_name",
             alternate_repository.name,
@@ -257,141 +244,198 @@
             action=request.route_path('manage.project.settings', project_name=project.name),
             extra_fields=extra_fields,
             tooltip=extra_description
-          ) }}
-      </td>
-    </tr>
-    {% endfor %}
+            ) }}
+          </td>
+        </tr>
+      {% endfor %}
     </tbody>
   </table>
-  {% else %}
-  <p>
-    {% trans %}There are no alternate repositories for this project, yet.{% endtrans %}
-  </p>
+{% else %}
+  <p>{% trans %}There are no alternate repositories for this project, yet.{% endtrans %}</p>
   {% if request.has_permission(Permissions.ProjectsWrite) %}
-    <p>
-    {% trans %}Get started by adding an alternate repository below.{% endtrans %}
-    </p>
+    <p>{% trans %}Get started by adding an alternate repository below.{% endtrans %}</p>
   {% endif %}
-  {% endif %}
-
-  <h3>
-    {% trans %}Add alternate repository location{% endtrans %}
-  </h3>
-  <form method="POST">
-    <div class="form-group">
-      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-      <input name="alternate_repository_location" type="hidden" value="add">
-      <label for="alternate_repository_name" class="form-group__label">
-        {% trans %}Name{% endtrans %}
-        {% if add_alternate_repository_form_class.display_name.flags.required %}
-          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
-        {% endif %}
-      </label>
-      {{ add_alternate_repository_form_class.display_name(
-        placeholder=gettext("Name"),
-        autocomplete="on",
-        autocapitalize="on",
-        spellcheck="true",
-        class_="form-group__field",
-        aria_describedby="alternate-repository-name-errors",
-        ) }}
-      <div id="alternate-repository-name-errors">
-        {{ field_errors(add_alternate_repository_form_class.display_name) }}
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label for="alternate_repository_url" class="form-group__label">
-        {% trans %}Url{% endtrans %}
-        {% if add_alternate_repository_form_class.link_url.flags.required %}
-          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
-        {% endif %}
-      </label>
-      {{ add_alternate_repository_form_class.link_url(
-        placeholder=gettext("Url"),
-        autocomplete="off",
-        autocapitalize="off",
-        spellcheck="false",
-        class_="form-group__field",
-        aria_describedby="alternate-repository-url-errors",
-        ) }}
-      <div id="alternate-repository-url-errors">
-        {{ field_errors(add_alternate_repository_form_class.link_url) }}
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label for="description" class="form-group__label">
-        {% trans %}Alternate repository description{% endtrans %}
-        {% if add_alternate_repository_form_class.description.flags.required %}
-          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
-        {% endif %}
-      </label>
-      {{ add_alternate_repository_form_class.description(
-        placeholder=gettext("Description of the purpose or content of the alternate repository."),
-        autocomplete="off",
-        autocapitalize="off",
-        spellcheck="true",
-        class_="form-group__field",
-        aria_describedby="alternate-repository-description-errors",
-        ) }}
-      <div id="alternate-repository-description-errors">
-        {{ field_errors(add_alternate_repository_form_class.description) }}
-      </div>
-      <p class="form-group__help-text">
-        {% trans  %}
-          Description of the purpose or content of the alternate repository.
-        {% endtrans %}
-      </p>
-    </div>
-    <div>
-      <input type="submit" value="{% trans %}Add{% endtrans %}" class="button button--primary">
-    </div>
-  </form>
-
-  <hr>
-
-  <div class="callout-block callout-block--danger" data-controller="delete-confirm">
-    <h3>{% trans %}Delete project{% endtrans %}</h3>
-    <p>
-      <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
-      {% trans %}Deleting this project will:{% endtrans %}
-    </p>
-    <ul>
-      <li>
-        {% if project.releases %}
-        {% trans count=project.releases|length(), href=request.route_path('manage.project.releases', project_name=project.name) %}
-          Irreversibly delete the project along with <a href="{{ href }}">{{ count }} release</a>
-        {% pluralize %}
-          Irreversibly delete the project along with <a href="{{ href }}">{{ count }} releases</a>
-        {% endtrans %}
-        {% else %}
-        {% trans %}Irreversibly delete the project{% endtrans %}
-        {% endif %}
-      </li>
-      <li>
-        {% trans %}Make the project name available to <strong>any other PyPI</strong> user{% endtrans %}<br>
-        <small class="margin-left display-block margin-top margin-bottom">
-          {% trans %}
-            This user will be able to make new releases under this project name,
-            so long as the distribution filenames do not match filenames from a
-            previously released distribution (all PyPI distribution filenames
-            are unique, as they are generated by combining the
-            project name + version number + distribution type)
-          {% endtrans %}
-        </small>
-      </li>
-    </ul>
-    <ul class="no-bullets">
-      <li><input type="checkbox" data-action="input->delete-confirm#check" data-delete-confirm-target="input"> I understand that I am permanently deleting all releases for this project.</li>
-      <li><input type="checkbox" data-action="input->delete-confirm#check" data-delete-confirm-target="input"> I understand that my users will no longer be able to install this project.</li>
-      <li><input type="checkbox" data-action="input->delete-confirm#check" data-delete-confirm-target="input"> I understand that I will <a href="https://pypi.org/help/#file-name-reuse">not be able to re-upload any deleted versions</a>.</li>
-      <li><input type="checkbox" data-action="input->delete-confirm#check" data-delete-confirm-target="input"> I understand that I am releasing this project name for use by any other PyPI user.</li>
-      <li><input type="checkbox" data-action="input->delete-confirm#check" data-delete-confirm-target="input"> I understand that I may not be able to re-register the project name <a href="https://pypi.org/help/#project-name">under some circumstances</a>.</li>
-      <li><input type="checkbox" data-action="input->delete-confirm#check" data-delete-confirm-target="input"> I understand that I will not be able to undo this.</li>
-      <li><input type="checkbox" data-action="input->delete-confirm#check" data-delete-confirm-target="input"> I understand that the PyPI administrators will not be able to undo this.</li>
-    </ul>
-    {% set action = request.route_path('manage.project.delete_project', project_name=project.normalized_name) %}
-    {{ confirm_button(gettext("Delete project"), gettext("Project Name"), "project_name", project.name, action=action, additional_attributes="data-delete-confirm-target=button") }}
+{% endif %}
+<h3>{% trans %}Add alternate repository location{% endtrans %}</h3>
+<form method="post">
+  <div class="form-group">
+    <input name="csrf_token"
+           type="hidden"
+           value="{{ request.session.get_csrf_token() }}">
+    <input name="alternate_repository_location" type="hidden" value="add">
+    <label for="alternate_repository_name" class="form-group__label">
+      {% trans %}Name{% endtrans %}
+      {% if add_alternate_repository_form_class.display_name.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+      {% endif %}
+    </label>
+    {{ add_alternate_repository_form_class.display_name(placeholder=gettext("Name") ,
+    autocomplete="on",
+    autocapitalize="on",
+    spellcheck="true",
+    class_="form-group__field",
+    aria_describedby="alternate-repository-name-errors",
+    ) }}
+    <div id="alternate-repository-name-errors">{{ field_errors(add_alternate_repository_form_class.display_name) }}</div>
   </div>
+  <div class="form-group">
+    <label for="alternate_repository_url" class="form-group__label">
+      {% trans %}Url{% endtrans %}
+      {% if add_alternate_repository_form_class.link_url.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+      {% endif %}
+    </label>
+    {{ add_alternate_repository_form_class.link_url(placeholder=gettext("Url") ,
+    autocomplete="off",
+    autocapitalize="off",
+    spellcheck="false",
+    class_="form-group__field",
+    aria_describedby="alternate-repository-url-errors",
+    ) }}
+    <div id="alternate-repository-url-errors">{{ field_errors(add_alternate_repository_form_class.link_url) }}</div>
+  </div>
+  <div class="form-group">
+    <label for="description" class="form-group__label">
+      {% trans %}Alternate repository description{% endtrans %}
+      {% if add_alternate_repository_form_class.description.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+      {% endif %}
+    </label>
+    {{ add_alternate_repository_form_class.description(placeholder=gettext("Description of the purpose or content of the alternate repository.") ,
+    autocomplete="off",
+    autocapitalize="off",
+    spellcheck="true",
+    class_="form-group__field",
+    aria_describedby="alternate-repository-description-errors",
+    ) }}
+    <div id="alternate-repository-description-errors">
+      {{ field_errors(add_alternate_repository_form_class.description) }}
+    </div>
+    <p class="form-group__help-text">
+      {% trans %}
+      Description of the purpose or content of the alternate repository.
+    {% endtrans %}
+  </p>
+</div>
+<div>
+  <input type="submit"
+         value="{% trans %}Add{% endtrans %}"
+         class="button button--primary">
+</div>
+</form>
+<hr>
+<h2>{% trans %}Archive project{% endtrans %}</h2>
+<div class="callout-block callout-block--danger"
+     data-controller="archive-confirm">
+  <p>
+    {% trans readme_description_href='https://packaging.python.org/guides/making-a-pypi-friendly-readme/' %}
+    Archiving a project will prevent any new uploads, and remove the project
+    from PyPI's search results. Before doing so, we recommend publishing a
+    final release with an update to the project's description to warn the users
+    that the project won't receive further updates, and to mention any
+    alternative projects they may consider as a replacement. If your project is
+    <a href="{{ readme_description_href }}" rel="noopener" target="_blank">configured
+      to do so</a>, you can update the project's description by editing the README file.
+    {% endtrans %}
+  </p>
+</div>
+{% if project.lifecycle_status in ["archived", "archived-noindex"] %}
+  <a href="#unarchive-project" class="button button--primary">{% trans %}Unarchive project{% endtrans %}</a>
+  {% set action = request.route_path('manage.project.unarchive', project_name=project.name) %}
+  {% set slug = "unarchive-project" %}
+  {% set title = gettext("Unarchive project") %}
+  {% set extra_description = gettext("Unarchiving a project will allow new file uploads and add the project to the search index.") %}
+  {{ confirm_modal(title=title, label=project.name, slug=slug, extra_description=extra_description, action=action, warning=False) }}
+{% else %}
+  <a href="#archive-project"
+     class="button button--primary {{ 'button--disabled' if project.lifecycle_status == 'quarantine' }}">
+    {% trans %}Archive project{% endtrans %}
+  </a>
+  {% set action = request.route_path('manage.project.archive', project_name=project.name) %}
+  {% set slug = "archive-project" %}
+  {% set title = gettext("Archive project") %}
+  {% set extra_description = gettext("Archiving a project will block any new file uploads and remove the project from the search index.") %}
+  {{ confirm_modal(title=title, label=project.name, slug=slug, extra_description=extra_description, action=action, warning=False) }}
+{% endif %}
+<hr>
+<div class="callout-block callout-block--danger"
+     data-controller="delete-confirm">
+  <h3>{% trans %}Delete project{% endtrans %}</h3>
+  <p>
+    <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
+    {% trans %}Deleting this project will:{% endtrans %}
+  </p>
+  <ul>
+    <li>
+      {% if project.releases %}
+        {% trans count=project.releases|length(), href=request.route_path('manage.project.releases', project_name=project.name) %}
+        Irreversibly delete the project along with <a href="{{ href }}">{{ count }} release</a>
+      {% pluralize %}
+        Irreversibly delete the project along with <a href="{{ href }}">{{ count }} releases</a>
+      {% endtrans %}
+    {% else %}
+      {% trans %}Irreversibly delete the project{% endtrans %}
+    {% endif %}
+  </li>
+  <li>
+    {% trans %}Make the project name available to <strong>any other PyPI</strong> user{% endtrans %}
+    <br>
+    <small class="margin-left display-block margin-top margin-bottom">
+      {% trans %}
+      This user will be able to make new releases under this project name,
+      so long as the distribution filenames do not match filenames from a
+      previously released distribution (all PyPI distribution filenames
+      are unique, as they are generated by combining the
+      project name + version number + distribution type)
+    {% endtrans %}
+  </small>
+</li>
+</ul>
+<ul class="no-bullets">
+  <li>
+    <input type="checkbox"
+           data-action="input->delete-confirm#check"
+           data-delete-confirm-target="input">
+    I understand that I am permanently deleting all releases for this project.
+  </li>
+  <li>
+    <input type="checkbox"
+           data-action="input->delete-confirm#check"
+           data-delete-confirm-target="input">
+    I understand that my users will no longer be able to install this project.
+  </li>
+  <li>
+    <input type="checkbox"
+           data-action="input->delete-confirm#check"
+           data-delete-confirm-target="input">
+    I understand that I will <a href="https://pypi.org/help/#file-name-reuse">not be able to re-upload any deleted versions</a>.
+  </li>
+  <li>
+    <input type="checkbox"
+           data-action="input->delete-confirm#check"
+           data-delete-confirm-target="input">
+    I understand that I am releasing this project name for use by any other PyPI user.
+  </li>
+  <li>
+    <input type="checkbox"
+           data-action="input->delete-confirm#check"
+           data-delete-confirm-target="input">
+    I understand that I may not be able to re-register the project name <a href="https://pypi.org/help/#project-name">under some circumstances</a>.
+  </li>
+  <li>
+    <input type="checkbox"
+           data-action="input->delete-confirm#check"
+           data-delete-confirm-target="input">
+    I understand that I will not be able to undo this.
+  </li>
+  <li>
+    <input type="checkbox"
+           data-action="input->delete-confirm#check"
+           data-delete-confirm-target="input">
+    I understand that the PyPI administrators will not be able to undo this.
+  </li>
+</ul>
+{% set action = request.route_path('manage.project.delete_project', project_name=project.normalized_name) %}
+{{ confirm_button(gettext("Delete project") , gettext("Project Name"), "project_name", project.name, action=action, additional_attributes="data-delete-confirm-target=button") }}
+</div>
 {% endblock %}

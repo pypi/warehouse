@@ -1,19 +1,8 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import tempfile
 
 from contextlib import contextmanager
-from itertools import product
 
 import pretend
 import pytest
@@ -24,12 +13,12 @@ from wtforms import Field, Form, StringField
 import warehouse.packaging.tasks
 
 from warehouse.accounts.models import WebAuthn
-from warehouse.packaging.models import Description
+from warehouse.packaging.models import DependencyKind, Description
 from warehouse.packaging.tasks import (
     check_file_cache_tasks_outstanding,
     compute_2fa_metrics,
     compute_packaging_metrics,
-    sync_bigquery_release_files,
+    compute_top_dependents_corpus,
     sync_file_to_cache,
     update_bigquery_release_files,
     update_description_html,
@@ -38,7 +27,6 @@ from warehouse.packaging.tasks import (
 from warehouse.utils import readme
 from warehouse.utils.row_counter import compute_row_counts
 
-from ...common.db.classifiers import ClassifierFactory
 from ...common.db.packaging import (
     DependencyFactory,
     DescriptionFactory,
@@ -452,8 +440,7 @@ bq_schema = [
 
 class TestUpdateBigQueryMetadata:
     class ListField(Field):
-        def process_formdata(self, valuelist):
-            self.data = [v.strip() for v in valuelist if v.strip()]
+        pass
 
     input_parameters = [
         (
@@ -471,6 +458,8 @@ class TestUpdateBigQueryMetadata:
                 "maintainer": StringField(default="").bind(Form(), "test"),
                 "maintainer_email": StringField(default="").bind(Form(), "test"),
                 "license": StringField(default="").bind(Form(), "test"),
+                "license_expression": StringField(default="").bind(Form(), "test"),
+                "license_files": StringField(default=["LICENSE"]).bind(Form(), "test"),
                 "keywords": StringField(default="").bind(Form(), "test"),
                 "classifiers": ListField(
                     default=["Environment :: Other Environment"]
@@ -510,13 +499,13 @@ class TestUpdateBigQueryMetadata:
         [
             (
                 "example.pypi.distributions",
-                [pretend.call("example.pypi.distributions")],
+                [pretend.call("example.pypi.distributions", timeout=5.0, retry=None)],
             ),
             (
                 "example.pypi.distributions some.other.table",
                 [
-                    pretend.call("example.pypi.distributions"),
-                    pretend.call("some.other.table"),
+                    pretend.call("example.pypi.distributions", timeout=5.0, retry=None),
+                    pretend.call("some.other.table", timeout=5.0, retry=None),
                 ],
             ),
         ],
@@ -538,12 +527,11 @@ class TestUpdateBigQueryMetadata:
 
         # Process the mocked wtform fields
         for key, value in form_factory.items():
-            if isinstance(value, StringField) or isinstance(value, self.ListField):
-                value.process(None)
+            value.process(None)
 
         get_table = pretend.stub(schema=bq_schema)
         bigquery = pretend.stub(
-            get_table=pretend.call_recorder(lambda t: get_table),
+            get_table=pretend.call_recorder(lambda *a, **kw: get_table),
             insert_rows_json=pretend.call_recorder(lambda *a, **kw: []),
         )
 
@@ -551,7 +539,7 @@ class TestUpdateBigQueryMetadata:
         def find_service(name=None):
             if name == "gcloud.bigquery":
                 return bigquery
-            raise LookupError
+            pytest.fail(f"Unexpected service name: {name}")
 
         db_request.find_service = find_service
         db_request.registry.settings = {
@@ -570,6 +558,8 @@ class TestUpdateBigQueryMetadata:
             "maintainer": form_factory["maintainer"].data,
             "maintainer_email": form_factory["maintainer_email"].data,
             "license": form_factory["license"].data,
+            "license_expression": form_factory["license_expression"].data,
+            "license_files": form_factory["license_files"].data,
             "keywords": form_factory["keywords"].data,
             "classifiers": form_factory["classifiers"].data,
             "platform": form_factory["platform"].data,
@@ -626,8 +616,9 @@ class TestUpdateBigQueryMetadata:
                         "maintainer_email": form_factory["maintainer_email"].data
                         or None,
                         "license": form_factory["license"].data or None,
-                        "license_expression": None,
-                        "license_files": [],
+                        "license_expression": form_factory["license_expression"].data
+                        or None,
+                        "license_files": form_factory["license_files"].data or [],
                         "keywords": form_factory["description_content_type"].data
                         or None,
                         "classifiers": form_factory["classifiers"].data or [],
@@ -658,6 +649,8 @@ class TestUpdateBigQueryMetadata:
                         "blake2_256_digest": release_file.blake2_256_digest,
                     },
                 ],
+                timeout=5.0,
+                retry=None,
             )
             for table in release_files_table.split()
         ]
@@ -669,199 +662,6 @@ class TestUpdateBigQueryMetadata:
         task = pretend.stub()
         dist_metadata = pretend.stub()
         update_bigquery_release_files(task, request, dist_metadata)
-
-
-class TestSyncBigQueryMetadata:
-    @pytest.mark.filterwarnings(
-        "ignore:This collection has been invalidated.:sqlalchemy.exc.SAWarning"
-    )
-    @pytest.mark.parametrize(
-        ("release_files_table", "expected_get_table_calls"),
-        [
-            (
-                "example.pypi.distributions",
-                [pretend.call("example.pypi.distributions")],
-            ),
-            (
-                "example.pypi.distributions some.other.table",
-                [
-                    pretend.call("example.pypi.distributions"),
-                    pretend.call("some.other.table"),
-                ],
-            ),
-        ],
-    )
-    @pytest.mark.parametrize("bq_schema", [bq_schema])
-    def test_sync_rows(
-        self,
-        db_request,
-        monkeypatch,
-        release_files_table,
-        expected_get_table_calls,
-        bq_schema,
-    ):
-        project = ProjectFactory.create()
-        description = DescriptionFactory.create()
-        release = ReleaseFactory.create(project=project, description=description)
-        release.platform = "test_platform"
-        release_file = FileFactory.create(
-            release=release,
-            filename=f"{project.name}-{release.version}.tar.gz",
-            md5_digest="feca4238a0b923820dcc509a6f75849b",
-            packagetype="sdist",
-        )
-        release_file2 = FileFactory.create(
-            release=release,
-            filename=f"{project.name}-{release.version}-py3-none-any.whl",
-            md5_digest="fecasd342fb952820dcc509a6f75849b",
-            packagetype="bdist_wheel",
-        )
-        release._classifiers.append(ClassifierFactory.create(classifier="foo :: bar"))
-        release._classifiers.append(ClassifierFactory.create(classifier="foo :: baz"))
-        release._classifiers.append(ClassifierFactory.create(classifier="fiz :: buz"))
-        DependencyFactory.create(release=release, kind=1)
-        DependencyFactory.create(release=release, kind=1)
-        DependencyFactory.create(release=release, kind=2)
-        DependencyFactory.create(release=release, kind=3)
-        DependencyFactory.create(release=release, kind=4)
-        load_config = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr("warehouse.packaging.tasks.LoadJobConfig", load_config)
-
-        query = pretend.stub(
-            result=pretend.call_recorder(
-                lambda *a, **kw: [{"md5_digest": release_file2.md5_digest}]
-            )
-        )
-        get_table = pretend.stub(schema=bq_schema)
-        get_result = pretend.stub(result=lambda: None)
-        bigquery = pretend.stub(
-            get_table=pretend.call_recorder(lambda t: get_table),
-            load_table_from_json=pretend.call_recorder(lambda *a, **kw: get_result),
-            query=pretend.call_recorder(lambda q: query),
-        )
-
-        @pretend.call_recorder
-        def find_service(name=None):
-            if name == "gcloud.bigquery":
-                return bigquery
-            raise LookupError
-
-        db_request.find_service = find_service
-        db_request.registry.settings = {
-            "warehouse.release_files_table": release_files_table
-        }
-
-        sync_bigquery_release_files(db_request)
-
-        assert db_request.find_service.calls == [pretend.call(name="gcloud.bigquery")]
-        assert bigquery.get_table.calls == expected_get_table_calls
-        assert bigquery.query.calls == [
-            pretend.call(query.format(table))
-            for table in release_files_table.split()
-            for query in [
-                "SELECT md5_digest FROM {} WHERE md5_digest LIKE 'ff%'",
-                "SELECT md5_digest FROM {} WHERE md5_digest LIKE 'fe%'",
-            ]
-        ]
-        assert bigquery.load_table_from_json.calls == [
-            pretend.call(
-                [
-                    {
-                        "metadata_version": None,
-                        "name": project.name,
-                        "version": release.version,
-                        "summary": release.summary,
-                        "description": description.raw,
-                        "description_content_type": description.content_type or None,
-                        "author": release.author or None,
-                        "author_email": release.author_email or None,
-                        "maintainer": release.maintainer or None,
-                        "maintainer_email": release.maintainer_email or None,
-                        "license": release.license or None,
-                        "license_expression": None,
-                        "license_files": [],
-                        "keywords": release.keywords or None,
-                        "classifiers": release.classifiers or [],
-                        "platform": [release.platform] or [],
-                        "home_page": release.home_page or None,
-                        "download_url": release.download_url or None,
-                        "requires_python": release.requires_python or None,
-                        "requires": release.requires or [],
-                        "provides": release.provides or [],
-                        "obsoletes": release.obsoletes or [],
-                        "requires_dist": release.requires_dist or [],
-                        "provides_dist": release.provides_dist or [],
-                        "obsoletes_dist": release.obsoletes_dist or [],
-                        "requires_external": release.requires_external or [],
-                        "project_urls": release.project_urls or [],
-                        "uploaded_via": release_file.uploaded_via,
-                        "upload_time": release_file.upload_time.isoformat(),
-                        "filename": release_file.filename,
-                        "size": release_file.size,
-                        "path": release_file.path,
-                        "python_version": release_file.python_version,
-                        "packagetype": release_file.packagetype,
-                        "comment_text": release_file.comment_text or None,
-                        "has_signature": False,
-                        "md5_digest": release_file.md5_digest,
-                        "sha256_digest": release_file.sha256_digest,
-                        "blake2_256_digest": release_file.blake2_256_digest,
-                    },
-                ],
-                table,
-                job_config=None,
-            )
-            for table in release_files_table.split()
-        ]
-
-    @pytest.mark.parametrize("bq_schema", [bq_schema])
-    def test_no_diff(self, db_request, monkeypatch, bq_schema):
-        project = ProjectFactory.create()
-        release = ReleaseFactory.create(project=project)
-        release_file = FileFactory.create(
-            release=release, filename=f"foobar-{release.version}.tar.gz"
-        )
-
-        query = pretend.stub(
-            result=pretend.call_recorder(
-                lambda *a, **kw: [{"md5_digest": release_file.md5_digest}]
-            )
-        )
-        get_table = pretend.stub(schema=bq_schema)
-        bigquery = pretend.stub(
-            get_table=pretend.call_recorder(lambda t: get_table),
-            query=pretend.call_recorder(lambda q: query),
-        )
-
-        @pretend.call_recorder
-        def find_service(name=None):
-            if name == "gcloud.bigquery":
-                return bigquery
-            raise LookupError
-
-        db_request.find_service = find_service
-        db_request.registry.settings = {
-            "warehouse.release_files_table": "example.pypi.distributions"
-        }
-
-        sync_bigquery_release_files(db_request)
-
-        assert db_request.find_service.calls == [pretend.call(name="gcloud.bigquery")]
-        assert bigquery.get_table.calls == [pretend.call("example.pypi.distributions")]
-        assert bigquery.query.calls == [
-            pretend.call(
-                "SELECT md5_digest "
-                "FROM example.pypi.distributions "
-                f"WHERE md5_digest LIKE '{first}{second}%'",
-            )
-            for first, second in product("fedcba9876543210", repeat=2)
-        ]
-
-    def test_var_is_none(self):
-        request = pretend.stub(
-            registry=pretend.stub(settings={"warehouse.release_files_table": None})
-        )
-        sync_bigquery_release_files(request)
 
 
 def test_compute_2fa_metrics(db_request, monkeypatch):
@@ -899,3 +699,55 @@ def test_compute_2fa_metrics(db_request, monkeypatch):
         pretend.call("warehouse.2fa.total_users_with_webauthn_enabled", 1),
         pretend.call("warehouse.2fa.total_users_with_two_factor_enabled", 2),
     ]
+
+
+@pytest.mark.parametrize(
+    ("project_name", "specifier_string"),
+    [
+        (
+            "requests",
+            'requests [security,tests] >= 2.8.1, == 2.8.* ; python_version < "2.7"',
+        ),
+        ("xml.parsers.expat", "xml.parsers.expat (>1.0)"),
+        ("zope.event", "zope.event (==4.5.0)"),
+    ],
+)
+def test_compute_top_dependents_corpus(db_request, project_name, specifier_string):
+    # A base project, others depend on it
+    base_proj = ProjectFactory.create(name=project_name)
+    # A project with no recent dependents
+    leaf_proj = ProjectFactory.create()
+
+    # A Project with multiple Releases, the most recent of which is yanked
+    project_a = ProjectFactory.create()
+    release_a1 = ReleaseFactory.create(project=project_a, version="1.0")
+    release_a2 = ReleaseFactory.create(project=project_a, version="2.0", yanked=True)
+    # Add dependency relationships
+    DependencyFactory.create(
+        release=release_a1, kind=DependencyKind.requires_dist, specifier=base_proj.name
+    )
+    DependencyFactory.create(
+        release=release_a2, kind=DependencyKind.requires_dist, specifier=base_proj.name
+    )
+
+    # A project with an older release depending on leaf_proj, now base_proj instead
+    project_b = ProjectFactory.create()
+    release_b1 = ReleaseFactory.create(project=project_b, version="1.0")
+    release_b2 = ReleaseFactory.create(project=project_b, version="2.0")
+    DependencyFactory.create(
+        release=release_b1, kind=DependencyKind.requires_dist, specifier=leaf_proj.name
+    )
+    DependencyFactory.create(
+        release=release_b2, kind=DependencyKind.requires_dist, specifier=base_proj.name
+    )
+
+    # legacy `project_url` kind, should not be included in corpus
+    legacy_proj = ProjectFactory.create()
+    legacy_release = ReleaseFactory.create(project=legacy_proj, version="1.0")
+    DependencyFactory.create(
+        release=legacy_release, kind=8, specifier="https://example.com"
+    )
+
+    results = compute_top_dependents_corpus(db_request)
+
+    assert results == {base_proj.normalized_name: 2}

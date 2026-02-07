@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import packaging.metadata
 import pytest
@@ -29,15 +19,27 @@ def _assert_invalid_metadata(exc, field):
 
 class TestParse:
     def test_valid_from_file(self):
-        meta = metadata.parse(b"Metadata-Version: 2.1\nName: foo\nVersion: 1.0\n")
+        meta = metadata.parse(
+            b"Metadata-Version: 2.4\nName: foo\nVersion: 1.0\n"
+            b"License-File: Something\nLicense-File: Something Else\n"
+        )
         assert meta.name == "foo"
         assert meta.version == Version("1.0")
+        assert meta.license_files == [
+            "Something",
+            "Something Else",
+        ]
 
     def test_valid_from_form(self):
-        data = MultiDict(metadata_version="2.1", name="spam", version="2.0")
+        data = MultiDict(metadata_version="2.4", name="spam", version="2.0")
+        data.extend([("license_file", "Something"), ("license_file", "Something Else")])
         meta = metadata.parse(None, form_data=data)
         assert meta.name == "spam"
         assert meta.version == Version("2.0")
+        assert meta.license_files == [
+            "Something",
+            "Something Else",
+        ]
 
     def test_invalid_no_data(self):
         with pytest.raises(metadata.NoMetadataError):
@@ -78,7 +80,7 @@ class TestValidation:
             metadata_version="2.1",
             name="spam",
             version="2.0",
-            **{field_name: "a" * (length - 1)}
+            **{field_name: "a" * (length - 1)},
         )
         meta = metadata.parse(None, form_data=data)
         assert getattr(meta, field_name) == "a" * (length - 1)
@@ -88,7 +90,7 @@ class TestValidation:
             metadata_version="2.1",
             name="spam",
             version="2.0",
-            **{field_name: "a" * (length + 1)}
+            **{field_name: "a" * (length + 1)},
         )
         with pytest.raises(ExceptionGroup) as excinfo:
             metadata.parse(None, form_data=data)
@@ -100,7 +102,7 @@ class TestValidation:
             metadata_version="2.1",
             name="spam",
             version="2.0",
-            **{field_name: "test@pypi.org"}
+            **{field_name: "test@pypi.org"},
         )
         meta = metadata.parse(None, form_data=data)
         assert getattr(meta, field_name) == "test@pypi.org"
@@ -111,7 +113,7 @@ class TestValidation:
             metadata_version="2.1",
             name="spam",
             version="2.0",
-            **{field_name: "Foo <test>"}
+            **{field_name: "Foo <test>"},
         )
         with pytest.raises(ExceptionGroup) as excinfo:
             metadata.parse(None, form_data=data)
@@ -224,7 +226,7 @@ class TestValidation:
             metadata_version="2.1",
             name="spam",
             version="2.0",
-            **{field_name: "foo>=1.0"}
+            **{field_name: "foo>=1.0"},
         )
         meta = metadata.parse(None, form_data=data)
         assert [str(r) for r in getattr(meta, field_name)] == ["foo>=1.0"]
@@ -239,7 +241,7 @@ class TestValidation:
                 metadata_version="2.1",
                 name="spam",
                 version="2.0",
-                **{field_name: "foo >= dog"}
+                **{field_name: "foo >= dog"},
             )
             with pytest.raises(
                 (
@@ -256,11 +258,38 @@ class TestValidation:
             metadata_version="2.1",
             name="spam",
             version="2.0",
-            **{field_name: "foo @ https://example.com/foo-1.0.tar.gz"}
+            **{field_name: "foo @ https://example.com/foo-1.0.tar.gz"},
         )
         with pytest.raises(ExceptionGroup) as excinfo:
             metadata.parse(None, form_data=data)
         _assert_invalid_metadata(excinfo.value, field_name.replace("_", "-"))
+
+    def test_valid_dynamic(self):
+        data = MultiDict(metadata_version="2.2", name="spam", version="2.0")
+        data.add("dynamic", "keywords")
+        data.add("dynamic", "author")
+        meta = metadata.parse(None, form_data=data)
+        assert meta.dynamic == ["keywords", "author"]
+
+    def test_invalid_dynamic(self):
+        data = MultiDict(metadata_version="2.2", name="spam", version="2.0")
+        data.add("dynamic", "Invalid")
+        with pytest.raises(ExceptionGroup) as excinfo:
+            metadata.parse(None, form_data=data)
+        _assert_invalid_metadata(excinfo.value, "dynamic")
+
+    def test_valid_dynamic_but_missing_from_our_enum(self, monkeypatch):
+        """
+        Handles the case where there are new metadata fields that pypa/packaging
+        considers to be valid, but don't exist in our enum and would otherwise fail
+        when inserting them into the database
+        """
+        monkeypatch.setattr(metadata, "DYNAMIC_FIELDS", [])
+        data = MultiDict(metadata_version="2.2", name="spam", version="2.0")
+        data.add("dynamic", "author")
+        with pytest.raises(ExceptionGroup) as excinfo:
+            metadata.parse(None, form_data=data)
+        _assert_invalid_metadata(excinfo.value, "dynamic")
 
 
 class TestFromFormData:
@@ -313,3 +342,19 @@ class TestFromFormData:
 
         meta = metadata.parse_form_metadata(data)
         assert meta.description_content_type is None
+
+
+@pytest.mark.parametrize(
+    ("label", "expected"),
+    [
+        ("Home-page", "homepage"),
+        ("homepage", "homepage"),
+        ("Home Page", "homepage"),
+        ("HomePage", "homepage"),
+        ("HOMEPAGE", "homepage"),
+        ("What's New", "whatsnew"),
+        ("Change_Log", "changelog"),
+    ],
+)
+def test_normalize_project_url_label(label, expected):
+    assert metadata.normalize_project_url_label(label) == expected

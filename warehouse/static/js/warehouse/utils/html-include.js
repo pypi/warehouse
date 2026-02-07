@@ -1,15 +1,4 @@
-/* Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/* SPDX-License-Identifier: Apache-2.0 */
 
 const fetchOptions = {
   mode: "same-origin",
@@ -19,6 +8,11 @@ const fetchOptions = {
 };
 
 export default () => {
+  // Check if we have an authenticated session
+  let authed = document.cookie.split(";").some(
+    v => v.trim().startsWith("user_id__insecure="),
+  );
+
   // Each HTML include will generate a promise, which we'll later use to wait
   // on once all the promises have been resolved.
   let promises = [];
@@ -31,7 +25,24 @@ export default () => {
   // data-html-include attribute and replace it's content with that. This uses
   // the new fetch() API which returns a Promise.
   elements.forEach((element) => {
-    let p = fetch(element.getAttribute("data-html-include"), fetchOptions)
+    let url = element.getAttribute("data-html-include");
+    if (!authed) {
+      // Don't fetch authed URLs if we aren't authenticated
+      try {
+        // Attempt to parse as full URL
+        const pathname = new URL(url, "http://example.com").pathname;
+        if (pathname.startsWith("/_includes/authed/")) {
+          return;
+        }
+      } catch (e) {
+        // If parsing fails, assume it's just a path
+        if (url.startsWith("/_includes/authed/")) {
+          return;
+        }
+      }
+    }
+
+    let p = fetch(url, fetchOptions)
       .then(response => {
         if (response.ok) { return response.text(); }
         else { return ""; }

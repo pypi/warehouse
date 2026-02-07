@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import pretend
 import pytest
@@ -21,6 +11,7 @@ from sqlalchemy.exc import NoResultFound
 from warehouse.ip_addresses.models import IpAddress
 from warehouse.utils import wsgi
 
+from ...common.constants import REMOTE_ADDR, REMOTE_ADDR_HASHED, REMOTE_ADDR_SALTED
 from ...common.db.ip_addresses import IpAddressFactory as DBIpAddressFactory
 
 
@@ -32,7 +23,7 @@ class TestProxyFixer:
         environ = {
             "HTTP_WAREHOUSE_TOKEN": "NOPE",
             "HTTP_WAREHOUSE_PROTO": "http",
-            "HTTP_WAREHOUSE_IP": "1.2.3.4",
+            "HTTP_WAREHOUSE_IP": REMOTE_ADDR,
             "HTTP_WAREHOUSE_HOST": "example.com",
         }
         start_response = pretend.stub()
@@ -77,7 +68,7 @@ class TestProxyFixer:
         environ = {
             "HTTP_WAREHOUSE_TOKEN": "1234",
             "HTTP_WAREHOUSE_PROTO": "http",
-            "HTTP_WAREHOUSE_IP": "1.2.3.4",
+            "HTTP_WAREHOUSE_IP": REMOTE_ADDR,
             "HTTP_WAREHOUSE_HASHED_IP": "hashbrowns",
             "HTTP_WAREHOUSE_HOST": "example.com",
             "HTTP_WAREHOUSE_CITY": "Anytown, ST",
@@ -92,7 +83,7 @@ class TestProxyFixer:
         assert app.calls == [
             pretend.call(
                 {
-                    "REMOTE_ADDR": "1.2.3.4",
+                    "REMOTE_ADDR": REMOTE_ADDR,
                     "REMOTE_ADDR_HASHED": "hashbrowns",
                     "HTTP_HOST": "example.com",
                     "GEOIP_CITY": "Anytown, ST",
@@ -116,13 +107,13 @@ class TestProxyFixer:
         assert resp is response
         assert app.calls == [pretend.call({}, start_response)]
 
-    def test_accepts_x_forwarded_headers(self, remote_addr_salted):
+    def test_accepts_x_forwarded_headers(self):
         response = pretend.stub()
         app = pretend.call_recorder(lambda e, s: response)
 
         environ = {
             "HTTP_X_FORWARDED_PROTO": "http",
-            "HTTP_X_FORWARDED_FOR": "1.2.3.4",
+            "HTTP_X_FORWARDED_FOR": REMOTE_ADDR,
             "HTTP_X_FORWARDED_HOST": "example.com",
             "HTTP_SOME_OTHER_HEADER": "woop",
         }
@@ -135,8 +126,8 @@ class TestProxyFixer:
             pretend.call(
                 {
                     "HTTP_SOME_OTHER_HEADER": "woop",
-                    "REMOTE_ADDR": "1.2.3.4",
-                    "REMOTE_ADDR_HASHED": remote_addr_salted,
+                    "REMOTE_ADDR": REMOTE_ADDR,
+                    "REMOTE_ADDR_HASHED": REMOTE_ADDR_SALTED,
                     "HTTP_HOST": "example.com",
                     "wsgi.url_scheme": "http",
                 },
@@ -148,7 +139,10 @@ class TestProxyFixer:
         response = pretend.stub()
         app = pretend.call_recorder(lambda e, s: response)
 
-        environ = {"HTTP_X_FORWARDED_FOR": "1.2.3.4", "HTTP_SOME_OTHER_HEADER": "woop"}
+        environ = {
+            "HTTP_X_FORWARDED_FOR": REMOTE_ADDR,
+            "HTTP_SOME_OTHER_HEADER": "woop",
+        }
         start_response = pretend.stub()
 
         resp = wsgi.ProxyFixer(app, token=None, ip_salt=None, num_proxies=2)(
@@ -160,7 +154,7 @@ class TestProxyFixer:
             pretend.call({"HTTP_SOME_OTHER_HEADER": "woop"}, start_response)
         ]
 
-    def test_selects_right_x_forwarded_value(self, remote_addr_salted):
+    def test_selects_right_x_forwarded_value(self):
         response = pretend.stub()
         app = pretend.call_recorder(lambda e, s: response)
 
@@ -181,8 +175,8 @@ class TestProxyFixer:
             pretend.call(
                 {
                     "HTTP_SOME_OTHER_HEADER": "woop",
-                    "REMOTE_ADDR": "1.2.3.4",
-                    "REMOTE_ADDR_HASHED": remote_addr_salted,
+                    "REMOTE_ADDR": REMOTE_ADDR,
+                    "REMOTE_ADDR_HASHED": REMOTE_ADDR_SALTED,
                     "HTTP_HOST": "example.com",
                     "wsgi.url_scheme": "http",
                 },
@@ -245,11 +239,11 @@ def test_ip_address_created(db_request):
     assert ip_address.geoip_info == {"city": "Anytown, ST"}
 
 
-def test_remote_addr_hashed(remote_addr_hashed):
-    environ = {"REMOTE_ADDR_HASHED": remote_addr_hashed}
+def test_remote_addr_hashed():
+    environ = {"REMOTE_ADDR_HASHED": REMOTE_ADDR_HASHED}
     request = pretend.stub(environ=environ)
 
-    assert wsgi._remote_addr_hashed(request) == remote_addr_hashed
+    assert wsgi._remote_addr_hashed(request) == REMOTE_ADDR_HASHED
 
 
 def test_remote_addr_hashed_missing():

@@ -1,17 +1,11 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
+
+import datetime
+
 from urllib.parse import urljoin
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
+from psycopg.errors import UniqueViolation
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPException,
@@ -24,10 +18,9 @@ from webob.multidict import MultiDict
 
 from warehouse.accounts.interfaces import ITokenService, IUserService, TokenExpired
 from warehouse.accounts.models import User
+from warehouse.admin.flags import AdminFlagValue
 from warehouse.authnz import Permissions
 from warehouse.email import (
-    send_admin_organization_deleted_email,
-    send_admin_organization_renamed_email,
     send_canceled_as_invited_organization_member_email,
     send_new_organization_requested_email,
     send_organization_deleted_email,
@@ -37,7 +30,6 @@ from warehouse.email import (
     send_organization_member_role_changed_email,
     send_organization_project_added_email,
     send_organization_project_removed_email,
-    send_organization_renamed_email,
     send_organization_role_verification_email,
     send_organization_updated_email,
     send_removed_as_organization_member_email,
@@ -51,6 +43,8 @@ from warehouse.manage.forms import (
     CreateOrganizationApplicationForm,
     CreateOrganizationRoleForm,
     CreateTeamForm,
+    InformationRequestResponseForm,
+    OrganizationActivateBillingForm,
     SaveOrganizationForm,
     SaveOrganizationNameForm,
     TransferOrganizationProjectForm,
@@ -60,13 +54,30 @@ from warehouse.manage.views.view_helpers import (
     user_organizations,
     user_projects,
 )
+from warehouse.observations.models import Observation
+from warehouse.oidc.forms import (
+    PendingActiveStatePublisherForm,
+    PendingGitHubPublisherForm,
+    PendingGitLabPublisherForm,
+    PendingGooglePublisherForm,
+)
+from warehouse.oidc.models import (
+    GitLabPublisher,
+    PendingActiveStatePublisher,
+    PendingGitHubPublisher,
+    PendingGitLabPublisher,
+    PendingGooglePublisher,
+)
 from warehouse.organizations import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
+    OrganizationApplication,
+    OrganizationApplicationStatus,
     OrganizationInvitationStatus,
     OrganizationRole,
     OrganizationRoleType,
     OrganizationType,
+    TermsOfServiceEngagement,
 )
 from warehouse.packaging import IProjectService, Project, Role
 from warehouse.packaging.models import JournalEntry, ProjectFactory
@@ -123,7 +134,7 @@ def organization_members(request, organization):
 
 @view_defaults(
     route_name="manage.organizations",
-    renderer="manage/organizations.html",
+    renderer="warehouse:templates/manage/organizations.html",
     uses_session=True,
     require_active_organization=False,  # Allow list/create orgs without active org.
     require_csrf=True,
@@ -161,11 +172,6 @@ class ManageOrganizationsViews:
         organizations = self.organization_service.get_organizations_by_user(
             self.request.user.id
         )
-        organizations = [
-            organization
-            for organization in organizations
-            if organization.is_approved is not False
-        ]
 
         return {
             "organization_invites": organization_invites,
@@ -192,7 +198,11 @@ class ManageOrganizationsViews:
                     [
                         app
                         for app in self.request.user.organization_applications
-                        if app.is_approved is None
+                        if app.status
+                        not in (
+                            OrganizationApplicationStatus.Approved,
+                            OrganizationApplicationStatus.Declined,
+                        )
                     ]
                 )
                 < self.request.registry.settings[
@@ -247,9 +257,85 @@ class ManageOrganizationsViews:
 
 
 @view_defaults(
+    route_name="manage.organizations.application",
+    context=OrganizationApplication,
+    renderer="warehouse:templates/manage/organization/application.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    permission=Permissions.OrganizationApplicationsManage,
+    has_translations=True,
+)
+class ManageOrganizationApplicationViews:
+    def __init__(self, organization_application, request):
+        self.organization_application = organization_application
+        self.request = request
+
+    @view_config(request_method="GET")
+    def manage_organization_application(self):
+        information_requests = self.organization_application.information_requests
+        return {
+            "organization_application": self.organization_application,
+            "information_requests": information_requests,
+            "response_forms": {
+                information_request.id: InformationRequestResponseForm()
+                for information_request in information_requests
+                if information_request.additional.get("response") is None
+            },
+        }
+
+    @view_config(request_method="POST")
+    def manage_organization_application_submit(self):
+        form = InformationRequestResponseForm(self.request.POST)
+        information_requests = self.organization_application.information_requests
+        if form.validate():
+            data = form.data
+
+            observation = (
+                self.request.db.query(Observation)
+                .filter(Observation.id == self.request.POST.get("response_form-id"))
+                .one()
+            )
+            observation.additional["response"] = data["response"]
+            observation.additional["response_time"] = datetime.datetime.now(
+                datetime.UTC
+            ).isoformat()
+            self.request.db.add(observation)
+
+            # Move status back to Submitted if all information requests have responses
+            if all(
+                [
+                    "response" in information_request.additional
+                    for information_request in information_requests
+                ]
+            ):
+                self.organization_application.status = (
+                    OrganizationApplicationStatus.Submitted
+                )
+
+            self.request.session.flash("Response submitted", queue="success")
+        else:
+            return {
+                "organization_application": self.organization_application,
+                "information_requests": information_requests,
+                "response_forms": {
+                    information_request.id: (
+                        form
+                        if information_request.id.__str__()
+                        == self.request.POST.get("response_form-id")
+                        else InformationRequestResponseForm()
+                    )
+                    for information_request in information_requests
+                    if information_request.additional.get("response") is None
+                },
+            }
+        return HTTPSeeOther(self.request.path)
+
+
+@view_defaults(
     route_name="manage.organization.settings",
     context=Organization,
-    renderer="manage/organization/settings.html",
+    renderer="warehouse:templates/manage/organization/settings.html",
     uses_session=True,
     require_active_organization=True,
     require_csrf=True,
@@ -357,57 +443,62 @@ class ManageOrganizationSettingsViews:
             error_message="Could not rename organization",
         )
 
-        form = SaveOrganizationNameForm(
-            self.request.POST,
-            organization_service=self.organization_service,
-            organization_id=self.organization.id,
-            user=self.request.user,
+        self.request.session.flash(
+            "Organization names cannot be changed", queue="error"
+        )
+        return HTTPSeeOther(
+            self.request.route_path(
+                "manage.organization.settings",
+                organization_name=self.organization.normalized_name,
+            )
         )
 
-        if form.validate():
-            previous_organization_name = self.organization.name
-            self.organization_service.rename_organization(
-                self.organization.id,
-                form.name.data,
-            )
-            self.organization.record_event(
-                tag=EventTag.Organization.CatalogEntryAdd,
-                request=self.request,
-                additional={"submitted_by_user_id": str(self.request.user.id)},
-            )
-            self.organization.record_event(
-                tag=EventTag.Organization.OrganizationRename,
-                request=self.request,
-                additional={
-                    "previous_organization_name": previous_organization_name,
-                    "renamed_by_user_id": str(self.request.user.id),
-                },
-            )
-            owner_users = set(organization_owners(self.request, self.organization))
-            send_admin_organization_renamed_email(
-                self.request,
-                self.user_service.get_admin_user(),
-                organization_name=self.organization.name,
-                previous_organization_name=previous_organization_name,
-            )
-            send_organization_renamed_email(
-                self.request,
-                owner_users,
-                organization_name=self.organization.name,
-                previous_organization_name=previous_organization_name,
-            )
-            self.request.session.flash(
-                "Organization account name updated", queue="success"
-            )
-            return HTTPSeeOther(
-                self.request.route_path(
-                    "manage.organization.settings",
-                    organization_name=self.organization.normalized_name,
-                )
-                + "#modal-close"
-            )
+        # # When support for renaming orgs is re-introduced
+        # form = SaveOrganizationNameForm(
+        #    self.request.POST,
+        #    organization_service=self.organization_service,
+        #    organization_id=self.organization.id,
+        #    user=self.request.user,
+        # )
 
-        return {**self.default_response, "save_organization_name_form": form}
+        # if form.validate():
+        #    previous_organization_name = self.organization.name
+        #    self.organization_service.rename_organization(
+        #        self.organization.id,
+        #        form.name.data,
+        #    )
+        #    self.organization.record_event(
+        #        tag=EventTag.Organization.CatalogEntryAdd,
+        #        request=self.request,
+        #        additional={"submitted_by_user_id": str(self.request.user.id)},
+        #    )
+        #    self.organization.record_event(
+        #        tag=EventTag.Organization.OrganizationRename,
+        #        request=self.request,
+        #        additional={
+        #            "previous_organization_name": previous_organization_name,
+        #            "renamed_by_user_id": str(self.request.user.id),
+        #        },
+        #    )
+        #    owner_users = set(organization_owners(self.request, self.organization))
+        #    send_organization_renamed_email(
+        #        self.request,
+        #        owner_users,
+        #        organization_name=self.organization.name,
+        #        previous_organization_name=previous_organization_name,
+        #    )
+        #    self.request.session.flash(
+        #        "Organization account name updated", queue="success"
+        #    )
+        #    return HTTPSeeOther(
+        #        self.request.route_path(
+        #            "manage.organization.settings",
+        #            organization_name=self.organization.normalized_name,
+        #        )
+        #        + "#modal-close"
+        #    )
+
+        # return {**self.default_response, "save_organization_name_form": form}
 
     @view_config(request_method="POST", request_param=["confirm_organization_name"])
     def delete_organization(self):
@@ -441,11 +532,6 @@ class ManageOrganizationSettingsViews:
 
         self.organization_service.delete_organization(self.organization.id)
 
-        send_admin_organization_deleted_email(
-            self.request,
-            self.user_service.get_admin_user(),
-            organization_name=self.organization.name,
-        )
         send_organization_deleted_email(
             self.request,
             owner_users,
@@ -551,12 +637,22 @@ class ManageOrganizationBillingViews:
 
     @view_config(
         route_name="manage.organization.activate_subscription",
-        renderer="manage/organization/activate_subscription.html",
+        renderer="warehouse:templates/manage/organization/activate_subscription.html",
     )
     def activate_subscription(self):
-        # We're not ready for companies to activate their own subscriptions yet.
-        raise HTTPNotFound()
-        # return {"organization": self.organization}
+        form = OrganizationActivateBillingForm(self.request.POST)
+        if self.request.method == "POST" and form.validate():
+            self.organization_service.record_tos_engagement(
+                self.organization.id,
+                self.request.registry.settings.get("terms.revision"),
+                TermsOfServiceEngagement.Agreed,
+            )
+            route = self.request.route_path(
+                "manage.organization.subscription",
+                organization_name=self.organization.normalized_name,
+            )
+            return HTTPSeeOther(route)
+        return {"organization": self.organization, "form": form}
 
     @view_config(route_name="manage.organization.subscription")
     def create_or_manage_subscription(self):
@@ -564,8 +660,10 @@ class ManageOrganizationBillingViews:
         if not self.request.organization_access:
             raise HTTPNotFound()
 
-        if not self.organization.subscriptions:
-            # Create subscription if there are no existing subscription.
+        if not self.organization.manageable_subscription:
+            # Create subscription if there are no manageable subscription.
+            # This occurs if no subscription exists, or all subscriptions have reached
+            # a terminal state of Canceled.
             return self.create_subscription()
         else:
             # Manage subscription if there is an existing subscription.
@@ -575,7 +673,7 @@ class ManageOrganizationBillingViews:
 @view_defaults(
     route_name="manage.organization.teams",
     context=Organization,
-    renderer="manage/organization/teams.html",
+    renderer="warehouse:templates/manage/organization/teams.html",
     uses_session=True,
     require_active_organization=True,
     require_csrf=True,
@@ -663,7 +761,7 @@ class ManageOrganizationTeamsViews:
 @view_defaults(
     route_name="manage.organization.projects",
     context=Organization,
-    renderer="manage/organization/projects.html",
+    renderer="warehouse:templates/manage/organization/projects.html",
     uses_session=True,
     require_active_organization=True,
     require_csrf=True,
@@ -883,6 +981,16 @@ def _send_organization_invitation(request, organization, role_name, user):
             queue="error",
         )
     else:
+        # Check if organization is in good standing (allow invitations over seat limit)
+        if not organization.is_in_good_standing():
+            request.session.flash(
+                request._(
+                    "Cannot invite new member. Organization is not in good " "standing."
+                ),
+                queue="error",
+            )
+            return
+
         invite_token = token_service.dumps(
             {
                 "action": "email-organization-role-verify",
@@ -951,7 +1059,7 @@ def _send_organization_invitation(request, organization, role_name, user):
 @view_config(
     route_name="manage.organization.roles",
     context=Organization,
-    renderer="manage/organization/roles.html",
+    renderer="warehouse:templates/manage/organization/roles.html",
     uses_session=True,
     require_active_organization=True,
     require_methods=False,
@@ -1310,7 +1418,7 @@ def delete_organization_role(organization, request):
 @view_config(
     route_name="manage.organization.history",
     context=Organization,
-    renderer="manage/organization/history.html",
+    renderer="warehouse:templates/manage/organization/history.html",
     uses_session=True,
     permission=Permissions.OrganizationsManage,
     has_translations=True,
@@ -1478,18 +1586,16 @@ def transfer_organization_project(project, request):
 
     all_user_organizations = user_organizations(request)
     active_organizations_owned = {
-        organization.name
+        organization
         for organization in all_user_organizations["organizations_owned"]
         if organization.is_active
     }
     active_organizations_managed = {
-        organization.name
+        organization
         for organization in all_user_organizations["organizations_managed"]
         if organization.is_active
     }
-    current_organization = (
-        {project.organization.name} if project.organization else set()
-    )
+    current_organization = {project.organization} if project.organization else set()
     organization_choices = (
         active_organizations_owned | active_organizations_managed
     ) - current_organization
@@ -1573,7 +1679,7 @@ def transfer_organization_project(project, request):
         orm.attributes.flag_dirty(organization)
 
     # Add project to selected organization.
-    organization = organization_service.get_organization_by_name(form.organization.data)
+    organization = organization_service.get_organization(form.organization.data)
     organization_service.add_organization_project(organization.id, project.id)
     organization.record_event(
         tag=EventTag.Organization.OrganizationProjectAdd,
@@ -1614,3 +1720,297 @@ def transfer_organization_project(project, request):
     return HTTPSeeOther(
         request.route_path("manage.project.settings", project_name=project.name)
     )
+
+
+@view_defaults(
+    route_name="manage.organization.publishing",
+    context=Organization,
+    renderer="manage/organization/publishing.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    permission=Permissions.OrganizationsManage,
+    has_translations=True,
+    require_reauth=True,
+)
+class ManageOrganizationPublishingViews:
+    def __init__(self, organization, request):
+        self.organization = organization
+        self.request = request
+        self.metrics = self.request.metrics
+        self.project_service = self.request.find_service(IProjectService)
+        self.pending_github_publisher_form = PendingGitHubPublisherForm(
+            self.request.POST,
+            api_token=self.request.registry.settings.get("github.token"),
+            route_url=self.request.route_url,
+            check_project_name=self.project_service.check_project_name,
+            user=request.user,  # Still need to pass user for form validation
+        )
+        _gl_issuers = GitLabPublisher.get_available_issuer_urls(
+            organization=organization
+        )
+        self.pending_gitlab_publisher_form = PendingGitLabPublisherForm(
+            self.request.POST,
+            route_url=self.request.route_url,
+            check_project_name=self.project_service.check_project_name,
+            user=request.user,
+            issuer_url_choices=_gl_issuers,
+        )
+        self.pending_google_publisher_form = PendingGooglePublisherForm(
+            self.request.POST,
+            route_url=self.request.route_url,
+            check_project_name=self.project_service.check_project_name,
+            user=request.user,
+        )
+        self.pending_activestate_publisher_form = PendingActiveStatePublisherForm(
+            self.request.POST,
+            route_url=self.request.route_url,
+            check_project_name=self.project_service.check_project_name,
+            user=request.user,
+        )
+
+    @property
+    def default_response(self):
+        # Get pending publishers owned by this organization
+        pending_oidc_publishers = self.organization.pending_oidc_publishers
+
+        return {
+            "organization": self.organization,
+            "pending_github_publisher_form": self.pending_github_publisher_form,
+            "pending_gitlab_publisher_form": self.pending_gitlab_publisher_form,
+            "pending_google_publisher_form": self.pending_google_publisher_form,
+            "pending_activestate_publisher_form": self.pending_activestate_publisher_form,  # noqa: E501
+            "pending_oidc_publishers": pending_oidc_publishers,
+            "disabled": {
+                "GitHub": self.request.flags.disallow_oidc(
+                    AdminFlagValue.DISALLOW_GITHUB_OIDC
+                ),
+                "GitLab": self.request.flags.disallow_oidc(
+                    AdminFlagValue.DISALLOW_GITLAB_OIDC
+                ),
+                "Google": self.request.flags.disallow_oidc(
+                    AdminFlagValue.DISALLOW_GOOGLE_OIDC
+                ),
+                "ActiveState": self.request.flags.disallow_oidc(
+                    AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC
+                ),
+            },
+        }
+
+    @view_config(request_method="GET")
+    def manage_organization_publishing(self):
+        if self.request.flags.disallow_oidc():
+            self.request.session.flash(
+                self.request._(
+                    "Trusted publishing is temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+            return self.default_response
+
+        return self.default_response
+
+    def _add_pending_oidc_publisher(
+        self,
+        publisher_name,
+        publisher_class,
+        admin_flag,
+        form,
+        make_pending_publisher,
+        make_existence_filters,
+    ):
+        """Common logic for adding organization-level pending OIDC publishers."""
+        # Check admin flags
+        if self.request.flags.disallow_oidc(admin_flag):
+            self.request.session.flash(
+                self.request._(
+                    f"{publisher_name}-based trusted publishing is temporarily "
+                    "disabled. See https://pypi.org/help#admin-intervention for "
+                    "details."
+                ),
+                queue="error",
+            )
+            return self.default_response
+
+        self.metrics.increment(
+            "warehouse.oidc.add_pending_publisher.attempt",
+            tags=[f"publisher:{publisher_name}", "organization:true"],
+        )
+
+        # Validate form
+        if not form.validate():
+            self.request.session.flash(
+                self.request._("The trusted publisher could not be registered"),
+                queue="error",
+            )
+            return self.default_response
+
+        # Check if publisher already exists
+        publisher_already_exists = (
+            self.request.db.query(publisher_class)
+            .filter_by(**make_existence_filters(form))
+            .first()
+            is not None
+        )
+
+        if publisher_already_exists:
+            self.request.session.flash(
+                self.request._(
+                    "This publisher has already been registered in your organization. "
+                    "See your existing pending publishers below."
+                ),
+                queue="error",
+            )
+            return self.default_response
+
+        # Create pending publisher associated with organization
+        pending_publisher = make_pending_publisher(self.request, form)
+
+        try:
+            self.request.db.add(pending_publisher)
+            self.request.db.flush()  # To get the new ID
+        except UniqueViolation:
+            # Double-post protection
+            return HTTPSeeOther(self.request.path)
+
+        # Record event on organization
+        self.organization.record_event(
+            tag=EventTag.Organization.PendingOIDCPublisherAdded,
+            request=self.request,
+            additional={
+                "project": pending_publisher.project_name,
+                "publisher": pending_publisher.publisher_name,
+                "id": str(pending_publisher.id),
+                "specifier": str(pending_publisher),
+                "url": pending_publisher.publisher_url(),
+                "submitted_by": self.request.user.username,
+            },
+        )
+
+        self.request.session.flash(
+            self.request._(
+                "Registered a new pending publisher to create "
+                f"the project '{pending_publisher.project_name}' "
+                f"owned by the '{self.organization.name}' organization."
+            ),
+            queue="success",
+        )
+
+        self.metrics.increment(
+            "warehouse.oidc.add_pending_publisher.ok",
+            tags=[f"publisher:{publisher_name}", "organization:true"],
+        )
+
+        return HTTPSeeOther(self.request.path)
+
+    @view_config(
+        request_method="POST", request_param=PendingGitHubPublisherForm.__params__
+    )
+    def add_pending_github_oidc_publisher(self):
+        form = self.pending_github_publisher_form
+        return self._add_pending_oidc_publisher(
+            publisher_name="GitHub",
+            publisher_class=PendingGitHubPublisher,
+            admin_flag=AdminFlagValue.DISALLOW_GITHUB_OIDC,
+            form=form,
+            make_pending_publisher=lambda request, form: PendingGitHubPublisher(
+                project_name=form.project_name.data,
+                added_by=request.user,
+                repository_name=form.repository.data,
+                repository_owner=form.normalized_owner,
+                repository_owner_id=form.owner_id,
+                workflow_filename=form.workflow_filename.data,
+                environment=form.normalized_environment,
+                organization_id=self.organization.id,
+            ),
+            make_existence_filters=lambda form: dict(
+                project_name=form.project_name.data,
+                repository_name=form.repository.data,
+                repository_owner=form.normalized_owner,
+                workflow_filename=form.workflow_filename.data,
+                environment=form.normalized_environment,
+            ),
+        )
+
+    @view_config(
+        request_method="POST", request_param=PendingGitLabPublisherForm.__params__
+    )
+    def add_pending_gitlab_oidc_publisher(self):
+        form = self.pending_gitlab_publisher_form
+        return self._add_pending_oidc_publisher(
+            publisher_name="GitLab",
+            publisher_class=PendingGitLabPublisher,
+            admin_flag=AdminFlagValue.DISALLOW_GITLAB_OIDC,
+            form=form,
+            make_pending_publisher=lambda request, form: PendingGitLabPublisher(
+                project_name=form.project_name.data,
+                added_by=request.user,
+                namespace=form.namespace.data,
+                project=form.project.data,
+                workflow_filepath=form.workflow_filepath.data,
+                environment=form.environment.data,
+                issuer_url=form.issuer_url.data,
+                organization_id=self.organization.id,
+            ),
+            make_existence_filters=lambda form: dict(
+                project_name=form.project_name.data,
+                namespace=form.namespace.data,
+                project=form.project.data,
+                workflow_filepath=form.workflow_filepath.data,
+                environment=form.environment.data,
+                issuer_url=form.issuer_url.data,
+            ),
+        )
+
+    @view_config(
+        request_method="POST", request_param=PendingGooglePublisherForm.__params__
+    )
+    def add_pending_google_oidc_publisher(self):
+        form = self.pending_google_publisher_form
+        return self._add_pending_oidc_publisher(
+            publisher_name="Google",
+            publisher_class=PendingGooglePublisher,
+            admin_flag=AdminFlagValue.DISALLOW_GOOGLE_OIDC,
+            form=form,
+            make_pending_publisher=lambda request, form: PendingGooglePublisher(
+                project_name=form.project_name.data,
+                added_by=request.user,
+                email=form.email.data,
+                sub=form.sub.data,
+                organization_id=self.organization.id,
+            ),
+            make_existence_filters=lambda form: dict(
+                project_name=form.project_name.data,
+                email=form.email.data,
+                sub=form.sub.data,
+            ),
+        )
+
+    @view_config(
+        request_method="POST", request_param=PendingActiveStatePublisherForm.__params__
+    )
+    def add_pending_activestate_oidc_publisher(self):
+        form = self.pending_activestate_publisher_form
+        return self._add_pending_oidc_publisher(
+            publisher_name="ActiveState",
+            publisher_class=PendingActiveStatePublisher,
+            admin_flag=AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC,
+            form=form,
+            make_pending_publisher=lambda request, form: PendingActiveStatePublisher(
+                project_name=form.project_name.data,
+                added_by=request.user,
+                organization=form.organization.data,
+                activestate_project_name=form.project.data,
+                actor=form.actor.data,
+                actor_id=form.actor_id,
+                organization_id=self.organization.id,
+            ),
+            make_existence_filters=lambda form: dict(
+                project_name=form.project_name.data,
+                organization=form.organization.data,
+                activestate_project_name=form.project.data,
+                actor=form.actor.data,
+                actor_id=form.actor_id,
+            ),
+        )

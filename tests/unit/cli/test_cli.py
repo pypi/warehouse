@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import click
 import pretend
@@ -31,6 +21,8 @@ def test_lazy_config_delays(monkeypatch):
     assert configure.calls == [pretend.call("thing", settings={"lol": "wat"})]
 
 
+# TODO: This test doesn't actually test anything, as the command is not registered.
+#  The test output is effectively "command not found".
 def test_cli_no_settings(monkeypatch, cli):
     config = pretend.stub()
     configure = pretend.call_recorder(lambda: config)
@@ -38,10 +30,21 @@ def test_cli_no_settings(monkeypatch, cli):
 
     @warehouse.cli.warehouse.command()
     @click.pass_obj
-    def cli_test_command(obj):
+    def cli_test_command(obj):  # pragma: no cover
         assert obj is config
 
     result = cli.invoke(warehouse.cli.warehouse, ["cli-test-command"])
+
+    assert result.exit_code == 2
+    assert configure.calls == []
+
+
+def test_cli_help(monkeypatch, cli):
+    config = pretend.stub()
+    configure = pretend.call_recorder(lambda: config)
+    monkeypatch.setattr(warehouse.cli, "LazyConfig", configure)
+
+    result = cli.invoke(warehouse.cli.warehouse, ["db", "-h"])
 
     assert result.exit_code == 0
     assert configure.calls == [pretend.call()]

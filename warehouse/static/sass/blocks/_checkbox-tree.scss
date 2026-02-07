@@ -1,16 +1,8 @@
-/*!
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/* SPDX-License-Identifier: Apache-2.0 */
+
+@use "../settings/breakpoints";
+@use "../settings/colours";
+@use "../settings/fonts";
 
 /*
   A tree of checkboxes with sub levels.
@@ -47,10 +39,10 @@
       top: 13px;
       width: 12px;
       height: 0;
-      border-top: 2px solid $light-grey;
+      border-top: 2px solid colours.$light-grey;
 
-      @media only screen and (max-width: $desktop) {
-        border-top-color: $primary-color-light;
+      @media only screen and (max-width: breakpoints.$desktop) {
+        border-top-color: colours.$primary-color-light;
       }
     }
 
@@ -61,10 +53,10 @@
       height: 100%;
       width: 0;
       top: -2px;
-      border-left: 2px solid $light-grey;
+      border-left: 2px solid colours.$light-grey;
 
-      @media only screen and (max-width: $desktop) {
-        border-left-color: $primary-color-light;
+      @media only screen and (max-width: breakpoints.$desktop) {
+        border-left-color: colours.$primary-color-light;
       }
     }
   }
@@ -78,15 +70,15 @@
     top: 3px;
   }
 
-  @media only screen and (max-width: $desktop) {
+  @media only screen and (max-width: breakpoints.$desktop) {
     &__checkbox[type="checkbox"]:active,
     &__checkbox[type="checkbox"]:focus {
-      outline: 1px solid $white;
+      outline: 1px solid colours.$white;
     }
   }
 
   &__label {
-    font-size: $small-font-size;
+    font-size: fonts.$small-font-size;
     cursor: pointer;
     line-height: 1;
   }

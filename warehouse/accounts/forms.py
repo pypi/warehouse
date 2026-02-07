@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
 
@@ -39,16 +29,14 @@ from warehouse.accounts.interfaces import (
 )
 from warehouse.accounts.models import DisableReason, ProhibitedEmailDomain
 from warehouse.accounts.services import RECOVERY_CODE_BYTES
-from warehouse.captcha import recaptcha
+from warehouse.captcha import CaptchaError
+from warehouse.constants import MAX_PASSWORD_SIZE
 from warehouse.email import (
     send_password_compromised_email_hibp,
     send_recovery_code_used_email,
 )
 from warehouse.events.tags import EventTag
 from warehouse.i18n import localize as _
-
-# Taken from passlib
-MAX_PASSWORD_SIZE = 4096
 
 # Common messages, set as constants to keep them from drifting.
 INVALID_EMAIL_MESSAGE = _("The email address isn't valid. Try again.")
@@ -79,6 +67,20 @@ class PreventNullBytesValidator:
             raise wtforms.validators.StopValidation(self.message)
 
 
+def _check_for_email_in_username(form, field):
+    """
+    Validator that checks if the username field contains an email address.
+    This helps users who mistakenly enter their email instead of username.
+    """
+    if field.data and "@" in field.data.strip():
+        raise wtforms.validators.StopValidation(
+            message=_(
+                "Usernames are not the same as email addresses. "
+                "Enter your username instead of your email address."
+            )
+        )
+
+
 def _check_for_existing_username(form: LoginForm, field):
     field.data = field.data.strip()
 
@@ -93,6 +95,7 @@ class UsernameMixin:
         validators=[
             wtforms.validators.InputRequired(),
             PreventNullBytesValidator(),
+            _check_for_email_in_username,
             _check_for_existing_username,
         ],
     )
@@ -118,19 +121,27 @@ class WebAuthnCredentialMixin:
     credential = wtforms.StringField(validators=[wtforms.validators.InputRequired()])
 
 
+def _remove_whitespace(value):
+    """Filter to remove all whitespace from input."""
+    return "".join(value.split()) if value else value
+
+
 class RecoveryCodeValueMixin:
+    # Recovery codes are exactly 16 hex characters.
+    # Whitespace is removed to allow user-friendly input like "dead beef 0000 1111".
     recovery_code_value = wtforms.StringField(
+        filters=[_remove_whitespace],
         validators=[
             wtforms.validators.InputRequired(),
             PreventNullBytesValidator(),
             wtforms.validators.Regexp(
-                rf"^ *([0-9a-f] *){{{2 * RECOVERY_CODE_BYTES}}}$",
+                rf"^[0-9a-f]{{{2 * RECOVERY_CODE_BYTES}}}$",
                 message=_(
                     "Recovery Codes must be ${recovery_code_length} characters.",
                     mapping={"recovery_code_length": 2 * RECOVERY_CODE_BYTES},
                 ),
             ),
-        ]
+        ],
     )
 
 
@@ -294,12 +305,12 @@ class NewEmailMixin:
 
         # Check if the domain is valid
         extractor = TLDExtract(suffix_list_urls=())  # Updated during image build
-        domain = extractor(resp.domain.lower()).registered_domain
+        domain = extractor(resp.domain.lower()).top_domain_under_public_suffix
 
         mx_domains = set()
         if hasattr(resp, "mx") and resp.mx:
             mx_domains = {
-                extractor(mx_host.lower()).registered_domain
+                extractor(mx_host.lower()).top_domain_under_public_suffix
                 for _prio, mx_host in resp.mx
             }
             mx_domains.update({mx_host.lower() for _prio, mx_host in resp.mx})
@@ -317,7 +328,7 @@ class NewEmailMixin:
                 mx_ptr = dns.resolver.resolve_address(mx_ip[0].address)
                 mx_ptr_domain = extractor(
                     mx_ptr[0].target.to_text().lower()
-                ).registered_domain
+                ).top_domain_under_public_suffix
                 all_mx_domains.add(mx_ptr_domain)
 
         # combine both sets
@@ -430,13 +441,13 @@ class RegistrationForm(  # type: ignore[misc]
     def validate_g_recaptcha_response(self, field):
         # do required data validation here due to enabled flag being required
         if self.captcha_service.enabled and not field.data:
-            raise wtforms.validators.ValidationError("Recaptcha error.")
+            raise wtforms.validators.ValidationError("Captcha error.")
         try:
             self.captcha_service.verify_response(field.data)
-        except recaptcha.RecaptchaError:
+        except CaptchaError:
             # TODO: log error
             # don't want to provide the user with any detail
-            raise wtforms.validators.ValidationError("Recaptcha error.")
+            raise wtforms.validators.ValidationError("Captcha error.")
 
 
 class LoginForm(PasswordMixin, UsernameMixin, wtforms.Form):

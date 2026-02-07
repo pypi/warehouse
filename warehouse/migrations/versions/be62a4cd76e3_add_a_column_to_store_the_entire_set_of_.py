@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 """
 Add a column to store the entire set of serialized caveats
 
@@ -50,21 +40,18 @@ def upgrade():
     # Where our permissions_caveat is {"permission": "user"}, set our caveats to
     # [[3, str(user_id)]], which is a single RequestUser caveat where the user_id
     # is the attached user_id for this Macaroon.
-    op.execute(
-        """ UPDATE macaroons
+    op.execute(""" UPDATE macaroons
             SET caveats = jsonb_build_array(jsonb_build_array(3, user_id::text))
             WHERE
                 caveats IS NULL
                 AND user_id IS NOT NULL
                 AND permissions_caveat->>'permissions' = 'user'
-        """
-    )
+        """)
 
     # Where our permissions_caveat is {"permission": [str, ...]}, set our caveats to
     # [[1, [str, ...]]], which is a single ProjectName caveat where the list of project
     # names is taken from the permissions_caveat.
-    op.execute(
-        """ UPDATE macaroons
+    op.execute(""" UPDATE macaroons
             SET caveats = jsonb_build_array(
                 jsonb_build_array(1, permissions_caveat->'permissions'->'projects')
             )
@@ -73,19 +60,16 @@ def upgrade():
                 AND jsonb_typeof(
                     permissions_caveat->'permissions'->'projects'
                 ) = 'array'
-        """
-    )
+        """)
 
     # OIDC Caveats were not emitting the permissions caveat correctly, so we'll
     # turn them into an empty array.
-    op.execute(
-        """ UPDATE macaroons
+    op.execute(""" UPDATE macaroons
             SET caveats = jsonb_build_array()
             WHERE
                 caveats IS NULL
                 AND oidc_publisher_id IS NOT NULL
-        """
-    )
+        """)
 
     # Set our column to not nullable
     op.alter_column(

@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 """
 migrate projects and releases to surrogate primary_key
 
@@ -73,70 +63,54 @@ def upgrade():
         sa.Column("squatter_id", postgresql.UUID(as_uuid=True), nullable=True),
     )
 
-    op.execute(
-        """ UPDATE releases
+    op.execute(""" UPDATE releases
             SET project_id = packages.id
             FROM packages
             WHERE releases.name = packages.name
-        """
-    )
-    op.execute(
-        """ UPDATE roles
+        """)
+    op.execute(""" UPDATE roles
             SET project_id = packages.id
             FROM packages
             WHERE
                 packages.name = roles.package_name
-        """
-    )
-    op.execute(
-        """ UPDATE release_files
+        """)
+    op.execute(""" UPDATE release_files
             SET release_id = releases.id
             FROM releases
             WHERE
                 release_files.name = releases.name
                 AND release_files.version = releases.version
-        """
-    )
-    op.execute(
-        """ DELETE FROM release_dependencies
+        """)
+    op.execute(""" DELETE FROM release_dependencies
             WHERE
                 name IS NULL AND version IS NULL
-        """
-    )
-    op.execute(
-        """ UPDATE release_dependencies
+        """)
+    op.execute(""" UPDATE release_dependencies
             SET release_id = releases.id
             FROM releases
             WHERE
                 release_dependencies.name = releases.name
                 AND release_dependencies.version = releases.version
-        """
-    )
-    op.execute(
-        """ UPDATE release_classifiers
+        """)
+    op.execute(""" UPDATE release_classifiers
             SET release_id = releases.id
             FROM releases
             WHERE
                 release_classifiers.name = releases.name
                 AND release_classifiers.version = releases.version
-        """
-    )
-    op.execute(
-        """ UPDATE warehouse_admin_squat
+        """)
+    op.execute(""" UPDATE warehouse_admin_squat
             SET squattee_id = packages.id
             FROM packages
             WHERE
                 packages.name = warehouse_admin_squat.squattee_name
-        """
-    )
-    op.execute(
-        """ UPDATE warehouse_admin_squat
+        """)
+    op.execute(""" UPDATE warehouse_admin_squat
             SET squatter_id = packages.id
             FROM packages
             WHERE
                 packages.name = warehouse_admin_squat.squatter_name
-        """
-    )
+        """)
 
     # We need to delete the old admin roles, which aren't actually used anymore.
     op.execute("DELETE FROM roles WHERE role_name = 'Admin'")
@@ -288,8 +262,7 @@ def upgrade():
     op.drop_column("warehouse_admin_squat", "squattee_name")
     op.drop_column("warehouse_admin_squat", "squatter_name")
 
-    op.execute(
-        """CREATE OR REPLACE FUNCTION update_release_files_requires_python()
+    op.execute("""CREATE OR REPLACE FUNCTION update_release_files_requires_python()
             RETURNS TRIGGER AS $$
             BEGIN
                 IF (TG_TABLE_NAME = 'releases') THEN
@@ -315,8 +288,7 @@ def upgrade():
                 RETURN NULL;
             END;
             $$ LANGUAGE plpgsql;
-        """
-    )
+        """)
 
 
 def downgrade():

@@ -1,0 +1,22 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% extends "base.html" %}
+{% block title %}Unrecognized device{% endblock %}
+{% set domain = request.registry.settings.get('warehouse.domain') %}
+{% block content %}
+  <div class="horizontal-section">
+    <div class="site-container">
+      <h1 class="page-title">Please confirm this login</h1>
+      <p>
+        We noticed you are attempting to log in from a new or previously unrecognized device. To ensure this is you, please check your email for a login confirmation link.
+      </p>
+      <p>
+        You should have received an email from <strong>noreply@{{ domain }}</strong> with the subject line "<strong>Unrecognized login to your {{ sitename }} account</strong>".
+      </p>
+      <p>
+        In the future, you can automatically trust new devices without needing email
+        verification by using a security device or passkey as your 2FA method. See
+        <a href="{{ request.help_url(_anchor='utfkey') }}">{{ request.help_url(_anchor='utfkey') }}</a> for more details.
+      </p>
+    </div>
+  </div>
+{% endblock %}

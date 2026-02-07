@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import alembic_postgresql_enum  # noqa: F401 # import activates the plugin
 
@@ -30,7 +20,10 @@ def run_migrations_offline():
     Calls to context.execute() here emit the given string to the
     script output.
     """
-    url = context.config.get_main_option("sqlalchemy.url")
+    options = context.config.get_section(context.config.config_ini_section)
+    if options is None:
+        raise ValueError("No options found in config")
+    url = options.pop("url")
     context.configure(url=url, compare_server_default=True)
 
     with context.begin_transaction():
@@ -45,6 +38,8 @@ def run_migrations_online():
     and associate a connection with the context.
     """
     options = context.config.get_section(context.config.config_ini_section)
+    if options is None:
+        raise ValueError("No options found in config")
     url = options.pop("url")
     connectable = create_engine(url, poolclass=pool.NullPool)
 

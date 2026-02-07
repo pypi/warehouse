@@ -1,25 +1,18 @@
-{#
- # Licensed under the Apache License, Version 2.0 (the "License");
- # you may not use this file except in compliance with the License.
- # You may obtain a copy of the License at
- #
- # http://www.apache.org/licenses/LICENSE-2.0
- #
- # Unless required by applicable law or agreed to in writing, software
- # distributed under the License is distributed on an "AS IS" BASIS,
- # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- # See the License for the specific language governing permissions and
- # limitations under the License.
--#}
+{# SPDX-License-Identifier: Apache-2.0 -#}
 {% extends "email/_base/body.html" %}
-
 {% set site = request.registry.settings["site.name"] %}
-
+{% set project_url = request.route_url('packaging.project', name=project_name) %}
+{% set initiator_url = request.route_url('accounts.profile', username=initiator_username) %}
+{% set role_faq_url = request.help_url(_anchor='collaborator-roles') %}
 {% block content %}
-<p>{% trans role=role, site=site, project_name=project_name, initiator_username=initiator_username %}You have been added as <strong>{{ role }}</strong> to the {{ site }} project {{ project_name }} by {{ initiator_username }}.{% endtrans %}</p>
+  <p>
+    {% trans role=role, site=site, role_faq_url=role_faq_url, project_name=project_name, initiator_username=initiator_username, project_url=project_url, initiator_url=initiator_url %}
+    You have been added as <strong><a href="{{ role_faq_url }}">{{ role }}</a></strong> to the {{ site }} project <a href="{{ project_url }}">{{ project_name }}</a> by <a href="{{ initiator_url }}">{{ initiator_username }}</a>.
+  {% endtrans %}
+</p>
 {% endblock %}
-
-
 {% block reason %}
-{% trans initiator_username=initiator_username, site=site %}You are receiving this because you have been added by {{ initiator_username }} to a project on {{ site }}.{% endtrans %}
+  {% trans initiator_username=initiator_username, site=site, initiator_url=initiator_url %}
+  You are receiving this because you have been added by <a href="{{ initiator_url }}">{{ initiator_username }}</a> to a project on {{ site }}.
+{% endtrans %}
 {% endblock %}

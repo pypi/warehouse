@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import datetime
 
@@ -149,6 +139,16 @@ class TestUserDetail:
         assert result["roles"] == roles
         assert result["emails_form"].emails[0].primary.data
         assert result["submitted_by_journals"] == journal_entries[:5]
+        assert result["user_projects"] == [
+            {
+                "name": project.name,
+                "normalized_name": project.normalized_name,
+                "releases_count": 0,
+                "total_size": 0,
+                "lifecycle_status": None,
+                "role_name": "Owner",
+            }
+        ]
 
     def test_updates_user(self, db_request):
         user = UserFactory.create()
@@ -1471,3 +1471,332 @@ class TestUserRecoverAccountComplete:
         assert existing_primary_email.verified is True
         assert user.primary_email == override_to_email
         assert user.primary_email.verified is True
+
+
+class TestUserBurnRecoveryCodes:
+    def test_burns_recovery_codes(self, db_request, monkeypatch, user_service):
+        user = UserFactory.create()
+        codes = user_service.generate_recovery_codes(user.id)
+        user_service._check_ratelimits = pretend.call_recorder(
+            user_service._check_ratelimits
+        )
+
+        # Burn one code in advance
+        user.recovery_codes[0].burned = datetime.datetime.now(datetime.UTC)
+
+        # Provide all the codes, plus one invalid code
+        db_request.POST["to_burn"] = "\n".join(codes) + "\ninvalid"
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        assert any(not code.burned for code in user.recovery_codes)
+
+        result = views.user_burn_recovery_codes(user, db_request)
+
+        assert all(code.burned for code in user.recovery_codes)
+        assert db_request.session.flash.calls == [
+            pretend.call("Burned 7 recovery code(s)", queue="success")
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("admin.user.detail", username=user.username)
+        ]
+        assert result.status_code == 303
+        assert result.location == "/foobar"
+        assert user_service._check_ratelimits.calls == []
+
+    def test_no_recovery_codes_provided(self, db_request, monkeypatch, user_service):
+        user = UserFactory.create()
+        user_service.generate_recovery_codes(user.id)
+
+        db_request.POST["to_burn"] = ""
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        assert all(not code.burned for code in user.recovery_codes)
+
+        result = views.user_burn_recovery_codes(user, db_request)
+
+        assert all(not code.burned for code in user.recovery_codes)
+        assert db_request.session.flash.calls == [
+            pretend.call("No recovery codes provided", queue="error")
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("admin.user.detail", username=user.username)
+        ]
+        assert result.status_code == 303
+        assert result.location == "/foobar"
+
+
+class TestUserEmailDomainCheck:
+    def test_user_email_domain_check(self, db_request):
+        user = UserFactory.create(with_verified_primary_email=True)
+        db_request.POST["email_address"] = user.primary_email.email
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.user_email_domain_check(user, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foobar"
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"Domain status check for '{user.primary_email.domain}' completed",
+                queue="success",
+            )
+        ]
+        assert user.primary_email.domain_last_checked is not None
+        assert user.primary_email.domain_last_status == ["active"]
+
+
+class TestUserEmailDelete:
+    def test_user_email_delete(self, db_request):
+        user = UserFactory.create(with_verified_primary_email=True)
+        email = EmailFactory.create(user=user, primary=False, verified=False)
+
+        db_request.POST["email_address"] = email.email
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.user_email_delete(user, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foobar"
+        assert db_request.session.flash.calls == [
+            pretend.call(f"Email address '{email.email}' deleted", queue="success")
+        ]
+        assert email.email not in user.emails
+
+    def test_user_email_delete_not_found(self, db_request):
+        user = UserFactory.create(with_verified_primary_email=True)
+
+        db_request.POST["email_address"] = "something@nonexistent.com"
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.user_email_delete(user, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foobar"
+        assert db_request.session.flash.calls == [
+            pretend.call("Email not found", queue="error")
+        ]
+
+
+class TestUserQuarantineProjects:
+    def test_quarantines_user_projects(self, db_request):
+        user = UserFactory.create()
+        project1 = ProjectFactory.create()
+        project2 = ProjectFactory.create()
+        RoleFactory(project=project1, user=user, role_name="Owner")
+        RoleFactory(project=project2, user=user, role_name="Maintainer")
+
+        db_request.matchdict["username"] = str(user.username)
+        db_request.params = {"username": user.username}
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+
+        result = views.user_quarantine_projects(user, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foobar"
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"Quarantined 2 project(s) for user {user.username!r}",
+                queue="success",
+            )
+        ]
+        assert project1.lifecycle_status == "quarantine-enter"
+        assert project2.lifecycle_status == "quarantine-enter"
+
+    def test_quarantines_user_projects_skips_already_quarantined(self, db_request):
+        user = UserFactory.create()
+        project1 = ProjectFactory.create(lifecycle_status="quarantine-enter")
+        project2 = ProjectFactory.create()
+        RoleFactory(project=project1, user=user, role_name="Owner")
+        RoleFactory(project=project2, user=user, role_name="Maintainer")
+
+        db_request.matchdict["username"] = str(user.username)
+        db_request.params = {"username": user.username}
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+
+        result = views.user_quarantine_projects(user, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foobar"
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"Quarantined 1 project(s) for user {user.username!r}",
+                queue="success",
+            )
+        ]
+        assert project1.lifecycle_status == "quarantine-enter"
+        assert project2.lifecycle_status == "quarantine-enter"
+
+    def test_quarantines_user_projects_no_projects_to_quarantine(self, db_request):
+        user = UserFactory.create()
+        project1 = ProjectFactory.create(lifecycle_status="quarantine-enter")
+        project2 = ProjectFactory.create(lifecycle_status="quarantine-enter")
+        RoleFactory(project=project1, user=user, role_name="Owner")
+        RoleFactory(project=project2, user=user, role_name="Maintainer")
+
+        db_request.matchdict["username"] = str(user.username)
+        db_request.params = {"username": user.username}
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+
+        result = views.user_quarantine_projects(user, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foobar"
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"No projects needed quarantining for user {user.username!r}",
+                queue="info",
+            )
+        ]
+
+    def test_quarantine_user_projects_bad_confirm(self, db_request):
+        user = UserFactory.create()
+        project = ProjectFactory.create()
+        RoleFactory(project=project, user=user, role_name="Owner")
+
+        db_request.matchdict["username"] = str(user.username)
+        db_request.params = {"username": "wrong"}
+        db_request.route_path = pretend.call_recorder(lambda a, **k: "/foobar")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.user_quarantine_projects(user, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foobar"
+        assert db_request.session.flash.calls == [
+            pretend.call("Wrong confirmation input", queue="error")
+        ]
+        assert project.lifecycle_status is None
+
+
+class TestUserClearQuarantineProjects:
+    def test_clears_quarantine_user_projects(self, db_request):
+        user = UserFactory.create()
+        project1 = ProjectFactory.create(lifecycle_status="quarantine-enter")
+        project2 = ProjectFactory.create(lifecycle_status="quarantine-enter")
+        RoleFactory(project=project1, user=user, role_name="Owner")
+        RoleFactory(project=project2, user=user, role_name="Maintain")
+
+        db_request.matchdict["username"] = str(user.username)
+        db_request.params = {"username": user.username}
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+
+        result = views.user_clear_quarantine_projects(user, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foobar"
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"Cleared quarantine for 2 project(s) for {user.username!r}",
+                queue="success",
+            )
+        ]
+        assert project1.lifecycle_status == "quarantine-exit"
+        assert project2.lifecycle_status == "quarantine-exit"
+
+    def test_clears_quarantine_user_projects_skips_non_quarantined(self, db_request):
+        user = UserFactory.create()
+        project1 = ProjectFactory.create()  # Not quarantined
+        project2 = ProjectFactory.create(lifecycle_status="quarantine-enter")
+        RoleFactory(project=project1, user=user, role_name="Owner")
+        RoleFactory(project=project2, user=user, role_name="Maintainer")
+
+        db_request.matchdict["username"] = str(user.username)
+        db_request.params = {"username": user.username}
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+
+        result = views.user_clear_quarantine_projects(user, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foobar"
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"Cleared quarantine for 1 project(s) for {user.username!r}",
+                queue="success",
+            )
+        ]
+        assert project1.lifecycle_status is None
+        assert project2.lifecycle_status == "quarantine-exit"
+
+    def test_clears_quarantine_user_projects_no_quarantined_projects(self, db_request):
+        user = UserFactory.create()
+        project1 = ProjectFactory.create()
+        project2 = ProjectFactory.create()
+        RoleFactory(project=project1, user=user, role_name="Owner")
+        RoleFactory(project=project2, user=user, role_name="Maintainer")
+
+        db_request.matchdict["username"] = str(user.username)
+        db_request.params = {"username": user.username}
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+
+        result = views.user_clear_quarantine_projects(user, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foobar"
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"No quarantined projects found for user {user.username!r}",
+                queue="info",
+            )
+        ]
+
+    def test_clear_quarantine_user_projects_bad_confirm(self, db_request):
+        user = UserFactory.create()
+        project = ProjectFactory.create(lifecycle_status="quarantine-enter")
+        RoleFactory(project=project, user=user, role_name="Owner")
+
+        db_request.matchdict["username"] = str(user.username)
+        db_request.params = {"username": "wrong"}
+        db_request.route_path = pretend.call_recorder(lambda a, **k: "/foobar")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.user_clear_quarantine_projects(user, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foobar"
+        assert db_request.session.flash.calls == [
+            pretend.call("Wrong confirmation input", queue="error")
+        ]
+        assert project.lifecycle_status == "quarantine-enter"

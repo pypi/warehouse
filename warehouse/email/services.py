@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 from email.headerregistry import Address
 from email.message import EmailMessage as RawEmailMessage
@@ -158,11 +148,11 @@ class SESEmailSender:
 class ConsoleAndSMTPEmailSender(SMTPEmailSender):
     def send(self, recipient, message):
         super().send(recipient=recipient, message=message)
-        print(
-            f"""Email sent
+        print(f"""
+Email sent
 Subject: {message.subject}
 From: {self.sender if message.sender is None else message.sender}
 To: {recipient}
 HTML: Visualize at http://localhost:1080
-Text: {message.body_text}"""
-        )
+Text: {message.body_text}
+""")

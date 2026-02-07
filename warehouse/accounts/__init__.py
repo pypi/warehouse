@@ -1,22 +1,18 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 from celery.schedules import crontab
 
 from warehouse.accounts.interfaces import (
+    IDomainStatusService,
     IEmailBreachedService,
     IPasswordBreachedService,
     ITokenService,
     IUserService,
+)
+from warehouse.accounts.oauth import (
+    GitHubAppClient,
+    IOAuthProviderService,
+    NullGitHubOAuthClient,
 )
 from warehouse.accounts.security_policy import (
     BasicAuthSecurityPolicy,
@@ -25,18 +21,23 @@ from warehouse.accounts.security_policy import (
 from warehouse.accounts.services import (
     HaveIBeenPwnedEmailBreachedService,
     HaveIBeenPwnedPasswordBreachedService,
+    NullDomainStatusService,
     NullEmailBreachedService,
     NullPasswordBreachedService,
     TokenServiceFactory,
     database_login_factory,
 )
-from warehouse.accounts.tasks import compute_user_metrics
+from warehouse.accounts.tasks import (
+    batch_update_email_domain_status,
+    compute_user_metrics,
+    notify_users_of_tos_update,
+    unverify_emails_with_expired_domains,
+)
 from warehouse.accounts.utils import UserContext
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.macaroons.security_policy import MacaroonSecurityPolicy
 from warehouse.oidc.utils import PublisherTokenContext
 from warehouse.organizations.services import IOrganizationService
-from warehouse.rate_limiting import IRateLimiter, RateLimit
 from warehouse.utils.security_policy import MultiSecurityPolicy
 
 __all__ = [
@@ -44,6 +45,8 @@ __all__ = [
     "HaveIBeenPwnedPasswordBreachedService",
     "NullEmailBreachedService",
     "HaveIBeenPwnedEmailBreachedService",
+    "GitHubAppClient",
+    "NullGitHubOAuthClient",
 ]
 
 
@@ -107,6 +110,9 @@ def includeme(config):
         TokenServiceFactory(name="two_factor"), ITokenService, name="two_factor"
     )
     config.register_service_factory(
+        TokenServiceFactory(name="confirm_login"), ITokenService, name="confirm_login"
+    )
+    config.register_service_factory(
         TokenServiceFactory(name="remember_device"),
         ITokenService,
         name="remember_device",
@@ -129,6 +135,22 @@ def includeme(config):
     )
     config.register_service_factory(
         breached_email_class.create_service, IEmailBreachedService
+    )
+
+    # Register our domain status service.
+    domain_status_class = config.maybe_dotted(
+        config.registry.settings.get("domain_status.backend", NullDomainStatusService)
+    )
+    config.register_service_factory(
+        domain_status_class.create_service, IDomainStatusService
+    )
+
+    # Register GitHub OAuth service for account associations.
+    github_oauth_class = config.maybe_dotted(
+        config.registry.settings["github.oauth.backend"]
+    )
+    config.register_service_factory(
+        github_oauth_class.create_service, IOAuthProviderService, name="github"
     )
 
     # Register our security policies.
@@ -158,49 +180,47 @@ def includeme(config):
     user_login_ratelimit_string = config.registry.settings.get(
         "warehouse.account.user_login_ratelimit_string"
     )
-    config.register_service_factory(
-        RateLimit(user_login_ratelimit_string), IRateLimiter, name="user.login"
-    )
+    config.register_rate_limiter(user_login_ratelimit_string, "user.login")
     ip_login_ratelimit_string = config.registry.settings.get(
         "warehouse.account.ip_login_ratelimit_string"
     )
-    config.register_service_factory(
-        RateLimit(ip_login_ratelimit_string), IRateLimiter, name="ip.login"
-    )
+    config.register_rate_limiter(ip_login_ratelimit_string, "ip.login")
     global_login_ratelimit_string = config.registry.settings.get(
         "warehouse.account.global_login_ratelimit_string"
     )
-    config.register_service_factory(
-        RateLimit(global_login_ratelimit_string), IRateLimiter, name="global.login"
+    config.register_rate_limiter(global_login_ratelimit_string, "global.login")
+    # Register separate rate limiters for 2FA attempts
+    twofa_user_ratelimit_string = config.registry.settings.get(
+        "warehouse.account.2fa_user_ratelimit_string"
     )
+    config.register_rate_limiter(twofa_user_ratelimit_string, "2fa.user")
+    twofa_ip_ratelimit_string = config.registry.settings.get(
+        "warehouse.account.2fa_ip_ratelimit_string"
+    )
+    config.register_rate_limiter(twofa_ip_ratelimit_string, "2fa.ip")
     email_add_ratelimit_string = config.registry.settings.get(
         "warehouse.account.email_add_ratelimit_string"
     )
-    config.register_service_factory(
-        RateLimit(email_add_ratelimit_string), IRateLimiter, name="email.add"
-    )
+    config.register_rate_limiter(email_add_ratelimit_string, "email.add")
     password_reset_ratelimit_string = config.registry.settings.get(
         "warehouse.account.password_reset_ratelimit_string"
     )
-    config.register_service_factory(
-        RateLimit(password_reset_ratelimit_string), IRateLimiter, name="password.reset"
-    )
+    config.register_rate_limiter(password_reset_ratelimit_string, "password.reset")
     verify_email_ratelimit_string = config.registry.settings.get(
         "warehouse.account.verify_email_ratelimit_string"
     )
-    config.register_service_factory(
-        RateLimit(verify_email_ratelimit_string),
-        IRateLimiter,
-        name="email.verify",
-    )
+    config.register_rate_limiter(verify_email_ratelimit_string, "email.verify")
     accounts_search_ratelimit_string = config.registry.settings.get(
         "warehouse.account.accounts_search_ratelimit_string"
     )
-    config.register_service_factory(
-        RateLimit(accounts_search_ratelimit_string),
-        IRateLimiter,
-        name="accounts.search",
-    )
+    config.register_rate_limiter(accounts_search_ratelimit_string, "accounts.search")
 
     # Add a periodic task to generate Account metrics
     config.add_periodic_task(crontab(minute="*/20"), compute_user_metrics)
+    config.add_periodic_task(crontab(minute="*"), notify_users_of_tos_update)
+    config.add_periodic_task(
+        crontab(minute=0, hour=4), batch_update_email_domain_status
+    )
+    config.add_periodic_task(
+        crontab(minute=15, hour=4), unverify_emails_with_expired_domains
+    )

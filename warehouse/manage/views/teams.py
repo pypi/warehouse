@@ -1,14 +1,5 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
+
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config, view_defaults
@@ -56,7 +47,7 @@ from warehouse.utils.paginate import paginate_url_factory
 @view_defaults(
     route_name="manage.team.settings",
     context=Team,
-    renderer="manage/team/settings.html",
+    renderer="warehouse:templates/manage/team/settings.html",
     uses_session=True,
     require_active_organization=True,
     require_csrf=True,
@@ -190,7 +181,7 @@ class ManageTeamSettingsViews:
 @view_defaults(
     route_name="manage.team.projects",
     context=Team,
-    renderer="manage/team/projects.html",
+    renderer="warehouse:templates/manage/team/projects.html",
     uses_session=True,
     require_active_organization=True,
     require_csrf=True,
@@ -234,7 +225,7 @@ class ManageTeamProjectsViews:
 @view_defaults(
     route_name="manage.team.roles",
     context=Team,
-    renderer="manage/team/roles.html",
+    renderer="warehouse:templates/manage/team/roles.html",
     uses_session=True,
     require_active_organization=True,
     require_csrf=True,
@@ -448,7 +439,7 @@ class ManageTeamRolesViews:
 @view_config(
     route_name="manage.team.history",
     context=Team,
-    renderer="manage/team/history.html",
+    renderer="warehouse:templates/manage/team/history.html",
     uses_session=True,
     permission=Permissions.OrganizationTeamsManage,
     has_translations=True,

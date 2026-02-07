@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 """
 Switch to a UUID based primary key for User
 
@@ -16,7 +6,6 @@ Revision ID: 8c8be2c0e69e
 Revises: 039f45e2dbf9
 Create Date: 2016-07-01 18:20:42.072664
 """
-
 
 import sqlalchemy as sa
 
@@ -53,20 +42,16 @@ def upgrade():
 
     # Update our referring tables so that their new column points to the
     # correct user account.
-    op.execute(
-        """ UPDATE accounts_email
+    op.execute(""" UPDATE accounts_email
             SET new_user_id = accounts_user.new_id
             FROM accounts_user
             WHERE accounts_email.user_id = accounts_user.id
-        """
-    )
-    op.execute(
-        """ UPDATE accounts_gpgkey
+        """)
+    op.execute(""" UPDATE accounts_gpgkey
             SET new_user_id = accounts_user.new_id
             FROM accounts_user
             WHERE accounts_gpgkey.user_id = accounts_user.id
-        """
-    )
+        """)
 
     # Disallow any NULL values in our referring tables
     op.alter_column("accounts_email", "new_user_id", nullable=False)

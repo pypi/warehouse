@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import uuid
 
@@ -20,13 +10,14 @@ import pytest
 from paginate_sqlalchemy import SqlalchemyOrmPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 from sqlalchemy.orm import joinedload
+from webob.multidict import MultiDict
 
 import warehouse.constants
 
 from tests.common.db.oidc import GitHubPublisherFactory
 from warehouse.admin.views import projects as views
 from warehouse.observations.models import ObservationKind
-from warehouse.packaging.models import Project, Role
+from warehouse.packaging.models import LifecycleStatus, Project, Role
 from warehouse.packaging.tasks import update_release_description
 from warehouse.search.tasks import reindex_project
 from warehouse.utils.paginate import paginate_url_factory
@@ -121,6 +112,30 @@ class TestProjectDetail:
         )
         with pytest.raises(HTTPMovedPermanently):
             views.project_detail(project, db_request)
+
+    def test_with_organization(self, db_request):
+        from ....common.db.organizations import (
+            OrganizationFactory,
+            OrganizationProjectFactory,
+        )
+
+        organization = OrganizationFactory.create(
+            upload_limit=150 * views.ONE_MIB,
+            total_size_limit=100 * views.ONE_GIB,
+        )
+        org_project = OrganizationProjectFactory.create(organization=organization)
+        project = org_project.project
+        project.upload_limit = 50 * views.ONE_MIB
+        project.total_size_limit = 50 * views.ONE_GIB
+        db_request.matchdict["project_name"] = str(project.normalized_name)
+
+        result = views.project_detail(project, db_request)
+
+        assert result["project"] == project
+        assert project.organization == organization
+        # Verify that the organization limits are accessible through the project
+        assert project.organization.upload_limit == 150 * views.ONE_MIB
+        assert project.organization.total_size_limit == 100 * views.ONE_GIB
 
 
 class TestReleaseDetail:
@@ -592,7 +607,7 @@ class TestProjectSetTotalSizeLimit:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
         db_request.matchdict["project_name"] = project.normalized_name
-        db_request.POST["total_size_limit"] = "150"
+        db_request.POST = MultiDict({"total_size_limit": "150"})
 
         views.set_total_size_limit(project, db_request)
 
@@ -613,6 +628,7 @@ class TestProjectSetTotalSizeLimit:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
         db_request.matchdict["project_name"] = project.normalized_name
+        db_request.POST = MultiDict({"total_size_limit": ""})
 
         views.set_total_size_limit(project, db_request)
 
@@ -625,20 +641,47 @@ class TestProjectSetTotalSizeLimit:
     def test_sets_total_size_limitwith_non_integer(self, db_request):
         project = ProjectFactory.create(name="foo")
 
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
         db_request.matchdict["project_name"] = project.normalized_name
-        db_request.POST["total_size_limit"] = "meep"
+        db_request.POST = MultiDict({"total_size_limit": "meep"})
 
-        with pytest.raises(HTTPBadRequest):
-            views.set_total_size_limit(project, db_request)
+        result = views.set_total_size_limit(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "total_size_limit: Total size limit must be a valid integer or empty",
+                queue="error",
+            )
+        ]
+        assert result.status_code == 303
 
     def test_sets_total_size_limit_with_less_than_minimum(self, db_request):
         project = ProjectFactory.create(name="foo")
 
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
         db_request.matchdict["project_name"] = project.normalized_name
-        db_request.POST["total_size_limit"] = "9"
+        db_request.POST = MultiDict({"total_size_limit": "9"})
 
-        with pytest.raises(HTTPBadRequest):
-            views.set_total_size_limit(project, db_request)
+        result = views.set_total_size_limit(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "total_size_limit: Total organization size can not be less than "
+                "10.0GiB",
+                queue="error",
+            )
+        ]
+        assert result.status_code == 303
 
 
 class TestProjectSetLimit:
@@ -653,7 +696,7 @@ class TestProjectSetLimit:
         )
         db_request.matchdict["project_name"] = project.normalized_name
         new_upload_limit = warehouse.constants.MAX_FILESIZE // views.ONE_MIB
-        db_request.POST["upload_limit"] = str(new_upload_limit)
+        db_request.POST = MultiDict({"upload_limit": str(new_upload_limit)})
 
         views.set_upload_limit(project, db_request)
 
@@ -674,6 +717,7 @@ class TestProjectSetLimit:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
         db_request.matchdict["project_name"] = project.normalized_name
+        db_request.POST = MultiDict({"upload_limit": ""})
 
         views.set_upload_limit(project, db_request)
 
@@ -686,29 +730,70 @@ class TestProjectSetLimit:
     def test_sets_limit_with_non_integer(self, db_request):
         project = ProjectFactory.create(name="foo")
 
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
         db_request.matchdict["project_name"] = project.normalized_name
-        db_request.POST["upload_limit"] = "meep"
+        db_request.POST = MultiDict({"upload_limit": "meep"})
 
-        with pytest.raises(HTTPBadRequest):
-            views.set_upload_limit(project, db_request)
+        result = views.set_upload_limit(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "upload_limit: Upload limit must be a valid integer or empty",
+                queue="error",
+            )
+        ]
+        assert result.status_code == 303
 
     def test_sets_limit_with_less_than_minimum(self, db_request):
         project = ProjectFactory.create(name="foo")
 
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
         db_request.matchdict["project_name"] = project.normalized_name
-        db_request.POST["upload_limit"] = "20"
+        db_request.POST = MultiDict({"upload_limit": "20"})
 
-        with pytest.raises(HTTPBadRequest):
-            views.set_upload_limit(project, db_request)
+        result = views.set_upload_limit(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "upload_limit: Upload limit can not be less than 100.0MiB",
+                queue="error",
+            )
+        ]
+        assert result.status_code == 303
 
     def test_sets_limit_above_maximum(self, db_request):
         project = ProjectFactory.create(name="foo")
 
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
         db_request.matchdict["project_name"] = project.normalized_name
-        db_request.POST["upload_limit"] = str(views.UPLOAD_LIMIT_CAP + 1)
+        db_request.POST = MultiDict(
+            {"upload_limit": str(views.UPLOAD_LIMIT_CAP // views.ONE_MIB + 1)}
+        )
 
-        with pytest.raises(HTTPBadRequest):
-            views.set_upload_limit(project, db_request)
+        result = views.set_upload_limit(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "upload_limit: Upload limit can not be greater than 1024.0MiB",
+                queue="error",
+            )
+        ]
+        assert result.status_code == 303
 
 
 class TestDeleteProject:
@@ -952,3 +1037,96 @@ class TestReindexProject:
         assert db_request.session.flash.calls == [
             pretend.call("Task sent to reindex the project 'foo'", queue="success")
         ]
+
+
+class TestProjectArchival:
+    def test_archive(self, db_request):
+        project = ProjectFactory.create(name="foo")
+        user = UserFactory.create(username="testuser")
+
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.method = "POST"
+        db_request.user = user
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.archive_project_view(project, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert project.lifecycle_status == LifecycleStatus.ArchivedNoindex
+        assert db_request.route_path.calls == [
+            pretend.call("admin.project.detail", project_name=project.name)
+        ]
+
+    def test_unarchive_project(self, db_request):
+        project = ProjectFactory.create(
+            name="foo", lifecycle_status=LifecycleStatus.Archived
+        )
+        user = UserFactory.create(username="testuser")
+
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.method = "POST"
+        db_request.user = user
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.unarchive_project_view(project, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.route_path.calls == [
+            pretend.call("admin.project.detail", project_name=project.name)
+        ]
+        assert project.lifecycle_status is None
+
+    def test_disallowed_archive(self, db_request):
+        project = ProjectFactory.create(name="foo", lifecycle_status="quarantine-enter")
+        user = UserFactory.create(username="testuser")
+
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.method = "POST"
+        db_request.user = user
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.archive_project_view(project, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"Cannot archive project with status {project.lifecycle_status}",
+                queue="error",
+            )
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("admin.project.detail", project_name="foo")
+        ]
+        assert project.lifecycle_status == "quarantine-enter"
+
+    def test_disallowed_unarchive(self, db_request):
+        project = ProjectFactory.create(name="foo", lifecycle_status="quarantine-enter")
+        user = UserFactory.create(username="testuser")
+
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.method = "POST"
+        db_request.user = user
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.unarchive_project_view(project, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.session.flash.calls == [
+            pretend.call("Can only unarchive an archived project", queue="error")
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("admin.project.detail", project_name="foo")
+        ]
+        assert project.lifecycle_status == "quarantine-enter"

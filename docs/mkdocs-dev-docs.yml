@@ -1,0 +1,117 @@
+site_name: Warehouse Developer Documentation
+docs_dir: dev
+site_dir: dev-site
+plugins:
+  - search
+  - redirects:
+      redirect_maps:
+        'api-reference/feeds.md': 'https://docs.pypi.org/api/feeds/'
+        'api-reference/json.md': 'https://docs.pypi.org/api/json/'
+        'api-reference/legacy.md': 'https://docs.pypi.org/api/index-api/'
+        'api-reference/stats.md': 'https://docs.pypi.org/api/stats/'
+        'api-reference/integration-guide.md': 'https://docs.pypi.org/api/#integration-guide'
+        'api-reference/bigquery-datasets.md': 'https://docs.pypi.org/api/bigquery'
+markdown_extensions:
+  - admonition
+  - attr_list
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - toc:
+      permalink: true
+      toc_depth: 3
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.magiclink:
+      repo_url_shorthand: true
+      normalize_issue_symbols: true
+      provider: github
+      user: pypi
+      repo: warehouse
+theme:
+  name: material
+  logo: assets/logo.png
+  favicon: assets/favicon.ico
+  palette:
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+  features:
+    - content.action.edit
+    - content.code.copy
+    - navigation.expand
+    - navigation.footer
+    - navigation.instant
+    - navigation.path
+    - navigation.sections
+    - navigation.tabs
+    - navigation.top
+    - navigation.tracking
+    - search.highlight
+    - search.suggest
+    - toc.follow
+extra:
+  homepage: https://github.com/pypi/warehouse
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/pypi/warehouse
+    - icon: fontawesome/brands/discourse
+      link: https://discuss.python.org/c/packaging/14
+repo_url: https://github.com/pypi/warehouse
+repo_name: pypi/warehouse
+edit_uri: blob/main/docs/dev/
+
+nav:
+  - Home: index.md
+  - Development:
+      - Overview: development/index.md
+      - Getting Started: development/getting-started.md
+      - Frontend: development/frontend.md
+      - Patterns: development/patterns.md
+      - Database Migrations: development/database-migrations.md
+      - Submitting Patches: development/submitting-patches.md
+      - Reviewing Patches: development/reviewing-patches.md
+      - Legacy Application Structure: development/legacy-application-structure.md
+      - Development Database: development/development-database.md
+      - Cloud: development/cloud.md
+      - Email: development/email.md
+      - Token Scanning: development/token-scanning.md
+      - Documentation: development/documentation.md
+  - Warehouse codebase: application.md
+  - System Architecture: architecture.md
+  - API Reference:
+      - Overview: api-reference/index.md
+      - XML-RPC: api-reference/xml-rpc.md
+  - UI Principles: ui-principles.md
+  - Security:
+      - Overview: security/index.md
+      - Attestation Internals: security/attestation-internals.md
+  - Translations: translations.md
+  - Roadmap and Sprints: roadmap.md

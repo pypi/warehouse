@@ -1,0 +1,13 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+
+{% extends "email/_base/body.txt" %}
+{% set domain = request.registry.settings.get('warehouse.domain') %}
+
+{% block content %}
+{% trans organization_name=organization_name %}We need more information to process your request to create a new organization named '{{ organization_name }}'.{% endtrans %}
+
+{{ message|default('') }}
+
+{% trans domain=domain %}Submit your response on {{ domain }}{% endtrans %}: {{ request.route_url('manage.organizations.application', organization_application_id=organization_application_id) }}
+
+{% endblock %}

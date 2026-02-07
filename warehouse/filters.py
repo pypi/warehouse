@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import binascii
 import collections
@@ -175,6 +165,10 @@ def is_recent(timestamp):
     return False
 
 
+def parse_isoformat(datestring):
+    return datetime.datetime.fromisoformat(datestring)
+
+
 def format_email(metadata_email: str) -> tuple[str, str]:
     """
     Return the name and email address from a metadata RFC-822 string.
@@ -199,5 +193,14 @@ def remove_invalid_xml_unicode(value: str | None) -> str | None:
     return "".join(c for c in value if ord(c) >= 32) if value else value
 
 
+def _canonical_url(request, **kwargs):
+    if request.matched_route:
+        try:
+            return request.route_url(request.matched_route.name, **kwargs)
+        except KeyError:
+            pass
+
+
 def includeme(config):
     config.add_request_method(_camo_url, name="camo_url")
+    config.add_request_method(_canonical_url, name="canonical_url")

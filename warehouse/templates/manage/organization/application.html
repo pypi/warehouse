@@ -1,0 +1,114 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% extends "manage/manage_base.html" %}
+{% set user = request.user %}
+{% set active_tab = "organizations" %}
+{% block title %}
+  {% trans organization_application_name=organization_application.name %}Manage '{{ organization_application_name }}' Organization Request{% endtrans %}
+{% endblock %}
+{% block main %}
+  <h2>
+    {% trans org_name=organization_application.display_name %}Organization request for {{ org_name }}{% endtrans %}
+  </h2>
+  <section id="organization-details" class="margin-bottom--large">
+    <table class="table table--information">
+      <caption class="sr-only">Organization request details</caption>
+      <tbody>
+        <tr>
+          <th scope="row">{% trans %}Request status{% endtrans %}</th>
+          <td>
+            {% if organization_application.status == 'declined' %}
+              <strong>{% trans %}Declined{% endtrans %}:</strong>
+              <br />
+              {% trans %}This organization request has been declined{% endtrans %}
+            {% elif organization_application.status == 'moreinformationneeded' %}
+              <strong>{% trans %}More information needed{% endtrans %}:</strong>
+              <br />
+              {% trans %}Please provide more information below{% endtrans %}
+            {% else %}
+              <strong>{% trans %}Request submitted{% endtrans %}:</strong>
+              <br />
+              {% trans %}You will receive an email when the organization has been approved{% endtrans %}
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans %}Organization account name{% endtrans %}</th>
+          <td>{{ organization_application.name }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans %}Organization display name{% endtrans %}</th>
+          <td>{{ organization_application.display_name }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans %}️Organization URL{% endtrans %}</th>
+          <td>{{ organization_application.link_url }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans %}️Organization description{% endtrans %}</th>
+          <td>{{ organization_application.description }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans %}️Organization type{% endtrans %}</th>
+          <td>{{ organization_application.orgtype.value }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans %}️Organization membership size{% endtrans %}</th>
+          <td>{{ organization_application.membership_size.value if organization_application.membership_size else "" }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans %}️Anticipated usage{% endtrans %}</th>
+          <td>{{ organization_application.usage if organization_application.usage else "" }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans %}Date submitted{% endtrans %}</th>
+          <td>{{ humanize(organization_application.submitted) }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+  {% if information_requests %}
+    <hr />
+    <section class="single-column">
+      <h3>Information requests</h3>
+      {% for information_request in information_requests|reverse %}
+        <div class="clearfix">
+          <div class="callout-block callout-block--message callout-block--neutral">
+            <strong>{% trans %}️PyPI Staff{% endtrans %}</strong>
+            <div class="preserve-line-breaks">{{ information_request.payload.message }}</div>
+            <small>{{ humanize(information_request.created) }}</small>
+          </div>
+        </div>
+        {% if information_request.additional.response %}
+          <div class="clearfix">
+            <div class="callout-block callout-block--message float-right">
+              <strong>{% trans %}️Your response{% endtrans %}</strong>
+              <div class="preserve-line-breaks">{{ information_request.additional.response }}</div>
+              <small>{{ humanize(information_request.additional.response_time|parse_isoformat) }}</small>
+            </div>
+          </div>
+        {% elif information_request.id in response_forms and loop.last %}
+          <form method="post" class="clearfix margin-top--large margin-bottom--large">
+            <input hidden name="response_form-id" value="{{ information_request.id }}">
+            <input name="csrf_token"
+                   type="hidden"
+                   value="{{ request.session.get_csrf_token() }}">
+            <div class="form-group form-group--wide">
+              <label class="form-group__label" for="public_email">{% trans %}️Your response{% endtrans %}</label>
+              {{ response_forms[information_request.id].response(id="response_form-" + information_request.id.__str__() + "-response",
+              class_="form-group__field form-group__field--full-width",
+              rows="4",
+              aria_describedby="response_form-" + information_request.id.__str__() + "-errors",
+              ) }}
+              <div id="response_form-{{ information_request.id }}-errors">
+                {{ field_errors(response_forms[information_request.id].response) }}
+              </div>
+            </div>
+            <button type="submit"
+                    class="button button--primary"
+                    title="{% trans %}Submit{% endtrans %}">{% trans %}Submit{% endtrans %}</button>
+          </form>
+        {% endif %}
+      {% endfor %}
+    </section>
+  {% endif %}
+{% endblock %}

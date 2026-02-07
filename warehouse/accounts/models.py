@@ -1,14 +1,5 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
+
 from __future__ import annotations
 
 import datetime
@@ -20,6 +11,7 @@ from uuid import UUID
 from pyramid.authorization import Allow, Authenticated
 from sqlalchemy import (
     CheckConstraint,
+    Enum,
     ForeignKey,
     Index,
     LargeBinary,
@@ -29,7 +21,7 @@ from sqlalchemy import (
     select,
     sql,
 )
-from sqlalchemy.dialects.postgresql import CITEXT, UUID as PG_UUID
+from sqlalchemy.dialects.postgresql import ARRAY, CITEXT, JSONB
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column
@@ -37,9 +29,11 @@ from sqlalchemy.orm import Mapped, mapped_column
 from warehouse import db
 from warehouse.authnz import Permissions
 from warehouse.events.models import HasEvents
+from warehouse.ip_addresses.models import IpAddress
 from warehouse.observations.models import HasObservations, HasObservers, ObservationKind
 from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils.attrs import make_repr
+from warehouse.utils.db import orm_session_from_obj
 from warehouse.utils.db.types import TZDateTime, bool_false, datetime_now
 
 if TYPE_CHECKING:
@@ -84,7 +78,7 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
 
     __repr__ = make_repr("username")
 
-    username: Mapped[CITEXT] = mapped_column(CITEXT, unique=True)
+    username: Mapped[str] = mapped_column(CITEXT, unique=True)
     name: Mapped[str] = mapped_column(String(length=100))
     password: Mapped[str] = mapped_column(String(length=128))
     password_date: Mapped[datetime.datetime | None] = mapped_column(
@@ -126,6 +120,13 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
         cascade="all, delete-orphan",
         lazy=True,
         order_by="Macaroon.created.desc()",
+    )
+
+    unique_logins: Mapped[list[UserUniqueLogin]] = orm.relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy=True,
+        order_by="UserUniqueLogin.created.desc()",
     )
 
     role_invitations: Mapped[list[RoleInvitation]] = orm.relationship(
@@ -177,6 +178,22 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
         lazy=True,
         viewonly=True,
         order_by="Team.name",
+    )
+
+    terms_of_service_engagements: Mapped[list[UserTermsOfServiceEngagement]] = (
+        orm.relationship(
+            back_populates="user",
+            cascade="all, delete-orphan",
+            lazy=True,
+            viewonly=True,
+        )
+    )
+
+    account_associations: Mapped[list[AccountAssociation]] = orm.relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy=True,
+        order_by="AccountAssociation.created.desc()",
     )
 
     @property
@@ -236,7 +253,7 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
 
     @property
     def recent_events(self):
-        session = orm.object_session(self)
+        session = orm_session_from_obj(self)
         last_ninety = datetime.datetime.now() - datetime.timedelta(days=90)
         return (
             session.query(User.Event)
@@ -293,6 +310,7 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
                 Allow,
                 "group:admins",
                 (
+                    Permissions.AdminProjectsWrite,
                     Permissions.AdminUsersRead,
                     Permissions.AdminUsersWrite,
                     Permissions.AdminUsersEmailWrite,
@@ -321,6 +339,37 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
         return self.username < other.username
 
 
+class TermsOfServiceEngagement(enum.Enum):
+    Flashed = "flashed"
+    Notified = "notified"
+    Viewed = "viewed"
+    Agreed = "agreed"
+
+
+class UserTermsOfServiceEngagement(db.Model):
+    __tablename__ = "user_terms_of_service_engagements"
+    __table_args__ = (
+        Index(
+            "user_terms_of_service_engagements_user_id_revision_idx",
+            "user_id",
+            "revision",
+        ),
+    )
+
+    __repr__ = make_repr("user_id")
+
+    user_id: Mapped[UUID] = mapped_column(
+        ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"),
+    )
+    revision: Mapped[str]
+    created: Mapped[datetime.datetime] = mapped_column(TZDateTime)
+    engagement: Mapped[TermsOfServiceEngagement]
+
+    user: Mapped[User] = orm.relationship(
+        lazy=True, back_populates="terms_of_service_engagements"
+    )
+
+
 class WebAuthn(db.Model):
     __tablename__ = "user_security_keys"
     __table_args__ = (
@@ -328,7 +377,6 @@ class WebAuthn(db.Model):
     )
 
     user_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
         ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
         nullable=False,
         index=True,
@@ -344,7 +392,6 @@ class RecoveryCode(db.Model):
     __tablename__ = "user_recovery_codes"
 
     user_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
         ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
         nullable=False,
         index=True,
@@ -359,6 +406,7 @@ class UnverifyReasons(enum.Enum):
     SpamComplaint = "spam complaint"
     HardBounce = "hard bounce"
     SoftBounce = "soft bounce"
+    DomainInvalid = "domain status invalid"
 
 
 class Email(db.ModelBase):
@@ -370,7 +418,6 @@ class Email(db.ModelBase):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
         ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
     )
     user: Mapped[User] = orm.relationship(back_populates="emails")
@@ -383,6 +430,16 @@ class Email(db.ModelBase):
     unverify_reason: Mapped[UnverifyReasons | None]
     transient_bounces: Mapped[int] = mapped_column(server_default=sql.text("0"))
 
+    # Domain validation information
+    domain_last_checked: Mapped[datetime.datetime | None] = mapped_column(
+        comment="Last time domain was checked with the domain validation service.",
+        index=True,
+    )
+    domain_last_status: Mapped[list[str] | None] = mapped_column(
+        ARRAY(String),
+        comment="Status strings returned by the domain validation service.",
+    )
+
     @property
     def domain(self):
         return self.email.split("@")[-1].lower()
@@ -393,13 +450,12 @@ class ProhibitedEmailDomain(db.Model):
     __repr__ = make_repr("domain")
 
     created: Mapped[datetime_now]
-    domain: Mapped[str] = mapped_column(unique=True)
+    domain: Mapped[str] = mapped_column(CITEXT, unique=True)
     is_mx_record: Mapped[bool_false] = mapped_column(
         comment="Prohibit any domains that have this domain as an MX record?"
     )
     _prohibited_by: Mapped[UUID | None] = mapped_column(
         "prohibited_by",
-        PG_UUID(as_uuid=True),
         ForeignKey("users.id"),
         index=True,
     )
@@ -425,9 +481,158 @@ class ProhibitedUserName(db.Model):
     name: Mapped[str] = mapped_column(unique=True)
     _prohibited_by: Mapped[UUID | None] = mapped_column(
         "prohibited_by",
-        PG_UUID(as_uuid=True),
         ForeignKey("users.id"),
         index=True,
     )
     prohibited_by: Mapped[User] = orm.relationship(User)
     comment: Mapped[str] = mapped_column(server_default="")
+
+
+class UniqueLoginStatus(str, enum.Enum):
+    PENDING = "pending"
+    CONFIRMED = "confirmed"
+
+
+class UserUniqueLogin(db.Model):
+    __tablename__ = "user_unique_logins"
+    __table_args__ = (
+        UniqueConstraint(
+            "user_id",
+            "ip_address_id",
+            name="_user_unique_logins_user_id_ip_address_id_uc",
+        ),
+        Index(
+            "user_unique_logins_user_id_ip_address_id_idx",
+            "user_id",
+            "ip_address_id",
+            unique=True,
+        ),
+    )
+
+    user_id: Mapped[UUID] = mapped_column(
+        ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    user: Mapped[User] = orm.relationship(back_populates="unique_logins")
+
+    ip_address_id: Mapped[UUID] = mapped_column(
+        ForeignKey("ip_addresses.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    ip_address: Mapped[IpAddress] = orm.relationship(back_populates="unique_logins")
+
+    created: Mapped[datetime_now]
+    last_used: Mapped[datetime_now]
+    device_information: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    status: Mapped[UniqueLoginStatus] = mapped_column(
+        Enum(UniqueLoginStatus, values_callable=lambda x: [e.value for e in x]),
+        nullable=False,
+        default=UniqueLoginStatus.PENDING,
+        server_default=UniqueLoginStatus.PENDING.value,
+    )
+    expires: Mapped[datetime.datetime | None] = mapped_column(TZDateTime)
+
+    def __repr__(self):
+        return (
+            f"<UserUniqueLogin(user={self.user.username!r}, "
+            f"ip_address={self.ip_address!r}, "
+            f"status={self.status!r})>"
+        )
+
+
+class AccountAssociation(db.Model):
+    """
+    Base class for external account associations linked to PyPI user accounts.
+
+    This is an abstract base class using joined table inheritance.
+    Subclasses like OAuthAccountAssociation provide specific functionality
+    for different types of account associations.
+
+    Allows users to connect multiple external accounts from
+    the same third-party service to their PyPI account.
+    """
+
+    __tablename__ = "account_associations"
+    __mapper_args__ = {
+        "polymorphic_identity": "base",
+        "polymorphic_on": "association_type",
+    }
+
+    __repr__ = make_repr("association_type")
+
+    association_type: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False,
+        comment="Polymorphic discriminator for association subtype",
+    )
+
+    created: Mapped[datetime_now]
+    updated: Mapped[datetime.datetime | None] = mapped_column(onupdate=sql.func.now())
+
+    _user_id: Mapped[UUID] = mapped_column(
+        "user_id",
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+        comment="PyPI user who owns this account association",
+    )
+    user: Mapped[User] = orm.relationship(User, back_populates="account_associations")
+
+    metadata_: Mapped[dict | None] = mapped_column(
+        "metadata",
+        JSONB,
+        server_default=sql.text("'{}'"),
+        comment="Additional metadata specific to the association type",
+    )
+
+
+class OAuthAccountAssociation(AccountAssociation):
+    """
+    OAuth-based account association for identity verification.
+
+    Links a PyPI account to an external OAuth provider (GitHub, GitLab, Google, etc.)
+    for identity verification and display purposes. OAuth tokens are NOT stored -
+    verification happens via fresh OAuth flows when needed.
+
+    For future API access, use metadata JSON to store GitHub App installation_id
+    rather than OAuth tokens.
+    """
+
+    __tablename__ = "oauth_account_associations"
+    __table_args__ = (
+        # Prevent the same external account from being linked to multiple PyPI accounts
+        UniqueConstraint(
+            "service",
+            "external_user_id",
+            name="oauth_account_associations_service_external_user_id",
+        ),
+    )
+    __mapper_args__ = {
+        "polymorphic_identity": "oauth",
+    }
+
+    __repr__ = make_repr("service", "external_username")
+
+    id: Mapped[UUID] = mapped_column(
+        ForeignKey("account_associations.id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+
+    service: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False,
+        comment="External OAuth provider name (github, gitlab, google, etc.)",
+    )
+
+    external_user_id: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+        comment="User identifier from external OAuth provider",
+    )
+    external_username: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+        comment="Username or display name from external OAuth provider",
+    )

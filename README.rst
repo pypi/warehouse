@@ -18,7 +18,6 @@ The canonical deployment of Warehouse is in production at `pypi.org`_.
 Discussion
 ----------
 
-
 You can find help or get involved on:
 
 - `Github issue tracker`_ for reporting issues
@@ -29,17 +28,11 @@ You can find help or get involved on:
 - The Packaging category on `Discourse`_ for discussing
   new ideas and community initiatives
 
-
 Testing
 ----------
 
 Read the `running tests and linters section`_ of our documentation to
-learn how to test your code.  For cross-browser testing, we use an
-open source account from `BrowserStack`_. If your pull request makes
-any change to the user interface, it will need to be tested to confirm
-it works in our `supported browsers`_.
-
-|BrowserStackImg|_
+learn how to test your code.
 
 Code of Conduct
 ---------------
@@ -55,10 +48,6 @@ rooms, and mailing lists is expected to follow the `PSF Code of Conduct`_.
 .. _`Github issue tracker`: https://github.com/pypi/warehouse/issues
 .. _`pypi.org`: https://pypi.org/
 .. _`Running tests and linters section`: https://warehouse.pypa.io/development/getting-started/#running-tests-and-linters
-.. _BrowserStack: https://browserstack.com/
-.. _`supported browsers`: https://warehouse.pypa.io/development/frontend/#browser-support
-.. |BrowserStackImg| image:: docs/_static/browserstack-logo.png
-.. _BrowserStackImg: https://browserstack.com/
 .. _`PSF Code of Conduct`: https://github.com/pypa/.github/blob/main/CODE_OF_CONDUCT.md
 .. _`Libera`: https://web.libera.chat/#pypa,#pypa-dev
 .. _`PyPA Discord`: https://discord.gg/pypa

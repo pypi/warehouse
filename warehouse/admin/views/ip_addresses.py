@@ -1,25 +1,19 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
+
 from __future__ import annotations
 
 import typing
 
+from datetime import datetime
+
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
-from pyramid.httpexceptions import HTTPBadRequest
+from pyramid.httpexceptions import HTTPBadRequest, HTTPSeeOther
 from pyramid.view import view_config
 from sqlalchemy.exc import NoResultFound
 
+from warehouse.accounts.models import UserUniqueLogin
 from warehouse.authnz import Permissions
-from warehouse.ip_addresses.models import IpAddress
+from warehouse.ip_addresses.models import BanReason, IpAddress
 from warehouse.utils.paginate import paginate_url_factory
 
 if typing.TYPE_CHECKING:
@@ -28,7 +22,7 @@ if typing.TYPE_CHECKING:
 
 @view_config(
     route_name="admin.ip_address.list",
-    renderer="admin/ip_addresses/list.html",
+    renderer="warehouse.admin:templates/admin/ip_addresses/list.html",
     permission=Permissions.AdminIpAddressesRead,
     uses_session=True,
 )
@@ -55,15 +49,88 @@ def ip_address_list(request: Request) -> dict[str, SQLAlchemyORMPage[IpAddress] 
 
 @view_config(
     route_name="admin.ip_address.detail",
-    renderer="admin/ip_addresses/detail.html",
+    renderer="warehouse.admin:templates/admin/ip_addresses/detail.html",
     permission=Permissions.AdminIpAddressesRead,
     uses_session=True,
 )
 def ip_address_detail(request: Request) -> dict[str, IpAddress]:
-    ip_address_id = request.matchdict["ip_address_id"]
+    ip_address = request.matchdict["ip_address"]
     try:
-        ip_address = request.db.query(IpAddress).filter_by(id=ip_address_id).one()
+        ip_address = request.db.query(IpAddress).filter_by(ip_address=ip_address).one()
     except NoResultFound:
-        raise HTTPBadRequest("No IP Address found with that id.")
+        raise HTTPBadRequest("No matching IP Address found.")
 
-    return {"ip_address": ip_address}
+    unique_logins = (
+        request.db.query(UserUniqueLogin)
+        .filter(UserUniqueLogin.ip_address == ip_address)
+        .order_by(UserUniqueLogin.created.desc())
+        .all()
+    )
+
+    return {"ip_address": ip_address, "unique_logins": unique_logins}
+
+
+@view_config(
+    route_name="admin.ip_address.ban",
+    permission=Permissions.AdminIpAddressesWrite,
+    request_method="POST",
+    uses_session=True,
+    require_methods=["POST"],
+)
+def ban_ip(request: Request):
+    ip_address_str = request.matchdict["ip_address"]
+    try:
+        ip_address = (
+            request.db.query(IpAddress).filter_by(ip_address=ip_address_str).one()
+        )
+    except NoResultFound:
+        raise HTTPBadRequest("No matching IP Address found.")
+
+    if ip_address.is_banned:
+        request.session.flash(
+            f"IP address {ip_address.ip_address} is already banned.", queue="warning"
+        )
+    else:
+        ip_address.is_banned = True
+        ip_address.ban_reason = BanReason.ADMINISTRATIVE
+        ip_address.ban_date = datetime.utcnow()
+        request.session.flash(
+            f"Banned IP address {ip_address.ip_address}", queue="success"
+        )
+
+    return HTTPSeeOther(
+        request.route_path("admin.ip_address.detail", ip_address=ip_address.ip_address)
+    )
+
+
+@view_config(
+    route_name="admin.ip_address.unban",
+    permission=Permissions.AdminIpAddressesWrite,
+    request_method="POST",
+    uses_session=True,
+    require_methods=["POST"],
+)
+def unban_ip(request: Request):
+    ip_address_str = request.matchdict["ip_address"]
+    try:
+        ip_address = (
+            request.db.query(IpAddress).filter_by(ip_address=ip_address_str).one()
+        )
+    except NoResultFound:
+        raise HTTPBadRequest("No matching IP Address found.")
+
+    if not ip_address.is_banned:
+        request.session.flash(
+            f"IP address {ip_address.ip_address} is not banned.", queue="warning"
+        )
+    else:
+        ip_address.is_banned = False
+        ip_address.ban_reason = None
+        ip_address.ban_date = None
+        request.session.flash(
+            f"Unbanned IP address {ip_address.ip_address}", queue="success"
+        )
+
+    return HTTPSeeOther(
+        request.route_path("admin.ip_address.detail", ip_address=ip_address.ip_address)
+    )

@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import hashlib
 import os.path
@@ -17,31 +7,44 @@ import tempfile
 import packaging_legacy.version
 
 from pyramid_jinja2 import IJinja2Environment
+from sqlalchemy import String, cast, func, select
 from sqlalchemy.orm import joinedload
 
 from warehouse.packaging.interfaces import ISimpleStorage
 from warehouse.packaging.models import File, LifecycleStatus, Project, Release
 
-API_VERSION = "1.3"
+API_VERSION = "1.4"
 
 
 def _simple_index(request, serial):
-    # Fetch the name and normalized name for all of our projects
-    projects = (
-        request.db.query(Project.name, Project.normalized_name, Project.last_serial)
-        # Exclude projects that are in the `quarantine-enter` lifecycle status.
-        # Use `is_distinct_from` method here to ensure that we select `NULL` records,
-        # which would otherwise be excluded by the `==` operator.
-        .filter(
-            Project.lifecycle_status.is_distinct_from(LifecycleStatus.QuarantineEnter)
+    # Fetch the name and last serial name for all of our projects
+    query = select(
+        func.array(
+            select(
+                func.json_build_object(
+                    cast("name", String),
+                    Project.name,
+                    cast("_last-serial", String),
+                    Project.last_serial,
+                )
+            )
+            # Exclude projects that are in the `quarantine-enter` lifecycle status.
+            # Use `is_distinct_from` method here to ensure that we select `NULL`
+            # records, which would otherwise be excluded by the `==` operator.
+            .filter(
+                Project.lifecycle_status.is_distinct_from(
+                    LifecycleStatus.QuarantineEnter
+                )
+            )
+            .order_by(Project.normalized_name)
+            .scalar_subquery()
         )
-        .order_by(Project.normalized_name)
-        .all()
     )
+    projects = request.db.execute(query).scalar() or []
 
     return {
         "meta": {"api-version": API_VERSION, "_last-serial": serial},
-        "projects": [{"name": p.name, "_last-serial": p.last_serial} for p in projects],
+        "projects": projects,
     }
 
 
@@ -70,6 +73,11 @@ def _simple_detail(project, request):
     return {
         "meta": {"api-version": API_VERSION, "_last-serial": project.last_serial},
         "name": project.normalized_name,
+        "project-status": (
+            {
+                "status": project.project_status.value,
+            }
+        ),
         "versions": versions,
         "alternate-locations": alternate_repositories,
         "files": [
@@ -162,5 +170,6 @@ def render_simple_detail(project, request, store=False):
 
 
 def _valid_simple_detail_context(context: dict) -> dict:
+    context["project_status"] = context.pop("project-status", None)
     context["alternate_locations"] = context.pop("alternate-locations", [])
     return context

@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import pytest
 
@@ -19,6 +9,8 @@ from warehouse.utils import wheel
     ("filename", "expected_tags"),
     [
         ("cryptography-42.0.5.tar.gz", ["Source"]),
+        ("Pillow-2.5.0-py3.4-win-amd64.egg", ["Egg"]),
+        ("Pillow-2.5.0-py3.4-win32.egg", ["Egg"]),
         (
             "cryptography-42.0.5-pp310-pypy310_pp73-win_amd64.whl",
             ["PyPy", "Windows x86-64"],
@@ -32,8 +24,68 @@ from warehouse.utils import wheel
             ["CPython 3.7+", "musllinux: musl 1.2+ x86-64"],
         ),
         (
+            "cryptography-42.0.5-cp37-abi3-macosx_10_5_intel.whl",
+            ["CPython 3.7+", "macOS 10.5+ Intel (x86-64, i386)"],
+        ),
+        (
+            "cryptography-42.0.5-cp37-abi3-macosx_10_5_fat.whl",
+            ["CPython 3.7+", "macOS 10.5+ fat (i386, PPC)"],
+        ),
+        (
+            "cryptography-42.0.5-cp37-abi3-macosx_10_5_fat3.whl",
+            ["CPython 3.7+", "macOS 10.5+ fat3 (x86-64, i386, PPC)"],
+        ),
+        (
+            "cryptography-42.0.5-cp37-abi3-macosx_10_5_fat64.whl",
+            ["CPython 3.7+", "macOS 10.5+ fat64 (x86-64, PPC64)"],
+        ),
+        (
+            "cryptography-42.0.5-cp37-abi3-macosx_10_5_universal.whl",
+            ["CPython 3.7+", "macOS 10.5+ universal (x86-64, i386, PPC64, PPC)"],
+        ),
+        (
             "cryptography-42.0.5-cp37-abi3-macosx_10_12_universal2.whl",
             ["CPython 3.7+", "macOS 10.12+ universal2 (ARM64, x86-64)"],
+        ),
+        (
+            "cryptography-42.0.5-cp313-cp313-android_27_armeabi_v7a.whl",
+            ["Android API level 27+ ARM EABI v7a", "CPython 3.13"],
+        ),
+        (
+            "cryptography-42.0.5-cp313-cp313-android_27_arm64_v8a.whl",
+            ["Android API level 27+ ARM64 v8a", "CPython 3.13"],
+        ),
+        (
+            "cryptography-42.0.5-cp313-cp313-android_27_x86.whl",
+            ["Android API level 27+ x86", "CPython 3.13"],
+        ),
+        (
+            "cryptography-42.0.5-cp313-cp313-android_27_x86_64.whl",
+            ["Android API level 27+ x86-64", "CPython 3.13"],
+        ),
+        (
+            "cryptography-42.0.5-cp313-abi3-android_16_armeabi_v7a.whl",
+            ["Android API level 16+ ARM EABI v7a", "CPython 3.13+"],
+        ),
+        (
+            "cryptography-42.0.5-cp313-cp313-iOS_15_6_arm64_iphoneos.whl",
+            ["CPython 3.13", "iOS 15.6+ ARM64 Device"],
+        ),
+        (
+            "cryptography-42.0.5-cp313-cp313-iOS_15_6_arm64_iphonesimulator.whl",
+            ["CPython 3.13", "iOS 15.6+ ARM64 Simulator"],
+        ),
+        (
+            "cryptography-42.0.5-cp313-cp313-iOS_15_6_x86_64_iphonesimulator.whl",
+            ["CPython 3.13", "iOS 15.6+ x86-64 Simulator"],
+        ),
+        (
+            "cryptography-42.0.5-cp313-abi3-iOS_13_0_arm64_iphoneos.whl",
+            ["CPython 3.13+", "iOS 13.0+ ARM64 Device"],
+        ),
+        (
+            "cryptography-42.0.5-cp313-abi3-iOS_13_0_arm64_iphonesimulator.whl",
+            ["CPython 3.13+", "iOS 13.0+ ARM64 Simulator"],
         ),
         (
             "pgf-1.0-pp27-pypy_73-manylinux2010_x86_64.whl",

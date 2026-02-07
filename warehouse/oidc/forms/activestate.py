@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import re
 
@@ -41,14 +31,14 @@ class GqlResponse(TypedDict):
     errors: list[dict[str, Any]]
 
 
-def _no_double_dashes(form, field):
+def _no_double_dashes(_form: wtforms.Form, field: wtforms.Field) -> None:
     if _DOUBLE_DASHES.search(field.data):
         raise wtforms.validators.ValidationError(
             _("Double dashes are not allowed in the name")
         )
 
 
-def _no_leading_or_trailing_dashes(form, field):
+def _no_leading_or_trailing_dashes(_form: wtforms.Form, field: wtforms.Field) -> None:
     if field.data.startswith("-") or field.data.endswith("-"):
         raise wtforms.validators.ValidationError(
             _("Leading or trailing dashes are not allowed in the name")
@@ -160,7 +150,7 @@ class ActiveStatePublisherBase(wtforms.Form):
             _GRAPHQL_GET_ORGANIZATION, {"orgname": org_url_name}, process_org_response
         )
 
-    def validate_organization(self, field):
+    def validate_organization(self, field: wtforms.Field) -> None:
         self._lookup_organization(field.data)
 
     def _lookup_actor(self, actor: str) -> UserResponse:
@@ -180,7 +170,7 @@ class ActiveStatePublisherBase(wtforms.Form):
             _GRAPHQL_GET_ACTOR, {"username": actor}, process_actor_response
         )
 
-    def validate_actor(self, field):
+    def validate_actor(self, field: wtforms.Field) -> None:
         actor = field.data
 
         actor_info = self._lookup_actor(actor)
@@ -191,10 +181,11 @@ class ActiveStatePublisherBase(wtforms.Form):
 class PendingActiveStatePublisherForm(ActiveStatePublisherBase, PendingPublisherMixin):
     __params__ = ActiveStatePublisherBase.__params__ + ["project_name"]
 
-    def __init__(self, *args, route_url, project_factory, **kwargs):
+    def __init__(self, *args, route_url, check_project_name, user, **kwargs):
         super().__init__(*args, **kwargs)
         self._route_url = route_url
-        self._project_factory = project_factory
+        self._check_project_name = check_project_name
+        self._user = user
 
     @property
     def provider(self) -> str:

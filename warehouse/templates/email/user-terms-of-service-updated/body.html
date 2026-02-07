@@ -1,0 +1,25 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% extends "email/_base/body.html" %}
+{% set domain = request.registry.settings.get('warehouse.domain') %}
+{% block content %}
+  <p>Hello {{ user.username }},</p>
+  <p>We're reaching out to inform you that we are rolling out an updated Terms of Service.</p>
+  <p>
+    Our new <a href="https://policies.python.org/pypi.org/Terms-of-Service/">Terms of Service</a>
+    supersedes the <a href="https://policies.python.org/pypi.org/Terms-of-Use/">Terms of Use</a>
+    that you agreed to when initially registering for, or by your continued use of PyPI.
+  </p>
+  <p>
+    The primary reason for this updated document is to formalize our relationship with
+    PyPI users, better establish the protections in place for PyPI and its users,
+    and to enable us to move forward with new features and services.
+  </p>
+  <p>
+    You may notice a banner on your next login reminding you of these updated terms,
+    These terms will take effect for your account on March 27, 2025 and your continued use of PyPI
+    after that date constitutes agreement to these new terms.
+  </p>
+  <p>
+    You can read more on our <a href="https://blog.pypi.org/posts/2025-02-25-terms-of-service/">blog</a>.
+  </p>
+{% endblock %}

@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import time
 
@@ -208,6 +198,33 @@ class TestFastlyCache:
             "Surrogate-Key": "abc defg",
             "Surrogate-Control": (
                 "max-age=9123, stale-while-revalidate=4567, stale-if-error=2276"
+            ),
+        }
+
+    def test_override_ttl_on_response(self):
+        request = pretend.stub()
+        response = pretend.stub(headers={}, override_ttl=6969)
+
+        cacher = fastly.FastlyCache(
+            api_endpoint=None,
+            api_connect_via=None,
+            api_key=None,
+            service_id=None,
+            purger=None,
+        )
+        cacher.cache(
+            ["abc", "defg"],
+            request,
+            response,
+            seconds=9123,
+            stale_while_revalidate=4567,
+            stale_if_error=2276,
+        )
+
+        assert response.headers == {
+            "Surrogate-Key": "abc defg",
+            "Surrogate-Control": (
+                "max-age=6969, stale-while-revalidate=4567, stale-if-error=2276"
             ),
         }
 

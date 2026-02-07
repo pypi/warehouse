@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import datetime
 
@@ -178,11 +168,35 @@ class TestRateLimit:
 def test_includeme():
     registry = {}
     config = pretend.stub(
+        add_directive=pretend.call_recorder(lambda name, func: None),
         registry=pretend.stub(
             settings={"ratelimit.url": "memory://"}, __setitem__=registry.__setitem__
-        )
+        ),
     )
 
     rate_limiting.includeme(config)
 
+    assert config.add_directive.calls == [
+        pretend.call("register_rate_limiter", rate_limiting._register_rate_limiter)
+    ]
     assert isinstance(registry["ratelimiter.storage"], storage.MemoryStorage)
+
+
+def test_register_rate_limiter_directive():
+    config = pretend.stub(
+        register_service_factory=pretend.call_recorder(
+            lambda factory, iface, name: None
+        ),
+    )
+
+    rate_limiting._register_rate_limiter(config, "10 per minute", "test.limiter")
+
+    assert len(config.register_service_factory.calls) == 1
+    call = config.register_service_factory.calls[0]
+    assert call.kwargs["name"] == "test.limiter"
+    assert call.args[1] is rate_limiting.IRateLimiter
+    # Verify the factory is a RateLimit with correct parameters
+    factory = call.args[0]
+    assert isinstance(factory, RateLimit)
+    assert factory.limit == "10 per minute"
+    assert factory.identifiers == ["test.limiter"]

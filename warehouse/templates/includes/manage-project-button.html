@@ -11,7 +11,7 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-
 {% if request.has_permission(Permissions.ProjectsWrite) %}
-  <a href="{{ request.route_path('manage.project.releases', project_name=project.name) }}" class="button button--primary package-description__edit-button">{% trans %}Manage project{% endtrans %}</a>
+  <a href="{{ request.route_path('manage.project.releases', project_name=project.name) }}"
+     class="button button--primary package-description__edit-button">{% trans %}Manage project{% endtrans %}</a>
 {% endif %}

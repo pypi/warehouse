@@ -1,19 +1,10 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import datetime
 import functools
 import time
 
+import markupsafe
 import msgpack
 import msgpack.exceptions
 import redis
@@ -25,6 +16,7 @@ from zope.interface import implementer
 import warehouse.utils.otp as otp
 import warehouse.utils.webauthn as webauthn
 
+from warehouse.accounts.views import USER_ID_INSECURE_COOKIE
 from warehouse.cache.http import add_vary
 from warehouse.utils import crypto
 from warehouse.utils.msgpack import object_encode
@@ -169,22 +161,27 @@ class Session(dict):
     def _get_flash_queue_key(self, queue):
         return ".".join(filter(None, [self._flash_key, queue]))
 
-    def flash(self, msg, queue="", allow_duplicate=True):
+    def flash(self, msg, queue="", allow_duplicate=True, safe=False):
         queue_key = self._get_flash_queue_key(queue)
 
         # If we're not allowing duplicates check if this message is already
         # in the queue, and if it is just return immediately.
-        if not allow_duplicate and msg in self[queue_key]:
+        if not allow_duplicate and {"msg": msg, "safe": safe} in self.get(
+            queue_key, []
+        ):
             return
 
-        self.setdefault(queue_key, []).append(msg)
+        self.setdefault(queue_key, []).append({"msg": msg, "safe": safe})
 
     def peek_flash(self, queue=""):
         return self.get(self._get_flash_queue_key(queue), [])
 
     def pop_flash(self, queue=""):
         queue_key = self._get_flash_queue_key(queue)
-        messages = self.get(queue_key, [])
+        messages = [
+            markupsafe.Markup(m["msg"]) if m["safe"] else m["msg"]
+            for m in self.get(queue_key, [])
+        ]
         self.pop(queue_key, None)
         return messages
 
@@ -305,14 +302,26 @@ class SessionFactory:
             )
 
             # Send our session cookie to the client
+            # NOTE: The lack of a max_age here. This sends the cookie with:
+            #  > Expires: Session
+            # This will allow effectively allow the cookie to live indefinitely,
+            # as long as the user has interacted with the session _before_ the
+            # session key expires in redis.
+            # Once the session key has expired in redis, the session will be marked
+            # as invalid and will not authenticate the account.
             response.set_cookie(
                 self.cookie_name,
                 self.signer.sign(request.session.sid.encode("utf8")),
-                max_age=self.max_age,
                 httponly=True,
                 secure=request.scheme == "https",
                 samesite=b"lax",
             )
+            # If there's no user associated with the session, remove the insecure cookie
+            # to prevent JavaScript access to it, which can confuse the UI.
+            # We cannot access `request.authenticated_userid` at this point in the
+            # request lifecycle, so we check the session directly.
+            if not request.session.get("auth.userid"):
+                response.delete_cookie(USER_ID_INSECURE_COOKIE)
 
 
 def session_view(view, info):

@@ -1,13 +1,4 @@
 #!/bin/bash
-set -e
-
-# Click requires us to ensure we have a well configured environment to run
-# our click commands. So we'll set our environment to ensure our locale is
-# correct.
-export LC_ALL="${ENCODING:-en_US.UTF-8}"
-export LANG="${ENCODING:-en_US.UTF-8}"
-
-# Print all the following commands
-set -x
+set -ex
 
 make -C warehouse/locale/ translations

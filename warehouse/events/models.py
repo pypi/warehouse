@@ -1,23 +1,15 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
+
 from __future__ import annotations
 
 import typing
 
 from dataclasses import dataclass
+from uuid import UUID
 
 from linehaul.ua import parser as linehaul_user_agent_parser
 from sqlalchemy import ForeignKey, Index, orm
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, declared_attr, mapped_column
 from ua_parser import user_agent_parser
 
@@ -42,6 +34,8 @@ class GeoIPInfo:
     country_code: str | None = None
     country_name: str | None = None
     region: str | None = None
+    latitude: float | None = None
+    longitude: float | None = None
 
     @property
     def _city(self) -> str:
@@ -120,10 +114,15 @@ class Event:
     time: Mapped[datetime_now]
     additional: Mapped[dict | None] = mapped_column(JSONB)
 
+    if typing.TYPE_CHECKING:
+        # Attributes defined on concrete subclasses created by HasEvents.
+        # Declared here for type checking when querying via polymorphic union.
+        source_id: Mapped[UUID]
+        source: HasEvents
+
     @declared_attr
     def ip_address_id(cls):  # noqa: N805
         return mapped_column(
-            UUID(as_uuid=True),
             ForeignKey("ip_addresses.id", onupdate="CASCADE", ondelete="CASCADE"),
             nullable=True,
         )
@@ -133,7 +132,7 @@ class Event:
         return orm.relationship(IpAddress)
 
     @property
-    def location_info(cls) -> str:  # noqa: N805
+    def location_info(cls) -> str | IpAddress:  # noqa: N805
         """
         Determine "best" location info to display.
 
@@ -163,10 +162,17 @@ class Event:
 
 
 class HasEvents:
-    Event: typing.ClassVar[type]
+    if typing.TYPE_CHECKING:
+        # Dynamically created Event subclass; typed as Any because:
+        # - `type[Event]` breaks instantiation
+        # - Needs to support both `cls.Event(...)` and `cls.Event.column` access
+        Event: typing.Any
 
     @declared_attr
-    def events(cls):  # noqa: N805
+    def events(cls: type[typing.Any]):  # noqa: N805
+        # Returns AppenderQuery at runtime (`lazy="dynamic"`)
+        # No return type annotation: `Mapped[]` implies `uselist=False`,
+        # `typing.Any` triggers SQLAlchemy error
         cls.Event = type(
             f"{cls.__name__}Event",
             (Event, db.Model),
@@ -176,7 +182,6 @@ class HasEvents:
                     Index(f"ix_{cls.__name__.lower()}_events_source_id", "source_id"),
                 ),
                 source_id=mapped_column(
-                    UUID(as_uuid=True),
                     ForeignKey(
                         f"{cls.__tablename__}.id",
                         deferrable=True,
@@ -198,6 +203,7 @@ class HasEvents:
             passive_deletes=True,
             lazy="dynamic",
             back_populates="source",
+            order_by=f"desc({cls.__name__}Event.time)",
         )
 
     def record_event(self, *, tag, request: Request, additional=None):
@@ -223,9 +229,11 @@ class HasEvents:
                     additional["user_agent_info"] = {
                         "installer": "Browser",
                         # See https://github.com/pypi/linehaul-cloud-function/issues/203
-                        "device": parsed_user_agent["device"]["family"],  # type: ignore[index] # noqa: E501
-                        "os": parsed_user_agent["os"]["family"],  # type: ignore[index]
-                        "user_agent": parsed_user_agent["user_agent"]["family"],  # type: ignore[index] # noqa: E501
+                        "device": parsed_user_agent["device"]["family"],  # noqa: E501
+                        "os": parsed_user_agent["os"]["family"],
+                        "user_agent": parsed_user_agent["user_agent"][
+                            "family"
+                        ],  # noqa: E501
                     }
                 else:
                     additional = additional or {}

@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import pretend
 import pytest
@@ -18,11 +8,18 @@ from webob.multidict import MultiDict
 
 from warehouse.oidc.forms import google
 
+from ....common.db.accounts import UserFactory
+from ....common.db.packaging import (
+    ProjectFactory,
+    RoleFactory,
+)
+
 
 class TestPendingGooglePublisherForm:
-    def test_validate(self, monkeypatch):
-        project_factory = []
+    def test_validate(self, project_service):
         route_url = pretend.stub()
+        user = pretend.stub()
+
         data = MultiDict(
             {
                 "sub": "some-subject",
@@ -31,23 +28,38 @@ class TestPendingGooglePublisherForm:
             }
         )
         form = google.PendingGooglePublisherForm(
-            MultiDict(data), route_url=route_url, project_factory=project_factory
+            MultiDict(data),
+            route_url=route_url,
+            check_project_name=project_service.check_project_name,
+            user=user,
         )
 
-        assert form._project_factory == project_factory
+        assert form._check_project_name == project_service.check_project_name
         assert form._route_url == route_url
+        assert form._user == user
         assert form.validate()
 
-    def test_validate_project_name_already_in_use(self, pyramid_config):
-        project_factory = ["some-project"]
+    def test_validate_project_name_already_in_use_owner(
+        self, pyramid_config, project_service
+    ):
         route_url = pretend.call_recorder(lambda *args, **kwargs: "my_url")
+
+        user = UserFactory.create()
+        project = ProjectFactory.create(name="some-project")
+        RoleFactory.create(user=user, project=project)
+
         form = google.PendingGooglePublisherForm(
-            route_url=route_url, project_factory=project_factory
+            route_url=route_url,
+            check_project_name=project_service.check_project_name,
+            user=user,
         )
 
         field = pretend.stub(data="some-project")
         with pytest.raises(wtforms.validators.ValidationError):
             form.validate_project_name(field)
+
+        # The project settings URL is only shown in the error message if
+        # the user is the owner of the project
         assert route_url.calls == [
             pretend.call(
                 "manage.project.settings.publishing",
@@ -55,6 +67,26 @@ class TestPendingGooglePublisherForm:
                 _query={"provider": {"google"}},
             )
         ]
+
+    def test_validate_project_name_already_in_use_not_owner(
+        self, pyramid_config, project_service
+    ):
+        route_url = pretend.call_recorder(lambda *args, **kwargs: "my_url")
+
+        user = UserFactory.create()
+        ProjectFactory.create(name="some-project")
+
+        form = google.PendingGooglePublisherForm(
+            route_url=route_url,
+            check_project_name=project_service.check_project_name,
+            user=user,
+        )
+
+        field = pretend.stub(data="some-project")
+        with pytest.raises(wtforms.validators.ValidationError):
+            form.validate_project_name(field)
+
+        assert route_url.calls == []
 
 
 class TestGooglePublisherForm:
@@ -65,7 +97,7 @@ class TestGooglePublisherForm:
             ("some-subject", "some-email@example.com"),
         ],
     )
-    def test_validate(self, monkeypatch, sub, email):
+    def test_validate(self, sub, email):
         data = MultiDict(
             {
                 "sub": sub,
@@ -85,7 +117,7 @@ class TestGooglePublisherForm:
             ("some-subject", "invalid_email"),
         ],
     )
-    def test_validate_basic_invalid_fields(self, monkeypatch, sub, email):
+    def test_validate_basic_invalid_fields(self, sub, email):
         data = MultiDict(
             {
                 "sub": sub,

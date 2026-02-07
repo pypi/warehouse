@@ -1,23 +1,15 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
 
+import typing
 import urllib
 
-from typing import Any
+from typing import Any, Self
+from uuid import UUID
 
-from sqlalchemy import ForeignKey, String, UniqueConstraint
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Query, mapped_column
+from sqlalchemy import ForeignKey, String, UniqueConstraint, and_, exists
+from sqlalchemy.orm import Mapped, Query, mapped_column
 
 import warehouse.oidc.models._core as oidccore
 
@@ -28,6 +20,11 @@ from warehouse.oidc.models._core import (
     OIDCPublisher,
     PendingOIDCPublisher,
 )
+
+if typing.TYPE_CHECKING:
+    from sqlalchemy.orm import Session
+
+ACTIVESTATE_OIDC_ISSUER_URL = "https://platform.activestate.com/api/v1/oauth/oidc"
 
 _ACTIVESTATE_URL = "https://platform.activestate.com"
 
@@ -62,13 +59,13 @@ class ActiveStatePublisherMixin:
     Common functionality for both pending and concrete ActiveState OIDC publishers.
     """
 
-    organization = mapped_column(String, nullable=False)
-    activestate_project_name = mapped_column(String, nullable=False)
-    actor = mapped_column(String, nullable=False)
+    organization: Mapped[str] = mapped_column(String, nullable=False)
+    activestate_project_name: Mapped[str] = mapped_column(String, nullable=False)
+    actor: Mapped[str] = mapped_column(String, nullable=False)
     # 'actor' (The ActiveState platform username) is obtained from the user
     # while configuring the publisher We'll make an api call to ActiveState to
     # get the 'actor_id'
-    actor_id = mapped_column(String, nullable=False)
+    actor_id: Mapped[str] = mapped_column(String, nullable=False)
 
     __required_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
         "sub": _check_sub,
@@ -89,18 +86,6 @@ class ActiveStatePublisherMixin:
         "project_path",
         "project_visibility",
     }
-
-    @staticmethod
-    def __lookup_all__(klass, signed_claims: SignedClaims):
-        return Query(klass).filter_by(
-            organization=signed_claims["organization"],
-            activestate_project_name=signed_claims["project"],
-            actor_id=signed_claims["actor_id"],
-        )
-
-    __lookup_strategies__ = [
-        __lookup_all__,
-    ]
 
     @property
     def sub(self) -> str:
@@ -127,11 +112,44 @@ class ActiveStatePublisherMixin:
     def publisher_url(self, claims: SignedClaims | None = None) -> str:
         return self.publisher_base_url
 
-    def stored_claims(self, claims=None):
+    def stored_claims(self, claims: SignedClaims | None = None) -> dict:
         return {}
 
     def __str__(self) -> str:
         return self.publisher_url()
+
+    def exists(self, session: Session) -> bool:
+        return session.query(
+            exists().where(
+                and_(
+                    self.__class__.organization == self.organization,
+                    self.__class__.activestate_project_name
+                    == self.activestate_project_name,
+                    self.__class__.actor_id == self.actor_id,
+                )
+            )
+        ).scalar()
+
+    @property
+    def admin_details(self) -> list[tuple[str, str]]:
+        """Returns ActiveState publisher configuration details for admin display."""
+        return [
+            ("Organization", self.organization),
+            ("Project", self.activestate_project_name),
+            ("Actor", self.actor),
+            ("Actor ID", self.actor_id),
+        ]
+
+    @classmethod
+    def lookup_by_claims(cls, session: Session, signed_claims: SignedClaims) -> Self:
+        query: Query = Query(cls).filter_by(
+            organization=signed_claims["organization"],
+            activestate_project_name=signed_claims["project"],
+            actor_id=signed_claims["actor_id"],
+        )
+        if publisher := query.with_session(session).one_or_none():
+            return publisher
+        raise InvalidPublisherError("Publisher with matching claims was not found")
 
 
 class ActiveStatePublisher(ActiveStatePublisherMixin, OIDCPublisher):
@@ -149,15 +167,13 @@ class ActiveStatePublisher(ActiveStatePublisherMixin, OIDCPublisher):
         ),
     )
 
-    id = mapped_column(
-        UUID(as_uuid=True), ForeignKey(OIDCPublisher.id), primary_key=True
-    )
+    id: Mapped[UUID] = mapped_column(ForeignKey(OIDCPublisher.id), primary_key=True)
 
 
 class PendingActiveStatePublisher(ActiveStatePublisherMixin, PendingOIDCPublisher):
     __tablename__ = "pending_activestate_oidc_publishers"
     __mapper_args__ = {"polymorphic_identity": "pending_activestate_oidc_publishers"}
-    __table_args__ = (
+    __table_args__ = (  # type: ignore[assignment]
         UniqueConstraint(
             "organization",
             "activestate_project_name",
@@ -166,11 +182,11 @@ class PendingActiveStatePublisher(ActiveStatePublisherMixin, PendingOIDCPublishe
         ),
     )
 
-    id = mapped_column(
-        UUID(as_uuid=True), ForeignKey(PendingOIDCPublisher.id), primary_key=True
+    id: Mapped[UUID] = mapped_column(
+        ForeignKey(PendingOIDCPublisher.id), primary_key=True
     )
 
-    def reify(self, session):
+    def reify(self, session: Session) -> ActiveStatePublisher:
         """
         Returns a `ActiveStatePublisher` for this `PendingActiveStatePublisher`,
         deleting the `PendingActiveStatePublisher` in the process.

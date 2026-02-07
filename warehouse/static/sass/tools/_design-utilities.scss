@@ -1,26 +1,19 @@
-/*!
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/* SPDX-License-Identifier: Apache-2.0 */
+
+@use "sass:color";
+@use "sass:list";
+@use "../settings/colours";
+@use "../settings/z-index";
 
 @mixin card {
-  border: 1px solid $border-color;
+  border: 1px solid colours.$border-color;
   box-shadow: 1px 1px 2px 1px rgb(0 0 0 / 5%);
-  background-color: $white;
+  background-color: colours.$white;
   text-decoration: none;
 
   &:hover,
   &:active {
-    border-color: $border-color;
+    border-color: colours.$border-color;
     text-decoration: none;
   }
 }
@@ -28,8 +21,8 @@
 @mixin overlay {
   position: fixed;
   inset: 0;
-  background-color: transparentize($black, 0.5);
-  z-index: index($z-index-scale, "dark-overlay");
+  background-color: color.adjust(colours.$black, $alpha: -0.5);
+  z-index: list.index(z-index.$z-index-scale, "dark-overlay");
   pointer-events: none;
   transition: opacity 0.3s;
 }

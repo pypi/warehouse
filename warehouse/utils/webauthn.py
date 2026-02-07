@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import base64
 import json
@@ -21,12 +11,7 @@ from webauthn.helpers import (
     parse_authentication_credential_json,
     parse_registration_credential_json,
 )
-from webauthn.helpers.exceptions import (
-    InvalidAuthenticationResponse,
-    InvalidAuthenticatorDataStructure,
-    InvalidRegistrationResponse,
-    UnsupportedPublicKeyType,
-)
+from webauthn.helpers.exceptions import WebAuthnException
 from webauthn.helpers.options_to_json import options_to_json
 from webauthn.helpers.structs import (
     AttestationConveyancePreference,
@@ -138,11 +123,7 @@ def verify_registration_response(response, challenge, *, rp_id, origin):
             expected_origin=origin,
             require_user_verification=False,
         )
-    except (
-        InvalidAuthenticatorDataStructure,
-        InvalidRegistrationResponse,
-        UnsupportedPublicKeyType,
-    ) as e:
+    except WebAuthnException as e:
         raise RegistrationRejectedError(str(e))
 
 
@@ -173,7 +154,7 @@ def verify_assertion_response(assertion, *, challenge, user, origin, rp_id):
                 credential_current_sign_count=current_sign_count,
                 require_user_verification=False,
             )
-        except InvalidAuthenticationResponse:
+        except WebAuthnException:
             pass
 
     # If we exit the loop, then we've failed to verify the assertion against

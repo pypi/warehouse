@@ -1,7 +1,3 @@
-furo
-Sphinx
-sphinx-autobuild
-sphinx-copybutton
-sphinxcontrib-httpdomain
-sphinxcontrib-mermaid
-myst-parser
+mkdocs
+mkdocs-material
+mkdocs-redirects

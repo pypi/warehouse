@@ -1,32 +1,32 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
+
+import datetime
 
 import pretend
+import psycopg
 import pytest
 
+from freezegun import freeze_time
 from pyramid.authorization import Allow
 from pyramid.httpexceptions import HTTPPermanentRedirect
 from pyramid.location import lineage
 
 from warehouse.authnz import Permissions
 from warehouse.organizations.models import (
+    OIDCIssuerType,
+    OrganizationApplicationFactory,
     OrganizationFactory,
     OrganizationRoleType,
     TeamFactory,
 )
 
+from ...common.db.accounts import UserFactory as DBUserFactory
 from ...common.db.organizations import (
+    OrganizationApplicationFactory as DBOrganizationApplicationFactory,
     OrganizationFactory as DBOrganizationFactory,
+    OrganizationManualActivationFactory as DBOrganizationManualActivationFactory,
     OrganizationNameCatalogFactory as DBOrganizationNameCatalogFactory,
+    OrganizationOIDCIssuerFactory as DBOrganizationOIDCIssuerFactory,
     OrganizationRoleFactory as DBOrganizationRoleFactory,
     OrganizationStripeCustomerFactory as DBOrganizationStripeCustomerFactory,
     OrganizationStripeSubscriptionFactory as DBOrganizationStripeSubscriptionFactory,
@@ -36,6 +36,34 @@ from ...common.db.subscriptions import (
     StripeCustomerFactory as DBStripeCustomerFactory,
     StripeSubscriptionFactory as DBStripeSubscriptionFactory,
 )
+
+
+class TestOrganizationApplicationFactory:
+    def test_traversal_finds(self, db_request):
+        organization_application = DBOrganizationApplicationFactory.create()
+        _organization_application = OrganizationApplicationFactory(db_request)
+        assert (
+            _organization_application[organization_application.id]
+            == organization_application
+        )
+
+    def test_traversal_cant_find(self, db_request):
+        DBOrganizationApplicationFactory.create()
+        _organization_application = OrganizationApplicationFactory(db_request)
+        with pytest.raises(KeyError):
+            _organization_application["deadbeef-dead-beef-dead-beefdeadbeef"]
+
+
+class TestOrganizationApplication:
+    def test_acl(self, db_session):
+        organization_application = DBOrganizationApplicationFactory.create()
+        assert organization_application.__acl__() == [
+            (
+                Allow,
+                f"user:{organization_application.submitted_by.id}",
+                (Permissions.OrganizationApplicationsManage,),
+            )
+        ]
 
 
 class TestOrganizationFactory:
@@ -103,17 +131,9 @@ class TestOrganization:
             organization=organization, role_name=OrganizationRoleType.Member
         )
 
-        acls = []
-        for location in lineage(organization):
-            try:
-                acl = location.__acl__
-            except AttributeError:
-                continue
-
-            if acl and callable(acl):
-                acl = acl()
-
-            acls.extend(acl)
+        acls = [
+            item for location in lineage(organization) for item in location.__acl__()
+        ]
 
         assert acls == [
             (
@@ -122,6 +142,7 @@ class TestOrganization:
                 (
                     Permissions.AdminOrganizationsRead,
                     Permissions.AdminOrganizationsWrite,
+                    Permissions.AdminOrganizationsNameWrite,
                 ),
             ),
             (Allow, "group:moderators", Permissions.AdminOrganizationsRead),
@@ -320,17 +341,7 @@ class TestTeam:
             organization=organization, role_name=OrganizationRoleType.Member
         )
 
-        acls = []
-        for location in lineage(team):
-            try:
-                acl = location.__acl__
-            except AttributeError:
-                continue
-
-            if acl and callable(acl):
-                acl = acl()
-
-            acls.extend(acl)
+        acls = [item for location in lineage(team) for item in location.__acl__()]
 
         assert acls == [
             (
@@ -339,6 +350,7 @@ class TestTeam:
                 (
                     Permissions.AdminOrganizationsRead,
                     Permissions.AdminOrganizationsWrite,
+                    Permissions.AdminOrganizationsNameWrite,
                 ),
             ),
             (Allow, "group:moderators", Permissions.AdminOrganizationsRead),
@@ -445,8 +457,38 @@ class TestTeam:
             organization=organization, subscription=subscription
         )
         assert organization.active_subscription is not None
+        assert organization.manageable_subscription is not None
 
     def test_active_subscription_none(self, db_session):
+        organization = DBOrganizationFactory.create()
+        stripe_customer = DBStripeCustomerFactory.create()
+        DBOrganizationStripeCustomerFactory.create(
+            organization=organization, customer=stripe_customer
+        )
+        subscription = DBStripeSubscriptionFactory.create(
+            customer=stripe_customer,
+            status="unpaid",
+        )
+        DBOrganizationStripeSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
+        assert organization.active_subscription is None
+        assert organization.manageable_subscription is not None
+
+    def test_manageable_subscription(self, db_session):
+        organization = DBOrganizationFactory.create()
+        stripe_customer = DBStripeCustomerFactory.create()
+        DBOrganizationStripeCustomerFactory.create(
+            organization=organization, customer=stripe_customer
+        )
+        subscription = DBStripeSubscriptionFactory.create(customer=stripe_customer)
+        DBOrganizationStripeSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
+        assert organization.active_subscription is not None
+        assert organization.manageable_subscription is not None
+
+    def test_manageable_subscription_none(self, db_session):
         organization = DBOrganizationFactory.create()
         stripe_customer = DBStripeCustomerFactory.create()
         DBOrganizationStripeCustomerFactory.create(
@@ -460,3 +502,336 @@ class TestTeam:
             organization=organization, subscription=subscription
         )
         assert organization.active_subscription is None
+        assert organization.manageable_subscription is None
+
+    def test_good_standing_with_manual_activation_active(self, db_session):
+        with freeze_time("2024-01-15"):
+            organization = DBOrganizationFactory.create(orgtype="Company")
+            DBOrganizationManualActivationFactory.create(
+                organization=organization,
+                expires=datetime.date(2024, 12, 31),  # Future date from frozen time
+            )
+            assert organization.good_standing
+
+    def test_good_standing_with_manual_activation_expired(self, db_session):
+        with freeze_time("2024-01-15"):
+            organization = DBOrganizationFactory.create(orgtype="Company")
+            DBOrganizationManualActivationFactory.create(
+                organization=organization,
+                expires=datetime.date(2023, 12, 31),  # Past date from frozen time
+            )
+            assert not organization.good_standing
+
+    def test_good_standing_community_without_manual_activation(self, db_session):
+        organization = DBOrganizationFactory.create(orgtype="Community")
+        assert organization.good_standing
+
+    def test_good_standing_company_without_manual_activation_or_subscription(
+        self, db_session
+    ):
+        organization = DBOrganizationFactory.create(orgtype="Company")
+        assert not organization.good_standing
+
+
+class TestOrganizationManualActivation:
+    def test_is_active_future_expiration(self, db_session):
+        # Freeze time to a known date
+        with freeze_time("2024-01-15"):
+            # Create activation that expires in the future
+            activation = DBOrganizationManualActivationFactory.create(
+                expires=datetime.date(2024, 12, 31)
+            )
+            assert activation.is_active
+
+    def test_is_active_past_expiration(self, db_session):
+        # Freeze time to a known date
+        with freeze_time("2024-01-15"):
+            # Create activation that already expired
+            activation = DBOrganizationManualActivationFactory.create(
+                expires=datetime.date(2023, 12, 31)
+            )
+            assert not activation.is_active
+
+    def test_current_member_count(self, db_session):
+        organization = DBOrganizationFactory.create()
+        activation = DBOrganizationManualActivationFactory.create(
+            organization=organization, seat_limit=10
+        )
+
+        # Create some organization roles (members)
+        for _ in range(3):
+            user = DBUserFactory.create()
+            DBOrganizationRoleFactory.create(
+                organization=organization,
+                user=user,
+                role_name=OrganizationRoleType.Member,
+            )
+
+        assert activation.current_member_count == 3
+
+    def test_has_available_seats_with_space(self, db_session):
+        organization = DBOrganizationFactory.create()
+        activation = DBOrganizationManualActivationFactory.create(
+            organization=organization, seat_limit=10
+        )
+
+        # Create some organization roles (members)
+        for _ in range(5):
+            user = DBUserFactory.create()
+            DBOrganizationRoleFactory.create(
+                organization=organization,
+                user=user,
+                role_name=OrganizationRoleType.Member,
+            )
+
+        assert activation.has_available_seats
+
+    def test_has_available_seats_at_limit(self, db_session):
+        organization = DBOrganizationFactory.create()
+        activation = DBOrganizationManualActivationFactory.create(
+            organization=organization, seat_limit=5
+        )
+
+        # Create organization roles up to the limit
+        for _ in range(5):
+            user = DBUserFactory.create()
+            DBOrganizationRoleFactory.create(
+                organization=organization,
+                user=user,
+                role_name=OrganizationRoleType.Member,
+            )
+
+        assert not activation.has_available_seats
+
+    def test_has_available_seats_over_limit(self, db_session):
+        organization = DBOrganizationFactory.create()
+        activation = DBOrganizationManualActivationFactory.create(
+            organization=organization, seat_limit=3
+        )
+
+        # Create more organization roles than the limit allows
+        for _ in range(5):
+            user = DBUserFactory.create()
+            DBOrganizationRoleFactory.create(
+                organization=organization,
+                user=user,
+                role_name=OrganizationRoleType.Member,
+            )
+
+        assert not activation.has_available_seats
+
+    def test_available_seats(self, db_session):
+        organization = DBOrganizationFactory.create()
+        activation = DBOrganizationManualActivationFactory.create(
+            organization=organization, seat_limit=10
+        )
+
+        # Create some organization roles (members)
+        for _ in range(3):
+            user = DBUserFactory.create()
+            DBOrganizationRoleFactory.create(
+                organization=organization,
+                user=user,
+                role_name=OrganizationRoleType.Member,
+            )
+
+        assert activation.available_seats == 7  # 10 - 3
+
+    def test_available_seats_negative(self, db_session):
+        organization = DBOrganizationFactory.create()
+        activation = DBOrganizationManualActivationFactory.create(
+            organization=organization, seat_limit=3
+        )
+
+        # Create more organization roles than the limit
+        for _ in range(5):
+            user = DBUserFactory.create()
+            DBOrganizationRoleFactory.create(
+                organization=organization,
+                user=user,
+                role_name=OrganizationRoleType.Member,
+            )
+
+        assert activation.available_seats == 0  # Should never be negative
+
+
+class TestOrganizationBillingMethods:
+    def test_is_in_good_standing_company_with_manual_activation(self, db_session):
+        organization = DBOrganizationFactory.create(orgtype="Company")
+        DBOrganizationManualActivationFactory.create(
+            organization=organization,
+            expires=datetime.date.today() + datetime.timedelta(days=365),
+        )
+        assert organization.is_in_good_standing()
+
+    def test_is_in_good_standing_company_without_billing(self, db_session):
+        organization = DBOrganizationFactory.create(orgtype="Company")
+        assert not organization.is_in_good_standing()
+
+    def test_is_in_good_standing_ignores_seat_limits(self, db_session):
+        """Test that seat limits don't affect good standing - informational only."""
+        organization = DBOrganizationFactory.create(orgtype="Company")
+        activation = DBOrganizationManualActivationFactory.create(
+            organization=organization,
+            seat_limit=1,  # Very low limit
+            expires=datetime.date.today() + datetime.timedelta(days=365),
+        )
+
+        # Create more members than seat limit allows
+        for _ in range(3):
+            user = DBUserFactory.create()
+            DBOrganizationRoleFactory.create(
+                organization=organization,
+                user=user,
+                role_name=OrganizationRoleType.Member,
+            )
+
+        # Organization should still be in good standing despite being over seat limit
+        assert organization.is_in_good_standing()
+        assert activation.current_member_count > activation.seat_limit
+        assert not activation.has_available_seats
+
+
+class TestOrganizationOIDCIssuer:
+    def test_create_oidc_issuer(self, db_session):
+        """Basic creation of an OIDC issuer."""
+        organization = DBOrganizationFactory.create()
+        admin_user = DBUserFactory.create()
+
+        issuer = DBOrganizationOIDCIssuerFactory.create(
+            organization=organization,
+            issuer_type=OIDCIssuerType.GitLab,
+            issuer_url="https://gitlab.example.com",
+            created_by=admin_user,
+        )
+
+        assert issuer.organization == organization
+        assert issuer.issuer_type == OIDCIssuerType.GitLab
+        assert issuer.issuer_url == "https://gitlab.example.com"
+        assert issuer.created_by == admin_user
+        assert issuer.created is not None
+
+    def test_unique_constraint(self, db_session):
+        organization = DBOrganizationFactory.create()
+        admin_user = DBUserFactory.create()
+
+        # Create first issuer
+        DBOrganizationOIDCIssuerFactory.create(
+            organization=organization,
+            issuer_type=OIDCIssuerType.GitLab,
+            issuer_url="https://gitlab.example.com",
+            created_by=admin_user,
+        )
+
+        # Attempt to create duplicate - should raise UniqueViolation
+        with pytest.raises(psycopg.errors.UniqueViolation):
+            DBOrganizationOIDCIssuerFactory.create(
+                organization=organization,
+                issuer_type=OIDCIssuerType.GitLab,
+                issuer_url="https://gitlab.example.com",
+                created_by=admin_user,
+            )
+
+    def test_different_organizations_same_issuer(self, db_session):
+        """Different organizations may have the same issuer URL."""
+        org1 = DBOrganizationFactory.create()
+        org2 = DBOrganizationFactory.create()
+        admin_user = DBUserFactory.create()
+
+        # Same issuer URL for different organizations should be allowed
+        issuer1 = DBOrganizationOIDCIssuerFactory.create(
+            organization=org1,
+            issuer_type=OIDCIssuerType.GitLab,
+            issuer_url="https://gitlab.example.com",
+            created_by=admin_user,
+        )
+
+        issuer2 = DBOrganizationOIDCIssuerFactory.create(
+            organization=org2,
+            issuer_type=OIDCIssuerType.GitLab,
+            issuer_url="https://gitlab.example.com",
+            created_by=admin_user,
+        )
+
+        assert issuer1.issuer_url == issuer2.issuer_url
+        assert issuer1.organization != issuer2.organization
+
+    def test_same_org_different_issuer_types(self, db_session):
+        """A single org can have multiple issuer types."""
+        organization = DBOrganizationFactory.create()
+        admin_user = DBUserFactory.create()
+
+        # Create multiple issuers with different types for the same org
+        gitlab_issuer = DBOrganizationOIDCIssuerFactory.create(
+            organization=organization,
+            issuer_type=OIDCIssuerType.GitLab,
+            issuer_url="https://gitlab.example.com",
+            created_by=admin_user,
+        )
+
+        github_issuer = DBOrganizationOIDCIssuerFactory.create(
+            organization=organization,
+            issuer_type=OIDCIssuerType.GitHub,
+            issuer_url="https://github.example.com",
+            created_by=admin_user,
+        )
+
+        assert gitlab_issuer.organization == github_issuer.organization
+        assert gitlab_issuer.issuer_type != github_issuer.issuer_type
+
+    @pytest.mark.parametrize("issuer_type", list(OIDCIssuerType))
+    def test_issuer_type_enum_values(self, db_session, issuer_type):
+        """All OIDC issuer type enum values."""
+        organization = DBOrganizationFactory.create()
+        admin_user = DBUserFactory.create()
+
+        issuer = DBOrganizationOIDCIssuerFactory.create(
+            organization=organization,
+            issuer_type=issuer_type,
+            issuer_url=f"https://{issuer_type}.example.com",
+            created_by=admin_user,
+        )
+
+        assert issuer.issuer_type == issuer_type
+        assert issuer.issuer_type.value == issuer_type
+
+    def test_organization_relationship(self, db_session):
+        """Test the relationship between Organization and OIDCIssuer."""
+        organization = DBOrganizationFactory.create()
+        admin_user = DBUserFactory.create()
+
+        # Create multiple issuers for one organization
+        issuer1 = DBOrganizationOIDCIssuerFactory.create(
+            organization=organization,
+            issuer_type=OIDCIssuerType.GitLab,
+            issuer_url="https://gitlab1.example.com",
+            created_by=admin_user,
+        )
+
+        issuer2 = DBOrganizationOIDCIssuerFactory.create(
+            organization=organization,
+            issuer_type=OIDCIssuerType.GitLab,
+            issuer_url="https://gitlab2.example.com",
+            created_by=admin_user,
+        )
+
+        # Test the relationship from organization to issuers
+        assert issuer1 in organization.oidc_issuers
+        assert issuer2 in organization.oidc_issuers
+        assert len(organization.oidc_issuers) == 2
+
+    def test_created_by_relationship(self, db_session):
+        """Test the created_by relationship."""
+        organization = DBOrganizationFactory.create()
+        admin_user = DBUserFactory.create()
+
+        issuer = DBOrganizationOIDCIssuerFactory.create(
+            organization=organization,
+            issuer_type=OIDCIssuerType.GitLab,
+            issuer_url="https://gitlab.example.com",
+            created_by=admin_user,
+        )
+
+        # Test the relationship
+        assert issuer.created_by == admin_user
+        assert issuer.created_by_id == admin_user.id

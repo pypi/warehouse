@@ -1,0 +1,5 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+
+{% extends "email/_base/subject.txt" %}
+
+{% block subject %}{% trans organization_name=organization_name %}We need more information to process your request to create a new organization named '{{ organization_name }}'{% endtrans %}{% endblock %}

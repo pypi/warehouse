@@ -1,44 +1,40 @@
-{#
- # Licensed under the Apache License, Version 2.0 (the "License");
- # you may not use this file except in compliance with the License.
- # You may obtain a copy of the License at
- #
- # http://www.apache.org/licenses/LICENSE-2.0
- #
- # Unless required by applicable law or agreed to in writing, software
- # distributed under the License is distributed on an "AS IS" BASIS,
- # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- # See the License for the specific language governing permissions and
- # limitations under the License.
--#}
+{# SPDX-License-Identifier: Apache-2.0 -#}
 {% extends "manage_organization_base.html" %}
-
-{% set active_tab = 'people' %}
-
-{% block title %}{% trans organization_name=organization.name %}Manage people in '{{ organization_name }}'{% endtrans %}{% endblock %}
-
+{% set active_tab = "people" %}
+{% block title %}
+  {% trans organization_name=organization.name %}Manage people in '{{ organization_name }}'{% endtrans %}
+{% endblock title %}
 {% macro two_factor_badge(user) -%}
   {% if user.has_two_factor %}
-  <span class="badge badge--success" title="{% trans %}2FA enabled{% endtrans %}">
-    {% trans %}2FA{% endtrans %}
-    <i class="fa fa-check" aria-hidden="true"></i>
-  </span>
+    <span class="badge badge--success"
+          title="{% trans %}2FA enabled{% endtrans %}">
+      {% trans %}2FA{% endtrans %}
+      <i class="fa fa-check" aria-hidden="true"></i>
+    </span>
   {% else %}
-  <span class="badge badge--danger" title="{% trans %}2FA disabled{% endtrans %}">
-    {% trans %}2FA{% endtrans %}
-    <i class="fa fa-times" aria-hidden="true"></i>
-  </span>
+    <span class="badge badge--danger"
+          title="{% trans %}2FA disabled{% endtrans %}">
+      {% trans %}2FA{% endtrans %}
+      <i class="fa fa-times" aria-hidden="true"></i>
+    </span>
   {% endif %}
 {% endmacro %}
-
 {% block main %}
   <h2>
     {% trans %}People{% endtrans %}
     <span class="badge badge--neutral">{{ organization.users|length }}</span>
   </h2>
-  <p>{% trans organization_name=organization.name %}Use this page to control which PyPI users can help you to manage '{{ organization_name }}'.{% endtrans %}</p>
-  <details class="callout-block" data-controller="collapsible" data-collapsible-identifier="organization_roles" data-collapsible-setting="global" open>
-    <summary class="callout-block__heading" data-action="click->collapsible#save">{% trans %}Organization Roles{% endtrans %}</summary>
+  <p>
+    {% trans organization_name=organization.name %}Use this page to control which PyPI users can help you to manage '{{ organization_name }}'.{% endtrans %}
+  </p>
+  <details class="callout-block"
+           data-controller="collapsible"
+           data-collapsible-identifier="organization_roles"
+           data-collapsible-setting="global"
+           open>
+    <summary class="callout-block__heading" data-action="click->collapsible#save">
+      {% trans %}Organization Roles{% endtrans %}
+    </summary>
     <p>
       {% trans number_of_roles=(form.role_name.choices|length - 1) %}There are {{ number_of_roles }} possible roles for people in this organization.
       Refer to the following matrix for details on what each role can do.{% endtrans %}
@@ -52,90 +48,152 @@
           <th scope="col">{% trans %}Manager{% endtrans %}</th>
           <th scope="col">{% trans %}Owner{% endtrans %}</th>
           {% if organization.orgtype == OrganizationType.Company %}
-          <th scope="col">{% trans %}Billing Manager{% endtrans %}</th>
+            <th scope="col">{% trans %}Billing Manager{% endtrans %}</th>
           {% endif %}
         </tr>
       </thead>
       <tbody class="org-roles">
         <tr>
           <th scope="row">{% trans %}View organization/teams{% endtrans %}</th>
-          <td><i class="fa-solid fa-square-check"></i></td>
-          <td><i class="fa-solid fa-square-check"></i></td>
-          <td><i class="fa-solid fa-square-check"></i></td>
+          <td>
+            <i class="fa-solid fa-square-check"></i>
+          </td>
+          <td>
+            <i class="fa-solid fa-square-check"></i>
+          </td>
+          <td>
+            <i class="fa-solid fa-square-check"></i>
+          </td>
           {% if organization.orgtype == OrganizationType.Company %}
-          <td><i class="fa-solid fa-square-check"></i></td>
+            <td>
+              <i class="fa-solid fa-square-check"></i>
+            </td>
           {% endif %}
         </tr>
         <tr>
           <th scope="row">{% trans %}Create/manage teams{% endtrans %}</th>
-          <td><i class="fa-solid fa-xmark"></i></td>
-          <td><i class="fa-solid fa-square-check"></i></td>
-          <td><i class="fa-solid fa-square-check"></i></td>
+          <td>
+            <i class="fa-solid fa-xmark"></i>
+          </td>
+          <td>
+            <i class="fa-solid fa-square-check"></i>
+          </td>
+          <td>
+            <i class="fa-solid fa-square-check"></i>
+          </td>
           {% if organization.orgtype == OrganizationType.Company %}
-          <td><i class="fa-solid fa-xmark"></i></td>
+            <td>
+              <i class="fa-solid fa-xmark"></i>
+            </td>
           {% endif %}
         </tr>
         <tr>
           <th scope="row">{% trans %}Invite/manage organization members{% endtrans %}</th>
-          <td><i class="fa-solid fa-xmark"></i></td>
-          <td><i class="fa-solid fa-xmark"></i></td>
-          <td><i class="fa-solid fa-square-check"></i></td>
+          <td>
+            <i class="fa-solid fa-xmark"></i>
+          </td>
+          <td>
+            <i class="fa-solid fa-xmark"></i>
+          </td>
+          <td>
+            <i class="fa-solid fa-square-check"></i>
+          </td>
           {% if organization.orgtype == OrganizationType.Company %}
-          <td><i class="fa-solid fa-xmark"></i></td>
+            <td>
+              <i class="fa-solid fa-xmark"></i>
+            </td>
           {% endif %}
         </tr>
         <tr>
           <th scope="row">{% trans %}Delete the organization{% endtrans %}</th>
-          <td><i class="fa-solid fa-xmark"></i></td>
-          <td><i class="fa-solid fa-xmark"></i></td>
-          <td><i class="fa-solid fa-square-check"></i></td>
+          <td>
+            <i class="fa-solid fa-xmark"></i>
+          </td>
+          <td>
+            <i class="fa-solid fa-xmark"></i>
+          </td>
+          <td>
+            <i class="fa-solid fa-square-check"></i>
+          </td>
           {% if organization.orgtype == OrganizationType.Company %}
-          <td><i class="fa-solid fa-xmark"></i></td>
+            <td>
+              <i class="fa-solid fa-xmark"></i>
+            </td>
           {% endif %}
         </tr>
         {% if organization.orgtype == OrganizationType.Company %}
-        <tr>
-          <th scope="row">{% trans %}Manage organization billing{% endtrans %}</th>
-          <td><i class="fa-solid fa-xmark"></i></td>
-          <td><i class="fa-solid fa-xmark"></i></td>
-          <td><i class="fa-solid fa-square-check"></i></td>
-          <td><i class="fa-solid fa-square-check"></i></td>
-        </tr>
+          <tr>
+            <th scope="row">{% trans %}Manage organization billing{% endtrans %}</th>
+            <td>
+              <i class="fa-solid fa-xmark"></i>
+            </td>
+            <td>
+              <i class="fa-solid fa-xmark"></i>
+            </td>
+            <td>
+              <i class="fa-solid fa-square-check"></i>
+            </td>
+            <td>
+              <i class="fa-solid fa-square-check"></i>
+            </td>
+          </tr>
         {% endif %}
         <tr>
           <th scope="row">{% trans %}Own/maintain specific projects{% endtrans %}</th>
-          <td><i class="fa-solid fa-square-check"></i></td>
-          <td><i class="fa-solid fa-square-check"></i></td>
-          <td><i class="fa-solid fa-square-check"></i></td>
+          <td>
+            <i class="fa-solid fa-square-check"></i>
+          </td>
+          <td>
+            <i class="fa-solid fa-square-check"></i>
+          </td>
+          <td>
+            <i class="fa-solid fa-square-check"></i>
+          </td>
           {% if organization.orgtype == OrganizationType.Company %}
-          <td><i class="fa-solid fa-xmark"></i></td>
+            <td>
+              <i class="fa-solid fa-xmark"></i>
+            </td>
           {% endif %}
         </tr>
         <tr>
           <th scope="row">{% trans %}Create new projects{% endtrans %}</th>
-          <td><i class="fa-solid fa-xmark"></i></td>
-          <td><i class="fa-solid fa-square-check"></i></td>
-          <td><i class="fa-solid fa-square-check"></i></td>
+          <td>
+            <i class="fa-solid fa-xmark"></i>
+          </td>
+          <td>
+            <i class="fa-solid fa-square-check"></i>
+          </td>
+          <td>
+            <i class="fa-solid fa-square-check"></i>
+          </td>
           {% if organization.orgtype == OrganizationType.Company %}
-          <td><i class="fa-solid fa-xmark"></i></td>
+            <td>
+              <i class="fa-solid fa-xmark"></i>
+            </td>
           {% endif %}
         </tr>
         <tr>
           <th scope="row">{% trans %}Delete projects{% endtrans %}</th>
-          <td><i class="fa-solid fa-xmark"></i></td>
-          <td><i class="fa-solid fa-xmark"></i></td>
-          <td><i class="fa-solid fa-square-check"></i></td>
+          <td>
+            <i class="fa-solid fa-xmark"></i>
+          </td>
+          <td>
+            <i class="fa-solid fa-xmark"></i>
+          </td>
+          <td>
+            <i class="fa-solid fa-square-check"></i>
+          </td>
           {% if organization.orgtype == OrganizationType.Company %}
-          <td><i class="fa-solid fa-xmark"></i></td>
+            <td>
+              <i class="fa-solid fa-xmark"></i>
+            </td>
           {% endif %}
         </tr>
       </tbody>
     </table>
   </details>
-
   <table class="table table--collaborators">
     <caption class="sr-only">{% trans organization_name=organization.name %}Users who can manage {{ organization_name }}{% endtrans %}</caption>
-
     <thead>
       <tr>
         <th scope="col">{% trans %}User{% endtrans %}</th>
@@ -145,165 +203,232 @@
       </tr>
     </thead>
     <tbody>
-
-    {% for role in roles|sort(attribute="user.username") %}
-      <tr>
-        <th scope="row">
-          <a href="{{ request.route_path('accounts.profile', username=role.user.username) }}" class="table__user-details">
-            {% set alt = gettext("Avatar for {user} from gravatar.com").format(user=role.user.name|default(role.user.username, true)) %}
-            <span class="table__user-gravatar">
-              <img src="{{ gravatar(request, role.user.email, size=50) }}" height="50" width="50" alt="{{ alt }}">
-            </span>
-            <span class="table__user-text">
-              <strong>{{ role.user.username }}</strong>
-              {% if role.user.name %}
-                <br><span>{{ role.user.name }}</span>
+      {% for role in roles|sort(attribute="user.username") %}
+        <tr>
+          <th scope="row">
+            <a href="{{ request.route_path('accounts.profile', username=role.user.username) }}"
+               class="table__user-details">
+              {% set alt = gettext("Avatar for {user} from gravatar.com").format(user=role.user.name|default(role.user.username, true)) %}
+              <span class="table__user-gravatar">
+                <img src="{{ gravatar(request, role.user.email, size=50) }}"
+                     height="50"
+                     width="50"
+                     alt="{{ alt }}">
+              </span>
+              <span class="table__user-text">
+                <strong>{{ role.user.username }}</strong>
+                {% if role.user.name %}
+                  <br>
+                  <span>{{ role.user.name }}</span>
+                {% endif %}
+              </span>
+            </a>
+          </th>
+          <td>
+            {% if not request.has_permission(Permissions.OrganizationsManage) or request.user == role.user %}
+              {% if role.role_name == OrganizationRoleType.Member %}
+                {% trans %}Member{% endtrans %}
+              {% elif role.role_name == OrganizationRoleType.Manager %}
+                {% trans %}Manager{% endtrans %}
+              {% elif role.role_name == OrganizationRoleType.Owner %}
+                {% trans %}Owner{% endtrans %}
+              {% elif role.role_name == OrganizationRoleType.BillingManager %}
+                {% trans %}Billing Manager{% endtrans %}
               {% endif %}
-            </span>
-          </a>
-        </th>
-        <td>
-        {% if not request.has_permission(Permissions.OrganizationsManage) or request.user == role.user %}
-          {% if role.role_name == OrganizationRoleType.Member %}
-          {% trans %}Member{% endtrans %}
-          {% elif role.role_name == OrganizationRoleType.Manager %}
-          {% trans %}Manager{% endtrans %}
-          {% elif role.role_name == OrganizationRoleType.Owner %}
-          {% trans %}Owner{% endtrans %}
-          {% elif role.role_name == OrganizationRoleType.BillingManager %}
-          {% trans %}Billing Manager{% endtrans %}
-          {% endif %}
-        {% else %}
-        <div data-controller="change-role" data-change-role-current-value="{{ role.role_name.value }}">
-          <form class="table__change-role" method="POST" action="{{ request.route_path('manage.organization.change_role', organization_name=organization.normalized_name) }}">
-            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-            <input type="hidden" name="role_id" value="{{ role.id }}">
-
-            <label for="role-for-{{ role.id }}" class="sr-only">{% trans %}Role{% endtrans %}</label>
-            <select id="role-for-{{ role.id }}" class="table__change-field" name="role_name" data-action="change-role#change" autocomplete="off">
-            {# Reuse `.role_name.choices` from "Invite" form to include/exclude "Billing Manager" appropriately. #}
-            {% for role_name, role_name_label in form.role_name.choices if role_name %}
-            {% set role_name_label = gettext(role_name_label) %}
-            <option value="{{ role_name }}" {{ 'selected' if role_name == role.role_name.value else '' }}>
-              {{ role_name_label }}
-            </option>
-            {% endfor %}
-            </select>
-            <button type="submit" class="button button--primary table__change-button" title="{% trans %}Save role{% endtrans %}" data-change-role-target="saveButton">
-              {% trans %}Save{% endtrans %}
-            </button>
-          </form>
-        </div>
-        {% endif %}
-        </td>
-        <td class="table__align-center">{{ two_factor_badge(role.user) }}</td>
-        <td class="table__align-right">
-        {% if not request.has_permission(Permissions.OrganizationsManage) and request.user.username != role.user.username %}
-          <button class="button" title="{% trans %}Cannot remove other people from the organization{% endtrans %}" disabled>{% trans %}Remove{% endtrans %}</button>
-        {% elif request.has_permission(Permissions.OrganizationsManage) and request.user.username == role.user.username and organization.name in organizations_with_sole_owner %}
-          <button class="button" title="{% trans %}Cannot remove yourself as Sole Owner{% endtrans %}" disabled>{% trans %}Remove{% endtrans %}</button>
-        {% else %}
-          {% set extra_fields %}<input type="hidden" name="role_id" value="{{ role.id }}">{% endset %}
-          {% set extra_description %}{% trans user=('yourself' if request.user.username == role.user.username else role.user.username) %}Remove {{ user }} from this organization.{% endtrans %}{% endset %}
-          {% set tooltip %}{% trans user=('yourself' if request.user.username == role.user.username else role.user.username) %}Remove {{ user }} from this organization{% endtrans %}{% endset %}
-          {{ confirm_button(gettext("Remove"), gettext("Username"), "remove-" + role.id|string, gettext(role.user.username), extra_fields=extra_fields, extra_description=extra_description, action=request.route_path('manage.organization.delete_role', organization_name=organization.normalized_name), warning=False, modifier="--primary", tooltip=tooltip) }}
-        {% endif %}
-        </td>
-      </tr>
-    {% endfor %}
-
-    {% if request.has_permission(Permissions.OrganizationsManage) %}
-    {% for invite in invitations|sort(attribute="user.username") %}
-      <tr>
-        <th scope="row">
-          <a href="{{ request.route_path('accounts.profile', username=invite.user.username) }}" class="table__user-details">
-            {% set alt = gettext("Avatar for {user} from gravatar.com").format(user=invite.user.name|default(invite.user.username, true)) %}
-            <span class="table__user-gravatar">
-              <img src="{{ gravatar(request, invite.user.email, size=50) }}" height="50" width="50" alt="{{ alt }}">
-            </span>
-            <span class="table__user-text">
-              <strong>{{ invite.user.username }}</strong>
-              {% if invite.user.name %}
-                <br><span>{{ invite.user.name }}</span>
+            {% else %}
+              <div data-controller="change-role"
+                   data-change-role-current-value="{{ role.role_name.value }}">
+                <form class="table__change-role"
+                      method="post"
+                      action="{{ request.route_path('manage.organization.change_role', organization_name=organization.normalized_name) }}">
+                  <input name="csrf_token"
+                         type="hidden"
+                         value="{{ request.session.get_csrf_token() }}">
+                  <input type="hidden" name="role_id" value="{{ role.id }}">
+                  <label for="role-for-{{ role.id }}" class="sr-only">{% trans %}Role{% endtrans %}</label>
+                  <select id="role-for-{{ role.id }}"
+                          class="table__change-field"
+                          name="role_name"
+                          data-action="change-role#change"
+                          autocomplete="off">
+                    {# Reuse `.role_name.choices` from "Invite" form to include/exclude "Billing Manager" appropriately. #}
+                    {% for role_name, role_name_label in form.role_name.choices if role_name %}
+                      {% set role_name_label = gettext(role_name_label) %}
+                      <option value="{{ role_name }}"
+                              {{ 'selected' if role_name == role.role_name.value else '' }}>
+                        {{ role_name_label }}
+                      </option>
+                    {% endfor %}
+                  </select>
+                  <button type="submit"
+                          class="button button--primary table__change-button"
+                          title="{% trans %}Save role{% endtrans %}"
+                          data-change-role-target="saveButton">{% trans %}Save{% endtrans %}</button>
+                </form>
+              </div>
+            {% endif %}
+          </td>
+          <td class="table__align-center">{{ two_factor_badge(role.user) }}</td>
+          <td class="table__align-right">
+            {% if not request.has_permission(Permissions.OrganizationsManage) and request.user.username != role.user.username %}
+              <button class="button"
+                      title="{% trans %}Cannot remove other people from the organization{% endtrans %}"
+                      disabled>{% trans %}Remove{% endtrans %}</button>
+            {% elif request.has_permission(Permissions.OrganizationsManage) and request.user.username == role.user.username and organization.name in organizations_with_sole_owner %}
+              <button class="button"
+                      title="{% trans %}Cannot remove yourself as Sole Owner{% endtrans %}"
+                      disabled>{% trans %}Remove{% endtrans %}</button>
+            {% else %}
+              {% set extra_fields %}
+                <input type="hidden" name="role_id" value="{{ role.id }}">
+              {% endset %}
+              {% set extra_description %}
+                {% trans user=('yourself' if request.user.username == role.user.username else role.user.username) %}Remove {{ user }} from this organization.{% endtrans %}
+              {% endset %}
+              {% set tooltip %}
+                {% trans user=('yourself' if request.user.username == role.user.username else role.user.username) %}Remove {{ user }} from this organization{% endtrans %}
+              {% endset %}
+              {{ confirm_button(gettext("Remove") , gettext("Username"), "remove-" + role.id|string, gettext(role.user.username), extra_fields=extra_fields, extra_description=extra_description, action=request.route_path('manage.organization.delete_role', organization_name=organization.normalized_name), warning=False, modifier="--primary", tooltip=tooltip) }}
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+      {% if request.has_permission(Permissions.OrganizationsManage) %}
+        {% for invite in invitations|sort(attribute="user.username") %}
+          <tr>
+            <th scope="row">
+              <a href="{{ request.route_path('accounts.profile', username=invite.user.username) }}"
+                 class="table__user-details">
+                {% set alt = gettext("Avatar for {user} from gravatar.com").format(user=invite.user.name|default(invite.user.username, true)) %}
+                <span class="table__user-gravatar">
+                  <img src="{{ gravatar(request, invite.user.email, size=50) }}"
+                       height="50"
+                       width="50"
+                       alt="{{ alt }}">
+                </span>
+                <span class="table__user-text">
+                  <strong>{{ invite.user.username }}</strong>
+                  {% if invite.user.name %}
+                    <br>
+                    <span>{{ invite.user.name }}</span>
+                  {% endif %}
+                </span>
+              </a>
+            </th>
+            <td>
+              {% if invite.invite_status == OrganizationInvitationStatus.Pending %}
+                {% trans %}Invite pending{% endtrans %}
+              {% elif invite.invite_status == OrganizationInvitationStatus.Expired %}
+                {% trans %}Invite expired{% endtrans %}
               {% endif %}
-            </span>
-          </a>
-        </th>
-        <td>
-          {% if invite.invite_status == OrganizationInvitationStatus.Pending %}
-            {% trans %}Invite pending{% endtrans %}
-          {% elif invite.invite_status == OrganizationInvitationStatus.Expired %}
-            {% trans %}Invite expired{% endtrans %}
-          {% endif %}
-        </td>
-        <td class="table__align-center"></td>
-        <td class="table__align-right">
-          {% set extra_fields %}<input name="user_id" type="hidden" value="{{ invite.user_id }}">{% endset %}
-          {% if invite.invite_status == OrganizationInvitationStatus.Pending %}
-            {% set extra_description %}{% trans user=invite.user.username %}Revoke invitation for {{ user }}.{% endtrans %}{% endset %}
-            {% set tooltip %}{% trans user=invite.user.username %}Revoke invitation for {{ user }}{% endtrans %}{% endset %}
-            {{ confirm_button(gettext("Revoke invite"), None, "revoke-invite-" + invite.user_id|string, None, extra_fields=extra_fields, extra_description=extra_description, action=request.route_path('manage.organization.revoke_invite', organization_name=organization.normalized_name), warning=False, modifier="--primary", tooltip=tooltip) }}
-          {% elif invite.invite_status == OrganizationInvitationStatus.Expired %}
-            {% set extra_description %}{% trans user=invite.user.username %}Re-send invitation for {{ user }}.{% endtrans %}{% endset %}
-            {% set tooltip %}{% trans user=invite.user.username %}Re-send invitation for {{ user }}{% endtrans %}{% endset %}
-            {{ confirm_button(gettext("Re-send"), None, "resend-invite-" + invite.user_id|string, None, extra_fields=extra_fields, extra_description=extra_description, action=request.route_path('manage.organization.resend_invite', organization_name=organization.normalized_name), warning=False, modifier="--primary", tooltip=tooltip) }}
-            {% set extra_description %}{% trans user=invite.user.username %}Delete expired invitation for {{ user }}.{% endtrans %}{% endset %}
-            {% set tooltip %}{% trans user=invite.user.username %}Delete expired invitation for {{ user }}{% endtrans %}{% endset %}
-            {{ confirm_button(gettext("Delete"), None, "delete-expired-invite-" + invite.user_id|string, None, extra_fields=extra_fields, extra_description=extra_description, action=request.route_path('manage.organization.revoke_invite', organization_name=organization.normalized_name), warning=False, modifier="--secondary", tooltip=tooltip) }}
-
-          {% endif %}
-        </td>
-      </tr>
-    {% endfor %}
-    {% endif %}
+            </td>
+            <td class="table__align-center"></td>
+            <td class="table__align-right">
+              {% set extra_fields %}
+                <input name="user_id" type="hidden" value="{{ invite.user_id }}">
+              {% endset %}
+              {% if invite.invite_status == OrganizationInvitationStatus.Pending %}
+                {% set extra_description %}
+                  {% trans user=invite.user.username %}Revoke invitation for {{ user }}.{% endtrans %}
+                {% endset %}
+                {% set tooltip %}
+                  {% trans user=invite.user.username %}Revoke invitation for {{ user }}{% endtrans %}
+                {% endset %}
+                {{ confirm_button(gettext("Revoke invite") , None, "revoke-invite-" + invite.user_id|string, None, extra_fields=extra_fields, extra_description=extra_description, action=request.route_path('manage.organization.revoke_invite', organization_name=organization.normalized_name), warning=False, modifier="--primary", tooltip=tooltip) }}
+              {% elif invite.invite_status == OrganizationInvitationStatus.Expired %}
+                {% set extra_description %}
+                  {% trans user=invite.user.username %}Re-send invitation for {{ user }}.{% endtrans %}
+                {% endset %}
+                {% set tooltip %}
+                  {% trans user=invite.user.username %}Re-send invitation for {{ user }}{% endtrans %}
+                {% endset %}
+                {{ confirm_button(gettext("Re-send") , None, "resend-invite-" + invite.user_id|string, None, extra_fields=extra_fields, extra_description=extra_description, action=request.route_path('manage.organization.resend_invite', organization_name=organization.normalized_name), warning=False, modifier="--primary", tooltip=tooltip) }}
+                {% set extra_description %}
+                  {% trans user=invite.user.username %}Delete expired invitation for {{ user }}.{% endtrans %}
+                {% endset %}
+                {% set tooltip %}
+                  {% trans user=invite.user.username %}Delete expired invitation for {{ user }}{% endtrans %}
+                {% endset %}
+                {{ confirm_button(gettext("Delete") , None, "delete-expired-invite-" + invite.user_id|string, None, extra_fields=extra_fields, extra_description=extra_description, action=request.route_path('manage.organization.revoke_invite', organization_name=organization.normalized_name), warning=False, modifier="--secondary", tooltip=tooltip) }}
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      {% endif %}
     </tbody>
   </table>
-
   {% if request.has_permission(Permissions.OrganizationsManage) %}
-  <h3>{% trans %}Invite member{% endtrans %}</h3>
-  <form method="POST">
-    <div class="form-group" data-controller="autocomplete" data-autocomplete-url-value="/accounts/search/" data-autocomplete-query-param-value="username" role="combobox">
-      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-      <label for="username" class="form-group__label">
-        {% trans %}User{% endtrans %}
-        {% if form.username.flags.required %}
-        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
-        {% endif %}
-      </label>
-      {{ form.username(
-        placeholder=gettext("Username"),
-        autocomplete="off",
-        autocapitalize="off",
-        spellcheck="false",
-        class_="form-group__field",
-        aria_describedby="user-errors",
-        data_autocomplete_target="input",
-      ) }}
-      <ul class="form-group__results" data-autocomplete-target="results"></ul>
-      <div id="user-errors">
-        {{ field_errors(form.username) }}
-      </div>
-    </div>
-    <div class="form-group">
-      <label for="role_name" class="form-group__label">
-        {% trans %}Role{% endtrans %}
-        {% if form.role_name.flags.required %}
-        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
-        {% endif %}
-      </label>
-      {{ form.role_name(
-        class_="form-group__field",
-        autocomplete="off",
-        aria_describedby="role-errors",
-      ) }}
-      <div id="role-errors">
-        {{ field_errors(form.role_name) }}
-      </div>
-    </div>
-    <div>
-      <input type="submit" value="{% trans %}Invite{% endtrans %}" class="button button--primary">
-    </div>
-  </form>
+    <h3>{% trans %}Invite member{% endtrans %}</h3>
+    {% if organization.orgtype == OrganizationType.Company %}
+      {% if organization.active_subscription %}
+        <div class="callout-block callout-block--info">
+          <p>
+            <strong>{% trans %}Billing Notice:{% endtrans %}</strong>
+            {% trans %}Accepted invitations will result in an additional $5 per user per month billing charge.{% endtrans %}
+          </p>
+        </div>
+      {% elif organization.manual_activation and organization.manual_activation.is_active %}
+        <div class="callout-block {% if organization.manual_activation.has_available_seats %}callout-block--info{% else %}callout-block--danger{% endif %}">
+          <p>
+            <strong>{% trans %}Seat Usage:{% endtrans %}</strong>
+            {% trans current=organization.manual_activation.current_member_count, limit=organization.manual_activation.seat_limit %}{{ current }} of {{ limit }} seats used.{% endtrans %}
+            <br>
+            {% if organization.manual_activation.has_available_seats %}
+              {% trans available=organization.manual_activation.available_seats %}{{ available }} seats available.{% endtrans %}
+            {% else %}
+              {% trans %}You have exceeded your seat limit. Invited members can still accept invitations.{% endtrans %}
+            {% endif %}
+          </p>
+        </div>
+      {% endif %}
+    {% endif %}
+    {% if organization.is_in_good_standing() %}
+      <form method="post">
+        <div class="form-group"
+             data-controller="autocomplete"
+             data-autocomplete-url-value="/accounts/search/"
+             data-autocomplete-query-param-value="username"
+             role="combobox">
+          <input name="csrf_token"
+                 type="hidden"
+                 value="{{ request.session.get_csrf_token() }}">
+          <label for="username" class="form-group__label">
+            {% trans %}User{% endtrans %}
+            {% if form.username.flags.required %}
+              <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+            {% endif %}
+          </label>
+          {{ form.username(placeholder=gettext("Username") ,
+          autocomplete="off",
+          autocapitalize="off",
+          spellcheck="false",
+          class_="form-group__field",
+          aria_describedby="user-errors",
+          data_autocomplete_target="input",
+          ) }}
+          <ul class="form-group__results" data-autocomplete-target="results">
+          </ul>
+          <div id="user-errors">{{ field_errors(form.username) }}</div>
+        </div>
+        <div class="form-group">
+          <label for="role_name" class="form-group__label">
+            {% trans %}Role{% endtrans %}
+            {% if form.role_name.flags.required %}
+              <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+            {% endif %}
+          </label>
+          {{ form.role_name(class_="form-group__field",
+                    autocomplete="off",
+                    aria_describedby="role-errors",) }}
+          <div id="role-errors">{{ field_errors(form.role_name) }}</div>
+        </div>
+        <div>
+          <input type="submit"
+                 value="{% trans %}Invite{% endtrans %}"
+                 class="button button--primary">
+        </div>
+      </form>
+    {% endif %}
   {% endif %}
   <br>
 {% endblock %}

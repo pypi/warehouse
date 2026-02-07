@@ -23,10 +23,10 @@ endif
 # PEP 669 introduced sys.monitoring, a lighter-weight way to monitor
 # the execution. While this introduces significant speed-up during test
 # execution, coverage does not yet support dynamic contexts when enabled.
-# This variable can be set to other tracers (ctrace, pytrace) to fall
-# back use them.
+# This variable can be set to other tracers (ctrace, pytrace, sysmon).
 # https://nedbatchelder.com/blog/202312/coveragepy_with_sysmonitoring.html
-COVERAGE_CORE ?= sysmon
+# TODO: Flip to `sysmon` when we're on Python 3.14
+COVERAGE_CORE ?= ctrace
 
 default:
 	@echo "Call a specific subcommand:"
@@ -46,7 +46,7 @@ default:
 	mkdir -p .state
 	touch .state/docker-build-base
 
-.state/docker-build-static: Dockerfile package.json package-lock.json .babelrc
+.state/docker-build-static: Dockerfile package.json package-lock.json babel.config.js
 	# Build our static container for this project.
 	docker compose build --force-rm static
 
@@ -114,11 +114,17 @@ licenses: .state/docker-build-base
 deps: .state/docker-build-base
 	docker compose run --rm base bin/deps
 
+deps_upgrade_all: .state/docker-build-base
+	docker compose run --rm base bin/deps-upgrade -a
+
+deps_upgrade_project: .state/docker-build-base
+	docker compose run --rm base bin/deps-upgrade -p $(P)
+
 translations: .state/docker-build-base
 	docker compose run --rm base bin/translations
 
 requirements/%.txt: requirements/%.in
-	docker compose run --rm base bin/pip-compile --generate-hashes --output-file=$@ $<
+	docker compose run --rm base pip-compile --generate-hashes --output-file=$@ $<
 
 resetdb: .state/docker-build-base
 	docker compose pause web worker
@@ -181,4 +187,4 @@ purge: stop clean
 stop:
 	docker compose stop
 
-.PHONY: default build serve resetdb initdb shell dbshell tests dev-docs user-docs deps clean purge debug stop compile-pot runmigrations checkdb
+.PHONY: default build serve resetdb initdb shell dbshell tests dev-docs user-docs deps deps_upgrade_all deps_upgrade_project clean purge debug stop compile-pot runmigrations checkdb

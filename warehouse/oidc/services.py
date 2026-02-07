@@ -1,16 +1,9 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
+
+from __future__ import annotations
 
 import json
+import typing
 import warnings
 
 import jwt
@@ -27,10 +20,24 @@ from warehouse.oidc.models import OIDCPublisher, PendingOIDCPublisher
 from warehouse.oidc.utils import find_publisher_by_issuer
 from warehouse.utils.exceptions import InsecureOIDCPublisherWarning
 
+if typing.TYPE_CHECKING:
+    from pyramid.request import Request
+    from sqlalchemy.orm import Session
+
+    from warehouse.packaging import Project
+
 
 @implementer(IOIDCPublisherService)
 class NullOIDCPublisherService:
-    def __init__(self, session, publisher, issuer_url, audience, cache_url, metrics):
+    def __init__(
+        self,
+        session: Session,
+        publisher: str,
+        issuer_url: str,
+        audience: str,
+        cache_url: str,
+        metrics: IMetricsService,
+    ):
         warnings.warn(
             "NullOIDCPublisherService is intended only for use in development, "
             "you should not use it in production due to the lack of actual "
@@ -39,9 +46,12 @@ class NullOIDCPublisherService:
         )
 
         self.db = session
+        self.publisher = publisher
         self.issuer_url = issuer_url
 
-    def verify_jwt_signature(self, unverified_token: str) -> SignedClaims | None:
+    def verify_jwt_signature(
+        self, unverified_token: str, issuer_url: str
+    ) -> SignedClaims | None:
         try:
             return SignedClaims(
                 jwt.decode(
@@ -67,14 +77,16 @@ class NullOIDCPublisherService:
 
     def find_publisher(
         self, signed_claims: SignedClaims, *, pending: bool = False
-    ) -> OIDCPublisher | PendingOIDCPublisher | None:
+    ) -> OIDCPublisher | PendingOIDCPublisher:
         # NOTE: We do NOT verify the claims against the publisher, since this
         # service is for development purposes only.
         return find_publisher_by_issuer(
             self.db, self.issuer_url, signed_claims, pending=pending
         )
 
-    def reify_pending_publisher(self, pending_publisher, project):
+    def reify_pending_publisher(
+        self, pending_publisher: PendingOIDCPublisher, project: Project
+    ) -> OIDCPublisher:
         new_publisher = pending_publisher.reify(self.db)
         project.oidc_publishers.append(new_publisher)
         return new_publisher
@@ -96,7 +108,15 @@ class NullOIDCPublisherService:
 
 @implementer(IOIDCPublisherService)
 class OIDCPublisherService:
-    def __init__(self, session, publisher, issuer_url, audience, cache_url, metrics):
+    def __init__(
+        self,
+        session: Session,
+        publisher: str,
+        issuer_url: str,
+        audience: str,
+        cache_url: str,
+        metrics: IMetricsService,
+    ):
         self.db = session
         self.publisher = publisher
         self.issuer_url = issuer_url
@@ -104,36 +124,37 @@ class OIDCPublisherService:
         self.cache_url = cache_url
         self.metrics = metrics
 
-        self._publisher_jwk_key = f"/warehouse/oidc/jwks/{self.publisher}"
-        self._publisher_timeout_key = f"{self._publisher_jwk_key}/timeout"
-
-    def _store_keyset(self, keys):
+    def _store_keyset(self, issuer_url: str, keys: dict) -> None:
         """
-        Store the given keyset for the given publisher, setting the timeout key
+        Store the given keyset for the given **issuer**, setting the timeout key
         in the process.
         """
+        _publisher_jwk_key = f"/warehouse/oidc/jwks/{issuer_url}"
+        _publisher_timeout_key = f"{_publisher_jwk_key}/timeout"
 
         with redis.StrictRedis.from_url(self.cache_url) as r:
-            r.set(self._publisher_jwk_key, json.dumps(keys))
-            r.setex(self._publisher_timeout_key, 60, "placeholder")
+            r.set(_publisher_jwk_key, json.dumps(keys))
+            r.setex(_publisher_timeout_key, 60, "placeholder")
 
-    def _get_keyset(self):
+    def _get_keyset(self, issuer_url: str) -> tuple[dict[str, dict], bool]:
         """
-        Return the cached keyset for the given publisher, or an empty
+        Return the cached keyset for the given issuer, or an empty
         keyset if no keys are currently cached.
         """
+        _publisher_jwk_key = f"/warehouse/oidc/jwks/{issuer_url}"
+        _publisher_timeout_key = f"{_publisher_jwk_key}/timeout"
 
         with redis.StrictRedis.from_url(self.cache_url) as r:
-            keys = r.get(self._publisher_jwk_key)
-            timeout = bool(r.exists(self._publisher_timeout_key))
+            keys = r.get(_publisher_jwk_key)
+            timeout = bool(r.exists(_publisher_timeout_key))
             if keys is not None:
-                return (json.loads(keys), timeout)
+                return json.loads(keys), timeout
             else:
-                return ({}, timeout)
+                return {}, timeout
 
-    def _refresh_keyset(self):
+    def _refresh_keyset(self, issuer_url: str) -> dict[str, dict]:
         """
-        Attempt to refresh the keyset from the OIDC publisher, assuming no
+        Attempt to refresh the keyset from the OIDC issuer, assuming no
         timeout is in effect.
 
         Returns the refreshed keyset, or the cached keyset if a timeout is
@@ -143,15 +164,15 @@ class OIDCPublisherService:
         """
 
         # Fast path: we're in a cooldown from a previous refresh.
-        keys, timeout = self._get_keyset()
+        keys, timeout = self._get_keyset(issuer_url=issuer_url)
         if timeout:
             self.metrics.increment(
                 "warehouse.oidc.refresh_keyset.timeout",
-                tags=[f"publisher:{self.publisher}"],
+                tags=[f"publisher:{self.publisher}", f"issuer_url:{issuer_url}"],
             )
             return keys
 
-        oidc_url = f"{self.issuer_url}/.well-known/openid-configuration"
+        oidc_url = f"{issuer_url}/.well-known/openid-configuration"
 
         resp = requests.get(oidc_url, timeout=5)
 
@@ -202,28 +223,34 @@ class OIDCPublisherService:
             return keys
 
         keys = {key["kid"]: key for key in new_keys}
-        self._store_keyset(keys)
+        self._store_keyset(issuer_url, keys)
 
         return keys
 
-    def _get_key(self, key_id):
+    def _get_key(self, key_id: str, issuer_url: str) -> jwt.PyJWK:
         """
         Return a JWK for the given key ID, or None if the key can't be found
         in this publisher's keyset.
         """
 
-        keyset, _ = self._get_keyset()
+        keyset, _ = self._get_keyset(issuer_url)
         if key_id not in keyset:
-            keyset = self._refresh_keyset()
+            keyset = self._refresh_keyset(issuer_url)
         if key_id not in keyset:
             self.metrics.increment(
                 "warehouse.oidc.get_key.error",
-                tags=[f"publisher:{self.publisher}", f"key_id:{key_id}"],
+                tags=[
+                    f"publisher:{self.publisher}",
+                    f"key_id:{key_id}",
+                    f"issuer_url:{self.issuer_url}",
+                ],
             )
-            return None
+            raise jwt.PyJWTError(
+                f"Key ID {key_id!r} not found for issuer {issuer_url!r}"
+            )
         return jwt.PyJWK(keyset[key_id])
 
-    def _get_key_for_token(self, token):
+    def _get_key_for_token(self, token, issuer_url: str) -> jwt.PyJWK:
         """
         Return a JWK suitable for verifying the given JWT.
 
@@ -231,14 +258,14 @@ class OIDCPublisherService:
         prior to any verification.
         """
         unverified_header = jwt.get_unverified_header(token)
-        return self._get_key(unverified_header["kid"])
+        return self._get_key(unverified_header["kid"], issuer_url)
 
     def jwt_identifier_exists(self, jti: str) -> bool:
         """
         Check if a JWT Token Identifier has already been used.
         """
         with redis.StrictRedis.from_url(self.cache_url) as r:
-            return bool(r.exists(f"/warehouse/oidc/{self.publisher}/{jti}"))
+            return bool(r.exists(f"/warehouse/oidc/{self.issuer_url}/{jti}"))
 
     def store_jwt_identifier(self, jti: str, expiration: int) -> None:
         """
@@ -249,21 +276,26 @@ class OIDCPublisherService:
             # the token expiration date. Thus, the lock will not be
             # released before the token invalidation.
             r.set(
-                f"/warehouse/oidc/{self.publisher}/{jti}",
+                f"/warehouse/oidc/{self.issuer_url}/{jti}",
                 exat=expiration + 5,
                 value="",  # empty value to lower memory usage
                 nx=True,
             )
 
-    def verify_jwt_signature(self, unverified_token: str) -> SignedClaims | None:
+    def verify_jwt_signature(
+        self, unverified_token: str, issuer_url: str
+    ) -> SignedClaims | None:
+        """
+        Verify the signature of the given JWT, returning the signed claims.
+        """
         try:
-            key = self._get_key_for_token(unverified_token)
+            key = self._get_key_for_token(unverified_token, issuer_url)
         except jwt.PyJWTError:
             # The user might feed us an entirely nonsense JWT, e.g. one
             # with missing components.
             self.metrics.increment(
                 "warehouse.oidc.verify_jwt_signature.malformed_jwt",
-                tags=[f"publisher:{self.publisher}"],
+                tags=[f"publisher:{self.publisher}", f"issuer_url:{issuer_url}"],
             )
             return None
 
@@ -290,7 +322,7 @@ class OIDCPublisherService:
                     # want to be the ONLY audience listed.
                     strict_aud=True,
                 ),
-                issuer=self.issuer_url,
+                issuer=issuer_url,
                 audience=self.audience,
                 leeway=30,
             )
@@ -298,7 +330,7 @@ class OIDCPublisherService:
         except Exception as e:
             self.metrics.increment(
                 "warehouse.oidc.verify_jwt_signature.invalid_signature",
-                tags=[f"publisher:{self.publisher}"],
+                tags=[f"publisher:{self.publisher}", f"issuer_url:{issuer_url}"],
             )
             if not isinstance(e, jwt.PyJWTError):
                 with sentry_sdk.new_scope() as scope:
@@ -313,7 +345,10 @@ class OIDCPublisherService:
         self, signed_claims: SignedClaims, *, pending: bool = False
     ) -> OIDCPublisher | PendingOIDCPublisher:
         """Returns a publisher for the given claims, or raises an error."""
-        metrics_tags = [f"publisher:{self.publisher}"]
+        metrics_tags = [
+            f"publisher:{self.publisher}",
+            f"issuer_url:{signed_claims['iss']}",
+        ]
         self.metrics.increment(
             "warehouse.oidc.find_publisher.attempt",
             tags=metrics_tags,
@@ -338,19 +373,26 @@ class OIDCPublisherService:
             )
             raise e
 
-    def reify_pending_publisher(self, pending_publisher, project) -> OIDCPublisher:
+    def reify_pending_publisher(
+        self, pending_publisher: PendingOIDCPublisher, project: Project
+    ) -> OIDCPublisher:
         new_publisher = pending_publisher.reify(self.db)
         project.oidc_publishers.append(new_publisher)
         return new_publisher
 
 
 class OIDCPublisherServiceFactory:
-    def __init__(self, publisher, issuer_url, service_class=OIDCPublisherService):
+    def __init__(
+        self,
+        publisher: str,
+        issuer_url: str,
+        service_class=OIDCPublisherService,  # TODO: Unclear how to correctly type this
+    ):
         self.publisher = publisher
         self.issuer_url = issuer_url
         self.service_class = service_class
 
-    def __call__(self, _context, request):
+    def __call__(self, _context, request: Request) -> OIDCPublisherService:
         cache_url = request.registry.settings["oidc.jwk_cache_url"]
         audience = request.registry.settings["warehouse.oidc.audience"]
         metrics = request.find_service(IMetricsService, context=None)
@@ -364,7 +406,7 @@ class OIDCPublisherServiceFactory:
             metrics,
         )
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if not isinstance(other, OIDCPublisherServiceFactory):
             return NotImplemented
 

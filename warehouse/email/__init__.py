@@ -1,17 +1,9 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
+from __future__ import annotations
 
 import datetime
 import functools
+import typing
 
 from email.headerregistry import Address
 
@@ -31,6 +23,11 @@ from warehouse.email.services import EmailMessage
 from warehouse.email.ses.tasks import cleanup as ses_cleanup
 from warehouse.events.tags import EventTag
 from warehouse.metrics.interfaces import IMetricsService
+
+if typing.TYPE_CHECKING:
+    from pyramid.request import Request
+
+    from warehouse.accounts.models import User
 
 
 def _compute_recipient(user, email):
@@ -121,7 +118,7 @@ def _send_email_to_user(
             "sender": override_from,
         },
         {
-            "tag": EventTag.Account.EmailSent,
+            "tag": EventTag.Account.EmailSent.value,
             "user_id": user.id,
             "additional": {
                 "from_": (
@@ -138,12 +135,12 @@ def _send_email_to_user(
 
 
 def _email(
-    name,
+    name: str,
     *,
-    allow_unverified=False,
-    repeat_window=None,
-    override_from=None,
-):
+    allow_unverified: bool = False,
+    repeat_window: int | None = None,
+    override_from: str | None = None,
+) -> typing.Callable:
     """
     This decorator is used to turn an e function into an email sending function!
 
@@ -222,63 +219,7 @@ def _email(
     return inner
 
 
-# Email templates for administrators.
-
-
-@_email("admin-new-organization-requested")
-def send_admin_new_organization_requested_email(
-    request, user, *, organization_name, initiator_username, organization_id
-):
-    return {
-        "initiator_username": initiator_username,
-        "organization_id": organization_id,
-        "organization_name": organization_name,
-    }
-
-
-@_email("admin-new-organization-approved")
-def send_admin_new_organization_approved_email(
-    request, user, *, organization_name, initiator_username, message=""
-):
-    return {
-        "initiator_username": initiator_username,
-        "message": message,
-        "organization_name": organization_name,
-    }
-
-
-@_email("admin-new-organization-declined")
-def send_admin_new_organization_declined_email(
-    request, user, *, organization_name, initiator_username, message=""
-):
-    return {
-        "initiator_username": initiator_username,
-        "message": message,
-        "organization_name": organization_name,
-    }
-
-
-@_email("admin-organization-renamed")
-def send_admin_organization_renamed_email(
-    request, user, *, organization_name, previous_organization_name
-):
-    return {
-        "organization_name": organization_name,
-        "previous_organization_name": previous_organization_name,
-    }
-
-
-@_email("admin-organization-deleted")
-def send_admin_organization_deleted_email(request, user, *, organization_name):
-    return {
-        "organization_name": organization_name,
-    }
-
-
-# Email templates for users.
-
-
-@_email("password-reset", allow_unverified=True)
+@_email("password-reset")
 def send_password_reset_email(request, user_and_email):
     user, _ = user_and_email
     token_service = request.find_service(ITokenService, name="password")
@@ -300,6 +241,17 @@ def send_password_reset_email(request, user_and_email):
         "username": user.username,
         "n_hours": token_service.max_age // 60 // 60,
     }
+
+
+@_email("password-reset-unverified", allow_unverified=True)
+def send_password_reset_unverified_email(_request, _user_and_email):
+    """
+    This email is sent to users who have not verified their email address
+    when they request a password reset. It is sent to the email address
+    they provided, which may not be their primary email address.
+    """
+    # No params are used in the template, return an empty dict
+    return {}
 
 
 @_email("verify-email", allow_unverified=True)
@@ -404,6 +356,17 @@ def send_new_organization_declined_email(
     return {
         "message": message,
         "organization_name": organization_name,
+    }
+
+
+@_email("new-organization-moreinformationneeded")
+def send_new_organization_moreinformationneeded_email(
+    request, user, *, organization_name, organization_application_id, message=""
+):
+    return {
+        "message": message,
+        "organization_name": organization_name,
+        "organization_application_id": organization_application_id,
     }
 
 
@@ -1027,6 +990,16 @@ def send_recovery_code_reminder_email(request, user):
     return {"username": user.username}
 
 
+@_email("unrecognized-login", allow_unverified=True)
+def send_unrecognized_login_email(request, user, *, ip_address, user_agent, token):
+    return {
+        "username": user.username,
+        "ip_address": ip_address,
+        "user_agent": user_agent,
+        "token": token,
+    }
+
+
 @_email("trusted-publisher-added")
 def send_trusted_publisher_added_email(request, user, project_name, publisher):
     # We use the request's user, since they're the one triggering the action.
@@ -1062,6 +1035,62 @@ def send_api_token_used_in_trusted_publisher_project_email(
         "token_owner_username": token_owner_username,
         "project_name": project_name,
         "token_name": token_name,
+    }
+
+
+@_email("environment-ignored-in-trusted-publisher")
+def send_environment_ignored_in_trusted_publisher_email(
+    request, users, project_name, publisher, environment_name
+):
+    return {
+        "project_name": project_name,
+        "publisher": publisher,
+        "environment_name": environment_name,
+    }
+
+
+@_email("user-terms-of-service-updated")
+def send_user_terms_of_service_updated(request, user):
+    return {
+        "user": user,
+    }
+
+
+@_email("wheel-record-mismatch-email")
+def send_wheel_record_mismatch_email(request, users, project_name, filename):
+    return {
+        "project_name": project_name,
+        "filename": filename,
+    }
+
+
+@_email("account-association-added")
+def send_account_association_added_email(
+    request: Request,
+    user: User,
+    *,
+    service: str,
+    external_username: str,
+) -> dict[str, str]:
+    return {
+        "username": user.username,
+        "service": service,
+        "external_username": external_username,
+    }
+
+
+@_email("account-association-removed")
+def send_account_association_removed_email(
+    request: Request,
+    user: User,
+    *,
+    service: str,
+    external_username: str,
+) -> dict[str, str]:
+    return {
+        "username": user.username,
+        "service": service,
+        "external_username": external_username,
     }
 
 

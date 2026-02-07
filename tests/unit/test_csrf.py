@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import pretend
 import pytest
@@ -47,7 +37,7 @@ class TestRequireMethodView:
     def test_disallows_unsafe_by_default(self, method):
         @pretend.call_recorder
         def view(context, request):
-            pass
+            pytest.fail("view should not be called")
 
         info = pretend.stub(options={})
         wrapped_view = csrf.require_method_view(view, info)
@@ -95,7 +85,7 @@ class TestRequireMethodView:
     def test_explicit_controls_exception_views(self):
         @pretend.call_recorder
         def view(context, request):
-            pass
+            pytest.fail("view should not be called")
 
         info = pretend.stub(options={"require_methods": ["POST"]})
         wrapped_view = csrf.require_method_view(view, info)

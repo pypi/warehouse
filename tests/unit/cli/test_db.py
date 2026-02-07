@@ -1,14 +1,5 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
+
 from datetime import datetime
 from uuid import UUID
 
@@ -17,7 +8,6 @@ import pretend
 import pytest
 import sqlalchemy
 
-from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 import warehouse.cli.db.dbml
@@ -281,7 +271,7 @@ def test_stamp_command(monkeypatch, cli, pyramid_config):
 
 
 def test_upgrade_command(monkeypatch, cli, pyramid_config):
-    alembic_upgrade = pretend.call_recorder(lambda config, revision: None)
+    alembic_upgrade = pretend.call_recorder(lambda config, revision, sql: None)
     monkeypatch.setattr(alembic.command, "upgrade", alembic_upgrade)
 
     alembic_config = pretend.stub(attributes={})
@@ -297,7 +287,7 @@ def test_upgrade_command(monkeypatch, cli, pyramid_config):
 
     result = cli.invoke(upgrade, ["foo"], obj=pyramid_config)
     assert result.exit_code == 0
-    assert alembic_upgrade.calls == [pretend.call(alembic_config, "foo")]
+    assert alembic_upgrade.calls == [pretend.call(alembic_config, "foo", sql=False)]
 
 
 def test_check_command(monkeypatch, cli, pyramid_config):
@@ -334,16 +324,16 @@ EXPECTED_DBML = """Table _clan {
   fetched varchar [default: `FetchedValue()`, Note: "fetched value"]
   for_the_children boolean [default: `True`]
   nice varchar
-  id varchar [pk, not null, default: `gen_random_uuid()`]
+  id uuid [pk, not null, default: `gen_random_uuid()`]
   Note: "various clans"
 }
 
 Table _clan_member {
   name varchar [not null]
-  clan_id varchar
+  clan_id uuid
   joined datetime [not null, default: `now()`]
   departed datetime
-  id varchar [pk, not null, default: `gen_random_uuid()`]
+  id uuid [pk, not null, default: `gen_random_uuid()`]
 }
 
 Ref: _clan_member.clan_id > _clan.id
@@ -372,7 +362,6 @@ def test_generate_dbml_file(tmp_path_factory):
 
         name: Mapped[str]
         clan_id: Mapped[UUID | None] = mapped_column(
-            PG_UUID,
             sqlalchemy.ForeignKey("_clan.id", deferrable=True, initially="DEFERRED"),
         )
         joined: Mapped[datetime_now]
@@ -407,7 +396,6 @@ def test_generate_dbml_console(capsys, monkeypatch):
 
         name: Mapped[str]
         clan_id: Mapped[UUID | None] = mapped_column(
-            PG_UUID,
             sqlalchemy.ForeignKey("_clan.id", deferrable=True, initially="DEFERRED"),
         )
         joined: Mapped[datetime_now]

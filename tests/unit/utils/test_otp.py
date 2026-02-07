@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import time
 
@@ -17,7 +7,6 @@ from urllib.parse import parse_qsl
 
 import pytest
 
-from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.hashes import SHA1
 from cryptography.hazmat.primitives.twofactor.totp import TOTP
 from urllib3.util import parse_url
@@ -59,9 +48,7 @@ def test_generate_totp_provisioning_uri():
 @pytest.mark.parametrize("skew", [0, -20, 20])
 def test_verify_totp_success(skew):
     secret = otp.generate_totp_secret()
-    totp = TOTP(
-        secret, otp.TOTP_LENGTH, SHA1(), otp.TOTP_INTERVAL, backend=default_backend()
-    )
+    totp = TOTP(secret, otp.TOTP_LENGTH, SHA1(), otp.TOTP_INTERVAL)
     value = totp.generate(time.time() + skew)
     assert otp.verify_totp(secret, value)
 
@@ -69,9 +56,7 @@ def test_verify_totp_success(skew):
 @pytest.mark.parametrize("skew", [-60, 60])
 def test_verify_totp_failure(skew):
     secret = otp.generate_totp_secret()
-    totp = TOTP(
-        secret, otp.TOTP_LENGTH, SHA1(), otp.TOTP_INTERVAL, backend=default_backend()
-    )
+    totp = TOTP(secret, otp.TOTP_LENGTH, SHA1(), otp.TOTP_INTERVAL)
     value = totp.generate(time.time() + skew)
     with pytest.raises(otp.OutOfSyncTOTPError):
         otp.verify_totp(secret, value)

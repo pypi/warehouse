@@ -1,25 +1,22 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
+
+import typing
 
 from dataclasses import dataclass
 
 from pyramid.authorization import Authenticated
+from sqlalchemy import select
 
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.models import (
+    ACTIVESTATE_OIDC_ISSUER_URL,
+    GITHUB_OIDC_ISSUER_URL,
+    GITLAB_OIDC_ISSUER_URL,
+    GOOGLE_OIDC_ISSUER_URL,
     ActiveStatePublisher,
     GitHubPublisher,
     GitLabPublisher,
@@ -31,11 +28,13 @@ from warehouse.oidc.models import (
     PendingGooglePublisher,
     PendingOIDCPublisher,
 )
+from warehouse.organizations.models import OrganizationOIDCIssuer
 
-GITHUB_OIDC_ISSUER_URL = "https://token.actions.githubusercontent.com"
-GITLAB_OIDC_ISSUER_URL = "https://gitlab.com"
-GOOGLE_OIDC_ISSUER_URL = "https://accounts.google.com"
-ACTIVESTATE_OIDC_ISSUER_URL = "https://platform.activestate.com/api/v1/oauth/oidc"
+if typing.TYPE_CHECKING:
+    from sqlalchemy.orm import Session
+
+    from warehouse.organizations.models import OIDCIssuerType
+
 
 OIDC_ISSUER_SERVICE_NAMES = {
     GITHUB_OIDC_ISSUER_URL: "github",
@@ -51,13 +50,6 @@ OIDC_ISSUER_ADMIN_FLAGS = {
     ACTIVESTATE_OIDC_ISSUER_URL: AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC,
 }
 
-OIDC_ISSUER_URLS = {
-    GITHUB_OIDC_ISSUER_URL,
-    GITLAB_OIDC_ISSUER_URL,
-    GOOGLE_OIDC_ISSUER_URL,
-    ACTIVESTATE_OIDC_ISSUER_URL,
-}
-
 OIDC_PUBLISHER_CLASSES: dict[
     str, dict[bool, type[OIDCPublisher | PendingOIDCPublisher]]
 ] = {
@@ -71,8 +63,24 @@ OIDC_PUBLISHER_CLASSES: dict[
 }
 
 
+def lookup_custom_issuer_type(
+    session: Session, issuer_url: str
+) -> OIDCIssuerType | None:
+    """
+    Look up the issuer type for an Organization's OIDC issuer URL.
+    """
+    stmt = select(OrganizationOIDCIssuer.issuer_type).where(
+        OrganizationOIDCIssuer.issuer_url == issuer_url
+    )
+    return session.scalar(stmt)
+
+
 def find_publisher_by_issuer(
-    session, issuer_url: str, signed_claims: SignedClaims, *, pending: bool = False
+    session: Session,
+    issuer_url: str,
+    signed_claims: SignedClaims,
+    *,
+    pending: bool = False,
 ) -> OIDCPublisher | PendingOIDCPublisher:
     """
     Given an OIDC issuer URL and a dictionary of claims that have been verified
@@ -80,7 +88,7 @@ def find_publisher_by_issuer(
     to one or more projects or a `PendingOIDCPublisher`, varying with the
     `pending` parameter.
 
-    Returns `None` if no publisher can be found.
+    Raises if no publisher can be found.
     """
 
     try:

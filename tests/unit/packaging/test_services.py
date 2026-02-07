@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import hashlib
 import io
@@ -24,7 +14,18 @@ from zope.interface.verify import verifyClass
 
 import warehouse.packaging.services
 
-from warehouse.packaging.interfaces import IDocsStorage, IFileStorage, ISimpleStorage
+from warehouse.packaging.interfaces import (
+    IDocsStorage,
+    IFileStorage,
+    IProjectService,
+    ISimpleStorage,
+    ProjectNameUnavailableExistingError,
+    ProjectNameUnavailableInvalidError,
+    ProjectNameUnavailableProhibitedError,
+    ProjectNameUnavailableSimilarError,
+    ProjectNameUnavailableStdlibError,
+    ProjectNameUnavailableTypoSquattingError,
+)
 from warehouse.packaging.services import (
     B2FileStorage,
     GCSFileStorage,
@@ -34,11 +35,14 @@ from warehouse.packaging.services import (
     LocalDocsStorage,
     LocalFileStorage,
     LocalSimpleStorage,
+    ProjectService,
     S3ArchiveFileStorage,
     S3DocsStorage,
     S3FileStorage,
     project_service_factory,
 )
+
+from ...common.db.packaging import ProhibitedProjectFactory, ProjectFactory
 
 
 class TestLocalFileStorage:
@@ -977,6 +981,79 @@ class TestGenericLocalBlobStorage:
     def test_notimplementederror(self):
         with pytest.raises(NotImplementedError):
             GenericLocalBlobStorage.create_service(pretend.stub(), pretend.stub())
+
+
+class TestProjectService:
+    def test_verify_service(self):
+        assert verifyClass(IProjectService, ProjectService)
+
+    @pytest.mark.parametrize("name", ["", ".,;", "_z"])
+    def test_check_project_name_invalid(self, name):
+        service = ProjectService(session=pretend.stub())
+
+        with pytest.raises(ProjectNameUnavailableInvalidError):
+            service.check_project_name(name)
+
+    @pytest.mark.parametrize("name", ["uu", "cgi", "nis", "mailcap"])
+    def test_check_project_name_stdlib(self, name):
+        service = ProjectService(session=pretend.stub())
+
+        with pytest.raises(ProjectNameUnavailableStdlibError):
+            service.check_project_name(name)
+
+    def test_check_project_name_already_exists(self, db_session):
+        service = ProjectService(session=db_session)
+        project = ProjectFactory.create(name="foo")
+
+        with pytest.raises(ProjectNameUnavailableExistingError) as exc:
+            service.check_project_name("foo")
+        assert exc.value.existing_project == project
+
+        with pytest.raises(ProjectNameUnavailableExistingError):
+            service.check_project_name("Foo")
+
+    def test_check_project_name_prohibited(self, db_session):
+        service = ProjectService(session=db_session)
+        ProhibitedProjectFactory.create(name="foo")
+
+        with pytest.raises(ProjectNameUnavailableProhibitedError):
+            service.check_project_name("foo")
+
+        with pytest.raises(ProjectNameUnavailableProhibitedError):
+            service.check_project_name("Foo")
+
+    def test_check_project_name_too_similar(self, db_session):
+        service = ProjectService(session=db_session)
+        ProjectFactory.create(name="f00")
+
+        with pytest.raises(ProjectNameUnavailableSimilarError):
+            service.check_project_name("foo")
+
+    def test_check_project_name_too_similar_multiple_existing(self, db_session):
+        service = ProjectService(session=db_session)
+        project1 = ProjectFactory.create(name="f00")
+        project2 = ProjectFactory.create(name="f0o")
+
+        with pytest.raises(ProjectNameUnavailableSimilarError) as exc:
+            service.check_project_name("foo")
+        assert (
+            exc.value.similar_project_name == project1.name
+            or exc.value.similar_project_name == project2.name
+        )
+
+    def test_check_project_name_typosquatting_prohibited(self, db_session):
+        # TODO: Update this test once we have a dynamic TopN approach
+        service = ProjectService(session=db_session)
+        ProhibitedProjectFactory.create(name="numpy")
+
+        with pytest.raises(ProjectNameUnavailableTypoSquattingError):
+            service.check_project_name("numpi")
+
+    def test_check_project_name_ok(self, db_session):
+        service = ProjectService(session=db_session)
+
+        # Should not raise any exception
+        service.check_project_name("foo")
 
 
 def test_project_service_factory():

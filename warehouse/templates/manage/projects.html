@@ -1,62 +1,56 @@
-{#
- # Licensed under the Apache License, Version 2.0 (the "License");
- # you may not use this file except in compliance with the License.
- # You may obtain a copy of the License at
- #
- # http://www.apache.org/licenses/LICENSE-2.0
- #
- # Unless required by applicable law or agreed to in writing, software
- # distributed under the License is distributed on an "AS IS" BASIS,
- # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- # See the License for the specific language governing permissions and
- # limitations under the License.
--#}
+{# SPDX-License-Identifier: Apache-2.0 -#}
 {% extends "manage_base.html" %}
-
-{% set active_tab = 'projects' %}
-
-{% block title %}{% trans %}Your projects{% endtrans %}{% endblock %}
-
+{% set active_tab = "projects" %}
+{% block title %}
+  {% trans %}Your projects{% endtrans %}
+{% endblock %}
 {% block main %}
   {% if project_invites %}
-  <h1 class="page-title">
-    {% trans %}Pending invitations{% endtrans %}
-    <span class="badge badge--neutral">{{ project_invites|length }}</span>
-  </h1>
-  <div class="package-list">
-    {% for project, token in project_invites %}
-    {% set release = project.releases[0] if project.releases else None %}
-    <div class="package-snippet">
-      <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
-        <div>
-          <h3 class="package-snippet__title">
-            <a href="{{ request.route_path('packaging.project', name=project.name) }}">{{ project.name }}</a>
-          </h3>
-          {% if release %}
-          <p class="package-snippet__meta">
-            {% trans release_date=humanize(release.created) %}Last released {{ release_date }}{% endtrans %}
-          </p>
-          <p class="package-snippet__description">
-            {{ release.summary }}
-          </p>
-          {% else %}
-          <p class="package-snippet__meta">
-            {% trans creation_date=humanize(project.created) %}Created {{ creation_date }}{% endtrans %}
-          </p>
-          {% endif %}
+    <h1 class="page-title">
+      {% trans %}Pending invitations{% endtrans %}
+      <span class="badge badge--neutral">{{ project_invites|length }}</span>
+    </h1>
+    <div class="package-list">
+      {% for project, token in project_invites %}
+        {% set release = project.releases[0] if project.releases else None %}
+        <div class="package-snippet">
+          <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
+            <div>
+              <h3 class="package-snippet__title">
+                <a href="{{ request.route_path('packaging.project', name=project.name) }}">{{ project.name }}</a>
+              </h3>
+              {% if release %}
+                <p class="package-snippet__meta">
+                  {% trans release_date=humanize(release.created) %}Last released {{ release_date }}{% endtrans %}
+                </p>
+                <p class="package-snippet__description">{{ release.summary }}</p>
+              {% else %}
+                <p class="package-snippet__meta">
+                  {% trans creation_date=humanize(project.created) %}Created {{ creation_date }}{% endtrans %}
+                </p>
+              {% endif %}
+            </div>
+            <div class="package-snippet__buttons">
+              <form method="post"
+                    action="{{ request.route_path('accounts.verify-project-role') }}">
+                <input name="csrf_token"
+                       type="hidden"
+                       value="{{ request.session.get_csrf_token() }}">
+                <input name="token" type="hidden" value="{{ token }}">
+                <input name="accept"
+                       type="submit"
+                       value="{% trans %}Accept{% endtrans %}"
+                       class="button button--primary">
+                <input name="decline"
+                       type="submit"
+                       value="{% trans %}Decline{% endtrans %}"
+                       class="button">
+              </form>
+            </div>
+          </div>
         </div>
-        <div class="package-snippet__buttons">
-          <form method="POST" action="{{ request.route_path('accounts.verify-project-role') }}">
-            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-            <input name="token" type="hidden" value="{{ token }}">
-            <input name="accept" type="submit" value="{% trans %}Accept{% endtrans %}" class="button button--primary">
-            <input name="decline" type="submit" value="{% trans %}Decline{% endtrans %}" class="button">
-          </form>
-        </div>
-      </div>
+      {% endfor %}
     </div>
-    {% endfor%}
-  </div>
   {% endif %}
   <h1 class="page-title">
     {% trans %}Your projects{% endtrans %}
@@ -65,65 +59,71 @@
   <div class="package-list">
     {% set user_has_two_factor = request.user.has_two_factor %}
     {% for project in projects %}
-    {% set release = project.releases[0] if project.releases else None %}
-    <div class="package-snippet">
-      <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
-        <div>
-          <h3 class="package-snippet__title">{{ project.name }}
-            {% if project.organization %}
-            <a href="{{ request.route_path('manage.organization.projects', organization_name=project.organization.normalized_name) }}" class="badge">
-              <i class="fa fa-sitemap" aria-hidden="true"></i>{{ project.organization.name }}
-            </a>
+      {% set release = project.releases[0] if project.releases else None %}
+      <div class="package-snippet">
+        <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
+          <div>
+            <h3 class="package-snippet__title">
+              {{ project.name }}
+              {% if project.organization %}
+                <a href="{{ request.route_path('manage.organization.projects', organization_name=project.organization.normalized_name) }}"
+                   class="badge">
+                  <i class="fa fa-sitemap" aria-hidden="true"></i>{{ project.organization.name }}
+                </a>
+              {% endif %}
+              {% if project.name in projects_sole_owned %}
+                <a href="{{ request.route_path('manage.project.roles', project_name=project.normalized_name) }}"
+                   class="badge badge--warning">{% trans %}Sole owner{% endtrans %}</a>
+              {% endif %}
+              {% if project.lifecycle_status in ["archived", "archived-noindex"] %}
+                <a href="{{ request.route_path('manage.project.settings', project_name=project.normalized_name) }}"
+                   class="badge badge--warning">{% trans %}Archived{% endtrans %}</a>
+              {% endif %}
+            </h3>
+            {% if release %}
+              <p class="package-snippet__meta">
+                {% trans release_date=humanize(release.created) %}Last released {{ release_date }}{% endtrans %}
+              </p>
+              <p class="package-snippet__description">{{ release.summary }}</p>
+            {% else %}
+              <p class="package-snippet__meta">
+                {% trans creation_date=humanize(project.created) %}Created {{ creation_date }}{% endtrans %}
+              </p>
             {% endif %}
-            {% if project.name in projects_sole_owned %}
-            <a href="{{ request.route_path('manage.project.roles', project_name=project.normalized_name) }}" class="badge badge--warning">{% trans %}Sole owner{% endtrans %}</a>
+          </div>
+          <div class="package-snippet__buttons">
+            {% if project.name in projects_owned %}
+              {# Show manage button #}
+              <a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name) }}"
+                 class="button button--primary"
+                 title="{% trans %}Manage this project{% endtrans %}">{% trans %}Manage{% endtrans %}</a>
+            {% else %}
+              {# Show disabled button #}
+              <button class="button button--primary"
+                      disabled
+                      title="{% trans %}You are not an owner of this project{% endtrans %}">
+                {% trans %}Manage{% endtrans %}
+              </button>
             {% endif %}
-          </h3>
-          {% if release %}
-          <p class="package-snippet__meta">
-            {% trans release_date=humanize(release.created) %}Last released {{ release_date }}{% endtrans %}
-          </p>
-          <p class="package-snippet__description">
-            {{ release.summary }}
-          </p>
-          {% else %}
-          <p class="package-snippet__meta">
-            {% trans creation_date=humanize(project.created) %}Created {{ creation_date }}{% endtrans %}
-          </p>
-          {% endif %}
-        </div>
-        <div class="package-snippet__buttons">
-
-          {% if project.name in projects_owned %}
-            {# Show manage button #}
-            <a
-            href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name) }}"
-            class="button button--primary"
-            title="{% trans %}Manage this project{% endtrans %}"
-            >{% trans %}Manage{% endtrans %}</a>
-          {% else %}
-          {# Show disabled button #}
-          <button class="button button--primary" disabled title="{% trans %}You are not an owner of this project{% endtrans %}">
-            {% trans %}Manage{% endtrans %}
-          </button>
-          {% endif %}
-          {% if project.releases %}
-          <a
-            href="{{ request.route_path('packaging.project', name=project.normalized_name) }}"
-            class="button"
-            title="{% trans %}View this project's public page{% endtrans %}"
-            >{% trans %}View{% endtrans %}</a>
-          {% else %}
-          <button class="button" disabled title="{% trans %}This project has no releases{% endtrans %}" >
-            {% trans %}View{% endtrans %}
-          </button>
-          {% endif %}
+            {% if project.releases %}
+              <a href="{{ request.route_path('packaging.project', name=project.normalized_name) }}"
+                 class="button"
+                 title="{% trans %}View this project's public page{% endtrans %}">{% trans %}View{% endtrans %}</a>
+            {% else %}
+              <button class="button"
+                      disabled
+                      title="{% trans %}This project has no releases{% endtrans %}">
+                {% trans %}View{% endtrans %}
+              </button>
+            {% endif %}
+          </div>
         </div>
       </div>
-    </div>
     {% else %}
       <div class="callout-block no-top-margin">
-        <p>{% trans href='https://packaging.python.org/' %}You have not uploaded any projects to PyPI, yet. To learn how to get started, visit the <a href="{{ href }}" target="_blank" rel="noopener">Python Packaging User Guide</a>{% endtrans %}</p>
+        <p>
+          {% trans href='https://packaging.python.org/' %}You have not uploaded any projects to PyPI, yet. To learn how to get started, visit the <a href="{{ href }}" target="_blank" rel="noopener">Python Packaging User Guide</a>{% endtrans %}
+        </p>
       </div>
     {% endfor %}
   </div>

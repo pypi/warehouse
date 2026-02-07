@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import os
 
@@ -309,7 +299,10 @@ def test_configure(monkeypatch, settings, environment):
 
     expected_settings = {
         "warehouse.env": environment,
+        "terms.revision": "initial",
+        "terms.notification_batch_size": 1000,
         "warehouse.commit": "null",
+        "userdocs.domain": "https://docs.pypi.org",
         "site.name": "Warehouse",
         "token.two_factor.max_age": 300,
         "remember_device.days": 30,
@@ -318,13 +311,14 @@ def test_configure(monkeypatch, settings, environment):
         "token.default.max_age": 21600,
         "pythondotorg.host": "https://www.python.org",
         "warehouse.xmlrpc.client.ratelimit_string": "3600 per hour",
-        "warehouse.xmlrpc.search.enabled": True,
         "github.token_scanning_meta_api.url": (
             "https://api.github.com/meta/public_keys/token_scanning"
         ),
         "warehouse.account.user_login_ratelimit_string": "10 per 5 minutes",
         "warehouse.account.ip_login_ratelimit_string": "10 per 5 minutes",
         "warehouse.account.global_login_ratelimit_string": "1000 per 5 minutes",
+        "warehouse.account.2fa_user_ratelimit_string": "5 per 5 minutes, 20 per hour, 50 per day",  # noqa: E501
+        "warehouse.account.2fa_ip_ratelimit_string": "10 per 5 minutes, 50 per hour",
         "warehouse.account.email_add_ratelimit_string": "2 per day",
         "warehouse.account.verify_email_ratelimit_string": "3 per 6 hours",
         "warehouse.account.accounts_search_ratelimit_string": "100 per hour",
@@ -338,7 +332,6 @@ def test_configure(monkeypatch, settings, environment):
         "integrity.backend": "warehouse.attestations.services.IntegrityService",
         "warehouse.organizations.max_undecided_organization_applications": 3,
         "reconcile_file_storages.batch_size": 100,
-        "metadata_backfill.batch_size": 500,
         "gcloud.service_account_info": {},
         "warehouse.forklift.legacy.MAX_FILESIZE_MIB": 100,
         "warehouse.forklift.legacy.MAX_PROJECT_SIZE_GIB": 10,
@@ -355,17 +348,11 @@ def test_configure(monkeypatch, settings, environment):
                     "pyramid_debugtoolbar.panels.versions.VersionDebugPanel",
                     "pyramid_debugtoolbar.panels.settings.SettingsDebugPanel",
                     "pyramid_debugtoolbar.panels.headers.HeaderDebugPanel",
-                    (
-                        "pyramid_debugtoolbar.panels.request_vars."
-                        "RequestVarsDebugPanel"
-                    ),
+                    ("pyramid_debugtoolbar.panels.request_vars.RequestVarsDebugPanel"),
                     "pyramid_debugtoolbar.panels.renderings.RenderingsDebugPanel",
                     "pyramid_debugtoolbar.panels.session.SessionDebugPanel",
                     "pyramid_debugtoolbar.panels.logger.LoggingPanel",
-                    (
-                        "pyramid_debugtoolbar.panels.performance."
-                        "PerformanceDebugPanel"
-                    ),
+                    ("pyramid_debugtoolbar.panels.performance.PerformanceDebugPanel"),
                     "pyramid_debugtoolbar.panels.routes.RoutesDebugPanel",
                     "pyramid_debugtoolbar.panels.sqla.SQLADebugPanel",
                     "pyramid_debugtoolbar.panels.tweens.TweensDebugPanel",
@@ -414,6 +401,7 @@ def test_configure(monkeypatch, settings, environment):
             pretend.call("pyramid_mailer"),
             pretend.call("pyramid_retry"),
             pretend.call("pyramid_tm"),
+            pretend.call(".rate_limiting"),
             pretend.call(".legacy.api.xmlrpc"),
             pretend.call(".legacy.api.xmlrpc.cache"),
             pretend.call("pyramid_rpc.xmlrpc"),
@@ -422,7 +410,6 @@ def test_configure(monkeypatch, settings, environment):
             pretend.call(".i18n"),
             pretend.call(".db"),
             pretend.call(".tasks"),
-            pretend.call(".rate_limiting"),
             pretend.call(".static"),
             pretend.call(".search"),
             pretend.call(".aws"),
@@ -431,6 +418,7 @@ def test_configure(monkeypatch, settings, environment):
             pretend.call(".sessions"),
             pretend.call(".cache.http"),
             pretend.call(".cache.origin"),
+            pretend.call(".cache"),
             pretend.call(".email"),
             pretend.call(".accounts"),
             pretend.call(".macaroons"),
@@ -569,17 +557,21 @@ def test_root_factory_access_control_list():
                 Permissions.AdminFlagsRead,
                 Permissions.AdminFlagsWrite,
                 Permissions.AdminIpAddressesRead,
+                Permissions.AdminIpAddressesWrite,
                 Permissions.AdminJournalRead,
                 Permissions.AdminMacaroonsRead,
                 Permissions.AdminMacaroonsWrite,
                 Permissions.AdminObservationsRead,
                 Permissions.AdminObservationsWrite,
                 Permissions.AdminOrganizationsRead,
+                Permissions.AdminOrganizationsSetLimit,
                 Permissions.AdminOrganizationsWrite,
+                Permissions.AdminOrganizationsNameWrite,
                 Permissions.AdminProhibitedEmailDomainsRead,
                 Permissions.AdminProhibitedEmailDomainsWrite,
                 Permissions.AdminProhibitedProjectsRead,
                 Permissions.AdminProhibitedProjectsWrite,
+                Permissions.AdminProhibitedProjectsRelease,
                 Permissions.AdminProhibitedUsernameRead,
                 Permissions.AdminProhibitedUsernameWrite,
                 Permissions.AdminProjectsDelete,
@@ -588,6 +580,7 @@ def test_root_factory_access_control_list():
                 Permissions.AdminProjectsWrite,
                 Permissions.AdminRoleAdd,
                 Permissions.AdminRoleDelete,
+                Permissions.AdminRoleUpdate,
                 Permissions.AdminSponsorsRead,
                 Permissions.AdminUsersRead,
                 Permissions.AdminUsersWrite,
@@ -608,13 +601,18 @@ def test_root_factory_access_control_list():
                 Permissions.AdminObservationsRead,
                 Permissions.AdminObservationsWrite,
                 Permissions.AdminOrganizationsRead,
+                Permissions.AdminOrganizationsSetLimit,
+                Permissions.AdminOrganizationsWrite,
+                Permissions.AdminOrganizationsNameWrite,
                 Permissions.AdminProhibitedEmailDomainsRead,
                 Permissions.AdminProhibitedProjectsRead,
+                Permissions.AdminProhibitedProjectsRelease,
                 Permissions.AdminProhibitedUsernameRead,
                 Permissions.AdminProjectsRead,
                 Permissions.AdminProjectsSetLimit,
                 Permissions.AdminRoleAdd,
                 Permissions.AdminRoleDelete,
+                Permissions.AdminRoleUpdate,
                 Permissions.AdminSponsorsRead,
                 Permissions.AdminUsersRead,
                 Permissions.AdminUsersEmailWrite,
@@ -641,6 +639,7 @@ def test_root_factory_access_control_list():
                 Permissions.AdminProjectsSetLimit,
                 Permissions.AdminRoleAdd,
                 Permissions.AdminRoleDelete,
+                Permissions.AdminRoleUpdate,
                 Permissions.AdminSponsorsRead,
                 Permissions.AdminUsersRead,
             ),

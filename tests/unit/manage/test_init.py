@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import pretend
 import pytest
@@ -84,7 +74,7 @@ class TestReAuthView:
 
         @pretend.call_recorder
         def view(context, request):
-            return response
+            pytest.fail("view should not be called")
 
         info = pretend.stub(options={}, exception_only=False)
         info.options["require_reauth"] = require_reauth
@@ -95,7 +85,7 @@ class TestReAuthView:
         assert request.session.needs_reauthentication.calls == needs_reauth_calls
 
 
-def test_includeme(monkeypatch):
+def test_includeme():
     settings = {
         "warehouse.manage.oidc.user_registration_ratelimit_string": "10 per day",
         "warehouse.manage.oidc.ip_registration_ratelimit_string": "100 per day",
@@ -103,29 +93,20 @@ def test_includeme(monkeypatch):
 
     config = pretend.stub(
         add_view_deriver=pretend.call_recorder(lambda f, over, under: None),
-        register_service_factory=pretend.call_recorder(lambda s, i, **kw: None),
+        register_rate_limiter=pretend.call_recorder(lambda limit_string, name: None),
         registry=pretend.stub(
             settings=pretend.stub(get=pretend.call_recorder(lambda k: settings.get(k)))
         ),
     )
-
-    rate_limit_class = pretend.call_recorder(lambda s: s)
-    rate_limit_iface = pretend.stub()
-    monkeypatch.setattr(manage, "RateLimit", rate_limit_class)
-    monkeypatch.setattr(manage, "IRateLimiter", rate_limit_iface)
 
     manage.includeme(config)
 
     assert config.add_view_deriver.calls == [
         pretend.call(manage.reauth_view, over="rendered_view", under="decorated_view")
     ]
-    assert config.register_service_factory.calls == [
-        pretend.call(
-            "10 per day", rate_limit_iface, name="user_oidc.publisher.register"
-        ),
-        pretend.call(
-            "100 per day", rate_limit_iface, name="ip_oidc.publisher.register"
-        ),
+    assert config.register_rate_limiter.calls == [
+        pretend.call("10 per day", "user_oidc.publisher.register"),
+        pretend.call("100 per day", "ip_oidc.publisher.register"),
     ]
     assert config.registry.settings.get.calls == [
         pretend.call("warehouse.manage.oidc.user_registration_ratelimit_string"),

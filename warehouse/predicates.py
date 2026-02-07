@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 from pyramid import predicates
 from pyramid.exceptions import ConfigurationError
@@ -16,7 +6,7 @@ from pyramid.httpexceptions import HTTPSeeOther
 from pyramid.util import is_same_domain
 
 from warehouse.admin.flags import AdminFlagValue
-from warehouse.organizations.models import Organization, OrganizationType, Team
+from warehouse.organizations.models import Organization, Team
 
 
 class DomainPredicate:
@@ -67,11 +57,12 @@ class ActiveOrganizationPredicate:
     phash = text
 
     def __call__(self, context: Organization | Team, request):
-        """Check organizations are enabled globally and this organization is active.
+        """Check organizations are enabled globally and this organization is
+        operational.
 
         1. `AdminFlagValue.DISABLE_ORGANIZATIONS` flag is off.
-        2. `Organization.is_active` is true.
-        3. `Organization.active_subscription` exists if organization is a company.
+        2. Organization is operational (uses consolidated is_in_good_standing()
+           method).
 
         """
         if self.val is False:
@@ -81,15 +72,7 @@ class ActiveOrganizationPredicate:
             context if isinstance(context, Organization) else context.organization
         )
 
-        if (
-            # Organization is active.
-            organization.is_active
-            # Organization has active subscription if it is a Company.
-            and (
-                organization.orgtype != OrganizationType.Company
-                or organization.active_subscription
-            )
-        ):
+        if organization.is_in_good_standing():
             return True
         elif (
             # Organization accounts are disabled.

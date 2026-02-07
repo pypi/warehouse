@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
 
@@ -23,10 +13,7 @@ from pypi_attestations import (
     AttestationBundle,
     AttestationType,
     Distribution,
-    GitHubPublisher,
-    GitLabPublisher,
     Provenance,
-    Publisher,
     VerificationError,
 )
 from pyramid.request import Request
@@ -36,63 +23,16 @@ from warehouse.attestations.errors import AttestationUploadError
 from warehouse.attestations.interfaces import IIntegrityService
 from warehouse.attestations.models import Provenance as DatabaseProvenance
 from warehouse.metrics.interfaces import IMetricsService
-from warehouse.oidc.models import (
-    GitHubPublisher as GitHubOIDCPublisher,
-    GitLabPublisher as GitLabOIDCPublisher,
-    OIDCPublisher,
-)
 from warehouse.utils.exceptions import InsecureIntegrityServiceWarning
 
 if typing.TYPE_CHECKING:
     from warehouse.packaging.models import File
 
 
-def _publisher_from_oidc_publisher(publisher: OIDCPublisher) -> Publisher:
-    """
-    Convert an OIDCPublisher object in a pypi-attestations Publisher.
-    """
-    match publisher.publisher_name:
-        case "GitLab":
-            publisher = typing.cast(GitLabOIDCPublisher, publisher)
-            return GitLabPublisher(
-                repository=publisher.project_path, environment=publisher.environment
-            )
-        case "GitHub":
-            publisher = typing.cast(GitHubOIDCPublisher, publisher)
-            return GitHubPublisher(
-                repository=publisher.repository,
-                workflow=publisher.workflow_filename,
-                environment=publisher.environment,
-            )
-        case _:
-            raise AttestationUploadError(
-                f"Unsupported publisher: {publisher.publisher_name}"
-            )
-
-
-def _build_provenance(
-    request: Request, file: File, attestations: list[Attestation]
-) -> DatabaseProvenance:
-    try:
-        publisher: Publisher = _publisher_from_oidc_publisher(request.oidc_publisher)
-    except AttestationUploadError as exc:
-        sentry_sdk.capture_message(
-            f"Unsupported OIDCPublisher found {request.oidc_publisher.publisher_name}"
-        )
-        raise exc
-
-    attestation_bundle = AttestationBundle(
-        publisher=publisher,
-        attestations=attestations,
-    )
-
-    provenance = Provenance(attestation_bundles=[attestation_bundle]).model_dump(
-        mode="json"
-    )
-
-    db_provenance = DatabaseProvenance(file=file, provenance=provenance)
-
-    return db_provenance
+SUPPORTED_ATTESTATION_TYPES = {
+    AttestationType.PYPI_PUBLISH_V1,
+    AttestationType.SLSA_PROVENANCE_V1,
+}
 
 
 def _extract_attestations_from_request(request: Request) -> list[Attestation]:
@@ -100,15 +40,15 @@ def _extract_attestations_from_request(request: Request) -> list[Attestation]:
     Extract well-formed attestation objects from the given request's payload.
     """
 
-    publisher: OIDCPublisher | None = request.oidc_publisher
-    if not publisher:
+    if not request.oidc_publisher:
         raise AttestationUploadError(
             "Attestations are only supported when using Trusted Publishing"
         )
-    if not publisher.supports_attestations:
+
+    if not request.oidc_publisher.attestation_identity:
         raise AttestationUploadError(
             "Attestations are not currently supported with "
-            f"{publisher.publisher_name} publishers"
+            f"{request.oidc_publisher.publisher_name} publishers"
         )
 
     metrics = request.find_service(IMetricsService, context=None)
@@ -131,13 +71,14 @@ def _extract_attestations_from_request(request: Request) -> list[Attestation]:
             "Malformed attestations: an empty attestation set is not permitted"
         )
 
-    # This is a temporary constraint; multiple attestations per file will
-    # be supported in the future.
-    if len(attestations) > 1:
-        metrics.increment("warehouse.upload.attestations.failed_multiple_attestations")
-
+    # We currently allow at most one attestation per predicate type
+    max_attestations = len(SUPPORTED_ATTESTATION_TYPES)
+    if len(attestations) > max_attestations:
+        metrics.increment(
+            "warehouse.upload.attestations.failed_limit_multiple_attestations"
+        )
         raise AttestationUploadError(
-            "Only a single attestation per file is supported",
+            f"A maximum of {max_attestations} attestations per file are supported",
         )
 
     return attestations
@@ -166,7 +107,16 @@ class NullIntegrityService:
     def build_provenance(
         self, request: Request, file: File, attestations: list[Attestation]
     ) -> DatabaseProvenance:
-        return _build_provenance(request, file, attestations)
+        attestation_bundle = AttestationBundle(
+            publisher=request.oidc_publisher.attestation_identity,
+            attestations=attestations,
+        )
+
+        provenance = Provenance(attestation_bundles=[attestation_bundle]).model_dump(
+            mode="json"
+        )
+
+        return DatabaseProvenance(file=file, provenance=provenance)
 
 
 @implementer(IIntegrityService)
@@ -192,21 +142,19 @@ class IntegrityService:
         artifact. Attestations are only allowed when uploading via a Trusted
         Publisher, because a Trusted Publisher provides the identity that will be
         used to verify the attestations.
-        Only GitHub Actions Trusted Publishers are supported.
         """
 
         attestations = _extract_attestations_from_request(request)
 
-        # The above attestation extraction guarantees that we have a publisher.
-        publisher: OIDCPublisher = request.oidc_publisher
+        # Sanity-checked above.
+        expected_identity = request.oidc_publisher.attestation_identity
 
-        verification_policy = publisher.publisher_verification_policy(
-            request.oidc_claims
-        )
+        seen_predicate_types: set[AttestationType] = set()
+
         for attestation_model in attestations:
             try:
-                predicate_type, _ = attestation_model.verify(
-                    verification_policy,
+                predicate_type_str, _ = attestation_model.verify(
+                    expected_identity,
                     distribution,
                 )
             except VerificationError as e:
@@ -217,7 +165,7 @@ class IntegrityService:
                     f"attestation: {e}",
                 )
             except Exception as e:
-                with sentry_sdk.push_scope() as scope:
+                with sentry_sdk.new_scope() as scope:
                     scope.fingerprint = [e]
                     sentry_sdk.capture_message(
                         f"Unexpected error while verifying attestation: {e}"
@@ -227,19 +175,41 @@ class IntegrityService:
                     f"Unknown error while trying to verify included attestations: {e}",
                 )
 
-            if predicate_type != AttestationType.PYPI_PUBLISH_V1:
+            if predicate_type_str not in SUPPORTED_ATTESTATION_TYPES:
                 self.metrics.increment(
                     "warehouse.upload.attestations.failed_unsupported_predicate_type"
                 )
                 raise AttestationUploadError(
-                    f"Attestation with unsupported predicate type: {predicate_type}",
+                    f"Attestation with unsupported predicate type: "
+                    f"{predicate_type_str}",
                 )
+            predicate_type = AttestationType(predicate_type_str)
+
+            if predicate_type in seen_predicate_types:
+                self.metrics.increment(
+                    "warehouse.upload.attestations.failed_duplicate_predicate_type"
+                )
+                raise AttestationUploadError(
+                    f"Multiple attestations for the same file with the same "
+                    f"predicate type ({predicate_type.value}) are not supported",
+                )
+
+            seen_predicate_types.add(predicate_type)
 
         return attestations
 
     def build_provenance(
         self, request: Request, file: File, attestations: list[Attestation]
     ) -> DatabaseProvenance:
-        provenance = _build_provenance(request, file, attestations)
+        attestation_bundle = AttestationBundle(
+            publisher=request.oidc_publisher.attestation_identity,
+            attestations=attestations,
+        )
+
+        provenance = Provenance(attestation_bundles=[attestation_bundle]).model_dump(
+            mode="json"
+        )
+        db_provenance = DatabaseProvenance(file=file, provenance=provenance)
+
         self.metrics.increment("warehouse.attestations.build_provenance.ok")
-        return provenance
+        return db_provenance

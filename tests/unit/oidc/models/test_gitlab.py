@@ -1,22 +1,16 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import pretend
+import psycopg
 import pytest
-import sqlalchemy
 
 from tests.common.db.oidc import GitLabPublisherFactory, PendingGitLabPublisherFactory
+from tests.common.db.organizations import OrganizationOIDCIssuerFactory
 from warehouse.oidc import errors
 from warehouse.oidc.models import _core, gitlab
+
+PROJECT_NAME = "project_name"
+NAMESPACE = "project_owner"
 
 
 @pytest.mark.parametrize(
@@ -43,6 +37,10 @@ from warehouse.oidc.models import _core, gitlab
             "gitlab.com/foo/bar//@.yml.foo.yml@bar.yml@/some/ref",
             "@.yml.foo.yml@bar.yml",
         ),
+        ("gitlab.com/foo/bar//a.yml@/some/ref", "a.yml"),
+        ("gitlab.com/foo/bar//a/b.yml@/some/ref", "a/b.yml"),
+        # Custom domain.
+        ("gitlab.example.com/foo/bar//example.yml@/some/ref", "example.yml"),
         # Malformed `ci_config_ref_uri`s.
         ("gitlab.com/foo/bar//notnested.wrongsuffix@/some/ref", None),
         ("gitlab.com/foo/bar//@/some/ref", None),
@@ -61,16 +59,10 @@ def test_check_sub(claim):
 
 
 class TestGitLabPublisher:
-    def test_lookup_strategies(self):
-        assert (
-            len(gitlab.GitLabPublisher.__lookup_strategies__)
-            == len(gitlab.PendingGitLabPublisher.__lookup_strategies__)
-            == 2
-        )
-
     @pytest.mark.parametrize("environment", [None, "some_environment"])
     def test_lookup_fails_invalid_ci_config_ref_uri(self, environment):
         signed_claims = {
+            "iss": "https://gitlab.com",
             "project_path": "foo/bar",
             "ci_config_ref_uri": ("gitlab.com/foo/bar//example/.yml@refs/heads/main"),
         }
@@ -80,9 +72,106 @@ class TestGitLabPublisher:
 
         # The `ci_config_ref_uri` is malformed, so no queries are performed.
         with pytest.raises(
-            errors.InvalidPublisherError, match="All lookup strategies exhausted"
+            errors.InvalidPublisherError,
+            match="Could not extract workflow filename from OIDC claims",
         ):
             gitlab.GitLabPublisher.lookup_by_claims(pretend.stub(), signed_claims)
+
+    @pytest.mark.parametrize(
+        ("configured_namespace", "configured_project", "project_path"),
+        [
+            (
+                "Foo",
+                "Bar",
+                "foo/bar",
+            ),
+            (
+                "foo",
+                "bar",
+                "Foo/Bar",
+            ),
+        ],
+    )
+    def test_lookup_succeeds_with_mixed_case_project_path(
+        self, db_request, configured_namespace, configured_project, project_path
+    ):
+        # Test that we find a matching publisher when the project_path claims match
+        # even if the case is different.
+        stored_publisher = GitLabPublisherFactory(
+            namespace=configured_namespace,
+            project=configured_project,
+            workflow_filepath=".gitlab-ci.yml",
+            environment="",
+        )
+
+        signed_claims = {
+            "iss": "https://gitlab.com",
+            "project_path": project_path,
+            "ci_config_ref_uri": "gitlab.com/foo/bar//.gitlab-ci.yml@refs/heads/main",
+            "environment": "some_environment",
+        }
+
+        publisher = gitlab.GitLabPublisher.lookup_by_claims(
+            db_request.db, signed_claims
+        )
+
+        assert publisher.id == stored_publisher.id
+        assert publisher.environment == stored_publisher.environment
+
+    @pytest.mark.parametrize("environment", ["SomeEnvironment", "SOME_ENVIRONMENT"])
+    def test_lookup_succeeds_with_non_lowercase_environment(
+        self, db_request, environment
+    ):
+        # Test that we find a matching publisher when the environment claims match
+        # If we incorrectly normalized the incoming capitalized claim, we wouldn't
+        # find the matching publisher.
+        stored_publisher = GitLabPublisherFactory(
+            id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            namespace="foo",
+            project="bar",
+            workflow_filepath=".gitlab-ci.yml",
+            environment=environment,
+        )
+
+        signed_claims = {
+            "iss": "https://gitlab.com",
+            "project_path": "foo/bar",
+            "ci_config_ref_uri": ("gitlab.com/foo/bar//.gitlab-ci.yml@refs/heads/main"),
+            "environment": environment,
+        }
+
+        publisher = gitlab.GitLabPublisher.lookup_by_claims(
+            db_request.db, signed_claims
+        )
+
+        assert publisher.id == stored_publisher.id
+        assert publisher.environment == environment
+
+    @pytest.mark.parametrize("environment", ["SomeEnvironment", "SOME_ENVIRONMENT"])
+    def test_lookup_is_case_sensitive_for_environment(self, db_request, environment):
+        # Test that we don't find a matching publisher when the environment claims don't
+        # exactly match.
+        # If we incorrectly normalized the incoming capitalized claim, we would match
+        # a publisher that has a different environment.
+        GitLabPublisherFactory(
+            id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            namespace="foo",
+            project="bar",
+            workflow_filepath=".gitlab-ci.yml",
+            # stored environment is all lowercase, doesn't match incoming claims
+            environment=environment.lower(),
+        )
+
+        signed_claims = {
+            "iss": "https://gitlab.com",
+            "project_path": "foo/bar",
+            "ci_config_ref_uri": ("gitlab.com/foo/bar//.gitlab-ci.yml@refs/heads/main"),
+            "environment": environment,
+        }
+
+        with pytest.raises(errors.InvalidPublisherError) as e:
+            gitlab.GitLabPublisher.lookup_by_claims(db_request.db, signed_claims)
+        assert str(e.value) == "Publisher with matching claims was not found"
 
     @pytest.mark.parametrize("environment", ["", "some_environment"])
     @pytest.mark.parametrize(
@@ -112,6 +201,7 @@ class TestGitLabPublisher:
 
         for workflow_filepath in (workflow_filepath_a, workflow_filepath_b):
             signed_claims = {
+                "iss": "https://gitlab.com",
                 "project_path": "foo/bar",
                 "ci_config_ref_uri": (
                     f"gitlab.com/foo/bar//{workflow_filepath}@refs/heads/main"
@@ -127,6 +217,16 @@ class TestGitLabPublisher:
                 ).workflow_filepath
                 == workflow_filepath
             )
+
+    def test_lookup_no_matching_publisher(self, db_request):
+        signed_claims = {
+            "iss": "https://gitlab.com",
+            "project_path": "foo/bar",
+            "ci_config_ref_uri": ("gitlab.com/foo/bar//.gitlab-ci.yml@refs/heads/main"),
+        }
+        with pytest.raises(errors.InvalidPublisherError) as e:
+            gitlab.GitLabPublisher.lookup_by_claims(db_request.db, signed_claims)
+        assert str(e.value) == "Publisher with matching claims was not found"
 
     def test_gitlab_publisher_all_known_claims(self):
         assert gitlab.GitLabPublisher.all_known_claims() == {
@@ -169,6 +269,10 @@ class TestGitLabPublisher:
             "project_visibility",
             "user_access_level",
             "groups_direct",
+            "job_namespace_id",
+            "job_namespace_path",
+            "job_project_id",
+            "job_project_path",
         }
 
     def test_gitlab_publisher_computed_properties(self):
@@ -177,6 +281,7 @@ class TestGitLabPublisher:
             namespace="fakeowner",
             workflow_filepath="subfolder/fakeworkflow.yml",
             environment="fakeenv",
+            issuer_url="https://gitlab.com",
         )
 
         for claim_name in publisher.__required_verifiable_claims__.keys():
@@ -193,6 +298,37 @@ class TestGitLabPublisher:
             "sha": "somesha",
             "ref_path": "someref",
         }
+
+    def test_gitlab_publisher_admin_details_with_environment(self):
+        publisher = gitlab.GitLabPublisher(
+            project="fakerepo",
+            namespace="fakeowner",
+            workflow_filepath="subfolder/fakeworkflow.yml",
+            environment="fakeenv",
+            issuer_url="https://gitlab.com",
+        )
+
+        assert publisher.admin_details == [
+            ("Project", "fakeowner/fakerepo"),
+            ("Workflow", "subfolder/fakeworkflow.yml"),
+            ("Issuer URL", "https://gitlab.com"),
+            ("Environment", "fakeenv"),
+        ]
+
+    def test_gitlab_publisher_admin_details_without_environment(self):
+        publisher = gitlab.GitLabPublisher(
+            project="fakerepo",
+            namespace="fakeowner",
+            workflow_filepath="subfolder/fakeworkflow.yml",
+            environment="",
+            issuer_url="https://gitlab.com",
+        )
+
+        assert publisher.admin_details == [
+            ("Project", "fakeowner/fakerepo"),
+            ("Workflow", "subfolder/fakeworkflow.yml"),
+            ("Issuer URL", "https://gitlab.com"),
+        ]
 
     def test_gitlab_publisher_unaccounted_claims(self, monkeypatch):
         scope = pretend.stub()
@@ -233,6 +369,7 @@ class TestGitLabPublisher:
             project="fakerepo",
             namespace="fakeowner",
             workflow_filepath="subfolder/fakeworkflow.yml",
+            issuer_url="https://gitlab.com",
         )
 
         scope = pretend.stub()
@@ -268,6 +405,7 @@ class TestGitLabPublisher:
             namespace="fakeowner",
             workflow_filepath="subfolder/fakeworkflow.yml",
             environment="some-environment",  # The optional claim that should be present
+            issuer_url="https://gitlab.com",
         )
 
         sentry_sdk = pretend.stub(capture_message=pretend.call_recorder(lambda s: None))
@@ -303,6 +441,7 @@ class TestGitLabPublisher:
             namespace="fakeowner",
             workflow_filepath="subfolder/fakeworkflow.yml",
             environment="environment",
+            issuer_url="https://gitlab.com",
         )
 
         noop_check = pretend.call_recorder(lambda gt, sc, ac, **kwargs: True)
@@ -535,6 +674,7 @@ class TestGitLabPublisher:
             project="bar",
             namespace="foo",
             workflow_filepath="workflows/baz.yml",
+            issuer_url="https://gitlab.com",
         )
 
         check = gitlab.GitLabPublisher.__required_verifiable_claims__[
@@ -586,6 +726,7 @@ class TestGitLabPublisher:
             namespace="repository_owner",
             workflow_filepath="subfolder/worflow_filename.yml",
             environment="",
+            issuer_url="https://gitlab.com",
         )
 
         db_request.db.add(publisher1)
@@ -596,28 +737,218 @@ class TestGitLabPublisher:
             namespace="repository_owner",
             workflow_filepath="subfolder/worflow_filename.yml",
             environment="",
+            issuer_url="https://gitlab.com",
         )
         db_request.db.add(publisher2)
 
-        with pytest.raises(sqlalchemy.exc.IntegrityError):
+        with pytest.raises(psycopg.errors.UniqueViolation):
             db_request.db.commit()
 
     @pytest.mark.parametrize(
-        ("url", "expected"),
+        ("project_name", "namespace", "url", "expected"),
         [
-            ("https://gitlab.com/repository_owner/repository_name.git", True),
-            ("https://gitlab.com/repository_owner/repository_name.git/", True),
-            ("https://gitlab.com/repository_owner/repository_name.git/issues", False),
+            (
+                PROJECT_NAME,
+                NAMESPACE,
+                f"https://gitlab.com/{NAMESPACE}/{PROJECT_NAME}.git",
+                True,
+            ),
+            (
+                "Project_Name",
+                NAMESPACE,
+                f"https://gitlab.com/{NAMESPACE}/{PROJECT_NAME}.git",
+                True,
+            ),
+            (
+                PROJECT_NAME,
+                "Project_Owner",
+                f"https://gitlab.com/{NAMESPACE}/{PROJECT_NAME}.git",
+                True,
+            ),
+            (
+                PROJECT_NAME,
+                NAMESPACE,
+                f"https://gitlab.com/{NAMESPACE}/{PROJECT_NAME}.git/",
+                True,
+            ),
+            (
+                PROJECT_NAME,
+                NAMESPACE,
+                f"https://gitlab.com/{NAMESPACE}/{PROJECT_NAME}.git/issues",
+                False,
+            ),
+            (
+                PROJECT_NAME,
+                NAMESPACE,
+                f"https://{NAMESPACE}.gitlab.io/{PROJECT_NAME}/",
+                True,
+            ),
+            (
+                PROJECT_NAME,
+                NAMESPACE,
+                f"https://{NAMESPACE}.gitlab.io/{PROJECT_NAME}/subpage/",
+                True,
+            ),
+            (
+                PROJECT_NAME,
+                "owner.with.dot",
+                f"https://owner.with.dot.gitlab.io/{PROJECT_NAME}",
+                True,
+            ),
+            (
+                PROJECT_NAME,
+                NAMESPACE,
+                f"https://gitlab.com/{NAMESPACE.replace('e', 'E')}/"
+                f"{PROJECT_NAME.replace('r', 'R')}/",
+                True,
+            ),
+            (  # Unique domains are not supported
+                PROJECT_NAME,
+                NAMESPACE,
+                f"https://{PROJECT_NAME}-123456.gitlab.io/",
+                False,
+            ),
+            # Project name is not properly formed
+            (PROJECT_NAME, NAMESPACE, f"https://{NAMESPACE}.gitlab.io/", False),
+            (
+                f"{NAMESPACE}.gitlab.io",
+                NAMESPACE,
+                f"https://{NAMESPACE}.gitlab.io",
+                True,
+            ),
+            (
+                f"{NAMESPACE}.gitlab.io",
+                NAMESPACE,
+                f"https://{NAMESPACE}.gitlab.io/",
+                True,
+            ),
+            (
+                f"{NAMESPACE}.gitlab.io",
+                NAMESPACE,
+                f"https://{NAMESPACE}.gitlab.io/subpage",
+                True,
+            ),
+            (  # Only for user/group own pages
+                "project_name.gitlab.io",
+                NAMESPACE,
+                f"https://{NAMESPACE}.gitlab.io/subpage",
+                False,
+            ),
+            (
+                "project",
+                "group/subgroup",
+                "https://group.gitlab.io/subgroup/project/",
+                True,
+            ),
+            (
+                "project",
+                "group/subgroup",
+                "https://group.gitlab.io/subgroup/project/about",
+                True,
+            ),
+            # The namespace should only contain 1 element
+            ("group.gitlab.io", "group/subgroup", "https://group.gitlab.io/", False),
         ],
     )
-    def test_gitlab_publisher_verify_url(self, url, expected):
+    def test_gitlab_publisher_verify_url(
+        self, project_name: str, namespace: str, url: str, expected: bool
+    ):
+        publisher = gitlab.GitLabPublisher(
+            project=project_name,
+            namespace=namespace,
+            workflow_filepath="workflow_filename.yml",
+            environment="",
+            issuer_url="https://gitlab.com",
+        )
+        assert publisher.verify_url(url) == expected
+
+    @pytest.mark.parametrize("environment", ["", "some-env"])
+    def test_gitlab_publisher_attestation_identity(self, environment):
+        publisher = gitlab.GitLabPublisher(
+            project="project",
+            namespace="group/subgroup",
+            workflow_filepath="workflow_filename.yml",
+            environment=environment,
+            issuer_url="https://gitlab.com",
+        )
+
+        identity = publisher.attestation_identity
+        assert identity is not None
+        assert identity.repository == publisher.project_path
+        assert identity.workflow_filepath == publisher.workflow_filepath
+
+        if not environment:
+            assert identity.environment is None
+        else:
+            assert identity.environment == publisher.environment
+
+    @pytest.mark.parametrize("exists_in_db", [True, False])
+    def test_exists(self, db_request, exists_in_db):
         publisher = gitlab.GitLabPublisher(
             project="repository_name",
             namespace="repository_owner",
-            workflow_filepath="workflow_filename.yml",
+            workflow_filepath="subfolder/worflow_filename.yml",
             environment="",
+            issuer_url="https://gitlab.com",
         )
-        assert publisher.verify_url(url) == expected
+
+        if exists_in_db:
+            db_request.db.add(publisher)
+            db_request.db.flush()
+
+        assert publisher.exists(db_request.db) == exists_in_db
+
+    def test_get_available_issuer_urls_default(self):
+        """By default, there's a single known GitLab issuer URL."""
+        issuer_urls = gitlab.GitLabPublisher.get_available_issuer_urls()
+        assert issuer_urls == ["https://gitlab.com"]
+
+    def test_get_available_issuer_urls_custom(self, db_session):
+        """If a custom GitLab issuer URL is configured for the org, it is included."""
+        org_oidc_issuer = OrganizationOIDCIssuerFactory(issuer_type="gitlab")
+
+        issuer_urls = gitlab.GitLabPublisher.get_available_issuer_urls(
+            org_oidc_issuer.organization
+        )
+
+        assert issuer_urls == ["https://gitlab.com", org_oidc_issuer.issuer_url]
+
+    def test_get_available_issuer_urls_multiple_custom(self, db_session):
+        """
+        If multiple custom GitLab issuer URLs are configured for the org,
+        they are all included, and sorted alphabetically after the default.
+        """
+        org_oidc_issuer1 = OrganizationOIDCIssuerFactory(
+            issuer_type="gitlab", issuer_url="https://zzz.example.com"
+        )
+        org_oidc_issuer2 = OrganizationOIDCIssuerFactory(
+            organization=org_oidc_issuer1.organization,
+            issuer_type="gitlab",
+            issuer_url="https://aaa.example.com",
+        )
+
+        issuer_urls = gitlab.GitLabPublisher.get_available_issuer_urls(
+            org_oidc_issuer1.organization
+        )
+
+        assert issuer_urls == [
+            "https://gitlab.com",
+            org_oidc_issuer2.issuer_url,
+            org_oidc_issuer1.issuer_url,
+        ]
+
+    def test_get_available_issuer_urls_custom_non_gitlab(self, db_session):
+        """
+        If a custom OIDC issuer URL of a different type is configured for the org,
+        it is not included.
+        """
+        org_oidc_issuer = OrganizationOIDCIssuerFactory(issuer_type="github")
+
+        issuer_urls = gitlab.GitLabPublisher.get_available_issuer_urls(
+            org_oidc_issuer.organization
+        )
+
+        assert issuer_urls == ["https://gitlab.com"]
 
 
 class TestPendingGitLabPublisher:
@@ -659,3 +990,13 @@ class TestPendingGitLabPublisher:
         # it is returned and the pending publisher is marked for deletion.
         assert existing_publisher == publisher
         assert pending_publisher in db_request.db.deleted
+
+    def test_reify_with_custom_issuer_url(self, db_request):
+        custom_issuer_url = "https://gitlab.custom-domain.com"
+        pending_publisher = PendingGitLabPublisherFactory.create(
+            issuer_url=custom_issuer_url
+        )
+        publisher = pending_publisher.reify(db_request.db)
+
+        assert publisher.issuer_url == custom_issuer_url
+        assert isinstance(publisher, gitlab.GitLabPublisher)

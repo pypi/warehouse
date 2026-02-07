@@ -1,20 +1,10 @@
-{#
- # Licensed under the Apache License, Version 2.0 (the "License");
- # you may not use this file except in compliance with the License.
- # You may obtain a copy of the License at
- #
- # http://www.apache.org/licenses/LICENSE-2.0
- #
- # Unless required by applicable law or agreed to in writing, software
- # distributed under the License is distributed on an "AS IS" BASIS,
- # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- # See the License for the specific language governing permissions and
- # limitations under the License.
--#}
+{# SPDX-License-Identifier: Apache-2.0 -#}
+
 {% extends "admin/base.html" %}
 
 {% import "admin/utils/pagination.html" as pagination %}
 
+{% set perms_admin_projects_write = request.has_permission(Permissions.AdminProjectsWrite) %}
 {% set perms_admin_users_write = request.has_permission(Permissions.AdminUsersWrite) %}
 {% set perms_admin_users_email_write = request.has_permission(Permissions.AdminUsersEmailWrite) %}
 {% set perms_admin_users_account_recovery_write = request.has_permission(Permissions.AdminUsersAccountRecoveryWrite) %}
@@ -97,7 +87,17 @@
             </li>
             <li class="nav-item">
               <a href="#projects" class="nav-link">
-                Projects - Total Owned Size	<span class="float-right badge bg-success">{{ roles | selectattr("role_name", "equalto", "Owner") | sum(attribute="project.total_size") | filesizeformat(binary=True) }}</span>
+                Projects - Total Owned Size	<span class="float-right badge bg-success">{{ user_projects | selectattr("role_name", "equalto", "Owner") | sum(attribute="total_size") | filesizeformat(binary=True) }}</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#organizations" class="nav-link">
+                Organizations <span class="float-right badge bg-info">{{ user.organizations | length }}</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#orgapps" class="nav-link">
+                Org Applications <span class="float-right badge bg-info">{{ user.organization_applications | length }}</span>
               </a>
             </li>
           </ul>
@@ -128,6 +128,12 @@
               <i class="fa-solid fa-toilet-paper"></i> Wipe 2FA and recovery codes
             </button>
             {% endif %}
+            <button type="button" class="btn btn-block btn-warning" data-toggle="modal" data-target="#quarantineAllProjectsModal" {{ "disabled" if not perms_admin_projects_write }}>
+              <i class="icon fa fa-lock"></i> Quarantine all projects & freeze user
+            </button>
+            <button type="button" class="btn btn-block btn-success" data-toggle="modal" data-target="#clearQuarantineAllProjectsModal" {{ "disabled" if not perms_admin_projects_write }}>
+              <i class="icon fa fa-unlock"></i> Clear all projects from quarantine
+            </button>
             <div class="modal fade" id="freezeModal" tabindex="-1" role="dialog">
               <form method="POST" action="{{ request.route_path('admin.user.freeze', username=user.username) }}">
                 <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
@@ -173,7 +179,7 @@
                 </div>
               </form>
             </div>
-<div class="modal fade" id="nukeModal" tabindex="-1" role="dialog">
+            <div class="modal fade" id="nukeModal" tabindex="-1" role="dialog">
               <form method="POST" action="{{ request.route_path('admin.user.delete', username=user.username) }}">
                 <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
                 <div class="modal-dialog" role="document">
@@ -192,11 +198,11 @@
                         This will also delete the following projects and their respective releases:
                       </p>
                       <ul>
-                      {% for project in user.projects %}
+                      {% for project in user_projects %}
                         <li>
                           <a href="{{ request.route_path('admin.project.detail', project_name=project.normalized_name) }}">
                             {{ project.name }}
-                          </a> ({{ project.releases|length }} releases)
+                          </a> ({{ project.releases_count }} releases)
                         </li>
                       {% endfor %}
                       </ul>
@@ -277,6 +283,59 @@
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                         <button type="submit" class="btn btn-danger">Wipe factors</button>
                       </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <!-- Quarantine All Projects Modal -->
+            <div class="modal fade" id="quarantineAllProjectsModal" tabindex="-1" role="dialog">
+              <form method="POST" action="{{ request.route_path('admin.user.quarantine_projects', username=user.username) }}">
+                <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h4 class="modal-title">Quarantine all projects for {{ user.username }}?</h4>
+                      <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p>This will quarantine all projects owned by this user, removing them from public APIs until cleared or removed.</p>
+                      <p>This action is reversible.</p>
+                      <hr>
+                      <p>Enter username '{{ user.username }}' to confirm:</p>
+                      <input type="text" name="username" placeholder="{{ user.username }}" autocomplete="off" autocorrect="off" autocapitalize="off">
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-warning">Quarantine all projects</button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <!-- Clear Quarantine All Projects Modal -->
+            <div class="modal fade" id="clearQuarantineAllProjectsModal" tabindex="-1" role="dialog">
+              <form method="POST" action="{{ request.route_path('admin.user.clear_quarantine_projects', username=user.username) }}">
+                <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h4 class="modal-title">Clear quarantine for all projects for {{ user.username }}?</h4>
+                      <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p>This will clear quarantine for all quarantined projects owned by this user, making them publicly available again.</p>
+                      <hr>
+                      <p>Enter username '{{ user.username }}' to confirm:</p>
+                      <input type="text" name="username" placeholder="{{ user.username }}" autocomplete="off" autocorrect="off" autocapitalize="off">
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-success">Clear quarantine for all projects</button>
+                    </div>
                   </div>
                 </div>
               </form>
@@ -522,33 +581,60 @@
                     <div class="alert alert-danger"><i class="icon fa fa-ban"></i> {{ error }}</div>
                   {% endfor %}
                 {% endif %}
-
-                {% for field in emails_form.emails.entries %}
                 <div class="row">
-                  <div class="col-7">
-                    {{ render_field("Email", field.email, "email-" ~ loop.index0, class="form-control", placeholder="Email", permission=perms_admin_users_email_write)}}
-                  </div>
                   <div class="col">
-                    {{ render_checkbox("Primary", field.primary, "email-primary-" ~ loop.index0, permission=perms_admin_users_email_write)}}
+                    {% for field in emails_form.emails.entries %}
+                      <div class="row">
+                        <div class="col-sm-6">
+                          {{ render_field("Email", field.email, "email-" ~ loop.index0, class="form-control", placeholder="Email", permission=perms_admin_users_email_write) }}
+                        </div>
+                        <div class="col-sm">
+                          {{ render_checkbox("Primary", field.primary, "email-primary-" ~ loop.index0, permission=perms_admin_users_email_write) }}
+                        </div>
+                        <div class="col-sm">
+                          {{ render_checkbox("Verified", field.verified, "email-verified-" ~ loop.index0, permission=perms_admin_users_email_write) }}
+                        </div>
+                        <div class="col-sm">
+                          {{ render_checkbox("Public", field.public, "email-public-" ~ loop.index0, permission=perms_admin_users_email_write) }}
+                        </div>
+                        {% if breached_email_count[field.email.data] %}
+                          <div class="col-sm">Breaches: {{ breached_email_count[field.email.data] }}</div>
+                        {% endif %}
+                        <div class="col-sm">
+                          <div class="btn-group" role="group">
+                            <a href="{{ request.route_path('admin.emails.list', _query={'q': 'to:' + field.email.data}) }}"
+                               class="btn btn-sm btn-info align-content-center"
+                               title="Search emails for this address">
+                              <i class="fa-solid fa-magnifying-glass"></i>
+                            </a>
+                            <button type="button"
+                                    class="btn btn-sm btn-danger"
+                                    data-toggle="modal"
+                                    data-target="#deleteEmail-{{ field.email.id }}">
+                              <i class="fa-solid fa-trash"></i>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-sm">Domain Status: {{ field.domain_last_status.data }}</div>
+                        <div class="col-sm">Last checked: {{ field.domain_last_checked.data }}</div>
+                        <div class="col-sm-2">
+                          <button type="button"
+                                  class="btn btn-sm btn-info"
+                                  data-toggle="modal"
+                                  data-target="#checkEmailDomain-{{ field.email.id }}">Check now</button>
+                        </div>
+                      </div>
+                      {% if field.unverify_reason.data %}
+                        <div class="row">
+                          <div class="col-sm">Unverify Reason: <i class="fa fa-times text-red"></i> {{ field.unverify_reason.data.value }}</div>
+                        </div>
+                      {% endif %}
+                      {% if not loop.last %}<hr />{% endif %}
+                    {% endfor %}
                   </div>
-                  <div class="col">
-                    {{ render_checkbox("Verified", field.verified, "email-verified-" ~ loop.index0, permission=perms_admin_users_email_write) }}
-                  </div>
-                  <div class="col">
-                    {{ render_checkbox("Public", field.public, "email-public-" ~ loop.index0, permission=perms_admin_users_email_write) }}
-                  </div>
-                  {% if breached_email_count[field.email.data] %}
-                  <div class="col">
-                    Breaches: {{ breached_email_count[field.email.data] }}
-                  </div>
-                  {% endif %}
-                  {% if field.unverify_reason.data %}
-                  <div class="col">
-                    <i class="fa fa-times text-red"></i> Unverify Reason: {{ field.unverify_reason.data.value }}
-                  </div>
-                  {% endif %}
                 </div>
-                {% endfor %}
               </div>
 
               <div class="card-footer">
@@ -562,10 +648,10 @@
             </div>
           </form>
 
-          <div class="card-header with-border">
-            <h3 class="card-title">Add a new email</h3>
-          </div>
           <div class="card">
+            <div class="card-header with-border">
+              <h3 class="card-title">Add a new email</h3>
+            </div>
             <form class="form-horizontal" method="POST" action="{{ request.route_path('admin.user.add_email', username=user.username) }}">
               <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
 
@@ -577,16 +663,16 @@
                 {% endif %}
 
                 <div class="row">
-                  <div class="col-6">
+                  <div class="col-sm-7">
                     {{ render_field("Email", add_email_form.email, "email", class="form-control", placeholder="Email", permission=perms_admin_users_email_write)}}
                   </div>
-                  <div class="col">
+                  <div class="col-sm">
                     {{ render_checkbox("Primary", add_email_form.primary, "email-primary", permission=perms_admin_users_email_write)}}
                   </div>
-                  <div class="col">
+                  <div class="col-sm">
                     {{ render_checkbox("Verified", add_email_form.verified, "email-verified", permission=perms_admin_users_email_write) }}
                   </div>
-                  <div class="col">
+                  <div class="col-sm">
                     {{ render_checkbox("Public", add_email_form.public, "email-public", permission=perms_admin_users_email_write) }}
                   </div>
                 </div>
@@ -598,10 +684,10 @@
                     <button type="submit" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not perms_admin_users_email_write }}" {{ "disabled" if not perms_admin_users_email_write }}>Submit</button>
                   </div>
                 </div>
-              </div>
+              </div> <!-- .card-footer -->
             </form>
           </div>
-        </div>
+        </div> <!-- .card -->
       </div> <!-- .card -->
 
       <div class="card">
@@ -647,25 +733,141 @@
           </div>
         </div>
         {% endif %}
-        {% if user.has_recovery_codes %}
-        <div>
-          <div class="card-header with-border">
-            <h3 class="card-title">Recovery codes</h3>
-          </div>
-          <div class="card-body">
-            <table class="table table-hover">
-              <tr>
-                <th>Generated</th>
-                <th>Remaining</th>
-              </tr>
-              <tr>
-                <td>{{ user.recovery_codes[0].generated }}</td>
-                <td>{{ user.recovery_codes.filter_by(burned=None).all()|length }}</td>
-              </tr>
-            </table>
-          </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Recovery codes</h3>
         </div>
-        {% endif %}
+        <div class="card-body">
+          {% if user.has_recovery_codes %}
+          <table class="table table-hover">
+            <tr>
+              <th>Generated</th>
+              <th>Remaining</th>
+            </tr>
+            <tr>
+              <td>{{ user.recovery_codes[0].generated }}</td>
+              <td>{{ user.recovery_codes.filter_by(burned=None).all()|length }}</td>
+            </tr>
+          </table>
+          <form method="POST" action="{{ request.route_path('admin.user.burn_recovery_codes', username=user.username) }}">
+            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+            <div class="card">
+              <div class="card-header with-border">
+                <h3 class="card-title">Burn leaked recovery codes</h3>
+              </div>
+              <div class="card-body">
+                <textarea name="to_burn"
+                          placeholder="One or more leaked recovery codes for this user, separated by whitespace or newlines"
+                          class="form-control"
+                ></textarea>
+              </div>
+              <div class="card-footer">
+                <div class="form-group">
+                  <div class="col-sm-offset-10 col-sm-2">
+                    <button type="submit" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not perms_admin_users_email_write }}" {{ "disabled" if not perms_admin_users_email_write }}>Submit</button>
+                  </div>
+                </div>
+              </div> <!-- .card-footer -->
+            </div> <!-- .card -->
+          </form>
+          {% else %}
+          No recovery codes configured.
+          {% endif %}
+        </div> <!-- .card-body -->
+      </div> <!-- .card -->
+
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Account Associations</h3>
+        </div>
+        <div class="card-body">
+          {% if user.account_associations %}
+          <table class="table table-hover" id="account-associations">
+            <thead>
+              <tr>
+                <th scope="col">Service</th>
+                <th scope="col">External Account</th>
+                <th scope="col">External ID</th>
+                <th scope="col">Connected</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for association in user.account_associations %}
+              <tr>
+                <td>
+                  {% if association.service == 'github' %}
+                  <i class="fa-brands fa-github"></i> GitHub
+                  {% else %}
+                  {{ association.service }}
+                  {% endif %}
+                </td>
+                <td>
+                  {% if association.service == 'github' %}
+                  <a href="https://github.com/{{ association.external_username }}" target="_blank" rel="noopener">
+                    {{ association.external_username }}
+                  </a>
+                  {% else %}
+                  {{ association.external_username }}
+                {% endif %}
+                </td>
+                <td><code>{{ association.external_user_id }}</code></td>
+                <td>{{ association.created|format_datetime() }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          No account associations configured.
+          {% endif %}
+        </div>
+      </div> <!-- .card -->
+
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Invitations</h3>
+        </div>
+
+        <div class="card-body">
+          {% if user.role_invitations or user.organization_invitations %}
+          <table id="invitations" class="table table-hover">
+            <thead>
+              <tr>
+                <th scope="col" class="token">Type</th>
+                <th scope="col" class="target">Target</th>
+                <th scope="col" class="status">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for invitation in user.organization_invitations %}
+              <tr>
+                <td>Organization</td>
+                <td>
+                  <a href="{{ request.route_path('admin.organization.detail', organization_id=invitation.organization.id) }}">
+                    {{ invitation.organization.name }}
+                  </a>
+                </td>
+                <td>{{ invitation.invite_status.value }}</td>
+              </tr>
+              {% endfor %}
+              {% for invitation in user.role_invitations %}
+              <tr>
+                <td>Project</td>
+                <td>
+                  <a href="{{ request.route_path('admin.project.detail', project_name=invitation.project.normalized_name) }}">
+                    {{ invitation.project.name }}
+                  </a>
+                </td>
+                <td>{{ invitation.invite_status.value }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          No Invitations.
+          {% endif %}
+        </div>
       </div> <!-- .card -->
 
       <div class="card">
@@ -674,6 +876,7 @@
         </div>
 
         <div class="card-body">
+          {% if user.macaroons %}
           <table id="api-tokens" class="table table-hover">
             <thead>
               <tr>
@@ -702,34 +905,11 @@
               {% endfor %}
             </tbody>
           </table>
+          {% else %}
+          No API tokens configured.
+          {% endif %}
         </div>
       </div> <!-- .card -->
-
-      {% if user.role_invitations %}
-      <div class="card">
-        <div class="card-header with-border">
-          <h3 class="card-title">Project Invitations</h3>
-        </div>
-
-        <div class="card-body">
-          <table class="table table-hover" id="projects">
-            <thead>
-              <tr>
-                <th>Project Name</th>
-              </tr>
-            </thead>
-            <tbody>
-            {% for invitation in user.role_invitations %}
-              <tr>
-                <td><a href="{{ request.route_path('admin.project.detail', project_name=invitation.project.normalized_name) }}">{{ invitation.project.name }}</a></td>
-              </tr>
-            {% endfor %}
-            </tbody>
-          </table>
-        </div>
-
-      </div> <!-- .card -->
-      {% endif %}
 
       <div class="card">
         <div class="card-header with-border">
@@ -737,6 +917,7 @@
         </div>
 
         <div class="card-body">
+          {% if roles %}
           <table class="table table-hover" id="projects">
             <thead>
               <tr>
@@ -746,42 +927,20 @@
               </tr>
             </thead>
             <tbody>
-            {% for role in roles %}
+            {% for project in user_projects %}
               <tr>
-                <td><a href="{{ request.route_path('admin.project.detail', project_name=role.project.normalized_name) }}">{{ role.project.name }}</a></td>
-                <td>{{ role.role_name }}</td>
-                <td>{{ role.project.total_size | filesizeformat(binary=True) }}</td>
+                <td><a href="{{ request.route_path('admin.project.detail', project_name=project.normalized_name) }}">{{ project.name }}</a></td>
+                <td>{{ project.role_name }}</td>
+                <td>{{ project.total_size | filesizeformat(binary=True) }}</td>
               </tr>
             {% endfor %}
             </tbody>
           </table>
+          {% else %}
+          No roles available.
+          {% endif %}
         </div>
       </div> <!-- .card -->
-
-      {% if user.organization_invitations %}
-      <div class="card">
-        <div class="card-header with-border">
-          <h3 class="card-title">Organization Invitations</h3>
-        </div>
-
-        <div class="card-body">
-          <table class="table table-hover" id="organization-invitations">
-            <thead>
-              <tr>
-                <th>Organization Name</th>
-              </tr>
-            </thead>
-            <tbody>
-            {% for invitation in user.organization_invitations %}
-              <tr>
-                <td><a href="{{ request.route_path('admin.organization.detail', organization_id=invitation.organization.id) }}">{{ invitation.organization.name }}</a></td>
-              </tr>
-            {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div> <!-- .card -->
-      {% endif %}
 
       {% if user.organizations %}
       <div class="card">
@@ -809,6 +968,32 @@
         </div>
       </div> <!-- .card -->
       {% endif %}
+
+      {% if user.organization_applications %}
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Organization Applications</h3>
+        </div>
+
+        <div class="card-body">
+          <table class="table table-hover" id="orgapps">
+            <thead>
+              <tr>
+                <th>Organization Application Name</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for application in user.organization_applications %}
+              <tr>
+                <td><a href="{{ request.route_path('admin.organization_application.detail', organization_application_id=application.id) }}">{{ application.name }}</a></td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div> <!-- .card -->
+      {% endif %}
+
 
       <div class="card">
         <div class="card-header with-border">
@@ -851,6 +1036,53 @@
 
       <div class="card">
         <div class="card-header with-border">
+          <h3 class="card-title">Unique logins</h3>
+        </div>
+
+        <div class="card-body">
+          {% if user.unique_logins %}
+          <div class="table-responsive p-0">
+            <table class="table table-hover" id="pending-oidc-publishers">
+              <thead>
+                <tr>
+                  <th scope="col">Created</th>
+                  <th scope="col">IP address</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Expired?</th>
+                  <th scope="col">Device Information</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for login in user.unique_logins %}
+                <tr>
+                  <td>{{ login.created }}</td>
+                  <td><a href="{{ request.route_path('admin.ip_address.detail', ip_address=login.ip_address ) }}">{{ login.ip_address }}</a></td>
+                  <td>{{ login.status.value }}</td>
+                  <td>
+                    {% if login.status.value == 'pending' %}
+                      {% if login.expires < now(tz=True) %}
+                      <span title="Expired: {{ login.expires|format_datetime }}">🔴</span>
+                      {% else %}
+                      <span title="Expires: {{ login.expires|format_datetime }}">🟠</span>
+                      {% endif %}
+                    {% elif login.status.value == 'confirmed' %}
+                    <span title="Confirmed">🟢</span>
+                    {% endif %}
+                  </td>
+                  <td>{{ login.device_information }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          No known logins.
+          {% endif %}
+        </div>
+      </div> <!-- .card -->
+
+      <div class="card">
+        <div class="card-header with-border">
           <h3 class="card-title">Account activity</h3>
         </div>
         <div class="card-body">
@@ -883,10 +1115,42 @@
         </div>
       </div> <!-- .card -->
 
+    {% if user.observations %}
+      <div class="card card-warning card-outline">
+        <div class="card-header with-border">
+          <h3 class="card-title">Observations about <code>{{ user.username }}</code></h3>
+        </div>
+        <div class="card-body">
+          <table id="user_observations" class="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th scope="col" class="time">Time</th>
+                <th scope="col" class="related">Related</th>
+                <th scope="col" class="kind">Kind</th>
+                <th scope="col" class="summary">Summary</th>
+                <th scope="col" class="payload">Payload</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for observation in user.observations %}
+              <tr>
+                <td>{{ observation.created }}</td>
+                <td>{{ observation.related }}</td>
+                <td>{{ observation.kind_display }}</td>
+                <td>{{ observation.summary }}</td>
+                <td>{{ observation.payload }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div> <!-- .card -->
+    {% endif %}
+
     {% if user.observer.observations %}
       <div class="card">
         <div class="card-header with-border">
-          <h3 class="card-title">Observations</h3>
+          <h3 class="card-title">Admin-submitted Observations</h3>
         </div>
         <div class="card-body">
           <table id="observations" class="table table-striped table-hover">
@@ -952,4 +1216,70 @@
 
     </div>
   </div>
+  {% for email in emails_form.emails.entries %}
+    <div class="modal fade"
+         id="checkEmailDomain-{{ email.id }}-email"
+         tabindex="-1"
+         role="dialog">
+      <form method="POST"
+            action="{{ request.route_path('admin.user.email_domain_check', username=user.username, email_address=email.email) }}">
+        <input name="csrf_token"
+               type="hidden"
+               value="{{ request.session.get_csrf_token() }}">
+        <input name="email_address" type="hidden" value="{{ email.email.data }}">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title" id="checkDomainStatusModalLabel">Check domain status?</h4>
+              <button type="button" class="close" data-dismiss="modal">
+                <span>&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <p>Perform a domain status lookup check and update the database with the results.</p>
+              <p>Check domain for email address:</p>
+              <code>{{ email.email.data }}</code>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-info">Check domain</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="modal fade"
+         id="deleteEmail-{{ email.id }}-email"
+          tabindex="-1"
+          role="dialog">
+      <form method="POST"
+            action="{{ request.route_path('admin.user.delete_email', username=user.username, email_address=email.email.data) }}">
+        <input name="csrf_token"
+               type="hidden"
+               value="{{ request.session.get_csrf_token() }}">
+        <input name="email_address" type="hidden" value="{{ email.email.data }}">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title" id="deleteEmailModalLabel">Delete email?</h4>
+              <button type="button" class="close" data-dismiss="modal">
+                <span>&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <p>Are you sure you want to delete this email address?</p>
+              <p>Email address:</p>
+              <code>{{ email.email.data }}</code>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-danger">Delete</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+  {% endfor %}
 {% endblock %}

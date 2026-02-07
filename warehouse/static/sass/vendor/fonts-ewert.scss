@@ -1,0 +1,12 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+// Ewert - Display font for 404 page only
+
+@use "@fontsource/ewert/scss/mixins" as ewert with (
+  $directory: "~@fontsource/ewert/files"
+);
+
+@include ewert.faces(
+  $weights: (400),
+  $styles: (normal)
+);

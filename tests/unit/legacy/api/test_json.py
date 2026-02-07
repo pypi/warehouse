@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import pretend
 import pytest
@@ -137,11 +127,7 @@ class TestJSONProject:
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
 
-        name = project.name.lower()
-        if name == project.normalized_name:
-            name = project.name.upper()
-
-        db_request.matchdict = {"name": name}
+        db_request.matchdict = {"name": project.name.swapcase()}
         db_request.current_route_path = pretend.call_recorder(
             lambda name: "/project/the-redirect/"
         )
@@ -251,6 +237,8 @@ class TestJSONProject:
                 "home_page": None,
                 "keywords": None,
                 "license": None,
+                "license_expression": None,
+                "license_files": None,
                 "maintainer": None,
                 "maintainer_email": None,
                 "name": project.name,
@@ -608,11 +596,7 @@ class TestJSONProjectSlash:
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
 
-        name = project.name.lower()
-        if name == project.normalized_name:
-            name = project.name.upper()
-
-        db_request.matchdict = {"name": name}
+        db_request.matchdict = {"name": project.name.swapcase()}
         db_request.current_route_path = pretend.call_recorder(
             lambda name: "/project/the-redirect/"
         )
@@ -687,14 +671,12 @@ class TestReleaseFactory:
 
 class TestJSONRelease:
     def test_normalizing_redirects(self, db_request):
-        project = ProjectFactory.create()
-        release = ReleaseFactory.create(project=project, version="3.0")
+        release = ReleaseFactory.create(version="3.0")
 
-        name = release.project.name.lower()
-        if name == release.project.normalized_name:
-            name = release.project.name.upper()
-
-        db_request.matchdict = {"name": name, "version": "3.0"}
+        db_request.matchdict = {
+            "name": release.project.name.swapcase(),
+            "version": "3.0",
+        }
         db_request.current_route_path = pretend.call_recorder(
             lambda name: "/project/the-redirect/3.0/"
         )
@@ -814,6 +796,8 @@ class TestJSONRelease:
                 "home_page": None,
                 "keywords": None,
                 "license": None,
+                "license_expression": None,
+                "license_files": None,
                 "maintainer": None,
                 "maintainer_email": None,
                 "name": project.name,
@@ -911,6 +895,8 @@ class TestJSONRelease:
                 "home_page": None,
                 "keywords": None,
                 "license": None,
+                "license_expression": None,
+                "license_files": None,
                 "maintainer": None,
                 "maintainer_email": None,
                 "name": project.name,
@@ -995,14 +981,12 @@ class TestJSONRelease:
 
 class TestJSONReleaseSlash:
     def test_normalizing_redirects(self, db_request):
-        project = ProjectFactory.create()
-        release = ReleaseFactory.create(project=project, version="3.0")
+        release = ReleaseFactory.create(version="3.0")
 
-        name = release.project.name.lower()
-        if name == release.project.normalized_name:
-            name = release.project.name.upper()
-
-        db_request.matchdict = {"name": name, "version": "3.0"}
+        db_request.matchdict = {
+            "name": release.project.name.swapcase(),
+            "version": "3.0",
+        }
         db_request.current_route_path = pretend.call_recorder(
             lambda name: "/project/the-redirect/3.0/"
         )

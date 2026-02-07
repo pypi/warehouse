@@ -1,37 +1,32 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import TYPE_CHECKING, Any, TypedDict, TypeVar, Unpack
+from typing import TYPE_CHECKING, Any, Self, TypedDict, TypeVar, Unpack
+from uuid import UUID
 
 import rfc3986
 import sentry_sdk
 
-from sigstore.verify.policy import VerificationPolicy
-from sqlalchemy import ForeignKey, String, orm
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import ForeignKey, Index, String, UniqueConstraint, func, orm
 from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
 from warehouse.oidc.errors import InvalidPublisherError, ReusedTokenError
 from warehouse.oidc.interfaces import SignedClaims
+from warehouse.oidc.urls import verify_url_from_reference
 
 if TYPE_CHECKING:
+    from pypi_attestations import Publisher
+    from sqlalchemy.orm import Session
+
     from warehouse.accounts.models import User
     from warehouse.macaroons.models import Macaroon
     from warehouse.oidc.services import OIDCPublisherService
+    from warehouse.organizations.models import Organization
     from warehouse.packaging.models import Project
+
 
 C = TypeVar("C")
 
@@ -84,7 +79,7 @@ def check_claim_invariant(value: C) -> CheckClaimCallable[C]:
 
 def check_existing_jti(
     _ground_truth,
-    signed_claim,
+    signed_claim: str,
     _all_signed_claims,
     **kwargs: Unpack[CheckNamedArguments],
 ) -> bool:
@@ -104,15 +99,14 @@ def check_existing_jti(
 
 class OIDCPublisherProjectAssociation(db.Model):
     __tablename__ = "oidc_publisher_project_association"
+    __table_args__ = (UniqueConstraint("oidc_publisher_id", "project_id"),)
 
-    oidc_publisher_id = mapped_column(
-        UUID(as_uuid=True),
+    oidc_publisher_id: Mapped[UUID] = mapped_column(
         ForeignKey("oidc_publishers.id"),
         nullable=False,
         primary_key=True,
     )
-    project_id = mapped_column(
-        UUID(as_uuid=True),
+    project_id: Mapped[UUID] = mapped_column(
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
         primary_key=True,
@@ -128,7 +122,7 @@ class OIDCPublisherMixin:
     # Each hierarchy of OIDC publishers (both `OIDCPublisher` and
     # `PendingOIDCPublisher`) use a `discriminator` column for model
     # polymorphism, but the two are not mutually polymorphic at the DB level.
-    discriminator = mapped_column(String)
+    discriminator: Mapped[str | None] = mapped_column(String)
 
     # A map of claim names to "check" functions, each of which
     # has the signature `check(ground-truth, signed-claim, all-signed-claims) -> bool`.
@@ -159,32 +153,15 @@ class OIDCPublisherMixin:
     # required and optional attributes, and thus can't be naively looked
     # up from a raw claim set.
     #
-    # Each subclass should explicitly override this list to contain
-    # class methods that take a `SignedClaims` and return a SQLAlchemy
-    # expression that, when queried, should produce exactly one or no result.
-    # This list should be ordered by specificity, e.g. selecting for the
-    # expression with the most optional constraints first, and ending with
-    # the expression with only required constraints.
+    # Each subclass should explicitly override this method, which takes
+    # a set of claims (`SignedClaims`) and returns a Publisher.
+    # In case that multiple publishers satisfy the given claims, the
+    # most specific publisher should be the one returned, i.e. the one with
+    # the most optional constraints satisfied.
     #
-    # TODO(ww): In principle this list is computable directly from
-    # `__required_verifiable_claims__` and `__optional_verifiable_claims__`,
-    # but there are a few problems: those claim sets don't map to their
-    # "equivalent" column (only to an instantiated property), and may not
-    # even have an "equivalent" column.
-    __lookup_strategies__: list = []
-
     @classmethod
-    def lookup_by_claims(cls, session, signed_claims: SignedClaims):
-        for lookup in cls.__lookup_strategies__:
-            query = lookup(cls, signed_claims)
-            if not query:
-                # We might not build a query if we know the claim set can't
-                # satisfy it. If that's the case, then we skip.
-                continue
-
-            if publisher := query.with_session(session).one_or_none():
-                return publisher
-        raise InvalidPublisherError("All lookup strategies exhausted")
+    def lookup_by_claims(cls, session: Session, signed_claims: SignedClaims) -> Self:
+        raise NotImplementedError
 
     @classmethod
     def all_known_claims(cls) -> set[str]:
@@ -241,13 +218,13 @@ class OIDCPublisherMixin:
                 with sentry_sdk.new_scope() as scope:
                     scope.fingerprint = [claim_name]
                     sentry_sdk.capture_message(
-                        f"JWT for {cls.__name__} is missing claim: " f"{claim_name}"
+                        f"JWT for {cls.__name__} is missing claim: {claim_name}"
                     )
                 raise InvalidPublisherError(f"Missing claim {claim_name!r}")
 
     def verify_claims(
         self, signed_claims: SignedClaims, publisher_service: OIDCPublisherService
-    ):
+    ) -> bool:
         """
         Given a JWT that has been successfully decoded (checked for a valid
         signature and basic claims), verify it against the more specific
@@ -309,24 +286,14 @@ class OIDCPublisherMixin:
         raise NotImplementedError
 
     @property
-    def supports_attestations(self) -> bool:
+    def attestation_identity(self) -> Publisher | None:
         """
-        Returns whether or not this kind of publisher supports attestations.
+        Returns an appropriate attestation verification identity, if this
+        kind of publisher supports attestations.
 
         Concrete subclasses should override this upon adding attestation support.
         """
-        return False
-
-    def publisher_verification_policy(
-        self, claims: SignedClaims
-    ) -> VerificationPolicy:  # pragma: no cover
-        """
-        Get the policy used to verify attestations signed with this publisher.
-        NOTE: This is **NOT** a `@property` because we pass `claims` to it.
-        When calling, make sure to use `publisher_verification_policy()`
-        """
-        # Only concrete subclasses are constructed.
-        raise NotImplementedError
+        return None
 
     def stored_claims(
         self, claims: SignedClaims | None = None
@@ -363,24 +330,29 @@ class OIDCPublisherMixin:
             # Currently this only applies to the Google provider
             return False
         publisher_uri = rfc3986.api.uri_reference(self.publisher_base_url).normalize()
-        user_uri = rfc3986.api.uri_reference(url).normalize()
         if publisher_uri.path is None:
             # Currently no Trusted Publishers with a `publisher_base_url` have an empty
             # path component, so we defensively fail verification.
             return False
-        elif user_uri.path and publisher_uri.path:
-            is_subpath = (
-                publisher_uri.path == user_uri.path
-                or user_uri.path.startswith(publisher_uri.path + "/")
-            )
-        else:
-            is_subpath = publisher_uri.path == user_uri.path
-
-        return (
-            publisher_uri.scheme == user_uri.scheme
-            and publisher_uri.authority == user_uri.authority
-            and is_subpath
+        return verify_url_from_reference(
+            reference_url=self.publisher_base_url,
+            url=url,
         )
+
+    def exists(self, session: Session) -> bool:  # pragma: no cover
+        """
+        Check if the publisher exists in the database
+        """
+        # Only concrete subclasses are constructed.
+        raise NotImplementedError
+
+    @property
+    def admin_details(self) -> list[tuple[str, str]]:
+        """
+        Returns a list of (label, value) tuples for display in admin interface.
+        Each publisher should override this to provide its configuration details.
+        """
+        return []
 
 
 class OIDCPublisher(OIDCPublisherMixin, db.Model):
@@ -408,18 +380,32 @@ class PendingOIDCPublisher(OIDCPublisherMixin, db.Model):
 
     __tablename__ = "pending_oidc_publishers"
 
-    project_name = mapped_column(String, nullable=False)
-    added_by_id = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True
+    project_name: Mapped[str] = mapped_column(String, nullable=False)
+    added_by_id: Mapped[UUID] = mapped_column(
+        ForeignKey("users.id"), nullable=False, index=True
     )
     added_by: Mapped[User] = orm.relationship(back_populates="pending_oidc_publishers")
+    organization_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("organizations.id"),
+        nullable=True,
+        index=True,
+    )
+    pypi_organization: Mapped[Organization | None] = orm.relationship(
+        back_populates="pending_oidc_publishers"
+    )
 
+    __table_args__ = (
+        Index(
+            "pending_project_name_ultranormalized",
+            func.ultranormalize_name(project_name),
+        ),
+    )
     __mapper_args__ = {
         "polymorphic_identity": "pending_oidc_publishers",
         "polymorphic_on": OIDCPublisherMixin.discriminator,
     }
 
-    def reify(self, session):  # pragma: no cover
+    def reify(self, session: Session) -> OIDCPublisher:  # pragma: no cover
         """
         Return an equivalent "normal" OIDC publisher model for this pending publisher,
         deleting the pending publisher in the process.

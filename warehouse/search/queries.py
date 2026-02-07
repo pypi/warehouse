@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import re
 
@@ -72,11 +62,25 @@ def get_opensearch_query(opensearch, terms, order, classifiers):
         query = opensearch.query(classifier_q) if classifiers else opensearch.query()
     else:
         quoted_string, unquoted_string = filter_query(terms)
+
+        # Build the main content-matching query
+        content_queries = (
+            [form_query("phrase", i) for i in quoted_string]
+            + [form_query("best_fields", i) for i in unquoted_string]
+            + ([classifier_q] if classifiers else [])
+        )
+
+        # Boost packages where the search terms appear as an exact phrase in
+        # the name. This ensures that searching for "flask" returns the "flask"
+        # package before "flask-ci", and "python2" returns "python2" before
+        # "python2-hwloc". The high boost value ensures exact matches rank
+        # significantly higher than partial matches.
+        exact_name_boost = Q("match_phrase", name={"query": terms, "boost": 1000})
+
         bool_query = Q(
             "bool",
-            must=[form_query("phrase", i) for i in quoted_string]
-            + [form_query("best_fields", i) for i in unquoted_string]
-            + ([classifier_q] if classifiers else []),
+            must=content_queries,
+            should=[exact_name_boost],
         )
 
         # Allow to optionally match on prefix

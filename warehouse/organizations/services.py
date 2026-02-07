@@ -1,32 +1,25 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
+import datetime
+
+from psycopg.errors import UniqueViolation
 from sqlalchemy import delete, func, orm, select
 from sqlalchemy.exc import NoResultFound
 from zope.interface import implementer
 
-from warehouse.accounts.interfaces import IUserService
-from warehouse.accounts.models import User
+from warehouse.accounts.models import TermsOfServiceEngagement, User
 from warehouse.email import (
-    send_admin_new_organization_approved_email,
-    send_admin_new_organization_declined_email,
     send_new_organization_approved_email,
     send_new_organization_declined_email,
+    send_new_organization_moreinformationneeded_email,
 )
 from warehouse.events.tags import EventTag
+from warehouse.observations.models import ObservationKind
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
     OrganizationApplication,
+    OrganizationApplicationStatus,
     OrganizationInvitation,
     OrganizationInvitationStatus,
     OrganizationNameCatalog,
@@ -35,6 +28,7 @@ from warehouse.organizations.models import (
     OrganizationRoleType,
     OrganizationStripeCustomer,
     OrganizationStripeSubscription,
+    OrganizationTermsOfServiceEngagement,
     Team,
     TeamProjectRole,
     TeamRole,
@@ -87,7 +81,10 @@ class DatabaseOrganizationService:
         if submitted_by is not None:
             query = query.filter(OrganizationApplication.submitted_by == submitted_by)
         if undecided is True:
-            query = query.filter(OrganizationApplication.is_approved.is_(None))
+            query = query.filter(
+                OrganizationApplication.status
+                == (OrganizationApplicationStatus.Submitted)
+            )
         return query.order_by(OrganizationApplication.normalized_name).all()
 
     def find_organizationid(self, name):
@@ -126,7 +123,15 @@ class DatabaseOrganizationService:
         )
 
     def add_organization_application(
-        self, name, display_name, orgtype, link_url, description, submitted_by
+        self,
+        name,
+        display_name,
+        orgtype,
+        link_url,
+        description,
+        usage,
+        membership_size,
+        submitted_by,
     ):
         """
         Accepts organization application details, creates an OrganizationApplication
@@ -138,6 +143,8 @@ class DatabaseOrganizationService:
             orgtype=orgtype,
             link_url=link_url,
             description=description,
+            usage=usage,
+            membership_size=membership_size,
             submitted_by=submitted_by,
         )
         self.db.add(organization_application)
@@ -148,8 +155,6 @@ class DatabaseOrganizationService:
         """
         Performs operations necessary to approve an OrganizationApplication
         """
-        user_service = request.find_service(IUserService, context=None)
-
         organization_application = self.get_organization_application(
             organization_application_id
         )
@@ -161,7 +166,6 @@ class DatabaseOrganizationService:
             link_url=organization_application.link_url,
             description=organization_application.description,
             is_active=True,
-            is_approved=True,
         )
         self.db.add(organization)
         organization.record_event(
@@ -174,7 +178,7 @@ class DatabaseOrganizationService:
         )
         self.db.flush()  # flush the db now so organization.id is available
 
-        organization_application.is_approved = True
+        organization_application.status = OrganizationApplicationStatus.Approved
         organization_application.organization = organization
 
         self.add_catalog_entry(organization.id)
@@ -219,13 +223,6 @@ class DatabaseOrganizationService:
         )
 
         message = request.params.get("message", "")
-        send_admin_new_organization_approved_email(
-            request,
-            user_service.get_admin_user(),
-            organization_name=organization.name,
-            initiator_username=organization_application.submitted_by.username,
-            message=message,
-        )
         send_new_organization_approved_email(
             request,
             organization_application.submitted_by,
@@ -240,25 +237,61 @@ class DatabaseOrganizationService:
 
         return organization
 
+    def defer_organization_application(self, organization_application_id, request):
+        """
+        Performs operations necessary to defer an OrganizationApplication
+        """
+        organization_application = self.get_organization_application(
+            organization_application_id
+        )
+        organization_application.status = OrganizationApplicationStatus.Deferred
+
+        return organization_application
+
+    def request_more_information(self, organization_application_id, request):
+        """
+        Performs operations necessary to request more information of an
+        OrganizationApplication
+        """
+        organization_application = self.get_organization_application(
+            organization_application_id
+        )
+        organization_application.status = (
+            OrganizationApplicationStatus.MoreInformationNeeded
+        )
+
+        message = request.params.get("message", "")
+
+        if not message:
+            raise ValueError
+
+        organization_application.record_observation(
+            request=request,
+            actor=request.user,
+            summary="Organization request needs more information",
+            kind=ObservationKind.InformationRequest,
+            payload={"message": message},
+        )
+        send_new_organization_moreinformationneeded_email(
+            request,
+            organization_application.submitted_by,
+            organization_name=organization_application.name,
+            organization_application_id=organization_application.id,
+            message=message,
+        )
+
+        return organization_application
+
     def decline_organization_application(self, organization_application_id, request):
         """
         Performs operations necessary to decline an OrganizationApplication
         """
-        user_service = request.find_service(IUserService, context=None)
-
         organization_application = self.get_organization_application(
             organization_application_id
         )
-        organization_application.is_approved = False
+        organization_application.status = OrganizationApplicationStatus.Declined
 
         message = request.params.get("message", "")
-        send_admin_new_organization_declined_email(
-            request,
-            user_service.get_admin_user(),
-            organization_name=organization_application.name,
-            initiator_username=organization_application.submitted_by.username,
-            message=message,
-        )
         send_new_organization_declined_email(
             request,
             organization_application.submitted_by,
@@ -288,6 +321,10 @@ class DatabaseOrganizationService:
                 )
                 .one()
             )
+            if catalog_entry.organization_id != organization.id:
+                raise ValueError(
+                    f'Organization name "{organization.normalized_name}" has been used'
+                )
         except NoResultFound:
             self.db.add(catalog_entry)
 
@@ -348,6 +385,11 @@ class DatabaseOrganizationService:
         Delete an organization role for a specified organization role id
         """
         role = self.get_organization_role(organization_role_id)
+
+        for team_role in self.get_organization_team_roles_by_user(
+            role.organization.id, role.user_id
+        ):
+            self.db.delete(team_role)
 
         self.db.delete(role)
 
@@ -474,8 +516,11 @@ class DatabaseOrganizationService:
         organization = self.get_organization(organization_id)
         organization.name = name
 
-        self.db.flush()  # flush db now so organization.normalized_name available
-        self.add_catalog_entry(organization_id)
+        try:
+            self.db.flush()  # flush db now so organization.normalized_name available
+            self.add_catalog_entry(organization_id)
+        except UniqueViolation:
+            raise ValueError(f'Organization name "{name}" has been used')
 
         return organization
 
@@ -533,6 +578,27 @@ class DatabaseOrganizationService:
         )
 
         self.db.delete(organization_project)
+
+    def record_tos_engagement(
+        self,
+        organization_id,
+        revision: str,
+        engagement: TermsOfServiceEngagement,
+    ) -> None:
+        """
+        Add a record of end user being flashed about, notified of, viewing, or agreeing
+        to a terms of service change on behalf of an organization.
+        """
+        if not isinstance(engagement, TermsOfServiceEngagement):
+            raise ValueError(f"{engagement} is not a TermsOfServiceEngagement")
+        self.db.add(
+            OrganizationTermsOfServiceEngagement(
+                organization_id=organization_id,
+                revision=revision,
+                created=datetime.datetime.now(datetime.UTC),
+                engagement=engagement,
+            )
+        )
 
     def get_organization_subscription(self, organization_id, subscription_id):
         """
@@ -643,6 +709,16 @@ class DatabaseOrganizationService:
             .join(TeamRole, TeamRole.team_id == Team.id)
             .filter(TeamRole.user_id == user_id)
             .order_by(Team.name)
+            .all()
+        )
+
+    def get_organization_team_roles_by_user(self, organization_id, user_id):
+        return (
+            self.db.query(TeamRole)
+            .join(Team, Team.id == TeamRole.team_id)
+            .filter(
+                TeamRole.user_id == user_id, Team.organization_id == organization_id
+            )
             .all()
         )
 

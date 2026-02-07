@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 from celery.schedules import crontab
 from sqlalchemy.orm.base import NO_VALUE
@@ -30,9 +20,9 @@ from warehouse.packaging.tasks import (
     check_file_cache_tasks_outstanding,
     compute_2fa_metrics,
     compute_packaging_metrics,
+    compute_top_dependents_corpus,
     update_description_html,
 )
-from warehouse.rate_limiting import IRateLimiter, RateLimit
 
 
 @db.listens_for(User.name, "set")
@@ -85,19 +75,13 @@ def includeme(config):
     project_create_user_limit_string = config.registry.settings.get(
         "warehouse.packaging.project_create_user_ratelimit_string"
     )
-    config.register_service_factory(
-        RateLimit(project_create_user_limit_string),
-        IRateLimiter,
-        name="project.create.user",
+    config.register_rate_limiter(
+        project_create_user_limit_string, "project.create.user"
     )
     project_create_ip_limit_string = config.registry.settings.get(
         "warehouse.packaging.project_create_ip_ratelimit_string"
     )
-    config.register_service_factory(
-        RateLimit(project_create_ip_limit_string),
-        IRateLimiter,
-        name="project.create.ip",
-    )
+    config.register_rate_limiter(project_create_ip_limit_string, "project.create.ip")
 
     config.register_service_factory(project_service_factory, IProjectService)
 
@@ -197,6 +181,5 @@ def includeme(config):
     # Add a periodic task to generate general metrics
     config.add_periodic_task(crontab(minute="*/5"), compute_packaging_metrics)
 
-    # TODO: restore this
-    # if config.get_settings().get("warehouse.release_files_table"):
-    #     config.add_periodic_task(crontab(minute=0), sync_bigquery_release_files)
+    # Add a periodic task to compute dependents corpus once a day
+    config.add_periodic_task(crontab(minute=0, hour=5), compute_top_dependents_corpus)

@@ -1,21 +1,18 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
-from typing import Any
+from __future__ import annotations
 
-from sqlalchemy import ForeignKey, String, UniqueConstraint
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Query, mapped_column
+import typing
 
+from typing import Any, Self
+from uuid import UUID
+
+from more_itertools import first_true
+from pypi_attestations import GooglePublisher as GoogleIdentity, Publisher
+from sqlalchemy import ForeignKey, String, UniqueConstraint, and_, exists
+from sqlalchemy.orm import Mapped, Query, mapped_column
+
+from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.models._core import (
     CheckClaimCallable,
@@ -24,6 +21,12 @@ from warehouse.oidc.models._core import (
     check_claim_binary,
     check_claim_invariant,
 )
+
+if typing.TYPE_CHECKING:
+    from sqlalchemy.orm import Session
+
+
+GOOGLE_OIDC_ISSUER_URL = "https://accounts.google.com"
 
 
 def _check_sub(
@@ -51,8 +54,8 @@ class GooglePublisherMixin:
     providers.
     """
 
-    email = mapped_column(String, nullable=False)
-    sub = mapped_column(String, nullable=True)
+    email: Mapped[str] = mapped_column(String, nullable=False)
+    sub: Mapped[str] = mapped_column(String, nullable=True)
 
     __required_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
         "email": check_claim_binary(str.__eq__),
@@ -65,43 +68,68 @@ class GooglePublisherMixin:
 
     __unchecked_claims__ = {"azp", "google"}
 
-    @staticmethod
-    def __lookup_all__(klass, signed_claims: SignedClaims) -> Query | None:
-        return Query(klass).filter_by(
-            email=signed_claims["email"], sub=signed_claims["sub"]
-        )
+    @classmethod
+    def lookup_by_claims(cls, session: Session, signed_claims: SignedClaims) -> Self:
+        query: Query = Query(cls).filter_by(email=signed_claims["email"])
+        publishers = query.with_session(session).all()
 
-    @staticmethod
-    def __lookup_no_sub__(klass, signed_claims: SignedClaims) -> Query | None:
-        return Query(klass).filter_by(email=signed_claims["email"], sub="")
+        if sub := signed_claims.get("sub"):
+            if specific_publisher := first_true(
+                publishers, pred=lambda p: p.sub == sub
+            ):
+                return specific_publisher
 
-    __lookup_strategies__ = [
-        __lookup_all__,
-        __lookup_no_sub__,
-    ]
+        if general_publisher := first_true(publishers, pred=lambda p: p.sub == ""):
+            return general_publisher
+
+        raise InvalidPublisherError("Publisher with matching claims was not found")
 
     @property
-    def publisher_name(self):
+    def publisher_name(self) -> str:
         return "Google"
 
     @property
-    def publisher_base_url(self):
+    def publisher_base_url(self) -> None:
         return None
 
-    def publisher_url(self, claims=None):
+    def publisher_url(self, claims: SignedClaims | None = None) -> None:
         return None
 
-    def stored_claims(self, claims=None):
+    @property
+    def attestation_identity(self) -> Publisher | None:
+        return GoogleIdentity(email=self.email)
+
+    def stored_claims(self, claims: SignedClaims | None = None) -> dict:
         return {}
 
     @property
-    def email_verified(self):
+    def email_verified(self) -> bool:
         # We don't consider a claim set valid unless `email_verified` is true;
         # no other states are possible.
         return True
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.email
+
+    def exists(self, session: Session) -> bool:
+        return session.query(
+            exists().where(
+                and_(
+                    self.__class__.email == self.email,
+                    self.__class__.sub == self.sub,
+                )
+            )
+        ).scalar()
+
+    @property
+    def admin_details(self) -> list[tuple[str, str]]:
+        """Returns Google publisher configuration details for admin display."""
+        details = [
+            ("Email", self.email),
+        ]
+        if self.sub:
+            details.append(("Subject", self.sub))
+        return details
 
 
 class GooglePublisher(GooglePublisherMixin, OIDCPublisher):
@@ -115,15 +143,13 @@ class GooglePublisher(GooglePublisherMixin, OIDCPublisher):
         ),
     )
 
-    id = mapped_column(
-        UUID(as_uuid=True), ForeignKey(OIDCPublisher.id), primary_key=True
-    )
+    id: Mapped[UUID] = mapped_column(ForeignKey(OIDCPublisher.id), primary_key=True)
 
 
 class PendingGooglePublisher(GooglePublisherMixin, PendingOIDCPublisher):
     __tablename__ = "pending_google_oidc_publishers"
     __mapper_args__ = {"polymorphic_identity": "pending_google_oidc_publishers"}
-    __table_args__ = (
+    __table_args__ = (  # type: ignore[assignment]
         UniqueConstraint(
             "email",
             "sub",
@@ -131,11 +157,11 @@ class PendingGooglePublisher(GooglePublisherMixin, PendingOIDCPublisher):
         ),
     )
 
-    id = mapped_column(
-        UUID(as_uuid=True), ForeignKey(PendingOIDCPublisher.id), primary_key=True
+    id: Mapped[UUID] = mapped_column(
+        ForeignKey(PendingOIDCPublisher.id), primary_key=True
     )
 
-    def reify(self, session):
+    def reify(self, session: Session) -> GooglePublisher:
         """
         Returns a `GooglePublisher` for this `PendingGooglePublisher`,
         deleting the `PendingGooglePublisher` in the process.

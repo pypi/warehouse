@@ -1,14 +1,5 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
+
 from __future__ import annotations
 
 import enum
@@ -34,6 +25,7 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
     cast,
+    event,
     func,
     or_,
     orm,
@@ -45,7 +37,6 @@ from sqlalchemy.dialects.postgresql import (
     CITEXT,
     ENUM,
     REGCLASS,
-    UUID as PG_UUID,
 )
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -65,7 +56,9 @@ from warehouse.accounts.models import User
 from warehouse.attestations.models import Provenance
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
+from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.events.models import HasEvents
+from warehouse.forklift import metadata
 from warehouse.integrations.vulnerabilities.models import VulnerabilityRecord
 from warehouse.observations.models import HasObservations
 from warehouse.organizations.models import (
@@ -79,7 +72,8 @@ from warehouse.organizations.models import (
 from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils import dotted_navigator, wheel
 from warehouse.utils.attrs import make_repr
-from warehouse.utils.db.types import bool_false, datetime_now
+from warehouse.utils.db import orm_session_from_obj
+from warehouse.utils.db.types import bool_false, bool_true, datetime_now
 
 if typing.TYPE_CHECKING:
     from warehouse.oidc.models import OIDCPublisher
@@ -137,7 +131,9 @@ class RoleInvitation(db.Model):
     )
 
     user: Mapped[User] = orm.relationship(lazy=False, back_populates="role_invitations")
-    project: Mapped[Project] = orm.relationship(lazy=False)
+    project: Mapped[Project] = orm.relationship(
+        lazy=False, back_populates="invitations"
+    )
 
 
 class ProjectFactory:
@@ -163,9 +159,20 @@ class ProjectFactory:
             return True
 
 
+class ProjectStatusMarker(enum.StrEnum):
+    """PEP 792 status markers."""
+
+    Active = "active"
+    Archived = "archived"
+    Quarantined = "quarantined"
+    Deprecated = "deprecated"
+
+
 class LifecycleStatus(enum.StrEnum):
     QuarantineEnter = "quarantine-enter"
     QuarantineExit = "quarantine-exit"
+    Archived = "archived"
+    ArchivedNoindex = "archived-noindex"
 
 
 class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
@@ -216,6 +223,10 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
         back_populates="project",
         passive_deletes=True,
     )
+    invitations: Mapped[list[RoleInvitation]] = orm.relationship(
+        back_populates="project",
+        passive_deletes=True,
+    )
     team: Mapped[Team] = orm.relationship(
         secondary=TeamProjectRole.__table__,
         back_populates="projects",
@@ -256,7 +267,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
     )
 
     def __getitem__(self, version):
-        session = orm.object_session(self)
+        session = orm_session_from_obj(self)
         canonical_version = packaging.utils.canonicalize_version(version)
 
         try:
@@ -287,7 +298,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             raise KeyError from None
 
     def __acl__(self):
-        session = orm.object_session(self)
+        session = orm_session_from_obj(self)
         acls = [
             # TODO: Similar to `warehouse.accounts.models.User.__acl__`, we express the
             #       permissions here in terms of the permissions that the user has on
@@ -327,25 +338,39 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             (Allow, Authenticated, Permissions.SubmitMalwareObservation),
         ]
 
-        # The project has zero or more OIDC publishers registered to it,
-        # each of which serves as an identity with the ability to upload releases.
-        for publisher in self.oidc_publishers:
-            acls.append((Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload]))
+        if self.lifecycle_status not in [
+            LifecycleStatus.Archived,
+            LifecycleStatus.ArchivedNoindex,
+        ]:
+            # The project has zero or more OIDC publishers registered to it,
+            # each of which serves as an identity with the ability to upload releases
+            # (only if the project is not archived)
+            for publisher in self.oidc_publishers:
+                acls.append(
+                    (Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload])
+                )
 
         # Get all of the users for this project.
-        query = session.query(Role).filter(Role.project == self)
-        query = query.options(orm.lazyload(Role.project))
-        query = query.options(orm.lazyload(Role.user))
+        user_query = (
+            session.query(Role)
+            .filter(Role.project == self)
+            .options(orm.lazyload(Role.project), orm.lazyload(Role.user))
+        )
         permissions = {
             (role.user_id, "Administer" if role.role_name == "Owner" else "Upload")
-            for role in query.all()
+            for role in user_query.all()
         }
 
         # Add all of the team members for this project.
-        query = session.query(TeamProjectRole).filter(TeamProjectRole.project == self)
-        query = query.options(orm.lazyload(TeamProjectRole.project))
-        query = query.options(orm.lazyload(TeamProjectRole.team))
-        for role in query.all():
+        team_query = (
+            session.query(TeamProjectRole)
+            .filter(TeamProjectRole.project == self)
+            .options(
+                orm.lazyload(TeamProjectRole.project),
+                orm.lazyload(TeamProjectRole.team),
+            )
+        )
+        for role in team_query.all():
             permissions |= {
                 (user.id, "Administer" if role.role_name.value == "Owner" else "Upload")
                 for user in role.team.members
@@ -353,38 +378,44 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
 
         # Add all organization owners for this project.
         if self.organization:
-            query = session.query(OrganizationRole).filter(
-                OrganizationRole.organization == self.organization,
-                OrganizationRole.role_name == OrganizationRoleType.Owner,
+            org_query = (
+                session.query(OrganizationRole)
+                .filter(
+                    OrganizationRole.organization == self.organization,
+                    OrganizationRole.role_name == OrganizationRoleType.Owner,
+                )
+                .options(
+                    orm.lazyload(OrganizationRole.organization),
+                    orm.lazyload(OrganizationRole.user),
+                )
             )
-            query = query.options(orm.lazyload(OrganizationRole.organization))
-            query = query.options(orm.lazyload(OrganizationRole.user))
-            permissions |= {(role.user_id, "Administer") for role in query.all()}
+            permissions |= {(role.user_id, "Administer") for role in org_query.all()}
 
         for user_id, permission_name in sorted(permissions, key=lambda x: (x[1], x[0])):
             # Disallow Write permissions for Projects in quarantine, allow Upload
             if self.lifecycle_status == LifecycleStatus.QuarantineEnter:
-                acls.append(
-                    (
-                        Allow,
-                        f"user:{user_id}",
-                        [Permissions.ProjectsRead, Permissions.ProjectsUpload],
-                    )
-                )
+                current_permissions = [
+                    Permissions.ProjectsRead,
+                    Permissions.ProjectsUpload,
+                ]
             elif permission_name == "Administer":
-                acls.append(
-                    (
-                        Allow,
-                        f"user:{user_id}",
-                        [
-                            Permissions.ProjectsRead,
-                            Permissions.ProjectsUpload,
-                            Permissions.ProjectsWrite,
-                        ],
-                    )
-                )
+                current_permissions = [
+                    Permissions.ProjectsRead,
+                    Permissions.ProjectsUpload,
+                    Permissions.ProjectsWrite,
+                ]
             else:
-                acls.append((Allow, f"user:{user_id}", [Permissions.ProjectsUpload]))
+                current_permissions = [Permissions.ProjectsUpload]
+
+            if self.lifecycle_status in [
+                LifecycleStatus.Archived,
+                LifecycleStatus.ArchivedNoindex,
+            ]:
+                # Disallow upload permissions for archived projects
+                current_permissions.remove(Permissions.ProjectsUpload)
+
+            if current_permissions:
+                acls.append((Allow, f"user:{user_id}", current_permissions))
         return acls
 
     @property
@@ -402,42 +433,36 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
     @property
     def owners(self):
         """Return all users who are owners of the project."""
+        session = orm_session_from_obj(self)
         owner_roles = (
-            orm.object_session(self)
-            .query(User.id)
+            session.query(User.id)
             .join(Role.user)
             .filter(Role.role_name == "Owner", Role.project == self)
             .subquery()
         )
-        return (
-            orm.object_session(self)
-            .query(User)
-            .join(owner_roles, User.id == owner_roles.c.id)
-            .all()
-        )
+        return session.query(User).join(owner_roles, User.id == owner_roles.c.id).all()
 
     @property
     def maintainers(self):
         """Return all users who are maintainers of the project."""
+        session = orm_session_from_obj(self)
         maintainer_roles = (
-            orm.object_session(self)
-            .query(User.id)
+            session.query(User.id)
             .join(Role.user)
             .filter(Role.role_name == "Maintainer", Role.project == self)
             .subquery()
         )
         return (
-            orm.object_session(self)
-            .query(User)
+            session.query(User)
             .join(maintainer_roles, User.id == maintainer_roles.c.id)
             .all()
         )
 
     @property
     def all_versions(self):
+        session = orm_session_from_obj(self)
         return (
-            orm.object_session(self)
-            .query(
+            session.query(
                 Release.version,
                 Release.created,
                 Release.is_prerelease,
@@ -451,13 +476,96 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
 
     @property
     def latest_version(self):
+        session = orm_session_from_obj(self)
         return (
-            orm.object_session(self)
-            .query(Release.version, Release.created, Release.is_prerelease)
+            session.query(
+                Release.version, Release.created, Release.is_prerelease, Release.summary
+            )
             .filter(Release.project == self, Release.yanked.is_(False))
             .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
             .first()
         )
+
+    @property
+    def active_releases(self):
+        return (
+            orm_session_from_obj(self)
+            .query(Release)
+            .filter(Release.project == self, Release.yanked.is_(False))
+            .order_by(Release._pypi_ordering.desc())
+            .all()
+        )
+
+    @property
+    def yanked_releases(self):
+        return (
+            orm_session_from_obj(self)
+            .query(Release)
+            .filter(Release.project == self, Release.yanked.is_(True))
+            .order_by(Release._pypi_ordering.desc())
+            .all()
+        )
+
+    @property
+    def project_status(self) -> ProjectStatusMarker:
+        """
+        Return the PEP 792 project status marker that's equivalent
+        to this project's lifecycle status.
+        """
+
+        if self.lifecycle_status == LifecycleStatus.QuarantineEnter:
+            return ProjectStatusMarker.Quarantined
+        elif self.lifecycle_status in (
+            LifecycleStatus.Archived,
+            LifecycleStatus.ArchivedNoindex,
+        ):
+            return ProjectStatusMarker.Archived
+
+        # PyPI doesn't yet have a deprecated lifecycle status
+        # and "quarantine-exit" means a return to active.
+        return ProjectStatusMarker.Active
+
+    @property
+    def upload_limit_size(self) -> int:
+        """
+        Return the effective file size upload limit for this project.
+
+        Uses the most generous (highest) limit from:
+        - System default (MAX_FILESIZE)
+        - Project-specific limit (if set)
+        - Organization limit (if project belongs to org and org has limit)
+
+        This allows organizations and projects to have higher limits than
+        the system default, with users benefiting from the most generous
+        limit available to them.
+        """
+        limits_to_check = [MAX_FILESIZE, self.upload_limit]
+        if self.organization:
+            limits_to_check.append(self.organization.upload_limit)
+
+        valid_limits = [limit for limit in limits_to_check if limit is not None]
+        return max(valid_limits)
+
+    @property
+    def total_size_limit_value(self) -> int:
+        """
+        Return the effective total size limit for this project.
+
+        Uses the most generous (highest) limit from:
+        - System default (MAX_PROJECT_SIZE)
+        - Project-specific limit (if set)
+        - Organization limit (if project belongs to org and org has limit)
+
+        This allows organizations and projects to have higher limits than
+        the system default, with users benefiting from the most generous
+        limit available to them.
+        """
+        limits_to_check = [MAX_PROJECT_SIZE, self.total_size_limit]
+        if self.organization:
+            limits_to_check.append(self.organization.total_size_limit)
+
+        valid_limits = [limit for limit in limits_to_check if limit is not None]
+        return max(valid_limits)
 
 
 class DependencyKind(enum.IntEnum):
@@ -529,27 +637,7 @@ class ReleaseURL(db.Model):
 
 
 DynamicFieldsEnum = ENUM(
-    "Platform",
-    "Supported-Platform",
-    "Summary",
-    "Description",
-    "Description-Content-Type",
-    "Keywords",
-    "Home-Page",
-    "Download-Url",
-    "Author",
-    "Author-Email",
-    "Maintainer",
-    "Maintainer-Email",
-    "License",
-    "Classifier",
-    "Requires-Dist",
-    "Requires-Python",
-    "Requires-External",
-    "Project-Url",
-    "Provides-Extra",
-    "Provides-Dist",
-    "Obsoletes-Dist",
+    *metadata.DYNAMIC_FIELDS,
     name="release_dynamic_fields",
 )
 
@@ -587,6 +675,14 @@ class Release(HasObservations, db.Model):
     home_page: Mapped[str | None]
     home_page_verified: Mapped[bool_false]
     license: Mapped[str | None]
+    license_expression: Mapped[str | None]
+    license_files: Mapped[list[str] | None] = mapped_column(
+        ARRAY(String),
+        comment=(
+            "Array of license filenames. "
+            "Null indicates no License-File(s) were supplied by the uploader."
+        ),
+    )
     summary: Mapped[str | None]
     keywords: Mapped[str | None]
     keywords_array: Mapped[list[str] | None] = mapped_column(
@@ -602,6 +698,7 @@ class Release(HasObservations, db.Model):
     _pypi_ordering: Mapped[int | None]
     requires_python: Mapped[str | None] = mapped_column(Text)
     created: Mapped[datetime_now] = mapped_column()
+    published: Mapped[bool_true] = mapped_column()
 
     description_id: Mapped[UUID] = mapped_column(
         ForeignKey("release_descriptions.id", onupdate="CASCADE", ondelete="CASCADE"),
@@ -695,7 +792,7 @@ class Release(HasObservations, db.Model):
     uploaded_via: Mapped[str | None]
 
     def __getitem__(self, filename: str) -> File:
-        session: orm.Session = orm.object_session(self)  # type: ignore[assignment]
+        session = orm_session_from_obj(self)
 
         try:
             return (
@@ -716,10 +813,12 @@ class Release(HasObservations, db.Model):
             _urls["Download"] = self.download_url
 
         for name, url in self.project_urls.items():
-            # avoid duplicating homepage/download links in case the same
-            # url is specified in the pkginfo twice (in the Home-page
-            # or Download-URL field and again in the Project-URL fields)
-            comp_name = name.casefold().replace("-", "").replace("_", "")
+            # NOTE: This avoids duplicating the homepage and download URL links
+            # if they're present both as project URLs and as standalone fields.
+            # The deduplication is done with the project label normalization rules
+            # adopted with PEP 753.
+            # See https://peps.python.org/pep-0753/
+            comp_name = metadata.normalize_project_url_label(name)
             if comp_name == "homepage" and url == _urls.get("Homepage"):
                 continue
             if comp_name == "downloadurl" and url == _urls.get("Download"):
@@ -749,7 +848,7 @@ class Release(HasObservations, db.Model):
         return _urls
 
     def verified_user_name_and_repo_name(
-        self, domains: set[str], reserved_names: typing.Sequence[str] | None = None
+        self, domains: set[str], reserved_names: typing.Collection[str] | None = None
     ):
         for _, url in self.urls_by_verify_status(verified=True).items():
             try:
@@ -912,12 +1011,10 @@ class File(HasEvents, db.Model):
         return (
             self.events.where(
                 or_(
-                    self.Event.additional[  # type: ignore[attr-defined]
+                    self.Event.additional[
                         "uploaded_via_trusted_publisher"
                     ].as_boolean(),
-                    self.Event.additional["publisher_url"]  # type: ignore[attr-defined]
-                    .as_string()
-                    .is_not(None),
+                    self.Event.additional["publisher_url"].as_string().is_not(None),
                 )
             ).count()
             > 0
@@ -939,6 +1036,10 @@ class File(HasEvents, db.Model):
     def pretty_wheel_tags(self) -> list[str]:
         return wheel.filename_to_pretty_tags(self.filename)
 
+    @property
+    def wheel_filters(self):
+        return wheel.filename_to_filters(self.filename)
+
 
 class Filename(db.ModelBase):
     __tablename__ = "file_registry"
@@ -959,7 +1060,6 @@ class ReleaseClassifiers(db.ModelBase):
         primary_key=True,
     )
     release_id: Mapped[UUID] = mapped_column(
-        PG_UUID,
         ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),
         primary_key=True,
     )
@@ -976,6 +1076,19 @@ class JournalEntry(db.ModelBase):
             Index("journals_version_idx", "version"),
             Index("journals_submitted_by_idx", "submitted_by"),
             Index("journals_submitted_date_id_idx", cls.submitted_date, cls.id),
+            # Composite index for journals to be able to sort by
+            # `submitted_by`, and `submitted_date` in descending order.
+            Index(
+                "journals_submitted_by_and_reverse_date_idx",
+                cls._submitted_by,
+                cls.submitted_date.desc(),
+            ),
+            # Reverse index on ID, most recent project's journal entry for triggers
+            Index(
+                "journals_name_id_idx",
+                cls.name,
+                cls.id.desc(),
+            ),
         )
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -1032,11 +1145,13 @@ class ProhibitedProjectName(db.Model):
 
     created: Mapped[datetime_now]
     name: Mapped[str] = mapped_column(unique=True)
-    _prohibited_by = mapped_column(
-        "prohibited_by", PG_UUID(as_uuid=True), ForeignKey("users.id"), index=True
-    )
+    _prohibited_by = mapped_column("prohibited_by", ForeignKey("users.id"), index=True)
     prohibited_by: Mapped[User] = orm.relationship()
     comment: Mapped[str] = mapped_column(server_default="")
+    observation_kind: Mapped[str] = mapped_column(
+        nullable=True,
+        comment="If this was created via an observation, the kind of observation",
+    )
 
 
 class ProjectMacaroonWarningAssociation(db.Model):
@@ -1095,3 +1210,20 @@ class AlternateRepository(db.Model):
     name: Mapped[str]
     url: Mapped[str]
     description: Mapped[str]
+
+
+@event.listens_for(File, "after_insert")
+def add_filename_to_registry(mapper, connection, target):
+    """
+    Log the new filename to the Filename (file_registry) table.
+
+    This event listener is triggered *after* a new `File` object is
+    successfully inserted into the database.
+
+    We use a direct connection-level insert (`connection.execute()`)
+    instead of `session.add(Filename(...))` to avoid an `SAWarning`.
+    Modifying the session *during* the flush process (which is when
+    this hook runs) is not a supported operation. This method
+    bypasses the session's unit-of-work tracking and is safe here.
+    """
+    connection.execute(Filename.__table__.insert(), {"filename": target.filename})

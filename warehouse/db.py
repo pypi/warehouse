@@ -1,14 +1,4 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
 
 import enum
 import functools
@@ -25,8 +15,7 @@ import zope.sqlalchemy
 
 from pyramid.renderers import JSON
 from sqlalchemy import event, func, inspect
-from sqlalchemy.dialects.postgresql import UUID as PG_UUID
-from sqlalchemy.exc import IntegrityError, OperationalError
+from sqlalchemy.exc import DBAPIError, IntegrityError, OperationalError
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 
 from warehouse.metrics import IMetricsService
@@ -96,7 +85,6 @@ class Model(ModelBase):
     __abstract__ = True
 
     id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
         primary_key=True,
         server_default=func.gen_random_uuid(),
     )
@@ -163,7 +151,9 @@ def _create_session(request):
         session.close()
         connection.close()
 
-    # Check if we're in read-only mode
+    # Check if we're in read-only mode. This _cannot_ use the request.flags
+    # request method, as that would lead to a circular call as AdminFlag objects
+    # must be queried from the DB
     from warehouse.admin.flags import AdminFlag, AdminFlagValue
 
     flag = session.get(AdminFlag, AdminFlagValue.READ_ONLY.value)
@@ -172,6 +162,19 @@ def _create_session(request):
 
     # Return our session now that it's created and registered
     return session
+
+
+@event.listens_for(sqlalchemy.engine.Engine, "handle_error")
+def unwrap_dbapi_exceptions(context):
+    """
+    Listens for SQLAlchemy errors and raises the original
+    DBAPI (e.g., psycopg) exception instead.
+    """
+    if (
+        isinstance(context.sqlalchemy_exception, DBAPIError)
+        and context.original_exception
+    ):
+        raise context.original_exception from context.sqlalchemy_exception
 
 
 def includeme(config):

@@ -10,7 +10,7 @@ Represent items that **users** are most likely to interact with.
 Some specifics have been omitted from the visual diagrams for clarity.
 Items like: Kubernetes, Amazon Web Storage, deployment tooling, etc.
 
-```{mermaid}
+```mermaid
 C4Context
   title System Context Diagram: Warehouse
   UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
@@ -79,7 +79,7 @@ as responses will direct clients to the storage system directly
 via URLs prefixed with: `https://files.pythonhosted.org/packages/...`
 which are served by Fastly and cached.
 
-```{mermaid}
+```mermaid
 C4Container
   title Container Diagram: Warehouse - Web 
   UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
@@ -90,15 +90,13 @@ C4Container
   Container_Boundary(c1, "Warehouse & Supporting Systems") {
     Container(camo, "Camo", "image proxy")
     Container(web_app, "Web", "Python (Pyramid, SQLAlchemy)", "Delivers HTML and API content")
-    SystemQueue(sqs, "AWS SQS", "task broker")
     SystemDb(opensearch, "OpenSearch", "Index of projects, packages, metadata")
     SystemDb(db, "Postgres Database", "Store project, package metadata, user details")
     SystemDb(redis, "Redis", "Store short-term cache data")
 
-    Rel(web_app, sqs, "queue tasks")
     Rel(web_app, opensearch, "search for projects")
     Rel(web_app, db, "store/retrieve most data")
-    Rel(web_app, redis, "cache data")
+    Rel(web_app, redis, "cache data & task queue")
   }
 
   Rel(endUser, camo, "load images from project descriptions", "HTTPS")
@@ -110,7 +108,7 @@ C4Container
 
 Here we show how a user might upload a file to the Warehouse.
 
-```{mermaid}
+```mermaid
 C4Container
   title Container Diagram: Warehouse - Web Uploads
   UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
@@ -126,10 +124,7 @@ C4Container
     System(s3, "AWS S3", "Object store (archive)")
     Rel(web_app, s3, "stores package files")
 
-    SystemQueue(sqs, "AWS SQS", "task broker")
-    Rel(web_app, sqs, "queue sync to cache task")
-
-    SystemDb(redis, "Redis", "Store short-term cache data")
+    SystemDb(redis, "Redis", "Store short-term cache data, task broker")
     Rel(web_app, redis, "get/set rate limits and cache data")
   }
 
@@ -142,17 +137,16 @@ Our workers use Celery to run tasks.
 We run a single worker type, feeding off multiple queues.
 We also use Celery Beat to schedule tasks.
 
-We currently use AWS SQS as the queue,
+We currently use Redis as the queue,
 and Redis as the result backend and schedule storage.
 
-```{mermaid}
+```mermaid
 C4Container
   Container(worker_beat, "Worker - Beat", "Python, Celery", "keeps time, schedules tasks")
   Container(worker, "Worker", "Python, Celery", "runs tasks")
 
   Container_Boundary(c1, "Supporting Systems") {
     SystemDb(redis, "Redis", "Store short-term cache data")
-    SystemQueue(sqs, "AWS SQS", "task broker")
     SystemDb(opensearch, "OpenSearch", "Index of projects, packages, metadata")
     SystemDb(db, "Postgres Database", "Store project, package metadata, user details")
     System(ses, "AWS SES", "Simple Email Service")
@@ -160,13 +154,12 @@ C4Container
 
   System_Ext(fastly, "Fastly", "Content Delivery Network")
 
-  BiRel(worker, sqs, "get next task/ack")
-  BiRel(worker, redis, "store task results")
+  BiRel(worker, redis, "get next task/ack")
   BiRel(worker, db, "interact with models")
   BiRel(worker, opensearch, "update search index")
   Rel(worker, fastly, "purge URLs")
   Rel(worker, ses, "send emails")
 
   BiRel(worker_beat, redis, "fetch/store task schedules")
-  Rel(worker_beat, sqs, "schedule tasks")
+  Rel(worker_beat, redis, "schedule tasks")
 ```

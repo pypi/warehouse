@@ -1,16 +1,11 @@
-/*!
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/* SPDX-License-Identifier: Apache-2.0 */
+
+@use "../settings/breakpoints";
+@use "../settings/colours";
+@use "../settings/fonts";
+@use "../settings/grid";
+@use "../tools/link-utilities";
+@use "../tools/typography";
 
 /*
   Grid of sponsorship packages:
@@ -36,40 +31,40 @@
 
 .sponsor-packages {
   display: grid;
-  grid-gap: $spacing-unit;
+  grid-gap: grid.$spacing-unit;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  margin: ($spacing-unit * 1.5) 0 ($spacing-unit * 2);
+  margin: (grid.$spacing-unit * 1.5) 0 (grid.$spacing-unit * 2);
 
-  @media screen and (max-width: $mobile) {
+  @media screen and (max-width: breakpoints.$mobile) {
     grid-template-columns: repeat(auto-fill, 100%);
   }
 
   .sponsor-package {
-    margin-top: $spacing-unit;
+    margin-top: grid.$spacing-unit;
   }
 }
 
 .sponsor-package {
-  border: 2px solid $primary-color;
+  border: 2px solid colours.$primary-color;
   border-radius: 4px;
   position: relative;
   padding-bottom: 80px;
 
   &__header {
-    background-color: $primary-color;
-    color: $white;
-    padding: $spacing-unit;
+    background-color: colours.$primary-color;
+    color: colours.$white;
+    padding: grid.$spacing-unit;
     text-align: center;
     position: relative;
     border-radius: 2px 2px 0 0;
 
     a {
-      @include white-underlined-link;
+      @include link-utilities.white-underlined-link;
     }
 
     h2,
     h3 {
-      @include h2;
+      @include typography.h2;
       padding: 0;
     }
   }
@@ -83,12 +78,12 @@
     height: 60px;
     left: 50%;
     margin-left: -30px;
-    background-color: $primary-color;
+    background-color: colours.$primary-color;
     font-size: 30px;
   }
 
   &__body {
-    padding: $spacing-unit;
+    padding: grid.$spacing-unit;
 
     ul {
       padding: 0;
@@ -105,7 +100,7 @@
     }
 
     ul + p {
-      font-weight: $bold-font-weight;
+      font-weight: fonts.$bold-font-weight;
       padding: 0;
       margin: 15px 0 0;
     }
@@ -113,8 +108,8 @@
 
   &__button {
     position: absolute;
-    bottom: $spacing-unit;
-    left: $spacing-unit;
+    bottom: grid.$spacing-unit;
+    left: grid.$spacing-unit;
     width: calc(100% - 60px);
     text-align: center;
 
