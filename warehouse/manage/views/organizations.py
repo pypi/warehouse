@@ -291,11 +291,16 @@ class ManageOrganizationApplicationViews:
         if form.validate():
             data = form.data
 
+            response_id = self.request.POST.get("response_form-id")
+            allowed_ids = [information_request.id for information_request in information_requests]
             observation = (
                 self.request.db.query(Observation)
-                .filter(Observation.id == self.request.POST.get("response_form-id"))
-                .one()
+                .filter(Observation.id == response_id)
+                .filter(Observation.id.in_(allowed_ids))
+                .one_or_none()
             )
+            if observation is None:
+                raise HTTPBadRequest("Invalid information request.")
             observation.additional["response"] = data["response"]
             observation.additional["response_time"] = datetime.datetime.now(
                 datetime.UTC
