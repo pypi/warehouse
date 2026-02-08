@@ -81,6 +81,7 @@ from warehouse.organizations.models import (
 )
 from warehouse.packaging import IProjectService, Project, Role
 from warehouse.packaging.models import JournalEntry, ProjectFactory
+from warehouse.utils.http import is_safe_url
 from warehouse.subscriptions import IBillingService, ISubscriptionService
 from warehouse.subscriptions.services import MockStripeBillingService
 from warehouse.utils.organization import confirm_organization
@@ -597,12 +598,10 @@ class ManageOrganizationBillingViews:
 
     @property
     def return_url(self):
-        return urljoin(
-            self.request.application_url,
-            self.request.GET.get(
-                "next", self.request.route_path("manage.organizations")
-            ),
-        )
+        next_url = self.request.GET.get("next")
+        if next_url is None or not is_safe_url(url=next_url, host=self.request.host):
+            next_url = self.request.route_path("manage.organizations")
+        return urljoin(self.request.application_url, next_url)
 
     def create_subscription(self):
         # Create checkout session.
