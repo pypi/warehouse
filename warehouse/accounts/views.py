@@ -1197,6 +1197,8 @@ def verify_organization_role(request):
     )
     if not organization_invite:
         return _error(request._("Organization invitation no longer exists."))
+    if organization_invite.token != token:
+        return _error(request._("Organization invitation is not valid."))
 
     # Use the renderer to bring up a confirmation page
     # before adding as contributor
@@ -1375,6 +1377,8 @@ def verify_project_role(request):
 
     if not role_invite:
         return _error(request._("Role invitation no longer exists."))
+    if role_invite.token != token:
+        return _error(request._("Role invitation is not valid."))
 
     # Use the renderer to bring up a confirmation page
     # before adding as contributor
