@@ -292,7 +292,7 @@ class ManageOrganizationApplicationViews:
             data = form.data
 
             response_id = self.request.POST.get("response_form-id")
-            allowed_ids = [information_request.id for information_request in information_requests]
+            allowed_ids = [info_request.id for info_request in information_requests]
             observation = (
                 self.request.db.query(Observation)
                 .filter(Observation.id == response_id)
