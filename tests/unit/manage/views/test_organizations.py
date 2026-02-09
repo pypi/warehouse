@@ -1383,6 +1383,48 @@ class TestManageOrganizationBillingViews:
         with pytest.raises(HTTPNotFound):
             view.create_or_manage_subscription()
 
+    @pytest.mark.parametrize(
+        ("next_param", "expected_url", "expected_route_calls"),
+        [
+            # No next parameter - should fall back to default
+            (
+                None,
+                "https://pypi.org/manage/organizations/",
+                [pretend.call("manage.organizations")],
+            ),
+            # Unsafe external URL - should fall back to default
+            (
+                "https://evil.com/phishing",
+                "https://pypi.org/manage/organizations/",
+                [pretend.call("manage.organizations")],
+            ),
+            # Safe internal URL - should use the provided URL
+            ("/manage/projects/", "https://pypi.org/manage/projects/", []),
+        ],
+    )
+    def test_return_url(
+        self,
+        db_request,
+        billing_service,
+        subscription_service,
+        organization,
+        next_param,
+        expected_url,
+        expected_route_calls,
+    ):
+        db_request.GET = {} if next_param is None else {"next": next_param}
+        db_request.host = "pypi.org"
+        db_request.application_url = "https://pypi.org"
+        db_request.route_path = pretend.call_recorder(
+            lambda route: "/manage/organizations/"
+        )
+
+        view = org_views.ManageOrganizationBillingViews(organization, db_request)
+        return_url = view.return_url
+
+        assert db_request.route_path.calls == expected_route_calls
+        assert return_url == expected_url
+
     @pytest.mark.usefixtures("_enable_organizations")
     def test_activate_subscription(
         self,
