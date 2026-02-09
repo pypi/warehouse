@@ -1034,6 +1034,31 @@ class TestTOTPAuthenticationForm:
         assert not form.validate()
         assert str(form.totp_value.errors.pop()) == expected_error
 
+    def test_totp_secret_returns_false(self, pyramid_config):
+        user = pretend.stub(record_event=pretend.call_recorder(lambda *a, **kw: None))
+        get_user = pretend.call_recorder(lambda userid: user)
+        request = pretend.stub(remote_addr=REMOTE_ADDR)
+
+        user_service = pretend.stub(
+            check_totp_value=lambda *a: False,
+            get_user=get_user,
+        )
+        form = forms.TOTPAuthenticationForm(
+            formdata=MultiDict({"totp_value": "123456"}),
+            request=request,
+            user_id=1,
+            user_service=user_service,
+        )
+        assert not form.validate()
+        assert str(form.totp_value.errors.pop()) == "Invalid TOTP code."
+        assert user.record_event.calls == [
+            pretend.call(
+                tag=EventTag.Account.LoginFailure,
+                request=request,
+                additional={"reason": "invalid_totp"},
+            )
+        ]
+
     @pytest.mark.parametrize(
         ("exception", "expected_error", "reason"),
         [
