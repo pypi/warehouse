@@ -81,9 +81,9 @@ from warehouse.organizations.models import (
 )
 from warehouse.packaging import IProjectService, Project, Role
 from warehouse.packaging.models import JournalEntry, ProjectFactory
-from warehouse.utils.http import is_safe_url
 from warehouse.subscriptions import IBillingService, ISubscriptionService
 from warehouse.subscriptions.services import MockStripeBillingService
+from warehouse.utils.http import is_safe_url
 from warehouse.utils.organization import confirm_organization
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import confirm_project
