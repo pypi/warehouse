@@ -108,23 +108,23 @@ msgstr ""
 msgid "URLs are not allowed in the name field."
 msgstr ""
 
-#: warehouse/accounts/forms.py:517
+#: warehouse/accounts/forms.py:519
 msgid "Invalid TOTP code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:534
+#: warehouse/accounts/forms.py:536
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr ""
 
-#: warehouse/accounts/forms.py:603
+#: warehouse/accounts/forms.py:605
 msgid "Invalid recovery code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:612
+#: warehouse/accounts/forms.py:614
 msgid "Recovery code has been previously used."
 msgstr ""
 
-#: warehouse/accounts/forms.py:642
+#: warehouse/accounts/forms.py:644
 msgid "The username isn't valid. Try again."
 msgstr ""
 
