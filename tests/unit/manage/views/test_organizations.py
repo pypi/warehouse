@@ -317,6 +317,36 @@ class TestManageOrganizationApplication:
         assert isinstance(_response, HTTPSeeOther)
         assert _request_for_more_info1.additional["response"] == "This is my response"
 
+    def test_manage_organization_application_submit_invalid_request_id(
+        self, db_request, organization_service
+    ):
+        _organization_application = OrganizationApplicationFactory.create(
+            status=OrganizationApplicationStatus.MoreInformationNeeded
+        )
+
+        OrganizationApplicationObservationFactory(
+            related=_organization_application,
+            payload={"message": "we need more information"},
+            created=datetime.datetime.now(datetime.UTC),
+        )
+
+        # Use an invalid UUID that doesn't match the actual observation
+        invalid_id = str(uuid.uuid4())
+
+        db_request.POST = MultiDict(
+            {
+                "response_form-id": invalid_id,
+                "response": "This is my response",
+            }
+        )
+
+        view = org_views.ManageOrganizationApplicationViews(
+            _organization_application, db_request
+        )
+
+        with pytest.raises(HTTPBadRequest, match="Invalid information request."):
+            view.manage_organization_application_submit()
+
 
 class TestManageOrganizations:
     def test_default_response(self, monkeypatch):
