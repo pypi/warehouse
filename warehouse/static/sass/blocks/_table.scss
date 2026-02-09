@@ -38,8 +38,9 @@
    Modifiers:
      - information: table for displaying table data - ideally with row level headings
      - downloads: specific styles for downloads table on project detail page
+     - files: specific styles for files table on project detail page
      - releases: specific styles for releases table on manage project page
-     - files: specific styles for files table on releases tab
+     - manage-files: specific styles for files table on the releases tab
      - history: specific styles for project journals
      - hashes: specific styles for the hashes table on an individual file
      - collaborators: specific styles for managing a project's collaborators
@@ -66,6 +67,7 @@
   tbody tr td:last-child {
     display: block;
     width: 100%;
+    max-width: 100%;
     text-align: left;
     border-bottom: 0;
     padding: 2px 0;
@@ -176,8 +178,8 @@
 
   &--information {
     th {
-      width: 1%; 
-      white-space: nowrap; 
+      width: 1%;
+      white-space: nowrap;
     }
 
     td,
@@ -204,6 +206,24 @@
     }
   }
 
+  &--files {
+    margin-bottom: grid.$half-spacing-unit;
+
+    td.file-name {
+      padding-top:5px;
+      word-break: break-all;
+    }
+
+    td.file-metadata {
+      border-bottom: 0;
+      padding-bottom:5px;
+    }
+
+    @media only screen and (max-width: breakpoints.$desktop) {
+      @include mobile-friendly-table;
+    }
+  }
+
   &--releases {
     word-wrap: break-word;
     margin-bottom: grid.$spacing-unit;
@@ -214,7 +234,7 @@
     }
   }
 
-  &--files,
+  &--manage-files,
   &--history {
     margin-top: grid.$half-spacing-unit;
 

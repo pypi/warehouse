@@ -51,6 +51,10 @@
   }
 }
 
+select {
+  height: 40px;
+}
+
 input[type="checkbox"] {
   &:focus,
   &:hover,
