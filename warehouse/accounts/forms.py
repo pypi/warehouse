@@ -506,7 +506,9 @@ class TOTPAuthenticationForm(TOTPValueMixin, _TwoFactorAuthenticationForm):
         totp_value = field.data.replace(" ", "").encode("utf8")
 
         try:
-            self.user_service.check_totp_value(self.user_id, totp_value)
+            ok = self.user_service.check_totp_value(self.user_id, totp_value)
+            if not ok:
+                raise otp.InvalidTOTPError
         except (otp.InvalidTOTPError, otp.OutOfSyncTOTPError):
             user = self.user_service.get_user(self.user_id)
             user.record_event(
