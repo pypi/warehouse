@@ -10,6 +10,7 @@ from zope.interface.verify import verifyClass
 
 from warehouse.accounts import UserContext, security_policy
 from warehouse.accounts.interfaces import IUserService
+from warehouse.accounts.models import DisableReason
 from warehouse.utils.security_policy import AuthenticationMethod
 
 from ...common.constants import REMOTE_ADDR
@@ -356,7 +357,7 @@ class TestSessionSecurityPolicy:
         assert add_vary_cb.calls == [pretend.call("Cookie")]
         assert request.add_response_callback.calls == [pretend.call(vary_cb)]
 
-    def test_identity_is_disabled(self, monkeypatch):
+    def test_identity_is_disabled_frozen(self, monkeypatch):
         userid = pretend.stub()
         session_helper_obj = pretend.stub(
             authenticated_userid=pretend.call_recorder(lambda r: userid)
@@ -377,7 +378,68 @@ class TestSessionSecurityPolicy:
         user_service = pretend.stub(
             get_user=pretend.call_recorder(lambda uid: user),
             get_password_timestamp=pretend.call_recorder(lambda uid: timestamp),
-            is_disabled=pretend.call_recorder(lambda uid: (True, "Said So!")),
+            is_disabled=pretend.call_recorder(
+                lambda uid: (True, DisableReason.AccountFrozen)
+            ),
+        )
+        request = pretend.stub(
+            add_response_callback=pretend.call_recorder(lambda cb: None),
+            matched_route=pretend.stub(name="a.permitted.route"),
+            find_service=pretend.call_recorder(lambda i, **kw: user_service),
+            session=pretend.stub(
+                password_outdated=pretend.call_recorder(lambda ts: True),
+                invalidate=pretend.call_recorder(lambda: None),
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            ),
+            banned=pretend.stub(by_ip=lambda ip_address: False),
+            remote_addr=REMOTE_ADDR,
+        )
+
+        assert policy.identity(request) is None
+        assert request.authentication_method == AuthenticationMethod.SESSION
+        assert session_helper_obj.authenticated_userid.calls == [pretend.call(request)]
+        assert session_helper_cls.calls == [pretend.call()]
+        assert request.find_service.calls == [pretend.call(IUserService, context=None)]
+        assert user_service.get_user.calls == [pretend.call(userid)]
+        assert request.session.password_outdated.calls == []
+        assert user_service.get_password_timestamp.calls == []
+        assert user_service.is_disabled.calls == [pretend.call(userid)]
+        assert request.session.invalidate.calls == [pretend.call()]
+        assert request.session.flash.calls == [
+            pretend.call(
+                "Your account has been suspended. "
+                "Please contact admin@pypi.org for assistance.",
+                queue="error",
+            )
+        ]
+
+        assert add_vary_cb.calls == [pretend.call("Cookie")]
+        assert request.add_response_callback.calls == [pretend.call(vary_cb)]
+
+    def test_identity_is_disabled_not_frozen(self, monkeypatch):
+        userid = pretend.stub()
+        session_helper_obj = pretend.stub(
+            authenticated_userid=pretend.call_recorder(lambda r: userid)
+        )
+        session_helper_cls = pretend.call_recorder(lambda: session_helper_obj)
+        monkeypatch.setattr(
+            security_policy, "SessionAuthenticationHelper", session_helper_cls
+        )
+
+        policy = security_policy.SessionSecurityPolicy()
+
+        vary_cb = pretend.stub()
+        add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
+        monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
+
+        user = pretend.stub()
+        timestamp = pretend.stub()
+        user_service = pretend.stub(
+            get_user=pretend.call_recorder(lambda uid: user),
+            get_password_timestamp=pretend.call_recorder(lambda uid: timestamp),
+            is_disabled=pretend.call_recorder(
+                lambda uid: (True, DisableReason.CompromisedPassword)
+            ),
         )
         request = pretend.stub(
             add_response_callback=pretend.call_recorder(lambda cb: None),

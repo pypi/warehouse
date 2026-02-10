@@ -11,6 +11,7 @@ from pyramid.security import Allowed
 from zope.interface import implementer
 
 from warehouse.accounts.interfaces import IUserService
+from warehouse.accounts.models import DisableReason
 from warehouse.accounts.utils import UserContext
 from warehouse.cache.http import add_vary_callback
 from warehouse.errors import WarehouseDenied
@@ -75,10 +76,17 @@ class SessionSecurityPolicy:
             return None
 
         # User may have been frozen or disabled since the session was created.
-        is_disabled, _ = login_service.is_disabled(userid)
+        is_disabled, disabled_reason = login_service.is_disabled(userid)
         if is_disabled:
             request.session.invalidate()
-            request.session.flash("Session invalidated", queue="error")
+            if disabled_reason == DisableReason.AccountFrozen:
+                request.session.flash(
+                    "Your account has been suspended. "
+                    "Please contact admin@pypi.org for assistance.",
+                    queue="error",
+                )
+            else:
+                request.session.flash("Session invalidated", queue="error")
             return None
 
         # Our session might be "valid" despite predating a password change.
