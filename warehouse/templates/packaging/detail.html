@@ -82,7 +82,7 @@
         <a href="{{ request.route_url('packaging.file', path=file.path) }}">{{ file.filename }}</a>
         ({{ file.size|filesizeformat() if file.size else 0|filesizeformat() }}
         <a href="#{{ file.filename }}"
-           data-project-tabs-target="tab"
+           data-project-tabs-target="tab mobileTab"
            data-action="project-tabs#onTabClick">{%- trans -%}view details{%- endtrans -%}</a>)
         <p class="file__meta">
           Uploaded {{ humanize(file.upload_time) }}
