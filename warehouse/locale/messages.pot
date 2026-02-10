@@ -108,23 +108,23 @@ msgstr ""
 msgid "URLs are not allowed in the name field."
 msgstr ""
 
-#: warehouse/accounts/forms.py:517
+#: warehouse/accounts/forms.py:519
 msgid "Invalid TOTP code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:534
+#: warehouse/accounts/forms.py:536
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr ""
 
-#: warehouse/accounts/forms.py:603
+#: warehouse/accounts/forms.py:605
 msgid "Invalid recovery code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:612
+#: warehouse/accounts/forms.py:614
 msgid "Recovery code has been previously used."
 msgstr ""
 
-#: warehouse/accounts/forms.py:642
+#: warehouse/accounts/forms.py:644
 msgid "The username isn't valid. Try again."
 msgstr ""
 
@@ -184,7 +184,7 @@ msgstr ""
 
 #: warehouse/accounts/views.py:902 warehouse/accounts/views.py:1011
 #: warehouse/accounts/views.py:1076 warehouse/accounts/views.py:1182
-#: warehouse/accounts/views.py:1351
+#: warehouse/accounts/views.py:1353
 msgid "Invalid token: no token supplied"
 msgstr ""
 
@@ -281,7 +281,7 @@ msgstr ""
 msgid "Invalid token: not an organization invitation token"
 msgstr ""
 
-#: warehouse/accounts/views.py:1190
+#: warehouse/accounts/views.py:1190 warehouse/accounts/views.py:1201
 msgid "Organization invitation is not valid."
 msgstr ""
 
@@ -289,79 +289,79 @@ msgstr ""
 msgid "Organization invitation no longer exists."
 msgstr ""
 
-#: warehouse/accounts/views.py:1251
+#: warehouse/accounts/views.py:1253
 #, python-brace-format
 msgid "Invitation for '${organization_name}' is declined."
 msgstr ""
 
-#: warehouse/accounts/views.py:1314
+#: warehouse/accounts/views.py:1316
 #, python-brace-format
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr ""
 
-#: warehouse/accounts/views.py:1347
+#: warehouse/accounts/views.py:1349
 msgid "Expired token: request a new project role invitation"
 msgstr ""
 
-#: warehouse/accounts/views.py:1349
+#: warehouse/accounts/views.py:1351
 msgid "Invalid token: request a new project role invitation"
 msgstr ""
 
-#: warehouse/accounts/views.py:1355
+#: warehouse/accounts/views.py:1357
 msgid "Invalid token: not a collaboration invitation token"
 msgstr ""
 
-#: warehouse/accounts/views.py:1359
+#: warehouse/accounts/views.py:1361 warehouse/accounts/views.py:1381
 msgid "Role invitation is not valid."
 msgstr ""
 
-#: warehouse/accounts/views.py:1366
+#: warehouse/accounts/views.py:1368
 msgid "Invalid token: project does not exist"
 msgstr ""
 
-#: warehouse/accounts/views.py:1377
+#: warehouse/accounts/views.py:1379
 msgid "Role invitation no longer exists."
 msgstr ""
 
-#: warehouse/accounts/views.py:1409
+#: warehouse/accounts/views.py:1413
 #, python-brace-format
 msgid "Invitation for '${project_name}' is declined."
 msgstr ""
 
-#: warehouse/accounts/views.py:1475
+#: warehouse/accounts/views.py:1479
 #, python-brace-format
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/accounts/views.py:1587
+#: warehouse/accounts/views.py:1591
 #, python-brace-format
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
 
-#: warehouse/accounts/views.py:1797 warehouse/accounts/views.py:2051
+#: warehouse/accounts/views.py:1801 warehouse/accounts/views.py:2055
 #: warehouse/manage/views/oidc_publishers.py:126
-#: warehouse/manage/views/organizations.py:1805
+#: warehouse/manage/views/organizations.py:1809
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help"
 "#admin-intervention for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1818
-#: warehouse/manage/views/organizations.py:1828
+#: warehouse/accounts/views.py:1822
+#: warehouse/manage/views/organizations.py:1832
 msgid "disabled. See https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1834
+#: warehouse/accounts/views.py:1838
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1847
+#: warehouse/accounts/views.py:1851
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1862
+#: warehouse/accounts/views.py:1866
 #: warehouse/manage/views/oidc_publishers.py:308
 #: warehouse/manage/views/oidc_publishers.py:423
 #: warehouse/manage/views/oidc_publishers.py:539
@@ -371,32 +371,32 @@ msgid ""
 "again later."
 msgstr ""
 
-#: warehouse/accounts/views.py:1872
+#: warehouse/accounts/views.py:1876
 #: warehouse/manage/views/oidc_publishers.py:321
 #: warehouse/manage/views/oidc_publishers.py:436
 #: warehouse/manage/views/oidc_publishers.py:552
 #: warehouse/manage/views/oidc_publishers.py:664
-#: warehouse/manage/views/organizations.py:1844
+#: warehouse/manage/views/organizations.py:1848
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1887
+#: warehouse/accounts/views.py:1891
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's"
 " admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1921
-#: warehouse/manage/views/organizations.py:1893
+#: warehouse/accounts/views.py:1925
+#: warehouse/manage/views/organizations.py:1897
 msgid "Registered a new pending publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:2064 warehouse/accounts/views.py:2077
-#: warehouse/accounts/views.py:2084
+#: warehouse/accounts/views.py:2068 warehouse/accounts/views.py:2081
+#: warehouse/accounts/views.py:2088
 msgid "Invalid publisher ID"
 msgstr ""
 
-#: warehouse/accounts/views.py:2091
+#: warehouse/accounts/views.py:2095
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -652,13 +652,13 @@ msgid ""
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2174
-#: warehouse/manage/views/organizations.py:977
+#: warehouse/manage/views/organizations.py:981
 #, python-brace-format
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2239
-#: warehouse/manage/views/organizations.py:1052
+#: warehouse/manage/views/organizations.py:1056
 #, python-brace-format
 msgid "Invitation sent to '${username}'"
 msgstr ""
@@ -672,7 +672,7 @@ msgid "Invitation already expired."
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2315
-#: warehouse/manage/views/organizations.py:1239
+#: warehouse/manage/views/organizations.py:1243
 #, python-brace-format
 msgid "Invitation revoked from '${username}'."
 msgstr ""
@@ -741,37 +741,37 @@ msgid ""
 "https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:953
+#: warehouse/manage/views/organizations.py:957
 #, python-brace-format
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:964
+#: warehouse/manage/views/organizations.py:968
 #, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:988
+#: warehouse/manage/views/organizations.py:992
 msgid "Cannot invite new member. Organization is not in good standing."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1134
-#: warehouse/manage/views/organizations.py:1176
+#: warehouse/manage/views/organizations.py:1138
+#: warehouse/manage/views/organizations.py:1180
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1144
+#: warehouse/manage/views/organizations.py:1148
 msgid "Organization invitation could not be re-sent."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1192
+#: warehouse/manage/views/organizations.py:1196
 #, python-brace-format
 msgid "Expired invitation for '${username}' deleted."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1860
+#: warehouse/manage/views/organizations.py:1864
 msgid ""
 "This publisher has already been registered in your organization. See your"
 " existing pending publishers below."
