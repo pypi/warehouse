@@ -83,6 +83,7 @@ from warehouse.packaging import IProjectService, Project, Role
 from warehouse.packaging.models import JournalEntry, ProjectFactory
 from warehouse.subscriptions import IBillingService, ISubscriptionService
 from warehouse.subscriptions.services import MockStripeBillingService
+from warehouse.utils.http import is_safe_url
 from warehouse.utils.organization import confirm_organization
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import confirm_project
@@ -291,11 +292,16 @@ class ManageOrganizationApplicationViews:
         if form.validate():
             data = form.data
 
+            response_id = self.request.POST.get("response_form-id")
+            allowed_ids = [info_request.id for info_request in information_requests]
             observation = (
                 self.request.db.query(Observation)
-                .filter(Observation.id == self.request.POST.get("response_form-id"))
-                .one()
+                .filter(Observation.id == response_id)
+                .filter(Observation.id.in_(allowed_ids))
+                .one_or_none()
             )
+            if observation is None:
+                raise HTTPBadRequest("Invalid information request.")
             observation.additional["response"] = data["response"]
             observation.additional["response_time"] = datetime.datetime.now(
                 datetime.UTC
@@ -597,12 +603,10 @@ class ManageOrganizationBillingViews:
 
     @property
     def return_url(self):
-        return urljoin(
-            self.request.application_url,
-            self.request.GET.get(
-                "next", self.request.route_path("manage.organizations")
-            ),
-        )
+        next_url = self.request.GET.get("next")
+        if next_url is None or not is_safe_url(url=next_url, host=self.request.host):
+            next_url = self.request.route_path("manage.organizations")
+        return urljoin(self.request.application_url, next_url)
 
     def create_subscription(self):
         # Create checkout session.

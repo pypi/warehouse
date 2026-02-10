@@ -82,7 +82,9 @@ def macaroon_detail(request):
 @view_config(
     route_name="admin.macaroon.delete",
     permission=Permissions.AdminMacaroonsWrite,
+    request_method="POST",
     uses_session=True,
+    require_csrf=True,
     require_methods=False,
 )
 def macaroon_delete(request):
@@ -90,6 +92,8 @@ def macaroon_delete(request):
 
     macaroon_service = request.find_service(IMacaroonService, context=None)
     macaroon = macaroon_service.find_macaroon(macaroon_id)
+    if macaroon is None:
+        raise HTTPNotFound()
 
     # TODO: Shows up in user history. Should it? `removed_by` is not shown.
     # Since we still have a macaroon, record the event to the associated user
