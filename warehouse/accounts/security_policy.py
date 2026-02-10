@@ -82,7 +82,7 @@ class SessionSecurityPolicy:
             if disabled_reason == DisableReason.AccountFrozen:
                 request.session.flash(
                     "Your account has been suspended. "
-                    "Please contact admin@pypi.org for assistance.",
+                    "Please contact security@pypi.org for assistance.",
                     queue="error",
                 )
             else:

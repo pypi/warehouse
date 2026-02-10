@@ -408,7 +408,7 @@ class TestSessionSecurityPolicy:
         assert request.session.flash.calls == [
             pretend.call(
                 "Your account has been suspended. "
-                "Please contact admin@pypi.org for assistance.",
+                "Please contact security@pypi.org for assistance.",
                 queue="error",
             )
         ]
