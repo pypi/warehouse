@@ -855,9 +855,9 @@ grpcio==1.78.0 \
     #   google-api-core
     #   grpcio-status
     #   opensearch-protobufs
-grpcio-status==1.76.0 \
-    --hash=sha256:25fcbfec74c15d1a1cb5da3fab8ee9672852dc16a5a9eeb5baf7d7a9952943cd \
-    --hash=sha256:380568794055a8efbbd8871162df92012e0228a5f6dffaf57f2a00c534103b18
+grpcio-status==1.78.0 \
+    --hash=sha256:a34cfd28101bfea84b5aa0f936b4b423019e9213882907166af6b3bddc59e189 \
+    --hash=sha256:b492b693d4bf27b47a6c32590701724f1d3b9444b36491878fb71f6208857f34
     # via google-api-core
 hiredis==3.3.0 \
     --hash=sha256:00fb04eac208cd575d14f246e74a468561081ce235937ab17d77cde73aefc66c \
