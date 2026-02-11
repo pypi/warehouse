@@ -330,9 +330,9 @@ pytest-mock==3.15.1 \
     --hash=sha256:0a25e2eb88fe5168d535041d09a4529a188176ae608a6d249ee65abc0949630d \
     --hash=sha256:1849a238f6f396da19762269de72cb1814ab44416fa73a8686deac10b0d87a0f
     # via -r requirements/tests.in
-pytest-postgresql==7.0.2 \
-    --hash=sha256:0b0d31c51620a9c1d6be93286af354256bc58a47c379f56f4147b22da6e81fb5 \
-    --hash=sha256:57c8d3f7d4e91d0ea8b2eac786d04f60080fa6ed6e66f1f94d747c71c9e5a4f4
+pytest-postgresql==8.0.0 \
+    --hash=sha256:125b63b16d630c2dea19807062ed4c96e6123f06058ce65b82b4b14174d6c4b8 \
+    --hash=sha256:26cbd44a0adef76cf4a82a3a2263f0e029bc54b5863556a9bd86ca3edfa91cce
     # via -r requirements/tests.in
 pytest-randomly==4.0.1 \
     --hash=sha256:174e57bb12ac2c26f3578188490bd333f0e80620c3f47340158a86eca0593cd8 \
