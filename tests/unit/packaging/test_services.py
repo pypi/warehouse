@@ -987,7 +987,7 @@ class TestProjectService:
     def test_verify_service(self):
         assert verifyClass(IProjectService, ProjectService)
 
-    @pytest.mark.parametrize("name", ["", ".,;", "_z"])
+    @pytest.mark.parametrize("name", ["", ".,;", "_z", "İnspect"])
     def test_check_project_name_invalid(self, name):
         service = ProjectService(session=pretend.stub())
 

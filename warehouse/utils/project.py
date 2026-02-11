@@ -28,7 +28,7 @@ def remove_documentation(task, request, project_name):
 
 
 PROJECT_NAME_RE = re.compile(
-    r"^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])\Z", re.IGNORECASE
+    r"^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])\Z", re.IGNORECASE | re.ASCII
 )
 
 
