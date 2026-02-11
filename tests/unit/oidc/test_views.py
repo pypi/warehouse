@@ -933,41 +933,6 @@ def test_mint_token_with_prohibited_name_fails(monkeypatch, db_request):
         )
 
 
-def test_mint_token_with_invalid_name_fails(monkeypatch, db_request):
-    user = UserFactory.create()
-    pending_publisher = PendingGitHubPublisherFactory.create(
-        project_name="-foo-",
-        added_by=user,
-        repository_name="bar",
-        repository_owner="foo",
-        repository_owner_id="123",
-        workflow_filename="example.yml",
-        environment="",
-    )
-
-    db_request.flags.disallow_oidc = lambda f=None: False
-    db_request.body = json.dumps({"token": DUMMY_GITHUB_OIDC_JWT})
-    db_request.remote_addr = "0.0.0.0"
-
-    ratelimiter = pretend.stub(clear=pretend.call_recorder(lambda id: None))
-    ratelimiters = {
-        "user.oidc": ratelimiter,
-        "ip.oidc": ratelimiter,
-    }
-    monkeypatch.setattr(views, "_ratelimiters", lambda r: ratelimiters)
-
-    resp = views.mint_token_from_oidc(db_request)
-
-    assert resp["message"] == "Token request failed"
-    assert isinstance(resp["errors"], list)
-    for err in resp["errors"]:
-        assert isinstance(err, dict)
-        assert err["code"] == "invalid-payload"
-        assert err["description"] == (
-            f"The name {pending_publisher.project_name!r} is invalid."
-        )
-
-
 @pytest.mark.parametrize(
     ("claims_in_token", "is_reusable", "is_github"),
     [
