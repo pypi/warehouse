@@ -2928,6 +2928,7 @@ class TestVerifyOrganizationRole:
         OrganizationInvitationFactory.create(
             organization=organization,
             user=user,
+            token="RANDOM_KEY",
         )
         owner_user = UserFactory.create()
         OrganizationRoleFactory(
@@ -3110,6 +3111,7 @@ class TestVerifyOrganizationRole:
         OrganizationInvitationFactory.create(
             organization=organization,
             user=user,
+            token="RANDOM_KEY",
         )
         owner_user = UserFactory.create()
         OrganizationRoleFactory(
@@ -3216,6 +3218,46 @@ class TestVerifyOrganizationRole:
         ]
         assert db_request.route_path.calls == [pretend.call("manage.organizations")]
 
+    def test_verify_fails_with_token_mismatch(self, db_request, token_service):
+        desired_role = "Manager"
+        organization = OrganizationFactory.create()
+        user = UserFactory.create()
+        # Create invitation with a different token than what's in the request
+        OrganizationInvitationFactory.create(
+            organization=organization,
+            user=user,
+            token="WRONG_TOKEN",
+        )
+        owner_user = UserFactory.create()
+        OrganizationRoleFactory(
+            organization=organization,
+            user=owner_user,
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        db_request.user = user
+        db_request.method = "POST"
+        db_request.GET.update({"token": "RANDOM_KEY"})
+        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        db_request.remote_addr = "192.168.1.1"
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        token_service.loads = pretend.call_recorder(
+            lambda token: {
+                "action": "email-organization-role-verify",
+                "desired_role": desired_role,
+                "user_id": user.id,
+                "organization_id": organization.id,
+                "submitter_id": owner_user.id,
+            }
+        )
+
+        views.verify_organization_role(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Organization invitation is not valid.", queue="error")
+        ]
+        assert db_request.route_path.calls == [pretend.call("manage.organizations")]
+
     def test_verify_role_get_confirmation(self, db_request, token_service):
         desired_role = "Manager"
         organization = OrganizationFactory.create()
@@ -3223,6 +3265,7 @@ class TestVerifyOrganizationRole:
         OrganizationInvitationFactory.create(
             organization=organization,
             user=user,
+            token="RANDOM_KEY",
         )
         owner_user = UserFactory.create()
         OrganizationRoleFactory(
@@ -3262,7 +3305,7 @@ class TestVerifyProjectRole:
     ):
         project = ProjectFactory.create()
         user = UserFactory.create()
-        RoleInvitationFactory.create(user=user, project=project)
+        RoleInvitationFactory.create(user=user, project=project, token="RANDOM_KEY")
         owner_user = UserFactory.create()
         RoleFactory(user=owner_user, project=project, role_name="Owner")
 
@@ -3450,7 +3493,7 @@ class TestVerifyProjectRole:
     ):
         project = ProjectFactory.create()
         user = UserFactory.create()
-        RoleInvitationFactory.create(user=user, project=project)
+        RoleInvitationFactory.create(user=user, project=project, token="RANDOM_KEY")
 
         db_request.user = user
         db_request.method = "POST"
@@ -3523,6 +3566,44 @@ class TestVerifyProjectRole:
         ]
         assert db_request.route_path.calls == [pretend.call("manage.projects")]
 
+    def test_verify_fails_with_token_mismatch(
+        self, db_request, user_service, token_service
+    ):
+        project = ProjectFactory.create()
+        user = UserFactory.create()
+        # Create invitation with a different token than what's in the request
+        RoleInvitationFactory.create(user=user, project=project, token="WRONG_TOKEN")
+
+        db_request.user = user
+        db_request.method = "POST"
+        db_request.GET.update({"token": "RANDOM_KEY"})
+        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        db_request.remote_addr = "192.168.1.1"
+        token_service.loads = pretend.call_recorder(
+            lambda token: {
+                "action": "email-project-role-verify",
+                "desired_role": "Maintainer",
+                "user_id": user.id,
+                "project_id": project.id,
+                "submitter_id": db_request.user.id,
+            }
+        )
+        user_service.get_user = pretend.call_recorder(lambda user_id: user)
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context=None, name=None: {
+                ITokenService: token_service,
+                IUserService: user_service,
+            }.get(iface)
+        )
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+
+        views.verify_project_role(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Role invitation is not valid.", queue="error")
+        ]
+        assert db_request.route_path.calls == [pretend.call("manage.projects")]
+
     def test_verify_fails_with_missing_project(
         self, db_request, user_service, token_service
     ):
@@ -3566,7 +3647,7 @@ class TestVerifyProjectRole:
     ):
         project = ProjectFactory.create()
         user = UserFactory.create()
-        RoleInvitationFactory.create(user=user, project=project)
+        RoleInvitationFactory.create(user=user, project=project, token="RANDOM_KEY")
 
         db_request.user = user
         db_request.method = "GET"
