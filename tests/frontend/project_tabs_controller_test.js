@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-/* global expect, beforeEach, describe, it */
+/* global expect, beforeEach, describe, it, jest */
 
 import { Application } from "@hotwired/stimulus";
 import ProjectTabsController from "../../warehouse/static/js/warehouse/controllers/project_tabs_controller";
@@ -58,6 +58,12 @@ const tabsHTML = `
                 Project details
               </a>
             </li>
+            <li role="tab">
+              <a id="mobile-files-tab" href="#files" data-project-tabs-target="mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" aria-label="Download files. Focus will be moved to the project files.">
+                <i class="fa fa-download" aria-hidden="true"></i>
+                Download files
+              </a>
+            </li>
             </li>
           </ul>
         </nav>
@@ -79,6 +85,24 @@ const tabsHTML = `
             <span>Release history</span>
             <a class="reset-text margin-top" href="#project-release-notifications">Release notifications</a>
           </h2>
+        </div>
+
+        {# Tab: Download files #}
+        <div id="files" data-project-tabs-target="content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="files-tab mobile-files-tab" tabindex="-1">
+          <h2 class="page-title">Download files</h2>
+          <div class="file">
+            <div class="card file__card">
+              <a href="/files/sample-1.0.tar.gz">sample-1.0.tar.gz</a>
+              (1.0 KB
+              <a href="#sample-1.0.tar.gz" data-project-tabs-target="tab mobileTab" data-action="project-tabs#onTabClick">view details</a>)
+            </div>
+          </div>
+        </div>
+
+        {# Tab: file details #}
+        <div id="sample-1.0.tar.gz" data-project-tabs-target="content" class="vertical-tabs__content" role="tabpanel" tabindex="-1">
+          <h2 class="page-title">File details</h2>
+          <p>Details for the file sample-1.0.tar.gz.</p>
         </div>
       </div>
     </div>
@@ -156,6 +180,32 @@ describe("Project tabs controller", () => {
           const tab = document.getElementById(`${tabID}-tab`);
           expect(tab).not.toHaveClass("vertical-tabs__tab--is-active");
         });
+      });
+    });
+
+    describe("viewing file details on mobile viewport", () => {
+      it("does not switch away from file details on resize", () => {
+        jest.useFakeTimers();
+
+        // Click "view details" to show file detail tab
+        document.querySelector("a[href='#sample-1.0.tar.gz']").click();
+        expect(document.getElementById("sample-1.0.tar.gz")).toHaveStyle("display: block");
+        expect(document.getElementById("description")).toHaveStyle("display: none");
+
+        // Simulate mobile viewport (triggers mobileTabTargets path in _getTabs)
+        Object.defineProperty(window, "innerWidth", { value: 500, configurable: true });
+
+        // Trigger resize event (as mobile browsers do when scrolling)
+        window.dispatchEvent(new Event("resize"));
+        jest.advanceTimersByTime(100);
+
+        // File details should still be visible, not switched back to description
+        expect(document.getElementById("sample-1.0.tar.gz")).toHaveStyle("display: block");
+        expect(document.getElementById("description")).toHaveStyle("display: none");
+
+        Object.defineProperty(window, "innerWidth", { value: 1024, configurable: true });
+        jest.useRealTimers();
+        window.location.hash = "#history";
       });
     });
 
