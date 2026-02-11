@@ -986,12 +986,12 @@ msgstr ""
 msgid "Passwords do not match"
 msgstr ""
 
-#: warehouse/static/js/warehouse/controllers/password_strength_gauge_controller.js:15
+#: warehouse/static/js/warehouse/controllers/password_strength_gauge_controller.js:40
 #: warehouse/templates/base.html:20
 msgid "Password field is empty"
 msgstr ""
 
-#: warehouse/static/js/warehouse/controllers/password_strength_gauge_controller.js:30
+#: warehouse/static/js/warehouse/controllers/password_strength_gauge_controller.js:53
 msgid "Password is strong"
 msgstr ""
 
