@@ -605,6 +605,42 @@ export WAREHOUSE_IPYTHON_SHELL=1
 Now you will be able to run the `make shell` command to get the IPython
 shell.
 
+## Running Pyramid p-scripts
+
+Pyramid ships with a set of [p-scripts](https://docs.pylonsproject.org/projects/pyramid/en/latest/pscripts/index.html)
+that let you inspect the running application's configuration. These are
+useful for investigating the tween chain, registered routes, and views.
+
+Available scripts: `ptweens`, `proutes`, `pviews`, `pshell`, `prequest`,
+`pdistreport`. `pserve` is not supported — use `make serve` (gunicorn)
+instead.
+
+To run them inside the `web` container, use `development.ini`:
+
+```shell
+docker compose run --rm web ptweens development.ini
+docker compose run --rm web proutes development.ini
+docker compose run --rm web pviews development.ini /
+docker compose run --rm web pshell development.ini
+```
+
+`prequest` issues a request directly against the application (without
+needing a running server), which is handy for scripting or quick checks:
+
+```shell
+# Fetch homepage HTML with response headers
+docker compose run --rm web prequest development.ini / -d
+
+# Fetch JSON API for a project
+docker compose run --rm web prequest development.ini /pypi/pip/json -d
+```
+
+!!! note
+    The `development.ini` file is a minimal PasteDeploy configuration
+    that delegates to the same `configure()` function used by gunicorn.
+    All application settings still come from environment variables
+    (loaded via `dev/environment`).
+
 ## Running tests and linters
 
 !!! note
