@@ -79,6 +79,7 @@ if typing.TYPE_CHECKING:
     from warehouse.oidc.models import OIDCPublisher
 
 _MONOTONIC_SEQUENCE = 42
+PROJECT_NAME_PATTERN = "^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$"
 
 
 class Role(db.Model):
@@ -252,7 +253,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
 
     __table_args__ = (
         CheckConstraint(
-            "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'::text",
+            f"name ~* '{PROJECT_NAME_PATTERN}'::text",
             name="projects_valid_name",
         ),
         CheckConstraint(

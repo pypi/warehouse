@@ -1,8 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pretend
+import psycopg
 import pytest
 
+from warehouse.accounts.models import User
 from warehouse.oidc import errors
 from warehouse.oidc.models import _core
 
@@ -29,6 +31,40 @@ def test_check_claim_invariant():
     assert wrapped(identity, object(), pretend.stub()) is False
     assert wrapped(object(), identity, pretend.stub()) is False
     assert wrapped(identity, identity, pretend.stub()) is True
+
+
+class TestPendingOIDCPublisher:
+    def test_project_name_constraint(self, db_session):
+        user = User(username="testuser", password="dummy-password", name="Test User")
+        db_session.add(user)
+        db_session.flush()
+
+        invalid_project_name = "İnspect"
+        publisher = _core.PendingOIDCPublisher(
+            project_name=invalid_project_name,
+            added_by_id=user.id,
+        )
+        db_session.add(publisher)
+        with pytest.raises(psycopg.errors.CheckViolation):
+            db_session.flush()
+
+    def test_project_name_constraint_valid(self, db_session):
+        user = User(
+            username="testuser2",
+            password="another-dummy-password",
+            name="Another Test User",
+        )
+        db_session.add(user)
+        db_session.flush()
+
+        valid_project_name = "good-name_123"
+        publisher = _core.PendingOIDCPublisher(
+            project_name=valid_project_name,
+            added_by_id=user.id,
+        )
+        db_session.add(publisher)
+        db_session.flush()
+        assert publisher.project_name == valid_project_name
 
 
 class TestOIDCPublisher:
