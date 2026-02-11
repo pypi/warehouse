@@ -1088,9 +1088,9 @@ limits==5.8.0 \
     --hash=sha256:ae1b008a43eb43073c3c579398bd4eb4c795de60952532dc24720ab45e1ac6b8 \
     --hash=sha256:c9e0d74aed837e8f6f50d1fcebcf5fd8130957287206bc3799adaee5092655da
     # via -r requirements/main.in
-linehaul==1.0.2 \
-    --hash=sha256:4545fee3b54df22c697d204da8668e8fd975afcb28cbb5654865e43491c70ff0 \
-    --hash=sha256:e2f91cda162ed05d3053426ac21e1546313513d4fbaeda74d085b7b54a2cb914
+linehaul==1.0.3 \
+    --hash=sha256:4f3946d1f08c432bea6f11261971c8fe400f14e29210a869c190f003bf012485 \
+    --hash=sha256:a7927a848a69b580cd320ac3fc03abb7713619bdb59fc33e4e807438d54b43e6
     # via -r requirements/main.in
 logfury==1.0.1 \
     --hash=sha256:130a5daceab9ad534924252ddf70482aa2c96662b3a3825a7d30981d03b76a26 \
