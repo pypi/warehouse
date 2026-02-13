@@ -9,13 +9,22 @@ from uuid import UUID
 import rfc3986
 import sentry_sdk
 
-from sqlalchemy import ForeignKey, Index, String, UniqueConstraint, func, orm
+from sqlalchemy import (
+    CheckConstraint,
+    ForeignKey,
+    Index,
+    String,
+    UniqueConstraint,
+    func,
+    orm,
+)
 from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
 from warehouse.oidc.errors import InvalidPublisherError, ReusedTokenError
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.urls import verify_url_from_reference
+from warehouse.packaging.models import PROJECT_NAME_PATTERN
 
 if TYPE_CHECKING:
     from pypi_attestations import Publisher
@@ -395,6 +404,10 @@ class PendingOIDCPublisher(OIDCPublisherMixin, db.Model):
     )
 
     __table_args__ = (
+        CheckConstraint(
+            f"project_name ~* '{PROJECT_NAME_PATTERN}'::text",
+            name="pending_oidc_publishers_project_name_valid_name",
+        ),
         Index(
             "pending_project_name_ultranormalized",
             func.ultranormalize_name(project_name),
