@@ -3,7 +3,7 @@
 Bump metadata fields
 
 Revision ID: 28c1e0646708
-Revises: ee66c00f12e6
+Revises: a6045de6d1fe
 Create Date: 2026-02-10 18:32:06.895984
 """
 
@@ -11,7 +11,7 @@ from alembic import op
 from alembic_postgresql_enum import ColumnType, TableReference
 
 revision = "28c1e0646708"
-down_revision = "ee66c00f12e6"
+down_revision = "a6045de6d1fe"
 
 
 def upgrade():
