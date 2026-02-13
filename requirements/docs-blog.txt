@@ -585,9 +585,9 @@ pillow==12.1.1 \
     # via
     #   -r requirements/docs-blog.in
     #   cairosvg
-platformdirs==4.5.1 \
-    --hash=sha256:61d5cdcc6065745cdd94f0f878977f8de9437be93de97c1c12f853c9c0cdcbda \
-    --hash=sha256:d03afa3963c806a9bed9d5125c8f4cb2fdaf74a55ab60e5d59b3fde758104d31
+platformdirs==4.7.0 \
+    --hash=sha256:1ed8db354e344c5bb6039cd727f096af975194b508e37177719d562b2b540ee6 \
+    --hash=sha256:fd1a5f8599c85d49b9ac7d6e450bc2f1aaf4a23f1fe86d09952fe20ad365cf36
     # via mkdocs-get-deps
 pycparser==3.0 \
     --hash=sha256:600f49d217304a5902ac3c37e1281c9fe94e4d0489de643a9504c5cdfdfc6b29 \
