@@ -1,2 +1,2 @@
-gunicorn<24.0.0  # pin to below 24 to avoid a restart error
+gunicorn<26.0.0  # pin to below 24 to avoid a restart error
 ddtrace==4.4.0
