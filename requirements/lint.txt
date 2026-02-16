@@ -613,9 +613,9 @@ pep8-naming==0.15.1 \
     --hash=sha256:eb63925e7fd9e028c7f7ee7b1e413ec03d1ee5de0e627012102ee0222c273c86 \
     --hash=sha256:f6f4a499aba2deeda93c1f26ccc02f3da32b035c8b2db9696b730ef2c9639d29
     # via -r requirements/lint.in
-platformdirs==4.5.1 \
-    --hash=sha256:61d5cdcc6065745cdd94f0f878977f8de9437be93de97c1c12f853c9c0cdcbda \
-    --hash=sha256:d03afa3963c806a9bed9d5125c8f4cb2fdaf74a55ab60e5d59b3fde758104d31
+platformdirs==4.9.2 \
+    --hash=sha256:9170634f126f8efdae22fb58ae8a0eaa86f38365bc57897a6c4f781d1f5875bd \
+    --hash=sha256:9a33809944b9db043ad67ca0db94b14bf452cc6aeaac46a88ea55b26e2e9d291
     # via black
 polib==1.2.0 \
     --hash=sha256:1c77ee1b81feb31df9bca258cbc58db1bbb32d10214b173882452c73af06d62d \
