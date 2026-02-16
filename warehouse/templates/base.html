@@ -200,9 +200,7 @@
             crossorigin="anonymous"></script>
     {% if devPyPI %}<script src="{{ request.registry.settings.get("livereload.url") }}/livereload.js"></script>{% endif %}
   </head>
-  <body data-controller="viewport-toggle"
-        data-allowed-domains="{{ request.hashed_domains }}"
-        data-request-nonce="{{ request.nonce }}">
+  <body data-controller="viewport-toggle">
     {% block body %}
       <!-- Accessibility: this link should always be the first piece of content inside the body-->
       <a href="#content" class="skip-to-content">{% trans %}Skip to main content{% endtrans %}</a>

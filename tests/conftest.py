@@ -39,7 +39,7 @@ from warehouse.accounts.interfaces import (
     ITokenService,
     IUserService,
 )
-from warehouse.accounts.oauth import IOAuthProviderService, NullOAuthClient
+from warehouse.accounts.oauth import IOAuthProviderService, NullGitHubOAuthClient
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.attestations import services as attestations_services
 from warehouse.attestations.interfaces import IIntegrityService
@@ -167,7 +167,7 @@ def pyramid_services(
     search_service,
     domain_status_service,
     ratelimit_service,
-    oauth_provider_service,
+    github_oauth_provider_service,
 ):
     services = _Services()
 
@@ -197,7 +197,7 @@ def pyramid_services(
     services.register_service(ratelimit_service, IRateLimiter, name="email.add")
     services.register_service(ratelimit_service, IRateLimiter, name="email.verify")
     services.register_service(
-        oauth_provider_service, IOAuthProviderService, name="github"
+        github_oauth_provider_service, IOAuthProviderService, name="github"
     )
 
     return services
@@ -267,11 +267,11 @@ def cli():
 @pytest.fixture(scope="session")
 def database(request, worker_id):
     config = get_config(request)
-    pg_host = config.get("host")
-    pg_port = config.get("port") or os.environ.get("PGPORT", 5432)
-    pg_user = config.get("user")
+    pg_host = config.host
+    pg_port = config.port or os.environ.get("PGPORT", 5432)
+    pg_user = config.user
     pg_db = f"tests-{worker_id}"
-    pg_version = config.get("version", 16.1)
+    pg_version = 17
 
     janitor = DatabaseJanitor(
         user=pg_user,
@@ -353,7 +353,7 @@ def get_app_config(database, nondefaults=None):
         "oidc.jwk_cache_url": "redis://localhost:0/",
         "warehouse.oidc.audience": "pypi",
         "oidc.backend": "warehouse.oidc.services.NullOIDCPublisherService",
-        "github.oauth.backend": "warehouse.accounts.oauth.NullOAuthClient",
+        "github.oauth.backend": "warehouse.accounts.oauth.NullGitHubOAuthClient",
         "captcha.backend": "warehouse.captcha.hcaptcha.Service",
     }
 
@@ -571,8 +571,8 @@ def ratelimit_service(mocker):
 
 
 @pytest.fixture
-def oauth_provider_service(mocker):
-    service = NullOAuthClient()
+def github_oauth_provider_service(mocker):
+    service = NullGitHubOAuthClient(redirect_uri="http://localhost/callback")
     mocker.spy(service, "generate_authorize_url")
     mocker.spy(service, "exchange_code_for_token")
     mocker.spy(service, "get_user_info")

@@ -103,6 +103,7 @@ services:
       # Included to support linters during development
       - ./gunicorn-prod.conf.py:/opt/warehouse/src/gunicorn-prod.conf.py:z
       - ./gunicorn-uploads.conf.py:/opt/warehouse/src/gunicorn-uploads.conf.py:z
+      - ./development.ini:/opt/warehouse/src/development.ini:z
 
   web:
     image: warehouse:docker-compose
