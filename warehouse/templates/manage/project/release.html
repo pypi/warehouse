@@ -36,6 +36,7 @@
       <caption class="sr-only">{% trans version=release.version, project_name=project.name %}Files for release {{ version }} of {{ project_name }}{% endtrans %}</caption>
       <thead>
         <tr>
+          <th scope="col">{% trans %}Select{% endtrans %}</th>
           <th scope="col">{% trans %}Filename, size{% endtrans %}</th>
           <th scope="col">{% trans %}Type{% endtrans %}</th>
           <th scope="col">{% trans %}Python version{% endtrans %}</th>
@@ -46,6 +47,12 @@
       <tbody>
         {% for file in files %}
           <tr>
+            <td>
+              <input type="checkbox"
+                     name="file_ids"
+                     value="{{ file.id }}"
+                     form="bulk-delete-files-form">
+            </td>
             <th scope="row">
               <span class="table__mobile-label">{% trans %}Filename, size{% endtrans %}</span>
               <a href="{{ request.route_url('packaging.file', path=file.path) }}">{{ file.filename }}</a>
@@ -142,6 +149,29 @@
         {% endfor %}
       </tbody>
     </table>
+    <div class="callout-block callout-block--bottom-margin">
+      <h3>{% trans %}Bulk file actions{% endtrans %}</h3>
+      <form id="bulk-delete-files-form"
+            method="post"
+            action="{{ request.current_route_path() }}">
+        <input name="csrf_token"
+               type="hidden"
+               value="{{ request.session.get_csrf_token() }}">
+        <div class="form-group">
+          <label for="bulk-confirm-project-name">{% trans %}Project name{% endtrans %}</label>
+          <input id="bulk-confirm-project-name"
+                 name="confirm_project_name"
+                 type="text"
+                 autocomplete="off"
+                 autocapitalize="off"
+                 spellcheck="false">
+        </div>
+        <button type="submit"
+                class="button button--danger"
+                name="bulk_delete_files"
+                value="1">{% trans %}Delete selected files{% endtrans %}</button>
+      </form>
+    </div>
   {% endif %}
   <div class="callout-block"
        data-controller="dismissable"

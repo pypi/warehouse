@@ -1,11 +1,14 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 {% extends "manage_project_base.html" %}
 {% set active_tab = "releases" %}
-{% macro release_table(releases, show_yanked_reason=False) %}
+{% macro release_table(releases, show_yanked_reason=False, selection_form_id=None) %}
   <table class="table table--releases">
     <caption class="sr-only">{% trans project_name=project.name %}Releases for {{ project_name }}{% endtrans %}</caption>
     <thead>
       <tr>
+        {% if selection_form_id %}
+          <th scope="col">{% trans %}Select{% endtrans %}</th>
+        {% endif %}
         <th scope="col">{% trans %}Version{% endtrans %}</th>
         <th scope="col">{% trans %}Release date{% endtrans %}</th>
         <th scope="col">{% trans %}Files{% endtrans %}</th>
@@ -18,6 +21,14 @@
     <tbody>
       {% for release in releases %}
         <tr>
+          {% if selection_form_id %}
+            <td>
+              <input type="checkbox"
+                     name="release_versions"
+                     value="{{ release.version }}"
+                     form="{{ selection_form_id }}">
+            </td>
+          {% endif %}
           <th scope="row">
             <a href="{{ request.route_path('manage.project.release', project_name=project.name, version=release.version) }}"
                title="{% trans %}Manage version{% endtrans %}">{{ release.version }}</a>
@@ -161,7 +172,43 @@
       {% trans %}Releases{% endtrans %}
       <span class="badge badge--neutral">{{ releases|length }}</span>
     </h2>
-    {{ release_table(releases) }}
+    {{ release_table(releases, selection_form_id="bulk-release-actions-active") }}
+    <div class="callout-block callout-block--bottom-margin">
+      <h3>{% trans %}Bulk release actions{% endtrans %}</h3>
+      <form id="bulk-release-actions-active"
+            method="post"
+            action="{{ request.current_route_path() }}">
+        <input name="csrf_token"
+               type="hidden"
+               value="{{ request.session.get_csrf_token() }}">
+        <div class="form-group">
+          <label for="bulk-confirm-project-name-active">{% trans %}Project name{% endtrans %}</label>
+          <input id="bulk-confirm-project-name-active"
+                 name="confirm_project_name"
+                 type="text"
+                 autocomplete="off"
+                 autocapitalize="off"
+                 spellcheck="false">
+        </div>
+        <div class="form-group">
+          <label for="bulk-yanked-reason-active">{% trans %}Reason (optional){% endtrans %}</label>
+          <input id="bulk-yanked-reason-active"
+                 name="yanked_reason"
+                 type="text"
+                 autocomplete="off"
+                 autocapitalize="off"
+                 spellcheck="false">
+        </div>
+        <button type="submit"
+                class="button button--primary"
+                name="bulk_release_action"
+                value="yank">{% trans %}Yank selected releases{% endtrans %}</button>
+        <button type="submit"
+                class="button button--danger"
+                name="bulk_release_action"
+                value="delete">{% trans %}Delete selected releases{% endtrans %}</button>
+      </form>
+    </div>
   {% endif %}
   {% set yanked_releases = project.yanked_releases %}
   {% if yanked_releases %}
@@ -169,7 +216,34 @@
       {% trans %}Yanked releases{% endtrans %}
       <span class="badge badge--neutral">{{ yanked_releases|length }}</span>
     </h2>
-    {{ release_table(yanked_releases, show_yanked_reason=True) }}
+    {{ release_table(yanked_releases, show_yanked_reason=True, selection_form_id="bulk-release-actions-yanked") }}
+    <div class="callout-block callout-block--bottom-margin">
+      <h3>{% trans %}Bulk release actions{% endtrans %}</h3>
+      <form id="bulk-release-actions-yanked"
+            method="post"
+            action="{{ request.current_route_path() }}">
+        <input name="csrf_token"
+               type="hidden"
+               value="{{ request.session.get_csrf_token() }}">
+        <div class="form-group">
+          <label for="bulk-confirm-project-name-yanked">{% trans %}Project name{% endtrans %}</label>
+          <input id="bulk-confirm-project-name-yanked"
+                 name="confirm_project_name"
+                 type="text"
+                 autocomplete="off"
+                 autocapitalize="off"
+                 spellcheck="false">
+        </div>
+        <button type="submit"
+                class="button button--primary"
+                name="bulk_release_action"
+                value="unyank">{% trans %}Un-yank selected releases{% endtrans %}</button>
+        <button type="submit"
+                class="button button--danger"
+                name="bulk_release_action"
+                value="delete">{% trans %}Delete selected releases{% endtrans %}</button>
+      </form>
+    </div>
   {% endif %}
   <div class="callout-block"
        data-controller="dismissable"
