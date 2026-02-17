@@ -119,6 +119,18 @@ from warehouse.utils.project import (
 )
 
 
+def _post_getall(post, key):
+    if hasattr(post, "getall"):
+        return post.getall(key)
+
+    value = post.get(key)
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return value
+    return [value]
+
+
 class ManageAccountMixin:
     def __init__(self, request):
         self.request = request
@@ -1427,6 +1439,7 @@ def destroy_project_docs(project, request):
     context=Project,
     renderer="warehouse:templates/manage/project/releases.html",
     uses_session=True,
+    require_methods=["GET"],
     permission=Permissions.ProjectsRead,
     has_translations=True,
     require_reauth=True,
@@ -1462,6 +1475,207 @@ def manage_project_releases(project, request):
         packagetype_to_count["total"] += count
 
     return {"project": project, "version_to_file_counts": version_to_file_counts}
+
+
+@view_config(
+    route_name="manage.project.releases",
+    context=Project,
+    uses_session=True,
+    require_csrf=True,
+    require_methods=["POST"],
+    request_param=["confirm_project_name", "bulk_release_action"],
+    permission=Permissions.ProjectsWrite,
+    has_translations=True,
+    require_reauth=True,
+)
+def bulk_manage_project_releases(project, request):
+    def _error(message):
+        request.session.flash(message, queue="error")
+        return HTTPSeeOther(
+            request.route_path("manage.project.releases", project_name=project.name)
+        )
+
+    action = request.POST.get("bulk_release_action")
+
+    if action == "delete" and request.flags.enabled(AdminFlagValue.DISALLOW_DELETION):
+        return _error(
+            request._(
+                "Project deletion temporarily disabled. "
+                "See https://pypi.org/help#admin-intervention for details."
+            )
+        )
+
+    project_name = request.POST.get("confirm_project_name")
+    if not project_name:
+        return _error(request._("Confirm the request"))
+
+    if project_name != project.name:
+        return _error(
+            request._(
+                "Could not manage releases - "
+                + f"{project_name!r} is not the same as {project.name!r}"
+            )
+        )
+
+    release_versions = list(
+        dict.fromkeys(_post_getall(request.POST, "release_versions"))
+    )
+    if not release_versions:
+        return _error(request._("Select at least one release"))
+
+    releases = (
+        request.db.query(Release)
+        .filter(Release.project == project, Release.version.in_(release_versions))
+        .all()
+    )
+    if len(releases) != len(release_versions):
+        return _error(request._("Could not find one or more releases"))
+
+    yanked_reason = request.POST.get("yanked_reason", "")
+    submitter_role = get_user_role_in_project(project, request.user, request)
+    contributors = list(project.users)
+
+    processed = 0
+    for release in releases:
+        if action == "yank":
+            if release.yanked:
+                continue
+
+            request.db.add(
+                JournalEntry(
+                    name=project.name,
+                    action="yank release",
+                    version=release.version,
+                    submitted_by=request.user,
+                )
+            )
+            project.record_event(
+                tag=EventTag.Project.ReleaseYank,
+                request=request,
+                additional={
+                    "submitted_by": request.user.username,
+                    "canonical_version": release.canonical_version,
+                    "yanked_reason": yanked_reason,
+                },
+            )
+
+            release.yanked = True
+            release.yanked_reason = yanked_reason
+
+            for contributor in contributors:
+                contributor_role = get_user_role_in_project(
+                    project, contributor, request
+                )
+                send_yanked_project_release_email(
+                    request,
+                    contributor,
+                    release=release,
+                    submitter_name=request.user.username,
+                    submitter_role=submitter_role,
+                    recipient_role=contributor_role,
+                )
+
+            processed += 1
+        elif action == "unyank":
+            if not release.yanked:
+                continue
+
+            request.db.add(
+                JournalEntry(
+                    name=project.name,
+                    action="unyank release",
+                    version=release.version,
+                    submitted_by=request.user,
+                )
+            )
+            project.record_event(
+                tag=EventTag.Project.ReleaseUnyank,
+                request=request,
+                additional={
+                    "submitted_by": request.user.username,
+                    "canonical_version": release.canonical_version,
+                },
+            )
+
+            release.yanked = False
+            release.yanked_reason = ""
+
+            for contributor in contributors:
+                contributor_role = get_user_role_in_project(
+                    project, contributor, request
+                )
+                send_unyanked_project_release_email(
+                    request,
+                    contributor,
+                    release=release,
+                    submitter_name=request.user.username,
+                    submitter_role=submitter_role,
+                    recipient_role=contributor_role,
+                )
+
+            processed += 1
+        elif action == "delete":
+            request.db.add(
+                JournalEntry(
+                    name=project.name,
+                    action="remove release",
+                    version=release.version,
+                    submitted_by=request.user,
+                )
+            )
+            project.record_event(
+                tag=EventTag.Project.ReleaseRemove,
+                request=request,
+                additional={
+                    "submitted_by": request.user.username,
+                    "canonical_version": release.canonical_version,
+                },
+            )
+
+            for contributor in contributors:
+                contributor_role = get_user_role_in_project(
+                    project, contributor, request
+                )
+                send_removed_project_release_email(
+                    request,
+                    contributor,
+                    release=release,
+                    submitter_name=request.user.username,
+                    submitter_role=submitter_role,
+                    recipient_role=contributor_role,
+                )
+
+            request.db.delete(release)
+            processed += 1
+        else:
+            return _error(request._("Could not find bulk release action"))
+
+    if processed == 0:
+        return _error(request._("No releases matched the selected action"))
+
+    if action == "delete":
+        if processed == 1:
+            message = request._("Deleted release")
+        else:
+            message = request._("Deleted %(number)s releases") % {"number": processed}
+    elif action == "yank":
+        if processed == 1:
+            message = request._("Yanked release")
+        else:
+            message = request._("Yanked %(number)s releases") % {"number": processed}
+    elif action == "unyank":
+        if processed == 1:
+            message = request._("Un-yanked release")
+        else:
+            message = request._("Un-yanked %(number)s releases") % {"number": processed}
+    else:
+        return _error(request._("Could not find bulk release action"))
+
+    request.session.flash(message, queue="success")
+
+    return HTTPSeeOther(
+        request.route_path("manage.project.releases", project_name=project.name)
+    )
 
 
 @view_defaults(
@@ -1851,6 +2065,122 @@ class ManageProjectRelease:
         self.request.session.flash(
             f"Deleted file {release_file.filename!r}", queue="success"
         )
+
+        return HTTPSeeOther(
+            self.request.route_path(
+                "manage.project.release",
+                project_name=self.release.project.name,
+                version=self.release.version,
+            )
+        )
+
+    @view_config(
+        request_method="POST",
+        request_param=["confirm_project_name", "bulk_delete_files"],
+        require_reauth=True,
+    )
+    def bulk_delete_project_release_files(self):
+        def _error(message):
+            self.request.session.flash(message, queue="error")
+            return HTTPSeeOther(
+                self.request.route_path(
+                    "manage.project.release",
+                    project_name=self.release.project.name,
+                    version=self.release.version,
+                )
+            )
+
+        if self.request.flags.enabled(AdminFlagValue.DISALLOW_DELETION):
+            return _error(
+                self.request._(
+                    "Project deletion temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                )
+            )
+
+        project_name = self.request.POST.get("confirm_project_name")
+        if not project_name:
+            return _error(self.request._("Confirm the request"))
+
+        if project_name != self.release.project.name:
+            return _error(
+                self.request._(
+                    "Could not delete files - "
+                    + f"{project_name!r} is not the same as "
+                    f"{self.release.project.name!r}"
+                )
+            )
+
+        try:
+            file_ids = [
+                file_id if isinstance(file_id, uuid.UUID) else uuid.UUID(str(file_id))
+                for file_id in _post_getall(self.request.POST, "file_ids")
+            ]
+        except (TypeError, ValueError, AttributeError):
+            return _error(self.request._("Could not find file"))
+
+        file_ids = list(dict.fromkeys(file_ids))
+        if not file_ids:
+            return _error(self.request._("Select at least one file"))
+
+        release_files = (
+            self.request.db.query(File)
+            .filter(File.release == self.release, File.id.in_(file_ids))
+            .all()
+        )
+        if len(release_files) != len(file_ids):
+            return _error(self.request._("Could not find file"))
+
+        submitter_role = get_user_role_in_project(
+            self.release.project, self.request.user, self.request
+        )
+        contributors = list(self.release.project.users)
+
+        for release_file in release_files:
+            self.request.db.add(
+                JournalEntry(
+                    name=self.release.project.name,
+                    action=f"remove file {release_file.filename}",
+                    version=self.release.version,
+                    submitted_by=self.request.user,
+                )
+            )
+
+            release_file.record_event(
+                tag=EventTag.File.FileRemove,
+                request=self.request,
+                additional={
+                    "submitted_by": self.request.user.username,
+                    "canonical_version": self.release.canonical_version,
+                    "filename": release_file.filename,
+                    "project_id": str(self.release.project.id),
+                },
+            )
+
+            for contributor in contributors:
+                contributor_role = get_user_role_in_project(
+                    self.release.project, contributor, self.request
+                )
+                send_removed_project_release_file_email(
+                    self.request,
+                    contributor,
+                    file=release_file.filename,
+                    release=self.release,
+                    submitter_name=self.request.user.username,
+                    submitter_role=submitter_role,
+                    recipient_role=contributor_role,
+                )
+
+            self.request.db.delete(release_file)
+
+        deleted_count = len(release_files)
+        if deleted_count == 1:
+            self.request.session.flash(self.request._("Deleted file"), queue="success")
+        else:
+            self.request.session.flash(
+                self.request._("Deleted %(number)s files") % {"number": deleted_count},
+                queue="success",
+            )
 
         return HTTPSeeOther(
             self.request.route_path(

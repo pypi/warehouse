@@ -4043,6 +4043,18 @@ class TestManageProjectDocumentation:
 
 
 class TestManageProjectReleases:
+    @pytest.mark.parametrize(
+        ("post", "expected"),
+        [
+            (MultiDict([("values", "1"), ("values", "2")]), ["1", "2"]),
+            ({"values": ["1", "2"]}, ["1", "2"]),
+            ({"values": "1"}, ["1"]),
+            ({}, []),
+        ],
+    )
+    def test_post_getall(self, post, expected):
+        assert views._post_getall(post, "values") == expected
+
     def test_manage_project_releases(self, db_request):
         project = ProjectFactory.create(name="foobar")
         release = ReleaseFactory.create(project=project, version="1.0.0")
@@ -4059,6 +4071,459 @@ class TestManageProjectReleases:
                 release.version: {"total": 1, release_file.packagetype: 1}
             },
         }
+
+    def test_bulk_manage_project_releases_disallow_deletion(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        release = ReleaseFactory.create(project=project, version="1.0.0")
+
+        db_request.method = "POST"
+        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: True))
+        db_request.POST = MultiDict(
+            [
+                ("confirm_project_name", project.name),
+                ("bulk_release_action", "delete"),
+                ("release_versions", release.version),
+            ]
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.bulk_manage_project_releases(project, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_DELETION)
+        ]
+        assert db_request.db.query(Release).filter_by(id=release.id).one()
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                (
+                    "Project deletion temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.releases", project_name=project.name)
+        ]
+
+    def test_bulk_manage_project_releases_no_confirm(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        db_request.method = "POST"
+        db_request.POST = {
+            "confirm_project_name": "",
+            "bulk_release_action": "yank",
+        }
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.bulk_manage_project_releases(project, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.session.flash.calls == [
+            pretend.call("Confirm the request", queue="error")
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.releases", project_name=project.name)
+        ]
+
+    def test_bulk_manage_project_releases_bad_confirm(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        db_request.method = "POST"
+        db_request.POST = {
+            "confirm_project_name": "invalid",
+            "bulk_release_action": "yank",
+            "release_versions": [],
+        }
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.bulk_manage_project_releases(project, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Could not manage releases - "
+                + f"'invalid' is not the same as {project.name!r}",
+                queue="error",
+            )
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.releases", project_name=project.name)
+        ]
+
+    def test_bulk_manage_project_releases_no_selected_releases(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        db_request.method = "POST"
+        db_request.POST = {
+            "confirm_project_name": project.name,
+            "bulk_release_action": "yank",
+        }
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.bulk_manage_project_releases(project, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.session.flash.calls == [
+            pretend.call("Select at least one release", queue="error")
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.releases", project_name=project.name)
+        ]
+
+    def test_bulk_manage_project_releases_release_not_found(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        release = ReleaseFactory.create(project=project, version="1.0.0")
+
+        db_request.method = "POST"
+        db_request.POST = {
+            "confirm_project_name": project.name,
+            "bulk_release_action": "yank",
+            "release_versions": [release.version, "9.9.9"],
+        }
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.bulk_manage_project_releases(project, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.session.flash.calls == [
+            pretend.call("Could not find one or more releases", queue="error")
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.releases", project_name=project.name)
+        ]
+
+    def test_bulk_manage_project_releases_invalid_action(self, db_request):
+        user = UserFactory.create()
+        project = ProjectFactory.create(name="foobar")
+        release = ReleaseFactory.create(project=project, version="1.0.0", yanked=False)
+        RoleFactory.create(user=user, project=project)
+        project.record_event = pretend.call_recorder(lambda *a, **kw: None)
+
+        db_request.method = "POST"
+        db_request.user = user
+        db_request.POST = {
+            "confirm_project_name": project.name,
+            "bulk_release_action": "invalid",
+            "release_versions": [release.version],
+        }
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.bulk_manage_project_releases(project, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert not release.yanked
+        assert db_request.session.flash.calls == [
+            pretend.call("Could not find bulk release action", queue="error")
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.releases", project_name=project.name)
+        ]
+
+    def test_bulk_manage_project_releases_no_matching_releases(self, db_request):
+        user = UserFactory.create()
+        project = ProjectFactory.create(name="foobar")
+        release = ReleaseFactory.create(project=project, version="1.0.0", yanked=False)
+        RoleFactory.create(user=user, project=project)
+
+        db_request.method = "POST"
+        db_request.user = user
+        db_request.POST = {
+            "confirm_project_name": project.name,
+            "bulk_release_action": "unyank",
+            "release_versions": [release.version],
+        }
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.bulk_manage_project_releases(project, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert not release.yanked
+        assert db_request.session.flash.calls == [
+            pretend.call("No releases matched the selected action", queue="error")
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.releases", project_name=project.name)
+        ]
+
+    def test_bulk_manage_project_releases_yank(self, monkeypatch, db_request):
+        user = UserFactory.create()
+        project = ProjectFactory.create(name="foobar")
+        RoleFactory.create(user=user, project=project)
+        release_one = ReleaseFactory.create(
+            project=project, version="1.0.0", yanked=False
+        )
+        release_two = ReleaseFactory.create(
+            project=project, version="2.0.0", yanked=False
+        )
+        project.record_event = pretend.call_recorder(lambda *a, **kw: None)
+
+        db_request.method = "POST"
+        db_request.user = user
+        db_request.POST = MultiDict(
+            [
+                ("confirm_project_name", project.name),
+                ("bulk_release_action", "yank"),
+                ("yanked_reason", "Bulk reason"),
+                ("release_versions", release_one.version),
+                ("release_versions", release_two.version),
+            ]
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        send_yanked_project_release_email = pretend.call_recorder(
+            lambda req, contributor, **kwargs: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_yanked_project_release_email",
+            send_yanked_project_release_email,
+        )
+
+        get_user_role_in_project = pretend.call_recorder(
+            lambda project, user, request: "Owner"
+        )
+        monkeypatch.setattr(views, "get_user_role_in_project", get_user_role_in_project)
+
+        result = views.bulk_manage_project_releases(project, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert release_one.yanked
+        assert release_one.yanked_reason == "Bulk reason"
+        assert release_two.yanked
+        assert release_two.yanked_reason == "Bulk reason"
+        assert db_request.session.flash.calls == [
+            pretend.call("Yanked 2 releases", queue="success")
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.releases", project_name=project.name)
+        ]
+
+        entries = (
+            db_request.db.query(JournalEntry).filter_by(action="yank release").all()
+        )
+        assert {entry.version for entry in entries} == {
+            release_one.version,
+            release_two.version,
+        }
+        assert len(project.record_event.calls) == 2
+        assert send_yanked_project_release_email.calls == [
+            pretend.call(
+                db_request,
+                db_request.user,
+                release=release_one,
+                submitter_name=db_request.user.username,
+                submitter_role="Owner",
+                recipient_role="Owner",
+            ),
+            pretend.call(
+                db_request,
+                db_request.user,
+                release=release_two,
+                submitter_name=db_request.user.username,
+                submitter_role="Owner",
+                recipient_role="Owner",
+            ),
+        ]
+        assert get_user_role_in_project.calls == [
+            pretend.call(project, db_request.user, db_request),
+            pretend.call(project, db_request.user, db_request),
+            pretend.call(project, db_request.user, db_request),
+        ]
+
+    def test_bulk_manage_project_releases_unyank(self, monkeypatch, db_request):
+        user = UserFactory.create()
+        project = ProjectFactory.create(name="foobar")
+        RoleFactory.create(user=user, project=project)
+        release = ReleaseFactory.create(
+            project=project, version="1.0.0", yanked=True, yanked_reason="Old"
+        )
+        project.record_event = pretend.call_recorder(lambda *a, **kw: None)
+
+        db_request.method = "POST"
+        db_request.user = user
+        db_request.POST = {
+            "confirm_project_name": project.name,
+            "bulk_release_action": "unyank",
+            "release_versions": [release.version],
+        }
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        send_unyanked_project_release_email = pretend.call_recorder(
+            lambda req, contributor, **kwargs: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_unyanked_project_release_email",
+            send_unyanked_project_release_email,
+        )
+
+        get_user_role_in_project = pretend.call_recorder(
+            lambda project, user, request: "Owner"
+        )
+        monkeypatch.setattr(views, "get_user_role_in_project", get_user_role_in_project)
+
+        result = views.bulk_manage_project_releases(project, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert not release.yanked
+        assert release.yanked_reason == ""
+        assert db_request.session.flash.calls == [
+            pretend.call("Un-yanked release", queue="success")
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.releases", project_name=project.name)
+        ]
+        entries = (
+            db_request.db.query(JournalEntry).filter_by(action="unyank release").all()
+        )
+        assert len(entries) == 1
+        assert entries[0].version == release.version
+        assert project.record_event.calls == [
+            pretend.call(
+                tag=EventTag.Project.ReleaseUnyank,
+                request=db_request,
+                additional={
+                    "submitted_by": db_request.user.username,
+                    "canonical_version": release.canonical_version,
+                },
+            )
+        ]
+        assert send_unyanked_project_release_email.calls == [
+            pretend.call(
+                db_request,
+                db_request.user,
+                release=release,
+                submitter_name=db_request.user.username,
+                submitter_role="Owner",
+                recipient_role="Owner",
+            )
+        ]
+        assert get_user_role_in_project.calls == [
+            pretend.call(project, db_request.user, db_request),
+            pretend.call(project, db_request.user, db_request),
+        ]
+
+    def test_bulk_manage_project_releases_delete(self, monkeypatch, db_request):
+        user = UserFactory.create()
+        project = ProjectFactory.create(name="foobar")
+        RoleFactory.create(user=user, project=project)
+        release_one = ReleaseFactory.create(project=project, version="1.0.0")
+        release_two = ReleaseFactory.create(project=project, version="2.0.0")
+        project.record_event = pretend.call_recorder(lambda *a, **kw: None)
+
+        db_request.method = "POST"
+        db_request.user = user
+        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
+        db_request.POST = MultiDict(
+            [
+                ("confirm_project_name", project.name),
+                ("bulk_release_action", "delete"),
+                ("release_versions", release_one.version),
+                ("release_versions", release_two.version),
+            ]
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        send_removed_project_release_email = pretend.call_recorder(
+            lambda req, contributor, **kwargs: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_removed_project_release_email",
+            send_removed_project_release_email,
+        )
+
+        get_user_role_in_project = pretend.call_recorder(
+            lambda project, user, request: "Owner"
+        )
+        monkeypatch.setattr(views, "get_user_role_in_project", get_user_role_in_project)
+
+        result = views.bulk_manage_project_releases(project, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert (
+            db_request.db.query(Release).filter(Release.project == project).all() == []
+        )
+        assert db_request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_DELETION)
+        ]
+        assert db_request.session.flash.calls == [
+            pretend.call("Deleted 2 releases", queue="success")
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.releases", project_name=project.name)
+        ]
+
+        entries = (
+            db_request.db.query(JournalEntry).filter_by(action="remove release").all()
+        )
+        assert {entry.version for entry in entries} == {
+            release_one.version,
+            release_two.version,
+        }
+        assert len(project.record_event.calls) == 2
+        assert send_removed_project_release_email.calls == [
+            pretend.call(
+                db_request,
+                db_request.user,
+                release=release_one,
+                submitter_name=db_request.user.username,
+                submitter_role="Owner",
+                recipient_role="Owner",
+            ),
+            pretend.call(
+                db_request,
+                db_request.user,
+                release=release_two,
+                submitter_name=db_request.user.username,
+                submitter_role="Owner",
+                recipient_role="Owner",
+            ),
+        ]
+        assert get_user_role_in_project.calls == [
+            pretend.call(project, db_request.user, db_request),
+            pretend.call(project, db_request.user, db_request),
+            pretend.call(project, db_request.user, db_request),
+        ]
 
 
 class TestManageProjectRelease:
@@ -4825,6 +5290,374 @@ class TestManageProjectRelease:
                 "manage.project.release",
                 project_name=release.project.name,
                 version=release.version,
+            )
+        ]
+
+    def test_bulk_delete_project_release_files_disallow_deletion(self, pyramid_request):
+        release = pretend.stub(version="1.2.3", project=pretend.stub(name="foobar"))
+        pyramid_request.method = "POST"
+        pyramid_request.flags = pretend.stub(
+            enabled=pretend.call_recorder(lambda *a: True)
+        )
+        pyramid_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/the-redirect"
+        )
+        pyramid_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        view = views.ManageProjectRelease(release, pyramid_request)
+        result = view.bulk_delete_project_release_files()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert pyramid_request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_DELETION)
+        ]
+        assert pyramid_request.session.flash.calls == [
+            pretend.call(
+                (
+                    "Project deletion temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+        ]
+        assert pyramid_request.route_path.calls == [
+            pretend.call(
+                "manage.project.release",
+                project_name=release.project.name,
+                version=release.version,
+            )
+        ]
+
+    def test_bulk_delete_project_release_files_no_confirm(self, pyramid_request):
+        release = pretend.stub(
+            version="1.2.3",
+            project=pretend.stub(name="foobar"),
+        )
+        pyramid_request.method = "POST"
+        pyramid_request.POST = {"confirm_project_name": "", "bulk_delete_files": "1"}
+        pyramid_request.flags = pretend.stub(
+            enabled=pretend.call_recorder(lambda *a: False)
+        )
+        pyramid_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/the-redirect"
+        )
+        pyramid_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        view = views.ManageProjectRelease(release, pyramid_request)
+        result = view.bulk_delete_project_release_files()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert pyramid_request.flags.enabled.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_DELETION)
+        ]
+        assert pyramid_request.session.flash.calls == [
+            pretend.call("Confirm the request", queue="error")
+        ]
+        assert pyramid_request.route_path.calls == [
+            pretend.call(
+                "manage.project.release",
+                project_name=release.project.name,
+                version=release.version,
+            )
+        ]
+
+    def test_bulk_delete_project_release_files_bad_confirm(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        release = ReleaseFactory.create(project=project)
+        release_file = FileFactory.create(release=release, filename="foobar-1.2.3.whl")
+
+        db_request.method = "POST"
+        db_request.POST = {
+            "confirm_project_name": "invalid",
+            "bulk_delete_files": "1",
+            "file_ids": [str(release_file.id)],
+        }
+        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        view = views.ManageProjectRelease(release, db_request)
+        result = view.bulk_delete_project_release_files()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.db.query(File).filter_by(id=release_file.id).one()
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Could not delete files - "
+                + f"'invalid' is not the same as {release.project.name!r}",
+                queue="error",
+            )
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call(
+                "manage.project.release",
+                project_name=release.project.name,
+                version=release.version,
+            )
+        ]
+
+    def test_bulk_delete_project_release_files_invalid_file_id(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        release = ReleaseFactory.create(project=project)
+
+        db_request.method = "POST"
+        db_request.POST = {
+            "confirm_project_name": project.name,
+            "bulk_delete_files": "1",
+            "file_ids": ["not-an-int"],
+        }
+        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        view = views.ManageProjectRelease(release, db_request)
+        result = view.bulk_delete_project_release_files()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.session.flash.calls == [
+            pretend.call("Could not find file", queue="error")
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call(
+                "manage.project.release",
+                project_name=release.project.name,
+                version=release.version,
+            )
+        ]
+
+    def test_bulk_delete_project_release_files_no_selected_files(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        release = ReleaseFactory.create(project=project)
+
+        db_request.method = "POST"
+        db_request.POST = {
+            "confirm_project_name": project.name,
+            "bulk_delete_files": "1",
+        }
+        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        view = views.ManageProjectRelease(release, db_request)
+        result = view.bulk_delete_project_release_files()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.session.flash.calls == [
+            pretend.call("Select at least one file", queue="error")
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call(
+                "manage.project.release",
+                project_name=release.project.name,
+                version=release.version,
+            )
+        ]
+
+    def test_bulk_delete_project_release_files_not_found(self, db_request):
+        project = ProjectFactory.create(name="foobar")
+        release = ReleaseFactory.create(project=project)
+        release_file = FileFactory.create(release=release, filename="foobar-1.2.3.whl")
+
+        db_request.method = "POST"
+        db_request.POST = {
+            "confirm_project_name": project.name,
+            "bulk_delete_files": "1",
+            "file_ids": [str(release_file.id), "999999"],
+        }
+        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        view = views.ManageProjectRelease(release, db_request)
+        result = view.bulk_delete_project_release_files()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.db.query(File).filter_by(id=release_file.id).one()
+        assert db_request.session.flash.calls == [
+            pretend.call("Could not find file", queue="error")
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call(
+                "manage.project.release",
+                project_name=release.project.name,
+                version=release.version,
+            )
+        ]
+
+    def test_bulk_delete_project_release_files(self, monkeypatch, db_request):
+        user = UserFactory.create()
+        project = ProjectFactory.create(name="foobar")
+        release = ReleaseFactory.create(project=project, version="1.2.3")
+        release_file_one = FileFactory.create(
+            release=release, filename=f"foobar-{release.version}-one.tar.gz"
+        )
+        release_file_two = FileFactory.create(
+            release=release,
+            filename=f"foobar-{release.version}-two-py3-none-any.whl",
+            packagetype="bdist_wheel",
+            python_version="py3",
+        )
+        RoleFactory.create(project=project, user=user)
+
+        db_request.method = "POST"
+        db_request.user = user
+        db_request.POST = {
+            "confirm_project_name": project.name,
+            "bulk_delete_files": "1",
+            "file_ids": [str(release_file_one.id), str(release_file_two.id)],
+        }
+        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        get_user_role_in_project = pretend.call_recorder(
+            lambda project, user, req: "Owner"
+        )
+        monkeypatch.setattr(views, "get_user_role_in_project", get_user_role_in_project)
+
+        send_removed_project_release_file_email = pretend.call_recorder(
+            lambda req, user, **k: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_removed_project_release_file_email",
+            send_removed_project_release_file_email,
+        )
+
+        view = views.ManageProjectRelease(release, db_request)
+        result = view.bulk_delete_project_release_files()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert (
+            db_request.db.query(File).filter_by(id=release_file_one.id).first() is None
+        )
+        assert (
+            db_request.db.query(File).filter_by(id=release_file_two.id).first() is None
+        )
+        assert db_request.session.flash.calls == [
+            pretend.call("Deleted 2 files", queue="success")
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call(
+                "manage.project.release",
+                project_name=release.project.name,
+                version=release.version,
+            )
+        ]
+        assert get_user_role_in_project.calls == [
+            pretend.call(project, db_request.user, db_request),
+            pretend.call(project, db_request.user, db_request),
+            pretend.call(project, db_request.user, db_request),
+        ]
+        assert send_removed_project_release_file_email.calls == [
+            pretend.call(
+                db_request,
+                db_request.user,
+                file=release_file_one.filename,
+                release=release,
+                submitter_name=db_request.user.username,
+                submitter_role="Owner",
+                recipient_role="Owner",
+            ),
+            pretend.call(
+                db_request,
+                db_request.user,
+                file=release_file_two.filename,
+                release=release,
+                submitter_name=db_request.user.username,
+                submitter_role="Owner",
+                recipient_role="Owner",
+            ),
+        ]
+
+    def test_bulk_delete_project_release_files_single_file(
+        self, monkeypatch, db_request
+    ):
+        user = UserFactory.create()
+        project = ProjectFactory.create(name="foobar")
+        release = ReleaseFactory.create(project=project, version="1.2.3")
+        release_file = FileFactory.create(
+            release=release, filename=f"foobar-{release.version}.tar.gz"
+        )
+        RoleFactory.create(project=project, user=user)
+
+        db_request.method = "POST"
+        db_request.user = user
+        db_request.POST = {
+            "confirm_project_name": project.name,
+            "bulk_delete_files": "1",
+            "file_ids": [str(release_file.id)],
+        }
+        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        get_user_role_in_project = pretend.call_recorder(
+            lambda project, user, req: "Owner"
+        )
+        monkeypatch.setattr(views, "get_user_role_in_project", get_user_role_in_project)
+
+        send_removed_project_release_file_email = pretend.call_recorder(
+            lambda req, user, **k: None
+        )
+        monkeypatch.setattr(
+            views,
+            "send_removed_project_release_file_email",
+            send_removed_project_release_file_email,
+        )
+
+        view = views.ManageProjectRelease(release, db_request)
+        result = view.bulk_delete_project_release_files()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.db.query(File).filter_by(id=release_file.id).first() is None
+        assert db_request.session.flash.calls == [
+            pretend.call("Deleted file", queue="success")
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call(
+                "manage.project.release",
+                project_name=release.project.name,
+                version=release.version,
+            )
+        ]
+        assert get_user_role_in_project.calls == [
+            pretend.call(project, db_request.user, db_request),
+            pretend.call(project, db_request.user, db_request),
+        ]
+        assert send_removed_project_release_file_email.calls == [
+            pretend.call(
+                db_request,
+                db_request.user,
+                file=release_file.filename,
+                release=release,
+                submitter_name=db_request.user.username,
+                submitter_role="Owner",
+                recipient_role="Owner",
             )
         ]
 
