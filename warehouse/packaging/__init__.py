@@ -7,7 +7,7 @@ from warehouse import db
 from warehouse.accounts.models import Email, User
 from warehouse.cache.origin import key_factory, receive_set
 from warehouse.manage.tasks import update_role_invitation_status
-from warehouse.organizations.models import Organization
+from warehouse.organizations.models import Organization, OrganizationProject
 from warehouse.packaging.interfaces import (
     IDocsStorage,
     IFileStorage,
@@ -167,6 +167,12 @@ def includeme(config):
         cache_keys=["project/{obj.project.normalized_name}"],
         purge_keys=[
             key_factory("project/{obj.project.normalized_name}"),
+        ],
+    )
+    config.register_origin_cache_keys(
+        OrganizationProject,
+        purge_keys=[
+            key_factory("project/{attr.normalized_name}", if_attr_exists="project"),
         ],
     )
 
