@@ -697,6 +697,23 @@ def make_email_renderers(pyramid_config):
 
 
 class _TestApp(_webtest.TestApp):
+    def __init__(self, app, engine, **kwargs):
+        super().__init__(app, **kwargs)
+        self._engine = engine
+        self.query_recorder = QueryRecorder()
+        event.listen(self._engine, "before_cursor_execute", self.query_recorder.record)
+
+    def do_request(self, *args, **kwargs):
+        self.query_recorder.clear()
+        self.query_recorder.start()
+        try:
+            return super().do_request(*args, **kwargs)
+        finally:
+            self.query_recorder.stop()
+
+    def close(self):
+        event.remove(self._engine, "before_cursor_execute", self.query_recorder.record)
+
     def xmlrpc(self, path, method, *args):
         body = xmlrpc.client.dumps(args, methodname=method)
         resp = self.post(path, body, headers={"Content-Type": "text/xml"})
@@ -731,12 +748,14 @@ def webtest(app_config_dbsession_from_env, tm):
     app_config_dbsession_from_env.add_settings(enforce_https=False)
 
     app = app_config_dbsession_from_env.make_wsgi_app()
+    engine = app_config_dbsession_from_env.registry["sqlalchemy.engine"]
 
     with get_db_session_for_app_config(app_config_dbsession_from_env) as _db_session:
         # Register the app with the external test environment, telling
         # request.db to use this db_session and use the Transaction manager.
         testapp = _TestApp(
             app,
+            engine,
             extra_environ={
                 "warehouse.db_session": _db_session,
                 "tm.active": True,  # disable pyramid_tm
@@ -745,6 +764,7 @@ def webtest(app_config_dbsession_from_env, tm):
             },
         )
         yield testapp
+        testapp.close()
 
 
 class _MockRedis:
