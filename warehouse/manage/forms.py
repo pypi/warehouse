@@ -804,6 +804,20 @@ class CreateTeamForm(SaveTeamForm):
     __params__ = SaveTeamForm.__params__
 
 
+class ProjectSettingsForm(wtforms.Form):
+    __params__ = ["is_nightly"]
+
+    is_nightly = wtforms.BooleanField(
+        _("Automatically delete releases older than 90 days"),
+        false_values=(False, "false", "", "f"),
+    )
+    submit = wtforms.SubmitField(_("Save"))
+
+    def __init__(self, *args, project, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.project = project
+
+
 class AddAlternateRepositoryForm(wtforms.Form):
     """Form to add an Alternate Repository Location for a Project."""
 

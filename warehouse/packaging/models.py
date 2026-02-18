@@ -207,6 +207,12 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
     lifecycle_status_note: Mapped[str | None] = mapped_column(
         comment="Note about the lifecycle status"
     )
+    releases_expire_after_days: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+        comment="If set, releases for this project will be automatically deleted "
+        "after this many days.",
+    )
 
     oidc_publishers: Mapped[list[OIDCPublisher]] = orm.relationship(
         secondary="oidc_publisher_project_association",

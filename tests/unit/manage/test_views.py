@@ -2638,11 +2638,19 @@ class TestManageProjectSettings:
     @pytest.mark.parametrize("enabled", [False, True])
     def test_manage_project_settings(self, enabled, monkeypatch):
         request = pretend.stub(organization_access=enabled)
-        project = pretend.stub(organization=None, lifecycle_status=None)
+        project = pretend.stub(
+            organization=None,
+            lifecycle_status=None,
+            releases_expire_after_days=None,
+        )
         view = views.ManageProjectSettingsViews(project, request)
         form = pretend.stub()
+        project_settings_form = pretend.stub(is_nightly=pretend.stub(data=None))
         view.transfer_organization_project_form_class = lambda *a, **kw: form
         view.add_alternate_repository_form_class = lambda *a, **kw: form
+        monkeypatch.setattr(
+            views, "ProjectSettingsForm", lambda *a, **kw: project_settings_form
+        )
 
         user_organizations = pretend.call_recorder(
             lambda *a, **kw: {
@@ -2659,19 +2667,28 @@ class TestManageProjectSettings:
             "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
             "transfer_organization_project_form": form,
             "add_alternate_repository_form_class": form,
+            "project_settings_form": project_settings_form,
         }
 
     def test_manage_project_settings_in_organization_managed(self, monkeypatch):
         request = pretend.stub(organization_access=True)
         organization_managed = pretend.stub(name="managed-org", is_active=True)
         organization_owned = pretend.stub(name="owned-org", is_active=True)
-        project = pretend.stub(organization=organization_managed, lifecycle_status=None)
+        project = pretend.stub(
+            organization=organization_managed,
+            lifecycle_status=None,
+            releases_expire_after_days=None,
+        )
         view = views.ManageProjectSettingsViews(project, request)
         form = pretend.stub()
+        project_settings_form = pretend.stub(is_nightly=pretend.stub(data=None))
         view.transfer_organization_project_form_class = pretend.call_recorder(
             lambda *a, **kw: form
         )
         view.add_alternate_repository_form_class = lambda *a, **kw: form
+        monkeypatch.setattr(
+            views, "ProjectSettingsForm", lambda *a, **kw: project_settings_form
+        )
 
         user_organizations = pretend.call_recorder(
             lambda *a, **kw: {
@@ -2688,6 +2705,7 @@ class TestManageProjectSettings:
             "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
             "transfer_organization_project_form": form,
             "add_alternate_repository_form_class": form,
+            "project_settings_form": project_settings_form,
         }
         assert view.transfer_organization_project_form_class.calls == [
             pretend.call(organization_choices={organization_owned})
@@ -2697,13 +2715,21 @@ class TestManageProjectSettings:
         request = pretend.stub(organization_access=True)
         organization_managed = pretend.stub(name="managed-org", is_active=True)
         organization_owned = pretend.stub(name="owned-org", is_active=True)
-        project = pretend.stub(organization=organization_owned, lifecycle_status=None)
+        project = pretend.stub(
+            organization=organization_owned,
+            lifecycle_status=None,
+            releases_expire_after_days=None,
+        )
         view = views.ManageProjectSettingsViews(project, request)
         form = pretend.stub()
+        project_settings_form = pretend.stub(is_nightly=pretend.stub(data=None))
         view.transfer_organization_project_form_class = pretend.call_recorder(
             lambda *a, **kw: form
         )
         view.add_alternate_repository_form_class = lambda *a, **kw: form
+        monkeypatch.setattr(
+            views, "ProjectSettingsForm", lambda *a, **kw: project_settings_form
+        )
 
         user_organizations = pretend.call_recorder(
             lambda *a, **kw: {
@@ -2720,10 +2746,62 @@ class TestManageProjectSettings:
             "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
             "transfer_organization_project_form": form,
             "add_alternate_repository_form_class": form,
+            "project_settings_form": project_settings_form,
         }
         assert view.transfer_organization_project_form_class.calls == [
             pretend.call(organization_choices={organization_managed})
         ]
+
+    def test_save_project_settings_invalid(self, monkeypatch):
+        project = pretend.stub(name="test-project")
+        request = pretend.stub(
+            POST={},
+            route_path=pretend.call_recorder(lambda *a, **kw: "/"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            db=pretend.stub(add=pretend.call_recorder(lambda *a, **kw: None)),
+            _=lambda s, mapping=None: s,
+        )
+        form = pretend.stub(validate=pretend.call_recorder(lambda: False))
+        monkeypatch.setattr(views, "ProjectSettingsForm", lambda *a, **kw: form)
+
+        view = views.ManageProjectSettingsViews(project, request)
+        result = view.save_project_settings()
+
+        assert form.validate.calls == [pretend.call()]
+        assert request.session.flash.calls == [
+            pretend.call("Failed to update project settings", queue="error")
+        ]
+        assert request.db.add.calls == []
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/"
+
+    @pytest.mark.parametrize("form_value", [True, False])
+    def test_save_project_settings(self, db_request, form_value):
+        project = ProjectFactory.create(
+            name="foo", releases_expire_after_days=None if form_value else 90
+        )
+
+        assert project.releases_expire_after_days is None if form_value else 90
+
+        db_request.POST = MultiDict({"is_nightly": form_value})
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request._ = lambda s, mapping=None: s
+
+        view = views.ManageProjectSettingsViews(project, db_request)
+        result = view.save_project_settings()
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Project settings updated", queue="success")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/"
+        if form_value:
+            assert project.releases_expire_after_days == 90
+        else:
+            assert project.releases_expire_after_days is None
 
     def test_add_alternate_repository(self, monkeypatch, db_request):
         project = ProjectFactory.create(name="foo")

@@ -324,6 +324,39 @@
 </div>
 </form>
 <hr>
+{% set tooltip_text = _("Enabling this will set a 90-day retention policy for all releases.") %}
+<h3 class="pep592-title"
+    data-controller="tooltip"
+    data-tooltip-text="{{ tooltip_text }}">{% trans %}Release retention policy{% endtrans %}</h3>
+<form method="post"
+      action="{{ request.route_path('manage.project.settings', project_name=project.name) }}">
+  <input name="csrf_token"
+         type="hidden"
+         value="{{ request.session.get_csrf_token() }}">
+  <div class="form-group">
+    <div class="form-group__checkbox">
+      {# This forces the browser to send this field in the POST request if it's
+      unchecked, since the presence of the field is what we use for view
+      routing #}
+      {% if project_settings_form.is_nightly.data %}<input type="hidden" name="is_nightly" value="false">{% endif %}
+      {{ project_settings_form.is_nightly(class_="form-group__checkbox-input", aria_describedby="is-nightly-help", **({"checked": ""} if project_settings_form.is_nightly.data else {}) ) }}
+      <label for="is_nightly" class="form-group__checkbox-label">{{ project_settings_form.is_nightly.label.text }}</label>
+      <p class="form-group__help-text" id="is-nightly-help">
+        {% trans %}
+        When enabled, all releases for this project will be automatically deleted
+        after 90 days, oldest first, except for the last remaining release.
+      {% endtrans %}
+    </p>
+    <div id="is-nightly-errors">{{ field_errors(project_settings_form.is_nightly) }}</div>
+  </div>
+</div>
+<div class="form-group">
+  <input type="submit"
+         value="{% trans %}Save{% endtrans %}"
+         class="button button--primary">
+</div>
+</form>
+<hr>
 <h2>{% trans %}Archive project{% endtrans %}</h2>
 <div class="callout-block callout-block--danger"
      data-controller="archive-confirm">

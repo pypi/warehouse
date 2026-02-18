@@ -93,6 +93,7 @@ def test_includeme():
 
     config = pretend.stub(
         add_view_deriver=pretend.call_recorder(lambda f, over, under: None),
+        add_periodic_task=pretend.call_recorder(lambda *a, **kw: None),
         register_rate_limiter=pretend.call_recorder(lambda limit_string, name: None),
         registry=pretend.stub(
             settings=pretend.stub(get=pretend.call_recorder(lambda k: settings.get(k)))
