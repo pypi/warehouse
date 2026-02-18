@@ -100,7 +100,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/accounts/forms.py:422 warehouse/manage/forms.py:132
-#: warehouse/manage/forms.py:820
+#: warehouse/manage/forms.py:834
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 
@@ -164,7 +164,7 @@ msgstr ""
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:631 warehouse/manage/views/__init__.py:860
+#: warehouse/accounts/views.py:631 warehouse/manage/views/__init__.py:861
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -517,161 +517,182 @@ msgstr ""
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:815
-msgid "Specify your alternate repository name"
+#: warehouse/manage/forms.py:811
+msgid "Automatically delete releases older than 90 days"
+msgstr ""
+
+#: warehouse/manage/forms.py:814
+#: warehouse/templates/manage/account/recovery_codes-provision.html:61
+#: warehouse/templates/manage/organization/roles.html:266
+#: warehouse/templates/manage/project/roles.html:149
+#: warehouse/templates/manage/project/roles.html:229
+#: warehouse/templates/manage/project/settings.html:355
+msgid "Save"
 msgstr ""
 
 #: warehouse/manage/forms.py:829
+msgid "Specify your alternate repository name"
+msgstr ""
+
+#: warehouse/manage/forms.py:843
 msgid "Specify your alternate repository URL"
 msgstr ""
 
-#: warehouse/manage/forms.py:834
+#: warehouse/manage/forms.py:848
 msgid "The URL is too long. Choose a URL with 400 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:848
+#: warehouse/manage/forms.py:862
 msgid ""
 "The description is too long. Choose a description with 400 characters or "
 "less."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:320
+#: warehouse/manage/views/__init__.py:321
 msgid "Account details updated"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:351
+#: warehouse/manage/views/__init__.py:352
 #, python-brace-format
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:807
+#: warehouse/manage/views/__init__.py:808
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:809
+#: warehouse/manage/views/__init__.py:810
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:917
+#: warehouse/manage/views/__init__.py:918
 msgid "Verify your email to create an API token."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1019
+#: warehouse/manage/views/__init__.py:1020
 msgid "API Token does not exist."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1051
+#: warehouse/manage/views/__init__.py:1052
 msgid "Invalid credentials. Try again"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1170
+#: warehouse/manage/views/__init__.py:1176
 msgid "Invalid alternate repository location details"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1208
+#: warehouse/manage/views/__init__.py:1214
 #, python-brace-format
 msgid "Added alternate repository '${name}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1241
-#: warehouse/manage/views/__init__.py:1502
-#: warehouse/manage/views/__init__.py:1587
-#: warehouse/manage/views/__init__.py:1688
-#: warehouse/manage/views/__init__.py:1788
+#: warehouse/manage/views/__init__.py:1247
+#: warehouse/manage/views/__init__.py:1536
+#: warehouse/manage/views/__init__.py:1621
+#: warehouse/manage/views/__init__.py:1722
+#: warehouse/manage/views/__init__.py:1822
 msgid "Confirm the request"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1253
+#: warehouse/manage/views/__init__.py:1259
 msgid "Invalid alternate repository id"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1264
+#: warehouse/manage/views/__init__.py:1270
 msgid "Invalid alternate repository for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1273
+#: warehouse/manage/views/__init__.py:1279
 #, python-brace-format
 msgid ""
 "Could not delete alternate repository - ${confirm} is not the same as "
 "${alt_repo_name}"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1303
+#: warehouse/manage/views/__init__.py:1309
 #, python-brace-format
 msgid "Deleted alternate repository '${name}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1371
-#: warehouse/manage/views/__init__.py:1672
-#: warehouse/manage/views/__init__.py:1780
+#: warehouse/manage/views/__init__.py:1332
+msgid "Project settings updated"
+msgstr ""
+
+#: warehouse/manage/views/__init__.py:1336
+msgid "Failed to update project settings"
+msgstr ""
+
+#: warehouse/manage/views/__init__.py:1405
+#: warehouse/manage/views/__init__.py:1706
+#: warehouse/manage/views/__init__.py:1814
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1515
+#: warehouse/manage/views/__init__.py:1549
 msgid "Could not yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1600
+#: warehouse/manage/views/__init__.py:1634
 msgid "Could not un-yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1701
+#: warehouse/manage/views/__init__.py:1735
 msgid "Could not delete release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1800
+#: warehouse/manage/views/__init__.py:1834
 msgid "Could not find file"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1805
+#: warehouse/manage/views/__init__.py:1839
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1955
+#: warehouse/manage/views/__init__.py:1989
 #, python-brace-format
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2062
+#: warehouse/manage/views/__init__.py:2096
 #, python-brace-format
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2129
+#: warehouse/manage/views/__init__.py:2163
 #, python-brace-format
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2161
+#: warehouse/manage/views/__init__.py:2195
 #, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2174
+#: warehouse/manage/views/__init__.py:2208
 #: warehouse/manage/views/organizations.py:981
 #, python-brace-format
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2239
+#: warehouse/manage/views/__init__.py:2273
 #: warehouse/manage/views/organizations.py:1056
 #, python-brace-format
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2271
+#: warehouse/manage/views/__init__.py:2305
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2282
+#: warehouse/manage/views/__init__.py:2316
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2315
+#: warehouse/manage/views/__init__.py:2349
 #: warehouse/manage/views/organizations.py:1243
 #, python-brace-format
 msgid "Invitation revoked from '${username}'."
@@ -1330,7 +1351,7 @@ msgstr ""
 #: warehouse/templates/manage/project/release.html:209
 #: warehouse/templates/manage/project/settings.html:78
 #: warehouse/templates/manage/project/settings.html:124
-#: warehouse/templates/manage/project/settings.html:365
+#: warehouse/templates/manage/project/settings.html:398
 #: warehouse/templates/manage/team/settings.html:62
 msgid "Warning"
 msgstr ""
@@ -4992,7 +5013,7 @@ msgstr ""
 #: warehouse/templates/manage/account/publishing.html:24
 #: warehouse/templates/manage/project/settings.html:97
 #: warehouse/templates/manage/project/settings.html:171
-#: warehouse/templates/manage/project/settings.html:439
+#: warehouse/templates/manage/project/settings.html:472
 msgid "Project Name"
 msgstr ""
 
@@ -5461,13 +5482,6 @@ msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:60
 msgid "Download as file"
-msgstr ""
-
-#: warehouse/templates/manage/account/recovery_codes-provision.html:61
-#: warehouse/templates/manage/organization/roles.html:266
-#: warehouse/templates/manage/project/roles.html:149
-#: warehouse/templates/manage/project/roles.html:229
-msgid "Save"
 msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:64
@@ -7619,12 +7633,26 @@ msgid "Description of the purpose or content of the alternate repository."
 msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:327
-#: warehouse/templates/manage/project/settings.html:352
-#: warehouse/templates/manage/project/settings.html:356
+msgid "Enabling this will set a 90-day retention policy for all releases."
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:330
+msgid "Release retention policy"
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:345
+msgid ""
+"When enabled, all releases for this project will be automatically deleted"
+" after 90 days, oldest first, except for the last remaining release."
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:360
+#: warehouse/templates/manage/project/settings.html:385
+#: warehouse/templates/manage/project/settings.html:389
 msgid "Archive project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:331
+#: warehouse/templates/manage/project/settings.html:364
 #, python-format
 msgid ""
 "Archiving a project will prevent any new uploads, and remove the project "
@@ -7637,33 +7665,33 @@ msgid ""
 "description by editing the README file."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:343
-#: warehouse/templates/manage/project/settings.html:346
+#: warehouse/templates/manage/project/settings.html:376
+#: warehouse/templates/manage/project/settings.html:379
 msgid "Unarchive project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:347
+#: warehouse/templates/manage/project/settings.html:380
 msgid ""
 "Unarchiving a project will allow new file uploads and add the project to "
 "the search index."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:357
+#: warehouse/templates/manage/project/settings.html:390
 msgid ""
 "Archiving a project will block any new file uploads and remove the "
 "project from the search index."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:363
-#: warehouse/templates/manage/project/settings.html:439
+#: warehouse/templates/manage/project/settings.html:396
+#: warehouse/templates/manage/project/settings.html:472
 msgid "Delete project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:366
+#: warehouse/templates/manage/project/settings.html:399
 msgid "Deleting this project will:"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:371
+#: warehouse/templates/manage/project/settings.html:404
 #, python-format
 msgid ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s"
@@ -7674,15 +7702,15 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/project/settings.html:377
+#: warehouse/templates/manage/project/settings.html:410
 msgid "Irreversibly delete the project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:381
+#: warehouse/templates/manage/project/settings.html:414
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:384
+#: warehouse/templates/manage/project/settings.html:417
 msgid ""
 "This user will be able to make new releases under this project name, so "
 "long as the distribution filenames do not match filenames from a "
