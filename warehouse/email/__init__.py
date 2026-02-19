@@ -748,7 +748,7 @@ def send_collaborator_added_email(
     return {
         "username": user.username,
         "project": project_name,
-        "submitter": submitter.username if submitter else "a deleted user",
+        "submitter": submitter.username,
         "role": role,
     }
 
@@ -757,7 +757,7 @@ def send_collaborator_added_email(
 def send_added_as_collaborator_email(request, user, *, submitter, project_name, role):
     return {
         "project_name": project_name,
-        "initiator_username": submitter.username if submitter else "a deleted user",
+        "initiator_username": submitter.username,
         "role": role,
     }
 
@@ -769,7 +769,7 @@ def send_collaborator_removed_email(
     return {
         "username": user.username,
         "project": project_name,
-        "submitter": submitter.username if submitter else "a deleted user",
+        "submitter": submitter.username,
     }
 
 
@@ -777,7 +777,7 @@ def send_collaborator_removed_email(
 def send_removed_as_collaborator_email(request, user, *, submitter, project_name):
     return {
         "project": project_name,
-        "submitter": submitter.username if submitter else "a deleted user",
+        "submitter": submitter.username,
     }
 
 

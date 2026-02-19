@@ -1198,6 +1198,15 @@ def verify_organization_role(request):
     if not organization_invite:
         return _error(request._("Organization invitation no longer exists."))
 
+    submitter_user = user_service.get_user(data.get("submitter_id"))
+    if not submitter_user:
+        return _error(
+            request._(
+                "Invalid invitation: the inviting user no longer exists. "
+                "Please ask a remaining owner to reissue your invitation."
+            )
+        )
+
     # Use the renderer to bring up a confirmation page
     # before adding as contributor
     if request.method == "GET":
@@ -1207,7 +1216,6 @@ def verify_organization_role(request):
         }
     elif request.method == "POST" and "decline" in request.POST:
         organization_service.delete_organization_invite(organization_invite.id)
-        submitter_user = user_service.get_user(data.get("submitter_id"))
         message = request.params.get("message", "")
         organization.record_event(
             tag=EventTag.Organization.OrganizationRoleDeclineInvite,
@@ -1261,15 +1269,11 @@ def verify_organization_role(request):
         role_name=desired_role,
     )
     organization_service.delete_organization_invite(organization_invite.id)
-    submitter_user = user_service.get_user(data.get("submitter_id"))
-    submitter_id = (
-        str(submitter_user.id) if submitter_user else data.get("submitter_id")
-    )
     organization.record_event(
         tag=EventTag.Organization.OrganizationRoleAdd,
         request=request,
         additional={
-            "submitted_by_user_id": submitter_id,
+            "submitted_by_user_id": str(submitter_user.id),
             "role_name": desired_role,
             "target_user_id": str(user.id),
         },
@@ -1278,7 +1282,7 @@ def verify_organization_role(request):
         tag=EventTag.Account.OrganizationRoleAdd,
         request=request,
         additional={
-            "submitted_by_user_id": submitter_id,
+            "submitted_by_user_id": str(submitter_user.id),
             "organization_name": organization.name,
             "role_name": desired_role,
         },
@@ -1379,6 +1383,15 @@ def verify_project_role(request):
     if not role_invite:
         return _error(request._("Role invitation no longer exists."))
 
+    submitter_user = user_service.get_user(data.get("submitter_id"))
+    if not submitter_user:
+        return _error(
+            request._(
+                "Invalid invitation: the inviting user no longer exists. "
+                "Please ask a remaining owner to reissue your invitation."
+            )
+        )
+
     # Use the renderer to bring up a confirmation page
     # before adding as contributor
     if request.method == "GET":
@@ -1388,13 +1401,11 @@ def verify_project_role(request):
         }
     elif request.method == "POST" and "decline" in request.POST:
         request.db.delete(role_invite)
-        submitter_user = user_service.get_user(data.get("submitter_id"))
-        submitter_name = submitter_user.username if submitter_user else "a deleted user"
         project.record_event(
             tag=EventTag.Project.RoleDeclineInvite,
             request=request,
             additional={
-                "submitted_by": submitter_name,
+                "submitted_by": submitter_user.username,
                 "role_name": desired_role,
                 "target_user": user.username,
             },
@@ -1403,7 +1414,7 @@ def verify_project_role(request):
             tag=EventTag.Account.RoleDeclineInvite,
             request=request,
             additional={
-                "submitted_by": submitter_name,
+                "submitted_by": submitter_user.username,
                 "project_name": project.name,
                 "role_name": desired_role,
             },
