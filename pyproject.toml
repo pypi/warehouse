@@ -53,7 +53,7 @@ combine_as_imports = true
 known_first_party = ['warehouse', 'tests']
 
 [tool.mypy]
-python_version = "3.14"
+python_version = "3.13"
 warn_unreachable = true
 warn_unused_configs = true
 warn_unused_ignores = true
