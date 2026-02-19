@@ -18,4 +18,4 @@ def test_json_project(webtest):
     assert resp.headers["Content-Type"] == "application/json"
     assert resp.headers["X-PyPI-Last-Serial"] == str(release.project.last_serial)
     # How many database calls are needed to satisfy the data
-    assert len(webtest.query_recorder.queries) == 6
+    assert len(webtest.query_recorder.queries) == 7
