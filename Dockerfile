@@ -1,5 +1,5 @@
 # Set variables reused in Dockerfile
-ARG PYTHON_IMAGE_VERSION=3.14.2-slim-bookworm
+ARG PYTHON_IMAGE_VERSION=3.13.12-slim-bookworm
 
 # First things first, we build an image which is where we're going to compile
 # our static assets with. We use this stage in development.
@@ -16,7 +16,7 @@ COPY package.json package-lock.json babel.config.js /opt/warehouse/src/
 # over our static files so that, you guessed it, we don't invalidate the cache
 # of installed dependencies just because files have been modified.
 RUN --mount=type=cache,target=/root/.npm,sharing=locked \
-    npm ci
+  npm ci
 
 
 
@@ -47,8 +47,8 @@ FROM python:${PYTHON_IMAGE_VERSION} AS docs
 # is good, but in our case, we're going to mount a special cache volume (kept between
 # builds), so we WANT the cache to persist.
 RUN set -eux; \
-    rm -f /etc/apt/apt.conf.d/docker-clean; \
-    echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache;
+  rm -f /etc/apt/apt.conf.d/docker-clean; \
+  echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache;
 
 # Install System level build requirements, this is done before everything else
 # because these are rarely ever going to change.
@@ -57,20 +57,20 @@ RUN set -eux; \
 #  - git: mkdocs plugin uses this for created/updated
 #  - libcairo2: mkdocs uses cairosvg
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    set -x \
-    && apt-get update \
-    && apt-get install --no-install-recommends -y \
-       build-essential \
-       git \
-       libcairo2 \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+  --mount=type=cache,target=/var/lib/apt,sharing=locked \
+  set -x \
+  && apt-get update \
+  && apt-get install --no-install-recommends -y \
+  build-essential \
+  git \
+  libcairo2 \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # We create an /opt directory with a virtual environment in it to store our
 # application in.
 RUN set -x \
-    && python3 -m venv /opt/warehouse
+  && python3 -m venv /opt/warehouse
 
 # Now that we've created our virtual environment, we'll go ahead and update
 # our $PATH to refer to it first.
@@ -90,14 +90,14 @@ COPY requirements /tmp/requirements
 # that code changes don't require triggering an entire install of all of
 # Warehouse's dependencies.
 RUN --mount=type=cache,target=/root/.cache/pip \
-    set -x \
-    && pip --disable-pip-version-check \
-            install --no-deps --only-binary :all: \
-            -r /tmp/requirements/docs-dev.txt \
-            -r /tmp/requirements/docs-user.txt \
-            -r /tmp/requirements/docs-blog.txt \
-    && pip check \
-    && find /opt/warehouse -name '*.pyc' -delete
+  set -x \
+  && pip --disable-pip-version-check \
+  install --no-deps --only-binary :all: \
+  -r /tmp/requirements/docs-dev.txt \
+  -r /tmp/requirements/docs-user.txt \
+  -r /tmp/requirements/docs-blog.txt \
+  && pip check \
+  && find /opt/warehouse -name '*.pyc' -delete
 
 WORKDIR /opt/warehouse/src/
 
@@ -134,7 +134,7 @@ ARG IPYTHON=no
 # We create an /opt directory with a virtual environment in it to store our
 # application in.
 RUN set -x \
-    && python3 -m venv /opt/warehouse
+  && python3 -m venv /opt/warehouse
 
 # Now that we've created our virtual environment, we'll go ahead and update
 # our $PATH to refer to it first.
@@ -152,27 +152,27 @@ COPY requirements /tmp/requirements
 # Install our development dependencies if we're building a development install
 # otherwise this will do nothing.
 RUN --mount=type=cache,target=/root/.cache/pip \
-    set -x \
-    && if [ "$DEVEL" = "yes" ]; then pip --disable-pip-version-check install -r /tmp/requirements/dev.txt; fi
+  set -x \
+  && if [ "$DEVEL" = "yes" ]; then pip --disable-pip-version-check install -r /tmp/requirements/dev.txt; fi
 
 RUN --mount=type=cache,target=/root/.cache/pip \
-    set -x \
-    && if [ "$DEVEL" = "yes" ] && [ "$IPYTHON" = "yes" ]; then pip --disable-pip-version-check install -r /tmp/requirements/ipython.txt; fi
+  set -x \
+  && if [ "$DEVEL" = "yes" ] && [ "$IPYTHON" = "yes" ]; then pip --disable-pip-version-check install -r /tmp/requirements/ipython.txt; fi
 
 # Install the Python level Warehouse requirements, this is done after copying
 # the requirements but prior to copying Warehouse itself into the container so
 # that code changes don't require triggering an entire install of all of
 # Warehouse's dependencies.
 RUN --mount=type=cache,target=/root/.cache/pip \
-    set -x \
-    && pip --disable-pip-version-check \
-            install --no-deps --only-binary :all: \
-                    -r /tmp/requirements/deploy.txt \
-                    -r /tmp/requirements/main.txt \
-                    $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt'; fi) \
-                    $(if [ "$CI" = "yes" ]; then echo '-r /tmp/requirements/docs-dev.txt -r /tmp/requirements/docs-user.txt -r /tmp/requirements/docs-blog.txt'; fi ) \
-    && pip check \
-    && find /opt/warehouse -name '*.pyc' -delete
+  set -x \
+  && pip --disable-pip-version-check \
+  install --no-deps --only-binary :all: \
+  -r /tmp/requirements/deploy.txt \
+  -r /tmp/requirements/main.txt \
+  $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt'; fi) \
+  $(if [ "$CI" = "yes" ]; then echo '-r /tmp/requirements/docs-dev.txt -r /tmp/requirements/docs-user.txt -r /tmp/requirements/docs-blog.txt'; fi ) \
+  && pip check \
+  && find /opt/warehouse -name '*.pyc' -delete
 
 
 
@@ -201,8 +201,8 @@ ARG CI=no
 # is good, but in our case, we're going to mount a special cache volume (kept between
 # builds), so we WANT the cache to persist.
 RUN set -eux; \
-    rm -f /etc/apt/apt.conf.d/docker-clean; \
-    echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache;
+  rm -f /etc/apt/apt.conf.d/docker-clean; \
+  echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache;
 
 # Install System level Warehouse requirements, this is done before everything
 # else because these are rarely ever going to change.
@@ -211,17 +211,17 @@ RUN set -eux; \
 #  - postgresql-client: make initdb and friends
 #  - oathtool: make totp
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    set -x \
-    && if [ "$DEVEL" = "yes" ]; then \
-        apt-get update \
-        && apt-get install --no-install-recommends -y \
-           build-essential \
-           postgresql-client \
-           oathtool \
-        && apt-get clean \
-        && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*; \
-    fi
+  --mount=type=cache,target=/var/lib/apt,sharing=locked \
+  set -x \
+  && if [ "$DEVEL" = "yes" ]; then \
+  apt-get update \
+  && apt-get install --no-install-recommends -y \
+  build-essential \
+  postgresql-client \
+  oathtool \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*; \
+  fi
 
 # Copy the directory into the container, this is done last so that changes to
 # Warehouse itself require the least amount of layers being invalidated from
