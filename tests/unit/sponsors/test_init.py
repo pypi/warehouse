@@ -51,7 +51,12 @@ def test_list_sponsors(db_request):
     SponsorFactory.create_batch(3, is_active=False)
 
     result = sponsors._sponsors(db_request)
-    expected = db_request.db.query(Sponsor).filter(Sponsor.is_active == true()).all()
+    expected = (
+        db_request.db.query(Sponsor)
+        .filter(Sponsor.is_active == true())
+        .order_by(Sponsor.level_order, Sponsor.name)
+        .all()
+    )
 
     assert result == expected
     assert len(result) == 5
