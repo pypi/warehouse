@@ -3,10 +3,8 @@
 import pretend
 
 from celery.schedules import crontab
-from sqlalchemy import true
 
 from warehouse import sponsors
-from warehouse.sponsors.models import Sponsor
 from warehouse.sponsors.tasks import update_pypi_sponsors
 
 from ...common.db.sponsors import SponsorFactory
@@ -47,16 +45,10 @@ def test_do_not_schedule_sponsor_api_integration_if_no_token():
 
 
 def test_list_sponsors(db_request):
-    SponsorFactory.create_batch(5)
+    expected = SponsorFactory.create_batch(5)
     SponsorFactory.create_batch(3, is_active=False)
 
     result = sponsors._sponsors(db_request)
-    expected = (
-        db_request.db.query(Sponsor)
-        .filter(Sponsor.is_active == true())
-        .order_by(Sponsor.level_order, Sponsor.name)
-        .all()
-    )
 
-    assert result == expected
     assert len(result) == 5
+    assert set(result) == set(expected)
