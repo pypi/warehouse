@@ -1198,6 +1198,15 @@ def verify_organization_role(request):
     if not organization_invite:
         return _error(request._("Organization invitation no longer exists."))
 
+    submitter_user = user_service.get_user(data.get("submitter_id"))
+    if not submitter_user:
+        return _error(
+            request._(
+                "Invalid invitation: the inviting user no longer exists. "
+                "Please ask a remaining owner to reissue your invitation."
+            )
+        )
+
     # Use the renderer to bring up a confirmation page
     # before adding as contributor
     if request.method == "GET":
@@ -1207,7 +1216,6 @@ def verify_organization_role(request):
         }
     elif request.method == "POST" and "decline" in request.POST:
         organization_service.delete_organization_invite(organization_invite.id)
-        submitter_user = user_service.get_user(data.get("submitter_id"))
         message = request.params.get("message", "")
         organization.record_event(
             tag=EventTag.Organization.OrganizationRoleDeclineInvite,
@@ -1261,7 +1269,6 @@ def verify_organization_role(request):
         role_name=desired_role,
     )
     organization_service.delete_organization_invite(organization_invite.id)
-    submitter_user = user_service.get_user(data.get("submitter_id"))
     organization.record_event(
         tag=EventTag.Organization.OrganizationRoleAdd,
         request=request,
@@ -1376,6 +1383,15 @@ def verify_project_role(request):
     if not role_invite:
         return _error(request._("Role invitation no longer exists."))
 
+    submitter_user = user_service.get_user(data.get("submitter_id"))
+    if not submitter_user:
+        return _error(
+            request._(
+                "Invalid invitation: the inviting user no longer exists. "
+                "Please ask a remaining owner to reissue your invitation."
+            )
+        )
+
     # Use the renderer to bring up a confirmation page
     # before adding as contributor
     if request.method == "GET":
@@ -1385,7 +1401,6 @@ def verify_project_role(request):
         }
     elif request.method == "POST" and "decline" in request.POST:
         request.db.delete(role_invite)
-        submitter_user = user_service.get_user(data.get("submitter_id"))
         project.record_event(
             tag=EventTag.Project.RoleDeclineInvite,
             request=request,
@@ -1452,7 +1467,6 @@ def verify_project_role(request):
     # Don't send email to new user if they are now an owner
     owner_users.discard(user)
 
-    submitter_user = user_service.get_user(data.get("submitter_id"))
     send_collaborator_added_email(
         request,
         owner_users,

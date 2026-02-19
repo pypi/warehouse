@@ -3101,6 +3101,38 @@ class TestVerifyOrganizationRole:
         ]
         assert db_request.route_path.calls == [pretend.call("manage.organizations")]
 
+    def test_verify_organization_role_submitter_deleted(
+        self, db_request, token_service
+    ):
+        organization = OrganizationFactory.create()
+        user = UserFactory.create()
+        OrganizationInvitationFactory.create(organization=organization, user=user)
+
+        db_request.user = user
+        db_request.GET.update({"token": "RANDOM_KEY"})
+        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        token_service.loads = pretend.call_recorder(
+            lambda token: {
+                "action": "email-organization-role-verify",
+                "desired_role": "Member",
+                "user_id": user.id,
+                "organization_id": organization.id,
+                "submitter_id": uuid.uuid4(),
+            }
+        )
+
+        result = views.verify_organization_role(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Invalid invitation: the inviting user no longer exists. "
+                "Please ask a remaining owner to reissue your invitation.",
+                queue="error",
+            )
+        ]
+
     def test_verify_organization_role_declined(
         self, db_request, token_service, monkeypatch
     ):
@@ -3444,6 +3476,47 @@ class TestVerifyProjectRole:
             )
         ]
         assert db_request.route_path.calls == [pretend.call("manage.projects")]
+
+    def test_verify_project_role_submitter_deleted(
+        self, db_request, user_service, token_service
+    ):
+        project = ProjectFactory.create()
+        user = UserFactory.create()
+        RoleInvitationFactory.create(user=user, project=project)
+
+        db_request.user = user
+        db_request.GET.update({"token": "RANDOM_KEY"})
+        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        token_service.loads = pretend.call_recorder(
+            lambda token: {
+                "action": "email-project-role-verify",
+                "desired_role": "Maintainer",
+                "user_id": user.id,
+                "project_id": project.id,
+                "submitter_id": uuid.uuid4(),
+            }
+        )
+        user_service.get_user = pretend.call_recorder(
+            lambda user_id: user if user_id == user.id else None
+        )
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context=None, name=None: {
+                ITokenService: token_service,
+                IUserService: user_service,
+            }.get(iface)
+        )
+
+        result = views.verify_project_role(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Invalid invitation: the inviting user no longer exists. "
+                "Please ask a remaining owner to reissue your invitation.",
+                queue="error",
+            )
+        ]
 
     def test_verify_project_role_declined(
         self, db_request, user_service, token_service
