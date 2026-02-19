@@ -4,7 +4,7 @@ from packaging.utils import canonicalize_name, canonicalize_version
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
-from sqlalchemy.orm import Load, contains_eager, joinedload
+from sqlalchemy.orm import Load, contains_eager, joinedload, noload
 
 from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
@@ -49,7 +49,26 @@ def _json_data(request, project, release, *, all_releases):
                 Release.requires_python,
                 Release.yanked,
                 Release.yanked_reason,
-            )
+            ),
+            # Only load the File columns we actually serialize in the response.
+            # Without this, all ~18 File columns are fetched per row (including
+            # uploaded_via, metadata digests, cached, archived, etc.).
+            Load(File).load_only(
+                File.filename,
+                File.packagetype,
+                File.python_version,
+                File.comment_text,
+                File.md5_digest,
+                File.sha256_digest,
+                File.blake2_256_digest,
+                File.size,
+                File.upload_time,
+                File.path,
+            ),
+            # File.provenance uses lazy="joined", which adds a LEFT OUTER JOIN
+            # to the provenance table on every query that loads File objects.
+            # We don't use provenance data here, so suppress it.
+            noload(File.provenance),
         )
         .outerjoin(File)
         .filter(Release.project == project)
@@ -59,14 +78,6 @@ def _json_data(request, project, release, *, all_releases):
     # to just this release.
     if not all_releases:
         release_files = release_files.filter(Release.id == release.id)
-
-    # Get the raw description and description content type for this release
-    release_description = (
-        request.db.query(Description)
-        .options(Load(Description).load_only(Description.content_type, Description.raw))
-        .filter(Description.release == release)
-        .one()
-    )
 
     # Finally set an ordering, and execute the query.
     release_files = release_files.order_by(
@@ -148,8 +159,8 @@ def _json_data(request, project, release, *, all_releases):
             "name": project.name,
             "version": release.version,
             "summary": release.summary,
-            "description_content_type": release_description.content_type,
-            "description": release_description.raw,
+            "description_content_type": release.description.content_type,
+            "description": release.description.raw,
             "keywords": release.keywords,
             "license": release.license,
             "license_expression": release.license_expression,
@@ -234,6 +245,12 @@ def latest_release_factory(request):
             joinedload(Release._requires_dist),
             contains_eager(Release.project).selectinload(Project.roles),
             contains_eager(Release.project).joinedload(Project.organization),
+            # Eagerly load description to avoid a separate query in _json_data.
+            # This is a one-to-one relationship, so joinedload adds no row
+            # multiplication. load_only avoids the heavy html/rendered_by columns.
+            joinedload(Release.description).load_only(
+                Description.content_type, Description.raw
+            ),
         )
         .filter(Release.id == latest.id)
         .one()
@@ -294,6 +311,12 @@ def release_factory(request):
             joinedload(Release._requires_dist),
             contains_eager(Release.project).selectinload(Project.roles),
             contains_eager(Release.project).joinedload(Project.organization),
+            # Eagerly load description to avoid a separate query in _json_data.
+            # This is a one-to-one relationship, so joinedload adds no row
+            # multiplication. load_only avoids the heavy html/rendered_by columns.
+            joinedload(Release.description).load_only(
+                Description.content_type, Description.raw
+            ),
         )
         .filter(Project.normalized_name == normalized_name)
         # Exclude projects in quarantine.
