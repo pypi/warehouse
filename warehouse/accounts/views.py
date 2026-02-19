@@ -1467,7 +1467,6 @@ def verify_project_role(request):
     # Don't send email to new user if they are now an owner
     owner_users.discard(user)
 
-    submitter_user = user_service.get_user(data.get("submitter_id"))
     send_collaborator_added_email(
         request,
         owner_users,
