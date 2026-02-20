@@ -144,7 +144,6 @@ def test_includeme(monkeypatch):
                 "warehouse.account.password_reset_ratelimit_string": "5 per day",
                 "warehouse.account.accounts_search_ratelimit_string": "100 per hour",
                 "github.oauth.backend": accounts.NullGitHubOAuthClient,
-                "gitlab.oauth.backend": accounts.NullGitLabOAuthClient,
             }
         ),
         register_service_factory=pretend.call_recorder(
@@ -193,11 +192,6 @@ def test_includeme(monkeypatch):
             accounts.IOAuthProviderService,
             name="github",
         ),
-        pretend.call(
-            accounts.NullGitLabOAuthClient.create_service,
-            accounts.IOAuthProviderService,
-            name="gitlab",
-        ),
     ]
     assert config.register_rate_limiter.calls == [
         pretend.call("10 per 5 minutes", "user.login"),
@@ -232,4 +226,56 @@ def test_includeme(monkeypatch):
     assert (
         pretend.call(crontab(minute="*/20"), compute_user_metrics)
         in config.add_periodic_task.calls
+    )
+
+    # Verify GitLab OAuth is NOT registered when setting is absent
+    assert (
+        pretend.call(
+            accounts.NullGitLabOAuthClient.create_service,
+            accounts.IOAuthProviderService,
+            name="gitlab",
+        )
+        not in config.register_service_factory.calls
+    )
+
+
+def test_includeme_with_gitlab_oauth():
+    """Verify GitLab OAuth service is registered when configured."""
+    register_service_factory = pretend.call_recorder(
+        lambda factory, iface, name=None: None
+    )
+    config = pretend.stub(
+        registry=pretend.stub(
+            settings={
+                "warehouse.account.user_login_ratelimit_string": "10 per 5 minutes",
+                "warehouse.account.ip_login_ratelimit_string": "10 per 5 minutes",
+                "warehouse.account.global_login_ratelimit_string": "1000 per 5 minutes",
+                "warehouse.account.2fa_user_ratelimit_string": "5 per 5 minutes, 20 per hour, 50 per day",  # noqa: E501
+                "warehouse.account.2fa_ip_ratelimit_string": "10 per 5 minutes, 50 per hour",  # noqa: E501
+                "warehouse.account.email_add_ratelimit_string": "2 per day",
+                "warehouse.account.verify_email_ratelimit_string": "3 per 6 hours",
+                "warehouse.account.password_reset_ratelimit_string": "5 per day",
+                "warehouse.account.accounts_search_ratelimit_string": "100 per hour",
+                "github.oauth.backend": accounts.NullGitHubOAuthClient,
+                "gitlab.oauth.backend": accounts.NullGitLabOAuthClient,
+            }
+        ),
+        register_service_factory=register_service_factory,
+        register_rate_limiter=pretend.call_recorder(lambda limit_string, name: None),
+        add_request_method=pretend.call_recorder(lambda f, name, reify=False: None),
+        set_security_policy=pretend.call_recorder(lambda p: None),
+        maybe_dotted=pretend.call_recorder(lambda path: path),
+        add_route_predicate=pretend.call_recorder(lambda name, cls: None),
+        add_periodic_task=pretend.call_recorder(lambda *a, **kw: None),
+    )
+
+    accounts.includeme(config)
+
+    assert (
+        pretend.call(
+            accounts.NullGitLabOAuthClient.create_service,
+            accounts.IOAuthProviderService,
+            name="gitlab",
+        )
+        in register_service_factory.calls
     )

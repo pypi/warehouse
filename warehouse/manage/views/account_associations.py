@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import typing
 
-from pyramid.httpexceptions import HTTPSeeOther
+from pyramid.httpexceptions import HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
 
 from warehouse.accounts.interfaces import IUserService
@@ -168,10 +168,13 @@ def github_association_callback(request: Request) -> HTTPSeeOther:
     require_methods=False,
     has_translations=True,
 )
-def gitlab_association_connect(request: Request) -> HTTPSeeOther:
+def gitlab_association_connect(request: Request) -> HTTPSeeOther | HTTPNotFound:
     """
     Initiate GitLab OAuth flow for account association.
     """
+    if not request.registry.settings.get("gitlab.oauth.backend"):
+        return HTTPNotFound()
+
     # Generate state token for CSRF protection
     state = generate_state_token()
     request.session["gitlab_oauth_state"] = state
@@ -192,10 +195,13 @@ def gitlab_association_connect(request: Request) -> HTTPSeeOther:
     require_methods=False,
     has_translations=True,
 )
-def gitlab_association_callback(request: Request) -> HTTPSeeOther:
+def gitlab_association_callback(request: Request) -> HTTPSeeOther | HTTPNotFound:
     """
     Handle GitLab OAuth callback for account association.
     """
+    if not request.registry.settings.get("gitlab.oauth.backend"):
+        return HTTPNotFound()
+
     # Verify state token to prevent CSRF
     returned_state = request.GET.get("state")
     session_state = request.session.pop("gitlab_oauth_state", None)

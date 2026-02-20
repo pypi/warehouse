@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-from pyramid.httpexceptions import HTTPSeeOther
+from pyramid.httpexceptions import HTTPNotFound, HTTPSeeOther
 from webob.multidict import MultiDict
 
 from tests.common.db.accounts import OAuthAccountAssociationFactory
@@ -215,9 +215,15 @@ class TestGitHubAssociationCallback:
 
 
 class TestGitLabAssociationConnect:
+    def test_returns_not_found_when_disabled(self, pyramid_request):
+        """Test that GitLab connect returns 404 when feature is disabled."""
+        result = views.gitlab_association_connect(pyramid_request)
+
+        assert isinstance(result, HTTPNotFound)
+
     def test_initiates_oauth_flow(self, pyramid_request, mocker):
         """Test that the connect view generates state and redirects to OAuth URL."""
-        # Create GitLab-specific oauth_provider_service
+        pyramid_request.registry.settings["gitlab.oauth.backend"] = True
         from warehouse.accounts.oauth import NullGitLabOAuthClient
 
         gitlab_service = NullGitLabOAuthClient(redirect_uri="http://localhost/callback")
@@ -234,8 +240,15 @@ class TestGitLabAssociationConnect:
 
 
 class TestGitLabAssociationCallback:
+    def test_returns_not_found_when_disabled(self, pyramid_request):
+        """Test that GitLab callback returns 404 when feature is disabled."""
+        result = views.gitlab_association_callback(pyramid_request)
+
+        assert isinstance(result, HTTPNotFound)
+
     def test_invalid_state_csrf_error(self, pyramid_request):
         """Test that empty state token returns CSRF error."""
+        pyramid_request.registry.settings["gitlab.oauth.backend"] = True
         pyramid_request.GET = MultiDict({"code": "test_code"})
         pyramid_request.route_path = lambda *args: "/manage/account/"
 
@@ -250,6 +263,7 @@ class TestGitLabAssociationCallback:
 
     def test_oauth_error_from_gitlab(self, pyramid_request):
         """Test handling of OAuth error response from GitLab."""
+        pyramid_request.registry.settings["gitlab.oauth.backend"] = True
         session_state = "valid_state"
         pyramid_request.session["gitlab_oauth_state"] = session_state
         pyramid_request.GET = MultiDict(
@@ -269,6 +283,7 @@ class TestGitLabAssociationCallback:
 
     def test_missing_authorization_code(self, pyramid_request):
         """Test handling of missing authorization code."""
+        pyramid_request.registry.settings["gitlab.oauth.backend"] = True
         session_state = "valid_state"
         pyramid_request.session["gitlab_oauth_state"] = session_state
         pyramid_request.GET = MultiDict({"state": session_state})
@@ -285,6 +300,7 @@ class TestGitLabAssociationCallback:
 
     def test_no_access_token_received(self, pyramid_request, user_service, mocker):
         """Test handling when token exchange returns no access token."""
+        pyramid_request.registry.settings["gitlab.oauth.backend"] = True
         from warehouse.accounts.oauth import NullGitLabOAuthClient
 
         gitlab_service = NullGitLabOAuthClient(redirect_uri="http://localhost/callback")
@@ -321,6 +337,7 @@ class TestGitLabAssociationCallback:
         mocker,
     ):
         """Test handling when association already exists (ValueError)."""
+        pyramid_request.registry.settings["gitlab.oauth.backend"] = True
         from warehouse.accounts.oauth import NullGitLabOAuthClient
 
         # Pre-create an association with known values
@@ -365,6 +382,7 @@ class TestGitLabAssociationCallback:
         self, pyramid_request, user_service, mocker
     ):
         """Test handling of unexpected exceptions during OAuth flow."""
+        pyramid_request.registry.settings["gitlab.oauth.backend"] = True
         from warehouse.accounts.oauth import NullGitLabOAuthClient
 
         gitlab_service = NullGitLabOAuthClient(redirect_uri="http://localhost/callback")
@@ -403,6 +421,7 @@ class TestGitLabAssociationCallback:
         mocker,
     ):
         """Test successful GitLab account association."""
+        pyramid_request.registry.settings["gitlab.oauth.backend"] = True
         from warehouse.accounts.oauth import NullGitLabOAuthClient
 
         gitlab_service = NullGitLabOAuthClient(redirect_uri="http://localhost/callback")
