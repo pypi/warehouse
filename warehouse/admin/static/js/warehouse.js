@@ -191,6 +191,19 @@ if (malwareReportsTable.length) {
   table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
 }
 
+// Sponsors
+let sponsorsTable = $("#sponsors");
+if (sponsorsTable.length) {
+  let table = sponsorsTable.DataTable({
+    displayLength: 50,
+    responsive: true,
+    lengthChange: false,
+    order: [[3, "asc"], [1, "asc"]],  // level order, alpha name
+  });
+  new $.fn.dataTable.Buttons(table, {buttons: ["copy", "csv", "colvis"]});
+  table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
+}
+
 // Organization Applications
 let OrganizationApplicationsTable = $("#organization-applications");
 if (OrganizationApplicationsTable.length) {

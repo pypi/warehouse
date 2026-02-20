@@ -34,7 +34,7 @@
 {% block content %}
   <div class="row">
     <div class="col-md-12">
-      <div class="card card-primary card-outline">
+      <div class="card card-primary">
         <div class="card-header">
           {% if sponsor %}
           <h3 class="card-title">Edit Sponsor</h3>
@@ -61,18 +61,18 @@
             {{ render_field("Color logo Upload", form.color_logo, "sponsor-color-logo-upload", class="form-control") }}
             {% if sponsor %}
             <div class="form-group row">
-              <label for="color-logo-url" class="col-sm-2 control-label">Color Logo URL</label>
+              <label for="sponsor-color-logo-url" class="col-sm-2 control-label">Color Logo URL</label>
               <div class="col-sm-10">
-                <pre>{{ sponsor.color_logo_url }}</pre>
+                <input id="sponsor-color-logo-url" class="form-control-plaintext" value="{{ sponsor.color_logo_url }}" readonly>
               </div>
             </div>
             {% endif %}
             {{ render_field("White logo Upload", form.white_logo, "sponsor-white-logo-upload", class="form-control") }}
             {% if sponsor %}
             <div class="form-group row">
-              <label for="color-logo-url" class="col-sm-2 control-label">White Logo URL</label>
+              <label for="sponsor-white-logo-url" class="col-sm-2 control-label">White Logo URL</label>
               <div class="col-sm-10">
-                <pre>{{ sponsor.white_logo_url }}</pre>
+                <input id="sponsor-white-logo-url" class="form-control-plaintext" value="{{ sponsor.white_logo_url }}" readonly>
               </div>
             </div>
             {% endif %}
@@ -83,6 +83,29 @@
             {{ render_field("Infra Sponsor", form.infra_sponsor, "sponsor-infra-sponsor") }}
             {{ render_field("One Time", form.one_time, "sponsor-one-time") }}
             {{ render_field("Sidebar", form.sidebar, "sponsor-sidebar") }}
+
+            {% if sponsor %}
+            <hr>
+            <h5>pythondotorg Integration</h5>
+            <div class="form-group row">
+              <label for="sponsor-origin" class="col-sm-2 control-label">Origin</label>
+              <div class="col-sm-10">
+                <input id="sponsor-origin" class="form-control-plaintext" value="{{ sponsor.origin or '' }}" readonly>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="sponsor-level-name" class="col-sm-2 control-label">Level Name</label>
+              <div class="col-sm-10">
+                <input id="sponsor-level-name" class="form-control-plaintext" value="{{ sponsor.level_name or '' }}" readonly>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="sponsor-level-order" class="col-sm-2 control-label">Level Order</label>
+              <div class="col-sm-10">
+                <input id="sponsor-level-order" class="form-control-plaintext" value="{{ sponsor.level_order if sponsor.level_order is not none else '' }}" readonly>
+              </div>
+            </div>
+            {% endif %}
 
             <div class="form-group">
               <button type="submit" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not request.has_permission(Permissions.AdminSponsorsWrite) }}" {{ "disabled" if not request.has_permission(Permissions.AdminSponsorsWrite) }}>Submit</button>
