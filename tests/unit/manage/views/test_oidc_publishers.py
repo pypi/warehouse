@@ -1139,9 +1139,9 @@ class TestManageOIDCPublisherViews:
                     pipeline_definition_id=pretend.stub(
                         data=publisher.pipeline_definition_id
                     ),
-                    context_id=pretend.stub(data=publisher.context_id),
-                    vcs_ref=pretend.stub(data=publisher.vcs_ref),
-                    vcs_origin=pretend.stub(data=publisher.vcs_origin),
+                    normalized_context_id=publisher.context_id,
+                    normalized_vcs_ref=publisher.vcs_ref,
+                    normalized_vcs_origin=publisher.vcs_origin,
                 ),
             ),
         ],
@@ -1307,9 +1307,9 @@ class TestManageOIDCPublisherViews:
                     pipeline_definition_id=pretend.stub(
                         data="00000000-0000-1000-8000-000000000003"
                     ),
-                    context_id=pretend.stub(data=""),
-                    vcs_ref=pretend.stub(data=""),
-                    vcs_origin=pretend.stub(data=""),
+                    normalized_context_id="",
+                    normalized_vcs_ref="",
+                    normalized_vcs_origin="",
                 ),
                 "CircleCI",
             ),
