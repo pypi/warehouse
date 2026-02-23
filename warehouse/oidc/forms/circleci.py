@@ -73,6 +73,18 @@ class CircleCIPublisherBase(wtforms.Form):
         ]
     )
 
+    @property
+    def normalized_context_id(self) -> str:
+        return self.context_id.data if self.context_id.data else ""
+
+    @property
+    def normalized_vcs_ref(self) -> str:
+        return self.vcs_ref.data if self.vcs_ref.data else ""
+
+    @property
+    def normalized_vcs_origin(self) -> str:
+        return self.vcs_origin.data if self.vcs_origin.data else ""
+
 
 class PendingCircleCIPublisherForm(CircleCIPublisherBase, PendingPublisherMixin):
     __params__ = CircleCIPublisherBase.__params__ + ["project_name"]
