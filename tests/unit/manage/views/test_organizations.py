@@ -3593,9 +3593,9 @@ class TestManageOrganizationPublishingViews:
             pipeline_definition_id=pretend.stub(
                 data="00000000-0000-1000-8000-000000000003"
             ),
-            context_id=pretend.stub(data=""),
-            vcs_ref=pretend.stub(data=""),
-            vcs_origin=pretend.stub(data=""),
+            normalized_context_id="",
+            normalized_vcs_ref="",
+            normalized_vcs_origin="",
         )
         monkeypatch.setattr(
             org_views, "PendingCircleCIPublisherForm", lambda *a, **kw: form
