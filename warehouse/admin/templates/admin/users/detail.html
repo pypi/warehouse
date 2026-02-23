@@ -799,6 +799,8 @@
                 <td>
                   {% if association.service == 'github' %}
                   <i class="fa-brands fa-github"></i> GitHub
+                  {% elif association.service == 'gitlab' %}
+                  <i class="fa-brands fa-gitlab"></i> GitLab
                   {% else %}
                   {{ association.service }}
                   {% endif %}
@@ -806,6 +808,10 @@
                 <td>
                   {% if association.service == 'github' %}
                   <a href="https://github.com/{{ association.external_username }}" target="_blank" rel="noopener">
+                    {{ association.external_username }}
+                  </a>
+                  {% elif association.service == 'gitlab' %}
+                  <a href="https://gitlab.com/{{ association.external_username }}" target="_blank" rel="noopener">
                     {{ association.external_username }}
                   </a>
                   {% else %}
