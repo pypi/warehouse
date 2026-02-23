@@ -1047,7 +1047,7 @@ class TestProjectService:
         ProhibitedProjectFactory.create(name="numpy")
 
         with pytest.raises(ProjectNameUnavailableTypoSquattingError):
-            service.check_project_name("numpi")
+            service.check_project_name_after_insert("numpi")
 
     def test_check_project_name_ok(self, db_session):
         service = ProjectService(session=db_session)

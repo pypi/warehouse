@@ -27,7 +27,6 @@ from warehouse.admin.flags import AdminFlagValue
 from warehouse.cache import IQueryResultsCache
 from warehouse.email import send_pending_trusted_publisher_invalidated_email
 from warehouse.events.tags import EventTag
-from warehouse.helpdesk.interfaces import IAdminNotificationService
 from warehouse.metrics import IMetricsService
 from warehouse.oidc.models import PendingOIDCPublisher
 from warehouse.organizations.models import OrganizationProject
@@ -482,6 +481,9 @@ class ProjectService:
         ).first():
             raise ProjectNameUnavailableSimilarError(similar_project_name)
 
+        return None
+
+    def check_project_name_after_insert(self, name: str) -> None:
         # Check for typo-squatting.
         cached_corpus = self._query_results_cache.get("top_dependents_corpus")
         if typo_check_match := typo_check_name(
@@ -565,85 +567,6 @@ class ProjectService:
                     projecthelp=request.help_url(_anchor="project-name"),
                 ),
             ) from None
-        except ProjectNameUnavailableTypoSquattingError as exc:
-            # Don't yet raise an error here, as we want to allow the
-            # user to proceed with the project creation. We'll log a warning
-            # instead.
-            request.log.warning(
-                "ProjectNameUnavailableTypoSquattingError",
-                check_name=exc.check_name,
-                existing_project_name=exc.existing_project_name,
-            )
-            # Send notification to Admins for review
-            notification_service = request.find_service(IAdminNotificationService)
-
-            warehouse_domain = request.registry.settings.get("warehouse.domain")
-            new_project_page = request.route_url(
-                "packaging.project",
-                name=name,
-                _host=warehouse_domain,
-            )
-            new_project_text = (
-                f"During `file_upload`, Project Create for "
-                f"*<{new_project_page}|{name}>* was detected as a potential "
-                f"typo by the `{exc.check_name!r}` check."
-            )
-            existing_project_page = request.route_url(
-                "packaging.project",
-                name=exc.existing_project_name,
-                _host=warehouse_domain,
-            )
-            existing_project_text = (
-                f"<{existing_project_page}|Existing project: "
-                f"{exc.existing_project_name}>"
-            )
-
-            webhook_payload = {
-                "blocks": [
-                    {
-                        "type": "header",
-                        "text": {
-                            "type": "plain_text",
-                            "text": "TypoSnyper :warning:",
-                            "emoji": True,
-                        },
-                    },
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": new_project_text,
-                        },
-                    },
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": existing_project_text,
-                        },
-                    },
-                    {"type": "divider"},
-                    {
-                        "type": "context",
-                        "elements": [
-                            {
-                                "type": "plain_text",
-                                "text": "Once reviewed/confirmed, "
-                                "react to this message with :white_check_mark:",
-                                "emoji": True,
-                            }
-                        ],
-                    },
-                ]
-            }
-            notification_service.send_notification(payload=webhook_payload)
-
-            request.metrics.increment(
-                "warehouse.packaging.services.create_project.typo_squatting",
-                tags=[f"check_name:{exc.check_name!r}"],
-            )
-            # and continue with the project creation
-            pass
 
         # The project name is valid: create it and add it
         project = Project(name=name)
