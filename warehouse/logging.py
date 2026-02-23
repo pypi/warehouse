@@ -36,6 +36,39 @@ def _create_id(request):
     return str(uuid.uuid4())
 
 
+def configure_celery_logging(logfile: str | None = None, loglevel: int = logging.INFO):
+    """Configure unified structlog logging for Celery that handles all log types."""
+    processors = [
+        structlog.contextvars.merge_contextvars,
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.stdlib.add_log_level,
+        structlog.processors.StackInfoRenderer(),
+        structlog.processors.format_exc_info,
+    ]
+    formatter = structlog.stdlib.ProcessorFormatter(
+        processor=RENDERER,
+        foreign_pre_chain=processors,  # type: ignore[arg-type]
+    )
+
+    handler = logging.FileHandler(logfile) if logfile else logging.StreamHandler()
+    handler.setFormatter(formatter)
+
+    root = logging.getLogger()
+    root.handlers.clear()
+    root.addHandler(handler)
+    root.setLevel(loglevel)
+
+    structlog.configure(
+        processors=processors  # type: ignore[arg-type]
+        + [
+            structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
+        ],
+        logger_factory=structlog.stdlib.LoggerFactory(),
+        wrapper_class=structlog.make_filtering_bound_logger(logging.INFO),
+        cache_logger_on_first_use=True,
+    )
+
+
 def _create_logger(request):
     # This has to use **{} instead of just a kwarg because request.id is not
     # an allowed kwarg name.
@@ -88,6 +121,7 @@ def includeme(config):
             structlog.stdlib.add_logger_name,
             structlog.stdlib.add_log_level,
             structlog.stdlib.PositionalArgumentsFormatter(),
+            structlog.processors.TimeStamper(fmt="iso"),
             structlog.processors.StackInfoRenderer(),
             structlog.processors.format_exc_info,
             RENDERER,
