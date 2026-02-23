@@ -92,7 +92,7 @@ class RateLimiter:
             reset = datetime.fromtimestamp(resets_at, tz=timezone.utc)
 
             # If our current datetime is either greater than or equal to when
-            # the limit resets, then we will skipp it since it has either
+            # the limit resets, then we will skip it since it has either
             # already reset, or it is resetting now.
             if current >= reset:
                 continue
