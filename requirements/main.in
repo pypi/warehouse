@@ -76,5 +76,6 @@ urllib3
 webauthn>=1.0.0,<3.0.0
 whitenoise
 WTForms[email]>=2.0.0
+yara-x
 zope.sqlalchemy
 zxcvbn
