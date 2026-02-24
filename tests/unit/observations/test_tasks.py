@@ -270,6 +270,47 @@ class TestAutoQuarantineProject:
             ),
         ]
 
+    def test_trusted_observer_quarantines_young_project_with_yanked_releases(
+        self, db_request, notification_service, monkeypatch
+    ):
+        """
+        A young project where all releases are yanked should still be quarantined.
+        latest_version is None when all releases are yanked.
+        """
+        dummy_task = pretend.stub(name="dummy_task")
+        user = UserFactory.create(is_observer=True)
+        project = ProjectFactory.create(
+            created=datetime.now(timezone.utc) - timedelta(hours=1)
+        )
+        ReleaseFactory.create(project=project, yanked=True)
+
+        db_request.route_url = pretend.call_recorder(
+            lambda *args, **kw: "/project/spam/"
+        )
+        db_request.user = user
+
+        observation = project.record_observation(
+            request=db_request,
+            kind=ObservationKind.IsMalware,
+            summary="Project Observation",
+            payload={},
+            actor=user,
+        )
+        db_request.db.flush()
+
+        ns_svc_spy = pretend.call_recorder(lambda *args, **kwargs: None)
+        monkeypatch.setattr(notification_service, "send_notification", ns_svc_spy)
+
+        evaluate_project_for_quarantine(dummy_task, db_request, observation.id)
+
+        assert len(ns_svc_spy.calls) == 1
+        assert project.lifecycle_status == LifecycleStatus.QuarantineEnter
+        assert db_request.log.info.calls == [
+            pretend.call(
+                "Auto-quarantining young project (<24h) reported by trusted observer."
+            ),
+        ]
+
     def test_trusted_observer_old_project_needs_corroboration(self, db_request):
         """
         A trusted observer reporting a project > 24 hours old still needs corroboration.
