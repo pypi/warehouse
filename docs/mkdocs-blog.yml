@@ -47,6 +47,7 @@ plugins:
   - blog:
       blog_dir: .
       blog_toc: true
+      authors_profiles: true
       # Use a custom pagination URL format to avoid ReadTheDocs built-in
       # redirection, which removes the word `page` from the URL.
       # Ref: https://docs.readthedocs.io/en/stable/user-defined-redirects.html#page-redirects-at-page
