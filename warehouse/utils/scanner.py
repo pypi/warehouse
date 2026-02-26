@@ -21,6 +21,11 @@ _SCAN_EXTENSIONS = {".py", ".pyc", ".pyd", ".so"}
 # Max size of individual file to scan inside archive (5 MiB)
 _SCAN_MAX_FILE_SIZE = 5 * 1024 * 1024
 
+# Max total scannable content for bulk pre-scan optimization (50 MiB).
+# Archives exceeding this fall back to per-file scanning to avoid
+# holding multiple copies of all file contents in memory.
+_BULK_SCAN_MAX_TOTAL = 50 * 1024 * 1024
+
 
 @dataclass(frozen=True)
 class YaraMatch:
@@ -106,38 +111,68 @@ def check_members(
     if rules is None:
         return None
 
-    # Materialize members so we can do a bulk pre-scan.
-    materialized: list[tuple[str, int, bytes]] = []
-    bulk = bytearray()
-    for name, size, data in members:
-        if size > _SCAN_MAX_FILE_SIZE:
-            logger.info(
-                "Skipping oversized file in YARA scan",
-                member=name,
-                member_size=size,
-                archive=archive_name,
-                max_size=_SCAN_MAX_FILE_SIZE,
-            )
-            continue
-        materialized.append((name, size, data))
-        bulk.extend(data)
-
     yx_scanner = yara_x.Scanner(rules)
+    materialized: list[tuple[str, int, bytes]] = []
+    total_size = 0
+    overflow = False
+
     try:
-        # Fast path: scan all contents at once. If nothing matches,
-        # skip per-file scanning entirely (the common case).
-        if not yx_scanner.scan(bytes(bulk)).matching_rules:
+        for name, size, data in members:
+            if size > _SCAN_MAX_FILE_SIZE:
+                logger.info(
+                    "Skipping oversized file in YARA scan",
+                    member=name,
+                    member_size=size,
+                    archive=archive_name,
+                    max_size=_SCAN_MAX_FILE_SIZE,
+                )
+                continue
+
+            if overflow:
+                # Over the size cap — scan each file individually.
+                results = yx_scanner.scan(data)
+                for matched_rule in results.matching_rules:
+                    return YaraMatch(
+                        rule=matched_rule.identifier,
+                        member=name,
+                        message=_get_rule_message(matched_rule),
+                    )
+                continue
+
+            materialized.append((name, size, data))
+            total_size += len(data)
+
+            if total_size > _BULK_SCAN_MAX_TOTAL:
+                overflow = True
+                # Exceeded size cap — scan materialized files individually.
+                for m_name, _, m_data in materialized:
+                    results = yx_scanner.scan(m_data)
+                    for matched_rule in results.matching_rules:
+                        return YaraMatch(
+                            rule=matched_rule.identifier,
+                            member=m_name,
+                            message=_get_rule_message(matched_rule),
+                        )
+                materialized.clear()
+
+        if not overflow:
+            # Under the size cap — use bulk pre-scan optimization.
+            bulk = b"".join(data for _, _, data in materialized)
+            if not yx_scanner.scan(bulk).matching_rules:
+                return None
+            # Something matched — scan individual files for attribution.
+            for name, _size, data in materialized:
+                results = yx_scanner.scan(data)
+                for matched_rule in results.matching_rules:
+                    return YaraMatch(
+                        rule=matched_rule.identifier,
+                        member=name,
+                        message=_get_rule_message(matched_rule),
+                    )
+            # Bulk matched across file boundaries but no individual file
+            # triggered — a harmless false positive from concatenation.
             return None
 
-        # Something matched — scan individual files for attribution.
-        for name, _size, data in materialized:
-            results = yx_scanner.scan(data)
-            for matched_rule in results.matching_rules:
-                return YaraMatch(
-                    rule=matched_rule.identifier,
-                    member=name,
-                    message=_get_rule_message(matched_rule),
-                )
     except yara_x.ScanError:
         logger.exception(
             "YARA-X scan failed",
@@ -146,8 +181,7 @@ def check_members(
         )
         return None
 
-    # Bulk scan matched across file boundaries but no individual file
-    # triggered — a harmless false positive from concatenation.
+    # Overflow path completed with no matches found.
     return None
 
 
@@ -164,7 +198,7 @@ def scan_archive(
     Note: the scan loop here intentionally duplicates logic from
     ``check_members`` because the two have different return shapes —
     this collects *all* matching rule names per member, while
-    ``check_members`` short-circuits on the first non-exempt match.
+    ``check_members`` short-circuits on the first match.
     """
     rules = rules or _rules
     if rules is None:
@@ -197,15 +231,17 @@ def scan_archive(
                 continue
             scannable.append((name, size, data))
 
-        # Fast path: scan all contents at once. If nothing matches,
-        # skip per-file scanning entirely (the common case).
-        bulk = bytearray()
-        for _, _, data in scannable:
-            bulk.extend(data)
-        if not yx_scanner.scan(bytes(bulk)).matching_rules:
-            return []
+        # Fast path: if total scannable content is under the size cap,
+        # scan all contents at once. If nothing matches, skip per-file
+        # scanning entirely (the common case).
+        total_size = sum(len(data) for _, _, data in scannable)
+        if total_size <= _BULK_SCAN_MAX_TOTAL:
+            bulk = b"".join(data for _, _, data in scannable)
+            if not yx_scanner.scan(bulk).matching_rules:
+                return []
 
-        # Something matched — scan individual files for attribution.
+        # Either the bulk scan matched, or we're over the size cap —
+        # scan individual files.
         for name, _size, data in scannable:
             results = yx_scanner.scan(data)
             if results.matching_rules:

@@ -157,6 +157,48 @@ class TestCheckMembers:
         members = [("pkg/a.py", 2, b"AB"), ("pkg/b.py", 2, b"CD")]
         assert scanner.check_members(members, rules, archive_name="test.whl") is None
 
+    def test_overflow_detects_match_after_threshold(self, monkeypatch):
+        """Match found in a file arriving after the overflow threshold."""
+        monkeypatch.setattr(scanner, "_BULK_SCAN_MAX_TOTAL", 10)
+        rules = yara_x.compile(
+            'rule bad { meta: message = "blocked" '
+            'strings: $a = "evil" condition: $a }'
+        )
+        members = [
+            ("pkg/a.py", 6, b"hello!"),
+            ("pkg/b.py", 6, b"world!"),
+            ("pkg/c.py", 12, b"this is evil"),
+        ]
+        result = scanner.check_members(members, rules, archive_name="test.whl")
+        assert result is not None
+        assert result.member == "pkg/c.py"
+
+    def test_overflow_detects_match_in_materialized(self, monkeypatch):
+        """Match found in a file materialized before the overflow threshold."""
+        monkeypatch.setattr(scanner, "_BULK_SCAN_MAX_TOTAL", 10)
+        rules = yara_x.compile(
+            'rule bad { meta: message = "blocked" '
+            'strings: $a = "evil" condition: $a }'
+        )
+        members = [
+            ("pkg/a.py", 12, b"this is evil"),
+            ("pkg/b.py", 6, b"world!"),
+        ]
+        result = scanner.check_members(members, rules, archive_name="test.whl")
+        assert result is not None
+        assert result.member == "pkg/a.py"
+
+    def test_overflow_returns_none_for_clean_files(self, monkeypatch):
+        """Per-file fallback returns None when no files match."""
+        monkeypatch.setattr(scanner, "_BULK_SCAN_MAX_TOTAL", 10)
+        rules = yara_x.compile('rule bad { strings: $a = "evil" condition: $a }')
+        members = [
+            ("pkg/a.py", 6, b"hello!"),
+            ("pkg/b.py", 6, b"world!"),
+            ("pkg/c.py", 5, b"clean"),
+        ]
+        assert scanner.check_members(members, rules, archive_name="test.whl") is None
+
 
 class TestScanArchive:
     @pytest.mark.parametrize(
@@ -269,3 +311,16 @@ class TestScanArchive:
             info.size = len(data)
             tar.addfile(info, io.BytesIO(data))
         assert scanner.scan_archive(tar_path, rules=rules) == []
+
+    def test_overflow_skips_bulk_prescan(self, tmp_path, rules, monkeypatch):
+        monkeypatch.setattr(scanner, "_BULK_SCAN_MAX_TOTAL", 10)
+        whl = _make_wheel(
+            tmp_path,
+            {
+                "pkg/__init__.py": "__pyarmor__(__name__, __file__, b'payload')",
+                "pkg/big.py": "x = 1\n" * 20,
+            },
+        )
+        matches = scanner.scan_archive(whl, rules=rules)
+        assert len(matches) == 1
+        assert matches[0][0] == "pkg/__init__.py"
