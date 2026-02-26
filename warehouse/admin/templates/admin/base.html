@@ -1,4 +1,10 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
+{# Template-wide variables #}
+{% if request.registry.settings.get("warehouse.domain") == "test.pypi.org" %}
+  {% set testPyPI = true %}
+{% elif request.registry.settings.get("warehouse.env").value == "development" %}
+  {% set devPyPI = true %}
+{% endif %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
