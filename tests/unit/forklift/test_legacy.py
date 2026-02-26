@@ -606,7 +606,6 @@ class TestFileUpload:
     @pytest.mark.parametrize(
         ("post_data", "message"),
         [
-            
             # metadata_version errors.
             (
                 {
