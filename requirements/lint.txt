@@ -242,9 +242,9 @@ flake8-pytest-style==2.2.0 \
     --hash=sha256:d01c4198a6c4e0ab759a92a0fa7710f10d83ec28e32a50ab6fb2e10f973a2f36 \
     --hash=sha256:d23a33294bccfb9f1b11aaf5212256727b299b9c9b17cf21e230c52c1095a468
     # via -r requirements/lint.in
-isort==7.0.0 \
-    --hash=sha256:1bcabac8bc3c36c7fb7b98a76c8abb18e0f841a3ba81decac7691008592499c1 \
-    --hash=sha256:5513527951aadb3ac4292a41a16cbc50dd1642432f5e8c20057d414bdafb4187
+isort==8.0.0 \
+    --hash=sha256:184916a933041c7cf718787f7e52064f3c06272aff69a5cb4dc46497bd8911d9 \
+    --hash=sha256:fddea59202f231e170e52e71e3510b99c373b6e571b55d9c7b31b679c0fed47c
     # via -r requirements/lint.in
 jsbeautifier==1.15.4 \
     --hash=sha256:5bb18d9efb9331d825735fbc5360ee8f1aac5e52780042803943aa7f854f7592 \
