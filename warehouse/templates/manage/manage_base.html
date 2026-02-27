@@ -607,6 +607,34 @@
           <br>
           <b>Actor:</b> {{ publisher.actor }}
           <br>
+        {% elif publisher.publisher_name == "CircleCI" %}
+          <b>Organization ID:</b> {{ publisher.circleci_org_id }}
+          <br>
+          <b>Project ID:</b> {{ publisher.circleci_project_id }}
+          <br>
+          <b>Pipeline Definition ID:</b> {{ publisher.pipeline_definition_id }}
+          <br>
+          <b>Context ID:</b>
+          {% if publisher.context_id %}
+            {{ publisher.context_id }}
+          {% else %}
+            <i>({% trans %}Any{% endtrans %})</i>
+          {% endif %}
+          <br>
+          <b>VCS Ref:</b>
+          {% if publisher.vcs_ref %}
+            {{ publisher.vcs_ref }}
+          {% else %}
+            <i>({% trans %}Any{% endtrans %})</i>
+          {% endif %}
+          <br>
+          <b>VCS Origin:</b>
+          {% if publisher.vcs_origin %}
+            {{ publisher.vcs_origin }}
+          {% else %}
+            <i>({% trans %}Any{% endtrans %})</i>
+          {% endif %}
+          <br>
         {% else %}
           -
         {% endif %}

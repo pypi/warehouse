@@ -5,10 +5,12 @@ import faker
 
 from warehouse.oidc.models import (
     ActiveStatePublisher,
+    CircleCIPublisher,
     GitHubPublisher,
     GitLabPublisher,
     GooglePublisher,
     PendingActiveStatePublisher,
+    PendingCircleCIPublisher,
     PendingGitHubPublisher,
     PendingGitLabPublisher,
     PendingGooglePublisher,
@@ -121,4 +123,32 @@ class PendingActiveStatePublisherFactory(WarehouseFactory):
     activestate_project_name = factory.Faker("pystr", max_chars=12)
     actor = factory.Faker("pystr", max_chars=12)
     actor_id = factory.Faker("uuid4")
+    added_by = factory.SubFactory(UserFactory)
+
+
+class CircleCIPublisherFactory(WarehouseFactory):
+    class Meta:
+        model = CircleCIPublisher
+
+    id = factory.Faker("uuid4", cast_to=None)
+    circleci_org_id = factory.Faker("uuid4")
+    circleci_project_id = factory.Faker("uuid4")
+    pipeline_definition_id = factory.Faker("uuid4")
+    context_id = ""
+    vcs_ref = ""
+    vcs_origin = ""
+
+
+class PendingCircleCIPublisherFactory(WarehouseFactory):
+    class Meta:
+        model = PendingCircleCIPublisher
+
+    id = factory.Faker("uuid4", cast_to=None)
+    project_name = factory.Faker("pystr", max_chars=12)
+    circleci_org_id = factory.Faker("uuid4")
+    circleci_project_id = factory.Faker("uuid4")
+    pipeline_definition_id = factory.Faker("uuid4")
+    context_id = ""
+    vcs_ref = ""
+    vcs_origin = ""
     added_by = factory.SubFactory(UserFactory)

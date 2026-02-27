@@ -353,6 +353,141 @@
   </div>
 </form>
 {% endmacro %}
+{% macro circleci_form(request, circleci_publisher_form) %}
+  {{ prefilled_warning() if prefilled_provider == "circleci" }}
+  <p>
+    {% trans href="https://circleci.com/docs/openid-connect-tokens/" %}
+    Read more about CircleCI's OpenID Connect support <a href="{{ href }}">here</a>.
+  {% endtrans %}
+</p>
+{{ form_error_anchor(circleci_publisher_form) }}
+<form id="circleci-publisher-form"
+      method="post"
+      action="{{ request.route_path('manage.project.settings.publishing', project_name=project.name) }}#errors">
+  <input name="csrf_token"
+         type="hidden"
+         value="{{ request.session.get_csrf_token() }}">
+  {{ form_errors(circleci_publisher_form) }}
+  <div class="form-group">
+    <label for="circleci_org_id" class="form-group__label">
+      {% trans %}Organization ID{% endtrans %}
+      {% if circleci_publisher_form.circleci_org_id.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+      {% endif %}
+    </label>
+    {{ circleci_publisher_form.circleci_org_id(placeholder=gettext("xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx") ,
+    autocomplete="off",
+    autocapitalize="off",
+    spellcheck="false",
+    class_="form-group__field",
+    aria_describedby="circleci_org_id-errors")
+    }}
+    <p class="form-group__help-text">{% trans %}The CircleCI organization ID (UUID) that owns the project{% endtrans %}</p>
+    <div id="circleci_org_id-errors">{{ field_errors(circleci_publisher_form.circleci_org_id) }}</div>
+  </div>
+  <div class="form-group">
+    <label for="circleci_project_id" class="form-group__label">
+      {% trans %}Project ID{% endtrans %}
+      {% if circleci_publisher_form.circleci_project_id.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+      {% endif %}
+    </label>
+    {{ circleci_publisher_form.circleci_project_id(placeholder=gettext("xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx") ,
+    autocomplete="off",
+    autocapitalize="off",
+    spellcheck="false",
+    class_="form-group__field",
+    aria_describedby="circleci_project_id-errors")
+    }}
+    <p class="form-group__help-text">{% trans %}The CircleCI project ID (UUID) that will publish to PyPI{% endtrans %}</p>
+    <div id="circleci_project_id-errors">{{ field_errors(circleci_publisher_form.circleci_project_id) }}</div>
+  </div>
+  <div class="form-group">
+    <label for="pipeline_definition_id" class="form-group__label">
+      {% trans %}Pipeline Definition ID{% endtrans %}
+      {% if circleci_publisher_form.pipeline_definition_id.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+      {% endif %}
+    </label>
+    {{ circleci_publisher_form.pipeline_definition_id(placeholder=gettext("xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx") ,
+    autocomplete="off",
+    autocapitalize="off",
+    spellcheck="false",
+    class_="form-group__field",
+    aria_describedby="pipeline_definition_id-errors")
+    }}
+    <p class="form-group__help-text">
+      {% trans %}The CircleCI pipeline definition ID (UUID) that triggers the workflow{% endtrans %}
+    </p>
+    <div id="pipeline_definition_id-errors">{{ field_errors(circleci_publisher_form.pipeline_definition_id) }}</div>
+  </div>
+  <div class="form-group">
+    <label for="context_id" class="form-group__label">
+      {% trans %}Context ID{% endtrans %}
+      {% if circleci_publisher_form.context_id.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+      {% else %}
+        <span class="form-group__required">{% trans %}(optional){% endtrans %}</span>
+      {% endif %}
+    </label>
+    {{ circleci_publisher_form.context_id(placeholder=gettext("xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx") ,
+    autocomplete="off",
+    autocapitalize="off",
+    spellcheck="false",
+    class_="form-group__field",
+    aria_describedby="context_id-errors")
+    }}
+    <p class="form-group__help-text">
+      {% trans href="https://circleci.com/docs/contexts/" %}
+      The UUID of a <a href="{{ href }}">CircleCI context</a> that the job
+      must use for publishing. While not required, specifying a context is
+      <strong>strongly</strong> encouraged for additional security, as it
+      restricts which jobs can publish to PyPI.
+    {% endtrans %}
+  </p>
+  <div id="context_id-errors">{{ field_errors(circleci_publisher_form.context_id) }}</div>
+</div>
+<div class="form-group">
+  <label for="vcs_origin" class="form-group__label">
+    {% trans %}VCS Origin{% endtrans %}
+    <span class="form-group__required">{% trans %}(optional){% endtrans %}</span>
+  </label>
+  {{ circleci_publisher_form.vcs_origin(placeholder=gettext("github.com/org/repo") ,
+  autocomplete="off",
+  autocapitalize="off",
+  spellcheck="false",
+  class_="form-group__field",
+  aria_describedby="vcs_origin-errors")
+  }}
+  <p class="form-group__help-text">
+    {% trans %}The VCS origin (e.g., github.com/org/repo) that the job must originate from. Leave empty to allow any origin.{% endtrans %}
+  </p>
+  <div id="vcs_origin-errors">{{ field_errors(circleci_publisher_form.vcs_origin) }}</div>
+</div>
+<div class="form-group">
+  <label for="vcs_ref" class="form-group__label">
+    {% trans %}VCS Ref{% endtrans %}
+    <span class="form-group__required">{% trans %}(optional){% endtrans %}</span>
+  </label>
+  {{ circleci_publisher_form.vcs_ref(placeholder=gettext("refs/heads/main") ,
+  autocomplete="off",
+  autocapitalize="off",
+  spellcheck="false",
+  class_="form-group__field",
+  aria_describedby="vcs_ref-errors")
+  }}
+  <p class="form-group__help-text">
+    {% trans %}The git ref (e.g., refs/heads/main) that the job must run from. Leave empty to allow any ref.{% endtrans %}
+  </p>
+  <div id="vcs_ref-errors">{{ field_errors(circleci_publisher_form.vcs_ref) }}</div>
+</div>
+<div>
+  <input type="submit"
+         value="{% trans %}Add{% endtrans %}"
+         class="button button--primary">
+</div>
+</form>
+{% endmacro %}
 {% block main %}
   {% if testPyPI %}
     {% set title = "TestPyPI" %}
@@ -393,6 +528,7 @@
                       ("GitLab", gitlab_form(request, gitlab_publisher_form)),
                       ("Google", google_form(request, google_publisher_form)),
                       ("ActiveState", activestate_form(request, activestate_publisher_form)),
+                      ("CircleCI", circleci_form(request, circleci_publisher_form)),
                     ] %}
           <div class="horizontal-tabs"
                data-controller="horizontal-tabs"
