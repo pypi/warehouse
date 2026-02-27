@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import datetime
+import json
 
 from pathlib import Path
 
@@ -140,8 +141,11 @@ class TestHTTPExceptionView:
             response = httpexception_view(context, request)
             assert response.status_code == 404
             assert response.status == "404 Not Found"
-            assert response.content_type == "text/plain"
-            assert response.text == "404 Not Found"
+            assert response.content_type == "application/problem+json"
+            problem_data = json.loads(response.text)
+            assert problem_data["status"] == 404
+            assert problem_data["title"] == "Not Found"
+            assert "detail" in problem_data
             _assert_has_cors_headers(response.headers)
 
     def test_json_404(self):
