@@ -2513,6 +2513,18 @@ wtforms[email]==3.2.1 \
     # via
     #   -r requirements/main.in
     #   wtforms
+yara-x==1.13.0 \
+    --hash=sha256:025f43cd804d1037d909d8677fb13cbec99479245a6065e5447ac977bc041f6b \
+    --hash=sha256:102d4139f8640c791cb6ddac8d83fdebfc86e226687de2aae0fdd5408da1bb26 \
+    --hash=sha256:2caaed814bce567c1b8a8789c6a5c6cfd6aa56551bd37e02d2678ea4489c7114 \
+    --hash=sha256:2d77f7f41960197f405bb09a8c10192ef0490177ff3d5a3a924e3cac9000b763 \
+    --hash=sha256:454da594605f96b8ade9ea188ea89dc292c38f50630d50ba02e9c292e29d26e1 \
+    --hash=sha256:9a8a0bb9e28edd8e07533eca824838026695ec995bc82c4b8ddc400878241c44 \
+    --hash=sha256:b003d79e0e82d496230de63e02c2d707ec5daacae98097d6e6ac349a123584a5 \
+    --hash=sha256:f1fe5867642ba9cd97b0f2ce14dcae44a821fcbdeeb38e042a80b283a6751697 \
+    --hash=sha256:f631225a09e1cfffd61ed33fa26d679234c81b7840d2063b339ee2f677037514 \
+    --hash=sha256:f9b3d5a91febfb7a90e36d2cfcc5d2dc63897a3f8dc9a290846a8c8eade5d0ee
+    # via -r requirements/main.in
 zope-deprecation==6.0 \
     --hash=sha256:18727ebda8e63a6d4bd28a290e8b46852e9f14473debb5cc40a0a2dccfadf15f \
     --hash=sha256:ff72d51c88b516b9ddf2cfb826381cc49f99a6a89b7d35c97faca7bee3b46da6
