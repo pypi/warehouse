@@ -9242,7 +9242,7 @@ msgstr ""
 #: warehouse/templates/pages/help.html:1079
 msgid ""
 "Deletion of a project, release or file on PyPI is permanent and "
-"irreversable, without exception. Deletion of a project makes it "
+"irreversible, without exception. Deletion of a project makes it "
 "uninstallable, and releases the project name for use by any other PyPI "
 "user. Deleted files <a href=\"#file-name-reuse\">cannot be re-"
 "uploaded</a>. Deleted projects, releases or files cannot be restored by "

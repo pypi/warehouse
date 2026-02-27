@@ -243,7 +243,7 @@ with the added benefit of making it easier for others to contribute.
 As well as "routine" work - handling inbound reports, analysis, and response.
 
 I also attended some conferences, round tables, and meetings, including
-Fastly Altitude 2023, AWS re:Invent 2023, PyCon US 2024, and AWS re:Inforce 2024,
+Fastly Altitude 2023, AWS re:Invent 2023, PyCon US 2024, and AWS re:Inforce 2024, <!-- codespell:ignore -->
 amongst some.
 I've also been getting more involved with the
 [OpenSSF](https://openssf.org/)

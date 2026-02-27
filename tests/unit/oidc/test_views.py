@@ -1077,7 +1077,7 @@ def test_is_from_reusable_workflow(
         # configured when claims contain an environment
         (GitHubPublisherFactory, "", "new_env", True),
         (GitLabPublisherFactory, "", "new_env", True),
-        # Should not send if claims don't have an environent
+        # Should not send if claims don't have an environment
         (GitHubPublisherFactory, "", "", False),
         (GitLabPublisherFactory, "", "", False),
         # Should not send if publishers already have an environment
