@@ -748,7 +748,7 @@ def send_collaborator_added_email(
     return {
         "username": user.username,
         "project": project_name,
-        "submitter": submitter.username,
+        "submitter": submitter.username if submitter else "a deleted user",
         "role": role,
     }
 
@@ -757,7 +757,7 @@ def send_collaborator_added_email(
 def send_added_as_collaborator_email(request, user, *, submitter, project_name, role):
     return {
         "project_name": project_name,
-        "initiator_username": submitter.username,
+        "initiator_username": submitter.username if submitter else "a deleted user",
         "role": role,
     }
 
