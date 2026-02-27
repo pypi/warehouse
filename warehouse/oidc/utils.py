@@ -17,6 +17,7 @@ from warehouse.oidc.models import (
     GITHUB_OIDC_ISSUER_URL,
     GITLAB_OIDC_ISSUER_URL,
     GOOGLE_OIDC_ISSUER_URL,
+    SEMAPHORE_OIDC_ISSUER_URL_SUFFIX,
     ActiveStatePublisher,
     GitHubPublisher,
     GitLabPublisher,
@@ -27,6 +28,8 @@ from warehouse.oidc.models import (
     PendingGitLabPublisher,
     PendingGooglePublisher,
     PendingOIDCPublisher,
+    PendingSemaphorePublisher,
+    SemaphorePublisher,
 )
 from warehouse.organizations.models import OrganizationOIDCIssuer
 
@@ -91,12 +94,17 @@ def find_publisher_by_issuer(
     Raises if no publisher can be found.
     """
 
-    try:
-        publisher_cls = OIDC_PUBLISHER_CLASSES[issuer_url][pending]
-    except KeyError:
-        # This indicates a logic error, since we shouldn't have verified
-        # claims for an issuer that we don't recognize and support.
-        raise InvalidPublisherError(f"Issuer {issuer_url!r} is unsupported")
+    # Check if this is a SemaphoreCI issuer (org-specific URLs)
+    publisher_cls: type[OIDCPublisher | PendingOIDCPublisher]
+    if issuer_url.endswith(SEMAPHORE_OIDC_ISSUER_URL_SUFFIX):
+        publisher_cls = PendingSemaphorePublisher if pending else SemaphorePublisher
+    else:
+        try:
+            publisher_cls = OIDC_PUBLISHER_CLASSES[issuer_url][pending]
+        except KeyError:
+            # This indicates a logic error, since we shouldn't have verified
+            # claims for an issuer that we don't recognize and support.
+            raise InvalidPublisherError(f"Issuer {issuer_url!r} is unsupported")
 
     # Before looking up the publisher by claims, we need to ensure that all expected
     # claims are present in the JWT.

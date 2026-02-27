@@ -21,6 +21,11 @@ from warehouse.oidc.models.google import (
     GooglePublisher,
     PendingGooglePublisher,
 )
+from warehouse.oidc.models.semaphore import (
+    SEMAPHORE_OIDC_ISSUER_URL_SUFFIX,
+    PendingSemaphorePublisher,
+    SemaphorePublisher,
+)
 
 __all__ = [
     "OIDCPublisher",
@@ -29,12 +34,15 @@ __all__ = [
     "PendingGitLabPublisher",
     "PendingGooglePublisher",
     "PendingActiveStatePublisher",
+    "PendingSemaphorePublisher",
     "GitHubPublisher",
     "GitLabPublisher",
     "GooglePublisher",
     "ActiveStatePublisher",
+    "SemaphorePublisher",
     "ACTIVESTATE_OIDC_ISSUER_URL",
     "GITHUB_OIDC_ISSUER_URL",
     "GITLAB_OIDC_ISSUER_URL",
     "GOOGLE_OIDC_ISSUER_URL",
+    "SEMAPHORE_OIDC_ISSUER_URL_SUFFIX",
 ]
