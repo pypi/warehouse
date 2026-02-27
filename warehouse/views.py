@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import collections
+import logging
 import re
 import typing
 
@@ -67,6 +68,8 @@ from warehouse.utils.row_counter import RowCount
 if typing.TYPE_CHECKING:
     from pyramid.request import Request
 
+logger = logging.getLogger(__name__)
+
 JSON_REGEX = r"^/pypi/([^\/]+)\/?([^\/]+)?/json\/?$"
 json_path = re.compile(JSON_REGEX)
 
@@ -93,6 +96,26 @@ def httpexception_view(exc, request):
                 "script-src": ["https://www.youtube.com", "https://s.ytimg.com"],
             }
         )
+
+        # Track 404 rate limits per IP address for observation.
+        # This is currently in observation mode - we emit metrics and logs
+        # but do not block requests. Once we have tuned the rate limit values,
+        # blocking can be enabled.
+        metrics = request.find_service(IMetricsService, context=None)
+        ratelimiter = request.find_service(IRateLimiter, name="notfound.ip", context=None)
+        ratelimiter.hit(request.remote_addr)
+        metrics.increment("warehouse.notfound.ratelimiter.hit")
+        if not ratelimiter.test(request.remote_addr):
+            metrics.increment("warehouse.notfound.ratelimiter.exceeded")
+            logger.warning(
+                "404 rate limit exceeded",
+                extra={
+                    "remote_addr": request.remote_addr,
+                    "path": request.path,
+                    "project_name": project_name,
+                },
+            )
+
     try:
         # Lightweight version of 404 page for `/simple/`
         if isinstance(exc, HTTPNotFound) and request.path.startswith("/simple/"):
@@ -642,3 +665,10 @@ def force_status(request):
         raise exception_response(int(request.matchdict["status"]))
     except KeyError:
         raise exception_response(404) from None
+
+
+def includeme(config):
+    ratelimit_string = config.registry.settings.get(
+        "warehouse.notfound.ip_ratelimit_string"
+    )
+    config.register_rate_limiter(ratelimit_string, "notfound.ip")
