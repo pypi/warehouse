@@ -4522,14 +4522,14 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:220
-#: warehouse/templates/manage/organization/manage_organization_base.html:14
+#: warehouse/templates/manage/organization/manage_organization_base.html:15
 #: warehouse/templates/manage/project/manage_project_base.html:14
 #: warehouse/templates/manage/team/manage_team_base.html:14
 msgid "Breadcrumbs"
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:224
-#: warehouse/templates/manage/organization/manage_organization_base.html:17
+#: warehouse/templates/manage/organization/manage_organization_base.html:18
 #: warehouse/templates/manage/project/manage_project_base.html:17
 #: warehouse/templates/manage/team/manage_team_base.html:17
 msgid "Your account"
@@ -6080,7 +6080,7 @@ msgstr ""
 msgid "Manage '%(organization_name)s'"
 msgstr ""
 
-#: warehouse/templates/manage/organization/manage_organization_base.html:38
+#: warehouse/templates/manage/organization/manage_organization_base.html:39
 msgid "Back to organizations"
 msgstr ""
 
