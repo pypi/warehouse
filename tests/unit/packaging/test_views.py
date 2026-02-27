@@ -121,6 +121,19 @@ class TestProjectDetail:
         assert resp is response
         assert release_detail.calls == [pretend.call(release, db_request)]
 
+    def test_with_staged(self, monkeypatch, db_request):
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        ReleaseFactory.create(project=project, version="1.1", published=False)
+
+        response = pretend.stub()
+        release_detail = pretend.call_recorder(lambda ctx, request: response)
+        monkeypatch.setattr(views, "release_detail", release_detail)
+
+        resp = views.project_detail(project, db_request)
+        assert resp is response
+        assert release_detail.calls == [pretend.call(release, db_request)]
+
 
 class TestReleaseDetail:
     def test_normalizing_name_redirects(self, db_request):
@@ -184,6 +197,19 @@ class TestReleaseDetail:
                 yanked_reason="plaintext yanked reason",
             )
         ]
+
+        # Add a staged version
+        staged_release = ReleaseFactory.create(
+            project=project,
+            version="5.1",
+            description=DescriptionFactory.create(
+                raw="unrendered description",
+                html="rendered description",
+                content_type="text/html",
+            ),
+            published=False,
+        )
+
         files = [
             FileFactory.create(
                 release=r,
@@ -191,7 +217,7 @@ class TestReleaseDetail:
                 python_version="source",
                 packagetype="sdist",
             )
-            for r in releases
+            for r in releases + [staged_release]
         ]
 
         # Create a role for each user
@@ -208,6 +234,7 @@ class TestReleaseDetail:
             "bdists": [],
             "description": "rendered description",
             "latest_version": project.latest_version,
+            # Non published version are not listed here
             "all_versions": [
                 (r.version, r.created, r.is_prerelease, r.yanked, r.yanked_reason)
                 for r in reversed(releases)
@@ -322,6 +349,10 @@ class TestReleaseDetail:
             "Multiline License is very long, so long that it is far longer than 100 "
             "characters, it's really so lo..."
         )
+
+    def test_created_with_published(self, db_request):
+        release = ReleaseFactory.create()
+        assert release.published is True
 
 
 class TestPEP740AttestationViewer:

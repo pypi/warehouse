@@ -110,6 +110,91 @@ class TestLatestReleaseFactory:
         db_request.matchdict = {"name": project.normalized_name}
         assert json.latest_release_factory(db_request) == release
 
+    def test_with_staged(self, db_request):
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        ReleaseFactory.create(project=project, version="2.0", published=False)
+        db_request.matchdict = {"name": project.normalized_name}
+        assert json.latest_release_factory(db_request) == release
+
+    def test_only_staged(self, db_request):
+        project = ProjectFactory.create()
+        ReleaseFactory.create(project=project, version="1.0", published=False)
+        db_request.matchdict = {"name": project.normalized_name}
+        resp = json.latest_release_factory(db_request)
+
+        assert isinstance(resp, HTTPNotFound)
+        _assert_has_cors_headers(resp.headers)
+
+    @pytest.mark.parametrize(
+        ("release0_state", "release1_state", "release2_state", "latest_release"),
+        [
+            ("published", "published", "published", 2),
+            ("published", "published", "staged", 1),
+            ("published", "published", "yanked", 1),
+            ("published", "staged", "published", 2),
+            ("published", "staged", "staged", 0),
+            ("published", "staged", "yanked", 0),
+            ("published", "yanked", "published", 2),
+            ("published", "yanked", "staged", 0),
+            ("published", "yanked", "yanked", 0),
+            ("staged", "published", "published", 2),
+            ("staged", "published", "staged", 1),
+            ("staged", "published", "yanked", 1),
+            ("staged", "staged", "published", 2),
+            ("staged", "staged", "staged", -1),
+            ("staged", "staged", "yanked", 2),  # Same endpoint as none yanked
+            ("staged", "yanked", "published", 2),
+            ("staged", "yanked", "staged", 1),
+            ("staged", "yanked", "yanked", 2),
+            ("yanked", "published", "published", 2),
+            ("yanked", "published", "staged", 1),
+            ("yanked", "published", "yanked", 1),
+            ("yanked", "staged", "published", 2),
+            ("yanked", "staged", "staged", 0),
+            ("yanked", "staged", "yanked", 2),
+            ("yanked", "yanked", "published", 2),
+            ("yanked", "yanked", "staged", 1),
+            ("yanked", "yanked", "yanked", 2),
+        ],
+    )
+    def test_with_mixed_states(
+        self, db_request, release0_state, release1_state, release2_state, latest_release
+    ):
+        project = ProjectFactory.create()
+
+        releases = []
+        for version, state in [
+            ("1.0", release0_state),
+            ("1.1", release1_state),
+            ("2.0", release2_state),
+        ]:
+            if state == "published":
+                releases.append(
+                    ReleaseFactory.create(
+                        project=project, version=version, published=True
+                    )
+                )
+            elif state == "staged":
+                releases.append(
+                    ReleaseFactory.create(
+                        project=project, version=version, published=False
+                    )
+                )
+            else:
+                releases.append(
+                    ReleaseFactory.create(project=project, version=version, yanked=True)
+                )
+
+        db_request.matchdict = {"name": project.normalized_name}
+
+        resp = json.latest_release_factory(db_request)
+        if latest_release >= 0:
+            assert resp == releases[latest_release]
+        else:
+            assert isinstance(resp, HTTPNotFound)
+            _assert_has_cors_headers(resp.headers)
+
     def test_project_quarantined(self, monkeypatch, db_request):
         project = ProjectFactory.create(
             lifecycle_status=LifecycleStatus.QuarantineEnter
@@ -178,6 +263,15 @@ class TestJSONProject:
                 ),
             )
         ]
+
+        ReleaseFactory.create(
+            project=project,
+            version="3.1",
+            description=DescriptionFactory.create(
+                content_type=description_content_type
+            ),
+            published=False,
+        )
 
         for urlspec in project_urls:
             label, _, purl = urlspec.partition(",")
