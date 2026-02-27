@@ -6,7 +6,6 @@ from sqlalchemy.orm.base import NO_VALUE
 from warehouse import db
 from warehouse.accounts.models import Email, User
 from warehouse.cache.origin import key_factory, receive_set
-from warehouse.manage.tasks import update_role_invitation_status
 from warehouse.organizations.models import Organization, OrganizationProject
 from warehouse.packaging.interfaces import (
     IDocsStorage,
@@ -179,7 +178,6 @@ def includeme(config):
     config.add_periodic_task(crontab(minute="*/1"), check_file_cache_tasks_outstanding)
 
     config.add_periodic_task(crontab(minute="*/5"), update_description_html)
-    config.add_periodic_task(crontab(minute="*/5"), update_role_invitation_status)
 
     # Add a periodic task to generate 2FA metrics
     config.add_periodic_task(crontab(minute="*/5"), compute_2fa_metrics)

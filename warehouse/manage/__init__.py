@@ -3,15 +3,23 @@
 import functools
 import json
 
+from datetime import timedelta
+
+from celery.schedules import crontab
 from pyramid.renderers import render_to_response
 
 from warehouse.accounts.forms import ReAuthenticateForm
 from warehouse.accounts.interfaces import IUserService
+from warehouse.manage.tasks import (
+    delete_expired_releases,
+    update_role_invitation_status,
+)
 
 DEFAULT_TIME_TO_REAUTH = 30 * 60  # 30 minutes
 
 
 def reauth_view(view, info):
+
     require_reauth = info.options.get("require_reauth")
 
     if require_reauth:
@@ -66,4 +74,9 @@ def includeme(config):
     )
     config.register_rate_limiter(
         ip_oidc_registration_ratelimit_string, "ip_oidc.publisher.register"
+    )
+
+    config.add_periodic_task(crontab(minute="*/5"), update_role_invitation_status)
+    config.add_periodic_task(
+        timedelta(days=1), delete_expired_releases, name="delete_expired_releases"
     )

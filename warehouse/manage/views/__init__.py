@@ -73,6 +73,7 @@ from warehouse.manage.forms import (
     DeleteMacaroonForm,
     DeleteTOTPForm,
     DeleteWebAuthnForm,
+    ProjectSettingsForm,
     ProvisionTOTPForm,
     ProvisionWebAuthnForm,
     SaveAccountForm,
@@ -1142,6 +1143,10 @@ class ManageProjectSettingsViews:
             ) - current_organization
 
         add_alt_repo_form = self.add_alternate_repository_form_class()
+        project_settings_form = ProjectSettingsForm(project=self.project)
+        project_settings_form.is_nightly.data = (
+            self.project.releases_expire_after_days == 90
+        )
 
         return {
             "project": self.project,
@@ -1153,6 +1158,7 @@ class ManageProjectSettingsViews:
                 )
             ),
             "add_alternate_repository_form_class": add_alt_repo_form,
+            "project_settings_form": project_settings_form,
         }
 
     @view_config(
@@ -1307,6 +1313,34 @@ class ManageProjectSettingsViews:
         )
 
         return resp_inst
+
+    @view_config(
+        request_method="POST",
+        request_param=ProjectSettingsForm.__params__,
+        require_reauth=True,
+        permission=Permissions.ProjectsWrite,
+    )
+    def save_project_settings(self):
+        form = ProjectSettingsForm(self.request.POST, project=self.project)
+
+        if form.validate():
+            if form.is_nightly.data:
+                self.project.releases_expire_after_days = 90
+            else:
+                self.project.releases_expire_after_days = None
+            self.request.session.flash(
+                self.request._("Project settings updated"), queue="success"
+            )
+        else:
+            self.request.session.flash(
+                self.request._("Failed to update project settings"), queue="error"
+            )
+
+        return HTTPSeeOther(
+            self.request.route_path(
+                "manage.project.settings", project_name=self.project.name
+            )
+        )
 
 
 def get_user_role_in_project(project, user, request):
