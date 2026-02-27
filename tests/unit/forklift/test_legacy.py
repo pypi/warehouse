@@ -801,6 +801,19 @@ class TestFileUpload:
                 },
                 "keywords: Should not be a tuple.",
             ),
+            # local version error
+            (
+                {
+                    "metadata_version": "1.2",
+                    "name": "example",
+                    "version": "1.0+local",
+                    "md5_digest": "bad",
+                    "filetype": "sdist",
+                },
+                "The use of local versions in '1.0+local' is not allowed. "
+                "See https://packaging.python.org/en/latest/specifications/"
+                "version-specifiers/#local-version-identifiers for more information.",
+            ),
         ],
     )
     @pytest.mark.filterwarnings("ignore:Creating a LegacyVersion.*:DeprecationWarning")

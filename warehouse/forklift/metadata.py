@@ -117,7 +117,7 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
         errors.append(
             InvalidMetadata(
                 "version",
-                f"The use of local versions in {metadata.version!r} is not allowed.",
+                f"The use of local versions in '{metadata.version}' is not allowed.",
             )
         )
 
