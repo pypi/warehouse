@@ -164,7 +164,7 @@
         <hr class="centered-heading__rule">
       </div>
       <div class="sponsor-grid sponsor-grid--bottom-margin">
-        {% for sponsor in request.sponsors | sort(attribute="name") %}
+        {% for sponsor in request.sponsors %}
           {% if sponsor.infra_sponsor %}
             <div class="sponsor-grid__sponsor">
               <div class="sponsor-grid__sponsor-img">{{ sponsor.color_logo_img|camoify|safe }}</div>

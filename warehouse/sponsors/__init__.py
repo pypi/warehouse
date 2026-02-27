@@ -8,7 +8,12 @@ from warehouse.sponsors.tasks import update_pypi_sponsors
 
 
 def _sponsors(request):
-    return request.db.query(Sponsor).filter(Sponsor.is_active == true()).all()
+    return (
+        request.db.query(Sponsor)
+        .filter(Sponsor.is_active == true())
+        .order_by(Sponsor.level_order, Sponsor.name)
+        .all()
+    )
 
 
 def includeme(config):
