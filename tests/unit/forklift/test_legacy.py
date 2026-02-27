@@ -810,7 +810,7 @@ class TestFileUpload:
                     "md5_digest": "bad",
                     "filetype": "sdist",
                 },
-                "The use of local versions in 1.0+local is not allowed. "
+                "The use of local versions in '1.0+local' is not allowed. "
                 "See https://packaging.python.org/en/latest/specifications/"
                 "version-specifiers/#local-version-identifiers for more information.",
             ),
