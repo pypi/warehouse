@@ -225,7 +225,7 @@
             </a>
           </th>
           <td>
-            {% if not request.has_permission(Permissions.OrganizationsManage) or request.user == role.user %}
+            {% if not can_manage or request.user == role.user %}
               {% if role.role_name == OrganizationRoleType.Member %}
                 {% trans %}Member{% endtrans %}
               {% elif role.role_name == OrganizationRoleType.Manager %}
@@ -270,11 +270,11 @@
           </td>
           <td class="table__align-center">{{ two_factor_badge(role.user) }}</td>
           <td class="table__align-right">
-            {% if not request.has_permission(Permissions.OrganizationsManage) and request.user.username != role.user.username %}
+            {% if not can_manage and request.user.username != role.user.username %}
               <button class="button"
                       title="{% trans %}Cannot remove other people from the organization{% endtrans %}"
                       disabled>{% trans %}Remove{% endtrans %}</button>
-            {% elif request.has_permission(Permissions.OrganizationsManage) and request.user.username == role.user.username and organization.name in organizations_with_sole_owner %}
+            {% elif can_manage and request.user.username == role.user.username and is_sole_owner %}
               <button class="button"
                       title="{% trans %}Cannot remove yourself as Sole Owner{% endtrans %}"
                       disabled>{% trans %}Remove{% endtrans %}</button>
@@ -293,7 +293,7 @@
           </td>
         </tr>
       {% endfor %}
-      {% if request.has_permission(Permissions.OrganizationsManage) %}
+      {% if can_manage %}
         {% for invite in invitations|sort(attribute="user.username") %}
           <tr>
             <th scope="row">
@@ -357,7 +357,7 @@
       {% endif %}
     </tbody>
   </table>
-  {% if request.has_permission(Permissions.OrganizationsManage) %}
+  {% if can_manage %}
     <h3>{% trans %}Invite member{% endtrans %}</h3>
     {% if organization.orgtype == OrganizationType.Company %}
       {% if organization.active_subscription %}

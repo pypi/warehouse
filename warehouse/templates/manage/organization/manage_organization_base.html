@@ -9,6 +9,7 @@
 {# Hide mobile search on manager pages #}
 {% block mobile_search %}{% endblock %}
 {% block content %}
+  {% set can_manage = request.has_permission(Permissions.OrganizationsManage) %}
   <div class="tabs-container">
     {% block breadcrumbs %}
       <nav aria-label="{% trans %}Breadcrumbs{% endtrans %}" class="breadcrumbs">
