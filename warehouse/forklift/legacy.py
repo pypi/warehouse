@@ -327,7 +327,7 @@ def _is_valid_dist_file(filename, filetype, *, scan=True):
                         )
 
                 if filename.endswith(".zip"):
-                    top_level = os.path.commonprefix(zfp.namelist())
+                    top_level = _commonpath(zfp.namelist())
                     if top_level in [".", "/", ""]:
                         return (
                             False,
@@ -387,7 +387,7 @@ def _is_valid_dist_file(filename, filetype, *, scan=True):
             with tarfile.open(filename, "r:gz") as tar:
                 # This decompresses the entire stream to validate it and the
                 # tar within.  Easy CPU DoS attack. :/
-                top_level = os.path.commonprefix(tar.getnames())
+                top_level = _commonpath(tar.getnames())
                 if top_level in [".", "/", ""]:
                     return (
                         False,
@@ -487,6 +487,15 @@ def _sort_releases(request: Request, project: Project):
         #       update query to eliminate the possibility we trigger this again.
         if r._pypi_ordering != i:
             r._pypi_ordering = i
+
+
+def _commonpath(values):
+    # Handles empty lists, which os.path.commonpath()
+    # rejects where os.path.commonprefix() would return
+    # an empty string.
+    if not values:
+        return ""
+    return os.path.commonpath(values)
 
 
 @view_config(
@@ -678,13 +687,19 @@ def file_upload(request):
         request.metrics.increment(
             "warehouse.upload.failed", tags=["reason:invalid-metadata"]
         )
+        _see_url = (
+            "https://packaging.python.org/en/latest/specifications/"
+            "version-specifiers/#local-version-identifiers"
+            if field_name == "version"
+            and any("use of local versions" in str(e) for e in errors["version"])
+            else "https://packaging.python.org/specifications/core-metadata"
+        )
         raise _exc_with_message(
             HTTPBadRequest,
             " ".join(
                 [
                     error_msg + ("." if not error_msg.endswith(".") else ""),
-                    "See https://packaging.python.org/specifications/core-metadata "
-                    "for more information.",
+                    f"See {_see_url} for more information.",
                 ]
             ),
         )
@@ -1322,7 +1337,7 @@ def file_upload(request):
                 See https://peps.python.org/pep-0639/#add-license-file-field
                 """
                 with tarfile.open(temporary_filename, "r:gz") as tar:
-                    top_level = os.path.commonprefix(tar.getnames())
+                    top_level = _commonpath(tar.getnames())
                     # Already validated as a tarfile by _is_valid_dist_file above
                     for license_file in meta.license_files:
                         target_file = os.path.join(top_level, license_file)
