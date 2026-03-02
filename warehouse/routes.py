@@ -293,6 +293,16 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "manage.account.associations.gitlab.connect",
+        "/manage/account/associations/gitlab/connect",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.account.associations.gitlab.callback",
+        "/manage/account/associations/gitlab/callback",
+        domain=warehouse,
+    )
+    config.add_route(
         "manage.account.associations.delete",
         "/manage/account/associations/delete",
         domain=warehouse,

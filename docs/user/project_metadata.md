@@ -137,6 +137,7 @@ To display a custom icon, an entry must either :
 | Slack    | :fontawesome-brands-slack:        | Slack^*^ | `slack.com`                                   |
 | Youtube  | :fontawesome-brands-youtube:      |          | `youtube.com`, `youtu.be`                     |
 | Twitter  | :fontawesome-brands-twitter:      |          | `twitter.com`, `x.com`                        |
+| Bluesky  | :fontawesome-brands-bluesky:      | Bluesky  | `bsky.app`                                    |
 
 #### Continuous Integration Services
 

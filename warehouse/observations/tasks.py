@@ -217,8 +217,9 @@ def evaluate_project_for_quarantine(
         name=project.normalized_name,
         _host=warehouse_domain,
     )
-    last_published_date = naturaldate(project.latest_version.created)
-    last_published_time = naturaltime(project.latest_version.created)
+    last_release = project.latest_version or project.all_versions[0]  # only yanked
+    last_published_date = naturaldate(last_release.created)
+    last_published_time = naturaltime(last_release.created)
     first_published_date = naturaldate(project.created)
     first_published_time = naturaltime(project.created)
     malware_reports_url = request.route_url(

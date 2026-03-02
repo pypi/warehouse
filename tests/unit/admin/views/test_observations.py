@@ -481,13 +481,53 @@ class TestGetResponseTimelineStats:
         assert result["sample_size"] == 0
         assert result["detection_time"] is None
 
+    def test_with_observation_no_action(self, db_request):
+        """Test timeline when observation exists but no action taken yet.
+
+        Covers the branch where action_time is None (no quarantine, no removal),
+        so response_times and exposure_times are not appended.
+        """
+        admin_user = UserFactory.create(username="admin")
+        observer = ObserverFactory.create()
+        base_time = datetime.now(tz=timezone.utc).replace(tzinfo=None)
+        project_created = base_time - timedelta(hours=24)
+        report_time = base_time - timedelta(hours=12)
+
+        project = ProjectFactory.create(created=project_created)
+
+        JournalEntryFactory.create(
+            name=project.name,
+            action="create",
+            submitted_by=admin_user,
+            submitted_date=project_created,
+        )
+
+        # Observation with no removal action and no quarantine journal entry
+        ProjectObservationFactory.create(
+            kind="is_malware",
+            observer=observer,
+            related=project,
+            created=report_time,
+        )
+
+        project_data = _get_project_data(db_request)
+        result = views._get_response_timeline_stats(project_data)
+
+        assert result["sample_size"] == 1
+        assert result["detection_time"] is not None
+        assert result["response_time"] is None
+        assert result["total_exposure"] is None
+        assert result["longest_lived"] == []
+
     def test_with_observations_and_removal(self, db_request):
         """Test timeline with observations that have removal actions."""
         admin_user = UserFactory.create(username="admin")
         observer = ObserverFactory.create()
-        project_created = datetime.now(tz=timezone.utc).replace(
-            tzinfo=None
-        ) - timedelta(hours=24)
+        base_time = datetime.now(tz=timezone.utc).replace(tzinfo=None)
+        project_created = base_time - timedelta(hours=24)
+        report_time = base_time - timedelta(hours=12)
+        removal_time = base_time - timedelta(hours=11)
+
         # Create project with a recent created date
         project = ProjectFactory.create(created=project_created)
 
@@ -499,12 +539,6 @@ class TestGetResponseTimelineStats:
             submitted_date=project_created,
         )
 
-        # Report happens first, removal happens 1 hour later (realistic scenario)
-        report_time = datetime.now(tz=timezone.utc).replace(tzinfo=None) - timedelta(
-            hours=2
-        )
-        removal_time = datetime.now(tz=timezone.utc) - timedelta(hours=1)
-
         # Create observation with removal action
         ProjectObservationFactory.create(
             kind="is_malware",
@@ -512,7 +546,7 @@ class TestGetResponseTimelineStats:
             related=project,
             created=report_time,
             actions={
-                int(removal_time.timestamp()): {
+                int(removal_time.replace(tzinfo=timezone.utc).timestamp()): {
                     "action": "remove_malware",
                     "actor": "admin",
                 }
@@ -532,16 +566,19 @@ class TestGetResponseTimelineStats:
         admin_user = UserFactory.create(username="admin")
 
         observer = ObserverFactory.create()
-        project = ProjectFactory.create(
-            created=datetime.now(tz=timezone.utc).replace(tzinfo=None)
-            - timedelta(hours=24)
-        )
+        base_time = datetime.now(tz=timezone.utc).replace(tzinfo=None)
+        project_created = base_time - timedelta(hours=24)
+        report_time = base_time - timedelta(hours=12)
+        quarantine_time = base_time - timedelta(hours=11)
+
+        project = ProjectFactory.create(created=project_created)
 
         # Create observation
         ProjectObservationFactory.create(
             kind="is_malware",
             observer=observer,
             related=project,
+            created=report_time,
         )
 
         # Create quarantine journal entry
@@ -549,7 +586,7 @@ class TestGetResponseTimelineStats:
             name=project.name,
             action="project quarantined",
             submitted_by=admin_user,
-            submitted_date=datetime.now(tz=timezone.utc).replace(tzinfo=None),
+            submitted_date=quarantine_time,
         )
 
         project_data = _get_project_data(db_request)
@@ -562,12 +599,12 @@ class TestGetResponseTimelineStats:
         """Test that longest-lived packages are returned."""
         admin_user = UserFactory.create(username="admin")
         observer = ObserverFactory.create()
+        base_time = datetime.now(tz=timezone.utc).replace(tzinfo=None)
+        removal_time = base_time - timedelta(hours=1)
 
         # Create multiple projects with different exposure times
         for i in range(7):
-            project_created = datetime.now(tz=timezone.utc).replace(
-                tzinfo=None
-            ) - timedelta(hours=24 * (i + 1))
+            project_created = base_time - timedelta(hours=24 * (i + 1))
             project = ProjectFactory.create(created=project_created)
 
             # Create JournalEntry for project creation (required for timeline lookup)
@@ -578,16 +615,18 @@ class TestGetResponseTimelineStats:
                 submitted_date=project_created,
             )
 
-            now = datetime.now(tz=timezone.utc)
+            report_time = base_time - timedelta(hours=2)
+            removal_ts = int(removal_time.replace(tzinfo=timezone.utc).timestamp())
             ProjectObservationFactory.create(
                 kind="is_malware",
                 observer=observer,
                 related=project,
+                created=report_time,
                 actions={
-                    int(now.timestamp()): {
+                    removal_ts: {
                         "action": "remove_malware",
                         "actor": "admin",
-                        "created_at": str(now),
+                        "created_at": str(removal_time),
                     }
                 },
             )
@@ -603,9 +642,14 @@ class TestGetResponseTimelineStats:
         admin_user = UserFactory.create(username="admin")
         observer1 = ObserverFactory.create()
         observer2 = ObserverFactory.create()
-        project_created = datetime.now(tz=timezone.utc).replace(
-            tzinfo=None
-        ) - timedelta(hours=48)
+        base_time = datetime.now(tz=timezone.utc).replace(tzinfo=None)
+        project_created = base_time - timedelta(hours=48)
+        even_earlier_report = base_time - timedelta(hours=8)
+        earlier_removal = base_time - timedelta(hours=7)
+        report_time_1 = base_time - timedelta(hours=6)
+        report_time_2 = base_time - timedelta(hours=4)
+        removal_time = base_time - timedelta(hours=2)
+
         project = ProjectFactory.create(created=project_created)
 
         # Create JournalEntry for project creation (required for timeline lookup)
@@ -616,20 +660,19 @@ class TestGetResponseTimelineStats:
             submitted_date=project_created,
         )
 
-        now = datetime.now(tz=timezone.utc)
-        earlier = now - timedelta(hours=2)
+        removal_ts = int(removal_time.replace(tzinfo=timezone.utc).timestamp())
 
         # First observation: earlier report time
         ProjectObservationFactory.create(
             kind="is_malware",
             observer=observer1,
             related=project,
-            created=earlier.replace(tzinfo=None),
+            created=report_time_1,
             actions={
-                int(now.timestamp()): {
+                removal_ts: {
                     "action": "remove_malware",
                     "actor": "admin",
-                    "created_at": str(now),
+                    "created_at": str(removal_time),
                 }
             },
         )
@@ -639,9 +682,9 @@ class TestGetResponseTimelineStats:
             kind="is_malware",
             observer=observer2,
             related=project,
-            created=now.replace(tzinfo=None),
+            created=report_time_2,
             actions={
-                int(now.timestamp()): {
+                removal_ts: {
                     "action": "some_other_action",
                     "actor": "admin",
                 }
@@ -650,15 +693,16 @@ class TestGetResponseTimelineStats:
 
         # Third observation: even earlier, with an earlier removal time
         # This tests the branch where we update removal_time to an earlier value
-        even_earlier = now - timedelta(hours=4)
-        earlier_removal = now - timedelta(hours=3)  # Earlier than first observation
+        earlier_removal_ts = int(
+            earlier_removal.replace(tzinfo=timezone.utc).timestamp()
+        )
         ProjectObservationFactory.create(
             kind="is_malware",
             observer=ObserverFactory.create(),
             related=project,
-            created=even_earlier.replace(tzinfo=None),
+            created=even_earlier_report,
             actions={
-                int(earlier_removal.timestamp()): {
+                earlier_removal_ts: {
                     "action": "remove_malware",
                     "actor": "admin",
                 }
@@ -675,31 +719,22 @@ class TestGetResponseTimelineStats:
         """Test timeline uses min of quarantine/removal for response time."""
         admin_user = UserFactory.create(username="admin")
         observer = ObserverFactory.create()
-        project = ProjectFactory.create(
-            created=datetime.now(tz=timezone.utc).replace(tzinfo=None)
-            - timedelta(hours=48)
-        )
+        base_time = datetime.now(tz=timezone.utc).replace(tzinfo=None)
+        project_created = base_time - timedelta(hours=48)
+        report_time = base_time - timedelta(hours=12)
+        quarantine_time = base_time - timedelta(hours=11)
+        removal_time = base_time - timedelta(hours=10)
 
-        # Report happens first (2 hours ago)
-        report_time = datetime.now(tz=timezone.utc).replace(tzinfo=None) - timedelta(
-            hours=2
-        )
+        project = ProjectFactory.create(created=project_created)
 
-        # Quarantine happens after report (1 hour ago)
-        quarantine_time = datetime.now(tz=timezone.utc).replace(
-            tzinfo=None
-        ) - timedelta(hours=1)
-
-        # Removal happens last (now)
-        removal_time = datetime.now(tz=timezone.utc)
-
+        removal_ts = int(removal_time.replace(tzinfo=timezone.utc).timestamp())
         ProjectObservationFactory.create(
             kind="is_malware",
             observer=observer,
             related=project,
             created=report_time,
             actions={
-                int(removal_time.timestamp()): {
+                removal_ts: {
                     "action": "remove_malware",
                     "actor": "admin",
                     "created_at": str(removal_time),
@@ -734,10 +769,10 @@ class TestGetResponseTimelineStats:
         original_owner = UserFactory.create(username="original-owner")
 
         project_name = "deleted-test-project"
-        now = datetime.now(tz=timezone.utc)
+        base_time = datetime.now(tz=timezone.utc).replace(tzinfo=None)
 
         # Simulate original project lifecycle (years ago)
-        original_created = now.replace(tzinfo=None) - timedelta(days=365 * 3)
+        original_created = base_time - timedelta(days=365 * 3)
         JournalEntryFactory.create(
             name=project_name,
             action="create",
@@ -749,11 +784,11 @@ class TestGetResponseTimelineStats:
             name=project_name,
             action="remove project",
             submitted_by=original_owner,
-            submitted_date=now.replace(tzinfo=None) - timedelta(days=30),
+            submitted_date=base_time - timedelta(days=30),
         )
 
         # Malicious recreation - this is the `create` date we should use
-        malicious_created = now.replace(tzinfo=None) - timedelta(hours=48)
+        malicious_created = base_time - timedelta(hours=48)
         JournalEntryFactory.create(
             name=project_name,
             action="create",
@@ -762,27 +797,30 @@ class TestGetResponseTimelineStats:
         )
 
         # Create observation for deleted project (related=None after removal)
-        report_time = now.replace(tzinfo=None) - timedelta(hours=24)
+        report_time = base_time - timedelta(hours=24)
+        removal_time = base_time - timedelta(hours=1)
+        removal_ts = int(removal_time.replace(tzinfo=timezone.utc).timestamp())
         ProjectObservationFactory.create(
             kind="is_malware",
             related=None,
             related_name=f"Project(id=None, name='{project_name}')",
             created=report_time,
             actions={
-                int(now.timestamp()): {
+                removal_ts: {
                     "action": "remove_malware",
                     "actor": "admin",
-                    "created_at": str(now),
+                    "created_at": str(removal_time),
                 }
             },
         )
 
         # Create quarantine journal entry
+        quarantine_time = base_time - timedelta(hours=12)
         JournalEntryFactory.create(
             name=project_name,
             action="project quarantined",
             submitted_by=admin_user,
-            submitted_date=now.replace(tzinfo=None) - timedelta(hours=12),
+            submitted_date=quarantine_time,
         )
 
         project_data = _get_project_data(db_request)

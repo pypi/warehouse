@@ -25,6 +25,7 @@ parallel = true
 exclude_also = [
   "class \\w+\\(Interface\\):",
   "if (typing\\.)?TYPE_CHECKING:",
+  "if __name__ == .__main__.:",
   "pytest.fail\\(",  # Use for test branches that should never be reached.
   # Remove once resolved: https://github.com/nedbat/coveragepy/issues/1563
   "case _:\\n\\s*pytest\\.fail\\(",
@@ -53,7 +54,7 @@ combine_as_imports = true
 known_first_party = ['warehouse', 'tests']
 
 [tool.mypy]
-python_version = "3.14"
+python_version = "3.13"
 warn_unreachable = true
 warn_unused_configs = true
 warn_unused_ignores = true

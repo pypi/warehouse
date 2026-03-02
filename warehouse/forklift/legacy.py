@@ -62,7 +62,7 @@ from warehouse.packaging.models import (
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
 from warehouse.rate_limiting.interfaces import RateLimiterException
-from warehouse.utils import readme, zipfiles
+from warehouse.utils import readme, scanner, zipfiles
 from warehouse.utils.release import strip_keywords
 from warehouse.utils.wheel import (
     InvalidWheelRecordError,
@@ -280,10 +280,13 @@ def _validate_filename(filename, filetype):
         )
 
 
-def _is_valid_dist_file(filename, filetype):
+def _is_valid_dist_file(filename, filetype, *, scan=True):
     """
     Perform some basic checks to see whether the indicated file could be
     a valid distribution file.
+
+    Runs a YARA scan on archive members while the archive is already open.
+    Returns ``(False, message)`` on the first YARA match.
     """
 
     if filename.endswith((".zip", ".whl")):
@@ -324,7 +327,7 @@ def _is_valid_dist_file(filename, filetype):
                         )
 
                 if filename.endswith(".zip"):
-                    top_level = os.path.commonprefix(zfp.namelist())
+                    top_level = _commonpath(zfp.namelist())
                     if top_level in [".", "/", ""]:
                         return (
                             False,
@@ -349,6 +352,19 @@ def _is_valid_dist_file(filename, filetype):
                     except KeyError:
                         return False, f"WHEEL not found at {target_file}"
 
+                # Scan archive members for YARA rule matches while open
+                if scan:
+                    yara_match = scanner.check_members(
+                        scanner.iter_zip_members(zfp),
+                        archive_name=os.path.basename(filename),
+                    )
+                    if yara_match is not None:
+                        sentry_sdk.capture_message(
+                            f"YARA rule {yara_match.rule!r} matched "
+                            f"{yara_match.member!r} in {os.path.basename(filename)}"
+                        )
+                        return False, yara_match.message
+
             # Check the ZIP file record framing
             # to avoid parser differentials.
             zip_ok, zip_error = zipfiles.validate_zipfile(filename)
@@ -371,7 +387,7 @@ def _is_valid_dist_file(filename, filetype):
             with tarfile.open(filename, "r:gz") as tar:
                 # This decompresses the entire stream to validate it and the
                 # tar within.  Easy CPU DoS attack. :/
-                top_level = os.path.commonprefix(tar.getnames())
+                top_level = _commonpath(tar.getnames())
                 if top_level in [".", "/", ""]:
                     return (
                         False,
@@ -382,6 +398,20 @@ def _is_valid_dist_file(filename, filetype):
                     tar.getmember(target_file)
                 except KeyError:
                     return False, f"PKG-INFO not found at {target_file}"
+
+                # Scan archive members for YARA rule matches while open
+                if scan:
+                    yara_match = scanner.check_members(
+                        scanner.iter_tar_members(tar),
+                        archive_name=os.path.basename(filename),
+                    )
+                    if yara_match is not None:
+                        sentry_sdk.capture_message(
+                            f"YARA rule {yara_match.rule!r} matched "
+                            f"{yara_match.member!r} in {os.path.basename(filename)}"
+                        )
+                        return False, yara_match.message
+
         except (tarfile.ReadError, EOFError):
             return False, None
 
@@ -457,6 +487,15 @@ def _sort_releases(request: Request, project: Project):
         #       update query to eliminate the possibility we trigger this again.
         if r._pypi_ordering != i:
             r._pypi_ordering = i
+
+
+def _commonpath(values):
+    # Handles empty lists, which os.path.commonpath()
+    # rejects where os.path.commonprefix() would return
+    # an empty string.
+    if not values:
+        return ""
+    return os.path.commonpath(values)
 
 
 @view_config(
@@ -648,13 +687,19 @@ def file_upload(request):
         request.metrics.increment(
             "warehouse.upload.failed", tags=["reason:invalid-metadata"]
         )
+        _see_url = (
+            "https://packaging.python.org/en/latest/specifications/"
+            "version-specifiers/#local-version-identifiers"
+            if field_name == "version"
+            and any("use of local versions" in str(e) for e in errors["version"])
+            else "https://packaging.python.org/specifications/core-metadata"
+        )
         raise _exc_with_message(
             HTTPBadRequest,
             " ".join(
                 [
                     error_msg + ("." if not error_msg.endswith(".") else ""),
-                    "See https://packaging.python.org/specifications/core-metadata "
-                    "for more information.",
+                    f"See {_see_url} for more information.",
                 ]
             ),
         )
@@ -1187,9 +1232,11 @@ def file_upload(request):
             )
 
         # Check the file to make sure it is a valid distribution file.
+        _scan = not request.flags.enabled(AdminFlagValue.DISABLE_UPLOAD_SCANNING)
         _valid, _msg = _is_valid_dist_file(
             temporary_filename,
             form.filetype.data,
+            scan=_scan,
         )
         if not _valid:
             request.metrics.increment(
@@ -1290,7 +1337,7 @@ def file_upload(request):
                 See https://peps.python.org/pep-0639/#add-license-file-field
                 """
                 with tarfile.open(temporary_filename, "r:gz") as tar:
-                    top_level = os.path.commonprefix(tar.getnames())
+                    top_level = _commonpath(tar.getnames())
                     # Already validated as a tarfile by _is_valid_dist_file above
                     for license_file in meta.license_files:
                         target_file = os.path.join(top_level, license_file)

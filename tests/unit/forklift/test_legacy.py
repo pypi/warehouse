@@ -49,6 +49,7 @@ from warehouse.packaging.models import (
     Role,
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
+from warehouse.utils.scanner import YaraMatch
 
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.classifiers import ClassifierFactory
@@ -412,6 +413,85 @@ class TestFileValidation:
         assert legacy._is_valid_dist_file(f, "") == (
             False,
             "Incorrect number of top-level directories in sdist",
+        )
+
+    def test_yara_match_in_wheel(self, tmpdir, monkeypatch):
+        f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
+        with zipfile.ZipFile(f, "w") as zfp:
+            zfp.writestr("test-1.0.dist-info/WHEEL", b"Wheel-Version: 1.0")
+            zfp.writestr("pkg/__init__.py", b"bad content")
+
+        match = YaraMatch(
+            rule="test_rule",
+            member="pkg/__init__.py",
+            message="Content not allowed.",
+        )
+        monkeypatch.setattr(
+            "warehouse.utils.scanner.check_members", lambda *a, **kw: match
+        )
+
+        assert legacy._is_valid_dist_file(f, "bdist_wheel") == (
+            False,
+            "Content not allowed.",
+        )
+
+    def test_yara_match_in_tarball(self, tmpdir, monkeypatch):
+        tar_fn = str(tmpdir.join("test.tar.gz"))
+        data_file = str(tmpdir.join("dummy_data"))
+        with open(data_file, "wb") as fp:
+            fp.write(b"bad content")
+        with tarfile.open(tar_fn, "w:gz") as tar:
+            tar.add(data_file, arcname="package/PKG-INFO")
+            tar.add(data_file, arcname="package/__init__.py")
+
+        match = YaraMatch(
+            rule="test_rule",
+            member="package/__init__.py",
+            message="Content not allowed.",
+        )
+        monkeypatch.setattr(
+            "warehouse.utils.scanner.check_members", lambda *a, **kw: match
+        )
+
+        assert legacy._is_valid_dist_file(tar_fn, "sdist") == (
+            False,
+            "Content not allowed.",
+        )
+
+    def test_scan_disabled_skips_yara_in_wheel(self, tmpdir, monkeypatch):
+        f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
+        with zipfile.ZipFile(f, "w") as zfp:
+            zfp.writestr("test-1.0.dist-info/WHEEL", b"Wheel-Version: 1.0")
+            zfp.writestr("pkg/__init__.py", b"bad content")
+
+        # check_members would match, but scan=False skips it entirely.
+        monkeypatch.setattr(
+            "warehouse.utils.scanner.check_members",
+            lambda *a, **kw: (_ for _ in ()).throw(AssertionError("should not scan")),
+        )
+
+        assert legacy._is_valid_dist_file(f, "bdist_wheel", scan=False) == (
+            True,
+            None,
+        )
+
+    def test_scan_disabled_skips_yara_in_tarball(self, tmpdir, monkeypatch):
+        tar_fn = str(tmpdir.join("test.tar.gz"))
+        data_file = str(tmpdir.join("dummy_data"))
+        with open(data_file, "wb") as fp:
+            fp.write(b"bad content")
+        with tarfile.open(tar_fn, "w:gz") as tar:
+            tar.add(data_file, arcname="package/PKG-INFO")
+            tar.add(data_file, arcname="package/__init__.py")
+
+        monkeypatch.setattr(
+            "warehouse.utils.scanner.check_members",
+            lambda *a, **kw: (_ for _ in ()).throw(AssertionError("should not scan")),
+        )
+
+        assert legacy._is_valid_dist_file(tar_fn, "sdist", scan=False) == (
+            True,
+            None,
         )
 
 
@@ -800,6 +880,19 @@ class TestFileUpload:
                     "keywords": FieldStorage(),
                 },
                 "keywords: Should not be a tuple.",
+            ),
+            # local version error
+            (
+                {
+                    "metadata_version": "1.2",
+                    "name": "example",
+                    "version": "1.0+local",
+                    "md5_digest": "bad",
+                    "filetype": "sdist",
+                },
+                "The use of local versions in '1.0+local' is not allowed. "
+                "See https://packaging.python.org/en/latest/specifications/"
+                "version-specifiers/#local-version-identifiers for more information.",
             ),
         ],
     )
@@ -5683,6 +5776,99 @@ class TestFileUpload:
             ("v1.0", "1.0", "bdist_wheel", "application/zip"),
         ],
     )
+    def test_upload_succeeds_creates_release_metadata_2_5(
+        self,
+        pyramid_config,
+        db_request,
+        monkeypatch,
+        version,
+        expected_version,
+        filetype,
+        mimetype,
+    ):
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project)
+
+        if filetype == "sdist":
+            filename = "{}-{}.tar.gz".format(
+                project.normalized_name.replace("-", "_"), "1.0"
+            )
+            digest = _TAR_GZ_PKG_MD5
+            data = _TAR_GZ_PKG_TESTDATA
+        elif filetype == "bdist_wheel":  # pragma: no branch
+            filename = "{}-{}-py3-none-any.whl".format(
+                project.normalized_name.replace("-", "_"), "1.0"
+            )
+            data = _get_whl_testdata(
+                name=project.normalized_name.replace("-", "_"), version="1.0"
+            )
+            digest = hashlib.md5(data).hexdigest()
+            monkeypatch.setattr(
+                legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+            )
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "2.5",
+                "name": project.name,
+                "version": version,
+                "summary": "This is my summary!",
+                "filetype": filetype,
+                "md5_digest": digest,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(data),
+                    type=mimetype,
+                ),
+            }
+        )
+        if filetype == "bdist_wheel":
+            db_request.POST.extend([("pyversion", "py3")])
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+        }.get(svc)
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+        # Ensure that a Release object has been created.
+        release = (
+            db_request.db.query(Release)
+            .filter(
+                (Release.project == project) & (Release.version == expected_version)
+            )
+            .one()
+        )
+        assert release.summary == "This is my summary!"
+        assert release.version == expected_version
+        assert release.canonical_version == "1"
+        assert release.uploaded_via == "warehouse-tests/6.6.6"
+
+        # Ensure that a File object has been created.
+        db_request.db.query(File).filter(
+            (File.release == release) & (File.filename == filename)
+        ).one()
+
+        # Ensure that a Filename object has been created.
+        db_request.db.query(Filename).filter(Filename.filename == filename).one()
+
+    @pytest.mark.parametrize(
+        ("version", "expected_version", "filetype", "mimetype"),
+        [
+            ("1.0", "1.0", "sdist", "application/tar"),
+            ("v1.0", "1.0", "sdist", "application/tar"),
+            ("1.0", "1.0", "bdist_wheel", "application/zip"),
+            ("v1.0", "1.0", "bdist_wheel", "application/zip"),
+        ],
+    )
     def test_upload_fails_missing_license_file_metadata_2_4(
         self,
         pyramid_config,
@@ -5938,7 +6124,8 @@ class TestFileUpload:
         self, pyramid_config, db_request, monkeypatch
     ):
         organization = OrganizationFactory.create(
-            orgtype="Company", upload_limit=120 * (1024**2)  # 120 MiB
+            orgtype="Company",
+            upload_limit=120 * (1024**2),  # 120 MiB
         )
         user = UserFactory.create(with_verified_primary_email=True)
         OrganizationRoleFactory.create(organization=organization, user=user)
@@ -6009,7 +6196,8 @@ class TestFileUpload:
         self, pyramid_config, db_request, monkeypatch
     ):
         organization = OrganizationFactory.create(
-            orgtype="Company", total_size_limit=100 * (1024**3)  # 100 GiB
+            orgtype="Company",
+            total_size_limit=100 * (1024**3),  # 100 GiB
         )
         user = UserFactory.create(with_verified_primary_email=True)
         OrganizationRoleFactory.create(organization=organization, user=user)
@@ -6145,7 +6333,8 @@ class TestFileUpload:
         """Integration test: verify upload uses project.upload_limit_size property"""
         # Create organization with generous limit
         organization = OrganizationFactory.create(
-            orgtype="Company", upload_limit=150 * (1024**2)  # 150 MiB
+            orgtype="Company",
+            upload_limit=150 * (1024**2),  # 150 MiB
         )
         user = UserFactory.create(with_verified_primary_email=True)
         OrganizationRoleFactory.create(organization=organization, user=user)
@@ -6214,7 +6403,8 @@ class TestFileUpload:
         """Integration test: verify upload uses total_size_limit_value property"""
         # Create organization with generous total size limit
         organization = OrganizationFactory.create(
-            orgtype="Company", total_size_limit=60 * (1024**3)  # 60 GiB
+            orgtype="Company",
+            total_size_limit=60 * (1024**3),  # 60 GiB
         )
         user = UserFactory.create(with_verified_primary_email=True)
         OrganizationRoleFactory.create(organization=organization, user=user)
@@ -6356,6 +6546,60 @@ class TestFileUpload:
         # Upload should succeed using system default limits
         resp = legacy.file_upload(db_request)
         assert resp.status_code == 200
+
+    def test_upload_fails_with_yara_match(
+        self, tmpdir, monkeypatch, pyramid_config, db_request
+    ):
+        monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
+
+        monkeypatch.setattr(
+            legacy,
+            "_is_valid_dist_file",
+            lambda *a, **kw: (
+                False,
+                "PyArmor-encrypted content is not allowed. "
+                "See https://pypi.org/policy/terms-of-use/ for more information.",
+            ),
+        )
+
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}-py3-none-any.whl".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
+        filebody = _get_whl_testdata(
+            name=project.normalized_name.replace("-", "_"), version=release.version
+        )
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "bdist_wheel",
+                "pyversion": "cp34",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+        assert resp.status_code == 400
+        assert "PyArmor-encrypted content is not allowed" in resp.status
 
 
 def test_submit(pyramid_request):
