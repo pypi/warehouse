@@ -15,6 +15,7 @@ class AdminFlagValue(enum.Enum):
     DISALLOW_NEW_PROJECT_REGISTRATION = "disallow-new-project-registration"
     DISALLOW_NEW_UPLOAD = "disallow-new-upload"
     DISALLOW_NEW_USER_REGISTRATION = "disallow-new-user-registration"
+    DISABLE_UPLOAD_SCANNING = "disable-upload-scanning"
     DISALLOW_OIDC = "disallow-oidc"
     DISALLOW_GITHUB_OIDC = "disallow-github-oidc"
     DISALLOW_GITLAB_OIDC = "disallow-gitlab-oidc"

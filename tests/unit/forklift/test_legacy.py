@@ -49,6 +49,7 @@ from warehouse.packaging.models import (
     Role,
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
+from warehouse.utils.scanner import YaraMatch
 
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.classifiers import ClassifierFactory
@@ -412,6 +413,85 @@ class TestFileValidation:
         assert legacy._is_valid_dist_file(f, "") == (
             False,
             "Incorrect number of top-level directories in sdist",
+        )
+
+    def test_yara_match_in_wheel(self, tmpdir, monkeypatch):
+        f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
+        with zipfile.ZipFile(f, "w") as zfp:
+            zfp.writestr("test-1.0.dist-info/WHEEL", b"Wheel-Version: 1.0")
+            zfp.writestr("pkg/__init__.py", b"bad content")
+
+        match = YaraMatch(
+            rule="test_rule",
+            member="pkg/__init__.py",
+            message="Content not allowed.",
+        )
+        monkeypatch.setattr(
+            "warehouse.utils.scanner.check_members", lambda *a, **kw: match
+        )
+
+        assert legacy._is_valid_dist_file(f, "bdist_wheel") == (
+            False,
+            "Content not allowed.",
+        )
+
+    def test_yara_match_in_tarball(self, tmpdir, monkeypatch):
+        tar_fn = str(tmpdir.join("test.tar.gz"))
+        data_file = str(tmpdir.join("dummy_data"))
+        with open(data_file, "wb") as fp:
+            fp.write(b"bad content")
+        with tarfile.open(tar_fn, "w:gz") as tar:
+            tar.add(data_file, arcname="package/PKG-INFO")
+            tar.add(data_file, arcname="package/__init__.py")
+
+        match = YaraMatch(
+            rule="test_rule",
+            member="package/__init__.py",
+            message="Content not allowed.",
+        )
+        monkeypatch.setattr(
+            "warehouse.utils.scanner.check_members", lambda *a, **kw: match
+        )
+
+        assert legacy._is_valid_dist_file(tar_fn, "sdist") == (
+            False,
+            "Content not allowed.",
+        )
+
+    def test_scan_disabled_skips_yara_in_wheel(self, tmpdir, monkeypatch):
+        f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
+        with zipfile.ZipFile(f, "w") as zfp:
+            zfp.writestr("test-1.0.dist-info/WHEEL", b"Wheel-Version: 1.0")
+            zfp.writestr("pkg/__init__.py", b"bad content")
+
+        # check_members would match, but scan=False skips it entirely.
+        monkeypatch.setattr(
+            "warehouse.utils.scanner.check_members",
+            lambda *a, **kw: (_ for _ in ()).throw(AssertionError("should not scan")),
+        )
+
+        assert legacy._is_valid_dist_file(f, "bdist_wheel", scan=False) == (
+            True,
+            None,
+        )
+
+    def test_scan_disabled_skips_yara_in_tarball(self, tmpdir, monkeypatch):
+        tar_fn = str(tmpdir.join("test.tar.gz"))
+        data_file = str(tmpdir.join("dummy_data"))
+        with open(data_file, "wb") as fp:
+            fp.write(b"bad content")
+        with tarfile.open(tar_fn, "w:gz") as tar:
+            tar.add(data_file, arcname="package/PKG-INFO")
+            tar.add(data_file, arcname="package/__init__.py")
+
+        monkeypatch.setattr(
+            "warehouse.utils.scanner.check_members",
+            lambda *a, **kw: (_ for _ in ()).throw(AssertionError("should not scan")),
+        )
+
+        assert legacy._is_valid_dist_file(tar_fn, "sdist", scan=False) == (
+            True,
+            None,
         )
 
 
@@ -6466,6 +6546,60 @@ class TestFileUpload:
         # Upload should succeed using system default limits
         resp = legacy.file_upload(db_request)
         assert resp.status_code == 200
+
+    def test_upload_fails_with_yara_match(
+        self, tmpdir, monkeypatch, pyramid_config, db_request
+    ):
+        monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
+
+        monkeypatch.setattr(
+            legacy,
+            "_is_valid_dist_file",
+            lambda *a, **kw: (
+                False,
+                "PyArmor-encrypted content is not allowed. "
+                "See https://pypi.org/policy/terms-of-use/ for more information.",
+            ),
+        )
+
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}-py3-none-any.whl".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
+        filebody = _get_whl_testdata(
+            name=project.normalized_name.replace("-", "_"), version=release.version
+        )
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "bdist_wheel",
+                "pyversion": "cp34",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+        assert resp.status_code == 400
+        assert "PyArmor-encrypted content is not allowed" in resp.status
 
 
 def test_submit(pyramid_request):
