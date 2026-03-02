@@ -1310,6 +1310,8 @@ class TestManageOIDCPublisherViews:
                     normalized_context_id="",
                     normalized_vcs_ref="",
                     normalized_vcs_origin="",
+                    circleci_org_name=None,
+                    circleci_project_name=None,
                 ),
                 "CircleCI",
             ),
@@ -1567,6 +1569,12 @@ class TestManageOIDCPublisherViews:
             oidc_views.ActiveStatePublisherForm,
             "_lookup_actor",
             lambda *a: {"user_id": "some-user-id"},
+        )
+
+        monkeypatch.setattr(
+            oidc_views.CircleCIPublisherForm,
+            "_lookup_project_metadata",
+            lambda *a: None,
         )
 
         monkeypatch.setattr(

@@ -137,6 +137,8 @@ class CircleCIPublisherFactory(WarehouseFactory):
     context_id = ""
     vcs_ref = ""
     vcs_origin = ""
+    circleci_org_name = None
+    circleci_project_name = None
 
 
 class PendingCircleCIPublisherFactory(WarehouseFactory):
@@ -151,4 +153,6 @@ class PendingCircleCIPublisherFactory(WarehouseFactory):
     context_id = ""
     vcs_ref = ""
     vcs_origin = ""
+    circleci_org_name = None
+    circleci_project_name = None
     added_by = factory.SubFactory(UserFactory)

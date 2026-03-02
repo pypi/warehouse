@@ -76,12 +76,16 @@ class CircleCIPublisherMixin:
     circleci_org_id: Mapped[str] = mapped_column(String, nullable=False)
     circleci_project_id: Mapped[str] = mapped_column(String, nullable=False)
     pipeline_definition_id: Mapped[str] = mapped_column(String, nullable=False)
-    context_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    context_id: Mapped[str] = mapped_column(String, nullable=False, default="")
     # Optional VCS claims for additional security constraints
     # vcs_ref: e.g., "refs/heads/main"
     # vcs_origin: e.g., "github.com/organization-123/repo-1"
-    vcs_ref: Mapped[str | None] = mapped_column(String, nullable=True)
-    vcs_origin: Mapped[str | None] = mapped_column(String, nullable=True)
+    vcs_ref: Mapped[str] = mapped_column(String, nullable=False, default="")
+    vcs_origin: Mapped[str] = mapped_column(String, nullable=False, default="")
+    # Human-readable metadata fetched from CircleCI API at registration time.
+    # NULL when the project is private (404 from API).
+    circleci_org_name: Mapped[str | None] = mapped_column(String, nullable=True)
+    circleci_project_name: Mapped[str | None] = mapped_column(String, nullable=True)
 
     __required_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
         "oidc.circleci.com/org-id": oidccore.check_claim_binary(str.__eq__),
@@ -130,10 +134,9 @@ class CircleCIPublisherMixin:
         return {}
 
     def __str__(self) -> str:
-        return (
-            f"CircleCI project {self.circleci_project_id} "
-            f"in organization {self.circleci_org_id}"
-        )
+        project = self.circleci_project_name or self.circleci_project_id
+        org = self.circleci_org_name or self.circleci_org_id
+        return f"CircleCI project {project} in organization {org}"
 
     def exists(self, session: Session) -> bool:
         cls = self.__class__
@@ -158,6 +161,10 @@ class CircleCIPublisherMixin:
             ("Project ID", self.circleci_project_id),
             ("Pipeline Definition ID", self.pipeline_definition_id),
         ]
+        if self.circleci_org_name:
+            details.append(("Organization Name", self.circleci_org_name))
+        if self.circleci_project_name:
+            details.append(("Project Name", self.circleci_project_name))
         if self.context_id:
             details.append(("Context ID", self.context_id))
         if self.vcs_ref:
@@ -289,6 +296,8 @@ class PendingCircleCIPublisher(CircleCIPublisherMixin, PendingOIDCPublisher):
             context_id=self.context_id,
             vcs_ref=self.vcs_ref,
             vcs_origin=self.vcs_origin,
+            circleci_org_name=self.circleci_org_name,
+            circleci_project_name=self.circleci_project_name,
         )
 
         session.delete(self)

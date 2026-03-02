@@ -3596,6 +3596,8 @@ class TestManageOrganizationPublishingViews:
             normalized_context_id="",
             normalized_vcs_ref="",
             normalized_vcs_origin="",
+            circleci_org_name=None,
+            circleci_project_name=None,
         )
         monkeypatch.setattr(
             org_views, "PendingCircleCIPublisherForm", lambda *a, **kw: form

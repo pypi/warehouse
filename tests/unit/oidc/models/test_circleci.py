@@ -145,6 +145,27 @@ class TestCircleCIPublisher:
             str(publisher) == f"CircleCI project {PROJECT_ID} in organization {ORG_ID}"
         )
 
+    def test_str_with_metadata(self):
+        publisher = CircleCIPublisher(
+            circleci_org_id=ORG_ID,
+            circleci_project_id=PROJECT_ID,
+            pipeline_definition_id=PIPELINE_DEF_ID,
+            circleci_org_name="my-org",
+            circleci_project_name="my-project",
+        )
+
+        assert str(publisher) == "CircleCI project my-project in organization my-org"
+
+    def test_str_with_partial_metadata(self):
+        publisher = CircleCIPublisher(
+            circleci_org_id=ORG_ID,
+            circleci_project_id=PROJECT_ID,
+            pipeline_definition_id=PIPELINE_DEF_ID,
+            circleci_org_name="my-org",
+        )
+
+        assert str(publisher) == f"CircleCI project {PROJECT_ID} in organization my-org"
+
     def test_admin_details(self):
         publisher = CircleCIPublisher(
             circleci_org_id=ORG_ID,
@@ -220,6 +241,23 @@ class TestCircleCIPublisher:
             ("Context ID", CONTEXT_ID),
             ("VCS Ref", VCS_REF),
             ("VCS Origin", VCS_ORIGIN),
+        ]
+
+    def test_admin_details_with_metadata(self):
+        publisher = CircleCIPublisher(
+            circleci_org_id=ORG_ID,
+            circleci_project_id=PROJECT_ID,
+            pipeline_definition_id=PIPELINE_DEF_ID,
+            circleci_org_name="my-org",
+            circleci_project_name="my-project",
+        )
+
+        assert publisher.admin_details == [
+            ("Organization ID", ORG_ID),
+            ("Project ID", PROJECT_ID),
+            ("Pipeline Definition ID", PIPELINE_DEF_ID),
+            ("Organization Name", "my-org"),
+            ("Project Name", "my-project"),
         ]
 
     def test_stored_claims(self):
@@ -633,6 +671,24 @@ class TestPendingCircleCIPublisher:
         assert publisher.context_id == CONTEXT_ID
         assert publisher.vcs_ref == VCS_REF
         assert publisher.vcs_origin == VCS_ORIGIN
+
+    def test_reify_creates_publisher_with_metadata(self, db_request):
+        pending = PendingCircleCIPublisherFactory.create(
+            circleci_org_id=ORG_ID,
+            circleci_project_id=PROJECT_ID,
+            pipeline_definition_id=PIPELINE_DEF_ID,
+            context_id=CONTEXT_ID,
+            vcs_ref=VCS_REF,
+            vcs_origin=VCS_ORIGIN,
+            circleci_org_name="my-org",
+            circleci_project_name="my-project",
+        )
+
+        publisher = pending.reify(db_request.db)
+
+        assert isinstance(publisher, CircleCIPublisher)
+        assert publisher.circleci_org_name == "my-org"
+        assert publisher.circleci_project_name == "my-project"
 
     def test_reify_returns_existing_publisher(self, db_request):
         existing = CircleCIPublisherFactory.create(
