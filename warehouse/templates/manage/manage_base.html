@@ -608,6 +608,14 @@
           <b>Actor:</b> {{ publisher.actor }}
           <br>
         {% elif publisher.publisher_name == "CircleCI" %}
+          {% if publisher.circleci_org_name %}
+            <b>Organization:</b> {{ publisher.circleci_org_name }}
+            <br>
+          {% endif %}
+          {% if publisher.circleci_project_name %}
+            <b>Project:</b> {{ publisher.circleci_project_name }}
+            <br>
+          {% endif %}
           <b>Organization ID:</b> {{ publisher.circleci_org_id }}
           <br>
           <b>Project ID:</b> {{ publisher.circleci_project_id }}
