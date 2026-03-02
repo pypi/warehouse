@@ -4,6 +4,8 @@ import pretend
 import pytest
 import wtforms
 
+from requests import ConnectionError as RequestsConnectionError, HTTPError, Timeout
+from requests.exceptions import JSONDecodeError
 from webob.multidict import MultiDict
 
 from warehouse.oidc.forms import circleci
@@ -20,6 +22,8 @@ from ....common.db.packaging import (
     ProjectFactory,
     RoleFactory,
 )
+
+PROJECT_UUID = "00000000-0000-1000-8000-000000000002"
 
 
 class TestPendingCircleCIPublisherForm:
@@ -40,6 +44,7 @@ class TestPendingCircleCIPublisherForm:
             check_project_name=project_service.check_project_name,
             user=pretend.stub(),
         )
+        monkeypatch.setattr(form, "_lookup_project_metadata", lambda pid: None)
 
         assert form._check_project_name == project_service.check_project_name
         assert form._route_url == route_url
@@ -121,7 +126,7 @@ class TestPendingCircleCIPublisherForm:
 
 
 class TestCircleCIPublisherForm:
-    def test_validate(self):
+    def test_validate(self, monkeypatch):
         data = MultiDict(
             {
                 "circleci_org_id": "00000000-0000-1000-8000-000000000001",
@@ -130,10 +135,11 @@ class TestCircleCIPublisherForm:
             }
         )
         form = circleci.CircleCIPublisherForm(MultiDict(data))
+        monkeypatch.setattr(form, "_lookup_project_metadata", lambda pid: None)
 
         assert form.validate()
 
-    def test_validate_with_optional_context_id(self):
+    def test_validate_with_optional_context_id(self, monkeypatch):
         data = MultiDict(
             {
                 "circleci_org_id": "00000000-0000-1000-8000-000000000001",
@@ -143,10 +149,11 @@ class TestCircleCIPublisherForm:
             }
         )
         form = circleci.CircleCIPublisherForm(MultiDict(data))
+        monkeypatch.setattr(form, "_lookup_project_metadata", lambda pid: None)
 
         assert form.validate()
 
-    def test_validate_missing_organization_id(self):
+    def test_validate_missing_organization_id(self, monkeypatch):
         data = MultiDict(
             {
                 "circleci_project_id": "00000000-0000-1000-8000-000000000002",
@@ -154,6 +161,7 @@ class TestCircleCIPublisherForm:
             }
         )
         form = circleci.CircleCIPublisherForm(MultiDict(data))
+        monkeypatch.setattr(form, "_lookup_project_metadata", lambda pid: None)
 
         assert not form.validate()
         assert "circleci_org_id" in form.errors
@@ -170,7 +178,7 @@ class TestCircleCIPublisherForm:
         assert not form.validate()
         assert "circleci_project_id" in form.errors
 
-    def test_validate_missing_pipeline_definition_id(self):
+    def test_validate_missing_pipeline_definition_id(self, monkeypatch):
         data = MultiDict(
             {
                 "circleci_org_id": "00000000-0000-1000-8000-000000000001",
@@ -178,6 +186,7 @@ class TestCircleCIPublisherForm:
             }
         )
         form = circleci.CircleCIPublisherForm(MultiDict(data))
+        monkeypatch.setattr(form, "_lookup_project_metadata", lambda pid: None)
 
         assert not form.validate()
         assert "pipeline_definition_id" in form.errors
@@ -190,7 +199,7 @@ class TestCircleCIPublisherForm:
             "pipeline_definition_id",
         ],
     )
-    def test_validate_invalid_uuid(self, field_name):
+    def test_validate_invalid_uuid(self, field_name, monkeypatch):
         data = MultiDict(
             {
                 "circleci_org_id": "00000000-0000-1000-8000-000000000001",
@@ -200,11 +209,12 @@ class TestCircleCIPublisherForm:
         )
         data[field_name] = "not-a-valid-uuid"
         form = circleci.CircleCIPublisherForm(MultiDict(data))
+        monkeypatch.setattr(form, "_lookup_project_metadata", lambda pid: None)
 
         assert not form.validate()
         assert field_name in form.errors
 
-    def test_validate_invalid_context_id_uuid(self):
+    def test_validate_invalid_context_id_uuid(self, monkeypatch):
         data = MultiDict(
             {
                 "circleci_org_id": "00000000-0000-1000-8000-000000000001",
@@ -214,11 +224,12 @@ class TestCircleCIPublisherForm:
             }
         )
         form = circleci.CircleCIPublisherForm(MultiDict(data))
+        monkeypatch.setattr(form, "_lookup_project_metadata", lambda pid: None)
 
         assert not form.validate()
         assert "context_id" in form.errors
 
-    def test_validate_with_optional_vcs_ref(self):
+    def test_validate_with_optional_vcs_ref(self, monkeypatch):
         data = MultiDict(
             {
                 "circleci_org_id": "00000000-0000-1000-8000-000000000001",
@@ -228,10 +239,11 @@ class TestCircleCIPublisherForm:
             }
         )
         form = circleci.CircleCIPublisherForm(MultiDict(data))
+        monkeypatch.setattr(form, "_lookup_project_metadata", lambda pid: None)
 
         assert form.validate()
 
-    def test_validate_with_optional_vcs_origin(self):
+    def test_validate_with_optional_vcs_origin(self, monkeypatch):
         data = MultiDict(
             {
                 "circleci_org_id": "00000000-0000-1000-8000-000000000001",
@@ -241,10 +253,11 @@ class TestCircleCIPublisherForm:
             }
         )
         form = circleci.CircleCIPublisherForm(MultiDict(data))
+        monkeypatch.setattr(form, "_lookup_project_metadata", lambda pid: None)
 
         assert form.validate()
 
-    def test_validate_with_all_optional_fields(self):
+    def test_validate_with_all_optional_fields(self, monkeypatch):
         data = MultiDict(
             {
                 "circleci_org_id": "00000000-0000-1000-8000-000000000001",
@@ -256,6 +269,7 @@ class TestCircleCIPublisherForm:
             }
         )
         form = circleci.CircleCIPublisherForm(MultiDict(data))
+        monkeypatch.setattr(form, "_lookup_project_metadata", lambda pid: None)
 
         assert form.validate()
 
@@ -294,8 +308,9 @@ class TestCircleCIPublisherForm:
             },
         ],
     )
-    def test_validate_basic_invalid_fields(self, data):
+    def test_validate_basic_invalid_fields(self, data, monkeypatch):
         form = circleci.CircleCIPublisherForm(MultiDict(data))
+        monkeypatch.setattr(form, "_lookup_project_metadata", lambda pid: None)
 
         assert not form.validate()
 
@@ -306,7 +321,7 @@ class TestCircleCIPublisherForm:
             "",
         ],
     )
-    def test_vcs_ref_optional_values(self, vcs_ref):
+    def test_vcs_ref_optional_values(self, vcs_ref, monkeypatch):
         data = MultiDict(
             {
                 "circleci_org_id": "00000000-0000-1000-8000-000000000001",
@@ -316,10 +331,11 @@ class TestCircleCIPublisherForm:
             }
         )
         form = circleci.CircleCIPublisherForm(MultiDict(data))
+        monkeypatch.setattr(form, "_lookup_project_metadata", lambda pid: None)
 
         assert form.validate(), str(form.errors)
 
-    def test_vcs_ref_none_consistency(self):
+    def test_vcs_ref_none_consistency(self, monkeypatch):
         data = MultiDict(
             {
                 "circleci_org_id": "00000000-0000-1000-8000-000000000001",
@@ -328,6 +344,7 @@ class TestCircleCIPublisherForm:
             }
         )
         form = circleci.CircleCIPublisherForm(MultiDict(data))
+        monkeypatch.setattr(form, "_lookup_project_metadata", lambda pid: None)
 
         assert form.validate(), str(form.errors)
         assert form.vcs_ref.data is None
@@ -339,7 +356,7 @@ class TestCircleCIPublisherForm:
             "",
         ],
     )
-    def test_vcs_origin_optional_values(self, vcs_origin):
+    def test_vcs_origin_optional_values(self, vcs_origin, monkeypatch):
         data = MultiDict(
             {
                 "circleci_org_id": "00000000-0000-1000-8000-000000000001",
@@ -349,10 +366,11 @@ class TestCircleCIPublisherForm:
             }
         )
         form = circleci.CircleCIPublisherForm(MultiDict(data))
+        monkeypatch.setattr(form, "_lookup_project_metadata", lambda pid: None)
 
         assert form.validate(), str(form.errors)
 
-    def test_vcs_origin_none_consistency(self):
+    def test_vcs_origin_none_consistency(self, monkeypatch):
         data = MultiDict(
             {
                 "circleci_org_id": "00000000-0000-1000-8000-000000000001",
@@ -361,6 +379,7 @@ class TestCircleCIPublisherForm:
             }
         )
         form = circleci.CircleCIPublisherForm(MultiDict(data))
+        monkeypatch.setattr(form, "_lookup_project_metadata", lambda pid: None)
 
         assert form.validate(), str(form.errors)
         assert form.vcs_origin.data is None
@@ -372,7 +391,7 @@ class TestCircleCIPublisherForm:
             "",
         ],
     )
-    def test_context_id_optional_values(self, context_id):
+    def test_context_id_optional_values(self, context_id, monkeypatch):
         data = MultiDict(
             {
                 "circleci_org_id": "00000000-0000-1000-8000-000000000001",
@@ -382,10 +401,11 @@ class TestCircleCIPublisherForm:
             }
         )
         form = circleci.CircleCIPublisherForm(MultiDict(data))
+        monkeypatch.setattr(form, "_lookup_project_metadata", lambda pid: None)
 
         assert form.validate(), str(form.errors)
 
-    def test_context_id_none_consistency(self):
+    def test_context_id_none_consistency(self, monkeypatch):
         data = MultiDict(
             {
                 "circleci_org_id": "00000000-0000-1000-8000-000000000001",
@@ -394,6 +414,141 @@ class TestCircleCIPublisherForm:
             }
         )
         form = circleci.CircleCIPublisherForm(MultiDict(data))
+        monkeypatch.setattr(form, "_lookup_project_metadata", lambda pid: None)
 
         assert form.validate(), str(form.errors)
         assert form.context_id.data is None
+
+
+class TestCircleCIProjectMetadataLookup:
+    def test_lookup_success(self, monkeypatch):
+        response = pretend.stub(
+            status_code=200,
+            raise_for_status=lambda: None,
+            json=lambda: {
+                "name": "my-project",
+                "organization_name": "my-org",
+            },
+        )
+        requests = pretend.stub(
+            get=pretend.call_recorder(lambda url, **kw: response),
+            HTTPError=HTTPError,
+            ConnectionError=RequestsConnectionError,
+            Timeout=Timeout,
+        )
+        monkeypatch.setattr(circleci, "requests", requests)
+
+        form = circleci.CircleCIPublisherForm()
+        form._lookup_project_metadata(PROJECT_UUID)
+
+        assert form.circleci_org_name == "my-org"
+        assert form.circleci_project_name == "my-project"
+        assert requests.get.calls == [
+            pretend.call(
+                f"https://circleci.com/api/v2/project/{PROJECT_UUID}",
+                allow_redirects=True,
+                timeout=5,
+            )
+        ]
+
+    def test_lookup_404_private_project(self, monkeypatch):
+        response = pretend.stub(
+            status_code=404,
+            raise_for_status=pretend.raiser(HTTPError),
+        )
+        requests = pretend.stub(
+            get=pretend.call_recorder(lambda url, **kw: response),
+            HTTPError=HTTPError,
+            ConnectionError=RequestsConnectionError,
+            Timeout=Timeout,
+        )
+        monkeypatch.setattr(circleci, "requests", requests)
+
+        form = circleci.CircleCIPublisherForm()
+        form._lookup_project_metadata(PROJECT_UUID)
+
+        assert form.circleci_org_name is None
+        assert form.circleci_project_name is None
+
+    def test_lookup_http_error(self, monkeypatch):
+        response = pretend.stub(
+            status_code=500,
+            raise_for_status=pretend.raiser(HTTPError),
+        )
+        requests = pretend.stub(
+            get=pretend.call_recorder(lambda url, **kw: response),
+            HTTPError=HTTPError,
+            ConnectionError=RequestsConnectionError,
+            Timeout=Timeout,
+        )
+        monkeypatch.setattr(circleci, "requests", requests)
+
+        sentry_sdk = pretend.stub(capture_message=pretend.call_recorder(lambda s: None))
+        monkeypatch.setattr(circleci, "sentry_sdk", sentry_sdk)
+
+        form = circleci.CircleCIPublisherForm()
+        with pytest.raises(wtforms.validators.ValidationError):
+            form._lookup_project_metadata(PROJECT_UUID)
+
+        assert len(sentry_sdk.capture_message.calls) == 1
+
+    def test_lookup_connection_error(self, monkeypatch):
+        requests = pretend.stub(
+            get=pretend.raiser(RequestsConnectionError),
+            HTTPError=HTTPError,
+            ConnectionError=RequestsConnectionError,
+            Timeout=Timeout,
+        )
+        monkeypatch.setattr(circleci, "requests", requests)
+
+        sentry_sdk = pretend.stub(capture_message=pretend.call_recorder(lambda s: None))
+        monkeypatch.setattr(circleci, "sentry_sdk", sentry_sdk)
+
+        form = circleci.CircleCIPublisherForm()
+        with pytest.raises(wtforms.validators.ValidationError):
+            form._lookup_project_metadata(PROJECT_UUID)
+
+        assert len(sentry_sdk.capture_message.calls) == 1
+
+    def test_lookup_timeout(self, monkeypatch):
+        requests = pretend.stub(
+            get=pretend.raiser(Timeout),
+            HTTPError=HTTPError,
+            ConnectionError=RequestsConnectionError,
+            Timeout=Timeout,
+        )
+        monkeypatch.setattr(circleci, "requests", requests)
+
+        sentry_sdk = pretend.stub(capture_message=pretend.call_recorder(lambda s: None))
+        monkeypatch.setattr(circleci, "sentry_sdk", sentry_sdk)
+
+        form = circleci.CircleCIPublisherForm()
+        with pytest.raises(wtforms.validators.ValidationError):
+            form._lookup_project_metadata(PROJECT_UUID)
+
+        assert len(sentry_sdk.capture_message.calls) == 1
+
+    def test_lookup_invalid_json(self, monkeypatch):
+        response = pretend.stub(
+            status_code=200,
+            content=b"not-json",
+            raise_for_status=lambda: None,
+            json=pretend.raiser(JSONDecodeError("bad json", "not-json", 0)),
+        )
+        requests = pretend.stub(
+            get=pretend.call_recorder(lambda url, **kw: response),
+            HTTPError=HTTPError,
+            ConnectionError=RequestsConnectionError,
+            Timeout=Timeout,
+            exceptions=pretend.stub(JSONDecodeError=JSONDecodeError),
+        )
+        monkeypatch.setattr(circleci, "requests", requests)
+
+        sentry_sdk = pretend.stub(capture_message=pretend.call_recorder(lambda s: None))
+        monkeypatch.setattr(circleci, "sentry_sdk", sentry_sdk)
+
+        form = circleci.CircleCIPublisherForm()
+        with pytest.raises(wtforms.validators.ValidationError):
+            form._lookup_project_metadata(PROJECT_UUID)
+
+        assert len(sentry_sdk.capture_message.calls) == 1
