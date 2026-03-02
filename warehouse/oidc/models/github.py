@@ -27,8 +27,6 @@ from warehouse.oidc.urls import verify_url_from_reference
 if typing.TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
-    from warehouse.oidc.services import OIDCPublisherService
-
 GITHUB_OIDC_ISSUER_URL = "https://token.actions.githubusercontent.com"
 
 # This expression matches the workflow filename component of a GitHub
@@ -128,19 +126,10 @@ def _check_environment(
 
 
 def _check_event_name(
-    ground_truth: str, signed_claim: str, _all_signed_claims: SignedClaims, **kwargs
-) -> bool:
-    # Log the event name
-    publisher_service: OIDCPublisherService = kwargs["publisher_service"]
-    publisher_service.metrics.increment(
-        "warehouse.oidc.claim", tags=["publisher:GitHub", f"event_name:{signed_claim}"]
-    )
-    # Always permit all event names for now
-    return True
-
-
-def _check_event_name(
-    ground_truth: str, signed_claim: str, _all_signed_claims: SignedClaims, **_kwargs,
+    ground_truth: str,
+    signed_claim: str,
+    _all_signed_claims: SignedClaims,
+    **_kwargs,
 ) -> bool:
     if signed_claim == "pull_request_target":
         raise InvalidPublisherError(

@@ -430,23 +430,6 @@ class TestGitHubPublisher:
         check = github.GitHubPublisher.__required_verifiable_claims__["repository"]
         assert check(truth, claim, pretend.stub()) == valid
 
-    def test_check_event_name_emits_metrics(self, metrics):
-        check = github.GitHubPublisher.__required_verifiable_claims__["event_name"]
-        publisher_service = pretend.stub(metrics=metrics)
-
-        assert check(
-            "throwaway",
-            "pull_request_target",
-            pretend.stub(),
-            publisher_service=publisher_service,
-        )
-        assert metrics.increment.calls == [
-            pretend.call(
-                "warehouse.oidc.claim",
-                tags=["publisher:GitHub", "event_name:pull_request_target"],
-            ),
-        ]
-
     def test_check_event_name_invalid(self):
         check = github.GitHubPublisher.__required_verifiable_claims__["event_name"]
 
