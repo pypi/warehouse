@@ -112,8 +112,9 @@ class TestCircleCIPublisher:
             pipeline_definition_id=PIPELINE_DEF_ID,
         )
 
-        # CircleCI doesn't have a predictable public URL pattern
-        assert publisher.publisher_base_url is None
+        assert publisher.publisher_base_url == (
+            f"https://app.circleci.com/project/{PROJECT_ID}"
+        )
 
     def test_publisher_url(self):
         publisher = CircleCIPublisher(
@@ -122,7 +123,9 @@ class TestCircleCIPublisher:
             pipeline_definition_id=PIPELINE_DEF_ID,
         )
 
-        assert publisher.publisher_url() is None
+        assert publisher.publisher_url() == (
+            f"https://app.circleci.com/project/{PROJECT_ID}"
+        )
 
     def test_attestation_identity(self):
         publisher = CircleCIPublisher(

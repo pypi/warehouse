@@ -613,12 +613,12 @@
             <br>
           {% endif %}
           {% if publisher.circleci_project_name %}
-            <b>Project:</b> {{ publisher.circleci_project_name }}
+            <b>Project:</b> <a href="{{ publisher.publisher_url() }}">{{ publisher.circleci_project_name }}</a>
             <br>
           {% endif %}
           <b>Organization ID:</b> {{ publisher.circleci_org_id }}
           <br>
-          <b>Project ID:</b> {{ publisher.circleci_project_id }}
+          <b>Project ID:</b> <a href="{{ publisher.publisher_url() }}">{{ publisher.circleci_project_id }}</a>
           <br>
           <b>Pipeline Definition ID:</b> {{ publisher.pipeline_definition_id }}
           <br>

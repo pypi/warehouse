@@ -114,12 +114,11 @@ class CircleCIPublisherMixin:
         return "CircleCI"
 
     @property
-    def publisher_base_url(self) -> str | None:
-        # CircleCI doesn't have a predictable public URL pattern for projects
-        # based on org-id/project-id (they're UUIDs)
-        return None
+    def publisher_base_url(self) -> str:
+        """URL to the CircleCI project in the app (project ID is the path segment)."""
+        return f"https://app.circleci.com/project/{self.circleci_project_id}"
 
-    def publisher_url(self, claims: SignedClaims | None = None) -> str | None:
+    def publisher_url(self, claims: SignedClaims | None = None) -> str:
         return self.publisher_base_url
 
     @property
