@@ -417,6 +417,7 @@ def app_config_dbsession_from_env(database):
     nondefaults = {
         "warehouse.db_create_session": lambda r: r.environ.get("warehouse.db_session"),
         "breached_passwords.backend": "warehouse.accounts.services.NullPasswordBreachedService",  # noqa: E501
+        "token.email.secret": "insecure token",
         "token.two_factor.secret": "insecure token",
         # A running redis service is required for functional web sessions
         "sessions.url": "redis://redis:0/",
