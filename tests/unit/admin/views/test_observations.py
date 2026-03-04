@@ -1284,13 +1284,21 @@ class TestGetTimelineTrends:
         admin_user = UserFactory.create(username="admin")
         observer = ObserverFactory.create()
 
-        now = datetime.now(tz=timezone.utc).replace(tzinfo=None)
+        # Use the most recent Wednesday noon so this test is stable around
+        # Sunday/Monday boundaries while staying within the rolling cutoff window.
+        current = datetime.now(tz=timezone.utc).replace(tzinfo=None)
+        days_since_wednesday = (current.weekday() - 2) % 7
+        wednesday_time = (current - timedelta(days=days_since_wednesday)).replace(
+            hour=12, minute=0, second=0, microsecond=0
+        )
 
         # Create two projects and observations in the same week
-        project1_created = now - timedelta(hours=48)
-        project2_created = now - timedelta(hours=72)
+        project1_created = wednesday_time - timedelta(hours=48)
+        project2_created = wednesday_time - timedelta(hours=72)
         project1 = ProjectFactory.create(created=project1_created)
         project2 = ProjectFactory.create(created=project2_created)
+        project1_report_time = wednesday_time - timedelta(hours=4)
+        project2_report_time = wednesday_time - timedelta(hours=2)
 
         # Create JournalEntries for project creation (required for timeline lookup)
         JournalEntryFactory.create(
@@ -1310,13 +1318,13 @@ class TestGetTimelineTrends:
             kind="is_malware",
             observer=observer,
             related=project1,
-            created=now - timedelta(hours=4),
+            created=project1_report_time,
         )
         ProjectObservationFactory.create(
             kind="is_malware",
             observer=observer,
             related=project2,
-            created=now - timedelta(hours=2),  # same week
+            created=project2_report_time,  # same week
         )
 
         project_data = _get_project_data(db_request)
