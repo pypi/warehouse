@@ -9,7 +9,7 @@ from tests.common.db.packaging import ProjectFactory, ReleaseFactory
 from warehouse.integrations.vulnerabilities import tasks
 
 
-def test_analyze_vulnerability(db_request, metrics):
+def test_analyze_vulnerability(db_request, metrics, query_recorder):
     project = ProjectFactory.create()
     release1 = ReleaseFactory.create(project=project, version="1.0")
     release2 = ReleaseFactory.create(project=project, version="2.0")
@@ -17,17 +17,18 @@ def test_analyze_vulnerability(db_request, metrics):
 
     db_request.find_service = lambda *a, **kw: metrics
 
-    tasks.analyze_vulnerability_task(
-        request=db_request,
-        vulnerability_report={
-            "project": project.name,
-            "versions": ["1.0", "2.0"],
-            "id": "vuln_id",
-            "link": "vulns.com/vuln_id",
-            "aliases": ["vuln_alias1", "vuln_alias2"],
-        },
-        origin="test_report_source",
-    )
+    with query_recorder:
+        tasks.analyze_vulnerability_task(
+            request=db_request,
+            vulnerability_report={
+                "project": project.name,
+                "versions": ["1.0", "2.0"],
+                "id": "vuln_id",
+                "link": "vulns.com/vuln_id",
+                "aliases": ["vuln_alias1", "vuln_alias2"],
+            },
+            origin="test_report_source",
+        )
 
     assert len(release1.vulnerabilities) == 1
     assert len(release2.vulnerabilities) == 1
@@ -55,6 +56,9 @@ def test_analyze_vulnerability(db_request, metrics):
             "warehouse.vulnerabilities.processed", tags=["origin:test_report_source"]
         ),
     ]
+    # 1 project identity load (autoflush), 1 vuln record lookup,
+    # 1 project lookup by name, 1 batch release lookup
+    assert len(query_recorder.queries) == 4
 
 
 def test_analyze_vulnerability_update_metadata(db_request, metrics):
