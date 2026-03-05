@@ -1684,9 +1684,17 @@ def file_upload(request):
             ):
                 release_url.verified = True
 
-        if home_page_verified and not release.home_page_verified:
+        if (
+            home_page_verified
+            and not release.home_page_verified
+            and release.home_page == home_page
+        ):
             release.home_page_verified = True
-        if download_url_verified and not release.download_url_verified:
+        if (
+            download_url_verified
+            and not release.download_url_verified
+            and release.download_url == download_url
+        ):
             release.download_url_verified = True
 
     request.db.flush()  # flush db now so server default values are populated for celery
