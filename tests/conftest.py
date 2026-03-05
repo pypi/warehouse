@@ -827,8 +827,11 @@ class _MockRedis:
         del count  # unused
         return [key for key in self.cache.keys() if re.search(search, key)]
 
-    def set(self, key, value, *_args, **_kwargs):
+    def set(self, key, value=None, *_args, **_kwargs):
+        if _kwargs.get("nx", False) and key in self.cache:
+            return None
         self.cache[key] = value
+        return True
 
     def setex(self, key, value, _seconds):
         self.cache[key] = value

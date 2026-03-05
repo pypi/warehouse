@@ -777,6 +777,59 @@ class TestOIDCPublisherService:
 
         assert service.jwt_identifier_exists(jwt_identifier) is True
 
+    def test_store_jwt_identifier_returns_true_on_first_store(
+        self, metrics, mockredis, monkeypatch
+    ):
+        service = services.OIDCPublisherService(
+            session=pretend.stub(),
+            publisher="fakepublisher",
+            issuer_url=pretend.stub(),
+            audience="fakeaudience",
+            cache_url="redis://fake.example.com",
+            metrics=metrics,
+        )
+
+        monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
+
+        expiration = int(
+            (
+                datetime.datetime.now(tz=datetime.UTC) + datetime.timedelta(minutes=15)
+            ).timestamp()
+        )
+        jwt_identifier = "6e67b1cb-2b8d-4be5-91cb-757edb2ec970"
+
+        # First store should succeed
+        result = service.store_jwt_identifier(jwt_identifier, expiration=expiration)
+        assert result is True
+
+    def test_store_jwt_identifier_returns_false_on_duplicate(
+        self, metrics, mockredis, monkeypatch
+    ):
+        service = services.OIDCPublisherService(
+            session=pretend.stub(),
+            publisher="fakepublisher",
+            issuer_url=pretend.stub(),
+            audience="fakeaudience",
+            cache_url="redis://fake.example.com",
+            metrics=metrics,
+        )
+
+        monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
+
+        expiration = int(
+            (
+                datetime.datetime.now(tz=datetime.UTC) + datetime.timedelta(minutes=15)
+            ).timestamp()
+        )
+        jwt_identifier = "6e67b1cb-2b8d-4be5-91cb-757edb2ec970"
+
+        # First store succeeds
+        service.store_jwt_identifier(jwt_identifier, expiration=expiration)
+
+        # Second store with the same JTI should indicate it already existed
+        result = service.store_jwt_identifier(jwt_identifier, expiration=expiration)
+        assert result is False
+
 
 class TestNullOIDCPublisherService:
     def test_interface_matches(self):
