@@ -98,12 +98,12 @@ class NullOIDCPublisherService:
         """
         return False
 
-    def store_jwt_identifier(self, jti: str, expiration: int) -> None:
+    def store_jwt_identifier(self, jti: str, expiration: int) -> bool:
         """
         The NullOIDCPublisherService does not provide a mechanism to store used tokens
         before their expiration.
         """
-        return
+        return True
 
 
 @implementer(IOIDCPublisherService)
@@ -267,20 +267,24 @@ class OIDCPublisherService:
         with redis.StrictRedis.from_url(self.cache_url) as r:
             return bool(r.exists(f"/warehouse/oidc/{self.issuer_url}/{jti}"))
 
-    def store_jwt_identifier(self, jti: str, expiration: int) -> None:
+    def store_jwt_identifier(self, jti: str, expiration: int) -> bool:
         """
-        Store the JTI with its expiration date if the key does not exist.
+        Atomically store the JTI if it does not already exist.
+
+        Returns True if the JTI was newly stored, False if it already existed.
         """
         with redis.StrictRedis.from_url(self.cache_url) as r:
             # Defensive: to prevent races, we expire the JTI slightly after
             # the token expiration date. Thus, the lock will not be
             # released before the token invalidation.
-            r.set(
+            result = r.set(
                 f"/warehouse/oidc/{self.issuer_url}/{jti}",
                 exat=expiration + 5,
                 value="",  # empty value to lower memory usage
                 nx=True,
             )
+            # r.set(..., nx=True) returns True if key was created, None if exists
+            return result is True
 
     def verify_jwt_signature(
         self, unverified_token: str, issuer_url: str
