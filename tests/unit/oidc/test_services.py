@@ -1113,7 +1113,7 @@ class TestNullOIDCPublisherService:
             metrics=pretend.stub(),
         )
 
-        assert service.store_jwt_identifier(pretend.stub(), pretend.stub()) is None
+        assert service.store_jwt_identifier(pretend.stub(), pretend.stub()) is True
 
 
 class TestPyJWTBackstop:
