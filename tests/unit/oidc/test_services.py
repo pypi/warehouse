@@ -94,7 +94,7 @@ class TestOIDCPublisherService:
                 ),
                 issuer=issuer_url,
                 audience="fakeaudience",
-                leeway=30,
+                leeway=services._JWT_LEEWAY,
             )
         ]
 
@@ -859,6 +859,40 @@ class TestOIDCPublisherService:
 
         # The key must still exist in Redis so a subsequent replay is blocked
         assert service.jwt_identifier_exists(jwt_identifier) is True
+
+    def test_store_jwt_identifier_evicts_when_fully_expired(
+        self, metrics, mockredis, monkeypatch
+    ):
+        """
+        When a token is so far past ``exp`` that even ``exp + leeway + margin``
+        is in the past, Redis immediately evicts the key. Verify mockredis
+        models this behavior so future regressions in the TTL calculation
+        are caught.
+        """
+        service = services.OIDCPublisherService(
+            session=pretend.stub(),
+            publisher="fakepublisher",
+            issuer_url="https://fake.example.com",
+            audience="fakeaudience",
+            cache_url="redis://fake.example.com",
+            metrics=metrics,
+        )
+
+        monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
+
+        # exp is far enough in the past that exp + leeway + 5 is also past
+        expiration = (
+            int(datetime.datetime.now(tz=datetime.UTC).timestamp())
+            - services._JWT_LEEWAY
+            - 10
+        )
+
+        jwt_identifier = "long-expired-jti"
+        result = service.store_jwt_identifier(jwt_identifier, expiration=expiration)
+        assert result is True
+
+        # The key should NOT persist — Redis evicts it immediately
+        assert service.jwt_identifier_exists(jwt_identifier) is False
 
 
 class TestNullOIDCPublisherService:
