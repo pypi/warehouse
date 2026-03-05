@@ -830,6 +830,36 @@ class TestOIDCPublisherService:
         result = service.store_jwt_identifier(jwt_identifier, expiration=expiration)
         assert result is False
 
+    def test_store_jwt_identifier_persists_when_exp_is_recent_past(
+        self, metrics, mockredis, monkeypatch
+    ):
+        """
+        A token whose ``exp`` just passed (but is still within leeway) must
+        have its JTI key persist in Redis. If the TTL doesn't account for
+        the leeway, the key would be set with a past ``exat`` and Redis
+        would immediately evict it, allowing replay.
+        """
+        service = services.OIDCPublisherService(
+            session=pretend.stub(),
+            publisher="fakepublisher",
+            issuer_url="https://fake.example.com",
+            audience="fakeaudience",
+            cache_url="redis://fake.example.com",
+            metrics=metrics,
+        )
+
+        monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
+
+        # exp is 10 seconds in the past — within the leeway window
+        expiration = int(datetime.datetime.now(tz=datetime.UTC).timestamp()) - 10
+
+        jwt_identifier = "replay-attempt-jti"
+        result = service.store_jwt_identifier(jwt_identifier, expiration=expiration)
+        assert result is True
+
+        # The key must still exist in Redis so a subsequent replay is blocked
+        assert service.jwt_identifier_exists(jwt_identifier) is True
+
 
 class TestNullOIDCPublisherService:
     def test_interface_matches(self):
