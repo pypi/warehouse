@@ -20,6 +20,12 @@ from warehouse.oidc.models import OIDCPublisher, PendingOIDCPublisher
 from warehouse.oidc.utils import find_publisher_by_issuer
 from warehouse.utils.exceptions import InsecureOIDCPublisherWarning
 
+# Maximum clock-skew tolerance (in seconds) applied when verifying JWT expiration.
+# PyJWT will accept tokens up to this many seconds past their ``exp`` claim.
+# This value is shared with ``store_jwt_identifier`` so the Redis anti-replay
+# key always outlives the window in which the token is accepted.
+_JWT_LEEWAY = 30
+
 if typing.TYPE_CHECKING:
     from pyramid.request import Request
     from sqlalchemy.orm import Session
@@ -274,12 +280,12 @@ class OIDCPublisherService:
         Returns True if the JTI was newly stored, False if it already existed.
         """
         with redis.StrictRedis.from_url(self.cache_url) as r:
-            # Defensive: to prevent races, we expire the JTI slightly after
-            # the token expiration date. Thus, the lock will not be
-            # released before the token invalidation.
+            # The key must outlive the full window during which PyJWT accepts
+            # the token. PyJWT allows up to ``_JWT_LEEWAY`` seconds past
+            # ``exp``, so we add an extra 5-second margin on top.
             result = r.set(
                 f"/warehouse/oidc/{self.issuer_url}/{jti}",
-                exat=expiration + 5,
+                exat=expiration + _JWT_LEEWAY + 5,
                 value="",  # empty value to lower memory usage
                 nx=True,
             )
@@ -328,7 +334,7 @@ class OIDCPublisherService:
                 ),
                 issuer=issuer_url,
                 audience=self.audience,
-                leeway=30,
+                leeway=_JWT_LEEWAY,
             )
             return SignedClaims(signed_payload)
         except Exception as e:
