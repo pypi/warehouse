@@ -30,7 +30,7 @@
     "@zxcvbn-ts/language-en": "^3.0.2",
     "admin-lte": "^3.2.0",
     "cookie": "^0.7.0",
-    "date-fns": "^2.30.0",
+    "date-fns": "^4.1.0",
     "debounce": "^1.2.1",
     "jquery": "^3.7.0",
     "normalize.css": "^8.0.1",
