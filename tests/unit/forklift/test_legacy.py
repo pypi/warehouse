@@ -500,7 +500,11 @@ class TestFileValidation:
         with zipfile.ZipFile(zip_buf, "w") as zfp:
             zfp.writestr("PKG-INFO", b"this is the package info")
         with tarfile.open(fileobj=tar_buf, mode="w:gz") as tar:
-            tar.add(io.BytesIO(b"this is the package info"), arcname="package/PKG-INFO")
+            data_file = tmpdir.join("data-file.txt")
+            with open(data_file, "wb") as f:
+                f.write(b"this is the package info")
+            tar: tarfile.TarFile
+            tar.add(data_file, arcname="package/PKG-INFO")
 
         for filename in ("package.tar.gz", "package.zip"):
             tar_zip = str(tmpdir.join(filename))
