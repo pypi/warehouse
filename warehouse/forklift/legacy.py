@@ -1249,6 +1249,7 @@ def file_upload(request):
                 tags=[
                     "reason:invalid-distribution-file",
                     f"filetype:{form.filetype.data}",
+                    f"message:{_msg}",
                 ],
             )
             raise _exc_with_message(
