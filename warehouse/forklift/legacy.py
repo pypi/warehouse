@@ -288,8 +288,8 @@ def _is_valid_dist_file(filename, filetype, *, scan=True):
     Runs a YARA scan on archive members while the archive is already open.
     Returns ``(False, message)`` on the first YARA match.
     """
-    is_zipfile = zipfile.is_zipfile(filename)
-    is_tarfile = tarfile.is_tarfile(filename)
+    is_zipfile = bool(filename and zipfile.is_zipfile(filename))
+    is_tarfile = bool(filename and tarfile.is_tarfile(filename))
 
     if is_zipfile and is_tarfile:
         return False, "File is both a zip and a tar file"
