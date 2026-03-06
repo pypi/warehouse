@@ -94,7 +94,7 @@ class TestOIDCPublisherService:
                 ),
                 issuer=issuer_url,
                 audience="fakeaudience",
-                leeway=30,
+                leeway=services._JWT_LEEWAY,
             )
         ]
 
@@ -777,6 +777,123 @@ class TestOIDCPublisherService:
 
         assert service.jwt_identifier_exists(jwt_identifier) is True
 
+    def test_store_jwt_identifier_returns_true_on_first_store(
+        self, metrics, mockredis, monkeypatch
+    ):
+        service = services.OIDCPublisherService(
+            session=pretend.stub(),
+            publisher="fakepublisher",
+            issuer_url=pretend.stub(),
+            audience="fakeaudience",
+            cache_url="redis://fake.example.com",
+            metrics=metrics,
+        )
+
+        monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
+
+        expiration = int(
+            (
+                datetime.datetime.now(tz=datetime.UTC) + datetime.timedelta(minutes=15)
+            ).timestamp()
+        )
+        jwt_identifier = "6e67b1cb-2b8d-4be5-91cb-757edb2ec970"
+
+        # First store should succeed
+        result = service.store_jwt_identifier(jwt_identifier, expiration=expiration)
+        assert result is True
+
+    def test_store_jwt_identifier_returns_false_on_duplicate(
+        self, metrics, mockredis, monkeypatch
+    ):
+        service = services.OIDCPublisherService(
+            session=pretend.stub(),
+            publisher="fakepublisher",
+            issuer_url=pretend.stub(),
+            audience="fakeaudience",
+            cache_url="redis://fake.example.com",
+            metrics=metrics,
+        )
+
+        monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
+
+        expiration = int(
+            (
+                datetime.datetime.now(tz=datetime.UTC) + datetime.timedelta(minutes=15)
+            ).timestamp()
+        )
+        jwt_identifier = "6e67b1cb-2b8d-4be5-91cb-757edb2ec970"
+
+        # First store succeeds
+        service.store_jwt_identifier(jwt_identifier, expiration=expiration)
+
+        # Second store with the same JTI should indicate it already existed
+        result = service.store_jwt_identifier(jwt_identifier, expiration=expiration)
+        assert result is False
+
+    def test_store_jwt_identifier_persists_when_exp_is_recent_past(
+        self, metrics, mockredis, monkeypatch
+    ):
+        """
+        A token whose ``exp`` just passed (but is still within leeway) must
+        have its JTI key persist in Redis. If the TTL doesn't account for
+        the leeway, the key would be set with a past ``exat`` and Redis
+        would immediately evict it, allowing replay.
+        """
+        service = services.OIDCPublisherService(
+            session=pretend.stub(),
+            publisher="fakepublisher",
+            issuer_url="https://fake.example.com",
+            audience="fakeaudience",
+            cache_url="redis://fake.example.com",
+            metrics=metrics,
+        )
+
+        monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
+
+        # exp is 10 seconds in the past — within the leeway window
+        expiration = int(datetime.datetime.now(tz=datetime.UTC).timestamp()) - 10
+
+        jwt_identifier = "replay-attempt-jti"
+        result = service.store_jwt_identifier(jwt_identifier, expiration=expiration)
+        assert result is True
+
+        # The key must still exist in Redis so a subsequent replay is blocked
+        assert service.jwt_identifier_exists(jwt_identifier) is True
+
+    def test_store_jwt_identifier_evicts_when_fully_expired(
+        self, metrics, mockredis, monkeypatch
+    ):
+        """
+        When a token is so far past ``exp`` that even ``exp + leeway + margin``
+        is in the past, Redis immediately evicts the key. Verify mockredis
+        models this behavior so future regressions in the TTL calculation
+        are caught.
+        """
+        service = services.OIDCPublisherService(
+            session=pretend.stub(),
+            publisher="fakepublisher",
+            issuer_url="https://fake.example.com",
+            audience="fakeaudience",
+            cache_url="redis://fake.example.com",
+            metrics=metrics,
+        )
+
+        monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
+
+        # exp is far enough in the past that exp + leeway + 5 is also past
+        expiration = (
+            int(datetime.datetime.now(tz=datetime.UTC).timestamp())
+            - services._JWT_LEEWAY
+            - 10
+        )
+
+        jwt_identifier = "long-expired-jti"
+        result = service.store_jwt_identifier(jwt_identifier, expiration=expiration)
+        assert result is True
+
+        # The key should NOT persist — Redis evicts it immediately
+        assert service.jwt_identifier_exists(jwt_identifier) is False
+
 
 class TestNullOIDCPublisherService:
     def test_interface_matches(self):
@@ -1060,7 +1177,7 @@ class TestNullOIDCPublisherService:
             metrics=pretend.stub(),
         )
 
-        assert service.store_jwt_identifier(pretend.stub(), pretend.stub()) is None
+        assert service.store_jwt_identifier(pretend.stub(), pretend.stub()) is True
 
 
 class TestPyJWTBackstop:

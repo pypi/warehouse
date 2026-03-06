@@ -288,6 +288,22 @@ def mint_token(
             request=request,
         )
 
+    # Atomically claim the JTI before minting a macaroon. The SET NX ensures
+    # that only one request can proceed for a given JTI.
+    # Of note, exp is coming from a verified JWT here, so we don't validate it.
+    if jwt_identifier := claims.get("jti"):
+        expiration = cast(int, claims.get("exp"))
+        if not oidc_service.store_jwt_identifier(jwt_identifier, expiration):
+            return _invalid(
+                errors=[
+                    {
+                        "code": "invalid-reuse-token",
+                        "description": "invalid token: already used",
+                    }
+                ],
+                request=request,
+            )
+
     # At this point, we've verified that the given JWT is valid for the given
     # project. All we need to do is mint a new token.
     # NOTE: For OIDC-minted API tokens, the Macaroon's description string
@@ -313,13 +329,6 @@ def mint_token(
         oidc_publisher_id=str(publisher.id),
         additional={"oidc": publisher.stored_claims(claims)},
     )
-
-    # We have used the given JWT to mint a new token. Let now store it to prevent
-    # its reuse if the claims contain a JTI. Of note, exp is coming from a trusted
-    # source here, so we don't validate it
-    if jwt_identifier := claims.get("jti"):
-        expiration = cast(int, claims.get("exp"))
-        oidc_service.store_jwt_identifier(jwt_identifier, expiration)
 
     for project in publisher.projects:
         project.record_event(

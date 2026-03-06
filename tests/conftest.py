@@ -3,6 +3,7 @@
 import os
 import os.path
 import re
+import time
 import xmlrpc.client
 
 from collections import defaultdict
@@ -827,8 +828,16 @@ class _MockRedis:
         del count  # unused
         return [key for key in self.cache.keys() if re.search(search, key)]
 
-    def set(self, key, value, *_args, **_kwargs):
+    def set(self, key, value=None, *_args, **_kwargs):
+        if _kwargs.get("nx", False) and key in self.cache:
+            return None
+        # Real Redis immediately evicts a key when exat is in the past.
+        exat = _kwargs.get("exat")
+        if exat is not None and exat <= time.time():
+            self.cache.pop(key, None)
+            return True
         self.cache[key] = value
+        return True
 
     def setex(self, key, value, _seconds):
         self.cache[key] = value
