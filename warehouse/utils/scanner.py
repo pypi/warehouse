@@ -15,8 +15,9 @@ logger = structlog.get_logger(__name__)
 # YARA rules directory
 _RULES_DIR = Path(__file__).parent / "scanner_rules"
 
-# Extensions to scan inside archives
-_SCAN_EXTENSIONS = {".py", ".pyc", ".pyd", ".so"}
+# Extensions to scan inside archives — only Python source files,
+# since YARA rules target source-level patterns (e.g. pyarmor strings).
+_SCAN_EXTENSIONS = {".py"}
 
 # Max size of individual file to scan inside archive (5 MiB)
 _SCAN_MAX_FILE_SIZE = 5 * 1024 * 1024
