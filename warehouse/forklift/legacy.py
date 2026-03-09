@@ -288,9 +288,14 @@ def _is_valid_dist_file(filename, filetype, *, scan=True):
     Runs a YARA scan on archive members while the archive is already open.
     Returns ``(False, message)`` on the first YARA match.
     """
+    is_zipfile = bool(filename and zipfile.is_zipfile(filename))
+    is_tarfile = bool(filename and tarfile.is_tarfile(filename))
+
+    if is_zipfile and is_tarfile:
+        return False, "File is both a zip and a tar file"
 
     if filename.endswith((".zip", ".whl")):
-        if not zipfile.is_zipfile(filename):
+        if not is_zipfile:
             return False, "File is not a zipfile"
         # Ensure that this is a valid zip file, and that it has a
         # PKG-INFO or WHEEL file.
@@ -378,7 +383,7 @@ def _is_valid_dist_file(filename, filetype, *, scan=True):
             return False, None
 
     elif filename.endswith(".tar.gz"):
-        if not tarfile.is_tarfile(filename):
+        if not is_tarfile:
             return False, "File is not a tarfile"
         # Ensure that this is a valid tar file, and that it contains PKG-INFO.
         # TODO: Ideally Ensure the compression ratio is not absurd
@@ -1244,6 +1249,7 @@ def file_upload(request):
                 tags=[
                     "reason:invalid-distribution-file",
                     f"filetype:{form.filetype.data}",
+                    f"message:{_msg}",
                 ],
             )
             raise _exc_with_message(
@@ -1684,9 +1690,17 @@ def file_upload(request):
             ):
                 release_url.verified = True
 
-        if home_page_verified and not release.home_page_verified:
+        if (
+            home_page_verified
+            and not release.home_page_verified
+            and release.home_page == home_page
+        ):
             release.home_page_verified = True
-        if download_url_verified and not release.download_url_verified:
+        if (
+            download_url_verified
+            and not release.download_url_verified
+            and release.download_url == download_url
+        ):
             release.download_url_verified = True
 
     request.db.flush()  # flush db now so server default values are populated for celery
