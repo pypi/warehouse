@@ -167,3 +167,4 @@ class TestManageOrganizationRoles:
 
         assert resp.status_code == HTTPStatus.OK
         assert len(webtest.query_recorder.queries) == 13
+        assert "Invite member" in resp.text
