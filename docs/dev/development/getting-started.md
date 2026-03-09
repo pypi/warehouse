@@ -349,7 +349,7 @@ totp-cli instant <<< IU7UP3EMIPI7EBPQUUSEHEJUFNBIWOYG
 This will emit a 6-digit code you can paste into the 2FA form.
 
 For other accounts, you'll need to preserve the Key used
-to genreate the TOTP code the next time you need to log in.
+to generate the TOTP code the next time you need to log in.
 
 To be able to "forget" the initial Key, and use it like a TOTP app,
 create a storage and set a password, like so:
@@ -466,7 +466,7 @@ into a shell, you can use `make debug` instead of `make serve`.
 
 * If `make initdb` fails with an error like:
 
-    ```shellsesion
+    ```shellsession
     A fatal error has been detected by the Java Runtime Environment:
     SIGILL (0x4) at pc=0x0000f819dfc67c5c, pid=25, tid=26
     ```
@@ -500,7 +500,7 @@ https://github.com/chadoe/docker-cleanup-volumes)
 
 ### `make initdb` is slow or appears to make no progress
 
-This typically occur when Docker is not allocated enough memory to perform the
+This typically occurs when Docker is not allocated enough memory to perform the
 migrations. Try modifying your Docker configuration to allow more RAM for each
 container, temporarily stop `make_serve` and run `make initdb` again.
 
