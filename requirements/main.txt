@@ -142,9 +142,9 @@ botocore==1.42.29 \
     # via
     #   boto3
     #   s3transfer
-cachetools==7.0.2 \
-    --hash=sha256:7e7f09a4ca8b791d8bb4864afc71e9c17e607a28e6839ca1a644253c97dbeae0 \
-    --hash=sha256:938dcad184827c5e94928c4fd5526e2b46692b7fb1ae94472da9131d0299343c
+cachetools==7.0.4 \
+    --hash=sha256:0c8bb1b9ec8194fa4d764accfde602dfe52f70d0f311e62792d4c3f8c051b1e9 \
+    --hash=sha256:7042c0e4eea87812f04744ce6ee9ed3de457875eb1f82d8a206c46d6e48b6734
     # via premailer
 cattrs==26.1.0 \
     --hash=sha256:d1e0804c42639494d469d08d4f26d6b9de9b8ab26b446db7b5f8c2e97f7c3096 \
