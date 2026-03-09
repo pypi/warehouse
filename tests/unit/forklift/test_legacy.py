@@ -494,6 +494,29 @@ class TestFileValidation:
             None,
         )
 
+    def test_tarfile_zipfile_polyglot(self, tmpdir):
+        tar_buf = io.BytesIO()
+        zip_buf = io.BytesIO()
+        with zipfile.ZipFile(zip_buf, "w") as zfp:
+            zfp.writestr("PKG-INFO", b"this is the package info")
+        with tarfile.open(fileobj=tar_buf, mode="w:gz") as tar:
+            data_file = tmpdir.join("data-file.txt")
+            with open(data_file, "wb") as f:
+                f.write(b"this is the package info")
+            tar: tarfile.TarFile
+            tar.add(data_file, arcname="package/PKG-INFO")
+
+        for filename in ("package.tar.gz", "package.zip"):
+            tar_zip = str(tmpdir.join(filename))
+            with open(tar_zip, "wb") as fp:
+                fp.write(tar_buf.getvalue())
+                fp.write(zip_buf.getvalue())
+
+            assert legacy._is_valid_dist_file(tar_zip, "") == (
+                False,
+                "File is both a zip and a tar file",
+            )
+
 
 class TestIsDuplicateFile:
     def test_is_duplicate_true(self, pyramid_config, db_request):
