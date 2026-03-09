@@ -6075,7 +6075,7 @@ msgstr ""
 msgid "Security history for %(source_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/organization/manage_organization_base.html:7
+#: warehouse/templates/manage/organization/manage_organization_base.html:8
 #, python-format
 msgid "Manage '%(organization_name)s'"
 msgstr ""
