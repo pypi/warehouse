@@ -165,6 +165,10 @@ class AddEmailForm(NewEmailMixin, wtforms.Form):
         self.user_id = user_id
 
 
+class ChangeUnverifiedPrimaryEmailForm(AddEmailForm):
+    __params__ = ["change_unverified_primary_email"]
+
+
 class ChangePasswordForm(PasswordMixin, NewPasswordMixin, wtforms.Form):
     __params__ = ["password", "new_password", "password_confirm"]
 
