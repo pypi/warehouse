@@ -35,26 +35,57 @@ from ....common.db.packaging import (
 
 class TestProjectList:
     def test_no_query(self, db_request):
-        projects = sorted(
-            ProjectFactory.create_batch(30),
-            key=lambda p: p.normalized_name,
-        )
+        projects = ProjectFactory.create_batch(5)
         result = views.project_list(db_request)
 
-        assert result == {"projects": projects[:25], "query": None, "exact_match": None}
+        assert result["query"] is None
+        assert result["days"] == 30
+        assert result["allowed_days"] == (30, 60, 90)
+        assert len(result["creation_series"]) == 30
+        total = sum(count for _, count in result["creation_series"])
+        assert total == 5
+        recent = result["recent_projects"]
+        assert len(recent) == 5
+        assert {r.name for r in recent} == {p.name for p in projects}
+        # Each row should have the expected columns
+        for row in recent:
+            assert hasattr(row, "name")
+            assert hasattr(row, "normalized_name")
+            assert hasattr(row, "created")
+            assert hasattr(row, "latest_version")
 
-    def test_with_page(self, db_request):
-        projects = sorted(
-            ProjectFactory.create_batch(30),
-            key=lambda p: p.normalized_name,
-        )
-        db_request.GET["page"] = "2"
+    def test_no_query_with_days_param(self, db_request):
+        ProjectFactory.create_batch(3)
+        db_request.GET["days"] = "60"
         result = views.project_list(db_request)
 
-        assert result == {"projects": projects[25:], "query": None, "exact_match": None}
+        assert result["days"] == 60
+        assert len(result["creation_series"]) == 60
+        total = sum(count for _, count in result["creation_series"])
+        assert total == 3
+
+    def test_no_query_with_non_integer_days_param(self, db_request):
+        ProjectFactory.create()
+        db_request.GET["days"] = "abc"
+        result = views.project_list(db_request)
+
+        assert result["days"] == 30
+
+    def test_no_query_with_invalid_days_param(self, db_request):
+        ProjectFactory.create()
+        db_request.GET["days"] = "999"
+        result = views.project_list(db_request)
+
+        assert result["days"] == 30
+
+    def test_no_query_recent_projects_limit(self, db_request):
+        ProjectFactory.create_batch(15)
+        result = views.project_list(db_request)
+
+        assert len(result["recent_projects"]) == 10
 
     def test_with_invalid_page(self):
-        request = pretend.stub(params={"page": "not an integer"})
+        request = pretend.stub(params={"q": "something", "page": "not an integer"})
 
         with pytest.raises(HTTPBadRequest):
             views.project_list(request)
@@ -64,6 +95,21 @@ class TestProjectList:
             ProjectFactory.create_batch(5), key=lambda p: p.normalized_name
         )
         db_request.GET["q"] = projects[0].name
+        result = views.project_list(db_request)
+
+        assert result == {
+            "projects": [projects[0]],
+            "query": projects[0].name,
+            "exact_match": None,
+        }
+
+    def test_basic_query_with_page(self, db_request):
+        projects = sorted(
+            ProjectFactory.create_batch(30),
+            key=lambda p: p.normalized_name,
+        )
+        db_request.GET["q"] = projects[0].name
+        db_request.GET["page"] = "1"
         result = views.project_list(db_request)
 
         assert result == {

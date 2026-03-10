@@ -1,18 +1,20 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import datetime
 import shlex
 import uuid
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 from pyramid.view import view_config
-from sqlalchemy import func, or_
+from sqlalchemy import func, or_, select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
 
 from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import User
 from warehouse.admin.forms import SetTotalSizeLimitForm, SetUploadLimitForm
+from warehouse.admin.views.helpers import ALLOWED_DAYS, parse_days_param
 from warehouse.authnz import Permissions
 from warehouse.constants import (
     MAX_FILESIZE,
@@ -46,33 +48,92 @@ from warehouse.utils.project import (
 def project_list(request):
     q = request.params.get("q")
 
-    try:
-        page_num = int(request.params.get("page", 1))
-    except ValueError:
-        raise HTTPBadRequest("'page' must be an integer.") from None
-
     if q and q.startswith("id:"):
         try:
             project_id = uuid.UUID(q[3:])
         except ValueError:
             raise HTTPBadRequest("Invalid UUID.") from None
 
+    # When there's no search query, show the dashboard view
+    if not q:
+        days = parse_days_param(request)
+
+        now = datetime.datetime.now(datetime.UTC)
+        cutoff = now - datetime.timedelta(days=days)
+        created_date = func.date_trunc("day", Project.created)
+
+        daily_counts = request.db.execute(
+            select(created_date.label("date"), func.count(Project.id))
+            .where(Project.created >= cutoff)
+            .group_by(created_date)
+            .order_by(created_date)
+        ).all()
+
+        # Build a complete series with zeros for days with no creations
+        counts_by_date = {
+            row_date.date().isoformat(): count for row_date, count in daily_counts
+        }
+
+        creation_series = []
+        for i in range(days):
+            day = (cutoff + datetime.timedelta(days=i + 1)).date().isoformat()
+            creation_series.append((day, counts_by_date.get(day, 0)))
+
+        latest_release = (
+            select(Release.version)
+            .where(
+                Release.project_id == Project.id,
+                Release.yanked.is_(False),
+            )
+            .order_by(
+                Release.is_prerelease.nullslast(),
+                Release._pypi_ordering.desc(),
+            )
+            .limit(1)
+            .correlate(Project)
+            .scalar_subquery()
+            .label("latest_version")
+        )
+
+        recent_projects = request.db.execute(
+            select(
+                Project.name,
+                Project.normalized_name,
+                Project.created,
+                latest_release,
+            )
+            .where(Project.created.isnot(None))
+            .order_by(Project.created.desc())
+            .limit(10)
+        ).all()
+
+        return {
+            "query": None,
+            "days": days,
+            "allowed_days": ALLOWED_DAYS,
+            "creation_series": creation_series,
+            "recent_projects": recent_projects,
+        }
+
+    # Search mode
+    try:
+        page_num = int(request.params.get("page", 1))
+    except ValueError:
+        raise HTTPBadRequest("'page' must be an integer.") from None
+
     projects_query = request.db.query(Project).order_by(Project.normalized_name)
     exact_match = None
 
-    if q:
-        if q.startswith("id:"):
-            projects_query = projects_query.filter(Project.id == project_id)
-        else:
-            projects_query = projects_query.filter(
-                func.ultranormalize_name(Project.name) == func.ultranormalize_name(q)
-            )
+    if q.startswith("id:"):
+        projects_query = projects_query.filter(Project.id == project_id)
+    else:
+        projects_query = projects_query.filter(
+            func.ultranormalize_name(Project.name) == func.ultranormalize_name(q)
+        )
 
-            exact_match = (
-                request.db.query(Project)
-                .filter(Project.normalized_name == q)
-                .one_or_none()
-            )
+        exact_match = (
+            request.db.query(Project).filter(Project.normalized_name == q).one_or_none()
+        )
 
     projects = SQLAlchemyORMPage(
         projects_query,
