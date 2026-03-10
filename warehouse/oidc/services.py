@@ -364,6 +364,20 @@ class OIDCPublisherService:
             tags=metrics_tags,
         )
 
+        # Verify that the JWT's issuer matches this service's canonical issuer URL.
+        # Without this check, a custom issuer (e.g. GHES) registered with a
+        # provider type like "github" could forge JWTs that match publishers
+        # registered under the canonical GitHub issuer.
+        if signed_claims["iss"] != self.issuer_url:
+            self.metrics.increment(
+                "warehouse.oidc.find_publisher.issuer_url_mismatch",
+                tags=metrics_tags,
+            )
+            raise InvalidPublisherError(
+                f"JWT issuer {signed_claims['iss']!r} does not match "
+                f"expected issuer {self.issuer_url!r}"
+            )
+
         try:
             publisher = find_publisher_by_issuer(
                 self.db, self.issuer_url, signed_claims, pending=pending
