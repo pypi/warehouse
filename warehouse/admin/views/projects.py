@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import shlex
+import uuid
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
@@ -50,17 +51,28 @@ def project_list(request):
     except ValueError:
         raise HTTPBadRequest("'page' must be an integer.") from None
 
+    if q and q.startswith("id:"):
+        try:
+            project_id = uuid.UUID(q[3:])
+        except ValueError:
+            raise HTTPBadRequest("Invalid UUID.") from None
+
     projects_query = request.db.query(Project).order_by(Project.normalized_name)
     exact_match = None
 
     if q:
-        projects_query = projects_query.filter(
-            func.ultranormalize_name(Project.name) == func.ultranormalize_name(q)
-        )
+        if q.startswith("id:"):
+            projects_query = projects_query.filter(Project.id == project_id)
+        else:
+            projects_query = projects_query.filter(
+                func.ultranormalize_name(Project.name) == func.ultranormalize_name(q)
+            )
 
-        exact_match = (
-            request.db.query(Project).filter(Project.normalized_name == q).one_or_none()
-        )
+            exact_match = (
+                request.db.query(Project)
+                .filter(Project.normalized_name == q)
+                .one_or_none()
+            )
 
     projects = SQLAlchemyORMPage(
         projects_query,

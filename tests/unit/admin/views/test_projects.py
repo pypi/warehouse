@@ -72,6 +72,36 @@ class TestProjectList:
             "exact_match": None,
         }
 
+    def test_id_query(self, db_request):
+        projects = ProjectFactory.create_batch(3)
+        target = projects[1]
+        db_request.GET["q"] = f"id:{target.id}"
+        result = views.project_list(db_request)
+
+        assert result == {
+            "projects": [target],
+            "query": f"id:{target.id}",
+            "exact_match": None,
+        }
+
+    def test_id_query_not_found(self, db_request):
+        ProjectFactory.create()
+        missing_id = uuid.uuid4()
+        db_request.GET["q"] = f"id:{missing_id}"
+        result = views.project_list(db_request)
+
+        assert result == {
+            "projects": [],
+            "query": f"id:{missing_id}",
+            "exact_match": None,
+        }
+
+    def test_id_query_invalid_uuid(self):
+        request = pretend.stub(params={"q": "id:not-a-uuid"})
+
+        with pytest.raises(HTTPBadRequest):
+            views.project_list(request)
+
 
 class TestProjectDetail:
     def test_gets_project(self, db_request):
