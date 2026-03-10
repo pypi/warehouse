@@ -12,6 +12,7 @@ from pyramid.httpexceptions import HTTPNotFound
 from pyramid.view import view_config
 from sqlalchemy import select
 
+from warehouse.admin.views.helpers import parse_days_param
 from warehouse.authnz import Permissions
 from warehouse.observations.models import Observation, Observer
 from warehouse.observations.utils import calc_accuracy, classify_observation
@@ -19,19 +20,7 @@ from warehouse.observations.utils import calc_accuracy, classify_observation
 if TYPE_CHECKING:
     from pyramid.request import Request
 
-# Valid time periods for filtering
-ALLOWED_DAYS = (30, 60, 90)
 ALLOWED_DAYS_DETAIL = (30, 60, 90, 0)  # 0 = lifetime (no limit)
-DEFAULT_DAYS = 30
-
-
-def _parse_days_param(request: Request, allowed: tuple[int, ...] = ALLOWED_DAYS) -> int:
-    """Parse and validate the days query parameter."""
-    try:
-        days = int(request.params.get("days", DEFAULT_DAYS))
-        return days if days in allowed else DEFAULT_DAYS
-    except (ValueError, TypeError):
-        return DEFAULT_DAYS
 
 
 def _get_malware_observations(request: Request, days: int):
@@ -242,7 +231,7 @@ def _get_observer_time_series(request: Request, observer: Observer, days: int) -
 )
 def observer_reputation_dashboard(request: Request):
     """Display the Observer reputation dashboard with statistics and charts."""
-    days = _parse_days_param(request)
+    days = parse_days_param(request)
 
     # Single query for all observations - used by both stats and time series
     observations = _get_malware_observations(request, days)
@@ -292,7 +281,7 @@ def observer_detail(request: Request):
     if not observer:
         raise HTTPNotFound("Observer not found")
 
-    days = _parse_days_param(request, allowed=ALLOWED_DAYS_DETAIL)
+    days = parse_days_param(request, allowed=ALLOWED_DAYS_DETAIL)
     categorized = _get_observer_detail_stats(request, observer, days)
     time_series = _get_observer_time_series(request, observer, days)
 
