@@ -2368,7 +2368,10 @@ class TestProvisionMacaroonViews:
         assert macaroon_service.delete_macaroon.calls == []
 
     def test_delete_macaroon(self, monkeypatch, pyramid_request):
-        macaroon = pretend.stub(description="fake macaroon", permissions_caveat="user")
+        macaroon = pretend.stub(
+            description="fake macaroon",
+            permissions_caveat={"permissions": "user"},
+        )
         macaroon_service = pretend.stub(
             delete_macaroon=pretend.call_recorder(lambda id: pretend.stub()),
             find_macaroon=pretend.call_recorder(lambda id: macaroon),
@@ -2474,7 +2477,7 @@ class TestProvisionMacaroonViews:
     ):
         macaroon = pretend.stub(
             description="fake macaroon",
-            permissions_caveat={"projects": ["foo", "bar"]},
+            permissions_caveat={"permissions": {"projects": ["foo", "bar"]}},
         )
         macaroon_service = pretend.stub(
             delete_macaroon=pretend.call_recorder(lambda id: pretend.stub()),
