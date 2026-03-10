@@ -1050,18 +1050,6 @@ def file_upload(request):
         request.db.add(release)
         is_new_release = True
 
-        # TODO: This should be handled by some sort of database trigger or
-        #       a SQLAlchemy hook or the like instead of doing it inline in
-        #       this view.
-        request.db.add(
-            JournalEntry(
-                name=release.project.name,
-                version=release.version,
-                action="new release",
-                submitted_by=request.user if request.user else None,
-            )
-        )
-
         project.record_event(
             tag=EventTag.Project.ReleaseAdd,
             request=request,
@@ -1626,20 +1614,6 @@ def file_upload(request):
             },
         )
 
-        # TODO: This should be handled by some sort of database trigger or a
-        #       SQLAlchemy hook or the like instead of doing it inline in this
-        #       view.
-        request.db.add(
-            JournalEntry(
-                name=release.project.name,
-                version=release.version,
-                action="add {python_version} file {filename}".format(
-                    python_version=file_.python_version, filename=file_.filename
-                ),
-                submitted_by=request.user if request.user else None,
-            )
-        )
-
         # If we have attestations from above, persist them.
         if attestations:
             request.db.add(
@@ -1702,6 +1676,34 @@ def file_upload(request):
             and release.download_url == download_url
         ):
             release.download_url_verified = True
+
+    # TODO: This should be handled by some sort of database trigger or
+    #       a SQLAlchemy hook or the like instead of doing it inline in
+    #       this view.
+    # NOTE: JournalEntries are intentionally deferred until here (after storage
+    #       upload) to minimize advisory lock hold time. ensure_monotonic_journals
+    #       acquires a global advisory lock whenever a JournalEntry is flushed.
+    #       Keeping them near the final flush prevents the lock from being held
+    #       through the S3 upload, reducing contention between concurrent uploads.
+    if is_new_release:
+        request.db.add(
+            JournalEntry(
+                name=release.project.name,
+                version=release.version,
+                action="new release",
+                submitted_by=request.user if request.user else None,
+            )
+        )
+    request.db.add(
+        JournalEntry(
+            name=release.project.name,
+            version=release.version,
+            action="add {python_version} file {filename}".format(
+                python_version=file_.python_version, filename=file_.filename
+            ),
+            submitted_by=request.user if request.user else None,
+        )
+    )
 
     request.db.flush()  # flush db now so server default values are populated for celery
 

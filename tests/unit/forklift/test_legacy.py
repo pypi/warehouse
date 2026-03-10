@@ -20,7 +20,7 @@ import pytest
 
 from pypi_attestations import Attestation, Envelope, VerificationMaterial
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPTooManyRequests
-from sqlalchemy import and_, exists
+from sqlalchemy import and_, event, exists
 from sqlalchemy.orm import joinedload
 from trove_classifiers import classifiers
 from webob.multidict import MultiDict
@@ -6748,3 +6748,121 @@ def test_missing_trailing_slash_redirect(pyramid_request):
         "/legacy/ (with a trailing slash)"
     )
     assert resp.headers["Location"] == "/legacy/"
+
+
+class TestFileUploadAdvisoryLockTiming:
+    """
+    Tests that JournalEntries are deferred until after the S3 storage
+    upload, minimizing advisory lock hold time.
+
+    The ensure_monotonic_journals listener acquires a global advisory lock
+    whenever a JournalEntry is flushed. If JournalEntries are added to the
+    session early, autoflush during record_event/ip_address queries causes
+    the advisory lock to be acquired early and held through the entire S3
+    upload. This serializes all uploads and causes severe lock contention
+    (including timeouts that manifest as "deadlocks" around macaroon updates
+    when concurrent uploads share the same API token).
+
+    The fix: defer JournalEntry creation until after storage upload, so the
+    advisory lock is only held for the final flush + commit.
+    """
+
+    def test_journal_entries_deferred_until_final_flush(
+        self,
+        tmpdir,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+    ):
+        """Verify that JournalEntries only appear in the final flush,
+        not in earlier autoflushes triggered by record_event or _sort_releases.
+
+        This ensures the advisory lock (acquired via ensure_monotonic_journals
+        before_flush listener) is held for the minimum possible time.
+        """
+        monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
+
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), "1.0"
+        )
+
+        db_request.user = user
+        identity = UserContext(user, pretend.stub())
+        pyramid_config.testing_securitypolicy(identity=identity)
+        db_request.user_agent = "warehouse-tests/6.6.6"
+
+        content = FieldStorage()
+        content.filename = filename
+        content.file = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
+        content.type = "application/tar"
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": content,
+            }
+        )
+
+        # Track storage calls to know when S3 upload happened relative to flushes
+        storage_calls = []
+
+        def track_store(path, filepath, meta):
+            storage_calls.append(path)
+
+        storage_service = pretend.stub(store=track_store)
+        db_request.find_service = pretend.call_recorder(
+            lambda svc, name=None, context=None: {
+                IFileStorage: storage_service,
+            }.get(svc)
+        )
+        db_request.registry.settings = {
+            "warehouse.release_files_table": None,
+        }
+        delay = pretend.call_recorder(lambda a: None)
+        db_request.task = pretend.call_recorder(lambda a: pretend.stub(delay=delay))
+
+        # Track flush events and whether storage upload has happened
+        flush_log = []
+
+        @event.listens_for(db_request.db, "before_flush")
+        def log_flush_contents(session, flush_context, instances):
+            flush_log.append(
+                {
+                    "new_types": sorted(type(o).__name__ for o in session.new),
+                    "has_journal": any(
+                        isinstance(obj, JournalEntry) for obj in session.new
+                    ),
+                    "storage_uploaded": len(storage_calls) > 0,
+                }
+            )
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+        assert storage_calls, "Expected at least one storage.store() call"
+
+        # Find flushes that contain JournalEntry
+        journal_flushes = [f for f in flush_log if f["has_journal"]]
+        assert journal_flushes, "Expected at least one flush containing a JournalEntry"
+
+        # The key assertion: every flush that contains a JournalEntry must
+        # happen AFTER the storage upload. If a JournalEntry appears in a
+        # flush before storage upload, the advisory lock would be held
+        # throughout the S3 upload, causing lock contention.
+        for f in journal_flushes:
+            assert f["storage_uploaded"], (
+                "JournalEntry was flushed BEFORE storage upload completed. "
+                "This means the advisory lock (from ensure_monotonic_journals) "
+                "is acquired early and held through the entire S3 upload, "
+                "serializing all concurrent uploads. "
+                f"Flush log: {flush_log}"
+            )
