@@ -428,11 +428,17 @@ into a shell, you can use `make debug` instead of `make serve`.
 
 * If the `Dockerfile` is edited or new dependencies are added
   (either by you or a prior pull request), a new container will need
-  to built. A new container can be built by running `make
+  to be built. A new container can be built by running `make
   build`. This should be done before running `make serve` again.
 
 * If `make serve` hangs after a new build, you should stop any
   running containers and repeat `make serve`.
+
+* If using Windows Subsystem for Linux (WSL) and running `code .` results in an
+  `Exec format error`, ensure that the VS Code WSL extension is installed and
+  that the project is opened using **"Open Folder in WSL"** from Visual Studio Code.
+
+  Reinstalling the VS Code server in WSL may also resolve the issue.
 
 * To run Warehouse behind a proxy set the appropriate proxy settings in the
   `Dockerfile`.
