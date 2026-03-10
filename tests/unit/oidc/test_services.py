@@ -200,6 +200,36 @@ class TestOIDCPublisherService:
             ),
         ]
 
+    def test_find_publisher_issuer_url_mismatch(self, metrics):
+        service = services.OIDCPublisherService(
+            session=pretend.stub(),
+            publisher="fakepublisher",
+            issuer_url="https://canonical.example.com",
+            audience="fakeaudience",
+            cache_url=pretend.stub(),
+            metrics=metrics,
+        )
+
+        claims = SignedClaims({"iss": "https://attacker.example.com"})
+        with pytest.raises(errors.InvalidPublisherError, match="does not match"):
+            service.find_publisher(claims)
+        assert service.metrics.increment.calls == [
+            pretend.call(
+                "warehouse.oidc.find_publisher.attempt",
+                tags=[
+                    "publisher:fakepublisher",
+                    "issuer_url:https://attacker.example.com",
+                ],
+            ),
+            pretend.call(
+                "warehouse.oidc.find_publisher.issuer_url_mismatch",
+                tags=[
+                    "publisher:fakepublisher",
+                    "issuer_url:https://attacker.example.com",
+                ],
+            ),
+        ]
+
     def test_find_publisher_issuer_lookup_fails(self, metrics, monkeypatch):
         issuer_url = "https://none"
         service = services.OIDCPublisherService(
@@ -267,10 +297,11 @@ class TestOIDCPublisherService:
         assert publisher.verify_claims.calls == [pretend.call(claims, service)]
 
     def test_find_publisher_reuse_token_fails(self, monkeypatch, mockredis, metrics):
+        issuer_url = "https://none"
         service = services.OIDCPublisherService(
             session=pretend.stub(),
             publisher="fakepublisher",
-            issuer_url=pretend.stub(),
+            issuer_url=issuer_url,
             audience="fakeaudience",
             cache_url="redis://fake.example.com",
             metrics=metrics,
@@ -292,7 +323,7 @@ class TestOIDCPublisherService:
 
         claims = SignedClaims(
             {
-                "iss": "foo",
+                "iss": issuer_url,
                 "iat": 1516239022,
                 "nbf": 1516239022,
                 "exp": expiration,
