@@ -314,7 +314,7 @@ class TestSemaphorePublisher:
             "ref_type:branch:ref:refs/heads/main"
         )
         assert semaphore._check_sub(
-            publisher.repo_slug,
+            publisher.sub,
             signed_claim,
             {},
         )
@@ -333,7 +333,7 @@ class TestSemaphorePublisher:
             "ref_type:branch:ref:refs/heads/main"
         )
         assert not semaphore._check_sub(
-            publisher.repo_slug,
+            publisher.sub,
             signed_claim,
             {},
         )
@@ -349,7 +349,7 @@ class TestSemaphorePublisher:
 
         signed_claim = "org:example-org:project:uuid-1234"
         assert not semaphore._check_sub(
-            publisher.repo_slug,
+            publisher.sub,
             signed_claim,
             {},
         )
@@ -363,7 +363,7 @@ class TestSemaphorePublisher:
             repo_slug="owner/repo",
         )
 
-        assert not semaphore._check_sub(publisher.repo_slug, "", {})
+        assert not semaphore._check_sub(publisher.sub, "", {})
 
     def test_check_sub_empty_repo_value(self):
         publisher = semaphore.SemaphorePublisher(
@@ -376,7 +376,7 @@ class TestSemaphorePublisher:
 
         signed_claim = "org:example-org:project:uuid-1234:repo::ref_type:branch"
         assert not semaphore._check_sub(
-            publisher.repo_slug,
+            publisher.sub,
             signed_claim,
             {},
         )
@@ -392,7 +392,7 @@ class TestSemaphorePublisher:
 
         signed_claim = "org:example-org:project:uuid-1234:repo:"
         assert not semaphore._check_sub(
-            publisher.repo_slug,
+            publisher.sub,
             signed_claim,
             {},
         )
@@ -408,7 +408,7 @@ class TestSemaphorePublisher:
 
         signed_claim = "incomplete:repo:"
         assert not semaphore._check_sub(
-            publisher.repo_slug,
+            publisher.sub,
             signed_claim,
             {},
         )
@@ -422,7 +422,7 @@ class TestSemaphorePublisher:
             repo_slug="owner/repo",
         )
 
-        assert publisher.jti == "placeholder"
+        assert publisher.jti == ""
 
     def test_attestation_identity(self):
         publisher = semaphore.SemaphorePublisher(
@@ -447,6 +447,47 @@ class TestSemaphorePublisher:
         db_request.db.flush()
 
         assert publisher.exists(db_request.db)
+
+    def test_exists_false(self, db_request):
+        publisher = semaphore.SemaphorePublisher(
+            organization="example-org",
+            semaphore_organization_id="org-id-1234",
+            project="example-project",
+            semaphore_project_id="proj-id-5678",
+            repo_slug="owner/repo",
+        )
+
+        assert not publisher.exists(db_request.db)
+
+    def test_check_sub_case_insensitive(self):
+        publisher = semaphore.SemaphorePublisher(
+            organization="example-org",
+            semaphore_organization_id="org-id-1234",
+            project="example-project",
+            semaphore_project_id="proj-id-5678",
+            repo_slug="owner/Repo",
+        )
+
+        signed_claim = (
+            "org:example-org:project:uuid-1234:repo:repo:"
+            "ref_type:branch:ref:refs/heads/main"
+        )
+        assert semaphore._check_sub(
+            publisher.sub,
+            signed_claim,
+            {},
+        )
+
+    def test_check_sub_none_claim(self):
+        publisher = semaphore.SemaphorePublisher(
+            organization="example-org",
+            semaphore_organization_id="org-id-1234",
+            project="example-project",
+            semaphore_project_id="proj-id-5678",
+            repo_slug="owner/repo",
+        )
+
+        assert not semaphore._check_sub(publisher.sub, None, {})
 
 
 class TestPendingSemaphorePublisher:

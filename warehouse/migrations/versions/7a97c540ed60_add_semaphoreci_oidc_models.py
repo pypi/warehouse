@@ -17,6 +17,17 @@ down_revision = "a25f3d5186a9"
 
 
 def upgrade():
+    op.execute(
+        """
+        INSERT INTO admin_flags(id, description, enabled, notify)
+        VALUES (
+            'disallow-semaphore-oidc',
+            'Disallow the SemaphoreCI OIDC provider',
+            TRUE,
+            FALSE
+        )
+        """
+    )
     op.create_table(
         "semaphore_oidc_publishers",
         sa.Column("organization", sa.String(), nullable=False),
@@ -66,3 +77,4 @@ def upgrade():
 def downgrade():
     op.drop_table("pending_semaphore_oidc_publishers")
     op.drop_table("semaphore_oidc_publishers")
+    op.execute("DELETE FROM admin_flags WHERE id = 'disallow-semaphore-oidc'")

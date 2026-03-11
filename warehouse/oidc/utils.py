@@ -96,7 +96,9 @@ def find_publisher_by_issuer(
 
     # Check if this is a SemaphoreCI issuer (org-specific URLs)
     publisher_cls: type[OIDCPublisher | PendingOIDCPublisher]
-    if issuer_url.endswith(SEMAPHORE_OIDC_ISSUER_URL_SUFFIX):
+    if issuer_url.startswith("https://") and issuer_url.endswith(
+        SEMAPHORE_OIDC_ISSUER_URL_SUFFIX
+    ):
         publisher_cls = PendingSemaphorePublisher if pending else SemaphorePublisher
     else:
         try:

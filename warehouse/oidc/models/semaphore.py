@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import typing
 
 from typing import Any, Self
@@ -24,6 +25,7 @@ from warehouse.oidc.models._core import (
 if typing.TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
+logger = logging.getLogger(__name__)
 
 SEMAPHORE_OIDC_ISSUER_URL_SUFFIX = ".semaphoreci.com"
 
@@ -40,17 +42,35 @@ def _check_sub(
     # ground_truth is in format "repo_slug:owner/repo", so we extract the repo_slug part
 
     # Extract the repo portion from the sub claim
-    if not signed_claim or ":repo:" not in signed_claim:
+    if not signed_claim:
+        logger.warning("SemaphoreCI: empty or missing sub claim")
+        return False
+
+    if ":repo:" not in signed_claim:
+        logger.warning(
+            "SemaphoreCI: unexpected sub claim format (missing ':repo:'): %s",
+            signed_claim,
+        )
         return False
 
     repo_in_sub = signed_claim.split(":repo:", 1)[1].split(":", 1)[0]
     if not repo_in_sub:
+        logger.warning(
+            "SemaphoreCI: empty repo value in sub claim: %s", signed_claim
+        )
         return False
 
     # Extract repo_slug from ground_truth (format: "repo_slug:owner/repo")
     repo_slug = ground_truth.removeprefix("repo_slug:")
+    if repo_slug == ground_truth:
+        logger.warning(
+            "SemaphoreCI: ground_truth missing 'repo_slug:' prefix: %s",
+            ground_truth,
+        )
+        return False
 
     # Extract just the repo name from repo_slug (owner/repo -> repo)
+    # NOTE: The owner portion is verified separately via the 'org' claim check.
     repo_name = repo_slug.split("/")[-1]
 
     # Compare case-insensitively
@@ -158,7 +178,9 @@ class SemaphorePublisherMixin:
 
     @property
     def jti(self) -> str:
-        return "placeholder"
+        # The ground truth value for JTI is not used by check_existing_jti;
+        # JTI uniqueness is checked against the Redis store instead.
+        return ""
 
     @property
     def publisher_base_url(self) -> str | None:

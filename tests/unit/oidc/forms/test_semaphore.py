@@ -13,9 +13,9 @@ class TestPendingSemaphorePublisherForm:
             MultiDict(
                 {
                     "organization": "example-org",
-                    "semaphore_organization_id": "org-id-1234",
+                    "semaphore_organization_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
                     "project": "example-project",
-                    "semaphore_project_id": "proj-id-5678",
+                    "semaphore_project_id": "b2c3d4e5-f6a7-8901-bcde-f01234567891",
                     "repo_slug": "owner/repo",
                     "project_name": "example-pypi-project",
                 }
@@ -83,7 +83,9 @@ class TestPendingSemaphorePublisherForm:
             MultiDict(
                 {
                     "organization": "example-org",
+                    "semaphore_organization_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
                     "project": "example-project",
+                    "semaphore_project_id": "b2c3d4e5-f6a7-8901-bcde-f01234567891",
                     "repo_slug": "invalid-format",
                     "project_name": "example-pypi-project",
                 }
@@ -101,7 +103,9 @@ class TestPendingSemaphorePublisherForm:
             MultiDict(
                 {
                     "organization": "invalid org!",
+                    "semaphore_organization_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
                     "project": "example-project",
+                    "semaphore_project_id": "b2c3d4e5-f6a7-8901-bcde-f01234567891",
                     "repo_slug": "owner/repo",
                     "project_name": "example-pypi-project",
                 }
@@ -120,7 +124,27 @@ class TestPendingSemaphorePublisherForm:
                 {
                     "organization": "example-org",
                     "project": "example-project",
-                    "semaphore_project_id": "proj-id-5678",
+                    "semaphore_project_id": "b2c3d4e5-f6a7-8901-bcde-f01234567891",
+                    "repo_slug": "owner/repo",
+                    "project_name": "example-pypi-project",
+                }
+            ),
+            route_url=pyramid_request.route_url,
+            check_project_name=lambda name: True,
+            user=pretend.stub(),
+        )
+
+        assert not form.validate()
+        assert "semaphore_organization_id" in form.errors
+
+    def test_validate_organization_id_uuid_format(self, pyramid_request):
+        form = forms.PendingSemaphorePublisherForm(
+            MultiDict(
+                {
+                    "organization": "example-org",
+                    "semaphore_organization_id": "not-a-uuid",
+                    "project": "example-project",
+                    "semaphore_project_id": "b2c3d4e5-f6a7-8901-bcde-f01234567891",
                     "repo_slug": "owner/repo",
                     "project_name": "example-pypi-project",
                 }
@@ -138,7 +162,7 @@ class TestPendingSemaphorePublisherForm:
             MultiDict(
                 {
                     "organization": "example-org",
-                    "semaphore_organization_id": "org-id-1234",
+                    "semaphore_organization_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
                     "project": "example-project",
                     "repo_slug": "owner/repo",
                     "project_name": "example-pypi-project",
@@ -152,13 +176,53 @@ class TestPendingSemaphorePublisherForm:
         assert not form.validate()
         assert "semaphore_project_id" in form.errors
 
+    def test_validate_project_id_uuid_format(self, pyramid_request):
+        form = forms.PendingSemaphorePublisherForm(
+            MultiDict(
+                {
+                    "organization": "example-org",
+                    "semaphore_organization_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                    "project": "example-project",
+                    "semaphore_project_id": "not-a-uuid",
+                    "repo_slug": "owner/repo",
+                    "project_name": "example-pypi-project",
+                }
+            ),
+            route_url=pyramid_request.route_url,
+            check_project_name=lambda name: True,
+            user=pretend.stub(),
+        )
+
+        assert not form.validate()
+        assert "semaphore_project_id" in form.errors
+
+    def test_validate_project_format(self, pyramid_request):
+        form = forms.PendingSemaphorePublisherForm(
+            MultiDict(
+                {
+                    "organization": "example-org",
+                    "semaphore_organization_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                    "project": "invalid project!",
+                    "semaphore_project_id": "b2c3d4e5-f6a7-8901-bcde-f01234567891",
+                    "repo_slug": "owner/repo",
+                    "project_name": "example-pypi-project",
+                }
+            ),
+            route_url=pyramid_request.route_url,
+            check_project_name=lambda name: True,
+            user=pretend.stub(),
+        )
+
+        assert not form.validate()
+        assert "project" in form.errors
+
     def test_provider_property(self, pyramid_request):
         form = forms.PendingSemaphorePublisherForm(
             data={
                 "organization": "example-org",
-                "organization_id": "org-id-1234",
+                "semaphore_organization_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
                 "project": "example-project",
-                "project_id": "proj-id-5678",
+                "semaphore_project_id": "b2c3d4e5-f6a7-8901-bcde-f01234567891",
                 "repo_slug": "owner/repo",
                 "project_name": "example-pypi-project",
             },
@@ -176,9 +240,9 @@ class TestSemaphorePublisherForm:
             MultiDict(
                 {
                     "organization": "example-org",
-                    "semaphore_organization_id": "org-id-1234",
+                    "semaphore_organization_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
                     "project": "example-project",
-                    "semaphore_project_id": "proj-id-5678",
+                    "semaphore_project_id": "b2c3d4e5-f6a7-8901-bcde-f01234567891",
                     "repo_slug": "owner/repo",
                 }
             )
@@ -190,9 +254,9 @@ class TestSemaphorePublisherForm:
         form = forms.SemaphorePublisherForm(
             MultiDict(
                 {
-                    "semaphore_organization_id": "org-id-1234",
+                    "semaphore_organization_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
                     "project": "example-project",
-                    "semaphore_project_id": "proj-id-5678",
+                    "semaphore_project_id": "b2c3d4e5-f6a7-8901-bcde-f01234567891",
                     "repo_slug": "owner/repo",
                 }
             )
@@ -206,8 +270,8 @@ class TestSemaphorePublisherForm:
             MultiDict(
                 {
                     "organization": "example-org",
-                    "semaphore_organization_id": "org-id-1234",
-                    "semaphore_project_id": "proj-id-5678",
+                    "semaphore_organization_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                    "semaphore_project_id": "b2c3d4e5-f6a7-8901-bcde-f01234567891",
                     "repo_slug": "owner/repo",
                 }
             )
@@ -221,9 +285,9 @@ class TestSemaphorePublisherForm:
             MultiDict(
                 {
                     "organization": "example-org",
-                    "semaphore_organization_id": "org-id-1234",
+                    "semaphore_organization_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
                     "project": "example-project",
-                    "semaphore_project_id": "proj-id-5678",
+                    "semaphore_project_id": "b2c3d4e5-f6a7-8901-bcde-f01234567891",
                 }
             )
         )
@@ -237,7 +301,7 @@ class TestSemaphorePublisherForm:
                 {
                     "organization": "example-org",
                     "project": "example-project",
-                    "semaphore_project_id": "proj-id-5678",
+                    "semaphore_project_id": "b2c3d4e5-f6a7-8901-bcde-f01234567891",
                     "repo_slug": "owner/repo",
                 }
             )
@@ -251,7 +315,7 @@ class TestSemaphorePublisherForm:
             MultiDict(
                 {
                     "organization": "example-org",
-                    "semaphore_organization_id": "org-id-1234",
+                    "semaphore_organization_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
                     "project": "example-project",
                     "repo_slug": "owner/repo",
                 }

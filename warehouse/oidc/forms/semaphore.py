@@ -27,18 +27,32 @@ class SemaphorePublisherBase(wtforms.Form):
     semaphore_organization_id = wtforms.StringField(
         validators=[
             wtforms.validators.InputRequired(message="Specify organization ID"),
+            wtforms.validators.Regexp(
+                r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-"
+                r"[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+                message="Invalid organization ID format, expected a UUID",
+            ),
         ]
     )
 
     project = wtforms.StringField(
         validators=[
             wtforms.validators.InputRequired(message="Specify project name"),
+            wtforms.validators.Regexp(
+                r"^[a-zA-Z0-9](?:[a-zA-Z0-9._-]*[a-zA-Z0-9])?$",
+                message="Invalid project name",
+            ),
         ]
     )
 
     semaphore_project_id = wtforms.StringField(
         validators=[
             wtforms.validators.InputRequired(message="Specify project ID"),
+            wtforms.validators.Regexp(
+                r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-"
+                r"[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+                message="Invalid project ID format, expected a UUID",
+            ),
         ]
     )
 
@@ -51,9 +65,6 @@ class SemaphorePublisherBase(wtforms.Form):
             ),
         ]
     )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
 
 
 class PendingSemaphorePublisherForm(SemaphorePublisherBase, PendingPublisherMixin):

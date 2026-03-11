@@ -147,11 +147,17 @@ def mint_token_from_oidc(request: Request):
     # Associate the given issuer claim with Warehouse's OIDCPublisherService.
     # First, try the standard issuers
     service_name = OIDC_ISSUER_SERVICE_NAMES.get(unverified_issuer)
-    # Check for Semaphore (org-specific issuer URLs)
+    # Check for Semaphore (org-specific issuer URLs like https://<org>.semaphoreci.com)
     if not service_name and unverified_issuer.endswith(
         SEMAPHORE_OIDC_ISSUER_URL_SUFFIX
     ):
-        service_name = "semaphore"
+        if unverified_issuer.startswith("https://"):
+            service_name = "semaphore"
+        else:
+            sentry_sdk.capture_message(
+                f"Semaphore-like issuer rejected due to non-HTTPS scheme: "
+                f"{unverified_issuer}"
+            )
     # If not in global mapping, check for organization-specific custom issuer
     if not service_name:
         service_name = lookup_custom_issuer_type(request.db, unverified_issuer)
@@ -174,7 +180,11 @@ def mint_token_from_oidc(request: Request):
     # For most issuers, we can look up the flag directly in the mapping
     # For Semaphore, which uses org-specific issuer URLs, we check the suffix
     admin_flag = OIDC_ISSUER_ADMIN_FLAGS.get(unverified_issuer)
-    if not admin_flag and unverified_issuer.endswith(SEMAPHORE_OIDC_ISSUER_URL_SUFFIX):
+    if (
+        not admin_flag
+        and unverified_issuer.startswith("https://")
+        and unverified_issuer.endswith(SEMAPHORE_OIDC_ISSUER_URL_SUFFIX)
+    ):
         admin_flag = AdminFlagValue.DISALLOW_SEMAPHORE_OIDC
 
     if request.flags.disallow_oidc(admin_flag):
