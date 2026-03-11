@@ -118,6 +118,212 @@ class TestManageUnverifiedAccount:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the/url"
 
+    @pytest.mark.parametrize(
+        ("has_old_primary", "expected_old_address"),
+        [
+            (True, "typo@exmaple.com"),
+            (False, None),
+        ],
+    )
+    def test_change_unverified_primary_email(
+        self, monkeypatch, has_old_primary, expected_old_address
+    ):
+        old_email = (
+            pretend.stub(id=1, email="typo@exmaple.com", verified=False, primary=True)
+            if has_old_primary
+            else None
+        )
+        new_email = pretend.stub(id=2, email="correct@example.com")
+        user = pretend.stub(
+            id=pretend.stub(),
+            username="testuser",
+            name="Test",
+            has_primary_verified_email=False,
+            has_two_factor=False,
+            emails=[old_email] if old_email else [],
+            projects=[],
+            primary_email=old_email,
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        user_service = pretend.stub(
+            add_email=pretend.call_recorder(lambda *a, **kw: new_email),
+        )
+        request = pretend.stub(
+            POST={"change_unverified_primary_email": "correct@example.com"},
+            user=user,
+            db=pretend.stub(
+                delete=pretend.call_recorder(lambda obj: None),
+                flush=lambda: None,
+            ),
+            find_service=lambda svc, *a, **kw: {
+                IRateLimiter: pretend.stub(
+                    test=lambda *a: True,
+                    hit=lambda *a: None,
+                ),
+            }.get(svc, user_service),
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            ),
+            remote_addr="1.2.3.4",
+            route_path=lambda *a, **kw: "/manage/unverified/",
+        )
+        form_obj = pretend.stub(
+            validate=lambda: True,
+            email=pretend.stub(data="correct@example.com"),
+        )
+        monkeypatch.setattr(
+            views, "ChangeUnverifiedPrimaryEmailForm", lambda *a, **kw: form_obj
+        )
+
+        send_email = pretend.call_recorder(lambda *a: None)
+        monkeypatch.setattr(views, "send_email_verification_email", send_email)
+
+        view = views.ManageUnverifiedAccountViews(request)
+        result = view.change_unverified_primary_email()
+
+        assert isinstance(result, HTTPSeeOther)
+        if has_old_primary:
+            assert request.db.delete.calls == [pretend.call(old_email)]
+        else:
+            assert request.db.delete.calls == []
+        assert user_service.add_email.calls == [
+            pretend.call(user.id, "correct@example.com", primary=True, ratelimit=False)
+        ]
+        assert send_email.calls == [pretend.call(request, (user, new_email))]
+        assert user.record_event.calls == [
+            pretend.call(
+                tag=EventTag.Account.EmailPrimaryChange,
+                request=request,
+                additional={
+                    "old_primary": expected_old_address,
+                    "new_primary": "correct@example.com",
+                },
+            )
+        ]
+
+    def test_change_unverified_primary_email_validation_fails(self, monkeypatch):
+        user = pretend.stub(
+            id=pretend.stub(),
+            username="testuser",
+            name="Test",
+            has_primary_verified_email=False,
+            has_two_factor=False,
+            emails=[],
+            projects=[],
+        )
+        user_service = pretend.stub()
+        request = pretend.stub(
+            POST={"change_unverified_primary_email": "bad"},
+            user=user,
+            find_service=lambda svc, *a, **kw: {
+                IRateLimiter: pretend.stub(test=lambda *a: True),
+            }.get(svc, user_service),
+            help_url=lambda *a, **kw: "/help",
+            remote_addr="1.2.3.4",
+        )
+        form_obj = pretend.stub(validate=lambda: False)
+        form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
+        monkeypatch.setattr(views, "ChangeUnverifiedPrimaryEmailForm", form_class)
+
+        view = views.ManageUnverifiedAccountViews(request)
+        result = view.change_unverified_primary_email()
+
+        assert result == {
+            "help_url": "/help",
+            "change_unverified_primary_email_form": form_obj,
+        }
+
+    def test_change_unverified_primary_email_blocked_if_verified(self):
+        request = pretend.stub(
+            POST={"change_unverified_primary_email": "new@example.com"},
+            user=pretend.stub(
+                id=pretend.stub(),
+                username="testuser",
+                has_primary_verified_email=True,
+            ),
+            find_service=lambda *a, **kw: pretend.stub(),
+            route_path=lambda *a, **kw: "/manage/account/",
+        )
+        view = views.ManageUnverifiedAccountViews(request)
+        result = view.change_unverified_primary_email()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/manage/account/"
+
+    @pytest.mark.parametrize(
+        ("has_two_factor", "projects", "expected_message"),
+        [
+            (
+                True,
+                [],
+                "Cannot change email address on accounts with two-factor "
+                "authentication enabled",
+            ),
+            (
+                False,
+                [pretend.stub()],
+                "Cannot change email address on accounts with projects",
+            ),
+        ],
+    )
+    def test_change_unverified_primary_email_blocked(
+        self, has_two_factor, projects, expected_message
+    ):
+        request = pretend.stub(
+            POST={"change_unverified_primary_email": "new@example.com"},
+            user=pretend.stub(
+                id=pretend.stub(),
+                username="testuser",
+                has_primary_verified_email=False,
+                has_two_factor=has_two_factor,
+                projects=projects,
+            ),
+            find_service=lambda *a, **kw: pretend.stub(),
+            route_path=lambda *a, **kw: "/manage/unverified/",
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            ),
+        )
+        view = views.ManageUnverifiedAccountViews(request)
+        result = view.change_unverified_primary_email()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert request.session.flash.calls == [
+            pretend.call(expected_message, queue="error")
+        ]
+
+    def test_change_unverified_primary_email_rate_limited(self):
+        user = pretend.stub(
+            id=pretend.stub(),
+            username="testuser",
+            has_primary_verified_email=False,
+            has_two_factor=False,
+            emails=[],
+            projects=[],
+        )
+        request = pretend.stub(
+            POST={"change_unverified_primary_email": "new@example.com"},
+            user=user,
+            find_service=lambda svc, *a, **kw: {
+                IRateLimiter: pretend.stub(test=lambda *a: False),
+            }.get(svc, pretend.stub()),
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            ),
+            remote_addr="1.2.3.4",
+            route_path=lambda *a, **kw: "/manage/unverified/",
+        )
+        view = views.ManageUnverifiedAccountViews(request)
+        result = view.change_unverified_primary_email()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert request.session.flash.calls == [
+            pretend.call(
+                "Too many email change attempts. Try again later.",
+                queue="error",
+            )
+        ]
+
 
 class TestManageAccount:
     @pytest.mark.parametrize(
