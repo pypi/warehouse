@@ -116,11 +116,6 @@ package.
     The following methods are considered unsupported and will be deprecated
     in the future.
 
-### `package_roles(package_name)`
-
-Retrieve a list of `[role, user]` for a given `package_name`.
-Role is either `Maintainer` or `Owner`.
-
 ### `user_packages(user)`
 
 Retrieve a list of `[role, package_name]` for a given `user`.
@@ -183,3 +178,8 @@ URLs for a given release.
 Use the [JSON API](https://docs.pypi.org/api/json/) or
 [Index API](https://docs.pypi.org/api/index-api/) to query for metadata of a
 given release.
+
+### `package_roles(package_name)`
+
+Use the [JSON API](https://docs.pypi.org/api/json/) `ownership` key to
+query for roles of a given project.

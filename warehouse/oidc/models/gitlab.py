@@ -212,6 +212,7 @@ class GitLabPublisherMixin:
         "job_namespace_path",
         "job_project_id",
         "job_project_path",
+        "job_source",
     }
 
     # Get the most specific publisher from a list of publishers,

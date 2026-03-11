@@ -3,6 +3,7 @@
 {% set user = request.user %}
 {% set organizations = user.organizations %}
 {% set active_tab = active_tab|default('collaborators') %}
+{% set can_manage = request.has_permission(Permissions.OrganizationsManage) %}
 {% block title %}
   {% trans organization_name=organization.name %}Manage '{{ organization_name }}'{% endtrans %}
 {% endblock %}

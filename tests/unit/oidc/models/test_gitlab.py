@@ -273,6 +273,7 @@ class TestGitLabPublisher:
             "job_namespace_path",
             "job_project_id",
             "job_project_path",
+            "job_source",
         }
 
     def test_gitlab_publisher_computed_properties(self):

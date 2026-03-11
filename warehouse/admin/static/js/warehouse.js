@@ -175,7 +175,7 @@ if (malwareReportsTable.length) {
   let table = malwareReportsTable.DataTable({
     displayLength: 25,
     lengthChange: false,
-    order: [[0, "asc"], [2, "desc"]],  // alpha name, recent date
+    order: [[1, "desc"], [0, "asc"], [3, "desc"]],  // report count, alpha name, recent date
     responsive: true,
     rowGroup: {
       dataSrc: 0,
@@ -185,8 +185,21 @@ if (malwareReportsTable.length) {
       },
     },
   });
-  // hide the project name, since it's in the group title
-  table.columns([0]).visible(false);
+  // hide the project name and count, since they're in the group title
+  table.columns([0, 1]).visible(false);
+  new $.fn.dataTable.Buttons(table, {buttons: ["copy", "csv", "colvis"]});
+  table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
+}
+
+// Sponsors
+let sponsorsTable = $("#sponsors");
+if (sponsorsTable.length) {
+  let table = sponsorsTable.DataTable({
+    displayLength: 50,
+    responsive: true,
+    lengthChange: false,
+    order: [[3, "asc"], [1, "asc"]],  // level order, alpha name
+  });
   new $.fn.dataTable.Buttons(table, {buttons: ["copy", "csv", "colvis"]});
   table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
 }

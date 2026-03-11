@@ -857,16 +857,11 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
                 tag=EventTag.Account.PasswordResetAttempt,
                 request=request,
             )
-            request.session.flash(
-                request._(
-                    (
-                        "Automated password reset prohibited for your user. "
-                        "Contact a PyPI administrator for assistance"
-                    ),
-                ),
-                queue="error",
-            )
-            return HTTPSeeOther(request.route_path("accounts.request-password-reset"))
+            # Return the same response as a normal reset to avoid leaking
+            # whether this account holds elevated privileges.
+            token_service = request.find_service(ITokenService, name="password")
+            n_hours = token_service.max_age // 60 // 60
+            return {"n_hours": n_hours}
 
     return {"form": form}
 
@@ -1197,6 +1192,8 @@ def verify_organization_role(request):
     )
     if not organization_invite:
         return _error(request._("Organization invitation no longer exists."))
+    if organization_invite.token != token:
+        return _error(request._("Organization invitation is not valid."))
 
     # Use the renderer to bring up a confirmation page
     # before adding as contributor
@@ -1375,6 +1372,8 @@ def verify_project_role(request):
 
     if not role_invite:
         return _error(request._("Role invitation no longer exists."))
+    if role_invite.token != token:
+        return _error(request._("Role invitation is not valid."))
 
     # Use the renderer to bring up a confirmation page
     # before adding as contributor

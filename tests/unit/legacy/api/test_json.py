@@ -10,12 +10,14 @@ from warehouse.packaging.models import LifecycleStatus, ReleaseURL
 
 from ....common.db.accounts import UserFactory
 from ....common.db.integrations import VulnerabilityRecordFactory
+from ....common.db.organizations import OrganizationProjectFactory
 from ....common.db.packaging import (
     DescriptionFactory,
     FileFactory,
     JournalEntryFactory,
     ProjectFactory,
     ReleaseFactory,
+    RoleFactory,
 )
 
 
@@ -355,6 +357,10 @@ class TestJSONProject:
             ],
             "last_serial": je.id,
             "vulnerabilities": [],
+            "ownership": {
+                "roles": [],
+                "organization": None,
+            },
         }
 
 
@@ -597,6 +603,10 @@ class TestJSONRelease:
             ],
             "last_serial": je.id,
             "vulnerabilities": [],
+            "ownership": {
+                "roles": [],
+                "organization": None,
+            },
         }
 
     def test_minimal_renders(self, pyramid_config, db_request):
@@ -691,6 +701,10 @@ class TestJSONRelease:
             ],
             "last_serial": je.id,
             "vulnerabilities": [],
+            "ownership": {
+                "roles": [],
+                "organization": None,
+            },
         }
 
     @pytest.mark.parametrize("withdrawn", [None, "2022-06-28T16:39:06Z"])
@@ -730,6 +744,54 @@ class TestJSONRelease:
                 "withdrawn": withdrawn,
             },
         ]
+        assert result["ownership"] == {"roles": [], "organization": None}
+
+    def test_ownership_with_organization(self, pyramid_config, db_request):
+        release = ReleaseFactory.create()
+        project = release.project
+
+        org_project = OrganizationProjectFactory.create(project=project)
+
+        # Create roles out of insertion order to verify sorting:
+        # Owners before Maintainers, then alphabetical within each role.
+        RoleFactory.create(
+            role_name="Maintainer",
+            user=UserFactory.create(username="charlie"),
+            project=project,
+        )
+        RoleFactory.create(
+            role_name="Owner",
+            user=UserFactory.create(username="bob"),
+            project=project,
+        )
+        RoleFactory.create(
+            role_name="Owner",
+            user=UserFactory.create(username="alice"),
+            project=project,
+        )
+        RoleFactory.create(
+            role_name="Maintainer",
+            user=UserFactory.create(username="dave"),
+            project=project,
+        )
+
+        db_request.route_url = pretend.call_recorder(lambda *args, **kw: "/url/")
+        db_request.matchdict = {
+            "name": project.normalized_name,
+            "version": release.canonical_version,
+        }
+
+        result = json.json_release(release, db_request)
+
+        assert result["ownership"] == {
+            "roles": [
+                {"role": "Owner", "user": "alice"},
+                {"role": "Owner", "user": "bob"},
+                {"role": "Maintainer", "user": "charlie"},
+                {"role": "Maintainer", "user": "dave"},
+            ],
+            "organization": org_project.organization.name,
+        }
 
 
 class TestJSONReleaseSlash:

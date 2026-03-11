@@ -11,8 +11,10 @@ from warehouse.accounts.interfaces import (
 )
 from warehouse.accounts.oauth import (
     GitHubAppClient,
+    GitLabOAuthClient,
     IOAuthProviderService,
-    NullOAuthClient,
+    NullGitHubOAuthClient,
+    NullGitLabOAuthClient,
 )
 from warehouse.accounts.security_policy import (
     BasicAuthSecurityPolicy,
@@ -46,7 +48,9 @@ __all__ = [
     "NullEmailBreachedService",
     "HaveIBeenPwnedEmailBreachedService",
     "GitHubAppClient",
-    "NullOAuthClient",
+    "GitLabOAuthClient",
+    "NullGitHubOAuthClient",
+    "NullGitLabOAuthClient",
 ]
 
 
@@ -145,15 +149,21 @@ def includeme(config):
         domain_status_class.create_service, IDomainStatusService
     )
 
-    # Register our GitHub App service for account associations.
-    # Setting must be explicitly configured - use NullOAuthClient for development
-    # or GitHubAppClient for production with real GitHub App integration.
-    github_app_class = config.maybe_dotted(
+    # Register GitHub OAuth service for account associations.
+    github_oauth_class = config.maybe_dotted(
         config.registry.settings["github.oauth.backend"]
     )
     config.register_service_factory(
-        github_app_class.create_service, IOAuthProviderService, name="github"
+        github_oauth_class.create_service, IOAuthProviderService, name="github"
     )
+    # Register GitLab OAuth service for account associations (optional).
+    # Only enabled when GITLAB_OAUTH_BACKEND is configured.
+    gitlab_oauth_backend = config.registry.settings.get("gitlab.oauth.backend")
+    if gitlab_oauth_backend:
+        gitlab_oauth_class = config.maybe_dotted(gitlab_oauth_backend)
+        config.register_service_factory(
+            gitlab_oauth_class.create_service, IOAuthProviderService, name="gitlab"
+        )
 
     # Register our security policies.
     config.set_security_policy(

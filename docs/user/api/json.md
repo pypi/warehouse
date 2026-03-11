@@ -269,7 +269,14 @@ Accept: application/json
               "yanked_reason": null
             }
         ],
-        "vulnerabilities": []
+        "vulnerabilities": [],
+        "ownership": {
+            "roles": [
+                {"role": "Owner", "user": "theacodes"},
+                {"role": "Maintainer", "user": "pypa-bot"}
+            ],
+            "organization": "pypa"
+        }
     }
     ```
 
@@ -430,9 +437,29 @@ Accept: application/json
             "yanked_reason": null
           }
         ],
-        "vulnerabilities": []
+        "vulnerabilities": [],
+        "ownership": {
+            "roles": [
+                {"role": "Owner", "user": "theacodes"},
+                {"role": "Maintainer", "user": "pypa-bot"}
+            ],
+            "organization": "pypa"
+        }
     }
     ```
+
+#### Ownership
+
+The `ownership` key provides information about the project's roles and
+organization membership. It contains two fields:
+
+* `roles`: A list of `{"role": "<role>", "user": "<username>"}` objects
+  representing the project's owners and maintainers.
+  Roles are sorted with `Owner` before `Maintainer`,
+  then alphabetically by username within each role.
+  This is an empty list when the project has no roles assigned.
+* `organization`: The URL slug of the organization that owns the project (e.g. `"pypa"`),
+  or `null` if the project is not owned by an organization.
 
 #### Known vulnerabilities
 
@@ -498,4 +525,5 @@ For example, here is what a withdrawn vulnerability might look like:
 
 
 [Index API]: ./index-api.md
+[`package_roles`]: https://docs.pypi.org/api/xml-rpc/#package_rolespackage_name
 [known vulnerabilities]: https://github.com/pypa/advisory-database

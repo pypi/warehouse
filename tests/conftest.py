@@ -3,6 +3,7 @@
 import os
 import os.path
 import re
+import time
 import xmlrpc.client
 
 from collections import defaultdict
@@ -39,7 +40,7 @@ from warehouse.accounts.interfaces import (
     ITokenService,
     IUserService,
 )
-from warehouse.accounts.oauth import IOAuthProviderService, NullOAuthClient
+from warehouse.accounts.oauth import IOAuthProviderService, NullGitHubOAuthClient
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.attestations import services as attestations_services
 from warehouse.attestations.interfaces import IIntegrityService
@@ -167,7 +168,7 @@ def pyramid_services(
     search_service,
     domain_status_service,
     ratelimit_service,
-    oauth_provider_service,
+    github_oauth_provider_service,
 ):
     services = _Services()
 
@@ -197,7 +198,7 @@ def pyramid_services(
     services.register_service(ratelimit_service, IRateLimiter, name="email.add")
     services.register_service(ratelimit_service, IRateLimiter, name="email.verify")
     services.register_service(
-        oauth_provider_service, IOAuthProviderService, name="github"
+        github_oauth_provider_service, IOAuthProviderService, name="github"
     )
 
     return services
@@ -267,11 +268,11 @@ def cli():
 @pytest.fixture(scope="session")
 def database(request, worker_id):
     config = get_config(request)
-    pg_host = config.get("host")
-    pg_port = config.get("port") or os.environ.get("PGPORT", 5432)
-    pg_user = config.get("user")
+    pg_host = config.host
+    pg_port = config.port or os.environ.get("PGPORT", 5432)
+    pg_user = config.user
     pg_db = f"tests-{worker_id}"
-    pg_version = config.get("version", 16.1)
+    pg_version = 17
 
     janitor = DatabaseJanitor(
         user=pg_user,
@@ -353,7 +354,8 @@ def get_app_config(database, nondefaults=None):
         "oidc.jwk_cache_url": "redis://localhost:0/",
         "warehouse.oidc.audience": "pypi",
         "oidc.backend": "warehouse.oidc.services.NullOIDCPublisherService",
-        "github.oauth.backend": "warehouse.accounts.oauth.NullOAuthClient",
+        "github.oauth.backend": "warehouse.accounts.oauth.NullGitHubOAuthClient",
+        "gitlab.oauth.backend": "warehouse.accounts.oauth.NullGitLabOAuthClient",
         "captcha.backend": "warehouse.captcha.hcaptcha.Service",
     }
 
@@ -416,6 +418,7 @@ def app_config_dbsession_from_env(database):
     nondefaults = {
         "warehouse.db_create_session": lambda r: r.environ.get("warehouse.db_session"),
         "breached_passwords.backend": "warehouse.accounts.services.NullPasswordBreachedService",  # noqa: E501
+        "token.email.secret": "insecure token",
         "token.two_factor.secret": "insecure token",
         # A running redis service is required for functional web sessions
         "sessions.url": "redis://redis:0/",
@@ -571,8 +574,8 @@ def ratelimit_service(mocker):
 
 
 @pytest.fixture
-def oauth_provider_service(mocker):
-    service = NullOAuthClient()
+def github_oauth_provider_service(mocker):
+    service = NullGitHubOAuthClient(redirect_uri="http://localhost/callback")
     mocker.spy(service, "generate_authorize_url")
     mocker.spy(service, "exchange_code_for_token")
     mocker.spy(service, "get_user_info")
@@ -697,6 +700,23 @@ def make_email_renderers(pyramid_config):
 
 
 class _TestApp(_webtest.TestApp):
+    def __init__(self, app, engine, **kwargs):
+        super().__init__(app, **kwargs)
+        self._engine = engine
+        self.query_recorder = QueryRecorder()
+        event.listen(self._engine, "before_cursor_execute", self.query_recorder.record)
+
+    def do_request(self, *args, **kwargs):
+        self.query_recorder.clear()
+        self.query_recorder.start()
+        try:
+            return super().do_request(*args, **kwargs)
+        finally:
+            self.query_recorder.stop()
+
+    def close(self):
+        event.remove(self._engine, "before_cursor_execute", self.query_recorder.record)
+
     def xmlrpc(self, path, method, *args):
         body = xmlrpc.client.dumps(args, methodname=method)
         resp = self.post(path, body, headers={"Content-Type": "text/xml"})
@@ -731,12 +751,14 @@ def webtest(app_config_dbsession_from_env, tm):
     app_config_dbsession_from_env.add_settings(enforce_https=False)
 
     app = app_config_dbsession_from_env.make_wsgi_app()
+    engine = app_config_dbsession_from_env.registry["sqlalchemy.engine"]
 
     with get_db_session_for_app_config(app_config_dbsession_from_env) as _db_session:
         # Register the app with the external test environment, telling
         # request.db to use this db_session and use the Transaction manager.
         testapp = _TestApp(
             app,
+            engine,
             extra_environ={
                 "warehouse.db_session": _db_session,
                 "tm.active": True,  # disable pyramid_tm
@@ -745,6 +767,7 @@ def webtest(app_config_dbsession_from_env, tm):
             },
         )
         yield testapp
+        testapp.close()
 
 
 class _MockRedis:
@@ -805,8 +828,16 @@ class _MockRedis:
         del count  # unused
         return [key for key in self.cache.keys() if re.search(search, key)]
 
-    def set(self, key, value, *_args, **_kwargs):
+    def set(self, key, value=None, *_args, **_kwargs):
+        if _kwargs.get("nx", False) and key in self.cache:
+            return None
+        # Real Redis immediately evicts a key when exat is in the past.
+        exat = _kwargs.get("exat")
+        if exat is not None and exat <= time.time():
+            self.cache.pop(key, None)
+            return True
         self.cache[key] = value
+        return True
 
     def setex(self, key, value, _seconds):
         self.cache[key] = value

@@ -938,41 +938,6 @@ def test_mint_token_with_prohibited_name_fails(monkeypatch, db_request):
         )
 
 
-def test_mint_token_with_invalid_name_fails(monkeypatch, db_request):
-    user = UserFactory.create()
-    pending_publisher = PendingGitHubPublisherFactory.create(
-        project_name="-foo-",
-        added_by=user,
-        repository_name="bar",
-        repository_owner="foo",
-        repository_owner_id="123",
-        workflow_filename="example.yml",
-        environment="",
-    )
-
-    db_request.flags.disallow_oidc = lambda f=None: False
-    db_request.body = json.dumps({"token": DUMMY_GITHUB_OIDC_JWT})
-    db_request.remote_addr = "0.0.0.0"
-
-    ratelimiter = pretend.stub(clear=pretend.call_recorder(lambda id: None))
-    ratelimiters = {
-        "user.oidc": ratelimiter,
-        "ip.oidc": ratelimiter,
-    }
-    monkeypatch.setattr(views, "_ratelimiters", lambda r: ratelimiters)
-
-    resp = views.mint_token_from_oidc(db_request)
-
-    assert resp["message"] == "Token request failed"
-    assert isinstance(resp["errors"], list)
-    for err in resp["errors"]:
-        assert isinstance(err, dict)
-        assert err["code"] == "invalid-payload"
-        assert err["description"] == (
-            f"The name {pending_publisher.project_name!r} is invalid."
-        )
-
-
 @pytest.mark.parametrize(
     ("claims_in_token", "is_reusable", "is_github"),
     [
@@ -1142,3 +1107,123 @@ def test_should_send_environment_warning_email(
 
     claims = SignedClaims({"environment": claims_environment})
     assert should_send_environment_warning_email(publisher, claims) == should_send
+
+
+def test_mint_token_jti_stored_before_macaroon_creation(monkeypatch, db_request):
+    """
+    Verify that the JTI is atomically claimed before the macaroon is minted,
+    so that a second request carrying the same JWT cannot also mint a token.
+
+    The JTI anti-replay must use a single atomic SET-if-not-exists operation
+    *before* any macaroon is created. If the store happens after macaroon
+    creation, two concurrent callers could both observe the JTI as unused,
+    both mint tokens, and only the first store would succeed.
+    """
+    jti_value = "6e67b1cb-2b8d-4be5-91cb-757edb2ec970"
+    claims = SignedClaims(
+        {
+            "ref": "someref",
+            "sha": "somesha",
+            "iss": "https://token.actions.githubusercontent.com",
+            "jti": jti_value,
+            "exp": 9999999999,
+        }
+    )
+
+    time_mod = pretend.stub(time=pretend.call_recorder(lambda: 0))
+    monkeypatch.setattr(views, "time", time_mod)
+
+    project = pretend.stub(
+        id="fakeprojectid",
+        record_event=pretend.call_recorder(lambda **kw: None),
+    )
+
+    publisher = GitHubPublisherFactory()
+    monkeypatch.setattr(publisher.__class__, "projects", [project])
+    monkeypatch.setattr(publisher.__class__, "__str__", lambda s: "fakespecifier")
+
+    # Track the order of operations to verify JTI is stored before macaroon
+    # creation. Each call appends to this list so we can assert ordering.
+    operation_log: list[str] = []
+
+    def fake_store_jwt_identifier(jti, expiration):
+        operation_log.append("store_jti")
+        return True
+
+    def _find_publisher(signed_claims, pending=False):
+        if pending:
+            return None
+        else:
+            return publisher
+
+    oidc_service = pretend.stub(
+        verify_jwt_signature=pretend.call_recorder(
+            lambda token, issuer_url=None: claims
+        ),
+        find_publisher=pretend.call_recorder(_find_publisher),
+        store_jwt_identifier=fake_store_jwt_identifier,
+    )
+
+    db_macaroon = pretend.stub(description="fakemacaroon")
+
+    def fake_create_macaroon(*a, **kw):
+        operation_log.append("create_macaroon")
+        return ("raw-macaroon", db_macaroon)
+
+    macaroon_service = pretend.stub(
+        create_macaroon=pretend.call_recorder(fake_create_macaroon)
+    )
+
+    def find_service(iface, **kw):
+        if iface == IMacaroonService:
+            return macaroon_service
+        else:
+            pytest.fail(f"Unexpected service lookup: {iface}")
+
+    monkeypatch.setattr(db_request, "find_service", find_service)
+    monkeypatch.setattr(db_request, "domain", "fakedomain")
+
+    # First request should succeed
+    response1 = views.mint_token(
+        oidc_service,
+        DUMMY_GITHUB_OIDC_JWT,
+        "https://token.actions.githubusercontent.com",
+        db_request,
+    )
+    assert response1["success"] is True
+    assert response1["token"] == "raw-macaroon"
+
+    # Verify the JTI was stored BEFORE the macaroon was created.
+    # If store_jti comes after create_macaroon, there is a window where
+    # a concurrent request could also pass the existence check.
+    store_idx = operation_log.index("store_jti")
+    create_idx = operation_log.index("create_macaroon")
+    assert store_idx < create_idx, (
+        "JTI must be stored before macaroon creation to prevent "
+        "concurrent requests from both minting tokens. "
+        f"Got operation order: {operation_log}"
+    )
+
+    # Simulate a concurrent request where find_publisher's EXISTS check passes
+    # (both requests see the JTI as unused) but the atomic store_jwt_identifier
+    # rejects the second request because SET NX fails.
+    operation_log.clear()
+    db_request.response.status = 200
+
+    oidc_service_race = pretend.stub(
+        verify_jwt_signature=pretend.call_recorder(
+            lambda token, issuer_url=None: claims
+        ),
+        find_publisher=pretend.call_recorder(_find_publisher),
+        # Simulate: SET NX returns False because the other request stored it first
+        store_jwt_identifier=pretend.call_recorder(lambda jti, expiration: False),
+    )
+
+    response2 = views.mint_token(
+        oidc_service_race,
+        DUMMY_GITHUB_OIDC_JWT,
+        "https://token.actions.githubusercontent.com",
+        db_request,
+    )
+    assert "422" in str(db_request.response.status)
+    assert response2["errors"][0]["code"] == "invalid-reuse-token"

@@ -7,7 +7,7 @@ from celery.schedules import crontab
 from warehouse import packaging
 from warehouse.accounts.models import Email, User
 from warehouse.manage.tasks import update_role_invitation_status
-from warehouse.organizations.models import Organization
+from warehouse.organizations.models import Organization, OrganizationProject
 from warehouse.packaging.interfaces import (
     IDocsStorage,
     IFileStorage,
@@ -150,6 +150,12 @@ def test_includeme(monkeypatch):
             cache_keys=["project/{obj.project.normalized_name}"],
             purge_keys=[
                 key_factory("project/{obj.project.normalized_name}"),
+            ],
+        ),
+        pretend.call(
+            OrganizationProject,
+            purge_keys=[
+                key_factory("project/{attr.normalized_name}", if_attr_exists="project"),
             ],
         ),
     ]

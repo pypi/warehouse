@@ -218,8 +218,4 @@
 </div>
 </div>
 {% endblock %}
-{% block extra_js %}
-  {{ captcha_src(request) }}
-  <script defer
-          src="{{ request.static_path('warehouse:static/dist/js/vendor/zxcvbn.js') }}"></script>
-{% endblock %}
+{% block extra_js %}{{ captcha_src(request) }}{% endblock %}

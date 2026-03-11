@@ -23,6 +23,7 @@ def includeme(config):
     config.add_route(
         "funding-manifest-urls", "/.well-known/funding-manifest-urls", domain=warehouse
     )
+    config.add_route("security-txt", "/.well-known/security.txt", domain=warehouse)
     config.add_route("opensearch.xml", "/opensearch.xml", domain=warehouse)
     config.add_route("index.sitemap.xml", "/sitemap.xml", domain=warehouse)
     config.add_route("bucket.sitemap.xml", "/{bucket}.sitemap.xml", domain=warehouse)
@@ -289,6 +290,16 @@ def includeme(config):
     config.add_route(
         "manage.account.associations.github.callback",
         "/manage/account/associations/github/callback",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.account.associations.gitlab.connect",
+        "/manage/account/associations/gitlab/connect",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.account.associations.gitlab.callback",
+        "/manage/account/associations/gitlab/callback",
         domain=warehouse,
     )
     config.add_route(
