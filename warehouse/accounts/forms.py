@@ -101,29 +101,30 @@ class UsernameMixin:
     )
 
 
+def _remove_whitespace(value: str | None) -> str | None:
+    """Filter to remove all whitespace from input."""
+    return "".join(value.split()) if value else value
+
+
 class TOTPValueMixin:
     totp_value = wtforms.StringField(
+        filters=[_remove_whitespace],
         validators=[
             wtforms.validators.InputRequired(),
             PreventNullBytesValidator(),
             wtforms.validators.Regexp(
-                rf"^ *([0-9] *){{{otp.TOTP_LENGTH}}}$",
+                rf"^[0-9]{{{otp.TOTP_LENGTH}}}$",
                 message=_(
                     "TOTP code must be ${totp_length} digits.",
                     mapping={"totp_length": otp.TOTP_LENGTH},
                 ),
             ),
-        ]
+        ],
     )
 
 
 class WebAuthnCredentialMixin:
     credential = wtforms.StringField(validators=[wtforms.validators.InputRequired()])
-
-
-def _remove_whitespace(value):
-    """Filter to remove all whitespace from input."""
-    return "".join(value.split()) if value else value
 
 
 class RecoveryCodeValueMixin:
@@ -503,7 +504,7 @@ class _TwoFactorAuthenticationForm(wtforms.Form):
 
 class TOTPAuthenticationForm(TOTPValueMixin, _TwoFactorAuthenticationForm):
     def validate_totp_value(self, field):
-        totp_value = field.data.replace(" ", "").encode("utf8")
+        totp_value = field.data.encode("utf8")
 
         try:
             ok = self.user_service.check_totp_value(self.user_id, totp_value)

@@ -1009,6 +1009,8 @@ class TestTOTPAuthenticationForm:
             ),
         )
         assert form.validate()
+        # Spaces must be stripped so stored value matches future replay checks
+        assert form.totp_value.data == "123456"
 
     @pytest.mark.parametrize(
         ("totp_value", "expected_error"),
