@@ -55,7 +55,8 @@ from warehouse.packaging.models import (
 from warehouse.rate_limiting import IRateLimiter
 from warehouse.utils.paginate import paginate_url_factory
 
-from ...common.db.accounts import EmailFactory
+from ...common.db.accounts import EmailFactory, UserFactory
+from ...common.db.macaroons import MacaroonFactory
 from ...common.db.organizations import (
     OrganizationFactory,
     OrganizationProjectFactory,
@@ -74,7 +75,6 @@ from ...common.db.packaging import (
     ReleaseFactory,
     RoleFactory,
     RoleInvitationFactory,
-    UserFactory,
 )
 
 
@@ -2574,8 +2574,10 @@ class TestProvisionMacaroonViews:
         assert macaroon_service.delete_macaroon.calls == []
 
     def test_delete_macaroon(self, monkeypatch, pyramid_request):
+        user_id = pretend.stub()
         macaroon = pretend.stub(
             description="fake macaroon",
+            user_id=user_id,
             permissions_caveat={"permissions": "user"},
         )
         macaroon_service = pretend.stub(
@@ -2598,7 +2600,7 @@ class TestProvisionMacaroonViews:
         pyramid_request.referer = "/fake/safe/route"
         pyramid_request.host = None
         pyramid_request.user = pretend.stub(
-            id=pretend.stub(),
+            id=user_id,
             username=pretend.stub(),
             record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
@@ -2678,11 +2680,61 @@ class TestProvisionMacaroonViews:
             pretend.call("API Token does not exist.", queue="warning")
         ]
 
+    def test_delete_macaroon_not_owned(
+        self, monkeypatch, pyramid_request, macaroon_service
+    ):
+        owner = UserFactory.create()
+        other_user = UserFactory.create()
+        macaroon = MacaroonFactory.create(
+            user_id=other_user.id,
+            description="not my token",
+            permissions_caveat={"permissions": "user"},
+        )
+        pyramid_request.POST = {
+            "confirm_password": "password",
+            "macaroon_id": str(macaroon.id),
+        }
+        pyramid_request.route_path = pretend.call_recorder(lambda x: "/manage/account/")
+        pyramid_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        pyramid_request.referer = "/fake/safe/route"
+        pyramid_request.host = None
+        pyramid_request.user = pretend.stub(
+            id=owner.id,
+            username=owner.username,
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        delete_macaroon_obj = pretend.stub(
+            validate=lambda: True,
+            macaroon_id=pretend.stub(data=str(macaroon.id)),
+        )
+        delete_macaroon_cls = pretend.call_recorder(
+            lambda *a, **kw: delete_macaroon_obj
+        )
+        monkeypatch.setattr(views, "DeleteMacaroonForm", delete_macaroon_cls)
+
+        view = views.ProvisionMacaroonViews(pyramid_request)
+        result = view.delete_macaroon()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert pyramid_request.route_path.calls == [pretend.call("manage.account")]
+        assert result.location == "/manage/account/"
+        assert pyramid_request.session.flash.calls == [
+            pretend.call("API Token does not exist.", queue="warning")
+        ]
+        # Macaroon must still exist (not deleted)
+        assert macaroon_service.find_macaroon(str(macaroon.id)) == macaroon
+        # Must NOT have recorded any events
+        assert pyramid_request.user.record_event.calls == []
+
     def test_delete_macaroon_records_events_for_each_project(
         self, monkeypatch, pyramid_request
     ):
+        user_id = pretend.stub()
         macaroon = pretend.stub(
             description="fake macaroon",
+            user_id=user_id,
             permissions_caveat={"permissions": {"projects": ["foo", "bar"]}},
         )
         macaroon_service = pretend.stub(
@@ -2706,7 +2758,7 @@ class TestProvisionMacaroonViews:
         pyramid_request.referer = "/fake/safe/route"
         pyramid_request.host = None
         pyramid_request.user = pretend.stub(
-            id=pretend.stub(),
+            id=user_id,
             username=pretend.stub(),
             projects=[
                 pretend.stub(normalized_name="foo", record_event=record_project_event),

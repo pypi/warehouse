@@ -1101,7 +1101,7 @@ class ProvisionMacaroonViews:
 
         if form.validate():
             macaroon = self.macaroon_service.find_macaroon(form.macaroon_id.data)
-            if not macaroon:
+            if not macaroon or macaroon.user_id != self.request.user.id:
                 # Return early if no macaroon is found
                 self.request.session.flash(
                     self.request._("API Token does not exist."), queue="warning"
