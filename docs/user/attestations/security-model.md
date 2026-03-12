@@ -143,13 +143,13 @@ from Rekor, as well as an inclusion proof from Fulcio's CT log.
 
 [What about reproducible builds?]: https://slsa.dev/spec/v1.0/faq#q-what-about-reproducible-builds
 
-[Trusted Publishing]: /trusted-publishers/
+[Trusted Publishing]: ../trusted-publishers/index.md
 
 [Sigstore's "keyless signing"]: https://docs.sigstore.dev/cosign/signing/overview/
 
-[Trusted Publishers - Security Model and Considerations]: /trusted-publishers/security-model/
+[Trusted Publishers - Security Model and Considerations]: ../trusted-publishers/security-model.md
 
-[Trusted Publishers]: /trusted-publishers/
+[Trusted Publishers]: ../trusted-publishers/index.md
 
 [Sigstore]: https://docs.sigstore.dev/
 
