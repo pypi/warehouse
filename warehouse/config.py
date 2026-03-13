@@ -589,6 +589,12 @@ def configure(settings=None):
         "SEARCH_RATELIMIT_STRING",
         default="5 per second",
     )
+    maybe_set(
+        settings,
+        "warehouse.notfound.ip_ratelimit_string",
+        "NOTFOUND_RATELIMIT_STRING",
+        default="50 per 5 minutes",
+    )
 
     # OIDC feature flags and settings
     maybe_set(settings, "warehouse.oidc.audience", "OIDC_AUDIENCE")
@@ -815,6 +821,9 @@ def configure(settings=None):
     config.include(".static")
 
     config.include(".search")
+
+    # Register views module (includes 404 rate limiting)
+    config.include(".views")
 
     # Register the support for AWS, Backblaze,and Google Cloud
     config.include(".aws")
