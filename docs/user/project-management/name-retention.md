@@ -125,7 +125,7 @@ Again, the list above is not exclusive. The maintainers of the Package Index
 recommend users to get in touch with each other and solve the issue by
 respectful communication (see the [PSF Code of Conduct]).
 
-[PSF Code of Conduct]: ../python.org/code-of-conduct/index.md
+[PSF Code of Conduct]: https://policies.python.org/python.org/code-of-conduct/
 
 ### Invalid projects
 
