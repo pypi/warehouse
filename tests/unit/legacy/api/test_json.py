@@ -814,3 +814,51 @@ class TestJSONReleaseSlash:
         assert db_request.current_route_path.calls == [
             pretend.call(name=release.project.normalized_name)
         ]
+
+
+class TestJSONUser:
+    def test_no_projects(self, db_request):
+        user = UserFactory.create()
+        resp = json.json_user(user, db_request)
+        assert resp["projects"] == []
+
+    def test_has_projects(self, db_request):
+        user = UserFactory.create()
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+
+        user.projects.append(project)
+
+        resp = json.json_user(user, db_request)
+        assert resp["projects"][0] == {
+            "name": project.name,
+            "last_released": release.created.strftime("%Y-%m-%dT%H:%M:%S"),
+            "summary": release.summary,
+        }
+
+    def test_has_name(self, db_request):
+        user = UserFactory.create()
+        resp = json.json_user(user, db_request)
+        assert resp["name"] == user.name
+        assert resp["username"] == user.username
+
+    def test_has_no_name(self, db_request):
+        user = UserFactory.create(name="")
+        resp = json.json_user(user, db_request)
+        assert resp["name"] is None
+        assert resp["username"] == user.username
+
+    def test_project_without_releases(self, db_request):
+        user = UserFactory.create()
+        project = ProjectFactory.create()
+        user.projects.append(project)
+
+        resp = json.json_user(user, db_request)
+        assert resp["projects"] == []
+
+
+class TestJSONUserSlash:
+    def test_redirect(self, db_request):
+        user = UserFactory.create()
+        resp = json.json_user_slash(user, db_request)
+        assert resp["username"] == user.username

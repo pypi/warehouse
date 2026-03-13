@@ -6,6 +6,7 @@ from pyramid.view import view_config
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.orm import Load, contains_eager, joinedload
 
+from warehouse.accounts.models import User
 from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
 from warehouse.packaging.models import (
@@ -354,3 +355,42 @@ def json_release(release, request):
 )
 def json_release_slash(release, request):
     return json_release(release, request)
+
+
+@view_config(
+    route_name="legacy.api.json.user",
+    context=User,
+    renderer="json",
+)
+def json_user(user, request):
+    projects = []
+    for project in user.projects:
+        latest_release = max(project.releases, key=lambda r: r.created, default=None)
+        if latest_release:
+            projects.append(
+                {
+                    "name": project.name,
+                    "last_released": latest_release.created.strftime(
+                        "%Y-%m-%dT%H:%M:%S"
+                    ),
+                    "summary": latest_release.summary,
+                }
+            )
+
+    # Apply CORS headers.
+    request.response.headers.update(_CORS_HEADERS)
+    return {
+        "username": user.username,
+        "name": user.name or None,
+        "joined_at": user.date_joined.strftime("%Y-%m-%dT%H:%M:%S"),
+        "projects": projects,
+    }
+
+
+@view_config(
+    route_name="legacy.api.json.user_slash",
+    context=User,
+    renderer="json",
+)
+def json_user_slash(user, request):
+    return json_user(user, request)
