@@ -77,7 +77,7 @@ class UserAgentInfo:
 
     def display(self) -> str:
         """
-        Construct a resonable user-agent description,
+        Construct a reasonable user-agent description,
         depending on optional values
         """
 
