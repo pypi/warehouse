@@ -159,9 +159,9 @@ pyproject-hooks==1.2.0 \
     # via
     #   build
     #   pip-tools
-pyramid==2.0.2 \
-    --hash=sha256:2e6585ac55c147f0a51bc00dadf72075b3bdd9a871b332ff9e5e04117ccd76fa \
-    --hash=sha256:372138a738e4216535cc76dcce6eddd5a1aaca95130f2354fb834264c06f18de
+pyramid==2.1 \
+    --hash=sha256:0aa62604221f6a8ac6e77a0faa02a5b7a294d6675f15581d8d416dffe2ac98e7 \
+    --hash=sha256:5a24bc1b5f9e0f0d1c0b6ddd1111e84c15dac44a07e3c1d24e74dd9bb4fc22eb
     # via
     #   pyramid-debugtoolbar
     #   pyramid-mako
