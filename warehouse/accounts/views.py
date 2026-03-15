@@ -857,16 +857,11 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
                 tag=EventTag.Account.PasswordResetAttempt,
                 request=request,
             )
-            request.session.flash(
-                request._(
-                    (
-                        "Automated password reset prohibited for your user. "
-                        "Contact a PyPI administrator for assistance"
-                    ),
-                ),
-                queue="error",
-            )
-            return HTTPSeeOther(request.route_path("accounts.request-password-reset"))
+            # Return the same response as a normal reset to avoid leaking
+            # whether this account holds elevated privileges.
+            token_service = request.find_service(ITokenService, name="password")
+            n_hours = token_service.max_age // 60 // 60
+            return {"n_hours": n_hours}
 
     return {"form": form}
 

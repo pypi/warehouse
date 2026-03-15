@@ -489,6 +489,11 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "admin.malware_reports.detail.send_to_helpscout",
+        "/admin/malware_reports/{observation_id}/send_to_helpscout/",
+        domain=warehouse,
+    )
+    config.add_route(
         "admin.malware_reports.detail.verdict_not_malware",
         "/admin/malware_reports/{observation_id}/not_malware/",
         domain=warehouse,

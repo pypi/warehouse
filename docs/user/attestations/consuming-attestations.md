@@ -29,7 +29,7 @@ and finally cryptographically verifies the wheel against the included
 attestations.
 
 
-[Integrity API documentation]: /api/integrity/
+[Integrity API documentation]: ../api/integrity.md
 [provenance object]: https://packaging.python.org/en/latest/specifications/index-hosted-attestations/#provenance-objects
 [pypi-attestations]: https://pypi.org/project/pypi-attestations/
 

@@ -20,7 +20,7 @@ import pytest
 
 from pypi_attestations import Attestation, Envelope, VerificationMaterial
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPTooManyRequests
-from sqlalchemy import and_, exists
+from sqlalchemy import and_, event, exists
 from sqlalchemy.orm import joinedload
 from trove_classifiers import classifiers
 from webob.multidict import MultiDict
@@ -493,6 +493,29 @@ class TestFileValidation:
             True,
             None,
         )
+
+    def test_tarfile_zipfile_polyglot(self, tmpdir):
+        tar_buf = io.BytesIO()
+        zip_buf = io.BytesIO()
+        with zipfile.ZipFile(zip_buf, "w") as zfp:
+            zfp.writestr("PKG-INFO", b"this is the package info")
+        with tarfile.open(fileobj=tar_buf, mode="w:gz") as tar:
+            data_file = tmpdir.join("data-file.txt")
+            with open(data_file, "wb") as f:
+                f.write(b"this is the package info")
+            tar: tarfile.TarFile
+            tar.add(data_file, arcname="package/PKG-INFO")
+
+        for filename in ("package.tar.gz", "package.zip"):
+            tar_zip = str(tmpdir.join(filename))
+            with open(tar_zip, "wb") as fp:
+                fp.write(tar_buf.getvalue())
+                fp.write(zip_buf.getvalue())
+
+            assert legacy._is_valid_dist_file(tar_zip, "") == (
+                False,
+                "File is both a zip and a tar file",
+            )
 
 
 class TestIsDuplicateFile:
@@ -4672,6 +4695,98 @@ class TestFileUpload:
         }
         assert not release_db.urls_by_verify_status(verified=False)
 
+    def test_retroactive_verification_requires_url_match(
+        self,
+        pyramid_config,
+        db_request,
+    ):
+        """
+        Retroactive verification of home_page and download_url must only
+        grant the verified badge when the URL in the new upload matches
+        the URL already stored on the release. A second upload with a
+        different (verifiable) URL must not verify the original stored URL.
+        """
+        stored_url = "https://attacker.example.com"
+        publisher_url = "https://github.com/foo/my_new_repo"
+
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        # Simulate first upload: stored URLs are unverified
+        release.home_page = stored_url
+        release.home_page_verified = False
+        release.download_url = stored_url
+        release.download_url_verified = False
+        release.project_urls = {}
+
+        publisher = GitHubPublisherFactory.create(
+            projects=[project],
+            repository_owner="foo",
+            repository_name="my_new_repo",
+        )
+        claims = {"sha": "somesha"}
+        identity = PublisherTokenContext(publisher, SignedClaims(claims))
+        db_request.oidc_publisher = identity.publisher
+        db_request.oidc_claims = identity.claims
+
+        db_request.db.add(Classifier(classifier="Environment :: Other Environment"))
+        db_request.db.add(Classifier(classifier="Programming Language :: Python"))
+
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), "1.0"
+        )
+
+        pyramid_config.testing_securitypolicy(identity=identity)
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0",
+                "summary": "This is my summary!",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+        db_request.POST.extend(
+            [
+                ("classifiers", "Environment :: Other Environment"),
+                ("classifiers", "Programming Language :: Python"),
+                ("requires_dist", "foo"),
+                ("requires_dist", "bar (>1.0)"),
+                ("requires_external", "Cheese (>1.0)"),
+                ("provides", "testing"),
+                # Second upload sends a DIFFERENT, verifiable URL
+                ("home_page", publisher_url),
+                ("download_url", publisher_url),
+            ]
+        )
+        # At least one project_url is required for the retroactive verification
+        # block to execute (it's guarded by `if not is_new_release and project_urls`)
+        db_request.POST.add("project_urls", f"Source, {publisher_url}")
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+        }.get(svc)
+
+        legacy.file_upload(db_request)
+
+        release_db = (
+            db_request.db.query(Release).filter(Release.project == project).one()
+        )
+
+        # The stored URLs don't match the uploaded URLs, so they must
+        # remain unverified even though the uploaded URLs are verifiable.
+        assert release_db.home_page == stored_url
+        assert release_db.home_page_verified is False
+        assert release_db.download_url == stored_url
+        assert release_db.download_url_verified is False
+
     def test_new_release_email_verified(self, monkeypatch, pyramid_config, db_request):
         owner = UserFactory.create()
         maintainer = UserFactory.create()
@@ -6633,3 +6748,121 @@ def test_missing_trailing_slash_redirect(pyramid_request):
         "/legacy/ (with a trailing slash)"
     )
     assert resp.headers["Location"] == "/legacy/"
+
+
+class TestFileUploadAdvisoryLockTiming:
+    """
+    Tests that JournalEntries are deferred until after the S3 storage
+    upload, minimizing advisory lock hold time.
+
+    The ensure_monotonic_journals listener acquires a global advisory lock
+    whenever a JournalEntry is flushed. If JournalEntries are added to the
+    session early, autoflush during record_event/ip_address queries causes
+    the advisory lock to be acquired early and held through the entire S3
+    upload. This serializes all uploads and causes severe lock contention
+    (including timeouts that manifest as "deadlocks" around macaroon updates
+    when concurrent uploads share the same API token).
+
+    The fix: defer JournalEntry creation until after storage upload, so the
+    advisory lock is only held for the final flush + commit.
+    """
+
+    def test_journal_entries_deferred_until_final_flush(
+        self,
+        tmpdir,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+    ):
+        """Verify that JournalEntries only appear in the final flush,
+        not in earlier autoflushes triggered by record_event or _sort_releases.
+
+        This ensures the advisory lock (acquired via ensure_monotonic_journals
+        before_flush listener) is held for the minimum possible time.
+        """
+        monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
+
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), "1.0"
+        )
+
+        db_request.user = user
+        identity = UserContext(user, pretend.stub())
+        pyramid_config.testing_securitypolicy(identity=identity)
+        db_request.user_agent = "warehouse-tests/6.6.6"
+
+        content = FieldStorage()
+        content.filename = filename
+        content.file = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
+        content.type = "application/tar"
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": content,
+            }
+        )
+
+        # Track storage calls to know when S3 upload happened relative to flushes
+        storage_calls = []
+
+        def track_store(path, filepath, meta):
+            storage_calls.append(path)
+
+        storage_service = pretend.stub(store=track_store)
+        db_request.find_service = pretend.call_recorder(
+            lambda svc, name=None, context=None: {
+                IFileStorage: storage_service,
+            }.get(svc)
+        )
+        db_request.registry.settings = {
+            "warehouse.release_files_table": None,
+        }
+        delay = pretend.call_recorder(lambda a: None)
+        db_request.task = pretend.call_recorder(lambda a: pretend.stub(delay=delay))
+
+        # Track flush events and whether storage upload has happened
+        flush_log = []
+
+        @event.listens_for(db_request.db, "before_flush")
+        def log_flush_contents(session, flush_context, instances):
+            flush_log.append(
+                {
+                    "new_types": sorted(type(o).__name__ for o in session.new),
+                    "has_journal": any(
+                        isinstance(obj, JournalEntry) for obj in session.new
+                    ),
+                    "storage_uploaded": len(storage_calls) > 0,
+                }
+            )
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+        assert storage_calls, "Expected at least one storage.store() call"
+
+        # Find flushes that contain JournalEntry
+        journal_flushes = [f for f in flush_log if f["has_journal"]]
+        assert journal_flushes, "Expected at least one flush containing a JournalEntry"
+
+        # The key assertion: every flush that contains a JournalEntry must
+        # happen AFTER the storage upload. If a JournalEntry appears in a
+        # flush before storage upload, the advisory lock would be held
+        # throughout the S3 upload, causing lock contention.
+        for f in journal_flushes:
+            assert f["storage_uploaded"], (
+                "JournalEntry was flushed BEFORE storage upload completed. "
+                "This means the advisory lock (from ensure_monotonic_journals) "
+                "is acquired early and held through the entire S3 upload, "
+                "serializing all concurrent uploads. "
+                f"Flush log: {flush_log}"
+            )

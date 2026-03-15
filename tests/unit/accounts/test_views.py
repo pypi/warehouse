@@ -2289,7 +2289,9 @@ class TestRequestPasswordReset:
             pretend.call(stub_user.id)
         ]
 
-    def test_password_reset_prohibited(self, pyramid_request, user_service, mocker):
+    def test_password_reset_prohibited(
+        self, pyramid_request, user_service, token_service, mocker
+    ):
         user = UserFactory.create(
             with_verified_primary_email=True,
             prohibit_password_reset=True,
@@ -2305,6 +2307,7 @@ class TestRequestPasswordReset:
         pyramid_request.find_service = pretend.call_recorder(
             lambda interface, **kw: {
                 IUserService: user_service,
+                ITokenService: token_service,
             }[interface]
         )
         form_obj = pretend.stub(
@@ -2312,14 +2315,13 @@ class TestRequestPasswordReset:
             validate=pretend.call_recorder(lambda: True),
         )
         form_class = pretend.call_recorder(lambda d, user_service: form_obj)
+        n_hours = token_service.max_age // 60 // 60
 
         result = views.request_password_reset(pyramid_request, _form_class=form_class)
 
-        assert isinstance(result, HTTPSeeOther)
-        assert pyramid_request.route_path.calls == [
-            pretend.call("accounts.request-password-reset")
-        ]
-        assert result.headers["Location"] == "/the-redirect"
+        # Response must be indistinguishable from a normal user reset
+        assert result == {"n_hours": n_hours}
+        assert not isinstance(result, HTTPSeeOther)
 
         mock_record_event.assert_called_once_with(
             user,

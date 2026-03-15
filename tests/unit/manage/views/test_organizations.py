@@ -2150,7 +2150,7 @@ class TestManageOrganizationRoles:
             "roles": set(),
             "invitations": set(),
             "form": form_obj,
-            "organizations_with_sole_owner": [],
+            "is_sole_owner": False,
         }
 
     @pytest.mark.usefixtures("_enable_organizations")
