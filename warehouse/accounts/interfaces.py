@@ -1,7 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
-from datetime import datetime
-
 from zope.interface import Attribute, Interface
 
 from warehouse.rate_limiting.interfaces import RateLimiterException
