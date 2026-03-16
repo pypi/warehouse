@@ -18,4 +18,4 @@ def test_request_more_info_modal_has_two_triggers():
     # Top "Request Info" button already has one; bottom "Reply Back" adds the second.
     assert content.count('data-target="#requestMoreInfoModal"') == 2
     assert "Reply Back" in content
-    
+
