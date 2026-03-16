@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import enum
+import re
 import typing
 
 from uuid import UUID
@@ -173,6 +174,16 @@ class Observation(AbstractConcreteBase, db.Model):
 
     def __repr__(self):
         return f"<{self.__class__.__name__} {self.kind}>"
+
+    _NAME_FROM_REPR_RE = re.compile(r"name='([^']+)'")
+
+    @property
+    def display_name(self) -> str:
+        """Return the related model's name, falling back to related_name."""
+        if self.related_id is None:
+            match = self._NAME_FROM_REPR_RE.search(self.related_name)
+            return match.group(1) if match else self.related_name
+        return getattr(self.related, "name", None) or self.related_name
 
     @property
     def kind_display(self) -> str:
