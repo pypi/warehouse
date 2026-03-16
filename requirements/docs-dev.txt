@@ -287,9 +287,9 @@ mkdocs==1.6.1 \
     #   -r requirements/docs-dev.in
     #   mkdocs-material
     #   mkdocs-redirects
-mkdocs-get-deps==0.2.0 \
-    --hash=sha256:162b3d129c7fad9b19abfdcb9c1458a651628e4b1dea628ac68790fb3061c60c \
-    --hash=sha256:2bf11d0b133e77a0dd036abeeb06dec8775e46efa526dc70667d8863eefc6134
+mkdocs-get-deps==0.2.2 \
+    --hash=sha256:8ee8d5f316cdbbb2834bc1df6e69c08fe769a83e040060de26d3c19fad3599a1 \
+    --hash=sha256:e7878cbeac04860b8b5e0ca31d3abad3df9411a75a32cde82f8e44b6c16ff650
     # via mkdocs
 mkdocs-material==9.7.5 \
     --hash=sha256:7cf9df2ff121fd098ff6e05c732b0be3699afca9642e2dfe4926c40eb5873eec \
