@@ -353,6 +353,30 @@ class TestAddEmailForm:
         )
 
 
+class TestChangeUnverifiedPrimaryEmailForm:
+    def test_validate(self, metrics):
+        user_id = pretend.stub()
+        user_service = pretend.stub(find_userid_by_email=lambda _: None)
+        form = forms.ChangeUnverifiedPrimaryEmailForm(
+            request=pretend.stub(
+                db=pretend.stub(query=lambda *a: pretend.stub(scalar=lambda: False)),
+                metrics=metrics,
+            ),
+            formdata=MultiDict({"email": "foo@bar.com"}),
+            user_id=user_id,
+            user_service=user_service,
+        )
+
+        assert form.user_id is user_id
+        assert form.user_service is user_service
+        assert form.validate(), str(form.errors)
+
+    def test_params(self):
+        assert forms.ChangeUnverifiedPrimaryEmailForm.__params__ == [
+            "change_unverified_primary_email"
+        ]
+
+
 class TestChangePasswordForm:
     def test_validate(self):
         request = pretend.stub()

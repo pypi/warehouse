@@ -1067,7 +1067,20 @@ def _send_organization_invitation(request, organization, role_name, user):
     uses_session=True,
     require_active_organization=True,
     require_methods=False,
+    request_method="GET",
     permission=Permissions.OrganizationsRead,
+    has_translations=True,
+    require_reauth=True,
+)
+@view_config(
+    route_name="manage.organization.roles",
+    context=Organization,
+    renderer="warehouse:templates/manage/organization/roles.html",
+    uses_session=True,
+    require_active_organization=True,
+    require_methods=False,
+    request_method="POST",
+    permission=Permissions.OrganizationsManage,
     has_translations=True,
     require_reauth=True,
 )
@@ -1096,17 +1109,17 @@ def manage_organization_roles(
     roles = set(organization_service.get_organization_roles(organization.id))
     invitations = set(organization_service.get_organization_invites(organization.id))
 
+    # Check if current user is the sole owner of this organization using
+    # already-loaded roles, avoiding extra queries from user_organizations().
+    owner_roles = [r for r in roles if r.role_name == OrganizationRoleType.Owner]
+    is_sole_owner = len(owner_roles) == 1 and owner_roles[0].user == request.user
+
     return {
         "organization": organization,
         "roles": roles,
         "invitations": invitations,
         "form": form,
-        "organizations_with_sole_owner": list(
-            organization.name
-            for organization in user_organizations(request)[
-                "organizations_with_sole_owner"
-            ]
-        ),
+        "is_sole_owner": is_sole_owner,
     }
 
 

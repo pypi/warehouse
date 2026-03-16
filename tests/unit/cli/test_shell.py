@@ -2,25 +2,25 @@
 
 import sys
 
-import pretend
 import pytest
+import transaction
 
 from warehouse import db
 from warehouse.cli import shell
 
 
 class TestAutoDetection:
-    def test_bpython(self, monkeypatch):
-        monkeypatch.setitem(sys.modules, "bpython", pretend.stub())
+    def test_bpython(self, monkeypatch, mocker):
+        monkeypatch.setitem(sys.modules, "bpython", mocker.stub())
         assert shell.autodetect() == "bpython"
 
-    def test_bpython_over_ipython(self, monkeypatch):
-        monkeypatch.setitem(sys.modules, "bpython", pretend.stub())
-        monkeypatch.setitem(sys.modules, "IPython", pretend.stub())
+    def test_bpython_over_ipython(self, monkeypatch, mocker):
+        monkeypatch.setitem(sys.modules, "bpython", mocker.stub())
+        monkeypatch.setitem(sys.modules, "IPython", mocker.stub())
         assert shell.autodetect() == "bpython"
 
-    def test_ipython(self, monkeypatch):
-        monkeypatch.setitem(sys.modules, "IPython", pretend.stub())
+    def test_ipython(self, monkeypatch, mocker):
+        monkeypatch.setitem(sys.modules, "IPython", mocker.stub())
         assert shell.autodetect() == "ipython"
 
     def test_plain(self, monkeypatch):
@@ -31,97 +31,91 @@ class TestAutoDetection:
 
 
 class TestShells:
-    def test_bpython(self, monkeypatch):
-        bpython_mod = pretend.stub(embed=pretend.call_recorder(lambda a: None))
+    def test_bpython(self, monkeypatch, mocker):
+        bpython_mod = mocker.MagicMock()
         monkeypatch.setitem(sys.modules, "bpython", bpython_mod)
         shell.bpython(one="two")
 
-        assert bpython_mod.embed.calls == [pretend.call({"one": "two"})]
+        bpython_mod.embed.assert_called_once_with({"one": "two"})
 
-    def test_ipython(self, monkeypatch):
-        ipython_mod = pretend.stub(
-            start_ipython=pretend.call_recorder(lambda argv, user_ns: None)
-        )
+    def test_ipython(self, monkeypatch, mocker):
+        ipython_mod = mocker.MagicMock()
         monkeypatch.setitem(sys.modules, "IPython", ipython_mod)
         shell.ipython(two="one")
 
-        assert ipython_mod.start_ipython.calls == [
-            pretend.call(argv=[], user_ns={"two": "one"})
-        ]
+        ipython_mod.start_ipython.assert_called_once_with(
+            argv=[], user_ns={"two": "one"}
+        )
 
-    def test_plain(self, monkeypatch):
-        code_mod = pretend.stub(interact=pretend.call_recorder(lambda local: None))
+    def test_plain(self, monkeypatch, mocker):
+        code_mod = mocker.MagicMock()
         monkeypatch.setitem(sys.modules, "code", code_mod)
         shell.plain(three="four")
 
-        assert code_mod.interact.calls == [pretend.call(local={"three": "four"})]
+        code_mod.interact.assert_called_once_with(local={"three": "four"})
 
 
 class TestCLIShell:
-    def test_autodetects(self, monkeypatch, cli):
-        autodetect = pretend.call_recorder(lambda: "plain")
-        monkeypatch.setattr(shell, "autodetect", autodetect)
+    def test_autodetects(self, mocker, cli, pyramid_config):
+        mock_autodetect = mocker.patch.object(shell, "autodetect", return_value="plain")
 
-        session = pretend.stub()
-        session_cls = pretend.call_recorder(lambda bind: session)
-        monkeypatch.setattr(db, "Session", session_cls)
+        session = mocker.stub(name="session")
+        mock_session_cls = mocker.patch.object(db, "Session", return_value=session)
 
-        plain = pretend.call_recorder(lambda **kw: None)
-        monkeypatch.setattr(shell, "plain", plain)
+        mock_plain = mocker.patch.object(shell, "plain")
 
-        engine = pretend.stub()
-        config = pretend.stub(registry={"sqlalchemy.engine": engine})
+        engine = mocker.stub(name="engine")
+        pyramid_config.registry["sqlalchemy.engine"] = engine
 
-        result = cli.invoke(shell.shell, obj=config)
+        result = cli.invoke(shell.shell, obj=pyramid_config)
 
         assert result.exit_code == 0
-        assert autodetect.calls == [pretend.call()]
-        assert session_cls.calls == [pretend.call(bind=engine)]
-        assert plain.calls == [pretend.call(config=config, db=session)]
+        mock_autodetect.assert_called_once()
+        mock_session_cls.assert_called_once_with(bind=engine)
+        mock_plain.assert_called_once()
+        call_kwargs = mock_plain.call_args.kwargs
+        assert call_kwargs["config"] is pyramid_config
+        assert call_kwargs["db"] is session
+        assert isinstance(call_kwargs["request"].tm, transaction.TransactionManager)
+        assert call_kwargs["request"].db is session
 
     @pytest.mark.parametrize("type_", ["bpython", "ipython", "plain"])
-    def test_specify_type(self, monkeypatch, cli, type_):
-        autodetect = pretend.call_recorder(lambda: "plain")
-        monkeypatch.setattr(shell, "autodetect", autodetect)
+    def test_specify_type(self, mocker, cli, pyramid_config, type_):
+        mock_autodetect = mocker.patch.object(shell, "autodetect")
 
-        session = pretend.stub()
-        session_cls = pretend.call_recorder(lambda bind: session)
-        monkeypatch.setattr(db, "Session", session_cls)
+        session = mocker.stub(name="session")
+        engine = mocker.stub(name="engine")
+        mock_session_cls = mocker.patch.object(db, "Session", return_value=session)
 
-        runner = pretend.call_recorder(lambda **kw: None)
-        monkeypatch.setattr(shell, type_, runner)
+        mock_runner = mocker.patch.object(shell, type_)
 
-        engine = pretend.stub()
-        config = pretend.stub(registry={"sqlalchemy.engine": engine})
+        pyramid_config.registry["sqlalchemy.engine"] = engine
 
-        result = cli.invoke(shell.shell, ["--type", type_], obj=config)
+        result = cli.invoke(shell.shell, ["--type", type_], obj=pyramid_config)
 
         assert result.exit_code == 0
-        assert autodetect.calls == []
-        assert session_cls.calls == [pretend.call(bind=engine)]
-        assert runner.calls == [pretend.call(config=config, db=session)]
+        mock_autodetect.assert_not_called()
+        mock_session_cls.assert_called_once_with(bind=engine)
+        mock_runner.assert_called_once()
+        call_kwargs = mock_runner.call_args.kwargs
+        assert call_kwargs["config"] is pyramid_config
+        assert call_kwargs["db"] is session
+        assert call_kwargs["request"].db is session
 
     @pytest.mark.parametrize("type_", ["bpython", "ipython", "plain"])
-    def test_unavailable_shell(self, monkeypatch, cli, type_):
-        autodetect = pretend.call_recorder(lambda: "plain")
-        monkeypatch.setattr(shell, "autodetect", autodetect)
+    def test_unavailable_shell(self, mocker, cli, pyramid_config, type_):
+        mock_autodetect = mocker.patch.object(shell, "autodetect")
 
-        session = pretend.stub()
-        session_cls = pretend.call_recorder(lambda bind: session)
-        monkeypatch.setattr(db, "Session", session_cls)
+        session = mocker.stub(name="session")
+        engine = mocker.stub(name="engine")
+        mocker.patch.object(db, "Session", return_value=session)
 
-        @pretend.call_recorder
-        def runner(**kw):
-            raise ImportError
+        mock_runner = mocker.patch.object(shell, type_, side_effect=ImportError)
 
-        monkeypatch.setattr(shell, type_, runner)
+        pyramid_config.registry["sqlalchemy.engine"] = engine
 
-        engine = pretend.stub()
-        config = pretend.stub(registry={"sqlalchemy.engine": engine})
-
-        result = cli.invoke(shell.shell, ["--type", type_], obj=config)
+        result = cli.invoke(shell.shell, ["--type", type_], obj=pyramid_config)
 
         assert result.exit_code == 1
-        assert autodetect.calls == []
-        assert session_cls.calls == [pretend.call(bind=engine)]
-        assert runner.calls == [pretend.call(config=config, db=session)]
+        mock_autodetect.assert_not_called()
+        mock_runner.assert_called_once()
