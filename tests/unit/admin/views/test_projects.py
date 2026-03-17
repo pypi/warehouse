@@ -142,11 +142,11 @@ class TestProjectList:
             "exact_match": None,
         }
 
-    def test_id_query_invalid_uuid(self):
-        request = pretend.stub(params={"q": "id:not-a-uuid"})
+    def test_id_query_invalid_uuid(self, db_request):
+        db_request.GET["q"] = "id:not-a-uuid"
 
         with pytest.raises(HTTPBadRequest):
-            views.project_list(request)
+            views.project_list(db_request)
 
 
 class TestProjectDetail:

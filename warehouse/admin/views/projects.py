@@ -48,12 +48,6 @@ from warehouse.utils.project import (
 def project_list(request):
     q = request.params.get("q")
 
-    if q and q.startswith("id:"):
-        try:
-            project_id = uuid.UUID(q[3:])
-        except ValueError:
-            raise HTTPBadRequest("Invalid UUID.") from None
-
     # When there's no search query, show the dashboard view
     if not q:
         days = parse_days_param(request)
@@ -125,6 +119,10 @@ def project_list(request):
     exact_match = None
 
     if q.startswith("id:"):
+        try:
+            project_id = uuid.UUID(q[3:])
+        except ValueError:
+            raise HTTPBadRequest("Invalid UUID.") from None
         projects_query = projects_query.filter(Project.id == project_id)
     else:
         projects_query = projects_query.filter(
