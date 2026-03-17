@@ -46,17 +46,17 @@ Publisher identities:
 
 [PEP 740]: https://peps.python.org/pep-0740/
 
-[PyPI Publish]: /attestations/publish/v1/
+[PyPI Publish]: ../attestations/publish/v1.md
 
-[publish attestations]: /attestations/publish/v1/
+[publish attestations]: ../attestations/publish/v1.md
 
-[Trusted Publisher]: /trusted-publishers/
+[Trusted Publisher]: ../trusted-publishers/index.md
 
 [SLSA Provenance]: https://slsa.dev/spec/v1.0/provenance
 
-[GitHub Actions]: /trusted-publishers/using-a-publisher/#github-actions
+[GitHub Actions]: ../trusted-publishers/using-a-publisher.md#github-actions
 
-[GitLab CI/CD]: /trusted-publishers/using-a-publisher/#gitlab-cicd
+[GitLab CI/CD]: ../trusted-publishers/using-a-publisher.md#gitlab-cicd
 
-[Google Cloud]: /trusted-publishers/using-a-publisher/#google-cloud
+[Google Cloud]: ../trusted-publishers/using-a-publisher.md#google-cloud
 

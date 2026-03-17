@@ -19,6 +19,8 @@ const RemoveEmptyScriptsPlugin = require("webpack-remove-empty-scripts");
 const {WebpackManifestPlugin} = require("webpack-manifest-plugin");
 const {WebpackLocalisationPlugin, allLocaleData} = require("./webpack.plugin.localize.js");
 
+const isDev = process.env.NODE_ENV === "development";
+
 /* Shared Plugins */
 
 const sharedCompressionPlugins = [
@@ -114,7 +116,25 @@ module.exports = [
         seed: sharedWebpackManifestData,
         map: sharedWebpackManifestMap,
       }),
-      new LiveReloadPlugin(),
+      ...isDev ? [
+        // Watch HTML templates so LiveReload triggers on template changes.
+        {
+          apply(compiler) {
+            const glob = require("glob");
+            compiler.hooks.afterCompile.tap("WatchTemplatesPlugin", (compilation) => {
+              for (const pattern of [
+                "warehouse/templates/**/*.html",
+                "warehouse/admin/templates/**/*.html",
+              ]) {
+                for (const file of glob.sync(pattern)) {
+                  compilation.fileDependencies.add(path.resolve(__dirname, file));
+                }
+              }
+            });
+          },
+        },
+        new LiveReloadPlugin(),
+      ] : [],
     ],
     resolve: sharedResolve,
     entry: {
@@ -143,8 +163,8 @@ module.exports = [
       fontawesome: "./warehouse/static/sass/vendor/fontawesome.scss",
 
       /* Self-hosted fonts via Fontsource */
-      fonts: "./warehouse/static/sass/vendor/fonts.scss",
-      "fonts-ewert": "./warehouse/static/sass/vendor/fonts-ewert.scss",
+      fonts: "./warehouse/static/js/vendor/fonts.js",
+      "fonts-ewert": "./warehouse/static/js/vendor/fonts-ewert.js",
     },
     // The default source map. Slowest, but best production-build optimizations.
     // See: https://webpack.js.org/configuration/devtool
@@ -302,7 +322,7 @@ module.exports = [
         $: "jquery",
         jQuery: "jquery",
       }),
-      new LiveReloadPlugin(),
+      ...isDev ? [new LiveReloadPlugin()] : [],
     ],
     resolve: sharedResolve,
     entry: {
@@ -365,7 +385,7 @@ module.exports = [
           seed: sharedWebpackManifestData,
           map: sharedWebpackManifestMap,
         }),
-        new LiveReloadPlugin(),
+        ...isDev ? [new LiveReloadPlugin()] : [],
       ],
       resolve: sharedResolve,
       entry: {

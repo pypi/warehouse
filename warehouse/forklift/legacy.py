@@ -62,7 +62,7 @@ from warehouse.packaging.models import (
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
 from warehouse.rate_limiting.interfaces import RateLimiterException
-from warehouse.utils import readme, zipfiles
+from warehouse.utils import readme, scanner, zipfiles
 from warehouse.utils.release import strip_keywords
 from warehouse.utils.wheel import (
     InvalidWheelRecordError,
@@ -280,14 +280,22 @@ def _validate_filename(filename, filetype):
         )
 
 
-def _is_valid_dist_file(filename, filetype):
+def _is_valid_dist_file(filename, filetype, *, scan=True):
     """
     Perform some basic checks to see whether the indicated file could be
     a valid distribution file.
+
+    Runs a YARA scan on archive members while the archive is already open.
+    Returns ``(False, message)`` on the first YARA match.
     """
+    is_zipfile = bool(filename and zipfile.is_zipfile(filename))
+    is_tarfile = bool(filename and tarfile.is_tarfile(filename))
+
+    if is_zipfile and is_tarfile:
+        return False, "File is both a zip and a tar file"
 
     if filename.endswith((".zip", ".whl")):
-        if not zipfile.is_zipfile(filename):
+        if not is_zipfile:
             return False, "File is not a zipfile"
         # Ensure that this is a valid zip file, and that it has a
         # PKG-INFO or WHEEL file.
@@ -324,7 +332,7 @@ def _is_valid_dist_file(filename, filetype):
                         )
 
                 if filename.endswith(".zip"):
-                    top_level = os.path.commonprefix(zfp.namelist())
+                    top_level = _commonpath(zfp.namelist())
                     if top_level in [".", "/", ""]:
                         return (
                             False,
@@ -349,6 +357,19 @@ def _is_valid_dist_file(filename, filetype):
                     except KeyError:
                         return False, f"WHEEL not found at {target_file}"
 
+                # Scan archive members for YARA rule matches while open
+                if scan:
+                    yara_match = scanner.check_members(
+                        scanner.iter_zip_members(zfp),
+                        archive_name=os.path.basename(filename),
+                    )
+                    if yara_match is not None:
+                        sentry_sdk.capture_message(
+                            f"YARA rule {yara_match.rule!r} matched "
+                            f"{yara_match.member!r} in {os.path.basename(filename)}"
+                        )
+                        return False, yara_match.message
+
             # Check the ZIP file record framing
             # to avoid parser differentials.
             zip_ok, zip_error = zipfiles.validate_zipfile(filename)
@@ -362,7 +383,7 @@ def _is_valid_dist_file(filename, filetype):
             return False, None
 
     elif filename.endswith(".tar.gz"):
-        if not tarfile.is_tarfile(filename):
+        if not is_tarfile:
             return False, "File is not a tarfile"
         # Ensure that this is a valid tar file, and that it contains PKG-INFO.
         # TODO: Ideally Ensure the compression ratio is not absurd
@@ -371,7 +392,7 @@ def _is_valid_dist_file(filename, filetype):
             with tarfile.open(filename, "r:gz") as tar:
                 # This decompresses the entire stream to validate it and the
                 # tar within.  Easy CPU DoS attack. :/
-                top_level = os.path.commonprefix(tar.getnames())
+                top_level = _commonpath(tar.getnames())
                 if top_level in [".", "/", ""]:
                     return (
                         False,
@@ -382,6 +403,20 @@ def _is_valid_dist_file(filename, filetype):
                     tar.getmember(target_file)
                 except KeyError:
                     return False, f"PKG-INFO not found at {target_file}"
+
+                # Scan archive members for YARA rule matches while open
+                if scan:
+                    yara_match = scanner.check_members(
+                        scanner.iter_tar_members(tar),
+                        archive_name=os.path.basename(filename),
+                    )
+                    if yara_match is not None:
+                        sentry_sdk.capture_message(
+                            f"YARA rule {yara_match.rule!r} matched "
+                            f"{yara_match.member!r} in {os.path.basename(filename)}"
+                        )
+                        return False, yara_match.message
+
         except (tarfile.ReadError, EOFError):
             return False, None
 
@@ -457,6 +492,15 @@ def _sort_releases(request: Request, project: Project):
         #       update query to eliminate the possibility we trigger this again.
         if r._pypi_ordering != i:
             r._pypi_ordering = i
+
+
+def _commonpath(values):
+    # Handles empty lists, which os.path.commonpath()
+    # rejects where os.path.commonprefix() would return
+    # an empty string.
+    if not values:
+        return ""
+    return os.path.commonpath(values)
 
 
 @view_config(
@@ -648,13 +692,19 @@ def file_upload(request):
         request.metrics.increment(
             "warehouse.upload.failed", tags=["reason:invalid-metadata"]
         )
+        _see_url = (
+            "https://packaging.python.org/en/latest/specifications/"
+            "version-specifiers/#local-version-identifiers"
+            if field_name == "version"
+            and any("use of local versions" in str(e) for e in errors["version"])
+            else "https://packaging.python.org/specifications/core-metadata"
+        )
         raise _exc_with_message(
             HTTPBadRequest,
             " ".join(
                 [
                     error_msg + ("." if not error_msg.endswith(".") else ""),
-                    "See https://packaging.python.org/specifications/core-metadata "
-                    "for more information.",
+                    f"See {_see_url} for more information.",
                 ]
             ),
         )
@@ -1000,18 +1050,6 @@ def file_upload(request):
         request.db.add(release)
         is_new_release = True
 
-        # TODO: This should be handled by some sort of database trigger or
-        #       a SQLAlchemy hook or the like instead of doing it inline in
-        #       this view.
-        request.db.add(
-            JournalEntry(
-                name=release.project.name,
-                version=release.version,
-                action="new release",
-                submitted_by=request.user if request.user else None,
-            )
-        )
-
         project.record_event(
             tag=EventTag.Project.ReleaseAdd,
             request=request,
@@ -1187,9 +1225,11 @@ def file_upload(request):
             )
 
         # Check the file to make sure it is a valid distribution file.
+        _scan = not request.flags.enabled(AdminFlagValue.DISABLE_UPLOAD_SCANNING)
         _valid, _msg = _is_valid_dist_file(
             temporary_filename,
             form.filetype.data,
+            scan=_scan,
         )
         if not _valid:
             request.metrics.increment(
@@ -1197,6 +1237,7 @@ def file_upload(request):
                 tags=[
                     "reason:invalid-distribution-file",
                     f"filetype:{form.filetype.data}",
+                    f"message:{_msg}",
                 ],
             )
             raise _exc_with_message(
@@ -1290,7 +1331,7 @@ def file_upload(request):
                 See https://peps.python.org/pep-0639/#add-license-file-field
                 """
                 with tarfile.open(temporary_filename, "r:gz") as tar:
-                    top_level = os.path.commonprefix(tar.getnames())
+                    top_level = _commonpath(tar.getnames())
                     # Already validated as a tarfile by _is_valid_dist_file above
                     for license_file in meta.license_files:
                         target_file = os.path.join(top_level, license_file)
@@ -1573,20 +1614,6 @@ def file_upload(request):
             },
         )
 
-        # TODO: This should be handled by some sort of database trigger or a
-        #       SQLAlchemy hook or the like instead of doing it inline in this
-        #       view.
-        request.db.add(
-            JournalEntry(
-                name=release.project.name,
-                version=release.version,
-                action="add {python_version} file {filename}".format(
-                    python_version=file_.python_version, filename=file_.filename
-                ),
-                submitted_by=request.user if request.user else None,
-            )
-        )
-
         # If we have attestations from above, persist them.
         if attestations:
             request.db.add(
@@ -1637,10 +1664,46 @@ def file_upload(request):
             ):
                 release_url.verified = True
 
-        if home_page_verified and not release.home_page_verified:
+        if (
+            home_page_verified
+            and not release.home_page_verified
+            and release.home_page == home_page
+        ):
             release.home_page_verified = True
-        if download_url_verified and not release.download_url_verified:
+        if (
+            download_url_verified
+            and not release.download_url_verified
+            and release.download_url == download_url
+        ):
             release.download_url_verified = True
+
+    # TODO: This should be handled by some sort of database trigger or
+    #       a SQLAlchemy hook or the like instead of doing it inline in
+    #       this view.
+    # NOTE: JournalEntries are intentionally deferred until here (after storage
+    #       upload) to minimize advisory lock hold time. ensure_monotonic_journals
+    #       acquires a global advisory lock whenever a JournalEntry is flushed.
+    #       Keeping them near the final flush prevents the lock from being held
+    #       through the S3 upload, reducing contention between concurrent uploads.
+    if is_new_release:
+        request.db.add(
+            JournalEntry(
+                name=release.project.name,
+                version=release.version,
+                action="new release",
+                submitted_by=request.user if request.user else None,
+            )
+        )
+    request.db.add(
+        JournalEntry(
+            name=release.project.name,
+            version=release.version,
+            action="add {python_version} file {filename}".format(
+                python_version=file_.python_version, filename=file_.filename
+            ),
+            submitted_by=request.user if request.user else None,
+        )
+    )
 
     request.db.flush()  # flush db now so server default values are populated for celery
 

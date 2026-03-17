@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import click
+import pyramid.scripting
+import transaction
 
 from warehouse.cli import warehouse
 
@@ -61,9 +63,14 @@ def shell(config, type_):
 
     runner = {"bpython": bpython, "ipython": ipython, "plain": plain}[type_]
 
+    env = pyramid.scripting.prepare(registry=config.registry)
+    request = env["request"]
+    env["request"].tm = transaction.TransactionManager(explicit=True)
+
     session = Session(bind=config.registry["sqlalchemy.engine"])
+    request.db = session
 
     try:
-        runner(config=config, db=session)
+        runner(config=config, db=session, request=request)
     except ImportError:
         raise click.ClickException(f"The {type_!r} shell is not available.") from None

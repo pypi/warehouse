@@ -349,7 +349,7 @@ totp-cli instant <<< IU7UP3EMIPI7EBPQUUSEHEJUFNBIWOYG
 This will emit a 6-digit code you can paste into the 2FA form.
 
 For other accounts, you'll need to preserve the Key used
-to genreate the TOTP code the next time you need to log in.
+to generate the TOTP code the next time you need to log in.
 
 To be able to "forget" the initial Key, and use it like a TOTP app,
 create a storage and set a password, like so:
@@ -428,11 +428,17 @@ into a shell, you can use `make debug` instead of `make serve`.
 
 * If the `Dockerfile` is edited or new dependencies are added
   (either by you or a prior pull request), a new container will need
-  to built. A new container can be built by running `make
+  to be built. A new container can be built by running `make
   build`. This should be done before running `make serve` again.
 
 * If `make serve` hangs after a new build, you should stop any
   running containers and repeat `make serve`.
+
+* If using Windows Subsystem for Linux (WSL) and running `code .` results in an
+  `Exec format error`, ensure that the VS Code WSL extension is installed and
+  that the project is opened using **"Open Folder in WSL"** from Visual Studio Code.
+
+  Reinstalling the VS Code server in WSL may also resolve the issue.
 
 * To run Warehouse behind a proxy set the appropriate proxy settings in the
   `Dockerfile`.
@@ -466,7 +472,7 @@ into a shell, you can use `make debug` instead of `make serve`.
 
 * If `make initdb` fails with an error like:
 
-    ```shellsesion
+    ```shellsession
     A fatal error has been detected by the Java Runtime Environment:
     SIGILL (0x4) at pc=0x0000f819dfc67c5c, pid=25, tid=26
     ```
@@ -500,7 +506,7 @@ https://github.com/chadoe/docker-cleanup-volumes)
 
 ### `make initdb` is slow or appears to make no progress
 
-This typically occur when Docker is not allocated enough memory to perform the
+This typically occurs when Docker is not allocated enough memory to perform the
 migrations. Try modifying your Docker configuration to allow more RAM for each
 container, temporarily stop `make_serve` and run `make initdb` again.
 
@@ -573,10 +579,11 @@ make shell
 
 The interactive shell will have the following variables defined in it:
 
-| Variable | Description                                                                                       |
-|----------|---------------------------------------------------------------------------------------------------|
-| config   | The Pyramid `Configurator` object which has already been configured by Warehouse.                 |
-| db       | The SQLAlchemy ORM `Session` object which has already been configured to connect to the database. |
+| Variable   | Description                                                                                                                                                                     |
+|------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `config`   | The Pyramid `Configurator` object which has already been configured by Warehouse.                                                                                               |
+| `db`       | The SQLAlchemy ORM `Session` object which has already been configured to connect to the database.                                                                               |
+| `request`  | A dummy Pyramid ``Request`` object which has already been configured to provide a request-like object. **Does not autocommit**, call ``request.db.commit()`` to commit changes. |
 
 To use the `db` object in the interactive shell, import the class you're
 planning to use. For example, if I wanted to use the User object, I would
