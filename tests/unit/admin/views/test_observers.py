@@ -30,7 +30,7 @@ class TestParseDaysParam:
     )
     def test_parse_days_param(self, db_request, params, expected):
         db_request.params = params
-        assert views._parse_days_param(db_request) == expected
+        assert views.parse_days_param(db_request) == expected
 
     @pytest.mark.parametrize(
         ("params", "expected"),
@@ -44,7 +44,7 @@ class TestParseDaysParam:
     def test_parse_days_param_with_detail_allowed(self, db_request, params, expected):
         """Test parsing days with ALLOWED_DAYS_DETAIL (includes 0 for lifetime)."""
         db_request.params = params
-        result = views._parse_days_param(db_request, views.ALLOWED_DAYS_DETAIL)
+        result = views.parse_days_param(db_request, views.ALLOWED_DAYS_DETAIL)
         assert result == expected
 
 

@@ -1012,7 +1012,7 @@ class TestTwoFactor:
             check_totp_value=lambda userid, totp_value: True,
             get_password_timestamp=lambda userid: 0,
             needs_tos_flash=lambda userid, revision: False,
-            device_is_known=lambda *a: True,
+            device_is_known=lambda *a, **kw: True,
         )
 
         new_session = {}
@@ -1207,7 +1207,7 @@ class TestTwoFactor:
             has_totp=lambda uid: True,
             has_webauthn=lambda uid: False,
             has_recovery_codes=lambda uid: False,
-            device_is_known=lambda *a: False,
+            device_is_known=lambda *a, **kw: False,
             check_totp_value=lambda userid, totp_value: True,
         )
 
@@ -1613,7 +1613,7 @@ class TestRecoveryCode:
             check_recovery_code=lambda userid, recovery_code_value: True,
             get_password_timestamp=lambda userid: 0,
             needs_tos_flash=lambda userid, revision: False,
-            device_is_known=lambda *a: True,
+            device_is_known=lambda *a, **kw: True,
         )
 
         new_session = {}
@@ -1767,7 +1767,7 @@ class TestRecoveryCode:
             get_user=lambda userid: user,
             has_recovery_codes=lambda userid: True,
             check_recovery_code=lambda userid, recovery_code_value: True,
-            device_is_known=lambda *a: False,
+            device_is_known=lambda *a, **kw: False,
         )
 
         db_request.find_service = lambda interface, **kwargs: {

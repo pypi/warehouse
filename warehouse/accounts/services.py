@@ -748,7 +748,12 @@ class DatabaseUserService:
             )
         )
 
-    def device_is_known(self, userid, request):
+    def device_is_known(
+        self,
+        userid,
+        request: Request,
+        two_factor_method: str | None = None,
+    ) -> bool:
         user = self.get_user(userid)
         token_service = request.find_service(ITokenService, name="confirm_login")
         unique_login = (
@@ -777,6 +782,12 @@ class DatabaseUserService:
             request.db.add(unique_login)
             request.db.flush()  # To get the ID for the token
             should_send_email = True
+
+            user.record_event(
+                tag=EventTag.Account.LoginNewDevice,
+                request=request,
+                additional={"two_factor_method": two_factor_method},
+            )
 
         # Check if the login had expired
         if unique_login.expires and unique_login.expires < datetime.datetime.now(

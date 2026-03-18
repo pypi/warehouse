@@ -79,7 +79,7 @@ class TestParseDaysParam:
     )
     def test_parse_days(self, params, expected, mocker):
         request = mocker.MagicMock(params=params)
-        assert views._parse_days_param(request) == expected
+        assert views.parse_days_param(request) == expected
 
 
 class TestHoursBetween:
