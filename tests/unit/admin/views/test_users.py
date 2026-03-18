@@ -23,6 +23,7 @@ from warehouse.packaging.models import JournalEntry, Project, ReleaseURL
 
 from ....common.db.accounts import EmailFactory, User, UserFactory
 from ....common.db.packaging import (
+    FileFactory,
     JournalEntryFactory,
     ProjectFactory,
     ReleaseFactory,
@@ -180,6 +181,45 @@ class TestUserDetail:
         assert db_request.current_route_path.calls == [
             pretend.call(username=user.username)
         ]
+
+
+class TestUserFiles:
+    def test_no_files(self, db_request):
+        user = UserFactory.create()
+        project = ProjectFactory.create()
+        RoleFactory(project=project, user=user, role_name="Owner")
+
+        result = views.user_files(user, db_request)
+
+        assert result == {"files": [], "total_size": 0, "file_count": 0}
+
+    def test_returns_files_with_metadata(self, db_request):
+        user = UserFactory.create()
+        project = ProjectFactory.create(name="alpha-project")
+        RoleFactory(project=project, user=user, role_name="Owner")
+        release = ReleaseFactory.create(project=project, version="1.0")
+        file1 = FileFactory.create(
+            release=release,
+            filename="alpha_project-1.0.tar.gz",
+            packagetype="sdist",
+            size=1000,
+        )
+        file2 = FileFactory.create(
+            release=release,
+            filename="alpha_project-1.0-py3-none-any.whl",
+            packagetype="bdist_wheel",
+            size=2000,
+        )
+
+        result = views.user_files(user, db_request)
+
+        assert result["file_count"] == 2
+        assert result["total_size"] == 3000
+        assert len(result["files"]) == 4  # 2 files + 2 .metadata
+        assert file1.path in result["files"]
+        assert file1.path + ".metadata" in result["files"]
+        assert file2.path in result["files"]
+        assert file2.path + ".metadata" in result["files"]
 
 
 class TestUserEmailSubmit:

@@ -74,6 +74,20 @@
   width: 100%;
 }
 
+/* User files modal - full screen with scrollable body */
+.user-files-dialog {
+  max-width: 95vw;
+  height: 90vh;
+
+  .modal-content {
+    height: 100%;
+  }
+}
+
+.user-files-content {
+  font-size: 12px;
+}
+
 /* Muted text for use on colored card backgrounds */
 .text-white-muted {
   opacity: 0.8;

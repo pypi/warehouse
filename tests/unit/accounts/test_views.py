@@ -1976,7 +1976,10 @@ class TestRegister:
             pretend.call(
                 tag=EventTag.Account.LoginSuccess,
                 request=db_request,
-                additional={"two_factor_method": None, "two_factor_label": None},
+                additional={
+                    "two_factor_method": "registration",
+                    "two_factor_label": None,
+                },
             ),
         ]
 
@@ -5687,7 +5690,9 @@ class TestConfirmLogin:
             IUserService: {None: user_service},
         }[interface][name]
 
-        _login_user = pretend.call_recorder(lambda request, userid: [("foo", "bar")])
+        _login_user = pretend.call_recorder(
+            lambda request, userid, two_factor_method=None: [("foo", "bar")]
+        )
         monkeypatch.setattr(views, "_login_user", _login_user)
         _set_userid_insecure_cookie = pretend.call_recorder(lambda resp, userid: None)
         monkeypatch.setattr(
@@ -5701,5 +5706,7 @@ class TestConfirmLogin:
         assert isinstance(result, HTTPSeeOther)
         assert result.location == "/manage.projects"
         assert unique_login.status == UniqueLoginStatus.CONFIRMED
-        assert _login_user.calls == [pretend.call(db_request, user.id)]
+        assert _login_user.calls == [
+            pretend.call(db_request, user.id, two_factor_method="email-confirmation")
+        ]
         assert _set_userid_insecure_cookie.calls == [pretend.call(result, user.id)]
