@@ -27,7 +27,7 @@ SESSION_SECRET="an insecure development secret"
 BILLING_BACKEND=warehouse.subscriptions.services.MockStripeBillingService api_base=http://stripe:12111 api_version=2020-08-27 domain=localhost
 # BILLING_BACKEND=warehouse.subscriptions.services.StripeBillingService api_version=2020-08-27 publishable_key=pk_test_123 secret_key=sk_test_123 webhook_key=whsec_123 domain=localhost
 
-CAMO_URL={request.scheme}://{request.domain}:9000/
+CAMO_URL={request.scheme}://camo.localhost/
 CAMO_KEY=insecurecamokey
 
 # Example of a Live Reload URL for remote development
@@ -37,9 +37,9 @@ HIBP_API_KEY="something-not-real"
 
 DOCS_URL="https://pythonhosted.org/{project}/"
 
-FILES_BACKEND=warehouse.packaging.services.LocalFileStorage path=/var/opt/warehouse/packages/ url=http://localhost:9001/packages/{path}
-ARCHIVE_FILES_BACKEND=warehouse.packaging.services.LocalArchiveFileStorage path=/var/opt/warehouse/packages-archive/ url=http://localhost:9001/packages-archive/{path}
-SIMPLE_BACKEND=warehouse.packaging.services.LocalSimpleStorage path=/var/opt/warehouse/simple/ url=http://localhost:9001/simple/{path}
+FILES_BACKEND=warehouse.packaging.services.LocalFileStorage path=/var/opt/warehouse/packages/ url=http://files.localhost/packages/{path}
+ARCHIVE_FILES_BACKEND=warehouse.packaging.services.LocalArchiveFileStorage path=/var/opt/warehouse/packages-archive/ url=http://files.localhost/packages-archive/{path}
+SIMPLE_BACKEND=warehouse.packaging.services.LocalSimpleStorage path=/var/opt/warehouse/simple/ url=http://files.localhost/simple/{path}
 DOCS_BACKEND=warehouse.packaging.services.LocalDocsStorage path=/var/opt/warehouse/docs/
 SPONSORLOGOS_BACKEND=warehouse.admin.services.LocalSponsorLogoStorage path=/var/opt/warehouse/sponsorlogos/
 ORIGIN_CACHE=warehouse.cache.origin.fastly.NullFastlyCache api_key=some_api_key service_id=some_service_id

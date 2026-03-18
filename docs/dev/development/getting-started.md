@@ -247,7 +247,7 @@ TUF trust root for development, and creates the initial set of TUF metadata.
     the TUF metadata repository:
 
     * RSTUF API: http://localhost:8001
-    * TUF Metadata Repository: http://localhost:9001/tuf-metadata/
+    * TUF Metadata Repository: http://files.localhost/tuf-metadata/
 
 ### Resetting the development database
 
@@ -259,8 +259,8 @@ This command will fully reset the development database.
 
 ### Viewing Warehouse in a browser
 
-At this point all the services are up, and web container is listening on port
-80. It's accessible at http://localhost:80/.
+At this point all the services are up, and Traefik is routing traffic on port
+80. The web application is accessible at http://localhost/.
 
 !!! note
     If you are using `docker-machine` on an older version of macOS or
@@ -279,7 +279,7 @@ use that port instead.
 
 ### Logging in to Warehouse
 
-You can log into warehouse at http://localhost:80/account/login/.
+You can log into warehouse at http://localhost/account/login/.
 
 There are 4 accounts ready for you to use:
 
@@ -406,7 +406,7 @@ access your developer environment, you'll:
 make serve
 ```
 
-View Warehouse in the browser at http://localhost:80/.
+View Warehouse in the browser at http://localhost/.
 
 ### Debugging the webserver
 
