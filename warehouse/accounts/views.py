@@ -775,7 +775,7 @@ def register(request, _form_class=RegistrationForm):
         send_email_verification_email(request, (user, email))
         email_limiter.hit(user.id)
 
-        _login_user(request, user.id)
+        _login_user(request, user.id, two_factor_method="registration")
         resp = HTTPSeeOther(request.route_path("index"))
         _set_userid_insecure_cookie(resp, user.id)
 
@@ -1036,7 +1036,7 @@ def confirm_login(request):
 
     unique_login.status = UniqueLoginStatus.CONFIRMED
 
-    _login_user(request, user.id)
+    _login_user(request, user.id, two_factor_method="email-confirmation")
     resp = HTTPSeeOther(request.route_path("manage.projects"))
     _set_userid_insecure_cookie(resp, user.id)
     request.session.flash(
