@@ -210,6 +210,14 @@ def includeme(config):
         traverse="/{username}",
     )
 
+    config.add_route(
+        "admin.user.files",
+        "/admin/users/{username}/files/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+    )
+
     # Macaroon related Admin pages
     config.add_route(
         "admin.macaroon.decode_token", "/admin/token/decode", domain=warehouse
