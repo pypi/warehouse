@@ -20,7 +20,7 @@ function initProjectCreationsChart() {
   let chartData;
   try {
     chartData = JSON.parse(chartDataScript.textContent);
-  } catch (e) {
+  } catch {
     return;
   }
 

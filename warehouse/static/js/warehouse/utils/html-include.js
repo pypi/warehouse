@@ -34,7 +34,7 @@ export default () => {
         if (pathname.startsWith("/_includes/authed/")) {
           return;
         }
-      } catch (e) {
+      } catch {
         // If parsing fails, assume it's just a path
         if (url.startsWith("/_includes/authed/")) {
           return;
