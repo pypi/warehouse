@@ -455,28 +455,26 @@ def project_service(db_session, metrics, ratelimiters=None):
 
 
 @pytest.fixture
-def github_oidc_service(db_session):
-    # We pretend to be a verifier for GitHub OIDC JWTs, for the purposes of testing.
+def github_oidc_service(db_session, metrics):
     return oidc_services.NullOIDCPublisherService(
         db_session,
-        pretend.stub(),
+        "github",
         GITHUB_OIDC_ISSUER_URL,
+        "pypi",
         pretend.stub(),
-        pretend.stub(),
-        pretend.stub(),
+        metrics,
     )
 
 
 @pytest.fixture
-def activestate_oidc_service(db_session):
-    # We pretend to be a verifier for GitHub OIDC JWTs, for the purposes of testing.
+def activestate_oidc_service(db_session, metrics):
     return oidc_services.NullOIDCPublisherService(
         db_session,
-        pretend.stub(),
+        "activestate",
         ACTIVESTATE_OIDC_ISSUER_URL,
+        "pypi",
         pretend.stub(),
-        pretend.stub(),
-        pretend.stub(),
+        metrics,
     )
 
 
