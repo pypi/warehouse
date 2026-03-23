@@ -399,6 +399,11 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call(
+            "admin.prohibited_project_names.ultranorm_release",
+            "/admin/prohibited_project_names/ultranorm_release/",
+            domain=warehouse,
+        ),
+        pretend.call(
             "admin.prohibited_user_names.list",
             "/admin/prohibited_user_names/",
             domain=warehouse,
