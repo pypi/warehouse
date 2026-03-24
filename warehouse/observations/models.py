@@ -10,6 +10,7 @@ import typing
 
 from uuid import UUID
 
+from pyramid.authorization import Allow
 from sqlalchemy import ForeignKey, String, sql
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.associationproxy import AssociationProxy, association_proxy
@@ -18,6 +19,7 @@ from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.orm import Mapped, declared_attr, mapped_column, relationship
 
 from warehouse import db
+from warehouse.authnz import Permissions
 from warehouse.utils.db.types import datetime_now
 
 if typing.TYPE_CHECKING:
@@ -127,6 +129,17 @@ class ObservationKind(enum.Enum):
 OBSERVATION_KIND_MAP = {kind.value[0]: kind for kind in ObservationKind}
 
 
+class ObservationFactory:
+    def __init__(self, request):
+        self.request = request
+
+    def __getitem__(self, observation_id):
+        observation = self.request.db.get(Observation, observation_id)
+        if observation is None:
+            raise KeyError from None
+        return observation
+
+
 class Observation(AbstractConcreteBase, db.Model):
     """
     Observations are user-driven additions to models.
@@ -192,6 +205,25 @@ class Observation(AbstractConcreteBase, db.Model):
         """
         kind_map = {k.value[0]: k.value[1] for k in ObservationKind}
         return kind_map[self.kind]
+
+    def __acl__(self):
+        admin_permissions = [
+            Permissions.AdminDashboardSidebarRead,
+            Permissions.AdminObservationsRead,
+            Permissions.AdminObservationsWrite,
+        ]
+        moderator_permissions = [
+            Permissions.AdminDashboardSidebarRead,
+            Permissions.AdminObservationsRead,
+            Permissions.AdminObservationsWrite,
+        ]
+        if self.kind == ObservationKind.IsMalware.value[0]:
+            admin_permissions.append(Permissions.AdminProjectsDelete)
+
+        return [
+            (Allow, "group:admins", tuple(admin_permissions)),
+            (Allow, "group:moderators", tuple(moderator_permissions)),
+        ]
 
 
 class HasObservations:
