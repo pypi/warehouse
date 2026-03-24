@@ -200,14 +200,24 @@ class TestOIDCPublisherService:
             ),
         ]
 
-    def test_find_publisher_issuer_url_mismatch(self, metrics):
+    def test_find_publisher_issuer_url_mismatch(self, metrics, monkeypatch):
+        """Providers that do NOT support custom issuers (e.g. GitHub) must
+        reject JWTs whose issuer differs from the service's canonical URL."""
+        canonical_issuer = "https://canonical.example.com"
         service = services.OIDCPublisherService(
             session=pretend.stub(),
             publisher="fakepublisher",
-            issuer_url="https://canonical.example.com",
+            issuer_url=canonical_issuer,
             audience="fakeaudience",
             cache_url=pretend.stub(),
             metrics=metrics,
+        )
+
+        publisher_cls = pretend.stub(__supports_custom_issuer__=False)
+        monkeypatch.setitem(
+            services.OIDC_PUBLISHER_CLASSES,
+            canonical_issuer,
+            {False: publisher_cls},
         )
 
         claims = SignedClaims({"iss": "https://attacker.example.com"})
@@ -226,6 +236,63 @@ class TestOIDCPublisherService:
                 tags=[
                     "publisher:fakepublisher",
                     "issuer_url:https://attacker.example.com",
+                ],
+            ),
+        ]
+
+    def test_find_publisher_custom_issuer(self, metrics, monkeypatch):
+        """Simulates a self-managed GitLab: the service is registered with the
+        canonical gitlab.com issuer, but the JWT comes from a custom domain
+        that was registered as an OrganizationOIDCIssuer."""
+        canonical_issuer = "https://gitlab.com"
+        custom_issuer = "https://gitlab.example.com"
+
+        service = services.OIDCPublisherService(
+            session=pretend.stub(),
+            publisher="gitlab",
+            issuer_url=canonical_issuer,
+            audience="fakeaudience",
+            cache_url=pretend.stub(),
+            metrics=metrics,
+        )
+
+        claims = SignedClaims({"iss": custom_issuer})
+
+        # The publisher class must support custom issuers
+        publisher_cls = pretend.stub(__supports_custom_issuer__=True)
+        monkeypatch.setitem(
+            services.OIDC_PUBLISHER_CLASSES,
+            canonical_issuer,
+            {False: publisher_cls},
+        )
+
+        publisher = pretend.stub(verify_claims=pretend.call_recorder(lambda c, s: True))
+        find_publisher_by_issuer = pretend.call_recorder(lambda *a, **kw: publisher)
+        monkeypatch.setattr(
+            services, "find_publisher_by_issuer", find_publisher_by_issuer
+        )
+
+        assert service.find_publisher(claims) == publisher
+        # find_publisher_by_issuer is called with the canonical issuer URL
+        # (for OIDC_PUBLISHER_CLASSES lookup), while lookup_by_claims uses
+        # the JWT's iss claim to filter publishers in the DB.
+        assert find_publisher_by_issuer.calls == [
+            pretend.call(service.db, canonical_issuer, claims, pending=False),
+        ]
+        assert publisher.verify_claims.calls == [pretend.call(claims, service)]
+        assert service.metrics.increment.calls == [
+            pretend.call(
+                "warehouse.oidc.find_publisher.attempt",
+                tags=[
+                    "publisher:gitlab",
+                    f"issuer_url:{custom_issuer}",
+                ],
+            ),
+            pretend.call(
+                "warehouse.oidc.find_publisher.ok",
+                tags=[
+                    "publisher:gitlab",
+                    f"issuer_url:{custom_issuer}",
                 ],
             ),
         ]
