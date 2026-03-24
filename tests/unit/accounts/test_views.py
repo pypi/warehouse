@@ -1012,7 +1012,7 @@ class TestTwoFactor:
             check_totp_value=lambda userid, totp_value: True,
             get_password_timestamp=lambda userid: 0,
             needs_tos_flash=lambda userid, revision: False,
-            device_is_known=lambda *a: True,
+            device_is_known=lambda *a, **kw: True,
         )
 
         new_session = {}
@@ -1207,7 +1207,7 @@ class TestTwoFactor:
             has_totp=lambda uid: True,
             has_webauthn=lambda uid: False,
             has_recovery_codes=lambda uid: False,
-            device_is_known=lambda *a: False,
+            device_is_known=lambda *a, **kw: False,
             check_totp_value=lambda userid, totp_value: True,
         )
 
@@ -1613,7 +1613,7 @@ class TestRecoveryCode:
             check_recovery_code=lambda userid, recovery_code_value: True,
             get_password_timestamp=lambda userid: 0,
             needs_tos_flash=lambda userid, revision: False,
-            device_is_known=lambda *a: True,
+            device_is_known=lambda *a, **kw: True,
         )
 
         new_session = {}
@@ -1767,7 +1767,7 @@ class TestRecoveryCode:
             get_user=lambda userid: user,
             has_recovery_codes=lambda userid: True,
             check_recovery_code=lambda userid, recovery_code_value: True,
-            device_is_known=lambda *a: False,
+            device_is_known=lambda *a, **kw: False,
         )
 
         db_request.find_service = lambda interface, **kwargs: {
@@ -1976,7 +1976,10 @@ class TestRegister:
             pretend.call(
                 tag=EventTag.Account.LoginSuccess,
                 request=db_request,
-                additional={"two_factor_method": None, "two_factor_label": None},
+                additional={
+                    "two_factor_method": "registration",
+                    "two_factor_label": None,
+                },
             ),
         ]
 
@@ -5604,7 +5607,9 @@ class TestConfirmLogin:
             IUserService: {None: user_service},
         }[interface][name]
 
-        _login_user = pretend.call_recorder(lambda request, userid: [("foo", "bar")])
+        _login_user = pretend.call_recorder(
+            lambda request, userid, two_factor_method=None: [("foo", "bar")]
+        )
         monkeypatch.setattr(views, "_login_user", _login_user)
         _set_userid_insecure_cookie = pretend.call_recorder(lambda resp, userid: None)
         monkeypatch.setattr(
@@ -5618,5 +5623,7 @@ class TestConfirmLogin:
         assert isinstance(result, HTTPSeeOther)
         assert result.location == "/manage.projects"
         assert unique_login.status == UniqueLoginStatus.CONFIRMED
-        assert _login_user.calls == [pretend.call(db_request, user.id)]
+        assert _login_user.calls == [
+            pretend.call(db_request, user.id, two_factor_method="email-confirmation")
+        ]
         assert _set_userid_insecure_cookie.calls == [pretend.call(result, user.id)]

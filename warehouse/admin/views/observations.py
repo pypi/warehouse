@@ -14,6 +14,7 @@ from pyramid.view import view_config
 from sqlalchemy import func, select
 
 from warehouse.accounts.models import User
+from warehouse.admin.views.helpers import parse_days_param
 from warehouse.authnz import Permissions
 from warehouse.observations.models import Observation, Observer
 from warehouse.observations.utils import calc_accuracy, classify_observation
@@ -21,10 +22,6 @@ from warehouse.packaging.models import JournalEntry
 
 if TYPE_CHECKING:
     from pyramid.request import Request
-
-# Valid time periods for filtering
-ALLOWED_DAYS = (30, 60, 90)
-DEFAULT_DAYS = 30
 
 # Pattern to extract project name from related_name repr string
 # Format: Project(id=..., name='project-name', ...)
@@ -53,15 +50,6 @@ def _calc_median(values: list) -> float | None:
         return None
     values.sort()
     return round(values[len(values) // 2], 1)
-
-
-def _parse_days_param(request: Request, allowed: tuple[int, ...] = ALLOWED_DAYS) -> int:
-    """Parse and validate the days query parameter."""
-    try:
-        days = int(request.params.get("days", DEFAULT_DAYS))
-        return days if days in allowed else DEFAULT_DAYS
-    except (ValueError, TypeError):
-        return DEFAULT_DAYS
 
 
 def _fetch_malware_observations(request: Request, cutoff_date: datetime) -> list:
@@ -631,7 +619,7 @@ def _get_timeline_trends(project_data: dict) -> dict[str, list]:
 )
 def observations_insights(request: Request):
     """Display report quality insights and response timeline metrics."""
-    days = _parse_days_param(request)
+    days = parse_days_param(request)
     cutoff_date = datetime.now(tz=timezone.utc) - timedelta(days=days)
 
     observations = _fetch_malware_observations(request, cutoff_date)

@@ -23,6 +23,7 @@ import "admin-lte/build/js/AdminLTE";
 
 import "./treeview";
 import "./observer_charts";
+import "./project_charts";
 
 // Get our timeago function
 import timeAgo from "warehouse/utils/timeago";
@@ -306,6 +307,58 @@ $(document).ready(function() {
   });
   bindHotKeys();
 });
+
+// User Files Modal
+let userFilesModal = $("#userFilesModal");
+if (userFilesModal.length) {
+  let loaded = false;
+  let filesUrl = userFilesModal.data("files-url");
+  let username = userFilesModal.data("username");
+
+  userFilesModal.on("show.bs.modal", function() {
+    if (loaded) return;
+    loaded = true;
+
+    $.getJSON(filesUrl)
+      .done(function(data) {
+        let content = data.files.join("\n");
+        $("#userFilesContent").text(content);
+
+        let sizes = ["B", "KiB", "MiB", "GiB", "TiB"];
+        let size = data.total_size;
+        let i = 0;
+        while (size >= 1024 && i < sizes.length - 1) { size /= 1024; i++; }
+        let sizeStr = (i === 0 ? size : size.toFixed(1)) + " " + sizes[i];
+
+        $("#userFilesSummary").html(
+          "<strong>" + data.file_count + "</strong> files (" +
+          data.files.length + " paths including .metadata), " +
+          "<strong>" + sizeStr + "</strong> total",
+        );
+
+        $("#userFilesCopyBtn").prop("disabled", false);
+        $("#userFilesDownloadBtn").prop("disabled", false);
+      })
+      .fail(function() {
+        $("#userFilesSummary").text("Failed to load files.");
+      });
+  });
+
+  $("#userFilesCopyBtn").on("click", function() {
+    navigator.clipboard.writeText($("#userFilesContent").text());
+  });
+
+  $("#userFilesDownloadBtn").on("click", function() {
+    let blob = new Blob([$("#userFilesContent").text()], {type: "text/plain"});
+    let a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    let d = new Date();
+    let ds = d.getFullYear() + String(d.getMonth() + 1).padStart(2, "0") + String(d.getDate()).padStart(2, "0");
+    a.download = username + "-" + ds + "-pypi-files.txt";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+}
 
 // Link Checking
 const links = document.querySelectorAll("a[data-check-link-url]");

@@ -410,10 +410,10 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
     if request.method == "POST":
         form = two_factor_state["totp_form"]
         if form.validate():
-            if user_service.device_is_known(userid, request):
+            two_factor_method = "totp"
+            if user_service.device_is_known(userid, request, two_factor_method):
                 # We've seen this device before for this user and they've
                 # confirmed it, log in the user
-                two_factor_method = "totp"
                 _login_user(request, userid, two_factor_method, two_factor_label="totp")
                 user_service.update_user(userid, last_totp_value=form.totp_value.data)
 
@@ -615,7 +615,9 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
 
     if request.method == "POST":
         if form.validate():
-            if user_service.device_is_known(userid, request):
+            if user_service.device_is_known(
+                userid, request, two_factor_method="recovery-code"
+            ):
                 # We've seen this device before for this user and they've
                 # confirmed it, log in the user
                 _login_user(request, userid, two_factor_method="recovery-code")
@@ -773,7 +775,7 @@ def register(request, _form_class=RegistrationForm):
         send_email_verification_email(request, (user, email))
         email_limiter.hit(user.id)
 
-        _login_user(request, user.id)
+        _login_user(request, user.id, two_factor_method="registration")
         resp = HTTPSeeOther(request.route_path("index"))
         _set_userid_insecure_cookie(resp, user.id)
 
@@ -1034,7 +1036,7 @@ def confirm_login(request):
 
     unique_login.status = UniqueLoginStatus.CONFIRMED
 
-    _login_user(request, user.id)
+    _login_user(request, user.id, two_factor_method="email-confirmation")
     resp = HTTPSeeOther(request.route_path("manage.projects"))
     _set_userid_insecure_cookie(resp, user.id)
     request.session.flash(

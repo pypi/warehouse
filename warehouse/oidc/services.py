@@ -17,7 +17,7 @@ from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.interfaces import IOIDCPublisherService, SignedClaims
 from warehouse.oidc.models import OIDCPublisher, PendingOIDCPublisher
-from warehouse.oidc.utils import find_publisher_by_issuer
+from warehouse.oidc.utils import OIDC_PUBLISHER_CLASSES, find_publisher_by_issuer
 from warehouse.utils.exceptions import InsecureOIDCPublisherWarning
 
 # Maximum clock-skew tolerance (in seconds) applied when verifying JWT expiration.
@@ -364,11 +364,16 @@ class OIDCPublisherService:
             tags=metrics_tags,
         )
 
-        # Verify that the JWT's issuer matches this service's canonical issuer URL.
-        # Without this check, a custom issuer (e.g. GHES) registered with a
-        # provider type like "github" could forge JWTs that match publishers
-        # registered under the canonical GitHub issuer.
-        if signed_claims["iss"] != self.issuer_url:
+        # Verify that the JWT's issuer matches this service's canonical issuer URL,
+        # unless the publisher type supports custom issuers. Providers like GitLab
+        # filter by issuer_url in lookup_by_claims, so a self-managed instance can
+        # only match publishers explicitly registered with that custom issuer URL.
+        # Providers like GitHub do NOT filter by issuer URL in lookup_by_claims,
+        # so without this check a compromised custom issuer (e.g. GHES) could forge
+        # JWTs matching any canonical publisher.
+        if signed_claims["iss"] != self.issuer_url and not (
+            OIDC_PUBLISHER_CLASSES[self.issuer_url][pending].__supports_custom_issuer__
+        ):
             self.metrics.increment(
                 "warehouse.oidc.find_publisher.issuer_url_mismatch",
                 tags=metrics_tags,
