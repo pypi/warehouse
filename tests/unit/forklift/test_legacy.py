@@ -2,6 +2,7 @@
 
 import base64
 import builtins
+import datetime
 import hashlib
 import io
 import json
@@ -6715,6 +6716,54 @@ class TestFileUpload:
         resp = excinfo.value
         assert resp.status_code == 400
         assert "PyArmor-encrypted content is not allowed" in resp.status
+
+    def test_upload_fails_release_is_closed(
+        self, tmpdir, monkeypatch, pyramid_config, db_request
+    ):
+        monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
+
+        now = datetime.datetime.now()
+        max_age_secs = legacy.MAXIMUM_RELEASE_AGE_IN_SECS_BEFORE_CLOSING
+        then = now - datetime.timedelta(seconds=max_age_secs + 1)
+
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0", created=then)
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}-py3-none-any.whl".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
+        filebody = _get_whl_testdata(
+            name=project.normalized_name.replace("-", "_"), version=release.version
+        )
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "bdist_wheel",
+                "pyversion": "cp34",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+        assert resp.status_code == 400
+        assert "Release is closed, new artifacts can't be published" in resp.status
 
 
 def test_submit(pyramid_request):
