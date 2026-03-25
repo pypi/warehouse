@@ -941,7 +941,14 @@ def send_unyanked_project_release_email(
 
 @_email("removed-project-release")
 def send_removed_project_release_email(
-    request, user, *, release, submitter_name, submitter_role, recipient_role
+    request,
+    user,
+    *,
+    release,
+    submitter_name,
+    submitter_role,
+    recipient_role,
+    reason=None,
 ):
     recipient_role_descr = "an owner"
     if recipient_role == "Maintainer":
@@ -954,12 +961,21 @@ def send_removed_project_release_email(
         "submitter_name": submitter_name,
         "submitter_role": submitter_role.lower(),
         "recipient_role_descr": recipient_role_descr,
+        "reason": reason,
     }
 
 
 @_email("removed-project-release-file")
 def send_removed_project_release_file_email(
-    request, user, *, file, release, submitter_name, submitter_role, recipient_role
+    request,
+    user,
+    *,
+    file,
+    release,
+    submitter_name,
+    submitter_role,
+    recipient_role,
+    reason=None,
 ):
     recipient_role_descr = "an owner"
     if recipient_role == "Maintainer":
@@ -972,6 +988,7 @@ def send_removed_project_release_file_email(
         "submitter_name": submitter_name,
         "submitter_role": submitter_role.lower(),
         "recipient_role_descr": recipient_role_descr,
+        "reason": reason,
     }
 
 
