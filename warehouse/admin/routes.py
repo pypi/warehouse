@@ -407,6 +407,11 @@ def includeme(config):
         "/admin/prohibited_project_names/release/",
         domain=warehouse,
     )
+    config.add_route(
+        "admin.prohibited_project_names.ultranorm_release",
+        "/admin/prohibited_project_names/ultranorm_release/",
+        domain=warehouse,
+    )
     # Prohibited Username related Admin pages
     config.add_route(
         "admin.prohibited_user_names.list",
