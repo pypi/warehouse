@@ -280,6 +280,20 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "admin.project.release.delete",
+        "/admin/projects/{project_name}/release/{version}/delete/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}/{version}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.project.release.file.delete",
+        "/admin/projects/{project_name}/release/{version}/delete_file/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}/{version}",
+        domain=warehouse,
+    )
+    config.add_route(
         "admin.project.observations",
         "/admin/projects/{project_name}/observations/",
         factory="warehouse.packaging.models:ProjectFactory",

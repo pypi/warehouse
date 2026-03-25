@@ -275,6 +275,20 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call(
+            "admin.project.release.delete",
+            "/admin/projects/{project_name}/release/{version}/delete/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}/{version}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.project.release.file.delete",
+            "/admin/projects/{project_name}/release/{version}/delete_file/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}/{version}",
+            domain=warehouse,
+        ),
+        pretend.call(
             "admin.project.observations",
             "/admin/projects/{project_name}/observations/",
             factory="warehouse.packaging.models:ProjectFactory",

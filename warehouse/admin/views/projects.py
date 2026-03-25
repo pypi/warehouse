@@ -23,9 +23,14 @@ from warehouse.constants import (
     ONE_MIB,
     UPLOAD_LIMIT_CAP,
 )
+from warehouse.email import (
+    send_removed_project_release_email,
+    send_removed_project_release_file_email,
+)
 from warehouse.events.tags import EventTag
+from warehouse.manage.views import get_user_role_in_project
 from warehouse.observations.models import OBSERVATION_KIND_MAP, ObservationKind
-from warehouse.packaging.models import JournalEntry, Project, Release, Role
+from warehouse.packaging.models import File, JournalEntry, Project, Release, Role
 from warehouse.packaging.tasks import update_release_description
 from warehouse.search.tasks import reindex_project as _reindex_project
 from warehouse.utils.paginate import paginate_url_factory
@@ -809,4 +814,176 @@ def unarchive_project_view(project, request) -> HTTPSeeOther:
     unarchive_project(project, request)
     return HTTPSeeOther(
         request.route_path("admin.project.detail", project_name=project.name)
+    )
+
+
+@view_config(
+    route_name="admin.project.release.delete",
+    permission=Permissions.AdminProjectsDelete,
+    request_method="POST",
+    uses_session=True,
+    require_methods=False,
+)
+def delete_release(release, request):
+    def _error(message):
+        request.session.flash(message, queue="error")
+        raise HTTPSeeOther(
+            request.route_path(
+                "admin.project.release",
+                project_name=release.project.normalized_name,
+                version=release.version,
+            )
+        )
+
+    version = request.POST.get("confirm_version")
+    if not version:
+        _error("Confirm the request")
+
+    if version != release.version:
+        _error(
+            f"Could not delete release - {version!r} is not the same as "
+            f"{release.version!r}"
+        )
+
+    reason = request.POST.get("reason", "").strip()
+    if not reason:
+        _error("Provide a reason")
+
+    request.db.add(
+        JournalEntry(
+            name=release.project.name,
+            action="remove release",
+            version=release.version,
+            submitted_by=request.user,
+        )
+    )
+
+    release.project.record_event(
+        tag=EventTag.Project.ReleaseRemove,
+        request=request,
+        additional={
+            "submitted_by": request.user.username,
+            "canonical_version": release.canonical_version,
+            "reason": reason,
+        },
+    )
+
+    for contributor in release.project.users:
+        contributor_role = get_user_role_in_project(
+            release.project, contributor, request
+        )
+
+        send_removed_project_release_email(
+            request,
+            contributor,
+            release=release,
+            submitter_name=request.user.username,
+            submitter_role="admin",
+            recipient_role=contributor_role,
+            reason=reason,
+        )
+
+    request.db.delete(release)
+
+    request.session.flash(f"Deleted release {release.version!r}", queue="success")
+
+    return HTTPSeeOther(
+        request.route_path(
+            "admin.project.detail",
+            project_name=release.project.normalized_name,
+        )
+    )
+
+
+@view_config(
+    route_name="admin.project.release.file.delete",
+    permission=Permissions.AdminProjectsDelete,
+    request_method="POST",
+    uses_session=True,
+    require_methods=False,
+)
+def delete_release_file(release, request):
+    def _error(message):
+        request.session.flash(message, queue="error")
+        raise HTTPSeeOther(
+            request.route_path(
+                "admin.project.release",
+                project_name=release.project.normalized_name,
+                version=release.version,
+            )
+        )
+
+    project_name = request.POST.get("confirm_project_name")
+    if not project_name:
+        _error("Confirm the request")
+
+    if project_name != release.project.name:
+        _error(
+            f"Could not delete file - {project_name!r} is not the same as "
+            f"{release.project.name!r}"
+        )
+
+    reason = request.POST.get("reason", "").strip()
+    if not reason:
+        _error("Provide a reason")
+
+    try:
+        release_file = (
+            request.db.query(File)
+            .filter(
+                File.release == release,
+                File.id == request.POST.get("file_id"),
+            )
+            .one()
+        )
+    except NoResultFound:
+        _error("Could not find file")
+
+    request.db.add(
+        JournalEntry(
+            name=release.project.name,
+            action=f"remove file {release_file.filename}",
+            version=release.version,
+            submitted_by=request.user,
+        )
+    )
+
+    release.project.record_event(
+        tag=EventTag.File.FileRemove,
+        request=request,
+        additional={
+            "submitted_by": request.user.username,
+            "canonical_version": release.canonical_version,
+            "filename": release_file.filename,
+            "project_id": str(release.project.id),
+            "reason": reason,
+        },
+    )
+
+    for contributor in release.project.users:
+        contributor_role = get_user_role_in_project(
+            release.project, contributor, request
+        )
+
+        send_removed_project_release_file_email(
+            request,
+            contributor,
+            file=release_file.filename,
+            release=release,
+            submitter_name=request.user.username,
+            submitter_role="admin",
+            recipient_role=contributor_role,
+            reason=reason,
+        )
+
+    request.db.delete(release_file)
+
+    request.session.flash(f"Deleted file {release_file.filename!r}", queue="success")
+
+    return HTTPSeeOther(
+        request.route_path(
+            "admin.project.release",
+            project_name=release.project.normalized_name,
+            version=release.version,
+        )
     )

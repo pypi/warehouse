@@ -4840,6 +4840,7 @@ class TestRemovedReleaseEmail:
             "submitter_name": stub_submitter_user.username,
             "submitter_role": "owner",
             "recipient_role_descr": "a maintainer",
+            "reason": None,
         }
 
         subject_renderer.assert_(project_name="test_project")
@@ -4976,6 +4977,7 @@ class TestRemovedReleaseEmail:
             "submitter_name": stub_submitter_user.username,
             "submitter_role": "owner",
             "recipient_role_descr": "an owner",
+            "reason": None,
         }
 
         subject_renderer.assert_(project_name="test_project")
@@ -5115,6 +5117,7 @@ class TestRemovedReleaseFileEmail:
             "submitter_name": stub_submitter_user.username,
             "submitter_role": "owner",
             "recipient_role_descr": "an owner",
+            "reason": None,
         }
 
         subject_renderer.assert_(project_name="test_project")
@@ -5252,6 +5255,7 @@ class TestRemovedReleaseFileEmail:
             "submitter_name": stub_submitter_user.username,
             "submitter_role": "owner",
             "recipient_role_descr": "a maintainer",
+            "reason": None,
         }
 
         subject_renderer.assert_(project_name="test_project")
