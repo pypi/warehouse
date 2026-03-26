@@ -551,3 +551,94 @@ class TestReleaseProhibitedProjectName:
         assert role is not None
         all_roles = db_request.db.query(Role).filter(Role.project == project).count()
         assert all_roles == 1
+
+
+class TestUltranormReleaseProjectName:
+    @pytest.fixture
+    def db_request(self, db_request):
+        """Inline test helper with common paths for these tests"""
+        db_request.route_path = lambda route_name, **kw: (
+            f"/admin/projects/{kw['project_name']}/"
+            if "project_name" in kw
+            else "/admin/prohibited_project_names/"
+        )
+        return db_request
+
+    def test_no_project_name(self, db_request):
+        result = views.ultranorm_release_project_name(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert db_request.session.pop_flash("error") == ["Provide a project name"]
+
+    def test_project_already_exists(self, db_request):
+        ProjectFactory.create(name="wutang")
+        db_request.POST["project_name"] = "wutang"
+
+        result = views.ultranorm_release_project_name(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert db_request.session.pop_flash("error") == [
+            "'wutang' already exists as a project."
+        ]
+
+    def test_no_ultranorm_conflict(self, db_request):
+        db_request.POST["project_name"] = "brand-new-project"
+
+        result = views.ultranorm_release_project_name(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert db_request.session.pop_flash("error") == [
+            "'brand-new-project' has no ultranormalization conflict. "
+            "No admin override needed."
+        ]
+
+    def test_no_username(self, db_request):
+        # "my-project" and "myproject" ultranormalize to the same value
+        ProjectFactory.create(name="my-project")
+        db_request.POST["project_name"] = "myproject"
+
+        result = views.ultranorm_release_project_name(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert db_request.session.pop_flash("error") == ["Provide a username"]
+
+    def test_user_does_not_exist(self, db_request):
+        ProjectFactory.create(name="my-project")
+        db_request.POST["project_name"] = "myproject"
+        db_request.POST["username"] = "ghostface"
+
+        result = views.ultranorm_release_project_name(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert db_request.session.pop_flash("error") == ["Unknown username 'ghostface'"]
+
+    def test_creates_project_and_assigns_role(self, db_request):
+        user = UserFactory.create(username="methodman")
+        ProjectFactory.create(name="my-project")
+        db_request.POST["project_name"] = "myproject"
+        db_request.POST["username"] = "methodman"
+
+        result = views.ultranorm_release_project_name(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/admin/projects/myproject/"
+        assert db_request.session.pop_flash("success") == [
+            "'myproject' provisioned to 'methodman' "
+            "(ultranorm conflict with 'my-project')."
+        ]
+
+        project = db_request.db.query(Project).filter(Project.name == "myproject").one()
+        role = (
+            db_request.db.query(Role)
+            .filter(
+                Role.user == user, Role.project == project, Role.role_name == "Owner"
+            )
+            .one()
+        )
+        assert role is not None
+
+        # Verify the original similar project still exists
+        assert (
+            db_request.db.query(Project).filter(Project.name == "my-project").one()
+            is not None
+        )

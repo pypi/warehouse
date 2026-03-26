@@ -6,7 +6,9 @@
 The {{ project_name }} release {{ release_version }} released on {{ release_date }} has been deleted.
 
 Deleted by: {{ submitter_name }} with a role: {{ submitter_role }}.
-
+{% if reason %}
+Reason: {{ reason }}
+{% endif %}
 If you have questions or concerns, you can email admin@pypi.org to communicate with the PyPI administrators.
 {% endblock %}
 
