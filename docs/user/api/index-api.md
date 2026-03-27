@@ -296,5 +296,24 @@ Accept: application/vnd.pypi.simple.v1+json
         "4.12.3",
         "4.13.0b2"
       ]
-    }
+    } 
     ```
+   ## API Schema Structure
+
+The `api/schema` directory in the Warehouse project defines the validation schemas used for API requests and responses.
+
+These schemas are responsible for ensuring that data exchanged through the API follows a consistent structure and meets validation requirements.
+
+### Purpose
+
+- Define the expected structure of API inputs and outputs  
+- Validate request and response data  
+- Improve consistency across the API  
+
+### Location
+
+The schema definitions can be found in the `warehouse/api/schema` directory within the project repository.
+
+### Why this matters
+
+Understanding the schema structure helps contributors and developers work more effectively with the API and ensures better data validation and reliability.
