@@ -78,6 +78,14 @@ const sharedWebpackManifestMap =
 
 /* End Shared Plugins */
 
+const sharedPerformance = {
+  assetFilter: (assetFilename) =>
+    // Exclude zxcvbn dictionary chunks — inherently large and loaded async
+    !assetFilename.startsWith("zxcvbn") &&
+    // Exclude source maps and pre-compressed files — not loaded as page assets
+    !/\.(map|gz|br)$/.test(assetFilename),
+};
+
 const sharedResolve = {
   alias: {
     // Use an alias to make inline non-relative `@import` statements.
@@ -251,6 +259,7 @@ module.exports = [
         },
       ],
     },
+    performance: sharedPerformance,
     optimization: {
       minimizer: [
         // default minimizer is Terser for JS. Extend here vs overriding.
@@ -408,6 +417,7 @@ module.exports = [
         // Global output path for all assets.
         path: path.resolve(__dirname, "warehouse/static/dist"),
       },
+      performance: sharedPerformance,
       dependencies: ["warehouse"],
       // Emit fewer stats-per-language in non-production builds.
       stats: (process.env.NODE_ENV === "production") ? undefined : "errors-warnings",
