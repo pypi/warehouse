@@ -2820,9 +2820,9 @@ class TestProvisionMacaroonViews:
 class TestManageProjects:
     def test_manage_projects(self, db_request):
         older_release = ReleaseFactory(created=datetime.datetime(2015, 1, 1))
-        project_with_older_release = ProjectFactory(releases=[older_release])
+        project_with_older_release = older_release.project
         newer_release = ReleaseFactory(created=datetime.datetime(2017, 1, 1))
-        project_with_newer_release = ProjectFactory(releases=[newer_release])
+        project_with_newer_release = newer_release.project
         older_project_with_no_releases = ProjectFactory(
             releases=[], created=datetime.datetime(2016, 1, 1)
         )
