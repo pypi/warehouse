@@ -1119,10 +1119,11 @@ class TestNullOIDCPublisherService:
 
         assert service.verify_jwt_signature(jwt, "https://example.com") is None
 
-    def test_find_publisher(self, monkeypatch):
+    def test_find_publisher(self, metrics, monkeypatch):
+        issuer_url = "https://example.com"
         claims = SignedClaims(
             {
-                "iss": "foo",
+                "iss": issuer_url,
                 "iat": 1516239022,
                 "nbf": 1516239022,
                 "exp": 9999999999,
@@ -1134,10 +1135,10 @@ class TestNullOIDCPublisherService:
         service = services.NullOIDCPublisherService(
             session=pretend.stub(),
             publisher="example",
-            issuer_url="https://example.com",
+            issuer_url=issuer_url,
             audience="pypi",
             cache_url="rediss://fake.example.com",
-            metrics=pretend.stub(),
+            metrics=metrics,
         )
 
         publisher = pretend.stub(verify_claims=pretend.call_recorder(lambda c, s: True))
