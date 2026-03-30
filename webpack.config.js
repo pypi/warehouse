@@ -340,7 +340,7 @@ module.exports = [
         filename: "js/admin.[contenthash].js",
       },
       all: {
-        import: "./warehouse/admin/static/css/admin.scss",
+        import: "./warehouse/admin/static/css/admin.css",
       },
     },
     devtool: "source-map",
@@ -353,11 +353,10 @@ module.exports = [
     module: {
       rules: [
         {
-          test: /\.(sa|sc|c)ss$/,
+          test: /\.css$/,
           use: [
             MiniCssExtractPlugin.loader,
             "css-loader",
-            "sass-loader",
           ],
         },
         {
