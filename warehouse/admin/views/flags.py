@@ -28,8 +28,17 @@ def get_flags(request):
 )
 def edit_flag(request):
     flag = request.db.get(AdminFlag, request.POST["id"])
+    previous_status = flag.enabled
     flag.description = request.POST["description"]
     flag.enabled = bool(request.POST.get("enabled"))
+
+    request.log.info(
+        "Admin flag changed",
+        flag=flag.id,
+        previous_status=previous_status,
+        new_status=flag.enabled,
+        admin=request.user.username,
+    )
 
     request.session.flash(f"Edited flag {flag.id!r}", queue="success")
 
