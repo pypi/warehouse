@@ -1043,9 +1043,9 @@ types-webencodings==0.5.0.20251108 \
     --hash=sha256:2378e2ceccced3d41bb5e21387586e7b5305e11519fc6b0659c629f23b2e5de4 \
     --hash=sha256:e21f81ff750795faffddaffd70a3d8bfff77d006f22c27e393eb7812586249d8
     # via types-html5lib
-types-webob==1.8.0.20260223 \
-    --hash=sha256:78820989b289b7d74c4ceabde76b792032d2a5cd9902d4fcc97677689970360b \
-    --hash=sha256:b4ef69053a91364053d881876e4ed29ca5364b8ee2930271ae7306748ec41361
+types-webob==1.8.0.20260322 \
+    --hash=sha256:0b035257a600c7aeaff7da71e6e1583273238b3b61e7ae8c3eb54a70e157938f \
+    --hash=sha256:3dd3dfb4229a92d77d85e3339dcdfef7198df19fc63dd0040b832994af3f970c
     # via -r requirements/lint.in
 types-wtforms==3.2.1.20260312 \
     --hash=sha256:021963cba1774fc1e36d57b2feaad5c59521f4ba76fadf658974e8bf2891abf1 \
