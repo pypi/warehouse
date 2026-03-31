@@ -2335,9 +2335,9 @@ tldextract==5.3.1 \
     --hash=sha256:6bfe36d518de569c572062b788e16a659ccaceffc486d243af0484e8ecf432d9 \
     --hash=sha256:a72756ca170b2510315076383ea2993478f7da6f897eef1f4a5400735d5057fb
     # via -r requirements/main.in
-transaction==5.0 \
-    --hash=sha256:106e7bd782bcc0cb5119fc9225b0c9a71dfc53adb938be905223adaef22b1174 \
-    --hash=sha256:b4c0b2d49a042d86235fa76531c3356b66d7635bb0e9f29ba2512915fc7b7a42
+transaction==5.1 \
+    --hash=sha256:05aa77c4543cec8b541565ad8b304857490878605ed727851bc5a531b9060789 \
+    --hash=sha256:f6ca8639a3e54f6991de0d9c0983a7cd91acb21a825cb544c168269be956bd41
     # via
     #   -r requirements/main.in
     #   pyramid-mailer
