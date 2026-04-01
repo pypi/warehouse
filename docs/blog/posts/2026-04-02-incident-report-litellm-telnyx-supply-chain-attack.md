@@ -11,32 +11,25 @@ tags:
 ---
 
 This post will drill deeper into two recent supply chain exploits, targeting users of popular PyPI packages - `litellm` & `telnyx`.
-
-This post will dive into some of the timelines and actions taken, as well as provide readers with some guidance on what they can do to prepare for such attacks.
+We also provide Python developers and maintainers with guidance on what they can do to prepare
+and protect themselves from future incidents.
 
 <!-- more -->
 
-## What happened with LiteLLM?
+## What happened with LiteLLM and telnyx?
 
-Two [`litellm`](https://pypi.org/project/litellm/) versions were published to PyPI, containing credential harvesting malware.
+After an API token exposure from an [exploited Trivy dependency](https://www.aquasec.com/blog/trivy-supply-chain-attack-what-you-need-to-know/)
+releases of the packages [`litellm`](https://pypi.org/project/litellm/) and [`telnyx`](https://pypi.org/project/telnyx/)
+were published to PyPI containing credential harvesting malware.
 
-After an API token exposure from an [exploited Trivy dependency](https://www.aquasec.com/blog/trivy-supply-chain-attack-what-you-need-to-know/), two new releases of `litellm` were uploaded to PyPI containing malware that ran on install, harvesting sensitive credentials and files, and exfiltrating to a remote API. Read more in [the published advisory (PYSEC-2026-2)](https://osv.dev/vulnerability/PYSEC-2026-2) and the [LiteLLM blog post](https://docs.litellm.ai/blog/security-update-march-2026).
+The malware ran on install, harvesting sensitive credentials and files, and exfiltrating to a remote API. More details published in [the advisory for LiteLLM (PYSEC-2026-2)](https://osv.dev/vulnerability/PYSEC-2026-2), the [LiteLLM blog post](https://docs.litellm.ai/blog/security-update-march-2026) about the incident,
+[the advisory for telnyx (PYSEC-2026-3)](https://osv.dev/vulnerability/PYSEC-2026-3) and the [telnyx notice](https://telnyx.com/resources/telnyx-python-sdk-supply-chain-security-notice-march-2026).
 
-After contacting the `litellm` maintainers, Mike and Seth collaborated with the LiteLLM team on steps forward, including token rotation, release removals, and recommendations around further security practices like using [Trusted Publishers](https://docs.pypi.org/trusted-publishers/), which [they have adopted](https://docs.litellm.ai/blog/ci-cd-v2-improvements).
-
-## What happened with telnyx?
-
-Two [`telnyx`](https://pypi.org/project/telnyx/) versions were published to PyPI, containing credential harvesting malware.
-From the same Trivy exploit as above, two new releases of `telnyx` were uploaded to PyPI
-containing credential harvesting code that ran on import of the package.
-
-Read more in [the published advisory (PYSEC-2026-3)](https://osv.dev/vulnerability/PYSEC-2026-3) and the [telnyx notice](https://telnyx.com/resources/telnyx-python-sdk-supply-chain-security-notice-march-2026).
-
-After connecting with the `telnyx` maintainers, Mike aided them with further analysis and remediation steps to secure their PyPI proejct and account. They have since migrated to use Trusted Publishers as well.
+After contacting the `litellm` and `telnyx` maintainers, Mike and Seth collaborated with each team on steps forward, including token rotation, release removals, and recommendations around further security practices like using [Trusted Publishers](https://docs.pypi.org/trusted-publishers/) which both projects have since adopted.
 
 ## Why is this malware different?
 
-This class of malware is different than most malware published to PyPI, which are mostly **new packages published** either as typosquats or with a plan to share the package with others and hope they install it. This malware is "injected" into open source packages that are **already in widespread use**. The malware injection occurs one of two ways:
+This class of malware is different from most malware published to PyPI, which are mostly published as **new packages**, either as typosquats or with a plan to share the package with others and hope they install it. This malware is "injected" into open source packages that are **already in widespread use**. The malware injection occurs one of two ways:
 
 * Targeting open source projects with insecure repositories, release workflows, or authentication
 * Targeting developers installing the latest versions of open source projects and exfiltrating API tokens and keys
@@ -134,7 +127,8 @@ Some examples of tools which produce lock files for applications are:
 * `pipenv`
 
 Note that `pip freeze` doesn't create a lock file, a lock file must include checksums / hashes of the package archives to be secure and reproducible.
-`pip freeze` only records packages and their versions.
+`pip freeze` only records packages and their versions. pip is working on experimental support for the `pylock.toml` standard through the
+[`pip lock` sub-command](https://pip.pypa.io/en/stable/cli/pip_lock).
 
 ## Protecting your project as an open source maintainer
 
