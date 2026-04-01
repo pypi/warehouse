@@ -7,7 +7,7 @@ import uuid
 import pymacaroons
 
 from pymacaroons.exceptions import MacaroonDeserializationException
-from sqlalchemy import update
+from sqlalchemy import select, update
 from sqlalchemy.orm import joinedload
 from zope.interface import implementer
 
@@ -134,15 +134,24 @@ class DatabaseMacaroonService:
 
         verified = caveats.verify(m, dm.key, request, context, permission)
         if verified:
-            # Use a direct UPDATE instead of ORM attribute mutation to avoid
-            # marking the macaroon dirty. A dirty macaroon causes autoflush
-            # during Project.__acl__() evaluation, which can deadlock with the
-            # advisory lock held by ensure_monotonic_journals.
-            self.db.execute(
-                update(Macaroon)
+            # Update last_used without dirtying the ORM object. A dirty
+            # macaroon causes autoflush during Project.__acl__() evaluation,
+            # which can deadlock with the journal advisory lock under
+            # concurrent uploads. SKIP LOCKED ensures that if another
+            # transaction is already updating this row (same token used
+            # concurrently), we just skip — the other transaction will
+            # set last_used anyway.
+            row = self.db.execute(
+                select(Macaroon.id)
                 .where(Macaroon.id == dm.id)
-                .values(last_used=datetime.datetime.now())
-            )
+                .with_for_update(skip_locked=True)
+            ).scalar()
+            if row:
+                self.db.execute(
+                    update(Macaroon)
+                    .where(Macaroon.id == dm.id)
+                    .values(last_used=datetime.datetime.now())
+                )
             return True
 
         raise InvalidMacaroonError(verified.msg)
