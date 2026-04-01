@@ -143,17 +143,18 @@ class DatabaseMacaroonService:
             # set last_used anyway.
             # skipping is okay as last_used value is imprecise (python dt, not DB clock)
             # and informational in the ui
-            row = self.db.execute(
-                select(Macaroon.id)
-                .where(Macaroon.id == dm.id)
-                .with_for_update(skip_locked=True)
-            ).scalar()
-            if row:
-                self.db.execute(
-                    update(Macaroon)
-                    .where(Macaroon.id == dm.id)
-                    .values(last_used=datetime.datetime.now())
-                )
+            self.db.execute(
+              update(Macaroon)
+              .where(
+                  Macaroon.id.in_(
+                      select(Macaroon.id)
+                      .where(Macaroon.id == dm.id)
+                      .with_for_update(skip_locked=True)
+                  )
+              )
+              .values(last_used=datetime.datetime.now())
+            )
+
             return True
 
         raise InvalidMacaroonError(verified.msg)
