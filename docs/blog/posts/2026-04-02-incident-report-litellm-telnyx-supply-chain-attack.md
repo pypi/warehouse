@@ -174,6 +174,6 @@ but enabling phishing-resistant 2FA like a hardware key can protect you further.
 
 ## How can you support this kind of work?
 
-Security work isn't free. You can support security work on the Python Package Index by supporting the Python Software Foundation.
+Security work isn't free. You can support security work on the Python Package Index by supporting the Python Software Foundation (PSF). If you or your organization is interested in sponsoring or donating to the PSF so we can continue supporting Python, PyPI, and its community, check out the [PSF's sponsorship program](https://www.python.org/sponsors/application/), [donate directly](https://www.python.org/psf/donations/), or contact our team at [sponsors@python.org](mailto:sponsors@python.org)!
 
-Mike Fiedler and Seth Larson's roles as PyPI Safety & Security Engineer and Security Developer-in-Residence at the Python Software Foundation are supported by Alpha Omega.
+Mike Fiedler and Seth Larson's roles as [PyPI Safety & Security Engineer and Security Developer-in-Residence](https://www.python.org/psf/developersinresidence/) at the Python Software Foundation are supported by [Alpha Omega](https://alpha-omega.dev).
