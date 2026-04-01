@@ -12,7 +12,7 @@ tags:
 
 This post will drill deeper into two recent supply chain exploits, targeting users of popular PyPI packages - `litellm` & `telnyx`.
 
-This post will dive into some of the timelines and actions taken, as well as provide readers with some guiidance on what they can do to prepare for such attacks.
+This post will dive into some of the timelines and actions taken, as well as provide readers with some guidance on what they can do to prepare for such attacks.
 
 <!-- more -->
 
