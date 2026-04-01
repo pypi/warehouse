@@ -141,6 +141,8 @@ class DatabaseMacaroonService:
             # transaction is already updating this row (same token used
             # concurrently), we just skip — the other transaction will
             # set last_used anyway.
+            # skipping is okay as last_used value is imprecise (python dt, not DB clock)
+            # and informational in the ui
             row = self.db.execute(
                 select(Macaroon.id)
                 .where(Macaroon.id == dm.id)
