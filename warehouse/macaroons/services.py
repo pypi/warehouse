@@ -7,6 +7,7 @@ import uuid
 import pymacaroons
 
 from pymacaroons.exceptions import MacaroonDeserializationException
+from sqlalchemy import update
 from sqlalchemy.orm import joinedload
 from zope.interface import implementer
 
@@ -133,7 +134,15 @@ class DatabaseMacaroonService:
 
         verified = caveats.verify(m, dm.key, request, context, permission)
         if verified:
-            dm.last_used = datetime.datetime.now()
+            # Use a direct UPDATE instead of ORM attribute mutation to avoid
+            # marking the macaroon dirty. A dirty macaroon causes autoflush
+            # during Project.__acl__() evaluation, which can deadlock with the
+            # advisory lock held by ensure_monotonic_journals.
+            self.db.execute(
+                update(Macaroon)
+                .where(Macaroon.id == dm.id)
+                .values(last_used=datetime.datetime.now())
+            )
             return True
 
         raise InvalidMacaroonError(verified.msg)
