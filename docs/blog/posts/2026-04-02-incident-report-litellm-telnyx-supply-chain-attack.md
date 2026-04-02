@@ -47,7 +47,7 @@ Below see the timeline of events.
 
 During the window of attack, the exploited versions of `litellm` were downloaded over 119k times.
 
-PyPI received 13 inbound reports from concerned users, leveraging the ["Report project as malware" feature](./2024-03-06-malware-reporting-evolved.md), added back in 2024, accelrating the review/action.
+PyPI received 13 inbound reports from concerned users, leveraging the ["Report project as malware" feature](./2024-03-06-malware-reporting-evolved.md), added back in 2024, accelerating the review/action.
 
 - From upload to first report: 1h 19m
 - First report to quarantine: 1h 12m
@@ -126,7 +126,7 @@ Some examples of tools which produce lock files for applications are:
 * `pip-compile --generate-hashes`
 * `pipenv`
 
-Note that `pip freeze` doesn't create a lock file, a lock file must include checksums / hashes of the package archives to be secure and reproducible.
+Note that `pip freeze` doesn't create a lock file: a lock file must include checksums / hashes of the package archives to be secure and reproducible.
 `pip freeze` only records packages and their versions. pip is working on experimental support for the `pylock.toml` standard through the
 [`pip lock` sub-command](https://pip.pypa.io/en/stable/cli/pip_lock).
 
@@ -163,7 +163,7 @@ Trusted Publishers also provides a valuable signal to downstream users through [
 We may be starting to sound like a broken record, but 2FA should be used for all accounts associated with open source development: not just PyPI.
 Think about accounts like version control / software forges
 (GitHub, GitLab, Codeberg, Forgejo) and your email provider.
-[PyPI has required 2FA to be enabled to publish packages](./2024-01-01-2fa-enforced) since the beginning of 2024,
+[PyPI has required 2FA to be enabled to publish packages](./2024-01-01-2fa-enforced.md) since the beginning of 2024,
 but enabling phishing-resistant 2FA like a hardware key can protect you further.
 
 ## How can you support this kind of work?
