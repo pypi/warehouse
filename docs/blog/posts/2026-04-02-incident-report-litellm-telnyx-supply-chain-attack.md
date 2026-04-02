@@ -47,7 +47,7 @@ Below see the timeline of events.
 
 During the window of attack, the exploited versions of `litellm` were downloaded over 119k times.
 
-PyPI received 13 inbound reports from concerned users, leveraging the ["Report project as malware" feature](./2024-03-06-malware-reporting-evolved.md), added back in 2024, accelrating the review/action.
+PyPI received 13 inbound reports from concerned users, leveraging the ["Report project as malware" feature](./2024-03-06-malware-reporting-evolved.md), added back in 2024, accelerating the review/action.
 
 - From upload to first report: 1h 19m
 - First report to quarantine: 1h 12m
@@ -82,25 +82,25 @@ Setting a relative value like "3 days" ("`P3D`" per RFC 3339) means packages tha
 
 uv already supports [setting relative dependency cooldown](https://docs.astral.sh/uv/concepts/resolution/#dependency-cooldowns) via `--exclude-newer`. You can [configure the option globally](https://docs.astral.sh/uv/concepts/configuration-files/) (in `~/.config/uv/uv.toml`) or per-project in your `pyproject.toml`:
 
-```toml
+<pre><code>
 [tool.uv]
 exclude-newer = "P3D"  # "3 days" in RFC 3339 format
-```
+</code></pre>
 
 Relative dependency cooldowns are coming soon to pip v26.1 which [should be available in April](https://pip.pypa.io/en/stable/development/release-process/) of this year. Once they are available you can set the option in [your `pip.conf` file](https://pip.pypa.io/en/stable/topics/configuration/) (`~/.config/pip/pip.conf`):
 
-```ini
+<pre><code>
 [install]
 uploaded-prior-to = P3D
-```
+</code></pre>
 
 [Starting in pip v26.0](https://ichard26.github.io/blog/2026/01/whats-new-in-pip-26.0/#excluding-distributions-by-upload-time) you can set absolute dependency cooldowns with pip from the command-line, likely paired with another tool like `date` to calculate an absolute date from a relative offset like "`3 days`":
 
-```shell
+<pre><code>
 python -m pip install \
   --uploaded-prior-to=$(date -d '-3days' -Idate) \
   simplepackage
-```
+</code></pre>
 
 Applying dependency cooldowns everywhere isn't a silver bullet, though!
 There are certain situations where you *do* want the latest version of a package as soon as possible, like when applying patches for vulnerabilities.
@@ -108,11 +108,11 @@ Dependency cooldowns should be paired with a vulnerability scanning strategy so 
 
 You can manually bypass a dependency cooldown in pip and uv by setting a value of "the current day" to get the actual latest release:
 
-```shell
+<pre><code>
 python -m pip install \
   --uploaded-prior-to=P0D \
   simplepackage==26.3.31
-```
+</code></pre>
 
 ### Locking Dependencies
 
