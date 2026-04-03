@@ -20,7 +20,7 @@ types-passlib
 types-python-slugify
 types-pytz
 types-redis
-types-requests==2.32.4.20260324
+types-requests==2.33.0.20260327
 types-stripe
 types-WTForms
 types-WebOb
