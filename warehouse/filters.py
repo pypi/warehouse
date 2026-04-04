@@ -25,6 +25,44 @@ from urllib3.util import parse_url
 from warehouse.utils.http import is_valid_uri
 
 
+_HOME_NAMES = ("home", "homepage", "home page")
+_CHANGELOG_NAMES = (
+    "changelog",
+    "change log",
+    "changes",
+    "release notes",
+    "news",
+    "what's new",
+    "history",
+)
+_DOC_HOST_EXACT = ("readthedocs.io", "readthedocs.org", "rtfd.io", "rtfd.org")
+_DOC_HOST_SUFFIXES = (".readthedocs.io", ".readthedocs.org", ".rtfd.io", ".rtfd.org")
+_DOC_HOST_PREFIXES = ("docs.", "documentation.")
+_BUG_NAMES_START = ("bug", "issue", "tracker", "report")
+_FUNDING_NAMES_START = ("funding", "donate", "donation", "sponsor")
+_GITHUB_HOST_SUFFIXES = ("github.com", "github.io")
+_GITLAB_HOST = "gitlab.com"
+_GITTER_HOST_SUFFIX = "gitter.im"
+_DISCORD_HOSTS = ("discord.com", "discordapp.com", "discord.gg")
+_GOOGLE_HOST_SUFFIX = ".google.com"
+_BITBUCKET_HOST = "bitbucket.org"
+_REDDIT_HOST_SUFFIX = ".reddit.com"
+_SLACK_HOST = "slack.com"
+_TWITTER_HOSTS = ("twitter.com", "x.com")
+_BLSKY_HOST = "bsky.app"
+_CI_HOST_SUFFIXES = (
+    "ci.appveyor.com",
+    "circleci.com",
+    "codecov.io",
+    "coveralls.io",
+    "travis-ci.com",
+    "travis-ci.org",
+)
+_PYPI_HOSTS = ("cheeseshop.python.org", "pypi.io", "pypi.org", "pypi.python.org")
+_PYTHON_ORG_SUFFIX = ".python.org"
+_YOUTUBE_HOSTS = ("youtube.com", "youtu.be")
+
+
 class PackageType(enum.Enum):
     bdist_dmg = "OSX Disk Image"
     bdist_dumb = "Dumb Binary"
@@ -199,6 +237,85 @@ def _canonical_url(request, **kwargs):
             return request.route_url(request.matched_route.name, **kwargs)
         except KeyError:
             pass
+
+
+def url_icon(name, url):
+    """Return a font-awesome icon markup for a URL based on its name or host."""
+    if icon := icon_name(name, url):
+        return jinja2.Markup(f'<i class="{icon}" aria-hidden="true"></i>')
+    return jinja2.Markup("")
+
+
+def icon_name(name, url):
+    """Return the font-awesome icon class name for a URL based on its name or host.
+
+    Returns None when both `name` and `url` are falsy to allow fast early
+    returns by callers.
+    """
+    name_lower = (name or "").lower()
+
+    if name_lower == "download":
+        return "fas fa-cloud-download-alt"
+    if name_lower == "bluesky":
+        return "fab fa-bluesky"
+    if name_lower == "mastodon":
+        return "fab fa-mastodon"
+    if name_lower in _HOME_NAMES:
+        return "fas fa-home"
+    if name_lower in _CHANGELOG_NAMES:
+        return "fas fa-scroll"
+    if name_lower.startswith(("docs", "documentation")):
+        return "fas fa-book"
+    if name_lower.startswith(_BUG_NAMES_START):
+        return "fas fa-bug"
+    if name_lower.startswith(_FUNDING_NAMES_START):
+        return "fas fa-donate"
+
+    try:
+        parsed = urllib.parse.urlparse(url or "")
+    except Exception:
+        return None
+
+    host = parsed.hostname.lower()
+    if host in _GITHUB_HOST_SUFFIXES or host.endswith(_GITHUB_HOST_SUFFIXES):
+        return "fab fa-github"
+    if host == _GITLAB_HOST or host.endswith(".gitlab.com"):
+        return "fab fa-gitlab"
+    if host == _GITTER_HOST_SUFFIX or host.endswith(".gitter.im"):
+        return "fab fa-gitter"
+    if host in _DISCORD_HOSTS:
+        return "fab fa-discord"
+    if host == "google.com" or host.endswith(_GOOGLE_HOST_SUFFIX):
+        return "fab fa-google"
+    if host == _BITBUCKET_HOST or host.endswith(".bitbucket.org"):
+        return "fab fa-bitbucket"
+    if host == "reddit.com" or host.endswith(_REDDIT_HOST_SUFFIX):
+        return "fab fa-reddit-alien"
+    if (
+        host == _SLACK_HOST
+        or host.endswith(".slack.com")
+        or name_lower.startswith("slack")
+    ):
+        return "fab fa-slack"
+    if host in _TWITTER_HOSTS or host.endswith(_TWITTER_HOSTS):
+        return "fab fa-twitter"
+    if host == _BLSKY_HOST:
+        return "fab fa-bluesky"
+    if host.endswith(_CI_HOST_SUFFIXES):
+        return "fas fa-tasks"
+    if host in _PYPI_HOSTS or host.endswith(_PYPI_HOSTS):
+        return "fas fa-cube"
+    if host == "python.org" or host.endswith(_PYTHON_ORG_SUFFIX):
+        return "fab fa-python"
+    if host in _YOUTUBE_HOSTS or host.endswith(_YOUTUBE_HOSTS):
+        return "fab fa-youtube"
+    if (
+        host in _DOC_HOST_EXACT
+        or host.endswith(_DOC_HOST_SUFFIXES)
+        or host.startswith(_DOC_HOST_PREFIXES)
+    ):
+        return "fas fa-book"
+    return "fas fa-external-link-square-alt"
 
 
 def includeme(config):

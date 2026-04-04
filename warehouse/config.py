@@ -721,6 +721,7 @@ def configure(settings=None):
         "remove_invalid_xml_unicode", "warehouse.filters:remove_invalid_xml_unicode"
     )
     filters.setdefault("parse_isoformat", "warehouse.filters:parse_isoformat")
+    filters.setdefault("url_icon", "warehouse.filters:url_icon")
 
     # We also want to register some global functions for Jinja
     jglobals = config.get_settings().setdefault("jinja2.globals", {})

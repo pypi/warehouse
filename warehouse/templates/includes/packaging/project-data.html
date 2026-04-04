@@ -26,7 +26,7 @@
           <li>
             <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
                href="{{ url }}"
-               rel="nofollow">{{ url_icon(name, url) }}{{ name }}</a>
+               rel="nofollow">{{ name|url_icon(url) }}{{ name }}</a>
           </li>
         {% endif %}
       {% endfor %}
@@ -199,7 +199,7 @@
           <li>
             <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
                href="{{ url }}"
-               rel="nofollow">{{ url_icon(name, url) }}{{ name }}</a>
+               rel="nofollow">{{ name|url_icon(url) }}{{ name }}</a>
           </li>
         {% endif %}
       {% endfor %}
