@@ -23,6 +23,7 @@ FILTERS = {
     "shorten_number": "warehouse.filters:shorten_number",
     "urlparse": "warehouse.filters:urlparse",
     "contains_valid_uris": "warehouse.filters:contains_valid_uris",
+    "url_icon": "warehouse.filters:url_icon",
     "format_package_type": "warehouse.filters:format_package_type",
     "parse_version": "warehouse.filters:parse_version",
     "localize_datetime": "warehouse.filters:localize_datetime",
