@@ -608,7 +608,7 @@ def user_recover_account_initiate(user, request):
             )
 
             request.session.flash(
-                f"Initiatied account recovery for {user.username!r}", queue="success"
+                f"Initiated account recovery for {user.username!r}", queue="success"
             )
 
             return HTTPSeeOther(

@@ -611,7 +611,7 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
-        "integrations.github.disclose-token",  # For backwards compatiblity
+        "integrations.github.disclose-token",  # For backwards compatibility
         "/_/github/disclose-token",
         domain=warehouse,
     )

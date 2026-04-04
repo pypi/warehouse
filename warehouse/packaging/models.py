@@ -1109,7 +1109,7 @@ class JournalEntry(db.ModelBase):
 @db.listens_for(db.Session, "before_flush")
 def ensure_monotonic_journals(config, session, flush_context, instances):
     # We rely on `journals.id` to be a monotonically increasing integer,
-    # however the way that SERIAL is implemented, it does not guarentee
+    # however the way that SERIAL is implemented, it does not guarantee
     # that is the case.
     #
     # Ultimately SERIAL fetches the next integer regardless of what happens
