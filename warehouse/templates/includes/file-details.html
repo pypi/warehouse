@@ -51,6 +51,11 @@
       <li>
         Download URL: <a href="{{ request.route_url('packaging.file', path=file.path) }}">{{ file.filename }}</a>
       </li>
+      <li>
+        Inspector URL: <a href="https://inspector.pypi.io/project/{{ file.release.project.normalized_name }}/{{ file.release.version }}/packages/{{ file.path }}/"
+                          target="_blank"
+                          rel="noopener">View in Inspector</a>
+      </li>
       <li>{% trans upload_time=humanize(file.upload_time) %} Upload date: {{ upload_time }} {% endtrans %}</li>
       <li>
         {% trans size=file.size|filesizeformat() if file.size else 0|filesizeformat() %} Size: {{ size }} {% endtrans %}
