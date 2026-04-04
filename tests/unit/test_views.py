@@ -23,6 +23,7 @@ from webob.multidict import MultiDict
 
 from warehouse import views
 from warehouse.errors import WarehouseDenied
+from warehouse.metrics import IMetricsService
 from warehouse.packaging.models import ProjectFactory as DBProjectFactory
 from warehouse.rate_limiting.interfaces import IRateLimiter
 from warehouse.utils.row_counter import compute_row_counts
@@ -37,6 +38,7 @@ from warehouse.views import (
     funding_manifest_urls,
     health,
     httpexception_view,
+    includeme,
     index,
     list_classifiers,
     locale,
@@ -63,6 +65,42 @@ def _assert_has_cors_headers(headers):
     assert headers["Access-Control-Allow-Methods"] == "GET"
     assert headers["Access-Control-Max-Age"] == "86400"
     assert headers["Access-Control-Expose-Headers"] == "X-PyPI-Last-Serial"
+
+
+def _create_find_service(services, metrics=None, ratelimiter=None):
+    """
+    Create a find_service mock that handles both name-based and interface-based lookups.
+
+    Args:
+        services: Dict mapping service names (str) to service instances
+        metrics: Optional metrics service instance (for IMetricsService lookups)
+        ratelimiter: Optional rate limiter instance (for IRateLimiter lookups)
+    """
+    # Default stubs if not provided
+    if metrics is None:
+        metrics = pretend.stub(
+            increment=pretend.call_recorder(lambda *a, **kw: None),
+        )
+    if ratelimiter is None:
+        ratelimiter = pretend.stub(
+            test=lambda *a: True,
+            hit=pretend.call_recorder(lambda *a: True),
+        )
+
+    def find_service(iface_or_name=None, context=None, name=None):
+        # Handle interface-based lookups
+        if iface_or_name is IMetricsService:
+            return metrics
+        if iface_or_name is IRateLimiter:
+            return ratelimiter
+        # Handle name-based lookups (legacy pattern)
+        if isinstance(iface_or_name, str):
+            return services.get(iface_or_name)
+        if name is not None and isinstance(name, str):
+            return services.get(name)
+        return None
+
+    return find_service
 
 
 class TestHTTPExceptionView:
@@ -113,10 +151,20 @@ class TestHTTPExceptionView:
 
         csp = {}
         services = {"csp": pretend.stub(merge=csp.update)}
+        metrics = pretend.stub(
+            increment=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        ratelimiter = pretend.stub(
+            test=lambda *a: True,
+            hit=pretend.call_recorder(lambda *a: True),
+        )
 
         context = HTTPNotFound()
         request = pretend.stub(
-            find_service=lambda name: services[name], path="", context=None
+            find_service=_create_find_service(services, metrics, ratelimiter),
+            path="",
+            context=None,
+            remote_addr="1.2.3.4",
         )
         response = httpexception_view(context, request)
 
@@ -128,14 +176,28 @@ class TestHTTPExceptionView:
         }
         _assert_has_cors_headers(response.headers)
         renderer.assert_()
+        # Verify rate limiter was hit
+        assert ratelimiter.hit.calls == [pretend.call("1.2.3.4")]
+        # Verify metrics were recorded
+        assert pretend.call("warehouse.notfound.ratelimiter.hit") in metrics.increment.calls
 
     def test_simple_404(self):
         csp = {}
         services = {"csp": pretend.stub(merge=csp.update)}
+        metrics = pretend.stub(
+            increment=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        ratelimiter = pretend.stub(
+            test=lambda *a: True,
+            hit=pretend.call_recorder(lambda *a: True),
+        )
         context = HTTPNotFound()
         for path in ("/simple/not_found_package", "/simple/some/unusual/path/"):
             request = pretend.stub(
-                find_service=lambda name: services[name], path=path, context=None
+                find_service=_create_find_service(services, metrics, ratelimiter),
+                path=path,
+                context=None,
+                remote_addr="1.2.3.4",
             )
             response = httpexception_view(context, request)
             assert response.status_code == 404
@@ -147,13 +209,23 @@ class TestHTTPExceptionView:
     def test_json_404(self):
         csp = {}
         services = {"csp": pretend.stub(merge=csp.update)}
+        metrics = pretend.stub(
+            increment=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        ratelimiter = pretend.stub(
+            test=lambda *a: True,
+            hit=pretend.call_recorder(lambda *a: True),
+        )
         context = HTTPNotFound()
         for path in (
             "/pypi/not_found_package/json",
             "/pypi/not_found_package/1.0.0/json",
         ):
             request = pretend.stub(
-                find_service=lambda name: services[name], path=path, context=None
+                find_service=_create_find_service(services, metrics, ratelimiter),
+                path=path,
+                context=None,
+                remote_addr="1.2.3.4",
             )
             response = httpexception_view(context, request)
             assert response.status_code == 404
@@ -165,13 +237,21 @@ class TestHTTPExceptionView:
     def test_context_is_project(self, pyramid_config, monkeypatch):
         csp = {}
         services = {"csp": pretend.stub(merge=csp.update)}
+        metrics = pretend.stub(
+            increment=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        ratelimiter = pretend.stub(
+            test=lambda *a: True,
+            hit=pretend.call_recorder(lambda *a: True),
+        )
 
         context = HTTPNotFound()
         project = ProjectFactory.create()
         request = pretend.stub(
-            find_service=lambda name: services[name],
+            find_service=_create_find_service(services, metrics, ratelimiter),
             path="",
             context=project,
+            remote_addr="1.2.3.4",
         )
         stub_response = pretend.stub(headers=[])
         render_to_response = pretend.call_recorder(
@@ -192,12 +272,20 @@ class TestHTTPExceptionView:
     def test_context_is_projectfactory(self, pyramid_config, monkeypatch):
         csp = {}
         services = {"csp": pretend.stub(merge=csp.update)}
+        metrics = pretend.stub(
+            increment=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        ratelimiter = pretend.stub(
+            test=lambda *a: True,
+            hit=pretend.call_recorder(lambda *a: True),
+        )
 
         context = HTTPNotFound()
         request = pretend.stub(
-            find_service=lambda name: services[name],
+            find_service=_create_find_service(services, metrics, ratelimiter),
             path="",
             matchdict={"name": "missing-project"},
+            remote_addr="1.2.3.4",
         )
         request.context = DBProjectFactory(request)
         stub_response = pretend.stub(headers=[])
@@ -215,6 +303,83 @@ class TestHTTPExceptionView:
                 request=request,
             )
         ]
+
+    def test_404_rate_limit_hit_recorded(self, pyramid_config):
+        """Test that 404 requests record a rate limiter hit and metric."""
+        renderer = pyramid_config.testing_add_renderer("404.html")
+
+        csp = {}
+        services = {"csp": pretend.stub(merge=csp.update)}
+        metrics = pretend.stub(
+            increment=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        ratelimiter = pretend.stub(
+            test=lambda *a: True,
+            hit=pretend.call_recorder(lambda *a: True),
+        )
+
+        context = HTTPNotFound()
+        request = pretend.stub(
+            find_service=_create_find_service(services, metrics, ratelimiter),
+            path="/some/path",
+            context=None,
+            remote_addr="10.20.30.40",
+        )
+
+        response = httpexception_view(context, request)
+
+        assert response.status_code == 404
+        # Verify rate limiter was called with the client IP
+        assert ratelimiter.hit.calls == [pretend.call("10.20.30.40")]
+        # Verify the hit metric was recorded
+        assert pretend.call("warehouse.notfound.ratelimiter.hit") in metrics.increment.calls
+        renderer.assert_()
+
+    def test_404_rate_limit_exceeded_logs_and_metrics(self, pyramid_config, caplog):
+        """
+        Test that when 404 rate limit is exceeded, we emit metrics and logs
+        but still return the 404 response (observation mode).
+        """
+        import logging
+
+        renderer = pyramid_config.testing_add_renderer("404.html")
+
+        csp = {}
+        services = {"csp": pretend.stub(merge=csp.update)}
+        metrics = pretend.stub(
+            increment=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        # Rate limiter that indicates limit is exceeded (test returns False)
+        ratelimiter = pretend.stub(
+            test=lambda *a: False,  # Exceeded
+            hit=pretend.call_recorder(lambda *a: True),
+        )
+
+        context = HTTPNotFound()
+        request = pretend.stub(
+            find_service=_create_find_service(services, metrics, ratelimiter),
+            path="/pypi/some-project/json",
+            context=None,
+            remote_addr="10.20.30.40",
+        )
+
+        with caplog.at_level(logging.WARNING):
+            response = httpexception_view(context, request)
+
+        # Should still return 404 (observation mode - not blocking)
+        assert response.status_code == 404
+        # Verify rate limiter was called
+        assert ratelimiter.hit.calls == [pretend.call("10.20.30.40")]
+        # Verify both hit and exceeded metrics were recorded
+        assert pretend.call("warehouse.notfound.ratelimiter.hit") in metrics.increment.calls
+        assert (
+            pretend.call("warehouse.notfound.ratelimiter.exceeded")
+            in metrics.increment.calls
+        )
+        # Verify warning was logged
+        assert "404 rate limit exceeded" in caplog.text
+        assert "10.20.30.40" in caplog.text
+        renderer.assert_()
 
 
 class TestForbiddenView:
@@ -818,3 +983,21 @@ class TestSecurityKeyGiveaway:
         view = SecurityKeyGiveaway(request)
 
         assert view.security_key_giveaway() == view.default_response
+
+
+def test_views_includeme():
+    """Test that views.includeme registers the notfound.ip rate limiter."""
+    config = pretend.stub(
+        registry=pretend.stub(
+            settings={
+                "warehouse.notfound.ip_ratelimit_string": "50 per 5 minutes",
+            }
+        ),
+        register_rate_limiter=pretend.call_recorder(lambda limit, name: None),
+    )
+
+    includeme(config)
+
+    assert config.register_rate_limiter.calls == [
+        pretend.call("50 per 5 minutes", "notfound.ip")
+    ]
