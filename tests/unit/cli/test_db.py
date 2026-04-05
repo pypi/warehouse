@@ -340,7 +340,14 @@ Ref: _clan_member.clan_id > _clan.id
 """
 
 
-def test_generate_dbml_file(tmp_path_factory):
+@pytest.fixture(scope="module")
+def dbml_tables():
+    """Shared test models for DBML generation tests.
+
+    Defined once per module to avoid re-registering identical classes
+    in the global ModelBase declarative registry.
+    """
+
     class Muddle(warehouse.db.Model):
         __abstract__ = True
         metadata = sqlalchemy.MetaData()
@@ -367,41 +374,19 @@ def test_generate_dbml_file(tmp_path_factory):
         joined: Mapped[datetime_now]
         departed: Mapped[datetime | None]
 
+    return Muddle.metadata.tables.values()
+
+
+def test_generate_dbml_file(tmp_path_factory, dbml_tables):
     outpath = tmp_path_factory.mktemp("out") / "wutang.dbml"
-    warehouse.cli.db.dbml.generate_dbml_file(Muddle.metadata.tables.values(), outpath)
+    warehouse.cli.db.dbml.generate_dbml_file(dbml_tables, outpath)
 
     with open(outpath) as f:
         assert f.read() == EXPECTED_DBML
 
 
-def test_generate_dbml_console(capsys, monkeypatch):
-    class Muddle(warehouse.db.Model):
-        __abstract__ = True
-        metadata = sqlalchemy.MetaData()
-
-    class Clan(Muddle):
-        __tablename__ = "_clan"
-        __table_args__ = {"comment": "various clans"}
-
-        name: Mapped[str] = mapped_column(unique=True)
-        fetched: Mapped[str | None] = mapped_column(
-            server_default=sqlalchemy.FetchedValue(),
-            comment="fetched value",
-        )
-        for_the_children: Mapped[bool | None] = mapped_column(default=True)
-        nice: Mapped[str | None] = mapped_column(sqlalchemy.String(length=69))
-
-    class ClanMember(Muddle):
-        __tablename__ = "_clan_member"
-
-        name: Mapped[str]
-        clan_id: Mapped[UUID | None] = mapped_column(
-            sqlalchemy.ForeignKey("_clan.id", deferrable=True, initially="DEFERRED"),
-        )
-        joined: Mapped[datetime_now]
-        departed: Mapped[datetime | None]
-
-    warehouse.cli.db.dbml.generate_dbml_file(Muddle.metadata.tables.values(), None)
+def test_generate_dbml_console(capsys, dbml_tables):
+    warehouse.cli.db.dbml.generate_dbml_file(dbml_tables, None)
     captured = capsys.readouterr()
 
     assert captured.out == EXPECTED_DBML

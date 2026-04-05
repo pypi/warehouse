@@ -34,85 +34,6 @@ if typing.TYPE_CHECKING:
 
 
 @implementer(IOIDCPublisherService)
-class NullOIDCPublisherService:
-    def __init__(
-        self,
-        session: Session,
-        publisher: str,
-        issuer_url: str,
-        audience: str,
-        cache_url: str,
-        metrics: IMetricsService,
-    ):
-        warnings.warn(
-            "NullOIDCPublisherService is intended only for use in development, "
-            "you should not use it in production due to the lack of actual "
-            "JWT verification.",
-            InsecureOIDCPublisherWarning,
-        )
-
-        self.db = session
-        self.publisher = publisher
-        self.issuer_url = issuer_url
-
-    def verify_jwt_signature(
-        self, unverified_token: str, issuer_url: str
-    ) -> SignedClaims | None:
-        try:
-            return SignedClaims(
-                jwt.decode(
-                    unverified_token,
-                    options=dict(
-                        verify_signature=False,
-                        # We require all of these to be present, but for the
-                        # null publisher we only actually verify the audience.
-                        require=["iss", "iat", "exp", "aud"],
-                        verify_iss=False,
-                        verify_iat=False,
-                        verify_exp=False,
-                        verify_aud=True,
-                        # We don't accept JWTs with multiple audiences; we
-                        # want to be the ONLY audience listed.
-                        strict_aud=True,
-                    ),
-                    audience="pypi",
-                )
-            )
-        except jwt.PyJWTError:
-            return None
-
-    def find_publisher(
-        self, signed_claims: SignedClaims, *, pending: bool = False
-    ) -> OIDCPublisher | PendingOIDCPublisher:
-        # NOTE: We do NOT verify the claims against the publisher, since this
-        # service is for development purposes only.
-        return find_publisher_by_issuer(
-            self.db, self.issuer_url, signed_claims, pending=pending
-        )
-
-    def reify_pending_publisher(
-        self, pending_publisher: PendingOIDCPublisher, project: Project
-    ) -> OIDCPublisher:
-        new_publisher = pending_publisher.reify(self.db)
-        project.oidc_publishers.append(new_publisher)
-        return new_publisher
-
-    def jwt_identifier_exists(self, jti: str) -> bool:
-        """
-        The NullOIDCPublisherService does not provide a mechanism to store used tokens
-        before their expiration.
-        """
-        return False
-
-    def store_jwt_identifier(self, jti: str, expiration: int) -> bool:
-        """
-        The NullOIDCPublisherService does not provide a mechanism to store used tokens
-        before their expiration.
-        """
-        return True
-
-
-@implementer(IOIDCPublisherService)
 class OIDCPublisherService:
     def __init__(
         self,
@@ -444,3 +365,60 @@ class OIDCPublisherServiceFactory:
             other.issuer_url,
             other.service_class,
         )
+
+
+class NullOIDCPublisherService(OIDCPublisherService):
+    """
+    A development-only OIDC publisher service that skips JWT signature
+    verification and JTI replay tracking, but uses the real find_publisher
+    and verify_claims logic.
+    """
+
+    def __init__(self, *args, **kwargs):
+        warnings.warn(
+            "NullOIDCPublisherService is intended only for use in development, "
+            "you should not use it in production due to the lack of actual "
+            "JWT verification.",
+            InsecureOIDCPublisherWarning,
+        )
+        super().__init__(*args, **kwargs)
+
+    def verify_jwt_signature(
+        self, unverified_token: str, issuer_url: str
+    ) -> SignedClaims | None:
+        try:
+            return SignedClaims(
+                jwt.decode(
+                    unverified_token,
+                    options=dict(
+                        verify_signature=False,
+                        # We require all of these to be present, but for the
+                        # null publisher we only actually verify the audience.
+                        require=["iss", "iat", "exp", "aud"],
+                        verify_iss=False,
+                        verify_iat=False,
+                        verify_exp=False,
+                        verify_aud=True,
+                        # We don't accept JWTs with multiple audiences; we
+                        # want to be the ONLY audience listed.
+                        strict_aud=True,
+                    ),
+                    audience=self.audience,
+                )
+            )
+        except jwt.PyJWTError:
+            return None
+
+    def jwt_identifier_exists(self, jti: str) -> bool:
+        """
+        The NullOIDCPublisherService does not provide a mechanism to store used
+        tokens before their expiration.
+        """
+        return False
+
+    def store_jwt_identifier(self, jti: str, expiration: int) -> bool:
+        """
+        The NullOIDCPublisherService does not provide a mechanism to store used
+        tokens before their expiration.
+        """
+        return True
