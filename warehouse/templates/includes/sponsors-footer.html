@@ -14,28 +14,36 @@
 <div class="sponsors">
   <p class="sponsors__title">Supported by</p>
   <div class="sponsors__divider"></div>
-  {% for sponsor in request.sponsors | sort(attribute='name') %}
-    {# Short-circuit if we don't have an image for them #}
-    {% if sponsor.white_logo_url %}
-      {# Check if they belong in the footer #}
-      {% if sponsor.infra_sponsor or sponsor.footer %}
-        <a class="sponsors__sponsor"
-           target="_blank"
-           rel="noopener"
-           href="{{ sponsor.link_url }}">
+  {% for sponsor in request.sponsors | selectattr('footer') | rejectattr('infra_sponsor') | sort(attribute='name') | sort(attribute='level_order') %}
+    {% if sponsor.white_logo_url or sponsor.color_logo_url %}
+      <a class="sponsors__sponsor"
+         target="_blank"
+         rel="noopener"
+         href="{{ sponsor.link_url }}">
+        {% if sponsor.white_logo_url %}
           {{ sponsor.white_logo_img|camoify|safe }}
-          <span class="sponsors__name">{{ sponsor.name }}</span>
-          <span class="sponsors__service">
-            {# If they're an infra sponsor, we should have a service for them,
-          otherwise they're a PSF sponsor #}
-            {% if sponsor.infra_sponsor %}
-              {{ sponsor.service }}
-            {% elif sponsor.footer %}
-              PSF Sponsor
-            {% endif %}
-          </span>
-        </a>
-      {% endif %}
+        {% else %}
+          {{ sponsor.color_logo_img|camoify|safe }}
+        {% endif %}
+        <span class="sponsors__name">{{ sponsor.name }}</span>
+        <span class="sponsors__service">PSF Sponsor</span>
+      </a>
+    {% endif %}
+  {% endfor %}
+  {% for sponsor in request.sponsors | selectattr('infra_sponsor') | sort(attribute='name') %}
+    {% if sponsor.white_logo_url or sponsor.color_logo_url %}
+      <a class="sponsors__sponsor"
+         target="_blank"
+         rel="noopener"
+         href="{{ sponsor.link_url }}">
+        {% if sponsor.white_logo_url %}
+          {{ sponsor.white_logo_img|camoify|safe }}
+        {% else %}
+          {{ sponsor.color_logo_img|camoify|safe }}
+        {% endif %}
+        <span class="sponsors__name">{{ sponsor.name }}</span>
+        <span class="sponsors__service">{{ sponsor.service }}</span>
+      </a>
     {% endif %}
   {% endfor %}
 </div>
