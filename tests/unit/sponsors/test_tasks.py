@@ -198,7 +198,7 @@ def test_update_remote_sponsor_with_same_slug_with_new_logo(
 
 
 @pytest.mark.parametrize(
-    "level_name, expected_footer",
+    ("level_name", "expected_footer"),
     [
         ("Visionary", True),
         ("Sustainability", True),
