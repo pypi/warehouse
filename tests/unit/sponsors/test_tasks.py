@@ -197,6 +197,38 @@ def test_update_remote_sponsor_with_same_slug_with_new_logo(
     assert "Sponsor description" == db_sponsor.service
 
 
+@pytest.mark.parametrize(
+    "level_name, expected_footer",
+    [
+        ("Visionary", True),
+        ("Sustainability", True),
+        ("Partner", False),
+    ],
+)
+def test_footer_set_based_on_level(
+    monkeypatch,
+    db_request,
+    fake_task_request,
+    sponsor_api_data,
+    level_name,
+    expected_footer,
+):
+    sponsor_api_data[0]["level_name"] = level_name
+    response = pretend.stub(
+        raise_for_status=lambda: None, json=lambda: sponsor_api_data
+    )
+    requests = pretend.stub(
+        get=pretend.call_recorder(lambda url, headers, timeout: response)
+    )
+    monkeypatch.setattr(tasks, "requests", requests)
+
+    fake_task_request.db = db_request.db
+    tasks.update_pypi_sponsors(fake_task_request)
+
+    db_sponsor = db_request.db.query(Sponsor).one()
+    assert db_sponsor.footer is expected_footer
+
+
 def test_flag_existing_psf_sponsor_to_false_if_not_present_in_api_response(
     monkeypatch, db_request, fake_task_request, sponsor_api_data
 ):
