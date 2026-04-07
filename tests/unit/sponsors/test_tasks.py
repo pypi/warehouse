@@ -229,6 +229,25 @@ def test_footer_set_based_on_level(
     assert db_sponsor.footer is expected_footer
 
 
+def test_white_logo_synced_when_provided(
+    monkeypatch, db_request, fake_task_request, sponsor_api_data
+):
+    sponsor_api_data[0]["white_logo"] = "https://white-logo.com/logo.png"
+    response = pretend.stub(
+        raise_for_status=lambda: None, json=lambda: sponsor_api_data
+    )
+    requests = pretend.stub(
+        get=pretend.call_recorder(lambda url, headers, timeout: response)
+    )
+    monkeypatch.setattr(tasks, "requests", requests)
+
+    fake_task_request.db = db_request.db
+    tasks.update_pypi_sponsors(fake_task_request)
+
+    db_sponsor = db_request.db.query(Sponsor).one()
+    assert db_sponsor.white_logo_url == "https://white-logo.com/logo.png"
+
+
 def test_flag_existing_psf_sponsor_to_false_if_not_present_in_api_response(
     monkeypatch, db_request, fake_task_request, sponsor_api_data
 ):
