@@ -210,6 +210,14 @@ def includeme(config):
         traverse="/{username}",
     )
 
+    config.add_route(
+        "admin.user.files",
+        "/admin/users/{username}/files/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+    )
+
     # Macaroon related Admin pages
     config.add_route(
         "admin.macaroon.decode_token", "/admin/token/decode", domain=warehouse
@@ -267,6 +275,20 @@ def includeme(config):
     config.add_route(
         "admin.project.release.render",
         "/admin/projects/{project_name}/release/{version}/render/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}/{version}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.project.release.delete",
+        "/admin/projects/{project_name}/release/{version}/delete/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}/{version}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.project.release.file.delete",
+        "/admin/projects/{project_name}/release/{version}/delete_file/",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{project_name}/{version}",
         domain=warehouse,
@@ -399,6 +421,11 @@ def includeme(config):
         "/admin/prohibited_project_names/release/",
         domain=warehouse,
     )
+    config.add_route(
+        "admin.prohibited_project_names.ultranorm_release",
+        "/admin/prohibited_project_names/ultranorm_release/",
+        domain=warehouse,
+    )
     # Prohibited Username related Admin pages
     config.add_route(
         "admin.prohibited_user_names.list",
@@ -486,6 +513,11 @@ def includeme(config):
     config.add_route(
         "admin.malware_reports.detail.add_helpscout_conversation",
         "/admin/malware_reports/{observation_id}/add_helpscout_conversation/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.malware_reports.detail.send_to_helpscout",
+        "/admin/malware_reports/{observation_id}/send_to_helpscout/",
         domain=warehouse,
     )
     config.add_route(

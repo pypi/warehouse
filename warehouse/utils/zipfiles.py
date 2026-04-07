@@ -51,7 +51,7 @@ def _contains_unprintable_chars(value: bytes) -> bool:
 
 
 def _handle_local_file_header(
-    fp: typing.IO[bytes], zipfile_files_and_sizes: dict[str, int]
+    fp: typing.IO[bytes], zipfile_files_and_sizes: dict[str, tuple[int, int]]
 ) -> bytes:
     """
     Parses the body of a Local File header. Returns
@@ -60,9 +60,14 @@ def _handle_local_file_header(
     See section 4.3.7 of APPNOTE.TXT.
     """
     data = _read_check(fp, 26)
-    gpbf, compress_method, compressed_size, filename_size, extra_size = struct.unpack(
-        "<xxHHxxxxxxxxLxxxxHH", data
-    )
+    (
+        gpbf,
+        compress_method,
+        compressed_size,
+        file_size,
+        filename_size,
+        extra_size,
+    ) = struct.unpack("<xxHHxxxxxxxxLLHH", data)
     filename = _read_check(fp, filename_size)
     extra = _read_check(fp, extra_size)
 
@@ -93,6 +98,8 @@ def _handle_local_file_header(
             if extra_data_size == 0:
                 if compressed_size == 0xFFFFFFFF:
                     raise InvalidZipFileError("Malformed zip file")
+                if file_size == 0xFFFFFFFF:
+                    raise InvalidZipFileError("Malformed zip file")
 
             # We only have uncompressed size, so we have to
             # double-check that we're NOT using compression
@@ -102,11 +109,17 @@ def _handle_local_file_header(
                 if compress_method != 0x0000:  # "STORE" method
                     raise InvalidZipFileError("Malformed zip file")
                 # Use uncompressed size, the first field in the extra data.
-                (compressed_size,) = struct.unpack("<Q", extra[4:12])
+                (uncompressed_size,) = struct.unpack("<Q", extra[4:12])
+                compressed_size = uncompressed_size
+                if file_size == 0xFFFFFFFF:
+                    file_size = uncompressed_size
 
             else:
-                # We receive an explicit compressed ZIP64 size.
-                # This is the second field in the extra data.
+                # We receive both uncompressed and compressed ZIP64 sizes.
+                # Only override file_size header values when they use the
+                # 0xFFFFFFFF sentinel, per the ZIP spec (APPNOTE.TXT 4.5.3).
+                if file_size == 0xFFFFFFFF:
+                    (file_size,) = struct.unpack("<Q", extra[4:12])
                 (compressed_size,) = struct.unpack("<Q", extra[12:20])
 
         elif extra_id == 0x7075:
@@ -133,8 +146,13 @@ def _handle_local_file_header(
         raise InvalidZipFileError("ZIP contains a data descriptor")
     try:
         filename_as_str = filename.decode("utf-8")
-        if zipfile_files_and_sizes[filename_as_str] != compressed_size:
+        expected_compress_size, expected_file_size = zipfile_files_and_sizes[
+            filename_as_str
+        ]
+        if expected_compress_size != compressed_size:
             raise InvalidZipFileError("Mis-matched data size")
+        if expected_file_size != file_size:
+            raise InvalidZipFileError("Mis-matched file size")
     except UnicodeError:
         raise InvalidZipFileError("Filename not unicode")
     except KeyError:
@@ -236,7 +254,10 @@ def validate_zipfile(zip_filepath: str) -> tuple[bool, str | None]:
     try:
         zfp = zipfile.ZipFile(zip_filepath, mode="r")
         # Store compression sizes from the CD for use later.
-        zipfile_files = {zfi.orig_filename: zfi.compress_size for zfi in zfp.filelist}
+        zipfile_files = {
+            zfi.orig_filename: (zfi.compress_size, zfi.file_size)
+            for zfi in zfp.filelist
+        }
     except zipfile.BadZipfile as e:
         return False, e.args[0]
 
@@ -385,5 +406,5 @@ def main(argv) -> int:  # pragma: no cover
     return 0 if ok else 1
 
 
-if __name__ == "__main__":  # pragma: no cover
+if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))

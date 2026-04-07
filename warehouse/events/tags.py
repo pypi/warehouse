@@ -64,6 +64,7 @@ class EventTag:
         EmailReverify = "account:email:reverify"
         EmailVerified = "account:email:verified"
         LoginFailure = "account:login:failure"
+        LoginNewDevice = "account:login:new_device"
         LoginSuccess = "account:login:success"
         OrganizationRoleAdd = "account:organization_role:add"
         OrganizationRoleChange = "account:organization_role:change"

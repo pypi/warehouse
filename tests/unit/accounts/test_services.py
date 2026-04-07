@@ -37,6 +37,7 @@ from warehouse.accounts.models import (
     DisableReason,
     ProhibitedUserName,
     TermsOfServiceEngagement,
+    User,
     UserTermsOfServiceEngagement,
 )
 from warehouse.events.tags import EventTag
@@ -2206,6 +2207,67 @@ class TestDeviceIsKnown:
                 token="fake_token",
             )
         ]
+
+    @pytest.mark.parametrize("two_factor_method", ["totp", "recovery-code"])
+    def test_device_is_not_known_records_event(
+        self, user_service, monkeypatch, two_factor_method
+    ):
+        user = UserFactory.create(with_verified_primary_email=True)
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(services, "send_unrecognized_login_email", send_email)
+        token_service = pretend.stub(dumps=lambda d: "fake_token", max_age=60)
+        ip_address = IpAddressFactory.create(ip_address=REMOTE_ADDR)
+        user_service.request = pretend.stub(
+            db=user_service.db,
+            remote_addr=REMOTE_ADDR,
+            headers={
+                "User-Agent": (
+                    "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) "
+                    "Gecko/20100101 Firefox/15.0.1"
+                )
+            },
+            find_service=lambda *a, **kw: token_service,
+            ip_address=ip_address,
+        )
+
+        assert not user_service.device_is_known(
+            user.id, user_service.request, two_factor_method=two_factor_method
+        )
+
+        # Verify a LoginNewDevice event was recorded with the 2FA method
+        events = (
+            user_service.db.query(User.Event)
+            .filter(
+                User.Event.source_id == user.id,
+                User.Event.tag == EventTag.Account.LoginNewDevice,
+            )
+            .all()
+        )
+        assert len(events) == 1
+        assert events[0].ip_address == ip_address
+        assert events[0].additional["two_factor_method"] == two_factor_method
+
+    def test_device_is_known_does_not_record_new_device_event(
+        self, user_service, db_request
+    ):
+
+        user = UserFactory.create()
+        UserUniqueLoginFactory.create(
+            user=user, ip_address=db_request.ip_address, status="confirmed"
+        )
+        db_request.find_service = lambda *a, **kw: pretend.stub()
+        assert user_service.device_is_known(user.id, db_request)
+
+        # Verify no LoginNewDevice event was recorded
+        events = (
+            user_service.db.query(User.Event)
+            .filter(
+                User.Event.source_id == user.id,
+                User.Event.tag == EventTag.Account.LoginNewDevice,
+            )
+            .all()
+        )
+        assert len(events) == 0
 
     def test_device_is_pending_not_expired(self, user_service, monkeypatch, db_request):
         user = UserFactory.create(with_verified_primary_email=True)

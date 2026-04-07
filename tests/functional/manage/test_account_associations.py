@@ -338,3 +338,157 @@ class TestAccountAssociations:
         )
         assert error_message is not None
         assert "No authorization code received from GitHub" in error_message.text
+
+    def test_connect_gitlab_account(self, webtest):
+        """A user can connect a GitLab account via OAuth."""
+        user = UserFactory.create(
+            with_verified_primary_email=True,
+            with_terms_of_service_agreement=True,
+            clear_pwd="password",
+        )
+
+        self._login_user(webtest, user)
+
+        # Click "Connect GitLab" button (initiates OAuth flow)
+        connect_response = webtest.get(
+            "/manage/account/associations/gitlab/connect",
+            status=HTTPStatus.SEE_OTHER,
+        )
+
+        # Follow the redirect to the callback URL
+        parsed_url = parse_url(connect_response.location)
+        callback_response = webtest.get(
+            parsed_url.path,
+            params=parsed_url.query,
+            status=HTTPStatus.SEE_OTHER,
+        )
+
+        # Follow redirect back to account page
+        account_page = callback_response.follow(status=HTTPStatus.OK)
+
+        # Verify association was created
+        assert "Account associations" in account_page.text
+        assert "mockuser_" in account_page.text
+
+    def test_connect_gitlab_account_invalid_state(self, webtest):
+        """GitLab OAuth flow rejects requests with invalid state tokens."""
+        user = UserFactory.create(
+            with_verified_primary_email=True,
+            with_terms_of_service_agreement=True,
+            clear_pwd="password",
+        )
+
+        self._login_user(webtest, user)
+
+        # Try to access callback directly with invalid state
+        callback_response = webtest.get(
+            "/manage/account/associations/gitlab/callback",
+            params={"code": "test", "state": "invalid"},
+            status=HTTPStatus.SEE_OTHER,
+        )
+
+        # Should redirect to account page with error
+        account_page = callback_response.follow(status=HTTPStatus.OK)
+        # Verify no association was created
+        assert "You have not connected" in account_page.text
+
+    def test_gitlab_oauth_error_response(self, webtest):
+        """GitLab OAuth flow handles error responses from GitLab."""
+        user = UserFactory.create(
+            with_verified_primary_email=True,
+            with_terms_of_service_agreement=True,
+            clear_pwd="password",
+        )
+
+        self._login_user(webtest, user)
+
+        # Start OAuth flow to get a valid state token
+        connect_response = webtest.get(
+            "/manage/account/associations/gitlab/connect",
+            status=HTTPStatus.SEE_OTHER,
+        )
+        parsed_url = parse_url(connect_response.location)
+        state = parsed_url.query.split("state=")[1].split("&")[0]
+
+        # Simulate OAuth error response with valid state
+        callback_response = webtest.get(
+            "/manage/account/associations/gitlab/callback",
+            params={
+                "state": state,
+                "error": "access_denied",
+                "error_description": "User declined",
+            },
+            status=HTTPStatus.SEE_OTHER,
+        )
+        callback_response.follow(status=HTTPStatus.OK)
+
+        # Check flash messages for the error
+        flash_messages = webtest.get(
+            "/_includes/unauthed/flash-messages/", status=HTTPStatus.OK
+        )
+        error_message = flash_messages.html.find(
+            "span", {"class": "notification-bar__message"}
+        )
+        assert error_message is not None
+        assert "GitLab OAuth failed" in error_message.text
+        assert "User declined" in error_message.text
+
+    def test_gitlab_oauth_missing_code(self, webtest):
+        """GitLab OAuth flow handles missing authorization code."""
+        user = UserFactory.create(
+            with_verified_primary_email=True,
+            with_terms_of_service_agreement=True,
+            clear_pwd="password",
+        )
+
+        self._login_user(webtest, user)
+
+        # Start OAuth flow to get a valid state token
+        connect_response = webtest.get(
+            "/manage/account/associations/gitlab/connect",
+            status=HTTPStatus.SEE_OTHER,
+        )
+        parsed_url = parse_url(connect_response.location)
+        state = parsed_url.query.split("state=")[1].split("&")[0]
+
+        # Call callback with valid state but no code
+        callback_response = webtest.get(
+            "/manage/account/associations/gitlab/callback",
+            params={"state": state},
+            status=HTTPStatus.SEE_OTHER,
+        )
+        callback_response.follow(status=HTTPStatus.OK)
+
+        # Check flash messages for the error
+        flash_messages = webtest.get(
+            "/_includes/unauthed/flash-messages/",
+            status=HTTPStatus.OK,
+        )
+        error_message = flash_messages.html.find(
+            "span", {"class": "notification-bar__message"}
+        )
+        assert error_message is not None
+        assert "No authorization code received from GitLab" in error_message.text
+
+    def test_view_account_with_gitlab_association(self, webtest):
+        """A user can view a GitLab association on the account page."""
+        user = UserFactory.create(
+            with_verified_primary_email=True,
+            with_terms_of_service_agreement=True,
+            clear_pwd="password",
+        )
+        OAuthAccountAssociationFactory.create(
+            user=user,
+            service="gitlab",
+            external_username="gitlabuser",
+        )
+
+        self._login_user(webtest, user)
+
+        # Visit account settings page
+        account_page = webtest.get("/manage/account/", status=HTTPStatus.OK)
+
+        # Verify GitLab association is present
+        assert "Account associations" in account_page.text
+        assert "gitlabuser" in account_page.text
+        assert "gitlab" in account_page.text.lower()

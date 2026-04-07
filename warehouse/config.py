@@ -84,6 +84,7 @@ class RootFactory:
                 Permissions.AdminProhibitedProjectsRead,
                 Permissions.AdminProhibitedProjectsWrite,
                 Permissions.AdminProhibitedProjectsRelease,
+                Permissions.AdminProhibitedProjectsUltranormRelease,
                 Permissions.AdminProhibitedUsernameRead,
                 Permissions.AdminProhibitedUsernameWrite,
                 Permissions.AdminProjectsDelete,
@@ -119,6 +120,7 @@ class RootFactory:
                 Permissions.AdminProhibitedEmailDomainsRead,
                 Permissions.AdminProhibitedProjectsRead,
                 Permissions.AdminProhibitedProjectsRelease,
+                Permissions.AdminProhibitedProjectsUltranormRelease,
                 Permissions.AdminProhibitedUsernameRead,
                 Permissions.AdminProjectsRead,
                 Permissions.AdminProjectsSetLimit,
@@ -462,6 +464,7 @@ def configure(settings=None):
     maybe_set_compound(settings, "breached_passwords", "backend", "BREACHED_PASSWORDS")
     maybe_set_compound(settings, "domain_status", "backend", "DOMAIN_STATUS_BACKEND")
     maybe_set_compound(settings, "github.oauth", "backend", "GITHUB_OAUTH_BACKEND")
+    maybe_set_compound(settings, "gitlab.oauth", "backend", "GITLAB_OAUTH_BACKEND")
     maybe_set(
         settings,
         "oidc.backend",

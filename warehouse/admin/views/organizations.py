@@ -496,8 +496,19 @@ class OrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationForm):
 @view_config(
     route_name="admin.organization_application.detail",
     require_methods=False,
+    request_method="GET",
     renderer="warehouse.admin:templates/admin/organization_applications/detail.html",
     permission=Permissions.AdminOrganizationsRead,
+    has_translations=True,
+    uses_session=True,
+    require_csrf=True,
+)
+@view_config(
+    route_name="admin.organization_application.detail",
+    require_methods=False,
+    request_method="POST",
+    renderer="warehouse.admin:templates/admin/organization_applications/detail.html",
+    permission=Permissions.AdminOrganizationsWrite,
     has_translations=True,
     uses_session=True,
     require_csrf=True,

@@ -3,6 +3,7 @@
 import os
 import os.path
 import re
+import time
 import xmlrpc.client
 
 from collections import defaultdict
@@ -354,6 +355,7 @@ def get_app_config(database, nondefaults=None):
         "warehouse.oidc.audience": "pypi",
         "oidc.backend": "warehouse.oidc.services.NullOIDCPublisherService",
         "github.oauth.backend": "warehouse.accounts.oauth.NullGitHubOAuthClient",
+        "gitlab.oauth.backend": "warehouse.accounts.oauth.NullGitLabOAuthClient",
         "captcha.backend": "warehouse.captcha.hcaptcha.Service",
     }
 
@@ -416,6 +418,7 @@ def app_config_dbsession_from_env(database):
     nondefaults = {
         "warehouse.db_create_session": lambda r: r.environ.get("warehouse.db_session"),
         "breached_passwords.backend": "warehouse.accounts.services.NullPasswordBreachedService",  # noqa: E501
+        "token.email.secret": "insecure token",
         "token.two_factor.secret": "insecure token",
         # A running redis service is required for functional web sessions
         "sessions.url": "redis://redis:0/",
@@ -452,28 +455,26 @@ def project_service(db_session, metrics, ratelimiters=None):
 
 
 @pytest.fixture
-def github_oidc_service(db_session):
-    # We pretend to be a verifier for GitHub OIDC JWTs, for the purposes of testing.
+def github_oidc_service(db_session, metrics):
     return oidc_services.NullOIDCPublisherService(
         db_session,
-        pretend.stub(),
+        "github",
         GITHUB_OIDC_ISSUER_URL,
+        "pypi",
         pretend.stub(),
-        pretend.stub(),
-        pretend.stub(),
+        metrics,
     )
 
 
 @pytest.fixture
-def activestate_oidc_service(db_session):
-    # We pretend to be a verifier for GitHub OIDC JWTs, for the purposes of testing.
+def activestate_oidc_service(db_session, metrics):
     return oidc_services.NullOIDCPublisherService(
         db_session,
-        pretend.stub(),
+        "activestate",
         ACTIVESTATE_OIDC_ISSUER_URL,
+        "pypi",
         pretend.stub(),
-        pretend.stub(),
-        pretend.stub(),
+        metrics,
     )
 
 
@@ -825,8 +826,16 @@ class _MockRedis:
         del count  # unused
         return [key for key in self.cache.keys() if re.search(search, key)]
 
-    def set(self, key, value, *_args, **_kwargs):
+    def set(self, key, value=None, *_args, **_kwargs):
+        if _kwargs.get("nx", False) and key in self.cache:
+            return None
+        # Real Redis immediately evicts a key when exat is in the past.
+        exat = _kwargs.get("exat")
+        if exat is not None and exat <= time.time():
+            self.cache.pop(key, None)
+            return True
         self.cache[key] = value
+        return True
 
     def setex(self, key, value, _seconds):
         self.cache[key] = value

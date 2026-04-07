@@ -179,6 +179,12 @@ class GitLabPublisherMixin:
 
     __required_unverifiable_claims__: set[str] = {"ref_path", "sha"}
 
+    # GitLab supports custom issuers (self-managed instances).
+    # lookup_by_claims filters by cls.issuer_url == signed_claims["iss"],
+    # ensuring a self-managed instance can only match publishers registered
+    # with that specific issuer URL.
+    __supports_custom_issuer__: bool = True
+
     __optional_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
         "environment": _check_environment,
     }

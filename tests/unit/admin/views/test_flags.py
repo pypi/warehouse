@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import pretend
 import pytest
 
 from warehouse.admin.flags import AdminFlag
@@ -90,6 +91,7 @@ class TestEditFlag:
         db_request.POST = post
         db_request.route_path = lambda *a: "/the/redirect"
         db_request.flash = lambda *a: None
+        db_request.user = pretend.stub(username="admin-user")
 
         views.edit_flag(db_request)
 
@@ -97,3 +99,13 @@ class TestEditFlag:
 
         assert flag.enabled == expected_enabled
         assert flag.description == expected_description
+
+        assert db_request.log.info.calls == [
+            pretend.call(
+                "Admin flag changed",
+                flag="foo-bar",
+                previous_status=enabled,
+                new_status=expected_enabled,
+                admin="admin-user",
+            ),
+        ]

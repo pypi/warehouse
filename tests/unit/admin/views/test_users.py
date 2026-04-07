@@ -23,6 +23,7 @@ from warehouse.packaging.models import JournalEntry, Project, ReleaseURL
 
 from ....common.db.accounts import EmailFactory, User, UserFactory
 from ....common.db.packaging import (
+    FileFactory,
     JournalEntryFactory,
     ProjectFactory,
     ReleaseFactory,
@@ -182,6 +183,45 @@ class TestUserDetail:
         ]
 
 
+class TestUserFiles:
+    def test_no_files(self, db_request):
+        user = UserFactory.create()
+        project = ProjectFactory.create()
+        RoleFactory(project=project, user=user, role_name="Owner")
+
+        result = views.user_files(user, db_request)
+
+        assert result == {"files": [], "total_size": 0, "file_count": 0}
+
+    def test_returns_files_with_metadata(self, db_request):
+        user = UserFactory.create()
+        project = ProjectFactory.create(name="alpha-project")
+        RoleFactory(project=project, user=user, role_name="Owner")
+        release = ReleaseFactory.create(project=project, version="1.0")
+        file1 = FileFactory.create(
+            release=release,
+            filename="alpha_project-1.0.tar.gz",
+            packagetype="sdist",
+            size=1000,
+        )
+        file2 = FileFactory.create(
+            release=release,
+            filename="alpha_project-1.0-py3-none-any.whl",
+            packagetype="bdist_wheel",
+            size=2000,
+        )
+
+        result = views.user_files(user, db_request)
+
+        assert result["file_count"] == 2
+        assert result["total_size"] == 3000
+        assert len(result["files"]) == 4  # 2 files + 2 .metadata
+        assert file1.path in result["files"]
+        assert file1.path + ".metadata" in result["files"]
+        assert file2.path in result["files"]
+        assert file2.path + ".metadata" in result["files"]
+
+
 class TestUserEmailSubmit:
     def test_updates_user_emails(self, db_request):
         email1 = EmailFactory.create(primary=True)
@@ -190,10 +230,12 @@ class TestUserEmailSubmit:
         db_request.matchdict["username"] = str(user.username)
         db_request.method = "POST"
         db_request.POST["name"] = "Jane Doe"
-        db_request.POST["emails-0-email"] = email1.email
-        db_request.POST["emails-0-primary"] = False
-        db_request.POST["emails-1-email"] = email2.email
-        db_request.POST["emails-1-primary"] = True
+        # Build form POST data matching user.emails order (no guaranteed
+        # ordering on the relationship), so WTForms populate_obj maps
+        # each entry back to the correct Email object.
+        for i, email in enumerate(user.emails):
+            db_request.POST[f"emails-{i}-email"] = email.email
+            db_request.POST[f"emails-{i}-primary"] = email is email2
 
         db_request.POST = MultiDict(db_request.POST)
         db_request.route_path = pretend.call_recorder(
