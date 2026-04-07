@@ -50,8 +50,7 @@ def update_pypi_sponsors(request):
         sponsor.service = sponsor_info["description"]
         sponsor.link_url = sponsor_info["sponsor_url"]
         sponsor.color_logo_url = sponsor_info["logo"]
-        if sponsor_info.get("white_logo"):
-            sponsor.white_logo_url = sponsor_info["white_logo"]
+        sponsor.white_logo_url = sponsor_info.get("white_logo")
         sponsor.level_name = sponsor_info["level_name"]
         sponsor.level_order = sponsor_info["level_order"]
         sponsor.is_active = True
