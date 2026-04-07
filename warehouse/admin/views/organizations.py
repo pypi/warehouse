@@ -875,8 +875,6 @@ def update_organization_role(request):
 
     # Update the role
     role.role_name = OrganizationRoleType(new_role_name)
-    request.db.add(role)
-    request.db.flush()  # Ensure the role is updated before recording event
 
     # Record the event
     organization.record_event(
