@@ -237,13 +237,16 @@ def test_white_logo_synced_when_provided(
         raise_for_status=lambda: None, json=lambda: sponsor_api_data
     )
     monkeypatch.setattr(
-        tasks, "requests", pretend.stub(
-            get=pretend.call_recorder(lambda *a, **kw: response)
-        ),
+        tasks,
+        "requests",
+        pretend.stub(get=pretend.call_recorder(lambda *a, **kw: response)),
     )
     fake_task_request.db = db_request.db
     tasks.update_pypi_sponsors(fake_task_request)
-    assert db_request.db.query(Sponsor).one().white_logo_url == "https://logourl.com/white.png"
+    assert (
+        db_request.db.query(Sponsor).one().white_logo_url
+        == "https://logourl.com/white.png"
+    )
 
 
 def test_flag_existing_psf_sponsor_to_false_if_not_present_in_api_response(

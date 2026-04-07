@@ -24,9 +24,7 @@ def test_includeme():
 
     assert config.add_request_method.calls == [
         pretend.call(sponsors._sponsors, name="sponsors", reify=True),
-        pretend.call(
-            sponsors._footer_sponsors, name="footer_sponsors", reify=True
-        ),
+        pretend.call(sponsors._footer_sponsors, name="footer_sponsors", reify=True),
     ]
     assert config.add_periodic_task.calls == [
         pretend.call(crontab(minute=10), update_pypi_sponsors),
@@ -45,9 +43,7 @@ def test_do_not_schedule_sponsor_api_integration_if_no_token():
 
     assert config.add_request_method.calls == [
         pretend.call(sponsors._sponsors, name="sponsors", reify=True),
-        pretend.call(
-            sponsors._footer_sponsors, name="footer_sponsors", reify=True
-        ),
+        pretend.call(sponsors._footer_sponsors, name="footer_sponsors", reify=True),
     ]
     assert not config.add_periodic_task.calls
 
@@ -57,11 +53,7 @@ def test_list_sponsors(db_request):
     SponsorFactory.create_batch(3, is_active=False)
 
     result = sponsors._sponsors(db_request)
-    expected = (
-        db_request.db.query(Sponsor)
-        .filter(Sponsor.is_active == true())
-        .all()
-    )
+    expected = db_request.db.query(Sponsor).filter(Sponsor.is_active == true()).all()
 
     assert result == expected
     assert len(result) == 5
