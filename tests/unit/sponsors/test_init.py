@@ -68,24 +68,12 @@ def test_list_sponsors(db_request):
 
 
 def test_footer_sponsors_ordering(db_request):
-    infra = SponsorFactory.create(
-        name="AWS", infra_sponsor=True, footer=False, level_order=0
-    )
-    vis_b = SponsorFactory.create(
-        name="Bravo", footer=True, infra_sponsor=False, level_order=1
-    )
-    vis_a = SponsorFactory.create(
-        name="Alpha", footer=True, infra_sponsor=False, level_order=1
-    )
-    sus = SponsorFactory.create(
-        name="Charlie", footer=True, infra_sponsor=False, level_order=2
-    )
-    # not in footer at all
-    SponsorFactory.create(
-        name="Nobody", footer=False, infra_sponsor=False, level_order=5
-    )
+    c = SponsorFactory.create
+    infra = c(name="AWS", infra_sponsor=True, footer=False, level_order=0)
+    vis_b = c(name="Bravo", footer=True, infra_sponsor=False, level_order=1)
+    vis_a = c(name="Alpha", footer=True, infra_sponsor=False, level_order=1)
+    sus = c(name="Charlie", footer=True, infra_sponsor=False, level_order=2)
+    c(name="Nobody", footer=False, infra_sponsor=False, level_order=5)
 
     db_request.sponsors = sponsors._sponsors(db_request)
-    result = sponsors._footer_sponsors(db_request)
-
-    assert result == [vis_a, vis_b, sus, infra]
+    assert sponsors._footer_sponsors(db_request) == [vis_a, vis_b, sus, infra]
