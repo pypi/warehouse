@@ -24,6 +24,9 @@ def test_includeme():
 
     assert config.add_request_method.calls == [
         pretend.call(sponsors._sponsors, name="sponsors", reify=True),
+        pretend.call(
+            sponsors._footer_sponsors, name="footer_sponsors", reify=True
+        ),
     ]
     assert config.add_periodic_task.calls == [
         pretend.call(crontab(minute=10), update_pypi_sponsors),
@@ -42,6 +45,9 @@ def test_do_not_schedule_sponsor_api_integration_if_no_token():
 
     assert config.add_request_method.calls == [
         pretend.call(sponsors._sponsors, name="sponsors", reify=True),
+        pretend.call(
+            sponsors._footer_sponsors, name="footer_sponsors", reify=True
+        ),
     ]
     assert not config.add_periodic_task.calls
 
@@ -51,7 +57,35 @@ def test_list_sponsors(db_request):
     SponsorFactory.create_batch(3, is_active=False)
 
     result = sponsors._sponsors(db_request)
-    expected = db_request.db.query(Sponsor).filter(Sponsor.is_active == true()).all()
+    expected = (
+        db_request.db.query(Sponsor)
+        .filter(Sponsor.is_active == true())
+        .all()
+    )
 
     assert result == expected
     assert len(result) == 5
+
+
+def test_footer_sponsors_ordering(db_request):
+    infra = SponsorFactory.create(
+        name="AWS", infra_sponsor=True, footer=False, level_order=0
+    )
+    vis_b = SponsorFactory.create(
+        name="Bravo", footer=True, infra_sponsor=False, level_order=1
+    )
+    vis_a = SponsorFactory.create(
+        name="Alpha", footer=True, infra_sponsor=False, level_order=1
+    )
+    sus = SponsorFactory.create(
+        name="Charlie", footer=True, infra_sponsor=False, level_order=2
+    )
+    # not in footer at all
+    SponsorFactory.create(
+        name="Nobody", footer=False, infra_sponsor=False, level_order=5
+    )
+
+    db_request.sponsors = sponsors._sponsors(db_request)
+    result = sponsors._footer_sponsors(db_request)
+
+    assert result == [vis_a, vis_b, sus, infra]
