@@ -67,7 +67,7 @@ def configure_celery_logging(logfile: str | None = None, loglevel: int = logging
             structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
         ],
         logger_factory=structlog.stdlib.LoggerFactory(),
-        wrapper_class=structlog.make_filtering_bound_logger(logging.INFO),
+        wrapper_class=structlog.make_filtering_bound_logger(loglevel),
         cache_logger_on_first_use=True,
     )
 
