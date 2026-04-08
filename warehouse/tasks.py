@@ -23,7 +23,6 @@ from kombu import Queue
 from pyramid.threadlocal import get_current_request
 
 from warehouse.config import Environment
-from warehouse.logging import configure_celery_logging
 from warehouse.metrics import IMetricsService
 
 if typing.TYPE_CHECKING:
@@ -38,13 +37,6 @@ celery.app.backends.BACKEND_ALIASES["rediss"] = (
 
 
 logger = logging.getLogger(__name__)
-
-
-@signals.after_setup_logger.connect
-def on_after_setup_logger(logger, loglevel, logfile, *args, **kwargs):
-    """Override Celery's default logging behavior
-    with unified structlog configuration."""
-    configure_celery_logging(logfile, loglevel)
 
 
 def on_task_prerun(sender, task_id, task, **_):
