@@ -24,20 +24,17 @@ def upgrade():
     )
 
     # Populate the column with content from release.requires_python.
-    op.execute(
-        """ UPDATE release_files
+    op.execute(""" UPDATE release_files
             SET requires_python = releases.requires_python
             FROM releases
             WHERE
                 release_files.name=releases.name
                 AND release_files.version=releases.version;
-        """
-    )
+        """)
 
     # Setup a trigger function to ensure that requires_python value on
     # releases is always canonical.
-    op.execute(
-        """CREATE OR REPLACE FUNCTION update_release_files_requires_python()
+    op.execute("""CREATE OR REPLACE FUNCTION update_release_files_requires_python()
             RETURNS TRIGGER AS $$
             BEGIN
                 UPDATE
@@ -53,18 +50,15 @@ def upgrade():
                 RETURN NULL;
             END;
             $$ LANGUAGE plpgsql;
-        """
-    )
+        """)
 
     # Establish a trigger such that on INSERT/UPDATE on releases we update
     # release_files with the appropriate requires_python values.
-    op.execute(
-        """ CREATE TRIGGER releases_requires_python
+    op.execute(""" CREATE TRIGGER releases_requires_python
             AFTER INSERT OR UPDATE OF requires_python ON releases
             FOR EACH ROW
                 EXECUTE PROCEDURE update_release_files_requires_python();
-        """
-    )
+        """)
 
 
 def downgrade():

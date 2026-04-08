@@ -1,5 +1,10 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "../settings/breakpoints";
+@use "../settings/colours";
+@use "../settings/grid";
+@use "../tools/link-utilities";
+
 /*
   A sidebar section. Currently used on the package detail page.
 
@@ -15,7 +20,7 @@
 .sidebar-section {
   padding-bottom: 20px;
   margin-bottom: 20px;
-  border-bottom: 2px solid $border-color;
+  border-bottom: 2px solid colours.$border-color;
   word-wrap: break-word;
 
   .sidebar-section__title {
@@ -24,12 +29,12 @@
   }
 
   .sidebar-section__user-gravatar {
-    @include link-without-underline;
-    @include link-focus-state($primary-color);
+    @include link-utilities.link-without-underline;
+    @include link-utilities.link-focus-state(colours.$primary-color);
   }
 
   .ethical-sidebar {
-    border: 2px solid $border-color;
+    border: 2px solid colours.$border-color;
     border-radius: 5px;
     padding: 1rem 1rem 0.25rem 1em;
   }
@@ -44,7 +49,7 @@
   }
 
   .ethical-image-link {
-    @include link-without-underline;
+    @include link-utilities.link-without-underline;
   }
 
   .ethical-text {
@@ -67,8 +72,8 @@
     }
 
     a {
-      @include link-without-underline;
-      @include link-focus-state($primary-color);
+      @include link-utilities.link-without-underline;
+      @include link-utilities.link-focus-state(colours.$primary-color);
     }
   }
 
@@ -80,7 +85,7 @@
     li {
       margin: 0;
       padding: 0;
-      margin-top: $half-spacing-unit;
+      margin-top: grid.$half-spacing-unit;
 
       &:first-of-type,
       ul li {
@@ -96,7 +101,7 @@
     img {
       max-width: 50px;
 
-      @media only screen and (max-width: $desktop) {
+      @media only screen and (max-width: breakpoints.$desktop) {
         max-width: 40px;
         max-height: 40px;
       }
@@ -112,9 +117,9 @@
     background-position: 0 1.15em;
     background-repeat: repeat-x;
     background-size: 100% 1.5px;
-    @include primary-underlined-link;
+    @include link-utilities.primary-underlined-link;
 
-    @media only screen and (max-width: $desktop) {
+    @media only screen and (max-width: breakpoints.$desktop) {
       max-width: calc(100% - 50px);
     }
   }

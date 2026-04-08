@@ -15,14 +15,14 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=((n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2);\n"
 "X-Generator: Weblate 5.8.2-dev\n"
 
-#: warehouse/views.py:148
+#: warehouse/views.py:149
 msgid ""
 "You must verify your **primary** email address before you can perform this "
 "action."
 msgstr ""
 "Pred vykonaním tejto akcie musíte overiť svoju **primárnu** e-mailovú adresu."
 
-#: warehouse/views.py:164
+#: warehouse/views.py:165
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
@@ -30,11 +30,11 @@ msgstr ""
 "Na vykonanie tejto akcie musí byť vo vašom účte povolená dvojfaktorová "
 "autentifikácia."
 
-#: warehouse/views.py:341
+#: warehouse/views.py:376
 msgid "Locale updated"
 msgstr "Miestne nastavenie bolo aktualizované"
 
-#: warehouse/accounts/forms.py:42 warehouse/accounts/forms.py:280
+#: warehouse/accounts/forms.py:42 warehouse/accounts/forms.py:304
 msgid "The email address isn't valid. Try again."
 msgstr "Neplatná emailová adresa. Skúste to znovu."
 
@@ -56,37 +56,43 @@ msgstr ""
 msgid "Null bytes are not allowed."
 msgstr "Nulové bajty nie sú povolené."
 
-#: warehouse/accounts/forms.py:76
+#: warehouse/accounts/forms.py:78
+msgid ""
+"Usernames are not the same as email addresses. Enter your username instead "
+"of your email address."
+msgstr ""
+
+#: warehouse/accounts/forms.py:90
 msgid "No user found with that username"
 msgstr "Nenašiel sa žiadny používateľ s týmto používateľským menom"
 
-#: warehouse/accounts/forms.py:97
+#: warehouse/accounts/forms.py:118
 #, python-brace-format
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "Kód TOTP musí obsahovať ${totp_length} číslic."
 
-#: warehouse/accounts/forms.py:117
+#: warehouse/accounts/forms.py:141
 #, python-brace-format
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr "Kódy na obnovenie musia mať ${recovery_code_length} znakov."
 
-#: warehouse/accounts/forms.py:131
+#: warehouse/accounts/forms.py:155
 msgid "Choose a username with 50 characters or less."
 msgstr "Vyberte si používateľské meno s 50 alebo menej znakmi."
 
-#: warehouse/accounts/forms.py:149
+#: warehouse/accounts/forms.py:173
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
 msgstr ""
 "Toto používateľské meno už používa iný účet. Vyberte iné používateľské meno."
 
-#: warehouse/accounts/forms.py:162 warehouse/accounts/forms.py:211
-#: warehouse/accounts/forms.py:224
+#: warehouse/accounts/forms.py:186 warehouse/accounts/forms.py:235
+#: warehouse/accounts/forms.py:248
 msgid "Password too long."
 msgstr "Heslo je príliš dlhé."
 
-#: warehouse/accounts/forms.py:194
+#: warehouse/accounts/forms.py:218
 #, python-brace-format
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
@@ -95,60 +101,60 @@ msgstr ""
 "Vyskytlo sa príliš veľa neúspešných pokusov o prihlásenie. Boli ste vymknutý "
 "na ${time}. Skúste neskôr prosím."
 
-#: warehouse/accounts/forms.py:227
+#: warehouse/accounts/forms.py:251
 msgid "Your passwords don't match. Try again."
 msgstr "Vaše heslá sa nezhodujú. Skúste to znova."
 
-#: warehouse/accounts/forms.py:261
+#: warehouse/accounts/forms.py:285
 msgid "The email address is too long. Try again."
 msgstr "Emailová adresa je príliš dlhá. Skúste to znovu."
 
-#: warehouse/accounts/forms.py:333
+#: warehouse/accounts/forms.py:357
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr "Nemôžete použiť e-mailovú adresu z tejto domény. Použite iný e-mail."
 
-#: warehouse/accounts/forms.py:348
+#: warehouse/accounts/forms.py:372
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
 msgstr "Tento účet už túto e-mailovú adresu používa. Použite iný e-mail."
 
-#: warehouse/accounts/forms.py:359
+#: warehouse/accounts/forms.py:383
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
 msgstr "Túto e-mailovú adresu už používa iný účet. Použite iný e-mail."
 
-#: warehouse/accounts/forms.py:399 warehouse/manage/forms.py:131
-#: warehouse/manage/forms.py:786
+#: warehouse/accounts/forms.py:423 warehouse/manage/forms.py:132
+#: warehouse/manage/forms.py:824
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "Názov je príliš dlhý. Vyberte názov so 100 znakmi alebo menej."
 
-#: warehouse/accounts/forms.py:405
+#: warehouse/accounts/forms.py:429
 msgid "URLs are not allowed in the name field."
 msgstr "URL nie sú povolené v názve poľa."
 
-#: warehouse/accounts/forms.py:494
+#: warehouse/accounts/forms.py:520
 msgid "Invalid TOTP code."
 msgstr "Neplatný TOTP kód."
 
-#: warehouse/accounts/forms.py:511
+#: warehouse/accounts/forms.py:537
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Neplatné tvrdenie WebAuthn: Zlé užitočné zaťaženie"
 
-#: warehouse/accounts/forms.py:580
+#: warehouse/accounts/forms.py:606
 msgid "Invalid recovery code."
 msgstr "Neplatný obnovovací kód."
 
-#: warehouse/accounts/forms.py:589
+#: warehouse/accounts/forms.py:615
 msgid "Recovery code has been previously used."
 msgstr "Obnovovací kód už bol použitý."
 
-#: warehouse/accounts/forms.py:619
+#: warehouse/accounts/forms.py:645
 msgid "The username isn't valid. Try again."
 msgstr "Užívateľské meno nie je platné. Skúste znova."
 
-#: warehouse/accounts/views.py:110
+#: warehouse/accounts/views.py:119
 #, python-brace-format
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
@@ -157,46 +163,46 @@ msgstr ""
 "Vyskytlo sa príliš veľa neúspešných pokusov o prihlásenie. Boli ste "
 "zablokovaní na {}. Skúste neskôr prosím."
 
-#: warehouse/accounts/views.py:131
+#: warehouse/accounts/views.py:140
 #, python-brace-format
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
 msgstr ""
 "Do tohto účtu bolo pridaných príliš veľa e-mailov bez ich overenia. "
-"Skontrolujte si doručenú poštu a postupujte podľa overovacích odkazov. (IP: "
-"${ip})"
+"Skontrolujte si doručenú poštu a postupujte podľa overovacích odkazov. (IP: $"
+"{ip})"
 
-#: warehouse/accounts/views.py:143
+#: warehouse/accounts/views.py:152
 #, python-brace-format
 msgid ""
 "Too many password resets have been requested for this account without "
-"completing them. Check your inbox and follow the verification links. (IP: "
-"${ip})"
+"completing them. Check your inbox and follow the verification links. (IP: $"
+"{ip})"
 msgstr ""
 "Pre tento účet bolo vyžiadaných príliš veľa resetov hesla bez ich "
 "dokončenia. Skontrolujte si doručenú poštu a postupujte podľa overovacích "
 "odkazov. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:375 warehouse/accounts/views.py:439
-#: warehouse/accounts/views.py:441 warehouse/accounts/views.py:470
-#: warehouse/accounts/views.py:472 warehouse/accounts/views.py:588
+#: warehouse/accounts/views.py:384 warehouse/accounts/views.py:454
+#: warehouse/accounts/views.py:456 warehouse/accounts/views.py:485
+#: warehouse/accounts/views.py:487 warehouse/accounts/views.py:603
 msgid "Invalid or expired two factor login."
 msgstr "Neplatné alebo vypršané dvojfaktorové prihlásenie."
 
-#: warehouse/accounts/views.py:433
+#: warehouse/accounts/views.py:448
 msgid "Already authenticated"
 msgstr "Už overené"
 
-#: warehouse/accounts/views.py:507
+#: warehouse/accounts/views.py:522
 msgid "Successful WebAuthn assertion"
 msgstr "Úspešné tvrdenie WebAuthn"
 
-#: warehouse/accounts/views.py:615 warehouse/manage/views/__init__.py:851
+#: warehouse/accounts/views.py:633 warehouse/manage/views/__init__.py:948
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "Obnovovací kód bol prijatý. Dodaný kód nie je možné znova použiť."
 
-#: warehouse/accounts/views.py:707
+#: warehouse/accounts/views.py:732
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -204,142 +210,182 @@ msgstr ""
 "Registrácia nového používateľa je dočasne zakázaná. Podrobnosti nájdete na "
 "https://pypi.org/help#admin-intervention."
 
-#: warehouse/accounts/views.py:876
+#: warehouse/accounts/views.py:895
 msgid "Expired token: request a new password reset link"
 msgstr "Platnosť tokenu vypršala: vyžiadajte si nový odkaz na obnovenie hesla"
 
-#: warehouse/accounts/views.py:878
+#: warehouse/accounts/views.py:897
 msgid "Invalid token: request a new password reset link"
 msgstr "Neplatný token: požiadajte o nový odkaz na obnovenie hesla"
 
-#: warehouse/accounts/views.py:880 warehouse/accounts/views.py:981
-#: warehouse/accounts/views.py:1087 warehouse/accounts/views.py:1256
+#: warehouse/accounts/views.py:899 warehouse/accounts/views.py:1008
+#: warehouse/accounts/views.py:1073 warehouse/accounts/views.py:1179
+#: warehouse/accounts/views.py:1350
 msgid "Invalid token: no token supplied"
 msgstr "Neplatný token: nebol dodaný žiadny token"
 
-#: warehouse/accounts/views.py:884
+#: warehouse/accounts/views.py:903
 msgid "Invalid token: not a password reset token"
 msgstr "Neplatný token: nejde o token na obnovenie hesla"
 
-#: warehouse/accounts/views.py:889
+#: warehouse/accounts/views.py:908 warehouse/accounts/views.py:1017
 msgid "Invalid token: user not found"
 msgstr "Neplatný token: používateľ sa nenašiel"
 
-#: warehouse/accounts/views.py:900
+#: warehouse/accounts/views.py:919
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "Neplatný token: používateľ sa prihlásil od vyžiadania tohto tokenu"
 
-#: warehouse/accounts/views.py:918
+#: warehouse/accounts/views.py:937
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
 "Neplatný token: heslo už bolo zmenené, odkedy bol tento token vyžiadaný"
 
-#: warehouse/accounts/views.py:949
+#: warehouse/accounts/views.py:968
 msgid "You have reset your password"
 msgstr "Obnovili ste svoje heslo"
 
-#: warehouse/accounts/views.py:977
+#: warehouse/accounts/views.py:1004
+#, fuzzy
+#| msgid "Expired token: request a new organization invitation"
+msgid "Expired token: please try to login again"
+msgstr "Token s vypršanou platnosťou: požiadajte o pozvánku novej organizácie"
+
+#: warehouse/accounts/views.py:1006
+#, fuzzy
+#| msgid "Invalid token: user not found"
+msgid "Invalid token: please try to login again"
+msgstr "Neplatný token: používateľ sa nenašiel"
+
+#: warehouse/accounts/views.py:1012
+#, fuzzy
+#| msgid "Invalid token: not a collaboration invitation token"
+msgid "Invalid token: not a login confirmation token"
+msgstr "Neplatný token: nejedná sa o token pozvánky k spolupráci"
+
+#: warehouse/accounts/views.py:1027
+msgid "Invalid login attempt."
+msgstr ""
+
+#: warehouse/accounts/views.py:1032
+msgid ""
+"Device details didn't match, please try again from the device you originally "
+"used to log in."
+msgstr ""
+
+#: warehouse/accounts/views.py:1043
+msgid "Your login has been confirmed and this device is now recognized."
+msgstr ""
+
+#: warehouse/accounts/views.py:1069
 msgid "Expired token: request a new email verification link"
 msgstr "Platnosť tokenu vypršala: vyžiadajte si nový odkaz na overenie e-mailu"
 
-#: warehouse/accounts/views.py:979
+#: warehouse/accounts/views.py:1071
 msgid "Invalid token: request a new email verification link"
 msgstr "Neplatný token: požiadajte o nový odkaz na overenie e-mailu"
 
-#: warehouse/accounts/views.py:985
+#: warehouse/accounts/views.py:1077
 msgid "Invalid token: not an email verification token"
 msgstr "Neplatný token: nejde o overovací token e-mailu"
 
-#: warehouse/accounts/views.py:994
+#: warehouse/accounts/views.py:1086
 msgid "Email not found"
 msgstr "Email nenájdený"
 
-#: warehouse/accounts/views.py:997
+#: warehouse/accounts/views.py:1089
 msgid "Email already verified"
 msgstr "Email už bol overený"
 
-#: warehouse/accounts/views.py:1017
+#: warehouse/accounts/views.py:1109
 msgid "You can now set this email as your primary address"
 msgstr "Teraz môžete tento e-mail nastaviť ako svoju primárnu adresu"
 
-#: warehouse/accounts/views.py:1020
+#: warehouse/accounts/views.py:1112
 msgid "This is your primary address"
 msgstr "Toto je vaša primárna adresa"
 
-#: warehouse/accounts/views.py:1026
+#: warehouse/accounts/views.py:1118
 #, python-brace-format
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "E-mailová adresa ${email_address} bola overená. ${confirm_message}."
 
-#: warehouse/accounts/views.py:1083
+#: warehouse/accounts/views.py:1175
 msgid "Expired token: request a new organization invitation"
 msgstr "Token s vypršanou platnosťou: požiadajte o pozvánku novej organizácie"
 
-#: warehouse/accounts/views.py:1085
+#: warehouse/accounts/views.py:1177
 msgid "Invalid token: request a new organization invitation"
 msgstr "Neplatný token: požiadajte o pozvánku novej organizácie"
 
-#: warehouse/accounts/views.py:1091
+#: warehouse/accounts/views.py:1183
 msgid "Invalid token: not an organization invitation token"
 msgstr "Neplatný token: nejedná sa o token pozvánky do organizácie"
 
-#: warehouse/accounts/views.py:1095
+#: warehouse/accounts/views.py:1187 warehouse/accounts/views.py:1198
 msgid "Organization invitation is not valid."
 msgstr "Pozvánka do organizácie je neplatná."
 
-#: warehouse/accounts/views.py:1104
+#: warehouse/accounts/views.py:1196
 msgid "Organization invitation no longer exists."
 msgstr "Pozvánka do organizácie už neexistuje."
 
-#: warehouse/accounts/views.py:1156
+#: warehouse/accounts/views.py:1250
 #, python-brace-format
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "Pozvánka do '${organization_name}' bola odmietnutá."
 
-#: warehouse/accounts/views.py:1219
+#: warehouse/accounts/views.py:1313
 #, python-brace-format
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "Teraz ste ${role} organizácie '${organization_name}'."
 
-#: warehouse/accounts/views.py:1252
+#: warehouse/accounts/views.py:1346
 msgid "Expired token: request a new project role invitation"
 msgstr "Expirovaný token: požiadajte o novú pozvánku pre rolu v projekte"
 
-#: warehouse/accounts/views.py:1254
+#: warehouse/accounts/views.py:1348
 msgid "Invalid token: request a new project role invitation"
 msgstr "Neplatný token: požiadajte o novú pozvánku pre rolu v projekte"
 
-#: warehouse/accounts/views.py:1260
+#: warehouse/accounts/views.py:1354
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "Neplatný token: nejedná sa o token pozvánky k spolupráci"
 
-#: warehouse/accounts/views.py:1264
+#: warehouse/accounts/views.py:1358 warehouse/accounts/views.py:1378
 msgid "Role invitation is not valid."
 msgstr "Pozvánka pre rolu je neplatná."
 
-#: warehouse/accounts/views.py:1279
+#: warehouse/accounts/views.py:1365
+#, fuzzy
+#| msgid "API Token does not exist."
+msgid "Invalid token: project does not exist"
+msgstr "API token neexistuje."
+
+#: warehouse/accounts/views.py:1376
 msgid "Role invitation no longer exists."
 msgstr "Pozvánka pre rolu už neexistuje."
 
-#: warehouse/accounts/views.py:1311
+#: warehouse/accounts/views.py:1410
 #, python-brace-format
 msgid "Invitation for '${project_name}' is declined."
 msgstr "Pozvánka pre '${project_name}' bola odmietnutá."
 
-#: warehouse/accounts/views.py:1377
+#: warehouse/accounts/views.py:1476
 #, python-brace-format
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Teraz ste ${role} projektu '${project_name}'."
 
-#: warehouse/accounts/views.py:1457
+#: warehouse/accounts/views.py:1588
 #, python-brace-format
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
 
-#: warehouse/accounts/views.py:1669 warehouse/accounts/views.py:1922
-#: warehouse/manage/views/oidc_publishers.py:120
+#: warehouse/accounts/views.py:1798 warehouse/accounts/views.py:2052
+#: warehouse/manage/views/oidc_publishers.py:126
+#: warehouse/manage/views/organizations.py:1822
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -347,11 +393,12 @@ msgstr ""
 "Nové registrácie sú dočasne zakázané. Viac informácií na https://pypi.org/"
 "help#admin-intervention."
 
-#: warehouse/accounts/views.py:1690
+#: warehouse/accounts/views.py:1819
+#: warehouse/manage/views/organizations.py:1845
 msgid "disabled. See https://pypi.org/help#admin-intervention for details."
 msgstr "zakázané. Pozri https://pypi.org/help#admin-intervention pre detaily."
 
-#: warehouse/accounts/views.py:1706
+#: warehouse/accounts/views.py:1835
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
@@ -359,16 +406,16 @@ msgstr ""
 "Ak chcete zaregistrovať čakajúceho dôveryhodného vydavateľa, musíte mať "
 "overený e-mail. Podrobnosti nájdete na https://pypi.org/help#openid-connect."
 
-#: warehouse/accounts/views.py:1719
+#: warehouse/accounts/views.py:1848
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 "Naraz nemôžete zaregistrovať viac ako 3 čakajúcich dôveryhodných vydavateľov."
 
-#: warehouse/accounts/views.py:1734
-#: warehouse/manage/views/oidc_publishers.py:301
-#: warehouse/manage/views/oidc_publishers.py:416
-#: warehouse/manage/views/oidc_publishers.py:530
-#: warehouse/manage/views/oidc_publishers.py:642
+#: warehouse/accounts/views.py:1863
+#: warehouse/manage/views/oidc_publishers.py:308
+#: warehouse/manage/views/oidc_publishers.py:423
+#: warehouse/manage/views/oidc_publishers.py:539
+#: warehouse/manage/views/oidc_publishers.py:651
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
@@ -376,15 +423,16 @@ msgstr ""
 "Príliš mnoho neúspešných pokusov o registráciu pomocou OpenID Connect. "
 "Skúste to prosím neskoršie."
 
-#: warehouse/accounts/views.py:1744
-#: warehouse/manage/views/oidc_publishers.py:314
-#: warehouse/manage/views/oidc_publishers.py:429
-#: warehouse/manage/views/oidc_publishers.py:543
-#: warehouse/manage/views/oidc_publishers.py:655
+#: warehouse/accounts/views.py:1873
+#: warehouse/manage/views/oidc_publishers.py:321
+#: warehouse/manage/views/oidc_publishers.py:436
+#: warehouse/manage/views/oidc_publishers.py:552
+#: warehouse/manage/views/oidc_publishers.py:664
+#: warehouse/manage/views/organizations.py:1861
 msgid "The trusted publisher could not be registered"
 msgstr "Dôveryhodného vydavateľa sa nepodarilo zaregistrovať"
 
-#: warehouse/accounts/views.py:1759
+#: warehouse/accounts/views.py:1888
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
@@ -392,16 +440,17 @@ msgstr ""
 "Tento dôveryhodný vydavateľ už bol zaregistrovaný. Ak to nebolo úmyselné, "
 "kontaktujte administrátorov PyPI."
 
-#: warehouse/accounts/views.py:1793
+#: warehouse/accounts/views.py:1922
+#: warehouse/manage/views/organizations.py:1910
 msgid "Registered a new pending publisher to create "
 msgstr "Zaregistroval sa nový vydavateľ čakajúci na vytvorenie. "
 
-#: warehouse/accounts/views.py:1935 warehouse/accounts/views.py:1948
-#: warehouse/accounts/views.py:1955
+#: warehouse/accounts/views.py:2065 warehouse/accounts/views.py:2078
+#: warehouse/accounts/views.py:2085
 msgid "Invalid publisher ID"
 msgstr "Neplatné ID vlastníka"
 
-#: warehouse/accounts/views.py:1962
+#: warehouse/accounts/views.py:2092
 msgid "Removed trusted publisher for project "
 msgstr "Pre projekt bol odstránený dôveryhodný vydavateľ. "
 
@@ -409,15 +458,33 @@ msgstr "Pre projekt bol odstránený dôveryhodný vydavateľ. "
 msgid "Banner Preview"
 msgstr "Ukážka bannera"
 
-#: warehouse/manage/forms.py:380
+#: warehouse/manage/forms.py:292
+msgid "Specify an association ID"
+msgstr ""
+
+#: warehouse/manage/forms.py:293
+#, fuzzy
+#| msgid "Publisher must be specified by ID"
+msgid "Association must be specified by ID"
+msgstr "Vydavateľ musí byť špecifikovaný ID"
+
+#: warehouse/manage/forms.py:308
+msgid "No account association with given ID"
+msgstr ""
+
+#: warehouse/manage/forms.py:313
+msgid "This association does not belong to you"
+msgstr ""
+
+#: warehouse/manage/forms.py:417
 msgid "Provide your response to the request."
 msgstr ""
 
-#: warehouse/manage/forms.py:421
+#: warehouse/manage/forms.py:459
 msgid "Choose an organization account name with 50 characters or less."
 msgstr "Vyberte názov účtu organizácie s 50 alebo menej znakmi."
 
-#: warehouse/manage/forms.py:429
+#: warehouse/manage/forms.py:467
 msgid ""
 "The organization account name is invalid. Organization account names must be "
 "composed of letters, numbers, dots, hyphens and underscores. And must also "
@@ -428,7 +495,7 @@ msgstr ""
 "z písmen, číslic, bodiek, pomlčiek a podčiarkovníkov. A tiež musí začínať a "
 "končiť písmenom alebo číslom. Vyberte iný názov účtu organizácie."
 
-#: warehouse/manage/forms.py:452
+#: warehouse/manage/forms.py:490
 msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
@@ -436,23 +503,23 @@ msgstr ""
 "Tento názov účtu organizácie už bol použitý. Vyberte iný názov účtu "
 "organizácie."
 
-#: warehouse/manage/forms.py:467
+#: warehouse/manage/forms.py:505
 msgid ""
 "You have already submitted an application for that name. Choose a different "
 "organization account name."
 msgstr ""
 "Pre toto meno ste už odoslali žiadosť. Vyberte iný názov účtu organizácie."
 
-#: warehouse/manage/forms.py:502
+#: warehouse/manage/forms.py:540
 msgid "Select project"
 msgstr "Vybrať projekt"
 
-#: warehouse/manage/forms.py:507 warehouse/oidc/forms/_core.py:36
-#: warehouse/oidc/forms/gitlab.py:47
+#: warehouse/manage/forms.py:545 warehouse/oidc/forms/_core.py:36
+#: warehouse/oidc/forms/gitlab.py:54
 msgid "Specify project name"
 msgstr "Zvoľte názov projektu"
 
-#: warehouse/manage/forms.py:511
+#: warehouse/manage/forms.py:549
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
@@ -460,18 +527,18 @@ msgstr ""
 "Začína a končí písmenom alebo číslicou, ktorá obsahuje iba ASCII číslicu a "
 "'.', '_' a '-'."
 
-#: warehouse/manage/forms.py:518
+#: warehouse/manage/forms.py:556
 msgid ""
 "This project name has already been used. Choose a different project name."
 msgstr "Tento názov projektu už bol použitý. Vyberte iný názov projektu."
 
-#: warehouse/manage/forms.py:551
+#: warehouse/manage/forms.py:589
 #, fuzzy
 #| msgid "Cannot transfer project to an organization"
 msgid "Cannot transfer to Company Organization with inactive billing"
 msgstr "Projekt nie je možné preniesť do organizácie"
 
-#: warehouse/manage/forms.py:604
+#: warehouse/manage/forms.py:642
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
@@ -479,7 +546,7 @@ msgstr ""
 "Názov organizácie je príliš dlhý. Vyberte názov organizácie so 100 znakmi "
 "alebo menej."
 
-#: warehouse/manage/forms.py:616
+#: warehouse/manage/forms.py:654
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
@@ -487,11 +554,11 @@ msgstr ""
 "Webová adresa organizácie je príliš dlhá. Vyberte webovú adresu organizácie "
 "so 400 znakmi alebo menej."
 
-#: warehouse/manage/forms.py:622
+#: warehouse/manage/forms.py:660
 msgid "The organization URL must start with http:// or https://"
 msgstr "Webová adresa organizácie musí začínať http:// alebo https://"
 
-#: warehouse/manage/forms.py:634
+#: warehouse/manage/forms.py:672
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
@@ -499,7 +566,7 @@ msgstr ""
 "Popis organizácie je príliš dlhý. Vyberte popis organizácie so 400 znakmi "
 "alebo menej."
 
-#: warehouse/manage/forms.py:677
+#: warehouse/manage/forms.py:715
 #, fuzzy
 #| msgid ""
 #| "The description is too long. Choose a description with 400 characters or "
@@ -509,15 +576,15 @@ msgid ""
 "1024 characters or less."
 msgstr "Popis je príliš dlhý. Vyberte si popis 400 znakov alebo menej."
 
-#: warehouse/manage/forms.py:699
+#: warehouse/manage/forms.py:737
 msgid "You have already submitted the maximum number of "
 msgstr "Už ste odoslali maximálny počet. "
 
-#: warehouse/manage/forms.py:728
+#: warehouse/manage/forms.py:766
 msgid "Choose a team name with 50 characters or less."
 msgstr "Vyberte názov tímu s 50 znakmi alebo menej."
 
-#: warehouse/manage/forms.py:735
+#: warehouse/manage/forms.py:773
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
@@ -525,103 +592,103 @@ msgstr ""
 "Názov tímu je neplatný. Názvy tímov nemôžu začínať ani končiť medzerou, "
 "bodkou, podčiarkovníkom, spojovníkom ani lomkou. Vyberte iný názov tímu."
 
-#: warehouse/manage/forms.py:763
+#: warehouse/manage/forms.py:801
 msgid "This team name has already been used. Choose a different team name."
 msgstr "Tento názov tímu už bol použitý. Vyberte iný názov tímu."
 
-#: warehouse/manage/forms.py:781
+#: warehouse/manage/forms.py:819
 msgid "Specify your alternate repository name"
 msgstr "Zadajte svoje alternatívne meno úložisko"
 
-#: warehouse/manage/forms.py:795
+#: warehouse/manage/forms.py:833
 msgid "Specify your alternate repository URL"
 msgstr "Zadajte svoju alternatívnu URL úložisko"
 
-#: warehouse/manage/forms.py:800
+#: warehouse/manage/forms.py:838
 msgid "The URL is too long. Choose a URL with 400 characters or less."
 msgstr "URL je príliš dlhá. Vyberte URL s 400 znakmi alebo menej."
 
-#: warehouse/manage/forms.py:814
+#: warehouse/manage/forms.py:852
 msgid ""
 "The description is too long. Choose a description with 400 characters or "
 "less."
 msgstr "Popis je príliš dlhý. Vyberte si popis 400 znakov alebo menej."
 
-#: warehouse/manage/views/__init__.py:262
+#: warehouse/manage/views/__init__.py:408
 msgid "Account details updated"
 msgstr "Podrobnosti účtu boli aktualizované"
 
-#: warehouse/manage/views/__init__.py:293
+#: warehouse/manage/views/__init__.py:439
 #, python-brace-format
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "E-mailová adresa ${email_address} bola pridaná – skontrolujte svoj e-mail, "
 "či nemáte verifikačný odkaz"
 
-#: warehouse/manage/views/__init__.py:798
+#: warehouse/manage/views/__init__.py:895
 msgid "Recovery codes already generated"
 msgstr "Obnovovacie kódy sú už vygenerované"
 
-#: warehouse/manage/views/__init__.py:800
+#: warehouse/manage/views/__init__.py:897
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 "Generovanie nových kódov na obnovenie zruší platnosť vašich existujúcich "
 "kódov."
 
-#: warehouse/manage/views/__init__.py:908
+#: warehouse/manage/views/__init__.py:1005
 msgid "Verify your email to create an API token."
 msgstr "Ak chcete vytvoriť token rozhrania API, overte svoj e-mail."
 
-#: warehouse/manage/views/__init__.py:1010
+#: warehouse/manage/views/__init__.py:1107
 msgid "API Token does not exist."
 msgstr "API token neexistuje."
 
-#: warehouse/manage/views/__init__.py:1042
+#: warehouse/manage/views/__init__.py:1139
 msgid "Invalid credentials. Try again"
 msgstr "Neplatné poverenia. Skúste to znova"
 
-#: warehouse/manage/views/__init__.py:1161
+#: warehouse/manage/views/__init__.py:1258
 msgid "Invalid alternate repository location details"
 msgstr "Neplatné alternatívne informácie o úložisku"
 
-#: warehouse/manage/views/__init__.py:1199
+#: warehouse/manage/views/__init__.py:1296
 #, python-brace-format
 msgid "Added alternate repository '${name}'"
 msgstr "Pridané alternatívne úložisko '${name} \""
 
-#: warehouse/manage/views/__init__.py:1232
-#: warehouse/manage/views/__init__.py:1493
-#: warehouse/manage/views/__init__.py:1578
-#: warehouse/manage/views/__init__.py:1679
-#: warehouse/manage/views/__init__.py:1779
+#: warehouse/manage/views/__init__.py:1329
+#: warehouse/manage/views/__init__.py:1590
+#: warehouse/manage/views/__init__.py:1675
+#: warehouse/manage/views/__init__.py:1776
+#: warehouse/manage/views/__init__.py:1876
 msgid "Confirm the request"
 msgstr "Potvrďte žiadosť"
 
-#: warehouse/manage/views/__init__.py:1244
+#: warehouse/manage/views/__init__.py:1341
 msgid "Invalid alternate repository id"
 msgstr "Neplatné alternatívne úložisko id"
 
-#: warehouse/manage/views/__init__.py:1255
+#: warehouse/manage/views/__init__.py:1352
 msgid "Invalid alternate repository for project"
 msgstr "Neplatné alternatívne úložisko pre projekt"
 
-#: warehouse/manage/views/__init__.py:1264
+#: warehouse/manage/views/__init__.py:1361
 #, python-brace-format
 msgid ""
-"Could not delete alternate repository - ${confirm} is not the same as "
-"${alt_repo_name}"
+"Could not delete alternate repository - ${confirm} is not the same as $"
+"{alt_repo_name}"
 msgstr ""
 "Nemohol odstrániť alternatívne úložisko - $ {confirm} nie je rovnaký ako $ "
 "{alt_repo_name}"
 
-#: warehouse/manage/views/__init__.py:1294
+#: warehouse/manage/views/__init__.py:1391
 #, python-brace-format
 msgid "Deleted alternate repository '${name}'"
 msgstr "Odstráňte alternatívne úložisko '${name} \""
 
-#: warehouse/manage/views/__init__.py:1362
-#: warehouse/manage/views/__init__.py:1663
-#: warehouse/manage/views/__init__.py:1771
+#: warehouse/manage/views/__init__.py:1459
+#: warehouse/manage/views/__init__.py:1760
+#: warehouse/manage/views/__init__.py:1868
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -629,42 +696,42 @@ msgstr ""
 "Odstránenie projektu je dočasne zakázané. Podrobnosti nájdete na https://"
 "pypi.org/help#admin-intervention."
 
-#: warehouse/manage/views/__init__.py:1506
+#: warehouse/manage/views/__init__.py:1603
 msgid "Could not yank release - "
 msgstr "Nepodarilo sa vytrhnúť uvoľnenie -. "
 
-#: warehouse/manage/views/__init__.py:1591
+#: warehouse/manage/views/__init__.py:1688
 msgid "Could not un-yank release - "
 msgstr "Nepodarilo sa uvoľniť uvoľnenie -. "
 
-#: warehouse/manage/views/__init__.py:1692
+#: warehouse/manage/views/__init__.py:1789
 msgid "Could not delete release - "
 msgstr "Vydanie sa nepodarilo odstrániť -. "
 
-#: warehouse/manage/views/__init__.py:1791
+#: warehouse/manage/views/__init__.py:1888
 msgid "Could not find file"
 msgstr "Nepodarilo sa nájsť súbor"
 
-#: warehouse/manage/views/__init__.py:1796
+#: warehouse/manage/views/__init__.py:1893
 msgid "Could not delete file - "
 msgstr "Nepodarilo sa odstrániť súbor -. "
 
-#: warehouse/manage/views/__init__.py:1946
+#: warehouse/manage/views/__init__.py:2043
 #, python-brace-format
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr "Tím '${team_name}' už má v projekte rolu ${role_name}"
 
-#: warehouse/manage/views/__init__.py:2053
+#: warehouse/manage/views/__init__.py:2150
 #, python-brace-format
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "Používateľ '${username}' už má v projekte rolu ${role_name}"
 
-#: warehouse/manage/views/__init__.py:2120
+#: warehouse/manage/views/__init__.py:2217
 #, python-brace-format
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "${username} je teraz ${role} projektu '${project_name}'."
 
-#: warehouse/manage/views/__init__.py:2152
+#: warehouse/manage/views/__init__.py:2249
 #, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
@@ -673,77 +740,137 @@ msgstr ""
 "Používateľ '${username}' nemá overenú primárnu e-mailovú adresu a nemôže byť "
 "pridaný ako ${role_name} pre projekt"
 
-#: warehouse/manage/views/__init__.py:2165
-#: warehouse/manage/views/organizations.py:962
+#: warehouse/manage/views/__init__.py:2262
+#: warehouse/manage/views/organizations.py:981
 #, python-brace-format
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr "Používateľ '${username}' už má aktívnu pozvánku. Skúste neskôr prosím."
 
-#: warehouse/manage/views/__init__.py:2230
-#: warehouse/manage/views/organizations.py:1037
+#: warehouse/manage/views/__init__.py:2327
+#: warehouse/manage/views/organizations.py:1056
 #, python-brace-format
 msgid "Invitation sent to '${username}'"
 msgstr "Pozvánka bola odoslaná používateľovi '${username}'"
 
-#: warehouse/manage/views/__init__.py:2262
+#: warehouse/manage/views/__init__.py:2359
 msgid "Could not find role invitation."
 msgstr "Nepodarilo sa nájsť pozvánku na rolu."
 
-#: warehouse/manage/views/__init__.py:2273
+#: warehouse/manage/views/__init__.py:2370
 msgid "Invitation already expired."
 msgstr "Pozvánka už vypršala."
 
-#: warehouse/manage/views/__init__.py:2306
-#: warehouse/manage/views/organizations.py:1224
+#: warehouse/manage/views/__init__.py:2403
+#: warehouse/manage/views/organizations.py:1256
 #, python-brace-format
 msgid "Invitation revoked from '${username}'."
 msgstr "Pozvánka od '${username}' bola odvolaná."
 
-#: warehouse/manage/views/oidc_publishers.py:169
+#: warehouse/manage/views/account_associations.py:66
+#: warehouse/manage/views/account_associations.py:211
+msgid "Invalid OAuth state - possible CSRF attack"
+msgstr ""
+
+#: warehouse/manage/views/account_associations.py:76
+#, python-brace-format
+msgid "GitHub OAuth failed: ${error}"
+msgstr ""
+
+#: warehouse/manage/views/account_associations.py:86
+msgid "No authorization code received from GitHub"
+msgstr ""
+
+#: warehouse/manage/views/account_associations.py:135
+#, python-brace-format
+msgid "Successfully connected GitHub account @${username}"
+msgstr ""
+
+#: warehouse/manage/views/account_associations.py:144
+#, python-brace-format
+msgid "Failed to connect GitHub account: ${error}"
+msgstr ""
+
+#: warehouse/manage/views/account_associations.py:154
+msgid "An unexpected error occurred while connecting your GitHub account"
+msgstr ""
+
+#: warehouse/manage/views/account_associations.py:221
+#, python-brace-format
+msgid "GitLab OAuth failed: ${error}"
+msgstr ""
+
+#: warehouse/manage/views/account_associations.py:231
+msgid "No authorization code received from GitLab"
+msgstr ""
+
+#: warehouse/manage/views/account_associations.py:281
+#, python-brace-format
+msgid "Successfully connected GitLab account @${username}"
+msgstr ""
+
+#: warehouse/manage/views/account_associations.py:290
+#, python-brace-format
+msgid "Failed to connect GitLab account: ${error}"
+msgstr ""
+
+#: warehouse/manage/views/account_associations.py:300
+msgid "An unexpected error occurred while connecting your GitLab account"
+msgstr ""
+
+#: warehouse/manage/views/account_associations.py:365
+#, python-brace-format
+msgid "Removed ${service} account @${username}"
+msgstr ""
+
+#: warehouse/manage/views/account_associations.py:372
+msgid "Failed to remove account association"
+msgstr ""
+
+#: warehouse/manage/views/oidc_publishers.py:175
 #, fuzzy
 #| msgid "The trusted publisher could not be registered"
 msgid "The trusted publisher could not be constrained"
 msgstr "Dôveryhodného vydavateľa sa nepodarilo zaregistrovať"
 
-#: warehouse/manage/views/oidc_publishers.py:282
+#: warehouse/manage/views/oidc_publishers.py:289
 msgid ""
-"GitHub-based trusted publishing is temporarily disabled. See https://pypi."
-"org/help#admin-intervention for details."
+"GitHub-based trusted publishing is temporarily disabled. See https://"
+"pypi.org/help#admin-intervention for details."
 msgstr ""
 "Dôveryhodné publikovanie na GitHub je dočasne zakázané. Podrobnosti nájdete "
 "na https://pypi.org/help#admin-intervention."
 
-#: warehouse/manage/views/oidc_publishers.py:397
+#: warehouse/manage/views/oidc_publishers.py:404
 msgid ""
-"GitLab-based trusted publishing is temporarily disabled. See https://pypi."
-"org/help#admin-intervention for details."
+"GitLab-based trusted publishing is temporarily disabled. See https://"
+"pypi.org/help#admin-intervention for details."
 msgstr ""
 "GitLab-založené dôveryhodné vydavateľstvo je dočasne zakázané. Pozri https://"
 "pypi.org/help#admin-intervention pre detaily."
 
-#: warehouse/manage/views/oidc_publishers.py:511
+#: warehouse/manage/views/oidc_publishers.py:520
 msgid ""
-"Google-based trusted publishing is temporarily disabled. See https://pypi."
-"org/help#admin-intervention for details."
+"Google-based trusted publishing is temporarily disabled. See https://"
+"pypi.org/help#admin-intervention for details."
 msgstr ""
 "Google dôveryhodné publikovanie je dočasne zakázané. Pozri https://pypi.org/"
 "help#admin-intervention pre detaily."
 
-#: warehouse/manage/views/oidc_publishers.py:622
+#: warehouse/manage/views/oidc_publishers.py:631
 msgid ""
 "ActiveState-based trusted publishing is temporarily disabled. See https://"
 "pypi.org/help#admin-intervention for details."
 msgstr ""
-"Aktívne dôveryhodné vydavateľstvo je dočasne zakázané. Pozri https://pypi."
-"org/help#admin-intervention pre detaily."
+"Aktívne dôveryhodné vydavateľstvo je dočasne zakázané. Pozri https://"
+"pypi.org/help#admin-intervention pre detaily."
 
-#: warehouse/manage/views/organizations.py:938
+#: warehouse/manage/views/organizations.py:957
 #, python-brace-format
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr "Používateľ '${username}' už má rolu ${role_name} pre organizáciu"
 
-#: warehouse/manage/views/organizations.py:949
+#: warehouse/manage/views/organizations.py:968
 #, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
@@ -752,26 +879,32 @@ msgstr ""
 "Používateľ '${username}' nemá overenú primárnu e-mailovú adresu a nemôže byť "
 "pridaný ako ${role_name} pre organizáciu"
 
-#: warehouse/manage/views/organizations.py:973
+#: warehouse/manage/views/organizations.py:992
 msgid "Cannot invite new member. Organization is not in good standing."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1119
-#: warehouse/manage/views/organizations.py:1161
+#: warehouse/manage/views/organizations.py:1151
+#: warehouse/manage/views/organizations.py:1193
 msgid "Could not find organization invitation."
 msgstr "Nepodarilo sa nájsť pozvánku organizácie."
 
-#: warehouse/manage/views/organizations.py:1129
+#: warehouse/manage/views/organizations.py:1161
 msgid "Organization invitation could not be re-sent."
 msgstr "Pozvánku organizácie nebolo možné znova odoslať."
 
-#: warehouse/manage/views/organizations.py:1177
+#: warehouse/manage/views/organizations.py:1209
 #, python-brace-format
 msgid "Expired invitation for '${username}' deleted."
 msgstr "Pozvánka s vypršanou platnosťou pre '${username}' bola odstránená."
 
+#: warehouse/manage/views/organizations.py:1877
+msgid ""
+"This publisher has already been registered in your organization. See your "
+"existing pending publishers below."
+msgstr ""
+
 #: warehouse/oidc/forms/_core.py:38 warehouse/oidc/forms/_core.py:49
-#: warehouse/oidc/forms/gitlab.py:50 warehouse/oidc/forms/gitlab.py:54
+#: warehouse/oidc/forms/gitlab.py:57 warehouse/oidc/forms/gitlab.py:61
 msgid "Invalid project name"
 msgstr "Neplatný názov projektu"
 
@@ -781,8 +914,8 @@ msgstr "Neplatný názov projektu"
 #| "This project already exists, use the project's publishing settings <a "
 #| "href='${url}'>here</a> to create a Trusted Publisher for it."
 msgid ""
-"This project already exists: use the project's publishing settings <a "
-"href='${url}'>here</a> to create a Trusted Publisher for it."
+"This project already exists: use the project's publishing settings <a href='$"
+"{url}'>here</a> to create a Trusted Publisher for it."
 msgstr ""
 "Tento projekt už existuje, použite nastavenie publikovania projektu <a "
 "href='${url}'>here</a> na vytvorenie dôveryhodného vydavateľa pre neho."
@@ -881,91 +1014,95 @@ msgstr "Zadajte názov úložiska"
 msgid "Invalid repository name"
 msgstr "Neplatný názov úložiska"
 
-#: warehouse/oidc/forms/github.py:39
+#: warehouse/oidc/forms/github.py:40
 msgid "Specify workflow filename"
 msgstr "Zadajte názov súboru pracovného postupu"
 
-#: warehouse/oidc/forms/github.py:74
+#: warehouse/oidc/forms/github.py:75
 msgid "Unknown GitHub user or organization."
 msgstr "Neznámy používateľ alebo organizácia GitHub."
 
-#: warehouse/oidc/forms/github.py:85
+#: warehouse/oidc/forms/github.py:86
 msgid "GitHub has rate-limited this action. Try again in a few minutes."
 msgstr ""
 "GitHub túto akciu obmedzil rýchlosťou. Skúste to znova o niekoľko minút."
 
-#: warehouse/oidc/forms/github.py:94
+#: warehouse/oidc/forms/github.py:95
 msgid "Unexpected error from GitHub. Try again."
 msgstr "Neočakávaná chyba z GitHubu. Skúste to znova."
 
-#: warehouse/oidc/forms/github.py:102
+#: warehouse/oidc/forms/github.py:103
 msgid "Unexpected connection error from GitHub. Try again in a few minutes."
 msgstr ""
 "Neočakávaná chyba pripojenia z GitHubu. Skúste to znova o niekoľko minút."
 
-#: warehouse/oidc/forms/github.py:111
+#: warehouse/oidc/forms/github.py:112
 msgid "Unexpected timeout from GitHub. Try again in a few minutes."
 msgstr ""
 "Neočakávaný časový limit zo služby GitHub. Skúste to znova o niekoľko minút."
 
-#: warehouse/oidc/forms/github.py:123
+#: warehouse/oidc/forms/github.py:124
 msgid "Invalid GitHub user or organization name."
 msgstr "Neplatný názov používateľa alebo organizácie GitHub."
 
-#: warehouse/oidc/forms/github.py:139
+#: warehouse/oidc/forms/github.py:140
 msgid "Workflow name must end with .yml or .yaml"
 msgstr "Názov pracovného postupu musí končiť príponou .yml alebo .yaml"
 
-#: warehouse/oidc/forms/github.py:144
+#: warehouse/oidc/forms/github.py:145
 msgid "Workflow filename must be a filename only, without directories"
 msgstr ""
 "Názov súboru pracovného postupu musí byť iba názov súboru bez adresárov"
 
-#: warehouse/oidc/forms/github.py:155
+#: warehouse/oidc/forms/github.py:156
 msgid "Environment name is too long (maximum is 255 characters)"
 msgstr ""
 
-#: warehouse/oidc/forms/github.py:160
+#: warehouse/oidc/forms/github.py:161
 msgid "Environment name may not start with whitespace"
 msgstr ""
 
-#: warehouse/oidc/forms/github.py:165
+#: warehouse/oidc/forms/github.py:166
 msgid "Environment name may not end with whitespace"
 msgstr ""
 
-#: warehouse/oidc/forms/github.py:171
+#: warehouse/oidc/forms/github.py:172
 msgid ""
 "Environment name must not contain non-printable characters or the characters "
 "\"'\", \"\"\", \"`\", \",\", \";\", \"\\\""
 msgstr ""
 
-#: warehouse/oidc/forms/gitlab.py:22
+#: warehouse/oidc/forms/gitlab.py:23
 #, fuzzy
 #| msgid "Workflow name must end with .yml or .yaml"
 msgid "Name ends with .git or .atom"
 msgstr "Názov pracovného postupu musí končiť príponou .yml alebo .yaml"
 
-#: warehouse/oidc/forms/gitlab.py:31
+#: warehouse/oidc/forms/gitlab.py:38
 msgid "Specify GitLab namespace (username or group/subgroup)"
 msgstr "Specify GitLab namespace (užívateľ alebo skupina/subgroup)"
 
-#: warehouse/oidc/forms/gitlab.py:36 warehouse/oidc/forms/gitlab.py:40
+#: warehouse/oidc/forms/gitlab.py:43 warehouse/oidc/forms/gitlab.py:47
 msgid "Invalid GitLab username or group/subgroup name."
 msgstr "Neplatné používateľské meno GitLab alebo názov skupiny/subgroup."
 
-#: warehouse/oidc/forms/gitlab.py:62
+#: warehouse/oidc/forms/gitlab.py:70
 msgid "Specify top-level pipeline file path"
 msgstr "Specify top-level potrubia súbor cesta"
 
-#: warehouse/oidc/forms/gitlab.py:71
+#: warehouse/oidc/forms/gitlab.py:79
 msgid "Invalid environment name"
 msgstr "Neplatné meno prostredia"
 
 #: warehouse/oidc/forms/gitlab.py:86
+msgid "Choose GitLab issuer URL"
+msgstr ""
+
+#: warehouse/oidc/forms/gitlab.py:111
 msgid "Top-level pipeline file path must end with .yml or .yaml"
 msgstr "Top-úroveň potrubia súbor musí skončiť s .yml alebo .yaml"
 
-#: warehouse/oidc/forms/gitlab.py:90
+#: warehouse/oidc/forms/gitlab.py:115
 msgid "Top-level pipeline file path cannot start or end with /"
 msgstr "Top-úroveň potrubia súbor cesta nemôže začať alebo skončiť s /"
 
@@ -1004,12 +1141,12 @@ msgstr "Heslo"
 msgid "Passwords do not match"
 msgstr "Vaše heslá sa nezhodujú. Skúste to znova."
 
-#: warehouse/static/js/warehouse/controllers/password_strength_gauge_controller.js:15
+#: warehouse/static/js/warehouse/controllers/password_strength_gauge_controller.js:40
 #: warehouse/templates/base.html:20
 msgid "Password field is empty"
 msgstr "Pole hesla je prázdne"
 
-#: warehouse/static/js/warehouse/controllers/password_strength_gauge_controller.js:30
+#: warehouse/static/js/warehouse/controllers/password_strength_gauge_controller.js:53
 #, fuzzy
 #| msgid "Password strength:"
 msgid "Password is strong"
@@ -1042,32 +1179,32 @@ msgstr[2] ""
 msgid "Just now"
 msgstr ""
 
-#: warehouse/subscriptions/models.py:25
+#: warehouse/subscriptions/models.py:24
 #: warehouse/templates/manage/project/history.html:209
 msgid "Active"
 msgstr "Aktívne"
 
-#: warehouse/subscriptions/models.py:26
+#: warehouse/subscriptions/models.py:25
 msgid "Past Due"
 msgstr "Splatnosť"
 
-#: warehouse/subscriptions/models.py:27
+#: warehouse/subscriptions/models.py:26
 msgid "Unpaid"
 msgstr "Nezaplatené"
 
-#: warehouse/subscriptions/models.py:28
+#: warehouse/subscriptions/models.py:27
 msgid "Canceled"
 msgstr "Zrušené"
 
-#: warehouse/subscriptions/models.py:29
+#: warehouse/subscriptions/models.py:28
 msgid "Incomplete"
 msgstr "Neúplné"
 
-#: warehouse/subscriptions/models.py:30
+#: warehouse/subscriptions/models.py:29
 msgid "Incomplete Expired"
 msgstr "Neúplná platnosť vypršala"
 
-#: warehouse/subscriptions/models.py:31
+#: warehouse/subscriptions/models.py:30
 msgid "Trialing"
 msgstr "Skúšanie"
 
@@ -1087,26 +1224,26 @@ msgstr "Stránka sa nenašla (404)"
 msgid "We looked everywhere but couldn't find this page"
 msgstr "Hľadali sme všade, ale túto stránku sme nenašli"
 
-#: warehouse/templates/404.html:15
+#: warehouse/templates/404.html:18
 #, fuzzy
 #| msgid "And now for something <br><span>completely different</span>"
 msgid "And now for something <br> <span>completely different</span>"
 msgstr "A teraz niečo <br><span>úplne iné</span>"
 
-#: warehouse/templates/404.html:21
+#: warehouse/templates/404.html:24
 msgid "Monty Python - The Cheese Shop Sketch"
 msgstr "Monty Python - Náčrt syrárne"
 
-#: warehouse/templates/404.html:30 warehouse/templates/500.html:18
+#: warehouse/templates/404.html:33 warehouse/templates/500.html:18
 #: warehouse/templates/accounts/two-factor.html:35
-#: warehouse/templates/base.html:342 warehouse/templates/base.html:348
-#: warehouse/templates/base.html:354 warehouse/templates/base.html:360
-#: warehouse/templates/base.html:376 warehouse/templates/base.html:382
-#: warehouse/templates/base.html:407 warehouse/templates/base.html:413
-#: warehouse/templates/base.html:422 warehouse/templates/base.html:435
-#: warehouse/templates/base.html:444 warehouse/templates/base.html:450
-#: warehouse/templates/base.html:456 warehouse/templates/base.html:469
-#: warehouse/templates/base.html:486
+#: warehouse/templates/base.html:340 warehouse/templates/base.html:346
+#: warehouse/templates/base.html:352 warehouse/templates/base.html:358
+#: warehouse/templates/base.html:374 warehouse/templates/base.html:380
+#: warehouse/templates/base.html:405 warehouse/templates/base.html:411
+#: warehouse/templates/base.html:420 warehouse/templates/base.html:433
+#: warehouse/templates/base.html:442 warehouse/templates/base.html:448
+#: warehouse/templates/base.html:454 warehouse/templates/base.html:467
+#: warehouse/templates/base.html:484
 #: warehouse/templates/includes/accounts/profile-callout.html:17
 #: warehouse/templates/includes/file-details.html:129
 #: warehouse/templates/index.html:98 warehouse/templates/index.html:105
@@ -1122,9 +1259,9 @@ msgstr "Monty Python - Náčrt syrárne"
 #: warehouse/templates/manage/project/release.html:226
 #: warehouse/templates/manage/project/releases.html:137
 #: warehouse/templates/manage/project/releases.html:190
-#: warehouse/templates/packaging/detail.html:444
-#: warehouse/templates/packaging/detail.html:462
-#: warehouse/templates/packaging/detail.html:478
+#: warehouse/templates/packaging/detail.html:446
+#: warehouse/templates/packaging/detail.html:464
+#: warehouse/templates/packaging/detail.html:480
 #: warehouse/templates/pages/classifiers.html:17
 #: warehouse/templates/pages/help.html:7
 #: warehouse/templates/pages/help.html:441
@@ -1196,7 +1333,7 @@ msgstr "Monty Python - Náčrt syrárne"
 msgid "External link"
 msgstr "Externý odkaz"
 
-#: warehouse/templates/404.html:32
+#: warehouse/templates/404.html:35
 msgid "View video transcript"
 msgstr "Pozrite si prepis videa"
 
@@ -1271,24 +1408,24 @@ msgstr ""
 msgid "Password strength:"
 msgstr "Sila hesla:"
 
-#: warehouse/templates/base.html:30 warehouse/templates/base.html:53
+#: warehouse/templates/base.html:31 warehouse/templates/base.html:53
 #: warehouse/templates/includes/current-user-indicator.html:17
 msgid "Main navigation"
 msgstr "Hlavná navigácia"
 
-#: warehouse/templates/base.html:33 warehouse/templates/base.html:68
-#: warehouse/templates/base.html:337
+#: warehouse/templates/base.html:34 warehouse/templates/base.html:68
+#: warehouse/templates/base.html:335
 #: warehouse/templates/includes/current-user-indicator.html:77
 #: warehouse/templates/pages/help.html:209
 #: warehouse/templates/pages/sitemap.html:19
 msgid "Help"
 msgstr "Pomoc"
 
-#: warehouse/templates/base.html:36 warehouse/templates/base.html:71
+#: warehouse/templates/base.html:37 warehouse/templates/base.html:71
 msgid "Docs"
 msgstr ""
 
-#: warehouse/templates/base.html:40 warehouse/templates/base.html:74
+#: warehouse/templates/base.html:41 warehouse/templates/base.html:74
 #: warehouse/templates/includes/current-user-indicator.html:83
 #: warehouse/templates/pages/sitemap.html:43
 #: warehouse/templates/pages/sponsors.html:4
@@ -1297,11 +1434,11 @@ msgstr "Sponzori"
 
 #: warehouse/templates/accounts/login.html:7
 #: warehouse/templates/accounts/login.html:90 warehouse/templates/base.html:44
-#: warehouse/templates/base.html:78
+#: warehouse/templates/base.html:77
 msgid "Log in"
 msgstr "Prihlásiť"
 
-#: warehouse/templates/base.html:48 warehouse/templates/base.html:82
+#: warehouse/templates/base.html:48 warehouse/templates/base.html:81
 #: warehouse/templates/pages/sitemap.html:28
 msgid "Register"
 msgstr "Registrovať"
@@ -1320,7 +1457,7 @@ msgstr "Menu"
 msgid "Main menu"
 msgstr "Hlavné menu"
 
-#: warehouse/templates/base.html:90
+#: warehouse/templates/base.html:89
 #, python-format
 msgid ""
 "\"%(wordmark)s\", \"%(name)s\", and the blocks logos are registered "
@@ -1334,7 +1471,7 @@ msgstr ""
 "Foundation</a>, ktoré sa vzťahujú na produkty a služby spojené s pypi.org. "
 "Akékoľvek iné použitie akoukoľvek inou stranou je zakázané."
 
-#: warehouse/templates/base.html:94
+#: warehouse/templates/base.html:93
 #, python-format
 msgid ""
 "\"%(wordmark)s\", \"%(name)s\", and the blocks logos are registered <a "
@@ -1346,7 +1483,7 @@ msgstr ""
 "href=\"%(psf_href)s\" target=\"_blank\" rel=\"noopener\">Python Software "
 "Foundation</a>."
 
-#: warehouse/templates/base.html:119 warehouse/templates/index.html:93
+#: warehouse/templates/base.html:120 warehouse/templates/index.html:93
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the Python "
 "programming language."
@@ -1354,32 +1491,31 @@ msgstr ""
 "Index balíkov Python (PyPI) je úložisko softvéru pre programovací jazyk "
 "Python."
 
-#: warehouse/templates/base.html:136
+#: warehouse/templates/base.html:137
 msgid "RSS: 40 latest updates"
 msgstr "RSS: 40 najnovších aktualizácií"
 
-#: warehouse/templates/base.html:140
+#: warehouse/templates/base.html:141
 msgid "RSS: 40 newest packages"
 msgstr "RSS: 40 najnovších balíčkov"
 
-#: warehouse/templates/base.html:208
+#: warehouse/templates/base.html:206
 msgid "Skip to main content"
 msgstr "Preskočiť na hlavný obsah"
 
-#: warehouse/templates/base.html:212
+#: warehouse/templates/base.html:210
 msgid "Switch to mobile version"
 msgstr "Prepnúť na mobilnú verziu"
 
-#: warehouse/templates/base.html:219 warehouse/templates/base.html:228
-#: warehouse/templates/base.html:238
+#: warehouse/templates/base.html:217 warehouse/templates/base.html:226
+#: warehouse/templates/base.html:236
 #: warehouse/templates/includes/flash-messages.html:41
 #: warehouse/templates/includes/session-notifications.html:19
-#: warehouse/templates/manage/account.html:845
+#: warehouse/templates/manage/account.html:1011
 #: warehouse/templates/manage/manage_base.html:364
 #: warehouse/templates/manage/manage_base.html:442
-#: warehouse/templates/manage/organization/settings.html:205
-#: warehouse/templates/manage/organization/settings.html:266
-#: warehouse/templates/manage/organization/settings.html:272
+#: warehouse/templates/manage/organization/settings.html:291
+#: warehouse/templates/manage/organization/settings.html:297
 #: warehouse/templates/manage/project/documentation.html:13
 #: warehouse/templates/manage/project/release.html:209
 #: warehouse/templates/manage/project/settings.html:78
@@ -1389,11 +1525,11 @@ msgstr "Prepnúť na mobilnú verziu"
 msgid "Warning"
 msgstr "Upozornenie"
 
-#: warehouse/templates/base.html:221
+#: warehouse/templates/base.html:219
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr "Používate nepodporovaný prehliadač, inovujte na novšiu verziu."
 
-#: warehouse/templates/base.html:230
+#: warehouse/templates/base.html:228
 msgid ""
 "You are using TestPyPI – a separate instance of the Python Package Index "
 "that allows you to try distribution tools and processes without affecting "
@@ -1403,7 +1539,7 @@ msgstr ""
 "umožňuje vyskúšať distribučné nástroje a procesy bez ovplyvnenia skutočného "
 "indexu."
 
-#: warehouse/templates/base.html:240
+#: warehouse/templates/base.html:238
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
@@ -1411,163 +1547,163 @@ msgstr ""
 "Niektoré funkcie nemusia fungovať bez JavaScriptu. Ak narazíte na problémy, "
 "skúste ho povoliť."
 
-#: warehouse/templates/base.html:275 warehouse/templates/base.html:307
+#: warehouse/templates/base.html:273 warehouse/templates/base.html:305
 #: warehouse/templates/error-base-with-search.html:8
 #: warehouse/templates/index.html:29
 msgid "Search PyPI"
 msgstr "Hľadať PyPI"
 
-#: warehouse/templates/base.html:280 warehouse/templates/index.html:35
+#: warehouse/templates/base.html:278 warehouse/templates/index.html:35
 #, fuzzy
 #| msgid "Search projects"
 msgid "Type '/' to search projects"
 msgstr "Hľadt v projektoch"
 
-#: warehouse/templates/base.html:291 warehouse/templates/base.html:320
+#: warehouse/templates/base.html:289 warehouse/templates/base.html:318
 #: warehouse/templates/error-base-with-search.html:19
 #: warehouse/templates/index.html:44
 msgid "Search"
 msgstr "Hľadať"
 
-#: warehouse/templates/base.html:312
+#: warehouse/templates/base.html:310
 #: warehouse/templates/error-base-with-search.html:13
 msgid "Search projects"
 msgstr "Hľadt v projektoch"
 
-#: warehouse/templates/base.html:338
+#: warehouse/templates/base.html:336
 msgid "Help navigation"
 msgstr "Navigácia pomocníka"
 
-#: warehouse/templates/base.html:344
+#: warehouse/templates/base.html:342
 msgid "Installing packages"
 msgstr "Inštalovanie balíčkov"
 
-#: warehouse/templates/base.html:350
+#: warehouse/templates/base.html:348
 msgid "Uploading packages"
 msgstr "Nahrávanie balíčkov"
 
-#: warehouse/templates/base.html:356
+#: warehouse/templates/base.html:354
 msgid "User guide"
 msgstr "Užívateľská príručka"
 
-#: warehouse/templates/base.html:362
+#: warehouse/templates/base.html:360
 msgid "Project name retention"
 msgstr "Zachovanie názvu projektu"
 
-#: warehouse/templates/base.html:365
+#: warehouse/templates/base.html:363
 msgid "FAQs"
 msgstr "FAQ"
 
-#: warehouse/templates/base.html:371 warehouse/templates/pages/sitemap.html:34
+#: warehouse/templates/base.html:369 warehouse/templates/pages/sitemap.html:34
 msgid "About PyPI"
 msgstr "O PyPI"
 
-#: warehouse/templates/base.html:372
+#: warehouse/templates/base.html:370
 msgid "About PyPI navigation"
 msgstr "O PyPI navigácii"
 
-#: warehouse/templates/base.html:378
+#: warehouse/templates/base.html:376
 msgid "PyPI Blog"
 msgstr "PyPI Blog"
 
-#: warehouse/templates/base.html:384
+#: warehouse/templates/base.html:382
 msgid "Infrastructure dashboard"
 msgstr "Prehľad infraštruktúry"
 
-#: warehouse/templates/base.html:387 warehouse/templates/pages/sitemap.html:40
+#: warehouse/templates/base.html:385 warehouse/templates/pages/sitemap.html:40
 #: warehouse/templates/pages/stats.html:4
 msgid "Statistics"
 msgstr "Štatistika"
 
-#: warehouse/templates/base.html:390
+#: warehouse/templates/base.html:388
 msgid "Logos & trademarks"
 msgstr "Logá a ochranné známky"
 
-#: warehouse/templates/base.html:393
+#: warehouse/templates/base.html:391
 msgid "Our sponsors"
 msgstr "Naši sponzory"
 
-#: warehouse/templates/base.html:399
+#: warehouse/templates/base.html:397
 msgid "Contributing to PyPI"
 msgstr "Prispievanie do PyPI"
 
-#: warehouse/templates/base.html:400
+#: warehouse/templates/base.html:398
 msgid "How to contribute navigation"
 msgstr "Ako prispieť do navigácie"
 
-#: warehouse/templates/base.html:403
+#: warehouse/templates/base.html:401
 msgid "Bugs and feedback"
 msgstr "Chyby a spätná väzba"
 
-#: warehouse/templates/base.html:409
+#: warehouse/templates/base.html:407
 msgid "Contribute on GitHub"
 msgstr "Prispieť na GitHub"
 
-#: warehouse/templates/base.html:415
+#: warehouse/templates/base.html:413
 msgid "Translate PyPI"
 msgstr "Preložiť PyPI"
 
-#: warehouse/templates/base.html:418
+#: warehouse/templates/base.html:416
 msgid "Sponsor PyPI"
 msgstr "Sponzori PyPI"
 
-#: warehouse/templates/base.html:424
+#: warehouse/templates/base.html:422
 msgid "Development credits"
 msgstr "Vývojové kredity"
 
-#: warehouse/templates/base.html:430 warehouse/templates/pages/sitemap.html:10
+#: warehouse/templates/base.html:428 warehouse/templates/pages/sitemap.html:10
 msgid "Using PyPI"
 msgstr "Použitie PyPI"
 
-#: warehouse/templates/base.html:431
+#: warehouse/templates/base.html:429
 msgid "Using PyPI navigation"
 msgstr "Používanie navigácie PyPI"
 
-#: warehouse/templates/base.html:437
+#: warehouse/templates/base.html:435
 #: warehouse/templates/manage/organization/activate_subscription.html:21
 #, fuzzy
 #| msgid "Terms of Use"
 msgid "Terms of Service"
 msgstr "Podmienky použitia"
 
-#: warehouse/templates/base.html:440
+#: warehouse/templates/base.html:438
 msgid "Report security issue"
 msgstr "Nahlásiť bezpečnostný problém"
 
-#: warehouse/templates/base.html:446
+#: warehouse/templates/base.html:444
 msgid "Code of conduct"
 msgstr "Kódex správania"
 
-#: warehouse/templates/base.html:452
+#: warehouse/templates/base.html:450
 msgid "Privacy Notice"
 msgstr "Ochrana osobných údajov"
 
-#: warehouse/templates/base.html:458
+#: warehouse/templates/base.html:456
 msgid "Acceptable Use Policy"
 msgstr "Zásady prijateľného používania"
 
-#: warehouse/templates/base.html:468
+#: warehouse/templates/base.html:466
 msgid "Status:"
 msgstr "Stav:"
 
-#: warehouse/templates/base.html:472
+#: warehouse/templates/base.html:470
 msgid "all systems operational"
 msgstr "všetky systémy funkčné"
 
-#: warehouse/templates/base.html:476
+#: warehouse/templates/base.html:474
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
 msgstr "Vyvinuté a udržiavané komunitou Python pre komunitu Python."
 
-#: warehouse/templates/base.html:478
+#: warehouse/templates/base.html:476
 msgid "Donate today!"
 msgstr "Prispieť dnes!"
 
-#: warehouse/templates/base.html:490 warehouse/templates/pages/sitemap.html:4
+#: warehouse/templates/base.html:488 warehouse/templates/pages/sitemap.html:4
 msgid "Site map"
 msgstr "Mapa stránok"
 
-#: warehouse/templates/base.html:497
+#: warehouse/templates/base.html:495
 msgid "Switch to desktop version"
 msgstr "Prepnúť na desktop verziu"
 
@@ -1717,23 +1853,23 @@ msgstr "Heslo"
 #: warehouse/templates/manage/account.html:401
 #: warehouse/templates/manage/account.html:426
 #: warehouse/templates/manage/account.html:450
-#: warehouse/templates/manage/account/publishing.html:24
-#: warehouse/templates/manage/account/publishing.html:37
-#: warehouse/templates/manage/account/publishing.html:50
-#: warehouse/templates/manage/account/publishing.html:69
-#: warehouse/templates/manage/account/publishing.html:86
-#: warehouse/templates/manage/account/publishing.html:132
-#: warehouse/templates/manage/account/publishing.html:145
-#: warehouse/templates/manage/account/publishing.html:158
-#: warehouse/templates/manage/account/publishing.html:171
-#: warehouse/templates/manage/account/publishing.html:184
-#: warehouse/templates/manage/account/publishing.html:227
-#: warehouse/templates/manage/account/publishing.html:240
-#: warehouse/templates/manage/account/publishing.html:253
-#: warehouse/templates/manage/account/publishing.html:294
-#: warehouse/templates/manage/account/publishing.html:313
-#: warehouse/templates/manage/account/publishing.html:330
-#: warehouse/templates/manage/account/publishing.html:349
+#: warehouse/templates/manage/account/publishing.html:26
+#: warehouse/templates/manage/account/publishing.html:39
+#: warehouse/templates/manage/account/publishing.html:52
+#: warehouse/templates/manage/account/publishing.html:71
+#: warehouse/templates/manage/account/publishing.html:88
+#: warehouse/templates/manage/account/publishing.html:135
+#: warehouse/templates/manage/account/publishing.html:148
+#: warehouse/templates/manage/account/publishing.html:161
+#: warehouse/templates/manage/account/publishing.html:174
+#: warehouse/templates/manage/account/publishing.html:187
+#: warehouse/templates/manage/account/publishing.html:233
+#: warehouse/templates/manage/account/publishing.html:246
+#: warehouse/templates/manage/account/publishing.html:259
+#: warehouse/templates/manage/account/publishing.html:301
+#: warehouse/templates/manage/account/publishing.html:320
+#: warehouse/templates/manage/account/publishing.html:337
+#: warehouse/templates/manage/account/publishing.html:356
 #: warehouse/templates/manage/account/recovery_codes-burn.html:48
 #: warehouse/templates/manage/account/token.html:127
 #: warehouse/templates/manage/account/token.html:152
@@ -1742,6 +1878,24 @@ msgstr "Heslo"
 #: warehouse/templates/manage/organization/activate_subscription.html:22
 #: warehouse/templates/manage/organization/projects.html:109
 #: warehouse/templates/manage/organization/projects.html:130
+#: warehouse/templates/manage/organization/publishing.html:23
+#: warehouse/templates/manage/organization/publishing.html:36
+#: warehouse/templates/manage/organization/publishing.html:49
+#: warehouse/templates/manage/organization/publishing.html:68
+#: warehouse/templates/manage/organization/publishing.html:85
+#: warehouse/templates/manage/organization/publishing.html:132
+#: warehouse/templates/manage/organization/publishing.html:145
+#: warehouse/templates/manage/organization/publishing.html:158
+#: warehouse/templates/manage/organization/publishing.html:171
+#: warehouse/templates/manage/organization/publishing.html:184
+#: warehouse/templates/manage/organization/publishing.html:208
+#: warehouse/templates/manage/organization/publishing.html:246
+#: warehouse/templates/manage/organization/publishing.html:259
+#: warehouse/templates/manage/organization/publishing.html:272
+#: warehouse/templates/manage/organization/publishing.html:314
+#: warehouse/templates/manage/organization/publishing.html:333
+#: warehouse/templates/manage/organization/publishing.html:350
+#: warehouse/templates/manage/organization/publishing.html:369
 #: warehouse/templates/manage/organization/roles.html:398
 #: warehouse/templates/manage/organization/roles.html:417
 #: warehouse/templates/manage/organization/settings.html:35
@@ -1756,19 +1910,20 @@ msgstr "Heslo"
 #: warehouse/templates/manage/organizations.html:300
 #: warehouse/templates/manage/organizations.html:319
 #: warehouse/templates/manage/organizations.html:346
-#: warehouse/templates/manage/project/publishing.html:43
-#: warehouse/templates/manage/project/publishing.html:56
-#: warehouse/templates/manage/project/publishing.html:75
-#: warehouse/templates/manage/project/publishing.html:92
-#: warehouse/templates/manage/project/publishing.html:140
-#: warehouse/templates/manage/project/publishing.html:153
-#: warehouse/templates/manage/project/publishing.html:166
-#: warehouse/templates/manage/project/publishing.html:179
-#: warehouse/templates/manage/project/publishing.html:223
-#: warehouse/templates/manage/project/publishing.html:236
-#: warehouse/templates/manage/project/publishing.html:278
-#: warehouse/templates/manage/project/publishing.html:295
-#: warehouse/templates/manage/project/publishing.html:314
+#: warehouse/templates/manage/project/publishing.html:44
+#: warehouse/templates/manage/project/publishing.html:57
+#: warehouse/templates/manage/project/publishing.html:76
+#: warehouse/templates/manage/project/publishing.html:93
+#: warehouse/templates/manage/project/publishing.html:142
+#: warehouse/templates/manage/project/publishing.html:155
+#: warehouse/templates/manage/project/publishing.html:168
+#: warehouse/templates/manage/project/publishing.html:181
+#: warehouse/templates/manage/project/publishing.html:205
+#: warehouse/templates/manage/project/publishing.html:244
+#: warehouse/templates/manage/project/publishing.html:257
+#: warehouse/templates/manage/project/publishing.html:300
+#: warehouse/templates/manage/project/publishing.html:317
+#: warehouse/templates/manage/project/publishing.html:336
 #: warehouse/templates/manage/project/roles.html:320
 #: warehouse/templates/manage/project/roles.html:333
 #: warehouse/templates/manage/project/roles.html:344
@@ -2136,6 +2291,7 @@ msgid "Confirm"
 msgstr "Potvrdiť formulár"
 
 #: warehouse/templates/accounts/register.html:51
+#: warehouse/templates/manage/account.html:573
 #: warehouse/templates/manage/manage_base.html:398
 #: warehouse/templates/manage/manage_base.html:473
 #: warehouse/templates/manage/organization/activate_subscription.html:41
@@ -2144,7 +2300,7 @@ msgstr "Zrušiť"
 
 #: warehouse/templates/accounts/register.html:67
 #: warehouse/templates/manage/account.html:149
-#: warehouse/templates/manage/account.html:491
+#: warehouse/templates/manage/account.html:635
 #: warehouse/templates/manage/project/history.html:284
 #: warehouse/templates/manage/project/history.html:295
 #: warehouse/templates/manage/project/history.html:306
@@ -2152,7 +2308,7 @@ msgstr "Zrušiť"
 #: warehouse/templates/manage/project/settings.html:212
 #: warehouse/templates/manage/project/settings.html:267
 #: warehouse/templates/manage/project/settings.html:272
-#: warehouse/templates/manage/unverified-account.html:102
+#: warehouse/templates/manage/unverified-account.html:119
 msgid "Name"
 msgstr "Meno"
 
@@ -2162,7 +2318,7 @@ msgstr "Vaše meno"
 
 #: warehouse/templates/accounts/register.html:89
 #: warehouse/templates/manage/account.html:350
-#: warehouse/templates/manage/unverified-account.html:225
+#: warehouse/templates/manage/unverified-account.html:258
 msgid "Email address"
 msgstr "Emailová adresa"
 
@@ -2292,8 +2448,8 @@ msgstr "Overte sa pomocou zariadenia"
 #, python-format
 msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" "
-"rel=\"%(rel)s\">Upgrade your browser</a> to log in with a security device (e."
-"g. USB key)"
+"rel=\"%(rel)s\">Upgrade your browser</a> to log in with a security device "
+"(e.g. USB key)"
 msgstr ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" "
 "rel=\"%(rel)s\">Inovujte si prehliadač</a> a prihláste sa pomocou "
@@ -2359,11 +2515,21 @@ msgstr ""
 "stratíte prístup k svojim dvom faktorom, môžete stratiť prístup k svojmu "
 "účtu. <a href=\"%(href)s\">Získajte pomoc s kódmi na obnovenie.</a></p>"
 
-#: warehouse/templates/email/account-deleted/body.html:5
-#, python-format
-msgid "Your PyPI account <strong>%(username)s</strong> has been deleted."
-msgstr "Váš účet PyPI <strong>%(username)s</strong> bol odstránený."
+#: warehouse/templates/email/account-association-added/body.html:5
+#, fuzzy, python-format
+#| msgid ""
+#| "Someone, perhaps you, has added a %(method)s two-factor authentication "
+#| "method to your PyPI account <strong>%(username)s</strong>."
+msgid ""
+"Someone, perhaps you, has connected the <strong>%(service)s</strong> account "
+"<strong>@%(external_username)s</strong> to your PyPI account "
+"<strong>%(username)s</strong>."
+msgstr ""
+"Niekto, možno vy, pridal do vášho účtu PyPI %(method)s metódu dvojfaktorovej "
+"autentifikácie <strong>%(username)s</strong>."
 
+#: warehouse/templates/email/account-association-added/body.html:8
+#: warehouse/templates/email/account-association-removed/body.html:8
 #: warehouse/templates/email/account-deleted/body.html:8
 #: warehouse/templates/email/password-change/body.html:8
 #: warehouse/templates/email/primary-email-change/body.html:8
@@ -2380,20 +2546,47 @@ msgstr ""
 "Ak ste túto zmenu neurobili, môžete poslať e-mail na adresu <a "
 "href=\"%(href)s\">%(email_address)s</a> a komunikovať s administrátormi PyPI."
 
-#: warehouse/templates/email/added-as-collaborator/body.html:6
-#, python-format
+#: warehouse/templates/email/account-association-removed/body.html:5
+#, fuzzy, python-format
+#| msgid ""
+#| "Someone, perhaps you, has removed a %(method)s two-factor authentication "
+#| "method from your PyPI account <strong>%(username)s</strong>."
 msgid ""
-"You have been added as <strong>%(role)s</strong> to the %(site)s project "
-"%(project_name)s by %(initiator_username)s."
+"Someone, perhaps you, has disconnected the <strong>%(service)s</strong> "
+"account <strong>@%(external_username)s</strong> from your PyPI account "
+"<strong>%(username)s</strong>."
+msgstr ""
+"Niekto, možno vy, odstránil z vášho účtu PyPI <strong>%(username)s</strong> "
+"metódu dvojfaktorovej autentifikácie %(method)s."
+
+#: warehouse/templates/email/account-deleted/body.html:5
+#, python-format
+msgid "Your PyPI account <strong>%(username)s</strong> has been deleted."
+msgstr "Váš účet PyPI <strong>%(username)s</strong> bol odstránený."
+
+#: warehouse/templates/email/added-as-collaborator/body.html:9
+#, fuzzy, python-format
+#| msgid ""
+#| "You have been added as <strong>%(role)s</strong> to the %(site)s project "
+#| "%(project_name)s by %(initiator_username)s."
+msgid ""
+"You have been added as <strong><a href=\"%(role_faq_url)s\">%(role)s</a></"
+"strong> to the %(site)s project <a "
+"href=\"%(project_url)s\">%(project_name)s</a> by <a "
+"href=\"%(initiator_url)s\">%(initiator_username)s</a>."
 msgstr ""
 "Používateľ %(initiator_username)s vás pridal ako <strong>%(role)s</strong> "
 "do %(site)s projektu %(project_name)s."
 
-#: warehouse/templates/email/added-as-collaborator/body.html:10
-#, python-format
+#: warehouse/templates/email/added-as-collaborator/body.html:15
+#, fuzzy, python-format
+#| msgid ""
+#| "You are receiving this because you have been added by "
+#| "%(initiator_username)s to a project on %(site)s."
 msgid ""
-"You are receiving this because you have been added by %(initiator_username)s "
-"to a project on %(site)s."
+"You are receiving this because you have been added by <a "
+"href=\"%(initiator_url)s\">%(initiator_username)s</a> to a project on "
+"%(site)s."
 msgstr ""
 "Toto ste dostali, pretože vás %(initiator_username)s pridal do projektu na "
 "%(site)s."
@@ -2965,8 +3158,8 @@ msgid ""
 "Someone, perhaps you, has made a password reset request for a PyPI account "
 "associated with this email address."
 msgstr ""
-"Niekto, možno vy, požiadal o obnovenie hesla pre váš účet PyPI "
-"'%(username)s'."
+"Niekto, možno vy, požiadal o obnovenie hesla pre váš účet PyPI '%"
+"(username)s'."
 
 #: warehouse/templates/email/password-reset-unverified/body.html:20
 msgid ""
@@ -3309,14 +3502,16 @@ msgstr "Zavrieť toto upozornenie"
 #: warehouse/templates/manage/account.html:216
 #: warehouse/templates/manage/account.html:219
 #: warehouse/templates/manage/account.html:234
+#: warehouse/templates/manage/account.html:543
+#: warehouse/templates/manage/account.html:546
 #: warehouse/templates/manage/manage_base.html:344
 #: warehouse/templates/manage/manage_base.html:347
 #: warehouse/templates/manage/project/release.html:158
 #: warehouse/templates/manage/project/releases.html:186
 #: warehouse/templates/manage/project/settings.html:63
-#: warehouse/templates/manage/unverified-account.html:169
-#: warehouse/templates/manage/unverified-account.html:172
-#: warehouse/templates/manage/unverified-account.html:187
+#: warehouse/templates/manage/unverified-account.html:186
+#: warehouse/templates/manage/unverified-account.html:189
+#: warehouse/templates/manage/unverified-account.html:204
 #: warehouse/templates/search/results.html:185
 msgid "Close"
 msgstr "Zavrieť"
@@ -3404,9 +3599,9 @@ msgstr "Súhrn hash"
 #: warehouse/templates/manage/account.html:230
 #: warehouse/templates/manage/account/recovery_codes-provision.html:53
 #: warehouse/templates/manage/account/totp-provision.html:46
-#: warehouse/templates/manage/unverified-account.html:183
-#: warehouse/templates/packaging/detail.html:148
-#: warehouse/templates/packaging/detail.html:498
+#: warehouse/templates/manage/unverified-account.html:200
+#: warehouse/templates/packaging/detail.html:150
+#: warehouse/templates/packaging/detail.html:500
 #: warehouse/templates/pages/classifiers.html:42
 msgid "Copy to clipboard"
 msgstr "Kopírovať do schránky"
@@ -3417,8 +3612,8 @@ msgstr "Kopírovať do schránky"
 #: warehouse/templates/manage/account.html:231
 #: warehouse/templates/manage/account/recovery_codes-provision.html:54
 #: warehouse/templates/manage/account/totp-provision.html:47
-#: warehouse/templates/manage/unverified-account.html:184
-#: warehouse/templates/packaging/detail.html:499
+#: warehouse/templates/manage/unverified-account.html:201
+#: warehouse/templates/packaging/detail.html:501
 #: warehouse/templates/pages/classifiers.html:43
 msgid "Copy"
 msgstr "Kopírovať"
@@ -3509,8 +3704,9 @@ msgid "%(username)s has not uploaded any projects to PyPI, yet."
 msgstr "%(username)s zatiaľ nenahral do PyPI žiadne projekty."
 
 #: warehouse/templates/includes/accounts/profile-public-email.html:16
-#: warehouse/templates/manage/account/publishing.html:238
-#: warehouse/templates/manage/project/publishing.html:221
+#: warehouse/templates/manage/account/publishing.html:244
+#: warehouse/templates/manage/organization/publishing.html:257
+#: warehouse/templates/manage/project/publishing.html:242
 msgid "Email"
 msgstr "E-mailová adresa"
 
@@ -3537,17 +3733,24 @@ msgid "Teams"
 msgstr "Tímy"
 
 #: warehouse/templates/includes/manage/manage-organization-menu.html:37
+#: warehouse/templates/includes/manage/manage-project-menu.html:49
+#: warehouse/templates/manage/manage_base.html:265
+#: warehouse/templates/manage/manage_base.html:307
+msgid "Publishing"
+msgstr "Publikovanie"
+
+#: warehouse/templates/includes/manage/manage-organization-menu.html:45
 #: warehouse/templates/includes/manage/manage-project-menu.html:31
 #: warehouse/templates/includes/manage/manage-team-menu.html:28
-#: warehouse/templates/manage/account.html:513
+#: warehouse/templates/manage/account.html:657
 #: warehouse/templates/manage/organization/history.html:9
 #: warehouse/templates/manage/project/history.html:9
 #: warehouse/templates/manage/team/history.html:9
-#: warehouse/templates/manage/unverified-account.html:236
+#: warehouse/templates/manage/unverified-account.html:307
 msgid "Security history"
 msgstr "História zabezpečenia"
 
-#: warehouse/templates/includes/manage/manage-organization-menu.html:46
+#: warehouse/templates/includes/manage/manage-organization-menu.html:54
 #: warehouse/templates/includes/manage/manage-project-menu.html:57
 #: warehouse/templates/includes/manage/manage-team-menu.html:37
 msgid "Settings"
@@ -3573,12 +3776,6 @@ msgstr "Spolupracovníci"
 #: warehouse/templates/manage/project/documentation.html:8
 msgid "Documentation"
 msgstr "Dokumentácia"
-
-#: warehouse/templates/includes/manage/manage-project-menu.html:49
-#: warehouse/templates/manage/manage_base.html:265
-#: warehouse/templates/manage/manage_base.html:307
-msgid "Publishing"
-msgstr "Publikovanie"
 
 #: warehouse/templates/includes/manage/manage-team-menu.html:2
 #, python-format
@@ -3770,7 +3967,7 @@ msgstr "Zobrazenie možností e-mailu"
 #: warehouse/templates/manage/project/release.html:74
 #: warehouse/templates/manage/project/releases.html:53
 #: warehouse/templates/manage/unverified-account.html:69
-#: warehouse/templates/manage/unverified-account.html:130
+#: warehouse/templates/manage/unverified-account.html:147
 msgid "Options"
 msgstr "Nastavenia"
 
@@ -3788,10 +3985,12 @@ msgid "Resend verification email"
 msgstr "Opätovné odoslanie overovacieho e-mailu"
 
 #: warehouse/templates/manage/account.html:117
+#: warehouse/templates/manage/unverified-account.html:103
 msgid "Set this email address as primary"
 msgstr "Nastavte túto e-mailovú adresu ako primárnu"
 
 #: warehouse/templates/manage/account.html:119
+#: warehouse/templates/manage/unverified-account.html:105
 msgid "Set as primary"
 msgstr "Nastaviť ako hlavný"
 
@@ -3804,47 +4003,47 @@ msgid "Remove email"
 msgstr "Odstrániť e-mail"
 
 #: warehouse/templates/manage/account.html:153
-#: warehouse/templates/manage/account.html:492
+#: warehouse/templates/manage/account.html:636
 #: warehouse/templates/manage/account/token.html:150
-#: warehouse/templates/manage/unverified-account.html:106
+#: warehouse/templates/manage/unverified-account.html:123
 msgid "Scope"
 msgstr "Rozsah"
 
 #: warehouse/templates/manage/account.html:155
-#: warehouse/templates/manage/unverified-account.html:108
+#: warehouse/templates/manage/unverified-account.html:125
 msgid "All projects"
 msgstr "Všetky projekty"
 
 #: warehouse/templates/manage/account.html:163
-#: warehouse/templates/manage/account.html:493
-#: warehouse/templates/manage/unverified-account.html:116
+#: warehouse/templates/manage/account.html:637
+#: warehouse/templates/manage/unverified-account.html:133
 msgid "Created"
 msgstr "Vytvorené"
 
 #: warehouse/templates/manage/account.html:167
-#: warehouse/templates/manage/account.html:494
-#: warehouse/templates/manage/unverified-account.html:120
+#: warehouse/templates/manage/account.html:638
+#: warehouse/templates/manage/unverified-account.html:137
 msgid "Last used"
 msgstr "Naposledy použité"
 
 #: warehouse/templates/manage/account.html:168
-#: warehouse/templates/manage/unverified-account.html:121
+#: warehouse/templates/manage/unverified-account.html:138
 msgid "Never"
 msgstr "Nikdy"
 
 #: warehouse/templates/manage/account.html:176
-#: warehouse/templates/manage/unverified-account.html:129
+#: warehouse/templates/manage/unverified-account.html:146
 msgid "View token options"
 msgstr "Zobrazenie možností tokenu"
 
 #: warehouse/templates/manage/account.html:186
 #: warehouse/templates/manage/account/token.html:48
-#: warehouse/templates/manage/unverified-account.html:139
+#: warehouse/templates/manage/unverified-account.html:156
 msgid "Remove token"
 msgstr "Odstrániť token"
 
 #: warehouse/templates/manage/account.html:192
-#: warehouse/templates/manage/unverified-account.html:145
+#: warehouse/templates/manage/unverified-account.html:162
 msgid "View unique identifier"
 msgstr "Zobraziť jedinečný identifikátor"
 
@@ -3852,21 +4051,21 @@ msgstr "Zobraziť jedinečný identifikátor"
 #: warehouse/templates/manage/account.html:201
 #: warehouse/templates/manage/account/token.html:50
 #: warehouse/templates/manage/account/token.html:51
-#: warehouse/templates/manage/unverified-account.html:152
-#: warehouse/templates/manage/unverified-account.html:154
+#: warehouse/templates/manage/unverified-account.html:169
+#: warehouse/templates/manage/unverified-account.html:171
 msgid "Remove API token"
 msgstr "Odstrániť API token"
 
 #: warehouse/templates/manage/account.html:209
 #: warehouse/templates/manage/account/token.html:59
-#: warehouse/templates/manage/unverified-account.html:162
+#: warehouse/templates/manage/unverified-account.html:179
 msgid ""
 "Applications or scripts using this token will no longer have access to PyPI."
 msgstr ""
 "Aplikácie alebo skripty používajúce tento token už nebudú mať prístup k PyPI."
 
 #: warehouse/templates/manage/account.html:223
-#: warehouse/templates/manage/unverified-account.html:176
+#: warehouse/templates/manage/unverified-account.html:193
 #, python-format
 msgid "Unique identifier for API token \"%(token_description)s\""
 msgstr "Jedinečný identifikátor pre token API \"%(token_description)s\""
@@ -3937,7 +4136,7 @@ msgid "Update account"
 msgstr "Aktualizovať účet"
 
 #: warehouse/templates/manage/account.html:336
-#: warehouse/templates/manage/unverified-account.html:211
+#: warehouse/templates/manage/unverified-account.html:244
 msgid "Account emails"
 msgstr "E-maily účtu"
 
@@ -3954,12 +4153,12 @@ msgstr ""
 "budú dostávať iba váš <span class=\"badge\">Primárny</span> e-mail."
 
 #: warehouse/templates/manage/account.html:347
-#: warehouse/templates/manage/unverified-account.html:222
+#: warehouse/templates/manage/unverified-account.html:255
 msgid "Emails associated with your account"
 msgstr "E-maily spojené s vaším účtom"
 
 #: warehouse/templates/manage/account.html:351
-#: warehouse/templates/manage/unverified-account.html:226
+#: warehouse/templates/manage/unverified-account.html:259
 msgid "Status"
 msgstr "Stav"
 
@@ -3993,11 +4192,141 @@ msgid "Update password"
 msgstr "Aktualizovať heslo"
 
 #: warehouse/templates/manage/account.html:482
+#, fuzzy
+#| msgid "Account navigation"
+msgid "Account associations"
+msgstr "Navigácia v účte"
+
+#: warehouse/templates/manage/account.html:484
+msgid ""
+"Link your PyPI account with external services. Connected accounts may be "
+"used for account recovery or accessing service-specific features."
+msgstr ""
+
+#: warehouse/templates/manage/account.html:488
+#, fuzzy
+#| msgid "Emails associated with your account"
+msgid "Services linked to your account"
+msgstr "E-maily spojené s vaším účtom"
+
+#: warehouse/templates/manage/account.html:491
+#: warehouse/templates/manage/account.html:501
+#, fuzzy
+#| msgid "Terms of Use"
+msgid "Service"
+msgstr "Podmienky použitia"
+
+#: warehouse/templates/manage/account.html:492
+#: warehouse/templates/manage/account.html:511
+#, fuzzy
+#| msgid "My Account"
+msgid "Account"
+msgstr "Môj účet"
+
+#: warehouse/templates/manage/account.html:493
+#: warehouse/templates/manage/account.html:525
+msgid "Connected"
+msgstr ""
+
+#: warehouse/templates/manage/account.html:504
+msgid "GitHub"
+msgstr ""
+
+#: warehouse/templates/manage/account.html:507
+msgid "GitLab"
+msgstr ""
+
+#: warehouse/templates/manage/account.html:531
+#, fuzzy, python-format
+#| msgid "Remove %(user)s from this organization"
+msgid "Remove %(service)s association"
+msgstr "Odstrániť %(user)s z tejto organizácie"
+
+#: warehouse/templates/manage/account.html:532
+#: warehouse/templates/manage/manage_base.html:69
+#: warehouse/templates/manage/manage_base.html:72
+#: warehouse/templates/manage/manage_base.html:91
+#: warehouse/templates/manage/manage_base.html:95
+#: warehouse/templates/manage/manage_base.html:617
+#: warehouse/templates/manage/organization/roles.html:276
+#: warehouse/templates/manage/organization/roles.html:280
+#: warehouse/templates/manage/organization/roles.html:291
+#: warehouse/templates/manage/project/roles.html:91
+#: warehouse/templates/manage/project/roles.html:160
+#: warehouse/templates/manage/project/roles.html:171
+#: warehouse/templates/manage/project/roles.html:239
+#: warehouse/templates/manage/project/roles.html:250
+#: warehouse/templates/manage/team/roles.html:66
+#: warehouse/templates/manage/team/roles.html:77
+msgid "Remove"
+msgstr "Odstrániť"
+
+#: warehouse/templates/manage/account.html:557
+#, fuzzy, python-format
+#| msgid "Remove %(user)s from this organization"
+msgid "Remove %(service)s association?"
+msgstr "Odstrániť %(user)s z tejto organizácie"
+
+#: warehouse/templates/manage/account.html:560
+#, python-format
+msgid ""
+"Removing this association will disconnect your %(service)s account "
+"<strong>%(username)s</strong> from PyPI."
+msgstr ""
+
+#: warehouse/templates/manage/account.html:565
+#, python-format
+msgid "You can reconnect your %(service)s account at any time."
+msgstr ""
+
+#: warehouse/templates/manage/account.html:576
+#, fuzzy
+#| msgid "Remove application"
+msgid "Remove association"
+msgstr "Odstráňte aplikáciu"
+
+#: warehouse/templates/manage/account.html:586
+#, fuzzy
+#| msgid "You have not joined any organizations on PyPI, yet."
+msgid "You have not connected any external accounts yet."
+msgstr "Zatiaľ ste sa nepripojili k žiadnej organizácii na PyPI."
+
+#: warehouse/templates/manage/account.html:597
+#, fuzzy
+#| msgid "Cannot delete account"
+msgid "Connect external accounts"
+msgstr "Účet nie je možné odstrániť"
+
+#: warehouse/templates/manage/account.html:599
+msgid ""
+"Link your external accounts to your PyPI account. You'll be redirected to "
+"authorize the connection."
+msgstr ""
+
+#: warehouse/templates/manage/account.html:606
+#, fuzzy
+#| msgid "Contribute on GitHub"
+msgid "Connect GitHub"
+msgstr "Prispieť na GitHub"
+
+#: warehouse/templates/manage/account.html:613
+#, fuzzy
+#| msgid "Contribute on GitHub"
+msgid "Connect GitLab"
+msgstr "Prispieť na GitHub"
+
+#: warehouse/templates/manage/account.html:620
+msgid ""
+"Need to connect a different account from the same service? Remove the "
+"existing connection first."
+msgstr ""
+
+#: warehouse/templates/manage/account.html:626
 #: warehouse/templates/manage/project/settings.html:29
 msgid "API tokens"
 msgstr "API tokeny"
 
-#: warehouse/templates/manage/account.html:484
+#: warehouse/templates/manage/account.html:628
 #: warehouse/templates/manage/project/settings.html:30
 msgid ""
 "API tokens provide an alternative way to authenticate when uploading "
@@ -4006,19 +4335,19 @@ msgstr ""
 "Tokeny API poskytujú alternatívny spôsob autentifikácie pri nahrávaní "
 "balíkov do PyPI."
 
-#: warehouse/templates/manage/account.html:484
+#: warehouse/templates/manage/account.html:628
 msgid "Learn more about API tokens"
 msgstr "Získajte viac informácií o tokenoch API"
 
-#: warehouse/templates/manage/account.html:488
+#: warehouse/templates/manage/account.html:632
 msgid "Active API tokens for this account"
 msgstr "Aktívne tokeny API pre tento účet"
 
-#: warehouse/templates/manage/account.html:504
+#: warehouse/templates/manage/account.html:648
 msgid "Add API token"
 msgstr "Pridať token API"
 
-#: warehouse/templates/manage/account.html:507
+#: warehouse/templates/manage/account.html:651
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add API tokens "
@@ -4027,58 +4356,58 @@ msgstr ""
 "<a href=\"%(href)s\">Overte svoju primárnu e-mailovú adresu</a> a pridajte "
 "tokeny API do svojho účtu."
 
-#: warehouse/templates/manage/account.html:531
-#: warehouse/templates/manage/account.html:719
-#: warehouse/templates/manage/unverified-account.html:242
-#: warehouse/templates/manage/unverified-account.html:424
+#: warehouse/templates/manage/account.html:675
+#: warehouse/templates/manage/account.html:885
+#: warehouse/templates/manage/unverified-account.html:313
+#: warehouse/templates/manage/unverified-account.html:495
 msgid "Token scope: entire account"
 msgstr "Rozsah tokenu: celý účet"
 
-#: warehouse/templates/manage/account.html:533
-#: warehouse/templates/manage/account.html:721
-#: warehouse/templates/manage/unverified-account.html:244
-#: warehouse/templates/manage/unverified-account.html:426
+#: warehouse/templates/manage/account.html:677
+#: warehouse/templates/manage/account.html:887
+#: warehouse/templates/manage/unverified-account.html:315
+#: warehouse/templates/manage/unverified-account.html:497
 #, python-format
 msgid "Token scope: Project %(project_name)s"
 msgstr "Rozsah tokenu: Projekt %(project_name)s"
 
-#: warehouse/templates/manage/account.html:536
-#: warehouse/templates/manage/unverified-account.html:247
+#: warehouse/templates/manage/account.html:680
+#: warehouse/templates/manage/unverified-account.html:318
 #, python-format
 msgid "Expires: %(exp)s"
 msgstr "Vyprší: %(exp)s"
 
-#: warehouse/templates/manage/account.html:541
-#: warehouse/templates/manage/unverified-account.html:252
+#: warehouse/templates/manage/account.html:685
+#: warehouse/templates/manage/unverified-account.html:323
 msgid "Account created"
 msgstr "Účet vytvorený"
 
-#: warehouse/templates/manage/account.html:543
-#: warehouse/templates/manage/unverified-account.html:254
+#: warehouse/templates/manage/account.html:687
+#: warehouse/templates/manage/unverified-account.html:325
 msgid "Logged in"
 msgstr "Prihlásený"
 
-#: warehouse/templates/manage/account.html:546
-#: warehouse/templates/manage/unverified-account.html:257
+#: warehouse/templates/manage/account.html:690
+#: warehouse/templates/manage/unverified-account.html:328
 msgid "Two factor method:"
 msgstr "Dvojfaktorová metóda:"
 
-#: warehouse/templates/manage/account.html:548
+#: warehouse/templates/manage/account.html:692
 #: warehouse/templates/manage/project/release.html:61
-#: warehouse/templates/manage/unverified-account.html:259
+#: warehouse/templates/manage/unverified-account.html:330
 msgid "None"
 msgstr "Žiadna"
 
-#: warehouse/templates/manage/account.html:551
+#: warehouse/templates/manage/account.html:695
 #: warehouse/templates/manage/manage_base.html:84
-#: warehouse/templates/manage/unverified-account.html:262
+#: warehouse/templates/manage/unverified-account.html:333
 msgid "Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr ""
 "Bezpečnostné zariadenie (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 
-#: warehouse/templates/manage/account.html:553
+#: warehouse/templates/manage/account.html:697
 #: warehouse/templates/manage/manage_base.html:58
-#: warehouse/templates/manage/unverified-account.html:264
+#: warehouse/templates/manage/unverified-account.html:335
 msgid ""
 "Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
@@ -4086,182 +4415,182 @@ msgstr ""
 "Aplikácia na overenie totožnosti (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
 
-#: warehouse/templates/manage/account.html:555
-#: warehouse/templates/manage/unverified-account.html:266
+#: warehouse/templates/manage/account.html:699
+#: warehouse/templates/manage/unverified-account.html:337
 msgid "Recovery code"
 msgstr "Obnovovací kód"
 
-#: warehouse/templates/manage/account.html:557
+#: warehouse/templates/manage/account.html:701
 #, fuzzy
 #| msgid "Remove device"
 msgid "Remembered device"
 msgstr "Odstráňte zariadenie"
 
-#: warehouse/templates/manage/account.html:561
-#: warehouse/templates/manage/unverified-account.html:270
+#: warehouse/templates/manage/account.html:705
+#: warehouse/templates/manage/unverified-account.html:341
 msgid "Login failed"
 msgstr "Prihlásenie zlyhalo"
 
-#: warehouse/templates/manage/account.html:564
-#: warehouse/templates/manage/unverified-account.html:273
+#: warehouse/templates/manage/account.html:708
+#: warehouse/templates/manage/unverified-account.html:344
 msgid "- Basic Auth (Upload endpoint)"
 msgstr "- Základné overenie (koncový bod nahrávania)"
 
-#: warehouse/templates/manage/account.html:569
-#: warehouse/templates/manage/account.html:588
+#: warehouse/templates/manage/account.html:713
+#: warehouse/templates/manage/account.html:732
 #: warehouse/templates/manage/project/history.html:247
-#: warehouse/templates/manage/unverified-account.html:278
-#: warehouse/templates/manage/unverified-account.html:297
+#: warehouse/templates/manage/unverified-account.html:349
+#: warehouse/templates/manage/unverified-account.html:368
 msgid "Reason:"
 msgstr "Dôvod:"
 
-#: warehouse/templates/manage/account.html:571
-#: warehouse/templates/manage/account.html:590
-#: warehouse/templates/manage/unverified-account.html:280
-#: warehouse/templates/manage/unverified-account.html:299
+#: warehouse/templates/manage/account.html:715
+#: warehouse/templates/manage/account.html:734
+#: warehouse/templates/manage/unverified-account.html:351
+#: warehouse/templates/manage/unverified-account.html:370
 msgid "Incorrect Password"
 msgstr "Nesprávne heslo"
 
-#: warehouse/templates/manage/account.html:573
-#: warehouse/templates/manage/unverified-account.html:282
+#: warehouse/templates/manage/account.html:717
+#: warehouse/templates/manage/unverified-account.html:353
 msgid "Invalid two factor (TOTP)"
 msgstr "Neplatné dva faktory (TOTP)"
 
-#: warehouse/templates/manage/account.html:575
-#: warehouse/templates/manage/unverified-account.html:284
+#: warehouse/templates/manage/account.html:719
+#: warehouse/templates/manage/unverified-account.html:355
 msgid "Invalid two factor (WebAuthn)"
 msgstr "Neplatné dva faktory (WebAuthn)"
 
-#: warehouse/templates/manage/account.html:577
-#: warehouse/templates/manage/account.html:579
-#: warehouse/templates/manage/unverified-account.html:286
-#: warehouse/templates/manage/unverified-account.html:288
+#: warehouse/templates/manage/account.html:721
+#: warehouse/templates/manage/account.html:723
+#: warehouse/templates/manage/unverified-account.html:357
+#: warehouse/templates/manage/unverified-account.html:359
 msgid "Invalid two factor (Recovery code)"
 msgstr "Neplatný dvojfaktor (kód na obnovenie)"
 
-#: warehouse/templates/manage/account.html:585
-#: warehouse/templates/manage/unverified-account.html:294
+#: warehouse/templates/manage/account.html:729
+#: warehouse/templates/manage/unverified-account.html:365
 msgid "Session reauthentication failed"
 msgstr "Opätovná autentifikácia relácie zlyhala"
 
-#: warehouse/templates/manage/account.html:596
-#: warehouse/templates/manage/unverified-account.html:305
+#: warehouse/templates/manage/account.html:740
+#: warehouse/templates/manage/unverified-account.html:376
 msgid "Email added to account"
 msgstr "E-mail bol pridaný do účtu"
 
-#: warehouse/templates/manage/account.html:600
-#: warehouse/templates/manage/unverified-account.html:309
+#: warehouse/templates/manage/account.html:744
+#: warehouse/templates/manage/unverified-account.html:380
 msgid "Email removed from account"
 msgstr "E-mail bol odstránený z účtu"
 
-#: warehouse/templates/manage/account.html:604
-#: warehouse/templates/manage/unverified-account.html:313
+#: warehouse/templates/manage/account.html:748
+#: warehouse/templates/manage/unverified-account.html:384
 msgid "Email verified"
 msgstr "E-mail overený"
 
-#: warehouse/templates/manage/account.html:608
-#: warehouse/templates/manage/unverified-account.html:317
+#: warehouse/templates/manage/account.html:752
+#: warehouse/templates/manage/unverified-account.html:388
 msgid "Email reverified"
 msgstr "Email bol znovu overený"
 
-#: warehouse/templates/manage/account.html:613
-#: warehouse/templates/manage/unverified-account.html:322
+#: warehouse/templates/manage/account.html:757
+#: warehouse/templates/manage/unverified-account.html:393
 msgid "Primary email changed"
 msgstr "Primárny e-mail sa zmenil"
 
-#: warehouse/templates/manage/account.html:616
-#: warehouse/templates/manage/unverified-account.html:325
+#: warehouse/templates/manage/account.html:760
+#: warehouse/templates/manage/unverified-account.html:396
 msgid "Old primary email:"
 msgstr "Starý primárny e-mail:"
 
-#: warehouse/templates/manage/account.html:618
-#: warehouse/templates/manage/unverified-account.html:327
+#: warehouse/templates/manage/account.html:762
+#: warehouse/templates/manage/unverified-account.html:398
 msgid "New primary email:"
 msgstr "Nový primárny e-mail:"
 
-#: warehouse/templates/manage/account.html:621
-#: warehouse/templates/manage/unverified-account.html:330
+#: warehouse/templates/manage/account.html:765
+#: warehouse/templates/manage/unverified-account.html:401
 msgid "Primary email set"
 msgstr "Primárny e-mail bol nastavený"
 
-#: warehouse/templates/manage/account.html:626
-#: warehouse/templates/manage/unverified-account.html:335
+#: warehouse/templates/manage/account.html:770
+#: warehouse/templates/manage/unverified-account.html:406
 msgid "Email sent"
 msgstr "Email odoslaný"
 
-#: warehouse/templates/manage/account.html:629
-#: warehouse/templates/manage/unverified-account.html:338
+#: warehouse/templates/manage/account.html:773
+#: warehouse/templates/manage/unverified-account.html:409
 msgid "From:"
 msgstr "Od:"
 
-#: warehouse/templates/manage/account.html:631
-#: warehouse/templates/manage/unverified-account.html:340
+#: warehouse/templates/manage/account.html:775
+#: warehouse/templates/manage/unverified-account.html:411
 msgid "To:"
 msgstr "Komu:"
 
-#: warehouse/templates/manage/account.html:633
-#: warehouse/templates/manage/unverified-account.html:342
+#: warehouse/templates/manage/account.html:777
+#: warehouse/templates/manage/unverified-account.html:413
 msgid "Subject:"
 msgstr "Predmet:"
 
-#: warehouse/templates/manage/account.html:636
-#: warehouse/templates/manage/unverified-account.html:345
+#: warehouse/templates/manage/account.html:780
+#: warehouse/templates/manage/unverified-account.html:416
 msgid "Password reset requested"
 msgstr "Požaduje sa obnovenie hesla"
 
-#: warehouse/templates/manage/account.html:638
-#: warehouse/templates/manage/unverified-account.html:347
+#: warehouse/templates/manage/account.html:782
+#: warehouse/templates/manage/unverified-account.html:418
 msgid "Password reset attempted"
 msgstr "Pokus o obnovenie hesla"
 
-#: warehouse/templates/manage/account.html:640
-#: warehouse/templates/manage/unverified-account.html:349
+#: warehouse/templates/manage/account.html:784
+#: warehouse/templates/manage/unverified-account.html:420
 msgid "Password successfully reset"
 msgstr "Heslo bolo úspešne resetované"
 
-#: warehouse/templates/manage/account.html:642
-#: warehouse/templates/manage/unverified-account.html:351
+#: warehouse/templates/manage/account.html:786
+#: warehouse/templates/manage/unverified-account.html:422
 msgid "Password successfully changed"
 msgstr "Heslo bolo úspešne zmenené"
 
-#: warehouse/templates/manage/account.html:644
+#: warehouse/templates/manage/account.html:788
 msgid "Password disabled"
 msgstr "Heslo zakázané"
 
-#: warehouse/templates/manage/account.html:647
-#: warehouse/templates/manage/account.html:651
+#: warehouse/templates/manage/account.html:791
+#: warehouse/templates/manage/account.html:795
 #: warehouse/templates/manage/account/token.html:168
-#: warehouse/templates/manage/unverified-account.html:354
-#: warehouse/templates/manage/unverified-account.html:358
+#: warehouse/templates/manage/unverified-account.html:425
+#: warehouse/templates/manage/unverified-account.html:429
 msgid "Project:"
 msgstr "Projekt:"
 
-#: warehouse/templates/manage/account.html:654
-#: warehouse/templates/manage/unverified-account.html:361
+#: warehouse/templates/manage/account.html:798
+#: warehouse/templates/manage/unverified-account.html:432
 msgid "Two factor authentication added"
 msgstr "Pridané dvojfaktorové overenie"
 
-#: warehouse/templates/manage/account.html:658
-#: warehouse/templates/manage/account.html:670
-#: warehouse/templates/manage/unverified-account.html:365
-#: warehouse/templates/manage/unverified-account.html:377
+#: warehouse/templates/manage/account.html:802
+#: warehouse/templates/manage/account.html:814
+#: warehouse/templates/manage/unverified-account.html:436
+#: warehouse/templates/manage/unverified-account.html:448
 msgid ""
 "Method: Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr ""
 "Metóda: Bezpečnostné zariadenie (<abbr title=\"web "
 "authentication\">WebAuthn</abbr>)"
 
-#: warehouse/templates/manage/account.html:660
-#: warehouse/templates/manage/account.html:672
-#: warehouse/templates/manage/unverified-account.html:367
-#: warehouse/templates/manage/unverified-account.html:379
+#: warehouse/templates/manage/account.html:804
+#: warehouse/templates/manage/account.html:816
+#: warehouse/templates/manage/unverified-account.html:438
+#: warehouse/templates/manage/unverified-account.html:450
 msgid "Device name:"
 msgstr "Názov zariadenia:"
 
-#: warehouse/templates/manage/account.html:662
-#: warehouse/templates/manage/account.html:674
-#: warehouse/templates/manage/unverified-account.html:369
-#: warehouse/templates/manage/unverified-account.html:381
+#: warehouse/templates/manage/account.html:806
+#: warehouse/templates/manage/account.html:818
+#: warehouse/templates/manage/unverified-account.html:440
+#: warehouse/templates/manage/unverified-account.html:452
 msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
@@ -4269,77 +4598,103 @@ msgstr ""
 "Metóda: Aplikácia na overenie totožnosti (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
 
-#: warehouse/templates/manage/account.html:666
-#: warehouse/templates/manage/unverified-account.html:373
+#: warehouse/templates/manage/account.html:810
+#: warehouse/templates/manage/unverified-account.html:444
 msgid "Two factor authentication removed"
 msgstr "Dvojfaktorová autentifikácia bola odstránená"
 
-#: warehouse/templates/manage/account.html:678
+#: warehouse/templates/manage/account.html:822
 msgid "Two factor device remembered"
 msgstr "Dva faktory zariadenia na pamäti"
 
-#: warehouse/templates/manage/account.html:680
-#: warehouse/templates/manage/unverified-account.html:385
+#: warehouse/templates/manage/account.html:824
+#: warehouse/templates/manage/unverified-account.html:456
 msgid "Recovery codes generated"
 msgstr "Vygenerované obnovovacie kódy"
 
-#: warehouse/templates/manage/account.html:683
-#: warehouse/templates/manage/unverified-account.html:388
+#: warehouse/templates/manage/account.html:827
+#: warehouse/templates/manage/unverified-account.html:459
 msgid "Recovery codes regenerated"
 msgstr "Obnovovacie kódy boli vygenerované"
 
-#: warehouse/templates/manage/account.html:686
-#: warehouse/templates/manage/unverified-account.html:391
+#: warehouse/templates/manage/account.html:830
+#: warehouse/templates/manage/unverified-account.html:462
 msgid "Recovery code used for login"
 msgstr "Obnovovací kód použitý na prihlásenie"
 
-#: warehouse/templates/manage/account.html:689
-#: warehouse/templates/manage/unverified-account.html:394
+#: warehouse/templates/manage/account.html:833
+#, fuzzy
+#| msgid "Account navigation"
+msgid "Account association added"
+msgstr "Navigácia v účte"
+
+#: warehouse/templates/manage/account.html:838
+#: warehouse/templates/manage/account.html:849
+#, fuzzy, python-format
+#| msgid "Hi %(username)s!"
+msgid "GitHub: %(username)s"
+msgstr "Ahoj %(username)s!"
+
+#: warehouse/templates/manage/account.html:840
+#: warehouse/templates/manage/account.html:851
+#, fuzzy, python-format
+#| msgid "Hi %(username)s!"
+msgid "%(service)s: %(username)s"
+msgstr "Ahoj %(username)s!"
+
+#: warehouse/templates/manage/account.html:844
+#, fuzzy
+#| msgid "Account navigation"
+msgid "Account association removed"
+msgstr "Navigácia v účte"
+
+#: warehouse/templates/manage/account.html:855
+#: warehouse/templates/manage/unverified-account.html:465
 msgid "API token added"
 msgstr "Pridaný token API"
 
-#: warehouse/templates/manage/account.html:692
-#: warehouse/templates/manage/account.html:714
+#: warehouse/templates/manage/account.html:858
+#: warehouse/templates/manage/account.html:880
 #: warehouse/templates/manage/project/history.html:238
 #: warehouse/templates/manage/project/history.html:245
-#: warehouse/templates/manage/unverified-account.html:397
-#: warehouse/templates/manage/unverified-account.html:419
+#: warehouse/templates/manage/unverified-account.html:468
+#: warehouse/templates/manage/unverified-account.html:490
 msgid "Token name:"
 msgstr "Názov tokenu:"
 
-#: warehouse/templates/manage/account.html:707
+#: warehouse/templates/manage/account.html:873
 #: warehouse/templates/manage/project/history.html:240
-#: warehouse/templates/manage/unverified-account.html:412
+#: warehouse/templates/manage/unverified-account.html:483
 msgid "API token removed"
 msgstr "Token rozhrania API bol odstránený"
 
-#: warehouse/templates/manage/account.html:709
-#: warehouse/templates/manage/account.html:716
-#: warehouse/templates/manage/unverified-account.html:414
-#: warehouse/templates/manage/unverified-account.html:421
+#: warehouse/templates/manage/account.html:875
+#: warehouse/templates/manage/account.html:882
+#: warehouse/templates/manage/unverified-account.html:485
+#: warehouse/templates/manage/unverified-account.html:492
 msgid "Unique identifier:"
 msgstr "Jedinečný identifikátor:"
 
-#: warehouse/templates/manage/account.html:711
-#: warehouse/templates/manage/unverified-account.html:416
+#: warehouse/templates/manage/account.html:877
+#: warehouse/templates/manage/unverified-account.html:487
 msgid "API token automatically removed for security reasons"
 msgstr "Token API sa z bezpečnostných dôvodov automaticky odstránil"
 
-#: warehouse/templates/manage/account.html:724
-#: warehouse/templates/manage/unverified-account.html:429
+#: warehouse/templates/manage/account.html:890
+#: warehouse/templates/manage/unverified-account.html:500
 #, python-format
 msgid "Reason: Token found at <a href=\"%(public_url)s\">public url</a>"
 msgstr ""
 "Dôvod: Token sa našiel na <a href=\"%(public_url)s\">verejnej adrese URL</a>"
 
-#: warehouse/templates/manage/account.html:728
-#: warehouse/templates/manage/unverified-account.html:433
+#: warehouse/templates/manage/account.html:894
+#: warehouse/templates/manage/unverified-account.html:504
 #, python-format
 msgid "Invited to join <a href=\"%(href)s\">%(organization_name)s</a>"
 msgstr "Pozvaní do <a href=\"%(href)s\">%(organization_name)s</a>"
 
-#: warehouse/templates/manage/account.html:732
-#: warehouse/templates/manage/unverified-account.html:437
+#: warehouse/templates/manage/account.html:898
+#: warehouse/templates/manage/unverified-account.html:508
 #, python-format
 msgid ""
 "Invitation to join <a href=\"%(href)s\">%(organization_name)s</a> declined"
@@ -4347,8 +4702,8 @@ msgstr ""
 "Pozvánka na pripojenie <a href=\"%(href)s\">%(organization_name)s</a> bola "
 "odmietnutá"
 
-#: warehouse/templates/manage/account.html:736
-#: warehouse/templates/manage/unverified-account.html:441
+#: warehouse/templates/manage/account.html:902
+#: warehouse/templates/manage/unverified-account.html:512
 #, python-format
 msgid ""
 "Invitation to join <a href=\"%(href)s\">%(organization_name)s</a> revoked"
@@ -4356,8 +4711,8 @@ msgstr ""
 "Pozvánka na pripojenie <a href=\"%(href)s\">%(organization_name)s</a> bola "
 "odvolaná"
 
-#: warehouse/templates/manage/account.html:740
-#: warehouse/templates/manage/unverified-account.html:445
+#: warehouse/templates/manage/account.html:906
+#: warehouse/templates/manage/unverified-account.html:516
 #, python-format
 msgid ""
 "Invitation to join <a href=\"%(href)s\">%(organization_name)s</a> expired"
@@ -4365,41 +4720,41 @@ msgstr ""
 "Platnosť pozvánky na pripojenie <a href=\"%(href)s\">%(organization_name)s</"
 "a> vypršala"
 
-#: warehouse/templates/manage/account.html:744
+#: warehouse/templates/manage/account.html:910
 #, python-format
 msgid "Role in <a href=\"%(href)s\">%(organization_name)s</a> added"
 msgstr "Úloha v <a href=\"%(href)s\">%(organization_name)s</a> pridané"
 
-#: warehouse/templates/manage/account.html:748
+#: warehouse/templates/manage/account.html:914
 #, python-format
 msgid "Role in <a href=\"%(href)s\">%(organization_name)s</a> changed"
 msgstr "Úloha v <a href=\"%(href)s\">%(organization_name)s</a> zmenila"
 
-#: warehouse/templates/manage/account.html:751
+#: warehouse/templates/manage/account.html:917
 msgid "Organization role removed"
 msgstr "Organizačná úloha odstránená"
 
-#: warehouse/templates/manage/account.html:753
-#: warehouse/templates/manage/account.html:760
+#: warehouse/templates/manage/account.html:919
+#: warehouse/templates/manage/account.html:926
 #, python-format
 msgid "Project: %(project_name)s; role: %(role_name)s"
 msgstr "Projekt: %(project_name)s; úloha: %(role_name)s"
 
-#: warehouse/templates/manage/account.html:758
-#: warehouse/templates/manage/account.html:765
+#: warehouse/templates/manage/account.html:924
+#: warehouse/templates/manage/account.html:931
 #, python-format
 msgid "%(heading)s"
 msgstr "%(heading)s"
 
-#: warehouse/templates/manage/account.html:767
+#: warehouse/templates/manage/account.html:933
 #, python-format
 msgid ""
 "Organization: %(organization_name)s; team: %(team_name)s; role: %(role_name)s"
 msgstr ""
 "Organizácia: %(organization_name)s; tím: %(team_name)s; úloha: %(role_name)s"
 
-#: warehouse/templates/manage/account.html:776
-#: warehouse/templates/manage/unverified-account.html:452
+#: warehouse/templates/manage/account.html:942
+#: warehouse/templates/manage/unverified-account.html:523
 #, python-format
 msgid ""
 "Events appear here as security-related actions occur on your account. If you "
@@ -4410,73 +4765,73 @@ msgstr ""
 "zabezpečením. Ak si všimnete niečo podozrivé, <a "
 "href=\"%(faq_url)s\">zabezpečte si svoj účet</a> čo najskôr."
 
-#: warehouse/templates/manage/account.html:781
-#: warehouse/templates/manage/unverified-account.html:457
+#: warehouse/templates/manage/account.html:947
+#: warehouse/templates/manage/unverified-account.html:528
 msgid "Recent account activity"
 msgstr "Nedávna aktivita účtu"
 
-#: warehouse/templates/manage/account.html:784
-#: warehouse/templates/manage/organization/history.html:175
+#: warehouse/templates/manage/account.html:950
+#: warehouse/templates/manage/organization/history.html:193
 #: warehouse/templates/manage/project/history.html:333
 #: warehouse/templates/manage/team/history.html:87
-#: warehouse/templates/manage/unverified-account.html:459
+#: warehouse/templates/manage/unverified-account.html:530
 msgid "Event"
 msgstr "Udalosť"
 
-#: warehouse/templates/manage/account.html:785
-#: warehouse/templates/manage/organization/history.html:176
-#: warehouse/templates/manage/organization/history.html:185
+#: warehouse/templates/manage/account.html:951
+#: warehouse/templates/manage/organization/history.html:194
+#: warehouse/templates/manage/organization/history.html:203
 #: warehouse/templates/manage/project/history.html:334
 #: warehouse/templates/manage/project/history.html:343
 #: warehouse/templates/manage/team/history.html:88
 #: warehouse/templates/manage/team/history.html:97
-#: warehouse/templates/manage/unverified-account.html:460
+#: warehouse/templates/manage/unverified-account.html:531
 msgid "Time"
 msgstr "Čas"
 
-#: warehouse/templates/manage/account.html:786
-#: warehouse/templates/manage/organization/history.html:177
+#: warehouse/templates/manage/account.html:952
+#: warehouse/templates/manage/organization/history.html:195
 #: warehouse/templates/manage/team/history.html:89
-#: warehouse/templates/manage/unverified-account.html:461
+#: warehouse/templates/manage/unverified-account.html:532
 msgid "Additional Info"
 msgstr "Ďalšie informácie"
 
-#: warehouse/templates/manage/account.html:794
-#: warehouse/templates/manage/unverified-account.html:468
+#: warehouse/templates/manage/account.html:960
+#: warehouse/templates/manage/unverified-account.html:539
 msgid "Date / time"
 msgstr "Dátum / čas"
 
-#: warehouse/templates/manage/account.html:798
-#: warehouse/templates/manage/organization/history.html:189
-#: warehouse/templates/manage/unverified-account.html:472
+#: warehouse/templates/manage/account.html:964
+#: warehouse/templates/manage/organization/history.html:207
+#: warehouse/templates/manage/unverified-account.html:543
 msgid "Location Info"
 msgstr "Informácie o polohe"
 
-#: warehouse/templates/manage/account.html:801
-#: warehouse/templates/manage/organization/history.html:192
+#: warehouse/templates/manage/account.html:967
+#: warehouse/templates/manage/organization/history.html:210
 #: warehouse/templates/manage/project/history.html:350
 #: warehouse/templates/manage/team/history.html:104
-#: warehouse/templates/manage/unverified-account.html:475
+#: warehouse/templates/manage/unverified-account.html:546
 msgid "Device Info"
 msgstr "Informácie o zariadení"
 
-#: warehouse/templates/manage/account.html:809
-#: warehouse/templates/manage/unverified-account.html:483
+#: warehouse/templates/manage/account.html:975
+#: warehouse/templates/manage/unverified-account.html:554
 msgid ""
 "Events will appear here as security-related actions occur on your account."
 msgstr ""
 "Udalosti sa tu zobrazia, keď sa vo vašom účte vyskytnú akcie súvisiace so "
 "zabezpečením."
 
-#: warehouse/templates/manage/account.html:814
+#: warehouse/templates/manage/account.html:980
 msgid "Delete account"
 msgstr "Zmazať účet"
 
-#: warehouse/templates/manage/account.html:817
+#: warehouse/templates/manage/account.html:983
 msgid "Cannot delete account"
 msgstr "Účet nie je možné odstrániť"
 
-#: warehouse/templates/manage/account.html:819
+#: warehouse/templates/manage/account.html:985
 #, python-format
 msgid ""
 "Your account is currently the <strong>sole owner</strong> of %(count)s "
@@ -4494,7 +4849,7 @@ msgstr[2] ""
 "Váš účet je momentálne <strong>výlučným vlastníkom</strong> projektov "
 "%(count)s."
 
-#: warehouse/templates/manage/account.html:824
+#: warehouse/templates/manage/account.html:990
 msgid ""
 "You must transfer ownership or delete this project before you can delete "
 "your account."
@@ -4511,7 +4866,7 @@ msgstr[2] ""
 "Pred odstránením účtu musíte previesť vlastníctvo alebo odstrániť tieto "
 "projekty."
 
-#: warehouse/templates/manage/account.html:834
+#: warehouse/templates/manage/account.html:1000
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a "
@@ -4520,20 +4875,19 @@ msgstr ""
 "<a href=\"%(transfer_href)s\">previesť vlastníctvo</a> alebo <a "
 "href=\"%(delete_href)s\">odstrániť projekt</a>"
 
-#: warehouse/templates/manage/account.html:843
+#: warehouse/templates/manage/account.html:1009
 #: warehouse/templates/manage/account/token.html:177
-#: warehouse/templates/manage/organization/settings.html:203
-#: warehouse/templates/manage/organization/settings.html:264
+#: warehouse/templates/manage/organization/settings.html:289
 #: warehouse/templates/manage/project/publishing.html:19
 #: warehouse/templates/manage/team/settings.html:60
 msgid "Proceed with caution!"
 msgstr "Postupujte opatrne!"
 
-#: warehouse/templates/manage/account.html:846
+#: warehouse/templates/manage/account.html:1012
 msgid "You will not be able to recover your account after you delete it"
 msgstr "Po odstránení nebudete môcť svoj účet obnoviť"
 
-#: warehouse/templates/manage/account.html:848
+#: warehouse/templates/manage/account.html:1014
 msgid "Delete your PyPI account"
 msgstr "Odstráňte svoj účet PyPI"
 
@@ -4608,24 +4962,6 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:90
 msgid "Cannot remove last 2FA method"
 msgstr "Nie je možné odstrániť poslednú metódu 2FA"
-
-#: warehouse/templates/manage/manage_base.html:69
-#: warehouse/templates/manage/manage_base.html:72
-#: warehouse/templates/manage/manage_base.html:91
-#: warehouse/templates/manage/manage_base.html:95
-#: warehouse/templates/manage/manage_base.html:624
-#: warehouse/templates/manage/organization/roles.html:276
-#: warehouse/templates/manage/organization/roles.html:280
-#: warehouse/templates/manage/organization/roles.html:291
-#: warehouse/templates/manage/project/roles.html:91
-#: warehouse/templates/manage/project/roles.html:160
-#: warehouse/templates/manage/project/roles.html:171
-#: warehouse/templates/manage/project/roles.html:239
-#: warehouse/templates/manage/project/roles.html:250
-#: warehouse/templates/manage/team/roles.html:66
-#: warehouse/templates/manage/team/roles.html:77
-msgid "Remove"
-msgstr "Odstrániť"
 
 #: warehouse/templates/manage/manage_base.html:73
 msgid "Remove authentication application"
@@ -4748,14 +5084,14 @@ msgstr ""
 "overenie pomocou bezpečnostného zariadenia (napr. USB kľúča)"
 
 #: warehouse/templates/manage/manage_base.html:220
-#: warehouse/templates/manage/organization/manage_organization_base.html:14
+#: warehouse/templates/manage/organization/manage_organization_base.html:15
 #: warehouse/templates/manage/project/manage_project_base.html:14
 #: warehouse/templates/manage/team/manage_team_base.html:14
 msgid "Breadcrumbs"
 msgstr "Strúhanka"
 
 #: warehouse/templates/manage/manage_base.html:224
-#: warehouse/templates/manage/organization/manage_organization_base.html:17
+#: warehouse/templates/manage/organization/manage_organization_base.html:18
 #: warehouse/templates/manage/project/manage_project_base.html:17
 #: warehouse/templates/manage/team/manage_team_base.html:17
 msgid "Your account"
@@ -4820,14 +5156,34 @@ msgstr ""
 "Viac o dôveryhodných vydavateľoch a ich používaní si môžete prečítať <a "
 "href=\"%(href)s\">tu</a>."
 
-#: warehouse/templates/manage/manage_base.html:587
-#: warehouse/templates/manage/manage_base.html:598
-#: warehouse/templates/manage/manage_base.html:607
+#: warehouse/templates/manage/manage_base.html:579
+#: warehouse/templates/manage/manage_base.html:590
+#: warehouse/templates/manage/manage_base.html:601
 msgid "Any"
 msgstr "akýkoľvek"
 
+#: warehouse/templates/manage/manage_base.html:622
+#, fuzzy
+#| msgid "Removed trusted publisher for project "
+msgid "Remove trusted publisher"
+msgstr "Pre projekt bol odstránený dôveryhodný vydavateľ. "
+
+#: warehouse/templates/manage/manage_base.html:625
+#, python-format
+msgid ""
+"Removing this %(publisher_name)s trusted publisher will prevent automated "
+"package uploads from this source. You can re-add it later if needed."
+msgstr ""
+
 #: warehouse/templates/manage/manage_base.html:631
-#: warehouse/templates/manage/organization/history.html:141
+#, fuzzy
+#| msgid "Manage publishers"
+msgid "Remove publisher"
+msgstr "Spravujte vydavateľov"
+
+#: warehouse/templates/manage/manage_base.html:635
+#: warehouse/templates/manage/organization/history.html:109
+#: warehouse/templates/manage/organization/history.html:159
 #: warehouse/templates/manage/project/history.html:27
 #: warehouse/templates/manage/project/history.html:80
 #: warehouse/templates/manage/project/history.html:119
@@ -4839,8 +5195,9 @@ msgstr "akýkoľvek"
 msgid "Added by:"
 msgstr "Pridal:"
 
-#: warehouse/templates/manage/manage_base.html:633
-#: warehouse/templates/manage/organization/history.html:146
+#: warehouse/templates/manage/manage_base.html:637
+#: warehouse/templates/manage/organization/history.html:117
+#: warehouse/templates/manage/organization/history.html:164
 #: warehouse/templates/manage/project/history.html:46
 #: warehouse/templates/manage/project/history.html:111
 #: warehouse/templates/manage/project/history.html:126
@@ -4850,24 +5207,24 @@ msgstr "Pridal:"
 msgid "Removed by:"
 msgstr "Odstránil:"
 
-#: warehouse/templates/manage/manage_base.html:635
+#: warehouse/templates/manage/manage_base.html:639
 msgid "Submitted by:"
 msgstr "Predloženej:"
 
-#: warehouse/templates/manage/manage_base.html:638
+#: warehouse/templates/manage/manage_base.html:642
 #: warehouse/templates/manage/project/history.html:224
 msgid "Workflow:"
 msgstr "Pracovný tok:"
 
-#: warehouse/templates/manage/manage_base.html:640
+#: warehouse/templates/manage/manage_base.html:644
 msgid "Specifier:"
 msgstr "Špecifikátor:"
 
-#: warehouse/templates/manage/manage_base.html:642
+#: warehouse/templates/manage/manage_base.html:646
 msgid "Publisher:"
 msgstr "Vydavateľ:"
 
-#: warehouse/templates/manage/manage_base.html:644
+#: warehouse/templates/manage/manage_base.html:648
 #: warehouse/templates/manage/project/history.html:36
 #: warehouse/templates/manage/project/history.html:89
 msgid "URL:"
@@ -4897,7 +5254,7 @@ msgstr "Odmietnuť pozvanie na %(org)s"
 msgid "Decline invitation"
 msgstr "Odmietnuť pozvanie"
 
-#: warehouse/templates/manage/organization/settings.html:284
+#: warehouse/templates/manage/organization/settings.html:309
 #: warehouse/templates/manage/organizations.html:51
 msgid "Organization Name"
 msgstr "Názov organizácie"
@@ -4944,11 +5301,12 @@ msgstr "Neaktívne"
 msgid "Manager"
 msgstr "manažér"
 
-#: warehouse/templates/manage/account/publishing.html:35
+#: warehouse/templates/manage/account/publishing.html:37
+#: warehouse/templates/manage/organization/publishing.html:34
 #: warehouse/templates/manage/organization/roles.html:49
 #: warehouse/templates/manage/organization/roles.html:234
 #: warehouse/templates/manage/organizations.html:91
-#: warehouse/templates/manage/project/publishing.html:41
+#: warehouse/templates/manage/project/publishing.html:42
 #: warehouse/templates/manage/project/roles.html:48
 #: warehouse/templates/manage/project/roles.html:86
 #: warehouse/templates/manage/project/roles.html:119
@@ -5215,24 +5573,54 @@ msgstr ""
 msgid "Activate your account"
 msgstr "Aktivujte Vaše konto"
 
-#: warehouse/templates/manage/unverified-account.html:198
+#: warehouse/templates/manage/unverified-account.html:216
+#, fuzzy
+#| msgid ""
+#| "You must verify a primary email address before making any other changes "
+#| "to your account."
 msgid ""
-"You must verify a primary email address before making any other changes to "
-"your account."
+"You must verify an existing email address and make it your primary email "
+"address before making any other changes to your account."
 msgstr ""
 "Musíte overiť primárnu e-mailovú adresu pred vykonaním akýchkoľvek ďalších "
 "zmien na váš účet."
 
-#: warehouse/templates/manage/unverified-account.html:204
-#, python-format
+#: warehouse/templates/manage/unverified-account.html:222
+#, fuzzy, python-format
+#| msgid ""
+#| "If you cannot verify a primary email address, please see <a "
+#| "href=\"%(help_url)s\">%(help_url)s</a>."
 msgid ""
-"If you cannot verify a primary email address, please see <a "
-"href=\"%(help_url)s\">%(help_url)s</a>."
+"If you cannot verify any email addresses listed, please see <a "
+"href=\"%(help_url)s\">%(help_url)s</a> to recover access to your account."
 msgstr ""
 "Ak nemôžete overiť primárnu e-mailovú adresu, pozri <a "
 "href=\"%(help_url)s\">%(help_url)s</a>."
 
-#: warehouse/templates/manage/unverified-account.html:213
+#: warehouse/templates/manage/unverified-account.html:230
+#, fuzzy
+#| msgid ""
+#| "You must verify a primary email address before making any other changes "
+#| "to your account."
+msgid ""
+"You must verify the primary email address listed below before making any "
+"other changes to your account."
+msgstr ""
+"Musíte overiť primárnu e-mailovú adresu pred vykonaním akýchkoľvek ďalších "
+"zmien na váš účet."
+
+#: warehouse/templates/manage/unverified-account.html:236
+#, fuzzy
+#| msgid ""
+#| "You must verify your **primary** email address before you can perform "
+#| "this action."
+msgid ""
+"If you cannot verify the primary email address listed, you can correct it "
+"below."
+msgstr ""
+"Pred vykonaním tejto akcie musíte overiť svoju **primárnu** e-mailovú adresu."
+
+#: warehouse/templates/manage/unverified-account.html:246
 msgid ""
 "You must have at least one <span class=\"badge badge--success\"><i "
 "class=\"fa fa-check\" aria-hidden=\"true\"></i> Verified</span> email "
@@ -5242,7 +5630,32 @@ msgstr ""
 "check\" aria-hidden=\"true\"></i> Overená</span> e-mailovú adresu na "
 "aktiváciu vášho účtu."
 
+#: warehouse/templates/manage/unverified-account.html:268
+#, fuzzy
+#| msgid "Remove this email address"
+msgid "Entered the wrong email address?"
+msgstr "Odstrániť túto e-mailovú adresu"
+
+#: warehouse/templates/manage/unverified-account.html:270
+msgid ""
+"If you made a typo when registering, you can correct your email address "
+"below. A new verification email will be sent to the updated address."
+msgstr ""
+
+#: warehouse/templates/manage/unverified-account.html:283
+#, fuzzy
+#| msgid "Your email address"
+msgid "New email address"
+msgstr "Vaša emailová adresa"
+
+#: warehouse/templates/manage/unverified-account.html:300
+#, fuzzy
+#| msgid "Your email address"
+msgid "Update email address"
+msgstr "Vaša emailová adresa"
+
 #: warehouse/templates/manage/account/publishing.html:9
+#: warehouse/templates/manage/organization/publishing.html:9
 #: warehouse/templates/manage/project/publishing.html:28
 #, python-format
 msgid ""
@@ -5252,67 +5665,80 @@ msgstr ""
 "Prečítajte si viac o GitHub akcie OpenID Connect podpora <a "
 "href=\"%(href)s\">here</a>."
 
-#: warehouse/templates/manage/account/publishing.html:22
-#: warehouse/templates/manage/account/publishing.html:130
-#: warehouse/templates/manage/account/publishing.html:225
-#: warehouse/templates/manage/account/publishing.html:292
-msgid "PyPI Project Name"
-msgstr "Názov projektu PyPI"
+#: warehouse/templates/manage/account/publishing.html:24
+#: warehouse/templates/manage/project/settings.html:97
+#: warehouse/templates/manage/project/settings.html:171
+#: warehouse/templates/manage/project/settings.html:439
+msgid "Project Name"
+msgstr "Názov projektu"
 
-#: warehouse/templates/manage/account/publishing.html:27
-#: warehouse/templates/manage/account/publishing.html:135
-#: warehouse/templates/manage/account/publishing.html:230
-#: warehouse/templates/manage/account/publishing.html:297
+#: warehouse/templates/manage/account/publishing.html:29
+#: warehouse/templates/manage/account/publishing.html:138
+#: warehouse/templates/manage/account/publishing.html:236
+#: warehouse/templates/manage/account/publishing.html:304
+#: warehouse/templates/manage/organization/publishing.html:26
+#: warehouse/templates/manage/organization/publishing.html:135
+#: warehouse/templates/manage/organization/publishing.html:249
+#: warehouse/templates/manage/organization/publishing.html:317
 msgid "project name"
 msgstr "názov projektu"
 
-#: warehouse/templates/manage/account/publishing.html:29
-#: warehouse/templates/manage/account/publishing.html:137
-#: warehouse/templates/manage/account/publishing.html:232
-#: warehouse/templates/manage/account/publishing.html:305
-msgid "The project (on PyPI) that will be created when this publisher is used"
+#: warehouse/templates/manage/account/publishing.html:31
+#, fuzzy, python-format
+#| msgid ""
+#| "The project (on PyPI) that will be created when this publisher is used"
+msgid ""
+"The project that will be created on %(sitename)s when this publisher is used"
 msgstr "Projekt (na PyPI), ktorý sa vytvorí pri použití tohto vydavateľa"
 
-#: warehouse/templates/manage/account/publishing.html:40
-#: warehouse/templates/manage/project/publishing.html:46
+#: warehouse/templates/manage/account/publishing.html:42
+#: warehouse/templates/manage/organization/publishing.html:39
+#: warehouse/templates/manage/project/publishing.html:47
 msgid "owner"
 msgstr "vlastník"
 
-#: warehouse/templates/manage/account/publishing.html:42
-#: warehouse/templates/manage/project/publishing.html:48
+#: warehouse/templates/manage/account/publishing.html:44
+#: warehouse/templates/manage/organization/publishing.html:41
+#: warehouse/templates/manage/project/publishing.html:49
 msgid ""
 "The GitHub organization name or GitHub username that owns the repository"
 msgstr ""
 "Názov organizácie GitHub alebo používateľské meno GitHub, ktorá vlastní "
 "úložisko"
 
-#: warehouse/templates/manage/account/publishing.html:48
-#: warehouse/templates/manage/project/publishing.html:54
+#: warehouse/templates/manage/account/publishing.html:50
+#: warehouse/templates/manage/organization/publishing.html:47
+#: warehouse/templates/manage/project/publishing.html:55
 msgid "Repository name"
 msgstr "Názov úložiska"
 
-#: warehouse/templates/manage/account/publishing.html:53
-#: warehouse/templates/manage/project/publishing.html:59
+#: warehouse/templates/manage/account/publishing.html:55
+#: warehouse/templates/manage/organization/publishing.html:52
+#: warehouse/templates/manage/project/publishing.html:60
 msgid "repository"
 msgstr "Úložisko"
 
-#: warehouse/templates/manage/account/publishing.html:61
-#: warehouse/templates/manage/project/publishing.html:67
+#: warehouse/templates/manage/account/publishing.html:63
+#: warehouse/templates/manage/organization/publishing.html:60
+#: warehouse/templates/manage/project/publishing.html:68
 msgid "The name of the GitHub repository that contains the publishing workflow"
 msgstr "Názov úložiska GitHub, ktorý obsahuje pracovný postup publikovania"
 
-#: warehouse/templates/manage/account/publishing.html:67
-#: warehouse/templates/manage/project/publishing.html:73
+#: warehouse/templates/manage/account/publishing.html:69
+#: warehouse/templates/manage/organization/publishing.html:66
+#: warehouse/templates/manage/project/publishing.html:74
 msgid "Workflow name"
 msgstr "Názov pracovného postupu"
 
-#: warehouse/templates/manage/account/publishing.html:72
-#: warehouse/templates/manage/project/publishing.html:78
+#: warehouse/templates/manage/account/publishing.html:74
+#: warehouse/templates/manage/organization/publishing.html:71
+#: warehouse/templates/manage/project/publishing.html:79
 msgid "workflow.yml"
 msgstr "workflow.yml"
 
-#: warehouse/templates/manage/account/publishing.html:78
-#: warehouse/templates/manage/project/publishing.html:84
+#: warehouse/templates/manage/account/publishing.html:80
+#: warehouse/templates/manage/organization/publishing.html:77
+#: warehouse/templates/manage/project/publishing.html:85
 msgid ""
 "The filename of the publishing workflow. This file should exist in the "
 "<code>.github/workflows/</code> directory in the repository configured above."
@@ -5320,24 +5746,30 @@ msgstr ""
 "Názov súboru pracovného postupu publikovania. Tento súbor by mal existovať v "
 "adresári <code>.github/workflows/</code> v úložisku nakonfigurovanom vyššie."
 
-#: warehouse/templates/manage/account/publishing.html:84
-#: warehouse/templates/manage/account/publishing.html:182
-#: warehouse/templates/manage/project/publishing.html:90
-#: warehouse/templates/manage/project/publishing.html:177
+#: warehouse/templates/manage/account/publishing.html:86
+#: warehouse/templates/manage/account/publishing.html:185
+#: warehouse/templates/manage/organization/publishing.html:83
+#: warehouse/templates/manage/organization/publishing.html:182
+#: warehouse/templates/manage/project/publishing.html:91
+#: warehouse/templates/manage/project/publishing.html:179
 msgid "Environment name"
 msgstr "Názov prostredia"
 
-#: warehouse/templates/manage/account/publishing.html:88
-#: warehouse/templates/manage/account/publishing.html:186
-#: warehouse/templates/manage/account/publishing.html:255
-#: warehouse/templates/manage/project/publishing.html:94
-#: warehouse/templates/manage/project/publishing.html:181
-#: warehouse/templates/manage/project/publishing.html:238
+#: warehouse/templates/manage/account/publishing.html:90
+#: warehouse/templates/manage/account/publishing.html:189
+#: warehouse/templates/manage/account/publishing.html:261
+#: warehouse/templates/manage/organization/publishing.html:87
+#: warehouse/templates/manage/organization/publishing.html:186
+#: warehouse/templates/manage/organization/publishing.html:274
+#: warehouse/templates/manage/project/publishing.html:95
+#: warehouse/templates/manage/project/publishing.html:183
+#: warehouse/templates/manage/project/publishing.html:259
 msgid "(optional)"
 msgstr "(voliteľné)"
 
-#: warehouse/templates/manage/account/publishing.html:96
-#: warehouse/templates/manage/project/publishing.html:103
+#: warehouse/templates/manage/account/publishing.html:98
+#: warehouse/templates/manage/organization/publishing.html:95
+#: warehouse/templates/manage/project/publishing.html:104
 #, python-format
 msgid ""
 "The name of the <a href=\"%(href)s\">GitHub Actions environment</a> that the "
@@ -5354,22 +5786,27 @@ msgstr ""
 "ak má váš odkladací priestor správcov s prístupom commit, ktorí by nemali "
 "mať publikačný prístup PyPI."
 
-#: warehouse/templates/manage/account/publishing.html:110
-#: warehouse/templates/manage/account/publishing.html:205
-#: warehouse/templates/manage/account/publishing.html:272
-#: warehouse/templates/manage/account/publishing.html:364
-#: warehouse/templates/manage/project/publishing.html:117
-#: warehouse/templates/manage/project/publishing.html:200
-#: warehouse/templates/manage/project/publishing.html:255
-#: warehouse/templates/manage/project/publishing.html:329
+#: warehouse/templates/manage/account/publishing.html:112
+#: warehouse/templates/manage/account/publishing.html:210
+#: warehouse/templates/manage/account/publishing.html:278
+#: warehouse/templates/manage/account/publishing.html:371
+#: warehouse/templates/manage/organization/publishing.html:109
+#: warehouse/templates/manage/organization/publishing.html:223
+#: warehouse/templates/manage/organization/publishing.html:291
+#: warehouse/templates/manage/organization/publishing.html:384
+#: warehouse/templates/manage/project/publishing.html:118
+#: warehouse/templates/manage/project/publishing.html:220
+#: warehouse/templates/manage/project/publishing.html:276
+#: warehouse/templates/manage/project/publishing.html:351
 #: warehouse/templates/manage/project/roles.html:373
 #: warehouse/templates/manage/project/settings.html:322
 #: warehouse/templates/manage/team/roles.html:125
 msgid "Add"
 msgstr "Pridať"
 
-#: warehouse/templates/manage/account/publishing.html:117
-#: warehouse/templates/manage/project/publishing.html:125
+#: warehouse/templates/manage/account/publishing.html:119
+#: warehouse/templates/manage/organization/publishing.html:116
+#: warehouse/templates/manage/project/publishing.html:126
 #, python-format
 msgid ""
 "Read more about GitLab CI/CD OpenID Connect support <a "
@@ -5378,18 +5815,37 @@ msgstr ""
 "Prečítajte si viac o GitLab CI/CD OpenID Connect podpora <a "
 "href=\"%(href)s\">here</a>."
 
-#: warehouse/templates/manage/account/publishing.html:143
-#: warehouse/templates/manage/project/publishing.html:138
+#: warehouse/templates/manage/account/publishing.html:133
+#: warehouse/templates/manage/account/publishing.html:231
+#: warehouse/templates/manage/account/publishing.html:299
+#: warehouse/templates/manage/organization/publishing.html:21
+#: warehouse/templates/manage/organization/publishing.html:130
+#: warehouse/templates/manage/organization/publishing.html:244
+#: warehouse/templates/manage/organization/publishing.html:312
+msgid "PyPI Project Name"
+msgstr "Názov projektu PyPI"
+
+#: warehouse/templates/manage/account/publishing.html:140
+#: warehouse/templates/manage/account/publishing.html:238
+#: warehouse/templates/manage/account/publishing.html:312
+msgid "The project (on PyPI) that will be created when this publisher is used"
+msgstr "Projekt (na PyPI), ktorý sa vytvorí pri použití tohto vydavateľa"
+
+#: warehouse/templates/manage/account/publishing.html:146
+#: warehouse/templates/manage/organization/publishing.html:143
+#: warehouse/templates/manage/project/publishing.html:140
 msgid "Namespace"
 msgstr "Menný priestor"
 
-#: warehouse/templates/manage/account/publishing.html:148
-#: warehouse/templates/manage/project/publishing.html:143
+#: warehouse/templates/manage/account/publishing.html:151
+#: warehouse/templates/manage/organization/publishing.html:148
+#: warehouse/templates/manage/project/publishing.html:145
 msgid "namespace"
 msgstr "názovspace"
 
-#: warehouse/templates/manage/account/publishing.html:150
-#: warehouse/templates/manage/project/publishing.html:145
+#: warehouse/templates/manage/account/publishing.html:153
+#: warehouse/templates/manage/organization/publishing.html:150
+#: warehouse/templates/manage/project/publishing.html:147
 msgid ""
 "The GitLab username or GitLab group/subgroup namespace that the project is "
 "under"
@@ -5397,36 +5853,42 @@ msgstr ""
 "GitLab užívateľské meno alebo GitLab Group/subgroup namespace, ktorý je "
 "projekt pod"
 
-#: warehouse/templates/manage/account/publishing.html:156
+#: warehouse/templates/manage/account/publishing.html:159
+#: warehouse/templates/manage/organization/publishing.html:156
 #: warehouse/templates/manage/project/documentation.html:21
-#: warehouse/templates/manage/project/publishing.html:151
+#: warehouse/templates/manage/project/publishing.html:153
 #: warehouse/templates/manage/project/release.html:139
 #: warehouse/templates/pages/stats.html:65
 msgid "Project name"
 msgstr "Meno projektu"
 
-#: warehouse/templates/manage/account/publishing.html:161
-#: warehouse/templates/manage/project/publishing.html:156
+#: warehouse/templates/manage/account/publishing.html:164
+#: warehouse/templates/manage/organization/publishing.html:161
+#: warehouse/templates/manage/project/publishing.html:158
 msgid "project"
 msgstr "projekt"
 
-#: warehouse/templates/manage/account/publishing.html:163
-#: warehouse/templates/manage/project/publishing.html:158
+#: warehouse/templates/manage/account/publishing.html:166
+#: warehouse/templates/manage/organization/publishing.html:163
+#: warehouse/templates/manage/project/publishing.html:160
 msgid "The name of the GitLab project that contains the publishing workflow"
 msgstr "Názov projektu GitLab, ktorý obsahuje publikovanie workflow"
 
-#: warehouse/templates/manage/account/publishing.html:169
-#: warehouse/templates/manage/project/publishing.html:164
+#: warehouse/templates/manage/account/publishing.html:172
+#: warehouse/templates/manage/organization/publishing.html:169
+#: warehouse/templates/manage/project/publishing.html:166
 msgid "Top-level pipeline file path"
 msgstr "Top-úroveň potrubia súbor cesta"
 
-#: warehouse/templates/manage/account/publishing.html:174
-#: warehouse/templates/manage/project/publishing.html:169
+#: warehouse/templates/manage/account/publishing.html:177
+#: warehouse/templates/manage/organization/publishing.html:174
+#: warehouse/templates/manage/project/publishing.html:171
 msgid ".gitlab-ci.yml"
 msgstr ".gitlab-ci.yml"
 
-#: warehouse/templates/manage/account/publishing.html:176
-#: warehouse/templates/manage/project/publishing.html:171
+#: warehouse/templates/manage/account/publishing.html:179
+#: warehouse/templates/manage/organization/publishing.html:176
+#: warehouse/templates/manage/project/publishing.html:173
 msgid ""
 "The file path of the top-level pipeline, relative to the project's root. "
 "This file should exist in the project configured above (external pipelines "
@@ -5436,14 +5898,16 @@ msgstr ""
 "by mal existovať v projekte nakonfigurovaný vyššie (externé potrubia nie sú "
 "podporované)."
 
-#: warehouse/templates/manage/account/publishing.html:189
-#: warehouse/templates/manage/project/publishing.html:97
-#: warehouse/templates/manage/project/publishing.html:184
+#: warehouse/templates/manage/account/publishing.html:192
+#: warehouse/templates/manage/organization/publishing.html:189
+#: warehouse/templates/manage/project/publishing.html:98
+#: warehouse/templates/manage/project/publishing.html:186
 msgid "release"
 msgstr "uvoľniť"
 
-#: warehouse/templates/manage/account/publishing.html:191
-#: warehouse/templates/manage/project/publishing.html:186
+#: warehouse/templates/manage/account/publishing.html:194
+#: warehouse/templates/manage/organization/publishing.html:191
+#: warehouse/templates/manage/project/publishing.html:188
 #, python-format
 msgid ""
 "The name of the <a href=\"%(href)s\">GitLab CI/CD environment</a> that the "
@@ -5459,8 +5923,9 @@ msgstr ""
 "<strong>strongly</strong> podporované, <strong>najmä</strong> ak váš projekt "
 "udržiavatelia so vstupom, ktorý by nemal mať PyPI vydavateľský prístup."
 
-#: warehouse/templates/manage/account/publishing.html:212
-#: warehouse/templates/manage/project/publishing.html:208
+#: warehouse/templates/manage/account/publishing.html:217
+#: warehouse/templates/manage/organization/publishing.html:230
+#: warehouse/templates/manage/project/publishing.html:228
 #, python-format
 msgid ""
 "Read more about Google's OpenID Connect support <a href=\"%(href)s\">here</"
@@ -5469,27 +5934,32 @@ msgstr ""
 "Prečítajte si viac o službe Google OpenID Connect <a href=\"%(href)s\">here</"
 "a>."
 
-#: warehouse/templates/manage/account/publishing.html:243
-#: warehouse/templates/manage/project/publishing.html:226
+#: warehouse/templates/manage/account/publishing.html:249
+#: warehouse/templates/manage/organization/publishing.html:262
+#: warehouse/templates/manage/project/publishing.html:247
 msgid "email"
 msgstr "e-mailová adresa"
 
-#: warehouse/templates/manage/account/publishing.html:245
-#: warehouse/templates/manage/project/publishing.html:228
+#: warehouse/templates/manage/account/publishing.html:251
+#: warehouse/templates/manage/organization/publishing.html:264
+#: warehouse/templates/manage/project/publishing.html:249
 msgid "The email address of the account or service account used to publish."
 msgstr "E-mailová adresa účtu alebo servisného účtu používané na publikovanie."
 
-#: warehouse/templates/manage/account/publishing.html:251
-#: warehouse/templates/manage/project/publishing.html:234
+#: warehouse/templates/manage/account/publishing.html:257
+#: warehouse/templates/manage/organization/publishing.html:270
+#: warehouse/templates/manage/project/publishing.html:255
 msgid "Subject"
 msgstr "Predmet"
 
-#: warehouse/templates/manage/account/publishing.html:258
-#: warehouse/templates/manage/project/publishing.html:241
+#: warehouse/templates/manage/account/publishing.html:264
+#: warehouse/templates/manage/organization/publishing.html:277
+#: warehouse/templates/manage/project/publishing.html:262
 msgid "subject"
 msgstr "predmet"
 
-#: warehouse/templates/manage/account/publishing.html:266
+#: warehouse/templates/manage/account/publishing.html:272
+#: warehouse/templates/manage/organization/publishing.html:285
 #, python-format
 msgid ""
 "The subject is the numeric ID that represents the principal making the "
@@ -5500,8 +5970,9 @@ msgstr ""
 "potrebné, poskytuje predmet ďalej obmedzuje identitu používané pre "
 "publikovanie. <a href=\"%(href)s\"> Viac informácií tu.</a>"
 
-#: warehouse/templates/manage/account/publishing.html:279
-#: warehouse/templates/manage/project/publishing.html:263
+#: warehouse/templates/manage/account/publishing.html:285
+#: warehouse/templates/manage/organization/publishing.html:298
+#: warehouse/templates/manage/project/publishing.html:284
 #, python-format
 msgid ""
 "Read more about ActiveState's OpenID Connect support <a "
@@ -5510,49 +5981,57 @@ msgstr ""
 "Prečítajte si viac o podporu ActiveState OpenID Connect <a "
 "href=\"%(href)s\">here</a>."
 
-#: warehouse/templates/manage/account/publishing.html:311
-#: warehouse/templates/manage/project/publishing.html:276
+#: warehouse/templates/manage/account/publishing.html:318
+#: warehouse/templates/manage/project/publishing.html:298
 #: warehouse/templates/organizations/profile.html:17
 msgid "Organization"
 msgstr "Organizácia"
 
-#: warehouse/templates/manage/account/publishing.html:316
-#: warehouse/templates/manage/project/publishing.html:281
+#: warehouse/templates/manage/account/publishing.html:323
+#: warehouse/templates/manage/organization/publishing.html:336
+#: warehouse/templates/manage/project/publishing.html:303
 msgid "my-organization"
 msgstr "my-organizácia"
 
-#: warehouse/templates/manage/account/publishing.html:323
-#: warehouse/templates/manage/project/publishing.html:288
+#: warehouse/templates/manage/account/publishing.html:330
+#: warehouse/templates/manage/organization/publishing.html:343
+#: warehouse/templates/manage/project/publishing.html:310
 msgid "The ActiveState organization name that owns the project"
 msgstr "Aktívne názov organizácie, ktorá vlastní projekt"
 
-#: warehouse/templates/manage/account/publishing.html:328
-#: warehouse/templates/manage/project/publishing.html:293
+#: warehouse/templates/manage/account/publishing.html:335
+#: warehouse/templates/manage/organization/publishing.html:348
+#: warehouse/templates/manage/project/publishing.html:315
 msgid "ActiveState Project name"
 msgstr "Aktívne názov projektu"
 
-#: warehouse/templates/manage/account/publishing.html:333
-#: warehouse/templates/manage/project/publishing.html:298
+#: warehouse/templates/manage/account/publishing.html:340
+#: warehouse/templates/manage/organization/publishing.html:353
+#: warehouse/templates/manage/project/publishing.html:320
 msgid "my-project"
 msgstr "my-projekt"
 
-#: warehouse/templates/manage/account/publishing.html:341
-#: warehouse/templates/manage/project/publishing.html:306
+#: warehouse/templates/manage/account/publishing.html:348
+#: warehouse/templates/manage/organization/publishing.html:361
+#: warehouse/templates/manage/project/publishing.html:328
 msgid "The ActiveState project that will build your Python artifact."
 msgstr "Aktívny stavebný projekt, ktorý bude stavať váš Python artefakt."
 
-#: warehouse/templates/manage/account/publishing.html:347
-#: warehouse/templates/manage/project/publishing.html:312
+#: warehouse/templates/manage/account/publishing.html:354
+#: warehouse/templates/manage/organization/publishing.html:367
+#: warehouse/templates/manage/project/publishing.html:334
 msgid "Actor Username"
 msgstr "Užívateľské meno"
 
-#: warehouse/templates/manage/account/publishing.html:352
-#: warehouse/templates/manage/project/publishing.html:317
+#: warehouse/templates/manage/account/publishing.html:359
+#: warehouse/templates/manage/organization/publishing.html:372
+#: warehouse/templates/manage/project/publishing.html:339
 msgid "my-username"
 msgstr "my-username"
 
-#: warehouse/templates/manage/account/publishing.html:358
-#: warehouse/templates/manage/project/publishing.html:323
+#: warehouse/templates/manage/account/publishing.html:365
+#: warehouse/templates/manage/organization/publishing.html:378
+#: warehouse/templates/manage/project/publishing.html:345
 msgid ""
 "The username for the ActiveState account that will trigger the build of your "
 "Python artifact."
@@ -5560,15 +6039,15 @@ msgstr ""
 "Užívateľské meno pre aktívny stavový účet, ktorý bude spúšťať stav vášho "
 "Python artefaktu."
 
-#: warehouse/templates/manage/account/publishing.html:373
+#: warehouse/templates/manage/account/publishing.html:380
 msgid "Manage publishers"
 msgstr "Spravujte vydavateľov"
 
-#: warehouse/templates/manage/account/publishing.html:380
+#: warehouse/templates/manage/account/publishing.html:387
 msgid "Project"
 msgstr "Projekt"
 
-#: warehouse/templates/manage/account/publishing.html:400
+#: warehouse/templates/manage/account/publishing.html:407
 msgid ""
 "No publishers are currently configured. Publishers for existing projects can "
 "be added in the publishing configuration for each individual project."
@@ -5577,21 +6056,25 @@ msgstr ""
 "existujúce projekty je možné pridať v konfigurácii publikovania pre každý "
 "jednotlivý projekt."
 
-#: warehouse/templates/manage/account/publishing.html:410
+#: warehouse/templates/manage/account/publishing.html:417
+#: warehouse/templates/manage/organization/publishing.html:414
 msgid "Pending project name"
 msgstr "Čakajúci názov projektu"
 
-#: warehouse/templates/manage/account/publishing.html:411
-#: warehouse/templates/manage/project/publishing.html:353
+#: warehouse/templates/manage/account/publishing.html:418
+#: warehouse/templates/manage/organization/publishing.html:415
+#: warehouse/templates/manage/project/publishing.html:375
 msgid "Publisher"
 msgstr "Vydavateľ"
 
-#: warehouse/templates/manage/account/publishing.html:412
-#: warehouse/templates/manage/project/publishing.html:354
+#: warehouse/templates/manage/account/publishing.html:419
+#: warehouse/templates/manage/organization/publishing.html:416
+#: warehouse/templates/manage/project/publishing.html:376
 msgid "Details"
 msgstr "Detaily"
 
-#: warehouse/templates/manage/account/publishing.html:422
+#: warehouse/templates/manage/account/publishing.html:429
+#: warehouse/templates/manage/organization/publishing.html:426
 msgid ""
 "No pending publishers are currently configured. Publishers for projects that "
 "don't exist yet can be added below."
@@ -5599,17 +6082,20 @@ msgstr ""
 "Momentálne nie sú nakonfigurovaní žiadni čakajúci vydavatelia. Nižšie je "
 "možné pridať vydavateľov projektov, ktoré ešte neexistujú."
 
-#: warehouse/templates/manage/account/publishing.html:429
+#: warehouse/templates/manage/account/publishing.html:436
+#: warehouse/templates/manage/organization/publishing.html:431
 msgid "Add a new pending publisher"
 msgstr "Pridať nového čakajúceho vydavateľa"
 
-#: warehouse/templates/manage/account/publishing.html:431
+#: warehouse/templates/manage/account/publishing.html:438
+#: warehouse/templates/manage/organization/publishing.html:432
 msgid "You can use this page to register \"pending\" trusted publishers."
 msgstr ""
 "Túto stránku môžete použiť na registráciu „čakajúcich“ dôveryhodných "
 "vydavateľov."
 
-#: warehouse/templates/manage/account/publishing.html:436
+#: warehouse/templates/manage/account/publishing.html:443
+#: warehouse/templates/manage/organization/publishing.html:434
 #, python-format
 msgid ""
 "These publishers behave similarly to trusted publishers registered against "
@@ -5626,7 +6112,8 @@ msgstr ""
 "„čakajúcich“ a bežných dôveryhodných vydavateľoch si môžete prečítať <a "
 "href=\"%(href)s\">tu</a>."
 
-#: warehouse/templates/manage/account/publishing.html:446
+#: warehouse/templates/manage/account/publishing.html:453
+#: warehouse/templates/manage/organization/publishing.html:444
 msgid ""
 "Configuring a \"pending\" publisher for a project name does <strong>not</"
 "strong> reserve that name. Until the project is created, any other user may "
@@ -5637,8 +6124,8 @@ msgstr ""
 "užívateľ ho môže vytvoriť, vrátane ich vlastného \"v závislosti od\" "
 "vydavateľa."
 
-#: warehouse/templates/manage/account/publishing.html:481
-#: warehouse/templates/manage/project/publishing.html:397
+#: warehouse/templates/manage/account/publishing.html:488
+#: warehouse/templates/manage/project/publishing.html:419
 #, python-format
 msgid ""
 "You must first enable <a href=\"%(href)s\">two-factor authentication</a> on "
@@ -5712,26 +6199,26 @@ msgstr ""
 msgid "Save your recovery codes"
 msgstr "Uložte si kódy na obnovenie"
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:61
+#: warehouse/templates/manage/account/recovery_codes-provision.html:60
 msgid "Download as file"
 msgstr "Stiahnuť ako súbor"
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:62
+#: warehouse/templates/manage/account/recovery_codes-provision.html:61
 #: warehouse/templates/manage/organization/roles.html:266
 #: warehouse/templates/manage/project/roles.html:149
 #: warehouse/templates/manage/project/roles.html:229
 msgid "Save"
 msgstr "Uložiť"
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:65
+#: warehouse/templates/manage/account/recovery_codes-provision.html:64
 msgid "Continue"
 msgstr "Pokračovať"
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:68
+#: warehouse/templates/manage/account/recovery_codes-provision.html:67
 msgid "These codes will not be visible again."
 msgstr "Tieto kódy už nebudú viditeľné."
 
-#: warehouse/templates/manage/account/recovery_codes-provision.html:72
+#: warehouse/templates/manage/account/recovery_codes-provision.html:71
 msgid "Ensure that you have securely stored them before continuing."
 msgstr "Pred pokračovaním sa uistite, že ste ich bezpečne uložili."
 
@@ -6321,68 +6808,82 @@ msgid "<a href=\"%(href)s\">%(username)s</a> removed from %(team_name)s team"
 msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> bol odstránený z tímu %(team_name)s"
 
-#: warehouse/templates/manage/organization/history.html:109
+#: warehouse/templates/manage/organization/history.html:106
+#, python-format
+msgid ""
+"Custom Trusted Publisher '%(issuer_type)s' for <code>%(issuer_url)s</code> "
+"added to organization"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:114
+#, python-format
+msgid ""
+"Custom Trusted Publisher '%(issuer_type)s' for <code>%(issuer_url)s</code> "
+"removed from organization"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:127
 msgid "Registered by:"
 msgstr "Registrovaný:"
 
-#: warehouse/templates/manage/organization/history.html:115
+#: warehouse/templates/manage/organization/history.html:133
 #: warehouse/templates/manage/project/history.html:19
 #: warehouse/templates/manage/team/history.html:52
 msgid "Created by:"
 msgstr "Vytvoril:"
 
-#: warehouse/templates/manage/organization/history.html:120
+#: warehouse/templates/manage/organization/history.html:138
 #: warehouse/templates/manage/project/history.html:293
 #: warehouse/templates/manage/project/history.html:315
 #: warehouse/templates/manage/team/history.html:57
 msgid "Deleted by:"
 msgstr "Zmazal:"
 
-#: warehouse/templates/manage/organization/history.html:125
+#: warehouse/templates/manage/organization/history.html:143
 #: warehouse/templates/manage/team/history.html:62
 msgid "Renamed by:"
 msgstr "Premenoval:"
 
-#: warehouse/templates/manage/organization/history.html:130
+#: warehouse/templates/manage/organization/history.html:148
 msgid "Approved by:"
 msgstr "Schválil:"
 
-#: warehouse/templates/manage/organization/history.html:135
+#: warehouse/templates/manage/organization/history.html:153
 msgid "Declined by:"
 msgstr "Odmietnuté:"
 
-#: warehouse/templates/manage/organization/history.html:151
+#: warehouse/templates/manage/organization/history.html:169
 #: warehouse/templates/manage/project/history.html:133
 #: warehouse/templates/manage/project/history.html:179
 #: warehouse/templates/manage/team/history.html:78
 msgid "Changed by:"
 msgstr "Zmenil:"
 
-#: warehouse/templates/manage/organization/history.html:156
-#: warehouse/templates/manage/organization/history.html:161
+#: warehouse/templates/manage/organization/history.html:174
+#: warehouse/templates/manage/organization/history.html:179
 #: warehouse/templates/manage/project/history.html:140
 #: warehouse/templates/manage/project/history.html:147
 msgid "Invited by:"
 msgstr "Pozvaný od:"
 
-#: warehouse/templates/manage/organization/history.html:166
+#: warehouse/templates/manage/organization/history.html:184
 #: warehouse/templates/manage/project/history.html:154
 msgid "Revoked by:"
 msgstr "Odvolané používateľom:"
 
-#: warehouse/templates/manage/organization/history.html:172
+#: warehouse/templates/manage/organization/history.html:190
 #: warehouse/templates/manage/project/history.html:330
 #: warehouse/templates/manage/team/history.html:84
 #, python-format
 msgid "Security history for %(source_name)s"
 msgstr "História zabezpečenia pre %(source_name)s"
 
-#: warehouse/templates/manage/organization/manage_organization_base.html:7
+#: warehouse/templates/manage/organization/manage_organization_base.html:8
 #, python-format
 msgid "Manage '%(organization_name)s'"
 msgstr "Spravovať '%(organization_name)s'"
 
-#: warehouse/templates/manage/organization/manage_organization_base.html:38
+#: warehouse/templates/manage/organization/manage_organization_base.html:39
 msgid "Back to organizations"
 msgstr "Späť k organizáciám"
 
@@ -6465,6 +6966,83 @@ msgstr ""
 #: warehouse/templates/manage/organization/projects.html:141
 msgid "Create and add new project"
 msgstr "Vytvorte a pridajte nový projekt"
+
+#: warehouse/templates/manage/organization/publishing.html:5
+#, fuzzy, python-format
+#| msgid "Manage '%(organization_name)s'"
+msgid "Trusted Publisher Management for '%(organization_name)s'"
+msgstr "Spravovať '%(organization_name)s'"
+
+#: warehouse/templates/manage/organization/publishing.html:28
+#: warehouse/templates/manage/organization/publishing.html:137
+#: warehouse/templates/manage/organization/publishing.html:251
+#: warehouse/templates/manage/organization/publishing.html:325
+#, fuzzy, python-format
+#| msgid ""
+#| "The project (on PyPI) that will be created when this publisher is used"
+msgid ""
+"The project (on PyPI) that will be created and owned by the "
+"'%(organization_name)s' organization when this publisher is used"
+msgstr "Projekt (na PyPI), ktorý sa vytvorí pri použití tohto vydavateľa"
+
+#: warehouse/templates/manage/organization/publishing.html:206
+#: warehouse/templates/manage/project/publishing.html:203
+#, fuzzy
+#| msgid "GitLab Statistics"
+msgid "GitLab instance"
+msgstr "Štatistiky GitLab"
+
+#: warehouse/templates/manage/organization/publishing.html:213
+#: warehouse/templates/manage/project/publishing.html:210
+msgid ""
+"The GitLab instance URL. Select <code>https://gitlab.com</code> for the "
+"public GitLab service, or a custom instance."
+msgstr ""
+
+#: warehouse/templates/manage/organization/publishing.html:331
+#, fuzzy
+#| msgid "ActiveState organization not found"
+msgid "ActiveState Organization"
+msgstr "Aktívna sieťová organizácia nebola nájdená"
+
+#: warehouse/templates/manage/organization/publishing.html:395
+msgid ""
+"<strong>Tip:</strong> Trusted publishers created here will be owned by this "
+"organization when the project is created. Organization owners can manage "
+"these publishers and their associated projects."
+msgstr ""
+
+#: warehouse/templates/manage/organization/publishing.html:401
+#, fuzzy
+#| msgid "Manage publishers"
+msgid "Pending publishers"
+msgstr "Spravujte vydavateľov"
+
+#: warehouse/templates/manage/organization/publishing.html:403
+#, fuzzy
+#| msgid ""
+#| "No pending publishers are currently configured. Publishers for projects "
+#| "that don't exist yet can be added below."
+msgid ""
+"Pending publishers are trusted publishers for projects that do not exist "
+"yet. They can be used to create a new project on first upload."
+msgstr ""
+"Momentálne nie sú nakonfigurovaní žiadni čakajúci vydavatelia. Nižšie je "
+"možné pridať vydavateľov projektov, ktoré ešte neexistujú."
+
+#: warehouse/templates/manage/organization/publishing.html:411
+#, fuzzy
+#| msgid "Remove %(user)s from this organization"
+msgid "Pending publishers for this organization"
+msgstr "Odstrániť %(user)s z tejto organizácie"
+
+#: warehouse/templates/manage/organization/publishing.html:477
+#, fuzzy
+#| msgid "You can use this page to register \"pending\" trusted publishers."
+msgid "You must be an organization owner to manage trusted publishers."
+msgstr ""
+"Túto stránku môžete použiť na registráciu „čakajúcich“ dôveryhodných "
+"vydavateľov."
 
 #: warehouse/templates/manage/organization/roles.html:5
 #, python-format
@@ -6781,49 +7359,58 @@ msgid "Activate billing"
 msgstr "Aktivovať fakturáciu"
 
 #: warehouse/templates/manage/organization/settings.html:194
-#: warehouse/templates/manage/organization/settings.html:228
+#, fuzzy
+#| msgid "Trusted publisher added"
+msgid "Custom Trusted Publishers"
+msgstr "Bol pridaný dôveryhodný vydavateľ"
+
+#: warehouse/templates/manage/organization/settings.html:196
+msgid ""
+"The following custom Trusted Publisher issuers have been configured for this "
+"organization. These issuers can be used to configure Trusted Publishing for "
+"your organization's projects."
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:209
+#, fuzzy
+#| msgid "This organization is not active"
+msgid "Modifying custom Trusted Publishers is not currently supported."
+msgstr "Táto organizácia nie je aktívna"
+
+#: warehouse/templates/manage/organization/settings.html:211
+#, python-format
+msgid ""
+"Please contact <a href=%(href)s>PyPI Support</a> if you need to modify "
+"custom Trusted Publishers."
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:219
 msgid "Change organization account name"
 msgstr "Zmeňte názov účtu organizácie"
 
-#: warehouse/templates/manage/organization/settings.html:196
+#: warehouse/templates/manage/organization/settings.html:221
 #, fuzzy
 #| msgid "This organization is not active"
 msgid "Renaming organizations is not currently supported."
 msgstr "Táto organizácia nie je aktívna"
 
-#: warehouse/templates/manage/organization/settings.html:198
+#: warehouse/templates/manage/organization/settings.html:223
 #, python-format
 msgid ""
 "Please contact <a href=%(href)s>PyPI Support</a> if you need to rename your "
 "organization."
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:206
-msgid ""
-"You will not be able to revert to your current account name after you rename "
-"your organization."
-msgstr ""
-"Po premenovaní organizácie sa už nebudete môcť vrátiť k svojmu aktuálnemu "
-"názvu účtu."
-
-#: warehouse/templates/manage/organization/settings.html:228
-msgid "Change organization account name for"
-msgstr "Zmeniť názov účtu organizácie pre"
-
-#: warehouse/templates/manage/organization/settings.html:228
-msgid "Current organization account name"
-msgstr "Názov aktuálneho účtu organizácie"
-
-#: warehouse/templates/manage/organization/settings.html:234
-#: warehouse/templates/manage/organization/settings.html:284
+#: warehouse/templates/manage/organization/settings.html:259
+#: warehouse/templates/manage/organization/settings.html:309
 msgid "Delete organization"
 msgstr "Zmazať organizáciu"
 
-#: warehouse/templates/manage/organization/settings.html:237
+#: warehouse/templates/manage/organization/settings.html:262
 msgid "Cannot delete organization"
 msgstr "Organizáciu nemožno odstrániť"
 
-#: warehouse/templates/manage/organization/settings.html:239
+#: warehouse/templates/manage/organization/settings.html:264
 #, python-format
 msgid "Your organization currently owns %(count)s project."
 msgid_plural "Your organization currently owns %(count)s projects."
@@ -6831,23 +7418,23 @@ msgstr[0] "Vaša organizácia momentálne vlastní %(count)s projekt."
 msgstr[1] "Vaša organizácia momentálne vlastní %(count)s projekty."
 msgstr[2] "Vaša organizácia momentálne vlastní %(count)s projekty."
 
-#: warehouse/templates/manage/organization/settings.html:244
+#: warehouse/templates/manage/organization/settings.html:269
 msgid "For each project, you must either:"
 msgstr "Pre každý projekt musíte buď:"
 
-#: warehouse/templates/manage/organization/settings.html:246
+#: warehouse/templates/manage/organization/settings.html:271
 msgid "Transfer ownership and remove the project from your organization"
 msgstr "Preveďte vlastníctvo a odstráňte projekt z vašej organizácie"
 
-#: warehouse/templates/manage/organization/settings.html:247
+#: warehouse/templates/manage/organization/settings.html:272
 msgid "Delete the project"
 msgstr "Odstrániť projekt"
 
-#: warehouse/templates/manage/organization/settings.html:249
+#: warehouse/templates/manage/organization/settings.html:274
 msgid "Before you can delete your organization."
 msgstr "Pred odstránením organizácie."
 
-#: warehouse/templates/manage/organization/settings.html:255
+#: warehouse/templates/manage/organization/settings.html:280
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> and <a "
@@ -6858,22 +7445,22 @@ msgstr ""
 "href=\"%(remove_delete_href)s\">odstrániť projekt</a> <b>alebo</b> <a "
 "href=\"%(remove_delete_href)s\">odstrániť projekt</a>"
 
-#: warehouse/templates/manage/organization/settings.html:267
+#: warehouse/templates/manage/organization/settings.html:292
 msgid "You will not be able to recover your organization after you delete it."
 msgstr "Po odstránení nebudete môcť organizáciu obnoviť."
 
-#: warehouse/templates/manage/organization/settings.html:274
+#: warehouse/templates/manage/organization/settings.html:299
 msgid ""
 "Your subscription will be cancelled, and you will lose access to the billing "
 "portal."
 msgstr ""
 "Vaše predplatné bude zrušené a stratíte prístup k fakturačnému portálu."
 
-#: warehouse/templates/manage/organization/settings.html:276
+#: warehouse/templates/manage/organization/settings.html:301
 msgid "You will lose access to the billing portal."
 msgstr "Stratíte prístup k fakturačnému portálu."
 
-#: warehouse/templates/manage/organization/settings.html:278
+#: warehouse/templates/manage/organization/settings.html:303
 #, python-format
 msgid ""
 "Please ensure you have retrieved all invoices from <a "
@@ -7210,12 +7797,12 @@ msgid "Back to projects"
 msgstr "Späť k projektom"
 
 #: warehouse/templates/manage/project/manage_project_base.html:51
-#: warehouse/templates/packaging/detail.html:327
+#: warehouse/templates/packaging/detail.html:329
 msgid "This project has been quarantined."
 msgstr "Tento projekt bol karanténe."
 
 #: warehouse/templates/manage/project/manage_project_base.html:53
-#: warehouse/templates/packaging/detail.html:329
+#: warehouse/templates/packaging/detail.html:331
 msgid ""
 "PyPI Admins need to review this project before it can be restored. While in "
 "quarantine, the project is not installable by clients, and cannot be being "
@@ -7226,14 +7813,14 @@ msgstr ""
 "ich upravovať."
 
 #: warehouse/templates/manage/project/manage_project_base.html:60
-#: warehouse/templates/packaging/detail.html:336
+#: warehouse/templates/packaging/detail.html:338
 #, python-format
 msgid ""
 "Read more in the <a href=\"%(href)s\">project in quarantine</a> help article."
 msgstr "Čítajte viac v <a href=\"%(href)s\">project v karanténe</a> Pomocník."
 
 #: warehouse/templates/manage/project/manage_project_base.html:67
-#: warehouse/templates/packaging/detail.html:343
+#: warehouse/templates/packaging/detail.html:345
 #, fuzzy
 #| msgid "This project has been quarantined."
 msgid "This project has been archived."
@@ -7247,7 +7834,7 @@ msgstr ""
 "Niektoré formulárové polia boli automatické, skontrolujte ich hodnoty pred "
 "odoslaním formulára."
 
-#: warehouse/templates/manage/project/publishing.html:249
+#: warehouse/templates/manage/project/publishing.html:270
 #, python-format
 msgid ""
 "The subject is the numeric ID that represents the principal making the "
@@ -7259,35 +7846,35 @@ msgstr ""
 "potrebné, poskytuje predmet ďalej obmedzuje identitu, ktorá sa používa na "
 "publikovanie. <a href=\"%(href)s\"> Viac informácií tu.</a>"
 
-#: warehouse/templates/manage/project/publishing.html:345
+#: warehouse/templates/manage/project/publishing.html:367
 msgid "Manage current publishers"
 msgstr "Spravujte súčasných vydavateľov"
 
-#: warehouse/templates/manage/project/publishing.html:349
+#: warehouse/templates/manage/project/publishing.html:371
 #, python-format
 msgid "OpenID Connect publishers associated with %(project_name)s"
 msgstr "Vlastníci OpenID Connect pridružení k %(project_name)s"
 
-#: warehouse/templates/manage/project/publishing.html:363
+#: warehouse/templates/manage/project/publishing.html:385
 msgid "No publishers are currently configured."
 msgstr "Momentálne nie sú nakonfigurovaní žiadni vydavatelia."
 
-#: warehouse/templates/manage/project/publishing.html:367
+#: warehouse/templates/manage/project/publishing.html:389
 msgid "Add a new publisher"
 msgstr "Pridať nového vydavateľa"
 
-#: warehouse/templates/manage/project/publishing.html:407
-#: warehouse/templates/manage/project/publishing.html:410
+#: warehouse/templates/manage/project/publishing.html:429
+#: warehouse/templates/manage/project/publishing.html:432
 #, fuzzy
 #| msgid "Invalid environment name"
 msgid "Constrain environment"
 msgstr "Neplatné meno prostredia"
 
-#: warehouse/templates/manage/project/publishing.html:423
+#: warehouse/templates/manage/project/publishing.html:445
 msgid "This will restrict the Trusted Publisher's environment to"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:426
+#: warehouse/templates/manage/project/publishing.html:448
 #, python-format
 msgid ""
 "If you currently use multiple environments in your CI/CD workflows, you must "
@@ -7295,14 +7882,14 @@ msgid ""
 "each as a Trusted Publisher."
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:438
+#: warehouse/templates/manage/project/publishing.html:460
 #, python-format
 msgid ""
 "I understand that this Trusted Publisher will only allow uploads from CI/CD "
 "workflows running in the '%(constrained_environment_name)s' environment."
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:443
+#: warehouse/templates/manage/project/publishing.html:465
 #, fuzzy
 #| msgid "Environment name"
 msgid "New Environment Name"
@@ -7900,12 +8487,6 @@ msgstr "Týmto sa projekt odstráni z organizácie '%(organization_name)s'."
 msgid "Remove project"
 msgstr "Odstránenie projektu"
 
-#: warehouse/templates/manage/project/settings.html:97
-#: warehouse/templates/manage/project/settings.html:171
-#: warehouse/templates/manage/project/settings.html:439
-msgid "Project Name"
-msgstr "Názov projektu"
-
 #: warehouse/templates/manage/project/settings.html:101
 msgid "Cannot remove project from organization"
 msgstr "Projekt nie je možné odstrániť z organizácie"
@@ -8282,151 +8863,151 @@ msgstr "Profil %(orgname)s"
 msgid "%(org)s has not uploaded any projects to PyPI, yet"
 msgstr "%(org)s zatiaľ nenahral do PyPI žiadne projekty"
 
-#: warehouse/templates/packaging/detail.html:86
+#: warehouse/templates/packaging/detail.html:88
 #, fuzzy
 #| msgid "Unverified details"
 msgid "view details"
 msgstr "Neoverené detaily"
 
-#: warehouse/templates/packaging/detail.html:96
-#: warehouse/templates/packaging/detail.html:103
+#: warehouse/templates/packaging/detail.html:98
+#: warehouse/templates/packaging/detail.html:105
 #, fuzzy, python-format
 #| msgid "Log in to %(title)s"
 msgid "%(title)s"
 msgstr "Prihláste sa do %(title)s"
 
-#: warehouse/templates/packaging/detail.html:115
+#: warehouse/templates/packaging/detail.html:117
 #, python-format
 msgid "RSS: latest releases for %(project_name)s"
 msgstr "RSS: najnovšie vydania pre %(project_name)s"
 
-#: warehouse/templates/packaging/detail.html:150
+#: warehouse/templates/packaging/detail.html:152
 msgid "Copy PIP instructions"
 msgstr "Skopírujte pokyny PIP"
 
-#: warehouse/templates/packaging/detail.html:160
+#: warehouse/templates/packaging/detail.html:162
 msgid "This project has been quarantined"
 msgstr "Tento projekt bol karanténe"
 
-#: warehouse/templates/packaging/detail.html:166
+#: warehouse/templates/packaging/detail.html:168
 msgid "This release has been yanked"
 msgstr "Toto vydanie bolo vytrhnuté"
 
-#: warehouse/templates/packaging/detail.html:174
+#: warehouse/templates/packaging/detail.html:176
 #, python-format
 msgid "Stable version available (%(version)s)"
 msgstr "K dispozícii stabilná verzia (%(version)s)"
 
-#: warehouse/templates/packaging/detail.html:179
+#: warehouse/templates/packaging/detail.html:181
 #, python-format
 msgid "Newer version available (%(version)s)"
 msgstr "K dispozícii je novšia verzia (%(version)s)"
 
-#: warehouse/templates/packaging/detail.html:184
+#: warehouse/templates/packaging/detail.html:186
 msgid "Latest version"
 msgstr "Najnovšia verzia"
 
-#: warehouse/templates/packaging/detail.html:189
+#: warehouse/templates/packaging/detail.html:191
 #, python-format
 msgid "Released: %(release_date)s"
 msgstr "Vydané: %(release_date)s"
 
-#: warehouse/templates/packaging/detail.html:202
+#: warehouse/templates/packaging/detail.html:204
 msgid "No project description provided"
 msgstr "Nebol poskytnutý žiadny popis projektu"
 
-#: warehouse/templates/packaging/detail.html:214
+#: warehouse/templates/packaging/detail.html:216
 msgid "Navigation"
 msgstr "Navigácia"
 
-#: warehouse/templates/packaging/detail.html:215
-#: warehouse/templates/packaging/detail.html:267
+#: warehouse/templates/packaging/detail.html:217
+#: warehouse/templates/packaging/detail.html:269
 #, python-format
 msgid "Navigation for %(project)s"
 msgstr "Navigácia pre %(project)s"
 
-#: warehouse/templates/packaging/detail.html:224
-#: warehouse/templates/packaging/detail.html:276
+#: warehouse/templates/packaging/detail.html:226
+#: warehouse/templates/packaging/detail.html:278
 msgid "Project description. Focus will be moved to the description."
 msgstr "Popis projektu. Zameranie sa presunie na popis."
 
-#: warehouse/templates/packaging/detail.html:226
-#: warehouse/templates/packaging/detail.html:278
-#: warehouse/templates/packaging/detail.html:357
+#: warehouse/templates/packaging/detail.html:228
+#: warehouse/templates/packaging/detail.html:280
+#: warehouse/templates/packaging/detail.html:359
 msgid "Project description"
 msgstr "Popis projektu"
 
-#: warehouse/templates/packaging/detail.html:235
-#: warehouse/templates/packaging/detail.html:298
+#: warehouse/templates/packaging/detail.html:237
+#: warehouse/templates/packaging/detail.html:300
 msgid "Release history. Focus will be moved to the history panel."
 msgstr "História vydania. Zameranie sa presunie na panel histórie."
 
-#: warehouse/templates/packaging/detail.html:237
-#: warehouse/templates/packaging/detail.html:300
-#: warehouse/templates/packaging/detail.html:385
+#: warehouse/templates/packaging/detail.html:239
+#: warehouse/templates/packaging/detail.html:302
+#: warehouse/templates/packaging/detail.html:387
 msgid "Release history"
 msgstr "História vydania"
 
-#: warehouse/templates/packaging/detail.html:247
-#: warehouse/templates/packaging/detail.html:310
+#: warehouse/templates/packaging/detail.html:249
+#: warehouse/templates/packaging/detail.html:312
 msgid "Download files. Focus will be moved to the project files."
 msgstr "Stiahnite si súbory. Zameranie sa presunie na súbory projektu."
 
-#: warehouse/templates/packaging/detail.html:249
-#: warehouse/templates/packaging/detail.html:312
-#: warehouse/templates/packaging/detail.html:442
+#: warehouse/templates/packaging/detail.html:251
+#: warehouse/templates/packaging/detail.html:314
+#: warehouse/templates/packaging/detail.html:444
 msgid "Download files"
 msgstr "Stiahnite si súbory"
 
-#: warehouse/templates/packaging/detail.html:262
+#: warehouse/templates/packaging/detail.html:264
 msgid "Report project as malware"
 msgstr "Správa projektu ako malware"
 
-#: warehouse/templates/packaging/detail.html:287
+#: warehouse/templates/packaging/detail.html:289
 msgid "Project details. Focus will be moved to the project details."
 msgstr "Podrobnosti projektu. Zameranie sa presunie na detaily projektu."
 
-#: warehouse/templates/packaging/detail.html:289
-#: warehouse/templates/packaging/detail.html:373
+#: warehouse/templates/packaging/detail.html:291
+#: warehouse/templates/packaging/detail.html:375
 msgid "Project details"
 msgstr "Podrobnosti projektu"
 
-#: warehouse/templates/packaging/detail.html:345
+#: warehouse/templates/packaging/detail.html:347
 msgid ""
 "The maintainers of this project have marked this project as archived. No new "
 "releases are expected."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:353
-#: warehouse/templates/packaging/detail.html:424
+#: warehouse/templates/packaging/detail.html:355
+#: warehouse/templates/packaging/detail.html:426
 msgid "Reason this release was yanked:"
 msgstr "Dôvod, prečo bola táto verzia pretiahnutá:"
 
-#: warehouse/templates/packaging/detail.html:362
+#: warehouse/templates/packaging/detail.html:364
 msgid "The author of this package has not provided a project description"
 msgstr "Autor tohto balíka neposkytol popis projektu"
 
-#: warehouse/templates/packaging/detail.html:387
+#: warehouse/templates/packaging/detail.html:389
 msgid "Release notifications"
 msgstr "Upozornenia na vydanie"
 
-#: warehouse/templates/packaging/detail.html:388
+#: warehouse/templates/packaging/detail.html:390
 msgid "RSS feed"
 msgstr "RSS zdroj"
 
-#: warehouse/templates/packaging/detail.html:399
+#: warehouse/templates/packaging/detail.html:401
 msgid "This version"
 msgstr "Táto verzia"
 
-#: warehouse/templates/packaging/detail.html:415
+#: warehouse/templates/packaging/detail.html:417
 msgid "pre-release"
 msgstr "predbežné vydanie"
 
-#: warehouse/templates/packaging/detail.html:418
+#: warehouse/templates/packaging/detail.html:420
 msgid "yanked"
 msgstr "trhol"
 
-#: warehouse/templates/packaging/detail.html:444
+#: warehouse/templates/packaging/detail.html:446
 #, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
@@ -8437,18 +9018,18 @@ msgstr ""
 "prečítajte si viac o <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">inštalácii balíkov</a>."
 
-#: warehouse/templates/packaging/detail.html:447
+#: warehouse/templates/packaging/detail.html:449
 msgid "Source Distribution"
 msgid_plural "Source Distributions"
 msgstr[0] "Distribúcia zdroja"
 msgstr[1] "Distribúcie zdrojov"
 msgstr[2] "Distribúcie zdrojov"
 
-#: warehouse/templates/packaging/detail.html:461
+#: warehouse/templates/packaging/detail.html:463
 msgid "No source distribution files available for this release."
 msgstr "Pre toto vydanie nie sú dostupné žiadne zdrojové distribučné súbory."
 
-#: warehouse/templates/packaging/detail.html:462
+#: warehouse/templates/packaging/detail.html:464
 #, python-format
 msgid ""
 "See tutorial on <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -8457,18 +9038,18 @@ msgstr ""
 "Pozrite si návod na <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">generovanie archívov distribúcie</a>."
 
-#: warehouse/templates/packaging/detail.html:468
+#: warehouse/templates/packaging/detail.html:470
 msgid "Built Distribution"
 msgid_plural "Built Distributions"
 msgstr[0] "Postavená distribúcia"
 msgstr[1] "Postavené distribúcie"
 msgstr[2] "Postavených distribúcií"
 
-#: warehouse/templates/packaging/detail.html:475
+#: warehouse/templates/packaging/detail.html:477
 msgid "Filter files by name, interpreter, ABI, and platform."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:478
+#: warehouse/templates/packaging/detail.html:480
 #, fuzzy, python-format
 #| msgid ""
 #| "Download the file for your platform. If you're not sure which to choose, "
@@ -8483,12 +9064,12 @@ msgstr ""
 "prečítajte si viac o <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">inštalácii balíkov</a>."
 
-#: warehouse/templates/packaging/detail.html:482
+#: warehouse/templates/packaging/detail.html:484
 msgid ""
 "The dropdown lists show the available interpreters, ABIs, and platforms."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:485
+#: warehouse/templates/packaging/detail.html:487
 #, fuzzy
 #| msgid ""
 #| "Enter a search query, or select a filter from the list of classifiers."
@@ -8496,12 +9077,12 @@ msgid "Enable javascript to be able to filter the list of wheel files."
 msgstr ""
 "Zadajte vyhľadávací dopyt alebo vyberte filter zo zoznamu klasifikátorov."
 
-#: warehouse/templates/packaging/detail.html:489
+#: warehouse/templates/packaging/detail.html:491
 msgid "Copy a direct link to the current filters"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:507
-#: warehouse/templates/packaging/detail.html:512
+#: warehouse/templates/packaging/detail.html:509
+#: warehouse/templates/packaging/detail.html:514
 #, fuzzy
 #| msgid "Filename:"
 msgid "File name"
@@ -11387,6 +11968,35 @@ msgstr[0] "Pre filter '%(filters)s' neboli žiadne výsledky"
 msgstr[1] "Pre filtre '%(filters)s' neboli žiadne výsledky"
 msgstr[2] "Pre filtre '%(filters)s' neboli žiadne výsledky"
 
+#, fuzzy, python-format
+#~| msgid ""
+#~| "If you cannot verify a primary email address, please see <a "
+#~| "href=\"%(help_url)s\">%(help_url)s</a>."
+#~ msgid ""
+#~ "If you cannot verify the primary email address listed, please see <a "
+#~ "href=\"%(help_url)s\">%(help_url)s</a> to recover access to your account."
+#~ msgstr ""
+#~ "Ak nemôžete overiť primárnu e-mailovú adresu, pozri <a "
+#~ "href=\"%(help_url)s\">%(help_url)s</a>."
+
+#, fuzzy
+#~| msgid "Select an organization account name"
+#~ msgid "connect an additional account"
+#~ msgstr "Vyberte názov účtu organizácie"
+
+#~ msgid ""
+#~ "You will not be able to revert to your current account name after you "
+#~ "rename your organization."
+#~ msgstr ""
+#~ "Po premenovaní organizácie sa už nebudete môcť vrátiť k svojmu aktuálnemu "
+#~ "názvu účtu."
+
+#~ msgid "Change organization account name for"
+#~ msgstr "Zmeniť názov účtu organizácie pre"
+
+#~ msgid "Current organization account name"
+#~ msgstr "Názov aktuálneho účtu organizácie"
+
 #, fuzzy
 #~| msgid "Organization Roles"
 #~ msgid "Organization request"
@@ -11456,10 +12066,6 @@ msgstr[2] "Pre filtre '%(filters)s' neboli žiadne výsledky"
 
 #~ msgid "view hashes"
 #~ msgstr "zobraziť hash"
-
-#, python-format
-#~ msgid "Hi %(username)s!"
-#~ msgstr "Ahoj %(username)s!"
 
 #, python-format
 #~ msgid ""
@@ -11605,8 +12211,8 @@ msgstr[2] "Pre filtre '%(filters)s' neboli žiadne výsledky"
 #~ "Predvolene sa popis nahraného súboru vykreslí s <a href=\"%(href)s\" "
 #~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">reStructuredText</"
 #~ "a>. Ak je popis v alternatívnom formáte, ako je napríklad Markdown, balík "
-#~ "môže nastaviť <code>long_description_content_type</code> v <code>setup."
-#~ "py</code> na alternatívny formát."
+#~ "môže nastaviť <code>long_description_content_type</code> v "
+#~ "<code>setup.py</code> na alternatívny formát."
 
 #, python-format
 #~ msgid ""
@@ -11917,8 +12523,8 @@ msgstr[2] "Pre filtre '%(filters)s' neboli žiadne výsledky"
 #~ msgid ""
 #~ "Update your release tooling to cease upload of <code>.egg</code>/"
 #~ "<code>bdist_egg</code> distribution files. If you are not already, and "
-#~ "require binary releases, update your release tooling to upload <code>."
-#~ "whl</code>/<code>bdist_wheel</code> distribution files instead."
+#~ "require binary releases, update your release tooling to upload "
+#~ "<code>.whl</code>/<code>bdist_wheel</code> distribution files instead."
 #~ msgstr ""
 #~ "Aktualizujte svoje nástroje na vydanie, aby ste zastavili nahrávanie "
 #~ "distribučných súborov <code>.egg</code>/<code>bdist_egg</code>. Ak ešte "
@@ -11930,8 +12536,9 @@ msgstr[2] "Pre filtre '%(filters)s' neboli žiadne výsledky"
 #~ "Read more about <a href=\"https://packaging.python.org/en/latest/"
 #~ "discussions/wheel-vs-egg/\">Wheels vs Egg</a> distribution files."
 #~ msgstr ""
-#~ "Prečítajte si viac o distribučných súboroch <a href=\"https://packaging."
-#~ "python.org/en/latest/discussions/wheel-vs-egg/\">Wheels vs Egg</a>."
+#~ "Prečítajte si viac o distribučných súboroch <a href=\"https://"
+#~ "packaging.python.org/en/latest/discussions/wheel-vs-egg/\">Wheels vs Egg</"
+#~ "a>."
 
 #, python-format
 #~ msgid ""

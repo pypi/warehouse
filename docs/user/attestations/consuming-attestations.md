@@ -1,7 +1,5 @@
 # Consuming attestations
 
-<!--[[ preview('index-attestations') ]]-->
-
 PyPI makes a file's attestations available via the simple index (HTML)
 and simple JSON APIs.
 
@@ -12,7 +10,7 @@ For a full API reference, see the [Integrity API documentation].
 Since a distribution file can have multiple attestations, and PyPI serves
 these attestations as a single JSON file, this JSON file groups the
 attestations into a single [provenance object]. This object contains
-bundles of attestations grouped by the Trusted Publisher identity used 
+bundles of attestations grouped by the Trusted Publisher identity used
 to sign them.
 
 To manually verify a PyPI artifact against its provenance object,
@@ -31,7 +29,7 @@ and finally cryptographically verifies the wheel against the included
 attestations.
 
 
-[Integrity API documentation]: /api/integrity/
+[Integrity API documentation]: ../api/integrity.md
 [provenance object]: https://packaging.python.org/en/latest/specifications/index-hosted-attestations/#provenance-objects
 [pypi-attestations]: https://pypi.org/project/pypi-attestations/
 

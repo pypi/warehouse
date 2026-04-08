@@ -62,11 +62,25 @@ def get_opensearch_query(opensearch, terms, order, classifiers):
         query = opensearch.query(classifier_q) if classifiers else opensearch.query()
     else:
         quoted_string, unquoted_string = filter_query(terms)
+
+        # Build the main content-matching query
+        content_queries = (
+            [form_query("phrase", i) for i in quoted_string]
+            + [form_query("best_fields", i) for i in unquoted_string]
+            + ([classifier_q] if classifiers else [])
+        )
+
+        # Boost packages where the search terms appear as an exact phrase in
+        # the name. This ensures that searching for "flask" returns the "flask"
+        # package before "flask-ci", and "python2" returns "python2" before
+        # "python2-hwloc". The high boost value ensures exact matches rank
+        # significantly higher than partial matches.
+        exact_name_boost = Q("match_phrase", name={"query": terms, "boost": 1000})
+
         bool_query = Q(
             "bool",
-            must=[form_query("phrase", i) for i in quoted_string]
-            + [form_query("best_fields", i) for i in unquoted_string]
-            + ([classifier_q] if classifiers else []),
+            must=content_queries,
+            should=[exact_name_boost],
         )
 
         # Allow to optionally match on prefix

@@ -14,8 +14,7 @@ down_revision = "9177113533"
 
 
 def upgrade():
-    op.execute(
-        """
+    op.execute("""
         CREATE FUNCTION sitemap_bucket(text) RETURNS text AS $$
                 SELECT substring(
                     encode(digest($1, 'sha512'), 'hex')
@@ -26,8 +25,7 @@ def upgrade():
             LANGUAGE SQL
             IMMUTABLE
             RETURNS NULL ON NULL INPUT;
-    """
-    )
+    """)
 
 
 def downgrade():

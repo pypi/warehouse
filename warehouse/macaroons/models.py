@@ -6,7 +6,7 @@ from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import CheckConstraint, ForeignKey, UniqueConstraint, orm, sql
-from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
@@ -43,13 +43,11 @@ class Macaroon(db.Model):
     #   project. Instead, depending on how its used (its request context),
     #   it identifies one of the projects scoped in its caveats.
     user_id: Mapped[UUID | None] = mapped_column(
-        PG_UUID(as_uuid=True),
         ForeignKey("users.id"),
         index=True,
     )
 
     oidc_publisher_id: Mapped[UUID | None] = mapped_column(
-        PG_UUID(as_uuid=True),
         ForeignKey("oidc_publishers.id"),
         index=True,
     )

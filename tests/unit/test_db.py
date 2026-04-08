@@ -11,7 +11,7 @@ import venusian
 import zope.sqlalchemy
 
 from sqlalchemy import event
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.exc import DBAPIError, OperationalError
 
 from warehouse import db
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
@@ -22,6 +22,7 @@ from warehouse.db import (
     _configure_alembic,
     _create_session,
     includeme,
+    unwrap_dbapi_exceptions,
 )
 
 
@@ -241,3 +242,33 @@ def test_includeme(monkeypatch):
         )
     ]
     assert config.registry["sqlalchemy.engine"] is engine
+
+
+def test_unwrap_dbapi_exceptions():
+    original_exception = psycopg.OperationalError()
+    sqlalchemy_exception = DBAPIError("foo", {}, original_exception)
+    context = pretend.stub(
+        sqlalchemy_exception=sqlalchemy_exception,
+        original_exception=original_exception,
+    )
+
+    with pytest.raises(psycopg.OperationalError) as e:
+        unwrap_dbapi_exceptions(context)
+
+    assert e.value is original_exception
+
+
+def test_unwrap_dbapi_exceptions_no_op():
+    # Not a DBAPIError
+    context = pretend.stub(
+        sqlalchemy_exception=OperationalError("foo", {}, None),
+        original_exception=None,
+    )
+    unwrap_dbapi_exceptions(context)
+
+    # No original exception
+    context = pretend.stub(
+        sqlalchemy_exception=DBAPIError("foo", {}, None),
+        original_exception=None,
+    )
+    unwrap_dbapi_exceptions(context)

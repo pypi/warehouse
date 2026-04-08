@@ -137,7 +137,7 @@ own security model and considerations.
         For example, here is how `pypa/pip-audit`'s `release` environment
         restricts reviews to members of the maintenance and admin teams:
 
-        ![Screenshot of an example configuring an environment on GitHub](/assets/trusted-publishing/github/required-reviewers.png)
+        ![Screenshot of an example configuring an environment on GitHub](../assets/trusted-publishing/github/required-reviewers.png)
 
     * **[Use tag protection rules]**: if you use a tag-based publishing workflow
       (e.g. triggering on tags pushed), then you can limit tag creation and
@@ -287,7 +287,7 @@ own security model and considerations.
 
 [played a major role in cyber attacks]: https://therecord.media/cisa-cyberattacks-using-valid-credentials
 
-[Attestations]: /attestations/
+[Attestations]: ../attestations/index.md
 
 [fundamentally dangerous]: https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
 
@@ -296,7 +296,7 @@ own security model and considerations.
 [Use tag protection rules]: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/managing-repository-settings/configuring-tag-protection-rules
 
 [account resurrection attacks]:
-../internals/#what-are-account-resurrection-attacks-and-how-does-pypi-protect-against-them
+internals.md#what-are-account-resurrection-attacks-and-how-does-pypi-protect-against-them
 
 [required reviewers]: https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment#required-reviewers
 

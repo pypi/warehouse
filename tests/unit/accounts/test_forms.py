@@ -69,6 +69,32 @@ class TestLoginForm:
         assert not form.validate()
         assert str(form.username.errors.pop()) == "Null bytes are not allowed."
 
+    @pytest.mark.parametrize(
+        "email_username",
+        [
+            "user@example.com",
+            "test.user@example.org",
+            "admin@test.co.uk",
+            "  user@example.com  ",
+        ],
+    )
+    def test_validate_username_with_email_address(self, pyramid_config, email_username):
+        request = pretend.stub()
+        user_service = pretend.stub()
+        breach_service = pretend.stub()
+        form = forms.LoginForm(
+            formdata=MultiDict({"username": email_username}),
+            request=request,
+            user_service=user_service,
+            breach_service=breach_service,
+        )
+
+        assert not form.validate()
+        assert str(form.username.errors.pop()) == (
+            "Usernames are not the same as email addresses. "
+            "Enter your username instead of your email address."
+        )
+
     def test_validate_username_with_no_user(self):
         request = pretend.stub()
         user_service = pretend.stub(
@@ -983,6 +1009,8 @@ class TestTOTPAuthenticationForm:
             ),
         )
         assert form.validate()
+        # Spaces must be stripped so stored value matches future replay checks
+        assert form.totp_value.data == "123456"
 
     @pytest.mark.parametrize(
         ("totp_value", "expected_error"),
@@ -1007,6 +1035,31 @@ class TestTOTPAuthenticationForm:
         )
         assert not form.validate()
         assert str(form.totp_value.errors.pop()) == expected_error
+
+    def test_totp_secret_returns_false(self, pyramid_config):
+        user = pretend.stub(record_event=pretend.call_recorder(lambda *a, **kw: None))
+        get_user = pretend.call_recorder(lambda userid: user)
+        request = pretend.stub(remote_addr=REMOTE_ADDR)
+
+        user_service = pretend.stub(
+            check_totp_value=lambda *a: False,
+            get_user=get_user,
+        )
+        form = forms.TOTPAuthenticationForm(
+            formdata=MultiDict({"totp_value": "123456"}),
+            request=request,
+            user_id=1,
+            user_service=user_service,
+        )
+        assert not form.validate()
+        assert str(form.totp_value.errors.pop()) == "Invalid TOTP code."
+        assert user.record_event.calls == [
+            pretend.call(
+                tag=EventTag.Account.LoginFailure,
+                request=request,
+                additional={"reason": "invalid_totp"},
+            )
+        ]
 
     @pytest.mark.parametrize(
         ("exception", "expected_error", "reason"),
@@ -1234,12 +1287,20 @@ class TestRecoveryCodeForm:
     @pytest.mark.parametrize(
         ("input_string", "validates"),
         [
-            (" deadbeef00001111 ", True),
-            ("deadbeef00001111 ", True),
-            (" deadbeef00001111", True),
+            # Valid: no spaces
             ("deadbeef00001111", True),
+            # Valid: spaces are stripped before validation
+            ("dead beef 0000 1111", True),
+            ("deadbeef 00001111", True),
+            (" deadbeef00001111 ", True),
+            ("d e a d b e e f 0 0 0 0 1 1 1 1", True),
+            # Invalid: wrong characters
             ("wu-tang", False),
+            ("ghijklmnopqrstuv", False),
+            # Invalid: wrong length (too many hex chars after spaces removed)
             ("deadbeef00001111 deadbeef11110000", False),
+            # Invalid: too short
+            ("deadbeef", False),
         ],
     )
     def test_recovery_code_string_validation(

@@ -1,4 +1,10 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
+{# Template-wide variables #}
+{% if request.registry.settings.get("warehouse.domain") == "test.pypi.org" %}
+  {% set testPyPI = true %}
+{% elif request.registry.settings.get("warehouse.env").value == "development" %}
+  {% set devPyPI = true %}
+{% endif %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -154,6 +160,18 @@
               <li class="nav-item">
                 <a href="{{ request.route_path('admin.quarantine.list') }}" class="nav-link">
                   <i class="nav-icon fa-solid fa-file-shield"></i> <p>Quarantine</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ request.route_path('admin.observers.reputation') }}" class="nav-link">
+                  <i class="nav-icon fa-solid fa-chart-bar"></i>
+                  <p>Observer Reputation</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ request.route_path('admin.observations.insights') }}" class="nav-link">
+                  <i class="nav-icon fa-solid fa-chart-line"></i>
+                  <p>Malware Insights</p>
                 </a>
               </li>
               <li class="nav-item">

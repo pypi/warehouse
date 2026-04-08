@@ -1,5 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "../settings/breakpoints";
+
 /*
   A button group.  The seclected button can be specified by adding a
   --dark or --primary modifier to the button.
@@ -42,7 +44,7 @@
   &--pagination {
     margin-top: 40px;
 
-    @media only screen and (max-width: $tablet) {
+    @media only screen and (max-width: breakpoints.$tablet) {
       .button-group__button:not(:first-child, :last-child) {
         display: none; // Avoid button group's ugly wrapping on tablet / mobile
       }

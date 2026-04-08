@@ -27,11 +27,16 @@ theme:
     - navigation.footer
 markdown_extensions:
   - footnotes
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      use_pygments: false
   - pymdownx.tilde
   - abbr
   - attr_list
@@ -44,6 +49,7 @@ plugins:
   - blog:
       blog_dir: .
       blog_toc: true
+      authors_profiles: true
       # Use a custom pagination URL format to avoid ReadTheDocs built-in
       # redirection, which removes the word `page` from the URL.
       # Ref: https://docs.readthedocs.io/en/stable/user-defined-redirects.html#page-redirects-at-page

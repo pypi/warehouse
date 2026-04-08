@@ -1,5 +1,9 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "../settings/breakpoints";
+@use "../settings/colours";
+@use "../settings/grid";
+
 /*
   <div class="twofa-login">
     <div class="twofa-login__method">
@@ -12,34 +16,34 @@
 */
 
 .twofa-login {
-  @media only screen and (min-width: $tablet) {
+  @media only screen and (min-width: breakpoints.$tablet) {
     display: flex;
   }
 
   &__method:first-of-type {
-    @media only screen and (min-width: $tablet) {
+    @media only screen and (min-width: breakpoints.$tablet) {
       flex-shrink: 0;
     }
   }
 
   &__method--padded {
-    padding: $spacing-unit 0;
+    padding: grid.$spacing-unit 0;
 
-    @media only screen and (max-width: $tablet) {
-      padding: 0 0 $spacing-unit;
+    @media only screen and (max-width: breakpoints.$tablet) {
+      padding: 0 0 grid.$spacing-unit;
     }
   }
 
   &__divider {
-    margin: 0 $spacing-unit * 2;
+    margin: 0 grid.$spacing-unit * 2;
     width: 2px;
-    background-image: linear-gradient(to bottom, $border-color, $white);
+    background-image: linear-gradient(to bottom, colours.$border-color, colours.$white);
 
-    @media only screen and (max-width: $tablet) {
-      margin: 0 0 $spacing-unit;
+    @media only screen and (max-width: breakpoints.$tablet) {
+      margin: 0 0 grid.$spacing-unit;
       width: 100%;
       height: 2px;
-      background-image: linear-gradient(to right, $border-color, $white);
+      background-image: linear-gradient(to right, colours.$border-color, colours.$white);
     }
   }
 }

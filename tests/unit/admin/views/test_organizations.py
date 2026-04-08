@@ -19,6 +19,7 @@ from tests.common.db.organizations import (
 )
 from tests.common.db.subscriptions import StripeCustomerFactory
 from warehouse.admin.views import organizations as views
+from warehouse.events.tags import EventTag
 from warehouse.organizations.models import (
     OIDCIssuerType,
     OrganizationManualActivation,
@@ -787,7 +788,6 @@ class TestUpdateOrganizationRole:
             )
         ]
 
-        db_request.db.refresh(role)
         assert role.role_name == OrganizationRoleType.Manager
 
         # Check event was recorded
@@ -1788,10 +1788,12 @@ class TestAddOIDCIssuer:
         assert record_event.calls == [
             pretend.call(
                 request=db_request,
-                tag="admin:organization:oidc_issuer:add",
+                tag=EventTag.Organization.OIDCPublisherAdded,
                 additional={
                     "issuer_type": "gitlab",
                     "issuer_url": "https://gitlab.company.com",
+                    "submitted_by_user_id": str(admin_user.id),
+                    "redact_ip": True,
                 },
             )
         ]
@@ -1949,10 +1951,12 @@ class TestDeleteOIDCIssuer:
         assert record_event.calls == [
             pretend.call(
                 request=db_request,
-                tag="admin:organization:oidc_issuer:delete",
+                tag=EventTag.Organization.OIDCPublisherRemoved,
                 additional={
                     "issuer_type": "gitlab",
                     "issuer_url": "https://gitlab.company.com",
+                    "deleted_by_user_id": str(admin_user.id),
+                    "redact_ip": True,
                 },
             )
         ]

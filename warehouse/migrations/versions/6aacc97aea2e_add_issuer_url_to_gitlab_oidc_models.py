@@ -31,18 +31,14 @@ def upgrade():
     )
 
     # Set default value for existing records
-    op.execute(
-        """
+    op.execute("""
         UPDATE gitlab_oidc_publishers SET issuer_url = 'https://gitlab.com'
         WHERE issuer_url IS NULL
-        """
-    )
-    op.execute(
-        """
+        """)
+    op.execute("""
         UPDATE pending_gitlab_oidc_publishers SET issuer_url = 'https://gitlab.com'
         WHERE issuer_url IS NULL
-        """
-    )
+        """)
 
     # Add NOT NULL constraint
     op.alter_column("gitlab_oidc_publishers", "issuer_url", nullable=False)

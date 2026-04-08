@@ -335,7 +335,6 @@ def test_configure(monkeypatch, settings, environment):
         "gcloud.service_account_info": {},
         "warehouse.forklift.legacy.MAX_FILESIZE_MIB": 100,
         "warehouse.forklift.legacy.MAX_PROJECT_SIZE_GIB": 10,
-        "warehouse.allowed_domains": [],
     }
     if environment == config.Environment.development:
         expected_settings.update(
@@ -397,12 +396,12 @@ def test_configure(monkeypatch, settings, environment):
         ]
         + [
             pretend.call(".logging"),
-            pretend.call(".request"),
             pretend.call("pyramid_jinja2"),
             pretend.call(".filters"),
             pretend.call("pyramid_mailer"),
             pretend.call("pyramid_retry"),
             pretend.call("pyramid_tm"),
+            pretend.call(".rate_limiting"),
             pretend.call(".legacy.api.xmlrpc"),
             pretend.call(".legacy.api.xmlrpc.cache"),
             pretend.call("pyramid_rpc.xmlrpc"),
@@ -411,7 +410,6 @@ def test_configure(monkeypatch, settings, environment):
             pretend.call(".i18n"),
             pretend.call(".db"),
             pretend.call(".tasks"),
-            pretend.call(".rate_limiting"),
             pretend.call(".static"),
             pretend.call(".search"),
             pretend.call(".aws"),
@@ -559,6 +557,7 @@ def test_root_factory_access_control_list():
                 Permissions.AdminFlagsRead,
                 Permissions.AdminFlagsWrite,
                 Permissions.AdminIpAddressesRead,
+                Permissions.AdminIpAddressesWrite,
                 Permissions.AdminJournalRead,
                 Permissions.AdminMacaroonsRead,
                 Permissions.AdminMacaroonsWrite,
@@ -573,6 +572,7 @@ def test_root_factory_access_control_list():
                 Permissions.AdminProhibitedProjectsRead,
                 Permissions.AdminProhibitedProjectsWrite,
                 Permissions.AdminProhibitedProjectsRelease,
+                Permissions.AdminProhibitedProjectsUltranormRelease,
                 Permissions.AdminProhibitedUsernameRead,
                 Permissions.AdminProhibitedUsernameWrite,
                 Permissions.AdminProjectsDelete,
@@ -608,6 +608,7 @@ def test_root_factory_access_control_list():
                 Permissions.AdminProhibitedEmailDomainsRead,
                 Permissions.AdminProhibitedProjectsRead,
                 Permissions.AdminProhibitedProjectsRelease,
+                Permissions.AdminProhibitedProjectsUltranormRelease,
                 Permissions.AdminProhibitedUsernameRead,
                 Permissions.AdminProjectsRead,
                 Permissions.AdminProjectsSetLimit,
@@ -680,34 +681,3 @@ def test_root_factory_access_control_list():
             ),
         ),
     ]
-
-
-class TestWarehouseAllowedDomains:
-    def test_allowed_domains_parsing(self):
-        """Test that allowed domains are parsed correctly."""
-
-        # Test the lambda function used in maybe_set
-        def parser(s):
-            return [d.strip() for d in s.split(",") if d.strip()]
-
-        # Test normal case
-        assert parser("pypi.org, test.pypi.org, example.com") == [
-            "pypi.org",
-            "test.pypi.org",
-            "example.com",
-        ]
-
-        # Test with empty strings
-        assert parser("pypi.org,,, test.pypi.org, ") == ["pypi.org", "test.pypi.org"]
-
-        # Test with only commas
-        assert parser(",,,") == []
-
-        # Test single domain
-        assert parser("pypi.org") == ["pypi.org"]
-
-        # Test with extra spaces
-        assert parser("  pypi.org  ,   test.pypi.org  ") == [
-            "pypi.org",
-            "test.pypi.org",
-        ]

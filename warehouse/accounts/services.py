@@ -13,13 +13,19 @@ import secrets
 import typing
 import urllib.parse
 
+from uuid import UUID
+
 import passlib.exc
+import pytz
 import requests
 
+from linehaul.ua import parser as linehaul_user_agent_parser
 from passlib.context import CryptContext
+from psycopg.errors import UniqueViolation
 from sqlalchemy import exists, select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
+from ua_parser import user_agent_parser
 from webauthn.helpers import bytes_to_base64url
 from zope.interface import implementer
 
@@ -42,15 +48,21 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
 )
 from warehouse.accounts.models import (
+    AccountAssociation,
     DisableReason,
     Email,
+    OAuthAccountAssociation,
     ProhibitedUserName,
     RecoveryCode,
     TermsOfServiceEngagement,
+    UniqueLoginStatus,
     User,
     UserTermsOfServiceEngagement,
+    UserUniqueLogin,
     WebAuthn,
 )
+from warehouse.email import send_unrecognized_login_email
+from warehouse.events.models import UserAgentInfo
 from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
@@ -504,6 +516,13 @@ class DatabaseUserService:
         try:
             if not (valid := otp.verify_totp(totp_secret, totp_value)):
                 self._hit_2fa_ratelimits(userid=user_id)
+        except otp.OutOfSyncTOTPError:
+            self._metrics.increment(
+                "warehouse.authentication.two_factor.failure",
+                tags=tags + ["failure_reason:out_of_sync"],
+            )
+            self._hit_2fa_ratelimits(userid=user_id)
+            raise otp.OutOfSyncTOTPError
         except otp.InvalidTOTPError:
             self._metrics.increment(
                 "warehouse.authentication.two_factor.failure",
@@ -728,6 +747,187 @@ class DatabaseUserService:
                 engagement=engagement,
             )
         )
+
+    def device_is_known(
+        self,
+        userid,
+        request: Request,
+        two_factor_method: str | None = None,
+    ) -> bool:
+        user = self.get_user(userid)
+        token_service = request.find_service(ITokenService, name="confirm_login")
+        unique_login = (
+            request.db.query(UserUniqueLogin)
+            .filter(
+                UserUniqueLogin.user_id == userid,
+                UserUniqueLogin.ip_address == request.ip_address,
+            )
+            .one_or_none()
+        )
+        should_send_email = False
+
+        # Check if we've seen this device and it's been confirmed
+        if unique_login and unique_login.status == UniqueLoginStatus.CONFIRMED:
+            return True
+
+        # Create a new login if we haven't seen this device before
+        if not unique_login:
+            unique_login = UserUniqueLogin(
+                user_id=userid,
+                ip_address=request.ip_address,
+                status=UniqueLoginStatus.PENDING,
+                expires=datetime.datetime.now(datetime.UTC)
+                + datetime.timedelta(seconds=token_service.max_age),
+            )
+            request.db.add(unique_login)
+            request.db.flush()  # To get the ID for the token
+            should_send_email = True
+
+            user.record_event(
+                tag=EventTag.Account.LoginNewDevice,
+                request=request,
+                additional={"two_factor_method": two_factor_method},
+            )
+
+        # Check if the login had expired
+        if unique_login.expires and unique_login.expires < datetime.datetime.now(
+            datetime.UTC
+        ):
+            # The previous token has expired, update the expiry for
+            # the login and re-send the email
+            unique_login.expires = datetime.datetime.now(
+                datetime.UTC
+            ) + datetime.timedelta(seconds=token_service.max_age)
+            should_send_email = True
+
+        # If we don't need to send an email, short-circuit
+        if not should_send_email:
+            return False
+
+        # Get User Agent Information
+        user_agent_info_data = {}
+        if user_agent_str := request.headers.get("User-Agent"):
+            user_agent_info_data = {
+                # A hack to get it to fall back to the raw user agent
+                "installer": user_agent_str,
+            }
+            try:
+                parsed = linehaul_user_agent_parser.parse(user_agent_str)
+                if parsed and parsed.installer and parsed.installer.name == "Browser":
+                    parsed_ua = user_agent_parser.Parse(user_agent_str)
+                    user_agent_info_data = {
+                        "installer": "Browser",
+                        "device": parsed_ua["device"]["family"],
+                        "os": parsed_ua["os"]["family"],
+                        "user_agent": parsed_ua["user_agent"]["family"],
+                    }
+            except linehaul_user_agent_parser.UnknownUserAgentError:
+                pass  # Fallback to raw user-agent string
+
+        user_agent_info = UserAgentInfo(**user_agent_info_data)
+
+        # Generate a token
+        token = token_service.dumps(
+            {
+                "action": "login-confirmation",
+                "user.id": str(user.id),
+                "user.last_login": str(
+                    user.last_login or datetime.datetime.min.replace(tzinfo=pytz.UTC)
+                ),
+                "unique_login_id": unique_login.id,
+            }
+        )
+
+        # Send the email
+        send_unrecognized_login_email(
+            request,
+            user,
+            ip_address=str(request.ip_address.ip_address),
+            user_agent=user_agent_info.display(),
+            token=token,
+        )
+
+        return False
+
+    def get_account_associations(self, user_id: str) -> list[AccountAssociation]:
+        """
+        Return all AccountAssociation objects for the given user.
+        """
+        return self.db.scalars(
+            select(AccountAssociation)
+            .where(AccountAssociation._user_id == user_id)
+            .order_by(AccountAssociation.created.desc())
+        ).all()
+
+    def get_account_association(self, association_id: str) -> AccountAssociation | None:
+        """
+        Return the AccountAssociation object for the given ID, or None.
+        """
+        return self.db.get(AccountAssociation, association_id)
+
+    def get_account_association_by_oauth_service(
+        self, user_id: str, service: str, external_user_id: str
+    ) -> OAuthAccountAssociation | None:
+        """
+        Return the OAuth account association for a specific external account, or None.
+
+        Note: This method is specific to OAuth associations.
+        Use get_account_association() for polymorphic access to any association type.
+        """
+        return self.db.scalar(
+            select(OAuthAccountAssociation).where(
+                OAuthAccountAssociation._user_id == UUID(user_id),
+                OAuthAccountAssociation.service == service,
+                OAuthAccountAssociation.external_user_id == external_user_id,
+            )
+        )
+
+    def add_account_association(
+        self,
+        user_id: str,
+        service: str,
+        external_user_id: str,
+        external_username: str,
+        **kwargs,
+    ) -> OAuthAccountAssociation:
+        """
+        Create a new OAuth account association.
+
+        Returns the created OAuthAccountAssociation object.
+        Raises ValueError if association already exists.
+        """
+        # Translate 'metadata' to 'metadata_' for model attribute
+        kwargs["metadata_"] = kwargs.pop("metadata", {})
+
+        association = OAuthAccountAssociation(
+            _user_id=UUID(user_id),
+            service=service,
+            external_user_id=external_user_id,
+            external_username=external_username,
+            **kwargs,
+        )
+        self.db.add(association)
+        try:
+            self.db.flush()  # Flush to get the generated ID
+        except UniqueViolation:
+            self.db.rollback()
+            raise ValueError(
+                f"External account {external_username} on {service} is already "
+                f"associated with another PyPI account"
+            ) from None
+        return association
+
+    def delete_account_association(self, association_id: str) -> bool:
+        """
+        Delete an account association by ID.
+
+        Returns True if deleted, False if not found.
+        """
+        if not (association := self.get_account_association(association_id)):
+            return False
+        self.db.delete(association)
+        # No flush needed - deletion happens at transaction commit
+        return True
 
 
 @implementer(ITokenService)

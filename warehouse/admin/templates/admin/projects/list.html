@@ -15,7 +15,7 @@
   <div class="card-body">
     <form>
       <div class="input-group input-group-lg">
-        <input name="q" type="text" class="form-control input-lg" placeholder="Search"{% if query %} value="{{ query }}"{% endif %}>
+        <input name="q" type="text" class="form-control input-lg" placeholder="Search by name or id:&lt;uuid&gt;"{% if query %} value="{{ query }}"{% endif %}>
         <div class="input-group-btn input-group-append">
           <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
         </div>
@@ -23,6 +23,9 @@
     </form>
   </div>
 </div>
+
+{% if query %}
+{# Search results mode #}
 
 <h4>Exact match (with normalization)</h4>
 <div class="card">
@@ -89,4 +92,65 @@
     </div>
   </div>
 </div>
+
+{% else %}
+{# Dashboard mode #}
+
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">Projects created per day</h3>
+    <div class="card-tools">
+      <div class="btn-group">
+        {% for period in allowed_days %}
+        <a href="{{ request.route_path('admin.project.list', _query={'days': period}) }}"
+           class="btn btn-sm {{ 'btn-primary' if days == period else 'btn-default' }}">{{ period }}d</a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="chart-container">
+      <canvas id="projectCreationsChart"></canvas>
+    </div>
+    <script id="projectCreationsChartData" type="application/json">
+      {
+        "labels": {{ creation_series | map(attribute=0) | list | tojson }},
+        "counts": {{ creation_series | map(attribute=1) | list | tojson }}
+      }
+    </script>
+  </div>
+</div>
+
+<h4>Recently created projects</h4>
+<div class="card">
+  <div class="card-body table-responsive p-0">
+    <table class="table table-striped table-hover">
+      <thead>
+      <tr>
+        <th>Project name</th>
+        <th>Created</th>
+        <th>Latest version</th>
+      </tr>
+      </thead>
+      <tbody>
+      {% for row in recent_projects %}
+      <tr>
+        <td>
+          <a href="{{ request.route_path('admin.project.detail', project_name=row.normalized_name) }}">{{ row.name }}</a>
+        </td>
+        <td>{{ row.created.strftime('%Y-%m-%d %H:%M:%S') }} UTC</td>
+        <td>
+          {% if row.latest_version %}
+            {{ row.latest_version }}
+          {% else %}
+            <span class="text-muted">no releases</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
 {% endblock content %}

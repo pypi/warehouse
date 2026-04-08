@@ -24,7 +24,11 @@ from warehouse.oidc.interfaces import IOIDCPublisherService, SignedClaims
 from warehouse.oidc.models import GitHubPublisher, OIDCPublisher, PendingOIDCPublisher
 from warehouse.oidc.models.gitlab import GitLabPublisher
 from warehouse.oidc.services import OIDCPublisherService
-from warehouse.oidc.utils import OIDC_ISSUER_ADMIN_FLAGS, OIDC_ISSUER_SERVICE_NAMES
+from warehouse.oidc.utils import (
+    OIDC_ISSUER_ADMIN_FLAGS,
+    OIDC_ISSUER_SERVICE_NAMES,
+    lookup_custom_issuer_type,
+)
 from warehouse.packaging.interfaces import IProjectService
 from warehouse.packaging.models import ProjectFactory
 from warehouse.rate_limiting.interfaces import IRateLimiter
@@ -135,8 +139,16 @@ def mint_token_from_oidc(request: Request):
         )
 
     # Associate the given issuer claim with Warehouse's OIDCPublisherService.
+    # First, try the standard issuers
     service_name = OIDC_ISSUER_SERVICE_NAMES.get(unverified_issuer)
+    # If not in global mapping, check for organization-specific custom issuer
     if not service_name:
+        service_name = lookup_custom_issuer_type(request.db, unverified_issuer)
+    if not service_name:
+        request.metrics.increment(
+            "warehouse.oidc.mint_token_from_oidc.unknown_issuer",
+            tags=[f"issuer_url:{unverified_issuer}"],
+        )
         return _invalid(
             errors=[
                 {
@@ -147,7 +159,7 @@ def mint_token_from_oidc(request: Request):
             request=request,
         )
 
-    if request.flags.disallow_oidc(OIDC_ISSUER_ADMIN_FLAGS[unverified_issuer]):
+    if request.flags.disallow_oidc(OIDC_ISSUER_ADMIN_FLAGS.get(unverified_issuer)):
         return _invalid(
             errors=[
                 {
@@ -209,7 +221,9 @@ def mint_token(
                     pending_publisher.project_name,
                     pending_publisher.added_by,
                     request,
+                    creator_is_owner=pending_publisher.organization_id is None,
                     ratelimited=False,
+                    organization_id=pending_publisher.organization_id,
                 )
             except HTTPException as exc:
                 return _invalid(
@@ -274,6 +288,22 @@ def mint_token(
             request=request,
         )
 
+    # Atomically claim the JTI before minting a macaroon. The SET NX ensures
+    # that only one request can proceed for a given JTI.
+    # Of note, exp is coming from a verified JWT here, so we don't validate it.
+    if jwt_identifier := claims.get("jti"):
+        expiration = cast(int, claims.get("exp"))
+        if not oidc_service.store_jwt_identifier(jwt_identifier, expiration):
+            return _invalid(
+                errors=[
+                    {
+                        "code": "invalid-reuse-token",
+                        "description": "invalid token: already used",
+                    }
+                ],
+                request=request,
+            )
+
     # At this point, we've verified that the given JWT is valid for the given
     # project. All we need to do is mint a new token.
     # NOTE: For OIDC-minted API tokens, the Macaroon's description string
@@ -299,13 +329,6 @@ def mint_token(
         oidc_publisher_id=str(publisher.id),
         additional={"oidc": publisher.stored_claims(claims)},
     )
-
-    # We have used the given JWT to mint a new token. Let now store it to prevent
-    # its reuse if the claims contain a JTI. Of note, exp is coming from a trusted
-    # source here, so we don't validate it
-    if jwt_identifier := claims.get("jti"):
-        expiration = cast(int, claims.get("exp"))
-        oidc_service.store_jwt_identifier(jwt_identifier, expiration)
 
     for project in publisher.projects:
         project.record_event(

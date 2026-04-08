@@ -7,7 +7,6 @@ Revises: 87509f4ae027
 Create Date: 2020-07-26 06:12:58.519387
 """
 
-
 from alembic import op
 
 revision = "5e02c4f9f95c"

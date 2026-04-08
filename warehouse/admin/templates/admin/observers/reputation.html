@@ -1,0 +1,207 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+
+{% extends "admin/base.html" %}
+
+{% block title %}Observer Reputation{% endblock %}
+
+{% block breadcrumb %}
+  <li class="breadcrumb-item">
+    <a href="{{ request.route_path('admin.observations.list') }}">Observations</a>
+  </li>
+  <li class="breadcrumb-item active">Observer Reputation</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Observer Reputation Dashboard</h3>
+        <div class="card-tools">
+          <div class="btn-group">
+            <a href="{{ request.route_path('admin.observers.reputation', _query={'days': 30}) }}"
+               class="btn btn-sm {{ 'btn-primary' if days == 30 else 'btn-default' }}">30 Days</a>
+            <a href="{{ request.route_path('admin.observers.reputation', _query={'days': 60}) }}"
+               class="btn btn-sm {{ 'btn-primary' if days == 60 else 'btn-default' }}">60 Days</a>
+            <a href="{{ request.route_path('admin.observers.reputation', _query={'days': 90}) }}"
+               class="btn btn-sm {{ 'btn-primary' if days == 90 else 'btn-default' }}">90 Days</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# Summary Statistics #}
+<div class="row">
+  <div class="col-lg-3 col-6">
+    <div class="small-box bg-info">
+      <div class="inner">
+        <h3>{{ summary.total_observations }}</h3>
+        <p>Total Malware Reports</p>
+      </div>
+      <div class="icon">
+        <i class="fa-solid fa-dumpster-fire"></i>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-3 col-6">
+    <div class="small-box bg-success">
+      <div class="inner">
+        <h3>{{ summary.total_true_positives }}</h3>
+        <p>True Positives (Removed)</p>
+      </div>
+      <div class="icon">
+        <i class="fa-solid fa-check-circle"></i>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-3 col-6">
+    <div class="small-box bg-danger">
+      <div class="inner">
+        <h3>{{ summary.total_false_positives }}</h3>
+        <p>False Positives</p>
+      </div>
+      <div class="icon">
+        <i class="fa-solid fa-times-circle"></i>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-3 col-6">
+    <div class="small-box bg-warning">
+      <div class="inner">
+        <h3>{{ summary.total_pending }}</h3>
+        <p>Pending Review</p>
+      </div>
+      <div class="icon">
+        <i class="fa-solid fa-hourglass-half"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-3 col-6">
+    <div class="small-box bg-gradient-purple">
+      <div class="inner">
+        <h3>{{ summary.overall_accuracy if summary.overall_accuracy is not none else 'N/A' }}{% if summary.overall_accuracy is not none %}%{% endif %}</h3>
+        <p>Overall Accuracy Rate</p>
+      </div>
+      <div class="icon">
+        <i class="fa-solid fa-chart-line"></i>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-3 col-6">
+    <div class="small-box bg-gradient-teal">
+      <div class="inner">
+        <h3>{{ summary.observer_count }}</h3>
+        <p>Active Observers</p>
+      </div>
+      <div class="icon">
+        <i class="fa-solid fa-users"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# Time Series Chart #}
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Malware Reports Over Time (Weekly)</h3>
+      </div>
+      <div class="card-body">
+        <div class="chart-container">
+          <canvas id="reportsChart"></canvas>
+        </div>
+        <script id="reportsChartData" type="application/json">
+          {
+            "labels": {{ time_series.labels | tojson }},
+            "truePositives": {{ time_series.true_positives | tojson }},
+            "falsePositives": {{ time_series.false_positives | tojson }},
+            "pending": {{ time_series.pending | tojson }}
+          }
+        </script>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# Observer Scoreboard #}
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Observer Scoreboard (Last {{ days }} Days)</h3>
+      </div>
+      <div class="card-body">
+        {% if observer_stats %}
+        <div class="table-responsive">
+          <table class="table table-hover table-striped" id="observer-scoreboard">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Observer</th>
+                <th>Score</th>
+                <th>Total Reports</th>
+                <th>Accuracy</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for stats in observer_stats %}
+              <tr>
+                <td>{{ loop.index }}</td>
+                <td>
+                  {% if stats.user_id %}
+                    <a href="{{ request.route_path('admin.user.detail', username=stats.username) }}">
+                      {{ stats.username }}
+                    </a>
+                  {% else %}
+                    {{ stats.username }}
+                  {% endif %}
+                </td>
+                <td>
+                  {% if stats.score > 0 %}
+                    <span class="badge badge-success">{{ stats.score }}</span>
+                  {% elif stats.score < 0 %}
+                    <span class="badge badge-danger">{{ stats.score }}</span>
+                  {% else %}
+                    <span class="badge badge-secondary">{{ stats.score }}</span>
+                  {% endif %}
+                </td>
+                <td><span class="badge badge-info">{{ stats.total_observations }}</span></td>
+                <td>
+                  {% if stats.accuracy_rate is not none %}
+                    {% if stats.accuracy_rate >= 80 %}
+                      <span class="badge badge-success">{{ stats.accuracy_rate }}%</span>
+                    {% elif stats.accuracy_rate >= 50 %}
+                      <span class="badge badge-warning">{{ stats.accuracy_rate }}%</span>
+                    {% else %}
+                      <span class="badge badge-danger">{{ stats.accuracy_rate }}%</span>
+                    {% endif %}
+                  {% else %}
+                    <span class="badge badge-secondary">N/A</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <a href="{{ request.route_path('admin.observers.detail', observer_id=stats.observer_id, _query={'days': days}) }}"
+                     class="btn btn-sm btn-info">
+                    <i class="fa fa-eye"></i> Details
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p class="text-muted">No observer data available for the selected time period.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

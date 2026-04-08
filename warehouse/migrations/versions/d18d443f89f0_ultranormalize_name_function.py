@@ -14,8 +14,7 @@ down_revision = "d582fb87b94c"
 
 
 def upgrade():
-    op.execute(
-        r"""
+    op.execute(r"""
         CREATE FUNCTION ultranormalize_name(text) RETURNS text AS $$
                 SELECT lower(
                     regexp_replace(
@@ -30,14 +29,11 @@ def upgrade():
             LANGUAGE SQL
             IMMUTABLE
             RETURNS NULL ON NULL INPUT;
-    """
-    )
-    op.execute(
-        """ CREATE INDEX project_name_ultranormalized
+    """)
+    op.execute(""" CREATE INDEX project_name_ultranormalized
             ON projects
             (ultranormalize_name(name))
-        """
-    )
+        """)
 
 
 def downgrade():

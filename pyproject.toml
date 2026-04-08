@@ -25,6 +25,7 @@ parallel = true
 exclude_also = [
   "class \\w+\\(Interface\\):",
   "if (typing\\.)?TYPE_CHECKING:",
+  "if __name__ == .__main__.:",
   "pytest.fail\\(",  # Use for test branches that should never be reached.
   # Remove once resolved: https://github.com/nedbat/coveragepy/issues/1563
   "case _:\\n\\s*pytest\\.fail\\(",
@@ -53,7 +54,7 @@ combine_as_imports = true
 known_first_party = ['warehouse', 'tests']
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.13"
 warn_unreachable = true
 warn_unused_configs = true
 warn_unused_ignores = true
@@ -68,6 +69,7 @@ module = [
     "b2sdk.*",  # https://github.com/Backblaze/b2-sdk-python/issues/148
     "celery.app.backends.*",  # https://github.com/celery/celery/issues/7394
     "celery.backends.redis.*",  # https://github.com/celery/celery/issues/7394
+    "cgi.*",  # legacy stdlib module for webob, installed via `legacy_cgi` package
     "google.cloud.storage.*",  # https://github.com/googleapis/python-storage/issues/393
     "forcediphttpsadapter.*",
     "IPython.*",  # has types, but only installed in dev
@@ -116,11 +118,14 @@ filterwarnings = [
     # https://github.com/Pylons/pyramid/issues/3731
     'ignore:pkg_resources is deprecated as an API.*:UserWarning:pyramid.asset',
     # https://github.com/Pylons/webob/issues/473
-    'ignore:datetime\.datetime\.utcnow\(\) is deprecated.*:DeprecationWarning:webob.cookies',
+    # https://github.com/Pylons/webob/pull/475
+    'ignore:datetime\.datetime\.utcnow\(\) is deprecated.*:DeprecationWarning:webob.*',
+    # https://github.com/Pylons/webob/issues/387
+    'ignore:The behavior of .*best_match.*:DeprecationWarning:webob.*',
     # https://github.com/pypi/warehouse/issues/15454#issuecomment-2599321232
     'ignore:Accessing argon2.__version__ is deprecated.*:DeprecationWarning:passlib.handlers.argon2',
     # https://github.com/zopefoundation/meta/issues/194
-    '''ignore:Deprecated call to `pkg_resources.declare_namespace\('(paste|repoze|zope)'\).*:DeprecationWarning:pkg_resources''',
+    '''ignore:Deprecated call to `pkg_resources.declare_namespace\('(paste|repoze)'\).*:DeprecationWarning:pkg_resources''',
 ]
 
 [tool.pip-tools.compile]

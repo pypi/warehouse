@@ -2,8 +2,9 @@
 
 import datetime
 
+from psycopg.errors import UniqueViolation
 from sqlalchemy import delete, func, orm, select
-from sqlalchemy.exc import IntegrityError, NoResultFound
+from sqlalchemy.exc import NoResultFound
 from zope.interface import implementer
 
 from warehouse.accounts.models import TermsOfServiceEngagement, User
@@ -518,7 +519,7 @@ class DatabaseOrganizationService:
         try:
             self.db.flush()  # flush db now so organization.normalized_name available
             self.add_catalog_entry(organization_id)
-        except IntegrityError:
+        except UniqueViolation:
             raise ValueError(f'Organization name "{name}" has been used')
 
         return organization
@@ -570,10 +571,37 @@ class DatabaseOrganizationService:
 
     def delete_organization_project(self, organization_id, project_id):
         """
-        Delete association between specified organization and project
+        Delete association between specified organization and project,
+        including team project roles and OIDC publisher associations
+        that were scoped to the departing organization.
+
         """
         organization_project = self.get_organization_project(
             organization_id, project_id
+        )
+
+        # Delete team project roles for teams belonging to the departing org.
+        self.db.execute(
+            delete(TeamProjectRole).where(
+                TeamProjectRole.project_id == project_id,
+                TeamProjectRole.team_id.in_(
+                    select(Team.id).where(Team.organization_id == organization_id)
+                ),
+            )
+        )
+
+        # Delete OIDC publisher associations for this project.
+        # TODO: Import here to avoid circular import:
+        #  organizations.services -> oidc.models._core -> packaging.models
+        #    -> organizations.models -> organizations.services
+        #  Figure out circular imports and move to top of module,
+        #  or better, cascade https://github.com/pypi/warehouse/issues/19748
+        from warehouse.oidc.models._core import OIDCPublisherProjectAssociation
+
+        self.db.execute(
+            delete(OIDCPublisherProjectAssociation).where(
+                OIDCPublisherProjectAssociation.project_id == project_id,
+            )
         )
 
         self.db.delete(organization_project)

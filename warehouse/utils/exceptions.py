@@ -11,3 +11,7 @@ class InsecureOIDCPublisherWarning(DevelopmentModeWarning):
 
 class InsecureIntegrityServiceWarning(DevelopmentModeWarning):
     pass
+
+
+class NullOAuthProviderServiceWarning(DevelopmentModeWarning):
+    pass

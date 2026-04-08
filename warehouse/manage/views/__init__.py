@@ -14,9 +14,8 @@ from pyramid.httpexceptions import (
     HTTPSeeOther,
 )
 from pyramid.view import view_config, view_defaults
-from sqlalchemy import func
+from sqlalchemy import func, update
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy.orm import joinedload
 from venusian import lift
 from webauthn.helpers import bytes_to_base64url
 from webob.multidict import MultiDict
@@ -67,6 +66,7 @@ from warehouse.manage.forms import (
     AddEmailForm,
     ChangePasswordForm,
     ChangeRoleForm,
+    ChangeUnverifiedPrimaryEmailForm,
     ConfirmPasswordForm,
     CreateInternalRoleForm,
     CreateMacaroonForm,
@@ -181,6 +181,60 @@ class ManageAccountMixin:
         else:
             return HTTPSeeOther(self.request.route_path("manage.unverified-account"))
 
+    @view_config(
+        request_method="POST", request_param=["primary_email_id"], require_reauth=True
+    )
+    def change_primary_email(self):
+        if not self.request.user.has_two_factor:
+            self.request.session.flash(
+                "Two factor authentication must be enabled to change primary "
+                "email address.",
+                queue="error",
+            )
+            return self.default_response
+
+        previous_primary_email = self.request.user.primary_email
+        try:
+            new_primary_email = (
+                self.request.db.query(Email)
+                .filter(
+                    Email.user_id == self.request.user.id,
+                    Email.id == int(self.request.POST["primary_email_id"]),
+                    Email.verified.is_(True),
+                )
+                .one()
+            )
+        except NoResultFound:
+            self.request.session.flash("Email address not found", queue="error")
+            return self.default_response
+
+        self.request.db.query(Email).filter(
+            Email.user_id == self.request.user.id, Email.primary.is_(True)
+        ).update(values={"primary": False})
+
+        new_primary_email.primary = True
+        self.request.user.record_event(
+            tag=EventTag.Account.EmailPrimaryChange,
+            request=self.request,
+            additional={
+                "old_primary": (
+                    previous_primary_email.email if previous_primary_email else None
+                ),
+                "new_primary": new_primary_email.email,
+            },
+        )
+
+        self.request.session.flash(
+            f"Email address {new_primary_email.email} set as primary", queue="success"
+        )
+
+        if previous_primary_email is not None:
+            send_primary_email_change_email(
+                self.request, (self.request.user, previous_primary_email)
+            )
+
+        return HTTPSeeOther(self.request.path)
+
 
 @view_defaults(
     route_name="manage.unverified-account",
@@ -201,6 +255,93 @@ class ManageUnverifiedAccountViews(ManageAccountMixin):
 
         return {"help_url": self.request.help_url(_anchor="account-recovery")}
 
+    @view_config(
+        request_method="POST",
+        request_param=ChangeUnverifiedPrimaryEmailForm.__params__,
+    )
+    def change_unverified_primary_email(self):
+        # Guard: redirect if already verified
+        if self.request.user.has_primary_verified_email:
+            return HTTPSeeOther(self.request.route_path("manage.account"))
+
+        # Guard: block if user has 2FA (higher-risk account, needs admin help)
+        if self.request.user.has_two_factor:
+            self.request.session.flash(
+                "Cannot change email address on accounts with two-factor "
+                "authentication enabled",
+                queue="error",
+            )
+            return HTTPSeeOther(self.request.route_path("manage.unverified-account"))
+
+        # Guard: block if user owns any projects (not a fresh registration)
+        if self.request.user.projects:
+            self.request.session.flash(
+                "Cannot change email address on accounts with projects",
+                queue="error",
+            )
+            return HTTPSeeOther(self.request.route_path("manage.unverified-account"))
+
+        # Rate limit email changes by IP
+        email_change_ratelimit = self.request.find_service(
+            IRateLimiter, name="email.add"
+        )
+        if not email_change_ratelimit.test(self.request.remote_addr):
+            self.request.session.flash(
+                "Too many email change attempts. Try again later.",
+                queue="error",
+            )
+            return HTTPSeeOther(self.request.route_path("manage.unverified-account"))
+
+        # Map the POST param to the "email" field expected by NewEmailMixin
+        form = ChangeUnverifiedPrimaryEmailForm(
+            self.request.POST,
+            request=self.request,
+            user_service=self.user_service,
+            user_id=self.request.user.id,
+        )
+
+        if not form.validate():
+            return {
+                "help_url": self.request.help_url(_anchor="account-recovery"),
+                "change_unverified_primary_email_form": form,
+            }
+
+        new_email_address = form.email.data
+        old_primary = self.request.user.primary_email
+        old_primary_address = old_primary.email if old_primary else None
+
+        # Add the new email as primary first, then delete the old one, so the
+        # user is never left with zero emails if add_email raises.
+        new_email = self.user_service.add_email(
+            self.request.user.id, new_email_address, primary=True, ratelimit=False
+        )
+
+        if old_primary:
+            old_primary.primary = False
+            self.request.db.delete(old_primary)
+
+        email_change_ratelimit.hit(self.request.remote_addr)
+
+        # Send verification email to the new address
+        send_email_verification_email(self.request, (self.request.user, new_email))
+
+        self.request.user.record_event(
+            tag=EventTag.Account.EmailPrimaryChange,
+            request=self.request,
+            additional={
+                "old_primary": old_primary_address,
+                "new_primary": new_email_address,
+            },
+        )
+
+        self.request.session.flash(
+            f"Email address updated to {new_email_address} - check your "
+            "email for a verification link",
+            queue="success",
+        )
+
+        return HTTPSeeOther(self.request.route_path("manage.unverified-account"))
+
 
 @view_defaults(
     route_name="manage.account",
@@ -214,6 +355,10 @@ class ManageUnverifiedAccountViews(ManageAccountMixin):
 )
 @lift()
 class ManageVerifiedAccountViews(ManageAccountMixin):
+    @property
+    def account_associations(self):
+        return self.user_service.get_account_associations(self.request.user.id)
+
     @property
     def active_projects(self):
         return user_projects(request=self.request)["projects_sole_owned"]
@@ -237,6 +382,7 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
                 user_service=self.user_service,
                 breach_service=self.breach_service,
             ),
+            "account_associations": self.account_associations,
             "active_projects": self.active_projects,
         }
 
@@ -344,52 +490,6 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
 
         return self.default_response
 
-    @view_config(
-        request_method="POST", request_param=["primary_email_id"], require_reauth=True
-    )
-    def change_primary_email(self):
-        previous_primary_email = self.request.user.primary_email
-        try:
-            new_primary_email = (
-                self.request.db.query(Email)
-                .filter(
-                    Email.user_id == self.request.user.id,
-                    Email.id == int(self.request.POST["primary_email_id"]),
-                    Email.verified.is_(True),
-                )
-                .one()
-            )
-        except NoResultFound:
-            self.request.session.flash("Email address not found", queue="error")
-            return self.default_response
-
-        self.request.db.query(Email).filter(
-            Email.user_id == self.request.user.id, Email.primary.is_(True)
-        ).update(values={"primary": False})
-
-        new_primary_email.primary = True
-        self.request.user.record_event(
-            tag=EventTag.Account.EmailPrimaryChange,
-            request=self.request,
-            additional={
-                "old_primary": (
-                    previous_primary_email.email if previous_primary_email else None
-                ),
-                "new_primary": new_primary_email.email,
-            },
-        )
-
-        self.request.session.flash(
-            f"Email address {new_primary_email.email} set as primary", queue="success"
-        )
-
-        if previous_primary_email is not None:
-            send_primary_email_change_email(
-                self.request, (self.request.user, previous_primary_email)
-            )
-
-        return HTTPSeeOther(self.request.path)
-
     @view_config(request_method="POST", request_param=ChangePasswordForm.__params__)
     def change_password(self):
         form = ChangePasswordForm(
@@ -459,16 +559,13 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
         deleted_user = (
             self.request.db.query(User).filter(User.username == "deleted-user").one()
         )
-
-        journals = (
-            self.request.db.query(JournalEntry)
-            .options(joinedload(JournalEntry.submitted_by))
-            .filter(JournalEntry.submitted_by == self.request.user)
-            .all()
+        # Update in bulk to avoid loading all journal entries into memory (n+1)
+        self.request.db.execute(
+            update(JournalEntry)
+            .where(JournalEntry._submitted_by == self.request.user.username)
+            .values(_submitted_by=deleted_user.username)
+            .execution_options(synchronize_session=False)
         )
-
-        for journal in journals:
-            journal.submitted_by = deleted_user
 
         # Send a notification email
         send_account_deletion_email(self.request, self.request.user)
@@ -1004,7 +1101,7 @@ class ProvisionMacaroonViews:
 
         if form.validate():
             macaroon = self.macaroon_service.find_macaroon(form.macaroon_id.data)
-            if not macaroon:
+            if not macaroon or macaroon.user_id != self.request.user.id:
                 # Return early if no macaroon is found
                 self.request.session.flash(
                     self.request._("API Token does not exist."), queue="warning"
@@ -1017,12 +1114,12 @@ class ProvisionMacaroonViews:
                 request=self.request,
                 additional={"macaroon_id": form.macaroon_id.data},
             )
-            if "projects" in macaroon.permissions_caveat:
+            if "projects" in macaroon.permissions_caveat.get("permissions", {}):
                 projects = [
                     project
                     for project in self.request.user.projects
                     if project.normalized_name
-                    in macaroon.permissions_caveat["projects"]
+                    in macaroon.permissions_caveat["permissions"]["projects"]
                 ]
                 for project in projects:
                     project.record_event(

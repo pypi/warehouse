@@ -9,14 +9,17 @@ from argon2 import PasswordHasher
 
 from warehouse.accounts.models import (
     Email,
+    OAuthAccountAssociation,
     ProhibitedEmailDomain,
     ProhibitedUserName,
     TermsOfServiceEngagement,
     User,
     UserTermsOfServiceEngagement,
+    UserUniqueLogin,
 )
 
 from .base import WarehouseFactory
+from .ip_addresses import IpAddressFactory
 
 fake = faker.Faker()
 
@@ -130,3 +133,22 @@ class ProhibitedUsernameFactory(WarehouseFactory):
     # TODO: Replace when factory_boy supports `unique`.
     #  See https://github.com/FactoryBoy/factory_boy/pull/997
     name = factory.Sequence(lambda _: fake.unique.user_name())
+
+
+class UserUniqueLoginFactory(WarehouseFactory):
+    class Meta:
+        model = UserUniqueLogin
+
+    user = factory.SubFactory(UserFactory)
+    ip_address = factory.SubFactory(IpAddressFactory)
+
+
+class OAuthAccountAssociationFactory(WarehouseFactory):
+    class Meta:
+        model = OAuthAccountAssociation
+
+    user = factory.SubFactory(UserFactory)
+    service = "github"
+    external_user_id = factory.Sequence(lambda n: f"{n}")
+    external_username = factory.Faker("user_name")
+    metadata_ = {}

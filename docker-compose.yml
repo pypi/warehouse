@@ -4,7 +4,6 @@ volumes:
   packages-archive:
   sponsorlogos:
   caches:
-  postgres_data:
   redis_data:
   rstuf-metadata:
   pgdata:
@@ -29,7 +28,6 @@ services:
       - ./dev/example.sql.xz:/example.sql.xz:z
       - ./dev/db/post-migrations.sql:/post-migrations.sql:z
       - ./bin/wait-for-db:/usr/local/bin/wait-for-db:z
-      - postgres_data:/var/lib/postgresql/data/
 
   stripe:
     image: stripe/stripe-mock:v0.162.0
@@ -105,6 +103,7 @@ services:
       # Included to support linters during development
       - ./gunicorn-prod.conf.py:/opt/warehouse/src/gunicorn-prod.conf.py:z
       - ./gunicorn-uploads.conf.py:/opt/warehouse/src/gunicorn-uploads.conf.py:z
+      - ./development.ini:/opt/warehouse/src/development.ini:z
 
   web:
     image: warehouse:docker-compose
@@ -167,6 +166,11 @@ services:
       FILES_BACKEND: "warehouse.packaging.services.LocalFileStorage path=/var/opt/warehouse/packages/ url=http://files:9001/packages/{path}"
       ARCHIVE_FILES_BACKEND: "warehouse.packaging.services.LocalArchiveFileStorage path=/var/opt/warehouse/packages-archive/ url=http://files:9001/packages-archive/{path}"
       SIMPLE_BACKEND: "warehouse.packaging.services.LocalSimpleStorage path=/var/opt/warehouse/simple/ url=http://files:9001/simple/{path}"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
 
   rstuf-api:
     image: ghcr.io/repository-service-tuf/repository-service-tuf-api:v0.12.0b1
@@ -256,9 +260,11 @@ services:
       context: .
       target: docs
     image: warehouse:docker-compose-docs
-    command: sphinx-autobuild --host 0.0.0.0 "docs/dev/" "docs/dev/_build"
+    command: mkdocs serve -a 0.0.0.0:8000 -f docs/mkdocs-dev-docs.yml
+    stop_signal: SIGINT
     volumes:
       - ./bin:/opt/warehouse/src/bin:z
+      - ./docs/mkdocs-dev-docs.yml:/opt/warehouse/src/docs/mkdocs-dev-docs.yml:z
       - ./docs:/opt/warehouse/src/docs:z
     ports:
       - "10002:8000"

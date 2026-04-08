@@ -152,7 +152,17 @@ class RateLimit:
         )
 
 
+def _register_rate_limiter(config, limit_string, name):
+    """Register a rate limiter service with identifiers matching the service name."""
+    config.register_service_factory(
+        RateLimit(limit_string, identifiers=[name]),
+        IRateLimiter,
+        name=name,
+    )
+
+
 def includeme(config):
+    config.add_directive("register_rate_limiter", _register_rate_limiter)
     config.registry["ratelimiter.storage"] = storage_from_string(
         config.registry.settings["ratelimit.url"]
     )

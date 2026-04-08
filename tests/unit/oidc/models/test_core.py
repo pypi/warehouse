@@ -1,8 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pretend
+import psycopg
 import pytest
 
+from tests.common.db.oidc import PendingGitHubPublisherFactory
 from warehouse.oidc import errors
 from warehouse.oidc.models import _core
 
@@ -29,6 +31,20 @@ def test_check_claim_invariant():
     assert wrapped(identity, object(), pretend.stub()) is False
     assert wrapped(object(), identity, pretend.stub()) is False
     assert wrapped(identity, identity, pretend.stub()) is True
+
+
+class TestPendingOIDCPublisher:
+    def test_project_name_constraint(self, db_session):
+        invalid_project_name = "İnspect"
+
+        with pytest.raises(psycopg.errors.CheckViolation):
+            PendingGitHubPublisherFactory(project_name=invalid_project_name)
+
+    def test_project_name_constraint_valid(self, db_session):
+        valid_project_name = "good-name_123"
+        publisher = PendingGitHubPublisherFactory(project_name=valid_project_name)
+
+        assert publisher.project_name == valid_project_name
 
 
 class TestOIDCPublisher:

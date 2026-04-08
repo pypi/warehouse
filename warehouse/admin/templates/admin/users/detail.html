@@ -128,6 +128,9 @@
               <i class="fa-solid fa-toilet-paper"></i> Wipe 2FA and recovery codes
             </button>
             {% endif %}
+            <button type="button" class="btn btn-block btn-info" data-toggle="modal" data-target="#userFilesModal" id="userFilesBtn">
+              <i class="icon fa fa-file"></i> List all files
+            </button>
             <button type="button" class="btn btn-block btn-warning" data-toggle="modal" data-target="#quarantineAllProjectsModal" {{ "disabled" if not perms_admin_projects_write }}>
               <i class="icon fa fa-lock"></i> Quarantine all projects & freeze user
             </button>
@@ -339,6 +342,34 @@
                   </div>
                 </div>
               </form>
+            </div>
+            <!-- User Files Modal -->
+            <div class="modal fade" id="userFilesModal" tabindex="-1" role="dialog"
+                 data-files-url="{{ request.route_path('admin.user.files', username=user.username) }}"
+                 data-username="{{ user.username }}">
+              <div class="modal-dialog modal-xl modal-dialog-scrollable user-files-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h4 class="modal-title">All files for {{ user.username }}</h4>
+                    <button type="button" class="close" data-dismiss="modal">
+                      <span>&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <p id="userFilesSummary">Loading...</p>
+                    <pre id="userFilesContent" class="user-files-content"></pre>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="userFilesCopyBtn" disabled>
+                      <i class="fa fa-copy"></i> Copy to clipboard
+                    </button>
+                    <button type="button" class="btn btn-primary" id="userFilesDownloadBtn" disabled>
+                      <i class="fa fa-download"></i> Download as .txt
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -780,6 +811,58 @@
 
       <div class="card">
         <div class="card-header with-border">
+          <h3 class="card-title">Account Associations</h3>
+        </div>
+        <div class="card-body">
+          {% if user.account_associations %}
+          <table class="table table-hover" id="account-associations">
+            <thead>
+              <tr>
+                <th scope="col">Service</th>
+                <th scope="col">External Account</th>
+                <th scope="col">External ID</th>
+                <th scope="col">Connected</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for association in user.account_associations %}
+              <tr>
+                <td>
+                  {% if association.service == 'github' %}
+                  <i class="fa-brands fa-github"></i> GitHub
+                  {% elif association.service == 'gitlab' %}
+                  <i class="fa-brands fa-gitlab"></i> GitLab
+                  {% else %}
+                  {{ association.service }}
+                  {% endif %}
+                </td>
+                <td>
+                  {% if association.service == 'github' %}
+                  <a href="https://github.com/{{ association.external_username }}" target="_blank" rel="noopener">
+                    {{ association.external_username }}
+                  </a>
+                  {% elif association.service == 'gitlab' %}
+                  <a href="https://gitlab.com/{{ association.external_username }}" target="_blank" rel="noopener">
+                    {{ association.external_username }}
+                  </a>
+                  {% else %}
+                  {{ association.external_username }}
+                {% endif %}
+                </td>
+                <td><code>{{ association.external_user_id }}</code></td>
+                <td>{{ association.created|format_datetime() }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          No account associations configured.
+          {% endif %}
+        </div>
+      </div> <!-- .card -->
+
+      <div class="card">
+        <div class="card-header with-border">
           <h3 class="card-title">Invitations</h3>
         </div>
 
@@ -984,6 +1067,53 @@
           </div>
           {% else %}
           No publishers configured.
+          {% endif %}
+        </div>
+      </div> <!-- .card -->
+
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Unique logins</h3>
+        </div>
+
+        <div class="card-body">
+          {% if user.unique_logins %}
+          <div class="table-responsive p-0">
+            <table class="table table-hover" id="pending-oidc-publishers">
+              <thead>
+                <tr>
+                  <th scope="col">Created</th>
+                  <th scope="col">IP address</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Expired?</th>
+                  <th scope="col">Device Information</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for login in user.unique_logins %}
+                <tr>
+                  <td>{{ login.created }}</td>
+                  <td><a href="{{ request.route_path('admin.ip_address.detail', ip_address=login.ip_address ) }}">{{ login.ip_address }}</a></td>
+                  <td>{{ login.status.value }}</td>
+                  <td>
+                    {% if login.status.value == 'pending' %}
+                      {% if login.expires < now(tz=True) %}
+                      <span title="Expired: {{ login.expires|format_datetime }}">🔴</span>
+                      {% else %}
+                      <span title="Expires: {{ login.expires|format_datetime }}">🟠</span>
+                      {% endif %}
+                    {% elif login.status.value == 'confirmed' %}
+                    <span title="Confirmed">🟢</span>
+                    {% endif %}
+                  </td>
+                  <td>{{ login.device_information }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          No known logins.
           {% endif %}
         </div>
       </div> <!-- .card -->

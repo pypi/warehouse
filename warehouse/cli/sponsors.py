@@ -21,6 +21,9 @@ SPONSORS_DICTS = [
         infra_sponsor=True,
         one_time=False,
         sidebar=True,
+        origin="pythondotorg",
+        level_name="Visionary",
+        level_order=1,
     ),
     dict(
         name="Bloomberg",
@@ -34,6 +37,9 @@ SPONSORS_DICTS = [
         infra_sponsor=False,
         one_time=False,
         sidebar=True,
+        origin="pythondotorg",
+        level_name="Visionary",
+        level_order=1,
     ),
     dict(
         name="Microsoft",
@@ -47,6 +53,9 @@ SPONSORS_DICTS = [
         infra_sponsor=False,
         one_time=False,
         sidebar=True,
+        origin="pythondotorg",
+        level_name="Visionary",
+        level_order=1,
     ),
     dict(
         name="Facebook / Instagram",
@@ -60,6 +69,9 @@ SPONSORS_DICTS = [
         infra_sponsor=False,
         one_time=False,
         sidebar=True,
+        origin="pythondotorg",
+        level_name="Sustainability",
+        level_order=2,
     ),
     dict(
         name="Salesforce",
@@ -73,6 +85,9 @@ SPONSORS_DICTS = [
         infra_sponsor=False,
         one_time=False,
         sidebar=True,
+        origin="pythondotorg",
+        level_name="Sustainability",
+        level_order=2,
     ),
     dict(
         name="Capital One",
@@ -86,6 +101,9 @@ SPONSORS_DICTS = [
         infra_sponsor=False,
         one_time=False,
         sidebar=True,
+        origin="pythondotorg",
+        level_name="Maintaining",
+        level_order=3,
     ),
     dict(
         name="Slack",
@@ -97,6 +115,9 @@ SPONSORS_DICTS = [
         infra_sponsor=False,
         one_time=False,
         sidebar=True,
+        origin="pythondotorg",
+        level_name="Maintaining",
+        level_order=3,
     ),
     dict(
         name="Corning",
@@ -110,6 +131,9 @@ SPONSORS_DICTS = [
         infra_sponsor=False,
         one_time=False,
         sidebar=True,
+        origin="pythondotorg",
+        level_name="Maintaining",
+        level_order=3,
     ),
     dict(
         name="Latacora",
@@ -123,6 +147,9 @@ SPONSORS_DICTS = [
         infra_sponsor=False,
         one_time=False,
         sidebar=True,
+        origin="pythondotorg",
+        level_name="Contributing",
+        level_order=4,
     ),
     dict(
         name="Cockroach Labs",
@@ -136,6 +163,9 @@ SPONSORS_DICTS = [
         infra_sponsor=False,
         one_time=False,
         sidebar=True,
+        origin="pythondotorg",
+        level_name="Contributing",
+        level_order=4,
     ),
     dict(
         name="Red Hat",
@@ -149,6 +179,9 @@ SPONSORS_DICTS = [
         infra_sponsor=False,
         one_time=False,
         sidebar=True,
+        origin="pythondotorg",
+        level_name="Contributing",
+        level_order=4,
     ),
     dict(
         name="JetBrains",
@@ -162,6 +195,9 @@ SPONSORS_DICTS = [
         infra_sponsor=False,
         one_time=False,
         sidebar=False,
+        origin="pythondotorg",
+        level_name="Supporting",
+        level_order=5,
     ),
     dict(
         name="LinkedIn",
@@ -175,6 +211,9 @@ SPONSORS_DICTS = [
         infra_sponsor=False,
         one_time=False,
         sidebar=False,
+        origin="pythondotorg",
+        level_name="Supporting",
+        level_order=5,
     ),
     dict(
         name="OpenEDG Python Institute",
@@ -188,6 +227,9 @@ SPONSORS_DICTS = [
         infra_sponsor=False,
         one_time=False,
         sidebar=False,
+        origin="pythondotorg",
+        level_name="Supporting",
+        level_order=5,
     ),
     dict(
         name="CircleCI",
@@ -201,6 +243,9 @@ SPONSORS_DICTS = [
         infra_sponsor=False,
         one_time=False,
         sidebar=False,
+        origin="pythondotorg",
+        level_name="Supporting",
+        level_order=5,
     ),
     dict(
         name="Blackfire.io",
@@ -214,6 +259,9 @@ SPONSORS_DICTS = [
         infra_sponsor=False,
         one_time=False,
         sidebar=False,
+        origin="pythondotorg",
+        level_name="Supporting",
+        level_order=5,
     ),
     dict(
         name="Mattermost",
@@ -225,6 +273,9 @@ SPONSORS_DICTS = [
         infra_sponsor=False,
         one_time=False,
         sidebar=False,
+        origin="pythondotorg",
+        level_name="Partner",
+        level_order=6,
     ),
     dict(
         name="Tidelift",
@@ -236,6 +287,9 @@ SPONSORS_DICTS = [
         infra_sponsor=False,
         one_time=False,
         sidebar=False,
+        origin="pythondotorg",
+        level_name="Partner",
+        level_order=6,
     ),
     dict(
         name="Caktus Group",
@@ -249,6 +303,9 @@ SPONSORS_DICTS = [
         infra_sponsor=False,
         one_time=False,
         sidebar=False,
+        origin="pythondotorg",
+        level_name="Partner",
+        level_order=6,
     ),
     dict(
         name="Reuven Lerner — Python training",
@@ -262,6 +319,9 @@ SPONSORS_DICTS = [
         infra_sponsor=False,
         one_time=False,
         sidebar=False,
+        origin="pythondotorg",
+        level_name="Partner",
+        level_order=6,
     ),
     dict(
         name="Saleor",
@@ -273,6 +333,9 @@ SPONSORS_DICTS = [
         infra_sponsor=False,
         one_time=False,
         sidebar=False,
+        origin="pythondotorg",
+        level_name="Partner",
+        level_order=6,
     ),
     dict(
         name="Cuttlesoft",
@@ -284,6 +347,9 @@ SPONSORS_DICTS = [
         infra_sponsor=False,
         one_time=False,
         sidebar=False,
+        origin="pythondotorg",
+        level_name="Partner",
+        level_order=6,
     ),
     dict(
         name="SonarSource",
@@ -297,6 +363,9 @@ SPONSORS_DICTS = [
         infra_sponsor=False,
         one_time=False,
         sidebar=False,
+        origin="pythondotorg",
+        level_name="Partner",
+        level_order=6,
     ),
     dict(
         name="Tara AI",
@@ -308,6 +377,9 @@ SPONSORS_DICTS = [
         infra_sponsor=False,
         one_time=False,
         sidebar=False,
+        origin="pythondotorg",
+        level_name="Partner",
+        level_order=6,
     ),
     dict(
         name="Elasticsearch, Inc.",
@@ -321,6 +393,9 @@ SPONSORS_DICTS = [
         infra_sponsor=False,
         one_time=False,
         sidebar=False,
+        origin="pythondotorg",
+        level_name="Partner",
+        level_order=6,
     ),
     dict(
         name="Netflix",
@@ -332,6 +407,9 @@ SPONSORS_DICTS = [
         infra_sponsor=False,
         one_time=False,
         sidebar=False,
+        origin="pythondotorg",
+        level_name="Partner",
+        level_order=6,
     ),
     dict(
         name="Scout APM",
@@ -343,6 +421,9 @@ SPONSORS_DICTS = [
         infra_sponsor=False,
         one_time=False,
         sidebar=False,
+        origin="pythondotorg",
+        level_name="Partner",
+        level_order=6,
     ),
     dict(
         name="Real Python",
@@ -356,6 +437,9 @@ SPONSORS_DICTS = [
         infra_sponsor=False,
         one_time=False,
         sidebar=False,
+        origin="pythondotorg",
+        level_name="Participating",
+        level_order=7,
     ),
     dict(
         name="Adimian.be SPRL",
@@ -369,6 +453,9 @@ SPONSORS_DICTS = [
         infra_sponsor=False,
         one_time=False,
         sidebar=False,
+        origin="pythondotorg",
+        level_name="Participating",
+        level_order=7,
     ),
     dict(
         name="Python Academy",
@@ -382,6 +469,9 @@ SPONSORS_DICTS = [
         infra_sponsor=False,
         one_time=False,
         sidebar=False,
+        origin="pythondotorg",
+        level_name="Participating",
+        level_order=7,
     ),
     dict(
         name="Adafruit",
@@ -395,6 +485,9 @@ SPONSORS_DICTS = [
         infra_sponsor=False,
         one_time=False,
         sidebar=False,
+        origin="pythondotorg",
+        level_name="Participating",
+        level_order=7,
     ),
     dict(
         name="Pingdom",

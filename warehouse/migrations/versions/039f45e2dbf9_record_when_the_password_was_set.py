@@ -24,25 +24,21 @@ def upgrade():
     )
     op.alter_column("accounts_user", "password_date", server_default=sa.text("now()"))
 
-    op.execute(
-        """ CREATE FUNCTION update_password_date()
+    op.execute(""" CREATE FUNCTION update_password_date()
             RETURNS TRIGGER AS $$
                 BEGIN
                     NEW.password_date = now();
                     RETURN NEW;
                 END;
             $$ LANGUAGE plpgsql;
-        """
-    )
+        """)
 
-    op.execute(
-        """ CREATE TRIGGER update_user_password_date
+    op.execute(""" CREATE TRIGGER update_user_password_date
             BEFORE UPDATE OF password ON accounts_user
             FOR EACH ROW
             WHEN (OLD.password IS DISTINCT FROM NEW.password)
             EXECUTE PROCEDURE update_password_date()
-        """
-    )
+        """)
 
 
 def downgrade():

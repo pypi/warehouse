@@ -1,0 +1,9 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+
+{% extends "email/_base/body.txt" %}
+
+{% block content %}
+{% trans username=username, service=service, external_username=external_username %}Someone, perhaps you, has connected the {{ service }} account @{{ external_username }} to your PyPI account '{{ username }}'.{% endtrans %}
+
+{% trans email_address='admin@pypi.org' %}If you did not make this change, you can email {{ email_address }} to communicate with the PyPI administrators.{% endtrans %}
+{% endblock %}

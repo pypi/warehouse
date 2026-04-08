@@ -9,14 +9,22 @@ from uuid import UUID
 import rfc3986
 import sentry_sdk
 
-from sqlalchemy import ForeignKey, Index, String, UniqueConstraint, func, orm
-from sqlalchemy.dialects.postgresql import UUID as PG_UUID
+from sqlalchemy import (
+    CheckConstraint,
+    ForeignKey,
+    Index,
+    String,
+    UniqueConstraint,
+    func,
+    orm,
+)
 from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
 from warehouse.oidc.errors import InvalidPublisherError, ReusedTokenError
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.urls import verify_url_from_reference
+from warehouse.packaging.models import PROJECT_NAME_PATTERN
 
 if TYPE_CHECKING:
     from pypi_attestations import Publisher
@@ -25,6 +33,7 @@ if TYPE_CHECKING:
     from warehouse.accounts.models import User
     from warehouse.macaroons.models import Macaroon
     from warehouse.oidc.services import OIDCPublisherService
+    from warehouse.organizations.models import Organization
     from warehouse.packaging.models import Project
 
 
@@ -102,13 +111,11 @@ class OIDCPublisherProjectAssociation(db.Model):
     __table_args__ = (UniqueConstraint("oidc_publisher_id", "project_id"),)
 
     oidc_publisher_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
         ForeignKey("oidc_publishers.id"),
         nullable=False,
         primary_key=True,
     )
     project_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
         primary_key=True,
@@ -150,6 +157,12 @@ class OIDCPublisherMixin:
     # indicating any custom claims that are known to be present but are
     # not checked as part of verifying the JWT.
     __unchecked_claims__: set[str] = set()
+
+    # Whether this publisher type supports custom (non-canonical) issuer URLs.
+    # When True, lookup_by_claims MUST filter by the JWT's "iss" claim to
+    # prevent cross-issuer publisher confusion. Defaults to False, meaning the
+    # service-level issuer URL mismatch check is enforced.
+    __supports_custom_issuer__: bool = False
 
     # Individual publishers can have complex unique constraints on their
     # required and optional attributes, and thus can't be naively looked
@@ -384,11 +397,23 @@ class PendingOIDCPublisher(OIDCPublisherMixin, db.Model):
 
     project_name: Mapped[str] = mapped_column(String, nullable=False)
     added_by_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True
+        ForeignKey("users.id"), nullable=False, index=True
     )
     added_by: Mapped[User] = orm.relationship(back_populates="pending_oidc_publishers")
+    organization_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("organizations.id"),
+        nullable=True,
+        index=True,
+    )
+    pypi_organization: Mapped[Organization | None] = orm.relationship(
+        back_populates="pending_oidc_publishers"
+    )
 
     __table_args__ = (
+        CheckConstraint(
+            f"project_name ~* '{PROJECT_NAME_PATTERN}'::text",
+            name="pending_oidc_publishers_project_name_valid_name",
+        ),
         Index(
             "pending_project_name_ultranormalized",
             func.ultranormalize_name(project_name),

@@ -25,6 +25,7 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
     cast,
+    event,
     func,
     or_,
     orm,
@@ -36,7 +37,6 @@ from sqlalchemy.dialects.postgresql import (
     CITEXT,
     ENUM,
     REGCLASS,
-    UUID as PG_UUID,
 )
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -79,6 +79,7 @@ if typing.TYPE_CHECKING:
     from warehouse.oidc.models import OIDCPublisher
 
 _MONOTONIC_SEQUENCE = 42
+PROJECT_NAME_PATTERN = "^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$"
 
 
 class Role(db.Model):
@@ -252,7 +253,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
 
     __table_args__ = (
         CheckConstraint(
-            "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'::text",
+            f"name ~* '{PROJECT_NAME_PATTERN}'::text",
             name="projects_valid_name",
         ),
         CheckConstraint(
@@ -478,7 +479,9 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
     def latest_version(self):
         session = orm_session_from_obj(self)
         return (
-            session.query(Release.version, Release.created, Release.is_prerelease)
+            session.query(
+                Release.version, Release.created, Release.is_prerelease, Release.summary
+            )
             .filter(Release.project == self, Release.yanked.is_(False))
             .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
             .first()
@@ -1009,12 +1012,10 @@ class File(HasEvents, db.Model):
         return (
             self.events.where(
                 or_(
-                    self.Event.additional[  # type: ignore[attr-defined]
+                    self.Event.additional[
                         "uploaded_via_trusted_publisher"
                     ].as_boolean(),
-                    self.Event.additional["publisher_url"]  # type: ignore[attr-defined]
-                    .as_string()
-                    .is_not(None),
+                    self.Event.additional["publisher_url"].as_string().is_not(None),
                 )
             ).count()
             > 0
@@ -1060,7 +1061,6 @@ class ReleaseClassifiers(db.ModelBase):
         primary_key=True,
     )
     release_id: Mapped[UUID] = mapped_column(
-        PG_UUID,
         ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),
         primary_key=True,
     )
@@ -1083,6 +1083,12 @@ class JournalEntry(db.ModelBase):
                 "journals_submitted_by_and_reverse_date_idx",
                 cls._submitted_by,
                 cls.submitted_date.desc(),
+            ),
+            # Reverse index on ID, most recent project's journal entry for triggers
+            Index(
+                "journals_name_id_idx",
+                cls.name,
+                cls.id.desc(),
             ),
         )
 
@@ -1114,17 +1120,41 @@ def ensure_monotonic_journals(config, session, flush_context, instances):
     # The way this works, not even the SERIALIZABLE transaction types give
     # us this property. Instead we have to implement our own locking that
     # ensures that each new journal entry will be serialized.
-    for obj in session.new:
-        if isinstance(obj, JournalEntry):
-            session.execute(
-                select(
-                    func.pg_advisory_xact_lock(
-                        cast(cast(JournalEntry.__tablename__, REGCLASS), Integer),
-                        _MONOTONIC_SEQUENCE,
-                    )
-                )
+    journal_entries = [obj for obj in session.new if isinstance(obj, JournalEntry)]
+    if not journal_entries:
+        return
+
+    has_other_pending = session.dirty or any(
+        not isinstance(obj, JournalEntry) for obj in session.new
+    )
+    if has_other_pending:
+        # This flush contains both JournalEntries and other pending changes.
+        # Acquiring the advisory lock here would hold it while non-journal
+        # INSERTs/UPDATEs execute (e.g., File INSERT unique constraint checks),
+        # which can deadlock with concurrent transactions waiting for the same
+        # advisory lock. Defer the JournalEntries to a subsequent flush where
+        # they'll be the only pending objects, minimizing lock hold scope.
+        for je in journal_entries:
+            session.expunge(je)
+        session.info.setdefault("_deferred_journals", []).extend(journal_entries)
+        return
+
+    session.execute(
+        select(
+            func.pg_advisory_xact_lock(
+                cast(cast(JournalEntry.__tablename__, REGCLASS), Integer),
+                _MONOTONIC_SEQUENCE,
             )
-            return
+        )
+    )
+
+
+@db.listens_for(db.Session, "after_flush")
+def _restore_deferred_journals(config, session, flush_context):
+    deferred = session.info.pop("_deferred_journals", None)
+    if deferred:
+        for je in deferred:
+            session.add(je)
 
 
 class ProhibitedProjectName(db.Model):
@@ -1140,9 +1170,7 @@ class ProhibitedProjectName(db.Model):
 
     created: Mapped[datetime_now]
     name: Mapped[str] = mapped_column(unique=True)
-    _prohibited_by = mapped_column(
-        "prohibited_by", PG_UUID(as_uuid=True), ForeignKey("users.id"), index=True
-    )
+    _prohibited_by = mapped_column("prohibited_by", ForeignKey("users.id"), index=True)
     prohibited_by: Mapped[User] = orm.relationship()
     comment: Mapped[str] = mapped_column(server_default="")
     observation_kind: Mapped[str] = mapped_column(
@@ -1207,3 +1235,20 @@ class AlternateRepository(db.Model):
     name: Mapped[str]
     url: Mapped[str]
     description: Mapped[str]
+
+
+@event.listens_for(File, "after_insert")
+def add_filename_to_registry(mapper, connection, target):
+    """
+    Log the new filename to the Filename (file_registry) table.
+
+    This event listener is triggered *after* a new `File` object is
+    successfully inserted into the database.
+
+    We use a direct connection-level insert (`connection.execute()`)
+    instead of `session.add(Filename(...))` to avoid an `SAWarning`.
+    Modifying the session *during* the flush process (which is when
+    this hook runs) is not a supported operation. This method
+    bypasses the session's unit-of-work tracking and is safe here.
+    """
+    connection.execute(Filename.__table__.insert(), {"filename": target.filename})

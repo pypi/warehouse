@@ -1,7 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
+from __future__ import annotations
 
 import datetime
 import functools
+import typing
 
 from email.headerregistry import Address
 
@@ -21,6 +23,11 @@ from warehouse.email.services import EmailMessage
 from warehouse.email.ses.tasks import cleanup as ses_cleanup
 from warehouse.events.tags import EventTag
 from warehouse.metrics.interfaces import IMetricsService
+
+if typing.TYPE_CHECKING:
+    from pyramid.request import Request
+
+    from warehouse.accounts.models import User
 
 
 def _compute_recipient(user, email):
@@ -111,7 +118,7 @@ def _send_email_to_user(
             "sender": override_from,
         },
         {
-            "tag": EventTag.Account.EmailSent,
+            "tag": EventTag.Account.EmailSent.value,
             "user_id": user.id,
             "additional": {
                 "from_": (
@@ -128,12 +135,12 @@ def _send_email_to_user(
 
 
 def _email(
-    name,
+    name: str,
     *,
-    allow_unverified=False,
-    repeat_window=None,
-    override_from=None,
-):
+    allow_unverified: bool = False,
+    repeat_window: int | None = None,
+    override_from: str | None = None,
+) -> typing.Callable:
     """
     This decorator is used to turn an e function into an email sending function!
 
@@ -934,7 +941,14 @@ def send_unyanked_project_release_email(
 
 @_email("removed-project-release")
 def send_removed_project_release_email(
-    request, user, *, release, submitter_name, submitter_role, recipient_role
+    request,
+    user,
+    *,
+    release,
+    submitter_name,
+    submitter_role,
+    recipient_role,
+    reason=None,
 ):
     recipient_role_descr = "an owner"
     if recipient_role == "Maintainer":
@@ -947,12 +961,21 @@ def send_removed_project_release_email(
         "submitter_name": submitter_name,
         "submitter_role": submitter_role.lower(),
         "recipient_role_descr": recipient_role_descr,
+        "reason": reason,
     }
 
 
 @_email("removed-project-release-file")
 def send_removed_project_release_file_email(
-    request, user, *, file, release, submitter_name, submitter_role, recipient_role
+    request,
+    user,
+    *,
+    file,
+    release,
+    submitter_name,
+    submitter_role,
+    recipient_role,
+    reason=None,
 ):
     recipient_role_descr = "an owner"
     if recipient_role == "Maintainer":
@@ -965,6 +988,7 @@ def send_removed_project_release_file_email(
         "submitter_name": submitter_name,
         "submitter_role": submitter_role.lower(),
         "recipient_role_descr": recipient_role_descr,
+        "reason": reason,
     }
 
 
@@ -981,6 +1005,16 @@ def send_recovery_code_used_email(request, user):
 @_email("recovery-code-reminder")
 def send_recovery_code_reminder_email(request, user):
     return {"username": user.username}
+
+
+@_email("unrecognized-login", allow_unverified=True)
+def send_unrecognized_login_email(request, user, *, ip_address, user_agent, token):
+    return {
+        "username": user.username,
+        "ip_address": ip_address,
+        "user_agent": user_agent,
+        "token": token,
+    }
 
 
 @_email("trusted-publisher-added")
@@ -1021,34 +1055,6 @@ def send_api_token_used_in_trusted_publisher_project_email(
     }
 
 
-@_email("pep625-extension-email")
-def send_pep625_extension_email(request, users, project_name, filename):
-    return {
-        "project_name": project_name,
-        "filename": filename,
-    }
-
-
-@_email("pep625-name-email")
-def send_pep625_name_email(request, users, project_name, filename, normalized_name):
-    return {
-        "project_name": project_name,
-        "filename": filename,
-        "normalized_name": normalized_name,
-    }
-
-
-@_email("pep625-version-email")
-def send_pep625_version_email(
-    request, users, project_name, filename, normalized_version
-):
-    return {
-        "project_name": project_name,
-        "filename": filename,
-        "normalized_version": normalized_version,
-    }
-
-
 @_email("environment-ignored-in-trusted-publisher")
 def send_environment_ignored_in_trusted_publisher_email(
     request, users, project_name, publisher, environment_name
@@ -1067,20 +1073,41 @@ def send_user_terms_of_service_updated(request, user):
     }
 
 
-@_email("pep427-name-email")
-def send_pep427_name_email(request, users, project_name, filename, normalized_name):
-    return {
-        "project_name": project_name,
-        "filename": filename,
-        "normalized_name": normalized_name,
-    }
-
-
 @_email("wheel-record-mismatch-email")
 def send_wheel_record_mismatch_email(request, users, project_name, filename):
     return {
         "project_name": project_name,
         "filename": filename,
+    }
+
+
+@_email("account-association-added")
+def send_account_association_added_email(
+    request: Request,
+    user: User,
+    *,
+    service: str,
+    external_username: str,
+) -> dict[str, str]:
+    return {
+        "username": user.username,
+        "service": service,
+        "external_username": external_username,
+    }
+
+
+@_email("account-association-removed")
+def send_account_association_removed_email(
+    request: Request,
+    user: User,
+    *,
+    service: str,
+    external_username: str,
+) -> dict[str, str]:
+    return {
+        "username": user.username,
+        "service": service,
+        "external_username": external_username,
     }
 
 

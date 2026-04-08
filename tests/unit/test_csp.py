@@ -156,6 +156,7 @@ class TestCSPTween:
                 "frame-src": ["'none'"],
                 "img-src": ["'self'"],
                 "connect-src": [],
+                "style-src": ["'self'"],
             },
             "camo.url": "http://localhost:9000",
         }
@@ -177,7 +178,9 @@ class TestCSPTween:
                 "connect-src http://localhost:9000; "
                 "default-src 'none'; "
                 "frame-src https://inspector.pypi.io; "
-                "img-src 'self' data:"
+                "img-src 'self' data:; "
+                "style-src 'self' "
+                "'sha256-kwpt3lQZ21rs4cld7/uEm9qI5yAbjYzx+9FGm/XmwNU='"
             )
         }
 
@@ -241,15 +244,15 @@ def test_includeme():
                         "https://api.github.com/search/issues",
                         "https://gitlab.com/api/",
                         "https://analytics.python.org",
-                        "fastly-insights.com",
-                        "*.fastly-insights.com",
                         "*.ethicalads.io",
                         "https://api.pwnedpasswords.com",
                         "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/sre/mathmaps/",
                         "https://2p66nmmycsj3.statuspage.io",
                     ],
                     "default-src": ["'none'"],
-                    "font-src": ["'self'", "fonts.gstatic.com"],
+                    "font-src": [
+                        "'self'",
+                    ],
                     "form-action": [
                         "'self'",
                         "https://checkout.stripe.com",
@@ -260,14 +263,12 @@ def test_includeme():
                     "img-src": [
                         "'self'",
                         "camo.url.value",
-                        "*.fastly-insights.com",
                         "*.ethicalads.io",
                         "ethicalads.blob.core.windows.net",
                     ],
                     "script-src": [
                         "'self'",
                         "https://analytics.python.org",
-                        "*.fastly-insights.com",
                         "*.ethicalads.io",
                         "'sha256-U3hKDidudIaxBDEzwGJApJgPEf2mWk6cfMWghrAa6i0='",
                         "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/",
@@ -276,7 +277,6 @@ def test_includeme():
                     ],
                     "style-src": [
                         "'self'",
-                        "fonts.googleapis.com",
                         "*.ethicalads.io",
                         "'sha256-2YHqZokjiizkHi1Zt+6ar0XJ0OeEy/egBnlm+MDMtrM='",
                         "'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='",
@@ -285,7 +285,6 @@ def test_includeme():
                         "'sha256-OCf+kv5Asiwp++8PIevKBYSgnNLNUZvxAp4a7wMLuKA='",
                         "'sha256-h5LOiLhk6wiJrGsG5ItM0KimwzWQH/yAcmoJDJL//bY='",
                     ],
-                    "worker-src": ["*.fastly-insights.com"],
                 }
             }
         )

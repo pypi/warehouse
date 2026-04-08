@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pretend
+import psycopg
 import pytest
-import sqlalchemy
 
 from tests.common.db.oidc import GitHubPublisherFactory, PendingGitHubPublisherFactory
 from warehouse.oidc import errors
@@ -78,11 +78,6 @@ from warehouse.oidc.models import _core, github
 )
 def test_extract_workflow_filename(workflow_ref, expected):
     assert github._extract_workflow_filename(workflow_ref) == expected
-
-
-@pytest.mark.parametrize("claim", ["", "repo", "repo:"])
-def test_check_sub(claim):
-    assert github._check_sub(pretend.stub(), claim, pretend.stub()) is False
 
 
 class TestGitHubPublisher:
@@ -174,7 +169,6 @@ class TestGitHubPublisher:
     def test_github_publisher_all_known_claims(self):
         assert github.GitHubPublisher.all_known_claims() == {
             # required verifiable claims
-            "sub",
             "repository",
             "repository_owner",
             "repository_owner_id",
@@ -192,6 +186,7 @@ class TestGitHubPublisher:
             "aud",
             "jti",
             # unchecked claims
+            "sub",
             "actor",
             "actor_id",
             "run_id",
@@ -212,6 +207,7 @@ class TestGitHubPublisher:
             "enterprise",
             "enterprise_id",
             "ref_protected",
+            "check_run_id",
         }
 
     def test_github_publisher_computed_properties(self):
@@ -434,22 +430,17 @@ class TestGitHubPublisher:
         check = github.GitHubPublisher.__required_verifiable_claims__["repository"]
         assert check(truth, claim, pretend.stub()) == valid
 
-    def test_check_event_name_emits_metrics(self, metrics):
+    def test_check_event_name_invalid(self):
         check = github.GitHubPublisher.__required_verifiable_claims__["event_name"]
-        publisher_service = pretend.stub(metrics=metrics)
 
-        assert check(
-            "throwaway",
-            "pull_request_target",
-            pretend.stub(),
-            publisher_service=publisher_service,
-        )
-        assert metrics.increment.calls == [
-            pretend.call(
-                "warehouse.oidc.claim",
-                tags=["publisher:GitHub", "event_name:pull_request_target"],
+        with pytest.raises(
+            errors.InvalidPublisherError,
+            match=(
+                "Publishing from a workflow invoked via 'pull_request_target' "
+                "is not supported."
             ),
-        ]
+        ):
+            check("throwaway", "pull_request_target", pretend.stub())
 
     @pytest.mark.parametrize(
         ("claim", "ref", "sha", "valid", "expected"),
@@ -627,22 +618,6 @@ class TestGitHubPublisher:
     @pytest.mark.parametrize(
         ("truth", "claim", "valid"),
         [
-            ("repo:foo/bar", "repo:foo/bar:someotherstuff", True),
-            ("repo:foo/bar", "repo:foo/bar:", True),
-            ("repo:fOo/BaR", "repo:foo/bar", True),
-            ("repo:foo/bar", "repo:fOo/BaR:", True),
-            ("repo:foo/bar:someotherstuff", "repo:foo/bar", False),
-            ("repo:foo/bar-baz", "repo:foo/bar", False),
-            ("repo:foo/bar", "repo:foo/bar-baz", False),
-        ],
-    )
-    def test_github_publisher_sub_claim(self, truth, claim, valid):
-        check = github.GitHubPublisher.__required_verifiable_claims__["sub"]
-        assert check(truth, claim, pretend.stub()) is valid
-
-    @pytest.mark.parametrize(
-        ("truth", "claim", "valid"),
-        [
             ("", None, True),
             ("", "", True),
             ("", "some-environment", True),
@@ -676,7 +651,7 @@ class TestGitHubPublisher:
         )
         db_request.db.add(publisher2)
 
-        with pytest.raises(sqlalchemy.exc.IntegrityError):
+        with pytest.raises(psycopg.errors.UniqueViolation):
             db_request.db.commit()
 
     @pytest.mark.parametrize(

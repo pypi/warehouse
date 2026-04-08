@@ -13,6 +13,14 @@ RECORD_SIG_EOCD64 = b"\x50\x4b\x06\x06"
 RECORD_SIG_EOCD64_LOCATOR = b"\x50\x4b\x06\x07"
 RECORD_SIG_DATA_DESCRIPTOR = b"\x50\x4b\x07\x08"
 
+# Extras that shouldn't be duplicated.
+DISALLOW_DUPLICATE_EXTRA_IDS = {
+    0x0001,  # ZIP64 extended info
+    0x7075,  # Info-ZIP Unicode Path
+}
+# Unprintable characters we disallow from filenames.
+UNPRINTABLE_CHARS = set(range(0x00, 0x20)) | {0x7F}
+
 
 class InvalidZipFileError(Exception):
     """Internal exception used by this module"""
@@ -38,8 +46,12 @@ def _read_check(fp: typing.IO[bytes], amt: int, /) -> bytes:
     return data
 
 
+def _contains_unprintable_chars(value: bytes) -> bool:
+    return any(ch in UNPRINTABLE_CHARS for ch in value)
+
+
 def _handle_local_file_header(
-    fp: typing.IO[bytes], zipfile_files_and_sizes: dict[str, int]
+    fp: typing.IO[bytes], zipfile_files_and_sizes: dict[str, tuple[int, int]]
 ) -> bytes:
     """
     Parses the body of a Local File header. Returns
@@ -48,22 +60,33 @@ def _handle_local_file_header(
     See section 4.3.7 of APPNOTE.TXT.
     """
     data = _read_check(fp, 26)
-    gpbf, compress_method, compressed_size, filename_size, extra_size = struct.unpack(
-        "<xxHHxxxxxxxxLxxxxHH", data
-    )
+    (
+        gpbf,
+        compress_method,
+        compressed_size,
+        file_size,
+        filename_size,
+        extra_size,
+    ) = struct.unpack("<xxHHxxxxxxxxLLHH", data)
     filename = _read_check(fp, filename_size)
     extra = _read_check(fp, extra_size)
 
+    if _contains_unprintable_chars(filename):
+        raise InvalidZipFileError("Invalid character in filename")
+
     # Search for the ZIP64 extension in extras.
-    is_zip64 = False
+    seen_extra_ids = set()
     while extra:
         if len(extra) < 4:
             raise InvalidZipFileError("Malformed zip file")
-        extra_header, extra_data_size = struct.unpack("<HH", extra[:4])
+        extra_id, extra_data_size = struct.unpack("<HH", extra[:4])
         if extra_data_size + 4 > len(extra):
             raise InvalidZipFileError("Malformed zip file")
-        if extra_header == 0x0001:
-            is_zip64 = True
+        if extra_id in seen_extra_ids and extra_id in DISALLOW_DUPLICATE_EXTRA_IDS:
+            raise InvalidZipFileError("Invalid duplicate extra in local file")
+        seen_extra_ids.add(extra_id)
+
+        if extra_id == 0x0001:
 
             # ZIP64 extras must be one of these lengths.
             if extra_data_size not in (0, 8, 16, 24, 28):
@@ -75,6 +98,8 @@ def _handle_local_file_header(
             if extra_data_size == 0:
                 if compressed_size == 0xFFFFFFFF:
                     raise InvalidZipFileError("Malformed zip file")
+                if file_size == 0xFFFFFFFF:
+                    raise InvalidZipFileError("Malformed zip file")
 
             # We only have uncompressed size, so we have to
             # double-check that we're NOT using compression
@@ -84,24 +109,50 @@ def _handle_local_file_header(
                 if compress_method != 0x0000:  # "STORE" method
                     raise InvalidZipFileError("Malformed zip file")
                 # Use uncompressed size, the first field in the extra data.
-                (compressed_size,) = struct.unpack("<Q", extra[4:12])
+                (uncompressed_size,) = struct.unpack("<Q", extra[4:12])
+                compressed_size = uncompressed_size
+                if file_size == 0xFFFFFFFF:
+                    file_size = uncompressed_size
 
             else:
-                # We receive an explicit compressed ZIP64 size.
-                # This is the second field in the extra data.
+                # We receive both uncompressed and compressed ZIP64 sizes.
+                # Only override file_size header values when they use the
+                # 0xFFFFFFFF sentinel, per the ZIP spec (APPNOTE.TXT 4.5.3).
+                if file_size == 0xFFFFFFFF:
+                    (file_size,) = struct.unpack("<Q", extra[4:12])
                 (compressed_size,) = struct.unpack("<Q", extra[12:20])
-            break
+
+        elif extra_id == 0x7075:
+            # Info ZIP Unicode Path Extra layout
+            # 0x7075        2 bytes
+            # TSize         2 bytes
+            # Version       1 byte
+            # NameCRC32     4 bytes
+            # UnicodeName   TSize - 5
+            unicode_name = extra[9 : 4 + extra_data_size]
+            if _contains_unprintable_chars(unicode_name):
+                raise InvalidZipFileError("Invalid character in filename")
+            try:
+                unicode_name.decode("utf-8")
+            except UnicodeError:
+                raise InvalidZipFileError("Filename not valid UTF-8")
+
         extra = extra[extra_data_size + 4 :]
 
     # If the local file is using streaming mode then
     # use the compression size from central directory.
     has_data_descriptor = gpbf & 0x08
+    if has_data_descriptor:
+        raise InvalidZipFileError("ZIP contains a data descriptor")
     try:
         filename_as_str = filename.decode("utf-8")
-        if has_data_descriptor and compressed_size == 0:
-            compressed_size = zipfile_files_and_sizes[filename_as_str]
-        elif zipfile_files_and_sizes[filename_as_str] != compressed_size:
+        expected_compress_size, expected_file_size = zipfile_files_and_sizes[
+            filename_as_str
+        ]
+        if expected_compress_size != compressed_size:
             raise InvalidZipFileError("Mis-matched data size")
+        if expected_file_size != file_size:
+            raise InvalidZipFileError("Mis-matched file size")
     except UnicodeError:
         raise InvalidZipFileError("Filename not unicode")
     except KeyError:
@@ -109,22 +160,10 @@ def _handle_local_file_header(
 
     _seek_check(fp, compressed_size)
 
-    if has_data_descriptor:
-        # 4 byte data descriptor header is optional... :-(
-        # There is always a 4 byte CRC.
-        # If the archive is ZIP64, both size fields are 8 bytes
-        # otherwise they are 4 bytes.
-        maybe_data_descriptor_header = _read_check(fp, 4)
-        data_descriptor_remaining = 16 if is_zip64 else 8
-        # The first 4 bytes are either the header or the CRC.
-        if maybe_data_descriptor_header == RECORD_SIG_DATA_DESCRIPTOR:
-            data_descriptor_remaining += 4
-        _seek_check(fp, data_descriptor_remaining)
-
     return filename
 
 
-def _handle_central_directory_header(fp: typing.IO[bytes]) -> bytes:
+def _handle_central_directory_header(fp: typing.IO[bytes]) -> tuple[bytes, bytes]:
     """
     Parses the body of a Central Directory (CD) header.
     Returns the contained filename field of the record.
@@ -135,13 +174,18 @@ def _handle_central_directory_header(fp: typing.IO[bytes]) -> bytes:
     compressed_size, filename_size, extra_size, comment_size, offset = struct.unpack(
         "<xxxxxxxxxxxxxxxxLxxxxHHHxxxxxxxxL", data
     )
+    if comment_size != 0:
+        raise InvalidZipFileError("Comment in central directory")
     filename = _read_check(fp, filename_size)
-    _seek_check(fp, extra_size)
-    _seek_check(fp, comment_size)
-    return filename
+    extra = _read_check(fp, extra_size)
+
+    if _contains_unprintable_chars(filename):
+        raise InvalidZipFileError("Invalid character in filename")
+
+    return filename, extra
 
 
-def _handle_eocd(fp: typing.IO[bytes]) -> None:
+def _handle_eocd(fp: typing.IO[bytes]) -> tuple[int, int, int]:
     """
     Parses the body of an End of Central Directory (EOCD) record.
 
@@ -149,21 +193,34 @@ def _handle_eocd(fp: typing.IO[bytes]) -> None:
     """
     data = _read_check(fp, 18)
     (
+        cd_records_on_disk,
+        cd_records,
+        cd_size,
         cd_offset,
         comment_size,
-    ) = struct.unpack("<xxxxxxxxxxxxLH", data)
+    ) = struct.unpack("<xxxxHHLLH", data)
+    if cd_records_on_disk != cd_records:
+        raise InvalidZipFileError("Malformed zip file")
     _seek_check(fp, comment_size)
+    return cd_records, cd_size, cd_offset
 
 
-def _handle_eocd64(fp: typing.IO[bytes]) -> None:
+def _handle_eocd64(fp: typing.IO[bytes]) -> tuple[int, int, int]:
     """
     Parses the body of an ZIP64 End of Central Directory (EOCD64) record.
 
     See section 4.3.14 of APPNOTE.TXT.
     """
-    data = _read_check(fp, 8)
-    (eocd64_size,) = struct.unpack("<Q", data[:8])
-    _seek_check(fp, eocd64_size)
+    data = _read_check(fp, 52)
+    eocd64_size, cd_records_on_disk, cd_records, cd_size, cd_offset = struct.unpack(
+        "<QxxxxxxxxxxxxQQQQ", data
+    )
+    if cd_records_on_disk != cd_records:
+        raise InvalidZipFileError("Malformed zip file")
+    if eocd64_size != 44:
+        raise InvalidZipFileError("ZIP64 extensible data not allowed")
+    _seek_check(fp, eocd64_size - 44)
+    return cd_records, cd_size, cd_offset
 
 
 def _handle_eocd64_locator(fp: typing.IO[bytes]) -> int:
@@ -197,7 +254,10 @@ def validate_zipfile(zip_filepath: str) -> tuple[bool, str | None]:
     try:
         zfp = zipfile.ZipFile(zip_filepath, mode="r")
         # Store compression sizes from the CD for use later.
-        zipfile_files = {zfi.filename: zfi.compress_size for zfi in zfp.filelist}
+        zipfile_files = {
+            zfi.orig_filename: (zfi.compress_size, zfi.file_size)
+            for zfi in zfp.filelist
+        }
     except zipfile.BadZipfile as e:
         return False, e.args[0]
 
@@ -216,6 +276,17 @@ def validate_zipfile(zip_filepath: str) -> tuple[bool, str | None]:
         expected_eocd64_offset = None
         actual_eocd64_offset = None
 
+        # Track the number of CD records
+        # and their sizes.
+        cd_records = 0
+        cd_offset = None
+        cd_size = 0
+
+        # Values from EOCD or EOCD64.
+        eocd_cd_records = None
+        eocd_cd_offset = None
+        eocd_cd_size = None
+
         while True:
             try:
                 signature = _read_check(fp, 4)
@@ -229,23 +300,16 @@ def validate_zipfile(zip_filepath: str) -> tuple[bool, str | None]:
                 ):
                     return False, "Malformed zip file"
 
-                # Only accept a single EOCD64 Locator after EOCD64.
-                if signature == RECORD_SIG_EOCD64_LOCATOR and (
-                    expected_eocd64_offset is None or actual_eocd64_offset is not None
-                ):
-                    return False, "Malformed zip file"
-
-                # If we've seen an EOCD64 record then we only
-                # accept an EOCD64 Locator or an EOCD.
-                if (
-                    signature not in (RECORD_SIG_EOCD64_LOCATOR, RECORD_SIG_EOCD)
-                    and expected_eocd64_offset is not None
-                ):
-                    return False, "Malformed zip file"
-
                 # Central Directory File Header
                 if signature == RECORD_SIG_CENTRAL_DIRECTORY:
-                    filename = _handle_central_directory_header(fp)
+                    # Record the first CD record we find as
+                    # the start of the central directory.
+                    if cd_offset is None:
+                        cd_offset = fp.tell() - 4
+                    cd_records += 1
+
+                    filename, extra = _handle_central_directory_header(fp)
+                    cd_size += 46 + len(filename) + len(extra)
                     if filename in cd_filenames:
                         raise InvalidZipFileError(
                             "Duplicate filename in central directory"
@@ -263,7 +327,30 @@ def validate_zipfile(zip_filepath: str) -> tuple[bool, str | None]:
 
                 # End of Central Directory
                 elif signature == RECORD_SIG_EOCD:
-                    _handle_eocd(fp)
+                    # If the ZIP is empty then we expect
+                    # to see zero CD entries.
+                    if cd_offset is None:
+                        cd_offset = fp.tell() - 4
+
+                    # If this archive is ZIP64 we use the values
+                    # from the EOCD64 values, otherwise use EOCD values.
+                    if actual_eocd64_offset is not None and eocd_cd_offset is not None:
+                        _handle_eocd(fp)
+                    else:
+                        eocd_cd_records, eocd_cd_size, eocd_cd_offset = _handle_eocd(fp)
+
+                    if eocd_cd_records != cd_records:
+                        raise InvalidZipFileError(
+                            "Mismatched central directory records"
+                        )
+                    if cd_offset is None or eocd_cd_offset != cd_offset:
+                        raise InvalidZipFileError("Mismatched central directory offset")
+                    # This branch is tough to cover, as CPython's ZIP archive
+                    # implementation already doesn't like mismatches between size
+                    # and offset of the CD.
+                    if cd_size is None or eocd_cd_size != cd_size:  # pragma: no cover
+                        raise InvalidZipFileError("Mismatched central directory size")
+
                     break  # This always means the end of a ZIP.
 
                 # End of Central Directory (ZIP64)
@@ -272,19 +359,11 @@ def validate_zipfile(zip_filepath: str) -> tuple[bool, str | None]:
                     # we see EOCD64 Locator later.
                     # -4 because we just read signature bytes.
                     expected_eocd64_offset = fp.tell() - 4
-                    _handle_eocd64(fp)
+                    eocd_cd_records, eocd_cd_size, eocd_cd_offset = _handle_eocd64(fp)
 
                 # End of Central Directory (ZIP64) Locator
                 elif signature == RECORD_SIG_EOCD64_LOCATOR:
                     actual_eocd64_offset = _handle_eocd64_locator(fp)
-
-                    # Cross-check the offset specified in the EOCD64 Locator
-                    # record with the one we ourselves recorded earlier.
-                    if (
-                        expected_eocd64_offset is None
-                        or expected_eocd64_offset != actual_eocd64_offset
-                    ):
-                        return False, "Mis-matched EOCD64 record and locator offset"
 
                 # Note that there are other record types,
                 # but I didn't find any on PyPI, and they don't
@@ -327,5 +406,5 @@ def main(argv) -> int:  # pragma: no cover
     return 0 if ok else 1
 
 
-if __name__ == "__main__":  # pragma: no cover
+if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))

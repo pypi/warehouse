@@ -16,8 +16,7 @@ import wtforms.validators
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 from pyramid.view import view_config
-from sqlalchemy import func, or_, select
-from sqlalchemy.orm import joinedload
+from sqlalchemy import func, or_, select, update
 
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
@@ -39,7 +38,7 @@ from warehouse.email import (
     send_password_reset_by_admin_email,
 )
 from warehouse.observations.models import ObservationKind
-from warehouse.packaging.models import JournalEntry, Project, Release, Role
+from warehouse.packaging.models import File, JournalEntry, Project, Release, Role
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import clear_project_quarantine, quarantine_project
 
@@ -234,6 +233,41 @@ def user_detail(user, request):
 
 
 @view_config(
+    route_name="admin.user.files",
+    renderer="json",
+    permission=Permissions.AdminUsersRead,
+    request_method="GET",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    context=User,
+)
+def user_files(user, request):
+    stmt = (
+        select(File.path, File.size)
+        .join(Release, File.release_id == Release.id)
+        .join(Project, Release.project_id == Project.id)
+        .join(Role, Project.id == Role.project_id)
+        .where(Role.user_id == user.id)
+        .order_by(Project.name, Release.version, File.filename)
+    )
+    rows = request.db.execute(stmt).all()
+
+    paths = []
+    total_size = 0
+    for row in rows:
+        paths.append(row.path)
+        paths.append(row.path + ".metadata")
+        total_size += row.size
+
+    return {
+        "files": paths,
+        "total_size": total_size,
+        "file_count": len(rows),
+    }
+
+
+@view_config(
     route_name="admin.user.submit_email",
     require_methods=["POST"],
     permission=Permissions.AdminUsersEmailWrite,
@@ -342,16 +376,13 @@ def _nuke_user(user, request):
 
     # Update all journals to point to `deleted-user` instead
     deleted_user = request.db.query(User).filter(User.username == "deleted-user").one()
-
-    journals = (
-        request.db.query(JournalEntry)
-        .options(joinedload(JournalEntry.submitted_by))
-        .filter(JournalEntry.submitted_by == user)
-        .all()
+    # Update in bulk to avoid loading all journal entries into memory (n+1)
+    request.db.execute(
+        update(JournalEntry)
+        .where(JournalEntry._submitted_by == user.username)
+        .values(_submitted_by=deleted_user.username)
+        .execution_options(synchronize_session=False)
     )
-
-    for journal in journals:
-        journal.submitted_by = deleted_user
 
     # Prohibit the username
     request.db.add(

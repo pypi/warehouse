@@ -1,5 +1,9 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "sass:color";
+@use "../settings/breakpoints";
+@use "../settings/colours";
+
 /*
   A horizontal search form, with an input on the left and a button on the right.
 
@@ -26,7 +30,7 @@
     display: inline;
     padding-right: 28px;
     min-width: auto;
-    border-color: $white;
+    border-color: colours.$white;
   }
 
   &__button {
@@ -37,21 +41,21 @@
     width: 40px;
     border: 0;
     background-color: transparent;
-    color: mix($text-color, $border-color, 50%);
+    color: color.mix(colours.$text-color, colours.$border-color, 50%);
     font-size: 18px;
   }
 
   &--primary {
     margin: 25px 0 0 40px;
 
-    @media screen and (max-width: $tablet) {
+    @media screen and (max-width: breakpoints.$tablet) {
       display: none;
     }
 
     input[type="text"].search-form__search {
       width: 400px;
 
-      @media screen and (max-width: $desktop) {
+      @media screen and (max-width: breakpoints.$desktop) {
         width: 200px;
       }
     }
@@ -62,7 +66,7 @@
     margin: 0 auto;
     padding: 0 20px;
 
-    @media screen and (max-width: $mobile) {
+    @media screen and (max-width: breakpoints.$mobile) {
       padding: 0 5px;
     }
 
@@ -76,7 +80,7 @@
       font-size: 20px;
       right: 20px;
 
-      @media screen and (max-width: $mobile) {
+      @media screen and (max-width: breakpoints.$mobile) {
         right: 5px;
       }
     }

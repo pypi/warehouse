@@ -8,7 +8,6 @@ import pretend
 import pytest
 
 from cryptography import x509
-from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
@@ -32,16 +31,13 @@ def sns_privatekey():
     key = rsa.generate_private_key(
         public_exponent=65537,
         key_size=2048,
-        backend=default_backend(),
     )
     return key.private_bytes(Encoding.PEM, PrivateFormat.PKCS8, NoEncryption())
 
 
 @pytest.fixture(scope="module")
 def sns_publickey(sns_privatekey):
-    private_key = load_pem_private_key(
-        sns_privatekey, password=None, backend=default_backend()
-    )
+    private_key = load_pem_private_key(sns_privatekey, password=None)
     public_key = private_key.public_key()
     return public_key.public_bytes(Encoding.PEM, PublicFormat.SubjectPublicKeyInfo)
 
@@ -50,10 +46,8 @@ def sns_publickey(sns_privatekey):
 def sns_certificate(sns_privatekey, sns_publickey):
     one_day = datetime.timedelta(1, 0, 0)
 
-    private_key = load_pem_private_key(
-        sns_privatekey, password=None, backend=default_backend()
-    )
-    public_key = load_pem_public_key(sns_publickey, backend=default_backend())
+    private_key = load_pem_private_key(sns_privatekey, password=None)
+    public_key = load_pem_public_key(sns_publickey)
 
     builder = x509.CertificateBuilder()
     builder = builder.subject_name(
@@ -74,7 +68,7 @@ def sns_certificate(sns_privatekey, sns_publickey):
     )
 
     cert = builder.sign(
-        private_key=private_key, algorithm=hashes.SHA256(), backend=default_backend()
+        private_key=private_key, algorithm=hashes.SHA256(), backend=None
     )
 
     return cert.public_bytes(Encoding.PEM)
@@ -190,9 +184,7 @@ class TestMessageVerifier:
         verifier = MessageVerifier(topics=topics, session=session)
 
         if data.get("Signature") is VALID_SIGNATURE:
-            private_key = load_pem_private_key(
-                sns_privatekey, password=None, backend=default_backend()
-            )
+            private_key = load_pem_private_key(sns_privatekey, password=None)
             signature_bytes = private_key.sign(
                 verifier._get_data_to_sign(data),
                 PKCS1v15(),
@@ -280,9 +272,7 @@ class TestMessageVerifier:
         session = pretend.stub(get=lambda url: response)
         verifier = MessageVerifier(topics=topics, session=session)
 
-        private_key = load_pem_private_key(
-            sns_privatekey, password=None, backend=default_backend()
-        )
+        private_key = load_pem_private_key(sns_privatekey, password=None)
         signature_bytes = private_key.sign(
             verifier._get_data_to_sign(data),
             PKCS1v15(),

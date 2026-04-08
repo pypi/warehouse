@@ -1,5 +1,9 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "../settings/breakpoints";
+@use "../settings/grid";
+@use "../tools/layout-utilities";
+
 /*
   A layout with a left sidebar and main section.
 
@@ -10,14 +14,14 @@
 */
 
 .left-layout {
-  @include site-container;
+  @include layout-utilities.site-container;
 
   &__sidebar {
     float: left;
-    width: calc(25% - #{$half-spacing-unit});
-    margin-right: $spacing-unit;
+    width: calc(25% - #{grid.$half-spacing-unit});
+    margin-right: grid.$spacing-unit;
 
-    @media only screen and (max-width: $desktop) {
+    @media only screen and (max-width: breakpoints.$desktop) {
       width: 100%;
       margin: 0;
     }
@@ -25,10 +29,10 @@
 
   &__main {
     float: left;
-    width: calc(75% - #{$half-spacing-unit});
+    width: calc(75% - #{grid.$half-spacing-unit});
     margin-right: 0;
 
-    @media only screen and (max-width: $desktop) {
+    @media only screen and (max-width: breakpoints.$desktop) {
       width: 100%;
       margin: 0;
     }

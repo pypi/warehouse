@@ -1,5 +1,8 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "sass:list";
+@use "../settings/z-index";
+
 /*
   A helper that will stick an element to the top of the page:
   `js-stick-to-top` required for JS hook:
@@ -12,5 +15,5 @@
   position: fixed;
   top: 0;
   width: 100%;
-  z-index: index($z-index-scale, "sticky-top");
+  z-index: list.index(z-index.$z-index-scale, "sticky-top");
 }

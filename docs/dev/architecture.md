@@ -10,7 +10,7 @@ Represent items that **users** are most likely to interact with.
 Some specifics have been omitted from the visual diagrams for clarity.
 Items like: Kubernetes, Amazon Web Storage, deployment tooling, etc.
 
-```{mermaid}
+```mermaid
 C4Context
   title System Context Diagram: Warehouse
   UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
@@ -79,7 +79,7 @@ as responses will direct clients to the storage system directly
 via URLs prefixed with: `https://files.pythonhosted.org/packages/...`
 which are served by Fastly and cached.
 
-```{mermaid}
+```mermaid
 C4Container
   title Container Diagram: Warehouse - Web 
   UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
@@ -108,7 +108,7 @@ C4Container
 
 Here we show how a user might upload a file to the Warehouse.
 
-```{mermaid}
+```mermaid
 C4Container
   title Container Diagram: Warehouse - Web Uploads
   UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
@@ -140,7 +140,7 @@ We also use Celery Beat to schedule tasks.
 We currently use Redis as the queue,
 and Redis as the result backend and schedule storage.
 
-```{mermaid}
+```mermaid
 C4Container
   Container(worker_beat, "Worker - Beat", "Python, Celery", "keeps time, schedules tasks")
   Container(worker, "Worker", "Python, Celery", "runs tasks")

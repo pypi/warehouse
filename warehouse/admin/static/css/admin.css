@@ -1,0 +1,94 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+@charset "utf-8";
+@import "@fortawesome/fontawesome-free/css/all.min.css";
+
+@import "admin-lte/plugins/datatables-bs4/css/dataTables.bootstrap4.css";
+@import "admin-lte/plugins/datatables-responsive/css/responsive.bootstrap4.css";
+@import "admin-lte/plugins/datatables-buttons/css/buttons.bootstrap4.css";
+@import "admin-lte/plugins/datatables-rowgroup/css/rowGroup.bootstrap4.css";
+
+@import "admin-lte/dist/css/adminlte.css";
+
+/* Admin styles for the Warehouse project (PyPI) */
+
+.table td,
+.table th {
+  max-width: 30em;
+}
+
+.preserve-line-breaks {
+  white-space: pre-line;
+}
+
+.unset-height {
+  height: unset;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Responsive quarantine table */
+.quarantine-table {
+  .project-info {
+    min-width: 200px;
+  }
+
+  .project-name {
+    font-weight: 500;
+  }
+
+  @media (width <= 768px) {
+    & td {
+      padding: 0.75rem 0.5rem;
+    }
+
+    .btn-group-vertical .btn {
+      font-size: 0.875rem;
+    }
+  }
+}
+
+/* Timeline */
+.timeline-body dl dd {
+  overflow-inline: auto; /* Prevent long lines in malware report bodies from breaking the layout */
+}
+
+/* Dashboard utilization cards */
+.utilization-card {
+  .info-icon {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    font-size: 14px;
+    opacity: 0.7;
+    cursor: help;
+  }
+}
+
+/* Chart container for CSP-compliant Chart.js rendering */
+.chart-container {
+  position: relative;
+  height: 300px;
+  width: 100%;
+}
+
+/* User files modal - full screen with scrollable body */
+.user-files-dialog {
+  max-width: 95vw;
+  height: 90vh;
+
+  .modal-content {
+    height: 100%;
+  }
+}
+
+.user-files-content {
+  font-size: 12px;
+}
+
+/* Muted text for use on colored card backgrounds */
+.text-white-muted {
+  opacity: 0.8;
+}

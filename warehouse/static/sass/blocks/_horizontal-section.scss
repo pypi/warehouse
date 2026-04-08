@@ -1,5 +1,9 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "sass:color";
+@use "../settings/breakpoints";
+@use "../settings/colours";
+
 /*
   A full width horizontal section that acts as a background container and
   adds vertical rhythm to the page.
@@ -18,18 +22,18 @@
 .horizontal-section {
   padding: 70px 0;
 
-  @media only screen and (max-width: $tablet) {
+  @media only screen and (max-width: breakpoints.$tablet) {
     padding: 50px 0;
   }
 
-  @media only screen and (max-width: $mobile) {
+  @media only screen and (max-width: breakpoints.$mobile) {
     padding: 40px 0;
   }
 
   &--grey {
-    background-color: $base-grey;
-    border-bottom: 1px solid darken($base-grey, 10);
-    border-top: 1px solid darken($base-grey, 10);
+    background-color: colours.$base-grey;
+    border-bottom: 1px solid color.adjust(colours.$base-grey, $lightness: -10%);
+    border-top: 1px solid color.adjust(colours.$base-grey, $lightness: -10%);
   }
 
   &--medium {
@@ -41,7 +45,7 @@
   }
 
   &--statistics {
-    @media only screen and (max-width: $mobile) {
+    @media only screen and (max-width: breakpoints.$mobile) {
       display: none;
     }
   }

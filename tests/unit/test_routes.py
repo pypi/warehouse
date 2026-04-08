@@ -74,6 +74,11 @@ def test_routes(warehouse):
             "/.well-known/funding-manifest-urls",
             domain=warehouse,
         ),
+        pretend.call(
+            "security-txt",
+            "/.well-known/security.txt",
+            domain=warehouse,
+        ),
         pretend.call("opensearch.xml", "/opensearch.xml", domain=warehouse),
         pretend.call("index.sitemap.xml", "/sitemap.xml", domain=warehouse),
         pretend.call("bucket.sitemap.xml", "/{bucket}.sitemap.xml", domain=warehouse),
@@ -190,6 +195,9 @@ def test_routes(warehouse):
             "accounts.reset-password", "/account/reset-password/", domain=warehouse
         ),
         pretend.call(
+            "accounts.confirm-login", "/account/confirm-login/", domain=warehouse
+        ),
+        pretend.call(
             "accounts.verify-email", "/account/verify-email/", domain=warehouse
         ),
         pretend.call(
@@ -268,6 +276,31 @@ def test_routes(warehouse):
             "manage.account.token", "/manage/account/token/", domain=warehouse
         ),
         pretend.call(
+            "manage.account.associations.github.connect",
+            "/manage/account/associations/github/connect",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.account.associations.github.callback",
+            "/manage/account/associations/github/callback",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.account.associations.gitlab.connect",
+            "/manage/account/associations/gitlab/connect",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.account.associations.gitlab.callback",
+            "/manage/account/associations/gitlab/callback",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.account.associations.delete",
+            "/manage/account/associations/delete",
+            domain=warehouse,
+        ),
+        pretend.call(
             "manage.organizations.application",
             "/manage/organizations/application/{organization_application_id}/",
             factory="warehouse.organizations.models:OrganizationApplicationFactory",
@@ -308,6 +341,13 @@ def test_routes(warehouse):
         pretend.call(
             "manage.organization.teams",
             "/manage/organization/{organization_name}/teams/",
+            factory="warehouse.organizations.models:OrganizationFactory",
+            traverse="/{organization_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "manage.organization.publishing",
+            "/manage/organization/{organization_name}/publishing/",
             factory="warehouse.organizations.models:OrganizationFactory",
             traverse="/{organization_name}",
             domain=warehouse,

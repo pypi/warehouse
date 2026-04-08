@@ -1,5 +1,11 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "sass:color";
+@use "../settings/breakpoints";
+@use "../settings/colours";
+@use "../settings/grid";
+@use "../tools/link-utilities";
+
 /*
   A section that is the height of the viewport.
 
@@ -31,16 +37,16 @@
 
   &__heading {
     font-size: 2.4rem;
-    padding: $spacing-unit $half-spacing-unit;
+    padding: grid.$spacing-unit grid.$half-spacing-unit;
 
-    @media screen and (max-width: $small-tablet) {
+    @media screen and (max-width: breakpoints.$small-tablet) {
       font-size: 1.5rem;
     }
   }
 
   &__text {
-    margin-top: $spacing-unit;
-    padding: $spacing-unit $half-spacing-unit;
+    margin-top: grid.$spacing-unit;
+    padding: grid.$spacing-unit grid.$half-spacing-unit;
   }
 
   &__rule {
@@ -53,47 +59,47 @@
   }
 
   &--dark {
-    background-color: $primary-color;
-    color: $white;
+    background-color: colours.$primary-color;
+    color: colours.$white;
 
     a {
-      @include white-underlined-link;
+      @include link-utilities.white-underlined-link;
     }
   }
 
   &--ee {
     min-height: auto;
-    padding: ($spacing-unit * 4) 0;
+    padding: (grid.$spacing-unit * 4) 0;
 
-    @media screen and (max-width: $small-tablet) {
-      padding: ($spacing-unit * 2) 0;
+    @media screen and (max-width: breakpoints.$small-tablet) {
+      padding: (grid.$spacing-unit * 2) 0;
     }
 
     .viewport-section__heading {
       display: inline;
       font-family: Ewert, cursive;
       font-weight: 400;
-      color: darken($primary-color, 15);
-      background: $highlight-color;
+      color: color.adjust(colours.$primary-color, $lightness: -15%);
+      background: colours.$highlight-color;
 
       span {
         line-height: 1;
         padding-bottom: 30px;
         font-size: 3.5rem;
 
-        @media screen and (max-width: $desktop) {
+        @media screen and (max-width: breakpoints.$desktop) {
           font-size: 2.8rem;
         }
 
-        @media screen and (max-width: $tablet) {
+        @media screen and (max-width: breakpoints.$tablet) {
           font-size: 2.1rem;
         }
 
-        @media screen and (max-width: $small-tablet) {
+        @media screen and (max-width: breakpoints.$small-tablet) {
           font-size: 1.8rem;
         }
 
-        @media screen and (max-width: $mobile) {
+        @media screen and (max-width: breakpoints.$mobile) {
           font-size: 1.2rem;
         }
       }
@@ -103,10 +109,10 @@
       // make the video responsive :)
       width: 800px;
       max-width: 80%;
-      margin: ($spacing-unit * 4) auto 0;
+      margin: (grid.$spacing-unit * 4) auto 0;
 
-      @media screen and (max-width: $small-tablet) {
-        margin: $spacing-unit auto 0;
+      @media screen and (max-width: breakpoints.$small-tablet) {
+        margin: grid.$spacing-unit auto 0;
       }
 
       .viewport-section__video-container {
@@ -117,9 +123,9 @@
         padding-top: 25px;
         margin-bottom: 25px;
         height: 0;
-        background-color: darken($primary-color, 15);
+        background-color: color.adjust(colours.$primary-color, $lightness: -15%);
         border: 9px dashed #fff;
-        outline: 9px solid darken($primary-color, 15);
+        outline: 9px solid color.adjust(colours.$primary-color, $lightness: -15%);
 
         iframe {
           position: absolute;

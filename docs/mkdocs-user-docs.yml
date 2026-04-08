@@ -73,6 +73,7 @@ nav:
   - "Project Management":
       - "project-management/storage-limits.md"
       - "project-management/yanking.md"
+      - "project-management/name-retention.md"
   - "Organization Accounts":
       - "organization-accounts/index.md"
       - "organization-accounts/org-acc-faq.md"

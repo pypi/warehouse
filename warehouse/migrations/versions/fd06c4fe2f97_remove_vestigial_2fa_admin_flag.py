@@ -7,7 +7,6 @@ Revises: bb6943882aa9
 Create Date: 2024-08-07 15:39:12.970946
 """
 
-
 from alembic import op
 
 revision = "fd06c4fe2f97"
@@ -19,8 +18,7 @@ def upgrade():
 
 
 def downgrade():
-    op.execute(
-        """
+    op.execute("""
         INSERT INTO admin_flags(id, description, enabled, notify)
         VALUES (
             '2fa-required',
@@ -28,5 +26,4 @@ def downgrade():
             FALSE,
             FALSE
         )
-    """
-    )
+    """)

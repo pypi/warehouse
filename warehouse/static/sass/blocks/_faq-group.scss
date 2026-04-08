@@ -1,5 +1,9 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "../settings/colours";
+@use "../settings/fonts";
+@use "../settings/grid";
+
 /*
   Styles a group of frequently asked questions.
 
@@ -15,7 +19,7 @@
 .faq-group {
   h2 {
     padding-bottom: 5px;
-    margin-top: $spacing-unit * 2;
+    margin-top: grid.$spacing-unit * 2;
   }
 
   h2.faq-group__first {
@@ -26,17 +30,17 @@
     padding-top: 30px;
 
     &::before {
-      font-family: "Font Awesome 6 Free";
+      font-family: fonts.$fa-font-family;
       font-weight: 900;
       content: "\f059";
       margin-right: 5px;
-      color: $primary-color;
+      color: colours.$primary-color;
     }
   }
 
   &--list {
     h2 {
-      margin-top: $spacing-unit;
+      margin-top: grid.$spacing-unit;
       margin-bottom: 15px;
     }
   }

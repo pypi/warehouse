@@ -102,6 +102,12 @@ class TestMacaroonDetail:
 
 
 class TestMacaroonDelete:
+    def test_no_macaroon_raises_404(self, db_request, macaroon_service):
+        db_request.matchdict["macaroon_id"] = str(uuid.uuid4())
+
+        with pytest.raises(views.HTTPNotFound):
+            views.macaroon_delete(db_request)
+
     def test_delete_succeeds_and_redirects(self, db_request, macaroon_service):
         user = UserFactory.create()
         db_request.user = user
