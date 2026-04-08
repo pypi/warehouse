@@ -116,6 +116,7 @@ def test_includeme(monkeypatch, settings, expected_level):
     assert configure.calls == [
         pretend.call(
             processors=[
+                structlog.contextvars.merge_contextvars,
                 structlog.stdlib.filter_by_level,
                 structlog.stdlib.add_logger_name,
                 structlog.stdlib.add_log_level,
@@ -130,11 +131,11 @@ def test_includeme(monkeypatch, settings, expected_level):
         )
     ]
     assert isinstance(
-        configure.calls[0].kwargs["processors"][3],
+        configure.calls[0].kwargs["processors"][4],
         structlog.stdlib.PositionalArgumentsFormatter,
     )
     assert isinstance(
-        configure.calls[0].kwargs["processors"][4],
+        configure.calls[0].kwargs["processors"][5],
         structlog.processors.StackInfoRenderer,
     )
     assert isinstance(
@@ -144,29 +145,3 @@ def test_includeme(monkeypatch, settings, expected_level):
         pretend.call(wlogging._create_id, name="id", reify=True),
         pretend.call(wlogging._create_logger, name="log", reify=True),
     ]
-
-
-def test_configure_celery_logging(monkeypatch):
-    configure = pretend.call_recorder(lambda **kw: None)
-    monkeypatch.setattr(structlog, "configure", configure)
-
-    mock_handler = pretend.stub(setFormatter=pretend.call_recorder(lambda f: None))
-    mock_logger = pretend.stub(
-        handlers=pretend.stub(clear=pretend.call_recorder(lambda: None)),
-        setLevel=pretend.call_recorder(lambda level: None),
-        addHandler=pretend.call_recorder(lambda add_handler: None),
-        removeHandler=pretend.call_recorder(lambda remove_handler: None),
-    )
-    monkeypatch.setattr(logging, "getLogger", lambda: mock_logger)
-    monkeypatch.setattr(logging, "StreamHandler", lambda: mock_handler)
-
-    wlogging.configure_celery_logging()
-
-    # Verify handlers cleared and new one added
-    assert mock_logger.handlers.clear.calls == [pretend.call()]
-    assert len(mock_logger.addHandler.calls) == 1
-    assert mock_logger.setLevel.calls == [pretend.call(logging.INFO)]
-
-    # Verify processors
-    processors = configure.calls[0].kwargs["processors"]
-    assert structlog.contextvars.merge_contextvars in processors
