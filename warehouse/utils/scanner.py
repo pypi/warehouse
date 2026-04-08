@@ -80,7 +80,8 @@ def iter_zip_members(zfp: zipfile.ZipFile) -> typing.Iterator[tuple[str, int, by
         ext = Path(entry.filename).suffix.lower()
         if ext not in _SCAN_EXTENSIONS:
             continue
-        yield entry.filename, entry.file_size, zfp.read(entry.filename)
+        data = zfp.read(entry.filename)
+        yield entry.filename, len(data), data
 
 
 def iter_tar_members(tar: tarfile.TarFile) -> typing.Iterator[tuple[str, int, bytes]]:
@@ -94,7 +95,8 @@ def iter_tar_members(tar: tarfile.TarFile) -> typing.Iterator[tuple[str, int, by
         f = tar.extractfile(member)
         if f is None:  # pragma: no cover
             continue
-        yield member.name, member.size, f.read()
+        data = f.read()
+        yield member.name, len(data), data
 
 
 def check_members(
