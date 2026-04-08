@@ -40,6 +40,7 @@ celery.app.backends.BACKEND_ALIASES["rediss"] = (
 logger = logging.getLogger(__name__)
 
 
+@signals.after_setup_logger.connect
 def on_after_setup_logger(logger, loglevel, logfile, *args, **kwargs):
     """Override Celery's default logging behavior
     with unified structlog configuration."""
@@ -330,7 +331,6 @@ def includeme(config: Configurator) -> None:
     config.registry["celery.app"].Task = WarehouseTask
     config.registry["celery.app"].pyramid_config = config
 
-    signals.after_setup_logger.connect(on_after_setup_logger)
     signals.task_prerun.connect(on_task_prerun)
     signals.task_postrun.connect(on_task_postrun)
 
