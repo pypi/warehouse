@@ -1,7 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import logging
-
 from unittest import mock
 
 import pretend
@@ -526,15 +524,6 @@ def test_includeme(env, ssl, broker_redis_url, expected_url, transport_options):
     assert config.add_request_method.calls == [
         pretend.call(tasks._get_task_from_request, name="task", reify=True)
     ]
-
-
-def test_on_after_setup_logger(monkeypatch):
-    configure_celery_logging = pretend.call_recorder(lambda logfile, loglevel: None)
-    monkeypatch.setattr(tasks, "configure_celery_logging", configure_celery_logging)
-
-    tasks.on_after_setup_logger("logger", logging.INFO, "logfile")
-
-    assert configure_celery_logging.calls == [pretend.call("logfile", logging.INFO)]
 
 
 def test_on_task_prerun(monkeypatch):
