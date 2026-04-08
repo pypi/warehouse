@@ -67,6 +67,20 @@ class PreventNullBytesValidator:
             raise wtforms.validators.StopValidation(self.message)
 
 
+def _check_for_email_in_username(form, field):
+    """
+    Validator that checks if the username field contains an email address.
+    This helps users who mistakenly enter their email instead of username.
+    """
+    if field.data and "@" in field.data.strip():
+        raise wtforms.validators.StopValidation(
+            message=_(
+                "Usernames are not the same as email addresses. "
+                "Enter your username instead of your email address."
+            )
+        )
+
+
 def _check_for_existing_username(form: LoginForm, field):
     field.data = field.data.strip()
 
@@ -81,24 +95,31 @@ class UsernameMixin:
         validators=[
             wtforms.validators.InputRequired(),
             PreventNullBytesValidator(),
+            _check_for_email_in_username,
             _check_for_existing_username,
         ],
     )
 
 
+def _remove_whitespace(value: str | None) -> str | None:
+    """Filter to remove all whitespace from input."""
+    return "".join(value.split()) if value else value
+
+
 class TOTPValueMixin:
     totp_value = wtforms.StringField(
+        filters=[_remove_whitespace],
         validators=[
             wtforms.validators.InputRequired(),
             PreventNullBytesValidator(),
             wtforms.validators.Regexp(
-                rf"^ *([0-9] *){{{otp.TOTP_LENGTH}}}$",
+                rf"^[0-9]{{{otp.TOTP_LENGTH}}}$",
                 message=_(
                     "TOTP code must be ${totp_length} digits.",
                     mapping={"totp_length": otp.TOTP_LENGTH},
                 ),
             ),
-        ]
+        ],
     )
 
 
@@ -107,18 +128,21 @@ class WebAuthnCredentialMixin:
 
 
 class RecoveryCodeValueMixin:
+    # Recovery codes are exactly 16 hex characters.
+    # Whitespace is removed to allow user-friendly input like "dead beef 0000 1111".
     recovery_code_value = wtforms.StringField(
+        filters=[_remove_whitespace],
         validators=[
             wtforms.validators.InputRequired(),
             PreventNullBytesValidator(),
             wtforms.validators.Regexp(
-                rf"^ *([0-9a-f] *){{{2 * RECOVERY_CODE_BYTES}}}$",
+                rf"^[0-9a-f]{{{2 * RECOVERY_CODE_BYTES}}}$",
                 message=_(
                     "Recovery Codes must be ${recovery_code_length} characters.",
                     mapping={"recovery_code_length": 2 * RECOVERY_CODE_BYTES},
                 ),
             ),
-        ]
+        ],
     )
 
 
@@ -480,10 +504,12 @@ class _TwoFactorAuthenticationForm(wtforms.Form):
 
 class TOTPAuthenticationForm(TOTPValueMixin, _TwoFactorAuthenticationForm):
     def validate_totp_value(self, field):
-        totp_value = field.data.replace(" ", "").encode("utf8")
+        totp_value = field.data.encode("utf8")
 
         try:
-            self.user_service.check_totp_value(self.user_id, totp_value)
+            ok = self.user_service.check_totp_value(self.user_id, totp_value)
+            if not ok:
+                raise otp.InvalidTOTPError
         except (otp.InvalidTOTPError, otp.OutOfSyncTOTPError):
             user = self.user_service.get_user(self.user_id)
             user.record_event(

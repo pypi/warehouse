@@ -53,8 +53,7 @@
                           data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
                     {% trans %}Copy{% endtrans %}
                   </button>
-                  {% set _sitename = "TestPyPI" if testPyPI else "PyPI" %}
-                  {% set _recovery_codes_filename = _sitename + "-Recovery-Codes-" + request.user.username + "-" + request.user.recovery_codes[0].generated.isoformat() + ".txt" %}
+                  {% set _recovery_codes_filename = sitename + "-Recovery-Codes-" + request.user.username + "-" + request.user.recovery_codes[0].generated.isoformat() + ".txt" %}
                   <a href="data:text/plain;,{{ recovery_codes|join("%0A") }}"
                      download="{{ _recovery_codes_filename }}"
                      class="button button-secondary"

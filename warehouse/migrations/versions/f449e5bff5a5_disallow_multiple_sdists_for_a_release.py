@@ -27,8 +27,7 @@ def upgrade():
     # because if we set it on N, then our unique index would not see *any*
     # existing uploads for that project and would allow one more duplicate to
     # be uploaded.
-    op.execute(
-        """ DO $$
+    op.execute(""" DO $$
             DECLARE
                 row record;
             BEGIN
@@ -52,15 +51,12 @@ def upgrade():
                     WHERE release_files.id = s.id;
                 END LOOP;
             END $$;
-        """
-    )
+        """)
 
-    op.execute(
-        """ UPDATE release_files
+    op.execute(""" UPDATE release_files
             SET allow_multiple_sdist = false
             WHERE allow_multiple_sdist IS NULL
-        """
-    )
+        """)
 
     op.alter_column(
         "release_files",

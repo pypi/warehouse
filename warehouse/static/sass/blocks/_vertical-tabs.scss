@@ -1,5 +1,12 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "sass:color";
+@use "../settings/breakpoints";
+@use "../settings/colours";
+@use "../settings/grid";
+@use "../tools/layout-utilities";
+@use "../tools/link-utilities";
+
 /*
   Tabs that are not navigation. Used to display a vertical list of links:
 
@@ -69,12 +76,12 @@
 */
 
 .vertical-tabs {
-  @include clearfix;
-  @include grid-container;
+  @include layout-utilities.clearfix;
+  @include layout-utilities.grid-container;
 
-  margin: $spacing-unit 0;
+  margin: grid.$spacing-unit 0;
 
-  @media only screen and (max-width: $tablet) {
+  @media only screen and (max-width: breakpoints.$tablet) {
     margin: 0;
   }
 
@@ -88,55 +95,55 @@
     grid-column: span 3;
     padding-left: 1px;
 
-    @media only screen and (max-width: $tablet) {
+    @media only screen and (max-width: breakpoints.$tablet) {
       display: none;
     }
   }
 
   &__tab {
     display: block;
-    padding: $half-spacing-unit;
+    padding: grid.$half-spacing-unit;
     cursor: pointer;
-    @include link-without-underline;
+    @include link-utilities.link-without-underline;
 
     &:hover {
-      color: darken($primary-color, 10);
+      color: color.adjust(colours.$primary-color, $lightness: -10%);
     }
 
     &:active,
     &:focus {
-      outline: 1px solid $white;
-      box-shadow: 0 0 0 2px $primary-color;
+      outline: 1px solid colours.$white;
+      box-shadow: 0 0 0 2px colours.$primary-color;
     }
 
     &--mobile {
       display: none;
-      @media only screen and (max-width: $tablet) {
+      @media only screen and (max-width: breakpoints.$tablet) {
         display: block;
-        border-top: 1px solid $border-color;
+        border-top: 1px solid colours.$border-color;
 
         &:last-of-type {
-          border-bottom: 1px solid $border-color;
+          border-bottom: 1px solid colours.$border-color;
         }
       }
     }
 
     &--no-top-border {
-      @media only screen and (max-width: $tablet) {
+      @media only screen and (max-width: breakpoints.$tablet) {
         border-top: 0;
       }
     }
 
     &--is-active,
     &--is-active:hover {
-      background: $primary-color;
-      color: $white;
+      background: colours.$primary-color;
+      color: colours.$white;
       border-color: transparent;
     }
 
     &--condensed {
-      padding-top: $quarter-spacing-unit;
-      padding-bottom: $quarter-spacing-unit;
+      padding-top: grid.$quarter-spacing-unit;
+      padding-bottom: grid.$quarter-spacing-unit;
     }
 
     &--with-icon {
@@ -159,21 +166,21 @@
   &__panel {
     grid-column: span 9;
 
-    @media only screen and (max-width: $tablet) {
+    @media only screen and (max-width: breakpoints.$tablet) {
       grid-column: span 12;
       width: 100%;
     }
   }
 
   &__content {
-    margin-left: $spacing-unit;
+    margin-left: grid.$spacing-unit;
 
     &:focus {
-      outline: 1px solid $primary-color;
+      outline: 1px solid colours.$primary-color;
       outline-offset: 10px;
     }
 
-    @media only screen and (max-width: $tablet) {
+    @media only screen and (max-width: breakpoints.$tablet) {
       margin: 25px 10px 10px;
     }
   }

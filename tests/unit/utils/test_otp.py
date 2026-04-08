@@ -7,7 +7,6 @@ from urllib.parse import parse_qsl
 
 import pytest
 
-from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.hashes import SHA1
 from cryptography.hazmat.primitives.twofactor.totp import TOTP
 from urllib3.util import parse_url
@@ -49,9 +48,7 @@ def test_generate_totp_provisioning_uri():
 @pytest.mark.parametrize("skew", [0, -20, 20])
 def test_verify_totp_success(skew):
     secret = otp.generate_totp_secret()
-    totp = TOTP(
-        secret, otp.TOTP_LENGTH, SHA1(), otp.TOTP_INTERVAL, backend=default_backend()
-    )
+    totp = TOTP(secret, otp.TOTP_LENGTH, SHA1(), otp.TOTP_INTERVAL)
     value = totp.generate(time.time() + skew)
     assert otp.verify_totp(secret, value)
 
@@ -59,9 +56,7 @@ def test_verify_totp_success(skew):
 @pytest.mark.parametrize("skew", [-60, 60])
 def test_verify_totp_failure(skew):
     secret = otp.generate_totp_secret()
-    totp = TOTP(
-        secret, otp.TOTP_LENGTH, SHA1(), otp.TOTP_INTERVAL, backend=default_backend()
-    )
+    totp = TOTP(secret, otp.TOTP_LENGTH, SHA1(), otp.TOTP_INTERVAL)
     value = totp.generate(time.time() + skew)
     with pytest.raises(otp.OutOfSyncTOTPError):
         otp.verify_totp(secret, value)

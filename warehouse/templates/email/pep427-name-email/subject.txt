@@ -1,5 +1,0 @@
-{# SPDX-License-Identifier: Apache-2.0 -#}
-
-{% extends "email/_base/subject.txt" %}
-
-{% block subject %}Deprecation notice for recent binary distribution upload to '{{ project_name }}'{% endblock %}

@@ -20,13 +20,11 @@ def upgrade():
     op.add_column(
         "roles", sa.Column("user_id", postgresql.UUID(as_uuid=True), nullable=True)
     )
-    op.execute(
-        """ UPDATE roles
+    op.execute(""" UPDATE roles
             SET user_id = accounts_user.id
             FROM accounts_user
             WHERE roles.user_name = accounts_user.username
-        """
-    )
+        """)
     op.alter_column("roles", "user_id", nullable=False)
     op.drop_constraint("roles_user_name_fkey", "roles", type_="foreignkey")
     op.create_foreign_key(

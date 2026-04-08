@@ -23,6 +23,7 @@ def includeme(config):
     config.add_route(
         "funding-manifest-urls", "/.well-known/funding-manifest-urls", domain=warehouse
     )
+    config.add_route("security-txt", "/.well-known/security.txt", domain=warehouse)
     config.add_route("opensearch.xml", "/opensearch.xml", domain=warehouse)
     config.add_route("index.sitemap.xml", "/sitemap.xml", domain=warehouse)
     config.add_route("bucket.sitemap.xml", "/{bucket}.sitemap.xml", domain=warehouse)
@@ -202,6 +203,9 @@ def includeme(config):
         "accounts.reset-password", "/account/reset-password/", domain=warehouse
     )
     config.add_route(
+        "accounts.confirm-login", "/account/confirm-login/", domain=warehouse
+    )
+    config.add_route(
         "accounts.verify-email", "/account/verify-email/", domain=warehouse
     )
     config.add_route(
@@ -279,6 +283,31 @@ def includeme(config):
     )
     config.add_route("manage.account.token", "/manage/account/token/", domain=warehouse)
     config.add_route(
+        "manage.account.associations.github.connect",
+        "/manage/account/associations/github/connect",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.account.associations.github.callback",
+        "/manage/account/associations/github/callback",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.account.associations.gitlab.connect",
+        "/manage/account/associations/gitlab/connect",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.account.associations.gitlab.callback",
+        "/manage/account/associations/gitlab/callback",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.account.associations.delete",
+        "/manage/account/associations/delete",
+        domain=warehouse,
+    )
+    config.add_route(
         "manage.organizations.application",
         "/manage/organizations/application/{organization_application_id}/",
         factory="warehouse.organizations.models:OrganizationApplicationFactory",
@@ -317,6 +346,13 @@ def includeme(config):
     config.add_route(
         "manage.organization.teams",
         "/manage/organization/{organization_name}/teams/",
+        factory="warehouse.organizations.models:OrganizationFactory",
+        traverse="/{organization_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.organization.publishing",
+        "/manage/organization/{organization_name}/publishing/",
         factory="warehouse.organizations.models:OrganizationFactory",
         traverse="/{organization_name}",
         domain=warehouse,

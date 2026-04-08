@@ -69,6 +69,7 @@ class RootFactory:
                 Permissions.AdminFlagsRead,
                 Permissions.AdminFlagsWrite,
                 Permissions.AdminIpAddressesRead,
+                Permissions.AdminIpAddressesWrite,
                 Permissions.AdminJournalRead,
                 Permissions.AdminMacaroonsRead,
                 Permissions.AdminMacaroonsWrite,
@@ -83,6 +84,7 @@ class RootFactory:
                 Permissions.AdminProhibitedProjectsRead,
                 Permissions.AdminProhibitedProjectsWrite,
                 Permissions.AdminProhibitedProjectsRelease,
+                Permissions.AdminProhibitedProjectsUltranormRelease,
                 Permissions.AdminProhibitedUsernameRead,
                 Permissions.AdminProhibitedUsernameWrite,
                 Permissions.AdminProjectsDelete,
@@ -118,6 +120,7 @@ class RootFactory:
                 Permissions.AdminProhibitedEmailDomainsRead,
                 Permissions.AdminProhibitedProjectsRead,
                 Permissions.AdminProhibitedProjectsRelease,
+                Permissions.AdminProhibitedProjectsUltranormRelease,
                 Permissions.AdminProhibitedUsernameRead,
                 Permissions.AdminProjectsRead,
                 Permissions.AdminProjectsSetLimit,
@@ -347,13 +350,6 @@ def configure(settings=None):
     maybe_set(settings, "warehouse.ip_salt", "WAREHOUSE_IP_SALT")
     maybe_set(settings, "warehouse.num_proxies", "WAREHOUSE_NUM_PROXIES", int)
     maybe_set(settings, "warehouse.domain", "WAREHOUSE_DOMAIN")
-    maybe_set(
-        settings,
-        "warehouse.allowed_domains",
-        "WAREHOUSE_ALLOWED_DOMAINS",
-        lambda s: [d.strip() for d in s.split(",") if d.strip()],
-        default=[],
-    )
     maybe_set(settings, "forklift.domain", "FORKLIFT_DOMAIN")
     maybe_set(settings, "auth.domain", "AUTH_DOMAIN")
     maybe_set(
@@ -410,6 +406,7 @@ def configure(settings=None):
     maybe_set(settings, "token.email.secret", "TOKEN_EMAIL_SECRET")
     maybe_set(settings, "token.two_factor.secret", "TOKEN_TWO_FACTOR_SECRET")
     maybe_set(settings, "token.remember_device.secret", "TOKEN_REMEMBER_DEVICE_SECRET")
+    maybe_set(settings, "token.confirm_login.secret", "TOKEN_CONFIRM_LOGIN_SECRET")
     maybe_set_redis(settings, "warehouse.xmlrpc.cache.url", "REDIS_URL", db=4)
     maybe_set(
         settings,
@@ -466,6 +463,8 @@ def configure(settings=None):
     maybe_set_compound(settings, "breached_emails", "backend", "BREACHED_EMAILS")
     maybe_set_compound(settings, "breached_passwords", "backend", "BREACHED_PASSWORDS")
     maybe_set_compound(settings, "domain_status", "backend", "DOMAIN_STATUS_BACKEND")
+    maybe_set_compound(settings, "github.oauth", "backend", "GITHUB_OAUTH_BACKEND")
+    maybe_set_compound(settings, "gitlab.oauth", "backend", "GITLAB_OAUTH_BACKEND")
     maybe_set(
         settings,
         "oidc.backend",
@@ -662,9 +661,6 @@ def configure(settings=None):
     # Register our logging support
     config.include(".logging")
 
-    # Register request utilities (nonce, etc.)
-    config.include(".request")
-
     # We'll want to use Jinja2 as our template system.
     config.include("pyramid_jinja2")
 
@@ -786,6 +782,9 @@ def configure(settings=None):
     )
     config.include("pyramid_tm")
 
+    # Register support for our rate limiting mechanisms
+    config.include(".rate_limiting")
+
     # Register our XMLRPC service
     config.include(".legacy.api.xmlrpc")
 
@@ -814,9 +813,6 @@ def configure(settings=None):
 
     # Register the support for Celery Tasks
     config.include(".tasks")
-
-    # Register support for our rate limiting mechanisms
-    config.include(".rate_limiting")
 
     config.include(".static")
 

@@ -32,6 +32,8 @@
     {% set icon = "fab fa-slack" %}
   {% elif parsed.netloc in ["twitter.com", "x.com"] or parsed.netloc.endswith((".twitter.com", ".x.com")) %}
     {% set icon = "fab fa-twitter" %}
+  {% elif name|lower == "bluesky" or parsed.netloc == "bsky.app" %}
+    {% set icon = "fab fa-bluesky" %}
   {% elif parsed.netloc in ["ci.appveyor.com", "circleci.com", "codecov.io", "coveralls.io", "travis-ci.com", "travis-ci.org"] or parsed.netloc.endswith((".appveyor.com", ".circleci.com", ".codecov.io", ".coveralls.io", ".travis-ci.org", ".travis-ci.com")) %}
     {% set icon = "fas fa-tasks" %}
   {% elif parsed.netloc in ["cheeseshop.python.org", "pypi.io", "pypi.org", "pypi.python.org"] %}
@@ -82,7 +84,7 @@
         <a href="{{ request.route_url('packaging.file', path=file.path) }}">{{ file.filename }}</a>
         ({{ file.size|filesizeformat() if file.size else 0|filesizeformat() }}
         <a href="#{{ file.filename }}"
-           data-project-tabs-target="tab"
+           data-project-tabs-target="tab mobileTab"
            data-action="project-tabs#onTabClick">{%- trans -%}view details{%- endtrans -%}</a>)
         <p class="file__meta">
           Uploaded {{ humanize(file.upload_time) }}

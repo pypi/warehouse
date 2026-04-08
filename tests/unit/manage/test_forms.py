@@ -13,6 +13,7 @@ from warehouse.accounts.models import ProhibitedEmailDomain
 from warehouse.manage import forms
 
 from ...common.constants import REMOTE_ADDR
+from ...common.db.accounts import OAuthAccountAssociationFactory, UserFactory
 from ...common.db.organizations import OrganizationFactory
 from ...common.db.packaging import ProjectFactory
 
@@ -350,6 +351,30 @@ class TestAddEmailForm:
         assert (
             str(form.email.errors.pop()) == "The email address isn't valid. Try again."
         )
+
+
+class TestChangeUnverifiedPrimaryEmailForm:
+    def test_validate(self, metrics):
+        user_id = pretend.stub()
+        user_service = pretend.stub(find_userid_by_email=lambda _: None)
+        form = forms.ChangeUnverifiedPrimaryEmailForm(
+            request=pretend.stub(
+                db=pretend.stub(query=lambda *a: pretend.stub(scalar=lambda: False)),
+                metrics=metrics,
+            ),
+            formdata=MultiDict({"email": "foo@bar.com"}),
+            user_id=user_id,
+            user_service=user_service,
+        )
+
+        assert form.user_id is user_id
+        assert form.user_service is user_service
+        assert form.validate(), str(form.errors)
+
+    def test_params(self):
+        assert forms.ChangeUnverifiedPrimaryEmailForm.__params__ == [
+            "change_unverified_primary_email"
+        ]
 
 
 class TestChangePasswordForm:
@@ -918,6 +943,19 @@ class TestCreateOrganizationApplicationForm:
             pretend.call("my_organization_name")
         ]
 
+    def test_validate_name_with_null_bytes(self):
+        organization_service = pretend.stub(
+            find_organizationid=pretend.call_recorder(lambda name: None),
+        )
+        form = forms.CreateOrganizationApplicationForm(
+            MultiDict({"name": "test\x00name"}),
+            organization_service=organization_service,
+            user=pretend.stub(),
+        )
+        assert not form.validate()
+        assert "Null bytes are not allowed." in form.name.errors
+        assert organization_service.find_organizationid.calls == []
+
 
 class TestSaveOrganizationNameForm:
     def test_save(self, pyramid_request):
@@ -1104,3 +1142,97 @@ class TestCreateTeamForm:
         # NOTE(jleightcap): testing with Regexp validators returns raw LazyString
         # objects in the error dict's values. Just assert on keys.
         assert list(form.errors.keys()) == errors
+
+
+class TestDeleteAccountAssociationForm:
+    def test_validate_association_id_valid(self, db_request):
+        user = UserFactory.create()
+        association = OAuthAccountAssociationFactory.create(user=user)
+
+        user_service = pretend.stub(
+            get_account_association=pretend.call_recorder(lambda _: association)
+        )
+
+        form = forms.DeleteAccountAssociationForm(
+            MultiDict({"association_id": str(association.id)}),
+            user_service=user_service,
+            user_id=str(user.id),
+        )
+
+        assert form.validate()
+        assert form.association == association
+        assert user_service.get_account_association.calls == [
+            pretend.call(str(association.id))
+        ]
+
+    def test_validate_association_id_missing(self):
+        user_service = pretend.stub()
+
+        form = forms.DeleteAccountAssociationForm(
+            MultiDict({}), user_service=user_service, user_id="some-user-id"
+        )
+
+        assert not form.validate()
+        assert "association_id" in form.errors
+        assert form.errors["association_id"][0] == "Specify an association ID"
+
+    def test_validate_association_id_invalid_uuid(self):
+        user_service = pretend.stub(
+            get_account_association=pretend.call_recorder(lambda _: None)
+        )
+
+        form = forms.DeleteAccountAssociationForm(
+            MultiDict({"association_id": "not-a-uuid"}),
+            user_service=user_service,
+            user_id="some-user-id",
+        )
+
+        assert not form.validate()
+        assert "association_id" in form.errors
+        assert form.errors["association_id"][0] == "Association must be specified by ID"
+
+    def test_validate_association_id_not_found(self):
+        user_service = pretend.stub(
+            get_account_association=pretend.call_recorder(lambda _: None)
+        )
+
+        association_id = "12345678-1234-1234-1234-123456789012"
+        form = forms.DeleteAccountAssociationForm(
+            MultiDict({"association_id": association_id}),
+            user_service=user_service,
+            user_id="some-user-id",
+        )
+
+        assert not form.validate()
+        assert "association_id" in form.errors
+        assert (
+            form.errors["association_id"][0] == "No account association with given ID"
+        )
+        assert user_service.get_account_association.calls == [
+            pretend.call(association_id)
+        ]
+
+    def test_validate_association_id_wrong_user(self, db_request):
+        user = UserFactory.create()
+        other_user = UserFactory.create()
+        association = OAuthAccountAssociationFactory.create(user=other_user)
+
+        user_service = pretend.stub(
+            get_account_association=pretend.call_recorder(lambda _: association)
+        )
+
+        form = forms.DeleteAccountAssociationForm(
+            MultiDict({"association_id": str(association.id)}),
+            user_service=user_service,
+            user_id=str(user.id),
+        )
+
+        assert not form.validate()
+        assert "association_id" in form.errors
+        assert (
+            form.errors["association_id"][0]
+            == "This association does not belong to you"
+        )
+        assert user_service.get_account_association.calls == [
+            pretend.call(str(association.id))
+        ]

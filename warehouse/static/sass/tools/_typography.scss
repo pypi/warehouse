@@ -1,18 +1,22 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "../settings/breakpoints";
+@use "../settings/fonts";
+@use "../settings/grid";
+
 // *Big* h1 used for package name, pypi intro
 @mixin h1 {
   font-size: 2.5rem;
   line-height: 1.3;
-  font-weight: $bold-font-weight;
+  font-weight: fonts.$bold-font-weight;
 
   // All the other headings resize relative to the body...
   // But for h1s we want a little more control.
-  @media screen and (max-width: $tablet) {
+  @media screen and (max-width: breakpoints.$tablet) {
     font-size: 2.2rem;
   }
 
-  @media screen and (max-width: $mobile) {
+  @media screen and (max-width: breakpoints.$mobile) {
     font-size: 1.8rem;
   }
 }
@@ -20,32 +24,32 @@
 // h1 for all other pages
 @mixin h1-title {
   font-size: 1.5rem;
-  font-weight: $bold-font-weight;
-  padding-bottom: $spacing-unit;
+  font-weight: fonts.$bold-font-weight;
+  padding-bottom: grid.$spacing-unit;
 }
 
 @mixin h2 {
   font-size: 1.3rem;
-  font-weight: $bold-font-weight;
+  font-weight: fonts.$bold-font-weight;
 }
 
 @mixin h3 {
   font-size: 1.15rem;
-  font-weight: $bold-font-weight;
+  font-weight: fonts.$bold-font-weight;
 }
 
 @mixin h4 {
   font-size: 1.1rem;
-  font-weight: $bold-font-weight;
+  font-weight: fonts.$bold-font-weight;
 }
 
 @mixin h5 {
   font-size: 1rem;
   text-transform: uppercase;
-  font-weight: $bold-font-weight;
+  font-weight: fonts.$bold-font-weight;
 }
 
 @mixin h6 {
   font-size: 1rem;
-  font-weight: $bold-font-weight;
+  font-weight: fonts.$bold-font-weight;
 }

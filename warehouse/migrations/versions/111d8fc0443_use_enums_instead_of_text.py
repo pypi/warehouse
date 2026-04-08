@@ -29,21 +29,17 @@ def upgrade():
     )
     package_type.create(op.get_bind(), checkfirst=False)
 
-    op.execute(
-        """ ALTER TABLE release_files
+    op.execute(""" ALTER TABLE release_files
                 ALTER COLUMN packagetype
                 TYPE package_type
                 USING packagetype::package_type
-        """
-    )
+        """)
 
 
 def downgrade():
-    op.execute(
-        """ ALTER TABLE release_files
+    op.execute(""" ALTER TABLE release_files
                 ALTER COLUMN packagetype
                 TYPE text
-        """
-    )
+        """)
 
     ENUM(name="package_type", create_type=False).drop(op.get_bind(), checkfirst=False)

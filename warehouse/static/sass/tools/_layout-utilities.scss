@@ -1,5 +1,8 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "../settings/breakpoints";
+@use "../settings/grid";
+
  @mixin clearfix {
   // From Bourbon. https://www.bourbon.io/docs/latest/#clearfix
   // TODO: Confirm usages across codebase, and remove if not needed.
@@ -20,18 +23,18 @@
 }
 
 @mixin site-container {
-  @include centered-container($site-container);
-  padding: 0 $spacing-unit;
+  @include centered-container(grid.$site-container);
+  padding: 0 grid.$spacing-unit;
 
-  @media screen and (max-width: $small-tablet) {
-    padding: 0 $half-spacing-unit;
+  @media screen and (max-width: breakpoints.$small-tablet) {
+    padding: 0 grid.$half-spacing-unit;
   }
 }
 
 @mixin grid-container {
   display: grid;
-  grid-template-columns: repeat($grid-columns, 1fr);
-  column-gap: $half-spacing-unit;
+  grid-template-columns: repeat(grid.$grid-columns, 1fr);
+  column-gap: grid.$half-spacing-unit;
 }
 
 @mixin split-layout {
@@ -40,7 +43,7 @@
   flex-wrap: wrap;
 
   > :first-child {
-    padding-right: $spacing-unit;
+    padding-right: grid.$spacing-unit;
   }
 }
 

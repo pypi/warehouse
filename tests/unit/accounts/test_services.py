@@ -37,6 +37,7 @@ from warehouse.accounts.models import (
     DisableReason,
     ProhibitedUserName,
     TermsOfServiceEngagement,
+    User,
     UserTermsOfServiceEngagement,
 )
 from warehouse.events.tags import EventTag
@@ -46,8 +47,10 @@ from warehouse.rate_limiting.interfaces import IRateLimiter
 from ...common.constants import REMOTE_ADDR
 from ...common.db.accounts import (
     EmailFactory,
+    OAuthAccountAssociationFactory,
     UserFactory,
     UserTermsOfServiceEngagementFactory,
+    UserUniqueLoginFactory,
 )
 from ...common.db.ip_addresses import IpAddressFactory
 
@@ -633,6 +636,24 @@ class TestDatabaseUserService:
         )
 
         assert not user_service.check_totp_value(user.id, b"123456")
+
+    def test_check_totp_out_of_sync(self, mocker, metrics, user_service):
+        user = UserFactory.create()
+        mocker.patch.object(otp, "verify_totp", side_effect=otp.OutOfSyncTOTPError)
+
+        with pytest.raises(otp.OutOfSyncTOTPError):
+            user_service.check_totp_value(user.id, b"123456")
+
+        assert metrics.increment.calls == [
+            pretend.call(
+                "warehouse.authentication.two_factor.start",
+                tags=["mechanism:check_totp_value"],
+            ),
+            pretend.call(
+                "warehouse.authentication.two_factor.failure",
+                tags=["mechanism:check_totp_value", "failure_reason:out_of_sync"],
+            ),
+        ]
 
     def test_check_totp_value_no_secret(self, user_service):
         user = UserFactory.create()
@@ -1423,6 +1444,146 @@ class TestDatabaseUserService:
             .count()
         ) == 1
 
+    def test_get_account_associations(self, user_service):
+        user = UserFactory.create()
+        # Create multiple associations
+        assoc1 = OAuthAccountAssociationFactory.create(
+            user=user, service="github", external_user_id="123"
+        )
+        assoc2 = OAuthAccountAssociationFactory.create(
+            user=user, service="github", external_user_id="456"
+        )
+        # Create association for different user (should not be returned)
+        other_user = UserFactory.create()
+        OAuthAccountAssociationFactory.create(user=other_user, service="github")
+
+        associations = user_service.get_account_associations(str(user.id))
+
+        assert len(associations) == 2
+        # Verify both associations are returned (order may vary due to same timestamps)
+        assoc_ids = {assoc.id for assoc in associations}
+        assert assoc_ids == {assoc1.id, assoc2.id}
+
+    def test_get_account_associations_empty(self, user_service):
+        user = UserFactory.create()
+
+        associations = user_service.get_account_associations(str(user.id))
+
+        assert associations == []
+
+    def test_get_account_association(self, user_service):
+        user = UserFactory.create()
+        assoc = OAuthAccountAssociationFactory.create(user=user)
+
+        result = user_service.get_account_association(str(assoc.id))
+
+        assert result is not None
+        assert result.id == assoc.id
+        assert result.user == user
+
+    def test_get_account_association_not_found(self, user_service):
+        import uuid
+
+        result = user_service.get_account_association(str(uuid.uuid4()))
+
+        assert result is None
+
+    def test_get_account_association_by_service(self, user_service):
+        user = UserFactory.create()
+        assoc = OAuthAccountAssociationFactory.create(
+            user=user, service="github", external_user_id="123"
+        )
+        # Create another association with different external_user_id
+        OAuthAccountAssociationFactory.create(
+            user=user, service="github", external_user_id="456"
+        )
+
+        result = user_service.get_account_association_by_oauth_service(
+            str(user.id), "github", "123"
+        )
+
+        assert result is not None
+        assert result.id == assoc.id
+        assert result.external_user_id == "123"
+
+    def test_get_account_association_by_service_not_found(self, user_service):
+        user = UserFactory.create()
+
+        result = user_service.get_account_association_by_oauth_service(
+            str(user.id), "github", "999"
+        )
+
+        assert result is None
+
+    def test_add_account_association_minimal(self, user_service):
+        user = UserFactory.create()
+
+        association = user_service.add_account_association(
+            user_id=str(user.id),
+            service="github",
+            external_user_id="123",
+            external_username="testuser",
+        )
+
+        assert association.id is not None
+        assert association.user == user
+        assert association.service == "github"
+        assert association.external_user_id == "123"
+        assert association.external_username == "testuser"
+        # metadata_ defaults to empty dict
+        assert association.metadata_ == {}
+
+    def test_add_account_association_with_metadata(self, user_service):
+        user = UserFactory.create()
+
+        metadata = {"email": "test@example.com", "avatar_url": "https://..."}
+        association = user_service.add_account_association(
+            user_id=str(user.id),
+            service="github",
+            external_user_id="123",
+            external_username="testuser",
+            metadata=metadata,
+        )
+
+        assert association.metadata_ == metadata
+
+    def test_add_account_association_duplicate(self, user_service):
+        user1 = UserFactory.create()
+        user2 = UserFactory.create()
+
+        # User1 creates an association
+        user_service.add_account_association(
+            user_id=str(user1.id),
+            service="github",
+            external_user_id="123",
+            external_username="testuser",
+        )
+
+        # User2 tries to associate the same external account - should raise ValueError
+        with pytest.raises(ValueError, match="already associated"):
+            user_service.add_account_association(
+                user_id=str(user2.id),
+                service="github",
+                external_user_id="123",
+                external_username="testuser",
+            )
+
+    def test_delete_account_association(self, user_service, db_request):
+        user = UserFactory.create()
+        assoc = OAuthAccountAssociationFactory.create(user=user)
+        assoc_id = str(assoc.id)
+
+        result = user_service.delete_account_association(assoc_id)
+
+        assert result is True
+        # Verify it's actually deleted
+        assert user_service.get_account_association(assoc_id) is None
+
+    def test_delete_account_association_not_found(self, user_service):
+        result = user_service.delete_account_association(str(uuid.uuid4()))
+
+        assert result is False
+
 
 class TestTokenService:
     def test_verify_service(self):
@@ -1996,3 +2157,190 @@ class TestDomainrDomainStatusService:
 
         assert svc._http is request.http
         assert svc.client_id == "some_client_id"
+
+
+class TestDeviceIsKnown:
+    def test_device_is_known(self, user_service, db_request):
+        user = UserFactory.create()
+        UserUniqueLoginFactory.create(
+            user=user, ip_address=db_request.ip_address, status="confirmed"
+        )
+        db_request.find_service = lambda *a, **kw: pretend.stub()
+        assert user_service.device_is_known(user.id, db_request)
+
+    def test_device_is_not_known(self, user_service, monkeypatch):
+        user = UserFactory.create(with_verified_primary_email=True)
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(services, "send_unrecognized_login_email", send_email)
+        token_service = pretend.stub(dumps=lambda d: "fake_token", max_age=60)
+        user_service.request = pretend.stub(
+            db=user_service.db,
+            remote_addr=REMOTE_ADDR,
+            headers={
+                "User-Agent": (
+                    "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) "
+                    "Gecko/20100101 Firefox/15.0.1"
+                )
+            },
+            find_service=lambda *a, **kw: token_service,
+            ip_address=IpAddressFactory.create(ip_address=REMOTE_ADDR),
+        )
+
+        assert not user_service.device_is_known(user.id, user_service.request)
+
+        unique_login = (
+            user_service.db.query(services.UserUniqueLogin)
+            .filter(
+                services.UserUniqueLogin.user_id == user.id,
+                services.UserUniqueLogin.ip_address.has(ip_address=REMOTE_ADDR),
+            )
+            .one()
+        )
+        assert unique_login.expires is not None
+
+        assert send_email.calls == [
+            pretend.call(
+                user_service.request,
+                user,
+                ip_address=REMOTE_ADDR,
+                user_agent="Firefox (Ubuntu)",
+                token="fake_token",
+            )
+        ]
+
+    @pytest.mark.parametrize("two_factor_method", ["totp", "recovery-code"])
+    def test_device_is_not_known_records_event(
+        self, user_service, monkeypatch, two_factor_method
+    ):
+        user = UserFactory.create(with_verified_primary_email=True)
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(services, "send_unrecognized_login_email", send_email)
+        token_service = pretend.stub(dumps=lambda d: "fake_token", max_age=60)
+        ip_address = IpAddressFactory.create(ip_address=REMOTE_ADDR)
+        user_service.request = pretend.stub(
+            db=user_service.db,
+            remote_addr=REMOTE_ADDR,
+            headers={
+                "User-Agent": (
+                    "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) "
+                    "Gecko/20100101 Firefox/15.0.1"
+                )
+            },
+            find_service=lambda *a, **kw: token_service,
+            ip_address=ip_address,
+        )
+
+        assert not user_service.device_is_known(
+            user.id, user_service.request, two_factor_method=two_factor_method
+        )
+
+        # Verify a LoginNewDevice event was recorded with the 2FA method
+        events = (
+            user_service.db.query(User.Event)
+            .filter(
+                User.Event.source_id == user.id,
+                User.Event.tag == EventTag.Account.LoginNewDevice,
+            )
+            .all()
+        )
+        assert len(events) == 1
+        assert events[0].ip_address == ip_address
+        assert events[0].additional["two_factor_method"] == two_factor_method
+
+    def test_device_is_known_does_not_record_new_device_event(
+        self, user_service, db_request
+    ):
+
+        user = UserFactory.create()
+        UserUniqueLoginFactory.create(
+            user=user, ip_address=db_request.ip_address, status="confirmed"
+        )
+        db_request.find_service = lambda *a, **kw: pretend.stub()
+        assert user_service.device_is_known(user.id, db_request)
+
+        # Verify no LoginNewDevice event was recorded
+        events = (
+            user_service.db.query(User.Event)
+            .filter(
+                User.Event.source_id == user.id,
+                User.Event.tag == EventTag.Account.LoginNewDevice,
+            )
+            .all()
+        )
+        assert len(events) == 0
+
+    def test_device_is_pending_not_expired(self, user_service, monkeypatch, db_request):
+        user = UserFactory.create(with_verified_primary_email=True)
+        UserUniqueLoginFactory.create(
+            user=user, ip_address=db_request.ip_address, status="pending"
+        )
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(services, "send_unrecognized_login_email", send_email)
+        token_service = pretend.stub(dumps=lambda d: "fake_token", max_age=60)
+        user_service.request = db_request
+        db_request.find_service = lambda *a, **kw: token_service
+
+        assert not user_service.device_is_known(user.id, user_service.request)
+        assert send_email.calls == []
+
+    def test_device_is_pending_and_expired(self, user_service, monkeypatch, db_request):
+        user = UserFactory.create(with_verified_primary_email=True)
+        UserUniqueLoginFactory.create(
+            user=user,
+            status="pending",
+            ip_address=db_request.ip_address,
+            created=datetime.datetime(1970, 1, 1),
+            expires=datetime.datetime(1970, 1, 1),
+        )
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(services, "send_unrecognized_login_email", send_email)
+        token_service = pretend.stub(dumps=lambda d: "fake_token", max_age=60)
+        user_service.request = db_request
+        db_request.find_service = lambda *a, **kw: token_service
+        db_request.headers = {
+            "User-Agent": (
+                "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) "
+                "Gecko/20100101 Firefox/15.0.1"
+            )
+        }
+
+        assert not user_service.device_is_known(user.id, user_service.request)
+        assert send_email.calls == [
+            pretend.call(
+                user_service.request,
+                user,
+                ip_address=REMOTE_ADDR,
+                user_agent="Firefox (Ubuntu)",
+                token="fake_token",
+            )
+        ]
+
+    @pytest.mark.parametrize("ua_string", [None, "no bueno", "Python-urllib/3.7"])
+    def test_device_is_not_known_bad_user_agent(
+        self, user_service, monkeypatch, ua_string
+    ):
+        user = UserFactory.create(with_verified_primary_email=True)
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(services, "send_unrecognized_login_email", send_email)
+        token_service = pretend.stub(dumps=lambda d: "fake_token", max_age=60)
+        headers = {}
+        if ua_string:
+            headers["User-Agent"] = ua_string
+        user_service.request = pretend.stub(
+            db=user_service.db,
+            remote_addr=REMOTE_ADDR,
+            headers=headers,
+            find_service=lambda *a, **kw: token_service,
+            ip_address=IpAddressFactory.create(ip_address=REMOTE_ADDR),
+        )
+
+        assert not user_service.device_is_known(user.id, user_service.request)
+        assert send_email.calls == [
+            pretend.call(
+                user_service.request,
+                user,
+                ip_address=REMOTE_ADDR,
+                user_agent=ua_string or "Unknown User-Agent",
+                token="fake_token",
+            )
+        ]

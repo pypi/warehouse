@@ -99,6 +99,24 @@
       <strong>
         {% trans href=request.route_path('accounts.profile', username=target_user), username=target_user, team_name=event.additional.team_name %}<a href="{{ href }}">{{ username }}</a> removed from {{ team_name }} team{% endtrans %}
       </strong>
+      {# Display custom trusted publisher events #}
+    {% elif event.tag == EventTag.Organization.OIDCPublisherAdded %}
+      {% set submitted_by = get_user(event.additional.submitted_by_user_id).username %}
+      <strong>
+        {% trans issuer_url=event.additional.issuer_url, issuer_type=event.additional.issuer_type %}Custom Trusted Publisher '{{ issuer_type }}' for <code>{{ issuer_url }}</code> added to organization{% endtrans %}
+      </strong>
+      <small>
+        {% trans %}Added by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=submitted_by) }}">{{ submitted_by }}</a>
+      </small>
+    {% elif event.tag == EventTag.Organization.OIDCPublisherRemoved %}
+      {% set deleted_by = get_user(event.additional.deleted_by_user_id).username %}
+      <strong>
+        {% trans issuer_url=event.additional.issuer_url, issuer_type=event.additional.issuer_type %}Custom Trusted Publisher '{{ issuer_type }}' for <code>{{ issuer_url }}</code> removed from organization{% endtrans %}
+      </strong>
+      <small>
+        {% trans %}Removed by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=deleted_by) }}">{{ deleted_by }}</a>
+      </small>
+      {# For everything else, display the tag itself #}
     {% else %}
       <strong>{{ event.tag }}</strong>
     {% endif %}

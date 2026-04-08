@@ -6,6 +6,7 @@ import collections
 import re
 import typing
 
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import opensearchpy
@@ -255,6 +256,40 @@ def robotstxt(request):
 def funding_manifest_urls(request):
     return Response(
         "https://www.python.org/funding.json",
+        content_type="text/plain",
+        charset="utf-8",
+    )
+
+
+@view_config(
+    route_name="security-txt",
+    decorator=[
+        cache_control(1 * 24 * 60 * 60),  # 1 day
+        origin_cache(
+            1 * 24 * 60 * 60,  # 1 day
+            stale_while_revalidate=6 * 60 * 60,  # 6 hours
+            stale_if_error=1 * 24 * 60 * 60,  # 1 day
+        ),
+    ],
+)
+def securitytxt(request):
+    # Calculate expiration date (1 year from now)
+    expires = datetime.now(timezone.utc) + timedelta(days=365)
+    expires_str = expires.strftime("%Y-%m-%dT%H:%M:%S.000Z")
+
+    # Build dynamic URLs
+    canonical_url = request.route_url("security-txt")
+    policy_url = request.route_url("security")
+
+    content = f"""\
+Contact: mailto:security@pypi.org
+Expires: {expires_str}
+Preferred-Languages: en
+Canonical: {canonical_url}
+Policy: {policy_url}
+"""
+    return Response(
+        content,
         content_type="text/plain",
         charset="utf-8",
     )

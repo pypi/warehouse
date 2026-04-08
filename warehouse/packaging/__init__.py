@@ -7,7 +7,7 @@ from warehouse import db
 from warehouse.accounts.models import Email, User
 from warehouse.cache.origin import key_factory, receive_set
 from warehouse.manage.tasks import update_role_invitation_status
-from warehouse.organizations.models import Organization
+from warehouse.organizations.models import Organization, OrganizationProject
 from warehouse.packaging.interfaces import (
     IDocsStorage,
     IFileStorage,
@@ -23,7 +23,6 @@ from warehouse.packaging.tasks import (
     compute_top_dependents_corpus,
     update_description_html,
 )
-from warehouse.rate_limiting import IRateLimiter, RateLimit
 
 
 @db.listens_for(User.name, "set")
@@ -76,19 +75,13 @@ def includeme(config):
     project_create_user_limit_string = config.registry.settings.get(
         "warehouse.packaging.project_create_user_ratelimit_string"
     )
-    config.register_service_factory(
-        RateLimit(project_create_user_limit_string),
-        IRateLimiter,
-        name="project.create.user",
+    config.register_rate_limiter(
+        project_create_user_limit_string, "project.create.user"
     )
     project_create_ip_limit_string = config.registry.settings.get(
         "warehouse.packaging.project_create_ip_ratelimit_string"
     )
-    config.register_service_factory(
-        RateLimit(project_create_ip_limit_string),
-        IRateLimiter,
-        name="project.create.ip",
-    )
+    config.register_rate_limiter(project_create_ip_limit_string, "project.create.ip")
 
     config.register_service_factory(project_service_factory, IProjectService)
 
@@ -174,6 +167,12 @@ def includeme(config):
         cache_keys=["project/{obj.project.normalized_name}"],
         purge_keys=[
             key_factory("project/{obj.project.normalized_name}"),
+        ],
+    )
+    config.register_origin_cache_keys(
+        OrganizationProject,
+        purge_keys=[
+            key_factory("project/{attr.normalized_name}", if_attr_exists="project"),
         ],
     )
 

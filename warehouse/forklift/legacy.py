@@ -1,5 +1,4 @@
 # SPDX-License-Identifier: Apache-2.0
-import csv
 import hashlib
 import hmac
 import os.path
@@ -31,7 +30,7 @@ from pyramid.httpexceptions import (
 )
 from pyramid.request import Request
 from pyramid.view import view_config
-from sqlalchemy import and_, exists, func, orm
+from sqlalchemy import and_, exists, func, orm, text
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 
 from warehouse.admin.flags import AdminFlagValue
@@ -42,10 +41,6 @@ from warehouse.classifiers.models import Classifier
 from warehouse.constants import ONE_GIB, ONE_MIB
 from warehouse.email import (
     send_api_token_used_in_trusted_publisher_project_email,
-    send_pep427_name_email,
-    send_pep625_extension_email,
-    send_pep625_name_email,
-    send_pep625_version_email,
     send_wheel_record_mismatch_email,
 )
 from warehouse.events.tags import EventTag
@@ -67,8 +62,13 @@ from warehouse.packaging.models import (
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
 from warehouse.rate_limiting.interfaces import RateLimiterException
-from warehouse.utils import readme, zipfiles
+from warehouse.utils import readme, scanner, zipfiles
 from warehouse.utils.release import strip_keywords
+from warehouse.utils.wheel import (
+    InvalidWheelRecordError,
+    MissingWheelRecordError,
+    validate_record,
+)
 
 PATH_HASHER = "blake2_256"
 
@@ -123,7 +123,7 @@ _allowed_platforms = {
     "linux_armv7l",
 }
 # macosx is a little more complicated:
-_macosx_platform_re = re.compile(r"macosx_(?P<major>\d+)_(\d+)_(?P<arch>.*)")
+_macosx_platform_re = re.compile(r"macosx_(?P<major>\d+)_(?P<minor>\d+)_(?P<arch>.*)")
 _macosx_arches = {
     "ppc",
     "ppc64",
@@ -137,13 +137,14 @@ _macosx_arches = {
     "universal",
     "universal2",
 }
+# macosx 10 is also supported, but with different rules
 _macosx_major_versions = {
-    "10",
     "11",
     "12",
     "13",
     "14",
     "15",
+    "26",
 }
 
 _ios_platform_re = re.compile(
@@ -182,9 +183,17 @@ def _valid_platform_tag(platform_tag):
     if platform_tag in _allowed_platforms:
         return True
     m = _macosx_platform_re.match(platform_tag)
+    # https://github.com/pypa/packaging.python.org/issues/1933
+    # There's two macosx formats: `macosx_10_{minor}` for the 10.x series where
+    # only the minor version ever increased, and `macosx_{major}_0` for the
+    # new release scheme where we don't know how many minor versions each
+    # release has.
+    if m and m.group("major") == "10" and m.group("arch") in _macosx_arches:
+        return True
     if (
         m
         and m.group("major") in _macosx_major_versions
+        and m.group("minor") == "0"
         and m.group("arch") in _macosx_arches
     ):
         return True
@@ -271,14 +280,22 @@ def _validate_filename(filename, filetype):
         )
 
 
-def _is_valid_dist_file(filename, filetype):
+def _is_valid_dist_file(filename, filetype, *, scan=True):
     """
     Perform some basic checks to see whether the indicated file could be
     a valid distribution file.
+
+    Runs a YARA scan on archive members while the archive is already open.
+    Returns ``(False, message)`` on the first YARA match.
     """
+    is_zipfile = bool(filename and zipfile.is_zipfile(filename))
+    is_tarfile = bool(filename and tarfile.is_tarfile(filename))
+
+    if is_zipfile and is_tarfile:
+        return False, "File is both a zip and a tar file"
 
     if filename.endswith((".zip", ".whl")):
-        if not zipfile.is_zipfile(filename):
+        if not is_zipfile:
             return False, "File is not a zipfile"
         # Ensure that this is a valid zip file, and that it has a
         # PKG-INFO or WHEEL file.
@@ -315,7 +332,7 @@ def _is_valid_dist_file(filename, filetype):
                         )
 
                 if filename.endswith(".zip"):
-                    top_level = os.path.commonprefix(zfp.namelist())
+                    top_level = _commonpath(zfp.namelist())
                     if top_level in [".", "/", ""]:
                         return (
                             False,
@@ -340,17 +357,33 @@ def _is_valid_dist_file(filename, filetype):
                     except KeyError:
                         return False, f"WHEEL not found at {target_file}"
 
+                # Scan archive members for YARA rule matches while open
+                if scan:
+                    yara_match = scanner.check_members(
+                        scanner.iter_zip_members(zfp),
+                        archive_name=os.path.basename(filename),
+                    )
+                    if yara_match is not None:
+                        sentry_sdk.capture_message(
+                            f"YARA rule {yara_match.rule!r} matched "
+                            f"{yara_match.member!r} in {os.path.basename(filename)}"
+                        )
+                        return False, yara_match.message
+
             # Check the ZIP file record framing
             # to avoid parser differentials.
             zip_ok, zip_error = zipfiles.validate_zipfile(filename)
             if not zip_ok:
-                return False, f"ZIP archive not accepted: {zip_error}"
+                return False, (
+                    f"ZIP archive not accepted: {zip_error}. "
+                    f"See https://docs.pypi.org/archives for more information"
+                )
 
         except zipfile.BadZipFile:  # pragma: no cover
             return False, None
 
     elif filename.endswith(".tar.gz"):
-        if not tarfile.is_tarfile(filename):
+        if not is_tarfile:
             return False, "File is not a tarfile"
         # Ensure that this is a valid tar file, and that it contains PKG-INFO.
         # TODO: Ideally Ensure the compression ratio is not absurd
@@ -359,7 +392,7 @@ def _is_valid_dist_file(filename, filetype):
             with tarfile.open(filename, "r:gz") as tar:
                 # This decompresses the entire stream to validate it and the
                 # tar within.  Easy CPU DoS attack. :/
-                top_level = os.path.commonprefix(tar.getnames())
+                top_level = _commonpath(tar.getnames())
                 if top_level in [".", "/", ""]:
                     return (
                         False,
@@ -370,6 +403,20 @@ def _is_valid_dist_file(filename, filetype):
                     tar.getmember(target_file)
                 except KeyError:
                     return False, f"PKG-INFO not found at {target_file}"
+
+                # Scan archive members for YARA rule matches while open
+                if scan:
+                    yara_match = scanner.check_members(
+                        scanner.iter_tar_members(tar),
+                        archive_name=os.path.basename(filename),
+                    )
+                    if yara_match is not None:
+                        sentry_sdk.capture_message(
+                            f"YARA rule {yara_match.rule!r} matched "
+                            f"{yara_match.member!r} in {os.path.basename(filename)}"
+                        )
+                        return False, yara_match.message
+
         except (tarfile.ReadError, EOFError):
             return False, None
 
@@ -420,6 +467,10 @@ def _sort_releases(request: Request, project: Project):
                 Release._pypi_ordering,
             )
         )
+        # Acquire row locks in a deterministic order (by PK) to prevent deadlocks
+        # when concurrent uploads to the same project both run _sort_releases.
+        .with_for_update()
+        .order_by(Release.id)
         .all()
     )
     for i, r in enumerate(
@@ -447,9 +498,13 @@ def _sort_releases(request: Request, project: Project):
             r._pypi_ordering = i
 
 
-def _zip_filename_is_dir(filename: str) -> bool:
-    """Return True if this ZIP archive member is a directory."""
-    return filename.endswith(("/", "\\"))
+def _commonpath(values):
+    # Handles empty lists, which os.path.commonpath()
+    # rejects where os.path.commonprefix() would return
+    # an empty string.
+    if not values:
+        return ""
+    return os.path.commonpath(values)
 
 
 @view_config(
@@ -641,13 +696,19 @@ def file_upload(request):
         request.metrics.increment(
             "warehouse.upload.failed", tags=["reason:invalid-metadata"]
         )
+        _see_url = (
+            "https://packaging.python.org/en/latest/specifications/"
+            "version-specifiers/#local-version-identifiers"
+            if field_name == "version"
+            and any("use of local versions" in str(e) for e in errors["version"])
+            else "https://packaging.python.org/specifications/core-metadata"
+        )
         raise _exc_with_message(
             HTTPBadRequest,
             " ".join(
                 [
                     error_msg + ("." if not error_msg.endswith(".") else ""),
-                    "See https://packaging.python.org/specifications/core-metadata "
-                    "for more information.",
+                    f"See {_see_url} for more information.",
                 ]
             ),
         )
@@ -656,6 +717,14 @@ def file_upload(request):
     if "content" not in request.POST:
         request.metrics.increment("warehouse.upload.failed", tags=["reason:no-file"])
         raise _exc_with_message(HTTPBadRequest, "Upload payload does not have a file.")
+
+    # Set a statement timeout for this connection to prevent long-running
+    # transactions from holding database locks indefinitely. The upload
+    # operation holds a global advisory lock for journal monotonicity,
+    # so limiting transaction duration prevents lock pile-up.
+    # 600 seconds (10 minutes) allows for large file uploads while
+    # providing an upper bound on lock duration.
+    request.db.execute(text("SET statement_timeout = '600s'"))
 
     # Look up the project first before doing anything else, this is so we can
     # automatically register it if we need to and can check permissions before
@@ -985,18 +1054,6 @@ def file_upload(request):
         request.db.add(release)
         is_new_release = True
 
-        # TODO: This should be handled by some sort of database trigger or
-        #       a SQLAlchemy hook or the like instead of doing it inline in
-        #       this view.
-        request.db.add(
-            JournalEntry(
-                name=release.project.name,
-                version=release.version,
-                action="new release",
-                submitted_by=request.user if request.user else None,
-            )
-        )
-
         project.record_event(
             tag=EventTag.Project.ReleaseAdd,
             request=request,
@@ -1148,9 +1205,8 @@ def file_upload(request):
             )
             raise _exc_with_message(
                 HTTPBadRequest,
-                "This filename has already been used, use a "
-                "different version. "
-                "See "
+                "This filename was previously used by a file that has since been "
+                "deleted. Use a different version. See "
                 + request.help_url(_anchor="file-name-reuse")
                 + " for more information.",
             )
@@ -1173,9 +1229,11 @@ def file_upload(request):
             )
 
         # Check the file to make sure it is a valid distribution file.
+        _scan = not request.flags.enabled(AdminFlagValue.DISABLE_UPLOAD_SCANNING)
         _valid, _msg = _is_valid_dist_file(
             temporary_filename,
             form.filetype.data,
+            scan=_scan,
         )
         if not _valid:
             request.metrics.increment(
@@ -1183,58 +1241,17 @@ def file_upload(request):
                 tags=[
                     "reason:invalid-distribution-file",
                     f"filetype:{form.filetype.data}",
+                    f"message:{_msg}",
                 ],
             )
             raise _exc_with_message(
                 HTTPBadRequest, f"Invalid distribution file. {_msg}"
             )
 
-        # TODO: Remove sdist zip handling when #12245 is resolved
-        # (PEP 625 – Filename of a Source Distribution)
-        if form.filetype.data == "sdist" and filename.endswith(".zip"):
-            # PEP 625: Enforcement on filename extensions. Files ending with
-            # .zip will not be permitted.
-            send_pep625_extension_email(
-                request,
-                set(project.users),
-                project_name=project.name,
-                filename=filename,
-            )
-
-            filename = os.path.basename(temporary_filename)
-
-            if meta.license_files:  # pragma: no branch
-                """
-                Ensure all License-File keys exist in the sdist
-                See https://peps.python.org/pep-0639/#add-license-file-field
-                """
-                with zipfile.ZipFile(temporary_filename) as zfp:
-                    top_level = os.path.commonprefix(zfp.namelist())
-                    for license_file in meta.license_files:
-                        target_file = os.path.join(top_level, license_file)
-                        try:
-                            zfp.read(target_file)
-                        except KeyError:
-                            request.metrics.increment(
-                                "warehouse.upload.failed",
-                                tags=[
-                                    "reason:missing-license-file",
-                                    f"filetype:{form.filetype.data}",
-                                ],
-                            )
-                            raise _exc_with_message(
-                                HTTPBadRequest,
-                                f"License-File {license_file} does not exist in "
-                                f"distribution file {filename} at {target_file}",
-                            )
-
         # Check that the sdist filename is correct
-        if filename.endswith(".tar.gz"):
-            # Extract the project name and version from the filename and check it.
-            # Per PEP 625, both should be normalized, but we aren't currently
-            # enforcing this, so we permit a filename with a project name and
-            # version that normalizes to be what we expect
+        if form.filetype.data == "sdist":
 
+            # Extract the project name and version from the filename and check it.
             try:
                 name_from_filename, version_from_filename = (
                     packaging.utils.parse_sdist_filename(filename)
@@ -1268,30 +1285,18 @@ def file_upload(request):
                     version_string_from_filename = filename[
                         len(name_from_filename) + 1 : -len(".tar.gz")
                     ]
-                    version_from_filename = packaging.version.Version(
-                        version_string_from_filename
-                    )
-
-                    # PEP 625: Enforcement of project version normalization.
-                    # Filenames with dashes in the version will not be permitted.
-                    send_pep625_version_email(
-                        request,
-                        set(project.users),
-                        project_name=project.name,
-                        filename=filename,
-                        normalized_version=str(version_from_filename),
-                    )
+                    packaging.version.Version(version_string_from_filename)
                 except packaging.version.InvalidVersion:
                     # If the version isn't valid, we're not on this edge case.
                     pass
 
-            # Ensure that the prefix in the filename and the project name
-            # normalize to be the same thing. Eventually this should be
-            # unnecessary once we become more restrictive in what we permit
-            filename_prefix = (
-                name_from_filename.lower().replace(".", "_").replace("-", "_")
-            )
-            if (prefix := project.normalized_name.replace("-", "_")) != filename_prefix:
+            # Check if the file corresponds to the project by comparing the
+            # canonicalized name in the filename to the project name. This does
+            # not enforce normalization.
+            if (
+                packaging.utils.canonicalize_name(name_from_filename)
+                != project.normalized_name
+            ):
                 request.metrics.increment(
                     "warehouse.upload.failed",
                     tags=[
@@ -1301,31 +1306,25 @@ def file_upload(request):
                 )
                 raise _exc_with_message(
                     HTTPBadRequest,
-                    f"Start filename for {project.name!r} with {prefix!r}.",
+                    f"Start filename for {project.name!r} with "
+                    f"{project.normalized_name.replace('-', '_')!r}.",
                 )
 
-            # PEP 625: Enforcement of project name normalization. Filenames
-            # that do not start with the normalized project name (with dashes
-            # replaced with underscores) will not be permitted.
-            if not filename.startswith(name_from_filename.replace("-", "_")):
-                send_pep625_name_email(
-                    request,
-                    set(project.users),
-                    project_name=project.name,
-                    filename=filename,
-                    normalized_name=project.normalized_name.replace("-", "_"),
-                )
+            # PEP 625: Enforcement of source distribution filename
+            # normalization.
+            expected_name = project.normalized_name.replace("-", "_")
+            expected_version = str(meta.version)
+            expected_filename = f"{expected_name}-{expected_version}.tar.gz"
 
-            # Make sure that the version in the filename matches the metadata
-            if version_from_filename != meta.version:
+            if filename != expected_filename:
                 request.metrics.increment(
                     "warehouse.upload.failed",
-                    tags=["reason:invalid-sdist-filename-version"],
+                    tags=["reason:invalid-sdist-filename-normalization"],
                 )
                 raise _exc_with_message(
                     HTTPBadRequest,
-                    f"Version in filename should be {str(meta.version)!r} not "
-                    f"{str(version_from_filename)!r}.",
+                    f"Filename {filename!r} is invalid, should be "
+                    f"{expected_filename!r}.",
                 )
 
             filename = os.path.basename(temporary_filename)
@@ -1336,7 +1335,7 @@ def file_upload(request):
                 See https://peps.python.org/pep-0639/#add-license-file-field
                 """
                 with tarfile.open(temporary_filename, "r:gz") as tar:
-                    top_level = os.path.commonprefix(tar.getnames())
+                    top_level = _commonpath(tar.getnames())
                     # Already validated as a tarfile by _is_valid_dist_file above
                     for license_file in meta.license_files:
                         target_file = os.path.join(top_level, license_file)
@@ -1405,16 +1404,22 @@ def file_upload(request):
 
             # PEP 427 / PEP 503: Enforcement of project name normalization.
             # Filenames that do not start with the fully normalized project name
-            # will not be permitted.
+            # are not be permitted.
             # https://packaging.python.org/en/latest/specifications/binary-distribution-format/#escaping-and-unicode
             normalized_name = project.normalized_name.replace("-", "_")
             if name_from_filename != normalized_name:
-                send_pep427_name_email(
-                    request,
-                    set(project.users),
-                    project_name=project.name,
-                    filename=filename,
-                    normalized_name=normalized_name,
+                request.metrics.increment(
+                    "warehouse.upload.failed",
+                    tags=[
+                        "reason:invalid-filename-projectname",
+                        f"filetype:{form.filetype.data}",
+                    ],
+                )
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    f"Filename {filename!r} should contain the normalized "
+                    f"project name {normalized_name!r}, not "
+                    f"{name_from_filename!r}.",
                 )
 
             if meta.version != version:
@@ -1464,30 +1469,9 @@ def file_upload(request):
                                 f"distribution file {filename} at {license_filename}",
                             )
 
-            """
-            Extract RECORD file from a wheel and check the ZIP archive contents
-            against the files listed in the RECORD. Mismatches are reported via email.
-            """
-            record_filename = f"{name}-{version}.dist-info/RECORD"
-            # Files that must be missing from 'RECORD',
-            # so we ignore them when cross-checking.
-            record_exemptions = {
-                f"{name}-{version}.dist-info/RECORD.jws",
-                f"{name}-{version}.dist-info/RECORD.p7s",
-            }
             try:
-                with zipfile.ZipFile(temporary_filename) as zfp:
-                    wheel_record_contents = zfp.read(record_filename).decode()
-                record_entries = {
-                    fn.replace("\\", "/")  # Normalize Windows path separators.
-                    for fn, *_ in csv.reader(wheel_record_contents.splitlines())
-                }
-                zip_entries = {
-                    fn
-                    for fn in zfp.namelist()
-                    if not _zip_filename_is_dir(fn) and fn not in record_exemptions
-                }
-            except (UnicodeError, KeyError, csv.Error) as e:
+                validate_record(temporary_filename)
+            except MissingWheelRecordError:
                 request.metrics.increment(
                     "warehouse.upload.failed",
                     tags=[
@@ -1498,13 +1482,12 @@ def file_upload(request):
                 raise _exc_with_message(
                     HTTPBadRequest,
                     "Wheel '{filename}' does not contain the required "
-                    "RECORD file: {record_filename} {e}".format(
+                    "RECORD file: {record_filename}".format(
                         filename=filename,
-                        record_filename=record_filename,
-                        e=str(type(e)) + repr(e),
+                        record_filename=f"{name}-{version}.dist-info/RECORD",
                     ),
                 )
-            if record_entries != zip_entries:
+            except InvalidWheelRecordError:
                 send_wheel_record_mismatch_email(
                     request,
                     set(project.users),
@@ -1586,11 +1569,6 @@ def file_upload(request):
                     f"Invalid attestations supplied during upload: {e}",
                 )
 
-        # TODO: This should be handled by some sort of database trigger or a
-        #       SQLAlchemy hook or the like instead of doing it inline in this
-        #       view.
-        request.db.add(Filename(filename=filename))
-
         # Store the information about the file in the database.
         file_ = File(
             release=release,
@@ -1638,20 +1616,6 @@ def file_upload(request):
                 "project_id": str(project.id),
                 "uploaded_via_trusted_publisher": bool(request.oidc_publisher),
             },
-        )
-
-        # TODO: This should be handled by some sort of database trigger or a
-        #       SQLAlchemy hook or the like instead of doing it inline in this
-        #       view.
-        request.db.add(
-            JournalEntry(
-                name=release.project.name,
-                version=release.version,
-                action="add {python_version} file {filename}".format(
-                    python_version=file_.python_version, filename=file_.filename
-                ),
-                submitted_by=request.user if request.user else None,
-            )
         )
 
         # If we have attestations from above, persist them.
@@ -1704,10 +1668,46 @@ def file_upload(request):
             ):
                 release_url.verified = True
 
-        if home_page_verified and not release.home_page_verified:
+        if (
+            home_page_verified
+            and not release.home_page_verified
+            and release.home_page == home_page
+        ):
             release.home_page_verified = True
-        if download_url_verified and not release.download_url_verified:
+        if (
+            download_url_verified
+            and not release.download_url_verified
+            and release.download_url == download_url
+        ):
             release.download_url_verified = True
+
+    # TODO: This should be handled by some sort of database trigger or
+    #       a SQLAlchemy hook or the like instead of doing it inline in
+    #       this view.
+    # NOTE: JournalEntries are intentionally deferred until here (after storage
+    #       upload) to minimize advisory lock hold time. ensure_monotonic_journals
+    #       acquires a global advisory lock whenever a JournalEntry is flushed.
+    #       Keeping them near the final flush prevents the lock from being held
+    #       through the S3 upload, reducing contention between concurrent uploads.
+    if is_new_release:
+        request.db.add(
+            JournalEntry(
+                name=release.project.name,
+                version=release.version,
+                action="new release",
+                submitted_by=request.user if request.user else None,
+            )
+        )
+    request.db.add(
+        JournalEntry(
+            name=release.project.name,
+            version=release.version,
+            action="add {python_version} file {filename}".format(
+                python_version=file_.python_version, filename=file_.filename
+            ),
+            submitted_by=request.user if request.user else None,
+        )
+    )
 
     request.db.flush()  # flush db now so server default values are populated for celery
 

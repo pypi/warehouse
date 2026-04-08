@@ -1,5 +1,13 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "sass:color";
+@use "../settings/breakpoints";
+@use "../settings/colours";
+@use "../settings/fonts";
+@use "../settings/grid";
+@use "../tools/layout-utilities";
+@use "../tools/link-utilities";
+
 /*
   Styles for large, copyable text.
 
@@ -10,43 +18,43 @@
 */
 
 .copyable {
-  @include clearfix;
+  @include layout-utilities.clearfix;
   padding-bottom: 15px;
 
   span {
-    font-family: $code-font;
+    font-family: fonts.$code-font;
     font-weight: 500;
     font-size: 1.2rem;
     float: left;
-    background-color: transparentize($black, 0.85);
+    background-color: color.adjust(colours.$black, $alpha: -0.85);
     padding: 8px;
-    border: 1px dotted $transparent-white;
-    line-height: $spacing-unit;
+    border: 1px dotted colours.$transparent-white;
+    line-height: grid.$spacing-unit;
 
-    @media only screen and (max-width: $tablet) {
+    @media only screen and (max-width: breakpoints.$tablet) {
       font-size: 1.1rem;
     }
 
-    @media only screen and (max-width: $mobile) {
+    @media only screen and (max-width: breakpoints.$mobile) {
       font-size: 1rem;
     }
   }
 
   button {
-    line-height: $spacing-unit;
+    line-height: grid.$spacing-unit;
     float: left;
     cursor: pointer;
-    padding: 8px $half-spacing-unit;
-    background-color: transparentize($black, 0.85);
-    border-right: 1px dotted $transparent-white;
-    border-top: 1px dotted $transparent-white;
-    border-bottom: 1px dotted $transparent-white;
+    padding: 8px grid.$half-spacing-unit;
+    background-color: color.adjust(colours.$black, $alpha: -0.85);
+    border-right: 1px dotted colours.$transparent-white;
+    border-top: 1px dotted colours.$transparent-white;
+    border-bottom: 1px dotted colours.$transparent-white;
     border-left: 1px;
 
     &:hover {
-      background-color: transparentize($black, 0.8);
+      background-color: color.adjust(colours.$black, $alpha: -0.8);
     }
 
-    @include link-focus-state($white);
+    @include link-utilities.link-focus-state(colours.$white);
   }
 }

@@ -16,7 +16,6 @@
     <table class="table table-striped table-hover">
       <thead>
       <tr>
-        <th>ID</th>
         <th>IP Address</th>
         <th>Hashed IP Address</th>
         <th>Last Seen Geo</th>
@@ -29,9 +28,8 @@
       {% for ip_address in ip_addresses %}
       <tr>
         <td>
-          <a href="{{ request.route_path('admin.ip_address.detail', ip_address_id=ip_address.id) }}">{{ ip_address.id }}</a>
+          <a href="{{ request.route_path('admin.ip_address.detail', ip_address=ip_address.ip_address) }}">{{ ip_address.ip_address }}</a>
         </td>
-        <td>{{ ip_address.ip_address }}</td>
         <td>{{ ip_address.hashed_ip_address }}</td>
         <td>{{ ip_address.geoip_info }}</td>
         <td>{% if ip_address.is_banned %}<i class="fa fa-check text-red"></i>{% endif %}</td>

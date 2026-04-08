@@ -1,5 +1,11 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "sass:color";
+@use "../settings/breakpoints";
+@use "../settings/colours";
+@use "../settings/grid";
+@use "../tools/link-utilities";
+
 /*
   Footer:
 
@@ -27,17 +33,17 @@
 */
 
 .footer {
-  background-color: lighten($primary-color, 2);
-  color: $white;
+  background-color: color.adjust(colours.$primary-color, $lightness: 2%);
+  color: colours.$white;
   padding: 60px 0;
   width: 100%;
 
-  @media only screen and (max-width: $mobile) {
+  @media only screen and (max-width: breakpoints.$mobile) {
     padding-top: 40px 0;
   }
 
   &__logo {
-    margin-bottom: $spacing-unit;
+    margin-bottom: grid.$spacing-unit;
     text-align: center;
   }
 
@@ -45,9 +51,9 @@
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    margin-bottom: $spacing-unit;
+    margin-bottom: grid.$spacing-unit;
 
-    @media only screen and (max-width: $mobile) {
+    @media only screen and (max-width: breakpoints.$mobile) {
       margin-bottom: 10px;
     }
   }
@@ -55,11 +61,11 @@
   &__menu {
     flex-basis: 220px;
     flex-shrink: 0;
-    margin: 0 $half-spacing-unit 40px;
+    margin: 0 grid.$half-spacing-unit 40px;
     padding: 0;
 
     h2 {
-      color: $white;
+      color: colours.$white;
       margin-bottom: 5px;
       text-align: center;
     }
@@ -76,21 +82,21 @@
 
       a {
         text-decoration: none;
-        @include white-underlined-link;
+        @include link-utilities.white-underlined-link;
       }
     }
   }
 
   &__divider {
-    border: 1px solid transparentize($white, 0.7);
-    margin: 0 auto $spacing-unit;
+    border: 1px solid color.adjust(colours.$white, $alpha: -0.7);
+    margin: 0 auto grid.$spacing-unit;
     width: 200px;
     background: none;
     height: 0;
   }
 
   &__text {
-    color: transparentize($white, 0.05);
+    color: color.adjust(colours.$white, $alpha: -0.05);
     font-size: 0.9rem;
     margin: auto;
     max-width: 600px;
@@ -98,7 +104,7 @@
     padding: 0 20px;
 
     a {
-      @include white-underlined-link;
+      @include link-utilities.white-underlined-link;
     }
   }
 }

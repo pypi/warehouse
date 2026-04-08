@@ -187,7 +187,7 @@
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
             <td colspan="3">
               <div class="form-inline">
-                <label for="uploadLimit" class="mr-3">Set project limit:</label>
+                <label for="uploadLimit" class="mr-3">Set file limit:</label>
                 {% if project.upload_limit %}
                 {% set upload_limit_value = project.upload_limit / ONE_MIB %}
                 {% else %}

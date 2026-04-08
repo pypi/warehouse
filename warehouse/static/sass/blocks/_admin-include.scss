@@ -1,5 +1,8 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "sass:color";
+@use "../settings/colours";
+
 /*
   List with check marks, with items divided by a borer:
 
@@ -10,7 +13,7 @@
 
 .admin-include {
   padding: 0.5rem;
-  background: repeating-linear-gradient(45deg, #ececec, #ececec 10px, transparentize($danger-color, 0.8) 10px, transparentize($danger-color, 0.8) 20px);
+  background: repeating-linear-gradient(45deg, #ececec, #ececec 10px, color.adjust(colours.$danger-color, $alpha: -0.8) 10px, color.adjust(colours.$danger-color, $alpha: -0.8) 20px);
 
   justify-items: center;
 

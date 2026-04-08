@@ -30,6 +30,7 @@ from warehouse.events.tags import EventTag
 from warehouse.helpdesk.interfaces import IAdminNotificationService
 from warehouse.metrics import IMetricsService
 from warehouse.oidc.models import PendingOIDCPublisher
+from warehouse.organizations.models import OrganizationProject
 from warehouse.packaging.interfaces import (
     IDocsStorage,
     IFileStorage,
@@ -494,7 +495,14 @@ class ProjectService:
         return None
 
     def create_project(
-        self, name, creator, request, *, creator_is_owner=True, ratelimited=True
+        self,
+        name,
+        creator,
+        request,
+        *,
+        creator_is_owner=True,
+        ratelimited=True,
+        organization_id=None,
     ):
         if ratelimited:
             self._check_ratelimits(request, creator)
@@ -640,6 +648,7 @@ class ProjectService:
         # The project name is valid: create it and add it
         project = Project(name=name)
         self.db.add(project)
+        self.db.flush()  # To get the new ID
 
         # TODO: This should be handled by some sort of database trigger or a
         #       SQLAlchemy hook or the like instead of doing it inline in this
@@ -657,8 +666,15 @@ class ProjectService:
             additional={"created_by": creator.username},
         )
 
-        # Mark the creator as the newly created project's owner, if configured.
-        if creator_is_owner:
+        if organization_id:
+            # If an organization ID is provided, we never set the creator to owner
+            self.db.add(
+                OrganizationProject(
+                    organization_id=organization_id, project_id=project.id
+                )
+            )
+        elif creator_is_owner:
+            # Mark the creator as the newly created project's owner, if configured.
             self.db.add(Role(user=creator, project=project, role_name="Owner"))
             # TODO: This should be handled by some sort of database trigger or a
             #       SQLAlchemy hook or the like instead of doing it inline in this

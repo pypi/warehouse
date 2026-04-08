@@ -26,11 +26,17 @@ updates:
       # Keep both psycopg and psycopg-c together
       patterns:
         - "psycopg*"
+  cooldown:
+    default-days: 7
 - package-ecosystem: github-actions
   directory: "/"
   schedule:
     interval: "daily"
+  cooldown:
+    default-days: 7
 - package-ecosystem: docker
   directory: "/"
   schedule:
     interval: "daily"
+  cooldown:
+    default-days: 7

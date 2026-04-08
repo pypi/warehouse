@@ -7,7 +7,6 @@ Revises: ('1f002cab0a7', '28a7e805fd0')
 Create Date: 2015-06-02 23:55:28.367579
 """
 
-
 revision = "49b93c346db"
 down_revision = ("1f002cab0a7", "28a7e805fd0")
 

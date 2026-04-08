@@ -51,6 +51,16 @@ BREACHED_PASSWORDS=warehouse.accounts.NullPasswordBreachedService
 OIDC_BACKEND=warehouse.oidc.services.NullOIDCPublisherService
 INTEGRITY_BACKEND=warehouse.attestations.services.NullIntegrityService
 
+# Use NullGitHubOAuthClient for local development (no GitHub App needed)
+GITHUB_OAUTH_BACKEND=warehouse.accounts.oauth.NullGitHubOAuthClient
+# For real GitHub App integration, uncomment and configure:
+# GITHUB_OAUTH_BACKEND=warehouse.accounts.oauth.GitHubAppClient client_id=Iv2.your_client_id client_secret=your_client_secret
+
+# Use NullGitLabOAuthClient for local development (no GitLab OAuth needed)
+GITLAB_OAUTH_BACKEND=warehouse.accounts.oauth.NullGitLabOAuthClient
+# For real GitLab OAuth integration, uncomment and configure:
+# GITLAB_OAUTH_BACKEND=warehouse.accounts.oauth.GitLabOAuthClient client_id=your_app_id client_secret=your_app_secret
+
 METRICS_BACKEND=warehouse.metrics.DataDogMetrics host=notdatadog
 
 STATUSPAGE_URL=https://2p66nmmycsj3.statuspage.io
@@ -59,6 +69,7 @@ TOKEN_PASSWORD_SECRET="an insecure password reset secret key"
 TOKEN_EMAIL_SECRET="an insecure email verification secret key"
 TOKEN_TWO_FACTOR_SECRET="an insecure two-factor auth secret key"
 TOKEN_REMEMBER_DEVICE_SECRET="an insecure remember device auth secret key"
+TOKEN_CONFIRM_LOGIN_SECRET="an insecure confirm login auth secret key"
 
 WAREHOUSE_LEGACY_DOMAIN=pypi.python.org
 
@@ -94,5 +105,3 @@ HELPDESK_NOTIFICATION_BACKEND="warehouse.helpdesk.services.ConsoleAdminNotificat
 
 # Example of Domain Status configuration
 # DOMAIN_STATUS_BACKEND="warehouse.accounts.services.DomainrDomainStatusService client_id=some_client_id"
-
-WAREHOUSE_ALLOWED_DOMAINS=127.0.0.1,localhost

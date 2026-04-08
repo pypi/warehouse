@@ -26,6 +26,7 @@ class TestPendingGitLabPublisherForm:
                 "project": "some-repo",
                 "workflow_filepath": "subfolder/some-workflow.yml",
                 "project_name": "some-project",
+                "issuer_url": "https://gitlab.com",
             }
         )
         form = gitlab.PendingGitLabPublisherForm(
@@ -33,6 +34,7 @@ class TestPendingGitLabPublisherForm:
             route_url=route_url,
             check_project_name=project_service.check_project_name,
             user=user,
+            issuer_url_choices=["https://gitlab.com"],
         )
 
         assert form._route_url == route_url
@@ -54,6 +56,7 @@ class TestPendingGitLabPublisherForm:
             route_url=route_url,
             check_project_name=project_service.check_project_name,
             user=user,
+            issuer_url_choices=["https://gitlab.com"],
         )
 
         field = pretend.stub(data="some-project")
@@ -66,7 +69,7 @@ class TestPendingGitLabPublisherForm:
             pretend.call(
                 "manage.project.settings.publishing",
                 project_name="some-project",
-                _query={"provider": {"gitlab"}},
+                _query={"issuer_url": "https://gitlab.com", "provider": {"gitlab"}},
             )
         ]
 
@@ -99,22 +102,27 @@ class TestGitLabPublisherForm:
                 "namespace": "some-owner",
                 "project": "some-repo",
                 "workflow_filepath": "subfolder/some-workflow.yml",
+                "issuer_url": "https://gitlab.com",
             },
             {
                 "namespace": "some-group/some-subgroup",
                 "project": "some-repo",
                 "workflow_filepath": "subfolder/some-workflow.yml",
+                "issuer_url": "https://gitlab.com",
             },
             # Leading/trailing whitespace is stripped from filepath
             {
                 "namespace": "some-group/some-subgroup",
                 "project": "some-repo",
                 "workflow_filepath": "  subfolder/some-workflow.yml  ",
+                "issuer_url": "https://gitlab.com",
             },
         ],
     )
     def test_validate(self, data):
-        form = gitlab.GitLabPublisherForm(MultiDict(data))
+        form = gitlab.GitLabPublisherForm(
+            MultiDict(data), issuer_url_choices=["https://gitlab.com"]
+        )
 
         # We're testing only the basic validation here.
         assert form.validate(), str(form.errors)

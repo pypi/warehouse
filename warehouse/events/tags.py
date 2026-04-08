@@ -55,6 +55,8 @@ class EventTag:
         APITokenAdded = "account:api_token:added"
         APITokenRemoved = "account:api_token:removed"
         APITokenRemovedLeak = "account:api_token:removed_leak"
+        AccountAssociationAdd = "account:association:add"
+        AccountAssociationRemove = "account:association:remove"
         AccountCreate = "account:create"
         EmailAdd = "account:email:add"
         EmailPrimaryChange = "account:email:primary:change"
@@ -62,6 +64,7 @@ class EventTag:
         EmailReverify = "account:email:reverify"
         EmailVerified = "account:email:verified"
         LoginFailure = "account:login:failure"
+        LoginNewDevice = "account:login:new_device"
         LoginSuccess = "account:login:success"
         OrganizationRoleAdd = "account:organization_role:add"
         OrganizationRoleChange = "account:organization_role:change"
@@ -180,6 +183,11 @@ class EventTag:
         TeamProjectRoleRemove = "organization:team_project_role:remove"
         TeamRoleAdd = "organization:team_role:add"
         TeamRoleRemove = "organization:team_role:remove"
+
+        OIDCPublisherAdded = "organization:oidc:publisher-added"
+        OIDCPublisherRemoved = "organization:oidc:publisher-removed"
+        PendingOIDCPublisherAdded = "organization:oidc:pending-publisher-added"
+        PendingOIDCPublisherRemoved = "organization:oidc:pending-publisher-removed"
 
     class Team(EventTagEnum):
         """Tags for Organization events.

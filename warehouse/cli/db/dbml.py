@@ -8,7 +8,7 @@ from typing import Literal, NotRequired, TypedDict
 import click
 
 from sqlalchemy.dialects.postgresql.array import ARRAY
-from sqlalchemy.dialects.postgresql.base import CITEXT, INET, TIMESTAMP, UUID
+from sqlalchemy.dialects.postgresql.base import CITEXT, INET, TIMESTAMP
 from sqlalchemy.dialects.postgresql.json import JSONB
 from sqlalchemy.sql.schema import ForeignKey, Table
 from sqlalchemy.sql.sqltypes import (
@@ -24,6 +24,7 @@ from sqlalchemy.sql.sqltypes import (
     String,
     Text,
     Time,
+    Uuid,
 )
 
 import warehouse.db
@@ -52,7 +53,7 @@ SQLALCHEMY_TO_DBML = {
     ForeignKey: "foreign_key",
     BigInteger: "bigint",
     DATETIME: "datetime",
-    UUID: "varchar",
+    Uuid: "uuid",
     INET: "varchar",
     JSONB: "text",
     CITEXT: "text",

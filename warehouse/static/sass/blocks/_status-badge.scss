@@ -1,5 +1,9 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "../settings/colours";
+@use "../settings/fonts";
+@use "../tools/link-utilities";
+
 /*
   A badge that provides package status information.
   By default the badge is white with an info icon.
@@ -21,27 +25,27 @@
   align-items: center;
   box-sizing: border-box;
   border-radius: 3px;
-  font-size: $small-font-size;
-  color: $text-color;
-  background-color: $white;
+  font-size: fonts.$small-font-size;
+  color: colours.$text-color;
+  background-color: colours.$white;
   border: 1px solid rgb(255 255 255 / 50%);
   padding: 0 12px 0 0;
   text-align: left;
   min-height: 40px;
-  @include link-without-underline;
-  @include link-focus-state($white);
+  @include link-utilities.link-without-underline;
+  @include link-utilities.link-focus-state(colours.$white);
 
   span {
     text-decoration: underline;
   }
 
   &:hover {
-    color: $text-color;
+    color: colours.$text-color;
   }
 
   &::before {
     content: "\f05a"; // Info icon
-    font-family: "Font Awesome 6 Free";
+    font-family: fonts.$fa-font-family;
     font-weight: 900;
     padding: 12px;
     margin-right: 12px;
@@ -58,11 +62,11 @@
   }
 
   &--good {
-    color: $white;
-    background-color: $success-color;
+    color: colours.$white;
+    background-color: colours.$success-color;
 
     &:hover {
-      color: $white;
+      color: colours.$white;
     }
 
     &::before {
@@ -71,10 +75,10 @@
   }
 
   &--warn {
-    background-color: $warning-background-color;
+    background-color: colours.$warning-background-color;
 
     &:hover {
-      color: $white;
+      color: colours.$white;
     }
 
     &::before {
@@ -83,11 +87,11 @@
   }
 
   &--bad {
-    color: $white;
-    background-color: $danger-color;
+    color: colours.$white;
+    background-color: colours.$danger-color;
 
     &:hover {
-      color: $white;
+      color: colours.$white;
     }
 
     &::before {

@@ -8,7 +8,6 @@ import requests
 
 from cryptography import x509
 from cryptography.exceptions import InvalidSignature as _InvalidSignature
-from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
 from cryptography.hazmat.primitives.hashes import SHA256
 from urllib3.util import parse_url
@@ -76,7 +75,7 @@ class MessageVerifier:
         resp = self.http.get(cert_url)
         resp.raise_for_status()
 
-        cert = x509.load_pem_x509_certificate(resp.content, default_backend())
+        cert = x509.load_pem_x509_certificate(resp.content)
         return cert.public_key()
 
     def _get_signature(self, message):

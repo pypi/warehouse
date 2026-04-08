@@ -19,6 +19,8 @@ const RemoveEmptyScriptsPlugin = require("webpack-remove-empty-scripts");
 const {WebpackManifestPlugin} = require("webpack-manifest-plugin");
 const {WebpackLocalisationPlugin, allLocaleData} = require("./webpack.plugin.localize.js");
 
+const isDev = process.env.NODE_ENV === "development";
+
 /* Shared Plugins */
 
 const sharedCompressionPlugins = [
@@ -76,6 +78,14 @@ const sharedWebpackManifestMap =
 
 /* End Shared Plugins */
 
+const sharedPerformance = {
+  assetFilter: (assetFilename) =>
+    // Exclude zxcvbn dictionary chunks — inherently large and loaded async
+    !assetFilename.startsWith("zxcvbn") &&
+    // Exclude source maps and pre-compressed files — not loaded as page assets
+    !/\.(map|gz|br)$/.test(assetFilename),
+};
+
 const sharedResolve = {
   alias: {
     // Use an alias to make inline non-relative `@import` statements.
@@ -100,11 +110,6 @@ module.exports = [
             to: "images/[name].[contenthash][ext]",
           },
           {
-            // Copy vendored zxcvbn code
-            from: path.resolve(__dirname, "warehouse/static/js/vendor/zxcvbn.js"),
-            to: "js/vendor/[name].[contenthash][ext]",
-          },
-          {
             // Copy utility for sanitizing plausible analytics
             from: path.resolve(__dirname, "warehouse/static/js/vendor/plausible-sanitized.js"),
             to: "js/utils/[name].[contenthash][ext]",
@@ -119,7 +124,25 @@ module.exports = [
         seed: sharedWebpackManifestData,
         map: sharedWebpackManifestMap,
       }),
-      new LiveReloadPlugin(),
+      ...isDev ? [
+        // Watch HTML templates so LiveReload triggers on template changes.
+        {
+          apply(compiler) {
+            const glob = require("glob");
+            compiler.hooks.afterCompile.tap("WatchTemplatesPlugin", (compilation) => {
+              for (const pattern of [
+                "warehouse/templates/**/*.html",
+                "warehouse/admin/templates/**/*.html",
+              ]) {
+                for (const file of glob.sync(pattern)) {
+                  compilation.fileDependencies.add(path.resolve(__dirname, file));
+                }
+              }
+            });
+          },
+        },
+        new LiveReloadPlugin(),
+      ] : [],
     ],
     resolve: sharedResolve,
     entry: {
@@ -146,6 +169,10 @@ module.exports = [
 
       /* Vendor Stuff */
       fontawesome: "./warehouse/static/sass/vendor/fontawesome.scss",
+
+      /* Self-hosted fonts via Fontsource */
+      fonts: "./warehouse/static/js/vendor/fonts.js",
+      "fonts-ewert": "./warehouse/static/js/vendor/fonts-ewert.js",
     },
     // The default source map. Slowest, but best production-build optimizations.
     // See: https://webpack.js.org/configuration/devtool
@@ -182,7 +209,14 @@ module.exports = [
                     },
                   },
                 },
-                "sass-loader",
+                {
+                  loader: "sass-loader",
+                  options: {
+                    sassOptions: {
+                      loadPaths: [path.resolve(__dirname, "node_modules")],
+                    },
+                  },
+                },
               ],
             },
             {
@@ -193,7 +227,14 @@ module.exports = [
                 // Translates CSS into CommonJS
                 "css-loader",
                 // Translate SCSS to CSS
-                "sass-loader",
+                {
+                  loader: "sass-loader",
+                  options: {
+                    sassOptions: {
+                      loadPaths: [path.resolve(__dirname, "node_modules")],
+                    },
+                  },
+                },
               ],
             },
           ],
@@ -218,6 +259,7 @@ module.exports = [
         },
       ],
     },
+    performance: sharedPerformance,
     optimization: {
       minimizer: [
         // default minimizer is Terser for JS. Extend here vs overriding.
@@ -289,7 +331,7 @@ module.exports = [
         $: "jquery",
         jQuery: "jquery",
       }),
-      new LiveReloadPlugin(),
+      ...isDev ? [new LiveReloadPlugin()] : [],
     ],
     resolve: sharedResolve,
     entry: {
@@ -298,7 +340,7 @@ module.exports = [
         filename: "js/admin.[contenthash].js",
       },
       all: {
-        import: "./warehouse/admin/static/css/admin.scss",
+        import: "./warehouse/admin/static/css/admin.css",
       },
     },
     devtool: "source-map",
@@ -311,11 +353,10 @@ module.exports = [
     module: {
       rules: [
         {
-          test: /\.(sa|sc|c)ss$/,
+          test: /\.css$/,
           use: [
             MiniCssExtractPlugin.loader,
             "css-loader",
-            "sass-loader",
           ],
         },
         {
@@ -352,7 +393,7 @@ module.exports = [
           seed: sharedWebpackManifestData,
           map: sharedWebpackManifestMap,
         }),
-        new LiveReloadPlugin(),
+        ...isDev ? [new LiveReloadPlugin()] : [],
       ],
       resolve: sharedResolve,
       entry: {
@@ -376,6 +417,7 @@ module.exports = [
         // Global output path for all assets.
         path: path.resolve(__dirname, "warehouse/static/dist"),
       },
+      performance: sharedPerformance,
       dependencies: ["warehouse"],
       // Emit fewer stats-per-language in non-production builds.
       stats: (process.env.NODE_ENV === "production") ? undefined : "errors-warnings",

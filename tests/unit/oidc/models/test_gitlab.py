@@ -1,10 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pretend
+import psycopg
 import pytest
-import sqlalchemy
 
 from tests.common.db.oidc import GitLabPublisherFactory, PendingGitLabPublisherFactory
+from tests.common.db.organizations import OrganizationOIDCIssuerFactory
 from warehouse.oidc import errors
 from warehouse.oidc.models import _core, gitlab
 
@@ -38,6 +39,8 @@ NAMESPACE = "project_owner"
         ),
         ("gitlab.com/foo/bar//a.yml@/some/ref", "a.yml"),
         ("gitlab.com/foo/bar//a/b.yml@/some/ref", "a/b.yml"),
+        # Custom domain.
+        ("gitlab.example.com/foo/bar//example.yml@/some/ref", "example.yml"),
         # Malformed `ci_config_ref_uri`s.
         ("gitlab.com/foo/bar//notnested.wrongsuffix@/some/ref", None),
         ("gitlab.com/foo/bar//@/some/ref", None),
@@ -59,6 +62,7 @@ class TestGitLabPublisher:
     @pytest.mark.parametrize("environment", [None, "some_environment"])
     def test_lookup_fails_invalid_ci_config_ref_uri(self, environment):
         signed_claims = {
+            "iss": "https://gitlab.com",
             "project_path": "foo/bar",
             "ci_config_ref_uri": ("gitlab.com/foo/bar//example/.yml@refs/heads/main"),
         }
@@ -73,19 +77,37 @@ class TestGitLabPublisher:
         ):
             gitlab.GitLabPublisher.lookup_by_claims(pretend.stub(), signed_claims)
 
-    def test_lookup_succeeds_with_mixed_case_project_path(self, db_request):
+    @pytest.mark.parametrize(
+        ("configured_namespace", "configured_project", "project_path"),
+        [
+            (
+                "Foo",
+                "Bar",
+                "foo/bar",
+            ),
+            (
+                "foo",
+                "bar",
+                "Foo/Bar",
+            ),
+        ],
+    )
+    def test_lookup_succeeds_with_mixed_case_project_path(
+        self, db_request, configured_namespace, configured_project, project_path
+    ):
         # Test that we find a matching publisher when the project_path claims match
         # even if the case is different.
         stored_publisher = GitLabPublisherFactory(
-            namespace="Foo",
-            project="Bar",
+            namespace=configured_namespace,
+            project=configured_project,
             workflow_filepath=".gitlab-ci.yml",
             environment="",
         )
 
         signed_claims = {
-            "project_path": "foo/bar",  # different case than stored publisher
-            "ci_config_ref_uri": ("gitlab.com/foo/bar//.gitlab-ci.yml@refs/heads/main"),
+            "iss": "https://gitlab.com",
+            "project_path": project_path,
+            "ci_config_ref_uri": "gitlab.com/foo/bar//.gitlab-ci.yml@refs/heads/main",
             "environment": "some_environment",
         }
 
@@ -112,6 +134,7 @@ class TestGitLabPublisher:
         )
 
         signed_claims = {
+            "iss": "https://gitlab.com",
             "project_path": "foo/bar",
             "ci_config_ref_uri": ("gitlab.com/foo/bar//.gitlab-ci.yml@refs/heads/main"),
             "environment": environment,
@@ -140,6 +163,7 @@ class TestGitLabPublisher:
         )
 
         signed_claims = {
+            "iss": "https://gitlab.com",
             "project_path": "foo/bar",
             "ci_config_ref_uri": ("gitlab.com/foo/bar//.gitlab-ci.yml@refs/heads/main"),
             "environment": environment,
@@ -177,6 +201,7 @@ class TestGitLabPublisher:
 
         for workflow_filepath in (workflow_filepath_a, workflow_filepath_b):
             signed_claims = {
+                "iss": "https://gitlab.com",
                 "project_path": "foo/bar",
                 "ci_config_ref_uri": (
                     f"gitlab.com/foo/bar//{workflow_filepath}@refs/heads/main"
@@ -195,6 +220,7 @@ class TestGitLabPublisher:
 
     def test_lookup_no_matching_publisher(self, db_request):
         signed_claims = {
+            "iss": "https://gitlab.com",
             "project_path": "foo/bar",
             "ci_config_ref_uri": ("gitlab.com/foo/bar//.gitlab-ci.yml@refs/heads/main"),
         }
@@ -247,6 +273,7 @@ class TestGitLabPublisher:
             "job_namespace_path",
             "job_project_id",
             "job_project_path",
+            "job_source",
         }
 
     def test_gitlab_publisher_computed_properties(self):
@@ -255,6 +282,7 @@ class TestGitLabPublisher:
             namespace="fakeowner",
             workflow_filepath="subfolder/fakeworkflow.yml",
             environment="fakeenv",
+            issuer_url="https://gitlab.com",
         )
 
         for claim_name in publisher.__required_verifiable_claims__.keys():
@@ -342,6 +370,7 @@ class TestGitLabPublisher:
             project="fakerepo",
             namespace="fakeowner",
             workflow_filepath="subfolder/fakeworkflow.yml",
+            issuer_url="https://gitlab.com",
         )
 
         scope = pretend.stub()
@@ -377,6 +406,7 @@ class TestGitLabPublisher:
             namespace="fakeowner",
             workflow_filepath="subfolder/fakeworkflow.yml",
             environment="some-environment",  # The optional claim that should be present
+            issuer_url="https://gitlab.com",
         )
 
         sentry_sdk = pretend.stub(capture_message=pretend.call_recorder(lambda s: None))
@@ -412,6 +442,7 @@ class TestGitLabPublisher:
             namespace="fakeowner",
             workflow_filepath="subfolder/fakeworkflow.yml",
             environment="environment",
+            issuer_url="https://gitlab.com",
         )
 
         noop_check = pretend.call_recorder(lambda gt, sc, ac, **kwargs: True)
@@ -644,6 +675,7 @@ class TestGitLabPublisher:
             project="bar",
             namespace="foo",
             workflow_filepath="workflows/baz.yml",
+            issuer_url="https://gitlab.com",
         )
 
         check = gitlab.GitLabPublisher.__required_verifiable_claims__[
@@ -710,7 +742,7 @@ class TestGitLabPublisher:
         )
         db_request.db.add(publisher2)
 
-        with pytest.raises(sqlalchemy.exc.IntegrityError):
+        with pytest.raises(psycopg.errors.UniqueViolation):
             db_request.db.commit()
 
     @pytest.mark.parametrize(
@@ -827,6 +859,7 @@ class TestGitLabPublisher:
             namespace=namespace,
             workflow_filepath="workflow_filename.yml",
             environment="",
+            issuer_url="https://gitlab.com",
         )
         assert publisher.verify_url(url) == expected
 
@@ -837,6 +870,7 @@ class TestGitLabPublisher:
             namespace="group/subgroup",
             workflow_filepath="workflow_filename.yml",
             environment=environment,
+            issuer_url="https://gitlab.com",
         )
 
         identity = publisher.attestation_identity
@@ -864,6 +898,58 @@ class TestGitLabPublisher:
             db_request.db.flush()
 
         assert publisher.exists(db_request.db) == exists_in_db
+
+    def test_get_available_issuer_urls_default(self):
+        """By default, there's a single known GitLab issuer URL."""
+        issuer_urls = gitlab.GitLabPublisher.get_available_issuer_urls()
+        assert issuer_urls == ["https://gitlab.com"]
+
+    def test_get_available_issuer_urls_custom(self, db_session):
+        """If a custom GitLab issuer URL is configured for the org, it is included."""
+        org_oidc_issuer = OrganizationOIDCIssuerFactory(issuer_type="gitlab")
+
+        issuer_urls = gitlab.GitLabPublisher.get_available_issuer_urls(
+            org_oidc_issuer.organization
+        )
+
+        assert issuer_urls == ["https://gitlab.com", org_oidc_issuer.issuer_url]
+
+    def test_get_available_issuer_urls_multiple_custom(self, db_session):
+        """
+        If multiple custom GitLab issuer URLs are configured for the org,
+        they are all included, and sorted alphabetically after the default.
+        """
+        org_oidc_issuer1 = OrganizationOIDCIssuerFactory(
+            issuer_type="gitlab", issuer_url="https://zzz.example.com"
+        )
+        org_oidc_issuer2 = OrganizationOIDCIssuerFactory(
+            organization=org_oidc_issuer1.organization,
+            issuer_type="gitlab",
+            issuer_url="https://aaa.example.com",
+        )
+
+        issuer_urls = gitlab.GitLabPublisher.get_available_issuer_urls(
+            org_oidc_issuer1.organization
+        )
+
+        assert issuer_urls == [
+            "https://gitlab.com",
+            org_oidc_issuer2.issuer_url,
+            org_oidc_issuer1.issuer_url,
+        ]
+
+    def test_get_available_issuer_urls_custom_non_gitlab(self, db_session):
+        """
+        If a custom OIDC issuer URL of a different type is configured for the org,
+        it is not included.
+        """
+        org_oidc_issuer = OrganizationOIDCIssuerFactory(issuer_type="github")
+
+        issuer_urls = gitlab.GitLabPublisher.get_available_issuer_urls(
+            org_oidc_issuer.organization
+        )
+
+        assert issuer_urls == ["https://gitlab.com"]
 
 
 class TestPendingGitLabPublisher:
@@ -905,3 +991,13 @@ class TestPendingGitLabPublisher:
         # it is returned and the pending publisher is marked for deletion.
         assert existing_publisher == publisher
         assert pending_publisher in db_request.db.deleted
+
+    def test_reify_with_custom_issuer_url(self, db_request):
+        custom_issuer_url = "https://gitlab.custom-domain.com"
+        pending_publisher = PendingGitLabPublisherFactory.create(
+            issuer_url=custom_issuer_url
+        )
+        publisher = pending_publisher.reify(db_request.db)
+
+        assert publisher.issuer_url == custom_issuer_url
+        assert isinstance(publisher, gitlab.GitLabPublisher)

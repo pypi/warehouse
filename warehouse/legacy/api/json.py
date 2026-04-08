@@ -134,6 +134,15 @@ def _json_data(request, project, release, *, all_releases):
         for vulnerability_record in release.vulnerabilities
     ]
 
+    # Serialize ownership data for this project
+    roles_data = sorted(
+        [
+            {"role": role.role_name, "user": role.user.username}
+            for role in project.roles
+        ],
+        key=lambda r: (r["role"] != "Owner", r["user"]),
+    )
+
     data = {
         "info": {
             "name": project.name,
@@ -176,6 +185,12 @@ def _json_data(request, project, release, *, all_releases):
         "urls": releases[release.version],
         "vulnerabilities": vulnerabilities,
         "last_serial": project.last_serial,
+        "ownership": {
+            "roles": roles_data,
+            "organization": (
+                project.organization.name if project.organization else None
+            ),
+        },
     }
 
     if all_releases:
@@ -217,6 +232,8 @@ def latest_release_factory(request):
             contains_eager(Release.project),
             contains_eager(Release._project_urls),
             joinedload(Release._requires_dist),
+            contains_eager(Release.project).selectinload(Project.roles),
+            contains_eager(Release.project).joinedload(Project.organization),
         )
         .filter(Release.id == latest.id)
         .one()
@@ -275,6 +292,8 @@ def release_factory(request):
             contains_eager(Release.project),
             contains_eager(Release._project_urls),
             joinedload(Release._requires_dist),
+            contains_eager(Release.project).selectinload(Project.roles),
+            contains_eager(Release.project).joinedload(Project.organization),
         )
         .filter(Project.normalized_name == normalized_name)
         # Exclude projects in quarantine.

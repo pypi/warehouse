@@ -7,6 +7,7 @@ import typing
 from dataclasses import dataclass
 
 from pyramid.authorization import Authenticated
+from sqlalchemy import select
 
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.oidc.errors import InvalidPublisherError
@@ -27,9 +28,12 @@ from warehouse.oidc.models import (
     PendingGooglePublisher,
     PendingOIDCPublisher,
 )
+from warehouse.organizations.models import OrganizationOIDCIssuer
 
 if typing.TYPE_CHECKING:
     from sqlalchemy.orm import Session
+
+    from warehouse.organizations.models import OIDCIssuerType
 
 
 OIDC_ISSUER_SERVICE_NAMES = {
@@ -46,13 +50,6 @@ OIDC_ISSUER_ADMIN_FLAGS = {
     ACTIVESTATE_OIDC_ISSUER_URL: AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC,
 }
 
-OIDC_ISSUER_URLS = {
-    GITHUB_OIDC_ISSUER_URL,
-    GITLAB_OIDC_ISSUER_URL,
-    GOOGLE_OIDC_ISSUER_URL,
-    ACTIVESTATE_OIDC_ISSUER_URL,
-}
-
 OIDC_PUBLISHER_CLASSES: dict[
     str, dict[bool, type[OIDCPublisher | PendingOIDCPublisher]]
 ] = {
@@ -64,6 +61,18 @@ OIDC_PUBLISHER_CLASSES: dict[
         True: PendingActiveStatePublisher,
     },
 }
+
+
+def lookup_custom_issuer_type(
+    session: Session, issuer_url: str
+) -> OIDCIssuerType | None:
+    """
+    Look up the issuer type for an Organization's OIDC issuer URL.
+    """
+    stmt = select(OrganizationOIDCIssuer.issuer_type).where(
+        OrganizationOIDCIssuer.issuer_url == issuer_url
+    )
+    return session.scalar(stmt)
 
 
 def find_publisher_by_issuer(
@@ -79,7 +88,7 @@ def find_publisher_by_issuer(
     to one or more projects or a `PendingOIDCPublisher`, varying with the
     `pending` parameter.
 
-    Returns `None` if no publisher can be found.
+    Raises if no publisher can be found.
     """
 
     try:

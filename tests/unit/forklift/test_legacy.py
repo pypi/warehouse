@@ -15,12 +15,12 @@ from textwrap import dedent
 from unittest import mock
 
 import pretend
+import psycopg
 import pytest
 
 from pypi_attestations import Attestation, Envelope, VerificationMaterial
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPTooManyRequests
-from sqlalchemy import and_, exists
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy import and_, event, exists
 from sqlalchemy.orm import joinedload
 from trove_classifiers import classifiers
 from webob.multidict import MultiDict
@@ -49,6 +49,7 @@ from warehouse.packaging.models import (
     Role,
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
+from warehouse.utils.scanner import YaraMatch
 
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.classifiers import ClassifierFactory
@@ -73,15 +74,6 @@ def _get_tar_testdata(compression_type=""):
         tar.add("/dev/null", arcname="fake_package-1.0/PKG-INFO")
         tar.add("/dev/null", arcname="fake_package-1.0/LICENSE.MIT")
         tar.add("/dev/null", arcname="fake_package-1.0/LICENSE.APACHE")
-    return temp_f.getvalue()
-
-
-def _get_zip_testdata():
-    temp_f = io.BytesIO()
-    with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
-        zfp.writestr("fake_package-1.0/PKG-INFO", "Fake PKG-INFO")
-        zfp.writestr("fake_package-1.0/LICENSE.MIT", "Fake License")
-        zfp.writestr("fake_package-1.0/LICENSE.APACHE", "Fake License")
     return temp_f.getvalue()
 
 
@@ -120,12 +112,6 @@ _TAR_BZ2_PKG_TESTDATA = _get_tar_testdata("bz2")
 _TAR_BZ2_PKG_MD5 = hashlib.md5(_TAR_BZ2_PKG_TESTDATA).hexdigest()
 _TAR_BZ2_PKG_SHA256 = hashlib.sha256(_TAR_BZ2_PKG_TESTDATA).hexdigest()
 _TAR_BZ2_PKG_STORAGE_HASH = _storage_hash(_TAR_BZ2_PKG_TESTDATA)
-
-
-_ZIP_PKG_TESTDATA = _get_zip_testdata()
-_ZIP_PKG_MD5 = hashlib.md5(_ZIP_PKG_TESTDATA).hexdigest()
-_ZIP_PKG_SHA256 = hashlib.sha256(_ZIP_PKG_TESTDATA).hexdigest()
-_ZIP_PKG_STORAGE_HASH = _storage_hash(_ZIP_PKG_TESTDATA)
 
 
 class TestExcWithMessage:
@@ -428,6 +414,108 @@ class TestFileValidation:
             False,
             "Incorrect number of top-level directories in sdist",
         )
+
+    def test_yara_match_in_wheel(self, tmpdir, monkeypatch):
+        f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
+        with zipfile.ZipFile(f, "w") as zfp:
+            zfp.writestr("test-1.0.dist-info/WHEEL", b"Wheel-Version: 1.0")
+            zfp.writestr("pkg/__init__.py", b"bad content")
+
+        match = YaraMatch(
+            rule="test_rule",
+            member="pkg/__init__.py",
+            message="Content not allowed.",
+        )
+        monkeypatch.setattr(
+            "warehouse.utils.scanner.check_members", lambda *a, **kw: match
+        )
+
+        assert legacy._is_valid_dist_file(f, "bdist_wheel") == (
+            False,
+            "Content not allowed.",
+        )
+
+    def test_yara_match_in_tarball(self, tmpdir, monkeypatch):
+        tar_fn = str(tmpdir.join("test.tar.gz"))
+        data_file = str(tmpdir.join("dummy_data"))
+        with open(data_file, "wb") as fp:
+            fp.write(b"bad content")
+        with tarfile.open(tar_fn, "w:gz") as tar:
+            tar.add(data_file, arcname="package/PKG-INFO")
+            tar.add(data_file, arcname="package/__init__.py")
+
+        match = YaraMatch(
+            rule="test_rule",
+            member="package/__init__.py",
+            message="Content not allowed.",
+        )
+        monkeypatch.setattr(
+            "warehouse.utils.scanner.check_members", lambda *a, **kw: match
+        )
+
+        assert legacy._is_valid_dist_file(tar_fn, "sdist") == (
+            False,
+            "Content not allowed.",
+        )
+
+    def test_scan_disabled_skips_yara_in_wheel(self, tmpdir, monkeypatch):
+        f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
+        with zipfile.ZipFile(f, "w") as zfp:
+            zfp.writestr("test-1.0.dist-info/WHEEL", b"Wheel-Version: 1.0")
+            zfp.writestr("pkg/__init__.py", b"bad content")
+
+        # check_members would match, but scan=False skips it entirely.
+        monkeypatch.setattr(
+            "warehouse.utils.scanner.check_members",
+            lambda *a, **kw: (_ for _ in ()).throw(AssertionError("should not scan")),
+        )
+
+        assert legacy._is_valid_dist_file(f, "bdist_wheel", scan=False) == (
+            True,
+            None,
+        )
+
+    def test_scan_disabled_skips_yara_in_tarball(self, tmpdir, monkeypatch):
+        tar_fn = str(tmpdir.join("test.tar.gz"))
+        data_file = str(tmpdir.join("dummy_data"))
+        with open(data_file, "wb") as fp:
+            fp.write(b"bad content")
+        with tarfile.open(tar_fn, "w:gz") as tar:
+            tar.add(data_file, arcname="package/PKG-INFO")
+            tar.add(data_file, arcname="package/__init__.py")
+
+        monkeypatch.setattr(
+            "warehouse.utils.scanner.check_members",
+            lambda *a, **kw: (_ for _ in ()).throw(AssertionError("should not scan")),
+        )
+
+        assert legacy._is_valid_dist_file(tar_fn, "sdist", scan=False) == (
+            True,
+            None,
+        )
+
+    def test_tarfile_zipfile_polyglot(self, tmpdir):
+        tar_buf = io.BytesIO()
+        zip_buf = io.BytesIO()
+        with zipfile.ZipFile(zip_buf, "w") as zfp:
+            zfp.writestr("PKG-INFO", b"this is the package info")
+        with tarfile.open(fileobj=tar_buf, mode="w:gz") as tar:
+            data_file = tmpdir.join("data-file.txt")
+            with open(data_file, "wb") as f:
+                f.write(b"this is the package info")
+            tar: tarfile.TarFile
+            tar.add(data_file, arcname="package/PKG-INFO")
+
+        for filename in ("package.tar.gz", "package.zip"):
+            tar_zip = str(tmpdir.join(filename))
+            with open(tar_zip, "wb") as fp:
+                fp.write(tar_buf.getvalue())
+                fp.write(zip_buf.getvalue())
+
+            assert legacy._is_valid_dist_file(tar_zip, "") == (
+                False,
+                "File is both a zip and a tar file",
+            )
 
 
 class TestIsDuplicateFile:
@@ -815,6 +903,19 @@ class TestFileUpload:
                     "keywords": FieldStorage(),
                 },
                 "keywords: Should not be a tuple.",
+            ),
+            # local version error
+            (
+                {
+                    "metadata_version": "1.2",
+                    "name": "example",
+                    "version": "1.0+local",
+                    "md5_digest": "bad",
+                    "filetype": "sdist",
+                },
+                "The use of local versions in '1.0+local' is not allowed. "
+                "See https://packaging.python.org/en/latest/specifications/"
+                "version-specifiers/#local-version-identifiers for more information.",
             ),
         ],
     )
@@ -2056,13 +2157,11 @@ class TestFileUpload:
 
         db_request.user_agent = "warehouse-tests/6.6.6"
 
-        wheel_metadata = dedent(
-            """
+        wheel_metadata = dedent("""
             Metadata-Version: 2.1
             Name: {project.name}
             Version: {release.version}
-            """
-        ).encode("utf-8")
+            """).encode("utf-8")
 
         wheel_testdata = _get_whl_testdata(
             name=project.normalized_name.replace("-", "_"), version=release.version
@@ -2161,9 +2260,8 @@ class TestFileUpload:
         assert db_request.help_url.calls == [pretend.call(_anchor="file-name-reuse")]
         assert resp.status_code == 400
         assert resp.status == (
-            "400 This filename has already been used, use a "
-            "different version. "
-            "See /the/help/url/ for more information."
+            "400 This filename was previously used by a file that has since been "
+            "deleted. Use a different version. See /the/help/url/ for more information."
         )
 
     def test_upload_noop_with_existing_filename_same_content(
@@ -2413,10 +2511,21 @@ class TestFileUpload:
         )
 
     @pytest.mark.parametrize(
-        "filename", ["wutang-6.6.6.tar.gz", "wutang-6.6.6-py3-none-any.whl"]
+        ("filename", "status"),
+        [
+            (
+                "wutang-6.6.6.tar.gz",
+                "400 Filename 'wutang-6.6.6.tar.gz' is invalid, should be "
+                "'wutang-1.2.3.tar.gz'.",
+            ),
+            (
+                "wutang-6.6.6-py3-none-any.whl",
+                "400 Version in filename should be '1.2.3' not '6.6.6'.",
+            ),
+        ],
     )
     def test_upload_fails_with_wrong_filename_version(
-        self, monkeypatch, pyramid_config, db_request, filename
+        self, monkeypatch, pyramid_config, db_request, filename, status
     ):
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
@@ -2462,7 +2571,7 @@ class TestFileUpload:
         resp = excinfo.value
 
         assert resp.status_code == 400
-        assert resp.status == ("400 Version in filename should be '1.2.3' not '6.6.6'.")
+        assert resp.status == status
 
     @pytest.mark.parametrize(
         ("filetype", "extension"),
@@ -2848,7 +2957,8 @@ class TestFileUpload:
             "macosx_10_13_x86_64",
             "macosx_11_0_x86_64",
             "macosx_10_15_arm64",
-            "macosx_11_10_universal2",
+            "macosx_15_0_universal2",
+            "macosx_26_0_arm64",
             "ios_13_0_arm64_iphoneos",
             "ios_13_0_arm64_iphonesimulator",
             "ios_13_0_x86_64_iphonesimulator",
@@ -3145,9 +3255,6 @@ class TestFileUpload:
         [
             ("flufl.enum", "flufl_enum", "1.0.0"),
             ("foo-.bar", "foo_bar", "1.0.0"),
-            ("leo", "leo", "6.7.9-9"),
-            ("leo_something", "leo-something", "6.7.9-9"),
-            ("PyAlgoEngine", "PyAlgoEngine", "0.3.12.post4"),
         ],
     )
     def test_upload_succeeds_pep625_normalized_filename(
@@ -3183,12 +3290,6 @@ class TestFileUpload:
         monkeypatch.setattr(
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
         )
-
-        # PEP625: This is testing sdists with invalid names and versions, which
-        # will trigger a notification
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(legacy, "send_pep625_name_email", send_email)
-        monkeypatch.setattr(legacy, "send_pep625_version_email", send_email)
 
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -3422,8 +3523,10 @@ class TestFileUpload:
             "linux_x86_64",
             "linux_x86_64.win32",
             "macosx_9_2_x86_64",
+            "macosx_11_2_arm64",
             "macosx_16_2_arm64",
             "macosx_10_15_amd64",
+            "macosx_27_0_arm64",
         ],
     )
     def test_upload_fails_with_unsupported_wheel_plat(
@@ -4592,6 +4695,98 @@ class TestFileUpload:
         }
         assert not release_db.urls_by_verify_status(verified=False)
 
+    def test_retroactive_verification_requires_url_match(
+        self,
+        pyramid_config,
+        db_request,
+    ):
+        """
+        Retroactive verification of home_page and download_url must only
+        grant the verified badge when the URL in the new upload matches
+        the URL already stored on the release. A second upload with a
+        different (verifiable) URL must not verify the original stored URL.
+        """
+        stored_url = "https://attacker.example.com"
+        publisher_url = "https://github.com/foo/my_new_repo"
+
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        # Simulate first upload: stored URLs are unverified
+        release.home_page = stored_url
+        release.home_page_verified = False
+        release.download_url = stored_url
+        release.download_url_verified = False
+        release.project_urls = {}
+
+        publisher = GitHubPublisherFactory.create(
+            projects=[project],
+            repository_owner="foo",
+            repository_name="my_new_repo",
+        )
+        claims = {"sha": "somesha"}
+        identity = PublisherTokenContext(publisher, SignedClaims(claims))
+        db_request.oidc_publisher = identity.publisher
+        db_request.oidc_claims = identity.claims
+
+        db_request.db.add(Classifier(classifier="Environment :: Other Environment"))
+        db_request.db.add(Classifier(classifier="Programming Language :: Python"))
+
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), "1.0"
+        )
+
+        pyramid_config.testing_securitypolicy(identity=identity)
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0",
+                "summary": "This is my summary!",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+        db_request.POST.extend(
+            [
+                ("classifiers", "Environment :: Other Environment"),
+                ("classifiers", "Programming Language :: Python"),
+                ("requires_dist", "foo"),
+                ("requires_dist", "bar (>1.0)"),
+                ("requires_external", "Cheese (>1.0)"),
+                ("provides", "testing"),
+                # Second upload sends a DIFFERENT, verifiable URL
+                ("home_page", publisher_url),
+                ("download_url", publisher_url),
+            ]
+        )
+        # At least one project_url is required for the retroactive verification
+        # block to execute (it's guarded by `if not is_new_release and project_urls`)
+        db_request.POST.add("project_urls", f"Source, {publisher_url}")
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+        }.get(svc)
+
+        legacy.file_upload(db_request)
+
+        release_db = (
+            db_request.db.query(Release).filter(Release.project == project).one()
+        )
+
+        # The stored URLs don't match the uploaded URLs, so they must
+        # remain unverified even though the uploaded URLs are verifiable.
+        assert release_db.home_page == stored_url
+        assert release_db.home_page_verified is False
+        assert release_db.download_url == stored_url
+        assert release_db.download_url_verified is False
+
     def test_new_release_email_verified(self, monkeypatch, pyramid_config, db_request):
         owner = UserFactory.create()
         maintainer = UserFactory.create()
@@ -4789,7 +4984,7 @@ class TestFileUpload:
     @pytest.mark.parametrize("parent_classifier", ["private", "Private", "PrIvAtE"])
     def test_private_classifiers_cannot_be_created(self, db_request, parent_classifier):
         db_request.db.add(Classifier(classifier=f"{parent_classifier} :: Foo"))
-        with pytest.raises(IntegrityError):
+        with pytest.raises(psycopg.errors.CheckViolation):
             db_request.db.commit()
 
     def test_equivalent_version_one_release(self, pyramid_config, db_request):
@@ -5435,8 +5630,22 @@ class TestFileUpload:
             if not warning_already_sent:
                 assert not warning_exists
 
-    @pytest.mark.parametrize("project_name", ["Some_Thing", "some.thing"])
-    def test_upload_warns_pep427(
+    @pytest.mark.parametrize(
+        ("project_name", "status"),
+        [
+            (
+                "Some_Thing",
+                "400 Filename 'Some_Thing-1.0-py3-none-any.whl' should contain "
+                "the normalized project name 'some_thing', not 'Some_Thing'.",
+            ),
+            (
+                "some.thing",
+                "400 Filename 'some.thing-1.0-py3-none-any.whl' should contain "
+                "the normalized project name 'some_thing', not 'some.thing'.",
+            ),
+        ],
+    )
+    def test_upload_fails_pep427(
         self,
         monkeypatch,
         pyramid_config,
@@ -5445,6 +5654,7 @@ class TestFileUpload:
         project_service,
         macaroon_service,
         project_name,
+        status,
     ):
         project = ProjectFactory.create(name=project_name)
         owner = UserFactory.create()
@@ -5485,43 +5695,31 @@ class TestFileUpload:
         db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
 
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(legacy, "send_pep427_name_email", send_email)
         monkeypatch.setattr(
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
         )
 
-        resp = legacy.file_upload(db_request)
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
 
-        assert resp.status_code == 200
+        resp = excinfo.value
 
-        assert send_email.calls == [
-            pretend.call(
-                db_request,
-                {owner, maintainer},
-                project_name=project.name,
-                filename=filename,
-                normalized_name="some_thing",
-            ),
-        ]
+        assert resp.status_code == 400
+        assert resp.status == status
 
     @pytest.mark.parametrize(
-        ("filename", "function_name", "extra_kwargs"),
+        ("filename", "version", "expected"),
         [
-            ("some_thing-1.0.post9.zip", "send_pep625_extension_email", {}),
-            (
-                "some-thing-1.0.post9.tar.gz",
-                "send_pep625_name_email",
-                {"normalized_name": "some_thing"},
-            ),
-            (
-                "some_thing-1.0-9.tar.gz",
-                "send_pep625_version_email",
-                {"normalized_version": "1.0.post9"},
-            ),
+            ("some_thing-1.0.post9.zip", "1.0.post9", "some_thing-1.0.post9.tar.gz"),
+            ("some-thing-1.0.post9.tar.gz", "1.0.post9", "some_thing-1.0.post9.tar.gz"),
+            ("some-thing-1.0-9.tar.gz", "1.0.post9", "some_thing-1.0.post9.tar.gz"),
+            ("some_thing-1.0-9.tar.gz", "1.0.post9", "some_thing-1.0.post9.tar.gz"),
+            ("some_thing-1.02.3.tar.gz", "1.2.3", "some_thing-1.2.3.tar.gz"),
+            ("Some_Thing-1.0.tar.gz", "1.0", "some_thing-1.0.tar.gz"),
+            ("some_thing-1.o-9.tar.gz", "1.0.post9", "some_thing-1.0.post9.tar.gz"),
         ],
     )
-    def test_upload_warns_pep625(
+    def test_upload_fails_pep625(
         self,
         monkeypatch,
         pyramid_config,
@@ -5529,8 +5727,8 @@ class TestFileUpload:
         project_service,
         macaroon_service,
         filename,
-        function_name,
-        extra_kwargs,
+        version,
+        expected,
     ):
         project = ProjectFactory.create(name="some_thing")
         owner = UserFactory.create()
@@ -5544,7 +5742,7 @@ class TestFileUpload:
             {
                 "metadata_version": "1.2",
                 "name": project.name,
-                "version": "1.0.post9",
+                "version": version,
                 "filetype": "sdist",
                 "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
@@ -5565,69 +5763,6 @@ class TestFileUpload:
         db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
 
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(legacy, function_name, send_email)
-        monkeypatch.setattr(
-            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
-        )
-
-        resp = legacy.file_upload(db_request)
-
-        assert resp.status_code == 200
-
-        assert send_email.calls == [
-            pretend.call(
-                db_request,
-                {owner, maintainer},
-                project_name=project.name,
-                filename=filename,
-                **extra_kwargs,
-            ),
-        ]
-
-    def test_upload_doesnt_warn_pep625_version_edge_case(
-        self,
-        monkeypatch,
-        pyramid_config,
-        db_request,
-        project_service,
-        macaroon_service,
-    ):
-        project = ProjectFactory.create(name="some_thing")
-        owner = UserFactory.create()
-        maintainer = UserFactory.create()
-        RoleFactory.create(user=owner, project=project, role_name="Owner")
-        RoleFactory.create(user=maintainer, project=project, role_name="Maintainer")
-
-        pyramid_config.testing_securitypolicy(identity=owner)
-
-        db_request.POST = MultiDict(
-            {
-                "metadata_version": "1.2",
-                "name": project.name,
-                "version": "1.0.post9",
-                "filetype": "sdist",
-                "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
-                    filename="wrong-name-1.0.post9.tar.gz",
-                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
-                    type="application/tar",
-                ),
-            }
-        )
-
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-
-        db_request.find_service = lambda svc, name=None, context=None: {
-            IFileStorage: storage_service,
-            IMacaroonService: macaroon_service,
-            IProjectService: project_service,
-        }.get(svc)
-        db_request.user_agent = "warehouse-tests/6.6.6"
-        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
-
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(legacy, "send_pep625_name_email", send_email)
         monkeypatch.setattr(
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
         )
@@ -5639,20 +5774,14 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (
-            "400 Start filename for {!r} with {!r}.".format(
-                project.name,
-                project.normalized_name.replace("-", "_"),
-            )
+            f"400 Filename {filename!r} is invalid, should be {expected!r}."
         )
-        assert send_email.calls == []
 
     @pytest.mark.parametrize(
         ("version", "expected_version", "filetype", "mimetype"),
         [
             ("1.0", "1.0", "sdist", "application/tar"),
             ("v1.0", "1.0", "sdist", "application/tar"),
-            ("1.0", "1.0", "sdist", "application/zip"),
-            ("v1.0", "1.0", "sdist", "application/zip"),
             ("1.0", "1.0", "bdist_wheel", "application/zip"),
             ("v1.0", "1.0", "bdist_wheel", "application/zip"),
         ],
@@ -5673,18 +5802,11 @@ class TestFileUpload:
         RoleFactory.create(user=user, project=project)
 
         if filetype == "sdist":
-            if mimetype == "application/tar":
-                filename = "{}-{}.tar.gz".format(
-                    project.normalized_name.replace("-", "_"), "1.0"
-                )
-                digest = _TAR_GZ_PKG_MD5
-                data = _TAR_GZ_PKG_TESTDATA
-            elif mimetype == "application/zip":  # pragma: no branch
-                filename = "{}-{}.zip".format(
-                    project.normalized_name.replace("-", "_"), "1.0"
-                )
-                digest = _ZIP_PKG_MD5
-                data = _ZIP_PKG_TESTDATA
+            filename = "{}-{}.tar.gz".format(
+                project.normalized_name.replace("-", "_"), "1.0"
+            )
+            digest = _TAR_GZ_PKG_MD5
+            data = _TAR_GZ_PKG_TESTDATA
         elif filetype == "bdist_wheel":  # pragma: no branch
             filename = "{}-{}-py3-none-any.whl".format(
                 project.normalized_name.replace("-", "_"), "1.0"
@@ -5730,10 +5852,6 @@ class TestFileUpload:
             IFileStorage: storage_service,
         }.get(svc)
 
-        # PEP625: This is testing .zip sdists, which will trigger a notification
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(legacy, "send_pep625_extension_email", send_email)
-
         resp = legacy.file_upload(db_request)
 
         assert resp.status_code == 200
@@ -5769,8 +5887,99 @@ class TestFileUpload:
         [
             ("1.0", "1.0", "sdist", "application/tar"),
             ("v1.0", "1.0", "sdist", "application/tar"),
-            ("1.0", "1.0", "sdist", "application/zip"),
-            ("v1.0", "1.0", "sdist", "application/zip"),
+            ("1.0", "1.0", "bdist_wheel", "application/zip"),
+            ("v1.0", "1.0", "bdist_wheel", "application/zip"),
+        ],
+    )
+    def test_upload_succeeds_creates_release_metadata_2_5(
+        self,
+        pyramid_config,
+        db_request,
+        monkeypatch,
+        version,
+        expected_version,
+        filetype,
+        mimetype,
+    ):
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project)
+
+        if filetype == "sdist":
+            filename = "{}-{}.tar.gz".format(
+                project.normalized_name.replace("-", "_"), "1.0"
+            )
+            digest = _TAR_GZ_PKG_MD5
+            data = _TAR_GZ_PKG_TESTDATA
+        elif filetype == "bdist_wheel":  # pragma: no branch
+            filename = "{}-{}-py3-none-any.whl".format(
+                project.normalized_name.replace("-", "_"), "1.0"
+            )
+            data = _get_whl_testdata(
+                name=project.normalized_name.replace("-", "_"), version="1.0"
+            )
+            digest = hashlib.md5(data).hexdigest()
+            monkeypatch.setattr(
+                legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+            )
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "2.5",
+                "name": project.name,
+                "version": version,
+                "summary": "This is my summary!",
+                "filetype": filetype,
+                "md5_digest": digest,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(data),
+                    type=mimetype,
+                ),
+            }
+        )
+        if filetype == "bdist_wheel":
+            db_request.POST.extend([("pyversion", "py3")])
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+        }.get(svc)
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+        # Ensure that a Release object has been created.
+        release = (
+            db_request.db.query(Release)
+            .filter(
+                (Release.project == project) & (Release.version == expected_version)
+            )
+            .one()
+        )
+        assert release.summary == "This is my summary!"
+        assert release.version == expected_version
+        assert release.canonical_version == "1"
+        assert release.uploaded_via == "warehouse-tests/6.6.6"
+
+        # Ensure that a File object has been created.
+        db_request.db.query(File).filter(
+            (File.release == release) & (File.filename == filename)
+        ).one()
+
+        # Ensure that a Filename object has been created.
+        db_request.db.query(Filename).filter(Filename.filename == filename).one()
+
+    @pytest.mark.parametrize(
+        ("version", "expected_version", "filetype", "mimetype"),
+        [
+            ("1.0", "1.0", "sdist", "application/tar"),
+            ("v1.0", "1.0", "sdist", "application/tar"),
             ("1.0", "1.0", "bdist_wheel", "application/zip"),
             ("v1.0", "1.0", "bdist_wheel", "application/zip"),
         ],
@@ -5791,18 +6000,11 @@ class TestFileUpload:
         RoleFactory.create(user=user, project=project)
 
         if filetype == "sdist":
-            if mimetype == "application/tar":
-                filename = "{}-{}.tar.gz".format(
-                    project.normalized_name.replace("-", "_"), "1.0"
-                )
-                digest = _TAR_GZ_PKG_MD5
-                data = _TAR_GZ_PKG_TESTDATA
-            elif mimetype == "application/zip":  # pragma: no branch
-                filename = "{}-{}.zip".format(
-                    project.normalized_name.replace("-", "_"), "1.0"
-                )
-                digest = _ZIP_PKG_MD5
-                data = _ZIP_PKG_TESTDATA
+            filename = "{}-{}.tar.gz".format(
+                project.normalized_name.replace("-", "_"), "1.0"
+            )
+            digest = _TAR_GZ_PKG_MD5
+            data = _TAR_GZ_PKG_TESTDATA
             license_filename = "fake_package-1.0/LICENSE"
         elif filetype == "bdist_wheel":  # pragma: no branch
             filename = "{}-{}-py3-none-any.whl".format(
@@ -5852,10 +6054,6 @@ class TestFileUpload:
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
         }.get(svc)
-
-        # PEP625: This is testing .zip sdists, which will trigger a notification
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(legacy, "send_pep625_extension_email", send_email)
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
@@ -6041,7 +6239,8 @@ class TestFileUpload:
         self, pyramid_config, db_request, monkeypatch
     ):
         organization = OrganizationFactory.create(
-            orgtype="Company", upload_limit=120 * (1024**2)  # 120 MiB
+            orgtype="Company",
+            upload_limit=120 * (1024**2),  # 120 MiB
         )
         user = UserFactory.create(with_verified_primary_email=True)
         OrganizationRoleFactory.create(organization=organization, user=user)
@@ -6112,7 +6311,8 @@ class TestFileUpload:
         self, pyramid_config, db_request, monkeypatch
     ):
         organization = OrganizationFactory.create(
-            orgtype="Company", total_size_limit=100 * (1024**3)  # 100 GiB
+            orgtype="Company",
+            total_size_limit=100 * (1024**3),  # 100 GiB
         )
         user = UserFactory.create(with_verified_primary_email=True)
         OrganizationRoleFactory.create(organization=organization, user=user)
@@ -6248,7 +6448,8 @@ class TestFileUpload:
         """Integration test: verify upload uses project.upload_limit_size property"""
         # Create organization with generous limit
         organization = OrganizationFactory.create(
-            orgtype="Company", upload_limit=150 * (1024**2)  # 150 MiB
+            orgtype="Company",
+            upload_limit=150 * (1024**2),  # 150 MiB
         )
         user = UserFactory.create(with_verified_primary_email=True)
         OrganizationRoleFactory.create(organization=organization, user=user)
@@ -6317,7 +6518,8 @@ class TestFileUpload:
         """Integration test: verify upload uses total_size_limit_value property"""
         # Create organization with generous total size limit
         organization = OrganizationFactory.create(
-            orgtype="Company", total_size_limit=60 * (1024**3)  # 60 GiB
+            orgtype="Company",
+            total_size_limit=60 * (1024**3),  # 60 GiB
         )
         user = UserFactory.create(with_verified_primary_email=True)
         OrganizationRoleFactory.create(organization=organization, user=user)
@@ -6460,6 +6662,60 @@ class TestFileUpload:
         resp = legacy.file_upload(db_request)
         assert resp.status_code == 200
 
+    def test_upload_fails_with_yara_match(
+        self, tmpdir, monkeypatch, pyramid_config, db_request
+    ):
+        monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
+
+        monkeypatch.setattr(
+            legacy,
+            "_is_valid_dist_file",
+            lambda *a, **kw: (
+                False,
+                "PyArmor-encrypted content is not allowed. "
+                "See https://pypi.org/policy/terms-of-use/ for more information.",
+            ),
+        )
+
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}-py3-none-any.whl".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
+        filebody = _get_whl_testdata(
+            name=project.normalized_name.replace("-", "_"), version=release.version
+        )
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "bdist_wheel",
+                "pyversion": "cp34",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+        assert resp.status_code == 400
+        assert "PyArmor-encrypted content is not allowed" in resp.status
+
 
 def test_submit(pyramid_request):
     resp = legacy.submit(pyramid_request)
@@ -6492,3 +6748,142 @@ def test_missing_trailing_slash_redirect(pyramid_request):
         "/legacy/ (with a trailing slash)"
     )
     assert resp.headers["Location"] == "/legacy/"
+
+
+class TestFileUploadAdvisoryLockTiming:
+    """
+    Tests that JournalEntries are isolated from other flush operations,
+    minimizing advisory lock hold time and preventing deadlocks.
+
+    The ensure_monotonic_journals listener acquires a global advisory lock
+    whenever a JournalEntry is flushed. If JournalEntries are flushed
+    alongside other objects (File INSERT, etc.), the advisory lock is held
+    while those other operations execute, which can deadlock with concurrent
+    transactions waiting for the same advisory lock.
+
+    The fix: ensure_monotonic_journals automatically defers JournalEntries
+    to a separate flush cycle when other objects are also pending, so the
+    advisory lock is only held during the JournalEntry-only flush.
+    """
+
+    def test_journal_entries_deferred_until_final_flush(
+        self,
+        tmpdir,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+    ):
+        """Verify that JournalEntries are automatically separated from other
+        objects into their own flush cycle, and only appear after storage upload.
+
+        ensure_monotonic_journals expunges JournalEntries when other objects
+        are pending in the same flush, then re-adds them via after_flush for a
+        subsequent flush cycle. This ensures the advisory lock is only acquired
+        in a flush containing exclusively JournalEntries.
+        """
+        monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
+
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), "1.0"
+        )
+
+        db_request.user = user
+        identity = UserContext(user, pretend.stub())
+        pyramid_config.testing_securitypolicy(identity=identity)
+        db_request.user_agent = "warehouse-tests/6.6.6"
+
+        content = FieldStorage()
+        content.filename = filename
+        content.file = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
+        content.type = "application/tar"
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": content,
+            }
+        )
+
+        # Track storage calls to know when S3 upload happened relative to flushes
+        storage_calls = []
+
+        def track_store(path, filepath, meta):
+            storage_calls.append(path)
+
+        storage_service = pretend.stub(store=track_store)
+        db_request.find_service = pretend.call_recorder(
+            lambda svc, name=None, context=None: {
+                IFileStorage: storage_service,
+            }.get(svc)
+        )
+        db_request.registry.settings = {
+            "warehouse.release_files_table": None,
+        }
+        delay = pretend.call_recorder(lambda a: None)
+        db_request.task = pretend.call_recorder(lambda a: pretend.stub(delay=delay))
+
+        # Track what's actually in the session when each flush executes.
+        flush_log = []
+
+        @event.listens_for(db_request.db, "before_flush")
+        def log_flush_contents(session, flush_context, instances):
+            flush_log.append(
+                {
+                    "new_types": sorted(type(o).__name__ for o in session.new),
+                    "has_journal": any(
+                        isinstance(obj, JournalEntry) for obj in session.new
+                    ),
+                    "storage_uploaded": len(storage_calls) > 0,
+                }
+            )
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+        assert storage_calls, "Expected at least one storage.store() call"
+
+        # The ensure_monotonic_journals listener defers JournalEntries when
+        # other objects are also pending. They're re-added to session.new
+        # via after_flush and flushed in a subsequent cycle (normally at
+        # commit time via zope.sqlalchemy). Trigger that flush here.
+        db_request.db.flush()
+
+        # Find flushes that contain JournalEntry
+        journal_flushes = [f for f in flush_log if f["has_journal"]]
+        assert journal_flushes, "Expected at least one flush containing a JournalEntry"
+
+        # The key assertion: every flush that contains a JournalEntry must
+        # happen AFTER the storage upload.
+        for f in journal_flushes:
+            assert f["storage_uploaded"], (
+                "JournalEntry was flushed BEFORE storage upload completed. "
+                "This means the advisory lock (from ensure_monotonic_journals) "
+                "would be held through the entire S3 upload, "
+                "serializing all concurrent uploads. "
+                f"Flush log: {flush_log}"
+            )
+
+        # The JournalEntry flush must NOT also contain File or other
+        # non-JournalEntry objects. ensure_monotonic_journals should
+        # automatically separate them to prevent deadlocks.
+        for f in journal_flushes:
+            non_journal_types = [
+                t for t in f["new_types"] if t != JournalEntry.__name__
+            ]
+            assert not non_journal_types, (
+                "JournalEntry was flushed alongside other objects: "
+                f"{non_journal_types}. ensure_monotonic_journals should "
+                "automatically defer JournalEntries to a separate flush cycle "
+                "to prevent deadlocks from holding the advisory lock while "
+                "other INSERT/UPDATE operations execute. "
+                f"Flush log: {flush_log}"
+            )

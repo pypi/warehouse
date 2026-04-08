@@ -1,5 +1,12 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "sass:list";
+@use "../settings/colours";
+@use "../settings/fonts";
+@use "../settings/grid";
+@use "../settings/z-index";
+@use "../tools/link-utilities";
+
 /*
   Skip to content link for keyboard users.
   Must be the first item inside the page body.
@@ -13,8 +20,8 @@
   width: 1px;
   height: 1px;
   overflow: hidden;
-  z-index: index($z-index-scale, "skip-to-content");
-  @include link-without-underline;
+  z-index: list.index(z-index.$z-index-scale, "skip-to-content");
+  @include link-utilities.link-without-underline;
 
   &:focus {
     top: 7px;
@@ -22,9 +29,9 @@
     width: auto;
     height: auto;
     line-height: 1;
-    padding: $half-spacing-unit;
-    color: $primary-color;
-    font-weight: $bold-font-weight;
-    background-color: $white;
+    padding: grid.$half-spacing-unit;
+    color: colours.$primary-color;
+    font-weight: fonts.$bold-font-weight;
+    background-color: colours.$white;
   }
 }

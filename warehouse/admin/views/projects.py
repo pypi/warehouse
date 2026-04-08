@@ -1,17 +1,20 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import datetime
 import shlex
+import uuid
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 from pyramid.view import view_config
-from sqlalchemy import func, or_
+from sqlalchemy import func, or_, select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
 
 from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import User
 from warehouse.admin.forms import SetTotalSizeLimitForm, SetUploadLimitForm
+from warehouse.admin.views.helpers import ALLOWED_DAYS, parse_days_param
 from warehouse.authnz import Permissions
 from warehouse.constants import (
     MAX_FILESIZE,
@@ -20,9 +23,14 @@ from warehouse.constants import (
     ONE_MIB,
     UPLOAD_LIMIT_CAP,
 )
+from warehouse.email import (
+    send_removed_project_release_email,
+    send_removed_project_release_file_email,
+)
 from warehouse.events.tags import EventTag
+from warehouse.manage.views import get_user_role_in_project
 from warehouse.observations.models import OBSERVATION_KIND_MAP, ObservationKind
-from warehouse.packaging.models import JournalEntry, Project, Release, Role
+from warehouse.packaging.models import File, JournalEntry, Project, Release, Role
 from warehouse.packaging.tasks import update_release_description
 from warehouse.search.tasks import reindex_project as _reindex_project
 from warehouse.utils.paginate import paginate_url_factory
@@ -45,6 +53,68 @@ from warehouse.utils.project import (
 def project_list(request):
     q = request.params.get("q")
 
+    # When there's no search query, show the dashboard view
+    if not q:
+        days = parse_days_param(request)
+
+        now = datetime.datetime.now(datetime.UTC)
+        cutoff = now - datetime.timedelta(days=days)
+        created_date = func.date_trunc("day", Project.created)
+
+        daily_counts = request.db.execute(
+            select(created_date.label("date"), func.count(Project.id))
+            .where(Project.created >= cutoff)
+            .group_by(created_date)
+            .order_by(created_date)
+        ).all()
+
+        # Build a complete series with zeros for days with no creations
+        counts_by_date = {
+            row_date.date().isoformat(): count for row_date, count in daily_counts
+        }
+
+        creation_series = []
+        for i in range(days):
+            day = (cutoff + datetime.timedelta(days=i + 1)).date().isoformat()
+            creation_series.append((day, counts_by_date.get(day, 0)))
+
+        latest_release = (
+            select(Release.version)
+            .where(
+                Release.project_id == Project.id,
+                Release.yanked.is_(False),
+            )
+            .order_by(
+                Release.is_prerelease.nullslast(),
+                Release._pypi_ordering.desc(),
+            )
+            .limit(1)
+            .correlate(Project)
+            .scalar_subquery()
+            .label("latest_version")
+        )
+
+        recent_projects = request.db.execute(
+            select(
+                Project.name,
+                Project.normalized_name,
+                Project.created,
+                latest_release,
+            )
+            .where(Project.created.isnot(None))
+            .order_by(Project.created.desc())
+            .limit(10)
+        ).all()
+
+        return {
+            "query": None,
+            "days": days,
+            "allowed_days": ALLOWED_DAYS,
+            "creation_series": creation_series,
+            "recent_projects": recent_projects,
+        }
+
+    # Search mode
     try:
         page_num = int(request.params.get("page", 1))
     except ValueError:
@@ -53,7 +123,13 @@ def project_list(request):
     projects_query = request.db.query(Project).order_by(Project.normalized_name)
     exact_match = None
 
-    if q:
+    if q.startswith("id:"):
+        try:
+            project_id = uuid.UUID(q[3:])
+        except ValueError:
+            raise HTTPBadRequest("Invalid UUID.") from None
+        projects_query = projects_query.filter(Project.id == project_id)
+    else:
         projects_query = projects_query.filter(
             func.ultranormalize_name(Project.name) == func.ultranormalize_name(q)
         )
@@ -738,4 +814,176 @@ def unarchive_project_view(project, request) -> HTTPSeeOther:
     unarchive_project(project, request)
     return HTTPSeeOther(
         request.route_path("admin.project.detail", project_name=project.name)
+    )
+
+
+@view_config(
+    route_name="admin.project.release.delete",
+    permission=Permissions.AdminProjectsDelete,
+    request_method="POST",
+    uses_session=True,
+    require_methods=False,
+)
+def delete_release(release, request):
+    def _error(message):
+        request.session.flash(message, queue="error")
+        raise HTTPSeeOther(
+            request.route_path(
+                "admin.project.release",
+                project_name=release.project.normalized_name,
+                version=release.version,
+            )
+        )
+
+    version = request.POST.get("confirm_version")
+    if not version:
+        _error("Confirm the request")
+
+    if version != release.version:
+        _error(
+            f"Could not delete release - {version!r} is not the same as "
+            f"{release.version!r}"
+        )
+
+    reason = request.POST.get("reason", "").strip()
+    if not reason:
+        _error("Provide a reason")
+
+    request.db.add(
+        JournalEntry(
+            name=release.project.name,
+            action="remove release",
+            version=release.version,
+            submitted_by=request.user,
+        )
+    )
+
+    release.project.record_event(
+        tag=EventTag.Project.ReleaseRemove,
+        request=request,
+        additional={
+            "submitted_by": request.user.username,
+            "canonical_version": release.canonical_version,
+            "reason": reason,
+        },
+    )
+
+    for contributor in release.project.users:
+        contributor_role = get_user_role_in_project(
+            release.project, contributor, request
+        )
+
+        send_removed_project_release_email(
+            request,
+            contributor,
+            release=release,
+            submitter_name=request.user.username,
+            submitter_role="admin",
+            recipient_role=contributor_role,
+            reason=reason,
+        )
+
+    request.db.delete(release)
+
+    request.session.flash(f"Deleted release {release.version!r}", queue="success")
+
+    return HTTPSeeOther(
+        request.route_path(
+            "admin.project.detail",
+            project_name=release.project.normalized_name,
+        )
+    )
+
+
+@view_config(
+    route_name="admin.project.release.file.delete",
+    permission=Permissions.AdminProjectsDelete,
+    request_method="POST",
+    uses_session=True,
+    require_methods=False,
+)
+def delete_release_file(release, request):
+    def _error(message):
+        request.session.flash(message, queue="error")
+        raise HTTPSeeOther(
+            request.route_path(
+                "admin.project.release",
+                project_name=release.project.normalized_name,
+                version=release.version,
+            )
+        )
+
+    project_name = request.POST.get("confirm_project_name")
+    if not project_name:
+        _error("Confirm the request")
+
+    if project_name != release.project.name:
+        _error(
+            f"Could not delete file - {project_name!r} is not the same as "
+            f"{release.project.name!r}"
+        )
+
+    reason = request.POST.get("reason", "").strip()
+    if not reason:
+        _error("Provide a reason")
+
+    try:
+        release_file = (
+            request.db.query(File)
+            .filter(
+                File.release == release,
+                File.id == request.POST.get("file_id"),
+            )
+            .one()
+        )
+    except NoResultFound:
+        _error("Could not find file")
+
+    request.db.add(
+        JournalEntry(
+            name=release.project.name,
+            action=f"remove file {release_file.filename}",
+            version=release.version,
+            submitted_by=request.user,
+        )
+    )
+
+    release.project.record_event(
+        tag=EventTag.File.FileRemove,
+        request=request,
+        additional={
+            "submitted_by": request.user.username,
+            "canonical_version": release.canonical_version,
+            "filename": release_file.filename,
+            "project_id": str(release.project.id),
+            "reason": reason,
+        },
+    )
+
+    for contributor in release.project.users:
+        contributor_role = get_user_role_in_project(
+            release.project, contributor, request
+        )
+
+        send_removed_project_release_file_email(
+            request,
+            contributor,
+            file=release_file.filename,
+            release=release,
+            submitter_name=request.user.username,
+            submitter_role="admin",
+            recipient_role=contributor_role,
+            reason=reason,
+        )
+
+    request.db.delete(release_file)
+
+    request.session.flash(f"Deleted file {release_file.filename!r}", queue="success")
+
+    return HTTPSeeOther(
+        request.route_path(
+            "admin.project.release",
+            project_name=release.project.normalized_name,
+            version=release.version,
+        )
     )

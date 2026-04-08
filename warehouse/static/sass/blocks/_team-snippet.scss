@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-@import "snippet";
+@use "snippet";
 
 /*
   A card that contains information about a team. Often found in team lists.
@@ -17,5 +17,5 @@
 */
 
 .team-snippet {
-  @include snippet(url("../images/users.png"), url("../images/users.svg"));
+  @include snippet.snippet(url("../images/users.png"), url("../images/users.svg"));
 }

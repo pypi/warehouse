@@ -31,9 +31,7 @@ def upgrade():
     loops = 0
     while _get_num_rows(conn) > 0 and loops < max_loops:
         loops += 1
-        conn.execute(
-            sa.text(
-                """
+        conn.execute(sa.text("""
                 UPDATE releases
                 SET is_prerelease = pep440_is_prerelease(version)
                 WHERE id IN (
@@ -42,9 +40,7 @@ def upgrade():
                     WHERE is_prerelease IS NULL
                     LIMIT 100000
                 )
-                """
-            )
-        )
+                """))
         op.get_bind().commit()
 
     op.alter_column(

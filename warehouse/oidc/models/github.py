@@ -11,7 +11,6 @@ from uuid import UUID
 from more_itertools import first_true
 from pypi_attestations import GitHubPublisher as GitHubIdentity, Publisher
 from sqlalchemy import ForeignKey, String, UniqueConstraint, and_, exists
-from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, Query, mapped_column
 
 from warehouse.oidc.errors import InvalidPublisherError
@@ -126,30 +125,19 @@ def _check_environment(
     return ground_truth.lower() == signed_claim.lower()
 
 
-def _check_sub(
-    ground_truth: str, signed_claim: str, _all_signed_claims: SignedClaims, **_kwargs
+def _check_event_name(
+    ground_truth: str,
+    signed_claim: str,
+    _all_signed_claims: SignedClaims,
+    **_kwargs,
 ) -> bool:
-    # We expect a string formatted as follows:
-    #  repo:ORG/REPO[:OPTIONAL-STUFF]
-    # where :OPTIONAL-STUFF is a concatenation of other job context
-    # metadata. We currently lack the ground context to verify that
-    # additional metadata, so we limit our verification to just the ORG/REPO
-    # component.
-
-    # Defensive: GitHub should never give us an empty subject.
-    if not signed_claim:
-        return False
-
-    components = signed_claim.split(":")
-    if len(components) < 2:
-        return False
-
-    org, repo, *_ = components
-    if not org or not repo:
-        return False
-
-    # The sub claim is case-insensitive
-    return f"{org}:{repo}".lower() == ground_truth.lower()
+    if signed_claim == "pull_request_target":
+        raise InvalidPublisherError(
+            "Publishing from a workflow invoked via 'pull_request_target' is "
+            "not supported."
+        )
+    else:
+        return True
 
 
 class GitHubPublisherMixin:
@@ -164,12 +152,12 @@ class GitHubPublisherMixin:
     environment: Mapped[str] = mapped_column(String, nullable=False)
 
     __required_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
-        "sub": _check_sub,
         "repository": _check_repository,
         "repository_owner": check_claim_binary(str.__eq__),
         "repository_owner_id": check_claim_binary(str.__eq__),
         "job_workflow_ref": _check_job_workflow_ref,
         "jti": check_existing_jti,
+        "event_name": _check_event_name,
     }
 
     __required_unverifiable_claims__: set[str] = {"ref", "sha"}
@@ -179,6 +167,7 @@ class GitHubPublisherMixin:
     }
 
     __unchecked_claims__ = {
+        "sub",
         "actor",
         "actor_id",
         "run_id",
@@ -186,7 +175,6 @@ class GitHubPublisherMixin:
         "run_attempt",
         "head_ref",
         "base_ref",
-        "event_name",
         "ref_type",
         "repository_id",
         "workflow",
@@ -199,6 +187,7 @@ class GitHubPublisherMixin:
         "enterprise",
         "enterprise_id",
         "ref_protected",
+        "check_run_id",
     }
 
     # Get the most specific publisher from a list of publishers,
@@ -263,16 +252,17 @@ class GitHubPublisherMixin:
         return f"{self.repository}/{self._workflow_slug}"
 
     @property
-    def sub(self) -> str:
-        return f"repo:{self.repository}"
-
-    @property
     def publisher_base_url(self) -> str:
         return f"https://github.com/{self.repository}"
 
     @property
     def jti(self) -> str:
         """Placeholder value for JTI."""
+        return "placeholder"
+
+    @property
+    def event_name(self) -> str:
+        """Placeholder value for event_name (not used)"""
         return "placeholder"
 
     def publisher_url(self, claims: SignedClaims | None = None) -> str:
@@ -336,9 +326,7 @@ class GitHubPublisher(GitHubPublisherMixin, OIDCPublisher):
         ),
     )
 
-    id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True), ForeignKey(OIDCPublisher.id), primary_key=True
-    )
+    id: Mapped[UUID] = mapped_column(ForeignKey(OIDCPublisher.id), primary_key=True)
 
     def verify_url(self, url: str) -> bool:
         """
@@ -394,7 +382,7 @@ class PendingGitHubPublisher(GitHubPublisherMixin, PendingOIDCPublisher):
     )
 
     id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True), ForeignKey(PendingOIDCPublisher.id), primary_key=True
+        ForeignKey(PendingOIDCPublisher.id), primary_key=True
     )
 
     def reify(self, session: Session) -> GitHubPublisher:
