@@ -52,6 +52,11 @@ def on_task_prerun(sender, task_id, task, **_):
     structlog.contextvars.bind_contextvars(task_id=task_id, task_name=task.name)
 
 
+def on_task_postrun(sender, task_id, task, **_):
+    """Clear contextvars after task completion to prevent leaking into the next task."""
+    structlog.contextvars.clear_contextvars()
+
+
 class TLSRedisBackend(celery.backends.redis.RedisBackend):
     def _params_from_url(self, url, defaults):
         params = super()._params_from_url(url, defaults)
@@ -331,6 +336,7 @@ def includeme(config: Configurator) -> None:
 
     signals.after_setup_logger.connect(on_after_setup_logger)
     signals.task_prerun.connect(on_task_prerun)
+    signals.task_postrun.connect(on_task_postrun)
 
     config.action(("celery", "finalize"), config.registry["celery.app"].finalize)
 
