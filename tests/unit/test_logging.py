@@ -119,9 +119,8 @@ def test_includeme(monkeypatch, settings, expected_level):
                 structlog.stdlib.filter_by_level,
                 structlog.stdlib.add_logger_name,
                 structlog.stdlib.add_log_level,
-                mock.ANY,  # PositionalArgumentsFormatter
-                mock.ANY,  # TimeStamper
-                mock.ANY,  # StackInfoRenderer
+                mock.ANY,
+                mock.ANY,
                 structlog.processors.format_exc_info,
                 wlogging.RENDERER,
             ],
@@ -136,10 +135,6 @@ def test_includeme(monkeypatch, settings, expected_level):
     )
     assert isinstance(
         configure.calls[0].kwargs["processors"][4],
-        structlog.processors.TimeStamper,
-    )
-    assert isinstance(
-        configure.calls[0].kwargs["processors"][5],
         structlog.processors.StackInfoRenderer,
     )
     assert isinstance(

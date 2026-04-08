@@ -547,3 +547,13 @@ def test_on_task_prerun(monkeypatch):
     assert bind_contextvars.calls == [
         pretend.call(task_id="task-123", task_name="test.task")
     ]
+
+
+def test_on_task_postrun(monkeypatch):
+    clear_contextvars = pretend.call_recorder(lambda: None)
+    monkeypatch.setattr("structlog.contextvars.clear_contextvars", clear_contextvars)
+
+    task = pretend.stub(name="test.task")
+    tasks.on_task_postrun(None, "task-123", task)
+
+    assert clear_contextvars.calls == [pretend.call()]
