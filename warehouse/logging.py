@@ -40,8 +40,11 @@ def configure_celery_logging(logfile: str | None = None, loglevel: int = logging
     """Configure unified structlog logging for Celery that handles all log types."""
     processors = [
         structlog.contextvars.merge_contextvars,
-        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.stdlib.filter_by_level,
+        structlog.stdlib.add_logger_name,
         structlog.stdlib.add_log_level,
+        structlog.stdlib.PositionalArgumentsFormatter(),
+        structlog.processors.TimeStamper(fmt="iso"),
         structlog.processors.StackInfoRenderer(),
         structlog.processors.format_exc_info,
     ]
