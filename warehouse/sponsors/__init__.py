@@ -12,7 +12,7 @@ def _sponsors(request):
 
 
 def _footer_sponsors(request):
-    """Return sponsors for the site footer, ordered: PSF by level then name, then infra by name."""
+    """Return footer sponsors: PSF by level then name, infra by name."""
     all_sponsors = request.sponsors
     psf = sorted(
         (s for s in all_sponsors if s.footer and not s.infra_sponsor),
