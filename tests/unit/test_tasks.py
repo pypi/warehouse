@@ -529,9 +529,7 @@ def test_includeme(env, ssl, broker_redis_url, expected_url, transport_options):
 
 def test_on_after_setup_logger(monkeypatch):
     configure_celery_logging = pretend.call_recorder(lambda logfile, loglevel: None)
-    monkeypatch.setattr(
-        tasks, "configure_celery_logging", configure_celery_logging
-    )
+    monkeypatch.setattr(tasks, "configure_celery_logging", configure_celery_logging)
 
     tasks.on_after_setup_logger("logger", logging.INFO, "logfile")
 
