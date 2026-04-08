@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import logging
 from unittest import mock
 
 import pretend
@@ -40,7 +41,7 @@ class TestWarehouseTask:
         obj.__header__(object())
 
     def test_call(self, monkeypatch):
-        request = pretend.stub()
+        request = pretend.stub(id="fake-request-id")
         registry = pretend.stub(settings={"warehouse.ip_salt": "peppa"})
         result = pretend.stub()
 
@@ -179,7 +180,7 @@ class TestWarehouseTask:
 
     def test_creates_request(self, monkeypatch):
         registry = pretend.stub(settings={"warehouse.ip_salt": "peppa"})
-        pyramid_env = {"request": pretend.stub()}
+        pyramid_env = {"request": pretend.stub(id="fake-request-id")}
 
         monkeypatch.setattr(scripting, "prepare", lambda *a, **k: pyramid_env)
 
@@ -529,12 +530,12 @@ def test_includeme(env, ssl, broker_redis_url, expected_url, transport_options):
 def test_on_after_setup_logger(monkeypatch):
     configure_celery_logging = pretend.call_recorder(lambda logfile, loglevel: None)
     monkeypatch.setattr(
-        "warehouse.logging.configure_celery_logging", configure_celery_logging
+        tasks, "configure_celery_logging", configure_celery_logging
     )
 
-    tasks.on_after_setup_logger("logger", "loglevel", "logfile")
+    tasks.on_after_setup_logger("logger", logging.INFO, "logfile")
 
-    assert configure_celery_logging.calls == [pretend.call("logfile", "loglevel")]
+    assert configure_celery_logging.calls == [pretend.call("logfile", logging.INFO)]
 
 
 def test_on_task_prerun(monkeypatch):
