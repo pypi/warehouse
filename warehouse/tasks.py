@@ -41,15 +41,12 @@ celery.app.backends.BACKEND_ALIASES["rediss"] = (
 logger = logging.getLogger(__name__)
 
 
-# Celery signal handlers for unified structlog configuration
-@signals.after_setup_logger.connect
 def on_after_setup_logger(logger, loglevel, logfile, *args, **kwargs):
     """Override Celery's default logging behavior
     with unified structlog configuration."""
     configure_celery_logging(logfile, loglevel)
 
 
-@signals.task_prerun.connect
 def on_task_prerun(sender, task_id, task, **_):
     """Bind task metadata to contextvars for all logs within the task."""
     structlog.contextvars.bind_contextvars(task_id=task_id, task_name=task.name)
@@ -331,6 +328,9 @@ def includeme(config: Configurator) -> None:
     )
     config.registry["celery.app"].Task = WarehouseTask
     config.registry["celery.app"].pyramid_config = config
+
+    signals.after_setup_logger.connect(on_after_setup_logger)
+    signals.task_prerun.connect(on_task_prerun)
 
     config.action(("celery", "finalize"), config.registry["celery.app"].finalize)
 
