@@ -1021,9 +1021,9 @@ types-redis==4.6.0.20241004 \
     --hash=sha256:5f17d2b3f9091ab75384153bfa276619ffa1cf6a38da60e10d5e6749cc5b902e \
     --hash=sha256:ef5da68cb827e5f606c8f9c0b49eeee4c2669d6d97122f301d3a55dc6a63f6ed
     # via -r requirements/lint.in
-types-requests==2.32.4.20260324 \
-    --hash=sha256:33a2a9ccb1de7d4e4da36e347622c35418f6761269014cc32857acabd5df739e \
-    --hash=sha256:f83ef2deb284fe99a249b8b0b0a3e4b9809e01ff456063c4df0aac7670c07ab9
+types-requests==2.33.0.20260402 \
+    --hash=sha256:1bdd3ada9b869741c5c4b887d2c8b4e38284a1449751823b5ebbccba3eefd9da \
+    --hash=sha256:c98372d7124dd5d10af815ee25c013897592ff92af27b27e22c98984102c3254
     # via -r requirements/lint.in
 types-s3transfer==0.16.0 \
     --hash=sha256:1c0cd111ecf6e21437cb410f5cddb631bfb2263b77ad973e79b9c6d0cb24e0ef \
