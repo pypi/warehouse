@@ -3,10 +3,7 @@
 import pretend
 
 from celery.schedules import crontab
-from sqlalchemy import true
-
 from warehouse import sponsors
-from warehouse.sponsors.models import Sponsor
 from warehouse.sponsors.tasks import update_pypi_sponsors
 
 from ...common.db.sponsors import SponsorFactory
@@ -49,14 +46,25 @@ def test_do_not_schedule_sponsor_api_integration_if_no_token():
 
 
 def test_list_sponsors(db_request):
-    SponsorFactory.create_batch(5)
+    expected = SponsorFactory.create_batch(5)
     SponsorFactory.create_batch(3, is_active=False)
 
     result = sponsors._sponsors(db_request)
-    expected = db_request.db.query(Sponsor).filter(Sponsor.is_active == true()).all()
 
-    assert result == expected
     assert len(result) == 5
+    assert set(result) == set(expected)
+
+
+def test_sponsors_ordered_by_level_then_name_then_infra(db_request):
+    c = SponsorFactory.create
+    infra = c(name="AWS", infra_sponsor=True, level_order=0)
+    vis_b = c(name="Bravo", infra_sponsor=False, level_order=1)
+    vis_a = c(name="Alpha", infra_sponsor=False, level_order=1)
+    sus = c(name="Charlie", infra_sponsor=False, level_order=2)
+
+    result = sponsors._sponsors(db_request)
+
+    assert result == [vis_a, vis_b, sus, infra]
 
 
 def test_footer_sponsors_ordering(db_request):
