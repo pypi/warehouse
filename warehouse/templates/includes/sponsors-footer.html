@@ -15,7 +15,12 @@
   <p class="sponsors__title">Supported by</p>
   <div class="sponsors__divider"></div>
   {% for sponsor in request.footer_sponsors %}
-    <a class="sponsors__sponsor"
+    {% if sponsor.infra_sponsor and loop.previtem is defined and not loop.previtem.infra_sponsor %}
+      <div class="sponsors__divider"></div>
+      <p class="sponsors__group-label">Infrastructure partners</p>
+      <div class="sponsors__divider"></div>
+    {% endif %}
+    <a class="sponsors__sponsor {{ 'sponsors__sponsor--infra' if sponsor.infra_sponsor }}"
        target="_blank"
        rel="noopener"
        href="{{ sponsor.link_url }}">
