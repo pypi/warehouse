@@ -3,6 +3,7 @@
 import pretend
 
 from celery.schedules import crontab
+
 from warehouse import sponsors
 from warehouse.sponsors.tasks import update_pypi_sponsors
 
