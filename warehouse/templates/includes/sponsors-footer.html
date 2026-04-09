@@ -24,9 +24,7 @@
        target="_blank"
        rel="noopener"
        href="{{ sponsor.link_url }}">
-      {% if sponsor.white_logo_url %}
-        {{ sponsor.white_logo_img|camoify|safe }}
-      {% endif %}
+      {% if sponsor.white_logo_url %}{{ sponsor.white_logo_img|camoify|safe }}{% endif %}
       <span class="sponsors__name">{{ sponsor.name }}</span>
       <span class="sponsors__service">
         {% if sponsor.infra_sponsor %}
