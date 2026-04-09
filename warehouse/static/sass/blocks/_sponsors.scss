@@ -50,6 +50,16 @@
     height: 0;
   }
 
+  &__group-label {
+    flex-basis: 100%;
+    color: color.adjust(colours.$white, $alpha: -0.4);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 4px 0 0;
+    padding: 0;
+  }
+
   &__sponsor {
     display: inline-grid;
     grid-template-rows: fit-content(40%);
@@ -107,6 +117,29 @@
   &__service {
     @media only screen and (max-width: breakpoints.$small-tablet) {
       display: none;
+    }
+  }
+
+  &__sponsor--infra {
+    opacity: 0.75;
+
+    .sponsors__image {
+      max-width: 80px;
+      opacity: 0.7;
+    }
+
+    .sponsors__name,
+    .sponsors__service {
+      max-width: 80px;
+      font-size: 0.68rem;
+    }
+
+    &:hover {
+      opacity: 0.95;
+
+      .sponsors__image {
+        opacity: 0.9;
+      }
     }
   }
 }
