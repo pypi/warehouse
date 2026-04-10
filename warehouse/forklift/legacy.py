@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
+import datetime
 import hashlib
 import hmac
 import os.path
@@ -71,6 +72,11 @@ from warehouse.utils.wheel import (
 )
 
 PATH_HASHER = "blake2_256"
+
+# After a release has been published for this
+# number of days, restrict publishing new
+# artifacts to the same release.
+MAXIMUM_RELEASE_AGE_IN_SECS_BEFORE_CLOSING = 14 * 24 * 60 * 60  # 14 days in seconds.
 
 COMPRESSION_RATIO_MIN_SIZE = 64 * ONE_MIB
 
@@ -952,8 +958,8 @@ def file_upload(request):
         else verify_email(email=maintainer_email, project=project)
     )
 
+    is_new_release = False
     try:
-        is_new_release = False
         canonical_version = packaging.utils.canonicalize_version(meta.version)
         release = (
             request.db.query(Release)
@@ -1075,6 +1081,22 @@ def file_upload(request):
         #       this method. Ideally the version field would just be sortable, but
         #       at least this should be some sort of hook or trigger.
         _sort_releases(request, project)
+
+    # Check if the release should be closed to
+    # new artifacts due to age.
+    if not is_new_release and release.created is not None:
+        # fmt: off
+        seconds_since_release = (
+            (datetime.datetime.now() - release.created).total_seconds()
+        )
+        # fmt: on
+        if MAXIMUM_RELEASE_AGE_IN_SECS_BEFORE_CLOSING < seconds_since_release:
+            request.metrics.increment(
+                "warehouse.upload.failed", tags=["reason:closed-release"]
+            )
+            raise _exc_with_message(
+                HTTPBadRequest, "Release is closed, new artifacts can't be published."
+            )
 
     # Pull the filename out of our POST data.
     filename = request.POST["content"].filename
