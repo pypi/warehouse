@@ -4,8 +4,6 @@ import pretend
 import pytest
 import sentry_sdk
 
-from sqlalchemy import type_coerce
-from sqlalchemy.dialects.postgresql import INET
 from sqlalchemy.exc import NoResultFound
 
 from warehouse.ip_addresses.models import IpAddress
@@ -210,33 +208,70 @@ class TestVhmRootRemover:
 
 
 def test_ip_address_exists(db_request):
+    """When the IP already exists, upsert returns the existing row."""
     ip_address = DBIpAddressFactory(ip_address="192.0.2.69")
-    db_request.environ["REMOTE_ADDR"] = "192.0.2.69"
     db_request.remote_addr = "192.0.2.69"
+    db_request.remote_addr_hashed = ip_address.hashed_ip_address
 
     assert wsgi._ip_address(db_request) == ip_address
 
 
 def test_ip_address_created(db_request):
+    """When the IP doesn't exist, upsert creates it with metadata."""
     with pytest.raises(NoResultFound):
-        db_request.db.query(IpAddress).filter_by(
-            ip_address=type_coerce("192.0.2.69", INET)
-        ).one()
+        db_request.db.query(IpAddress).filter_by(ip_address="192.0.2.69").one()
 
     db_request.environ["GEOIP_CITY"] = "Anytown, ST"
     db_request.remote_addr = "192.0.2.69"
     db_request.remote_addr_hashed = "deadbeef"
 
-    wsgi._ip_address(db_request)
+    ip_address = wsgi._ip_address(db_request)
 
-    ip_address = (
-        db_request.db.query(IpAddress)
-        .filter_by(ip_address=type_coerce("192.0.2.69", INET))
-        .one()
-    )
     assert str(ip_address.ip_address) == "192.0.2.69"
     assert ip_address.hashed_ip_address == "deadbeef"
     assert ip_address.geoip_info == {"city": "Anytown, ST"}
+
+
+def test_ip_address_concurrent_insert(db_request):
+    """The upsert handles a conflicting row that exists in the DB but not in
+    the ORM identity map — the same scenario as a concurrent INSERT that
+    committed between a hypothetical SELECT (miss) and our INSERT.
+
+    Before the upsert fix, _ip_address used SELECT-then-INSERT which would
+    raise UniqueViolation in this race condition.
+    """
+    ip = "192.0.2.69"
+    db_request.remote_addr = ip
+    db_request.remote_addr_hashed = "deadbeef"
+
+    # Insert the IP directly via Core SQL, bypassing the ORM identity map.
+    # This simulates a row committed by a concurrent request that our
+    # session doesn't know about.
+    db_request.db.execute(IpAddress.__table__.insert().values(ip_address=ip))
+
+    # The upsert should handle the conflict gracefully — no UniqueViolation
+    result = wsgi._ip_address(db_request)
+
+    assert str(result.ip_address) == ip
+    assert result.hashed_ip_address == "deadbeef"
+
+
+def test_ip_address_updates_metadata_on_existing(db_request):
+    """When the IP already exists, metadata (hash, geoip) should be updated."""
+    existing = DBIpAddressFactory(
+        ip_address="192.0.2.69",
+        hashed_ip_address="oldhash",
+        geoip_info={"city": "OldCity"},
+    )
+    db_request.remote_addr = "192.0.2.69"
+    db_request.remote_addr_hashed = "newhash"
+    db_request.environ["GEOIP_CITY"] = "NewCity"
+
+    result = wsgi._ip_address(db_request)
+
+    assert result.id == existing.id
+    assert result.hashed_ip_address == "newhash"
+    assert result.geoip_info == {"city": "NewCity"}
 
 
 def test_remote_addr_hashed():
