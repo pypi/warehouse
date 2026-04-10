@@ -29,7 +29,7 @@ function initDashboardChart() {
   let chartData;
   try {
     chartData = JSON.parse(chartDataScript.textContent);
-  } catch (e) {
+  } catch {
     return;
   }
 
@@ -116,7 +116,7 @@ function initObserverDetailChart() {
   let chartData;
   try {
     chartData = JSON.parse(chartDataScript.textContent);
-  } catch (e) {
+  } catch {
     return;
   }
 
@@ -207,7 +207,7 @@ function initTimelineTrendsChart() {
   let chartData;
   try {
     chartData = JSON.parse(chartDataScript.textContent);
-  } catch (e) {
+  } catch {
     return;
   }
 
