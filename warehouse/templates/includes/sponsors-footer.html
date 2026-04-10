@@ -14,28 +14,25 @@
 <div class="sponsors">
   <p class="sponsors__title">Supported by</p>
   <div class="sponsors__divider"></div>
-  {% for sponsor in request.sponsors | sort(attribute='name') %}
-    {# Short-circuit if we don't have an image for them #}
-    {% if sponsor.white_logo_url %}
-      {# Check if they belong in the footer #}
-      {% if sponsor.infra_sponsor or sponsor.footer %}
-        <a class="sponsors__sponsor"
-           target="_blank"
-           rel="noopener"
-           href="{{ sponsor.link_url }}">
-          {{ sponsor.white_logo_img|camoify|safe }}
-          <span class="sponsors__name">{{ sponsor.name }}</span>
-          <span class="sponsors__service">
-            {# If they're an infra sponsor, we should have a service for them,
-          otherwise they're a PSF sponsor #}
-            {% if sponsor.infra_sponsor %}
-              {{ sponsor.service }}
-            {% elif sponsor.footer %}
-              PSF Sponsor
-            {% endif %}
-          </span>
-        </a>
-      {% endif %}
+  {% for sponsor in request.footer_sponsors %}
+    {% if sponsor.infra_sponsor and loop.previtem is defined and not loop.previtem.infra_sponsor %}
+      <div class="sponsors__divider"></div>
+      <p class="sponsors__group-label">Infrastructure partners</p>
+      <div class="sponsors__divider"></div>
     {% endif %}
+    <a class="sponsors__sponsor {{ 'sponsors__sponsor--infra' if sponsor.infra_sponsor }}"
+       target="_blank"
+       rel="noopener"
+       href="{{ sponsor.link_url }}">
+      {% if sponsor.white_logo_url %}{{ sponsor.white_logo_img|camoify|safe }}{% endif %}
+      <span class="sponsors__name">{{ sponsor.name }}</span>
+      <span class="sponsors__service">
+        {% if sponsor.infra_sponsor %}
+          {{ sponsor.service }}
+        {% else %}
+          PSF Sponsor
+        {% endif %}
+      </span>
+    </a>
   {% endfor %}
 </div>
