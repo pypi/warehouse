@@ -40,7 +40,7 @@ class TestWarehouseTask:
         obj.__header__(object())
 
     def test_call(self, monkeypatch):
-        request = pretend.stub()
+        request = pretend.stub(id="fake-request-id")
         registry = pretend.stub(settings={"warehouse.ip_salt": "peppa"})
         result = pretend.stub()
 
@@ -179,7 +179,7 @@ class TestWarehouseTask:
 
     def test_creates_request(self, monkeypatch):
         registry = pretend.stub(settings={"warehouse.ip_salt": "peppa"})
-        pyramid_env = {"request": pretend.stub()}
+        pyramid_env = {"request": pretend.stub(id="fake-request-id")}
 
         monkeypatch.setattr(scripting, "prepare", lambda *a, **k: pyramid_env)
 
@@ -524,3 +524,25 @@ def test_includeme(env, ssl, broker_redis_url, expected_url, transport_options):
     assert config.add_request_method.calls == [
         pretend.call(tasks._get_task_from_request, name="task", reify=True)
     ]
+
+
+def test_on_task_prerun(monkeypatch):
+    bind_contextvars = pretend.call_recorder(lambda **kw: None)
+    monkeypatch.setattr("structlog.contextvars.bind_contextvars", bind_contextvars)
+
+    task = pretend.stub(name="test.task")
+    tasks.on_task_prerun(None, "task-123", task)
+
+    assert bind_contextvars.calls == [
+        pretend.call(task_id="task-123", task_name="test.task")
+    ]
+
+
+def test_on_task_postrun(monkeypatch):
+    clear_contextvars = pretend.call_recorder(lambda: None)
+    monkeypatch.setattr("structlog.contextvars.clear_contextvars", clear_contextvars)
+
+    task = pretend.stub(name="test.task")
+    tasks.on_task_postrun(None, "task-123", task)
+
+    assert clear_contextvars.calls == [pretend.call()]

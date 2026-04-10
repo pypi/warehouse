@@ -14,9 +14,11 @@ import celery.app.backends
 import celery.backends.redis
 import pyramid.scripting
 import pyramid_retry
+import structlog
 import transaction
 import venusian
 
+from celery import signals
 from kombu import Queue
 from pyramid.threadlocal import get_current_request
 
@@ -35,6 +37,16 @@ celery.app.backends.BACKEND_ALIASES["rediss"] = (
 
 
 logger = logging.getLogger(__name__)
+
+
+def on_task_prerun(sender, task_id, task, **_):
+    """Bind task metadata to contextvars for all logs within the task."""
+    structlog.contextvars.bind_contextvars(task_id=task_id, task_name=task.name)
+
+
+def on_task_postrun(sender, task_id, task, **_):
+    """Clear contextvars after task completion to prevent leaking into the next task."""
+    structlog.contextvars.clear_contextvars()
 
 
 class TLSRedisBackend(celery.backends.redis.RedisBackend):
@@ -122,6 +134,7 @@ class WarehouseTask(celery.Task):
             env["request"].remote_addr_hashed = hashlib.sha256(
                 ("127.0.0.1" + registry.settings["warehouse.ip_salt"]).encode("utf8")
             ).hexdigest()
+            structlog.contextvars.bind_contextvars(**{"request.id": env["request"].id})
             self.request.update(pyramid_env=env)
 
         return self.request.pyramid_env["request"]  # type: ignore[attr-defined]
@@ -302,9 +315,16 @@ def includeme(config: Configurator) -> None:
         REDBEAT_REDIS_URL=s["celery.scheduler_url"],
         # Silence deprecation warning on startup
         broker_connection_retry_on_startup=False,
+        # Disable Celery's logger hijacking for unified structlog control
+        worker_hijack_root_logger=False,
+        worker_log_format="%(message)s",
+        worker_task_log_format="%(message)s",
     )
     config.registry["celery.app"].Task = WarehouseTask
     config.registry["celery.app"].pyramid_config = config
+
+    signals.task_prerun.connect(on_task_prerun)
+    signals.task_postrun.connect(on_task_postrun)
 
     config.action(("celery", "finalize"), config.registry["celery.app"].finalize)
 
