@@ -9,9 +9,7 @@ from typing import TYPE_CHECKING
 
 import sentry_sdk
 
-from sqlalchemy import type_coerce
-from sqlalchemy.dialects.postgresql import INET
-from sqlalchemy.exc import NoResultFound
+from sqlalchemy.dialects.postgresql import insert
 
 from warehouse.ip_addresses.models import IpAddress
 
@@ -146,23 +144,34 @@ def _remote_addr_hashed(request: Request) -> str:
     return request.environ.get("REMOTE_ADDR_HASHED", "")
 
 
-def _ip_address(request):
+def _ip_address(request: Request) -> IpAddress:
     """Return the IpAddress object for the remote address from the environment."""
-    remote_inet = type_coerce(request.remote_addr, INET)
-    try:
-        ip_address = request.db.query(IpAddress).filter_by(ip_address=remote_inet).one()
-    except NoResultFound:
-        ip_address = IpAddress(ip_address=request.remote_addr)
-        request.db.add(ip_address)
-
-    ip_address.hashed_ip_address = request.remote_addr_hashed
-    ip_address.geoip_info = {
+    geoip_info = {
         k: request.environ[f"GEOIP_{v}"]
         for k, v in GEOIP_FIELDS.items()
         if f"GEOIP_{v}" in request.environ
-    }
+    } or None
 
-    return ip_address
+    # Use an atomic upsert to avoid UniqueViolation from concurrent requests
+    # that race between SELECT (miss) and INSERT for the same IP address.
+    stmt = (
+        insert(IpAddress)
+        .values(
+            ip_address=request.remote_addr,
+            hashed_ip_address=request.remote_addr_hashed,
+            geoip_info=geoip_info,
+        )
+        .on_conflict_do_update(
+            index_elements=["ip_address"],
+            set_={
+                "hashed_ip_address": request.remote_addr_hashed,
+                "geoip_info": geoip_info,
+            },
+        )
+        .returning(IpAddress)
+    )
+
+    return request.db.scalars(stmt).one()
 
 
 def includeme(config):
