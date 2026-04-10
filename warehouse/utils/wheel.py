@@ -54,6 +54,10 @@ _PLATFORMS = [
         re.compile(r"^ios_(\d+)_(\d+)_(.*?)_iphonesimulator$"),
         lambda m: f"iOS {m.group(1)}.{m.group(2)}+ {_normalize_arch(m.group(3))} Simulator",  # noqa: E501
     ),
+    (
+        re.compile(r"^pyemscripten_(\d+)_(\d+)_wasm32$"),
+        lambda m: f"PyEmscripten {m.group(1)}.{m.group(2)} wasm32",  # noqa: E501
+    ),
 ]
 
 _ARCHS = {
