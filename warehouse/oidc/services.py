@@ -206,7 +206,7 @@ class OIDCPublisherService:
             # ``exp``, so we add an extra 5-second margin on top.
             result = r.set(
                 f"/warehouse/oidc/{self.issuer_url}/{jti}",
-                exat=expiration + _JWT_LEEWAY + 5,
+                exat=expiration + _JWT_LEEWAY + 5,  # codespell:ignore exat
                 value="",  # empty value to lower memory usage
                 nx=True,
             )

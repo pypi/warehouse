@@ -112,7 +112,7 @@ class TestEmailForm:
 class TestUserForm:
     def test_validate(self):
         form = views.UserForm()
-        assert form.validate(), str(form.erros)
+        assert form.validate(), str(form.errors)
 
 
 class TestUserDetail:
