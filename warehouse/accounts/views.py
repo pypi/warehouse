@@ -83,6 +83,7 @@ from warehouse.oidc.forms import (
     PendingGitHubPublisherForm,
     PendingGitLabPublisherForm,
     PendingGooglePublisherForm,
+    PendingSemaphorePublisherForm,
 )
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.oidc.models import (
@@ -92,6 +93,7 @@ from warehouse.oidc.models import (
     PendingGitLabPublisher,
     PendingGooglePublisher,
     PendingOIDCPublisher,
+    PendingSemaphorePublisher,
 )
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import OrganizationRole, OrganizationRoleType
@@ -1736,6 +1738,12 @@ class ManageAccountPublishingViews:
             check_project_name=self.project_service.check_project_name,
             user=request.user,
         )
+        self.pending_semaphore_publisher_form = PendingSemaphorePublisherForm(
+            self.request.POST,
+            route_url=self.request.route_url,
+            check_project_name=self.project_service.check_project_name,
+            user=request.user,
+        )
 
     @property
     def _ratelimiters(self):
@@ -1774,6 +1782,7 @@ class ManageAccountPublishingViews:
             "pending_gitlab_publisher_form": self.pending_gitlab_publisher_form,
             "pending_google_publisher_form": self.pending_google_publisher_form,
             "pending_activestate_publisher_form": self.pending_activestate_publisher_form,  # noqa: E501
+            "pending_semaphore_publisher_form": self.pending_semaphore_publisher_form,
             "disabled": {
                 "GitHub": self.request.flags.disallow_oidc(
                     AdminFlagValue.DISALLOW_GITHUB_OIDC
@@ -1786,6 +1795,9 @@ class ManageAccountPublishingViews:
                 ),
                 "ActiveState": self.request.flags.disallow_oidc(
                     AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC
+                ),
+                "SemaphoreCI": self.request.flags.disallow_oidc(
+                    AdminFlagValue.DISALLOW_SEMAPHORE_OIDC
                 ),
             },
         }
@@ -2009,6 +2021,36 @@ class ManageAccountPublishingViews:
                 organization=form.organization.data,
                 activestate_project_name=form.project.data,
                 actor_id=form.actor_id,
+            ),
+        )
+
+    @view_config(
+        request_method="POST",
+        request_param=PendingSemaphorePublisherForm.__params__,
+    )
+    def add_pending_semaphore_oidc_publisher(self):
+        form = self.default_response["pending_semaphore_publisher_form"]
+        return self._add_pending_oidc_publisher(
+            publisher_name="SemaphoreCI",
+            publisher_class=PendingSemaphorePublisher,
+            admin_flag=AdminFlagValue.DISALLOW_SEMAPHORE_OIDC,
+            form=form,
+            make_pending_publisher=lambda request, form: PendingSemaphorePublisher(
+                project_name=form.project_name.data,
+                added_by=self.request.user,
+                organization=form.organization.data,
+                semaphore_organization_id=form.semaphore_organization_id.data,
+                project=form.project.data,
+                semaphore_project_id=form.semaphore_project_id.data,
+                repo_slug=form.repo_slug.data,
+            ),
+            make_existence_filters=lambda form: dict(
+                project_name=form.project_name.data,
+                organization=form.organization.data,
+                semaphore_organization_id=form.semaphore_organization_id.data,
+                project=form.project.data,
+                semaphore_project_id=form.semaphore_project_id.data,
+                repo_slug=form.repo_slug.data,
             ),
         )
 
