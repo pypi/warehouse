@@ -7,6 +7,7 @@ from sqlalchemy.orm import joinedload
 
 from warehouse.cache.origin import origin_cache
 from warehouse.packaging.models import Project, Release
+from warehouse.utils.cors import _CORS_HEADERS
 
 
 def _format_author(release):
@@ -47,6 +48,7 @@ def _format_author(release):
 )
 def rss_updates(request):
     request.response.content_type = "text/xml"
+    request.response.headers.update(_CORS_HEADERS)
 
     latest_releases = (
         request.db.query(Release)
@@ -74,6 +76,7 @@ def rss_updates(request):
 )
 def rss_packages(request):
     request.response.content_type = "text/xml"
+    request.response.headers.update(_CORS_HEADERS)
 
     newest_projects = (
         request.db.query(Project)
@@ -101,6 +104,7 @@ def rss_packages(request):
 )
 def rss_project_releases(project, request):
     request.response.content_type = "text/xml"
+    request.response.headers.update(_CORS_HEADERS)
 
     latest_releases = (
         request.db.query(Release)
