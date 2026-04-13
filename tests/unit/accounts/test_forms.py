@@ -152,7 +152,7 @@ class TestLoginForm:
             user_service=user_service,
             breach_service=breach_service,
         )
-        field = pretend.stub(data="password")
+        field = pretend.stub(data="password", errors=[])
 
         form.validate_password(field)
 
@@ -181,7 +181,7 @@ class TestLoginForm:
             user_service=user_service,
             breach_service=breach_service,
         )
-        field = pretend.stub(data="pw")
+        field = pretend.stub(data="pw", errors=[])
 
         with pytest.raises(wtforms.validators.ValidationError, match=r"Bad Password\!"):
             form.validate_password(field)
@@ -216,7 +216,7 @@ class TestLoginForm:
             breach_service=breach_service,
             check_password_metrics_tags=["bar"],
         )
-        field = pretend.stub(data="pw")
+        field = pretend.stub(data="pw", errors=[])
 
         form.validate_password(field)
 
@@ -257,7 +257,7 @@ class TestLoginForm:
             user_service=user_service,
             breach_service=breach_service,
         )
-        field = pretend.stub(data="pw")
+        field = pretend.stub(data="pw", errors=[])
 
         with pytest.raises(wtforms.validators.ValidationError):
             form.validate_password(field)
@@ -298,7 +298,7 @@ class TestLoginForm:
             user_service=user_service,
             breach_service=breach_service,
         )
-        field = pretend.stub(data="pw")
+        field = pretend.stub(data="pw", errors=[])
 
         with pytest.raises(wtforms.validators.ValidationError):
             form.validate_password(field)
@@ -1301,6 +1301,8 @@ class TestRecoveryCodeForm:
             ("deadbeef00001111 deadbeef11110000", False),
             # Invalid: too short
             ("deadbeef", False),
+            # Invalid: exceeds passlib MAX_PASSWORD_SIZE
+            ("a" * 5000, False),
         ],
     )
     def test_recovery_code_string_validation(
