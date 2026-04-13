@@ -448,8 +448,11 @@ class DatabaseUserService:
         user = self.get_user(user_id)
 
         for stored_recovery_code in self.get_recovery_codes(user.id):
-            if self.hasher.verify(code, stored_recovery_code.code):
-                return stored_recovery_code
+            try:
+                if self.hasher.verify(code, stored_recovery_code.code):
+                    return stored_recovery_code
+            except passlib.exc.PasswordValueError:
+                break
 
         self._metrics.increment(
             "warehouse.authentication.recovery_code.failure",
