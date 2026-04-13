@@ -135,6 +135,29 @@ class TestLoginForm:
         assert not form.validate()
         assert user_service.find_userid.calls == [pretend.call(expected_username)]
 
+    def test_validate_password_skips_when_field_has_errors(self):
+        user_service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda userid: None),
+        )
+        form = forms.LoginForm(
+            formdata=MultiDict({"username": "my_username"}),
+            request=pretend.stub(
+                remote_addr=REMOTE_ADDR,
+                banned=pretend.stub(by_ip=lambda ip_address: False),
+            ),
+            user_service=user_service,
+            breach_service=pretend.stub(),
+        )
+        field = pretend.stub(data="pw", errors=["Password too long."])
+
+        form.validate_password(field)
+
+        # find_userid is called once by LoginForm.validate_password (after super()),
+        # but not by PasswordMixin.validate_password (which returned early).
+        assert user_service.find_userid.calls == [pretend.call("my_username")]
+        # check_password is never called — the early return skipped it.
+        assert not hasattr(user_service, "check_password")
+
     def test_validate_password_no_user(self):
         request = pretend.stub(
             remote_addr=REMOTE_ADDR,
