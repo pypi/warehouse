@@ -1238,6 +1238,16 @@ class TestDatabaseUserService:
 
         assert user_service.hasher.verify(codes[0], code.code)
 
+    def test_get_recovery_code_oversized_input(self, user_service):
+        user = UserFactory.create()
+        codes = user_service.generate_recovery_codes(user.id)
+        assert len(codes) == 8
+
+        # An oversized input should raise InvalidRecoveryCode,
+        # not passlib's PasswordSizeError.
+        with pytest.raises(InvalidRecoveryCode):
+            user_service.get_recovery_code(user.id, "a" * 5000)
+
     def test_generate_recovery_codes(self, user_service):
         user = UserFactory.create()
 

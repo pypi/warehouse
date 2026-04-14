@@ -197,6 +197,9 @@ class PasswordMixin:
         super().__init__(*args, **kwargs)
 
     def validate_password(self, field):
+        if field.errors:
+            return
+
         userid = self.user_service.find_userid(self.username.data)
         if userid is not None:
             try:
@@ -589,6 +592,9 @@ class RecoveryCodeAuthenticationForm(
     RecoveryCodeValueMixin, _TwoFactorAuthenticationForm
 ):
     def validate_recovery_code_value(self, field):
+        if field.errors:
+            return
+
         recovery_code_value = field.data.encode("utf-8").strip()
 
         try:
