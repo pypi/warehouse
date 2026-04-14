@@ -6,10 +6,17 @@ import operator
 
 from itertools import chain
 
+import structlog
+
+from sqlalchemy import inspect as sa_inspect
+from sqlalchemy.exc import NoInspectionAvailable
+
 from warehouse import db
 from warehouse.cache.origin.derivers import html_cache_deriver
 from warehouse.cache.origin.interfaces import IOriginCache
 from warehouse.utils.db import orm_session_from_obj
+
+logger = structlog.get_logger(__name__)
 
 
 @db.listens_for(db.Session, "after_flush")
@@ -28,17 +35,46 @@ def store_purge_keys(config, session, flush_context):
         except KeyError:
             continue
 
-        purges.update(key_maker(obj).purge)
+        keys = list(key_maker(obj).purge)
+
+        if keys:
+            if obj in session.new:
+                state = "new"
+            elif obj in session.deleted:
+                state = "deleted"
+            else:
+                state = "dirty"
+
+            log_kw = {
+                "obj_class": obj.__class__.__name__,
+                "state": state,
+                "keys": sorted(keys),
+            }
+            if state == "dirty":
+                try:
+                    changed = sorted(sa_inspect(obj).committed_state.keys())
+                except NoInspectionAvailable:
+                    changed = []
+                if changed:
+                    log_kw["changed_attrs"] = changed
+            logger.info("cache_purge_keys_generated", **log_kw)
+
+        purges.update(keys)
 
 
 @db.listens_for(db.Session, "after_commit")
 def execute_purge(config, session):
     purges = session.info.pop("warehouse.cache.origin.purges", set())
 
+    if not purges:
+        return
+
     try:
         cacher_factory = config.find_service_factory(IOriginCache)
     except LookupError:
         return
+
+    logger.info("cache_purge_executing", count=len(purges), keys=sorted(purges))
 
     cacher = cacher_factory(None, config)
     cacher.purge(purges)
@@ -131,8 +167,15 @@ def receive_set(attribute, config, target):
     session = orm_session_from_obj(target)
     purges = session.info.setdefault("warehouse.cache.origin.purges", set())
     key_maker = cache_keys[attribute]
-    keys = key_maker(target).purge
-    purges.update(list(keys))
+    keys = list(key_maker(target).purge)
+    logger.info(
+        "cache_purge_keys_generated",
+        obj_class=target.__class__.__name__,
+        trigger="attribute_set",
+        attr=attribute.key,
+        keys=sorted(keys),
+    )
+    purges.update(keys)
 
 
 def includeme(config):
