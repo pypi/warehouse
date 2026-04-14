@@ -1,4 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0 */
+
 @use "../settings/breakpoints";
 @use "../settings/colours";
 @use "../settings/grid";
@@ -13,6 +14,7 @@
     </div>
   </div>
 */
+
 .twofa-login {
   @media only screen and (min-width: breakpoints.$tablet) {
     display: flex;
@@ -26,6 +28,7 @@
 
   &__method--padded {
     padding: grid.$spacing-unit 0;
+
     @media only screen and (max-width: breakpoints.$tablet) {
       padding: 0 0 grid.$spacing-unit;
     }
@@ -35,6 +38,7 @@
     margin: 0 grid.$spacing-unit * 2;
     width: 2px;
     background-image: linear-gradient(to bottom, colours.$border-color, colours.$white);
+
     @media only screen and (max-width: breakpoints.$tablet) {
       margin: 0 0 grid.$spacing-unit;
       width: 100%;

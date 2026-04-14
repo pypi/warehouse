@@ -2820,9 +2820,9 @@ class TestProvisionMacaroonViews:
 class TestManageProjects:
     def test_manage_projects(self, db_request):
         older_release = ReleaseFactory(created=datetime.datetime(2015, 1, 1))
-        project_with_older_release = ProjectFactory(releases=[older_release])
+        project_with_older_release = older_release.project
         newer_release = ReleaseFactory(created=datetime.datetime(2017, 1, 1))
-        project_with_newer_release = ProjectFactory(releases=[newer_release])
+        project_with_newer_release = newer_release.project
         older_project_with_no_releases = ProjectFactory(
             releases=[], created=datetime.datetime(2016, 1, 1)
         )
@@ -3431,9 +3431,12 @@ class TestManageProjectSettings:
 
     def test_remove_organization_project(self, monkeypatch, db_request):
         project = ProjectFactory.create(name="foo")
-        OrganizationProjectFactory.create(
-            organization=OrganizationFactory.create(name="bar"), project=project
-        )
+        organization = OrganizationFactory.create(name="bar")
+        OrganizationProjectFactory.create(organization=organization, project=project)
+
+        # Create a team under the departing org with access to the project.
+        team = TeamFactory.create(organization=organization)
+        TeamProjectRoleFactory.create(team=team, project=project, role_name="Owner")
 
         db_request.POST = MultiDict(
             {
@@ -3482,6 +3485,13 @@ class TestManageProjectSettings:
                 project_name=project.name,
             ),
         ]
+
+        stale_roles = (
+            db_request.db.query(TeamProjectRole)
+            .filter(TeamProjectRole.project == project)
+            .all()
+        )
+        assert len(stale_roles) == 0
 
     def test_transfer_organization_project_no_confirm(self):
         user = pretend.stub()

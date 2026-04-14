@@ -73,6 +73,9 @@
           <th>Uploaded via</th>
           <th>Trusted Publisher?</th>
           <th>Inspector</th>
+          {% if request.has_permission(Permissions.AdminProjectsDelete) %}
+          <th>Actions</th>
+          {% endif %}
         </tr>
         </thead>
         <tbody>
@@ -92,12 +95,60 @@
           <td>
             <a href="https://inspector.pypi.io/project/{{ release.project.normalized_name }}/{{ release.version }}/packages/{{ file.path }}/">🕵️</a>
           </td>
+          {% if request.has_permission(Permissions.AdminProjectsDelete) %}
+          <td>
+            <button type="button" class="btn btn-sm btn-outline-danger" data-toggle="modal" data-target="#deleteFileModal-{{ file.id }}">
+              Delete
+            </button>
+          </td>
+          {% endif %}
         </tr>
         {% endfor %}
         </tbody>
       </table>
     </div>
   </div>
+
+  {% if request.has_permission(Permissions.AdminProjectsDelete) %}
+  {% for file in release.files %}
+  <div class="modal fade" id="deleteFileModal-{{ file.id }}" tabindex="-1" role="dialog">
+    <form method="POST" action="{{ request.route_path('admin.project.release.file.delete', project_name=release.project.normalized_name, version=release.version) }}">
+      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+      <input name="file_id" type="hidden" value="{{ file.id }}">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header bg-danger">
+            <h4 class="modal-title">Delete File</h4>
+            <button type="button" class="close" data-dismiss="modal">
+              <span>&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>
+              This will irreversibly delete <code>{{ file.filename }}</code>
+              from release {{ release.version }} of {{ release.project.name }}.
+            </p>
+            <div class="form-group">
+              <label for="confirm_project_name_{{ file.id }}">
+                Type <strong>{{ release.project.name }}</strong> to confirm:
+              </label>
+              <input name="confirm_project_name" id="confirm_project_name_{{ file.id }}" class="form-control" type="text" autocomplete="off" autocorrect="off" autocapitalize="off">
+            </div>
+            <div class="form-group">
+              <label for="reason_{{ file.id }}">Reason for deletion:</label>
+              <textarea name="reason" id="reason_{{ file.id }}" class="form-control" rows="2" required></textarea>
+            </div>
+          </div>
+          <div class="modal-footer justify-content-between">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-danger">Delete File</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  {% endfor %}
+  {% endif %}
   <div class="card">
     <div class="card-header">
       <h3>Journals</h3>
@@ -381,4 +432,60 @@
       </div>
     </div>
   </div>
+  {% if request.has_permission(Permissions.AdminProjectsDelete) %}
+  <div class="card card-danger collapsed-card">
+    <div class="card-header">
+      <h3 class="card-title">Delete Release</h3>
+      <div class="card-tools">
+        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i></button>
+      </div>
+    </div>
+    <div class="card-body">
+      <p>
+        This will irreversibly delete release <strong>{{ release.version }}</strong>
+        of {{ release.project.name }} and all {{ release.files.all()|length }} associated file(s).
+      </p>
+      <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteReleaseModal">
+        Delete Release
+      </button>
+    </div>
+  </div>
+
+  <div class="modal fade" id="deleteReleaseModal" tabindex="-1" role="dialog">
+    <form method="POST" action="{{ request.route_path('admin.project.release.delete', project_name=release.project.normalized_name, version=release.version) }}">
+      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header bg-danger">
+            <h4 class="modal-title">Delete Release {{ release.version }}</h4>
+            <button type="button" class="close" data-dismiss="modal">
+              <span>&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>
+              This will irreversibly delete release <strong>{{ release.version }}</strong>
+              of {{ release.project.name }} and all {{ release.files.all()|length }} associated file(s).
+              Maintainers will be notified by email.
+            </p>
+            <div class="form-group">
+              <label for="confirm_version">
+                Type <strong>{{ release.version }}</strong> to confirm:
+              </label>
+              <input name="confirm_version" id="confirm_version" class="form-control" type="text" autocomplete="off" autocorrect="off" autocapitalize="off">
+            </div>
+            <div class="form-group">
+              <label for="release_reason">Reason for deletion:</label>
+              <textarea name="reason" id="release_reason" class="form-control" rows="2" required></textarea>
+            </div>
+          </div>
+          <div class="modal-footer justify-content-between">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-danger">Delete Release</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  {% endif %}
 {% endblock content %}

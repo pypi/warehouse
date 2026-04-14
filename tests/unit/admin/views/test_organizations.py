@@ -788,7 +788,6 @@ class TestUpdateOrganizationRole:
             )
         ]
 
-        db_request.db.refresh(role)
         assert role.role_name == OrganizationRoleType.Manager
 
         # Check event was recorded

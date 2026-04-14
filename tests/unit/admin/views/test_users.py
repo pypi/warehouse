@@ -230,10 +230,12 @@ class TestUserEmailSubmit:
         db_request.matchdict["username"] = str(user.username)
         db_request.method = "POST"
         db_request.POST["name"] = "Jane Doe"
-        db_request.POST["emails-0-email"] = email1.email
-        db_request.POST["emails-0-primary"] = False
-        db_request.POST["emails-1-email"] = email2.email
-        db_request.POST["emails-1-primary"] = True
+        # Build form POST data matching user.emails order (no guaranteed
+        # ordering on the relationship), so WTForms populate_obj maps
+        # each entry back to the correct Email object.
+        for i, email in enumerate(user.emails):
+            db_request.POST[f"emails-{i}-email"] = email.email
+            db_request.POST[f"emails-{i}-primary"] = email is email2
 
         db_request.POST = MultiDict(db_request.POST)
         db_request.route_path = pretend.call_recorder(

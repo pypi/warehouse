@@ -1120,17 +1120,41 @@ def ensure_monotonic_journals(config, session, flush_context, instances):
     # The way this works, not even the SERIALIZABLE transaction types give
     # us this property. Instead we have to implement our own locking that
     # ensures that each new journal entry will be serialized.
-    for obj in session.new:
-        if isinstance(obj, JournalEntry):
-            session.execute(
-                select(
-                    func.pg_advisory_xact_lock(
-                        cast(cast(JournalEntry.__tablename__, REGCLASS), Integer),
-                        _MONOTONIC_SEQUENCE,
-                    )
-                )
+    journal_entries = [obj for obj in session.new if isinstance(obj, JournalEntry)]
+    if not journal_entries:
+        return
+
+    has_other_pending = session.dirty or any(
+        not isinstance(obj, JournalEntry) for obj in session.new
+    )
+    if has_other_pending:
+        # This flush contains both JournalEntries and other pending changes.
+        # Acquiring the advisory lock here would hold it while non-journal
+        # INSERTs/UPDATEs execute (e.g., File INSERT unique constraint checks),
+        # which can deadlock with concurrent transactions waiting for the same
+        # advisory lock. Defer the JournalEntries to a subsequent flush where
+        # they'll be the only pending objects, minimizing lock hold scope.
+        for je in journal_entries:
+            session.expunge(je)
+        session.info.setdefault("_deferred_journals", []).extend(journal_entries)
+        return
+
+    session.execute(
+        select(
+            func.pg_advisory_xact_lock(
+                cast(cast(JournalEntry.__tablename__, REGCLASS), Integer),
+                _MONOTONIC_SEQUENCE,
             )
-            return
+        )
+    )
+
+
+@db.listens_for(db.Session, "after_flush")
+def _restore_deferred_journals(config, session, flush_context):
+    deferred = session.info.pop("_deferred_journals", None)
+    if deferred:
+        for je in deferred:
+            session.add(je)
 
 
 class ProhibitedProjectName(db.Model):

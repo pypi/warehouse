@@ -467,6 +467,10 @@ def _sort_releases(request: Request, project: Project):
                 Release._pypi_ordering,
             )
         )
+        # Acquire row locks in a deterministic order (by PK) to prevent deadlocks
+        # when concurrent uploads to the same project both run _sort_releases.
+        .with_for_update()
+        .order_by(Release.id)
         .all()
     )
     for i, r in enumerate(

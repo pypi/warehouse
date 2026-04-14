@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import io
+import struct
 import tarfile
 import zipfile
 
@@ -22,6 +23,19 @@ def _make_wheel(tmp_path, files_dict, name="fake_package", version="1.0"):
     with zipfile.ZipFile(whl_path, "w") as zfp:
         for path, content in files_dict.items():
             zfp.writestr(path, content)
+    return whl_path
+
+
+def _make_wheel_with_spoofed_file_size(tmp_path, files_dict, spoofed_size):
+    """Create a single-file wheel with a spoofed uncompressed size in the CD."""
+    assert len(files_dict) == 1
+    whl_path = _make_wheel(tmp_path, files_dict)
+    data = bytearray(open(whl_path, "rb").read())
+    cd_start = data.index(b"\x50\x4b\x01\x02")
+    # Patch uncompressed size at offset 24 from CD signature
+    struct.pack_into("<L", data, cd_start + 24, spoofed_size)
+    with open(whl_path, "wb") as f:
+        f.write(data)
     return whl_path
 
 
@@ -324,3 +338,33 @@ class TestScanArchive:
         matches = scanner.scan_archive(whl, rules=rules)
         assert len(matches) == 1
         assert matches[0][0] == "pkg/__init__.py"
+
+
+class TestSpoofedFileSize:
+    def test_iter_zip_members_yields_actual_data_length(self, tmp_path):
+        """iter_zip_members must yield len(data), not the CD's file_size."""
+        whl_path = _make_wheel_with_spoofed_file_size(
+            tmp_path,
+            {"pkg/__init__.py": "x = 1"},
+            spoofed_size=6 * 1024 * 1024,
+        )
+        with zipfile.ZipFile(whl_path) as zfp:
+            members = list(scanner.iter_zip_members(zfp))
+        assert len(members) == 1
+        name, size, data = members[0]
+        assert name == "pkg/__init__.py"
+        # Size must reflect actual data, not the spoofed 6 MiB
+        assert size == len(data)
+        assert size == 5  # len("x = 1")
+
+    def test_spoofed_file_size_does_not_bypass_scan(self, tmp_path, rules):
+        """A file with spoofed file_size > threshold must still be scanned."""
+        whl = _make_wheel_with_spoofed_file_size(
+            tmp_path,
+            {"pkg/__init__.py": "__pyarmor__(__name__, __file__, b'payload')"},
+            spoofed_size=6 * 1024 * 1024,
+        )
+        matches = scanner.scan_archive(whl, rules=rules)
+        assert len(matches) == 1
+        assert matches[0][0] == "pkg/__init__.py"
+        assert "pyarmor_encrypted" in matches[0][1]

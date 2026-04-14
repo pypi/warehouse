@@ -6752,19 +6752,18 @@ def test_missing_trailing_slash_redirect(pyramid_request):
 
 class TestFileUploadAdvisoryLockTiming:
     """
-    Tests that JournalEntries are deferred until after the S3 storage
-    upload, minimizing advisory lock hold time.
+    Tests that JournalEntries are isolated from other flush operations,
+    minimizing advisory lock hold time and preventing deadlocks.
 
     The ensure_monotonic_journals listener acquires a global advisory lock
-    whenever a JournalEntry is flushed. If JournalEntries are added to the
-    session early, autoflush during record_event/ip_address queries causes
-    the advisory lock to be acquired early and held through the entire S3
-    upload. This serializes all uploads and causes severe lock contention
-    (including timeouts that manifest as "deadlocks" around macaroon updates
-    when concurrent uploads share the same API token).
+    whenever a JournalEntry is flushed. If JournalEntries are flushed
+    alongside other objects (File INSERT, etc.), the advisory lock is held
+    while those other operations execute, which can deadlock with concurrent
+    transactions waiting for the same advisory lock.
 
-    The fix: defer JournalEntry creation until after storage upload, so the
-    advisory lock is only held for the final flush + commit.
+    The fix: ensure_monotonic_journals automatically defers JournalEntries
+    to a separate flush cycle when other objects are also pending, so the
+    advisory lock is only held during the JournalEntry-only flush.
     """
 
     def test_journal_entries_deferred_until_final_flush(
@@ -6774,11 +6773,13 @@ class TestFileUploadAdvisoryLockTiming:
         pyramid_config,
         db_request,
     ):
-        """Verify that JournalEntries only appear in the final flush,
-        not in earlier autoflushes triggered by record_event or _sort_releases.
+        """Verify that JournalEntries are automatically separated from other
+        objects into their own flush cycle, and only appear after storage upload.
 
-        This ensures the advisory lock (acquired via ensure_monotonic_journals
-        before_flush listener) is held for the minimum possible time.
+        ensure_monotonic_journals expunges JournalEntries when other objects
+        are pending in the same flush, then re-adds them via after_flush for a
+        subsequent flush cycle. This ensures the advisory lock is only acquired
+        in a flush containing exclusively JournalEntries.
         """
         monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
 
@@ -6830,7 +6831,7 @@ class TestFileUploadAdvisoryLockTiming:
         delay = pretend.call_recorder(lambda a: None)
         db_request.task = pretend.call_recorder(lambda a: pretend.stub(delay=delay))
 
-        # Track flush events and whether storage upload has happened
+        # Track what's actually in the session when each flush executes.
         flush_log = []
 
         @event.listens_for(db_request.db, "before_flush")
@@ -6850,19 +6851,39 @@ class TestFileUploadAdvisoryLockTiming:
         assert resp.status_code == 200
         assert storage_calls, "Expected at least one storage.store() call"
 
+        # The ensure_monotonic_journals listener defers JournalEntries when
+        # other objects are also pending. They're re-added to session.new
+        # via after_flush and flushed in a subsequent cycle (normally at
+        # commit time via zope.sqlalchemy). Trigger that flush here.
+        db_request.db.flush()
+
         # Find flushes that contain JournalEntry
         journal_flushes = [f for f in flush_log if f["has_journal"]]
         assert journal_flushes, "Expected at least one flush containing a JournalEntry"
 
         # The key assertion: every flush that contains a JournalEntry must
-        # happen AFTER the storage upload. If a JournalEntry appears in a
-        # flush before storage upload, the advisory lock would be held
-        # throughout the S3 upload, causing lock contention.
+        # happen AFTER the storage upload.
         for f in journal_flushes:
             assert f["storage_uploaded"], (
                 "JournalEntry was flushed BEFORE storage upload completed. "
                 "This means the advisory lock (from ensure_monotonic_journals) "
-                "is acquired early and held through the entire S3 upload, "
+                "would be held through the entire S3 upload, "
                 "serializing all concurrent uploads. "
+                f"Flush log: {flush_log}"
+            )
+
+        # The JournalEntry flush must NOT also contain File or other
+        # non-JournalEntry objects. ensure_monotonic_journals should
+        # automatically separate them to prevent deadlocks.
+        for f in journal_flushes:
+            non_journal_types = [
+                t for t in f["new_types"] if t != JournalEntry.__name__
+            ]
+            assert not non_journal_types, (
+                "JournalEntry was flushed alongside other objects: "
+                f"{non_journal_types}. ensure_monotonic_journals should "
+                "automatically defer JournalEntries to a separate flush cycle "
+                "to prevent deadlocks from holding the advisory lock while "
+                "other INSERT/UPDATE operations execute. "
                 f"Flush log: {flush_log}"
             )

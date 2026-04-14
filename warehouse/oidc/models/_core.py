@@ -158,6 +158,12 @@ class OIDCPublisherMixin:
     # not checked as part of verifying the JWT.
     __unchecked_claims__: set[str] = set()
 
+    # Whether this publisher type supports custom (non-canonical) issuer URLs.
+    # When True, lookup_by_claims MUST filter by the JWT's "iss" claim to
+    # prevent cross-issuer publisher confusion. Defaults to False, meaning the
+    # service-level issuer URL mismatch check is enforced.
+    __supports_custom_issuer__: bool = False
+
     # Individual publishers can have complex unique constraints on their
     # required and optional attributes, and thus can't be naively looked
     # up from a raw claim set.

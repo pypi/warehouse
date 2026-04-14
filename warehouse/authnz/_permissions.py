@@ -59,6 +59,9 @@ class Permissions(StrEnum):
     AdminProhibitedProjectsRead = "admin:prohibited-projects:read"
     AdminProhibitedProjectsWrite = "admin:prohibited-projects:write"
     AdminProhibitedProjectsRelease = "admin:prohibited-projects:release"
+    AdminProhibitedProjectsUltranormRelease = (
+        "admin:prohibited-projects:ultranorm-release"
+    )
 
     AdminProhibitedUsernameRead = "admin:prohibited-username:read"
     AdminProhibitedUsernameWrite = "admin:prohibited-username:write"

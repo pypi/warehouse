@@ -17,13 +17,16 @@ from tests.common.db.oidc import (
     GitLabPublisherFactory,
     GooglePublisherFactory,
 )
+from tests.common.db.organizations import OrganizationOIDCIssuerFactory
 from tests.common.db.packaging import ProjectFactory, RoleFactory
 from warehouse.macaroons import caveats
+from warehouse.organizations.models import OIDCIssuerType
 
 from ...common.constants import (
     DUMMY_ACTIVESTATE_OIDC_JWT,
     DUMMY_GITHUB_OIDC_JWT,
     DUMMY_GITLAB_OIDC_JWT,
+    DUMMY_GITLAB_SELF_MANAGED_OIDC_JWT,
     DUMMY_GOOGLE_OIDC_JWT,
 )
 from ...common.db.accounts import UserFactory
@@ -578,3 +581,84 @@ def test_trusted_publisher_upload_fails_wrong_publisher(
             "(Publisher with matching claims was not found)",
         }
     ]
+
+
+@pytest.mark.parametrize(
+    ("publisher_factory", "publisher_data", "issuer_type", "issuer_url", "oidc_jwt"),
+    [
+        (
+            GitLabPublisherFactory,
+            {
+                "namespace": "foo",
+                "project": "bar",
+                "workflow_filepath": ".gitlab-ci.yml",
+                "environment": "",
+            },
+            OIDCIssuerType.GitLab,
+            "https://gitlab.example.com",
+            DUMMY_GITLAB_SELF_MANAGED_OIDC_JWT,
+        ),
+    ],
+)
+@pytest.mark.usefixtures("_enable_all_oidc_providers")
+def test_trusted_publisher_upload_ok_custom_issuer(
+    webtest,
+    publisher_factory,
+    publisher_data,
+    issuer_type,
+    issuer_url,
+    oidc_jwt,
+):
+    user = UserFactory.create(with_verified_primary_email=True, clear_pwd="password")
+    project = ProjectFactory.create(name="sampleproject")
+    RoleFactory.create(user=user, project=project, role_name="Owner")
+
+    # Register the custom issuer URL with an organization
+    OrganizationOIDCIssuerFactory.create(
+        issuer_type=issuer_type,
+        issuer_url=issuer_url,
+        created_by=user,
+    )
+
+    publisher_factory.create(
+        projects=[project],
+        issuer_url=issuer_url,
+        **publisher_data,
+    )
+
+    response = webtest.post_json(
+        "/_/oidc/mint-token",
+        params={
+            "token": oidc_jwt,
+        },
+        status=HTTPStatus.OK,
+    )
+
+    assert "success" in response.json
+    assert response.json["success"]
+    assert "token" in response.json
+    pypi_token = response.json["token"]
+    assert pypi_token.startswith("pypi-")
+
+    with open(_ASSETS / "sampleproject-3.0.0.tar.gz", "rb") as f:
+        content = f.read()
+
+    webtest.set_authorization(("Basic", ("__token__", pypi_token)))
+    webtest.post(
+        "/legacy/?:action=file_upload",
+        params={
+            "name": "sampleproject",
+            "sha256_digest": (
+                "117ed88e5db073bb92969a7545745fd977ee85b7019706dd256a64058f70963d"
+            ),
+            "filetype": "sdist",
+            "metadata_version": "2.1",
+            "version": "3.0.0",
+        },
+        upload_files=[("content", "sampleproject-3.0.0.tar.gz", content)],
+        status=HTTPStatus.OK,
+    )
+
+    assert len(project.releases) == 1
+    release = project.releases[0]
+    assert release.files.count() == 1

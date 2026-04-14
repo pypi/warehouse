@@ -135,6 +135,29 @@ class TestLoginForm:
         assert not form.validate()
         assert user_service.find_userid.calls == [pretend.call(expected_username)]
 
+    def test_validate_password_skips_when_field_has_errors(self):
+        user_service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda userid: None),
+        )
+        form = forms.LoginForm(
+            formdata=MultiDict({"username": "my_username"}),
+            request=pretend.stub(
+                remote_addr=REMOTE_ADDR,
+                banned=pretend.stub(by_ip=lambda ip_address: False),
+            ),
+            user_service=user_service,
+            breach_service=pretend.stub(),
+        )
+        field = pretend.stub(data="pw", errors=["Password too long."])
+
+        form.validate_password(field)
+
+        # find_userid is called once by LoginForm.validate_password (after super()),
+        # but not by PasswordMixin.validate_password (which returned early).
+        assert user_service.find_userid.calls == [pretend.call("my_username")]
+        # check_password is never called — the early return skipped it.
+        assert not hasattr(user_service, "check_password")
+
     def test_validate_password_no_user(self):
         request = pretend.stub(
             remote_addr=REMOTE_ADDR,
@@ -152,7 +175,7 @@ class TestLoginForm:
             user_service=user_service,
             breach_service=breach_service,
         )
-        field = pretend.stub(data="password")
+        field = pretend.stub(data="password", errors=[])
 
         form.validate_password(field)
 
@@ -181,7 +204,7 @@ class TestLoginForm:
             user_service=user_service,
             breach_service=breach_service,
         )
-        field = pretend.stub(data="pw")
+        field = pretend.stub(data="pw", errors=[])
 
         with pytest.raises(wtforms.validators.ValidationError, match=r"Bad Password\!"):
             form.validate_password(field)
@@ -216,7 +239,7 @@ class TestLoginForm:
             breach_service=breach_service,
             check_password_metrics_tags=["bar"],
         )
-        field = pretend.stub(data="pw")
+        field = pretend.stub(data="pw", errors=[])
 
         form.validate_password(field)
 
@@ -257,7 +280,7 @@ class TestLoginForm:
             user_service=user_service,
             breach_service=breach_service,
         )
-        field = pretend.stub(data="pw")
+        field = pretend.stub(data="pw", errors=[])
 
         with pytest.raises(wtforms.validators.ValidationError):
             form.validate_password(field)
@@ -298,7 +321,7 @@ class TestLoginForm:
             user_service=user_service,
             breach_service=breach_service,
         )
-        field = pretend.stub(data="pw")
+        field = pretend.stub(data="pw", errors=[])
 
         with pytest.raises(wtforms.validators.ValidationError):
             form.validate_password(field)
@@ -1301,6 +1324,8 @@ class TestRecoveryCodeForm:
             ("deadbeef00001111 deadbeef11110000", False),
             # Invalid: too short
             ("deadbeef", False),
+            # Invalid: exceeds passlib MAX_PASSWORD_SIZE
+            ("a" * 5000, False),
         ],
     )
     def test_recovery_code_string_validation(
