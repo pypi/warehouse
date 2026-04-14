@@ -20,9 +20,9 @@
     display: flex;
   }
 
-  &__method:first-of-type {
+  &__method {
     @media only screen and (min-width: breakpoints.$tablet) {
-      flex-shrink: 0;
+      flex: 1;
     }
   }
 
