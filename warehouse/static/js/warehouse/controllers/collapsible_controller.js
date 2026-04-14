@@ -26,14 +26,14 @@ export default class extends Controller {
 
   initialize() {
     switch (this._getCollapsedCookie()) {
-    case "1":
-      this.collapse();
-      break;
-    case "0":
-      this.expand();
-      break;
-    default:
-      this.save();
+      case "1":
+        this.collapse();
+        break;
+      case "0":
+        this.expand();
+        break;
+      default:
+        this.save();
     }
   }
 
