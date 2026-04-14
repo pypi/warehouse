@@ -25,6 +25,7 @@ from warehouse.oidc.errors import InvalidPublisherError, ReusedTokenError
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.urls import verify_url_from_reference
 from warehouse.packaging.models import PROJECT_NAME_PATTERN
+from warehouse.utils.db.types import bool_false, datetime_now
 
 if TYPE_CHECKING:
     from pypi_attestations import Publisher
@@ -408,6 +409,8 @@ class PendingOIDCPublisher(OIDCPublisherMixin, db.Model):
     pypi_organization: Mapped[Organization | None] = orm.relationship(
         back_populates="pending_oidc_publishers"
     )
+    created: Mapped[datetime_now]
+    expiration_reminded: Mapped[bool_false]
 
     __table_args__ = (
         CheckConstraint(

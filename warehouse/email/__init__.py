@@ -1042,6 +1042,24 @@ def send_pending_trusted_publisher_invalidated_email(request, user, project_name
     }
 
 
+@_email("pending-trusted-publisher-expired")
+def send_pending_trusted_publisher_expired_email(request, user, project_name, days):
+    return {
+        "project_name": project_name,
+        "days": days,
+    }
+
+
+@_email("pending-trusted-publisher-expiration-reminder")
+def send_pending_trusted_publisher_expiration_reminder_email(
+    request, user, project_name, days_remaining
+):
+    return {
+        "project_name": project_name,
+        "days_remaining": days_remaining,
+    }
+
+
 @_email("pending-trusted-publisher-reified")
 def send_pending_trusted_publisher_reified_email(
     request, user, project_name, publisher_specifier
