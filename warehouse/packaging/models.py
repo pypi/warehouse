@@ -342,10 +342,11 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
         if self.lifecycle_status not in [
             LifecycleStatus.Archived,
             LifecycleStatus.ArchivedNoindex,
+            LifecycleStatus.QuarantineEnter,
         ]:
             # The project has zero or more OIDC publishers registered to it,
             # each of which serves as an identity with the ability to upload releases
-            # (only if the project is not archived)
+            # (only if the project is not archived or quarantined)
             for publisher in self.oidc_publishers:
                 acls.append(
                     (Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload])
