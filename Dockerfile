@@ -119,10 +119,10 @@ FROM debian:bookworm-slim AS python-standalone
 ENV PATH="/opt/warehouse/bin:${PATH}"
 
 ARG TARGETARCH
-ARG PYTHON_STANDALONE_AMD64_URL=https://astral-sh-dev-artifacts.s3.us-east-2.amazonaws.com/public/python/cpython-3.14.4-x86_64-unknown-linux-gnu-pgo%2Blto-1089-20260410T1612.tar.zst
-ARG PYTHON_STANDALONE_AMD64_SHA256=f5bfd96a52d5165bf5e81e9a04d70e23f7989106ef92ce6e82fe323d7fcb2dfa
-ARG PYTHON_STANDALONE_ARM64_URL=https://astral-sh-dev-artifacts.s3.us-east-2.amazonaws.com/public/python/cpython-3.14.4-aarch64-unknown-linux-gnu-pgo%2Blto-1089-20260410T1612.tar.zst
-ARG PYTHON_STANDALONE_ARM64_SHA256=7c443f7f7fafb1a70d0898fa42f683966eb55f6bdabf3b24b0e9352290398002
+ARG PYTHON_STANDALONE_AMD64_URL=https://astral-sh-dev-artifacts.s3.us-east-2.amazonaws.com/public/python/cpython-3.14.4-x86_64-unknown-linux-gnu-pgo%2Blto-1091-20260413T1041.tar.zst
+ARG PYTHON_STANDALONE_AMD64_SHA256=d02f7d4d2a4a9390b1b8c0ecde8c160f78d07007c1df6e7d7c261572aabbe4c4
+ARG PYTHON_STANDALONE_ARM64_URL=https://astral-sh-dev-artifacts.s3.us-east-2.amazonaws.com/public/python/cpython-3.14.4-aarch64-unknown-linux-gnu-pgo%2Blto-1091-20260413T1041.tar.zst
+ARG PYTHON_STANDALONE_ARM64_SHA256=15c883de9a1e13e8fa4af44c5fd3be10008e7a78ff5fccf5f0000f7f9e3c5e10
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
