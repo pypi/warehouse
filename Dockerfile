@@ -113,9 +113,54 @@ USER docs
 
 
 
+# Install Python from a standalone build for the application image
+FROM debian:bookworm-slim AS python-standalone
+
+ENV PATH="/opt/warehouse/bin:${PATH}"
+
+ARG TARGETARCH
+ARG PYTHON_STANDALONE_AMD64_URL=https://astral-sh-dev-artifacts.s3.us-east-2.amazonaws.com/public/python/cpython-3.14.4-x86_64-unknown-linux-gnu-pgo%2Blto-1089-20260410T1612.tar.zst
+ARG PYTHON_STANDALONE_AMD64_SHA256=f5bfd96a52d5165bf5e81e9a04d70e23f7989106ef92ce6e82fe323d7fcb2dfa
+ARG PYTHON_STANDALONE_ARM64_URL=https://astral-sh-dev-artifacts.s3.us-east-2.amazonaws.com/public/python/cpython-3.14.4-aarch64-unknown-linux-gnu-pgo%2Blto-1089-20260410T1612.tar.zst
+ARG PYTHON_STANDALONE_ARM64_SHA256=7c443f7f7fafb1a70d0898fa42f683966eb55f6bdabf3b24b0e9352290398002
+
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    set -eux \
+    && case "$TARGETARCH" in \
+        amd64) \
+            python_url="$PYTHON_STANDALONE_AMD64_URL"; \
+            python_sha256="$PYTHON_STANDALONE_AMD64_SHA256" \
+            ;; \
+        arm64) \
+            python_url="$PYTHON_STANDALONE_ARM64_URL"; \
+            python_sha256="$PYTHON_STANDALONE_ARM64_SHA256" \
+            ;; \
+        *) \
+            echo "Unsupported TARGETARCH: $TARGETARCH" >&2; \
+            exit 1 \
+            ;; \
+    esac \
+    && apt-get update \
+    && apt-get install --no-install-recommends -y \
+       ca-certificates \
+       curl \
+       zstd \
+    && curl --fail --location --show-error "$python_url" -o /tmp/python.tar.zst \
+    && echo "$python_sha256  /tmp/python.tar.zst" | sha256sum -c - \
+    && mkdir -p /opt/warehouse \
+    && tar --extract \
+           --file /tmp/python.tar.zst \
+           --use-compress-program=unzstd \
+           --strip-components=2 \
+           --directory /opt/warehouse \
+    && /opt/warehouse/bin/python3 -m pip --no-cache-dir --disable-pip-version-check install --upgrade pip \
+    && rm -rf /tmp/* /var/tmp/*
+
+
 # Now we're going to build our actual application, but not the actual production
 # image that it gets deployed into.
-FROM python:${PYTHON_IMAGE_VERSION} AS build
+FROM python-standalone AS build
 
 # Define whether we're building a production or a development image. This will
 # generally be used to control whether or not we install our development and
@@ -153,11 +198,11 @@ COPY requirements /tmp/requirements
 # otherwise this will do nothing.
 RUN --mount=type=cache,target=/root/.cache/pip \
     set -x \
-    && if [ "$DEVEL" = "yes" ]; then pip --disable-pip-version-check install -r /tmp/requirements/dev.txt; fi
+    && if [ "$DEVEL" = "yes" ]; then python3 -m pip --disable-pip-version-check install -r /tmp/requirements/dev.txt; fi
 
 RUN --mount=type=cache,target=/root/.cache/pip \
     set -x \
-    && if [ "$DEVEL" = "yes" ] && [ "$IPYTHON" = "yes" ]; then pip --disable-pip-version-check install -r /tmp/requirements/ipython.txt; fi
+    && if [ "$DEVEL" = "yes" ] && [ "$IPYTHON" = "yes" ]; then python3 -m pip --disable-pip-version-check install -r /tmp/requirements/ipython.txt; fi
 
 # Install the Python level Warehouse requirements, this is done after copying
 # the requirements but prior to copying Warehouse itself into the container so
@@ -165,13 +210,13 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 # Warehouse's dependencies.
 RUN --mount=type=cache,target=/root/.cache/pip \
     set -x \
-    && pip --disable-pip-version-check \
-            install --no-deps --only-binary :all: \
-                    -r /tmp/requirements/deploy.txt \
-                    -r /tmp/requirements/main.txt \
-                    $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt'; fi) \
-                    $(if [ "$CI" = "yes" ]; then echo '-r /tmp/requirements/docs-dev.txt -r /tmp/requirements/docs-user.txt -r /tmp/requirements/docs-blog.txt'; fi ) \
-    && pip check \
+    && python3 -m pip --disable-pip-version-check \
+                      install --no-deps --only-binary :all: \
+                      -r /tmp/requirements/deploy.txt \
+                      -r /tmp/requirements/main.txt \
+                      $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt'; fi) \
+                      $(if [ "$CI" = "yes" ]; then echo '-r /tmp/requirements/docs-dev.txt -r /tmp/requirements/docs-user.txt -r /tmp/requirements/docs-blog.txt'; fi ) \
+    && python3 -m pip check \
     && find /opt/warehouse -name '*.pyc' -delete
 
 
@@ -179,7 +224,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 # Now we're going to build our actual application image, which will eventually
 # pull in the static files that were built above.
-FROM python:${PYTHON_IMAGE_VERSION}
+FROM debian:bookworm-slim
 
 # Setup some basic environment variables that are ~never going to change.
 ENV PYTHONUNBUFFERED 1
