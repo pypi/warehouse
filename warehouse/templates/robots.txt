@@ -7,6 +7,7 @@ Disallow: /
 Disallow: /simple/
 Disallow: /packages/
 Disallow: /_includes/authed/
+Disallow: /project/*/submit-malware-report/
 Disallow: /pypi/*/json
 Disallow: /pypi/*/*/json
 Disallow: /pypi*?
