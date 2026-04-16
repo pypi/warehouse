@@ -350,7 +350,7 @@ class ManageTeamRolesViews:
     @view_config(
         request_method="POST",
         route_name="manage.team.delete_role",
-        permission=Permissions.OrganizationTeamsRead,
+        permission=Permissions.OrganizationsRoleRemove,
     )
     def delete_team_role(self):
         # Get team role.

@@ -520,6 +520,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                         f"user:{role.user.id}",
                         [
                             Permissions.OrganizationsRead,
+                            Permissions.OrganizationsRoleRemove,
                             Permissions.OrganizationTeamsRead,
                             Permissions.OrganizationsManage,
                             Permissions.OrganizationTeamsManage,
@@ -545,6 +546,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                         f"user:{role.user.id}",
                         [
                             Permissions.OrganizationsRead,
+                            Permissions.OrganizationsRoleRemove,
                             Permissions.OrganizationTeamsRead,
                             Permissions.OrganizationsBillingManage,
                         ],
@@ -566,6 +568,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                         f"user:{role.user.id}",
                         [
                             Permissions.OrganizationsRead,
+                            Permissions.OrganizationsRoleRemove,
                             Permissions.OrganizationTeamsRead,
                             Permissions.OrganizationTeamsManage,
                             Permissions.OrganizationProjectsAdd,
@@ -590,6 +593,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                         f"user:{role.user.id}",
                         [
                             Permissions.OrganizationsRead,
+                            Permissions.OrganizationsRoleRemove,
                             Permissions.OrganizationTeamsRead,
                         ],
                     )

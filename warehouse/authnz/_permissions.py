@@ -42,6 +42,7 @@ class Permissions(StrEnum):
     AdminIpAddressesWrite = "admin:ip-addresses:write"
     AdminJournalRead = "admin:journal:read"
 
+    AdminMacaroonsInspect = "admin:macaroons:inspect"
     AdminMacaroonsRead = "admin:macaroons:read"
     AdminMacaroonsWrite = "admin:macaroons:write"
 
@@ -107,6 +108,7 @@ class Permissions(StrEnum):
     OrganizationsManage = "organizations:manage"
     OrganizationsBillingManage = "organizations:billing:manage"
     OrganizationsRead = "organizations:read"
+    OrganizationsRoleRemove = "organizations:role:remove"
     OrganizationProjectsAdd = "organizations:projects:add"
     OrganizationProjectsRemove = "organizations:projects:remove"  # TODO: unused?
     OrganizationTeamsManage = "organizations:teams:manage"
