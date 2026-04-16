@@ -1,0 +1,16 @@
+paths-ignore:
+  - .venv
+  - node_modules
+  - "**/*.min.js"
+  - "**/*.bundle.js"
+  - "**/generated/**"
+  - "**/dist/**"
+  - .github/codeql
+  - coverage
+  - dev
+  - docs
+  - tests
+  - warehouse/migrations
+
+queries:
+  - uses: ./.github/codeql/custom-queries/python/warehouse-suite.qls
