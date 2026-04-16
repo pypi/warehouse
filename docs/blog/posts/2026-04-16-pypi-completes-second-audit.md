@@ -3,7 +3,7 @@ title: "PyPI has completed its second audit"
 description: We are proud to announce PyPI's second external security audit.
 authors:
   - miketheman
-date: 2026-04-16T19:00:00
+date: 2026-04-16T14:00:00
 tags:
   - security
   - transparency
