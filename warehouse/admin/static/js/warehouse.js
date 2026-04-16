@@ -33,6 +33,13 @@ $(document).ready(function() {
   timeAgo();
 });
 
+// Recalculate DataTables columns after sidebar toggle animation completes
+$(document).on("collapsed-done.lte.pushmenu shown.lte.pushmenu", function() {
+  setTimeout(function() {
+    $($.fn.dataTable.tables({ visible: true })).DataTable().columns.adjust();
+  }, 350);
+});
+
 document.querySelectorAll("a[data-form-submit]").forEach(function (element) {
   element.addEventListener("click", function(event) {
     // We're turning this element into a form submission, so instead of the

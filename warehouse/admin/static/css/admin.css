@@ -12,6 +12,11 @@
 
 /* Admin styles for the Warehouse project (PyPI) */
 
+/* Force DataTables to fill their container instead of using a fixed pixel width */
+table.dataTable {
+  width: 100% !important;
+}
+
 .table td,
 .table th {
   max-width: 30em;

@@ -3,6 +3,9 @@
 import pretend
 import pytest
 
+from tests.common.db.accounts import UserFactory
+from tests.common.db.packaging import ProjectFactory
+from warehouse.accounts.models import User
 from warehouse.cache import origin
 from warehouse.cache.origin.derivers import html_cache_deriver
 from warehouse.cache.origin.interfaces import IOriginCache
@@ -21,17 +24,25 @@ def test_store_purge_keys():
     class Type4:
         pass
 
+    # Type5 is registered but produces empty purge keys (covers if keys: falsy)
+    class Type5:
+        pass
+
     config = pretend.stub(
         registry={
             "cache_keys": {
                 Type1: lambda o: origin.CacheKeys(cache=[], purge=["type_1"]),
                 Type2: lambda o: origin.CacheKeys(cache=[], purge=["type_2", "foo"]),
                 Type3: lambda o: origin.CacheKeys(cache=[], purge=["type_3", "foo"]),
+                Type5: lambda o: origin.CacheKeys(cache=[], purge=[]),
             }
         }
     )
     session = pretend.stub(
-        info={}, new={Type1()}, dirty={Type2()}, deleted={Type3(), Type4()}
+        info={},
+        new={Type1(), Type5()},
+        dirty={Type2()},
+        deleted={Type3(), Type4()},
     )
 
     origin.store_purge_keys(config, session, pretend.stub())
@@ -42,6 +53,18 @@ def test_store_purge_keys():
         "type_3",
         "foo",
     }
+
+
+def test_store_purge_keys_dirty_with_changed_attrs(app_config, db_session):
+    project = ProjectFactory.create()
+    # Dirty the project by changing a column
+    project.lifecycle_status = "quarantine-enter"
+    # Flush so the object lands in session.dirty for the after_flush listener
+    db_session.flush()
+
+    purges = db_session.info.get("warehouse.cache.origin.purges", set())
+
+    assert f"project/{project.normalized_name}" in purges
 
 
 def test_execute_purge_success(app_config, monkeypatch):
@@ -57,6 +80,13 @@ def test_execute_purge_success(app_config, monkeypatch):
     assert factory.calls == [pretend.call(None, app_config)]
     assert cacher.purge.calls == [pretend.call({"type_1", "type_2", "foobar"})]
     assert "warehouse.cache.origin.purges" not in session.info
+
+
+def test_execute_purge_empty(app_config, db_session):
+    # No purges key in session.info — should early-return without touching cacher
+    origin.execute_purge(app_config, db_session)
+
+    assert "warehouse.cache.origin.purges" not in db_session.info
 
 
 def test_execute_purge_no_backend():
@@ -275,6 +305,17 @@ class TestKeyMaker:
         assert isinstance(cache_keys, origin.CacheKeys)
         assert cache_keys.cache == ["foo"]
         assert list(cache_keys.purge) == ["bar"]
+
+
+class TestReceiveSet:
+    def test_with_purge_keys(self, app_config, db_session):
+        user = UserFactory.create()
+        # User.name is registered with purge_keys in packaging/__init__.py.
+        # Trigger the attribute set listener by changing the user's name.
+        origin.receive_set(User.name, app_config, user)
+
+        purges = db_session.info.get("warehouse.cache.origin.purges", set())
+        assert f"user/{user.username}" in purges
 
 
 def test_register_origin_keys(monkeypatch):
