@@ -537,6 +537,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                 # - Manage billing (Permissions.OrganizationsBillingManage)
                 # Disallowed:
                 # - Invite/remove organization member (Permissions.OrganizationsManage)
+                # - Remove own org/team role (Permissions.OrganizationsRoleRemove)
                 # - Create/delete team and add/remove members (OrganizationTeamsManage)
                 # - Add project (Permissions.OrganizationProjectsAdd)
                 # - Remove project (Permissions.OrganizationProjectsRemove)
@@ -546,7 +547,6 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                         f"user:{role.user.id}",
                         [
                             Permissions.OrganizationsRead,
-                            Permissions.OrganizationsRoleRemove,
                             Permissions.OrganizationTeamsRead,
                             Permissions.OrganizationsBillingManage,
                         ],

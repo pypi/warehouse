@@ -185,7 +185,6 @@ class TestOrganization:
                     f"user:{billing_mgr1.user.id}",
                     [
                         Permissions.OrganizationsRead,
-                        Permissions.OrganizationsRoleRemove,
                         Permissions.OrganizationTeamsRead,
                         Permissions.OrganizationsBillingManage,
                     ],
@@ -195,7 +194,6 @@ class TestOrganization:
                     f"user:{billing_mgr2.user.id}",
                     [
                         Permissions.OrganizationsRead,
-                        Permissions.OrganizationsRoleRemove,
                         Permissions.OrganizationTeamsRead,
                         Permissions.OrganizationsBillingManage,
                     ],
@@ -407,7 +405,6 @@ class TestTeam:
                     f"user:{billing_mgr1.user.id}",
                     [
                         Permissions.OrganizationsRead,
-                        Permissions.OrganizationsRoleRemove,
                         Permissions.OrganizationTeamsRead,
                         Permissions.OrganizationsBillingManage,
                     ],
@@ -417,7 +414,6 @@ class TestTeam:
                     f"user:{billing_mgr2.user.id}",
                     [
                         Permissions.OrganizationsRead,
-                        Permissions.OrganizationsRoleRemove,
                         Permissions.OrganizationTeamsRead,
                         Permissions.OrganizationsBillingManage,
                     ],

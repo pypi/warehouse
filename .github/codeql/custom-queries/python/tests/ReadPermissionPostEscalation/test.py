@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+
 # Fixtures for ReadPermissionPostEscalation.ql
 # Each labeled block exercises one branch of the query.
 
