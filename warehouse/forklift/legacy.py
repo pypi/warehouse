@@ -47,6 +47,7 @@ from warehouse.events.tags import EventTag
 from warehouse.forklift import metadata
 from warehouse.forklift.forms import UploadForm, _filetype_extension_mapping
 from warehouse.macaroons.models import Macaroon
+from warehouse.metrics.services import NullMetrics
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
 from warehouse.packaging.metadata_verification import verify_email, verify_url
 from warehouse.packaging.models import (
@@ -280,13 +281,17 @@ def _validate_filename(filename, filetype):
         )
 
 
-def _is_valid_dist_file(filename, filetype, *, scan=True):
+def _is_valid_dist_file(filename, filetype, metrics, *, scan=True):
     """
     Perform some basic checks to see whether the indicated file could be
     a valid distribution file.
 
     Runs a YARA scan on archive members while the archive is already open.
     Returns ``(False, message)`` on the first YARA match.
+
+    ``metrics`` is used to time the YARA scan and (for sdists) the tarfile
+    name enumeration, both of which do CPU-bound work synchronously inside
+    the upload request. Tests should pass ``NullMetrics()``.
     """
     is_zipfile = bool(filename and zipfile.is_zipfile(filename))
     is_tarfile = bool(filename and tarfile.is_tarfile(filename))
@@ -362,6 +367,8 @@ def _is_valid_dist_file(filename, filetype, *, scan=True):
                     yara_match = scanner.check_members(
                         scanner.iter_zip_members(zfp),
                         archive_name=os.path.basename(filename),
+                        archive_type="zip",
+                        metrics=metrics,
                     )
                     if yara_match is not None:
                         sentry_sdk.capture_message(
@@ -392,7 +399,8 @@ def _is_valid_dist_file(filename, filetype, *, scan=True):
             with tarfile.open(filename, "r:gz") as tar:
                 # This decompresses the entire stream to validate it and the
                 # tar within.  Easy CPU DoS attack. :/
-                top_level = _commonpath(tar.getnames())
+                with metrics.timed("warehouse.upload.tarfile.getnames"):
+                    top_level = _commonpath(tar.getnames())
                 if top_level in [".", "/", ""]:
                     return (
                         False,
@@ -409,6 +417,8 @@ def _is_valid_dist_file(filename, filetype, *, scan=True):
                     yara_match = scanner.check_members(
                         scanner.iter_tar_members(tar),
                         archive_name=os.path.basename(filename),
+                        archive_type="tar",
+                        metrics=metrics,
                     )
                     if yara_match is not None:
                         sentry_sdk.capture_message(
@@ -1230,11 +1240,21 @@ def file_upload(request):
 
         # Check the file to make sure it is a valid distribution file.
         _scan = not request.flags.enabled(AdminFlagValue.DISABLE_UPLOAD_SCANNING)
-        _valid, _msg = _is_valid_dist_file(
-            temporary_filename,
-            form.filetype.data,
-            scan=_scan,
+        request.metrics.distribution(
+            "warehouse.upload.archive_size_bytes",
+            os.path.getsize(temporary_filename),
+            tags=[f"filetype:{form.filetype.data}"],
         )
+        with request.metrics.timed(
+            "warehouse.upload.validate",
+            tags=[f"filetype:{form.filetype.data}"],
+        ):
+            _valid, _msg = _is_valid_dist_file(
+                temporary_filename,
+                form.filetype.data,
+                request.metrics,
+                scan=_scan,
+            )
         if not _valid:
             request.metrics.increment(
                 "warehouse.upload.failed",
