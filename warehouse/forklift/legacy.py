@@ -1239,11 +1239,6 @@ def file_upload(request):
 
         # Check the file to make sure it is a valid distribution file.
         _scan = not request.flags.enabled(AdminFlagValue.DISABLE_UPLOAD_SCANNING)
-        request.metrics.distribution(
-            "warehouse.upload.archive_size_bytes",
-            os.path.getsize(temporary_filename),
-            tags=[f"filetype:{form.filetype.data}"],
-        )
         with request.metrics.timed(
             "warehouse.upload.validate",
             tags=[f"filetype:{form.filetype.data}"],
