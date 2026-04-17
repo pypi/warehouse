@@ -47,7 +47,6 @@ from warehouse.events.tags import EventTag
 from warehouse.forklift import metadata
 from warehouse.forklift.forms import UploadForm, _filetype_extension_mapping
 from warehouse.macaroons.models import Macaroon
-from warehouse.metrics.services import NullMetrics
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
 from warehouse.packaging.metadata_verification import verify_email, verify_url
 from warehouse.packaging.models import (
@@ -291,7 +290,7 @@ def _is_valid_dist_file(filename, filetype, metrics, *, scan=True):
 
     ``metrics`` is used to time the YARA scan and (for sdists) the tarfile
     name enumeration, both of which do CPU-bound work synchronously inside
-    the upload request. Tests should pass ``NullMetrics()``.
+    the upload request.
     """
     is_zipfile = bool(filename and zipfile.is_zipfile(filename))
     is_tarfile = bool(filename and tarfile.is_tarfile(filename))
