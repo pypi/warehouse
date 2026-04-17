@@ -987,9 +987,9 @@ types-cffi==2.0.0.20260402 \
     --hash=sha256:47e1320c009f630c59c55c8e3d2b8c501e280babf52e92f6109cbfb0864ba367 \
     --hash=sha256:f647a400fba0a31d603479169d82ee5359db79bd1136e41dc7e6489296e3a2b2
     # via types-pyopenssl
-types-first==2.0.5.20240806 \
-    --hash=sha256:11e3eba5bfc294be7afc6cea00be69cb20244674df117aa67648dcbd26c96766 \
-    --hash=sha256:d630f9e7f4816731ec05389ccea80d7668cbf879a9c3fade9e5ad3aa6cece27c
+types-first==2.0.5.20260408 \
+    --hash=sha256:4c6b545e86877033726a5c27e4e8491b65d38714ce6e400ab4b60e23c01a11bd \
+    --hash=sha256:9a9e78fa829a17d2f84310f36597d0eb51b3c5e48a3fa39e8f8521948f159c79
     # via -r requirements/lint.in
 types-html5lib==1.1.11.20260402 \
     --hash=sha256:245d02cf53ef62d7342268c53dbc2af2d200849feec03f77f5909655cb54ab0d \
