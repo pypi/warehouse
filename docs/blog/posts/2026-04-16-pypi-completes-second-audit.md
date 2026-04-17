@@ -61,8 +61,7 @@ and links to the relevant pull requests where applicable:
 Of the 14 findings, I used a combination of Severity and Difficulty
 to determine which ones to work on first, and which ones to accept for now.
 
-There were **no Critical** severity findings, 2 High, 1 Medium, 7 Low,
-and 3 Informational severity findings.
+There were 2 High, 1 Medium, 7 Low, and 4 Informational severity findings.
 
 All but 2 findings have been remediated, and the remaining 2 are accepted for now.
 More details on the accepted findings below, but in general these were accepted
