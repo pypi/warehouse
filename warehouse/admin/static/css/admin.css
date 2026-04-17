@@ -97,3 +97,8 @@ table.dataTable {
 .text-white-muted {
   opacity: 0.8;
 }
+
+/* Preserve newlines/whitespace in free-text fields while still wrapping */
+.preserve-whitespace {
+  white-space: pre-wrap;
+}
