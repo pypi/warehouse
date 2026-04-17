@@ -1039,9 +1039,9 @@ types-stripe==3.5.2.20240106 \
     --hash=sha256:63a36958f0dc4a71685b027f0b6d807ff197ee337135ac19a0f8b6132365ca52 \
     --hash=sha256:9ea7bc9b9889a3d8606114c52dcc70a8fc62d44a46da4bc5ee19f0d463674bb8
     # via -r requirements/lint.in
-types-webencodings==0.5.0.20251108 \
-    --hash=sha256:2378e2ceccced3d41bb5e21387586e7b5305e11519fc6b0659c629f23b2e5de4 \
-    --hash=sha256:e21f81ff750795faffddaffd70a3d8bfff77d006f22c27e393eb7812586249d8
+types-webencodings==0.5.0.20260408 \
+    --hash=sha256:19a2afe5c22d9b1e880b49ff823c7b531f473a390fe47ac903c0bdb5cd677dd9 \
+    --hash=sha256:28c596619f367e43eee393d85f63e8d2fdb6874c654a8d441c37f8afe29c6d0d
     # via types-html5lib
 types-webob==1.8.0.20260402 \
     --hash=sha256:2d45725edccff32af25c3ae6965fb7a2ddaaa9a932a4398ee3a4452ccc121103 \
