@@ -480,7 +480,9 @@ class TestFileValidation:
             lambda *a, **kw: (_ for _ in ()).throw(AssertionError("should not scan")),
         )
 
-        assert legacy._is_valid_dist_file(f, "bdist_wheel", NullMetrics(), scan=False) == (
+        assert legacy._is_valid_dist_file(
+            f, "bdist_wheel", NullMetrics(), scan=False
+        ) == (
             True,
             None,
         )
@@ -499,7 +501,9 @@ class TestFileValidation:
             lambda *a, **kw: (_ for _ in ()).throw(AssertionError("should not scan")),
         )
 
-        assert legacy._is_valid_dist_file(tar_fn, "sdist", NullMetrics(), scan=False) == (
+        assert legacy._is_valid_dist_file(
+            tar_fn, "sdist", NullMetrics(), scan=False
+        ) == (
             True,
             None,
         )
