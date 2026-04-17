@@ -67,6 +67,20 @@ def test_store_purge_keys_dirty_with_changed_attrs(app_config, db_session):
     assert f"project/{project.normalized_name}" in purges
 
 
+def test_store_purge_keys_skips_events_only_changes(app_config, db_request):
+    project = ProjectFactory.create()
+    db_request.db.flush()
+    # Clear purges from project creation
+    db_request.db.info.pop("warehouse.cache.origin.purges", None)
+
+    # Recording an event mutates project.events but no publicly-cached content
+    project.record_event(tag="test:event", request=db_request, additional={})
+    db_request.db.flush()
+
+    purges = db_request.db.info.get("warehouse.cache.origin.purges", set())
+    assert f"project/{project.normalized_name}" not in purges
+
+
 def test_execute_purge_success(app_config, monkeypatch):
     cacher = pretend.stub(purge=pretend.call_recorder(lambda purges: None))
     factory = pretend.call_recorder(lambda ctx, config: cacher)

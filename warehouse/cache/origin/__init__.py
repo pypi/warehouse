@@ -18,6 +18,11 @@ from warehouse.utils.db import orm_session_from_obj
 
 logger = structlog.get_logger(__name__)
 
+# Attribute mutations that should NOT trigger CDN purges.
+# `events` is an append-only audit log via HasEvents; writing to it (e.g. login,
+# upload) doesn't change any publicly-cached content for the source object.
+_NON_CACHE_RELEVANT_ATTRS = frozenset({"events"})
+
 
 @db.listens_for(db.Session, "after_flush")
 def store_purge_keys(config, session, flush_context):
@@ -35,6 +40,16 @@ def store_purge_keys(config, session, flush_context):
         except KeyError:
             continue
 
+        changed = set()
+        if obj in session.dirty:
+            try:
+                changed = set(sa_inspect(obj).committed_state.keys())
+            except NoInspectionAvailable:
+                pass
+            # Skip if only non-cache-relevant attributes changed
+            if changed and changed <= _NON_CACHE_RELEVANT_ATTRS:
+                continue
+
         keys = list(key_maker(obj).purge)
 
         if keys:
@@ -50,13 +65,8 @@ def store_purge_keys(config, session, flush_context):
                 "state": state,
                 "keys": sorted(keys),
             }
-            if state == "dirty":
-                try:
-                    changed = sorted(sa_inspect(obj).committed_state.keys())
-                except NoInspectionAvailable:
-                    changed = []
-                if changed:
-                    log_kw["changed_attrs"] = changed
+            if changed:
+                log_kw["changed_attrs"] = sorted(changed)
             logger.info("cache_purge_keys_generated", **log_kw)
 
         purges.update(keys)
