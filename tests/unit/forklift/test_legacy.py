@@ -34,6 +34,7 @@ from warehouse.classifiers.models import Classifier
 from warehouse.forklift import legacy, metadata
 from warehouse.macaroons import IMacaroonService, caveats, security_policy
 from warehouse.metrics import IMetricsService
+from warehouse.metrics.services import NullMetrics
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.utils import PublisherTokenContext
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
@@ -195,7 +196,7 @@ def test_sort_releases(db_request, versions, expected):
 
 class TestFileValidation:
     def test_defaults_to_true(self):
-        assert legacy._is_valid_dist_file("", "") == (True, None)
+        assert legacy._is_valid_dist_file("", "", NullMetrics()) == (True, None)
 
     @pytest.mark.parametrize(
         ("filename", "filetype"),
@@ -210,7 +211,7 @@ class TestFileValidation:
         with open(f, "wb") as fp:
             fp.write(b"this isn't a valid zip file")
 
-        assert legacy._is_valid_dist_file(f, filetype) == (
+        assert legacy._is_valid_dist_file(f, filetype, NullMetrics()) == (
             False,
             "File is not a zipfile",
         )
@@ -222,7 +223,7 @@ class TestFileValidation:
         with open(fake_tar, "wb") as fp:
             fp.write(b"Definitely not a valid tar file.")
 
-        assert legacy._is_valid_dist_file(fake_tar, "sdist") == (
+        assert legacy._is_valid_dist_file(fake_tar, "sdist", NullMetrics()) == (
             False,
             "File is not a tarfile",
         )
@@ -254,7 +255,10 @@ class TestFileValidation:
         assert tarfile.is_tarfile(fake_tar)
 
         # This should fail
-        assert legacy._is_valid_dist_file(fake_tar, "sdist") == (False, None)
+        assert legacy._is_valid_dist_file(fake_tar, "sdist", NullMetrics()) == (
+            False,
+            None,
+        )
 
     @pytest.mark.parametrize("compression", ["gz"])
     def test_tarfile_validation_invalid(self, tmpdir, compression):
@@ -269,7 +273,7 @@ class TestFileValidation:
             tar.add(data_file, arcname="package/__init__.py")
             tar.add(data_file, arcname="package/module.py")
 
-        assert legacy._is_valid_dist_file(tar_fn, "sdist") == (
+        assert legacy._is_valid_dist_file(tar_fn, "sdist", NullMetrics()) == (
             False,
             "PKG-INFO not found at package/PKG-INFO",
         )
@@ -288,7 +292,10 @@ class TestFileValidation:
             tar.add(data_file, arcname="package/PKG-INFO")
             tar.add(data_file, arcname="package/data_file.txt")
 
-        assert legacy._is_valid_dist_file(tar_fn, "sdist") == (True, None)
+        assert legacy._is_valid_dist_file(tar_fn, "sdist", NullMetrics()) == (
+            True,
+            None,
+        )
 
     def test_zip_no_pkg_info(self, tmpdir):
         f = str(tmpdir.join("test.zip"))
@@ -297,7 +304,7 @@ class TestFileValidation:
             zfp.writestr("package/something.txt", b"Just a placeholder file")
             zfp.writestr("package/else.txt", b"Just a placeholder file")
 
-        assert legacy._is_valid_dist_file(f, "sdist") == (
+        assert legacy._is_valid_dist_file(f, "sdist", NullMetrics()) == (
             False,
             "PKG-INFO not found at package/PKG-INFO",
         )
@@ -309,7 +316,7 @@ class TestFileValidation:
             zfp.writestr("package/something.txt", b"Just a placeholder file")
             zfp.writestr("package/PKG-INFO", b"this is the package info")
 
-        assert legacy._is_valid_dist_file(f, "sdist") == (True, None)
+        assert legacy._is_valid_dist_file(f, "sdist", NullMetrics()) == (True, None)
 
     def test_zipfile_supported_compression(self, tmpdir):
         f = str(tmpdir.join("test.zip"))
@@ -320,7 +327,7 @@ class TestFileValidation:
             zfp.writestr("test-1.0/1.txt", b"1", zipfile.ZIP_STORED)
             zfp.writestr("test-1.0/2.txt", b"2", zipfile.ZIP_DEFLATED)
 
-        assert legacy._is_valid_dist_file(f, "") == (True, None)
+        assert legacy._is_valid_dist_file(f, "", NullMetrics()) == (True, None)
 
     @pytest.mark.parametrize("method", [zipfile.ZIP_BZIP2, zipfile.ZIP_LZMA])
     def test_zipfile_unsupported_compression(self, tmpdir, method):
@@ -331,7 +338,7 @@ class TestFileValidation:
             zfp.writestr("test-1.0/2.txt", b"2", zipfile.ZIP_DEFLATED)
             zfp.writestr("test-1.0/3.txt", b"3", method)
 
-        assert legacy._is_valid_dist_file(f, "") == (
+        assert legacy._is_valid_dist_file(f, "", NullMetrics()) == (
             False,
             "File does not use a supported compression type",
         )
@@ -345,7 +352,7 @@ class TestFileValidation:
                 "1.dat", b"0" * 65 * warehouse.constants.ONE_MIB, zipfile.ZIP_DEFLATED
             )
 
-        assert legacy._is_valid_dist_file(f, "") == (
+        assert legacy._is_valid_dist_file(f, "", NullMetrics()) == (
             False,
             "File exceeds compression ratio of 50",
         )
@@ -356,7 +363,7 @@ class TestFileValidation:
         with zipfile.ZipFile(f, "w") as zfp:
             zfp.writestr("something.txt", b"Just a placeholder file")
 
-        assert legacy._is_valid_dist_file(f, "bdist_wheel") == (
+        assert legacy._is_valid_dist_file(f, "bdist_wheel", NullMetrics()) == (
             False,
             "WHEEL not found at test-1.0.dist-info/WHEEL",
         )
@@ -368,7 +375,10 @@ class TestFileValidation:
             zfp.writestr("something.txt", b"Just a placeholder file")
             zfp.writestr("test-1.0.dist-info/WHEEL", b"this is the package info")
 
-        assert legacy._is_valid_dist_file(f, "bdist_wheel") == (True, None)
+        assert legacy._is_valid_dist_file(f, "bdist_wheel", NullMetrics()) == (
+            True,
+            None,
+        )
 
     def test_invalid_wheel_filename(self, tmpdir):
         f = str(tmpdir.join("cheese.whl"))
@@ -377,7 +387,7 @@ class TestFileValidation:
             zfp.writestr("something.txt", b"Just a placeholder file")
             zfp.writestr("test-1.0.dist-info/WHEEL", b"this is the package info")
 
-        assert legacy._is_valid_dist_file(f, "bdist_wheel") == (
+        assert legacy._is_valid_dist_file(f, "bdist_wheel", NullMetrics()) == (
             False,
             "Unable to parse name and version from wheel filename",
         )
@@ -395,7 +405,7 @@ class TestFileValidation:
             tar.add(data_file, arcname="package/data_file.txt")
             tar.add(data_file, arcname="notpackage/test.txt")
 
-        assert legacy._is_valid_dist_file(tar_fn, "sdist") == (
+        assert legacy._is_valid_dist_file(tar_fn, "sdist", NullMetrics()) == (
             False,
             "Incorrect number of top-level directories in sdist",
         )
@@ -410,7 +420,7 @@ class TestFileValidation:
             zfp.writestr("test-1.0/2.txt", b"2", zipfile.ZIP_DEFLATED)
             zfp.writestr("notpackage/test.txt", b"2", zipfile.ZIP_DEFLATED)
 
-        assert legacy._is_valid_dist_file(f, "") == (
+        assert legacy._is_valid_dist_file(f, "", NullMetrics()) == (
             False,
             "Incorrect number of top-level directories in sdist",
         )
@@ -430,7 +440,7 @@ class TestFileValidation:
             "warehouse.utils.scanner.check_members", lambda *a, **kw: match
         )
 
-        assert legacy._is_valid_dist_file(f, "bdist_wheel") == (
+        assert legacy._is_valid_dist_file(f, "bdist_wheel", NullMetrics()) == (
             False,
             "Content not allowed.",
         )
@@ -453,7 +463,7 @@ class TestFileValidation:
             "warehouse.utils.scanner.check_members", lambda *a, **kw: match
         )
 
-        assert legacy._is_valid_dist_file(tar_fn, "sdist") == (
+        assert legacy._is_valid_dist_file(tar_fn, "sdist", NullMetrics()) == (
             False,
             "Content not allowed.",
         )
@@ -470,7 +480,9 @@ class TestFileValidation:
             lambda *a, **kw: (_ for _ in ()).throw(AssertionError("should not scan")),
         )
 
-        assert legacy._is_valid_dist_file(f, "bdist_wheel", scan=False) == (
+        assert legacy._is_valid_dist_file(
+            f, "bdist_wheel", NullMetrics(), scan=False
+        ) == (
             True,
             None,
         )
@@ -489,7 +501,9 @@ class TestFileValidation:
             lambda *a, **kw: (_ for _ in ()).throw(AssertionError("should not scan")),
         )
 
-        assert legacy._is_valid_dist_file(tar_fn, "sdist", scan=False) == (
+        assert legacy._is_valid_dist_file(
+            tar_fn, "sdist", NullMetrics(), scan=False
+        ) == (
             True,
             None,
         )
@@ -512,7 +526,7 @@ class TestFileValidation:
                 fp.write(tar_buf.getvalue())
                 fp.write(zip_buf.getvalue())
 
-            assert legacy._is_valid_dist_file(tar_zip, "") == (
+            assert legacy._is_valid_dist_file(tar_zip, "", NullMetrics()) == (
                 False,
                 "File is both a zip and a tar file",
             )
