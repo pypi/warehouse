@@ -89,17 +89,19 @@ def _resolve_token(args: argparse.Namespace) -> str:
 
 
 def _git_remote_url() -> str | None:
-    """Return the origin remote URL of the current git checkout."""
-    try:
-        result = subprocess.run(
-            ["git", "remote", "get-url", "origin"],
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-        return result.stdout.strip()
-    except subprocess.CalledProcessError:
-        return None
+    """Return the upstream or origin remote URL of the current git checkout."""
+    for remote in ("upstream", "origin"):
+        try:
+            result = subprocess.run(
+                ["git", "remote", "get-url", remote],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            return result.stdout.strip()
+        except subprocess.CalledProcessError:
+            continue
+    return None
 
 
 def _parse_github_remote(url: str) -> tuple[str, str] | None:
@@ -192,12 +194,13 @@ def _call_api(url: str, token: str, payload: dict) -> dict:
         sys.exit(1)
 
 
-def _print_curl(url: str, token: str, payload: dict) -> None:
+def _print_curl(url: str, token: str, payload: dict, *, expose_token: bool = False) -> None:
     body = json.dumps(payload, indent=2)
+    token_value = token if expose_token else "<YOUR-API-TOKEN>"
     print("\nEquivalent curl command:\n")
     print(
         f"curl -X POST '{url}' \\\n"
-        f"  -H 'Authorization: Bearer {token}' \\\n"
+        f"  -H 'Authorization: Bearer {token_value}' \\\n"
         f"  -H 'Content-Type: {CONTENT_TYPE}' \\\n"
         f"  -H 'Accept: {CONTENT_TYPE}' \\\n"
         f"  -d '{body}'"
@@ -227,9 +230,14 @@ def main() -> None:
         help="CI environment name (optional, e.g. 'release')",
     )
     parser.add_argument(
-        "--dry-run",
+        "-n", "--dry-run",
         action="store_true",
         help="Print the curl command instead of calling the API",
+    )
+    parser.add_argument(
+        "--show-token",
+        action="store_true",
+        help="Include the real API token in the --dry-run curl output (CAUTION: token will be visible in your shell history and terminal)",
     )
     parser.add_argument(
         "--workflow",
@@ -246,7 +254,7 @@ def main() -> None:
     remote_url = _git_remote_url()
     if not remote_url:
         print(
-            "Error: Not in a git repository or no 'origin' remote found.",
+            "Error: Not in a git repository or no 'upstream'/'origin' remote found.",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -327,7 +335,7 @@ def main() -> None:
     url = _api_url(args.api_url, args.project)
 
     if args.dry_run:
-        _print_curl(url, token, payload)
+        _print_curl(url, token, payload, expose_token=args.show_token)
         return
 
     result = _call_api(url, token, payload)
