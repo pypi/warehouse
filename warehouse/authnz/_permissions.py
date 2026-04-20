@@ -87,6 +87,7 @@ class Permissions(StrEnum):
     # API Permissions
     APIEcho = "api:echo"
     APIObservationsAdd = "api:observations:add"
+    APITrustedPublishersManage = "api:trusted-publishers:manage"
 
     # User Permissions
     Account2FA = "account:2fa"

@@ -644,6 +644,20 @@ def includeme(config):
         traverse="/{name}",
         domain=warehouse,
     )
+    config.add_route(
+        "api.projects.trusted_publishers",
+        "/danger-api/projects/{name}/trusted-publishers",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "api.projects.trusted_publisher",
+        "/danger-api/projects/{name}/trusted-publishers/{publisher_id}",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}",
+        domain=warehouse,
+    )
 
     # PEP 740 URLs
     config.add_route(

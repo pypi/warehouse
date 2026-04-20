@@ -405,6 +405,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                     Permissions.ProjectsRead,
                     Permissions.ProjectsUpload,
                     Permissions.ProjectsWrite,
+                    Permissions.APITrustedPublishersManage,
                 ]
             else:
                 current_permissions = [Permissions.ProjectsUpload]
