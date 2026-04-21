@@ -69,6 +69,7 @@ class TestLocalFileStorage:
         storage = LocalFileStorage(str(tmpdir))
         file_object = storage.get("file.txt")
         assert file_object.read() == b"my test file contents"
+        file_object.close()
 
     def test_raises_when_file_non_existent(self, tmpdir):
         storage = LocalFileStorage(str(tmpdir))
@@ -216,6 +217,7 @@ class TestLocalSimpleStorage:
         storage = LocalSimpleStorage(str(tmpdir))
         file_object = storage.get("file.txt")
         assert file_object.read() == b"my test file contents"
+        file_object.close()
 
     def test_raises_when_file_non_existent(self, tmpdir):
         storage = LocalSimpleStorage(str(tmpdir))

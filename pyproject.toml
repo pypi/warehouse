@@ -123,7 +123,7 @@ addopts = [
 ]
 cache_dir = ".cache/pytest"
 filterwarnings = [
-  "error:SELECT statement has a cartesian product:sqlalchemy.exc.SAWarning",
+  "error",
   "ignore::warehouse.utils.exceptions.DevelopmentModeWarning",
 
   # https://github.com/pypi/warehouse/issues/15454#issuecomment-2599321232
