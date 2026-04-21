@@ -15,7 +15,7 @@ from warehouse.macaroons.services import deserialize_raw_macaroon
 @view_config(
     route_name="admin.macaroon.decode_token",
     renderer="warehouse.admin:templates/admin/macaroons/decode_token.html",
-    permission=Permissions.AdminMacaroonsRead,
+    permission=Permissions.AdminMacaroonsInspect,
     request_method="GET",
     uses_session=True,
     require_csrf=True,
@@ -24,7 +24,7 @@ from warehouse.macaroons.services import deserialize_raw_macaroon
 @view_config(
     route_name="admin.macaroon.decode_token",
     renderer="warehouse.admin:templates/admin/macaroons/decode_token.html",
-    permission=Permissions.AdminMacaroonsRead,
+    permission=Permissions.AdminMacaroonsInspect,
     request_method="POST",
     uses_session=True,
     require_csrf=True,

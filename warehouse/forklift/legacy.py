@@ -177,6 +177,10 @@ _jointlinux_arches = {
 _manylinux_arches = _jointlinux_arches | {"ppc64"}
 _musllinux_arches = _jointlinux_arches
 
+_pyemscripten_platform_re = re.compile(
+    r"pyemscripten_(?P<major>\d+)_(?P<minor>\d+)_wasm32"
+)
+
 
 # Actual checking code;
 def _valid_platform_tag(platform_tag):
@@ -207,6 +211,9 @@ def _valid_platform_tag(platform_tag):
         return True
     m = _android_platform_re.match(platform_tag)
     if m and m.group("arch") in _android_arches:
+        return True
+    m = _pyemscripten_platform_re.match(platform_tag)
+    if m:
         return True
     return False
 

@@ -88,6 +88,10 @@ from warehouse.utils import wheel
             ["CPython 3.13+", "iOS 13.0+ ARM64 Simulator"],
         ),
         (
+            "cryptography-42.0.5-cp313-abi3-pyemscripten_2026_0_wasm32.whl",
+            ["CPython 3.13+", "PyEmscripten 2026.0 wasm32"],
+        ),
+        (
             "pgf-1.0-pp27-pypy_73-manylinux2010_x86_64.whl",
             ["PyPy", "manylinux: glibc 2.12+ x86-64"],
         ),

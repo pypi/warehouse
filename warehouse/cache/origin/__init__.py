@@ -18,10 +18,30 @@ from warehouse.utils.db import orm_session_from_obj
 
 logger = structlog.get_logger(__name__)
 
-# Attribute mutations that should NOT trigger CDN purges.
-# `events` is an append-only audit log via HasEvents; writing to it (e.g. login,
-# upload) doesn't change any publicly-cached content for the source object.
-_NON_CACHE_RELEVANT_ATTRS = frozenset({"events"})
+# Collection-attribute mutations that should NOT trigger a CDN purge for the
+# parent object. Each falls into one of two buckets:
+#
+#   - Audit/admin-only collections whose contents never appear on a cached
+#     response: `events` (HasEvents), `observations` (HasObservations),
+#     `invitations` (project/org role invitations — only rendered on the
+#     private manage UI and admin pages).
+#
+#   - Collections whose child model has its own `cache_keys` registration
+#     that already covers the affected content: `roles`, `releases`, `files`.
+#     When the child is added/removed its own purge fires, so the parent-dirty
+#     purge is either redundant (same keys) or strictly broader (extra keys
+#     like `all-projects` / `org/*` that aren't actually affected by the
+#     child-scoped change).
+_NON_CACHE_RELEVANT_ATTRS = frozenset(
+    {
+        "events",
+        "observations",
+        "invitations",
+        "roles",
+        "releases",
+        "files",
+    }
+)
 
 
 @db.listens_for(db.Session, "after_flush")
