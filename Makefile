@@ -178,6 +178,8 @@ dbshell: .state/docker-build-base
 
 clean:
 	rm -rf dev/*.sql
+	rm -rf docs/blog-site/ docs/dev-site/ docs/user-site/
+	rm -rf warehouse/static/dist/ warehouse/admin/static/dist/
 
 purge: stop clean
 	rm -rf .state dev/.coverage* dev/.mypy_cache dev/.pip-cache dev/.pip-tools-cache dev/.pytest_cache .state/db-populated .state/db-migrated
@@ -187,4 +189,81 @@ purge: stop clean
 stop:
 	docker compose stop
 
-.PHONY: default build serve resetdb initdb shell dbshell tests dev-docs user-docs deps deps_upgrade_all deps_upgrade_project clean purge debug stop compile-pot runmigrations checkdb
+# ============================================================================
+# CodeQL static analysis (runs on host, not in Docker)
+# ============================================================================
+# First-time run:
+#   make codeql                       # install packs, build DB, analyze everything
+#
+# Other useful targets:
+#   make codeql-analyze-python        # analyze one language against existing DB
+#   make codeql-db                    # (re)build just the database
+#   make codeql-rebuild               # force DB rebuild (packs/CLI sentinels kept)
+#   make codeql-test                  # run custom query unit tests
+#   make codeql-clean                 # remove DB, results, and sentinels
+#
+# The DB is automatically rebuilt when any tracked source file under
+# warehouse/ changes (detected at make-invocation time via `find`).
+#
+# Override CODEQL_LANGS to scope to a subset (requires codeql-clean first if
+# the existing DB was built with a different set):
+#   make codeql CODEQL_LANGS=python
+#
+# Artifacts land under dev/codeql/ (gitignored):
+#   dev/codeql/db/        database cluster
+#   dev/codeql/results/   <language>.sarif per analyzed language
+
+CODEQL_LANGS ?= python javascript
+
+_codeql_db        := dev/codeql/db
+_codeql_results   := dev/codeql/results
+
+_codeql_pack_python      = .github/codeql/custom-queries/python
+_codeql_custom_python    = .github/codeql/custom-queries/python/warehouse-suite.qls
+_codeql_sources          := $(shell git ls-files 'warehouse/*.py' 'warehouse/*.js' ':!warehouse/migrations/*' 2>/dev/null)
+
+.state/codeql-cli:
+	@command -v codeql >/dev/null 2>&1 || { \
+		echo "error: 'codeql' not found on PATH."; \
+		echo "       macOS:   brew install --cask codeql"; \
+		echo "       other:   https://github.com/github/codeql-cli-binaries/releases"; \
+		exit 1; \
+	}
+	@mkdir -p .state && touch .state/codeql-cli
+
+.state/codeql-packs: .state/codeql-cli
+	codeql pack install $(_codeql_pack_python)
+	@mkdir -p .state && touch .state/codeql-packs
+
+.state/codeql-db: .state/codeql-packs .github/codeql/codeql-config.yml $(_codeql_sources)
+	rm -rf $(_codeql_db)
+	@mkdir -p $(dir $(_codeql_db))
+	codeql database create $(_codeql_db) --db-cluster --threads=0 \
+		$(addprefix --language=,$(CODEQL_LANGS)) \
+		--codescanning-config=.github/codeql/codeql-config.yml
+	@mkdir -p .state && touch .state/codeql-db
+
+codeql-db: .state/codeql-db
+
+codeql-rebuild:
+	rm -rf $(_codeql_db) .state/codeql-db
+	$(MAKE) codeql-db
+
+codeql-analyze-%: .state/codeql-db
+	@mkdir -p $(_codeql_results)
+	codeql database analyze $(_codeql_db)/$* --threads=0 \
+		--format=sarif-latest \
+		--output=$(_codeql_results)/$*.sarif \
+		$(_codeql_custom_$*)
+
+codeql-analyze: $(addprefix codeql-analyze-,$(CODEQL_LANGS))
+
+codeql: codeql-analyze
+
+codeql-test: .state/codeql-packs
+	codeql test run $(_codeql_pack_python)/tests
+
+codeql-clean:
+	rm -rf dev/codeql .state/codeql-db .state/codeql-packs .state/codeql-cli
+
+.PHONY: default build serve resetdb initdb shell dbshell tests dev-docs user-docs deps deps_upgrade_all deps_upgrade_project clean purge debug stop compile-pot runmigrations checkdb codeql codeql-db codeql-rebuild codeql-analyze codeql-test codeql-clean
