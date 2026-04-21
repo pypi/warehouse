@@ -1350,7 +1350,7 @@ def change_organization_role(
     uses_session=True,
     require_active_organization=True,
     require_methods=["POST"],
-    permission=Permissions.OrganizationsRead,
+    permission=Permissions.OrganizationsRoleRemove,
     has_translations=True,
     require_reauth=True,
 )

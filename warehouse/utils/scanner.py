@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import contextlib
 import tarfile
 import typing
 import zipfile
@@ -99,20 +100,57 @@ def iter_tar_members(tar: tarfile.TarFile) -> typing.Iterator[tuple[str, int, by
         yield member.name, len(data), data
 
 
+def _timed_scan(yx_scanner, data, *, metrics, check_type):
+    """Run a single YARA scan and time it under ``warehouse.upload.yara.check``.
+
+    ``check_type`` identifies which path the scan is on so we can tell which
+    one is slow: ``bulk`` (whole-archive prescan), ``per_file_overflow``
+    (file-at-a-time when archive exceeds the bulk cap), or
+    ``per_file_attribution`` (file-at-a-time after a bulk match, to attribute
+    which member triggered).
+    """
+    timer = (
+        metrics.timed(
+            "warehouse.upload.yara.check",
+            tags=[f"check_type:{check_type}"],
+        )
+        if metrics is not None
+        else contextlib.nullcontext()
+    )
+    with timer:
+        return yx_scanner.scan(data)
+
+
 def check_members(
     members: typing.Iterable[tuple[str, int, bytes]],
     rules: yara_x.Rules | None = None,
     *,
     archive_name: str = "",
+    archive_type: str = "unknown",
+    metrics=None,
 ) -> YaraMatch | None:
     """Scan archive members and return the first YARA match.
 
     Returns ``YaraMatch`` on the first match, ``None`` otherwise.
     Fails open: returns ``None`` on scan errors.
+
+    If ``metrics`` is provided, the whole scan (member read + YARA match) is
+    timed under ``warehouse.upload.yara.scan``, tagged with ``archive_type``.
+    This is the single umbrella metric for all YARA work per upload; emitting
+    it here ensures every caller of the scanner gets it for free.
     """
     rules = rules or _rules
     if rules is None:
         return None
+
+    timer_cm = (
+        metrics.timed(
+            "warehouse.upload.yara.scan",
+            tags=[f"archive_type:{archive_type}"],
+        )
+        if metrics is not None
+        else contextlib.nullcontext()
+    )
 
     yx_scanner = yara_x.Scanner(rules)
     materialized: list[tuple[str, int, bytes]] = []
@@ -120,61 +158,80 @@ def check_members(
     overflow = False
 
     try:
-        for name, size, data in members:
-            if size > _SCAN_MAX_FILE_SIZE:
-                logger.info(
-                    "Skipping oversized file in YARA scan",
-                    member=name,
-                    member_size=size,
-                    archive=archive_name,
-                    max_size=_SCAN_MAX_FILE_SIZE,
-                )
-                continue
-
-            if overflow:
-                # Over the size cap — scan each file individually.
-                results = yx_scanner.scan(data)
-                for matched_rule in results.matching_rules:
-                    return YaraMatch(
-                        rule=matched_rule.identifier,
+        with timer_cm:
+            for name, size, data in members:
+                if size > _SCAN_MAX_FILE_SIZE:
+                    logger.info(
+                        "Skipping oversized file in YARA scan",
                         member=name,
-                        message=_get_rule_message(matched_rule),
+                        member_size=size,
+                        archive=archive_name,
+                        max_size=_SCAN_MAX_FILE_SIZE,
                     )
-                continue
+                    continue
 
-            materialized.append((name, size, data))
-            total_size += len(data)
-
-            if total_size > _BULK_SCAN_MAX_TOTAL:
-                overflow = True
-                # Exceeded size cap — scan materialized files individually.
-                for m_name, _, m_data in materialized:
-                    results = yx_scanner.scan(m_data)
+                if overflow:
+                    # Over the size cap — scan each file individually.
+                    results = _timed_scan(
+                        yx_scanner,
+                        data,
+                        metrics=metrics,
+                        check_type="per_file_overflow",
+                    )
                     for matched_rule in results.matching_rules:
                         return YaraMatch(
                             rule=matched_rule.identifier,
-                            member=m_name,
+                            member=name,
                             message=_get_rule_message(matched_rule),
                         )
-                materialized.clear()
+                    continue
 
-        if not overflow:
-            # Under the size cap — use bulk pre-scan optimization.
-            bulk = b"".join(data for _, _, data in materialized)
-            if not yx_scanner.scan(bulk).matching_rules:
-                return None
-            # Something matched — scan individual files for attribution.
-            for name, _size, data in materialized:
-                results = yx_scanner.scan(data)
-                for matched_rule in results.matching_rules:
-                    return YaraMatch(
-                        rule=matched_rule.identifier,
-                        member=name,
-                        message=_get_rule_message(matched_rule),
+                materialized.append((name, size, data))
+                total_size += len(data)
+
+                if total_size > _BULK_SCAN_MAX_TOTAL:
+                    overflow = True
+                    # Exceeded size cap — scan materialized files individually.
+                    for m_name, _, m_data in materialized:
+                        results = _timed_scan(
+                            yx_scanner,
+                            m_data,
+                            metrics=metrics,
+                            check_type="per_file_overflow",
+                        )
+                        for matched_rule in results.matching_rules:
+                            return YaraMatch(
+                                rule=matched_rule.identifier,
+                                member=m_name,
+                                message=_get_rule_message(matched_rule),
+                            )
+                    materialized.clear()
+
+            if not overflow:
+                # Under the size cap — use bulk pre-scan optimization.
+                bulk = b"".join(data for _, _, data in materialized)
+                bulk_results = _timed_scan(
+                    yx_scanner, bulk, metrics=metrics, check_type="bulk"
+                )
+                if not bulk_results.matching_rules:
+                    return None
+                # Something matched — scan individual files for attribution.
+                for name, _size, data in materialized:
+                    results = _timed_scan(
+                        yx_scanner,
+                        data,
+                        metrics=metrics,
+                        check_type="per_file_attribution",
                     )
-            # Bulk matched across file boundaries but no individual file
-            # triggered — a harmless false positive from concatenation.
-            return None
+                    for matched_rule in results.matching_rules:
+                        return YaraMatch(
+                            rule=matched_rule.identifier,
+                            member=name,
+                            message=_get_rule_message(matched_rule),
+                        )
+                # Bulk matched across file boundaries but no individual file
+                # triggered — a harmless false positive from concatenation.
+                return None
 
     except yara_x.ScanError:
         logger.exception(

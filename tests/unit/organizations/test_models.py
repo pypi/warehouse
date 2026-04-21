@@ -153,6 +153,7 @@ class TestOrganization:
                     f"user:{owner1.user.id}",
                     [
                         Permissions.OrganizationsRead,
+                        Permissions.OrganizationsRoleRemove,
                         Permissions.OrganizationTeamsRead,
                         Permissions.OrganizationsManage,
                         Permissions.OrganizationTeamsManage,
@@ -166,6 +167,7 @@ class TestOrganization:
                     f"user:{owner2.user.id}",
                     [
                         Permissions.OrganizationsRead,
+                        Permissions.OrganizationsRoleRemove,
                         Permissions.OrganizationTeamsRead,
                         Permissions.OrganizationsManage,
                         Permissions.OrganizationTeamsManage,
@@ -205,6 +207,7 @@ class TestOrganization:
                     f"user:{account_mgr1.user.id}",
                     [
                         Permissions.OrganizationsRead,
+                        Permissions.OrganizationsRoleRemove,
                         Permissions.OrganizationTeamsRead,
                         Permissions.OrganizationTeamsManage,
                         Permissions.OrganizationProjectsAdd,
@@ -215,6 +218,7 @@ class TestOrganization:
                     f"user:{account_mgr2.user.id}",
                     [
                         Permissions.OrganizationsRead,
+                        Permissions.OrganizationsRoleRemove,
                         Permissions.OrganizationTeamsRead,
                         Permissions.OrganizationTeamsManage,
                         Permissions.OrganizationProjectsAdd,
@@ -227,12 +231,20 @@ class TestOrganization:
                 (
                     Allow,
                     f"user:{member1.user.id}",
-                    [Permissions.OrganizationsRead, Permissions.OrganizationTeamsRead],
+                    [
+                        Permissions.OrganizationsRead,
+                        Permissions.OrganizationsRoleRemove,
+                        Permissions.OrganizationTeamsRead,
+                    ],
                 ),
                 (
                     Allow,
                     f"user:{member2.user.id}",
-                    [Permissions.OrganizationsRead, Permissions.OrganizationTeamsRead],
+                    [
+                        Permissions.OrganizationsRead,
+                        Permissions.OrganizationsRoleRemove,
+                        Permissions.OrganizationTeamsRead,
+                    ],
                 ),
             ],
             key=lambda x: x[1],
@@ -361,6 +373,7 @@ class TestTeam:
                     f"user:{owner1.user.id}",
                     [
                         Permissions.OrganizationsRead,
+                        Permissions.OrganizationsRoleRemove,
                         Permissions.OrganizationTeamsRead,
                         Permissions.OrganizationsManage,
                         Permissions.OrganizationTeamsManage,
@@ -374,6 +387,7 @@ class TestTeam:
                     f"user:{owner2.user.id}",
                     [
                         Permissions.OrganizationsRead,
+                        Permissions.OrganizationsRoleRemove,
                         Permissions.OrganizationTeamsRead,
                         Permissions.OrganizationsManage,
                         Permissions.OrganizationTeamsManage,
@@ -413,6 +427,7 @@ class TestTeam:
                     f"user:{account_mgr1.user.id}",
                     [
                         Permissions.OrganizationsRead,
+                        Permissions.OrganizationsRoleRemove,
                         Permissions.OrganizationTeamsRead,
                         Permissions.OrganizationTeamsManage,
                         Permissions.OrganizationProjectsAdd,
@@ -423,6 +438,7 @@ class TestTeam:
                     f"user:{account_mgr2.user.id}",
                     [
                         Permissions.OrganizationsRead,
+                        Permissions.OrganizationsRoleRemove,
                         Permissions.OrganizationTeamsRead,
                         Permissions.OrganizationTeamsManage,
                         Permissions.OrganizationProjectsAdd,
@@ -435,12 +451,20 @@ class TestTeam:
                 (
                     Allow,
                     f"user:{member1.user.id}",
-                    [Permissions.OrganizationsRead, Permissions.OrganizationTeamsRead],
+                    [
+                        Permissions.OrganizationsRead,
+                        Permissions.OrganizationsRoleRemove,
+                        Permissions.OrganizationTeamsRead,
+                    ],
                 ),
                 (
                     Allow,
                     f"user:{member2.user.id}",
-                    [Permissions.OrganizationsRead, Permissions.OrganizationTeamsRead],
+                    [
+                        Permissions.OrganizationsRead,
+                        Permissions.OrganizationsRoleRemove,
+                        Permissions.OrganizationTeamsRead,
+                    ],
                 ),
             ],
             key=lambda x: x[1],

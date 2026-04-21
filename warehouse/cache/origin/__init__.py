@@ -18,6 +18,31 @@ from warehouse.utils.db import orm_session_from_obj
 
 logger = structlog.get_logger(__name__)
 
+# Collection-attribute mutations that should NOT trigger a CDN purge for the
+# parent object. Each falls into one of two buckets:
+#
+#   - Audit/admin-only collections whose contents never appear on a cached
+#     response: `events` (HasEvents), `observations` (HasObservations),
+#     `invitations` (project/org role invitations — only rendered on the
+#     private manage UI and admin pages).
+#
+#   - Collections whose child model has its own `cache_keys` registration
+#     that already covers the affected content: `roles`, `releases`, `files`.
+#     When the child is added/removed its own purge fires, so the parent-dirty
+#     purge is either redundant (same keys) or strictly broader (extra keys
+#     like `all-projects` / `org/*` that aren't actually affected by the
+#     child-scoped change).
+_NON_CACHE_RELEVANT_ATTRS = frozenset(
+    {
+        "events",
+        "observations",
+        "invitations",
+        "roles",
+        "releases",
+        "files",
+    }
+)
+
 
 @db.listens_for(db.Session, "after_flush")
 def store_purge_keys(config, session, flush_context):
@@ -35,6 +60,16 @@ def store_purge_keys(config, session, flush_context):
         except KeyError:
             continue
 
+        changed = set()
+        if obj in session.dirty:
+            try:
+                changed = set(sa_inspect(obj).committed_state.keys())
+            except NoInspectionAvailable:
+                pass
+            # Skip if only non-cache-relevant attributes changed
+            if changed and changed <= _NON_CACHE_RELEVANT_ATTRS:
+                continue
+
         keys = list(key_maker(obj).purge)
 
         if keys:
@@ -50,13 +85,8 @@ def store_purge_keys(config, session, flush_context):
                 "state": state,
                 "keys": sorted(keys),
             }
-            if state == "dirty":
-                try:
-                    changed = sorted(sa_inspect(obj).committed_state.keys())
-                except NoInspectionAvailable:
-                    changed = []
-                if changed:
-                    log_kw["changed_attrs"] = changed
+            if changed:
+                log_kw["changed_attrs"] = sorted(changed)
             logger.info("cache_purge_keys_generated", **log_kw)
 
         purges.update(keys)
