@@ -1,0 +1,101 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: opensearch-data
+  namespace: warehouse-dev
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: opensearch-credentials
+  namespace: warehouse-dev
+stringData:
+  OPENSEARCH_INITIAL_ADMIN_PASSWORD: gqYeDIzbEwTTYmB7
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opensearch
+  namespace: warehouse-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opensearch
+  template:
+    metadata:
+      labels:
+        app: opensearch
+    spec:
+      initContainers:
+        - name: sysctl
+          image: busybox
+          securityContext:
+            privileged: true
+          command: ["sysctl", "-w", "vm.max_map_count=262144"]
+      containers:
+        - name: opensearch
+          image: opensearchproject/opensearch:2.13.0
+          env:
+            - name: discovery.type
+              value: single-node
+            - name: DISABLE_INSTALL_DEMO_CONFIG
+              value: "true"
+            - name: DISABLE_SECURITY_PLUGIN
+              value: "true"
+            - name: DISABLE_PERFORMANCE_ANALYZER_AGENT_CLI
+              value: "true"
+            - name: OPENSEARCH_JAVA_OPTS
+              value: "-Xms512m -Xmx512m"
+          envFrom:
+            - secretRef:
+                name: opensearch-credentials
+          ports:
+            - containerPort: 9200
+            - containerPort: 9300
+          volumeMounts:
+            - name: data
+              mountPath: /usr/share/opensearch/data
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+          readinessProbe:
+            httpGet:
+              path: /_cluster/health
+              port: 9200
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /_cluster/health
+              port: 9200
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 10
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: opensearch-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: opensearch
+  namespace: warehouse-dev
+spec:
+  selector:
+    app: opensearch
+  ports:
+    - port: 9200
+      targetPort: 9200

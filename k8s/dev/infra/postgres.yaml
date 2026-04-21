@@ -1,0 +1,106 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-data
+  namespace: warehouse-dev
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-credentials
+  namespace: warehouse-dev
+stringData:
+  POSTGRES_USER: pypi
+  POSTGRES_PASSWORD: localdev123
+  POSTGRES_DB: pypi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-initdb
+  namespace: warehouse-dev
+data:
+  init-dbs.sh: |
+    #!/bin/bash
+    set -e
+    # Create additional databases for RSTUF if needed
+    psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
+        CREATE DATABASE rstuf;
+        GRANT ALL PRIVILEGES ON DATABASE rstuf TO pypi;
+    EOSQL
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: warehouse-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:17.5
+          envFrom:
+            - secretRef:
+                name: postgres-credentials
+          env:
+            - name: POSTGRES_HOST_AUTH_METHOD
+              value: "md5"
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+            - name: initdb
+              mountPath: /docker-entrypoint-initdb.d
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "pypi", "-d", "pypi"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "pypi", "-d", "pypi"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: postgres-data
+        - name: initdb
+          configMap:
+            name: postgres-initdb
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: warehouse-dev
+spec:
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432

@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: maildev
+  namespace: warehouse-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: maildev
+  template:
+    metadata:
+      labels:
+        app: maildev
+    spec:
+      containers:
+        - name: maildev
+          image: maildev/maildev:2.2.1
+          args:
+            - --web=1080
+            - --smtp=1025
+          ports:
+            - containerPort: 1080
+              name: web
+            - containerPort: 1025
+              name: smtp
+          resources:
+            requests:
+              memory: "32Mi"
+              cpu: "25m"
+            limits:
+              memory: "128Mi"
+              cpu: "100m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: maildev
+  namespace: warehouse-dev
+spec:
+  selector:
+    app: maildev
+  ports:
+    - port: 1080
+      targetPort: 1080
+      name: web
+    - port: 1025
+      targetPort: 1025
+      name: smtp

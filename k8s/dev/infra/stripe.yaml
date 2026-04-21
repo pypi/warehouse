@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stripe
+  namespace: warehouse-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stripe
+  template:
+    metadata:
+      labels:
+        app: stripe
+    spec:
+      containers:
+        - name: stripe
+          image: stripe/stripe-mock:v0.162.0
+          ports:
+            - containerPort: 12111
+          resources:
+            requests:
+              memory: "32Mi"
+              cpu: "25m"
+            limits:
+              memory: "128Mi"
+              cpu: "100m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: stripe
+  namespace: warehouse-dev
+spec:
+  selector:
+    app: stripe
+  ports:
+    - port: 12111
+      targetPort: 12111

@@ -28,15 +28,16 @@ endif
 # TODO: Flip to `sysmon` when we're on Python 3.14
 COVERAGE_CORE ?= ctrace
 
-default:
-	@echo "Call a specific subcommand:"
-	@echo
-	@$(MAKE) -pRrq -f $(lastword $(MAKEFILE_LIST)) : 2>/dev/null\
-	| awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}'\
-	| sort\
-	| egrep -v -e '^[^[:alnum:]]' -e '^$@$$'
-	@echo
-	@exit 1
+default: help
+
+.PHONY: help
+help: ## Show this help
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n"} \
+		/^[a-zA-Z_0-9-]+:.*?##/ { printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2 } \
+		/^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0, 5) } \
+		END { printf "\n" }' $(MAKEFILE_LIST)
+
+##@ Build
 
 .state/docker-build-base: Dockerfile package.json package-lock.json requirements/main.txt requirements/deploy.txt requirements/lint.txt requirements/tests.txt requirements/dev.txt
 	# Build our base container for this project.
@@ -70,63 +71,74 @@ default:
 	mkdir -p .state
 	touch .state/docker-build
 
-build:
+build: ## Build Docker containers
 	@$(MAKE) .state/docker-build
-
 	docker system prune -f --filter "label=com.docker.compose.project=warehouse"
 
-serve: .state/docker-build
+##@ Run
+
+serve: .state/docker-build ## Start development server
 	$(MAKE) .state/db-populated
 	$(MAKE) .state/search-indexed
 	docker compose up --remove-orphans
 
-debug: .state/docker-build-base
+debug: .state/docker-build-base ## Run web container with debugger support
 	docker compose run --rm --service-ports web
 
-tests: .state/docker-build-base
+##@ Testing
+
+tests: .state/docker-build-base ## Run test suite
 	docker compose run --rm --env COVERAGE=$(COVERAGE) --env COVERAGE_CORE=$(COVERAGE_CORE) tests bin/tests --postgresql-host db $(T) $(TESTARGS)
 
-static_tests: .state/docker-build-static
+static_tests: .state/docker-build-static ## Run frontend JavaScript tests
 	docker compose run --rm static bin/static_tests $(T) $(TESTARGS)
 
-static_pipeline: .state/docker-build-static
+static_pipeline: .state/docker-build-static ## Run static asset pipeline
 	docker compose run --rm static bin/static_pipeline $(T) $(TESTARGS)
 
-reformat: .state/docker-build-base
+##@ Code Quality
+
+reformat: .state/docker-build-base ## Format Python code
 	docker compose run --rm base bin/reformat
 
-lint: .state/docker-build-base .state/docker-build-static
+lint: .state/docker-build-base .state/docker-build-static ## Run linters
 	docker compose run --rm base bin/lint
 	docker compose run --rm static bin/static_lint
 
-dev-docs: .state/docker-build-docs
+##@ Documentation
+
+dev-docs: .state/docker-build-docs ## Build and serve developer docs
 	docker compose run --rm dev-docs bin/dev-docs
 
-user-docs: .state/docker-build-docs
+user-docs: .state/docker-build-docs ## Build and serve user docs
 	docker compose run --rm user-docs bin/user-docs
 
-blog: .state/docker-build-docs
+blog: .state/docker-build-docs ## Build blog
 	docker compose run --rm blog mkdocs build -f docs/mkdocs-blog.yml
 
-licenses: .state/docker-build-base
+##@ Dependencies
+
+licenses: .state/docker-build-base ## Check dependency licenses
 	docker compose run --rm base bin/licenses
 
-deps: .state/docker-build-base
+deps: .state/docker-build-base ## Compile dependencies
 	docker compose run --rm base bin/deps
 
-deps_upgrade_all: .state/docker-build-base
+deps_upgrade_all: .state/docker-build-base ## Upgrade all dependencies
 	docker compose run --rm base bin/deps-upgrade -a
 
-deps_upgrade_project: .state/docker-build-base
+deps_upgrade_project: .state/docker-build-base ## Upgrade specific package (P=package)
 	docker compose run --rm base bin/deps-upgrade -p $(P)
 
-translations: .state/docker-build-base
+translations: .state/docker-build-base ## Update translations
 	docker compose run --rm base bin/translations
 
 requirements/%.txt: requirements/%.in
 	docker compose run --rm base pip-compile --generate-hashes --output-file=$@ $<
 
-resetdb: .state/docker-build-base
+##@ Database
+
+resetdb: .state/docker-build-base ## Reset database to clean state
 	docker compose pause web worker
 	docker compose up -d db
 	docker compose exec --user postgres db /docker-entrypoint-initdb.d/init-dbs.sh
@@ -150,41 +162,82 @@ resetdb: .state/docker-build-base
 	$(MAKE) runmigrations
 	mkdir -p .state && touch .state/db-migrated
 
-initdb: .state/docker-build-base .state/db-populated
+initdb: .state/docker-build-base .state/db-populated ## Initialize database with sample data
 	$(MAKE) reindex
 
-inittuf: .state/db-migrated
+inittuf: .state/db-migrated ## Initialize TUF (The Update Framework)
 	docker compose up -d rstuf-api
 	docker compose up -d rstuf-worker
 	docker compose run --rm web python -m warehouse tuf bootstrap dev/rstuf/bootstrap.json --api-server http://rstuf-api
 
-runmigrations: .state/docker-build-base
+runmigrations: .state/docker-build-base ## Run database migrations
 	docker compose run --rm web python -m warehouse db upgrade head
 
-checkdb: .state/docker-build-base
+checkdb: .state/docker-build-base ## Check database migrations
 	docker compose run --rm web bin/db-check
 
-reindex: .state/docker-build-base
+reindex: .state/docker-build-base ## Reindex OpenSearch
 	docker compose run --rm web python -m warehouse search reindex
 
-shell: .state/docker-build-base
+shell: .state/docker-build-base ## Open Python shell with app context
 	docker compose run --rm web python -m warehouse shell
 
-totp: .state/docker-build-base
+totp: .state/docker-build-base ## Generate TOTP code for dev user
 	@docker compose run --rm base bin/devtotp
 
-dbshell: .state/docker-build-base
+dbshell: .state/docker-build-base ## Open PostgreSQL shell
 	docker compose run --rm web psql -h db -d warehouse -U postgres
 
-clean:
+##@ Cleanup
+
+clean: ## Remove generated SQL files
 	rm -rf dev/*.sql
 
-purge: stop clean
+purge: stop clean ## Stop containers and remove all state
 	rm -rf .state dev/.coverage* dev/.mypy_cache dev/.pip-cache dev/.pip-tools-cache dev/.pytest_cache .state/db-populated .state/db-migrated
 	docker compose down -v --remove-orphans
 	docker compose rm --force
 
-stop:
+stop: ## Stop all containers
 	docker compose stop
 
 .PHONY: default build serve resetdb initdb shell dbshell tests dev-docs user-docs deps deps_upgrade_all deps_upgrade_project clean purge debug stop compile-pot runmigrations checkdb
+
+##@ Tilt
+
+.PHONY: tilt-check
+tilt-check:
+	@command -v tilt >/dev/null 2>&1 || { echo "Error: tilt is not installed. Install from https://tilt.dev"; exit 1; }
+	@command -v kubectl >/dev/null 2>&1 || { echo "Error: kubectl is not installed"; exit 1; }
+
+.PHONY: tilt
+tilt: tilt-check ## Start Tilt dev environment (infrastructure only)
+	@printf "\n\033[1mWarehouse Tilt Development\033[0m\n"
+	@printf "==========================\n\n"
+	@printf "URLs (after startup):\n"
+	@printf "  Tilt UI:    http://localhost:10352\n"
+	@printf "  Cabotage:   http://cabotage.192-168-139-2.nip.io\n"
+	@printf "  Warehouse:  http://warehouse-dev.orb.local (after Cabotage deploy)\n"
+	@printf "  Maildev:    http://mail.warehouse-dev.orb.local\n"
+	@printf "\n"
+	tilt up --port 10352
+
+.PHONY: tilt-down
+tilt-down: ## Stop Tilt dev environment
+	tilt down
+
+.PHONY: tilt-status
+tilt-status: ## Show Tilt status
+	tilt get --host localhost:10352
+
+.PHONY: tilt-logs
+tilt-logs: ## Follow all Tilt logs
+	tilt logs -f --host localhost:10352
+
+.PHONY: tilt-bootstrap
+tilt-bootstrap: ## Bootstrap Warehouse in Cabotage (creates org/project/apps)
+	@printf "Bootstrapping Warehouse in Cabotage...\n"
+	cat scripts/bootstrap_cabotage.py | kubectl exec -i -n cabotage-dev deploy/cabotage-app -- \
+		sh -c "cd /opt/cabotage-app/src && python3"
+	@printf "\n\033[1;32mBootstrap complete!\033[0m\n"
+	@printf "Visit: http://cabotage.192-168-139-2.nip.io/organizations/warehouse\n"

@@ -1,0 +1,55 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: warehouse-ingress
+  namespace: warehouse-dev
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+spec:
+  ingressClassName: nginx
+  rules:
+    # Main warehouse web UI
+    - host: warehouse-dev.orb.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web
+                port:
+                  number: 8000
+    # Static files server
+    - host: files.warehouse-dev.orb.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: files
+                port:
+                  number: 9001
+    # Maildev web UI
+    - host: mail.warehouse-dev.orb.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: maildev
+                port:
+                  number: 1080
+    # Camo image proxy
+    - host: camo.warehouse-dev.orb.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: camo
+                port:
+                  number: 9000
