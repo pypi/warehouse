@@ -149,6 +149,43 @@
   </div>
   {% endfor %}
   {% endif %}
+  {% if request.has_permission(Permissions.AdminVulnerabilitiesRead) %}
+  <div class="card">
+    <div class="card-header">
+      <h3>Vulnerabilities ({{ release.vulnerabilities|length }})</h3>
+    </div>
+    <div class="card-body table-responsive p-0">
+      <table class="table table-hover table-striped">
+        <thead>
+          <tr>
+            <th>Source</th>
+            <th>ID</th>
+            <th>Aliases</th>
+            <th>Summary</th>
+            <th>Withdrawn</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for vulnerability in release.vulnerabilities %}
+          <tr>
+            <td>{{ vulnerability.source }}</td>
+            <td>
+              <a href="{{ request.route_path('admin.vulnerabilities.detail', source=vulnerability.source, id=vulnerability.id) }}">
+                {{ vulnerability.id }}
+              </a>
+            </td>
+            <td>{{ (vulnerability.aliases or []) | join(", ") }}</td>
+            <td>{{ vulnerability.summary or "" }}</td>
+            <td>{% if vulnerability.withdrawn %}{{ vulnerability.withdrawn|format_datetime() }}{% endif %}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5" class="text-center">No known vulnerabilities.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
   <div class="card">
     <div class="card-header">
       <h3>Journals</h3>

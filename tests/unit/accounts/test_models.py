@@ -173,6 +173,7 @@ class TestUser:
                     Permissions.AdminUsersEmailWrite,
                     Permissions.AdminUsersAccountRecoveryWrite,
                     Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminVulnerabilitiesRead,
                 ),
             ),
             (

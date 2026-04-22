@@ -182,6 +182,13 @@
               </li>
             </ul>
           </li>
+          {% if request.has_permission(Permissions.AdminVulnerabilitiesRead) %}
+          <li class="nav-item">
+            <a href="{{ request.route_path('admin.vulnerabilities.list') }}" class="nav-link">
+              <i class="fa-solid fa-bug-slash nav-icon"></i> <p>Vulnerabilities</p>
+            </a>
+          </li>
+          {% endif %}
           <li class="nav-item menu-closed">
             <a href="#" class="nav-link">
               <i class="nav-icon fa fa-ban"></i>
