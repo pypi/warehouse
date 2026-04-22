@@ -10,10 +10,12 @@ import botocore.exceptions
 import pretend
 import pytest
 
+from pyramid.httpexceptions import HTTPForbidden
 from zope.interface.verify import verifyClass
 
 import warehouse.packaging.services
 
+from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.packaging.interfaces import (
     IDocsStorage,
     IFileStorage,
@@ -1000,6 +1002,30 @@ class TestProjectService:
 
         with pytest.raises(ProjectNameUnavailableStdlibError):
             service.check_project_name(name)
+
+    def test_check_project_test_new_disallowed(self, db_request):
+        admin_flag = (
+            db_request.db.query(AdminFlag)
+            .filter(
+                AdminFlag.id == AdminFlagValue.DISALLOW_NEW_PROJECT_REGISTRATION.value
+            )
+            .first()
+        )
+        admin_flag.enabled = True
+
+        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+
+        service = ProjectService(session=db_request.db)
+
+        with pytest.raises(HTTPForbidden) as exc:
+            service.create_project("foo", pretend.stub(), db_request, ratelimited=False)
+
+        resp = exc.value
+        assert resp.status_code == 403
+        assert resp.detail == (
+            "New project registration temporarily disabled. See "
+            "/the/help/url/ for more information."
+        )
 
     def test_check_project_name_already_exists(self, db_session):
         service = ProjectService(session=db_session)
