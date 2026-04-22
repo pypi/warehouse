@@ -536,6 +536,28 @@ def includeme(config):
         domain=warehouse,
     )
 
+    # Vulnerability related Admin pages
+    config.add_route(
+        "admin.vulnerabilities.list",
+        "/admin/vulnerabilities/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.vulnerabilities.bulk_delete",
+        "/admin/vulnerabilities/bulk_delete/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.vulnerabilities.detail",
+        "/admin/vulnerabilities/{source}/{id}/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.vulnerabilities.detail.delete",
+        "/admin/vulnerabilities/{source}/{id}/delete/",
+        domain=warehouse,
+    )
+
     # Email related Admin pages
     config.add_route("admin.emails.list", "/admin/emails/", domain=warehouse)
     config.add_route("admin.emails.mass", "/admin/emails/mass/", domain=warehouse)
