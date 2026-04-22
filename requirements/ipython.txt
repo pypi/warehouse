@@ -1,1 +1,1 @@
-ipython>=9.2.0
+ipython>=9.12.0
