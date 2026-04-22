@@ -340,6 +340,37 @@ class TestScanArchive:
         assert matches[0][0] == "pkg/__init__.py"
 
 
+_PYE_CONTENT = (
+    "---BEGIN PYE FILE---\n"
+    "7F317779E38492A54E9BF64635306FEC7EA5E307\n"
+    "B3C9239BC70671E6600925E85BC957AE4C1C528E\n"
+    "----END PYE FILE----\n"
+)
+
+
+class TestSourceDefenderDetection:
+    def test_detects_pye_in_wheel(self, tmp_path, rules):
+        whl = _make_wheel(tmp_path, {"pkg/secret.pye": _PYE_CONTENT})
+        matches = scanner.scan_archive(whl, rules=rules)
+        assert len(matches) == 1
+        assert matches[0][0] == "pkg/secret.pye"
+        assert "sourcedefender_encrypted" in matches[0][1]
+
+    def test_detects_pye_in_tarball(self, tmp_path, rules):
+        tar = _make_tarball(tmp_path, {"fake-1.0/pkg/secret.pye": _PYE_CONTENT})
+        matches = scanner.scan_archive(tar, rules=rules)
+        assert len(matches) == 1
+        assert matches[0][0] == "fake-1.0/pkg/secret.pye"
+        assert "sourcedefender_encrypted" in matches[0][1]
+
+    def test_requires_both_markers(self, tmp_path, rules):
+        """A file with only the BEGIN marker must not match."""
+        whl = _make_wheel(
+            tmp_path, {"pkg/partial.pye": "---BEGIN PYE FILE---\nDEADBEEF\n"}
+        )
+        assert scanner.scan_archive(whl, rules=rules) == []
+
+
 class TestSpoofedFileSize:
     def test_iter_zip_members_yields_actual_data_length(self, tmp_path):
         """iter_zip_members must yield len(data), not the CD's file_size."""
