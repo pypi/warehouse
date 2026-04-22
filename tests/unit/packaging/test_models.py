@@ -164,6 +164,7 @@ class TestProject:
                     Permissions.AdminProjectsWrite,
                     Permissions.AdminRoleAdd,
                     Permissions.AdminRoleDelete,
+                    Permissions.AdminVulnerabilitiesRead,
                 ),
             ),
             (
@@ -294,6 +295,7 @@ class TestProject:
                     Permissions.AdminProjectsWrite,
                     Permissions.AdminRoleAdd,
                     Permissions.AdminRoleDelete,
+                    Permissions.AdminVulnerabilitiesRead,
                 ),
             ),
             (
@@ -383,6 +385,7 @@ class TestProject:
                     Permissions.AdminProjectsWrite,
                     Permissions.AdminRoleAdd,
                     Permissions.AdminRoleDelete,
+                    Permissions.AdminVulnerabilitiesRead,
                 ),
             ),
             (
@@ -919,6 +922,7 @@ class TestRelease:
                     Permissions.AdminProjectsWrite,
                     Permissions.AdminRoleAdd,
                     Permissions.AdminRoleDelete,
+                    Permissions.AdminVulnerabilitiesRead,
                 ),
             ),
             (
