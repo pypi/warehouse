@@ -4,18 +4,18 @@ import pretend
 
 from pyramid.httpexceptions import HTTPBadRequest
 
-from warehouse.forklift import utils
+from warehouse.forklift import errors
 
 
 class TestExcWithMessage:
     def test_exc_with_message(self):
-        exc = utils._exc_with_message(HTTPBadRequest, "My Test Message.")
+        exc = errors._exc_with_message(HTTPBadRequest, "My Test Message.")
         assert isinstance(exc, HTTPBadRequest)
         assert exc.status_code == 400
         assert exc.status == "400 My Test Message."
 
     def test_exc_with_exotic_message(self):
-        exc = utils._exc_with_message(
+        exc = errors._exc_with_message(
             HTTPBadRequest, "look at these wild chars: аÃ¤â€—"
         )
         assert isinstance(exc, HTTPBadRequest)
@@ -26,8 +26,8 @@ class TestExcWithMessage:
         sentry_sdk = pretend.stub(
             capture_message=pretend.call_recorder(lambda message: None)
         )
-        monkeypatch.setattr(utils, "sentry_sdk", sentry_sdk)
-        exc = utils._exc_with_message(HTTPBadRequest, "")
+        monkeypatch.setattr(errors, "sentry_sdk", sentry_sdk)
+        exc = errors._exc_with_message(HTTPBadRequest, "")
         assert isinstance(exc, HTTPBadRequest)
         assert exc.status_code == 400
         assert exc.status == "400 Bad Request"

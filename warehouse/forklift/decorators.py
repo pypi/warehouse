@@ -2,10 +2,91 @@
 
 import cgi
 
-from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden
+from pyramid.httpexceptions import HTTPForbidden
 
 from warehouse.admin.flags import AdminFlagValue
-from warehouse.forklift.utils import _exc_with_message
+from warehouse.forklift.errors import ForkliftError
+
+
+class InvalidTupleField(
+    ForkliftError,
+    message="{field}: Should not be a tuple.",
+    tags={"reason:field-is-tuple", "field:{field}"},
+):
+    pass
+
+
+class NoFileUpload(
+    ForkliftError,
+    message="Upload payload does not have a file.",
+    tags={"reason:no-file"},
+):
+    pass
+
+
+class InvalidContentType(
+    ForkliftError,
+    message="Invalid distribution file.",
+    tags={"reason:invalid-content-type"},
+):
+    pass
+
+
+class ReadOnlyEnabled(
+    ForkliftError,
+    error_type=HTTPForbidden,
+    message="Read-only mode: Uploads are temporarily disabled.",
+    tags={"reason:read-only"},
+):
+    pass
+
+
+class UploadsDisabled(
+    ForkliftError,
+    error_type=HTTPForbidden,
+    message="New uploads are temporarily disabled.",
+    help_anchor="admin-intervention",
+    tags={"reason:uploads-disabled"},
+):
+    pass
+
+
+class MissingIdentity(
+    ForkliftError,
+    error_type=HTTPForbidden,
+    message="Invalid or non-existent authentication information.",
+    help_anchor="invalid-auth",
+    tags={"reason:no-identity"},
+):
+    pass
+
+
+class UnverifiedEmail(
+    ForkliftError,
+    error_type=HTTPForbidden,
+    message=(
+        "User {username!r} does not have a verified primary email address. "
+        "Please add a verified primary email before attempting to "
+        "upload to PyPI."
+    ),
+    help_anchor="verified-email",
+    tags={"reason:unverified-email"},
+):
+    pass
+
+
+class MissingTwoFactor(
+    ForkliftError,
+    error_type=HTTPForbidden,
+    message=(
+        "User {username!r} does not have two-factor authentication enabled. "
+        "Please enable two-factor authentication before attempting to "
+        "upload to PyPI."
+    ),
+    help_anchor="two-factor-authentication",
+    tags={"reason:no-2fa"},
+):
+    pass
 
 
 def sanitize(wrapped):
@@ -42,13 +123,17 @@ def sanitize(wrapped):
         for field in set(request.POST) - {"content", "gpg_signature"}:
             values = request.POST.getall(field)
             if any(isinstance(value, cgi.FieldStorage) for value in values):
-                request.metrics.increment(
-                    "warehouse.upload.failed",
-                    tags=["reason:field-is-tuple", f"field:{field}"],
-                )
-                raise _exc_with_message(
-                    HTTPBadRequest, f"{field}: Should not be a tuple."
-                )
+                raise InvalidTupleField(field=field)
+
+        # Ensure that we have file data in the request.
+        if "content" not in request.POST:
+            raise NoFileUpload
+
+        # Check the content type of what is being uploaded
+        if not request.POST["content"].type or request.POST["content"].type.startswith(
+            "image/"
+        ):
+            raise InvalidContentType
 
         # Otherwise, we'll just dispatch to our underlying view
         return wrapped(context, request)
@@ -66,40 +151,17 @@ def ensure_uploads_allowed(wrapped):
         # The very first thing we want to check, is whether we're currently in
         # read only mode, because if we're in read only mode nothing else matters.
         if request.flags.enabled(AdminFlagValue.READ_ONLY):
-            request.metrics.increment(
-                "warehouse.upload.failed", tags=["reason:read-only"]
-            )
-            raise _exc_with_message(
-                HTTPForbidden, "Read-only mode: Uploads are temporarily disabled."
-            )
+            raise ReadOnlyEnabled
 
         # After that, we want to check if we're disallowing new uploads, which is
         # functionally the same as read only mode, but only for the upload endpoint.
         if request.flags.enabled(AdminFlagValue.DISALLOW_NEW_UPLOAD):
-            request.metrics.increment(
-                "warehouse.upload.failed", tags=["reason:uploads-disabled"]
-            )
-            raise _exc_with_message(
-                HTTPForbidden,
-                "New uploads are temporarily disabled. "
-                "See {projecthelp} for more information.".format(
-                    projecthelp=request.help_url(_anchor="admin-intervention")
-                ),
-            )
+            raise UploadsDisabled
 
         # Before we do anything else, if there isn't an authenticated identity with
         # this request, then we'll go ahead and bomb out.
         if request.identity is None:
-            request.metrics.increment(
-                "warehouse.upload.failed", tags=["reason:no-identity"]
-            )
-            raise _exc_with_message(
-                HTTPForbidden,
-                "Invalid or non-existent authentication information. "
-                "See {projecthelp} for more information.".format(
-                    projecthelp=request.help_url(_anchor="invalid-auth")
-                ),
-            )
+            raise MissingIdentity
 
         # Otherwise, we'll just dispatch to our underlying view
         return wrapped(context, request)

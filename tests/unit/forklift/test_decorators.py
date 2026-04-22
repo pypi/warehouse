@@ -5,7 +5,6 @@ import cgi
 import pretend
 import pytest
 
-from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden
 from pyramid.testing import DummyRequest
 from webob.multidict import MultiDict
 
@@ -21,6 +20,9 @@ class TestSanitizeRequest:
                     "foo": "UNKNOWN",
                     "bar": "  UNKNOWN ",
                     "real": "value",
+                    "content": cgi.FieldStorage(
+                        headers={"content-type": "application/octet-stream"},
+                    ),
                 }
             )
         )
@@ -28,13 +30,24 @@ class TestSanitizeRequest:
 
         @decorators.sanitize
         def wrapped(context, request):
+            # Remove the content field as it doesn't compare correctly.
+            del request.POST["content"]
             assert MultiDict({"real": "value"}) == request.POST
             return resp
 
         assert wrapped(pretend.stub(), req) is resp
 
     def test_escapes_nul_characters(self):
-        req = DummyRequest(post=MultiDict({"summary": "I want to go to the \x00"}))
+        req = DummyRequest(
+            post=MultiDict(
+                {
+                    "summary": "I want to go to the \x00",
+                    "content": cgi.FieldStorage(
+                        headers={"content-type": "application/octet-stream"},
+                    ),
+                }
+            )
+        )
         resp = pretend.stub()
 
         @decorators.sanitize
@@ -46,18 +59,26 @@ class TestSanitizeRequest:
 
     def test_fails_with_fieldstorage(self):
         req = DummyRequest(post=MultiDict({"keywords": cgi.FieldStorage()}))
-        req.metrics = pretend.stub(increment=lambda key, tags: None)
 
         @decorators.sanitize
         def wrapped(context, request):
             pytest.fail("wrapped view should not have been called")
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(decorators.InvalidTupleField) as excinfo:
             wrapped(pretend.stub(), req)
 
-        resp = excinfo.value
-        assert resp.status_code == 400
-        assert resp.status == "400 keywords: Should not be a tuple."
+        assert excinfo.value.values == {"field": "keywords"}
+
+    @pytest.mark.parametrize("content_type", [None, "image/foobar"])
+    def test_fails_invalid_content_type(self, content_type):
+        req = DummyRequest(post=MultiDict({"content": pretend.stub(type=content_type)}))
+
+        @decorators.sanitize
+        def wrapped(context, request):
+            pytest.fail("wrapped view should not have been called")
+
+        with pytest.raises(decorators.InvalidContentType):
+            wrapped(pretend.stub(), req)
 
 
 class TestEnsureUploadsAllowed:
@@ -90,58 +111,36 @@ class TestEnsureUploadsAllowed:
         assert wrapped(pretend.stub(), req) is resp
 
     @pytest.mark.parametrize(
-        ("flag", "error", "help_url"),
+        ("flag", "error_type"),
         [
             (
                 AdminFlagValue.READ_ONLY,
-                "Read-only mode: Uploads are temporarily disabled.",
-                "",
+                decorators.ReadOnlyEnabled,
             ),
             (
                 AdminFlagValue.DISALLOW_NEW_UPLOAD,
-                (
-                    "New uploads are temporarily disabled. "
-                    "See /help/url/ for more information."
-                ),
-                "/help/url/",
+                decorators.UploadsDisabled,
             ),
         ],
     )
-    def test_disallowed_with_admin_flags(self, flag, error, help_url):
+    def test_disallowed_with_admin_flags(self, flag, error_type):
         req = DummyRequest()
         req.flags = pretend.stub(enabled=lambda f: f is flag)
-        req.help_url = lambda *a, **k: help_url
-        req.metrics = pretend.stub(increment=lambda key, tags: None)
 
         @decorators.ensure_uploads_allowed
         def wrapped(context, request):
             pytest.fail("wrapped view should not have been called")
 
-        with pytest.raises(HTTPForbidden) as excinfo:
+        with pytest.raises(error_type):
             wrapped(pretend.stub(), req)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 403
-        assert resp.status == f"403 {error}"
 
     def test_fails_without_identity(self):
         req = DummyRequest()
         req.flags = pretend.stub(enabled=lambda f: False)
-        req.help_url = lambda *a, **k: "/path/to/help/"
-        req.metrics = pretend.stub(increment=lambda key, tags: None)
 
         @decorators.ensure_uploads_allowed
         def wrapped(context, request):
             pytest.fail("wrapped view should not have been called")
 
-        with pytest.raises(HTTPForbidden) as excinfo:
+        with pytest.raises(decorators.MissingIdentity):
             wrapped(pretend.stub(), req)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 403
-        assert resp.status == (
-            "403 Invalid or non-existent authentication information. "
-            "See /path/to/help/ for more information."
-        )
