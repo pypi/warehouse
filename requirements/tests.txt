@@ -273,9 +273,9 @@ mirakuru==3.0.2 \
     --hash=sha256:10e5dac4a8f26872c63e9cdfdc01b775aaa2beb3ced98abc497279d2dc525b8f \
     --hash=sha256:21192186a8680ea7567ca68170261df3785768b12962dd19fe8cccab15ad3441
     # via pytest-postgresql
-packaging==26.0 \
-    --hash=sha256:00243ae351a257117b6a241061796684b084ed1c516a08c48a3f7e147a9d80b4 \
-    --hash=sha256:b36f1fef9334a5588b4166f8bcd26a14e521f2b55e6b9de3aaa80d3ff7a37529
+packaging==26.1 \
+    --hash=sha256:5d9c0669c6285e491e0ced2eee587eaf67b670d94a19e94e3984a481aba6802f \
+    --hash=sha256:f042152b681c4bfac5cae2742a55e103d27ab2ec0f3d88037136b6bfe7c9c5de
     # via
     #   pytest
     #   pytest-postgresql

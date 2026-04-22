@@ -320,6 +320,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                     Permissions.AdminProjectsWrite,
                     Permissions.AdminRoleAdd,
                     Permissions.AdminRoleDelete,
+                    Permissions.AdminVulnerabilitiesRead,
                 ),
             ),
             (
