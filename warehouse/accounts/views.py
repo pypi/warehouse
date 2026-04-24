@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import datetime
+import functools
 import hashlib
 import json
 import uuid
@@ -1767,7 +1768,7 @@ class ManageAccountPublishingViews:
                 )
             )
 
-    @property
+    @functools.cached_property
     def default_response(self):
         return {
             "pending_github_publisher_form": self.pending_github_publisher_form,

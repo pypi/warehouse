@@ -4208,10 +4208,6 @@ class TestManageAccountPublishingViews:
             pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
             pretend.call(flag),
-            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
         ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
@@ -4348,10 +4344,6 @@ class TestManageAccountPublishingViews:
             pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
             pretend.call(flag),
-            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
         ]
         assert view.metrics.increment.calls == [
             pretend.call(
@@ -4494,14 +4486,6 @@ class TestManageAccountPublishingViews:
             pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
             pretend.call(flag),
-            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
         ]
         assert view.metrics.increment.calls == [
             pretend.call(
