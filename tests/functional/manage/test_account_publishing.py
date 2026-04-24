@@ -10,6 +10,8 @@ import responses
 from tests.common.constants import REMOTE_ADDR
 from tests.common.db.accounts import UserFactory, UserUniqueLoginFactory
 from tests.common.db.ip_addresses import IpAddressFactory
+from tests.common.db.oidc import GitHubPublisherFactory
+from tests.common.db.packaging import ProjectFactory, RoleFactory
 from warehouse.accounts.models import UniqueLoginStatus
 from warehouse.utils.otp import _get_totp
 
@@ -162,3 +164,48 @@ class TestManageAccountPublishing:
         assert success_message is not None
         assert "Registered a new pending publisher" in success_message.text
         assert "gitlab-project" in success_message.text
+
+    def test_get_publishing_page(self, webtest):
+        """
+        Visit the account publishing page for a user who owns several projects
+        with active OIDC publishers, and ensure the database query count stays
+        bounded — no N+1 over the user's projects or their publishers.
+        """
+        # Arrange: create a user with several projects, each carrying an OIDC
+        # publisher.
+        user = UserFactory.create(
+            with_verified_primary_email=True,
+            with_terms_of_service_agreement=True,
+            clear_pwd="password",
+        )
+        ip_address = IpAddressFactory.create(ip_address=REMOTE_ADDR)
+        UserUniqueLoginFactory.create(
+            user=user, ip_address=ip_address, status=UniqueLoginStatus.CONFIRMED
+        )
+
+        for _ in range(5):
+            project = ProjectFactory.create()
+            RoleFactory.create(user=user, project=project, role_name="Owner")
+            GitHubPublisherFactory.create(projects=[project])
+
+        # Log in with 2FA.
+        login_page = webtest.get("/account/login/", status=HTTPStatus.OK)
+        login_form = login_page.forms["login-form"]
+        login_form["username"] = user.username
+        login_form["password"] = "password"
+        two_factor_page = login_form.submit().follow(status=HTTPStatus.OK)
+        two_factor_form = two_factor_page.forms["totp-auth-form"]
+        two_factor_form["totp_value"] = (
+            _get_totp(user.totp_secret).generate(time.time()).decode()
+        )
+        two_factor_form.submit().follow(status=HTTPStatus.OK)
+
+        # Act: render the publishing page.
+        webtest.get("/manage/account/publishing/", status=HTTPStatus.OK)
+
+        # Assert: total query count is fixed regardless of the number of
+        # projects or publishers attached to them. The 7 queries are:
+        # ip-ban check, session user load, admin flags, projects with
+        # publishers (this view), user's organizations, pending publishers,
+        # active sponsors.
+        assert len(webtest.query_recorder.queries) == 7
