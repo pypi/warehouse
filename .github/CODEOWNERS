@@ -1,1 +1,27 @@
+# By default, everything is owned by our reviewers team.
 * @pypi/warehouse-reviewers
+
+# Frontend files are owned by both our reviewers team AND the frontend team,
+# which allows either team to approve a Pull Request, but it does not require
+# both to approve it.
+#
+# We have to keep @pypi/warehouse-reviewers here, because GitHub will only match
+# a path to a single line in the CODEOWNERS file, whichever line it matches last.
+.github/ISSUE_TEMPLATE/~visual-design.md @pypi/warehouse-reviewers @pypi/warehouse-frontend
+tests/frontend/*                         @pypi/warehouse-reviewers @pypi/warehouse-frontend
+warehouse/admin/static/*                 @pypi/warehouse-reviewers @pypi/warehouse-frontend
+warehouse/admin/templates/*              @pypi/warehouse-reviewers @pypi/warehouse-frontend
+warehouse/static/*                       @pypi/warehouse-reviewers @pypi/warehouse-frontend
+warehouse/templates/*                    @pypi/warehouse-reviewers @pypi/warehouse-frontend
+.stylelintrc.json                        @pypi/warehouse-reviewers @pypi/warehouse-frontend
+babel.cfg                                @pypi/warehouse-reviewers @pypi/warehouse-frontend
+babel.config.js                          @pypi/warehouse-reviewers @pypi/warehouse-frontend
+eslint.config.mjs                        @pypi/warehouse-reviewers @pypi/warehouse-frontend
+package-lock.json                        @pypi/warehouse-reviewers @pypi/warehouse-frontend
+package.json                             @pypi/warehouse-reviewers @pypi/warehouse-frontend
+webpack.config.js                        @pypi/warehouse-reviewers @pypi/warehouse-frontend
+webpack.plugin.localize.js               @pypi/warehouse-reviewers @pypi/warehouse-frontend
+
+# This is not *technically* a frontend file, but editing the frontend will likely
+# mean that these need to be regenerated, so we treat it like it's a frontend file.
+warehouse/locale @pypi/warehouse-reviewers @pypi/warehouse-frontend
