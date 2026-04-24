@@ -1770,7 +1770,18 @@ class ManageAccountPublishingViews:
 
     @functools.cached_property
     def default_response(self):
+        project_names_with_publishers = self.request.db.scalars(
+            select(Project.name)
+            .join(Role, Role.project_id == Project.id)
+            .where(
+                Role.user_id == self.request.user.id,
+                Project.oidc_publishers.any(),
+            )
+            .order_by(Project.normalized_name)
+        ).all()
+
         return {
+            "project_names_with_publishers": project_names_with_publishers,
             "pending_github_publisher_form": self.pending_github_publisher_form,
             "pending_gitlab_publisher_form": self.pending_gitlab_publisher_form,
             "pending_google_publisher_form": self.pending_google_publisher_form,
