@@ -11,7 +11,7 @@ import psycopg.types.json
 import pyramid_retry
 import sqlalchemy
 import venusian
-import zope.sqlalchemy
+import zope.sqlalchemy # type: ignore
 
 from pyramid.renderers import JSON
 from sqlalchemy import event, func, inspect
