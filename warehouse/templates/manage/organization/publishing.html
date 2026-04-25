@@ -386,6 +386,133 @@
   </div>
 </form>
 {% endmacro %}
+{% macro semaphore_form(request, pending_semaphore_publisher_form, organization) %}
+  <p>
+    {% trans href="https://docs.semaphoreci.com/using-semaphore/openid-connect/" %}
+    Read more about SemaphoreCI's OpenID Connect support <a href="{{ href }}">here</a>.
+  {% endtrans %}
+</p>
+{{ form_error_anchor(pending_semaphore_publisher_form) }}
+<form id="pending-semaphore-publisher-form"
+      method="post"
+      action="{{ request.route_path('manage.organization.publishing', organization_name=organization.normalized_name) }}#errors">
+  <input name="csrf_token"
+         type="hidden"
+         value="{{ request.session.get_csrf_token() }}">
+  {{ form_errors(pending_semaphore_publisher_form) }}
+  <div class="form-group">
+    <label for="project_name" class="form-group__label">
+      {% trans %}PyPI Project Name{% endtrans %}
+      {% if pending_semaphore_publisher_form.project_name.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+      {% endif %}
+    </label>
+    {{ pending_semaphore_publisher_form.project_name(placeholder=gettext("project name") ,
+    autocomplete="off",
+    autocapitalize="off",
+    spellcheck="false",
+    class_="form-group__field",
+    aria_describedby="project_name-errors")
+    }}
+    <p class="form-group__help-text">
+      {% trans organization_name=organization.name %}The project (on PyPI) that will be created and owned by the '{{ organization_name }}' organization when this publisher is used{% endtrans %}
+    </p>
+    <div id="project_name-errors">{{ field_errors(pending_semaphore_publisher_form.project_name) }}</div>
+  </div>
+  <div class="form-group">
+    <label for="organization" class="form-group__label">
+      {% trans %}SemaphoreCI Organization{% endtrans %}
+      {% if pending_semaphore_publisher_form.organization.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+      {% endif %}
+    </label>
+    {{ pending_semaphore_publisher_form.organization(placeholder=gettext("my-organization") ,
+    autocomplete="off",
+    autocapitalize="off",
+    spellcheck="false",
+    class_="form-group__field",
+    aria_describedby="organization-errors")
+    }}
+    <p class="form-group__help-text">{% trans %}The SemaphoreCI organization name{% endtrans %}</p>
+    <div id="organization-errors">{{ field_errors(pending_semaphore_publisher_form.organization) }}</div>
+  </div>
+  <div class="form-group">
+    <label for="semaphore_organization_id" class="form-group__label">
+      {% trans %}Organization ID{% endtrans %}
+      {% if pending_semaphore_publisher_form.semaphore_organization_id.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+      {% endif %}
+    </label>
+    {{ pending_semaphore_publisher_form.semaphore_organization_id(placeholder=gettext("xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx") ,
+    autocomplete="off",
+    autocapitalize="off",
+    spellcheck="false",
+    class_="form-group__field",
+    aria_describedby="semaphore_organization_id-errors")
+    }}
+    <p class="form-group__help-text">{% trans %}The UUID of your SemaphoreCI organization{% endtrans %}</p>
+    <div id="semaphore_organization_id-errors">{{ field_errors(pending_semaphore_publisher_form.semaphore_organization_id) }}</div>
+  </div>
+  <div class="form-group">
+    <label for="project" class="form-group__label">
+      {% trans %}SemaphoreCI Project name{% endtrans %}
+      {% if pending_semaphore_publisher_form.project.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+      {% endif %}
+    </label>
+    {{ pending_semaphore_publisher_form.project(placeholder=gettext("my-project") ,
+    autocomplete="off",
+    autocapitalize="off",
+    spellcheck="false",
+    class_="form-group__field",
+    aria_describedby="project-errors")
+    }}
+    <p class="form-group__help-text">
+      {% trans %}The SemaphoreCI project that will publish to PyPI{% endtrans %}
+    </p>
+    <div id="project-errors">{{ field_errors(pending_semaphore_publisher_form.project) }}</div>
+  </div>
+  <div class="form-group">
+    <label for="semaphore_project_id" class="form-group__label">
+      {% trans %}Project ID{% endtrans %}
+      {% if pending_semaphore_publisher_form.semaphore_project_id.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+      {% endif %}
+    </label>
+    {{ pending_semaphore_publisher_form.semaphore_project_id(placeholder=gettext("xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx") ,
+    autocomplete="off",
+    autocapitalize="off",
+    spellcheck="false",
+    class_="form-group__field",
+    aria_describedby="semaphore_project_id-errors")
+    }}
+    <p class="form-group__help-text">{% trans %}The UUID of your SemaphoreCI project{% endtrans %}</p>
+    <div id="semaphore_project_id-errors">{{ field_errors(pending_semaphore_publisher_form.semaphore_project_id) }}</div>
+  </div>
+  <div class="form-group">
+    <label for="repo_slug" class="form-group__label">
+      {% trans %}Repository{% endtrans %}
+      {% if pending_semaphore_publisher_form.repo_slug.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+      {% endif %}
+    </label>
+    {{ pending_semaphore_publisher_form.repo_slug(placeholder=gettext("owner/repo") ,
+    autocomplete="off",
+    autocapitalize="off",
+    spellcheck="false",
+    class_="form-group__field",
+    aria_describedby="repo_slug-errors")
+    }}
+    <p class="form-group__help-text">{% trans %}The repository slug in owner/repo format{% endtrans %}</p>
+    <div id="repo_slug-errors">{{ field_errors(pending_semaphore_publisher_form.repo_slug) }}</div>
+  </div>
+  <div>
+    <input type="submit"
+           value="{% trans %}Add{% endtrans %}"
+           class="button button--primary">
+  </div>
+</form>
+{% endmacro %}
 {% block main %}
   <section>
     <h1 class="page-title">{{ oidc_title() }}</h1>
@@ -405,7 +532,7 @@
     They can be used to create a new project on first upload.
   {% endtrans %}
 </p>
-{% if pending_github_publisher_form or pending_gitlab_publisher_form or pending_google_publisher_form or pending_activestate_publisher_form %}
+{% if pending_github_publisher_form or pending_gitlab_publisher_form or pending_google_publisher_form or pending_activestate_publisher_form or pending_semaphore_publisher_form %}
   {% if pending_oidc_publishers %}
     <table class="table table--publisher-list">
       <caption class="sr-only">{% trans %}Pending publishers for this organization{% endtrans %}</caption>
@@ -452,6 +579,7 @@
   ("GitLab", gitlab_form(request, pending_gitlab_publisher_form, organization)),
   ("Google", google_form(request, pending_google_publisher_form, organization)),
   ("ActiveState", activestate_form(request, pending_activestate_publisher_form, organization)),
+  ("SemaphoreCI", semaphore_form(request, pending_semaphore_publisher_form, organization)),
 ] %}
 <div class="horizontal-tabs"
      data-controller="horizontal-tabs"

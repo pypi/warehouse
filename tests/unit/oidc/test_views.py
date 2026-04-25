@@ -33,7 +33,11 @@ from warehouse.packaging import services
 from warehouse.packaging.models import Project
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
-from ...common.constants import DUMMY_ACTIVESTATE_OIDC_JWT, DUMMY_GITHUB_OIDC_JWT
+from ...common.constants import (
+    DUMMY_ACTIVESTATE_OIDC_JWT,
+    DUMMY_GITHUB_OIDC_JWT,
+    DUMMY_SEMAPHORE_OIDC_JWT,
+)
 
 
 def test_ratelimiters():
@@ -82,6 +86,7 @@ def test_oidc_audience():
     [
         (DUMMY_GITHUB_OIDC_JWT, "github"),
         (DUMMY_ACTIVESTATE_OIDC_JWT, "activestate"),
+        (DUMMY_SEMAPHORE_OIDC_JWT, "semaphore"),
     ],
 )
 def test_mint_token_from_oidc_not_enabled(token, service_name, request):

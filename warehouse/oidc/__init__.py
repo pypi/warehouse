@@ -6,6 +6,7 @@ import typing
 from celery.schedules import crontab
 
 from warehouse.oidc.interfaces import IOIDCPublisherService
+from warehouse.oidc.models import SEMAPHORE_OIDC_ISSUER_URL_SUFFIX
 from warehouse.oidc.services import OIDCPublisherServiceFactory
 from warehouse.oidc.tasks import compute_oidc_metrics, delete_expired_oidc_macaroons
 from warehouse.oidc.utils import (
@@ -60,6 +61,19 @@ def includeme(config: Configurator) -> None:
         ),
         IOIDCPublisherService,
         name="activestate",
+    )
+
+    # Semaphore uses org-specific issuer URLs (https://<org>.semaphoreci.com)
+    # The placeholder issuer URL here won't be used for verification;
+    # the actual issuer URL comes from the JWT itself
+    config.register_service_factory(
+        OIDCPublisherServiceFactory(
+            publisher="semaphore",
+            issuer_url=f"https://*{SEMAPHORE_OIDC_ISSUER_URL_SUFFIX}",
+            service_class=oidc_publisher_service_class,
+        ),
+        IOIDCPublisherService,
+        name="semaphore",
     )
 
     # During deployments, we separate auth routes into their own subdomain

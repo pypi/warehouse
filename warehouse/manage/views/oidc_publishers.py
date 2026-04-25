@@ -17,6 +17,7 @@ from warehouse.oidc.forms import (
     GitHubPublisherForm,
     GitLabPublisherForm,
     GooglePublisherForm,
+    SemaphorePublisherForm,
 )
 from warehouse.oidc.forms._core import ConstrainEnvironmentForm
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
@@ -26,6 +27,7 @@ from warehouse.oidc.models import (
     GitLabPublisher,
     GooglePublisher,
     OIDCPublisher,
+    SemaphorePublisher,
 )
 from warehouse.packaging import Project
 from warehouse.rate_limiting import IRateLimiter
@@ -61,6 +63,7 @@ class ManageOIDCPublisherViews:
         )
         self.google_publisher_form = GooglePublisherForm(self.request.POST)
         self.activestate_publisher_form = ActiveStatePublisherForm(self.request.POST)
+        self.semaphore_publisher_form = SemaphorePublisherForm(self.request.POST)
         self.prefilled_provider = None
 
     @property
@@ -101,6 +104,7 @@ class ManageOIDCPublisherViews:
             "gitlab_publisher_form": self.gitlab_publisher_form,
             "google_publisher_form": self.google_publisher_form,
             "activestate_publisher_form": self.activestate_publisher_form,
+            "semaphore_publisher_form": self.semaphore_publisher_form,
             "disabled": {
                 "GitHub": self.request.flags.disallow_oidc(
                     AdminFlagValue.DISALLOW_GITHUB_OIDC
@@ -113,6 +117,9 @@ class ManageOIDCPublisherViews:
                 ),
                 "ActiveState": self.request.flags.disallow_oidc(
                     AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC
+                ),
+                "SemaphoreCI": self.request.flags.disallow_oidc(
+                    AdminFlagValue.DISALLOW_SEMAPHORE_OIDC
                 ),
             },
             "prefilled_provider": self.prefilled_provider,
@@ -138,6 +145,7 @@ class ManageOIDCPublisherViews:
             "gitlab": self.gitlab_publisher_form,
             "google": self.google_publisher_form,
             "activestate": self.activestate_publisher_form,
+            "semaphore": self.semaphore_publisher_form,
         }
         params = self.request.params
         provider = params.get("provider")
@@ -728,6 +736,124 @@ class ManageOIDCPublisherViews:
 
         self.metrics.increment(
             "warehouse.oidc.add_publisher.ok", tags=["publisher:ActiveState"]
+        )
+
+        return HTTPSeeOther(self.request.path)
+
+    @view_config(
+        request_method="POST",
+        request_param=SemaphorePublisherForm.__params__,
+    )
+    def add_semaphore_oidc_publisher(self):
+        if self.request.flags.disallow_oidc(AdminFlagValue.DISALLOW_SEMAPHORE_OIDC):
+            self.request.session.flash(
+                self.request._(
+                    "SemaphoreCI-based trusted publishing is temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+            return self.default_response
+
+        self.metrics.increment(
+            "warehouse.oidc.add_publisher.attempt", tags=["publisher:SemaphoreCI"]
+        )
+
+        try:
+            self._check_ratelimits()
+        except TooManyOIDCRegistrations as exc:
+            self.metrics.increment(
+                "warehouse.oidc.add_publisher.ratelimited",
+                tags=["publisher:SemaphoreCI"],
+            )
+            return HTTPTooManyRequests(
+                self.request._(
+                    "There have been too many attempted trusted publisher "
+                    "registrations. Try again later."
+                ),
+                retry_after=exc.resets_in.total_seconds(),
+            )
+
+        self._hit_ratelimits()
+
+        response = self.default_response
+        form = response["semaphore_publisher_form"]
+
+        if not form.validate():
+            self.request.session.flash(
+                self.request._("The trusted publisher could not be registered"),
+                queue="error",
+            )
+            return response
+
+        # Check for an already registered publisher before creating.
+        publisher = (
+            self.request.db.query(SemaphorePublisher)
+            .filter(
+                SemaphorePublisher.organization == form.organization.data,
+                SemaphorePublisher.semaphore_organization_id
+                == form.semaphore_organization_id.data,
+                SemaphorePublisher.project == form.project.data,
+                SemaphorePublisher.semaphore_project_id
+                == form.semaphore_project_id.data,
+                SemaphorePublisher.repo_slug == form.repo_slug.data,
+            )
+            .one_or_none()
+        )
+        if publisher is None:
+            publisher = SemaphorePublisher(
+                organization=form.organization.data,
+                semaphore_organization_id=form.semaphore_organization_id.data,
+                project=form.project.data,
+                semaphore_project_id=form.semaphore_project_id.data,
+                repo_slug=form.repo_slug.data,
+            )
+
+            self.request.db.add(publisher)
+
+        # Each project has a unique set of OIDC publishers; the same
+        # publisher can't be registered to the project more than once.
+        if publisher in self.project.oidc_publishers:
+            self.request.session.flash(
+                self.request._(
+                    f"{publisher} is already registered with {self.project.name}"
+                ),
+                queue="error",
+            )
+            return response
+
+        for user in self.project.users:
+            send_trusted_publisher_added_email(
+                self.request,
+                user,
+                project_name=self.project.name,
+                publisher=publisher,
+            )
+
+        self.project.oidc_publishers.append(publisher)
+        self.request.db.flush()  # Ensure publisher.id is populated
+
+        self.project.record_event(
+            tag=EventTag.Project.OIDCPublisherAdded,
+            request=self.request,
+            additional={
+                "publisher": publisher.publisher_name,
+                "id": str(publisher.id),
+                "specifier": str(publisher),
+                "url": publisher.publisher_url(),
+                "submitted_by": self.request.user.username,
+                "reified_from_pending_publisher": False,
+                "constrained_from_existing_publisher": False,
+            },
+        )
+
+        self.request.session.flash(
+            f"Added {publisher} to {self.project.name}",
+            queue="success",
+        )
+
+        self.metrics.increment(
+            "warehouse.oidc.add_publisher.ok", tags=["publisher:SemaphoreCI"]
         )
 
         return HTTPSeeOther(self.request.path)
