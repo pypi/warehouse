@@ -219,6 +219,9 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
            build-essential \
            postgresql-client \
            oathtool \
+           fd-find \
+        # Debian renames the `fd` binary to `fdfind`, so we'll rename it back to `fd`.
+        && ln -s $(which fdfind) /usr/local/bin/fd \
         && apt-get clean \
         && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*; \
     fi
