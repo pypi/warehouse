@@ -9,6 +9,7 @@
 .state
 .idea
 .envrc
+.venv
 
 docs/dev/_build/
 docs/user/_build/
