@@ -221,14 +221,6 @@ class InvalidFilename(
     pass
 
 
-class InvalidWheelFilename(
-    ForkliftError,
-    message="Invalid filename {filename!r}: {msg}",
-    tags={"reason:invalid-filename", "filetype:bdist_wheel"},
-):
-    pass
-
-
 class UnnormalizedFilename(
     ForkliftError,
     message="Filename for {project!r} should contain the normalized project name {normalized!r}.",
@@ -1413,7 +1405,7 @@ def file_upload(request):
                     filename
                 )
             except packaging.utils.InvalidWheelFilename as e:
-                raise InvalidWheelFilename(filename=filename, msg=str(e))
+                raise InvalidFilename(filename=filename, filetype=form.filetype.data)
 
             for tag in tags:
                 if not _valid_platform_tag(tag.platform):
@@ -1538,7 +1530,7 @@ def file_upload(request):
                     Distribution(name=filename, digest=file_hashes["sha256"]),
                 )
             except AttestationUploadError as e:
-                raise InvalidAttestations(msg=e)
+                raise InvalidAttestations(msg=str(e))
 
         # Store the information about the file in the database.
         file_ = File(

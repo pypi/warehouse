@@ -69,6 +69,16 @@ class TestSanitizeRequest:
 
         assert excinfo.value.values == {"field": "keywords"}
 
+    def test_fails_without_file(self):
+        req = DummyRequest(post=MultiDict({}))
+
+        @decorators.sanitize
+        def wrapped(context, request):
+            pytest.fail("wrapped view should not have been called")
+
+        with pytest.raises(decorators.NoFileUpload):
+            wrapped(pretend.stub(), req)
+
     @pytest.mark.parametrize("content_type", [None, "image/foobar"])
     def test_fails_invalid_content_type(self, content_type):
         req = DummyRequest(post=MultiDict({"content": pretend.stub(type=content_type)}))
