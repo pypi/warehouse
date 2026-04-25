@@ -24,13 +24,13 @@ def autodetect():
 
 
 def bpython(**locals_):
-    import bpython # type: ignore
+    import bpython  # type: ignore
 
     bpython.embed(locals_)
 
 
 def ipython(**locals_):
-    from IPython import start_ipython # type: ignore
+    from IPython import start_ipython  # type: ignore
 
     start_ipython(argv=[], user_ns=locals_)
 
