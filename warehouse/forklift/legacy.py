@@ -386,6 +386,41 @@ class ProjectCreationRateLimited(
     pass
 
 
+class InvalidCoreMetadata(
+    ForkliftError,
+    message="{msg}",
+    help_url="https://packaging.python.org/specifications/core-metadata",
+    tags={"reason:invalid-metadata"},
+):
+    pass
+
+
+class InvalidLocalVersion(
+    ForkliftError,
+    message="{msg}",
+    help_url=(
+        "https://packaging.python.org/en/latest/specifications/"
+        "version-specifiers/#local-version-identifiers"
+    ),
+    tags={"reason:invalid-metadata"},
+):
+    pass
+
+
+class InvalidUploadMetadata(
+    ForkliftError,
+    message="Invalid value for {field}. Error: {msg}",
+    tags={"reason:invalid-form-data"},
+):
+    pass
+
+
+class MissingUploadMetadata(
+    ForkliftError, message="Error: {msg}", tags={"reason:invalid-form-data"}
+):
+    pass
+
+
 # Wheel platform checking
 
 # Note: defining new platform ABI compatibility tags that don't
@@ -855,41 +890,32 @@ def file_upload(request):
     form = UploadForm(request.POST)
 
     if not form.validate():
+        # We'll only return a single field's worth of errors, so we'll see if our more
+        # important fields are involved in the errors, and if so we'll select that
+        # field as the one whose error we'll return.
         for field_name in _error_message_order:
             if field_name in form.errors:
                 break
+        # Otherwise we'll just take the first field alphabetically as the field that
+        # we'll return an error from.
         else:
             field_name = sorted(form.errors.keys())[0]
 
         if field_name in form:
             field = form[field_name]
-            if field.description and isinstance(field, wtforms.StringField):
-                error_message = (
-                    "{value!r} is an invalid value for {field}. ".format(
-                        value=(
-                            field.data[:30] + "..." + field.data[-30:]
-                            if field.data and len(field.data) > 60
-                            else field.data or ""
-                        ),
-                        field=field.description,
-                    )
-                    + f"Error: {form.errors[field_name][0]} "
-                    + "See "
-                    "https://packaging.python.org/specifications/core-metadata"
-                    + " for more information."
+            if field.description:
+                raise InvalidCoreMetadata(
+                    msg=(
+                        f"{field.data!r} is an invalid value for "
+                        f"{field.description}: {form.errors[field_name][0]}"
+                    ),
                 )
             else:
-                error_message = (
-                    f"Invalid value for {field_name}. Error: "
-                    f"{form.errors[field_name][0]}"
+                raise InvalidUploadMetadata(
+                    field=field_name, msg=form.errors[field_name][0]
                 )
         else:
-            error_message = f"Error: {form.errors[field_name][0]}"
-
-        request.metrics.increment(
-            "warehouse.upload.failed", tags=["reason:invalid-form-data"]
-        )
-        raise _exc_with_message(HTTPBadRequest, error_message)
+            raise MissingUploadMetadata(msg=form.errors[field_name][0])
 
     # Get a validated Metadata object from the form data.
     # TODO: We should eventually extract this data out of the artifact and use that,
@@ -914,24 +940,10 @@ def file_upload(request):
         # for that field
         error = errors[field_name][0]
         error_msg = str(error)
-        request.metrics.increment(
-            "warehouse.upload.failed", tags=["reason:invalid-metadata"]
-        )
-        _see_url = (
-            "https://packaging.python.org/en/latest/specifications/"
-            "version-specifiers/#local-version-identifiers"
-            if field_name == "version"
-            and any("use of local versions" in str(e) for e in errors["version"])
-            else "https://packaging.python.org/specifications/core-metadata"
-        )
-        raise _exc_with_message(
-            HTTPBadRequest,
-            " ".join(
-                [
-                    error_msg + ("." if not error_msg.endswith(".") else ""),
-                    f"See {_see_url} for more information.",
-                ]
-            ),
+        if isinstance(error, metadata.InvalidLocalVersion):
+            raise InvalidLocalVersion(msg=error_msg)
+        raise InvalidCoreMetadata(
+            msg=error_msg + ("." if not error_msg.endswith(".") else "")
         )
 
     # Set a statement timeout for this connection to prevent long-running

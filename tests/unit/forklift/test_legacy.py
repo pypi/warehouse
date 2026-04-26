@@ -654,7 +654,7 @@ class TestFileUpload:
         assert excinfo.value.values == {"version": version}
 
     @pytest.mark.parametrize(
-        ("post_data", "message"),
+        ("post_data", "error_type", "expected"),
         [
             # metadata_version errors.
             (
@@ -665,9 +665,8 @@ class TestFileUpload:
                     "filetype": "sdist",
                     "pyversion": "source",
                 },
-                "None is not a valid metadata version. See "
-                "https://packaging.python.org/specifications/core-metadata for more "
-                "information.",
+                legacy.InvalidCoreMetadata,
+                {"msg": "None is not a valid metadata version."},
             ),
             (
                 {
@@ -678,27 +677,25 @@ class TestFileUpload:
                     "filetype": "sdist",
                     "pyversion": "source",
                 },
-                "'-1' is not a valid metadata version. See "
-                "https://packaging.python.org/specifications/core-metadata for more "
-                "information.",
+                legacy.InvalidCoreMetadata,
+                {"msg": "'-1' is not a valid metadata version."},
             ),
             # name errors.
             (
-                {"metadata_version": "1.2"},
-                "'' is an invalid value for Name. "
-                "Error: This field is required. "
-                "See "
-                "https://packaging.python.org/specifications/core-metadata"
-                " for more information.",
+                {},
+                legacy.InvalidCoreMetadata,
+                {"msg": "None is an invalid value for Name: This field is required."},
             ),
             (
-                {"metadata_version": "1.2", "name": "foo-"},
-                "'foo-' is an invalid value for Name. "
-                "Error: Start and end with a letter or numeral containing "
-                "only ASCII numeric and '.', '_' and '-'. "
-                "See "
-                "https://packaging.python.org/specifications/core-metadata"
-                " for more information.",
+                {"name": "foo-"},
+                legacy.InvalidCoreMetadata,
+                {
+                    "msg": (
+                        "'foo-' is an invalid value for Name: Start and end with a "
+                        "letter or numeral containing only ASCII numeric and '.', '_' "
+                        "and '-'."
+                    ),
+                },
             ),
             # version errors.
             (
@@ -709,9 +706,8 @@ class TestFileUpload:
                     "md5_digest": "bad",
                     "filetype": "sdist",
                 },
-                "'version' is a required field. See "
-                "https://packaging.python.org/specifications/core-metadata for "
-                "more information.",
+                legacy.InvalidCoreMetadata,
+                {"msg": "'version' is a required field."},
             ),
             (
                 {
@@ -721,9 +717,8 @@ class TestFileUpload:
                     "md5_digest": "bad",
                     "filetype": "sdist",
                 },
-                "'dog' is invalid for 'version'. See "
-                "https://packaging.python.org/specifications/core-metadata for "
-                "more information.",
+                legacy.InvalidCoreMetadata,
+                {"msg": "'dog' is invalid for 'version'."},
             ),
             (
                 {
@@ -733,74 +728,72 @@ class TestFileUpload:
                     "md5_digest": "bad",
                     "filetype": "sdist",
                 },
-                "'1.0.dev.a1' is invalid for 'version'. See "
-                "https://packaging.python.org/specifications/core-metadata for "
-                "more information.",
+                legacy.InvalidCoreMetadata,
+                {"msg": "'1.0.dev.a1' is invalid for 'version'."},
             ),
             # filetype/pyversion errors.
             (
                 {
-                    "metadata_version": "1.2",
                     "name": "example",
                     "version": "1.0",
                     "md5_digest": "bad",
                 },
-                "Invalid value for filetype. Error: This field is required.",
+                legacy.InvalidUploadMetadata,
+                {"field": "filetype", "msg": "This field is required."},
             ),
             (
                 {
-                    "metadata_version": "1.2",
                     "name": "example",
-                    "version": "1.0",
                     "filetype": "bdist_wheel",
-                    "content": "fake binary content",
                 },
-                "Invalid value for pyversion. "
-                "Error: Python version is required for binary distribution uploads.",
+                legacy.InvalidUploadMetadata,
+                {
+                    "field": "pyversion",
+                    "msg": "Python version is required for binary distribution uploads.",
+                },
             ),
             (
                 {
-                    "metadata_version": "1.2",
                     "name": "example",
-                    "version": "1.0",
                     "filetype": "bdist_wat",
                     "pyversion": "1.0",
                     "md5_digest": "bad",
                 },
-                "Invalid value for filetype. Error: Use a known file type.",
+                legacy.InvalidUploadMetadata,
+                {"field": "filetype", "msg": "Use a known file type."},
             ),
             (
                 {
-                    "metadata_version": "1.2",
                     "name": "example",
-                    "version": "1.0",
                     "filetype": "sdist",
                     "pyversion": "1.0",
                 },
-                "Invalid value for pyversion. "
-                "Error: Use 'source' as Python version for an sdist.",
+                legacy.InvalidUploadMetadata,
+                {
+                    "field": "pyversion",
+                    "msg": "Use 'source' as Python version for an sdist.",
+                },
             ),
             # digest errors.
             (
                 {
-                    "metadata_version": "1.2",
                     "name": "example",
-                    "version": "1.0",
                     "filetype": "sdist",
-                    "content": "fake binary content",
                 },
-                "Error: Include at least one message digest.",
+                legacy.MissingUploadMetadata,
+                {"msg": "Include at least one message digest."},
             ),
             (
                 {
-                    "metadata_version": "1.2",
                     "name": "example",
-                    "version": "1.0",
                     "filetype": "sdist",
                     "sha256_digest": "an invalid sha256 digest",
                 },
-                "Invalid value for sha256_digest. "
-                "Error: Use a valid, hex-encoded, SHA256 message digest.",
+                legacy.InvalidUploadMetadata,
+                {
+                    "field": "sha256_digest",
+                    "msg": "Use a valid, hex-encoded, SHA256 message digest.",
+                },
             ),
             # summary errors
             (
@@ -812,9 +805,8 @@ class TestFileUpload:
                     "md5_digest": "a fake md5 digest",
                     "summary": "A" * 513,
                 },
-                "'summary' field must be 512 characters or less. See "
-                "https://packaging.python.org/specifications/core-metadata for more "
-                "information.",
+                legacy.InvalidCoreMetadata,
+                {"msg": "'summary' field must be 512 characters or less."},
             ),
             (
                 {
@@ -825,9 +817,8 @@ class TestFileUpload:
                     "md5_digest": "a fake md5 digest",
                     "summary": "A\nB",
                 },
-                "'summary' must be a single line. See "
-                "https://packaging.python.org/specifications/core-metadata for more "
-                "information.",
+                legacy.InvalidCoreMetadata,
+                {"msg": "'summary' must be a single line."},
             ),
             # local version error
             (
@@ -838,15 +829,14 @@ class TestFileUpload:
                     "md5_digest": "bad",
                     "filetype": "sdist",
                 },
-                "The use of local versions in '1.0+local' is not allowed. "
-                "See https://packaging.python.org/en/latest/specifications/"
-                "version-specifiers/#local-version-identifiers for more information.",
+                legacy.InvalidLocalVersion,
+                {"msg": "The use of local versions in '1.0+local' is not allowed."},
             ),
         ],
     )
     @pytest.mark.filterwarnings("ignore:Creating a LegacyVersion.*:DeprecationWarning")
     def test_fails_invalid_post_data(
-        self, pyramid_config, db_request, post_data, message
+        self, pyramid_config, db_request, post_data, error_type, expected
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -854,13 +844,9 @@ class TestFileUpload:
         db_request.user = user
         db_request.POST = MultiDict(post_data)
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(error_type) as excinfo:
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == f"400 {message}"
+        assert excinfo.value.values == expected
 
     @pytest.mark.parametrize("name", ["requirements.txt", "rrequirements.txt"])
     def test_fails_with_invalid_names(self, pyramid_config, db_request, name):
@@ -1277,16 +1263,12 @@ class TestFileUpload:
             }
         )
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.InvalidUploadMetadata) as excinfo:
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert (
-            resp.status
-            == "400 Invalid value for filetype. Error: Use a known file type."
-        )
+        assert excinfo.value.values == {
+            "field": "filetype",
+            "msg": "Use a known file type.",
+        }
 
     def test_upload_fails_with_legacy_ext(self, pyramid_config, db_request):
         user = UserFactory.create()
@@ -1384,33 +1366,23 @@ class TestFileUpload:
         )
         db_request.POST.extend([("classifiers", "Invalid :: Classifier")])
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.InvalidCoreMetadata) as excinfo:
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == (
-            "400 'Invalid :: Classifier' is not a valid classifier. See "
-            "https://packaging.python.org/specifications/core-metadata for more "
-            "information."
-        )
+        assert excinfo.value.values == {
+            "msg": "'Invalid :: Classifier' is not a valid classifier."
+        }
 
     @pytest.mark.parametrize(
         ("deprecated_classifiers", "expected"),
         [
             (
                 {"AA :: BB": ["CC :: DD"]},
-                "400 The classifier 'AA :: BB' has been deprecated, use one of "
-                "['CC :: DD'] instead. See "
-                "https://packaging.python.org/specifications/core-metadata for more "
-                "information.",
+                "The classifier 'AA :: BB' has been deprecated, use one of "
+                "['CC :: DD'] instead.",
             ),
             (
                 {"AA :: BB": []},
-                "400 The classifier 'AA :: BB' has been deprecated. See "
-                "https://packaging.python.org/specifications/core-metadata for more "
-                "information.",
+                "The classifier 'AA :: BB' has been deprecated.",
             ),
         ],
     )
@@ -1452,13 +1424,9 @@ class TestFileUpload:
         db_request.POST.extend([("classifiers", classifier.classifier)])
         db_request.route_url = pretend.call_recorder(lambda *a, **kw: "/url")
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.InvalidCoreMetadata) as excinfo:
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == expected
+        assert excinfo.value.values == {"msg": expected}
 
     @pytest.mark.parametrize(
         "digests",
@@ -5511,18 +5479,14 @@ class TestFileUpload:
             IFileStorage: storage_service,
         }.get(svc)
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.InvalidCoreMetadata) as excinfo:
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == (
-            "400 License is deprecated when License-Expression is present. "
-            "Only License-Expression should be present. "
-            "See https://packaging.python.org/specifications/core-metadata "
-            "for more information."
-        )
+        assert excinfo.value.values == {
+            "msg": (
+                "License is deprecated when License-Expression is present. Only "
+                "License-Expression should be present."
+            )
+        }
 
     def test_upload_for_organization_owned_project_succeeds(
         self, pyramid_config, db_request, monkeypatch
