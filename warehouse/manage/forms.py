@@ -735,8 +735,9 @@ class CreateOrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationF
             self.form_errors.append(
                 _(
                     "You have already submitted the maximum number of "
-                    f"Organization requests ({self.max_applications})."
+                    "Organization requests (%s)."
                 )
+                % self.max_applications
             )
             return False
         return True
