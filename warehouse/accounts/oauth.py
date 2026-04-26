@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from pyramid.request import Request
 
 
-class IOAuthProviderService(Interface):  # noqa: N805
+class IOAuthProviderService(Interface):
     """
     Interface for OAuth provider clients.
 

@@ -29,9 +29,7 @@ if typing.TYPE_CHECKING:
 
 # We need to trick Celery into supporting rediss:// URLs which is how redis-py
 # signals that you should use Redis with TLS.
-celery.app.backends.BACKEND_ALIASES["rediss"] = (
-    "warehouse.tasks:TLSRedisBackend"  # noqa
-)
+celery.app.backends.BACKEND_ALIASES["rediss"] = "warehouse.tasks:TLSRedisBackend"
 
 
 logger = logging.getLogger(__name__)

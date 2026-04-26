@@ -110,7 +110,7 @@ def _connect_src_settings(config) -> list:
         # Incoming scheme could be http or https.
         scheme_replacement = "wss" if parsed_url.scheme == "https" else "ws"
 
-        replaced = parsed_url._replace(scheme=scheme_replacement)  # noqa
+        replaced = parsed_url._replace(scheme=scheme_replacement)
 
         settings.extend(
             [

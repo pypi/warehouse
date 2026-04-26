@@ -168,7 +168,7 @@ xmlrpc_cache_all_projects = functools.partial(
 
 
 class XMLRPCServiceUnavailable(XmlRpcError):  # noqa: N818
-    # NOQA due to N815 'mixedCase variable in class scope',
+
     # This is the interface for specifying fault code and string for XmlRpcError
     faultCode = -32403  # noqa: N815
     faultString = "server error; service unavailable"  # noqa: N815
@@ -178,7 +178,6 @@ class XMLRPCInvalidParamTypes(XmlRpcInvalidMethodParams):
     def __init__(self, exc):
         self.exc = exc
 
-    # NOQA due to N802 'function name should be lowercase'
     # This is the interface for specifying fault string for XmlRpcError
     @property
     def faultString(self):  # noqa: N802
@@ -187,12 +186,11 @@ class XMLRPCInvalidParamTypes(XmlRpcInvalidMethodParams):
 
 class XMLRPCWrappedError(xmlrpc.client.Fault):
     def __init__(self, exc):
-        # NOQA due to N815 'mixedCase variable in class scope',
+
         # This is the interface for specifying fault code and string for XmlRpcError
-        self.faultCode = -32500  # noqa: N815
+        self.faultCode = -32500
         self.wrapped_exception = exc
 
-    # NOQA due to N802 'function name should be lowercase'
     # This is the interface for specifying fault string for XmlRpcError
     @property
     def faultString(self):  # noqa: N802

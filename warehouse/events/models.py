@@ -121,14 +121,14 @@ class Event:
         source: HasEvents
 
     @declared_attr
-    def ip_address_id(cls):  # noqa: N805
+    def ip_address_id(cls):
         return mapped_column(
             ForeignKey("ip_addresses.id", onupdate="CASCADE", ondelete="CASCADE"),
             nullable=True,
         )
 
     @declared_attr
-    def ip_address(cls):  # noqa: N805
+    def ip_address(cls):
         return orm.relationship(IpAddress)
 
     @property
@@ -169,7 +169,7 @@ class HasEvents:
         Event: typing.Any
 
     @declared_attr
-    def events(cls: type[typing.Any]):  # noqa: N805
+    def events(cls: type[typing.Any]):
         # Returns AppenderQuery at runtime (`lazy="dynamic"`)
         # No return type annotation: `Mapped[]` implies `uselist=False`,
         # `typing.Any` triggers SQLAlchemy error
@@ -229,11 +229,9 @@ class HasEvents:
                     additional["user_agent_info"] = {
                         "installer": "Browser",
                         # See https://github.com/pypi/linehaul-cloud-function/issues/203
-                        "device": parsed_user_agent["device"]["family"],  # noqa: E501
+                        "device": parsed_user_agent["device"]["family"],
                         "os": parsed_user_agent["os"]["family"],
-                        "user_agent": parsed_user_agent["user_agent"][
-                            "family"
-                        ],  # noqa: E501
+                        "user_agent": parsed_user_agent["user_agent"]["family"],
                     }
                 else:
                     additional = additional or {}

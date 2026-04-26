@@ -293,7 +293,7 @@ SPONSORS_DICTS = [
     ),
     dict(
         name="Caktus Group",
-        url="https://www.caktusgroup.com/?utm_source=psf&amp;utm_medium=sponsor&amp;utm_campaign=caktus",  # noqa
+        url="https://www.caktusgroup.com/?utm_source=psf&amp;utm_medium=sponsor&amp;utm_campaign=caktus",  # noqa: E501
         image="caktus.png",
         activity=[
             "Caktus Group is a partner sponsor of the Python Software Foundation."
@@ -369,7 +369,7 @@ SPONSORS_DICTS = [
     ),
     dict(
         name="Tara AI",
-        url="http://tara.ai/?utm_source=PyCon&utm_medium=Sponsorship&utm_campaign=PyCon%202021",  # noqa
+        url="http://tara.ai/?utm_source=PyCon&utm_medium=Sponsorship&utm_campaign=PyCon%202021",  # noqa: E501
         image="tara.png",
         activity=["Tara AI is a partner sponsor of the Python Software Foundation."],
         footer=False,

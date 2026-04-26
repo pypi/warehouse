@@ -79,11 +79,11 @@ class WarehouseVisitor(ast.NodeVisitor):
                 return True
         return False
 
-    def visit_Assign(self, node: ast.Assign) -> None:  # noqa: N802
+    def visit_Assign(self, node: ast.Assign) -> None:
         self.check_for_backref(node)
         self.generic_visit(node)
 
-    def visit_AnnAssign(self, node: ast.AnnAssign) -> None:  # noqa: N802
+    def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
         self.check_for_backref(node)
         self.generic_visit(node)
 
@@ -123,11 +123,11 @@ class WarehouseVisitor(ast.NodeVisitor):
                         (kw.value.lineno, kw.value.col_offset, WH004_msg)
                     )
 
-    def visit_Call(self, node: ast.Call) -> None:  # noqa: N802
+    def visit_Call(self, node: ast.Call) -> None:
         self.check_metrics_tags(node)
         self.generic_visit(node)
 
-    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:  # noqa: N802
+    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
         for decorator in node.decorator_list:
             if (
                 isinstance(decorator, ast.Call)

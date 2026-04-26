@@ -302,7 +302,7 @@ class OrganizationApplicationFactory:
 
 class OrganizationMixin:
     @declared_attr
-    def __table_args__(cls):  # noqa: N805
+    def __table_args__(cls):
         return (
             CheckConstraint(
                 "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'::text",
@@ -699,7 +699,7 @@ class OrganizationApplication(OrganizationMixin, HasObservations, db.Model):
     __repr__ = make_repr("name")
 
     @declared_attr
-    def normalized_name(cls):  # noqa: N805
+    def normalized_name(cls):
         return column_property(func.normalize_pep426_name(cls.name))
 
     submitted_by_id: Mapped[UUID] = mapped_column(

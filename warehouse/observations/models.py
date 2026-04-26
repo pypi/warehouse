@@ -62,13 +62,13 @@ class HasObservers:
 
     @declared_attr
     def observer_association_id(
-        cls: type[typing.Any],  # noqa: N805
+        cls: type[typing.Any],
     ) -> Mapped[UUID | None]:
         return mapped_column(ForeignKey(f"{ObserverAssociation.__tablename__}.id"))
 
     @declared_attr
     def observer_association(
-        cls: type[typing.Any],  # noqa: N805
+        cls: type[typing.Any],
     ) -> Mapped[ObserverAssociation]:
         name = cls.__name__
         discriminator = name.lower()

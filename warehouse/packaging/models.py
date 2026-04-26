@@ -649,7 +649,7 @@ class Release(HasObservations, db.Model):
     __tablename__ = "releases"
 
     @declared_attr
-    def __table_args__(cls):  # noqa
+    def __table_args__(cls):
         return (
             Index("release_created_idx", cls.created.desc()),
             Index("release_project_created_idx", cls.project_id, cls.created.desc()),
@@ -834,7 +834,7 @@ class Release(HasObservations, db.Model):
     def urls_by_verify_status(self, *, verified: bool):
         matching_urls = {
             release_url.url
-            for release_url in self._project_urls.values()  # type: ignore[attr-defined] # noqa: E501
+            for release_url in self._project_urls.values()  # type: ignore[attr-defined]
             if release_url.verified == verified
         }
         if self.home_page and self.home_page_verified == verified:
@@ -942,7 +942,7 @@ class File(HasEvents, db.Model):
     __tablename__ = "release_files"
 
     @declared_attr
-    def __table_args__(cls):  # noqa
+    def __table_args__(cls):
         return (
             CheckConstraint("sha256_digest ~* '^[A-F0-9]{64}$'"),
             CheckConstraint("blake2_256_digest ~* '^[A-F0-9]{64}$'"),
@@ -1072,7 +1072,7 @@ class JournalEntry(db.ModelBase):
     __tablename__ = "journals"
 
     @declared_attr
-    def __table_args__(cls):  # noqa
+    def __table_args__(cls):
         return (
             Index("journals_changelog", "submitted_date", "name", "version", "action"),
             Index("journals_name_idx", "name"),

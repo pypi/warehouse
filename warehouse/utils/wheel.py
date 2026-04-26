@@ -56,7 +56,7 @@ _PLATFORMS = [
     ),
     (
         re.compile(r"^pyemscripten_(\d+)_(\d+)_wasm32$"),
-        lambda m: f"PyEmscripten {m.group(1)}.{m.group(2)} wasm32",  # noqa: E501
+        lambda m: f"PyEmscripten {m.group(1)}.{m.group(2)} wasm32",
     ),
 ]
 
