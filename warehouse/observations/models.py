@@ -208,7 +208,7 @@ class HasObservations:
     """
 
     @declared_attr
-    def observations(cls: type[typing.Any]) -> Mapped[list[Observation]]:  # noqa: N805
+    def observations(cls: type[typing.Any]) -> Mapped[list[Observation]]:
         cls.Observation = type(
             f"{cls.__name__}Observation",
             (Observation, db.Model),

@@ -214,10 +214,10 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
         return primary_email.email if primary_email else None
 
     @email.expression  # type: ignore
-    def email(self):
+    def email(cls):
         return (
             select(Email.email)
-            .where((Email.user_id == self.id) & (Email.primary.is_(True)))
+            .where((Email.user_id == cls.id) & (Email.primary.is_(True)))
             .scalar_subquery()
         )
 

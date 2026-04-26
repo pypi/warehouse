@@ -1028,8 +1028,8 @@ class File(HasEvents, db.Model):
         return self.path + ".metadata"
 
     @metadata_path.expression  # type: ignore
-    def metadata_path(self):
-        return func.concat(self.path, ".metadata")
+    def metadata_path(cls):
+        return func.concat(cls.path, ".metadata")
 
     @validates("requires_python")
     def validates_requires_python(self, *args, **kwargs):
