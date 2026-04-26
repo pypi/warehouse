@@ -107,12 +107,6 @@ class ForkliftError(Exception):
         super().__init__(self.message, *args)
 
     def as_http_exception(self, request):
-        # TODO: Is this something we still need to worry about?
-        if not self.message:
-            sentry_sdk.capture_message(
-                "Attempting to _exc_with_message without a message"
-            )
-
         # Append the standard "see X for more info" message to our message if there
         # a help url associated with this error.
         # TODO: Handle _help_url, and multiples and _user_docs_anchor, _user_docs_path

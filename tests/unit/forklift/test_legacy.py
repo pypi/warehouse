@@ -30,6 +30,7 @@ import warehouse.constants
 from warehouse.accounts.utils import UserContext
 from warehouse.attestations.interfaces import IIntegrityService
 from warehouse.classifiers.models import Classifier
+from warehouse.errors import WarehouseDenied
 from warehouse.forklift import legacy, metadata
 from warehouse.macaroons import IMacaroonService, caveats, security_policy
 from warehouse.metrics import IMetricsService
@@ -2370,6 +2371,43 @@ class TestFileUpload:
             "project": project.name,
             "username": user2.username,
         }
+
+    def test_upload_fails_with_permission_reason(self, pyramid_config, db_request):
+        user1 = UserFactory.create()
+        EmailFactory.create(user=user1)
+        user2 = UserFactory.create()
+        EmailFactory.create(user=user2)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user1, project=project)
+
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
+
+        pyramid_config.testing_securitypolicy(identity=user2, permissive=False)
+        db_request.user = user2
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "sdist",
+                "md5_digest": "nope!",
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    type="application/tar",
+                ),
+            }
+        )
+        db_request.has_permission = lambda perm, ctx: WarehouseDenied(
+            "bad stuff", reason="a reason for stuff"
+        )
+
+        with pytest.raises(legacy.PermissionDenied) as excinfo:
+            legacy.file_upload(db_request)
+        assert excinfo.value.values == {"msg": "bad stuff"}
 
     def test_upload_fails_without_oidc_publisher_permission(
         self, pyramid_config, db_request
