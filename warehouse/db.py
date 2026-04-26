@@ -21,7 +21,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 from warehouse.metrics import IMetricsService
 from warehouse.utils.attrs import make_repr
 
-__all__ = ["includeme", "metadata", "ModelBase", "Model"]
+__all__ = ["Model", "ModelBase", "includeme", "metadata"]
 
 
 logger = logging.getLogger(__name__)

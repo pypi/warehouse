@@ -43,14 +43,14 @@ from warehouse.organizations.services import IOrganizationService
 from warehouse.utils.security_policy import MultiSecurityPolicy
 
 __all__ = [
-    "NullPasswordBreachedService",
-    "HaveIBeenPwnedPasswordBreachedService",
-    "NullEmailBreachedService",
-    "HaveIBeenPwnedEmailBreachedService",
     "GitHubAppClient",
     "GitLabOAuthClient",
+    "HaveIBeenPwnedEmailBreachedService",
+    "HaveIBeenPwnedPasswordBreachedService",
+    "NullEmailBreachedService",
     "NullGitHubOAuthClient",
     "NullGitLabOAuthClient",
+    "NullPasswordBreachedService",
 ]
 
 
