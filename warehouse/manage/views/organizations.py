@@ -217,7 +217,7 @@ class ManageOrganizationsViews:
     def manage_organizations(self):
         # Organizations must be enabled.
         if not self.request.organization_access:
-            raise HTTPNotFound()
+            raise HTTPNotFound
 
         return self.default_response
 
@@ -228,7 +228,7 @@ class ManageOrganizationsViews:
     def create_organization_application(self):
         # Organizations must be enabled.
         if not self.request.organization_access:
-            raise HTTPNotFound()
+            raise HTTPNotFound
 
         form = CreateOrganizationApplicationForm(
             self.request.POST,
@@ -662,7 +662,7 @@ class ManageOrganizationBillingViews:
     def create_or_manage_subscription(self):
         # Organizations must be enabled.
         if not self.request.organization_access:
-            raise HTTPNotFound()
+            raise HTTPNotFound
 
         if not self.organization.manageable_subscription:
             # Create subscription if there are no manageable subscription.
@@ -989,7 +989,7 @@ def _send_organization_invitation(request, organization, role_name, user):
         if not organization.is_in_good_standing():
             request.session.flash(
                 request._(
-                    "Cannot invite new member. Organization is not in good " "standing."
+                    "Cannot invite new member. Organization is not in good standing."
                 ),
                 queue="error",
             )

@@ -1592,8 +1592,7 @@ class TestGetTimelineTrends:
                     "action": "some_other_action",
                     "actor": "system",
                 },
-                int(now.timestamp())
-                + 1: {
+                int(now.timestamp()) + 1: {
                     "action": "remove_malware",
                     "actor": "admin",
                     "created_at": str(now),

@@ -184,8 +184,7 @@ def vulnerability_bulk_delete(request: Request) -> HTTPSeeOther:
 
     if confirm != q:
         request.session.flash(
-            "Confirmation did not match the filter. "
-            "No vulnerabilities were deleted.",
+            "Confirmation did not match the filter. No vulnerabilities were deleted.",
             queue="error",
         )
         return HTTPSeeOther(

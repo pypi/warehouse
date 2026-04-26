@@ -61,7 +61,6 @@ class TestSanitizeRequest:
 
 
 class TestEnsureUploadsAllowed:
-
     def test_success_with_user(self):
         req = pretend.stub(
             flags=pretend.stub(enabled=lambda f: False),

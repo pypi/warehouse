@@ -1876,7 +1876,7 @@ class TestHaveIBeenPwnedPasswordBreachedService:
     def test_http_failure(self):
         @pretend.call_recorder
         def raiser():
-            raise requests.RequestException()
+            raise requests.RequestException
 
         response = pretend.stub(raise_for_status=raiser)
         session = pretend.stub(get=lambda url: response)

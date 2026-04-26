@@ -22,6 +22,8 @@ if typing.TYPE_CHECKING:
     from pyramid.request import Request
     from requests import Session
 
+logger = logging.getLogger(__name__)
+
 
 @implementer(IHelpDeskService)
 class ConsoleHelpDeskService:
@@ -34,7 +36,7 @@ class ConsoleHelpDeskService:
 
     @classmethod
     def create_service(cls, _context, _request) -> ConsoleHelpDeskService:
-        logging.debug("Creating ConsoleHelpDeskService")
+        logger.debug("Creating ConsoleHelpDeskService")
         return cls()
 
     def create_conversation(self, *, request_json: dict) -> str:
@@ -76,7 +78,7 @@ class HelpScoutService:
         """
         Create the service, given the context and request, and authenticate
         """
-        logging.debug("Creating HelpScoutService")
+        logger.debug("Creating HelpScoutService")
 
         _app_id = request.registry.settings["helpscout.app_id"]
         _app_secret = request.registry.settings["helpscout.app_secret"]
@@ -188,7 +190,7 @@ class SlackAdminNotificationService:
         """
         Create the service, given the context and request
         """
-        logging.debug("Creating SlackAdminNotificationService")
+        logger.debug("Creating SlackAdminNotificationService")
         return cls(
             session=request.http,
             webhook_url=request.registry.settings["helpdesk.notification_service_url"],

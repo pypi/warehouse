@@ -1023,9 +1023,9 @@ def file_upload(request):
                     raise _exc_with_message(
                         HTTPBadRequest,
                         "File too large. "
-                        + f"Limit for project {project.name!r} is "
-                        + f"{file_size_limit // ONE_MIB} MB. "
-                        + "See "
+                        f"Limit for project {project.name!r} is "
+                        f"{file_size_limit // ONE_MIB} MB. "
+                        "See "
                         + request.user_docs_url(
                             "/project-management/storage-limits",
                             anchor="requesting-a-file-size-limit-increase",
@@ -1036,9 +1036,9 @@ def file_upload(request):
                     raise _exc_with_message(
                         HTTPBadRequest,
                         "Project size too large. Limit for "
-                        + f"project {project.name!r} total size is "
-                        + f"{project_size_limit // ONE_GIB} GB. "
-                        + "See "
+                        f"project {project.name!r} total size is "
+                        f"{project_size_limit // ONE_GIB} GB. "
+                        "See "
                         + request.user_docs_url(
                             "/project-management/storage-limits",
                             anchor="requesting-a-project-size-limit-increase",
@@ -1091,8 +1091,8 @@ def file_upload(request):
                 # ref: https://github.com/pypi/warehouse/issues/3482
                 # ref: https://github.com/pypa/twine/issues/332
                 "File already exists "
-                + f"({filename!r}, with blake2_256 hash {file_hashes['blake2_256']!r})."
-                + " See "
+                f"({filename!r}, with blake2_256 hash {file_hashes['blake2_256']!r})."
+                " See "
                 + request.help_url(_anchor="file-name-reuse")
                 + " for more information.",
             )
@@ -1156,7 +1156,6 @@ def file_upload(request):
 
         # Check that the sdist filename is correct
         if form.filetype.data == "sdist":
-
             # Extract the project name and version from the filename and check it.
             try:
                 name_from_filename, _version_from_filename = (
@@ -1656,7 +1655,7 @@ def file_upload(request):
         "obsoletes_dist": meta.obsoletes_dist,
         "requires_external": meta.requires_external,
         "project_urls": (
-            [", ".join([k, v]) for k, v in meta.project_urls.items()]
+            [f"{k}, {v}" for k, v in meta.project_urls.items()]
             if meta.project_urls is not None
             else None
         ),

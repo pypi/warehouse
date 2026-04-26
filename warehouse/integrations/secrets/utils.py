@@ -15,7 +15,6 @@ from warehouse.metrics import IMetricsService
 
 
 class DisclosureOrigin:
-
     def __init__(
         self, name, key_id_header, signature_header, verification_url, api_token=None
     ):

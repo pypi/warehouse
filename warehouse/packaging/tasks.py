@@ -133,12 +133,12 @@ def reconcile_file_storages(request):
 
     batch_size = request.registry.settings["reconcile_file_storages.batch_size"]
 
-    logger.info(f"Running reconcile_file_storages with batch_size {batch_size}...")
+    logger.info("Running reconcile_file_storages with batch_size %s...", batch_size)
 
     files_batch = request.db.query(File).filter_by(cached=False).limit(batch_size)
 
     for file in files_batch.all():
-        logger.info(f"Checking File<{file.id}> ({file.path})...")
+        logger.info("Checking File<%s> (%s)...", file.id, file.path)
         archive_checksums = fetch_checksums(archive_storage, file)
         cache_checksums = fetch_checksums(cache_storage, file)
 
@@ -157,7 +157,7 @@ def reconcile_file_storages(request):
                 == expected_checksums.metadata_file
             )
         ):
-            logger.info(f"    File<{file.id}> ({file.path}) is all good ✨")
+            logger.info("    File<%s> (%s) is all good ✨", file.id, file.path)
             file.cached = True
         else:
             errors = []
@@ -168,8 +168,9 @@ def reconcile_file_storages(request):
                 # No worries, a consistent file is in archive but not cache
                 _copy_file_to_cache(archive_storage, cache_storage, file.path)
                 logger.info(
-                    f"    File<{file.id}> distribution ({file.path}) "
-                    "pulled from archive ⬆️"
+                    "File<%s> distribution (%s) pulled from archive ⬆️",
+                    file.id,
+                    file.path,
                 )
                 metrics.increment(
                     "warehouse.filestorage.reconciled", tags=["type:dist"]
@@ -178,14 +179,15 @@ def reconcile_file_storages(request):
                 archive_checksums.file == cache_checksums.file
                 and archive_checksums.file is not None
             ):
-                logger.info(f"    File<{file.id}> distribution ({file.path}) is ok ✅")
+                logger.info("File<%s> distribution (%s) is ok ✅", file.id, file.path)
             else:
                 metrics.increment(
                     "warehouse.filestorage.unreconciled", tags=["type:dist"]
                 )
                 logger.error(
-                    f"Unable to reconcile stored File<{file.id}> distribution "
-                    f"({file.path}) ❌"
+                    "Unable to reconcile stored File<%s> distribution (%s) ❌",
+                    file.id,
+                    file.path,
                 )
                 errors.append(file.path)
 
@@ -196,8 +198,9 @@ def reconcile_file_storages(request):
                 # The only file we have is in archive, so use that for cache
                 _copy_file_to_cache(archive_storage, cache_storage, file.metadata_path)
                 logger.info(
-                    f"    File<{file.id}> METADATA ({file.metadata_path}) "
-                    "pulled from archive ⬆️"
+                    "File<%s> METADATA (%s) pulled from archive ⬆️",
+                    file.id,
+                    file.metadata_path,
                 )
                 metrics.increment(
                     "warehouse.filestorage.reconciled", tags=["type:metadata"]
@@ -205,15 +208,16 @@ def reconcile_file_storages(request):
             elif expected_checksums.metadata_file:
                 if archive_checksums.metadata_file == cache_checksums.metadata_file:
                     logger.info(
-                        f"    File<{file.id}> METADATA ({file.metadata_path}) is ok ✅"
+                        "File<%s> METADATA (%s) is ok ✅", file.id, file.metadata_path
                     )
                 else:
                     metrics.increment(
                         "warehouse.filestorage.unreconciled", tags=["type:metadata"]
                     )
                     logger.error(
-                        f"Unable to reconcile stored File<{file.id}> METADATA "
-                        f"({file.metadata_path}) ❌"
+                        "Unable to reconcile stored File<%s> METADATA (%s) ❌",
+                        file.id,
+                        file.metadata_path,
                     )
                     errors.append(file.metadata_path)
 

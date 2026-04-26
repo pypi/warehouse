@@ -260,7 +260,7 @@ def includeme(config: Configurator) -> None:
     # Only redis is supported as a broker
     assert broker_url.startswith("redis")
 
-    parsed_url = urllib.parse.urlparse(  # noqa: WH001, going to urlunparse this
+    parsed_url = urllib.parse.urlparse(  # noqa: TID251, going to urlunparse this
         broker_url
     )
     parsed_query = urllib.parse.parse_qs(parsed_url.query)

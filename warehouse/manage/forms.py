@@ -129,8 +129,7 @@ class SaveAccountForm(wtforms.Form):
             wtforms.validators.Length(
                 max=100,
                 message=_(
-                    "The name is too long. "
-                    "Choose a name with 100 characters or less."
+                    "The name is too long. Choose a name with 100 characters or less."
                 ),
             )
         ]
@@ -798,10 +797,7 @@ class SaveTeamForm(wtforms.Form):
         # - The name conflict is with the current team.
         if team_id is not None and team_id != self.team_id:
             raise wtforms.validators.ValidationError(
-                _(
-                    "This team name has already been used. "
-                    "Choose a different team name."
-                )
+                _("This team name has already been used. Choose a different team name.")
             )
 
 
@@ -822,8 +818,7 @@ class AddAlternateRepositoryForm(wtforms.Form):
             wtforms.validators.Length(
                 max=100,
                 message=_(
-                    "The name is too long. "
-                    "Choose a name with 100 characters or less."
+                    "The name is too long. Choose a name with 100 characters or less."
                 ),
             ),
         ]

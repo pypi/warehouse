@@ -24,12 +24,14 @@ def _get_remaining_logins_to_update(conn):
 
 
 def _get_remaining_ips_to_insert(conn):
-    return conn.execute(sa.text("""
+    return conn.execute(
+        sa.text("""
 SELECT COUNT(DISTINCT user_unique_logins.ip_address)
 FROM user_unique_logins
 LEFT JOIN ip_addresses ON user_unique_logins.ip_address::inet = ip_addresses.ip_address
 WHERE ip_addresses.id IS NULL AND user_unique_logins.ip_address IS NOT NULL
-""")).scalar_one()
+""")
+    ).scalar_one()
 
 
 def upgrade():

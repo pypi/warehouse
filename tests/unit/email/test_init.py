@@ -196,8 +196,9 @@ class TestSendEmailToUser:
     def test_doesnt_send_within_repeat_window(self, pyramid_request, pyramid_services):
         email_service = pretend.stub(
             last_sent=pretend.call_recorder(
-                lambda to, subject: datetime.datetime.now()
-                - datetime.timedelta(seconds=69)
+                lambda to, subject: (
+                    datetime.datetime.now() - datetime.timedelta(seconds=69)
+                )
             )
         )
         pyramid_services.register_service(email_service, IEmailSender, None, name="")
@@ -220,8 +221,9 @@ class TestSendEmailToUser:
     def test_sends_when_outside_repeat_window(self, db_request, pyramid_services):
         email_service = pretend.stub(
             last_sent=pretend.call_recorder(
-                lambda to, subject: datetime.datetime.now()
-                - datetime.timedelta(seconds=69)
+                lambda to, subject: (
+                    datetime.datetime.now() - datetime.timedelta(seconds=69)
+                )
             )
         )
         pyramid_services.register_service(email_service, IEmailSender, None, name="")

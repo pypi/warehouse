@@ -248,11 +248,11 @@ def accounts_search(request) -> dict[str, list[User]]:
     User must be logged in.
     """
     if request.user is None:
-        raise HTTPUnauthorized()
+        raise HTTPUnauthorized
 
     form = UsernameSearchForm(request.params)
     if not form.validate():
-        raise HTTPBadRequest()
+        raise HTTPBadRequest
 
     search_limiter = request.find_service(IRateLimiter, name="accounts.search")
     if not search_limiter.test(request.ip_address):
@@ -269,7 +269,7 @@ def accounts_search(request) -> dict[str, list[User]]:
     search_limiter.hit(request.ip_address)
 
     if not users:
-        raise HTTPNotFound()
+        raise HTTPNotFound
 
     return {"users": users}
 

@@ -98,7 +98,7 @@ class UserAgentInfo:
                 return "Unknown Browser"
         elif self.installer is not None:
             if self.implementation and self.system:
-                return f"{self.installer} ({self.implementation} " f"on {self.system})"
+                return f"{self.installer} ({self.implementation} on {self.system})"
             elif self.implementation:
                 return f"{self.installer} ({self.implementation})"
             elif self.system:

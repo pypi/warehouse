@@ -85,7 +85,6 @@ class TestOrganizationForm:
 
 
 class TestOrganizationList:
-
     @pytest.mark.usefixtures("_enable_organizations")
     def test_no_query(self, db_request):
         organizations = sorted(

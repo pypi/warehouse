@@ -1076,7 +1076,9 @@ class TestManageOIDCPublisherViews:
                     id="fakeid",
                     publisher_name="ActiveState",
                     publisher_url=(
-                        lambda x=None: "https://platform.activestate.com/some-org/some-project"  # noqa: E501
+                        lambda x=None: (
+                            "https://platform.activestate.com/some-org/some-project"
+                        )
                     ),
                     organization="some-org",
                     activestate_project_name="some-project",

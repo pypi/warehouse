@@ -27,7 +27,7 @@ def test_aws_session_factory(monkeypatch, region):
         pretend.call(
             aws_access_key_id="my key",
             aws_secret_access_key="my secret",
-            **({} if region is None else {"region_name": region})
+            **({} if region is None else {"region_name": region}),
         )
     ]
 

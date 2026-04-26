@@ -639,7 +639,7 @@ class TestBillingWebhook:
         pyramid_request.headers = {"Stripe-Signature": "mock-stripe-signature"}
 
         def webhook_received(payload, sig_header):
-            raise ValueError()
+            raise ValueError
 
         monkeypatch.setattr(billing_service, "webhook_received", webhook_received)
 

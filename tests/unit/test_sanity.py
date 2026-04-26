@@ -53,7 +53,7 @@ class TestInvalidForms:
                 "REQUEST_METHOD": "POST",
                 "CONTENT_TYPE": ("multipart/form-data"),
                 "wsgi.input": io.BytesIO(
-                    b'Content-Disposition: form-data; name="person"\r\n' b"anonymous"
+                    b'Content-Disposition: form-data; name="person"\r\nanonymous'
                 ),
             }
         )

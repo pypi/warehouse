@@ -73,8 +73,7 @@ def delete_expired_oidc_macaroons(request):
         .filter(Macaroon.oidc_publisher_id.isnot(None))
         .filter(
             # The token has been created at more than 1 day ago
-            Macaroon.created + timedelta(days=1)
-            < datetime.now(tz=UTC)
+            Macaroon.created + timedelta(days=1) < datetime.now(tz=UTC)
         )
         .delete(synchronize_session=False)
     )

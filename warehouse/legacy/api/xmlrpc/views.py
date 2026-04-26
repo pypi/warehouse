@@ -168,7 +168,6 @@ xmlrpc_cache_all_projects = functools.partial(
 
 
 class XMLRPCServiceUnavailable(XmlRpcError):  # noqa: N818
-
     # This is the interface for specifying fault code and string for XmlRpcError
     faultCode = -32403  # noqa: N815
     faultString = "server error; service unavailable"  # noqa: N815
@@ -331,8 +330,7 @@ def browse(request, classifiers: list[StrictStr]):
 def multicall(request, args):
     raise XMLRPCWrappedError(
         ValueError(
-            "MultiCall requests have been deprecated, use individual "
-            "requests instead."
+            "MultiCall requests have been deprecated, use individual requests instead."
         )
     )
 

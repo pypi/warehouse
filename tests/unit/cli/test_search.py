@@ -28,7 +28,9 @@ class TestCLISearch:
         # Mock the OpenSearch client responses
         cat_client = pretend.stub(
             indices=pretend.call_recorder(
-                lambda **kw: "health status index id pri rep docs.count docs.deleted store.size creation.date.string\ngreen  open   production-2024-01-01 abc 1 0 1000 0 1mb 2024-01-01T00:00:00Z"  # noqa: E501
+                lambda **kw: (
+                    "health status index id pri rep docs.count docs.deleted store.size creation.date.string\ngreen  open   production-2024-01-01 abc 1 0 1000 0 1mb 2024-01-01T00:00:00Z"  # noqa: E501
+                )
             )
         )
         indices_client = pretend.stub(
@@ -49,7 +51,7 @@ class TestCLISearch:
         assert cat_client.indices.calls == [
             pretend.call(
                 index="production*,staging*",
-                h="health,status,index,id,pri,rep,docs.count,docs.deleted,store.size,creation.date.string",  # noqa: E501
+                h="health,status,index,id,pri,rep,docs.count,docs.deleted,store.size,creation.date.string",
                 s="creation.date.string:desc",
                 v=True,
             )

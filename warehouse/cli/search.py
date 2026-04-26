@@ -38,7 +38,7 @@ def print_indices(config):
     click.echo(
         client.cat.indices(
             index="production*,staging*",
-            h="health,status,index,id,pri,rep,docs.count,docs.deleted,store.size,creation.date.string",  # noqa: E501
+            h="health,status,index,id,pri,rep,docs.count,docs.deleted,store.size,creation.date.string",
             s="creation.date.string:desc",
             v=True,  # include column headers for easier reading
         )
@@ -68,7 +68,7 @@ def delete_older_indices(config, env_name):
         alias = client.indices.get_alias(name=env_name)
     except NotFoundError:
         click.echo(f"No alias found for {env_name}, aborting.", err=True)
-        raise click.Abort()
+        raise click.Abort
 
     current_index = list(alias.keys())[0]
     click.echo(f"Current index: {current_index}")

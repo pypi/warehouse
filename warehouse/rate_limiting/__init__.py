@@ -26,7 +26,7 @@ def _return_on_exception(rvalue, *exceptions):
             try:
                 return fn(self, *args, **kwargs)
             except exceptions as exc:
-                logging.warning("Error computing rate limits: %r", exc)
+                logger.warning("Error computing rate limits: %r", exc)
                 self._metrics.increment(
                     "warehouse.ratelimiter.error", tags=[f"call:{fn.__name__}"]
                 )

@@ -526,7 +526,6 @@ def user_recover_account_initiate(user, request):
     repo_urls = _get_related_urls(user)
 
     if request.method == "POST":
-
         support_issue_link = request.POST.get("support_issue_link")
         project_name = request.POST.get("project_name")
 

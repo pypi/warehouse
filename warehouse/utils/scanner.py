@@ -65,7 +65,7 @@ def compile_rules(rules_dir: Path = _RULES_DIR) -> yara_x.Rules | None:
             compiler.add_source(rule_file.read_text())
         return compiler.build()
     except (OSError, yara_x.CompileError):
-        logger.exception("Failed to compile YARA-X rules", exc_info=True)
+        logger.exception("Failed to compile YARA-X rules")
         return None
 
 
@@ -234,11 +234,7 @@ def check_members(
                 return None
 
     except yara_x.ScanError:
-        logger.exception(
-            "YARA-X scan failed",
-            archive=archive_name,
-            exc_info=True,
-        )
+        logger.exception("YARA-X scan failed", archive=archive_name)
         return None
 
     # Overflow path completed with no matches found.
@@ -307,11 +303,7 @@ def scan_archive(
             if results.matching_rules:
                 matches.append((name, [r.identifier for r in results.matching_rules]))
     except (OSError, zipfile.BadZipFile, tarfile.TarError, yara_x.ScanError):
-        logger.exception(
-            "YARA-X scan failed",
-            archive=archive_name,
-            exc_info=True,
-        )
+        logger.exception("YARA-X scan failed", archive=archive_name)
         return []
 
     return matches

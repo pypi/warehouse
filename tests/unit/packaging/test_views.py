@@ -232,10 +232,8 @@ class TestReleaseDetail:
         files = [
             FileFactory.create(
                 release=release,
-                filename="-".join(
-                    [project.name, release.version, py_ver, py_abi, py_platform]
-                )
-                + ".whl",
+                filename=f"{project.name}-{release.version}-{py_ver}-{py_abi}-{py_platform}"
+                ".whl",
                 python_version="py2.py3",
                 packagetype="bdist_wheel",
             )
@@ -325,7 +323,6 @@ class TestReleaseDetail:
 
 
 class TestPEP740AttestationViewer:
-
     @pytest.fixture
     def gitlab_attestation(self, gitlab_provenance):
         return gitlab_provenance.attestation_bundles[0].attestations[0]

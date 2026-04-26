@@ -1601,7 +1601,7 @@ class ManageProjectRelease:
             self.request.session.flash(
                 self.request._(
                     "Could not yank release - "
-                    + f"{version!r} is not the same as {self.release.version!r}"
+                    f"{version!r} is not the same as {self.release.version!r}"
                 ),
                 queue="error",
             )
@@ -1686,7 +1686,7 @@ class ManageProjectRelease:
             self.request.session.flash(
                 self.request._(
                     "Could not un-yank release - "
-                    + f"{version!r} is not the same as {self.release.version!r}"
+                    f"{version!r} is not the same as {self.release.version!r}"
                 ),
                 queue="error",
             )
@@ -1787,7 +1787,7 @@ class ManageProjectRelease:
             self.request.session.flash(
                 self.request._(
                     "Could not delete release - "
-                    + f"{version!r} is not the same as {self.release.version!r}"
+                    f"{version!r} is not the same as {self.release.version!r}"
                 ),
                 queue="error",
             )

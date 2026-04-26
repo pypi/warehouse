@@ -98,7 +98,8 @@ def rss_packages(request):
     renderer="warehouse:templates/rss/project_releases.xml",
     decorator=[
         origin_cache(
-            1 * 24 * 60 * 60, stale_if_error=5 * 24 * 60 * 60  # 1 day, 5 days stale
+            1 * 24 * 60 * 60,
+            stale_if_error=5 * 24 * 60 * 60,  # 1 day, 5 days stale
         )
     ],
 )

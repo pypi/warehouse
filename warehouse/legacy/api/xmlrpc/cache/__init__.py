@@ -98,8 +98,7 @@ def includeme(config):
         xmlrpc_cache_expires = int(xmlrpc_cache_expires)
     except ValueError:
         raise ConfigurationError(
-            f'Unable to cast XMLRPCCache expires "{xmlrpc_cache_expires}" '
-            " to integer"
+            f'Unable to cast XMLRPCCache expires "{xmlrpc_cache_expires}"  to integer'
         )
 
     config.register_service_factory(

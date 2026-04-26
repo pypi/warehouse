@@ -57,8 +57,7 @@ from ..common.db.packaging import FileFactory, ProjectFactory, ReleaseFactory
 def _assert_has_cors_headers(headers):
     assert headers["Access-Control-Allow-Origin"] == "*"
     assert headers["Access-Control-Allow-Headers"] == (
-        "Content-Type, If-Match, If-Modified-Since, If-None-Match, "
-        "If-Unmodified-Since"
+        "Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since"
     )
     assert headers["Access-Control-Allow-Methods"] == "GET"
     assert headers["Access-Control-Max-Age"] == "86400"
@@ -710,7 +709,7 @@ class TestSearch:
         db_request.opensearch = pretend.stub(query=lambda *a, **kw: opensearch_query)
 
         def raiser(*args, **kwargs):
-            raise opensearchpy.ConnectionError()
+            raise opensearchpy.ConnectionError
 
         monkeypatch.setattr(views, "OpenSearchPage", raiser)
 

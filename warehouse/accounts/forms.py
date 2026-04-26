@@ -423,8 +423,7 @@ class RegistrationForm(  # type: ignore[misc]
             wtforms.validators.Length(
                 max=100,
                 message=_(
-                    "The name is too long. "
-                    "Choose a name with 100 characters or less."
+                    "The name is too long. Choose a name with 100 characters or less."
                 ),
             ),
             wtforms.validators.Regexp(

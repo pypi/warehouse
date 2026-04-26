@@ -59,9 +59,9 @@ class TestCompileRules:
         rules = scanner.compile_rules()
         for rule in rules:
             meta_keys = {k for k, _ in rule.metadata}
-            assert (
-                "message" in meta_keys
-            ), f"Rule {rule.identifier!r} is missing required 'message' metadata"
+            assert "message" in meta_keys, (
+                f"Rule {rule.identifier!r} is missing required 'message' metadata"
+            )
 
     def test_returns_none_when_no_files(self, tmp_path):
         assert scanner.compile_rules(rules_dir=tmp_path) is None
@@ -125,8 +125,7 @@ class TestCheckMembers:
     def test_skips_oversized_files(self, monkeypatch):
         monkeypatch.setattr(scanner, "_SCAN_MAX_FILE_SIZE", 10)
         rules = yara_x.compile(
-            'rule bad { meta: message = "blocked" '
-            'strings: $a = "evil" condition: $a }'
+            'rule bad { meta: message = "blocked" strings: $a = "evil" condition: $a }'
         )
         members = [("pkg/big.py", 100, b"evil" * 100)]
         assert scanner.check_members(members, rules, archive_name="test.whl") is None
@@ -165,8 +164,7 @@ class TestCheckMembers:
     def test_returns_none_on_cross_boundary_bulk_match(self):
         """Bulk scan matches across file boundaries but no individual file does."""
         rules = yara_x.compile(
-            'rule boundary { meta: message = "x" '
-            'strings: $a = "ABCD" condition: $a }'
+            'rule boundary { meta: message = "x" strings: $a = "ABCD" condition: $a }'
         )
         members = [("pkg/a.py", 2, b"AB"), ("pkg/b.py", 2, b"CD")]
         assert scanner.check_members(members, rules, archive_name="test.whl") is None
@@ -175,8 +173,7 @@ class TestCheckMembers:
         """Match found in a file arriving after the overflow threshold."""
         monkeypatch.setattr(scanner, "_BULK_SCAN_MAX_TOTAL", 10)
         rules = yara_x.compile(
-            'rule bad { meta: message = "blocked" '
-            'strings: $a = "evil" condition: $a }'
+            'rule bad { meta: message = "blocked" strings: $a = "evil" condition: $a }'
         )
         members = [
             ("pkg/a.py", 6, b"hello!"),
@@ -191,8 +188,7 @@ class TestCheckMembers:
         """Match found in a file materialized before the overflow threshold."""
         monkeypatch.setattr(scanner, "_BULK_SCAN_MAX_TOTAL", 10)
         rules = yara_x.compile(
-            'rule bad { meta: message = "blocked" '
-            'strings: $a = "evil" condition: $a }'
+            'rule bad { meta: message = "blocked" strings: $a = "evil" condition: $a }'
         )
         members = [
             ("pkg/a.py", 12, b"this is evil"),

@@ -143,7 +143,7 @@ def _create_session(request):
         # this is a transient error that will go away.
         logger.warning("Got an error connecting to PostgreSQL", exc_info=True)
         metrics.increment("warehouse.db.session.error", tags=["error_in:connecting"])
-        raise DatabaseNotAvailableError()
+        raise DatabaseNotAvailableError
 
     # Now, create a session from our connection
     session = Session(bind=connection)

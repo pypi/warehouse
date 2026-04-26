@@ -212,8 +212,7 @@ class TestVulnerabilityBulkDelete:
 
         assert isinstance(result, HTTPSeeOther)
         stubbed_request.session.flash.assert_called_once_with(
-            "Confirmation did not match the filter. "
-            "No vulnerabilities were deleted.",
+            "Confirmation did not match the filter. No vulnerabilities were deleted.",
             queue="error",
         )
         assert stubbed_request.db.query(VulnerabilityRecord).count() == 1

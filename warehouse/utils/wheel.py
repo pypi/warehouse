@@ -28,8 +28,7 @@ _PLATFORMS = [
     (
         re.compile(r"^manylinux_(\d+)_(\d+)_(.*?)$"),
         lambda m: (
-            f"manylinux: glibc "
-            f"{m.group(1)}.{m.group(2)}+ {_normalize_arch(m.group(3))}"
+            f"manylinux: glibc {m.group(1)}.{m.group(2)}+ {_normalize_arch(m.group(3))}"
         ),
     ),
     (
@@ -48,11 +47,15 @@ _PLATFORMS = [
     ),
     (
         re.compile(r"^ios_(\d+)_(\d+)_(.*?)_iphoneos$"),
-        lambda m: f"iOS {m.group(1)}.{m.group(2)}+ {_normalize_arch(m.group(3))} Device",  # noqa: E501
+        lambda m: (
+            f"iOS {m.group(1)}.{m.group(2)}+ {_normalize_arch(m.group(3))} Device"
+        ),
     ),
     (
         re.compile(r"^ios_(\d+)_(\d+)_(.*?)_iphonesimulator$"),
-        lambda m: f"iOS {m.group(1)}.{m.group(2)}+ {_normalize_arch(m.group(3))} Simulator",  # noqa: E501
+        lambda m: (
+            f"iOS {m.group(1)}.{m.group(2)}+ {_normalize_arch(m.group(3))} Simulator"
+        ),
     ),
     (
         re.compile(r"^pyemscripten_(\d+)_(\d+)_wasm32$"),
@@ -202,7 +205,7 @@ def validate_record(wheel_filepath: str) -> bool:
             if not _zip_filename_is_dir(fn) and fn not in record_exemptions
         }
     except (UnicodeError, KeyError, csv.Error):
-        raise MissingWheelRecordError()
+        raise MissingWheelRecordError
     if record_entries != wheel_entries:
         record_is_missing = wheel_entries - record_entries
         wheel_is_missing = record_entries - wheel_entries

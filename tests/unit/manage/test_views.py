@@ -548,7 +548,7 @@ class TestManageAccount:
         assert pyramid_request.session.flash.calls == [
             pretend.call(
                 f"Email {new_email_address} added - check your email for "
-                + "a verification link",
+                "a verification link",
                 queue="success",
             )
         ]
@@ -4541,7 +4541,7 @@ class TestManageProjectRelease:
         assert pyramid_request.session.flash.calls == [
             pretend.call(
                 "Could not yank release - "
-                + f"'invalid' is not the same as {release.version!r}",
+                f"'invalid' is not the same as {release.version!r}",
                 queue="error",
             )
         ]
@@ -4701,7 +4701,7 @@ class TestManageProjectRelease:
         assert pyramid_request.session.flash.calls == [
             pretend.call(
                 "Could not un-yank release - "
-                + f"'invalid' is not the same as {release.version!r}",
+                f"'invalid' is not the same as {release.version!r}",
                 queue="error",
             )
         ]
@@ -4844,7 +4844,7 @@ class TestManageProjectRelease:
         assert pyramid_request.session.flash.calls == [
             pretend.call(
                 "Could not delete release - "
-                + f"'invalid' is not the same as {release.version!r}",
+                f"'invalid' is not the same as {release.version!r}",
                 queue="error",
             )
         ]
@@ -5087,7 +5087,7 @@ class TestManageProjectRelease:
         assert db_request.session.flash.calls == [
             pretend.call(
                 "Could not delete file - "
-                + f"'invalid' is not the same as {release.project.name!r}",
+                f"'invalid' is not the same as {release.project.name!r}",
                 queue="error",
             )
         ]

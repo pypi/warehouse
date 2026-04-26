@@ -17,6 +17,7 @@ async def main(host, port, output):
             message = data.decode().strip()
             print(message)
 
+
 if __name__ == "__main__":
     try:
         host, port = sys.argv[1].split(":")

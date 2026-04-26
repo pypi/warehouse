@@ -74,7 +74,7 @@ def macaroon_detail(request):
     )
 
     if macaroon is None:
-        raise HTTPNotFound()
+        raise HTTPNotFound
 
     return {"macaroon": macaroon}
 
@@ -93,7 +93,7 @@ def macaroon_delete(request):
     macaroon_service = request.find_service(IMacaroonService, context=None)
     macaroon = macaroon_service.find_macaroon(macaroon_id)
     if macaroon is None:
-        raise HTTPNotFound()
+        raise HTTPNotFound
 
     # TODO: Shows up in user history. Should it? `removed_by` is not shown.
     # Since we still have a macaroon, record the event to the associated user

@@ -231,6 +231,7 @@ def pyramid_request(pyramid_services, jinja):
         info=pretend.call_recorder(lambda *args, **kwargs: None),
         warning=pretend.call_recorder(lambda *args, **kwargs: None),
         error=pretend.call_recorder(lambda *args, **kwargs: None),
+        exception=pretend.call_recorder(lambda *args, **kwargs: None),
     )
 
     def localize(message, **kwargs):

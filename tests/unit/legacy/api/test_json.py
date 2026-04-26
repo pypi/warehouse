@@ -24,8 +24,7 @@ from ....common.db.packaging import (
 def _assert_has_cors_headers(headers):
     assert headers["Access-Control-Allow-Origin"] == "*"
     assert headers["Access-Control-Allow-Headers"] == (
-        "Content-Type, If-Match, If-Modified-Since, If-None-Match, "
-        "If-Unmodified-Since"
+        "Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since"
     )
     assert headers["Access-Control-Allow-Methods"] == "GET"
     assert headers["Access-Control-Max-Age"] == "86400"
@@ -150,7 +149,7 @@ class TestJSONProject:
             "url," + url,
             "Homepage,https://example.com/home2/",
             "Source Code,https://example.com/source-code/",
-            "uri,http://john.doe@www.example.com:123/forum/questions/?tag=networking&order=newest#top",  # noqa: E501
+            "uri,http://john.doe@www.example.com:123/forum/questions/?tag=networking&order=newest#top",
             "ldap,ldap://[2001:db8::7]/c=GB?objectClass?one",
             "tel,tel:+1-816-555-1212",
             "telnet,telnet://192.0.2.16:80/",
@@ -471,7 +470,7 @@ class TestJSONRelease:
             "url," + url,
             "Homepage,https://example.com/home2/",
             "Source Code,https://example.com/source-code/",
-            "uri,http://john.doe@www.example.com:123/forum/questions/?tag=networking&order=newest#top",  # noqa: E501
+            "uri,http://john.doe@www.example.com:123/forum/questions/?tag=networking&order=newest#top",
             "ldap,ldap://[2001:db8::7]/c=GB?objectClass?one",
             "tel,tel:+1-816-555-1212",
             "telnet,telnet://192.0.2.16:80/",

@@ -79,7 +79,7 @@ def test_token_leak_disclosure_request_from_api_record_error(record, error, reas
         name = "failer"
 
         def extract(self, text):
-            raise utils.ExtractionFailedError()
+            raise utils.ExtractionFailedError
 
     with pytest.raises(utils.InvalidTokenLeakRequestError) as exc:
         utils.TokenLeakDisclosureRequest.from_api_record(
@@ -108,7 +108,6 @@ def test_token_leak_disclosure_request_from_api_record(source):
 
 
 class TestGenericTokenScanningPayloadVerifier:
-
     def test_init(self, metrics, someorigin):
         session = pretend.stub()
         token = "api_token"

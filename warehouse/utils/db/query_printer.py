@@ -6,6 +6,8 @@ import logging
 
 from sqlalchemy.dialects import postgresql
 
+logger = logging.getLogger(__name__)
+
 
 def print_query(query) -> None:
     """
@@ -13,7 +15,7 @@ def print_query(query) -> None:
 
     Useful for development/debugging purposes.
     """
-    logging.debug(
+    logger.debug(
         str(
             query.compile(
                 dialect=postgresql.dialect(),

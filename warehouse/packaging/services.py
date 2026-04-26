@@ -455,11 +455,11 @@ class ProjectService:
         unavailable for any reason.
         """
         if not PROJECT_NAME_RE.match(name):
-            raise ProjectNameUnavailableInvalidError()
+            raise ProjectNameUnavailableInvalidError
 
         # Also check for collisions with Python Standard Library modules.
         if canonicalize_name(name) in STDLIB_PROHIBITED:
-            raise ProjectNameUnavailableStdlibError()
+            raise ProjectNameUnavailableStdlibError
 
         if existing_project := self.db.scalars(
             select(Project).where(
@@ -473,7 +473,7 @@ class ProjectService:
                 ProhibitedProjectName.name == func.normalize_pep426_name(name)
             )
         ).scalar():
-            raise ProjectNameUnavailableProhibitedError()
+            raise ProjectNameUnavailableProhibitedError
 
         if similar_project_name := self.db.scalars(
             select(Project.name).where(

@@ -17,7 +17,6 @@ def test_sentry_request_method():
 
 
 class TestSentryBeforeSend:
-
     @pytest.mark.parametrize(
         ("event", "hint"),
         [

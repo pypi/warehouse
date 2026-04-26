@@ -101,7 +101,7 @@ def check_existing_jti(
             "warehouse.oidc.reused_token",
             tags=[f"publisher:{publisher_service.publisher}"],
         )
-        raise ReusedTokenError()
+        raise ReusedTokenError
 
     return True
 

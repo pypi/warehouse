@@ -157,7 +157,7 @@ class Service:
             data = resp.json()
         except ValueError as e:
             raise UnexpectedError(
-                f'Unexpected data in response body: {str(resp.content, "utf-8")}'
+                f"Unexpected data in response body: {str(resp.content, 'utf-8')}"
             ) from e
 
         if "success" not in data:

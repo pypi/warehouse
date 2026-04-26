@@ -38,7 +38,7 @@ class TestRateLimiter:
         )
 
         def raiser(*args, **kwargs):
-            raise redis.ConnectionError()
+            raise redis.ConnectionError
 
         limiter._window = pretend.stub(hit=raiser, test=raiser, get_window_stats=raiser)
 

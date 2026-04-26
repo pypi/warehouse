@@ -646,7 +646,6 @@ class TestIsDuplicateFile:
 
 
 class TestFileUpload:
-
     @pytest.mark.parametrize("version", ["2", "3", "-1", "0", "dog", "cat"])
     def test_fails_invalid_version(self, pyramid_config, pyramid_request, version):
         pyramid_request.POST["protocol_version"] = version
@@ -1828,7 +1827,7 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == (
             "400 Project size too large."
-            + " Limit for project 'foobar' total size is 10 GB. "
+            " Limit for project 'foobar' total size is 10 GB. "
             "See /the/help/url/"
         )
 
@@ -1845,8 +1844,7 @@ class TestFileUpload:
             upload_limit=warehouse.constants.MAX_FILESIZE,
             total_size=warehouse.constants.MAX_PROJECT_SIZE,
             total_size_limit=(
-                warehouse.constants.MAX_PROJECT_SIZE
-                + one_megabyte
+                warehouse.constants.MAX_PROJECT_SIZE + one_megabyte
                 # Custom Limit for the project
             ),
         )
@@ -1889,7 +1887,7 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == (
             "400 Project size too large."
-            + " Limit for project 'foobar' total size is 10 GB. "
+            " Limit for project 'foobar' total size is 10 GB. "
             "See /the/help/url/"
         )
 

@@ -9,7 +9,7 @@ import secrets
 import shlex
 
 from datetime import timedelta
-from urllib.parse import urlparse, urlunparse
+from urllib.parse import urlparse, urlunparse  # noqa: TID251
 
 import orjson
 import platformdirs
@@ -249,9 +249,9 @@ def maybe_set_compound(settings, base, name, envvar):
     if envvar in os.environ:
         value = shlex.split(os.environ[envvar])
         kwargs = {k: v for k, v in (i.split("=") for i in value[1:])}
-        settings[".".join([base, name])] = value[0]
+        settings[f"{base}.{name}"] = value[0]
         for key, value in kwargs.items():
-            settings[".".join([base, key])] = value
+            settings[f"{base}.{key}"] = value
 
 
 def maybe_set_redis(settings, name, envvar, coercer=None, default=None, db=None):
@@ -616,7 +616,7 @@ def configure(settings=None):
         settings.setdefault(
             "debugtoolbar.panels",
             [
-                ".".join(["pyramid_debugtoolbar.panels", panel])
+                f"pyramid_debugtoolbar.panels.{panel}"
                 for panel in [
                     "versions.VersionDebugPanel",
                     "settings.SettingsDebugPanel",

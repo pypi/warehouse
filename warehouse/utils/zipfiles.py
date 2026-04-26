@@ -87,7 +87,6 @@ def _handle_local_file_header(
         seen_extra_ids.add(extra_id)
 
         if extra_id == 0x0001:
-
             # ZIP64 extras must be one of these lengths.
             if extra_data_size not in (0, 8, 16, 24, 28):
                 raise InvalidZipFileError("Malformed zip file")
