@@ -313,7 +313,7 @@ def mint_token(
     )
     not_before = int(time.time())
     expires_at = not_before + 900
-    serialized, dm = macaroon_service.create_macaroon(
+    serialized, _dm = macaroon_service.create_macaroon(
         request.domain,
         (
             f"OpenID token: {publisher!s} "

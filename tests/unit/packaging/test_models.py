@@ -461,7 +461,7 @@ class TestProject:
         """
         project = DBProjectFactory.create()
         owner = DBRoleFactory.create()
-        raw_macaroon, macaroon = macaroon_service.create_macaroon(
+        _raw_macaroon, macaroon = macaroon_service.create_macaroon(
             "fake location",
             "fake description",
             [caveats.RequestUser(user_id=str(owner.user.id))],
@@ -503,7 +503,7 @@ class TestProject:
         """
         project = DBProjectFactory.create()
         owner = DBRoleFactory.create()
-        raw_macaroon, macaroon = macaroon_service.create_macaroon(
+        _raw_macaroon, macaroon = macaroon_service.create_macaroon(
             "fake location",
             "fake description",
             [caveats.RequestUser(user_id=str(owner.user.id))],

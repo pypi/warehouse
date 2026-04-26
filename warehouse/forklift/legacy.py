@@ -1159,7 +1159,7 @@ def file_upload(request):
 
             # Extract the project name and version from the filename and check it.
             try:
-                name_from_filename, version_from_filename = (
+                name_from_filename, _version_from_filename = (
                     packaging.utils.parse_sdist_filename(filename)
                 )
             except packaging.utils.InvalidSdistFilename:

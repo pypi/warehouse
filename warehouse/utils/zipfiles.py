@@ -171,7 +171,7 @@ def _handle_central_directory_header(fp: typing.IO[bytes]) -> tuple[bytes, bytes
     See section 4.3.12 of APPNOTE.TXT.
     """
     data = _read_check(fp, 42)
-    compressed_size, filename_size, extra_size, comment_size, offset = struct.unpack(
+    _compressed_size, filename_size, extra_size, comment_size, _offset = struct.unpack(
         "<xxxxxxxxxxxxxxxxLxxxxHHHxxxxxxxxL", data
     )
     if comment_size != 0:

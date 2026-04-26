@@ -256,7 +256,7 @@ def send_password_reset_unverified_email(_request, _user_and_email):
 
 @_email("verify-email", allow_unverified=True)
 def send_email_verification_email(request, user_and_email):
-    user, email = user_and_email
+    _user, email = user_and_email
     token_service = request.find_service(ITokenService, name="email")
     token = token_service.dumps({"action": "email-verify", "email.id": email.id})
 
@@ -310,7 +310,7 @@ def send_token_compromised_email_leak(request, user, *, public_url, origin):
 def send_account_recovery_initiated_email(
     request, user_and_email, *, project_name, support_issue_link, token
 ):
-    user, email = user_and_email
+    user, _email = user_and_email
     return {
         "user": user,
         "support_issue_link": support_issue_link,

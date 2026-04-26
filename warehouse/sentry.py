@@ -54,7 +54,7 @@ def before_send(event, hint):
         return None
 
     if "exc_info" in hint:
-        exc_type, exc_value, tb = hint["exc_info"]
+        exc_type, exc_value, _tb = hint["exc_info"]
         if (
             exc_type in ignore_exceptions
             or type(exc_value).__name__ in ignore_exceptions
