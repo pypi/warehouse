@@ -749,7 +749,9 @@ class TestFileUpload:
                 legacy.InvalidUploadMetadata,
                 {
                     "field": "pyversion",
-                    "msg": "Python version is required for binary distribution uploads.",
+                    "msg": (
+                        "Python version is required for binary distribution uploads."
+                    ),
                 },
             ),
             (

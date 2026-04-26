@@ -13,12 +13,9 @@ import packaging.utils
 import packaging.version
 import packaging_legacy.version
 import sentry_sdk
-import wtforms
-import wtforms.validators
 
 from pypi_attestations import Attestation, Distribution
 from pyramid.httpexceptions import (
-    HTTPBadRequest,
     HTTPException,
     HTTPForbidden,
     HTTPGone,
