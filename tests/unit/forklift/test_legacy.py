@@ -19,7 +19,7 @@ import psycopg
 import pytest
 
 from pypi_attestations import Attestation, Envelope, VerificationMaterial
-from pyramid.httpexceptions import HTTPBadRequest, HTTPTooManyRequests
+from pyramid.httpexceptions import HTTPBadRequest
 from sqlalchemy import and_, event, exists
 from sqlalchemy.orm import joinedload
 from trove_classifiers import classifiers
@@ -4732,13 +4732,8 @@ class TestFileUpload:
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
 
-        with pytest.raises(HTTPTooManyRequests) as excinfo:
+        with pytest.raises(legacy.ProjectCreationRateLimited):
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 429
-        assert resp.status == ("429 Too many new projects created")
 
     def test_upload_succeeds_creates_project(
         self, pyramid_config, db_request, project_service

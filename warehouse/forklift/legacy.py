@@ -377,6 +377,15 @@ class InvalidAttestations(
     pass
 
 
+class ProjectCreationRateLimited(
+    ForkliftError,
+    error_type=HTTPTooManyRequests,
+    message="Too many new projects created",
+    tags={"reason:rate-limited"},
+):
+    pass
+
+
 # Wheel platform checking
 
 # Note: defining new platform ABI compatibility tags that don't
@@ -970,11 +979,7 @@ def file_upload(request):
             )
             raise _exc_with_message(exc.__class__, exc.detail) from None
         except RateLimiterException:
-            request.metrics.increment(
-                "warehouse.upload.failed", tags=["reason:rate-limited"]
-            )
-            msg = "Too many new projects created"
-            raise _exc_with_message(HTTPTooManyRequests, msg)
+            raise ProjectCreationRateLimited
 
     # Check that the identity has permission to do things to this project, if this
     # is a new project this will act as a sanity check for the role we just
