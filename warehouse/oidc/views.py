@@ -316,7 +316,7 @@ def mint_token(
     serialized, dm = macaroon_service.create_macaroon(
         request.domain,
         (
-            f"OpenID token: {str(publisher)} "
+            f"OpenID token: {publisher!s} "
             f"({datetime.fromtimestamp(not_before).isoformat()})"
         ),
         [
