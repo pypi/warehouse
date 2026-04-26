@@ -973,6 +973,11 @@ def file_upload(request):
             project = project_service.create_project(
                 form.name.data, request.user, request
             )
+        # TODO: The project service raises a lot of different HTTPExceptions, ideally
+        #       it wouldn't do that and would raise regular exceptions, and it would
+        #       be up to the handlers to translate those. However, changing that would
+        #       require changes to several areas of warehouse, so we'll leave that for
+        #       a future change.
         except HTTPException as exc:
             request.metrics.increment(
                 "warehouse.upload.failed", tags=["reason:project-creation-failed"]
