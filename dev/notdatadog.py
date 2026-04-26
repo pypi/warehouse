@@ -1,9 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
-import asyncudp
 import os
 import sys
+
+import asyncudp
 
 
 async def main(host, port, output):
