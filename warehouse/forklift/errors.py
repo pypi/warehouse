@@ -6,25 +6,26 @@ from typing import Any
 import sentry_sdk
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPException
+from pyramid.view import exception_view_config
 
 
 # We don't subclass from a HTTP Exception here, because pyramid will automatically
 # turn those into a response for us, and we don't want that to happen "silently"
 # for these exceptions.
 #
-# In other words, ForkliftExceptions are only intended to be raised from within
-# forklift, and forklift should always have the decorator applied that does the
+# In other words, a ForkliftError is only intended to be raised from within
+# forklift, and forklift should always have an exception view applied that does the
 # translation to what Pyramid expects, so these should never reach Pyramid itself,
 # and if they do, then something has gone wrong and we should be alerted to that
 # fact.
 #
-# All of our ForkliftExceptions have certain values that are set at the class
+# All of our ForkliftErrors have certain values that are set at the class
 # level (like a message, tags to emit in the metrics, etc) and accept arbitrary
 # keyword arguments which will be formatted into those values at runtime.
 #
 # This means we can have a message (or a tag, or whatever) that says something
 # like `message = "this is an error with {foo}` and you can pass in foo as a
-# keyword argument to the ForkliftException.
+# keyword argument to the ForkliftError.
 class ForkliftError(Exception):
     message: str
     tags: set[str]
@@ -145,53 +146,7 @@ def _exc_with_message(exc, message, **kwargs):
     return resp
 
 
-def translate_errors(wrapped):
-    """
-    Wraps a Pyramid view to translate errors into the format expected by the
-    "legacy" upload API.
-
-    There's a general pattern that gets used wherever we have errors in the
-    legacy API, and while each individual location doesn't cause tons of lines
-    of code, collectively this ends up adding a lot of noise to that view
-    function.
-
-    Essentially this decorator knows how to turn specific exceptions into the
-    correct HTTP responses, as well as centralizes things like emitting metrics,
-    etc.
-    """
-
-    def wrapper(context, request):
-        # Log an attempt to upload
-        #
-        # NOTE: This technically isn't part of "translating errors", but we
-        #       emit metrics for failure in this decorator, so it makes the most
-        #       sense to keep this here so it's co-located with that.
-        request.metrics.increment("warehouse.upload.attempt")
-
-        # We're just going to call into our wrapped view and see if we get any
-        # errors out of it. If we do, and they're one of the kinds of errors
-        # that we know how to deal with, then we'll catch it and do our translation
-        # into the error response that the legacy upload API expects.
-        try:
-            return wrapped(context, request)
-        except ForkliftError as exc:
-            # All errors in the upload API should emit metrics, so we'll go
-            # ahead and do that first.
-            request.metrics.increment("warehouse.upload.failed", tags=exc.tags)
-
-            # Use the registered http exception type to raise a new error, rendered
-            # with the mechanisms that the legacy upload API expects.
-            #
-            # We'll use `from exc` so that our traceback properly records the
-            # original source of the ForkliftException that caused this.
-            raise exc.as_http_exception(request) from exc
-        except Exception:
-            # If we get any other kind of exception, then we'll mark a failed
-            # upload as well before re-raising that exception to be handled up
-            # the stack.
-            request.metrics.increment(
-                "warehouse.upload.failed", tags=["reason:unhandled-error"]
-            )
-            raise
-
-    return wrapper
+@exception_view_config(ForkliftError, route_name="forklift.legacy.file_upload")
+def forklift_error(exc, request):
+    request.metrics.increment("warehouse.upload.failed", tags=exc.tags)
+    return exc.as_http_exception(request)

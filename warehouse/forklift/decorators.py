@@ -89,6 +89,46 @@ class MissingTwoFactor(
     pass
 
 
+def upload_metrics(wrapped):
+
+    def wrapper(context, request):
+        # We'll manually pull this out of the request because we don't want to invoke
+        # the forms machinery or anything. This may end up meaning we get an invalid
+        # value, but that's OK it's just the metrics tagging so not the end of the
+        # world.
+        #
+        # NOTE: We'll only use these tags for cases where we can't expect the properly
+        #       validated value to have already been included.
+        tags = {
+            f"{k}:{v}" for (k, v) in [("filetype", request.POST.get("filetype"))] if v
+        }
+
+        # Log an attempt to upload
+        request.metrics.increment("warehouse.upload.attempt", tags=tags)
+
+        try:
+            response = wrapped(context, request)
+        except ForkliftError as exc:
+            # We've got an error that we know how to get the tags out of it, so we'll
+            # increment a failure with those tags.
+            request.metrics.increment("warehouse.upload.failed", tags=exc.tags)
+            raise
+        except Exception:
+            # If we get any other kind of exception, then we'll mark a failed
+            # upload as well, but we don't know what the error type is.
+            request.metrics.increment(
+                "warehouse.upload.failed", tags=tags | {"reason:unknown-error"}
+            )
+            raise
+        else:
+            # Log a successful upload
+            request.metrics.increment("warehouse.upload.ok", tags=tags)
+
+        return response
+
+    return wrapper
+
+
 def sanitize(wrapped):
     """
     Wraps a Pyramid view to sanitize the incoming request of "bad" values.

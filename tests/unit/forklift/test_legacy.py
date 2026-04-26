@@ -5,7 +5,6 @@ import builtins
 import hashlib
 import io
 import json
-import re
 import tarfile
 import tempfile
 import zipfile
@@ -20,7 +19,7 @@ import psycopg
 import pytest
 
 from pypi_attestations import Attestation, Envelope, VerificationMaterial
-from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPTooManyRequests
+from pyramid.httpexceptions import HTTPBadRequest, HTTPTooManyRequests
 from sqlalchemy import and_, event, exists
 from sqlalchemy.orm import joinedload
 from trove_classifiers import classifiers
@@ -1246,10 +1245,6 @@ class TestFileUpload:
                 }
             ),
             pretend.call(uploaded_file.id),
-        ]
-
-        assert db_request.metrics.increment.calls == [
-            pretend.call("warehouse.upload.ok", tags=["filetype:sdist"]),
         ]
 
     def test_upload_fails_with_legacy_type(self, pyramid_config, db_request):
@@ -2670,10 +2665,6 @@ class TestFileUpload:
             )
         ]
 
-        assert db_request.metrics.increment.calls == [
-            pretend.call("warehouse.upload.ok", tags=["filetype:bdist_wheel"]),
-        ]
-
     @pytest.mark.parametrize(
         ("project_name", "version"),
         [
@@ -3167,9 +3158,10 @@ class TestFileUpload:
         with pytest.raises(legacy.MissingRecordFile) as excinfo:
             legacy.file_upload(db_request)
 
+        expected_filename = project.normalized_name.replace("-", "_")
         assert excinfo.value.values == {
             "filename": filename,
-            "record_filename": f"{project.normalized_name.replace('-', '_')}-1.0.dist-info/RECORD",
+            "record_filename": f"{expected_filename}-1.0.dist-info/RECORD",
             "filetype": "bdist_wheel",
         }
 
@@ -3987,7 +3979,7 @@ class TestFileUpload:
         )
         monkeypatch.setattr(HasEvents, "record_event", record_event)
 
-        with pytest.raises(legacy.InvalidAttestations) as excinfo:
+        with pytest.raises(legacy.InvalidAttestations):
             legacy.file_upload(db_request)
 
     @pytest.mark.parametrize(
@@ -4649,7 +4641,7 @@ class TestFileUpload:
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
 
-        with pytest.raises(legacy.NonUserIdentity) as excinfo:
+        with pytest.raises(legacy.NonUserIdentity):
             legacy.file_upload(db_request)
 
     @pytest.mark.parametrize(
@@ -6077,7 +6069,10 @@ class TestFileUpload:
         with pytest.raises(legacy.InvalidDistFile) as excinfo:
             legacy.file_upload(db_request)
         assert excinfo.value.values == {
-            "msg": "PyArmor-encrypted content is not allowed. See https://pypi.org/policy/terms-of-use/ for more information.",
+            "msg": (
+                "PyArmor-encrypted content is not allowed. See "
+                "https://pypi.org/policy/terms-of-use/ for more information."
+            ),
             "filetype": "bdist_wheel",
         }
 

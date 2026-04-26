@@ -43,8 +43,12 @@ from warehouse.email import (
 )
 from warehouse.events.tags import EventTag
 from warehouse.forklift import metadata
-from warehouse.forklift.decorators import ensure_uploads_allowed, sanitize
-from warehouse.forklift.errors import ForkliftError, translate_errors, _exc_with_message
+from warehouse.forklift.decorators import (
+    ensure_uploads_allowed,
+    sanitize,
+    upload_metrics,
+)
+from warehouse.forklift.errors import ForkliftError, _exc_with_message
 from warehouse.forklift.forms import UploadForm, _filetype_extension_mapping
 from warehouse.macaroons.models import Macaroon
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
@@ -223,7 +227,10 @@ class InvalidFilename(
 
 class UnnormalizedFilename(
     ForkliftError,
-    message="Filename for {project!r} should contain the normalized project name {normalized!r}.",
+    message=(
+        "Filename for {project!r} should contain the normalized project "
+        "name {normalized!r}."
+    ),
     tags={"reason:invalid-filename-normalized", "filetype:{filetype}"},
 ):
     pass
@@ -247,7 +254,10 @@ class InvalidPlatformTag(
 
 class MissingRecordFile(
     ForkliftError,
-    message="Wheel {filename!r} does not contain the required RECORD file: {record_filename}.",
+    message=(
+        "Wheel {filename!r} does not contain the required RECORD file: "
+        "{record_filename}."
+    ),
     tags={"reason:missing-record-file", "filetype:{filetype}"},
 ):
     pass
@@ -255,7 +265,10 @@ class MissingRecordFile(
 
 class MissingMetadataFile(
     ForkliftError,
-    message="Wheel {filename!r} does not contain the required METADATA file: {metadata_filename}.",
+    message=(
+        "Wheel {filename!r} does not contain the required METADATA file: "
+        "{metadata_filename}."
+    ),
     tags={"reason:missing-metadata-file", "filetype:bdist_wheel"},
 ):
     pass
@@ -291,7 +304,9 @@ class FilenameTooLong(
 
 class DigestMismatch(
     ForkliftError,
-    message="The digest supplied does not match a digest calculated from the uploaded file.",
+    message=(
+        "The digest supplied does not match a digest calculated from the uploaded file."
+    ),
     tags={"reason:digest-mismatch"},
 ):
     pass
@@ -816,10 +831,7 @@ def _ensure_user_can_upload(request: Request) -> None:
     require_methods=["POST"],
     has_translations=True,
     permit_duplicate_post_keys=True,
-    # NOTE: translate_errors must be first, so that it is the "outer" decorator
-    #       and can translate errors from the other decorators, as well as the
-    #       file_upload view itself.
-    decorator=[translate_errors, sanitize, ensure_uploads_allowed],
+    decorator=[upload_metrics, sanitize, ensure_uploads_allowed],
 )
 def file_upload(request):
     # This is a list of warnings that we'll emit *IF* the request is successful.
@@ -1404,7 +1416,7 @@ def file_upload(request):
                 name, version, ___, tags = packaging.utils.parse_wheel_filename(
                     filename
                 )
-            except packaging.utils.InvalidWheelFilename as e:
+            except packaging.utils.InvalidWheelFilename:
                 raise InvalidFilename(filename=filename, filetype=form.filetype.data)
 
             for tag in tags:
@@ -1734,13 +1746,6 @@ def file_upload(request):
     }
     if request.registry.settings.get("warehouse.release_files_table") is not None:
         request.task(update_bigquery_release_files).delay(dist_metadata)
-
-    # Log a successful upload
-    # TODO: This would ideally be located near the other metrics calls, but that
-    #       happens at a layer that doesn't have the filetype data.
-    request.metrics.increment(
-        "warehouse.upload.ok", tags=[f"filetype:{form.filetype.data}"]
-    )
 
     # Dispatch our task to sync this to cache as soon as possible
     request.task(sync_file_to_cache).delay(file_.id)
