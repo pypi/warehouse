@@ -30,7 +30,7 @@ class IRateLimiter(Interface):
         """
 
 
-class RateLimiterException(Exception):
+class RateLimiterException(Exception):  # noqa: N818
     def __init__(self, *args, resets_in, **kwargs):
         self.resets_in = resets_in
 

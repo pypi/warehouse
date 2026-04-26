@@ -556,7 +556,9 @@ class TestS3FileStorage:
             fp.write(b"Test File!")
 
         bucket = pretend.stub(
-            upload_file=pretend.call_recorder(lambda filename, key, ExtraArgs: None)
+            upload_file=pretend.call_recorder(
+                lambda filename, key, ExtraArgs: None  # noqa: N803
+            )
         )
         storage = S3FileStorage(bucket)
         storage.store("foo/bar.txt", filename)
@@ -575,7 +577,9 @@ class TestS3FileStorage:
             fp.write(b"Second Test File!")
 
         bucket = pretend.stub(
-            upload_file=pretend.call_recorder(lambda filename, key, ExtraArgs: None)
+            upload_file=pretend.call_recorder(
+                lambda filename, key, ExtraArgs: None  # noqa: N803
+            )
         )
         storage = S3FileStorage(bucket)
         storage.store("foo/first.txt", filename1)
@@ -592,7 +596,9 @@ class TestS3FileStorage:
             fp.write(b"Test File!")
 
         bucket = pretend.stub(
-            upload_file=pretend.call_recorder(lambda filename, key, ExtraArgs: None)
+            upload_file=pretend.call_recorder(
+                lambda filename, key, ExtraArgs: None  # noqa: N803
+            )
         )
         storage = S3FileStorage(bucket)
         storage.store("foo/bar.txt", filename, meta={"foo": "bar"})
@@ -812,9 +818,11 @@ class TestS3DocsStorage:
         files = {"Contents": [{"Key": f"foo/{i}.html"} for i in range(file_count)]}
         s3_client = pretend.stub(
             list_objects_v2=pretend.call_recorder(
-                lambda Bucket=None, Prefix=None: files
+                lambda Bucket=None, Prefix=None: files  # noqa: N803
             ),
-            delete_objects=pretend.call_recorder(lambda Bucket=None, Delete=None: None),
+            delete_objects=pretend.call_recorder(
+                lambda Bucket=None, Delete=None: None  # noqa: N803
+            ),
         )
         storage = S3DocsStorage(s3_client, "bucket-name")
 
@@ -837,9 +845,11 @@ class TestS3DocsStorage:
         files = {"Contents": [{"Key": f"foo/{i}.html"} for i in range(150)]}
         s3_client = pretend.stub(
             list_objects_v2=pretend.call_recorder(
-                lambda Bucket=None, Prefix=None: files
+                lambda Bucket=None, Prefix=None: files  # noqa: N803
             ),
-            delete_objects=pretend.call_recorder(lambda Bucket=None, Delete=None: None),
+            delete_objects=pretend.call_recorder(
+                lambda Bucket=None, Delete=None: None  # noqa: N803
+            ),
         )
         storage = S3DocsStorage(s3_client, "bucket-name")
 
@@ -864,9 +874,11 @@ class TestS3DocsStorage:
         files = {"Contents": [{"Key": f"docs/foo/{i}.html"} for i in range(150)]}
         s3_client = pretend.stub(
             list_objects_v2=pretend.call_recorder(
-                lambda Bucket=None, Prefix=None: files
+                lambda Bucket=None, Prefix=None: files  # noqa: N803
             ),
-            delete_objects=pretend.call_recorder(lambda Bucket=None, Delete=None: None),
+            delete_objects=pretend.call_recorder(
+                lambda Bucket=None, Delete=None: None  # noqa: N803
+            ),
         )
         storage = S3DocsStorage(s3_client, "bucket-name", prefix="docs")
 

@@ -72,9 +72,7 @@ def test_robots_txt(app_config, domain, indexable):
         )
     else:
         assert body == (
-            "Sitemap: http://localhost/sitemap.xml\n\n"
-            "User-agent: *\n"
-            "Disallow: /\n"
+            "Sitemap: http://localhost/sitemap.xml\n\nUser-agent: *\nDisallow: /\n"
         )
 
 

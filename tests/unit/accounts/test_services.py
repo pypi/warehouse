@@ -246,7 +246,9 @@ class TestDatabaseUserService:
     def test_check_password_invalid(self, user_service, metrics):
         user = UserFactory.create()
         user_service.hasher = pretend.stub(
-            verify_and_update=pretend.call_recorder(lambda L, r: (False, None))
+            verify_and_update=pretend.call_recorder(
+                lambda L, r: (False, None)  # noqa: N803
+            )
         )
 
         assert not user_service.check_password(user.id, "user password")
@@ -290,7 +292,9 @@ class TestDatabaseUserService:
     def test_check_password_valid(self, user_service, metrics):
         user = UserFactory.create()
         user_service.hasher = pretend.stub(
-            verify_and_update=pretend.call_recorder(lambda L, r: (True, None))
+            verify_and_update=pretend.call_recorder(
+                lambda L, r: (True, None)  # noqa: N803
+            )
         )
 
         assert user_service.check_password(user.id, "user password", tags=["bar"])
@@ -337,7 +341,9 @@ class TestDatabaseUserService:
         user = UserFactory.create()
         password = user.password
         user_service.hasher = pretend.stub(
-            verify_and_update=pretend.call_recorder(lambda L, r: (True, "new password"))
+            verify_and_update=pretend.call_recorder(
+                lambda L, r: (True, "new password")  # noqa: N803
+            )
         )
 
         assert user_service.check_password(user.id, "user password")
