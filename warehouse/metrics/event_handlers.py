@@ -71,7 +71,7 @@ def on_before_render(before_render_event):
 
     route_tag = "route:null"
     if request.matched_route:
-        route_tag = "route:%s" % request.matched_route.name
+        route_tag = f"route:{request.matched_route.name}"
 
     if "view_duration" in timings:
         metrics = request.find_service(IMetricsService, context=None)
@@ -93,7 +93,7 @@ def on_new_response(new_response_event):
     metrics = request.find_service(IMetricsService, context=None)
 
     if request.matched_route:
-        route_tag = "route:%s" % request.matched_route.name
+        route_tag = f"route:{request.matched_route.name}"
         tags.append(route_tag)
 
         if "before_render_start" in timings:
@@ -111,8 +111,7 @@ def on_new_response(new_response_event):
     metrics.timing(
         "pyramid.request.duration.total",
         timings["request_duration"],
-        tags=tags
-        + ["status_code:%s" % status_code, "status_type:%sxx" % status_code[0]],
+        tags=tags + [f"status_code:{status_code}", f"status_type:{status_code[0]}xx"],
     )
 
 
@@ -122,6 +121,6 @@ def on_before_retry(event):
 
     route_tag = "route:null"
     if request.matched_route:
-        route_tag = "route:%s" % request.matched_route.name
+        route_tag = f"route:{request.matched_route.name}"
 
     metrics.increment("pyramid.request.retry", tags=[route_tag])

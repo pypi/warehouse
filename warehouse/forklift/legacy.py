@@ -560,8 +560,9 @@ def file_upload(request):
                     + " for more information."
                 )
             else:
-                error_message = "Invalid value for {field}. Error: {msgs[0]}".format(
-                    field=field_name, msgs=form.errors[field_name]
+                error_message = (
+                    f"Invalid value for {field_name}. Error: "
+                    f"{form.errors[field_name][0]}"
                 )
         else:
             error_message = f"Error: {form.errors[field_name][0]}"
@@ -781,8 +782,9 @@ def file_upload(request):
         if rendered is None:
             if meta.description_content_type:
                 message = (
-                    "The description failed to render for '{description_content_type}'."
-                ).format(description_content_type=description_content_type)
+                    "The description failed to render for "
+                    f"'{description_content_type}'."
+                )
             else:
                 message = (
                     "The description failed to render "
@@ -1021,9 +1023,8 @@ def file_upload(request):
                     raise _exc_with_message(
                         HTTPBadRequest,
                         "File too large. "
-                        + "Limit for project {name!r} is {limit} MB. ".format(
-                            name=project.name, limit=file_size_limit // ONE_MIB
-                        )
+                        + f"Limit for project {project.name!r} is "
+                        + f"{file_size_limit // ONE_MIB} MB. "
                         + "See "
                         + request.user_docs_url(
                             "/project-management/storage-limits",
@@ -1035,9 +1036,8 @@ def file_upload(request):
                     raise _exc_with_message(
                         HTTPBadRequest,
                         "Project size too large. Limit for "
-                        + "project {name!r} total size is {limit} GB. ".format(
-                            name=project.name, limit=project_size_limit // ONE_GIB
-                        )
+                        + f"project {project.name!r} total size is "
+                        + f"{project_size_limit // ONE_GIB} GB. "
                         + "See "
                         + request.user_docs_url(
                             "/project-management/storage-limits",
@@ -1420,10 +1420,8 @@ def file_upload(request):
                 )
                 raise _exc_with_message(
                     HTTPBadRequest,
-                    "Wheel '{filename}' does not contain the required "
-                    "METADATA file: {metadata_filename}".format(
-                        filename=filename, metadata_filename=metadata_filename
-                    ),
+                    f"Wheel '{filename}' does not contain the required "
+                    f"METADATA file: {metadata_filename}",
                 )
             try:
                 with open(temporary_filename + ".metadata", "wb") as fp:
@@ -1608,9 +1606,7 @@ def file_upload(request):
         JournalEntry(
             name=release.project.name,
             version=release.version,
-            action="add {python_version} file {filename}".format(
-                python_version=file_.python_version, filename=file_.filename
-            ),
+            action=f"add {file_.python_version} file {file_.filename}",
             submitted_by=request.user if request.user else None,
         )
     )

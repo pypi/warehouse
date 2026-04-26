@@ -47,7 +47,7 @@ class CheckNamedArguments(TypedDict, total=False):
 CheckClaimCallable = Callable[[C, C, SignedClaims, Unpack[CheckNamedArguments]], bool]
 
 
-def check_claim_binary(binary_func: Callable[[C, C], bool]) -> CheckClaimCallable[C]:
+def check_claim_binary[C](binary_func: Callable[[C, C], bool]) -> CheckClaimCallable[C]:
     """
     Wraps a binary comparison function so that it takes three arguments instead,
     ignoring the third.
@@ -67,7 +67,7 @@ def check_claim_binary(binary_func: Callable[[C, C], bool]) -> CheckClaimCallabl
     return wrapper
 
 
-def check_claim_invariant(value: C) -> CheckClaimCallable[C]:
+def check_claim_invariant[C](value: C) -> CheckClaimCallable[C]:
     """
     Wraps a fixed value comparison into a three-argument function.
 

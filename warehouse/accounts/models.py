@@ -489,7 +489,7 @@ class ProhibitedUserName(db.Model):
     comment: Mapped[str] = mapped_column(server_default="")
 
 
-class UniqueLoginStatus(str, enum.Enum):
+class UniqueLoginStatus(enum.StrEnum):
     PENDING = "pending"
     CONFIRMED = "confirmed"
 

@@ -48,7 +48,7 @@ if typing.TYPE_CHECKING:
     from warehouse.subscriptions.models import StripeCustomer, StripeSubscription
 
 
-class OrganizationRoleType(str, enum.Enum):
+class OrganizationRoleType(enum.StrEnum):
     Owner = "Owner"
     BillingManager = "Billing Manager"
     Manager = "Manager"
@@ -236,7 +236,7 @@ class OrganizationOIDCIssuer(db.Model):
     created_by: Mapped[User] = relationship(lazy=False)
 
 
-class OrganizationType(str, enum.Enum):
+class OrganizationType(enum.StrEnum):
     Community = "Community"
     Company = "Company"
 
@@ -306,11 +306,11 @@ class OrganizationMixin:
         return (
             CheckConstraint(
                 "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'::text",
-                name="%s_valid_name" % cls.__tablename__,
+                name=f"{cls.__tablename__}_valid_name",
             ),
             CheckConstraint(
                 "link_url ~* '^https?://.*'::text",
-                name="%s_valid_link_url" % cls.__tablename__,
+                name=f"{cls.__tablename__}_valid_link_url",
             ),
         )
 
@@ -845,7 +845,7 @@ class OrganizationInvitation(db.Model):
     )
 
 
-class TeamRoleType(str, enum.Enum):
+class TeamRoleType(enum.StrEnum):
     Member = "Member"
 
 
@@ -877,7 +877,7 @@ class TeamRole(db.Model):
     team: Mapped[Team] = relationship(lazy=False)
 
 
-class TeamProjectRoleType(str, enum.Enum):
+class TeamProjectRoleType(enum.StrEnum):
     Owner = "Owner"  # Granted "Administer" permissions.
     Maintainer = "Maintainer"  # Granted "Upload" permissions.
 

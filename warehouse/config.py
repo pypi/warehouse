@@ -29,7 +29,7 @@ from warehouse.utils.static import ManifestCacheBuster
 from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
 
 
-class Environment(str, enum.Enum):
+class Environment(enum.StrEnum):
     production = "production"
     development = "development"
 

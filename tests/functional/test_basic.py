@@ -2,7 +2,7 @@
 
 import re
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from http import HTTPStatus
 
 import pytest
@@ -38,7 +38,7 @@ def test_security_txt(app_config):
     assert expires_match is not None
     expires_year = int(expires_match.group(1))
     expires_month = int(expires_match.group(2))
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     assert expires_year == now.year + 1
     assert expires_month == now.month
 

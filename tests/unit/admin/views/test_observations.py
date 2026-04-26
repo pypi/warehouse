@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pytest
 
@@ -541,7 +541,7 @@ class TestHoursBetween:
 
 def _fetch_observations(db_request):
     """Helper to fetch observations for tests using the new API."""
-    cutoff_date = datetime.now(tz=timezone.utc) - timedelta(days=90)
+    cutoff_date = datetime.now(tz=UTC) - timedelta(days=90)
     return views._fetch_malware_observations(db_request, cutoff_date), cutoff_date
 
 
@@ -613,7 +613,7 @@ class TestGetCorroborationStats:
         observer2 = ObserverFactory.create()
         project = ProjectFactory.create()
 
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
 
         # Multi-report package with one true positive action
         ProjectObservationFactory.create(
@@ -644,7 +644,7 @@ class TestGetCorroborationStats:
         observer = ObserverFactory.create()
         project = ProjectFactory.create()
 
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
 
         # Single-report package with false positive action
         ProjectObservationFactory.create(
@@ -712,7 +712,7 @@ class TestGetObserverTypeStats:
         regular_observer = ObserverFactory.create()
         regular_user.observer = regular_observer
 
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
 
         # Trusted observer: true positive (removed)
         ProjectObservationFactory.create(
@@ -771,7 +771,7 @@ class TestGetAutoQuarantineStats:
         project_name = "removed-reported-package"
 
         # Create observation with no related project (simulates deleted project)
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         ProjectObservationFactory.create(
             kind="is_malware",
             related=None,  # Project was deleted
@@ -819,7 +819,7 @@ class TestGetAutoQuarantineStats:
             name=project.name,
             action="project quarantined",
             submitted_by=admin_user,
-            submitted_date=datetime.now(tz=timezone.utc).replace(tzinfo=None),
+            submitted_date=datetime.now(tz=UTC).replace(tzinfo=None),
         )
 
         observations, cutoff_date = _fetch_observations(db_request)
@@ -851,7 +851,7 @@ class TestGetAutoQuarantineStats:
             name=project1.name,
             action="project quarantined",
             submitted_by=admin_user,
-            submitted_date=datetime.now(tz=timezone.utc).replace(tzinfo=None),
+            submitted_date=datetime.now(tz=UTC).replace(tzinfo=None),
         )
 
         observations, cutoff_date = _fetch_observations(db_request)
@@ -903,7 +903,7 @@ class TestGetResponseTimelineStats:
         """
         admin_user = UserFactory.create(username="admin")
         observer = ObserverFactory.create()
-        base_time = datetime.now(tz=timezone.utc).replace(tzinfo=None)
+        base_time = datetime.now(tz=UTC).replace(tzinfo=None)
         project_created = base_time - timedelta(hours=24)
         report_time = base_time - timedelta(hours=12)
 
@@ -937,7 +937,7 @@ class TestGetResponseTimelineStats:
         """Test timeline with observations that have removal actions."""
         admin_user = UserFactory.create(username="admin")
         observer = ObserverFactory.create()
-        base_time = datetime.now(tz=timezone.utc).replace(tzinfo=None)
+        base_time = datetime.now(tz=UTC).replace(tzinfo=None)
         project_created = base_time - timedelta(hours=24)
         report_time = base_time - timedelta(hours=12)
         removal_time = base_time - timedelta(hours=11)
@@ -960,7 +960,7 @@ class TestGetResponseTimelineStats:
             related=project,
             created=report_time,
             actions={
-                int(removal_time.replace(tzinfo=timezone.utc).timestamp()): {
+                int(removal_time.replace(tzinfo=UTC).timestamp()): {
                     "action": "remove_malware",
                     "actor": "admin",
                 }
@@ -980,7 +980,7 @@ class TestGetResponseTimelineStats:
         admin_user = UserFactory.create(username="admin")
 
         observer = ObserverFactory.create()
-        base_time = datetime.now(tz=timezone.utc).replace(tzinfo=None)
+        base_time = datetime.now(tz=UTC).replace(tzinfo=None)
         project_created = base_time - timedelta(hours=24)
         report_time = base_time - timedelta(hours=12)
         quarantine_time = base_time - timedelta(hours=11)
@@ -1013,7 +1013,7 @@ class TestGetResponseTimelineStats:
         """Test that longest-lived packages are returned."""
         admin_user = UserFactory.create(username="admin")
         observer = ObserverFactory.create()
-        base_time = datetime.now(tz=timezone.utc).replace(tzinfo=None)
+        base_time = datetime.now(tz=UTC).replace(tzinfo=None)
         removal_time = base_time - timedelta(hours=1)
 
         # Create multiple projects with different exposure times
@@ -1030,7 +1030,7 @@ class TestGetResponseTimelineStats:
             )
 
             report_time = base_time - timedelta(hours=2)
-            removal_ts = int(removal_time.replace(tzinfo=timezone.utc).timestamp())
+            removal_ts = int(removal_time.replace(tzinfo=UTC).timestamp())
             ProjectObservationFactory.create(
                 kind="is_malware",
                 observer=observer,
@@ -1056,7 +1056,7 @@ class TestGetResponseTimelineStats:
         admin_user = UserFactory.create(username="admin")
         observer1 = ObserverFactory.create()
         observer2 = ObserverFactory.create()
-        base_time = datetime.now(tz=timezone.utc).replace(tzinfo=None)
+        base_time = datetime.now(tz=UTC).replace(tzinfo=None)
         project_created = base_time - timedelta(hours=48)
         even_earlier_report = base_time - timedelta(hours=8)
         earlier_removal = base_time - timedelta(hours=7)
@@ -1074,7 +1074,7 @@ class TestGetResponseTimelineStats:
             submitted_date=project_created,
         )
 
-        removal_ts = int(removal_time.replace(tzinfo=timezone.utc).timestamp())
+        removal_ts = int(removal_time.replace(tzinfo=UTC).timestamp())
 
         # First observation: earlier report time
         ProjectObservationFactory.create(
@@ -1107,9 +1107,7 @@ class TestGetResponseTimelineStats:
 
         # Third observation: even earlier, with an earlier removal time
         # This tests the branch where we update removal_time to an earlier value
-        earlier_removal_ts = int(
-            earlier_removal.replace(tzinfo=timezone.utc).timestamp()
-        )
+        earlier_removal_ts = int(earlier_removal.replace(tzinfo=UTC).timestamp())
         ProjectObservationFactory.create(
             kind="is_malware",
             observer=ObserverFactory.create(),
@@ -1133,7 +1131,7 @@ class TestGetResponseTimelineStats:
         """Test timeline uses min of quarantine/removal for response time."""
         admin_user = UserFactory.create(username="admin")
         observer = ObserverFactory.create()
-        base_time = datetime.now(tz=timezone.utc).replace(tzinfo=None)
+        base_time = datetime.now(tz=UTC).replace(tzinfo=None)
         project_created = base_time - timedelta(hours=48)
         report_time = base_time - timedelta(hours=12)
         quarantine_time = base_time - timedelta(hours=11)
@@ -1141,7 +1139,7 @@ class TestGetResponseTimelineStats:
 
         project = ProjectFactory.create(created=project_created)
 
-        removal_ts = int(removal_time.replace(tzinfo=timezone.utc).timestamp())
+        removal_ts = int(removal_time.replace(tzinfo=UTC).timestamp())
         ProjectObservationFactory.create(
             kind="is_malware",
             observer=observer,
@@ -1183,7 +1181,7 @@ class TestGetResponseTimelineStats:
         original_owner = UserFactory.create(username="original-owner")
 
         project_name = "deleted-test-project"
-        base_time = datetime.now(tz=timezone.utc).replace(tzinfo=None)
+        base_time = datetime.now(tz=UTC).replace(tzinfo=None)
 
         # Simulate original project lifecycle (years ago)
         original_created = base_time - timedelta(days=365 * 3)
@@ -1213,7 +1211,7 @@ class TestGetResponseTimelineStats:
         # Create observation for deleted project (related=None after removal)
         report_time = base_time - timedelta(hours=24)
         removal_time = base_time - timedelta(hours=1)
-        removal_ts = int(removal_time.replace(tzinfo=timezone.utc).timestamp())
+        removal_ts = int(removal_time.replace(tzinfo=UTC).timestamp())
         ProjectObservationFactory.create(
             kind="is_malware",
             related=None,
@@ -1360,7 +1358,7 @@ class TestGetTimelineTrends:
         project_data = {
             "project-key": {
                 "name": "test-project",
-                "project_created": datetime.now(tz=timezone.utc).replace(tzinfo=None),
+                "project_created": datetime.now(tz=UTC).replace(tzinfo=None),
                 "first_report": None,  # Missing first_report
                 "quarantine_time": None,
                 "removal_time": None,
@@ -1396,12 +1394,12 @@ class TestGetTimelineTrends:
         admin_user = UserFactory.create(username="admin")
 
         observer = ObserverFactory.create()
-        project_created = datetime.now(tz=timezone.utc).replace(
-            tzinfo=None
-        ) - timedelta(hours=48)
+        project_created = datetime.now(tz=UTC).replace(tzinfo=None) - timedelta(
+            hours=48
+        )
         project = ProjectFactory.create(created=project_created)
 
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
 
         # Create project creation journal entry (required for time_to_quarantine)
         JournalEntryFactory.create(
@@ -1430,7 +1428,7 @@ class TestGetTimelineTrends:
             name=project.name,
             action="project quarantined",
             submitted_by=admin_user,
-            submitted_date=datetime.now(tz=timezone.utc).replace(tzinfo=None)
+            submitted_date=datetime.now(tz=UTC).replace(tzinfo=None)
             - timedelta(hours=1),
         )
 
@@ -1451,8 +1449,7 @@ class TestGetTimelineTrends:
 
         observer = ObserverFactory.create()
         project = ProjectFactory.create(
-            created=datetime.now(tz=timezone.utc).replace(tzinfo=None)
-            - timedelta(hours=24)
+            created=datetime.now(tz=UTC).replace(tzinfo=None) - timedelta(hours=24)
         )
 
         # Create observation without removal action
@@ -1467,7 +1464,7 @@ class TestGetTimelineTrends:
             name=project.name,
             action="project quarantined",
             submitted_by=admin_user,
-            submitted_date=datetime.now(tz=timezone.utc).replace(tzinfo=None),
+            submitted_date=datetime.now(tz=UTC).replace(tzinfo=None),
         )
 
         project_data = _get_project_data(db_request)
@@ -1481,11 +1478,10 @@ class TestGetTimelineTrends:
         """Test timeline trends with only removal (no quarantine)."""
         observer = ObserverFactory.create()
         project = ProjectFactory.create(
-            created=datetime.now(tz=timezone.utc).replace(tzinfo=None)
-            - timedelta(hours=24)
+            created=datetime.now(tz=UTC).replace(tzinfo=None) - timedelta(hours=24)
         )
 
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
 
         # Create observation with removal action only
         ProjectObservationFactory.create(
@@ -1514,18 +1510,17 @@ class TestGetTimelineTrends:
         observer1 = ObserverFactory.create()
         observer2 = ObserverFactory.create()
         project = ProjectFactory.create(
-            created=datetime.now(tz=timezone.utc).replace(tzinfo=None)
-            - timedelta(hours=48)
+            created=datetime.now(tz=UTC).replace(tzinfo=None) - timedelta(hours=48)
         )
 
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
 
         # First report (later)
         ProjectObservationFactory.create(
             kind="is_malware",
             observer=observer1,
             related=project,
-            created=datetime.now(tz=timezone.utc).replace(tzinfo=None),
+            created=datetime.now(tz=UTC).replace(tzinfo=None),
             actions={
                 int(now.timestamp()): {
                     "action": "remove_malware",
@@ -1540,8 +1535,7 @@ class TestGetTimelineTrends:
             kind="is_malware",
             observer=observer2,
             related=project,
-            created=datetime.now(tz=timezone.utc).replace(tzinfo=None)
-            - timedelta(hours=2),
+            created=datetime.now(tz=UTC).replace(tzinfo=None) - timedelta(hours=2),
         )
 
         project_data = _get_project_data(db_request)
@@ -1554,8 +1548,7 @@ class TestGetTimelineTrends:
         """Test that a later observation doesn't update first_report."""
         observer = ObserverFactory.create()
         project = ProjectFactory.create(
-            created=datetime.now(tz=timezone.utc).replace(tzinfo=None)
-            - timedelta(hours=48)
+            created=datetime.now(tz=UTC).replace(tzinfo=None) - timedelta(hours=48)
         )
 
         # First observation (earlier - should be first_report)
@@ -1563,8 +1556,7 @@ class TestGetTimelineTrends:
             kind="is_malware",
             observer=observer,
             related=project,
-            created=datetime.now(tz=timezone.utc).replace(tzinfo=None)
-            - timedelta(hours=24),
+            created=datetime.now(tz=UTC).replace(tzinfo=None) - timedelta(hours=24),
         )
 
         # Second observation (later - should NOT update first_report)
@@ -1572,7 +1564,7 @@ class TestGetTimelineTrends:
             kind="is_malware",
             observer=observer,
             related=project,
-            created=datetime.now(tz=timezone.utc).replace(tzinfo=None),
+            created=datetime.now(tz=UTC).replace(tzinfo=None),
         )
 
         project_data = _get_project_data(db_request)
@@ -1585,11 +1577,10 @@ class TestGetTimelineTrends:
         """Test actions dict with non-remove_malware entries."""
         observer = ObserverFactory.create()
         project = ProjectFactory.create(
-            created=datetime.now(tz=timezone.utc).replace(tzinfo=None)
-            - timedelta(hours=24)
+            created=datetime.now(tz=UTC).replace(tzinfo=None) - timedelta(hours=24)
         )
 
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
 
         # Actions dict with multiple types - one removal, one other
         ProjectObservationFactory.create(
@@ -1624,15 +1615,12 @@ class TestGetTimelineTrends:
         """
         observer = ObserverFactory.create()
         project = ProjectFactory.create(
-            created=datetime.now(tz=timezone.utc).replace(tzinfo=None)
-            - timedelta(hours=24)
+            created=datetime.now(tz=UTC).replace(tzinfo=None) - timedelta(hours=24)
         )
 
         # Report happens first, removal happens 1 hour later (realistic scenario)
-        report_time = datetime.now(tz=timezone.utc).replace(tzinfo=None) - timedelta(
-            hours=2
-        )
-        removal_time = datetime.now(tz=timezone.utc) - timedelta(hours=1)
+        report_time = datetime.now(tz=UTC).replace(tzinfo=None) - timedelta(hours=2)
+        removal_time = datetime.now(tz=UTC) - timedelta(hours=1)
 
         # Removal action - created_at is optional since we use the dict key
         ProjectObservationFactory.create(
@@ -1660,11 +1648,10 @@ class TestGetTimelineTrends:
         """Test multiple removal actions where later one is ignored."""
         observer = ObserverFactory.create()
         project = ProjectFactory.create(
-            created=datetime.now(tz=timezone.utc).replace(tzinfo=None)
-            - timedelta(hours=48)
+            created=datetime.now(tz=UTC).replace(tzinfo=None) - timedelta(hours=48)
         )
 
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         earlier = now - timedelta(hours=12)
         later = now
 
@@ -1700,7 +1687,7 @@ class TestGetTimelineTrends:
 
         # Use the most recent Wednesday noon so this test is stable around
         # Sunday/Monday boundaries while staying within the rolling cutoff window.
-        current = datetime.now(tz=timezone.utc).replace(tzinfo=None)
+        current = datetime.now(tz=UTC).replace(tzinfo=None)
         days_since_wednesday = (current.weekday() - 2) % 7
         wednesday_time = (current - timedelta(days=days_since_wednesday)).replace(
             hour=12, minute=0, second=0, microsecond=0

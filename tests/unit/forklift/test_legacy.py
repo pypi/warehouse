@@ -528,9 +528,7 @@ class TestIsDuplicateFile:
                 md5_digest=hashes["md5"],
                 sha256_digest=hashes["sha256"],
                 blake2_256_digest=hashes["blake2_256"],
-                path="source/{name[0]}/{name}/{filename}".format(
-                    name=project.name, filename=filename
-                ),
+                path=f"source/{project.name[0]}/{project.name}/{filename}",
             )
         )
 
@@ -564,9 +562,7 @@ class TestIsDuplicateFile:
                 md5_digest=hashes["md5"],
                 sha256_digest=hashes["sha256"],
                 blake2_256_digest=hashes["blake2_256"],
-                path="source/{name[0]}/{name}/{filename}".format(
-                    name=project.name, filename=filename
-                ),
+                path=f"source/{project.name[0]}/{project.name}/{filename}",
             )
         )
 
@@ -605,9 +601,7 @@ class TestIsDuplicateFile:
                 md5_digest=hashes["md5"],
                 sha256_digest=hashes["sha256"],
                 blake2_256_digest=hashes["blake2_256"],
-                path="source/{name[0]}/{name}/{filename}".format(
-                    name=project.name, filename=filename
-                ),
+                path=f"source/{project.name[0]}/{project.name}/{filename}",
             )
         )
 
@@ -644,9 +638,7 @@ class TestIsDuplicateFile:
                 md5_digest=hashes["md5"],
                 sha256_digest=hashes["sha256"],
                 blake2_256_digest=hashes["blake2_256"],
-                path="source/{name[0]}/{name}/{filename}".format(
-                    name=project.name, filename=filename
-                ),
+                path=f"source/{project.name[0]}/{project.name}/{filename}",
             )
         )
 
@@ -915,8 +907,9 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (
-            "400 The name {!r} isn't allowed. See /the/help/url/ for more information."
-        ).format(name)
+            f"400 The name {name!r} isn't allowed. See /the/help/url/ for more "
+            "information."
+        )
 
     @pytest.mark.parametrize(
         "conflicting_name",
@@ -965,9 +958,9 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (
-            "400 The name {!r} is too similar to an existing project. "
+            f"400 The name {conflicting_name!r} is too similar to an existing project. "
             "See /the/help/url/ for more information."
-        ).format(conflicting_name)
+        )
 
     @pytest.mark.parametrize(
         ("description_content_type", "description", "message"),
@@ -1086,11 +1079,11 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (
-            "400 The name {!r} isn't allowed (conflict "
+            f"400 The name {name!r} isn't allowed (conflict "
             "with Python Standard Library module name). "
             "See /the/help/url/ "
             "for more information."
-        ).format(name)
+        )
 
     def test_upload_fails_without_file(self, pyramid_config, db_request):
         user = UserFactory.create()
@@ -2162,9 +2155,7 @@ class TestFileUpload:
                 blake2_256_digest=hashlib.blake2b(
                     file_content.getvalue(), digest_size=256 // 8
                 ).hexdigest(),
-                path="source/{name[0]}/{name}/{filename}".format(
-                    name=project.name, filename=filename
-                ),
+                path=f"source/{project.name[0]}/{project.name}/{filename}",
             )
         )
 
@@ -2213,9 +2204,7 @@ class TestFileUpload:
                 blake2_256_digest=hashlib.blake2b(
                     filename.encode("utf8"), digest_size=256 // 8
                 ).hexdigest(),
-                path="source/{name[0]}/{name}/{filename}".format(
-                    name=project.name, filename=filename
-                ),
+                path=f"source/{project.name[0]}/{project.name}/{filename}",
             )
         )
         db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
@@ -2273,9 +2262,7 @@ class TestFileUpload:
                 md5_digest=hashlib.md5(file_content.getvalue()).hexdigest(),
                 sha256_digest=hashlib.sha256(file_content.getvalue()).hexdigest(),
                 blake2_256_digest=blake2_256_digest,
-                path="source/{name[0]}/{name}/{filename}".format(
-                    name=project.name, filename=filename
-                ),
+                path=f"source/{project.name[0]}/{project.name}/{filename}",
             )
         )
         db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
@@ -2648,10 +2635,10 @@ class TestFileUpload:
         assert db_request.help_url.calls == [pretend.call(_anchor="project-name")]
         assert resp.status_code == 403
         assert resp.status == (
-            "403 The user '{}' "
-            "isn't allowed to upload to project '{}'. "
+            f"403 The user '{user2.username}' "
+            f"isn't allowed to upload to project '{project.name}'. "
             "See /the/help/url/ for more information."
-        ).format(user2.username, project.name)
+        )
 
     def test_upload_fails_without_oidc_publisher_permission(
         self, pyramid_config, db_request
@@ -2692,9 +2679,9 @@ class TestFileUpload:
         assert db_request.help_url.calls == [pretend.call(_anchor="project-name")]
         assert resp.status_code == 403
         assert resp.status == (
-            "403 The given token isn't allowed to upload to project '{}'. "
+            f"403 The given token isn't allowed to upload to project '{project.name}'. "
             "See /the/help/url/ for more information."
-        ).format(project.name)
+        )
 
     def test_upload_attestation_fails_without_oidc_publisher(
         self,
@@ -3870,10 +3857,7 @@ class TestFileUpload:
                 ),
             )
 
-        filename = "{}-{}-cp34-none-any.whl".format(
-            project_name,
-            release.version,
-        )
+        filename = f"{project_name}-{release.version}-cp34-none-any.whl"
         filebody = temp_f.getvalue()
 
         db_request.POST = MultiDict(

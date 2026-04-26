@@ -3,7 +3,7 @@
 import functools
 import logging
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import redis
 
@@ -88,8 +88,8 @@ class RateLimiter:
             if remaining > 0:
                 continue
 
-            current = datetime.now(tz=timezone.utc)
-            reset = datetime.fromtimestamp(resets_at, tz=timezone.utc)
+            current = datetime.now(tz=UTC)
+            reset = datetime.fromtimestamp(resets_at, tz=UTC)
 
             # If our current datetime is either greater than or equal to when
             # the limit resets, then we will skipp it since it has either

@@ -8,7 +8,7 @@ import re
 
 from collections.abc import Mapping
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 
 import packaging.utils
@@ -610,7 +610,7 @@ def _parse_removal_time(actions: dict | None) -> datetime | None:
         if action_data.get("action") != "remove_malware":
             continue
 
-        removal_dt = datetime.fromtimestamp(int(timestamp), tz=timezone.utc)
+        removal_dt = datetime.fromtimestamp(int(timestamp), tz=UTC)
         removal_dt = removal_dt.replace(tzinfo=None)  # naive for DB comparison
         if removal_time is None or removal_dt < removal_time:
             removal_time = removal_dt
@@ -916,7 +916,7 @@ def _get_timeline_trends(project_data: dict) -> dict[str, list]:
 def observations_insights(request: Request):
     """Display report quality insights and response timeline metrics."""
     days = parse_days_param(request)
-    cutoff_date = datetime.now(tz=timezone.utc) - timedelta(days=days)
+    cutoff_date = datetime.now(tz=UTC) - timedelta(days=days)
 
     observations = _fetch_malware_observations(request, cutoff_date)
 

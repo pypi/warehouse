@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
+from datetime import UTC
+
 from warehouse.admin.views import quarantine
 from warehouse.packaging.models import LifecycleStatus
 
@@ -40,10 +42,10 @@ class TestQuarantineList:
 
     def test_quarantine_list_ordered_by_date(self, db_request):
         """Quarantined projects are ordered by quarantine date (oldest first)"""
-        from datetime import datetime, timedelta, timezone
+        from datetime import datetime, timedelta
 
         # Create projects with different quarantine dates
-        base_time = datetime.now(timezone.utc)
+        base_time = datetime.now(UTC)
 
         newer_project = ProjectFactory.create(
             lifecycle_status=LifecycleStatus.QuarantineEnter,

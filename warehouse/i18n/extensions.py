@@ -88,9 +88,9 @@ class FallbackInternationalizationExtension(InternationalizationExtension):
         self,
         gettext: t.Callable[[str], str],
         ngettext: t.Callable[[str, str, int], str],
-        newstyle: t.Optional[bool] = None,
-        pgettext: t.Optional[t.Callable[[str, str], str]] = None,
-        npgettext: t.Optional[t.Callable[[str, str, str, int], str]] = None,
+        newstyle: bool | None = None,
+        pgettext: t.Callable[[str, str], str] | None = None,
+        npgettext: t.Callable[[str, str, str, int], str] | None = None,
     ) -> None:
         if newstyle is not None:
             self.environment.newstyle_gettext = newstyle  # type: ignore

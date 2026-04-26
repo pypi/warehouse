@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from warehouse import tasks
 from warehouse.macaroons.models import Macaroon
@@ -74,7 +74,7 @@ def delete_expired_oidc_macaroons(request):
         .filter(
             # The token has been created at more than 1 day ago
             Macaroon.created + timedelta(days=1)
-            < datetime.now(tz=timezone.utc)
+            < datetime.now(tz=UTC)
         )
         .delete(synchronize_session=False)
     )

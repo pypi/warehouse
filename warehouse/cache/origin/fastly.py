@@ -97,9 +97,7 @@ class FastlyCache:
             self._purger(key)
 
     def _purge_key(self, key, connect_via=None):
-        path = "/service/{service_id}/purge/{key}".format(
-            service_id=self.service_id, key=key
-        )
+        path = f"/service/{self.service_id}/purge/{key}"
         url = urllib.parse.urljoin(self.api_endpoint, path)
         headers = {
             "Accept": "application/json",
@@ -147,9 +145,7 @@ class NullFastlyCache(FastlyCache):
     """Same as FastlyCache, but it doesn't issue any requests"""
 
     def _purge_key(self, key, connect_via=None):
-        path = "/service/{service_id}/purge/{key}".format(
-            service_id=self.service_id, key=key
-        )
+        path = f"/service/{self.service_id}/purge/{key}"
         url = urllib.parse.urljoin(self.api_endpoint, path)
         headers = {
             "Accept": "application/json",

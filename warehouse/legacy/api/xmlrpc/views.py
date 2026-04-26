@@ -61,7 +61,7 @@ _illegal_ranges = [
     "\U000ffffe-\U000fffff",
     "\U0010fffe-\U0010ffff",
 ]
-_illegal_xml_chars_re = re.compile("[%s]" % "".join(_illegal_ranges))
+_illegal_xml_chars_re = re.compile("[{}]".format("".join(_illegal_ranges)))
 
 XMLRPC_DEPRECATION_URL = (
     "https://warehouse.pypa.io/api-reference/xml-rpc.html#deprecated-methods"
@@ -196,7 +196,7 @@ class XMLRPCWrappedError(xmlrpc.client.Fault):
     # This is the interface for specifying fault string for XmlRpcError
     @property
     def faultString(self):  # noqa: N802
-        return "{exc.__class__.__name__}: {exc}".format(exc=self.wrapped_exception)
+        return f"{self.wrapped_exception.__class__.__name__}: {self.wrapped_exception}"
 
 
 class TypedMapplyViewMapper(MapplyViewMapper):

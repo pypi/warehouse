@@ -104,7 +104,7 @@ class Role(db.Model):
     project: Mapped[Project] = orm.relationship(lazy=False, back_populates="roles")
 
 
-class RoleInvitationStatus(str, enum.Enum):
+class RoleInvitationStatus(enum.StrEnum):
     Pending = "pending"
     Expired = "expired"
 
@@ -927,7 +927,7 @@ class Release(HasObservations, db.Model):
         return all(file.uploaded_via_trusted_publisher for file in files)
 
 
-class PackageType(str, enum.Enum):
+class PackageType(enum.StrEnum):
     bdist_dmg = "bdist_dmg"
     bdist_dumb = "bdist_dumb"
     bdist_egg = "bdist_egg"

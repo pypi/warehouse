@@ -34,7 +34,7 @@ class StripeSubscriptionStatus(StrLabelEnum):
         return value in {item.value for item in StripeSubscriptionStatus}
 
 
-class StripeSubscriptionPriceInterval(str, enum.Enum):
+class StripeSubscriptionPriceInterval(enum.StrEnum):
     Month = "month"
     Year = "year"
     Week = "week"

@@ -2438,8 +2438,9 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                 request.db.add(
                     JournalEntry(
                         name=project.name,
-                        action="change {} {} to {}".format(
-                            role.role_name, role.user.username, form.role_name.data
+                        action=(
+                            f"change {role.role_name} {role.user.username} to "
+                            f"{form.role_name.data}"
                         ),
                         submitted_by=request.user,
                     )
