@@ -7,8 +7,6 @@ import tarfile
 import tempfile
 import zipfile
 
-import packaging.requirements
-import packaging.specifiers
 import packaging.utils
 import packaging.version
 import packaging_legacy.version
