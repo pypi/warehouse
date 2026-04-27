@@ -625,6 +625,20 @@ def test_routes(warehouse):
             traverse="/{name}",
             domain=warehouse,
         ),
+        pretend.call(
+            "api.projects.trusted_publishers",
+            "/danger-api/projects/{name}/trusted-publishers",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "api.projects.trusted_publisher",
+            "/danger-api/projects/{name}/trusted-publishers/{publisher_id}",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{name}",
+            domain=warehouse,
+        ),
         # PEP 740 URLs
         pretend.call(
             "integrity.provenance",

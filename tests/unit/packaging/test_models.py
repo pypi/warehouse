@@ -202,6 +202,7 @@ class TestProject:
                         Permissions.ProjectsRead,
                         Permissions.ProjectsUpload,
                         Permissions.ProjectsWrite,
+                        Permissions.APITrustedPublishersManage,
                     ],
                 ),
                 (
@@ -211,6 +212,7 @@ class TestProject:
                         Permissions.ProjectsRead,
                         Permissions.ProjectsUpload,
                         Permissions.ProjectsWrite,
+                        Permissions.APITrustedPublishersManage,
                     ],
                 ),
                 (
@@ -220,6 +222,7 @@ class TestProject:
                         Permissions.ProjectsRead,
                         Permissions.ProjectsUpload,
                         Permissions.ProjectsWrite,
+                        Permissions.APITrustedPublishersManage,
                     ],
                 ),
                 (
@@ -229,6 +232,7 @@ class TestProject:
                         Permissions.ProjectsRead,
                         Permissions.ProjectsUpload,
                         Permissions.ProjectsWrite,
+                        Permissions.APITrustedPublishersManage,
                     ],
                 ),
             ],
@@ -368,6 +372,7 @@ class TestProject:
         _perms_read_and_write = [
             Permissions.ProjectsRead,
             Permissions.ProjectsWrite,
+            Permissions.APITrustedPublishersManage,
         ]
         assert acls == [
             (
@@ -957,6 +962,7 @@ class TestRelease:
                         Permissions.ProjectsRead,
                         Permissions.ProjectsUpload,
                         Permissions.ProjectsWrite,
+                        Permissions.APITrustedPublishersManage,
                     ],
                 ),
                 (
@@ -966,6 +972,7 @@ class TestRelease:
                         Permissions.ProjectsRead,
                         Permissions.ProjectsUpload,
                         Permissions.ProjectsWrite,
+                        Permissions.APITrustedPublishersManage,
                     ],
                 ),
             ],
