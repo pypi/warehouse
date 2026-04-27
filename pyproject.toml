@@ -159,7 +159,6 @@ ignore = [
   #                look at them at some point and try to enable them.
   "RUF005",
   "RUF012",
-  "RUF015",
   "RUF043",
 ]
 

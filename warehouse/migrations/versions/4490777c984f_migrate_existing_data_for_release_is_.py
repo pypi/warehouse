@@ -16,11 +16,13 @@ down_revision = "b0dbcd2f5c77"
 
 
 def _get_num_rows(conn):
-    return list(
-        conn.execute(
-            sa.text("SELECT COUNT(id) FROM releases WHERE is_prerelease IS NULL")
+    return next(
+        iter(
+            conn.execute(
+                sa.text("SELECT COUNT(id) FROM releases WHERE is_prerelease IS NULL")
+            )
         )
-    )[0][0]
+    )[0]
 
 
 def upgrade():
