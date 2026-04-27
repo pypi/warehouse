@@ -93,14 +93,9 @@ deploy = [
     "gunicorn<24.0.0",  # pin to below 24 to avoid a restart error
     "ddtrace==4.7.0",
 ]
-# `dev` is the catch-all picked up by `uv sync` (and `uv add --dev`).
-# pip-tools / pip-api are still here because the bin/deps* scripts use them;
-# they are removed alongside those scripts in a later commit.
 dev = [
     "asyncudp>=0.7",
     "hupper>=1.9",
-    "pip-tools>=1.0",
-    "pip-api",
     "pyramid_debugtoolbar>=2.5",
     "watchdog",
 ]
@@ -293,11 +288,6 @@ filterwarnings = [
     # https://github.com/zopefoundation/meta/issues/194
     '''ignore:Deprecated call to `pkg_resources.declare_namespace\('(paste|repoze)'\).*:DeprecationWarning:pkg_resources''',
 ]
-
-[tool.pip-tools.compile]
-# TODO: This can be removed once it becomes the default.
-# See: https://github.com/jazzband/pip-tools/issues/989
-allow-unsafe = true
 
 [tool.ruff]
 cache-dir = "dev/.ruff_cache"

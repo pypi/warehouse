@@ -96,7 +96,7 @@ jobs:
         with:
           path: |
               dev/.mypy_cache
-          key: ${{ runner.os }}-mypy-${{ env.pythonLocation }}-${{ hashFiles('requirements.txt', 'requirements/*.txt') }}
+          key: ${{ runner.os }}-mypy-${{ env.pythonLocation }}-${{ hashFiles('pyproject.toml', 'uv.lock') }}
       - name: Run ${{ matrix.name }}
         run: ${{ matrix.command }}
 

@@ -38,7 +38,7 @@ default:
 	@echo
 	@exit 1
 
-.state/docker-build-base: Dockerfile package.json package-lock.json requirements/main.txt requirements/deploy.txt requirements/lint.txt requirements/tests.txt requirements/dev.txt
+.state/docker-build-base: Dockerfile package.json package-lock.json pyproject.toml uv.lock
 	# Build our base container for this project.
 	docker compose build --build-arg IPYTHON=$(IPYTHON) --force-rm base
 
@@ -54,7 +54,7 @@ default:
 	mkdir -p .state
 	touch .state/docker-build-static
 
-.state/docker-build-docs: Dockerfile requirements/docs-dev.txt requirements/docs-blog.txt requirements/docs-user.txt
+.state/docker-build-docs: Dockerfile pyproject.toml uv.lock
 	# Build the worker container for this project
 	docker compose build --build-arg  USER_ID=$(shell id -u)  --build-arg GROUP_ID=$(shell id -g) --force-rm dev-docs
 
@@ -112,19 +112,16 @@ licenses: .state/docker-build-base
 	docker compose run --rm base bin/licenses
 
 deps: .state/docker-build-base
-	docker compose run --rm base bin/deps
+	docker compose run --rm base uv lock --check
 
 deps_upgrade_all: .state/docker-build-base
-	docker compose run --rm base bin/deps-upgrade -a
+	docker compose run --rm base uv lock --upgrade
 
 deps_upgrade_project: .state/docker-build-base
-	docker compose run --rm base bin/deps-upgrade -p $(P)
+	docker compose run --rm base uv lock --upgrade-package $(P)
 
 translations: .state/docker-build-base
 	docker compose run --rm base bin/translations
-
-requirements/%.txt: requirements/%.in
-	docker compose run --rm base uv pip compile --generate-hashes --output-file=$@ $<
 
 resetdb: .state/docker-build-base
 	docker compose pause web worker
