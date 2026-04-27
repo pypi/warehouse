@@ -98,11 +98,19 @@ def test_configure_alembic(monkeypatch):
         pretend.call("url", config.registry.settings["database.url"]),
     ]
     assert alembic_config.set_section_option.calls == [
-        pretend.call("post_write_hooks", "hooks", "black, isort"),
-        pretend.call("post_write_hooks", "black.type", "console_scripts"),
-        pretend.call("post_write_hooks", "black.entrypoint", "black"),
-        pretend.call("post_write_hooks", "isort.type", "console_scripts"),
-        pretend.call("post_write_hooks", "isort.entrypoint", "isort"),
+        pretend.call("post_write_hooks", "hooks", "ruff_check, ruff_format"),
+        pretend.call("post_write_hooks", "ruff_check.type", "exec"),
+        pretend.call("post_write_hooks", "ruff_check.executable", "ruff"),
+        pretend.call(
+            "post_write_hooks",
+            "ruff_check.options",
+            "check --fix REVISION_SCRIPT_FILENAME",
+        ),
+        pretend.call("post_write_hooks", "ruff_format.type", "exec"),
+        pretend.call("post_write_hooks", "ruff_format.executable", "ruff"),
+        pretend.call(
+            "post_write_hooks", "ruff_format.options", "format REVISION_SCRIPT_FILENAME"
+        ),
     ]
 
 

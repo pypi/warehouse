@@ -1,10 +1,6 @@
+ruff==0.15.12
 djlint
 flake8
-flake8-pytest-style
-pep8-naming
-black==26.3.1
-isort>=5.13.1
-pyupgrade
 mypy
 celery-types
 msgpack-types

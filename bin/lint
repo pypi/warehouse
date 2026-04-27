@@ -1,11 +1,16 @@
 #!/bin/bash
 set -ex
 
+
+# When on GitHub Actions, configure ruff to use the github output style
+if [ -n "$GITHUB_ACTIONS" ]; then
+  export RUFF_OUTPUT_FORMAT=github
+fi
+
 # Actually run our tests.
-find . -path './.*' -prune -o -name '*.py' -exec python -m pyupgrade --py313-plus {} +
+ruff check
+ruff format --check --diff
 python -m flake8 .
-python -m black --check --diff *.py warehouse/ tests/
-python -m isort --check *.py warehouse/ tests/
 sphinx-lint --enable=all --disable=line-too-long README.rst CONTRIBUTING.rst docs/dev/ --ignore=docs/dev/_build/
 python -m djlint --check --lint ./warehouse/templates ./docs/blog
 python -m mypy -p warehouse

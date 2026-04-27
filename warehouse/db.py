@@ -113,11 +113,19 @@ def _configure_alembic(config):
     alembic_cfg = alembic.config.Config()
     alembic_cfg.set_main_option("script_location", "warehouse:migrations")
     alembic_cfg.set_main_option("url", config.registry.settings["database.url"])
-    alembic_cfg.set_section_option("post_write_hooks", "hooks", "black, isort")
-    alembic_cfg.set_section_option("post_write_hooks", "black.type", "console_scripts")
-    alembic_cfg.set_section_option("post_write_hooks", "black.entrypoint", "black")
-    alembic_cfg.set_section_option("post_write_hooks", "isort.type", "console_scripts")
-    alembic_cfg.set_section_option("post_write_hooks", "isort.entrypoint", "isort")
+    alembic_cfg.set_section_option(
+        "post_write_hooks", "hooks", "ruff_check, ruff_format"
+    )
+    alembic_cfg.set_section_option("post_write_hooks", "ruff_check.type", "exec")
+    alembic_cfg.set_section_option("post_write_hooks", "ruff_check.executable", "ruff")
+    alembic_cfg.set_section_option(
+        "post_write_hooks", "ruff_check.options", "check --fix REVISION_SCRIPT_FILENAME"
+    )
+    alembic_cfg.set_section_option("post_write_hooks", "ruff_format.type", "exec")
+    alembic_cfg.set_section_option("post_write_hooks", "ruff_format.executable", "ruff")
+    alembic_cfg.set_section_option(
+        "post_write_hooks", "ruff_format.options", "format REVISION_SCRIPT_FILENAME"
+    )
     return alembic_cfg
 
 

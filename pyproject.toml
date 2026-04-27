@@ -47,12 +47,6 @@ extend_exclude = "warehouse/templates/api/simple/*"
 # T028: Handled by warehouse config. See: https://github.com/pypi/warehouse/pull/14709
 ignore = "H006,T002,T003,T028"
 
-[tool.isort]
-profile = 'black'
-lines_between_types = 1
-combine_as_imports = true
-known_first_party = ['warehouse', 'tests']
-
 [tool.mypy]
 python_version = "3.13"
 warn_unreachable = true
@@ -132,3 +126,88 @@ filterwarnings = [
 # TODO: This can be removed once it becomes the default.
 # See: https://github.com/jazzband/pip-tools/issues/989
 allow-unsafe = true
+
+[tool.ruff]
+cache-dir = "dev/.ruff_cache"
+target-version = "py313"
+
+[tool.ruff.lint]
+external = ["WH"]  # These come from our internal flake8 plugin.
+select = [
+  # pycodestyle rules; enforces coding style
+  "E",
+  "W",
+  # pyflakes rules; finds coding errors
+  "F",
+  # pep8-naming rules; enforces naming rules
+  "N",
+  # flake8-quotes; enforces quoting styles
+  "Q",
+  # flake8-implicit-str-concat; enforce rules around how strings can be concat
+  "ISC",
+  # flynt; finds cases where "".join() was used with static values instead of f""
+  "FLY",
+  # isort; enforces rules around import grouping and sorting
+  "I",
+  # flake8-tidy-imports; enforces rules around how/what you can import
+  "TID",
+  # flake8-pytest-style; catches issues with pytest tests
+  "PT",
+  # pyupgrade; looks for old patterns that can be upgraded in newer Python versions
+  "UP",
+  # flake8-debugger; looks for erroneous debugger imports/uses
+  "T10",
+  # flake8-executable; looks for executable scripts and shebang issues
+  "EXE",
+  # flake8-gettest; looks for issues passing dynamic strings into gettext
+  "INT",
+  # flake8-slots; finds issues with classes that define __slots__
+  "SLOT",
+  # flake8-logging; enforce rules around good logging use
+  "LOG",
+  # flake8-logging-format; enforce the use of proper logging format strings
+  "G",
+  # flake8-raise; remove extraneous parens on exception raises
+  "RSE",
+  # ruff; grab bag of ruff specific linting rules
+  "RUF",
+]
+ignore = [
+  # TODO(dstufft): These have too many hits to enable currently, but we could look at
+  #                them at some point and try to enable them.
+  "RUF001",
+  "RUF002",
+  "RUF003",
+  "RUF005",
+  "RUF012",
+  "RUF015",
+  "RUF043",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# N805: zope.interface definitions look like classes, but are not
+"interfaces.py" = ["N805"]
+# PT009: These files use a lot of custom assertion tools that trip up this detection.
+"tests/unit/email/test_init.py" = ["PT009"]
+"tests/unit/email/test_services.py" = ["PT009"]
+"tests/unit/test_views.py" = ["PT009"]
+# TID252: Pretty much all of our tests use relative imports.
+"tests/**/*.py" = ["TID252"]
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+lines-between-types = 1
+# Even though `cgi` isn't a stdlib module anymore, treat it as one for now
+extra-standard-library = ["cgi"]
+
+[tool.ruff.lint.pep8-naming]
+classmethod-decorators = [
+  # Allow SQLAlchemy's dynamic decorators, like `@field.expression`, to trigger class
+  # method treatment.
+  "declared_attr",
+  "expression",
+  "comparator",
+]
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"urllib.parse.urlparse".msg = "Prefer `urllib3.util.parse_url` over `urllib.parse.urlparse`"
