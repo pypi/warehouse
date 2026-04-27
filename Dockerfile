@@ -82,21 +82,21 @@ RUN set -x \
 #   UV_PYTHON_DOWNLOADS=never — never auto-fetch a Python; use the system one
 #   UV_PYTHON                — pin uv to the venv's interpreter
 ENV VIRTUAL_ENV="/opt/warehouse" \
+    UV_PROJECT_ENVIRONMENT="/opt/warehouse" \
     UV_LINK_MODE=copy \
     UV_COMPILE_BYTECODE=1 \
     UV_PYTHON_DOWNLOADS=never \
     UV_PYTHON="/opt/warehouse/bin/python"
 ENV PATH="/opt/warehouse/bin:${PATH}"
 
-# Install the Python level Warehouse requirements. requirements/ is bind-mounted
-# rather than COPY'd to keep it out of the layer.
+# Install Python deps via uv sync from pyproject.toml + uv.lock.
+# Bind-mount the lock + manifest so they don't enter the layer.
 RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,source=requirements,target=/tmp/requirements \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
     set -x \
-    && uv pip install --no-deps --only-binary :all: \
-            -r /tmp/requirements/docs-dev.txt \
-            -r /tmp/requirements/docs-user.txt \
-            -r /tmp/requirements/docs-blog.txt \
+    && uv sync --frozen --no-default-groups \
+            --group docs-dev --group docs-user --group docs-blog \
     && uv pip check
 
 WORKDIR /opt/warehouse/src/
@@ -142,34 +142,25 @@ RUN set -x \
 # Point uv (and shells) at the venv we just created.
 # See the docs stage above for the rationale behind each UV_* variable.
 ENV VIRTUAL_ENV="/opt/warehouse" \
+    UV_PROJECT_ENVIRONMENT="/opt/warehouse" \
     UV_LINK_MODE=copy \
     UV_COMPILE_BYTECODE=1 \
     UV_PYTHON_DOWNLOADS=never \
     UV_PYTHON="/opt/warehouse/bin/python"
 ENV PATH="/opt/warehouse/bin:${PATH}"
 
-# Install our development dependencies if we're building a development install
-# otherwise this will do nothing. requirements/ is bind-mounted to stay out of
-# the layer.
+# Install Python deps via uv sync from pyproject.toml + uv.lock.
+# [project].dependencies (was main.in) is always installed; additional groups
+# are conditionally pulled in based on build args.
 RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,source=requirements,target=/tmp/requirements \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
     set -x \
-    && if [ "$DEVEL" = "yes" ]; then uv pip install -r /tmp/requirements/dev.txt; fi
-
-RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,source=requirements,target=/tmp/requirements \
-    set -x \
-    && if [ "$DEVEL" = "yes" ] && [ "$IPYTHON" = "yes" ]; then uv pip install -r /tmp/requirements/ipython.txt; fi
-
-# Install the Python level Warehouse requirements.
-RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,source=requirements,target=/tmp/requirements \
-    set -x \
-    && uv pip install --no-deps --only-binary :all: \
-                    -r /tmp/requirements/deploy.txt \
-                    -r /tmp/requirements/main.txt \
-                    $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt'; fi) \
-                    $(if [ "$CI" = "yes" ]; then echo '-r /tmp/requirements/docs-dev.txt -r /tmp/requirements/docs-user.txt -r /tmp/requirements/docs-blog.txt'; fi ) \
+    && uv sync --frozen --no-default-groups \
+            --group deploy \
+            $(if [ "$DEVEL" = "yes" ]; then echo '--group dev --group tests --group lint'; fi) \
+            $(if [ "$DEVEL" = "yes" ] && [ "$IPYTHON" = "yes" ]; then echo '--group ipython'; fi) \
+            $(if [ "$CI" = "yes" ]; then echo '--group docs-dev --group docs-user --group docs-blog'; fi) \
     && uv pip check
 
 
