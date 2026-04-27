@@ -4,35 +4,36 @@ set -e
 # Print all the following commands
 set -x
 
+# Install uv into the RTD-provided Python so we can use it below.
+pip install uv
+asdf reshim
+
 if [ "${READTHEDOCS_PROJECT}" = "warehouse" ]; then
-  if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git diff --quiet origin/main -- docs/dev requirements/docs-dev.txt .readthedocs.yaml docs/mkdocs-dev-docs.yml; then
+  if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git diff --quiet origin/main -- docs/dev pyproject.toml uv.lock .readthedocs.yaml docs/mkdocs-dev-docs.yml; then
     echo "Nothing relevant changed, skipping build..."
     exit 183;
   fi
-  pip install -r requirements/docs-dev.txt
-  asdf reshim
-  mkdocs build -f docs/mkdocs-dev-docs.yml
+  uv sync --frozen --no-default-groups --group docs-dev
+  uv run --no-sync mkdocs build -f docs/mkdocs-dev-docs.yml
   mkdir _readthedocs && mv docs/dev-site _readthedocs/html
 fi
 
 if [ "${READTHEDOCS_PROJECT}" = "docspypiorg" ]; then
-  if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git diff --quiet origin/main -- docs/user requirements/docs-user.txt .readthedocs.yaml docs/mkdocs-user-docs.yml; then
+  if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git diff --quiet origin/main -- docs/user pyproject.toml uv.lock .readthedocs.yaml docs/mkdocs-user-docs.yml; then
     echo "Nothing relevant changed, skipping build..."
     exit 183;
   fi
-  pip install -r requirements/docs-user.txt
-  asdf reshim
-  mkdocs build -f docs/mkdocs-user-docs.yml
+  uv sync --frozen --no-default-groups --group docs-user
+  uv run --no-sync mkdocs build -f docs/mkdocs-user-docs.yml
   mkdir _readthedocs && mv docs/user-site _readthedocs/html
 fi
 
 if [ "${READTHEDOCS_PROJECT}" = "blogpypiorg" ] || [ "${READTHEDOCS_PROJECT}" = "psf-warehouse-private" ]; then
-  if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git diff --quiet origin/main -- docs/blog requirements/docs-blog.txt .readthedocs.yaml docs/mkdocs-blog.yml; then
+  if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git diff --quiet origin/main -- docs/blog pyproject.toml uv.lock .readthedocs.yaml docs/mkdocs-blog.yml; then
     echo "Nothing relevant changed, skipping build..."
     exit 183;
   fi
-  pip install -r requirements/docs-blog.txt
-  asdf reshim
-  mkdocs build -f docs/mkdocs-blog.yml
+  uv sync --frozen --no-default-groups --group docs-blog
+  uv run --no-sync mkdocs build -f docs/mkdocs-blog.yml
   mkdir _readthedocs && mv docs/blog-site _readthedocs/html
 fi
