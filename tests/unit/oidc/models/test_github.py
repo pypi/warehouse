@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import re
+
 import pretend
 import psycopg
 import pytest
@@ -435,7 +437,7 @@ class TestGitHubPublisher:
 
         with pytest.raises(
             errors.InvalidPublisherError,
-            match=(
+            match=re.escape(
                 "Publishing from a workflow invoked via 'pull_request_target' "
                 "is not supported."
             ),
