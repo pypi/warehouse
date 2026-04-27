@@ -153,6 +153,7 @@ select = [
   "G",  # flake8-logging-format; enforce the use of % logging format strings
   "RSE",  # flake8-raise; remove extraneous parens on exception raises
   "RUF",  # ruff; grab bag of ruff specific linting rules
+  "INP",  # flake8-no-pep420; ensure there is no implicit namespace packages
 ]
 ignore = [
   # TODO(dstufft): These have too many hits to enable currently, but we could
@@ -169,6 +170,13 @@ ignore = [
 "tests/unit/test_views.py" = ["PT009"]
 # TID252: Pretty much all of our tests use relative imports.
 "tests/**/*.py" = ["TID252"]
+# INP001: Our migrations are scripts not files that are part of a package
+"warehouse/migrations/**/*.py" = ["INP001"]
+# INP001: These are just scripipts as well.
+"bin/*.py" = ["INP001"]
+"dev/*.py" = ["INP001"]
+"docs/**/*.py" = ["INP001"]
+".github/codeql/custom-queries/python/**/*.py" = ["INP001"]
 
 [tool.ruff.lint.isort]
 combine-as-imports = true
