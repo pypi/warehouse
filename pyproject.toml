@@ -134,47 +134,29 @@ target-version = "py313"
 [tool.ruff.lint]
 external = ["WH"]  # These come from our internal flake8 plugin.
 select = [
-  # pycodestyle rules; enforces coding style
-  "E",
-  "W",
-  # pyflakes rules; finds coding errors
-  "F",
-  # pep8-naming rules; enforces naming rules
-  "N",
-  # flake8-quotes; enforces quoting styles
-  "Q",
-  # flake8-implicit-str-concat; enforce rules around how strings can be concat
-  "ISC",
-  # flynt; finds cases where "".join() was used with static values instead of f""
-  "FLY",
-  # isort; enforces rules around import grouping and sorting
-  "I",
-  # flake8-tidy-imports; enforces rules around how/what you can import
-  "TID",
-  # flake8-pytest-style; catches issues with pytest tests
-  "PT",
-  # pyupgrade; looks for old patterns that can be upgraded in newer Python versions
-  "UP",
-  # flake8-debugger; looks for erroneous debugger imports/uses
-  "T10",
-  # flake8-executable; looks for executable scripts and shebang issues
-  "EXE",
-  # flake8-gettest; looks for issues passing dynamic strings into gettext
-  "INT",
-  # flake8-slots; finds issues with classes that define __slots__
-  "SLOT",
-  # flake8-logging; enforce rules around good logging use
-  "LOG",
-  # flake8-logging-format; enforce the use of proper logging format strings
-  "G",
-  # flake8-raise; remove extraneous parens on exception raises
-  "RSE",
-  # ruff; grab bag of ruff specific linting rules
-  "RUF",
+  "E",  # pycodestyle rules; enforces coding style
+  "W",  # pycodestyle rules; enforces coding style
+  "F",  # pyflakes rules; finds coding errors
+  "N",  # pep8-naming rules; enforces naming rules
+  "Q",  # flake8-quotes; enforces quoting styles
+  "ISC",  # flake8-implicit-str-concat; enforce rules around string concat
+  "FLY",  # flynt; finds cases where "".join() was used instead of f""
+  "I",  # isort; enforces rules around import grouping and sorting
+  "TID",  # flake8-tidy-imports; enforces rules around how/what you can import
+  "PT",  # flake8-pytest-style; catches issues with pytest tests
+  "UP",  # pyupgrade; upgrade old patterns for new patterns in Python upgrades
+  "T10",  # flake8-debugger; looks for erroneous debugger imports/uses
+  "EXE",  # flake8-executable; looks for executable scripts and shebang issues
+  "INT",  # flake8-gettest; issues passing dynamic strings into gettext
+  "SLOT",  # flake8-slots; finds issues with classes that define __slots__
+  "LOG",  # flake8-logging; enforce rules around good logging use
+  "G",  # flake8-logging-format; enforce the use of % logging format strings
+  "RSE",  # flake8-raise; remove extraneous parens on exception raises
+  "RUF",  # ruff; grab bag of ruff specific linting rules
 ]
 ignore = [
-  # TODO(dstufft): These have too many hits to enable currently, but we could look at
-  #                them at some point and try to enable them.
+  # TODO(dstufft): These have too many hits to enable currently, but we could
+  #                look at them at some point and try to enable them.
   "RUF001",
   "RUF002",
   "RUF003",
