@@ -156,9 +156,13 @@ select = [
   "INP",  # flake8-no-pep420; ensure there is no implicit namespace packages
 ]
 ignore = [
+  # NOTE(dstufft): this lint feels like a good idea in practice, but it triggers
+  #                on a number of cases where we can't use a "proper" fix for
+  #                them, and adding a lot of noqa comments feels worse than
+  #                turning it off.
+  "RUF012",
   # TODO(dstufft): These have too many hits to enable currently, but we could
   #                look at them at some point and try to enable them.
-  "RUF012",
   "ERA",
   "ANN",
   "S",
