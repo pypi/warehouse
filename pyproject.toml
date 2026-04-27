@@ -159,6 +159,22 @@ ignore = [
   # TODO(dstufft): These have too many hits to enable currently, but we could
   #                look at them at some point and try to enable them.
   "RUF012",
+  "ERA",
+  "ANN",
+  "S",
+  "FBT",
+  "B",
+  "A",
+  "COM",
+  "DTZ",
+  "EM",
+  "SLF",
+  "ARG",
+  "PTH",
+  "C90",
+  "D",
+  "PL",
+  "TRY"
 ]
 
 [tool.ruff.lint.per-file-ignores]
