@@ -157,9 +157,6 @@ select = [
 ignore = [
   # TODO(dstufft): These have too many hits to enable currently, but we could
   #                look at them at some point and try to enable them.
-  "RUF001",
-  "RUF002",
-  "RUF003",
   "RUF005",
   "RUF012",
   "RUF015",
