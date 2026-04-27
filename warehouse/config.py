@@ -302,7 +302,7 @@ def reject_duplicate_post_keys_view(view, info):
         return wrapped
 
 
-reject_duplicate_post_keys_view.options = {"permit_duplicate_post_keys"}  # type: ignore
+reject_duplicate_post_keys_view.options = {"permit_duplicate_post_keys"}  # type: ignore[attr-defined]
 
 
 def configure(settings=None):

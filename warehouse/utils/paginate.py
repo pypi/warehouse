@@ -46,7 +46,7 @@ class _OpenSearchWrapper:
         return min(self.results.hits.total["value"], self.max_results)
 
 
-def OpenSearchPage(*args, **kwargs):  # noqa
+def OpenSearchPage(*args, **kwargs):  # noqa: N802
     kwargs.setdefault("wrapper_class", _OpenSearchWrapper)
     return Page(*args, **kwargs)
 

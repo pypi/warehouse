@@ -8,7 +8,7 @@ import psycopg
 import pytest
 import sqlalchemy
 import venusian
-import zope.sqlalchemy  # pyright: ignore
+import zope.sqlalchemy  # pyright: ignore[reportMissingImports]
 
 from sqlalchemy import event
 from sqlalchemy.exc import DBAPIError, OperationalError

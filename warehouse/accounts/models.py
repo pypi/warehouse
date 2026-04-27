@@ -213,7 +213,7 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
         primary_email = self.primary_email
         return primary_email.email if primary_email else None
 
-    @email.expression  # type: ignore
+    @email.expression  # type: ignore[no-redef]
     def email(cls):
         return (
             select(Email.email)

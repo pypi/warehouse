@@ -62,7 +62,7 @@ SPONSORS_DICTS = [
         url="https://research.fb.com/",
         image="facebook.png",
         activity=[
-            "Facebook / Instagram is a sustainability sponsor of the Python Software Foundation."  # noqa
+            "Facebook / Instagram is a sustainability sponsor of the Python Software Foundation."  # noqa: E501
         ],
         footer=True,
         psf_sponsor=True,
@@ -156,7 +156,7 @@ SPONSORS_DICTS = [
         url="http://www.cockroachlabs.com/",
         image="cockroach.png",
         activity=[
-            "Cockroach Labs is a contributing sponsor of the Python Software Foundation."  # noqa
+            "Cockroach Labs is a contributing sponsor of the Python Software Foundation."  # noqa: E501
         ],
         footer=False,
         psf_sponsor=True,
@@ -220,7 +220,7 @@ SPONSORS_DICTS = [
         url="https://pythoninstitute.org/",
         image="openEDG.png",
         activity=[
-            "OpenEDG Python Institute is a supporting sponsor of the Python Software Foundation."  # noqa
+            "OpenEDG Python Institute is a supporting sponsor of the Python Software Foundation."  # noqa: E501
         ],
         footer=False,
         psf_sponsor=True,
@@ -386,7 +386,7 @@ SPONSORS_DICTS = [
         url="https://www.elastic.co/",
         image="elastic.png",
         activity=[
-            "Elasticsearch, Inc. is a partner sponsor of the Python Software Foundation."  # noqa
+            "Elasticsearch, Inc. is a partner sponsor of the Python Software Foundation."  # noqa: E501
         ],
         footer=False,
         psf_sponsor=True,
@@ -446,7 +446,7 @@ SPONSORS_DICTS = [
         url="https://www.adimian.com/",
         image="adimian.png",
         activity=[
-            "Adimian.be SPRL is a participating sponsor of the Python Software Foundation."  # noqa
+            "Adimian.be SPRL is a participating sponsor of the Python Software Foundation."  # noqa: E501
         ],
         footer=False,
         psf_sponsor=True,
@@ -462,7 +462,7 @@ SPONSORS_DICTS = [
         url="https://www.python-academy.com/",
         image="pythonacademy.png",
         activity=[
-            "Python Academy is a participating sponsor of the Python Software Foundation."  # noqa
+            "Python Academy is a participating sponsor of the Python Software Foundation."  # noqa: E501
         ],
         footer=False,
         psf_sponsor=True,
@@ -495,7 +495,7 @@ SPONSORS_DICTS = [
         url="https://www.pingdom.com/",
         image="pingdom.png",
         activity=[
-            "PyPI's infrastructure volunteers use Pingdom to monitor and receive alerts about downtime and other issues affecting end-users."  # noqa
+            "PyPI's infrastructure volunteers use Pingdom to monitor and receive alerts about downtime and other issues affecting end-users."  # noqa: E501
         ],
         footer=False,
         psf_sponsor=False,
@@ -509,7 +509,7 @@ SPONSORS_DICTS = [
         url="https://getsentry.com/for/python",
         image="sentry.png",
         activity=[
-            "The PyPI team uses Sentry to capture, record, and respond to exceptions and errors on PyPI."  # noqa
+            "The PyPI team uses Sentry to capture, record, and respond to exceptions and errors on PyPI."  # noqa: E501
         ],
         footer=False,
         psf_sponsor=False,
@@ -523,7 +523,7 @@ SPONSORS_DICTS = [
         url="https://aws.amazon.com/",
         image="aws.png",
         activity=[
-            "PyPI uses AWS infrastructure to host the machines that power our services, serve DNS, host our databases, and send and monitor email.",  # noqa
+            "PyPI uses AWS infrastructure to host the machines that power our services, serve DNS, host our databases, and send and monitor email.",  # noqa: E501
         ],
         footer=False,
         psf_sponsor=False,
@@ -537,7 +537,7 @@ SPONSORS_DICTS = [
         url="https://www.datadoghq.com/",
         image="datadog.png",
         activity=[
-            "PyPI uses Datadog to collect metrics from the applications, services, and infrastructure behind the scenes allowing for the team to measure the impact of new changes, monitor for problems, and alert when systems fail."  # noqa
+            "PyPI uses Datadog to collect metrics from the applications, services, and infrastructure behind the scenes allowing for the team to measure the impact of new changes, monitor for problems, and alert when systems fail."  # noqa: E501
         ],
         footer=False,
         psf_sponsor=False,
@@ -551,7 +551,7 @@ SPONSORS_DICTS = [
         url="https://www.fastly.com/",
         image="fastly.png",
         activity=[
-            "PyPI uses Fastly's CDN to quickly serve content to end-users, allowing us to minimize our hosting infrastructure and obscure possible downtime."  # noqa
+            "PyPI uses Fastly's CDN to quickly serve content to end-users, allowing us to minimize our hosting infrastructure and obscure possible downtime."  # noqa: E501
         ],
         footer=False,
         psf_sponsor=False,
@@ -565,7 +565,7 @@ SPONSORS_DICTS = [
         url="https://www.digicert.com/",
         image="digicert.png",
         activity=[
-            "PyPI uses Digicert to secure communication and prove identity with an EV Certificate."  # noqa
+            "PyPI uses Digicert to secure communication and prove identity with an EV Certificate."  # noqa: E501
         ],
         footer=False,
         psf_sponsor=False,
@@ -579,7 +579,7 @@ SPONSORS_DICTS = [
         url="https://statuspage.io",
         image="statuspage.png",
         activity=[
-            "The PyPI team uses StatusPage to communicate downtime, service degradation, or maintenance windows to end-users."  # noqa
+            "The PyPI team uses StatusPage to communicate downtime, service degradation, or maintenance windows to end-users."  # noqa: E501
         ],
         footer=False,
         psf_sponsor=False,
@@ -592,8 +592,8 @@ SPONSORS_DICTS = [
         url="https://www.mozilla.org",
         image="mozilla.png",
         activity=[
-            "In late 2017 the Python Software Foundation was awarded a Mozilla Open Source Support (MOSS) award.",  # noqa
-            "This award was used to move PyPI from its legacy codebase and deploy Warehouse - the new codebase powering PyPI.",  # noqa
+            "In late 2017 the Python Software Foundation was awarded a Mozilla Open Source Support (MOSS) award.",  # noqa: E501
+            "This award was used to move PyPI from its legacy codebase and deploy Warehouse - the new codebase powering PyPI.",  # noqa: E501
         ],
         footer=False,
         psf_sponsor=False,
@@ -606,8 +606,8 @@ SPONSORS_DICTS = [
         url="https://www.opentech.fund",
         image="otf.png",
         activity=[
-            "In 2019 the Python Software Foundation was awarded a contract through the OTF Core Infrastructure Fund.",  # noqa
-            "This contract included an audit and improvements to the accessibility of PyPI, internationalization and translations for PyPI user interface, and security features including two-factor authentication and API tokens for uploads.",  # noqa
+            "In 2019 the Python Software Foundation was awarded a contract through the OTF Core Infrastructure Fund.",  # noqa: E501
+            "This contract included an audit and improvements to the accessibility of PyPI, internationalization and translations for PyPI user interface, and security features including two-factor authentication and API tokens for uploads.",  # noqa: E501
         ],
         footer=False,
         psf_sponsor=False,

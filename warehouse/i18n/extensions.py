@@ -93,8 +93,8 @@ class FallbackInternationalizationExtension(InternationalizationExtension):
         npgettext: t.Callable[[str, str, str, int], str] | None = None,
     ) -> None:
         if newstyle is not None:
-            self.environment.newstyle_gettext = newstyle  # type: ignore
-        if self.environment.newstyle_gettext:  # type: ignore
+            self.environment.newstyle_gettext = newstyle  # type: ignore[attr-defined]
+        if self.environment.newstyle_gettext:  # type: ignore[attr-defined]
             gettext = _make_newer_gettext(gettext)
             ngettext = _make_newer_ngettext(ngettext)
 

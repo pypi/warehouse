@@ -98,7 +98,7 @@ def test_mint_token_from_oidc_not_enabled(token, service_name, request):
         "errors": [
             {
                 "code": "not-enabled",
-                "description": f"{service_name} trusted publishing functionality not enabled",  # noqa
+                "description": f"{service_name} trusted publishing functionality not enabled",  # noqa: E501
             }
         ],
     }

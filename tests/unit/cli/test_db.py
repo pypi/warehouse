@@ -306,7 +306,7 @@ def test_dbml_command(monkeypatch, cli):
     generate_dbml_file = pretend.call_recorder(lambda tables, path: None)
     monkeypatch.setattr(warehouse.cli.db.dbml, "generate_dbml_file", generate_dbml_file)
 
-    ModelBase = pretend.stub(  # noqa
+    ModelBase = pretend.stub(  # noqa: N806
         metadata=pretend.stub(
             tables=pretend.stub(
                 values=pretend.call_recorder(lambda: ["table0", "table1"])

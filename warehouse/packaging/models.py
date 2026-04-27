@@ -952,7 +952,7 @@ class File(HasEvents, db.Model):
                 "packagetype",
                 unique=True,
                 postgresql_where=(
-                    (cls.packagetype == "sdist") & (cls.allow_multiple_sdist == False)  # noqa
+                    (cls.packagetype == "sdist") & (cls.allow_multiple_sdist == False)  # noqa: E712
                 ),
             ),
             Index("release_files_release_id_idx", "release_id"),
@@ -1026,7 +1026,7 @@ class File(HasEvents, db.Model):
     def metadata_path(self):
         return self.path + ".metadata"
 
-    @metadata_path.expression  # type: ignore
+    @metadata_path.expression  # type: ignore[no-redef]
     def metadata_path(cls):
         return func.concat(cls.path, ".metadata")
 
