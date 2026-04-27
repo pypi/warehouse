@@ -361,7 +361,7 @@ class GitLabPublisherMixin:
             if organization
             else set()
         )
-        return [GITLAB_OIDC_ISSUER_URL] + sorted(issuer_urls)
+        return [GITLAB_OIDC_ISSUER_URL, *sorted(issuer_urls)]
 
 
 class GitLabPublisher(GitLabPublisherMixin, OIDCPublisher):

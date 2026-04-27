@@ -1546,7 +1546,7 @@ class TestFileUpload:
         classifier = ClassifierFactory(classifier="AA :: BB")
 
         monkeypatch.setattr(
-            metadata, "all_classifiers", metadata.all_classifiers + ["AA :: BB"]
+            metadata, "all_classifiers", [*metadata.all_classifiers, "AA :: BB"]
         )
         monkeypatch.setattr(metadata, "deprecated_classifiers", deprecated_classifiers)
 

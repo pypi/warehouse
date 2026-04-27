@@ -97,7 +97,7 @@ class WarehouseTask(celery.Task):
         create a fake one here. This is necessary as a lot of our code assumes
         that there's a Pyramid request object available.
         """
-        return super().__call__(*(self.get_request(),) + args, **kwargs)
+        return super().__call__(*(self.get_request(), *args), **kwargs)
 
     def get_request(self) -> Request:
         """

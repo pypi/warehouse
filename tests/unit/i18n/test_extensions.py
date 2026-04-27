@@ -19,7 +19,7 @@ from warehouse.i18n import extensions
 )
 def test_trim_trans_tags(ext, result):
     env = Environment(
-        extensions=["jinja2.ext.i18n"] + ext,
+        extensions=["jinja2.ext.i18n", *ext],
     )
 
     class Faketext:

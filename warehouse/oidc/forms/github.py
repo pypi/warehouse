@@ -184,7 +184,7 @@ class GitHubPublisherBase(wtforms.Form):
 
 
 class PendingGitHubPublisherForm(GitHubPublisherBase, PendingPublisherMixin):
-    __params__ = GitHubPublisherBase.__params__ + ["project_name"]
+    __params__ = [*GitHubPublisherBase.__params__, "project_name"]
 
     def __init__(self, *args, route_url, check_project_name, user, **kwargs):
         super().__init__(*args, **kwargs)

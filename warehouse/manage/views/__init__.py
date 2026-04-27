@@ -1245,8 +1245,10 @@ class ManageProjectSettingsViews:
 
     @view_config(
         request_method="POST",
-        request_param=AddAlternateRepositoryForm.__params__
-        + ["alternate_repository_location=add"],
+        request_param=[
+            *AddAlternateRepositoryForm.__params__,
+            "alternate_repository_location=add",
+        ],
         require_reauth=True,
         permission=Permissions.ProjectsWrite,
     )

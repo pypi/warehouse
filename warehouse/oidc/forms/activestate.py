@@ -179,7 +179,7 @@ class ActiveStatePublisherBase(wtforms.Form):
 
 
 class PendingActiveStatePublisherForm(ActiveStatePublisherBase, PendingPublisherMixin):
-    __params__ = ActiveStatePublisherBase.__params__ + ["project_name"]
+    __params__ = [*ActiveStatePublisherBase.__params__, "project_name"]
 
     def __init__(self, *args, route_url, check_project_name, user, **kwargs):
         super().__init__(*args, **kwargs)

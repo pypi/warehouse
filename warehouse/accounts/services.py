@@ -185,7 +185,7 @@ class DatabaseUserService:
                 logger.warning("IP failed login threshold reached.")
                 self._metrics.increment(
                     "warehouse.authentication.ratelimited",
-                    tags=tags + ["ratelimiter:ip"],
+                    tags=[*tags, "ratelimiter:ip"],
                 )
                 raise TooManyFailedLogins(
                     resets_in=self.ratelimiters["ip.login"].resets_in(self.remote_addr)
@@ -197,7 +197,7 @@ class DatabaseUserService:
             logger.warning("Global failed login threshold reached.")
             self._metrics.increment(
                 "warehouse.authentication.ratelimited",
-                tags=tags + ["ratelimiter:global"],
+                tags=[*tags, "ratelimiter:global"],
             )
             raise TooManyFailedLogins(
                 resets_in=self.ratelimiters["global.login"].resets_in()
@@ -209,7 +209,7 @@ class DatabaseUserService:
             if not self.ratelimiters["user.login"].test(userid):
                 self._metrics.increment(
                     "warehouse.authentication.ratelimited",
-                    tags=tags + ["ratelimiter:user"],
+                    tags=[*tags, "ratelimiter:user"],
                 )
                 raise TooManyFailedLogins(
                     resets_in=self.ratelimiters["user.login"].resets_in(userid)
@@ -230,7 +230,7 @@ class DatabaseUserService:
                 logger.warning("IP failed 2FA threshold reached.")
                 self._metrics.increment(
                     "warehouse.authentication.ratelimited",
-                    tags=tags + ["ratelimiter:ip"],
+                    tags=[*tags, "ratelimiter:ip"],
                 )
                 raise TooManyFailedLogins(
                     resets_in=self.ratelimiters["2fa.ip"].resets_in(self.remote_addr)
@@ -241,7 +241,7 @@ class DatabaseUserService:
             logger.warning("User failed 2FA threshold reached.")
             self._metrics.increment(
                 "warehouse.authentication.ratelimited",
-                tags=tags + ["ratelimiter:user"],
+                tags=[*tags, "ratelimiter:user"],
             )
             raise TooManyFailedLogins(
                 resets_in=self.ratelimiters["2fa.user"].resets_in(userid)
@@ -285,11 +285,11 @@ class DatabaseUserService:
             else:
                 self._metrics.increment(
                     "warehouse.authentication.failure",
-                    tags=tags + ["failure_reason:password"],
+                    tags=[*tags, "failure_reason:password"],
                 )
         else:
             self._metrics.increment(
-                "warehouse.authentication.failure", tags=tags + ["failure_reason:user"]
+                "warehouse.authentication.failure", tags=[*tags, "failure_reason:user"]
             )
 
         # If we've gotten here, then we'll want to record a failed login in our
@@ -503,7 +503,7 @@ class DatabaseUserService:
         if totp_secret is None:
             self._metrics.increment(
                 "warehouse.authentication.two_factor.failure",
-                tags=tags + ["failure_reason:no_totp"],
+                tags=[*tags, "failure_reason:no_totp"],
             )
             # If we've gotten here, then we'll want to record a failed attempt in our
             # rate limiting before returning False to indicate a failed totp
@@ -522,14 +522,14 @@ class DatabaseUserService:
         except otp.OutOfSyncTOTPError:
             self._metrics.increment(
                 "warehouse.authentication.two_factor.failure",
-                tags=tags + ["failure_reason:out_of_sync"],
+                tags=[*tags, "failure_reason:out_of_sync"],
             )
             self._hit_2fa_ratelimits(userid=user_id)
             raise otp.OutOfSyncTOTPError
         except otp.InvalidTOTPError:
             self._metrics.increment(
                 "warehouse.authentication.two_factor.failure",
-                tags=tags + ["failure_reason:invalid_totp"],
+                tags=[*tags, "failure_reason:invalid_totp"],
             )
             # If we've gotten here, then we'll want to record a failed attempt in our
             # rate limiting before raising to indicate a failed totp verification.

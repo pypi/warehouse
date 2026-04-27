@@ -685,7 +685,7 @@ class SaveOrganizationForm(wtforms.Form):
 
 
 class CreateOrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationForm):
-    __params__ = ["name"] + SaveOrganizationForm.__params__
+    __params__ = ["name", *SaveOrganizationForm.__params__]
 
     _max_apps = wtforms.IntegerField()
 

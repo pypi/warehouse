@@ -437,8 +437,10 @@ class ManageOrganizationSettingsViews:
 
     @view_config(
         request_method="POST",
-        request_param=["confirm_current_organization_name"]
-        + SaveOrganizationNameForm.__params__,
+        request_param=[
+            "confirm_current_organization_name",
+            *SaveOrganizationNameForm.__params__,
+        ],
     )
     def save_organization_name(self):
         confirm_organization(
