@@ -1,3 +1,175 @@
+[project]
+name = "warehouse"
+version = "0.0.0"
+description = "PyPI's web application"
+requires-python = ">=3.13"
+dependencies = [
+    "alembic>=0.7.0",
+    "alembic-postgresql-enum",
+    "Automat",
+    "argon2-cffi",
+    "b2sdk",
+    "Babel",
+    "bcrypt",
+    "boto3",
+    "celery[redis]>=5.6.2,<5.7",
+    "celery-redbeat",
+    "certifi",
+    "click",
+    "cryptography>=43.0.1",
+    "datadog>=0.19.0",
+    "disposable-email-domains",
+    "dnspython",
+    "email-validator",
+    "forcediphttpsadapter",
+    "github-reserved-names>=1.0.0",
+    "google-cloud-bigquery",
+    "google-cloud-storage",
+    "hiredis",
+    "html5lib",
+    "humanize",
+    "itsdangerous",
+    "Jinja2>=2.8",
+    # https://github.com/jazzband/pip-tools/issues/1577
+    "kombu[redis]>=5.6,<5.7",
+    "limits",
+    "linehaul",
+    "lxml",
+    "more-itertools",
+    "msgpack",
+    "natsort",
+    "nh3",
+    "opensearch-py",
+    "orjson",
+    "packaging>=26.1",
+    "packaging_legacy",
+    "paginate>=0.5.2",
+    "paginate_sqlalchemy",
+    "passlib>=1.6.4",
+    "platformdirs>=4.2",
+    "premailer",
+    "psycopg[binary]",
+    "pydantic",
+    "pyqrcode-binary",
+    "pyramid>=2.0",
+    "pymacaroons",
+    "pyramid_jinja2>=2.5",
+    "pyramid_mailer>=0.14.1",
+    "pyramid_openapi3>=0.17.1",
+    "pyramid_redirect>=0.4",
+    "pyramid_retry>=0.3",
+    "pyramid_rpc>=0.7",
+    "pyramid_services>=2.1",
+    "pyramid_tm>=0.12",
+    "python-slugify",
+    "pytz",
+    "PyJWT[crypto]>=2.8.0",
+    "readme-renderer[md]>=36.0",
+    "requests",
+    "requests-aws4auth",
+    "redis>=2.8.0,<7.0.0",
+    "rfc3986",
+    "sentry-sdk",
+    "pypi-attestations==0.0.29",
+    "sqlalchemy[asyncio]>=2.0,<3.0",
+    "stdlib-list",
+    "stripe",
+    "structlog",
+    "tldextract",
+    "transaction",
+    "trove-classifiers",
+    "ua-parser",
+    "urllib3",
+    "webauthn>=1.0.0,<3.0.0",
+    "whitenoise",
+    "WTForms[email]>=2.0.0",
+    "yara-x",
+    "zope.sqlalchemy",
+    "zxcvbn",
+]
+
+[dependency-groups]
+deploy = [
+    "gunicorn<24.0.0",  # pin to below 24 to avoid a restart error
+    "ddtrace==4.7.0",
+]
+# `dev` is the catch-all picked up by `uv sync` (and `uv add --dev`).
+# pip-tools / pip-api are still here because the bin/deps* scripts use them;
+# they are removed alongside those scripts in a later commit.
+dev = [
+    "asyncudp>=0.7",
+    "hupper>=1.9",
+    "pip-tools>=1.0",
+    "pip-api",
+    "pyramid_debugtoolbar>=2.5",
+    "watchdog",
+]
+ipython = ["ipython>=9.12.0"]
+lint = [
+    "ruff==0.15.12",
+    "djlint",
+    "flake8",
+    "mypy",
+    "celery-types",
+    "msgpack-types",
+    "mypy-zope",
+    "sphinx-lint",
+    "types-babel",
+    "boto3-stubs",
+    "types-certifi",
+    "types-first",
+    "types-html5lib",
+    "types-itsdangerous",
+    "types-passlib",
+    "types-python-slugify",
+    "types-pytz",
+    "types-redis",
+    "types-requests==2.33.0.20260408",
+    "types-stripe",
+    "types-WTForms",
+    "types-WebOb",
+    "types-zxcvbn",
+]
+tests = [
+    "coverage",
+    "factory_boy",
+    "freezegun",
+    "pretend",
+    "pytest>=3.0.0",
+    "pytest-icdiff",
+    "pytest-mock",
+    "pytest-postgresql>=3.1.3,<9.0.0",
+    "pytest-randomly",
+    "pytest-socket",
+    "pytest-sugar",
+    "pytest-xdist",
+    "pytz",
+    "responses>=0.5.1",
+    "webtest",
+]
+docs-dev = [
+    "mkdocs",
+    "mkdocs-material",
+    "mkdocs-redirects",
+]
+docs-user = [
+    "material-plausible-plugin",
+    "mkdocs",
+    "mkdocs-material",
+    "mkdocs-macros-plugin",
+]
+docs-blog = [
+    "material-plausible-plugin",
+    "mkdocs",
+    "mkdocs-material",
+    "mkdocs-rss-plugin",
+    "pillow",
+    "cairosvg",
+]
+
+[tool.uv]
+package = false
+
 [tool.coverage.run]
 branch = true
 dynamic_context = "test_function"
