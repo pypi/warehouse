@@ -170,6 +170,10 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # pull in the static files that were built above.
 FROM python:${PYTHON_IMAGE_VERSION}
 
+# Pull the uv binary in so it is available at runtime. Used by bin/lint
+# (uv lock --check), make deps_upgrade_*, and any in-container shell work.
+COPY --from=ghcr.io/astral-sh/uv:0.11.7 /uv /uvx /usr/local/bin/
+
 # Setup some basic environment variables that are ~never going to change.
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONPATH /opt/warehouse/src/
