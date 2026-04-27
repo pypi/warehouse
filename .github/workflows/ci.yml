@@ -54,7 +54,7 @@ jobs:
           - name: Developer Documentation
             command: bin/dev-docs
           - name: Dependencies
-            command: bin/deps
+            command: uv lock --check
           - name: Licenses
             command: bin/licenses
           - name: Translations
