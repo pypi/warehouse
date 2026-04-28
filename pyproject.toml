@@ -132,48 +132,35 @@ cache-dir = "dev/.ruff_cache"
 target-version = "py313"
 
 [tool.ruff.lint]
-external = ["WH"]  # These come from our internal flake8 plugin.
+# enable ALL lints by default, then opt out of ones we don't want to use so that we
+# pick up new lints by default when we upgrade and if they fail, we can make a decision
+# about whether to ignore it or fix it.
 select = ["ALL"]
 ignore = [
-  # NOTE(dstufft): this lint feels like a good idea in practice, but it triggers
-  #                on a number of cases where we can't use a "proper" fix for
-  #                them, and adding a lot of noqa comments feels worse than
-  #                turning it off.
-  "RUF012",
-  # NOTE(dstufft): these lints would be nice to add, but our db models are very circular
-  #                which these lints struggle with.
-  "TC",
-  # NOTE(dstufft): this lint changes lambda's that wrap dict/list/set into just calls to
-  #                the container type, which saves a layer of indrection but it changes
-  #                the actual function signature, which we do not want.
-  "PIE807",
-  # NOTE(dstufft): this lint rejects uses of TODO comments in the code base, which we
-  #                have regularly used. Maybe in the future we should file issues
-  #                instead, but for now it's not likely going to change.
-  "FIX",
-  # NOTE(dstufft): this lint rejects use of TODO comments that don't have an author and
-  #                a link. Again, maybe something we should do but we have a lot of
-  #                these and it's not likely going to change at the moment.
-  "TD",
-  # TODO(dstufft): These have too many hits to enable currently, but we could
-  #                look at them at some point and try to enable them.
-  "ERA",
-  "ANN",
-  "S",
-  "FBT",
-  "B",
-  "A",
-  "COM",
-  "DTZ",
-  "EM",
-  "SLF",
-  "ARG",
-  "PTH",
-  "C90",
-  "D",
-  "PL",
-  "TRY"
+  "RUF012",  # this lint triggers in cases where it's impossible for us to fix it
+  "TC",  # the circular imports in our db models breaks this
+  "PIE807",  # turns `lambda: dict()` into just `dict`, which changes the signature
+  "FIX",  # we regularly leave TODO comments in the code, which this rejects
+  "TD",  # this wants TODO comments to have author and link, which we don't do
+  "ERA",  # this has a REALLY high false positive rate
+  "ANN",  # requires typing annotations, which has almost 15k errors for us
+  "S",  # high false positives rate, checks for security issues so would be nice to use
+  "FBT",  # rejects boolean params that change function behavior, requires api changes
+  "B",  # catches a lot of funky patterns, but needs reviewed to make sure they're ok
+  "A",  # rejects shadowing builtins, which we do a bit and would need closer review
+  "SLF",  # rejects using _private items, would need careful review to add
+  "DTZ",  # prevents using naive datetimes, probably useful, but needs manual review
+  "TRY",  # would require reworking some of our exceptions to make this work
+  "EM",  # would require reworking some of our exceptions to make this work
+  "PL",  # a lot of rules, some might be good, a lot are noise but needs review
+  "PTH",  # tries to enforce pathlib, but most of our paths are abstract urls/keys
+  "ARG",  # rejects unused arguments, but we have to have them in a lot of places
+  "C90",  # enforces mccabe complexity, adding would require refactoring
+  "D",  # requires doc strings, super high error rate for us and not much value
+  "COM812",  # incompatible with the formatter, no idea why this even exists
+  "COM819",  # redundant with the formatter, also no idea why this even exists
 ]
+external = ["WH"]  # These come from our internal flake8 plugin.
 
 [tool.ruff.lint.per-file-ignores]
 # N805: zope.interface definitions look like classes, but are not
