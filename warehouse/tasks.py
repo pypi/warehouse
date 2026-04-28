@@ -9,6 +9,8 @@ import time
 import typing
 import urllib.parse
 
+from typing import Self
+
 import celery
 import celery.app.backends
 import celery.backends.redis
@@ -51,7 +53,7 @@ class WarehouseTask(celery.Task):
     __header__: typing.Callable
     _wh_original_run: typing.Callable
 
-    def __new__(cls, *args, **kwargs) -> WarehouseTask:
+    def __new__(cls, *args, **kwargs) -> Self:
         """
         Override to wrap the `run` method of the task with a new method that
         will handle exceptions from the task and retry them if they're retryable.

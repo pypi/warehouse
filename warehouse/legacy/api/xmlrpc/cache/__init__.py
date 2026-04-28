@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import collections
+from typing import Any, NamedTuple
 
 from pyramid.exceptions import ConfigurationError
 from sqlalchemy.orm.base import NO_VALUE
@@ -17,7 +17,9 @@ from warehouse.utils.db import orm_session_from_obj
 __all__ = ["RedisLru"]
 
 
-CacheKeys = collections.namedtuple("CacheKeys", ["cache", "purge"])
+class CacheKeys(NamedTuple):
+    cache: Any
+    purge: Any
 
 
 def receive_set(attribute, config, target):

@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import collections
 import functools
 import operator
 
 from itertools import chain
+from typing import Any, NamedTuple
 
 import structlog
 
@@ -145,7 +145,9 @@ def origin_cache(seconds, keys=None, stale_while_revalidate=None, stale_if_error
     return inner
 
 
-CacheKeys = collections.namedtuple("CacheKeys", ["cache", "purge"])
+class CacheKeys(NamedTuple):
+    cache: Any
+    purge: Any
 
 
 def key_factory(keystring, iterate_on=None, if_attr_exists=None):
