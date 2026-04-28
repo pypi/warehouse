@@ -1056,14 +1056,12 @@ def file_upload(request):
         # because it's better safe than sorry. In the case of multiple digests
         # we expect them all to be given.
         if not all(
-            [
-                hmac.compare_digest(
-                    getattr(form, f"{digest_name}_digest").data.lower(),
-                    digest_value,
-                )
-                for digest_name, digest_value in file_hashes.items()
-                if getattr(form, f"{digest_name}_digest").data
-            ]
+            hmac.compare_digest(
+                getattr(form, f"{digest_name}_digest").data.lower(),
+                digest_value,
+            )
+            for digest_name, digest_value in file_hashes.items()
+            if getattr(form, f"{digest_name}_digest").data
         ):
             request.metrics.increment(
                 "warehouse.upload.failed", tags=["reason:digest-mismatch"]

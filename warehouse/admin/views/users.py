@@ -590,7 +590,7 @@ def user_recover_account_initiate(user, request):
                     "completed": None,
                     "token": token,
                     "project_name": project_name,
-                    "repos": sorted(list(repo_urls.get(project_name, []))),
+                    "repos": sorted(repo_urls.get(project_name, [])),
                     "support_issue_link": support_issue_link,
                     "override_to_email": override_to_email,
                 },

@@ -387,7 +387,7 @@ class TestManageOIDCPublisherViews:
         # the prefilled data before comparing them
         del prefilled_data["provider"]
 
-        missing_data = {k: None for k in missing_fields}
+        missing_data = dict.fromkeys(missing_fields)
         # The expected form data is the prefilled data plus the missing fields
         # (set to None) minus the extra fields
         expected_data = prefilled_data | missing_data

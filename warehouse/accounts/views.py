@@ -1680,7 +1680,7 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
         redirect_to = request.route_path(
             form.next_route.data,
             **json.loads(form.next_route_matchdict.data)
-            | dict(_query=json.loads(form.next_route_query.data)),
+            | {"_query": json.loads(form.next_route_query.data)},
         )
     else:
         redirect_to = request.route_path("manage.projects")
@@ -1960,11 +1960,11 @@ class ManageAccountPublishingViews:
                 email=form.email.data,
                 sub=form.sub.data,
             ),
-            make_existence_filters=lambda form: dict(
-                project_name=form.project_name.data,
-                email=form.email.data,
-                sub=form.sub.data,
-            ),
+            make_existence_filters=lambda form: {
+                "project_name": form.project_name.data,
+                "email": form.email.data,
+                "sub": form.sub.data,
+            },
         )
 
     @view_config(
@@ -1987,13 +1987,13 @@ class ManageAccountPublishingViews:
                 workflow_filename=form.workflow_filename.data,
                 environment=form.normalized_environment,
             ),
-            make_existence_filters=lambda form: dict(
-                project_name=form.project_name.data,
-                repository_name=form.repository.data,
-                repository_owner=form.normalized_owner,
-                workflow_filename=form.workflow_filename.data,
-                environment=form.normalized_environment,
-            ),
+            make_existence_filters=lambda form: {
+                "project_name": form.project_name.data,
+                "repository_name": form.repository.data,
+                "repository_owner": form.normalized_owner,
+                "workflow_filename": form.workflow_filename.data,
+                "environment": form.normalized_environment,
+            },
         )
 
     @view_config(
@@ -2015,12 +2015,12 @@ class ManageAccountPublishingViews:
                 actor=form.actor.data,
                 actor_id=form.actor_id,
             ),
-            make_existence_filters=lambda form: dict(
-                project_name=form.project_name.data,
-                organization=form.organization.data,
-                activestate_project_name=form.project.data,
-                actor_id=form.actor_id,
-            ),
+            make_existence_filters=lambda form: {
+                "project_name": form.project_name.data,
+                "organization": form.organization.data,
+                "activestate_project_name": form.project.data,
+                "actor_id": form.actor_id,
+            },
         )
 
     @view_config(
@@ -2043,13 +2043,13 @@ class ManageAccountPublishingViews:
                 environment=form.normalized_environment,
                 issuer_url=GITLAB_OIDC_ISSUER_URL,
             ),
-            make_existence_filters=lambda form: dict(
-                project_name=form.project_name.data,
-                namespace=form.namespace.data,
-                project=form.project.data,
-                workflow_filepath=form.workflow_filepath.data,
-                environment=form.normalized_environment,
-            ),
+            make_existence_filters=lambda form: {
+                "project_name": form.project_name.data,
+                "namespace": form.namespace.data,
+                "project": form.project.data,
+                "workflow_filepath": form.workflow_filepath.data,
+                "environment": form.normalized_environment,
+            },
         )
 
     @view_config(

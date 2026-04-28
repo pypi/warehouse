@@ -176,12 +176,12 @@ class HasEvents:
         cls.Event = type(
             f"{cls.__name__}Event",
             (Event, db.Model),
-            dict(
-                __tablename__=f"{cls.__name__.lower()}_events",
-                __table_args__=(
+            {
+                "__tablename__": f"{cls.__name__.lower()}_events",
+                "__table_args__": (
                     Index(f"ix_{cls.__name__.lower()}_events_source_id", "source_id"),
                 ),
-                source_id=mapped_column(
+                "source_id": mapped_column(
                     ForeignKey(
                         f"{cls.__tablename__}.id",
                         deferrable=True,
@@ -190,12 +190,12 @@ class HasEvents:
                     ),
                     nullable=False,
                 ),
-                source=orm.relationship(
+                "source": orm.relationship(
                     cls,
                     back_populates="events",
                     order_by=f"desc({cls.__name__}Event.time)",
                 ),
-            ),
+            },
         )
         return orm.relationship(
             cls.Event,

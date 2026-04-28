@@ -2713,7 +2713,7 @@ class TestFileUpload:
             version=1,
             verification_material=VerificationMaterial(
                 certificate=base64.b64encode(b"some_cert"),
-                transparency_entries=[dict()],
+                transparency_entries=[{}],
             ),
             envelope=Envelope(
                 statement=base64.b64encode(b"somebase64string"),
@@ -4157,7 +4157,7 @@ class TestFileUpload:
         attestation = Attestation(
             version=1,
             verification_material=VerificationMaterial(
-                certificate="somebase64string", transparency_entries=[dict()]
+                certificate="somebase64string", transparency_entries=[{}]
             ),
             envelope=Envelope(
                 statement="somebase64string",

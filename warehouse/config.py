@@ -248,7 +248,7 @@ def maybe_set(settings, name, envvar, coercer=None, default=None):
 def maybe_set_compound(settings, base, name, envvar):
     if envvar in os.environ:
         value = shlex.split(os.environ[envvar])
-        kwargs = {k: v for k, v in (i.split("=") for i in value[1:])}
+        kwargs = dict(i.split("=") for i in value[1:])
         settings[f"{base}.{name}"] = value[0]
         for key, value in kwargs.items():
             settings[f"{base}.{key}"] = value

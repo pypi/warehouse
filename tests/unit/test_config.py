@@ -259,7 +259,7 @@ def test_configure(monkeypatch, settings, environment):
                 "warehouse.xmlrpc.client.ratelimit_string": "3600 per hour",
             }
 
-    configurator_settings = dict()
+    configurator_settings = {}
     configurator_obj = pretend.stub(
         registry=FakeRegistry(),
         set_root_factory=pretend.call_recorder(lambda rf: None),

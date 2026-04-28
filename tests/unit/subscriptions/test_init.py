@@ -12,7 +12,7 @@ def test_includeme():
         create_service=pretend.call_recorder(lambda *a, **kw: pretend.stub())
     )
 
-    settings = dict()
+    settings = {}
 
     config = pretend.stub(
         maybe_dotted=lambda dotted: billing_class,

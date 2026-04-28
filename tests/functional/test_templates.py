@@ -104,7 +104,7 @@ def test_render_templates(template):
 
 @pytest.mark.parametrize(
     "template",
-    [f for f in Path(warehouse.__path__[0]).glob("templates/email/**/subject.txt")],
+    list(Path(warehouse.__path__[0]).glob("templates/email/**/subject.txt")),
 )
 def test_email_subjects_for_multiple_lines(template: Path):
     """

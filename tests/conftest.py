@@ -484,7 +484,7 @@ def dummy_attestation():
     return Attestation(
         version=1,
         verification_material=VerificationMaterial(
-            certificate="somebase64string", transparency_entries=[dict()]
+            certificate="somebase64string", transparency_entries=[{}]
         ),
         envelope=Envelope(
             statement="somebase64string",
@@ -780,7 +780,7 @@ class _MockRedis:
         self.cache = cache
 
         if not self.cache:  # pragma: no cover
-            self.cache = dict()
+            self.cache = {}
 
     def __enter__(self):
         return self
@@ -811,7 +811,7 @@ class _MockRedis:
 
     def hset(self, hash_, key, value, *_args, **_kwargs):
         if hash_ not in self.cache:  # pragma: no cover
-            self.cache[hash_] = dict()
+            self.cache[hash_] = {}
         self.cache[hash_][key] = value
 
     def get(self, key):

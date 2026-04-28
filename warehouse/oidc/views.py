@@ -119,7 +119,7 @@ def mint_token_from_oidc(request: Request):
     # use the `iss` to key into the right `OIDCPublisherService`.
     try:
         unverified_claims = jwt.decode(
-            unverified_jwt, options=dict(verify_signature=False)
+            unverified_jwt, options={"verify_signature": False}
         )
         unverified_issuer: str = unverified_claims["iss"]
     except Exception as e:  # noqa: BLE001
