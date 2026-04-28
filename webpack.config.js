@@ -14,10 +14,12 @@ const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const ImageMinimizerPlugin = require("image-minimizer-webpack-plugin");
 const LiveReloadPlugin = require("webpack-livereload-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const ProvidePlugin = require("webpack").ProvidePlugin;
+const webpack = require("webpack");
+const ProvidePlugin = webpack.ProvidePlugin;
+const DefinePlugin = webpack.DefinePlugin;
 const RemoveEmptyScriptsPlugin = require("webpack-remove-empty-scripts");
 const {WebpackManifestPlugin} = require("webpack-manifest-plugin");
-const {WebpackLocalisationPlugin, allLocaleData} = require("./webpack.plugin.localize.js");
+const {defineLocaleConstants, allLocaleData} = require("./webpack.plugin.localize.js");
 
 const isDev = process.env.NODE_ENV === "development";
 
@@ -385,7 +387,7 @@ module.exports = [
     return {
       name: name,
       plugins: [
-        new WebpackLocalisationPlugin(localeData),
+        new DefinePlugin(defineLocaleConstants(localeData)),
         ...sharedCompressionPlugins,
         new WebpackManifestPlugin({
           removeKeyHash: /([a-f0-9]{8}\.?)/gi,

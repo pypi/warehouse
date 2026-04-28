@@ -1,18 +1,24 @@
 /* SPDX-License-Identifier: Apache-2.0 */
+/* global __WAREHOUSE_LOCALE_DATA__, __WAREHOUSE_PLURAL_FORM_FN__ */
 
-// The value for 'messagesAccessLocaleData' is replaced by webpack.plugin.localize.js.
-// The variable name must match the name used in webpack.plugin.localize.js.
-// Default is 'en'.
-const messagesAccessLocaleData = {"": {"language": "en", "plural-forms": "nplurals = 2; plural = (n != 1)"}};
+// __WAREHOUSE_LOCALE_DATA__ and __WAREHOUSE_PLURAL_FORM_FN__ are compile-time
+// constants injected by the bundler's DefinePlugin (see webpack.plugin.localize.js
+// for how they are produced per locale). The `typeof` guard keeps the file
+// importable in plain Node / jest, where DefinePlugin does not run; in that
+// case we fall back to the English defaults.
+const messagesAccessLocaleData =
+  typeof __WAREHOUSE_LOCALE_DATA__ !== "undefined"
+    ? __WAREHOUSE_LOCALE_DATA__
+    : {"": {"language": "en", "plural-forms": "nplurals = 2; plural = (n != 1)"}};
 
-// The value for 'messagesAccessPluralFormFunction' is replaced by webpack.plugin.localize.js.
-// The variable name must match the name used in webpack.plugin.localize.js.
-// Default is 'en'.
-const messagesAccessPluralFormFunction = function (n) {
-  let nplurals, plural;
-  nplurals = 2; plural = (n != 1);
-  return {total: nplurals, index: ((nplurals > 1 && plural === true) ? 1 : (plural ? plural : 0))};
-};
+const messagesAccessPluralFormFunction =
+  typeof __WAREHOUSE_PLURAL_FORM_FN__ !== "undefined"
+    ? __WAREHOUSE_PLURAL_FORM_FN__
+    : function (n) {
+      let nplurals, plural;
+      nplurals = 2; plural = (n != 1);
+      return {total: nplurals, index: ((nplurals > 1 && plural === true) ? 1 : (plural ? plural : 0))};
+    };
 
 /**
  * Get the translation using num to choose the appropriate string.

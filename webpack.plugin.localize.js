@@ -1,22 +1,20 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-/* This is a webpack plugin.
- * This plugin generates one javascript bundle per locale.
+/* Locale data loader for the bundler.
  *
- * It replaces the javascript translation function arguments with the locale-specific data.
- * The javascript functions are in `warehouse/static/js/warehouse/utils/messages-access.js`.
+ * Reads .po files for each known locale, parses translations, and exposes a
+ * helper (`defineLocaleConstants`) that returns the DefinePlugin arguments
+ * needed to inline that locale's data into the bundle at build time.
  *
- * Run 'make translations' before webpack to extract the translatable text to gettext format files.
+ * The actual substitution happens via webpack's standard DefinePlugin (no
+ * custom AST plugin) — see the consuming `webpack.config.js` for usage.
+ *
+ * Run 'make translations' before bundling to extract translatable text into
+ * gettext .po files.
  */
-
-// ref: https://webpack.js.org/contribute/writing-a-plugin/
-// ref: https://github.com/zainulbr/i18n-webpack-plugin/blob/v2.0.3/src/index.js
-// ref: https://github.com/webpack/webpack/discussions/14956
-// ref: https://github.com/webpack/webpack/issues/9992
 
 /* global module, __dirname */
 
-const ConstDependency = require("webpack/lib/dependencies/ConstDependency");
 const fs = require("node:fs");
 const {resolve} = require("node:path");
 const path = require("path");
@@ -108,56 +106,33 @@ const allLocaleData = KNOWN_LOCALES
   });
 
 
-const pluginName = "WebpackLocalisationPlugin";
-
-class WebpackLocalisationPlugin {
-  constructor(localeData) {
-    this.localeData = localeData || {};
-  }
-
-  apply(compiler) {
-    const self = this;
-
-    // create a handler for each factory.hooks.parser
-    const handler = function (parser) {
-
-      parser.hooks.statement.tap(pluginName, (statement) => {
-        if (statement.type === "VariableDeclaration" &&
-          statement.declarations.length === 1 &&
-          statement.declarations[0].id.name === "messagesAccessLocaleData") {
-          const initData = statement.declarations[0].init;
-          const dep = new ConstDependency(JSON.stringify(self.localeData), initData.range);
-          dep.loc = initData.loc;
-          parser.state.current.addDependency(dep);
-          return true;
-
-        } else if (statement.type === "VariableDeclaration" &&
-          statement.declarations.length === 1 &&
-          statement.declarations[0].id.name === "messagesAccessPluralFormFunction") {
-          const initData = statement.declarations[0].init;
-          const pluralForms = self.localeData[""]["plural-forms"];
-          const newValue = `function (n) {
+/**
+ * Build the DefinePlugin definitions for a given locale's data.
+ *
+ * The returned object plugs straight into `new DefinePlugin({...})`:
+ *
+ *   __WAREHOUSE_LOCALE_DATA__   — replaced with the JSON-stringified locale
+ *                                  translation map (object literal in source).
+ *   __WAREHOUSE_PLURAL_FORM_FN__ — replaced with a stringified function
+ *                                  literal whose body uses the locale's
+ *                                  Plural-Forms expression.
+ *
+ * `messages-access.js` reads both via a `typeof X !== "undefined"` guard so
+ * it remains importable in plain Node / jest, where DefinePlugin doesn't run.
+ */
+function defineLocaleConstants(localeData) {
+  const pluralForms = localeData[""]["plural-forms"];
+  const pluralFormFnSource =
+    `(function (n) {
   let nplurals, plural;
   ${pluralForms}
   return {total: nplurals, index: ((nplurals > 1 && plural === true) ? 1 : (plural ? plural : 0))};
-}`;
-          const dep = new ConstDependency(newValue, initData.range);
-          dep.loc = initData.loc;
-          parser.state.current.addDependency(dep);
-          return true;
-
-        }
-      });
-    };
-
-    // place the handler into the hooks for the webpack compiler module factories
-    compiler.hooks.normalModuleFactory.tap(pluginName, factory => {
-      factory.hooks.parser.for("javascript/auto").tap(pluginName, handler);
-      factory.hooks.parser.for("javascript/dynamic").tap(pluginName, handler);
-      factory.hooks.parser.for("javascript/esm").tap(pluginName, handler);
-    });
-  }
+})`;
+  return {
+    __WAREHOUSE_LOCALE_DATA__: JSON.stringify(localeData),
+    __WAREHOUSE_PLURAL_FORM_FN__: pluralFormFnSource,
+  };
 }
 
-module.exports.WebpackLocalisationPlugin = WebpackLocalisationPlugin;
+module.exports.defineLocaleConstants = defineLocaleConstants;
 module.exports.allLocaleData = allLocaleData;
