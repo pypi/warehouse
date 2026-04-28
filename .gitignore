@@ -31,6 +31,7 @@ dev/.mypy_cache/
 dev/.pip-cache/
 dev/.pip-tools-cache/
 dev/.pytest_cache/
+dev/.ruff_cache/
 dev/codeql/
 .github/codeql/**/*.testproj/
 ./data/
