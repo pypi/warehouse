@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 set -ex
 
+# We do this before ruff so that ruff will be able to format any fixes that
+# come out of this.
+#
+# NOTE(dstufft): We use || true so that we don't fail if there's a lint rule
+#                that can't be fixed. The lint step will catch that but this
+#                means the rest of this can run without issue.
+ast-grep scan --update-all || true
+
 ruff check --fix-only
 ruff format
 

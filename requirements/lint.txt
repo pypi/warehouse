@@ -4,6 +4,16 @@
 #
 #    pip-compile --allow-unsafe --generate-hashes --output-file=requirements/lint.txt requirements/lint.in
 #
+ast-grep-cli==0.42.1 \
+    --hash=sha256:01b7e4dc99c24cc75e26e054f471a42b14b996e853314f3a4059a8af76cb6859 \
+    --hash=sha256:10e76a36a1370e3b43ed1e9531f0d49775de47ce36c07298e70979ace08b5f4b \
+    --hash=sha256:5472942bfe59a3603a28b48a6c83c71b70a6074b675cee864fec87fbcad61a26 \
+    --hash=sha256:728ad2cd4b328d5b179e0ff8344115a0744cd37a5f3836fc5380e609ea188135 \
+    --hash=sha256:7704d9d6a7bfdaa0729eb31536878b63ad5161c4669b6ee4d783970ac4de1829 \
+    --hash=sha256:8e735def2926d7e1a6a2b3cd0cfbe6a48e334dc2e19167285e08aeac359a401f \
+    --hash=sha256:b8ce8f32cd0c9d4afa21445f4ff523ac4987812543352695e0070ee3abdce7fa \
+    --hash=sha256:ef95af6410f7cbee96d2ad4e05eff22257e858d1da785994b6f649e309e806d8
+    # via -r requirements/lint.in
 boto3-stubs==1.42.29 \
     --hash=sha256:7dc0e2231f1f77fc5282c4fc4b7e4627c78fa95851eec16952df8c696b67855f \
     --hash=sha256:7e38ea78e2d11e6c899da1ab267ccacaab32efcf365a96c6eba94482829e2b63

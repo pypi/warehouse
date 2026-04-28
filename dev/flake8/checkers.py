@@ -14,10 +14,6 @@ from pathlib import Path
 from textwrap import dedent  # for testing
 from typing import Any
 
-WH002_msg = (
-    "WH002 Prefer `sqlalchemy.orm.relationship(back_populates=...)` "
-    "over `sqlalchemy.orm.relationship(backref=...)`"
-)
 WH003_msg = "WH003 `@view_config.renderer` configured template file not found"
 # TODO: This would be better served by mypy, no types in Pyramid makes this harder.
 #  Support https://github.com/Pylons/pyramid/issues/2638 for general Pyramid type info.
@@ -28,29 +24,6 @@ class WarehouseVisitor(ast.NodeVisitor):
     def __init__(self, filename: str) -> None:
         self.errors: list[tuple[int, int, str]] = []
         self.filename = filename
-
-    def check_for_backref(self, node) -> None:
-        def _check_keywords(keywords: list[ast.keyword]) -> None:
-            for kw in keywords:
-                if kw.arg == "backref":
-                    self.errors.append((kw.lineno, kw.col_offset, WH002_msg))
-
-        # Nodes can be either Attribute or Name, and depending on the type
-        # of node, the value.func can be either an attr or an id.
-        # TODO: This is aching for a better way to do this.
-        if isinstance(node.value, ast.Call) and (
-            (
-                isinstance(node.value.func, ast.Attribute)
-                and node.value.func.attr == "relationship"
-                and isinstance(node.value.keywords, list)
-            )
-            or (
-                isinstance(node.value.func, ast.Name)
-                and node.value.func.id == "relationship"
-                and isinstance(node.value.keywords, list)
-            )
-        ):
-            _check_keywords(node.value.keywords)
 
     def template_exists(self, template_name: str) -> bool:
         repo_root = Path(__file__).parent.parent.parent
@@ -75,14 +48,6 @@ class WarehouseVisitor(ast.NodeVisitor):
                 str(repo_root / "warehouse" / "admin" / "templates"),
             ]
         return any(Path(path, template_name).is_file() for path in search_paths)
-
-    def visit_Assign(self, node: ast.Assign) -> None:
-        self.check_for_backref(node)
-        self.generic_visit(node)
-
-    def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
-        self.check_for_backref(node)
-        self.generic_visit(node)
 
     def is_metrics_method_call(self, node: ast.Call) -> bool:
         """Check if this is a call to a metrics method."""

@@ -5,9 +5,11 @@ set -ex
 # When on GitHub Actions, configure ruff to use the github output style
 if [ -n "$GITHUB_ACTIONS" ]; then
   export RUFF_OUTPUT_FORMAT=github
+  export EXTRA_AST_GREP_ARGS="--format=github"
 fi
 
 # Actually run our tests.
+ast-grep scan --error=unused-suppression --error=no-suppress-all $EXTRA_AST_GREP_ARGS
 ruff check
 ruff format --check --diff
 python -m flake8 .
