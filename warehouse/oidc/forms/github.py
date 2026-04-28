@@ -87,13 +87,12 @@ class GitHubPublisherBase(wtforms.Form):
                         "Try again in a few minutes."
                     )
                 )
-            else:
-                sentry_sdk.capture_message(
-                    f"Unexpected error from GitHub user lookup: {response.content=}"
-                )
-                raise wtforms.validators.ValidationError(
-                    _("Unexpected error from GitHub. Try again.")
-                )
+            sentry_sdk.capture_message(
+                f"Unexpected error from GitHub user lookup: {response.content=}"
+            )
+            raise wtforms.validators.ValidationError(
+                _("Unexpected error from GitHub. Try again.")
+            )
         except requests.ConnectionError:
             sentry_sdk.capture_message(
                 "Connection error from GitHub user lookup API (possibly offline)"

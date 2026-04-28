@@ -323,37 +323,31 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
                 token = token_service.dumps(two_factor_data)
 
                 # Stuff our token in the query and redirect to two-factor page.
-                resp = HTTPSeeOther(
+                return HTTPSeeOther(
                     request.route_path("accounts.two-factor", _query=token)
                 )
-                return resp
-            else:
-                # If the user-originating redirection url is not safe, then
-                # redirect to the index instead.
-                if not redirect_to or not is_safe_url(
-                    url=redirect_to, host=request.host
-                ):
-                    redirect_to = request.route_path("manage.projects")
+            # If the user-originating redirection url is not safe, then
+            # redirect to the index instead.
+            if not redirect_to or not is_safe_url(url=redirect_to, host=request.host):
+                redirect_to = request.route_path("manage.projects")
 
-                # Construct necessary two_factor information
-                two_factor_method = (
-                    "remembered-device" if _two_factor_remembered else None
-                )
-                two_factor_label = two_factor_method
+            # Construct necessary two_factor information
+            two_factor_method = "remembered-device" if _two_factor_remembered else None
+            two_factor_label = two_factor_method
 
-                # Actually perform the login routine for our user.
-                _login_user(
-                    request,
-                    userid,
-                    two_factor_method,
-                    two_factor_label=two_factor_label,
-                )
+            # Actually perform the login routine for our user.
+            _login_user(
+                request,
+                userid,
+                two_factor_method,
+                two_factor_label=two_factor_label,
+            )
 
-                # Now that we're logged in we'll want to redirect the user to
-                # either where they were trying to go originally, or to the default
-                # view.
-                resp = HTTPSeeOther(redirect_to)
-                _set_userid_insecure_cookie(resp, userid)
+            # Now that we're logged in we'll want to redirect the user to
+            # either where they were trying to go originally, or to the default
+            # view.
+            resp = HTTPSeeOther(redirect_to)
+            _set_userid_insecure_cookie(resp, userid)
 
             return resp
 
@@ -427,11 +421,9 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
                     _remember_device(request, resp, userid, two_factor_method)
 
                 return resp
-            else:
-                # The devices is unknown, redirect to the confirm login page
-                return HTTPSeeOther(request.route_path("accounts.confirm-login"))
-        else:
-            form.totp_value.data = ""
+            # The devices is unknown, redirect to the confirm login page
+            return HTTPSeeOther(request.route_path("accounts.confirm-login"))
+        form.totp_value.data = ""
 
     return two_factor_state
 
@@ -640,11 +632,9 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
                 _set_userid_insecure_cookie(resp, userid)
 
                 return resp
-            else:
-                # The devices is unknown, redirect to the confirm login page
-                return HTTPSeeOther(request.route_path("accounts.confirm-login"))
-        else:
-            form.recovery_code_value.data = ""
+            # The devices is unknown, redirect to the confirm login page
+            return HTTPSeeOther(request.route_path("accounts.confirm-login"))
+        form.recovery_code_value.data = ""
 
     return {"form": form}
 
@@ -854,16 +844,15 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
             token_service = request.find_service(ITokenService, name="password")
             n_hours = token_service.max_age // 60 // 60
             return {"n_hours": n_hours}
-        else:
-            user.record_event(
-                tag=EventTag.Account.PasswordResetAttempt,
-                request=request,
-            )
-            # Return the same response as a normal reset to avoid leaking
-            # whether this account holds elevated privileges.
-            token_service = request.find_service(ITokenService, name="password")
-            n_hours = token_service.max_age // 60 // 60
-            return {"n_hours": n_hours}
+        user.record_event(
+            tag=EventTag.Account.PasswordResetAttempt,
+            request=request,
+        )
+        # Return the same response as a normal reset to avoid leaking
+        # whether this account holds elevated privileges.
+        token_service = request.find_service(ITokenService, name="password")
+        n_hours = token_service.max_age // 60 // 60
+        return {"n_hours": n_hours}
 
     return {"form": form}
 
@@ -1204,7 +1193,7 @@ def verify_organization_role(request):
             "organization_name": organization.name,
             "desired_role": desired_role,
         }
-    elif request.method == "POST" and "decline" in request.POST:
+    if request.method == "POST" and "decline" in request.POST:
         organization_service.delete_organization_invite(organization_invite.id)
         submitter_user = user_service.get_user(data.get("submitter_id"))
         message = request.params.get("message", "")
@@ -1384,7 +1373,7 @@ def verify_project_role(request):
             "project_name": project.name,
             "desired_role": desired_role,
         }
-    elif request.method == "POST" and "decline" in request.POST:
+    if request.method == "POST" and "decline" in request.POST:
         request.db.delete(role_invite)
         submitter_user = user_service.get_user(data.get("submitter_id"))
         project.record_event(
@@ -1483,8 +1472,7 @@ def verify_project_role(request):
         return HTTPSeeOther(
             request.route_path("manage.project.roles", project_name=project.name)
         )
-    else:
-        return HTTPSeeOther(request.route_path("packaging.project", name=project.name))
+    return HTTPSeeOther(request.route_path("packaging.project", name=project.name))
 
 
 def _login_user(request, userid, two_factor_method=None, two_factor_label=None):

@@ -76,8 +76,7 @@ class OIDCPublisherService:
             timeout = bool(r.exists(_publisher_timeout_key))
             if keys is not None:
                 return json.loads(keys), timeout
-            else:
-                return {}, timeout
+            return {}, timeout
 
     def _refresh_keyset(self, issuer_url: str) -> dict[str, dict]:
         """

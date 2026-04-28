@@ -287,7 +287,7 @@ def add_prohibited_project_names(request):
             "Confirm the prohibited project name request", queue="error"
         )
         return HTTPSeeOther(request.current_route_path())
-    elif canonicalize_name(confirm) != canonicalize_name(project_name):
+    if canonicalize_name(confirm) != canonicalize_name(project_name):
         request.session.flash(
             f"{confirm!r} is not the same as {project_name!r}", queue="error"
         )

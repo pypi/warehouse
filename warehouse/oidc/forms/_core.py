@@ -72,10 +72,7 @@ class PendingPublisherMixin:
                         )
                     )
                 )
-            else:
-                raise wtforms.validators.ValidationError(
-                    _("This project already exists.")
-                )
+            raise wtforms.validators.ValidationError(_("This project already exists."))
 
         except ProjectNameUnavailableProhibitedError:
             raise wtforms.validators.ValidationError(

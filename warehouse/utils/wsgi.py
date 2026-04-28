@@ -33,6 +33,7 @@ def _forwarded_value(values, num_proxies):
     values = [v.strip() for v in values.split(",")]
     if len(values) >= num_proxies:
         return values[-num_proxies]
+    return None
 
 
 class ProxyFixer:

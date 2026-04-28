@@ -669,9 +669,8 @@ class ManageOrganizationBillingViews:
             # This occurs if no subscription exists, or all subscriptions have reached
             # a terminal state of Canceled.
             return self.create_subscription()
-        else:
-            # Manage subscription if there is an existing subscription.
-            return self.manage_subscription()
+        # Manage subscription if there is an existing subscription.
+        return self.manage_subscription()
 
 
 @view_defaults(
@@ -1423,13 +1422,12 @@ def delete_organization_role(organization, request):
     if role and role.user == request.user:
         # User removed self from organization.
         return HTTPSeeOther(request.route_path("manage.organizations"))
-    else:
-        return HTTPSeeOther(
-            request.route_path(
-                "manage.organization.roles",
-                organization_name=organization.normalized_name,
-            )
+    return HTTPSeeOther(
+        request.route_path(
+            "manage.organization.roles",
+            organization_name=organization.normalized_name,
         )
+    )
 
 
 @view_config(

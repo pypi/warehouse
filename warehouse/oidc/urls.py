@@ -39,7 +39,6 @@ def verify_url_from_reference(*, reference_url: str, url: str) -> bool:
         return reference_uri.path == user_uri.path or user_uri.path.startswith(
             reference_path_prefix
         )
-    else:
-        # If the reference URL has no path, the user URL's path can be anything
-        # (since the URL covers the entire domain).
-        return True
+    # If the reference URL has no path, the user URL's path can be anything
+    # (since the URL covers the entire domain).
+    return True

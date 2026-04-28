@@ -224,7 +224,7 @@ def latest_release_factory(request):
     except NoResultFound:
         return HTTPNotFound(headers=_CORS_HEADERS)
 
-    release = (
+    return (
         request.db.query(Release)
         .join(Project)
         .outerjoin(ReleaseURL)
@@ -238,8 +238,6 @@ def latest_release_factory(request):
         .filter(Release.id == latest.id)
         .one()
     )
-
-    return release
 
 
 @view_config(

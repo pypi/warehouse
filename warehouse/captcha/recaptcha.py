@@ -89,7 +89,7 @@ class Service:
     def verify_response(self, response, remote_ip=None):
         if not self.enabled:
             # TODO: debug logging
-            return
+            return None
 
         payload = {
             "secret": self.secret_key,

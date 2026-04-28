@@ -161,7 +161,7 @@ class DatabaseUserService:
         try:
             user = self.db.query(User.id).filter(User.username == username).one()
         except NoResultFound:
-            return
+            return None
 
         return user.id
 
@@ -172,7 +172,7 @@ class DatabaseUserService:
                 0
             ]
         except NoResultFound:
-            return
+            return None
 
         return user_id
 
@@ -282,11 +282,10 @@ class DatabaseUserService:
                 self._metrics.increment("warehouse.authentication.ok", tags=tags)
 
                 return True
-            else:
-                self._metrics.increment(
-                    "warehouse.authentication.failure",
-                    tags=[*tags, "failure_reason:password"],
-                )
+            self._metrics.increment(
+                "warehouse.authentication.failure",
+                tags=[*tags, "failure_reason:password"],
+            )
         else:
             self._metrics.increment(
                 "warehouse.authentication.failure", tags=[*tags, "failure_reason:user"]

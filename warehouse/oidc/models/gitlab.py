@@ -56,8 +56,7 @@ _WORKFLOW_FILEPATH_RE = re.compile(
 def _extract_workflow_filepath(ci_config_ref_uri: str) -> str | None:
     if match := _WORKFLOW_FILEPATH_RE.search(ci_config_ref_uri):
         return match.group(0)
-    else:
-        return None
+    return None
 
 
 def _check_project_path(

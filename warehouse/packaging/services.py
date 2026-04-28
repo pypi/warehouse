@@ -492,7 +492,7 @@ class ProjectService:
                 existing_project_name=typo_check_match[1],
             )
 
-        return None
+        return
 
     def create_project(
         self,

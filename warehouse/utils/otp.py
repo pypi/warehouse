@@ -91,7 +91,6 @@ def verify_totp(secret, value):
 
     if valid_in_window:
         return True
-    elif valid_outside_window:
+    if valid_outside_window:
         raise OutOfSyncTOTPError
-    else:
-        raise InvalidTOTPError
+    raise InvalidTOTPError

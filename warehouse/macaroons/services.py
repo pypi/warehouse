@@ -228,14 +228,12 @@ class DatabaseMacaroonService:
 
         Returns None if the user doesn't have a macaroon with this description.
         """
-        dm = (
+        return (
             self.db.query(Macaroon)
             .filter(Macaroon.description == description)
             .filter(Macaroon.user_id == user_id)
             .one_or_none()
         )
-
-        return dm
 
 
 def database_macaroon_factory(context, request):

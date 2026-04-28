@@ -164,6 +164,8 @@ class WarehouseTask(celery.Task):
             self._after_commit_hook, args=args, kws=kwargs
         )
 
+        return None
+
     def retry(self, *args, **kwargs):
         """
         Override the retry method to increment a metric when a task is retried.
@@ -274,10 +276,9 @@ def includeme(config: Configurator) -> None:
     for key, value in parsed_query.copy().items():
         if key.startswith("ssl_"):
             continue
-        else:
-            if key in celery_transport_options:
-                broker_transport_options[key] = celery_transport_options[key](value[0])
-            del parsed_query[key]
+        if key in celery_transport_options:
+            broker_transport_options[key] = celery_transport_options[key](value[0])
+        del parsed_query[key]
 
     parsed_url = parsed_url._replace(
         query=urllib.parse.urlencode(parsed_query, doseq=True, safe="/")

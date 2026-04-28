@@ -143,10 +143,7 @@ class ManageAccountMixin:
             self.request.session.flash("Email address not found", queue="error")
             if self.request.user.has_primary_verified_email:
                 return HTTPSeeOther(self.request.route_path("manage.account"))
-            else:
-                return HTTPSeeOther(
-                    self.request.route_path("manage.unverified-account")
-                )
+            return HTTPSeeOther(self.request.route_path("manage.unverified-account"))
 
         if email.verified:
             self.request.session.flash("Email is already verified", queue="error")
@@ -178,8 +175,7 @@ class ManageAccountMixin:
 
         if self.request.user.has_primary_verified_email:
             return HTTPSeeOther(self.request.route_path("manage.account"))
-        else:
-            return HTTPSeeOther(self.request.route_path("manage.unverified-account"))
+        return HTTPSeeOther(self.request.route_path("manage.unverified-account"))
 
     @view_config(
         request_method="POST", request_param=["primary_email_id"], require_reauth=True
@@ -2228,112 +2224,111 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
 
         # Refresh project collaborators.
         return HTTPSeeOther(request.path)
-    else:
-        # Invite external user.
-        token_service = request.find_service(ITokenService, name="email")
+    # Invite external user.
+    token_service = request.find_service(ITokenService, name="email")
 
-        user_invite = (
-            request.db.query(RoleInvitation)
-            .filter(RoleInvitation.user == user)
-            .filter(RoleInvitation.project == project)
-            .one_or_none()
+    user_invite = (
+        request.db.query(RoleInvitation)
+        .filter(RoleInvitation.user == user)
+        .filter(RoleInvitation.project == project)
+        .one_or_none()
+    )
+    # Cover edge case where invite is invalid but task
+    # has not updated invite status
+    try:
+        invite_token = token_service.loads(user_invite.token)
+    except (TokenExpired, AttributeError):
+        invite_token = None
+
+    if user.primary_email is None or not user.primary_email.verified:
+        request.session.flash(
+            request._(
+                "User '${username}' does not have a verified primary email "
+                "address and cannot be added as a ${role_name} for project",
+                mapping={"username": username, "role_name": role_name},
+            ),
+            queue="error",
         )
-        # Cover edge case where invite is invalid but task
-        # has not updated invite status
-        try:
-            invite_token = token_service.loads(user_invite.token)
-        except (TokenExpired, AttributeError):
-            invite_token = None
-
-        if user.primary_email is None or not user.primary_email.verified:
-            request.session.flash(
-                request._(
-                    "User '${username}' does not have a verified primary email "
-                    "address and cannot be added as a ${role_name} for project",
-                    mapping={"username": username, "role_name": role_name},
-                ),
-                queue="error",
-            )
-        elif (
-            user_invite
-            and user_invite.invite_status == RoleInvitationStatus.Pending
-            and invite_token
-        ):
-            request.session.flash(
-                request._(
-                    "User '${username}' already has an active invite. "
-                    "Please try again later.",
-                    mapping={"username": username},
-                ),
-                queue="error",
-            )
+    elif (
+        user_invite
+        and user_invite.invite_status == RoleInvitationStatus.Pending
+        and invite_token
+    ):
+        request.session.flash(
+            request._(
+                "User '${username}' already has an active invite. "
+                "Please try again later.",
+                mapping={"username": username},
+            ),
+            queue="error",
+        )
+    else:
+        invite_token = token_service.dumps(
+            {
+                "action": "email-project-role-verify",
+                "desired_role": role_name,
+                "user_id": user.id,
+                "project_id": project.id,
+                "submitter_id": request.user.id,
+            }
+        )
+        if user_invite:
+            user_invite.invite_status = RoleInvitationStatus.Pending
+            user_invite.token = invite_token
         else:
-            invite_token = token_service.dumps(
-                {
-                    "action": "email-project-role-verify",
-                    "desired_role": role_name,
-                    "user_id": user.id,
-                    "project_id": project.id,
-                    "submitter_id": request.user.id,
-                }
-            )
-            if user_invite:
-                user_invite.invite_status = RoleInvitationStatus.Pending
-                user_invite.token = invite_token
-            else:
-                request.db.add(
-                    RoleInvitation(
-                        user=user,
-                        project=project,
-                        invite_status=RoleInvitationStatus.Pending,
-                        token=invite_token,
-                    )
-                )
-
             request.db.add(
-                JournalEntry(
-                    name=project.name,
-                    action=f"invite {role_name} {username}",
-                    submitted_by=request.user,
+                RoleInvitation(
+                    user=user,
+                    project=project,
+                    invite_status=RoleInvitationStatus.Pending,
+                    token=invite_token,
                 )
             )
-            send_project_role_verification_email(
-                request,
-                user,
-                desired_role=role_name,
-                initiator_username=request.user.username,
-                project_name=project.name,
-                email_token=invite_token,
-                token_age=token_service.max_age,
-            )
-            project.record_event(
-                tag=EventTag.Project.RoleInvite,
-                request=request,
-                additional={
-                    "submitted_by": request.user.username,
-                    "role_name": role_name,
-                    "target_user": username,
-                },
-            )
-            user.record_event(
-                tag=EventTag.Account.RoleInvite,
-                request=request,
-                additional={
-                    "submitted_by": request.user.username,
-                    "project_name": project.name,
-                    "role_name": role_name,
-                },
-            )
-            request.session.flash(
-                request._(
-                    "Invitation sent to '${username}'",
-                    mapping={"username": username},
-                ),
-                queue="success",
-            )
 
-        # Refresh project collaborators.
-        return HTTPSeeOther(request.path)
+        request.db.add(
+            JournalEntry(
+                name=project.name,
+                action=f"invite {role_name} {username}",
+                submitted_by=request.user,
+            )
+        )
+        send_project_role_verification_email(
+            request,
+            user,
+            desired_role=role_name,
+            initiator_username=request.user.username,
+            project_name=project.name,
+            email_token=invite_token,
+            token_age=token_service.max_age,
+        )
+        project.record_event(
+            tag=EventTag.Project.RoleInvite,
+            request=request,
+            additional={
+                "submitted_by": request.user.username,
+                "role_name": role_name,
+                "target_user": username,
+            },
+        )
+        user.record_event(
+            tag=EventTag.Account.RoleInvite,
+            request=request,
+            additional={
+                "submitted_by": request.user.username,
+                "project_name": project.name,
+                "role_name": role_name,
+            },
+        )
+        request.session.flash(
+            request._(
+                "Invitation sent to '${username}'",
+                mapping={"username": username},
+            ),
+            queue="success",
+        )
+
+    # Refresh project collaborators.
+    return HTTPSeeOther(request.path)
 
 
 @view_config(

@@ -566,8 +566,7 @@ class TestOIDCPublisherService:
         def get(url, timeout=5):
             if url == "https://example.com/.well-known/jwks.json":
                 return jwks_resp
-            else:
-                return openid_resp
+            return openid_resp
 
         requests = pretend.stub(get=pretend.call_recorder(get))
         sentry_sdk = pretend.stub(
@@ -618,8 +617,7 @@ class TestOIDCPublisherService:
         def get(url, timeout=5):
             if url == "https://example.com/.well-known/jwks.json":
                 return jwks_resp
-            else:
-                return openid_resp
+            return openid_resp
 
         requests = pretend.stub(get=pretend.call_recorder(get))
         sentry_sdk = pretend.stub(
@@ -667,8 +665,7 @@ class TestOIDCPublisherService:
         def get(url, timeout=5):
             if url == "https://example.com/.well-known/jwks.json":
                 return jwks_resp
-            else:
-                return openid_resp
+            return openid_resp
 
         requests = pretend.stub(get=pretend.call_recorder(get))
         sentry_sdk = pretend.stub(

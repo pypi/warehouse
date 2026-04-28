@@ -429,7 +429,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
 
         # If the project doesn't have docs, then we'll just return a None here.
         if not self.has_docs:
-            return
+            return None
 
         return request.route_url("legacy.docs", project=self.name)
 
@@ -518,7 +518,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
 
         if self.lifecycle_status == LifecycleStatus.QuarantineEnter:
             return ProjectStatusMarker.Quarantined
-        elif self.lifecycle_status in (
+        if self.lifecycle_status in (
             LifecycleStatus.Archived,
             LifecycleStatus.ArchivedNoindex,
         ):
@@ -879,6 +879,7 @@ class Release(HasObservations, db.Model):
         user_name, repo_name = self.verified_github_user_name_and_repo_name
         if user_name and repo_name:
             return f"https://api.github.com/repos/{user_name}/{repo_name}"
+        return None
 
     @property
     def verified_github_open_issue_info_url(self):
@@ -888,6 +889,7 @@ class Release(HasObservations, db.Model):
                 f"https://api.github.com/search/issues?q=repo:{user_name}/{repo_name}"
                 "+type:issue+state:open&per_page=1"
             )
+        return None
 
     @property
     def verified_gitlab_user_name_and_repo_name(self):

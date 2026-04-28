@@ -50,8 +50,7 @@ _WORKFLOW_FILENAME_RE = re.compile(
 def _extract_workflow_filename(workflow_ref: str) -> str | None:
     if match := _WORKFLOW_FILENAME_RE.search(workflow_ref):
         return match.group(0)
-    else:
-        return None
+    return None
 
 
 def _check_repository(
@@ -136,8 +135,7 @@ def _check_event_name(
             "Publishing from a workflow invoked via 'pull_request_target' is "
             "not supported."
         )
-    else:
-        return True
+    return True
 
 
 class GitHubPublisherMixin:
@@ -232,8 +230,7 @@ class GitHubPublisherMixin:
 
         if publisher := cls._get_publisher_for_environment(publishers, environment):
             return publisher
-        else:
-            raise InvalidPublisherError("Publisher with matching claims was not found")
+        raise InvalidPublisherError("Publisher with matching claims was not found")
 
     @property
     def _workflow_slug(self) -> str:

@@ -201,12 +201,14 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
         primaries = [x for x in self.emails if x.primary]
         if primaries:
             return primaries[0]
+        return None
 
     @property
     def public_email(self):
         publics = [x for x in self.emails if x.public]
         if publics:
             return publics[0]
+        return None
 
     @hybrid_property
     def email(self):

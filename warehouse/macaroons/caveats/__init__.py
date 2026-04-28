@@ -177,7 +177,7 @@ def verify(
     ) as exc:
         if errors:
             return WarehouseDenied(", ".join(errors), reason="invalid_api_token")
-        elif isinstance(exc, MacaroonInvalidSignatureException):
+        if isinstance(exc, MacaroonInvalidSignatureException):
             return WarehouseDenied(
                 "signatures do not match", reason="invalid_api_token"
             )

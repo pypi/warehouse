@@ -100,5 +100,4 @@ class MultiSecurityPolicy:
         # for this request.
         if policy is not None:
             return policy.permits(request, context, permission)
-        else:
-            return Denied("unknown identity")
+        return Denied("unknown identity")

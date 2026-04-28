@@ -19,8 +19,7 @@ def fake_task_request():
         "pythondotorg.host": "https://API_HOST",
         "pythondotorg.api_token": "API_TOKEN",
     }
-    request = pretend.stub(registry=pretend.stub(settings=cfg))
-    return request
+    return pretend.stub(registry=pretend.stub(settings=cfg))
 
 
 @pytest.fixture

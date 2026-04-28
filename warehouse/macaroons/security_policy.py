@@ -37,9 +37,7 @@ def _extract_basic_macaroon(auth):
         return None
 
     # Strip leading/trailing whitespace characters from the macaroon
-    auth = auth.strip()
-
-    return auth
+    return auth.strip()
 
 
 def _extract_http_macaroon(request):
@@ -66,7 +64,7 @@ def _extract_http_macaroon(request):
 
     if auth_method == "basic":
         return _extract_basic_macaroon(auth)
-    elif auth_method in ["token", "bearer"]:
+    if auth_method in ["token", "bearer"]:
         return auth
 
     return None

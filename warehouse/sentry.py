@@ -60,8 +60,7 @@ def before_send(event, hint):
             or type(exc_value).__name__ in ignore_exceptions
         ):
             return None
-        else:
-            return event
+        return event
     return event
 
 

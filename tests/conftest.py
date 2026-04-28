@@ -125,7 +125,7 @@ def metrics():
 def jinja():
     dir_name = os.path.join(os.path.dirname(warehouse.__file__))
 
-    env = Environment(
+    return Environment(
         loader=FileSystemLoader(dir_name),
         extensions=[
             "jinja2.ext.i18n",
@@ -133,8 +133,6 @@ def jinja():
         ],
         cache_size=0,
     )
-
-    return env
 
 
 class _Services:

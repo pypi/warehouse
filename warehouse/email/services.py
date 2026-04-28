@@ -19,6 +19,7 @@ from warehouse.email.ses.models import EmailMessage as SESEmailMessage
 def _format_sender(sitename, sender):
     if sender is not None:
         return str(Address(sitename, addr_spec=sender))
+    return None
 
 
 class EmailMessage:
@@ -143,6 +144,7 @@ class SESEmailSender:
         )
         if last_email:
             return last_email.created
+        return None
 
 
 class ConsoleAndSMTPEmailSender(SMTPEmailSender):

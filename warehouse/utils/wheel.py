@@ -100,7 +100,7 @@ def filename_to_tags(filename: str) -> set[packaging.tags.Tag]:
 def filename_to_pretty_tags(filename: str) -> list[str]:
     if filename.endswith(".egg"):
         return ["Egg"]
-    elif not filename.endswith(".whl"):
+    if not filename.endswith(".whl"):
         return ["Source"]
 
     tags = filename_to_tags(filename)

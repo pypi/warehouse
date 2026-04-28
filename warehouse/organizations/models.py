@@ -467,8 +467,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         """
         if self.is_in_good_standing():
             return self.name
-        else:
-            return f"{self.name} (Billing inactive)"
+        return f"{self.name} (Billing inactive)"
 
     def __acl__(self):
         session = orm_session_from_obj(self)
@@ -772,14 +771,13 @@ class OrganizationApplication(OrganizationMixin, HasObservations, db.Model):
         return self.name < other.name
 
     def __acl__(self):
-        acls = [
+        return [
             (
                 Allow,
                 f"user:{self.submitted_by.id}",
                 (Permissions.OrganizationApplicationsManage,),
             )
         ]
-        return acls
 
 
 class OrganizationNameCatalog(db.Model):

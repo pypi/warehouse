@@ -3875,8 +3875,7 @@ class TestManageAccountPublishingViews:
 
             if name == "user_oidc.publisher.register":
                 return user_rate_limiter
-            else:
-                return ip_rate_limiter
+            return ip_rate_limiter
 
         request = pretend.stub(
             find_service=pretend.call_recorder(find_service),

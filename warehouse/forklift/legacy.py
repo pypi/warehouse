@@ -1077,7 +1077,7 @@ def file_upload(request):
         if is_duplicate:
             request.tm.doom()
             return HTTPOk()
-        elif is_duplicate is not None:
+        if is_duplicate is not None:
             request.metrics.increment(
                 "warehouse.upload.failed", tags=["reason:duplicate-file"]
             )
