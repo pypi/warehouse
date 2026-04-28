@@ -2725,9 +2725,10 @@ class TestFileUpload:
 
         assert resp.status_code == 403
         assert resp.status == (
-            f"403 User {user.username!r} does not have a verified primary email "
-            "address. Please add a verified primary email before attempting to "
-            "upload to PyPI. See /the/help/url/ for more information."
+            f"403 User {user.username!r}, associated with the API token used, "
+            "does not have a verified primary email address. Please add a "
+            "verified primary email before attempting to upload to PyPI. "
+            "See /the/help/url/ for more information."
         )
 
     def test_upload_fails_without_two_factor_after_permission_check(
@@ -2770,9 +2771,10 @@ class TestFileUpload:
 
         assert resp.status_code == 403
         assert resp.status == (
-            f"403 User {user.username!r} does not have two-factor authentication "
-            "enabled. Please enable two-factor authentication before attempting "
-            "to upload to PyPI. See /the/help/url/ for more information."
+            f"403 User {user.username!r}, associated with the API token used, "
+            "does not have two-factor authentication enabled. Please enable "
+            "two-factor authentication before attempting to upload to PyPI. "
+            "See /the/help/url/ for more information."
         )
 
     def test_upload_permission_error_surfaces_before_email_check(
@@ -2860,9 +2862,10 @@ class TestFileUpload:
 
         assert resp.status_code == 403
         assert resp.status == (
-            f"403 User {user.username!r} does not have a verified primary email "
-            "address. Please add a verified primary email before attempting to "
-            "upload to PyPI. See /the/help/url/ for more information."
+            f"403 User {user.username!r}, associated with the API token used, "
+            "does not have a verified primary email address. Please add a "
+            "verified primary email before attempting to upload to PyPI. "
+            "See /the/help/url/ for more information."
         )
         # The project must not have been created.
         assert (

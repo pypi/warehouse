@@ -528,9 +528,10 @@ def _ensure_user_can_upload(request: Request) -> None:
         raise _exc_with_message(
             HTTPForbidden,
             (
-                "User {!r} does not have a verified primary email address. "
-                "Please add a verified primary email before attempting to "
-                "upload to PyPI. See {project_help} for more information."
+                "User {!r}, associated with the API token used, does not "
+                "have a verified primary email address. Please add a "
+                "verified primary email before attempting to upload to "
+                "PyPI. See {project_help} for more information."
             ).format(
                 request.user.username,
                 project_help=request.help_url(_anchor="verified-email"),
@@ -542,9 +543,10 @@ def _ensure_user_can_upload(request: Request) -> None:
         raise _exc_with_message(
             HTTPForbidden,
             (
-                "User {!r} does not have two-factor authentication enabled. "
-                "Please enable two-factor authentication before attempting to "
-                "upload to PyPI. See {project_help} for more information."
+                "User {!r}, associated with the API token used, does not "
+                "have two-factor authentication enabled. Please enable "
+                "two-factor authentication before attempting to upload to "
+                "PyPI. See {project_help} for more information."
             ).format(
                 request.user.username,
                 project_help=request.help_url(_anchor="two-factor-authentication"),
