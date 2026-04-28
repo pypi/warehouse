@@ -168,6 +168,14 @@ ignore = [
   #                the container type, which saves a layer of indrection but it changes
   #                the actual function signature, which we do not want.
   "PIE807",
+  # NOTE(dstufft): this lint rejects uses of TODO comments in the code base, which we
+  #                have regularly used. Maybe in the future we should file issues
+  #                instead, but for now it's not likely going to change.
+  "FIX",
+  # NOTE(dstufft): this lint rejects use of TODO comments that don't have an author and
+  #                a link. Again, maybe something we should do but we have a lot of
+  #                these and it's not likely going to change at the moment.
+  "TD",
   # TODO(dstufft): These have too many hits to enable currently, but we could
   #                look at them at some point and try to enable them.
   "ERA",
