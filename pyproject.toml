@@ -161,6 +161,9 @@ ignore = [
   #                them, and adding a lot of noqa comments feels worse than
   #                turning it off.
   "RUF012",
+  # NOTE(dstufft): these lints would be nice to add, but our db models are very circular
+  #                which these lints struggle with.
+  "TC",
   # TODO(dstufft): These have too many hits to enable currently, but we could
   #                look at them at some point and try to enable them.
   "ERA",
