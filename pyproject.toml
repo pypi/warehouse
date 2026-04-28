@@ -199,9 +199,12 @@ ignore = [
 "tests/**/*.py" = ["TID252"]
 # INP001: Our migrations are scripts not files that are part of a package
 "warehouse/migrations/**/*.py" = ["INP001"]
+# The warehouse cli can use print to give feedback to the user.
+"warehouse/cli/**/*.py" = ["T201"]
 # INP001: These are just scripipts as well.
-"bin/*.py" = ["INP001"]
-"dev/*.py" = ["INP001"]
+# T201: These scripts/helpers are fine to call print
+"bin/*.py" = ["INP001", "T201"]
+"dev/*.py" = ["INP001", "T201"]
 "docs/**/*.py" = ["INP001"]
 ".github/codeql/custom-queries/python/**/*.py" = ["INP001"]
 

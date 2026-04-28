@@ -311,17 +311,17 @@ def scan_archive(
 
 def main(argv: list[str]) -> int:  # pragma: no cover
     if len(argv) != 1:
-        print("Usage: python -m warehouse.utils.scanner <archive path>")
+        print("Usage: python -m warehouse.utils.scanner <archive path>")  # noqa: T201
         return 1
     filepath = argv[0]
     basename = Path(filepath).name
     matches = scan_archive(filepath)
     if not matches:
-        print(f"{basename}: OK (no matches)")
+        print(f"{basename}: OK (no matches)")  # noqa: T201
     else:
-        print(f"{basename}: MATCHED")
+        print(f"{basename}: MATCHED")  # noqa: T201
         for member, rule_names in matches:
-            print(f"  {member}: {', '.join(rule_names)}")
+            print(f"  {member}: {', '.join(rule_names)}")  # noqa: T201
     return 0 if not matches else 1
 
 

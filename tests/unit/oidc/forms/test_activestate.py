@@ -611,7 +611,6 @@ class TestActiveStatePublisherForm:
         ],
     )
     def test_validate_basic_invalid_fields(self, monkeypatch, data):
-        print(data)
         form = activestate.ActiveStatePublisherForm(MultiDict(data))
 
         monkeypatch.setattr(form, "_lookup_actor", lambda o: fake_user_info)

@@ -98,15 +98,12 @@ class ProjectNameUnavailableError(Exception):
     """Base exception for project name unavailability errors."""
 
 
-
 class ProjectNameUnavailableInvalidError(ProjectNameUnavailableError):
     """Project name is invalid."""
 
 
-
 class ProjectNameUnavailableStdlibError(ProjectNameUnavailableError):
     """Project name conflicts with Python stdlib module."""
-
 
 
 class ProjectNameUnavailableExistingError(ProjectNameUnavailableError):
@@ -118,7 +115,6 @@ class ProjectNameUnavailableExistingError(ProjectNameUnavailableError):
 
 class ProjectNameUnavailableProhibitedError(ProjectNameUnavailableError):
     """Project name is prohibited."""
-
 
 
 class ProjectNameUnavailableSimilarError(ProjectNameUnavailableError):

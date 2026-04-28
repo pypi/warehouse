@@ -393,15 +393,15 @@ def validate_zipfile(zip_filepath: str) -> tuple[bool, str | None]:
 
 def main(argv) -> int:  # pragma: no cover
     if len(argv) != 1:
-        print("Usage: python -m warehouse.utils.zipfiles <ZIP path>")
+        print("Usage: python -m warehouse.utils.zipfiles <ZIP path>")  # noqa: T201
         return 1
     zip_filepath = argv[0]
     zip_filename = os.path.basename(zip_filepath)
     ok, error = validate_zipfile(zip_filepath)
     if ok:
-        print(f"{zip_filename}: OK")
+        print(f"{zip_filename}: OK")  # noqa: T201
     else:
-        print(f"{zip_filename}: {error}")
+        print(f"{zip_filename}: {error}")  # noqa: T201
     return 0 if ok else 1
 
 

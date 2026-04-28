@@ -153,6 +153,6 @@ class NullFastlyCache(FastlyCache):
             "Fastly-Soft-Purge": "1",
         }
 
-        print("Origin cache purge issued:")
-        print(f"* URL: {url!r}")
-        print(f"* Headers: {headers!r}")
+        print("Origin cache purge issued:")  # noqa: T201
+        print(f"* URL: {url!r}")  # noqa: T201
+        print(f"* Headers: {headers!r}")  # noqa: T201
