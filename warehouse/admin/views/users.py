@@ -487,7 +487,7 @@ def user_reset_password(user, request):
 
 
 def _is_a_valid_url(url):
-    return url.startswith("https://") or url.startswith("http://")
+    return url.startswith(("https://", "http://"))
 
 
 def _get_related_urls(user):

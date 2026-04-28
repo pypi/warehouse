@@ -19,7 +19,7 @@ DISALLOW_DUPLICATE_EXTRA_IDS = {
     0x7075,  # Info-ZIP Unicode Path
 }
 # Unprintable characters we disallow from filenames.
-UNPRINTABLE_CHARS = set(range(0x00, 0x20)) | {0x7F}
+UNPRINTABLE_CHARS = set(range(0x00, 0x20)) | {0x7F}  # noqa: PIE808
 
 
 class InvalidZipFileError(Exception):

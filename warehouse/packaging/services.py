@@ -643,7 +643,6 @@ class ProjectService:
                 tags=[f"check_name:{exc.check_name!r}"],
             )
             # and continue with the project creation
-            pass
 
         # The project name is valid: create it and add it
         project = Project(name=name)

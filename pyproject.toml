@@ -164,6 +164,10 @@ ignore = [
   # NOTE(dstufft): these lints would be nice to add, but our db models are very circular
   #                which these lints struggle with.
   "TC",
+  # NOTE(dstufft): this lint changes lambda's that wrap dict/list/set into just calls to
+  #                the container type, which saves a layer of indrection but it changes
+  #                the actual function signature, which we do not want.
+  "PIE807",
   # TODO(dstufft): These have too many hits to enable currently, but we could
   #                look at them at some point and try to enable them.
   "ERA",

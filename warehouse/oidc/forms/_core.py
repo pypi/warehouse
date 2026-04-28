@@ -103,7 +103,6 @@ class PendingPublisherMixin:
                 check_name=exc.check_name,
                 existing_project_name=exc.existing_project_name,
             )
-            pass
 
     @property
     def provider(self) -> str:  # pragma: no cover
