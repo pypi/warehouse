@@ -175,7 +175,7 @@ external = ["WH"]  # These come from our internal flake8 plugin.
 "warehouse/migrations/**/*.py" = ["INP001"]
 # The warehouse cli can use print to give feedback to the user.
 "warehouse/cli/**/*.py" = ["T201"]
-# INP001: These are just scripipts as well.
+# INP001: These are just scripts as well.
 # T201: These scripts/helpers are fine to call print
 "bin/*.py" = ["INP001", "T201"]
 "dev/*.py" = ["INP001", "T201"]
