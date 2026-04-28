@@ -43,7 +43,7 @@ _WORKFLOW_FILENAME_RE = re.compile(
     )
     (?=@)               # lookahead match for `@`, constraining the group above
     """,
-    re.X,
+    re.VERBOSE,
 )
 
 
@@ -276,11 +276,11 @@ class GitHubPublisherMixin:
         return GitHubIdentity(
             repository=self.repository,
             workflow=self.workflow_filename,
-            environment=self.environment if self.environment else None,
+            environment=self.environment or None,
         )
 
     def stored_claims(self, claims: SignedClaims | None = None) -> dict:
-        claims_obj = claims if claims else {}
+        claims_obj = claims or SignedClaims({})
         return {"ref": claims_obj.get("ref"), "sha": claims_obj.get("sha")}
 
     def __str__(self) -> str:

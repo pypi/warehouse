@@ -28,7 +28,7 @@ class RedisLru:
         """
         self.conn = conn
         self.name = name
-        self.expires = expires if expires else DEFAULT_EXPIRES
+        self.expires = expires or DEFAULT_EXPIRES
         if callable(getattr(metric_reporter, "increment", None)):
             self.metric_reporter = metric_reporter
         else:
@@ -57,7 +57,7 @@ class RedisLru:
             pipeline.hset(
                 self.format_key(func_name, tag), str(key), orjson.dumps(value)
             )
-            ttl = expires if expires else self.expires
+            ttl = expires or self.expires
             pipeline.expire(self.format_key(func_name, tag), ttl)
             pipeline.execute()
             return value

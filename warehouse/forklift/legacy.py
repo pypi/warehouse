@@ -218,7 +218,7 @@ def _valid_platform_tag(platform_tag):
 
 _error_message_order = ["metadata-version", "name", "version"]
 
-_dist_file_re = re.compile(r".+?(?P<extension>\.(tar\.gz|zip|whl))$", re.I)
+_dist_file_re = re.compile(r".+?(?P<extension>\.(tar\.gz|zip|whl))$", re.IGNORECASE)
 
 
 def _construct_dependencies(meta: metadata.Metadata, types):
@@ -949,7 +949,7 @@ def file_upload(request):
                     "provides_extra",
                 }
             },
-            uploader=request.user if request.user else None,
+            uploader=request.user or None,
             uploaded_via=request.user_agent,
         )
         request.db.add(release)
@@ -1594,7 +1594,7 @@ def file_upload(request):
                 name=release.project.name,
                 version=release.version,
                 action="new release",
-                submitted_by=request.user if request.user else None,
+                submitted_by=request.user or None,
             )
         )
     request.db.add(
@@ -1602,7 +1602,7 @@ def file_upload(request):
             name=release.project.name,
             version=release.version,
             action=f"add {file_.python_version} file {file_.filename}",
-            submitted_by=request.user if request.user else None,
+            submitted_by=request.user or None,
         )
     )
 

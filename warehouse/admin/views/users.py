@@ -761,7 +761,7 @@ def user_quarantine_projects(user, request):
     quarantined_count = 0
     for project in user.projects:
         # Only quarantine projects that aren't already quarantined
-        if project.lifecycle_status not in ["quarantine-enter"]:
+        if project.lifecycle_status != "quarantine-enter":
             quarantine_project(project, request, flash=False)
             quarantined_count += 1
 

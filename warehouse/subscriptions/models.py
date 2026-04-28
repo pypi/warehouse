@@ -114,9 +114,7 @@ class StripeSubscription(db.Model):
 
     @property
     def is_manageable(self):
-        return self.status not in [
-            StripeSubscriptionStatus.Canceled.value,
-        ]
+        return self.status != StripeSubscriptionStatus.Canceled.value
 
 
 class StripeSubscriptionProduct(db.Model):

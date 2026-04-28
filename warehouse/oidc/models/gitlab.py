@@ -49,7 +49,7 @@ _WORKFLOW_FILEPATH_RE = re.compile(
     )
     (?=@)             # lookahead match for `@`, constraining the group above
     """,
-    re.X,
+    re.VERBOSE,
 )
 
 
@@ -304,11 +304,11 @@ class GitLabPublisherMixin:
         return GitLabIdentity(
             repository=self.project_path,
             workflow_filepath=self.workflow_filepath,
-            environment=self.environment if self.environment else None,
+            environment=self.environment or None,
         )
 
     def stored_claims(self, claims: SignedClaims | None = None) -> dict:
-        claims_obj = claims if claims else {}
+        claims_obj = claims or SignedClaims({})
         return {"ref_path": claims_obj.get("ref_path"), "sha": claims_obj.get("sha")}
 
     def __str__(self) -> str:
