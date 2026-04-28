@@ -2,21 +2,25 @@
 ARG PYTHON_IMAGE_VERSION=3.13.13-slim-bookworm
 
 # First things first, we build an image which is where we're going to compile
-# our static assets with. We use this stage in development.
+# our static assets with. We use this stage in development. Node base is kept
+# because some dependencies (sharp, sass-embedded) need node-gyp / native
+# modules built against Node's headers; bun is just dropped in for the
+# install + run steps which it does substantially faster than npm.
 FROM node:25.8.1-bookworm AS static-deps
+
+# Pull in bun for fast installs (bun install --frozen-lockfile reads bun.lock).
+COPY --from=oven/bun:1.3.9 /usr/local/bin/bun /usr/local/bin/bun
 
 WORKDIR /opt/warehouse/src/
 
-# However, we do want to trigger a reinstall of our node.js dependencies anytime
-# our package.json changes, so we'll ensure that we're copying that into our
-# static container prior to actually installing the npm dependencies.
-COPY package.json package-lock.json babel.config.js /opt/warehouse/src/
+# Trigger a reinstall whenever package.json or bun.lock changes.
+COPY package.json bun.lock babel.config.js /opt/warehouse/src/
 
-# Installing npm dependencies is done as a distinct step and *prior* to copying
-# over our static files so that, you guessed it, we don't invalidate the cache
-# of installed dependencies just because files have been modified.
-RUN --mount=type=cache,target=/root/.npm,sharing=locked \
-    npm ci
+# Installing the JS dependencies is done as a distinct step and *prior* to
+# copying over our static files so we don't invalidate this layer just
+# because source files changed.
+RUN --mount=type=cache,target=/root/.bun/install/cache,sharing=locked \
+    bun install --frozen-lockfile
 
 
 
@@ -35,7 +39,7 @@ COPY warehouse/locale/ /opt/warehouse/src/warehouse/locale/
 COPY webpack.config.js /opt/warehouse/src/
 COPY webpack.plugin.localize.js /opt/warehouse/src/
 
-RUN NODE_ENV=production npm run build
+RUN NODE_ENV=production bun run build
 
 
 

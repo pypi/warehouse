@@ -38,7 +38,7 @@ default:
 	@echo
 	@exit 1
 
-.state/docker-build-base: Dockerfile package.json package-lock.json pyproject.toml uv.lock
+.state/docker-build-base: Dockerfile package.json bun.lock pyproject.toml uv.lock
 	# Build our base container for this project.
 	docker compose build --build-arg IPYTHON=$(IPYTHON) --force-rm base
 
@@ -46,7 +46,7 @@ default:
 	mkdir -p .state
 	touch .state/docker-build-base
 
-.state/docker-build-static: Dockerfile package.json package-lock.json babel.config.js
+.state/docker-build-static: Dockerfile package.json bun.lock babel.config.js
 	# Build our static container for this project.
 	docker compose build --force-rm static
 

@@ -228,7 +228,7 @@ services:
       - ./tests/frontend:/opt/warehouse/src/tests/frontend:z
       - ./bin:/opt/warehouse/src/bin:z
       - ./package.json:/opt/warehouse/src/package.json:z
-      - ./package-lock.json:/opt/warehouse/src/package-lock.json:z
+      - ./bun.lock:/opt/warehouse/src/bun.lock:z
       - caches:/opt/warehouse/src/.stylelintcache
 
   maildev:

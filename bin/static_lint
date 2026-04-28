@@ -2,5 +2,5 @@
 set -ex
 
 # Actually run our tests.
-npm run lint
-npm run stylelint
+bun run lint
+bun run stylelint

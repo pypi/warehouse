@@ -2,7 +2,7 @@
 set -ex
 
 # Compile all static assets.
-npm run build
+bun run build
 
 # Test that our JS source is included in the bundle
 bin/test-sourcemaps
