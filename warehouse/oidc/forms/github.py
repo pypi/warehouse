@@ -133,9 +133,7 @@ class GitHubPublisherBase(wtforms.Form):
     def validate_workflow_filename(self, field: wtforms.Field) -> None:
         workflow_filename = field.data
 
-        if not (
-            workflow_filename.endswith((".yml", ".yaml"))
-        ):
+        if not (workflow_filename.endswith((".yml", ".yaml"))):
             raise wtforms.validators.ValidationError(
                 _("Workflow name must end with .yml or .yaml")
             )

@@ -104,9 +104,7 @@ class GitLabPublisherBase(wtforms.Form):
     def validate_workflow_filepath(self, field: wtforms.Field) -> None:
         workflow_filepath = field.data
 
-        if not (
-            workflow_filepath.endswith((".yml", ".yaml"))
-        ):
+        if not (workflow_filepath.endswith((".yml", ".yaml"))):
             raise wtforms.validators.ValidationError(
                 _("Top-level pipeline file path must end with .yml or .yaml")
             )
