@@ -109,7 +109,7 @@ class Service:
                 },
                 timeout=10,
             )
-        except Exception as err:
+        except Exception as err:  # noqa: BLE001
             raise UnexpectedError(str(err))
 
         try:

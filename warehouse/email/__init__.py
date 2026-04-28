@@ -74,7 +74,7 @@ def send_email(task, request, recipient, msg, success_event):
             user.record_event(**success_event)
     except (BadHeaders, EncodingError, InvalidMessage) as exc:
         raise exc
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001
         # Send any other exception to Sentry, but don't re-raise it
         sentry_sdk.capture_exception(exc)
         task.retry(exc=exc)

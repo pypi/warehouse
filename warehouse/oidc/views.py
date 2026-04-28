@@ -122,7 +122,7 @@ def mint_token_from_oidc(request: Request):
             unverified_jwt, options=dict(verify_signature=False)
         )
         unverified_issuer: str = unverified_claims["iss"]
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         metrics = request.find_service(IMetricsService, context=None)
         metrics.increment("warehouse.oidc.mint_token_from_oidc.malformed_jwt")
 

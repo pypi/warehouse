@@ -666,7 +666,7 @@ def populate_db(config):
             session.add(sponsor)
             session.commit()
             print(f"{name} sponsor created with success.")
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             session.rollback()
             print(f"Error while creating {name} sponsor:")
             print(f"\t{e}")

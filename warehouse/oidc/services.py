@@ -258,7 +258,7 @@ class OIDCPublisherService:
                 leeway=_JWT_LEEWAY,
             )
             return SignedClaims(signed_payload)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             self.metrics.increment(
                 "warehouse.oidc.verify_jwt_signature.invalid_signature",
                 tags=[f"publisher:{self.publisher}", f"issuer_url:{issuer_url}"],

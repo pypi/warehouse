@@ -227,7 +227,7 @@ def main(argv) -> int:  # pragma: no cover
         validate_record(wheel_filepath)
         print(f"{wheel_filename}: OK")
         return 0
-    except Exception as error:
+    except Exception as error:  # noqa: BLE001
         print(f"{wheel_filename}: {error!r}")
         return 1
 
