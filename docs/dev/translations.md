@@ -19,7 +19,7 @@ To add a new known locale:
 
 1. Check for [outstanding Weblate pull requests](https://github.com/pypi/warehouse/pulls/weblate) and merge them if so.
 2. In a new branch for [`pypi/warehouse`](https://github.com/pypi/warehouse), add the new language identifier to
-   `KNOWN_LOCALES` in [`warehouse/i18n/__init__.py`](https://github.com/pypi/warehouse/blob/main/warehouse/i18n/__init__.py) and [`webpack.plugin.localize.js`](https://github.com/pypi/warehouse/blob/main/webpack.plugin.localize.js).
+   `KNOWN_LOCALES` in [`warehouse/i18n/__init__.py`](https://github.com/pypi/warehouse/blob/main/warehouse/i18n/__init__.py) and [`rspack.plugin.localize.js`](https://github.com/pypi/warehouse/blob/main/rspack.plugin.localize.js).
    The value is the locale code, and corresponds to a directory in
    `warehouse/locale`.
 3. Commit these changes and make a new pull request to [`pypi/warehouse`](https://github.com/pypi/warehouse).

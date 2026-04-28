@@ -1,8 +1,9 @@
 # Frontend
 
 The Warehouse frontend is (as you might suspect) written in JavaScript with the
-CSS handled by SCSS. It uses `webpack` to process these files and prepare them for
-serving.
+CSS handled by SCSS. It uses [`rspack`](https://rspack.dev/) to process these
+files and prepare them for serving, and [`bun`](https://bun.sh/) for installs
+and script execution.
 
 All of the static files are located in `warehouse/static/` and external
 libraries are found in `package.json`.
@@ -18,10 +19,10 @@ container:
 
 ```shell
 # install dependencies
-docker compose run --rm static npm install
+docker compose run --rm static bun install
 
 # start a build
-docker compose run --rm static npm run build
+docker compose run --rm static bun run build
 ```
 
 ## Building outside of Docker
@@ -30,20 +31,20 @@ docker compose run --rm static npm run build
     Building outside of Docker is **not recommended** as it may
     install platform-specific dependencies.
 
-Install [NodeJS 20.x](https://nodejs.org/en/download/releases/),
-install the dependencies using `npm install` and then run `npm run
-build`.
+Install [NodeJS 25.x](https://nodejs.org/en/download/releases/) and
+[bun 1.3.x](https://bun.sh/docs/installation), install the dependencies
+using `bun install` and then run `bun run build`.
 
 If you're in a POSIX environment you may find
-[NVM](https://github.com/nvm-sh/nvm) useful to have multiple NodeJS
-versions installed in your system.
+[mise](https://mise.jdx.dev/) or [NVM](https://github.com/nvm-sh/nvm) useful
+to have multiple NodeJS versions installed in your system.
 
 ## Tests
 
 The JavaScript codebase includes tests that can be run via
 `make static_tests`. This target will run the static tests in the Docker
-environment but they may also be run locally using `npm run test` once NodeJS
-and the dependencies are installed as described above.
+environment but they may also be run locally using `bun run test` once NodeJS,
+bun, and the dependencies are installed as described above.
 
 JavaScript tests use the [Jest testing framework](https://jestjs.io/)
 along with [jest-dom](https://github.com/testing-library/jest-dom)
@@ -135,9 +136,11 @@ when using development database. Source reStructuredText file is available
 
 Strings in JS can be translated, see the [Translations](../translations.md) docs.
 
-As part of the webpack build,
-the translation data for each locale in `KNOWN_LOCALES`
-is placed in [`warehouse/static/js/warehouse/utils/messages-access.js`](https://github.com/pypi/warehouse/blob/main/warehouse/static/js/warehouse/utils/messages-access.js).
+As part of the rspack build,
+the translation data for each locale in `KNOWN_LOCALES` is injected as
+compile-time globals (`__WAREHOUSE_LOCALE_DATA__` and
+`__WAREHOUSE_PLURAL_FORM_FN__`) consumed by
+[`warehouse/static/js/warehouse/utils/messages-access.js`](https://github.com/pypi/warehouse/blob/main/warehouse/static/js/warehouse/utils/messages-access.js).
 
 A separate js bundle is generated for each locale,
 named like this: `warehouse.[locale].[contenthash].js`.

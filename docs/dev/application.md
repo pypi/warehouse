@@ -75,7 +75,7 @@ The top-level directory of the Warehouse repo contains files including:
 - `Makefile`: commands to spin up Docker Compose and the Docker
   containers, run the linter and other tests, etc.
 - files associated with Warehouse's front end, e.g.,
-  `webpack.config.js`
+  `rspack.config.js`
 
 Directories within the repository:
 

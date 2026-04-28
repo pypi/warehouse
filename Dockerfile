@@ -30,9 +30,9 @@ FROM static-deps AS static
 
 # Actually copy over our static files, we only copy over the static files to
 # save a small amount of space in our image and because we don't need them. We
-# copy `webpack.config.js` last even though it's least likely to change, because
+# copy `rspack.config.js` last even though it's least likely to change, because
 # it's very small so copying it needlessly isn't a big deal but it will save a
-# small amount of copying when only `webpack.config.js` is modified.
+# small amount of copying when only `rspack.config.js` is modified.
 COPY warehouse/static/ /opt/warehouse/src/warehouse/static/
 COPY warehouse/admin/static/ /opt/warehouse/src/warehouse/admin/static/
 COPY warehouse/locale/ /opt/warehouse/src/warehouse/locale/
