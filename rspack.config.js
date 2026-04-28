@@ -2,51 +2,39 @@
 
 /* global module, process, __dirname */
 
-// This is the main configuration file for webpack.
-// See: https://webpack.js.org/configuration/
+// Main configuration file for rspack (webpack-compatible bundler in Rust).
+// See: https://rspack.dev/config/
 
 const path = require("path");
-const zlib = require("zlib");
 const rtlcss = require("rtlcss");
-const CompressionPlugin = require("compression-webpack-plugin");
-const CopyPlugin = require("copy-webpack-plugin");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
-const ImageMinimizerPlugin = require("image-minimizer-webpack-plugin");
-const LiveReloadPlugin = require("webpack-livereload-plugin");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const webpack = require("webpack");
-const ProvidePlugin = webpack.ProvidePlugin;
-const DefinePlugin = webpack.DefinePlugin;
+// TODO: webpack-livereload-plugin is rspack-incompatible. For dev iteration
+// today, `bun run watch` rebuilds on file change. To restore live-reload /
+// HMR, switch to @rspack/dev-server.
 const RemoveEmptyScriptsPlugin = require("webpack-remove-empty-scripts");
-const {WebpackManifestPlugin} = require("webpack-manifest-plugin");
-const {defineLocaleConstants, allLocaleData} = require("./webpack.plugin.localize.js");
+
+const rspack = require("@rspack/core");
+const ProvidePlugin = rspack.ProvidePlugin;
+const DefinePlugin = rspack.DefinePlugin;
+// rspack's native CSS-extract / file-copy plugins (the webpack equivalents
+// rely on internals — `mini-css-extract-plugin` taps `registerLoader`,
+// `copy-webpack-plugin` hangs in `processAssets` — that rspack does not
+// expose).
+const MiniCssExtractPlugin = rspack.CssExtractRspackPlugin;
+const CopyPlugin = rspack.CopyRspackPlugin;
+
+const ManifestPlugin = require("./rspack.plugin.manifest.js");
+const {defineLocaleConstants, allLocaleData} = require("./rspack.plugin.localize.js");
 
 const isDev = process.env.NODE_ENV === "development";
 
-/* Shared Plugins */
+// NOTE: pre-compression (.gz / .br via compression-webpack-plugin) and image
+// minification (sharp / svgo via image-minimizer-webpack-plugin) used to run
+// inside the bundler; they're now post-build steps invoked from
+// bin/static_pipeline because their plugin APIs are not rspack-compatible.
+// See npm scripts `compress` and `imagemin` (added in package.json).
 
-const sharedCompressionPlugins = [
-  new CompressionPlugin({
-    filename: "[path][base].gz",
-    algorithm: "gzip",
-    compressionOptions: {level: 9, memLevel: 9},
-    // Only compress files that will actually be smaller when compressed.
-    minRatio: 1,
-  }),
-  /* TODO: Add plugins to compress brotli for text/font files vs the generic
-           Use BROTLI_MODE_TEXT/BROTLI_MODE_FONT and add a `test` qualifier. */
-  new CompressionPlugin({
-    filename: "[path][base].br",
-    algorithm: "brotliCompress",
-    compressionOptions: {
-      params: {
-        [zlib.constants.BROTLI_PARAM_QUALITY]: 11,
-      },
-    },
-    // Only compress files that will actually be smaller when compressed.
-    minRatio: 1,
-  }),
-];
+/* Shared Plugins */
 
 const sharedCSSPlugins = [
   new MiniCssExtractPlugin({
@@ -73,7 +61,9 @@ const sharedWebpackManifestMap =
     }
     // if the filename matches .css or .css.map, add a prefix of css/
     if (file.name.match(/\.css(\.map)?$/)) {
-      file.name = `css/${file.name}`;
+      if (!file.name.startsWith("css/")) {
+        file.name = `css/${file.name}`;
+      }
     }
     return file;
   };
@@ -118,9 +108,8 @@ module.exports = [
           },
         ],
       }),
-      ...sharedCompressionPlugins,
       ...sharedCSSPlugins,
-      new WebpackManifestPlugin({
+      new ManifestPlugin({
         removeKeyHash: /([a-f0-9]{8}\.?)/gi,
         publicPath: sharedWebpackManifestPublicPath,
         seed: sharedWebpackManifestData,
@@ -143,7 +132,6 @@ module.exports = [
             });
           },
         },
-        new LiveReloadPlugin(),
       ] : [],
     ],
     resolve: sharedResolve,
@@ -277,53 +265,16 @@ module.exports = [
             ],
           },
         }),
-        // Minimize Images when `mode` is `production`
-        new ImageMinimizerPlugin({
-          test: /\.(png|jpg|jpeg|gif)$/i,
-          minimizer: {
-            implementation: ImageMinimizerPlugin.sharpMinify,
-          },
-          generator: [
-            {
-              // Apply generator for copied assets
-              type: "asset",
-              implementation: ImageMinimizerPlugin.sharpGenerate,
-              options: {
-                encodeOptions: {
-                  webp: {
-                    quality: 90,
-                  },
-                },
-              },
-            },
-          ],
-        }),
-        new ImageMinimizerPlugin({
-          test: /\.(svg)$/i,
-          minimizer: {
-            implementation: ImageMinimizerPlugin.svgoMinify,
-            options: {
-              encodeOptions: {
-                // Pass over SVGs multiple times to ensure all optimizations are applied. False by default
-                multipass: true,
-                plugins: [
-                  // set of built-in plugins enabled by default
-                  // see: https://github.com/svg/svgo#default-preset
-                  "preset-default",
-                ],
-              },
-            },
-          },
-        }),
+        // Image minimization (sharp/svgo) and pre-compression (gzip/brotli)
+        // moved to post-build npm scripts — see bin/static_pipeline.
       ],
     },
   },
   {
     name: "admin",
     plugins: [
-      ...sharedCompressionPlugins,
       ...sharedCSSPlugins,
-      new WebpackManifestPlugin({
+      new ManifestPlugin({
         removeKeyHash: /([a-f0-9]{8}\.?)/gi,
         publicPath: sharedWebpackManifestPublicPath,
         map: sharedWebpackManifestMap,
@@ -333,7 +284,7 @@ module.exports = [
         $: "jquery",
         jQuery: "jquery",
       }),
-      ...isDev ? [new LiveReloadPlugin()] : [],
+      // (LiveReload removed — rspack-incompatible; use @rspack/dev-server for HMR)
     ],
     resolve: sharedResolve,
     entry: {
@@ -388,14 +339,13 @@ module.exports = [
       name: name,
       plugins: [
         new DefinePlugin(defineLocaleConstants(localeData)),
-        ...sharedCompressionPlugins,
-        new WebpackManifestPlugin({
+        new ManifestPlugin({
           removeKeyHash: /([a-f0-9]{8}\.?)/gi,
           publicPath: sharedWebpackManifestPublicPath,
           seed: sharedWebpackManifestData,
           map: sharedWebpackManifestMap,
         }),
-        ...isDev ? [new LiveReloadPlugin()] : [],
+        // (LiveReload removed — rspack-incompatible; use @rspack/dev-server for HMR)
       ],
       resolve: sharedResolve,
       entry: {

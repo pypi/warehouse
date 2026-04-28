@@ -4,5 +4,10 @@ set -ex
 # Compile all static assets.
 bun run build
 
+# Pre-compress (.gz/.br) text assets and image-optimise raster/svg.
+# Replaces the in-bundler compression / image-min plugins which were dropped
+# during the rspack swap; see bin/post-build.mjs for what runs.
+bun bin/post-build.mjs
+
 # Test that our JS source is included in the bundle
 bin/test-sourcemaps
