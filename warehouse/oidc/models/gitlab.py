@@ -227,11 +227,12 @@ class GitLabPublisherMixin:
     def _get_publisher_for_environment(
         cls, publishers: list[Self], environment: str | None
     ) -> Self | None:
-        if environment:
-            if specific_publisher := first_true(
+        if environment and (
+            specific_publisher := first_true(
                 publishers, pred=lambda p: p.environment == environment
-            ):
-                return specific_publisher
+            )
+        ):
+            return specific_publisher
 
         if general_publisher := first_true(
             publishers, pred=lambda p: p.environment == ""

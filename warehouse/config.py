@@ -220,9 +220,7 @@ def require_https_tween_factory(handler, registry):
 
 
 def activate_hook(request):
-    if request.path.startswith(("/_debug_toolbar/", "/static/")):
-        return False
-    return True
+    return not request.path.startswith(("/_debug_toolbar/", "/static/"))
 
 
 def template_view(config, name, route, template, route_kw=None, view_kw=None):

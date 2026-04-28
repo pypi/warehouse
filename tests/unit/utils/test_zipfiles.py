@@ -281,7 +281,7 @@ def test_cd_and_eocd_match():
     with tempfile.NamedTemporaryFile(mode="wb") as tmp:
         tmp.write(data)
         tmp.flush()
-        assert (True, None) == zipfiles.validate_zipfile(tmp.name)
+        assert zipfiles.validate_zipfile(tmp.name) == (True, None)
 
 
 @pytest.mark.parametrize(
@@ -341,7 +341,8 @@ def test_validate_zipfile_rejects_spoofed_file_size(tmp_path):
 
     # Read the zip, find the CD entry via zipfile's _EndRecData, and patch
     # the file_size field (offset 24 from the CD entry signature).
-    data = bytearray(open(whl_path, "rb").read())
+    with open(whl_path, "rb") as fp:
+        data = bytearray(fp.read())
     with zipfile.ZipFile(whl_path) as zfp:
         cd_offset = zfp.infolist()[0].header_offset
     # The CD starts after all local file entries. Find CD signature

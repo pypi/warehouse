@@ -127,15 +127,14 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
     # NOTE: We currently only support string fields.
     for field, limit in _LENGTH_LIMITS.items():
         value = getattr(metadata, field)
-        if isinstance(value, str):
-            if len(value) > limit:
-                email_name = _RAW_TO_EMAIL_MAPPING.get(field, field)
-                errors.append(
-                    InvalidMetadata(
-                        email_name,
-                        f"{email_name!r} field must be {limit} characters or less.",
-                    )
+        if isinstance(value, str) and len(value) > limit:
+            email_name = _RAW_TO_EMAIL_MAPPING.get(field, field)
+            errors.append(
+                InvalidMetadata(
+                    email_name,
+                    f"{email_name!r} field must be {limit} characters or less.",
                 )
+            )
 
     # We require that the author and maintainer emails, if they're provided, are
     # valid RFC822 email addresses.
@@ -194,14 +193,15 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
     # TODO: This is another one that it would be nice to lift this up to
     #       packaging.metadata
     for field in {"home_page", "download_url"}:
-        if (url := getattr(metadata, field)) is not None:
-            if not http.is_valid_uri(url, require_authority=False):
-                errors.append(
-                    InvalidMetadata(
-                        _RAW_TO_EMAIL_MAPPING.get(field, field),
-                        f"{url!r} is not a valid url.",
-                    )
+        if (url := getattr(metadata, field)) is not None and not http.is_valid_uri(
+            url, require_authority=False
+        ):
+            errors.append(
+                InvalidMetadata(
+                    _RAW_TO_EMAIL_MAPPING.get(field, field),
+                    f"{url!r} is not a valid url.",
                 )
+            )
 
     # Validate the Project URL structure to ensure that we have real, valid,
     # values for both labels and urls.

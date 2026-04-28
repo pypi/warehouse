@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import contextlib
 import os
 import os.path
 import re
@@ -282,13 +283,10 @@ def database(request, worker_id):
     )
 
     # In case the database already exists, possibly due to an aborted test run,
-    # attempt to drop it before creating
-    try:
+    # attempt to drop it before creating, we can safely ignore this exception as that
+    # means there was no leftover database
+    with contextlib.suppress(InvalidCatalogName):
         janitor.drop()
-    except InvalidCatalogName:
-        # We can safely ignore this exception as that means there was
-        # no leftover database
-        pass
 
     # Create our Database.
     janitor.init()
@@ -361,10 +359,12 @@ def get_app_config(database, nondefaults=None):
     if nondefaults:
         settings.update(nondefaults)
 
-    with mock.patch.object(config, "ManifestCacheBuster", MockManifestCacheBuster):
-        with mock.patch("warehouse.admin.ManifestCacheBuster", MockManifestCacheBuster):
-            with mock.patch.object(static, "whitenoise_add_manifest"):
-                cfg = config.configure(settings=settings)
+    with (
+        mock.patch.object(config, "ManifestCacheBuster", MockManifestCacheBuster),
+        mock.patch("warehouse.admin.ManifestCacheBuster", MockManifestCacheBuster),
+        mock.patch.object(static, "whitenoise_add_manifest"),
+    ):
+        cfg = config.configure(settings=settings)
 
     # Run migrations:
     # This might harmlessly run multiple times if there are several app config fixtures
@@ -823,7 +823,7 @@ class _MockRedis:
 
     def scan_iter(self, search, count):
         del count  # unused
-        return [key for key in self.cache.keys() if re.search(search, key)]
+        return [key for key in self.cache if re.search(search, key)]
 
     def set(self, key, value=None, *_args, **_kwargs):
         if _kwargs.get("nx", False) and key in self.cache:

@@ -28,7 +28,7 @@ class TestSanitizeRequest:
 
         @decorators.sanitize
         def wrapped(context, request):
-            assert request.POST == MultiDict({"real": "value"})
+            assert MultiDict({"real": "value"}) == request.POST
             return resp
 
         assert wrapped(pretend.stub(), req) is resp

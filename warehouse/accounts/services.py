@@ -180,16 +180,17 @@ class DatabaseUserService:
         tags = tags if tags is not None else []
 
         # First we want to check if a single IP is exceeding our rate limiter.
-        if self.remote_addr is not None:
-            if not self.ratelimiters["ip.login"].test(self.remote_addr):
-                logger.warning("IP failed login threshold reached.")
-                self._metrics.increment(
-                    "warehouse.authentication.ratelimited",
-                    tags=[*tags, "ratelimiter:ip"],
-                )
-                raise TooManyFailedLogins(
-                    resets_in=self.ratelimiters["ip.login"].resets_in(self.remote_addr)
-                )
+        if self.remote_addr is not None and not self.ratelimiters["ip.login"].test(
+            self.remote_addr
+        ):
+            logger.warning("IP failed login threshold reached.")
+            self._metrics.increment(
+                "warehouse.authentication.ratelimited",
+                tags=[*tags, "ratelimiter:ip"],
+            )
+            raise TooManyFailedLogins(
+                resets_in=self.ratelimiters["ip.login"].resets_in(self.remote_addr)
+            )
 
         # Next check to see if we've hit our global rate limit or not,
         # assuming that we've been configured with a global rate limiter anyways.
@@ -205,15 +206,14 @@ class DatabaseUserService:
 
         # Now, check to make sure that we haven't hitten a rate limit on a
         # per user basis.
-        if userid is not None:
-            if not self.ratelimiters["user.login"].test(userid):
-                self._metrics.increment(
-                    "warehouse.authentication.ratelimited",
-                    tags=[*tags, "ratelimiter:user"],
-                )
-                raise TooManyFailedLogins(
-                    resets_in=self.ratelimiters["user.login"].resets_in(userid)
-                )
+        if userid is not None and not self.ratelimiters["user.login"].test(userid):
+            self._metrics.increment(
+                "warehouse.authentication.ratelimited",
+                tags=[*tags, "ratelimiter:user"],
+            )
+            raise TooManyFailedLogins(
+                resets_in=self.ratelimiters["user.login"].resets_in(userid)
+            )
 
     def _hit_ratelimits(self, userid=None):
         if userid is not None:
@@ -225,16 +225,17 @@ class DatabaseUserService:
         tags = tags if tags is not None else []
 
         # Check IP-based 2FA rate limit
-        if self.remote_addr is not None:
-            if not self.ratelimiters["2fa.ip"].test(self.remote_addr):
-                logger.warning("IP failed 2FA threshold reached.")
-                self._metrics.increment(
-                    "warehouse.authentication.ratelimited",
-                    tags=[*tags, "ratelimiter:ip"],
-                )
-                raise TooManyFailedLogins(
-                    resets_in=self.ratelimiters["2fa.ip"].resets_in(self.remote_addr)
-                )
+        if self.remote_addr is not None and not self.ratelimiters["2fa.ip"].test(
+            self.remote_addr
+        ):
+            logger.warning("IP failed 2FA threshold reached.")
+            self._metrics.increment(
+                "warehouse.authentication.ratelimited",
+                tags=[*tags, "ratelimiter:ip"],
+            )
+            raise TooManyFailedLogins(
+                resets_in=self.ratelimiters["2fa.ip"].resets_in(self.remote_addr)
+            )
 
         # Check user-based 2FA rate limit
         if not self.ratelimiters["2fa.user"].test(userid):
@@ -313,15 +314,14 @@ class DatabaseUserService:
         public=False,
         ratelimit=True,
     ):
-        if ratelimit:
-            # Check to make sure that we haven't hitten the rate limit for this IP
-            if not self.ratelimiters["email.add"].test(self.remote_addr):
-                self._metrics.increment(
-                    "warehouse.email.add.ratelimited", tags=["ratelimiter:email.add"]
-                )
-                raise TooManyEmailsAdded(
-                    resets_in=self.ratelimiters["email.add"].resets_in(self.remote_addr)
-                )
+        # Check to make sure that we haven't hitten the rate limit for this IP
+        if ratelimit and not self.ratelimiters["email.add"].test(self.remote_addr):
+            self._metrics.increment(
+                "warehouse.email.add.ratelimited", tags=["ratelimiter:email.add"]
+            )
+            raise TooManyEmailsAdded(
+                resets_in=self.ratelimiters["email.add"].resets_in(self.remote_addr)
+            )
 
         user = self.get_user(user_id)
 
@@ -330,7 +330,7 @@ class DatabaseUserService:
         # have a primary address, then the address we're adding now is going to be
         # set to their primary.
         if primary is None:
-            primary = True if user.primary_email is None else False
+            primary = user.primary_email is None
 
         email = Email(
             email=email_address,
@@ -724,10 +724,7 @@ class DatabaseUserService:
                 [TermsOfServiceEngagement.Viewed, TermsOfServiceEngagement.Agreed]
             )
         ).first()
-        if active_engagements is None:
-            return True
-
-        return False
+        return active_engagements is None
 
     def record_tos_engagement(
         self,

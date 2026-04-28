@@ -213,9 +213,7 @@ def _valid_platform_tag(platform_tag):
     if m and m.group("arch") in _android_arches:
         return True
     m = _pyemscripten_platform_re.match(platform_tag)
-    if m:
-        return True
-    return False
+    return bool(m)
 
 
 _error_message_order = ["metadata-version", "name", "version"]

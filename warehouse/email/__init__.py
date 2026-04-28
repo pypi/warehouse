@@ -54,10 +54,8 @@ def _redact_ip(request, email):
         return user_email.user_id != request._unauthenticated_userid
     if request.user:
         return user_email.user_id != request.user.id
-    if request.remote_addr == "127.0.0.1":
-        # This is the IP used when synthesizing a request in a task
-        return True
-    return False
+
+    return request.remote_addr == "127.0.0.1"
 
 
 @tasks.task(bind=True, ignore_result=True, acks_late=True)

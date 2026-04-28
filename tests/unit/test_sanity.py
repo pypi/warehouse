@@ -78,10 +78,7 @@ class TestInvalidForms:
     ],
 )
 def test_unicode_redirects(original_location, expected_location):
-    if original_location:
-        resp_in = HTTPMovedPermanently(original_location)
-    else:
-        resp_in = HTTPOk()
+    resp_in = HTTPMovedPermanently(original_location) if original_location else HTTPOk()
 
     resp_out = sanity.unicode_redirects(resp_in)
 

@@ -20,7 +20,7 @@ def test_populate_sponsors_from_sponsors_dict(db_request, monkeypatch, cli):
     session_cls = pretend.call_recorder(lambda bind: db_request.db)
     monkeypatch.setattr(db, "Session", session_cls)
 
-    assert 0 == db_request.db.query(Sponsor).count()
+    assert db_request.db.query(Sponsor).count() == 0
     cli.invoke(sponsors.populate_db, obj=config)
     assert len(sponsors.SPONSORS_DICTS) == db_request.db.query(Sponsor).count()
     assert session_cls.calls == [pretend.call(bind=engine)]
@@ -82,7 +82,7 @@ def test_capture_exception_if_error_and_rollback(db_request, monkeypatch, cli):
     cli.invoke(sponsors.populate_db, obj=config)
 
     # no new data at db and no exception being raised
-    assert 0 == db_request.db.query(Sponsor).count()
+    assert db_request.db.query(Sponsor).count() == 0
     assert len(session.add.calls) == len(sponsors.SPONSORS_DICTS)
     assert len(session.rollback.calls) == len(sponsors.SPONSORS_DICTS)
     assert len(session.commit.calls) == 0

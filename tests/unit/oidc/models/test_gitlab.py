@@ -285,7 +285,7 @@ class TestGitLabPublisher:
             issuer_url="https://gitlab.com",
         )
 
-        for claim_name in publisher.__required_verifiable_claims__.keys():
+        for claim_name in publisher.__required_verifiable_claims__:
             assert getattr(publisher, claim_name) is not None
 
         assert str(publisher) == "subfolder/fakeworkflow.yml"

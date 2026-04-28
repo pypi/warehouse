@@ -38,19 +38,19 @@ class WarehouseVisitor(ast.NodeVisitor):
         # Nodes can be either Attribute or Name, and depending on the type
         # of node, the value.func can be either an attr or an id.
         # TODO: This is aching for a better way to do this.
-        if isinstance(node.value, ast.Call):
-            if (
+        if isinstance(node.value, ast.Call) and (
+            (
                 isinstance(node.value.func, ast.Attribute)
                 and node.value.func.attr == "relationship"
                 and isinstance(node.value.keywords, list)
-            ):
-                _check_keywords(node.value.keywords)
-            elif (
+            )
+            or (
                 isinstance(node.value.func, ast.Name)
                 and node.value.func.id == "relationship"
                 and isinstance(node.value.keywords, list)
-            ):
-                _check_keywords(node.value.keywords)
+            )
+        ):
+            _check_keywords(node.value.keywords)
 
     def template_exists(self, template_name: str) -> bool:
         repo_root = Path(__file__).parent.parent.parent
@@ -74,10 +74,7 @@ class WarehouseVisitor(ast.NodeVisitor):
                 str(repo_root / "warehouse" / "templates"),
                 str(repo_root / "warehouse" / "admin" / "templates"),
             ]
-        for path in search_paths:
-            if Path(path, template_name).is_file():
-                return True
-        return False
+        return any(Path(path, template_name).is_file() for path in search_paths)
 
     def visit_Assign(self, node: ast.Assign) -> None:
         self.check_for_backref(node)
@@ -97,13 +94,10 @@ class WarehouseVisitor(ast.NodeVisitor):
             return True
 
         # Check for request.metrics.<method>() or any_obj.metrics.<method>()
-        if (
+        return bool(
             isinstance(node.func.value, ast.Attribute)
             and node.func.value.attr == "metrics"
-        ):
-            return True
-
-        return False
+        )
 
     def check_metrics_tags(self, node: ast.Call) -> None:
         """Check that tags parameter in metrics calls is a list."""
@@ -112,16 +106,15 @@ class WarehouseVisitor(ast.NodeVisitor):
 
         # Check keyword arguments for tags=
         for kw in node.keywords:
-            if kw.arg == "tags":
-                # tags should be None, a variable (Name), or a List
-                # Flag if it's a literal non-list type (string, tuple, dict, set, etc.)
-                if isinstance(kw.value, (ast.Constant, ast.Tuple, ast.Dict, ast.Set)):
-                    # Allow None
-                    if isinstance(kw.value, ast.Constant) and kw.value.value is None:
-                        continue
-                    self.errors.append(
-                        (kw.value.lineno, kw.value.col_offset, WH004_msg)
-                    )
+            # tags should be None, a variable (Name), or a List
+            # Flag if it's a literal non-list type (string, tuple, dict, set, etc.)
+            if kw.arg == "tags" and isinstance(
+                kw.value, (ast.Constant, ast.Tuple, ast.Dict, ast.Set)
+            ):
+                # Allow None
+                if isinstance(kw.value, ast.Constant) and kw.value.value is None:
+                    continue
+                self.errors.append((kw.value.lineno, kw.value.col_offset, WH004_msg))
 
     def visit_Call(self, node: ast.Call) -> None:
         self.check_metrics_tags(node)
@@ -139,11 +132,10 @@ class WarehouseVisitor(ast.NodeVisitor):
                         and isinstance(kw.value, ast.Constant)
                         # TODO: Is there a "string-that-looks-like-a-filename"?
                         and kw.value.value not in ["json", "xmlrpc", "string"]
-                    ):
-                        if not self.template_exists(kw.value.value):
-                            self.errors.append(
-                                (kw.value.lineno, kw.value.col_offset, WH003_msg)
-                            )
+                    ) and not self.template_exists(kw.value.value):
+                        self.errors.append(
+                            (kw.value.lineno, kw.value.col_offset, WH003_msg)
+                        )
         self.generic_visit(node)
 
 

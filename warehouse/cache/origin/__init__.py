@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import contextlib
 import functools
 import operator
 
@@ -62,10 +63,8 @@ def store_purge_keys(config, session, flush_context):
 
         changed = set()
         if obj in session.dirty:
-            try:
+            with contextlib.suppress(NoInspectionAvailable):
                 changed = set(sa_inspect(obj).committed_state.keys())
-            except NoInspectionAvailable:
-                pass
             # Skip if only non-cache-relevant attributes changed
             if changed and changed <= _NON_CACHE_RELEVANT_ATTRS:
                 continue

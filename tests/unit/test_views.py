@@ -636,7 +636,7 @@ class TestSearch:
             search(db_request)
 
         assert page_cls.calls == [
-            pretend.call(opensearch_query, url_maker=url_maker, page=15 or 1)
+            pretend.call(opensearch_query, url_maker=url_maker, page=15)
         ]
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert metrics.histogram.calls == []

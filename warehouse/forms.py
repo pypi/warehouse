@@ -99,5 +99,5 @@ class SetLocaleForm(BaseForm):
     locale_id = StringField(validators=[InputRequired(message="Missing locale ID")])
 
     def validate_locale_id(self, field):
-        if field.data not in KNOWN_LOCALES.keys():
+        if field.data not in KNOWN_LOCALES:
             raise ValidationError(f"Unknown locale ID: {field.data}")

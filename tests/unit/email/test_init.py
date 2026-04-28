@@ -179,7 +179,7 @@ class TestSendEmailToUser:
 
         user = pretend.stub(
             primary_email=pretend.stub(
-                email=primary_email, verified=True if address is not None else False
+                email=primary_email, verified=address is not None
             ),
         )
 
@@ -281,7 +281,7 @@ class TestSendEmailToUser:
             username=username,
             name="",
             primary_email=pretend.stub(
-                email=primary_email, verified=True if address is not None else False
+                email=primary_email, verified=address is not None
             ),
             id="id",
         )

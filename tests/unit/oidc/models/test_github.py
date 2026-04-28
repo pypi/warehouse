@@ -221,7 +221,7 @@ class TestGitHubPublisher:
             environment="fakeenv",
         )
 
-        for claim_name in publisher.__required_verifiable_claims__.keys():
+        for claim_name in publisher.__required_verifiable_claims__:
             assert getattr(publisher, claim_name) is not None
 
         assert str(publisher) == "fakeworkflow.yml"

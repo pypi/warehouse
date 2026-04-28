@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import binascii
+import contextlib
 import os
 import urllib.parse
 
@@ -241,10 +242,8 @@ def unindex_project(self, request, project_name):
         with SearchLock(r, timeout=15, blocking_timeout=1):
             client = request.registry["opensearch.client"]
             index_name = request.registry["opensearch.index"]
-            try:
+            with contextlib.suppress(opensearchpy.exceptions.NotFoundError):
                 client.delete(index=index_name, id=project_name)
-            except opensearchpy.exceptions.NotFoundError:
-                pass
     except redis.exceptions.LockError as exc:
         sentry_sdk.capture_exception(exc)
         raise self.retry(countdown=60, exc=exc)
