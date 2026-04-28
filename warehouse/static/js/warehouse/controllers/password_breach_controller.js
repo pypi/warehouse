@@ -17,12 +17,10 @@ export default class extends Controller {
       this.hideMessage();
       if (this.passwordTarget.value.length > 2) {
         this._lastCheckedPassword = this.passwordTarget.value;
-        return this.checkPassword(this.passwordTarget.value).catch(
-          e => {
-            console.error(e);
-            this.hideMessage();  // default to hiding the message on errors
-          },
-        );
+        return this.checkPassword(this.passwordTarget.value).catch((e) => {
+          console.error(e);
+          this.hideMessage(); // default to hiding the message on errors
+        });
       }
     }
     return null;
@@ -51,7 +49,7 @@ export default class extends Controller {
   hexString(buffer) {
     const byteArray = new Uint8Array(buffer);
 
-    const hexCodes = [...byteArray].map(value => {
+    const hexCodes = [...byteArray].map((value) => {
       const hexCode = value.toString(16);
       const paddedHexCode = hexCode.padStart(2, "0");
       return paddedHexCode;
@@ -79,9 +77,9 @@ export default class extends Controller {
     // colon, and then the number of times that password has appeared in a breach.
     // For our uses, we're going to consider any password that has ever appeared in
     // a breach to be insecure, even if only once.
-    let isBreached = responseText.split("\n").some(
-      line => line.toLowerCase().split(":")[0] === hashedPassword.slice(5),
-    );
+    let isBreached = responseText
+      .split("\n")
+      .some((line) => line.toLowerCase().split(":")[0] === hashedPassword.slice(5));
     if (isBreached) {
       this.showMessage();
     } else {

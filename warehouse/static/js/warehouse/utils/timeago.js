@@ -8,7 +8,7 @@ const enumerateTime = (timestampString) => {
     timeDifference = now - timestamp,
     time = {};
 
-  time.numMinutes = Math.floor((timeDifference / 1000) / 60);
+  time.numMinutes = Math.floor(timeDifference / 1000 / 60);
   time.numHours = Math.floor(time.numMinutes / 60);
   time.numDays = Math.floor(time.numHours / 24);
   time.isBeforeCutoff = time.numDays < 7;

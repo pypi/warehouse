@@ -16,7 +16,7 @@
 /* global module, __dirname */
 
 const fs = require("node:fs");
-const {resolve} = require("node:path");
+const { resolve } = require("node:path");
 const path = require("path");
 const gettextParser = require("gettext-parser");
 
@@ -25,20 +25,20 @@ const baseDir = __dirname;
 const localeDir = path.resolve(baseDir, "warehouse/locale");
 // This list should match `warehouse.i18n.KNOWN_LOCALES`
 const KNOWN_LOCALES = [
-  "en",  // English
-  "es",  // Spanish
-  "fr",  // French
-  "ja",  // Japanese
-  "pt_BR",  // Brazilian Portuguese
-  "uk",  // Ukrainian
-  "el",  // Greek
-  "de",  // German
-  "zh_Hans",  // Simplified Chinese
-  "zh_Hant",  // Traditional Chinese
-  "ru",  // Russian
-  "he",  // Hebrew
-  "eo",  // Esperanto
-  "ko",  // Korean
+  "en", // English
+  "es", // Spanish
+  "fr", // French
+  "ja", // Japanese
+  "pt_BR", // Brazilian Portuguese
+  "uk", // Ukrainian
+  "el", // Greek
+  "de", // German
+  "zh_Hans", // Simplified Chinese
+  "zh_Hant", // Traditional Chinese
+  "ru", // Russian
+  "he", // Hebrew
+  "eo", // Esperanto
+  "ko", // Korean
 ];
 
 // A custom regular expression to do some basic checking of the plural form,
@@ -52,11 +52,10 @@ const KNOWN_LOCALES = [
 //   remainder (%)
 const pluralFormPattern = new RegExp("^ *nplurals *= *[0-9]+ *; *plural *=[ n0-9()<>!=?:&|%]+;?$");
 
-const allLocaleData = KNOWN_LOCALES
-  .filter(langCode => langCode !== "en")
+const allLocaleData = KNOWN_LOCALES.filter((langCode) => langCode !== "en")
   .map((langCode) => resolve(localeDir, langCode, "LC_MESSAGES/messages.po"))
   .filter((file) => fs.statSync(file).isFile())
-  .map((file) => ({path: path.relative(baseDir, file), data: fs.readFileSync(file, "utf8")}))
+  .map((file) => ({ path: path.relative(baseDir, file), data: fs.readFileSync(file, "utf8") }))
   .map((data) => {
     try {
       const lines = data.data
@@ -64,14 +63,14 @@ const allLocaleData = KNOWN_LOCALES
         // gettext-parser does not support obsolete previous translations,
         // so filter out those lines
         // see: https://github.com/smhg/gettext-parser/issues/79
-        .filter(line => !line.startsWith("#~|"))
+        .filter((line) => !line.startsWith("#~|"))
         .join("\n");
       const parsed = gettextParser.po.parse(lines);
       const language = parsed.headers["Language"];
       const pluralForms = parsed.headers["Plural-Forms"];
       const result = {
         "": {
-          "language": language,
+          language: language,
           "plural-forms": pluralForms,
         },
       };
@@ -87,10 +86,10 @@ const allLocaleData = KNOWN_LOCALES
         }
         const value = translations[key];
         const refs = value.comments.reference.split("\n");
-        if (refs.every(refLine => !refLine.includes(".js:"))) {
+        if (refs.every((refLine) => !refLine.includes(".js:"))) {
           continue;
         }
-        result[value.msgid] = value.msgstr.map(function(str) {
+        result[value.msgid] = value.msgstr.map(function (str) {
           return str
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
@@ -104,7 +103,6 @@ const allLocaleData = KNOWN_LOCALES
       throw new Error(`Could not parse file ${data.path}: ${e.message}\n${e}`, { cause: e });
     }
   });
-
 
 /**
  * Build the DefinePlugin definitions for a given locale's data.
@@ -122,8 +120,7 @@ const allLocaleData = KNOWN_LOCALES
  */
 function defineLocaleConstants(localeData) {
   const pluralForms = localeData[""]["plural-forms"];
-  const pluralFormFnSource =
-    `(function (n) {
+  const pluralFormFnSource = `(function (n) {
   let nplurals, plural;
   ${pluralForms}
   return {total: nplurals, index: ((nplurals > 1 && plural === true) ? 1 : (plural ? plural : 0))};

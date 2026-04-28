@@ -12,18 +12,15 @@
  * Usage: bun bin/post-build.mjs (or `node bin/post-build.mjs`).
  */
 
-import {readdir, readFile, writeFile, stat} from "node:fs/promises";
-import {join, extname} from "node:path";
-import {gzip, brotliCompress, constants} from "node:zlib";
-import {promisify} from "node:util";
+import { readdir, readFile, writeFile, stat } from "node:fs/promises";
+import { join, extname } from "node:path";
+import { gzip, brotliCompress, constants } from "node:zlib";
+import { promisify } from "node:util";
 
 const gzipAsync = promisify(gzip);
 const brotliAsync = promisify(brotliCompress);
 
-const DIST_DIRS = [
-  "warehouse/static/dist",
-  "warehouse/admin/static/dist",
-];
+const DIST_DIRS = ["warehouse/static/dist", "warehouse/admin/static/dist"];
 
 // Files to pre-compress; matches the previous compression-webpack-plugin
 // scope (any text-shaped asset where minRatio: 1 made compression worthwhile).
@@ -35,9 +32,11 @@ const MIN_RATIO = 1;
 async function* walk(dir) {
   let entries;
   try {
-    entries = await readdir(dir, {withFileTypes: true});
+    entries = await readdir(dir, { withFileTypes: true });
   } catch (err) {
-    if (err.code === "ENOENT") {return;}
+    if (err.code === "ENOENT") {
+      return;
+    }
     throw err;
   }
   for (const entry of entries) {
@@ -51,13 +50,15 @@ async function* walk(dir) {
 }
 
 async function compressOne(file) {
-  if (!COMPRESSIBLE.test(file)) {return null;}
+  if (!COMPRESSIBLE.test(file)) {
+    return null;
+  }
   const buf = await readFile(file);
   const orig = buf.length;
   const [gz, br] = await Promise.all([
-    gzipAsync(buf, {level: 9, memLevel: 9}),
+    gzipAsync(buf, { level: 9, memLevel: 9 }),
     brotliAsync(buf, {
-      params: {[constants.BROTLI_PARAM_QUALITY]: 11},
+      params: { [constants.BROTLI_PARAM_QUALITY]: 11 },
     }),
   ]);
   const wrote = [];
@@ -78,13 +79,17 @@ async function optimiseImages(distDir) {
   try {
     imageStat = await stat(imageDir);
   } catch (err) {
-    if (err.code === "ENOENT") {return {raster: 0, svg: 0};}
+    if (err.code === "ENOENT") {
+      return { raster: 0, svg: 0 };
+    }
     throw err;
   }
-  if (!imageStat.isDirectory()) {return {raster: 0, svg: 0};}
+  if (!imageStat.isDirectory()) {
+    return { raster: 0, svg: 0 };
+  }
 
   const sharp = (await import("sharp")).default;
-  const {optimize: svgoOptimize} = await import("svgo");
+  const { optimize: svgoOptimize } = await import("svgo");
 
   let raster = 0;
   let svg = 0;
@@ -109,7 +114,7 @@ async function optimiseImages(distDir) {
       }
     }
   }
-  return {raster, svg};
+  return { raster, svg };
 }
 
 async function main() {
@@ -121,11 +126,15 @@ async function main() {
   for (const dir of DIST_DIRS) {
     for await (const file of walk(dir)) {
       // Don't re-compress the compressed siblings or source maps' siblings.
-      if (file.endsWith(".gz") || file.endsWith(".br")) {continue;}
+      if (file.endsWith(".gz") || file.endsWith(".br")) {
+        continue;
+      }
       const wrote = await compressOne(file);
-      if (wrote && wrote.length) {compressed++;}
+      if (wrote && wrote.length) {
+        compressed++;
+      }
     }
-    const {raster, svg} = await optimiseImages(dir);
+    const { raster, svg } = await optimiseImages(dir);
     imgRaster += raster;
     imgSvg += svg;
   }
@@ -133,7 +142,7 @@ async function main() {
   const ms = Date.now() - start;
   console.log(
     `post-build: pre-compressed ${compressed} files, ` +
-    `optimised ${imgRaster} raster + ${imgSvg} svg images in ${ms} ms`,
+      `optimised ${imgRaster} raster + ${imgSvg} svg images in ${ms} ms`,
   );
 }
 

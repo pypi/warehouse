@@ -3,7 +3,7 @@
 export default () => {
   // Force tab key to cycle within the modal if the modal is active
   const keys = [];
-  document.addEventListener("keydown", event => {
+  document.addEventListener("keydown", (event) => {
     const modalForm = document.querySelector(".modal:target .modal__form");
     keys[event.keyCode] = event.type === "keydown";
 
@@ -15,10 +15,10 @@ export default () => {
 
       // This needs to be a function in order to get the disabled state in
       // case the user populates the confirm input.
-      const getLastItem = () => modalForm.querySelector(
-        ".modal__footer button.js-confirm").disabled
-        ? modalForm.querySelector(".modal__footer .js-cancel")
-        : modalForm.querySelector(".modal__footer .js-confirm");
+      const getLastItem = () =>
+        modalForm.querySelector(".modal__footer button.js-confirm").disabled
+          ? modalForm.querySelector(".modal__footer .js-cancel")
+          : modalForm.querySelector(".modal__footer .js-confirm");
 
       // Handle SHIFT+TAB
       if (keys[9] && keys[16]) {
@@ -35,7 +35,7 @@ export default () => {
     }
   });
 
-  document.addEventListener("keyup", event => {
+  document.addEventListener("keyup", (event) => {
     keys[event.keyCode] = event.type === "keydown";
   });
 };

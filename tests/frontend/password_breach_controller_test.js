@@ -32,7 +32,7 @@ describe("Password breach controller", () => {
   });
 
   describe("functionality", () => {
-  /*
+    /*
     This does not feel good right now, but will allow progress.
 
     Due to some misbheavior between jest, stimulus, debounce, and jest-fetch-mock
@@ -74,7 +74,7 @@ describe("Password breach controller", () => {
         const passwordField = document.querySelector("#password");
         fireEvent.input(passwordField, { target: { value: "fo" } });
 
-        await delay(25);  // arbitrary number of ms, too low may cause failures
+        await delay(25); // arbitrary number of ms, too low may cause failures
         expect(fetch.mock.calls.length).toEqual(0);
       });
     });

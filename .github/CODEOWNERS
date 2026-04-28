@@ -14,13 +14,15 @@ warehouse/admin/templates/*              @pypi/warehouse-reviewers @pypi/warehou
 warehouse/static/*                       @pypi/warehouse-reviewers @pypi/warehouse-frontend
 warehouse/templates/*                    @pypi/warehouse-reviewers @pypi/warehouse-frontend
 .stylelintrc.json                        @pypi/warehouse-reviewers @pypi/warehouse-frontend
+.oxlintrc.json                           @pypi/warehouse-reviewers @pypi/warehouse-frontend
+.oxfmtrc.json                            @pypi/warehouse-reviewers @pypi/warehouse-frontend
 babel.cfg                                @pypi/warehouse-reviewers @pypi/warehouse-frontend
 babel.config.js                          @pypi/warehouse-reviewers @pypi/warehouse-frontend
-eslint.config.mjs                        @pypi/warehouse-reviewers @pypi/warehouse-frontend
-package-lock.json                        @pypi/warehouse-reviewers @pypi/warehouse-frontend
+bun.lock                                 @pypi/warehouse-reviewers @pypi/warehouse-frontend
 package.json                             @pypi/warehouse-reviewers @pypi/warehouse-frontend
-webpack.config.js                        @pypi/warehouse-reviewers @pypi/warehouse-frontend
-webpack.plugin.localize.js               @pypi/warehouse-reviewers @pypi/warehouse-frontend
+rspack.config.js                         @pypi/warehouse-reviewers @pypi/warehouse-frontend
+rspack.plugin.localize.js                @pypi/warehouse-reviewers @pypi/warehouse-frontend
+rspack.plugin.manifest.js                @pypi/warehouse-reviewers @pypi/warehouse-frontend
 
 # This is not *technically* a frontend file, but editing the frontend will likely
 # mean that these need to be regenerated, so we treat it like it's a frontend file.

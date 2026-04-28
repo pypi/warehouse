@@ -5,7 +5,6 @@
 import { Application } from "@hotwired/stimulus";
 import ProjectTabsController from "../../warehouse/static/js/warehouse/controllers/project_tabs_controller";
 
-
 const tabsHTML = `
 <div data-controller="project-tabs">
   <div class="tabs-container">
@@ -111,7 +110,6 @@ const tabsHTML = `
 `;
 
 describe("Project tabs controller", () => {
-
   describe("initial state", () => {
     describe("with no hash in location", () => {
       beforeEach(() => {
@@ -126,7 +124,7 @@ describe("Project tabs controller", () => {
         expect(tab).toHaveClass("vertical-tabs__tab--is-active");
         expect(tab).toHaveAttribute("aria-selected");
 
-        ["data", "history"].forEach(tabID => {
+        ["data", "history"].forEach((tabID) => {
           expect(document.getElementById(tabID)).toHaveStyle("display: none");
           const tab = document.getElementById(`${tabID}-tab`);
           expect(tab).not.toHaveClass("vertical-tabs__tab--is-active");
@@ -148,7 +146,7 @@ describe("Project tabs controller", () => {
         expect(tab).toHaveClass("vertical-tabs__tab--is-active");
         expect(tab).toHaveAttribute("aria-selected");
 
-        ["description", "data"].forEach(tabID => {
+        ["description", "data"].forEach((tabID) => {
           expect(document.getElementById(tabID)).toHaveStyle("display: none");
           const tab = document.getElementById(`${tabID}-tab`);
           expect(tab).not.toHaveClass("vertical-tabs__tab--is-active");
@@ -175,7 +173,7 @@ describe("Project tabs controller", () => {
         expect(tab).toHaveClass("vertical-tabs__tab--is-active");
         expect(tab).toHaveAttribute("aria-selected");
 
-        ["description", "data"].forEach(tabID => {
+        ["description", "data"].forEach((tabID) => {
           expect(document.getElementById(tabID)).toHaveStyle("display: none");
           const tab = document.getElementById(`${tabID}-tab`);
           expect(tab).not.toHaveClass("vertical-tabs__tab--is-active");
@@ -218,7 +216,7 @@ describe("Project tabs controller", () => {
         expect(tab).toHaveClass("vertical-tabs__tab--is-active");
         expect(tab).toHaveAttribute("aria-selected");
 
-        ["description", "data"].forEach(tabID => {
+        ["description", "data"].forEach((tabID) => {
           expect(document.getElementById(tabID)).toHaveStyle("display: none");
           const tab = document.getElementById(`${tabID}-tab`);
           expect(tab).not.toHaveClass("vertical-tabs__tab--is-active");

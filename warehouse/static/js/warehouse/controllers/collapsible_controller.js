@@ -9,7 +9,9 @@ export default class extends Controller {
    */
   _getCollapsedCookie() {
     const id = this.data.get("identifier");
-    const value = document.cookie.split(";").find(item => item.startsWith(`callout_block_${id}_collapsed=`));
+    const value = document.cookie
+      .split(";")
+      .find((item) => item.startsWith(`callout_block_${id}_collapsed=`));
     return value ? value.split("=")[1] : null;
   }
 
@@ -20,8 +22,7 @@ export default class extends Controller {
   _setCollapsedCookie(value) {
     if (this.data.get("setting") === "global")
       document.cookie = `callout_block_${this.data.get("identifier")}_collapsed=${value};path=/`;
-    else
-      document.cookie = `callout_block_${this.data.get("identifier")}_collapsed=${value}`;
+    else document.cookie = `callout_block_${this.data.get("identifier")}_collapsed=${value}`;
   }
 
   initialize() {
@@ -49,10 +50,8 @@ export default class extends Controller {
 
   save() {
     setTimeout(() => {
-      if (!this.element.hasAttribute("open"))
-        this._setCollapsedCookie("1");
-      else
-        this._setCollapsedCookie("0");
+      if (!this.element.hasAttribute("open")) this._setCollapsedCookie("1");
+      else this._setCollapsedCookie("0");
     }, 0);
   }
 }

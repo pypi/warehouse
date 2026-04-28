@@ -13,11 +13,14 @@ export default class extends Controller {
   static targets = ["dialog", "email", "form"];
 
   connect() {
-    this.formTarget.addEventListener("submit", this.check.bind(this));
+    // Bind once and store the reference so removeEventListener can match it
+    // on disconnect (each .bind() call returns a *new* function).
+    this.boundCheck = this.check.bind(this);
+    this.formTarget.addEventListener("submit", this.boundCheck);
   }
 
   disconnect() {
-    this.formTarget.removeEventListener("submit", this.check.bind(this));
+    this.formTarget.removeEventListener("submit", this.boundCheck);
   }
 
   check(event) {

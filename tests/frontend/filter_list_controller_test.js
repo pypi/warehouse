@@ -2,10 +2,8 @@
 
 /* global expect, beforeEach, afterEach, describe, it, jest */
 
-
-import {Application} from "@hotwired/stimulus";
+import { Application } from "@hotwired/stimulus";
 import FilterListController from "../../warehouse/static/js/warehouse/controllers/filter_list_controller";
-
 
 const testFixtureHTMLVisibilityToggle = `
 <p id="initial-toggle-visibility-shown" class="hidden initial-toggle-visibility">Initially hidden, should end up shown.</p>
@@ -29,7 +27,6 @@ const testFixtureHTMLItems = `
         <div id="item-2" data-filter-list-target="item" data-filtered-target-content-type='["contentType2","contentType2a"]' data-filtered-target-myattr='["myattr2"]'>Item 2</div>
         <div id="item-3" data-filter-list-target="item" data-filtered-target-content-type='["contentType3","contentType3a"]' data-filtered-target-myattr='["myattr3"]'>Item 3</div>
 `;
-
 
 describe("Filter list controller", () => {
   describe("is initialized as expected", () => {
@@ -77,10 +74,12 @@ describe("Filter list controller", () => {
         application.stop();
       });
 
-
       it("has expected items and filters", () => {
         const elController = document.getElementById("controller");
-        const controller = application.getControllerForElementAndIdentifier(elController, "filter-list");
+        const controller = application.getControllerForElementAndIdentifier(
+          elController,
+          "filter-list",
+        );
 
         expect(controller.itemTargets).toHaveLength(3);
         expect(controller.itemTargets[0]).toHaveTextContent("Item 1");
@@ -93,16 +92,16 @@ describe("Filter list controller", () => {
 
         expect(Object.keys(controller.mappingItemFilterData)).toHaveLength(3);
         expect(controller.mappingItemFilterData["0"]).toEqual({
-          "contentType": ["contentType1", "contentType1a"],
-          "myattr": ["myattr1"],
+          contentType: ["contentType1", "contentType1a"],
+          myattr: ["myattr1"],
         });
         expect(controller.mappingItemFilterData["1"]).toEqual({
-          "contentType": ["contentType2", "contentType2a"],
-          "myattr": ["myattr2"],
+          contentType: ["contentType2", "contentType2a"],
+          myattr: ["myattr2"],
         });
         expect(controller.mappingItemFilterData["2"]).toEqual({
-          "contentType": ["contentType3", "contentType3a"],
-          "myattr": ["myattr3"],
+          contentType: ["contentType3", "contentType3a"],
+          myattr: ["myattr3"],
         });
 
         const elP = document.getElementById("url-update");
@@ -136,7 +135,6 @@ describe("Filter list controller", () => {
     });
   });
 
-
   describe("allows filtering", () => {
     describe("input text filters the items", () => {
       let application;
@@ -157,7 +155,6 @@ describe("Filter list controller", () => {
       });
 
       it("the item classes are updated", () => {
-
         const elFilter = document.getElementById("filter-input");
         const dispatchEventSpy = jest.spyOn(elFilter, "dispatchEvent");
 

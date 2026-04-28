@@ -119,15 +119,11 @@ describe("GitHub Repo Info controller", () => {
         const stargazersCount = el.querySelector(
           "[data-github-repo-info-target='stargazersCount']",
         );
-        const forksCount = el.querySelector(
-          "[data-github-repo-info-target='forksCount']",
-        );
+        const forksCount = el.querySelector("[data-github-repo-info-target='forksCount']");
         const openIssuesCount = el.querySelector(
           "[data-github-repo-info-target='openIssuesCount']",
         );
-        const openPRsCount = el.querySelector(
-          "[data-github-repo-info-target='openPRsCount']",
-        );
+        const openPRsCount = el.querySelector("[data-github-repo-info-target='openPRsCount']");
 
         expect(stargazersCount.textContent).toBe("100");
         expect(forksCount.textContent).toBe("200");

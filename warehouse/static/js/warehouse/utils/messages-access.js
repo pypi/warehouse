@@ -9,16 +9,20 @@
 const messagesAccessLocaleData =
   typeof __WAREHOUSE_LOCALE_DATA__ !== "undefined"
     ? __WAREHOUSE_LOCALE_DATA__
-    : {"": {"language": "en", "plural-forms": "nplurals = 2; plural = (n != 1)"}};
+    : { "": { language: "en", "plural-forms": "nplurals = 2; plural = (n != 1)" } };
 
 const messagesAccessPluralFormFunction =
   typeof __WAREHOUSE_PLURAL_FORM_FN__ !== "undefined"
     ? __WAREHOUSE_PLURAL_FORM_FN__
     : function (n) {
-      let nplurals, plural;
-      nplurals = 2; plural = (n != 1);
-      return {total: nplurals, index: ((nplurals > 1 && plural === true) ? 1 : (plural ? plural : 0))};
-    };
+        let nplurals, plural;
+        nplurals = 2;
+        plural = n != 1;
+        return {
+          total: nplurals,
+          index: nplurals > 1 && plural === true ? 1 : plural ? plural : 0,
+        };
+      };
 
 /**
  * Get the translation using num to choose the appropriate string.
@@ -44,7 +48,14 @@ const messagesAccessPluralFormFunction =
  * @see https://docs.pylonsproject.org/projects/pyramid/en/latest/api/i18n.html#pyramid.i18n.Localizer.pluralize
  */
 export function ngettext(singular, plural, num, ...extras) {
-  return ngettextCustom(singular, plural, num, extras, messagesAccessLocaleData, messagesAccessPluralFormFunction);
+  return ngettextCustom(
+    singular,
+    plural,
+    num,
+    extras,
+    messagesAccessLocaleData,
+    messagesAccessPluralFormFunction,
+  );
 }
 
 /**
@@ -66,7 +77,14 @@ export function ngettext(singular, plural, num, ...extras) {
  * @returns {string} The translated text.
  */
 export function gettext(singular, ...extras) {
-  return ngettextCustom(singular, null, 1, extras, messagesAccessLocaleData, messagesAccessPluralFormFunction);
+  return ngettextCustom(
+    singular,
+    null,
+    1,
+    extras,
+    messagesAccessLocaleData,
+    messagesAccessPluralFormFunction,
+  );
 }
 
 /**

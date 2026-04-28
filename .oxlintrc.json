@@ -1,0 +1,22 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "ignorePatterns": ["warehouse/static/js/vendor/**", "warehouse/static/dist/**", "warehouse/admin/static/dist/**"],
+  "env": {
+    "browser": true,
+    "es2015": true,
+    "node": true,
+    "jest": true
+  },
+  "globals": {
+    "define": "readonly",
+    "require": "readonly",
+    "$": "readonly",
+    "jQuery": "readonly"
+  },
+  "categories": {
+    "correctness": "error"
+  },
+  "rules": {
+    "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
+  }
+}

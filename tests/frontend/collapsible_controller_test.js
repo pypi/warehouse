@@ -17,13 +17,13 @@ describe("Collapsible controller", () => {
     application.register("collapsible", CollapsibleController);
   });
 
-  describe("no cookie is present", function() {
-    it("the element is not collapsed", function() {
+  describe("no cookie is present", function () {
+    it("the element is not collapsed", function () {
       const el = document.getElementById("element");
       expect(el).toHaveAttribute("open");
     });
 
-    it("the element is collapsible", function() {
+    it("the element is collapsible", function () {
       const summary = document.getElementById("collapse");
       summary.click();
 
@@ -36,8 +36,8 @@ describe("Collapsible controller", () => {
     });
   });
 
-  describe("cookie is present", function() {
-    it("the element is collapsed", function() {
+  describe("cookie is present", function () {
+    it("the element is collapsed", function () {
       document.cookie = "callout_block_settings_collapsed=1";
       const application = Application.start();
       application.register("collapsible", CollapsibleController);

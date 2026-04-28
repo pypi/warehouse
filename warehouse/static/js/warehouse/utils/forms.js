@@ -13,7 +13,6 @@ const removeFilter = (value, event) => {
   }
 };
 
-
 export function submitTriggers() {
   // Get all of the elements on the page with a -js-form-submit-trigger class
   // associated with them.
@@ -31,11 +30,7 @@ export function submitTriggers() {
   for (const filter of filters) {
     const [input, button] = [filter.firstElementChild, filter.lastElementChild];
 
-    button.addEventListener(
-      "click",
-      removeFilter.bind(null, input.value),
-      false,
-    );
+    button.addEventListener("click", removeFilter.bind(null, input.value), false);
   }
 }
 
@@ -52,13 +47,17 @@ const passwordStrengthValidator = () => {
 };
 
 const fieldRequiredValidator = (value) => {
-  return value === ""?
-    "Please fill out this field" : null;
+  return value === "" ? "Please fill out this field" : null;
 };
 
 const showFormError = (field, message) => {
   let errorItem = document.createElement("li").textContent(message);
-  let errorList = document.createElement("ul").setAttribute("id", field.name + "-error").setAttribute("class", "form-errors field-errors").setAttribute("role", "alert").appendChild(errorItem);
+  let errorList = document
+    .createElement("ul")
+    .setAttribute("id", field.name + "-error")
+    .setAttribute("class", "form-errors field-errors")
+    .setAttribute("role", "alert")
+    .appendChild(errorItem);
   field.insertAjacentElement("afterend", errorList);
   field.setAttribute("aria-describedby", field.name + "-error");
   document.title = "Error processing form – " + document.title;
@@ -69,7 +68,7 @@ const removeFormErrors = () => {
   for (let error of errors) {
     error.parentNode.removeChild(error);
   }
-  document.title = document.title.replace("Error processing form – ","");
+  document.title = document.title.replace("Error processing form – ", "");
 };
 
 const validateForm = (event) => {
@@ -97,8 +96,12 @@ export function registerFormValidation() {
   const newPasswordNode = document.querySelector("#new_password");
   if (newPasswordNode === null) return;
   passwordFormRoot = document.evaluate(
-    "./ancestor::form", newPasswordNode, null,
-    XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+    "./ancestor::form",
+    newPasswordNode,
+    null,
+    XPathResult.FIRST_ORDERED_NODE_TYPE,
+    null,
+  ).singleNodeValue;
   const submitButton = passwordFormRoot.querySelector("input[type='submit']");
   submitButton.addEventListener("click", validateForm, false);
 }

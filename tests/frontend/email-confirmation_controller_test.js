@@ -48,7 +48,9 @@ describe("Email confirmation controller", () => {
   it("submits the form when confirmed", () => {
     const dialog = document.querySelector("dialog");
     const form = document.querySelector("form");
-    const confirmButton = document.querySelector("[data-action='click->email-confirmation#confirm']");
+    const confirmButton = document.querySelector(
+      "[data-action='click->email-confirmation#confirm']",
+    );
 
     // The `showModal` and `requestSubmit` methods are mocked, so we can check if they were called
     dialog.showModal = jest.fn();
@@ -87,7 +89,9 @@ describe("Email confirmation controller", () => {
     // this shouldn't happen in practice
     const dialog = document.querySelector("dialog");
     const form = document.querySelector("form");
-    const confirmButton = document.querySelector("[data-action='click->email-confirmation#confirm']");
+    const confirmButton = document.querySelector(
+      "[data-action='click->email-confirmation#confirm']",
+    );
 
     dialog.showModal = jest.fn();
     form.requestSubmit = jest.fn();

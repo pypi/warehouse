@@ -24,7 +24,7 @@ const MiniCssExtractPlugin = rspack.CssExtractRspackPlugin;
 const CopyPlugin = rspack.CopyRspackPlugin;
 
 const ManifestPlugin = require("./rspack.plugin.manifest.js");
-const {defineLocaleConstants, allLocaleData} = require("./rspack.plugin.localize.js");
+const { defineLocaleConstants, allLocaleData } = require("./rspack.plugin.localize.js");
 
 const isDev = process.env.NODE_ENV === "development";
 
@@ -43,7 +43,6 @@ const sharedCSSPlugins = [
   }),
   new RemoveEmptyScriptsPlugin(),
 ];
-
 
 // Refs: https://github.com/shellscape/webpack-manifest-plugin/issues/229#issuecomment-737617994
 const sharedWebpackManifestPublicPath = "";
@@ -85,7 +84,6 @@ const sharedResolve = {
   },
 };
 
-
 module.exports = [
   {
     name: "warehouse",
@@ -115,24 +113,26 @@ module.exports = [
         seed: sharedWebpackManifestData,
         map: sharedWebpackManifestMap,
       }),
-      ...isDev ? [
-        // Watch HTML templates so LiveReload triggers on template changes.
-        {
-          apply(compiler) {
-            const glob = require("glob");
-            compiler.hooks.afterCompile.tap("WatchTemplatesPlugin", (compilation) => {
-              for (const pattern of [
-                "warehouse/templates/**/*.html",
-                "warehouse/admin/templates/**/*.html",
-              ]) {
-                for (const file of glob.sync(pattern)) {
-                  compilation.fileDependencies.add(path.resolve(__dirname, file));
-                }
-              }
-            });
-          },
-        },
-      ] : [],
+      ...(isDev
+        ? [
+            // Watch HTML templates so LiveReload triggers on template changes.
+            {
+              apply(compiler) {
+                const glob = require("glob");
+                compiler.hooks.afterCompile.tap("WatchTemplatesPlugin", (compilation) => {
+                  for (const pattern of [
+                    "warehouse/templates/**/*.html",
+                    "warehouse/admin/templates/**/*.html",
+                  ]) {
+                    for (const file of glob.sync(pattern)) {
+                      compilation.fileDependencies.add(path.resolve(__dirname, file));
+                    }
+                  }
+                });
+              },
+            },
+          ]
+        : []),
     ],
     resolve: sharedResolve,
     entry: {
@@ -260,7 +260,7 @@ module.exports = [
             preset: [
               "default",
               {
-                discardComments: {removeAll: true},
+                discardComments: { removeAll: true },
               },
             ],
           },
@@ -307,10 +307,7 @@ module.exports = [
       rules: [
         {
           test: /\.css$/,
-          use: [
-            MiniCssExtractPlugin.loader,
-            "css-loader",
-          ],
+          use: [MiniCssExtractPlugin.loader, "css-loader"],
         },
         {
           // Handle image files
@@ -372,7 +369,7 @@ module.exports = [
       performance: sharedPerformance,
       dependencies: ["warehouse"],
       // Emit fewer stats-per-language in non-production builds.
-      stats: (process.env.NODE_ENV === "production") ? undefined : "errors-warnings",
+      stats: process.env.NODE_ENV === "production" ? undefined : "errors-warnings",
     };
   }),
 ];

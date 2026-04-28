@@ -29,19 +29,21 @@ import "./project_charts";
 import timeAgo from "warehouse/utils/timeago";
 
 // Human-readable timestamps
-$(document).ready(function() {
+$(document).ready(function () {
   timeAgo();
 });
 
 // Recalculate DataTables columns after sidebar toggle animation completes
-$(document).on("collapsed-done.lte.pushmenu shown.lte.pushmenu", function() {
-  setTimeout(function() {
-    $($.fn.dataTable.tables({ visible: true })).DataTable().columns.adjust();
+$(document).on("collapsed-done.lte.pushmenu shown.lte.pushmenu", function () {
+  setTimeout(function () {
+    $($.fn.dataTable.tables({ visible: true }))
+      .DataTable()
+      .columns.adjust();
   }, 350);
 });
 
 document.querySelectorAll("a[data-form-submit]").forEach(function (element) {
-  element.addEventListener("click", function(event) {
+  element.addEventListener("click", function (event) {
     // We're turning this element into a form submission, so instead of the
     // default action, this event will handle things.
     event.preventDefault();
@@ -52,7 +54,7 @@ document.querySelectorAll("a[data-form-submit]").forEach(function (element) {
 });
 
 document.querySelectorAll("a[data-input][data-append]").forEach(function (element) {
-  element.addEventListener("click", function(event) {
+  element.addEventListener("click", function (event) {
     // We're turning this element into an input edit, so instead of the
     // default action, this event will handle things.
     event.preventDefault();
@@ -76,7 +78,7 @@ document.querySelectorAll("a[data-input][data-append]").forEach(function (elemen
 document.querySelectorAll(".btn-group[data-input][data-state]").forEach(function (btnGroup) {
   // Get options within the button group.
   const btns = btnGroup.querySelectorAll(".btn[data-" + btnGroup.dataset.state + "]");
-  const options = Array.prototype.map.call(btns, btn => btn.dataset[btnGroup.dataset.state]);
+  const options = Array.prototype.map.call(btns, (btn) => btn.dataset[btnGroup.dataset.state]);
 
   // Toggle options with each button click.
   btns.forEach(function (btn) {
@@ -90,9 +92,9 @@ document.querySelectorAll(".btn-group[data-input][data-state]").forEach(function
       const option = btn.dataset[btnGroup.dataset.state];
       let tokens = input.value.length ? input.value.split(" ") : [];
       if (btn.classList.contains("active")) {
-        tokens = tokens.filter(token => token !== option);
+        tokens = tokens.filter((token) => token !== option);
       } else {
-        tokens = tokens.map(token => options.includes(token) ? option : token);
+        tokens = tokens.map((token) => (options.includes(token) ? option : token));
         tokens = tokens.filter((token, i) => token !== option || i === tokens.indexOf(option));
         if (!tokens.includes(option)) tokens.push(option);
       }
@@ -112,16 +114,13 @@ document.querySelectorAll(".copy-text").forEach(function (element) {
   $(element).tooltip({ title: "Click to copy!" });
   function copy(text) {
     setTimeout(function () {
-      $(element).tooltip("hide")
-        .attr("data-original-title", "Click to copy!");
+      $(element).tooltip("hide").attr("data-original-title", "Click to copy!");
     }, 1000);
-    $(element).tooltip("hide")
-      .attr("data-original-title", "Copied!")
-      .tooltip("show");
+    $(element).tooltip("hide").attr("data-original-title", "Copied!").tooltip("show");
     navigator.clipboard.writeText(text);
   }
 
-  element.addEventListener("click", function(event) {
+  element.addEventListener("click", function (event) {
     event.preventDefault();
     copy(element.dataset.copyText, element);
   });
@@ -142,7 +141,7 @@ if (accountActivityTable.length) {
   // Hide some columns we don't need to see all the time
   table.columns([".ip_address", ".hashed_ip"]).visible(false);
   // add column visibility button
-  new $.fn.dataTable.Buttons(table, {buttons: ["copy", "csv", "colvis"]});
+  new $.fn.dataTable.Buttons(table, { buttons: ["copy", "csv", "colvis"] });
   table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
 }
 
@@ -155,7 +154,7 @@ if (tokenTable.length) {
   });
   table.columns([".last_used", ".created"]).order([1, "desc"]).draw();
   table.columns([".permissions_caveat"]).visible(false);
-  new $.fn.dataTable.Buttons(table, {buttons: ["colvis"]});
+  new $.fn.dataTable.Buttons(table, { buttons: ["colvis"] });
   table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
 }
 
@@ -163,7 +162,7 @@ if (tokenTable.length) {
 // Note: Each of these tables **must** have the same columns for this to work.
 const tableSelectors = ["#observations", "#user_observations"];
 
-tableSelectors.forEach(selector => {
+tableSelectors.forEach((selector) => {
   let tableElement = $(selector);
   if (tableElement.length) {
     let table = tableElement.DataTable({
@@ -172,7 +171,7 @@ tableSelectors.forEach(selector => {
     });
     table.column(".time").order("desc").draw();
     table.columns([".payload"]).visible(false);
-    new $.fn.dataTable.Buttons(table, {buttons: ["copy", "csv", "colvis"]});
+    new $.fn.dataTable.Buttons(table, { buttons: ["copy", "csv", "colvis"] });
     table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
   }
 });
@@ -183,7 +182,11 @@ if (malwareReportsTable.length) {
   let table = malwareReportsTable.DataTable({
     displayLength: 25,
     lengthChange: false,
-    order: [[1, "desc"], [0, "asc"], [3, "desc"]],  // report count, alpha name, recent date
+    order: [
+      [1, "desc"],
+      [0, "asc"],
+      [3, "desc"],
+    ], // report count, alpha name, recent date
     responsive: true,
     rowGroup: {
       dataSrc: 0,
@@ -195,7 +198,7 @@ if (malwareReportsTable.length) {
   });
   // hide the project name and count, since they're in the group title
   table.columns([0, 1]).visible(false);
-  new $.fn.dataTable.Buttons(table, {buttons: ["copy", "csv", "colvis"]});
+  new $.fn.dataTable.Buttons(table, { buttons: ["copy", "csv", "colvis"] });
   table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
 }
 
@@ -206,9 +209,12 @@ if (sponsorsTable.length) {
     displayLength: 50,
     responsive: true,
     lengthChange: false,
-    order: [[3, "asc"], [1, "asc"]],  // level order, alpha name
+    order: [
+      [3, "asc"],
+      [1, "asc"],
+    ], // level order, alpha name
   });
-  new $.fn.dataTable.Buttons(table, {buttons: ["copy", "csv", "colvis"]});
+  new $.fn.dataTable.Buttons(table, { buttons: ["copy", "csv", "colvis"] });
   table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
 }
 
@@ -218,10 +224,13 @@ if (OrganizationApplicationsTable.length) {
   let table = OrganizationApplicationsTable.DataTable({
     displayLength: 25,
     lengthChange: true,
-    order: [[4, "asc"], [0, "asc"]],  // created, alpha name
+    order: [
+      [4, "asc"],
+      [0, "asc"],
+    ], // created, alpha name
     responsive: true,
   });
-  new $.fn.dataTable.Buttons(table, {buttons: ["copy", "csv", "colvis"]});
+  new $.fn.dataTable.Buttons(table, { buttons: ["copy", "csv", "colvis"] });
   table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
 }
 
@@ -245,9 +254,7 @@ if (observationsTable.length) {
         data: "created",
         name: "created",
         render: (d, type) =>
-          type === "display" && d
-            ? new Date(d).toISOString().replace("T", " ").slice(0, 19)
-            : d,
+          type === "display" && d ? new Date(d).toISOString().replace("T", " ").slice(0, 19) : d,
       },
       { data: "kind_display", name: "kind" },
       {
@@ -281,22 +288,32 @@ if (observationsTable.length) {
   });
 }
 
-let organizationApplicationTurboModeSwitch = document.getElementById("organizationApplicationTurboMode");
+let organizationApplicationTurboModeSwitch = document.getElementById(
+  "organizationApplicationTurboMode",
+);
 if (organizationApplicationTurboModeSwitch !== null) {
-  let organizationApplicationTurboModeEnabled = JSON.parse(localStorage.getItem("organizationApplicationTurboModeEnabled") || false);
+  let organizationApplicationTurboModeEnabled = JSON.parse(
+    localStorage.getItem("organizationApplicationTurboModeEnabled") || false,
+  );
   organizationApplicationTurboModeSwitch.addEventListener("click", (event) => {
     localStorage.setItem("organizationApplicationTurboModeEnabled", event.target.checked);
-    document.querySelectorAll("input[name=organization_applications_turbo_mode]").forEach(function(input) {
-      input.value = event.target.checked;
-    });
+    document
+      .querySelectorAll("input[name=organization_applications_turbo_mode]")
+      .forEach(function (input) {
+        input.value = event.target.checked;
+      });
   });
   organizationApplicationTurboModeSwitch.checked = organizationApplicationTurboModeEnabled;
-  document.querySelectorAll("input[name=organization_applications_turbo_mode]").forEach(function(input) {
-    input.value = organizationApplicationTurboModeEnabled;
-  });
+  document
+    .querySelectorAll("input[name=organization_applications_turbo_mode]")
+    .forEach(function (input) {
+      input.value = organizationApplicationTurboModeEnabled;
+    });
   if (organizationApplicationTurboModeEnabled) {
-    [...document.querySelectorAll(".alert-dismissible")].forEach(function(alertElem) {
-      setTimeout(function() {alertElem.getElementsByTagName("button")[0].click();}, 1000);
+    [...document.querySelectorAll(".alert-dismissible")].forEach(function (alertElem) {
+      setTimeout(function () {
+        alertElem.getElementsByTagName("button")[0].click();
+      }, 1000);
     });
   }
 }
@@ -307,7 +324,7 @@ if (savedReplyButtons.length > 0) {
   const requestMoreInfoModalMessage = document.getElementById("requestMoreInfoModalMessage");
 
   if (requestMoreInfoModalMessage) {
-    savedReplyButtons.forEach(button => {
+    savedReplyButtons.forEach((button) => {
       button.addEventListener("click", () => {
         const templateId = button.dataset.template;
 
@@ -335,14 +352,14 @@ if (editModalForm !== null) {
   }
 }
 
-$(document).ready(function() {
+$(document).ready(function () {
   const modalHotKeyBindings = document.querySelectorAll("button[data-hotkey-binding]");
   var keyBindings = new Map();
   function bindHotKeys() {
     document.onkeyup = hotKeys;
   }
   function unbindHotKeys() {
-    document.onkeyup = function(){};
+    document.onkeyup = function () {};
   }
   function hotKeys(e) {
     if (keyBindings.has(String(e.which))) {
@@ -358,13 +375,13 @@ $(document).ready(function() {
       targetModal.on("hidden.bs.modal", bindHotKeys);
     }
   }
-  modalHotKeyBindings.forEach(function(modalHotKeyBinding) {
-    if (! modalHotKeyBinding.disabled) {
+  modalHotKeyBindings.forEach(function (modalHotKeyBinding) {
+    if (!modalHotKeyBinding.disabled) {
       keyBindings.set(modalHotKeyBinding.dataset.hotkeyBinding, modalHotKeyBinding.dataset.target);
     }
   });
   const focusable = document.querySelectorAll("input, textarea");
-  focusable.forEach(function(element) {
+  focusable.forEach(function (element) {
     element.addEventListener("focusin", unbindHotKeys);
     element.addEventListener("focusout", bindHotKeys);
   });
@@ -378,45 +395,56 @@ if (userFilesModal.length) {
   let filesUrl = userFilesModal.data("files-url");
   let username = userFilesModal.data("username");
 
-  userFilesModal.on("show.bs.modal", function() {
+  userFilesModal.on("show.bs.modal", function () {
     if (loaded) return;
     loaded = true;
 
     $.getJSON(filesUrl)
-      .done(function(data) {
+      .done(function (data) {
         let content = data.files.join("\n");
         $("#userFilesContent").text(content);
 
         let sizes = ["B", "KiB", "MiB", "GiB", "TiB"];
         let size = data.total_size;
         let i = 0;
-        while (size >= 1024 && i < sizes.length - 1) { size /= 1024; i++; }
+        while (size >= 1024 && i < sizes.length - 1) {
+          size /= 1024;
+          i++;
+        }
         let sizeStr = (i === 0 ? size : size.toFixed(1)) + " " + sizes[i];
 
         $("#userFilesSummary").html(
-          "<strong>" + data.file_count + "</strong> files (" +
-          data.files.length + " paths including .metadata), " +
-          "<strong>" + sizeStr + "</strong> total",
+          "<strong>" +
+            data.file_count +
+            "</strong> files (" +
+            data.files.length +
+            " paths including .metadata), " +
+            "<strong>" +
+            sizeStr +
+            "</strong> total",
         );
 
         $("#userFilesCopyBtn").prop("disabled", false);
         $("#userFilesDownloadBtn").prop("disabled", false);
       })
-      .fail(function() {
+      .fail(function () {
         $("#userFilesSummary").text("Failed to load files.");
       });
   });
 
-  $("#userFilesCopyBtn").on("click", function() {
+  $("#userFilesCopyBtn").on("click", function () {
     navigator.clipboard.writeText($("#userFilesContent").text());
   });
 
-  $("#userFilesDownloadBtn").on("click", function() {
-    let blob = new Blob([$("#userFilesContent").text()], {type: "text/plain"});
+  $("#userFilesDownloadBtn").on("click", function () {
+    let blob = new Blob([$("#userFilesContent").text()], { type: "text/plain" });
     let a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     let d = new Date();
-    let ds = d.getFullYear() + String(d.getMonth() + 1).padStart(2, "0") + String(d.getDate()).padStart(2, "0");
+    let ds =
+      d.getFullYear() +
+      String(d.getMonth() + 1).padStart(2, "0") +
+      String(d.getDate()).padStart(2, "0");
     a.download = username + "-" + ds + "-pypi-files.txt";
     a.click();
     URL.revokeObjectURL(a.href);
@@ -425,13 +453,13 @@ if (userFilesModal.length) {
 
 // Link Checking
 const links = document.querySelectorAll("a[data-check-link-url]");
-links.forEach(function(link){
-  let reportLine = {bareUrl: link.href, url: link.dataset.checkLinkUrl, status:0, element : link};
+links.forEach(function (link) {
+  let reportLine = { bareUrl: link.href, url: link.dataset.checkLinkUrl, status: 0, element: link };
   fetch(reportLine.url, {
     method: "GET",
     mode: "cors",
   })
-    .then(function(response) {
+    .then(function (response) {
       let responseText = "";
       response.text().then((text) => {
         responseText = text;

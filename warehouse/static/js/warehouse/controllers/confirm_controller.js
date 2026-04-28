@@ -23,8 +23,7 @@ export default class extends Controller {
     // Check if the current value of the input text field matches what we expect it to. If so, this
     // will return true
     return (
-      this.inputTarget.value.toLowerCase() ===
-      this.buttonTarget.dataset.expected.toLowerCase()
+      this.inputTarget.value.toLowerCase() === this.buttonTarget.dataset.expected.toLowerCase()
     );
   }
 

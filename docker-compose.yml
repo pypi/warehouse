@@ -224,7 +224,8 @@ services:
       - ./rspack.plugin.localize.js:/opt/warehouse/src/rspack.plugin.localize.js:z
       - ./rspack.plugin.manifest.js:/opt/warehouse/src/rspack.plugin.manifest.js:z
       - ./babel.config.js:/opt/warehouse/src/babel.config.js:z
-      - ./eslint.config.mjs:/opt/warehouse/src/eslint.config.mjs:z
+      - ./.oxlintrc.json:/opt/warehouse/src/.oxlintrc.json:z
+      - ./.oxfmtrc.json:/opt/warehouse/src/.oxfmtrc.json:z
       - ./.stylelintrc.json:/opt/warehouse/src/.stylelintrc.json:z
       - ./tests/frontend:/opt/warehouse/src/tests/frontend:z
       - ./bin:/opt/warehouse/src/bin:z

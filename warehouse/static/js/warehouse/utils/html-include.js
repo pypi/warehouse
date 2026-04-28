@@ -9,9 +9,7 @@ const fetchOptions = {
 
 export default () => {
   // Check if we have an authenticated session
-  let authed = document.cookie.split(";").some(
-    v => v.trim().startsWith("user_id__insecure="),
-  );
+  let authed = document.cookie.split(";").some((v) => v.trim().startsWith("user_id__insecure="));
 
   // Each HTML include will generate a promise, which we'll later use to wait
   // on once all the promises have been resolved.
@@ -43,16 +41,20 @@ export default () => {
     }
 
     let p = fetch(url, fetchOptions)
-      .then(response => {
-        if (response.ok) { return response.text(); }
-        else { return ""; }
+      .then((response) => {
+        if (response.ok) {
+          return response.text();
+        } else {
+          return "";
+        }
       })
-      .then(content => { element.innerHTML = content; });
+      .then((content) => {
+        element.innerHTML = content;
+      });
     promises.push(p);
   });
 
   Promise.all(promises).then(() => {
-
     // Once all of our HTML includes have fired, then we'll go ahead and record
     // the fact that our HTML includes have happened. This allows us to
     // introspect the state of our includes inside of our Selenium tests.

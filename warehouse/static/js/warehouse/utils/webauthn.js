@@ -31,7 +31,7 @@ const doWebAuthn = (formId, func) => {
   const webAuthnButton = webAuthnForm.querySelector("button[type=submit]");
   webAuthnButton.disabled = false;
 
-  webAuthnForm.addEventListener("submit", async() => {
+  webAuthnForm.addEventListener("submit", async () => {
     func(webAuthnButton.value);
     event.preventDefault();
   });
@@ -46,20 +46,17 @@ const webAuthnBase64Normalize = (encoded) => {
 };
 
 const transformAssertionOptions = (assertionOptions) => {
-  let {challenge, allowCredentials} = assertionOptions;
+  let { challenge, allowCredentials } = assertionOptions;
 
-  challenge = Uint8Array.from(challenge, c => c.charCodeAt(0));
-  allowCredentials = allowCredentials.map(credentialDescriptor => {
-    let {id} = credentialDescriptor;
+  challenge = Uint8Array.from(challenge, (c) => c.charCodeAt(0));
+  allowCredentials = allowCredentials.map((credentialDescriptor) => {
+    let { id } = credentialDescriptor;
     id = webAuthnBase64Normalize(id);
-    id = Uint8Array.from(atob(id), c => c.charCodeAt(0));
-    return Object.assign({}, credentialDescriptor, {id});
+    id = Uint8Array.from(atob(id), (c) => c.charCodeAt(0));
+    return Object.assign({}, credentialDescriptor, { id });
   });
 
-  const transformedOptions = Object.assign(
-    {},
-    assertionOptions,
-    {challenge, allowCredentials});
+  const transformedOptions = Object.assign({}, assertionOptions, { challenge, allowCredentials });
 
   return transformedOptions;
 };
@@ -85,11 +82,11 @@ const transformAssertion = (assertion) => {
 };
 
 const transformCredentialOptions = (credentialOptions) => {
-  let {user} = credentialOptions;
-  user.id = Uint8Array.from(credentialOptions.user.id, c => c.charCodeAt(0));
-  const challenge = Uint8Array.from(credentialOptions.challenge, c => c.charCodeAt(0));
+  let { user } = credentialOptions;
+  user.id = Uint8Array.from(credentialOptions.user.id, (c) => c.charCodeAt(0));
+  const challenge = Uint8Array.from(credentialOptions.challenge, (c) => c.charCodeAt(0));
 
-  const transformedOptions = Object.assign({}, credentialOptions, {challenge, user});
+  const transformedOptions = Object.assign({}, credentialOptions, { challenge, user });
 
   return transformedOptions;
 };
@@ -118,14 +115,12 @@ const postCredential = async (label, credential, token) => {
   formData.set("credential", JSON.stringify(credential));
   formData.set("csrf_token", token);
 
-  const resp = await fetch(
-    "/manage/account/webauthn-provision/validate", {
-      method: "POST",
-      cache: "no-cache",
-      body: formData,
-      credentials: "same-origin",
-    },
-  );
+  const resp = await fetch("/manage/account/webauthn-provision/validate", {
+    method: "POST",
+    cache: "no-cache",
+    body: formData,
+    credentials: "same-origin",
+  });
 
   return await resp.json();
 };
@@ -138,14 +133,12 @@ const postAssertion = async (assertion, token, rememberDevice) => {
     formData.set("remember_device", "true");
   }
 
-  const resp = await fetch(
-    "/account/webauthn-authenticate/validate" + window.location.search, {
-      method: "POST",
-      cache: "no-cache",
-      body: formData,
-      credentials: "same-origin",
-    },
-  );
+  const resp = await fetch("/account/webauthn-authenticate/validate" + window.location.search, {
+    method: "POST",
+    cache: "no-cache",
+    body: formData,
+    credentials: "same-origin",
+  });
 
   return await resp.json();
 };
@@ -173,42 +166,41 @@ export const ProvisionWebAuthn = () => {
   doWebAuthn("webauthn-provision-form", async (csrfToken) => {
     const label = document.getElementById("webauthn-provision-label").value;
 
-    const resp = await fetch(
-      "/manage/account/webauthn-provision/options", {
-        cache: "no-cache",
-        credentials: "same-origin",
-      },
-    );
+    const resp = await fetch("/manage/account/webauthn-provision/options", {
+      cache: "no-cache",
+      credentials: "same-origin",
+    });
 
     const credentialOptions = await resp.json();
     const transformedOptions = transformCredentialOptions(credentialOptions);
-    await navigator.credentials.create({
-      publicKey: transformedOptions,
-    }).then(async (credential) => {
-      const transformedCredential = transformCredential(credential);
+    await navigator.credentials
+      .create({
+        publicKey: transformedOptions,
+      })
+      .then(async (credential) => {
+        const transformedCredential = transformCredential(credential);
 
-      const status = await postCredential(label, transformedCredential, csrfToken);
-      if (status.fail) {
-        populateWebAuthnErrorList(status.fail.errors);
+        const status = await postCredential(label, transformedCredential, csrfToken);
+        if (status.fail) {
+          populateWebAuthnErrorList(status.fail.errors);
+          return;
+        }
+
+        window.location.replace("/manage/account");
+      })
+      .catch((error) => {
+        populateWebAuthnErrorList([error.message]);
         return;
-      }
-
-      window.location.replace("/manage/account");
-    }).catch((error) => {
-      populateWebAuthnErrorList([error.message]);
-      return;
-    });
+      });
   });
 };
 
 export const AuthenticateWebAuthn = () => {
   doWebAuthn("webauthn-auth-form", async (csrfToken) => {
-    const resp = await fetch(
-      "/account/webauthn-authenticate/options" + window.location.search, {
-        cache: "no-cache",
-        credentials: "same-origin",
-      },
-    );
+    const resp = await fetch("/account/webauthn-authenticate/options" + window.location.search, {
+      cache: "no-cache",
+      credentials: "same-origin",
+    });
 
     const assertionOptions = await resp.json();
     if (assertionOptions.fail) {
@@ -218,21 +210,24 @@ export const AuthenticateWebAuthn = () => {
 
     const rememberDevice = document.getElementById("remember_device_webauthn").checked;
     const transformedOptions = transformAssertionOptions(assertionOptions);
-    await navigator.credentials.get({
-      publicKey: transformedOptions,
-    }).then(async (assertion) => {
-      const transformedAssertion = transformAssertion(assertion);
+    await navigator.credentials
+      .get({
+        publicKey: transformedOptions,
+      })
+      .then(async (assertion) => {
+        const transformedAssertion = transformAssertion(assertion);
 
-      const status = await postAssertion(transformedAssertion, csrfToken, rememberDevice);
-      if (status.fail) {
-        populateWebAuthnErrorList(status.fail.errors);
+        const status = await postAssertion(transformedAssertion, csrfToken, rememberDevice);
+        if (status.fail) {
+          populateWebAuthnErrorList(status.fail.errors);
+          return;
+        }
+
+        window.location.replace(status.redirect_to);
+      })
+      .catch((error) => {
+        populateWebAuthnErrorList([error.message]);
         return;
-      }
-
-      window.location.replace(status.redirect_to);
-    }).catch((error) => {
-      populateWebAuthnErrorList([error.message]);
-      return;
-    });
+      });
   });
 };

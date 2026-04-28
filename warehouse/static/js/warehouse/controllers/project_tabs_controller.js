@@ -4,10 +4,10 @@ import { Controller } from "@hotwired/stimulus";
 
 // These values should be kept in sync with the CSS breakpoints
 const BREAKPOINTS = {
-  "mobile": 400,
+  mobile: 400,
   "small-tablet": 600,
-  "tablet": 800,
-  "desktop": 1000,
+  tablet: 800,
+  desktop: 1000,
   "large-desktop": 1200,
 };
 
@@ -46,7 +46,7 @@ export default class extends Controller {
   toggleTab(btn) {
     let contentId = btn.getAttribute("href").substr(1);
     // toggle display setting for the content related to the tab button
-    this.contentTargets.forEach(content => {
+    this.contentTargets.forEach((content) => {
       if (content.getAttribute("id") !== contentId) {
         this._hide(content);
       } else {
@@ -63,37 +63,35 @@ export default class extends Controller {
   _hide(content) {
     content.style.display = "none";
     let contentId = content.getAttribute("id");
-    this._getAllTabsForContentId(contentId)
-      .forEach(tab => {
-        tab.classList.remove(activeClass);
-        tab.removeAttribute("aria-selected");
-      });
+    this._getAllTabsForContentId(contentId).forEach((tab) => {
+      tab.classList.remove(activeClass);
+      tab.removeAttribute("aria-selected");
+    });
   }
 
   _show(content) {
     content.style.display = "block";
     let contentId = content.getAttribute("id");
-    this._getAllTabsForContentId(contentId)
-      .forEach(tab => {
-        tab.classList.add(activeClass);
-        tab.setAttribute("aria-selected", "true");
-      });
+    this._getAllTabsForContentId(contentId).forEach((tab) => {
+      tab.classList.add(activeClass);
+      tab.setAttribute("aria-selected", "true");
+    });
     this.data.set("content", contentId);
   }
 
   _getTabForContentId(contentId) {
     let tabs = this._getTabs();
-    return tabs.find(tab => tab.getAttribute("href").substr(1) === contentId);
+    return tabs.find((tab) => tab.getAttribute("href").substr(1) === contentId);
   }
 
   _getAllTabsForContentId(contentId) {
-    return Array.of(...this.tabTargets, ...this.mobileTabTargets)
-      .filter(tab => tab.getAttribute("href").substr(1) === contentId);
+    return Array.of(...this.tabTargets, ...this.mobileTabTargets).filter(
+      (tab) => tab.getAttribute("href").substr(1) === contentId,
+    );
   }
 
   _getTabs() {
-    return window.innerWidth <= BREAKPOINTS.tablet ?
-      this.mobileTabTargets : this.tabTargets;
+    return window.innerWidth <= BREAKPOINTS.tablet ? this.mobileTabTargets : this.tabTargets;
   }
 
   _handleResize() {

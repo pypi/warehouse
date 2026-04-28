@@ -2,7 +2,7 @@
 /* global Chart */
 
 // Initialize observer charts if present on the page
-$(function() {
+$(function () {
   // Check if Chart.js is available
   if (typeof Chart === "undefined") {
     return;
@@ -76,23 +76,27 @@ function initDashboardChart() {
       responsive: true,
       maintainAspectRatio: false,
       scales: {
-        xAxes: [{
-          stacked: true,
-          scaleLabel: {
-            display: true,
-            labelString: "Week Starting",
+        xAxes: [
+          {
+            stacked: true,
+            scaleLabel: {
+              display: true,
+              labelString: "Week Starting",
+            },
           },
-        }],
-        yAxes: [{
-          stacked: true,
-          ticks: {
-            beginAtZero: true,
+        ],
+        yAxes: [
+          {
+            stacked: true,
+            ticks: {
+              beginAtZero: true,
+            },
+            scaleLabel: {
+              display: true,
+              labelString: "Number of Reports",
+            },
           },
-          scaleLabel: {
-            display: true,
-            labelString: "Number of Reports",
-          },
-        }],
+        ],
       },
       legend: {
         position: "top",
@@ -163,24 +167,28 @@ function initObserverDetailChart() {
       responsive: true,
       maintainAspectRatio: false,
       scales: {
-        xAxes: [{
-          stacked: true,
-          scaleLabel: {
-            display: true,
-            labelString: "Week Starting",
+        xAxes: [
+          {
+            stacked: true,
+            scaleLabel: {
+              display: true,
+              labelString: "Week Starting",
+            },
           },
-        }],
-        yAxes: [{
-          stacked: true,
-          ticks: {
-            beginAtZero: true,
-            stepSize: 1,
+        ],
+        yAxes: [
+          {
+            stacked: true,
+            ticks: {
+              beginAtZero: true,
+              stepSize: 1,
+            },
+            scaleLabel: {
+              display: true,
+              labelString: "Number of Reports",
+            },
           },
-          scaleLabel: {
-            display: true,
-            labelString: "Number of Reports",
-          },
-        }],
+        ],
       },
       legend: {
         position: "top",
@@ -267,13 +275,15 @@ function initTimelineTrendsChart() {
       responsive: true,
       maintainAspectRatio: false,
       scales: {
-        xAxes: [{
-          stacked: true,
-          scaleLabel: {
-            display: true,
-            labelString: "Week",
+        xAxes: [
+          {
+            stacked: true,
+            scaleLabel: {
+              display: true,
+              labelString: "Week",
+            },
           },
-        }],
+        ],
         yAxes: [
           {
             id: "exposure-axis",
@@ -312,7 +322,7 @@ function initTimelineTrendsChart() {
         mode: "index",
         intersect: false,
         callbacks: {
-          label: function(tooltipItem, data) {
+          label: function (tooltipItem, data) {
             const label = data.datasets[tooltipItem.datasetIndex].label || "";
             const value = tooltipItem.yLabel;
             if (value === null || value === undefined) {

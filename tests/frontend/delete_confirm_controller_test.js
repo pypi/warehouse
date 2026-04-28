@@ -20,18 +20,18 @@ describe("DeleteConfirm controller", () => {
     application.register("delete-confirm", DeleteConfirmController);
   });
 
-  describe("initial state", function() {
-    describe("the button", function() {
-      it("is disabled", function() {
+  describe("initial state", function () {
+    describe("the button", function () {
+      it("is disabled", function () {
         const buttonTarget = document.getElementById("button-target");
         expect(buttonTarget).toHaveAttribute("disabled");
       });
     });
   });
 
-  describe("functionality", function() {
-    describe("checking one box", function() {
-      it("doesnt enable the button", function() {
+  describe("functionality", function () {
+    describe("checking one box", function () {
+      it("doesnt enable the button", function () {
         const inputOne = document.getElementById("input-one");
         expect(inputOne).not.toBeChecked();
         fireEvent.click(inputOne);
@@ -42,8 +42,8 @@ describe("DeleteConfirm controller", () => {
       });
     });
 
-    describe("checking both boxes", function() {
-      it("enables the button", function() {
+    describe("checking both boxes", function () {
+      it("enables the button", function () {
         const inputOne = document.getElementById("input-one");
         expect(inputOne).not.toBeChecked();
         fireEvent.click(inputOne);
@@ -59,8 +59,8 @@ describe("DeleteConfirm controller", () => {
       });
     });
 
-    describe("unchecking a box", function() {
-      it("disables the button", function() {
+    describe("unchecking a box", function () {
+      it("disables the button", function () {
         var inputOne = document.getElementById("input-one");
         expect(inputOne).not.toBeChecked();
         fireEvent.click(inputOne);

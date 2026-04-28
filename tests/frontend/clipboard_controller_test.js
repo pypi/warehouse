@@ -14,7 +14,6 @@ Object.defineProperty(navigator, "clipboard", {
   },
 });
 
-
 const clipboardContent = `
   <div data-controller="clipboard">
     <span id="#id" data-clipboard-target="source">Copyable Thing</span>

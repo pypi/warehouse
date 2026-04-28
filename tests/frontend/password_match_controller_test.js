@@ -21,9 +21,9 @@ describe("Password match controller", () => {
     application.register("password-match", PasswordMatchController);
   });
 
-  describe("initial state", function() {
-    describe("the password match message and submit button", function() {
-      it("is hidden and enabled", function() {
+  describe("initial state", function () {
+    describe("the password match message and submit button", function () {
+      it("is hidden and enabled", function () {
         const message = document.getElementsByTagName("p")[0];
         expect(message).toHaveClass("hidden");
         const submit = document.getElementsByTagName("input")[2];
@@ -32,9 +32,9 @@ describe("Password match controller", () => {
     });
   });
 
-  describe("incomplete inputs", function() {
-    describe("adding text on only the first field", function() {
-      it("disables submit", function() {
+  describe("incomplete inputs", function () {
+    describe("adding text on only the first field", function () {
+      it("disables submit", function () {
         const passwordMatch = getByPlaceholderText(document.body, "Your password");
         fireEvent.input(passwordMatch, { target: { value: "foo" } });
 
@@ -45,8 +45,8 @@ describe("Password match controller", () => {
       });
     });
 
-    describe("adding text on only the second field", function() {
-      it("disables submit", function() {
+    describe("adding text on only the second field", function () {
+      it("disables submit", function () {
         const confirmPasswordMatch = getByPlaceholderText(document.body, "Confirm password");
         fireEvent.input(confirmPasswordMatch, { target: { value: "foo" } });
 
@@ -57,10 +57,14 @@ describe("Password match controller", () => {
       });
     });
 
-    describe("adding different text on each field", function() {
-      it("shows text warning of mismatch and disables submit", function() {
-        fireEvent.input(getByPlaceholderText(document.body, "Your password"), { target: { value: "foo" } });
-        fireEvent.input(getByPlaceholderText(document.body, "Confirm password"), { target: { value: "bar" } });
+    describe("adding different text on each field", function () {
+      it("shows text warning of mismatch and disables submit", function () {
+        fireEvent.input(getByPlaceholderText(document.body, "Your password"), {
+          target: { value: "foo" },
+        });
+        fireEvent.input(getByPlaceholderText(document.body, "Confirm password"), {
+          target: { value: "bar" },
+        });
 
         const message = document.getElementsByTagName("p")[0];
         expect(message).toHaveTextContent("Passwords do not match");
@@ -72,11 +76,15 @@ describe("Password match controller", () => {
     });
   });
 
-  describe("correct inputs", function() {
-    describe("adding the same text on each field", function() {
-      it("shows success text and enables submit", function() {
-        fireEvent.input(getByPlaceholderText(document.body, "Your password"), { target: { value: "foo" } });
-        fireEvent.input(getByPlaceholderText(document.body, "Confirm password"), { target: { value: "foo" } });
+  describe("correct inputs", function () {
+    describe("adding the same text on each field", function () {
+      it("shows success text and enables submit", function () {
+        fireEvent.input(getByPlaceholderText(document.body, "Your password"), {
+          target: { value: "foo" },
+        });
+        fireEvent.input(getByPlaceholderText(document.body, "Confirm password"), {
+          target: { value: "foo" },
+        });
 
         const message = document.getElementsByTagName("p")[0];
         expect(message).toHaveTextContent("Passwords match");
@@ -86,6 +94,5 @@ describe("Password match controller", () => {
         expect(submit).not.toHaveAttribute("disabled");
       });
     });
-
   });
 });

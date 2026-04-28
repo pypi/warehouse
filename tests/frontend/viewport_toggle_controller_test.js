@@ -5,7 +5,6 @@
 import { Application } from "@hotwired/stimulus";
 import ViewportToggleController from "../../warehouse/static/js/warehouse/controllers/viewport_toggle_controller";
 
-
 const viewportContent = `
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <div data-controller="viewport-toggle">
@@ -20,7 +19,6 @@ const viewportContent = `
   </div>
 `;
 
-
 function startStimulus() {
   // set the HTML before satarting the application, as the controller uses the
   // `connect()` function.
@@ -29,31 +27,29 @@ function startStimulus() {
   application.register("viewport-toggle", ViewportToggleController);
 }
 
-
 describe("Viewport toggle controller", () => {
-
-  describe("initial state", function() {
-    describe("with no `showDesktop` localStorage value", function() {
+  describe("initial state", function () {
+    describe("with no `showDesktop` localStorage value", function () {
       beforeEach(() => {
         localStorage.clear(); // localStorage is empty
         startStimulus();
       });
-      it("shows the switch to desktop and hides switch to mobile", function() {
-        expect(localStorage.getItem("showDesktop")).toBeNull;
+      it("shows the switch to desktop and hides switch to mobile", function () {
+        expect(localStorage.getItem("showDesktop")).toBeNull();
 
         expect(document.getElementById("switch-to-desktop")).not.toHaveClass("hidden");
         expect(document.getElementById("switch-to-mobile")).toHaveClass("hidden");
       });
     });
 
-    describe("with `showDesktop` localStorage value", function() {
+    describe("with `showDesktop` localStorage value", function () {
       beforeEach(() => {
         localStorage.setItem("showDesktop", 1);
         window.scrollTo = jest.fn();
         startStimulus();
       });
 
-      it("shows the switch to mobile and hides switch to desktop", function() {
+      it("shows the switch to mobile and hides switch to desktop", function () {
         expect(localStorage.getItem("showDesktop")).toEqual("1");
 
         expect(document.getElementById("switch-to-desktop")).toHaveClass("hidden");
@@ -63,15 +59,15 @@ describe("Viewport toggle controller", () => {
     });
   });
 
-  describe("clicking switch to desktop", function() {
+  describe("clicking switch to desktop", function () {
     beforeEach(() => {
       localStorage.clear(); // localStorage is empty
       window.scrollTo = jest.fn();
       startStimulus();
     });
 
-    it("shows the switch to mobile button and sets localStorage", function() {
-      expect(localStorage.getItem("showDesktop")).toBeNull;
+    it("shows the switch to mobile button and sets localStorage", function () {
+      expect(localStorage.getItem("showDesktop")).toBeNull();
 
       const switchToDesktop = document.getElementById("switch-to-desktop");
       const switchToMobile = document.getElementById("switch-to-mobile");
@@ -85,14 +81,14 @@ describe("Viewport toggle controller", () => {
     });
   });
 
-  describe("clicking switch to mobile", function() {
+  describe("clicking switch to mobile", function () {
     beforeEach(() => {
       localStorage.clear(); // localStorage is empty
       window.scrollTo = jest.fn();
       startStimulus();
     });
-    it("shows the switch to desktop button and removes localStorage", function() {
-      expect(localStorage.getItem("showDesktop")).toBeNull;
+    it("shows the switch to desktop button and removes localStorage", function () {
+      expect(localStorage.getItem("showDesktop")).toBeNull();
 
       const switchToDesktop = document.getElementById("switch-to-desktop");
       const switchToMobile = document.getElementById("switch-to-mobile");
@@ -101,8 +97,10 @@ describe("Viewport toggle controller", () => {
 
       expect(switchToDesktop).not.toHaveClass("hidden");
       expect(switchToMobile).toHaveClass("hidden");
-      expect(localStorage.getItem("showDesktop")).toBeNull;
-      expect(document.getElementsByTagName("meta")["viewport"].content).toEqual("width=device-width");
+      expect(localStorage.getItem("showDesktop")).toBeNull();
+      expect(document.getElementsByTagName("meta")["viewport"].content).toEqual(
+        "width=device-width",
+      );
     });
   });
 });

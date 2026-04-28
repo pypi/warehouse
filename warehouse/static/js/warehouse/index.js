@@ -14,13 +14,14 @@ import timeAgo from "warehouse/utils/timeago";
 import searchFilterToggle from "warehouse/utils/search-filter-toggle";
 import BindModalKeys from "warehouse/utils/bind-modal-keys";
 import BindFilterKeys from "warehouse/utils/bind-filter-keys";
-import {GuardWebAuthn, AuthenticateWebAuthn, ProvisionWebAuthn} from "warehouse/utils/webauthn";
+import { GuardWebAuthn, AuthenticateWebAuthn, ProvisionWebAuthn } from "warehouse/utils/webauthn";
 
 // Show unsupported browser warning if necessary
 if (navigator.appVersion.includes("MSIE 10")) {
   if (document.getElementById("unsupported-browser") === null) {
     let warning_div = document.createElement("div");
-    warning_div.innerHTML = "<div id='unsupported-browser' class='notification-bar notification-bar--warning' role='status'><span class='notification-bar__icon'><i class='fa fa-exclamation-triangle' aria-hidden='true'></i><span class='sr-only'>Warning:</span></span><span class='notification-bar__message'>You are using an unsupported browser, please upgrade to a newer version.</span></div>";
+    warning_div.innerHTML =
+      "<div id='unsupported-browser' class='notification-bar notification-bar--warning' role='status'><span class='notification-bar__icon'><i class='fa fa-exclamation-triangle' aria-hidden='true'></i><span class='sr-only'>Warning:</span></span><span class='notification-bar__message'>You are using an unsupported browser, please upgrade to a newer version.</span></div>";
 
     document.getElementById("sticky-notifications").appendChild(warning_div);
   }
@@ -42,13 +43,11 @@ formUtils.registerFormValidation();
 Statuspage();
 
 // Close modals when escape button is pressed
-document.addEventListener("keydown", event => {
+document.addEventListener("keydown", (event) => {
   // Only handle the escape key press when a modal is open
   if (document.querySelector(".modal:target") && event.keyCode === 27) {
     for (let element of document.querySelectorAll(".modal")) {
-      application
-        .getControllerForElementAndIdentifier(element, "confirm")
-        .cancel();
+      application.getControllerForElementAndIdentifier(element, "confirm").cancel();
     }
   }
 });
@@ -105,7 +104,7 @@ let bindDropdowns = function () {
       dropdown.addEventListener("mouseout", closeInactiveDropdown, false);
 
       // Close the dropdown if the user presses the escape key
-      document.addEventListener("keydown", function(event) {
+      document.addEventListener("keydown", function (event) {
         if (event.key === "Escape") {
           closeDropdown();
         }
@@ -146,7 +145,7 @@ if (tokenSelect !== null) {
     }
 
     const tokenScope = tokenSelect.options[tokenSelect.selectedIndex].value;
-    tokenScopeWarning.hidden = (tokenScope !== "scope:user");
+    tokenScopeWarning.hidden = tokenScope !== "scope:user";
   });
 }
 

@@ -31,8 +31,8 @@ describe("Modal close controller", () => {
     application.register("modal-close", ModalCloseController);
   });
 
-  describe("clicking cancel", function() {
-    it("sets the window location, resets the input target and disables the button", function() {
+  describe("clicking cancel", function () {
+    it("sets the window location, resets the input target and disables the button", function () {
       document.getElementById("cancel").click();
 
       expect(window.location.href).toContain("#modal-close");

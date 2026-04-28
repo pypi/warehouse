@@ -30,9 +30,9 @@ describe("Password controller", () => {
     });
   });
 
-  describe("functionality", function() {
-    describe("clicking show password", function() {
-      it("toggles password fields", function() {
+  describe("functionality", function () {
+    describe("clicking show password", function () {
+      it("toggles password fields", function () {
         const passwordField = document.querySelector("#password");
         const confirmField = document.querySelector("#confirm");
         const toggleCheckbox = document.getElementsByTagName("input")[0];

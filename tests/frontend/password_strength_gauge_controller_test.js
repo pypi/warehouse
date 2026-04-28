@@ -42,7 +42,7 @@ describe("Password strength gauge controller", () => {
 
         const gauge = document.getElementById("gauge");
         const ZXCVBN_LEVELS = [0, 1, 2, 3, 4];
-        ZXCVBN_LEVELS.forEach(i =>
+        ZXCVBN_LEVELS.forEach((i) =>
           expect(gauge).not.toHaveClass(`password-strength__gauge--${i}`),
         );
         expect(gauge).not.toHaveAttribute("data-zxcvbn-score");

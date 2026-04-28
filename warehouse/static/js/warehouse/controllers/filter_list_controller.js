@@ -1,6 +1,5 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-
 /*
  * This controller enables filtering a list using either input or select elements.
  * Each element can filter on a separate data attribute applied to items in the list to be filtered.
@@ -14,8 +13,8 @@
  * - data-filter-list-target="item"
  * - data-filtered-target-[name of filter group in kebab-case e.g. content-type]='(stringify-ed JSON)' (zero or more)
  */
-import {Controller} from "@hotwired/stimulus";
-import {ngettext} from "../utils/messages-access";
+import { Controller } from "@hotwired/stimulus";
+import { ngettext } from "../utils/messages-access";
 
 export default class extends Controller {
   static targets = ["item", "filter", "summary", "url"];
@@ -71,7 +70,8 @@ export default class extends Controller {
         "Showing %1 of %2 files.",
         total,
         shown,
-        total);
+        total,
+      );
     }
 
     // Update the direct url to this filter
@@ -100,7 +100,7 @@ export default class extends Controller {
    * @private
    */
   _initVisibility() {
-    document.querySelectorAll(".initial-toggle-visibility").forEach(item => {
+    document.querySelectorAll(".initial-toggle-visibility").forEach((item) => {
       if (item.classList.contains("hidden")) {
         item.classList.remove("hidden");
       } else {
@@ -132,12 +132,13 @@ export default class extends Controller {
         const dataAttrsKey = `filteredTarget${filterKey.charAt(0).toUpperCase()}${filterKey.slice(1)}`;
         const dataAttrValue = dataAttrs[dataAttrsKey];
         if (!dataAttrValue) {
-          console.warn(`Item target at index ${index} does not have a value for data attribute '${dataAttrsKey}'.`);
+          console.warn(
+            `Item target at index ${index} does not have a value for data attribute '${dataAttrsKey}'.`,
+          );
         }
         this.mappingItemFilterData[index][filterKey] = JSON.parse(dataAttrValue || "[]");
       }
     });
-
   }
 
   /**
@@ -148,7 +149,7 @@ export default class extends Controller {
   _buildFilterData() {
     const filterData = {};
     if (this.hasFilterTarget) {
-      this.filterTargets.forEach(filterTarget => {
+      this.filterTargets.forEach((filterTarget) => {
         const key = filterTarget.dataset.filteredSource;
         const value = filterTarget.value;
         if (!Object.hasOwn(filterData, key)) {
@@ -185,7 +186,6 @@ export default class extends Controller {
 
       for (const itemValue of itemValues) {
         for (const filterItemValue of filterValues) {
-
           if (filterItemValue && !hasKeyFilter) {
             // Record whether there are any filter values in any filter key.
             hasFilter = true;
@@ -200,10 +200,10 @@ export default class extends Controller {
           // Using: for each named group, does any item value include any filter value?
           if (filterItemValue && itemValue.includes(filterItemValue)) {
             isKeyMatch = true;
-            matches.push({"key": itemKey, "filter": filterItemValue, "item": itemValue});
+            matches.push({ key: itemKey, filter: filterItemValue, item: itemValue });
           }
           if (filterItemValue && !itemValue.includes(filterItemValue)) {
-            misses.push({"key": itemKey, "filter": filterItemValue, "item": itemValue});
+            misses.push({ key: itemKey, filter: filterItemValue, item: itemValue });
           }
         }
       }
@@ -211,10 +211,10 @@ export default class extends Controller {
     }
 
     return {
-      "isMatch": isMatch.every(value => value),
-      "hasFilter": hasFilter,
-      "matches": matches,
-      "misses": misses,
+      isMatch: isMatch.every((value) => value),
+      hasFilter: hasFilter,
+      matches: matches,
+      misses: misses,
     };
   }
 }

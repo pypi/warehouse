@@ -28,7 +28,8 @@ export default class extends Controller {
     window.scrollTo(0, 0);
   }
 
-  switchToDesktop() { // Toggle to the desktop viewport.
+  switchToDesktop() {
+    // Toggle to the desktop viewport.
     // Store the original width to reuse on the next page load to resize again.
     this.switchToMobileTarget.classList.remove("hidden");
     this.switchToDesktopTarget.classList.add("hidden");
@@ -36,7 +37,8 @@ export default class extends Controller {
     this._setViewport(DESKTOP_WIDTH);
   }
 
-  switchToMobile() { // Reset to the original viewport
+  switchToMobile() {
+    // Reset to the original viewport
     this.switchToMobileTarget.classList.add("hidden");
     this.switchToDesktopTarget.classList.remove("hidden");
     localStorage.removeItem("showDesktop");

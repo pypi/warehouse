@@ -35,7 +35,7 @@ class ManifestPlugin {
   }
 
   apply(compiler) {
-    const {sources, Compilation} = compiler.webpack;
+    const { sources, Compilation } = compiler.webpack;
 
     compiler.hooks.thisCompilation.tap(PLUGIN_NAME, (compilation) => {
       compilation.hooks.processAssets.tap(
@@ -58,13 +58,15 @@ class ManifestPlugin {
           for (const asset of stats.assets) {
             // Skip source maps and pre-compressed siblings — they shouldn't
             // appear in the manifest as primary assets.
-            if (/\.(map|gz|br)$/.test(asset.name)) {continue;}
+            if (/\.(map|gz|br)$/.test(asset.name)) {
+              continue;
+            }
 
             let key = asset.name;
             if (this.removeKeyHash) {
               key = key.replace(this.removeKeyHash, "");
             }
-            const file = this.map({name: key, path: asset.name});
+            const file = this.map({ name: key, path: asset.name });
             manifest[file.name] = this.publicPath + file.path;
           }
 

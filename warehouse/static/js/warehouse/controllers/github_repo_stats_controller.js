@@ -22,8 +22,8 @@ export default class extends Controller {
       response.ok === true ? response.json() : null,
     );
 
-    const fetchIssueData = fetch(this.issueUrlValue, fetchParams).then(
-      (response) => (response.ok === true ? response.json() : null),
+    const fetchIssueData = fetch(this.issueUrlValue, fetchParams).then((response) =>
+      response.ok === true ? response.json() : null,
     );
 
     const allData = Promise.all([fetchRepoData, fetchIssueData]);
@@ -40,9 +40,7 @@ export default class extends Controller {
           issues: res[1].total_count,
           PRs: res[0].open_issues_count - res[1].total_count,
         };
-        this.githubRepoInfoOutlets.forEach((outlet) =>
-          outlet.updateStats(stats),
-        );
+        this.githubRepoInfoOutlets.forEach((outlet) => outlet.updateStats(stats));
       })
       // swallow errors, we don't want to show them to the user
       .catch(() => {});

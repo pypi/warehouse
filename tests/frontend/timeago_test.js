@@ -3,7 +3,7 @@
 /* global expect, describe, beforeEach, it */
 
 import timeAgo from "../../warehouse/static/js/warehouse/utils/timeago";
-import {delay} from "./utils";
+import { delay } from "./utils";
 
 describe("time ago util", () => {
   beforeEach(() => {
@@ -21,7 +21,6 @@ describe("time ago util", () => {
 
     const element = document.getElementById("element");
     expect(element.innerText).toEqual("Just now");
-
   });
 
   it("shows 'About 5 hours ago' for such a time'", async () => {

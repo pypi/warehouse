@@ -5,15 +5,18 @@ import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 import { format } from "date-fns/format";
 
 export default class extends Controller {
-
   getLocalTimeFromTimestamp(timestamp) {
     // Safari returns "Invalid Date" when passing timezone
     // it is assumed all timestamp attributes are UTC as modeled in the database
-    let date = timestamp.substr(0, 10).split("-").map(i => parseInt(i));
-    let time = timestamp.substr(11, 8).split(":").map(i => parseInt(i));
-    return new Date(
-      Date.UTC(parseInt(date[0]), parseInt(date[1]) - 1, parseInt(date[2]), ...time),
-    );
+    let date = timestamp
+      .substr(0, 10)
+      .split("-")
+      .map((i) => parseInt(i));
+    let time = timestamp
+      .substr(11, 8)
+      .split(":")
+      .map((i) => parseInt(i));
+    return new Date(Date.UTC(parseInt(date[0]), parseInt(date[1]) - 1, parseInt(date[2]), ...time));
   }
 
   connect() {
@@ -29,7 +32,7 @@ export default class extends Controller {
     const options = { month: "short", day: "numeric", year: "numeric" };
 
     if (isRelative && localTime > startOfDay) {
-      this.element.textContent = formatDistanceToNow(localTime, {includeSeconds: true}) + " ago";
+      this.element.textContent = formatDistanceToNow(localTime, { includeSeconds: true }) + " ago";
     } else {
       if (showTime) {
         this.element.textContent = localTime.toLocaleTimeString(locale, options);

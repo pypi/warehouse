@@ -26,7 +26,9 @@ export default class extends Controller {
 
   initialize() {
     const notificationId = this._getNotificationId();
-    const isDismissable = this.notificationTarget.classList.contains("notification-bar--dismissable");
+    const isDismissable = this.notificationTarget.classList.contains(
+      "notification-bar--dismissable",
+    );
 
     // Show the notification if:
     // - the notification is ephemeral, i.e. it has no notification ID

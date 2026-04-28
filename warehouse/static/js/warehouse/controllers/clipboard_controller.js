@@ -10,7 +10,7 @@ import { gettext } from "../utils/messages-access";
 
 // See `warehouse/static/sass/blocks/_copy-tooltip.scss` for style details.
 export default class extends Controller {
-  static targets = [ "source", "tooltip" ];
+  static targets = ["source", "tooltip"];
 
   copy() {
     // save the original tooltip text

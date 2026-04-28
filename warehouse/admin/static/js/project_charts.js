@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 /* global Chart */
 
-$(function() {
+$(function () {
   if (typeof Chart === "undefined") {
     return;
   }
@@ -51,26 +51,30 @@ function initProjectCreationsChart() {
       responsive: true,
       maintainAspectRatio: false,
       scales: {
-        xAxes: [{
-          ticks: {
-            maxTicksLimit: 15,
-            maxRotation: 45,
-            minRotation: 0,
-          },
-        }],
-        yAxes: [{
-          ticks: {
-            beginAtZero: true,
-            precision: 0,
-            callback: function(value) {
-              return value.toLocaleString();
+        xAxes: [
+          {
+            ticks: {
+              maxTicksLimit: 15,
+              maxRotation: 45,
+              minRotation: 0,
             },
           },
-        }],
+        ],
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: true,
+              precision: 0,
+              callback: function (value) {
+                return value.toLocaleString();
+              },
+            },
+          },
+        ],
       },
       tooltips: {
         callbacks: {
-          label: function(tooltipItem) {
+          label: function (tooltipItem) {
             return tooltipItem.yLabel.toLocaleString() + " projects";
           },
         },
