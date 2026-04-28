@@ -348,10 +348,10 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             # The project has zero or more OIDC publishers registered to it,
             # each of which serves as an identity with the ability to upload releases
             # (only if the project is not archived or quarantined)
-            for publisher in self.oidc_publishers:
-                acls.append(
-                    (Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload])
-                )
+            acls.extend(
+                (Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload])
+                for publisher in self.oidc_publishers
+            )
 
         # Get all of the users for this project.
         user_query = (
@@ -853,7 +853,7 @@ class Release(HasObservations, db.Model):
     def verified_user_name_and_repo_name(
         self, domains: set[str], reserved_names: typing.Collection[str] | None = None
     ):
-        for _, url in self.urls_by_verify_status(verified=True).items():
+        for url in self.urls_by_verify_status(verified=True).values():
             try:
                 parsed = parse_url(url)
             except LocationParseError:

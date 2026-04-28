@@ -48,10 +48,10 @@ def prohibited_project_names(request):
         terms = shlex.split(q)
 
         filters: list = []
-        for term in terms:
-            filters.append(
-                ProhibitedProjectName.name.ilike(func.normalize_pep426_name(term))
-            )
+        filters.extend(
+            ProhibitedProjectName.name.ilike(func.normalize_pep426_name(term))
+            for term in terms
+        )
 
         filters = filters or [True]
         prohibited_project_names_query = prohibited_project_names_query.filter(
