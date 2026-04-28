@@ -133,28 +133,7 @@ target-version = "py313"
 
 [tool.ruff.lint]
 external = ["WH"]  # These come from our internal flake8 plugin.
-select = [
-  "E",  # pycodestyle rules; enforces coding style
-  "W",  # pycodestyle rules; enforces coding style
-  "F",  # pyflakes rules; finds coding errors
-  "N",  # pep8-naming rules; enforces naming rules
-  "Q",  # flake8-quotes; enforces quoting styles
-  "ISC",  # flake8-implicit-str-concat; enforce rules around string concat
-  "FLY",  # flynt; finds cases where "".join() was used instead of f""
-  "I",  # isort; enforces rules around import grouping and sorting
-  "TID",  # flake8-tidy-imports; enforces rules around how/what you can import
-  "PT",  # flake8-pytest-style; catches issues with pytest tests
-  "UP",  # pyupgrade; upgrade old patterns for new patterns in Python upgrades
-  "T10",  # flake8-debugger; looks for erroneous debugger imports/uses
-  "EXE",  # flake8-executable; looks for executable scripts and shebang issues
-  "INT",  # flake8-gettest; issues passing dynamic strings into gettext
-  "SLOT",  # flake8-slots; finds issues with classes that define __slots__
-  "LOG",  # flake8-logging; enforce rules around good logging use
-  "G",  # flake8-logging-format; enforce the use of % logging format strings
-  "RSE",  # flake8-raise; remove extraneous parens on exception raises
-  "RUF",  # ruff; grab bag of ruff specific linting rules
-  "INP",  # flake8-no-pep420; ensure there is no implicit namespace packages
-]
+select = ["ALL"]
 ignore = [
   # NOTE(dstufft): this lint feels like a good idea in practice, but it triggers
   #                on a number of cases where we can't use a "proper" fix for
