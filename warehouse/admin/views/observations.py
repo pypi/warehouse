@@ -663,20 +663,19 @@ def _get_timeline_data(request: Request, observations: list) -> dict:
                 "project_created": None,  # Looked up from JournalEntry
                 "first_report": obs.report_created,
                 "quarantine_time": None,
-                "removal_time": _parse_removal_time(obs.actions),
+                "removal_time": None,
             }
-        else:
-            # Track the earliest report
-            if obs.report_created < project_data[key]["first_report"]:
-                project_data[key]["first_report"] = obs.report_created
-            # Track the earliest removal - only parse if we might update
-            current_removal = project_data[key]["removal_time"]
-            if obs.actions:  # Only parse if actions exist
-                obs_removal = _parse_removal_time(obs.actions)
-                if obs_removal and (
-                    current_removal is None or obs_removal < current_removal
-                ):
-                    project_data[key]["removal_time"] = obs_removal
+
+        entry = project_data[key]
+        # Track the earliest report
+        if obs.report_created < entry["first_report"]:
+            entry["first_report"] = obs.report_created
+        # Track the earliest removal across all observations for this project
+        obs_removal = _parse_removal_time(obs.actions)
+        if obs_removal and (
+            entry["removal_time"] is None or obs_removal < entry["removal_time"]
+        ):
+            entry["removal_time"] = obs_removal
 
     if not project_names:
         return project_data
