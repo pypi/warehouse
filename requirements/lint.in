@@ -2,6 +2,7 @@ ruff==0.15.12
 djlint
 flake8
 mypy
+tombi
 celery-types
 msgpack-types
 mypy-zope

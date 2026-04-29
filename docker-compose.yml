@@ -77,8 +77,9 @@ services:
     image: warehouse:docker-compose
     environment:
       # Runs as `nobody`, override the home directory
-      - PIP_CACHE_DIR=/opt/warehouse/src/dev/.pip-cache
-      - PIP_TOOLS_CACHE_DIR=/opt/warehouse/src/dev/.pip-tools-cache
+      - XDG_CACHE_HOME=/opt/warehouse/src/.cache
+      - PIP_CACHE_DIR=/opt/warehouse/src/.cache/pip
+      - PIP_TOOLS_CACHE_DIR=/opt/warehouse/src/.cache/pip-tools
     volumes: &base_volumes
       # We specify paths explicitly to only add what we need, and to avoid
       # adding the entire repository.
@@ -104,6 +105,8 @@ services:
       - ./gunicorn-prod.conf.py:/opt/warehouse/src/gunicorn-prod.conf.py:z
       - ./gunicorn-uploads.conf.py:/opt/warehouse/src/gunicorn-uploads.conf.py:z
       - ./development.ini:/opt/warehouse/src/development.ini:z
+      # Create a place to store all of the caches
+      - caches:/opt/warehouse/src/.cache
 
   web:
     image: warehouse:docker-compose
@@ -229,7 +232,7 @@ services:
       - ./bin:/opt/warehouse/src/bin:z
       - ./package.json:/opt/warehouse/src/package.json:z
       - ./package-lock.json:/opt/warehouse/src/package-lock.json:z
-      - caches:/opt/warehouse/src/.stylelintcache
+      - caches:/opt/warehouse/src/.cache
 
   maildev:
     image: maildev/maildev:2.2.1

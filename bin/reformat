@@ -4,4 +4,7 @@ set -ex
 ruff check --fix-only
 ruff format
 
+# format our pyproject.toml file (as well as any other toml files)
+tombi format
+
 python -m djlint --reformat ./warehouse/templates ./docs/blog
