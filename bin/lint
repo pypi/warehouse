@@ -1,6 +1,8 @@
 #!/bin/bash
 set -ex
 
+# Fail if pyproject.toml has changed without regenerating uv.lock.
+uv lock --check
 
 # When on GitHub Actions, configure ruff to use the github output style
 if [ -n "$GITHUB_ACTIONS" ]; then

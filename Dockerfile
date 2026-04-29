@@ -43,6 +43,9 @@ RUN NODE_ENV=production npm run build
 # We'll build a light-weight layer along the way with just docs stuff
 FROM python:${PYTHON_IMAGE_VERSION} AS docs
 
+# Pull the uv binary in so we can use it as a faster pip / pip-compile.
+COPY --from=ghcr.io/astral-sh/uv:0.11.7 /uv /uvx /usr/local/bin/
+
 # By default, Docker has special steps to avoid keeping APT caches in the layers, which
 # is good, but in our case, we're going to mount a special cache volume (kept between
 # builds), so we WANT the cache to persist.
@@ -68,36 +71,33 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # We create an /opt directory with a virtual environment in it to store our
-# application in.
+# application in. uv picks this up via VIRTUAL_ENV below.
 RUN set -x \
     && python3 -m venv /opt/warehouse
 
-# Now that we've created our virtual environment, we'll go ahead and update
-# our $PATH to refer to it first.
+# Point uv (and shells) at the venv we just created.
+# Hynek-recommended uv tuning (see https://hynek.me/articles/docker-uv/):
+#   UV_LINK_MODE=copy        — silence hardlink-across-FS warnings (cache mount)
+#   UV_COMPILE_BYTECODE=1    — pay the compile cost once, at build time
+#   UV_PYTHON_DOWNLOADS=never — never auto-fetch a Python; use the system one
+#   UV_PYTHON                — pin uv to the venv's interpreter
+ENV VIRTUAL_ENV="/opt/warehouse" \
+    UV_PROJECT_ENVIRONMENT="/opt/warehouse" \
+    UV_LINK_MODE=copy \
+    UV_COMPILE_BYTECODE=1 \
+    UV_PYTHON_DOWNLOADS=never \
+    UV_PYTHON="/opt/warehouse/bin/python"
 ENV PATH="/opt/warehouse/bin:${PATH}"
 
-# Next, we want to update pip inside of this virtual
-# environment to ensure that we have the latest version.
-RUN pip --no-cache-dir --disable-pip-version-check install --upgrade pip
-
-# We copy this into the docker container prior to copying in the rest of our
-# application so that we can skip installing requirements if the only thing
-# that has changed is the Warehouse code itself.
-COPY requirements /tmp/requirements
-
-# Install the Python level Warehouse requirements, this is done after copying
-# the requirements but prior to copying Warehouse itself into the container so
-# that code changes don't require triggering an entire install of all of
-# Warehouse's dependencies.
-RUN --mount=type=cache,target=/root/.cache/pip \
+# Install Python deps via uv sync from pyproject.toml + uv.lock.
+# Bind-mount the lock + manifest so they don't enter the layer.
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
     set -x \
-    && pip --disable-pip-version-check \
-            install --no-deps --only-binary :all: \
-            -r /tmp/requirements/docs-dev.txt \
-            -r /tmp/requirements/docs-user.txt \
-            -r /tmp/requirements/docs-blog.txt \
-    && pip check \
-    && find /opt/warehouse -name '*.pyc' -delete
+    && uv sync --frozen --no-default-groups \
+            --group docs-dev --group docs-user --group docs-blog \
+    && uv pip check
 
 WORKDIR /opt/warehouse/src/
 
@@ -117,6 +117,9 @@ USER docs
 # image that it gets deployed into.
 FROM python:${PYTHON_IMAGE_VERSION} AS build
 
+# Pull the uv binary in so we can use it as a faster pip / pip-compile.
+COPY --from=ghcr.io/astral-sh/uv:0.11.7 /uv /uvx /usr/local/bin/
+
 # Define whether we're building a production or a development image. This will
 # generally be used to control whether or not we install our development and
 # test dependencies.
@@ -132,47 +135,33 @@ ARG CI=no
 ARG IPYTHON=no
 
 # We create an /opt directory with a virtual environment in it to store our
-# application in.
+# application in. uv picks this up via VIRTUAL_ENV below.
 RUN set -x \
     && python3 -m venv /opt/warehouse
 
-# Now that we've created our virtual environment, we'll go ahead and update
-# our $PATH to refer to it first.
+# Point uv (and shells) at the venv we just created.
+# See the docs stage above for the rationale behind each UV_* variable.
+ENV VIRTUAL_ENV="/opt/warehouse" \
+    UV_PROJECT_ENVIRONMENT="/opt/warehouse" \
+    UV_LINK_MODE=copy \
+    UV_COMPILE_BYTECODE=1 \
+    UV_PYTHON_DOWNLOADS=never \
+    UV_PYTHON="/opt/warehouse/bin/python"
 ENV PATH="/opt/warehouse/bin:${PATH}"
 
-# Next, we want to update pip inside of this virtual
-# environment to ensure that we have the latest version.
-RUN pip --no-cache-dir --disable-pip-version-check install --upgrade pip
-
-# We copy this into the docker container prior to copying in the rest of our
-# application so that we can skip installing requirements if the only thing
-# that has changed is the Warehouse code itself.
-COPY requirements /tmp/requirements
-
-# Install our development dependencies if we're building a development install
-# otherwise this will do nothing.
-RUN --mount=type=cache,target=/root/.cache/pip \
+# Install Python deps via uv sync from pyproject.toml + uv.lock.
+# [project].dependencies (was main.in) is always installed; additional groups
+# are conditionally pulled in based on build args.
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
     set -x \
-    && if [ "$DEVEL" = "yes" ]; then pip --disable-pip-version-check install -r /tmp/requirements/dev.txt; fi
-
-RUN --mount=type=cache,target=/root/.cache/pip \
-    set -x \
-    && if [ "$DEVEL" = "yes" ] && [ "$IPYTHON" = "yes" ]; then pip --disable-pip-version-check install -r /tmp/requirements/ipython.txt; fi
-
-# Install the Python level Warehouse requirements, this is done after copying
-# the requirements but prior to copying Warehouse itself into the container so
-# that code changes don't require triggering an entire install of all of
-# Warehouse's dependencies.
-RUN --mount=type=cache,target=/root/.cache/pip \
-    set -x \
-    && pip --disable-pip-version-check \
-            install --no-deps --only-binary :all: \
-                    -r /tmp/requirements/deploy.txt \
-                    -r /tmp/requirements/main.txt \
-                    $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt'; fi) \
-                    $(if [ "$CI" = "yes" ]; then echo '-r /tmp/requirements/docs-dev.txt -r /tmp/requirements/docs-user.txt -r /tmp/requirements/docs-blog.txt'; fi ) \
-    && pip check \
-    && find /opt/warehouse -name '*.pyc' -delete
+    && uv sync --frozen --no-default-groups \
+            --group deploy \
+            $(if [ "$DEVEL" = "yes" ]; then echo '--group dev --group tests --group lint'; fi) \
+            $(if [ "$DEVEL" = "yes" ] && [ "$IPYTHON" = "yes" ]; then echo '--group ipython'; fi) \
+            $(if [ "$CI" = "yes" ]; then echo '--group docs-dev --group docs-user --group docs-blog'; fi) \
+    && uv pip check
 
 
 
@@ -180,6 +169,10 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 # Now we're going to build our actual application image, which will eventually
 # pull in the static files that were built above.
 FROM python:${PYTHON_IMAGE_VERSION}
+
+# Pull the uv binary in so it is available at runtime. Used by bin/lint
+# (uv lock --check), make deps_upgrade_*, and any in-container shell work.
+COPY --from=ghcr.io/astral-sh/uv:0.11.7 /uv /uvx /usr/local/bin/
 
 # Setup some basic environment variables that are ~never going to change.
 ENV PYTHONUNBUFFERED 1
