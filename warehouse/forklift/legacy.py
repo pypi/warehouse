@@ -1660,6 +1660,7 @@ def file_upload(request):
         )
     )
 
+    # ast-grep-ignore: db-flush
     request.db.flush()  # flush db now so server default values are populated for celery
 
     # Push updates to BigQuery

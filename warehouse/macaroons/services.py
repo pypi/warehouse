@@ -201,6 +201,7 @@ class DatabaseMacaroonService:
             caveats=scopes,
         )
         self.db.add(dm)
+        # ast-grep-ignore: db-flush
         self.db.flush()  # flush db now so dm.id is available
 
         m = pymacaroons.Macaroon(

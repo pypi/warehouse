@@ -177,6 +177,7 @@ def remove_project(project, request, flash=True):
     )
 
     request.db.delete(project)
+    # ast-grep-ignore: db-flush
     request.db.flush()  # flush db now so we can repeat if necessary
 
     if flash:

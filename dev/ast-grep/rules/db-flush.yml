@@ -1,0 +1,18 @@
+id: db-flush
+language: python
+
+severity: error
+message: manually flushing the database session
+note: "Add a comment and disable the lint with # ast-grep-ignore: db-flush"
+
+rule:
+  any:
+    - pattern: $_.$OBJ.flush()
+    - pattern: $OBJ.flush()
+
+constraints:
+  OBJ:
+    regex: ^(db|session|db_session)$
+
+ignores:
+  - tests/**/*.py

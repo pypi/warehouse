@@ -301,6 +301,7 @@ class DatabaseUserService:
     def create_user(self, username, name, password):
         user = User(username=username, name=name, password=self.hasher.hash(password))
         self.db.add(user)
+        # ast-grep-ignore: db-flush
         self.db.flush()  # flush the db now so user.id is available
 
         return user
@@ -340,6 +341,7 @@ class DatabaseUserService:
             public=public,
         )
         self.db.add(email)
+        # ast-grep-ignore: db-flush
         self.db.flush()  # flush the db now so email.id is available
 
         if ratelimit:
@@ -617,6 +619,7 @@ class DatabaseUserService:
 
         webauthn = WebAuthn(user=user, **kwargs)
         self.db.add(webauthn)
+        # ast-grep-ignore: db-flush
         self.db.flush()  # flush the db now so webauthn.id is available
 
         return webauthn
@@ -779,6 +782,7 @@ class DatabaseUserService:
                 + datetime.timedelta(seconds=token_service.max_age),
             )
             request.db.add(unique_login)
+            # ast-grep-ignore: db-flush
             request.db.flush()  # To get the ID for the token
             should_send_email = True
 
@@ -907,6 +911,7 @@ class DatabaseUserService:
         )
         self.db.add(association)
         try:
+            # ast-grep-ignore: db-flush
             self.db.flush()  # Flush to get the generated ID
         except UniqueViolation:
             self.db.rollback()

@@ -190,6 +190,7 @@ def release_prohibited_project_name(request):
         f"{project.name!r} released to {user.username!r}.", queue="success"
     )
 
+    # ast-grep-ignore: db-flush
     request.db.flush()  # flush db now so project.normalized_name is available
 
     return HTTPSeeOther(
@@ -260,6 +261,7 @@ def ultranorm_release_project_name(request):
         queue="success",
     )
 
+    # ast-grep-ignore: db-flush
     request.db.flush()  # flush db now so project.normalized_name is available
 
     return HTTPSeeOther(

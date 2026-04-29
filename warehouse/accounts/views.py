@@ -1892,6 +1892,7 @@ class ManageAccountPublishingViews:
 
         try:
             self.request.db.add(pending_publisher)
+            # ast-grep-ignore: db-flush
             self.request.db.flush()  # To get the new ID
         except UniqueViolation:
             # The DB unique constraint covers (repo, owner, workflow,

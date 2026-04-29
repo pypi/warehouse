@@ -176,6 +176,7 @@ class DatabaseOrganizationService:
                 "redact_ip": True,
             },
         )
+        # ast-grep-ignore: db-flush
         self.db.flush()  # flush the db now so organization.id is available
 
         organization_application.status = OrganizationApplicationStatus.Approved
@@ -517,6 +518,7 @@ class DatabaseOrganizationService:
         organization.name = name
 
         try:
+            # ast-grep-ignore: db-flush
             self.db.flush()  # flush db now so organization.normalized_name available
             self.add_catalog_entry(organization_id)
         except UniqueViolation:
@@ -562,6 +564,7 @@ class DatabaseOrganizationService:
         )
 
         self.db.add(organization_project)
+        # ast-grep-ignore: db-flush
         self.db.flush()  # Flush db so we can address the organization related object
 
         # Mark Organization as dirty, so purges will happen
