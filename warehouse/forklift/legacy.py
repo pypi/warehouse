@@ -506,6 +506,54 @@ def _commonpath(values):
     return os.path.commonpath(values)
 
 
+def _ensure_user_can_upload(request: Request) -> None:
+    """Enforce per-user upload prerequisites: a verified primary email and 2FA.
+
+    Called from the upload view after the project permission check (and
+    before new-project creation) so that a user who lacks permission to a
+    project sees the permission error rather than a confusing email or 2FA
+    error.
+
+    See: https://github.com/pypi/warehouse/issues/18575
+    """
+    # These checks only make sense when our authenticated identity is a user,
+    # not a project identity (like OIDC-minted tokens.)
+    if not request.user:
+        return
+
+    if not (request.user.primary_email and request.user.primary_email.verified):
+        request.metrics.increment(
+            "warehouse.upload.failed", tags=["reason:unverified-email"]
+        )
+        raise _exc_with_message(
+            HTTPForbidden,
+            (
+                "User {!r}, associated with the API token used, does not "
+                "have a verified primary email address. Please add a "
+                "verified primary email before attempting to upload to "
+                "PyPI. See {project_help} for more information."
+            ).format(
+                request.user.username,
+                project_help=request.help_url(_anchor="verified-email"),
+            ),
+        ) from None
+
+    if not request.user.has_two_factor:
+        request.metrics.increment("warehouse.upload.failed", tags=["reason:no-2fa"])
+        raise _exc_with_message(
+            HTTPForbidden,
+            (
+                "User {!r}, associated with the API token used, does not "
+                "have two-factor authentication enabled. Please enable "
+                "two-factor authentication before attempting to upload to "
+                "PyPI. See {project_help} for more information."
+            ).format(
+                request.user.username,
+                project_help=request.help_url(_anchor="two-factor-authentication"),
+            ),
+        ) from None
+
+
 @view_config(
     route_name="forklift.legacy.file_upload",
     uses_session=True,
@@ -660,6 +708,10 @@ def file_upload(request):
                 ),
             )
 
+        # Enforce email/2FA prerequisites before creating a brand new project,
+        # so we don't leave an empty project record behind on rejection.
+        _ensure_user_can_upload(request)
+
         # We attempt to create the project.
         project_service = request.find_service(IProjectService)
         try:
@@ -713,6 +765,8 @@ def file_upload(request):
             "warehouse.upload.failed", tags=["reason:permission-denied"]
         )
         raise _exc_with_message(HTTPForbidden, msg)
+
+    _ensure_user_can_upload(request)
 
     # If organization owned project, check if the organization is active.
     # Inactive organizations cannot upload new releases to their projects.

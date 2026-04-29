@@ -65,11 +65,7 @@ class TestEnsureUploadsAllowed:
         req = pretend.stub(
             flags=pretend.stub(enabled=lambda f: False),
             identity=pretend.stub(),
-            user=pretend.stub(
-                username="some-user",
-                primary_email=pretend.stub(email="foo@example.com", verified=True),
-                has_two_factor=True,
-            ),
+            user=pretend.stub(),
         )
         resp = pretend.stub()
 
@@ -148,72 +144,4 @@ class TestEnsureUploadsAllowed:
         assert resp.status == (
             "403 Invalid or non-existent authentication information. "
             "See /path/to/help/ for more information."
-        )
-
-    @pytest.mark.parametrize(
-        ("email", "verified"),
-        [
-            ("foo@example.com", False),
-            (None, None),
-        ],
-    )
-    def test_requires_verified_email(self, email, verified):
-        req = pretend.stub(
-            flags=pretend.stub(enabled=lambda f: False),
-            help_url=lambda *a, **k: "/path/to/help/",
-            identity=pretend.stub(),
-            user=pretend.stub(
-                username="some-user",
-                primary_email=(
-                    pretend.stub(email=email, verified=verified)
-                    if email is not None
-                    else None
-                ),
-            ),
-            metrics=pretend.stub(increment=lambda key, tags: None),
-        )
-
-        @decorators.ensure_uploads_allowed
-        def wrapped(context, request):
-            pytest.fail("wrapped view should not have been called")
-
-        with pytest.raises(HTTPForbidden) as excinfo:
-            wrapped(pretend.stub(), req)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 403
-        assert resp.status == (
-            "403 User 'some-user' does not have a verified primary email address. "
-            "Please add a verified primary email before attempting to "
-            "upload to PyPI. See /path/to/help/ for more information."
-        )
-
-    def test_requires_two_factor(self):
-        req = pretend.stub(
-            flags=pretend.stub(enabled=lambda f: False),
-            help_url=lambda *a, **k: "/path/to/help/",
-            identity=pretend.stub(),
-            user=pretend.stub(
-                username="some-user",
-                primary_email=pretend.stub(email="foo@example.com", verified=True),
-                has_two_factor=False,
-            ),
-            metrics=pretend.stub(increment=lambda key, tags: None),
-        )
-
-        @decorators.ensure_uploads_allowed
-        def wrapped(context, request):
-            pytest.fail("wrapped view should not have been called")
-
-        with pytest.raises(HTTPForbidden) as excinfo:
-            wrapped(pretend.stub(), req)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 403
-        assert resp.status == (
-            "403 User 'some-user' does not have two-factor authentication enabled. "
-            "Please enable two-factor authentication before attempting to "
-            "upload to PyPI. See /path/to/help/ for more information."
         )
