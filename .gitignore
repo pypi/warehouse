@@ -27,7 +27,6 @@ dev/example.sql
 dev/prod.sql
 dev/prod.sql.xz
 dev/.coverage*
-dev/.cache/
 dev/codeql/
 .github/codeql/**/*.testproj/
 ./data/
