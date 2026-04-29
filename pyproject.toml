@@ -125,6 +125,7 @@ markers = [
   "functional: Slower running tests which test the entire system is functioning.",
   "unit: Quick running unit tests which test small units of functionality.",
 ]
+strict = true
 testpaths = ["tests/"]
 
 [tool.ruff]
