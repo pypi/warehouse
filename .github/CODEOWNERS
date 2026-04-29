@@ -22,13 +22,17 @@ package.json                             @pypi/warehouse-reviewers @pypi/warehou
 webpack.config.js                        @pypi/warehouse-reviewers @pypi/warehouse-frontend
 webpack.plugin.localize.js               @pypi/warehouse-reviewers @pypi/warehouse-frontend
 
-# This is not *technically* a frontend file, but editing the frontend will likely
-# mean that these need to be regenerated, so we treat it like it's a frontend file.
-warehouse/locale @pypi/warehouse-reviewers @pypi/warehouse-frontend
-
-# Likewise, not *technically* frontend files, but when you're working on the
+# There are, not *technically* frontend files, but when you're working on the
 # frontend you may end up needing to update the user facing documentation and/or
 # the developer documentation around changes to how the frontend is developed,
 # so we'll allow frontend and reviewers both to own these as well.
 docs/dev/*  @pypi/warehouse-reviewers @pypi/warehouse-frontend
 docs/user/* @pypi/warehouse-reviewers @pypi/warehouse-frontend
+
+# We don't need to have a codeowner for this file, because it is effectively a
+# checked in build artifact that is determinstically generated from the rest
+# of the code base. Thus if you edit this without a corresponding edit somewhere
+# else, tests will fail, and we can rely on the codeowner from whatever file was
+# edited that caused this file to get regenerated to trigger a codeowner
+# review.
+warehouse/locale/messages.pot
