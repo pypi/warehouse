@@ -33,7 +33,7 @@ class ForkliftError(Exception):
 
     _message_template: str
     _tag_templates: set[str]
-    _http_exception_type: HTTPException
+    _http_exception_type: type[HTTPException]
     _help_anchor: str | None
     _help_url: str | None
     _user_docs_path: str | None
@@ -51,7 +51,7 @@ class ForkliftError(Exception):
         *,
         message: str,
         tags: Iterable[str],
-        error_type=HTTPBadRequest,
+        error_type: type[HTTPException] = HTTPBadRequest,
         help_anchor=None,
         user_docs_path=None,
         user_docs_anchor=None,
@@ -112,8 +112,9 @@ class ForkliftError(Exception):
         # TODO: Handle _help_url, and multiples and _user_docs_anchor, _user_docs_path
         message = self.message
         if self._help_anchor is not None:
-            message += " See {help_url} for more information.".format(
-                help_url=request.help_url(_anchor=self._help_anchor)
+            message += (
+                f" See {request.help_url(_anchor=self._help_anchor)} for more "
+                "information."
             )
 
         # Actually construct the "real" http error, using our now finalized message.

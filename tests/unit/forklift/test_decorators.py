@@ -38,9 +38,9 @@ class TestUploadMetrics:
 
         @decorators.upload_metrics
         def wrapped(context, request):
-            raise decorators.InvalidTupleField(field="foo")
+            raise decorators.InvalidTupleFieldError(field="foo")
 
-        with pytest.raises(decorators.InvalidTupleField):
+        with pytest.raises(decorators.InvalidTupleFieldError):
             wrapped(pretend.stub(), request)
 
         tags = {f"filetype:{filetype}"} if filetype else set()
@@ -129,7 +129,7 @@ class TestSanitizeRequest:
         def wrapped(context, request):
             pytest.fail("wrapped view should not have been called")
 
-        with pytest.raises(decorators.InvalidTupleField) as excinfo:
+        with pytest.raises(decorators.InvalidTupleFieldError) as excinfo:
             wrapped(pretend.stub(), req)
 
         assert excinfo.value.values == {"field": "keywords"}
@@ -141,7 +141,7 @@ class TestSanitizeRequest:
         def wrapped(context, request):
             pytest.fail("wrapped view should not have been called")
 
-        with pytest.raises(decorators.NoFileUpload):
+        with pytest.raises(decorators.NoFileUploadError):
             wrapped(pretend.stub(), req)
 
     @pytest.mark.parametrize("content_type", [None, "image/foobar"])
@@ -152,7 +152,7 @@ class TestSanitizeRequest:
         def wrapped(context, request):
             pytest.fail("wrapped view should not have been called")
 
-        with pytest.raises(decorators.InvalidContentType):
+        with pytest.raises(decorators.InvalidContentTypeError):
             wrapped(pretend.stub(), req)
 
 
@@ -190,11 +190,11 @@ class TestEnsureUploadsAllowed:
         [
             (
                 AdminFlagValue.READ_ONLY,
-                decorators.ReadOnlyEnabled,
+                decorators.ReadOnlyError,
             ),
             (
                 AdminFlagValue.DISALLOW_NEW_UPLOAD,
-                decorators.UploadsDisabled,
+                decorators.UploadsDisabledError,
             ),
         ],
     )
@@ -217,5 +217,5 @@ class TestEnsureUploadsAllowed:
         def wrapped(context, request):
             pytest.fail("wrapped view should not have been called")
 
-        with pytest.raises(decorators.MissingIdentity):
+        with pytest.raises(decorators.MissingIdentityError):
             wrapped(pretend.stub(), req)

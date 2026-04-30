@@ -11,7 +11,6 @@ import zipfile
 
 from cgi import FieldStorage
 from textwrap import dedent
-from types import SimpleNamespace
 from unittest import mock
 
 import pretend
@@ -649,7 +648,7 @@ class TestIsDuplicateFile:
 class TestFileUpload:
     @pytest.mark.parametrize("version", ["2", "3", "-1", "0", "dog", "cat"])
     def test_fails_invalid_version(self, version):
-        with pytest.raises(legacy.InvalidProtocolVersion) as excinfo:
+        with pytest.raises(legacy.InvalidProtocolVersionError) as excinfo:
             legacy.file_upload(pretend.stub(POST={"protocol_version": version}))
         assert excinfo.value.values == {"version": version}
 
@@ -665,7 +664,7 @@ class TestFileUpload:
                     "filetype": "sdist",
                     "pyversion": "source",
                 },
-                legacy.InvalidCoreMetadata,
+                legacy.InvalidCoreMetadataError,
                 {"msg": "None is not a valid metadata version."},
             ),
             (
@@ -677,18 +676,18 @@ class TestFileUpload:
                     "filetype": "sdist",
                     "pyversion": "source",
                 },
-                legacy.InvalidCoreMetadata,
+                legacy.InvalidCoreMetadataError,
                 {"msg": "'-1' is not a valid metadata version."},
             ),
             # name errors.
             (
                 {},
-                legacy.InvalidCoreMetadata,
+                legacy.InvalidCoreMetadataError,
                 {"msg": "None is an invalid value for Name: This field is required."},
             ),
             (
                 {"name": "foo-"},
-                legacy.InvalidCoreMetadata,
+                legacy.InvalidCoreMetadataError,
                 {
                     "msg": (
                         "'foo-' is an invalid value for Name: Start and end with a "
@@ -706,7 +705,7 @@ class TestFileUpload:
                     "md5_digest": "bad",
                     "filetype": "sdist",
                 },
-                legacy.InvalidCoreMetadata,
+                legacy.InvalidCoreMetadataError,
                 {"msg": "'version' is a required field."},
             ),
             (
@@ -717,7 +716,7 @@ class TestFileUpload:
                     "md5_digest": "bad",
                     "filetype": "sdist",
                 },
-                legacy.InvalidCoreMetadata,
+                legacy.InvalidCoreMetadataError,
                 {"msg": "'dog' is invalid for 'version'."},
             ),
             (
@@ -728,7 +727,7 @@ class TestFileUpload:
                     "md5_digest": "bad",
                     "filetype": "sdist",
                 },
-                legacy.InvalidCoreMetadata,
+                legacy.InvalidCoreMetadataError,
                 {"msg": "'1.0.dev.a1' is invalid for 'version'."},
             ),
             # filetype/pyversion errors.
@@ -738,7 +737,7 @@ class TestFileUpload:
                     "version": "1.0",
                     "md5_digest": "bad",
                 },
-                legacy.InvalidUploadMetadata,
+                legacy.InvalidUploadMetadataError,
                 {"field": "filetype", "msg": "This field is required."},
             ),
             (
@@ -746,7 +745,7 @@ class TestFileUpload:
                     "name": "example",
                     "filetype": "bdist_wheel",
                 },
-                legacy.InvalidUploadMetadata,
+                legacy.InvalidUploadMetadataError,
                 {
                     "field": "pyversion",
                     "msg": (
@@ -761,7 +760,7 @@ class TestFileUpload:
                     "pyversion": "1.0",
                     "md5_digest": "bad",
                 },
-                legacy.InvalidUploadMetadata,
+                legacy.InvalidUploadMetadataError,
                 {"field": "filetype", "msg": "Use a known file type."},
             ),
             (
@@ -770,7 +769,7 @@ class TestFileUpload:
                     "filetype": "sdist",
                     "pyversion": "1.0",
                 },
-                legacy.InvalidUploadMetadata,
+                legacy.InvalidUploadMetadataError,
                 {
                     "field": "pyversion",
                     "msg": "Use 'source' as Python version for an sdist.",
@@ -782,7 +781,7 @@ class TestFileUpload:
                     "name": "example",
                     "filetype": "sdist",
                 },
-                legacy.MissingUploadMetadata,
+                legacy.MissingUploadMetadataError,
                 {"msg": "Include at least one message digest."},
             ),
             (
@@ -791,7 +790,7 @@ class TestFileUpload:
                     "filetype": "sdist",
                     "sha256_digest": "an invalid sha256 digest",
                 },
-                legacy.InvalidUploadMetadata,
+                legacy.InvalidUploadMetadataError,
                 {
                     "field": "sha256_digest",
                     "msg": "Use a valid, hex-encoded, SHA256 message digest.",
@@ -807,7 +806,7 @@ class TestFileUpload:
                     "md5_digest": "a fake md5 digest",
                     "summary": "A" * 513,
                 },
-                legacy.InvalidCoreMetadata,
+                legacy.InvalidCoreMetadataError,
                 {"msg": "'summary' field must be 512 characters or less."},
             ),
             (
@@ -819,7 +818,7 @@ class TestFileUpload:
                     "md5_digest": "a fake md5 digest",
                     "summary": "A\nB",
                 },
-                legacy.InvalidCoreMetadata,
+                legacy.InvalidCoreMetadataError,
                 {"msg": "'summary' must be a single line."},
             ),
             # local version error
@@ -831,7 +830,7 @@ class TestFileUpload:
                     "md5_digest": "bad",
                     "filetype": "sdist",
                 },
-                legacy.InvalidLocalVersion,
+                legacy.InvalidLocalVersionError,
                 {"msg": "The use of local versions in '1.0+local' is not allowed."},
             ),
         ],
@@ -969,7 +968,7 @@ class TestFileUpload:
         if description_content_type is not None:
             db_request.POST.add("description_content_type", description_content_type)
 
-        with pytest.raises(legacy.InvalidDescription) as excinfo:
+        with pytest.raises(legacy.InvalidDescriptionError) as excinfo:
             legacy.file_upload(db_request)
 
         excinfo.value.values == {
@@ -1265,7 +1264,7 @@ class TestFileUpload:
             }
         )
 
-        with pytest.raises(legacy.InvalidUploadMetadata) as excinfo:
+        with pytest.raises(legacy.InvalidUploadMetadataError) as excinfo:
             legacy.file_upload(db_request)
         assert excinfo.value.values == {
             "field": "filetype",
@@ -1300,7 +1299,7 @@ class TestFileUpload:
             }
         )
 
-        with pytest.raises(legacy.UnknownFileExtension):
+        with pytest.raises(legacy.UnknownFileExtensionError):
             legacy.file_upload(db_request)
 
     def test_upload_fails_for_second_sdist(self, pyramid_config, db_request):
@@ -1336,7 +1335,7 @@ class TestFileUpload:
             }
         )
 
-        with pytest.raises(legacy.DuplicateSDist):
+        with pytest.raises(legacy.DuplicateSDistError):
             legacy.file_upload(db_request)
 
     def test_upload_fails_with_invalid_classifier(self, pyramid_config, db_request):
@@ -1368,7 +1367,7 @@ class TestFileUpload:
         )
         db_request.POST.extend([("classifiers", "Invalid :: Classifier")])
 
-        with pytest.raises(legacy.InvalidCoreMetadata) as excinfo:
+        with pytest.raises(legacy.InvalidCoreMetadataError) as excinfo:
             legacy.file_upload(db_request)
         assert excinfo.value.values == {
             "msg": "'Invalid :: Classifier' is not a valid classifier."
@@ -1426,7 +1425,7 @@ class TestFileUpload:
         db_request.POST.extend([("classifiers", classifier.classifier)])
         db_request.route_url = pretend.call_recorder(lambda *a, **kw: "/url")
 
-        with pytest.raises(legacy.InvalidCoreMetadata) as excinfo:
+        with pytest.raises(legacy.InvalidCoreMetadataError) as excinfo:
             legacy.file_upload(db_request)
         assert excinfo.value.values == {"msg": expected}
 
@@ -1489,7 +1488,7 @@ class TestFileUpload:
         )
         db_request.POST.update(digests)
 
-        with pytest.raises(legacy.DigestMismatch):
+        with pytest.raises(legacy.DigestMismatchError):
             legacy.file_upload(db_request)
 
     def test_upload_fails_with_invalid_file(self, pyramid_config, db_request):
@@ -1518,7 +1517,7 @@ class TestFileUpload:
             }
         )
 
-        with pytest.raises(legacy.InvalidDistFile) as excinfo:
+        with pytest.raises(legacy.InvalidDistFileError) as excinfo:
             legacy.file_upload(db_request)
         assert excinfo.value.values == {
             "msg": "File is not a zipfile",
@@ -1562,7 +1561,7 @@ class TestFileUpload:
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
 
-        with pytest.raises(legacy.InvalidDistFile) as excinfo:
+        with pytest.raises(legacy.InvalidDistFileError) as excinfo:
             legacy.file_upload(db_request)
 
         excinfo.value.values == {"msg": "File is not a tarfile"}
@@ -1595,7 +1594,7 @@ class TestFileUpload:
             }
         )
 
-        with pytest.raises(legacy.FileTooLarge) as excinfo:
+        with pytest.raises(legacy.FileTooLargeError) as excinfo:
             legacy.file_upload(db_request)
         assert excinfo.value.values == {"project": project.name, "limit": 100}
 
@@ -1633,7 +1632,7 @@ class TestFileUpload:
             }
         )
 
-        with pytest.raises(legacy.ProjectTooLarge) as excinfo:
+        with pytest.raises(legacy.ProjectTooLargeError) as excinfo:
             legacy.file_upload(db_request)
         assert excinfo.value.values == {"project": project.name, "limit": 10}
 
@@ -1676,7 +1675,7 @@ class TestFileUpload:
             }
         )
 
-        with pytest.raises(legacy.ProjectTooLarge) as excinfo:
+        with pytest.raises(legacy.ProjectTooLargeError) as excinfo:
             legacy.file_upload(db_request)
         assert excinfo.value.values == {"project": project.name, "limit": 10}
 
@@ -1843,7 +1842,7 @@ class TestFileUpload:
 
         monkeypatch.setattr("builtins.open", mock_open)
 
-        with pytest.raises(legacy.FilenameTooLong) as excinfo:
+        with pytest.raises(legacy.FilenameTooLongError) as excinfo:
             legacy.file_upload(db_request)
         assert excinfo.value.values == {"filename": filename, "filetype": "bdist_wheel"}
 
@@ -1878,7 +1877,7 @@ class TestFileUpload:
 
         db_request.db.add(Filename(filename=filename))
 
-        with pytest.raises(legacy.FilenameReused):
+        with pytest.raises(legacy.FilenameReusedError):
             legacy.file_upload(db_request)
 
     def test_upload_noop_with_existing_filename_same_content(
@@ -1973,7 +1972,7 @@ class TestFileUpload:
             )
         )
 
-        with pytest.raises(legacy.FileAlreadyExists) as excinfo:
+        with pytest.raises(legacy.FileAlreadyExistsError) as excinfo:
             legacy.file_upload(db_request)
 
         excinfo.value.values == {"filename": filename, "blake2_256": blake2_256_digest}
@@ -2023,7 +2022,7 @@ class TestFileUpload:
             )
         )
 
-        with pytest.raises(legacy.FileAlreadyExists) as excinfo:
+        with pytest.raises(legacy.FileAlreadyExistsError) as excinfo:
             legacy.file_upload(db_request)
         assert excinfo.value.values == {
             "filename": f"{project.name}-fake.tar.gz",
@@ -2092,7 +2091,7 @@ class TestFileUpload:
             }
         )
 
-        with pytest.raises(legacy.UnnormalizedFilename) as excinfo:
+        with pytest.raises(legacy.UnnormalizedFilenameError) as excinfo:
             legacy.file_upload(db_request)
         assert excinfo.value.values == {
             "project": project.name,
@@ -2105,12 +2104,12 @@ class TestFileUpload:
         [
             (
                 "wutang-6.6.6.tar.gz",
-                legacy.UnnormalizedFilename,
+                legacy.UnnormalizedFilenameError,
                 {"project": "wutang", "normalized": "wutang", "filetype": "sdist"},
             ),
             (
                 "wutang-6.6.6-py3-none-any.whl",
-                legacy.InvalidFilenameVersion,
+                legacy.InvalidFilenameVersionError,
                 {"expected": "1.2.3", "filetype": "bdist_wheel", "found": "6.6.6"},
             ),
         ],
@@ -2202,7 +2201,7 @@ class TestFileUpload:
             }
         )
 
-        with pytest.raises(legacy.InvalidFileExtension) as excinfo:
+        with pytest.raises(legacy.InvalidFileExtensionError) as excinfo:
             legacy.file_upload(db_request)
         assert excinfo.value.values == {"extension": extension, "filetype": filetype}
 
@@ -2234,7 +2233,7 @@ class TestFileUpload:
             }
         )
 
-        with pytest.raises(legacy.UnknownFileExtension):
+        with pytest.raises(legacy.UnknownFileExtensionError):
             legacy.file_upload(db_request)
 
     @pytest.mark.parametrize("character", ["/", "\\"])
@@ -2268,7 +2267,7 @@ class TestFileUpload:
             }
         )
 
-        with pytest.raises(legacy.PathlikeFilename):
+        with pytest.raises(legacy.PathlikeFilenameError):
             legacy.file_upload(db_request)
 
     @pytest.mark.parametrize("character", [*(chr(x) for x in range(32)), chr(127)])
@@ -2302,7 +2301,7 @@ class TestFileUpload:
             }
         )
 
-        with pytest.raises(legacy.UnprintableFilename):
+        with pytest.raises(legacy.UnprintableFilenameError):
             legacy.file_upload(db_request)
 
     def test_upload_fails_without_user_permission(self, pyramid_config, db_request):
@@ -2335,7 +2334,7 @@ class TestFileUpload:
             }
         )
 
-        with pytest.raises(legacy.UserPermissionDenied) as excinfo:
+        with pytest.raises(legacy.UserPermissionError) as excinfo:
             legacy.file_upload(db_request)
         assert excinfo.value.values == {
             "project": project.name,
@@ -2375,7 +2374,7 @@ class TestFileUpload:
             "bad stuff", reason="a reason for stuff"
         )
 
-        with pytest.raises(legacy.PermissionDenied) as excinfo:
+        with pytest.raises(legacy.PermissionError) as excinfo:
             legacy.file_upload(db_request)
         assert excinfo.value.values == {"msg": "bad stuff"}
 
@@ -2408,7 +2407,7 @@ class TestFileUpload:
             }
         )
 
-        with pytest.raises(legacy.TokenPermissionDenied) as excinfo:
+        with pytest.raises(legacy.TokenPermissionError) as excinfo:
             legacy.file_upload(db_request)
         assert excinfo.value.values == {"project": project.name}
 
@@ -2483,7 +2482,7 @@ class TestFileUpload:
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
 
-        with pytest.raises(legacy.InvalidAttestations) as excinfo:
+        with pytest.raises(legacy.InvalidAttestationsError) as excinfo:
             legacy.file_upload(db_request)
         assert excinfo.value.values == {
             "msg": "Attestations are only supported when using Trusted Publishing"
@@ -3066,7 +3065,7 @@ class TestFileUpload:
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
         )
 
-        with pytest.raises(legacy.InvalidFilename) as excinfo:
+        with pytest.raises(legacy.InvalidFilenameError) as excinfo:
             legacy.file_upload(db_request)
         assert excinfo.value.values == {
             "filename": filename,
@@ -3118,7 +3117,7 @@ class TestFileUpload:
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
         )
 
-        with pytest.raises(legacy.InvalidPlatformTag) as excinfo:
+        with pytest.raises(legacy.InvalidPlatformTagError) as excinfo:
             legacy.file_upload(db_request)
         assert excinfo.value.values == {"filename": filename, "tag": expected}
 
@@ -3163,7 +3162,7 @@ class TestFileUpload:
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
         )
 
-        with pytest.raises(legacy.MissingRecordFile) as excinfo:
+        with pytest.raises(legacy.MissingRecordFileError) as excinfo:
             legacy.file_upload(db_request)
 
         expected_filename = project.normalized_name.replace("-", "_")
@@ -3583,7 +3582,7 @@ class TestFileUpload:
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
         )
 
-        with pytest.raises(legacy.MissingMetadataFile) as excinfo:
+        with pytest.raises(legacy.MissingMetadataFileError) as excinfo:
             legacy.file_upload(db_request)
         assert excinfo.value.values == {
             "filename": filename,
@@ -3987,7 +3986,7 @@ class TestFileUpload:
         )
         monkeypatch.setattr(HasEvents, "record_event", record_event)
 
-        with pytest.raises(legacy.InvalidAttestations):
+        with pytest.raises(legacy.InvalidAttestationsError):
             legacy.file_upload(db_request)
 
     @pytest.mark.parametrize(
@@ -4649,7 +4648,7 @@ class TestFileUpload:
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
 
-        with pytest.raises(legacy.NonUserIdentity):
+        with pytest.raises(legacy.NonUserIdentityError):
             legacy.file_upload(db_request)
 
     @pytest.mark.parametrize(
@@ -4702,7 +4701,7 @@ class TestFileUpload:
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
 
-        with pytest.raises(legacy.ProjectCreationRateLimited):
+        with pytest.raises(legacy.ProjectCreationRateLimitedError):
             legacy.file_upload(db_request)
 
     def test_upload_succeeds_creates_project(
@@ -5074,7 +5073,7 @@ class TestFileUpload:
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
         )
 
-        with pytest.raises(legacy.UnnormalizedFilename) as excinfo:
+        with pytest.raises(legacy.UnnormalizedFilenameError) as excinfo:
             legacy.file_upload(db_request)
         assert excinfo.value.values == {
             "project": project.name,
@@ -5141,7 +5140,7 @@ class TestFileUpload:
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
         )
 
-        with pytest.raises(legacy.UnnormalizedFilename) as excinfo:
+        with pytest.raises(legacy.UnnormalizedFilenameError) as excinfo:
             legacy.file_upload(db_request)
         assert excinfo.value.values == {
             "project": project.name,
@@ -5427,7 +5426,7 @@ class TestFileUpload:
             IFileStorage: storage_service,
         }.get(svc)
 
-        with pytest.raises(legacy.MissingLicenseFile) as excinfo:
+        with pytest.raises(legacy.MissingLicenseFileError) as excinfo:
             legacy.file_upload(db_request)
         assert excinfo.value.values == {
             "filename": filename,
@@ -5481,7 +5480,7 @@ class TestFileUpload:
             IFileStorage: storage_service,
         }.get(svc)
 
-        with pytest.raises(legacy.InvalidCoreMetadata) as excinfo:
+        with pytest.raises(legacy.InvalidCoreMetadataError) as excinfo:
             legacy.file_upload(db_request)
         assert excinfo.value.values == {
             "msg": (
@@ -5588,7 +5587,7 @@ class TestFileUpload:
             }
         )
 
-        with pytest.raises(legacy.OrgInactive):
+        with pytest.raises(legacy.OrgInactiveError):
             legacy.file_upload(db_request)
 
     def test_upload_with_organization_file_size_limit_succeeds(
@@ -6065,7 +6064,7 @@ class TestFileUpload:
             }
         )
 
-        with pytest.raises(legacy.InvalidDistFile) as excinfo:
+        with pytest.raises(legacy.InvalidDistFileError) as excinfo:
             legacy.file_upload(db_request)
         assert excinfo.value.values == {
             "msg": (

@@ -87,7 +87,7 @@ COMPRESSION_RATIO_THRESHOLD = 50
 MAX_DESCRIPTION_LENGTH_TO_BIGQUERY_IN_BYTES = 40000
 
 
-class InvalidProtocolVersion(
+class InvalidProtocolVersionError(
     ForkliftError,
     message="Unknown protocol version: {version!r}",
     tags={"reason:unsupported-protocol-version"},
@@ -95,7 +95,7 @@ class InvalidProtocolVersion(
     pass
 
 
-class NonUserIdentity(
+class NonUserIdentityError(
     ForkliftError,
     error_type=HTTPForbidden,
     message=(
@@ -111,7 +111,7 @@ class NonUserIdentity(
     pass
 
 
-class UserPermissionDenied(
+class UserPermissionError(
     ForkliftError,
     error_type=HTTPForbidden,
     message="The user {username!r} isn't allowed to upload to project {project!r}.",
@@ -121,7 +121,7 @@ class UserPermissionDenied(
     pass
 
 
-class TokenPermissionDenied(
+class TokenPermissionError(
     ForkliftError,
     error_type=HTTPForbidden,
     message="The given token isn't allowed to upload to project {project!r}.",
@@ -131,7 +131,7 @@ class TokenPermissionDenied(
     pass
 
 
-class PermissionDenied(
+class PermissionError(
     ForkliftError,
     error_type=HTTPForbidden,
     # NOTE: This looks wonky, but it's done so the permissions
@@ -142,7 +142,7 @@ class PermissionDenied(
     pass
 
 
-class OrgInactive(
+class OrgInactiveError(
     ForkliftError,
     error_type=HTTPForbidden,
     message=(
@@ -156,7 +156,7 @@ class OrgInactive(
     pass
 
 
-class InvalidDescription(
+class InvalidDescriptionError(
     ForkliftError,
     message="The description failed to render as {content_type!r}.",
     help_anchor="description-content-type",
@@ -165,7 +165,7 @@ class InvalidDescription(
     pass
 
 
-class UnprintableFilename(
+class UnprintableFilenameError(
     ForkliftError,
     message=(
         "Cannot upload a file with non-printable "
@@ -177,7 +177,7 @@ class UnprintableFilename(
     pass
 
 
-class PathlikeFilename(
+class PathlikeFilenameError(
     ForkliftError,
     message="Cannot upload a file with '/' or '\\' in the name.",
     tags={"reason:invalid-filename"},
@@ -185,7 +185,7 @@ class PathlikeFilename(
     pass
 
 
-class InvalidFileExtension(
+class InvalidFileExtensionError(
     ForkliftError,
     message=(
         "Invalid file extension: Extension {extension} is "
@@ -198,7 +198,7 @@ class InvalidFileExtension(
     pass
 
 
-class UnknownFileExtension(
+class UnknownFileExtensionError(
     ForkliftError,
     message=(
         "Invalid file extension: Use .tar.gz, .whl or .zip "
@@ -212,7 +212,7 @@ class UnknownFileExtension(
     pass
 
 
-class InvalidFilename(
+class InvalidFilenameError(
     ForkliftError,
     message="Invalid filename: {filename}",
     tags={"reason:invalid-filename", "filetype:{filetype}"},
@@ -220,7 +220,7 @@ class InvalidFilename(
     pass
 
 
-class UnnormalizedFilename(
+class UnnormalizedFilenameError(
     ForkliftError,
     message=(
         "Filename for {project!r} should contain the normalized project "
@@ -231,7 +231,7 @@ class UnnormalizedFilename(
     pass
 
 
-class InvalidFilenameVersion(
+class InvalidFilenameVersionError(
     ForkliftError,
     message="Version in filename should be {expected!r} not {found!r}.",
     tags={"reason:invalid-filename-version", "filetype:{filetype}"},
@@ -239,7 +239,7 @@ class InvalidFilenameVersion(
     pass
 
 
-class InvalidPlatformTag(
+class InvalidPlatformTagError(
     ForkliftError,
     message="Binary wheel {filename!r} has an unsupported platform tag {tag!r}.",
     tags={"reason:unsupported-platform-tag"},
@@ -247,7 +247,7 @@ class InvalidPlatformTag(
     pass
 
 
-class MissingRecordFile(
+class MissingRecordFileError(
     ForkliftError,
     message=(
         "Wheel {filename!r} does not contain the required RECORD file: "
@@ -258,7 +258,7 @@ class MissingRecordFile(
     pass
 
 
-class MissingMetadataFile(
+class MissingMetadataFileError(
     ForkliftError,
     message=(
         "Wheel {filename!r} does not contain the required METADATA file: "
@@ -269,7 +269,7 @@ class MissingMetadataFile(
     pass
 
 
-class FileTooLarge(
+class FileTooLargeError(
     ForkliftError,
     message="File too large. Limit for project {project!r} is {limit}MB.",
     user_docs_path="/project-management/storage-limits",
@@ -279,7 +279,7 @@ class FileTooLarge(
     pass
 
 
-class ProjectTooLarge(
+class ProjectTooLargeError(
     ForkliftError,
     message="Project size too large. Limit for project {project!r} is {limit}GB.",
     user_docs_path="/project-management/storage-limits",
@@ -289,7 +289,7 @@ class ProjectTooLarge(
     pass
 
 
-class FilenameTooLong(
+class FilenameTooLongError(
     ForkliftError,
     message="Filename is too long: {filename!r}",
     tags={"reason:filename-too-long", "filetype:{filetype}"},
@@ -297,7 +297,7 @@ class FilenameTooLong(
     pass
 
 
-class DigestMismatch(
+class DigestMismatchError(
     ForkliftError,
     message=(
         "The digest supplied does not match a digest calculated from the uploaded file."
@@ -307,7 +307,7 @@ class DigestMismatch(
     pass
 
 
-class FileAlreadyExists(
+class FileAlreadyExistsError(
     ForkliftError,
     # Note: Changing this error message to something that doesn't
     # start with "File already exists" will break the
@@ -321,7 +321,7 @@ class FileAlreadyExists(
     pass
 
 
-class FilenameReused(
+class FilenameReusedError(
     ForkliftError,
     message=(
         "This filename was previously used by a file that has "
@@ -333,7 +333,7 @@ class FilenameReused(
     pass
 
 
-class DuplicateSDist(
+class DuplicateSDistError(
     ForkliftError,
     message="Only one sdist may be uploaded per release.",
     tags={"reason:duplicate-sdist"},
@@ -341,7 +341,7 @@ class DuplicateSDist(
     pass
 
 
-class InvalidDistFile(
+class InvalidDistFileError(
     ForkliftError,
     message="Invalid distribution file: {msg}",
     tags={
@@ -353,7 +353,7 @@ class InvalidDistFile(
     pass
 
 
-class MissingLicenseFile(
+class MissingLicenseFileError(
     ForkliftError,
     message=(
         "License-File {license_file} does not exist in "
@@ -364,7 +364,7 @@ class MissingLicenseFile(
     pass
 
 
-class InvalidAttestations(
+class InvalidAttestationsError(
     ForkliftError,
     message="Invalid attestations supplied during upload: {msg}",
     tags={"reason:invalid-attestations"},
@@ -372,7 +372,7 @@ class InvalidAttestations(
     pass
 
 
-class ProjectCreationRateLimited(
+class ProjectCreationRateLimitedError(
     ForkliftError,
     error_type=HTTPTooManyRequests,
     message="Too many new projects created",
@@ -381,7 +381,7 @@ class ProjectCreationRateLimited(
     pass
 
 
-class InvalidCoreMetadata(
+class InvalidCoreMetadataError(
     ForkliftError,
     message="{msg}",
     help_url="https://packaging.python.org/specifications/core-metadata",
@@ -390,7 +390,7 @@ class InvalidCoreMetadata(
     pass
 
 
-class InvalidLocalVersion(
+class InvalidLocalVersionError(
     ForkliftError,
     message="{msg}",
     help_url=(
@@ -402,7 +402,7 @@ class InvalidLocalVersion(
     pass
 
 
-class InvalidUploadMetadata(
+class InvalidUploadMetadataError(
     ForkliftError,
     message="Invalid value for {field}. Error: {msg}",
     tags={"reason:invalid-form-data"},
@@ -410,7 +410,7 @@ class InvalidUploadMetadata(
     pass
 
 
-class MissingUploadMetadata(
+class MissingUploadMetadataError(
     ForkliftError, message="Error: {msg}", tags={"reason:invalid-form-data"}
 ):
     pass
@@ -564,19 +564,19 @@ def _validate_filename(filename, filetype):
     # or completely by mistake.
     disallowed = [*(chr(x) for x in range(32)), chr(127)]
     if [char for char in filename if char in disallowed]:
-        raise UnprintableFilename
+        raise UnprintableFilenameError
 
     # Make sure that the filename does not contain any path separators.
     if "/" in filename or "\\" in filename:
-        raise PathlikeFilename
+        raise PathlikeFilenameError
 
     # Make sure the filename ends with an allowed extension.
     if m := _dist_file_re.match(filename):
         extension = m.group("extension")
         if extension not in _filetype_extension_mapping[filetype]:
-            raise InvalidFileExtension(extension=extension, filetype=filetype)
+            raise InvalidFileExtensionError(extension=extension, filetype=filetype)
     else:
-        raise UnknownFileExtension
+        raise UnknownFileExtensionError
 
 
 def _is_valid_dist_file(filename, filetype, metrics, *, scan=True):
@@ -879,7 +879,7 @@ def file_upload(request):
     # We require protocol_version 1, it's the only supported version however
     # passing a different version should raise an error.
     if (version := request.POST.get("protocol_version", "1")) != "1":
-        raise InvalidProtocolVersion(version=version)
+        raise InvalidProtocolVersionError(version=version)
 
     # Validate and process the incoming file data.
     form = UploadForm(request.POST)
@@ -899,18 +899,16 @@ def file_upload(request):
         if field_name in form:
             field = form[field_name]
             if field.description:
-                raise InvalidCoreMetadata(
+                raise InvalidCoreMetadataError(
                     msg=(
                         f"{field.data!r} is an invalid value for "
                         f"{field.description}: {form.errors[field_name][0]}"
                     ),
                 )
-            else:
-                raise InvalidUploadMetadata(
-                    field=field_name, msg=form.errors[field_name][0]
-                )
-        else:
-            raise MissingUploadMetadata(msg=form.errors[field_name][0])
+            raise InvalidUploadMetadataError(
+                field=field_name, msg=form.errors[field_name][0]
+            )
+        raise MissingUploadMetadataError(msg=form.errors[field_name][0])
 
     # Get a validated Metadata object from the form data.
     # TODO: We should eventually extract this data out of the artifact and use that,
@@ -936,8 +934,8 @@ def file_upload(request):
         error = errors[field_name][0]
         error_msg = str(error)
         if isinstance(error, metadata.InvalidLocalVersion):
-            raise InvalidLocalVersion(msg=error_msg)
-        raise InvalidCoreMetadata(
+            raise InvalidLocalVersionError(msg=error_msg)
+        raise InvalidCoreMetadataError(
             msg=error_msg + ("." if not error_msg.endswith(".") else "")
         )
 
@@ -968,7 +966,7 @@ def file_upload(request):
         # produce a valid API token, but the project lookup above uses (2)
         # and will fail because (1) != (2).
         if not request.user:
-            raise NonUserIdentity
+            raise NonUserIdentityError
 
         # Enforce email/2FA prerequisites before creating a brand new project,
         # so we don't leave an empty project record behind on rejection.
@@ -991,7 +989,7 @@ def file_upload(request):
             )
             raise _exc_with_message(exc.__class__, exc.detail) from None
         except RateLimiterException:
-            raise ProjectCreationRateLimited
+            raise ProjectCreationRateLimitedError
 
     # Check that the identity has permission to do things to this project, if this
     # is a new project this will act as a sanity check for the role we just
@@ -999,20 +997,19 @@ def file_upload(request):
     allowed = request.has_permission(Permissions.ProjectsUpload, project)
     if not allowed:
         if getattr(allowed, "reason", None) is not None:
-            raise PermissionDenied(msg=allowed.msg)
-        elif request.user:
-            raise UserPermissionDenied(
+            raise PermissionError(msg=allowed.msg)
+        if request.user:
+            raise UserPermissionError(
                 project=project.name, username=request.user.username
             )
-        else:
-            raise TokenPermissionDenied(project=project.name)
+        raise TokenPermissionError(project=project.name)
 
     _ensure_user_can_upload(request)
 
     # If organization owned project, check if the organization is active.
     # Inactive organizations cannot upload new releases to their projects.
     if project.organization and not project.organization.good_standing:
-        raise OrgInactive
+        raise OrgInactiveError
 
     # If this is a user identity (i.e: API token) but there exists
     # a trusted publisher for this project, send an email warning that an
@@ -1063,7 +1060,7 @@ def file_upload(request):
 
         # Uploading should prevent broken rendered descriptions.
         if rendered is None:
-            raise InvalidDescription(content_type=description_content_type)
+            raise InvalidDescriptionError(content_type=description_content_type)
 
     # Verify any verifiable URLs
     project_urls = (
@@ -1273,11 +1270,11 @@ def file_upload(request):
             for chunk in iter(lambda: request.POST["content"].file.read(8096), b""):
                 file_size += len(chunk)
                 if file_size > file_size_limit:
-                    raise FileTooLarge(
+                    raise FileTooLargeError(
                         project=project.name, limit=file_size_limit // ONE_MIB
                     )
                 if file_size + project.total_size > project_size_limit:
-                    raise ProjectTooLarge(
+                    raise ProjectTooLargeError(
                         project=project.name, limit=project_size_limit // ONE_GIB
                     )
 
@@ -1300,15 +1297,15 @@ def file_upload(request):
             for digest_name, digest_value in file_hashes.items()
             if getattr(form, f"{digest_name}_digest").data
         ):
-            raise DigestMismatch
+            raise DigestMismatchError
 
         # Check to see if the file that was uploaded exists already or not.
         is_duplicate = _is_duplicate_file(request.db, filename, file_hashes)
         if is_duplicate:
             request.tm.doom()
             return HTTPOk()
-        elif is_duplicate is not None:
-            raise FileAlreadyExists(
+        if is_duplicate is not None:
+            raise FileAlreadyExistsError(
                 filename=filename, blake2_256=file_hashes["blake2_256"]
             )
 
@@ -1316,7 +1313,7 @@ def file_upload(request):
         if request.db.query(
             request.db.query(Filename).filter(Filename.filename == filename).exists()
         ).scalar():
-            raise FilenameReused
+            raise FilenameReusedError
 
         # Check to see if uploading this file would create a duplicate sdist
         # for the current release.
@@ -1328,7 +1325,7 @@ def file_upload(request):
                 .exists()
             ).scalar()
         ):
-            raise DuplicateSDist
+            raise DuplicateSDistError
 
         # Check the file to make sure it is a valid distribution file.
         _scan = not request.flags.enabled(AdminFlagValue.DISABLE_UPLOAD_SCANNING)
@@ -1343,7 +1340,7 @@ def file_upload(request):
                 scan=_scan,
             )
         if not _valid:
-            raise InvalidDistFile(filetype=form.filetype.data, msg=_msg)
+            raise InvalidDistFileError(filetype=form.filetype.data, msg=_msg)
 
         # Check that the sdist filename is correct
         if form.filetype.data == "sdist":
@@ -1353,7 +1350,9 @@ def file_upload(request):
                     packaging.utils.parse_sdist_filename(filename)
                 )
             except packaging.utils.InvalidSdistFilename:
-                raise InvalidFilename(filename=filename, filetype=form.filetype.data)
+                raise InvalidFilenameError(
+                    filename=filename, filetype=form.filetype.data
+                )
 
             # The previous function fails to accomodate the edge case where
             # versions may contain hyphens, so we handle that here based on
@@ -1386,7 +1385,7 @@ def file_upload(request):
                 packaging.utils.canonicalize_name(name_from_filename)
                 != project.normalized_name
             ):
-                raise UnnormalizedFilename(
+                raise UnnormalizedFilenameError(
                     project=project.name,
                     normalized=project.normalized_name.replace("-", "_"),
                     filetype=form.filetype.data,
@@ -1399,7 +1398,7 @@ def file_upload(request):
             expected_filename = f"{expected_name}-{expected_version}.tar.gz"
 
             if filename != expected_filename:
-                raise UnnormalizedFilename(
+                raise UnnormalizedFilenameError(
                     project=project.name,
                     normalized=project.normalized_name.replace("-", "_"),
                     filetype=form.filetype.data,
@@ -1420,7 +1419,7 @@ def file_upload(request):
                         try:
                             tar.getmember(target_file)
                         except KeyError:
-                            raise MissingLicenseFile(
+                            raise MissingLicenseFileError(
                                 filename=filename,
                                 license_file=license_file,
                                 target_file=target_file,
@@ -1434,14 +1433,16 @@ def file_upload(request):
                     filename
                 )
             except packaging.utils.InvalidWheelFilename:
-                raise InvalidFilename(filename=filename, filetype=form.filetype.data)
+                raise InvalidFilenameError(
+                    filename=filename, filetype=form.filetype.data
+                )
 
             for tag in tags:
                 if not _valid_platform_tag(tag.platform):
-                    raise InvalidPlatformTag(filename=filename, tag=tag.platform)
+                    raise InvalidPlatformTagError(filename=filename, tag=tag.platform)
 
             if (canonical_name := packaging.utils.canonicalize_name(meta.name)) != name:
-                raise UnnormalizedFilename(
+                raise UnnormalizedFilenameError(
                     project=project.name,
                     normalized=canonical_name.replace("-", "_"),
                     filetype=form.filetype.data,
@@ -1458,14 +1459,14 @@ def file_upload(request):
             # https://packaging.python.org/en/latest/specifications/binary-distribution-format/#escaping-and-unicode
             normalized_name = project.normalized_name.replace("-", "_")
             if name_from_filename != normalized_name:
-                raise UnnormalizedFilename(
+                raise UnnormalizedFilenameError(
                     project=project.name,
                     normalized=normalized_name,
                     filetype=form.filetype.data,
                 )
 
             if meta.version != version:
-                raise InvalidFilenameVersion(
+                raise InvalidFilenameVersionError(
                     expected=str(meta.version),
                     found=str(version),
                     filetype=form.filetype.data,
@@ -1491,7 +1492,7 @@ def file_upload(request):
                         try:
                             zfp.read(license_filename)
                         except KeyError:
-                            raise MissingLicenseFile(
+                            raise MissingLicenseFileError(
                                 filename=filename,
                                 license_file=license_file,
                                 target_file=license_filename,
@@ -1501,7 +1502,7 @@ def file_upload(request):
             try:
                 validate_record(temporary_filename)
             except MissingWheelRecordError:
-                raise MissingRecordFile(
+                raise MissingRecordFileError(
                     filename=filename,
                     record_filename=f"{name}-{version}.dist-info/RECORD",
                     filetype=form.filetype.data,
@@ -1524,14 +1525,16 @@ def file_upload(request):
                 with zipfile.ZipFile(temporary_filename) as zfp:
                     wheel_metadata_contents = zfp.read(metadata_filename)
             except KeyError:
-                raise MissingMetadataFile(
+                raise MissingMetadataFileError(
                     filename=filename, metadata_filename=metadata_filename
                 )
             try:
                 with open(temporary_filename + ".metadata", "wb") as fp:
                     fp.write(wheel_metadata_contents)
             except OSError:
-                raise FilenameTooLong(filename=filename, filetype=form.filetype.data)
+                raise FilenameTooLongError(
+                    filename=filename, filetype=form.filetype.data
+                )
 
             metadata_file_hashes = {
                 "sha256": hashlib.sha256(),
@@ -1559,7 +1562,7 @@ def file_upload(request):
                     Distribution(name=filename, digest=file_hashes["sha256"]),
                 )
             except AttestationUploadError as e:
-                raise InvalidAttestations(msg=str(e))
+                raise InvalidAttestationsError(msg=str(e))
 
         # Store the information about the file in the database.
         file_ = File(

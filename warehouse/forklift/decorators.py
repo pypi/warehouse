@@ -8,7 +8,7 @@ from warehouse.admin.flags import AdminFlagValue
 from warehouse.forklift.errors import ForkliftError
 
 
-class InvalidTupleField(
+class InvalidTupleFieldError(
     ForkliftError,
     message="{field}: Should not be a tuple.",
     tags={"reason:field-is-tuple", "field:{field}"},
@@ -16,7 +16,7 @@ class InvalidTupleField(
     pass
 
 
-class NoFileUpload(
+class NoFileUploadError(
     ForkliftError,
     message="Upload payload does not have a file.",
     tags={"reason:no-file"},
@@ -24,7 +24,7 @@ class NoFileUpload(
     pass
 
 
-class InvalidContentType(
+class InvalidContentTypeError(
     ForkliftError,
     message="Invalid distribution file.",
     tags={"reason:invalid-content-type"},
@@ -32,7 +32,7 @@ class InvalidContentType(
     pass
 
 
-class ReadOnlyEnabled(
+class ReadOnlyError(
     ForkliftError,
     error_type=HTTPForbidden,
     message="Read-only mode: Uploads are temporarily disabled.",
@@ -41,7 +41,7 @@ class ReadOnlyEnabled(
     pass
 
 
-class UploadsDisabled(
+class UploadsDisabledError(
     ForkliftError,
     error_type=HTTPForbidden,
     message="New uploads are temporarily disabled.",
@@ -51,7 +51,7 @@ class UploadsDisabled(
     pass
 
 
-class MissingIdentity(
+class MissingIdentityError(
     ForkliftError,
     error_type=HTTPForbidden,
     message="Invalid or non-existent authentication information.",
@@ -61,7 +61,7 @@ class MissingIdentity(
     pass
 
 
-class UnverifiedEmail(
+class UnverifiedEmailError(
     ForkliftError,
     error_type=HTTPForbidden,
     message=(
@@ -75,7 +75,7 @@ class UnverifiedEmail(
     pass
 
 
-class MissingTwoFactor(
+class MissingTwoFactorError(
     ForkliftError,
     error_type=HTTPForbidden,
     message=(
@@ -163,17 +163,17 @@ def sanitize(wrapped):
         for field in set(request.POST) - {"content", "gpg_signature"}:
             values = request.POST.getall(field)
             if any(isinstance(value, cgi.FieldStorage) for value in values):
-                raise InvalidTupleField(field=field)
+                raise InvalidTupleFieldError(field=field)
 
         # Ensure that we have file data in the request.
         if "content" not in request.POST:
-            raise NoFileUpload
+            raise NoFileUploadError
 
         # Check the content type of what is being uploaded
         if not request.POST["content"].type or request.POST["content"].type.startswith(
             "image/"
         ):
-            raise InvalidContentType
+            raise InvalidContentTypeError
 
         # Otherwise, we'll just dispatch to our underlying view
         return wrapped(context, request)
@@ -191,17 +191,17 @@ def ensure_uploads_allowed(wrapped):
         # The very first thing we want to check, is whether we're currently in
         # read only mode, because if we're in read only mode nothing else matters.
         if request.flags.enabled(AdminFlagValue.READ_ONLY):
-            raise ReadOnlyEnabled
+            raise ReadOnlyError
 
         # After that, we want to check if we're disallowing new uploads, which is
         # functionally the same as read only mode, but only for the upload endpoint.
         if request.flags.enabled(AdminFlagValue.DISALLOW_NEW_UPLOAD):
-            raise UploadsDisabled
+            raise UploadsDisabledError
 
         # Before we do anything else, if there isn't an authenticated identity with
         # this request, then we'll go ahead and bomb out.
         if request.identity is None:
-            raise MissingIdentity
+            raise MissingIdentityError
 
         # Otherwise, we'll just dispatch to our underlying view
         return wrapped(context, request)
