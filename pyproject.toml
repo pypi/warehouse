@@ -54,36 +54,36 @@ warn_unused_configs = true
 warn_unused_ignores = true
 plugins = ["mypy_zope:plugin"]
 exclude = ["warehouse/locale/.*", "warehouse/migrations/versions.*"]
-cache_dir = "dev/.mypy_cache"
+cache_dir = ".cache/mypy"
 
 [[tool.mypy.overrides]]
 # These modules do not yet have types available.
 module = [
-    "bpython.*",  # https://github.com/bpython/bpython/issues/892
-    "b2sdk.*",  # https://github.com/Backblaze/b2-sdk-python/issues/148
-    "celery.app.backends.*",  # https://github.com/celery/celery/issues/7394
-    "celery.backends.redis.*",  # https://github.com/celery/celery/issues/7394
-    "cgi.*",  # legacy stdlib module for webob, installed via `legacy_cgi` package
-    "google.cloud.storage.*",  # https://github.com/googleapis/python-storage/issues/393
-    "forcediphttpsadapter.*",
-    "IPython.*",  # has types, but only installed in dev
-    "packaging_legacy.*",  # https://github.com/di/packaging_legacy/pull/5
-    "paginate.*",
-    "paginate_sqlalchemy.*",
-    "premailer.*",
-    "pymacaroons.*", # https://github.com/ecordell/pymacaroons/issues/41
-    "pyramid.*", # https://github.com/Pylons/pyramid/issues/2638
-    "pyramid_jinja2.*",
-    "pyramid_mailer.*",
-    "pyramid_retry.*",
-    "pyramid_rpc.*",
-    "pyqrcode.*",
-    "requests_aws4auth.*",  # https://github.com/tedder/requests-aws4auth/issues/53
-    "rfc3986.*",  # https://github.com/python-hyper/rfc3986/issues/122
-    "transaction.*",
-    "venusian.*",
-    "whitenoise.*",  # https://github.com/evansd/whitenoise/pull/410
-    "zope.sqlalchemy.*",
+  "bpython.*",  # https://github.com/bpython/bpython/issues/892
+  "b2sdk.*",  # https://github.com/Backblaze/b2-sdk-python/issues/148
+  "celery.app.backends.*",  # https://github.com/celery/celery/issues/7394
+  "celery.backends.redis.*",  # https://github.com/celery/celery/issues/7394
+  "cgi.*",  # legacy stdlib module for webob, installed via `legacy_cgi` package
+  "google.cloud.storage.*",  # https://github.com/googleapis/python-storage/issues/393
+  "forcediphttpsadapter.*",
+  "IPython.*",  # has types, but only installed in dev
+  "packaging_legacy.*",  # https://github.com/di/packaging_legacy/pull/5
+  "paginate.*",
+  "paginate_sqlalchemy.*",
+  "premailer.*",
+  "pymacaroons.*",  # https://github.com/ecordell/pymacaroons/issues/41
+  "pyramid.*",  # https://github.com/Pylons/pyramid/issues/2638
+  "pyramid_jinja2.*",
+  "pyramid_mailer.*",
+  "pyramid_retry.*",
+  "pyramid_rpc.*",
+  "pyqrcode.*",
+  "requests_aws4auth.*",  # https://github.com/tedder/requests-aws4auth/issues/53
+  "rfc3986.*",  # https://github.com/python-hyper/rfc3986/issues/122
+  "transaction.*",
+  "venusian.*",
+  "whitenoise.*",  # https://github.com/evansd/whitenoise/pull/410
+  "zope.sqlalchemy.*",
 ]
 ignore_missing_imports = true
 
@@ -103,7 +103,7 @@ addopts = [
   "-p no:ddtrace.pytest_bdd",
   "-p no:ddtrace.pytest_benchmark",
 ]
-cache_dir = "dev/.pytest_cache"
+cache_dir = ".cache/pytest"
 filterwarnings = [
   "error:SELECT statement has a cartesian product:sqlalchemy.exc.SAWarning",
   "ignore::warehouse.utils.exceptions.DevelopmentModeWarning",
@@ -129,7 +129,7 @@ strict = true
 testpaths = ["tests/"]
 
 [tool.ruff]
-cache-dir = "dev/.ruff_cache"
+cache-dir = ".cache/ruff"
 target-version = "py313"
 
 [tool.ruff.lint]

@@ -1042,6 +1042,16 @@ def send_pending_trusted_publisher_invalidated_email(request, user, project_name
     }
 
 
+@_email("pending-trusted-publisher-reified")
+def send_pending_trusted_publisher_reified_email(
+    request, user, project_name, publisher_specifier
+):
+    return {
+        "project_name": project_name,
+        "publisher_specifier": publisher_specifier,
+    }
+
+
 @_email("api-token-used-in-trusted-publisher-project")
 def send_api_token_used_in_trusted_publisher_project_email(
     request, users, project_name, token_owner_username, token_name

@@ -1894,11 +1894,20 @@ class ManageAccountPublishingViews:
             self.request.db.add(pending_publisher)
             self.request.db.flush()  # To get the new ID
         except UniqueViolation:
-            # The user has probably double-posted and a new publisher was
-            # created after our check for duplicates ran. The success message
-            # is probably already in the flash queue, so just redirect to the
-            # expected page on success if this is the response they are served.
-            return HTTPSeeOther(self.request.path)
+            # The DB unique constraint covers (repo, owner, workflow,
+            # environment) but not project_name, so this fires when another
+            # pending publisher already targets the same external identity
+            # under a different project name. Surface that conflict instead
+            # of silently redirecting as if registration succeeded.
+            self.request.session.flash(
+                self.request._(
+                    "A pending trusted publisher matching this configuration "
+                    "has already been registered for a different project name. "
+                    "Please contact PyPI's admins if this wasn't intentional."
+                ),
+                queue="error",
+            )
+            return self.default_response
 
         self.request.user.record_event(
             tag=EventTag.Account.PendingOIDCPublisherAdded,

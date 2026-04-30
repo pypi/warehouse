@@ -337,7 +337,7 @@ msgstr ""
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
 
-#: warehouse/accounts/views.py:1794 warehouse/accounts/views.py:2048
+#: warehouse/accounts/views.py:1794 warehouse/accounts/views.py:2057
 #: warehouse/manage/views/oidc_publishers.py:126
 #: warehouse/manage/views/organizations.py:1820
 msgid ""
@@ -385,17 +385,24 @@ msgid ""
 " admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1918
+#: warehouse/accounts/views.py:1904
+msgid ""
+"A pending trusted publisher matching this configuration has already been "
+"registered for a different project name. Please contact PyPI's admins if "
+"this wasn't intentional."
+msgstr ""
+
+#: warehouse/accounts/views.py:1927
 #: warehouse/manage/views/organizations.py:1908
 msgid "Registered a new pending publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:2061 warehouse/accounts/views.py:2074
-#: warehouse/accounts/views.py:2081
+#: warehouse/accounts/views.py:2070 warehouse/accounts/views.py:2083
+#: warehouse/accounts/views.py:2090
 msgid "Invalid publisher ID"
 msgstr ""
 
-#: warehouse/accounts/views.py:2088
+#: warehouse/accounts/views.py:2097
 msgid "Removed trusted publisher for project "
 msgstr ""
 

@@ -27,11 +27,6 @@ dev/example.sql
 dev/prod.sql
 dev/prod.sql.xz
 dev/.coverage*
-dev/.mypy_cache/
-dev/.pip-cache/
-dev/.pip-tools-cache/
-dev/.pytest_cache/
-dev/.ruff_cache/
 dev/codeql/
 .github/codeql/**/*.testproj/
 ./data/
@@ -45,4 +40,3 @@ tags
 *.sw*
 
 .DS_Store
-.stylelintcache

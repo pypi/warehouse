@@ -4858,6 +4858,11 @@ class TestManageAccountPublishingViews:
         ]
 
     def test_add_pending_oidc_publisher_uniqueviolation(self, monkeypatch, db_request):
+        """A UniqueViolation on insert means another pending publisher already
+        exists for the same (repo, owner, workflow, environment) tuple but with
+        a different project_name. Surface this conflict to the user instead of
+        silently redirecting as if the registration succeeded.
+        """
         db_request.user = UserFactory.create()
         EmailFactory(user=db_request.user, verified=True, primary=True)
         db_request.db.add = pretend.raiser(UniqueViolation("foo", "bar", "baz"))
@@ -4869,6 +4874,9 @@ class TestManageAccountPublishingViews:
         )
         db_request.flags = pretend.stub(
             disallow_oidc=pretend.call_recorder(lambda f=None: False)
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
         )
         db_request.POST = MultiDict(
             {
@@ -4895,8 +4903,17 @@ class TestManageAccountPublishingViews:
             view, "_hit_ratelimits", pretend.call_recorder(lambda: None)
         )
 
-        resp = view.add_pending_github_oidc_publisher()
-        assert isinstance(resp, HTTPSeeOther)
+        assert view.add_pending_github_oidc_publisher() == view.default_response
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                (
+                    "A pending trusted publisher matching this configuration "
+                    "has already been registered for a different project name. "
+                    "Please contact PyPI's admins if this wasn't intentional."
+                ),
+                queue="error",
+            )
+        ]
 
     @pytest.mark.parametrize(
         ("view_name", "publisher_name", "post_body", "publisher_class"),

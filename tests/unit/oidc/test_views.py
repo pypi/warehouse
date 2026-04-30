@@ -479,6 +479,10 @@ def test_mint_token_from_oidc_pending_publisher_ok(monkeypatch, db_request):
         "ip.oidc": ratelimiter,
     }
     monkeypatch.setattr(views, "_ratelimiters", lambda r: ratelimiters)
+    send_reified_email = pretend.call_recorder(lambda *a, **kw: None)
+    monkeypatch.setattr(
+        views, "send_pending_trusted_publisher_reified_email", send_reified_email
+    )
 
     resp = views.mint_token_from_oidc(db_request)
     assert resp["success"]
@@ -507,6 +511,14 @@ def test_mint_token_from_oidc_pending_publisher_ok(monkeypatch, db_request):
         "reified_from_pending_publisher": True,
         "constrained_from_existing_publisher": False,
     }
+    assert send_reified_email.calls == [
+        pretend.call(
+            db_request,
+            user,
+            project_name=pending_publisher.project_name,
+            publisher_specifier=str(publisher),
+        ),
+    ]
 
 
 def test_mint_token_from_oidc_pending_publisher_for_organization_ok(
@@ -537,6 +549,10 @@ def test_mint_token_from_oidc_pending_publisher_for_organization_ok(
         "ip.oidc": ratelimiter,
     }
     monkeypatch.setattr(views, "_ratelimiters", lambda r: ratelimiters)
+    send_reified_email = pretend.call_recorder(lambda *a, **kw: None)
+    monkeypatch.setattr(
+        views, "send_pending_trusted_publisher_reified_email", send_reified_email
+    )
 
     resp = views.mint_token_from_oidc(db_request)
     assert resp["success"]
@@ -575,6 +591,14 @@ def test_mint_token_from_oidc_pending_publisher_for_organization_ok(
         "reified_from_pending_publisher": True,
         "constrained_from_existing_publisher": False,
     }
+    assert send_reified_email.calls == [
+        pretend.call(
+            db_request,
+            user,
+            project_name=pending_publisher.project_name,
+            publisher_specifier=str(publisher),
+        ),
+    ]
 
 
 def test_mint_token_from_pending_trusted_publisher_invalidates_others(
@@ -613,6 +637,11 @@ def test_mint_token_from_pending_trusted_publisher_invalidates_others(
         services,
         "send_pending_trusted_publisher_invalidated_email",
         send_pending_trusted_publisher_invalidated_email,
+    )
+    monkeypatch.setattr(
+        views,
+        "send_pending_trusted_publisher_reified_email",
+        pretend.call_recorder(lambda *a, **kw: None),
     )
 
     db_request.flags.oidc_enabled = lambda f: False
