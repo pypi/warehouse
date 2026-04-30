@@ -22,6 +22,7 @@ function mount({ name = "django", spec = "", index = "", quote = "false" } = {})
       </select>
       <span data-installer-command-target="command">placeholder</span>
       <span data-installer-command-target="full">placeholder</span>
+      <p hidden data-installer-command-target="poetryNote">note</p>
     </div>
   `;
   const application = Application.start();
@@ -68,17 +69,24 @@ describe("InstallerCommandController", () => {
     expect(full.textContent).toBe("poetry add django==5.0");
   });
 
-  it("includes the test-PyPI index flag for pip-family installers", async () => {
-    const { select, command, full } = mount({
-      index: " -i https://test.pypi.org/simple/",
+  it("formats per-installer testpypi flags from the URL", async () => {
+    const { select, full } = mount({
+      index: "https://test.pypi.org/simple/",
     });
     await Promise.resolve();
-    expect(command.textContent).toBe("install -i https://test.pypi.org/simple/ django");
     expect(full.textContent).toBe("pip install -i https://test.pypi.org/simple/ django");
     select.value = "uv";
     select.dispatchEvent(new Event("change"));
-    expect(command.textContent).toBe("pip install -i https://test.pypi.org/simple/ django");
     expect(full.textContent).toBe("uv pip install -i https://test.pypi.org/simple/ django");
+    select.value = "pdm";
+    select.dispatchEvent(new Event("change"));
+    expect(full.textContent).toBe("pdm add --index-url https://test.pypi.org/simple/ django");
+    select.value = "pipenv";
+    select.dispatchEvent(new Event("change"));
+    expect(full.textContent).toBe("pipenv install -i https://test.pypi.org/simple/ django");
+    select.value = "poetry";
+    select.dispatchEvent(new Event("change"));
+    expect(full.textContent).toBe("poetry add --source testpypi django");
   });
 
   it("quotes the spec when the version has an epoch", async () => {
@@ -86,6 +94,19 @@ describe("InstallerCommandController", () => {
     await Promise.resolve();
     expect(command.textContent).toBe("install 'django==1!2.0'");
     expect(full.textContent).toBe("pip install 'django==1!2.0'");
+  });
+
+  it("toggles the poetry note based on selected installer", async () => {
+    const { select } = mount({ index: "https://test.pypi.org/simple/" });
+    await Promise.resolve();
+    const note = document.querySelector("[data-installer-command-target='poetryNote']");
+    expect(note.hidden).toBe(true);
+    select.value = "poetry";
+    select.dispatchEvent(new Event("change"));
+    expect(note.hidden).toBe(false);
+    select.value = "pip";
+    select.dispatchEvent(new Event("change"));
+    expect(note.hidden).toBe(true);
   });
 
   it("ignores an unknown cookie value and falls back to pip", async () => {

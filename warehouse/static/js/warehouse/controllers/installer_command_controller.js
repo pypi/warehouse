@@ -4,14 +4,17 @@ import { Controller } from "@hotwired/stimulus";
 
 // Each entry returns the command tail (everything AFTER the installer
 // name). The select itself shows the installer name, so the visible UI
-// reads as "<select-value> <suffix>" with no duplication. ${i} is the
-// test-PyPI "-i URL" flag (or "") for tools that accept it.
+// reads as "<select-value> <suffix>" with no duplication. ${u} is the
+// test-PyPI index URL ("" on prod). Each installer formats its own flag
+// since they differ (pip/uv/pipenv: -i, pdm: --index-url, poetry: --source
+// pointing at a source named "testpypi" that the user has registered once
+// via `poetry source add --priority=supplemental testpypi <url>`).
 const SUFFIX = {
-  pip:    (s, i) => `install${i} ${s}`,
-  uv:     (s, i) => `pip install${i} ${s}`,
-  poetry: (s) => `add ${s}`,
-  pdm:    (s) => `add ${s}`,
-  pipenv: (s) => `install ${s}`,
+  pip:    (s, u) => `install${u ? ` -i ${u}` : ""} ${s}`,
+  uv:     (s, u) => `pip install${u ? ` -i ${u}` : ""} ${s}`,
+  pdm:    (s, u) => `add${u ? ` --index-url ${u}` : ""} ${s}`,
+  pipenv: (s, u) => `install${u ? ` -i ${u}` : ""} ${s}`,
+  poetry: (s, u) => `add${u ? " --source testpypi" : ""} ${s}`,
 };
 
 const COOKIE = "pypi-installer";
@@ -32,7 +35,7 @@ function writeCookie(name, value) {
 }
 
 export default class extends Controller {
-  static targets = ["select", "command", "full"];
+  static targets = ["select", "command", "full", "poetryNote"];
   static values = {
     name:  String,
     spec:  String,
@@ -61,5 +64,6 @@ export default class extends Controller {
     const suffix = tmpl(quoted, this.indexValue);
     if (this.hasCommandTarget) this.commandTarget.textContent = suffix;
     if (this.hasFullTarget) this.fullTarget.textContent = `${installer} ${suffix}`;
+    if (this.hasPoetryNoteTarget) this.poetryNoteTarget.hidden = installer !== "poetry";
   }
 }

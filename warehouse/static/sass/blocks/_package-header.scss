@@ -159,6 +159,22 @@
     }
   }
 
+  &__installer-note {
+    margin: 6px 0 0;
+    font-size: 0.9rem;
+    color: colours.$transparent-white;
+
+    code {
+      font-family: fonts.$code-font;
+      font-size: 0.9rem;
+      color: colours.$white;
+      background-color: color.adjust(colours.$black, $alpha: -0.85);
+      border: 1px dotted colours.$transparent-white;
+      padding: 1px 6px;
+      user-select: all;
+    }
+  }
+
   &__date {
     margin-top: 20px;
     padding-bottom: 5px;
