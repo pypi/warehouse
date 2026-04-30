@@ -59,19 +59,6 @@
     <p class="package-snippet__description">{{ release.summary }}</p>
   </a>
 {%- endmacro %}
-{%- macro pip_command(release, request_route, test_environment) -%}
-  {%- if test_environment -%}
-    {% set index_url = " -i https://test.pypi.org/simple/" %}
-  {%- endif -%}
-  {%- if request_route == "packaging.release" -%}
-    {% set project_version = "==" + release.version %}
-  {%- endif -%}
-  {%- if release.version.epoch -%}
-    pip install{{ index_url }} '{{ release.project.name }}{{ project_version }}'
-  {%- else -%}
-    pip install{{ index_url }} {{ release.project.name }}{{ project_version }}
-  {%- endif -%}
-{%- endmacro -%}
 {%- macro file_table(files) -%}
   {% for file in files %}
     <div class="file"
@@ -141,7 +128,8 @@
         <h1 class="package-header__name">{{ release.project.name }} {{ release.version }}</h1>
         {% if files and not project.lifecycle_status == "quarantine-enter" and not release.lifecycle_status == "quarantine-enter" %}
           {% set installer_spec = ("==" ~ release.version) if request.matched_route.name == "packaging.release" else "" %}
-          {% set installer_index = " -i https://test.pypi.org/simple/" if testPyPI else "" %}
+          {% set installer_index = "https://test.pypi.org/simple/" if testPyPI else "" %}
+          {% set installer_pip_flag = (" -i " ~ installer_index) if installer_index else "" %}
           <div data-controller="clipboard installer-command"
                data-installer-command-name-value="{{ release.project.name }}"
                data-installer-command-spec-value="{{ installer_spec }}"
@@ -160,7 +148,7 @@
                   <option value="pipenv">pipenv</option>
                 </select>
               </span>
-              <span id="pip-command" data-installer-command-target="command">install {{ release.project.name }}{{ installer_spec }}</span>
+              <span id="pip-command" data-installer-command-target="command">install{{ installer_pip_flag }} {{ release.project.name }}{{ installer_spec }}</span>
               <button type="button"
                       class="copy-tooltip copy-tooltip-s"
                       data-action="clipboard#copy"
@@ -173,8 +161,16 @@
                  full command (installer + suffix). #}
               <span hidden
                     data-clipboard-target="source"
-                    data-installer-command-target="full">pip install {{ release.project.name }}{{ installer_spec }}</span>
+                    data-installer-command-target="full">pip install{{ installer_pip_flag }} {{ release.project.name }}{{ installer_spec }}</span>
             </p>
+            {% if testPyPI %}
+              <p class="package-header__installer-note"
+                 hidden
+                 data-installer-command-target="poetryNote">
+                {% trans %}First-time setup:{% endtrans %}
+                <code>poetry source add --priority=supplemental testpypi {{ installer_index }}</code>
+              </p>
+            {% endif %}
           </div>
         {% endif %}
       </div>
