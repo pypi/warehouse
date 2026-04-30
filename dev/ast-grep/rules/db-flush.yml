@@ -3,7 +3,20 @@ language: python
 
 severity: error
 message: manually flushing the database session
-note: "Add a comment and disable the lint with # ast-grep-ignore: db-flush"
+note: |
+  Use of flush() is _often_ unnecessary and should be annotated with a comment:
+
+      obj = MyObject()
+      self.db.add(obj)
+      # ast-grep-ignore: db-flush
+      self.db.flush()  # flush the db now so obj.id is available
+      method_that_depends_on_id(obj)
+
+  is a common pattern when auto-generated ids are needed.
+
+  Parts of the warehouse codebase (namely our cache_key/purge_key machinery)
+  react to flushes and may have unintended side-effects as a result of calls to
+  flush().
 
 rule:
   any:
