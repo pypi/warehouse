@@ -89,7 +89,7 @@ class Service:
     def verify_response(self, response, remote_ip=None):
         if not self.enabled:
             # TODO: debug logging
-            return
+            return None
 
         payload = {
             "secret": self.secret_key,
@@ -109,28 +109,30 @@ class Service:
                 },
                 timeout=10,
             )
-        except Exception as err:
+        except Exception as err:  # noqa: BLE001
             raise UnexpectedError(str(err))
 
         try:
             data = resp.json()
         except ValueError:
             raise UnexpectedError(
-                "Unexpected data in response body: %s" % str(resp.content, "utf-8")
+                "Unexpected data in response body: {}".format(
+                    str(resp.content, "utf-8")
+                )
             )
 
         if "success" not in data:
-            raise UnexpectedError("Missing 'success' key in response: %s" % data)
+            raise UnexpectedError(f"Missing 'success' key in response: {data}")
 
         if resp.status_code != http.HTTPStatus.OK or not data["success"]:
             try:
                 error_codes = data["error_codes"]
             except KeyError:
-                raise UnexpectedError("Response missing 'error-codes' key: %s" % data)
+                raise UnexpectedError(f"Response missing 'error-codes' key: {data}")
             try:
                 exc_tp = ERROR_CODE_MAP[error_codes[0]]
             except KeyError:
-                raise UnexpectedError("Unexpected error code: %s" % error_codes[0])
+                raise UnexpectedError(f"Unexpected error code: {error_codes[0]}")
             raise exc_tp
 
         # challenge_ts = timestamp of the challenge load

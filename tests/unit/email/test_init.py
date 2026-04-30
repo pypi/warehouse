@@ -179,7 +179,7 @@ class TestSendEmailToUser:
 
         user = pretend.stub(
             primary_email=pretend.stub(
-                email=primary_email, verified=True if address is not None else False
+                email=primary_email, verified=address is not None
             ),
         )
 
@@ -196,8 +196,9 @@ class TestSendEmailToUser:
     def test_doesnt_send_within_repeat_window(self, pyramid_request, pyramid_services):
         email_service = pretend.stub(
             last_sent=pretend.call_recorder(
-                lambda to, subject: datetime.datetime.now()
-                - datetime.timedelta(seconds=69)
+                lambda to, subject: (
+                    datetime.datetime.now() - datetime.timedelta(seconds=69)
+                )
             )
         )
         pyramid_services.register_service(email_service, IEmailSender, None, name="")
@@ -220,8 +221,9 @@ class TestSendEmailToUser:
     def test_sends_when_outside_repeat_window(self, db_request, pyramid_services):
         email_service = pretend.stub(
             last_sent=pretend.call_recorder(
-                lambda to, subject: datetime.datetime.now()
-                - datetime.timedelta(seconds=69)
+                lambda to, subject: (
+                    datetime.datetime.now() - datetime.timedelta(seconds=69)
+                )
             )
         )
         pyramid_services.register_service(email_service, IEmailSender, None, name="")
@@ -279,7 +281,7 @@ class TestSendEmailToUser:
             username=username,
             name="",
             primary_email=pretend.stub(
-                email=primary_email, verified=True if address is not None else False
+                email=primary_email, verified=address is not None
             ),
             id="id",
         )
@@ -5491,6 +5493,66 @@ class TestRecoveryCodeEmails:
 
 
 class TestTrustedPublisherEmails:
+    def test_pending_trusted_publisher_reified_email(
+        self, pyramid_request, pyramid_config, monkeypatch
+    ):
+        stub_user = pretend.stub(
+            id="id",
+            username="username",
+            name="",
+            email="email@example.com",
+            primary_email=pretend.stub(email="email@example.com", verified=True),
+        )
+        subject_renderer = pyramid_config.testing_add_renderer(
+            "email/pending-trusted-publisher-reified/subject.txt"
+        )
+        subject_renderer.string_response = "Email Subject"
+        body_renderer = pyramid_config.testing_add_renderer(
+            "email/pending-trusted-publisher-reified/body.txt"
+        )
+        body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/pending-trusted-publisher-reified/body.html"
+        )
+        html_renderer.string_response = "<p>Email HTML Body</p>"
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        monkeypatch.setattr(email, "send_email", send_email)
+
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=stub_user.id)
+                )
+            ),
+        )
+        pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
+
+        result = email.send_pending_trusted_publisher_reified_email(
+            pyramid_request,
+            stub_user,
+            project_name="test_project",
+            publisher_specifier="foo/bar via release.yml",
+        )
+
+        assert result == {
+            "project_name": "test_project",
+            "publisher_specifier": "foo/bar via release.yml",
+        }
+        subject_renderer.assert_()
+        body_renderer.assert_(
+            project_name="test_project",
+            publisher_specifier="foo/bar via release.yml",
+        )
+        html_renderer.assert_(
+            project_name="test_project",
+            publisher_specifier="foo/bar via release.yml",
+        )
+
     @pytest.mark.parametrize(
         ("fn", "template_name"),
         [

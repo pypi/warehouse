@@ -48,7 +48,7 @@ if typing.TYPE_CHECKING:
     from warehouse.subscriptions.models import StripeCustomer, StripeSubscription
 
 
-class OrganizationRoleType(str, enum.Enum):
+class OrganizationRoleType(enum.StrEnum):
     Owner = "Owner"
     BillingManager = "Billing Manager"
     Manager = "Manager"
@@ -236,7 +236,7 @@ class OrganizationOIDCIssuer(db.Model):
     created_by: Mapped[User] = relationship(lazy=False)
 
 
-class OrganizationType(str, enum.Enum):
+class OrganizationType(enum.StrEnum):
     Community = "Community"
     Company = "Company"
 
@@ -302,15 +302,15 @@ class OrganizationApplicationFactory:
 
 class OrganizationMixin:
     @declared_attr
-    def __table_args__(cls):  # noqa: N805
+    def __table_args__(cls):
         return (
             CheckConstraint(
                 "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'::text",
-                name="%s_valid_name" % cls.__tablename__,
+                name=f"{cls.__tablename__}_valid_name",
             ),
             CheckConstraint(
                 "link_url ~* '^https?://.*'::text",
-                name="%s_valid_link_url" % cls.__tablename__,
+                name=f"{cls.__tablename__}_valid_link_url",
             ),
         )
 
@@ -467,8 +467,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         """
         if self.is_in_good_standing():
             return self.name
-        else:
-            return f"{self.name} (Billing inactive)"
+        return f"{self.name} (Billing inactive)"
 
     def __acl__(self):
         session = orm_session_from_obj(self)
@@ -520,6 +519,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                         f"user:{role.user.id}",
                         [
                             Permissions.OrganizationsRead,
+                            Permissions.OrganizationsRoleRemove,
                             Permissions.OrganizationTeamsRead,
                             Permissions.OrganizationsManage,
                             Permissions.OrganizationTeamsManage,
@@ -536,6 +536,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                 # - Manage billing (Permissions.OrganizationsBillingManage)
                 # Disallowed:
                 # - Invite/remove organization member (Permissions.OrganizationsManage)
+                # - Remove own org/team role (Permissions.OrganizationsRoleRemove)
                 # - Create/delete team and add/remove members (OrganizationTeamsManage)
                 # - Add project (Permissions.OrganizationProjectsAdd)
                 # - Remove project (Permissions.OrganizationProjectsRemove)
@@ -566,6 +567,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                         f"user:{role.user.id}",
                         [
                             Permissions.OrganizationsRead,
+                            Permissions.OrganizationsRoleRemove,
                             Permissions.OrganizationTeamsRead,
                             Permissions.OrganizationTeamsManage,
                             Permissions.OrganizationProjectsAdd,
@@ -590,6 +592,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                         f"user:{role.user.id}",
                         [
                             Permissions.OrganizationsRead,
+                            Permissions.OrganizationsRoleRemove,
                             Permissions.OrganizationTeamsRead,
                         ],
                     )
@@ -695,7 +698,7 @@ class OrganizationApplication(OrganizationMixin, HasObservations, db.Model):
     __repr__ = make_repr("name")
 
     @declared_attr
-    def normalized_name(cls):  # noqa: N805
+    def normalized_name(cls):
         return column_property(func.normalize_pep426_name(cls.name))
 
     submitted_by_id: Mapped[UUID] = mapped_column(
@@ -768,14 +771,13 @@ class OrganizationApplication(OrganizationMixin, HasObservations, db.Model):
         return self.name < other.name
 
     def __acl__(self):
-        acls = [
+        return [
             (
                 Allow,
                 f"user:{self.submitted_by.id}",
                 (Permissions.OrganizationApplicationsManage,),
             )
         ]
-        return acls
 
 
 class OrganizationNameCatalog(db.Model):
@@ -841,7 +843,7 @@ class OrganizationInvitation(db.Model):
     )
 
 
-class TeamRoleType(str, enum.Enum):
+class TeamRoleType(enum.StrEnum):
     Member = "Member"
 
 
@@ -873,7 +875,7 @@ class TeamRole(db.Model):
     team: Mapped[Team] = relationship(lazy=False)
 
 
-class TeamProjectRoleType(str, enum.Enum):
+class TeamProjectRoleType(enum.StrEnum):
     Owner = "Owner"  # Granted "Administer" permissions.
     Maintainer = "Maintainer"  # Granted "Upload" permissions.
 

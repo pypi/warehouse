@@ -11,7 +11,7 @@ import psycopg.types.json
 import pyramid_retry
 import sqlalchemy
 import venusian
-import zope.sqlalchemy
+import zope.sqlalchemy  # pyright: ignore[reportMissingImports]
 
 from pyramid.renderers import JSON
 from sqlalchemy import event, func, inspect
@@ -21,7 +21,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 from warehouse.metrics import IMetricsService
 from warehouse.utils.attrs import make_repr
 
-__all__ = ["includeme", "metadata", "ModelBase", "Model"]
+__all__ = ["Model", "ModelBase", "includeme", "metadata"]
 
 
 logger = logging.getLogger(__name__)
@@ -113,11 +113,19 @@ def _configure_alembic(config):
     alembic_cfg = alembic.config.Config()
     alembic_cfg.set_main_option("script_location", "warehouse:migrations")
     alembic_cfg.set_main_option("url", config.registry.settings["database.url"])
-    alembic_cfg.set_section_option("post_write_hooks", "hooks", "black, isort")
-    alembic_cfg.set_section_option("post_write_hooks", "black.type", "console_scripts")
-    alembic_cfg.set_section_option("post_write_hooks", "black.entrypoint", "black")
-    alembic_cfg.set_section_option("post_write_hooks", "isort.type", "console_scripts")
-    alembic_cfg.set_section_option("post_write_hooks", "isort.entrypoint", "isort")
+    alembic_cfg.set_section_option(
+        "post_write_hooks", "hooks", "ruff_check, ruff_format"
+    )
+    alembic_cfg.set_section_option("post_write_hooks", "ruff_check.type", "exec")
+    alembic_cfg.set_section_option("post_write_hooks", "ruff_check.executable", "ruff")
+    alembic_cfg.set_section_option(
+        "post_write_hooks", "ruff_check.options", "check --fix REVISION_SCRIPT_FILENAME"
+    )
+    alembic_cfg.set_section_option("post_write_hooks", "ruff_format.type", "exec")
+    alembic_cfg.set_section_option("post_write_hooks", "ruff_format.executable", "ruff")
+    alembic_cfg.set_section_option(
+        "post_write_hooks", "ruff_format.options", "format REVISION_SCRIPT_FILENAME"
+    )
     return alembic_cfg
 
 
@@ -135,7 +143,7 @@ def _create_session(request):
         # this is a transient error that will go away.
         logger.warning("Got an error connecting to PostgreSQL", exc_info=True)
         metrics.increment("warehouse.db.session.error", tags=["error_in:connecting"])
-        raise DatabaseNotAvailableError()
+        raise DatabaseNotAvailableError
 
     # Now, create a session from our connection
     session = Session(bind=connection)

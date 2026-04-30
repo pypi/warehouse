@@ -49,15 +49,14 @@ _WORKFLOW_FILEPATH_RE = re.compile(
     )
     (?=@)             # lookahead match for `@`, constraining the group above
     """,
-    re.X,
+    re.VERBOSE,
 )
 
 
 def _extract_workflow_filepath(ci_config_ref_uri: str) -> str | None:
     if match := _WORKFLOW_FILEPATH_RE.search(ci_config_ref_uri):
         return match.group(0)
-    else:
-        return None
+    return None
 
 
 def _check_project_path(
@@ -228,11 +227,12 @@ class GitLabPublisherMixin:
     def _get_publisher_for_environment(
         cls, publishers: list[Self], environment: str | None
     ) -> Self | None:
-        if environment:
-            if specific_publisher := first_true(
+        if environment and (
+            specific_publisher := first_true(
                 publishers, pred=lambda p: p.environment == environment
-            ):
-                return specific_publisher
+            )
+        ):
+            return specific_publisher
 
         if general_publisher := first_true(
             publishers, pred=lambda p: p.environment == ""
@@ -304,11 +304,11 @@ class GitLabPublisherMixin:
         return GitLabIdentity(
             repository=self.project_path,
             workflow_filepath=self.workflow_filepath,
-            environment=self.environment if self.environment else None,
+            environment=self.environment or None,
         )
 
     def stored_claims(self, claims: SignedClaims | None = None) -> dict:
-        claims_obj = claims if claims else {}
+        claims_obj = claims or SignedClaims({})
         return {"ref_path": claims_obj.get("ref_path"), "sha": claims_obj.get("sha")}
 
     def __str__(self) -> str:
@@ -361,7 +361,7 @@ class GitLabPublisherMixin:
             if organization
             else set()
         )
-        return [GITLAB_OIDC_ISSUER_URL] + sorted(issuer_urls)
+        return [GITLAB_OIDC_ISSUER_URL, *sorted(issuer_urls)]
 
 
 class GitLabPublisher(GitLabPublisherMixin, OIDCPublisher):

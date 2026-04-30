@@ -13,7 +13,10 @@ from pyramid.httpexceptions import HTTPException, HTTPForbidden
 from pyramid.request import Request
 from pyramid.view import view_config
 
-from warehouse.email import send_environment_ignored_in_trusted_publisher_email
+from warehouse.email import (
+    send_environment_ignored_in_trusted_publisher_email,
+    send_pending_trusted_publisher_reified_email,
+)
 from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
@@ -119,10 +122,10 @@ def mint_token_from_oidc(request: Request):
     # use the `iss` to key into the right `OIDCPublisherService`.
     try:
         unverified_claims = jwt.decode(
-            unverified_jwt, options=dict(verify_signature=False)
+            unverified_jwt, options={"verify_signature": False}
         )
         unverified_issuer: str = unverified_claims["iss"]
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         metrics = request.find_service(IMetricsService, context=None)
         metrics.increment("warehouse.oidc.mint_token_from_oidc.malformed_jwt")
 
@@ -250,6 +253,16 @@ def mint_token(
                 },
             )
 
+            # Notify the registrant that their pending publisher was used to
+            # create a real project. Provides an audit trail and lets the
+            # registrant spot uses they didn't expect.
+            send_pending_trusted_publisher_reified_email(
+                request,
+                pending_publisher.added_by,
+                project_name=new_project.name,
+                publisher_specifier=str(reified_publisher),
+            )
+
             # Successfully converting a pending publisher into a normal publisher
             # is a positive signal, so we reset the associated ratelimits.
             ratelimiters = _ratelimiters(request)
@@ -313,10 +326,10 @@ def mint_token(
     )
     not_before = int(time.time())
     expires_at = not_before + 900
-    serialized, dm = macaroon_service.create_macaroon(
+    serialized, _dm = macaroon_service.create_macaroon(
         request.domain,
         (
-            f"OpenID token: {str(publisher)} "
+            f"OpenID token: {publisher!s} "
             f"({datetime.fromtimestamp(not_before).isoformat()})"
         ),
         [

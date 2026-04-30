@@ -515,8 +515,8 @@ class TestReleaseProhibitedProjectName:
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
-        db_request.route_path = (
-            lambda *a, **kw: f"/admin/projects/{kw['project_name']}/"
+        db_request.route_path = lambda *a, **kw: (
+            f"/admin/projects/{kw['project_name']}/"
         )
 
         user = UserFactory.create(username="methodman")

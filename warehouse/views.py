@@ -6,7 +6,7 @@ import collections
 import re
 import typing
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import opensearchpy
@@ -274,7 +274,7 @@ def funding_manifest_urls(request):
 )
 def securitytxt(request):
     # Calculate expiration date (1 year from now)
-    expires = datetime.now(timezone.utc) + timedelta(days=365)
+    expires = datetime.now(UTC) + timedelta(days=365)
     expires_str = expires.strftime("%Y-%m-%dT%H:%M:%S.000Z")
 
     # Build dynamic URLs

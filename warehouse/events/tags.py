@@ -3,7 +3,7 @@
 import enum
 
 
-class EventTagEnum(str, enum.Enum):
+class EventTagEnum(enum.StrEnum):
     """Base class for Enum representing Event tags.
 
     Tags can be broken into three colon-separated parts:

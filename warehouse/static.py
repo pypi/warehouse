@@ -17,9 +17,11 @@ class ImmutableManifestFiles:
         manifest_path, manifest = self.get_manifest(url)
         if manifest_path is not None:
             manifest_dir = os.path.dirname(manifest_path)
-            if os.path.commonpath([manifest_path, path]) == manifest_dir:
-                if os.path.relpath(path, manifest_dir) in manifest:
-                    return True
+            if (
+                os.path.commonpath([manifest_path, path]) == manifest_dir
+                and os.path.relpath(path, manifest_dir) in manifest
+            ):
+                return True
 
         return False
 

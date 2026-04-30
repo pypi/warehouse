@@ -66,13 +66,9 @@ class PasswordStrengthValidator:
         # Determine if the score is too low, and if it is produce a nice error
         # message, *hopefully* with suggestions to make the password stronger.
         if results["score"] < self.required_strength:
-            msg = (
-                results["feedback"]["warning"]
-                if results["feedback"]["warning"]
-                # Note: we can't localize this string because it will be mixed
-                # with other non-localizable strings from zxcvbn
-                else "Password is too easily guessed."
-            )
+            # Note: we can't localize this string because it will be mixed
+            # with other non-localizable strings from zxcvbn
+            msg = results["feedback"]["warning"] or "Password is too easily guessed."
             if results["feedback"]["suggestions"]:
                 msg += " " + " ".join(results["feedback"]["suggestions"])
             raise ValidationError(msg)
@@ -99,5 +95,5 @@ class SetLocaleForm(BaseForm):
     locale_id = StringField(validators=[InputRequired(message="Missing locale ID")])
 
     def validate_locale_id(self, field):
-        if field.data not in KNOWN_LOCALES.keys():
+        if field.data not in KNOWN_LOCALES:
             raise ValidationError(f"Unknown locale ID: {field.data}")

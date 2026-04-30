@@ -104,7 +104,7 @@ class Role(db.Model):
     project: Mapped[Project] = orm.relationship(lazy=False, back_populates="roles")
 
 
-class RoleInvitationStatus(str, enum.Enum):
+class RoleInvitationStatus(enum.StrEnum):
     Pending = "pending"
     Expired = "expired"
 
@@ -320,6 +320,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                     Permissions.AdminProjectsWrite,
                     Permissions.AdminRoleAdd,
                     Permissions.AdminRoleDelete,
+                    Permissions.AdminVulnerabilitiesRead,
                 ),
             ),
             (
@@ -342,14 +343,15 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
         if self.lifecycle_status not in [
             LifecycleStatus.Archived,
             LifecycleStatus.ArchivedNoindex,
+            LifecycleStatus.QuarantineEnter,
         ]:
             # The project has zero or more OIDC publishers registered to it,
             # each of which serves as an identity with the ability to upload releases
-            # (only if the project is not archived)
-            for publisher in self.oidc_publishers:
-                acls.append(
-                    (Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload])
-                )
+            # (only if the project is not archived or quarantined)
+            acls.extend(
+                (Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload])
+                for publisher in self.oidc_publishers
+            )
 
         # Get all of the users for this project.
         user_query = (
@@ -427,7 +429,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
 
         # If the project doesn't have docs, then we'll just return a None here.
         if not self.has_docs:
-            return
+            return None
 
         return request.route_url("legacy.docs", project=self.name)
 
@@ -516,7 +518,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
 
         if self.lifecycle_status == LifecycleStatus.QuarantineEnter:
             return ProjectStatusMarker.Quarantined
-        elif self.lifecycle_status in (
+        if self.lifecycle_status in (
             LifecycleStatus.Archived,
             LifecycleStatus.ArchivedNoindex,
         ):
@@ -647,7 +649,7 @@ class Release(HasObservations, db.Model):
     __tablename__ = "releases"
 
     @declared_attr
-    def __table_args__(cls):  # noqa
+    def __table_args__(cls):
         return (
             Index("release_created_idx", cls.created.desc()),
             Index("release_project_created_idx", cls.project_id, cls.created.desc()),
@@ -832,7 +834,7 @@ class Release(HasObservations, db.Model):
     def urls_by_verify_status(self, *, verified: bool):
         matching_urls = {
             release_url.url
-            for release_url in self._project_urls.values()  # type: ignore[attr-defined] # noqa: E501
+            for release_url in self._project_urls.values()  # type: ignore[attr-defined]
             if release_url.verified == verified
         }
         if self.home_page and self.home_page_verified == verified:
@@ -851,7 +853,7 @@ class Release(HasObservations, db.Model):
     def verified_user_name_and_repo_name(
         self, domains: set[str], reserved_names: typing.Collection[str] | None = None
     ):
-        for _, url in self.urls_by_verify_status(verified=True).items():
+        for url in self.urls_by_verify_status(verified=True).values():
             try:
                 parsed = parse_url(url)
             except LocationParseError:
@@ -877,6 +879,7 @@ class Release(HasObservations, db.Model):
         user_name, repo_name = self.verified_github_user_name_and_repo_name
         if user_name and repo_name:
             return f"https://api.github.com/repos/{user_name}/{repo_name}"
+        return None
 
     @property
     def verified_github_open_issue_info_url(self):
@@ -886,6 +889,7 @@ class Release(HasObservations, db.Model):
                 f"https://api.github.com/search/issues?q=repo:{user_name}/{repo_name}"
                 "+type:issue+state:open&per_page=1"
             )
+        return None
 
     @property
     def verified_gitlab_user_name_and_repo_name(self):
@@ -925,7 +929,7 @@ class Release(HasObservations, db.Model):
         return all(file.uploaded_via_trusted_publisher for file in files)
 
 
-class PackageType(str, enum.Enum):
+class PackageType(enum.StrEnum):
     bdist_dmg = "bdist_dmg"
     bdist_dumb = "bdist_dumb"
     bdist_egg = "bdist_egg"
@@ -940,7 +944,7 @@ class File(HasEvents, db.Model):
     __tablename__ = "release_files"
 
     @declared_attr
-    def __table_args__(cls):  # noqa
+    def __table_args__(cls):
         return (
             CheckConstraint("sha256_digest ~* '^[A-F0-9]{64}$'"),
             CheckConstraint("blake2_256_digest ~* '^[A-F0-9]{64}$'"),
@@ -950,8 +954,7 @@ class File(HasEvents, db.Model):
                 "packagetype",
                 unique=True,
                 postgresql_where=(
-                    (cls.packagetype == "sdist")
-                    & (cls.allow_multiple_sdist == False)  # noqa
+                    (cls.packagetype == "sdist") & (cls.allow_multiple_sdist == False)  # noqa: E712
                 ),
             ),
             Index("release_files_release_id_idx", "release_id"),
@@ -1025,9 +1028,9 @@ class File(HasEvents, db.Model):
     def metadata_path(self):
         return self.path + ".metadata"
 
-    @metadata_path.expression  # type: ignore
-    def metadata_path(self):
-        return func.concat(self.path, ".metadata")
+    @metadata_path.expression  # type: ignore[no-redef]
+    def metadata_path(cls):
+        return func.concat(cls.path, ".metadata")
 
     @validates("requires_python")
     def validates_requires_python(self, *args, **kwargs):
@@ -1070,7 +1073,7 @@ class JournalEntry(db.ModelBase):
     __tablename__ = "journals"
 
     @declared_attr
-    def __table_args__(cls):  # noqa
+    def __table_args__(cls):
         return (
             Index("journals_changelog", "submitted_date", "name", "version", "action"),
             Index("journals_name_idx", "name"),

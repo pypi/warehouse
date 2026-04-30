@@ -61,7 +61,7 @@ _illegal_ranges = [
     "\U000ffffe-\U000fffff",
     "\U0010fffe-\U0010ffff",
 ]
-_illegal_xml_chars_re = re.compile("[%s]" % "".join(_illegal_ranges))
+_illegal_xml_chars_re = re.compile("[{}]".format("".join(_illegal_ranges)))
 
 XMLRPC_DEPRECATION_URL = (
     "https://warehouse.pypa.io/api-reference/xml-rpc.html#deprecated-methods"
@@ -167,36 +167,33 @@ xmlrpc_cache_all_projects = functools.partial(
 )
 
 
-class XMLRPCServiceUnavailable(XmlRpcError):
-    # NOQA due to N815 'mixedCase variable in class scope',
+class XMLRPCServiceUnavailable(XmlRpcError):  # noqa: N818
     # This is the interface for specifying fault code and string for XmlRpcError
-    faultCode = -32403  # NOQA: ignore=N815
-    faultString = "server error; service unavailable"  # NOQA: ignore=N815
+    faultCode = -32403  # noqa: N815
+    faultString = "server error; service unavailable"  # noqa: N815
 
 
 class XMLRPCInvalidParamTypes(XmlRpcInvalidMethodParams):
     def __init__(self, exc):
         self.exc = exc
 
-    # NOQA due to N802 'function name should be lowercase'
     # This is the interface for specifying fault string for XmlRpcError
     @property
-    def faultString(self):  # NOQA: ignore=N802
+    def faultString(self):  # noqa: N802
         return f"client error; {self.exc}"
 
 
 class XMLRPCWrappedError(xmlrpc.client.Fault):
     def __init__(self, exc):
-        # NOQA due to N815 'mixedCase variable in class scope',
-        # This is the interface for specifying fault code and string for XmlRpcError
-        self.faultCode = -32500  # NOQA: ignore=N815
-        self.wrapped_exception = exc  # NOQA: ignore=N815
 
-    # NOQA due to N802 'function name should be lowercase'
+        # This is the interface for specifying fault code and string for XmlRpcError
+        self.faultCode = -32500
+        self.wrapped_exception = exc
+
     # This is the interface for specifying fault string for XmlRpcError
     @property
-    def faultString(self):  # NOQA: ignore=N802
-        return "{exc.__class__.__name__}: {exc}".format(exc=self.wrapped_exception)
+    def faultString(self):  # noqa: N802
+        return f"{self.wrapped_exception.__class__.__name__}: {self.wrapped_exception}"
 
 
 class TypedMapplyViewMapper(MapplyViewMapper):
@@ -333,8 +330,7 @@ def browse(request, classifiers: list[StrictStr]):
 def multicall(request, args):
     raise XMLRPCWrappedError(
         ValueError(
-            "MultiCall requests have been deprecated, use individual "
-            "requests instead."
+            "MultiCall requests have been deprecated, use individual requests instead."
         )
     )
 

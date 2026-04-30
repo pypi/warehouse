@@ -45,8 +45,7 @@ def _select_content_type(request: Request) -> str:
         return MIME_TEXT_HTML
     # We've selected a list of acceptable offers, so we'll take
     # the first one as our return type.
-    else:
-        return offers[0][0]
+    return offers[0][0]
 
 
 @view_config(

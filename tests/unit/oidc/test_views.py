@@ -98,7 +98,7 @@ def test_mint_token_from_oidc_not_enabled(token, service_name, request):
         "errors": [
             {
                 "code": "not-enabled",
-                "description": f"{service_name} trusted publishing functionality not enabled",  # noqa
+                "description": f"{service_name} trusted publishing functionality not enabled",  # noqa: E501
             }
         ],
     }
@@ -387,8 +387,7 @@ def test_mint_token_duplicate_token():
     def find_publishers_mockup(_, pending: bool = False):
         if pending is False:
             raise errors.ReusedTokenError("some message")
-        else:
-            raise errors.InvalidPublisherError("some message")
+        raise errors.InvalidPublisherError("some message")
 
     claims = {"iss": "https://none"}
     oidc_service = pretend.stub(
@@ -480,6 +479,10 @@ def test_mint_token_from_oidc_pending_publisher_ok(monkeypatch, db_request):
         "ip.oidc": ratelimiter,
     }
     monkeypatch.setattr(views, "_ratelimiters", lambda r: ratelimiters)
+    send_reified_email = pretend.call_recorder(lambda *a, **kw: None)
+    monkeypatch.setattr(
+        views, "send_pending_trusted_publisher_reified_email", send_reified_email
+    )
 
     resp = views.mint_token_from_oidc(db_request)
     assert resp["success"]
@@ -508,6 +511,14 @@ def test_mint_token_from_oidc_pending_publisher_ok(monkeypatch, db_request):
         "reified_from_pending_publisher": True,
         "constrained_from_existing_publisher": False,
     }
+    assert send_reified_email.calls == [
+        pretend.call(
+            db_request,
+            user,
+            project_name=pending_publisher.project_name,
+            publisher_specifier=str(publisher),
+        ),
+    ]
 
 
 def test_mint_token_from_oidc_pending_publisher_for_organization_ok(
@@ -538,6 +549,10 @@ def test_mint_token_from_oidc_pending_publisher_for_organization_ok(
         "ip.oidc": ratelimiter,
     }
     monkeypatch.setattr(views, "_ratelimiters", lambda r: ratelimiters)
+    send_reified_email = pretend.call_recorder(lambda *a, **kw: None)
+    monkeypatch.setattr(
+        views, "send_pending_trusted_publisher_reified_email", send_reified_email
+    )
 
     resp = views.mint_token_from_oidc(db_request)
     assert resp["success"]
@@ -576,6 +591,14 @@ def test_mint_token_from_oidc_pending_publisher_for_organization_ok(
         "reified_from_pending_publisher": True,
         "constrained_from_existing_publisher": False,
     }
+    assert send_reified_email.calls == [
+        pretend.call(
+            db_request,
+            user,
+            project_name=pending_publisher.project_name,
+            publisher_specifier=str(publisher),
+        ),
+    ]
 
 
 def test_mint_token_from_pending_trusted_publisher_invalidates_others(
@@ -614,6 +637,11 @@ def test_mint_token_from_pending_trusted_publisher_invalidates_others(
         services,
         "send_pending_trusted_publisher_invalidated_email",
         send_pending_trusted_publisher_invalidated_email,
+    )
+    monkeypatch.setattr(
+        views,
+        "send_pending_trusted_publisher_reified_email",
+        pretend.call_recorder(lambda *a, **kw: None),
     )
 
     db_request.flags.oidc_enabled = lambda f: False
@@ -696,8 +724,7 @@ def test_mint_token_no_pending_publisher_ok(
     def _find_publisher(claims, pending=False):
         if pending:
             return None
-        else:
-            return publisher
+        return publisher
 
     oidc_service = pretend.stub(
         verify_jwt_signature=pretend.call_recorder(
@@ -716,8 +743,7 @@ def test_mint_token_no_pending_publisher_ok(
     def find_service(iface, **kw):
         if iface == IMacaroonService:
             return macaroon_service
-        else:
-            pytest.fail(iface)
+        pytest.fail(iface)
 
     monkeypatch.setattr(db_request, "find_service", find_service)
     monkeypatch.setattr(db_request, "domain", "fakedomain")
@@ -810,8 +836,7 @@ def test_mint_token_warn_constrain_environment(monkeypatch, db_request):
     def _find_publisher(claims, pending=False):
         if pending:
             return None
-        else:
-            return publisher
+        return publisher
 
     oidc_service = pretend.stub(
         verify_jwt_signature=pretend.call_recorder(
@@ -830,8 +855,7 @@ def test_mint_token_warn_constrain_environment(monkeypatch, db_request):
     def find_service(iface, **kw):
         if iface == IMacaroonService:
             return macaroon_service
-        else:
-            pytest.fail(iface)
+        pytest.fail(iface)
 
     monkeypatch.setattr(db_request, "find_service", find_service)
     monkeypatch.setattr(db_request, "domain", "fakedomain")
@@ -993,8 +1017,7 @@ def test_mint_token_github_reusable_workflow_metrics(
     def _find_publisher(claims, pending=False):
         if pending:
             return None
-        else:
-            return publisher
+        return publisher
 
     oidc_service = pretend.stub(
         verify_jwt_signature=pretend.call_recorder(
@@ -1013,10 +1036,9 @@ def test_mint_token_github_reusable_workflow_metrics(
     def find_service(iface, **kw):
         if iface == IMacaroonService:
             return macaroon_service
-        elif iface == IMetricsService:
+        if iface == IMetricsService:
             return metrics
-        else:
-            pytest.fail(iface)
+        pytest.fail(iface)
 
     monkeypatch.setattr(db_request, "find_service", find_service)
     monkeypatch.setattr(db_request, "domain", "fakedomain")
@@ -1148,8 +1170,7 @@ def test_mint_token_jti_stored_before_macaroon_creation(monkeypatch, db_request)
     def _find_publisher(signed_claims, pending=False):
         if pending:
             return None
-        else:
-            return publisher
+        return publisher
 
     oidc_service = pretend.stub(
         verify_jwt_signature=pretend.call_recorder(
@@ -1172,8 +1193,7 @@ def test_mint_token_jti_stored_before_macaroon_creation(monkeypatch, db_request)
     def find_service(iface, **kw):
         if iface == IMacaroonService:
             return macaroon_service
-        else:
-            pytest.fail(f"Unexpected service lookup: {iface}")
+        pytest.fail(f"Unexpected service lookup: {iface}")
 
     monkeypatch.setattr(db_request, "find_service", find_service)
     monkeypatch.setattr(db_request, "domain", "fakedomain")

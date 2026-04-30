@@ -30,7 +30,7 @@ def require_method_view(view, info):
     return wrapped
 
 
-require_method_view.options = {"require_methods"}  # type: ignore
+require_method_view.options = {"require_methods"}  # type: ignore[attr-defined]
 
 
 def includeme(config):

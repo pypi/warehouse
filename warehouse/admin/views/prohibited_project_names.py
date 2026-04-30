@@ -48,10 +48,10 @@ def prohibited_project_names(request):
         terms = shlex.split(q)
 
         filters: list = []
-        for term in terms:
-            filters.append(
-                ProhibitedProjectName.name.ilike(func.normalize_pep426_name(term))
-            )
+        filters.extend(
+            ProhibitedProjectName.name.ilike(func.normalize_pep426_name(term))
+            for term in terms
+        )
 
         filters = filters or [True]
         prohibited_project_names_query = prohibited_project_names_query.filter(
@@ -287,7 +287,7 @@ def add_prohibited_project_names(request):
             "Confirm the prohibited project name request", queue="error"
         )
         return HTTPSeeOther(request.current_route_path())
-    elif canonicalize_name(confirm) != canonicalize_name(project_name):
+    if canonicalize_name(confirm) != canonicalize_name(project_name):
         request.session.flash(
             f"{confirm!r} is not the same as {project_name!r}", queue="error"
         )

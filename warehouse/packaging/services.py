@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import collections
+import contextlib
 import hashlib
 import io
 import json
@@ -111,9 +112,8 @@ class GenericLocalBlobStorage:
     def store(self, path, file_path, *, meta=None):
         destination = os.path.join(self.base, path)
         os.makedirs(os.path.dirname(destination), exist_ok=True)
-        with open(destination, "wb") as dest_fp:
-            with open(file_path, "rb") as src_fp:
-                dest_fp.write(src_fp.read())
+        with open(destination, "wb") as dest_fp, open(file_path, "rb") as src_fp:
+            dest_fp.write(src_fp.read())
         if meta is not None:
             with open(destination + ".meta", "w") as dest_fp:
                 dest_fp.write(json.dumps(meta))
@@ -162,10 +162,8 @@ class LocalDocsStorage:
 
     def remove_by_prefix(self, prefix):
         directory = os.path.join(self.base, prefix)
-        try:
+        with contextlib.suppress(FileNotFoundError):
             shutil.rmtree(directory)
-        except FileNotFoundError:
-            pass
 
 
 class GenericBlobStorage:
@@ -418,18 +416,19 @@ class ProjectService:
 
     def _check_ratelimits(self, request, creator):
         # First we want to check if a single IP is exceeding our rate limiter.
-        if request.remote_addr is not None:
-            if not self.ratelimiters["project.create.ip"].test(request.remote_addr):
-                logger.warning("IP failed project create threshold reached.")
-                self._metrics.increment(
-                    "warehouse.project.create.ratelimited",
-                    tags=["ratelimiter:ip"],
+        if request.remote_addr is not None and not self.ratelimiters[
+            "project.create.ip"
+        ].test(request.remote_addr):
+            logger.warning("IP failed project create threshold reached.")
+            self._metrics.increment(
+                "warehouse.project.create.ratelimited",
+                tags=["ratelimiter:ip"],
+            )
+            raise TooManyProjectsCreated(
+                resets_in=self.ratelimiters["project.create.ip"].resets_in(
+                    request.remote_addr
                 )
-                raise TooManyProjectsCreated(
-                    resets_in=self.ratelimiters["project.create.ip"].resets_in(
-                        request.remote_addr
-                    )
-                )
+            )
 
         if not self.ratelimiters["project.create.user"].test(creator.id):
             logger.warning("User failed project create threshold reached.")
@@ -455,11 +454,11 @@ class ProjectService:
         unavailable for any reason.
         """
         if not PROJECT_NAME_RE.match(name):
-            raise ProjectNameUnavailableInvalidError()
+            raise ProjectNameUnavailableInvalidError
 
         # Also check for collisions with Python Standard Library modules.
         if canonicalize_name(name) in STDLIB_PROHIBITED:
-            raise ProjectNameUnavailableStdlibError()
+            raise ProjectNameUnavailableStdlibError
 
         if existing_project := self.db.scalars(
             select(Project).where(
@@ -473,7 +472,7 @@ class ProjectService:
                 ProhibitedProjectName.name == func.normalize_pep426_name(name)
             )
         ).scalar():
-            raise ProjectNameUnavailableProhibitedError()
+            raise ProjectNameUnavailableProhibitedError
 
         if similar_project_name := self.db.scalars(
             select(Project.name).where(
@@ -492,7 +491,7 @@ class ProjectService:
                 existing_project_name=typo_check_match[1],
             )
 
-        return None
+        return
 
     def create_project(
         self,
@@ -643,7 +642,6 @@ class ProjectService:
                 tags=[f"check_name:{exc.check_name!r}"],
             )
             # and continue with the project creation
-            pass
 
         # The project name is valid: create it and add it
         project = Project(name=name)

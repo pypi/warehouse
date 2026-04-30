@@ -53,8 +53,7 @@ class ClientSideIncludeExtension(Extension):
         # Now return a `CallBlock` node that calls our _csi helper method on
         # this extension.
         n = nodes.CallBlock(self.call_method("_csi", args), [], [], body)
-        n = n.set_lineno(lineno)
-        return n
+        return n.set_lineno(lineno)
 
     def _csi(self, url, tag, caller):
         return f'<{tag} data-html-include="{url}">{caller()}</{tag}>'

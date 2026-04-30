@@ -19,7 +19,7 @@ from warehouse.i18n import extensions
 )
 def test_trim_trans_tags(ext, result):
     env = Environment(
-        extensions=["jinja2.ext.i18n"] + ext,
+        extensions=["jinja2.ext.i18n", *ext],
     )
 
     class Faketext:
@@ -119,7 +119,7 @@ class TestFallbackInternationalizationExtension:
         [
             ("Youzer: %(user)s", "Youzer: monty"),
             ("Youzer: %(missing)s", "User: monty"),
-            ("Youzer: %（user）", "User: monty"),
+            ("Youzer: %（user）", "User: monty"),  # noqa: RUF001 forces failure
         ],
     )
     def test_gettext_fallback(self, translation, expected):
@@ -174,14 +174,14 @@ class TestFallbackInternationalizationExtension:
                 "2 Users online",
             ),
             (
-                "%（user_num）s Youzer online",
-                "%（user_num）s Youzers online",
+                "%（user_num）s Youzer online",  # noqa: RUF001 forces failure
+                "%（user_num）s Youzers online",  # noqa: RUF001 forces failure
                 1,
                 "1 User online",
             ),
             (
-                "%（user_num）s Youzer online",
-                "%（user_num）s Youzers online",
+                "%（user_num）s Youzer online",  # noqa: RUF001 forces failure
+                "%（user_num）s Youzers online",  # noqa: RUF001 forces failure
                 2,
                 "2 Users online",
             ),

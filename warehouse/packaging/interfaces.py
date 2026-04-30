@@ -97,19 +97,13 @@ class IProjectService(Interface):
 class ProjectNameUnavailableError(Exception):
     """Base exception for project name unavailability errors."""
 
-    pass
-
 
 class ProjectNameUnavailableInvalidError(ProjectNameUnavailableError):
     """Project name is invalid."""
 
-    pass
-
 
 class ProjectNameUnavailableStdlibError(ProjectNameUnavailableError):
     """Project name conflicts with Python stdlib module."""
-
-    pass
 
 
 class ProjectNameUnavailableExistingError(ProjectNameUnavailableError):
@@ -121,8 +115,6 @@ class ProjectNameUnavailableExistingError(ProjectNameUnavailableError):
 
 class ProjectNameUnavailableProhibitedError(ProjectNameUnavailableError):
     """Project name is prohibited."""
-
-    pass
 
 
 class ProjectNameUnavailableSimilarError(ProjectNameUnavailableError):

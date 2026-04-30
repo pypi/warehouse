@@ -100,7 +100,7 @@ class DatabaseOrganizationService:
                 .one()
             )
         except NoResultFound:
-            return
+            return None
 
         return organization_id
 
@@ -351,7 +351,7 @@ class DatabaseOrganizationService:
                 .one()
             )
         except NoResultFound:
-            return
+            return None
 
         return organization_role
 
@@ -414,7 +414,7 @@ class DatabaseOrganizationService:
                 .one()
             )
         except NoResultFound:
-            return
+            return None
 
         return organization_invite
 
@@ -723,7 +723,7 @@ class DatabaseOrganizationService:
                 .one()
             )
         except NoResultFound:
-            return
+            return None
 
         return team_id
 

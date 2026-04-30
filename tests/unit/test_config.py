@@ -259,7 +259,7 @@ def test_configure(monkeypatch, settings, environment):
                 "warehouse.xmlrpc.client.ratelimit_string": "3600 per hour",
             }
 
-    configurator_settings = dict()
+    configurator_settings = {}
     configurator_obj = pretend.stub(
         registry=FakeRegistry(),
         set_root_factory=pretend.call_recorder(lambda rf: None),
@@ -559,6 +559,7 @@ def test_root_factory_access_control_list():
                 Permissions.AdminIpAddressesRead,
                 Permissions.AdminIpAddressesWrite,
                 Permissions.AdminJournalRead,
+                Permissions.AdminMacaroonsInspect,
                 Permissions.AdminMacaroonsRead,
                 Permissions.AdminMacaroonsWrite,
                 Permissions.AdminObservationsRead,
@@ -587,6 +588,8 @@ def test_root_factory_access_control_list():
                 Permissions.AdminUsersWrite,
                 Permissions.AdminUsersEmailWrite,
                 Permissions.AdminUsersAccountRecoveryWrite,
+                Permissions.AdminVulnerabilitiesRead,
+                Permissions.AdminVulnerabilitiesWrite,
             ),
         ),
         (

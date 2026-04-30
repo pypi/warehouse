@@ -19,7 +19,7 @@ DISALLOW_DUPLICATE_EXTRA_IDS = {
     0x7075,  # Info-ZIP Unicode Path
 }
 # Unprintable characters we disallow from filenames.
-UNPRINTABLE_CHARS = set(range(0x00, 0x20)) | {0x7F}
+UNPRINTABLE_CHARS = set(range(0x00, 0x20)) | {0x7F}  # noqa: PIE808
 
 
 class InvalidZipFileError(Exception):
@@ -87,7 +87,6 @@ def _handle_local_file_header(
         seen_extra_ids.add(extra_id)
 
         if extra_id == 0x0001:
-
             # ZIP64 extras must be one of these lengths.
             if extra_data_size not in (0, 8, 16, 24, 28):
                 raise InvalidZipFileError("Malformed zip file")
@@ -171,7 +170,7 @@ def _handle_central_directory_header(fp: typing.IO[bytes]) -> tuple[bytes, bytes
     See section 4.3.12 of APPNOTE.TXT.
     """
     data = _read_check(fp, 42)
-    compressed_size, filename_size, extra_size, comment_size, offset = struct.unpack(
+    _compressed_size, filename_size, extra_size, comment_size, _offset = struct.unpack(
         "<xxxxxxxxxxxxxxxxLxxxxHHHxxxxxxxxL", data
     )
     if comment_size != 0:
@@ -394,15 +393,15 @@ def validate_zipfile(zip_filepath: str) -> tuple[bool, str | None]:
 
 def main(argv) -> int:  # pragma: no cover
     if len(argv) != 1:
-        print("Usage: python -m warehouse.utils.zipfiles <ZIP path>")
+        print("Usage: python -m warehouse.utils.zipfiles <ZIP path>")  # noqa: T201
         return 1
     zip_filepath = argv[0]
     zip_filename = os.path.basename(zip_filepath)
     ok, error = validate_zipfile(zip_filepath)
     if ok:
-        print(f"{zip_filename}: OK")
+        print(f"{zip_filename}: OK")  # noqa: T201
     else:
-        print(f"{zip_filename}: {error}")
+        print(f"{zip_filename}: {error}")  # noqa: T201
     return 0 if ok else 1
 
 

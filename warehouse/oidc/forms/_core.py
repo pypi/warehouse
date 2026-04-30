@@ -52,7 +52,7 @@ class PendingPublisherMixin:
             # link to the project settings that the user can modify.
             if self._user in e.existing_project.owners:
                 # Mixin doesn't inherit from wtforms.Form but composed classes do
-                url_params = {name: value for name, value in self.data.items() if value}  # type: ignore[attr-defined] # noqa: E501
+                url_params = {name: value for name, value in self.data.items() if value}  # type: ignore[attr-defined]
                 url_params["provider"] = {self.provider}
                 url = self._route_url(
                     "manage.project.settings.publishing",
@@ -72,10 +72,7 @@ class PendingPublisherMixin:
                         )
                     )
                 )
-            else:
-                raise wtforms.validators.ValidationError(
-                    _("This project already exists.")
-                )
+            raise wtforms.validators.ValidationError(_("This project already exists."))
 
         except ProjectNameUnavailableProhibitedError:
             raise wtforms.validators.ValidationError(
@@ -103,7 +100,6 @@ class PendingPublisherMixin:
                 check_name=exc.check_name,
                 existing_project_name=exc.existing_project_name,
             )
-            pass
 
     @property
     def provider(self) -> str:  # pragma: no cover

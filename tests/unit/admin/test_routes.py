@@ -526,6 +526,26 @@ def test_includeme():
             "/admin/malware_reports/{observation_id}/remove_malware/",
             domain=warehouse,
         ),
+        pretend.call(
+            "admin.vulnerabilities.list",
+            "/admin/vulnerabilities/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.vulnerabilities.bulk_delete",
+            "/admin/vulnerabilities/bulk_delete/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.vulnerabilities.detail",
+            "/admin/vulnerabilities/{source}/{id}/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.vulnerabilities.detail.delete",
+            "/admin/vulnerabilities/{source}/{id}/delete/",
+            domain=warehouse,
+        ),
         pretend.call("admin.emails.list", "/admin/emails/", domain=warehouse),
         pretend.call("admin.emails.mass", "/admin/emails/mass/", domain=warehouse),
         pretend.call(

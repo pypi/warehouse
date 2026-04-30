@@ -129,20 +129,20 @@ class BasicAuthSecurityPolicy:
         request.authentication_method = AuthenticationMethod.BASIC_AUTH
 
         if not request.matched_route:
-            return None
+            return
         if request.matched_route.name != "forklift.legacy.file_upload":
-            return None
+            return
 
         credentials = extract_http_basic_credentials(request)
         if credentials is None:
-            return None
+            return
 
         username, _password = credentials
 
         # The API Token username is allowed to pass through to the
         # MacaroonSecurityPolicy.
         if username == "__token__":
-            return None
+            return
 
         raise _format_exc_status(
             HTTPForbidden(),

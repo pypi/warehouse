@@ -53,7 +53,7 @@ class TestMacaroonDecodeToken:
     def test_post_token_found(self, db_request, macaroon_service):
         user = UserFactory.create()
         db_request.user = user
-        token, macaroon = macaroon_service.create_macaroon(
+        token, _macaroon = macaroon_service.create_macaroon(
             location="fake location",
             description="real description",
             scopes=[caveats.RequestUser(user_id=str(user.id))],

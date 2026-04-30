@@ -73,7 +73,7 @@ class CreateInternalRoleForm(
     is_team = wtforms.RadioField(
         "Team or member?",
         choices=[("true", "Team"), ("false", "Member")],
-        coerce=lambda string: True if string == "true" else False,
+        coerce=lambda string: string == "true",
         default="true",
         validators=[wtforms.validators.InputRequired()],
     )
@@ -129,8 +129,7 @@ class SaveAccountForm(wtforms.Form):
             wtforms.validators.Length(
                 max=100,
                 message=_(
-                    "The name is too long. "
-                    "Choose a name with 100 characters or less."
+                    "The name is too long. Choose a name with 100 characters or less."
                 ),
             )
         ]
@@ -514,7 +513,7 @@ class AddOrganizationProjectForm(wtforms.Form):
     add_existing_project = wtforms.RadioField(
         "Add existing or new project?",
         choices=[("true", "Existing project"), ("false", "New project")],
-        coerce=lambda string: True if string == "true" else False,
+        coerce=lambda string: string == "true",
         default="true",
         validators=[wtforms.validators.InputRequired()],
     )
@@ -535,9 +534,8 @@ class AddOrganizationProjectForm(wtforms.Form):
         self.project_factory = project_factory
 
     def validate_existing_project_name(self, field):
-        if self.add_existing_project.data:
-            if not field.data:
-                raise wtforms.validators.StopValidation(_("Select project"))
+        if self.add_existing_project.data and not field.data:
+            raise wtforms.validators.StopValidation(_("Select project"))
 
     def validate_new_project_name(self, field):
         if not self.add_existing_project.data:
@@ -686,7 +684,7 @@ class SaveOrganizationForm(wtforms.Form):
 
 
 class CreateOrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationForm):
-    __params__ = ["name"] + SaveOrganizationForm.__params__
+    __params__ = ["name", *SaveOrganizationForm.__params__]
 
     _max_apps = wtforms.IntegerField()
 
@@ -735,8 +733,9 @@ class CreateOrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationF
             self.form_errors.append(
                 _(
                     "You have already submitted the maximum number of "
-                    f"Organization requests ({self.max_applications})."
+                    "Organization requests (%s)."
                 )
+                % self.max_applications
             )
             return False
         return True
@@ -797,10 +796,7 @@ class SaveTeamForm(wtforms.Form):
         # - The name conflict is with the current team.
         if team_id is not None and team_id != self.team_id:
             raise wtforms.validators.ValidationError(
-                _(
-                    "This team name has already been used. "
-                    "Choose a different team name."
-                )
+                _("This team name has already been used. Choose a different team name.")
             )
 
 
@@ -821,8 +817,7 @@ class AddAlternateRepositoryForm(wtforms.Form):
             wtforms.validators.Length(
                 max=100,
                 message=_(
-                    "The name is too long. "
-                    "Choose a name with 100 characters or less."
+                    "The name is too long. Choose a name with 100 characters or less."
                 ),
             ),
         ]

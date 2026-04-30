@@ -91,8 +91,7 @@ def get_opensearch_query(opensearch, terms, order, classifiers):
         query = opensearch.query(bool_query)
         query = query.suggest("name_suggestion", terms, term={"field": "name"})
 
-    query = query_for_order(query, order)
-    return query
+    return query_for_order(query, order)
 
 
 def filter_query(s):
@@ -134,5 +133,5 @@ def query_for_order(query, order):
             "unmapped_type": "long",
         }
     }
-    query = query.sort(sort_info)
-    return query
+
+    return query.sort(sort_info)

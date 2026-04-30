@@ -9,7 +9,7 @@ import secrets
 import shlex
 
 from datetime import timedelta
-from urllib.parse import urlparse, urlunparse
+from urllib.parse import urlparse, urlunparse  # noqa: TID251
 
 import orjson
 import platformdirs
@@ -29,7 +29,7 @@ from warehouse.utils.static import ManifestCacheBuster
 from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
 
 
-class Environment(str, enum.Enum):
+class Environment(enum.StrEnum):
     production = "production"
     development = "development"
 
@@ -71,6 +71,7 @@ class RootFactory:
                 Permissions.AdminIpAddressesRead,
                 Permissions.AdminIpAddressesWrite,
                 Permissions.AdminJournalRead,
+                Permissions.AdminMacaroonsInspect,
                 Permissions.AdminMacaroonsRead,
                 Permissions.AdminMacaroonsWrite,
                 Permissions.AdminObservationsRead,
@@ -99,6 +100,8 @@ class RootFactory:
                 Permissions.AdminUsersWrite,
                 Permissions.AdminUsersEmailWrite,
                 Permissions.AdminUsersAccountRecoveryWrite,
+                Permissions.AdminVulnerabilitiesRead,
+                Permissions.AdminVulnerabilitiesWrite,
             ),
         ),
         (
@@ -217,9 +220,7 @@ def require_https_tween_factory(handler, registry):
 
 
 def activate_hook(request):
-    if request.path.startswith(("/_debug_toolbar/", "/static/")):
-        return False
-    return True
+    return not request.path.startswith(("/_debug_toolbar/", "/static/"))
 
 
 def template_view(config, name, route, template, route_kw=None, view_kw=None):
@@ -245,10 +246,10 @@ def maybe_set(settings, name, envvar, coercer=None, default=None):
 def maybe_set_compound(settings, base, name, envvar):
     if envvar in os.environ:
         value = shlex.split(os.environ[envvar])
-        kwargs = {k: v for k, v in (i.split("=") for i in value[1:])}
-        settings[".".join([base, name])] = value[0]
+        kwargs = dict(i.split("=") for i in value[1:])
+        settings[f"{base}.{name}"] = value[0]
         for key, value in kwargs.items():
-            settings[".".join([base, key])] = value
+            settings[f"{base}.{key}"] = value
 
 
 def maybe_set_redis(settings, name, envvar, coercer=None, default=None, db=None):
@@ -278,28 +279,26 @@ def reject_duplicate_post_keys_view(view, info):
     if info.options.get("permit_duplicate_post_keys") or info.exception_only:
         return view
 
-    else:
-        # If this isn't an exception or hasn't been permitted to have duplicate
-        # POST keys, wrap the view with a check
+    # If this isn't an exception or hasn't been permitted to have duplicate
+    # POST keys, wrap the view with a check
 
-        @functools.wraps(view)
-        def wrapped(context, request):
-            if request.POST:
-                # Determine if there are any duplicate keys
-                keys = list(request.POST.keys())
-                if len(keys) != len(set(keys)):
-                    return HTTPBadRequest(
-                        "POST body may not contain duplicate keys "
-                        f"(URL: {request.url!r})"
-                    )
+    @functools.wraps(view)
+    def wrapped(context, request):
+        if request.POST:
+            # Determine if there are any duplicate keys
+            keys = list(request.POST.keys())
+            if len(keys) != len(set(keys)):
+                return HTTPBadRequest(
+                    f"POST body may not contain duplicate keys (URL: {request.url!r})"
+                )
 
-            # Casting succeeded, so just return the regular view
-            return view(context, request)
+        # Casting succeeded, so just return the regular view
+        return view(context, request)
 
-        return wrapped
+    return wrapped
 
 
-reject_duplicate_post_keys_view.options = {"permit_duplicate_post_keys"}  # type: ignore
+reject_duplicate_post_keys_view.options = {"permit_duplicate_post_keys"}  # type: ignore[attr-defined]
 
 
 def configure(settings=None):
@@ -613,7 +612,7 @@ def configure(settings=None):
         settings.setdefault(
             "debugtoolbar.panels",
             [
-                ".".join(["pyramid_debugtoolbar.panels", panel])
+                f"pyramid_debugtoolbar.panels.{panel}"
                 for panel in [
                     "versions.VersionDebugPanel",
                     "settings.SettingsDebugPanel",

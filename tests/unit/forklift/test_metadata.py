@@ -83,7 +83,7 @@ class TestValidation:
         monkeypatch.setattr(
             packaging.metadata,
             "_VALID_METADATA_VERSIONS",
-            packaging.metadata._VALID_METADATA_VERSIONS + ["100000.0"],
+            [*packaging.metadata._VALID_METADATA_VERSIONS, "100000.0"],
         )
 
         # Make sure that our monkeypatching worked

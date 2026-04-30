@@ -24,7 +24,6 @@ from warehouse.utils import wheel
 
 
 class PEP740AttestationViewer:
-
     def __init__(self, publisher: Publisher, attestation: Attestation):
         self.publisher = publisher
         self.attestation = attestation
@@ -158,7 +157,8 @@ class PEP740AttestationViewer:
     renderer="warehouse:templates/packaging/detail.html",
     decorator=[
         origin_cache(
-            1 * 24 * 60 * 60, stale_if_error=5 * 24 * 60 * 60  # 1 day, 5 days stale
+            1 * 24 * 60 * 60,
+            stale_if_error=5 * 24 * 60 * 60,  # 1 day, 5 days stale
         )
     ],
     has_translations=True,
@@ -191,7 +191,8 @@ def project_detail(project, request):
     renderer="warehouse:templates/packaging/detail.html",
     decorator=[
         origin_cache(
-            1 * 24 * 60 * 60, stale_if_error=5 * 24 * 60 * 60  # 1 day, 5 days stale
+            1 * 24 * 60 * 60,
+            stale_if_error=5 * 24 * 60 * 60,  # 1 day, 5 days stale
         )
     ],
     has_translations=True,

@@ -37,7 +37,7 @@ class IMacaroonService(Interface):
         *,
         user_id=None,
         oidc_publisher_id=None,
-        additional=None
+        additional=None,
     ):
         """
         Returns a tuple of a new raw (serialized) macaroon and its DB model.

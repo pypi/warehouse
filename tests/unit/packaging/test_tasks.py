@@ -526,7 +526,7 @@ class TestUpdateBigQueryMetadata:
         )
 
         # Process the mocked wtform fields
-        for key, value in form_factory.items():
+        for value in form_factory.values():
             value.process(None)
 
         get_table = pretend.stub(schema=bq_schema)
@@ -622,7 +622,7 @@ class TestUpdateBigQueryMetadata:
                         "keywords": form_factory["description_content_type"].data
                         or None,
                         "classifiers": form_factory["classifiers"].data or [],
-                        "platform": [form_factory["platform"].data] or [],
+                        "platform": [form_factory["platform"].data],
                         "home_page": form_factory["home_page"].data or None,
                         "download_url": form_factory["download_url"].data or None,
                         "requires_python": form_factory["requires_python"].data or None,

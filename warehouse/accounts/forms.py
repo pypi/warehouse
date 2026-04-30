@@ -197,6 +197,9 @@ class PasswordMixin:
         super().__init__(*args, **kwargs)
 
     def validate_password(self, field):
+        if field.errors:
+            return
+
         userid = self.user_service.find_userid(self.username.data)
         if userid is not None:
             try:
@@ -420,8 +423,7 @@ class RegistrationForm(  # type: ignore[misc]
             wtforms.validators.Length(
                 max=100,
                 message=_(
-                    "The name is too long. "
-                    "Choose a name with 100 characters or less."
+                    "The name is too long. Choose a name with 100 characters or less."
                 ),
             ),
             wtforms.validators.Regexp(
@@ -589,6 +591,9 @@ class RecoveryCodeAuthenticationForm(
     RecoveryCodeValueMixin, _TwoFactorAuthenticationForm
 ):
     def validate_recovery_code_value(self, field):
+        if field.errors:
+            return
+
         recovery_code_value = field.data.encode("utf-8").strip()
 
         try:

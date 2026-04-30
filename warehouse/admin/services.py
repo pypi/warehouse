@@ -39,10 +39,9 @@ class LocalSponsorLogoStorage:
     def store(self, path, file_path, content_type=None, *, meta=None):
         destination = os.path.join(self.base, path)
         os.makedirs(os.path.dirname(destination), exist_ok=True)
-        with open(destination, "wb") as dest_fp:
-            with open(file_path, "rb") as src_fp:
-                dest_fp.write(src_fp.read())
-                dest_fp.flush()
+        with open(destination, "wb") as dest_fp, open(file_path, "rb") as src_fp:
+            dest_fp.write(src_fp.read())
+            dest_fp.flush()
         return f"http://files:9001/sponsorlogos/{path}"
 
 

@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import re
+
 import pretend
 import psycopg
 import pytest
@@ -219,7 +221,7 @@ class TestGitHubPublisher:
             environment="fakeenv",
         )
 
-        for claim_name in publisher.__required_verifiable_claims__.keys():
+        for claim_name in publisher.__required_verifiable_claims__:
             assert getattr(publisher, claim_name) is not None
 
         assert str(publisher) == "fakeworkflow.yml"
@@ -278,10 +280,7 @@ class TestGitHubPublisher:
         monkeypatch.setattr(_core, "sentry_sdk", sentry_sdk)
 
         # We don't care if these actually verify, only that they're present.
-        signed_claims = {
-            claim_name: "fake"
-            for claim_name in github.GitHubPublisher.all_known_claims()
-        }
+        signed_claims = dict.fromkeys(github.GitHubPublisher.all_known_claims(), "fake")
         signed_claims["fake-claim"] = "fake"
         signed_claims["another-fake-claim"] = "also-fake"
 
@@ -318,10 +317,7 @@ class TestGitHubPublisher:
         )
         monkeypatch.setattr(_core, "sentry_sdk", sentry_sdk)
 
-        signed_claims = {
-            claim_name: "fake"
-            for claim_name in github.GitHubPublisher.all_known_claims()
-        }
+        signed_claims = dict.fromkeys(github.GitHubPublisher.all_known_claims(), "fake")
         # Pop the missing claim, so that it's missing.
         signed_claims.pop(missing)
         assert missing not in signed_claims
@@ -381,17 +377,15 @@ class TestGitHubPublisher:
         )
 
         noop_check = pretend.call_recorder(lambda gt, sc, ac, **kwargs: True)
-        verifiable_claims = {
-            claim_name: noop_check
-            for claim_name in publisher.__required_verifiable_claims__
-        }
+        verifiable_claims = dict.fromkeys(
+            publisher.__required_verifiable_claims__, noop_check
+        )
         monkeypatch.setattr(
             publisher, "__required_verifiable_claims__", verifiable_claims
         )
-        optional_verifiable_claims = {
-            claim_name: noop_check
-            for claim_name in publisher.__optional_verifiable_claims__
-        }
+        optional_verifiable_claims = dict.fromkeys(
+            publisher.__optional_verifiable_claims__, noop_check
+        )
         monkeypatch.setattr(
             publisher, "__optional_verifiable_claims__", optional_verifiable_claims
         )
@@ -435,7 +429,7 @@ class TestGitHubPublisher:
 
         with pytest.raises(
             errors.InvalidPublisherError,
-            match=(
+            match=re.escape(
                 "Publishing from a workflow invoked via 'pull_request_target' "
                 "is not supported."
             ),

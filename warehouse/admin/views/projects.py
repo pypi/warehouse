@@ -182,27 +182,21 @@ def project_detail(project, request):
         .all()
     )
 
-    maintainers = [
-        role
-        for role in (
-            request.db.query(Role)
-            .join(User)
-            .filter(Role.project == project)
-            .distinct(User.username)
-            .all()
-        )
-    ]
+    maintainers = list(
+        request.db.query(Role)
+        .join(User)
+        .filter(Role.project == project)
+        .distinct(User.username)
+        .all()
+    )
     maintainers = sorted(maintainers, key=lambda x: (x.role_name, x.user.username))
-    journal = [
-        entry
-        for entry in (
-            request.db.query(JournalEntry)
-            .options(joinedload(JournalEntry.submitted_by))
-            .filter(JournalEntry.name == project.name)
-            .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
-            .limit(30)
-        )
-    ]
+    journal = list(
+        request.db.query(JournalEntry)
+        .options(joinedload(JournalEntry.submitted_by))
+        .filter(JournalEntry.name == project.name)
+        .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
+        .limit(30)
+    )
     observations = list(
         request.db.query(project.Observation)
         .options(joinedload(project.Observation.observer))

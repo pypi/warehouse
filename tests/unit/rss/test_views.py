@@ -10,6 +10,16 @@ from warehouse.rss import views as rss
 from ...common.db.packaging import ProjectFactory, ReleaseFactory
 
 
+def _assert_has_cors_headers(headers):
+    assert headers["Access-Control-Allow-Origin"] == "*"
+    assert headers["Access-Control-Allow-Headers"] == (
+        "Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since"
+    )
+    assert headers["Access-Control-Allow-Methods"] == "GET"
+    assert headers["Access-Control-Max-Age"] == "86400"
+    assert headers["Access-Control-Expose-Headers"] == "X-PyPI-Last-Serial"
+
+
 def test_rss_updates(db_request):
     db_request.find_service = pretend.call_recorder(
         lambda *args, **kwargs: pretend.stub(
@@ -36,6 +46,7 @@ def test_rss_updates(db_request):
         )
     }
     assert db_request.response.content_type == "text/xml"
+    _assert_has_cors_headers(db_request.response.headers)
 
 
 def test_rss_packages(db_request):
@@ -62,6 +73,7 @@ def test_rss_packages(db_request):
         "newest_projects": tuple(zip((project3, project1), (None, None)))
     }
     assert db_request.response.content_type == "text/xml"
+    _assert_has_cors_headers(db_request.response.headers)
 
 
 def test_rss_project_releases(db_request):
@@ -91,6 +103,7 @@ def test_rss_project_releases(db_request):
         ),
     }
     assert db_request.response.content_type == "text/xml"
+    _assert_has_cors_headers(db_request.response.headers)
 
 
 @pytest.mark.parametrize(

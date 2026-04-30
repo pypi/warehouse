@@ -711,7 +711,7 @@ You can run linters, programs that check the code, with:
 make lint
 ```
 
-Warehouse uses [black](https://github.com/psf/black) for opinionated
+Warehouse uses [ruff](https://docs.astral.sh/ruff/) for opinionated
 formatting and linting. You can reformat with:
 
 ```shell

@@ -10,10 +10,12 @@ import botocore.exceptions
 import pretend
 import pytest
 
+from pyramid.httpexceptions import HTTPForbidden
 from zope.interface.verify import verifyClass
 
 import warehouse.packaging.services
 
+from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.packaging.interfaces import (
     IDocsStorage,
     IFileStorage,
@@ -344,7 +346,7 @@ class TestB2FileStorage:
 
     def test_raises_when_key_non_existent(self):
         def raiser(path):
-            raise b2sdk.v2.exception.FileNotPresent()
+            raise b2sdk.v2.exception.FileNotPresent
 
         bucket_stub = pretend.stub(download_file_by_name=raiser)
         mock_b2_api = pretend.stub(get_bucket_by_name=lambda bucket_name: bucket_stub)
@@ -360,7 +362,7 @@ class TestB2FileStorage:
 
     def test_get_metadata_raises_when_key_non_existent(self):
         def raiser(path):
-            raise b2sdk.v2.exception.FileNotPresent()
+            raise b2sdk.v2.exception.FileNotPresent
 
         bucket_stub = pretend.stub(get_file_info_by_name=raiser)
         mock_b2_api = pretend.stub(get_bucket_by_name=lambda bucket_name: bucket_stub)
@@ -376,7 +378,7 @@ class TestB2FileStorage:
 
     def test_get_checksum_raises_when_key_non_existent(self):
         def raiser(path):
-            raise b2sdk.v2.exception.FileNotPresent()
+            raise b2sdk.v2.exception.FileNotPresent
 
         bucket_stub = pretend.stub(
             get_file_info_by_id=raiser, get_file_info_by_name=raiser
@@ -554,7 +556,9 @@ class TestS3FileStorage:
             fp.write(b"Test File!")
 
         bucket = pretend.stub(
-            upload_file=pretend.call_recorder(lambda filename, key, ExtraArgs: None)
+            upload_file=pretend.call_recorder(
+                lambda filename, key, ExtraArgs: None  # noqa: N803
+            )
         )
         storage = S3FileStorage(bucket)
         storage.store("foo/bar.txt", filename)
@@ -573,7 +577,9 @@ class TestS3FileStorage:
             fp.write(b"Second Test File!")
 
         bucket = pretend.stub(
-            upload_file=pretend.call_recorder(lambda filename, key, ExtraArgs: None)
+            upload_file=pretend.call_recorder(
+                lambda filename, key, ExtraArgs: None  # noqa: N803
+            )
         )
         storage = S3FileStorage(bucket)
         storage.store("foo/first.txt", filename1)
@@ -590,7 +596,9 @@ class TestS3FileStorage:
             fp.write(b"Test File!")
 
         bucket = pretend.stub(
-            upload_file=pretend.call_recorder(lambda filename, key, ExtraArgs: None)
+            upload_file=pretend.call_recorder(
+                lambda filename, key, ExtraArgs: None  # noqa: N803
+            )
         )
         storage = S3FileStorage(bucket)
         storage.store("foo/bar.txt", filename, meta={"foo": "bar"})
@@ -810,9 +818,11 @@ class TestS3DocsStorage:
         files = {"Contents": [{"Key": f"foo/{i}.html"} for i in range(file_count)]}
         s3_client = pretend.stub(
             list_objects_v2=pretend.call_recorder(
-                lambda Bucket=None, Prefix=None: files
+                lambda Bucket=None, Prefix=None: files  # noqa: N803
             ),
-            delete_objects=pretend.call_recorder(lambda Bucket=None, Delete=None: None),
+            delete_objects=pretend.call_recorder(
+                lambda Bucket=None, Delete=None: None  # noqa: N803
+            ),
         )
         storage = S3DocsStorage(s3_client, "bucket-name")
 
@@ -835,9 +845,11 @@ class TestS3DocsStorage:
         files = {"Contents": [{"Key": f"foo/{i}.html"} for i in range(150)]}
         s3_client = pretend.stub(
             list_objects_v2=pretend.call_recorder(
-                lambda Bucket=None, Prefix=None: files
+                lambda Bucket=None, Prefix=None: files  # noqa: N803
             ),
-            delete_objects=pretend.call_recorder(lambda Bucket=None, Delete=None: None),
+            delete_objects=pretend.call_recorder(
+                lambda Bucket=None, Delete=None: None  # noqa: N803
+            ),
         )
         storage = S3DocsStorage(s3_client, "bucket-name")
 
@@ -862,9 +874,11 @@ class TestS3DocsStorage:
         files = {"Contents": [{"Key": f"docs/foo/{i}.html"} for i in range(150)]}
         s3_client = pretend.stub(
             list_objects_v2=pretend.call_recorder(
-                lambda Bucket=None, Prefix=None: files
+                lambda Bucket=None, Prefix=None: files  # noqa: N803
             ),
-            delete_objects=pretend.call_recorder(lambda Bucket=None, Delete=None: None),
+            delete_objects=pretend.call_recorder(
+                lambda Bucket=None, Delete=None: None  # noqa: N803
+            ),
         )
         storage = S3DocsStorage(s3_client, "bucket-name", prefix="docs")
 
@@ -1000,6 +1014,30 @@ class TestProjectService:
 
         with pytest.raises(ProjectNameUnavailableStdlibError):
             service.check_project_name(name)
+
+    def test_check_project_test_new_disallowed(self, db_request):
+        admin_flag = (
+            db_request.db.query(AdminFlag)
+            .filter(
+                AdminFlag.id == AdminFlagValue.DISALLOW_NEW_PROJECT_REGISTRATION.value
+            )
+            .first()
+        )
+        admin_flag.enabled = True
+
+        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+
+        service = ProjectService(session=db_request.db)
+
+        with pytest.raises(HTTPForbidden) as exc:
+            service.create_project("foo", pretend.stub(), db_request, ratelimited=False)
+
+        resp = exc.value
+        assert resp.status_code == 403
+        assert resp.detail == (
+            "New project registration temporarily disabled. See "
+            "/the/help/url/ for more information."
+        )
 
     def test_check_project_name_already_exists(self, db_session):
         service = ProjectService(session=db_session)

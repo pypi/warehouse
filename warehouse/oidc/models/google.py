@@ -73,11 +73,10 @@ class GooglePublisherMixin:
         query: Query = Query(cls).filter_by(email=signed_claims["email"])
         publishers = query.with_session(session).all()
 
-        if sub := signed_claims.get("sub"):
-            if specific_publisher := first_true(
-                publishers, pred=lambda p: p.sub == sub
-            ):
-                return specific_publisher
+        if (sub := signed_claims.get("sub")) and (
+            specific_publisher := first_true(publishers, pred=lambda p: p.sub == sub)
+        ):
+            return specific_publisher
 
         if general_publisher := first_true(publishers, pred=lambda p: p.sub == ""):
             return general_publisher

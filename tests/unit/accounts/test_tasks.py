@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pretend
 import pytest
@@ -122,7 +122,7 @@ def _create_old_users_and_releases():
         ReleaseFactory.create(
             project=project,
             uploader=user,
-            created=datetime.now(timezone.utc) - timedelta(days=365 * 2 + 1),
+            created=datetime.now(UTC) - timedelta(days=365 * 2 + 1),
         )
 
 
@@ -198,15 +198,15 @@ def test_update_email_domain_status(db_request, domain_status_service, mocker):
     )
     over_threshold = EmailFactory.create(
         email="me@over-threshold.com",
-        domain_last_checked=datetime.now(tz=timezone.utc) - timedelta(days=90),
+        domain_last_checked=datetime.now(tz=UTC) - timedelta(days=90),
     )
     on_threshold = EmailFactory.create(
         email="me@on-threshold.com",
-        domain_last_checked=datetime.now(tz=timezone.utc) - timedelta(days=30),
+        domain_last_checked=datetime.now(tz=UTC) - timedelta(days=30),
     )
     under_threshold = EmailFactory.create(
         email="me@under-threshold.com",
-        domain_last_checked=datetime.now(tz=timezone.utc) - timedelta(days=1),
+        domain_last_checked=datetime.now(tz=UTC) - timedelta(days=1),
     )
 
     batch_update_email_domain_status(db_request)
@@ -244,7 +244,7 @@ def test_update_email_domain_status_retries_failures_in_7_days(
 
     # Timestamp should be set to ~23 days ago for retry in ~7 days
     assert fail_check.domain_last_checked is not None
-    expected_retry_date = (datetime.now(tz=timezone.utc) - timedelta(days=23)).date()
+    expected_retry_date = (datetime.now(tz=UTC) - timedelta(days=23)).date()
     assert fail_check.domain_last_checked.date() == expected_retry_date
     # Status should remain None since lookup returned None
     assert fail_check.domain_last_status is None

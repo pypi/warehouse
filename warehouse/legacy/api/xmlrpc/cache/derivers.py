@@ -33,7 +33,7 @@ def cached_return_view(view, info):
     return view
 
 
-cached_return_view.options = [  # type: ignore
+cached_return_view.options = [  # type: ignore[attr-defined]
     "xmlrpc_cache",
     "xmlrpc_cache_tag",
     "xmlrpc_cache_expires",

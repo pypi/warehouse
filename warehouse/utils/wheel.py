@@ -28,8 +28,7 @@ _PLATFORMS = [
     (
         re.compile(r"^manylinux_(\d+)_(\d+)_(.*?)$"),
         lambda m: (
-            f"manylinux: glibc "
-            f"{m.group(1)}.{m.group(2)}+ {_normalize_arch(m.group(3))}"
+            f"manylinux: glibc {m.group(1)}.{m.group(2)}+ {_normalize_arch(m.group(3))}"
         ),
     ),
     (
@@ -48,11 +47,19 @@ _PLATFORMS = [
     ),
     (
         re.compile(r"^ios_(\d+)_(\d+)_(.*?)_iphoneos$"),
-        lambda m: f"iOS {m.group(1)}.{m.group(2)}+ {_normalize_arch(m.group(3))} Device",  # noqa: E501
+        lambda m: (
+            f"iOS {m.group(1)}.{m.group(2)}+ {_normalize_arch(m.group(3))} Device"
+        ),
     ),
     (
         re.compile(r"^ios_(\d+)_(\d+)_(.*?)_iphonesimulator$"),
-        lambda m: f"iOS {m.group(1)}.{m.group(2)}+ {_normalize_arch(m.group(3))} Simulator",  # noqa: E501
+        lambda m: (
+            f"iOS {m.group(1)}.{m.group(2)}+ {_normalize_arch(m.group(3))} Simulator"
+        ),
+    ),
+    (
+        re.compile(r"^pyemscripten_(\d+)_(\d+)_wasm32$"),
+        lambda m: f"PyEmscripten {m.group(1)}.{m.group(2)} wasm32",
     ),
 ]
 
@@ -93,7 +100,7 @@ def filename_to_tags(filename: str) -> set[packaging.tags.Tag]:
 def filename_to_pretty_tags(filename: str) -> list[str]:
     if filename.endswith(".egg"):
         return ["Egg"]
-    elif not filename.endswith(".whl"):
+    if not filename.endswith(".whl"):
         return ["Source"]
 
     tags = filename_to_tags(filename)
@@ -198,7 +205,7 @@ def validate_record(wheel_filepath: str) -> bool:
             if not _zip_filename_is_dir(fn) and fn not in record_exemptions
         }
     except (UnicodeError, KeyError, csv.Error):
-        raise MissingWheelRecordError()
+        raise MissingWheelRecordError
     if record_entries != wheel_entries:
         record_is_missing = wheel_entries - record_entries
         wheel_is_missing = record_entries - wheel_entries
@@ -212,16 +219,16 @@ def validate_record(wheel_filepath: str) -> bool:
 
 def main(argv) -> int:  # pragma: no cover
     if len(argv) != 1:
-        print("Usage: python -m warehouse.utils.wheel <wheel path>")
+        print("Usage: python -m warehouse.utils.wheel <wheel path>")  # noqa: T201
         return 1
     wheel_filepath = argv[0]
     wheel_filename = os.path.basename(wheel_filepath)
     try:
         validate_record(wheel_filepath)
-        print(f"{wheel_filename}: OK")
+        print(f"{wheel_filename}: OK")  # noqa: T201
         return 0
-    except Exception as error:
-        print(f"{wheel_filename}: {error!r}")
+    except Exception as error:  # noqa: BLE001
+        print(f"{wheel_filename}: {error!r}")  # noqa: T201
         return 1
 
 

@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 set -ex
 
-find . -name '*.py' -exec python -m pyupgrade --py313-plus {} +
-python -m isort *.py warehouse/ tests/
-python -m black *.py warehouse/ tests/
+ruff check --fix-only
+ruff format
+
+# format our pyproject.toml file (as well as any other toml files)
+tombi format
+
 python -m djlint --reformat ./warehouse/templates ./docs/blog

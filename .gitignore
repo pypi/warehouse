@@ -9,6 +9,7 @@
 .state
 .idea
 .envrc
+.venv
 
 docs/dev/_build/
 docs/user/_build/
@@ -26,10 +27,8 @@ dev/example.sql
 dev/prod.sql
 dev/prod.sql.xz
 dev/.coverage*
-dev/.mypy_cache/
-dev/.pip-cache/
-dev/.pip-tools-cache/
-dev/.pytest_cache/
+dev/codeql/
+.github/codeql/**/*.testproj/
 ./data/
 
 warehouse/.commit
@@ -41,4 +40,3 @@ tags
 *.sw*
 
 .DS_Store
-.stylelintcache

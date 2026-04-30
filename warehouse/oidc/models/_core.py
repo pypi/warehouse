@@ -47,7 +47,7 @@ class CheckNamedArguments(TypedDict, total=False):
 CheckClaimCallable = Callable[[C, C, SignedClaims, Unpack[CheckNamedArguments]], bool]
 
 
-def check_claim_binary(binary_func: Callable[[C, C], bool]) -> CheckClaimCallable[C]:
+def check_claim_binary[C](binary_func: Callable[[C, C], bool]) -> CheckClaimCallable[C]:
     """
     Wraps a binary comparison function so that it takes three arguments instead,
     ignoring the third.
@@ -67,7 +67,7 @@ def check_claim_binary(binary_func: Callable[[C, C], bool]) -> CheckClaimCallabl
     return wrapper
 
 
-def check_claim_invariant(value: C) -> CheckClaimCallable[C]:
+def check_claim_invariant[C](value: C) -> CheckClaimCallable[C]:
     """
     Wraps a fixed value comparison into a three-argument function.
 
@@ -101,7 +101,7 @@ def check_existing_jti(
             "warehouse.oidc.reused_token",
             tags=[f"publisher:{publisher_service.publisher}"],
         )
-        raise ReusedTokenError()
+        raise ReusedTokenError
 
     return True
 
@@ -135,13 +135,13 @@ class OIDCPublisherMixin:
 
     # A map of claim names to "check" functions, each of which
     # has the signature `check(ground-truth, signed-claim, all-signed-claims) -> bool`.
-    __required_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = dict()
+    __required_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {}
 
     # A set of claim names which must be present, but can't be verified
     __required_unverifiable_claims__: set[str] = set()
 
     # Simlar to __verificable_claims__, but these claims are optional
-    __optional_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = dict()
+    __optional_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {}
 
     # Claims that have already been verified during the JWT signature
     # verification phase if present.
@@ -211,7 +211,7 @@ class OIDCPublisherMixin:
         # All claims should be accounted for.
         # The presence of an unaccounted claim is not an error, only a warning
         # that the JWT payload has changed.
-        unaccounted_claims = sorted(list(signed_claims.keys() - cls.all_known_claims()))
+        unaccounted_claims = sorted(signed_claims.keys() - cls.all_known_claims())
         if unaccounted_claims:
             with sentry_sdk.new_scope() as scope:
                 scope.fingerprint = unaccounted_claims
