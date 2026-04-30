@@ -13,7 +13,10 @@ from pyramid.httpexceptions import HTTPException, HTTPForbidden
 from pyramid.request import Request
 from pyramid.view import view_config
 
-from warehouse.email import send_environment_ignored_in_trusted_publisher_email
+from warehouse.email import (
+    send_environment_ignored_in_trusted_publisher_email,
+    send_pending_trusted_publisher_reified_email,
+)
 from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
@@ -248,6 +251,16 @@ def mint_token(
                     "reified_from_pending_publisher": True,
                     "constrained_from_existing_publisher": False,
                 },
+            )
+
+            # Notify the registrant that their pending publisher was used to
+            # create a real project. Provides an audit trail and lets the
+            # registrant spot uses they didn't expect.
+            send_pending_trusted_publisher_reified_email(
+                request,
+                pending_publisher.added_by,
+                project_name=new_project.name,
+                publisher_specifier=str(reified_publisher),
             )
 
             # Successfully converting a pending publisher into a normal publisher
