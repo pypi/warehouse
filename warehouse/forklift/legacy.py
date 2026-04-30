@@ -1116,9 +1116,9 @@ def file_upload(request):
         else verify_email(email=maintainer_email, project=project)
     )
 
+    is_new_release = False
+    canonical_version = packaging.utils.canonicalize_version(meta.version)
     try:
-        is_new_release = False
-        canonical_version = packaging.utils.canonicalize_version(meta.version)
         release = (
             request.db.query(Release)
             .filter(
