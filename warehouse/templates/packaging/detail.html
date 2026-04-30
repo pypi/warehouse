@@ -140,17 +140,40 @@
       <div class="package-header__left">
         <h1 class="package-header__name">{{ release.project.name }} {{ release.version }}</h1>
         {% if files and not project.lifecycle_status == "quarantine-enter" and not release.lifecycle_status == "quarantine-enter" %}
-          <div data-controller="clipboard">
+          {% set installer_spec = ("==" ~ release.version) if request.matched_route.name == "packaging.release" else "" %}
+          {% set installer_index = " -i https://test.pypi.org/simple/" if testPyPI else "" %}
+          <div data-controller="clipboard installer-command"
+               data-installer-command-name-value="{{ release.project.name }}"
+               data-installer-command-spec-value="{{ installer_spec }}"
+               data-installer-command-index-value="{{ installer_index }}"
+               data-installer-command-quote-value="{{ 'true' if release.version.epoch else 'false' }}">
             <p class="package-header__pip-instructions">
-              <span id="pip-command" data-clipboard-target="source">{{ pip_command(release, request.matched_route.name, testPyPI) }}</span>
+              <label for="installer-select" class="sr-only">{% trans %}Select installer{% endtrans %}</label>
+              <span class="package-header__installer">
+                <select id="installer-select"
+                        data-installer-command-target="select"
+                        data-action="change->installer-command#change">
+                  <option value="pip">pip</option>
+                  <option value="uv">uv</option>
+                  <option value="poetry">poetry</option>
+                  <option value="pdm">pdm</option>
+                  <option value="pipenv">pipenv</option>
+                </select>
+              </span>
+              <span id="pip-command" data-installer-command-target="command">install {{ release.project.name }}{{ installer_spec }}</span>
               <button type="button"
                       class="copy-tooltip copy-tooltip-s"
                       data-action="clipboard#copy"
                       data-clipboard-target="tooltip"
                       data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
                 <i class="fa fa-copy" aria-hidden="true"></i>
-                <span class="sr-only">{% trans %}Copy PIP instructions{% endtrans %}</span>
+                <span class="sr-only">{% trans %}Copy install instructions{% endtrans %}</span>
               </button>
+              {# Hidden source for the clipboard controller; carries the
+                 full command (installer + suffix). #}
+              <span hidden
+                    data-clipboard-target="source"
+                    data-installer-command-target="full">pip install {{ release.project.name }}{{ installer_spec }}</span>
             </p>
           </div>
         {% endif %}
