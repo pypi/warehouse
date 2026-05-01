@@ -172,13 +172,13 @@ ignore = [
   "DTZ",  # prevents using naive datetimes, probably useful, but needs manual review
   "TRY",  # would require reworking some of our exceptions to make this work
   "EM",  # would require reworking some of our exceptions to make this work
-  "PLR2004",  # we use a lot of magic values, maybe we shouldn't but for now allow it
-  "PLR0915",  # too many statements; I'm suspect on the value of the "too many X" rules
-  "PLR0912",  # too many branches; I'm suspect on the value of the "too many X" rules
   "PLR0911",  # too many return statements; I'm suspect on the value of the "too many X" rules
+  "PLR0912",  # too many branches; I'm suspect on the value of the "too many X" rules
   "PLR0913",  # too many arguments; I'm suspect on the value of the "too many X" rules
-  "PLW2901",  # it's fine to overwrite a for loop variable
+  "PLR0915",  # too many statements; I'm suspect on the value of the "too many X" rules
+  "PLR2004",  # we use a lot of magic values, maybe we shouldn't but for now allow it
   "PLW1641",  # we don't need every object to implement __hash__
+  "PLW2901",  # it's fine to overwrite a for loop variable
   "PTH",  # tries to enforce pathlib, but most of our paths are abstract urls/keys
   "ARG",  # rejects unused arguments, but we have to have them in a lot of places
   "C90",  # enforces mccabe complexity, adding would require refactoring
