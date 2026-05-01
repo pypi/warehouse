@@ -195,8 +195,23 @@ ignore = [
 "tests/unit/email/test_services.py" = ["PT009"]
 "tests/unit/test_views.py" = ["PT009"]
 # TID252: Pretty much all of our tests use relative imports.
-# S: The test suite doesn't need to worry about security issues.
-"tests/**/*.py" = ["TID252", "S"]
+# S104: tests use 0.0.0.0 as a sentinel value sometimes
+# S105: tests aren't used in production and can use hardcoded pws for tests
+# S106: tests aren't used in production and can use hardcoded pws for tests
+# S108: tests use hardcoded tmp paths that get stubbed out
+# S303: strength of the hash functions used in tests doesn't matter
+# S311: tests don't need cryptographically strong randomness
+# S324: strength of the hash functions used in tests doesn't matter
+"tests/**/*.py" = [
+  "TID252",
+  "S104",
+  "S105",
+  "S106",
+  "S108",
+  "S303",
+  "S311",
+  "S324"
+]
 # INP001: Our migrations are scripts not files that are part of a package
 "warehouse/migrations/**/*.py" = ["INP001"]
 # The warehouse cli can use print to give feedback to the user.

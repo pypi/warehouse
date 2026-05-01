@@ -147,6 +147,7 @@ def jinja():
     dir_name = os.path.join(os.path.dirname(warehouse.__file__))
 
     return Environment(
+        autoescape=True,
         loader=FileSystemLoader(dir_name),
         extensions=[
             "jinja2.ext.i18n",
