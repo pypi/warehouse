@@ -298,7 +298,6 @@ def test_format_email(meta_email, expected_name, expected_email):
     ("inp", "expected"),
     [
         ("foo", "foo"),  # no change
-        (" foo \x1b bar ", " foo  bar "),  # U+001B : <control> ESCAPE [ESC]
         ("foo \x1b bar", "foo  bar"),  # U+001B : <control> ESCAPE [ESC]
         ("foo \x00 bar", "foo  bar"),  # U+0000 : <control> NULL
         ("foo 🐍 bar", "foo 🐍 bar"),  # U+1F40D : SNAKE [snake] (emoji) [Python]

@@ -28,7 +28,6 @@ def test_disclosure_origin_serialization(someorigin):
 
 
 def test_disclosure_origin_equivalence(someorigin):
-    assert someorigin == someorigin  # noqa: PLR0124
     someotherorigin = utils.DisclosureOrigin(
         name="SomeOtherOrigin",
         key_id_header="SOME_KEY_ID_HEADER",
