@@ -646,8 +646,7 @@ class ProjectService:
         # The project name is valid: create it and add it
         project = Project(name=name)
         self.db.add(project)
-        # ast-grep-ignore: db-flush
-        self.db.flush()  # To get the new ID
+        self.db.flush()  # To get the new ID  # ast-grep-ignore: db-flush
 
         # TODO: This should be handled by some sort of database trigger or a
         #       SQLAlchemy hook or the like instead of doing it inline in this

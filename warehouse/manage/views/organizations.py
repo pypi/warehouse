@@ -1884,8 +1884,7 @@ class ManageOrganizationPublishingViews:
 
         try:
             self.request.db.add(pending_publisher)
-            # ast-grep-ignore: db-flush
-            self.request.db.flush()  # To get the new ID
+            self.request.db.flush()  # To get the new ID  # ast-grep-ignore: db-flush
         except UniqueViolation:
             # Double-post protection
             return HTTPSeeOther(self.request.path)

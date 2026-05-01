@@ -8,8 +8,7 @@ note: |
 
       obj = MyObject()
       self.db.add(obj)
-      # ast-grep-ignore: db-flush
-      self.db.flush()  # flush the db now so obj.id is available
+      self.db.flush()  # generate obj.id  # ast-grep-ignore: db-flush
       method_that_depends_on_id(obj)
 
   is a common pattern when auto-generated ids are needed.
