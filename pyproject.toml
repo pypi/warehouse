@@ -173,7 +173,8 @@ ignore = [
   "EM",  # would require reworking some of our exceptions to make this work
   "PLC",  # a lot of rules, some might be good, a lot are noise but needs review
   "PLR",  # a lot of rules, some might be good, a lot are noise but needs review
-  "PLW",  # a lot of rules, some might be good, a lot are noise but needs review
+  "PLW2901",  # it's fine to overwrite a for loop variable
+  "PLW1641",  # we don't need every object to implement __hash__
   "PTH",  # tries to enforce pathlib, but most of our paths are abstract urls/keys
   "ARG",  # rejects unused arguments, but we have to have them in a lot of places
   "C90",  # enforces mccabe complexity, adding would require refactoring

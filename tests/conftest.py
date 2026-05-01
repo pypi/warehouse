@@ -102,7 +102,7 @@ def metrics():
     A good-enough fake metrics fixture.
     """
     return pretend.stub(
-        event=pretend.call_recorder(lambda *args, **kwargs: _event(*args, **kwargs)),
+        event=pretend.call_recorder(_event),
         gauge=pretend.call_recorder(
             lambda metric, value, tags=None, sample_rate=1: None
         ),
@@ -289,7 +289,7 @@ def cli():
 def database(request, worker_id):
     config = get_config(request)
     pg_host = config.host
-    pg_port = config.port or os.environ.get("PGPORT", 5432)
+    pg_port = config.port or os.environ.get("PGPORT", "5432")
     pg_user = config.user
     pg_db = f"tests-{worker_id}"
     pg_version = 17
