@@ -1044,9 +1044,7 @@ class TestTwoFactor:
         )
         form_class = pretend.call_recorder(lambda d, user_service, **kw: form_obj)
         db_request.route_path = pretend.call_recorder(lambda a: "/account/two-factor")
-        db_request.params = pretend.stub(
-            get=pretend.call_recorder(query_params.get)
-        )
+        db_request.params = pretend.stub(get=pretend.call_recorder(query_params.get))
         db_request.user = user
 
         send_email = pretend.call_recorder(lambda *a: None)
@@ -1646,9 +1644,7 @@ class TestRecoveryCode:
         )
         form_class = pretend.call_recorder(lambda d, **kw: form_obj)
         db_request.route_path = pretend.call_recorder(lambda a: "/account/two-factor")
-        db_request.params = pretend.stub(
-            get=pretend.call_recorder(query_params.get)
-        )
+        db_request.params = pretend.stub(get=pretend.call_recorder(query_params.get))
 
         result = views.recovery_code(db_request, _form_class=form_class)
 

@@ -57,4 +57,3 @@ def update_email_domain_status(email: Email, request: Request) -> None:
         # (task selects emails where domain_last_checked < now - 30 days)
         email.domain_last_checked = datetime.now(UTC) - timedelta(days=23)
     request.db.add(email)
-
