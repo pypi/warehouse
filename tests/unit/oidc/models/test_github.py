@@ -606,7 +606,7 @@ class TestGitHubPublisher:
             assert check(publisher.job_workflow_ref, claim, claims) is True
         else:
             with pytest.raises(errors.InvalidPublisherError) as e:
-                check(publisher.job_workflow_ref, claim, claims) is True
+                assert check(publisher.job_workflow_ref, claim, claims) is True
             assert str(e.value) == expected
 
     @pytest.mark.parametrize(

@@ -381,6 +381,7 @@ class NullOIDCPublisherService(OIDCPublisherService):
             "you should not use it in production due to the lack of actual "
             "JWT verification.",
             InsecureOIDCPublisherWarning,
+            stacklevel=2,
         )
         super().__init__(*args, **kwargs)
 

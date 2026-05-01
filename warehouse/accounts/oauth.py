@@ -313,6 +313,7 @@ class _NullOAuthClientBase:
             "you should not use it in production due to the creation of "
             "fake user associations without actual OAuth verification.",
             NullOAuthProviderServiceWarning,
+            stacklevel=2,
         )
         self.redirect_uri = redirect_uri
 

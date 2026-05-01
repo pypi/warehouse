@@ -134,7 +134,7 @@ def no_email_deliverability_check(monkeypatch):
         email, check_deliverability=True, *args, **kwargs
     ):
         return original_validate_email(
-            email, check_deliverability=False, *args, **kwargs
+            email, *args, check_deliverability=False, **kwargs
         )
 
     monkeypatch.setattr(

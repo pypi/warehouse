@@ -331,8 +331,10 @@ class MockStripeBillingService(GenericBillingService):
         )
         return customer
 
-    def get_checkout_session(self, session_id, mock_checkout_session={}, **kwargs):
+    def get_checkout_session(self, session_id, mock_checkout_session=None, **kwargs):
         # Mock Stripe doesn't persist data so allow passing in a mock_checkout_session.
+        if mock_checkout_session is None:
+            mock_checkout_session = {}
         checkout_session = super().get_checkout_session(session_id)
         # Fill in customer ID, status, and subscription ID from mock_checkout_session.
         checkout_session["customer"]["id"] = mock_checkout_session.get(
