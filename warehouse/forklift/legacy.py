@@ -142,6 +142,34 @@ class PermissionError(
     pass
 
 
+class UnverifiedEmailError(
+    ForkliftError,
+    error_type=HTTPForbidden,
+    message=(
+        "User {username!r} does not have a verified primary email address. "
+        "Please add a verified primary email before attempting to "
+        "upload to PyPI."
+    ),
+    help_anchor="verified-email",
+    tags={"reason:unverified-email"},
+):
+    pass
+
+
+class MissingTwoFactorError(
+    ForkliftError,
+    error_type=HTTPForbidden,
+    message=(
+        "User {username!r} does not have two-factor authentication enabled. "
+        "Please enable two-factor authentication before attempting to "
+        "upload to PyPI."
+    ),
+    help_anchor="two-factor-authentication",
+    tags={"reason:no-2fa"},
+):
+    pass
+
+
 class OrgInactiveError(
     ForkliftError,
     error_type=HTTPForbidden,
@@ -831,36 +859,10 @@ def _ensure_user_can_upload(request: Request) -> None:
         return
 
     if not (request.user.primary_email and request.user.primary_email.verified):
-        request.metrics.increment(
-            "warehouse.upload.failed", tags=["reason:unverified-email"]
-        )
-        raise _exc_with_message(
-            HTTPForbidden,
-            (
-                "User {!r}, associated with the API token used, does not "
-                "have a verified primary email address. Please add a "
-                "verified primary email before attempting to upload to "
-                "PyPI. See {project_help} for more information."
-            ).format(
-                request.user.username,
-                project_help=request.help_url(_anchor="verified-email"),
-            ),
-        ) from None
+        raise UnverifiedEmailError(username=request.user.username)
 
     if not request.user.has_two_factor:
-        request.metrics.increment("warehouse.upload.failed", tags=["reason:no-2fa"])
-        raise _exc_with_message(
-            HTTPForbidden,
-            (
-                "User {!r}, associated with the API token used, does not "
-                "have two-factor authentication enabled. Please enable "
-                "two-factor authentication before attempting to upload to "
-                "PyPI. See {project_help} for more information."
-            ).format(
-                request.user.username,
-                project_help=request.help_url(_anchor="two-factor-authentication"),
-            ),
-        ) from None
+        raise MissingTwoFactorError(username=request.user.username)
 
 
 @view_config(

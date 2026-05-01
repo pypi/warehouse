@@ -61,34 +61,6 @@ class MissingIdentityError(
     pass
 
 
-class UnverifiedEmailError(
-    ForkliftError,
-    error_type=HTTPForbidden,
-    message=(
-        "User {username!r} does not have a verified primary email address. "
-        "Please add a verified primary email before attempting to "
-        "upload to PyPI."
-    ),
-    help_anchor="verified-email",
-    tags={"reason:unverified-email"},
-):
-    pass
-
-
-class MissingTwoFactorError(
-    ForkliftError,
-    error_type=HTTPForbidden,
-    message=(
-        "User {username!r} does not have two-factor authentication enabled. "
-        "Please enable two-factor authentication before attempting to "
-        "upload to PyPI."
-    ),
-    help_anchor="two-factor-authentication",
-    tags={"reason:no-2fa"},
-):
-    pass
-
-
 def upload_metrics(wrapped):
 
     def wrapper(context, request):

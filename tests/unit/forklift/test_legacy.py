@@ -11,6 +11,7 @@ import zipfile
 
 from cgi import FieldStorage
 from textwrap import dedent
+from types import SimpleNamespace
 from unittest import mock
 
 import pretend
@@ -2410,6 +2411,165 @@ class TestFileUpload:
         with pytest.raises(legacy.TokenPermissionError) as excinfo:
             legacy.file_upload(db_request)
         assert excinfo.value.values == {"project": project.name}
+
+    def test_upload_fails_with_unverified_email_after_permission_check(
+        self, pyramid_config, db_request, mocker
+    ):
+        """The email check fires from inside the view, after the permission
+        check passes, so a maintainer without a verified primary email gets
+        the email error.
+
+        See: https://github.com/pypi/warehouse/issues/18575
+        """
+        user = UserFactory.create()
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "sdist",
+                "md5_digest": "nope!",
+                "content": SimpleNamespace(
+                    filename=filename,
+                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        with pytest.raises(legacy.UnverifiedEmailError) as excinfo:
+            legacy.file_upload(db_request)
+        assert excinfo.value.values == {"username": user.username}
+
+    def test_upload_fails_without_two_factor_after_permission_check(
+        self, pyramid_config, db_request, mocker
+    ):
+        """A user with permission and a verified email but no 2FA receives
+        the 2FA error from the view, after the permission check."""
+        user = UserFactory.create(with_verified_primary_email=True)
+        user.totp_secret = None  # Drop totp_secret so has_two_factor is False.
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "sdist",
+                "md5_digest": "nope!",
+                "content": SimpleNamespace(
+                    filename=filename,
+                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        with pytest.raises(legacy.MissingTwoFactorError) as excinfo:
+            legacy.file_upload(db_request)
+        assert excinfo.value.values == {"username": user.username}
+
+    def test_upload_permission_error_surfaces_before_email_check(
+        self, pyramid_config, db_request, mocker
+    ):
+        """When a user lacks both project permission and a verified email,
+        the permission error surfaces first because it is the more useful
+        diagnostic for the misconfigured-token case.
+
+        See: https://github.com/pypi/warehouse/issues/18575
+        """
+        owner = UserFactory.create()
+        EmailFactory.create(user=owner)
+        intruder = UserFactory.create()  # No verified email, no 2FA.
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=owner, project=project)
+
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
+
+        pyramid_config.testing_securitypolicy(identity=intruder, permissive=False)
+        db_request.user = intruder
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "sdist",
+                "md5_digest": "nope!",
+                "content": SimpleNamespace(
+                    filename=filename,
+                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        with pytest.raises(legacy.UserPermissionError) as excinfo:
+            legacy.file_upload(db_request)
+        assert excinfo.value.values == {
+            "username": intruder.username,
+            "project": project.name,
+        }
+
+    def test_upload_new_project_fails_with_unverified_email(
+        self, pyramid_config, db_request, mocker
+    ):
+        """A user attempting to upload (and thereby create) a brand new
+        project without a verified email is rejected before the project
+        gets created, so we don't leave an empty project record behind."""
+        user = UserFactory.create()  # No verified email.
+
+        filename = "new_project-1.0.tar.gz"
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": "new-project",
+                "version": "1.0",
+                "filetype": "sdist",
+                "md5_digest": "nope!",
+                "content": SimpleNamespace(
+                    filename=filename,
+                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    type="application/tar",
+                ),
+            }
+        )
+        db_request.help_url = mocker.Mock(return_value="/the/help/url/")
+
+        with pytest.raises(legacy.UnverifiedEmailError) as excinfo:
+            legacy.file_upload(db_request)
+        assert excinfo.value.values == {"username": user.username}
+
+        # The project must not have been created.
+        assert (
+            db_request.db.query(Project)
+            .filter(Project.normalized_name == "new-project")
+            .first()
+            is None
+        )
 
     def test_upload_attestation_fails_without_oidc_publisher(
         self,
