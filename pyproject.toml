@@ -189,39 +189,36 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 # N805: zope.interface definitions look like classes, but are not
 "interfaces.py" = ["N805"]
-# PT009: These files use a lot of custom assertion tools that trip up this detection.
-"tests/unit/email/test_init.py" = ["PT009"]
-"tests/unit/email/test_services.py" = ["PT009"]
-"tests/unit/test_views.py" = ["PT009"]
-# TID252: Pretty much all of our tests use relative imports.
-# S104: tests use 0.0.0.0 as a sentinel value sometimes
-# S105: tests aren't used in production and can use hardcoded pws for tests
-# S106: tests aren't used in production and can use hardcoded pws for tests
-# S108: tests use hardcoded tmp paths that get stubbed out
-# S303: strength of the hash functions used in tests doesn't matter
-# S311: tests don't need cryptographically strong randomness
-# S324: strength of the hash functions used in tests doesn't matter
-"tests/**/*.py" = [
-  "TID252",
-  "S104",
-  "S105",
-  "S106",
-  "S108",
-  "S303",
-  "S311",
-  "S324"
-]
+
 # INP001: Our migrations are scripts not files that are part of a package
 "warehouse/migrations/**/*.py" = ["INP001"]
+
 # The warehouse cli can use print to give feedback to the user.
 # The warehouse cli also defers imports on purpose.
 "warehouse/cli/**/*.py" = ["T201", "PLC0415"]
+
 # INP001: These are just scripts as well.
 # T201: These scripts/helpers are fine to call print
 "bin/*.py" = ["INP001", "T201"]
 "dev/*.py" = ["INP001", "T201"]
 "docs/**/*.py" = ["INP001"]
 ".github/codeql/custom-queries/python/**/*.py" = ["INP001"]
+
+# PT009: These files use a lot of custom assertion tools that trip up this detection.
+"tests/unit/email/test_init.py" = ["PT009"]
+"tests/unit/email/test_services.py" = ["PT009"]
+"tests/unit/test_views.py" = ["PT009"]
+
+"tests/**/*.py" = [
+  "TID252",  # pretty much all of our tests use relative imports
+  "S104",  # tests use 0.0.0.0 as a sentinel value sometimes
+  "S105",  # tests aren't used in production and can use hardcoded pws for tests
+  "S106",  # tests aren't used in production and can use hardcoded pws for tests
+  "S108",  # tests use hardcoded tmp paths that get stubbed out
+  "S303",  # strength of the hash functions used in tests doesn't matter
+  "S311",  # tests don't need cryptographically strong randomness
+  "S324"  # strength of the hash functions used in tests doesn't matter
+]
 
 [tool.ruff.lint.isort]
 combine-as-imports = true
