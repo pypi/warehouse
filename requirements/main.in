@@ -24,7 +24,7 @@ html5lib
 humanize
 itsdangerous
 Jinja2>=2.8
-kombu[redis]>=5.6,<5.7  # https://github.com/jazzband/pip-tools/issues/1577
+kombu[redis]  # https://github.com/jazzband/pip-tools/issues/1577
 limits
 linehaul
 lxml
@@ -63,8 +63,8 @@ requests-aws4auth
 redis>=2.8.0,<7.0.0
 rfc3986
 sentry-sdk
-pypi-attestations==0.0.29
-sqlalchemy[asyncio]>=2.0,<3.0
+pypi-attestations
+sqlalchemy[asyncio]
 stdlib-list
 stripe
 structlog
@@ -73,7 +73,7 @@ transaction
 trove-classifiers
 ua-parser
 urllib3
-webauthn>=1.0.0,<3.0.0
+webauthn
 whitenoise
 WTForms[email]>=2.0.0
 yara-x
