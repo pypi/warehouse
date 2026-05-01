@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import random
+import sys
 import uuid
 
 import pretend
@@ -256,9 +258,6 @@ class TestSESEmailSender:
 
     def test_send_with_unicode_and_html(self, db_session):
         # Determine what the random boundary token will be
-        import random
-        import sys
-
         random.seed(42)
         token = random.randrange(sys.maxsize)
         random.seed(42)

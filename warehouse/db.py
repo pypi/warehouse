@@ -162,7 +162,7 @@ def _create_session(request):
     # Check if we're in read-only mode. This _cannot_ use the request.flags
     # request method, as that would lead to a circular call as AdminFlag objects
     # must be queried from the DB
-    from warehouse.admin.flags import AdminFlag, AdminFlagValue
+    from warehouse.admin.flags import AdminFlag, AdminFlagValue  # noqa: PLC0415
 
     flag = session.get(AdminFlag, AdminFlagValue.READ_ONLY.value)
     if flag and flag.enabled:

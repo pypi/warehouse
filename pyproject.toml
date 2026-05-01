@@ -171,7 +171,6 @@ ignore = [
   "DTZ",  # prevents using naive datetimes, probably useful, but needs manual review
   "TRY",  # would require reworking some of our exceptions to make this work
   "EM",  # would require reworking some of our exceptions to make this work
-  "PLC",  # a lot of rules, some might be good, a lot are noise but needs review
   "PLR2004",  # we use a lot of magic values, maybe we shouldn't but for now allow it
   "PLR0915",  # too many statements; I'm suspect on the value of the "too many X" rules
   "PLR0912",  # too many branches; I'm suspect on the value of the "too many X" rules
@@ -199,7 +198,8 @@ ignore = [
 # INP001: Our migrations are scripts not files that are part of a package
 "warehouse/migrations/**/*.py" = ["INP001"]
 # The warehouse cli can use print to give feedback to the user.
-"warehouse/cli/**/*.py" = ["T201"]
+# The warehouse cli also defers imports on purpose.
+"warehouse/cli/**/*.py" = ["T201", "PLC0415"]
 # INP001: These are just scripts as well.
 # T201: These scripts/helpers are fine to call print
 "bin/*.py" = ["INP001", "T201"]

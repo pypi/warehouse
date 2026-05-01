@@ -1496,8 +1496,6 @@ class TestDatabaseUserService:
         assert result.user == user
 
     def test_get_account_association_not_found(self, user_service):
-        import uuid
-
         result = user_service.get_account_association(str(uuid.uuid4()))
 
         assert result is None

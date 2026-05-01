@@ -991,7 +991,7 @@ def file_upload(request):
             dynamic=[x.title() for x in meta.dynamic] if meta.dynamic else None,
             **{
                 k: getattr(meta, k)
-                for k in {
+                for k in (
                     # This is a list of all the fields in the form that we
                     # should pull off and insert into our new release.
                     "summary",
@@ -1001,7 +1001,7 @@ def file_upload(request):
                     "author",
                     "maintainer",
                     "provides_extra",
-                }
+                )
             },
             uploader=request.user or None,
             uploaded_via=request.user_agent,
