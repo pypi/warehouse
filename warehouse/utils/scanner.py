@@ -16,9 +16,21 @@ logger = structlog.get_logger(__name__)
 # YARA rules directory
 _RULES_DIR = Path(__file__).parent / "scanner_rules"
 
-# Extensions to scan inside archives. Python source (.py) for source-level
-# rules (e.g. pyarmor), and .pye for SourceDefender-encrypted files.
-_SCAN_EXTENSIONS = {".py", ".pye"}
+# Extensions to scan inside archives.
+_SCAN_EXTENSIONS = {
+    # Python source for source-level rules (e.g. pyarmor)
+    ".py",
+    # .pye for SourceDefender-encrypted files
+    ".pye",
+    # Different textual files for common places where PyPI tokens are accidentally left.
+    ".md",
+    ".rst",
+    ".env",
+    ".sh",
+    ".txt",
+    "METADATA",
+    "PKG-INFO",
+}
 
 # Max size of individual file to scan inside archive (5 MiB)
 _SCAN_MAX_FILE_SIZE = 5 * 1024 * 1024
@@ -78,8 +90,10 @@ def iter_zip_members(zfp: zipfile.ZipFile) -> typing.Iterator[tuple[str, int, by
     for entry in zfp.infolist():
         if entry.is_dir():
             continue
-        ext = Path(entry.filename).suffix.lower()
-        if ext not in _SCAN_EXTENSIONS:
+        path = Path(entry.filename)
+        ext = path.suffix.lower()
+        # Names like "METADATA", ".env" have empty suffix
+        if ext not in _SCAN_EXTENSIONS and path.name not in _SCAN_EXTENSIONS:
             continue
         data = zfp.read(entry.filename)
         yield entry.filename, len(data), data
@@ -90,8 +104,10 @@ def iter_tar_members(tar: tarfile.TarFile) -> typing.Iterator[tuple[str, int, by
     for member in tar.getmembers():
         if not member.isfile():
             continue
-        ext = Path(member.name).suffix.lower()
-        if ext not in _SCAN_EXTENSIONS:
+        path = Path(member.name)
+        ext = path.suffix.lower()
+        # Names like "PKG-INFO", ".env" have empty suffix
+        if ext not in _SCAN_EXTENSIONS and path.name not in _SCAN_EXTENSIONS:
             continue
         f = tar.extractfile(member)
         if f is None:  # pragma: no cover
