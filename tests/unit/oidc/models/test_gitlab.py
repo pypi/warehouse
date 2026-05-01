@@ -678,7 +678,7 @@ class TestGitLabPublisher:
             assert check(publisher.ci_config_ref_uri, claim, claims) is True
         else:
             with pytest.raises(errors.InvalidPublisherError) as e:
-                assert check(publisher.ci_config_ref_uri, claim, claims) is True
+                check(publisher.ci_config_ref_uri, claim, claims)
             assert str(e.value) == expected
 
     @pytest.mark.parametrize(
