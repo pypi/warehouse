@@ -350,8 +350,9 @@ class DatabaseUserService:
         user = self.get_user(user_id)
         for attr, value in changes.items():
             if attr == PASSWORD_FIELD:
-                value = self.hasher.hash(value)
-            setattr(user, attr, value)
+                setattr(user, attr, self.hasher.hash(value))
+            else:
+                setattr(user, attr, value)
 
         # If we've given the user a new password, then we also want to unset the
         # reason for disable... because a new password means no more disabled
