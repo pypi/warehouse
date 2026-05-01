@@ -3,7 +3,7 @@
 import datetime
 
 from psycopg.errors import UniqueViolation
-from sqlalchemy import delete, func, orm, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.exc import NoResultFound
 from zope.interface import implementer
 
@@ -556,16 +556,16 @@ class DatabaseOrganizationService:
         """
         Adds an association between the specified organization and project
         """
+        from warehouse.packaging.models import Project
+
+        # We need to pass the full objects instead of just their IDs
+        # to avoid silently breaking our purges that rely on `if_attr_exists`.
         organization_project = OrganizationProject(
-            organization_id=organization_id,
-            project_id=project_id,
+            organization=self.db.get(Organization, organization_id),
+            project=self.db.get(Project, project_id),
         )
 
         self.db.add(organization_project)
-        self.db.flush()  # Flush db so we can address the organization related object
-
-        # Mark Organization as dirty, so purges will happen
-        orm.attributes.flag_dirty(organization_project.organization)
 
         return organization_project
 

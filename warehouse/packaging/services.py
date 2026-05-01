@@ -665,10 +665,17 @@ class ProjectService:
         )
 
         if organization_id:
-            # If an organization ID is provided, we never set the creator to owner
+            # If an organization ID is provided, we never set the creator to owner.
+            # Pass the resolved `organization` object (not just `organization_id`)
+            # so the `OrganizationProject` purge-key factory can resolve the
+            # relationship during `after_flush` and actually emit the
+            # `org/{name}` and `project/{name}` purge keys.
+            from warehouse.organizations.models import Organization
+
             self.db.add(
                 OrganizationProject(
-                    organization_id=organization_id, project_id=project.id
+                    organization=self.db.get(Organization, organization_id),
+                    project=project,
                 )
             )
         elif creator_is_owner:

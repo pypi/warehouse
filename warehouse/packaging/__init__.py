@@ -173,6 +173,7 @@ def includeme(config):
         OrganizationProject,
         purge_keys=[
             key_factory("project/{attr.normalized_name}", if_attr_exists="project"),
+            key_factory("org/{attr.normalized_name}", if_attr_exists="organization"),
         ],
     )
 

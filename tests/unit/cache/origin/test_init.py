@@ -4,6 +4,10 @@ import pretend
 import pytest
 
 from tests.common.db.accounts import UserFactory
+from tests.common.db.organizations import (
+    OrganizationFactory,
+    OrganizationProjectFactory,
+)
 from tests.common.db.packaging import (
     FileFactory,
     ProjectFactory,
@@ -16,6 +20,7 @@ from warehouse.cache import origin
 from warehouse.cache.origin.derivers import html_cache_deriver
 from warehouse.cache.origin.interfaces import IOriginCache
 from warehouse.observations.models import ObservationKind
+from warehouse.organizations.services import database_organization_factory
 
 
 def test_store_purge_keys():
@@ -111,6 +116,80 @@ def test_store_purge_keys_skips_audit_only_collection_changes(
 
     purges = db_request.db.info.get("warehouse.cache.origin.purges", set())
     assert f"project/{project.normalized_name}" not in purges
+
+
+def test_store_purge_keys_organization_project_add_purges_org_and_project(
+    app_config, db_request
+):
+    # Adding a project to an organization via `add_organization_project` must
+    # purge both the project profile (`project/{name}`) and the organization
+    # profile (`org/{name}`), otherwise the cached `/org/{orgname}` project
+    # list goes stale.
+    #
+    # Exercising `add_organization_project is load-bearing: the
+    # purge-key factory uses `if_attr_exists`, which resolves to `None` during
+    # `after_flush` if the row was built with only FK ids instead of
+    # objects, causing us to silently drop the purges.
+    organization = OrganizationFactory.create()
+    project = ProjectFactory.create()
+    db_request.db.flush()
+    db_request.db.info.pop("warehouse.cache.origin.purges", None)
+
+    organization_service = database_organization_factory(None, db_request)
+    organization_service.add_organization_project(organization.id, project.id)
+    db_request.db.flush()
+
+    purges = db_request.db.info.get("warehouse.cache.origin.purges", set())
+    assert f"org/{organization.normalized_name}" in purges
+    assert f"project/{project.normalized_name}" in purges
+
+
+def test_store_purge_keys_organization_project_add_survives_events_committed_state(
+    app_config, db_request
+):
+    # Regression guard for issue #19911.
+    #
+    # We should purge `org/{name}` even when the Organization's
+    # `committed_state` includes `events` (or any other non-cache-relevant attr).
+    organization = OrganizationFactory.create()
+    project = ProjectFactory.create()
+    db_request.db.flush()
+    db_request.db.info.pop("warehouse.cache.origin.purges", None)
+
+    organization_service = database_organization_factory(None, db_request)
+    organization_service.add_organization_project(organization.id, project.id)
+
+    # Construct an OrganizationEvent with `source=organization` to force
+    # `events` into Organization's committed_state before the next flush.
+    # This is the exact state the manage view produces via `record_event`.
+    db_request.db.add(organization.Event(source=organization, tag="test:regression"))
+
+    db_request.db.flush()
+
+    purges = db_request.db.info.get("warehouse.cache.origin.purges", set())
+    assert f"org/{organization.normalized_name}" in purges
+    assert f"project/{project.normalized_name}" in purges
+
+
+def test_store_purge_keys_organization_project_delete_purges_org_and_project(
+    app_config, db_request
+):
+    # Deleting a project from an organization via `delete_organization_project`
+    # must also purge both caches so the org profile reflects the project
+    # leaving the organization.
+    organization = OrganizationFactory.create()
+    project = ProjectFactory.create()
+    OrganizationProjectFactory.create(organization=organization, project=project)
+    db_request.db.flush()
+    db_request.db.info.pop("warehouse.cache.origin.purges", None)
+
+    organization_service = database_organization_factory(None, db_request)
+    organization_service.delete_organization_project(organization.id, project.id)
+    db_request.db.flush()
+
+    purges = db_request.db.info.get("warehouse.cache.origin.purges", set())
+    assert f"org/{organization.normalized_name}" in purges
+    assert f"project/{project.normalized_name}" in purges
 
 
 def test_store_purge_keys_skips_project_dirty_on_roles_change(app_config, db_request):
