@@ -6,11 +6,9 @@ import wtforms
 
 from webob.multidict import MultiDict
 
-import warehouse.utils.otp as otp
-import warehouse.utils.webauthn as webauthn
-
 from warehouse.accounts.models import ProhibitedEmailDomain
 from warehouse.manage import forms
+from warehouse.utils import otp, webauthn
 
 from ...common.constants import REMOTE_ADDR
 from ...common.db.accounts import OAuthAccountAssociationFactory, UserFactory

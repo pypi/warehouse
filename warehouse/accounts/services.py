@@ -29,9 +29,6 @@ from ua_parser import user_agent_parser
 from webauthn.helpers import bytes_to_base64url
 from zope.interface import implementer
 
-import warehouse.utils.otp as otp
-import warehouse.utils.webauthn as webauthn
-
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
     IDomainStatusService,
@@ -66,6 +63,7 @@ from warehouse.events.models import UserAgentInfo
 from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
+from warehouse.utils import otp, webauthn
 from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerializer
 
 if typing.TYPE_CHECKING:

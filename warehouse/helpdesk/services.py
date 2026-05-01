@@ -47,7 +47,6 @@ class ConsoleHelpDeskService:
 
     def add_tag(self, *, conversation_url: str, tag: str) -> None:
         print(f"Adding tag '{tag}' to conversation '{conversation_url}'")  # noqa: T201
-        return
 
 
 @implementer(IHelpDeskService)
@@ -168,7 +167,6 @@ class ConsoleAdminNotificationService:
         print("Webhook notification sent")  # noqa: T201
         print("payload:")  # noqa: T201
         print(dedent(pprint.pformat(payload)))  # noqa: T201
-        return
 
 
 @implementer(IAdminNotificationService)
@@ -206,4 +204,3 @@ class SlackAdminNotificationService:
             timeout=10,
         )
         resp.raise_for_status()
-        return

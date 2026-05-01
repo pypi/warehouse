@@ -19,8 +19,6 @@ from sqlalchemy.orm import joinedload
 from webauthn.helpers import bytes_to_base64url
 from webob.multidict import MultiDict
 
-import warehouse.utils.otp as otp
-
 from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
     ITokenService,
@@ -53,6 +51,7 @@ from warehouse.packaging.models import (
     User,
 )
 from warehouse.rate_limiting import IRateLimiter
+from warehouse.utils import otp
 from warehouse.utils.paginate import paginate_url_factory
 
 from ...common.db.accounts import EmailFactory, UserFactory

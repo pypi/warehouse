@@ -13,12 +13,9 @@ from pyramid import viewderivers
 from pyramid.interfaces import ISession, ISessionFactory
 from zope.interface import implementer
 
-import warehouse.utils.otp as otp
-import warehouse.utils.webauthn as webauthn
-
 from warehouse.accounts.views import USER_ID_INSECURE_COOKIE
 from warehouse.cache.http import add_vary
-from warehouse.utils import crypto
+from warehouse.utils import crypto, otp, webauthn
 from warehouse.utils.msgpack import object_encode
 
 

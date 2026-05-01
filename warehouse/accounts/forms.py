@@ -17,9 +17,6 @@ import wtforms.fields
 from sqlalchemy import exists
 from tldextract import TLDExtract
 
-import warehouse.utils.otp as otp
-import warehouse.utils.webauthn as webauthn
-
 from warehouse import forms
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
@@ -37,6 +34,7 @@ from warehouse.email import (
 )
 from warehouse.events.tags import EventTag
 from warehouse.i18n import localize as _
+from warehouse.utils import otp, webauthn
 
 # Common messages, set as constants to keep them from drifting.
 INVALID_EMAIL_MESSAGE = _("The email address isn't valid. Try again.")
@@ -642,13 +640,12 @@ class RequestPasswordResetForm(wtforms.Form):
                 raise wtforms.validators.ValidationError(
                     message=INVALID_EMAIL_MESSAGE
                 ) from e
-        else:
-            # the regexp below must match the CheckConstraint
-            # for the username field in accounts.models.User
-            if not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9._-]*[a-zA-Z0-9]$", field.data):
-                raise wtforms.validators.ValidationError(
-                    message=_("The username isn't valid. Try again.")
-                )
+        # the regexp below must match the CheckConstraint
+        # for the username field in accounts.models.User
+        elif not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9._-]*[a-zA-Z0-9]$", field.data):
+            raise wtforms.validators.ValidationError(
+                message=_("The username isn't valid. Try again.")
+            )
 
 
 class ResetPasswordForm(NewPasswordMixin, wtforms.Form):
