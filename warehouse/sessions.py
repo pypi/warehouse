@@ -71,12 +71,12 @@ def _changed_method(method):
 
 @implementer(ISession)
 class Session(dict):
-    _csrf_token_key = "_csrf_token"
+    _csrf_token_key = "_csrf_token"  # noqa: S105
     _flash_key = "_flash_messages"
-    _totp_secret_key = "_totp_secret"
+    _totp_secret_key = "_totp_secret"  # noqa: S105
     _webauthn_challenge_key = "_webauthn_challenge"
     _reauth_timestamp_key = "_reauth_timestamp"
-    _password_timestamp_key = "_password_timestamp"
+    _password_timestamp_key = "_password_timestamp"  # noqa: S105
 
     # A number of our methods need to be decorated so that they also call
     # self.changed()
@@ -176,7 +176,7 @@ class Session(dict):
     def pop_flash(self, queue=""):
         queue_key = self._get_flash_queue_key(queue)
         messages = [
-            markupsafe.Markup(m["msg"]) if m["safe"] else m["msg"]
+            markupsafe.Markup(m["msg"]) if m["safe"] else m["msg"]  # noqa: S704
             for m in self.get(queue_key, [])
         ]
         self.pop(queue_key, None)

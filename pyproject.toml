@@ -163,7 +163,7 @@ ignore = [
   "TD",  # this wants TODO comments to have author and link, which we don't do
   "ERA",  # this has a REALLY high false positive rate
   "ANN",  # requires typing annotations, which has almost 15k errors for us
-  "S",  # high false positives rate, checks for security issues so would be nice to use
+  "S101",  # We use assert in the test suite, but more importantly for type narrowing
   "FBT",  # rejects boolean params that change function behavior, requires api changes
   "B019",  # we have some uses of this, we should probably fix them
   "B904",  # it's silly to require raise E from ... when Python mostly does it by default
@@ -195,7 +195,8 @@ ignore = [
 "tests/unit/email/test_services.py" = ["PT009"]
 "tests/unit/test_views.py" = ["PT009"]
 # TID252: Pretty much all of our tests use relative imports.
-"tests/**/*.py" = ["TID252"]
+# S: The test suite doesn't need to worry about security issues.
+"tests/**/*.py" = ["TID252", "S"]
 # INP001: Our migrations are scripts not files that are part of a package
 "warehouse/migrations/**/*.py" = ["INP001"]
 # The warehouse cli can use print to give feedback to the user.

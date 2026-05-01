@@ -272,7 +272,7 @@ class NewPasswordMixin:
             field.data, tags=["method:new_password"]
         ):
             raise wtforms.validators.ValidationError(
-                markupsafe.Markup(self._breach_service.failure_message)
+                markupsafe.Markup(self._breach_service.failure_message)  # noqa: S704
             )
 
 
@@ -475,7 +475,7 @@ class LoginForm(PasswordMixin, UsernameMixin, wtforms.Form):
             is_disabled, disabled_for = self.user_service.is_disabled(userid)
             if is_disabled and disabled_for == DisableReason.CompromisedPassword:
                 raise wtforms.validators.ValidationError(
-                    markupsafe.Markup(self.breach_service.failure_message)
+                    markupsafe.Markup(self.breach_service.failure_message)  # noqa: S704
                 )
             if self.breach_service.check_password(
                 field.data, tags=["method:auth", "auth_method:login_form"]
@@ -488,7 +488,7 @@ class LoginForm(PasswordMixin, UsernameMixin, wtforms.Form):
                     reason=DisableReason.CompromisedPassword,
                 )
                 raise wtforms.validators.ValidationError(
-                    markupsafe.Markup(self.breach_service.failure_message)
+                    markupsafe.Markup(self.breach_service.failure_message)  # noqa: S704
                 )
 
 

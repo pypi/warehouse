@@ -71,7 +71,7 @@ if typing.TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-PASSWORD_FIELD = "password"
+PASSWORD_FIELD = "password"  # noqa: S105
 RECOVERY_CODE_COUNT = 8
 RECOVERY_CODE_BYTES = 8
 

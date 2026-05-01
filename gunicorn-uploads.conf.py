@@ -31,4 +31,4 @@ control_socket_disable = True
 
 
 def when_ready(server):
-    open("/tmp/app-initialized", "w").close()
+    open("/tmp/app-initialized", "w").close()  # noqa: S108

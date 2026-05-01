@@ -54,7 +54,7 @@ class MockBillingViews:
                 "object": {
                     "id": (
                         "mockcs_"
-                        + "".join(random.choices(digits + ascii_letters, k=58))
+                        + "".join(random.choices(digits + ascii_letters, k=58))  # noqa: S311
                     ),
                     "customer": (
                         self.organization.customer
@@ -67,7 +67,7 @@ class MockBillingViews:
                     "status": "complete",
                     "subscription": (
                         "mocksub_"
-                        + "".join(random.choices(digits + ascii_letters, k=24))
+                        + "".join(random.choices(digits + ascii_letters, k=24))  # noqa: S311
                     ),
                     "metadata": {
                         "billing_service": "pypi",
