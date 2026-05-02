@@ -96,8 +96,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
             -r /tmp/requirements/docs-dev.txt \
             -r /tmp/requirements/docs-user.txt \
             -r /tmp/requirements/docs-blog.txt \
-    && pip check \
-    && find /opt/warehouse -name '*.pyc' -delete
+    && pip check
 
 WORKDIR /opt/warehouse/src/
 
@@ -171,8 +170,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
                     -r /tmp/requirements/main.txt \
                     $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt'; fi) \
                     $(if [ "$CI" = "yes" ]; then echo '-r /tmp/requirements/docs-dev.txt -r /tmp/requirements/docs-user.txt -r /tmp/requirements/docs-blog.txt'; fi ) \
-    && pip check \
-    && find /opt/warehouse -name '*.pyc' -delete
+    && pip check
 
 
 
@@ -196,6 +194,9 @@ ARG DEVEL=no
 # Define whether we're building a CI image. This will include all the docs stuff
 # as well for the matrix!
 ARG CI=no
+
+# Pre-compile the stdlib bytecode to save time collectively on container boot!
+RUN python -m compileall /usr/local/lib -j 0
 
 # By default, Docker has special steps to avoid keeping APT caches in the layers, which
 # is good, but in our case, we're going to mount a special cache volume (kept between
@@ -232,8 +233,8 @@ COPY --from=static /opt/warehouse/src/warehouse/admin/static/dist/ /opt/warehous
 COPY --from=build /opt/warehouse/ /opt/warehouse/
 COPY . /opt/warehouse/src/
 
+# Pre-compile our module's bytecode to save time collectively on container boot!
+RUN python -m compileall warehouse/ -j 0
+
 # Pre-cache TLD list
 RUN tldextract --update
-# Load our module to pre-compile as much bytecode as we can easily.
-# Saves time collectively on container boot!
-RUN python -m warehouse db -h
