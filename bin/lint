@@ -10,11 +10,13 @@ fi
 
 # Actually run our tests.
 ast-grep scan --error=unused-suppression --error=no-suppress-all $EXTRA_AST_GREP_ARGS
+
 ruff check
 ruff format --check --diff
-python -m flake8 .
+
 sphinx-lint --enable=all --disable=line-too-long README.rst CONTRIBUTING.rst docs/dev/ --ignore=docs/dev/_build/
 python -m djlint --check --lint ./warehouse/templates ./docs/blog
+
 python -m mypy -p warehouse
 
 # lint our pyproject.toml file (as well as any other toml files)

@@ -1,7 +1,6 @@
 ruff==0.15.12
 ast-grep-cli
 djlint
-flake8
 mypy
 tombi
 celery-types

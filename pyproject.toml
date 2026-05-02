@@ -161,7 +161,6 @@ ignore = [
   "COM812",  # incompatible with the formatter, no idea why this even exists
   "COM819",  # redundant with the formatter, also no idea why this even exists
 ]
-external = ["WH"]  # These come from our internal flake8 plugin.
 
 [tool.ruff.lint.per-file-ignores]
 # N805: zope.interface definitions look like classes, but are not
