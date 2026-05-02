@@ -68,17 +68,15 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # We create an /opt directory with a virtual environment in it to store our
-# application in.
-RUN set -x \
-    && python3 -m venv /opt/warehouse
+# application in, we'll use --upgrade-deps to make sure we have the latest
+# version of pip.
+RUN --mount=type=cache,target=/root/.cache/pip \
+    set -x \
+        && python3 -m venv --upgrade-deps /opt/warehouse
 
 # Now that we've created our virtual environment, we'll go ahead and update
 # our $PATH to refer to it first.
 ENV PATH="/opt/warehouse/bin:${PATH}"
-
-# Next, we want to update pip inside of this virtual
-# environment to ensure that we have the latest version.
-RUN pip --no-cache-dir --disable-pip-version-check install --upgrade pip
 
 # We copy this into the docker container prior to copying in the rest of our
 # application so that we can skip installing requirements if the only thing
@@ -132,32 +130,20 @@ ARG CI=no
 ARG IPYTHON=no
 
 # We create an /opt directory with a virtual environment in it to store our
-# application in.
-RUN set -x \
-    && python3 -m venv /opt/warehouse
+# application in, we'll use --upgrade-deps to make sure we have the latest
+# version of pip.
+RUN --mount=type=cache,target=/root/.cache/pip \
+    set -x \
+        && python3 -m venv --upgrade-deps /opt/warehouse
 
 # Now that we've created our virtual environment, we'll go ahead and update
 # our $PATH to refer to it first.
 ENV PATH="/opt/warehouse/bin:${PATH}"
 
-# Next, we want to update pip inside of this virtual
-# environment to ensure that we have the latest version.
-RUN pip --no-cache-dir --disable-pip-version-check install --upgrade pip
-
 # We copy this into the docker container prior to copying in the rest of our
 # application so that we can skip installing requirements if the only thing
 # that has changed is the Warehouse code itself.
 COPY requirements /tmp/requirements
-
-# Install our development dependencies if we're building a development install
-# otherwise this will do nothing.
-RUN --mount=type=cache,target=/root/.cache/pip \
-    set -x \
-    && if [ "$DEVEL" = "yes" ]; then pip --disable-pip-version-check install -r /tmp/requirements/dev.txt; fi
-
-RUN --mount=type=cache,target=/root/.cache/pip \
-    set -x \
-    && if [ "$DEVEL" = "yes" ] && [ "$IPYTHON" = "yes" ]; then pip --disable-pip-version-check install -r /tmp/requirements/ipython.txt; fi
 
 # Install the Python level Warehouse requirements, this is done after copying
 # the requirements but prior to copying Warehouse itself into the container so
@@ -169,7 +155,8 @@ RUN --mount=type=cache,target=/root/.cache/pip \
             install --no-deps --only-binary :all: \
                     -r /tmp/requirements/deploy.txt \
                     -r /tmp/requirements/main.txt \
-                    $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt'; fi) \
+                    $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/dev.txt -r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt'; fi) \
+                    $(if [ "$DEVEL" = "yes" ] && [ "$IPYTHON" = "yes" ]; then echo '-r /tmp/requirements/ipython.txt'; fi) \
                     $(if [ "$CI" = "yes" ]; then echo '-r /tmp/requirements/docs-dev.txt -r /tmp/requirements/docs-user.txt -r /tmp/requirements/docs-blog.txt'; fi ) \
     && pip check \
     && find /opt/warehouse -name '*.pyc' -delete
