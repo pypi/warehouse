@@ -2175,6 +2175,103 @@ class TestDomainrDomainStatusService:
         assert svc.client_id == "some_client_id"
 
 
+class TestFastlyDomainStatusService:
+    def test_verify_service(self):
+        assert verifyClass(IDomainStatusService, services.FastlyDomainStatusService)
+
+    def test_successful_domain_status_check(self):
+        response = pretend.stub(
+            json=lambda: {
+                "domain": "example.com",
+                "zone": "com",
+                "status": "undelegated inactive",
+                "tags": "generic",
+            },
+            raise_for_status=lambda: None,
+        )
+        session = pretend.stub(get=pretend.call_recorder(lambda *a, **kw: response))
+        svc = services.FastlyDomainStatusService(
+            session=session, api_key="some_api_key"
+        )
+
+        assert svc.get_domain_status("example.com") == ["undelegated", "inactive"]
+        assert session.get.calls == [
+            pretend.call(
+                "https://api.fastly.com/domain-management/v1/tools/status",
+                params={"domain": "example.com"},
+                headers={"Fastly-Key": "some_api_key"},
+                timeout=5,
+            )
+        ]
+
+    def test_no_api_key_returns_none(self):
+        session = pretend.stub(get=pretend.call_recorder(lambda *a, **kw: None))
+        svc = services.FastlyDomainStatusService(session=session, api_key=None)
+
+        assert svc.get_domain_status("example.com") is None
+        assert session.get.calls == []
+
+    def test_fastly_exception_returns_none(self):
+        class FastlyException(requests.HTTPError):
+            def __init__(self):
+                self.response = pretend.stub(status_code=400)
+
+        response = pretend.stub(raise_for_status=pretend.raiser(FastlyException))
+        session = pretend.stub(get=pretend.call_recorder(lambda *a, **kw: response))
+        svc = services.FastlyDomainStatusService(
+            session=session, api_key="some_api_key"
+        )
+
+        assert svc.get_domain_status("example.com") is None
+        assert session.get.calls == [
+            pretend.call(
+                "https://api.fastly.com/domain-management/v1/tools/status",
+                params={"domain": "example.com"},
+                headers={"Fastly-Key": "some_api_key"},
+                timeout=5,
+            )
+        ]
+
+    def test_fastly_response_contains_errors_returns_none(self):
+        response = pretend.stub(
+            json=lambda: {
+                "errors": [
+                    {
+                        "code": 404,
+                        "message": "Domain not found",
+                        "detail": "example.ocm",
+                    }
+                ],
+            },
+            raise_for_status=lambda: None,
+        )
+        session = pretend.stub(get=pretend.call_recorder(lambda *a, **kw: response))
+        svc = services.FastlyDomainStatusService(
+            session=session, api_key="some_api_key"
+        )
+
+        assert svc.get_domain_status("example.ocm") is None
+        assert session.get.calls == [
+            pretend.call(
+                "https://api.fastly.com/domain-management/v1/tools/status",
+                params={"domain": "example.ocm"},
+                headers={"Fastly-Key": "some_api_key"},
+                timeout=5,
+            )
+        ]
+
+    def test_factory(self):
+        context = pretend.stub()
+        request = pretend.stub(
+            http=pretend.stub(),
+            registry=pretend.stub(settings={"domain_status.api_key": "some_api_key"}),
+        )
+        svc = services.FastlyDomainStatusService.create_service(context, request)
+
+        assert svc._http is request.http
+        assert svc.api_key == "some_api_key"
+
+
 class TestDeviceIsKnown:
     def test_device_is_known(self, user_service, db_request):
         user = UserFactory.create()

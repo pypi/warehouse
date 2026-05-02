@@ -1239,3 +1239,46 @@ class DomainrDomainStatusService:
             return None
 
         return resp.json()["status"][0]["status"].split()
+
+
+@implementer(IDomainStatusService)
+class FastlyDomainStatusService:
+    def __init__(self, *, session, api_key=None):
+        self._http = session
+        self.api_key = api_key
+
+    @classmethod
+    def create_service(cls, _context, request: Request) -> FastlyDomainStatusService:
+        fastly_api_key = request.registry.settings.get("domain_status.api_key")
+        return cls(session=request.http, api_key=fastly_api_key)
+
+    def get_domain_status(self, domain: str) -> list[str] | None:
+        """
+        Check if a domain is available or not.
+        See https://www.fastly.com/documentation/reference/api/domain-management/domain-research/
+        """
+
+        # bail early if no api key is set, so we don't send failing requests
+        if not self.api_key:
+            return None
+
+        try:
+            resp = self._http.get(
+                "https://api.fastly.com/domain-management/v1/tools/status",
+                params={"domain": domain},
+                headers={"Fastly-Key": self.api_key},
+                timeout=5,
+            )
+            resp.raise_for_status()
+        except requests.RequestException as exc:
+            logger.warning("Error contacting Fastly: %r", exc)
+            return None
+
+        body = resp.json()
+        if errors := body.get("errors"):
+            logger.warning(
+                {"status": "Error from Fastly", "errors": errors, "domain": domain}
+            )
+            return None
+
+        return body["status"].split()
