@@ -168,6 +168,9 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/opt/warehouse/src/
 ENV PATH="/opt/warehouse/bin:${PATH}"
 
+# Set our working directory to our src directory
+WORKDIR /opt/warehouse/src/
+
 # Define whether we're building a production or a development image. This will
 # generally be used to control whether or not we install our development and
 # test dependencies.
