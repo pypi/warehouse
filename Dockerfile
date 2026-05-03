@@ -48,8 +48,7 @@ RUN NODE_ENV=production npm run build
 FROM python:${PYTHON_IMAGE_VERSION} AS base
 
 # Copy our helpers over into the base image
-COPY bin/docker/apt-install /usr/local/bin/apt-install
-COPY bin/docker/pip-install /usr/local/bin/pip-install
+COPY bin/docker/* /usr/local/bin/
 
 # By default, Docker has special steps to avoid keeping APT caches in the layers, which
 # is good, but in our case, we're going to mount a special cache volume (kept between
@@ -90,8 +89,7 @@ RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
 # application in, we'll use --upgrade-deps to make sure we have the latest
 # version of pip.
 RUN --mount=type=cache,id=pkg,target=/root/.cache \
-    set -x \
-        && python3 -m venv --upgrade-deps /opt/warehouse
+        create-venv /opt/warehouse
 
 # Install the Python level Warehouse requirements, this is done after copying
 # the requirements but prior to copying Warehouse itself into the container so
@@ -138,8 +136,7 @@ ARG IPYTHON=no
 # application in, we'll use --upgrade-deps to make sure we have the latest
 # version of pip.
 RUN --mount=type=cache,id=pkg,target=/root/.cache \
-    set -x \
-        && python3 -m venv --upgrade-deps /opt/warehouse
+        create-venv /opt/warehouse
 
 # Install the Python level Warehouse requirements, this is done after copying
 # the requirements but prior to copying Warehouse itself into the container so
