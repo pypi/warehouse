@@ -205,13 +205,23 @@ RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
         && ln -s $(which fdfind) /usr/local/bin/fd; \
     fi
 
-# Copy the directory into the container, this is done last so that changes to
+
+# Copy our virtual environment (with all of the installed dependencies) into our
+# container. This is done first so that later pieces will override this
+# correctly and so that changes in the static files don't cause the dependencies
+# to be re-copied.
+COPY --from=build /opt/warehouse/ /opt/warehouse/
+
+# Copy our compiled static files. These should overlay cleanly ontop of the
+# virtual environment and even when that gets invalidated, copything these is
+# super fast.
+COPY --from=static /opt/warehouse/src/warehouse/static/dist/ /opt/warehouse/src/warehouse/static/dist/
+COPY --from=static /opt/warehouse/src/warehouse/admin/static/dist/ /opt/warehouse/src/warehouse/admin/static/dist/
+
+# Copy warehouse into the container, this is done last so that changes to
 # Warehouse itself require the least amount of layers being invalidated from
 # the cache. This is most important in development, but it also useful for
 # deploying new code changes.
-COPY --from=static /opt/warehouse/src/warehouse/static/dist/ /opt/warehouse/src/warehouse/static/dist/
-COPY --from=static /opt/warehouse/src/warehouse/admin/static/dist/ /opt/warehouse/src/warehouse/admin/static/dist/
-COPY --from=build /opt/warehouse/ /opt/warehouse/
 COPY . /opt/warehouse/src/
 
 # Pre-compile our module's bytecode to save time collectively on container boot!
