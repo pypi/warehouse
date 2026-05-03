@@ -200,6 +200,9 @@ RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
 # to be re-copied.
 COPY --from=build /opt/warehouse/ /opt/warehouse/
 
+# Pre-compile our dependencies bytecode to save time collectively on container boot!
+RUN python -m compileall /opt/warehouse/lib/ -j 0
+
 # Copy our compiled static files. These should overlay cleanly ontop of the
 # virtual environment and even when that gets invalidated, copything these is
 # super fast.
