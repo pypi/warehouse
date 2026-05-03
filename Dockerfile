@@ -182,9 +182,10 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 FROM python:${PYTHON_IMAGE_VERSION}
 
 # Setup some basic environment variables that are ~never going to change.
-ENV PYTHONUNBUFFERED 1
-ENV PYTHONPATH /opt/warehouse/src/
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/opt/warehouse/src/
 ENV PATH="/opt/warehouse/bin:${PATH}"
+ENV TLDEXTRACT_CACHE="/var/cache/tldextract"
 
 WORKDIR /opt/warehouse/src/
 
