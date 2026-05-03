@@ -118,6 +118,12 @@ USER docs
 # image that it gets deployed into.
 FROM base AS build
 
+# We create an /opt directory with a virtual environment in it to store our
+# application in, we'll use --upgrade-deps to make sure we have the latest
+# version of pip.
+RUN --mount=type=cache,id=pkg,target=/root/.cache \
+        create-venv /opt/warehouse
+
 # Define whether we're building a production or a development image. This will
 # generally be used to control whether or not we install our development and
 # test dependencies.
@@ -131,12 +137,6 @@ ARG CI=no
 # as the warehouse shell interpreter,
 # i.e. 'docker compose run --rm web python -m warehouse shell --type=ipython')
 ARG IPYTHON=no
-
-# We create an /opt directory with a virtual environment in it to store our
-# application in, we'll use --upgrade-deps to make sure we have the latest
-# version of pip.
-RUN --mount=type=cache,id=pkg,target=/root/.cache \
-        create-venv /opt/warehouse
 
 # Install the Python level Warehouse requirements, this is done after copying
 # the requirements but prior to copying Warehouse itself into the container so
@@ -166,10 +166,6 @@ ENV PYTHONPATH=/opt/warehouse/src/
 # generally be used to control whether or not we install our development and
 # test dependencies.
 ARG DEVEL=no
-
-# Define whether we're building a CI image. This will include all the docs stuff
-# as well for the matrix!
-ARG CI=no
 
 # Install System level Warehouse requirements, this is done before everything
 # else because these are rarely ever going to change.
