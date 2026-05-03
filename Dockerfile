@@ -203,7 +203,17 @@ COPY --from=static /opt/warehouse/src/warehouse/admin/static/dist/ /opt/warehous
 # Warehouse itself require the least amount of layers being invalidated from
 # the cache. This is most important in development, but it also useful for
 # deploying new code changes.
-COPY . /opt/warehouse/src/
+COPY --exclude=requirements \
+     --exclude=bin \
+     --exclude=docs \
+     --exclude=babel.config.js \
+     --exclude=eslint.config.mjs \
+     --exclude=package-lock.json \
+     --exclude=package.json \
+     --exclude=webpack.config.js \
+     --exclude=webpack.plugin.localize.js \
+        . /opt/warehouse/src/
+
 
 # Pre-compile our module's bytecode to save time collectively on container boot!
 RUN python -m compileall warehouse/ -j 0
