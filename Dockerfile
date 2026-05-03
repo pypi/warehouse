@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1
+
 # Set variables reused in Dockerfile
 ARG PYTHON_IMAGE_VERSION=3.13.13-slim-bookworm
 
