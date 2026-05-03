@@ -45,7 +45,8 @@ RUN NODE_ENV=production npm run build
 # stages to inherit from.
 FROM python:${PYTHON_IMAGE_VERSION} AS base
 
-# Copy our pip-install helper over into the base image
+# Copy our helpers over into the base image
+COPY bin/docker/apt-install /usr/local/bin/apt-install
 COPY bin/docker/pip-install /usr/local/bin/pip-install
 
 # By default, Docker has special steps to avoid keeping APT caches in the layers, which
@@ -72,12 +73,10 @@ FROM base AS docs
 #  - libcairo2: mkdocs uses cairosvg
 RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=apt-lib,target=/var/lib/apt,sharing=locked \
-    set -x \
-    && apt-get update \
-    && apt-get install --no-install-recommends -y \
-       build-essential \
-       git \
-       libcairo2
+        apt-install \
+            build-essential \
+            git \
+            libcairo2
 
 # Set our working directory to our src directory
 WORKDIR /opt/warehouse/src/
@@ -195,8 +194,7 @@ RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=apt-lib,target=/var/lib/apt,sharing=locked \
     set -x \
     && if [ "$DEVEL" = "yes" ]; then \
-        apt-get update \
-        && apt-get install --no-install-recommends -y \
+        apt-install \
            build-essential \
            postgresql-client \
            oathtool \
