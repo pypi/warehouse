@@ -45,6 +45,9 @@ RUN NODE_ENV=production npm run build
 # stages to inherit from.
 FROM python:${PYTHON_IMAGE_VERSION} AS base
 
+# Copy our pip-install helper over into the base image
+COPY bin/docker/pip-install /usr/local/bin/pip-install
+
 # By default, Docker has special steps to avoid keeping APT caches in the layers, which
 # is good, but in our case, we're going to mount a special cache volume (kept between
 # builds), so we WANT the cache to persist.
@@ -54,9 +57,6 @@ RUN set -eux; \
 
 # Pre-compile the stdlib bytecode to save time collectively on container boot!
 RUN python -m compileall /usr/local/lib -j 0
-
-# Copy our pip-install helper over into the base image
-COPY bin/docker/pip-install /usr/local/bin/pip-install
 
 
 
