@@ -45,6 +45,9 @@ RUN NODE_ENV=production npm run build
 # stages to inherit from.
 FROM python:${PYTHON_IMAGE_VERSION} AS base
 
+# Pre-compile the stdlib bytecode to save time collectively on container boot!
+RUN python -m compileall /usr/local/lib -j 0
+
 # Copy our pip-install helper over into the base image
 COPY bin/docker/pip-install /usr/local/bin/pip-install
 
@@ -179,9 +182,6 @@ ARG DEVEL=no
 # Define whether we're building a CI image. This will include all the docs stuff
 # as well for the matrix!
 ARG CI=no
-
-# Pre-compile the stdlib bytecode to save time collectively on container boot!
-RUN python -m compileall /usr/local/lib -j 0
 
 # Install System level Warehouse requirements, this is done before everything
 # else because these are rarely ever going to change.
