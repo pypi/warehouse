@@ -41,8 +41,18 @@ RUN NODE_ENV=production npm run build
 
 
 
+# Create a base image that contains some helpers and settings for our python
+# stages to inherit from.
+FROM python:${PYTHON_IMAGE_VERSION} AS base
+
+# Copy our pip-install helper over into the base image
+COPY bin/docker/pip-install /usr/local/bin/pip-install
+
+
+
+
 # We'll build a light-weight layer along the way with just docs stuff
-FROM python:${PYTHON_IMAGE_VERSION} AS docs
+FROM base AS docs
 
 # Install System level build requirements, this is done before everything else
 # because these are rarely ever going to change.
@@ -70,7 +80,7 @@ WORKDIR /opt/warehouse/src/
 # We create an /opt directory with a virtual environment in it to store our
 # application in, we'll use --upgrade-deps to make sure we have the latest
 # version of pip.
-RUN --mount=type=cache,target=/root/.cache/pip \
+RUN --mount=type=cache,id=pkg,target=/root/.cache \
     set -x \
         && python3 -m venv --upgrade-deps /opt/warehouse
 
@@ -82,15 +92,12 @@ ENV PATH="/opt/warehouse/bin:${PATH}"
 # the requirements but prior to copying Warehouse itself into the container so
 # that code changes don't require triggering an entire install of all of
 # Warehouse's dependencies.
-RUN --mount=type=cache,target=/root/.cache/pip \
+RUN --mount=type=cache,id=pkg,target=/root/.cache \
     --mount=type=bind,src=requirements/,dst=/opt/warehouse/src/requirements/ \
-    set -x \
-    && pip --disable-pip-version-check \
-            install --no-deps --only-binary :all: \
-            -r requirements/docs-dev.txt \
-            -r requirements/docs-user.txt \
-            -r requirements/docs-blog.txt \
-    && pip check
+    pip-install \
+        -r requirements/docs-dev.txt \
+        -r requirements/docs-user.txt \
+        -r requirements/docs-blog.txt
 
 # We'll make the docs container run as a non-root user, ensure that the built
 # documentation belongs to the same user on the host machine.
@@ -106,7 +113,7 @@ USER docs
 
 # Now we're going to build our actual application, but not the actual production
 # image that it gets deployed into.
-FROM python:${PYTHON_IMAGE_VERSION} AS build
+FROM base AS build
 
 # Define whether we're building a production or a development image. This will
 # generally be used to control whether or not we install our development and
@@ -128,7 +135,7 @@ WORKDIR /opt/warehouse/src/
 # We create an /opt directory with a virtual environment in it to store our
 # application in, we'll use --upgrade-deps to make sure we have the latest
 # version of pip.
-RUN --mount=type=cache,target=/root/.cache/pip \
+RUN --mount=type=cache,id=pkg,target=/root/.cache \
     set -x \
         && python3 -m venv --upgrade-deps /opt/warehouse
 
@@ -140,24 +147,21 @@ ENV PATH="/opt/warehouse/bin:${PATH}"
 # the requirements but prior to copying Warehouse itself into the container so
 # that code changes don't require triggering an entire install of all of
 # Warehouse's dependencies.
-RUN --mount=type=cache,target=/root/.cache/pip \
+RUN --mount=type=cache,id=pkg,target=/root/.cache \
     --mount=type=bind,src=requirements/,dst=/opt/warehouse/src/requirements/ \
-    set -x \
-    && pip --disable-pip-version-check \
-            install --no-deps --only-binary :all: \
-                    -r requirements/deploy.txt \
-                    -r requirements/main.txt \
-                    $(if [ "$DEVEL" = "yes" ]; then echo '-r requirements/dev.txt -r requirements/tests.txt -r requirements/lint.txt'; fi) \
-                    $(if [ "$DEVEL" = "yes" ] && [ "$IPYTHON" = "yes" ]; then echo '-r requirements/ipython.txt'; fi) \
-                    $(if [ "$CI" = "yes" ]; then echo '-r requirements/docs-dev.txt -r requirements/docs-user.txt -r requirements/docs-blog.txt'; fi ) \
-    && pip check
+    pip-install \
+        -r requirements/deploy.txt \
+        -r requirements/main.txt \
+        $(if [ "$DEVEL" = "yes" ]; then echo '-r requirements/dev.txt -r requirements/tests.txt -r requirements/lint.txt'; fi) \
+        $(if [ "$DEVEL" = "yes" ] && [ "$IPYTHON" = "yes" ]; then echo '-r requirements/ipython.txt'; fi) \
+        $(if [ "$CI" = "yes" ]; then echo '-r requirements/docs-dev.txt -r requirements/docs-user.txt -r requirements/docs-blog.txt'; fi )
 
 
 
 
 # Now we're going to build our actual application image, which will eventually
 # pull in the static files that were built above.
-FROM python:${PYTHON_IMAGE_VERSION}
+FROM base
 
 # Setup some basic environment variables that are ~never going to change.
 ENV PYTHONUNBUFFERED=1
