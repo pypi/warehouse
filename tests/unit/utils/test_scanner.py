@@ -444,12 +444,15 @@ _FILENAMES_TO_SCAN = [
     "publish.sh",
     "info.txt",
     ".env",
+    ".pypirc",
+    "pyproject.toml",
+    "upload.cfg",
+    "upload.conf",
 ]
 
 
 class TestPyPITokenDetection:
-    # TODO: separated METADATA/PKG-INFO tests with correct paths
-    @pytest.mark.parametrize("filename", [*_FILENAMES_TO_SCAN, "METADATA"])
+    @pytest.mark.parametrize("filename", _FILENAMES_TO_SCAN)
     def test_detects_pypi_token_in_wheel(self, tmp_path, rules, pypi_token, filename):
         whl = _make_wheel(tmp_path, {f"pkg/{filename}": pypi_token})
         matches = scanner.scan_archive(whl, rules=rules)
@@ -463,6 +466,14 @@ class TestPyPITokenDetection:
         matches = scanner.scan_archive(tar, rules=rules)
         assert len(matches) == 1
         assert matches[0][0] == f"fake-1.0/pkg/{filename}"
+        assert "secrets_pypi_token" in matches[0][1]
+
+    def test_detection_in_wheel_metadata(self, tmp_path, rules, pypi_token):
+        """Case separated to prevent regressions by disabling .dist-info scanning."""
+        whl = _make_wheel(tmp_path, {"fake_package-1.0.dist-info/METADATA": pypi_token})
+        matches = scanner.scan_archive(whl, rules=rules)
+        assert len(matches) == 1
+        assert matches[0][0] == "fake_package-1.0.dist-info/METADATA"
         assert "secrets_pypi_token" in matches[0][1]
 
     @pytest.mark.parametrize("filename", [*_FILENAMES_TO_SCAN, "METADATA"])
@@ -479,4 +490,22 @@ class TestPyPITokenDetection:
     ):
         tar = _make_tarball(tmp_path, {f"fake-1.0/pkg/{filename}": localhost_token})
         matches = scanner.scan_archive(tar, rules=rules)
+        assert len(matches) == 0
+
+    @pytest.mark.parametrize("filename", _FILENAMES_TO_SCAN)
+    @pytest.mark.parametrize(
+        "token",
+        [
+            "pypi-AgEIcHlwaS5vcmcCJDxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "pypi-AgEIcHlwaS5vcmcCJ...",
+        ],
+    )
+    @pytest.mark.parametrize(
+        "dist_factory", [_make_tarball, _make_wheel], ids=["tarball", "wheel"]
+    )
+    def test_ignores_sample_tokens(
+        self, tmp_path, rules, token, filename, dist_factory
+    ):
+        dist = dist_factory(tmp_path, {f"pkg/{filename}": token})
+        matches = scanner.scan_archive(dist, rules=rules)
         assert len(matches) == 0

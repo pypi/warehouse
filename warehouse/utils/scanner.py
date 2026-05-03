@@ -17,7 +17,7 @@ logger = structlog.get_logger(__name__)
 _RULES_DIR = Path(__file__).parent / "scanner_rules"
 
 # Extensions to scan inside archives.
-_SCAN_EXTENSIONS = {
+_SCAN_TARGETS = {
     # Python source for source-level rules (e.g. pyarmor)
     ".py",
     # .pye for SourceDefender-encrypted files
@@ -28,6 +28,10 @@ _SCAN_EXTENSIONS = {
     ".env",
     ".sh",
     ".txt",
+    ".pypirc",
+    ".toml",
+    ".cfg",
+    ".conf",
     "METADATA",
     "PKG-INFO",
 }
@@ -93,7 +97,7 @@ def iter_zip_members(zfp: zipfile.ZipFile) -> typing.Iterator[tuple[str, int, by
         path = Path(entry.filename)
         ext = path.suffix.lower()
         # Names like "METADATA", ".env" have empty suffix
-        if ext not in _SCAN_EXTENSIONS and path.name not in _SCAN_EXTENSIONS:
+        if ext not in _SCAN_TARGETS and path.name not in _SCAN_TARGETS:
             continue
         data = zfp.read(entry.filename)
         yield entry.filename, len(data), data
@@ -107,7 +111,7 @@ def iter_tar_members(tar: tarfile.TarFile) -> typing.Iterator[tuple[str, int, by
         path = Path(member.name)
         ext = path.suffix.lower()
         # Names like "PKG-INFO", ".env" have empty suffix
-        if ext not in _SCAN_EXTENSIONS and path.name not in _SCAN_EXTENSIONS:
+        if ext not in _SCAN_TARGETS and path.name not in _SCAN_TARGETS:
             continue
         f = tar.extractfile(member)
         if f is None:  # pragma: no cover

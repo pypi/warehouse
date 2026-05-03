@@ -3,7 +3,7 @@ rule secrets_pypi_token
 	meta:
 		description = "Detects PyPI API tokens exposed in source code."
 		author = "Kamil Mankowski"
-		message = "We have detected a PyPI API token exposed in the uploaded file. Publishing it would allow anyone to perform actions on your behalf. For your own security, please revoke the token immediately."
+		message = "We have detected a PyPI API token exposed in the uploaded file. Publishing it would allow anyone to perform actions on your behalf. For your own security, please revoke the token immediately. See https://pypi.org/help/#compromised-token for additional help."
 
 	strings:
 		// Regex adapted from trufflehog's PyPI token detector
