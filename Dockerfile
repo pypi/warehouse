@@ -44,29 +44,25 @@ RUN NODE_ENV=production npm run build
 # We'll build a light-weight layer along the way with just docs stuff
 FROM python:${PYTHON_IMAGE_VERSION} AS docs
 
-# By default, Docker has special steps to avoid keeping APT caches in the layers, which
-# is good, but in our case, we're going to mount a special cache volume (kept between
-# builds), so we WANT the cache to persist.
-RUN set -eux; \
-    rm -f /etc/apt/apt.conf.d/docker-clean; \
-    echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache;
-
 # Install System level build requirements, this is done before everything else
 # because these are rarely ever going to change.
 # Usages:
 #  - build-essential: make
 #  - git: mkdocs plugin uses this for created/updated
 #  - libcairo2: mkdocs uses cairosvg
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=apt-lib,target=/var/lib/apt,sharing=locked \
     set -x \
+    # By default, Docker has special steps to avoid keeping APT caches in the layers,
+    # which is good, but in our case, we're going to mount a special cache volume (kept
+    # between builds), so we WANT the cache to persist.
+    && rm -f /etc/apt/apt.conf.d/docker-clean \
+    && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
        build-essential \
        git \
-       libcairo2 \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+       libcairo2
 
 # Set our working directory to our src directory
 WORKDIR /opt/warehouse/src/
@@ -180,33 +176,29 @@ ARG CI=no
 # Pre-compile the stdlib bytecode to save time collectively on container boot!
 RUN python -m compileall /usr/local/lib -j 0
 
-# By default, Docker has special steps to avoid keeping APT caches in the layers, which
-# is good, but in our case, we're going to mount a special cache volume (kept between
-# builds), so we WANT the cache to persist.
-RUN set -eux; \
-    rm -f /etc/apt/apt.conf.d/docker-clean; \
-    echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache;
-
 # Install System level Warehouse requirements, this is done before everything
 # else because these are rarely ever going to change.
 # Usages:
 #  - build-essential: make
 #  - postgresql-client: make initdb and friends
 #  - oathtool: make totp
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,id=apt-lib,target=/var/lib/apt,sharing=locked \
     set -x \
     && if [ "$DEVEL" = "yes" ]; then \
-        apt-get update \
+        # By default, Docker has special steps to avoid keeping APT caches in the layers,
+        # which is good, but in our case, we're going to mount a special cache volume
+        # (kept between builds), so we WANT the cache to persist.
+        rm -f /etc/apt/apt.conf.d/docker-clean \
+        && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache \
+        && apt-get update \
         && apt-get install --no-install-recommends -y \
            build-essential \
            postgresql-client \
            oathtool \
            fd-find \
         # Debian renames the `fd` binary to `fdfind`, so we'll rename it back to `fd`.
-        && ln -s $(which fdfind) /usr/local/bin/fd \
-        && apt-get clean \
-        && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*; \
+        && ln -s $(which fdfind) /usr/local/bin/fd; \
     fi
 
 # Copy the directory into the container, this is done last so that changes to
