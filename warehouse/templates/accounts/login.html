@@ -27,29 +27,17 @@
             {% for error in form.form_errors %}<li>{{ error }}</li>{% endfor %}
           </ul>
         {% endif %}
-        <div class="form-group">
-          <label for="username" class="form-group__label">
-            {% trans %}Username{% endtrans %}
-            {% if form.username.flags.required %}
-              <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
-            {% endif %}
-          </label>
-          {{ form.username(placeholder=gettext("Your username") ,
-          autocapitalize="off",
-          autocomplete="username",
-          spellcheck="false",
-          required="required",
-          class_="form-group__field",
-          aria_describedby="username-errors",
-          tabindex="1",
-          ) }}
-          <div id="username-errors">
-            {% if form.username.errors %}
-              <ul class="form-errors" role="alert">
-                {% for error in form.username.errors %}<li>{{ error }}</li>{% endfor %}
-              </ul>
-            {% endif %}
-          </div>
+{{ render_form_field(
+    form.username,
+    label=gettext("Username"),
+    placeholder=gettext("Your username"),
+    class_="form-group__field",
+    autocapitalize="off",
+    autocomplete="username",
+    spellcheck="false",
+    required="required",
+    tabindex="1"
+) }}
         </div>
         <div data-controller="password" class="form-group">
           <div class="split-layout">
