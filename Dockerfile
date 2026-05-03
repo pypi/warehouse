@@ -59,6 +59,12 @@ RUN set -eux; \
 # Pre-compile the stdlib bytecode to save time collectively on container boot!
 RUN python -m compileall /usr/local/lib -j 0
 
+# Set our working directory to our src directory
+WORKDIR /opt/warehouse/src/
+
+# Setup our $PATH so that it contains what will be our normal bin directory.
+ENV PATH="/opt/warehouse/bin:${PATH}"
+
 
 
 
@@ -78,19 +84,12 @@ RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
             git \
             libcairo2
 
-# Set our working directory to our src directory
-WORKDIR /opt/warehouse/src/
-
 # We create an /opt directory with a virtual environment in it to store our
 # application in, we'll use --upgrade-deps to make sure we have the latest
 # version of pip.
 RUN --mount=type=cache,id=pkg,target=/root/.cache \
     set -x \
         && python3 -m venv --upgrade-deps /opt/warehouse
-
-# Now that we've created our virtual environment, we'll go ahead and update
-# our $PATH to refer to it first.
-ENV PATH="/opt/warehouse/bin:${PATH}"
 
 # Install the Python level Warehouse requirements, this is done after copying
 # the requirements but prior to copying Warehouse itself into the container so
@@ -133,19 +132,12 @@ ARG CI=no
 # i.e. 'docker compose run --rm web python -m warehouse shell --type=ipython')
 ARG IPYTHON=no
 
-# Set our working directory to our src directory
-WORKDIR /opt/warehouse/src/
-
 # We create an /opt directory with a virtual environment in it to store our
 # application in, we'll use --upgrade-deps to make sure we have the latest
 # version of pip.
 RUN --mount=type=cache,id=pkg,target=/root/.cache \
     set -x \
         && python3 -m venv --upgrade-deps /opt/warehouse
-
-# Now that we've created our virtual environment, we'll go ahead and update
-# our $PATH to refer to it first.
-ENV PATH="/opt/warehouse/bin:${PATH}"
 
 # Install the Python level Warehouse requirements, this is done after copying
 # the requirements but prior to copying Warehouse itself into the container so
@@ -170,10 +162,6 @@ FROM base
 # Setup some basic environment variables that are ~never going to change.
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/opt/warehouse/src/
-ENV PATH="/opt/warehouse/bin:${PATH}"
-
-# Set our working directory to our src directory
-WORKDIR /opt/warehouse/src/
 
 # Define whether we're building a production or a development image. This will
 # generally be used to control whether or not we install our development and
