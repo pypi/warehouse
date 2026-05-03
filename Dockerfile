@@ -5,6 +5,7 @@ ARG PYTHON_IMAGE_VERSION=3.13.13-slim-bookworm
 # our static assets with. We use this stage in development.
 FROM node:25.8.1-bookworm AS static-deps
 
+# Set our working directory to our src directory
 WORKDIR /opt/warehouse/src/
 
 # However, we do want to trigger a reinstall of our node.js dependencies anytime
@@ -67,6 +68,9 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+# Set our working directory to our src directory
+WORKDIR /opt/warehouse/src/
+
 # We create an /opt directory with a virtual environment in it to store our
 # application in, we'll use --upgrade-deps to make sure we have the latest
 # version of pip.
@@ -78,25 +82,19 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 # our $PATH to refer to it first.
 ENV PATH="/opt/warehouse/bin:${PATH}"
 
-# We copy this into the docker container prior to copying in the rest of our
-# application so that we can skip installing requirements if the only thing
-# that has changed is the Warehouse code itself.
-COPY requirements /tmp/requirements
-
 # Install the Python level Warehouse requirements, this is done after copying
 # the requirements but prior to copying Warehouse itself into the container so
 # that code changes don't require triggering an entire install of all of
 # Warehouse's dependencies.
 RUN --mount=type=cache,target=/root/.cache/pip \
+    --mount=type=bind,src=requirements/,dst=/opt/warehouse/src/requirements/ \
     set -x \
     && pip --disable-pip-version-check \
             install --no-deps --only-binary :all: \
-            -r /tmp/requirements/docs-dev.txt \
-            -r /tmp/requirements/docs-user.txt \
-            -r /tmp/requirements/docs-blog.txt \
+            -r requirements/docs-dev.txt \
+            -r requirements/docs-user.txt \
+            -r requirements/docs-blog.txt \
     && pip check
-
-WORKDIR /opt/warehouse/src/
 
 # We'll make the docs container run as a non-root user, ensure that the built
 # documentation belongs to the same user on the host machine.
@@ -128,6 +126,9 @@ ARG CI=no
 # i.e. 'docker compose run --rm web python -m warehouse shell --type=ipython')
 ARG IPYTHON=no
 
+# Set our working directory to our src directory
+WORKDIR /opt/warehouse/src/
+
 # We create an /opt directory with a virtual environment in it to store our
 # application in, we'll use --upgrade-deps to make sure we have the latest
 # version of pip.
@@ -139,24 +140,20 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 # our $PATH to refer to it first.
 ENV PATH="/opt/warehouse/bin:${PATH}"
 
-# We copy this into the docker container prior to copying in the rest of our
-# application so that we can skip installing requirements if the only thing
-# that has changed is the Warehouse code itself.
-COPY requirements /tmp/requirements
-
 # Install the Python level Warehouse requirements, this is done after copying
 # the requirements but prior to copying Warehouse itself into the container so
 # that code changes don't require triggering an entire install of all of
 # Warehouse's dependencies.
 RUN --mount=type=cache,target=/root/.cache/pip \
+    --mount=type=bind,src=requirements/,dst=/opt/warehouse/src/requirements/ \
     set -x \
     && pip --disable-pip-version-check \
             install --no-deps --only-binary :all: \
-                    -r /tmp/requirements/deploy.txt \
-                    -r /tmp/requirements/main.txt \
-                    $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/dev.txt -r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt'; fi) \
-                    $(if [ "$DEVEL" = "yes" ] && [ "$IPYTHON" = "yes" ]; then echo '-r /tmp/requirements/ipython.txt'; fi) \
-                    $(if [ "$CI" = "yes" ]; then echo '-r /tmp/requirements/docs-dev.txt -r /tmp/requirements/docs-user.txt -r /tmp/requirements/docs-blog.txt'; fi ) \
+                    -r requirements/deploy.txt \
+                    -r requirements/main.txt \
+                    $(if [ "$DEVEL" = "yes" ]; then echo '-r requirements/dev.txt -r requirements/tests.txt -r requirements/lint.txt'; fi) \
+                    $(if [ "$DEVEL" = "yes" ] && [ "$IPYTHON" = "yes" ]; then echo '-r requirements/ipython.txt'; fi) \
+                    $(if [ "$CI" = "yes" ]; then echo '-r requirements/docs-dev.txt -r requirements/docs-user.txt -r requirements/docs-blog.txt'; fi ) \
     && pip check
 
 
@@ -167,11 +164,9 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 FROM python:${PYTHON_IMAGE_VERSION}
 
 # Setup some basic environment variables that are ~never going to change.
-ENV PYTHONUNBUFFERED 1
-ENV PYTHONPATH /opt/warehouse/src/
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/opt/warehouse/src/
 ENV PATH="/opt/warehouse/bin:${PATH}"
-
-WORKDIR /opt/warehouse/src/
 
 # Define whether we're building a production or a development image. This will
 # generally be used to control whether or not we install our development and
