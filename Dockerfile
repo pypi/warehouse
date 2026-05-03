@@ -45,6 +45,13 @@ RUN NODE_ENV=production npm run build
 # stages to inherit from.
 FROM python:${PYTHON_IMAGE_VERSION} AS base
 
+# By default, Docker has special steps to avoid keeping APT caches in the layers, which
+# is good, but in our case, we're going to mount a special cache volume (kept between
+# builds), so we WANT the cache to persist.
+RUN set -eux; \
+    rm -f /etc/apt/apt.conf.d/docker-clean \
+    && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
+
 # Pre-compile the stdlib bytecode to save time collectively on container boot!
 RUN python -m compileall /usr/local/lib -j 0
 
@@ -66,11 +73,6 @@ FROM base AS docs
 RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=apt-lib,target=/var/lib/apt,sharing=locked \
     set -x \
-    # By default, Docker has special steps to avoid keeping APT caches in the layers,
-    # which is good, but in our case, we're going to mount a special cache volume (kept
-    # between builds), so we WANT the cache to persist.
-    && rm -f /etc/apt/apt.conf.d/docker-clean \
-    && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
        build-essential \
@@ -193,12 +195,7 @@ RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=apt-lib,target=/var/lib/apt,sharing=locked \
     set -x \
     && if [ "$DEVEL" = "yes" ]; then \
-        # By default, Docker has special steps to avoid keeping APT caches in the layers,
-        # which is good, but in our case, we're going to mount a special cache volume
-        # (kept between builds), so we WANT the cache to persist.
-        rm -f /etc/apt/apt.conf.d/docker-clean \
-        && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache \
-        && apt-get update \
+        apt-get update \
         && apt-get install --no-install-recommends -y \
            build-essential \
            postgresql-client \
