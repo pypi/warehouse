@@ -1,6 +1,7 @@
 {
 	// List of extensions which should be recommended for users of this workspace.
 	"recommendations": [
+		"ast-grep.ast-grep-vscode",
 		"editorconfig.editorconfig",
 		"charliermarsh.ruff",
 		"ms-python.python",
