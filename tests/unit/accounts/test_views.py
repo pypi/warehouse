@@ -2946,7 +2946,7 @@ class TestVerifyOrganizationRole:
         db_request.method = "POST"
         db_request.GET.update({"token": "RANDOM_KEY"})
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/")
-        db_request.remote_addr = "192.168.1.1"
+        db_request.remote_addr = "192.0.2.1"
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
         token_service.loads = pretend.call_recorder(
             lambda token: {
@@ -3085,7 +3085,7 @@ class TestVerifyOrganizationRole:
         db_request.method = "POST"
         db_request.GET.update({"token": "RANDOM_KEY"})
         db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "192.168.1.1"
+        db_request.remote_addr = "192.0.2.1"
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
         token_service.loads = pretend.call_recorder(
             lambda token: {
@@ -3132,7 +3132,7 @@ class TestVerifyOrganizationRole:
             {"token": "RANDOM_KEY", "decline": "Decline", "message": message}
         )
         db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "192.168.1.1"
+        db_request.remote_addr = "192.0.2.1"
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
         token_service.loads = pretend.call_recorder(
             lambda token: {
@@ -3204,7 +3204,7 @@ class TestVerifyOrganizationRole:
         db_request.method = "POST"
         db_request.GET.update({"token": "RANDOM_KEY"})
         db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "192.168.1.1"
+        db_request.remote_addr = "192.0.2.1"
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
         token_service.loads = pretend.call_recorder(
             lambda token: {
@@ -3244,7 +3244,7 @@ class TestVerifyOrganizationRole:
         db_request.method = "POST"
         db_request.GET.update({"token": "RANDOM_KEY"})
         db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "192.168.1.1"
+        db_request.remote_addr = "192.0.2.1"
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
         token_service.loads = pretend.call_recorder(
             lambda token: {
@@ -3283,7 +3283,7 @@ class TestVerifyOrganizationRole:
         db_request.method = "GET"
         db_request.GET.update({"token": "RANDOM_KEY"})
         db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "192.168.1.1"
+        db_request.remote_addr = "192.0.2.1"
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
         token_service.loads = pretend.call_recorder(
             lambda token: {
@@ -3318,7 +3318,7 @@ class TestVerifyProjectRole:
         db_request.method = "POST"
         db_request.GET.update({"token": "RANDOM_KEY"})
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/")
-        db_request.remote_addr = "192.168.1.1"
+        db_request.remote_addr = "192.0.2.1"
         token_service.loads = pretend.call_recorder(
             lambda token: {
                 "action": "email-project-role-verify",
@@ -3464,7 +3464,7 @@ class TestVerifyProjectRole:
         db_request.method = "POST"
         db_request.GET.update({"token": "RANDOM_KEY"})
         db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "192.168.1.1"
+        db_request.remote_addr = "192.0.2.1"
         token_service.loads = pretend.call_recorder(
             lambda token: {
                 "action": "email-project-role-verify",
@@ -3504,7 +3504,7 @@ class TestVerifyProjectRole:
         db_request.method = "POST"
         db_request.POST.update({"token": "RANDOM_KEY", "decline": "Decline"})
         db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "192.168.1.1"
+        db_request.remote_addr = "192.0.2.1"
         token_service.loads = pretend.call_recorder(
             lambda token: {
                 "action": "email-project-role-verify",
@@ -3545,7 +3545,7 @@ class TestVerifyProjectRole:
         db_request.method = "POST"
         db_request.GET.update({"token": "RANDOM_KEY"})
         db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "192.168.1.1"
+        db_request.remote_addr = "192.0.2.1"
         token_service.loads = pretend.call_recorder(
             lambda token: {
                 "action": "email-project-role-verify",
@@ -3583,7 +3583,7 @@ class TestVerifyProjectRole:
         db_request.method = "POST"
         db_request.GET.update({"token": "RANDOM_KEY"})
         db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "192.168.1.1"
+        db_request.remote_addr = "192.0.2.1"
         token_service.loads = pretend.call_recorder(
             lambda token: {
                 "action": "email-project-role-verify",
@@ -3619,7 +3619,7 @@ class TestVerifyProjectRole:
         db_request.method = "POST"
         db_request.GET.update({"token": "RANDOM_KEY"})
         db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "192.168.1.1"
+        db_request.remote_addr = "192.0.2.1"
         token_service.loads = pretend.call_recorder(
             lambda token: {
                 "action": "email-project-role-verify",
@@ -3658,7 +3658,7 @@ class TestVerifyProjectRole:
         db_request.method = "GET"
         db_request.GET.update({"token": "RANDOM_KEY"})
         db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.remote_addr = "192.168.1.1"
+        db_request.remote_addr = "192.0.2.1"
         token_service.loads = pretend.call_recorder(
             lambda token: {
                 "action": "email-project-role-verify",
