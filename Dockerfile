@@ -216,7 +216,13 @@ COPY --exclude=requirements \
 
 
 # Pre-compile our module's bytecode to save time collectively on container boot!
-RUN python -m compileall warehouse/ -j 0
+# NOTE: We only do this when we're not building a dev build, because a dev build
+#       will likely have a checkout mounted over warehouse anyways, so these
+#       *.pyc files won't be used in that case.
+RUN if [ "$DEVEL" != "yes" ]; then python -m compileall warehouse/ -j 0; fi
 
 # Pre-cache TLD list
-RUN tldextract --update
+# NOTE: We only do this when we're not building a dev build, because a dev build
+#       doesn't need to keep an updated tldextract database an can fall back to
+#       snapshot included in tldextract.
+RUN if [ "$DEVEL" != "yes" ]; then tldextract --update; fi
