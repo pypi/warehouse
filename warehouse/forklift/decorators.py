@@ -101,49 +101,6 @@ def ensure_uploads_allowed(wrapped):
                 ),
             )
 
-        # These checks only make sense when our authenticated identity is a user,
-        # not a project identity (like OIDC-minted tokens.)
-        if request.user:
-            # Ensure that user has a verified, primary email address. This should both
-            # reduce the ease of spam account creation and activity, as well as act as
-            # a forcing function for https://github.com/pypa/warehouse/issues/3632.
-            # TODO: Once https://github.com/pypa/warehouse/issues/3632 has been solved,
-            #       we might consider a different condition, possibly looking at
-            #       User.is_active instead.
-            if not (request.user.primary_email and request.user.primary_email.verified):
-                request.metrics.increment(
-                    "warehouse.upload.failed", tags=["reason:unverified-email"]
-                )
-                raise _exc_with_message(
-                    HTTPForbidden,
-                    (
-                        "User {!r} does not have a verified primary email address. "
-                        "Please add a verified primary email before attempting to "
-                        "upload to PyPI. See {project_help} for more information."
-                    ).format(
-                        request.user.username,
-                        project_help=request.help_url(_anchor="verified-email"),
-                    ),
-                ) from None
-            # Ensure user has enabled 2FA before they can upload a file.
-            if not request.user.has_two_factor:
-                request.metrics.increment(
-                    "warehouse.upload.failed", tags=["reason:no-2fa"]
-                )
-                raise _exc_with_message(
-                    HTTPForbidden,
-                    (
-                        "User {!r} does not have two-factor authentication enabled. "
-                        "Please enable two-factor authentication before attempting to "
-                        "upload to PyPI. See {project_help} for more information."
-                    ).format(
-                        request.user.username,
-                        project_help=request.help_url(
-                            _anchor="two-factor-authentication"
-                        ),
-                    ),
-                ) from None
-
         # Otherwise, we'll just dispatch to our underlying view
         return wrapped(context, request)
 

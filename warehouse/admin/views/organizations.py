@@ -148,11 +148,10 @@ def _turbo_mode(request):
                 organization_application_id=next_organization_application.id,
             )
         )
-    else:
-        request.session.flash(
-            "No more Organization Applications to review!", queue="success"
-        )
-        return HTTPSeeOther(request.route_path("admin.dashboard"))
+    request.session.flash(
+        "No more Organization Applications to review!", queue="success"
+    )
+    return HTTPSeeOther(request.route_path("admin.dashboard"))
 
 
 @view_config(

@@ -73,9 +73,7 @@ def update_organziation_subscription_usage_record(request):
 
     # Call the Billing API to update the usage record of this subscription item
     for org_subscription in organization_subscriptions:
-        if org_subscription.subscription.status not in (
-            StripeSubscriptionStatus.Canceled,
-        ):
+        if org_subscription.subscription.status != StripeSubscriptionStatus.Canceled:
             billing_service = request.find_service(IBillingService, context=None)
             billing_service.create_or_update_usage_record(
                 org_subscription.subscription.subscription_item.subscription_item_id,

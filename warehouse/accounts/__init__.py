@@ -63,8 +63,7 @@ def _user(request):
 
     if isinstance(request.identity, UserContext):
         return request.identity.user
-    else:
-        return None
+    return None
 
 
 def _oidc_publisher(request):

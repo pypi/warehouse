@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import io
+import re
 
 import pretend
 import pytest
@@ -19,13 +20,15 @@ class TestJunkEncoding:
     def test_invalid_qsl(self):
         request = Request({"QUERY_STRING": "%Aaction=browse"})
 
-        with pytest.raises(HTTPBadRequest, match="Invalid bytes in query string."):
+        with pytest.raises(
+            HTTPBadRequest, match=re.escape("Invalid bytes in query string.")
+        ):
             sanity.junk_encoding(request)
 
     def test_invalid_path(self):
         request = Request({"PATH_INFO": "/projects/abouÅt"})
 
-        with pytest.raises(HTTPBadRequest, match="Invalid bytes in URL."):
+        with pytest.raises(HTTPBadRequest, match=re.escape("Invalid bytes in URL.")):
             sanity.junk_encoding(request)
 
 
@@ -58,7 +61,7 @@ class TestInvalidForms:
             }
         )
 
-        with pytest.raises(HTTPBadRequest, match="Invalid Form Data."):
+        with pytest.raises(HTTPBadRequest, match=re.escape("Invalid Form Data.")):
             sanity.invalid_forms(request)
 
     def test_not_post(self):
@@ -75,10 +78,7 @@ class TestInvalidForms:
     ],
 )
 def test_unicode_redirects(original_location, expected_location):
-    if original_location:
-        resp_in = HTTPMovedPermanently(original_location)
-    else:
-        resp_in = HTTPOk()
+    resp_in = HTTPMovedPermanently(original_location) if original_location else HTTPOk()
 
     resp_out = sanity.unicode_redirects(resp_in)
 

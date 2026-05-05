@@ -40,13 +40,13 @@ class ConsoleHelpDeskService:
         return cls()
 
     def create_conversation(self, *, request_json: dict) -> str:
-        print("Observation created")
-        print("request_json:")
-        print(dedent(pprint.pformat(request_json)))
+        print("Observation created")  # noqa: T201
+        print("request_json:")  # noqa: T201
+        print(dedent(pprint.pformat(request_json)))  # noqa: T201
         return "localhost"
 
     def add_tag(self, *, conversation_url: str, tag: str) -> None:
-        print(f"Adding tag '{tag}' to conversation '{conversation_url}'")
+        print(f"Adding tag '{tag}' to conversation '{conversation_url}'")  # noqa: T201
         return
 
 
@@ -165,9 +165,9 @@ class ConsoleAdminNotificationService:
         return cls()
 
     def send_notification(self, *, payload: dict) -> None:
-        print("Webhook notification sent")
-        print("payload:")
-        print(dedent(pprint.pformat(payload)))
+        print("Webhook notification sent")  # noqa: T201
+        print("payload:")  # noqa: T201
+        print(dedent(pprint.pformat(payload)))  # noqa: T201
         return
 
 

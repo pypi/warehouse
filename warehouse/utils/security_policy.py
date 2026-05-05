@@ -65,15 +65,14 @@ class MultiSecurityPolicy:
         return identity
 
     def authenticated_userid(self, request):
-        if ident := self.identity(request):
+        if (ident := self.identity(request)) and isinstance(ident, UserContext):
             # TODO: Note, this logic breaks the contract of a SecurityPolicy, the
             #       authenticated_userid is intended to be used to fetch the unique
             #       identifier that represents the current identity. We're leaving
             #       it here for now, because there are a number of views directly
             #       using this to detect user vs not, which we'll need to move to a
             #       more correct pattern before fixing this.
-            if isinstance(ident, UserContext):
-                return str(ident.user.id)
+            return str(ident.user.id)
         return None
 
     def forget(self, request, **kw):
@@ -100,5 +99,4 @@ class MultiSecurityPolicy:
         # for this request.
         if policy is not None:
             return policy.permits(request, context, permission)
-        else:
-            return Denied("unknown identity")
+        return Denied("unknown identity")

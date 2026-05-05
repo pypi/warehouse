@@ -111,7 +111,7 @@ def on_new_response(new_response_event):
     metrics.timing(
         "pyramid.request.duration.total",
         timings["request_duration"],
-        tags=tags + [f"status_code:{status_code}", f"status_type:{status_code[0]}xx"],
+        tags=[*tags, f"status_code:{status_code}", f"status_type:{status_code[0]}xx"],
     )
 
 

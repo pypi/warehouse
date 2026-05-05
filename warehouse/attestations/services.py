@@ -164,7 +164,7 @@ class IntegrityService:
                     f"Could not verify the uploaded artifact using the included "
                     f"attestation: {e}",
                 )
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 with sentry_sdk.new_scope() as scope:
                     scope.fingerprint = [e]
                     sentry_sdk.capture_message(

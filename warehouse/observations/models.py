@@ -76,15 +76,15 @@ class HasObservers:
         assoc_cls = type(
             f"{name}ObserverAssociation",
             (ObserverAssociation,),
-            dict(
-                __tablename__=None,
-                __mapper_args__={"polymorphic_identity": discriminator},
-                parent=relationship(
+            {
+                "__tablename__": None,
+                "__mapper_args__": {"polymorphic_identity": discriminator},
+                "parent": relationship(
                     name,
                     back_populates="observer_association",
                     uselist=False,
                 ),
-            ),
+            },
         )
 
         cls.observer = association_proxy(
@@ -212,31 +212,31 @@ class HasObservations:
         cls.Observation = type(
             f"{cls.__name__}Observation",
             (Observation, db.Model),
-            dict(
-                __tablename__=f"{cls.__name__.lower()}_observations",
-                __mapper_args__={
+            {
+                "__tablename__": f"{cls.__name__.lower()}_observations",
+                "__mapper_args__": {
                     "polymorphic_identity": cls.__name__.lower(),
                     "concrete": True,
                 },
-                related_id=mapped_column(
+                "related_id": mapped_column(
                     ForeignKey(f"{cls.__tablename__}.id"),
                     comment="The ID of the related model",
                     nullable=True,
                     index=True,
                 ),
-                related=relationship(cls, back_populates="observations"),
-                related_name=mapped_column(
+                "related": relationship(cls, back_populates="observations"),
+                "related_name": mapped_column(
                     String,
                     comment="The name of the related model",
                     nullable=False,
                 ),
-                observer_id=mapped_column(
+                "observer_id": mapped_column(
                     ForeignKey("observers.id"),
                     comment="ID of the Observer who created the Observation",
                     nullable=False,
                 ),
-                observer=relationship(Observer),
-            ),
+                "observer": relationship(Observer),
+            },
         )
         return relationship(cls.Observation)
 

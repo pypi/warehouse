@@ -348,10 +348,10 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             # The project has zero or more OIDC publishers registered to it,
             # each of which serves as an identity with the ability to upload releases
             # (only if the project is not archived or quarantined)
-            for publisher in self.oidc_publishers:
-                acls.append(
-                    (Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload])
-                )
+            acls.extend(
+                (Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload])
+                for publisher in self.oidc_publishers
+            )
 
         # Get all of the users for this project.
         user_query = (
@@ -429,7 +429,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
 
         # If the project doesn't have docs, then we'll just return a None here.
         if not self.has_docs:
-            return
+            return None
 
         return request.route_url("legacy.docs", project=self.name)
 
@@ -518,7 +518,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
 
         if self.lifecycle_status == LifecycleStatus.QuarantineEnter:
             return ProjectStatusMarker.Quarantined
-        elif self.lifecycle_status in (
+        if self.lifecycle_status in (
             LifecycleStatus.Archived,
             LifecycleStatus.ArchivedNoindex,
         ):
@@ -853,7 +853,7 @@ class Release(HasObservations, db.Model):
     def verified_user_name_and_repo_name(
         self, domains: set[str], reserved_names: typing.Collection[str] | None = None
     ):
-        for _, url in self.urls_by_verify_status(verified=True).items():
+        for url in self.urls_by_verify_status(verified=True).values():
             try:
                 parsed = parse_url(url)
             except LocationParseError:
@@ -879,6 +879,7 @@ class Release(HasObservations, db.Model):
         user_name, repo_name = self.verified_github_user_name_and_repo_name
         if user_name and repo_name:
             return f"https://api.github.com/repos/{user_name}/{repo_name}"
+        return None
 
     @property
     def verified_github_open_issue_info_url(self):
@@ -888,6 +889,7 @@ class Release(HasObservations, db.Model):
                 f"https://api.github.com/search/issues?q=repo:{user_name}/{repo_name}"
                 "+type:issue+state:open&per_page=1"
             )
+        return None
 
     @property
     def verified_gitlab_user_name_and_repo_name(self):
@@ -952,7 +954,7 @@ class File(HasEvents, db.Model):
                 "packagetype",
                 unique=True,
                 postgresql_where=(
-                    (cls.packagetype == "sdist") & (cls.allow_multiple_sdist == False)  # noqa
+                    (cls.packagetype == "sdist") & (cls.allow_multiple_sdist == False)  # noqa: E712
                 ),
             ),
             Index("release_files_release_id_idx", "release_id"),
@@ -1026,7 +1028,7 @@ class File(HasEvents, db.Model):
     def metadata_path(self):
         return self.path + ".metadata"
 
-    @metadata_path.expression  # type: ignore
+    @metadata_path.expression  # type: ignore[no-redef]
     def metadata_path(cls):
         return func.concat(cls.path, ".metadata")
 

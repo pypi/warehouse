@@ -1,10 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import collections
+import contextlib
 import functools
 import operator
 
 from itertools import chain
+from typing import Any, NamedTuple
 
 import structlog
 
@@ -62,10 +63,8 @@ def store_purge_keys(config, session, flush_context):
 
         changed = set()
         if obj in session.dirty:
-            try:
+            with contextlib.suppress(NoInspectionAvailable):
                 changed = set(sa_inspect(obj).committed_state.keys())
-            except NoInspectionAvailable:
-                pass
             # Skip if only non-cache-relevant attributes changed
             if changed and changed <= _NON_CACHE_RELEVANT_ATTRS:
                 continue
@@ -145,7 +144,9 @@ def origin_cache(seconds, keys=None, stale_while_revalidate=None, stale_if_error
     return inner
 
 
-CacheKeys = collections.namedtuple("CacheKeys", ["cache", "purge"])
+class CacheKeys(NamedTuple):
+    cache: Any
+    purge: Any
 
 
 def key_factory(keystring, iterate_on=None, if_attr_exists=None):

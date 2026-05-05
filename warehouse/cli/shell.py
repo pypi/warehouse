@@ -9,12 +9,12 @@ from warehouse.cli import warehouse
 
 def autodetect():
     try:
-        import bpython  # pyright: ignore # noqa
+        import bpython  # noqa: F401  # pyright: ignore[reportMissingImports]
 
         return "bpython"
     except ImportError:
         try:
-            import IPython  # pyright: ignore # noqa
+            import IPython  # noqa: F401  # pyright: ignore[reportMissingImports]
 
             return "ipython"
         except ImportError:
@@ -24,13 +24,13 @@ def autodetect():
 
 
 def bpython(**locals_):
-    import bpython  # pyright: ignore
+    import bpython  # pyright: ignore[reportMissingImports]
 
     bpython.embed(locals_)
 
 
 def ipython(**locals_):
-    from IPython import start_ipython  # pyright: ignore
+    from IPython import start_ipython  # pyright: ignore[reportMissingImports]
 
     start_ipython(argv=[], user_ns=locals_)
 

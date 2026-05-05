@@ -67,7 +67,7 @@ def _activestate_gql_api_call(
             raise wtforms.validators.ValidationError(
                 _("Unexpected error from ActiveState. Try again in a few minutes")
             )
-        elif response.status_code >= 400:
+        if response.status_code >= 400:
             sentry_sdk.capture_message(
                 f"Unexpected {response.status_code} error "
                 f"from ActiveState API: {response.content!r}"
@@ -161,10 +161,7 @@ class ActiveStatePublisherBase(wtforms.Form):
             users = response.get("data", {}).get("users", [])
             if users:
                 return users[0]
-            else:
-                raise wtforms.validators.ValidationError(
-                    _("ActiveState actor not found")
-                )
+            raise wtforms.validators.ValidationError(_("ActiveState actor not found"))
 
         return _activestate_gql_api_call(
             _GRAPHQL_GET_ACTOR, {"username": actor}, process_actor_response
@@ -179,7 +176,7 @@ class ActiveStatePublisherBase(wtforms.Form):
 
 
 class PendingActiveStatePublisherForm(ActiveStatePublisherBase, PendingPublisherMixin):
-    __params__ = ActiveStatePublisherBase.__params__ + ["project_name"]
+    __params__ = [*ActiveStatePublisherBase.__params__, "project_name"]
 
     def __init__(self, *args, route_url, check_project_name, user, **kwargs):
         super().__init__(*args, **kwargs)

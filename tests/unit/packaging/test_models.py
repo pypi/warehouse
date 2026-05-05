@@ -180,74 +180,69 @@ class TestProject:
                     Permissions.AdminRoleDelete,
                 ),
             ),
-            (
-                Allow,
-                "group:observers",
-                Permissions.APIObservationsAdd,
+            (Allow, "group:observers", Permissions.APIObservationsAdd),
+            (Allow, Authenticated, Permissions.SubmitMalwareObservation),
+            *sorted(
+                [(Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload])],
+                key=lambda x: x[1],
             ),
-            (
-                Allow,
-                Authenticated,
-                Permissions.SubmitMalwareObservation,
+            *sorted(
+                [
+                    (
+                        Allow,
+                        f"user:{owner1.user.id}",
+                        [
+                            Permissions.ProjectsRead,
+                            Permissions.ProjectsUpload,
+                            Permissions.ProjectsWrite,
+                        ],
+                    ),
+                    (
+                        Allow,
+                        f"user:{owner2.user.id}",
+                        [
+                            Permissions.ProjectsRead,
+                            Permissions.ProjectsUpload,
+                            Permissions.ProjectsWrite,
+                        ],
+                    ),
+                    (
+                        Allow,
+                        f"user:{owner3.user.id}",
+                        [
+                            Permissions.ProjectsRead,
+                            Permissions.ProjectsUpload,
+                            Permissions.ProjectsWrite,
+                        ],
+                    ),
+                    (
+                        Allow,
+                        f"user:{owner4.user.id}",
+                        [
+                            Permissions.ProjectsRead,
+                            Permissions.ProjectsUpload,
+                            Permissions.ProjectsWrite,
+                        ],
+                    ),
+                ],
+                key=lambda x: x[1],
             ),
-        ] + sorted(
-            [(Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload])],
-            key=lambda x: x[1],
-        ) + sorted(
-            [
-                (
-                    Allow,
-                    f"user:{owner1.user.id}",
-                    [
-                        Permissions.ProjectsRead,
-                        Permissions.ProjectsUpload,
-                        Permissions.ProjectsWrite,
-                    ],
-                ),
-                (
-                    Allow,
-                    f"user:{owner2.user.id}",
-                    [
-                        Permissions.ProjectsRead,
-                        Permissions.ProjectsUpload,
-                        Permissions.ProjectsWrite,
-                    ],
-                ),
-                (
-                    Allow,
-                    f"user:{owner3.user.id}",
-                    [
-                        Permissions.ProjectsRead,
-                        Permissions.ProjectsUpload,
-                        Permissions.ProjectsWrite,
-                    ],
-                ),
-                (
-                    Allow,
-                    f"user:{owner4.user.id}",
-                    [
-                        Permissions.ProjectsRead,
-                        Permissions.ProjectsUpload,
-                        Permissions.ProjectsWrite,
-                    ],
-                ),
-            ],
-            key=lambda x: x[1],
-        ) + sorted(
-            [
-                (
-                    Allow,
-                    f"user:{maintainer1.user.id}",
-                    [Permissions.ProjectsUpload],
-                ),
-                (
-                    Allow,
-                    f"user:{maintainer2.user.id}",
-                    [Permissions.ProjectsUpload],
-                ),
-            ],
-            key=lambda x: x[1],
-        )
+            *sorted(
+                [
+                    (
+                        Allow,
+                        f"user:{maintainer1.user.id}",
+                        [Permissions.ProjectsUpload],
+                    ),
+                    (
+                        Allow,
+                        f"user:{maintainer2.user.id}",
+                        [Permissions.ProjectsUpload],
+                    ),
+                ],
+                key=lambda x: x[1],
+            ),
+        ]
 
     def test_acl_for_quarantined_project(self, db_session):
         """
@@ -311,31 +306,25 @@ class TestProject:
                     Permissions.AdminRoleDelete,
                 ),
             ),
-            (
-                Allow,
-                "group:observers",
-                Permissions.APIObservationsAdd,
+            (Allow, "group:observers", Permissions.APIObservationsAdd),
+            (Allow, Authenticated, Permissions.SubmitMalwareObservation),
+            *sorted(
+                [
+                    (Allow, f"user:{owner1.user.id}", _perms_read_and_upload),
+                    (Allow, f"user:{owner2.user.id}", _perms_read_and_upload),
+                    (Allow, f"user:{owner3.user.id}", _perms_read_and_upload),
+                    (Allow, f"user:{owner4.user.id}", _perms_read_and_upload),
+                ],
+                key=lambda x: x[1],
             ),
-            (
-                Allow,
-                Authenticated,
-                Permissions.SubmitMalwareObservation,
+            *sorted(
+                [
+                    (Allow, f"user:{maintainer1.user.id}", _perms_read_and_upload),
+                    (Allow, f"user:{maintainer2.user.id}", _perms_read_and_upload),
+                ],
+                key=lambda x: x[1],
             ),
-        ] + sorted(
-            [
-                (Allow, f"user:{owner1.user.id}", _perms_read_and_upload),
-                (Allow, f"user:{owner2.user.id}", _perms_read_and_upload),
-                (Allow, f"user:{owner3.user.id}", _perms_read_and_upload),
-                (Allow, f"user:{owner4.user.id}", _perms_read_and_upload),
-            ],
-            key=lambda x: x[1],
-        ) + sorted(
-            [
-                (Allow, f"user:{maintainer1.user.id}", _perms_read_and_upload),
-                (Allow, f"user:{maintainer2.user.id}", _perms_read_and_upload),
-            ],
-            key=lambda x: x[1],
-        )
+        ]
 
     def test_acl_for_archived_project(self, db_session):
         """
@@ -401,25 +390,18 @@ class TestProject:
                     Permissions.AdminRoleDelete,
                 ),
             ),
-            (
-                Allow,
-                "group:observers",
-                Permissions.APIObservationsAdd,
+            (Allow, "group:observers", Permissions.APIObservationsAdd),
+            (Allow, Authenticated, Permissions.SubmitMalwareObservation),
+            *sorted(
+                [
+                    (Allow, f"user:{owner1.user.id}", _perms_read_and_write),
+                    (Allow, f"user:{owner2.user.id}", _perms_read_and_write),
+                    (Allow, f"user:{owner3.user.id}", _perms_read_and_write),
+                    (Allow, f"user:{owner4.user.id}", _perms_read_and_write),
+                ],
+                key=lambda x: x[1],
             ),
-            (
-                Allow,
-                Authenticated,
-                Permissions.SubmitMalwareObservation,
-            ),
-        ] + sorted(
-            [
-                (Allow, f"user:{owner1.user.id}", _perms_read_and_write),
-                (Allow, f"user:{owner2.user.id}", _perms_read_and_write),
-                (Allow, f"user:{owner3.user.id}", _perms_read_and_write),
-                (Allow, f"user:{owner4.user.id}", _perms_read_and_write),
-            ],
-            key=lambda x: x[1],
-        )
+        ]
 
     def test_repr(self, db_request):
         project = DBProjectFactory()
@@ -938,45 +920,47 @@ class TestRelease:
                     Permissions.AdminRoleDelete,
                 ),
             ),
-            (
-                Allow,
-                "group:observers",
-                Permissions.APIObservationsAdd,
+            (Allow, "group:observers", Permissions.APIObservationsAdd),
+            (Allow, Authenticated, Permissions.SubmitMalwareObservation),
+            *sorted(
+                [
+                    (
+                        Allow,
+                        f"user:{owner1.user.id}",
+                        [
+                            Permissions.ProjectsRead,
+                            Permissions.ProjectsUpload,
+                            Permissions.ProjectsWrite,
+                        ],
+                    ),
+                    (
+                        Allow,
+                        f"user:{owner2.user.id}",
+                        [
+                            Permissions.ProjectsRead,
+                            Permissions.ProjectsUpload,
+                            Permissions.ProjectsWrite,
+                        ],
+                    ),
+                ],
+                key=lambda x: x[1],
             ),
-            (
-                Allow,
-                Authenticated,
-                Permissions.SubmitMalwareObservation,
+            *sorted(
+                [
+                    (
+                        Allow,
+                        f"user:{maintainer1.user.id}",
+                        [Permissions.ProjectsUpload],
+                    ),
+                    (
+                        Allow,
+                        f"user:{maintainer2.user.id}",
+                        [Permissions.ProjectsUpload],
+                    ),
+                ],
+                key=lambda x: x[1],
             ),
-        ] + sorted(
-            [
-                (
-                    Allow,
-                    f"user:{owner1.user.id}",
-                    [
-                        Permissions.ProjectsRead,
-                        Permissions.ProjectsUpload,
-                        Permissions.ProjectsWrite,
-                    ],
-                ),
-                (
-                    Allow,
-                    f"user:{owner2.user.id}",
-                    [
-                        Permissions.ProjectsRead,
-                        Permissions.ProjectsUpload,
-                        Permissions.ProjectsWrite,
-                    ],
-                ),
-            ],
-            key=lambda x: x[1],
-        ) + sorted(
-            [
-                (Allow, f"user:{maintainer1.user.id}", [Permissions.ProjectsUpload]),
-                (Allow, f"user:{maintainer2.user.id}", [Permissions.ProjectsUpload]),
-            ],
-            key=lambda x: x[1],
-        )
+        ]
 
     @pytest.mark.parametrize(
         ("url", "expected"),

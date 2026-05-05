@@ -1,0 +1,26 @@
+# TODO: This would be better served by mypy, no types in Pyramid makes this harder.
+#  Support https://github.com/Pylons/pyramid/issues/2638 for general Pyramid type info.
+
+id: metrics-tag-type
+language: python
+
+severity: error
+message: metrics tags must be a list of strings
+
+rule:
+  pattern:
+    context: $METHOD(tags=$VALUE)
+    selector: keyword_argument
+  inside:
+    any:
+      - pattern: $_.metrics.$METHOD($$$ARGS)
+      - pattern: metrics.$METHOD($$$ARGS)
+    stopBy: end
+
+constraints:
+  VALUE:
+    not:
+      any:
+        - kind: list
+        - kind: none
+        - kind: identifier

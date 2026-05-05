@@ -7,8 +7,8 @@
     "watch": "webpack --watch",
     "lint": "eslint 'warehouse/static/js/warehouse/**' 'warehouse/admin/static/js/**' 'tests/frontend/**' 'webpack.*.js'",
     "lint:fix": "eslint 'warehouse/static/js/warehouse/**' 'warehouse/admin/static/js/**' 'tests/frontend/**' 'webpack.*.js' --fix",
-    "stylelint": "stylelint '**/*.scss' --cache",
-    "stylelint:fix": "stylelint '**/*.scss' --cache --fix",
+    "stylelint": "stylelint '**/*.scss' --cache --cache-location .cache/stylelint",
+    "stylelint:fix": "stylelint '**/*.scss' --cache --cache-location .cache/stylelint --fix",
     "test": "NODE_OPTIONS='$NODE_OPTIONS --experimental-vm-modules' jest --coverage"
   },
   "jest": {

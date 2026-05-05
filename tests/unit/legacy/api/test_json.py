@@ -157,11 +157,12 @@ class TestJSONProject:
             "reservedchars,http://example.com?&$+/:;=@#",  # Commas don't work!
             r"unsafechars,http://example.com <>[]{}|\^%",
         ]
-        expected_urls = []
-        for project_url in sorted(
-            project_urls, key=lambda u: u.split(",", 1)[0].strip().lower()
-        ):
-            expected_urls.append(tuple(project_url.split(",", 1)))
+        expected_urls = [
+            tuple(project_url.split(",", 1))
+            for project_url in sorted(
+                project_urls, key=lambda u: u.split(",", 1)[0].strip().lower()
+            )
+        ]
         expected_urls = dict(tuple(expected_urls))
 
         releases = [
@@ -478,11 +479,12 @@ class TestJSONRelease:
             "reservedchars,http://example.com?&$+/:;=@#",  # Commas don't work!
             r"unsafechars,http://example.com <>[]{}|\^%",
         ]
-        expected_urls = []
-        for project_url in sorted(
-            project_urls, key=lambda u: u.split(",", 1)[0].strip().lower()
-        ):
-            expected_urls.append(tuple(project_url.split(",", 1)))
+        expected_urls = [
+            tuple(project_url.split(",", 1))
+            for project_url in sorted(
+                project_urls, key=lambda u: u.split(",", 1)[0].strip().lower()
+            )
+        ]
         expected_urls = dict(tuple(expected_urls))
 
         releases = [

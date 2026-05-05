@@ -52,7 +52,7 @@ class Caveat:
         raise NotImplementedError
 
     def __serialize__(self) -> Sequence:
-        return (self.tag,) + dataclasses.astuple(self)
+        return (self.tag, *dataclasses.astuple(self))
 
     @classmethod
     def __deserialize__(cls: type[Caveat], data: Sequence) -> Caveat:

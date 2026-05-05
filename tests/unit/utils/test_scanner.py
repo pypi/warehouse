@@ -30,7 +30,8 @@ def _make_wheel_with_spoofed_file_size(tmp_path, files_dict, spoofed_size):
     """Create a single-file wheel with a spoofed uncompressed size in the CD."""
     assert len(files_dict) == 1
     whl_path = _make_wheel(tmp_path, files_dict)
-    data = bytearray(open(whl_path, "rb").read())
+    with open(whl_path, "rb") as fp:
+        data = bytearray(fp.read())
     cd_start = data.index(b"\x50\x4b\x01\x02")
     # Patch uncompressed size at offset 24 from CD signature
     struct.pack_into("<L", data, cd_start + 24, spoofed_size)

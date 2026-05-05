@@ -89,7 +89,7 @@ class Service:
     def verify_response(self, response, remote_ip=None):
         if not self.enabled:
             # TODO: debug logging
-            return
+            return None
 
         payload = {
             "secret": self.secret_key,
@@ -109,7 +109,7 @@ class Service:
                 },
                 timeout=10,
             )
-        except Exception as err:
+        except Exception as err:  # noqa: BLE001
             raise UnexpectedError(str(err))
 
         try:

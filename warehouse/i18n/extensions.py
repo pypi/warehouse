@@ -32,11 +32,11 @@ def _make_newer_gettext(func: t.Callable[[str], str]) -> t.Callable[..., str]:
     _old_gettext = _make_new_gettext(func)
 
     @pass_context
-    def gettext(__context: Context, __string: str, **variables: t.Any) -> str:
+    def gettext(context: Context, string: str, /, **variables: t.Any) -> str:
         try:
-            return _old_gettext(__context, __string, **variables)
+            return _old_gettext(context, string, **variables)
         except (KeyError, ValueError):
-            return __string % variables
+            return string % variables
 
     return gettext
 
@@ -53,18 +53,19 @@ def _make_newer_ngettext(
 
     @pass_context
     def ngettext(
-        __context: Context,
-        __singular: str,
-        __plural: str,
-        __num: int,
+        context: Context,
+        singular: str,
+        plural: str,
+        num: int,
+        /,
         **variables: t.Any,
     ) -> str:
         try:
-            return _old_ngettext(__context, __singular, __plural, __num, **variables)
+            return _old_ngettext(context, singular, plural, num, **variables)
         except (KeyError, ValueError):
-            if __num > 1:
-                return __plural % variables
-            return __singular % variables
+            if num > 1:
+                return plural % variables
+            return singular % variables
 
     return ngettext
 
@@ -93,8 +94,8 @@ class FallbackInternationalizationExtension(InternationalizationExtension):
         npgettext: t.Callable[[str, str, str, int], str] | None = None,
     ) -> None:
         if newstyle is not None:
-            self.environment.newstyle_gettext = newstyle  # type: ignore
-        if self.environment.newstyle_gettext:  # type: ignore
+            self.environment.newstyle_gettext = newstyle  # type: ignore[attr-defined]
+        if self.environment.newstyle_gettext:  # type: ignore[attr-defined]
             gettext = _make_newer_gettext(gettext)
             ngettext = _make_newer_ngettext(ngettext)
 

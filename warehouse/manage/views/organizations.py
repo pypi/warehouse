@@ -178,18 +178,18 @@ class ManageOrganizationsViews:
             "organization_invites": organization_invites,
             "organization_applications": organization_applications,
             "organizations": organizations,
-            "organizations_managed": list(
+            "organizations_managed": [
                 organization.name
                 for organization in all_user_organizations["organizations_managed"]
-            ),
-            "organizations_owned": list(
+            ],
+            "organizations_owned": [
                 organization.name
                 for organization in all_user_organizations["organizations_owned"]
-            ),
-            "organizations_billing": list(
+            ],
+            "organizations_billing": [
                 organization.name
                 for organization in all_user_organizations["organizations_billing"]
-            ),
+            ],
             "create_organization_application_form": (
                 CreateOrganizationApplicationForm(
                     organization_service=self.organization_service,
@@ -310,10 +310,8 @@ class ManageOrganizationApplicationViews:
 
             # Move status back to Submitted if all information requests have responses
             if all(
-                [
-                    "response" in information_request.additional
-                    for information_request in information_requests
-                ]
+                "response" in information_request.additional
+                for information_request in information_requests
             ):
                 self.organization_application.status = (
                     OrganizationApplicationStatus.Submitted
@@ -437,8 +435,10 @@ class ManageOrganizationSettingsViews:
 
     @view_config(
         request_method="POST",
-        request_param=["confirm_current_organization_name"]
-        + SaveOrganizationNameForm.__params__,
+        request_param=[
+            "confirm_current_organization_name",
+            *SaveOrganizationNameForm.__params__,
+        ],
     )
     def save_organization_name(self):
         confirm_organization(
@@ -669,9 +669,8 @@ class ManageOrganizationBillingViews:
             # This occurs if no subscription exists, or all subscriptions have reached
             # a terminal state of Canceled.
             return self.create_subscription()
-        else:
-            # Manage subscription if there is an existing subscription.
-            return self.manage_subscription()
+        # Manage subscription if there is an existing subscription.
+        return self.manage_subscription()
 
 
 @view_defaults(
@@ -1423,13 +1422,12 @@ def delete_organization_role(organization, request):
     if role and role.user == request.user:
         # User removed self from organization.
         return HTTPSeeOther(request.route_path("manage.organizations"))
-    else:
-        return HTTPSeeOther(
-            request.route_path(
-                "manage.organization.roles",
-                organization_name=organization.normalized_name,
-            )
+    return HTTPSeeOther(
+        request.route_path(
+            "manage.organization.roles",
+            organization_name=organization.normalized_name,
         )
+    )
 
 
 @view_config(
@@ -1886,7 +1884,7 @@ class ManageOrganizationPublishingViews:
 
         try:
             self.request.db.add(pending_publisher)
-            self.request.db.flush()  # To get the new ID
+            self.request.db.flush()  # To get the new ID  # ast-grep-ignore: db-flush
         except UniqueViolation:
             # Double-post protection
             return HTTPSeeOther(self.request.path)
@@ -1941,13 +1939,13 @@ class ManageOrganizationPublishingViews:
                 environment=form.normalized_environment,
                 organization_id=self.organization.id,
             ),
-            make_existence_filters=lambda form: dict(
-                project_name=form.project_name.data,
-                repository_name=form.repository.data,
-                repository_owner=form.normalized_owner,
-                workflow_filename=form.workflow_filename.data,
-                environment=form.normalized_environment,
-            ),
+            make_existence_filters=lambda form: {
+                "project_name": form.project_name.data,
+                "repository_name": form.repository.data,
+                "repository_owner": form.normalized_owner,
+                "workflow_filename": form.workflow_filename.data,
+                "environment": form.normalized_environment,
+            },
         )
 
     @view_config(
@@ -1970,14 +1968,14 @@ class ManageOrganizationPublishingViews:
                 issuer_url=form.issuer_url.data,
                 organization_id=self.organization.id,
             ),
-            make_existence_filters=lambda form: dict(
-                project_name=form.project_name.data,
-                namespace=form.namespace.data,
-                project=form.project.data,
-                workflow_filepath=form.workflow_filepath.data,
-                environment=form.environment.data,
-                issuer_url=form.issuer_url.data,
-            ),
+            make_existence_filters=lambda form: {
+                "project_name": form.project_name.data,
+                "namespace": form.namespace.data,
+                "project": form.project.data,
+                "workflow_filepath": form.workflow_filepath.data,
+                "environment": form.environment.data,
+                "issuer_url": form.issuer_url.data,
+            },
         )
 
     @view_config(
@@ -1997,11 +1995,11 @@ class ManageOrganizationPublishingViews:
                 sub=form.sub.data,
                 organization_id=self.organization.id,
             ),
-            make_existence_filters=lambda form: dict(
-                project_name=form.project_name.data,
-                email=form.email.data,
-                sub=form.sub.data,
-            ),
+            make_existence_filters=lambda form: {
+                "project_name": form.project_name.data,
+                "email": form.email.data,
+                "sub": form.sub.data,
+            },
         )
 
     @view_config(
@@ -2023,11 +2021,11 @@ class ManageOrganizationPublishingViews:
                 actor_id=form.actor_id,
                 organization_id=self.organization.id,
             ),
-            make_existence_filters=lambda form: dict(
-                project_name=form.project_name.data,
-                organization=form.organization.data,
-                activestate_project_name=form.project.data,
-                actor=form.actor.data,
-                actor_id=form.actor_id,
-            ),
+            make_existence_filters=lambda form: {
+                "project_name": form.project_name.data,
+                "organization": form.organization.data,
+                "activestate_project_name": form.project.data,
+                "actor": form.actor.data,
+                "actor_id": form.actor_id,
+            },
         )

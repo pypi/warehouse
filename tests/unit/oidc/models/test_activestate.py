@@ -38,7 +38,7 @@ def new_signed_claims(
     project_path: str = "fakeorg/fakeproject",
     project_visibility: str = "public",
 ) -> SignedClaims:
-    claims = SignedClaims(
+    return SignedClaims(
         {
             "sub": sub,
             "actor": actor,
@@ -53,7 +53,6 @@ def new_signed_claims(
             "builder": "pypi-publisher",
         }
     )
-    return claims
 
 
 class TestActiveStatePublisher:

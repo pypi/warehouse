@@ -134,7 +134,7 @@ class IGenericBillingService(Interface):
 
     def cancel_subscription(subscription_id):
         """
-        Cancels a customer’s subscription immediately.
+        Cancels a customer's subscription immediately.
         The customer will not be charged again for the subscription.
         """
 

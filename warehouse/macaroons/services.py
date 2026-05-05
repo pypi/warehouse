@@ -201,7 +201,7 @@ class DatabaseMacaroonService:
             caveats=scopes,
         )
         self.db.add(dm)
-        self.db.flush()  # flush db now so dm.id is available
+        self.db.flush()  # generate dm.id   # ast-grep-ignore: db-flush
 
         m = pymacaroons.Macaroon(
             location=location,
@@ -228,14 +228,12 @@ class DatabaseMacaroonService:
 
         Returns None if the user doesn't have a macaroon with this description.
         """
-        dm = (
+        return (
             self.db.query(Macaroon)
             .filter(Macaroon.description == description)
             .filter(Macaroon.user_id == user_id)
             .one_or_none()
         )
-
-        return dm
 
 
 def database_macaroon_factory(context, request):

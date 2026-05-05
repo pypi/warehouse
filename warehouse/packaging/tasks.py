@@ -7,7 +7,7 @@ import logging
 import tempfile
 import typing
 
-from collections import namedtuple
+from typing import Any, NamedTuple
 
 from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
 from sqlalchemy import desc, func, nulls_last, select
@@ -108,7 +108,9 @@ def check_file_cache_tasks_outstanding(request):
     )
 
 
-Checksums = namedtuple("Checksums", ["file", "metadata_file"])
+class Checksums(NamedTuple):
+    file: Any
+    metadata_file: Any
 
 
 def fetch_checksums(storage, file):

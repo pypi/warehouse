@@ -73,7 +73,7 @@ class CreateInternalRoleForm(
     is_team = wtforms.RadioField(
         "Team or member?",
         choices=[("true", "Team"), ("false", "Member")],
-        coerce=lambda string: True if string == "true" else False,
+        coerce=lambda string: string == "true",
         default="true",
         validators=[wtforms.validators.InputRequired()],
     )
@@ -513,7 +513,7 @@ class AddOrganizationProjectForm(wtforms.Form):
     add_existing_project = wtforms.RadioField(
         "Add existing or new project?",
         choices=[("true", "Existing project"), ("false", "New project")],
-        coerce=lambda string: True if string == "true" else False,
+        coerce=lambda string: string == "true",
         default="true",
         validators=[wtforms.validators.InputRequired()],
     )
@@ -534,9 +534,8 @@ class AddOrganizationProjectForm(wtforms.Form):
         self.project_factory = project_factory
 
     def validate_existing_project_name(self, field):
-        if self.add_existing_project.data:
-            if not field.data:
-                raise wtforms.validators.StopValidation(_("Select project"))
+        if self.add_existing_project.data and not field.data:
+            raise wtforms.validators.StopValidation(_("Select project"))
 
     def validate_new_project_name(self, field):
         if not self.add_existing_project.data:
@@ -685,7 +684,7 @@ class SaveOrganizationForm(wtforms.Form):
 
 
 class CreateOrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationForm):
-    __params__ = ["name"] + SaveOrganizationForm.__params__
+    __params__ = ["name", *SaveOrganizationForm.__params__]
 
     _max_apps = wtforms.IntegerField()
 

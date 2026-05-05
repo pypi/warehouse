@@ -55,13 +55,13 @@ class GeoIPInfo:
         """
         if self.city and self.region and self.country_code:
             return f"{self._city}, {self._region}, {self._country_code}"
-        elif self.city and self.region:
+        if self.city and self.region:
             return f"{self._city}, {self._region}"
-        elif self.city and self.country_code:
+        if self.city and self.country_code:
             return f"{self._city}, {self._country_code}"
-        elif self.region:
+        if self.region:
             return f"{self._region}, {self._country_code}"
-        elif self.country_name:
+        if self.country_name:
             return self.country_name
         return ""
 
@@ -88,25 +88,22 @@ class UserAgentInfo:
                 and self.user_agent != "Other"
             ):
                 return f"{self.user_agent} ({self.os} on {self.device})"
-            elif self.device != "Other" and self.user_agent != "Other":
+            if self.device != "Other" and self.user_agent != "Other":
                 return f"{self.user_agent} ({self.device})"
-            elif self.os != "Other" and self.user_agent != "Other":
+            if self.os != "Other" and self.user_agent != "Other":
                 return f"{self.user_agent} ({self.os})"
-            elif self.user_agent != "Other":
+            if self.user_agent != "Other":
                 return f"{self.user_agent}"
-            else:
-                return "Unknown Browser"
-        elif self.installer is not None:
+            return "Unknown Browser"
+        if self.installer is not None:
             if self.implementation and self.system:
                 return f"{self.installer} ({self.implementation} on {self.system})"
-            elif self.implementation:
+            if self.implementation:
                 return f"{self.installer} ({self.implementation})"
-            elif self.system:
+            if self.system:
                 return f"{self.installer} ({self.system})"
-            else:
-                return self.installer
-        else:
-            return "Unknown User-Agent"
+            return self.installer
+        return "Unknown User-Agent"
 
 
 class Event:
@@ -176,12 +173,12 @@ class HasEvents:
         cls.Event = type(
             f"{cls.__name__}Event",
             (Event, db.Model),
-            dict(
-                __tablename__=f"{cls.__name__.lower()}_events",
-                __table_args__=(
+            {
+                "__tablename__": f"{cls.__name__.lower()}_events",
+                "__table_args__": (
                     Index(f"ix_{cls.__name__.lower()}_events_source_id", "source_id"),
                 ),
-                source_id=mapped_column(
+                "source_id": mapped_column(
                     ForeignKey(
                         f"{cls.__tablename__}.id",
                         deferrable=True,
@@ -190,12 +187,12 @@ class HasEvents:
                     ),
                     nullable=False,
                 ),
-                source=orm.relationship(
+                "source": orm.relationship(
                     cls,
                     back_populates="events",
                     order_by=f"desc({cls.__name__}Event.time)",
                 ),
-            ),
+            },
         )
         return orm.relationship(
             cls.Event,

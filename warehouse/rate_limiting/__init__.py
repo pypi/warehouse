@@ -55,19 +55,15 @@ class RateLimiter:
     @_return_on_exception(True, redis.RedisError)
     def test(self, *identifiers):
         return all(
-            [
-                self._window.test(limit, *self._get_identifiers(identifiers))
-                for limit in self._limits
-            ]
+            self._window.test(limit, *self._get_identifiers(identifiers))
+            for limit in self._limits
         )
 
     @_return_on_exception(True, redis.RedisError)
     def hit(self, *identifiers):
         return all(
-            [
-                self._window.hit(limit, *self._get_identifiers(identifiers))
-                for limit in self._limits
-            ]
+            self._window.hit(limit, *self._get_identifiers(identifiers))
+            for limit in self._limits
         )
 
     @_return_on_exception(None, redis.RedisError)

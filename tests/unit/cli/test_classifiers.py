@@ -18,7 +18,7 @@ def test_classifiers_update(db_request, monkeypatch, cli):
         for c in db_request.db.query(Classifier).order_by(Classifier.ordering).all()
     ]
 
-    monkeypatch.setattr(classifiers, "sorted_classifiers", ["C :: D", "A :: B"] + cs)
+    monkeypatch.setattr(classifiers, "sorted_classifiers", ["C :: D", "A :: B", *cs])
 
     db_request.db.add(Classifier(classifier="A :: B", ordering=0))
     assert db_request.db.query(Classifier).filter_by(classifier="C :: D").count() == 0

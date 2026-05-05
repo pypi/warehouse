@@ -82,16 +82,16 @@ class TestOIDCPublisherService:
                 token,
                 key=key,
                 algorithms=["RS256"],
-                options=dict(
-                    verify_signature=True,
-                    require=["iss", "iat", "exp", "aud"],
-                    verify_iss=True,
-                    verify_iat=True,
-                    verify_exp=True,
-                    verify_aud=True,
-                    verify_nbf=True,
-                    strict_aud=True,
-                ),
+                options={
+                    "verify_signature": True,
+                    "require": ["iss", "iat", "exp", "aud"],
+                    "verify_iss": True,
+                    "verify_iat": True,
+                    "verify_exp": True,
+                    "verify_aud": True,
+                    "verify_nbf": True,
+                    "strict_aud": True,
+                },
                 issuer=issuer_url,
                 audience="fakeaudience",
                 leeway=services._JWT_LEEWAY,
@@ -566,8 +566,7 @@ class TestOIDCPublisherService:
         def get(url, timeout=5):
             if url == "https://example.com/.well-known/jwks.json":
                 return jwks_resp
-            else:
-                return openid_resp
+            return openid_resp
 
         requests = pretend.stub(get=pretend.call_recorder(get))
         sentry_sdk = pretend.stub(
@@ -618,8 +617,7 @@ class TestOIDCPublisherService:
         def get(url, timeout=5):
             if url == "https://example.com/.well-known/jwks.json":
                 return jwks_resp
-            else:
-                return openid_resp
+            return openid_resp
 
         requests = pretend.stub(get=pretend.call_recorder(get))
         sentry_sdk = pretend.stub(
@@ -667,8 +665,7 @@ class TestOIDCPublisherService:
         def get(url, timeout=5):
             if url == "https://example.com/.well-known/jwks.json":
                 return jwks_resp
-            else:
-                return openid_resp
+            return openid_resp
 
         requests = pretend.stub(get=pretend.call_recorder(get))
         sentry_sdk = pretend.stub(
@@ -1329,6 +1326,10 @@ class TestPyJWTBackstop:
                 token,
                 self._pubkey,
                 algorithms=["RS256"],
-                options=dict(verify_signature=True, verify_aud=True, strict_aud=True),
+                options={
+                    "verify_signature": True,
+                    "verify_aud": True,
+                    "strict_aud": True,
+                },
                 audience="a",
             )

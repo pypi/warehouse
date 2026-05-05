@@ -72,10 +72,7 @@ class PendingPublisherMixin:
                         )
                     )
                 )
-            else:
-                raise wtforms.validators.ValidationError(
-                    _("This project already exists.")
-                )
+            raise wtforms.validators.ValidationError(_("This project already exists."))
 
         except ProjectNameUnavailableProhibitedError:
             raise wtforms.validators.ValidationError(
@@ -103,7 +100,6 @@ class PendingPublisherMixin:
                 check_name=exc.check_name,
                 existing_project_name=exc.existing_project_name,
             )
-            pass
 
     @property
     def provider(self) -> str:  # pragma: no cover

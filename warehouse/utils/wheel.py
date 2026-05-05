@@ -100,7 +100,7 @@ def filename_to_tags(filename: str) -> set[packaging.tags.Tag]:
 def filename_to_pretty_tags(filename: str) -> list[str]:
     if filename.endswith(".egg"):
         return ["Egg"]
-    elif not filename.endswith(".whl"):
+    if not filename.endswith(".whl"):
         return ["Source"]
 
     tags = filename_to_tags(filename)
@@ -219,16 +219,16 @@ def validate_record(wheel_filepath: str) -> bool:
 
 def main(argv) -> int:  # pragma: no cover
     if len(argv) != 1:
-        print("Usage: python -m warehouse.utils.wheel <wheel path>")
+        print("Usage: python -m warehouse.utils.wheel <wheel path>")  # noqa: T201
         return 1
     wheel_filepath = argv[0]
     wheel_filename = os.path.basename(wheel_filepath)
     try:
         validate_record(wheel_filepath)
-        print(f"{wheel_filename}: OK")
+        print(f"{wheel_filename}: OK")  # noqa: T201
         return 0
-    except Exception as error:
-        print(f"{wheel_filename}: {error!r}")
+    except Exception as error:  # noqa: BLE001
+        print(f"{wheel_filename}: {error!r}")  # noqa: T201
         return 1
 
 

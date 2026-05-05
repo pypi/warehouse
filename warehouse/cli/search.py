@@ -70,7 +70,7 @@ def delete_older_indices(config, env_name):
         click.echo(f"No alias found for {env_name}, aborting.", err=True)
         raise click.Abort
 
-    current_index = list(alias.keys())[0]
+    current_index = next(iter(alias.keys()))
     click.echo(f"Current index: {current_index}")
 
     indices = client.indices.get(index=f"{env_name}-*")

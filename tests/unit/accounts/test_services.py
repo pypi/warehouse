@@ -556,7 +556,7 @@ class TestDatabaseUserService:
         request = pretend.stub(
             remote_addr="127.0.0.1",
             ip_address=IpAddressFactory.create(),
-            headers=dict(),
+            headers={},
             db=pretend.stub(add=lambda *a: None),
         )
         user = UserFactory.create()
@@ -573,7 +573,7 @@ class TestDatabaseUserService:
         request = pretend.stub(
             remote_addr="127.0.0.1",
             ip_address=IpAddressFactory.create(),
-            headers=dict(),
+            headers={},
             db=pretend.stub(add=lambda *a: None),
         )
         user = UserFactory.create()

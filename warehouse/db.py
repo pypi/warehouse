@@ -11,7 +11,7 @@ import psycopg.types.json
 import pyramid_retry
 import sqlalchemy
 import venusian
-import zope.sqlalchemy  # pyright: ignore
+import zope.sqlalchemy  # pyright: ignore[reportMissingImports]
 
 from pyramid.renderers import JSON
 from sqlalchemy import event, func, inspect

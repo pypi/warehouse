@@ -25,6 +25,7 @@ from warehouse.oidc.errors import InvalidPublisherError, ReusedTokenError
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.urls import verify_url_from_reference
 from warehouse.packaging.models import PROJECT_NAME_PATTERN
+from warehouse.utils.db.types import bool_false, datetime_now
 
 if TYPE_CHECKING:
     from pypi_attestations import Publisher
@@ -135,13 +136,13 @@ class OIDCPublisherMixin:
 
     # A map of claim names to "check" functions, each of which
     # has the signature `check(ground-truth, signed-claim, all-signed-claims) -> bool`.
-    __required_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = dict()
+    __required_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {}
 
     # A set of claim names which must be present, but can't be verified
     __required_unverifiable_claims__: set[str] = set()
 
     # Simlar to __verificable_claims__, but these claims are optional
-    __optional_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = dict()
+    __optional_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {}
 
     # Claims that have already been verified during the JWT signature
     # verification phase if present.
@@ -211,7 +212,7 @@ class OIDCPublisherMixin:
         # All claims should be accounted for.
         # The presence of an unaccounted claim is not an error, only a warning
         # that the JWT payload has changed.
-        unaccounted_claims = sorted(list(signed_claims.keys() - cls.all_known_claims()))
+        unaccounted_claims = sorted(signed_claims.keys() - cls.all_known_claims())
         if unaccounted_claims:
             with sentry_sdk.new_scope() as scope:
                 scope.fingerprint = unaccounted_claims
@@ -408,6 +409,8 @@ class PendingOIDCPublisher(OIDCPublisherMixin, db.Model):
     pypi_organization: Mapped[Organization | None] = orm.relationship(
         back_populates="pending_oidc_publishers"
     )
+    created: Mapped[datetime_now]
+    expiration_reminded: Mapped[bool_false]
 
     __table_args__ = (
         CheckConstraint(

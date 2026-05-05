@@ -9,6 +9,8 @@ import time
 import typing
 import urllib.parse
 
+from typing import Self
+
 import celery
 import celery.app.backends
 import celery.backends.redis
@@ -51,7 +53,7 @@ class WarehouseTask(celery.Task):
     __header__: typing.Callable
     _wh_original_run: typing.Callable
 
-    def __new__(cls, *args, **kwargs) -> WarehouseTask:
+    def __new__(cls, *args, **kwargs) -> Self:
         """
         Override to wrap the `run` method of the task with a new method that
         will handle exceptions from the task and retry them if they're retryable.
@@ -97,7 +99,7 @@ class WarehouseTask(celery.Task):
         create a fake one here. This is necessary as a lot of our code assumes
         that there's a Pyramid request object available.
         """
-        return super().__call__(*(self.get_request(),) + args, **kwargs)
+        return super().__call__(*(self.get_request(), *args), **kwargs)
 
     def get_request(self) -> Request:
         """
@@ -161,6 +163,8 @@ class WarehouseTask(celery.Task):
         request.tm.get().addAfterCommitHook(
             self._after_commit_hook, args=args, kws=kwargs
         )
+
+        return None
 
     def retry(self, *args, **kwargs):
         """
@@ -272,10 +276,9 @@ def includeme(config: Configurator) -> None:
     for key, value in parsed_query.copy().items():
         if key.startswith("ssl_"):
             continue
-        else:
-            if key in celery_transport_options:
-                broker_transport_options[key] = celery_transport_options[key](value[0])
-            del parsed_query[key]
+        if key in celery_transport_options:
+            broker_transport_options[key] = celery_transport_options[key](value[0])
+        del parsed_query[key]
 
     parsed_url = parsed_url._replace(
         query=urllib.parse.urlencode(parsed_query, doseq=True, safe="/")

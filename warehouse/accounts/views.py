@@ -302,60 +302,51 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
         check_password_metrics_tags=["method:auth", "auth_method:login_form"],
     )
 
-    if request.method == "POST":
-        if form.validate():
-            # Get the user id for the given username.
-            username = form.username.data
-            userid = user_service.find_userid(username)
+    if request.method == "POST" and form.validate():
+        # Get the user id for the given username.
+        username = form.username.data
+        userid = user_service.find_userid(username)
 
-            # If the user has enabled two-factor authentication and they do not have
-            # a valid saved device.
-            _two_factor_remembered = _check_remember_device_token(request, userid)
-            two_factor_required = user_service.has_two_factor(userid) and (
-                not _two_factor_remembered
-            )
-            if two_factor_required:
-                two_factor_data = {"userid": userid}
-                if redirect_to:
-                    two_factor_data["redirect_to"] = redirect_to
+        # If the user has enabled two-factor authentication and they do not have
+        # a valid saved device.
+        _two_factor_remembered = _check_remember_device_token(request, userid)
+        two_factor_required = user_service.has_two_factor(userid) and (
+            not _two_factor_remembered
+        )
+        if two_factor_required:
+            two_factor_data = {"userid": userid}
+            if redirect_to:
+                two_factor_data["redirect_to"] = redirect_to
 
-                token_service = request.find_service(ITokenService, name="two_factor")
-                token = token_service.dumps(two_factor_data)
+            token_service = request.find_service(ITokenService, name="two_factor")
+            token = token_service.dumps(two_factor_data)
 
-                # Stuff our token in the query and redirect to two-factor page.
-                resp = HTTPSeeOther(
-                    request.route_path("accounts.two-factor", _query=token)
-                )
-                return resp
-            else:
-                # If the user-originating redirection url is not safe, then
-                # redirect to the index instead.
-                if not redirect_to or not is_safe_url(
-                    url=redirect_to, host=request.host
-                ):
-                    redirect_to = request.route_path("manage.projects")
+            # Stuff our token in the query and redirect to two-factor page.
+            return HTTPSeeOther(request.route_path("accounts.two-factor", _query=token))
+        # If the user-originating redirection url is not safe, then
+        # redirect to the index instead.
+        if not redirect_to or not is_safe_url(url=redirect_to, host=request.host):
+            redirect_to = request.route_path("manage.projects")
 
-                # Construct necessary two_factor information
-                two_factor_method = (
-                    "remembered-device" if _two_factor_remembered else None
-                )
-                two_factor_label = two_factor_method
+        # Construct necessary two_factor information
+        two_factor_method = "remembered-device" if _two_factor_remembered else None
+        two_factor_label = two_factor_method
 
-                # Actually perform the login routine for our user.
-                _login_user(
-                    request,
-                    userid,
-                    two_factor_method,
-                    two_factor_label=two_factor_label,
-                )
+        # Actually perform the login routine for our user.
+        _login_user(
+            request,
+            userid,
+            two_factor_method,
+            two_factor_label=two_factor_label,
+        )
 
-                # Now that we're logged in we'll want to redirect the user to
-                # either where they were trying to go originally, or to the default
-                # view.
-                resp = HTTPSeeOther(redirect_to)
-                _set_userid_insecure_cookie(resp, userid)
+        # Now that we're logged in we'll want to redirect the user to
+        # either where they were trying to go originally, or to the default
+        # view.
+        resp = HTTPSeeOther(redirect_to)
+        _set_userid_insecure_cookie(resp, userid)
 
-            return resp
+        return resp
 
     return {
         "form": form,
@@ -427,11 +418,9 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
                     _remember_device(request, resp, userid, two_factor_method)
 
                 return resp
-            else:
-                # The devices is unknown, redirect to the confirm login page
-                return HTTPSeeOther(request.route_path("accounts.confirm-login"))
-        else:
-            form.totp_value.data = ""
+            # The devices is unknown, redirect to the confirm login page
+            return HTTPSeeOther(request.route_path("accounts.confirm-login"))
+        form.totp_value.data = ""
 
     return two_factor_state
 
@@ -640,11 +629,9 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
                 _set_userid_insecure_cookie(resp, userid)
 
                 return resp
-            else:
-                # The devices is unknown, redirect to the confirm login page
-                return HTTPSeeOther(request.route_path("accounts.confirm-login"))
-        else:
-            form.recovery_code_value.data = ""
+            # The devices is unknown, redirect to the confirm login page
+            return HTTPSeeOther(request.route_path("accounts.confirm-login"))
+        form.recovery_code_value.data = ""
 
     return {"form": form}
 
@@ -854,16 +841,15 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
             token_service = request.find_service(ITokenService, name="password")
             n_hours = token_service.max_age // 60 // 60
             return {"n_hours": n_hours}
-        else:
-            user.record_event(
-                tag=EventTag.Account.PasswordResetAttempt,
-                request=request,
-            )
-            # Return the same response as a normal reset to avoid leaking
-            # whether this account holds elevated privileges.
-            token_service = request.find_service(ITokenService, name="password")
-            n_hours = token_service.max_age // 60 // 60
-            return {"n_hours": n_hours}
+        user.record_event(
+            tag=EventTag.Account.PasswordResetAttempt,
+            request=request,
+        )
+        # Return the same response as a normal reset to avoid leaking
+        # whether this account holds elevated privileges.
+        token_service = request.find_service(ITokenService, name="password")
+        n_hours = token_service.max_age // 60 // 60
+        return {"n_hours": n_hours}
 
     return {"form": form}
 
@@ -1204,7 +1190,7 @@ def verify_organization_role(request):
             "organization_name": organization.name,
             "desired_role": desired_role,
         }
-    elif request.method == "POST" and "decline" in request.POST:
+    if request.method == "POST" and "decline" in request.POST:
         organization_service.delete_organization_invite(organization_invite.id)
         submitter_user = user_service.get_user(data.get("submitter_id"))
         message = request.params.get("message", "")
@@ -1384,7 +1370,7 @@ def verify_project_role(request):
             "project_name": project.name,
             "desired_role": desired_role,
         }
-    elif request.method == "POST" and "decline" in request.POST:
+    if request.method == "POST" and "decline" in request.POST:
         request.db.delete(role_invite)
         submitter_user = user_service.get_user(data.get("submitter_id"))
         project.record_event(
@@ -1483,8 +1469,7 @@ def verify_project_role(request):
         return HTTPSeeOther(
             request.route_path("manage.project.roles", project_name=project.name)
         )
-    else:
-        return HTTPSeeOther(request.route_path("packaging.project", name=project.name))
+    return HTTPSeeOther(request.route_path("packaging.project", name=project.name))
 
 
 def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
@@ -1680,7 +1665,7 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
         redirect_to = request.route_path(
             form.next_route.data,
             **json.loads(form.next_route_matchdict.data)
-            | dict(_query=json.loads(form.next_route_query.data)),
+            | {"_query": json.loads(form.next_route_query.data)},
         )
     else:
         redirect_to = request.route_path("manage.projects")
@@ -1907,13 +1892,22 @@ class ManageAccountPublishingViews:
 
         try:
             self.request.db.add(pending_publisher)
-            self.request.db.flush()  # To get the new ID
+            self.request.db.flush()  # generate id  # ast-grep-ignore: db-flush
         except UniqueViolation:
-            # The user has probably double-posted and a new publisher was
-            # created after our check for duplicates ran. The success message
-            # is probably already in the flash queue, so just redirect to the
-            # expected page on success if this is the response they are served.
-            return HTTPSeeOther(self.request.path)
+            # The DB unique constraint covers (repo, owner, workflow,
+            # environment) but not project_name, so this fires when another
+            # pending publisher already targets the same external identity
+            # under a different project name. Surface that conflict instead
+            # of silently redirecting as if registration succeeded.
+            self.request.session.flash(
+                self.request._(
+                    "A pending trusted publisher matching this configuration "
+                    "has already been registered for a different project name. "
+                    "Please contact PyPI's admins if this wasn't intentional."
+                ),
+                queue="error",
+            )
+            return self.default_response
 
         self.request.user.record_event(
             tag=EventTag.Account.PendingOIDCPublisherAdded,
@@ -1960,11 +1954,11 @@ class ManageAccountPublishingViews:
                 email=form.email.data,
                 sub=form.sub.data,
             ),
-            make_existence_filters=lambda form: dict(
-                project_name=form.project_name.data,
-                email=form.email.data,
-                sub=form.sub.data,
-            ),
+            make_existence_filters=lambda form: {
+                "project_name": form.project_name.data,
+                "email": form.email.data,
+                "sub": form.sub.data,
+            },
         )
 
     @view_config(
@@ -1987,13 +1981,13 @@ class ManageAccountPublishingViews:
                 workflow_filename=form.workflow_filename.data,
                 environment=form.normalized_environment,
             ),
-            make_existence_filters=lambda form: dict(
-                project_name=form.project_name.data,
-                repository_name=form.repository.data,
-                repository_owner=form.normalized_owner,
-                workflow_filename=form.workflow_filename.data,
-                environment=form.normalized_environment,
-            ),
+            make_existence_filters=lambda form: {
+                "project_name": form.project_name.data,
+                "repository_name": form.repository.data,
+                "repository_owner": form.normalized_owner,
+                "workflow_filename": form.workflow_filename.data,
+                "environment": form.normalized_environment,
+            },
         )
 
     @view_config(
@@ -2015,12 +2009,12 @@ class ManageAccountPublishingViews:
                 actor=form.actor.data,
                 actor_id=form.actor_id,
             ),
-            make_existence_filters=lambda form: dict(
-                project_name=form.project_name.data,
-                organization=form.organization.data,
-                activestate_project_name=form.project.data,
-                actor_id=form.actor_id,
-            ),
+            make_existence_filters=lambda form: {
+                "project_name": form.project_name.data,
+                "organization": form.organization.data,
+                "activestate_project_name": form.project.data,
+                "actor_id": form.actor_id,
+            },
         )
 
     @view_config(
@@ -2043,13 +2037,13 @@ class ManageAccountPublishingViews:
                 environment=form.normalized_environment,
                 issuer_url=GITLAB_OIDC_ISSUER_URL,
             ),
-            make_existence_filters=lambda form: dict(
-                project_name=form.project_name.data,
-                namespace=form.namespace.data,
-                project=form.project.data,
-                workflow_filepath=form.workflow_filepath.data,
-                environment=form.normalized_environment,
-            ),
+            make_existence_filters=lambda form: {
+                "project_name": form.project_name.data,
+                "namespace": form.namespace.data,
+                "project": form.project.data,
+                "workflow_filepath": form.workflow_filepath.data,
+                "environment": form.normalized_environment,
+            },
         )
 
     @view_config(

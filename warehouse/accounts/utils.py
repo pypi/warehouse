@@ -58,4 +58,4 @@ def update_email_domain_status(email: Email, request: Request) -> None:
         email.domain_last_checked = datetime.now(UTC) - timedelta(days=23)
     request.db.add(email)
 
-    return None
+    return

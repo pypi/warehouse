@@ -516,7 +516,7 @@ class TestOrganizationDetail:
         # Check that role forms are created for each role
         assert len(result["role_forms"]) == 3
         assert set(result["role_forms"].keys()) == {role.id for role in result["roles"]}
-        for role_id, form in result["role_forms"].items():
+        for form in result["role_forms"].values():
             assert isinstance(form, views.OrganizationRoleForm)
 
         assert isinstance(result["add_role_form"], views.AddOrganizationRoleForm)

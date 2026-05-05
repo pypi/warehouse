@@ -655,5 +655,5 @@ class TestNullFastlyCache:
 Origin cache purge issued:
 * URL: 'https://api.example.com/service/the service id/purge/one'
 * Headers: {'Accept': 'application/json', 'Fastly-Key': 'the api key', 'Fastly-Soft-Purge': '1'}
-"""  # noqa
+"""  # noqa: E501
         assert captured.out.strip() == expected.strip()

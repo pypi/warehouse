@@ -76,8 +76,7 @@ class OIDCPublisherService:
             timeout = bool(r.exists(_publisher_timeout_key))
             if keys is not None:
                 return json.loads(keys), timeout
-            else:
-                return {}, timeout
+            return {}, timeout
 
     def _refresh_keyset(self, issuer_url: str) -> dict[str, dict]:
         """
@@ -237,28 +236,28 @@ class OIDCPublisherService:
                 unverified_token,
                 key=key,
                 algorithms=["RS256"],
-                options=dict(
-                    verify_signature=True,
+                options={
+                    "verify_signature": True,
                     # "require" only checks for the presence of these claims, not
                     # their validity. Each has a corresponding "verify_" kwarg
                     # that enforces their actual validity.
-                    require=["iss", "iat", "exp", "aud"],
-                    verify_iss=True,
-                    verify_iat=True,
-                    verify_exp=True,
-                    verify_aud=True,
+                    "require": ["iss", "iat", "exp", "aud"],
+                    "verify_iss": True,
+                    "verify_iat": True,
+                    "verify_exp": True,
+                    "verify_aud": True,
                     # We don't require the nbf claim, but verify it if present
-                    verify_nbf=True,
+                    "verify_nbf": True,
                     # We don't accept JWTs with multiple audiences; we
                     # want to be the ONLY audience listed.
-                    strict_aud=True,
-                ),
+                    "strict_aud": True,
+                },
                 issuer=issuer_url,
                 audience=self.audience,
                 leeway=_JWT_LEEWAY,
             )
             return SignedClaims(signed_payload)
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             self.metrics.increment(
                 "warehouse.oidc.verify_jwt_signature.invalid_signature",
                 tags=[f"publisher:{self.publisher}", f"issuer_url:{issuer_url}"],
@@ -390,19 +389,19 @@ class NullOIDCPublisherService(OIDCPublisherService):
             return SignedClaims(
                 jwt.decode(
                     unverified_token,
-                    options=dict(
-                        verify_signature=False,
+                    options={
+                        "verify_signature": False,
                         # We require all of these to be present, but for the
                         # null publisher we only actually verify the audience.
-                        require=["iss", "iat", "exp", "aud"],
-                        verify_iss=False,
-                        verify_iat=False,
-                        verify_exp=False,
-                        verify_aud=True,
+                        "require": ["iss", "iat", "exp", "aud"],
+                        "verify_iss": False,
+                        "verify_iat": False,
+                        "verify_exp": False,
+                        "verify_aud": True,
                         # We don't accept JWTs with multiple audiences; we
                         # want to be the ONLY audience listed.
-                        strict_aud=True,
-                    ),
+                        "strict_aud": True,
+                    },
                     audience=self.audience,
                 )
             )

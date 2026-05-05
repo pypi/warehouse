@@ -46,7 +46,7 @@ def notify_users_of_tos_update(request):
     users_to_notify = (
         request.db.query(User)
         .outerjoin(Email)
-        .filter(Email.verified == True, Email.primary == True)  # noqa E711
+        .filter(Email.verified == True, Email.primary == True)  # noqa: E712
         .filter(User.id.not_in(select(already_notified_subquery)))
         .limit(request.registry.settings.get("terms.notification_batch_size"))
     )
@@ -85,7 +85,7 @@ def compute_user_metrics(request):
         request.db.query(func.count(User.id.distinct()))
         .outerjoin(Email)
         .filter(User.is_active)
-        .filter((Email.verified == None) | (Email.verified == False))  # noqa E711
+        .filter((Email.verified == None) | (Email.verified == False))  # noqa: E711,E712
         .scalar(),
         tags=["active:true", "verified:false"],
     )
@@ -97,7 +97,7 @@ def compute_user_metrics(request):
         .outerjoin(Email)
         .join(Release, Release.uploader_id == User.id)
         .filter(User.is_active)
-        .filter((Email.verified == None) | (Email.verified == False))  # noqa E711
+        .filter((Email.verified == None) | (Email.verified == False))  # noqa: E711,E712
         .scalar(),
         tags=["active:true", "verified:false", "releases:true"],
     )
@@ -110,7 +110,7 @@ def compute_user_metrics(request):
         .outerjoin(Email)
         .join(Release, Release.uploader_id == User.id)
         .filter(User.is_active)
-        .filter((Email.verified == None) | (Email.verified == False))  # noqa E711
+        .filter((Email.verified == None) | (Email.verified == False))  # noqa: E711,E712
         .filter(Release.created > datetime.now(tz=UTC) - timedelta(days=730))
         .scalar(),
         tags=["active:true", "verified:false", "releases:true", "window:2years"],
@@ -124,7 +124,7 @@ def compute_user_metrics(request):
         .outerjoin(Email)
         .join(Release, Release.uploader_id == User.id)
         .filter(User.is_active)
-        .filter((Email.verified == None) | (Email.verified == False))  # noqa E711
+        .filter((Email.verified == None) | (Email.verified == False))  # noqa: E711,E712
         .filter(Email.primary)
         .filter(Release.created > datetime.now(tz=UTC) - timedelta(days=730))
         .scalar(),

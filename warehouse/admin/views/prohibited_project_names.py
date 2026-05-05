@@ -48,10 +48,10 @@ def prohibited_project_names(request):
         terms = shlex.split(q)
 
         filters: list = []
-        for term in terms:
-            filters.append(
-                ProhibitedProjectName.name.ilike(func.normalize_pep426_name(term))
-            )
+        filters.extend(
+            ProhibitedProjectName.name.ilike(func.normalize_pep426_name(term))
+            for term in terms
+        )
 
         filters = filters or [True]
         prohibited_project_names_query = prohibited_project_names_query.filter(
@@ -190,7 +190,7 @@ def release_prohibited_project_name(request):
         f"{project.name!r} released to {user.username!r}.", queue="success"
     )
 
-    request.db.flush()  # flush db now so project.normalized_name is available
+    request.db.flush()  # generate project.normalized_name  # ast-grep-ignore: db-flush
 
     return HTTPSeeOther(
         request.route_path("admin.project.detail", project_name=project.normalized_name)
@@ -259,8 +259,7 @@ def ultranorm_release_project_name(request):
         f"(ultranorm conflict with {similar_project_name!r}).",
         queue="success",
     )
-
-    request.db.flush()  # flush db now so project.normalized_name is available
+    request.db.flush()  # generate project.normalized_name  # ast-grep-ignore: db-flush
 
     return HTTPSeeOther(
         request.route_path("admin.project.detail", project_name=project.normalized_name)
@@ -287,7 +286,7 @@ def add_prohibited_project_names(request):
             "Confirm the prohibited project name request", queue="error"
         )
         return HTTPSeeOther(request.current_route_path())
-    elif canonicalize_name(confirm) != canonicalize_name(project_name):
+    if canonicalize_name(confirm) != canonicalize_name(project_name):
         request.session.flash(
             f"{confirm!r} is not the same as {project_name!r}", queue="error"
         )

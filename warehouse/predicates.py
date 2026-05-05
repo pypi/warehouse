@@ -74,13 +74,12 @@ class ActiveOrganizationPredicate:
 
         if organization.is_in_good_standing():
             return True
-        elif (
+        if (
             # Organization accounts are disabled.
             request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS)
         ):
             return False
-        else:
-            raise HTTPSeeOther(request.route_path("manage.organizations"))
+        raise HTTPSeeOther(request.route_path("manage.organizations"))
 
 
 def includeme(config):
