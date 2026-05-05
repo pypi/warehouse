@@ -144,7 +144,7 @@ class TestFastlyCache:
         request = pretend.stub(
             registry=pretend.stub(
                 settings={
-                    "origin_cache.api_connect_via": "172.16.0.1",
+                    "origin_cache.api_connect_via": "198.51.100.1",
                     "origin_cache.api_key": "the api key",
                     "origin_cache.service_id": "the service id",
                 }
@@ -154,7 +154,7 @@ class TestFastlyCache:
         cacher = fastly.FastlyCache.create_service(None, request)
         assert isinstance(cacher, fastly.FastlyCache)
         assert cacher.api_endpoint == "https://api.fastly.com"
-        assert cacher.api_connect_via == "172.16.0.1"
+        assert cacher.api_connect_via == "198.51.100.1"
         assert cacher.api_key == "the api key"
         assert cacher.service_id == "the service id"
         assert cacher._purger is purge_key.delay
@@ -279,7 +279,7 @@ class TestFastlyCache:
 
     @pytest.mark.parametrize(
         ("connect_via", "forced_ip_https_adapter_calls"),
-        [(None, []), ("172.16.0.1", [pretend.call(dest_ip="172.16.0.1")])],
+        [(None, []), ("198.51.100.1", [pretend.call(dest_ip="198.51.100.1")])],
     )
     def test__purge_key_ok(
         self, monkeypatch, connect_via, forced_ip_https_adapter_calls
@@ -339,8 +339,8 @@ class TestFastlyCache:
         [
             (None, [], {"status": "fail"}),
             (None, [], {}),
-            ("172.16.0.1", [pretend.call(dest_ip="172.16.0.1")], {"status": "fail"}),
-            ("172.16.0.1", [pretend.call(dest_ip="172.16.0.1")], {}),
+            ("198.51.100.1", [pretend.call(dest_ip="198.51.100.1")], {"status": "fail"}),
+            ("198.51.100.1", [pretend.call(dest_ip="198.51.100.1")], {}),
         ],
     )
     def test__purge_key_unsuccessful(
@@ -407,10 +407,10 @@ class TestFastlyCache:
                 ],
             ),
             (
-                "172.16.0.1",
+                "198.51.100.1",
                 [
-                    pretend.call("one", connect_via="172.16.0.1"),
-                    pretend.call("one", connect_via="172.16.0.1"),
+                    pretend.call("one", connect_via="198.51.100.1"),
+                    pretend.call("one", connect_via="198.51.100.1"),
                 ],
             ),
         ],
@@ -441,9 +441,9 @@ class TestFastlyCache:
                 ],
             ),
             (
-                "172.16.0.1",
+                "198.51.100.1",
                 [
-                    pretend.call("one", connect_via="172.16.0.1"),
+                    pretend.call("one", connect_via="198.51.100.1"),
                 ],
             ),
         ],
@@ -480,10 +480,10 @@ class TestFastlyCache:
                 ],
             ),
             (
-                "172.16.0.1",
+                "198.51.100.1",
                 [
-                    pretend.call("one", connect_via="172.16.0.1"),
-                    pretend.call("one", connect_via="172.16.0.1"),
+                    pretend.call("one", connect_via="198.51.100.1"),
+                    pretend.call("one", connect_via="198.51.100.1"),
                 ],
             ),
         ],
@@ -513,32 +513,32 @@ class TestFastlyCache:
         ("connect_via", "purge_key_mock_effects", "purge_key_calls", "metrics_calls"),
         [
             (
-                "172.16.0.1",
+                "198.51.100.1",
                 [requests.ConnectionError, None, None],
                 [
-                    pretend.call("one", connect_via="172.16.0.1"),
+                    pretend.call("one", connect_via="198.51.100.1"),
                     pretend.call("one", connect_via=None),
                     pretend.call("one", connect_via=None),
                 ],
                 [
                     pretend.call(
                         "warehouse.cache.origin.fastly.connect_via.failed",
-                        tags=["ip_address:172.16.0.1"],
+                        tags=["ip_address:198.51.100.1"],
                     )
                 ],
             ),
             (
-                "172.16.0.1",
+                "198.51.100.1",
                 [requests.exceptions.SSLError, None, None],
                 [
-                    pretend.call("one", connect_via="172.16.0.1"),
+                    pretend.call("one", connect_via="198.51.100.1"),
                     pretend.call("one", connect_via=None),
                     pretend.call("one", connect_via=None),
                 ],
                 [
                     pretend.call(
                         "warehouse.cache.origin.fastly.connect_via.failed",
-                        tags=["ip_address:172.16.0.1"],
+                        tags=["ip_address:198.51.100.1"],
                     )
                 ],
             ),
@@ -598,10 +598,10 @@ class TestFastlyCache:
                 [pretend.call("one", connect_via=None)],
             ),
             (
-                "172.16.0.1",
+                "198.51.100.1",
                 [fastly.UnsuccessfulPurgeError, None, None],
                 fastly.UnsuccessfulPurgeError,
-                [pretend.call("one", connect_via="172.16.0.1")],
+                [pretend.call("one", connect_via="198.51.100.1")],
             ),
         ],
     )
