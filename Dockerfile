@@ -113,51 +113,17 @@ USER docs
 
 # Now we're going to build our actual application, but not the actual production
 # image that it gets deployed into.
-FROM base AS build
+FROM base
+
+# Setup some basic environment variables that are ~never going to change.
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/opt/warehouse/src/
 
 # We create an /opt directory with a virtual environment in it to store our
 # application in, we'll use --upgrade-deps to make sure we have the latest
 # version of pip.
 RUN --mount=type=cache,id=pkg,target=/root/.cache \
         create-venv /opt/warehouse
-
-# Define whether we're building a production or a development image. This will
-# generally be used to control whether or not we install our development and
-# test dependencies.
-ARG DEVEL=no
-
-# Define whether we're building a CI image. This will include all the docs stuff
-# as well for the matrix!
-ARG CI=no
-
-# To enable Ipython in the development environment set to yes (for using ipython
-# as the warehouse shell interpreter,
-# i.e. 'docker compose run --rm web python -m warehouse shell --type=ipython')
-ARG IPYTHON=no
-
-# Install the Python level Warehouse requirements, this is done after copying
-# the requirements but prior to copying Warehouse itself into the container so
-# that code changes don't require triggering an entire install of all of
-# Warehouse's dependencies.
-RUN --mount=type=cache,id=pkg,target=/root/.cache \
-    --mount=type=bind,src=requirements/,dst=/opt/warehouse/src/requirements/ \
-    pip-install \
-        -r requirements/deploy.txt \
-        -r requirements/main.txt \
-        $(if [ "$DEVEL" = "yes" ]; then echo '-r requirements/dev.txt -r requirements/tests.txt -r requirements/lint.txt'; fi) \
-        $(if [ "$DEVEL" = "yes" ] && [ "$IPYTHON" = "yes" ]; then echo '-r requirements/ipython.txt'; fi) \
-        $(if [ "$CI" = "yes" ]; then echo '-r requirements/docs-dev.txt -r requirements/docs-user.txt -r requirements/docs-blog.txt'; fi )
-
-
-
-
-# Now we're going to build our actual application image, which will eventually
-# pull in the static files that were built above.
-FROM base
-
-# Setup some basic environment variables that are ~never going to change.
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONPATH=/opt/warehouse/src/
 
 # Define whether we're building a production or a development image. This will
 # generally be used to control whether or not we install our development and
@@ -183,12 +149,27 @@ RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
         && ln -s $(which fdfind) /usr/local/bin/fd; \
     fi
 
+# Define whether we're building a CI image. This will include all the docs stuff
+# as well for the matrix!
+ARG CI=no
 
-# Copy our virtual environment (with all of the installed dependencies) into our
-# container. This is done first so that later pieces will override this
-# correctly and so that changes in the static files don't cause the dependencies
-# to be re-copied.
-COPY --from=build /opt/warehouse/ /opt/warehouse/
+# To enable Ipython in the development environment set to yes (for using ipython
+# as the warehouse shell interpreter,
+# i.e. 'docker compose run --rm web python -m warehouse shell --type=ipython')
+ARG IPYTHON=no
+
+# Install the Python level Warehouse requirements, this is done after copying
+# the requirements but prior to copying Warehouse itself into the container so
+# that code changes don't require triggering an entire install of all of
+# Warehouse's dependencies.
+RUN --mount=type=cache,id=pkg,target=/root/.cache \
+    --mount=type=bind,src=requirements/,dst=/opt/warehouse/src/requirements/ \
+    pip-install \
+        -r requirements/deploy.txt \
+        -r requirements/main.txt \
+        $(if [ "$DEVEL" = "yes" ]; then echo '-r requirements/dev.txt -r requirements/tests.txt -r requirements/lint.txt'; fi) \
+        $(if [ "$DEVEL" = "yes" ] && [ "$IPYTHON" = "yes" ]; then echo '-r requirements/ipython.txt'; fi) \
+        $(if [ "$CI" = "yes" ]; then echo '-r requirements/docs-dev.txt -r requirements/docs-user.txt -r requirements/docs-blog.txt'; fi )
 
 # Pre-compile our dependencies bytecode to save time collectively on container boot!
 RUN python -m compileall /opt/warehouse/lib/ -j 0
