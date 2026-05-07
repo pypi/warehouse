@@ -163,6 +163,7 @@ class TestSaveAccountForm:
 
 
 class TestAddEmailForm:
+    @pytest.mark.usefixtures("no_email_deliverability_check")
     def test_validate(self, metrics):
         user_id = pretend.stub()
         user_service = pretend.stub(find_userid_by_email=lambda _: None)
@@ -180,6 +181,7 @@ class TestAddEmailForm:
         assert form.user_service is user_service
         assert form.validate(), str(form.errors)
 
+    @pytest.mark.usefixtures("no_email_deliverability_check")
     def test_email_exists_error(self, pyramid_request):
         pyramid_request.db = pretend.stub(
             query=lambda *a: pretend.stub(scalar=lambda: False)
@@ -199,6 +201,7 @@ class TestAddEmailForm:
             "Use a different email."
         )
 
+    @pytest.mark.usefixtures("no_email_deliverability_check")
     def test_email_exists_other_account_error(self, pyramid_request):
         pyramid_request.db = pretend.stub(
             query=lambda *a: pretend.stub(scalar=lambda: False)
@@ -217,6 +220,7 @@ class TestAddEmailForm:
             "Use a different email."
         )
 
+    @pytest.mark.usefixtures("no_email_deliverability_check")
     def test_prohibited_email_error(self, pyramid_request):
         pyramid_request.db = pretend.stub(
             query=lambda *a: pretend.stub(scalar=lambda: False)
@@ -354,6 +358,7 @@ class TestAddEmailForm:
 
 
 class TestChangeUnverifiedPrimaryEmailForm:
+    @pytest.mark.usefixtures("no_email_deliverability_check")
     def test_validate(self, metrics):
         user_id = pretend.stub()
         user_service = pretend.stub(find_userid_by_email=lambda _: None)

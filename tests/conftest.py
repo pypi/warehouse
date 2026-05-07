@@ -14,6 +14,7 @@ from unittest import mock
 
 import alembic.command
 import click.testing
+import email_validator
 import pretend
 import pyramid.testing
 import pytest
@@ -119,6 +120,25 @@ def metrics():
                 metric=metric, tags=tags, sample_rate=sample_rate, use_ms=use_ms
             )
         ),
+    )
+
+
+@pytest.fixture
+def no_email_deliverability_check(monkeypatch):
+    """
+    Prevents unit tests from depending on live email deliverability DNS lookups.
+    """
+    original_validate_email = email_validator.validate_email
+
+    def validate_email_without_deliverability(
+        email, check_deliverability=True, *args, **kwargs
+    ):
+        return original_validate_email(
+            email, check_deliverability=False, *args, **kwargs
+        )
+
+    monkeypatch.setattr(
+        email_validator, "validate_email", validate_email_without_deliverability
     )
 
 
