@@ -2296,9 +2296,9 @@ rpds-py==0.30.0 \
     # via
     #   jsonschema
     #   referencing
-s3transfer==0.16.0 \
-    --hash=sha256:18e25d66fed509e3868dc1572b3f427ff947dd2c56f844a5bf09481ad3f3b2fe \
-    --hash=sha256:8e990f13268025792229cd52fa10cb7163744bf56e719e0b9cb925ab79abf920
+s3transfer==0.16.1 \
+    --hash=sha256:61bcd00ccb83b21a0fe7e91a553fff9729d46c83b4e0106e7c314a733891f7c2 \
+    --hash=sha256:8e424355754b9ccb32467bdc568edf55be82692ef2002d934b1311dbb3b9e524
     # via boto3
 securesystemslib==1.3.1 \
     --hash=sha256:2e5414bbdde33155a91805b295cbedc4ae3f12b48dccc63e1089093537f43c81 \
