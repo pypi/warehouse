@@ -72,7 +72,7 @@ describe("Password breach controller", () => {
     describe("entering a password with less than 3 characters", () => {
       it("does not call the HIBP API", async () => {
         const passwordField = document.querySelector("#password");
-        fireEvent.input(passwordField, { target: { value: "fo" } });
+        fireEvent.input(passwordField, { target: { value: "of" } });
 
         await delay(25);  // arbitrary number of ms, too low may cause failures
         expect(fetch.mock.calls.length).toEqual(0);

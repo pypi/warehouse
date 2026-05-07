@@ -145,7 +145,8 @@ class TestReportVulnerabilities:
         assert response.status_int == 400
         assert metrics.increment.calls == [
             pretend.call(
-                "warehouse.vulnerabilties.error.payload.json_error", tags=["origin:osv"]
+                "warehouse.vulnerabilities.error.payload.json_error",
+                tags=["origin:osv"],
             )
         ]
 
