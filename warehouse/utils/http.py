@@ -20,6 +20,10 @@ def is_safe_url(url, host=None):
         return False
     # Chrome treats \ completely as /
     url = url.replace("\\", "/")
+    # urllib.parse strips tab/CR/LF before parsing, but urllib3.util.parse_url
+    # does not. Without that, "/\t/evil.com/" looks host-less here, then
+    # webob's urljoin collapses it into "//evil.com/" and we redirect off-host.
+    url = url.translate({ord(c): None for c in "\t\r\n"})
     # Chrome considers any URL with more than two slashes to be absolute, but
     # urlparse is not so flexible. Treat any url with three slashes as unsafe.
     if url.startswith("///"):

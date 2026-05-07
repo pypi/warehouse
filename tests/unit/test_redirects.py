@@ -29,6 +29,24 @@ class TestRedirectView:
         ):
             view(request)
 
+    @pytest.mark.parametrize(
+        "matched",
+        [
+            # Backslashes go into Location verbatim, but browsers treat
+            # them as "/", which would steer /p/{name}/ redirects elsewhere
+            # on the same origin (e.g. /account/logout/?next=...).
+            "..\\account\\logout\\?next=",
+            "name\\with\\backslash",
+        ],
+    )
+    def test_redirect_view_raises_for_backslashes(self, matched):
+        target = "/project/{name}/"
+        view = redirects.redirect_view_factory(target)
+        request = pretend.stub(method="GET", matchdict={"name": matched})
+
+        with pytest.raises(HTTPBadRequest):
+            view(request)
+
 
 def test_add_redirect(monkeypatch):
     rview = pretend.stub()
