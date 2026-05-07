@@ -25,17 +25,16 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - name: Use GitHub App Token
-        uses: wow-actions/use-app-token@9e8487c993ab4085b2dd8cb90ab446b6a18cf834 # v2.1.1
+      - name: Generate GitHub App Token
+        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
         id: generate_token
         with:
-          app_id: ${{ secrets.COMBINE_PRS_APP_ID }}
-          private_key: ${{ secrets.COMBINE_PRS_PRIVATE_KEY }}
-          fallback: ${{ secrets.GITHUB_TOKEN }} # fall back to the default token if the app token is
+          app-id: ${{ secrets.COMBINE_PRS_APP_ID }}
+          private-key: ${{ secrets.COMBINE_PRS_PRIVATE_KEY }}
 
       - name: combine-prs
         id: combine-prs
         uses: github/combine-prs@2909f404763c3177a456e052bdb7f2e85d3a7cb3 # v5.2.0
         with:
-          github_token: ${{ steps.generate_token.outputs.BOT_TOKEN }}
+          github_token: ${{ steps.generate_token.outputs.token }}
           ignore_label: ${{ github.event.inputs.ignoreLabel || 'blocked' }}

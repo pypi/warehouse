@@ -105,6 +105,7 @@ services:
       - ./gunicorn-prod.conf.py:/opt/warehouse/src/gunicorn-prod.conf.py:z
       - ./gunicorn-uploads.conf.py:/opt/warehouse/src/gunicorn-uploads.conf.py:z
       - ./development.ini:/opt/warehouse/src/development.ini:z
+      - ./sgconfig.yml:/opt/warehouse/src/sgconfig.yml:z
       # Create a place to store all of the caches
       - caches:/opt/warehouse/src/.cache
 

@@ -1,4 +1,6 @@
-ruff==0.15.12
+ruff
+ast-grep-cli
+codespell
 djlint
 flake8
 mypy
@@ -17,7 +19,7 @@ types-passlib
 types-python-slugify
 types-pytz
 types-redis
-types-requests==2.33.0.20260408
+types-requests
 types-stripe
 types-WTForms
 types-WebOb
