@@ -1243,13 +1243,13 @@ class DomainrDomainStatusService:
 
 @implementer(IDomainStatusService)
 class FastlyDomainStatusService:
-    def __init__(self, *, session, api_key=None):
+    def __init__(self, *, session, api_key):
         self._http = session
         self.api_key = api_key
 
     @classmethod
     def create_service(cls, _context, request: Request) -> FastlyDomainStatusService:
-        fastly_api_key = request.registry.settings.get("domain_status.api_key")
+        fastly_api_key = request.registry.settings["domain_status.api_key"]
         return cls(session=request.http, api_key=fastly_api_key)
 
     def get_domain_status(self, domain: str) -> list[str] | None:
@@ -1257,11 +1257,6 @@ class FastlyDomainStatusService:
         Check if a domain is available or not.
         See https://www.fastly.com/documentation/reference/api/domain-management/domain-research/
         """
-
-        # bail early if no api key is set, so we don't send failing requests
-        if not self.api_key:
-            return None
-
         try:
             resp = self._http.get(
                 "https://api.fastly.com/domain-management/v1/tools/status",

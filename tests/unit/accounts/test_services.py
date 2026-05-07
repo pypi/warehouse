@@ -2204,13 +2204,6 @@ class TestFastlyDomainStatusService:
             )
         ]
 
-    def test_no_api_key_returns_none(self):
-        session = pretend.stub(get=pretend.call_recorder(lambda *a, **kw: None))
-        svc = services.FastlyDomainStatusService(session=session, api_key=None)
-
-        assert svc.get_domain_status("example.com") is None
-        assert session.get.calls == []
-
     def test_fastly_exception_returns_none(self):
         class FastlyException(requests.HTTPError):
             def __init__(self):
