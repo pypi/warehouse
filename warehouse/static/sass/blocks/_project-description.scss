@@ -390,7 +390,8 @@ $pygments-black:         #000;
     color: $darkest-blue;
   }
 
-  .nd { /* Name.Decorator */
+  // stylelint-disable-next-line comment-empty-line-before -- codespell syntax
+  .nd { /* Name.Decorator */ /* codespell:ignore nd */
     color: $mid-grey;
   }
 

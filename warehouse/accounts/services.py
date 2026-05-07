@@ -301,7 +301,7 @@ class DatabaseUserService:
     def create_user(self, username, name, password):
         user = User(username=username, name=name, password=self.hasher.hash(password))
         self.db.add(user)
-        self.db.flush()  # flush the db now so user.id is available
+        self.db.flush()  # generate user.id  # ast-grep-ignore: db-flush
 
         return user
 
@@ -340,7 +340,7 @@ class DatabaseUserService:
             public=public,
         )
         self.db.add(email)
-        self.db.flush()  # flush the db now so email.id is available
+        self.db.flush()  # generate email.id  # ast-grep-ignore: db-flush
 
         if ratelimit:
             self.ratelimiters["email.add"].hit(self.remote_addr)
@@ -617,7 +617,7 @@ class DatabaseUserService:
 
         webauthn = WebAuthn(user=user, **kwargs)
         self.db.add(webauthn)
-        self.db.flush()  # flush the db now so webauthn.id is available
+        self.db.flush()  # generate webauthn.id  # ast-grep-ignore: db-flush
 
         return webauthn
 
@@ -779,7 +779,7 @@ class DatabaseUserService:
                 + datetime.timedelta(seconds=token_service.max_age),
             )
             request.db.add(unique_login)
-            request.db.flush()  # To get the ID for the token
+            request.db.flush()  # generaten token id  # ast-grep-ignore: db-flush
             should_send_email = True
 
             user.record_event(
@@ -907,7 +907,7 @@ class DatabaseUserService:
         )
         self.db.add(association)
         try:
-            self.db.flush()  # Flush to get the generated ID
+            self.db.flush()  # generate the id  # ast-grep-ignore: db-flush
         except UniqueViolation:
             self.db.rollback()
             raise ValueError(

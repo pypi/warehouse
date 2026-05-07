@@ -1,3 +1,21 @@
+[tool.codespell]
+ignore-multiline-regex = "codespell:ignore-begin.*codespell:ignore-end"
+ignore-words-list = "deriver"
+skip = [
+  "*.po",
+  "./coverage/*",
+  "./dev/*",
+  "./docs/dev/_build/*",
+  "./docs/blog-site/*",
+  "./docs/dev-site/*",
+  "./docs/user-site/*",
+  "./htmlcov/*",
+  "./node_modules/**",
+  "./package-lock.json",
+  "./warehouse/admin/static/dist/*",
+  "./warehouse/static/dist/*",
+]
+
 [tool.coverage.run]
 branch = true
 dynamic_context = "test_function"

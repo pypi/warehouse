@@ -5493,6 +5493,114 @@ class TestRecoveryCodeEmails:
 
 
 class TestTrustedPublisherEmails:
+    def test_pending_trusted_publisher_expired_email(
+        self, pyramid_request, pyramid_config, monkeypatch
+    ):
+        stub_user = pretend.stub(
+            id="id",
+            username="username",
+            name="",
+            email="email@example.com",
+            primary_email=pretend.stub(email="email@example.com", verified=True),
+        )
+        subject_renderer = pyramid_config.testing_add_renderer(
+            "email/pending-trusted-publisher-expired/subject.txt"
+        )
+        subject_renderer.string_response = "Email Subject"
+        body_renderer = pyramid_config.testing_add_renderer(
+            "email/pending-trusted-publisher-expired/body.txt"
+        )
+        body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/pending-trusted-publisher-expired/body.html"
+        )
+        html_renderer.string_response = "<p>Email HTML Body</p>"
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        monkeypatch.setattr(email, "send_email", send_email)
+
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=stub_user.id)
+                )
+            ),
+        )
+        pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
+
+        result = email.send_pending_trusted_publisher_expired_email(
+            pyramid_request,
+            stub_user,
+            project_name="test_project",
+            days=30,
+        )
+
+        assert result == {
+            "project_name": "test_project",
+            "days": 30,
+        }
+        subject_renderer.assert_()
+        body_renderer.assert_(project_name="test_project", days=30)
+        html_renderer.assert_(project_name="test_project", days=30)
+
+    def test_pending_trusted_publisher_expiration_reminder_email(
+        self, pyramid_request, pyramid_config, monkeypatch
+    ):
+        stub_user = pretend.stub(
+            id="id",
+            username="username",
+            name="",
+            email="email@example.com",
+            primary_email=pretend.stub(email="email@example.com", verified=True),
+        )
+        subject_renderer = pyramid_config.testing_add_renderer(
+            "email/pending-trusted-publisher-expiration-reminder/subject.txt"
+        )
+        subject_renderer.string_response = "Email Subject"
+        body_renderer = pyramid_config.testing_add_renderer(
+            "email/pending-trusted-publisher-expiration-reminder/body.txt"
+        )
+        body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/pending-trusted-publisher-expiration-reminder/body.html"
+        )
+        html_renderer.string_response = "<p>Email HTML Body</p>"
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        monkeypatch.setattr(email, "send_email", send_email)
+
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=stub_user.id)
+                )
+            ),
+        )
+        pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
+
+        result = email.send_pending_trusted_publisher_expiration_reminder_email(
+            pyramid_request,
+            stub_user,
+            project_name="test_project",
+            days_remaining=5,
+        )
+
+        assert result == {
+            "project_name": "test_project",
+            "days_remaining": 5,
+        }
+        subject_renderer.assert_()
+        body_renderer.assert_(project_name="test_project", days_remaining=5)
+        html_renderer.assert_(project_name="test_project", days_remaining=5)
+
     def test_pending_trusted_publisher_reified_email(
         self, pyramid_request, pyramid_config, monkeypatch
     ):
