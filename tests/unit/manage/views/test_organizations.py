@@ -2137,12 +2137,24 @@ class TestManageOrganizationProjects:
         assert len(organization.projects) == 1
 
     @pytest.mark.usefixtures("_enable_organizations")
+    @pytest.mark.parametrize(
+        ("resets_in", "expected_error"),
+        [
+            (
+                datetime.timedelta(seconds=42),
+                "Too many new projects created. Try again in 42 seconds.",
+            ),
+            (None, "Too many new projects created. Try again later."),
+        ],
+    )
     def test_add_organization_project_new_project_ratelimited(
         self,
         db_request,
         pyramid_user,
         organization_service,
         monkeypatch,
+        resets_in,
+        expected_error,
     ):
         organization = OrganizationFactory.create()
         OrganizationRoleFactory.create(
@@ -2161,9 +2173,7 @@ class TestManageOrganizationProjects:
         )
 
         project_service = pretend.stub(
-            create_project=pretend.raiser(
-                TooManyProjectsCreated(resets_in=datetime.timedelta(seconds=42))
-            ),
+            create_project=pretend.raiser(TooManyProjectsCreated(resets_in=resets_in)),
         )
         db_request.find_service = lambda svc, **kw: (
             project_service if svc is IProjectService else organization_service
@@ -2179,9 +2189,7 @@ class TestManageOrganizationProjects:
             "projects_sole_owned": set(),
             "add_organization_project_form": add_organization_project_obj,
         }
-        assert add_organization_project_obj.new_project_name.errors == [
-            "Too many new projects created. Try again in 42 seconds."
-        ]
+        assert add_organization_project_obj.new_project_name.errors == [expected_error]
         assert len(organization.projects) == 0
 
 

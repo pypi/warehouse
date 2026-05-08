@@ -461,7 +461,19 @@ def test_mint_token_pending_publisher_project_already_exists(db_request):
     assert oidc_service.find_publisher.calls == [pretend.call(claims, pending=True)]
 
 
-def test_mint_token_pending_publisher_project_create_ratelimited(db_request):
+@pytest.mark.parametrize(
+    ("resets_in", "expected_description"),
+    [
+        (
+            timedelta(seconds=42),
+            "Too many new projects created. Try again in 42 seconds.",
+        ),
+        (None, "Too many new projects created. Try again later."),
+    ],
+)
+def test_mint_token_pending_publisher_project_create_ratelimited(
+    db_request, resets_in, expected_description
+):
     pending_publisher = PendingGitHubPublisherFactory.create(
         project_name="does-not-exist",
     )
@@ -478,9 +490,7 @@ def test_mint_token_pending_publisher_project_create_ratelimited(db_request):
         ),
     )
     project_service = pretend.stub(
-        create_project=pretend.raiser(
-            TooManyProjectsCreated(resets_in=timedelta(seconds=42))
-        ),
+        create_project=pretend.raiser(TooManyProjectsCreated(resets_in=resets_in)),
     )
     db_request.find_service = lambda svc, **kw: (
         project_service if svc is IProjectService else oidc_service
@@ -495,9 +505,7 @@ def test_mint_token_pending_publisher_project_create_ratelimited(db_request):
         "errors": [
             {
                 "code": "too-many-projects",
-                "description": (
-                    "Too many new projects created. Try again in 42 seconds."
-                ),
+                "description": expected_description,
             }
         ],
     }
