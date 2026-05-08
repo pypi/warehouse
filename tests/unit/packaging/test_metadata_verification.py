@@ -111,6 +111,19 @@ from warehouse.packaging.metadata_verification import (
             "myproject",
             False,
         ),
+        (  # Backslash bypass: rfc3986 normalizes to /project/myproject/,
+            # but a browser (treating "\" as "/") visits /project/otherproject/.
+            r"https://pypi.org/project/myproject/..\x/../otherproject\x/../",
+            "myproject",
+            "myproject",
+            False,
+        ),
+        (  # Same bypass aimed at the /p/ form
+            r"https://pypi.org/p/myproject/..\x/../..\account\logout\x/../",
+            "myproject",
+            "myproject",
+            False,
+        ),
     ],
 )
 def test_verify_url_pypi(url, project_name, project_normalized_name, expected):
