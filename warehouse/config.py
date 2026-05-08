@@ -576,7 +576,7 @@ def configure(settings=None):
         settings,
         "warehouse.packaging.project_create_user_ratelimit_string",
         "PROJECT_CREATE_USER_RATELIMIT_STRING",
-        default="2 per day",
+        default="20 per hour",
     )
     maybe_set(
         settings,
