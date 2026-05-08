@@ -67,9 +67,9 @@ automat==25.4.16 \
     --hash=sha256:0017591a5477066e90d26b0e696ddc143baafd87b588cfac8100bc6be9634de0 \
     --hash=sha256:04e9bce696a8d5671ee698005af6e5a9fa15354140a87f4870744604dcdd3ba1
     # via -r requirements/main.in
-b2sdk==2.10.4 \
-    --hash=sha256:0816136ee740befbfeaa20da629fb90782a7bac40b5e3f59799436840358c87f \
-    --hash=sha256:2bf69843b96e99f2e70a8aa052cd0aa5c0c80500855a991950051a5116bb8498
+b2sdk==2.11.0 \
+    --hash=sha256:b9735ca1455b7420178405bc469e9312b08b252fd12f8880845a41485ac5091d \
+    --hash=sha256:c465355df904b68fd0416787f1d28d23d05266edcb07d35ce9991a636a2f0213
     # via -r requirements/main.in
 babel==2.18.0 \
     --hash=sha256:b80b99a14bd085fcacfa15c9165f651fbb3406e66cc603abf11c5750937c992d \
@@ -663,9 +663,9 @@ deprecated==1.3.1 \
     --hash=sha256:597bfef186b6f60181535a29fbe44865ce137a5079f295b479886c82729d5f3f \
     --hash=sha256:b1b50e0ff0c1fddaa5708a2c6b0a6588bb09b892825ab2b214ac9ea9d92a5223
     # via limits
-disposable-email-domains==0.0.177 \
-    --hash=sha256:1ca9bb413b73c56f199eebc0b04e4916beb59e7afea968e3795ff9558d491487 \
-    --hash=sha256:f15a7f1646cd1c81c4e046c2cc5079f3b092346f041a0cea2aa35d7c0fc79847
+disposable-email-domains==0.0.178 \
+    --hash=sha256:963f399a299f5f40aae235137e3bc71da1f78ba3970fff6dc2d6fd3d7687b949 \
+    --hash=sha256:c44ebb112278f856a8fe1d512a0e27b30b1f575d2a00deeffe642194dfbafe7b
     # via -r requirements/main.in
 dnspython==2.8.0 \
     --hash=sha256:01d9bbc4a2d76bf0db7c1f729812ded6d912bd318d3b1cf81d30c0f845dbf3af \
@@ -710,9 +710,9 @@ google-api-core[grpc]==2.30.3 \
     #   google-cloud-bigquery
     #   google-cloud-core
     #   google-cloud-storage
-google-auth==2.49.2 \
-    --hash=sha256:c1ae38500e73065dcae57355adb6278cf8b5c8e391994ae9cbadbcb9631ab409 \
-    --hash=sha256:c2720924dfc82dedb962c9f52cabb2ab16714fd0a6a707e40561d217574ed6d5
+google-auth==2.50.0 \
+    --hash=sha256:04382175e28b94f49694977f0a792688b59a668def1499e9d8de996dc9ce5b15 \
+    --hash=sha256:f35eafb191195328e8ce10a7883970877e7aeb49c2bfaa54aa0e394316d353d0
     # via
     #   google-api-core
     #   google-cloud-bigquery
@@ -2130,9 +2130,9 @@ requests==2.33.1 \
     #   sigstore
     #   stripe
     #   tldextract
-requests-aws4auth==1.3.1 \
-    --hash=sha256:2969b5379ae6e60ee666638caf6cb94a32d67033f6bfcf0d50c95cd5474f2419 \
-    --hash=sha256:b6ad4882310e03ba2538ebf94d1f001ca9feabc5c52618539cf1eb6d5af76791
+requests-aws4auth==1.3.2 \
+    --hash=sha256:7a697bf3c7a66d82980ad3348a2539403870d5c1f1e313f5676fb11e6793eef8 \
+    --hash=sha256:c6cbf45f17119af926e3cb77acfeed083d1cf9580d893ee6c0ecf01088fd34e5
     # via -r requirements/main.in
 requests-file==3.0.1 \
     --hash=sha256:d0f5eb94353986d998f80ac63c7f146a307728be051d4d1cd390dbdb59c10fa2 \
