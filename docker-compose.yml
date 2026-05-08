@@ -90,7 +90,6 @@ services:
       - ./warehouse:/opt/warehouse/src/warehouse:z
       - ./tests:/opt/warehouse/src/tests:z
       - ./htmlcov:/opt/warehouse/src/htmlcov:z
-      - ./setup.cfg:/opt/warehouse/src/setup.cfg:z
       - ./pyproject.toml:/opt/warehouse/src/pyproject.toml:z
       # Site customization shim to enable multiprocess coverage collection in tests.
       # See: https://coverage.readthedocs.io/en/latest/subprocess.html

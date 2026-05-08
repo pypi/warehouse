@@ -2,7 +2,6 @@ ruff
 ast-grep-cli
 codespell
 djlint
-flake8
 mypy
 tombi
 celery-types
