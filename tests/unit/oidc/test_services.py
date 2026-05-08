@@ -784,6 +784,33 @@ class TestOIDCPublisherService:
             )
         ]
 
+    def test_get_key_id_fails_with_empty_jwt(self, monkeypatch):
+        token = pretend.stub()
+        key = pretend.stub()
+
+        service = services.OIDCPublisherService(
+            session=pretend.stub(),
+            publisher="example",
+            issuer_url="https://example.com",
+            audience="fakeaudience",
+            cache_url="rediss://fake.example.com",
+            metrics=pretend.stub(),
+        )
+        monkeypatch.setattr(
+            service, "_get_key", pretend.call_recorder(lambda kid, i: key)
+        )
+
+        monkeypatch.setattr(
+            services.jwt,
+            "get_unverified_header",
+            pretend.call_recorder(lambda token: {}),
+        )
+
+        with pytest.raises(
+            jwt.PyJWTError, match=r"Key ID not found for issuer 'https://example.com'"
+        ):
+            assert service._get_key_for_token(token, "https://example.com")
+
     def test_get_key_for_token(self, monkeypatch):
         token = pretend.stub()
         key = pretend.stub()
