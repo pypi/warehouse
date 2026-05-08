@@ -151,11 +151,6 @@ RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
 # as well for the matrix!
 ARG CI=no
 
-# To enable Ipython in the development environment set to yes (for using ipython
-# as the warehouse shell interpreter,
-# i.e. 'docker compose run --rm web python -m warehouse shell --type=ipython')
-ARG IPYTHON=no
-
 # Install the Python level Warehouse requirements, this is done after copying
 # the requirements but prior to copying Warehouse itself into the container so
 # that code changes don't require triggering an entire install of all of
@@ -166,8 +161,20 @@ RUN --mount=type=cache,id=pkg,target=/root/.cache \
         -r requirements/deploy.txt \
         -r requirements/main.txt \
         $(if [ "$DEVEL" = "yes" ]; then echo '-r requirements/dev.txt -r requirements/tests.txt -r requirements/lint.txt'; fi) \
-        $(if [ "$DEVEL" = "yes" ] && [ "$IPYTHON" = "yes" ]; then echo '-r requirements/ipython.txt'; fi) \
         $(if [ "$CI" = "yes" ]; then echo '-r requirements/docs-dev.txt -r requirements/docs-user.txt -r requirements/docs-blog.txt'; fi )
+
+# To enable Ipython in the development environment set to yes (for using ipython
+# as the warehouse shell interpreter,
+# i.e. 'docker compose run --rm web python -m warehouse shell --type=ipython')
+ARG IPYTHON=no
+
+# Install the IPython dependencies, which has to be done as it's own step because
+# we don't have pinned hashes for IPython.
+RUN --mount=type=cache,id=pkg,target=/root/.cache \
+    --mount=type=bind,src=requirements/,dst=/opt/warehouse/src/requirements/ \
+    if [ "$DEVEL" = "yes" ] && [ "$IPYTHON" = "yes" ]; then \
+      pip-install -r requirements/ipython.txt; \
+    fi
 
 # Pre-compile our dependencies bytecode to save time collectively on container boot!
 RUN python -m compileall /opt/warehouse/lib/ -j 0
