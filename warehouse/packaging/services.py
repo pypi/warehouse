@@ -500,11 +500,9 @@ class ProjectService:
         request,
         *,
         creator_is_owner=True,
-        ratelimited=True,
         organization_id=None,
     ):
-        if ratelimited:
-            self._check_ratelimits(request, creator)
+        self._check_ratelimits(request, creator)
 
         # Check for AdminFlag set by a PyPI Administrator disabling new project
         # registration, reasons for this include Spammers, security
@@ -716,8 +714,7 @@ class ProjectService:
             )
             request.db.delete(stale_publisher)
 
-        if ratelimited:
-            self._hit_ratelimits(request, creator)
+        self._hit_ratelimits(request, creator)
         return project
 
 

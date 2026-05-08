@@ -1032,7 +1032,7 @@ class TestProjectService:
         service = ProjectService(session=db_request.db)
 
         with pytest.raises(HTTPForbidden) as exc:
-            service.create_project("foo", pretend.stub(), db_request, ratelimited=False)
+            service.create_project("foo", pretend.stub(), db_request)
 
         resp = exc.value
         assert resp.status_code == 403
