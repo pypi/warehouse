@@ -34,7 +34,7 @@ from warehouse.oidc.utils import (
     OIDC_ISSUER_SERVICE_NAMES,
     lookup_custom_issuer_type,
 )
-from warehouse.packaging.interfaces import IProjectService
+from warehouse.packaging.interfaces import IProjectService, TooManyProjectsCreated
 from warehouse.packaging.models import Project, ProjectFactory
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
@@ -232,6 +232,20 @@ def mint_token(
             except HTTPException as exc:
                 return _invalid(
                     errors=[{"code": "invalid-payload", "description": str(exc)}],
+                    request=request,
+                )
+            except TooManyProjectsCreated as exc:
+                return _invalid(
+                    errors=[
+                        {
+                            "code": "too-many-projects",
+                            "description": (
+                                "Too many new projects created. "
+                                "Try again in "
+                                f"{int(exc.resets_in.total_seconds())} seconds."
+                            ),
+                        }
+                    ],
                     request=request,
                 )
 
