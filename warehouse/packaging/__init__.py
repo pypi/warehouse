@@ -82,6 +82,10 @@ def includeme(config):
         "warehouse.packaging.project_create_ip_ratelimit_string"
     )
     config.register_rate_limiter(project_create_ip_limit_string, "project.create.ip")
+    project_create_org_limit_string = config.registry.settings.get(
+        "warehouse.packaging.project_create_org_ratelimit_string"
+    )
+    config.register_rate_limiter(project_create_org_limit_string, "project.create.org")
 
     config.register_service_factory(project_service_factory, IProjectService)
 
