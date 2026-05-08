@@ -111,8 +111,7 @@ USER docs
 
 
 
-# Now we're going to build our actual application, but not the actual production
-# image that it gets deployed into.
+# Now we're going to build our actual application image
 FROM base
 
 # Setup some basic environment variables that are ~never going to change.
@@ -120,8 +119,7 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/opt/warehouse/src/
 
 # We create an /opt directory with a virtual environment in it to store our
-# application in, we'll use --upgrade-deps to make sure we have the latest
-# version of pip.
+# application in
 RUN --mount=type=cache,id=pkg,target=/root/.cache \
         create-venv /opt/warehouse
 

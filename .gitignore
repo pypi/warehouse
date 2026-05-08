@@ -5,8 +5,7 @@
 .eggs/
 
 .cache/
-.coverage
-.coverage.*
+.coverage*
 .state
 .idea
 .envrc

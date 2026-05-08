@@ -1,4 +1,12 @@
 #!/bin/bash
 set -euxo pipefail
 
+# Create a virtual environment:
+#  --copies because we want to make sure we work across filesystems and minimize
+#           dependency on the exact path the host Python is located at.
+# --without-scm-ignore-files because they're not useful in this context and just
+#                            add noise.
+# --upgrade-deps because we want to use the latest version of pip, and if we
+#                don't do this here, then we'll have to uninstall whatever
+#                version we install now in a later layer, bloating the image.
 python3 -m venv --copies --without-scm-ignore-files --upgrade-deps "$@"
