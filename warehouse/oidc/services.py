@@ -184,6 +184,8 @@ class OIDCPublisherService:
         prior to any verification.
         """
         unverified_header = jwt.get_unverified_header(token)
+        if "kid" not in unverified_header:
+            raise jwt.PyJWTError(f"Key ID not found for issuer {issuer_url!r}")
         return self._get_key(unverified_header["kid"], issuer_url)
 
     def jwt_identifier_exists(self, jti: str) -> bool:
