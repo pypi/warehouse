@@ -439,9 +439,7 @@ class ProjectService:
                 tags=["ratelimiter:user"],
             )
             raise TooManyProjectsCreated(
-                resets_in=self.ratelimiters["project.create.user"].resets_in(
-                    request.remote_addr
-                )
+                resets_in=self.ratelimiters["project.create.user"].resets_in(creator.id)
             )
 
     def _hit_ratelimits(self, request, creator):
