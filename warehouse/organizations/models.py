@@ -17,6 +17,7 @@ from sqlalchemy import (
     FetchedValue,
     ForeignKey,
     Index,
+    String,
     UniqueConstraint,
     func,
     orm,
@@ -353,6 +354,15 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
     total_size_limit: Mapped[int | None] = mapped_column(
         BigInteger,
         comment="Maximum total size limit in bytes for projects in this organization",
+    )
+    project_create_limit_string: Mapped[str | None] = mapped_column(
+        String,
+        nullable=True,
+        comment=(
+            "Override for the project-creation rate limit applied when creating "
+            "org-attached projects (e.g. '100 per hour'). NULL falls back to the "
+            "global project.create.org default."
+        ),
     )
     application: Mapped[OrganizationApplication] = relationship(
         back_populates="organization"
