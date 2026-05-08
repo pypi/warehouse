@@ -235,15 +235,16 @@ def mint_token(
                     request=request,
                 )
             except TooManyProjectsCreated as exc:
+                retry = (
+                    f"Try again in {int(exc.resets_in.total_seconds())} seconds."
+                    if exc.resets_in is not None
+                    else "Try again later."
+                )
                 return _invalid(
                     errors=[
                         {
                             "code": "too-many-projects",
-                            "description": (
-                                "Too many new projects created. "
-                                "Try again in "
-                                f"{int(exc.resets_in.total_seconds())} seconds."
-                            ),
+                            "description": f"Too many new projects created. {retry}",
                         }
                     ],
                     request=request,
