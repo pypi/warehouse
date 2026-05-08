@@ -2,7 +2,7 @@
 
 import json
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pretend
 import pytest
@@ -34,6 +34,7 @@ from warehouse.oidc.views import (
 )
 from warehouse.organizations.models import OrganizationProject
 from warehouse.packaging import services
+from warehouse.packaging.interfaces import IProjectService, TooManyProjectsCreated
 from warehouse.packaging.models import Project
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
@@ -458,6 +459,48 @@ def test_mint_token_pending_publisher_project_already_exists(db_request):
         pretend.call(DUMMY_GITHUB_OIDC_JWT, "https://none")
     ]
     assert oidc_service.find_publisher.calls == [pretend.call(claims, pending=True)]
+
+
+def test_mint_token_pending_publisher_project_create_ratelimited(db_request):
+    pending_publisher = PendingGitHubPublisherFactory.create(
+        project_name="does-not-exist",
+    )
+
+    db_request.flags.disallow_oidc = lambda f=None: False
+
+    claims = {"iss": "https://none"}
+    oidc_service = pretend.stub(
+        verify_jwt_signature=pretend.call_recorder(
+            lambda token, issuer_url=None: claims
+        ),
+        find_publisher=pretend.call_recorder(
+            lambda claims, pending=False: pending_publisher
+        ),
+    )
+    project_service = pretend.stub(
+        create_project=pretend.raiser(
+            TooManyProjectsCreated(resets_in=timedelta(seconds=42))
+        ),
+    )
+    db_request.find_service = lambda svc, **kw: (
+        project_service if svc is IProjectService else oidc_service
+    )
+
+    resp = views.mint_token(
+        oidc_service, DUMMY_GITHUB_OIDC_JWT, claims["iss"], db_request
+    )
+    assert db_request.response.status_code == 422
+    assert resp == {
+        "message": "Token request failed",
+        "errors": [
+            {
+                "code": "too-many-projects",
+                "description": (
+                    "Too many new projects created. Try again in 42 seconds."
+                ),
+            }
+        ],
+    }
 
 
 def test_mint_token_from_oidc_pending_publisher_ok(monkeypatch, db_request):
