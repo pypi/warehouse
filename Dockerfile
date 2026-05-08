@@ -179,7 +179,7 @@ RUN --mount=type=cache,id=pkg,target=/root/.cache \
 # Pre-compile our dependencies bytecode to save time collectively on container boot!
 RUN python -m compileall /opt/warehouse/lib/ -j 0
 
-# Copy our compiled static files. These should overlay cleanly ontop of the
+# Copy our compiled static files. These should overlay cleanly on top of the
 # virtual environment and even when that gets invalidated, copything these is
 # super fast.
 COPY --from=static /opt/warehouse/src/warehouse/static/dist/ /opt/warehouse/src/warehouse/static/dist/
