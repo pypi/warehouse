@@ -49,6 +49,9 @@ def test_compute_oidc_metrics(db_request, metrics):
     # Create OIDC publishers for projects which have no releases.
     GitHubPublisherFactory.create(projects=[non_released_project_oidc])
 
+    # Create some pending publishers (not yet associated with a real project).
+    PendingGitHubPublisherFactory.create_batch(2)
+
     # Create some files which have/have not been published
     # using OIDC in different scenarios.
 
@@ -96,6 +99,11 @@ def test_compute_oidc_metrics(db_request, metrics):
         pretend.call("warehouse.oidc.total_files_published_with_oidc_publishers", 2),
         pretend.call(
             "warehouse.oidc.publishers", 4, tags=["publisher:github_oidc_publishers"]
+        ),
+        pretend.call(
+            "warehouse.oidc.pending_publishers",
+            2,
+            tags=["publisher:pending_github_oidc_publishers"],
         ),
     ]
 

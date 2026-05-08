@@ -14,6 +14,7 @@ from unittest import mock
 
 import alembic.command
 import click.testing
+import email_validator
 import pretend
 import pyramid.testing
 import pytest
@@ -119,6 +120,25 @@ def metrics():
                 metric=metric, tags=tags, sample_rate=sample_rate, use_ms=use_ms
             )
         ),
+    )
+
+
+@pytest.fixture
+def no_email_deliverability_check(monkeypatch):
+    """
+    Prevents unit tests from depending on live email deliverability DNS lookups.
+    """
+    original_validate_email = email_validator.validate_email
+
+    def validate_email_without_deliverability(
+        email, check_deliverability=True, *args, **kwargs
+    ):
+        return original_validate_email(
+            email, check_deliverability=False, *args, **kwargs
+        )
+
+    monkeypatch.setattr(
+        email_validator, "validate_email", validate_email_without_deliverability
     )
 
 
@@ -722,7 +742,7 @@ class _TestApp(_webtest.TestApp):
 
 @pytest.fixture
 def tm():
-    # Create a new transaction manager for dependant test cases
+    # Create a new transaction manager for dependent test cases
     tm = transaction.TransactionManager(explicit=True)
     tm.begin()
 
@@ -828,11 +848,13 @@ class _MockRedis:
     def set(self, key, value=None, *_args, **_kwargs):
         if _kwargs.get("nx", False) and key in self.cache:
             return None
+        # codespell:ignore-begin 'exat'
         # Real Redis immediately evicts a key when exat is in the past.
         exat = _kwargs.get("exat")
         if exat is not None and exat <= time.time():
             self.cache.pop(key, None)
             return True
+        # codespell:ignore-end
         self.cache[key] = value
         return True
 

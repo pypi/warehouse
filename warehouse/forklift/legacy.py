@@ -1221,7 +1221,7 @@ def file_upload(request):
                     f"Invalid source distribution filename: {filename}",
                 )
 
-            # The previous function fails to accomodate the edge case where
+            # The previous function fails to accommodate the edge case where
             # versions may contain hyphens, so we handle that here based on
             # what we were expecting. This requires there to be at least two
             # hyphens in the filename: one between the project name & version
@@ -1394,7 +1394,7 @@ def file_upload(request):
             filename = os.path.basename(temporary_filename)
             # Get the name and version from the original filename. Eventually this
             # should use packaging.utils.parse_wheel_filename(filename), but until then
-            # we can't use this as it adds additional normailzation to the project name
+            # we can't use this as it adds additional normalization to the project name
             # and version.
             name, version, _ = filename.split("-", 2)
 

@@ -6,7 +6,7 @@ import typing
 
 from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import select
+from sqlalchemy import delete, func, select
 
 from warehouse import tasks
 from warehouse.email import (
@@ -15,7 +15,6 @@ from warehouse.email import (
 )
 from warehouse.events.tags import EventTag
 from warehouse.macaroons.models import Macaroon
-from warehouse.metrics import IMetricsService
 from warehouse.oidc.models import OIDCPublisher, PendingOIDCPublisher
 from warehouse.packaging.models import File, Project, Release
 
@@ -38,77 +37,74 @@ def pending_publisher_cutoff(days: int) -> datetime:
 
 
 @tasks.task(ignore_result=True, acks_late=True)
-def compute_oidc_metrics(request):
-    metrics = request.find_service(IMetricsService, context=None)
-
-    projects_configured_oidc = (
-        request.db.query(Project.id).distinct().join(Project.oidc_publishers)
-    )
-
-    # Metric for count of all projects that have configured OIDC.
-    metrics.gauge(
+def compute_oidc_metrics(request: Request) -> None:
+    # Count of all projects that have configured OIDC.
+    request.metrics.gauge(
         "warehouse.oidc.total_projects_configured_oidc_publishers",
-        projects_configured_oidc.count(),
+        request.db.scalar(
+            select(func.count(Project.id.distinct()))
+            .select_from(Project)
+            .join(Project.oidc_publishers)
+        ),
     )
 
-    # Need to check FileEvent.additional['publisher_url'] to determine which
-    # projects have successfully published via an OIDC publisher.
-    projects_published_with_oidc = (
-        request.db.query(Project.id)
-        .distinct()
-        .join(Project.releases)
-        .join(Release.files)
-        .join(File.events)
-        .where(File.Event.additional.op("->>")("publisher_url").is_not(None))
-    )
-
-    # Metric for count of all projects that have published via OIDC
-    metrics.gauge(
+    # Count of all projects that have successfully published via an OIDC
+    # publisher, determined via FileEvent.additional['publisher_url'].
+    request.metrics.gauge(
         "warehouse.oidc.total_projects_published_with_oidc_publishers",
-        projects_published_with_oidc.count(),
+        request.db.scalar(
+            select(func.count(Project.id.distinct()))
+            .select_from(Project)
+            .join(Project.releases)
+            .join(Release.files)
+            .join(File.events)
+            .where(File.Event.additional.op("->>")("publisher_url").is_not(None))
+        ),
     )
 
-    # Metric for total number of files published via OIDC
-    metrics.gauge(
+    # Total number of files published via OIDC.
+    request.metrics.gauge(
         "warehouse.oidc.total_files_published_with_oidc_publishers",
-        request.db.query(File.Event)
-        .where(File.Event.additional.op("->>")("publisher_url").is_not(None))
-        .count(),
+        request.db.scalar(
+            select(func.count())
+            .select_from(File.Event)
+            .where(File.Event.additional.op("->>")("publisher_url").is_not(None))
+        ),
     )
 
-    # Number of publishers for specific publishers
-    for t in request.db.query(OIDCPublisher.discriminator).distinct().all():
-        discriminator = t[0]
-        metrics.gauge(
-            "warehouse.oidc.publishers",
-            request.db.query(OIDCPublisher)
-            .where(OIDCPublisher.discriminator == discriminator)
-            .count(),
-            tags=[f"publisher:{discriminator}"],
-        )
+    # Per-publisher counts grouped in a single query for each table
+    # (active and pending).
+    for metric_name, model in (
+        ("warehouse.oidc.publishers", OIDCPublisher),
+        ("warehouse.oidc.pending_publishers", PendingOIDCPublisher),
+    ):
+        for discriminator, count in request.db.execute(
+            select(model.discriminator, func.count()).group_by(model.discriminator)
+        ):
+            request.metrics.gauge(
+                metric_name,
+                count,
+                tags=[f"publisher:{discriminator}"],
+            )
 
 
 @tasks.task(ignore_result=True, acks_late=True)
-def delete_expired_oidc_macaroons(request):
+def delete_expired_oidc_macaroons(request: Request) -> None:
     """
     Purge all API tokens minted using OIDC Trusted Publishing with a creation time
     more than 1 day ago. Since OIDC-minted macaroons expire 15 minutes after
     creation, this task cleans up tokens that expired several hours ago and that
     have accumulated since the last time this task was run.
     """
-    rows_deleted = (
-        request.db.query(Macaroon)
-        .filter(Macaroon.oidc_publisher_id.isnot(None))
-        .filter(
-            # The token has been created at more than 1 day ago
-            Macaroon.created + timedelta(days=1) < datetime.now(tz=UTC)
-        )
-        .delete(synchronize_session=False)
+    result = request.db.execute(
+        delete(Macaroon)
+        .where(Macaroon.oidc_publisher_id.isnot(None))
+        .where(Macaroon.created < datetime.now(tz=UTC) - timedelta(days=1))
+        .execution_options(synchronize_session=False)
     )
-    metrics = request.find_service(IMetricsService, context=None)
-    metrics.gauge(
+    request.metrics.gauge(
         "warehouse.oidc.expired_oidc_tokens_deleted",
-        rows_deleted,
+        result.rowcount,
     )
 
 
