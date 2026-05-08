@@ -81,6 +81,7 @@ from warehouse.organizations.models import (
     TermsOfServiceEngagement,
 )
 from warehouse.packaging import IProjectService, Project, Role
+from warehouse.packaging.interfaces import TooManyProjectsCreated
 from warehouse.packaging.models import JournalEntry, ProjectFactory
 from warehouse.subscriptions import IBillingService, ISubscriptionService
 from warehouse.subscriptions.services import MockStripeBillingService
@@ -871,6 +872,12 @@ class ManageOrganizationProjectsViews:
                 )
             except HTTPException as exc:
                 form.new_project_name.errors.append(exc.detail)
+                return default_response
+            except TooManyProjectsCreated as exc:
+                form.new_project_name.errors.append(
+                    "Too many new projects created. Try again in "
+                    f"{int(exc.resets_in.total_seconds())} seconds."
+                )
                 return default_response
 
         # Add project to organization, record events, and notify owners.
