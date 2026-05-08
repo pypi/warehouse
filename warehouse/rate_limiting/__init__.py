@@ -14,7 +14,7 @@ from more_itertools import first_true
 from zope.interface import implementer
 
 from warehouse.metrics import IMetricsService
-from warehouse.rate_limiting.interfaces import IRateLimiter
+from warehouse.rate_limiting.interfaces import IRateLimiter, WindowStats
 
 logger = logging.getLogger(__name__)
 
@@ -101,6 +101,26 @@ class RateLimiter:
         # limit might be available again.
         return first_true(sorted(resets))
 
+    @_return_on_exception([], redis.RedisError)
+    def get_window_stats(self, *identifiers):
+        stats = []
+        now = datetime.now(tz=UTC)
+        for limit in self._limits:
+            resets_at, remaining = self._window.get_window_stats(
+                limit, *self._get_identifiers(identifiers)
+            )
+            reset = datetime.fromtimestamp(resets_at, tz=UTC)
+            resets_in_seconds = max(0, int((reset - now).total_seconds()))
+            stats.append(
+                WindowStats(
+                    amount=limit.amount,
+                    window_seconds=limit.get_expiry(),
+                    remaining=remaining,
+                    resets_in_seconds=resets_in_seconds,
+                )
+            )
+        return stats
+
 
 @implementer(IRateLimiter)
 class DummyRateLimiter:
@@ -115,6 +135,9 @@ class DummyRateLimiter:
 
     def resets_in(self, *identifiers):
         return None
+
+    def get_window_stats(self, *identifiers):
+        return []
 
 
 class RateLimit:
@@ -162,3 +185,4 @@ def includeme(config):
     config.registry["ratelimiter.storage"] = storage_from_string(
         config.registry.settings["ratelimit.url"]
     )
+    config.add_tween("warehouse.rate_limiting.headers.rate_limit_headers_tween_factory")

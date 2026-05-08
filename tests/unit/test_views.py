@@ -24,7 +24,7 @@ from webob.multidict import MultiDict
 from warehouse import views
 from warehouse.errors import WarehouseDenied
 from warehouse.packaging.models import ProjectFactory as DBProjectFactory
-from warehouse.rate_limiting.interfaces import IRateLimiter
+from warehouse.rate_limiting.interfaces import IRateLimiter, WindowStats
 from warehouse.utils.row_counter import compute_row_counts
 from warehouse.views import (
     SecurityKeyGiveaway,
@@ -504,7 +504,10 @@ class TestSearch:
         db_request.params = params
 
         fake_rate_limiter = pretend.stub(
-            test=lambda *a: True, hit=lambda *a: True, resets_in=lambda *a: None
+            test=lambda *a: True,
+            hit=lambda *a: True,
+            resets_in=lambda *a: None,
+            get_window_stats=lambda *a: [],
         )
         pyramid_services.register_service(
             fake_rate_limiter, IRateLimiter, None, name="search"
@@ -551,7 +554,10 @@ class TestSearch:
         db_request.params = params
 
         fake_rate_limiter = pretend.stub(
-            test=lambda *a: True, hit=lambda *a: True, resets_in=lambda *a: None
+            test=lambda *a: True,
+            hit=lambda *a: True,
+            resets_in=lambda *a: None,
+            get_window_stats=lambda *a: [],
         )
         pyramid_services.register_service(
             fake_rate_limiter, IRateLimiter, None, name="search"
@@ -615,7 +621,10 @@ class TestSearch:
         db_request.params = params
 
         fake_rate_limiter = pretend.stub(
-            test=lambda *a: True, hit=lambda *a: True, resets_in=lambda *a: None
+            test=lambda *a: True,
+            hit=lambda *a: True,
+            resets_in=lambda *a: None,
+            get_window_stats=lambda *a: [],
         )
         pyramid_services.register_service(
             fake_rate_limiter, IRateLimiter, None, name="search"
@@ -648,7 +657,10 @@ class TestSearch:
         db_request.params = params
 
         fake_rate_limiter = pretend.stub(
-            test=lambda *a: True, hit=lambda *a: True, resets_in=lambda *a: None
+            test=lambda *a: True,
+            hit=lambda *a: True,
+            resets_in=lambda *a: None,
+            get_window_stats=lambda *a: [],
         )
         pyramid_services.register_service(
             fake_rate_limiter, IRateLimiter, None, name="search"
@@ -678,7 +690,10 @@ class TestSearch:
         db_request.params = params
 
         fake_rate_limiter = pretend.stub(
-            test=lambda *a: True, hit=lambda *a: True, resets_in=lambda *a: None
+            test=lambda *a: True,
+            hit=lambda *a: True,
+            resets_in=lambda *a: None,
+            get_window_stats=lambda *a: [],
         )
         pyramid_services.register_service(
             fake_rate_limiter, IRateLimiter, None, name="search"
@@ -699,7 +714,10 @@ class TestSearch:
         db_request.params = params
 
         fake_rate_limiter = pretend.stub(
-            test=lambda *a: True, hit=lambda *a: True, resets_in=lambda *a: None
+            test=lambda *a: True,
+            hit=lambda *a: True,
+            resets_in=lambda *a: None,
+            get_window_stats=lambda *a: [],
         )
         pyramid_services.register_service(
             fake_rate_limiter, IRateLimiter, None, name="search"
@@ -734,6 +752,9 @@ class TestSearch:
         params = MultiDict({"q": "foo bar"})
         db_request.params = params
 
+        stats = [
+            WindowStats(amount=5, window_seconds=1, remaining=0, resets_in_seconds=1)
+        ]
         fake_rate_limiter = pretend.stub(
             test=lambda *a: False,
             hit=lambda *a: True,
@@ -742,6 +763,7 @@ class TestSearch:
                 if resets_in is None
                 else pretend.stub(total_seconds=lambda *a: resets_in)
             ),
+            get_window_stats=lambda *a: stats,
         )
         pyramid_services.register_service(
             fake_rate_limiter, IRateLimiter, None, name="search"
@@ -761,6 +783,12 @@ class TestSearch:
         assert metrics.increment.calls == [
             pretend.call("warehouse.search.ratelimiter.exceeded")
         ]
+        # Snapshot is recorded even on the blocked path so headers can be
+        # emitted on the 429 response.
+        snapshots = db_request._rate_limit_snapshots
+        assert [s.name for s in snapshots] == ["search"]
+        assert snapshots[0].partition_key == "ip"
+        assert snapshots[0].stats is stats
 
 
 def test_classifiers(db_request):

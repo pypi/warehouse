@@ -45,11 +45,13 @@ class TestRateLimiter:
         assert limiter.test("foo")
         assert limiter.hit("foo")
         assert limiter.resets_in("foo") is None
+        assert limiter.get_window_stats("foo") == []
 
         assert metrics.increment.calls == [
             pretend.call("warehouse.ratelimiter.error", tags=["call:test"]),
             pretend.call("warehouse.ratelimiter.error", tags=["call:hit"]),
             pretend.call("warehouse.ratelimiter.error", tags=["call:resets_in"]),
+            pretend.call("warehouse.ratelimiter.error", tags=["call:get_window_stats"]),
         ]
 
     def test_namespacing(self, metrics):
@@ -93,6 +95,34 @@ class TestRateLimiter:
         assert limiter.resets_in("foo") > datetime.timedelta(seconds=0)
         assert limiter.resets_in("foo") < datetime.timedelta(seconds=60)
 
+    def test_get_window_stats(self, metrics):
+        limiter = RateLimiter(
+            storage.MemoryStorage(),
+            "2 per minute; 10 per hour",
+            metrics=metrics,
+        )
+
+        # Untouched: full quota remaining; resets_in is clamped to >= 0.
+        stats = limiter.get_window_stats("foo")
+        assert len(stats) == 2
+        assert stats[0].amount == 2
+        assert stats[0].window_seconds == 60
+        assert stats[0].remaining == 2
+        assert stats[0].resets_in_seconds >= 0
+        assert stats[1].amount == 10
+        assert stats[1].window_seconds == 3600
+        assert stats[1].remaining == 10
+        assert stats[1].resets_in_seconds >= 0
+
+        # Exhaust the per-minute window; remaining drops, reset pending.
+        while limiter.hit("foo"):
+            pass
+
+        stats = limiter.get_window_stats("foo")
+        assert stats[0].remaining == 0
+        assert 0 < stats[0].resets_in_seconds <= 60
+        assert stats[1].remaining == 8
+
     def test_resets_in_expired(self, metrics):
         limiter = RateLimiter(
             storage.MemoryStorage(),
@@ -127,6 +157,7 @@ class TestDummyRateLimiter:
         assert limiter.hit()
         assert limiter.clear() is None
         assert limiter.resets_in() is None
+        assert limiter.get_window_stats() == []
 
 
 class TestRateLimit:
@@ -171,6 +202,7 @@ def test_includeme():
     registry = {}
     config = pretend.stub(
         add_directive=pretend.call_recorder(lambda name, func: None),
+        add_tween=pretend.call_recorder(lambda factory: None),
         registry=pretend.stub(
             settings={"ratelimit.url": "memory://"}, __setitem__=registry.__setitem__
         ),
@@ -180,6 +212,9 @@ def test_includeme():
 
     assert config.add_directive.calls == [
         pretend.call("register_rate_limiter", rate_limiting._register_rate_limiter)
+    ]
+    assert config.add_tween.calls == [
+        pretend.call("warehouse.rate_limiting.headers.rate_limit_headers_tween_factory")
     ]
     assert isinstance(registry["ratelimiter.storage"], storage.MemoryStorage)
 
