@@ -1901,6 +1901,7 @@ class TestRegister:
         assert add_email.calls == []
         assert send_email.calls == []
 
+    @pytest.mark.usefixtures("no_email_deliverability_check")
     def test_register_redirect(self, db_request, monkeypatch):
         db_request.method = "POST"
 
