@@ -868,7 +868,6 @@ class ManageOrganizationProjectsViews:
                     self.request.user,
                     request=self.request,
                     creator_is_owner=False,
-                    ratelimited=False,
                 )
             except HTTPException as exc:
                 form.new_project_name.errors.append(exc.detail)
