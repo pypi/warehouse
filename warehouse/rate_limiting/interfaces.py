@@ -48,6 +48,12 @@ class IRateLimiter(Interface):
         backing storage is unavailable.
         """
 
+    def override(limit_string):
+        """
+        Retrn limiter using ``limit_string`` instead of default.
+        """
+
+
 
 class RateLimiterException(Exception):  # noqa: N818
     def __init__(self, *args, resets_in, **kwargs):

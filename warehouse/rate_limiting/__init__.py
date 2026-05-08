@@ -71,6 +71,20 @@ class RateLimiter:
         for limit in self._limits:
             self._storage.clear(limit.key_for(*self._get_identifiers(identifiers)))
 
+    def override(self, limit_string):
+        """
+        Return new RateLimiter if than the provided limit string is not empty, else return self.
+        """
+        if not limit_string:
+            return self
+
+        return RateLimiter(
+            self._storage,
+            limit_string,
+            identifiers=self._identifiers,
+            metrics=self._metrics,
+        )
+
     @_return_on_exception(None, redis.RedisError)
     def resets_in(self, *identifiers):
         resets = []
@@ -138,6 +152,10 @@ class DummyRateLimiter:
 
     def get_window_stats(self, *identifiers):
         return []
+
+    def override(self, limit_string):
+        return self
+
 
 
 class RateLimit:
