@@ -142,9 +142,9 @@ botocore==1.42.29 \
     # via
     #   boto3
     #   s3transfer
-cachetools==7.0.6 \
-    --hash=sha256:4e94956cfdd3086f12042cdd29318f5ced3893014f7d0d059bf3ead3f85b7f8b \
-    --hash=sha256:e5d524d36d65703a87243a26ff08ad84f73352adbeafb1cde81e207b456aaf24
+cachetools==7.1.1 \
+    --hash=sha256:0335cd7a0952d2b22327441fb0628139e234c565559eeb91a8a4ac7551c5353d \
+    --hash=sha256:27bdf856d68fd3c71c26c01b5edc312124ed427524d1ddb31aa2b7746fe20d4b
     # via premailer
 cattrs==26.1.0 \
     --hash=sha256:d1e0804c42639494d469d08d4f26d6b9de9b8ab26b446db7b5f8c2e97f7c3096 \
@@ -620,9 +620,9 @@ deprecated==1.3.1 \
     --hash=sha256:597bfef186b6f60181535a29fbe44865ce137a5079f295b479886c82729d5f3f \
     --hash=sha256:b1b50e0ff0c1fddaa5708a2c6b0a6588bb09b892825ab2b214ac9ea9d92a5223
     # via limits
-disposable-email-domains==0.0.178 \
-    --hash=sha256:963f399a299f5f40aae235137e3bc71da1f78ba3970fff6dc2d6fd3d7687b949 \
-    --hash=sha256:c44ebb112278f856a8fe1d512a0e27b30b1f575d2a00deeffe642194dfbafe7b
+disposable-email-domains==0.0.179 \
+    --hash=sha256:63cad9b34ed84a286bbfba0c1de80ad79f0f5f668fcc7a6309665224009a4af3 \
+    --hash=sha256:66991440d49f8019dc80a1bc3b1746e073e00b921ce02096334738623aa616f0
     # via -r requirements/main.in
 dnspython==2.8.0 \
     --hash=sha256:01d9bbc4a2d76bf0db7c1f729812ded6d912bd318d3b1cf81d30c0f845dbf3af \
@@ -1966,9 +1966,9 @@ python-slugify==8.0.4 \
     --hash=sha256:276540b79961052b66b7d116620b36518847f52d5fd9e3a70164fc8c50faa6b8 \
     --hash=sha256:59202371d1d05b54a9e7720c5e038f928f45daaffe41dd10822f3907b937c856
     # via -r requirements/main.in
-pytz==2026.1.post1 \
-    --hash=sha256:3378dde6a0c3d26719182142c56e60c7f9af7e968076f31aae569d72a0358ee1 \
-    --hash=sha256:f2fd16142fda348286a75e1a524be810bb05d444e5a081f37f7affc635035f7a
+pytz==2026.2 \
+    --hash=sha256:04156e608bee23d3792fd45c94ae47fae1036688e75032eea2e3bf0323d1f126 \
+    --hash=sha256:0e60b47b29f21574376f218fe21abc009894a2321ea16c6754f3cad6eb7cdd6a
     # via -r requirements/main.in
 pyyaml==6.0.3 \
     --hash=sha256:00c4bdeba853cc34e7dd471f16b4114f4162dc03e6b7afcc2128711f0eca823c \
@@ -2261,9 +2261,9 @@ securesystemslib==1.3.1 \
     --hash=sha256:2e5414bbdde33155a91805b295cbedc4ae3f12b48dccc63e1089093537f43c81 \
     --hash=sha256:ca915f4b88209bb5450ac05426b859d74b7cd1421cafcf73b8dd3418a0b17486
     # via tuf
-sentry-sdk==2.58.0 \
-    --hash=sha256:688d1c704ddecf382ea3326f21a67453d4caa95592d722b7c780a36a9d23109e \
-    --hash=sha256:c1144d947352d54e5b7daa63596d9f848adf684989c06c4f5a659f0c85a18f6f
+sentry-sdk==2.59.0 \
+    --hash=sha256:abcf65ee9a9d9cdebf9ad369782408ecca9c1c792686ef06ba34f5ab233527fe \
+    --hash=sha256:cd265808ef8bf3f3edf69b527c0a0b2b6b1322762679e55b8987db2e9584aec1
     # via -r requirements/main.in
 sigstore==4.2.0 \
     --hash=sha256:bdbb49a42fd5f0ea6765919adb42ccee7254c482330764d0842eec4e11ad78d7 \
@@ -2433,8 +2433,8 @@ ua-parser==1.0.2 \
     --hash=sha256:0f8e6d0484af2a9ff804bba5a4fe696e87c028eaba98ad9a7dfae873fef7788a \
     --hash=sha256:bab404ad42fb37f943107da2f6003ffc79724d11cc95076a7a539513371779da
     # via -r requirements/main.in
-ua-parser-builtins==202603 \
-    --hash=sha256:67478397a68fac1a98fd0a31c416ea7c65a719141fc151d0211316f2cd337cc9
+ua-parser-builtins==202605 \
+    --hash=sha256:a86976baa4b7c69a54269fe54091e3f0c7666f15a0f893855ff907a3bb6d878c
     # via ua-parser
 urllib3==2.6.3 \
     --hash=sha256:1b62b6884944a57dbe321509ab94fd4d3b307075e0c2eae991ac71ee15ad38ed \
@@ -2460,9 +2460,9 @@ vine==5.1.0 \
     #   amqp
     #   celery
     #   kombu
-wcwidth==0.6.0 \
-    --hash=sha256:1a3a1e510b553315f8e146c54764f4fb6264ffad731b3d78088cdb1478ffbdad \
-    --hash=sha256:cdc4e4262d6ef9a1a57e018384cbeb1208d8abbc64176027e2c2455c81313159
+wcwidth==0.7.0 \
+    --hash=sha256:5d69154c429a82910e241c738cd0e2976fac8a2dd47a1a805f4afed1c0f136f2 \
+    --hash=sha256:90e3a7ea092341c44b99562e75d09e4d5160fe7a3974c6fb842a101a95e7eed0
     # via prompt-toolkit
 webauthn==2.7.1 \
     --hash=sha256:2a1ebbfffc4a83e31d3db5d69113944bc49d05fae77770c2d4e388386cb9656e \
@@ -2580,9 +2580,9 @@ wrapt==2.1.2 \
     --hash=sha256:ff2aad9c4cda28a8f0653fc2d487596458c2a3f475e56ba02909e950a9efa6a9 \
     --hash=sha256:ff95d4264e55839be37bafe1536db2ab2de19da6b65f9244f01f332b5286cfbf
     # via deprecated
-wtforms[email]==3.2.1 \
-    --hash=sha256:583bad77ba1dd7286463f21e11aa3043ca4869d03575921d1a1698d0715e0fd4 \
-    --hash=sha256:df3e6b70f3192e92623128123ec8dca3067df9cfadd43d59681e210cfb8d4682
+wtforms[email]==3.2.2 \
+    --hash=sha256:72b90d5d921bd3119252069cf0301e9c13915f9e52792652bc91c5dda4b79e56 \
+    --hash=sha256:7b00c73f8670f35d4edb0293dcd81b980528bee72fd662b182aaba27ae570b93
     # via
     #   -r requirements/main.in
     #   wtforms
