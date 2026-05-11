@@ -75,7 +75,7 @@ ua-parser
 urllib3
 webauthn
 whitenoise
-WTForms[email]>=2.0.0
+WTForms[email]>=3.2.2
 yara-x
 zope.sqlalchemy
 zxcvbn
