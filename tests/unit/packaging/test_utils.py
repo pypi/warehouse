@@ -12,7 +12,69 @@ from warehouse.packaging.utils import (
     render_simple_detail,
 )
 
-from ...common.db.packaging import FileFactory, ProjectFactory, ReleaseFactory
+from ...common.db.packaging import (
+    FileEventFactory,
+    FileFactory,
+    ProjectFactory,
+    ReleaseFactory,
+)
+
+
+def test_simple_detail_uploaded_via_none(db_request):
+    project = ProjectFactory.create()
+    release = ReleaseFactory.create(project=project, version="1.0")
+    FileFactory.create(release=release, uploaded_via=None)
+
+    db_request.route_url = lambda *a, **kw: "the-url"
+    result = _simple_detail(project, db_request)
+
+    assert result["files"][0]["_uploaded_via"] is None
+    assert result["files"][0]["_trusted_publishing"] is False
+
+
+def test_simple_detail_uploaded_via_set(db_request):
+    project = ProjectFactory.create()
+    release = ReleaseFactory.create(project=project, version="1.0")
+    FileFactory.create(release=release, uploaded_via="twine/6.2.0 CPython/3.14.4")
+
+    db_request.route_url = lambda *a, **kw: "the-url"
+    result = _simple_detail(project, db_request)
+
+    assert result["files"][0]["_uploaded_via"] == "twine/6.2.0 CPython/3.14.4"
+    assert result["files"][0]["_trusted_publishing"] is False
+
+
+def test_simple_detail_trusted_publishing_via_publisher_url(db_request):
+    project = ProjectFactory.create()
+    release = ReleaseFactory.create(project=project, version="1.0")
+    f = FileFactory.create(release=release, uploaded_via="twine/6.2.0 CPython/3.14.4")
+    FileEventFactory.create(
+        source=f,
+        tag="fake:event",
+        additional={"publisher_url": "https://github.com/actions/upload"},
+    )
+
+    db_request.route_url = lambda *a, **kw: "the-url"
+    result = _simple_detail(project, db_request)
+
+    assert result["files"][0]["_uploaded_via"] == "twine/6.2.0 CPython/3.14.4"
+    assert result["files"][0]["_trusted_publishing"] is True
+
+
+def test_simple_detail_trusted_publishing_via_flag(db_request):
+    project = ProjectFactory.create()
+    release = ReleaseFactory.create(project=project, version="1.0")
+    f = FileFactory.create(release=release)
+    FileEventFactory.create(
+        source=f,
+        tag="fake:event",
+        additional={"uploaded_via_trusted_publisher": True, "publisher_url": None},
+    )
+
+    db_request.route_url = lambda *a, **kw: "the-url"
+    result = _simple_detail(project, db_request)
+
+    assert result["files"][0]["_trusted_publishing"] is True
 
 
 def test_simple_detail_empty_string(db_request):
