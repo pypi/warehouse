@@ -37,7 +37,9 @@ from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import (
     archive_project,
     clear_project_quarantine,
+    clear_release_quarantine,
     confirm_project,
+    quarantine_release,
     remove_project,
     unarchive_project,
 )
@@ -461,6 +463,44 @@ def remove_from_quarantine(project, request):
 
     return HTTPSeeOther(
         request.route_path("admin.project.detail", project_name=project.normalized_name)
+    )
+
+
+@view_config(
+    route_name="admin.project.release.quarantine",
+    permission=Permissions.AdminProjectsWrite,
+    request_method="POST",
+    uses_session=True,
+    require_methods=False,
+)
+def release_quarantine(release, request):
+    quarantine_release(release, request)
+
+    return HTTPSeeOther(
+        request.route_path(
+            "admin.project.release",
+            project_name=release.project.normalized_name,
+            version=release.version,
+        )
+    )
+
+
+@view_config(
+    route_name="admin.project.release.remove_from_quarantine",
+    permission=Permissions.AdminProjectsWrite,
+    request_method="POST",
+    uses_session=True,
+    require_methods=False,
+)
+def release_remove_from_quarantine(release, request):
+    clear_release_quarantine(release, request)
+
+    return HTTPSeeOther(
+        request.route_path(
+            "admin.project.release",
+            project_name=release.project.normalized_name,
+            version=release.version,
+        )
     )
 
 

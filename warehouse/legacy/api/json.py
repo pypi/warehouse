@@ -53,6 +53,10 @@ def _json_data(request, project, release, *, all_releases):
         )
         .outerjoin(File)
         .filter(Release.project == project)
+        # Exclude releases in quarantine.
+        .filter(
+            Release.lifecycle_status.is_distinct_from(LifecycleStatus.QuarantineEnter)
+        )
     )
 
     # If we're not looking for all_releases, then we'll filter this further
@@ -213,6 +217,12 @@ def latest_release_factory(request):
                     LifecycleStatus.QuarantineEnter
                 )
             )
+            # Exclude releases in quarantine.
+            .filter(
+                Release.lifecycle_status.is_distinct_from(
+                    LifecycleStatus.QuarantineEnter
+                )
+            )
             .order_by(
                 Release.yanked.asc(),
                 Release.is_prerelease.nullslast(),
@@ -297,6 +307,10 @@ def release_factory(request):
         # Exclude projects in quarantine.
         .filter(
             Project.lifecycle_status.is_distinct_from(LifecycleStatus.QuarantineEnter)
+        )
+        # Exclude releases in quarantine.
+        .filter(
+            Release.lifecycle_status.is_distinct_from(LifecycleStatus.QuarantineEnter)
         )
     )
 

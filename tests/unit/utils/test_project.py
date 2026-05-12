@@ -18,9 +18,11 @@ from warehouse.packaging.models import (
 from warehouse.utils.project import (
     PROJECT_NAME_RE,
     clear_project_quarantine,
+    clear_release_quarantine,
     confirm_project,
     destroy_docs,
     quarantine_project,
+    quarantine_release,
     remove_documentation,
     remove_project,
 )
@@ -142,6 +144,63 @@ def test_clear_project_quarantine(db_request, flash):
         .filter(Project.name == project.name)
         .filter(Project.lifecycle_status == LifecycleStatus.QuarantineExit)
         .first()
+    )
+    assert bool(db_request.session.flash.calls) == flash
+
+
+@pytest.mark.parametrize("flash", [True, False])
+def test_quarantine_release(db_request, flash):
+    user = UserFactory.create()
+    project = ProjectFactory.create(name="foo")
+    release = ReleaseFactory.create(project=project, version="1.0")
+
+    db_request.user = user
+    db_request.session = stub(flash=call_recorder(lambda *a, **kw: stub()))
+
+    quarantine_release(release, db_request, flash=flash)
+
+    refreshed = db_request.db.query(Release).filter(Release.id == release.id).one()
+    assert refreshed.lifecycle_status == LifecycleStatus.QuarantineEnter
+    assert refreshed.lifecycle_status_note == f"Quarantined by {user.username}."
+
+    # A journal entry should be recorded for the release-level action.
+    assert (
+        db_request.db.query(JournalEntry)
+        .filter(JournalEntry.name == project.name)
+        .filter(JournalEntry.version == release.version)
+        .filter(JournalEntry.action == "release quarantined")
+        .count()
+        == 1
+    )
+    # The project itself is not affected.
+    assert refreshed.project.lifecycle_status is None
+    assert bool(db_request.session.flash.calls) == flash
+
+
+@pytest.mark.parametrize("flash", [True, False])
+def test_clear_release_quarantine(db_request, flash):
+    user = UserFactory.create()
+    project = ProjectFactory.create(name="foo")
+    release = ReleaseFactory.create(
+        project=project,
+        version="1.0",
+        lifecycle_status=LifecycleStatus.QuarantineEnter,
+    )
+
+    db_request.user = user
+    db_request.session = stub(flash=call_recorder(lambda *a, **kw: stub()))
+
+    clear_release_quarantine(release, db_request, flash=flash)
+
+    refreshed = db_request.db.query(Release).filter(Release.id == release.id).one()
+    assert refreshed.lifecycle_status == LifecycleStatus.QuarantineExit
+    assert (
+        db_request.db.query(JournalEntry)
+        .filter(JournalEntry.name == project.name)
+        .filter(JournalEntry.version == release.version)
+        .filter(JournalEntry.action == "release quarantine cleared")
+        .count()
+        == 1
     )
     assert bool(db_request.session.flash.calls) == flash
 
