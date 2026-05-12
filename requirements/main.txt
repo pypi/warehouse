@@ -620,9 +620,9 @@ deprecated==1.3.1 \
     --hash=sha256:597bfef186b6f60181535a29fbe44865ce137a5079f295b479886c82729d5f3f \
     --hash=sha256:b1b50e0ff0c1fddaa5708a2c6b0a6588bb09b892825ab2b214ac9ea9d92a5223
     # via limits
-disposable-email-domains==0.0.179 \
-    --hash=sha256:63cad9b34ed84a286bbfba0c1de80ad79f0f5f668fcc7a6309665224009a4af3 \
-    --hash=sha256:66991440d49f8019dc80a1bc3b1746e073e00b921ce02096334738623aa616f0
+disposable-email-domains==0.0.180 \
+    --hash=sha256:e9b753e449a1197d28b9a2772e97073f22d580cc74173a8602cf0a122a69b36a \
+    --hash=sha256:ff9bf754f1155ffa693a0ce346b786eef26d351f3d80982cb703a0c9b7da3bbd
     # via -r requirements/main.in
 dnspython==2.8.0 \
     --hash=sha256:01d9bbc4a2d76bf0db7c1f729812ded6d912bd318d3b1cf81d30c0f845dbf3af \
@@ -1891,9 +1891,9 @@ pynacl==1.6.2 \
     --hash=sha256:d29bfe37e20e015a7d8b23cfc8bd6aa7909c92a1b8f41ee416bbb3e79ef182b2 \
     --hash=sha256:fe9847ca47d287af41e82be1dd5e23023d3c31a951da134121ab02e42ac218c9
     # via pymacaroons
-pyopenssl==26.1.0 \
-    --hash=sha256:115563879b2c8ccb207975705d3e491434d8c9d7c79667c902ecbf5f3bbd2ece \
-    --hash=sha256:737f0a2275c5bc54f3b02137687e1a765931fb3949b9a92a825e4d33b9eec08b
+pyopenssl==26.2.0 \
+    --hash=sha256:4f9d971bc5298b8bc1fab282803da04bf000c755d4ad9d99b52de2569ca19a70 \
+    --hash=sha256:8c6fcecd1183a7fc897548dfe388b0cdb7f37e018200d8409cf33959dbe35387
     # via
     #   sigstore
     #   webauthn
@@ -2063,9 +2063,9 @@ referencing==0.36.2 \
     #   jsonschema
     #   jsonschema-path
     #   jsonschema-specifications
-repoze-sendmail==4.4.1 \
-    --hash=sha256:7a8ea37914a5d38bad38052a83eac1d867b171ff4cc8b4d4994e892c05b0d424 \
-    --hash=sha256:f1396893d3aa43502624e88941a441233c06679ae50b1966ffbfccba05da6347
+repoze-sendmail==4.5 \
+    --hash=sha256:ce44bb4ba6a85c009002a225ec6b954c43c78cbb8c1344fafbcc7e8aa2cbcc98 \
+    --hash=sha256:f9fc0ae01d70a9c596080fddc84aa959352ab1ec42fcd5811b33aa54b1725706
     # via pyramid-mailer
 requests==2.33.1 \
     --hash=sha256:18817f8c57c6263968bc123d237e3b8b08ac046f5456bd1e307ee8f4250d3517 \
@@ -2388,7 +2388,6 @@ transaction==5.1 \
     #   -r requirements/main.in
     #   pyramid-mailer
     #   pyramid-tm
-    #   repoze-sendmail
     #   zope-sqlalchemy
 translationstring==1.4 \
     --hash=sha256:5f4dc4d939573db851c8d840551e1a0fb27b946afe3b95aafc22577eed2d6262 \
@@ -2642,7 +2641,6 @@ zope-interface==8.4 \
     #   pyramid
     #   pyramid-retry
     #   pyramid-services
-    #   repoze-sendmail
     #   transaction
     #   wired
     #   zope-sqlalchemy
@@ -2661,5 +2659,4 @@ setuptools==80.10.2 \
     --hash=sha256:95b30ddfb717250edb492926c92b5221f7ef3fbcc2b07579bcd4a27da21d0173
     # via
     #   pyramid
-    #   repoze-sendmail
     #   zope-deprecation
