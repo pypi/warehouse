@@ -526,6 +526,40 @@ class TestSimpleDetail:
         ("content_type", "renderer_override"),
         CONTENT_TYPE_PARAMS,
     )
+    def test_with_quarantined_release_omitted(
+        self, db_request, content_type, renderer_override
+    ):
+        """A release with lifecycle_status=quarantine-enter is excluded from
+        the simple detail, but other releases of the same project remain."""
+        db_request.accept = content_type
+        project = ProjectFactory.create()
+        good_release = ReleaseFactory.create(project=project, version="1.0")
+        quarantined_release = ReleaseFactory.create(
+            project=project,
+            version="2.0",
+            lifecycle_status="quarantine-enter",
+        )
+        good_file = FileFactory.create(
+            release=good_release, filename=f"{project.name}-1.0.tar.gz"
+        )
+        FileFactory.create(
+            release=quarantined_release,
+            filename=f"{project.name}-2.0.tar.gz",
+        )
+
+        db_request.matchdict["name"] = project.normalized_name
+        db_request.route_url = lambda *a, **kw: f"/file/{good_file.filename}"
+
+        result = simple.simple_detail(project, db_request)
+
+        assert result["versions"] == ["1.0"]
+        assert len(result["files"]) == 1
+        assert result["files"][0]["filename"] == good_file.filename
+
+    @pytest.mark.parametrize(
+        ("content_type", "renderer_override"),
+        CONTENT_TYPE_PARAMS,
+    )
     def test_with_quarantine_exit_project(
         self, db_request, content_type, renderer_override
     ):
