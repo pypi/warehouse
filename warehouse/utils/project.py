@@ -13,6 +13,7 @@ from warehouse.packaging.models import (
     LifecycleStatus,
     ProhibitedProjectName,
     Project,
+    Release,
 )
 from warehouse.tasks import task
 
@@ -160,6 +161,78 @@ def clear_project_quarantine(project: Project, request, flash=True) -> None:
         request.session.flash(
             f"Project {project.name} quarantine cleared.\n"
             "Please update related Help Scout conversations.",
+            queue="success",
+        )
+
+
+def quarantine_release(release: Release, request, flash: bool = True) -> None:
+    """
+    Quarantine a single release. Reversible action.
+
+    Mirrors :func:`quarantine_project` but scoped to a specific release. The
+    parent project is unaffected so other releases remain installable.
+    """
+    user_service = request.find_service(IUserService)
+    actor = request.user or user_service.get_admin_user()
+
+    release.lifecycle_status = LifecycleStatus.QuarantineEnter
+    release.lifecycle_status_note = f"Quarantined by {actor.username}."
+
+    release.project.record_event(
+        tag=EventTag.Project.ReleaseQuarantineEnter,
+        request=request,
+        additional={
+            "submitted_by": actor.username,
+            "canonical_version": release.canonical_version,
+            "version": release.version,
+        },
+    )
+
+    request.db.add(
+        JournalEntry(
+            name=release.project.name,
+            version=release.version,
+            action="release quarantined",
+            submitted_by=actor,
+        )
+    )
+
+    if flash:
+        request.session.flash(
+            f"Release {release.version} of {release.project.name} quarantined.",
+            queue="success",
+        )
+
+
+def clear_release_quarantine(release: Release, request, flash: bool = True) -> None:
+    """
+    Remove a release from quarantine.
+    """
+    release.lifecycle_status = LifecycleStatus.QuarantineExit
+    release.lifecycle_status_note = f"Quarantine cleared by {request.user.username}."
+
+    release.project.record_event(
+        tag=EventTag.Project.ReleaseQuarantineExit,
+        request=request,
+        additional={
+            "submitted_by": request.user.username,
+            "canonical_version": release.canonical_version,
+            "version": release.version,
+        },
+    )
+
+    request.db.add(
+        JournalEntry(
+            name=release.project.name,
+            version=release.version,
+            action="release quarantine cleared",
+            submitted_by=request.user,
+        )
+    )
+
+    if flash:
+        request.session.flash(
+            f"Release {release.version} of {release.project.name} quarantine cleared.",
             queue="success",
         )
 

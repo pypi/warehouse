@@ -317,6 +317,20 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call(
+            "admin.project.release.quarantine",
+            "/admin/projects/{project_name}/release/{version}/quarantine/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}/{version}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.project.release.remove_from_quarantine",
+            "/admin/projects/{project_name}/release/{version}/remove_from_quarantine/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}/{version}",
+            domain=warehouse,
+        ),
+        pretend.call(
             "admin.project.remove_from_quarantine",
             "/admin/projects/{project_name}/remove_from_quarantine/",
             factory="warehouse.packaging.models:ProjectFactory",

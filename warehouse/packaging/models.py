@@ -655,6 +655,7 @@ class Release(HasObservations, db.Model):
             Index("release_project_created_idx", cls.project_id, cls.created.desc()),
             Index("release_version_idx", cls.version),
             Index("release_canonical_version_idx", cls.canonical_version),
+            Index("releases_lifecycle_status_idx", cls.lifecycle_status),
             UniqueConstraint("project_id", "version"),
         )
 
@@ -702,6 +703,17 @@ class Release(HasObservations, db.Model):
     requires_python: Mapped[str | None] = mapped_column(Text)
     created: Mapped[datetime_now] = mapped_column()
     published: Mapped[bool_true] = mapped_column()
+
+    lifecycle_status: Mapped[LifecycleStatus | None] = mapped_column(
+        comment="Lifecycle status can change release visibility and access"
+    )
+    lifecycle_status_changed: Mapped[datetime_now | None] = mapped_column(
+        onupdate=func.now(),
+        comment="When the lifecycle status was last changed",
+    )
+    lifecycle_status_note: Mapped[str | None] = mapped_column(
+        comment="Note about the lifecycle status"
+    )
 
     description_id: Mapped[UUID] = mapped_column(
         ForeignKey("release_descriptions.id", onupdate="CASCADE", ondelete="CASCADE"),
