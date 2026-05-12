@@ -365,6 +365,49 @@ class TestProjectQuarantine:
             )
         ]
 
+    def test_release_quarantine(self, db_request):
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/release/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+
+        result = views.release_quarantine(release, db_request)
+
+        assert result.status_code == 303
+        assert release.lifecycle_status == LifecycleStatus.QuarantineEnter
+        assert db_request.route_path.calls == [
+            pretend.call(
+                "admin.project.release",
+                project_name=project.normalized_name,
+                version=release.version,
+            )
+        ]
+
+    def test_release_remove_from_quarantine(self, db_request):
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(
+            project=project,
+            version="1.0",
+            lifecycle_status=LifecycleStatus.QuarantineEnter,
+        )
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/release/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+
+        result = views.release_remove_from_quarantine(release, db_request)
+
+        assert result.status_code == 303
+        assert release.lifecycle_status == LifecycleStatus.QuarantineExit
+
 
 class TestProjectReleasesList:
     def test_no_query(self, db_request):
