@@ -19,7 +19,14 @@ from warehouse.authnz import Permissions
 from warehouse.cache.origin import origin_cache
 from warehouse.observations.models import ObservationKind
 from warehouse.packaging.forms import SubmitMalwareObservationForm
-from warehouse.packaging.models import Description, File, Project, Release, Role
+from warehouse.packaging.models import (
+    Description,
+    File,
+    LifecycleStatus,
+    Project,
+    Release,
+    Role,
+)
 from warehouse.utils import wheel
 
 
@@ -172,6 +179,9 @@ def project_detail(project, request):
             request.db.query(Release)
             .filter(Release.project == project)
             .order_by(
+                Release.lifecycle_status.is_not_distinct_from(
+                    LifecycleStatus.QuarantineEnter
+                ),
                 Release.yanked,
                 Release.is_prerelease.nullslast(),
                 Release._pypi_ordering.desc(),
