@@ -102,6 +102,7 @@ from warehouse.packaging.models import (
     AlternateRepository,
     File,
     JournalEntry,
+    LifecycleStatus,
     Project,
     Release,
     Role,
@@ -1574,12 +1575,27 @@ class ManageProjectRelease:
             "files": self.release.files.all(),
         }
 
+    def _quarantined_redirect(self):
+        self.request.session.flash(
+            self.request._("This release is in quarantine and cannot be modified."),
+            queue="error",
+        )
+        return HTTPSeeOther(
+            self.request.route_path(
+                "manage.project.release",
+                project_name=self.release.project.name,
+                version=self.release.version,
+            )
+        )
+
     @view_config(
         request_method="POST",
         request_param=["confirm_yank_version"],
         require_reauth=True,
     )
     def yank_project_release(self):
+        if self.release.lifecycle_status == LifecycleStatus.QuarantineEnter:
+            return self._quarantined_redirect()
         version = self.request.POST.get("confirm_yank_version")
         yanked_reason = self.request.POST.get("yanked_reason", "")
 
@@ -1667,6 +1683,8 @@ class ManageProjectRelease:
         require_reauth=True,
     )
     def unyank_project_release(self):
+        if self.release.lifecycle_status == LifecycleStatus.QuarantineEnter:
+            return self._quarantined_redirect()
         version = self.request.POST.get("confirm_unyank_version")
         if not version:
             self.request.session.flash(
@@ -1752,6 +1770,8 @@ class ManageProjectRelease:
         require_reauth=True,
     )
     def delete_project_release(self):
+        if self.release.lifecycle_status == LifecycleStatus.QuarantineEnter:
+            return self._quarantined_redirect()
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_DELETION):
             self.request.session.flash(
                 self.request._(
@@ -1851,6 +1871,9 @@ class ManageProjectRelease:
         require_reauth=True,
     )
     def delete_project_release_file(self):
+        if self.release.lifecycle_status == LifecycleStatus.QuarantineEnter:
+            return self._quarantined_redirect()
+
         def _error(message):
             self.request.session.flash(message, queue="error")
             return HTTPSeeOther(
