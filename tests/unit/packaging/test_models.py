@@ -16,6 +16,7 @@ from warehouse.oidc.models import GitHubPublisher
 from warehouse.organizations.models import OrganizationType, TeamProjectRoleType
 from warehouse.packaging.models import (
     File,
+    LifecycleStatus,
     Project,
     ProjectFactory,
     ProjectMacaroonWarningAssociation,
@@ -528,6 +529,29 @@ class TestProject:
         assert len(project.releases) == len(
             [active_release0, active_release1, yanked_release0]
         )
+
+    def test_latest_version_excludes_quarantined(self, db_session):
+        """Quarantined releases are skipped when computing latest_version."""
+        project = DBProjectFactory.create()
+        DBReleaseFactory.create(
+            project=project,
+            version="2.0",
+            lifecycle_status=LifecycleStatus.QuarantineEnter,
+        )
+        DBReleaseFactory.create(project=project, version="1.0")
+
+        assert project.latest_version.version == "1.0"
+
+    def test_latest_version_none_when_all_quarantined(self, db_session):
+        """latest_version is None when every release is quarantined."""
+        project = DBProjectFactory.create()
+        DBReleaseFactory.create(
+            project=project,
+            version="1.0",
+            lifecycle_status=LifecycleStatus.QuarantineEnter,
+        )
+
+        assert project.latest_version is None
 
 
 class TestDependency:

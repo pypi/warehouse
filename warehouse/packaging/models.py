@@ -484,7 +484,13 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             session.query(
                 Release.version, Release.created, Release.is_prerelease, Release.summary
             )
-            .filter(Release.project == self, Release.yanked.is_(False))
+            .filter(
+                Release.project == self,
+                Release.yanked.is_(False),
+                Release.lifecycle_status.is_distinct_from(
+                    LifecycleStatus.QuarantineEnter
+                ),
+            )
             .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
             .first()
         )
