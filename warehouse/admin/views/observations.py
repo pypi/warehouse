@@ -95,17 +95,17 @@ def _parse_datatables_params(params: Mapping[str, str]) -> _DataTablesParams:
     """Parse and validate the DataTables 1.10+ server-side query params."""
     try:
         draw = int(params.get("draw", "1"))
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         raise HTTPBadRequest("'draw' must be an integer.") from None
 
     try:
         start = max(0, int(params.get("start", "0")))
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         raise HTTPBadRequest("'start' must be an integer.") from None
 
     try:
         raw_length = int(params.get("length", str(_DEFAULT_PAGE_LENGTH)))
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         raise HTTPBadRequest("'length' must be an integer.") from None
     if raw_length == -1:
         length = _MAX_PAGE_LENGTH
@@ -126,7 +126,7 @@ def _parse_datatables_params(params: Mapping[str, str]) -> _DataTablesParams:
     if order_idx_raw is not None:
         try:
             order_idx = int(order_idx_raw)
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             raise HTTPBadRequest("'order[0][column]' must be an integer.") from None
         requested_dir = params.get("order[0][dir]", "desc")
         if requested_dir not in ("asc", "desc"):

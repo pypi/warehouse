@@ -262,7 +262,7 @@ class SessionFactory:
         # De-serialize our session data
         try:
             data = msgpack.unpackb(bdata, raw=False, use_list=True)
-        except (msgpack.exceptions.UnpackException, msgpack.exceptions.ExtraData):
+        except msgpack.exceptions.UnpackException, msgpack.exceptions.ExtraData:
             # If the session data was invalid we'll give the user a new session
             return Session()
 

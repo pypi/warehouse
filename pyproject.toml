@@ -148,7 +148,7 @@ testpaths = ["tests/"]
 
 [tool.ruff]
 cache-dir = ".cache/ruff"
-target-version = "py313"
+target-version = "py314"
 
 [tool.ruff.lint]
 # enable ALL lints by default, then opt out of ones we don't want to use so that we

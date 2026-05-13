@@ -17,5 +17,5 @@ def parse_days_param(request: Request, allowed: tuple[int, ...] = ALLOWED_DAYS) 
     try:
         days = int(request.params.get("days", DEFAULT_DAYS))
         return days if days in allowed else DEFAULT_DAYS
-    except (ValueError, TypeError):
+    except ValueError, TypeError:
         return DEFAULT_DAYS

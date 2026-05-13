@@ -204,7 +204,7 @@ def validate_record(wheel_filepath: str) -> bool:
             for fn in zfp.namelist()
             if not _zip_filename_is_dir(fn) and fn not in record_exemptions
         }
-    except (UnicodeError, KeyError, csv.Error):
+    except UnicodeError, KeyError, csv.Error:
         raise MissingWheelRecordError
     if record_entries != wheel_entries:
         record_is_missing = wheel_entries - record_entries
