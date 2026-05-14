@@ -8,7 +8,6 @@ import freezegun
 import pretend
 import pytest
 
-from psycopg.errors import UniqueViolation
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPMovedPermanently,
@@ -4858,15 +4857,133 @@ class TestManageAccountPublishingViews:
             )
         ]
 
-    def test_add_pending_oidc_publisher_uniqueviolation(self, monkeypatch, db_request):
-        """A UniqueViolation on insert means another pending publisher already
-        exists for the same (repo, owner, workflow, environment) tuple but with
-        a different project_name. Surface this conflict to the user instead of
-        silently redirecting as if the registration succeeded.
+    @pytest.mark.parametrize(
+        (
+            "view_name",
+            "publisher_name",
+            "publisher_class",
+            "make_publisher",
+            "post_body",
+        ),
+        [
+            (
+                "add_pending_github_oidc_publisher",
+                "GitHub",
+                PendingGitHubPublisher,
+                lambda user_id: PendingGitHubPublisher(
+                    project_name="some-other-project-name",
+                    repository_name="some-repository",
+                    repository_owner="some-owner",
+                    repository_owner_id="some-owner-id",
+                    workflow_filename="some-workflow-filename.yml",
+                    environment="some-environment",
+                    added_by_id=user_id,
+                ),
+                MultiDict(
+                    {
+                        "owner": "some-owner",
+                        "repository": "some-repository",
+                        "workflow_filename": "some-workflow-filename.yml",
+                        "environment": "some-environment",
+                        "project_name": "some-project-name",
+                    }
+                ),
+            ),
+            (
+                "add_pending_gitlab_oidc_publisher",
+                "GitLab",
+                PendingGitLabPublisher,
+                lambda user_id: PendingGitLabPublisher(
+                    project_name="some-other-project-name",
+                    namespace="some-owner",
+                    project="some-repository",
+                    workflow_filepath="subfolder/some-workflow-filename.yml",
+                    environment="some-environment",
+                    issuer_url="https://gitlab.com",
+                    added_by_id=user_id,
+                ),
+                MultiDict(
+                    {
+                        "namespace": "some-owner",
+                        "project": "some-repository",
+                        "workflow_filepath": "subfolder/some-workflow-filename.yml",
+                        "environment": "some-environment",
+                        "project_name": "some-project-name",
+                        "issuer_url": "https://gitlab.com",
+                    }
+                ),
+            ),
+            (
+                "add_pending_google_oidc_publisher",
+                "Google",
+                PendingGooglePublisher,
+                lambda user_id: PendingGooglePublisher(
+                    project_name="some-other-project-name",
+                    email="some-email@example.com",
+                    sub="some-sub",
+                    added_by_id=user_id,
+                ),
+                MultiDict(
+                    {
+                        "email": "some-email@example.com",
+                        "sub": "some-sub",
+                        "project_name": "some-project-name",
+                    }
+                ),
+            ),
+            (
+                "add_pending_activestate_oidc_publisher",
+                "ActiveState",
+                PendingActiveStatePublisher,
+                lambda user_id: PendingActiveStatePublisher(
+                    project_name="some-other-project-name",
+                    added_by_id=user_id,
+                    organization="some-org",
+                    activestate_project_name="some-project",
+                    actor="some-user",
+                    actor_id="some-user-id",
+                ),
+                MultiDict(
+                    {
+                        "organization": "some-org",
+                        "project": "some-project",
+                        "actor": "some-user",
+                        "project_name": "some-project-name",
+                    }
+                ),
+            ),
+        ],
+    )
+    def test_add_pending_oidc_publisher_uniqueviolation(
+        self,
+        monkeypatch,
+        db_request,
+        view_name,
+        publisher_name,
+        publisher_class,
+        make_publisher,
+        post_body,
+    ):
+        """A UniqueViolation raised by the INSERT during ``flush()`` means
+        another pending publisher already exists for the same external
+        identity tuple but with a different ``project_name``. The early
+        duplicate-check query keys on ``project_name`` so it misses that row,
+        but the DB unique constraint does not, so the insert fails.
+
+        Surface the conflict to the user instead of silently redirecting as if
+        the registration succeeded -- and crucially, roll back the now-aborted
+        transaction so the session stays usable for the rest of the request
+        (template rendering, the end-of-request commit). Regression test for
+        GH-20006.
         """
         db_request.user = UserFactory.create()
         EmailFactory(user=db_request.user, verified=True, primary=True)
-        db_request.db.add = pretend.raiser(UniqueViolation("foo", "bar", "baz"))
+        # A pending publisher with the same external identity but a *different*
+        # project_name. flush()-ing it sends the INSERT to the DB so the next
+        # conflicting insert raises a real UniqueViolation.
+        existing_publisher = make_publisher(db_request.user.id)
+        db_request.db.add(existing_publisher)
+        db_request.db.flush()
 
         db_request.registry = pretend.stub(
             settings={
@@ -4879,15 +4996,7 @@ class TestManageAccountPublishingViews:
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
-        db_request.POST = MultiDict(
-            {
-                "owner": "some-owner",
-                "repository": "some-repository",
-                "workflow_filename": "some-workflow-filename.yml",
-                "environment": "some-environment",
-                "project_name": "some-project-name",
-            }
-        )
+        db_request.POST = post_body
 
         view = views.ManageAccountPublishingViews(db_request)
 
@@ -4895,6 +5004,16 @@ class TestManageAccountPublishingViews:
             views.PendingGitHubPublisherForm,
             "_lookup_owner",
             lambda *a: {"login": "some-owner", "id": "some-owner-id"},
+        )
+        monkeypatch.setattr(
+            views.PendingActiveStatePublisherForm,
+            "_lookup_organization",
+            lambda *a: None,
+        )
+        monkeypatch.setattr(
+            views.PendingActiveStatePublisherForm,
+            "_lookup_actor",
+            lambda *a: {"user_id": "some-user-id"},
         )
 
         monkeypatch.setattr(
@@ -4904,7 +5023,7 @@ class TestManageAccountPublishingViews:
             view, "_hit_ratelimits", pretend.call_recorder(lambda: None)
         )
 
-        assert view.add_pending_github_oidc_publisher() == view.default_response
+        assert getattr(view, view_name)() == view.default_response
         assert db_request.session.flash.calls == [
             pretend.call(
                 (
@@ -4915,6 +5034,13 @@ class TestManageAccountPublishingViews:
                 queue="error",
             )
         ]
+        # The conflicting INSERT left the transaction aborted. Without an
+        # explicit rollback in the handler this query raises PendingRollbackError
+        # -- which is what surfaces to the user as a 500/503 once the template
+        # tries to render the user's existing pending publishers. The rollback
+        # also discards this request's uncommitted work, including the
+        # pre-existing publisher created above, so the count is 0.
+        assert db_request.db.query(publisher_class).count() == 0
 
     @pytest.mark.parametrize(
         ("view_name", "publisher_name", "post_body", "publisher_class"),

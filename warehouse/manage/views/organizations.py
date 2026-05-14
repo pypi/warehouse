@@ -1886,7 +1886,10 @@ class ManageOrganizationPublishingViews:
             self.request.db.add(pending_publisher)
             self.request.db.flush()  # To get the new ID  # ast-grep-ignore: db-flush
         except UniqueViolation:
-            # Double-post protection
+            # Double-post protection. The failed INSERT leaves the transaction
+            # in an aborted state, so roll back before redirecting -- otherwise
+            # the end-of-request commit blows up.
+            self.request.db.rollback()
             return HTTPSeeOther(self.request.path)
 
         # Record event on organization
