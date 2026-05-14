@@ -1,13 +1,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pretend
+import pytest
 
 from pyramid.interfaces import ISecurityPolicy
 from zope.interface.verify import verifyClass
 
 from tests.common.db.accounts import UserFactory
 from warehouse.accounts.utils import UserContext
+from warehouse.authnz import Permissions
 from warehouse.utils import security_policy
+from warehouse.utils.security_policy import AuthenticationMethod, permission_allows
 
 
 def test_principals_for():
@@ -17,6 +20,43 @@ def test_principals_for():
 
 def test_principals_for_with_none():
     assert security_policy.principals_for(pretend.stub()) == []
+
+
+class TestPermissionAllows:
+    @pytest.mark.parametrize(
+        "permission",
+        [
+            Permissions.ProjectsUpload,
+            # TODO: After danger-api sunset, move APIEcho and APIObservationsAdd
+            #       to test_macaroon_disallowed_permissions (they'll be dropped
+            #       from PERMISSION_AUTH_METHODS).
+            Permissions.APIEcho,
+            Permissions.APIObservationsAdd,
+        ],
+    )
+    def test_macaroon_allowed_permissions(self, permission):
+        assert permission_allows(permission, AuthenticationMethod.MACAROON)
+
+    @pytest.mark.parametrize(
+        "permission",
+        [
+            Permissions.AccountManage,
+            Permissions.ProjectsWrite,
+            "nonexistent",
+        ],
+    )
+    def test_macaroon_disallowed_permissions(self, permission):
+        assert not permission_allows(permission, AuthenticationMethod.MACAROON)
+
+    def test_unknown_permission_defaults_to_session_only(self):
+        assert permission_allows("nonexistent", AuthenticationMethod.SESSION)
+        assert not permission_allows("nonexistent", AuthenticationMethod.MACAROON)
+        assert not permission_allows("nonexistent", AuthenticationMethod.BASIC_AUTH)
+
+    def test_session_permission_allows_session(self):
+        assert permission_allows(
+            Permissions.AccountManage, AuthenticationMethod.SESSION
+        )
 
 
 class TestMultiSecurityPolicy:
