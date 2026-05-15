@@ -7896,7 +7896,7 @@ msgid "Newer version available (%(version)s)"
 msgstr ""
 
 #: warehouse/templates/packaging/detail.html:186
-msgid "Latest version"
+msgid "Latest release"
 msgstr ""
 
 #: warehouse/templates/packaging/detail.html:191

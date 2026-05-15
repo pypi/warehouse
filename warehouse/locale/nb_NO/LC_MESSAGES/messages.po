@@ -8963,7 +8963,7 @@ msgstr ""
 #: warehouse/templates/packaging/detail.html:186
 #, fuzzy
 #| msgid "Manage version"
-msgid "Latest version"
+msgid "Latest release"
 msgstr "Håndter versjon"
 
 #: warehouse/templates/packaging/detail.html:191
