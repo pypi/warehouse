@@ -1948,16 +1948,20 @@ class TestOrganizationProjectEmails:
             email_template_name
         )
 
+        submitter_username = "submitter"
+
         result = send_organization_project_email(
             db_request,
             self.user,
             organization_name=self.organization_name,
             project_name=self.project_name,
+            submitter_username=submitter_username,
         )
 
         assert result == {
             "organization_name": self.organization_name,
             "project_name": self.project_name,
+            "submitter": submitter_username,
         }
         subject_renderer.assert_(**result)
         body_renderer.assert_(**result)
