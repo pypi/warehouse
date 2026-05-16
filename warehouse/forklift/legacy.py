@@ -65,8 +65,10 @@ from warehouse.rate_limiting.interfaces import RateLimiterException
 from warehouse.utils import readme, scanner, zipfiles
 from warehouse.utils.release import strip_keywords
 from warehouse.utils.wheel import (
+    InvalidWheelEntryPointsError,
     InvalidWheelRecordError,
     MissingWheelRecordError,
+    validate_entrypoints,
     validate_record,
 )
 
@@ -1448,6 +1450,15 @@ def file_upload(request):
                     set(project.users),
                     project_name=project.name,
                     filename=filename,
+                )
+
+            try:
+                validate_entrypoints(temporary_filename)
+            except InvalidWheelEntryPointsError:
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    f"Wheel '{filename}' has invalid entry points defined in "
+                    "the entry_points.txt file",
                 )
 
             """

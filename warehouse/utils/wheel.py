@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import configparser
 import csv
 import os
 import re
@@ -15,6 +16,10 @@ class MissingWheelRecordError(Exception):
 
 
 class InvalidWheelRecordError(Exception):
+    """Internal exception used by this module"""
+
+
+class InvalidWheelEntryPointsError(Exception):
     """Internal exception used by this module"""
 
 
@@ -217,6 +222,67 @@ def validate_record(wheel_filepath: str) -> bool:
     return True
 
 
+# See: https://packaging.python.org/en/latest/specifications/entry-points/#data-model
+_ENTRY_POINT_NAME_RE = re.compile(r"[\w.-]+")
+
+
+def validate_entrypoints(wheel_filepath: str) -> bool:
+    """
+    Extract `entry_points.txt` from a wheel and check that it is valid.
+
+    Current validity checks include being a well-formed INI file
+    (matching the Entry Points specification's constraints) and
+    that all `console_scripts` entry points have names that do
+    not contain absolute or relative path components.
+
+    Validation errors are not currently reported via email.
+    """
+
+    # See: <https://packaging.python.org/en/latest/specifications/entry-points/#file-format>
+    class CaseSensitiveConfigParser(configparser.ConfigParser):
+        optionxform = staticmethod(str)  # type: ignore[assignment]
+
+    filename = os.path.basename(wheel_filepath)
+    name, version, _ = filename.split("-", 2)
+    entry_points_filename = f"{name}-{version}.dist-info/entry_points.txt"
+
+    # A wheel might not have an `entry_points.txt` file.
+    try:
+        with zipfile.ZipFile(wheel_filepath) as zfp:
+            entry_points_contents = zfp.read(entry_points_filename).decode()
+    except KeyError:
+        return True
+    except UnicodeError:
+        # `entry_points.txt` must be decodable as UTF-8.
+        raise InvalidWheelEntryPointsError("entry_points.txt is not decodable as UTF-8")
+
+    # The Entry Points specification requires `=` as the delimiter.
+    parser = CaseSensitiveConfigParser(delimiters=("=",))
+    try:
+        parser.read_string(entry_points_contents)
+    except configparser.Error as error:
+        raise InvalidWheelEntryPointsError(
+            f"entry_points.txt is not a valid INI file: {error!r}"
+        )
+
+    try:
+        console_scripts = parser["console_scripts"]
+    except KeyError:
+        # `entry_points.txt` might not have a `console_scripts` section.
+        return True
+
+    for ep_name in console_scripts:
+        if _ENTRY_POINT_NAME_RE.fullmatch(ep_name) is None:
+            raise InvalidWheelEntryPointsError(
+                f"Invalid entry point name {ep_name!r} in console_scripts"
+            )
+
+        # TODO: We could consider validating the entry point value as well.
+        # See: https://packaging.python.org/en/latest/specifications/entry-points/#data-model
+
+    return True
+
+
 def main(argv) -> int:  # pragma: no cover
     if len(argv) != 1:
         print("Usage: python -m warehouse.utils.wheel <wheel path>")  # noqa: T201
@@ -225,6 +291,7 @@ def main(argv) -> int:  # pragma: no cover
     wheel_filename = os.path.basename(wheel_filepath)
     try:
         validate_record(wheel_filepath)
+        validate_entrypoints(wheel_filepath)
         print(f"{wheel_filename}: OK")  # noqa: T201
         return 0
     except Exception as error:  # noqa: BLE001

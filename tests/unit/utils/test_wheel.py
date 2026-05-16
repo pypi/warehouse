@@ -1,8 +1,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import zipfile
+
+from pathlib import Path
+
 import pytest
 
 from warehouse.utils import wheel
+from warehouse.utils.wheel import InvalidWheelEntryPointsError
 
 
 @pytest.mark.parametrize(
@@ -144,3 +149,112 @@ from warehouse.utils import wheel
 )
 def test_wheel_to_pretty_tags(filename, expected_tags):
     assert wheel.filename_to_pretty_tags(filename) == expected_tags
+
+
+def _synthesize_entrypoints_wheel(ini_contents: bytes, tmp_path: Path) -> Path:
+    """
+    Synthesize a temporary (partial) wheel file containing the given
+    entry point contents.
+    """
+
+    wheel_path = tmp_path / "test-0.0.1-py3-none-any.whl"
+
+    with zipfile.ZipFile(wheel_path, "w") as zf:
+        zf.writestr(
+            "test-0.0.1.dist-info/entry_points.txt",
+            ini_contents,
+        )
+
+    return wheel_path
+
+
+@pytest.mark.parametrize(
+    ("entrypoint_name", "valid"),
+    [
+        # Valid names.
+        ("foo", True),
+        ("foo.bar", True),
+        ("foo_bar", True),
+        ("foo-bar", True),
+        ("foo123", True),
+        ("123foo", True),
+        ("_foo", True),
+        ("foo_", True),
+        ("foo.", True),
+        (".foo", True),
+        ("foo..bar", True),
+        ("_", True),
+        ("-_-", True),
+        # Invalid names.
+        ("' '", False),
+        ("''", False),
+        ("foo bar", False),
+        ("foo\tbar", False),
+        ("foo\rbar", False),
+        ("foo/bar", False),
+        ("foo\\bar", False),
+        ("foo:bar", False),
+        ("'foo:bar'", False),
+        ("C:\\foo", False),
+        ("'C:\\foo'", False),
+        ("..\\..\\foo", False),
+        ("/foo", False),
+        ("../../../../foo", False),
+    ],
+)
+def test_validate_entrypoints_names(entrypoint_name, valid, tmp_path):
+    int_contents = f"[console_scripts]\n{entrypoint_name}=foo:main\n"
+    wheel_path = _synthesize_entrypoints_wheel(int_contents.encode(), tmp_path)
+
+    if valid:
+        # Should not raise an exception.
+        wheel.validate_entrypoints(str(wheel_path))
+    else:
+        with pytest.raises(
+            InvalidWheelEntryPointsError,
+            match="Invalid entry point name",
+        ):
+            wheel.validate_entrypoints(str(wheel_path))
+
+
+@pytest.mark.parametrize(
+    ("contents", "error"),
+    [
+        # Not valid UTF-8.
+        (b"\xff\xfe\xfd", "not decodable as UTF-8"),
+        # Uses : instead of = as the delimiter.
+        (b"[console_scripts]\nfoo:main\n", "is not a valid INI file"),
+    ],
+)
+def test_validate_entrypoints_invalid_syntax(contents, error, tmp_path):
+    wheel_path = _synthesize_entrypoints_wheel(contents, tmp_path)
+    with pytest.raises(
+        InvalidWheelEntryPointsError,
+        match=error,
+    ):
+        wheel.validate_entrypoints(str(wheel_path))
+
+
+def test_validate_entrypoints_no_console_scripts(tmp_path):
+    int_contents = b"[not_console_scripts]\n/foo/ = bar:main\n"
+    wheel_path = _synthesize_entrypoints_wheel(int_contents, tmp_path)
+
+    # Should not raise an exception since there are no console scripts to validate.
+    assert wheel.validate_entrypoints(str(wheel_path)) is True
+
+
+def test_validate_entrypoints_ok(tmp_path):
+    # Example taken directly from the Entry Points specification.
+    ini_contents = """
+[console_scripts]
+foo = foomod:main
+# One which depends on extras:
+foobar = foomod:main_bar [bar,baz]
+
+# pytest plugins refer to a module, so there is no ':obj'
+[pytest11]
+nbval = nbval.plugin
+"""
+
+    wheel_path = _synthesize_entrypoints_wheel(ini_contents.encode(), tmp_path)
+    assert wheel.validate_entrypoints(str(wheel_path)) is True
