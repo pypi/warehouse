@@ -226,14 +226,25 @@ def validate_record(wheel_filepath: str) -> bool:
 _ENTRY_POINT_NAME_RE = re.compile(r"[\w.-]+")
 
 
+def _validate_section(section: configparser.SectionProxy):
+    """
+    Validate the entry point names in a single section.
+    """
+    for ep_name in section:
+        if _ENTRY_POINT_NAME_RE.fullmatch(ep_name) is None:
+            raise InvalidWheelEntryPointsError(
+                f"Invalid entry point name {ep_name!r} in {section.name!r}"
+            )
+
+
 def validate_entrypoints(wheel_filepath: str) -> bool:
     """
     Extract `entry_points.txt` from a wheel and check that it is valid.
 
     Current validity checks include being a well-formed INI file
     (matching the Entry Points specification's constraints) and
-    that all `console_scripts` entry points have names that do
-    not contain absolute or relative path components.
+    that all `console_scripts` and `gui_scripts` entry points have names
+    that do not contain absolute or relative path components.
 
     Validation errors are not currently reported via email.
     """
@@ -265,17 +276,13 @@ def validate_entrypoints(wheel_filepath: str) -> bool:
             f"entry_points.txt is not a valid INI file: {error!r}"
         )
 
-    try:
-        console_scripts = parser["console_scripts"]
-    except KeyError:
-        # `entry_points.txt` might not have a `console_scripts` section.
-        return True
-
-    for ep_name in console_scripts:
-        if _ENTRY_POINT_NAME_RE.fullmatch(ep_name) is None:
-            raise InvalidWheelEntryPointsError(
-                f"Invalid entry point name {ep_name!r} in console_scripts"
-            )
+    for section_name in ("console_scripts", "gui_scripts"):
+        try:
+            section = parser[section_name]
+        except KeyError:
+            # `entry_points.txt` might not have these sections.
+            continue
+        _validate_section(section)
 
         # TODO: We could consider validating the entry point value as well.
         # See: https://packaging.python.org/en/latest/specifications/entry-points/#data-model

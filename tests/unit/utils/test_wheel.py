@@ -168,6 +168,7 @@ def _synthesize_entrypoints_wheel(ini_contents: bytes, tmp_path: Path) -> Path:
     return wheel_path
 
 
+@pytest.mark.parametrize("section_name", ["console_scripts", "gui_scripts"])
 @pytest.mark.parametrize(
     ("entrypoint_name", "valid"),
     [
@@ -202,8 +203,8 @@ def _synthesize_entrypoints_wheel(ini_contents: bytes, tmp_path: Path) -> Path:
         ("../../../../foo", False),
     ],
 )
-def test_validate_entrypoints_names(entrypoint_name, valid, tmp_path):
-    int_contents = f"[console_scripts]\n{entrypoint_name}=foo:main\n"
+def test_validate_entrypoints_names(section_name, entrypoint_name, valid, tmp_path):
+    int_contents = f"[{section_name}]\n{entrypoint_name}=foo:main\n"
     wheel_path = _synthesize_entrypoints_wheel(int_contents.encode(), tmp_path)
 
     if valid:
