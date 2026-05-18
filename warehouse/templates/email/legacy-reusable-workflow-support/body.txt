@@ -1,0 +1,46 @@
+
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "email/_base/body.txt" %}
+
+{% set domain = request.registry.settings.get('warehouse.domain') %}
+
+{% block content %}
+  A Trusted Publisher for project {{ project_name }} ({{ request.route_url('packaging.project', name=project_name, _host=domain) }})
+  was used from a GitHub reusable workflow.
+  The reusable workflow used was: {{ job_workflow_ref }}.
+
+
+  This Trusted Publisher was configured to allow uploads originating from that reusable workflow. PyPI currently accepts this but
+  support for reusable workflows is limited due to an implementation error. In order to fix it and support all reusable workflows,
+  PyPI is phasing out this way of configuring Trusted Publishers in favor of specifying the top-level (caller) workflow.
+
+
+  This means that this Trusted Publisher will stop working in the future. We recommend removing it and replacing it with one
+  where the workflow filename matches the caller workflow instead.
+
+
+  Specifically for this upload the top-level workflow used was: {{ workflow_ref }}.
+  Therefore, the new Trusted Publisher should specify the following workflow filename: {{ workflow_ref_filename }}.
+
+
+  You can remove the old publisher and add the new one by going to the project's
+  publishing settings ({{ request.route_url('manage.project.settings.publishing', project_name=project_name, _host=domain) }}),
+  deleting the existing Trusted Publisher and creating a new one with the workflow filename set to '{{ workflow_ref_filename }}'.
+
+
+  If you have questions, you can use this (https://github.com/pypi/warehouse/issues/11096) GitHub issue,
+  or alternatively email admin@pypi.org to communicate with the PyPI administrators.
+
+{% endblock %}

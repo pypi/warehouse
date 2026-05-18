@@ -6072,6 +6072,112 @@ class TestTrustedPublisherEmails:
             ),
         ]
 
+    def test_legacy_reusable_workflow_support_email(
+        self, pyramid_request, pyramid_config, monkeypatch
+    ):
+        template_name = "legacy-reusable-workflow-support"
+        stub_user_owner = pretend.stub(
+            id="id_owner",
+            username="username_owner",
+            name="",
+            email="email@example.com",
+            primary_email=pretend.stub(email="email@example.com", verified=True),
+        )
+        subject_renderer = pyramid_config.testing_add_renderer(
+            f"email/{template_name}/subject.txt"
+        )
+        subject_renderer.string_response = "Email Subject"
+        body_renderer = pyramid_config.testing_add_renderer(
+            f"email/{template_name}/body.txt"
+        )
+        body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            f"email/{template_name}/body.html"
+        )
+        html_renderer.string_response = "<p>Email HTML Body</p>"
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        monkeypatch.setattr(email, "send_email", send_email)
+
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=stub_user_owner.id)
+                )
+            ),
+        )
+        fakepublisher = pretend.stub(
+            publisher_name="fakepublisher",
+            repository_owner="fakeowner",
+            repository_name="fakerepository",
+            environment="",
+        )
+        pyramid_request.user = stub_user_owner
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
+
+        project_name = "test_project"
+        job_workflow_ref = (
+            "fakeowner/fakerepository/.github/workflows/reusable.yml@main"
+        )
+        workflow_ref = "fakeowner/fakerepository/.github/workflows/release.yml@main"
+        workflow_ref_filename = "release.yml"
+        result = email.send_legacy_reusable_workflow_support_email(
+            pyramid_request,
+            [stub_user_owner],
+            project_name=project_name,
+            publisher=fakepublisher,
+            job_workflow_ref=job_workflow_ref,
+            workflow_ref=workflow_ref,
+            workflow_ref_filename=workflow_ref_filename,
+        )
+
+        assert result == {
+            "project_name": project_name,
+            "publisher": fakepublisher,
+            "job_workflow_ref": job_workflow_ref,
+            "workflow_ref": workflow_ref,
+            "workflow_ref_filename": workflow_ref_filename,
+        }
+        subject_renderer.assert_()
+        body_renderer.assert_()
+        html_renderer.assert_(
+            project_name=project_name,
+            publisher=fakepublisher,
+            job_workflow_ref=job_workflow_ref,
+            workflow_ref=workflow_ref,
+            workflow_ref_filename=workflow_ref_filename,
+        )
+        assert pyramid_request.task.calls == [
+            pretend.call(send_email),
+        ]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{stub_user_owner.username} <{stub_user_owner.email}>",
+                {
+                    "sender": None,
+                    "subject": "Email Subject",
+                    "body_text": "Email Body",
+                    "body_html": (
+                        "<html>\n<head></head>\n"
+                        "<body><p>Email HTML Body</p></body>\n</html>\n"
+                    ),
+                },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_user_owner.id,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": stub_user_owner.email,
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
+            ),
+        ]
+
     def test_wheel_record_mismatch_email(
         self,
         pyramid_request,
