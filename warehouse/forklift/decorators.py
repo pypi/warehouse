@@ -2,10 +2,103 @@
 
 import cgi
 
-from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden
+from pyramid.httpexceptions import HTTPForbidden
 
 from warehouse.admin.flags import AdminFlagValue
-from warehouse.forklift.utils import _exc_with_message
+from warehouse.forklift.errors import ForkliftError
+
+
+class InvalidTupleFieldError(
+    ForkliftError,
+    message="{field}: Should not be a tuple.",
+    tags={"reason:field-is-tuple", "field:{field}"},
+):
+    pass
+
+
+class NoFileUploadError(
+    ForkliftError,
+    message="Upload payload does not have a file.",
+    tags={"reason:no-file"},
+):
+    pass
+
+
+class InvalidContentTypeError(
+    ForkliftError,
+    message="Invalid distribution file.",
+    tags={"reason:invalid-content-type"},
+):
+    pass
+
+
+class ReadOnlyError(
+    ForkliftError,
+    error_type=HTTPForbidden,
+    message="Read-only mode: Uploads are temporarily disabled.",
+    tags={"reason:read-only"},
+):
+    pass
+
+
+class UploadsDisabledError(
+    ForkliftError,
+    error_type=HTTPForbidden,
+    message="New uploads are temporarily disabled.",
+    help_anchor="admin-intervention",
+    tags={"reason:uploads-disabled"},
+):
+    pass
+
+
+class MissingIdentityError(
+    ForkliftError,
+    error_type=HTTPForbidden,
+    message="Invalid or non-existent authentication information.",
+    help_anchor="invalid-auth",
+    tags={"reason:no-identity"},
+):
+    pass
+
+
+def upload_metrics(wrapped):
+
+    def wrapper(context, request):
+        # We'll manually pull this out of the request because we don't want to invoke
+        # the forms machinery or anything. This may end up meaning we get an invalid
+        # value, but that's OK it's just the metrics tagging so not the end of the
+        # world.
+        #
+        # NOTE: We'll only use these tags for cases where we can't expect the properly
+        #       validated value to have already been included.
+        tags = {
+            f"{k}:{v}" for (k, v) in [("filetype", request.POST.get("filetype"))] if v
+        }
+
+        # Log an attempt to upload
+        request.metrics.increment("warehouse.upload.attempt", tags=tags)
+
+        try:
+            response = wrapped(context, request)
+        except ForkliftError as exc:
+            # We've got an error that we know how to get the tags out of it, so we'll
+            # increment a failure with those tags.
+            request.metrics.increment("warehouse.upload.failed", tags=exc.tags)
+            raise
+        except Exception:
+            # If we get any other kind of exception, then we'll mark a failed
+            # upload as well, but we don't know what the error type is.
+            request.metrics.increment(
+                "warehouse.upload.failed", tags=tags | {"reason:unknown-error"}
+            )
+            raise
+        else:
+            # Log a successful upload
+            request.metrics.increment("warehouse.upload.ok", tags=tags)
+
+        return response
+
+    return wrapper
 
 
 def sanitize(wrapped):
@@ -42,13 +135,17 @@ def sanitize(wrapped):
         for field in set(request.POST) - {"content", "gpg_signature"}:
             values = request.POST.getall(field)
             if any(isinstance(value, cgi.FieldStorage) for value in values):
-                request.metrics.increment(
-                    "warehouse.upload.failed",
-                    tags=["reason:field-is-tuple", f"field:{field}"],
-                )
-                raise _exc_with_message(
-                    HTTPBadRequest, f"{field}: Should not be a tuple."
-                )
+                raise InvalidTupleFieldError(field=field)
+
+        # Ensure that we have file data in the request.
+        if "content" not in request.POST:
+            raise NoFileUploadError
+
+        # Check the content type of what is being uploaded
+        if not request.POST["content"].type or request.POST["content"].type.startswith(
+            "image/"
+        ):
+            raise InvalidContentTypeError
 
         # Otherwise, we'll just dispatch to our underlying view
         return wrapped(context, request)
@@ -66,40 +163,17 @@ def ensure_uploads_allowed(wrapped):
         # The very first thing we want to check, is whether we're currently in
         # read only mode, because if we're in read only mode nothing else matters.
         if request.flags.enabled(AdminFlagValue.READ_ONLY):
-            request.metrics.increment(
-                "warehouse.upload.failed", tags=["reason:read-only"]
-            )
-            raise _exc_with_message(
-                HTTPForbidden, "Read-only mode: Uploads are temporarily disabled."
-            )
+            raise ReadOnlyError
 
         # After that, we want to check if we're disallowing new uploads, which is
         # functionally the same as read only mode, but only for the upload endpoint.
         if request.flags.enabled(AdminFlagValue.DISALLOW_NEW_UPLOAD):
-            request.metrics.increment(
-                "warehouse.upload.failed", tags=["reason:uploads-disabled"]
-            )
-            raise _exc_with_message(
-                HTTPForbidden,
-                "New uploads are temporarily disabled. "
-                "See {projecthelp} for more information.".format(
-                    projecthelp=request.help_url(_anchor="admin-intervention")
-                ),
-            )
+            raise UploadsDisabledError
 
         # Before we do anything else, if there isn't an authenticated identity with
         # this request, then we'll go ahead and bomb out.
         if request.identity is None:
-            request.metrics.increment(
-                "warehouse.upload.failed", tags=["reason:no-identity"]
-            )
-            raise _exc_with_message(
-                HTTPForbidden,
-                "Invalid or non-existent authentication information. "
-                "See {projecthelp} for more information.".format(
-                    projecthelp=request.help_url(_anchor="invalid-auth")
-                ),
-            )
+            raise MissingIdentityError
 
         # Otherwise, we'll just dispatch to our underlying view
         return wrapped(context, request)

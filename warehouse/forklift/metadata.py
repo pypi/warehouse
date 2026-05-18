@@ -70,6 +70,10 @@ class NoMetadataError(Exception):
     pass
 
 
+class InvalidLocalVersion(InvalidMetadata):
+    pass
+
+
 def parse(
     content: bytes | None, *, form_data: MultiDict | None = None, backfill: bool = False
 ) -> Metadata:
@@ -115,7 +119,7 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
     # We don't allow the use of the "local version" field when releasing to PyPI
     if metadata.version.local:
         errors.append(
-            InvalidMetadata(
+            InvalidLocalVersion(
                 "version",
                 f"The use of local versions in '{metadata.version}' is not allowed.",
             )

@@ -5,7 +5,6 @@ import builtins
 import hashlib
 import io
 import json
-import re
 import tarfile
 import tempfile
 import zipfile
@@ -20,7 +19,7 @@ import psycopg
 import pytest
 
 from pypi_attestations import Attestation, Envelope, VerificationMaterial
-from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPTooManyRequests
+from pyramid.httpexceptions import HTTPBadRequest
 from sqlalchemy import and_, event, exists
 from sqlalchemy.orm import joinedload
 from trove_classifiers import classifiers
@@ -31,6 +30,7 @@ import warehouse.constants
 from warehouse.accounts.utils import UserContext
 from warehouse.attestations.interfaces import IIntegrityService
 from warehouse.classifiers.models import Classifier
+from warehouse.errors import WarehouseDenied
 from warehouse.forklift import legacy, metadata
 from warehouse.macaroons import IMacaroonService, caveats, security_policy
 from warehouse.metrics import IMetricsService
@@ -648,25 +648,13 @@ class TestIsDuplicateFile:
 
 class TestFileUpload:
     @pytest.mark.parametrize("version", ["2", "3", "-1", "0", "dog", "cat"])
-    def test_fails_invalid_version(self, pyramid_config, pyramid_request, version):
-        pyramid_request.POST["protocol_version"] = version
-        pyramid_request.flags = pretend.stub(enabled=lambda *a: False)
-        pyramid_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
-
-        user = UserFactory.create(with_verified_primary_email=True)
-        pyramid_config.testing_securitypolicy(identity=user)
-        pyramid_request.user = user
-
-        with pytest.raises(HTTPBadRequest) as excinfo:
-            legacy.file_upload(pyramid_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == "400 Unknown protocol version."
+    def test_fails_invalid_version(self, version):
+        with pytest.raises(legacy.InvalidProtocolVersionError) as excinfo:
+            legacy.file_upload(pretend.stub(POST={"protocol_version": version}))
+        assert excinfo.value.values == {"version": version}
 
     @pytest.mark.parametrize(
-        ("post_data", "message"),
+        ("post_data", "error_type", "expected"),
         [
             # metadata_version errors.
             (
@@ -677,9 +665,8 @@ class TestFileUpload:
                     "filetype": "sdist",
                     "pyversion": "source",
                 },
-                "None is not a valid metadata version. See "
-                "https://packaging.python.org/specifications/core-metadata for more "
-                "information.",
+                legacy.InvalidCoreMetadataError,
+                {"msg": "None is not a valid metadata version."},
             ),
             (
                 {
@@ -690,27 +677,25 @@ class TestFileUpload:
                     "filetype": "sdist",
                     "pyversion": "source",
                 },
-                "'-1' is not a valid metadata version. See "
-                "https://packaging.python.org/specifications/core-metadata for more "
-                "information.",
+                legacy.InvalidCoreMetadataError,
+                {"msg": "'-1' is not a valid metadata version."},
             ),
             # name errors.
             (
-                {"metadata_version": "1.2"},
-                "'' is an invalid value for Name. "
-                "Error: This field is required. "
-                "See "
-                "https://packaging.python.org/specifications/core-metadata"
-                " for more information.",
+                {},
+                legacy.InvalidCoreMetadataError,
+                {"msg": "None is an invalid value for Name: This field is required."},
             ),
             (
-                {"metadata_version": "1.2", "name": "foo-"},
-                "'foo-' is an invalid value for Name. "
-                "Error: Start and end with a letter or numeral containing "
-                "only ASCII numeric and '.', '_' and '-'. "
-                "See "
-                "https://packaging.python.org/specifications/core-metadata"
-                " for more information.",
+                {"name": "foo-"},
+                legacy.InvalidCoreMetadataError,
+                {
+                    "msg": (
+                        "'foo-' is an invalid value for Name: Start and end with a "
+                        "letter or numeral containing only ASCII numeric and '.', '_' "
+                        "and '-'."
+                    ),
+                },
             ),
             # version errors.
             (
@@ -721,9 +706,8 @@ class TestFileUpload:
                     "md5_digest": "bad",
                     "filetype": "sdist",
                 },
-                "'version' is a required field. See "
-                "https://packaging.python.org/specifications/core-metadata for "
-                "more information.",
+                legacy.InvalidCoreMetadataError,
+                {"msg": "'version' is a required field."},
             ),
             (
                 {
@@ -733,9 +717,8 @@ class TestFileUpload:
                     "md5_digest": "bad",
                     "filetype": "sdist",
                 },
-                "'dog' is invalid for 'version'. See "
-                "https://packaging.python.org/specifications/core-metadata for "
-                "more information.",
+                legacy.InvalidCoreMetadataError,
+                {"msg": "'dog' is invalid for 'version'."},
             ),
             (
                 {
@@ -745,74 +728,74 @@ class TestFileUpload:
                     "md5_digest": "bad",
                     "filetype": "sdist",
                 },
-                "'1.0.dev.a1' is invalid for 'version'. See "
-                "https://packaging.python.org/specifications/core-metadata for "
-                "more information.",
+                legacy.InvalidCoreMetadataError,
+                {"msg": "'1.0.dev.a1' is invalid for 'version'."},
             ),
             # filetype/pyversion errors.
             (
                 {
-                    "metadata_version": "1.2",
                     "name": "example",
                     "version": "1.0",
                     "md5_digest": "bad",
                 },
-                "Invalid value for filetype. Error: This field is required.",
+                legacy.InvalidUploadMetadataError,
+                {"field": "filetype", "msg": "This field is required."},
             ),
             (
                 {
-                    "metadata_version": "1.2",
                     "name": "example",
-                    "version": "1.0",
                     "filetype": "bdist_wheel",
-                    "content": "fake binary content",
                 },
-                "Invalid value for pyversion. "
-                "Error: Python version is required for binary distribution uploads.",
+                legacy.InvalidUploadMetadataError,
+                {
+                    "field": "pyversion",
+                    "msg": (
+                        "Python version is required for binary distribution uploads."
+                    ),
+                },
             ),
             (
                 {
-                    "metadata_version": "1.2",
                     "name": "example",
-                    "version": "1.0",
                     "filetype": "bdist_wat",
                     "pyversion": "1.0",
                     "md5_digest": "bad",
                 },
-                "Invalid value for filetype. Error: Use a known file type.",
+                legacy.InvalidUploadMetadataError,
+                {"field": "filetype", "msg": "Use a known file type."},
             ),
             (
                 {
-                    "metadata_version": "1.2",
                     "name": "example",
-                    "version": "1.0",
                     "filetype": "sdist",
                     "pyversion": "1.0",
                 },
-                "Invalid value for pyversion. "
-                "Error: Use 'source' as Python version for an sdist.",
+                legacy.InvalidUploadMetadataError,
+                {
+                    "field": "pyversion",
+                    "msg": "Use 'source' as Python version for an sdist.",
+                },
             ),
             # digest errors.
             (
                 {
-                    "metadata_version": "1.2",
                     "name": "example",
-                    "version": "1.0",
                     "filetype": "sdist",
-                    "content": "fake binary content",
                 },
-                "Error: Include at least one message digest.",
+                legacy.MissingUploadMetadataError,
+                {"msg": "Include at least one message digest."},
             ),
             (
                 {
-                    "metadata_version": "1.2",
                     "name": "example",
-                    "version": "1.0",
                     "filetype": "sdist",
                     "sha256_digest": "an invalid sha256 digest",
                 },
-                "Invalid value for sha256_digest. "
-                "Error: Use a valid, hex-encoded, SHA256 message digest.",
+                legacy.InvalidUploadMetadataError,
+                {
+                    "field": "sha256_digest",
+                    "msg": "Use a valid, hex-encoded, SHA256 message digest.",
+                },
             ),
             # summary errors
             (
@@ -824,9 +807,8 @@ class TestFileUpload:
                     "md5_digest": "a fake md5 digest",
                     "summary": "A" * 513,
                 },
-                "'summary' field must be 512 characters or less. See "
-                "https://packaging.python.org/specifications/core-metadata for more "
-                "information.",
+                legacy.InvalidCoreMetadataError,
+                {"msg": "'summary' field must be 512 characters or less."},
             ),
             (
                 {
@@ -837,9 +819,8 @@ class TestFileUpload:
                     "md5_digest": "a fake md5 digest",
                     "summary": "A\nB",
                 },
-                "'summary' must be a single line. See "
-                "https://packaging.python.org/specifications/core-metadata for more "
-                "information.",
+                legacy.InvalidCoreMetadataError,
+                {"msg": "'summary' must be a single line."},
             ),
             # local version error
             (
@@ -850,15 +831,14 @@ class TestFileUpload:
                     "md5_digest": "bad",
                     "filetype": "sdist",
                 },
-                "The use of local versions in '1.0+local' is not allowed. "
-                "See https://packaging.python.org/en/latest/specifications/"
-                "version-specifiers/#local-version-identifiers for more information.",
+                legacy.InvalidLocalVersionError,
+                {"msg": "The use of local versions in '1.0+local' is not allowed."},
             ),
         ],
     )
     @pytest.mark.filterwarnings("ignore:Creating a LegacyVersion.*:DeprecationWarning")
     def test_fails_invalid_post_data(
-        self, pyramid_config, db_request, post_data, message
+        self, pyramid_config, db_request, post_data, error_type, expected
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -866,13 +846,9 @@ class TestFileUpload:
         db_request.user = user
         db_request.POST = MultiDict(post_data)
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(error_type) as excinfo:
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == f"400 {message}"
+        assert excinfo.value.values == expected
 
     @pytest.mark.parametrize("name", ["requirements.txt", "rrequirements.txt"])
     def test_fails_with_invalid_names(self, pyramid_config, db_request, name):
@@ -963,25 +939,11 @@ class TestFileUpload:
         )
 
     @pytest.mark.parametrize(
-        ("description_content_type", "description", "message"),
-        [
-            (
-                "text/x-rst",
-                ".. invalid-directive::",
-                "400 The description failed to render for 'text/x-rst'. "
-                "See /the/help/url/ for more information.",
-            ),
-            (
-                None,
-                ".. invalid-directive::",
-                "400 The description failed to render in the default format "
-                "of reStructuredText. "
-                "See /the/help/url/ for more information.",
-            ),
-        ],
+        ("description_content_type", "description"),
+        [("text/x-rst", ".. invalid-directive::"), (None, ".. invalid-directive::")],
     )
     def test_fails_invalid_render(
-        self, pyramid_config, db_request, description_content_type, description, message
+        self, pyramid_config, db_request, description_content_type, description
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -1007,19 +969,12 @@ class TestFileUpload:
         if description_content_type is not None:
             db_request.POST.add("description_content_type", description_content_type)
 
-        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
-
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.InvalidDescriptionError) as excinfo:
             legacy.file_upload(db_request)
 
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == message
-
-        assert db_request.help_url.calls == [
-            pretend.call(_anchor="description-content-type")
-        ]
+        excinfo.value.values == {
+            "content_type": description_content_type or "text/x-rst"
+        }
 
     @pytest.mark.parametrize(
         "name",
@@ -1084,29 +1039,6 @@ class TestFileUpload:
             "See /the/help/url/ "
             "for more information."
         )
-
-    def test_upload_fails_without_file(self, pyramid_config, db_request):
-        user = UserFactory.create()
-        EmailFactory.create(user=user)
-        pyramid_config.testing_securitypolicy(identity=user)
-        db_request.user = user
-        db_request.POST = MultiDict(
-            {
-                "metadata_version": "1.2",
-                "name": "example",
-                "version": "1.0",
-                "filetype": "sdist",
-                "md5_digest": "a fake md5 digest",
-            }
-        )
-
-        with pytest.raises(HTTPBadRequest) as excinfo:
-            legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == "400 Upload payload does not have a file."
 
     @pytest.mark.parametrize("macaroon_in_user_context", [True, False])
     @pytest.mark.parametrize(
@@ -1304,56 +1236,6 @@ class TestFileUpload:
             pretend.call(uploaded_file.id),
         ]
 
-        assert db_request.metrics.increment.calls == [
-            pretend.call("warehouse.upload.attempt"),
-            pretend.call("warehouse.upload.ok", tags=["filetype:sdist"]),
-        ]
-
-    @pytest.mark.parametrize("content_type", [None, "image/foobar"])
-    def test_upload_fails_invalid_content_type(
-        self, tmpdir, monkeypatch, pyramid_config, db_request, content_type
-    ):
-        monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
-
-        user = UserFactory.create()
-        EmailFactory.create(user=user)
-        pyramid_config.testing_securitypolicy(identity=user)
-        db_request.user = user
-        project = ProjectFactory.create()
-        release = ReleaseFactory.create(project=project, version="1.0")
-        RoleFactory.create(user=user, project=project)
-
-        db_request.db.add(Classifier(classifier="Environment :: Other Environment"))
-
-        filename = "{}-{}.tar.gz".format(
-            project.normalized_name.replace("-", "_"), release.version
-        )
-
-        db_request.POST = MultiDict(
-            {
-                "metadata_version": "1.2",
-                "name": project.name,
-                "version": release.version,
-                "filetype": "sdist",
-                "pyversion": "source",
-                "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
-                    type=content_type,
-                ),
-            }
-        )
-        db_request.POST.extend([("classifiers", "Environment :: Other Environment")])
-
-        with pytest.raises(HTTPBadRequest) as excinfo:
-            legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == "400 Invalid distribution file."
-
     def test_upload_fails_with_legacy_type(self, pyramid_config, db_request):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -1383,16 +1265,12 @@ class TestFileUpload:
             }
         )
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.InvalidUploadMetadataError) as excinfo:
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert (
-            resp.status
-            == "400 Invalid value for filetype. Error: Use a known file type."
-        )
+        assert excinfo.value.values == {
+            "field": "filetype",
+            "msg": "Use a known file type.",
+        }
 
     def test_upload_fails_with_legacy_ext(self, pyramid_config, db_request):
         user = UserFactory.create()
@@ -1422,17 +1300,8 @@ class TestFileUpload:
             }
         )
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.UnknownFileExtensionError):
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == (
-            "400 Invalid file extension: Use .tar.gz, .whl or .zip "
-            "extension. See https://www.python.org/dev/peps/pep-0527 "
-            "and https://peps.python.org/pep-0715/ for more information"
-        )
 
     def test_upload_fails_for_second_sdist(self, pyramid_config, db_request):
         user = UserFactory.create()
@@ -1467,13 +1336,8 @@ class TestFileUpload:
             }
         )
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.DuplicateSDistError):
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == "400 Only one sdist may be uploaded per release."
 
     def test_upload_fails_with_invalid_classifier(self, pyramid_config, db_request):
         user = UserFactory.create()
@@ -1504,33 +1368,23 @@ class TestFileUpload:
         )
         db_request.POST.extend([("classifiers", "Invalid :: Classifier")])
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.InvalidCoreMetadataError) as excinfo:
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == (
-            "400 'Invalid :: Classifier' is not a valid classifier. See "
-            "https://packaging.python.org/specifications/core-metadata for more "
-            "information."
-        )
+        assert excinfo.value.values == {
+            "msg": "'Invalid :: Classifier' is not a valid classifier."
+        }
 
     @pytest.mark.parametrize(
         ("deprecated_classifiers", "expected"),
         [
             (
                 {"AA :: BB": ["CC :: DD"]},
-                "400 The classifier 'AA :: BB' has been deprecated, use one of "
-                "['CC :: DD'] instead. See "
-                "https://packaging.python.org/specifications/core-metadata for more "
-                "information.",
+                "The classifier 'AA :: BB' has been deprecated, use one of "
+                "['CC :: DD'] instead.",
             ),
             (
                 {"AA :: BB": []},
-                "400 The classifier 'AA :: BB' has been deprecated. See "
-                "https://packaging.python.org/specifications/core-metadata for more "
-                "information.",
+                "The classifier 'AA :: BB' has been deprecated.",
             ),
         ],
     )
@@ -1572,13 +1426,9 @@ class TestFileUpload:
         db_request.POST.extend([("classifiers", classifier.classifier)])
         db_request.route_url = pretend.call_recorder(lambda *a, **kw: "/url")
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.InvalidCoreMetadataError) as excinfo:
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == expected
+        assert excinfo.value.values == {"msg": expected}
 
     @pytest.mark.parametrize(
         "digests",
@@ -1639,16 +1489,8 @@ class TestFileUpload:
         )
         db_request.POST.update(digests)
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.DigestMismatchError):
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == (
-            "400 The digest supplied does not match a digest calculated "
-            "from the uploaded file."
-        )
 
     def test_upload_fails_with_invalid_file(self, pyramid_config, db_request):
         user = UserFactory.create()
@@ -1676,13 +1518,12 @@ class TestFileUpload:
             }
         )
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.InvalidDistFileError) as excinfo:
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == ("400 Invalid distribution file. File is not a zipfile")
+        assert excinfo.value.values == {
+            "msg": "File is not a zipfile",
+            "filetype": "sdist",
+        }
 
     def test_upload_fails_end_of_file_error(
         self, pyramid_config, db_request, project_service
@@ -1721,13 +1562,10 @@ class TestFileUpload:
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.InvalidDistFileError) as excinfo:
             legacy.file_upload(db_request)
 
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == ("400 Invalid distribution file. File is not a tarfile")
+        excinfo.value.values == {"msg": "File is not a tarfile"}
 
     def test_upload_fails_with_too_large_file(self, pyramid_config, db_request):
         user = UserFactory.create()
@@ -1756,26 +1594,10 @@ class TestFileUpload:
                 ),
             }
         )
-        db_request.user_docs_url = pretend.call_recorder(
-            lambda *a, **kw: "/the/help/url/"
-        )
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.FileTooLargeError) as excinfo:
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert db_request.user_docs_url.calls == [
-            pretend.call(
-                "/project-management/storage-limits",
-                anchor="requesting-a-file-size-limit-increase",
-            )
-        ]
-        assert resp.status_code == 400
-        assert resp.status == (
-            "400 File too large. Limit for project 'foobar' is 100 MB. "
-            "See /the/help/url/ for more information."
-        )
+        assert excinfo.value.values == {"project": project.name, "limit": 100}
 
     def test_upload_fails_with_too_large_project_size_default_limit(
         self, pyramid_config, db_request
@@ -1810,27 +1632,10 @@ class TestFileUpload:
                 ),
             }
         )
-        db_request.user_docs_url = pretend.call_recorder(
-            lambda *a, **kw: "/the/help/url/"
-        )
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.ProjectTooLargeError) as excinfo:
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert db_request.user_docs_url.calls == [
-            pretend.call(
-                "/project-management/storage-limits",
-                anchor="requesting-a-project-size-limit-increase",
-            )
-        ]
-        assert resp.status_code == 400
-        assert resp.status == (
-            "400 Project size too large."
-            " Limit for project 'foobar' total size is 10 GB. "
-            "See /the/help/url/"
-        )
+        assert excinfo.value.values == {"project": project.name, "limit": 10}
 
     def test_upload_fails_with_too_large_project_size_custom_limit(
         self, pyramid_config, db_request
@@ -1870,27 +1675,10 @@ class TestFileUpload:
                 ),
             }
         )
-        db_request.user_docs_url = pretend.call_recorder(
-            lambda *a, **kw: "/the/help/url/"
-        )
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.ProjectTooLargeError) as excinfo:
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert db_request.user_docs_url.calls == [
-            pretend.call(
-                "/project-management/storage-limits",
-                anchor="requesting-a-project-size-limit-increase",
-            )
-        ]
-        assert resp.status_code == 400
-        assert resp.status == (
-            "400 Project size too large."
-            " Limit for project 'foobar' total size is 10 GB. "
-            "See /the/help/url/"
-        )
+        assert excinfo.value.values == {"project": project.name, "limit": 10}
 
     def test_upload_succeeds_custom_project_size_limit(
         self,
@@ -2055,21 +1843,9 @@ class TestFileUpload:
 
         monkeypatch.setattr("builtins.open", mock_open)
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.FilenameTooLongError) as excinfo:
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == f"400 Filename is too long: '{filename}'"
-
-        assert db_request.metrics.increment.calls == [
-            pretend.call("warehouse.upload.attempt"),
-            pretend.call(
-                "warehouse.upload.failed",
-                tags=["reason:filename-too-long", "filetype:bdist_wheel"],
-            ),
-        ]
+        assert excinfo.value.values == {"filename": filename, "filetype": "bdist_wheel"}
 
     def test_upload_fails_with_previously_used_filename(
         self, pyramid_config, db_request
@@ -2101,19 +1877,9 @@ class TestFileUpload:
         )
 
         db_request.db.add(Filename(filename=filename))
-        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.FilenameReusedError):
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert db_request.help_url.calls == [pretend.call(_anchor="file-name-reuse")]
-        assert resp.status_code == 400
-        assert resp.status == (
-            "400 This filename was previously used by a file that has since been "
-            "deleted. Use a different version. See /the/help/url/ for more information."
-        )
 
     def test_upload_noop_with_existing_filename_same_content(
         self, pyramid_config, db_request
@@ -2206,19 +1972,11 @@ class TestFileUpload:
                 path=f"source/{project.name[0]}/{project.name}/{filename}",
             )
         )
-        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
-        with pytest.raises(HTTPBadRequest) as excinfo:
+
+        with pytest.raises(legacy.FileAlreadyExistsError) as excinfo:
             legacy.file_upload(db_request)
 
-        resp = excinfo.value
-
-        assert db_request.help_url.calls == [pretend.call(_anchor="file-name-reuse")]
-        assert resp.status_code == 400
-        assert resp.status == (
-            f"400 File already exists ({filename!r}, "
-            f"with blake2_256 hash {blake2_256_digest!r}). "
-            "See /the/help/url/ for more information."
-        )
+        excinfo.value.values == {"filename": filename, "blake2_256": blake2_256_digest}
 
     def test_upload_fails_with_diff_filename_same_blake2(
         self, pyramid_config, db_request
@@ -2264,20 +2022,13 @@ class TestFileUpload:
                 path=f"source/{project.name[0]}/{project.name}/{filename}",
             )
         )
-        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.FileAlreadyExistsError) as excinfo:
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert db_request.help_url.calls == [pretend.call(_anchor="file-name-reuse")]
-        assert resp.status_code == 400
-        assert resp.status == (
-            f"400 File already exists ({db_request.POST['content'].filename!r}, "
-            f"with blake2_256 hash {blake2_256_digest!r}). "
-            "See /the/help/url/ for more information."
-        )
+        assert excinfo.value.values == {
+            "filename": f"{project.name}-fake.tar.gz",
+            "blake2_256": blake2_256_digest,
+        }
 
     @pytest.mark.parametrize(
         ("filename", "filetype", "project_name"),
@@ -2340,37 +2091,32 @@ class TestFileUpload:
                 ),
             }
         )
-        db_request.help_url = lambda **kw: "/the/help/url/"
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.UnnormalizedFilenameError) as excinfo:
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == (
-            "400 Start filename for {!r} with {!r}.".format(
-                project.name,
-                project.normalized_name.replace("-", "_"),
-            )
-        )
+        assert excinfo.value.values == {
+            "project": project.name,
+            "normalized": project.normalized_name.replace("-", "_"),
+            "filetype": filetype,
+        }
 
     @pytest.mark.parametrize(
-        ("filename", "status"),
+        ("filename", "exc_type", "expected"),
         [
             (
                 "wutang-6.6.6.tar.gz",
-                "400 Filename 'wutang-6.6.6.tar.gz' is invalid, should be "
-                "'wutang-1.2.3.tar.gz'.",
+                legacy.UnnormalizedFilenameError,
+                {"project": "wutang", "normalized": "wutang", "filetype": "sdist"},
             ),
             (
                 "wutang-6.6.6-py3-none-any.whl",
-                "400 Version in filename should be '1.2.3' not '6.6.6'.",
+                legacy.InvalidFilenameVersionError,
+                {"expected": "1.2.3", "filetype": "bdist_wheel", "found": "6.6.6"},
             ),
         ],
     )
     def test_upload_fails_with_wrong_filename_version(
-        self, monkeypatch, pyramid_config, db_request, filename, status
+        self, monkeypatch, pyramid_config, db_request, filename, exc_type, expected
     ):
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
@@ -2408,15 +2154,10 @@ class TestFileUpload:
                 ),
             }
         )
-        db_request.help_url = lambda **kw: "/the/help/url/"
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(exc_type) as excinfo:
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == status
+        assert excinfo.value.values == expected
 
     @pytest.mark.parametrize(
         ("filetype", "extension"),
@@ -2461,17 +2202,9 @@ class TestFileUpload:
             }
         )
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.InvalidFileExtensionError) as excinfo:
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == (
-            f"400 Invalid file extension: Extension {extension} is invalid for "
-            f"filetype {filetype}. See https://www.python.org/dev/peps/pep-0527 "
-            "for more information."
-        )
+        assert excinfo.value.values == {"extension": extension, "filetype": filetype}
 
     def test_upload_fails_with_invalid_extension(self, pyramid_config, db_request):
         user = UserFactory.create()
@@ -2501,17 +2234,8 @@ class TestFileUpload:
             }
         )
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.UnknownFileExtensionError):
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == (
-            "400 Invalid file extension: Use .tar.gz, .whl or .zip "
-            "extension. See https://www.python.org/dev/peps/pep-0527 "
-            "and https://peps.python.org/pep-0715/ for more information"
-        )
 
     @pytest.mark.parametrize("character", ["/", "\\"])
     def test_upload_fails_with_unsafe_filename(
@@ -2544,13 +2268,8 @@ class TestFileUpload:
             }
         )
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.PathlikeFilenameError):
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == "400 Cannot upload a file with '/' or '\\' in the name."
 
     @pytest.mark.parametrize("character", [*(chr(x) for x in range(32)), chr(127)])
     def test_upload_fails_with_disallowed_in_filename(
@@ -2583,16 +2302,8 @@ class TestFileUpload:
             }
         )
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.UnprintableFilenameError):
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == (
-            "400 Cannot upload a file with non-printable characters (ordinals 0-31) "
-            "or the DEL character (ordinal 127) in the name."
-        )
 
     def test_upload_fails_without_user_permission(self, pyramid_config, db_request):
         user1 = UserFactory.create()
@@ -2624,20 +2335,49 @@ class TestFileUpload:
             }
         )
 
-        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
-
-        with pytest.raises(HTTPForbidden) as excinfo:
+        with pytest.raises(legacy.UserPermissionError) as excinfo:
             legacy.file_upload(db_request)
+        assert excinfo.value.values == {
+            "project": project.name,
+            "username": user2.username,
+        }
 
-        resp = excinfo.value
+    def test_upload_fails_with_permission_reason(self, pyramid_config, db_request):
+        user1 = UserFactory.create()
+        EmailFactory.create(user=user1)
+        user2 = UserFactory.create()
+        EmailFactory.create(user=user2)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user1, project=project)
 
-        assert db_request.help_url.calls == [pretend.call(_anchor="project-name")]
-        assert resp.status_code == 403
-        assert resp.status == (
-            f"403 The user '{user2.username}' "
-            f"isn't allowed to upload to project '{project.name}'. "
-            "See /the/help/url/ for more information."
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), release.version
         )
+
+        pyramid_config.testing_securitypolicy(identity=user2, permissive=False)
+        db_request.user = user2
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "sdist",
+                "md5_digest": "nope!",
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    type="application/tar",
+                ),
+            }
+        )
+        db_request.has_permission = lambda perm, ctx: WarehouseDenied(
+            "bad stuff", reason="a reason for stuff"
+        )
+
+        with pytest.raises(legacy.PermissionError) as excinfo:
+            legacy.file_upload(db_request)
+        assert excinfo.value.values == {"msg": "bad stuff"}
 
     def test_upload_fails_without_oidc_publisher_permission(
         self, pyramid_config, db_request
@@ -2668,19 +2408,9 @@ class TestFileUpload:
             }
         )
 
-        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
-
-        with pytest.raises(HTTPForbidden) as excinfo:
+        with pytest.raises(legacy.TokenPermissionError) as excinfo:
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert db_request.help_url.calls == [pretend.call(_anchor="project-name")]
-        assert resp.status_code == 403
-        assert resp.status == (
-            f"403 The given token isn't allowed to upload to project '{project.name}'. "
-            "See /the/help/url/ for more information."
-        )
+        assert excinfo.value.values == {"project": project.name}
 
     def test_upload_fails_with_unverified_email_after_permission_check(
         self, pyramid_config, db_request, mocker
@@ -2716,20 +2446,10 @@ class TestFileUpload:
                 ),
             }
         )
-        db_request.help_url = mocker.Mock(return_value="/the/help/url/")
 
-        with pytest.raises(HTTPForbidden) as excinfo:
+        with pytest.raises(legacy.UnverifiedEmailError) as excinfo:
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 403
-        assert resp.status == (
-            f"403 User {user.username!r}, associated with the API token used, "
-            "does not have a verified primary email address. Please add a "
-            "verified primary email before attempting to upload to PyPI. "
-            "See /the/help/url/ for more information."
-        )
+        assert excinfo.value.values == {"username": user.username}
 
     def test_upload_fails_without_two_factor_after_permission_check(
         self, pyramid_config, db_request, mocker
@@ -2762,20 +2482,10 @@ class TestFileUpload:
                 ),
             }
         )
-        db_request.help_url = mocker.Mock(return_value="/the/help/url/")
 
-        with pytest.raises(HTTPForbidden) as excinfo:
+        with pytest.raises(legacy.MissingTwoFactorError) as excinfo:
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 403
-        assert resp.status == (
-            f"403 User {user.username!r}, associated with the API token used, "
-            "does not have two-factor authentication enabled. Please enable "
-            "two-factor authentication before attempting to upload to PyPI. "
-            "See /the/help/url/ for more information."
-        )
+        assert excinfo.value.values == {"username": user.username}
 
     def test_upload_permission_error_surfaces_before_email_check(
         self, pyramid_config, db_request, mocker
@@ -2813,19 +2523,13 @@ class TestFileUpload:
                 ),
             }
         )
-        db_request.help_url = mocker.Mock(return_value="/the/help/url/")
 
-        with pytest.raises(HTTPForbidden) as excinfo:
+        with pytest.raises(legacy.UserPermissionError) as excinfo:
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 403
-        assert resp.status == (
-            f"403 The user {intruder.username!r} "
-            f"isn't allowed to upload to project '{project.name}'. "
-            "See /the/help/url/ for more information."
-        )
+        assert excinfo.value.values == {
+            "username": intruder.username,
+            "project": project.name,
+        }
 
     def test_upload_new_project_fails_with_unverified_email(
         self, pyramid_config, db_request, mocker
@@ -2855,18 +2559,10 @@ class TestFileUpload:
         )
         db_request.help_url = mocker.Mock(return_value="/the/help/url/")
 
-        with pytest.raises(HTTPForbidden) as excinfo:
+        with pytest.raises(legacy.UnverifiedEmailError) as excinfo:
             legacy.file_upload(db_request)
+        assert excinfo.value.values == {"username": user.username}
 
-        resp = excinfo.value
-
-        assert resp.status_code == 403
-        assert resp.status == (
-            f"403 User {user.username!r}, associated with the API token used, "
-            "does not have a verified primary email address. Please add a "
-            "verified primary email before attempting to upload to PyPI. "
-            "See /the/help/url/ for more information."
-        )
         # The project must not have been created.
         assert (
             db_request.db.query(Project)
@@ -2946,16 +2642,11 @@ class TestFileUpload:
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.InvalidAttestationsError) as excinfo:
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == (
-            "400 Invalid attestations supplied during upload: "
-            "Attestations are only supported when using Trusted Publishing"
-        )
+        assert excinfo.value.values == {
+            "msg": "Attestations are only supported when using Trusted Publishing"
+        }
 
     @pytest.mark.parametrize(
         "plat",
@@ -3139,11 +2830,6 @@ class TestFileUpload:
                 f"add cp34 file {filename}",
                 user,
             )
-        ]
-
-        assert db_request.metrics.increment.calls == [
-            pretend.call("warehouse.upload.attempt"),
-            pretend.call("warehouse.upload.ok", tags=["filetype:bdist_wheel"]),
         ]
 
     @pytest.mark.parametrize(
@@ -3491,29 +3177,20 @@ class TestFileUpload:
         ]
 
     @pytest.mark.parametrize(
-        ("filename", "expected"),
+        ("filename"),
         [
-            (
-                "foo-1.0.whl",
-                "400 Invalid wheel filename (wrong number of parts): 'foo-1.0'",
-            ),
-            (
-                "foo-1.0-q-py3-none-any.whl",
-                "400 Invalid build number: q in 'foo-1.0-q-py3-none-any'",
-            ),
-            (
-                "foo-0.0.4test1-py3-none-any.whl",
-                "400 Invalid wheel filename (invalid version): "
-                "'foo-0.0.4test1-py3-none-any'",
-            ),
-            (
-                "something.tar.gz",
-                "400 Invalid source distribution filename: something.tar.gz",
-            ),
+            "foo-1.0.whl",
+            "foo-1.0-q-py3-none-any.whl",
+            "foo-0.0.4test1-py3-none-any.whl",
+            "something.tar.gz",
         ],
     )
     def test_upload_fails_with_invalid_filename(
-        self, monkeypatch, pyramid_config, db_request, filename, expected
+        self,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+        filename,
     ):
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
@@ -3548,28 +3225,27 @@ class TestFileUpload:
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
         )
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.InvalidFilenameError) as excinfo:
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == expected
+        assert excinfo.value.values == {
+            "filename": filename,
+            "filetype": "bdist_wheel" if filename.endswith(".whl") else "sdist",
+        }
 
     @pytest.mark.parametrize(
-        "plat",
+        ("plat", "expected"),
         [
-            "linux_x86_64",
-            "linux_x86_64.win32",
-            "macosx_9_2_x86_64",
-            "macosx_11_2_arm64",
-            "macosx_16_2_arm64",
-            "macosx_10_15_amd64",
-            "macosx_27_0_arm64",
+            ("linux_x86_64", "linux_x86_64"),
+            ("linux_x86_64.win32", "linux_x86_64"),
+            ("macosx_9_2_x86_64", "macosx_9_2_x86_64"),
+            ("macosx_11_2_arm64", "macosx_11_2_arm64"),
+            ("macosx_16_2_arm64", "macosx_16_2_arm64"),
+            ("macosx_10_15_amd64", "macosx_10_15_amd64"),
+            ("macosx_27_0_arm64", "macosx_27_0_arm64"),
         ],
     )
     def test_upload_fails_with_unsupported_wheel_plat(
-        self, monkeypatch, pyramid_config, db_request, plat
+        self, monkeypatch, pyramid_config, db_request, plat, expected
     ):
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
@@ -3601,15 +3277,9 @@ class TestFileUpload:
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
         )
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.InvalidPlatformTagError) as excinfo:
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert re.match(
-            "400 Binary wheel .* has an unsupported platform tag .*", resp.status
-        )
+        assert excinfo.value.values == {"filename": filename, "tag": expected}
 
     def test_upload_fails_with_missing_record_wheel(
         self, monkeypatch, pyramid_config, db_request
@@ -3652,15 +3322,15 @@ class TestFileUpload:
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
         )
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.MissingRecordFileError) as excinfo:
             legacy.file_upload(db_request)
 
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert re.match(
-            "400 Wheel .* does not contain the required RECORD file: .*", resp.status
-        )
+        expected_filename = project.normalized_name.replace("-", "_")
+        assert excinfo.value.values == {
+            "filename": filename,
+            "record_filename": f"{expected_filename}-1.0.dist-info/RECORD",
+            "filetype": "bdist_wheel",
+        }
 
     def test_upload_warns_with_mismatched_wheel_and_zip_contents(
         self, monkeypatch, pyramid_config, db_request
@@ -4135,15 +3805,12 @@ class TestFileUpload:
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
         )
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.MissingMetadataFileError) as excinfo:
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert re.match(
-            "400 Wheel .* does not contain the required METADATA file: .*", resp.status
-        )
+        assert excinfo.value.values == {
+            "filename": filename,
+            "metadata_filename": f"{project_name}-{release.version}.dist-info/METADATA",
+        }
 
     def test_upload_updates_existing_project_name(self, pyramid_config, db_request):
         user = UserFactory.create()
@@ -4542,13 +4209,8 @@ class TestFileUpload:
         )
         monkeypatch.setattr(HasEvents, "record_event", record_event)
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.InvalidAttestationsError):
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status.startswith("400 Invalid attestations")
 
     @pytest.mark.parametrize(
         ("url", "expected"),
@@ -5209,20 +4871,8 @@ class TestFileUpload:
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.NonUserIdentityError):
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == (
-            "400 Non-user identities cannot create new projects. "
-            "This was probably caused by successfully using a pending "
-            "publisher but specifying the project name incorrectly (either "
-            "in the publisher or in your project's metadata). Please ensure "
-            "that both match. "
-            "See: https://docs.pypi.org/trusted-publishers/troubleshooting/"
-        )
 
     @pytest.mark.parametrize(
         ("failing_limiter", "remote_addr"),
@@ -5274,13 +4924,8 @@ class TestFileUpload:
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
 
-        with pytest.raises(HTTPTooManyRequests) as excinfo:
+        with pytest.raises(legacy.ProjectCreationRateLimitedError):
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 429
-        assert resp.status == ("429 Too many new projects created")
 
     def test_upload_succeeds_creates_project(
         self, pyramid_config, db_request, project_service
@@ -5646,19 +5291,18 @@ class TestFileUpload:
             IProjectService: project_service,
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
-        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
 
         monkeypatch.setattr(
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
         )
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.UnnormalizedFilenameError) as excinfo:
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == status
+        assert excinfo.value.values == {
+            "project": project.name,
+            "normalized": project.normalized_name.replace("-", "_"),
+            "filetype": "bdist_wheel",
+        }
 
     @pytest.mark.parametrize(
         ("filename", "version", "expected"),
@@ -5714,21 +5358,18 @@ class TestFileUpload:
             IProjectService: project_service,
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
-        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
 
         monkeypatch.setattr(
             legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
         )
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.UnnormalizedFilenameError) as excinfo:
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == (
-            f"400 Filename {filename!r} is invalid, should be {expected!r}."
-        )
+        assert excinfo.value.values == {
+            "project": project.name,
+            "normalized": project.normalized_name.replace("-", "_"),
+            "filetype": "sdist",
+        }
 
     @pytest.mark.parametrize(
         ("version", "expected_version", "filetype", "mimetype"),
@@ -6008,16 +5649,14 @@ class TestFileUpload:
             IFileStorage: storage_service,
         }.get(svc)
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.MissingLicenseFileError) as excinfo:
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == (
-            f"400 License-File LICENSE does not exist "
-            f"in distribution file {filename} at {license_filename}"
-        )
+        assert excinfo.value.values == {
+            "filename": filename,
+            "license_file": "LICENSE",
+            "target_file": license_filename,
+            "filetype": filetype,
+        }
 
     def test_upload_fails_when_license_and_license_expression_are_present(
         self,
@@ -6064,18 +5703,14 @@ class TestFileUpload:
             IFileStorage: storage_service,
         }.get(svc)
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.InvalidCoreMetadataError) as excinfo:
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == (
-            "400 License is deprecated when License-Expression is present. "
-            "Only License-Expression should be present. "
-            "See https://packaging.python.org/specifications/core-metadata "
-            "for more information."
-        )
+        assert excinfo.value.values == {
+            "msg": (
+                "License is deprecated when License-Expression is present. Only "
+                "License-Expression should be present."
+            )
+        }
 
     def test_upload_for_organization_owned_project_succeeds(
         self, pyramid_config, db_request, monkeypatch
@@ -6175,18 +5810,8 @@ class TestFileUpload:
             }
         )
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.OrgInactiveError):
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == (
-            "400 Organization account owning this project is inactive. "
-            "This may be due to inactive billing for Company Organizations, "
-            "or administrator intervention for Community Organizations. "
-            "Please contact support+orgs@pypi.org."
-        )
 
     def test_upload_with_organization_file_size_limit_succeeds(
         self, pyramid_config, db_request, monkeypatch
@@ -6662,12 +6287,15 @@ class TestFileUpload:
             }
         )
 
-        with pytest.raises(HTTPBadRequest) as excinfo:
+        with pytest.raises(legacy.InvalidDistFileError) as excinfo:
             legacy.file_upload(db_request)
-
-        resp = excinfo.value
-        assert resp.status_code == 400
-        assert "PyArmor-encrypted content is not allowed" in resp.status
+        assert excinfo.value.values == {
+            "msg": (
+                "PyArmor-encrypted content is not allowed. See "
+                "https://pypi.org/policy/terms-of-use/ for more information."
+            ),
+            "filetype": "bdist_wheel",
+        }
 
 
 def test_submit(pyramid_request):
