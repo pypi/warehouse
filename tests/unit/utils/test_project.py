@@ -102,6 +102,23 @@ def test_confirm_incorrect_input():
     ]
 
 
+def test_confirm_custom_fail_route_params():
+    """An observation-scoped fail_route gets its own route params, not project_name."""
+    project = stub(name="foobar", normalized_name="foobar")
+    request = stub(
+        POST={"confirm_project_name": ""},
+        route_path=call_recorder(lambda *a, **kw: "/the-redirect"),
+        session=stub(flash=call_recorder(lambda *a, **kw: stub())),
+    )
+
+    with pytest.raises(HTTPSeeOther) as err:
+        confirm_project(
+            project, request, fail_route="fail_route", observation_id="obs-1"
+        )
+    assert err.value.location == "/the-redirect"
+    assert request.route_path.calls == [call("fail_route", observation_id="obs-1")]
+
+
 @pytest.mark.parametrize("flash", [True, False])
 def test_quarantine_project(db_request, flash):
     user = UserFactory.create()
@@ -218,7 +235,7 @@ def test_remove_release(monkeypatch, db_request):
 
     db_request.user = user
 
-    # Contributor notification is the caller's responsibility — the helper
+    # Contributor notification is the caller's responsibility. The helper
     # mirrors :func:`remove_project`, which never emails.
     send_email = call_recorder(lambda req, contrib, **k: None)
     monkeypatch.setattr(

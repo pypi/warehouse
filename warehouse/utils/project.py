@@ -46,16 +46,22 @@ def confirm_project(
     fail_route,
     field_name="confirm_project_name",
     error_message="Could not delete project",
+    **fail_route_params,
 ):
+    """
+    Require the user to retype a project's name to confirm a destructive action.
+
+    Raises ``HTTPSeeOther`` to ``fail_route`` when the confirmation is missing
+    or wrong. ``fail_route_params`` are the keyword arguments used to build that
+    redirect; they default to ``project_name`` for project-keyed routes, but an
+    observation-scoped route can pass ``observation_id`` instead.
+    """
+    fail_route_params = fail_route_params or {"project_name": project.normalized_name}
+
     confirm = request.POST.get(field_name, "").strip()
     if not confirm:
         request.session.flash("Confirm the request", queue="error")
-        raise HTTPSeeOther(
-            request.route_path(
-                fail_route,
-                project_name=project.normalized_name,
-            )
-        )
+        raise HTTPSeeOther(request.route_path(fail_route, **fail_route_params))
 
     project_name = project.name.strip()
     if confirm != project_name:
@@ -63,12 +69,7 @@ def confirm_project(
             f"{error_message} - {confirm!r} is not the same as {project_name!r}",
             queue="error",
         )
-        raise HTTPSeeOther(
-            request.route_path(
-                fail_route,
-                project_name=project.normalized_name,
-            )
-        )
+        raise HTTPSeeOther(request.route_path(fail_route, **fail_route_params))
 
 
 def prohibit_and_remove_project(
