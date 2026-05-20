@@ -4,9 +4,10 @@ import urllib.parse
 
 import certifi
 import opensearchpy
-import requests_aws4auth
 
+from botocore.credentials import Credentials
 from celery.schedules import crontab
+from opensearchpy import RequestsAWSV4SignerAuth
 from urllib3.util import parse_url
 
 from warehouse import db
@@ -98,12 +99,11 @@ def includeme(config):
     if aws_auth:
         aws_region = qs.get("region", ["us-east-1"])[0]
         kwargs["connection_class"] = opensearchpy.RequestsHttpConnection
-        kwargs["http_auth"] = requests_aws4auth.AWS4Auth(
-            config.registry.settings["aws.key_id"],
-            config.registry.settings["aws.secret_key"],
-            aws_region,
-            "es",
+        credentials = Credentials(
+            access_key=config.registry.settings["aws.key_id"],
+            secret_key=config.registry.settings["aws.secret_key"],
         )
+        kwargs["http_auth"] = RequestsAWSV4SignerAuth(credentials, aws_region, "es")
     config.registry["opensearch.client"] = opensearchpy.OpenSearch(**kwargs)
     config.registry["opensearch.index"] = p.path.strip("/")
     config.registry["opensearch.shards"] = int(qs.get("shards", ["1"])[0])
