@@ -2082,15 +2082,10 @@ requests==2.33.1 \
     #   opensearch-py
     #   premailer
     #   pypi-attestations
-    #   requests-aws4auth
     #   requests-file
     #   sigstore
     #   stripe
     #   tldextract
-requests-aws4auth==1.3.2 \
-    --hash=sha256:7a697bf3c7a66d82980ad3348a2539403870d5c1f1e313f5676fb11e6793eef8 \
-    --hash=sha256:c6cbf45f17119af926e3cb77acfeed083d1cf9580d893ee6c0ecf01088fd34e5
-    # via -r requirements/main.in
 requests-file==3.0.1 \
     --hash=sha256:d0f5eb94353986d998f80ac63c7f146a307728be051d4d1cd390dbdb59c10fa2 \
     --hash=sha256:f14243d7796c588f3521bd423c5dea2ee4cc730e54a3cac9574d78aca1272576
