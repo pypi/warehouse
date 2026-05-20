@@ -1,6 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
 import re
+
+from typing import TYPE_CHECKING
 
 from pyramid.httpexceptions import HTTPSeeOther
 from sqlalchemy.sql import func
@@ -16,6 +20,9 @@ from warehouse.packaging.models import (
     Release,
 )
 from warehouse.tasks import task
+
+if TYPE_CHECKING:
+    from pyramid.request import Request
 
 
 @task(bind=True, ignore_result=True, acks_late=True)
@@ -235,6 +242,37 @@ def clear_release_quarantine(release: Release, request, flash: bool = True) -> N
             f"Release {release.version} of {release.project.name} quarantine cleared.",
             queue="success",
         )
+
+
+def remove_release(release: Release, request: Request, *, reason: str) -> None:
+    """
+    Delete a single release.
+
+    Records a journal entry, emits the ``ReleaseRemove`` event, and deletes
+    the row. Mirrors :func:`remove_project`: contributor notifications are
+    the caller's choice, so a non-malware admin path can email owners while
+    a malware verdict stays silent.
+    """
+    request.db.add(
+        JournalEntry(
+            name=release.project.name,
+            action="remove release",
+            version=release.version,
+            submitted_by=request.user,
+        )
+    )
+
+    release.project.record_event(
+        tag=EventTag.Project.ReleaseRemove,
+        request=request,
+        additional={
+            "submitted_by": request.user.username,
+            "canonical_version": release.canonical_version,
+            "reason": reason,
+        },
+    )
+
+    request.db.delete(release)
 
 
 def remove_project(project, request, flash=True):

@@ -6,6 +6,7 @@ from pretend import call, call_recorder, raiser, stub
 from pyramid.httpexceptions import HTTPSeeOther
 from sqlalchemy.orm import joinedload
 
+from warehouse.events.tags import EventTag
 from warehouse.packaging.models import (
     Dependency,
     File,
@@ -25,6 +26,7 @@ from warehouse.utils.project import (
     quarantine_release,
     remove_documentation,
     remove_project,
+    remove_release,
 )
 
 from ...common.db.accounts import UserFactory
@@ -203,6 +205,55 @@ def test_clear_release_quarantine(db_request, flash):
         == 1
     )
     assert bool(db_request.session.flash.calls) == flash
+
+
+def test_remove_release(monkeypatch, db_request):
+    """Removes a release, journals it, emits the event. Does *not* email."""
+    user = UserFactory.create()
+    project = ProjectFactory.create(name="foo")
+    RoleFactory.create(user=user, project=project)
+    release = ReleaseFactory.create(project=project, version="1.0")
+    other_release = ReleaseFactory.create(project=project, version="1.1")
+    project.record_event = call_recorder(lambda *a, **kw: None)
+
+    db_request.user = user
+
+    # Contributor notification is the caller's responsibility — the helper
+    # mirrors :func:`remove_project`, which never emails.
+    send_email = call_recorder(lambda req, contrib, **k: None)
+    monkeypatch.setattr(
+        "warehouse.email.send_removed_project_release_email", send_email
+    )
+
+    remove_release(release, db_request, reason="compromised account")
+
+    # The target release is gone, the sibling release is untouched.
+    remaining = db_request.db.query(Release).filter(Release.project == project).all()
+    assert [r.version for r in remaining] == [other_release.version]
+
+    entry = (
+        db_request.db.query(JournalEntry)
+        .options(joinedload(JournalEntry.submitted_by))
+        .filter(JournalEntry.action == "remove release")
+        .one()
+    )
+    assert entry.name == project.name
+    assert entry.version == "1.0"
+    assert entry.submitted_by == user
+
+    assert project.record_event.calls == [
+        call(
+            tag=EventTag.Project.ReleaseRemove,
+            request=db_request,
+            additional={
+                "submitted_by": user.username,
+                "canonical_version": "1",
+                "reason": "compromised account",
+            },
+        )
+    ]
+
+    assert send_email.calls == []
 
 
 @pytest.mark.parametrize("flash", [True, False])
