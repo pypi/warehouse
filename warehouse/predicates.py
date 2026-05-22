@@ -46,6 +46,20 @@ class AuthMethodsPredicate:
         return True
 
 
+def auth_methods_for_route(route) -> frozenset[AuthenticationMethod] | None:
+    """Return the ``auth_methods`` predicate value for a route, if any.
+
+    Returns ``None`` when the route has no ``auth_methods`` predicate
+    configured. Callers decide their own default behavior in that case.
+    """
+    if route is None:
+        return None
+    for predicate in getattr(route, "predicates", ()):
+        if isinstance(predicate, AuthMethodsPredicate):
+            return predicate.val
+    return None
+
+
 class HeadersPredicate:
     def __init__(self, val: list[str], config):
         if not val:

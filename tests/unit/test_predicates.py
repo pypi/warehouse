@@ -15,6 +15,7 @@ from warehouse.predicates import (
     AuthMethodsPredicate,
     DomainPredicate,
     HeadersPredicate,
+    auth_methods_for_route,
     includeme,
 )
 from warehouse.subscriptions.models import StripeSubscriptionStatus
@@ -81,6 +82,26 @@ class TestAuthMethodsPredicate:
     def test_rejects_unknown_values(self):
         with pytest.raises(ValueError, match="not a valid AuthenticationMethod"):
             AuthMethodsPredicate({"not-a-real-method"}, None)
+
+
+class TestAuthMethodsForRoute:
+    def test_returns_predicate_val(self):
+        predicate = AuthMethodsPredicate({"macaroon"}, None)
+        route = pretend.stub(predicates=[predicate])
+        assert auth_methods_for_route(route) == frozenset(
+            {AuthenticationMethod.MACAROON}
+        )
+
+    def test_returns_none_when_no_auth_methods_predicate(self):
+        route = pretend.stub(predicates=[DomainPredicate("pypi.io", None)])
+        assert auth_methods_for_route(route) is None
+
+    def test_returns_none_when_route_is_none(self):
+        assert auth_methods_for_route(None) is None
+
+    def test_returns_none_when_route_has_no_predicates_attr(self):
+        # Real Pyramid routes always have predicates, but test stubs may not.
+        assert auth_methods_for_route(pretend.stub()) is None
 
 
 class TestHeadersPredicate:
