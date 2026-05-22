@@ -23,6 +23,9 @@ class AuthenticationMethod(enum.Enum):
     BASIC_AUTH = "basic-auth"
     SESSION = "session"
     MACAROON = "macaroon"
+    # Placeholder for the dedicated API auth surface that will replace
+    # danger-api's macaroon abuse. No policy implements it yet.
+    API_KEY = "api-key"
 
 
 # Which AuthenticationMethods may grant a given Permission. Anything not in

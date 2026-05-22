@@ -59,6 +59,14 @@ class TestPermissionAllows:
         )
 
 
+def test_api_key_auth_method_placeholder_exists():
+    # API_KEY is a placeholder for the dedicated API auth surface that
+    # will replace danger-api's macaroon abuse. No policy implements it
+    # yet; keeping it in the enum makes the PERMISSION_AUTH_METHODS table
+    # and route predicates self-documenting about the migration target.
+    assert AuthenticationMethod.API_KEY.value == "api-key"
+
+
 class TestMultiSecurityPolicy:
     def test_verify(self):
         assert verifyClass(
