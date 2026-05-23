@@ -668,8 +668,7 @@ def _get_timeline_data(request: Request, observations: list) -> dict:
 
         entry = project_data[key]
         # Track the earliest report
-        if obs.report_created < entry["first_report"]:
-            entry["first_report"] = obs.report_created
+        entry["first_report"] = min(entry["first_report"], obs.report_created)
         # Track the earliest removal across all observations for this project
         obs_removal = _parse_removal_time(obs.actions)
         if obs_removal and (

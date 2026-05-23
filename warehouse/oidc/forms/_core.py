@@ -63,7 +63,7 @@ class PendingPublisherMixin:
                 # We mark the error message as safe, so that the HTML hyperlink is
                 # not escaped by Jinja
                 raise wtforms.validators.ValidationError(
-                    markupsafe.Markup(
+                    markupsafe.Markup(  # noqa: S704
                         _(
                             "This project already exists: use the project's "
                             "publishing settings <a href='${url}'>here</a> to "
