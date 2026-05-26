@@ -139,7 +139,7 @@ class ManageAccountMixin:
                 )
                 .one()
             )
-        except (NoResultFound, ValueError):
+        except NoResultFound, ValueError:
             self.request.session.flash("Email address not found", queue="error")
             if self.request.user.has_primary_verified_email:
                 return HTTPSeeOther(self.request.route_path("manage.account"))
@@ -2259,7 +2259,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
     # has not updated invite status
     try:
         invite_token = token_service.loads(user_invite.token)
-    except (TokenExpired, AttributeError):
+    except TokenExpired, AttributeError:
         invite_token = None
 
     if user.primary_email is None or not user.primary_email.verified:

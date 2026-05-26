@@ -418,7 +418,7 @@ def _is_valid_dist_file(filename, filetype, metrics, *, scan=True):
                         )
                         return False, yara_match.message
 
-        except (tarfile.ReadError, EOFError):
+        except tarfile.ReadError, EOFError:
             return False, None
 
     # If we haven't yet decided it's not valid, then we'll assume it is and

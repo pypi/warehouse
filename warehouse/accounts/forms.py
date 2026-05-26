@@ -510,7 +510,7 @@ class TOTPAuthenticationForm(TOTPValueMixin, _TwoFactorAuthenticationForm):
             ok = self.user_service.check_totp_value(self.user_id, totp_value)
             if not ok:
                 raise otp.InvalidTOTPError
-        except (otp.InvalidTOTPError, otp.OutOfSyncTOTPError):
+        except otp.InvalidTOTPError, otp.OutOfSyncTOTPError:
             user = self.user_service.get_user(self.user_id)
             user.record_event(
                 tag=EventTag.Account.LoginFailure,
@@ -599,7 +599,7 @@ class RecoveryCodeAuthenticationForm(
             send_recovery_code_used_email(
                 self.request, self.user_service.get_user(self.user_id)
             )
-        except (InvalidRecoveryCode, NoRecoveryCodes):
+        except InvalidRecoveryCode, NoRecoveryCodes:
             user = self.user_service.get_user(self.user_id)
             user.record_event(
                 tag=EventTag.Account.LoginFailure,

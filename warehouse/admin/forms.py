@@ -40,7 +40,7 @@ class SetUploadLimitForm(wtforms.Form):
 
         try:
             limit_value = int(field.data)
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             raise wtforms.ValidationError(
                 "Upload limit must be a valid integer or empty"
             )
@@ -92,7 +92,7 @@ class SetTotalSizeLimitForm(wtforms.Form):
 
         try:
             limit_value = int(field.data)
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             raise wtforms.ValidationError(
                 "Total size limit must be a valid integer or empty"
             )

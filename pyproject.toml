@@ -66,7 +66,7 @@ extend_exclude = "warehouse/templates/api/simple/*"
 ignore = "H006,T002,T003,T028"
 
 [tool.mypy]
-python_version = "3.13"
+python_version = "3.14"
 warn_unreachable = true
 warn_unused_configs = true
 warn_unused_ignores = true
@@ -148,7 +148,7 @@ testpaths = ["tests/"]
 
 [tool.ruff]
 cache-dir = ".cache/ruff"
-target-version = "py313"
+target-version = "py314"
 
 [tool.ruff.lint]
 # enable ALL lints by default, then opt out of ones we don't want to use so that we
