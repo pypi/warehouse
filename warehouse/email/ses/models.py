@@ -238,7 +238,7 @@ class EmailMessage(db.Model):
     missing: Mapped[bool_false]
 
     # Relationships!
-    events: Mapped[list["Event"]] = orm.relationship(
+    events: Mapped[list[Event]] = orm.relationship(
         back_populates="email",
         cascade="all, delete-orphan",
         lazy=False,

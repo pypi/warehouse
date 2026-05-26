@@ -1,8 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import datetime
+
 import pretend
 import pytest
 
+from freezegun import freeze_time
 from pyramid.exceptions import ConfigurationError
 from pyramid.httpexceptions import HTTPSeeOther
 
@@ -17,6 +20,7 @@ from warehouse.subscriptions.models import StripeSubscriptionStatus
 
 from ..common.db.organizations import (
     OrganizationFactory,
+    OrganizationManualActivationFactory,
     OrganizationStripeCustomerFactory,
     OrganizationStripeSubscriptionFactory,
 )
@@ -186,11 +190,6 @@ class TestActiveOrganizationPredicate:
         db_request,
         organization,
     ):
-        import datetime
-
-        from freezegun import freeze_time
-
-        from ..common.db.organizations import OrganizationManualActivationFactory
 
         with freeze_time("2024-01-15"):
             # Create an active manual activation
@@ -207,11 +206,6 @@ class TestActiveOrganizationPredicate:
         db_request,
         organization,
     ):
-        import datetime
-
-        from freezegun import freeze_time
-
-        from ..common.db.organizations import OrganizationManualActivationFactory
 
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/manage/organizations/"
