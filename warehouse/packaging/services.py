@@ -103,12 +103,12 @@ class GenericLocalBlobStorage:
         return open(os.path.join(self.base, path), "rb")
 
     def get_metadata(self, path):
-        return json.loads(open(os.path.join(self.base, path + ".meta")).read())
+        with open(os.path.join(self.base, path + ".meta")) as f:
+            return json.loads(f.read())
 
     def get_checksum(self, path):
-        return hashlib.md5(
-            open(os.path.join(self.base, path), "rb").read(), usedforsecurity=False
-        ).hexdigest()
+        with open(os.path.join(self.base, path), "rb") as f:
+            return hashlib.md5(f.read(), usedforsecurity=False).hexdigest()
 
     def store(self, path, file_path, *, meta=None):
         destination = os.path.join(self.base, path)

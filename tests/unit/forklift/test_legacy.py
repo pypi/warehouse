@@ -168,6 +168,41 @@ def test_sort_releases(db_request, versions, expected):
     ] == expected
 
 
+class TestCloseUploadTempfiles:
+    def test_closes_content_file_and_body_file(self):
+        content_file = pretend.stub(close=pretend.call_recorder(lambda: None))
+        body_file = pretend.stub(
+            closed=False, close=pretend.call_recorder(lambda: None)
+        )
+        request = pretend.stub(
+            POST={"content": pretend.stub(file=content_file)},
+            body_file_raw=body_file,
+        )
+
+        legacy._close_upload_tempfiles(request)
+
+        assert content_file.close.calls == [pretend.call()]
+        assert body_file.close.calls == [pretend.call()]
+
+    def test_no_content_field(self):
+        body_file = pretend.stub(
+            closed=False, close=pretend.call_recorder(lambda: None)
+        )
+        request = pretend.stub(POST={}, body_file_raw=body_file)
+
+        legacy._close_upload_tempfiles(request)
+
+        assert body_file.close.calls == [pretend.call()]
+
+    def test_skips_already_closed_body_file(self):
+        body_file = pretend.stub(closed=True, close=pretend.call_recorder(lambda: None))
+        request = pretend.stub(POST={}, body_file_raw=body_file)
+
+        legacy._close_upload_tempfiles(request)
+
+        assert body_file.close.calls == []
+
+
 class TestFileValidation:
     def test_defaults_to_true(self):
         assert legacy._is_valid_dist_file("", "", NullMetrics()) == (True, None)

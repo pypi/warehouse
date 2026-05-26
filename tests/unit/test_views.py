@@ -371,6 +371,7 @@ def test_favicon(pyramid_request):
 
     assert isinstance(response, FileResponse)
     assert pyramid_request.response.content_type == "image/x-icon"
+    response.app_iter.close()
 
 
 def test_robotstxt(pyramid_request):

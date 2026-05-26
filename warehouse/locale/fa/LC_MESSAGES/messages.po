@@ -7794,7 +7794,7 @@ msgstr "یا <a href=\"%(href)s\"> مرور پروژه ها </a>"
 
 #: warehouse/templates/manage/project/history.html:43
 #, fuzzy, python-format
-#| msgid "Latest version"
+#| msgid "Latest release"
 msgid "Version %(version)s removed"
 msgstr "واپسین نگارش"
 
@@ -8147,7 +8147,7 @@ msgstr ""
 #: warehouse/templates/manage/project/release.html:14
 #: warehouse/templates/manage/project/release.html:30
 #, fuzzy, python-format
-#| msgid "Latest version"
+#| msgid "Latest release"
 msgid "Version %(version)s"
 msgstr "واپسین نگارش"
 
@@ -9131,7 +9131,7 @@ msgid "Newer version available (%(version)s)"
 msgstr ""
 
 #: warehouse/templates/packaging/detail.html:186
-msgid "Latest version"
+msgid "Latest release"
 msgstr "واپسین نگارش"
 
 #: warehouse/templates/packaging/detail.html:191
@@ -11878,7 +11878,7 @@ msgstr[1] ""
 #~ msgstr "ایجاد یک حساب کاربری"
 
 #, fuzzy
-#~| msgid "Latest version"
+#~| msgid "Latest release"
 #~ msgid "Save permissions"
 #~ msgstr "واپسین نگارش"
 
