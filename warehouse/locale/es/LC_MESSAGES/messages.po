@@ -9580,7 +9580,7 @@ msgid "Newer version available (%(version)s)"
 msgstr "Versión más reciente disponible (%(version)s)"
 
 #: warehouse/templates/packaging/detail.html:186
-msgid "Latest version"
+msgid "Latest release"
 msgstr "Versión más reciente"
 
 #: warehouse/templates/packaging/detail.html:191

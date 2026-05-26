@@ -9030,7 +9030,7 @@ msgid "Newer version available (%(version)s)"
 msgstr "Versione più recente disponibile(%(version)s)"
 
 #: warehouse/templates/packaging/detail.html:186
-msgid "Latest version"
+msgid "Latest release"
 msgstr "Versione più recente"
 
 #: warehouse/templates/packaging/detail.html:191
