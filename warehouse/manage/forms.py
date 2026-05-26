@@ -4,9 +4,6 @@ import json
 
 import wtforms
 
-import warehouse.utils.otp as otp
-import warehouse.utils.webauthn as webauthn
-
 from warehouse import forms
 from warehouse.accounts.forms import (
     NewEmailMixin,
@@ -23,6 +20,7 @@ from warehouse.organizations.models import (
     OrganizationType,
     TeamProjectRoleType,
 )
+from warehouse.utils import otp, webauthn
 from warehouse.utils.project import PROJECT_NAME_RE
 
 # /manage/account/ forms

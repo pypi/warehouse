@@ -14,9 +14,6 @@ from webauthn.helpers.structs import AttestationFormat, PublicKeyCredentialType
 from webauthn.registration.verify_registration_response import VerifiedRegistration
 from zope.interface.verify import verifyClass
 
-import warehouse.utils.otp as otp
-import warehouse.utils.webauthn as webauthn
-
 from warehouse.accounts import services
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
@@ -43,6 +40,7 @@ from warehouse.accounts.models import (
 from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService, NullMetrics
 from warehouse.rate_limiting.interfaces import IRateLimiter
+from warehouse.utils import otp, webauthn
 
 from ...common.constants import REMOTE_ADDR
 from ...common.db.accounts import (
@@ -1498,8 +1496,6 @@ class TestDatabaseUserService:
         assert result.user == user
 
     def test_get_account_association_not_found(self, user_service):
-        import uuid
-
         result = user_service.get_account_association(str(uuid.uuid4()))
 
         assert result is None

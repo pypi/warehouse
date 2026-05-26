@@ -42,7 +42,7 @@ class RedisLru:
     def get(self, func_name, key, tag):
         try:
             value = self.conn.hget(self.format_key(func_name, tag), str(key))
-        except (redis.exceptions.RedisError, redis.exceptions.ConnectionError):
+        except redis.exceptions.RedisError, redis.exceptions.ConnectionError:
             self.metric_reporter.increment(f"{self.name}.cache.error")
             return None
         if value:
@@ -61,7 +61,7 @@ class RedisLru:
             pipeline.expire(self.format_key(func_name, tag), ttl)
             pipeline.execute()
             return value
-        except (redis.exceptions.RedisError, redis.exceptions.ConnectionError):
+        except redis.exceptions.RedisError, redis.exceptions.ConnectionError:
             self.metric_reporter.increment(f"{self.name}.cache.error")
             return value
 
@@ -73,7 +73,7 @@ class RedisLru:
                 pipeline.delete(key)
             pipeline.execute()
             self.metric_reporter.increment(f"{self.name}.cache.purge")
-        except (redis.exceptions.RedisError, redis.exceptions.ConnectionError):
+        except redis.exceptions.RedisError, redis.exceptions.ConnectionError:
             self.metric_reporter.increment(f"{self.name}.cache.error")
             raise CacheError
 

@@ -64,7 +64,7 @@ def compile_rules(rules_dir: Path = _RULES_DIR) -> yara_x.Rules | None:
         for rule_file in rule_files:
             compiler.add_source(rule_file.read_text())
         return compiler.build()
-    except (OSError, yara_x.CompileError):
+    except OSError, yara_x.CompileError:
         logger.exception("Failed to compile YARA-X rules")
         return None
 
@@ -302,7 +302,7 @@ def scan_archive(
             results = yx_scanner.scan(data)
             if results.matching_rules:
                 matches.append((name, [r.identifier for r in results.matching_rules]))
-    except (OSError, zipfile.BadZipFile, tarfile.TarError, yara_x.ScanError):
+    except OSError, zipfile.BadZipFile, tarfile.TarError, yara_x.ScanError:
         logger.exception("YARA-X scan failed", archive=archive_name)
         return []
 

@@ -18,7 +18,7 @@ from webauthn.helpers.structs import (
 )
 from webauthn.registration.verify_registration_response import VerifiedRegistration
 
-import warehouse.utils.webauthn as webauthn
+from warehouse.utils import webauthn
 
 
 def test_generate_webauthn_challenge():
