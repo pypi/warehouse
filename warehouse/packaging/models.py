@@ -242,7 +242,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
     )
     releases: Mapped[list[Release]] = orm.relationship(
         cascade="all, delete-orphan",
-        order_by=lambda: Release._pypi_ordering.desc(),
+        order_by=lambda: Release._pypi_ordering.desc(),  # noqa: PLW0108
         passive_deletes=True,
     )
     alternate_repositories: Mapped[list[AlternateRepository]] = orm.relationship(
@@ -484,7 +484,13 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             session.query(
                 Release.version, Release.created, Release.is_prerelease, Release.summary
             )
-            .filter(Release.project == self, Release.yanked.is_(False))
+            .filter(
+                Release.project == self,
+                Release.yanked.is_(False),
+                Release.lifecycle_status.is_distinct_from(
+                    LifecycleStatus.QuarantineEnter
+                ),
+            )
             .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
             .first()
         )
@@ -745,7 +751,7 @@ class Release(HasObservations, db.Model):
     _project_urls: Mapped[list[ReleaseURL]] = orm.relationship(
         collection_class=attribute_keyed_dict("name"),
         cascade="all, delete-orphan",
-        order_by=lambda: ReleaseURL.name.asc(),
+        order_by=lambda: ReleaseURL.name.asc(),  # noqa: PLW0108
         passive_deletes=True,
     )
     project_urls = association_proxy(

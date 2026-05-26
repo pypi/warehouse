@@ -9,8 +9,6 @@ import wtforms
 
 from webob.multidict import MultiDict
 
-import warehouse.utils.otp as otp
-
 from warehouse.accounts import forms
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
@@ -21,6 +19,7 @@ from warehouse.accounts.interfaces import (
 from warehouse.accounts.models import DisableReason, ProhibitedEmailDomain
 from warehouse.captcha import recaptcha
 from warehouse.events.tags import EventTag
+from warehouse.utils import otp
 from warehouse.utils.webauthn import AuthenticationRejectedError
 
 from ...common.constants import REMOTE_ADDR

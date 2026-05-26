@@ -19,6 +19,7 @@ from warehouse.i18n import extensions
 )
 def test_trim_trans_tags(ext, result):
     env = Environment(
+        autoescape=True,
         extensions=["jinja2.ext.i18n", *ext],
     )
 
@@ -98,6 +99,7 @@ class TestFallbackInternationalizationExtension:
         monkeypatch.setattr(extensions, "_make_newer_ngettext", _make_newer_ngettext)
 
         env = Environment(
+            autoescape=True,
             extensions=[
                 "warehouse.i18n.extensions.FallbackInternationalizationExtension"
             ],
@@ -136,6 +138,7 @@ class TestFallbackInternationalizationExtension:
             return languages.get(language, {}).get(string, string)
 
         env = Environment(
+            autoescape=True,
             loader=DictLoader(templates),
             extensions=[
                 "warehouse.i18n.extensions.FallbackInternationalizationExtension"
@@ -211,6 +214,7 @@ class TestFallbackInternationalizationExtension:
             return languages.get(language, {}).get(s, s)
 
         env = Environment(
+            autoescape=True,
             loader=DictLoader(templates),
             extensions=[
                 "warehouse.i18n.extensions.FallbackInternationalizationExtension"

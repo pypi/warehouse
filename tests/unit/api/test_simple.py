@@ -410,7 +410,7 @@ class TestSimpleDetail:
         ]
 
         files = []
-        for files_release in zip(egg_files, tar_files, wheel_files):
+        for files_release in zip(egg_files, tar_files, wheel_files, strict=False):
             files += files_release
 
         urls_iter = (f"/file/{f.filename}" for f in files)

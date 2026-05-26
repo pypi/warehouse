@@ -601,6 +601,46 @@ Starting warehouse_redis_1 ...
 [User(username='test')]
 ```
 
+### Creating test data with factories
+
+In development, the shell is wired up so the `factory_boy` factories from
+the test suite share the same database session as `db` and `request.db`.
+That makes it easy to mint Users, Projects, Releases, and so on right at
+the prompt for ad-hoc exploration:
+
+```pycon
+>>> from sqlalchemy import text
+>>> db.execute(text("select count(*) from users")).scalar()
+40239
+>>> from tests.common.db.accounts import UserFactory
+>>> UserFactory.create_batch(100)
+[...]
+>>> db.execute(text("select count(*) from users")).scalar()
+40339
+```
+
+The shell does not autocommit, so call `db.commit()` once you're happy
+with the results. Anything a factory creates lands in the same transaction
+as your manual queries, so identity and pending state line up the way
+you'd expect.
+
+A few factories that come up often:
+
+- `tests.common.db.accounts.UserFactory`
+- `tests.common.db.packaging.ProjectFactory`
+- `tests.common.db.packaging.ReleaseFactory`
+- `tests.common.db.organizations.OrganizationFactory`
+
+Browse `tests/common/db/` for the full set.
+
+This is a development convenience. Production images don't ship
+`factory_boy`, and `warehouse shell` only reaches for the test factories
+when `warehouse.env=development`. Importing a factory in a prod shell
+would raise `ModuleNotFoundError: No module named 'factory'`, which is
+the intended signal.
+
+### IPython shell
+
 You can also run the IPython shell as the interactive shell. To do so export
 the environment variable WAREHOUSE_IPYTHON_SHELL *prior to running the*
 `make build` *step*:
