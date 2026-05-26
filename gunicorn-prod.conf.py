@@ -25,7 +25,3 @@ statsd_host = "localhost:8125"
 # Instead of overwriting `XDG_RUNTIME_DIR` to a writable target,
 # which could affect other code, disable the interface as we are unlikely to need it.
 control_socket_disable = True
-
-
-def when_ready(server):
-    open("/tmp/app-initialized", "w").close()

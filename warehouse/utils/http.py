@@ -47,8 +47,10 @@ def is_safe_url(url, host=None):
 
 
 def is_valid_uri(
-    uri, require_scheme=True, allowed_schemes={"http", "https"}, require_authority=True
+    uri, require_scheme=True, allowed_schemes=None, require_authority=True
 ):
+    if allowed_schemes is None:
+        allowed_schemes = {"http", "https"}
     uri = uri_reference(uri).normalize()
     validator = validators.Validator().allow_schemes(*allowed_schemes)
     if require_scheme:

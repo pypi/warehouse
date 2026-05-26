@@ -369,7 +369,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
     )
     teams: Mapped[list[Team]] = relationship(
         back_populates="organization",
-        order_by=lambda: Team.name.asc(),
+        order_by=lambda: Team.name.asc(),  # noqa: PLW0108
     )
     projects: Mapped[list[Project]] = relationship(
         secondary=OrganizationProject.__table__,
@@ -604,16 +604,14 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         for subscription in self.subscriptions:
             if not subscription.is_restricted:
                 return subscription
-        else:
-            return None
+        return None
 
     @property
     def manageable_subscription(self):
         for subscription in self.subscriptions:
             if subscription.is_manageable:
                 return subscription
-        else:
-            return None
+        return None
 
     def customer_name(self, site_name="PyPI"):
         return f"{site_name} Organization - {self.display_name} ({self.name})"

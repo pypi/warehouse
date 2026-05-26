@@ -62,7 +62,7 @@ logger = logging.getLogger(__name__)
 def _namespace_stdlib_list(module_list):
     for module_name in module_list:
         parts = module_name.split(".")
-        for i, part in enumerate(parts):
+        for i, _part in enumerate(parts):
             yield ".".join(parts[: i + 1])
 
 
@@ -90,6 +90,7 @@ class GenericLocalBlobStorage:
             "should not use it in production due to the lack of safe guards "
             "for safely locating files on disk.",
             InsecureStorageWarning,
+            stacklevel=2,
         )
 
         self.base = base
@@ -152,6 +153,7 @@ class LocalDocsStorage:
             "should not use it in production due to the lack of safe guards "
             "for safely locating files on disk.",
             InsecureStorageWarning,
+            stacklevel=2,
         )
 
         self.base = base
@@ -490,8 +492,6 @@ class ProjectService:
                 check_name=typo_check_match[0],
                 existing_project_name=typo_check_match[1],
             )
-
-        return
 
     def create_project(
         self,

@@ -59,7 +59,9 @@ def rss_updates(request):
     )
     release_authors = [_format_author(release) for release in latest_releases]
 
-    return {"latest_releases": tuple(zip(latest_releases, release_authors))}
+    return {
+        "latest_releases": tuple(zip(latest_releases, release_authors, strict=False))
+    }
 
 
 @view_config(
@@ -89,7 +91,9 @@ def rss_packages(request):
         _format_author(project.releases[0]) for project in newest_projects
     ]
 
-    return {"newest_projects": tuple(zip(newest_projects, project_authors))}
+    return {
+        "newest_projects": tuple(zip(newest_projects, project_authors, strict=False))
+    }
 
 
 @view_config(
@@ -118,5 +122,5 @@ def rss_project_releases(project, request):
 
     return {
         "project": project,
-        "latest_releases": tuple(zip(latest_releases, release_authors)),
+        "latest_releases": tuple(zip(latest_releases, release_authors, strict=False)),
     }

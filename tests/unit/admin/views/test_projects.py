@@ -32,6 +32,10 @@ from warehouse.utils.paginate import paginate_url_factory
 
 from ....common.db.accounts import UserFactory
 from ....common.db.observations import ObserverFactory
+from ....common.db.organizations import (
+    OrganizationFactory,
+    OrganizationProjectFactory,
+)
 from ....common.db.packaging import (
     FileFactory,
     JournalEntryFactory,
@@ -199,10 +203,6 @@ class TestProjectDetail:
             views.project_detail(project, db_request)
 
     def test_with_organization(self, db_request):
-        from ....common.db.organizations import (
-            OrganizationFactory,
-            OrganizationProjectFactory,
-        )
 
         organization = OrganizationFactory.create(
             upload_limit=150 * views.ONE_MIB,
