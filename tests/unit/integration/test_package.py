@@ -41,7 +41,7 @@ class TestPayloadVerifier:
         )
 
         with pytest.raises(NotImplementedError):
-            payload_verifier.metric_name
+            payload_verifier.metric_name  # noqa: B018
 
         with pytest.raises(NotImplementedError):
             payload_verifier.retrieve_public_key_payload()

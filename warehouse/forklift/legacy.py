@@ -65,8 +65,10 @@ from warehouse.rate_limiting.interfaces import RateLimiterException
 from warehouse.utils import readme, scanner, zipfiles
 from warehouse.utils.release import strip_keywords
 from warehouse.utils.wheel import (
+    InvalidWheelEntryPointsError,
     InvalidWheelRecordError,
     MissingWheelRecordError,
+    validate_entrypoints,
     validate_record,
 )
 
@@ -991,7 +993,7 @@ def file_upload(request):
             dynamic=[x.title() for x in meta.dynamic] if meta.dynamic else None,
             **{
                 k: getattr(meta, k)
-                for k in {
+                for k in (
                     # This is a list of all the fields in the form that we
                     # should pull off and insert into our new release.
                     "summary",
@@ -1001,7 +1003,7 @@ def file_upload(request):
                     "author",
                     "maintainer",
                     "provides_extra",
-                }
+                )
             },
             uploader=request.user or None,
             uploaded_via=request.user_agent,
@@ -1448,6 +1450,15 @@ def file_upload(request):
                     set(project.users),
                     project_name=project.name,
                     filename=filename,
+                )
+
+            try:
+                validate_entrypoints(temporary_filename)
+            except InvalidWheelEntryPointsError:
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    f"Wheel '{filename}' has invalid entry points defined in "
+                    "the entry_points.txt file",
                 )
 
             """

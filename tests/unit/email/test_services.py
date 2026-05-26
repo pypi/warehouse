@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import random
+import sys
 import uuid
 
 import pretend
@@ -256,9 +258,6 @@ class TestSESEmailSender:
 
     def test_send_with_unicode_and_html(self, db_session):
         # Determine what the random boundary token will be
-        import random
-        import sys
-
         random.seed(42)
         token = random.randrange(sys.maxsize)
         random.seed(42)
@@ -337,12 +336,10 @@ class TestSESEmailSender:
             aws_client, sender="DevPyPI <noreply@example.com>", db=db_session
         )
         for address in [to, "somebody_else@example.com"]:
-            for subject in [subject, "I do not care about this"]:
+            for s in [subject, "I do not care about this"]:
                 sender.send(
                     f"Foobar <{address}>",
-                    EmailMessage(
-                        subject=subject, body_text="This is a plain text body"
-                    ),
+                    EmailMessage(subject=s, body_text="This is a plain text body"),
                 )
 
         # Send the last email that we care about

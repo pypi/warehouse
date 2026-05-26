@@ -44,8 +44,8 @@ class Configurator(_Configurator):
         app = super().make_wsgi_app(*args, **kwargs)
 
         # Look to see if we have any WSGI middlewares configured.
-        for middleware, args, kw in self.get_settings()["wsgi.middlewares"]:
-            app = middleware(app, *args, **kw)
+        for middleware, a, kw in self.get_settings()["wsgi.middlewares"]:
+            app = middleware(app, *a, **kw)
 
         # Finally, return our now wrapped app
         return app
