@@ -50,7 +50,7 @@ class TestSession:
         # this basically proves that the session object id is different per
         # thread
         results = [fifo.get() for _ in range(len(threads))]
-        idents, objects = zip(*results)
+        idents, objects = zip(*results, strict=False)
         assert len(set(idents)) == len(threads)
         assert len({id(obj) for obj in objects}) == len(threads)
 

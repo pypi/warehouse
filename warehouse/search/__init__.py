@@ -13,6 +13,7 @@ from warehouse import db
 from warehouse.packaging.models import LifecycleStatus, Project, Release
 from warehouse.search.interfaces import ISearchService
 from warehouse.search.services import SearchService
+from warehouse.search.tasks import reindex
 from warehouse.search.utils import get_index
 
 
@@ -109,8 +110,6 @@ def includeme(config):
     config.registry["opensearch.shards"] = int(qs.get("shards", ["1"])[0])
     config.registry["opensearch.replicas"] = int(qs.get("replicas", ["0"])[0])
     config.add_request_method(opensearch, name="opensearch", reify=True)
-
-    from warehouse.search.tasks import reindex
 
     config.add_periodic_task(crontab(minute=0, hour=6), reindex)
 

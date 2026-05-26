@@ -1044,9 +1044,7 @@ class TestTwoFactor:
         )
         form_class = pretend.call_recorder(lambda d, user_service, **kw: form_obj)
         db_request.route_path = pretend.call_recorder(lambda a: "/account/two-factor")
-        db_request.params = pretend.stub(
-            get=pretend.call_recorder(lambda k: query_params.get(k))
-        )
+        db_request.params = pretend.stub(get=pretend.call_recorder(query_params.get))
         db_request.user = user
 
         send_email = pretend.call_recorder(lambda *a: None)
@@ -1312,7 +1310,7 @@ class TestWebAuthn:
             POST={},
             session=pretend.stub(
                 get_webauthn_challenge=pretend.call_recorder(lambda: "not_real"),
-                clear_webauthn_challenge=pretend.call_recorder(lambda: pretend.stub()),
+                clear_webauthn_challenge=pretend.call_recorder(pretend.stub),
             ),
             find_service=lambda *a, **kw: pretend.stub(),
             host_url=pretend.stub(),
@@ -1365,7 +1363,7 @@ class TestWebAuthn:
         )
         pyramid_request.session = pretend.stub(
             get_webauthn_challenge=pretend.call_recorder(lambda: "not_real"),
-            clear_webauthn_challenge=pretend.call_recorder(lambda: pretend.stub()),
+            clear_webauthn_challenge=pretend.call_recorder(pretend.stub),
         )
         pyramid_request.find_service = lambda *a, **kw: user_service
         pyramid_request.user = user
@@ -1646,9 +1644,7 @@ class TestRecoveryCode:
         )
         form_class = pretend.call_recorder(lambda d, **kw: form_obj)
         db_request.route_path = pretend.call_recorder(lambda a: "/account/two-factor")
-        db_request.params = pretend.stub(
-            get=pretend.call_recorder(lambda k: query_params.get(k))
-        )
+        db_request.params = pretend.stub(get=pretend.call_recorder(query_params.get))
 
         result = views.recovery_code(db_request, _form_class=form_class)
 

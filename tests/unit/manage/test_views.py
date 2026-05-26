@@ -19,8 +19,6 @@ from sqlalchemy.orm import joinedload
 from webauthn.helpers import bytes_to_base64url
 from webob.multidict import MultiDict
 
-import warehouse.utils.otp as otp
-
 from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
     ITokenService,
@@ -53,6 +51,7 @@ from warehouse.packaging.models import (
     User,
 )
 from warehouse.rate_limiting import IRateLimiter
+from warehouse.utils import otp
 from warehouse.utils.paginate import paginate_url_factory
 
 from ...common.db.accounts import EmailFactory, UserFactory
@@ -1749,7 +1748,7 @@ class TestProvisionWebAuthn:
             ),
             session=pretend.stub(
                 get_webauthn_challenge=pretend.call_recorder(lambda: "fake_challenge"),
-                clear_webauthn_challenge=pretend.call_recorder(lambda: pretend.stub()),
+                clear_webauthn_challenge=pretend.call_recorder(pretend.stub),
                 flash=pretend.call_recorder(lambda *a, **kw: None),
             ),
             find_service=lambda *a, **kw: user_service,
@@ -1816,7 +1815,7 @@ class TestProvisionWebAuthn:
             user=pretend.stub(id=1234, webauthn=None),
             session=pretend.stub(
                 get_webauthn_challenge=pretend.call_recorder(lambda: "fake_challenge"),
-                clear_webauthn_challenge=pretend.call_recorder(lambda: pretend.stub()),
+                clear_webauthn_challenge=pretend.call_recorder(pretend.stub),
                 flash=pretend.call_recorder(lambda *a, **kw: None),
             ),
             find_service=lambda *a, **kw: user_service,

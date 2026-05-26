@@ -34,4 +34,4 @@ class RateLimiterException(Exception):  # noqa: N818
     def __init__(self, *args, resets_in, **kwargs):
         self.resets_in = resets_in
 
-        return super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
