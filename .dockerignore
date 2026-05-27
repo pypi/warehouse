@@ -56,5 +56,6 @@ sitecustomize.py
 tests
 **/Makefile
 
-# Not development only files, we use them in the container build
+# Not development only files, we use them in the container build/release/runtime
 !bin/docker
+!bin/release
