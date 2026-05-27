@@ -6,6 +6,7 @@ from pretend import call, call_recorder, raiser, stub
 from pyramid.httpexceptions import HTTPSeeOther
 from sqlalchemy.orm import joinedload
 
+from warehouse.events.tags import EventTag
 from warehouse.packaging.models import (
     Dependency,
     File,
@@ -18,11 +19,14 @@ from warehouse.packaging.models import (
 from warehouse.utils.project import (
     PROJECT_NAME_RE,
     clear_project_quarantine,
+    clear_release_quarantine,
     confirm_project,
     destroy_docs,
     quarantine_project,
+    quarantine_release,
     remove_documentation,
     remove_project,
+    remove_release,
 )
 
 from ...common.db.accounts import UserFactory
@@ -98,6 +102,23 @@ def test_confirm_incorrect_input():
     ]
 
 
+def test_confirm_custom_fail_route_params():
+    """An observation-scoped fail_route gets its own route params, not project_name."""
+    project = stub(name="foobar", normalized_name="foobar")
+    request = stub(
+        POST={"confirm_project_name": ""},
+        route_path=call_recorder(lambda *a, **kw: "/the-redirect"),
+        session=stub(flash=call_recorder(lambda *a, **kw: stub())),
+    )
+
+    with pytest.raises(HTTPSeeOther) as err:
+        confirm_project(
+            project, request, fail_route="fail_route", observation_id="obs-1"
+        )
+    assert err.value.location == "/the-redirect"
+    assert request.route_path.calls == [call("fail_route", observation_id="obs-1")]
+
+
 @pytest.mark.parametrize("flash", [True, False])
 def test_quarantine_project(db_request, flash):
     user = UserFactory.create()
@@ -144,6 +165,112 @@ def test_clear_project_quarantine(db_request, flash):
         .first()
     )
     assert bool(db_request.session.flash.calls) == flash
+
+
+@pytest.mark.parametrize("flash", [True, False])
+def test_quarantine_release(db_request, flash):
+    user = UserFactory.create()
+    project = ProjectFactory.create(name="foo")
+    release = ReleaseFactory.create(project=project, version="1.0")
+
+    db_request.user = user
+    db_request.session = stub(flash=call_recorder(lambda *a, **kw: stub()))
+
+    quarantine_release(release, db_request, flash=flash)
+
+    refreshed = db_request.db.query(Release).filter(Release.id == release.id).one()
+    assert refreshed.lifecycle_status == LifecycleStatus.QuarantineEnter
+    assert refreshed.lifecycle_status_note == f"Quarantined by {user.username}."
+
+    # A journal entry should be recorded for the release-level action.
+    assert (
+        db_request.db.query(JournalEntry)
+        .filter(JournalEntry.name == project.name)
+        .filter(JournalEntry.version == release.version)
+        .filter(JournalEntry.action == "release quarantined")
+        .count()
+        == 1
+    )
+    # The project itself is not affected.
+    assert refreshed.project.lifecycle_status is None
+    assert bool(db_request.session.flash.calls) == flash
+
+
+@pytest.mark.parametrize("flash", [True, False])
+def test_clear_release_quarantine(db_request, flash):
+    user = UserFactory.create()
+    project = ProjectFactory.create(name="foo")
+    release = ReleaseFactory.create(
+        project=project,
+        version="1.0",
+        lifecycle_status=LifecycleStatus.QuarantineEnter,
+    )
+
+    db_request.user = user
+    db_request.session = stub(flash=call_recorder(lambda *a, **kw: stub()))
+
+    clear_release_quarantine(release, db_request, flash=flash)
+
+    refreshed = db_request.db.query(Release).filter(Release.id == release.id).one()
+    assert refreshed.lifecycle_status == LifecycleStatus.QuarantineExit
+    assert (
+        db_request.db.query(JournalEntry)
+        .filter(JournalEntry.name == project.name)
+        .filter(JournalEntry.version == release.version)
+        .filter(JournalEntry.action == "release quarantine cleared")
+        .count()
+        == 1
+    )
+    assert bool(db_request.session.flash.calls) == flash
+
+
+def test_remove_release(monkeypatch, db_request):
+    """Removes a release, journals it, emits the event. Does *not* email."""
+    user = UserFactory.create()
+    project = ProjectFactory.create(name="foo")
+    RoleFactory.create(user=user, project=project)
+    release = ReleaseFactory.create(project=project, version="1.0")
+    other_release = ReleaseFactory.create(project=project, version="1.1")
+    project.record_event = call_recorder(lambda *a, **kw: None)
+
+    db_request.user = user
+
+    # Contributor notification is the caller's responsibility. The helper
+    # mirrors :func:`remove_project`, which never emails.
+    send_email = call_recorder(lambda req, contrib, **k: None)
+    monkeypatch.setattr(
+        "warehouse.email.send_removed_project_release_email", send_email
+    )
+
+    remove_release(release, db_request, reason="compromised account")
+
+    # The target release is gone, the sibling release is untouched.
+    remaining = db_request.db.query(Release).filter(Release.project == project).all()
+    assert [r.version for r in remaining] == [other_release.version]
+
+    entry = (
+        db_request.db.query(JournalEntry)
+        .options(joinedload(JournalEntry.submitted_by))
+        .filter(JournalEntry.action == "remove release")
+        .one()
+    )
+    assert entry.name == project.name
+    assert entry.version == "1.0"
+    assert entry.submitted_by == user
+
+    assert project.record_event.calls == [
+        call(
+            tag=EventTag.Project.ReleaseRemove,
+            request=db_request,
+            additional={
+                "submitted_by": user.username,
+                "canonical_version": "1",
+                "reason": "compromised account",
+            },
+        )
+    ]
+
+    assert send_email.calls == []
 
 
 @pytest.mark.parametrize("flash", [True, False])

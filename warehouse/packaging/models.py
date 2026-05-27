@@ -242,7 +242,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
     )
     releases: Mapped[list[Release]] = orm.relationship(
         cascade="all, delete-orphan",
-        order_by=lambda: Release._pypi_ordering.desc(),
+        order_by=lambda: Release._pypi_ordering.desc(),  # noqa: PLW0108
         passive_deletes=True,
     )
     alternate_repositories: Mapped[list[AlternateRepository]] = orm.relationship(
@@ -484,7 +484,13 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             session.query(
                 Release.version, Release.created, Release.is_prerelease, Release.summary
             )
-            .filter(Release.project == self, Release.yanked.is_(False))
+            .filter(
+                Release.project == self,
+                Release.yanked.is_(False),
+                Release.lifecycle_status.is_distinct_from(
+                    LifecycleStatus.QuarantineEnter
+                ),
+            )
             .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
             .first()
         )
@@ -655,6 +661,7 @@ class Release(HasObservations, db.Model):
             Index("release_project_created_idx", cls.project_id, cls.created.desc()),
             Index("release_version_idx", cls.version),
             Index("release_canonical_version_idx", cls.canonical_version),
+            Index("releases_lifecycle_status_idx", cls.lifecycle_status),
             UniqueConstraint("project_id", "version"),
         )
 
@@ -703,6 +710,17 @@ class Release(HasObservations, db.Model):
     created: Mapped[datetime_now] = mapped_column()
     published: Mapped[bool_true] = mapped_column()
 
+    lifecycle_status: Mapped[LifecycleStatus | None] = mapped_column(
+        comment="Lifecycle status can change release visibility and access"
+    )
+    lifecycle_status_changed: Mapped[datetime_now | None] = mapped_column(
+        onupdate=func.now(),
+        comment="When the lifecycle status was last changed",
+    )
+    lifecycle_status_note: Mapped[str | None] = mapped_column(
+        comment="Note about the lifecycle status"
+    )
+
     description_id: Mapped[UUID] = mapped_column(
         ForeignKey("release_descriptions.id", onupdate="CASCADE", ondelete="CASCADE"),
         index=True,
@@ -733,7 +751,7 @@ class Release(HasObservations, db.Model):
     _project_urls: Mapped[list[ReleaseURL]] = orm.relationship(
         collection_class=attribute_keyed_dict("name"),
         cascade="all, delete-orphan",
-        order_by=lambda: ReleaseURL.name.asc(),
+        order_by=lambda: ReleaseURL.name.asc(),  # noqa: PLW0108
         passive_deletes=True,
     )
     project_urls = association_proxy(

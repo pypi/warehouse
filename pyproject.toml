@@ -66,7 +66,7 @@ extend_exclude = "warehouse/templates/api/simple/*"
 ignore = "H006,T002,T003,T028"
 
 [tool.mypy]
-python_version = "3.13"
+python_version = "3.14"
 warn_unreachable = true
 warn_unused_configs = true
 warn_unused_ignores = true
@@ -123,7 +123,7 @@ addopts = [
 ]
 cache_dir = ".cache/pytest"
 filterwarnings = [
-  "error:SELECT statement has a cartesian product:sqlalchemy.exc.SAWarning",
+  "error",
   "ignore::warehouse.utils.exceptions.DevelopmentModeWarning",
 
   # https://github.com/pypi/warehouse/issues/15454#issuecomment-2599321232
@@ -148,7 +148,7 @@ testpaths = ["tests/"]
 
 [tool.ruff]
 cache-dir = ".cache/ruff"
-target-version = "py313"
+target-version = "py314"
 
 [tool.ruff.lint]
 # enable ALL lints by default, then opt out of ones we don't want to use so that we
@@ -163,15 +163,21 @@ ignore = [
   "TD",  # this wants TODO comments to have author and link, which we don't do
   "ERA",  # this has a REALLY high false positive rate
   "ANN",  # requires typing annotations, which has almost 15k errors for us
-  "S",  # high false positives rate, checks for security issues so would be nice to use
+  "S101",  # We use assert in the test suite, but more importantly for type narrowing
   "FBT",  # rejects boolean params that change function behavior, requires api changes
-  "B",  # catches a lot of funky patterns, but needs reviewed to make sure they're ok
+  "B019",  # we have some uses of this, we should probably fix them
+  "B904",  # rejects raise without from, requires manual review
   "A",  # rejects shadowing builtins, which we do a bit and would need closer review
   "SLF",  # rejects using _private items, would need careful review to add
   "DTZ",  # prevents using naive datetimes, probably useful, but needs manual review
   "TRY",  # would require reworking some of our exceptions to make this work
   "EM",  # would require reworking some of our exceptions to make this work
-  "PL",  # a lot of rules, some might be good, a lot are noise but needs review
+  "PLR0911",  # too many return statements; I'm suspect on the value of the "too many X" rules
+  "PLR0912",  # too many branches; I'm suspect on the value of the "too many X" rules
+  "PLR0913",  # too many arguments; I'm suspect on the value of the "too many X" rules
+  "PLR0915",  # too many statements; I'm suspect on the value of the "too many X" rules
+  "PLR2004",  # we use a lot of magic values, maybe we shouldn't but for now allow it
+  "PLW1641",  # we don't need every object to implement __hash__
   "PTH",  # tries to enforce pathlib, but most of our paths are abstract urls/keys
   "ARG",  # rejects unused arguments, but we have to have them in a lot of places
   "C90",  # enforces mccabe complexity, adding would require refactoring
@@ -183,22 +189,36 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 # N805: zope.interface definitions look like classes, but are not
 "interfaces.py" = ["N805"]
-# PT009: These files use a lot of custom assertion tools that trip up this detection.
-"tests/unit/email/test_init.py" = ["PT009"]
-"tests/unit/email/test_services.py" = ["PT009"]
-"tests/unit/test_views.py" = ["PT009"]
-# TID252: Pretty much all of our tests use relative imports.
-"tests/**/*.py" = ["TID252"]
+
 # INP001: Our migrations are scripts not files that are part of a package
 "warehouse/migrations/**/*.py" = ["INP001"]
+
 # The warehouse cli can use print to give feedback to the user.
-"warehouse/cli/**/*.py" = ["T201"]
+# The warehouse cli also defers imports on purpose.
+"warehouse/cli/**/*.py" = ["T201", "PLC0415"]
+
 # INP001: These are just scripts as well.
 # T201: These scripts/helpers are fine to call print
 "bin/*.py" = ["INP001", "T201"]
 "dev/*.py" = ["INP001", "T201"]
 "docs/**/*.py" = ["INP001"]
 ".github/codeql/custom-queries/python/**/*.py" = ["INP001"]
+
+# PT009: These files use a lot of custom assertion tools that trip up this detection.
+"tests/unit/email/test_init.py" = ["PT009"]
+"tests/unit/email/test_services.py" = ["PT009"]
+"tests/unit/test_views.py" = ["PT009"]
+
+"tests/**/*.py" = [
+  "TID252",  # pretty much all of our tests use relative imports
+  "S104",  # tests use 0.0.0.0 as a sentinel value sometimes
+  "S105",  # tests aren't used in production and can use hardcoded pws for tests
+  "S106",  # tests aren't used in production and can use hardcoded pws for tests
+  "S108",  # tests use hardcoded tmp paths that get stubbed out
+  "S303",  # strength of the hash functions used in tests doesn't matter
+  "S311",  # tests don't need cryptographically strong randomness
+  "S324"  # strength of the hash functions used in tests doesn't matter
+]
 
 [tool.ruff.lint.isort]
 combine-as-imports = true

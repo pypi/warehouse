@@ -31,6 +31,9 @@ import warehouse.constants
 from warehouse.accounts.utils import UserContext
 from warehouse.attestations.interfaces import IIntegrityService
 from warehouse.classifiers.models import Classifier
+from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE
+from warehouse.events.models import HasEvents
+from warehouse.events.tags import EventTag
 from warehouse.forklift import legacy, metadata
 from warehouse.macaroons import IMacaroonService, caveats, security_policy
 from warehouse.metrics import IMetricsService
@@ -163,6 +166,41 @@ def test_sort_releases(db_request, versions, expected):
     assert [
         r.version for r in sorted(releases, key=lambda r: r._pypi_ordering)
     ] == expected
+
+
+class TestCloseUploadTempfiles:
+    def test_closes_content_file_and_body_file(self):
+        content_file = pretend.stub(close=pretend.call_recorder(lambda: None))
+        body_file = pretend.stub(
+            closed=False, close=pretend.call_recorder(lambda: None)
+        )
+        request = pretend.stub(
+            POST={"content": pretend.stub(file=content_file)},
+            body_file_raw=body_file,
+        )
+
+        legacy._close_upload_tempfiles(request)
+
+        assert content_file.close.calls == [pretend.call()]
+        assert body_file.close.calls == [pretend.call()]
+
+    def test_no_content_field(self):
+        body_file = pretend.stub(
+            closed=False, close=pretend.call_recorder(lambda: None)
+        )
+        request = pretend.stub(POST={}, body_file_raw=body_file)
+
+        legacy._close_upload_tempfiles(request)
+
+        assert body_file.close.calls == [pretend.call()]
+
+    def test_skips_already_closed_body_file(self):
+        body_file = pretend.stub(closed=True, close=pretend.call_recorder(lambda: None))
+        request = pretend.stub(POST={}, body_file_raw=body_file)
+
+        legacy._close_upload_tempfiles(request)
+
+        assert body_file.close.calls == []
 
 
 class TestFileValidation:
@@ -4024,6 +4062,69 @@ class TestFileUpload:
         ]
         assert resp.status_code == 200
 
+    def test_upload_fails_with_invalid_entrypoints_wheel(
+        self, monkeypatch, pyramid_config, db_request
+    ):
+        """
+        Uploading a wheel fails if the entry_points.txt file is invalid.
+        """
+
+        user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        temp_f = io.BytesIO()
+        project_name = project.normalized_name.replace("-", "_")
+        with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
+            zfp.writestr("some_file", "some_data")
+            zfp.writestr(f"{project_name}-{release.version}.dist-info/METADATA", "")
+            zfp.writestr(
+                f"{project_name}-{release.version}.dist-info/entry_points.txt",
+                "[console_scripts]\n/bin/evil = evil:main\n",
+            )
+            zfp.writestr(
+                f"{project_name}-{release.version}.dist-info/RECORD",
+                dedent(
+                    f"""\
+                    some_file,
+                    {project_name}-{release.version}.dist-info/METADATA,
+                    {project_name}-{release.version}.dist-info/entry_points.txt,
+                    {project_name}-{release.version}.dist-info/RECORD,
+                    """,
+                ),
+            )
+
+        filename = f"{project_name}-{release.version}-cp34-none-any.whl"
+        filebody = temp_f.getvalue()
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "bdist_wheel",
+                "pyversion": "cp34",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
+
+        with pytest.raises(HTTPBadRequest, match="has invalid entry points"):
+            legacy.file_upload(db_request)
+
     def test_upload_fails_with_missing_metadata_wheel(
         self, monkeypatch, pyramid_config, db_request
     ):
@@ -4160,8 +4261,6 @@ class TestFileUpload:
         expected_version,
         test_with_user,
     ):
-        from warehouse.events.models import HasEvents
-        from warehouse.events.tags import EventTag
 
         project = ProjectFactory.create()
         if test_with_user:
@@ -4328,7 +4427,6 @@ class TestFileUpload:
         db_request,
         integrity_service,
     ):
-        from warehouse.events.models import HasEvents
 
         project = ProjectFactory.create()
         version = "1.0"
@@ -4433,7 +4531,6 @@ class TestFileUpload:
         db_request,
         invalid_attestations,
     ):
-        from warehouse.events.models import HasEvents
 
         project = ProjectFactory.create()
         version = "1.0"
@@ -6491,8 +6588,6 @@ class TestFileUpload:
         RoleFactory.create(user=user, project=project)
 
         # Verify model properties return system defaults
-        from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE
-
         assert project.upload_limit_size == MAX_FILESIZE
         assert project.total_size_limit_value == MAX_PROJECT_SIZE
 

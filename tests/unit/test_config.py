@@ -271,7 +271,7 @@ def test_configure(monkeypatch, settings, environment):
         add_jinja2_renderer=pretend.call_recorder(lambda renderer: None),
         add_jinja2_search_path=pretend.call_recorder(lambda path, name: None),
         get_settings=lambda: configurator_settings,
-        add_settings=pretend.call_recorder(lambda d: configurator_settings.update(d)),
+        add_settings=pretend.call_recorder(configurator_settings.update),
         add_tween=pretend.call_recorder(lambda tween_factory, **kw: None),
         add_static_view=pretend.call_recorder(lambda *a, **kw: None),
         add_cache_buster=pretend.call_recorder(lambda spec, buster: None),

@@ -596,7 +596,7 @@ class DatabaseOrganizationService:
         #    -> organizations.models -> organizations.services
         #  Figure out circular imports and move to top of module,
         #  or better, cascade https://github.com/pypi/warehouse/issues/19748
-        from warehouse.oidc.models._core import OIDCPublisherProjectAssociation
+        from warehouse.oidc.models._core import OIDCPublisherProjectAssociation  # noqa: PLC0415,I001
 
         self.db.execute(
             delete(OIDCPublisherProjectAssociation).where(

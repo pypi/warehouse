@@ -8752,7 +8752,7 @@ msgid "Newer version available (%(version)s)"
 msgstr "புதிய பதிப்பு கிடைக்கிறது (%(version)s)"
 
 #: warehouse/templates/packaging/detail.html:186
-msgid "Latest version"
+msgid "Latest release"
 msgstr "அண்மைக் கால பதிப்பு"
 
 #: warehouse/templates/packaging/detail.html:191

@@ -2,7 +2,7 @@
 
 # First things first, we build an image which is where we're going to compile
 # our static assets with. We use this stage in development.
-FROM node:25.8.1-bookworm AS static-deps
+FROM node:25.8.1-trixie AS static-deps
 
 # Set our working directory to our src directory
 WORKDIR /opt/warehouse/src/
@@ -42,7 +42,7 @@ RUN NODE_ENV=production npm run build
 
 # Create a base image that contains some helpers and settings for our python
 # stages to inherit from.
-FROM python:3.13.13-slim-bookworm AS base
+FROM python:3.14.5-slim-trixie AS base
 
 # Copy our helpers over into the base image
 COPY bin/docker/* /usr/local/bin/

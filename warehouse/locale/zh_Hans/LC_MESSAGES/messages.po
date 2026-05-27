@@ -8424,7 +8424,7 @@ msgid "Newer version available (%(version)s)"
 msgstr "发布版本 %(version)s"
 
 #: warehouse/templates/packaging/detail.html:186
-msgid "Latest version"
+msgid "Latest release"
 msgstr "最新版本"
 
 #: warehouse/templates/packaging/detail.html:191

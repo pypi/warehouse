@@ -8904,7 +8904,7 @@ msgid "Newer version available (%(version)s)"
 msgstr "K dispozícii je novšia verzia (%(version)s)"
 
 #: warehouse/templates/packaging/detail.html:186
-msgid "Latest version"
+msgid "Latest release"
 msgstr "Najnovšia verzia"
 
 #: warehouse/templates/packaging/detail.html:191
