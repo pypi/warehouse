@@ -2,7 +2,7 @@
 
 # First things first, we build an image which is where we're going to compile
 # our static assets with. We use this stage in development.
-FROM node:25.8.1-trixie AS static-deps
+FROM node:26.2.0-trixie AS static-deps
 
 # Set our working directory to our src directory
 WORKDIR /opt/warehouse/src/
