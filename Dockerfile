@@ -189,6 +189,10 @@ COPY --from=static /opt/warehouse/src/warehouse/admin/static/dist/ /opt/warehous
 # Warehouse itself require the least amount of layers being invalidated from
 # the cache. This is most important in development, but it also useful for
 # deploying new code changes.
+#
+# NOTE: We copy bin/release on it's own so that we can still exclude the rest
+#       of the bin/ directory when we copy over everything else.
+COPY bin/release /opt/warehouse/src/bin/release
 COPY --exclude=requirements \
      --exclude=bin \
      --exclude=docs \
