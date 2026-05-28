@@ -19,7 +19,7 @@ skip = [
 [tool.coverage.run]
 branch = true
 dynamic_context = "test_function"
-source = ["warehouse", "tests"]
+source = ["warehouse", "tests", "pyramid_components"]
 omit = [
   # We don't want to get coverage information for our migrations.
   "warehouse/migrations/*",
@@ -143,7 +143,12 @@ markers = [
   "unit: Quick running unit tests which test small units of functionality.",
 ]
 strict = true
-testpaths = ["tests/"]
+# pyramid_components ships its own suite under its (src-layout) project dir; it is
+# collected here alongside warehouse's. Its tests are rootless (no __init__.py), so
+# they import as bare `test_*` modules and never collide with warehouse's `tests.*`
+# package namespace. The package itself resolves via PYTHONPATH (see Dockerfile).
+# See: https://docs.pytest.org/en/stable/reference/customize.html#pyproject-toml
+testpaths = ["pyramid_components/tests/", "tests/"]
 
 [tool.ruff]
 cache-dir = ".cache/ruff"
@@ -191,6 +196,11 @@ ignore = [
 
 # INP001: Our migrations are scripts not files that are part of a package
 "warehouse/migrations/**/*.py" = ["INP001"]
+
+# INP001: pyramid_components' tests are intentionally rootless (no __init__.py) so
+# their modules import as bare `test_*` and never collide with warehouse's `tests.*`
+# package namespace under pytest's prepend import mode.
+"pyramid_components/tests/**/*.py" = ["INP001"]
 
 # The warehouse cli can use print to give feedback to the user.
 # The warehouse cli also defers imports on purpose.
