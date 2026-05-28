@@ -15,8 +15,13 @@ def includeme(config):
     # Setup Jinja2 Rendering for the Admin application
     config.add_jinja2_search_path("templates", name=".html")
 
-    # Register the {% component %} Jinja2 tag so admin templates can use it.
+    # Register the {% component %} tag, then import the component modules so
+    # they register themselves. Component templates are asset specs
+    # (warehouse.admin:components/...), so no search path is needed.
     config.include("pyramid_components")
+    # Imported here (not at module top) to avoid an import-time side effect on
+    # the module.
+    from warehouse.admin import components  # noqa: F401, PLC0415
 
     # Setup our static assets
     prevent_http_cache = config.get_settings().get("pyramid.prevent_http_cache", False)

@@ -1,43 +1,18 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import time
-
 from http import HTTPStatus
 
-from tests.common.constants import REMOTE_ADDR
-from tests.common.db.accounts import UserFactory, UserUniqueLoginFactory
-from tests.common.db.ip_addresses import IpAddressFactory
+from tests.common.db.accounts import UserFactory
 from tests.common.db.organizations import OrganizationFactory, OrganizationRoleFactory
 from tests.common.db.packaging import ProhibitedProjectFactory
-from warehouse.accounts.models import UniqueLoginStatus
 from warehouse.organizations.models import OrganizationProject
 from warehouse.packaging.models import Project
-from warehouse.utils.otp import _get_totp
 
 
 class TestReleaseProhibitedProjectName:
-    def _login_admin(self, webtest, user):
-        """Log in a superuser with 2FA and a pre-confirmed IP."""
-        ip_address = IpAddressFactory.create(ip_address=REMOTE_ADDR)
-        UserUniqueLoginFactory.create(
-            user=user,
-            ip_address=ip_address,
-            status=UniqueLoginStatus.CONFIRMED,
-        )
-
-        login_page = webtest.get("/account/login/", status=HTTPStatus.OK)
-        login_form = login_page.forms["login-form"]
-        login_form["username"] = user.username
-        login_form["password"] = "password"
-
-        two_factor_page = login_form.submit().follow(status=HTTPStatus.OK)
-        two_factor_form = two_factor_page.forms["totp-auth-form"]
-        two_factor_form["totp_value"] = (
-            _get_totp(user.totp_secret).generate(time.time()).decode()
-        )
-        two_factor_form.submit().follow(status=HTTPStatus.OK)
-
-    def test_release_to_organization_redirects_to_project_detail(self, webtest):
+    def test_release_to_organization_redirects_to_project_detail(
+        self, webtest, login_user
+    ):
         """
         Releasing a prohibited name to an organization returns a 303 to the new
         project's admin detail page, and following that redirect resolves (the
@@ -48,7 +23,7 @@ class TestReleaseProhibitedProjectName:
             with_verified_primary_email=True,
             clear_pwd="password",
         )
-        self._login_admin(webtest, admin)
+        login_user(admin)
 
         organization = OrganizationFactory.create(name="release-org")
         OrganizationRoleFactory.create(organization=organization, user=admin)
@@ -85,7 +60,7 @@ class TestReleaseProhibitedProjectName:
             == 1
         )
 
-    def test_release_error_redirects_to_list(self, webtest):
+    def test_release_error_redirects_to_list(self, webtest, login_user):
         """
         An error path (here, an unknown organization) returns a 303 whose target
         is the list page, not the POST-only release route. Following it resolves
@@ -96,7 +71,7 @@ class TestReleaseProhibitedProjectName:
             with_verified_primary_email=True,
             clear_pwd="password",
         )
-        self._login_admin(webtest, admin)
+        login_user(admin)
 
         ProhibitedProjectFactory.create(name="releasable")
 

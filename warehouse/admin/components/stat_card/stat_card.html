@@ -1,0 +1,23 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+<div class="small-box {{ color }}">
+  <div class="inner">
+    <h3>{{ value }}</h3>
+    {% for line in sublines %}
+    <h4>{{ line }}</h4>
+    {% endfor %}
+    {% if description %}
+    <p>{{ description }}</p>
+    {% endif %}
+  </div>
+  <div class="icon">
+    <i class="fa-solid {{ icon }}"></i>
+  </div>
+  {% if footer_url %}
+  <a href="{{ footer_url }}" class="small-box-footer">
+    {{ footer_text }} <i class="fas fa-arrow-circle-right"></i>
+  </a>
+  {% endif %}
+  {% if tooltip %}
+  <i class="fa fa-info-circle info-icon" title="{{ tooltip }}"></i>
+  {% endif %}
+</div>

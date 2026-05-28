@@ -43,7 +43,7 @@ def test_includeme(mock_manifest_cache_buster, monkeypatch):
         )
     ]
     assert config.add_jinja2_search_path.calls == [
-        pretend.call("templates", name=".html")
+        pretend.call("templates", name=".html"),
     ]
     assert config.add_static_view.calls == [
         pretend.call(
