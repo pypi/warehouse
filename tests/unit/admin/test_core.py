@@ -51,6 +51,7 @@ def test_includeme(mock_manifest_cache_buster, monkeypatch):
         )
     ]
     assert config.include.calls == [
+        pretend.call("pyramid_components"),
         pretend.call(".routes"),
         pretend.call(".flags"),
         pretend.call(".bans"),

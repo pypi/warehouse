@@ -15,6 +15,9 @@ def includeme(config):
     # Setup Jinja2 Rendering for the Admin application
     config.add_jinja2_search_path("templates", name=".html")
 
+    # Register the {% component %} Jinja2 tag so admin templates can use it.
+    config.include("pyramid_components")
+
     # Setup our static assets
     prevent_http_cache = config.get_settings().get("pyramid.prevent_http_cache", False)
     config.add_static_view(
