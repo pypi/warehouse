@@ -1,0 +1,26 @@
+id: no-sqla-backref
+snapshots:
+  orm.relationship(backref="something"):
+    labels:
+    - source: backref="something"
+      style: primary
+      start: 17
+      end: 36
+  relationship(backref="something"):
+    labels:
+    - source: backref="something"
+      style: primary
+      start: 13
+      end: 32
+  relationship(firstthing=False, backref="something", other=True):
+    labels:
+    - source: backref="something"
+      style: primary
+      start: 31
+      end: 50
+  sqlalchemy.orm.relationship(backref="something"):
+    labels:
+    - source: backref="something"
+      style: primary
+      start: 28
+      end: 47

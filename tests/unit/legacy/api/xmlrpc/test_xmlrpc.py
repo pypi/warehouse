@@ -118,7 +118,7 @@ class TestSearch:
 
         assert exc.value.faultString == (
             "RuntimeError: PyPI no longer supports 'pip search' (or XML-RPC search). "
-            f"Please use https://{domain if domain else 'example.org'}/search "
+            f"Please use https://{domain or 'example.org'}/search "
             "(via a browser) instead. See "
             "https://warehouse.pypa.io/api-reference/xml-rpc.html#deprecated-methods "
             "for more information."

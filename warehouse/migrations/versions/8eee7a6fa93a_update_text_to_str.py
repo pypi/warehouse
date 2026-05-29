@@ -81,7 +81,7 @@ def upgrade():
         "description",
         existing_type=sa.TEXT(),
         type_=sa.String(),
-        existing_comment="Description of the business or project the organization represents",  # noqa
+        existing_comment="Description of the business or project the organization represents",  # noqa: E501
         existing_nullable=False,
     )
     op.alter_column(
@@ -127,7 +127,7 @@ def upgrade():
         "description",
         existing_type=sa.TEXT(),
         type_=sa.String(),
-        existing_comment="Description of the business or project the organization represents",  # noqa
+        existing_comment="Description of the business or project the organization represents",  # noqa: E501
         existing_nullable=False,
     )
     op.alter_column(
@@ -519,7 +519,7 @@ def downgrade():
         "description",
         existing_type=sa.String(),
         type_=sa.TEXT(),
-        existing_comment="Description of the business or project the organization represents",  # noqa
+        existing_comment="Description of the business or project the organization represents",  # noqa: E501
         existing_nullable=False,
     )
     op.alter_column(
@@ -565,7 +565,7 @@ def downgrade():
         "description",
         existing_type=sa.String(),
         type_=sa.TEXT(),
-        existing_comment="Description of the business or project the organization represents",  # noqa
+        existing_comment="Description of the business or project the organization represents",  # noqa: E501
         existing_nullable=False,
     )
     op.alter_column(

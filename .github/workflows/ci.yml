@@ -92,10 +92,10 @@ jobs:
           persist-credentials: false
       - name: Cache mypy results
         if: ${{ (matrix.name == 'Lint') }}
-        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: |
-              dev/.mypy_cache
+              .cache/mypy
           key: ${{ runner.os }}-mypy-${{ env.pythonLocation }}-${{ hashFiles('requirements.txt', 'requirements/*.txt') }}
       - name: Run ${{ matrix.name }}
         run: ${{ matrix.command }}
@@ -128,7 +128,7 @@ jobs:
       - name: Dotenv Action
         # We need to load the environment variables to run the CLI
         id: dotenv
-        uses: falti/dotenv-action@f4656c46de6bc223dda660f6724d52537bc0642a # v1.1.5
+        uses: falti/dotenv-action@73fafca04177425fd3e0a0849257015ae9d42034 # v1.2.0
         with:
           path: dev/environment
           export-variables: true

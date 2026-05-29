@@ -13,7 +13,7 @@ def aws_session_factory(context, request):
     return boto3.session.Session(
         aws_access_key_id=request.registry.settings["aws.key_id"],
         aws_secret_access_key=request.registry.settings["aws.secret_key"],
-        **kwargs
+        **kwargs,
     )
 
 

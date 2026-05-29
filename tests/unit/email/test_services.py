@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import random
+import sys
 import uuid
 
 import pretend
@@ -129,7 +131,7 @@ class TestSMTPEmailSender:
         service = sender_class(mailer, sender="DevPyPI <noreply@example.com>")
 
         service.send(
-            "sombody@example.com",
+            "somebody@example.com",
             EmailMessage(
                 subject="a subject", body_text="a body", body_html="a html body"
             ),
@@ -142,7 +144,7 @@ class TestSMTPEmailSender:
         assert msg.subject == "a subject"
         assert msg.body == "a body"
         assert msg.html == "a html body"
-        assert msg.recipients == ["sombody@example.com"]
+        assert msg.recipients == ["somebody@example.com"]
         assert msg.sender == "DevPyPI <noreply@example.com>"
 
     def test_last_sent(self, sender_class):
@@ -160,7 +162,7 @@ class TestConsoleAndSMTPEmailSender:
         )
 
         service.send(
-            "sombody@example.com",
+            "somebody@example.com",
             EmailMessage(
                 subject="a subject",
                 body_text="a body",
@@ -172,7 +174,7 @@ class TestConsoleAndSMTPEmailSender:
 Email sent
 Subject: a subject
 From: DevPyPI <noreply@example.com>
-To: sombody@example.com
+To: somebody@example.com
 HTML: Visualize at http://localhost:1080
 Text: a body"""
         assert captured.out.strip() == expected.strip()
@@ -256,9 +258,6 @@ class TestSESEmailSender:
 
     def test_send_with_unicode_and_html(self, db_session):
         # Determine what the random boundary token will be
-        import random
-        import sys
-
         random.seed(42)
         token = random.randrange(sys.maxsize)
         random.seed(42)
@@ -337,12 +336,10 @@ class TestSESEmailSender:
             aws_client, sender="DevPyPI <noreply@example.com>", db=db_session
         )
         for address in [to, "somebody_else@example.com"]:
-            for subject in [subject, "I do not care about this"]:
+            for s in [subject, "I do not care about this"]:
                 sender.send(
                     f"Foobar <{address}>",
-                    EmailMessage(
-                        subject=subject, body_text="This is a plain text body"
-                    ),
+                    EmailMessage(subject=s, body_text="This is a plain text body"),
                 )
 
         # Send the last email that we care about

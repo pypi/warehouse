@@ -3,7 +3,7 @@
 import enum
 
 
-class EventTagEnum(str, enum.Enum):
+class EventTagEnum(enum.StrEnum):
     """Base class for Enum representing Event tags.
 
     Tags can be broken into three colon-separated parts:
@@ -123,6 +123,8 @@ class EventTag:
         ProjectQuarantineEnter = "project:quarantine:enter"
         ProjectQuarantineExit = "project:quarantine:exit"
         ReleaseAdd = "project:release:add"
+        ReleaseQuarantineEnter = "project:release:quarantine:enter"
+        ReleaseQuarantineExit = "project:release:quarantine:exit"
         ReleaseRemove = "project:release:remove"
         ReleaseUnyank = "project:release:unyank"
         ReleaseYank = "project:release:yank"

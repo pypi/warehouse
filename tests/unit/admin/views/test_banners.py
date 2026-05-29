@@ -136,7 +136,7 @@ class TestEditBanner:
         result = views.edit_banner(db_request)
 
         assert "end" in result["form"].errors
-        assert "New name" == result["form"].data["name"]
+        assert result["form"].data["name"] == "New name"
 
 
 class TestDeleteBanner:

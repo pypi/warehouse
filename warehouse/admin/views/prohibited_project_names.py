@@ -48,10 +48,10 @@ def prohibited_project_names(request):
         terms = shlex.split(q)
 
         filters: list = []
-        for term in terms:
-            filters.append(
-                ProhibitedProjectName.name.ilike(func.normalize_pep426_name(term))
-            )
+        filters.extend(
+            ProhibitedProjectName.name.ilike(func.normalize_pep426_name(term))
+            for term in terms
+        )
 
         filters = filters or [True]
         prohibited_project_names_query = prohibited_project_names_query.filter(
@@ -190,7 +190,76 @@ def release_prohibited_project_name(request):
         f"{project.name!r} released to {user.username!r}.", queue="success"
     )
 
-    request.db.flush()  # flush db now so project.normalized_name is available
+    request.db.flush()  # generate project.normalized_name  # ast-grep-ignore: db-flush
+
+    return HTTPSeeOther(
+        request.route_path("admin.project.detail", project_name=project.normalized_name)
+    )
+
+
+@view_config(
+    route_name="admin.prohibited_project_names.ultranorm_release",
+    permission=Permissions.AdminProhibitedProjectsUltranormRelease,
+    request_method="POST",
+    uses_session=True,
+    require_methods=False,
+)
+def ultranorm_release_project_name(request):
+    project_name = request.POST.get("project_name")
+    if project_name is None:
+        request.session.flash("Provide a project name", queue="error")
+        return HTTPSeeOther(request.route_path("admin.prohibited_project_names.list"))
+
+    # Ensure no project with this exact normalized name already exists.
+    existing_project = (
+        request.db.query(Project)
+        .filter(Project.normalized_name == func.normalize_pep426_name(project_name))
+        .first()
+    )
+    if existing_project is not None:
+        request.session.flash(
+            f"{project_name!r} already exists as a project.",
+            queue="error",
+        )
+        return HTTPSeeOther(request.route_path("admin.prohibited_project_names.list"))
+
+    # Verify there IS an ultranormalization conflict (otherwise use normal creation).
+    similar_project_name = (
+        request.db.query(Project.name)
+        .filter(
+            func.ultranormalize_name(Project.name)
+            == func.ultranormalize_name(project_name)
+        )
+        .scalar()
+    )
+    if similar_project_name is None:
+        request.session.flash(
+            f"{project_name!r} has no ultranormalization conflict. "
+            "No admin override needed.",
+            queue="error",
+        )
+        return HTTPSeeOther(request.route_path("admin.prohibited_project_names.list"))
+
+    username = request.POST.get("username")
+    if not username:
+        request.session.flash("Provide a username", queue="error")
+        return HTTPSeeOther(request.route_path("admin.prohibited_project_names.list"))
+
+    user = request.db.query(User).filter(User.username == username).first()
+    if user is None:
+        request.session.flash(f"Unknown username '{username}'", queue="error")
+        return HTTPSeeOther(request.route_path("admin.prohibited_project_names.list"))
+
+    project = Project(name=project_name)
+    request.db.add(project)
+    request.db.add(Role(project=project, user=user, role_name="Owner"))
+
+    request.session.flash(
+        f"{project.name!r} provisioned to {user.username!r} "
+        f"(ultranorm conflict with {similar_project_name!r}).",
+        queue="success",
+    )
+    request.db.flush()  # generate project.normalized_name  # ast-grep-ignore: db-flush
 
     return HTTPSeeOther(
         request.route_path("admin.project.detail", project_name=project.normalized_name)
@@ -217,7 +286,7 @@ def add_prohibited_project_names(request):
             "Confirm the prohibited project name request", queue="error"
         )
         return HTTPSeeOther(request.current_route_path())
-    elif canonicalize_name(confirm) != canonicalize_name(project_name):
+    if canonicalize_name(confirm) != canonicalize_name(project_name):
         request.session.flash(
             f"{confirm!r} is not the same as {project_name!r}", queue="error"
         )

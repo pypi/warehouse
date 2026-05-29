@@ -42,6 +42,7 @@ class Permissions(StrEnum):
     AdminIpAddressesWrite = "admin:ip-addresses:write"
     AdminJournalRead = "admin:journal:read"
 
+    AdminMacaroonsInspect = "admin:macaroons:inspect"
     AdminMacaroonsRead = "admin:macaroons:read"
     AdminMacaroonsWrite = "admin:macaroons:write"
 
@@ -59,6 +60,9 @@ class Permissions(StrEnum):
     AdminProhibitedProjectsRead = "admin:prohibited-projects:read"
     AdminProhibitedProjectsWrite = "admin:prohibited-projects:write"
     AdminProhibitedProjectsRelease = "admin:prohibited-projects:release"
+    AdminProhibitedProjectsUltranormRelease = (
+        "admin:prohibited-projects:ultranorm-release"
+    )
 
     AdminProhibitedUsernameRead = "admin:prohibited-username:read"
     AdminProhibitedUsernameWrite = "admin:prohibited-username:write"
@@ -80,6 +84,9 @@ class Permissions(StrEnum):
 
     AdminUsersEmailWrite = "admin:users:email:write"
     AdminUsersAccountRecoveryWrite = "admin:users:account-recovery:write"
+
+    AdminVulnerabilitiesRead = "admin:vulnerabilities:read"
+    AdminVulnerabilitiesWrite = "admin:vulnerabilities:write"
 
     # API Permissions
     APIEcho = "api:echo"
@@ -104,6 +111,7 @@ class Permissions(StrEnum):
     OrganizationsManage = "organizations:manage"
     OrganizationsBillingManage = "organizations:billing:manage"
     OrganizationsRead = "organizations:read"
+    OrganizationsRoleRemove = "organizations:role:remove"
     OrganizationProjectsAdd = "organizations:projects:add"
     OrganizationProjectsRemove = "organizations:projects:remove"  # TODO: unused?
     OrganizationTeamsManage = "organizations:teams:manage"

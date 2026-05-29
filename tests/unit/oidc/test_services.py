@@ -82,16 +82,16 @@ class TestOIDCPublisherService:
                 token,
                 key=key,
                 algorithms=["RS256"],
-                options=dict(
-                    verify_signature=True,
-                    require=["iss", "iat", "exp", "aud"],
-                    verify_iss=True,
-                    verify_iat=True,
-                    verify_exp=True,
-                    verify_aud=True,
-                    verify_nbf=True,
-                    strict_aud=True,
-                ),
+                options={
+                    "verify_signature": True,
+                    "require": ["iss", "iat", "exp", "aud"],
+                    "verify_iss": True,
+                    "verify_iat": True,
+                    "verify_exp": True,
+                    "verify_aud": True,
+                    "verify_nbf": True,
+                    "strict_aud": True,
+                },
                 issuer=issuer_url,
                 audience="fakeaudience",
                 leeway=services._JWT_LEEWAY,
@@ -566,8 +566,7 @@ class TestOIDCPublisherService:
         def get(url, timeout=5):
             if url == "https://example.com/.well-known/jwks.json":
                 return jwks_resp
-            else:
-                return openid_resp
+            return openid_resp
 
         requests = pretend.stub(get=pretend.call_recorder(get))
         sentry_sdk = pretend.stub(
@@ -618,8 +617,7 @@ class TestOIDCPublisherService:
         def get(url, timeout=5):
             if url == "https://example.com/.well-known/jwks.json":
                 return jwks_resp
-            else:
-                return openid_resp
+            return openid_resp
 
         requests = pretend.stub(get=pretend.call_recorder(get))
         sentry_sdk = pretend.stub(
@@ -667,8 +665,7 @@ class TestOIDCPublisherService:
         def get(url, timeout=5):
             if url == "https://example.com/.well-known/jwks.json":
                 return jwks_resp
-            else:
-                return openid_resp
+            return openid_resp
 
         requests = pretend.stub(get=pretend.call_recorder(get))
         sentry_sdk = pretend.stub(
@@ -786,6 +783,33 @@ class TestOIDCPublisherService:
                 ],
             )
         ]
+
+    def test_get_key_id_fails_with_empty_jwt(self, monkeypatch):
+        token = pretend.stub()
+        key = pretend.stub()
+
+        service = services.OIDCPublisherService(
+            session=pretend.stub(),
+            publisher="example",
+            issuer_url="https://example.com",
+            audience="fakeaudience",
+            cache_url="rediss://fake.example.com",
+            metrics=pretend.stub(),
+        )
+        monkeypatch.setattr(
+            service, "_get_key", pretend.call_recorder(lambda kid, i: key)
+        )
+
+        monkeypatch.setattr(
+            services.jwt,
+            "get_unverified_header",
+            pretend.call_recorder(lambda token: {}),
+        )
+
+        with pytest.raises(
+            jwt.PyJWTError, match=r"Key ID not found for issuer 'https://example.com'"
+        ):
+            assert service._get_key_for_token(token, "https://example.com")
 
     def test_get_key_for_token(self, monkeypatch):
         token = pretend.stub()
@@ -934,8 +958,8 @@ class TestOIDCPublisherService:
         """
         A token whose ``exp`` just passed (but is still within leeway) must
         have its JTI key persist in Redis. If the TTL doesn't account for
-        the leeway, the key would be set with a past ``exat`` and Redis
-        would immediately evict it, allowing replay.
+        the leeway, the key would be set with a past ``exat``  # codespell:ignore exat
+        and Redis would immediately evict it, allowing replay.
         """
         service = services.OIDCPublisherService(
             session=pretend.stub(),
@@ -1000,7 +1024,9 @@ class TestNullOIDCPublisherService:
         )
 
     def test_warns_on_init(self, monkeypatch):
-        warnings = pretend.stub(warn=pretend.call_recorder(lambda m, c: None))
+        warnings = pretend.stub(
+            warn=pretend.call_recorder(lambda m, c, stacklevel: None)
+        )
         monkeypatch.setattr(services, "warnings", warnings)
 
         service = services.NullOIDCPublisherService(
@@ -1019,6 +1045,7 @@ class TestNullOIDCPublisherService:
                 "you should not use it in production due to the lack of actual "
                 "JWT verification.",
                 warehouse.utils.exceptions.InsecureOIDCPublisherWarning,
+                stacklevel=2,
             )
         ]
 
@@ -1119,10 +1146,11 @@ class TestNullOIDCPublisherService:
 
         assert service.verify_jwt_signature(jwt, "https://example.com") is None
 
-    def test_find_publisher(self, monkeypatch):
+    def test_find_publisher(self, metrics, monkeypatch):
+        issuer_url = "https://example.com"
         claims = SignedClaims(
             {
-                "iss": "foo",
+                "iss": issuer_url,
                 "iat": 1516239022,
                 "nbf": 1516239022,
                 "exp": 9999999999,
@@ -1134,10 +1162,10 @@ class TestNullOIDCPublisherService:
         service = services.NullOIDCPublisherService(
             session=pretend.stub(),
             publisher="example",
-            issuer_url="https://example.com",
+            issuer_url=issuer_url,
             audience="pypi",
             cache_url="rediss://fake.example.com",
-            metrics=pretend.stub(),
+            metrics=metrics,
         )
 
         publisher = pretend.stub(verify_claims=pretend.call_recorder(lambda c, s: True))
@@ -1328,6 +1356,10 @@ class TestPyJWTBackstop:
                 token,
                 self._pubkey,
                 algorithms=["RS256"],
-                options=dict(verify_signature=True, verify_aud=True, strict_aud=True),
+                options={
+                    "verify_signature": True,
+                    "verify_aud": True,
+                    "strict_aud": True,
+                },
                 audience="a",
             )

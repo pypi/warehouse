@@ -201,23 +201,25 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
         primaries = [x for x in self.emails if x.primary]
         if primaries:
             return primaries[0]
+        return None
 
     @property
     def public_email(self):
         publics = [x for x in self.emails if x.public]
         if publics:
             return publics[0]
+        return None
 
     @hybrid_property
     def email(self):
         primary_email = self.primary_email
         return primary_email.email if primary_email else None
 
-    @email.expression  # type: ignore
-    def email(self):
+    @email.expression  # type: ignore[no-redef]
+    def email(cls):
         return (
             select(Email.email)
-            .where((Email.user_id == self.id) & (Email.primary.is_(True)))
+            .where((Email.user_id == cls.id) & (Email.primary.is_(True)))
             .scalar_subquery()
         )
 
@@ -316,6 +318,7 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
                     Permissions.AdminUsersEmailWrite,
                     Permissions.AdminUsersAccountRecoveryWrite,
                     Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminVulnerabilitiesRead,
                 ),
             ),
             (
@@ -488,7 +491,7 @@ class ProhibitedUserName(db.Model):
     comment: Mapped[str] = mapped_column(server_default="")
 
 
-class UniqueLoginStatus(str, enum.Enum):
+class UniqueLoginStatus(enum.StrEnum):
     PENDING = "pending"
     CONFIRMED = "confirmed"
 

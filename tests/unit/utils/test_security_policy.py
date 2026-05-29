@@ -129,9 +129,9 @@ class TestMultiSecurityPolicy:
             pretend.stub(
                 identity=lambda r: identity1,
                 permits=(
-                    lambda r, c, p: r.identity == identity1
-                    and c == context
-                    and p == "myperm"
+                    lambda r, c, p: (
+                        r.identity == identity1 and c == context and p == "myperm"
+                    )
                 ),
             ),
             pretend.stub(identity=lambda r: identity2),

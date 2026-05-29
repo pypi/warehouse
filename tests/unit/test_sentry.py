@@ -4,8 +4,6 @@ import pretend
 import pytest
 import sentry_sdk
 
-from sentry_sdk.integrations.wsgi import SentryWsgiMiddleware
-
 from warehouse import sentry
 
 
@@ -17,7 +15,6 @@ def test_sentry_request_method():
 
 
 class TestSentryBeforeSend:
-
     @pytest.mark.parametrize(
         ("event", "hint"),
         [
@@ -71,7 +68,6 @@ def test_includeme(monkeypatch):
     config = pretend.stub(
         registry=Registry(),
         add_request_method=pretend.call_recorder(lambda *a, **kw: None),
-        add_wsgi_middleware=pretend.call_recorder(lambda *a, **kw: None),
     )
     config.registry.settings.update(
         {
@@ -101,4 +97,3 @@ def test_includeme(monkeypatch):
     assert config.add_request_method.calls == [
         pretend.call(sentry._sentry, name="sentry", reify=True)
     ]
-    assert config.add_wsgi_middleware.calls == [pretend.call(SentryWsgiMiddleware)]

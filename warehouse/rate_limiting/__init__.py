@@ -3,7 +3,7 @@
 import functools
 import logging
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import redis
 
@@ -26,7 +26,7 @@ def _return_on_exception(rvalue, *exceptions):
             try:
                 return fn(self, *args, **kwargs)
             except exceptions as exc:
-                logging.warning("Error computing rate limits: %r", exc)
+                logger.warning("Error computing rate limits: %r", exc)
                 self._metrics.increment(
                     "warehouse.ratelimiter.error", tags=[f"call:{fn.__name__}"]
                 )
@@ -55,19 +55,15 @@ class RateLimiter:
     @_return_on_exception(True, redis.RedisError)
     def test(self, *identifiers):
         return all(
-            [
-                self._window.test(limit, *self._get_identifiers(identifiers))
-                for limit in self._limits
-            ]
+            self._window.test(limit, *self._get_identifiers(identifiers))
+            for limit in self._limits
         )
 
     @_return_on_exception(True, redis.RedisError)
     def hit(self, *identifiers):
         return all(
-            [
-                self._window.hit(limit, *self._get_identifiers(identifiers))
-                for limit in self._limits
-            ]
+            self._window.hit(limit, *self._get_identifiers(identifiers))
+            for limit in self._limits
         )
 
     @_return_on_exception(None, redis.RedisError)
@@ -88,11 +84,11 @@ class RateLimiter:
             if remaining > 0:
                 continue
 
-            current = datetime.now(tz=timezone.utc)
-            reset = datetime.fromtimestamp(resets_at, tz=timezone.utc)
+            current = datetime.now(tz=UTC)
+            reset = datetime.fromtimestamp(resets_at, tz=UTC)
 
             # If our current datetime is either greater than or equal to when
-            # the limit resets, then we will skipp it since it has either
+            # the limit resets, then we will skip it since it has either
             # already reset, or it is resetting now.
             if current >= reset:
                 continue

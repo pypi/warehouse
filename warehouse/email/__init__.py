@@ -54,10 +54,8 @@ def _redact_ip(request, email):
         return user_email.user_id != request._unauthenticated_userid
     if request.user:
         return user_email.user_id != request.user.id
-    if request.remote_addr == "127.0.0.1":
-        # This is the IP used when synthesizing a request in a task
-        return True
-    return False
+
+    return request.remote_addr == "127.0.0.1"
 
 
 @tasks.task(bind=True, ignore_result=True, acks_late=True)
@@ -74,7 +72,7 @@ def send_email(task, request, recipient, msg, success_event):
             user.record_event(**success_event)
     except (BadHeaders, EncodingError, InvalidMessage) as exc:
         raise exc
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001
         # Send any other exception to Sentry, but don't re-raise it
         sentry_sdk.capture_exception(exc)
         task.retry(exc=exc)
@@ -256,7 +254,7 @@ def send_password_reset_unverified_email(_request, _user_and_email):
 
 @_email("verify-email", allow_unverified=True)
 def send_email_verification_email(request, user_and_email):
-    user, email = user_and_email
+    _user, email = user_and_email
     token_service = request.find_service(ITokenService, name="email")
     token = token_service.dumps({"action": "email-verify", "email.id": email.id})
 
@@ -310,7 +308,7 @@ def send_token_compromised_email_leak(request, user, *, public_url, origin):
 def send_account_recovery_initiated_email(
     request, user_and_email, *, project_name, support_issue_link, token
 ):
-    user, email = user_and_email
+    user, _email = user_and_email
     return {
         "user": user,
         "support_issue_link": support_issue_link,
@@ -941,7 +939,14 @@ def send_unyanked_project_release_email(
 
 @_email("removed-project-release")
 def send_removed_project_release_email(
-    request, user, *, release, submitter_name, submitter_role, recipient_role
+    request,
+    user,
+    *,
+    release,
+    submitter_name,
+    submitter_role,
+    recipient_role,
+    reason=None,
 ):
     recipient_role_descr = "an owner"
     if recipient_role == "Maintainer":
@@ -954,12 +959,21 @@ def send_removed_project_release_email(
         "submitter_name": submitter_name,
         "submitter_role": submitter_role.lower(),
         "recipient_role_descr": recipient_role_descr,
+        "reason": reason,
     }
 
 
 @_email("removed-project-release-file")
 def send_removed_project_release_file_email(
-    request, user, *, file, release, submitter_name, submitter_role, recipient_role
+    request,
+    user,
+    *,
+    file,
+    release,
+    submitter_name,
+    submitter_role,
+    recipient_role,
+    reason=None,
 ):
     recipient_role_descr = "an owner"
     if recipient_role == "Maintainer":
@@ -972,6 +986,7 @@ def send_removed_project_release_file_email(
         "submitter_name": submitter_name,
         "submitter_role": submitter_role.lower(),
         "recipient_role_descr": recipient_role_descr,
+        "reason": reason,
     }
 
 
@@ -1024,6 +1039,34 @@ def send_trusted_publisher_removed_email(request, user, project_name, publisher)
 def send_pending_trusted_publisher_invalidated_email(request, user, project_name):
     return {
         "project_name": project_name,
+    }
+
+
+@_email("pending-trusted-publisher-expired")
+def send_pending_trusted_publisher_expired_email(request, user, project_name, days):
+    return {
+        "project_name": project_name,
+        "days": days,
+    }
+
+
+@_email("pending-trusted-publisher-expiration-reminder")
+def send_pending_trusted_publisher_expiration_reminder_email(
+    request, user, project_name, days_remaining
+):
+    return {
+        "project_name": project_name,
+        "days_remaining": days_remaining,
+    }
+
+
+@_email("pending-trusted-publisher-reified")
+def send_pending_trusted_publisher_reified_email(
+    request, user, project_name, publisher_specifier
+):
+    return {
+        "project_name": project_name,
+        "publisher_specifier": publisher_specifier,
     }
 
 

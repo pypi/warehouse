@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import contextlib
 import os
 import os.path
 import re
@@ -13,6 +14,7 @@ from unittest import mock
 
 import alembic.command
 import click.testing
+import email_validator
 import pretend
 import pyramid.testing
 import pytest
@@ -100,7 +102,7 @@ def metrics():
     A good-enough fake metrics fixture.
     """
     return pretend.stub(
-        event=pretend.call_recorder(lambda *args, **kwargs: _event(*args, **kwargs)),
+        event=pretend.call_recorder(_event),
         gauge=pretend.call_recorder(
             lambda metric, value, tags=None, sample_rate=1: None
         ),
@@ -122,10 +124,30 @@ def metrics():
 
 
 @pytest.fixture
+def no_email_deliverability_check(monkeypatch):
+    """
+    Prevents unit tests from depending on live email deliverability DNS lookups.
+    """
+    original_validate_email = email_validator.validate_email
+
+    def validate_email_without_deliverability(
+        email, check_deliverability=True, *args, **kwargs
+    ):
+        return original_validate_email(
+            email, *args, check_deliverability=False, **kwargs
+        )
+
+    monkeypatch.setattr(
+        email_validator, "validate_email", validate_email_without_deliverability
+    )
+
+
+@pytest.fixture
 def jinja():
     dir_name = os.path.join(os.path.dirname(warehouse.__file__))
 
-    env = Environment(
+    return Environment(
+        autoescape=True,
         loader=FileSystemLoader(dir_name),
         extensions=[
             "jinja2.ext.i18n",
@@ -133,8 +155,6 @@ def jinja():
         ],
         cache_size=0,
     )
-
-    return env
 
 
 class _Services:
@@ -231,6 +251,7 @@ def pyramid_request(pyramid_services, jinja):
         info=pretend.call_recorder(lambda *args, **kwargs: None),
         warning=pretend.call_recorder(lambda *args, **kwargs: None),
         error=pretend.call_recorder(lambda *args, **kwargs: None),
+        exception=pretend.call_recorder(lambda *args, **kwargs: None),
     )
 
     def localize(message, **kwargs):
@@ -269,7 +290,7 @@ def cli():
 def database(request, worker_id):
     config = get_config(request)
     pg_host = config.host
-    pg_port = config.port or os.environ.get("PGPORT", 5432)
+    pg_port = config.port or os.environ.get("PGPORT", "5432")
     pg_user = config.user
     pg_db = f"tests-{worker_id}"
     pg_version = 17
@@ -283,13 +304,10 @@ def database(request, worker_id):
     )
 
     # In case the database already exists, possibly due to an aborted test run,
-    # attempt to drop it before creating
-    try:
+    # attempt to drop it before creating, we can safely ignore this exception as that
+    # means there was no leftover database
+    with contextlib.suppress(InvalidCatalogName):
         janitor.drop()
-    except InvalidCatalogName:
-        # We can safely ignore this exception as that means there was
-        # no leftover database
-        pass
 
     # Create our Database.
     janitor.init()
@@ -362,10 +380,12 @@ def get_app_config(database, nondefaults=None):
     if nondefaults:
         settings.update(nondefaults)
 
-    with mock.patch.object(config, "ManifestCacheBuster", MockManifestCacheBuster):
-        with mock.patch("warehouse.admin.ManifestCacheBuster", MockManifestCacheBuster):
-            with mock.patch.object(static, "whitenoise_add_manifest"):
-                cfg = config.configure(settings=settings)
+    with (
+        mock.patch.object(config, "ManifestCacheBuster", MockManifestCacheBuster),
+        mock.patch("warehouse.admin.ManifestCacheBuster", MockManifestCacheBuster),
+        mock.patch.object(static, "whitenoise_add_manifest"),
+    ):
+        cfg = config.configure(settings=settings)
 
     # Run migrations:
     # This might harmlessly run multiple times if there are several app config fixtures
@@ -455,28 +475,26 @@ def project_service(db_session, metrics, ratelimiters=None):
 
 
 @pytest.fixture
-def github_oidc_service(db_session):
-    # We pretend to be a verifier for GitHub OIDC JWTs, for the purposes of testing.
+def github_oidc_service(db_session, metrics):
     return oidc_services.NullOIDCPublisherService(
         db_session,
-        pretend.stub(),
+        "github",
         GITHUB_OIDC_ISSUER_URL,
+        "pypi",
         pretend.stub(),
-        pretend.stub(),
-        pretend.stub(),
+        metrics,
     )
 
 
 @pytest.fixture
-def activestate_oidc_service(db_session):
-    # We pretend to be a verifier for GitHub OIDC JWTs, for the purposes of testing.
+def activestate_oidc_service(db_session, metrics):
     return oidc_services.NullOIDCPublisherService(
         db_session,
-        pretend.stub(),
+        "activestate",
         ACTIVESTATE_OIDC_ISSUER_URL,
+        "pypi",
         pretend.stub(),
-        pretend.stub(),
-        pretend.stub(),
+        metrics,
     )
 
 
@@ -485,7 +503,7 @@ def dummy_attestation():
     return Attestation(
         version=1,
         verification_material=VerificationMaterial(
-            certificate="somebase64string", transparency_entries=[dict()]
+            certificate="somebase64string", transparency_entries=[{}]
         ),
         envelope=Envelope(
             statement="somebase64string",
@@ -725,7 +743,7 @@ class _TestApp(_webtest.TestApp):
 
 @pytest.fixture
 def tm():
-    # Create a new transaction manager for dependant test cases
+    # Create a new transaction manager for dependent test cases
     tm = transaction.TransactionManager(explicit=True)
     tm.begin()
 
@@ -781,7 +799,7 @@ class _MockRedis:
         self.cache = cache
 
         if not self.cache:  # pragma: no cover
-            self.cache = dict()
+            self.cache = {}
 
     def __enter__(self):
         return self
@@ -812,7 +830,7 @@ class _MockRedis:
 
     def hset(self, hash_, key, value, *_args, **_kwargs):
         if hash_ not in self.cache:  # pragma: no cover
-            self.cache[hash_] = dict()
+            self.cache[hash_] = {}
         self.cache[hash_][key] = value
 
     def get(self, key):
@@ -826,16 +844,18 @@ class _MockRedis:
 
     def scan_iter(self, search, count):
         del count  # unused
-        return [key for key in self.cache.keys() if re.search(search, key)]
+        return [key for key in self.cache if re.search(search, key)]
 
     def set(self, key, value=None, *_args, **_kwargs):
         if _kwargs.get("nx", False) and key in self.cache:
             return None
+        # codespell:ignore-begin 'exat'
         # Real Redis immediately evicts a key when exat is in the past.
         exat = _kwargs.get("exat")
         if exat is not None and exat <= time.time():
             self.cache.pop(key, None)
             return True
+        # codespell:ignore-end
         self.cache[key] = value
         return True
 

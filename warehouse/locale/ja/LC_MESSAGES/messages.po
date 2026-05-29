@@ -9635,7 +9635,7 @@ msgid "Newer version available (%(version)s)"
 msgstr "利用可能な新しいバージョン %(version)s"
 
 #: warehouse/templates/packaging/detail.html:186
-msgid "Latest version"
+msgid "Latest release"
 msgstr "最新バージョン"
 
 #: warehouse/templates/packaging/detail.html:191

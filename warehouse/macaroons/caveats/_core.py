@@ -52,7 +52,7 @@ class Caveat:
         raise NotImplementedError
 
     def __serialize__(self) -> Sequence:
-        return (self.tag,) + dataclasses.astuple(self)
+        return (self.tag, *dataclasses.astuple(self))
 
     @classmethod
     def __deserialize__(cls: type[Caveat], data: Sequence) -> Caveat:
@@ -90,7 +90,7 @@ class _CaveatRegistry:
     def add(self, tag: int, cls: type[Caveat]):
         if tag in self._tags:
             raise TypeError(
-                f"Cannot re-use tag: {tag}, already used by {self._tags[tag]}"
+                f"Cannot reuse tag: {tag}, already used by {self._tags[tag]}"
             )
 
         self._tags[tag] = cls

@@ -24,4 +24,4 @@ def profile(organization, request):
 
     if organization.is_active:
         return {"organization": organization}
-    raise HTTPNotFound()
+    raise HTTPNotFound

@@ -12,6 +12,11 @@
 
 /* Admin styles for the Warehouse project (PyPI) */
 
+/* Force DataTables to fill their container instead of using a fixed pixel width */
+table.dataTable {
+  width: 100% !important;
+}
+
 .table td,
 .table th {
   max-width: 30em;
@@ -40,11 +45,11 @@
   }
 
   @media (width <= 768px) {
-    td {
+    & td {
       padding: 0.75rem 0.5rem;
     }
 
-    .btn .btn-group-vertical {
+    .btn-group-vertical .btn {
       font-size: 0.875rem;
     }
   }
@@ -91,4 +96,9 @@
 /* Muted text for use on colored card backgrounds */
 .text-white-muted {
   opacity: 0.8;
+}
+
+/* Preserve newlines/whitespace in free-text fields while still wrapping */
+.preserve-whitespace {
+  white-space: pre-wrap;
 }

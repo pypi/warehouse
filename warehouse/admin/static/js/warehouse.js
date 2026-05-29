@@ -33,6 +33,13 @@ $(document).ready(function() {
   timeAgo();
 });
 
+// Recalculate DataTables columns after sidebar toggle animation completes
+$(document).on("collapsed-done.lte.pushmenu shown.lte.pushmenu", function() {
+  setTimeout(function() {
+    $($.fn.dataTable.tables({ visible: true })).DataTable().columns.adjust();
+  }, 350);
+});
+
 document.querySelectorAll("a[data-form-submit]").forEach(function (element) {
   element.addEventListener("click", function(event) {
     // We're turning this element into a form submission, so instead of the
@@ -216,6 +223,62 @@ if (OrganizationApplicationsTable.length) {
   });
   new $.fn.dataTable.Buttons(table, {buttons: ["copy", "csv", "colvis"]});
   table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
+}
+
+// Admin Observations — server-side DataTable
+let observationsTable = $("#observations-table");
+if (observationsTable.length) {
+  const escape = $.fn.dataTable.render.text();
+  const table = observationsTable.DataTable({
+    serverSide: true,
+    processing: true,
+    searchDelay: 400,
+    lengthChange: false,
+    responsive: true,
+    order: [[0, "desc"]],
+    ajax: {
+      url: observationsTable.data("url"),
+      dataType: "json",
+    },
+    columns: [
+      {
+        data: "created",
+        name: "created",
+        render: (d, type) =>
+          type === "display" && d
+            ? new Date(d).toISOString().replace("T", " ").slice(0, 19)
+            : d,
+      },
+      { data: "kind_display", name: "kind" },
+      {
+        data: "related",
+        name: "related_name",
+        orderable: false,
+        render: (d, type, row) =>
+          row.related_link
+            ? `<a href="${escape.display(row.related_link)}">${escape.display(d)}</a>`
+            : escape.display(d),
+      },
+      {
+        data: "summary",
+        name: "summary",
+        orderable: false,
+        render: escape.display,
+      },
+      {
+        data: "observer",
+        orderable: false,
+        render: (d, type, row) =>
+          row.observer_link
+            ? `<a href="${escape.display(row.observer_link)}">${escape.display(d || "")}</a>`
+            : escape.display(d || ""),
+      },
+    ],
+  });
+
+  $("#observations-kind-filter").on("change", function () {
+    table.column("kind:name").search(this.value).draw();
+  });
 }
 
 let organizationApplicationTurboModeSwitch = document.getElementById("organizationApplicationTurboMode");

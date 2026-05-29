@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pretend
 import pytest
@@ -238,9 +238,7 @@ class TestAutoQuarantineProject:
         dummy_task = pretend.stub(name="dummy_task")
         user = UserFactory.create(is_observer=True)
         # Create project that was created 1 hour ago
-        project = ProjectFactory.create(
-            created=datetime.now(timezone.utc) - timedelta(hours=1)
-        )
+        project = ProjectFactory.create(created=datetime.now(UTC) - timedelta(hours=1))
         ReleaseFactory.create(project=project)
 
         db_request.route_url = pretend.call_recorder(
@@ -279,9 +277,7 @@ class TestAutoQuarantineProject:
         """
         dummy_task = pretend.stub(name="dummy_task")
         user = UserFactory.create(is_observer=True)
-        project = ProjectFactory.create(
-            created=datetime.now(timezone.utc) - timedelta(hours=1)
-        )
+        project = ProjectFactory.create(created=datetime.now(UTC) - timedelta(hours=1))
         ReleaseFactory.create(project=project, yanked=True)
 
         db_request.route_url = pretend.call_recorder(
@@ -318,9 +314,7 @@ class TestAutoQuarantineProject:
         dummy_task = pretend.stub(name="dummy_task")
         user = UserFactory.create(is_observer=True)
         # Create project that was created 25 hours ago
-        project = ProjectFactory.create(
-            created=datetime.now(timezone.utc) - timedelta(hours=25)
-        )
+        project = ProjectFactory.create(created=datetime.now(UTC) - timedelta(hours=25))
         db_request.user = user
 
         observation = project.record_observation(
@@ -346,9 +340,7 @@ class TestAutoQuarantineProject:
         dummy_task = pretend.stub(name="dummy_task")
         user = UserFactory.create(is_observer=False)
         # Create project that was created 1 hour ago
-        project = ProjectFactory.create(
-            created=datetime.now(timezone.utc) - timedelta(hours=1)
-        )
+        project = ProjectFactory.create(created=datetime.now(UTC) - timedelta(hours=1))
         db_request.user = user
 
         observation = project.record_observation(

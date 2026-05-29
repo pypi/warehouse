@@ -30,9 +30,7 @@ class DomainPredicate:
 class HeadersPredicate:
     def __init__(self, val: list[str], config):
         if not val:
-            raise ConfigurationError(
-                "Excpected at least one value in headers predicate"
-            )
+            raise ConfigurationError("Expected at least one value in headers predicate")
 
         self.sub_predicates = [
             predicates.HeaderPredicate(subval, config) for subval in val
@@ -74,13 +72,12 @@ class ActiveOrganizationPredicate:
 
         if organization.is_in_good_standing():
             return True
-        elif (
+        if (
             # Organization accounts are disabled.
             request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS)
         ):
             return False
-        else:
-            raise HTTPSeeOther(request.route_path("manage.organizations"))
+        raise HTTPSeeOther(request.route_path("manage.organizations"))
 
 
 def includeme(config):

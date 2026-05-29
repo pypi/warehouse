@@ -19,8 +19,6 @@ from sqlalchemy.orm import joinedload
 from webauthn.helpers import bytes_to_base64url
 from webob.multidict import MultiDict
 
-import warehouse.utils.otp as otp
-
 from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
     ITokenService,
@@ -53,6 +51,7 @@ from warehouse.packaging.models import (
     User,
 )
 from warehouse.rate_limiting import IRateLimiter
+from warehouse.utils import otp
 from warehouse.utils.paginate import paginate_url_factory
 
 from ...common.db.accounts import EmailFactory, UserFactory
@@ -121,7 +120,7 @@ class TestManageUnverifiedAccount:
     @pytest.mark.parametrize(
         ("has_old_primary", "expected_old_address"),
         [
-            (True, "typo@exmaple.com"),
+            (True, "typo@exmaple.com"),  # codespell:ignore exmaple
             (False, None),
         ],
     )
@@ -129,7 +128,12 @@ class TestManageUnverifiedAccount:
         self, monkeypatch, has_old_primary, expected_old_address
     ):
         old_email = (
-            pretend.stub(id=1, email="typo@exmaple.com", verified=False, primary=True)
+            pretend.stub(
+                id=1,
+                email="typo@exmaple.com",  # codespell:ignore exmaple
+                verified=False,
+                primary=True,
+            )
             if has_old_primary
             else None
         )
@@ -548,7 +552,7 @@ class TestManageAccount:
         assert pyramid_request.session.flash.calls == [
             pretend.call(
                 f"Email {new_email_address} added - check your email for "
-                + "a verification link",
+                "a verification link",
                 queue="success",
             )
         ]
@@ -1744,7 +1748,7 @@ class TestProvisionWebAuthn:
             ),
             session=pretend.stub(
                 get_webauthn_challenge=pretend.call_recorder(lambda: "fake_challenge"),
-                clear_webauthn_challenge=pretend.call_recorder(lambda: pretend.stub()),
+                clear_webauthn_challenge=pretend.call_recorder(pretend.stub),
                 flash=pretend.call_recorder(lambda *a, **kw: None),
             ),
             find_service=lambda *a, **kw: user_service,
@@ -1811,7 +1815,7 @@ class TestProvisionWebAuthn:
             user=pretend.stub(id=1234, webauthn=None),
             session=pretend.stub(
                 get_webauthn_challenge=pretend.call_recorder(lambda: "fake_challenge"),
-                clear_webauthn_challenge=pretend.call_recorder(lambda: pretend.stub()),
+                clear_webauthn_challenge=pretend.call_recorder(pretend.stub),
                 flash=pretend.call_recorder(lambda *a, **kw: None),
             ),
             find_service=lambda *a, **kw: user_service,
@@ -2820,9 +2824,9 @@ class TestProvisionMacaroonViews:
 class TestManageProjects:
     def test_manage_projects(self, db_request):
         older_release = ReleaseFactory(created=datetime.datetime(2015, 1, 1))
-        project_with_older_release = ProjectFactory(releases=[older_release])
+        project_with_older_release = older_release.project
         newer_release = ReleaseFactory(created=datetime.datetime(2017, 1, 1))
-        project_with_newer_release = ProjectFactory(releases=[newer_release])
+        project_with_newer_release = newer_release.project
         older_project_with_no_releases = ProjectFactory(
             releases=[], created=datetime.datetime(2016, 1, 1)
         )
@@ -3431,9 +3435,12 @@ class TestManageProjectSettings:
 
     def test_remove_organization_project(self, monkeypatch, db_request):
         project = ProjectFactory.create(name="foo")
-        OrganizationProjectFactory.create(
-            organization=OrganizationFactory.create(name="bar"), project=project
-        )
+        organization = OrganizationFactory.create(name="bar")
+        OrganizationProjectFactory.create(organization=organization, project=project)
+
+        # Create a team under the departing org with access to the project.
+        team = TeamFactory.create(organization=organization)
+        TeamProjectRoleFactory.create(team=team, project=project, role_name="Owner")
 
         db_request.POST = MultiDict(
             {
@@ -3482,6 +3489,13 @@ class TestManageProjectSettings:
                 project_name=project.name,
             ),
         ]
+
+        stale_roles = (
+            db_request.db.query(TeamProjectRole)
+            .filter(TeamProjectRole.project == project)
+            .all()
+        )
+        assert len(stale_roles) == 0
 
     def test_transfer_organization_project_no_confirm(self):
         user = pretend.stub()
@@ -4338,12 +4352,57 @@ class TestManageProjectRelease:
             "files": files,
         }
 
+    @pytest.mark.parametrize(
+        "method",
+        [
+            "yank_project_release",
+            "unyank_project_release",
+            "delete_project_release",
+            "delete_project_release_file",
+        ],
+    )
+    def test_release_mutations_blocked_when_quarantined(self, pyramid_request, method):
+        release = pretend.stub(
+            version="1.2.3",
+            lifecycle_status=LifecycleStatus.QuarantineEnter,
+            yanked=False,
+            project=pretend.stub(name="foobar"),
+        )
+        pyramid_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/the-redirect"
+        )
+        pyramid_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        view = views.ManageProjectRelease(release, pyramid_request)
+        result = getattr(view, method)()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert pyramid_request.session.flash.calls == [
+            pretend.call(
+                "This release is in quarantine and cannot be modified.",
+                queue="error",
+            )
+        ]
+        assert pyramid_request.route_path.calls == [
+            pretend.call(
+                "manage.project.release",
+                project_name=release.project.name,
+                version=release.version,
+            )
+        ]
+        # Yank state is untouched
+        assert release.yanked is False
+
     def test_delete_project_release_disallow_deletion(
         self, monkeypatch, pyramid_request
     ):
         release = pretend.stub(
             version="1.2.3",
             canonical_version="1.2.3",
+            lifecycle_status=None,
             project=pretend.stub(
                 name="foobar", record_event=pretend.call_recorder(lambda *a, **kw: None)
             ),
@@ -4467,6 +4526,7 @@ class TestManageProjectRelease:
             project=pretend.stub(name="foobar"),
             yanked=False,
             yanked_reason="",
+            lifecycle_status=None,
         )
         pyramid_request.POST = {"confirm_yank_version": ""}
         pyramid_request.method = "POST"
@@ -4506,6 +4566,7 @@ class TestManageProjectRelease:
             project=pretend.stub(name="foobar"),
             yanked=False,
             yanked_reason="",
+            lifecycle_status=None,
         )
         pyramid_request.POST = {"confirm_yank_version": "invalid"}
         pyramid_request.method = "POST"
@@ -4531,7 +4592,7 @@ class TestManageProjectRelease:
         assert pyramid_request.session.flash.calls == [
             pretend.call(
                 "Could not yank release - "
-                + f"'invalid' is not the same as {release.version!r}",
+                f"'invalid' is not the same as {release.version!r}",
                 queue="error",
             )
         ]
@@ -4621,6 +4682,7 @@ class TestManageProjectRelease:
             project=pretend.stub(name="foobar"),
             yanked=True,
             yanked_reason="",
+            lifecycle_status=None,
         )
         pyramid_request.POST = {
             "confirm_unyank_version": "",
@@ -4663,6 +4725,7 @@ class TestManageProjectRelease:
             project=pretend.stub(name="foobar"),
             yanked=True,
             yanked_reason="Old reason",
+            lifecycle_status=None,
         )
         pyramid_request.POST = {
             "confirm_unyank_version": "invalid",
@@ -4691,7 +4754,7 @@ class TestManageProjectRelease:
         assert pyramid_request.session.flash.calls == [
             pretend.call(
                 "Could not un-yank release - "
-                + f"'invalid' is not the same as {release.version!r}",
+                f"'invalid' is not the same as {release.version!r}",
                 queue="error",
             )
         ]
@@ -4774,7 +4837,11 @@ class TestManageProjectRelease:
         ]
 
     def test_delete_project_release_no_confirm(self, pyramid_request):
-        release = pretend.stub(version="1.2.3", project=pretend.stub(name="foobar"))
+        release = pretend.stub(
+            version="1.2.3",
+            project=pretend.stub(name="foobar"),
+            lifecycle_status=None,
+        )
         pyramid_request.POST = {"confirm_delete_version": ""}
         pyramid_request.method = "POST"
         pyramid_request.db = pretend.stub(delete=pretend.call_recorder(lambda a: None))
@@ -4810,7 +4877,11 @@ class TestManageProjectRelease:
         ]
 
     def test_delete_project_release_bad_confirm(self, pyramid_request):
-        release = pretend.stub(version="1.2.3", project=pretend.stub(name="foobar"))
+        release = pretend.stub(
+            version="1.2.3",
+            project=pretend.stub(name="foobar"),
+            lifecycle_status=None,
+        )
         pyramid_request.POST = {"confirm_delete_version": "invalid"}
         pyramid_request.method = "POST"
         pyramid_request.db = pretend.stub(delete=pretend.call_recorder(lambda a: None))
@@ -4834,7 +4905,7 @@ class TestManageProjectRelease:
         assert pyramid_request.session.flash.calls == [
             pretend.call(
                 "Could not delete release - "
-                + f"'invalid' is not the same as {release.version!r}",
+                f"'invalid' is not the same as {release.version!r}",
                 queue="error",
             )
         ]
@@ -4847,7 +4918,11 @@ class TestManageProjectRelease:
         ]
 
     def test_delete_project_release_file_disallow_deletion(self, pyramid_request):
-        release = pretend.stub(version="1.2.3", project=pretend.stub(name="foobar"))
+        release = pretend.stub(
+            version="1.2.3",
+            project=pretend.stub(name="foobar"),
+            lifecycle_status=None,
+        )
         pyramid_request.method = "POST"
         pyramid_request.flags = pretend.stub(
             enabled=pretend.call_recorder(lambda *a: True)
@@ -4972,6 +5047,7 @@ class TestManageProjectRelease:
         release = pretend.stub(
             version="1.2.3",
             project=pretend.stub(name="foobar", normalized_name="foobar"),
+            lifecycle_status=None,
         )
         pyramid_request.POST = {"confirm_project_name": ""}
         pyramid_request.method = "POST"
@@ -5077,7 +5153,7 @@ class TestManageProjectRelease:
         assert db_request.session.flash.calls == [
             pretend.call(
                 "Could not delete file - "
-                + f"'invalid' is not the same as {release.project.name!r}",
+                f"'invalid' is not the same as {release.project.name!r}",
                 queue="error",
             )
         ]

@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import datetime
+import re
 import uuid
 
 import pretend
@@ -344,7 +345,9 @@ class TestManageOrganizationApplication:
             _organization_application, db_request
         )
 
-        with pytest.raises(HTTPBadRequest, match="Invalid information request."):
+        with pytest.raises(
+            HTTPBadRequest, match=re.escape("Invalid information request.")
+        ):
             view.manage_organization_application_submit()
 
 
@@ -1095,7 +1098,7 @@ class TestManageOrganizationSettings:
 
     #    assert isinstance(result, HTTPSeeOther)
     #    assert result.headers["Location"] == (
-    #        f"/manage/organization/{organization.normalized_name}/settings/#modal-close"
+    #        f"/manage/organization/{organization.normalized_name}/settings/#modal-close"  # noqa: E501
     #    )
     #    assert organization_service.rename_organization.calls == [
     #         pretend.call(organization.id, "FooBar")

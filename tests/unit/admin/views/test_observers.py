@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 
@@ -100,7 +100,7 @@ class TestGetObserverStats:
         observer = ObserverFactory.create()
         user.observer = observer
 
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         ProjectObservationFactory.create(
             kind="is_malware",
             observer=observer,
@@ -127,7 +127,7 @@ class TestGetObserverStats:
         observer = ObserverFactory.create()
         user.observer = observer
 
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         ProjectObservationFactory.create(
             kind="is_malware",
             observer=observer,
@@ -153,7 +153,7 @@ class TestGetObserverStats:
         observer = ObserverFactory.create()
         user.observer = observer
 
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         # 3 true positives
         for _ in range(3):
             ProjectObservationFactory.create(
@@ -332,7 +332,7 @@ class TestObserverDetail:
         observer = ObserverFactory.create()
         user.observer = observer
 
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
 
         # True positive (removed)
         ProjectObservationFactory.create(
@@ -466,7 +466,7 @@ class TestGetObserverDetailStats:
         observer = ObserverFactory.create()
         user.observer = observer
 
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
 
         # Create one of each type
         ProjectObservationFactory.create(

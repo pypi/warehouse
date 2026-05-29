@@ -66,17 +66,25 @@ const sharedWebpackManifestMap =
     // if the filename matches .js or .js.map, add js/ prefix if not already present
     if (file.name.match(/\.js(\.map)?$/)) {
       if (!file.name.startsWith("js/")) {
-        file.name = `js/${file.name}`; // eslint-disable-line no-param-reassign
+        file.name = `js/${file.name}`;
       }
     }
     // if the filename matches .css or .css.map, add a prefix of css/
     if (file.name.match(/\.css(\.map)?$/)) {
-      file.name = `css/${file.name}`; // eslint-disable-line no-param-reassign
+      file.name = `css/${file.name}`;
     }
     return file;
   };
 
 /* End Shared Plugins */
+
+const sharedPerformance = {
+  assetFilter: (assetFilename) =>
+    // Exclude zxcvbn dictionary chunks — inherently large and loaded async
+    !assetFilename.startsWith("zxcvbn") &&
+    // Exclude source maps and pre-compressed files — not loaded as page assets
+    !/\.(map|gz|br)$/.test(assetFilename),
+};
 
 const sharedResolve = {
   alias: {
@@ -251,6 +259,7 @@ module.exports = [
         },
       ],
     },
+    performance: sharedPerformance,
     optimization: {
       minimizer: [
         // default minimizer is Terser for JS. Extend here vs overriding.
@@ -331,7 +340,7 @@ module.exports = [
         filename: "js/admin.[contenthash].js",
       },
       all: {
-        import: "./warehouse/admin/static/css/admin.scss",
+        import: "./warehouse/admin/static/css/admin.css",
       },
     },
     devtool: "source-map",
@@ -344,11 +353,10 @@ module.exports = [
     module: {
       rules: [
         {
-          test: /\.(sa|sc|c)ss$/,
+          test: /\.css$/,
           use: [
             MiniCssExtractPlugin.loader,
             "css-loader",
-            "sass-loader",
           ],
         },
         {
@@ -409,6 +417,7 @@ module.exports = [
         // Global output path for all assets.
         path: path.resolve(__dirname, "warehouse/static/dist"),
       },
+      performance: sharedPerformance,
       dependencies: ["warehouse"],
       // Emit fewer stats-per-language in non-production builds.
       stats: (process.env.NODE_ENV === "production") ? undefined : "errors-warnings",

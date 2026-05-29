@@ -43,15 +43,14 @@ _WORKFLOW_FILENAME_RE = re.compile(
     )
     (?=@)               # lookahead match for `@`, constraining the group above
     """,
-    re.X,
+    re.VERBOSE,
 )
 
 
 def _extract_workflow_filename(workflow_ref: str) -> str | None:
     if match := _WORKFLOW_FILENAME_RE.search(workflow_ref):
         return match.group(0)
-    else:
-        return None
+    return None
 
 
 def _check_repository(
@@ -136,8 +135,7 @@ def _check_event_name(
             "Publishing from a workflow invoked via 'pull_request_target' is "
             "not supported."
         )
-    else:
-        return True
+    return True
 
 
 class GitHubPublisherMixin:
@@ -197,11 +195,12 @@ class GitHubPublisherMixin:
     def _get_publisher_for_environment(
         cls, publishers: list[Self], environment: str | None
     ) -> Self | None:
-        if environment:
-            if specific_publisher := first_true(
+        if environment and (
+            specific_publisher := first_true(
                 publishers, pred=lambda p: p.environment == environment.lower()
-            ):
-                return specific_publisher
+            )
+        ):
+            return specific_publisher
 
         if general_publisher := first_true(
             publishers, pred=lambda p: p.environment == ""
@@ -232,8 +231,7 @@ class GitHubPublisherMixin:
 
         if publisher := cls._get_publisher_for_environment(publishers, environment):
             return publisher
-        else:
-            raise InvalidPublisherError("Publisher with matching claims was not found")
+        raise InvalidPublisherError("Publisher with matching claims was not found")
 
     @property
     def _workflow_slug(self) -> str:
@@ -278,11 +276,11 @@ class GitHubPublisherMixin:
         return GitHubIdentity(
             repository=self.repository,
             workflow=self.workflow_filename,
-            environment=self.environment if self.environment else None,
+            environment=self.environment or None,
         )
 
     def stored_claims(self, claims: SignedClaims | None = None) -> dict:
-        claims_obj = claims if claims else {}
+        claims_obj = claims or SignedClaims({})
         return {"ref": claims_obj.get("ref"), "sha": claims_obj.get("sha")}
 
     def __str__(self) -> str:
