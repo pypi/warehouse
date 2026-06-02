@@ -52,9 +52,7 @@ def auth_methods_for_route(route) -> frozenset[AuthenticationMethod] | None:
     Returns ``None`` when the route has no ``auth_methods`` predicate
     configured. Callers decide their own default behavior in that case.
     """
-    if route is None:
-        return None
-    for predicate in getattr(route, "predicates", ()):
+    for predicate in route.predicates:
         if isinstance(predicate, AuthMethodsPredicate):
             return predicate.val
     return None

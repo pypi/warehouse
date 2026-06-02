@@ -106,7 +106,7 @@ class TestBasicAuthSecurityPolicy:
                 remote_addr=REMOTE_ADDR,
             ),
             pretend.stub(
-                matched_route=pretend.stub(name="an.invalid.route"),
+                matched_route=pretend.stub(name="an.invalid.route", predicates=[]),
                 banned=pretend.stub(by_ip=lambda ip_address: False),
                 remote_addr=REMOTE_ADDR,
             ),
@@ -307,7 +307,7 @@ class TestSessionSecurityPolicy:
 
         request = pretend.stub(
             add_response_callback=pretend.call_recorder(lambda cb: None),
-            matched_route=pretend.stub(name="a.permitted.route"),
+            matched_route=pretend.stub(name="a.permitted.route", predicates=[]),
             banned=pretend.stub(by_ip=lambda ip_address: False),
             remote_addr=REMOTE_ADDR,
         )
@@ -339,7 +339,7 @@ class TestSessionSecurityPolicy:
         user_service = pretend.stub(get_user=pretend.call_recorder(lambda uid: None))
         request = pretend.stub(
             add_response_callback=pretend.call_recorder(lambda cb: None),
-            matched_route=pretend.stub(name="a.permitted.route"),
+            matched_route=pretend.stub(name="a.permitted.route", predicates=[]),
             find_service=pretend.call_recorder(lambda i, **kw: user_service),
             banned=pretend.stub(by_ip=lambda ip_address: False),
             remote_addr=REMOTE_ADDR,
@@ -380,7 +380,7 @@ class TestSessionSecurityPolicy:
         )
         request = pretend.stub(
             add_response_callback=pretend.call_recorder(lambda cb: None),
-            matched_route=pretend.stub(name="a.permitted.route"),
+            matched_route=pretend.stub(name="a.permitted.route", predicates=[]),
             find_service=pretend.call_recorder(lambda i, **kw: user_service),
             session=pretend.stub(
                 password_outdated=pretend.call_recorder(lambda ts: True),
@@ -434,7 +434,7 @@ class TestSessionSecurityPolicy:
         )
         request = pretend.stub(
             add_response_callback=pretend.call_recorder(lambda cb: None),
-            matched_route=pretend.stub(name="a.permitted.route"),
+            matched_route=pretend.stub(name="a.permitted.route", predicates=[]),
             find_service=pretend.call_recorder(lambda i, **kw: user_service),
             session=pretend.stub(
                 password_outdated=pretend.call_recorder(lambda ts: True),
@@ -493,7 +493,7 @@ class TestSessionSecurityPolicy:
         )
         request = pretend.stub(
             add_response_callback=pretend.call_recorder(lambda cb: None),
-            matched_route=pretend.stub(name="a.permitted.route"),
+            matched_route=pretend.stub(name="a.permitted.route", predicates=[]),
             find_service=pretend.call_recorder(lambda i, **kw: user_service),
             session=pretend.stub(
                 password_outdated=pretend.call_recorder(lambda ts: True),
@@ -546,7 +546,7 @@ class TestSessionSecurityPolicy:
         )
         request = pretend.stub(
             add_response_callback=pretend.call_recorder(lambda cb: None),
-            matched_route=pretend.stub(name="a.permitted.route"),
+            matched_route=pretend.stub(name="a.permitted.route", predicates=[]),
             find_service=pretend.call_recorder(lambda i, **kw: user_service),
             session=pretend.stub(
                 password_outdated=pretend.call_recorder(lambda ts: False)

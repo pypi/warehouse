@@ -96,13 +96,6 @@ class TestAuthMethodsForRoute:
         route = pretend.stub(predicates=[DomainPredicate("pypi.io", None)])
         assert auth_methods_for_route(route) is None
 
-    def test_returns_none_when_route_is_none(self):
-        assert auth_methods_for_route(None) is None
-
-    def test_returns_none_when_route_has_no_predicates_attr(self):
-        # Real Pyramid routes always have predicates, but test stubs may not.
-        assert auth_methods_for_route(pretend.stub()) is None
-
 
 class TestHeadersPredicate:
     @pytest.mark.parametrize(
