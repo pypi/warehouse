@@ -16,7 +16,7 @@ from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.utils import PublisherTokenContext
 from warehouse.utils.security_policy import (
     AuthenticationMethod,
-    permission_allows,
+    permission_allowed_by_authentication_method,
     principals_for,
 )
 
@@ -141,7 +141,9 @@ class MacaroonSecurityPolicy:
         # can't call this function without an identity that came from a macaroon
         assert isinstance(macaroon, str), "no valid macaroon"
 
-        if not permission_allows(permission, AuthenticationMethod.MACAROON):
+        if not permission_allowed_by_authentication_method(
+            permission, AuthenticationMethod.MACAROON
+        ):
             return WarehouseDenied(
                 f"API tokens are not valid for permission: {permission}!",
                 reason="invalid_permission",

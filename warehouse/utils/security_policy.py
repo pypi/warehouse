@@ -45,7 +45,7 @@ PERMISSION_AUTH_METHODS: dict[Permissions, frozenset[AuthenticationMethod]] = {
 }
 
 
-def permission_allows(
+def permission_allowed_by_authentication_method(
     permission: Permissions | str, method: AuthenticationMethod
 ) -> bool:
     """Return whether ``method`` may grant ``permission``."""

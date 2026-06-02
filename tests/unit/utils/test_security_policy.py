@@ -10,7 +10,10 @@ from tests.common.db.accounts import UserFactory
 from warehouse.accounts.utils import UserContext
 from warehouse.authnz import Permissions
 from warehouse.utils import security_policy
-from warehouse.utils.security_policy import AuthenticationMethod, permission_allows
+from warehouse.utils.security_policy import (
+    AuthenticationMethod,
+    permission_allowed_by_authentication_method,
+)
 
 
 def test_principals_for():
@@ -22,7 +25,7 @@ def test_principals_for_with_none():
     assert security_policy.principals_for(pretend.stub()) == []
 
 
-class TestPermissionAllows:
+class TestPermissionAllowedByAuthenticationMethod:
     @pytest.mark.parametrize(
         "permission",
         [
@@ -35,7 +38,9 @@ class TestPermissionAllows:
         ],
     )
     def test_macaroon_allowed_permissions(self, permission):
-        assert permission_allows(permission, AuthenticationMethod.MACAROON)
+        assert permission_allowed_by_authentication_method(
+            permission, AuthenticationMethod.MACAROON
+        )
 
     @pytest.mark.parametrize(
         "permission",
@@ -46,15 +51,23 @@ class TestPermissionAllows:
         ],
     )
     def test_macaroon_disallowed_permissions(self, permission):
-        assert not permission_allows(permission, AuthenticationMethod.MACAROON)
+        assert not permission_allowed_by_authentication_method(
+            permission, AuthenticationMethod.MACAROON
+        )
 
     def test_unknown_permission_defaults_to_session_only(self):
-        assert permission_allows("nonexistent", AuthenticationMethod.SESSION)
-        assert not permission_allows("nonexistent", AuthenticationMethod.MACAROON)
-        assert not permission_allows("nonexistent", AuthenticationMethod.BASIC_AUTH)
+        assert permission_allowed_by_authentication_method(
+            "nonexistent", AuthenticationMethod.SESSION
+        )
+        assert not permission_allowed_by_authentication_method(
+            "nonexistent", AuthenticationMethod.MACAROON
+        )
+        assert not permission_allowed_by_authentication_method(
+            "nonexistent", AuthenticationMethod.BASIC_AUTH
+        )
 
     def test_session_permission_allows_session(self):
-        assert permission_allows(
+        assert permission_allowed_by_authentication_method(
             Permissions.AccountManage, AuthenticationMethod.SESSION
         )
 
