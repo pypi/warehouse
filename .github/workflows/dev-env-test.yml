@@ -16,7 +16,12 @@ jobs:
         with:
           persist-credentials: false
       - run: make build
+      # Run migrations against a db-only stack first, mirroring `make serve`.
+      # Bringing the full app stack up before migrating lets live web/worker
+      # connections contend with migrations that intentionally use short
+      # lock/statement timeouts for production deploys, causing flaky
+      # statement-timeout and deadlock failures.
+      - run: make initdb
       - run: docker compose up -d
       - run: docker compose ps
-      - run: make initdb
       - run: make tests
