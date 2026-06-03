@@ -112,6 +112,7 @@ nav:
   - UI Principles: ui-principles.md
   - Security:
       - Overview: security/index.md
+      - Security Policy Flow: security/security-policy-flow.md
       - Attestation Internals: security/attestation-internals.md
   - Translations: translations.md
   - Roadmap and Sprints: roadmap.md
