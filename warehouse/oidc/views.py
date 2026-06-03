@@ -25,6 +25,7 @@ from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.errors import InvalidPublisherError, ReusedTokenError
 from warehouse.oidc.interfaces import IOIDCPublisherService, SignedClaims
 from warehouse.oidc.models import GitHubPublisher, OIDCPublisher, PendingOIDCPublisher
+from warehouse.oidc.models.github import _extract_workflow_filename
 from warehouse.oidc.models.gitlab import GitLabPublisher
 from warehouse.oidc.services import OIDCPublisherService
 from warehouse.oidc.utils import (
@@ -351,7 +352,9 @@ def mint_token(
                 "expires": expires_at,
                 "publisher_name": publisher.publisher_name,
                 "publisher_url": publisher.publisher_url(),
-                "reusable_workflow_used": is_from_reusable_workflow(publisher, claims),
+                "legacy_reusable_workflow_used": is_from_legacy_reusable_workflow(
+                    publisher, claims
+                ),
             },
         )
 
@@ -375,32 +378,32 @@ def mint_token(
         )
 
     # NOTE: This is for temporary metrics collection of GitHub Trusted Publishers
-    # that use reusable workflows. Since support for reusable workflows is accidental
-    # and not correctly implemented, we need to understand how widely it's being
-    # used before changing its behavior.
-    # ref: https://github.com/pypi/warehouse/pull/16364
-    if claims and is_from_reusable_workflow(publisher, claims):
+    # that use the legacy support for reusable workflows.
+    if claims and is_from_legacy_reusable_workflow(publisher, claims):
         metrics = request.find_service(IMetricsService, context=None)
-        metrics.increment("warehouse.oidc.mint_token.github_reusable_workflow")
+        metrics.increment("warehouse.oidc.mint_token.github_legacy_reusable_workflow")
 
     return {"success": True, "token": serialized, "expires": expires_at}
 
 
-def is_from_reusable_workflow(
+def is_from_legacy_reusable_workflow(
     publisher: OIDCPublisher | None, claims: SignedClaims
 ) -> bool:
-    """Detect if the claims are originating from a reusable workflow."""
+    """Detect if the claims are originating from a legacy reusable workflow."""
     if not isinstance(publisher, GitHubPublisher):
         return False
 
     job_workflow_ref = claims.get("job_workflow_ref")
     workflow_ref = claims.get("workflow_ref")
 
-    # When using reusable workflows, `job_workflow_ref` contains the reusable (
-    # called) workflow and `workflow_ref` contains the parent (caller) workflow.
-    # With non-reusable workflows they are the same, so we count reusable
-    # workflows by checking if they are different.
-    return bool(job_workflow_ref and workflow_ref and job_workflow_ref != workflow_ref)
+    if workflow_ref and job_workflow_ref:
+        claim_workflow_filename = _extract_workflow_filename(workflow_ref)
+        # If the publisher's workflow is different from the top-level workflow claim,
+        # we are in the legacy case
+        if publisher.workflow_filename != claim_workflow_filename:
+            return True
+
+    return False
 
 
 def should_send_environment_warning_email(

@@ -25,7 +25,7 @@ from warehouse.oidc import errors, views
 from warehouse.oidc.interfaces import IOIDCPublisherService, SignedClaims
 from warehouse.oidc.models import GitHubPublisher
 from warehouse.oidc.views import (
-    is_from_reusable_workflow,
+    is_from_legacy_reusable_workflow,
     should_send_environment_warning_email,
 )
 from warehouse.organizations.models import OrganizationProject
@@ -793,7 +793,7 @@ def test_mint_token_no_pending_publisher_ok(
                 "expires": 900,
                 "publisher_name": "GitHub",
                 "publisher_url": "https://fake/url",
-                "reusable_workflow_used": False,
+                "legacy_reusable_workflow_used": False,
             },
         )
     ]
@@ -912,7 +912,7 @@ def test_mint_token_warn_constrain_environment(monkeypatch, db_request):
                 "expires": 900,
                 "publisher_name": "GitHub",
                 "publisher_url": "https://fake/url",
-                "reusable_workflow_used": False,
+                "legacy_reusable_workflow_used": False,
             },
         )
     ]
@@ -958,7 +958,12 @@ def test_mint_token_with_prohibited_name_fails(monkeypatch, db_request):
 
 
 @pytest.mark.parametrize(
-    ("claims_in_token", "is_reusable", "is_github"),
+    (
+        "claims_in_token",
+        "publisher_workflow_filename",
+        "is_legacy_reusable",
+        "is_github",
+    ),
     [
         (
             {
@@ -968,7 +973,19 @@ def test_mint_token_with_prohibited_name_fails(monkeypatch, db_request):
                 "workflow_ref": "org/repo/.github/workflows/parent.yml@someref",
                 "job_workflow_ref": "org2/repo2/.github/workflows/reusable.yml@v1",
             },
+            "reusable.yml",
             True,
+            True,
+        ),
+        (
+            {
+                "ref": "someref",
+                "sha": "somesha",
+                "workflow_ref": "org/repo/.github/workflows/parent.yml@someref",
+                "job_workflow_ref": "org/repo/.github/workflows/workflow.yml@someref",
+            },
+            "parent.yml",
+            False,
             True,
         ),
         (
@@ -979,6 +996,7 @@ def test_mint_token_with_prohibited_name_fails(monkeypatch, db_request):
                 "workflow_ref": "org/repo/.github/workflows/workflow.yml@someref",
                 "job_workflow_ref": "org/repo/.github/workflows/workflow.yml@someref",
             },
+            "workflow.yml",
             False,
             True,
         ),
@@ -988,16 +1006,18 @@ def test_mint_token_with_prohibited_name_fails(monkeypatch, db_request):
                 "ref": "someref",
                 "sha": "somesha",
             },
+            "workflow.yml",
             False,
             False,
         ),
     ],
 )
-def test_mint_token_github_reusable_workflow_metrics(
+def test_mint_token_github_legacy_reusable_workflow_metrics(
     monkeypatch,
     db_request,
     claims_in_token,
-    is_reusable,
+    publisher_workflow_filename,
+    is_legacy_reusable,
     is_github,
     metrics,
 ):
@@ -1009,7 +1029,11 @@ def test_mint_token_github_reusable_workflow_metrics(
         record_event=pretend.call_recorder(lambda **kw: None),
     )
 
-    publisher = GitHubPublisherFactory() if is_github else GitLabPublisherFactory()
+    publisher = (
+        GitHubPublisherFactory(workflow_filename=publisher_workflow_filename)
+        if is_github
+        else GitLabPublisherFactory()
+    )
     monkeypatch.setattr(publisher.__class__, "projects", [project])
     # NOTE: Can't set __str__ using pretend.stub()
     monkeypatch.setattr(publisher.__class__, "__str__", lambda s: "fakespecifier")
@@ -1045,18 +1069,18 @@ def test_mint_token_github_reusable_workflow_metrics(
 
     views.mint_token(oidc_service, DUMMY_GITHUB_OIDC_JWT, claims_in_token, db_request)
 
-    if is_reusable:
+    if is_legacy_reusable:
         assert metrics.increment.calls == [
-            pretend.call("warehouse.oidc.mint_token.github_reusable_workflow"),
+            pretend.call("warehouse.oidc.mint_token.github_legacy_reusable_workflow"),
         ]
     else:
         assert not metrics.increment.calls
 
 
 @pytest.mark.parametrize(
-    ("is_github", "is_reusable", "claims"),
+    ("is_github", "is_legacy_reusable", "claims", "publisher_workflow_filename"),
     [
-        (False, False, {}),
+        (False, False, {}, "release.yml"),
         (
             True,
             False,
@@ -1066,6 +1090,7 @@ def test_mint_token_github_reusable_workflow_metrics(
                 "workflow_ref": "org/repo/.github/workflows/workflow.yml@someref",
                 "job_workflow_ref": "org/repo/.github/workflows/workflow.yml@someref",
             },
+            "workflow.yml",
         ),
         (
             True,
@@ -1076,15 +1101,35 @@ def test_mint_token_github_reusable_workflow_metrics(
                 "workflow_ref": "org/repo/.github/workflows/parent.yml@someref",
                 "job_workflow_ref": "org2/repo2/.github/workflows/reusable.yml@v1",
             },
+            "reusable.yml",
+        ),
+        (
+            True,
+            False,
+            {
+                "ref": "someref",
+                "sha": "somesha",
+                "workflow_ref": "org/repo/.github/workflows/parent.yml@someref",
+                "job_workflow_ref": "org2/repo2/.github/workflows/reusable.yml@v1",
+            },
+            "parent.yml",
         ),
     ],
 )
-def test_is_from_reusable_workflow(
-    db_request, is_github: bool, is_reusable: bool, claims: dict[str, str]
+def test_is_from_legacy_reusable_workflow(
+    db_request,
+    is_github: bool,
+    is_legacy_reusable: bool,
+    claims: dict[str, str],
+    publisher_workflow_filename,
 ):
-    publisher = GitHubPublisherFactory() if is_github else GitLabPublisherFactory()
+    publisher = (
+        GitHubPublisherFactory(workflow_filename=publisher_workflow_filename)
+        if is_github
+        else GitLabPublisherFactory()
+    )
 
-    assert is_from_reusable_workflow(publisher, claims) == is_reusable
+    assert is_from_legacy_reusable_workflow(publisher, claims) == is_legacy_reusable
 
 
 @pytest.mark.parametrize(

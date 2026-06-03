@@ -6,7 +6,9 @@ import pretend
 import psycopg
 import pytest
 
+from tests.common.db.accounts import UserFactory
 from tests.common.db.oidc import GitHubPublisherFactory, PendingGitHubPublisherFactory
+from tests.common.db.packaging import ProjectFactory, RoleFactory
 from warehouse.oidc import errors
 from warehouse.oidc.models import _core, github
 
@@ -84,22 +86,42 @@ def test_extract_workflow_filename(workflow_ref, expected):
 
 class TestGitHubPublisher:
     @pytest.mark.parametrize("environment", [None, "some_environment"])
-    def test_lookup_fails_invalid_workflow_ref(self, environment):
+    def test_lookup_fails_invalid_workflow_ref(self, db_request, environment):
         signed_claims = {
             "repository": "foo/bar",
             "job_workflow_ref": ("foo/bar/.github/workflows/.yml@refs/heads/main"),
+            "workflow_ref": ("foo/bar/.github/workflows/.yml@refs/heads/main"),
             "repository_owner_id": "1234",
         }
 
         if environment:
             signed_claims["environment"] = environment
 
-        # The `job_workflow_ref` is malformed, so no queries are performed.
+        # The claim is malformed, so no queries are performed.
         with pytest.raises(
             errors.InvalidPublisherError,
-            match="Could not job extract workflow filename from OIDC claims",
+            match="Could not extract workflow filename from OIDC claims",
         ):
-            github.GitHubPublisher.lookup_by_claims(pretend.stub(), signed_claims)
+            github.GitHubPublisher.lookup_by_claims(db_request.db, signed_claims)
+
+    @pytest.mark.parametrize("environment", [None, "some_environment"])
+    def test_legacy_lookup_fails_invalid_workflow_ref(self, db_request, environment):
+        signed_claims = {
+            "repository": "foo/bar",
+            "job_workflow_ref": ("foo/bar/.github/workflows/.yml@refs/heads/main"),
+            "workflow_ref": ("foo/bar/.github/workflows/valid.yml@refs/heads/main"),
+            "repository_owner_id": "1234",
+        }
+
+        if environment:
+            signed_claims["environment"] = environment
+
+        # The claim is malformed, so no queries are performed.
+        with pytest.raises(
+            errors.InvalidPublisherError,
+            match="Could not extract job workflow filename from OIDC claims",
+        ):
+            github.GitHubPublisher.lookup_by_claims(db_request.db, signed_claims)
 
     @pytest.mark.parametrize("environment", ["", "some_environment"])
     @pytest.mark.parametrize(
@@ -130,7 +152,7 @@ class TestGitHubPublisher:
         for workflow in (workflow_a, workflow_b):
             signed_claims = {
                 "repository": "foo/bar",
-                "job_workflow_ref": (
+                "workflow_ref": (
                     f"foo/bar/.github/workflows/{workflow}@refs/heads/main"
                 ),
                 "repository_owner_id": "1234",
@@ -146,7 +168,10 @@ class TestGitHubPublisher:
                 == workflow
             )
 
-    def test_lookup_no_matching_publishers(self, db_request):
+    @pytest.mark.parametrize("supports_legacy_reusable_workflows", [True, False])
+    def test_lookup_no_matching_publishers(
+        self, db_request, supports_legacy_reusable_workflows
+    ):
         GitHubPublisherFactory(
             id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
             repository_owner="foo",
@@ -154,12 +179,14 @@ class TestGitHubPublisher:
             repository_owner_id="1234",
             workflow_filename="release.yml",
             environment="environment",
+            supports_legacy_reusable_workflows=supports_legacy_reusable_workflows,
         )
         signed_claims = {
             "repository": "foo/bar",
             "job_workflow_ref": (
                 "foo/bar/.github/workflows/release.yml@refs/heads/main"
             ),
+            "workflow_ref": "foo/bar/.github/workflows/release.yml@refs/heads/main",
             "repository_owner_id": "1234",
             "environment": "another_environment",
         }
@@ -168,14 +195,103 @@ class TestGitHubPublisher:
             github.GitHubPublisher.lookup_by_claims(db_request.db, signed_claims)
         assert str(e.value) == "Publisher with matching claims was not found"
 
+    @pytest.mark.parametrize("environment", ["", "some_environment"])
+    @pytest.mark.parametrize("supports_legacy", [True, False])
+    def test_lookup_legacy_reusable_support(
+        self, monkeypatch, db_request, environment, supports_legacy
+    ):
+        owner1 = UserFactory.create()
+        owner2 = UserFactory.create()
+
+        project1 = ProjectFactory.create()
+        project2 = ProjectFactory.create()
+
+        RoleFactory.create(user=owner1, project=project1, role_name="Owner")
+        RoleFactory.create(user=owner1, project=project2, role_name="Owner")
+        RoleFactory.create(user=owner2, project=project2, role_name="Owner")
+
+        fake_publisher = GitHubPublisherFactory(
+            id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            repository_owner="foo",
+            repository_name="bar",
+            repository_owner_id="1234",
+            workflow_filename="called.yml",
+            environment=environment,
+            supports_legacy_reusable_workflows=supports_legacy,
+            projects=[project1, project2],
+        )
+
+        signed_claims = {
+            "repository": "foo/bar",
+            "job_workflow_ref": "foo/bar/.github/workflows/called.yml@refs/heads/main",
+            "workflow_ref": "foo/bar/.github/workflows/caller.yml@refs/heads/main",
+            "repository_owner_id": "1234",
+        }
+
+        if environment:
+            signed_claims["environment"] = environment
+
+        send_legacy_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(
+            github, "send_legacy_reusable_workflow_support_email", send_legacy_email
+        )
+
+        if supports_legacy:
+            assert (
+                github.GitHubPublisher.lookup_by_claims(
+                    db_request.db, signed_claims
+                ).workflow_filename
+                == "called.yml"
+            )
+
+            # Check that we sent emails to all the owners of all the projects
+            # that use this TP with a legacy reusable workflow.
+            assert len(send_legacy_email.calls) == 2
+            email_calls = [
+                {
+                    "request": call.args[0],
+                    "owners": {owner.username for owner in call.args[1]},
+                    "project_name": call.kwargs["project_name"],
+                    "publisher_id": str(call.kwargs["publisher"].id),
+                    "job_workflow_ref": call.kwargs["job_workflow_ref"],
+                    "workflow_ref": call.kwargs["workflow_ref"],
+                    "workflow_ref_filename": call.kwargs["workflow_ref_filename"],
+                }
+                for call in send_legacy_email.calls
+            ]
+            assert {
+                "request": None,
+                "owners": {owner.username for owner in project1.owners},
+                "project_name": project1.name,
+                "publisher_id": str(fake_publisher.id),
+                "job_workflow_ref": signed_claims["job_workflow_ref"],
+                "workflow_ref": signed_claims["workflow_ref"],
+                "workflow_ref_filename": "caller.yml",
+            } in email_calls
+            assert {
+                "request": None,
+                "owners": {owner.username for owner in project2.owners},
+                "project_name": project2.name,
+                "publisher_id": str(fake_publisher.id),
+                "job_workflow_ref": signed_claims["job_workflow_ref"],
+                "workflow_ref": signed_claims["workflow_ref"],
+                "workflow_ref_filename": "caller.yml",
+            } in email_calls
+        else:
+            with pytest.raises(errors.InvalidPublisherError) as e:
+                github.GitHubPublisher.lookup_by_claims(db_request.db, signed_claims)
+            assert str(e.value) == "Publisher with matching claims was not found"
+            assert not send_legacy_email.calls
+
     def test_github_publisher_all_known_claims(self):
         assert github.GitHubPublisher.all_known_claims() == {
             # required verifiable claims
             "repository",
             "repository_owner",
             "repository_owner_id",
-            "job_workflow_ref",
+            "workflow_ref",
             # required unverifiable claims
+            "job_workflow_ref",
             "ref",
             "sha",
             # optional verifiable claims
@@ -203,7 +319,6 @@ class TestGitHubPublisher:
             "repository_visibility",
             "workflow_sha",
             "job_workflow_sha",
-            "workflow_ref",
             "runner_environment",
             "environment_node_id",
             "enterprise",
@@ -353,7 +468,7 @@ class TestGitHubPublisher:
         }
         signed_claims["ref"] = "ref"
         signed_claims["sha"] = "sha"
-        signed_claims["job_workflow_ref"] = publisher.job_workflow_ref + "@ref"
+        signed_claims["workflow_ref"] = publisher.workflow_ref + "@ref"
         assert publisher.__required_verifiable_claims__
         with pytest.raises(errors.InvalidPublisherError) as e:
             publisher.verify_claims(
@@ -511,7 +626,7 @@ class TestGitHubPublisher:
                 "somesha",
                 "notrailingslash",
                 False,
-                "The job_workflow_ref claim does not match, expecting one of "
+                "The workflow_ref claim does not match, expecting one of "
                 "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
                 "'foo/bar/.github/workflows/baz.yml@somesha'], "
                 "got 'foo/bar/.github/workflows/baz.yml@fake.yml@notrailingslash'",
@@ -521,7 +636,7 @@ class TestGitHubPublisher:
                 "somesha",
                 "refs/pulls/6",
                 False,
-                "The job_workflow_ref claim does not match, expecting one of "
+                "The workflow_ref claim does not match, expecting one of "
                 "['foo/bar/.github/workflows/baz.yml@refs/pulls/6', "
                 "'foo/bar/.github/workflows/baz.yml@somesha'], "
                 "got 'foo/bar/.github/workflows/baz.yml@fake.yml@refs/pulls/6'",
@@ -532,7 +647,7 @@ class TestGitHubPublisher:
                 "somesha",
                 "notrailingslash",
                 False,
-                "The job_workflow_ref claim does not match, expecting one of "
+                "The workflow_ref claim does not match, expecting one of "
                 "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
                 "'foo/bar/.github/workflows/baz.yml@somesha'], "
                 "got 'foo/bar/.github/workflows/baz.yml@'",
@@ -542,7 +657,7 @@ class TestGitHubPublisher:
                 "somesha",
                 "notrailingslash",
                 False,
-                "The job_workflow_ref claim does not match, expecting one of "
+                "The workflow_ref claim does not match, expecting one of "
                 "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
                 "'foo/bar/.github/workflows/baz.yml@somesha'], "
                 "got 'foo/bar/.github/workflows/@'",
@@ -552,7 +667,7 @@ class TestGitHubPublisher:
                 "somesha",
                 "notrailingslash",
                 False,
-                "The job_workflow_ref claim does not match, expecting one of "
+                "The workflow_ref claim does not match, expecting one of "
                 "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
                 "'foo/bar/.github/workflows/baz.yml@somesha'], "
                 "got 'foo/bar/.github/workflows/'",
@@ -562,7 +677,7 @@ class TestGitHubPublisher:
                 "somesha",
                 "notrailingslash",
                 False,
-                "The job_workflow_ref claim does not match, expecting one of "
+                "The workflow_ref claim does not match, expecting one of "
                 "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
                 "'foo/bar/.github/workflows/baz.yml@somesha'], "
                 "got 'baz.yml'",
@@ -572,7 +687,7 @@ class TestGitHubPublisher:
                 "somesha",
                 "notrailingslash",
                 False,
-                "The job_workflow_ref claim does not match, expecting one of "
+                "The workflow_ref claim does not match, expecting one of "
                 "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
                 "'foo/bar/.github/workflows/baz.yml@somesha'], "
                 "got 'foo/bar/.github/workflows/baz.yml@malicious.yml@'",
@@ -582,15 +697,15 @@ class TestGitHubPublisher:
                 "somesha",
                 "notrailingslash",
                 False,
-                "The job_workflow_ref claim does not match, expecting one of "
+                "The workflow_ref claim does not match, expecting one of "
                 "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
                 "'foo/bar/.github/workflows/baz.yml@somesha'], "
                 "got 'foo/bar/.github/workflows/baz.yml@@'",
             ),
-            ("", None, None, False, "The job_workflow_ref claim is empty"),
+            ("", None, None, False, "The workflow_ref claim is empty"),
         ],
     )
-    def test_github_publisher_job_workflow_ref(self, claim, ref, sha, valid, expected):
+    def test_github_publisher_workflow_ref(self, claim, ref, sha, valid, expected):
         publisher = github.GitHubPublisher(
             repository_name="bar",
             repository_owner="foo",
@@ -598,15 +713,13 @@ class TestGitHubPublisher:
             workflow_filename="baz.yml",
         )
 
-        check = github.GitHubPublisher.__required_verifiable_claims__[
-            "job_workflow_ref"
-        ]
+        check = github.GitHubPublisher.__required_verifiable_claims__["workflow_ref"]
         claims = {"ref": ref, "sha": sha}
         if valid:
-            assert check(publisher.job_workflow_ref, claim, claims) is True
+            assert check(publisher.workflow_ref, claim, claims) is True
         else:
             with pytest.raises(errors.InvalidPublisherError) as e:
-                check(publisher.job_workflow_ref, claim, claims)
+                check(publisher.workflow_ref, claim, claims)
             assert str(e.value) == expected
 
     @pytest.mark.parametrize(
@@ -768,3 +881,24 @@ class TestPendingGitHubPublisher:
         # it is returned and the pending publisher is marked for deletion.
         assert existing_publisher == publisher
         assert pending_publisher in db_request.db.deleted
+
+    def test_lookup_pending_publisher_no_legacy_support(self, db_request):
+        PendingGitHubPublisherFactory(
+            id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            repository_owner="foo",
+            repository_name="bar",
+            repository_owner_id="1234",
+            workflow_filename="release.yml",
+            environment="environment",
+        )
+        signed_claims = {
+            "repository": "foo/bar",
+            "job_workflow_ref": "foo/bar/.github/workflows/release.yml@refs/heads/main",
+            "workflow_ref": "foo/bar/.github/workflows/top.yml@refs/heads/main",
+            "repository_owner_id": "1234",
+            "environment": "environment",
+        }
+
+        with pytest.raises(errors.InvalidPublisherError) as e:
+            github.PendingGitHubPublisher.lookup_by_claims(db_request.db, signed_claims)
+        assert str(e.value) == "Publisher with matching claims was not found"

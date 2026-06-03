@@ -93,6 +93,7 @@ def test_find_publisher_by_issuer_github(db_request, environment, expected_id):
         {
             "repository": "foo/bar",
             "job_workflow_ref": "foo/bar/.github/workflows/ci.yml@refs/heads/main",
+            "workflow_ref": "foo/bar/.github/workflows/ci.yml@refs/heads/main",
             "repository_owner_id": "1234",
         }
     )

@@ -1092,6 +1092,25 @@ def send_environment_ignored_in_trusted_publisher_email(
     }
 
 
+@_email("legacy-reusable-workflow-support")
+def send_legacy_reusable_workflow_support_email(
+    request,
+    users,
+    project_name,
+    publisher,
+    job_workflow_ref,
+    workflow_ref,
+    workflow_ref_filename,
+):
+    return {
+        "project_name": project_name,
+        "publisher": publisher,
+        "job_workflow_ref": job_workflow_ref,
+        "workflow_ref": workflow_ref,
+        "workflow_ref_filename": workflow_ref_filename,
+    }
+
+
 @_email("user-terms-of-service-updated")
 def send_user_terms_of_service_updated(request, user):
     return {
