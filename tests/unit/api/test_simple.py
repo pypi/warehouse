@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
 import pytest
 
 from packaging.version import parse
@@ -178,12 +177,12 @@ class TestSimpleIndex:
 
 
 class TestSimpleDetail:
-    def test_redirects(self, pyramid_request):
-        project = pretend.stub(normalized_name="foo")
+    def test_redirects(self, pyramid_request, mocker):
+        project = ProjectFactory.build(name="foo")
 
         pyramid_request.matchdict["name"] = "Foo"
-        pyramid_request.current_route_path = pretend.call_recorder(
-            lambda name: "/foobar/"
+        current_route_path = mocker.patch.object(
+            pyramid_request, "current_route_path", return_value="/foobar/"
         )
 
         resp = simple.simple_detail(project, pyramid_request)
@@ -191,7 +190,7 @@ class TestSimpleDetail:
         assert isinstance(resp, HTTPMovedPermanently)
         assert resp.headers["Location"] == "/foobar/"
         _assert_has_cors_headers(resp.headers)
-        assert pyramid_request.current_route_path.calls == [pretend.call(name="foo")]
+        current_route_path.assert_called_once_with(name="foo")
 
     @pytest.mark.parametrize(
         ("content_type", "renderer_override"),

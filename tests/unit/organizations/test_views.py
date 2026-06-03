@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
@@ -11,11 +10,11 @@ from ...common.db.organizations import OrganizationFactory
 
 
 class TestOrganizationProfile:
-    def test_redirects_name(self, db_request):
+    def test_redirects_name(self, db_request, mocker):
         org = OrganizationFactory.create()
 
-        db_request.current_route_path = pretend.call_recorder(
-            lambda organization: "/user/the-redirect/"
+        current_route_path = mocker.patch.object(
+            db_request, "current_route_path", return_value="/user/the-redirect/"
         )
         db_request.matchdict = {"organization": org.name.swapcase()}
 
@@ -23,9 +22,7 @@ class TestOrganizationProfile:
 
         assert isinstance(result, HTTPMovedPermanently)
         assert result.headers["Location"] == "/user/the-redirect/"
-        assert db_request.current_route_path.calls == [
-            pretend.call(organization=org.name)
-        ]
+        current_route_path.assert_called_once_with(organization=org.name)
 
     def test_returns_organization(self, db_request):
         org = OrganizationFactory.create()
