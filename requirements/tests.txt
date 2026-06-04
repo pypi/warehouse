@@ -360,17 +360,17 @@ pytest-mock==3.15.1 \
     --hash=sha256:0a25e2eb88fe5168d535041d09a4529a188176ae608a6d249ee65abc0949630d \
     --hash=sha256:1849a238f6f396da19762269de72cb1814ab44416fa73a8686deac10b0d87a0f
     # via -r requirements/tests.in
-pytest-postgresql==8.0.0 \
-    --hash=sha256:125b63b16d630c2dea19807062ed4c96e6123f06058ce65b82b4b14174d6c4b8 \
-    --hash=sha256:26cbd44a0adef76cf4a82a3a2263f0e029bc54b5863556a9bd86ca3edfa91cce
+pytest-postgresql==8.1.0 \
+    --hash=sha256:0868bb3374fa4f454efd73ac1d7b23d2da623782044371b84d39f83a0893f56f \
+    --hash=sha256:ffd24027a28aba3d05a909fb03ee87d1d474574c3504f332d6047e8699170adc
     # via -r requirements/tests.in
 pytest-randomly==4.1.0 \
     --hash=sha256:47f1d9746c3bc3efabd53ae1ebfb8bb385cf3d4df4b505b6d58d9c97a3dfe70f \
     --hash=sha256:f55e89e53367b090c0c053697d7f9d77595543d0e0516c93978b50c0f6b252f9
     # via -r requirements/tests.in
-pytest-socket==0.7.0 \
-    --hash=sha256:71ab048cbbcb085c15a4423b73b619a8b35d6a307f46f78ea46be51b1b7e11b3 \
-    --hash=sha256:7e0f4642177d55d317bbd58fc68c6bd9048d6eadb2d46a89307fa9221336ce45
+pytest-socket==0.8.0 \
+    --hash=sha256:81821ba59f07d7600fe2b551d8714f40b068bd46e8b6704c48664e9d60cdacb8 \
+    --hash=sha256:af9bb5f487da72be63573a6194cfac033b6c7a1c1561e150521105970f9e99f2
     # via -r requirements/tests.in
 pytest-sugar==1.1.1 \
     --hash=sha256:2f8319b907548d5b9d03a171515c1d43d2e38e32bd8182a1781eb20b43344cc8 \
