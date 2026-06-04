@@ -14,13 +14,13 @@ ast-grep-cli==0.42.3 \
     --hash=sha256:e3dd282b60c547e916b0e77a33a01131b2a52a488cf44960547c64cffe09a444 \
     --hash=sha256:ea4c65222d2794c0d1d9165d5d77464e94e51d91209968040fbf2eb3e6a4ac50
     # via -r requirements/lint.in
-boto3-stubs==1.42.29 \
-    --hash=sha256:7dc0e2231f1f77fc5282c4fc4b7e4627c78fa95851eec16952df8c696b67855f \
-    --hash=sha256:7e38ea78e2d11e6c899da1ab267ccacaab32efcf365a96c6eba94482829e2b63
+boto3-stubs==1.43.22 \
+    --hash=sha256:783899d1baf870f69bb5dd28deb8018aa91438cf6c407691cc597a7f6753bbac \
+    --hash=sha256:db4bd62865621f449bca619bfd39ab79220eb3df13ae143bc9eaa7b814164a64
     # via -r requirements/lint.in
-botocore-stubs==1.42.29 \
-    --hash=sha256:be706a37e4c0d1515ec869b9429a98a16a14702caca515166287f39ab4a203ff \
-    --hash=sha256:f2f6edca9d537b1865992a9392a1814cdf793d6031978bb16498605a8758266a
+botocore-stubs==1.43.14 \
+    --hash=sha256:9e3bc1fdd51da7473f0df726c82747a1b0ae913449d629659765c247fecc2039 \
+    --hash=sha256:fb98f1475c92fd718644e786b5c543a20f1b1f610e89e0a7191c3f1f429c75aa
     # via boto3-stubs
 celery-types==0.26.0 \
     --hash=sha256:eb9da76f461786091970df466ec647d9a27956399852542cb6cab9309970f950 \
@@ -780,9 +780,9 @@ tqdm==4.67.3 \
     --hash=sha256:7d825f03f89244ef73f1d4ce193cb1774a8179fd96f31d7e1dcde62092b960bb \
     --hash=sha256:ee1e4c0e59148062281c49d80b25b67771a127c85fc9676d3be5f243206826bf
     # via djlint
-types-awscrt==0.31.3 \
-    --hash=sha256:09d3eaf00231e0f47e101bd9867e430873bc57040050e2a3bd8305cb4fc30865 \
-    --hash=sha256:e5ce65a00a2ab4f35eacc1e3d700d792338d56e4823ee7b4dbe017f94cfc4458
+types-awscrt==0.33.0 \
+    --hash=sha256:803bc7e7e2f6172a0abd71df6593368f82fc23127ca15d287f360e9fcbd3a977 \
+    --hash=sha256:95adb57388e1cacc6e7e96fb7ddc735e60096a6151930640bdbe496d9400493a
     # via botocore-stubs
 types-babel==2.11.0.15 \
     --hash=sha256:282c184c8c9d81e8269212c1b8fa0d39ee88fb8bc43be47980412781c9c85f7e \
