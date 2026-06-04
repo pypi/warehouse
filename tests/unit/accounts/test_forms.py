@@ -1247,6 +1247,43 @@ class TestReAuthenticateForm:
         ]
         assert user_service.find_userid.calls == []
 
+    def test_validate_password_with_field_errors(self):
+        user_service = pretend.stub(
+            check_password=pretend.call_recorder(
+                lambda userid, password, tags=None: True
+            ),
+        )
+        form = forms.ReAuthenticateForm(
+            request=pretend.stub(),
+            user_id=1,
+            user_service=user_service,
+        )
+        field = pretend.stub(data="pw", errors=["This field is required."])
+
+        form.validate_password(field)
+
+        assert user_service.check_password.calls == []
+
+    def test_validate_password_too_many_failed(self):
+        user_service = pretend.stub(
+            check_password=pretend.call_recorder(
+                pretend.raiser(
+                    TooManyFailedLogins(resets_in=datetime.timedelta(seconds=600))
+                )
+            ),
+        )
+        form = forms.ReAuthenticateForm(
+            request=pretend.stub(),
+            user_id=1,
+            user_service=user_service,
+        )
+        field = pretend.stub(data="pw", errors=[])
+
+        with pytest.raises(wtforms.validators.ValidationError):
+            form.validate_password(field)
+
+        assert user_service.check_password.calls == [pretend.call(1, "pw", tags=None)]
+
 
 class TestRecoveryCodeForm:
     def test_validate(self, monkeypatch):
