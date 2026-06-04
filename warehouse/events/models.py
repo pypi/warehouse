@@ -115,7 +115,20 @@ class Event:
         # Attributes defined on concrete subclasses created by HasEvents.
         # Declared here for type checking when querying via polymorphic union.
         source_id: Mapped[UUID]
-        source: HasEvents
+        source: Mapped[HasEvents]
+
+        # `Event` is an unmapped base - the concrete per-parent subclasses mix
+        # in `db.Model`, which supplies the column-accepting constructor. Declare
+        # it here so `cls.Event(...)` in `record_event` type-checks against the
+        # kwargs that method actually passes.
+        def __init__(
+            self,
+            *,
+            source: HasEvents,
+            tag: str,
+            ip_address: IpAddress,
+            additional: dict | None = None,
+        ) -> None: ...
 
     @declared_attr
     def ip_address_id(cls):
@@ -158,19 +171,31 @@ class Event:
         return "No User-Agent"
 
 
+# Reference to the base Event type for use inside HasEvents, whose `Event` class
+# attribute (the per-parent concrete subclass) shadows the `Event` name in
+# annotations within that class body.
+_EventBase = Event
+
+
 class HasEvents:
     if typing.TYPE_CHECKING:
-        # Dynamically created Event subclass; typed as Any because:
-        # - `type[Event]` breaks instantiation
-        # - Needs to support both `cls.Event(...)` and `cls.Event.column` access
-        Event: typing.Any
+        # `events` (below) builds a concrete Event subclass per parent model at
+        # mapper-configuration time and stores it here, so the runtime value is
+        # e.g. `ProjectEvent`. Declared for the type checker as the base type so
+        # `Project.Event` resolves and stays constrained to an Event subclass.
+        Event: typing.ClassVar[type[_EventBase]]
 
+    # `cls` is the mapped subclass at mapper-configuration time, not an
+    # instance. It's typed `Any` (not `type[Any]`) so type checkers don't treat
+    # it as an instance-method `self` and reject the class-level attribute reads
+    # and assignment below. Public types stay precise via the declarations above.
+    #
+    # No return annotation: `events` is a `lazy="dynamic"` relationship, but
+    # `declared_attr` only accepts a `Mapped[...]` return (not `DynamicMapped`),
+    # and `Mapped[...]` would wrongly model it as a scalar/eager collection.
     @declared_attr
-    def events(cls: type[typing.Any]):
-        # Returns AppenderQuery at runtime (`lazy="dynamic"`)
-        # No return type annotation: `Mapped[]` implies `uselist=False`,
-        # `typing.Any` triggers SQLAlchemy error
-        cls.Event = type(
+    def events(cls: typing.Any):
+        event_cls = type(
             f"{cls.__name__}Event",
             (Event, db.Model),
             {
@@ -194,6 +219,9 @@ class HasEvents:
                 ),
             },
         )
+        # `type(...)` is statically just `type`; the built class really is an
+        # Event subclass, so assert that to match the ClassVar above.
+        cls.Event = typing.cast(type[_EventBase], event_cls)
         return orm.relationship(
             cls.Event,
             cascade="all, delete-orphan",
