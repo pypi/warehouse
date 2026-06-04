@@ -28,7 +28,7 @@ def reauth_view(view, info):
                 form = ReAuthenticateForm(
                     request.POST,
                     request=request,
-                    username=request.user.username,
+                    user_id=request.user.id,
                     next_route=request.matched_route.name,
                     next_route_matchdict=json.dumps(request.matchdict),
                     next_route_query=json.dumps(request.GET.mixed()),
