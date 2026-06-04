@@ -12,6 +12,8 @@ from pydantic import BaseModel, StrictStr, ValidationError
 from pyramid.httpexceptions import HTTPException, HTTPForbidden
 from pyramid.request import Request
 from pyramid.view import view_config
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 from warehouse.email import (
     send_environment_ignored_in_trusted_publisher_email,
@@ -33,7 +35,7 @@ from warehouse.oidc.utils import (
     lookup_custom_issuer_type,
 )
 from warehouse.packaging.interfaces import IProjectService
-from warehouse.packaging.models import ProjectFactory
+from warehouse.packaging.models import Project, ProjectFactory
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
 
@@ -342,6 +344,18 @@ def mint_token(
         oidc_publisher_id=str(publisher.id),
         additional={"oidc": publisher.stored_claims(claims)},
     )
+
+    # Loading `publisher.projects` back-populates `Project.oidc_publishers`,
+    # which marks each project as dirty. At flush time, the cache-purge
+    # bookkeeping in `warehouse.cache.origin` then accesses `project.users`
+    # per dirty project (via the `iterate_on="users"` purge-key factory),
+    # producing an N+1. Pre-load every project's users in a single batched
+    # query so those later accesses hit the relationship cache.
+    request.db.execute(
+        select(Project)
+        .where(Project.id.in_([p.id for p in publisher.projects]))
+        .options(selectinload(Project.users))
+    ).all()
 
     for project in publisher.projects:
         project.record_event(
