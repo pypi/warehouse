@@ -26,6 +26,10 @@ updates:
       # Keep both psycopg and psycopg-c together
       patterns:
         - "psycopg*"
+    python-packages:
+      # Group all remaining packages together
+      patterns:
+        - "*"
   cooldown:
     default-days: 7
 - package-ecosystem: github-actions

@@ -51,6 +51,7 @@ def test_templates_for_empty_titles(template: Path):
     dir_name = Path(warehouse.__path__[0]) / "templates"
 
     env = Environment(
+        autoescape=True,
         loader=FileSystemLoader(dir_name),
         extensions=[
             "jinja2.ext.i18n",
@@ -88,6 +89,7 @@ def test_render_templates(template):
     dir_name = Path(warehouse.__path__[0]) / "templates"
 
     env = Environment(
+        autoescape=True,
         loader=FileSystemLoader(dir_name),
         extensions=[
             "jinja2.ext.i18n",
@@ -118,3 +120,28 @@ def test_email_subjects_for_multiple_lines(template: Path):
         assert match is not None
         # There should NOT be a newline inside the subject block
         assert "\n" not in match.group(0)
+
+
+def test_all_templates_exist(app_config):
+    """
+    It's possible that the template passed into a @view_config() decorator does
+    not actually exist, which would typically not be discovered until runtime
+    when we attempt to render that template.
+
+    So we'll go through all of our registered templates (which will be registered
+    by @view_config()) and make sure that they do, in fact, exist.
+    """
+    # Gets a list of all of our templates as "asset spec" paths, which looks
+    # like import.package.name:some/relative/file/path.ext, as well as the name
+    # of the renderer that they're using.
+    templates = [
+        (i["introspectable"]["name"], i["introspectable"]["type"])
+        for i in app_config.registry.introspector.get_category("templates")
+    ]
+
+    # Go through each template, and use the jinja2.Environment to determine if
+    # the file that it points to actually exists.
+    for template, renderer in templates:
+        env = app_config.get_jinja2_environment(name=renderer)
+        assert env is not None, f"{renderer} is not a jinja2 template type"
+        env.get_template(template)  # this will raise TemplateNotFound

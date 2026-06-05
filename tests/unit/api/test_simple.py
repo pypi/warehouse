@@ -232,7 +232,7 @@ class TestSimpleDetail:
         db_request.matchdict["name"] = project.normalized_name
         user = UserFactory.create()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
-        als = [
+        alts = [
             AlternateRepositoryFactory.create(project=project),
             AlternateRepositoryFactory.create(project=project),
         ]
@@ -243,7 +243,7 @@ class TestSimpleDetail:
             "project-status": {"status": "active"},
             "files": [],
             "versions": [],
-            "alternate-locations": sorted(al.url for al in als),
+            "alternate-locations": sorted(al.url for al in alts),
         }
         context = _update_context(context, content_type, renderer_override)
         assert simple.simple_detail(project, db_request) == context
@@ -410,7 +410,7 @@ class TestSimpleDetail:
         ]
 
         files = []
-        for files_release in zip(egg_files, tar_files, wheel_files):
+        for files_release in zip(egg_files, tar_files, wheel_files, strict=False):
             files += files_release
 
         urls_iter = (f"/file/{f.filename}" for f in files)
@@ -521,6 +521,40 @@ class TestSimpleDetail:
 
         if renderer_override is not None:
             assert db_request.override_renderer == renderer_override
+
+    @pytest.mark.parametrize(
+        ("content_type", "renderer_override"),
+        CONTENT_TYPE_PARAMS,
+    )
+    def test_with_quarantined_release_omitted(
+        self, db_request, content_type, renderer_override
+    ):
+        """A release with lifecycle_status=quarantine-enter is excluded from
+        the simple detail, but other releases of the same project remain."""
+        db_request.accept = content_type
+        project = ProjectFactory.create()
+        good_release = ReleaseFactory.create(project=project, version="1.0")
+        quarantined_release = ReleaseFactory.create(
+            project=project,
+            version="2.0",
+            lifecycle_status="quarantine-enter",
+        )
+        good_file = FileFactory.create(
+            release=good_release, filename=f"{project.name}-1.0.tar.gz"
+        )
+        FileFactory.create(
+            release=quarantined_release,
+            filename=f"{project.name}-2.0.tar.gz",
+        )
+
+        db_request.matchdict["name"] = project.normalized_name
+        db_request.route_url = lambda *a, **kw: f"/file/{good_file.filename}"
+
+        result = simple.simple_detail(project, db_request)
+
+        assert result["versions"] == ["1.0"]
+        assert len(result["files"]) == 1
+        assert result["files"][0]["filename"] == good_file.filename
 
     @pytest.mark.parametrize(
         ("content_type", "renderer_override"),

@@ -947,7 +947,7 @@ def _send_organization_invitation(request, organization, role_name, user):
     # has not updated invite status
     try:
         invite_token = token_service.loads(organization_invite.token)
-    except (TokenExpired, AttributeError):
+    except TokenExpired, AttributeError:
         invite_token = None
 
     if existing_role:
@@ -1884,7 +1884,7 @@ class ManageOrganizationPublishingViews:
 
         try:
             self.request.db.add(pending_publisher)
-            self.request.db.flush()  # To get the new ID
+            self.request.db.flush()  # To get the new ID  # ast-grep-ignore: db-flush
         except UniqueViolation:
             # Double-post protection
             return HTTPSeeOther(self.request.path)

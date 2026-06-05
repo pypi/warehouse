@@ -166,7 +166,10 @@
     border-collapse: collapse;
     border-spacing: 0;
     text-align: left;
-    width: 100%;
+    width: fit-content;
+    max-width: 100%;
+    display: block;
+    overflow-x: auto;
     margin: grid.$spacing-unit 0 0;
 
     tr {
@@ -390,7 +393,8 @@ $pygments-black:         #000;
     color: $darkest-blue;
   }
 
-  .nd { /* Name.Decorator */
+  // stylelint-disable-next-line comment-empty-line-before -- codespell syntax
+  .nd { /* Name.Decorator */ /* codespell:ignore nd */
     color: $mid-grey;
   }
 

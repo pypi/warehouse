@@ -607,7 +607,7 @@ def user_recover_account_initiate(user, request):
             )
 
             request.session.flash(
-                f"Initiatied account recovery for {user.username!r}", queue="success"
+                f"Initiated account recovery for {user.username!r}", queue="success"
             )
 
             return HTTPSeeOther(
@@ -713,7 +713,7 @@ def user_burn_recovery_codes(user, request):
             try:
                 user_service.check_recovery_code(user.id, code, skip_ratelimits=True)
                 n_burned += 1
-            except (BurnedRecoveryCode, InvalidRecoveryCode):
+            except BurnedRecoveryCode, InvalidRecoveryCode:
                 pass
 
         request.session.flash(f"Burned {n_burned} recovery code(s)", queue="success")

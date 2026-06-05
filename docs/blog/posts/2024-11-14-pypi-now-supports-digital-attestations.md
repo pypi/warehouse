@@ -96,7 +96,7 @@ tools was performed by [Trail of Bits], with special thanks to contributors
 Thanks to the the [Sigstore project] for their work popularizing identity-based signing, hosting a public-good transparency log, and continued support of the [Python client for Sigstore].
 
 Many thanks to [Sviatoslav Sydorenko] as well for his support and ongoing
-maintenence of the [pypa/gh-action-pypi-publish] action, as well his support
+maintenance of the [pypa/gh-action-pypi-publish] action, as well his support
 for implementing PEP 740 in the action.
 
 ---

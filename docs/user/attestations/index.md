@@ -30,10 +30,10 @@ Currently, PyPI allows the following attestation predicates:
 * [SLSA Provenance]
 * [PyPI Publish]
 
-Each file can be uploaded along its attestations. Currently PyPI supports two
-attestations per file: one for each of the allowed predicates. Uploads with more
-than two attestations per file, or with attestations with repeated predicates will
-be rejected.
+Each file can be uploaded along with its attestations. Currently PyPI
+supports two attestations per uploaded release file: one for each of the
+allowed predicates. Uploads with more than two attestations per file,
+and uploads with attestations with repeated predicates will be rejected.
 
 Currently, PyPI allows for attestations to be signed by the following Trusted
 Publisher identities:

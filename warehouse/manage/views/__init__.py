@@ -20,8 +20,6 @@ from venusian import lift
 from webauthn.helpers import bytes_to_base64url
 from webob.multidict import MultiDict
 
-import warehouse.utils.otp as otp
-
 from warehouse.accounts.forms import RecoveryCodeAuthenticationForm
 from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
@@ -102,6 +100,7 @@ from warehouse.packaging.models import (
     AlternateRepository,
     File,
     JournalEntry,
+    LifecycleStatus,
     Project,
     Release,
     Role,
@@ -109,6 +108,7 @@ from warehouse.packaging.models import (
     RoleInvitationStatus,
 )
 from warehouse.rate_limiting import IRateLimiter
+from warehouse.utils import otp
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import (
@@ -139,7 +139,7 @@ class ManageAccountMixin:
                 )
                 .one()
             )
-        except (NoResultFound, ValueError):
+        except NoResultFound, ValueError:
             self.request.session.flash("Email address not found", queue="error")
             if self.request.user.has_primary_verified_email:
                 return HTTPSeeOther(self.request.route_path("manage.account"))
@@ -508,7 +508,7 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
                 request=self.request,
             )
             send_password_change_email(self.request, self.request.user)
-            self.request.db.flush()  # ensure password_date is available
+            self.request.db.flush()  # user.password_date # ast-grep-ignore: db-flush
             self.request.db.refresh(self.request.user)  # Pickup new password_date
             self.request.session.record_password_timestamp(
                 self.user_service.get_password_timestamp(self.request.user.id)
@@ -1574,12 +1574,27 @@ class ManageProjectRelease:
             "files": self.release.files.all(),
         }
 
+    def _quarantined_redirect(self):
+        self.request.session.flash(
+            self.request._("This release is in quarantine and cannot be modified."),
+            queue="error",
+        )
+        return HTTPSeeOther(
+            self.request.route_path(
+                "manage.project.release",
+                project_name=self.release.project.name,
+                version=self.release.version,
+            )
+        )
+
     @view_config(
         request_method="POST",
         request_param=["confirm_yank_version"],
         require_reauth=True,
     )
     def yank_project_release(self):
+        if self.release.lifecycle_status == LifecycleStatus.QuarantineEnter:
+            return self._quarantined_redirect()
         version = self.request.POST.get("confirm_yank_version")
         yanked_reason = self.request.POST.get("yanked_reason", "")
 
@@ -1667,6 +1682,8 @@ class ManageProjectRelease:
         require_reauth=True,
     )
     def unyank_project_release(self):
+        if self.release.lifecycle_status == LifecycleStatus.QuarantineEnter:
+            return self._quarantined_redirect()
         version = self.request.POST.get("confirm_unyank_version")
         if not version:
             self.request.session.flash(
@@ -1752,6 +1769,8 @@ class ManageProjectRelease:
         require_reauth=True,
     )
     def delete_project_release(self):
+        if self.release.lifecycle_status == LifecycleStatus.QuarantineEnter:
+            return self._quarantined_redirect()
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_DELETION):
             self.request.session.flash(
                 self.request._(
@@ -1851,6 +1870,9 @@ class ManageProjectRelease:
         require_reauth=True,
     )
     def delete_project_release_file(self):
+        if self.release.lifecycle_status == LifecycleStatus.QuarantineEnter:
+            return self._quarantined_redirect()
+
         def _error(message):
             self.request.session.flash(message, queue="error")
             return HTTPSeeOther(
@@ -2237,7 +2259,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
     # has not updated invite status
     try:
         invite_token = token_service.loads(user_invite.token)
-    except (TokenExpired, AttributeError):
+    except TokenExpired, AttributeError:
         invite_token = None
 
     if user.primary_email is None or not user.primary_email.verified:
