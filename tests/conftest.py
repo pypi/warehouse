@@ -82,6 +82,21 @@ def metrics_timing(*args, **kwargs):
     yield None
 
 
+@pytest.fixture
+def _no_deliverability_check(monkeypatch):
+    """
+    Prevents the email_validator library from checking deliverability of email
+    """
+    original_validate_email = email_validator.validate_email
+
+    def mock_validate_email(email, check_deliverability=True, *args, **kwargs):
+        return original_validate_email(
+            email, check_deliverability=False, *args, **kwargs
+        )
+
+    monkeypatch.setattr("email_validator.validate_email", mock_validate_email)
+
+
 def _event(
     title,
     text,
