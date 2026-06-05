@@ -34,6 +34,7 @@ from warehouse.packaging.models import (
     Role,
 )
 from warehouse.rate_limiting import IRateLimiter
+from warehouse.rate_limiting.headers import record_rate_limit
 
 # From https://stackoverflow.com/a/22273639
 _illegal_ranges = [
@@ -108,6 +109,13 @@ def ratelimit():
             )
             metrics = request.find_service(IMetricsService, context=None)
             ratelimiter.hit(request.remote_addr)
+            record_rate_limit(
+                request,
+                "xmlrpc.client",
+                ratelimiter,
+                identifiers=(request.remote_addr,),
+                partition_key="ip",
+            )
             if not ratelimiter.test(request.remote_addr):
                 metrics.increment("warehouse.xmlrpc.ratelimiter.exceeded", tags=[])
                 message = (

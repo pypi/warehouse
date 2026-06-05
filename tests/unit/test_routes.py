@@ -616,6 +616,7 @@ def test_routes(warehouse):
         pretend.call(
             "api.echo",
             "/danger-api/echo",
+            auth_methods={"macaroon"},
             domain=warehouse,
         ),
         pretend.call(
@@ -623,6 +624,7 @@ def test_routes(warehouse):
             "/danger-api/projects/{name}/observations",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}",
+            auth_methods={"macaroon"},
             domain=warehouse,
         ),
         # PEP 740 URLs

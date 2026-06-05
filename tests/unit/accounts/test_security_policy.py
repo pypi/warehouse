@@ -11,6 +11,7 @@ from zope.interface.verify import verifyClass
 from warehouse.accounts import UserContext, security_policy
 from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import DisableReason
+from warehouse.predicates import AuthMethodsPredicate
 from warehouse.utils.security_policy import AuthenticationMethod
 
 from ...common.constants import REMOTE_ADDR
@@ -51,7 +52,12 @@ class TestBasicAuthSecurityPolicy:
 
         request = pretend.stub(
             add_response_callback=pretend.call_recorder(lambda cb: None),
-            matched_route=pretend.stub(name="forklift.legacy.file_upload"),
+            matched_route=pretend.stub(
+                name="forklift.legacy.file_upload",
+                predicates=[
+                    AuthMethodsPredicate({"basic-auth", "macaroon"}, None),
+                ],
+            ),
         )
 
         assert policy.identity(request) is None
@@ -77,7 +83,12 @@ class TestBasicAuthSecurityPolicy:
         request = pretend.stub(
             add_response_callback=pretend.call_recorder(lambda cb: None),
             help_url=lambda _anchor=None: "/help",
-            matched_route=pretend.stub(name="forklift.legacy.file_upload"),
+            matched_route=pretend.stub(
+                name="forklift.legacy.file_upload",
+                predicates=[
+                    AuthMethodsPredicate({"basic-auth", "macaroon"}, None),
+                ],
+            ),
         )
 
         with pytest.raises(HTTPForbidden):
@@ -95,7 +106,7 @@ class TestBasicAuthSecurityPolicy:
                 remote_addr=REMOTE_ADDR,
             ),
             pretend.stub(
-                matched_route=pretend.stub(name="an.invalid.route"),
+                matched_route=pretend.stub(name="an.invalid.route", predicates=[]),
                 banned=pretend.stub(by_ip=lambda ip_address: False),
                 remote_addr=REMOTE_ADDR,
             ),
@@ -132,7 +143,12 @@ class TestBasicAuthSecurityPolicy:
         request = pretend.stub(
             add_response_callback=pretend.call_recorder(lambda cb: None),
             help_url=lambda _anchor=None: "/help",
-            matched_route=pretend.stub(name="forklift.legacy.file_upload"),
+            matched_route=pretend.stub(
+                name="forklift.legacy.file_upload",
+                predicates=[
+                    AuthMethodsPredicate({"basic-auth", "macaroon"}, None),
+                ],
+            ),
         )
 
         assert policy.identity(request) is None
@@ -209,11 +225,13 @@ class TestSessionSecurityPolicy:
     @pytest.mark.parametrize(
         "route_name",
         [
-            "forklift.legacy.file_upload",
             "api.echo",
+            "api.simple.index",
         ],
     )
-    def test_identity_invalid_route(self, route_name, monkeypatch):
+    def test_identity_skips_api_prefix_routes(self, route_name, monkeypatch):
+        # api.* routes have no session middleware installed; skipping is an
+        # infrastructure constraint, not a policy decision.
         session_helper_obj = pretend.stub()
         session_helper_cls = pretend.call_recorder(lambda: session_helper_obj)
         monkeypatch.setattr(
@@ -229,6 +247,38 @@ class TestSessionSecurityPolicy:
         request = pretend.stub(
             add_response_callback=pretend.call_recorder(lambda cb: None),
             matched_route=pretend.stub(name=route_name),
+            banned=pretend.stub(by_ip=lambda ip_address: False),
+            remote_addr=REMOTE_ADDR,
+        )
+
+        assert policy.identity(request) is None
+        assert request.authentication_method == AuthenticationMethod.SESSION
+        assert session_helper_cls.calls == [pretend.call()]
+
+        assert add_vary_cb.calls == [pretend.call("Cookie")]
+        assert request.add_response_callback.calls == [pretend.call(vary_cb)]
+
+    def test_identity_skips_when_auth_methods_excludes_session(self, monkeypatch):
+        session_helper_obj = pretend.stub()
+        session_helper_cls = pretend.call_recorder(lambda: session_helper_obj)
+        monkeypatch.setattr(
+            security_policy, "SessionAuthenticationHelper", session_helper_cls
+        )
+
+        policy = security_policy.SessionSecurityPolicy()
+
+        vary_cb = pretend.stub()
+        add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
+        monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
+
+        request = pretend.stub(
+            add_response_callback=pretend.call_recorder(lambda cb: None),
+            matched_route=pretend.stub(
+                name="forklift.legacy.file_upload",
+                predicates=[
+                    AuthMethodsPredicate({"basic-auth", "macaroon"}, None),
+                ],
+            ),
             banned=pretend.stub(by_ip=lambda ip_address: False),
             remote_addr=REMOTE_ADDR,
         )
@@ -257,7 +307,7 @@ class TestSessionSecurityPolicy:
 
         request = pretend.stub(
             add_response_callback=pretend.call_recorder(lambda cb: None),
-            matched_route=pretend.stub(name="a.permitted.route"),
+            matched_route=pretend.stub(name="a.permitted.route", predicates=[]),
             banned=pretend.stub(by_ip=lambda ip_address: False),
             remote_addr=REMOTE_ADDR,
         )
@@ -289,7 +339,7 @@ class TestSessionSecurityPolicy:
         user_service = pretend.stub(get_user=pretend.call_recorder(lambda uid: None))
         request = pretend.stub(
             add_response_callback=pretend.call_recorder(lambda cb: None),
-            matched_route=pretend.stub(name="a.permitted.route"),
+            matched_route=pretend.stub(name="a.permitted.route", predicates=[]),
             find_service=pretend.call_recorder(lambda i, **kw: user_service),
             banned=pretend.stub(by_ip=lambda ip_address: False),
             remote_addr=REMOTE_ADDR,
@@ -330,7 +380,7 @@ class TestSessionSecurityPolicy:
         )
         request = pretend.stub(
             add_response_callback=pretend.call_recorder(lambda cb: None),
-            matched_route=pretend.stub(name="a.permitted.route"),
+            matched_route=pretend.stub(name="a.permitted.route", predicates=[]),
             find_service=pretend.call_recorder(lambda i, **kw: user_service),
             session=pretend.stub(
                 password_outdated=pretend.call_recorder(lambda ts: True),
@@ -384,7 +434,7 @@ class TestSessionSecurityPolicy:
         )
         request = pretend.stub(
             add_response_callback=pretend.call_recorder(lambda cb: None),
-            matched_route=pretend.stub(name="a.permitted.route"),
+            matched_route=pretend.stub(name="a.permitted.route", predicates=[]),
             find_service=pretend.call_recorder(lambda i, **kw: user_service),
             session=pretend.stub(
                 password_outdated=pretend.call_recorder(lambda ts: True),
@@ -443,7 +493,7 @@ class TestSessionSecurityPolicy:
         )
         request = pretend.stub(
             add_response_callback=pretend.call_recorder(lambda cb: None),
-            matched_route=pretend.stub(name="a.permitted.route"),
+            matched_route=pretend.stub(name="a.permitted.route", predicates=[]),
             find_service=pretend.call_recorder(lambda i, **kw: user_service),
             session=pretend.stub(
                 password_outdated=pretend.call_recorder(lambda ts: True),
@@ -496,7 +546,7 @@ class TestSessionSecurityPolicy:
         )
         request = pretend.stub(
             add_response_callback=pretend.call_recorder(lambda cb: None),
-            matched_route=pretend.stub(name="a.permitted.route"),
+            matched_route=pretend.stub(name="a.permitted.route", predicates=[]),
             find_service=pretend.call_recorder(lambda i, **kw: user_service),
             session=pretend.stub(
                 password_outdated=pretend.call_recorder(lambda ts: False)
@@ -652,7 +702,12 @@ class TestPermits:
                 ),
                 macaroon=None,
             ),
-            matched_route=pretend.stub(name="forklift.legacy.file_upload"),
+            matched_route=pretend.stub(
+                name="forklift.legacy.file_upload",
+                predicates=[
+                    AuthMethodsPredicate({"basic-auth", "macaroon"}, None),
+                ],
+            ),
         )
         context = pretend.stub(__acl__=[(Allow, "user:5", "myperm")])
 

@@ -62,7 +62,7 @@ logger = logging.getLogger(__name__)
 def _namespace_stdlib_list(module_list):
     for module_name in module_list:
         parts = module_name.split(".")
-        for i, part in enumerate(parts):
+        for i, _part in enumerate(parts):
             yield ".".join(parts[: i + 1])
 
 
@@ -90,6 +90,7 @@ class GenericLocalBlobStorage:
             "should not use it in production due to the lack of safe guards "
             "for safely locating files on disk.",
             InsecureStorageWarning,
+            stacklevel=2,
         )
 
         self.base = base
@@ -102,12 +103,12 @@ class GenericLocalBlobStorage:
         return open(os.path.join(self.base, path), "rb")
 
     def get_metadata(self, path):
-        return json.loads(open(os.path.join(self.base, path + ".meta")).read())
+        with open(os.path.join(self.base, path + ".meta")) as f:
+            return json.loads(f.read())
 
     def get_checksum(self, path):
-        return hashlib.md5(
-            open(os.path.join(self.base, path), "rb").read(), usedforsecurity=False
-        ).hexdigest()
+        with open(os.path.join(self.base, path), "rb") as f:
+            return hashlib.md5(f.read(), usedforsecurity=False).hexdigest()
 
     def store(self, path, file_path, *, meta=None):
         destination = os.path.join(self.base, path)
@@ -152,6 +153,7 @@ class LocalDocsStorage:
             "should not use it in production due to the lack of safe guards "
             "for safely locating files on disk.",
             InsecureStorageWarning,
+            stacklevel=2,
         )
 
         self.base = base
@@ -490,8 +492,6 @@ class ProjectService:
                 check_name=typo_check_match[0],
                 existing_project_name=typo_check_match[1],
             )
-
-        return
 
     def create_project(
         self,

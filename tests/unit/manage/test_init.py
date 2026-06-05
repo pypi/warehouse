@@ -95,7 +95,7 @@ def test_includeme():
         add_view_deriver=pretend.call_recorder(lambda f, over, under: None),
         register_rate_limiter=pretend.call_recorder(lambda limit_string, name: None),
         registry=pretend.stub(
-            settings=pretend.stub(get=pretend.call_recorder(lambda k: settings.get(k)))
+            settings=pretend.stub(get=pretend.call_recorder(settings.get))
         ),
     )
 
