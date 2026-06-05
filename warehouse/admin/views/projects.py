@@ -41,6 +41,7 @@ from warehouse.utils.project import (
     confirm_project,
     quarantine_release,
     remove_project,
+    remove_release,
     unarchive_project,
 )
 
@@ -883,25 +884,11 @@ def delete_release(release, request):
     if not reason:
         _error("Provide a reason")
 
-    request.db.add(
-        JournalEntry(
-            name=release.project.name,
-            action="remove release",
-            version=release.version,
-            submitted_by=request.user,
-        )
-    )
+    project_normalized_name = release.project.normalized_name
+    deleted_version = release.version
 
-    release.project.record_event(
-        tag=EventTag.Project.ReleaseRemove,
-        request=request,
-        additional={
-            "submitted_by": request.user.username,
-            "canonical_version": release.canonical_version,
-            "reason": reason,
-        },
-    )
-
+    # Notify contributors before the row goes away, since send-time email
+    # composition reads from `release` and its project.
     for contributor in release.project.users:
         contributor_role = get_user_role_in_project(
             release.project, contributor, request
@@ -917,14 +904,14 @@ def delete_release(release, request):
             reason=reason,
         )
 
-    request.db.delete(release)
+    remove_release(release, request, reason=reason)
 
-    request.session.flash(f"Deleted release {release.version!r}", queue="success")
+    request.session.flash(f"Deleted release {deleted_version!r}", queue="success")
 
     return HTTPSeeOther(
         request.route_path(
             "admin.project.detail",
-            project_name=release.project.normalized_name,
+            project_name=project_normalized_name,
         )
     )
 

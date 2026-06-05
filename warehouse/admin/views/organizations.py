@@ -203,13 +203,13 @@ def organization_list(request):
                         Organization.normalized_name.ilike(f"%{value}%"),
                     ]
                 )
-            elif field == "org" or field == "organization":
+            elif field in {"org", "organization"}:
                 # Add filter for `display_name` field.
                 filters.append(Organization.display_name.ilike(f"%{value}%"))
-            elif field == "url" or field == "link_url":
+            elif field in {"url", "link_url"}:
                 # Add filter for `link_url` field.
                 filters.append(Organization.link_url.ilike(f"%{value}%"))
-            elif field == "desc" or field == "description":
+            elif field in {"desc", "description"}:
                 # Add filter for `description` field.
                 filters.append(Organization.description.ilike(f"%{value}%"))
             elif field == "is":
@@ -238,9 +238,8 @@ def organization_list(request):
         for filter_or_subfilters in filters:
             if isinstance(filter_or_subfilters, list):
                 # Add list of subfilters combined with OR.
-                filter_or_subfilters = filter_or_subfilters or [True]
                 organizations_query = organizations_query.filter(
-                    or_(False, *filter_or_subfilters)
+                    or_(False, *(filter_or_subfilters or [True]))
                 )
             else:
                 # Add single filter.
@@ -426,13 +425,13 @@ def organization_applications_list(request):
                         OrganizationApplication.normalized_name.ilike(f"%{value}%"),
                     ]
                 )
-            elif field == "org" or field == "organization":
+            elif field in {"org", "organization"}:
                 # Add filter for `display_name` field.
                 filters.append(OrganizationApplication.display_name.ilike(f"%{value}%"))
-            elif field == "url" or field == "link_url":
+            elif field in {"url", "link_url"}:
                 # Add filter for `link_url` field.
                 filters.append(OrganizationApplication.link_url.ilike(f"%{value}%"))
-            elif field == "desc" or field == "description":
+            elif field in {"desc", "description"}:
                 # Add filter for `description` field.
                 filters.append(OrganizationApplication.description.ilike(f"%{value}%"))
             elif field == "type":
@@ -462,10 +461,9 @@ def organization_applications_list(request):
         for filter_or_subfilters in filters:
             if isinstance(filter_or_subfilters, list):
                 # Add list of subfilters combined with OR.
-                filter_or_subfilters = filter_or_subfilters or [True]
                 organization_applications_query = (
                     organization_applications_query.filter(
-                        or_(False, *filter_or_subfilters)
+                        or_(False, *(filter_or_subfilters or [True]))
                     )
                 )
             else:

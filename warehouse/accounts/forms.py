@@ -17,9 +17,6 @@ import wtforms.fields
 from sqlalchemy import exists
 from tldextract import TLDExtract
 
-import warehouse.utils.otp as otp
-import warehouse.utils.webauthn as webauthn
-
 from warehouse import forms
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
@@ -37,6 +34,7 @@ from warehouse.email import (
 )
 from warehouse.events.tags import EventTag
 from warehouse.i18n import localize as _
+from warehouse.utils import otp, webauthn
 
 # Common messages, set as constants to keep them from drifting.
 INVALID_EMAIL_MESSAGE = _("The email address isn't valid. Try again.")
@@ -274,7 +272,7 @@ class NewPasswordMixin:
             field.data, tags=["method:new_password"]
         ):
             raise wtforms.validators.ValidationError(
-                markupsafe.Markup(self._breach_service.failure_message)
+                markupsafe.Markup(self._breach_service.failure_message)  # noqa: S704
             )
 
 
@@ -477,7 +475,7 @@ class LoginForm(PasswordMixin, UsernameMixin, wtforms.Form):
             is_disabled, disabled_for = self.user_service.is_disabled(userid)
             if is_disabled and disabled_for == DisableReason.CompromisedPassword:
                 raise wtforms.validators.ValidationError(
-                    markupsafe.Markup(self.breach_service.failure_message)
+                    markupsafe.Markup(self.breach_service.failure_message)  # noqa: S704
                 )
             if self.breach_service.check_password(
                 field.data, tags=["method:auth", "auth_method:login_form"]
@@ -490,7 +488,7 @@ class LoginForm(PasswordMixin, UsernameMixin, wtforms.Form):
                     reason=DisableReason.CompromisedPassword,
                 )
                 raise wtforms.validators.ValidationError(
-                    markupsafe.Markup(self.breach_service.failure_message)
+                    markupsafe.Markup(self.breach_service.failure_message)  # noqa: S704
                 )
 
 
@@ -512,7 +510,7 @@ class TOTPAuthenticationForm(TOTPValueMixin, _TwoFactorAuthenticationForm):
             ok = self.user_service.check_totp_value(self.user_id, totp_value)
             if not ok:
                 raise otp.InvalidTOTPError
-        except (otp.InvalidTOTPError, otp.OutOfSyncTOTPError):
+        except otp.InvalidTOTPError, otp.OutOfSyncTOTPError:
             user = self.user_service.get_user(self.user_id)
             user.record_event(
                 tag=EventTag.Account.LoginFailure,
@@ -601,7 +599,7 @@ class RecoveryCodeAuthenticationForm(
             send_recovery_code_used_email(
                 self.request, self.user_service.get_user(self.user_id)
             )
-        except (InvalidRecoveryCode, NoRecoveryCodes):
+        except InvalidRecoveryCode, NoRecoveryCodes:
             user = self.user_service.get_user(self.user_id)
             user.record_event(
                 tag=EventTag.Account.LoginFailure,
@@ -642,13 +640,12 @@ class RequestPasswordResetForm(wtforms.Form):
                 raise wtforms.validators.ValidationError(
                     message=INVALID_EMAIL_MESSAGE
                 ) from e
-        else:
-            # the regexp below must match the CheckConstraint
-            # for the username field in accounts.models.User
-            if not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9._-]*[a-zA-Z0-9]$", field.data):
-                raise wtforms.validators.ValidationError(
-                    message=_("The username isn't valid. Try again.")
-                )
+        # the regexp below must match the CheckConstraint
+        # for the username field in accounts.models.User
+        elif not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9._-]*[a-zA-Z0-9]$", field.data):
+            raise wtforms.validators.ValidationError(
+                message=_("The username isn't valid. Try again.")
+            )
 
 
 class ResetPasswordForm(NewPasswordMixin, wtforms.Form):

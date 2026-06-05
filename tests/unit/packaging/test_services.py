@@ -69,6 +69,7 @@ class TestLocalFileStorage:
         storage = LocalFileStorage(str(tmpdir))
         file_object = storage.get("file.txt")
         assert file_object.read() == b"my test file contents"
+        file_object.close()
 
     def test_raises_when_file_non_existent(self, tmpdir):
         storage = LocalFileStorage(str(tmpdir))
@@ -216,6 +217,7 @@ class TestLocalSimpleStorage:
         storage = LocalSimpleStorage(str(tmpdir))
         file_object = storage.get("file.txt")
         assert file_object.read() == b"my test file contents"
+        file_object.close()
 
     def test_raises_when_file_non_existent(self, tmpdir):
         storage = LocalSimpleStorage(str(tmpdir))
@@ -1074,10 +1076,7 @@ class TestProjectService:
 
         with pytest.raises(ProjectNameUnavailableSimilarError) as exc:
             service.check_project_name("foo")
-        assert (
-            exc.value.similar_project_name == project1.name
-            or exc.value.similar_project_name == project2.name
-        )
+        assert exc.value.similar_project_name in (project1.name, project2.name)
 
     def test_check_project_name_typosquatting_prohibited(self, db_session):
         # TODO: Update this test once we have a dynamic TopN approach

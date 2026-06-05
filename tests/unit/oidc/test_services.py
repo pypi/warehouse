@@ -1024,7 +1024,9 @@ class TestNullOIDCPublisherService:
         )
 
     def test_warns_on_init(self, monkeypatch):
-        warnings = pretend.stub(warn=pretend.call_recorder(lambda m, c: None))
+        warnings = pretend.stub(
+            warn=pretend.call_recorder(lambda m, c, stacklevel: None)
+        )
         monkeypatch.setattr(services, "warnings", warnings)
 
         service = services.NullOIDCPublisherService(
@@ -1043,6 +1045,7 @@ class TestNullOIDCPublisherService:
                 "you should not use it in production due to the lack of actual "
                 "JWT verification.",
                 warehouse.utils.exceptions.InsecureOIDCPublisherWarning,
+                stacklevel=2,
             )
         ]
 

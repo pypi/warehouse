@@ -6206,7 +6206,7 @@ class TestUserTermsOfServiceUpdateEmail:
         pyramid_request.user = stub_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
-        send_method = getattr(email, "send_user_terms_of_service_updated")
+        send_method = email.send_user_terms_of_service_updated
         result = send_method(pyramid_request, stub_user)
 
         assert result == {"user": stub_user}
