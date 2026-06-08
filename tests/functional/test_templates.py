@@ -51,6 +51,7 @@ def test_templates_for_empty_titles(template: Path):
     dir_name = Path(warehouse.__path__[0]) / "templates"
 
     env = Environment(
+        autoescape=True,
         loader=FileSystemLoader(dir_name),
         extensions=[
             "jinja2.ext.i18n",
@@ -88,6 +89,7 @@ def test_render_templates(template):
     dir_name = Path(warehouse.__path__[0]) / "templates"
 
     env = Environment(
+        autoescape=True,
         loader=FileSystemLoader(dir_name),
         extensions=[
             "jinja2.ext.i18n",

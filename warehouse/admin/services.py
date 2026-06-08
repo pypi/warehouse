@@ -28,6 +28,7 @@ class LocalSponsorLogoStorage:
             "should not use it in production due to the lack of safe guards "
             "for safely locating files on disk.",
             InsecureStorageWarning,
+            stacklevel=2,
         )
 
         self.base = base

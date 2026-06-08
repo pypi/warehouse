@@ -1,6 +1,18 @@
 # SPDX-License-Identifier: Apache-2.0
 
+from dataclasses import dataclass
+
 from zope.interface import Interface
+
+
+@dataclass(frozen=True)
+class WindowStats:
+    """A snapshot of one rate-limit policy's state for a given identifier."""
+
+    amount: int
+    window_seconds: int
+    remaining: int
+    resets_in_seconds: int
 
 
 class IRateLimiter(Interface):
@@ -29,9 +41,16 @@ class IRateLimiter(Interface):
         Clears the rate limiter identified by the identifiers.
         """
 
+    def get_window_stats(*identifiers):
+        """
+        Returns a list of WindowStats — one per configured policy — describing
+        the current state for these identifiers. Returns an empty list if the
+        backing storage is unavailable.
+        """
+
 
 class RateLimiterException(Exception):  # noqa: N818
     def __init__(self, *args, resets_in, **kwargs):
         self.resets_in = resets_in
 
-        return super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)

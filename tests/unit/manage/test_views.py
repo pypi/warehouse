@@ -19,8 +19,6 @@ from sqlalchemy.orm import joinedload
 from webauthn.helpers import bytes_to_base64url
 from webob.multidict import MultiDict
 
-import warehouse.utils.otp as otp
-
 from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
     ITokenService,
@@ -53,6 +51,7 @@ from warehouse.packaging.models import (
     User,
 )
 from warehouse.rate_limiting import IRateLimiter
+from warehouse.utils import otp
 from warehouse.utils.paginate import paginate_url_factory
 
 from ...common.db.accounts import EmailFactory, UserFactory
@@ -1749,7 +1748,7 @@ class TestProvisionWebAuthn:
             ),
             session=pretend.stub(
                 get_webauthn_challenge=pretend.call_recorder(lambda: "fake_challenge"),
-                clear_webauthn_challenge=pretend.call_recorder(lambda: pretend.stub()),
+                clear_webauthn_challenge=pretend.call_recorder(pretend.stub),
                 flash=pretend.call_recorder(lambda *a, **kw: None),
             ),
             find_service=lambda *a, **kw: user_service,
@@ -1816,7 +1815,7 @@ class TestProvisionWebAuthn:
             user=pretend.stub(id=1234, webauthn=None),
             session=pretend.stub(
                 get_webauthn_challenge=pretend.call_recorder(lambda: "fake_challenge"),
-                clear_webauthn_challenge=pretend.call_recorder(lambda: pretend.stub()),
+                clear_webauthn_challenge=pretend.call_recorder(pretend.stub),
                 flash=pretend.call_recorder(lambda *a, **kw: None),
             ),
             find_service=lambda *a, **kw: user_service,
@@ -4353,12 +4352,57 @@ class TestManageProjectRelease:
             "files": files,
         }
 
+    @pytest.mark.parametrize(
+        "method",
+        [
+            "yank_project_release",
+            "unyank_project_release",
+            "delete_project_release",
+            "delete_project_release_file",
+        ],
+    )
+    def test_release_mutations_blocked_when_quarantined(self, pyramid_request, method):
+        release = pretend.stub(
+            version="1.2.3",
+            lifecycle_status=LifecycleStatus.QuarantineEnter,
+            yanked=False,
+            project=pretend.stub(name="foobar"),
+        )
+        pyramid_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/the-redirect"
+        )
+        pyramid_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        view = views.ManageProjectRelease(release, pyramid_request)
+        result = getattr(view, method)()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert pyramid_request.session.flash.calls == [
+            pretend.call(
+                "This release is in quarantine and cannot be modified.",
+                queue="error",
+            )
+        ]
+        assert pyramid_request.route_path.calls == [
+            pretend.call(
+                "manage.project.release",
+                project_name=release.project.name,
+                version=release.version,
+            )
+        ]
+        # Yank state is untouched
+        assert release.yanked is False
+
     def test_delete_project_release_disallow_deletion(
         self, monkeypatch, pyramid_request
     ):
         release = pretend.stub(
             version="1.2.3",
             canonical_version="1.2.3",
+            lifecycle_status=None,
             project=pretend.stub(
                 name="foobar", record_event=pretend.call_recorder(lambda *a, **kw: None)
             ),
@@ -4482,6 +4526,7 @@ class TestManageProjectRelease:
             project=pretend.stub(name="foobar"),
             yanked=False,
             yanked_reason="",
+            lifecycle_status=None,
         )
         pyramid_request.POST = {"confirm_yank_version": ""}
         pyramid_request.method = "POST"
@@ -4521,6 +4566,7 @@ class TestManageProjectRelease:
             project=pretend.stub(name="foobar"),
             yanked=False,
             yanked_reason="",
+            lifecycle_status=None,
         )
         pyramid_request.POST = {"confirm_yank_version": "invalid"}
         pyramid_request.method = "POST"
@@ -4636,6 +4682,7 @@ class TestManageProjectRelease:
             project=pretend.stub(name="foobar"),
             yanked=True,
             yanked_reason="",
+            lifecycle_status=None,
         )
         pyramid_request.POST = {
             "confirm_unyank_version": "",
@@ -4678,6 +4725,7 @@ class TestManageProjectRelease:
             project=pretend.stub(name="foobar"),
             yanked=True,
             yanked_reason="Old reason",
+            lifecycle_status=None,
         )
         pyramid_request.POST = {
             "confirm_unyank_version": "invalid",
@@ -4789,7 +4837,11 @@ class TestManageProjectRelease:
         ]
 
     def test_delete_project_release_no_confirm(self, pyramid_request):
-        release = pretend.stub(version="1.2.3", project=pretend.stub(name="foobar"))
+        release = pretend.stub(
+            version="1.2.3",
+            project=pretend.stub(name="foobar"),
+            lifecycle_status=None,
+        )
         pyramid_request.POST = {"confirm_delete_version": ""}
         pyramid_request.method = "POST"
         pyramid_request.db = pretend.stub(delete=pretend.call_recorder(lambda a: None))
@@ -4825,7 +4877,11 @@ class TestManageProjectRelease:
         ]
 
     def test_delete_project_release_bad_confirm(self, pyramid_request):
-        release = pretend.stub(version="1.2.3", project=pretend.stub(name="foobar"))
+        release = pretend.stub(
+            version="1.2.3",
+            project=pretend.stub(name="foobar"),
+            lifecycle_status=None,
+        )
         pyramid_request.POST = {"confirm_delete_version": "invalid"}
         pyramid_request.method = "POST"
         pyramid_request.db = pretend.stub(delete=pretend.call_recorder(lambda a: None))
@@ -4862,7 +4918,11 @@ class TestManageProjectRelease:
         ]
 
     def test_delete_project_release_file_disallow_deletion(self, pyramid_request):
-        release = pretend.stub(version="1.2.3", project=pretend.stub(name="foobar"))
+        release = pretend.stub(
+            version="1.2.3",
+            project=pretend.stub(name="foobar"),
+            lifecycle_status=None,
+        )
         pyramid_request.method = "POST"
         pyramid_request.flags = pretend.stub(
             enabled=pretend.call_recorder(lambda *a: True)
@@ -4987,6 +5047,7 @@ class TestManageProjectRelease:
         release = pretend.stub(
             version="1.2.3",
             project=pretend.stub(name="foobar", normalized_name="foobar"),
+            lifecycle_status=None,
         )
         pyramid_request.POST = {"confirm_project_name": ""}
         pyramid_request.method = "POST"

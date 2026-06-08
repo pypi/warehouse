@@ -288,7 +288,7 @@ class TestFastlyCache:
 
         class MockForcedIPHTTPSAdapter:
             def __init__(self, *a, **kw):
-                return forced_ip_https_adapter(*a, **kw)
+                forced_ip_https_adapter(*a, **kw)
 
         monkeypatch.setattr(
             forcediphttpsadapter.adapters,
@@ -350,7 +350,7 @@ class TestFastlyCache:
 
         class MockForcedIPHTTPSAdapter:
             def __init__(self, *a, **kw):
-                return forced_ip_https_adapter(*a, **kw)
+                forced_ip_https_adapter(*a, **kw)
 
         monkeypatch.setattr(
             forcediphttpsadapter.adapters,

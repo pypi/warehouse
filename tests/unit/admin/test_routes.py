@@ -317,6 +317,20 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call(
+            "admin.project.release.quarantine",
+            "/admin/projects/{project_name}/release/{version}/quarantine/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}/{version}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.project.release.remove_from_quarantine",
+            "/admin/projects/{project_name}/release/{version}/remove_from_quarantine/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}/{version}",
+            domain=warehouse,
+        ),
+        pretend.call(
             "admin.project.remove_from_quarantine",
             "/admin/projects/{project_name}/remove_from_quarantine/",
             factory="warehouse.packaging.models:ProjectFactory",
@@ -497,6 +511,13 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call(
+            "admin.malware_reports.project.verdict_remove_release",
+            "/admin/projects/{project_name}/malware_reports/remove_release/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
             "admin.malware_reports.detail",
             "/admin/malware_reports/{observation_id}/",
             domain=warehouse,
@@ -524,6 +545,16 @@ def test_includeme():
         pretend.call(
             "admin.malware_reports.detail.verdict_remove_malware",
             "/admin/malware_reports/{observation_id}/remove_malware/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.malware_reports.detail.verdict_quarantine_release",
+            "/admin/malware_reports/{observation_id}/quarantine_release/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.malware_reports.detail.verdict_remove_release",
+            "/admin/malware_reports/{observation_id}/remove_release/",
             domain=warehouse,
         ),
         pretend.call(

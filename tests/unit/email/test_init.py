@@ -1003,8 +1003,37 @@ class TestPasswordCompromisedHIBPEmail:
 
 class TestTokenLeakEmail:
     @pytest.mark.parametrize("verified", [True, False])
+    @pytest.mark.parametrize(
+        ("kwargs", "expected_context"),
+        [
+            (
+                {"public_url": "http://example.com", "origin": "github"},
+                {
+                    "public_url": "http://example.com",
+                    "origin": "github",
+                    "admin_initiated": False,
+                    "reason": None,
+                },
+            ),
+            (
+                {"admin_initiated": True, "reason": "Found in a public CI log"},
+                {
+                    "public_url": None,
+                    "origin": None,
+                    "admin_initiated": True,
+                    "reason": "Found in a public CI log",
+                },
+            ),
+        ],
+    )
     def test_token_leak_email(
-        self, pyramid_request, pyramid_config, monkeypatch, verified
+        self,
+        pyramid_request,
+        pyramid_config,
+        monkeypatch,
+        verified,
+        kwargs,
+        expected_context,
     ):
         stub_user = pretend.stub(
             id=3,
@@ -1040,14 +1069,10 @@ class TestTokenLeakEmail:
         monkeypatch.setattr(email, "send_email", send_email)
 
         result = email.send_token_compromised_email_leak(
-            pyramid_request, stub_user, public_url="http://example.com", origin="github"
+            pyramid_request, stub_user, **kwargs
         )
 
-        assert result == {
-            "username": "username",
-            "public_url": "http://example.com",
-            "origin": "github",
-        }
+        assert result == {"username": "username", **expected_context}
         assert pyramid_request.task.calls == [pretend.call(send_email)]
         assert send_email.delay.calls == [
             pretend.call(
@@ -6202,7 +6227,7 @@ class TestUserTermsOfServiceUpdateEmail:
         pyramid_request.user = stub_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
-        send_method = getattr(email, "send_user_terms_of_service_updated")
+        send_method = email.send_user_terms_of_service_updated
         result = send_method(pyramid_request, stub_user)
 
         assert result == {"user": stub_user}

@@ -5,6 +5,7 @@ from pyramid.view import view_config
 from sqlalchemy.orm import joinedload
 
 from warehouse.authnz import Permissions
+from warehouse.email import send_token_compromised_email_leak
 from warehouse.events.tags import EventTag
 from warehouse.macaroons.errors import InvalidMacaroonError
 from warehouse.macaroons.interfaces import IMacaroonService
@@ -95,19 +96,32 @@ def macaroon_delete(request):
     if macaroon is None:
         raise HTTPNotFound
 
-    # TODO: Shows up in user history. Should it? `removed_by` is not shown.
+    user = macaroon.user
+    notify = bool(request.POST.get("notify"))
+    reason = request.POST.get("reason", "").strip() or None
+
+    additional = {
+        "macaroon_id": str(macaroon.id),
+        "description": macaroon.description,
+        "removed_by": request.user.username,  # not displayed to user
+        "redact_ip": True,
+    }
+    if reason:
+        additional["reason"] = reason
+
     # Since we still have a macaroon, record the event to the associated user
-    macaroon.user.record_event(
+    user.record_event(
         tag=EventTag.Account.APITokenRemoved,
         request=request,
-        additional={
-            "macaroon_id": str(macaroon.id),
-            "description": macaroon.description,
-            "removed_by": request.user.username,
-        },
+        additional=additional,
     )
 
     macaroon_service.delete_macaroon(macaroon_id)
+
+    if notify:
+        send_token_compromised_email_leak(
+            request, user, admin_initiated=True, reason=reason
+        )
 
     request.session.flash(
         f"Macaroon with ID {macaroon_id} has been deleted.", queue="success"
