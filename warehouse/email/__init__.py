@@ -296,8 +296,16 @@ def send_password_reset_by_admin_email(request, user):
 
 
 @_email("token-compromised-leak", allow_unverified=True)
-def send_token_compromised_email_leak(request, user, *, public_url, origin):
-    return {"username": user.username, "public_url": public_url, "origin": origin}
+def send_token_compromised_email_leak(
+    request, user, *, public_url=None, origin=None, admin_initiated=False, reason=None
+):
+    return {
+        "username": user.username,
+        "public_url": public_url,
+        "origin": origin,
+        "admin_initiated": admin_initiated,
+        "reason": reason,
+    }
 
 
 @_email(
