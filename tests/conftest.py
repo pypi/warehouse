@@ -91,8 +91,6 @@ class _CallRecorder:
     ``assert_not_called`` / ``call_args_list``). This lets the pretend removal
     proceed file-by-file rather than as one big-bang sweep; delete it once no
     ``.calls`` assertions against these fixtures remain.
-
-    See: dev/pretend-migration.md
     """
 
     def __init__(self, method):
