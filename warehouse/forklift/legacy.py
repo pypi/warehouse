@@ -7,6 +7,8 @@ import tarfile
 import tempfile
 import zipfile
 
+from contextlib import ExitStack, nullcontext
+
 import packaging.requirements
 import packaging.specifiers
 import packaging.utils
@@ -272,7 +274,22 @@ def _validate_filename(filename, filetype):
         )
 
 
-def _is_valid_dist_file(filename, filetype, metrics, *, scan=True):
+def _open_dist_file(filename, stack: ExitStack):
+    if filename.endswith((".zip", ".whl")):
+        return stack.enter_context(zipfile.ZipFile(filename))
+    if filename.endswith(".tar.gz"):
+        return stack.enter_context(tarfile.open(filename, mode="r:gz"))
+    raise ValueError(f"Unsupported distribution file: {filename}")
+
+
+def _is_valid_dist_file(
+    filename,
+    filetype,
+    metrics,
+    *,
+    scan=True,
+    archive=None,
+):
     """
     Perform some basic checks to see whether the indicated file could be
     a valid distribution file.
@@ -283,6 +300,8 @@ def _is_valid_dist_file(filename, filetype, metrics, *, scan=True):
     ``metrics`` is used to time the YARA scan and (for sdists) the tarfile
     name enumeration, both of which do CPU-bound work synchronously inside
     the upload request.
+
+    If ``archive`` is provided, it is retained by the caller for subsequent checks.
     """
     is_zipfile = bool(filename and zipfile.is_zipfile(filename))
     is_tarfile = bool(filename and tarfile.is_tarfile(filename))
@@ -293,11 +312,16 @@ def _is_valid_dist_file(filename, filetype, metrics, *, scan=True):
     if filename.endswith((".zip", ".whl")):
         if not is_zipfile:
             return False, "File is not a zipfile"
+
         # Ensure that this is a valid zip file, and that it has a
         # PKG-INFO or WHEEL file.
         try:
-            with zipfile.ZipFile(filename) as zfp:
-                # Ensure that the compression ratio is not absurd (decompression bomb)
+            archive_context = (
+                zipfile.ZipFile(filename) if archive is None else nullcontext(archive)
+            )
+            with archive_context as zfp:
+                # Ensure that the compression ratio is not absurd
+                # (decompression bomb)
                 compressed_size = os.stat(filename).st_size
                 decompressed_size = sum(e.file_size for e in zfp.infolist())
                 if (
@@ -368,14 +392,14 @@ def _is_valid_dist_file(filename, filetype, metrics, *, scan=True):
                         )
                         return False, yara_match.message
 
-            # Check the ZIP file record framing
-            # to avoid parser differentials.
-            zip_ok, zip_error = zipfiles.validate_zipfile(filename)
-            if not zip_ok:
-                return False, (
-                    f"ZIP archive not accepted: {zip_error}. "
-                    f"See https://docs.pypi.org/archives for more information"
-                )
+                # Check the ZIP file record framing
+                # to avoid parser differentials.
+                zip_ok, zip_error = zipfiles.validate_zipfile(zfp)
+                if not zip_ok:
+                    return False, (
+                        f"ZIP archive not accepted: {zip_error}. "
+                        f"See https://docs.pypi.org/archives for more information"
+                    )
 
         except zipfile.BadZipFile:  # pragma: no cover
             return False, None
@@ -383,11 +407,18 @@ def _is_valid_dist_file(filename, filetype, metrics, *, scan=True):
     elif filename.endswith(".tar.gz"):
         if not is_tarfile:
             return False, "File is not a tarfile"
+
         # Ensure that this is a valid tar file, and that it contains PKG-INFO.
         # TODO: Ideally Ensure the compression ratio is not absurd
         # (decompression bomb), like we do for wheel/zip above.
         try:
-            with tarfile.open(filename, "r:gz") as tar:
+            # Ignore SIM115: the returned TarFile is managed by the context below.
+            archive_context = (
+                tarfile.open(filename, "r:gz")  # noqa: SIM115
+                if archive is None
+                else nullcontext(archive)
+            )
+            with archive_context as tar:
                 # This decompresses the entire stream to validate it and the
                 # tar within.  Easy CPU DoS attack. :/
                 with metrics.timed("warehouse.upload.tarfile.getnames"):
@@ -1079,7 +1110,7 @@ def file_upload(request):
     project_size_limit = project.total_size_limit_value
 
     file_data = None
-    with tempfile.TemporaryDirectory() as tmpdir:
+    with tempfile.TemporaryDirectory() as tmpdir, ExitStack() as archive_stack:
         temporary_filename = os.path.join(tmpdir, filename)
 
         # Buffer the entire file onto disk, checking the hash of the file as we
@@ -1208,12 +1239,27 @@ def file_upload(request):
             "warehouse.upload.validate",
             tags=[f"filetype:{form.filetype.data}"],
         ):
-            _valid, _msg = _is_valid_dist_file(
-                temporary_filename,
-                form.filetype.data,
-                request.metrics,
-                scan=_scan,
-            )
+            upload_archive = None
+            try:
+                upload_archive = _open_dist_file(
+                    temporary_filename,
+                    archive_stack,
+                )
+            except zipfile.BadZipFile, tarfile.ReadError, EOFError:
+                _valid, _msg = _is_valid_dist_file(
+                    temporary_filename,
+                    form.filetype.data,
+                    request.metrics,
+                    scan=_scan,
+                )
+            else:
+                _valid, _msg = _is_valid_dist_file(
+                    temporary_filename,
+                    form.filetype.data,
+                    request.metrics,
+                    scan=_scan,
+                    archive=upload_archive,
+                )
         if not _valid:
             request.metrics.increment(
                 "warehouse.upload.failed",
@@ -1312,26 +1358,27 @@ def file_upload(request):
                 Ensure all License-File keys exist in the sdist
                 See https://peps.python.org/pep-0639/#add-license-file-field
                 """
-                with tarfile.open(temporary_filename, "r:gz") as tar:
-                    top_level = _commonpath(tar.getnames())
-                    # Already validated as a tarfile by _is_valid_dist_file above
-                    for license_file in meta.license_files:
-                        target_file = os.path.join(top_level, license_file)
-                        try:
-                            tar.getmember(target_file)
-                        except KeyError:
-                            request.metrics.increment(
-                                "warehouse.upload.failed",
-                                tags=[
-                                    "reason:missing-license-file",
-                                    f"filetype:{form.filetype.data}",
-                                ],
-                            )
-                            raise _exc_with_message(
-                                HTTPBadRequest,
-                                f"License-File {license_file} does not exist in "
-                                f"distribution file {filename} at {target_file}",
-                            )
+                tar = upload_archive
+                assert isinstance(tar, tarfile.TarFile)
+                top_level = _commonpath(tar.getnames())
+                # Already validated as a tarfile by _is_valid_dist_file above
+                for license_file in meta.license_files:
+                    target_file = os.path.join(top_level, license_file)
+                    try:
+                        tar.getmember(target_file)
+                    except KeyError:
+                        request.metrics.increment(
+                            "warehouse.upload.failed",
+                            tags=[
+                                "reason:missing-license-file",
+                                f"filetype:{form.filetype.data}",
+                            ],
+                        )
+                        raise _exc_with_message(
+                            HTTPBadRequest,
+                            f"License-File {license_file} does not exist in "
+                            f"distribution file {filename} at {target_file}",
+                        )
 
         # Check that if it's a binary wheel, it's on a supported platform
         if filename.endswith(".whl"):
@@ -1421,34 +1468,36 @@ def file_upload(request):
             # and version.
             name, version, _ = filename.split("-", 2)
 
+            zfp = upload_archive
+            assert isinstance(zfp, zipfile.ZipFile)
+
             if meta.license_files:
                 """
                 Ensure all License-File keys exist in the wheel
                 See https://peps.python.org/pep-0639/#add-license-file-field
                 """
-                with zipfile.ZipFile(temporary_filename) as zfp:
-                    for license_file in meta.license_files:
-                        license_filename = (
-                            f"{name}-{version}.dist-info/licenses/{license_file}"
+                for license_file in meta.license_files:
+                    license_filename = (
+                        f"{name}-{version}.dist-info/licenses/{license_file}"
+                    )
+                    try:
+                        zfp.read(license_filename)
+                    except KeyError:
+                        request.metrics.increment(
+                            "warehouse.upload.failed",
+                            tags=[
+                                "reason:missing-license-file",
+                                f"filetype:{form.filetype.data}",
+                            ],
                         )
-                        try:
-                            zfp.read(license_filename)
-                        except KeyError:
-                            request.metrics.increment(
-                                "warehouse.upload.failed",
-                                tags=[
-                                    "reason:missing-license-file",
-                                    f"filetype:{form.filetype.data}",
-                                ],
-                            )
-                            raise _exc_with_message(
-                                HTTPBadRequest,
-                                f"License-File {license_file} does not exist in "
-                                f"distribution file {filename} at {license_filename}",
-                            )
+                        raise _exc_with_message(
+                            HTTPBadRequest,
+                            f"License-File {license_file} does not exist in "
+                            f"distribution file {filename} at {license_filename}",
+                        )
 
             try:
-                validate_record(temporary_filename)
+                validate_record(zfp)
             except MissingWheelRecordError:
                 request.metrics.increment(
                     "warehouse.upload.failed",
@@ -1474,7 +1523,7 @@ def file_upload(request):
                 )
 
             try:
-                validate_entrypoints(temporary_filename)
+                validate_entrypoints(zfp)
             except InvalidWheelEntryPointsError:
                 raise _exc_with_message(
                     HTTPBadRequest,
@@ -1489,8 +1538,7 @@ def file_upload(request):
             """
             metadata_filename = f"{name}-{version}.dist-info/METADATA"
             try:
-                with zipfile.ZipFile(temporary_filename) as zfp:
-                    wheel_metadata_contents = zfp.read(metadata_filename)
+                wheel_metadata_contents = zfp.read(metadata_filename)
             except KeyError:
                 request.metrics.increment(
                     "warehouse.upload.failed",
