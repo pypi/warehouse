@@ -378,21 +378,23 @@ def send_new_organization_moreinformationneeded_email(
 
 @_email("organization-project-added")
 def send_organization_project_added_email(
-    request, user, *, organization_name, project_name
+    request, user, *, organization_name, project_name, submitter_username
 ):
     return {
         "organization_name": organization_name,
         "project_name": project_name,
+        "submitter": submitter_username,
     }
 
 
 @_email("organization-project-removed")
 def send_organization_project_removed_email(
-    request, user, *, organization_name, project_name
+    request, user, *, organization_name, project_name, submitter_username
 ):
     return {
         "organization_name": organization_name,
         "project_name": project_name,
+        "submitter": submitter_username,
     }
 
 

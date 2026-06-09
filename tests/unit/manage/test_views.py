@@ -3487,6 +3487,7 @@ class TestManageProjectSettings:
                 {db_request.user},
                 organization_name=project.organization.name,
                 project_name=project.name,
+                submitter_username=db_request.user.username,
             ),
         ]
 
@@ -3627,6 +3628,7 @@ class TestManageProjectSettings:
                 {db_request.user},
                 organization_name=organization.name,
                 project_name=project.name,
+                submitter_username=db_request.user.username,
             )
         ]
 
@@ -3722,6 +3724,7 @@ class TestManageProjectSettings:
                 {db_request.user},
                 organization_name=project.organization.name,
                 project_name=project.name,
+                submitter_username=db_request.user.username,
             )
         ]
         assert send_organization_project_added_email.calls == [
@@ -3730,6 +3733,7 @@ class TestManageProjectSettings:
                 {db_request.user},
                 organization_name=organization.name,
                 project_name=project.name,
+                submitter_username=db_request.user.username,
             )
         ]
 
@@ -3857,6 +3861,7 @@ class TestManageProjectSettings:
                 {db_request.user},
                 organization_name=project.organization.name,
                 project_name=project.name,
+                submitter_username=db_request.user.username,
             )
         ]
         assert send_organization_project_added_email.calls == [
@@ -3865,6 +3870,7 @@ class TestManageProjectSettings:
                 {db_request.user},
                 organization_name=organization.name,
                 project_name=project.name,
+                submitter_username=db_request.user.username,
             )
         ]
 
@@ -3958,6 +3964,7 @@ class TestManageProjectSettings:
                 {db_request.user},
                 organization_name=project.organization.name,
                 project_name=project.name,
+                submitter_username=db_request.user.username,
             )
         ]
         assert send_organization_project_added_email.calls == [
@@ -3966,6 +3973,7 @@ class TestManageProjectSettings:
                 {db_request.user},
                 organization_name=organization.name,
                 project_name=project.name,
+                submitter_username=db_request.user.username,
             )
         ]
 
