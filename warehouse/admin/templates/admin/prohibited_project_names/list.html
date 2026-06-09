@@ -104,12 +104,16 @@
                   </div>
                   <div class="modal-body">
                     <p>
-                      This will remove <strong>{{ prohibited_project_name.name }}</strong> from the prohibited list and create a new project owned by the specified user.
+                      This will remove <strong>{{ prohibited_project_name.name }}</strong> from the prohibited list and create a new project owned by the specified user or organization. Provide exactly one.
                     </p>
                     <hr>
                     <div class="form-group">
                       <label for="releaseUsername-{{ prohibited_project_name.id }}">New owner username</label>
-                      <input type="text" id="releaseUsername-{{ prohibited_project_name.id }}" name="username" class="form-control" placeholder="Enter PyPI username"  autocapitalize="off" autocomplete="off" data-1p-ignore required>
+                      <input type="text" id="releaseUsername-{{ prohibited_project_name.id }}" name="username" class="form-control" placeholder="Enter PyPI username" autocapitalize="off" autocomplete="off" data-1p-ignore>
+                    </div>
+                    <div class="form-group">
+                      <label for="releaseOrganization-{{ prohibited_project_name.id }}">Owner organization name</label>
+                      <input type="text" id="releaseOrganization-{{ prohibited_project_name.id }}" name="organization_name" class="form-control" placeholder="Enter organization name" autocapitalize="off" autocomplete="off" data-1p-ignore>
                     </div>
                   </div>
                   <div class="modal-footer justify-content-between">
