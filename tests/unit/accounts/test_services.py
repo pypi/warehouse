@@ -323,6 +323,7 @@ class TestDatabaseUserService:
             "$2b$12$2t/EVU3H9b3c5iR6GdELZOwCoyrT518DgCpNxHbX.S1IxV6eEEDhC",
             "bcrypt$$2b$12$EhhZDxGr/7HIKYRGMngC.O4sQx68vkaISSnSGZ6s8iOfaGy6l9cma",
         ],
+        ids=["argon2id", "bcrypt_sha256", "bcrypt", "django_bcrypt"],
     )
     def test_check_password_updates(self, user_service, password):
         """
