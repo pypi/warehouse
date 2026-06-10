@@ -1,11 +1,22 @@
 # SPDX-License-Identifier: Apache-2.0
 
 """
-Helper functions for `manage/views`, preventing circular imports.
+Shared view-layer helpers, preventing circular imports.
+
+Originally scoped to `manage/views`, some helpers here (e.g.
+`add_organization_project_and_notify`) are also used by `admin/views`.
 """
+
+from __future__ import annotations
+
+import typing
 
 from sqlalchemy import func
 
+from warehouse.accounts.models import User
+from warehouse.email import send_organization_project_added_email
+from warehouse.events.tags import EventTag
+from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
     OrganizationRole,
@@ -17,10 +28,68 @@ from warehouse.organizations.models import (
 )
 from warehouse.packaging import Project, Role
 
+if typing.TYPE_CHECKING:
+    from pyramid.request import Request
+
 
 def project_owners(request, project):
     """Return all users who are owners of the project."""
     return project.owners
+
+
+def organization_owners(request: Request, organization: Organization) -> list[User]:
+    """Return all users who are owners of the organization."""
+    owner_roles = (
+        request.db.query(User.id)
+        .join(OrganizationRole.user)
+        .filter(
+            OrganizationRole.role_name == OrganizationRoleType.Owner,
+            OrganizationRole.organization == organization,
+        )
+        .subquery()
+    )
+    return request.db.query(User).join(owner_roles, User.id == owner_roles.c.id).all()
+
+
+def add_organization_project_and_notify(
+    request: Request, organization: Organization, project: Project
+) -> None:
+    """Associate ``project`` with ``organization``, record events, and notify owners.
+
+    Shared by the manage-side "add project to organization" and "transfer
+    project to organization" flows and the admin prohibited-name release flow.
+    """
+    organization_service = request.find_service(IOrganizationService, context=None)
+    organization_service.add_organization_project(
+        organization_id=organization.id, project_id=project.id
+    )
+
+    organization.record_event(
+        tag=EventTag.Organization.OrganizationProjectAdd,
+        request=request,
+        additional={
+            "submitted_by_user_id": str(request.user.id),
+            "project_name": project.name,
+        },
+    )
+    project.record_event(
+        tag=EventTag.Project.OrganizationProjectAdd,
+        request=request,
+        additional={
+            "submitted_by_user_id": str(request.user.id),
+            "organization_name": organization.name,
+        },
+    )
+
+    owner_users = set(
+        organization_owners(request, organization) + project_owners(request, project)
+    )
+    send_organization_project_added_email(
+        request,
+        owner_users,
+        organization_name=organization.name,
+        project_name=project.name,
+    )
 
 
 def user_organizations(request):
