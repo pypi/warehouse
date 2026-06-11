@@ -40,9 +40,14 @@ _PROJECT_CACHE_DECORATOR = [
 
 
 def _json_data(request, project, release, *, all_releases):
+    # Use the SQL expression (a correlated EXISTS), not the per-file property,
+    # so trusted-publishing resolves as a column here instead of a COUNT per
+    # file in the loop below (an N+1).
+    trusted_publishing = File.uploaded_via_trusted_publisher.label("trusted_publishing")
+
     # Get all of the releases and files for this project.
     release_files = (
-        request.db.query(Release, File)
+        request.db.query(Release, File, trusted_publishing)
         .options(
             Load(Release).load_only(
                 Release.version,
@@ -78,12 +83,12 @@ def _json_data(request, project, release, *, all_releases):
     ).all()
 
     # Map our releases + files into a dictionary that maps each release to a
-    # list of all its files.
-    releases_and_files: dict[Release, list[File]] = {}
-    for r, file_ in release_files:
+    # list of all its files, pairing each file with its trusted-publishing flag.
+    releases_and_files: dict[Release, list[tuple[File, bool]]] = {}
+    for r, file_, is_trusted_publisher in release_files:
         files = releases_and_files.setdefault(r, [])
         if file_ is not None:
-            files.append(file_)
+            files.append((file_, is_trusted_publisher))
 
     # Serialize our database objects to match the way that PyPI legacy
     # presented this data.
@@ -113,8 +118,10 @@ def _json_data(request, project, release, *, all_releases):
                 "requires_python": r.requires_python or None,
                 "yanked": r.yanked,
                 "yanked_reason": r.yanked_reason or None,
+                "uploaded_via": f.uploaded_via or None,
+                "trusted_publishing": is_trusted_publisher,
             }
-            for f in fs
+            for f, is_trusted_publisher in fs
         ]
         for r, fs in releases_and_files.items()
     }

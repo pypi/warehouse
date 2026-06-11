@@ -144,7 +144,9 @@ Accept: application/json
                     "upload_time_iso_8601": "2015-06-14T14:38:05.875222Z",
                     "url": "https://files.pythonhosted.org/packages/30/52/547eb3719d0e872bdd6fe3ab60cef92596f95262e925e1943f68f840df88/sampleproject-1.2.0-py2.py3-none-any.whl",
                     "yanked": false,
-                    "yanked_reason": null
+                    "yanked_reason": null,
+                    "uploaded_via": null,
+                    "trusted_publishing": false
                 },
                 {
                     "comment_text": "",
@@ -165,7 +167,9 @@ Accept: application/json
                     "upload_time_iso_8601": "2015-06-14T14:37:56.383366Z",
                     "url": "https://files.pythonhosted.org/packages/eb/45/79be82bdeafcecb9dca474cad4003e32ef8e4a0dec6abbd4145ccb02abe1/sampleproject-1.2.0.tar.gz",
                     "yanked": false,
-                    "yanked_reason": null
+                    "yanked_reason": null,
+                    "uploaded_via": null,
+                    "trusted_publishing": false
                 }
             ],
             "1.3.0": [
@@ -200,7 +204,9 @@ Accept: application/json
                 "upload_time_iso_8601": "2024-11-06T22:37:09.220617Z",
                 "url": "https://files.pythonhosted.org/packages/d7/73/c16e5f3f0d37c60947e70865c255a58dc408780a6474de0523afd0ec553a/sampleproject-4.0.0-py3-none-any.whl",
                 "yanked": false,
-                "yanked_reason": null
+                "yanked_reason": null,
+                "uploaded_via": "twine/5.1.1 CPython/3.12.7",
+                "trusted_publishing": true
               },
               {
                 "comment_text": "",
@@ -221,7 +227,9 @@ Accept: application/json
                 "upload_time_iso_8601": "2024-11-06T22:37:10.868088Z",
                 "url": "https://files.pythonhosted.org/packages/48/8c/c18d25735962870ccb6d1cd2ac7bde40008a332211055e260cb7ec4c6bab/sampleproject-4.0.0.tar.gz",
                 "yanked": false,
-                "yanked_reason": null
+                "yanked_reason": null,
+                "uploaded_via": "twine/5.1.1 CPython/3.12.7",
+                "trusted_publishing": true
               }
             ]
         },
@@ -245,7 +253,9 @@ Accept: application/json
               "upload_time_iso_8601": "2024-11-06T22:37:09.220617Z",
               "url": "https://files.pythonhosted.org/packages/d7/73/c16e5f3f0d37c60947e70865c255a58dc408780a6474de0523afd0ec553a/sampleproject-4.0.0-py3-none-any.whl",
               "yanked": false,
-              "yanked_reason": null
+              "yanked_reason": null,
+              "uploaded_via": "twine/5.1.1 CPython/3.12.7",
+              "trusted_publishing": true
             },
             {
               "comment_text": "",
@@ -266,7 +276,9 @@ Accept: application/json
               "upload_time_iso_8601": "2024-11-06T22:37:10.868088Z",
               "url": "https://files.pythonhosted.org/packages/48/8c/c18d25735962870ccb6d1cd2ac7bde40008a332211055e260cb7ec4c6bab/sampleproject-4.0.0.tar.gz",
               "yanked": false,
-              "yanked_reason": null
+              "yanked_reason": null,
+              "uploaded_via": "twine/5.1.1 CPython/3.12.7",
+              "trusted_publishing": true
             }
         ],
         "vulnerabilities": [],
@@ -413,7 +425,9 @@ Accept: application/json
             "upload_time_iso_8601": "2024-11-06T22:37:09.220617Z",
             "url": "https://files.pythonhosted.org/packages/d7/73/c16e5f3f0d37c60947e70865c255a58dc408780a6474de0523afd0ec553a/sampleproject-4.0.0-py3-none-any.whl",
             "yanked": false,
-            "yanked_reason": null
+            "yanked_reason": null,
+            "uploaded_via": "twine/5.1.1 CPython/3.12.7",
+            "trusted_publishing": true
           },
           {
             "comment_text": "",
@@ -434,7 +448,9 @@ Accept: application/json
             "upload_time_iso_8601": "2024-11-06T22:37:10.868088Z",
             "url": "https://files.pythonhosted.org/packages/48/8c/c18d25735962870ccb6d1cd2ac7bde40008a332211055e260cb7ec4c6bab/sampleproject-4.0.0.tar.gz",
             "yanked": false,
-            "yanked_reason": null
+            "yanked_reason": null,
+            "uploaded_via": "twine/5.1.1 CPython/3.12.7",
+            "trusted_publishing": true
           }
         ],
         "vulnerabilities": [],
@@ -527,3 +543,5 @@ For example, here is what a withdrawn vulnerability might look like:
 [Index API]: ./index-api.md
 [`package_roles`]: https://docs.pypi.org/api/xml-rpc/#package_rolespackage_name
 [known vulnerabilities]: https://github.com/pypa/advisory-database
+[User-Agent]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent
+[Trusted Publisher]: https://docs.pypi.org/trusted-publishers/
