@@ -2,8 +2,6 @@
 
 import datetime
 
-import pretend
-
 from warehouse.accounts.interfaces import ITokenService, TokenExpired
 from warehouse.events.tags import EventTag
 from warehouse.organizations.models import (
@@ -40,60 +38,54 @@ from ...common.db.subscriptions import (
 
 class TestUpdateInvitationStatus:
     def test_update_invitation_status(
-        self, db_request, user_service, organization_service
+        self, db_request, user_service, organization_service, token_service, mocker
     ):
         organization = OrganizationFactory.create()
-        organization.record_event = pretend.call_recorder(lambda *a, **kw: None)
+        org_event = mocker.patch.object(organization, "record_event", autospec=True)
         user = UserFactory.create()
-        user.record_event = pretend.call_recorder(lambda *a, **kw: None)
+        user_event = mocker.patch.object(user, "record_event", autospec=True)
 
         invite = OrganizationInvitationFactory(user=user, organization=organization)
 
-        token_service = pretend.stub(loads=pretend.raiser(TokenExpired))
-        db_request.find_service = pretend.call_recorder(lambda *a, **kw: token_service)
+        mocker.patch.object(token_service, "loads", side_effect=TokenExpired)
+        find_service = mocker.spy(db_request, "find_service")
 
         update_organization_invitation_status(db_request)
 
-        assert db_request.find_service.calls == [
-            pretend.call(ITokenService, name="email")
-        ]
+        find_service.assert_called_once_with(ITokenService, name="email")
         assert invite.invite_status == OrganizationInvitationStatus.Expired
 
-        assert user.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Account.OrganizationRoleExpireInvite,
-                request=db_request,
-                additional={"organization_name": invite.organization.name},
-            )
-        ]
-        assert organization.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Organization.OrganizationRoleExpireInvite,
-                request=db_request,
-                additional={"target_user_id": str(invite.user.id)},
-            )
-        ]
+        user_event.assert_called_once_with(
+            tag=EventTag.Account.OrganizationRoleExpireInvite,
+            request=db_request,
+            additional={"organization_name": invite.organization.name},
+        )
+        org_event.assert_called_once_with(
+            tag=EventTag.Organization.OrganizationRoleExpireInvite,
+            request=db_request,
+            additional={"target_user_id": str(invite.user.id)},
+        )
 
-    def test_no_updates(self, db_request, user_service, organization_service):
+    def test_no_updates(
+        self, db_request, user_service, organization_service, token_service, mocker
+    ):
         organization = OrganizationFactory.create()
-        organization.record_event = pretend.call_recorder(lambda *a, **kw: None)
+        org_event = mocker.patch.object(organization, "record_event", autospec=True)
         user = UserFactory.create()
-        user.record_event = pretend.call_recorder(lambda *a, **kw: None)
+        user_event = mocker.patch.object(user, "record_event", autospec=True)
 
         invite = OrganizationInvitationFactory(user=user, organization=organization)
 
-        token_service = pretend.stub(loads=lambda token: {})
-        db_request.find_service = pretend.call_recorder(lambda *a, **kw: token_service)
+        mocker.patch.object(token_service, "loads", return_value={})
+        find_service = mocker.spy(db_request, "find_service")
 
         update_organization_invitation_status(db_request)
 
-        assert db_request.find_service.calls == [
-            pretend.call(ITokenService, name="email")
-        ]
+        find_service.assert_called_once_with(ITokenService, name="email")
         assert invite.invite_status == OrganizationInvitationStatus.Pending
 
-        assert user.record_event.calls == []
-        assert organization.record_event.calls == []
+        user_event.assert_not_called()
+        org_event.assert_not_called()
 
 
 class TestDeleteOrganizationApplications:
@@ -146,7 +138,9 @@ class TestDeleteOrganizationApplications:
 
 
 class TestUpdateOrganizationSubscriptionUsage:
-    def test_update_organization_subscription_usage_record(self, db_request):
+    def test_update_organization_subscription_usage_record(
+        self, db_request, billing_service, mocker
+    ):
         # Setup an organization with an active subscription
         organization = OrganizationFactory.create()
         owner_user = UserFactory.create()
@@ -210,22 +204,16 @@ class TestUpdateOrganizationSubscriptionUsage:
         )
         StripeSubscriptionItemFactory.create(subscription=subscription)
 
-        create_or_update_usage_record = pretend.call_recorder(
-            lambda *a, **kw: {
+        mocker.patch.object(
+            billing_service,
+            "create_or_update_usage_record",
+            return_value={
                 "subscription_item_id": "si_1234",
                 "organization_member_count": "5",
-            }
+            },
         )
-        billing_service = pretend.stub(
-            create_or_update_usage_record=create_or_update_usage_record,
-        )
-
-        db_request.find_service = pretend.call_recorder(
-            lambda *a, **kw: billing_service
-        )
+        find_service = mocker.spy(db_request, "find_service")
 
         update_organziation_subscription_usage_record(db_request)
 
-        assert db_request.find_service.calls == [
-            pretend.call(IBillingService, context=None)
-        ]
+        find_service.assert_called_once_with(IBillingService, context=None)

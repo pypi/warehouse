@@ -563,13 +563,7 @@
 </div>
 {% endblock %}
 {% block extra_js %}
-  <script>
-MathJax = {
-  tex: {
-    inlineMath: [['$', '$'], ['\\(', '\\)']]
-  },
-};
-  </script>
+  <script src="{{ request.static_path('warehouse:static/dist/js/utils/mathjax-config.js') }}"></script>
   <script async
           src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"
           integrity="sha256-1CldwzdEg2k1wTmf7s5RWVd7NMXI/7nxxjJM2C4DqII="

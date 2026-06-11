@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import datetime
+import types
 
-import pretend
 import psycopg
 import pytest
 
@@ -75,7 +75,9 @@ class TestOrganizationFactory:
         assert root[normalized] == organization
 
     def test_traversal_redirects(self, db_request):
-        db_request.matched_route = pretend.stub(generate=lambda *a, **kw: "route-path")
+        db_request.matched_route = types.SimpleNamespace(
+            generate=lambda *a, **kw: "route-path"
+        )
         organization = DBOrganizationFactory.create()
         DBOrganizationNameCatalogFactory.create(
             normalized_name="oldname",

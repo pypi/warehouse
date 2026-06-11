@@ -39,7 +39,7 @@ packaging_legacy
 paginate>=0.5.2
 paginate_sqlalchemy
 passlib>=1.6.4
-platformdirs>=4.2
+platformdirs>=4.10.0
 premailer
 psycopg[binary]
 pydantic
@@ -56,7 +56,7 @@ pyramid_services>=2.1
 pyramid_tm>=0.12
 python-slugify
 pytz
-PyJWT[crypto]>=2.8.0
+PyJWT[crypto]>=2.13.0
 readme-renderer[md]>=36.0
 requests
 redis>=2.8.0,<7.0.0

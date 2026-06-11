@@ -1,13 +1,19 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pretend
+import pytest
 
 from pyramid.interfaces import ISecurityPolicy
 from zope.interface.verify import verifyClass
 
 from tests.common.db.accounts import UserFactory
 from warehouse.accounts.utils import UserContext
+from warehouse.authnz import Permissions
 from warehouse.utils import security_policy
+from warehouse.utils.security_policy import (
+    AuthenticationMethod,
+    permission_allowed_by_authentication_method,
+)
 
 
 def test_principals_for():
@@ -17,6 +23,61 @@ def test_principals_for():
 
 def test_principals_for_with_none():
     assert security_policy.principals_for(pretend.stub()) == []
+
+
+class TestPermissionAllowedByAuthenticationMethod:
+    @pytest.mark.parametrize(
+        "permission",
+        [
+            Permissions.ProjectsUpload,
+            # TODO: After danger-api sunset, move APIEcho and APIObservationsAdd
+            #       to test_macaroon_disallowed_permissions (they'll be dropped
+            #       from PERMISSION_AUTH_METHODS).
+            Permissions.APIEcho,
+            Permissions.APIObservationsAdd,
+        ],
+    )
+    def test_macaroon_allowed_permissions(self, permission):
+        assert permission_allowed_by_authentication_method(
+            permission, AuthenticationMethod.MACAROON
+        )
+
+    @pytest.mark.parametrize(
+        "permission",
+        [
+            Permissions.AccountManage,
+            Permissions.ProjectsWrite,
+            "nonexistent",
+        ],
+    )
+    def test_macaroon_disallowed_permissions(self, permission):
+        assert not permission_allowed_by_authentication_method(
+            permission, AuthenticationMethod.MACAROON
+        )
+
+    def test_unknown_permission_defaults_to_session_only(self):
+        assert permission_allowed_by_authentication_method(
+            "nonexistent", AuthenticationMethod.SESSION
+        )
+        assert not permission_allowed_by_authentication_method(
+            "nonexistent", AuthenticationMethod.MACAROON
+        )
+        assert not permission_allowed_by_authentication_method(
+            "nonexistent", AuthenticationMethod.BASIC_AUTH
+        )
+
+    def test_session_permission_allows_session(self):
+        assert permission_allowed_by_authentication_method(
+            Permissions.AccountManage, AuthenticationMethod.SESSION
+        )
+
+
+def test_api_key_auth_method_placeholder_exists():
+    # API_KEY is a placeholder for the dedicated API auth surface that
+    # will replace danger-api's macaroon abuse. No policy implements it
+    # yet; keeping it in the enum makes the PERMISSION_AUTH_METHODS table
+    # and route predicates self-documenting about the migration target.
+    assert AuthenticationMethod.API_KEY.value == "api-key"
 
 
 class TestMultiSecurityPolicy:

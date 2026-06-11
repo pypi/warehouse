@@ -114,6 +114,11 @@ module.exports = [
             from: path.resolve(__dirname, "warehouse/static/js/vendor/plausible-sanitized.js"),
             to: "js/utils/[name].[contenthash][ext]",
           },
+          {
+            // Copy utility for configuring MathJax
+            from: path.resolve(__dirname, "warehouse/static/js/vendor/mathjax-config.js"),
+            to: "js/utils/[name].[contenthash][ext]",
+          },
         ],
       }),
       ...sharedCompressionPlugins,
