@@ -32,6 +32,7 @@ from warehouse.accounts.models import (
     User,
 )
 from warehouse.accounts.utils import update_email_domain_status
+from warehouse.admin.forms import SetProjectCreateLimitForm
 from warehouse.authnz import Permissions
 from warehouse.email import (
     send_account_recovery_initiated_email,
@@ -417,6 +418,46 @@ def user_delete(user, request):
 
     request.session.flash(f"Nuked user {user.username!r}", queue="success")
     return HTTPSeeOther(request.route_path("admin.user.list"))
+
+
+@view_config(
+    route_name="admin.user.set_project_create_limit",
+    require_methods=["POST"],
+    permission=Permissions.AdminUsersWrite,
+    uses_session=True,
+    require_csrf=True,
+    context=User,
+)
+def user_set_project_create_limit(user, request):
+    form = SetProjectCreateLimitForm(request.POST)
+
+    if not form.validate():
+        for field, errors in form.errors.items():
+            for error in errors:
+                request.session.flash(f"{field}: {error}", queue="error")
+        return HTTPSeeOther(
+            request.route_path("admin.user.detail", username=user.username)
+        )
+
+    old_limit = user.project_create_limit_string
+    user.project_create_limit_string = form.limit_string
+
+    user.record_event(
+        request=request,
+        tag="admin:user:set_project_create_limit",
+        additional={
+            "old_project_create_limit": old_limit,
+            "new_project_create_limit": user.project_create_limit_string,
+            "actor": request.user.username,
+        },
+    )
+
+    limit_msg = user.project_create_limit_string or "(default)"
+    request.session.flash(
+        f"Project creation rate limit set to {limit_msg} for user {user.username!r}",
+        queue="success",
+    )
+    return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
 
 
 @view_config(

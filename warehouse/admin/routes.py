@@ -65,6 +65,11 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "admin.organization.set_project_create_limit",
+        "/admin/organizations/{organization_id}/set_project_create_limit/",
+        domain=warehouse,
+    )
+    config.add_route(
         "admin.organization.add_oidc_issuer",
         "/admin/organizations/{organization_id}/oidc-issuers/add/",
         domain=warehouse,
@@ -191,6 +196,13 @@ def includeme(config):
     config.add_route(
         "admin.user.burn_recovery_codes",
         "/admin/users/{username}/burn_recovery_codes/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+    )
+    config.add_route(
+        "admin.user.set_project_create_limit",
+        "/admin/users/{username}/set_project_create_limit/",
         domain=warehouse,
         factory="warehouse.accounts.models:UserFactory",
         traverse="/{username}",
