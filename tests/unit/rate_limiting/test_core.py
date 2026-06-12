@@ -178,6 +178,22 @@ class TestRateLimiter:
         assert limiter.override(None) is limiter
         assert limiter.override("") is limiter
 
+    def test_override_invalid_string_returns_self(self, metrics):
+        limiter = RateLimiter(
+            storage.MemoryStorage(),
+            "1 per minute",
+            identifiers=["foo"],
+            metrics=metrics,
+        )
+
+        assert limiter.override("not a rate limit") is limiter
+        assert metrics.increment.calls == [
+            pretend.call(
+                "warehouse.ratelimiter.invalid_override",
+                tags=["identifiers:foo"],
+            )
+        ]
+
 
 class TestDummyRateLimiter:
     def test_basic(self):

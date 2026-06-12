@@ -2056,3 +2056,112 @@ class TestDeleteOIDCIssuer:
 
         with pytest.raises(HTTPNotFound):
             views.delete_oidc_issuer(db_request)
+
+
+class TestSetProjectCreateLimit:
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_set_project_create_limit(self, db_request):
+        organization = OrganizationFactory.create(name="foo")
+        admin = UserFactory.create()
+
+        db_request.route_path = pretend.call_recorder(
+            lambda a, organization_id: "/admin/organizations/1/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = admin
+        db_request.matchdict["organization_id"] = organization.id
+        db_request.POST = MultiDict(
+            {
+                "project_create_limit_count": "100",
+                "project_create_limit_period": "hour",
+            }
+        )
+
+        result = views.set_project_create_limit(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Project creation rate limit set to 100 per hour", queue="success"
+            )
+        ]
+        assert result.status_code == 303
+        assert result.location == "/admin/organizations/1/"
+        assert organization.project_create_limit_string == "100 per hour"
+        event = organization.events.one()
+        assert event.tag == "admin:organization:set_project_create_limit"
+        assert event.additional == {
+            "organization_name": organization.name,
+            "old_project_create_limit": None,
+            "new_project_create_limit": "100 per hour",
+            "actor": admin.username,
+        }
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_set_project_create_limit_with_none(self, db_request):
+        organization = OrganizationFactory.create(name="foo")
+        organization.project_create_limit_string = "100 per hour"
+        admin = UserFactory.create()
+
+        db_request.route_path = pretend.call_recorder(
+            lambda a, organization_id: "/admin/organizations/1/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = admin
+        db_request.matchdict["organization_id"] = organization.id
+        db_request.POST = MultiDict({"project_create_limit_count": ""})
+
+        result = views.set_project_create_limit(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Project creation rate limit set to (default)", queue="success"
+            )
+        ]
+        assert result.status_code == 303
+        assert organization.project_create_limit_string is None
+        event = organization.events.one()
+        assert event.tag == "admin:organization:set_project_create_limit"
+        assert event.additional == {
+            "organization_name": organization.name,
+            "old_project_create_limit": "100 per hour",
+            "new_project_create_limit": None,
+            "actor": admin.username,
+        }
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_set_project_create_limit_invalid_value(self, db_request):
+        organization = OrganizationFactory.create(name="foo")
+
+        db_request.route_path = pretend.call_recorder(
+            lambda a, organization_id: "/admin/organizations/1/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.matchdict["organization_id"] = organization.id
+        db_request.POST = MultiDict(
+            {
+                "project_create_limit_count": "0",
+                "project_create_limit_period": "hour",
+            }
+        )
+
+        result = views.set_project_create_limit(db_request)
+
+        assert len(db_request.session.flash.calls) == 1
+        call = db_request.session.flash.calls[0]
+        assert "at least 1" in call.args[0]
+        assert call.kwargs == {"queue": "error"}
+        assert result.status_code == 303
+        assert organization.project_create_limit_string is None
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_set_project_create_limit_not_found(self, db_request):
+        db_request.matchdict["organization_id"] = "00000000-0000-0000-0000-000000000000"
+
+        with pytest.raises(HTTPNotFound):
+            views.set_project_create_limit(db_request)

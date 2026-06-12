@@ -70,6 +70,11 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call(
+            "admin.organization.set_project_create_limit",
+            "/admin/organizations/{organization_id}/set_project_create_limit/",
+            domain=warehouse,
+        ),
+        pretend.call(
             "admin.organization.add_oidc_issuer",
             "/admin/organizations/{organization_id}/oidc-issuers/add/",
             domain=warehouse,
@@ -193,6 +198,13 @@ def test_includeme():
         pretend.call(
             "admin.user.burn_recovery_codes",
             "/admin/users/{username}/burn_recovery_codes/",
+            domain=warehouse,
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}",
+        ),
+        pretend.call(
+            "admin.user.set_project_create_limit",
+            "/admin/users/{username}/set_project_create_limit/",
             domain=warehouse,
             factory="warehouse.accounts.models:UserFactory",
             traverse="/{username}",

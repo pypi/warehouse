@@ -2,7 +2,11 @@
 
 from webob.multidict import MultiDict
 
-from warehouse.admin.forms import SetTotalSizeLimitForm, SetUploadLimitForm
+from warehouse.admin.forms import (
+    SetProjectCreateLimitForm,
+    SetTotalSizeLimitForm,
+    SetUploadLimitForm,
+)
 
 
 class TestSetUploadLimitForm:
@@ -115,3 +119,77 @@ class TestSetTotalSizeLimitForm:
             "Total organization size can not be less than" in error
             for error in form.total_size_limit.errors
         )
+
+
+class TestSetProjectCreateLimitForm:
+    def test_validate_empty_count_clears_override(self):
+        """Test that an empty count means clearing the override."""
+        form = SetProjectCreateLimitForm(
+            MultiDict(
+                {
+                    "project_create_limit_count": "",
+                    "project_create_limit_period": "hour",
+                }
+            )
+        )
+        assert form.validate()
+        assert form.limit_string is None
+
+    def test_validate_missing_fields_clears_override(self):
+        """Test that missing fields mean clearing the override."""
+        form = SetProjectCreateLimitForm(MultiDict({}))
+        assert form.validate()
+        assert form.limit_string is None
+
+    def test_validate_composes_limit_string(self):
+        """Test that count and period compose into a rate limit string."""
+        for period in ("hour", "day", "month"):
+            form = SetProjectCreateLimitForm(
+                MultiDict(
+                    {
+                        "project_create_limit_count": "5",
+                        "project_create_limit_period": period,
+                    }
+                )
+            )
+            assert form.validate()
+            assert form.limit_string == f"5 per {period}"
+
+    def test_validate_rejects_zero_count(self):
+        """Test that a count below 1 fails validation."""
+        form = SetProjectCreateLimitForm(
+            MultiDict(
+                {
+                    "project_create_limit_count": "0",
+                    "project_create_limit_period": "hour",
+                }
+            )
+        )
+        assert not form.validate()
+        assert any(
+            "at least 1" in error for error in form.project_create_limit_count.errors
+        )
+
+    def test_validate_rejects_non_integer_count(self):
+        """Test that a non-integer count fails validation."""
+        form = SetProjectCreateLimitForm(
+            MultiDict(
+                {
+                    "project_create_limit_count": "lots",
+                    "project_create_limit_period": "hour",
+                }
+            )
+        )
+        assert not form.validate()
+
+    def test_validate_rejects_unknown_period(self):
+        """Test that a period outside the choices fails validation."""
+        form = SetProjectCreateLimitForm(
+            MultiDict(
+                {
+                    "project_create_limit_count": "5",
+                    "project_create_limit_period": "fortnight",
+                }
+            )
+        )
+        assert not form.validate()
