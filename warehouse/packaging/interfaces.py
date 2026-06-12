@@ -88,14 +88,14 @@ class IProjectService(Interface):
         creator,
         request,
         *,
-        creator_is_owner=True,
         organization_id: UUID | None = None,
     ):
         """
         Creates a new project, recording a user as its creator.
 
-        If `creator_is_owner`, a `Role` is also added to the project
-        marking `creator` as a project owner.
+        If `organization_id` is provided the project is linked to that
+        organization; otherwise a `Role` is added to the project marking
+        `creator` as a project owner.
         """
 
 

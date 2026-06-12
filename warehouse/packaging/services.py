@@ -522,7 +522,6 @@ class ProjectService:
         creator,
         request,
         *,
-        creator_is_owner=True,
         organization_id=None,
     ):
         self._check_ratelimits(request, creator, organization_id)
@@ -692,8 +691,8 @@ class ProjectService:
                     organization_id=organization_id, project_id=project.id
                 )
             )
-        elif creator_is_owner:
-            # Mark the creator as the newly created project's owner, if configured.
+        else:
+            # Mark the creator as the newly created project's owner.
             self.db.add(Role(user=creator, project=project, role_name="Owner"))
             # TODO: This should be handled by some sort of database trigger or a
             #       SQLAlchemy hook or the like instead of doing it inline in this
