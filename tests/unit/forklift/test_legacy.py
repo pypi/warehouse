@@ -5297,10 +5297,17 @@ class TestFileUpload:
         )
         db_request.remote_addr = remote_addr
 
-        project_service.ratelimiters[failing_limiter] = pretend.stub(
-            test=lambda *a, **kw: False,
-            resets_in=lambda *a, **kw: 60,
-        )
+        class FailingLimiter:
+            def test(self, *a, **kw):
+                return False
+
+            def resets_in(self, *a, **kw):
+                return 60
+
+            def override(self, limit_string):
+                return self
+
+        project_service.ratelimiters[failing_limiter] = FailingLimiter()
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
