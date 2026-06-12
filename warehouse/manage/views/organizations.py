@@ -874,14 +874,7 @@ class ManageOrganizationProjectsViews:
                 form.new_project_name.errors.append(exc.detail)
                 return default_response
             except TooManyProjectsCreated as exc:
-                retry = (
-                    f"Try again in {int(exc.resets_in.total_seconds())} seconds."
-                    if exc.resets_in is not None
-                    else "Try again later."
-                )
-                form.new_project_name.errors.append(
-                    f"Too many new projects created. {retry}"
-                )
+                form.new_project_name.errors.append(exc.message)
                 return default_response
 
         # Add project to organization, record events, and notify owners. New
