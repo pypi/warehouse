@@ -50,7 +50,7 @@ class IRateLimiter(Interface):
 
     def override(limit_string):
         """
-        Retrn limiter using ``limit_string`` instead of default.
+        Return a limiter using ``limit_string`` instead of the default.
         """
 
 
