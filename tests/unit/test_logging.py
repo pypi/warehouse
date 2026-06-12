@@ -116,6 +116,7 @@ def test_includeme(monkeypatch, settings, expected_level):
     assert configure.calls == [
         pretend.call(
             processors=[
+                structlog.contextvars.merge_contextvars,
                 structlog.stdlib.filter_by_level,
                 structlog.stdlib.add_logger_name,
                 structlog.stdlib.add_log_level,
@@ -130,11 +131,11 @@ def test_includeme(monkeypatch, settings, expected_level):
         )
     ]
     assert isinstance(
-        configure.calls[0].kwargs["processors"][3],
+        configure.calls[0].kwargs["processors"][4],
         structlog.stdlib.PositionalArgumentsFormatter,
     )
     assert isinstance(
-        configure.calls[0].kwargs["processors"][4],
+        configure.calls[0].kwargs["processors"][5],
         structlog.processors.StackInfoRenderer,
     )
     assert isinstance(
