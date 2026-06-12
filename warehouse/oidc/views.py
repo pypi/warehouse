@@ -226,7 +226,6 @@ def mint_token(
                     pending_publisher.project_name,
                     pending_publisher.added_by,
                     request,
-                    creator_is_owner=pending_publisher.organization_id is None,
                     organization_id=pending_publisher.organization_id,
                 )
             except HTTPException as exc:
@@ -235,18 +234,8 @@ def mint_token(
                     request=request,
                 )
             except TooManyProjectsCreated as exc:
-                retry = (
-                    f"Try again in {int(exc.resets_in.total_seconds())} seconds."
-                    if exc.resets_in is not None
-                    else "Try again later."
-                )
                 return _invalid(
-                    errors=[
-                        {
-                            "code": "too-many-projects",
-                            "description": f"Too many new projects created. {retry}",
-                        }
-                    ],
+                    errors=[{"code": "too-many-projects", "description": exc.message}],
                     request=request,
                 )
 
