@@ -44,6 +44,7 @@ from warehouse.packaging.services import (
     project_service_factory,
 )
 
+from ...common.db.accounts import UserFactory
 from ...common.db.packaging import ProhibitedProjectFactory, ProjectFactory
 
 
@@ -1032,7 +1033,7 @@ class TestProjectService:
         service = ProjectService(session=db_request.db)
 
         with pytest.raises(HTTPForbidden) as exc:
-            service.create_project("foo", pretend.stub(id=pretend.stub()), db_request)
+            service.create_project("foo", UserFactory.create(), db_request)
 
         resp = exc.value
         assert resp.status_code == 403
