@@ -158,7 +158,6 @@ class DummyRateLimiter:
         return self
 
 
-
 class RateLimit:
     def __init__(self, limit, identifiers=None, limiter_class=RateLimiter):
         self.limit = limit
