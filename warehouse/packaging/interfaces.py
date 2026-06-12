@@ -15,7 +15,12 @@ if typing.TYPE_CHECKING:
 
 
 class TooManyProjectsCreated(RateLimiterException):
-    pass
+    @property
+    def message(self) -> str:
+        if self.resets_in is not None:
+            seconds = max(1, int(self.resets_in.total_seconds()))
+            return f"Too many new projects created. Try again in {seconds} seconds."
+        return "Too many new projects created. Try again later."
 
 
 class IGenericFileStorage(Interface):
