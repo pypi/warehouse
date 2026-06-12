@@ -588,7 +588,7 @@ def configure(settings=None):
         settings,
         "warehouse.packaging.project_create_org_ratelimit_string",
         "PROJECT_CREATE_ORG_RATELIMIT_STRING",
-        default="20 per hour",
+        default="20 per day",
     )
     maybe_set(
         settings,
