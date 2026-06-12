@@ -130,11 +130,16 @@
           {% set installer_spec = ("==" ~ release.version) if request.matched_route.name == "packaging.release" else "" %}
           {% set installer_index = "https://test.pypi.org/simple/" if testPyPI else "" %}
           {% set installer_pip_flag = (" -i " ~ installer_index) if installer_index else "" %}
+          {# Epoch versions ("1!2.0") need quoting: "!" triggers history
+             expansion in interactive shells. Release.version is a plain
+             string, so check for "!" rather than Version.epoch. #}
+          {% set installer_quote = "!" in installer_spec %}
+          {% set installer_target = ("'" ~ release.project.name ~ installer_spec ~ "'") if installer_quote else (release.project.name ~ installer_spec) %}
           <div data-controller="clipboard installer-command"
                data-installer-command-name-value="{{ release.project.name }}"
                data-installer-command-spec-value="{{ installer_spec }}"
                data-installer-command-index-value="{{ installer_index }}"
-               data-installer-command-quote-value="{{ 'true' if release.version.epoch else 'false' }}">
+               data-installer-command-quote-value="{{ 'true' if installer_quote else 'false' }}">
             <p class="package-header__pip-instructions">
               <label for="installer-select" class="sr-only">{% trans %}Select installer{% endtrans %}</label>
               <span class="package-header__installer">
@@ -148,7 +153,7 @@
                   <option value="pipenv">pipenv</option>
                 </select>
               </span>
-              <span id="pip-command" data-installer-command-target="command">install{{ installer_pip_flag }} {{ release.project.name }}{{ installer_spec }}</span>
+              <span id="pip-command" data-installer-command-target="command">install{{ installer_pip_flag }} {{ installer_target }}</span>
               <button type="button"
                       class="copy-tooltip copy-tooltip-s"
                       data-action="clipboard#copy"
@@ -161,7 +166,7 @@
                  full command (installer + suffix). #}
               <span hidden
                     data-clipboard-target="source"
-                    data-installer-command-target="full">pip install{{ installer_pip_flag }} {{ release.project.name }}{{ installer_spec }}</span>
+                    data-installer-command-target="full">pip install{{ installer_pip_flag }} {{ installer_target }}</span>
             </p>
             {% if testPyPI %}
               <p class="package-header__installer-note"
