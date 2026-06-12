@@ -73,7 +73,8 @@ class RateLimiter:
 
     def override(self, limit_string):
         """
-        Return new RateLimiter if than the provided limit string is not empty, else return self.
+        Return a new RateLimiter using ``limit_string``, or self if it is
+        falsy.
         """
         if not limit_string:
             return self
