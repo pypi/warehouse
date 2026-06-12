@@ -42,7 +42,7 @@ RUN NODE_ENV=production npm run build
 
 # Create a base image that contains some helpers and settings for our python
 # stages to inherit from.
-FROM python:3.14.5-slim-trixie AS base
+FROM python:3.14.6-slim-trixie AS base
 
 # Copy our helpers over into the base image
 COPY bin/docker/* /usr/local/bin/
