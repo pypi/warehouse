@@ -1,8 +1,7 @@
 [project]
 name = "warehouse"
-version = "0.0.0"
-description = "PyPI's web application"
-requires-python = ">=3.13"
+version = "1"
+requires-python = "==3.13.*"
 dependencies = [
     "alembic>=0.7.0",
     "alembic-postgresql-enum",
@@ -12,7 +11,7 @@ dependencies = [
     "Babel",
     "bcrypt",
     "boto3",
-    "celery[redis]>=5.6.2,<5.7",
+    "celery[redis]>=5.6.2",
     "celery-redbeat",
     "certifi",
     "click",
@@ -30,8 +29,6 @@ dependencies = [
     "humanize",
     "itsdangerous",
     "Jinja2>=2.8",
-    # https://github.com/jazzband/pip-tools/issues/1577
-    "kombu[redis]>=5.6,<5.7",
     "limits",
     "linehaul",
     "lxml",
@@ -70,8 +67,8 @@ dependencies = [
     "redis>=2.8.0,<7.0.0",
     "rfc3986",
     "sentry-sdk",
-    "pypi-attestations==0.0.29",
-    "sqlalchemy[asyncio]>=2.0,<3.0",
+    "pypi-attestations",
+    "sqlalchemy[asyncio]>=2.0",
     "stdlib-list",
     "stripe",
     "structlog",
@@ -80,7 +77,7 @@ dependencies = [
     "trove-classifiers",
     "ua-parser",
     "urllib3",
-    "webauthn>=1.0.0,<3.0.0",
+    "webauthn>=1.0.0",
     "whitenoise",
     "WTForms[email]>=2.0.0",
     "yara-x",
@@ -91,7 +88,7 @@ dependencies = [
 [dependency-groups]
 deploy = [
     "gunicorn<24.0.0",  # pin to below 24 to avoid a restart error
-    "ddtrace==4.7.0",
+    "ddtrace",
 ]
 dev = [
     "asyncudp>=0.7",
@@ -101,7 +98,7 @@ dev = [
 ]
 ipython = ["ipython>=9.12.0"]
 lint = [
-    "ruff==0.15.12",
+    "ruff",
     "djlint",
     "flake8",
     "mypy",
@@ -119,7 +116,7 @@ lint = [
     "types-python-slugify",
     "types-pytz",
     "types-redis",
-    "types-requests==2.33.0.20260408",
+    "types-requests",
     "types-stripe",
     "types-WTForms",
     "types-WebOb",
@@ -133,7 +130,7 @@ tests = [
     "pytest>=3.0.0",
     "pytest-icdiff",
     "pytest-mock",
-    "pytest-postgresql>=3.1.3,<9.0.0",
+    "pytest-postgresql>=3.1.3",
     "pytest-randomly",
     "pytest-socket",
     "pytest-sugar",
@@ -164,11 +161,15 @@ docs-blog = [
 
 [tool.uv]
 package = false
-# Scope the lock to linux only; we deploy on linux (Docker) and the previous
-# requirements/*.txt files were single-platform too. Cross-platform locking
-# can be enabled later but currently surfaces win32 marker conflicts that
-# were silently ignored by pip-compile.
-environments = ["sys_platform == 'linux'"]
+# Require that the package ships wheels for the following platforms:
+required-environments = [
+  # Linux on x86_64 (Intel/AMD)
+  "sys_platform == 'linux' and platform_machine == 'x86_64'",
+  # macOS on Apple Silicon (ARM)
+  "sys_platform == 'darwin' and platform_machine == 'arm64'",
+  # Windows on x86_64 (Intel/AMD)
+  "sys_platform == 'win32' and platform_machine == 'AMD64'",
+]
 # Constrain all transitive deps to the versions pinned by the pre-migration
 # requirements/*.txt files. The migration to pyproject.toml + uv.lock should
 # not silently bump versions; future upgrades happen via deliberate PRs that
@@ -445,7 +446,6 @@ constraint-dependencies = [
     "types-zxcvbn==4.5.0.20260408",
     "typing-extensions==4.15.0",
     "typing-inspection==0.4.2",
-    "tzdata==2026.1",
     "tzlocal==5.3.1",
     "ua-parser==1.0.2",
     "ua-parser-builtins==202603",
