@@ -31,7 +31,7 @@ from warehouse.events.tags import EventTag
 from warehouse.helpdesk.interfaces import IAdminNotificationService
 from warehouse.metrics import IMetricsService
 from warehouse.oidc.models import PendingOIDCPublisher
-from warehouse.organizations.models import OrganizationProject
+from warehouse.organizations.models import Organization, OrganizationProject
 from warehouse.packaging.interfaces import (
     IDocsStorage,
     IFileStorage,
@@ -416,7 +416,28 @@ class ProjectService:
         self._metrics = metrics
         self._query_results_cache = query_results_cache
 
-    def _check_ratelimits(self, request, creator):
+    def _resolve_creator_limiter(self, creator, organization_id):
+        """
+        Pick the (limiter, identifier, kind) tuple used to gate this
+        create_project call. Org-attached creates draw from the per-org
+        bucket keyed on organization.id; personal creates draw from the
+        per-user bucket keyed on creator.id. A non-NULL
+        project_create_limit_string on the org/user overrides the bucket's
+        default rate.
+        """
+        if organization_id is not None:
+            org = self.db.get(Organization, organization_id)
+            limiter = self.ratelimiters["project.create.org"].override(
+                org.project_create_limit_string
+            )
+            return limiter, organization_id, "org"
+
+        limiter = self.ratelimiters["project.create.user"].override(
+            creator.project_create_limit_string
+        )
+        return limiter, creator.id, "user"
+
+    def _check_ratelimits(self, request, creator, organization_id=None):
         # First we want to check if a single IP is exceeding our rate limiter.
         if request.remote_addr is not None and not self.ratelimiters[
             "project.create.ip"
@@ -432,18 +453,22 @@ class ProjectService:
                 )
             )
 
-        if not self.ratelimiters["project.create.user"].test(creator.id):
-            logger.warning("User failed project create threshold reached.")
+        limiter, identifier, kind = self._resolve_creator_limiter(
+            creator, organization_id
+        )
+        if not limiter.test(identifier):
+            logger.warning("%s failed project create threshold reached.", kind.title())
             self._metrics.increment(
                 "warehouse.project.create.ratelimited",
-                tags=["ratelimiter:user"],
+                tags=[f"ratelimiter:{kind}"],
             )
-            raise TooManyProjectsCreated(
-                resets_in=self.ratelimiters["project.create.user"].resets_in(creator.id)
-            )
+            raise TooManyProjectsCreated(resets_in=limiter.resets_in(identifier))
 
-    def _hit_ratelimits(self, request, creator):
-        self.ratelimiters["project.create.user"].hit(creator.id)
+    def _hit_ratelimits(self, request, creator, organization_id=None):
+        limiter, identifier, _kind = self._resolve_creator_limiter(
+            creator, organization_id
+        )
+        limiter.hit(identifier)
         self.ratelimiters["project.create.ip"].hit(request.remote_addr)
 
     def check_project_name(self, name: str) -> None:
@@ -500,7 +525,7 @@ class ProjectService:
         creator_is_owner=True,
         organization_id=None,
     ):
-        self._check_ratelimits(request, creator)
+        self._check_ratelimits(request, creator, organization_id)
 
         # Check for AdminFlag set by a PyPI Administrator disabling new project
         # registration, reasons for this include Spammers, security
@@ -712,7 +737,7 @@ class ProjectService:
             )
             request.db.delete(stale_publisher)
 
-        self._hit_ratelimits(request, creator)
+        self._hit_ratelimits(request, creator, organization_id)
         return project
 
 
@@ -724,6 +749,9 @@ def project_service_factory(context, request):
         ),
         "project.create.ip": request.find_service(
             IRateLimiter, name="project.create.ip", context=None
+        ),
+        "project.create.org": request.find_service(
+            IRateLimiter, name="project.create.org", context=None
         ),
     }
     query_results_cache = request.find_service(IQueryResultsCache)
