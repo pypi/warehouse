@@ -40,7 +40,7 @@ class Sponsor(db.Model):
     def color_logo_img(self):
         return (
             '<img class="sponsors__image" '
-            + f'src="{self.color_logo_url}" alt="" loading="lazy">'
+            f'src="{self.color_logo_url}" alt="" loading="lazy">'
         )
 
     @property
