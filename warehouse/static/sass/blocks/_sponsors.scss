@@ -96,6 +96,7 @@
     justify-self: center;
     max-width: 100px;
     opacity: 0.8;
+
     // Gap between the logo and the name. Lives on the image (not the name) so
     // logo-less sponsors don't carry dead space under their tier heading.
     margin-bottom: 10px;
@@ -118,6 +119,7 @@
 
     .sponsors__image {
       margin-bottom: 0;
+
       // Explicit height (not max-height) so logos delivered as dimensionless
       // SVGs still render, and raster logos normalise to one chip height.
       height: 26px;
