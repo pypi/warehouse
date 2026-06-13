@@ -2844,6 +2844,64 @@ class TestOrganizationRenameEmails:
         ]
 
 
+class TestOrganizationSubscriptionRequiredEmail:
+    def test_send_organization_subscription_required_email(
+        self,
+        db_request,
+        pyramid_user,
+        make_email_renderers,
+        send_email,
+    ):
+        user = UserFactory.create()
+        EmailFactory.create(user=user, verified=True)
+        organization_name = "example"
+
+        subject_renderer, body_renderer, html_renderer = make_email_renderers(
+            "organization-subscription-required"
+        )
+
+        result = email.send_organization_subscription_required_email(
+            db_request,
+            user,
+            organization_name=organization_name,
+        )
+
+        assert result == {
+            "username": user.username,
+            "organization_name": organization_name,
+        }
+        subject_renderer.assert_(**result)
+        body_renderer.assert_(**result)
+        html_renderer.assert_(**result)
+        assert db_request.task.calls == [pretend.call(send_email)]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{user.name} <{user.email}>",
+                {
+                    "sender": None,
+                    "subject": subject_renderer.string_response,
+                    "body_text": body_renderer.string_response,
+                    "body_html": (
+                        f"<html>\n"
+                        f"<head></head>\n"
+                        f"<body>{html_renderer.string_response}</body>\n"
+                        f"</html>\n"
+                    ),
+                },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": user.id,
+                    "additional": {
+                        "from_": db_request.registry.settings.get("mail.sender"),
+                        "to": user.email,
+                        "subject": subject_renderer.string_response,
+                        "redact_ip": True,
+                    },
+                },
+            )
+        ]
+
+
 class TestOrganizationDeleteEmails:
     @pytest.fixture
     def _organization_delete(self, pyramid_user):
