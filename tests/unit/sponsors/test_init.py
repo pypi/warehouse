@@ -22,7 +22,6 @@ def test_includeme():
 
     assert config.add_request_method.calls == [
         pretend.call(sponsors._sponsors, name="sponsors", reify=True),
-        pretend.call(sponsors._footer_sponsors, name="footer_sponsors", reify=True),
     ]
     assert config.add_periodic_task.calls == [
         pretend.call(crontab(minute=10), update_pypi_sponsors),
@@ -41,7 +40,6 @@ def test_do_not_schedule_sponsor_api_integration_if_no_token():
 
     assert config.add_request_method.calls == [
         pretend.call(sponsors._sponsors, name="sponsors", reify=True),
-        pretend.call(sponsors._footer_sponsors, name="footer_sponsors", reify=True),
     ]
     assert not config.add_periodic_task.calls
 
@@ -52,29 +50,36 @@ def test_list_sponsors(db_request):
 
     result = sponsors._sponsors(db_request)
 
-    assert len(result) == 5
-    assert set(result) == set(expected)
+    assert len(result["all"]) == 5
+    assert set(result["all"]) == set(expected)
 
 
-def test_sponsors_ordered_by_level_then_name_then_infra(db_request):
+def test_sponsors_grouped_and_ordered(db_request):
     c = SponsorFactory.create
-    infra = c(name="AWS", infra_sponsor=True, level_order=0)
-    vis_b = c(name="Bravo", infra_sponsor=False, level_order=1)
-    vis_a = c(name="Alpha", infra_sponsor=False, level_order=1)
-    sus = c(name="Charlie", infra_sponsor=False, level_order=2)
+    infra = c(name="AWS", infra_sponsor=True, psf_sponsor=False, level_order=0)
+    vis_b = c(name="Bravo", psf_sponsor=True, infra_sponsor=False, level_order=1)
+    vis_a = c(name="Alpha", psf_sponsor=True, infra_sponsor=False, level_order=1)
+    sus = c(name="Charlie", psf_sponsor=True, infra_sponsor=False, level_order=2)
+    onetime = c(name="Delta", psf_sponsor=False, one_time=True, level_order=3)
 
     result = sponsors._sponsors(db_request)
 
-    assert result == [vis_a, vis_b, sus, infra]
+    assert result["all"] == [infra, vis_a, vis_b, sus, onetime]
+    assert result["psf"] == [vis_a, vis_b, sus]
+    assert result["infrastructure"] == [infra]
+    assert result["one_time"] == [onetime]
 
 
 def test_footer_sponsors_ordering(db_request):
     c = SponsorFactory.create
-    infra = c(name="AWS", infra_sponsor=True, footer=False, level_order=0)
+    infra = c(
+        name="AWS", infra_sponsor=True, psf_sponsor=False, footer=False, level_order=0
+    )
     vis_b = c(name="Bravo", footer=True, infra_sponsor=False, level_order=1)
     vis_a = c(name="Alpha", footer=True, infra_sponsor=False, level_order=1)
     sus = c(name="Charlie", footer=True, infra_sponsor=False, level_order=2)
     c(name="Nobody", footer=False, infra_sponsor=False, level_order=5)
 
-    db_request.sponsors = sponsors._sponsors(db_request)
-    assert sponsors._footer_sponsors(db_request) == [vis_a, vis_b, sus, infra]
+    result = sponsors._sponsors(db_request)
+
+    assert result["footer"] == [vis_a, vis_b, sus, infra]
