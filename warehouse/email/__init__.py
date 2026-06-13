@@ -296,8 +296,16 @@ def send_password_reset_by_admin_email(request, user):
 
 
 @_email("token-compromised-leak", allow_unverified=True)
-def send_token_compromised_email_leak(request, user, *, public_url, origin):
-    return {"username": user.username, "public_url": public_url, "origin": origin}
+def send_token_compromised_email_leak(
+    request, user, *, public_url=None, origin=None, admin_initiated=False, reason=None
+):
+    return {
+        "username": user.username,
+        "public_url": public_url,
+        "origin": origin,
+        "admin_initiated": admin_initiated,
+        "reason": reason,
+    }
 
 
 @_email(
@@ -1039,6 +1047,24 @@ def send_trusted_publisher_removed_email(request, user, project_name, publisher)
 def send_pending_trusted_publisher_invalidated_email(request, user, project_name):
     return {
         "project_name": project_name,
+    }
+
+
+@_email("pending-trusted-publisher-expired")
+def send_pending_trusted_publisher_expired_email(request, user, project_name, days):
+    return {
+        "project_name": project_name,
+        "days": days,
+    }
+
+
+@_email("pending-trusted-publisher-expiration-reminder")
+def send_pending_trusted_publisher_expiration_reminder_email(
+    request, user, project_name, days_remaining
+):
+    return {
+        "project_name": project_name,
+        "days_remaining": days_remaining,
     }
 
 

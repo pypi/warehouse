@@ -1,22 +1,29 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import datetime
+
 import pretend
 import pytest
 
+from freezegun import freeze_time
 from pyramid.exceptions import ConfigurationError
 from pyramid.httpexceptions import HTTPSeeOther
 
 from warehouse.organizations.models import OrganizationType
 from warehouse.predicates import (
     ActiveOrganizationPredicate,
+    AuthMethodsPredicate,
     DomainPredicate,
     HeadersPredicate,
+    auth_methods_for_route,
     includeme,
 )
 from warehouse.subscriptions.models import StripeSubscriptionStatus
+from warehouse.utils.security_policy import AuthenticationMethod
 
 from ..common.db.organizations import (
     OrganizationFactory,
+    OrganizationManualActivationFactory,
     OrganizationStripeCustomerFactory,
     OrganizationStripeSubscriptionFactory,
 )
@@ -44,6 +51,50 @@ class TestDomainPredicate:
     def test_invalid_value(self):
         predicate = DomainPredicate("upload.pyp.io", None)
         assert not predicate(None, pretend.stub(domain="pypi.io"))
+
+
+class TestAuthMethodsPredicate:
+    def test_text_and_phash(self):
+        predicate = AuthMethodsPredicate(
+            {AuthenticationMethod.SESSION, AuthenticationMethod.MACAROON}, None
+        )
+        assert predicate.text() == "auth_methods = ['macaroon', 'session']"
+        assert predicate.phash() == predicate.text()
+
+    def test_always_matches(self):
+        predicate = AuthMethodsPredicate({AuthenticationMethod.SESSION}, None)
+        assert predicate(None, None) is True
+
+    def test_accepts_enum_values(self):
+        predicate = AuthMethodsPredicate(
+            {AuthenticationMethod.SESSION, AuthenticationMethod.MACAROON}, None
+        )
+        assert predicate.val == frozenset(
+            {AuthenticationMethod.SESSION, AuthenticationMethod.MACAROON}
+        )
+
+    def test_accepts_string_values(self):
+        predicate = AuthMethodsPredicate({"session", "macaroon"}, None)
+        assert predicate.val == frozenset(
+            {AuthenticationMethod.SESSION, AuthenticationMethod.MACAROON}
+        )
+
+    def test_rejects_unknown_values(self):
+        with pytest.raises(ValueError, match="not a valid AuthenticationMethod"):
+            AuthMethodsPredicate({"not-a-real-method"}, None)
+
+
+class TestAuthMethodsForRoute:
+    def test_returns_predicate_val(self):
+        predicate = AuthMethodsPredicate({"macaroon"}, None)
+        route = pretend.stub(predicates=[predicate])
+        assert auth_methods_for_route(route) == frozenset(
+            {AuthenticationMethod.MACAROON}
+        )
+
+    def test_returns_none_when_no_auth_methods_predicate(self):
+        route = pretend.stub(predicates=[DomainPredicate("pypi.io", None)])
+        assert auth_methods_for_route(route) is None
 
 
 class TestHeadersPredicate:
@@ -186,11 +237,6 @@ class TestActiveOrganizationPredicate:
         db_request,
         organization,
     ):
-        import datetime
-
-        from freezegun import freeze_time
-
-        from ..common.db.organizations import OrganizationManualActivationFactory
 
         with freeze_time("2024-01-15"):
             # Create an active manual activation
@@ -207,11 +253,6 @@ class TestActiveOrganizationPredicate:
         db_request,
         organization,
     ):
-        import datetime
-
-        from freezegun import freeze_time
-
-        from ..common.db.organizations import OrganizationManualActivationFactory
 
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/manage/organizations/"
@@ -237,7 +278,10 @@ def test_includeme():
     )
     includeme(config)
 
-    assert config.add_route_predicate.calls == [pretend.call("domain", DomainPredicate)]
+    assert config.add_route_predicate.calls == [
+        pretend.call("domain", DomainPredicate),
+        pretend.call("auth_methods", AuthMethodsPredicate),
+    ]
 
     assert config.add_view_predicate.calls == [
         pretend.call("require_headers", HeadersPredicate),

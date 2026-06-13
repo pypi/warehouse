@@ -35,7 +35,7 @@ def _make_newer_gettext(func: t.Callable[[str], str]) -> t.Callable[..., str]:
     def gettext(context: Context, string: str, /, **variables: t.Any) -> str:
         try:
             return _old_gettext(context, string, **variables)
-        except (KeyError, ValueError):
+        except KeyError, ValueError:
             return string % variables
 
     return gettext
@@ -62,7 +62,7 @@ def _make_newer_ngettext(
     ) -> str:
         try:
             return _old_ngettext(context, singular, plural, num, **variables)
-        except (KeyError, ValueError):
+        except KeyError, ValueError:
             if num > 1:
                 return plural % variables
             return singular % variables

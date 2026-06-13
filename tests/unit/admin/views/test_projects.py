@@ -32,6 +32,10 @@ from warehouse.utils.paginate import paginate_url_factory
 
 from ....common.db.accounts import UserFactory
 from ....common.db.observations import ObserverFactory
+from ....common.db.organizations import (
+    OrganizationFactory,
+    OrganizationProjectFactory,
+)
 from ....common.db.packaging import (
     FileFactory,
     JournalEntryFactory,
@@ -199,10 +203,6 @@ class TestProjectDetail:
             views.project_detail(project, db_request)
 
     def test_with_organization(self, db_request):
-        from ....common.db.organizations import (
-            OrganizationFactory,
-            OrganizationProjectFactory,
-        )
 
         organization = OrganizationFactory.create(
             upload_limit=150 * views.ONE_MIB,
@@ -364,6 +364,49 @@ class TestProjectQuarantine:
                 queue="success",
             )
         ]
+
+    def test_release_quarantine(self, db_request):
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/release/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+
+        result = views.release_quarantine(release, db_request)
+
+        assert result.status_code == 303
+        assert release.lifecycle_status == LifecycleStatus.QuarantineEnter
+        assert db_request.route_path.calls == [
+            pretend.call(
+                "admin.project.release",
+                project_name=project.normalized_name,
+                version=release.version,
+            )
+        ]
+
+    def test_release_remove_from_quarantine(self, db_request):
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(
+            project=project,
+            version="1.0",
+            lifecycle_status=LifecycleStatus.QuarantineEnter,
+        )
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/release/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+
+        result = views.release_remove_from_quarantine(release, db_request)
+
+        assert result.status_code == 303
+        assert release.lifecycle_status == LifecycleStatus.QuarantineExit
 
 
 class TestProjectReleasesList:

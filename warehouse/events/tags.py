@@ -123,6 +123,8 @@ class EventTag:
         ProjectQuarantineEnter = "project:quarantine:enter"
         ProjectQuarantineExit = "project:quarantine:exit"
         ReleaseAdd = "project:release:add"
+        ReleaseQuarantineEnter = "project:release:quarantine:enter"
+        ReleaseQuarantineExit = "project:release:quarantine:exit"
         ReleaseRemove = "project:release:remove"
         ReleaseUnyank = "project:release:unyank"
         ReleaseYank = "project:release:yank"

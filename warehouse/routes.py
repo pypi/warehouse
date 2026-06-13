@@ -611,7 +611,7 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
-        "integrations.github.disclose-token",  # For backwards compatiblity
+        "integrations.github.disclose-token",  # For backwards compatibility
         "/_/github/disclose-token",
         domain=warehouse,
     )
@@ -635,6 +635,7 @@ def includeme(config):
     config.add_route(
         "api.echo",
         "/danger-api/echo",
+        auth_methods={"macaroon"},
         domain=warehouse,
     )
     config.add_route(
@@ -642,6 +643,7 @@ def includeme(config):
         "/danger-api/projects/{name}/observations",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}",
+        auth_methods={"macaroon"},
         domain=warehouse,
     )
 

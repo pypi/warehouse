@@ -37,7 +37,7 @@ describe("Horizontal tabs controller", () => {
     application.register("horizontal-tabs", HorizontalTabsController);
   });
 
-  describe("on initializtion", () => {
+  describe("on initialization", () => {
     it("the first tab is shown", () => {
       const tabs = document.querySelectorAll(".tab");
       const content = document.querySelectorAll(".horizontal-tabs__tabcontent");
@@ -76,7 +76,7 @@ describe("Horizontal tabs controller", () => {
     });
   });
 
-  describe("on initializtion with errors", () => {
+  describe("on initialization with errors", () => {
     beforeEach(() => {
       // Add some errors to the second tab
       const secondTabPanel = document.querySelectorAll(".horizontal-tabs__tabcontent")[1];

@@ -6,7 +6,6 @@ from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
 from sentry_sdk.integrations.pyramid import PyramidIntegration
 from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
-from sentry_sdk.integrations.wsgi import SentryWsgiMiddleware
 from webob.request import DisconnectionError
 
 
@@ -20,11 +19,10 @@ ignore_exceptions = (
     # then Gunicorn treating that as being told to exit the process. Either way,
     # there isn't anything we can do about them, so they just cause noise.
     SystemExit,
-    # Gunicorn internally raises these errors, and will catch them and handle
-    # them correctly... however they have to first pass through our WSGI
-    # middleware which is catching them and logging them. Instead we
-    # will ignore them. We have to list these as strings, and list all
-    # of them because we don't want to import Gunicorn in our application
+    # Gunicorn raises these errors during request parsing and handles them
+    # itself, but they surface in Sentry via PyramidIntegration when views
+    # read the request body. Ignore them so they don't add noise. Listed as
+    # strings to avoid importing Gunicorn into the application.
     "gunicorn.http.errors.ParseException",
     "gunicorn.http.errors.NoMoreData",
     "gunicorn.http.errors.InvalidRequestLine",
@@ -86,7 +84,3 @@ def includeme(config):
 
     # Create a request method that'll get us the Sentry SDK in each request.
     config.add_request_method(_sentry, name="sentry", reify=True)
-
-    # Wrap the WSGI object with the middle to catch any exceptions we don't
-    # catch elsewhere.
-    config.add_wsgi_middleware(SentryWsgiMiddleware)
