@@ -641,6 +641,19 @@ def send_organization_deleted_email(request, user, *, organization_name):
     }
 
 
+@_email("organization-subscription-required")
+def send_organization_subscription_required_email(
+    request,
+    user,
+    *,
+    organization_name,
+):
+    return {
+        "username": user.username,
+        "organization_name": organization_name,
+    }
+
+
 @_email("team-created")
 def send_team_created_email(request, user, *, organization_name, team_name):
     return {
