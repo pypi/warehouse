@@ -8,32 +8,27 @@ from warehouse.sponsors.tasks import update_pypi_sponsors
 
 
 def _sponsors(request):
-    return (
+    """Return active sponsors grouped and ordered for template rendering."""
+    sponsors = (
         request.db.query(Sponsor)
         .filter(Sponsor.is_active == true())
-        .order_by(Sponsor.infra_sponsor, Sponsor.level_order, Sponsor.name)
+        .order_by(Sponsor.level_order, Sponsor.name)
         .all()
     )
-
-
-def _footer_sponsors(request):
-    """Return footer sponsors: PSF by level then name, infra by name."""
-    all_sponsors = request.sponsors
-    psf = sorted(
-        (s for s in all_sponsors if s.footer and not s.infra_sponsor),
-        key=lambda s: (s.level_order or 0, s.name),
-    )
-    infra = sorted(
-        (s for s in all_sponsors if s.infra_sponsor),
-        key=lambda s: s.name,
-    )
-    return psf + infra
+    infrastructure = [s for s in sponsors if s.infra_sponsor]
+    return {
+        "all": sponsors,
+        "psf": [s for s in sponsors if s.psf_sponsor],
+        "infrastructure": infrastructure,
+        "one_time": [s for s in sponsors if s.one_time],
+        "footer": [s for s in sponsors if s.footer and not s.infra_sponsor]
+        + infrastructure,
+    }
 
 
 def includeme(config):
     # Add a request method which will allow to list sponsors
     config.add_request_method(_sponsors, name="sponsors", reify=True)
-    config.add_request_method(_footer_sponsors, name="footer_sponsors", reify=True)
 
     # Add a periodic task to update sponsors table
     if config.registry.settings.get("pythondotorg.api_token"):
