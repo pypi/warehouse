@@ -1197,11 +1197,11 @@ msgstr ""
 #: warehouse/templates/pages/help.html:1478
 #: warehouse/templates/pages/help.html:1484
 #: warehouse/templates/pages/help.html:1491
-#: warehouse/templates/pages/sponsors.html:23
-#: warehouse/templates/pages/sponsors.html:34
-#: warehouse/templates/pages/sponsors.html:42
-#: warehouse/templates/pages/sponsors.html:53
-#: warehouse/templates/pages/sponsors.html:85
+#: warehouse/templates/pages/sponsors.html:36
+#: warehouse/templates/pages/sponsors.html:47
+#: warehouse/templates/pages/sponsors.html:55
+#: warehouse/templates/pages/sponsors.html:66
+#: warehouse/templates/pages/sponsors.html:98
 #: warehouse/templates/upload.html:14
 msgid "External link"
 msgstr ""
@@ -1284,7 +1284,7 @@ msgstr ""
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:74
 #: warehouse/templates/includes/current-user-indicator.html:83
 #: warehouse/templates/pages/sitemap.html:43
-#: warehouse/templates/pages/sponsors.html:4
+#: warehouse/templates/pages/sponsors.html:17
 msgid "Sponsors"
 msgstr ""
 
@@ -9966,31 +9966,31 @@ msgstr ""
 msgid "PyPI Trademarks"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:12
+#: warehouse/templates/pages/sponsors.html:25
 msgid "Support PyPI and related projects"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:13
+#: warehouse/templates/pages/sponsors.html:26
 msgid "Sponsor the Python Software Foundation"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:16
+#: warehouse/templates/pages/sponsors.html:29
 msgid ""
 "The Python Software Foundation raises and distributes funds to improve "
 "Python's packaging ecosystem."
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:18
+#: warehouse/templates/pages/sponsors.html:31
 msgid "Recent projects funded include:"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:21
+#: warehouse/templates/pages/sponsors.html:34
 msgid ""
 "The successful relaunch of the Python Package Index, powered by the new "
 "'Warehouse' codebase"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:23
+#: warehouse/templates/pages/sponsors.html:36
 #, python-format
 msgid ""
 "With <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -9999,13 +9999,13 @@ msgid ""
 "rel=\"noopener\">Mozilla Open Source Support Program</a> in 2018"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:32
+#: warehouse/templates/pages/sponsors.html:45
 msgid ""
 "Improving PyPI's security and accessibility, and adding support for "
 "multiple locales"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:34
+#: warehouse/templates/pages/sponsors.html:47
 #, python-format
 msgid ""
 "With $80,000 in funding from the <a href=\"%(funder_href)s\" "
@@ -10013,11 +10013,11 @@ msgid ""
 "Fund</a> in 2019"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:40
+#: warehouse/templates/pages/sponsors.html:53
 msgid "Additional security-focused features for PyPI"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:42
+#: warehouse/templates/pages/sponsors.html:55
 #, python-format
 msgid ""
 "With <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -10026,11 +10026,11 @@ msgid ""
 "Research</a> in 2019 and 2020"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:51
+#: warehouse/templates/pages/sponsors.html:64
 msgid "Overhauling pip's user experience and dependency resolver"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:53
+#: warehouse/templates/pages/sponsors.html:66
 #, python-format
 msgid ""
 "With <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -10041,67 +10041,67 @@ msgid ""
 "rel=\"noopener\">Mozilla Open Source Support Program</a> in 2020"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:66
+#: warehouse/templates/pages/sponsors.html:79
 msgid ""
 "With your support, the PSF can continue to fund packaging improvements, "
 "benefiting millions of Python users around the world."
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:74
+#: warehouse/templates/pages/sponsors.html:87
 msgid "PSF Sponsorship"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:78
+#: warehouse/templates/pages/sponsors.html:91
 msgid ""
 "All of these initiatives help maintain and support the tools that the "
 "Python community uses daily. This work can only be done with the generous"
 " financial support that you or your organization provides."
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:80
+#: warehouse/templates/pages/sponsors.html:93
 msgid "Your contributions matter and they make an impact. Every donation counts!"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:87
+#: warehouse/templates/pages/sponsors.html:100
 msgid "Become a sponsor"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:88
+#: warehouse/templates/pages/sponsors.html:101
 msgid ""
 "The PSF is recognized by the IRS as a 501(c)(3) non-profit charitable "
 "organization, and donations are tax-deductible for organizations that pay"
 " taxes in the United States."
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:98
+#: warehouse/templates/pages/sponsors.html:111
 msgid "Get your logo on PyPI.org"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:100
+#: warehouse/templates/pages/sponsors.html:113
 msgid ""
 "Looking for brand visibility? In the last year*, 21.1 million people from"
 " 237 countries visited PyPI.org."
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:103
+#: warehouse/templates/pages/sponsors.html:116
 msgid "* Data as of March 2020"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:107
+#: warehouse/templates/pages/sponsors.html:120
 msgid "Strengthen the Python ecosystem"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:109
+#: warehouse/templates/pages/sponsors.html:122
 msgid ""
 "Funds raised by the Python Software Foundation go directly towards "
 "improving the tools your company uses every day."
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:113
+#: warehouse/templates/pages/sponsors.html:126
 msgid "Boost your reputation"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:114
+#: warehouse/templates/pages/sponsors.html:127
 msgid ""
 "Enhance your company's reputation by investing in Python and the open "
 "source community."

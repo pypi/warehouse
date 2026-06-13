@@ -52,12 +52,18 @@
 
   &__group-label {
     flex-basis: 100%;
-    color: color.adjust(colours.$white, $alpha: -0.4);
+    color: color.adjust(colours.$white, $alpha: -0.25);
     font-size: 0.7rem;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin: 4px 0 0;
+    letter-spacing: 0.08em;
+    margin: 1rem 0 0.25rem;
     padding: 0;
+
+    // The first tier heading sits right under the top border; no extra gap.
+    &:first-of-type {
+      margin-top: 0.25rem;
+    }
   }
 
   &__sponsor {
@@ -90,6 +96,35 @@
     justify-self: center;
     max-width: 100px;
     opacity: 0.8;
+    // Gap between the logo and the name. Lives on the image (not the name) so
+    // logo-less sponsors don't carry dead space under their tier heading.
+    margin-bottom: 10px;
+
+    @media only screen and (max-width: breakpoints.$tablet) {
+      display: none;
+    }
+  }
+
+  // Fallback for sponsors with no white logo: show their color logo on a white
+  // chip so it stays legible against the dark footer.
+  &__image-chip {
+    justify-self: center;
+    display: inline-flex;
+    align-items: center;
+    background-color: colours.$white;
+    border-radius: 6px;
+    padding: 7px 11px;
+    margin-bottom: 10px;
+
+    .sponsors__image {
+      margin-bottom: 0;
+      // Explicit height (not max-height) so logos delivered as dimensionless
+      // SVGs still render, and raster logos normalise to one chip height.
+      height: 26px;
+      width: auto;
+      max-width: 90px;
+      opacity: 1;
+    }
 
     @media only screen and (max-width: breakpoints.$tablet) {
       display: none;
@@ -106,10 +141,8 @@
 
   &__name {
     font-weight: 600;
-    margin-top: 10px;
 
     @media only screen and (max-width: breakpoints.$small-tablet) {
-      margin: 0;
       font-weight: normal;
     }
   }
