@@ -70,16 +70,40 @@ def test_sponsors_grouped_and_ordered(db_request):
     assert result["one_time"] == [onetime]
 
 
-def test_footer_sponsors_ordering(db_request):
+def test_footer_grouped_by_tier(db_request):
     c = SponsorFactory.create
     infra = c(
         name="AWS", infra_sponsor=True, psf_sponsor=False, footer=False, level_order=0
     )
-    vis_b = c(name="Bravo", footer=True, infra_sponsor=False, level_order=1)
-    vis_a = c(name="Alpha", footer=True, infra_sponsor=False, level_order=1)
-    sus = c(name="Charlie", footer=True, infra_sponsor=False, level_order=2)
+    vis_b = c(
+        name="Bravo",
+        footer=True,
+        infra_sponsor=False,
+        level_name="Visionary",
+        level_order=1,
+    )
+    vis_a = c(
+        name="Alpha",
+        footer=True,
+        infra_sponsor=False,
+        level_name="Visionary",
+        level_order=1,
+    )
+    sus = c(
+        name="Charlie",
+        footer=True,
+        infra_sponsor=False,
+        level_name="Sustainability",
+        level_order=2,
+    )
     c(name="Nobody", footer=False, infra_sponsor=False, level_order=5)
 
     result = sponsors._sponsors(db_request)
 
-    assert result["footer"] == [vis_a, vis_b, sus, infra]
+    # PSF sponsors grouped by tier in level order, then infrastructure last
+    # (tier=None). The footer template renders each group's heading.
+    assert result["footer"] == [
+        {"tier": "Visionary", "sponsors": [vis_a, vis_b]},
+        {"tier": "Sustainability", "sponsors": [sus]},
+        {"tier": None, "sponsors": [infra]},
+    ]
