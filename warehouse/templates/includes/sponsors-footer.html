@@ -14,7 +14,7 @@
 <div class="sponsors">
   <p class="sponsors__title">Supported by</p>
   <div class="sponsors__divider"></div>
-  {% for sponsor in request.footer_sponsors %}
+  {% for sponsor in request.sponsors["footer"] %}
     {% if sponsor.infra_sponsor and loop.previtem is defined and not loop.previtem.infra_sponsor %}
       <div class="sponsors__divider"></div>
       <p class="sponsors__group-label">Infrastructure partners</p>
