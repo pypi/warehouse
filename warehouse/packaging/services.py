@@ -439,14 +439,39 @@ class ProjectService:
                 tags=["ratelimiter:user"],
             )
             raise TooManyProjectsCreated(
-                resets_in=self.ratelimiters["project.create.user"].resets_in(
+                resets_in=self.ratelimiters["project.create.user"].resets_in(creator.id)
+            )
+
+    def _hit_ratelimits(self, request, creator):
+        # `.hit()` atomically increments and returns False when the limit is
+        # exceeded. Concurrent requests can each pass the optimistic `.test()`
+        # in `_check_ratelimits` before any records a hit, so this atomic check
+        # is what actually enforces the limit: a request that pushes a counter
+        # past its limit is rejected here, rolling back the new project. The
+        # limiters are consulted in the same order as `_check_ratelimits`.
+        if request.remote_addr is not None and not self.ratelimiters[
+            "project.create.ip"
+        ].hit(request.remote_addr):
+            logger.warning("IP failed project create threshold reached.")
+            self._metrics.increment(
+                "warehouse.project.create.ratelimited",
+                tags=["ratelimiter:ip"],
+            )
+            raise TooManyProjectsCreated(
+                resets_in=self.ratelimiters["project.create.ip"].resets_in(
                     request.remote_addr
                 )
             )
 
-    def _hit_ratelimits(self, request, creator):
-        self.ratelimiters["project.create.user"].hit(creator.id)
-        self.ratelimiters["project.create.ip"].hit(request.remote_addr)
+        if not self.ratelimiters["project.create.user"].hit(creator.id):
+            logger.warning("User failed project create threshold reached.")
+            self._metrics.increment(
+                "warehouse.project.create.ratelimited",
+                tags=["ratelimiter:user"],
+            )
+            raise TooManyProjectsCreated(
+                resets_in=self.ratelimiters["project.create.user"].resets_in(creator.id)
+            )
 
     def check_project_name(self, name: str) -> None:
         """
