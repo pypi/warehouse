@@ -626,9 +626,9 @@ deprecated==1.3.1 \
     --hash=sha256:597bfef186b6f60181535a29fbe44865ce137a5079f295b479886c82729d5f3f \
     --hash=sha256:b1b50e0ff0c1fddaa5708a2c6b0a6588bb09b892825ab2b214ac9ea9d92a5223
     # via limits
-disposable-email-domains==0.0.196 \
-    --hash=sha256:62611a74ab2f46e4153b06af91e477cbd48026e4ce3783ecfc1da6326a1cf147 \
-    --hash=sha256:a3a892bb79925b2b2ed84bcb54d8a99601e6fc7c0bc94b0dddb8bc47dfaa5a91
+disposable-email-domains==0.0.198 \
+    --hash=sha256:17107b39ee6e3140219808fb4e8e9ace9faf30bbcba437d39959c80bc58995f1 \
+    --hash=sha256:a3b9100870947d3dc2865f01423e941beb80c363515c7ab3ec7449aa55563af1
     # via -r requirements/main.in
 dnspython==2.8.0 \
     --hash=sha256:01d9bbc4a2d76bf0db7c1f729812ded6d912bd318d3b1cf81d30c0f845dbf3af \
@@ -662,9 +662,9 @@ forcediphttpsadapter==1.1.0 \
     --hash=sha256:0d224cf6e8e50eb788c9f5994a7afa6d389bac6dbe540b7dfd77a32590ad0153 \
     --hash=sha256:5e7662ece61735585332d09b87d94fffe4752469d5c0d3feff48746e5d70744b
     # via -r requirements/main.in
-github-reserved-names==2026.3.1 \
-    --hash=sha256:0bdba363fd2ffca1c8b66bb4a5654ccfa12d47354a8c99a45037c1a8578bb310 \
-    --hash=sha256:0c63da70f1d2bc36985e351a928a99e00233501d33021e03f9590aaebed5a95f
+github-reserved-names==2026.6.1 \
+    --hash=sha256:2eed4f3e9dbc5b6336698ec235431533726ab0b67926a2c2f6e64a17a8f6d4c3 \
+    --hash=sha256:4a26cc41b0e557aea4bfe6b0de407e364229ef98d5f9a91ab18fff14363cabc4
     # via -r requirements/main.in
 google-api-core[grpc]==2.31.0 \
     --hash=sha256:2be84ee0f584c48e6bde1b36766e23348b361fb7e55e56135fc76ce1c397f9c2 \
@@ -2508,9 +2508,9 @@ stripe==11.6.0 \
     --hash=sha256:0ced7cce23a6cb1a393c86a1f7f9435c9d83ae7cbd556362868caf62cb44a92c \
     --hash=sha256:6e6cf09ebb6d5fc2d708401cb8868fd7bff987a6d09a0433caaa92c62f97dbc5
     # via -r requirements/main.in
-structlog==25.5.0 \
-    --hash=sha256:098522a3bebed9153d4570c6d0288abf80a031dfdb2048d59a49e9dc2190fc98 \
-    --hash=sha256:a8453e9b9e636ec59bd9e79bbd4a72f025981b3ba0f5837aebf48f02f37a7f9f
+structlog==26.1.0 \
+    --hash=sha256:e081a26d6c373e6d201eca24eede26d8ffab07f88f477822e679183428d3d91e \
+    --hash=sha256:f63a716cbd1b1291cf7661de7794b455acfa4c43c5bcf1630e6ad5ddc1adb3b7
     # via -r requirements/main.in
 tenacity==9.1.4 \
     --hash=sha256:6095a360c919085f28c6527de529e76a06ad89b23659fa881ae0649b867a9d55 \
@@ -2602,9 +2602,9 @@ vine==5.1.0 \
     #   amqp
     #   celery
     #   kombu
-wcwidth==0.7.0 \
-    --hash=sha256:5d69154c429a82910e241c738cd0e2976fac8a2dd47a1a805f4afed1c0f136f2 \
-    --hash=sha256:90e3a7ea092341c44b99562e75d09e4d5160fe7a3974c6fb842a101a95e7eed0
+wcwidth==0.8.1 \
+    --hash=sha256:f453740b1e4a4f3291faa37944c555d71056c4da08d59809b307ef4feba695c8 \
+    --hash=sha256:faf5b4a5366a72dc49cad48cdf21f52bdf63bdda995178e483ba247ff79089b9
     # via prompt-toolkit
 webauthn==2.7.1 \
     --hash=sha256:2a1ebbfffc4a83e31d3db5d69113944bc49d05fae77770c2d4e388386cb9656e \
