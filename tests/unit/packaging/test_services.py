@@ -44,6 +44,7 @@ from warehouse.packaging.services import (
     S3FileStorage,
     project_service_factory,
 )
+from warehouse.rate_limiting.interfaces import WindowStats
 
 from ...common.db.accounts import UserFactory
 from ...common.db.packaging import ProhibitedProjectFactory, ProjectFactory
@@ -1113,6 +1114,35 @@ class TestProjectService:
 
         with pytest.raises(TooManyProjectsCreated):
             project_service.create_project("some-new-project", creator, db_request)
+
+    def test_check_ratelimits_records_rate_limit_headers(
+        self, project_service, db_request, ratelimit_service, mocker
+    ):
+        """`_check_ratelimits` records a snapshot per limiter so the egress
+        tween can emit RateLimit / RateLimit-Policy headers on the response.
+        """
+        creator = UserFactory.create()
+        stats = [
+            WindowStats(
+                amount=4, window_seconds=86400, remaining=3, resets_in_seconds=0
+            )
+        ]
+        mocker.patch.object(ratelimit_service, "get_window_stats", return_value=stats)
+        project_service.ratelimiters["project.create.user"] = ratelimit_service
+        project_service.ratelimiters["project.create.ip"] = ratelimit_service
+
+        project_service._check_ratelimits(db_request, creator)
+
+        # Keyed on the request IP and the creator's id, in that order.
+        assert ratelimit_service.get_window_stats.call_args_list == [
+            mocker.call(db_request.remote_addr),
+            mocker.call(creator.id),
+        ]
+        snapshots = db_request._rate_limit_snapshots
+        assert [(s.name, s.partition_key, s.stats) for s in snapshots] == [
+            ("project.create.ip", "ip", stats),
+            ("project.create.user", "user", stats),
+        ]
 
     def test_check_project_name_already_exists(self, db_session):
         service = ProjectService(session=db_session)

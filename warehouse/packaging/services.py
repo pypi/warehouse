@@ -53,6 +53,7 @@ from warehouse.packaging.models import (
 )
 from warehouse.packaging.typosnyper import typo_check_name
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
+from warehouse.rate_limiting.headers import record_rate_limit
 from warehouse.utils.exceptions import DevelopmentModeWarning
 from warehouse.utils.project import PROJECT_NAME_RE
 
@@ -417,6 +418,24 @@ class ProjectService:
         self._query_results_cache = query_results_cache
 
     def _check_ratelimits(self, request, creator):
+        # Record the current limiter state so the egress tween can emit
+        # RateLimit / RateLimit-Policy headers, whether or not we reject below.
+        if request.remote_addr is not None:
+            record_rate_limit(
+                request,
+                "project.create.ip",
+                self.ratelimiters["project.create.ip"],
+                identifiers=(request.remote_addr,),
+                partition_key="ip",
+            )
+        record_rate_limit(
+            request,
+            "project.create.user",
+            self.ratelimiters["project.create.user"],
+            identifiers=(creator.id,),
+            partition_key="user",
+        )
+
         # First we want to check if a single IP is exceeding our rate limiter.
         if request.remote_addr is not None and not self.ratelimiters[
             "project.create.ip"
