@@ -2,14 +2,11 @@
 
 import queue
 import threading
-
-import pretend
+import types
 
 import warehouse.http
 
-_REQUEST = pretend.stub(
-    log=pretend.stub(debug=pretend.call_recorder(lambda *args: None))
-)
+_REQUEST = types.SimpleNamespace(log=types.SimpleNamespace(debug=lambda *args: None))
 
 
 class TestSession:
@@ -55,14 +52,11 @@ class TestSession:
         assert len({id(obj) for obj in objects}) == len(threads)
 
 
-def test_includeme():
-    config = pretend.stub(
-        registry=pretend.stub(settings={}),
-        add_request_method=pretend.call_recorder(lambda *args, **kwargs: None),
-    )
-    warehouse.http.includeme(config)
+def test_includeme(pyramid_config, mocker):
+    spy = mocker.spy(pyramid_config, "add_request_method")
+    warehouse.http.includeme(pyramid_config)
 
-    assert len(config.add_request_method.calls) == 1
-    call = config.add_request_method.calls[0]
+    spy.assert_called_once()
+    call = spy.call_args
     assert isinstance(call.args[0], warehouse.http.ThreadLocalSessionFactory)
     assert call.kwargs == {"name": "http", "reify": True}
