@@ -154,6 +154,15 @@
 
     dt {
       font-weight: fonts.$bold-font-weight;
+
+      .classifier {
+        font-weight: normal;
+
+        &::before {
+          content: ":";
+          margin: 0 0.5em;
+        }
+      }
     }
 
     dd {
@@ -310,7 +319,8 @@ $pygments-black:         #000;
   }
 
   .gd { /* Generic.Deleted */
-    color: $pygments-black;
+    color: $dark-red;
+    background-color: color.adjust($red, $lightness: 45%);
   }
 
   .ge { /* Generic.Emph */
@@ -326,7 +336,8 @@ $pygments-black:         #000;
   }
 
   .gi { /* Generic.Inserted */
-    color: $pygments-black;
+    color: $green;
+    background-color: color.adjust($light-green, $lightness: 45%);
   }
 
   .go { /* Generic.Output */
