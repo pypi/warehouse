@@ -179,7 +179,7 @@ class TestSendEmailToUser:
 
         user = pretend.stub(
             primary_email=pretend.stub(
-                email=primary_email, verified=True if address is not None else False
+                email=primary_email, verified=address is not None
             ),
         )
 
@@ -196,8 +196,9 @@ class TestSendEmailToUser:
     def test_doesnt_send_within_repeat_window(self, pyramid_request, pyramid_services):
         email_service = pretend.stub(
             last_sent=pretend.call_recorder(
-                lambda to, subject: datetime.datetime.now()
-                - datetime.timedelta(seconds=69)
+                lambda to, subject: (
+                    datetime.datetime.now() - datetime.timedelta(seconds=69)
+                )
             )
         )
         pyramid_services.register_service(email_service, IEmailSender, None, name="")
@@ -220,8 +221,9 @@ class TestSendEmailToUser:
     def test_sends_when_outside_repeat_window(self, db_request, pyramid_services):
         email_service = pretend.stub(
             last_sent=pretend.call_recorder(
-                lambda to, subject: datetime.datetime.now()
-                - datetime.timedelta(seconds=69)
+                lambda to, subject: (
+                    datetime.datetime.now() - datetime.timedelta(seconds=69)
+                )
             )
         )
         pyramid_services.register_service(email_service, IEmailSender, None, name="")
@@ -279,7 +281,7 @@ class TestSendEmailToUser:
             username=username,
             name="",
             primary_email=pretend.stub(
-                email=primary_email, verified=True if address is not None else False
+                email=primary_email, verified=address is not None
             ),
             id="id",
         )
@@ -1001,8 +1003,37 @@ class TestPasswordCompromisedHIBPEmail:
 
 class TestTokenLeakEmail:
     @pytest.mark.parametrize("verified", [True, False])
+    @pytest.mark.parametrize(
+        ("kwargs", "expected_context"),
+        [
+            (
+                {"public_url": "http://example.com", "origin": "github"},
+                {
+                    "public_url": "http://example.com",
+                    "origin": "github",
+                    "admin_initiated": False,
+                    "reason": None,
+                },
+            ),
+            (
+                {"admin_initiated": True, "reason": "Found in a public CI log"},
+                {
+                    "public_url": None,
+                    "origin": None,
+                    "admin_initiated": True,
+                    "reason": "Found in a public CI log",
+                },
+            ),
+        ],
+    )
     def test_token_leak_email(
-        self, pyramid_request, pyramid_config, monkeypatch, verified
+        self,
+        pyramid_request,
+        pyramid_config,
+        monkeypatch,
+        verified,
+        kwargs,
+        expected_context,
     ):
         stub_user = pretend.stub(
             id=3,
@@ -1038,14 +1069,10 @@ class TestTokenLeakEmail:
         monkeypatch.setattr(email, "send_email", send_email)
 
         result = email.send_token_compromised_email_leak(
-            pyramid_request, stub_user, public_url="http://example.com", origin="github"
+            pyramid_request, stub_user, **kwargs
         )
 
-        assert result == {
-            "username": "username",
-            "public_url": "http://example.com",
-            "origin": "github",
-        }
+        assert result == {"username": "username", **expected_context}
         assert pyramid_request.task.calls == [pretend.call(send_email)]
         assert send_email.delay.calls == [
             pretend.call(
@@ -4840,6 +4867,7 @@ class TestRemovedReleaseEmail:
             "submitter_name": stub_submitter_user.username,
             "submitter_role": "owner",
             "recipient_role_descr": "a maintainer",
+            "reason": None,
         }
 
         subject_renderer.assert_(project_name="test_project")
@@ -4976,6 +5004,7 @@ class TestRemovedReleaseEmail:
             "submitter_name": stub_submitter_user.username,
             "submitter_role": "owner",
             "recipient_role_descr": "an owner",
+            "reason": None,
         }
 
         subject_renderer.assert_(project_name="test_project")
@@ -5115,6 +5144,7 @@ class TestRemovedReleaseFileEmail:
             "submitter_name": stub_submitter_user.username,
             "submitter_role": "owner",
             "recipient_role_descr": "an owner",
+            "reason": None,
         }
 
         subject_renderer.assert_(project_name="test_project")
@@ -5252,6 +5282,7 @@ class TestRemovedReleaseFileEmail:
             "submitter_name": stub_submitter_user.username,
             "submitter_role": "owner",
             "recipient_role_descr": "a maintainer",
+            "reason": None,
         }
 
         subject_renderer.assert_(project_name="test_project")
@@ -5487,6 +5518,174 @@ class TestRecoveryCodeEmails:
 
 
 class TestTrustedPublisherEmails:
+    def test_pending_trusted_publisher_expired_email(
+        self, pyramid_request, pyramid_config, monkeypatch
+    ):
+        stub_user = pretend.stub(
+            id="id",
+            username="username",
+            name="",
+            email="email@example.com",
+            primary_email=pretend.stub(email="email@example.com", verified=True),
+        )
+        subject_renderer = pyramid_config.testing_add_renderer(
+            "email/pending-trusted-publisher-expired/subject.txt"
+        )
+        subject_renderer.string_response = "Email Subject"
+        body_renderer = pyramid_config.testing_add_renderer(
+            "email/pending-trusted-publisher-expired/body.txt"
+        )
+        body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/pending-trusted-publisher-expired/body.html"
+        )
+        html_renderer.string_response = "<p>Email HTML Body</p>"
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        monkeypatch.setattr(email, "send_email", send_email)
+
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=stub_user.id)
+                )
+            ),
+        )
+        pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
+
+        result = email.send_pending_trusted_publisher_expired_email(
+            pyramid_request,
+            stub_user,
+            project_name="test_project",
+            days=30,
+        )
+
+        assert result == {
+            "project_name": "test_project",
+            "days": 30,
+        }
+        subject_renderer.assert_()
+        body_renderer.assert_(project_name="test_project", days=30)
+        html_renderer.assert_(project_name="test_project", days=30)
+
+    def test_pending_trusted_publisher_expiration_reminder_email(
+        self, pyramid_request, pyramid_config, monkeypatch
+    ):
+        stub_user = pretend.stub(
+            id="id",
+            username="username",
+            name="",
+            email="email@example.com",
+            primary_email=pretend.stub(email="email@example.com", verified=True),
+        )
+        subject_renderer = pyramid_config.testing_add_renderer(
+            "email/pending-trusted-publisher-expiration-reminder/subject.txt"
+        )
+        subject_renderer.string_response = "Email Subject"
+        body_renderer = pyramid_config.testing_add_renderer(
+            "email/pending-trusted-publisher-expiration-reminder/body.txt"
+        )
+        body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/pending-trusted-publisher-expiration-reminder/body.html"
+        )
+        html_renderer.string_response = "<p>Email HTML Body</p>"
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        monkeypatch.setattr(email, "send_email", send_email)
+
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=stub_user.id)
+                )
+            ),
+        )
+        pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
+
+        result = email.send_pending_trusted_publisher_expiration_reminder_email(
+            pyramid_request,
+            stub_user,
+            project_name="test_project",
+            days_remaining=5,
+        )
+
+        assert result == {
+            "project_name": "test_project",
+            "days_remaining": 5,
+        }
+        subject_renderer.assert_()
+        body_renderer.assert_(project_name="test_project", days_remaining=5)
+        html_renderer.assert_(project_name="test_project", days_remaining=5)
+
+    def test_pending_trusted_publisher_reified_email(
+        self, pyramid_request, pyramid_config, monkeypatch
+    ):
+        stub_user = pretend.stub(
+            id="id",
+            username="username",
+            name="",
+            email="email@example.com",
+            primary_email=pretend.stub(email="email@example.com", verified=True),
+        )
+        subject_renderer = pyramid_config.testing_add_renderer(
+            "email/pending-trusted-publisher-reified/subject.txt"
+        )
+        subject_renderer.string_response = "Email Subject"
+        body_renderer = pyramid_config.testing_add_renderer(
+            "email/pending-trusted-publisher-reified/body.txt"
+        )
+        body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/pending-trusted-publisher-reified/body.html"
+        )
+        html_renderer.string_response = "<p>Email HTML Body</p>"
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        monkeypatch.setattr(email, "send_email", send_email)
+
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=stub_user.id)
+                )
+            ),
+        )
+        pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
+
+        result = email.send_pending_trusted_publisher_reified_email(
+            pyramid_request,
+            stub_user,
+            project_name="test_project",
+            publisher_specifier="foo/bar via release.yml",
+        )
+
+        assert result == {
+            "project_name": "test_project",
+            "publisher_specifier": "foo/bar via release.yml",
+        }
+        subject_renderer.assert_()
+        body_renderer.assert_(
+            project_name="test_project",
+            publisher_specifier="foo/bar via release.yml",
+        )
+        html_renderer.assert_(
+            project_name="test_project",
+            publisher_specifier="foo/bar via release.yml",
+        )
+
     @pytest.mark.parametrize(
         ("fn", "template_name"),
         [
@@ -6028,7 +6227,7 @@ class TestUserTermsOfServiceUpdateEmail:
         pyramid_request.user = stub_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
-        send_method = getattr(email, "send_user_terms_of_service_updated")
+        send_method = email.send_user_terms_of_service_updated
         result = send_method(pyramid_request, stub_user)
 
         assert result == {"user": stub_user}

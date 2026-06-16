@@ -38,7 +38,7 @@ from warehouse.email import (
     send_password_reset_by_admin_email,
 )
 from warehouse.observations.models import ObservationKind
-from warehouse.packaging.models import JournalEntry, Project, Release, Role
+from warehouse.packaging.models import File, JournalEntry, Project, Release, Role
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import clear_project_quarantine, quarantine_project
 
@@ -229,6 +229,41 @@ def user_detail(user, request):
         "add_email_form": EmailForm(),
         "breached_email_count": breached_email_count,
         "submitted_by_journals": submitted_by_journals,
+    }
+
+
+@view_config(
+    route_name="admin.user.files",
+    renderer="json",
+    permission=Permissions.AdminUsersRead,
+    request_method="GET",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    context=User,
+)
+def user_files(user, request):
+    stmt = (
+        select(File.path, File.size)
+        .join(Release, File.release_id == Release.id)
+        .join(Project, Release.project_id == Project.id)
+        .join(Role, Project.id == Role.project_id)
+        .where(Role.user_id == user.id)
+        .order_by(Project.name, Release.version, File.filename)
+    )
+    rows = request.db.execute(stmt).all()
+
+    paths = []
+    total_size = 0
+    for row in rows:
+        paths.append(row.path)
+        paths.append(row.path + ".metadata")
+        total_size += row.size
+
+    return {
+        "files": paths,
+        "total_size": total_size,
+        "file_count": len(rows),
     }
 
 
@@ -452,7 +487,7 @@ def user_reset_password(user, request):
 
 
 def _is_a_valid_url(url):
-    return url.startswith("https://") or url.startswith("http://")
+    return url.startswith(("https://", "http://"))
 
 
 def _get_related_urls(user):
@@ -491,7 +526,6 @@ def user_recover_account_initiate(user, request):
     repo_urls = _get_related_urls(user)
 
     if request.method == "POST":
-
         support_issue_link = request.POST.get("support_issue_link")
         project_name = request.POST.get("project_name")
 
@@ -556,7 +590,7 @@ def user_recover_account_initiate(user, request):
                     "completed": None,
                     "token": token,
                     "project_name": project_name,
-                    "repos": sorted(list(repo_urls.get(project_name, []))),
+                    "repos": sorted(repo_urls.get(project_name, [])),
                     "support_issue_link": support_issue_link,
                     "override_to_email": override_to_email,
                 },
@@ -573,7 +607,7 @@ def user_recover_account_initiate(user, request):
             )
 
             request.session.flash(
-                f"Initiatied account recovery for {user.username!r}", queue="success"
+                f"Initiated account recovery for {user.username!r}", queue="success"
             )
 
             return HTTPSeeOther(
@@ -679,7 +713,7 @@ def user_burn_recovery_codes(user, request):
             try:
                 user_service.check_recovery_code(user.id, code, skip_ratelimits=True)
                 n_burned += 1
-            except (BurnedRecoveryCode, InvalidRecoveryCode):
+            except BurnedRecoveryCode, InvalidRecoveryCode:
                 pass
 
         request.session.flash(f"Burned {n_burned} recovery code(s)", queue="success")
@@ -727,7 +761,7 @@ def user_quarantine_projects(user, request):
     quarantined_count = 0
     for project in user.projects:
         # Only quarantine projects that aren't already quarantined
-        if project.lifecycle_status not in ["quarantine-enter"]:
+        if project.lifecycle_status != "quarantine-enter":
             quarantine_project(project, request, flash=False)
             quarantined_count += 1
 

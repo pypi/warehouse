@@ -16,7 +16,7 @@ down_revision = "84262e097c26"
 def upgrade():
     op.alter_column("project_events", "project_id", new_column_name="source_id")
     op.execute(
-        "ALTER INDEX ix_project_events_project_id RENAME TO ix_project_events_source_id"  # noqa
+        "ALTER INDEX ix_project_events_project_id RENAME TO ix_project_events_source_id"
     )
 
     op.alter_column("user_events", "user_id", new_column_name="source_id")
@@ -26,7 +26,7 @@ def upgrade():
 def downgrade():
     op.alter_column("project_events", "source_id", new_column_name="project_id")
     op.execute(
-        "ALTER INDEX ix_project_events_source_id RENAME TO ix_project_events_project_id"  # noqa
+        "ALTER INDEX ix_project_events_source_id RENAME TO ix_project_events_project_id"
     )
 
     op.alter_column("user_events", "source_id", new_column_name="user_id")

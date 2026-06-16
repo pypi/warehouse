@@ -53,6 +53,10 @@ def _json_data(request, project, release, *, all_releases):
         )
         .outerjoin(File)
         .filter(Release.project == project)
+        # Exclude releases in quarantine.
+        .filter(
+            Release.lifecycle_status.is_distinct_from(LifecycleStatus.QuarantineEnter)
+        )
     )
 
     # If we're not looking for all_releases, then we'll filter this further
@@ -106,7 +110,7 @@ def _json_data(request, project, release, *, all_releases):
                 "upload_time": f.upload_time.strftime("%Y-%m-%dT%H:%M:%S"),
                 "upload_time_iso_8601": f.upload_time.isoformat() + "Z",
                 "url": request.route_url("packaging.file", path=f.path),
-                "requires_python": r.requires_python if r.requires_python else None,
+                "requires_python": r.requires_python or None,
                 "yanked": r.yanked,
                 "yanked_reason": r.yanked_reason or None,
             }
@@ -164,7 +168,7 @@ def _json_data(request, project, release, *, all_releases):
             "downloads": {"last_day": -1, "last_week": -1, "last_month": -1},
             "package_url": request.route_url("packaging.project", name=project.name),
             "project_url": request.route_url("packaging.project", name=project.name),
-            "project_urls": release.urls if release.urls else None,
+            "project_urls": release.urls or None,
             "release_url": request.route_url(
                 "packaging.release", name=project.name, version=release.version
             ),
@@ -213,6 +217,12 @@ def latest_release_factory(request):
                     LifecycleStatus.QuarantineEnter
                 )
             )
+            # Exclude releases in quarantine.
+            .filter(
+                Release.lifecycle_status.is_distinct_from(
+                    LifecycleStatus.QuarantineEnter
+                )
+            )
             .order_by(
                 Release.yanked.asc(),
                 Release.is_prerelease.nullslast(),
@@ -224,7 +234,7 @@ def latest_release_factory(request):
     except NoResultFound:
         return HTTPNotFound(headers=_CORS_HEADERS)
 
-    release = (
+    return (
         request.db.query(Release)
         .join(Project)
         .outerjoin(ReleaseURL)
@@ -238,8 +248,6 @@ def latest_release_factory(request):
         .filter(Release.id == latest.id)
         .one()
     )
-
-    return release
 
 
 @view_config(
@@ -299,6 +307,10 @@ def release_factory(request):
         # Exclude projects in quarantine.
         .filter(
             Project.lifecycle_status.is_distinct_from(LifecycleStatus.QuarantineEnter)
+        )
+        # Exclude releases in quarantine.
+        .filter(
+            Release.lifecycle_status.is_distinct_from(LifecycleStatus.QuarantineEnter)
         )
     )
 

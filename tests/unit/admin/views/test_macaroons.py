@@ -2,13 +2,13 @@
 
 import uuid
 
-import pretend
 import pytest
 
 from warehouse.admin.views import macaroons as views
 from warehouse.macaroons import caveats
 
 from ....common.db.accounts import UserFactory
+from ....common.db.macaroons import MacaroonFactory
 
 
 @pytest.fixture
@@ -53,7 +53,7 @@ class TestMacaroonDecodeToken:
     def test_post_token_found(self, db_request, macaroon_service):
         user = UserFactory.create()
         db_request.user = user
-        token, macaroon = macaroon_service.create_macaroon(
+        token, _macaroon = macaroon_service.create_macaroon(
             location="fake location",
             description="real description",
             scopes=[caveats.RequestUser(user_id=str(user.id))],
@@ -88,12 +88,7 @@ class TestMacaroonDetail:
 
     def test_macaroon_exists(self, db_request, macaroon_service):
         user = UserFactory.create()
-        _, macaroon = macaroon_service.create_macaroon(
-            location="test",
-            description="test",
-            scopes=[caveats.RequestUser(user_id=str(user.id))],
-            user_id=user.id,
-        )
+        macaroon = MacaroonFactory.create(user_id=user.id)
         db_request.matchdict["macaroon_id"] = macaroon.id
 
         result = views.macaroon_detail(db_request)
@@ -111,20 +106,58 @@ class TestMacaroonDelete:
     def test_delete_succeeds_and_redirects(self, db_request, macaroon_service):
         user = UserFactory.create()
         db_request.user = user
-        _, macaroon = macaroon_service.create_macaroon(
-            location="test",
-            description="test",
-            scopes=[caveats.RequestUser(user_id=str(user.id))],
-            user_id=user.id,
-        )
+        macaroon = MacaroonFactory.create(user_id=user.id)
         macaroon_id = str(macaroon.id)
         db_request.matchdict["macaroon_id"] = macaroon_id
-        db_request.route_url = pretend.call_recorder(
-            lambda *a, **kw: "/admin/macaroons/decode"
-        )
+        db_request.route_url = lambda *a, **kw: "/admin/macaroons/decode"
 
         result = views.macaroon_delete(db_request)
 
         assert result.status_code == views.HTTPSeeOther.code
         assert result.location == "/admin/macaroons/decode"
         assert macaroon_service.find_macaroon(macaroon_id) is None
+
+    @pytest.mark.parametrize(
+        ("post", "notified", "expected_reason"),
+        [
+            (
+                {"notify": "true", "reason": "Found in a public CI log"},
+                True,
+                "Found in a public CI log",
+            ),
+            ({"notify": "true", "reason": "   "}, True, None),
+            ({}, False, None),
+        ],
+    )
+    def test_delete_optionally_notifies_user(
+        self, db_request, macaroon_service, mocker, post, notified, expected_reason
+    ):
+        user = UserFactory.create()
+        db_request.user = user
+        macaroon = MacaroonFactory.create(user_id=user.id)
+        macaroon_id = str(macaroon.id)
+        db_request.matchdict["macaroon_id"] = macaroon_id
+        db_request.POST = post
+        db_request.route_url = lambda *a, **kw: "/admin/macaroons/decode"
+        send_email = mocker.patch.object(
+            views, "send_token_compromised_email_leak", autospec=True
+        )
+        record_event = mocker.spy(user, "record_event")
+
+        result = views.macaroon_delete(db_request)
+
+        assert result.status_code == views.HTTPSeeOther.code
+        assert macaroon_service.find_macaroon(macaroon_id) is None
+
+        recorded = record_event.call_args.kwargs["additional"]
+        if expected_reason:
+            assert recorded["reason"] == expected_reason
+        else:
+            assert "reason" not in recorded
+
+        if notified:
+            send_email.assert_called_once_with(
+                db_request, user, admin_initiated=True, reason=expected_reason
+            )
+        else:
+            send_email.assert_not_called()

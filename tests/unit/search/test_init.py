@@ -95,12 +95,15 @@ def test_opensearch(monkeypatch):
 
 
 def test_includeme(monkeypatch):
-    aws4auth_stub = pretend.stub()
-    aws4auth = pretend.call_recorder(lambda *a, **kw: aws4auth_stub)
+    signer_auth_stub = pretend.stub()
+    signer_auth = pretend.call_recorder(lambda *a, **kw: signer_auth_stub)
+    credentials_stub = pretend.stub()
+    credentials = pretend.call_recorder(lambda *a, **kw: credentials_stub)
     opensearch_client = pretend.stub()
     opensearch_client_init = pretend.call_recorder(lambda *a, **kw: opensearch_client)
 
-    monkeypatch.setattr(search.requests_aws4auth, "AWS4Auth", aws4auth)
+    monkeypatch.setattr(search, "RequestsAWSV4SignerAuth", signer_auth)
+    monkeypatch.setattr(search, "Credentials", credentials)
     monkeypatch.setattr(search.opensearchpy, "OpenSearch", opensearch_client_init)
 
     registry = {}
@@ -125,9 +128,10 @@ def test_includeme(monkeypatch):
 
     search.includeme(config)
 
-    assert aws4auth.calls == [
-        pretend.call("AAAAAAAAAAAA", "deadbeefdeadbeefdeadbeef", "us-east-2", "es")
+    assert credentials.calls == [
+        pretend.call(access_key="AAAAAAAAAAAA", secret_key="deadbeefdeadbeefdeadbeef")
     ]
+    assert signer_auth.calls == [pretend.call(credentials_stub, "us-east-2", "es")]
     assert len(opensearch_client_init.calls) == 1
     assert opensearch_client_init.calls[0].kwargs["hosts"] == ["https://some.url"]
     assert opensearch_client_init.calls[0].kwargs["timeout"] == 1
@@ -137,7 +141,7 @@ def test_includeme(monkeypatch):
         opensearch_client_init.calls[0].kwargs["connection_class"]
         == opensearchpy.connection.http_requests.RequestsHttpConnection
     )
-    assert opensearch_client_init.calls[0].kwargs["http_auth"] == aws4auth_stub
+    assert opensearch_client_init.calls[0].kwargs["http_auth"] == signer_auth_stub
 
     assert registry["opensearch.client"] == opensearch_client
     assert registry["opensearch.index"] == "some-index"

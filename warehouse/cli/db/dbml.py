@@ -87,53 +87,52 @@ class TableInfo(TypedDict):
 
 
 def generate_dbml_file(tables: Iterable[Table], _output: str | None) -> None:
-    file = click.open_file(_output, "w") if _output else click.open_file("-", "w")
+    with click.open_file(_output or "-", "w") as file:
+        tables_info = {}
+        for table in tables:
+            try:
+                tables_info[table.name] = extract_table_info(table)
+            except TypeError as exc:
+                click.echo(
+                    (
+                        f"{exc.args[0]} is not supported."
+                        "Please fill an issue on https://github.com/Kludex/dbml."
+                    ),
+                    file=file,
+                )
+                raise SystemExit(1)
 
-    tables_info = {}
-    for table in tables:
-        try:
-            tables_info[table.name] = extract_table_info(table)
-        except TypeError as exc:
+        for num, (table_name, info) in enumerate(tables_info.items()):
             click.echo(
-                (
-                    f"{exc.args[0]} is not supported."
-                    "Please fill an issue on https://github.com/Kludex/dbml."
-                ),
+                click.style("Table", fg="blue")
+                + f" {table_name} "
+                + click.style("{", fg="white", bold=True),
                 file=file,
             )
-            raise SystemExit(1)
+            for name, field in info["fields"].items():
+                attrs = get_attrs_from_field(field)
+                output = f"  {name} " + click.style(field["type"], fg="yellow")
+                if attrs:
+                    output += attrs
+                click.echo(output, file=file)
+            if info.get("comment"):
+                click.echo(f"  Note: {json.dumps(info['comment'])}", file=file)
+            click.echo(click.style("}", fg="white", bold=True), file=file)
 
-    for num, (table_name, info) in enumerate(tables_info.items()):
-        click.echo(
-            click.style("Table", fg="blue")
-            + f" {table_name} "
-            + click.style("{", fg="white", bold=True),
-            file=file,
-        )
-        for name, field in info["fields"].items():
-            attrs = get_attrs_from_field(field)
-            output = f"  {name} " + click.style(field["type"], fg="yellow")
-            if attrs:
-                output += attrs
-            click.echo(output, file=file)
-        if info.get("comment"):
-            click.echo(f"  Note: {json.dumps(info['comment'])}", file=file)
-        click.echo(click.style("}", fg="white", bold=True), file=file)
+            if info["relationships"]:
+                click.echo(file=file)
 
-        if info["relationships"]:
-            click.echo(file=file)
-
-        for relation in info["relationships"]:
-            # One to Many
-            click.echo(
-                click.style("Ref:", fg="blue")
-                + f" {relation['table_from']}.{relation['table_from_field']} "
-                + click.style(">", fg="green")
-                + f" {relation['table_to']}.{relation['table_to_field']}",
-                file=file,
-            )
-        if num < len(tables_info) - 1:
-            click.echo(file=file)
+            for relation in info["relationships"]:
+                # One to Many
+                click.echo(
+                    click.style("Ref:", fg="blue")
+                    + f" {relation['table_from']}.{relation['table_from_field']} "
+                    + click.style(">", fg="green")
+                    + f" {relation['table_to']}.{relation['table_to_field']}",
+                    file=file,
+                )
+            if num < len(tables_info) - 1:
+                click.echo(file=file)
 
 
 def extract_table_info(table: Table) -> TableInfo:

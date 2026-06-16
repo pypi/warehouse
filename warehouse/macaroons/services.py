@@ -7,6 +7,7 @@ import uuid
 import pymacaroons
 
 from pymacaroons.exceptions import MacaroonDeserializationException
+from sqlalchemy import select, update
 from sqlalchemy.orm import joinedload
 from zope.interface import implementer
 
@@ -133,7 +134,27 @@ class DatabaseMacaroonService:
 
         verified = caveats.verify(m, dm.key, request, context, permission)
         if verified:
-            dm.last_used = datetime.datetime.now()
+            # Update last_used without dirtying the ORM object. A dirty
+            # macaroon causes autoflush during Project.__acl__() evaluation,
+            # which can deadlock with the journal advisory lock under
+            # concurrent uploads. SKIP LOCKED ensures that if another
+            # transaction is already updating this row (same token used
+            # concurrently), we just skip — the other transaction will
+            # set last_used anyway.
+            # skipping is okay as last_used value is imprecise (python dt, not DB clock)
+            # and informational in the ui
+            self.db.execute(
+                update(Macaroon)
+                .where(
+                    Macaroon.id.in_(
+                        select(Macaroon.id)
+                        .where(Macaroon.id == dm.id)
+                        .with_for_update(skip_locked=True)
+                    )
+                )
+                .values(last_used=datetime.datetime.now())
+            )
+
             return True
 
         raise InvalidMacaroonError(verified.msg)
@@ -180,7 +201,7 @@ class DatabaseMacaroonService:
             caveats=scopes,
         )
         self.db.add(dm)
-        self.db.flush()  # flush db now so dm.id is available
+        self.db.flush()  # generate dm.id   # ast-grep-ignore: db-flush
 
         m = pymacaroons.Macaroon(
             location=location,
@@ -207,14 +228,12 @@ class DatabaseMacaroonService:
 
         Returns None if the user doesn't have a macaroon with this description.
         """
-        dm = (
+        return (
             self.db.query(Macaroon)
             .filter(Macaroon.description == description)
             .filter(Macaroon.user_id == user_id)
             .one_or_none()
         )
-
-        return dm
 
 
 def database_macaroon_factory(context, request):

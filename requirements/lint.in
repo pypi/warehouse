@@ -1,11 +1,9 @@
+ruff
+ast-grep-cli
+codespell
 djlint
-flake8
-flake8-pytest-style
-pep8-naming
-black==26.3.1
-isort>=5.13.1
-pyupgrade
 mypy
+tombi
 celery-types
 msgpack-types
 mypy-zope
@@ -20,7 +18,7 @@ types-passlib
 types-python-slugify
 types-pytz
 types-redis
-types-requests==2.32.4.20260107
+types-requests
 types-stripe
 types-WTForms
 types-WebOb

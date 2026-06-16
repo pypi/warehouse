@@ -87,13 +87,12 @@ class GitHubPublisherBase(wtforms.Form):
                         "Try again in a few minutes."
                     )
                 )
-            else:
-                sentry_sdk.capture_message(
-                    f"Unexpected error from GitHub user lookup: {response.content=}"
-                )
-                raise wtforms.validators.ValidationError(
-                    _("Unexpected error from GitHub. Try again.")
-                )
+            sentry_sdk.capture_message(
+                f"Unexpected error from GitHub user lookup: {response.content=}"
+            )
+            raise wtforms.validators.ValidationError(
+                _("Unexpected error from GitHub. Try again.")
+            )
         except requests.ConnectionError:
             sentry_sdk.capture_message(
                 "Connection error from GitHub user lookup API (possibly offline)"
@@ -133,9 +132,7 @@ class GitHubPublisherBase(wtforms.Form):
     def validate_workflow_filename(self, field: wtforms.Field) -> None:
         workflow_filename = field.data
 
-        if not (
-            workflow_filename.endswith(".yml") or workflow_filename.endswith(".yaml")
-        ):
+        if not (workflow_filename.endswith((".yml", ".yaml"))):
             raise wtforms.validators.ValidationError(
                 _("Workflow name must end with .yml or .yaml")
             )
@@ -184,7 +181,7 @@ class GitHubPublisherBase(wtforms.Form):
 
 
 class PendingGitHubPublisherForm(GitHubPublisherBase, PendingPublisherMixin):
-    __params__ = GitHubPublisherBase.__params__ + ["project_name"]
+    __params__ = [*GitHubPublisherBase.__params__, "project_name"]
 
     def __init__(self, *args, route_url, check_project_name, user, **kwargs):
         super().__init__(*args, **kwargs)

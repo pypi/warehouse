@@ -210,6 +210,14 @@ def includeme(config):
         traverse="/{username}",
     )
 
+    config.add_route(
+        "admin.user.files",
+        "/admin/users/{username}/files/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+    )
+
     # Macaroon related Admin pages
     config.add_route(
         "admin.macaroon.decode_token", "/admin/token/decode", domain=warehouse
@@ -272,6 +280,20 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "admin.project.release.delete",
+        "/admin/projects/{project_name}/release/{version}/delete/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}/{version}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.project.release.file.delete",
+        "/admin/projects/{project_name}/release/{version}/delete_file/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}/{version}",
+        domain=warehouse,
+    )
+    config.add_route(
         "admin.project.observations",
         "/admin/projects/{project_name}/observations/",
         factory="warehouse.packaging.models:ProjectFactory",
@@ -295,6 +317,20 @@ def includeme(config):
     config.add_route(
         "admin.project.release.add_release_observation",
         "/admin/projects/{project_name}/release/{version}/add_release_observation/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}/{version}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.project.release.quarantine",
+        "/admin/projects/{project_name}/release/{version}/quarantine/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}/{version}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.project.release.remove_from_quarantine",
+        "/admin/projects/{project_name}/release/{version}/remove_from_quarantine/",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{project_name}/{version}",
         domain=warehouse,
@@ -399,6 +435,11 @@ def includeme(config):
         "/admin/prohibited_project_names/release/",
         domain=warehouse,
     )
+    config.add_route(
+        "admin.prohibited_project_names.ultranorm_release",
+        "/admin/prohibited_project_names/ultranorm_release/",
+        domain=warehouse,
+    )
     # Prohibited Username related Admin pages
     config.add_route(
         "admin.prohibited_user_names.list",
@@ -479,6 +520,13 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "admin.malware_reports.project.verdict_remove_release",
+        "/admin/projects/{project_name}/malware_reports/remove_release/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
         "admin.malware_reports.detail",
         "/admin/malware_reports/{observation_id}/",
         domain=warehouse,
@@ -506,6 +554,38 @@ def includeme(config):
     config.add_route(
         "admin.malware_reports.detail.verdict_remove_malware",
         "/admin/malware_reports/{observation_id}/remove_malware/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.malware_reports.detail.verdict_quarantine_release",
+        "/admin/malware_reports/{observation_id}/quarantine_release/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.malware_reports.detail.verdict_remove_release",
+        "/admin/malware_reports/{observation_id}/remove_release/",
+        domain=warehouse,
+    )
+
+    # Vulnerability related Admin pages
+    config.add_route(
+        "admin.vulnerabilities.list",
+        "/admin/vulnerabilities/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.vulnerabilities.bulk_delete",
+        "/admin/vulnerabilities/bulk_delete/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.vulnerabilities.detail",
+        "/admin/vulnerabilities/{source}/{id}/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.vulnerabilities.detail.delete",
+        "/admin/vulnerabilities/{source}/{id}/delete/",
         domain=warehouse,
     )
 

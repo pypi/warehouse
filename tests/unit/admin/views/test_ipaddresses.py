@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-from datetime import datetime
+from datetime import UTC, datetime
 
 import pretend
 import pytest
@@ -96,7 +96,7 @@ class TestBanIpAddress:
         ip_address = IpAddressFactory.create(
             is_banned=True,
             ban_reason=BanReason.ADMINISTRATIVE,
-            ban_date=datetime.utcnow(),
+            ban_date=datetime.now(UTC),
         )
         db_request.matchdict["ip_address"] = str(ip_address.ip_address)
         db_request.route_path = pretend.stub(
@@ -180,7 +180,7 @@ class TestUnbanIpAddress:
         ip_address = IpAddressFactory.create(
             is_banned=True,
             ban_reason=BanReason.ADMINISTRATIVE,
-            ban_date=datetime.utcnow(),
+            ban_date=datetime.now(UTC),
         )
         db_request.matchdict["ip_address"] = str(ip_address.ip_address)
         db_request.route_path = pretend.stub(

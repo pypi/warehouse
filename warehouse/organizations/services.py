@@ -100,7 +100,7 @@ class DatabaseOrganizationService:
                 .one()
             )
         except NoResultFound:
-            return
+            return None
 
         return organization_id
 
@@ -176,7 +176,7 @@ class DatabaseOrganizationService:
                 "redact_ip": True,
             },
         )
-        self.db.flush()  # flush the db now so organization.id is available
+        self.db.flush()  # generate organization.id # ast-grep-ignore: db-flush
 
         organization_application.status = OrganizationApplicationStatus.Approved
         organization_application.organization = organization
@@ -351,7 +351,7 @@ class DatabaseOrganizationService:
                 .one()
             )
         except NoResultFound:
-            return
+            return None
 
         return organization_role
 
@@ -414,7 +414,7 @@ class DatabaseOrganizationService:
                 .one()
             )
         except NoResultFound:
-            return
+            return None
 
         return organization_invite
 
@@ -517,7 +517,7 @@ class DatabaseOrganizationService:
         organization.name = name
 
         try:
-            self.db.flush()  # flush db now so organization.normalized_name available
+            self.db.flush()  # organization.normalized_name  # ast-grep-ignore: db-flush
             self.add_catalog_entry(organization_id)
         except UniqueViolation:
             raise ValueError(f'Organization name "{name}" has been used')
@@ -562,7 +562,7 @@ class DatabaseOrganizationService:
         )
 
         self.db.add(organization_project)
-        self.db.flush()  # Flush db so we can address the organization related object
+        self.db.flush()  # generate server ids  # ast-grep-ignore: db-flush
 
         # Mark Organization as dirty, so purges will happen
         orm.attributes.flag_dirty(organization_project.organization)
@@ -571,10 +571,37 @@ class DatabaseOrganizationService:
 
     def delete_organization_project(self, organization_id, project_id):
         """
-        Delete association between specified organization and project
+        Delete association between specified organization and project,
+        including team project roles and OIDC publisher associations
+        that were scoped to the departing organization.
+
         """
         organization_project = self.get_organization_project(
             organization_id, project_id
+        )
+
+        # Delete team project roles for teams belonging to the departing org.
+        self.db.execute(
+            delete(TeamProjectRole).where(
+                TeamProjectRole.project_id == project_id,
+                TeamProjectRole.team_id.in_(
+                    select(Team.id).where(Team.organization_id == organization_id)
+                ),
+            )
+        )
+
+        # Delete OIDC publisher associations for this project.
+        # TODO: Import here to avoid circular import:
+        #  organizations.services -> oidc.models._core -> packaging.models
+        #    -> organizations.models -> organizations.services
+        #  Figure out circular imports and move to top of module,
+        #  or better, cascade https://github.com/pypi/warehouse/issues/19748
+        from warehouse.oidc.models._core import OIDCPublisherProjectAssociation  # noqa: PLC0415,I001
+
+        self.db.execute(
+            delete(OIDCPublisherProjectAssociation).where(
+                OIDCPublisherProjectAssociation.project_id == project_id,
+            )
         )
 
         self.db.delete(organization_project)
@@ -696,7 +723,7 @@ class DatabaseOrganizationService:
                 .one()
             )
         except NoResultFound:
-            return
+            return None
 
         return team_id
 

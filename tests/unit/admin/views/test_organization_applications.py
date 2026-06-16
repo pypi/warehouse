@@ -22,12 +22,11 @@ def _organization_application_routes(
 ):
     if route_name == "admin.organization_application.detail":
         return f"/admin/organization_applications/{organization_application_id}/"
-    elif route_name == "admin.organization.detail":
+    if route_name == "admin.organization.detail":
         return f"/admin/organizations/{organization_id}/"
-    elif route_name == "admin.dashboard":
+    if route_name == "admin.dashboard":
         return "/admin/"
-    else:
-        pytest.fail(f"No dummy route found for {route_name}")
+    pytest.fail(f"No dummy route found for {route_name}")
 
 
 class TestOrganizationApplicationList:

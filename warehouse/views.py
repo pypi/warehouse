@@ -6,7 +6,7 @@ import collections
 import re
 import typing
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import opensearchpy
@@ -58,6 +58,7 @@ from warehouse.packaging.models import (
     ReleaseClassifiers,
 )
 from warehouse.rate_limiting import IRateLimiter
+from warehouse.rate_limiting.headers import record_rate_limit
 from warehouse.search.queries import SEARCH_FILTER_ORDER, get_opensearch_query
 from warehouse.utils.cors import _CORS_HEADERS
 from warehouse.utils.http import is_safe_url
@@ -274,7 +275,7 @@ def funding_manifest_urls(request):
 )
 def securitytxt(request):
     # Calculate expiration date (1 year from now)
-    expires = datetime.now(timezone.utc) + timedelta(days=365)
+    expires = datetime.now(UTC) + timedelta(days=365)
     expires_str = expires.strftime("%Y-%m-%dT%H:%M:%S.000Z")
 
     # Build dynamic URLs
@@ -405,6 +406,13 @@ def search(request):
     metrics = request.find_service(IMetricsService, context=None)
 
     ratelimiter.hit(request.remote_addr)
+    record_rate_limit(
+        request,
+        "search",
+        ratelimiter,
+        identifiers=(request.remote_addr,),
+        partition_key="ip",
+    )
     if not ratelimiter.test(request.remote_addr):
         metrics.increment("warehouse.search.ratelimiter.exceeded")
         message = (

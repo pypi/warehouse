@@ -8,14 +8,17 @@ from zope.interface import implementer
 
 from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.utils import UserContext
-from warehouse.authnz import Permissions
 from warehouse.cache.http import add_vary_callback
 from warehouse.errors import WarehouseDenied
 from warehouse.macaroons import InvalidMacaroonError
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.utils import PublisherTokenContext
-from warehouse.utils.security_policy import AuthenticationMethod, principals_for
+from warehouse.utils.security_policy import (
+    AuthenticationMethod,
+    permission_allowed_by_authentication_method,
+    principals_for,
+)
 
 
 def _extract_basic_macaroon(auth):
@@ -37,9 +40,7 @@ def _extract_basic_macaroon(auth):
         return None
 
     # Strip leading/trailing whitespace characters from the macaroon
-    auth = auth.strip()
-
-    return auth
+    return auth.strip()
 
 
 def _extract_http_macaroon(request):
@@ -66,7 +67,7 @@ def _extract_http_macaroon(request):
 
     if auth_method == "basic":
         return _extract_basic_macaroon(auth)
-    elif auth_method in ["token", "bearer"]:
+    if auth_method in ["token", "bearer"]:
         return auth
 
     return None
@@ -140,20 +141,9 @@ class MacaroonSecurityPolicy:
         # can't call this function without an identity that came from a macaroon
         assert isinstance(macaroon, str), "no valid macaroon"
 
-        # Check to make sure that the permission we're attempting to permit is one that
-        # is allowed to be used for macaroons.
-        # TODO: This should be moved out of there and into the macaroons themselves, it
-        #       doesn't really make a lot of sense here and it makes things more
-        #       complicated if we want to allow the use of macaroons for actions other
-        #       than uploading.
-        if permission not in [
-            Permissions.ProjectsUpload,
-            # TODO: Adding API-specific routes here is not sustainable. However,
-            #  removing this guard would allow Macaroons to be used for Session-based
-            #  operations, bypassing any 2FA requirements.
-            Permissions.APIEcho,
-            Permissions.APIObservationsAdd,
-        ]:
+        if not permission_allowed_by_authentication_method(
+            permission, AuthenticationMethod.MACAROON
+        ):
             return WarehouseDenied(
                 f"API tokens are not valid for permission: {permission}!",
                 reason="invalid_permission",

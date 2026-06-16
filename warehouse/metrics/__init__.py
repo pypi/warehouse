@@ -9,7 +9,7 @@ from warehouse.metrics.interfaces import IMetricsService
 from warehouse.metrics.services import DataDogMetrics, NullMetrics
 from warehouse.metrics.views import timing_view
 
-__all__ = ["IMetricsService", "NullMetrics", "DataDogMetrics", "includeme"]
+__all__ = ["DataDogMetrics", "IMetricsService", "NullMetrics", "includeme"]
 
 
 def _metrics(request: Request) -> IMetricsService:

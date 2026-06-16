@@ -1,9 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import contextlib
 import os
 import os.path
 import re
 import time
+import types
 import xmlrpc.client
 
 from collections import defaultdict
@@ -13,6 +15,7 @@ from unittest import mock
 
 import alembic.command
 import click.testing
+import email_validator
 import pretend
 import pyramid.testing
 import pytest
@@ -53,6 +56,7 @@ from warehouse.helpdesk.interfaces import IAdminNotificationService, IHelpDeskSe
 from warehouse.macaroons import services as macaroon_services
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.metrics import IMetricsService
+from warehouse.metrics.services import NullMetrics
 from warehouse.oidc import services as oidc_services
 from warehouse.oidc.interfaces import IOIDCPublisherService
 from warehouse.oidc.utils import ACTIVESTATE_OIDC_ISSUER_URL, GITHUB_OIDC_ISSUER_URL
@@ -75,49 +79,83 @@ _HERE = Path(__file__).parent.resolve()
 _FIXTURES = _HERE / "_fixtures"
 
 
-@contextmanager
-def metrics_timing(*args, **kwargs):
-    yield None
+class _CallRecorder:
+    """Transitional recorder for the ``metrics``, ``pyramid_request``, and
+    ``send_email`` fixtures.
 
+    Wraps a callable -- a real bound method (``metrics``) or a lambda stand-in
+    (``request.task`` / ``request.log`` / ``send_email``) -- so a single object
+    satisfies BOTH the legacy ``pretend``-style
+    ``obj.method.calls == [pretend.call(...)]`` assertions and the modern
+    ``unittest.mock`` API (``assert_called_once_with`` / ``assert_has_calls`` /
+    ``assert_not_called`` / ``call_args_list``). This lets the pretend removal
+    proceed file-by-file rather than as one big-bang sweep; delete it once no
+    ``.calls`` assertions against these fixtures remain.
+    """
 
-def _event(
-    title,
-    text,
-    alert_type=None,
-    aggregation_key=None,
-    source_type_name=None,
-    date_happened=None,
-    priority=None,
-    tags=None,
-    hostname=None,
-):
-    return None  # pragma: no cover
+    def __init__(self, method):
+        self._mock = mock.MagicMock(wraps=method)
+
+    def __call__(self, *args, **kwargs):
+        return self._mock(*args, **kwargs)
+
+    @property
+    def calls(self):
+        return [pretend.call(*c.args, **c.kwargs) for c in self._mock.call_args_list]
+
+    @calls.setter
+    def calls(self, value):
+        # Support the legacy ``recorder.calls = []`` reset idiom.
+        assert value == [], "metrics recorder shim only supports resetting to []"
+        self._mock.reset_mock()
+
+    def __getattr__(self, name):
+        return getattr(self._mock, name)
 
 
 @pytest.fixture
 def metrics():
+    """Real ``NullMetrics`` with each method wrapped to record calls.
+
+    Replaces the former ``pretend.stub`` metrics fake. Because it is the real
+    ``IMetricsService`` implementation, ``with metrics.timed(...)`` returns a
+    genuine context manager and method signatures are enforced. The
+    ``_CallRecorder`` wrapper keeps the legacy ``.calls`` assertion API working
+    during the migration to ``assert_called_*``.
     """
-    A good-enough fake metrics fixture.
+    service = NullMetrics()
+    for name in (
+        "gauge",
+        "increment",
+        "decrement",
+        "histogram",
+        "distribution",
+        "timing",
+        "timed",
+        "set",
+        "event",
+        "service_check",
+    ):
+        setattr(service, name, _CallRecorder(getattr(service, name)))
+    return service
+
+
+@pytest.fixture
+def no_email_deliverability_check(monkeypatch):
     """
-    return pretend.stub(
-        event=pretend.call_recorder(lambda *args, **kwargs: _event(*args, **kwargs)),
-        gauge=pretend.call_recorder(
-            lambda metric, value, tags=None, sample_rate=1: None
-        ),
-        increment=pretend.call_recorder(
-            lambda metric, value=1, tags=None, sample_rate=1: None
-        ),
-        histogram=pretend.call_recorder(
-            lambda metric, value, tags=None, sample_rate=1: None
-        ),
-        timing=pretend.call_recorder(
-            lambda metric, value, tags=None, sample_rate=1: None
-        ),
-        timed=pretend.call_recorder(
-            lambda metric=None, tags=None, sample_rate=1, use_ms=None: metrics_timing(
-                metric=metric, tags=tags, sample_rate=sample_rate, use_ms=use_ms
-            )
-        ),
+    Prevents unit tests from depending on live email deliverability DNS lookups.
+    """
+    original_validate_email = email_validator.validate_email
+
+    def validate_email_without_deliverability(
+        email, check_deliverability=True, *args, **kwargs
+    ):
+        return original_validate_email(
+            email, *args, check_deliverability=False, **kwargs
+        )
+
+    monkeypatch.setattr(
+        email_validator, "validate_email", validate_email_without_deliverability
     )
 
 
@@ -125,7 +163,8 @@ def metrics():
 def jinja():
     dir_name = os.path.join(os.path.dirname(warehouse.__file__))
 
-    env = Environment(
+    return Environment(
+        autoescape=True,
         loader=FileSystemLoader(dir_name),
         extensions=[
             "jinja2.ext.i18n",
@@ -133,8 +172,6 @@ def jinja():
         ],
         cache_size=0,
     )
-
-    return env
 
 
 class _Services:
@@ -198,6 +235,10 @@ def pyramid_services(
     services.register_service(ratelimit_service, IRateLimiter, name="email.add")
     services.register_service(ratelimit_service, IRateLimiter, name="email.verify")
     services.register_service(
+        ratelimit_service, IRateLimiter, name="project.create.user"
+    )
+    services.register_service(ratelimit_service, IRateLimiter, name="project.create.ip")
+    services.register_service(
         github_oauth_provider_service, IOAuthProviderService, name="github"
     )
 
@@ -211,7 +252,7 @@ def pyramid_request(pyramid_services, jinja):
     dummy_request.find_service = pyramid_services.find_service
     dummy_request.remote_addr = REMOTE_ADDR
     dummy_request.remote_addr_hashed = REMOTE_ADDR_HASHED
-    dummy_request.authentication_method = pretend.stub()
+    dummy_request.authentication_method = None
     dummy_request._unauthenticated_userid = None
     dummy_request.user = None
     dummy_request.oidc_publisher = None
@@ -220,17 +261,16 @@ def pyramid_request(pyramid_services, jinja):
 
     dummy_request.registry.registerUtility(jinja, IJinja2Environment, name=".jinja2")
 
-    dummy_request._task_stub = pretend.stub(
-        delay=pretend.call_recorder(lambda *a, **kw: None)
+    dummy_request._task_stub = types.SimpleNamespace(
+        delay=_CallRecorder(lambda *a, **kw: None)
     )
-    dummy_request.task = pretend.call_recorder(
-        lambda *a, **kw: dummy_request._task_stub
-    )
-    dummy_request.log = pretend.stub(
-        bind=pretend.call_recorder(lambda *args, **kwargs: dummy_request.log),
-        info=pretend.call_recorder(lambda *args, **kwargs: None),
-        warning=pretend.call_recorder(lambda *args, **kwargs: None),
-        error=pretend.call_recorder(lambda *args, **kwargs: None),
+    dummy_request.task = _CallRecorder(lambda *a, **kw: dummy_request._task_stub)
+    dummy_request.log = types.SimpleNamespace(
+        bind=_CallRecorder(lambda *args, **kwargs: dummy_request.log),
+        info=_CallRecorder(lambda *args, **kwargs: None),
+        warning=_CallRecorder(lambda *args, **kwargs: None),
+        error=_CallRecorder(lambda *args, **kwargs: None),
+        exception=_CallRecorder(lambda *args, **kwargs: None),
     )
 
     def localize(message, **kwargs):
@@ -269,7 +309,7 @@ def cli():
 def database(request, worker_id):
     config = get_config(request)
     pg_host = config.host
-    pg_port = config.port or os.environ.get("PGPORT", 5432)
+    pg_port = config.port or os.environ.get("PGPORT", "5432")
     pg_user = config.user
     pg_db = f"tests-{worker_id}"
     pg_version = 17
@@ -283,13 +323,10 @@ def database(request, worker_id):
     )
 
     # In case the database already exists, possibly due to an aborted test run,
-    # attempt to drop it before creating
-    try:
+    # attempt to drop it before creating, we can safely ignore this exception as that
+    # means there was no leftover database
+    with contextlib.suppress(InvalidCatalogName):
         janitor.drop()
-    except InvalidCatalogName:
-        # We can safely ignore this exception as that means there was
-        # no leftover database
-        pass
 
     # Create our Database.
     janitor.init()
@@ -362,10 +399,12 @@ def get_app_config(database, nondefaults=None):
     if nondefaults:
         settings.update(nondefaults)
 
-    with mock.patch.object(config, "ManifestCacheBuster", MockManifestCacheBuster):
-        with mock.patch("warehouse.admin.ManifestCacheBuster", MockManifestCacheBuster):
-            with mock.patch.object(static, "whitenoise_add_manifest"):
-                cfg = config.configure(settings=settings)
+    with (
+        mock.patch.object(config, "ManifestCacheBuster", MockManifestCacheBuster),
+        mock.patch("warehouse.admin.ManifestCacheBuster", MockManifestCacheBuster),
+        mock.patch.object(static, "whitenoise_add_manifest"),
+    ):
+        cfg = config.configure(settings=settings)
 
     # Run migrations:
     # This might harmlessly run multiple times if there are several app config fixtures
@@ -455,28 +494,26 @@ def project_service(db_session, metrics, ratelimiters=None):
 
 
 @pytest.fixture
-def github_oidc_service(db_session):
-    # We pretend to be a verifier for GitHub OIDC JWTs, for the purposes of testing.
+def github_oidc_service(db_session, metrics):
     return oidc_services.NullOIDCPublisherService(
         db_session,
-        pretend.stub(),
+        "github",
         GITHUB_OIDC_ISSUER_URL,
-        pretend.stub(),
-        pretend.stub(),
-        pretend.stub(),
+        "pypi",
+        "redis://localhost:0/",
+        metrics,
     )
 
 
 @pytest.fixture
-def activestate_oidc_service(db_session):
-    # We pretend to be a verifier for GitHub OIDC JWTs, for the purposes of testing.
+def activestate_oidc_service(db_session, metrics):
     return oidc_services.NullOIDCPublisherService(
         db_session,
-        pretend.stub(),
+        "activestate",
         ACTIVESTATE_OIDC_ISSUER_URL,
-        pretend.stub(),
-        pretend.stub(),
-        pretend.stub(),
+        "pypi",
+        "redis://localhost:0/",
+        metrics,
     )
 
 
@@ -485,7 +522,7 @@ def dummy_attestation():
     return Attestation(
         version=1,
         verification_material=VerificationMaterial(
-            certificate="somebase64string", transparency_entries=[dict()]
+            certificate="somebase64string", transparency_entries=[{}]
         ),
         envelope=Envelope(
             statement="somebase64string",
@@ -569,7 +606,10 @@ def domain_status_service(mocker):
 @pytest.fixture
 def ratelimit_service(mocker):
     service = DummyRateLimiter()
+    mocker.spy(service, "test")
+    mocker.spy(service, "hit")
     mocker.spy(service, "clear")
+    mocker.spy(service, "resets_in")
     return service
 
 
@@ -667,12 +707,10 @@ def _enable_organizations(db_request):
 
 @pytest.fixture
 def send_email(pyramid_request, monkeypatch):
-    send_email_stub = pretend.stub(
-        delay=pretend.call_recorder(lambda *args, **kwargs: None)
+    send_email_stub = types.SimpleNamespace(
+        delay=_CallRecorder(lambda *args, **kwargs: None)
     )
-    pyramid_request.task = pretend.call_recorder(
-        lambda *args, **kwargs: send_email_stub
-    )
+    pyramid_request.task = _CallRecorder(lambda *args, **kwargs: send_email_stub)
     pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
     monkeypatch.setattr(warehouse.email, "send_email", send_email_stub)
     return send_email_stub
@@ -725,7 +763,7 @@ class _TestApp(_webtest.TestApp):
 
 @pytest.fixture
 def tm():
-    # Create a new transaction manager for dependant test cases
+    # Create a new transaction manager for dependent test cases
     tm = transaction.TransactionManager(explicit=True)
     tm.begin()
 
@@ -781,7 +819,7 @@ class _MockRedis:
         self.cache = cache
 
         if not self.cache:  # pragma: no cover
-            self.cache = dict()
+            self.cache = {}
 
     def __enter__(self):
         return self
@@ -812,7 +850,7 @@ class _MockRedis:
 
     def hset(self, hash_, key, value, *_args, **_kwargs):
         if hash_ not in self.cache:  # pragma: no cover
-            self.cache[hash_] = dict()
+            self.cache[hash_] = {}
         self.cache[hash_][key] = value
 
     def get(self, key):
@@ -826,16 +864,18 @@ class _MockRedis:
 
     def scan_iter(self, search, count):
         del count  # unused
-        return [key for key in self.cache.keys() if re.search(search, key)]
+        return [key for key in self.cache if re.search(search, key)]
 
     def set(self, key, value=None, *_args, **_kwargs):
         if _kwargs.get("nx", False) and key in self.cache:
             return None
+        # codespell:ignore-begin 'exat'
         # Real Redis immediately evicts a key when exat is in the past.
         exat = _kwargs.get("exat")
         if exat is not None and exat <= time.time():
             self.cache.pop(key, None)
             return True
+        # codespell:ignore-end
         self.cache[key] = value
         return True
 

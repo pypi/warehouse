@@ -288,7 +288,7 @@ class TestFastlyCache:
 
         class MockForcedIPHTTPSAdapter:
             def __init__(self, *a, **kw):
-                return forced_ip_https_adapter(*a, **kw)
+                forced_ip_https_adapter(*a, **kw)
 
         monkeypatch.setattr(
             forcediphttpsadapter.adapters,
@@ -350,7 +350,7 @@ class TestFastlyCache:
 
         class MockForcedIPHTTPSAdapter:
             def __init__(self, *a, **kw):
-                return forced_ip_https_adapter(*a, **kw)
+                forced_ip_https_adapter(*a, **kw)
 
         monkeypatch.setattr(
             forcediphttpsadapter.adapters,
@@ -655,5 +655,5 @@ class TestNullFastlyCache:
 Origin cache purge issued:
 * URL: 'https://api.example.com/service/the service id/purge/one'
 * Headers: {'Accept': 'application/json', 'Fastly-Key': 'the api key', 'Fastly-Soft-Purge': '1'}
-"""  # noqa
+"""  # noqa: E501
         assert captured.out.strip() == expected.strip()

@@ -205,7 +205,7 @@ class EmailStatus:
         # If the email was missing previously, then we don't want subsequent
         # events to re-add it, so we'll just skip them.
         if self._email_message.missing:
-            return
+            return None
 
         session = orm_session_from_obj(self._email_message)
         email = (
@@ -238,7 +238,7 @@ class EmailMessage(db.Model):
     missing: Mapped[bool_false]
 
     # Relationships!
-    events: Mapped[list["Event"]] = orm.relationship(
+    events: Mapped[list[Event]] = orm.relationship(
         back_populates="email",
         cascade="all, delete-orphan",
         lazy=False,

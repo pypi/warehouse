@@ -55,13 +55,13 @@ class GeoIPInfo:
         """
         if self.city and self.region and self.country_code:
             return f"{self._city}, {self._region}, {self._country_code}"
-        elif self.city and self.region:
+        if self.city and self.region:
             return f"{self._city}, {self._region}"
-        elif self.city and self.country_code:
+        if self.city and self.country_code:
             return f"{self._city}, {self._country_code}"
-        elif self.region:
+        if self.region:
             return f"{self._region}, {self._country_code}"
-        elif self.country_name:
+        if self.country_name:
             return self.country_name
         return ""
 
@@ -77,7 +77,7 @@ class UserAgentInfo:
 
     def display(self) -> str:
         """
-        Construct a resonable user-agent description,
+        Construct a reasonable user-agent description,
         depending on optional values
         """
 
@@ -88,25 +88,22 @@ class UserAgentInfo:
                 and self.user_agent != "Other"
             ):
                 return f"{self.user_agent} ({self.os} on {self.device})"
-            elif self.device != "Other" and self.user_agent != "Other":
+            if self.device != "Other" and self.user_agent != "Other":
                 return f"{self.user_agent} ({self.device})"
-            elif self.os != "Other" and self.user_agent != "Other":
+            if self.os != "Other" and self.user_agent != "Other":
                 return f"{self.user_agent} ({self.os})"
-            elif self.user_agent != "Other":
+            if self.user_agent != "Other":
                 return f"{self.user_agent}"
-            else:
-                return "Unknown Browser"
-        elif self.installer is not None:
+            return "Unknown Browser"
+        if self.installer is not None:
             if self.implementation and self.system:
-                return f"{self.installer} ({self.implementation} " f"on {self.system})"
-            elif self.implementation:
+                return f"{self.installer} ({self.implementation} on {self.system})"
+            if self.implementation:
                 return f"{self.installer} ({self.implementation})"
-            elif self.system:
+            if self.system:
                 return f"{self.installer} ({self.system})"
-            else:
-                return self.installer
-        else:
-            return "Unknown User-Agent"
+            return self.installer
+        return "Unknown User-Agent"
 
 
 class Event:
@@ -118,17 +115,30 @@ class Event:
         # Attributes defined on concrete subclasses created by HasEvents.
         # Declared here for type checking when querying via polymorphic union.
         source_id: Mapped[UUID]
-        source: HasEvents
+        source: Mapped[HasEvents]
+
+        # `Event` is an unmapped base - the concrete per-parent subclasses mix
+        # in `db.Model`, which supplies the column-accepting constructor. Declare
+        # it here so `cls.Event(...)` in `record_event` type-checks against the
+        # kwargs that method actually passes.
+        def __init__(
+            self,
+            *,
+            source: HasEvents,
+            tag: str,
+            ip_address: IpAddress,
+            additional: dict | None = None,
+        ) -> None: ...
 
     @declared_attr
-    def ip_address_id(cls):  # noqa: N805
+    def ip_address_id(cls):
         return mapped_column(
             ForeignKey("ip_addresses.id", onupdate="CASCADE", ondelete="CASCADE"),
             nullable=True,
         )
 
     @declared_attr
-    def ip_address(cls):  # noqa: N805
+    def ip_address(cls):
         return orm.relationship(IpAddress)
 
     @property
@@ -161,27 +171,39 @@ class Event:
         return "No User-Agent"
 
 
+# Reference to the base Event type for use inside HasEvents, whose `Event` class
+# attribute (the per-parent concrete subclass) shadows the `Event` name in
+# annotations within that class body.
+_EventBase = Event
+
+
 class HasEvents:
     if typing.TYPE_CHECKING:
-        # Dynamically created Event subclass; typed as Any because:
-        # - `type[Event]` breaks instantiation
-        # - Needs to support both `cls.Event(...)` and `cls.Event.column` access
-        Event: typing.Any
+        # `events` (below) builds a concrete Event subclass per parent model at
+        # mapper-configuration time and stores it here, so the runtime value is
+        # e.g. `ProjectEvent`. Declared for the type checker as the base type so
+        # `Project.Event` resolves and stays constrained to an Event subclass.
+        Event: typing.ClassVar[type[_EventBase]]
 
+    # `cls` is the mapped subclass at mapper-configuration time, not an
+    # instance. It's typed `Any` (not `type[Any]`) so type checkers don't treat
+    # it as an instance-method `self` and reject the class-level attribute reads
+    # and assignment below. Public types stay precise via the declarations above.
+    #
+    # No return annotation: `events` is a `lazy="dynamic"` relationship, but
+    # `declared_attr` only accepts a `Mapped[...]` return (not `DynamicMapped`),
+    # and `Mapped[...]` would wrongly model it as a scalar/eager collection.
     @declared_attr
-    def events(cls: type[typing.Any]):  # noqa: N805
-        # Returns AppenderQuery at runtime (`lazy="dynamic"`)
-        # No return type annotation: `Mapped[]` implies `uselist=False`,
-        # `typing.Any` triggers SQLAlchemy error
-        cls.Event = type(
+    def events(cls: typing.Any):
+        event_cls = type(
             f"{cls.__name__}Event",
             (Event, db.Model),
-            dict(
-                __tablename__=f"{cls.__name__.lower()}_events",
-                __table_args__=(
+            {
+                "__tablename__": f"{cls.__name__.lower()}_events",
+                "__table_args__": (
                     Index(f"ix_{cls.__name__.lower()}_events_source_id", "source_id"),
                 ),
-                source_id=mapped_column(
+                "source_id": mapped_column(
                     ForeignKey(
                         f"{cls.__tablename__}.id",
                         deferrable=True,
@@ -190,13 +212,16 @@ class HasEvents:
                     ),
                     nullable=False,
                 ),
-                source=orm.relationship(
+                "source": orm.relationship(
                     cls,
                     back_populates="events",
                     order_by=f"desc({cls.__name__}Event.time)",
                 ),
-            ),
+            },
         )
+        # `type(...)` is statically just `type`; the built class really is an
+        # Event subclass, so assert that to match the ClassVar above.
+        cls.Event = typing.cast(type[_EventBase], event_cls)
         return orm.relationship(
             cls.Event,
             cascade="all, delete-orphan",
@@ -229,11 +254,9 @@ class HasEvents:
                     additional["user_agent_info"] = {
                         "installer": "Browser",
                         # See https://github.com/pypi/linehaul-cloud-function/issues/203
-                        "device": parsed_user_agent["device"]["family"],  # noqa: E501
+                        "device": parsed_user_agent["device"]["family"],
                         "os": parsed_user_agent["os"]["family"],
-                        "user_agent": parsed_user_agent["user_agent"][
-                            "family"
-                        ],  # noqa: E501
+                        "user_agent": parsed_user_agent["user_agent"]["family"],
                     }
                 else:
                     additional = additional or {}

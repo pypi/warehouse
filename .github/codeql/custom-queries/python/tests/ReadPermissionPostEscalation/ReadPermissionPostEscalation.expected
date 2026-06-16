@@ -1,0 +1,3 @@
+| test.py:25:2:29:1 | view_config() | View 'positive_a_require_methods_false_with_body_check' uses read-only permission FooRead with require_methods=False but handles POST requests. POST operations may need a write permission. |
+| test.py:38:2:42:1 | view_config() | View 'positive_b1_require_methods_post_only' is POST-only but uses read-only permission FooRead. POST-only views should use a write/manage permission. |
+| test.py:49:2:53:1 | view_config() | View 'positive_b2_request_method_post' is POST-only but uses read-only permission FooRead. POST-only views should use a write/manage permission. |

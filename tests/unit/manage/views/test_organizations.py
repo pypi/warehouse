@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import datetime
+import re
 import uuid
 
 import pretend
@@ -37,7 +38,7 @@ from warehouse.accounts.interfaces import TokenExpired
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.authnz import Permissions
 from warehouse.manage import views
-from warehouse.manage.views import organizations as org_views
+from warehouse.manage.views import organizations as org_views, view_helpers
 from warehouse.oidc.models import PendingGitHubPublisher
 from warehouse.organizations import IOrganizationService
 from warehouse.organizations.models import (
@@ -344,7 +345,9 @@ class TestManageOrganizationApplication:
             _organization_application, db_request
         )
 
-        with pytest.raises(HTTPBadRequest, match="Invalid information request."):
+        with pytest.raises(
+            HTTPBadRequest, match=re.escape("Invalid information request.")
+        ):
             view.manage_organization_application_submit()
 
 
@@ -1095,7 +1098,7 @@ class TestManageOrganizationSettings:
 
     #    assert isinstance(result, HTTPSeeOther)
     #    assert result.headers["Location"] == (
-    #        f"/manage/organization/{organization.normalized_name}/settings/#modal-close"
+    #        f"/manage/organization/{organization.normalized_name}/settings/#modal-close"  # noqa: E501
     #    )
     #    assert organization_service.rename_organization.calls == [
     #         pretend.call(organization.id, "FooBar")
@@ -1826,7 +1829,7 @@ class TestManageOrganizationProjects:
             lambda req, user, **k: None
         )
         monkeypatch.setattr(
-            org_views,
+            view_helpers,
             "send_organization_project_added_email",
             send_organization_project_added_email,
         )
@@ -1891,7 +1894,7 @@ class TestManageOrganizationProjects:
             lambda req, user, **k: None
         )
         monkeypatch.setattr(
-            org_views,
+            view_helpers,
             "send_organization_project_added_email",
             send_organization_project_added_email,
         )
@@ -1987,7 +1990,7 @@ class TestManageOrganizationProjects:
             lambda req, user, **k: None
         )
         monkeypatch.setattr(
-            org_views,
+            view_helpers,
             "send_organization_project_added_email",
             send_organization_project_added_email,
         )

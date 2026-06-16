@@ -23,18 +23,18 @@ from warehouse.oidc.models.google import (
 )
 
 __all__ = [
-    "OIDCPublisher",
-    "PendingOIDCPublisher",
-    "PendingGitHubPublisher",
-    "PendingGitLabPublisher",
-    "PendingGooglePublisher",
-    "PendingActiveStatePublisher",
-    "GitHubPublisher",
-    "GitLabPublisher",
-    "GooglePublisher",
-    "ActiveStatePublisher",
     "ACTIVESTATE_OIDC_ISSUER_URL",
     "GITHUB_OIDC_ISSUER_URL",
     "GITLAB_OIDC_ISSUER_URL",
     "GOOGLE_OIDC_ISSUER_URL",
+    "ActiveStatePublisher",
+    "GitHubPublisher",
+    "GitLabPublisher",
+    "GooglePublisher",
+    "OIDCPublisher",
+    "PendingActiveStatePublisher",
+    "PendingGitHubPublisher",
+    "PendingGitLabPublisher",
+    "PendingGooglePublisher",
+    "PendingOIDCPublisher",
 ]

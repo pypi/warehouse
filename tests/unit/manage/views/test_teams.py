@@ -168,10 +168,7 @@ class TestManageTeamSettings:
 
         assert db_request.session.flash.calls == [
             pretend.call(
-                (
-                    "Could not delete team - "
-                    "'TEAM NAME' is not the same as 'Team Name'"
-                ),
+                ("Could not delete team - 'TEAM NAME' is not the same as 'Team Name'"),
                 queue="error",
             )
         ]

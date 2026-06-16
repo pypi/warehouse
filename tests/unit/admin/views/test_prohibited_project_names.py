@@ -11,9 +11,11 @@ from packaging.utils import canonicalize_name
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 
 from warehouse.admin.views import prohibited_project_names as views
+from warehouse.organizations.models import OrganizationProject
 from warehouse.packaging.models import ProhibitedProjectName, Project, Role
 
 from ....common.db.accounts import UserFactory
+from ....common.db.organizations import OrganizationFactory, OrganizationRoleFactory
 from ....common.db.packaging import (
     FileFactory,
     ProhibitedProjectFactory,
@@ -429,40 +431,34 @@ class TestRemoveProhibitedProjectName:
 
 
 class TestReleaseProhibitedProjectName:
-    def test_no_prohibited_project_name(self, db_request):
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
+    @pytest.fixture
+    def db_request(self, db_request):
+        """Inline test helper with common paths for these tests"""
+        db_request.route_path = lambda route_name, **kw: (
+            f"/admin/projects/{kw['project_name']}/"
+            if "project_name" in kw
+            else "/admin/prohibited_project_names/"
         )
         db_request.current_route_path = lambda: "/admin/prohibited_project_names/"
+        return db_request
 
+    def test_no_prohibited_project_name(self, db_request):
         result = views.release_prohibited_project_name(db_request)
+
         assert isinstance(result, HTTPSeeOther)
-        assert db_request.session.flash.calls == [
-            pretend.call("Provide a project name", queue="error")
-        ]
+        assert db_request.session.pop_flash("error") == ["Provide a project name"]
 
     def test_prohibited_project_name_does_not_exist(self, db_request):
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        db_request.current_route_path = lambda: "/admin/prohibited_project_names/"
-
         db_request.POST["project_name"] = "wu"
 
         result = views.release_prohibited_project_name(db_request)
+
         assert isinstance(result, HTTPSeeOther)
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "'wu' does not exist on prohibited project name list.", queue="error"
-            )
+        assert db_request.session.pop_flash("error") == [
+            "'wu' does not exist on prohibited project name list."
         ]
 
     def test_project_exists(self, db_request):
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        db_request.current_route_path = lambda: "/admin/prohibited_project_names/"
-
         ProhibitedProjectFactory.create(name="tang")
         ProjectFactory.create(name="tang")
 
@@ -470,55 +466,36 @@ class TestReleaseProhibitedProjectName:
         db_request.POST["username"] = "rza"
 
         result = views.release_prohibited_project_name(db_request)
+
         assert isinstance(result, HTTPSeeOther)
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "'tang' exists and is not on the prohibited project name list.",
-                queue="error",
-            )
+        assert db_request.session.pop_flash("error") == [
+            "'tang' exists and is not on the prohibited project name list."
         ]
 
     def test_no_username(self, db_request):
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        db_request.current_route_path = lambda: "/admin/prohibited_project_names/"
-
         ProhibitedProjectFactory.create(name="wutang")
 
         db_request.POST["project_name"] = "wutang"
 
         result = views.release_prohibited_project_name(db_request)
+
         assert isinstance(result, HTTPSeeOther)
-        assert db_request.session.flash.calls == [
-            pretend.call("Provide a username", queue="error")
+        assert db_request.session.pop_flash("error") == [
+            "Provide a username or an organization name"
         ]
 
     def test_user_does_not_exist(self, db_request):
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        db_request.current_route_path = lambda: "/admin/prohibited_project_names/"
-
         ProhibitedProjectFactory.create(name="wutang")
 
         db_request.POST["project_name"] = "wutang"
         db_request.POST["username"] = "methodman"
 
         result = views.release_prohibited_project_name(db_request)
+
         assert isinstance(result, HTTPSeeOther)
-        assert db_request.session.flash.calls == [
-            pretend.call("Unknown username 'methodman'", queue="error")
-        ]
+        assert db_request.session.pop_flash("error") == ["Unknown username 'methodman'"]
 
     def test_creates_project_and_assigns_role(self, db_request):
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        db_request.route_path = (
-            lambda *a, **kw: f"/admin/projects/{kw['project_name']}/"
-        )
-
         user = UserFactory.create(username="methodman")
         ProhibitedProjectFactory.create(name="wutangclan")
 
@@ -526,10 +503,11 @@ class TestReleaseProhibitedProjectName:
         db_request.POST["username"] = "methodman"
 
         result = views.release_prohibited_project_name(db_request)
+
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/admin/projects/wutangclan/"
-        assert db_request.session.flash.calls == [
-            pretend.call("'wutangclan' released to 'methodman'.", queue="success")
+        assert db_request.session.pop_flash("success") == [
+            "'wutangclan' released to 'methodman'."
         ]
 
         assert not (
@@ -540,14 +518,194 @@ class TestReleaseProhibitedProjectName:
         project = (
             db_request.db.query(Project).filter(Project.name == "wutangclan").one()
         )
-        assert project is not None
         role = (
             db_request.db.query(Role)
             .filter(
                 Role.user == user, Role.project == project, Role.role_name == "Owner"
             )
-            .first()
+            .one()
         )
         assert role is not None
-        all_roles = db_request.db.query(Role).filter(Role.project == project).count()
-        assert all_roles == 1
+        assert db_request.db.query(Role).filter(Role.project == project).count() == 1
+
+    def test_username_and_organization(self, db_request):
+        ProhibitedProjectFactory.create(name="wutang")
+
+        db_request.POST["project_name"] = "wutang"
+        db_request.POST["username"] = "rza"
+        db_request.POST["organization_name"] = "wu-tang-corp"
+
+        result = views.release_prohibited_project_name(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert db_request.session.pop_flash("error") == [
+            "Provide a username or an organization name, not both."
+        ]
+
+    def test_organization_does_not_exist(self, db_request):
+        ProhibitedProjectFactory.create(name="wutang")
+
+        db_request.POST["project_name"] = "wutang"
+        db_request.POST["organization_name"] = "wu-tang-corp"
+
+        result = views.release_prohibited_project_name(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert db_request.session.pop_flash("error") == [
+            "Unknown organization 'wu-tang-corp'"
+        ]
+
+    def test_organization_not_active(self, db_request):
+        OrganizationFactory.create(name="wu-tang-corp", is_active=False)
+        ProhibitedProjectFactory.create(name="wutang")
+
+        db_request.POST["project_name"] = "wutang"
+        db_request.POST["organization_name"] = "wu-tang-corp"
+
+        result = views.release_prohibited_project_name(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert db_request.session.pop_flash("error") == [
+            "Organization 'wu-tang-corp' is not active"
+        ]
+
+    def test_creates_project_for_organization(self, db_request, mocker):
+        db_request.user = UserFactory.create()
+        send_email = mocker.patch(
+            "warehouse.manage.views.view_helpers.send_organization_project_added_email",
+            autospec=True,
+        )
+
+        organization = OrganizationFactory.create(name="wu-tang-corp")
+        owner = UserFactory.create()
+        OrganizationRoleFactory.create(organization=organization, user=owner)
+        ProhibitedProjectFactory.create(name="wutangclan")
+
+        db_request.POST["project_name"] = "wutangclan"
+        db_request.POST["organization_name"] = "wu-tang-corp"
+
+        result = views.release_prohibited_project_name(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/admin/projects/wutangclan/"
+        assert db_request.session.pop_flash("success") == [
+            "'wutangclan' released to organization 'wu-tang-corp'."
+        ]
+
+        assert not (
+            db_request.db.query(ProhibitedProjectName)
+            .filter(ProhibitedProjectName.name == "wutangclan")
+            .count()
+        )
+        project = (
+            db_request.db.query(Project).filter(Project.name == "wutangclan").one()
+        )
+        # The organization owns the project; no individual Owner role is created.
+        assert db_request.db.query(Role).filter(Role.project == project).count() == 0
+        assert (
+            db_request.db.query(OrganizationProject)
+            .filter(
+                OrganizationProject.organization == organization,
+                OrganizationProject.project == project,
+            )
+            .count()
+            == 1
+        )
+        # The organization's owners are notified of the new project.
+        send_email.assert_called_once_with(
+            db_request,
+            {owner},
+            organization_name="wu-tang-corp",
+            project_name="wutangclan",
+        )
+
+
+class TestUltranormReleaseProjectName:
+    @pytest.fixture
+    def db_request(self, db_request):
+        """Inline test helper with common paths for these tests"""
+        db_request.route_path = lambda route_name, **kw: (
+            f"/admin/projects/{kw['project_name']}/"
+            if "project_name" in kw
+            else "/admin/prohibited_project_names/"
+        )
+        return db_request
+
+    def test_no_project_name(self, db_request):
+        result = views.ultranorm_release_project_name(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert db_request.session.pop_flash("error") == ["Provide a project name"]
+
+    def test_project_already_exists(self, db_request):
+        ProjectFactory.create(name="wutang")
+        db_request.POST["project_name"] = "wutang"
+
+        result = views.ultranorm_release_project_name(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert db_request.session.pop_flash("error") == [
+            "'wutang' already exists as a project."
+        ]
+
+    def test_no_ultranorm_conflict(self, db_request):
+        db_request.POST["project_name"] = "brand-new-project"
+
+        result = views.ultranorm_release_project_name(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert db_request.session.pop_flash("error") == [
+            "'brand-new-project' has no ultranormalization conflict. "
+            "No admin override needed."
+        ]
+
+    def test_no_username(self, db_request):
+        # "my-project" and "myproject" ultranormalize to the same value
+        ProjectFactory.create(name="my-project")
+        db_request.POST["project_name"] = "myproject"
+
+        result = views.ultranorm_release_project_name(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert db_request.session.pop_flash("error") == ["Provide a username"]
+
+    def test_user_does_not_exist(self, db_request):
+        ProjectFactory.create(name="my-project")
+        db_request.POST["project_name"] = "myproject"
+        db_request.POST["username"] = "ghostface"
+
+        result = views.ultranorm_release_project_name(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert db_request.session.pop_flash("error") == ["Unknown username 'ghostface'"]
+
+    def test_creates_project_and_assigns_role(self, db_request):
+        user = UserFactory.create(username="methodman")
+        ProjectFactory.create(name="my-project")
+        db_request.POST["project_name"] = "myproject"
+        db_request.POST["username"] = "methodman"
+
+        result = views.ultranorm_release_project_name(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/admin/projects/myproject/"
+        assert db_request.session.pop_flash("success") == [
+            "'myproject' provisioned to 'methodman' "
+            "(ultranorm conflict with 'my-project')."
+        ]
+
+        project = db_request.db.query(Project).filter(Project.name == "myproject").one()
+        role = (
+            db_request.db.query(Role)
+            .filter(
+                Role.user == user, Role.project == project, Role.role_name == "Owner"
+            )
+            .one()
+        )
+        assert role is not None
+
+        # Verify the original similar project still exists
+        assert (
+            db_request.db.query(Project).filter(Project.name == "my-project").one()
+            is not None
+        )

@@ -28,7 +28,6 @@ def test_disclosure_origin_serialization(someorigin):
 
 
 def test_disclosure_origin_equivalence(someorigin):
-    assert someorigin == someorigin
     someotherorigin = utils.DisclosureOrigin(
         name="SomeOtherOrigin",
         key_id_header="SOME_KEY_ID_HEADER",
@@ -64,11 +63,11 @@ def test_invalid_token_leak_request():
         (
             {"type": "not_found", "token": "a", "url": "b"},
             "Matcher with code not_found not found. "
-            "Available codes are: failer, pypi_api_token",
+            "Available codes are: failure, pypi_api_token",
             "invalid_matcher",
         ),
         (
-            {"type": "failer", "token": "a", "url": "b"},
+            {"type": "failure", "token": "a", "url": "b"},
             "Cannot extract token from received match",
             "extraction",
         ),
@@ -76,14 +75,15 @@ def test_invalid_token_leak_request():
 )
 def test_token_leak_disclosure_request_from_api_record_error(record, error, reason):
     class MyFailingMatcher(utils.TokenLeakMatcher):
-        name = "failer"
+        name = "failure"
 
         def extract(self, text):
-            raise utils.ExtractionFailedError()
+            raise utils.ExtractionFailedError
 
     with pytest.raises(utils.InvalidTokenLeakRequestError) as exc:
         utils.TokenLeakDisclosureRequest.from_api_record(
-            record, matchers={"failer": MyFailingMatcher(), **utils.TOKEN_LEAK_MATCHERS}
+            record,
+            matchers={"failure": MyFailingMatcher(), **utils.TOKEN_LEAK_MATCHERS},
         )
 
     assert str(exc.value) == error
@@ -108,7 +108,6 @@ def test_token_leak_disclosure_request_from_api_record(source):
 
 
 class TestGenericTokenScanningPayloadVerifier:
-
     def test_init(self, metrics, someorigin):
         session = pretend.stub()
         token = "api_token"

@@ -20,8 +20,6 @@ from venusian import lift
 from webauthn.helpers import bytes_to_base64url
 from webob.multidict import MultiDict
 
-import warehouse.utils.otp as otp
-
 from warehouse.accounts.forms import RecoveryCodeAuthenticationForm
 from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
@@ -102,6 +100,7 @@ from warehouse.packaging.models import (
     AlternateRepository,
     File,
     JournalEntry,
+    LifecycleStatus,
     Project,
     Release,
     Role,
@@ -109,6 +108,7 @@ from warehouse.packaging.models import (
     RoleInvitationStatus,
 )
 from warehouse.rate_limiting import IRateLimiter
+from warehouse.utils import otp
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import (
@@ -139,14 +139,11 @@ class ManageAccountMixin:
                 )
                 .one()
             )
-        except (NoResultFound, ValueError):
+        except NoResultFound, ValueError:
             self.request.session.flash("Email address not found", queue="error")
             if self.request.user.has_primary_verified_email:
                 return HTTPSeeOther(self.request.route_path("manage.account"))
-            else:
-                return HTTPSeeOther(
-                    self.request.route_path("manage.unverified-account")
-                )
+            return HTTPSeeOther(self.request.route_path("manage.unverified-account"))
 
         if email.verified:
             self.request.session.flash("Email is already verified", queue="error")
@@ -178,8 +175,7 @@ class ManageAccountMixin:
 
         if self.request.user.has_primary_verified_email:
             return HTTPSeeOther(self.request.route_path("manage.account"))
-        else:
-            return HTTPSeeOther(self.request.route_path("manage.unverified-account"))
+        return HTTPSeeOther(self.request.route_path("manage.unverified-account"))
 
     @view_config(
         request_method="POST", request_param=["primary_email_id"], require_reauth=True
@@ -512,7 +508,7 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
                 request=self.request,
             )
             send_password_change_email(self.request, self.request.user)
-            self.request.db.flush()  # ensure password_date is available
+            self.request.db.flush()  # user.password_date # ast-grep-ignore: db-flush
             self.request.db.refresh(self.request.user)  # Pickup new password_date
             self.request.session.record_password_timestamp(
                 self.user_service.get_password_timestamp(self.request.user.id)
@@ -1245,8 +1241,10 @@ class ManageProjectSettingsViews:
 
     @view_config(
         request_method="POST",
-        request_param=AddAlternateRepositoryForm.__params__
-        + ["alternate_repository_location=add"],
+        request_param=[
+            *AddAlternateRepositoryForm.__params__,
+            "alternate_repository_location=add",
+        ],
         require_reauth=True,
         permission=Permissions.ProjectsWrite,
     )
@@ -1576,12 +1574,27 @@ class ManageProjectRelease:
             "files": self.release.files.all(),
         }
 
+    def _quarantined_redirect(self):
+        self.request.session.flash(
+            self.request._("This release is in quarantine and cannot be modified."),
+            queue="error",
+        )
+        return HTTPSeeOther(
+            self.request.route_path(
+                "manage.project.release",
+                project_name=self.release.project.name,
+                version=self.release.version,
+            )
+        )
+
     @view_config(
         request_method="POST",
         request_param=["confirm_yank_version"],
         require_reauth=True,
     )
     def yank_project_release(self):
+        if self.release.lifecycle_status == LifecycleStatus.QuarantineEnter:
+            return self._quarantined_redirect()
         version = self.request.POST.get("confirm_yank_version")
         yanked_reason = self.request.POST.get("yanked_reason", "")
 
@@ -1601,7 +1614,7 @@ class ManageProjectRelease:
             self.request.session.flash(
                 self.request._(
                     "Could not yank release - "
-                    + f"{version!r} is not the same as {self.release.version!r}"
+                    f"{version!r} is not the same as {self.release.version!r}"
                 ),
                 queue="error",
             )
@@ -1669,6 +1682,8 @@ class ManageProjectRelease:
         require_reauth=True,
     )
     def unyank_project_release(self):
+        if self.release.lifecycle_status == LifecycleStatus.QuarantineEnter:
+            return self._quarantined_redirect()
         version = self.request.POST.get("confirm_unyank_version")
         if not version:
             self.request.session.flash(
@@ -1686,7 +1701,7 @@ class ManageProjectRelease:
             self.request.session.flash(
                 self.request._(
                     "Could not un-yank release - "
-                    + f"{version!r} is not the same as {self.release.version!r}"
+                    f"{version!r} is not the same as {self.release.version!r}"
                 ),
                 queue="error",
             )
@@ -1754,6 +1769,8 @@ class ManageProjectRelease:
         require_reauth=True,
     )
     def delete_project_release(self):
+        if self.release.lifecycle_status == LifecycleStatus.QuarantineEnter:
+            return self._quarantined_redirect()
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_DELETION):
             self.request.session.flash(
                 self.request._(
@@ -1787,7 +1804,7 @@ class ManageProjectRelease:
             self.request.session.flash(
                 self.request._(
                     "Could not delete release - "
-                    + f"{version!r} is not the same as {self.release.version!r}"
+                    f"{version!r} is not the same as {self.release.version!r}"
                 ),
                 queue="error",
             )
@@ -1853,6 +1870,9 @@ class ManageProjectRelease:
         require_reauth=True,
     )
     def delete_project_release_file(self):
+        if self.release.lifecycle_status == LifecycleStatus.QuarantineEnter:
+            return self._quarantined_redirect()
+
         def _error(message):
             self.request.session.flash(message, queue="error")
             return HTTPSeeOther(
@@ -2226,112 +2246,111 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
 
         # Refresh project collaborators.
         return HTTPSeeOther(request.path)
-    else:
-        # Invite external user.
-        token_service = request.find_service(ITokenService, name="email")
+    # Invite external user.
+    token_service = request.find_service(ITokenService, name="email")
 
-        user_invite = (
-            request.db.query(RoleInvitation)
-            .filter(RoleInvitation.user == user)
-            .filter(RoleInvitation.project == project)
-            .one_or_none()
+    user_invite = (
+        request.db.query(RoleInvitation)
+        .filter(RoleInvitation.user == user)
+        .filter(RoleInvitation.project == project)
+        .one_or_none()
+    )
+    # Cover edge case where invite is invalid but task
+    # has not updated invite status
+    try:
+        invite_token = token_service.loads(user_invite.token)
+    except TokenExpired, AttributeError:
+        invite_token = None
+
+    if user.primary_email is None or not user.primary_email.verified:
+        request.session.flash(
+            request._(
+                "User '${username}' does not have a verified primary email "
+                "address and cannot be added as a ${role_name} for project",
+                mapping={"username": username, "role_name": role_name},
+            ),
+            queue="error",
         )
-        # Cover edge case where invite is invalid but task
-        # has not updated invite status
-        try:
-            invite_token = token_service.loads(user_invite.token)
-        except (TokenExpired, AttributeError):
-            invite_token = None
-
-        if user.primary_email is None or not user.primary_email.verified:
-            request.session.flash(
-                request._(
-                    "User '${username}' does not have a verified primary email "
-                    "address and cannot be added as a ${role_name} for project",
-                    mapping={"username": username, "role_name": role_name},
-                ),
-                queue="error",
-            )
-        elif (
-            user_invite
-            and user_invite.invite_status == RoleInvitationStatus.Pending
-            and invite_token
-        ):
-            request.session.flash(
-                request._(
-                    "User '${username}' already has an active invite. "
-                    "Please try again later.",
-                    mapping={"username": username},
-                ),
-                queue="error",
-            )
+    elif (
+        user_invite
+        and user_invite.invite_status == RoleInvitationStatus.Pending
+        and invite_token
+    ):
+        request.session.flash(
+            request._(
+                "User '${username}' already has an active invite. "
+                "Please try again later.",
+                mapping={"username": username},
+            ),
+            queue="error",
+        )
+    else:
+        invite_token = token_service.dumps(
+            {
+                "action": "email-project-role-verify",
+                "desired_role": role_name,
+                "user_id": user.id,
+                "project_id": project.id,
+                "submitter_id": request.user.id,
+            }
+        )
+        if user_invite:
+            user_invite.invite_status = RoleInvitationStatus.Pending
+            user_invite.token = invite_token
         else:
-            invite_token = token_service.dumps(
-                {
-                    "action": "email-project-role-verify",
-                    "desired_role": role_name,
-                    "user_id": user.id,
-                    "project_id": project.id,
-                    "submitter_id": request.user.id,
-                }
-            )
-            if user_invite:
-                user_invite.invite_status = RoleInvitationStatus.Pending
-                user_invite.token = invite_token
-            else:
-                request.db.add(
-                    RoleInvitation(
-                        user=user,
-                        project=project,
-                        invite_status=RoleInvitationStatus.Pending,
-                        token=invite_token,
-                    )
-                )
-
             request.db.add(
-                JournalEntry(
-                    name=project.name,
-                    action=f"invite {role_name} {username}",
-                    submitted_by=request.user,
+                RoleInvitation(
+                    user=user,
+                    project=project,
+                    invite_status=RoleInvitationStatus.Pending,
+                    token=invite_token,
                 )
             )
-            send_project_role_verification_email(
-                request,
-                user,
-                desired_role=role_name,
-                initiator_username=request.user.username,
-                project_name=project.name,
-                email_token=invite_token,
-                token_age=token_service.max_age,
-            )
-            project.record_event(
-                tag=EventTag.Project.RoleInvite,
-                request=request,
-                additional={
-                    "submitted_by": request.user.username,
-                    "role_name": role_name,
-                    "target_user": username,
-                },
-            )
-            user.record_event(
-                tag=EventTag.Account.RoleInvite,
-                request=request,
-                additional={
-                    "submitted_by": request.user.username,
-                    "project_name": project.name,
-                    "role_name": role_name,
-                },
-            )
-            request.session.flash(
-                request._(
-                    "Invitation sent to '${username}'",
-                    mapping={"username": username},
-                ),
-                queue="success",
-            )
 
-        # Refresh project collaborators.
-        return HTTPSeeOther(request.path)
+        request.db.add(
+            JournalEntry(
+                name=project.name,
+                action=f"invite {role_name} {username}",
+                submitted_by=request.user,
+            )
+        )
+        send_project_role_verification_email(
+            request,
+            user,
+            desired_role=role_name,
+            initiator_username=request.user.username,
+            project_name=project.name,
+            email_token=invite_token,
+            token_age=token_service.max_age,
+        )
+        project.record_event(
+            tag=EventTag.Project.RoleInvite,
+            request=request,
+            additional={
+                "submitted_by": request.user.username,
+                "role_name": role_name,
+                "target_user": username,
+            },
+        )
+        user.record_event(
+            tag=EventTag.Account.RoleInvite,
+            request=request,
+            additional={
+                "submitted_by": request.user.username,
+                "project_name": project.name,
+                "role_name": role_name,
+            },
+        )
+        request.session.flash(
+            request._(
+                "Invitation sent to '${username}'",
+                mapping={"username": username},
+            ),
+            queue="success",
+        )
+
+    # Refresh project collaborators.
+    return HTTPSeeOther(request.path)
 
 
 @view_config(
@@ -2438,8 +2457,9 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                 request.db.add(
                     JournalEntry(
                         name=project.name,
-                        action="change {} {} to {}".format(
-                            role.role_name, role.user.username, form.role_name.data
+                        action=(
+                            f"change {role.role_name} {role.user.username} to "
+                            f"{form.role_name.data}"
                         ),
                         submitted_by=request.user,
                     )
