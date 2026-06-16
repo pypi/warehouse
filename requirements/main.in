@@ -16,7 +16,7 @@ disposable-email-domains
 dnspython
 email-validator
 forcediphttpsadapter
-github-reserved-names>=1.0.0
+github-reserved-names>=2026.6.1
 google-cloud-bigquery
 google-cloud-storage
 hiredis
