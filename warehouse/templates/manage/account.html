@@ -331,6 +331,37 @@
 </form>
 </section>
 <hr>
+{# Display preference: chosen installer is persisted in the
+   "pypi-installer" cookie by the installer-command Stimulus controller.
+   No backend round-trip; the project detail page reads the same cookie. #}
+<section id="display-preferences"
+         data-controller="installer-command"
+         data-installer-command-name-value="example-package"
+         data-installer-command-spec-value=""
+         data-installer-command-index-value=""
+         data-installer-command-quote-value="false">
+  <h2 class="sub-title">{% trans %}Display preferences{% endtrans %}</h2>
+  <div class="form-group">
+    <label class="form-group__label" for="default-installer">{% trans %}Default installer{% endtrans %}</label>
+    <select id="default-installer"
+            class="form-group__field"
+            data-installer-command-target="select"
+            data-action="change->installer-command#change">
+      <option value="pip">pip</option>
+      <option value="uv">uv</option>
+      <option value="poetry">poetry</option>
+      <option value="pdm">pdm</option>
+      <option value="pipenv">pipenv</option>
+    </select>
+    <p class="form-group__help-text">
+      {% trans %}Sets the default installer shown on each project page. Stored as a cookie in your browser.{% endtrans %}
+      <br>
+      {% trans %}Preview:{% endtrans %}
+      <code data-installer-command-target="full">pip install example-package</code>
+    </p>
+  </div>
+</section>
+<hr>
 {{ form_error_anchor(add_email_form) }}
 <section id="account-emails">
   <h2 class="sub-title">{% trans %}Account emails{% endtrans %}</h2>
