@@ -10,7 +10,7 @@ celery[redis]>=5.6.2,<5.7
 celery-redbeat
 certifi
 click
-cryptography>=43.0.1
+cryptography>=48.0.1
 datadog>=0.19.0
 disposable-email-domains
 dnspython
