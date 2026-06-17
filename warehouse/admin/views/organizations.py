@@ -1064,7 +1064,7 @@ def set_upload_limit(request):
 
     organization.record_event(
         request=request,
-        tag="admin:organization:set_upload_limit",
+        tag=EventTag.Organization.OrganizationSetUploadLimit,
         additional={
             "old_upload_limit": old_upload_limit,
             "new_upload_limit": organization.upload_limit,
@@ -1261,7 +1261,7 @@ def set_total_size_limit(request):
 
     organization.record_event(
         request=request,
-        tag="admin:organization:set_total_size_limit",
+        tag=EventTag.Organization.OrganizationSetTotalSizeLimit,
         additional={
             "old_total_size_limit": old_total_size_limit,
             "new_total_size_limit": organization.total_size_limit,
