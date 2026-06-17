@@ -641,7 +641,10 @@ def send_organization_deleted_email(request, user, *, organization_name):
     }
 
 
-@_email("organization-subscription-required")
+@_email(
+    "organization-subscription-required",
+    repeat_window=datetime.timedelta(days=30),
+)
 def send_organization_subscription_required_email(
     request,
     user,
