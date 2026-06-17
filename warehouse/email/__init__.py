@@ -136,7 +136,7 @@ def _email(
     name: str,
     *,
     allow_unverified: bool = False,
-    repeat_window: int | None = None,
+    repeat_window: datetime.timedelta | None = None,
     override_from: str | None = None,
 ) -> typing.Callable:
     """
