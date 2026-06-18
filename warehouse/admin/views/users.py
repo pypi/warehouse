@@ -37,7 +37,9 @@ from warehouse.email import (
     send_account_recovery_initiated_email,
     send_password_reset_by_admin_email,
 )
-from warehouse.events.tags import EventTag
+from warehouse.manage.views.view_helpers import (
+    deactivate_organization_for_owner_removal,
+)
 from warehouse.observations.models import ObservationKind
 from warehouse.organizations.models import (
     Organization,
