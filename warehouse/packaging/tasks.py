@@ -142,7 +142,7 @@ def reconcile_file_storages(request):
     files_batch = (
         request.db.query(File)
         .filter_by(cached=False)
-        .with_for_update(skip_locked=True)
+        .with_for_update(skip_locked=True, of=File)
         .limit(batch_size)
     )
 
