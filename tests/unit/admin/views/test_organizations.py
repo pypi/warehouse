@@ -354,6 +354,13 @@ class TestOrganizationList:
         }
 
     @pytest.mark.usefixtures("_enable_organizations")
+    def test_invalid_activity_and_has_queries(self, db_request):
+        organization = OrganizationFactory.create()
+        db_request.GET["q"] = "activity:nope has:nope"
+        result = views.organization_list(db_request)
+        assert result["organizations"] == [organization]
+
+    @pytest.mark.usefixtures("_enable_organizations")
     def test_annotates_status(self, db_request):
         active = OrganizationFactory.create()
         project = ProjectFactory.create()
