@@ -704,9 +704,9 @@ encutils==1.0.0 \
 events==0.5 \
     --hash=sha256:a7286af378ba3e46640ac9825156c93bdba7502174dd696090fdfcd4d80a1abd
     # via opensearch-py
-filelock==3.29.1 \
-    --hash=sha256:85199dfd706869641b72b2e8955d5416a4b2b7dc4b0e8e6d97b4cc1299a6983b \
-    --hash=sha256:d97e6b1b9757569626c58caa07dc4beb1613f4a2938b1e8cc81afca398906c9e
+filelock==3.29.3 \
+    --hash=sha256:7fc1b3f39cf172fd8203812043c57b8a65aef9969f38b6704f628b881f761a84 \
+    --hash=sha256:e58333029cc9b925f39aad59b1d8f0a1ad836af4e60d7217f4a4dba87461261d
     # via tldextract
 forcediphttpsadapter==1.1.0 \
     --hash=sha256:0d224cf6e8e50eb788c9f5994a7afa6d389bac6dbe540b7dfd77a32590ad0153 \
