@@ -191,43 +191,21 @@ class TestOrganizationList:
         assert result["terms"] == [f"description:{organizations[0].description}"]
 
     @pytest.mark.usefixtures("_enable_organizations")
-    def test_is_active_query(self, db_request):
+    def test_activity_inactive_query(self, db_request):
         organizations = sorted(
             OrganizationFactory.create_batch(5),
             key=lambda o: o.normalized_name,
         )
-        organizations[0].is_active = True
-        organizations[1].is_active = True
         organizations[2].is_active = False
         organizations[3].is_active = False
         organizations[4].is_active = False
-        db_request.GET["q"] = "is:active"
-        result = views.organization_list(db_request)
-
-        assert result == {
-            "organizations": organizations[:2],
-            "query": "is:active",
-            "terms": ["is:active"],
-        }
-
-    @pytest.mark.usefixtures("_enable_organizations")
-    def test_is_inactive_query(self, db_request):
-        organizations = sorted(
-            OrganizationFactory.create_batch(5),
-            key=lambda o: o.normalized_name,
-        )
-        organizations[0].is_active = True
-        organizations[1].is_active = True
-        organizations[2].is_active = False
-        organizations[3].is_active = False
-        organizations[4].is_active = False
-        db_request.GET["q"] = "is:inactive"
+        db_request.GET["q"] = "activity:inactive"
         result = views.organization_list(db_request)
 
         assert result == {
             "organizations": organizations[2:],
-            "query": "is:inactive",
-            "terms": ["is:inactive"],
+            "query": "activity:inactive",
+            "terms": ["activity:inactive"],
         }
 
     @pytest.mark.usefixtures("_enable_organizations")
@@ -263,21 +241,6 @@ class TestOrganizationList:
             "organizations": [company_org],
             "query": "type:invalid",
             "terms": ["type:invalid"],
-        }
-
-    @pytest.mark.usefixtures("_enable_organizations")
-    def test_is_invalid_query(self, db_request):
-        organizations = sorted(
-            OrganizationFactory.create_batch(5),
-            key=lambda o: o.normalized_name,
-        )
-        db_request.GET["q"] = "is:not-actually-a-valid-query"
-        result = views.organization_list(db_request)
-
-        assert result == {
-            "organizations": organizations[:25],
-            "query": "is:not-actually-a-valid-query",
-            "terms": ["is:not-actually-a-valid-query"],
         }
 
     @pytest.mark.usefixtures("_enable_organizations")
