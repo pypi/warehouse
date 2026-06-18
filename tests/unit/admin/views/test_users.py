@@ -24,7 +24,11 @@ from warehouse.organizations.models import OrganizationRoleType
 from warehouse.packaging.models import JournalEntry, Project, ReleaseURL
 
 from ....common.db.accounts import EmailFactory, User, UserFactory
-from ....common.db.organizations import OrganizationFactory, OrganizationRoleFactory
+from ....common.db.organizations import (
+    OrganizationFactory,
+    OrganizationRoleFactory,
+    OrganizationStripeSubscriptionFactory,
+)
 from ....common.db.packaging import (
     FileFactory,
     JournalEntryFactory,
@@ -32,6 +36,7 @@ from ....common.db.packaging import (
     ReleaseFactory,
     RoleFactory,
 )
+from ....common.db.subscriptions import StripeSubscriptionFactory
 
 
 class TestUserList:
@@ -509,6 +514,39 @@ class TestUserDelete:
         assert EventTag.Organization.OrganizationRoleRemove.value in [
             event.tag for event in sole_owned.events
         ]
+
+    def test_deletes_user_cancels_subscriptions_for_sole_owned_organizations(
+        self, db_request, billing_service, mocker
+    ):
+        user = UserFactory.create()
+        UserFactory.create(username="deleted-user")
+
+        organization = OrganizationFactory.create(is_active=True)
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=user,
+            role_name=OrganizationRoleType.Owner,
+        )
+        subscription = StripeSubscriptionFactory.create()
+        OrganizationStripeSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
+
+        cancel_subscription = mocker.patch.object(
+            billing_service, "cancel_subscription"
+        )
+
+        db_request.matchdict["username"] = str(user.username)
+        db_request.params = {"username": user.username}
+        db_request.route_path = mocker.Mock(return_value="/foobar")
+        db_request.user = UserFactory.create()
+
+        views.user_delete(user, db_request)
+
+        db_request.db.flush()
+
+        cancel_subscription.assert_called_once_with(subscription.subscription_id)
+        assert organization.is_active is False
 
     def test_deletes_user_bad_confirm(self, db_request, monkeypatch):
         user = UserFactory.create()
