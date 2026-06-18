@@ -163,7 +163,7 @@ msgstr ""
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:622 warehouse/manage/views/__init__.py:944
+#: warehouse/accounts/views.py:622 warehouse/manage/views/__init__.py:955
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -544,147 +544,147 @@ msgid ""
 "less."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:404
+#: warehouse/manage/views/__init__.py:409
 msgid "Account details updated"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:435
+#: warehouse/manage/views/__init__.py:440
 #, python-brace-format
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:891
+#: warehouse/manage/views/__init__.py:902
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:893
+#: warehouse/manage/views/__init__.py:904
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1001
+#: warehouse/manage/views/__init__.py:1012
 msgid "Verify your email to create an API token."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1103
+#: warehouse/manage/views/__init__.py:1114
 msgid "API Token does not exist."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1135
+#: warehouse/manage/views/__init__.py:1146
 msgid "Invalid credentials. Try again"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1256
+#: warehouse/manage/views/__init__.py:1267
 msgid "Invalid alternate repository location details"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1294
+#: warehouse/manage/views/__init__.py:1305
 #, python-brace-format
 msgid "Added alternate repository '${name}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1327
-#: warehouse/manage/views/__init__.py:1603
-#: warehouse/manage/views/__init__.py:1690
-#: warehouse/manage/views/__init__.py:1793
-#: warehouse/manage/views/__init__.py:1896
+#: warehouse/manage/views/__init__.py:1338
+#: warehouse/manage/views/__init__.py:1614
+#: warehouse/manage/views/__init__.py:1701
+#: warehouse/manage/views/__init__.py:1804
+#: warehouse/manage/views/__init__.py:1907
 msgid "Confirm the request"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1339
+#: warehouse/manage/views/__init__.py:1350
 msgid "Invalid alternate repository id"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1350
+#: warehouse/manage/views/__init__.py:1361
 msgid "Invalid alternate repository for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1359
+#: warehouse/manage/views/__init__.py:1370
 #, python-brace-format
 msgid ""
 "Could not delete alternate repository - ${confirm} is not the same as "
 "${alt_repo_name}"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1389
+#: warehouse/manage/views/__init__.py:1400
 #, python-brace-format
 msgid "Deleted alternate repository '${name}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1457
-#: warehouse/manage/views/__init__.py:1777
-#: warehouse/manage/views/__init__.py:1888
+#: warehouse/manage/views/__init__.py:1468
+#: warehouse/manage/views/__init__.py:1788
+#: warehouse/manage/views/__init__.py:1899
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1579
+#: warehouse/manage/views/__init__.py:1590
 msgid "This release is in quarantine and cannot be modified."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1616
+#: warehouse/manage/views/__init__.py:1627
 msgid "Could not yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1703
+#: warehouse/manage/views/__init__.py:1714
 msgid "Could not un-yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1806
+#: warehouse/manage/views/__init__.py:1817
 msgid "Could not delete release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1908
+#: warehouse/manage/views/__init__.py:1919
 msgid "Could not find file"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1913
+#: warehouse/manage/views/__init__.py:1924
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2063
+#: warehouse/manage/views/__init__.py:2074
 #, python-brace-format
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2170
+#: warehouse/manage/views/__init__.py:2181
 #, python-brace-format
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2237
+#: warehouse/manage/views/__init__.py:2248
 #, python-brace-format
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2268
+#: warehouse/manage/views/__init__.py:2279
 #, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2281
+#: warehouse/manage/views/__init__.py:2292
 #: warehouse/manage/views/organizations.py:934
 #, python-brace-format
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2346
+#: warehouse/manage/views/__init__.py:2357
 #: warehouse/manage/views/organizations.py:1009
 #, python-brace-format
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2378
+#: warehouse/manage/views/__init__.py:2389
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2389
+#: warehouse/manage/views/__init__.py:2400
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2422
+#: warehouse/manage/views/__init__.py:2433
 #: warehouse/manage/views/organizations.py:1209
 #, python-brace-format
 msgid "Invitation revoked from '${username}'."
