@@ -554,88 +554,88 @@ msgstr ""
 msgid "Invalid credentials. Try again"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1290
-#: warehouse/manage/views/__init__.py:1610
-#: warehouse/manage/views/__init__.py:1721
+#: warehouse/manage/views/__init__.py:1291
+#: warehouse/manage/views/__init__.py:1611
+#: warehouse/manage/views/__init__.py:1722
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1412
+#: warehouse/manage/views/__init__.py:1413
 msgid "This release is in quarantine and cannot be modified."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1436
-#: warehouse/manage/views/__init__.py:1523
-#: warehouse/manage/views/__init__.py:1626
-#: warehouse/manage/views/__init__.py:1729
+#: warehouse/manage/views/__init__.py:1437
+#: warehouse/manage/views/__init__.py:1524
+#: warehouse/manage/views/__init__.py:1627
+#: warehouse/manage/views/__init__.py:1730
 msgid "Confirm the request"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1449
+#: warehouse/manage/views/__init__.py:1450
 msgid "Could not yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1536
+#: warehouse/manage/views/__init__.py:1537
 msgid "Could not un-yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1639
+#: warehouse/manage/views/__init__.py:1640
 msgid "Could not delete release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1741
+#: warehouse/manage/views/__init__.py:1742
 msgid "Could not find file"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1746
+#: warehouse/manage/views/__init__.py:1747
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1894
+#: warehouse/manage/views/__init__.py:1895
 #, python-brace-format
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2001
+#: warehouse/manage/views/__init__.py:2002
 #, python-brace-format
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2068
+#: warehouse/manage/views/__init__.py:2069
 #, python-brace-format
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2099
+#: warehouse/manage/views/__init__.py:2100
 #, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2112
+#: warehouse/manage/views/__init__.py:2113
 #: warehouse/manage/views/organizations.py:922
 #, python-brace-format
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2177
+#: warehouse/manage/views/__init__.py:2178
 #: warehouse/manage/views/organizations.py:997
 #, python-brace-format
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2209
+#: warehouse/manage/views/__init__.py:2210
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2220
+#: warehouse/manage/views/__init__.py:2221
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2253
+#: warehouse/manage/views/__init__.py:2254
 #: warehouse/manage/views/organizations.py:1197
 #, python-brace-format
 msgid "Invitation revoked from '${username}'."
