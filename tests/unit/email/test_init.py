@@ -2873,33 +2873,31 @@ class TestOrganizationSubscriptionRequiredEmail:
         subject_renderer.assert_(**result)
         body_renderer.assert_(**result)
         html_renderer.assert_(**result)
-        assert db_request.task.calls == [pretend.call(send_email)]
-        assert send_email.delay.calls == [
-            pretend.call(
-                f"{user.name} <{user.email}>",
-                {
-                    "sender": None,
+        db_request.task.assert_called_once_with(send_email)
+        send_email.delay.assert_called_once_with(
+            f"{user.name} <{user.email}>",
+            {
+                "sender": None,
+                "subject": subject_renderer.string_response,
+                "body_text": body_renderer.string_response,
+                "body_html": (
+                    f"<html>\n"
+                    f"<head></head>\n"
+                    f"<body>{html_renderer.string_response}</body>\n"
+                    f"</html>\n"
+                ),
+            },
+            {
+                "tag": "account:email:sent",
+                "user_id": user.id,
+                "additional": {
+                    "from_": db_request.registry.settings.get("mail.sender"),
+                    "to": user.email,
                     "subject": subject_renderer.string_response,
-                    "body_text": body_renderer.string_response,
-                    "body_html": (
-                        f"<html>\n"
-                        f"<head></head>\n"
-                        f"<body>{html_renderer.string_response}</body>\n"
-                        f"</html>\n"
-                    ),
+                    "redact_ip": True,
                 },
-                {
-                    "tag": "account:email:sent",
-                    "user_id": user.id,
-                    "additional": {
-                        "from_": db_request.registry.settings.get("mail.sender"),
-                        "to": user.email,
-                        "subject": subject_renderer.string_response,
-                        "redact_ip": True,
-                    },
-                },
-            )
-        ]
+            },
+        )
 
 
 class TestOrganizationDeleteEmails:
