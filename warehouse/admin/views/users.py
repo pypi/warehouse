@@ -402,17 +402,9 @@ def _nuke_user(user, request):
         .all()
     )
     for organization in sole_owned_organizations:
-        organization.record_event(
-            tag=EventTag.Organization.OrganizationRoleRemove,
-            request=request,
-            additional={
-                "submitted_by_user_id": str(request.user.id),
-                "role_name": OrganizationRoleType.Owner.value,
-                "target_user_id": str(user.id),
-                "reason": "nuked",
-            },
+        deactivate_organization_for_owner_removal(
+            request, organization, target_user=user, reason="nuked"
         )
-        organization.is_active = False
 
     # Prohibit the username
     request.db.add(
