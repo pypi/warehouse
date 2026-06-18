@@ -1129,6 +1129,7 @@ class TestManageAccount:
             views.ManageVerifiedAccountViews, "default_response", pretend.stub()
         )
         monkeypatch.setattr(views.ManageVerifiedAccountViews, "active_projects", [])
+        monkeypatch.setattr(views.ManageVerifiedAccountViews, "sole_organizations", [])
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, "send_account_deletion_email", send_email)
         logout_response = pretend.stub()
@@ -1226,6 +1227,35 @@ class TestManageAccount:
                 "Cannot delete account with active project ownerships", queue="error"
             )
         ]
+
+    def test_delete_account_has_sole_organizations(self, mocker):
+        request = mocker.Mock(
+            params={"confirm_password": "password"},
+            user=mocker.Mock(username="username"),
+            session=mocker.Mock(),
+            find_service=lambda *a, **kw: mocker.Mock(),
+        )
+
+        confirm_password_obj = mocker.Mock(validate=lambda: True)
+        mocker.patch.object(
+            views, "ConfirmPasswordForm", return_value=confirm_password_obj
+        )
+
+        mocker.patch.object(
+            views.ManageVerifiedAccountViews, "default_response", mocker.Mock()
+        )
+        # No sole project ownerships, but a sole organization ownership.
+        mocker.patch.object(views.ManageVerifiedAccountViews, "active_projects", [])
+        mocker.patch.object(
+            views.ManageVerifiedAccountViews, "sole_organizations", [mocker.Mock()]
+        )
+
+        view = views.ManageVerifiedAccountViews(request)
+
+        assert view.delete_account() == view.default_response
+        request.session.flash.assert_called_once_with(
+            "Cannot delete account with sole organization ownerships", queue="error"
+        )
 
 
 class Test2FA:
