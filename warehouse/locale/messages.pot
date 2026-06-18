@@ -1358,7 +1358,7 @@ msgstr ""
 #: warehouse/templates/base.html:238
 #: warehouse/templates/includes/flash-messages.html:41
 #: warehouse/templates/includes/session-notifications.html:19
-#: warehouse/templates/manage/account.html:1011
+#: warehouse/templates/manage/account.html:1039
 #: warehouse/templates/manage/manage_base.html:364
 #: warehouse/templates/manage/manage_base.html:442
 #: warehouse/templates/manage/organization/settings.html:291
@@ -4329,7 +4329,7 @@ msgstr ""
 msgid "Cannot delete account"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:985
+#: warehouse/templates/manage/account.html:986
 #, python-format
 msgid ""
 "Your account is currently the <strong>sole owner</strong> of %(count)s "
@@ -4340,7 +4340,7 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/account.html:990
+#: warehouse/templates/manage/account.html:991
 msgid ""
 "You must transfer ownership or delete this project before you can delete "
 "your account."
@@ -4350,14 +4350,42 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/account.html:1000
+#: warehouse/templates/manage/account.html:1001
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a "
 "href=\"%(delete_href)s\">delete project</a>"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:1009
+#: warehouse/templates/manage/account.html:1012
+#, python-format
+msgid ""
+"Your account is currently the <strong>sole owner</strong> of %(count)s "
+"organization."
+msgid_plural ""
+"Your account is currently the <strong>sole owner</strong> of %(count)s "
+"organizations."
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/templates/manage/account.html:1017
+msgid ""
+"You must add another owner or delete this organization before you can "
+"delete your account."
+msgid_plural ""
+"You must add another owner or delete these organizations before you can "
+"delete your account."
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/templates/manage/account.html:1027
+#, python-format
+msgid ""
+"<a href=\"%(roles_href)s\">add an owner</a> or <a "
+"href=\"%(delete_href)s\">delete organization</a>"
+msgstr ""
+
+#: warehouse/templates/manage/account.html:1037
 #: warehouse/templates/manage/account/token.html:177
 #: warehouse/templates/manage/organization/settings.html:289
 #: warehouse/templates/manage/project/publishing.html:19
@@ -4365,11 +4393,11 @@ msgstr ""
 msgid "Proceed with caution!"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:1012
+#: warehouse/templates/manage/account.html:1040
 msgid "You will not be able to recover your account after you delete it"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:1014
+#: warehouse/templates/manage/account.html:1042
 msgid "Delete your PyPI account"
 msgstr ""
 
