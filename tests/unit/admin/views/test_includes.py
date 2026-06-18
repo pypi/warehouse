@@ -26,6 +26,6 @@ def test_administer_user_include_returns_user():
 
 def test_administer_organization_include_returns_organization(db_request):
     organization = OrganizationFactory.create()
-    assert includes.administer_organization_include(
-        organization, db_request
-    ) == {"organization": organization}
+    assert includes.administer_organization_include(organization, db_request) == {
+        "organization": organization
+    }
