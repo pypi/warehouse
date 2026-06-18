@@ -34,6 +34,13 @@ class StripeSubscriptionStatus(StrLabelEnum):
         return value in {item.value for item in StripeSubscriptionStatus}
 
 
+# active or trialing
+ACTIVE_SUBSCRIPTION_STATUSES = [
+    StripeSubscriptionStatus.Active.value,
+    StripeSubscriptionStatus.Trialing.value,
+]
+
+
 class StripeSubscriptionPriceInterval(enum.StrEnum):
     Month = "month"
     Year = "year"
@@ -107,10 +114,7 @@ class StripeSubscription(db.Model):
 
     @property
     def is_restricted(self):
-        return self.status not in [
-            StripeSubscriptionStatus.Active.value,
-            StripeSubscriptionStatus.Trialing.value,
-        ]
+        return self.status not in ACTIVE_SUBSCRIPTION_STATUSES
 
     @property
     def is_manageable(self):
