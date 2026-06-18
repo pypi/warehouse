@@ -83,6 +83,7 @@ from warehouse.manage.views.organizations import (
     organization_owners,
 )
 from warehouse.manage.views.view_helpers import (
+    deactivate_organization_for_owner_removal,
     project_owners,
     user_organizations,
     user_projects,
@@ -361,7 +362,13 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
 
     @property
     def sole_organizations(self):
-        return user_organizations(request=self.request)["organizations_with_sole_owner"]
+        return [
+            organization
+            for organization in user_organizations(request=self.request)[
+                "organizations_with_sole_owner"
+            ]
+            if organization.is_in_good_standing()
+        ]
 
     @property
     def default_response(self):
@@ -561,6 +568,17 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
                 "Cannot delete account with sole organization ownerships", queue="error"
             )
             return self.default_response
+
+        # orgs not in good standing arent accessible so deactivate them
+        for organization in user_organizations(self.request)[
+            "organizations_with_sole_owner"
+        ]:
+            deactivate_organization_for_owner_removal(
+                self.request,
+                organization,
+                target_user=self.request.user,
+                reason="owner account deleted",
+            )
 
         # Update all journals to point to `deleted-user` instead
         deleted_user = (
