@@ -34,7 +34,6 @@ class StripeSubscriptionStatus(StrLabelEnum):
         return value in {item.value for item in StripeSubscriptionStatus}
 
 
-# active or trialing
 ACTIVE_SUBSCRIPTION_STATUSES = [
     StripeSubscriptionStatus.Active.value,
     StripeSubscriptionStatus.Trialing.value,

@@ -45,7 +45,6 @@ from warehouse.subscriptions.models import (
 )
 from warehouse.utils.paginate import paginate_url_factory
 
-# an org is "active" if a project released within this window
 ACTIVE_RELEASE_WINDOW = datetime.timedelta(days=365)
 
 
@@ -254,7 +253,6 @@ def organization_list(request):
                 elif "unused".startswith(value):
                     filters.append(~has_projects)
             elif field == "has":
-                # only company orgs can subscribe
                 if "subscription".startswith(value):
                     filters.extend(
                         [
