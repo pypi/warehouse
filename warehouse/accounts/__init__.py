@@ -36,10 +36,8 @@ from warehouse.accounts.tasks import (
     unverify_emails_with_expired_domains,
 )
 from warehouse.accounts.utils import UserContext
-from warehouse.admin.flags import AdminFlagValue
 from warehouse.macaroons.security_policy import MacaroonSecurityPolicy
 from warehouse.oidc.utils import PublisherTokenContext
-from warehouse.organizations.services import IOrganizationService
 from warehouse.utils.security_policy import MultiSecurityPolicy
 
 __all__ = [
@@ -79,18 +77,6 @@ def _oidc_claims(request):
         request.identity.claims
         if isinstance(request.identity, PublisherTokenContext)
         else None
-    )
-
-
-def _organization_access(request):
-    if (user := _user(request)) is None:
-        return False
-
-    organization_service = request.find_service(IOrganizationService, context=None)
-    organizations = organization_service.get_organizations_by_user(user.id)
-    return (
-        not request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS)
-        or len(organizations) > 0
     )
 
 
@@ -180,9 +166,6 @@ def includeme(config):
     config.add_request_method(_user, name="user", reify=True)
     config.add_request_method(_oidc_publisher, name="oidc_publisher", reify=True)
     config.add_request_method(_oidc_claims, name="oidc_claims", reify=True)
-    config.add_request_method(
-        _organization_access, name="organization_access", reify=True
-    )
 
     config.add_request_method(_unauthenticated_userid, name="_unauthenticated_userid")
 
