@@ -28,8 +28,10 @@
               <span class="badge badge-success" title="Owns a project released in the last year">Active</span>
             {% elif activity == "Dormant" %}
               <span class="badge badge-warning" title="Owns projects, none released in the last year">Dormant</span>
-            {% else %}
+            {% elif activity == "Unused" %}
               <span class="badge badge-secondary" title="Owns no projects">Unused</span>
+            {% else %}
+              <span class="badge badge-danger" title="Deactivated">Inactive</span>
             {% endif %}
           </p>
         </div>
