@@ -569,7 +569,7 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
             )
             return self.default_response
 
-        # orgs not in good standing arent accessible so deactivate them
+        # orgs not in good standing aren't accessible so deactivate them
         for organization in user_organizations(self.request)[
             "organizations_with_sole_owner"
         ]:
