@@ -75,8 +75,12 @@
         </td>
         <td>{{ organization.description }}</td>
         <td>{{ organization.orgtype.value }}</td>
-        {% if organization.is_active %}
+        {% if organization.activity == "Active" %}
         <td><i class="fa fa-fw fa-check text-green"></i> Active</td>
+        {% elif organization.activity == "Dormant" %}
+        <td><i class="fa fa-fw fa-clock text-yellow"></i> Dormant</td>
+        {% elif organization.activity == "Unused" %}
+        <td><i class="fa fa-fw fa-minus text-muted"></i> Unused</td>
         {% else %}
         <td><i class="fa fa-fw fa-times text-red"></i> Inactive</td>
         {% endif %}
