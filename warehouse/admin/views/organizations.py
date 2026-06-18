@@ -1059,7 +1059,18 @@ def set_upload_limit(request):
         )
 
     # Form validation has already converted to bytes or None
+    old_upload_limit = organization.upload_limit
     organization.upload_limit = form.upload_limit.data
+
+    organization.record_event(
+        request=request,
+        tag=EventTag.Organization.OrganizationSetUploadLimit,
+        additional={
+            "old_upload_limit": old_upload_limit,
+            "new_upload_limit": organization.upload_limit,
+            "actor": request.user.username,
+        },
+    )
 
     if organization.upload_limit:
         limit_msg = f"{organization.upload_limit / ONE_MIB}MiB"
@@ -1245,7 +1256,18 @@ def set_total_size_limit(request):
         )
 
     # Form validation has already converted to bytes or None
+    old_total_size_limit = organization.total_size_limit
     organization.total_size_limit = form.total_size_limit.data
+
+    organization.record_event(
+        request=request,
+        tag=EventTag.Organization.OrganizationSetTotalSizeLimit,
+        additional={
+            "old_total_size_limit": old_total_size_limit,
+            "new_total_size_limit": organization.total_size_limit,
+            "actor": request.user.username,
+        },
+    )
 
     if organization.total_size_limit:
         limit_msg = f"{organization.total_size_limit / ONE_GIB}GiB"
