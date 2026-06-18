@@ -37,7 +37,13 @@ from warehouse.email import (
     send_account_recovery_initiated_email,
     send_password_reset_by_admin_email,
 )
+from warehouse.events.tags import EventTag
 from warehouse.observations.models import ObservationKind
+from warehouse.organizations.models import (
+    Organization,
+    OrganizationRole,
+    OrganizationRoleType,
+)
 from warehouse.packaging.models import File, JournalEntry, Project, Release, Role
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import clear_project_quarantine, quarantine_project
@@ -383,6 +389,46 @@ def _nuke_user(user, request):
         .values(_submitted_by=deleted_user.username)
         .execution_options(synchronize_session=False)
     )
+
+    # deactiate org if the user is the sole owner of any
+    # and record event for change
+    organizations_owned = (
+        request.db.query(Organization.id)
+        .join(OrganizationRole.organization)
+        .filter(
+            OrganizationRole.role_name == OrganizationRoleType.Owner,
+            OrganizationRole.user == user,
+        )
+        .subquery()
+    )
+    organizations_with_sole_owner = (
+        request.db.query(OrganizationRole.organization_id)
+        .join(organizations_owned)
+        .filter(OrganizationRole.role_name == OrganizationRoleType.Owner)
+        .group_by(OrganizationRole.organization_id)
+        .having(func.count(OrganizationRole.organization_id) == 1)
+        .subquery()
+    )
+    sole_owned_organizations = (
+        request.db.query(Organization)
+        .join(
+            organizations_with_sole_owner,
+            Organization.id == organizations_with_sole_owner.c.organization_id,
+        )
+        .all()
+    )
+    for organization in sole_owned_organizations:
+        organization.record_event(
+            tag=EventTag.Organization.OrganizationRoleRemove,
+            request=request,
+            additional={
+                "submitted_by_user_id": str(request.user.id),
+                "role_name": OrganizationRoleType.Owner.value,
+                "target_user_id": str(user.id),
+                "reason": "nuked",
+            },
+        )
+        organization.is_active = False
 
     # Prohibit the username
     request.db.add(
