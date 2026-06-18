@@ -4,6 +4,7 @@ import pretend
 
 from warehouse.admin.views import includes
 
+from ....common.db.organizations import OrganizationFactory
 from ....common.db.packaging import ProjectFactory
 
 
@@ -23,8 +24,8 @@ def test_administer_user_include_returns_user():
     assert includes.administer_user_include(user, pretend.stub()) == {"user": user}
 
 
-def test_administer_organization_include_returns_organization():
-    organization = pretend.stub()
+def test_administer_organization_include_returns_organization(db_request):
+    organization = OrganizationFactory.create()
     assert includes.administer_organization_include(
-        organization, pretend.stub()
+        organization, db_request
     ) == {"organization": organization}
