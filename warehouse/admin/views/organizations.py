@@ -58,6 +58,19 @@ def _organization_activity_predicates():
     return has_projects, has_recent_release
 
 
+def _organization_activity(request, organization):
+    """activity tier: Inactive / Active / Dormant / Unused."""
+    if not organization.is_active:
+        return "Inactive"
+    has_projects, has_recent_release = _organization_activity_predicates()
+    projects, recent = (
+        request.db.query(has_projects, has_recent_release)
+        .filter(Organization.id == organization.id)
+        .one()
+    )
+    return "Active" if recent else "Dormant" if projects else "Unused"
+
+
 class OrganizationRoleForm(wtforms.Form):
     role_name = wtforms.SelectField(
         choices=[(role.value, role.value) for role in OrganizationRoleType],
@@ -292,21 +305,10 @@ def organization_list(request):
         items_per_page=25,
         url_maker=paginate_url_factory(request),
     )
+    for organization in organizations:
+        organization.activity = _organization_activity(request, organization)
 
     return {"organizations": organizations, "query": q, "terms": terms}
-
-
-def _organization_activity(request, organization):
-    """activity tier for a single org (see the activity: list filters)."""
-    has_projects, has_recent_release = _organization_activity_predicates()
-    this_organization = request.db.query(Organization.id).filter(
-        Organization.id == organization.id
-    )
-    if this_organization.filter(has_recent_release).first():
-        return "Active"
-    if this_organization.filter(has_projects).first():
-        return "Dormant"
-    return "Unused"
 
 
 @view_config(
