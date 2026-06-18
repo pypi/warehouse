@@ -371,12 +371,14 @@ class TestManageAccount:
         monkeypatch.setattr(
             views.ManageVerifiedAccountViews, "active_projects", pretend.stub()
         )
+        monkeypatch.setattr(views.ManageVerifiedAccountViews, "sole_organizations", [])
 
         assert view.default_response == {
             "save_account_form": save_account_obj,
             "add_email_form": add_email_obj,
             "change_password_form": change_pass_obj,
             "active_projects": view.active_projects,
+            "sole_organizations": view.sole_organizations,
             "account_associations": account_associations,
         }
         assert view.request == request
