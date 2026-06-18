@@ -217,13 +217,12 @@ def organization_list(request):
             # - desc:word
             # - description:word
             # - description:"whole phrase"
-            # - is:active
-            # - is:inactive
             # - type:company
             # - type:community
             # - activity:active
             # - activity:dormant
             # - activity:unused
+            # - activity:inactive
             # - has:subscription
             try:
                 field, value = term.lower().split(":", 1)
@@ -246,12 +245,6 @@ def organization_list(request):
             elif field in {"desc", "description"}:
                 # Add filter for `description` field.
                 filters.append(Organization.description.ilike(f"%{value}%"))
-            elif field == "is":
-                # Add filter for `is_active` field.
-                if "active".startswith(value):
-                    filters.append(Organization.is_active == True)  # noqa: E712
-                elif "inactive".startswith(value):
-                    filters.append(Organization.is_active == False)  # noqa: E712
             elif field == "type":
                 if "company".startswith(value):
                     filters.append(Organization.orgtype == OrganizationType.Company)
@@ -259,12 +252,15 @@ def organization_list(request):
                     filters.append(Organization.orgtype == OrganizationType.Community)
             elif field == "activity":
                 has_projects, has_recent_release = _organization_activity_predicates()
-                if "active".startswith(value):
-                    filters.append(has_recent_release)
+                active = Organization.is_active.is_(True)
+                if "inactive".startswith(value):
+                    filters.append(Organization.is_active.is_(False))
+                elif "active".startswith(value):
+                    filters.extend([active, has_recent_release])
                 elif "dormant".startswith(value):
-                    filters.extend([has_projects, ~has_recent_release])
+                    filters.extend([active, has_projects, ~has_recent_release])
                 elif "unused".startswith(value):
-                    filters.append(~has_projects)
+                    filters.extend([active, ~has_projects])
             elif field == "has":
                 if "subscription".startswith(value):
                     filters.extend(
