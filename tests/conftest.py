@@ -667,7 +667,6 @@ def db_request(pyramid_request, db_session, tm):
     pyramid_request.tm = tm
     pyramid_request.flags = admin.flags.Flags(pyramid_request)
     pyramid_request.banned = admin.bans.Bans(pyramid_request)
-    pyramid_request.organization_access = True
     pyramid_request.ip_address = IpAddressFactory.create(
         ip_address=pyramid_request.remote_addr,
         hashed_ip_address=pyramid_request.remote_addr_hashed,

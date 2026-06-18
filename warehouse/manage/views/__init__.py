@@ -1202,28 +1202,24 @@ class ManageProjectSettingsViews:
 
     @view_config(request_method="GET")
     def manage_project_settings(self):
-        if not self.request.organization_access:
-            # Disable transfer of project to any organization.
-            organization_choices = set()
-        else:
-            # Allow transfer of project to active orgs owned or managed by user.
-            all_user_organizations = user_organizations(self.request)
-            active_organizations_owned = {
-                organization
-                for organization in all_user_organizations["organizations_owned"]
-                if organization.is_active
-            }
-            active_organizations_managed = {
-                organization
-                for organization in all_user_organizations["organizations_managed"]
-                if organization.is_active
-            }
-            current_organization = (
-                {self.project.organization} if self.project.organization else set()
-            )
-            organization_choices = (
-                active_organizations_owned | active_organizations_managed
-            ) - current_organization
+        # Allow transfer of project to active orgs owned or managed by user.
+        all_user_organizations = user_organizations(self.request)
+        active_organizations_owned = {
+            organization
+            for organization in all_user_organizations["organizations_owned"]
+            if organization.is_active
+        }
+        active_organizations_managed = {
+            organization
+            for organization in all_user_organizations["organizations_managed"]
+            if organization.is_active
+        }
+        current_organization = (
+            {self.project.organization} if self.project.organization else set()
+        )
+        organization_choices = (
+            active_organizations_owned | active_organizations_managed
+        ) - current_organization
 
         add_alt_repo_form = self.add_alternate_repository_form_class()
 
@@ -1994,9 +1990,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
     form = _form_class(request.POST, user_service=user_service)
 
     # Team project roles and add internal collaborator form for organization projects.
-    enable_internal_collaborator = bool(
-        request.organization_access and project.organization
-    )
+    enable_internal_collaborator = bool(project.organization)
     if enable_internal_collaborator:
         team_project_roles = set(
             request.db.query(TeamProjectRole)

@@ -2901,9 +2901,8 @@ class TestManageProjects:
 
 
 class TestManageProjectSettings:
-    @pytest.mark.parametrize("enabled", [False, True])
-    def test_manage_project_settings(self, enabled, monkeypatch):
-        request = pretend.stub(organization_access=enabled)
+    def test_manage_project_settings(self, monkeypatch):
+        request = pretend.stub()
         project = pretend.stub(organization=None, lifecycle_status=None)
         view = views.ManageProjectSettingsViews(project, request)
         form = pretend.stub()
@@ -2928,7 +2927,7 @@ class TestManageProjectSettings:
         }
 
     def test_manage_project_settings_in_organization_managed(self, monkeypatch):
-        request = pretend.stub(organization_access=True)
+        request = pretend.stub()
         organization_managed = pretend.stub(name="managed-org", is_active=True)
         organization_owned = pretend.stub(name="owned-org", is_active=True)
         project = pretend.stub(organization=organization_managed, lifecycle_status=None)
@@ -2960,7 +2959,7 @@ class TestManageProjectSettings:
         ]
 
     def test_manage_project_settings_in_organization_owned(self, monkeypatch):
-        request = pretend.stub(organization_access=True)
+        request = pretend.stub()
         organization_managed = pretend.stub(name="managed-org", is_active=True)
         organization_owned = pretend.stub(name="owned-org", is_active=True)
         project = pretend.stub(organization=organization_owned, lifecycle_status=None)
@@ -3256,7 +3255,6 @@ class TestManageProjectSettings:
         request = pretend.stub(
             POST={},
             user=user,
-            organization_access=True,
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -3281,7 +3279,6 @@ class TestManageProjectSettings:
         request = pretend.stub(
             POST={"confirm_remove_organization_project_name": "FOO"},
             user=user,
-            organization_access=True,
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=pretend.call_recorder(lambda *a, **kw: "/foo/bar/"),
         )
@@ -3359,7 +3356,6 @@ class TestManageProjectSettings:
         request = pretend.stub(
             POST={},
             user=user,
-            organization_access=True,
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -3493,7 +3489,6 @@ class TestManageProjectSettings:
         request = pretend.stub(
             POST={},
             user=user,
-            organization_access=True,
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -3517,7 +3512,6 @@ class TestManageProjectSettings:
         request = pretend.stub(
             POST={"confirm_transfer_organization_project_name": "FOO"},
             user=user,
-            organization_access=True,
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -3606,7 +3600,6 @@ class TestManageProjectSettings:
         request = pretend.stub(
             POST={},
             user=user,
-            organization_access=True,
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )

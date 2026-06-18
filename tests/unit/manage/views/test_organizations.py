@@ -409,7 +409,6 @@ class TestManageOrganizations:
     def test_manage_organizations(self, monkeypatch):
         request = pretend.stub(
             find_service=lambda *a, **kw: pretend.stub(),
-            organization_access=True,
             user=pretend.stub(),
         )
 
@@ -475,7 +474,6 @@ class TestManageOrganizations:
                 IUserService: user_service,
                 IOrganizationService: organization_service,
             }[interface],
-            organization_access=True,
             remote_addr="0.0.0.0",
             ip_address=pretend.stub(
                 ip_address="0.0.0.0",
@@ -594,7 +592,6 @@ class TestManageOrganizations:
                 IUserService: user_service,
                 IOrganizationService: organization_service,
             }[interface],
-            organization_access=True,
             remote_addr="0.0.0.0",
             ip_address=pretend.stub(
                 ip_address="0.0.0.0",
@@ -701,7 +698,6 @@ class TestManageOrganizations:
                 IUserService: user_service,
                 IOrganizationService: organization_service,
             }[interface],
-            organization_access=True,
             remote_addr="0.0.0.0",
             ip_address=pretend.stub(
                 ip_address="0.0.0.0",

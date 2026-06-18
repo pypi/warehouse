@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pretend
-import pytest
 
 from celery.schedules import crontab
 
@@ -78,30 +77,6 @@ class TestOIDCPublisherAndClaims:
         request = pretend.stub(identity=None)
         assert accounts._oidc_publisher(request) is None
         assert accounts._oidc_claims(request) is None
-
-
-class TestOrganizationAccess:
-    @pytest.mark.parametrize(
-        ("identity", "orgs", "expected"),
-        [
-            (False, [], False),  # Unauth'd always have no access
-            (True, [], False),  # Authenticated users without orgs have no access
-            (
-                True,
-                [pretend.stub()],
-                True,
-            ),  # Authenticated users with organizations have access
-        ],
-    )
-    def test_organization_access(self, db_session, identity, orgs, expected):
-        user = None if not identity else UserFactory()
-        request = pretend.stub(
-            identity=UserContext(user, None),
-            find_service=lambda interface, context=None: pretend.stub(
-                get_organizations_by_user=lambda x: orgs
-            ),
-        )
-        assert expected == accounts._organization_access(request)
 
 
 class TestUnauthenticatedUserid:
@@ -204,9 +179,6 @@ def test_includeme(monkeypatch):
         pretend.call(accounts._user, name="user", reify=True),
         pretend.call(accounts._oidc_publisher, name="oidc_publisher", reify=True),
         pretend.call(accounts._oidc_claims, name="oidc_claims", reify=True),
-        pretend.call(
-            accounts._organization_access, name="organization_access", reify=True
-        ),
         pretend.call(accounts._unauthenticated_userid, name="_unauthenticated_userid"),
     ]
     assert config.set_security_policy.calls == [pretend.call(multi_policy_obj)]
