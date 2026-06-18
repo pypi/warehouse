@@ -2901,9 +2901,8 @@ class TestManageProjects:
 
 
 class TestManageProjectSettings:
-    @pytest.mark.parametrize("enabled", [False, True])
-    def test_manage_project_settings(self, enabled, monkeypatch):
-        request = pretend.stub(organization_access=enabled)
+    def test_manage_project_settings(self, monkeypatch):
+        request = pretend.stub()
         project = pretend.stub(organization=None, lifecycle_status=None)
         view = views.ManageProjectSettingsViews(project, request)
         form = pretend.stub()
@@ -2928,7 +2927,7 @@ class TestManageProjectSettings:
         }
 
     def test_manage_project_settings_in_organization_managed(self, monkeypatch):
-        request = pretend.stub(organization_access=True)
+        request = pretend.stub()
         organization_managed = pretend.stub(name="managed-org", is_active=True)
         organization_owned = pretend.stub(name="owned-org", is_active=True)
         project = pretend.stub(organization=organization_managed, lifecycle_status=None)
@@ -2960,7 +2959,7 @@ class TestManageProjectSettings:
         ]
 
     def test_manage_project_settings_in_organization_owned(self, monkeypatch):
-        request = pretend.stub(organization_access=True)
+        request = pretend.stub()
         organization_managed = pretend.stub(name="managed-org", is_active=True)
         organization_owned = pretend.stub(name="owned-org", is_active=True)
         project = pretend.stub(organization=organization_owned, lifecycle_status=None)
@@ -3256,7 +3255,6 @@ class TestManageProjectSettings:
         request = pretend.stub(
             POST={},
             user=user,
-            organization_access=True,
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -3281,9 +3279,8 @@ class TestManageProjectSettings:
         request = pretend.stub(
             POST={"confirm_remove_organization_project_name": "FOO"},
             user=user,
-            organization_access=True,
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            route_path=lambda *a, **kw: "/foo/bar/",
+            route_path=pretend.call_recorder(lambda *a, **kw: "/foo/bar/"),
         )
 
         with pytest.raises(HTTPSeeOther) as exc:
@@ -3301,21 +3298,6 @@ class TestManageProjectSettings:
             )
         ]
 
-    def test_remove_organization_project_disable_organizations(self):
-        project = pretend.stub(name="foo", normalized_name="foo")
-        request = pretend.stub(
-            organization_access=False,
-            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-        )
-
-        result = org_views.remove_organization_project(project, request)
-
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/the-redirect"
-        assert request.session.flash.calls == [
-            pretend.call("Organizations are disabled", queue="error")
-        ]
         assert request.route_path.calls == [
             pretend.call("manage.project.settings", project_name="foo")
         ]
@@ -3374,7 +3356,6 @@ class TestManageProjectSettings:
         request = pretend.stub(
             POST={},
             user=user,
-            organization_access=True,
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -3508,7 +3489,6 @@ class TestManageProjectSettings:
         request = pretend.stub(
             POST={},
             user=user,
-            organization_access=True,
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -3532,7 +3512,6 @@ class TestManageProjectSettings:
         request = pretend.stub(
             POST={"confirm_transfer_organization_project_name": "FOO"},
             user=user,
-            organization_access=True,
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -3547,26 +3526,6 @@ class TestManageProjectSettings:
                 "Could not transfer project - 'FOO' is not the same as 'foo'",
                 queue="error",
             )
-        ]
-
-    def test_transfer_organization_project_disable_organizations(self):
-        project = pretend.stub(name="foo", normalized_name="foo")
-        request = pretend.stub(
-            organization_access=False,
-            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-        )
-
-        result = org_views.transfer_organization_project(project, request)
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/the-redirect"
-
-        assert request.session.flash.calls == [
-            pretend.call("Organizations are disabled", queue="error")
-        ]
-
-        assert request.route_path.calls == [
-            pretend.call("manage.project.settings", project_name="foo")
         ]
 
     def test_transfer_organization_project_no_current_organization(
@@ -3641,7 +3600,6 @@ class TestManageProjectSettings:
         request = pretend.stub(
             POST={},
             user=user,
-            organization_access=True,
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -5169,7 +5127,7 @@ class TestManageProjectRelease:
 
 class TestManageProjectRoles:
     @pytest.fixture
-    def organization(self, _enable_organizations, pyramid_user):
+    def organization(self, pyramid_user):
         organization = OrganizationFactory.create()
         OrganizationRoleFactory.create(
             organization=organization,
