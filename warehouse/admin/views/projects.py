@@ -597,7 +597,18 @@ def set_upload_limit(project, request):
             )
         )
 
+    old_upload_limit = project.upload_limit
     project.upload_limit = form.upload_limit.data
+
+    project.record_event(
+        tag=EventTag.Project.ProjectSetUploadLimit,
+        request=request,
+        additional={
+            "old_upload_limit": old_upload_limit,
+            "new_upload_limit": project.upload_limit,
+            "actor": request.user.username,
+        },
+    )
 
     request.session.flash(f"Set the upload limit on {project.name!r}", queue="success")
 
@@ -626,7 +637,18 @@ def set_total_size_limit(project, request):
             )
         )
 
+    old_total_size_limit = project.total_size_limit
     project.total_size_limit = form.total_size_limit.data
+
+    project.record_event(
+        tag=EventTag.Project.ProjectSetTotalSizeLimit,
+        request=request,
+        additional={
+            "old_total_size_limit": old_total_size_limit,
+            "new_total_size_limit": project.total_size_limit,
+            "actor": request.user.username,
+        },
+    )
 
     request.session.flash(
         f"Set the total size limit on {project.name!r}", queue="success"
