@@ -37,8 +37,26 @@ from warehouse.organizations.models import (
     OrganizationRoleType,
     OrganizationType,
 )
+from warehouse.packaging.models import Project, Release
 from warehouse.subscriptions.interfaces import IBillingService
+from warehouse.subscriptions.models import (
+    ACTIVE_SUBSCRIPTION_STATUSES,
+    StripeSubscription,
+)
 from warehouse.utils.paginate import paginate_url_factory
+
+# an org is "active" if a project released within this window
+ACTIVE_RELEASE_WINDOW = datetime.timedelta(days=365)
+
+
+def _organization_activity_predicates():
+    """activity-tier predicates shared by the list filter and detail view."""
+    release_cutoff = datetime.datetime.now(datetime.UTC) - ACTIVE_RELEASE_WINDOW
+    has_projects = Organization.projects.any()
+    has_recent_release = Organization.projects.any(
+        Project.releases.any(Release.created >= release_cutoff)
+    )
+    return has_projects, has_recent_release
 
 
 class OrganizationRoleForm(wtforms.Form):
@@ -191,6 +209,10 @@ def organization_list(request):
             # - is:inactive
             # - type:company
             # - type:community
+            # - activity:active
+            # - activity:dormant
+            # - activity:unused
+            # - has:subscription
             try:
                 field, value = term.lower().split(":", 1)
             except ValueError:
@@ -223,6 +245,27 @@ def organization_list(request):
                     filters.append(Organization.orgtype == OrganizationType.Company)
                 elif "community".startswith(value):
                     filters.append(Organization.orgtype == OrganizationType.Community)
+            elif field == "activity":
+                has_projects, has_recent_release = _organization_activity_predicates()
+                if "active".startswith(value):
+                    filters.append(has_recent_release)
+                elif "dormant".startswith(value):
+                    filters.extend([has_projects, ~has_recent_release])
+                elif "unused".startswith(value):
+                    filters.append(~has_projects)
+            elif field == "has":
+                # only company orgs can subscribe
+                if "subscription".startswith(value):
+                    filters.extend(
+                        [
+                            Organization.orgtype == OrganizationType.Company,
+                            Organization.subscriptions.any(
+                                StripeSubscription.status.in_(
+                                    ACTIVE_SUBSCRIPTION_STATUSES
+                                )
+                            ),
+                        ]
+                    )
             else:
                 # Add filter for any field.
                 filters.append(
@@ -253,6 +296,19 @@ def organization_list(request):
     )
 
     return {"organizations": organizations, "query": q, "terms": terms}
+
+
+def _organization_activity(request, organization):
+    """activity tier for a single org (see the activity: list filters)."""
+    has_projects, has_recent_release = _organization_activity_predicates()
+    this_organization = request.db.query(Organization.id).filter(
+        Organization.id == organization.id
+    )
+    if this_organization.filter(has_recent_release).first():
+        return "Active"
+    if this_organization.filter(has_projects).first():
+        return "Dormant"
+    return "Unused"
 
 
 @view_config(
@@ -327,6 +383,7 @@ def organization_detail(request):
 
     return {
         "organization": organization,
+        "activity": _organization_activity(request, organization),
         "form": form,
         "roles": roles,
         "role_forms": role_forms,
