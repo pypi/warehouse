@@ -33,6 +33,7 @@ from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage import views
 from warehouse.manage.views import (
     organizations as org_views,
+    view_helpers,
 )
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
@@ -3605,7 +3606,7 @@ class TestManageProjectSettings:
             lambda req, user, **k: None
         )
         monkeypatch.setattr(
-            org_views,
+            view_helpers,
             "send_organization_project_added_email",
             send_organization_project_added_email,
         )
@@ -3701,7 +3702,7 @@ class TestManageProjectSettings:
             lambda req, user, **k: None
         )
         monkeypatch.setattr(
-            org_views,
+            view_helpers,
             "send_organization_project_added_email",
             send_organization_project_added_email,
         )
@@ -3831,7 +3832,7 @@ class TestManageProjectSettings:
             lambda req, user, **k: None
         )
         monkeypatch.setattr(
-            org_views,
+            view_helpers,
             "send_organization_project_added_email",
             send_organization_project_added_email,
         )
@@ -3931,7 +3932,7 @@ class TestManageProjectSettings:
             lambda req, user, **k: None
         )
         monkeypatch.setattr(
-            org_views,
+            view_helpers,
             "send_organization_project_added_email",
             send_organization_project_added_email,
         )

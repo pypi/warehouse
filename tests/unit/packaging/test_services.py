@@ -27,6 +27,7 @@ from warehouse.packaging.interfaces import (
     ProjectNameUnavailableSimilarError,
     ProjectNameUnavailableStdlibError,
     ProjectNameUnavailableTypoSquattingError,
+    TooManyProjectsCreated,
 )
 from warehouse.packaging.services import (
     B2FileStorage,
@@ -43,7 +44,9 @@ from warehouse.packaging.services import (
     S3FileStorage,
     project_service_factory,
 )
+from warehouse.rate_limiting.interfaces import WindowStats
 
+from ...common.db.accounts import UserFactory
 from ...common.db.packaging import ProhibitedProjectFactory, ProjectFactory
 
 
@@ -1041,6 +1044,106 @@ class TestProjectService:
             "/the/help/url/ for more information."
         )
 
+    @pytest.mark.parametrize(
+        ("enforce", "limiter_method", "limiter_name", "keyed_on_creator"),
+        [
+            (ProjectService._check_ratelimits, "test", "project.create.ip", False),
+            (ProjectService._check_ratelimits, "test", "project.create.user", True),
+            (ProjectService._hit_ratelimits, "hit", "project.create.user", True),
+            (ProjectService._hit_ratelimits, "hit", "project.create.ip", False),
+        ],
+        ids=["check-ip", "check-user", "hit-user", "hit-ip"],
+    )
+    def test_ratelimit_exceeded_raises_with_correct_reset_hint(
+        self,
+        project_service,
+        db_request,
+        ratelimit_service,
+        mocker,
+        enforce,
+        limiter_method,
+        limiter_name,
+        keyed_on_creator,
+    ):
+        """A limiter reporting its threshold is reached refuses the creation.
+
+        Both the optimistic ``_check_ratelimits`` gate (via ``test``) and the
+        enforcing ``_hit_ratelimits`` gate (via ``hit``) raise, and the reset
+        hint is keyed on the identifier that tripped the limit: the creator's id
+        for the user limit, the request IP for the IP limit.
+        """
+        creator = UserFactory.create()
+        # Trip just the limiter under test; the other auto-creates and passes.
+        project_service.ratelimiters[limiter_name] = ratelimit_service
+        mocker.patch.object(ratelimit_service, limiter_method, return_value=False)
+
+        with pytest.raises(TooManyProjectsCreated):
+            enforce(project_service, db_request, creator)
+
+        expected = creator.id if keyed_on_creator else db_request.remote_addr
+        ratelimit_service.resets_in.assert_called_once_with(expected)
+
+    def test_hit_ratelimits_skips_ip_limiter_without_remote_addr(
+        self, project_service, db_request, ratelimit_service
+    ):
+        """With no resolvable client IP the IP limiter is left untouched.
+
+        This mirrors the guard already present in ``_check_ratelimits``.
+        """
+        creator = UserFactory.create()
+        db_request.remote_addr = None
+        project_service.ratelimiters["project.create.ip"] = ratelimit_service
+
+        project_service._hit_ratelimits(db_request, creator)
+
+        ratelimit_service.hit.assert_not_called()
+
+    def test_create_project_rejects_when_hit_exceeds_limit(
+        self, project_service, db_request, ratelimit_service, mocker
+    ):
+        """The atomic ``hit`` enforces the limit even when ``test`` passed.
+
+        A burst of concurrent uploads can each clear the optimistic ``test``
+        check before any of them records a hit, so the per-request ``hit`` is
+        what actually caps creation: a request that pushes the counter past the
+        limit is rejected, rolling back the project just created.
+        """
+        creator = UserFactory.create()
+        project_service.ratelimiters["project.create.user"] = ratelimit_service
+        mocker.patch.object(ratelimit_service, "hit", return_value=False)
+
+        with pytest.raises(TooManyProjectsCreated):
+            project_service.create_project("some-new-project", creator, db_request)
+
+    def test_check_ratelimits_records_rate_limit_headers(
+        self, project_service, db_request, ratelimit_service, mocker
+    ):
+        """`_check_ratelimits` records a snapshot per limiter so the egress
+        tween can emit RateLimit / RateLimit-Policy headers on the response.
+        """
+        creator = UserFactory.create()
+        stats = [
+            WindowStats(
+                amount=4, window_seconds=86400, remaining=3, resets_in_seconds=0
+            )
+        ]
+        mocker.patch.object(ratelimit_service, "get_window_stats", return_value=stats)
+        project_service.ratelimiters["project.create.user"] = ratelimit_service
+        project_service.ratelimiters["project.create.ip"] = ratelimit_service
+
+        project_service._check_ratelimits(db_request, creator)
+
+        # Keyed on the request IP and the creator's id, in that order.
+        assert ratelimit_service.get_window_stats.call_args_list == [
+            mocker.call(db_request.remote_addr),
+            mocker.call(creator.id),
+        ]
+        snapshots = db_request._rate_limit_snapshots
+        assert [(s.name, s.partition_key, s.stats) for s in snapshots] == [
+            ("project.create.ip", "ip", stats),
+            ("project.create.user", "user", stats),
+        ]
+
     def test_check_project_name_already_exists(self, db_session):
         service = ProjectService(session=db_session)
         project = ProjectFactory.create(name="foo")
@@ -1093,12 +1196,10 @@ class TestProjectService:
         service.check_project_name("foo")
 
 
-def test_project_service_factory():
-    db = pretend.stub()
-    request = pretend.stub(
-        db=db,
-        find_service=lambda iface, name=None, context=None: None,
-    )
+def test_project_service_factory(db_request, ratelimit_service):
+    service = project_service_factory(pretend.stub(), db_request)
 
-    service = project_service_factory(pretend.stub(), request)
-    assert service.db == db
+    assert service.db is db_request.db
+    # The factory resolves both rate limiters from the registry by name.
+    assert service.ratelimiters["project.create.user"] is ratelimit_service
+    assert service.ratelimiters["project.create.ip"] is ratelimit_service

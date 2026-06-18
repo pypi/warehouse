@@ -156,7 +156,7 @@
     <meta property="og:site_name" content="PyPI">
     <meta property="og:type" content="website">
     <meta property="og:image"
-          content="{% block image %}{{ request.static_url("warehouse:static/dist/images/twitter.jpg") }}{% endblock %}">
+          content="{% block image %}{{ request.static_url('warehouse:static/dist/images/twitter.jpg') }}{% endblock %}">
     <meta property="og:title"
           content="{{ self.title() |default('Python Package Index') }}">
     <meta property="og:description" content="{{ self.description() }}">

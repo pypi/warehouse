@@ -1520,6 +1520,7 @@ class TestSetUploadLimit:
     @pytest.mark.usefixtures("_enable_organizations")
     def test_set_upload_limit_with_integer(self, db_request):
         organization = OrganizationFactory.create(name="foo")
+        user = UserFactory.create()
 
         db_request.route_path = pretend.call_recorder(
             lambda a, organization_id: "/admin/organizations/1/"
@@ -1527,6 +1528,7 @@ class TestSetUploadLimit:
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
+        db_request.user = user
         db_request.matchdict["organization_id"] = organization.id
         db_request.POST = MultiDict({"upload_limit": "150"})
 
@@ -1538,11 +1540,20 @@ class TestSetUploadLimit:
         assert result.status_code == 303
         assert result.location == "/admin/organizations/1/"
         assert organization.upload_limit == 150 * views.ONE_MIB
+        event = organization.events.one()
+        assert event.tag == "admin:organization:set_upload_limit"
+        assert event.additional == {
+            "organization_name": organization.name,
+            "old_upload_limit": None,
+            "new_upload_limit": 150 * views.ONE_MIB,
+            "actor": user.username,
+        }
 
     @pytest.mark.usefixtures("_enable_organizations")
     def test_set_upload_limit_with_none(self, db_request):
         organization = OrganizationFactory.create(name="foo")
         organization.upload_limit = 150 * views.ONE_MIB
+        user = UserFactory.create()
 
         db_request.route_path = pretend.call_recorder(
             lambda a, organization_id: "/admin/organizations/1/"
@@ -1550,6 +1561,7 @@ class TestSetUploadLimit:
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
+        db_request.user = user
         db_request.matchdict["organization_id"] = organization.id
         db_request.POST = MultiDict({"upload_limit": ""})
 
@@ -1561,6 +1573,14 @@ class TestSetUploadLimit:
         assert result.status_code == 303
         assert result.location == "/admin/organizations/1/"
         assert organization.upload_limit is None
+        event = organization.events.one()
+        assert event.tag == "admin:organization:set_upload_limit"
+        assert event.additional == {
+            "organization_name": organization.name,
+            "old_upload_limit": 150 * views.ONE_MIB,
+            "new_upload_limit": None,
+            "actor": user.username,
+        }
 
     @pytest.mark.usefixtures("_enable_organizations")
     def test_set_upload_limit_invalid_value(self, db_request):
@@ -1643,6 +1663,7 @@ class TestSetTotalSizeLimit:
     @pytest.mark.usefixtures("_enable_organizations")
     def test_set_total_size_limit_with_integer(self, db_request):
         organization = OrganizationFactory.create(name="foo")
+        user = UserFactory.create()
 
         db_request.route_path = pretend.call_recorder(
             lambda a, organization_id: "/admin/organizations/1/"
@@ -1650,6 +1671,7 @@ class TestSetTotalSizeLimit:
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
+        db_request.user = user
         db_request.matchdict["organization_id"] = organization.id
         db_request.POST = MultiDict({"total_size_limit": "150"})
 
@@ -1661,11 +1683,20 @@ class TestSetTotalSizeLimit:
         assert result.status_code == 303
         assert result.location == "/admin/organizations/1/"
         assert organization.total_size_limit == 150 * views.ONE_GIB
+        event = organization.events.one()
+        assert event.tag == "admin:organization:set_total_size_limit"
+        assert event.additional == {
+            "organization_name": organization.name,
+            "old_total_size_limit": None,
+            "new_total_size_limit": 150 * views.ONE_GIB,
+            "actor": user.username,
+        }
 
     @pytest.mark.usefixtures("_enable_organizations")
     def test_set_total_size_limit_with_none(self, db_request):
         organization = OrganizationFactory.create(name="foo")
         organization.total_size_limit = 150 * views.ONE_GIB
+        user = UserFactory.create()
 
         db_request.route_path = pretend.call_recorder(
             lambda a, organization_id: "/admin/organizations/1/"
@@ -1673,6 +1704,7 @@ class TestSetTotalSizeLimit:
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
+        db_request.user = user
         db_request.matchdict["organization_id"] = organization.id
         db_request.POST = MultiDict({"total_size_limit": ""})
 
@@ -1684,6 +1716,14 @@ class TestSetTotalSizeLimit:
         assert result.status_code == 303
         assert result.location == "/admin/organizations/1/"
         assert organization.total_size_limit is None
+        event = organization.events.one()
+        assert event.tag == "admin:organization:set_total_size_limit"
+        assert event.additional == {
+            "organization_name": organization.name,
+            "old_total_size_limit": 150 * views.ONE_GIB,
+            "new_total_size_limit": None,
+            "actor": user.username,
+        }
 
     @pytest.mark.usefixtures("_enable_organizations")
     def test_set_total_size_limit_invalid_value(self, db_request):

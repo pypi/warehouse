@@ -5305,6 +5305,7 @@ class TestFileUpload:
         project_service.ratelimiters[failing_limiter] = pretend.stub(
             test=lambda *a, **kw: False,
             resets_in=lambda *a, **kw: 60,
+            get_window_stats=lambda *a, **kw: [],
         )
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
