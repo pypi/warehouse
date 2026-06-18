@@ -353,6 +353,23 @@ class TestOrganizationList:
             trialing_org,
         }
 
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_annotates_status(self, db_request):
+        active = OrganizationFactory.create()
+        project = ProjectFactory.create()
+        OrganizationProjectFactory.create(organization=active, project=project)
+        ReleaseFactory.create(project=project)
+        unused = OrganizationFactory.create()
+        inactive = OrganizationFactory.create(is_active=False)
+
+        status = {
+            organization.id: organization.activity
+            for organization in views.organization_list(db_request)["organizations"]
+        }
+        assert status[active.id] == "Active"
+        assert status[unused.id] == "Unused"
+        assert status[inactive.id] == "Inactive"
+
 
 class TestOrganizationActivity:
     def test_unused(self, db_request):
@@ -378,6 +395,10 @@ class TestOrganizationActivity:
         OrganizationProjectFactory.create(organization=organization, project=project)
         ReleaseFactory.create(project=project)
         assert views._organization_activity(db_request, organization) == "Active"
+
+    def test_inactive(self, db_request):
+        organization = OrganizationFactory.create(is_active=False)
+        assert views._organization_activity(db_request, organization) == "Inactive"
 
 
 class TestOrganizationDetail:
