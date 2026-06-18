@@ -84,6 +84,11 @@
         {% else %}
         <td><i class="fa fa-fw fa-times text-red"></i> Inactive</td>
         {% endif %}
+        {% if organization.active_subscription %}
+        <td><i class="fa fa-fw fa-check text-green"></i> Yes</td>
+        {% else %}
+        <td><i class="fa fa-fw fa-times text-red"></i> No</td>
+        {% endif %}
         {% if organization.good_standing %}
         <td><i class="fa fa-fw fa-check text-green"></i> Yes</td>
         {% else %}
