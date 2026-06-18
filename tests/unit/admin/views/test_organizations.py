@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import datetime
+
 from datetime import date, timedelta
 
 import pretend
@@ -14,10 +16,16 @@ from tests.common.db.organizations import (
     OrganizationFactory,
     OrganizationManualActivationFactory,
     OrganizationOIDCIssuerFactory,
+    OrganizationProjectFactory,
     OrganizationRoleFactory,
     OrganizationStripeCustomerFactory,
+    OrganizationStripeSubscriptionFactory,
 )
-from tests.common.db.subscriptions import StripeCustomerFactory
+from tests.common.db.packaging import ProjectFactory, ReleaseFactory
+from tests.common.db.subscriptions import (
+    StripeCustomerFactory,
+    StripeSubscriptionFactory,
+)
 from warehouse.admin.views import organizations as views
 from warehouse.events.tags import EventTag
 from warehouse.organizations.models import (
@@ -29,6 +37,7 @@ from warehouse.organizations.models import (
     OrganizationType,
 )
 from warehouse.subscriptions.interfaces import IBillingService
+from warehouse.subscriptions.models import StripeSubscriptionStatus
 
 
 class TestOrganizationForm:
@@ -270,6 +279,105 @@ class TestOrganizationList:
             "query": "is:not-actually-a-valid-query",
             "terms": ["is:not-actually-a-valid-query"],
         }
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_activity_query(self, db_request):
+        # Active: owns a project released within the window.
+        active_org = OrganizationFactory.create()
+        active_project = ProjectFactory.create()
+        OrganizationProjectFactory.create(
+            organization=active_org, project=active_project
+        )
+        ReleaseFactory.create(project=active_project)
+
+        # Dormant: owns a project, but only released long ago.
+        dormant_org = OrganizationFactory.create()
+        dormant_project = ProjectFactory.create()
+        OrganizationProjectFactory.create(
+            organization=dormant_org, project=dormant_project
+        )
+        ReleaseFactory.create(
+            project=dormant_project, created=datetime.datetime(2020, 1, 1)
+        )
+
+        # Unused: owns no projects.
+        unused_org = OrganizationFactory.create()
+
+        db_request.GET["q"] = "activity:active"
+        assert views.organization_list(db_request)["organizations"] == [active_org]
+
+        db_request.GET["q"] = "activity:dormant"
+        assert views.organization_list(db_request)["organizations"] == [dormant_org]
+
+        db_request.GET["q"] = "activity:unused"
+        assert views.organization_list(db_request)["organizations"] == [unused_org]
+
+    @pytest.mark.usefixtures("_enable_organizations")
+    def test_has_subscription_query(self, db_request):
+        active_org = OrganizationFactory.create(orgtype=OrganizationType.Company)
+        OrganizationStripeSubscriptionFactory.create(
+            organization=active_org,
+            subscription=StripeSubscriptionFactory.create(
+                status=StripeSubscriptionStatus.Active
+            ),
+        )
+        # A trialing subscription also counts.
+        trialing_org = OrganizationFactory.create(orgtype=OrganizationType.Company)
+        OrganizationStripeSubscriptionFactory.create(
+            organization=trialing_org,
+            subscription=StripeSubscriptionFactory.create(
+                status=StripeSubscriptionStatus.Trialing
+            ),
+        )
+
+        # A canceled subscription does not count.
+        OrganizationStripeSubscriptionFactory.create(
+            organization=OrganizationFactory.create(orgtype=OrganizationType.Company),
+            subscription=StripeSubscriptionFactory.create(
+                status=StripeSubscriptionStatus.Canceled
+            ),
+        )
+        # A Community org with a subscription does not count -- only Company
+        # organizations can subscribe.
+        OrganizationStripeSubscriptionFactory.create(
+            organization=OrganizationFactory.create(orgtype=OrganizationType.Community),
+            subscription=StripeSubscriptionFactory.create(
+                status=StripeSubscriptionStatus.Active
+            ),
+        )
+        OrganizationFactory.create()  # no subscription
+
+        db_request.GET["q"] = "has:subscription"
+        assert set(views.organization_list(db_request)["organizations"]) == {
+            active_org,
+            trialing_org,
+        }
+
+
+class TestOrganizationActivity:
+    def test_unused(self, db_request):
+        organization = OrganizationFactory.create()
+        assert views._organization_activity(db_request, organization) == "Unused"
+
+    def test_dormant(self, db_request):
+        organization = OrganizationFactory.create()
+        project = ProjectFactory.create()
+        OrganizationProjectFactory.create(organization=organization, project=project)
+        ReleaseFactory.create(project=project, created=datetime.datetime(2020, 1, 1))
+        assert views._organization_activity(db_request, organization) == "Dormant"
+
+    def test_dormant_with_no_releases(self, db_request):
+        organization = OrganizationFactory.create()
+        project = ProjectFactory.create()
+        OrganizationProjectFactory.create(organization=organization, project=project)
+        assert views._organization_activity(db_request, organization) == "Dormant"
+
+    def test_active(self, db_request):
+        organization = OrganizationFactory.create()
+        project = ProjectFactory.create()
+        OrganizationProjectFactory.create(organization=organization, project=project)
+        ReleaseFactory.create(project=project)
+        assert views._organization_activity(db_request, organization) == "Active"
 
 
 class TestOrganizationDetail:
