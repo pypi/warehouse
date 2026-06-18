@@ -390,31 +390,15 @@ def _nuke_user(user, request):
         .execution_options(synchronize_session=False)
     )
 
-    # deactiate org if the user is the sole owner of any
-    # and record event for change
-    organizations_owned = (
-        request.db.query(Organization.id)
-        .join(OrganizationRole.organization)
-        .filter(
-            OrganizationRole.role_name == OrganizationRoleType.Owner,
-            OrganizationRole.user == user,
-        )
-        .subquery()
-    )
-    organizations_with_sole_owner = (
-        request.db.query(OrganizationRole.organization_id)
-        .join(organizations_owned)
-        .filter(OrganizationRole.role_name == OrganizationRoleType.Owner)
-        .group_by(OrganizationRole.organization_id)
-        .having(func.count(OrganizationRole.organization_id) == 1)
-        .subquery()
-    )
+    # Deactivate (and record an event for) any organization the user is the
+    # sole owner of: one Owner role, belonging to this user.
     sole_owned_organizations = (
         request.db.query(Organization)
-        .join(
-            organizations_with_sole_owner,
-            Organization.id == organizations_with_sole_owner.c.organization_id,
-        )
+        .join(OrganizationRole, OrganizationRole.organization_id == Organization.id)
+        .filter(OrganizationRole.role_name == OrganizationRoleType.Owner)
+        .group_by(Organization.id)
+        .having(func.count(OrganizationRole.user_id) == 1)
+        .having(func.bool_or(OrganizationRole.user_id == user.id))
         .all()
     )
     for organization in sole_owned_organizations:
