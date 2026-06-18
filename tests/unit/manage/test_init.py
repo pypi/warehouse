@@ -56,7 +56,7 @@ class TestReAuthView:
             session=pretend.stub(
                 needs_reauthentication=pretend.call_recorder(lambda *args: True)
             ),
-            user=pretend.stub(username=pretend.stub()),
+            user=pretend.stub(id=pretend.stub(), username=pretend.stub()),
             matched_route=pretend.stub(name=pretend.stub()),
             matchdict={"foo": "bar"},
             GET=pretend.stub(mixed=lambda: {"baz": "bar"}),

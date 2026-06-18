@@ -3787,7 +3787,7 @@ class TestReAuthentication:
             pretend.call(
                 pyramid_request.POST,
                 request=pyramid_request,
-                username=pyramid_request.user.username,
+                user_id=pyramid_request.user.id,
                 next_route=pyramid_request.matched_route.name,
                 next_route_matchdict=json.dumps(pyramid_request.matchdict),
                 next_route_query=json.dumps(pyramid_request.GET.mixed()),
@@ -3809,6 +3809,75 @@ class TestReAuthentication:
         assert isinstance(result, HTTPSeeOther)
         assert pyramid_request.route_path.calls == [pretend.call("accounts.login")]
         assert result.headers["Location"] == "/the-redirect"
+
+    def test_reauth_rejects_different_users_password(
+        self, monkeypatch, pyramid_request, pyramid_services
+    ):
+        alice = pretend.stub(
+            id=1,
+            username="alice",
+            record_event=pretend.call_recorder(lambda **kwargs: None),
+        )
+        user_service = pretend.stub(
+            check_password=pretend.call_recorder(
+                lambda user_id, password, tags=None: (
+                    user_id == 2 and password == "bob-password"
+                )
+            ),
+            find_userid=pretend.call_recorder(lambda username: 2),
+            get_user=pretend.call_recorder(lambda user_id: alice),
+            get_password_timestamp=pretend.call_recorder(lambda user_id: 0),
+        )
+        response = pretend.stub(headers={"Location": "/target"})
+
+        monkeypatch.setattr(views, "HTTPSeeOther", lambda url: response)
+        pyramid_services.register_service(user_service, IUserService, None)
+
+        pyramid_request.method = "POST"
+        pyramid_request.POST = MultiDict(
+            {
+                "username": "bob",
+                "password": "bob-password",
+                "next_route": "manage.account.publishing",
+                "next_route_matchdict": "{}",
+                "next_route_query": "{}",
+            }
+        )
+        pyramid_request.user = alice
+        pyramid_request.matched_route = pretend.stub(name="manage.account.publishing")
+        pyramid_request.matchdict = {}
+        pyramid_request.GET = pretend.stub(mixed=lambda: {})
+        pyramid_request.route_path = pretend.call_recorder(lambda *a, **kw: "/target")
+        pyramid_request.session.record_auth_timestamp = pretend.call_recorder(
+            lambda: None
+        )
+        pyramid_request.session.record_password_timestamp = pretend.call_recorder(
+            lambda ts: None
+        )
+
+        result = views.reauthenticate(pyramid_request)
+
+        assert result is response
+        assert user_service.check_password.calls == [
+            pretend.call(
+                alice.id,
+                "bob-password",
+                tags=[
+                    "method:reauth",
+                    "auth_method:reauthenticate_form",
+                ],
+            )
+        ]
+        assert user_service.find_userid.calls == []
+        assert alice.record_event.calls == [
+            pretend.call(
+                tag="account:reauthenticate:failure",
+                request=pyramid_request,
+                additional={"reason": "invalid_password"},
+            )
+        ]
+        assert pyramid_request.session.record_auth_timestamp.calls == []
+        assert pyramid_request.session.record_password_timestamp.calls == []
 
 
 class TestManageAccountPublishingViews:
