@@ -1940,7 +1940,7 @@ msgid "Joined %(start_date)s"
 msgstr ""
 
 #: warehouse/templates/accounts/profile.html:52
-#: warehouse/templates/organizations/profile.html:37
+#: warehouse/templates/organizations/profile.html:39
 #, python-format
 msgid "%(count)s project"
 msgid_plural "%(count)s projects"
@@ -1948,7 +1948,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: warehouse/templates/accounts/profile.html:58
-#: warehouse/templates/organizations/profile.html:43
+#: warehouse/templates/organizations/profile.html:45
 msgid "No projects"
 msgstr ""
 
@@ -1958,7 +1958,7 @@ msgstr ""
 #: warehouse/templates/manage/projects.html:24
 #: warehouse/templates/manage/projects.html:85
 #: warehouse/templates/manage/team/projects.html:36
-#: warehouse/templates/organizations/profile.html:53
+#: warehouse/templates/organizations/profile.html:55
 #, python-format
 msgid "Last released %(release_date)s"
 msgstr ""
@@ -7899,7 +7899,7 @@ msgstr ""
 msgid "Profile of %(orgname)s"
 msgstr ""
 
-#: warehouse/templates/organizations/profile.html:61
+#: warehouse/templates/organizations/profile.html:63
 #, python-format
 msgid "%(org)s has not uploaded any projects to PyPI, yet"
 msgstr ""
