@@ -10,13 +10,13 @@ celery[redis]>=5.6.2,<5.7
 celery-redbeat
 certifi
 click
-cryptography>=43.0.1
+cryptography>=48.0.1
 datadog>=0.19.0
 disposable-email-domains
 dnspython
 email-validator
 forcediphttpsadapter
-github-reserved-names>=1.0.0
+github-reserved-names>=2026.6.1
 google-cloud-bigquery
 google-cloud-storage
 hiredis
@@ -48,7 +48,7 @@ pyramid>=2.0
 pymacaroons
 pyramid_jinja2>=2.5
 pyramid_mailer>=0.14.1
-pyramid_openapi3>=0.17.1
+pyramid_openapi3>=0.22.0
 pyramid_redirect>=0.4
 pyramid_retry>=0.3
 pyramid_rpc>=0.7
@@ -57,7 +57,7 @@ pyramid_tm>=0.12
 python-slugify
 pytz
 PyJWT[crypto]>=2.13.0
-readme-renderer[md]>=36.0
+readme-renderer[md]>=45.0
 requests
 redis>=2.8.0,<7.0.0
 rfc3986
