@@ -1,0 +1,206 @@
+# SPDX-License-Identifier: Apache-2.0
+
+2FA:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "warehouse/templates/manage/account/recovery_codes-*.html"
+          - "warehouse/templates/manage/account/totp-provision.html"
+          - "warehouse/templates/manage/account/two-factor.html"
+          - "warehouse/templates/manage/account/webauthn-provision.html"
+
+admin:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "warehouse/admin/**"
+          - "tests/unit/admin/**"
+          - "tests/functional/admin/**"
+
+APIs/feeds:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "warehouse/api/**"
+          - "warehouse/forklift/**"
+          - "warehouse/legacy/api/**"
+          - "warehouse/rss/**"
+          - "tests/unit/api/**"
+          - "tests/unit/forklift/**"
+          - "tests/unit/legacy/api/**"
+          - "tests/unit/rss/**"
+          - "tests/functional/api/**"
+          - "tests/functional/forklift/**"
+          - "tests/functional/legacy/api/**"
+
+billing:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "warehouse/api/billing.py"
+          - "warehouse/mock/billing.py"
+          - "warehouse/subscriptions/**"
+          - "warehouse/templates/mock/billing/**"
+          - "tests/unit/mock/test_billing.py"
+          - "tests/unit/subscriptions/**"
+
+blog:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "docs/blog/**"
+
+CDN/network:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "warehouse/cache/**"
+          - "warehouse/static.py"
+
+CSS/SCSS:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.css"
+          - "**/*.scss"
+          - ".stylelintrc.json"
+
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/dependabot.yml"
+          - ".python-version"
+          - "package.json"
+          - "package-lock.json"
+          - "requirements.txt"
+          - "requirements/**"
+
+developer experience:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".editorconfig"
+          - ".pre-commit-config.yaml"
+          - "Makefile"
+          - "bin/**"
+          - "dev/**"
+          - "pyproject.toml"
+
+docker:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".dockerignore"
+          - "Dockerfile"
+          - "docker-compose*.yml"
+          - "docker-compose*.yaml"
+          - "bin/docker/**"
+          - "dev/compose/**"
+
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "*.rst"
+          - ".readthedocs.yml"
+          - "docs/**"
+
+email:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "warehouse/email/**"
+          - "warehouse/templates/email/**"
+          - "tests/unit/email/**"
+
+github_actions:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/**"
+
+i18n:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "babel.cfg"
+          - "warehouse/i18n/**"
+          - "tests/unit/i18n/**"
+
+javascript:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "babel.config.js"
+          - "eslint.config.mjs"
+          - "package.json"
+          - "package-lock.json"
+          - "webpack.config.js"
+          - "webpack.plugin.localize.js"
+          - "tests/frontend/**"
+          - "warehouse/admin/static/js/**"
+          - "warehouse/static/js/**"
+
+malware-detection:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "warehouse/admin/templates/admin/malware_reports/**"
+          - "warehouse/admin/views/malware_reports.py"
+          - "warehouse/integrations/secrets/**"
+          - "warehouse/templates/packaging/submit-malware-observation.html"
+          - "tests/unit/admin/views/test_malware_reports.py"
+          - "tests/unit/integration/secrets/**"
+
+metadata:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "warehouse/forklift/metadata.py"
+          - "warehouse/packaging/metadata_verification.py"
+          - "tests/unit/forklift/test_metadata.py"
+          - "tests/unit/packaging/test_metadata_verification.py"
+
+organizations:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "warehouse/organizations/**"
+          - "warehouse/templates/accounts/organization-*.html"
+          - "warehouse/templates/email/*organization*/**"
+          - "warehouse/templates/manage/organization/**"
+          - "warehouse/templates/manage/organizations.html"
+          - "warehouse/templates/organizations/**"
+          - "tests/unit/organizations/**"
+
+search:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "warehouse/search/**"
+          - "tests/unit/search/**"
+
+security:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/SECURITY.md"
+          - "docs/dev/security/**"
+          - "warehouse/authnz/**"
+          - "warehouse/captcha/**"
+          - "warehouse/csp.py"
+          - "warehouse/csrf.py"
+          - "warehouse/sessions.py"
+          - "warehouse/accounts/security_policy.py"
+          - "tests/unit/authnz/**"
+          - "tests/unit/captcha/**"
+
+squatting:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "warehouse/packaging/typosnyper.py"
+          - "tests/unit/packaging/test_typosnyper.py"
+
+tokens:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "warehouse/macaroons/**"
+          - "warehouse/templates/email/token-compromised-leak/**"
+          - "warehouse/templates/manage/account/token.html"
+          - "tests/unit/macaroons/**"
+
+translation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "warehouse/locale/**"
+
+trusted-publishing:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "docs/user/trusted-publishers/**"
+          - "warehouse/oidc/**"
+          - "warehouse/templates/manage/account/publishing.html"
+          - "warehouse/templates/manage/organization/publishing.html"
+          - "warehouse/templates/manage/project/publishing.html"
+          - "tests/unit/oidc/**"

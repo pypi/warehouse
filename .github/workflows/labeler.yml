@@ -1,0 +1,23 @@
+name: Pull Request Labeler
+
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, ready_for_review]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Pull request number to label
+        required: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  labeler:
+    if: github.repository == 'pypi/warehouse'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/labeler@f27b608878404679385c85cfa523b85ccb86e213 # v6.1.0
+        with:
+          pr-number: ${{ github.event.inputs.pr_number || github.event.pull_request.number }}
