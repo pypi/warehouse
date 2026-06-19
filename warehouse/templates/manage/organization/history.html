@@ -116,6 +116,20 @@
       <small>
         {% trans %}Removed by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=deleted_by) }}">{{ deleted_by }}</a>
       </small>
+      {# Display action for organization billing events #}
+    {% elif event.tag == EventTag.Organization.SubscriptionCreate %}
+      <strong>{% trans %}Subscription started{% endtrans %}</strong>
+    {% elif event.tag == EventTag.Organization.SubscriptionStatusChange %}
+      <strong>{% trans status=event.additional.status %}Subscription status changed to {{ status }}{% endtrans %}</strong>
+    {% elif event.tag == EventTag.Organization.SubscriptionCancel %}
+      {% if event.additional.at_period_end %}
+        <strong>{% trans %}Subscription set to cancel at period end{% endtrans %}</strong>
+      {% else %}
+        <strong>{% trans %}Subscription canceled{% endtrans %}</strong>
+      {% endif %}
+      {% if event.additional.canceled_by %}
+        <small>{% trans canceled_by=event.additional.canceled_by %}Canceled by: {{ canceled_by }}{% endtrans %}</small>
+      {% endif %}
       {# For everything else, display the tag itself #}
     {% else %}
       <strong>{{ event.tag }}</strong>
