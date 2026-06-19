@@ -222,7 +222,7 @@
                     {{ '%.2f'|format(subscription.subscription_price.unit_amount / 100) }} {{ subscription.subscription_price.currency|upper }}
                     <span class="text-muted">/ {{ subscription.subscription_price.recurring.value }}</span>
                   </td>
-                  <td class="text-right">{{ subscription.subscription_item.quantity }}</td>
+                  <td class="text-right">{{ organization.users | length }}</td>
                   <td>
                     <a href="https://dashboard.stripe.com/subscriptions/{{ subscription.subscription_id }}" target="_blank" rel="noopener">
                       <code>{{ subscription.subscription_id }}</code>
