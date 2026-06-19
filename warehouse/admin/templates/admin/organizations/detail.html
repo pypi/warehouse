@@ -275,9 +275,11 @@
                     {{ "Subscription set to cancel at period end" if event.additional.at_period_end else "Subscription canceled" }}
                     {% if event.additional.canceled_by %}<span class="text-muted">by {{ event.additional.canceled_by }}</span>{% endif %}
                     {% elif event.tag == EventTag.Organization.OrganizationRoleAdd %}
-                    Member added <span class="text-muted">(seat +1)</span>
+                    {{ get_user(event.additional.target_user_id).username }} added as {{ event.additional.role_name | lower }}
+                    <span class="text-muted">(seat +1) by {{ get_user(event.additional.submitted_by_user_id).username }}</span>
                     {% elif event.tag == EventTag.Organization.OrganizationRoleRemove %}
-                    Member removed <span class="text-muted">(seat −1)</span>
+                    {{ get_user(event.additional.target_user_id).username }} removed as {{ event.additional.role_name | lower }}
+                    <span class="text-muted">(seat −1) by {{ get_user(event.additional.submitted_by_user_id).username }}</span>
                     {% endif %}
                   </td>
                 </tr>
