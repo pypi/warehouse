@@ -134,8 +134,10 @@
     {% else %}
       <strong>{{ event.tag }}</strong>
     {% endif %}
-    {# Display acting user for catalog entry events #}
-    {% if event.tag == EventTag.Organization.CatalogEntryAdd %}
+    {# Billing events render their acting user (if any) in the summary above #}
+    {% if event.tag in [EventTag.Organization.SubscriptionCreate, EventTag.Organization.SubscriptionStatusChange, EventTag.Organization.SubscriptionCancel] %}
+      {# Display acting user for catalog entry events #}
+    {% elif event.tag == EventTag.Organization.CatalogEntryAdd %}
       {% set submitted_by = get_user(event.additional.submitted_by_user_id).username %}
       <small>
         {% trans %}Registered by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=submitted_by) }}">{{ submitted_by }}</a>
