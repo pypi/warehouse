@@ -407,6 +407,16 @@ def cancel_organization_subscription(request):
 
     billing_service.cancel_subscription_at_period_end(subscription.subscription_id)
 
+    organization.record_event(
+        tag=EventTag.Organization.SubscriptionCancel,
+        request=request,
+        additional={
+            "subscription_id": subscription.subscription_id,
+            "at_period_end": True,
+            "canceled_by": request.user.username,
+        },
+    )
+
     request.session.flash(
         f"Subscription for {organization.name!r} set to cancel at period end",
         queue="success",
