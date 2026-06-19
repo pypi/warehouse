@@ -3,10 +3,10 @@
 2FA:
   - changed-files:
       - any-glob-to-any-file:
+          - "warehouse/templates/manage/account/*totp*.html"
+          - "warehouse/templates/manage/account/*two-factor*.html"
+          - "warehouse/templates/manage/account/*webauthn*.html"
           - "warehouse/templates/manage/account/recovery_codes-*.html"
-          - "warehouse/templates/manage/account/totp-provision.html"
-          - "warehouse/templates/manage/account/two-factor.html"
-          - "warehouse/templates/manage/account/webauthn-provision.html"
 
 admin:
   - changed-files:
@@ -33,11 +33,11 @@ APIs/feeds:
 billing:
   - changed-files:
       - any-glob-to-any-file:
-          - "warehouse/api/billing.py"
-          - "warehouse/mock/billing.py"
+          - "warehouse/api/*billing*.py"
+          - "warehouse/mock/*billing*.py"
           - "warehouse/subscriptions/**"
           - "warehouse/templates/mock/billing/**"
-          - "tests/unit/mock/test_billing.py"
+          - "tests/unit/mock/*billing*.py"
           - "tests/unit/subscriptions/**"
 
 blog:
@@ -91,7 +91,7 @@ docker:
 documentation:
   - changed-files:
       - any-glob-to-any-file:
-          - "*.rst"
+          - "**/*.rst"
           - ".readthedocs.yml"
           - "docs/**"
 
@@ -117,42 +117,36 @@ i18n:
 javascript:
   - changed-files:
       - any-glob-to-any-file:
-          - "babel.config.js"
-          - "eslint.config.mjs"
-          - "package.json"
-          - "package-lock.json"
-          - "webpack.config.js"
-          - "webpack.plugin.localize.js"
-          - "tests/frontend/**"
-          - "warehouse/admin/static/js/**"
-          - "warehouse/static/js/**"
+          - "**/*.cjs"
+          - "**/*.js"
+          - "**/*.mjs"
 
 malware-detection:
   - changed-files:
       - any-glob-to-any-file:
           - "warehouse/admin/templates/admin/malware_reports/**"
-          - "warehouse/admin/views/malware_reports.py"
+          - "warehouse/admin/views/*malware_reports*.py"
           - "warehouse/integrations/secrets/**"
-          - "warehouse/templates/packaging/submit-malware-observation.html"
-          - "tests/unit/admin/views/test_malware_reports.py"
+          - "warehouse/templates/packaging/*malware*.html"
+          - "tests/unit/admin/views/*malware_reports*.py"
           - "tests/unit/integration/secrets/**"
 
 metadata:
   - changed-files:
       - any-glob-to-any-file:
-          - "warehouse/forklift/metadata.py"
-          - "warehouse/packaging/metadata_verification.py"
-          - "tests/unit/forklift/test_metadata.py"
-          - "tests/unit/packaging/test_metadata_verification.py"
+          - "warehouse/forklift/*metadata*.py"
+          - "warehouse/packaging/*metadata*.py"
+          - "tests/unit/forklift/*metadata*.py"
+          - "tests/unit/packaging/*metadata*.py"
 
 organizations:
   - changed-files:
       - any-glob-to-any-file:
           - "warehouse/organizations/**"
-          - "warehouse/templates/accounts/organization-*.html"
+          - "warehouse/templates/accounts/*organization*.html"
           - "warehouse/templates/email/*organization*/**"
           - "warehouse/templates/manage/organization/**"
-          - "warehouse/templates/manage/organizations.html"
+          - "warehouse/templates/manage/organization*.html"
           - "warehouse/templates/organizations/**"
           - "tests/unit/organizations/**"
 
@@ -179,15 +173,15 @@ security:
 squatting:
   - changed-files:
       - any-glob-to-any-file:
-          - "warehouse/packaging/typosnyper.py"
-          - "tests/unit/packaging/test_typosnyper.py"
+          - "warehouse/packaging/*typosnyper*.py"
+          - "tests/unit/packaging/*typosnyper*.py"
 
 tokens:
   - changed-files:
       - any-glob-to-any-file:
           - "warehouse/macaroons/**"
           - "warehouse/templates/email/token-compromised-leak/**"
-          - "warehouse/templates/manage/account/token.html"
+          - "warehouse/templates/manage/account/*token*.html"
           - "tests/unit/macaroons/**"
 
 translation:
@@ -200,7 +194,5 @@ trusted-publishing:
       - any-glob-to-any-file:
           - "docs/user/trusted-publishers/**"
           - "warehouse/oidc/**"
-          - "warehouse/templates/manage/account/publishing.html"
-          - "warehouse/templates/manage/organization/publishing.html"
-          - "warehouse/templates/manage/project/publishing.html"
+          - "warehouse/templates/manage/*/publishing.html"
           - "tests/unit/oidc/**"
