@@ -574,6 +574,7 @@ class TestCancelOrganizationSubscription:
             return_value=f"/admin/organizations/{organization.id}/"
         )
         db_request.session = mocker.Mock()
+        db_request.user = UserFactory.create(username="admin-user")
 
         billing_service = db_request.find_service(IBillingService)
         cancel = mocker.patch.object(
@@ -589,6 +590,11 @@ class TestCancelOrganizationSubscription:
             f"Subscription for {organization.name!r} set to cancel at period end",
             queue="success",
         )
+        event = organization.events[0]
+        assert event.tag == "organization:subscription:cancel"
+        assert event.additional["subscription_id"] == subscription.subscription_id
+        assert event.additional["at_period_end"] is True
+        assert event.additional["canceled_by"] == "admin-user"
 
 
 class TestOrganizationBillingPortal:
