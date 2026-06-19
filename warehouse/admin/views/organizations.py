@@ -279,6 +279,7 @@ def organization_list(request):
 def organization_detail(request):
     organization_service = request.find_service(IOrganizationService, context=None)
     billing_service = request.find_service(IBillingService, context=None)
+    user_service = request.find_service(IUserService, context=None)
 
     organization_id = request.matchdict["organization_id"]
     organization = organization_service.get_organization(organization_id)
@@ -328,6 +329,7 @@ def organization_detail(request):
 
     return {
         "organization": organization,
+        "get_user": user_service.get_user,
         "form": form,
         "roles": roles,
         "role_forms": role_forms,
