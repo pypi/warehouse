@@ -21,7 +21,7 @@ import stdlib_list
 
 from packaging.utils import canonicalize_name
 from pyramid.httpexceptions import HTTPBadRequest, HTTPConflict, HTTPForbidden
-from sqlalchemy import exists, func, select
+from sqlalchemy import exists, func, orm, select
 from zope.interface import implementer
 
 from warehouse.admin.flags import AdminFlagValue
@@ -738,6 +738,8 @@ class ProjectService:
                     organization_id=organization_id, project_id=project.id
                 )
             )
+            # Mark the org dirty so its cached project listing is purged.
+            orm.attributes.flag_dirty(self.db.get(Organization, organization_id))
         else:
             # Mark the creator as the newly created project's owner.
             self.db.add(Role(user=creator, project=project, role_name="Owner"))
