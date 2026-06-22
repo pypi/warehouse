@@ -235,6 +235,13 @@ def pyramid_services(
     services.register_service(ratelimit_service, IRateLimiter, name="email.add")
     services.register_service(ratelimit_service, IRateLimiter, name="email.verify")
     services.register_service(
+        ratelimit_service, IRateLimiter, name="project.create.user"
+    )
+    services.register_service(ratelimit_service, IRateLimiter, name="project.create.ip")
+    services.register_service(
+        ratelimit_service, IRateLimiter, name="project.create.org"
+    )
+    services.register_service(
         github_oauth_provider_service, IOAuthProviderService, name="github"
     )
 
@@ -602,7 +609,10 @@ def domain_status_service(mocker):
 @pytest.fixture
 def ratelimit_service(mocker):
     service = DummyRateLimiter()
+    mocker.spy(service, "test")
+    mocker.spy(service, "hit")
     mocker.spy(service, "clear")
+    mocker.spy(service, "resets_in")
     return service
 
 
@@ -660,7 +670,6 @@ def db_request(pyramid_request, db_session, tm):
     pyramid_request.tm = tm
     pyramid_request.flags = admin.flags.Flags(pyramid_request)
     pyramid_request.banned = admin.bans.Bans(pyramid_request)
-    pyramid_request.organization_access = True
     pyramid_request.ip_address = IpAddressFactory.create(
         ip_address=pyramid_request.remote_addr,
         hashed_ip_address=pyramid_request.remote_addr_hashed,
@@ -688,14 +697,6 @@ def _enable_all_oidc_providers(webtest):
     for flag in flags:
         flag_db = db_sess.get(AdminFlag, flag.value)
         flag_db.enabled = original_flag_values[flag]
-
-
-@pytest.fixture
-def _enable_organizations(db_request):
-    flag = db_request.db.get(AdminFlag, AdminFlagValue.DISABLE_ORGANIZATIONS.value)
-    flag.enabled = False
-    yield
-    flag.enabled = True
 
 
 @pytest.fixture

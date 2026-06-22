@@ -5307,6 +5307,9 @@ class TestFileUpload:
             def override(self, limit_string):
                 return self
 
+            def get_window_stats(self, *a, **kw):
+                return []
+
         project_service.ratelimiters[failing_limiter] = FailingLimiter()
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {

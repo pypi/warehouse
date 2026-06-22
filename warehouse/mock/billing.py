@@ -25,9 +25,7 @@ from warehouse.subscriptions.services import MockStripeBillingService
 class MockBillingViews:
     def __init__(self, organization, request):
         billing_service = request.find_service(IBillingService, context=None)
-        if not request.organization_access or not isinstance(
-            billing_service, MockStripeBillingService
-        ):
+        if not isinstance(billing_service, MockStripeBillingService):
             raise HTTPNotFound
         self.organization = organization
         self.request = request

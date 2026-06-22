@@ -227,6 +227,7 @@ def mint_token(
                     pending_publisher.added_by,
                     request,
                     organization_id=pending_publisher.organization_id,
+                    ratelimited=False,
                 )
             except HTTPException as exc:
                 return _invalid(

@@ -89,6 +89,7 @@ class IProjectService(Interface):
         request,
         *,
         organization_id: UUID | None = None,
+        ratelimited=True,
     ):
         """
         Creates a new project, recording a user as its creator.
@@ -96,6 +97,9 @@ class IProjectService(Interface):
         If `organization_id` is provided the project is linked to that
         organization; otherwise a `Role` is added to the project marking
         `creator` as a project owner.
+
+        If `ratelimited` is False, the project creation rate limiters are
+        neither checked nor incremented (e.g. trusted-publisher auto-creation).
         """
 
 

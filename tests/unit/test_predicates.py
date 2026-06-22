@@ -187,11 +187,6 @@ class TestActiveOrganizationPredicate:
         predicate = ActiveOrganizationPredicate(False, None)
         assert predicate(organization, db_request)
 
-    def test_disable_organizations(self, db_request, organization):
-        predicate = ActiveOrganizationPredicate(True, None)
-        assert not predicate(organization, db_request)
-
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_inactive_organization(
         self,
         db_request,
@@ -209,7 +204,6 @@ class TestActiveOrganizationPredicate:
 
         route_path.assert_called_once_with("manage.organizations")
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_inactive_subscription(
         self,
         db_request,
@@ -227,7 +221,6 @@ class TestActiveOrganizationPredicate:
 
         route_path.assert_called_once_with("manage.organizations")
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_active_subscription(
         self,
         db_request,
@@ -237,7 +230,6 @@ class TestActiveOrganizationPredicate:
         predicate = ActiveOrganizationPredicate(True, None)
         assert predicate(organization, db_request)
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_active_manual_activation(
         self,
         db_request,
@@ -253,7 +245,6 @@ class TestActiveOrganizationPredicate:
             predicate = ActiveOrganizationPredicate(True, None)
             assert predicate(organization, db_request)
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_expired_manual_activation(
         self,
         db_request,

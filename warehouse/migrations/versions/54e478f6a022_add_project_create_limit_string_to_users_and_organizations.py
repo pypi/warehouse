@@ -8,7 +8,7 @@ bucket". The string is parsed by the limits library at limiter
 construction time; validation happens in the admin form, not the DB.
 
 Revision ID: 54e478f6a022
-Revises: a3b1c4d5e6f7
+Revises: a8038ce10051
 Create Date: 2026-05-08 00:00:00.000000
 """
 
@@ -17,7 +17,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision = "54e478f6a022"
-down_revision = "a3b1c4d5e6f7"
+down_revision = "a8038ce10051"
 
 
 def upgrade():

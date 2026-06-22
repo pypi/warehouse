@@ -203,10 +203,6 @@ class ManageOrganizationsViews:
 
     @view_config(request_method="GET")
     def manage_organizations(self):
-        # Organizations must be enabled.
-        if not self.request.organization_access:
-            raise HTTPNotFound
-
         return self.default_response
 
     @view_config(
@@ -214,10 +210,6 @@ class ManageOrganizationsViews:
         request_param=CreateOrganizationApplicationForm.__params__,
     )
     def create_organization_application(self):
-        # Organizations must be enabled.
-        if not self.request.organization_access:
-            raise HTTPNotFound
-
         form = CreateOrganizationApplicationForm(
             self.request.POST,
             organization_service=self.organization_service,
@@ -648,10 +640,6 @@ class ManageOrganizationBillingViews:
 
     @view_config(route_name="manage.organization.subscription")
     def create_or_manage_subscription(self):
-        # Organizations must be enabled.
-        if not self.request.organization_access:
-            raise HTTPNotFound
-
         if not self.organization.manageable_subscription:
             # Create subscription if there are no manageable subscription.
             # This occurs if no subscription exists, or all subscriptions have reached
@@ -1445,12 +1433,6 @@ def manage_organization_history(organization, request):
     require_reauth=True,
 )
 def remove_organization_project(project, request):
-    if not request.organization_access:
-        request.session.flash("Organizations are disabled", queue="error")
-        return HTTPSeeOther(
-            request.route_path("manage.project.settings", project_name=project.name)
-        )
-
     if (
         # Check that user has permission to remove projects from organization.
         (project.organization and request.user not in project.organization.owners)
@@ -1539,12 +1521,6 @@ def remove_organization_project(project, request):
     require_reauth=True,
 )
 def transfer_organization_project(project, request):
-    if not request.organization_access:
-        request.session.flash("Organizations are disabled", queue="error")
-        return HTTPSeeOther(
-            request.route_path("manage.project.settings", project_name=project.name)
-        )
-
     # Check that user has permission to remove projects from organization.
     if project.organization and request.user not in project.organization.owners:
         request.session.flash(

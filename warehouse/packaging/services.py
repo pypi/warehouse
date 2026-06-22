@@ -53,6 +53,7 @@ from warehouse.packaging.models import (
 )
 from warehouse.packaging.typosnyper import typo_check_name
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
+from warehouse.rate_limiting.headers import record_rate_limit
 from warehouse.utils.exceptions import DevelopmentModeWarning
 from warehouse.utils.project import PROJECT_NAME_RE
 
@@ -438,6 +439,28 @@ class ProjectService:
         return limiter, creator.id, "user"
 
     def _check_ratelimits(self, request, creator, organization_id=None):
+        limiter, identifier, kind = self._resolve_creator_limiter(
+            creator, organization_id
+        )
+
+        # Record the current limiter state so the egress tween can emit
+        # RateLimit / RateLimit-Policy headers, whether or not we reject below.
+        if request.remote_addr is not None:
+            record_rate_limit(
+                request,
+                "project.create.ip",
+                self.ratelimiters["project.create.ip"],
+                identifiers=(request.remote_addr,),
+                partition_key="ip",
+            )
+        record_rate_limit(
+            request,
+            f"project.create.{kind}",
+            limiter,
+            identifiers=(identifier,),
+            partition_key=kind,
+        )
+
         # First we want to check if a single IP is exceeding our rate limiter.
         if request.remote_addr is not None and not self.ratelimiters[
             "project.create.ip"
@@ -453,9 +476,6 @@ class ProjectService:
                 )
             )
 
-        limiter, identifier, kind = self._resolve_creator_limiter(
-            creator, organization_id
-        )
         if not limiter.test(identifier):
             logger.warning("%s failed project create threshold reached.", kind.title())
             self._metrics.increment(
@@ -465,11 +485,36 @@ class ProjectService:
             raise TooManyProjectsCreated(resets_in=limiter.resets_in(identifier))
 
     def _hit_ratelimits(self, request, creator, organization_id=None):
-        limiter, identifier, _kind = self._resolve_creator_limiter(
+        # `.hit()` atomically increments and returns False when the limit is
+        # exceeded. Concurrent requests can each pass the optimistic `.test()`
+        # in `_check_ratelimits` before any records a hit, so this atomic check
+        # is what actually enforces the limit: a request that pushes a counter
+        # past its limit is rejected here, rolling back the new project. The
+        # limiters are consulted in the same order as `_check_ratelimits`.
+        if request.remote_addr is not None and not self.ratelimiters[
+            "project.create.ip"
+        ].hit(request.remote_addr):
+            logger.warning("IP failed project create threshold reached.")
+            self._metrics.increment(
+                "warehouse.project.create.ratelimited",
+                tags=["ratelimiter:ip"],
+            )
+            raise TooManyProjectsCreated(
+                resets_in=self.ratelimiters["project.create.ip"].resets_in(
+                    request.remote_addr
+                )
+            )
+
+        limiter, identifier, kind = self._resolve_creator_limiter(
             creator, organization_id
         )
-        limiter.hit(identifier)
-        self.ratelimiters["project.create.ip"].hit(request.remote_addr)
+        if not limiter.hit(identifier):
+            logger.warning("%s failed project create threshold reached.", kind.title())
+            self._metrics.increment(
+                "warehouse.project.create.ratelimited",
+                tags=[f"ratelimiter:{kind}"],
+            )
+            raise TooManyProjectsCreated(resets_in=limiter.resets_in(identifier))
 
     def check_project_name(self, name: str) -> None:
         """
@@ -523,8 +568,10 @@ class ProjectService:
         request,
         *,
         organization_id=None,
+        ratelimited=True,
     ):
-        self._check_ratelimits(request, creator, organization_id)
+        if ratelimited:
+            self._check_ratelimits(request, creator, organization_id)
 
         # Check for AdminFlag set by a PyPI Administrator disabling new project
         # registration, reasons for this include Spammers, security
@@ -736,7 +783,8 @@ class ProjectService:
             )
             request.db.delete(stale_publisher)
 
-        self._hit_ratelimits(request, creator, organization_id)
+        if ratelimited:
+            self._hit_ratelimits(request, creator, organization_id)
         return project
 
 
