@@ -85,7 +85,7 @@ class CircleCIPublisherBase(wtforms.Form):
         # NOTE: The org and project name are meant as a convenience for
         # the user - they are not necessary, but having them display is
         # is a nicer UX for people. The only caveat here is it will NOT
-        # work for private projects, but I think thats a fair tradeoff
+        # work for private projects, but I think that's a fair tradeoff
         try:
             response = requests.get(
                 f"https://circleci.com/api/v2/project/{project_id}",
@@ -150,7 +150,7 @@ class CircleCIPublisherBase(wtforms.Form):
 
 
 class PendingCircleCIPublisherForm(CircleCIPublisherBase, PendingPublisherMixin):
-    __params__ = CircleCIPublisherBase.__params__ + ["project_name"]
+    __params__ = [*CircleCIPublisherBase.__params__, "project_name"]
 
     def __init__(self, *args, route_url, check_project_name, user, **kwargs):
         super().__init__(*args, **kwargs)

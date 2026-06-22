@@ -35,7 +35,7 @@ def new_signed_claims(
     vcs_ref: str = VCS_REF,
     vcs_origin: str = VCS_ORIGIN,
 ) -> SignedClaims:
-    claims = SignedClaims(
+    return SignedClaims(
         {
             "oidc.circleci.com/org-id": org_id,
             "oidc.circleci.com/project-id": project_id,
@@ -49,7 +49,6 @@ def new_signed_claims(
             "oidc.circleci.com/workflow-id": "fake-workflow-id",
         }
     )
-    return claims
 
 
 class TestCheckContextId:
@@ -311,7 +310,7 @@ class TestCircleCIPublisher:
         )
 
         with pytest.raises(AttributeError, match="unknown_attribute"):
-            publisher.unknown_attribute
+            publisher.unknown_attribute  # noqa: B018
 
     def test_ssh_rerun_claim_is_false(self):
         publisher = CircleCIPublisher(

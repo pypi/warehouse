@@ -199,11 +199,12 @@ class CircleCIPublisherMixin:
     ) -> Self | None:
         # Find the most specific publisher: one with a matching context_id takes
         # precedence over a publisher without context_id constraint.
-        if context_ids:
-            if specific_publisher := first_true(
+        if context_ids and (
+            specific_publisher := first_true(
                 publishers, pred=lambda p: p.context_id in context_ids
-            ):
-                return specific_publisher
+            )
+        ):
+            return specific_publisher
 
         # Fall back to a publisher without context_id constraint (empty string)
         if general_publisher := first_true(

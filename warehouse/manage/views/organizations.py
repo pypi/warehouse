@@ -1965,13 +1965,13 @@ class ManageOrganizationPublishingViews:
                 circleci_project_name=form.circleci_project_name,
                 pypi_organization=self.organization,
             ),
-            make_existence_filters=lambda form: dict(
-                project_name=form.project_name.data,
-                circleci_org_id=form.circleci_org_id.data,
-                circleci_project_id=form.circleci_project_id.data,
-                pipeline_definition_id=form.pipeline_definition_id.data,
-                context_id=form.normalized_context_id,
-                vcs_ref=form.normalized_vcs_ref,
-                vcs_origin=form.normalized_vcs_origin,
-            ),
+            make_existence_filters=lambda form: {
+                "project_name": form.project_name.data,
+                "circleci_org_id": form.circleci_org_id.data,
+                "circleci_project_id": form.circleci_project_id.data,
+                "pipeline_definition_id": form.pipeline_definition_id.data,
+                "context_id": form.normalized_context_id,
+                "vcs_ref": form.normalized_vcs_ref,
+                "vcs_origin": form.normalized_vcs_origin,
+            },
         )
