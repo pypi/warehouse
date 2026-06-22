@@ -1955,6 +1955,10 @@ class TestManageOrganizationProjects:
             )
         ]
 
+        db_request.db.flush()
+        purges = db_request.db.info.get("warehouse.cache.origin.purges", set())
+        assert f"org/{organization.normalized_name}" in purges
+
     @pytest.mark.parametrize(
         ("invalid_name", "expected"),
         [
