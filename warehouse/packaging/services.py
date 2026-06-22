@@ -438,6 +438,14 @@ class ProjectService:
         )
         return limiter, creator.id, "user"
 
+    def _reject_create(self, tag, resets_in):
+        label = "IP" if tag == "ip" else tag.title()
+        logger.warning("%s failed project create threshold reached.", label)
+        self._metrics.increment(
+            "warehouse.project.create.ratelimited", tags=[f"ratelimiter:{tag}"]
+        )
+        raise TooManyProjectsCreated(resets_in=resets_in)
+
     def _check_ratelimits(self, request, creator, organization_id=None):
         limiter, identifier, kind = self._resolve_creator_limiter(
             creator, organization_id
@@ -461,28 +469,12 @@ class ProjectService:
             partition_key=kind,
         )
 
-        # First we want to check if a single IP is exceeding our rate limiter.
-        if request.remote_addr is not None and not self.ratelimiters[
-            "project.create.ip"
-        ].test(request.remote_addr):
-            logger.warning("IP failed project create threshold reached.")
-            self._metrics.increment(
-                "warehouse.project.create.ratelimited",
-                tags=["ratelimiter:ip"],
-            )
-            raise TooManyProjectsCreated(
-                resets_in=self.ratelimiters["project.create.ip"].resets_in(
-                    request.remote_addr
-                )
-            )
+        ip_limiter = self.ratelimiters["project.create.ip"]
+        if request.remote_addr is not None and not ip_limiter.test(request.remote_addr):
+            self._reject_create("ip", ip_limiter.resets_in(request.remote_addr))
 
         if not limiter.test(identifier):
-            logger.warning("%s failed project create threshold reached.", kind.title())
-            self._metrics.increment(
-                "warehouse.project.create.ratelimited",
-                tags=[f"ratelimiter:{kind}"],
-            )
-            raise TooManyProjectsCreated(resets_in=limiter.resets_in(identifier))
+            self._reject_create(kind, limiter.resets_in(identifier))
 
     def _hit_ratelimits(self, request, creator, organization_id=None):
         # `.hit()` atomically increments and returns False when the limit is
@@ -491,30 +483,15 @@ class ProjectService:
         # is what actually enforces the limit: a request that pushes a counter
         # past its limit is rejected here, rolling back the new project. The
         # limiters are consulted in the same order as `_check_ratelimits`.
-        if request.remote_addr is not None and not self.ratelimiters[
-            "project.create.ip"
-        ].hit(request.remote_addr):
-            logger.warning("IP failed project create threshold reached.")
-            self._metrics.increment(
-                "warehouse.project.create.ratelimited",
-                tags=["ratelimiter:ip"],
-            )
-            raise TooManyProjectsCreated(
-                resets_in=self.ratelimiters["project.create.ip"].resets_in(
-                    request.remote_addr
-                )
-            )
+        ip_limiter = self.ratelimiters["project.create.ip"]
+        if request.remote_addr is not None and not ip_limiter.hit(request.remote_addr):
+            self._reject_create("ip", ip_limiter.resets_in(request.remote_addr))
 
         limiter, identifier, kind = self._resolve_creator_limiter(
             creator, organization_id
         )
         if not limiter.hit(identifier):
-            logger.warning("%s failed project create threshold reached.", kind.title())
-            self._metrics.increment(
-                "warehouse.project.create.ratelimited",
-                tags=[f"ratelimiter:{kind}"],
-            )
-            raise TooManyProjectsCreated(resets_in=limiter.resets_in(identifier))
+            self._reject_create(kind, limiter.resets_in(identifier))
 
     def check_project_name(self, name: str) -> None:
         """
