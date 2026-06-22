@@ -1044,9 +1044,7 @@ class TestTwoFactor:
         )
         form_class = pretend.call_recorder(lambda d, user_service, **kw: form_obj)
         db_request.route_path = pretend.call_recorder(lambda a: "/account/two-factor")
-        db_request.params = pretend.stub(
-            get=pretend.call_recorder(lambda k: query_params.get(k))
-        )
+        db_request.params = pretend.stub(get=pretend.call_recorder(query_params.get))
         db_request.user = user
 
         send_email = pretend.call_recorder(lambda *a: None)
@@ -1312,7 +1310,7 @@ class TestWebAuthn:
             POST={},
             session=pretend.stub(
                 get_webauthn_challenge=pretend.call_recorder(lambda: "not_real"),
-                clear_webauthn_challenge=pretend.call_recorder(lambda: pretend.stub()),
+                clear_webauthn_challenge=pretend.call_recorder(pretend.stub),
             ),
             find_service=lambda *a, **kw: pretend.stub(),
             host_url=pretend.stub(),
@@ -1365,7 +1363,7 @@ class TestWebAuthn:
         )
         pyramid_request.session = pretend.stub(
             get_webauthn_challenge=pretend.call_recorder(lambda: "not_real"),
-            clear_webauthn_challenge=pretend.call_recorder(lambda: pretend.stub()),
+            clear_webauthn_challenge=pretend.call_recorder(pretend.stub),
         )
         pyramid_request.find_service = lambda *a, **kw: user_service
         pyramid_request.user = user
@@ -1646,9 +1644,7 @@ class TestRecoveryCode:
         )
         form_class = pretend.call_recorder(lambda d, **kw: form_obj)
         db_request.route_path = pretend.call_recorder(lambda a: "/account/two-factor")
-        db_request.params = pretend.stub(
-            get=pretend.call_recorder(lambda k: query_params.get(k))
-        )
+        db_request.params = pretend.stub(get=pretend.call_recorder(query_params.get))
 
         result = views.recovery_code(db_request, _form_class=form_class)
 
@@ -1901,6 +1897,7 @@ class TestRegister:
         assert add_email.calls == []
         assert send_email.calls == []
 
+    @pytest.mark.usefixtures("no_email_deliverability_check")
     def test_register_redirect(self, db_request, monkeypatch):
         db_request.method = "POST"
 
@@ -3875,8 +3872,7 @@ class TestManageAccountPublishingViews:
 
             if name == "user_oidc.publisher.register":
                 return user_rate_limiter
-            else:
-                return ip_rate_limiter
+            return ip_rate_limiter
 
         request = pretend.stub(
             find_service=pretend.call_recorder(find_service),
@@ -3920,7 +3916,7 @@ class TestManageAccountPublishingViews:
     def test_manage_publishing(self, metrics, monkeypatch):
         route_url = pretend.stub()
         request = pretend.stub(
-            user=pretend.stub(),
+            user=pretend.stub(id=pretend.stub()),
             route_url=route_url,
             registry=pretend.stub(
                 settings={
@@ -3934,6 +3930,7 @@ class TestManageAccountPublishingViews:
             flags=pretend.stub(
                 disallow_oidc=pretend.call_recorder(lambda f=None: False)
             ),
+            db=pretend.stub(scalars=lambda *a, **kw: pretend.stub(all=lambda: [])),
             POST=pretend.stub(),
         )
 
@@ -3989,6 +3986,7 @@ class TestManageAccountPublishingViews:
                 "ActiveState": False,
                 "CircleCI": False,
             },
+            "project_names_with_publishers": [],
             "pending_github_publisher_form": pending_github_publisher_form_obj,
             "pending_gitlab_publisher_form": pending_gitlab_publisher_form_obj,
             "pending_google_publisher_form": pending_google_publisher_form_obj,
@@ -4026,7 +4024,10 @@ class TestManageAccountPublishingViews:
         project_service = pretend.stub(check_project_name=lambda name: None)
         pyramid_request.find_service = lambda _, **kw: project_service
 
-        pyramid_request.user = pretend.stub()
+        pyramid_request.user = pretend.stub(id=pretend.stub())
+        pyramid_request.db = pretend.stub(
+            scalars=lambda *a, **kw: pretend.stub(all=lambda: [])
+        )
         pyramid_request.registry = pretend.stub(
             settings={
                 "github.token": "fake-api-token",
@@ -4089,6 +4090,7 @@ class TestManageAccountPublishingViews:
                 "ActiveState": True,
                 "CircleCI": True,
             },
+            "project_names_with_publishers": [],
             "pending_github_publisher_form": pending_github_publisher_form_obj,
             "pending_gitlab_publisher_form": pending_gitlab_publisher_form_obj,
             "pending_google_publisher_form": pending_google_publisher_form_obj,
@@ -4170,7 +4172,10 @@ class TestManageAccountPublishingViews:
             IMetricsService: pretend.stub(),
         }[interface]
 
-        pyramid_request.user = pretend.stub()
+        pyramid_request.user = pretend.stub(id=pretend.stub())
+        pyramid_request.db = pretend.stub(
+            scalars=lambda *a, **kw: pretend.stub(all=lambda: [])
+        )
         pyramid_request.registry = pretend.stub(
             settings={
                 "github.token": "fake-api-token",
@@ -4235,6 +4240,7 @@ class TestManageAccountPublishingViews:
                 "ActiveState": True,
                 "CircleCI": True,
             },
+            "project_names_with_publishers": [],
             "pending_github_publisher_form": pending_github_publisher_form_obj,
             "pending_gitlab_publisher_form": pending_gitlab_publisher_form_obj,
             "pending_google_publisher_form": pending_google_publisher_form_obj,
@@ -4249,11 +4255,6 @@ class TestManageAccountPublishingViews:
             pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_CIRCLECI_OIDC),
             pretend.call(flag),
-            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_CIRCLECI_OIDC),
         ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
@@ -4335,6 +4336,10 @@ class TestManageAccountPublishingViews:
         )
         pyramid_request.user = pretend.stub(
             has_primary_verified_email=False,
+            id=pretend.stub(),
+        )
+        pyramid_request.db = pretend.stub(
+            scalars=lambda *a, **kw: pretend.stub(all=lambda: [])
         )
         pyramid_request.flags = pretend.stub(
             disallow_oidc=pretend.call_recorder(lambda f=None: False),
@@ -4393,6 +4398,7 @@ class TestManageAccountPublishingViews:
                 "ActiveState": False,
                 "CircleCI": False,
             },
+            "project_names_with_publishers": [],
             "pending_github_publisher_form": pending_github_publisher_form_obj,
             "pending_gitlab_publisher_form": pending_gitlab_publisher_form_obj,
             "pending_google_publisher_form": pending_google_publisher_form_obj,
@@ -4407,11 +4413,6 @@ class TestManageAccountPublishingViews:
             pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_CIRCLECI_OIDC),
             pretend.call(flag),
-            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_CIRCLECI_OIDC),
         ]
         assert view.metrics.increment.calls == [
             pretend.call(
@@ -4555,16 +4556,6 @@ class TestManageAccountPublishingViews:
             pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_CIRCLECI_OIDC),
             pretend.call(flag),
-            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_CIRCLECI_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_CIRCLECI_OIDC),
         ]
         assert view.metrics.increment.calls == [
             pretend.call(
@@ -4611,6 +4602,10 @@ class TestManageAccountPublishingViews:
         pyramid_request.user = pretend.stub(
             has_primary_verified_email=True,
             pending_oidc_publishers=[],
+            id=pretend.stub(),
+        )
+        pyramid_request.db = pretend.stub(
+            scalars=lambda *a, **kw: pretend.stub(all=lambda: [])
         )
         pyramid_request.registry = pretend.stub(
             settings={
@@ -4689,6 +4684,7 @@ class TestManageAccountPublishingViews:
         db_request.user = pretend.stub(
             has_primary_verified_email=True,
             pending_oidc_publishers=[],
+            id=uuid.uuid4(),
         )
         db_request.registry = pretend.stub(
             settings={
@@ -4926,6 +4922,11 @@ class TestManageAccountPublishingViews:
         ]
 
     def test_add_pending_oidc_publisher_uniqueviolation(self, monkeypatch, db_request):
+        """A UniqueViolation on insert means another pending publisher already
+        exists for the same (repo, owner, workflow, environment) tuple but with
+        a different project_name. Surface this conflict to the user instead of
+        silently redirecting as if the registration succeeded.
+        """
         db_request.user = UserFactory.create()
         EmailFactory(user=db_request.user, verified=True, primary=True)
         db_request.db.add = pretend.raiser(UniqueViolation("foo", "bar", "baz"))
@@ -4937,6 +4938,9 @@ class TestManageAccountPublishingViews:
         )
         db_request.flags = pretend.stub(
             disallow_oidc=pretend.call_recorder(lambda f=None: False)
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
         )
         db_request.POST = MultiDict(
             {
@@ -4963,8 +4967,17 @@ class TestManageAccountPublishingViews:
             view, "_hit_ratelimits", pretend.call_recorder(lambda: None)
         )
 
-        resp = view.add_pending_github_oidc_publisher()
-        assert isinstance(resp, HTTPSeeOther)
+        assert view.add_pending_github_oidc_publisher() == view.default_response
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                (
+                    "A pending trusted publisher matching this configuration "
+                    "has already been registered for a different project name. "
+                    "Please contact PyPI's admins if this wasn't intentional."
+                ),
+                queue="error",
+            )
+        ]
 
     @pytest.mark.parametrize(
         ("view_name", "publisher_name", "post_body", "publisher_class"),
@@ -5130,7 +5143,10 @@ class TestManageAccountPublishingViews:
             IMetricsService: pretend.stub(),
         }[interface]
 
-        pyramid_request.user = pretend.stub()
+        pyramid_request.user = pretend.stub(id=pretend.stub())
+        pyramid_request.db = pretend.stub(
+            scalars=lambda *a, **kw: pretend.stub(all=lambda: [])
+        )
         pyramid_request.registry = pretend.stub(
             settings={
                 "github.token": "fake-api-token",
@@ -5193,6 +5209,7 @@ class TestManageAccountPublishingViews:
                 "ActiveState": True,
                 "CircleCI": True,
             },
+            "project_names_with_publishers": [],
             "pending_github_publisher_form": pending_github_publisher_form_obj,
             "pending_gitlab_publisher_form": pending_gitlab_publisher_form_obj,
             "pending_google_publisher_form": pending_google_publisher_form_obj,

@@ -122,45 +122,45 @@ def translated_view(view, info):
         # Note: This will give weird results if hitting PyPI directly instead of through
         #       the Fastly VCL which sets PyPI-Locale.
         return add_vary("PyPI-Locale")(view)
-    elif info.exception_only:
+    if info.exception_only:
         return view
-    else:
-        # If we're not using translations on this view, then we'll wrap the view
-        # with a wrapper that just ensures that the localizer cannot be used.
-        @functools.wraps(view)
-        def wrapped(context, request):
-            # This whole method is a little bit of an odd duck, we want to make
-            # sure that we don't actually *access* request.localizer, because
-            # doing so triggers the machinery to create a new localizer. So
-            # instead we will dig into the request object __dict__ to
-            # effectively do the same thing, just without triggering an access
-            # on request.localizer.
 
-            # Save the original session so that we can restore it once the
-            # inner views have been called.
-            nothing = object()
-            original_localizer = request.__dict__.get("localizer", nothing)
+    # If we're not using translations on this view, then we'll wrap the view
+    # with a wrapper that just ensures that the localizer cannot be used.
+    @functools.wraps(view)
+    def wrapped(context, request):
+        # This whole method is a little bit of an odd duck, we want to make
+        # sure that we don't actually *access* request.localizer, because
+        # doing so triggers the machinery to create a new localizer. So
+        # instead we will dig into the request object __dict__ to
+        # effectively do the same thing, just without triggering an access
+        # on request.localizer.
 
-            # This particular view hasn't been set to allow access to the
-            # translations, so we'll just assign an InvalidLocalizer to
-            # request.localizer
-            request.__dict__["localizer"] = InvalidLocalizer()
+        # Save the original session so that we can restore it once the
+        # inner views have been called.
+        nothing = object()
+        original_localizer = request.__dict__.get("localizer", nothing)
 
-            try:
-                # Invoke the real view
-                return view(context, request)
-            finally:
-                # Restore the original session so that things like
-                # pyramid_debugtoolbar can access it.
-                if original_localizer is nothing:
-                    del request.__dict__["localizer"]
-                else:
-                    request.__dict__["localizer"] = original_localizer
+        # This particular view hasn't been set to allow access to the
+        # translations, so we'll just assign an InvalidLocalizer to
+        # request.localizer
+        request.__dict__["localizer"] = InvalidLocalizer()
 
-        return wrapped
+        try:
+            # Invoke the real view
+            return view(context, request)
+        finally:
+            # Restore the original session so that things like
+            # pyramid_debugtoolbar can access it.
+            if original_localizer is nothing:
+                del request.__dict__["localizer"]
+            else:
+                request.__dict__["localizer"] = original_localizer
+
+    return wrapped
 
 
-translated_view.options = {"has_translations"}  # type: ignore
+translated_view.options = {"has_translations"}  # type: ignore[attr-defined]
 
 
 def includeme(config):

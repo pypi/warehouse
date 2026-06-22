@@ -1,9 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
-import asyncudp
 import os
 import sys
+
+import asyncudp
 
 
 async def main(host, port, output):
@@ -16,11 +17,12 @@ async def main(host, port, output):
             message = data.decode().strip()
             print(message)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     try:
         host, port = sys.argv[1].split(":")
         port = int(port)
-    except (ValueError, IndexError):
+    except ValueError, IndexError:
         print("Usage: python3 notdatadog.py <host>:<port>")
         sys.exit(1)
     output = os.environ.get("METRICS_OUTPUT", "").lower() == "true"

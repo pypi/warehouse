@@ -14,15 +14,15 @@ from warehouse.oidc.forms.gitlab import GitLabPublisherForm, PendingGitLabPublis
 from warehouse.oidc.forms.google import GooglePublisherForm, PendingGooglePublisherForm
 
 __all__ = [
+    "ActiveStatePublisherForm",
+    "CircleCIPublisherForm",
     "DeletePublisherForm",
     "GitHubPublisherForm",
-    "PendingGitHubPublisherForm",
     "GitLabPublisherForm",
-    "PendingGitLabPublisherForm",
     "GooglePublisherForm",
-    "PendingGooglePublisherForm",
-    "ActiveStatePublisherForm",
     "PendingActiveStatePublisherForm",
-    "CircleCIPublisherForm",
     "PendingCircleCIPublisherForm",
+    "PendingGitHubPublisherForm",
+    "PendingGitLabPublisherForm",
+    "PendingGooglePublisherForm",
 ]

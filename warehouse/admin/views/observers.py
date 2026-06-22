@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 
 from pyramid.httpexceptions import HTTPNotFound
@@ -29,7 +29,7 @@ def _get_malware_observations(request: Request, days: int):
 
     Returns raw observation data (observer_id, actions, related_id, created).
     """
-    cutoff_date = datetime.now(tz=timezone.utc) - timedelta(days=days)
+    cutoff_date = datetime.now(tz=UTC) - timedelta(days=days)
 
     stmt = select(
         Observation.observer_id,
@@ -171,7 +171,7 @@ def _get_observer_detail_stats(request: Request, observer: Observer, days: int) 
     )
 
     if days > 0:
-        cutoff_date = datetime.now(tz=timezone.utc) - timedelta(days=days)
+        cutoff_date = datetime.now(tz=UTC) - timedelta(days=days)
         stmt = stmt.where(Observation.created >= cutoff_date)
 
     stmt = stmt.order_by(Observation.created.desc())
@@ -211,7 +211,7 @@ def _get_observer_time_series(request: Request, observer: Observer, days: int) -
     )
 
     if days > 0:
-        cutoff_date = datetime.now(tz=timezone.utc) - timedelta(days=days)
+        cutoff_date = datetime.now(tz=UTC) - timedelta(days=days)
         stmt = stmt.where(Observation.created >= cutoff_date)
 
     stmt = stmt.order_by(Observation.created.asc())

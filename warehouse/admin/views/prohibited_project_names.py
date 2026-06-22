@@ -1,6 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
 import shlex
+import typing
 
 from collections import defaultdict
 
@@ -13,6 +16,8 @@ from sqlalchemy.exc import NoResultFound
 
 from warehouse.accounts.models import User
 from warehouse.authnz import Permissions
+from warehouse.manage.views.view_helpers import add_organization_project_and_notify
+from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.packaging.models import (
     File,
     ProhibitedProjectName,
@@ -23,6 +28,9 @@ from warehouse.packaging.models import (
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import prohibit_and_remove_project
+
+if typing.TYPE_CHECKING:
+    from pyramid.request import Request
 
 
 @view_config(
@@ -48,10 +56,10 @@ def prohibited_project_names(request):
         terms = shlex.split(q)
 
         filters: list = []
-        for term in terms:
-            filters.append(
-                ProhibitedProjectName.name.ilike(func.normalize_pep426_name(term))
-            )
+        filters.extend(
+            ProhibitedProjectName.name.ilike(func.normalize_pep426_name(term))
+            for term in terms
+        )
 
         filters = filters or [True]
         prohibited_project_names_query = prohibited_project_names_query.filter(
@@ -140,12 +148,17 @@ def confirm_prohibited_project_names(request):
     request_method="POST",
     uses_session=True,
     require_methods=False,
+    has_translations=True,
 )
 def release_prohibited_project_name(request):
+    # Error paths redirect back to the list page, which (unlike this POST-only
+    # release route) has a GET handler to render the flashed message.
+    list_url = request.route_path("admin.prohibited_project_names.list")
+
     project_name = request.POST.get("project_name")
     if project_name is None:
         request.session.flash("Provide a project name", queue="error")
-        return HTTPSeeOther(request.current_route_path())
+        return HTTPSeeOther(list_url)
 
     prohibited_project_name = (
         request.db.query(ProhibitedProjectName)
@@ -157,7 +170,7 @@ def release_prohibited_project_name(request):
             f"{project_name!r} does not exist on prohibited project name list.",
             queue="error",
         )
-        return HTTPSeeOther(request.current_route_path())
+        return HTTPSeeOther(list_url)
 
     project = (
         request.db.query(Project)
@@ -169,17 +182,32 @@ def release_prohibited_project_name(request):
             f"{project_name!r} exists and is not on the prohibited project name list.",
             queue="error",
         )
-        return HTTPSeeOther(request.current_route_path())
+        return HTTPSeeOther(list_url)
 
     username = request.POST.get("username")
+    organization_name = request.POST.get("organization_name")
+
+    if username and organization_name:
+        request.session.flash(
+            "Provide a username or an organization name, not both.", queue="error"
+        )
+        return HTTPSeeOther(list_url)
+
+    if organization_name:
+        return _release_to_organization(
+            request, project_name, prohibited_project_name, organization_name
+        )
+
     if not username:
-        request.session.flash("Provide a username", queue="error")
-        return HTTPSeeOther(request.current_route_path())
+        request.session.flash(
+            "Provide a username or an organization name", queue="error"
+        )
+        return HTTPSeeOther(list_url)
 
     user = request.db.query(User).filter(User.username == username).first()
     if user is None:
         request.session.flash(f"Unknown username '{username}'", queue="error")
-        return HTTPSeeOther(request.current_route_path())
+        return HTTPSeeOther(list_url)
 
     project = Project(name=project_name)
     request.db.add(project)
@@ -190,7 +218,49 @@ def release_prohibited_project_name(request):
         f"{project.name!r} released to {user.username!r}.", queue="success"
     )
 
-    request.db.flush()  # flush db now so project.normalized_name is available
+    request.db.flush()  # generate project.normalized_name  # ast-grep-ignore: db-flush
+
+    return HTTPSeeOther(
+        request.route_path("admin.project.detail", project_name=project.normalized_name)
+    )
+
+
+def _release_to_organization(
+    request: Request,
+    project_name: str,
+    prohibited_project_name: ProhibitedProjectName,
+    organization_name: str,
+) -> HTTPSeeOther:
+    """Release a prohibited project name as a new organization-owned project."""
+    list_url = request.route_path("admin.prohibited_project_names.list")
+
+    organization_service = request.find_service(IOrganizationService, context=None)
+    organization = organization_service.get_organization_by_name(organization_name)
+    if organization is None:
+        request.session.flash(
+            f"Unknown organization '{organization_name}'", queue="error"
+        )
+        return HTTPSeeOther(list_url)
+
+    if not organization.is_active:
+        request.session.flash(
+            f"Organization '{organization_name}' is not active", queue="error"
+        )
+        return HTTPSeeOther(list_url)
+
+    # The project is owned by the organization, so no individual Owner role is
+    # created (mirroring project creation with `creator_is_owner=False`).
+    project = Project(name=project_name)
+    request.db.add(project)
+    request.db.delete(prohibited_project_name)
+    request.db.flush()  # generate project.id  # ast-grep-ignore: db-flush
+
+    add_organization_project_and_notify(request, organization, project)
+
+    request.session.flash(
+        f"{project.name!r} released to organization {organization.name!r}.",
+        queue="success",
+    )
 
     return HTTPSeeOther(
         request.route_path("admin.project.detail", project_name=project.normalized_name)
@@ -259,8 +329,7 @@ def ultranorm_release_project_name(request):
         f"(ultranorm conflict with {similar_project_name!r}).",
         queue="success",
     )
-
-    request.db.flush()  # flush db now so project.normalized_name is available
+    request.db.flush()  # generate project.normalized_name  # ast-grep-ignore: db-flush
 
     return HTTPSeeOther(
         request.route_path("admin.project.detail", project_name=project.normalized_name)
@@ -287,7 +356,7 @@ def add_prohibited_project_names(request):
             "Confirm the prohibited project name request", queue="error"
         )
         return HTTPSeeOther(request.current_route_path())
-    elif canonicalize_name(confirm) != canonicalize_name(project_name):
+    if canonicalize_name(confirm) != canonicalize_name(project_name):
         request.session.flash(
             f"{confirm!r} is not the same as {project_name!r}", queue="error"
         )

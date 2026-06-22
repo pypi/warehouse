@@ -22,16 +22,14 @@ def _organization_application_routes(
 ):
     if route_name == "admin.organization_application.detail":
         return f"/admin/organization_applications/{organization_application_id}/"
-    elif route_name == "admin.organization.detail":
+    if route_name == "admin.organization.detail":
         return f"/admin/organizations/{organization_id}/"
-    elif route_name == "admin.dashboard":
+    if route_name == "admin.dashboard":
         return "/admin/"
-    else:
-        pytest.fail(f"No dummy route found for {route_name}")
+    pytest.fail(f"No dummy route found for {route_name}")
 
 
 class TestOrganizationApplicationList:
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_no_query(self, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(30),
@@ -45,7 +43,6 @@ class TestOrganizationApplicationList:
             "terms": [],
         }
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_basic_query(self, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
@@ -58,7 +55,6 @@ class TestOrganizationApplicationList:
         assert result["query"] == organization_applications[0].name
         assert result["terms"] == [organization_applications[0].name]
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_name_query(self, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
@@ -71,7 +67,6 @@ class TestOrganizationApplicationList:
         assert result["query"] == f"name:{organization_applications[0].name}"
         assert result["terms"] == [f"name:{organization_applications[0].name}"]
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_organization_application_query(self, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
@@ -91,7 +86,6 @@ class TestOrganizationApplicationList:
             f"organization:{organization_applications[0].display_name}"
         ]
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_url_query(self, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
@@ -104,7 +98,6 @@ class TestOrganizationApplicationList:
         assert result["query"] == f"url:{organization_applications[0].link_url}"
         assert result["terms"] == [f"url:{organization_applications[0].link_url}"]
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_description_query(self, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
@@ -124,7 +117,6 @@ class TestOrganizationApplicationList:
             f"description:{organization_applications[0].description}"
         ]
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_is_approved_query(self, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
@@ -144,7 +136,6 @@ class TestOrganizationApplicationList:
             "terms": ["is:approved"],
         }
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_is_declined_query(self, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
@@ -164,7 +155,6 @@ class TestOrganizationApplicationList:
             "terms": ["is:declined"],
         }
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_is_submitted_query(self, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
@@ -184,7 +174,6 @@ class TestOrganizationApplicationList:
             "terms": ["is:submitted"],
         }
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_type_query(self, db_request):
         company_org = OrganizationApplicationFactory.create(
             orgtype=OrganizationType.Company
@@ -210,7 +199,6 @@ class TestOrganizationApplicationList:
             "terms": ["type:community"],
         }
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_invalid_type_query(self, db_request):
         company_org = OrganizationApplicationFactory.create(
             orgtype=OrganizationType.Company
@@ -225,7 +213,6 @@ class TestOrganizationApplicationList:
             "terms": ["type:invalid"],
         }
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_is_invalid_query(self, db_request):
         organization_applications = sorted(
             OrganizationApplicationFactory.create_batch(5),
@@ -242,7 +229,6 @@ class TestOrganizationApplicationList:
 
 
 class TestOrganizationApplicationDetail:
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_detail(self, db_request):
         organization_application = OrganizationApplicationFactory.create()
         db_request.matchdict["organization_application_id"] = (
@@ -254,7 +240,6 @@ class TestOrganizationApplicationDetail:
         assert result["conflicting_applications"] == []
         assert result["organization_application"] == organization_application
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_detail_edit(self, db_request):
         organization_application = OrganizationApplicationFactory.create()
         db_request.matchdict["organization_application_id"] = (
@@ -286,7 +271,6 @@ class TestOrganizationApplicationDetail:
 
         assert organization_application.name == new_org_name
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_detail_edit_invalid(self, db_request):
         existing_organization = OrganizationFactory.create()
         organization_application = OrganizationApplicationFactory.create()
@@ -306,7 +290,6 @@ class TestOrganizationApplicationDetail:
         assert result["conflicting_applications"] == []
         assert result["organization_application"] == organization_application
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_detail_is_approved_true(self, db_request):
         organization_application = OrganizationApplicationFactory.create(
             status=OrganizationApplicationStatus.Approved
@@ -320,7 +303,6 @@ class TestOrganizationApplicationDetail:
         assert result["conflicting_applications"] == []
         assert result["organization_application"] == organization_application
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_detail_is_approved_false(self, db_request):
         organization_application = OrganizationApplicationFactory.create(
             status=OrganizationApplicationStatus.Declined
@@ -334,7 +316,6 @@ class TestOrganizationApplicationDetail:
         assert result["conflicting_applications"] == []
         assert result["organization_application"] == organization_application
 
-    @pytest.mark.usefixtures("_enable_organizations")
     @pytest.mark.parametrize(
         ("name", "conflicts", "conflicting_prefixes", "not_conflicting"),
         [
@@ -370,7 +351,6 @@ class TestOrganizationApplicationDetail:
         assert set(result["conflicting_applications"]) == set(conflicting_applications)
         assert result["organization_application"] == organization_application
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_detail_not_found(self):
         organization_service = pretend.stub(
             get_organization_application=lambda *a, **kw: None,
@@ -386,7 +366,6 @@ class TestOrganizationApplicationDetail:
 
 
 class TestOrganizationApplicationActions:
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_approve(self, db_request):
         admin = UserFactory.create()
         user = UserFactory.create()
@@ -430,7 +409,6 @@ class TestOrganizationApplicationActions:
         assert result.status_code == 303
         assert result.location == f"/admin/organizations/{organization.id}/"
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_approve_turbo_mode(self, db_request):
         admin = UserFactory.create()
         user = UserFactory.create()
@@ -481,7 +459,6 @@ class TestOrganizationApplicationActions:
         assert result.status_code == 303
         assert result.location == "/admin/"
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_approve_not_found(self):
         organization_service = pretend.stub(
             get_organization_application=lambda *a, **kw: None,
@@ -495,7 +472,6 @@ class TestOrganizationApplicationActions:
         with pytest.raises(HTTPNotFound):
             views.organization_application_approve(request)
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_defer(self, db_request):
         admin = UserFactory.create()
         user = UserFactory.create()
@@ -538,7 +514,6 @@ class TestOrganizationApplicationActions:
             == f"/admin/organization_applications/{organization_application.id}/"
         )
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_defer_turbo_mode(self, db_request):
         admin = UserFactory.create()
         user = UserFactory.create()
@@ -581,7 +556,6 @@ class TestOrganizationApplicationActions:
             == f"/admin/organization_applications/{organization_application.id}/"
         )
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_defer_not_found(self):
         organization_service = pretend.stub(
             get_organization_application=lambda *a, **kw: None,
@@ -595,7 +569,6 @@ class TestOrganizationApplicationActions:
         with pytest.raises(HTTPNotFound):
             views.organization_application_defer(request)
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_request_more_information(self, db_request):
         admin = UserFactory.create()
         user = UserFactory.create()
@@ -641,7 +614,6 @@ class TestOrganizationApplicationActions:
             == f"/admin/organization_applications/{organization_application.id}/"
         )
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_request_more_information_turbo_mode(self, db_request):
         admin = UserFactory.create()
         user = UserFactory.create()
@@ -690,7 +662,6 @@ class TestOrganizationApplicationActions:
             == f"/admin/organization_applications/{organization_application.id}/"
         )
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_request_more_information_for_not_found(self):
         organization_service = pretend.stub(
             get_organization_application=lambda *a, **kw: None,
@@ -704,7 +675,6 @@ class TestOrganizationApplicationActions:
         with pytest.raises(HTTPNotFound):
             views.organization_application_request_more_information(request)
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_request_more_information_no_message(self, db_request):
         admin = UserFactory.create()
         user = UserFactory.create()
@@ -742,7 +712,6 @@ class TestOrganizationApplicationActions:
             == f"/admin/organization_applications/{organization_application.id}/"
         )
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_decline(self, db_request):
         admin = UserFactory.create()
         user = UserFactory.create()
@@ -788,7 +757,6 @@ class TestOrganizationApplicationActions:
             == f"/admin/organization_applications/{organization_application.id}/"
         )
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_decline_turbo_mode(self, db_request):
         admin = UserFactory.create()
         user = UserFactory.create()
@@ -835,7 +803,6 @@ class TestOrganizationApplicationActions:
             == f"/admin/organization_applications/{organization_application.id}/"
         )
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_decline_not_found(self):
         organization_service = pretend.stub(
             get_organization_application=lambda *a, **kw: None,

@@ -54,7 +54,7 @@ def handle_billing_webhook_event(request, event):
                         subscription_item["id"],
                         billing_email,
                     )
-        # Occurs whenever a customer’s subscription ends.
+        # Occurs whenever a customer's subscription ends.
         case "customer.subscription.deleted":
             subscription = event["data"]["object"]
             status = subscription["status"]

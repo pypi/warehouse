@@ -16,9 +16,9 @@ logger = structlog.get_logger(__name__)
 # YARA rules directory
 _RULES_DIR = Path(__file__).parent / "scanner_rules"
 
-# Extensions to scan inside archives — only Python source files,
-# since YARA rules target source-level patterns (e.g. pyarmor strings).
-_SCAN_EXTENSIONS = {".py"}
+# Extensions to scan inside archives. Python source (.py) for source-level
+# rules (e.g. pyarmor), and .pye for SourceDefender-encrypted files.
+_SCAN_EXTENSIONS = {".py", ".pye"}
 
 # Max size of individual file to scan inside archive (5 MiB)
 _SCAN_MAX_FILE_SIZE = 5 * 1024 * 1024
@@ -64,8 +64,8 @@ def compile_rules(rules_dir: Path = _RULES_DIR) -> yara_x.Rules | None:
         for rule_file in rule_files:
             compiler.add_source(rule_file.read_text())
         return compiler.build()
-    except (OSError, yara_x.CompileError):
-        logger.exception("Failed to compile YARA-X rules", exc_info=True)
+    except OSError, yara_x.CompileError:
+        logger.exception("Failed to compile YARA-X rules")
         return None
 
 
@@ -234,11 +234,7 @@ def check_members(
                 return None
 
     except yara_x.ScanError:
-        logger.exception(
-            "YARA-X scan failed",
-            archive=archive_name,
-            exc_info=True,
-        )
+        logger.exception("YARA-X scan failed", archive=archive_name)
         return None
 
     # Overflow path completed with no matches found.
@@ -306,12 +302,8 @@ def scan_archive(
             results = yx_scanner.scan(data)
             if results.matching_rules:
                 matches.append((name, [r.identifier for r in results.matching_rules]))
-    except (OSError, zipfile.BadZipFile, tarfile.TarError, yara_x.ScanError):
-        logger.exception(
-            "YARA-X scan failed",
-            archive=archive_name,
-            exc_info=True,
-        )
+    except OSError, zipfile.BadZipFile, tarfile.TarError, yara_x.ScanError:
+        logger.exception("YARA-X scan failed", archive=archive_name)
         return []
 
     return matches
@@ -319,17 +311,17 @@ def scan_archive(
 
 def main(argv: list[str]) -> int:  # pragma: no cover
     if len(argv) != 1:
-        print("Usage: python -m warehouse.utils.scanner <archive path>")
+        print("Usage: python -m warehouse.utils.scanner <archive path>")  # noqa: T201
         return 1
     filepath = argv[0]
     basename = Path(filepath).name
     matches = scan_archive(filepath)
     if not matches:
-        print(f"{basename}: OK (no matches)")
+        print(f"{basename}: OK (no matches)")  # noqa: T201
     else:
-        print(f"{basename}: MATCHED")
+        print(f"{basename}: MATCHED")  # noqa: T201
         for member, rule_names in matches:
-            print(f"  {member}: {', '.join(rule_names)}")
+            print(f"  {member}: {', '.join(rule_names)}")  # noqa: T201
     return 0 if not matches else 1
 
 

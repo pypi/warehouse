@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import datetime
+import types
 
-import pretend
 import psycopg
 import pytest
 
@@ -75,7 +75,9 @@ class TestOrganizationFactory:
         assert root[normalized] == organization
 
     def test_traversal_redirects(self, db_request):
-        db_request.matched_route = pretend.stub(generate=lambda *a, **kw: "route-path")
+        db_request.matched_route = types.SimpleNamespace(
+            generate=lambda *a, **kw: "route-path"
+        )
         organization = DBOrganizationFactory.create()
         DBOrganizationNameCatalogFactory.create(
             normalized_name="oldname",
@@ -146,109 +148,113 @@ class TestOrganization:
                 ),
             ),
             (Allow, "group:moderators", Permissions.AdminOrganizationsRead),
-        ] + sorted(
-            [
-                (
-                    Allow,
-                    f"user:{owner1.user.id}",
-                    [
-                        Permissions.OrganizationsRead,
-                        Permissions.OrganizationsRoleRemove,
-                        Permissions.OrganizationTeamsRead,
-                        Permissions.OrganizationsManage,
-                        Permissions.OrganizationTeamsManage,
-                        Permissions.OrganizationsBillingManage,
-                        Permissions.OrganizationProjectsAdd,
-                        Permissions.OrganizationProjectsRemove,
-                    ],
-                ),
-                (
-                    Allow,
-                    f"user:{owner2.user.id}",
-                    [
-                        Permissions.OrganizationsRead,
-                        Permissions.OrganizationsRoleRemove,
-                        Permissions.OrganizationTeamsRead,
-                        Permissions.OrganizationsManage,
-                        Permissions.OrganizationTeamsManage,
-                        Permissions.OrganizationsBillingManage,
-                        Permissions.OrganizationProjectsAdd,
-                        Permissions.OrganizationProjectsRemove,
-                    ],
-                ),
-            ],
-            key=lambda x: x[1],
-        ) + sorted(
-            [
-                (
-                    Allow,
-                    f"user:{billing_mgr1.user.id}",
-                    [
-                        Permissions.OrganizationsRead,
-                        Permissions.OrganizationTeamsRead,
-                        Permissions.OrganizationsBillingManage,
-                    ],
-                ),
-                (
-                    Allow,
-                    f"user:{billing_mgr2.user.id}",
-                    [
-                        Permissions.OrganizationsRead,
-                        Permissions.OrganizationTeamsRead,
-                        Permissions.OrganizationsBillingManage,
-                    ],
-                ),
-            ],
-            key=lambda x: x[1],
-        ) + sorted(
-            [
-                (
-                    Allow,
-                    f"user:{account_mgr1.user.id}",
-                    [
-                        Permissions.OrganizationsRead,
-                        Permissions.OrganizationsRoleRemove,
-                        Permissions.OrganizationTeamsRead,
-                        Permissions.OrganizationTeamsManage,
-                        Permissions.OrganizationProjectsAdd,
-                    ],
-                ),
-                (
-                    Allow,
-                    f"user:{account_mgr2.user.id}",
-                    [
-                        Permissions.OrganizationsRead,
-                        Permissions.OrganizationsRoleRemove,
-                        Permissions.OrganizationTeamsRead,
-                        Permissions.OrganizationTeamsManage,
-                        Permissions.OrganizationProjectsAdd,
-                    ],
-                ),
-            ],
-            key=lambda x: x[1],
-        ) + sorted(
-            [
-                (
-                    Allow,
-                    f"user:{member1.user.id}",
-                    [
-                        Permissions.OrganizationsRead,
-                        Permissions.OrganizationsRoleRemove,
-                        Permissions.OrganizationTeamsRead,
-                    ],
-                ),
-                (
-                    Allow,
-                    f"user:{member2.user.id}",
-                    [
-                        Permissions.OrganizationsRead,
-                        Permissions.OrganizationsRoleRemove,
-                        Permissions.OrganizationTeamsRead,
-                    ],
-                ),
-            ],
-            key=lambda x: x[1],
-        )
+            *sorted(
+                [
+                    (
+                        Allow,
+                        f"user:{owner1.user.id}",
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationsRoleRemove,
+                            Permissions.OrganizationTeamsRead,
+                            Permissions.OrganizationsManage,
+                            Permissions.OrganizationTeamsManage,
+                            Permissions.OrganizationsBillingManage,
+                            Permissions.OrganizationProjectsAdd,
+                            Permissions.OrganizationProjectsRemove,
+                        ],
+                    ),
+                    (
+                        Allow,
+                        f"user:{owner2.user.id}",
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationsRoleRemove,
+                            Permissions.OrganizationTeamsRead,
+                            Permissions.OrganizationsManage,
+                            Permissions.OrganizationTeamsManage,
+                            Permissions.OrganizationsBillingManage,
+                            Permissions.OrganizationProjectsAdd,
+                            Permissions.OrganizationProjectsRemove,
+                        ],
+                    ),
+                ],
+                key=lambda x: x[1],
+            ),
+            *sorted(
+                [
+                    (
+                        Allow,
+                        f"user:{billing_mgr1.user.id}",
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationTeamsRead,
+                            Permissions.OrganizationsBillingManage,
+                        ],
+                    ),
+                    (
+                        Allow,
+                        f"user:{billing_mgr2.user.id}",
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationTeamsRead,
+                            Permissions.OrganizationsBillingManage,
+                        ],
+                    ),
+                ],
+                key=lambda x: x[1],
+            ),
+            *sorted(
+                [
+                    (
+                        Allow,
+                        f"user:{account_mgr1.user.id}",
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationsRoleRemove,
+                            Permissions.OrganizationTeamsRead,
+                            Permissions.OrganizationTeamsManage,
+                            Permissions.OrganizationProjectsAdd,
+                        ],
+                    ),
+                    (
+                        Allow,
+                        f"user:{account_mgr2.user.id}",
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationsRoleRemove,
+                            Permissions.OrganizationTeamsRead,
+                            Permissions.OrganizationTeamsManage,
+                            Permissions.OrganizationProjectsAdd,
+                        ],
+                    ),
+                ],
+                key=lambda x: x[1],
+            ),
+            *sorted(
+                [
+                    (
+                        Allow,
+                        f"user:{member1.user.id}",
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationsRoleRemove,
+                            Permissions.OrganizationTeamsRead,
+                        ],
+                    ),
+                    (
+                        Allow,
+                        f"user:{member2.user.id}",
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationsRoleRemove,
+                            Permissions.OrganizationTeamsRead,
+                        ],
+                    ),
+                ],
+                key=lambda x: x[1],
+            ),
+        ]
 
     def test_record_event_with_geoip(self, db_request):
         """
@@ -366,109 +372,113 @@ class TestTeam:
                 ),
             ),
             (Allow, "group:moderators", Permissions.AdminOrganizationsRead),
-        ] + sorted(
-            [
-                (
-                    Allow,
-                    f"user:{owner1.user.id}",
-                    [
-                        Permissions.OrganizationsRead,
-                        Permissions.OrganizationsRoleRemove,
-                        Permissions.OrganizationTeamsRead,
-                        Permissions.OrganizationsManage,
-                        Permissions.OrganizationTeamsManage,
-                        Permissions.OrganizationsBillingManage,
-                        Permissions.OrganizationProjectsAdd,
-                        Permissions.OrganizationProjectsRemove,
-                    ],
-                ),
-                (
-                    Allow,
-                    f"user:{owner2.user.id}",
-                    [
-                        Permissions.OrganizationsRead,
-                        Permissions.OrganizationsRoleRemove,
-                        Permissions.OrganizationTeamsRead,
-                        Permissions.OrganizationsManage,
-                        Permissions.OrganizationTeamsManage,
-                        Permissions.OrganizationsBillingManage,
-                        Permissions.OrganizationProjectsAdd,
-                        Permissions.OrganizationProjectsRemove,
-                    ],
-                ),
-            ],
-            key=lambda x: x[1],
-        ) + sorted(
-            [
-                (
-                    Allow,
-                    f"user:{billing_mgr1.user.id}",
-                    [
-                        Permissions.OrganizationsRead,
-                        Permissions.OrganizationTeamsRead,
-                        Permissions.OrganizationsBillingManage,
-                    ],
-                ),
-                (
-                    Allow,
-                    f"user:{billing_mgr2.user.id}",
-                    [
-                        Permissions.OrganizationsRead,
-                        Permissions.OrganizationTeamsRead,
-                        Permissions.OrganizationsBillingManage,
-                    ],
-                ),
-            ],
-            key=lambda x: x[1],
-        ) + sorted(
-            [
-                (
-                    Allow,
-                    f"user:{account_mgr1.user.id}",
-                    [
-                        Permissions.OrganizationsRead,
-                        Permissions.OrganizationsRoleRemove,
-                        Permissions.OrganizationTeamsRead,
-                        Permissions.OrganizationTeamsManage,
-                        Permissions.OrganizationProjectsAdd,
-                    ],
-                ),
-                (
-                    Allow,
-                    f"user:{account_mgr2.user.id}",
-                    [
-                        Permissions.OrganizationsRead,
-                        Permissions.OrganizationsRoleRemove,
-                        Permissions.OrganizationTeamsRead,
-                        Permissions.OrganizationTeamsManage,
-                        Permissions.OrganizationProjectsAdd,
-                    ],
-                ),
-            ],
-            key=lambda x: x[1],
-        ) + sorted(
-            [
-                (
-                    Allow,
-                    f"user:{member1.user.id}",
-                    [
-                        Permissions.OrganizationsRead,
-                        Permissions.OrganizationsRoleRemove,
-                        Permissions.OrganizationTeamsRead,
-                    ],
-                ),
-                (
-                    Allow,
-                    f"user:{member2.user.id}",
-                    [
-                        Permissions.OrganizationsRead,
-                        Permissions.OrganizationsRoleRemove,
-                        Permissions.OrganizationTeamsRead,
-                    ],
-                ),
-            ],
-            key=lambda x: x[1],
-        )
+            *sorted(
+                [
+                    (
+                        Allow,
+                        f"user:{owner1.user.id}",
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationsRoleRemove,
+                            Permissions.OrganizationTeamsRead,
+                            Permissions.OrganizationsManage,
+                            Permissions.OrganizationTeamsManage,
+                            Permissions.OrganizationsBillingManage,
+                            Permissions.OrganizationProjectsAdd,
+                            Permissions.OrganizationProjectsRemove,
+                        ],
+                    ),
+                    (
+                        Allow,
+                        f"user:{owner2.user.id}",
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationsRoleRemove,
+                            Permissions.OrganizationTeamsRead,
+                            Permissions.OrganizationsManage,
+                            Permissions.OrganizationTeamsManage,
+                            Permissions.OrganizationsBillingManage,
+                            Permissions.OrganizationProjectsAdd,
+                            Permissions.OrganizationProjectsRemove,
+                        ],
+                    ),
+                ],
+                key=lambda x: x[1],
+            ),
+            *sorted(
+                [
+                    (
+                        Allow,
+                        f"user:{billing_mgr1.user.id}",
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationTeamsRead,
+                            Permissions.OrganizationsBillingManage,
+                        ],
+                    ),
+                    (
+                        Allow,
+                        f"user:{billing_mgr2.user.id}",
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationTeamsRead,
+                            Permissions.OrganizationsBillingManage,
+                        ],
+                    ),
+                ],
+                key=lambda x: x[1],
+            ),
+            *sorted(
+                [
+                    (
+                        Allow,
+                        f"user:{account_mgr1.user.id}",
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationsRoleRemove,
+                            Permissions.OrganizationTeamsRead,
+                            Permissions.OrganizationTeamsManage,
+                            Permissions.OrganizationProjectsAdd,
+                        ],
+                    ),
+                    (
+                        Allow,
+                        f"user:{account_mgr2.user.id}",
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationsRoleRemove,
+                            Permissions.OrganizationTeamsRead,
+                            Permissions.OrganizationTeamsManage,
+                            Permissions.OrganizationProjectsAdd,
+                        ],
+                    ),
+                ],
+                key=lambda x: x[1],
+            ),
+            *sorted(
+                [
+                    (
+                        Allow,
+                        f"user:{member1.user.id}",
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationsRoleRemove,
+                            Permissions.OrganizationTeamsRead,
+                        ],
+                    ),
+                    (
+                        Allow,
+                        f"user:{member2.user.id}",
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationsRoleRemove,
+                            Permissions.OrganizationTeamsRead,
+                        ],
+                    ),
+                ],
+                key=lambda x: x[1],
+            ),
+        ]
 
     def test_active_subscription(self, db_session):
         organization = DBOrganizationFactory.create()

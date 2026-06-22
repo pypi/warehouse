@@ -3,7 +3,7 @@
 import enum
 
 
-class EventTagEnum(str, enum.Enum):
+class EventTagEnum(enum.StrEnum):
     """Base class for Enum representing Event tags.
 
     Tags can be broken into three colon-separated parts:
@@ -122,7 +122,11 @@ class EventTag:
         ProjectCreate = "project:create"
         ProjectQuarantineEnter = "project:quarantine:enter"
         ProjectQuarantineExit = "project:quarantine:exit"
+        ProjectSetTotalSizeLimit = "admin:project:set_total_size_limit"
+        ProjectSetUploadLimit = "admin:project:set_upload_limit"
         ReleaseAdd = "project:release:add"
+        ReleaseQuarantineEnter = "project:release:quarantine:enter"
+        ReleaseQuarantineExit = "project:release:quarantine:exit"
         ReleaseRemove = "project:release:remove"
         ReleaseUnyank = "project:release:unyank"
         ReleaseYank = "project:release:yank"
@@ -166,6 +170,8 @@ class EventTag:
         OrganizationDecline = "organization:decline"
         OrganizationDelete = "organization:delete"
         OrganizationRename = "organization:rename"
+        OrganizationSetUploadLimit = "admin:organization:set_upload_limit"
+        OrganizationSetTotalSizeLimit = "admin:organization:set_total_size_limit"
         OrganizationProjectAdd = "organization:organization_project:add"
         OrganizationProjectRemove = "organization:organization_project:remove"
         OrganizationRoleAdd = "organization:organization_role:add"

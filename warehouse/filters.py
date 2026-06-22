@@ -75,9 +75,7 @@ def camoify(ctx, value):
 
     tree_walker = html5lib.treewalkers.getTreeWalker("dom")
     html_serializer = html5lib.serializer.HTMLSerializer()
-    camoed = "".join(html_serializer.serialize(tree_walker(dom)))
-
-    return camoed
+    return "".join(html_serializer.serialize(tree_walker(dom)))
 
 
 _SI_SYMBOLS = ["k", "M", "G", "T", "P", "E", "Z", "Y"]
@@ -113,9 +111,7 @@ def format_tags(tags):
     stripped_tags = [re.sub(r'^["\'\s]+|["\'\s]+$', "", t) for t in split_tags]
 
     # remove any empty tags
-    formatted_tags = [t for t in stripped_tags if t]
-
-    return formatted_tags
+    return [t for t in stripped_tags if t]
 
 
 def format_classifiers(classifiers):
@@ -199,6 +195,7 @@ def _canonical_url(request, **kwargs):
             return request.route_url(request.matched_route.name, **kwargs)
         except KeyError:
             pass
+    return None
 
 
 def includeme(config):

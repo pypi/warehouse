@@ -173,6 +173,7 @@ class TestUser:
                     Permissions.AdminUsersEmailWrite,
                     Permissions.AdminUsersAccountRecoveryWrite,
                     Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminVulnerabilitiesRead,
                 ),
             ),
             (
@@ -275,7 +276,7 @@ class TestUser:
             is_psf_staff=is_psf_staff,
         )
 
-        expected = expected[:] + [f"user:{user.id}", Authenticated]
+        expected = [*expected[:], f"user:{user.id}", Authenticated]
 
         assert set(principals_for(user)) == set(expected)
 

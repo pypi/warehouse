@@ -173,11 +173,11 @@ def verify(
         result = verifier.verify(macaroon, key)
     except (
         MacaroonInvalidSignatureException,
-        Exception,  # https://github.com/ecordell/pymacaroons/issues/50
+        Exception,  # noqa: BLE001 https://github.com/ecordell/pymacaroons/issues/50
     ) as exc:
         if errors:
             return WarehouseDenied(", ".join(errors), reason="invalid_api_token")
-        elif isinstance(exc, MacaroonInvalidSignatureException):
+        if isinstance(exc, MacaroonInvalidSignatureException):
             return WarehouseDenied(
                 "signatures do not match", reason="invalid_api_token"
             )

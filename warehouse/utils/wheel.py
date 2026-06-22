@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import configparser
 import csv
 import os
 import re
@@ -18,6 +19,10 @@ class InvalidWheelRecordError(Exception):
     """Internal exception used by this module"""
 
 
+class InvalidWheelEntryPointsError(Exception):
+    """Internal exception used by this module"""
+
+
 _PLATFORMS = [
     (re.compile(r"^win_(.*?)$"), lambda m: f"Windows {_normalize_arch(m.group(1))}"),
     (re.compile(r"^win32$"), lambda m: "Windows x86"),
@@ -28,8 +33,7 @@ _PLATFORMS = [
     (
         re.compile(r"^manylinux_(\d+)_(\d+)_(.*?)$"),
         lambda m: (
-            f"manylinux: glibc "
-            f"{m.group(1)}.{m.group(2)}+ {_normalize_arch(m.group(3))}"
+            f"manylinux: glibc {m.group(1)}.{m.group(2)}+ {_normalize_arch(m.group(3))}"
         ),
     ),
     (
@@ -48,15 +52,19 @@ _PLATFORMS = [
     ),
     (
         re.compile(r"^ios_(\d+)_(\d+)_(.*?)_iphoneos$"),
-        lambda m: f"iOS {m.group(1)}.{m.group(2)}+ {_normalize_arch(m.group(3))} Device",  # noqa: E501
+        lambda m: (
+            f"iOS {m.group(1)}.{m.group(2)}+ {_normalize_arch(m.group(3))} Device"
+        ),
     ),
     (
         re.compile(r"^ios_(\d+)_(\d+)_(.*?)_iphonesimulator$"),
-        lambda m: f"iOS {m.group(1)}.{m.group(2)}+ {_normalize_arch(m.group(3))} Simulator",  # noqa: E501
+        lambda m: (
+            f"iOS {m.group(1)}.{m.group(2)}+ {_normalize_arch(m.group(3))} Simulator"
+        ),
     ),
     (
         re.compile(r"^pyemscripten_(\d+)_(\d+)_wasm32$"),
-        lambda m: f"PyEmscripten {m.group(1)}.{m.group(2)} wasm32",  # noqa: E501
+        lambda m: f"PyEmscripten {m.group(1)}.{m.group(2)} wasm32",
     ),
 ]
 
@@ -97,7 +105,7 @@ def filename_to_tags(filename: str) -> set[packaging.tags.Tag]:
 def filename_to_pretty_tags(filename: str) -> list[str]:
     if filename.endswith(".egg"):
         return ["Egg"]
-    elif not filename.endswith(".whl"):
+    if not filename.endswith(".whl"):
         return ["Source"]
 
     tags = filename_to_tags(filename)
@@ -201,8 +209,8 @@ def validate_record(wheel_filepath: str) -> bool:
             for fn in zfp.namelist()
             if not _zip_filename_is_dir(fn) and fn not in record_exemptions
         }
-    except (UnicodeError, KeyError, csv.Error):
-        raise MissingWheelRecordError()
+    except UnicodeError, KeyError, csv.Error:
+        raise MissingWheelRecordError
     if record_entries != wheel_entries:
         record_is_missing = wheel_entries - record_entries
         wheel_is_missing = record_entries - wheel_entries
@@ -214,18 +222,87 @@ def validate_record(wheel_filepath: str) -> bool:
     return True
 
 
+# See: https://packaging.python.org/en/latest/specifications/entry-points/#data-model
+_ENTRY_POINT_NAME_RE = re.compile(r"[\w.-]+")
+
+
+def _validate_section(section: configparser.SectionProxy):
+    """
+    Validate the entry point names in a single section.
+    """
+    for ep_name in section:
+        if _ENTRY_POINT_NAME_RE.fullmatch(ep_name) is None:
+            raise InvalidWheelEntryPointsError(
+                f"Invalid entry point name {ep_name!r} in {section.name!r}"
+            )
+
+
+def validate_entrypoints(wheel_filepath: str) -> bool:
+    """
+    Extract `entry_points.txt` from a wheel and check that it is valid.
+
+    Current validity checks include being a well-formed INI file
+    (matching the Entry Points specification's constraints) and
+    that all `console_scripts` and `gui_scripts` entry points have names
+    that do not contain absolute or relative path components.
+
+    Validation errors are not currently reported via email.
+    """
+
+    # See: <https://packaging.python.org/en/latest/specifications/entry-points/#file-format>
+    class CaseSensitiveConfigParser(configparser.ConfigParser):
+        optionxform = staticmethod(str)  # type: ignore[assignment]
+
+    filename = os.path.basename(wheel_filepath)
+    name, version, _ = filename.split("-", 2)
+    entry_points_filename = f"{name}-{version}.dist-info/entry_points.txt"
+
+    # A wheel might not have an `entry_points.txt` file.
+    try:
+        with zipfile.ZipFile(wheel_filepath) as zfp:
+            entry_points_contents = zfp.read(entry_points_filename).decode()
+    except KeyError:
+        return True
+    except UnicodeError:
+        # `entry_points.txt` must be decodable as UTF-8.
+        raise InvalidWheelEntryPointsError("entry_points.txt is not decodable as UTF-8")
+
+    # The Entry Points specification requires `=` as the delimiter.
+    parser = CaseSensitiveConfigParser(delimiters=("=",))
+    try:
+        parser.read_string(entry_points_contents)
+    except configparser.Error as error:
+        raise InvalidWheelEntryPointsError(
+            f"entry_points.txt is not a valid INI file: {error!r}"
+        )
+
+    for section_name in ("console_scripts", "gui_scripts"):
+        try:
+            section = parser[section_name]
+        except KeyError:
+            # `entry_points.txt` might not have these sections.
+            continue
+        _validate_section(section)
+
+        # TODO: We could consider validating the entry point value as well.
+        # See: https://packaging.python.org/en/latest/specifications/entry-points/#data-model
+
+    return True
+
+
 def main(argv) -> int:  # pragma: no cover
     if len(argv) != 1:
-        print("Usage: python -m warehouse.utils.wheel <wheel path>")
+        print("Usage: python -m warehouse.utils.wheel <wheel path>")  # noqa: T201
         return 1
     wheel_filepath = argv[0]
     wheel_filename = os.path.basename(wheel_filepath)
     try:
         validate_record(wheel_filepath)
-        print(f"{wheel_filename}: OK")
+        validate_entrypoints(wheel_filepath)
+        print(f"{wheel_filename}: OK")  # noqa: T201
         return 0
-    except Exception as error:
-        print(f"{wheel_filename}: {error!r}")
+    except Exception as error:  # noqa: BLE001
+        print(f"{wheel_filename}: {error!r}")  # noqa: T201
         return 1
 
 

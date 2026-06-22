@@ -16,7 +16,11 @@ from tests.common.db.oidc import (
     PendingGitHubPublisherFactory,
 )
 from tests.common.db.organizations import OrganizationFactory
-from tests.common.db.packaging import ProhibitedProjectFactory, ProjectFactory
+from tests.common.db.packaging import (
+    ProhibitedProjectFactory,
+    ProjectFactory,
+    RoleFactory,
+)
 from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
@@ -98,7 +102,7 @@ def test_mint_token_from_oidc_not_enabled(token, service_name, request):
         "errors": [
             {
                 "code": "not-enabled",
-                "description": f"{service_name} trusted publishing functionality not enabled",  # noqa
+                "description": f"{service_name} trusted publishing functionality not enabled",  # noqa: E501
             }
         ],
     }
@@ -387,8 +391,7 @@ def test_mint_token_duplicate_token():
     def find_publishers_mockup(_, pending: bool = False):
         if pending is False:
             raise errors.ReusedTokenError("some message")
-        else:
-            raise errors.InvalidPublisherError("some message")
+        raise errors.InvalidPublisherError("some message")
 
     claims = {"iss": "https://none"}
     oidc_service = pretend.stub(
@@ -480,6 +483,10 @@ def test_mint_token_from_oidc_pending_publisher_ok(monkeypatch, db_request):
         "ip.oidc": ratelimiter,
     }
     monkeypatch.setattr(views, "_ratelimiters", lambda r: ratelimiters)
+    send_reified_email = pretend.call_recorder(lambda *a, **kw: None)
+    monkeypatch.setattr(
+        views, "send_pending_trusted_publisher_reified_email", send_reified_email
+    )
 
     resp = views.mint_token_from_oidc(db_request)
     assert resp["success"]
@@ -508,6 +515,14 @@ def test_mint_token_from_oidc_pending_publisher_ok(monkeypatch, db_request):
         "reified_from_pending_publisher": True,
         "constrained_from_existing_publisher": False,
     }
+    assert send_reified_email.calls == [
+        pretend.call(
+            db_request,
+            user,
+            project_name=pending_publisher.project_name,
+            publisher_specifier=str(publisher),
+        ),
+    ]
 
 
 def test_mint_token_from_oidc_pending_publisher_for_organization_ok(
@@ -538,6 +553,10 @@ def test_mint_token_from_oidc_pending_publisher_for_organization_ok(
         "ip.oidc": ratelimiter,
     }
     monkeypatch.setattr(views, "_ratelimiters", lambda r: ratelimiters)
+    send_reified_email = pretend.call_recorder(lambda *a, **kw: None)
+    monkeypatch.setattr(
+        views, "send_pending_trusted_publisher_reified_email", send_reified_email
+    )
 
     resp = views.mint_token_from_oidc(db_request)
     assert resp["success"]
@@ -576,6 +595,14 @@ def test_mint_token_from_oidc_pending_publisher_for_organization_ok(
         "reified_from_pending_publisher": True,
         "constrained_from_existing_publisher": False,
     }
+    assert send_reified_email.calls == [
+        pretend.call(
+            db_request,
+            user,
+            project_name=pending_publisher.project_name,
+            publisher_specifier=str(publisher),
+        ),
+    ]
 
 
 def test_mint_token_from_pending_trusted_publisher_invalidates_others(
@@ -614,6 +641,11 @@ def test_mint_token_from_pending_trusted_publisher_invalidates_others(
         services,
         "send_pending_trusted_publisher_invalidated_email",
         send_pending_trusted_publisher_invalidated_email,
+    )
+    monkeypatch.setattr(
+        views,
+        "send_pending_trusted_publisher_reified_email",
+        pretend.call_recorder(lambda *a, **kw: None),
     )
 
     db_request.flags.oidc_enabled = lambda f: False
@@ -682,22 +714,15 @@ def test_mint_token_no_pending_publisher_ok(
     time = pretend.stub(time=pretend.call_recorder(lambda: 0))
     monkeypatch.setattr(views, "time", time)
 
-    project = pretend.stub(
-        id="fakeprojectid",
-        record_event=pretend.call_recorder(lambda **kw: None),
-    )
-
+    project = ProjectFactory.create()
     publisher = GitHubPublisherFactory()
-    monkeypatch.setattr(publisher.__class__, "projects", [project])
-    publisher.publisher_url = pretend.call_recorder(lambda **kw: "https://fake/url")
-    # NOTE: Can't set __str__ using pretend.stub()
-    monkeypatch.setattr(publisher.__class__, "__str__", lambda s: "fakespecifier")
+    publisher.projects = [project]
+    db_request.db.flush()
 
     def _find_publisher(claims, pending=False):
         if pending:
             return None
-        else:
-            return publisher
+        return publisher
 
     oidc_service = pretend.stub(
         verify_jwt_signature=pretend.call_recorder(
@@ -716,8 +741,7 @@ def test_mint_token_no_pending_publisher_ok(
     def find_service(iface, **kw):
         if iface == IMacaroonService:
             return macaroon_service
-        else:
-            pytest.fail(iface)
+        pytest.fail(iface)
 
     monkeypatch.setattr(db_request, "find_service", find_service)
     monkeypatch.setattr(db_request, "domain", "fakedomain")
@@ -747,30 +771,27 @@ def test_mint_token_no_pending_publisher_ok(
     assert macaroon_service.create_macaroon.calls == [
         pretend.call(
             "fakedomain",
-            f"OpenID token: fakespecifier ({datetime.fromtimestamp(0).isoformat()})",
+            f"OpenID token: {publisher} ({datetime.fromtimestamp(0).isoformat()})",
             [
                 caveats.OIDCPublisher(
                     oidc_publisher_id=str(publisher.id),
                 ),
-                caveats.ProjectID(project_ids=["fakeprojectid"]),
+                caveats.ProjectID(project_ids=[str(project.id)]),
                 caveats.Expiration(expires_at=900, not_before=0),
             ],
             oidc_publisher_id=str(publisher.id),
             additional={"oidc": claims_input},
         )
     ]
-    assert project.record_event.calls == [
-        pretend.call(
-            tag=EventTag.Project.ShortLivedAPITokenAdded,
-            request=db_request,
-            additional={
-                "expires": 900,
-                "publisher_name": "GitHub",
-                "publisher_url": "https://fake/url",
-                "reusable_workflow_used": False,
-            },
-        )
-    ]
+    events = list(project.events)
+    assert len(events) == 1
+    assert events[0].tag == EventTag.Project.ShortLivedAPITokenAdded.value
+    assert events[0].additional == {
+        "expires": 900,
+        "publisher_name": "GitHub",
+        "publisher_url": publisher.publisher_url(),
+        "reusable_workflow_used": False,
+    }
 
 
 def test_mint_token_warn_constrain_environment(monkeypatch, db_request):
@@ -783,20 +804,13 @@ def test_mint_token_warn_constrain_environment(monkeypatch, db_request):
     claims_input = {"ref": "someref", "sha": "somesha"}
     time = pretend.stub(time=pretend.call_recorder(lambda: 0))
     monkeypatch.setattr(views, "time", time)
+
     owner = UserFactory.create()
-
-    project = pretend.stub(
-        id="fakeprojectid",
-        name="fakeproject",
-        record_event=pretend.call_recorder(lambda **kw: None),
-        owners=[owner],
-    )
-
+    project = ProjectFactory.create()
+    RoleFactory.create(user=owner, project=project, role_name="Owner")
     publisher = GitHubPublisherFactory(environment="")
-    monkeypatch.setattr(publisher.__class__, "projects", [project])
-    publisher.publisher_url = pretend.call_recorder(lambda **kw: "https://fake/url")
-    # NOTE: Can't set __str__ using pretend.stub()
-    monkeypatch.setattr(publisher.__class__, "__str__", lambda s: "fakespecifier")
+    publisher.projects = [project]
+    db_request.db.flush()
 
     send_environment_ignored_in_trusted_publisher_email = pretend.call_recorder(
         lambda *a, **kw: None
@@ -810,8 +824,7 @@ def test_mint_token_warn_constrain_environment(monkeypatch, db_request):
     def _find_publisher(claims, pending=False):
         if pending:
             return None
-        else:
-            return publisher
+        return publisher
 
     oidc_service = pretend.stub(
         verify_jwt_signature=pretend.call_recorder(
@@ -830,8 +843,7 @@ def test_mint_token_warn_constrain_environment(monkeypatch, db_request):
     def find_service(iface, **kw):
         if iface == IMacaroonService:
             return macaroon_service
-        else:
-            pytest.fail(iface)
+        pytest.fail(iface)
 
     monkeypatch.setattr(db_request, "find_service", find_service)
     monkeypatch.setattr(db_request, "domain", "fakedomain")
@@ -859,7 +871,7 @@ def test_mint_token_warn_constrain_environment(monkeypatch, db_request):
         pretend.call(
             db_request,
             {owner},
-            project_name="fakeproject",
+            project_name=project.name,
             publisher=publisher,
             environment_name="fakeenv",
         ),
@@ -868,30 +880,27 @@ def test_mint_token_warn_constrain_environment(monkeypatch, db_request):
     assert macaroon_service.create_macaroon.calls == [
         pretend.call(
             "fakedomain",
-            f"OpenID token: fakespecifier ({datetime.fromtimestamp(0).isoformat()})",
+            f"OpenID token: {publisher} ({datetime.fromtimestamp(0).isoformat()})",
             [
                 caveats.OIDCPublisher(
                     oidc_publisher_id=str(publisher.id),
                 ),
-                caveats.ProjectID(project_ids=["fakeprojectid"]),
+                caveats.ProjectID(project_ids=[str(project.id)]),
                 caveats.Expiration(expires_at=900, not_before=0),
             ],
             oidc_publisher_id=str(publisher.id),
             additional={"oidc": claims_input},
         )
     ]
-    assert project.record_event.calls == [
-        pretend.call(
-            tag=EventTag.Project.ShortLivedAPITokenAdded,
-            request=db_request,
-            additional={
-                "expires": 900,
-                "publisher_name": "GitHub",
-                "publisher_url": "https://fake/url",
-                "reusable_workflow_used": False,
-            },
-        )
-    ]
+    events = list(project.events)
+    assert len(events) == 1
+    assert events[0].tag == EventTag.Project.ShortLivedAPITokenAdded.value
+    assert events[0].additional == {
+        "expires": 900,
+        "publisher_name": "GitHub",
+        "publisher_url": publisher.publisher_url(),
+        "reusable_workflow_used": False,
+    }
 
 
 def test_mint_token_with_prohibited_name_fails(monkeypatch, db_request):
@@ -980,21 +989,15 @@ def test_mint_token_github_reusable_workflow_metrics(
     time = pretend.stub(time=pretend.call_recorder(lambda: 0))
     monkeypatch.setattr(views, "time", time)
 
-    project = pretend.stub(
-        id="fakeprojectid",
-        record_event=pretend.call_recorder(lambda **kw: None),
-    )
-
+    project = ProjectFactory.create()
     publisher = GitHubPublisherFactory() if is_github else GitLabPublisherFactory()
-    monkeypatch.setattr(publisher.__class__, "projects", [project])
-    # NOTE: Can't set __str__ using pretend.stub()
-    monkeypatch.setattr(publisher.__class__, "__str__", lambda s: "fakespecifier")
+    publisher.projects = [project]
+    db_request.db.flush()
 
     def _find_publisher(claims, pending=False):
         if pending:
             return None
-        else:
-            return publisher
+        return publisher
 
     oidc_service = pretend.stub(
         verify_jwt_signature=pretend.call_recorder(
@@ -1013,10 +1016,9 @@ def test_mint_token_github_reusable_workflow_metrics(
     def find_service(iface, **kw):
         if iface == IMacaroonService:
             return macaroon_service
-        elif iface == IMetricsService:
+        if iface == IMetricsService:
             return metrics
-        else:
-            pytest.fail(iface)
+        pytest.fail(iface)
 
     monkeypatch.setattr(db_request, "find_service", find_service)
     monkeypatch.setattr(db_request, "domain", "fakedomain")
@@ -1077,7 +1079,7 @@ def test_is_from_reusable_workflow(
         # configured when claims contain an environment
         (GitHubPublisherFactory, "", "new_env", True),
         (GitLabPublisherFactory, "", "new_env", True),
-        # Should not send if claims don't have an environent
+        # Should not send if claims don't have an environment
         (GitHubPublisherFactory, "", "", False),
         (GitLabPublisherFactory, "", "", False),
         # Should not send if publishers already have an environment
@@ -1128,14 +1130,10 @@ def test_mint_token_jti_stored_before_macaroon_creation(monkeypatch, db_request)
     time_mod = pretend.stub(time=pretend.call_recorder(lambda: 0))
     monkeypatch.setattr(views, "time", time_mod)
 
-    project = pretend.stub(
-        id="fakeprojectid",
-        record_event=pretend.call_recorder(lambda **kw: None),
-    )
-
+    project = ProjectFactory.create()
     publisher = GitHubPublisherFactory()
-    monkeypatch.setattr(publisher.__class__, "projects", [project])
-    monkeypatch.setattr(publisher.__class__, "__str__", lambda s: "fakespecifier")
+    publisher.projects = [project]
+    db_request.db.flush()
 
     # Track the order of operations to verify JTI is stored before macaroon
     # creation. Each call appends to this list so we can assert ordering.
@@ -1148,8 +1146,7 @@ def test_mint_token_jti_stored_before_macaroon_creation(monkeypatch, db_request)
     def _find_publisher(signed_claims, pending=False):
         if pending:
             return None
-        else:
-            return publisher
+        return publisher
 
     oidc_service = pretend.stub(
         verify_jwt_signature=pretend.call_recorder(
@@ -1172,8 +1169,7 @@ def test_mint_token_jti_stored_before_macaroon_creation(monkeypatch, db_request)
     def find_service(iface, **kw):
         if iface == IMacaroonService:
             return macaroon_service
-        else:
-            pytest.fail(f"Unexpected service lookup: {iface}")
+        pytest.fail(f"Unexpected service lookup: {iface}")
 
     monkeypatch.setattr(db_request, "find_service", find_service)
     monkeypatch.setattr(db_request, "domain", "fakedomain")

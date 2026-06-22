@@ -21,6 +21,18 @@ from warehouse.oidc.urls import verify_url_from_reference
         ("https://example.com/", "https://example.com", False),
         # Not sub path
         ("https://example.com/path1/", "https://example.com/path1/../malicious", False),
+        # Backslash bypass: rfc3986 normalizes these as subpaths of the
+        # reference, but a browser treats "\" as "/" and walks off-path.
+        (
+            "https://example.com/path1",
+            r"https://example.com/path1/..\x/../malicious/",
+            False,
+        ),
+        (
+            "https://github.com/myorg/myproject",
+            r"https://github.com/myorg/myproject/..\x/../evil_org/evil_project/",
+            False,
+        ),
     ],
 )
 def test_verify_url_from_reference(reference: str, url: str, expected: bool):

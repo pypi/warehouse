@@ -20,6 +20,7 @@ from warehouse.accounts.models import (
 
 from .base import WarehouseFactory
 from .ip_addresses import IpAddressFactory
+from .observations import ObserverFactory
 
 fake = faker.Faker()
 
@@ -152,3 +153,14 @@ class OAuthAccountAssociationFactory(WarehouseFactory):
     external_user_id = factory.Sequence(lambda n: f"{n}")
     external_username = factory.Faker("user_name")
     metadata_ = {}
+
+
+class UserObservationFactory(WarehouseFactory):
+    class Meta:
+        model = User.Observation
+
+    related = factory.SubFactory(UserFactory)
+    related_name = factory.LazyAttribute(lambda o: repr(o.related))
+    observer = factory.SubFactory(ObserverFactory)
+    payload = factory.Faker("json")
+    summary = factory.Faker("paragraph")

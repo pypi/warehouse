@@ -9,7 +9,6 @@ from warehouse.utils.db.types import bool_false
 
 
 class AdminFlagValue(enum.Enum):
-    DISABLE_ORGANIZATIONS = "disable-organizations"
     DISABLE_PEP740 = "disable-pep740"
     DISALLOW_DELETION = "disallow-deletion"
     DISALLOW_NEW_PROJECT_REGISTRATION = "disallow-new-project-registration"

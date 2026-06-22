@@ -112,7 +112,7 @@ class TestEmailForm:
 class TestUserForm:
     def test_validate(self):
         form = views.UserForm()
-        assert form.validate(), str(form.erros)
+        assert form.validate(), str(form.errors)
 
 
 class TestUserDetail:
@@ -916,7 +916,7 @@ class TestUserRecoverAccountInitiate:
         with freezegun.freeze_time(now):
             result = views.user_recover_account_initiate(user, db_request)
 
-        _email = [e for e in user.emails if e.email == "foo@example.com"][0]
+        _email = next(e for e in user.emails if e.email == "foo@example.com")
         assert _email.verified is False
 
         assert send_email.calls == [
@@ -990,7 +990,7 @@ class TestUserRecoverAccountInitiate:
         with freezegun.freeze_time(now):
             result = views.user_recover_account_initiate(user, db_request)
 
-        _email = [e for e in user.emails if e.email == "foo@example.com"][0]
+        _email = next(e for e in user.emails if e.email == "foo@example.com")
         assert _email.verified is False
 
         assert send_email.calls == [

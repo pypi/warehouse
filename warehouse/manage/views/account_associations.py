@@ -146,9 +146,9 @@ def github_association_callback(request: Request) -> HTTPSeeOther:
             ),
             queue="error",
         )
-    except Exception as exc:
+    except Exception:
         # Log the error but show generic message to user
-        request.log.error(f"GitHub OAuth error: {exc}")
+        request.log.exception("GitHub OAuth error")
         request.session.flash(
             request._(
                 "An unexpected error occurred while connecting your GitHub account"
@@ -292,9 +292,9 @@ def gitlab_association_callback(request: Request) -> HTTPSeeOther | HTTPNotFound
             ),
             queue="error",
         )
-    except Exception as exc:
+    except Exception:
         # Log the error but show generic message to user
-        request.log.error(f"GitLab OAuth error: {exc}")
+        request.log.exception("GitLab OAuth error")
         request.session.flash(
             request._(
                 "An unexpected error occurred while connecting your GitLab account"

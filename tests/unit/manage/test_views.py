@@ -19,8 +19,6 @@ from sqlalchemy.orm import joinedload
 from webauthn.helpers import bytes_to_base64url
 from webob.multidict import MultiDict
 
-import warehouse.utils.otp as otp
-
 from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
     ITokenService,
@@ -35,6 +33,7 @@ from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage import views
 from warehouse.manage.views import (
     organizations as org_views,
+    view_helpers,
 )
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
@@ -53,6 +52,7 @@ from warehouse.packaging.models import (
     User,
 )
 from warehouse.rate_limiting import IRateLimiter
+from warehouse.utils import otp
 from warehouse.utils.paginate import paginate_url_factory
 
 from ...common.db.accounts import EmailFactory, UserFactory
@@ -66,7 +66,6 @@ from ...common.db.organizations import (
     TeamRoleFactory,
 )
 from ...common.db.packaging import (
-    AlternateRepositoryFactory,
     FileEventFactory,
     FileFactory,
     JournalEntryFactory,
@@ -121,7 +120,7 @@ class TestManageUnverifiedAccount:
     @pytest.mark.parametrize(
         ("has_old_primary", "expected_old_address"),
         [
-            (True, "typo@exmaple.com"),
+            (True, "typo@exmaple.com"),  # codespell:ignore exmaple
             (False, None),
         ],
     )
@@ -129,7 +128,12 @@ class TestManageUnverifiedAccount:
         self, monkeypatch, has_old_primary, expected_old_address
     ):
         old_email = (
-            pretend.stub(id=1, email="typo@exmaple.com", verified=False, primary=True)
+            pretend.stub(
+                id=1,
+                email="typo@exmaple.com",  # codespell:ignore exmaple
+                verified=False,
+                primary=True,
+            )
             if has_old_primary
             else None
         )
@@ -548,7 +552,7 @@ class TestManageAccount:
         assert pyramid_request.session.flash.calls == [
             pretend.call(
                 f"Email {new_email_address} added - check your email for "
-                + "a verification link",
+                "a verification link",
                 queue="success",
             )
         ]
@@ -1744,7 +1748,7 @@ class TestProvisionWebAuthn:
             ),
             session=pretend.stub(
                 get_webauthn_challenge=pretend.call_recorder(lambda: "fake_challenge"),
-                clear_webauthn_challenge=pretend.call_recorder(lambda: pretend.stub()),
+                clear_webauthn_challenge=pretend.call_recorder(pretend.stub),
                 flash=pretend.call_recorder(lambda *a, **kw: None),
             ),
             find_service=lambda *a, **kw: user_service,
@@ -1811,7 +1815,7 @@ class TestProvisionWebAuthn:
             user=pretend.stub(id=1234, webauthn=None),
             session=pretend.stub(
                 get_webauthn_challenge=pretend.call_recorder(lambda: "fake_challenge"),
-                clear_webauthn_challenge=pretend.call_recorder(lambda: pretend.stub()),
+                clear_webauthn_challenge=pretend.call_recorder(pretend.stub),
                 flash=pretend.call_recorder(lambda *a, **kw: None),
             ),
             find_service=lambda *a, **kw: user_service,
@@ -2896,14 +2900,12 @@ class TestManageProjects:
 
 
 class TestManageProjectSettings:
-    @pytest.mark.parametrize("enabled", [False, True])
-    def test_manage_project_settings(self, enabled, monkeypatch):
-        request = pretend.stub(organization_access=enabled)
+    def test_manage_project_settings(self, monkeypatch):
+        request = pretend.stub()
         project = pretend.stub(organization=None, lifecycle_status=None)
         view = views.ManageProjectSettingsViews(project, request)
         form = pretend.stub()
         view.transfer_organization_project_form_class = lambda *a, **kw: form
-        view.add_alternate_repository_form_class = lambda *a, **kw: form
 
         user_organizations = pretend.call_recorder(
             lambda *a, **kw: {
@@ -2919,11 +2921,10 @@ class TestManageProjectSettings:
             "MAX_FILESIZE": MAX_FILESIZE,
             "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
             "transfer_organization_project_form": form,
-            "add_alternate_repository_form_class": form,
         }
 
     def test_manage_project_settings_in_organization_managed(self, monkeypatch):
-        request = pretend.stub(organization_access=True)
+        request = pretend.stub()
         organization_managed = pretend.stub(name="managed-org", is_active=True)
         organization_owned = pretend.stub(name="owned-org", is_active=True)
         project = pretend.stub(organization=organization_managed, lifecycle_status=None)
@@ -2932,7 +2933,6 @@ class TestManageProjectSettings:
         view.transfer_organization_project_form_class = pretend.call_recorder(
             lambda *a, **kw: form
         )
-        view.add_alternate_repository_form_class = lambda *a, **kw: form
 
         user_organizations = pretend.call_recorder(
             lambda *a, **kw: {
@@ -2948,14 +2948,13 @@ class TestManageProjectSettings:
             "MAX_FILESIZE": MAX_FILESIZE,
             "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
             "transfer_organization_project_form": form,
-            "add_alternate_repository_form_class": form,
         }
         assert view.transfer_organization_project_form_class.calls == [
             pretend.call(organization_choices={organization_owned})
         ]
 
     def test_manage_project_settings_in_organization_owned(self, monkeypatch):
-        request = pretend.stub(organization_access=True)
+        request = pretend.stub()
         organization_managed = pretend.stub(name="managed-org", is_active=True)
         organization_owned = pretend.stub(name="owned-org", is_active=True)
         project = pretend.stub(organization=organization_owned, lifecycle_status=None)
@@ -2964,7 +2963,6 @@ class TestManageProjectSettings:
         view.transfer_organization_project_form_class = pretend.call_recorder(
             lambda *a, **kw: form
         )
-        view.add_alternate_repository_form_class = lambda *a, **kw: form
 
         user_organizations = pretend.call_recorder(
             lambda *a, **kw: {
@@ -2980,264 +2978,9 @@ class TestManageProjectSettings:
             "MAX_FILESIZE": MAX_FILESIZE,
             "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
             "transfer_organization_project_form": form,
-            "add_alternate_repository_form_class": form,
         }
         assert view.transfer_organization_project_form_class.calls == [
             pretend.call(organization_choices={organization_managed})
-        ]
-
-    def test_add_alternate_repository(self, monkeypatch, db_request):
-        project = ProjectFactory.create(name="foo")
-
-        db_request.POST = MultiDict(
-            {
-                "display_name": "foo alt repo",
-                "link_url": "https://example.org",
-                "description": "foo alt repo descr",
-                "alternate_repository_location": "add",
-            }
-        )
-        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        db_request.user = UserFactory.create()
-
-        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
-
-        add_alternate_repository_form_class = pretend.call_recorder(
-            views.AddAlternateRepositoryForm
-        )
-        monkeypatch.setattr(
-            views,
-            "AddAlternateRepositoryForm",
-            add_alternate_repository_form_class,
-        )
-
-        settings_views = views.ManageProjectSettingsViews(project, db_request)
-        result = settings_views.add_project_alternate_repository()
-
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/the-redirect"
-        assert db_request.session.flash.calls == [
-            pretend.call("Added alternate repository 'foo alt repo'", queue="success")
-        ]
-        assert db_request.route_path.calls == [
-            pretend.call("manage.project.settings", project_name="foo")
-        ]
-        assert add_alternate_repository_form_class.calls == [
-            pretend.call(db_request.POST)
-        ]
-
-    def test_add_alternate_repository_invalid(self, monkeypatch, db_request):
-        project = ProjectFactory.create(name="foo")
-
-        db_request.POST = MultiDict(
-            {
-                "display_name": "foo alt repo",
-                "link_url": "invalid link",
-                "description": "foo alt repo descr",
-                "alternate_repository_location": "add",
-            }
-        )
-        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        db_request.user = UserFactory.create()
-
-        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
-
-        add_alternate_repository_form_class = pretend.call_recorder(
-            views.AddAlternateRepositoryForm
-        )
-        monkeypatch.setattr(
-            views,
-            "AddAlternateRepositoryForm",
-            add_alternate_repository_form_class,
-        )
-
-        settings_views = views.ManageProjectSettingsViews(project, db_request)
-        result = settings_views.add_project_alternate_repository()
-
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/the-redirect"
-        assert db_request.session.flash.calls == [
-            pretend.call("Invalid alternate repository location details", queue="error")
-        ]
-        assert db_request.route_path.calls == [
-            pretend.call("manage.project.settings", project_name="foo")
-        ]
-        assert add_alternate_repository_form_class.calls == [
-            pretend.call(db_request.POST)
-        ]
-
-    def test_delete_alternate_repository(self, db_request):
-        project = ProjectFactory.create(name="foo")
-        alt_repo = AlternateRepositoryFactory.create(project=project)
-
-        db_request.POST = MultiDict(
-            {
-                "alternate_repository_id": str(alt_repo.id),
-                "confirm_alternate_repository_name": alt_repo.name,
-                "alternate_repository_location": "delete",
-            }
-        )
-        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        db_request.user = UserFactory.create()
-
-        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
-
-        settings_views = views.ManageProjectSettingsViews(project, db_request)
-        result = settings_views.delete_project_alternate_repository()
-
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/the-redirect"
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"Deleted alternate repository '{alt_repo.name}'", queue="success"
-            )
-        ]
-        assert db_request.route_path.calls == [
-            pretend.call("manage.project.settings", project_name="foo")
-        ]
-
-    @pytest.mark.parametrize("alt_repo_id", [None, "", "blah"])
-    def test_delete_alternate_repository_invalid_id(self, db_request, alt_repo_id):
-        project = ProjectFactory.create(name="foo")
-        alt_repo = AlternateRepositoryFactory.create(project=project)
-
-        db_request.POST = MultiDict(
-            {
-                "alternate_repository_id": alt_repo_id,
-                "confirm_alternate_repository_name": alt_repo.name,
-                "alternate_repository_location": "delete",
-            }
-        )
-        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        db_request.user = UserFactory.create()
-
-        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
-
-        settings_views = views.ManageProjectSettingsViews(project, db_request)
-        result = settings_views.delete_project_alternate_repository()
-
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/the-redirect"
-        assert db_request.session.flash.calls == [
-            pretend.call("Invalid alternate repository id", queue="error")
-        ]
-        assert db_request.route_path.calls == [
-            pretend.call("manage.project.settings", project_name="foo")
-        ]
-
-    def test_delete_alternate_repository_wrong_id(self, db_request):
-        project = ProjectFactory.create(name="foo")
-        alt_repo = AlternateRepositoryFactory.create(project=project)
-
-        db_request.POST = MultiDict(
-            {
-                "alternate_repository_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-                "confirm_alternate_repository_name": alt_repo.name,
-                "alternate_repository_location": "delete",
-            }
-        )
-        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        db_request.user = UserFactory.create()
-
-        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
-
-        settings_views = views.ManageProjectSettingsViews(project, db_request)
-        result = settings_views.delete_project_alternate_repository()
-
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/the-redirect"
-        assert db_request.session.flash.calls == [
-            pretend.call("Invalid alternate repository for project", queue="error")
-        ]
-        assert db_request.route_path.calls == [
-            pretend.call("manage.project.settings", project_name="foo")
-        ]
-
-    def test_delete_alternate_repository_no_confirm(self, db_request):
-        project = ProjectFactory.create(name="foo")
-        alt_repo = AlternateRepositoryFactory.create(project=project)
-
-        db_request.POST = MultiDict(
-            {
-                "alternate_repository_id": str(alt_repo.id),
-                "alternate_repository_location": "delete",
-            }
-        )
-        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        db_request.user = UserFactory.create()
-
-        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
-
-        settings_views = views.ManageProjectSettingsViews(project, db_request)
-        result = settings_views.delete_project_alternate_repository()
-
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/the-redirect"
-        assert db_request.session.flash.calls == [
-            pretend.call("Confirm the request", queue="error")
-        ]
-        assert db_request.route_path.calls == [
-            pretend.call("manage.project.settings", project_name="foo")
-        ]
-
-    def test_delete_alternate_repository_wrong_confirm(self, db_request):
-        project = ProjectFactory.create(name="foo")
-        alt_repo = AlternateRepositoryFactory.create(project=project)
-
-        db_request.POST = MultiDict(
-            {
-                "alternate_repository_id": str(alt_repo.id),
-                "confirm_alternate_repository_name": f"invalid-confirm-{alt_repo.name}",
-                "alternate_repository_location": "delete",
-            }
-        )
-        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        db_request.user = UserFactory.create()
-
-        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
-
-        settings_views = views.ManageProjectSettingsViews(project, db_request)
-        result = settings_views.delete_project_alternate_repository()
-
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/the-redirect"
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"Could not delete alternate repository - "
-                f"invalid-confirm-{alt_repo.name} is not the same as {alt_repo.name}",
-                queue="error",
-            )
-        ]
-        assert db_request.route_path.calls == [
-            pretend.call("manage.project.settings", project_name="foo")
         ]
 
     def test_remove_organization_project_no_confirm(self):
@@ -3251,7 +2994,6 @@ class TestManageProjectSettings:
         request = pretend.stub(
             POST={},
             user=user,
-            organization_access=True,
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -3276,9 +3018,8 @@ class TestManageProjectSettings:
         request = pretend.stub(
             POST={"confirm_remove_organization_project_name": "FOO"},
             user=user,
-            organization_access=True,
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            route_path=lambda *a, **kw: "/foo/bar/",
+            route_path=pretend.call_recorder(lambda *a, **kw: "/foo/bar/"),
         )
 
         with pytest.raises(HTTPSeeOther) as exc:
@@ -3296,21 +3037,6 @@ class TestManageProjectSettings:
             )
         ]
 
-    def test_remove_organization_project_disable_organizations(self):
-        project = pretend.stub(name="foo", normalized_name="foo")
-        request = pretend.stub(
-            organization_access=False,
-            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-        )
-
-        result = org_views.remove_organization_project(project, request)
-
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/the-redirect"
-        assert request.session.flash.calls == [
-            pretend.call("Organizations are disabled", queue="error")
-        ]
         assert request.route_path.calls == [
             pretend.call("manage.project.settings", project_name="foo")
         ]
@@ -3369,7 +3095,6 @@ class TestManageProjectSettings:
         request = pretend.stub(
             POST={},
             user=user,
-            organization_access=True,
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -3503,7 +3228,6 @@ class TestManageProjectSettings:
         request = pretend.stub(
             POST={},
             user=user,
-            organization_access=True,
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -3527,7 +3251,6 @@ class TestManageProjectSettings:
         request = pretend.stub(
             POST={"confirm_transfer_organization_project_name": "FOO"},
             user=user,
-            organization_access=True,
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -3542,26 +3265,6 @@ class TestManageProjectSettings:
                 "Could not transfer project - 'FOO' is not the same as 'foo'",
                 queue="error",
             )
-        ]
-
-    def test_transfer_organization_project_disable_organizations(self):
-        project = pretend.stub(name="foo", normalized_name="foo")
-        request = pretend.stub(
-            organization_access=False,
-            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-        )
-
-        result = org_views.transfer_organization_project(project, request)
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/the-redirect"
-
-        assert request.session.flash.calls == [
-            pretend.call("Organizations are disabled", queue="error")
-        ]
-
-        assert request.route_path.calls == [
-            pretend.call("manage.project.settings", project_name="foo")
         ]
 
     def test_transfer_organization_project_no_current_organization(
@@ -3601,7 +3304,7 @@ class TestManageProjectSettings:
             lambda req, user, **k: None
         )
         monkeypatch.setattr(
-            org_views,
+            view_helpers,
             "send_organization_project_added_email",
             send_organization_project_added_email,
         )
@@ -3636,7 +3339,6 @@ class TestManageProjectSettings:
         request = pretend.stub(
             POST={},
             user=user,
-            organization_access=True,
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -3697,7 +3399,7 @@ class TestManageProjectSettings:
             lambda req, user, **k: None
         )
         monkeypatch.setattr(
-            org_views,
+            view_helpers,
             "send_organization_project_added_email",
             send_organization_project_added_email,
         )
@@ -3827,7 +3529,7 @@ class TestManageProjectSettings:
             lambda req, user, **k: None
         )
         monkeypatch.setattr(
-            org_views,
+            view_helpers,
             "send_organization_project_added_email",
             send_organization_project_added_email,
         )
@@ -3927,7 +3629,7 @@ class TestManageProjectSettings:
             lambda req, user, **k: None
         )
         monkeypatch.setattr(
-            org_views,
+            view_helpers,
             "send_organization_project_added_email",
             send_organization_project_added_email,
         )
@@ -4348,12 +4050,57 @@ class TestManageProjectRelease:
             "files": files,
         }
 
+    @pytest.mark.parametrize(
+        "method",
+        [
+            "yank_project_release",
+            "unyank_project_release",
+            "delete_project_release",
+            "delete_project_release_file",
+        ],
+    )
+    def test_release_mutations_blocked_when_quarantined(self, pyramid_request, method):
+        release = pretend.stub(
+            version="1.2.3",
+            lifecycle_status=LifecycleStatus.QuarantineEnter,
+            yanked=False,
+            project=pretend.stub(name="foobar"),
+        )
+        pyramid_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/the-redirect"
+        )
+        pyramid_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        view = views.ManageProjectRelease(release, pyramid_request)
+        result = getattr(view, method)()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert pyramid_request.session.flash.calls == [
+            pretend.call(
+                "This release is in quarantine and cannot be modified.",
+                queue="error",
+            )
+        ]
+        assert pyramid_request.route_path.calls == [
+            pretend.call(
+                "manage.project.release",
+                project_name=release.project.name,
+                version=release.version,
+            )
+        ]
+        # Yank state is untouched
+        assert release.yanked is False
+
     def test_delete_project_release_disallow_deletion(
         self, monkeypatch, pyramid_request
     ):
         release = pretend.stub(
             version="1.2.3",
             canonical_version="1.2.3",
+            lifecycle_status=None,
             project=pretend.stub(
                 name="foobar", record_event=pretend.call_recorder(lambda *a, **kw: None)
             ),
@@ -4477,6 +4224,7 @@ class TestManageProjectRelease:
             project=pretend.stub(name="foobar"),
             yanked=False,
             yanked_reason="",
+            lifecycle_status=None,
         )
         pyramid_request.POST = {"confirm_yank_version": ""}
         pyramid_request.method = "POST"
@@ -4516,6 +4264,7 @@ class TestManageProjectRelease:
             project=pretend.stub(name="foobar"),
             yanked=False,
             yanked_reason="",
+            lifecycle_status=None,
         )
         pyramid_request.POST = {"confirm_yank_version": "invalid"}
         pyramid_request.method = "POST"
@@ -4541,7 +4290,7 @@ class TestManageProjectRelease:
         assert pyramid_request.session.flash.calls == [
             pretend.call(
                 "Could not yank release - "
-                + f"'invalid' is not the same as {release.version!r}",
+                f"'invalid' is not the same as {release.version!r}",
                 queue="error",
             )
         ]
@@ -4631,6 +4380,7 @@ class TestManageProjectRelease:
             project=pretend.stub(name="foobar"),
             yanked=True,
             yanked_reason="",
+            lifecycle_status=None,
         )
         pyramid_request.POST = {
             "confirm_unyank_version": "",
@@ -4673,6 +4423,7 @@ class TestManageProjectRelease:
             project=pretend.stub(name="foobar"),
             yanked=True,
             yanked_reason="Old reason",
+            lifecycle_status=None,
         )
         pyramid_request.POST = {
             "confirm_unyank_version": "invalid",
@@ -4701,7 +4452,7 @@ class TestManageProjectRelease:
         assert pyramid_request.session.flash.calls == [
             pretend.call(
                 "Could not un-yank release - "
-                + f"'invalid' is not the same as {release.version!r}",
+                f"'invalid' is not the same as {release.version!r}",
                 queue="error",
             )
         ]
@@ -4784,7 +4535,11 @@ class TestManageProjectRelease:
         ]
 
     def test_delete_project_release_no_confirm(self, pyramid_request):
-        release = pretend.stub(version="1.2.3", project=pretend.stub(name="foobar"))
+        release = pretend.stub(
+            version="1.2.3",
+            project=pretend.stub(name="foobar"),
+            lifecycle_status=None,
+        )
         pyramid_request.POST = {"confirm_delete_version": ""}
         pyramid_request.method = "POST"
         pyramid_request.db = pretend.stub(delete=pretend.call_recorder(lambda a: None))
@@ -4820,7 +4575,11 @@ class TestManageProjectRelease:
         ]
 
     def test_delete_project_release_bad_confirm(self, pyramid_request):
-        release = pretend.stub(version="1.2.3", project=pretend.stub(name="foobar"))
+        release = pretend.stub(
+            version="1.2.3",
+            project=pretend.stub(name="foobar"),
+            lifecycle_status=None,
+        )
         pyramid_request.POST = {"confirm_delete_version": "invalid"}
         pyramid_request.method = "POST"
         pyramid_request.db = pretend.stub(delete=pretend.call_recorder(lambda a: None))
@@ -4844,7 +4603,7 @@ class TestManageProjectRelease:
         assert pyramid_request.session.flash.calls == [
             pretend.call(
                 "Could not delete release - "
-                + f"'invalid' is not the same as {release.version!r}",
+                f"'invalid' is not the same as {release.version!r}",
                 queue="error",
             )
         ]
@@ -4857,7 +4616,11 @@ class TestManageProjectRelease:
         ]
 
     def test_delete_project_release_file_disallow_deletion(self, pyramid_request):
-        release = pretend.stub(version="1.2.3", project=pretend.stub(name="foobar"))
+        release = pretend.stub(
+            version="1.2.3",
+            project=pretend.stub(name="foobar"),
+            lifecycle_status=None,
+        )
         pyramid_request.method = "POST"
         pyramid_request.flags = pretend.stub(
             enabled=pretend.call_recorder(lambda *a: True)
@@ -4982,6 +4745,7 @@ class TestManageProjectRelease:
         release = pretend.stub(
             version="1.2.3",
             project=pretend.stub(name="foobar", normalized_name="foobar"),
+            lifecycle_status=None,
         )
         pyramid_request.POST = {"confirm_project_name": ""}
         pyramid_request.method = "POST"
@@ -5087,7 +4851,7 @@ class TestManageProjectRelease:
         assert db_request.session.flash.calls == [
             pretend.call(
                 "Could not delete file - "
-                + f"'invalid' is not the same as {release.project.name!r}",
+                f"'invalid' is not the same as {release.project.name!r}",
                 queue="error",
             )
         ]
@@ -5102,7 +4866,7 @@ class TestManageProjectRelease:
 
 class TestManageProjectRoles:
     @pytest.fixture
-    def organization(self, _enable_organizations, pyramid_user):
+    def organization(self, pyramid_user):
         organization = OrganizationFactory.create()
         OrganizationRoleFactory.create(
             organization=organization,

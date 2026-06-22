@@ -13,6 +13,40 @@
 {% endblock %}
 
 {% block content %}
+  {% if release.lifecycle_status == 'quarantine-enter' %}
+    <div class="card card-danger">
+      <div class="card-header">
+        <h3 class="card-title">
+          <i class="fa fa-lock"></i> Release Quarantined
+        </h3>
+      </div>
+      <div class="card-body">
+        <p>
+          This release is currently in quarantine and will not be served from the
+          index APIs. The rest of the project's releases are unaffected.
+        </p>
+        {% if release.lifecycle_status_changed %}
+          <p>
+            <strong>Since:</strong>
+            {{ release.lifecycle_status_changed.strftime('%Y-%m-%d %H:%M:%S UTC') }}
+          </p>
+        {% endif %}
+        {% if release.lifecycle_status_note %}
+          <p><strong>Note:</strong> {{ release.lifecycle_status_note }}</p>
+        {% endif %}
+        {% if request.has_permission(Permissions.AdminProjectsWrite) %}
+          <form method="post"
+                action="{{ request.route_path('admin.project.release.remove_from_quarantine', project_name=release.project.normalized_name, version=release.version) }}">
+            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+            <button type="submit" class="btn btn-outline-success">
+              <i class="fa fa-unlock"></i> Clear Release from Quarantine
+            </button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+
   <div class="card">
     <div class="card-header">
       <h3>Details</h3>
@@ -148,6 +182,43 @@
     </form>
   </div>
   {% endfor %}
+  {% endif %}
+  {% if request.has_permission(Permissions.AdminVulnerabilitiesRead) %}
+  <div class="card">
+    <div class="card-header">
+      <h3>Vulnerabilities ({{ release.vulnerabilities|length }})</h3>
+    </div>
+    <div class="card-body table-responsive p-0">
+      <table class="table table-hover table-striped">
+        <thead>
+          <tr>
+            <th>Source</th>
+            <th>ID</th>
+            <th>Aliases</th>
+            <th>Summary</th>
+            <th>Withdrawn</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for vulnerability in release.vulnerabilities %}
+          <tr>
+            <td>{{ vulnerability.source }}</td>
+            <td>
+              <a href="{{ request.route_path('admin.vulnerabilities.detail', source=vulnerability.source, id=vulnerability.id) }}">
+                {{ vulnerability.id }}
+              </a>
+            </td>
+            <td>{{ (vulnerability.aliases or []) | join(", ") }}</td>
+            <td>{{ vulnerability.summary or "" }}</td>
+            <td>{% if vulnerability.withdrawn %}{{ vulnerability.withdrawn|format_datetime() }}{% endif %}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5" class="text-center">No known vulnerabilities.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
   {% endif %}
   <div class="card">
     <div class="card-header">
@@ -432,6 +503,30 @@
       </div>
     </div>
   </div>
+  {% if request.has_permission(Permissions.AdminProjectsWrite) %}
+    <div class="card card-warning collapsed-card">
+      <div class="card-header">
+        <h3 class="card-title">Quarantine Release</h3>
+        <div class="card-tools">
+          <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i></button>
+        </div>
+      </div>
+      <div class="card-body">
+        <p>
+          Quarantining a release is a reversible action. The release will be
+          hidden from index APIs but no files are deleted. Other releases of
+          <strong>{{ release.project.name }}</strong> remain available.
+        </p>
+        <form method="post"
+              action="{{ request.route_path('admin.project.release.quarantine', project_name=release.project.normalized_name, version=release.version) }}">
+          <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+          <button type="submit" class="btn btn-warning">
+            <i class="fa fa-lock"></i> Quarantine Release {{ release.version }}
+          </button>
+        </form>
+      </div>
+    </div>
+  {% endif %}
   {% if request.has_permission(Permissions.AdminProjectsDelete) %}
   <div class="card card-danger collapsed-card">
     <div class="card-header">

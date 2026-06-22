@@ -1,7 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
-from datetime import datetime
-
 from zope.interface import Attribute, Interface
 
 from warehouse.rate_limiting.interfaces import RateLimiterException
@@ -19,7 +17,7 @@ class TooManyPasswordResetRequests(RateLimiterException):
     pass
 
 
-class TokenException(Exception):
+class TokenException(Exception):  # noqa: N818
     pass
 
 
@@ -35,7 +33,7 @@ class TokenMissing(TokenException):
     pass
 
 
-class RecoveryCodeException(Exception):
+class RecoveryCodeException(Exception):  # noqa: N818
     pass
 
 

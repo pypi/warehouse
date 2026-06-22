@@ -242,7 +242,9 @@ class TestOriginCache:
         context = Fake()
         request = pretend.stub(
             registry={
-                "cache_keys": {Fake: lambda X: origin.CacheKeys(cache=[], purge=[])}
+                "cache_keys": {
+                    Fake: lambda X: origin.CacheKeys(cache=[], purge=[])  # noqa: N803
+                }
             },
             find_service=raiser,
         )

@@ -30,7 +30,8 @@ def _make_wheel_with_spoofed_file_size(tmp_path, files_dict, spoofed_size):
     """Create a single-file wheel with a spoofed uncompressed size in the CD."""
     assert len(files_dict) == 1
     whl_path = _make_wheel(tmp_path, files_dict)
-    data = bytearray(open(whl_path, "rb").read())
+    with open(whl_path, "rb") as fp:
+        data = bytearray(fp.read())
     cd_start = data.index(b"\x50\x4b\x01\x02")
     # Patch uncompressed size at offset 24 from CD signature
     struct.pack_into("<L", data, cd_start + 24, spoofed_size)
@@ -59,9 +60,9 @@ class TestCompileRules:
         rules = scanner.compile_rules()
         for rule in rules:
             meta_keys = {k for k, _ in rule.metadata}
-            assert (
-                "message" in meta_keys
-            ), f"Rule {rule.identifier!r} is missing required 'message' metadata"
+            assert "message" in meta_keys, (
+                f"Rule {rule.identifier!r} is missing required 'message' metadata"
+            )
 
     def test_returns_none_when_no_files(self, tmp_path):
         assert scanner.compile_rules(rules_dir=tmp_path) is None
@@ -125,8 +126,7 @@ class TestCheckMembers:
     def test_skips_oversized_files(self, monkeypatch):
         monkeypatch.setattr(scanner, "_SCAN_MAX_FILE_SIZE", 10)
         rules = yara_x.compile(
-            'rule bad { meta: message = "blocked" '
-            'strings: $a = "evil" condition: $a }'
+            'rule bad { meta: message = "blocked" strings: $a = "evil" condition: $a }'
         )
         members = [("pkg/big.py", 100, b"evil" * 100)]
         assert scanner.check_members(members, rules, archive_name="test.whl") is None
@@ -165,8 +165,7 @@ class TestCheckMembers:
     def test_returns_none_on_cross_boundary_bulk_match(self):
         """Bulk scan matches across file boundaries but no individual file does."""
         rules = yara_x.compile(
-            'rule boundary { meta: message = "x" '
-            'strings: $a = "ABCD" condition: $a }'
+            'rule boundary { meta: message = "x" strings: $a = "ABCD" condition: $a }'
         )
         members = [("pkg/a.py", 2, b"AB"), ("pkg/b.py", 2, b"CD")]
         assert scanner.check_members(members, rules, archive_name="test.whl") is None
@@ -175,8 +174,7 @@ class TestCheckMembers:
         """Match found in a file arriving after the overflow threshold."""
         monkeypatch.setattr(scanner, "_BULK_SCAN_MAX_TOTAL", 10)
         rules = yara_x.compile(
-            'rule bad { meta: message = "blocked" '
-            'strings: $a = "evil" condition: $a }'
+            'rule bad { meta: message = "blocked" strings: $a = "evil" condition: $a }'
         )
         members = [
             ("pkg/a.py", 6, b"hello!"),
@@ -191,8 +189,7 @@ class TestCheckMembers:
         """Match found in a file materialized before the overflow threshold."""
         monkeypatch.setattr(scanner, "_BULK_SCAN_MAX_TOTAL", 10)
         rules = yara_x.compile(
-            'rule bad { meta: message = "blocked" '
-            'strings: $a = "evil" condition: $a }'
+            'rule bad { meta: message = "blocked" strings: $a = "evil" condition: $a }'
         )
         members = [
             ("pkg/a.py", 12, b"this is evil"),
@@ -338,6 +335,37 @@ class TestScanArchive:
         matches = scanner.scan_archive(whl, rules=rules)
         assert len(matches) == 1
         assert matches[0][0] == "pkg/__init__.py"
+
+
+_PYE_CONTENT = (
+    "---BEGIN PYE FILE---\n"
+    "7F317779E38492A54E9BF64635306FEC7EA5E307\n"
+    "B3C9239BC70671E6600925E85BC957AE4C1C528E\n"
+    "----END PYE FILE----\n"
+)
+
+
+class TestSourceDefenderDetection:
+    def test_detects_pye_in_wheel(self, tmp_path, rules):
+        whl = _make_wheel(tmp_path, {"pkg/secret.pye": _PYE_CONTENT})
+        matches = scanner.scan_archive(whl, rules=rules)
+        assert len(matches) == 1
+        assert matches[0][0] == "pkg/secret.pye"
+        assert "sourcedefender_encrypted" in matches[0][1]
+
+    def test_detects_pye_in_tarball(self, tmp_path, rules):
+        tar = _make_tarball(tmp_path, {"fake-1.0/pkg/secret.pye": _PYE_CONTENT})
+        matches = scanner.scan_archive(tar, rules=rules)
+        assert len(matches) == 1
+        assert matches[0][0] == "fake-1.0/pkg/secret.pye"
+        assert "sourcedefender_encrypted" in matches[0][1]
+
+    def test_requires_both_markers(self, tmp_path, rules):
+        """A file with only the BEGIN marker must not match."""
+        whl = _make_wheel(
+            tmp_path, {"pkg/partial.pye": "---BEGIN PYE FILE---\nDEADBEEF\n"}
+        )
+        assert scanner.scan_archive(whl, rules=rules) == []
 
 
 class TestSpoofedFileSize:

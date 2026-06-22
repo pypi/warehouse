@@ -22,14 +22,14 @@ jobs:
       id-token: write
     steps:
       - name: Check out repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
       - name: Set up Depot CLI
         uses: depot/setup-action@15c09a5f77a0840ad4bce955686522a257853461 # v1.7.1
       - name: Build image
         id: build
-        uses: depot/build-push-action@5f3b3c2e5a00f0093de47f657aeaefcedff27d18 # v1.17.0
+        uses: depot/build-push-action@98e78adca7817480b8185f474a400b451d74e287 # v1.18.0
         with:
           save: true
           build-args: |
@@ -87,15 +87,15 @@ jobs:
     name: ${{ matrix.name }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
       - name: Cache mypy results
         if: ${{ (matrix.name == 'Lint') }}
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: |
-              dev/.mypy_cache
+              .cache/mypy
           key: ${{ runner.os }}-mypy-${{ env.pythonLocation }}-${{ hashFiles('requirements.txt', 'requirements/*.txt') }}
       - name: Run ${{ matrix.name }}
         run: ${{ matrix.command }}
@@ -122,13 +122,13 @@ jobs:
         options: --health-cmd "pg_isready --username=postgres --dbname=postgres" --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - name: Check out repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
       - name: Dotenv Action
         # We need to load the environment variables to run the CLI
         id: dotenv
-        uses: falti/dotenv-action@73fafca04177425fd3e0a0849257015ae9d42034 # v1.2.0
+        uses: falti/dotenv-action@fff81fa3263fb96221c521b5e526e57c0c56d760 # v1.2.1
         with:
           path: dev/environment
           export-variables: true

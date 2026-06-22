@@ -22,7 +22,7 @@ const viewportContent = `
 
 
 function startStimulus() {
-  // set the HTML before satarting the application, as the controller uses the
+  // set the HTML before starting the application, as the controller uses the
   // `connect()` function.
   document.body.innerHTML = viewportContent;
   const application = Application.start();

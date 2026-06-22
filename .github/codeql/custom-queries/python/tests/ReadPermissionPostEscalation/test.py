@@ -13,12 +13,14 @@ class Permissions:
 def view_config(**kwargs):
     def decorator(func):
         return func
+
     return decorator
 
 
 def other_decorator(**kwargs):
     def decorator(func):
         return func
+
     return decorator
 
 

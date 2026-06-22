@@ -32,6 +32,10 @@ from warehouse.utils.paginate import paginate_url_factory
 
 from ....common.db.accounts import UserFactory
 from ....common.db.observations import ObserverFactory
+from ....common.db.organizations import (
+    OrganizationFactory,
+    OrganizationProjectFactory,
+)
 from ....common.db.packaging import (
     FileFactory,
     JournalEntryFactory,
@@ -199,10 +203,6 @@ class TestProjectDetail:
             views.project_detail(project, db_request)
 
     def test_with_organization(self, db_request):
-        from ....common.db.organizations import (
-            OrganizationFactory,
-            OrganizationProjectFactory,
-        )
 
         organization = OrganizationFactory.create(
             upload_limit=150 * views.ONE_MIB,
@@ -364,6 +364,49 @@ class TestProjectQuarantine:
                 queue="success",
             )
         ]
+
+    def test_release_quarantine(self, db_request):
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/release/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+
+        result = views.release_quarantine(release, db_request)
+
+        assert result.status_code == 303
+        assert release.lifecycle_status == LifecycleStatus.QuarantineEnter
+        assert db_request.route_path.calls == [
+            pretend.call(
+                "admin.project.release",
+                project_name=project.normalized_name,
+                version=release.version,
+            )
+        ]
+
+    def test_release_remove_from_quarantine(self, db_request):
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(
+            project=project,
+            version="1.0",
+            lifecycle_status=LifecycleStatus.QuarantineEnter,
+        )
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/release/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+
+        result = views.release_remove_from_quarantine(release, db_request)
+
+        assert result.status_code == 303
+        assert release.lifecycle_status == LifecycleStatus.QuarantineExit
 
 
 class TestProjectReleasesList:
@@ -684,6 +727,7 @@ class TestProjectAddObservation:
 class TestProjectSetTotalSizeLimit:
     def test_sets_total_size_limitwith_integer(self, db_request):
         project = ProjectFactory.create(name="foo")
+        user = UserFactory.create()
 
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/admin/projects/"
@@ -691,6 +735,7 @@ class TestProjectSetTotalSizeLimit:
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
+        db_request.user = user
         db_request.matchdict["project_name"] = project.normalized_name
         db_request.POST = MultiDict({"total_size_limit": "150"})
 
@@ -701,10 +746,18 @@ class TestProjectSetTotalSizeLimit:
         ]
 
         assert project.total_size_limit == 150 * views.ONE_GIB
+        event = project.events.one()
+        assert event.tag == "admin:project:set_total_size_limit"
+        assert event.additional == {
+            "old_total_size_limit": None,
+            "new_total_size_limit": 150 * views.ONE_GIB,
+            "actor": user.username,
+        }
 
     def test_sets_total_size_limitwith_none(self, db_request):
         project = ProjectFactory.create(name="foo")
         project.total_size_limit = 150 * views.ONE_GIB
+        user = UserFactory.create()
 
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/admin/projects/"
@@ -712,6 +765,7 @@ class TestProjectSetTotalSizeLimit:
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
+        db_request.user = user
         db_request.matchdict["project_name"] = project.normalized_name
         db_request.POST = MultiDict({"total_size_limit": ""})
 
@@ -722,6 +776,13 @@ class TestProjectSetTotalSizeLimit:
         ]
 
         assert project.total_size_limit is None
+        event = project.events.one()
+        assert event.tag == "admin:project:set_total_size_limit"
+        assert event.additional == {
+            "old_total_size_limit": 150 * views.ONE_GIB,
+            "new_total_size_limit": None,
+            "actor": user.username,
+        }
 
     def test_sets_total_size_limitwith_non_integer(self, db_request):
         project = ProjectFactory.create(name="foo")
@@ -772,6 +833,7 @@ class TestProjectSetTotalSizeLimit:
 class TestProjectSetLimit:
     def test_sets_limitwith_integer(self, db_request):
         project = ProjectFactory.create(name="foo")
+        user = UserFactory.create()
 
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/admin/projects/"
@@ -779,6 +841,7 @@ class TestProjectSetLimit:
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
+        db_request.user = user
         db_request.matchdict["project_name"] = project.normalized_name
         new_upload_limit = warehouse.constants.MAX_FILESIZE // views.ONE_MIB
         db_request.POST = MultiDict({"upload_limit": str(new_upload_limit)})
@@ -790,10 +853,18 @@ class TestProjectSetLimit:
         ]
 
         assert project.upload_limit == new_upload_limit * views.ONE_MIB
+        event = project.events.one()
+        assert event.tag == "admin:project:set_upload_limit"
+        assert event.additional == {
+            "old_upload_limit": None,
+            "new_upload_limit": new_upload_limit * views.ONE_MIB,
+            "actor": user.username,
+        }
 
     def test_sets_limit_with_none(self, db_request):
         project = ProjectFactory.create(name="foo")
         project.upload_limit = 90 * views.ONE_MIB
+        user = UserFactory.create()
 
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/admin/projects/"
@@ -801,6 +872,7 @@ class TestProjectSetLimit:
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
+        db_request.user = user
         db_request.matchdict["project_name"] = project.normalized_name
         db_request.POST = MultiDict({"upload_limit": ""})
 
@@ -811,6 +883,13 @@ class TestProjectSetLimit:
         ]
 
         assert project.upload_limit is None
+        event = project.events.one()
+        assert event.tag == "admin:project:set_upload_limit"
+        assert event.additional == {
+            "old_upload_limit": 90 * views.ONE_MIB,
+            "new_upload_limit": None,
+            "actor": user.username,
+        }
 
     def test_sets_limit_with_non_integer(self, db_request):
         project = ProjectFactory.create(name="foo")

@@ -16,6 +16,7 @@ from warehouse.oidc.models import GitHubPublisher
 from warehouse.organizations.models import OrganizationType, TeamProjectRoleType
 from warehouse.packaging.models import (
     File,
+    LifecycleStatus,
     Project,
     ProjectFactory,
     ProjectMacaroonWarningAssociation,
@@ -164,6 +165,7 @@ class TestProject:
                     Permissions.AdminProjectsWrite,
                     Permissions.AdminRoleAdd,
                     Permissions.AdminRoleDelete,
+                    Permissions.AdminVulnerabilitiesRead,
                 ),
             ),
             (
@@ -179,74 +181,69 @@ class TestProject:
                     Permissions.AdminRoleDelete,
                 ),
             ),
-            (
-                Allow,
-                "group:observers",
-                Permissions.APIObservationsAdd,
+            (Allow, "group:observers", Permissions.APIObservationsAdd),
+            (Allow, Authenticated, Permissions.SubmitMalwareObservation),
+            *sorted(
+                [(Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload])],
+                key=lambda x: x[1],
             ),
-            (
-                Allow,
-                Authenticated,
-                Permissions.SubmitMalwareObservation,
+            *sorted(
+                [
+                    (
+                        Allow,
+                        f"user:{owner1.user.id}",
+                        [
+                            Permissions.ProjectsRead,
+                            Permissions.ProjectsUpload,
+                            Permissions.ProjectsWrite,
+                        ],
+                    ),
+                    (
+                        Allow,
+                        f"user:{owner2.user.id}",
+                        [
+                            Permissions.ProjectsRead,
+                            Permissions.ProjectsUpload,
+                            Permissions.ProjectsWrite,
+                        ],
+                    ),
+                    (
+                        Allow,
+                        f"user:{owner3.user.id}",
+                        [
+                            Permissions.ProjectsRead,
+                            Permissions.ProjectsUpload,
+                            Permissions.ProjectsWrite,
+                        ],
+                    ),
+                    (
+                        Allow,
+                        f"user:{owner4.user.id}",
+                        [
+                            Permissions.ProjectsRead,
+                            Permissions.ProjectsUpload,
+                            Permissions.ProjectsWrite,
+                        ],
+                    ),
+                ],
+                key=lambda x: x[1],
             ),
-        ] + sorted(
-            [(Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload])],
-            key=lambda x: x[1],
-        ) + sorted(
-            [
-                (
-                    Allow,
-                    f"user:{owner1.user.id}",
-                    [
-                        Permissions.ProjectsRead,
-                        Permissions.ProjectsUpload,
-                        Permissions.ProjectsWrite,
-                    ],
-                ),
-                (
-                    Allow,
-                    f"user:{owner2.user.id}",
-                    [
-                        Permissions.ProjectsRead,
-                        Permissions.ProjectsUpload,
-                        Permissions.ProjectsWrite,
-                    ],
-                ),
-                (
-                    Allow,
-                    f"user:{owner3.user.id}",
-                    [
-                        Permissions.ProjectsRead,
-                        Permissions.ProjectsUpload,
-                        Permissions.ProjectsWrite,
-                    ],
-                ),
-                (
-                    Allow,
-                    f"user:{owner4.user.id}",
-                    [
-                        Permissions.ProjectsRead,
-                        Permissions.ProjectsUpload,
-                        Permissions.ProjectsWrite,
-                    ],
-                ),
-            ],
-            key=lambda x: x[1],
-        ) + sorted(
-            [
-                (
-                    Allow,
-                    f"user:{maintainer1.user.id}",
-                    [Permissions.ProjectsUpload],
-                ),
-                (
-                    Allow,
-                    f"user:{maintainer2.user.id}",
-                    [Permissions.ProjectsUpload],
-                ),
-            ],
-            key=lambda x: x[1],
-        )
+            *sorted(
+                [
+                    (
+                        Allow,
+                        f"user:{maintainer1.user.id}",
+                        [Permissions.ProjectsUpload],
+                    ),
+                    (
+                        Allow,
+                        f"user:{maintainer2.user.id}",
+                        [Permissions.ProjectsUpload],
+                    ),
+                ],
+                key=lambda x: x[1],
+            ),
+        ]
 
     def test_acl_for_quarantined_project(self, db_session):
         """
@@ -294,6 +291,7 @@ class TestProject:
                     Permissions.AdminProjectsWrite,
                     Permissions.AdminRoleAdd,
                     Permissions.AdminRoleDelete,
+                    Permissions.AdminVulnerabilitiesRead,
                 ),
             ),
             (
@@ -309,31 +307,25 @@ class TestProject:
                     Permissions.AdminRoleDelete,
                 ),
             ),
-            (
-                Allow,
-                "group:observers",
-                Permissions.APIObservationsAdd,
+            (Allow, "group:observers", Permissions.APIObservationsAdd),
+            (Allow, Authenticated, Permissions.SubmitMalwareObservation),
+            *sorted(
+                [
+                    (Allow, f"user:{owner1.user.id}", _perms_read_and_upload),
+                    (Allow, f"user:{owner2.user.id}", _perms_read_and_upload),
+                    (Allow, f"user:{owner3.user.id}", _perms_read_and_upload),
+                    (Allow, f"user:{owner4.user.id}", _perms_read_and_upload),
+                ],
+                key=lambda x: x[1],
             ),
-            (
-                Allow,
-                Authenticated,
-                Permissions.SubmitMalwareObservation,
+            *sorted(
+                [
+                    (Allow, f"user:{maintainer1.user.id}", _perms_read_and_upload),
+                    (Allow, f"user:{maintainer2.user.id}", _perms_read_and_upload),
+                ],
+                key=lambda x: x[1],
             ),
-        ] + sorted(
-            [
-                (Allow, f"user:{owner1.user.id}", _perms_read_and_upload),
-                (Allow, f"user:{owner2.user.id}", _perms_read_and_upload),
-                (Allow, f"user:{owner3.user.id}", _perms_read_and_upload),
-                (Allow, f"user:{owner4.user.id}", _perms_read_and_upload),
-            ],
-            key=lambda x: x[1],
-        ) + sorted(
-            [
-                (Allow, f"user:{maintainer1.user.id}", _perms_read_and_upload),
-                (Allow, f"user:{maintainer2.user.id}", _perms_read_and_upload),
-            ],
-            key=lambda x: x[1],
-        )
+        ]
 
     def test_acl_for_archived_project(self, db_session):
         """
@@ -383,6 +375,7 @@ class TestProject:
                     Permissions.AdminProjectsWrite,
                     Permissions.AdminRoleAdd,
                     Permissions.AdminRoleDelete,
+                    Permissions.AdminVulnerabilitiesRead,
                 ),
             ),
             (
@@ -398,25 +391,18 @@ class TestProject:
                     Permissions.AdminRoleDelete,
                 ),
             ),
-            (
-                Allow,
-                "group:observers",
-                Permissions.APIObservationsAdd,
+            (Allow, "group:observers", Permissions.APIObservationsAdd),
+            (Allow, Authenticated, Permissions.SubmitMalwareObservation),
+            *sorted(
+                [
+                    (Allow, f"user:{owner1.user.id}", _perms_read_and_write),
+                    (Allow, f"user:{owner2.user.id}", _perms_read_and_write),
+                    (Allow, f"user:{owner3.user.id}", _perms_read_and_write),
+                    (Allow, f"user:{owner4.user.id}", _perms_read_and_write),
+                ],
+                key=lambda x: x[1],
             ),
-            (
-                Allow,
-                Authenticated,
-                Permissions.SubmitMalwareObservation,
-            ),
-        ] + sorted(
-            [
-                (Allow, f"user:{owner1.user.id}", _perms_read_and_write),
-                (Allow, f"user:{owner2.user.id}", _perms_read_and_write),
-                (Allow, f"user:{owner3.user.id}", _perms_read_and_write),
-                (Allow, f"user:{owner4.user.id}", _perms_read_and_write),
-            ],
-            key=lambda x: x[1],
-        )
+        ]
 
     def test_repr(self, db_request):
         project = DBProjectFactory()
@@ -458,7 +444,7 @@ class TestProject:
         """
         project = DBProjectFactory.create()
         owner = DBRoleFactory.create()
-        raw_macaroon, macaroon = macaroon_service.create_macaroon(
+        _raw_macaroon, macaroon = macaroon_service.create_macaroon(
             "fake location",
             "fake description",
             [caveats.RequestUser(user_id=str(owner.user.id))],
@@ -500,7 +486,7 @@ class TestProject:
         """
         project = DBProjectFactory.create()
         owner = DBRoleFactory.create()
-        raw_macaroon, macaroon = macaroon_service.create_macaroon(
+        _raw_macaroon, macaroon = macaroon_service.create_macaroon(
             "fake location",
             "fake description",
             [caveats.RequestUser(user_id=str(owner.user.id))],
@@ -543,6 +529,29 @@ class TestProject:
         assert len(project.releases) == len(
             [active_release0, active_release1, yanked_release0]
         )
+
+    def test_latest_version_excludes_quarantined(self, db_session):
+        """Quarantined releases are skipped when computing latest_version."""
+        project = DBProjectFactory.create()
+        DBReleaseFactory.create(
+            project=project,
+            version="2.0",
+            lifecycle_status=LifecycleStatus.QuarantineEnter,
+        )
+        DBReleaseFactory.create(project=project, version="1.0")
+
+        assert project.latest_version.version == "1.0"
+
+    def test_latest_version_none_when_all_quarantined(self, db_session):
+        """latest_version is None when every release is quarantined."""
+        project = DBProjectFactory.create()
+        DBReleaseFactory.create(
+            project=project,
+            version="1.0",
+            lifecycle_status=LifecycleStatus.QuarantineEnter,
+        )
+
+        assert project.latest_version is None
 
 
 class TestDependency:
@@ -919,6 +928,7 @@ class TestRelease:
                     Permissions.AdminProjectsWrite,
                     Permissions.AdminRoleAdd,
                     Permissions.AdminRoleDelete,
+                    Permissions.AdminVulnerabilitiesRead,
                 ),
             ),
             (
@@ -934,45 +944,47 @@ class TestRelease:
                     Permissions.AdminRoleDelete,
                 ),
             ),
-            (
-                Allow,
-                "group:observers",
-                Permissions.APIObservationsAdd,
+            (Allow, "group:observers", Permissions.APIObservationsAdd),
+            (Allow, Authenticated, Permissions.SubmitMalwareObservation),
+            *sorted(
+                [
+                    (
+                        Allow,
+                        f"user:{owner1.user.id}",
+                        [
+                            Permissions.ProjectsRead,
+                            Permissions.ProjectsUpload,
+                            Permissions.ProjectsWrite,
+                        ],
+                    ),
+                    (
+                        Allow,
+                        f"user:{owner2.user.id}",
+                        [
+                            Permissions.ProjectsRead,
+                            Permissions.ProjectsUpload,
+                            Permissions.ProjectsWrite,
+                        ],
+                    ),
+                ],
+                key=lambda x: x[1],
             ),
-            (
-                Allow,
-                Authenticated,
-                Permissions.SubmitMalwareObservation,
+            *sorted(
+                [
+                    (
+                        Allow,
+                        f"user:{maintainer1.user.id}",
+                        [Permissions.ProjectsUpload],
+                    ),
+                    (
+                        Allow,
+                        f"user:{maintainer2.user.id}",
+                        [Permissions.ProjectsUpload],
+                    ),
+                ],
+                key=lambda x: x[1],
             ),
-        ] + sorted(
-            [
-                (
-                    Allow,
-                    f"user:{owner1.user.id}",
-                    [
-                        Permissions.ProjectsRead,
-                        Permissions.ProjectsUpload,
-                        Permissions.ProjectsWrite,
-                    ],
-                ),
-                (
-                    Allow,
-                    f"user:{owner2.user.id}",
-                    [
-                        Permissions.ProjectsRead,
-                        Permissions.ProjectsUpload,
-                        Permissions.ProjectsWrite,
-                    ],
-                ),
-            ],
-            key=lambda x: x[1],
-        ) + sorted(
-            [
-                (Allow, f"user:{maintainer1.user.id}", [Permissions.ProjectsUpload]),
-                (Allow, f"user:{maintainer2.user.id}", [Permissions.ProjectsUpload]),
-            ],
-            key=lambda x: x[1],
-        )
+        ]
 
     @pytest.mark.parametrize(
         ("url", "expected"),

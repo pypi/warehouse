@@ -86,7 +86,7 @@ def parse(
     else:
         raise NoMetadataError
 
-    # Validate the metadata using our custom rules, which we layer ontop of the
+    # Validate the metadata using our custom rules, which we layer on top of the
     # built in rules to add PyPI specific constraints above and beyond what the
     # core metadata requirements are.
     _validate_metadata(metadata, backfill=backfill)
@@ -95,7 +95,7 @@ def parse(
 
 
 def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
-    # Add our own custom validations ontop of the standard validations from
+    # Add our own custom validations on top of the standard validations from
     # packaging.metadata.
     errors: list[InvalidMetadata] = []
 
@@ -127,15 +127,14 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
     # NOTE: We currently only support string fields.
     for field, limit in _LENGTH_LIMITS.items():
         value = getattr(metadata, field)
-        if isinstance(value, str):
-            if len(value) > limit:
-                email_name = _RAW_TO_EMAIL_MAPPING.get(field, field)
-                errors.append(
-                    InvalidMetadata(
-                        email_name,
-                        f"{email_name!r} field must be {limit} characters or less.",
-                    )
+        if isinstance(value, str) and len(value) > limit:
+            email_name = _RAW_TO_EMAIL_MAPPING.get(field, field)
+            errors.append(
+                InvalidMetadata(
+                    email_name,
+                    f"{email_name!r} field must be {limit} characters or less.",
                 )
+            )
 
     # We require that the author and maintainer emails, if they're provided, are
     # valid RFC822 email addresses.
@@ -146,7 +145,7 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
     #       One thing that does make it hard for packaging.metadata to do this, is
     #       this validation isn't in the stdlib, and we use the email-validator
     #       package to implement it.
-    for field in {"author_email", "maintainer_email"}:
+    for field in ("author_email", "maintainer_email"):
         if (addr := getattr(metadata, field)) is not None:
             _, address = email.utils.parseaddr(addr)
             if address:
@@ -161,10 +160,10 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
                     )
 
     # Validate that the classifiers are valid classifiers
-    for classifier in sorted(set(metadata.classifiers or []) - set(all_classifiers)):
-        errors.append(
-            InvalidMetadata("classifier", f"{classifier!r} is not a valid classifier.")
-        )
+    errors.extend(
+        InvalidMetadata("classifier", f"{c!r} is not a valid classifier.")
+        for c in sorted(set(metadata.classifiers or []) - set(all_classifiers))
+    )
 
     # Validate that no deprecated classifiers are being used.
     # NOTE: We only check this is we're not doing a backfill, because backfill
@@ -193,15 +192,16 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
     # Validate that URL fields are actually URLs
     # TODO: This is another one that it would be nice to lift this up to
     #       packaging.metadata
-    for field in {"home_page", "download_url"}:
-        if (url := getattr(metadata, field)) is not None:
-            if not http.is_valid_uri(url, require_authority=False):
-                errors.append(
-                    InvalidMetadata(
-                        _RAW_TO_EMAIL_MAPPING.get(field, field),
-                        f"{url!r} is not a valid url.",
-                    )
+    for field in ("home_page", "download_url"):
+        if (url := getattr(metadata, field)) is not None and not http.is_valid_uri(
+            url, require_authority=False
+        ):
+            errors.append(  # noqa: PERF401
+                InvalidMetadata(
+                    _RAW_TO_EMAIL_MAPPING.get(field, field),
+                    f"{url!r} is not a valid url.",
                 )
+            )
 
     # Validate the Project URL structure to ensure that we have real, valid,
     # values for both labels and urls.
@@ -222,7 +222,7 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
 
     # Validate that the *-Dist fields that packaging.metadata didn't validate are valid.
     # TODO: This probably should be pulled up into packaging.metadata.
-    for field in {"provides_dist", "obsoletes_dist"}:
+    for field in ("provides_dist", "obsoletes_dist"):
         if (value := getattr(metadata, field)) is not None:
             for req_str in value:
                 try:
@@ -249,11 +249,11 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
     # NOTE: Because packaging.metadata doesn't parse Provides-Dist and Obsoletes-Dist
     #       we skip those here and check that elsewhere. However, if packaging.metadata
     #       starts to parse those, then we can add them here.
-    for field in {"requires_dist"}:
+    for field in ("requires_dist",):
         if (value := getattr(metadata, field)) is not None:
             for req in value:
                 if req.url is not None:
-                    errors.append(
+                    errors.append(  # noqa: PERF401
                         InvalidMetadata(
                             _RAW_TO_EMAIL_MAPPING.get(field, field),
                             f"Can't have direct dependency: {req}",
@@ -262,11 +262,11 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
 
     # Validate that any `dynamic` fields passed are in the allowed list
     # TODO: This probably should be lifted up to packaging.metadata
-    for field in {"dynamic"}:
+    for field in ("dynamic",):
         if (value := getattr(metadata, field)) is not None:
             for key in value:
                 if key not in map(str.lower, DYNAMIC_FIELDS):
-                    errors.append(
+                    errors.append(  # noqa: PERF401
                         InvalidMetadata(
                             _RAW_TO_EMAIL_MAPPING.get(field, field),
                             f"Dynamic field {key!r} is not a valid dynamic field.",
@@ -372,7 +372,7 @@ def parse_form_metadata(data: MultiDict) -> Metadata:
             except KeyError:
                 unparsed[name] = value
         # Nothing that we've done has managed to parse this, so it'll just
-        # throw it in our unparseable data and move on.
+        # throw it in our unparsable data and move on.
         else:
             unparsed[name] = value
 

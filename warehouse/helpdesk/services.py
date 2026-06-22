@@ -22,6 +22,8 @@ if typing.TYPE_CHECKING:
     from pyramid.request import Request
     from requests import Session
 
+logger = logging.getLogger(__name__)
+
 
 @implementer(IHelpDeskService)
 class ConsoleHelpDeskService:
@@ -34,18 +36,17 @@ class ConsoleHelpDeskService:
 
     @classmethod
     def create_service(cls, _context, _request) -> ConsoleHelpDeskService:
-        logging.debug("Creating ConsoleHelpDeskService")
+        logger.debug("Creating ConsoleHelpDeskService")
         return cls()
 
     def create_conversation(self, *, request_json: dict) -> str:
-        print("Observation created")
-        print("request_json:")
-        print(dedent(pprint.pformat(request_json)))
+        print("Observation created")  # noqa: T201
+        print("request_json:")  # noqa: T201
+        print(dedent(pprint.pformat(request_json)))  # noqa: T201
         return "localhost"
 
     def add_tag(self, *, conversation_url: str, tag: str) -> None:
-        print(f"Adding tag '{tag}' to conversation '{conversation_url}'")
-        return
+        print(f"Adding tag '{tag}' to conversation '{conversation_url}'")  # noqa: T201
 
 
 @implementer(IHelpDeskService)
@@ -76,7 +77,7 @@ class HelpScoutService:
         """
         Create the service, given the context and request, and authenticate
         """
-        logging.debug("Creating HelpScoutService")
+        logger.debug("Creating HelpScoutService")
 
         _app_id = request.registry.settings["helpscout.app_id"]
         _app_secret = request.registry.settings["helpscout.app_secret"]
@@ -163,10 +164,9 @@ class ConsoleAdminNotificationService:
         return cls()
 
     def send_notification(self, *, payload: dict) -> None:
-        print("Webhook notification sent")
-        print("payload:")
-        print(dedent(pprint.pformat(payload)))
-        return
+        print("Webhook notification sent")  # noqa: T201
+        print("payload:")  # noqa: T201
+        print(dedent(pprint.pformat(payload)))  # noqa: T201
 
 
 @implementer(IAdminNotificationService)
@@ -188,7 +188,7 @@ class SlackAdminNotificationService:
         """
         Create the service, given the context and request
         """
-        logging.debug("Creating SlackAdminNotificationService")
+        logger.debug("Creating SlackAdminNotificationService")
         return cls(
             session=request.http,
             webhook_url=request.registry.settings["helpdesk.notification_service_url"],
@@ -204,4 +204,3 @@ class SlackAdminNotificationService:
             timeout=10,
         )
         resp.raise_for_status()
-        return

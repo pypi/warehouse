@@ -45,7 +45,7 @@ class TestDiscloseToken:
                     "GOSST-PUBLIC-KEY-SIGNATURE": "bar",
                 },
                 {},
-                "https://storage.googleapis.com/depsdev-gcp-public-keys/secret_scanning",  # noqa
+                "https://storage.googleapis.com/depsdev-gcp-public-keys/secret_scanning",
                 None,
             ),
         ],
@@ -190,7 +190,6 @@ class TestDiscloseToken:
 
         # We need to raise on a property access, can't do that with a stub.
         class Request:
-
             def __init__(self, headers, body):
                 self.headers = headers
                 self.body = body

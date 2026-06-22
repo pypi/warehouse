@@ -13,7 +13,7 @@
 {{ form_error_anchor(pending_github_publisher_form) }}
 <form id="pending-github-publisher-form"
       method="post"
-      action="{{ request.route_path("manage.account.publishing") }}#errors">
+      action="{{ request.route_path('manage.account.publishing') }}#errors">
   <input name="csrf_token"
          type="hidden"
          value="{{ request.session.get_csrf_token() }}">
@@ -123,7 +123,7 @@
 {{ form_error_anchor(pending_gitlab_publisher_form) }}
 <form id="pending-gitlab-publisher-form"
       method="post"
-      action="{{ request.route_path("manage.account.publishing") }}#errors">
+      action="{{ request.route_path('manage.account.publishing') }}#errors">
   <input name="csrf_token"
          type="hidden"
          value="{{ request.session.get_csrf_token() }}">
@@ -221,7 +221,7 @@
 {{ form_error_anchor(pending_google_publisher_form) }}
 <form id="pending-google-publisher-form"
       method="post"
-      action="{{ request.route_path("manage.account.publishing") }}#errors">
+      action="{{ request.route_path('manage.account.publishing') }}#errors">
   <input name="csrf_token"
          type="hidden"
          value="{{ request.session.get_csrf_token() }}">
@@ -289,7 +289,7 @@
 {{ form_error_anchor(pending_activestate_pubisher_form) }}
 <form id="pending-activestate-publisher-form"
       method="post"
-      action="{{ request.route_path("manage.account.publishing") }}#errors">
+      action="{{ request.route_path('manage.account.publishing') }}#errors">
   <input name="csrf_token"
          type="hidden"
          value="{{ request.session.get_csrf_token() }}">
@@ -534,8 +534,7 @@
     {{ oidc_desc() }}
     <h2 class="no-bottom-padding">{% trans %}Manage publishers{% endtrans %}</h2>
     <h3>Projects with active publishers</h3>
-    {% set projects = user.projects | selectattr('oidc_publishers') | list %}
-    {% if projects %}
+    {% if project_names_with_publishers %}
       <table class="table">
         <thead>
           <tr scope="col">
@@ -544,16 +543,14 @@
           </tr>
         </thead>
         <tbody>
-          {% for project in user.projects %}
-            {% if project.oidc_publishers %}
-              <tr>
-                <td scope="row">{{ project.name }}</td>
-                <td scope="row">
-                  <a href="{{ request.route_path('manage.project.settings.publishing', project_name=project.name) }}"
-                     class="button button--primary">Manage</a>
-                </td>
-              </tr>
-            {% endif %}
+          {% for name in project_names_with_publishers %}
+            <tr>
+              <td scope="row">{{ name }}</td>
+              <td scope="row">
+                <a href="{{ request.route_path('manage.project.settings.publishing', project_name=name) }}"
+                   class="button button--primary">Manage</a>
+              </td>
+            </tr>
           {% endfor %}
         </tbody>
       </table>

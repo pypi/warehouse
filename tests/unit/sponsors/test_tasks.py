@@ -19,8 +19,7 @@ def fake_task_request():
         "pythondotorg.host": "https://API_HOST",
         "pythondotorg.api_token": "API_TOKEN",
     }
-    request = pretend.stub(registry=pretend.stub(settings=cfg))
-    return request
+    return pretend.stub(registry=pretend.stub(settings=cfg))
 
 
 @pytest.fixture
@@ -74,17 +73,17 @@ def test_create_new_sponsor_if_no_matching(
         get=pretend.call_recorder(lambda url, headers, timeout: response)
     )
     monkeypatch.setattr(tasks, "requests", requests)
-    assert 0 == len(db_request.db.query(Sponsor).all())
+    assert len(db_request.db.query(Sponsor).all()) == 0
 
     fake_task_request.db = db_request.db
     tasks.update_pypi_sponsors(fake_task_request)
 
     db_sponsor = db_request.db.query(Sponsor).one()
-    assert "sponsor-name" == db_sponsor.slug
-    assert "Sponsor Name" == db_sponsor.name
-    assert "Sponsor description" == db_sponsor.service
-    assert "https://sponsor.example.com/" == db_sponsor.link_url
-    assert "https://logourl.com" == db_sponsor.color_logo_url
+    assert db_sponsor.slug == "sponsor-name"
+    assert db_sponsor.name == "Sponsor Name"
+    assert db_sponsor.service == "Sponsor description"
+    assert db_sponsor.link_url == "https://sponsor.example.com/"
+    assert db_sponsor.color_logo_url == "https://logourl.com"
     assert db_sponsor.activity_markdown is None
     assert db_sponsor.white_logo_url is None
     assert db_sponsor.is_active is True
@@ -93,9 +92,9 @@ def test_create_new_sponsor_if_no_matching(
     assert db_sponsor.infra_sponsor is False
     assert db_sponsor.one_time is False
     assert db_sponsor.sidebar is False
-    assert "remote" == db_sponsor.origin
-    assert "Partner" == db_sponsor.level_name
-    assert 5 == db_sponsor.level_order
+    assert db_sponsor.origin == "remote"
+    assert db_sponsor.level_name == "Partner"
+    assert db_sponsor.level_order == 5
 
 
 def test_update_remote_sponsor_with_same_name_with_new_logo(
@@ -120,13 +119,13 @@ def test_update_remote_sponsor_with_same_name_with_new_logo(
     fake_task_request.db = db_request.db
     tasks.update_pypi_sponsors(fake_task_request)
 
-    assert 1 == len(db_request.db.query(Sponsor).all())
+    assert len(db_request.db.query(Sponsor).all()) == 1
     db_sponsor = db_request.db.query(Sponsor).one()
     assert db_sponsor.id == created_sponsor.id
-    assert "sponsor-name" == db_sponsor.slug
-    assert "Sponsor description" == db_sponsor.service
-    assert "https://sponsor.example.com/" == db_sponsor.link_url
-    assert "https://logourl.com" == db_sponsor.color_logo_url
+    assert db_sponsor.slug == "sponsor-name"
+    assert db_sponsor.service == "Sponsor description"
+    assert db_sponsor.link_url == "https://sponsor.example.com/"
+    assert db_sponsor.color_logo_url == "https://logourl.com"
     assert db_sponsor.activity_markdown is created_sponsor.activity_markdown
     assert db_sponsor.white_logo_url is created_sponsor.white_logo_url
     assert db_sponsor.is_active is True
@@ -135,9 +134,9 @@ def test_update_remote_sponsor_with_same_name_with_new_logo(
     assert db_sponsor.infra_sponsor is False
     assert db_sponsor.one_time is False
     assert db_sponsor.sidebar is False
-    assert "remote" == db_sponsor.origin
-    assert "Partner" == db_sponsor.level_name
-    assert 5 == db_sponsor.level_order
+    assert db_sponsor.origin == "remote"
+    assert db_sponsor.level_name == "Partner"
+    assert db_sponsor.level_order == 5
 
 
 def test_do_not_update_if_not_psf_sponsor(
@@ -161,11 +160,11 @@ def test_do_not_update_if_not_psf_sponsor(
     fake_task_request.db = db_request.db
     tasks.update_pypi_sponsors(fake_task_request)
 
-    assert 1 == len(db_request.db.query(Sponsor).all())
+    assert len(db_request.db.query(Sponsor).all()) == 1
     db_sponsor = db_request.db.query(Sponsor).one()
     assert db_sponsor.id == infra_sponsor.id
-    assert "manual" == db_sponsor.origin
-    assert "sponsor-name" != db_sponsor.slug
+    assert db_sponsor.origin == "manual"
+    assert db_sponsor.slug != "sponsor-name"
 
 
 def test_update_remote_sponsor_with_same_slug_with_new_logo(
@@ -190,11 +189,11 @@ def test_update_remote_sponsor_with_same_slug_with_new_logo(
     fake_task_request.db = db_request.db
     tasks.update_pypi_sponsors(fake_task_request)
 
-    assert 1 == len(db_request.db.query(Sponsor).all())
+    assert len(db_request.db.query(Sponsor).all()) == 1
     db_sponsor = db_request.db.query(Sponsor).one()
     assert db_sponsor.id == created_sponsor.id
-    assert "Sponsor Name" == db_sponsor.name
-    assert "Sponsor description" == db_sponsor.service
+    assert db_sponsor.name == "Sponsor Name"
+    assert db_sponsor.service == "Sponsor description"
 
 
 def test_flag_existing_psf_sponsor_to_false_if_not_present_in_api_response(
@@ -219,7 +218,7 @@ def test_flag_existing_psf_sponsor_to_false_if_not_present_in_api_response(
     fake_task_request.db = db_request.db
     tasks.update_pypi_sponsors(fake_task_request)
 
-    assert 2 == len(db_request.db.query(Sponsor).all())
+    assert len(db_request.db.query(Sponsor).all()) == 2
     created_sponsor = (
         db_request.db.query(Sponsor).filter(Sponsor.id == created_sponsor.id).one()
     )

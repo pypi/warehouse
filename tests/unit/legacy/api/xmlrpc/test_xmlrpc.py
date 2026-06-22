@@ -10,7 +10,7 @@ from pyramid_rpc.xmlrpc import XmlRpcApplicationError
 
 from warehouse.legacy.api.xmlrpc import views as xmlrpc
 from warehouse.packaging.models import Classifier
-from warehouse.rate_limiting.interfaces import IRateLimiter
+from warehouse.rate_limiting.interfaces import IRateLimiter, WindowStats
 
 from .....common.db.accounts import UserFactory
 from .....common.db.packaging import (
@@ -29,8 +29,16 @@ class TestRateLimiting:
         ratelimited_view = xmlrpc.ratelimit()(view)
         context = pretend.stub()
         pyramid_request.remote_addr = "127.0.0.1"
+        stats = [
+            WindowStats(
+                amount=3600, window_seconds=3600, remaining=42, resets_in_seconds=10
+            )
+        ]
         fake_rate_limiter = pretend.stub(
-            test=lambda *a: True, hit=lambda *a: True, resets_in=lambda *a: None
+            test=lambda *a: True,
+            hit=lambda *a: True,
+            resets_in=lambda *a: None,
+            get_window_stats=lambda *a: stats,
         )
         pyramid_services.register_service(
             fake_rate_limiter, IRateLimiter, None, name="xmlrpc.client"
@@ -40,6 +48,10 @@ class TestRateLimiting:
         assert metrics.increment.calls == [
             pretend.call("warehouse.xmlrpc.ratelimiter.hit", tags=[])
         ]
+        snapshots = pyramid_request._rate_limit_snapshots
+        assert [s.name for s in snapshots] == ["xmlrpc.client"]
+        assert snapshots[0].partition_key == "ip"
+        assert snapshots[0].stats is stats
 
     def test_ratelimiting_block(self, pyramid_services, pyramid_request, metrics):
         def view(context, request):
@@ -49,7 +61,10 @@ class TestRateLimiting:
         context = pretend.stub()
         pyramid_request.remote_addr = "127.0.0.1"
         fake_rate_limiter = pretend.stub(
-            test=lambda *a: False, hit=lambda *a: True, resets_in=lambda *a: None
+            test=lambda *a: False,
+            hit=lambda *a: True,
+            resets_in=lambda *a: None,
+            get_window_stats=lambda *a: [],
         )
         pyramid_services.register_service(
             fake_rate_limiter, IRateLimiter, None, name="xmlrpc.client"
@@ -86,6 +101,7 @@ class TestRateLimiting:
             test=lambda *a: False,
             hit=lambda *a: True,
             resets_in=lambda *a: resets_in_delta,
+            get_window_stats=lambda *a: [],
         )
         pyramid_services.register_service(
             fake_rate_limiter, IRateLimiter, None, name="xmlrpc.client"
@@ -118,7 +134,7 @@ class TestSearch:
 
         assert exc.value.faultString == (
             "RuntimeError: PyPI no longer supports 'pip search' (or XML-RPC search). "
-            f"Please use https://{domain if domain else 'example.org'}/search "
+            f"Please use https://{domain or 'example.org'}/search "
             "(via a browser) instead. See "
             "https://warehouse.pypa.io/api-reference/xml-rpc.html#deprecated-methods "
             "for more information."

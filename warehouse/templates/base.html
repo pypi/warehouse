@@ -156,10 +156,12 @@
     <meta property="og:site_name" content="PyPI">
     <meta property="og:type" content="website">
     <meta property="og:image"
-          content="{% block image %}{{ request.static_url("warehouse:static/dist/images/twitter.jpg") }}{% endblock %}">
+          content="{% block image %}{{ request.static_url('warehouse:static/dist/images/twitter.jpg') }}{% endblock %}">
     <meta property="og:title"
           content="{{ self.title() |default('Python Package Index') }}">
     <meta property="og:description" content="{{ self.description() }}">
+    {% set source_commit = request.registry.settings.get("warehouse.commit") %}
+    {% if source_commit and source_commit != "null" %}<meta name="source-commit" content="{{ source_commit }}">{% endif %}
     {% block extra_meta %}{% endblock %}
     <link rel="search"
           type="application/opensearchdescription+xml"
@@ -487,6 +489,11 @@
     <br>
     <a href="{{ request.route_path('sitemap') }}">{% trans %}Site map{% endtrans %}</a>
   </p>
+  {% if source_commit and source_commit != "null" %}
+    <p>
+      {% trans href='https://github.com/pypi/warehouse/commit/' ~ source_commit, sha=source_commit[:7], title=gettext('External link') %}Deployed from <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><code>{{ sha }}</code></a>{% endtrans %}
+    </p>
+  {% endif %}
 </div>
 <div class="centered hide-on-desktop">
   <button type="button"

@@ -14,9 +14,6 @@ from webauthn.helpers.structs import AttestationFormat, PublicKeyCredentialType
 from webauthn.registration.verify_registration_response import VerifiedRegistration
 from zope.interface.verify import verifyClass
 
-import warehouse.utils.otp as otp
-import warehouse.utils.webauthn as webauthn
-
 from warehouse.accounts import services
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
@@ -43,6 +40,7 @@ from warehouse.accounts.models import (
 from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService, NullMetrics
 from warehouse.rate_limiting.interfaces import IRateLimiter
+from warehouse.utils import otp, webauthn
 
 from ...common.constants import REMOTE_ADDR
 from ...common.db.accounts import (
@@ -246,7 +244,9 @@ class TestDatabaseUserService:
     def test_check_password_invalid(self, user_service, metrics):
         user = UserFactory.create()
         user_service.hasher = pretend.stub(
-            verify_and_update=pretend.call_recorder(lambda L, r: (False, None))
+            verify_and_update=pretend.call_recorder(
+                lambda L, r: (False, None)  # noqa: N803
+            )
         )
 
         assert not user_service.check_password(user.id, "user password")
@@ -290,7 +290,9 @@ class TestDatabaseUserService:
     def test_check_password_valid(self, user_service, metrics):
         user = UserFactory.create()
         user_service.hasher = pretend.stub(
-            verify_and_update=pretend.call_recorder(lambda L, r: (True, None))
+            verify_and_update=pretend.call_recorder(
+                lambda L, r: (True, None)  # noqa: N803
+            )
         )
 
         assert user_service.check_password(user.id, "user password", tags=["bar"])
@@ -337,7 +339,9 @@ class TestDatabaseUserService:
         user = UserFactory.create()
         password = user.password
         user_service.hasher = pretend.stub(
-            verify_and_update=pretend.call_recorder(lambda L, r: (True, "new password"))
+            verify_and_update=pretend.call_recorder(
+                lambda L, r: (True, "new password")  # noqa: N803
+            )
         )
 
         assert user_service.check_password(user.id, "user password")
@@ -550,7 +554,7 @@ class TestDatabaseUserService:
         request = pretend.stub(
             remote_addr="127.0.0.1",
             ip_address=IpAddressFactory.create(),
-            headers=dict(),
+            headers={},
             db=pretend.stub(add=lambda *a: None),
         )
         user = UserFactory.create()
@@ -567,7 +571,7 @@ class TestDatabaseUserService:
         request = pretend.stub(
             remote_addr="127.0.0.1",
             ip_address=IpAddressFactory.create(),
-            headers=dict(),
+            headers={},
             db=pretend.stub(add=lambda *a: None),
         )
         user = UserFactory.create()
@@ -1492,8 +1496,6 @@ class TestDatabaseUserService:
         assert result.user == user
 
     def test_get_account_association_not_found(self, user_service):
-        import uuid
-
         result = user_service.get_account_association(str(uuid.uuid4()))
 
         assert result is None
@@ -1870,7 +1872,7 @@ class TestHaveIBeenPwnedPasswordBreachedService:
     def test_http_failure(self):
         @pretend.call_recorder
         def raiser():
-            raise requests.RequestException()
+            raise requests.RequestException
 
         response = pretend.stub(raise_for_status=raiser)
         session = pretend.stub(get=lambda url: response)
@@ -2167,6 +2169,96 @@ class TestDomainrDomainStatusService:
 
         assert svc._http is request.http
         assert svc.client_id == "some_client_id"
+
+
+class TestFastlyDomainStatusService:
+    def test_verify_service(self):
+        assert verifyClass(IDomainStatusService, services.FastlyDomainStatusService)
+
+    def test_successful_domain_status_check(self):
+        response = pretend.stub(
+            json=lambda: {
+                "domain": "example.com",
+                "zone": "com",
+                "status": "undelegated inactive",
+                "tags": "generic",
+            },
+            raise_for_status=lambda: None,
+        )
+        session = pretend.stub(get=pretend.call_recorder(lambda *a, **kw: response))
+        svc = services.FastlyDomainStatusService(
+            session=session, api_key="some_api_key"
+        )
+
+        assert svc.get_domain_status("example.com") == ["undelegated", "inactive"]
+        assert session.get.calls == [
+            pretend.call(
+                "https://api.fastly.com/domain-management/v1/tools/status",
+                params={"domain": "example.com"},
+                headers={"Fastly-Key": "some_api_key"},
+                timeout=5,
+            )
+        ]
+
+    def test_fastly_exception_returns_none(self):
+        class FastlyException(requests.HTTPError):
+            def __init__(self):
+                self.response = pretend.stub(status_code=400)
+
+        response = pretend.stub(raise_for_status=pretend.raiser(FastlyException))
+        session = pretend.stub(get=pretend.call_recorder(lambda *a, **kw: response))
+        svc = services.FastlyDomainStatusService(
+            session=session, api_key="some_api_key"
+        )
+
+        assert svc.get_domain_status("example.com") is None
+        assert session.get.calls == [
+            pretend.call(
+                "https://api.fastly.com/domain-management/v1/tools/status",
+                params={"domain": "example.com"},
+                headers={"Fastly-Key": "some_api_key"},
+                timeout=5,
+            )
+        ]
+
+    def test_fastly_response_contains_errors_returns_none(self):
+        response = pretend.stub(
+            json=lambda: {
+                "errors": [
+                    {
+                        "code": 404,
+                        "message": "Domain not found",
+                        "detail": "example.ocm",
+                    }
+                ],
+            },
+            raise_for_status=lambda: None,
+        )
+        session = pretend.stub(get=pretend.call_recorder(lambda *a, **kw: response))
+        svc = services.FastlyDomainStatusService(
+            session=session, api_key="some_api_key"
+        )
+
+        assert svc.get_domain_status("example.ocm") is None
+        assert session.get.calls == [
+            pretend.call(
+                "https://api.fastly.com/domain-management/v1/tools/status",
+                params={"domain": "example.ocm"},
+                headers={"Fastly-Key": "some_api_key"},
+                timeout=5,
+            )
+        ]
+
+    def test_factory(self):
+        context = pretend.stub()
+        request = pretend.stub(
+            http=pretend.stub(),
+            registry=pretend.stub(settings={"domain_status.api_key": "some_api_key"}),
+        )
+        svc = services.FastlyDomainStatusService.create_service(context, request)
+
+        assert svc._http is request.http
+        assert svc.api_key == "some_api_key"
 
 
 class TestDeviceIsKnown:

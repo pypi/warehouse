@@ -40,8 +40,9 @@ def test_forklifted(settings, expected_domain):
 
     assert resp.status_code == 410
     assert resp.status == (
-        "410 This API has moved to https://{}/legacy/. See {} for more information."
-    ).format(expected_domain, information_url)
+        f"410 This API has moved to https://{expected_domain}/legacy/. "
+        f"See {information_url} for more information."
+    )
 
 
 def test_doap(pyramid_request):
