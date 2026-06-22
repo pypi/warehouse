@@ -117,7 +117,7 @@ class CircleCIPublisherBase(wtforms.Form):
                 f" error={exc!r}"
             )
             raise wtforms.validators.ValidationError(
-                _("There is an issue with the CircleCI API. " "Try again later.")
+                _("There is an issue with the CircleCI API. Try again later.")
             )
 
         try:
@@ -128,7 +128,7 @@ class CircleCIPublisherBase(wtforms.Form):
                 f"{response.content!r}"
             )
             raise wtforms.validators.ValidationError(
-                _("There is an issue with the CircleCI API. " "Try again later.")
+                _("There is an issue with the CircleCI API. Try again later.")
             )
         self.circleci_org_name = data.get("organization_name")
         self.circleci_project_name = data.get("name")
@@ -138,15 +138,15 @@ class CircleCIPublisherBase(wtforms.Form):
 
     @property
     def normalized_context_id(self) -> str:
-        return self.context_id.data if self.context_id.data else ""
+        return self.context_id.data or ""
 
     @property
     def normalized_vcs_ref(self) -> str:
-        return self.vcs_ref.data if self.vcs_ref.data else ""
+        return self.vcs_ref.data or ""
 
     @property
     def normalized_vcs_origin(self) -> str:
-        return self.vcs_origin.data if self.vcs_origin.data else ""
+        return self.vcs_origin.data or ""
 
 
 class PendingCircleCIPublisherForm(CircleCIPublisherBase, PendingPublisherMixin):

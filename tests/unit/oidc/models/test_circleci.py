@@ -39,7 +39,7 @@ def new_signed_claims(
         {
             "oidc.circleci.com/org-id": org_id,
             "oidc.circleci.com/project-id": project_id,
-            "oidc.circleci.com/context-ids": context_ids if context_ids else [],
+            "oidc.circleci.com/context-ids": context_ids or [],
             "oidc.circleci.com/job-id": "fake-job-id",
             "oidc.circleci.com/pipeline-definition-id": pipeline_definition_id,
             "oidc.circleci.com/pipeline-id": "fake-pipeline-id",
@@ -311,7 +311,7 @@ class TestCircleCIPublisher:
         )
 
         with pytest.raises(AttributeError, match="unknown_attribute"):
-            getattr(publisher, "unknown_attribute")
+            publisher.unknown_attribute
 
     def test_ssh_rerun_claim_is_false(self):
         publisher = CircleCIPublisher(
