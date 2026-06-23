@@ -85,7 +85,6 @@ class TestOrganizationForm:
 
 
 class TestOrganizationList:
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_no_query(self, db_request):
         organizations = sorted(
             OrganizationFactory.create_batch(30),
@@ -95,7 +94,6 @@ class TestOrganizationList:
 
         assert result == {"organizations": organizations[:25], "query": "", "terms": []}
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_with_page(self, db_request):
         organizations = sorted(
             OrganizationFactory.create_batch(30),
@@ -106,7 +104,6 @@ class TestOrganizationList:
 
         assert result == {"organizations": organizations[25:], "query": "", "terms": []}
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_with_invalid_page(self):
         request = pretend.stub(
             flags=pretend.stub(enabled=lambda *a: False),
@@ -116,7 +113,6 @@ class TestOrganizationList:
         with pytest.raises(HTTPBadRequest):
             views.organization_list(request)
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_basic_query(self, db_request):
         organizations = sorted(
             OrganizationFactory.create_batch(5),
@@ -129,7 +125,6 @@ class TestOrganizationList:
         assert result["query"] == organizations[0].name
         assert result["terms"] == [organizations[0].name]
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_name_query(self, db_request):
         organizations = sorted(
             OrganizationFactory.create_batch(5),
@@ -142,7 +137,6 @@ class TestOrganizationList:
         assert result["query"] == f"name:{organizations[0].name}"
         assert result["terms"] == [f"name:{organizations[0].name}"]
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_organization_query(self, db_request):
         organizations = sorted(
             OrganizationFactory.create_batch(5),
@@ -155,7 +149,6 @@ class TestOrganizationList:
         assert result["query"] == f"organization:{organizations[0].display_name}"
         assert result["terms"] == [f"organization:{organizations[0].display_name}"]
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_url_query(self, db_request):
         organizations = sorted(
             OrganizationFactory.create_batch(5),
@@ -168,7 +161,6 @@ class TestOrganizationList:
         assert result["query"] == f"url:{organizations[0].link_url}"
         assert result["terms"] == [f"url:{organizations[0].link_url}"]
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_description_query(self, db_request):
         organizations = sorted(
             OrganizationFactory.create_batch(5),
@@ -181,7 +173,6 @@ class TestOrganizationList:
         assert result["query"] == f"description:'{organizations[0].description}'"
         assert result["terms"] == [f"description:{organizations[0].description}"]
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_is_active_query(self, db_request):
         organizations = sorted(
             OrganizationFactory.create_batch(5),
@@ -201,7 +192,6 @@ class TestOrganizationList:
             "terms": ["is:active"],
         }
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_is_inactive_query(self, db_request):
         organizations = sorted(
             OrganizationFactory.create_batch(5),
@@ -221,7 +211,6 @@ class TestOrganizationList:
             "terms": ["is:inactive"],
         }
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_type_query(self, db_request):
         company_org = OrganizationFactory.create(orgtype=OrganizationType.Company)
         community_org = OrganizationFactory.create(orgtype=OrganizationType.Community)
@@ -243,7 +232,6 @@ class TestOrganizationList:
             "terms": ["type:community"],
         }
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_invalid_type_query(self, db_request):
         company_org = OrganizationFactory.create(orgtype=OrganizationType.Company)
 
@@ -256,7 +244,6 @@ class TestOrganizationList:
             "terms": ["type:invalid"],
         }
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_is_invalid_query(self, db_request):
         organizations = sorted(
             OrganizationFactory.create_batch(5),
@@ -273,7 +260,6 @@ class TestOrganizationList:
 
 
 class TestOrganizationDetail:
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_detail(self, db_request):
         organization = OrganizationFactory.create(
             name="example",
@@ -297,7 +283,6 @@ class TestOrganizationDetail:
         assert result["role_forms"] == {}
         assert isinstance(result["add_role_form"], views.AddOrganizationRoleForm)
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_detail_is_approved_true(self, db_request):
         organization = OrganizationFactory.create(
             name="example",
@@ -321,7 +306,6 @@ class TestOrganizationDetail:
         assert result["role_forms"] == {}
         assert isinstance(result["add_role_form"], views.AddOrganizationRoleForm)
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_detail_is_approved_false(self, db_request):
         organization = OrganizationFactory.create(
             name="example",
@@ -345,7 +329,6 @@ class TestOrganizationDetail:
         assert result["role_forms"] == {}
         assert isinstance(result["add_role_form"], views.AddOrganizationRoleForm)
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_detail_not_found(self, db_request):
         db_request.matchdict = {
             "organization_id": "00000000-0000-0000-0000-000000000000"
@@ -476,7 +459,6 @@ class TestOrganizationDetail:
         assert "display_name" in result["form"].errors
         assert "link_url" in result["form"].errors
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_detail_with_roles(self, db_request):
         """Test that organization detail view includes roles"""
         organization = OrganizationFactory.create(name="pypi")
@@ -521,7 +503,6 @@ class TestOrganizationDetail:
 
         assert isinstance(result["add_role_form"], views.AddOrganizationRoleForm)
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_detail_no_roles(self, db_request):
         """Test that organization detail view works with no roles"""
         organization = OrganizationFactory.create(name="pypi")
@@ -539,7 +520,6 @@ class TestOrganizationDetail:
 
 
 class TestOrganizationActions:
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_rename_not_found(self, db_request):
         admin = UserFactory.create()
 
@@ -555,7 +535,6 @@ class TestOrganizationActions:
         with pytest.raises(HTTPNotFound):
             views.organization_rename(db_request)
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_rename(self, db_request):
         admin = UserFactory.create()
         organization = OrganizationFactory.create(name="example")
@@ -581,7 +560,6 @@ class TestOrganizationActions:
         assert result.status_code == 303
         assert result.location == f"/admin/organizations/{organization.id}/"
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_rename_fails_on_conflict(self, db_request):
         admin = UserFactory.create()
         OrganizationFactory.create(name="widget")
@@ -1517,7 +1495,6 @@ class TestDeleteManualActivation:
 
 
 class TestSetUploadLimit:
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_set_upload_limit_with_integer(self, db_request):
         organization = OrganizationFactory.create(name="foo")
         user = UserFactory.create()
@@ -1549,7 +1526,6 @@ class TestSetUploadLimit:
             "actor": user.username,
         }
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_set_upload_limit_with_none(self, db_request):
         organization = OrganizationFactory.create(name="foo")
         organization.upload_limit = 150 * views.ONE_MIB
@@ -1582,7 +1558,6 @@ class TestSetUploadLimit:
             "actor": user.username,
         }
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_set_upload_limit_invalid_value(self, db_request):
         organization = OrganizationFactory.create(name="foo")
 
@@ -1605,14 +1580,12 @@ class TestSetUploadLimit:
         ]
         assert result.status_code == 303
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_set_upload_limit_not_found(self, db_request):
         db_request.matchdict["organization_id"] = "00000000-0000-0000-0000-000000000000"
 
         with pytest.raises(HTTPNotFound):
             views.set_upload_limit(db_request)
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_set_upload_limit_above_cap(self, db_request):
         organization = OrganizationFactory.create(name="foo")
 
@@ -1635,7 +1608,6 @@ class TestSetUploadLimit:
         ]
         assert result.status_code == 303
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_set_upload_limit_below_default(self, db_request):
         organization = OrganizationFactory.create(name="foo")
 
@@ -1660,7 +1632,6 @@ class TestSetUploadLimit:
 
 
 class TestSetTotalSizeLimit:
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_set_total_size_limit_with_integer(self, db_request):
         organization = OrganizationFactory.create(name="foo")
         user = UserFactory.create()
@@ -1692,7 +1663,6 @@ class TestSetTotalSizeLimit:
             "actor": user.username,
         }
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_set_total_size_limit_with_none(self, db_request):
         organization = OrganizationFactory.create(name="foo")
         organization.total_size_limit = 150 * views.ONE_GIB
@@ -1725,7 +1695,6 @@ class TestSetTotalSizeLimit:
             "actor": user.username,
         }
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_set_total_size_limit_invalid_value(self, db_request):
         organization = OrganizationFactory.create(name="foo")
 
@@ -1748,14 +1717,12 @@ class TestSetTotalSizeLimit:
         ]
         assert result.status_code == 303
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_set_total_size_limit_not_found(self, db_request):
         db_request.matchdict["organization_id"] = "00000000-0000-0000-0000-000000000000"
 
         with pytest.raises(HTTPNotFound):
             views.set_total_size_limit(db_request)
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_set_total_size_limit_below_default(self, db_request):
         organization = OrganizationFactory.create(name="foo")
 
