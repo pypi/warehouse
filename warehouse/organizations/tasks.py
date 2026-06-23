@@ -21,6 +21,7 @@ from warehouse.subscriptions.interfaces import IBillingService
 from warehouse.subscriptions.models import StripeSubscriptionStatus
 
 CLEANUP_AFTER = datetime.timedelta(days=30)
+SUBSCRIPTION_GRACE_PERIOD = datetime.timedelta(days=30)
 
 
 @tasks.task(ignore_result=True, acks_late=True)
@@ -91,12 +92,16 @@ def notify_organizations_requiring_subscription(request):
     """
     Email owners of company orgs that have no active subscription
     (or manual activation) that 1 seat is required for paid orgs.
+
+    Orgs get 30 days (SUBSCRIPTION_GRACE_PERIOD) to activate a subscription before they are considered not in good standing.
     """
     organizations = (
         request.db.query(Organization)
         .filter(
             Organization.is_active.is_(True),
             Organization.orgtype == OrganizationType.Company,
+            Organization.created
+            < (datetime.datetime.now(datetime.UTC) - SUBSCRIPTION_GRACE_PERIOD),
         )
         .options(
             joinedload(Organization.subscriptions),
