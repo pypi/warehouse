@@ -302,6 +302,27 @@ class TestNotifyOrganizationsRequiringSubscription:
 
         send_email.assert_not_called()
 
+    def test_skips_recently_approved_orgs_within_grace_period(self, db_request, mocker):
+        send_email = mocker.patch(
+            "warehouse.organizations.tasks."
+            "send_organization_subscription_required_email",
+        )
+
+        organization = OrganizationFactory.create(
+            orgtype=OrganizationType.Company,
+            is_active=True,
+            created=datetime.datetime.now(datetime.UTC),
+        )
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=UserFactory.create(),
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        notify_organizations_requiring_subscription(db_request)
+
+        send_email.assert_not_called()
+
     def test_handles_company_org_without_owners(self, db_request, mocker):
         send_email = mocker.patch(
             "warehouse.organizations.tasks."
