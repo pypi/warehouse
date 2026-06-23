@@ -93,7 +93,8 @@ def notify_organizations_requiring_subscription(request):
     Email owners of company orgs that have no active subscription
     (or manual activation) that 1 seat is required for paid orgs.
 
-    Orgs get 30 days (SUBSCRIPTION_GRACE_PERIOD) to activate a subscription before they are considered not in good standing.
+    Orgs get 30 days (SUBSCRIPTION_GRACE_PERIOD) to activate a subscription
+    before they are considered not in good standing.
     """
     organizations = (
         request.db.query(Organization)
