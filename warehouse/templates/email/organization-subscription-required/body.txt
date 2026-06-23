@@ -12,7 +12,7 @@ To activate a subscription, visit your organization's billing page:
 
 {{ request.route_url('manage.organization.activate_subscription', organization_name=organization_name) }}
 
-If your organization is no longer using PyPI Organizations features, or if you believe you qualify for a Community organization instead, please reach out to us at support@pypi.org.
+If your organization is no longer using PyPI Organizations features, or if you believe you qualify for a Community organization instead, please reach out to us at support+orgs@pypi.org.
 
 – The PyPI Team
 {% endblock %}
