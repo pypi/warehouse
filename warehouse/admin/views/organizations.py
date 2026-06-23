@@ -417,44 +417,6 @@ def cancel_organization_subscription(request):
 
 
 @view_config(
-    route_name="admin.organization.billing_portal",
-    require_methods=["POST"],
-    permission=Permissions.AdminOrganizationsWrite,
-    has_translations=True,
-    uses_session=True,
-    require_csrf=True,
-)
-def organization_billing_portal(request):
-    organization_service = request.find_service(IOrganizationService, context=None)
-    billing_service = request.find_service(IBillingService, context=None)
-
-    organization = organization_service.get_organization(
-        request.matchdict["organization_id"]
-    )
-    if organization is None:
-        raise HTTPNotFound
-
-    if organization.customer is None:
-        request.session.flash(
-            f"Organization {organization.name!r} has no billing customer",
-            queue="error",
-        )
-        return HTTPSeeOther(
-            request.route_path(
-                "admin.organization.detail", organization_id=organization.id
-            )
-        )
-
-    portal_session = billing_service.create_portal_session(
-        organization.customer.customer_id,
-        return_url=request.route_url(
-            "admin.organization.detail", organization_id=organization.id
-        ),
-    )
-    return HTTPSeeOther(portal_session["url"])
-
-
-@view_config(
     route_name="admin.organization_application.list",
     renderer="warehouse.admin:templates/admin/organization_applications/list.html",
     permission=Permissions.AdminOrganizationsRead,

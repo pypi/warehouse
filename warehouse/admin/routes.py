@@ -30,11 +30,6 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
-        "admin.organization.billing_portal",
-        "/admin/organizations/{organization_id}/billing_portal/",
-        domain=warehouse,
-    )
-    config.add_route(
         "admin.organization.add_role",
         "/admin/organizations/{organization_id}/add_role/",
         domain=warehouse,

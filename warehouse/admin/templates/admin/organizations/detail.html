@@ -172,14 +172,12 @@
           <h3 class="card-title">Billing</h3>
           {% if organization.customer %}
           <div class="card-tools">
-            <form method="POST"
-                  action="{{ request.route_path('admin.organization.billing_portal', organization_id=organization.id) }}">
-              <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-              <button type="submit" class="btn btn-secondary btn-sm"
-                      {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) }}>
-                <i class="fa fa-external-link-alt"></i> Stripe billing portal
-              </button>
-            </form>
+            <a href="https://dashboard.stripe.com/customers/{{ organization.customer.customer_id }}"
+               target="_blank"
+               rel="noopener"
+               class="btn btn-secondary btn-sm">
+              <i class="fa fa-external-link-alt"></i> View in Stripe
+            </a>
           </div>
           {% endif %}
         </div>

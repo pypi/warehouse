@@ -31,11 +31,6 @@ def test_includeme(mocker):
             domain=warehouse,
         ),
         mocker.call(
-            "admin.organization.billing_portal",
-            "/admin/organizations/{organization_id}/billing_portal/",
-            domain=warehouse,
-        ),
-        mocker.call(
             "admin.organization.add_role",
             "/admin/organizations/{organization_id}/add_role/",
             domain=warehouse,
