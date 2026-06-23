@@ -94,6 +94,7 @@
         </li>
       </ul>
     </nav>
+    {% include "warehouse:templates/includes/language-dropdown.html" %}
   </div>
 {% else %}
   {% from 'base.html' import main_navigation_logged_out with context %}

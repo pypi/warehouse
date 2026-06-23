@@ -9,65 +9,147 @@
 /*
   Footer:
 
-  <div class="footer">
-    <div class="footer__icon">
-      // footer icon image goes here
-    </div>
-    <div class="footer__menus"> // menu wrapper
-      <div class="footer__menu">
-        // H2: Menu title
-        <nav aria-label="menu label">
-          <ul>
-            <li><a>Menu Link</a></li>
-          </ul>
-        </nav>
+  <footer class="footer">
+    <div class="footer__inner">              // max-width row: brand | menus
+      <div class="footer__brand">            // logo, tagline, status, donate
+        ...
+      </div>
+      <div class="footer__menus">            // responsive grid of link groups
+        <div class="footer__menu">
+          // H2: Menu title
+          <nav aria-label="menu label">
+            <ul><li><a>Menu Link</a></li></ul>
+          </nav>
+        </div>
       </div>
     </div>
-
-    <hr class="footer__divider">
-
-    <div class="footer__text">
-      // copyright, disclaimers,etc.
+    <div class="footer__bar">                 // bottom utility bar
+      <p class="footer__legal">...</p>        // trademark line
+      <ul class="footer__meta">...</ul>       // copyright, sitemap, deploy sha
     </div>
-  </div>
+  </footer>
 */
 
 .footer {
   background-color: color.adjust(colours.$primary-color, $lightness: 2%);
   color: colours.$white;
-  padding: 60px 0;
+  padding: 40px 0 24px;
   width: 100%;
 
   @media only screen and (max-width: breakpoints.$mobile) {
-    padding-top: 40px 0;
+    padding: 30px 0 20px;
   }
 
-  &__logo {
-    margin-bottom: grid.$spacing-unit;
-    text-align: center;
+  a {
+    @include link-utilities.white-underlined-link;
   }
+
+  &__inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: grid.$spacing-unit grid.$spacing-unit * 2;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 grid.$spacing-unit;
+  }
+
+  // -- Brand column -----------------------------------------------------------
+
+  &__brand {
+    flex: 1 1 240px;
+    max-width: 340px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: grid.$half-spacing-unit;
+  }
+
+  &__brand-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: colours.$white;
+    font-size: 1.4rem;
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: none;
+    }
+
+    img {
+      width: 28px;
+      height: auto;
+    }
+  }
+
+  &__tagline {
+    margin: 0;
+    max-width: 28ch;
+    color: color.adjust(colours.$white, $alpha: -0.2);
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
+
+  &__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 0.85rem;
+  }
+
+  &__status-dot {
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: color.adjust(colours.$success-color, $lightness: 25%);
+    box-shadow: 0 0 0 3px color.adjust(colours.$success-color, $lightness: 25%, $alpha: -0.75);
+  }
+
+  &__donate {
+    display: inline-flex;
+    align-items: center;
+    margin-top: grid.$quarter-spacing-unit;
+    padding: 7px 16px;
+    border: 1px solid color.adjust(colours.$white, $alpha: -0.6);
+    border-radius: 4px;
+    color: colours.$white;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+
+    &:hover,
+    &:focus {
+      background-color: color.adjust(colours.$white, $alpha: -0.88);
+      border-color: color.adjust(colours.$white, $alpha: -0.3);
+      text-decoration: none;
+    }
+  }
+
+  // -- Link groups ------------------------------------------------------------
 
   &__menus {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin-bottom: grid.$spacing-unit;
+    flex: 2 1 460px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: grid.$spacing-unit grid.$spacing-unit;
 
-    @media only screen and (max-width: breakpoints.$mobile) {
-      margin-bottom: 10px;
+    @media only screen and (min-width: breakpoints.$tablet) {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
     }
   }
 
   &__menu {
-    flex-basis: 220px;
-    flex-shrink: 0;
-    margin: 0 grid.$half-spacing-unit 40px;
     padding: 0;
 
     h2 {
+      margin-bottom: 10px;
       color: colours.$white;
-      margin-bottom: 5px;
-      text-align: center;
+      font-size: 0.95rem;
+      text-align: left;
     }
 
     ul {
@@ -76,35 +158,66 @@
     }
 
     li {
-      padding: 2px 0;
+      padding: 3px 0;
       list-style: none;
-      text-align: center;
+      text-align: left;
 
       a {
+        font-size: 0.85rem;
         text-decoration: none;
         @include link-utilities.white-underlined-link;
       }
     }
   }
 
-  &__divider {
-    border: 1px solid color.adjust(colours.$white, $alpha: -0.7);
-    margin: 0 auto grid.$spacing-unit;
-    width: 200px;
-    background: none;
-    height: 0;
-  }
+  // -- Bottom utility bar -----------------------------------------------------
+  // A slim full-width band rendered below the sponsor strip (outside .footer),
+  // so it needs its own background, link colour, and compact padding.
 
-  &__text {
-    color: color.adjust(colours.$white, $alpha: -0.05);
-    font-size: 0.9rem;
-    margin: auto;
-    max-width: 600px;
-    text-align: center;
-    padding: 0 20px;
+  &__bar {
+    width: 100%;
+    padding: grid.$half-spacing-unit grid.$spacing-unit;
+    border-top: 1px solid color.adjust(colours.$white, $alpha: -0.85);
+    background-color: color.adjust(colours.$primary-color, $lightness: 2%);
+    color: color.adjust(colours.$white, $alpha: -0.25);
+    font-size: 0.78rem;
 
     a {
       @include link-utilities.white-underlined-link;
+    }
+  }
+
+  &__bar-inner {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: grid.$quarter-spacing-unit grid.$spacing-unit;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  &__legal {
+    flex: 1 1 320px;
+    min-width: 0;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    row-gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li + li::before {
+      content: "·";
+      margin: 0 0.6em;
+      color: color.adjust(colours.$white, $alpha: -0.6);
     }
   }
 }
