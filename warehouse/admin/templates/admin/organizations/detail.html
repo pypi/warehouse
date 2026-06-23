@@ -202,7 +202,7 @@
               <tr>
                 <th>Status</th>
                 <th>Product</th>
-                <th>Price</th>
+                <th>Price / seat</th>
                 <th class="text-right">Seats</th>
                 <th>Subscription</th>
                 <th></th>
@@ -247,6 +247,43 @@
           <p class="text-muted mb-0">No subscriptions for this customer.</p>
           {% else %}
           <p class="text-muted mb-0">No billing customer or subscriptions for this organization.</p>
+          {% endif %}
+
+          {% set billing_tags = [
+            EventTag.Organization.SubscriptionCreate,
+            EventTag.Organization.SubscriptionStatusChange,
+            EventTag.Organization.SubscriptionCancel,
+            EventTag.Organization.OrganizationRoleAdd,
+            EventTag.Organization.OrganizationRoleRemove,
+          ] %}
+          {% set billing_events = organization.events | selectattr("tag", "in", billing_tags) | list %}
+          {% if billing_events %}
+          <h4 class="h5 mt-4">Billing history</h4>
+          <table class="table table-sm table-hover" id="billing-history">
+            <tbody>
+              {% for event in billing_events %}
+                <tr>
+                  <td class="text-nowrap text-muted">{{ event.time.strftime("%Y-%m-%d %H:%M UTC") }}</td>
+                  <td>
+                    {% if event.tag == EventTag.Organization.SubscriptionCreate %}
+                    Subscription started
+                    {% elif event.tag == EventTag.Organization.SubscriptionStatusChange %}
+                    Subscription status changed to <code>{{ event.additional.status }}</code>
+                    {% elif event.tag == EventTag.Organization.SubscriptionCancel %}
+                    {{ "Subscription set to cancel at period end" if event.additional.at_period_end else "Subscription canceled" }}
+                    {% if event.additional.canceled_by %}<span class="text-muted">by {{ event.additional.canceled_by }}</span>{% endif %}
+                    {% elif event.tag == EventTag.Organization.OrganizationRoleAdd %}
+                    {{ get_user(event.additional.target_user_id).username }} added as {{ event.additional.role_name | lower }}
+                    <span class="text-muted">(seat +1) by {{ get_user(event.additional.submitted_by_user_id).username }}</span>
+                    {% elif event.tag == EventTag.Organization.OrganizationRoleRemove %}
+                    {{ get_user(event.additional.target_user_id).username }} removed as {{ event.additional.role_name | lower }}
+                    <span class="text-muted">(seat −1) by {{ get_user(event.additional.submitted_by_user_id).username }}</span>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
           {% endif %}
         </div>
       </div>
