@@ -12,13 +12,14 @@
 # "A. Bento" <kyweehz@pm.me>, 2024.
 # Beta 46 <ronald20052005@gmail.com>, 2025.
 # Lucas-doubleC <lucasdacostacampos8@gmail.com>, 2026.
+# Vinicius <vinidsfreitas@gmail.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2026-02-02 05:23+0000\n"
-"Last-Translator: Lucas-doubleC <lucasdacostacampos8@gmail.com>\n"
+"PO-Revision-Date: 2026-06-23 15:35+0000\n"
+"Last-Translator: Vinicius <vinidsfreitas@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/pypa/"
 "warehouse/pt_BR/>\n"
 "Language: pt_BR\n"
@@ -26,7 +27,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.16-dev\n"
+"X-Generator: Weblate 2026.7.dev0\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:149
@@ -166,8 +167,6 @@ msgid "Recovery code has been previously used."
 msgstr "O código de recuperação já foi usado anteriormente."
 
 #: warehouse/accounts/forms.py:553
-#, fuzzy
-#| msgid "The email address isn't valid. Try again."
 msgid "The username isn't valid. Try again."
 msgstr "O nome de usuário é inválido. Tente novamente."
 
