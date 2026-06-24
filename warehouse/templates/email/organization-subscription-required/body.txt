@@ -1,0 +1,22 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% extends "email/_base/body.txt" %}
+
+{% block content %}
+Hello {{ username }},
+
+Your Company organization '{{ organization_name }}' on PyPI was approved, but it does not currently have an active subscription.
+
+Continued use of a Company organization requires a paid subscription with at least 1 seat purchased. Without an active subscription, your organization's features (such as uploads and member invitations) may be restricted.
+
+To activate a subscription, visit your organization's billing page:
+
+{{ request.route_url('manage.organization.activate_subscription', organization_name=organization_name) }}
+
+If your organization is no longer using PyPI Organizations features, or if you believe you qualify for a Community organization instead, please reach out to us at support+orgs@pypi.org.
+
+– The PyPI Team
+{% endblock %}
+
+{% block reason %}
+You are receiving this because you are an owner of the **{{ organization_name }}** organization on PyPI. If you own multiple PyPI Organizations you may receive multiple emails.
+{% endblock %}

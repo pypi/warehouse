@@ -142,6 +142,13 @@ def test_routes(warehouse):
             traverse="/{user_name}",
             domain=warehouse,
         ),
+        pretend.call(
+            "includes.administer-organization-include",
+            "/_includes/authed/administer-organization-include/{organization}",
+            factory="warehouse.organizations.models:OrganizationFactory",
+            traverse="/{organization}",
+            domain=warehouse,
+        ),
         pretend.call("classifiers", "/classifiers/", domain=warehouse),
         pretend.call("search", "/search/", domain=warehouse),
         pretend.call("stats", "/stats/", accept="text/html", domain=warehouse),
@@ -616,6 +623,7 @@ def test_routes(warehouse):
         pretend.call(
             "api.echo",
             "/danger-api/echo",
+            auth_methods={"macaroon"},
             domain=warehouse,
         ),
         pretend.call(
@@ -623,6 +631,7 @@ def test_routes(warehouse):
             "/danger-api/projects/{name}/observations",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}",
+            auth_methods={"macaroon"},
             domain=warehouse,
         ),
         # PEP 740 URLs

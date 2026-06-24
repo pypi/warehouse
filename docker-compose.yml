@@ -8,6 +8,7 @@ volumes:
   rstuf-metadata:
   pgdata:
   cachedata:
+  node_modules:
 
 services:
   db:
@@ -81,36 +82,19 @@ services:
       - PIP_CACHE_DIR=/opt/warehouse/src/.cache/pip
       - PIP_TOOLS_CACHE_DIR=/opt/warehouse/src/.cache/pip-tools
     volumes: &base_volumes
-      # We specify paths explicitly to only add what we need, and to avoid
-      # adding the entire repository.
       # The :z option fixes permission issues with SELinux by setting a
       # permissive security context.
-      - ./dev:/opt/warehouse/src/dev:z
-      - ./docs:/opt/warehouse/src/docs:z
-      - ./warehouse:/opt/warehouse/src/warehouse:z
-      - ./tests:/opt/warehouse/src/tests:z
-      - ./htmlcov:/opt/warehouse/src/htmlcov:z
-      - ./pyproject.toml:/opt/warehouse/src/pyproject.toml:z
-      # Site customization shim to enable multiprocess coverage collection in tests.
-      # See: https://coverage.readthedocs.io/en/latest/subprocess.html
-      - ./sitecustomize.py:/opt/warehouse/src/sitecustomize.py:z
+      - .:/opt/warehouse/src:z
       - packages:/var/opt/warehouse/packages
       - packages-archive:/var/opt/warehouse/packages-archive
       - sponsorlogos:/var/opt/warehouse/sponsorlogos
       - simple:/var/opt/warehouse/simple
-      - ./bin:/opt/warehouse/src/bin:z
-      - ./requirements:/opt/warehouse/src/requirements:z
-      # Included to support linters during development
-      - ./gunicorn-prod.conf.py:/opt/warehouse/src/gunicorn-prod.conf.py:z
-      - ./gunicorn-uploads.conf.py:/opt/warehouse/src/gunicorn-uploads.conf.py:z
-      - ./development.ini:/opt/warehouse/src/development.ini:z
-      - ./sgconfig.yml:/opt/warehouse/src/sgconfig.yml:z
-      # Create a place to store all of the caches
+      - node_modules:/opt/warehouse/src/node_modules
       - caches:/opt/warehouse/src/.cache
 
   web:
     image: warehouse:docker-compose
-    command: gunicorn --reload --reload-extra-file=warehouse/api/openapi.yaml -b 0.0.0.0:8000 --access-logfile - --error-logfile - warehouse.wsgi:application
+    command: gunicorn --reload --reload-extra-file=warehouse/api/openapi.yaml --threads 4 -b 0.0.0.0:8000 --access-logfile - --error-logfile - warehouse.wsgi:application
     env_file: dev/environment
     pull_policy: never
     volumes: *base_volumes
@@ -160,9 +144,11 @@ services:
     pull_policy: never
     command: hupper --shutdown-interval 10 --reload-interval 10 -m celery -A warehouse worker --concurrency=1 --beat --scheduler redbeat.RedBeatScheduler -l info
     volumes:
-      - ./warehouse:/opt/warehouse/src/warehouse:z
+      - .:/opt/warehouse/src:z
       - packages:/var/opt/warehouse/packages
       - packages-archive:/var/opt/warehouse/packages-archive
+      - node_modules:/opt/warehouse/src/node_modules
+      - caches:/opt/warehouse/src/.cache
     env_file: dev/environment
     environment:
       C_FORCE_ROOT: "1"
@@ -222,16 +208,8 @@ services:
     command: ["npm", "run", "watch"]
     stop_signal: SIGKILL
     volumes:
-      - ./warehouse:/opt/warehouse/src/warehouse:z
-      - ./webpack.config.js:/opt/warehouse/src/webpack.config.js:z
-      - ./webpack.plugin.localize.js:/opt/warehouse/src/webpack.plugin.localize.js:z
-      - ./babel.config.js:/opt/warehouse/src/babel.config.js:z
-      - ./eslint.config.mjs:/opt/warehouse/src/eslint.config.mjs:z
-      - ./.stylelintrc.json:/opt/warehouse/src/.stylelintrc.json:z
-      - ./tests/frontend:/opt/warehouse/src/tests/frontend:z
-      - ./bin:/opt/warehouse/src/bin:z
-      - ./package.json:/opt/warehouse/src/package.json:z
-      - ./package-lock.json:/opt/warehouse/src/package-lock.json:z
+      - .:/opt/warehouse/src:z
+      - node_modules:/opt/warehouse/src/node_modules
       - caches:/opt/warehouse/src/.cache
 
   maildev:

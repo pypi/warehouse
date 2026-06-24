@@ -156,7 +156,7 @@
     <meta property="og:site_name" content="PyPI">
     <meta property="og:type" content="website">
     <meta property="og:image"
-          content="{% block image %}{{ request.static_url("warehouse:static/dist/images/twitter.jpg") }}{% endblock %}">
+          content="{% block image %}{{ request.static_url('warehouse:static/dist/images/twitter.jpg') }}{% endblock %}">
     <meta property="og:title"
           content="{{ self.title() |default('Python Package Index') }}">
     <meta property="og:description" content="{{ self.description() }}">
@@ -186,15 +186,13 @@
       "accounts.verify-project-role"
     ] %}
     {% if request.matched_route and request.matched_route.name in analytics_sanitize_query_params_routes %}
-      <script defer
-              data-domain="pypi.org"
-              src="https://analytics.python.org/js/script.manual.js"></script>
-      <script defer
-              src="{{ request.static_path('warehouse:static/dist/js/utils/plausible-sanitized.js') }}"></script>
+      <script src="{{ request.static_path('warehouse:static/dist/js/utils/plausible-sanitized.js') }}"></script>
+      <script async
+              src="https://analytics.python.org/js/pa-Z-QYGvOKHwfKWak0xljXn.js"></script>
     {% else %}
-      <script defer
-              data-domain="pypi.org"
-              src="https://analytics.python.org/js/script.js"></script>
+      <script src="{{ request.static_path('warehouse:static/dist/js/utils/plausible-init.js') }}"></script>
+      <script async
+              src="https://analytics.python.org/js/pa-Z-QYGvOKHwfKWak0xljXn.js"></script>
     {% endif %}
     <script async
             src="https://media.ethicalads.io/media/client/v1.4.0/ethicalads.min.js"

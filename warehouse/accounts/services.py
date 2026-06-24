@@ -29,9 +29,6 @@ from ua_parser import user_agent_parser
 from webauthn.helpers import bytes_to_base64url
 from zope.interface import implementer
 
-import warehouse.utils.otp as otp
-import warehouse.utils.webauthn as webauthn
-
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
     IDomainStatusService,
@@ -66,6 +63,7 @@ from warehouse.events.models import UserAgentInfo
 from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
+from warehouse.utils import otp, webauthn
 from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerializer
 
 if typing.TYPE_CHECKING:
@@ -73,7 +71,7 @@ if typing.TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-PASSWORD_FIELD = "password"
+PASSWORD_FIELD = "password"  # noqa: S105
 RECOVERY_CODE_COUNT = 8
 RECOVERY_CODE_BYTES = 8
 
@@ -352,8 +350,9 @@ class DatabaseUserService:
         user = self.get_user(user_id)
         for attr, value in changes.items():
             if attr == PASSWORD_FIELD:
-                value = self.hasher.hash(value)
-            setattr(user, attr, value)
+                setattr(user, attr, self.hasher.hash(value))
+            else:
+                setattr(user, attr, value)
 
         # If we've given the user a new password, then we also want to unset the
         # reason for disable... because a new password means no more disabled

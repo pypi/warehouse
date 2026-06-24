@@ -139,6 +139,13 @@ def includeme(config):
         traverse="/{user_name}",
         domain=warehouse,
     )
+    config.add_route(
+        "includes.administer-organization-include",
+        "/_includes/authed/administer-organization-include/{organization}",
+        factory="warehouse.organizations.models:OrganizationFactory",
+        traverse="/{organization}",
+        domain=warehouse,
+    )
 
     # Classifier Routes
     config.add_route("classifiers", "/classifiers/", domain=warehouse)
@@ -635,6 +642,7 @@ def includeme(config):
     config.add_route(
         "api.echo",
         "/danger-api/echo",
+        auth_methods={"macaroon"},
         domain=warehouse,
     )
     config.add_route(
@@ -642,6 +650,7 @@ def includeme(config):
         "/danger-api/projects/{name}/observations",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}",
+        auth_methods={"macaroon"},
         domain=warehouse,
     )
 

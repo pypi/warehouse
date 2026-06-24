@@ -12,11 +12,16 @@ jobs:
     permissions:
         contents: read
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
       - run: make build
+      # Run migrations against a db-only stack first, mirroring `make serve`.
+      # Bringing the full app stack up before migrating lets live web/worker
+      # connections contend with migrations that intentionally use short
+      # lock/statement timeouts for production deploys, causing flaky
+      # statement-timeout and deadlock failures.
+      - run: make initdb
       - run: docker compose up -d
       - run: docker compose ps
-      - run: make initdb
       - run: make tests

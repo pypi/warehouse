@@ -140,7 +140,8 @@
       <div class="package-header__left">
         <h1 class="package-header__name">{{ release.project.name }} {{ release.version }}</h1>
         {% if files and not project.lifecycle_status == "quarantine-enter" and not release.lifecycle_status == "quarantine-enter" %}
-          <div data-controller="clipboard">
+          <div data-controller="clipboard"
+               data-clipboard-plausible-event-value="Copy Project Install Command">
             <p class="package-header__pip-instructions">
               <span id="pip-command" data-clipboard-target="source">{{ pip_command(release, request.matched_route.name, testPyPI) }}</span>
               <button type="button"
@@ -158,12 +159,12 @@
       <div class="package-header__right">
         {% if project.lifecycle_status == "quarantine-enter" %}
           <a class="status-badge status-badge--warn"
-             href="{{ request.route_path("help") }}#project_in_quarantine">
+             href="{{ request.route_path('help') }}#project_in_quarantine">
             <span>{% trans %}This project has been quarantined{% endtrans %}</span>
           </a>
         {% elif release.lifecycle_status == "quarantine-enter" %}
           <a class="status-badge status-badge--warn"
-             href="{{ request.route_path("help") }}#project_in_quarantine">
+             href="{{ request.route_path('help') }}#project_in_quarantine">
             <span>{% trans %}This release has been quarantined{% endtrans %}</span>
           </a>
         {% elif release.yanked %}
@@ -188,7 +189,7 @@
           {% else %}
             <a class="status-badge status-badge--good"
                href="{{ request.route_path('packaging.project', name=release.project.name) }}">
-              <span>{% trans %}Latest version{% endtrans %}</span>
+              <span>{% trans %}Latest release{% endtrans %}</span>
             </a>
           {% endif %}
         {% endif %}
@@ -409,7 +410,7 @@
   <h2 class="page-title split-layout">
     <span>{% trans %}Release history{% endtrans %}</span>
     <span class="reset-text margin-top">
-      <a href="{{ request.route_path("help") }}#project-release-notifications">{% trans %}Release notifications{% endtrans %}</a> |
+      <a href="{{ request.route_path('help') }}#project-release-notifications">{% trans %}Release notifications{% endtrans %}</a> |
       <a href="{{ request.route_path('rss.project.releases', name=release.project.normalized_name) }}">{% trans %}RSS feed{% endtrans %} <i class="fa fa-rss" aria-hidden="true"></i></a>
     </span>
   </h2>
@@ -425,7 +426,9 @@
           {% endif %}
         </div>
         <div class="release__graphic">
-          {% if loop.length > 1 %}<div class="release__line"></div>{% endif %}
+          {% if loop.length > 1 %}
+            <div class="release__line"></div>
+          {% endif %}
           {% if is_current %}
             <img class="release__node" alt="" src="{{ blue_cube }}">
           {% else %}
@@ -563,13 +566,7 @@
 </div>
 {% endblock %}
 {% block extra_js %}
-  <script>
-MathJax = {
-  tex: {
-    inlineMath: [['$', '$'], ['\\(', '\\)']]
-  },
-};
-  </script>
+  <script src="{{ request.static_path('warehouse:static/dist/js/utils/mathjax-config.js') }}"></script>
   <script async
           src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"
           integrity="sha256-1CldwzdEg2k1wTmf7s5RWVd7NMXI/7nxxjJM2C4DqII="

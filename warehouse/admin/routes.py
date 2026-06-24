@@ -25,6 +25,11 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "admin.organization.subscription.cancel",
+        "/admin/organizations/{organization_id}/subscriptions/{subscription_id}/cancel/",
+        domain=warehouse,
+    )
+    config.add_route(
         "admin.organization.add_role",
         "/admin/organizations/{organization_id}/add_role/",
         domain=warehouse,
@@ -520,6 +525,13 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "admin.malware_reports.project.verdict_remove_release",
+        "/admin/projects/{project_name}/malware_reports/remove_release/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
         "admin.malware_reports.detail",
         "/admin/malware_reports/{observation_id}/",
         domain=warehouse,
@@ -547,6 +559,16 @@ def includeme(config):
     config.add_route(
         "admin.malware_reports.detail.verdict_remove_malware",
         "/admin/malware_reports/{observation_id}/remove_malware/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.malware_reports.detail.verdict_quarantine_release",
+        "/admin/malware_reports/{observation_id}/quarantine_release/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.malware_reports.detail.verdict_remove_release",
+        "/admin/malware_reports/{observation_id}/remove_release/",
         domain=warehouse,
     )
 

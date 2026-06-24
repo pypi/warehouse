@@ -110,8 +110,13 @@ module.exports = [
             to: "images/[name].[contenthash][ext]",
           },
           {
-            // Copy utility for sanitizing plausible analytics
-            from: path.resolve(__dirname, "warehouse/static/js/vendor/plausible-sanitized.js"),
+            // Copy utilities for Plausible analytics
+            from: path.resolve(__dirname, "warehouse/static/js/vendor/plausible-*.js"),
+            to: "js/utils/[name].[contenthash][ext]",
+          },
+          {
+            // Copy utility for configuring MathJax
+            from: path.resolve(__dirname, "warehouse/static/js/vendor/mathjax-config.js"),
             to: "js/utils/[name].[contenthash][ext]",
           },
         ],

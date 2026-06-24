@@ -65,8 +65,10 @@ from warehouse.rate_limiting.interfaces import RateLimiterException
 from warehouse.utils import readme, scanner, zipfiles
 from warehouse.utils.release import strip_keywords
 from warehouse.utils.wheel import (
+    InvalidWheelEntryPointsError,
     InvalidWheelRecordError,
     MissingWheelRecordError,
+    validate_entrypoints,
     validate_record,
 )
 
@@ -416,7 +418,7 @@ def _is_valid_dist_file(filename, filetype, metrics, *, scan=True):
                         )
                         return False, yara_match.message
 
-        except (tarfile.ReadError, EOFError):
+        except tarfile.ReadError, EOFError:
             return False, None
 
     # If we haven't yet decided it's not valid, then we'll assume it is and
@@ -554,6 +556,21 @@ def _ensure_user_can_upload(request: Request) -> None:
         ) from None
 
 
+def _close_upload_tempfiles(request):
+    # WebOb's multipart parsing creates two tempfiles when the body is large
+    # enough to exceed ``request_body_tempfile_limit``: one buffering the raw
+    # request body (``body_file_raw``) and one per file field on the parsed
+    # FieldStorage. Neither is closed by WebOb on its own — without explicit
+    # cleanup the OS file descriptors are only reclaimed when the request is
+    # garbage collected, triggering ResourceWarning under -W error.
+    content = request.POST.get("content")
+    if content is not None and hasattr(content, "file"):
+        content.file.close()
+    body_file = request.body_file_raw
+    if hasattr(body_file, "close") and not getattr(body_file, "closed", True):
+        body_file.close()
+
+
 @view_config(
     route_name="forklift.legacy.file_upload",
     uses_session=True,
@@ -566,6 +583,12 @@ def _ensure_user_can_upload(request: Request) -> None:
 def file_upload(request):
     # Log an attempt to upload
     request.metrics.increment("warehouse.upload.attempt")
+
+    # WebOb's multipart parser backs the request body and uploaded "content"
+    # field with tempfiles; ensure they're closed at request teardown
+    # regardless of which exit path this view takes, so the fds aren't
+    # reclaimed by GC later (which would surface as a ResourceWarning).
+    request.add_finished_callback(_close_upload_tempfiles)
 
     # This is a list of warnings that we'll emit *IF* the request is successful.
     warnings: list[str] = []
@@ -991,7 +1014,7 @@ def file_upload(request):
             dynamic=[x.title() for x in meta.dynamic] if meta.dynamic else None,
             **{
                 k: getattr(meta, k)
-                for k in {
+                for k in (
                     # This is a list of all the fields in the form that we
                     # should pull off and insert into our new release.
                     "summary",
@@ -1001,7 +1024,7 @@ def file_upload(request):
                     "author",
                     "maintainer",
                     "provides_extra",
-                }
+                )
             },
             uploader=request.user or None,
             uploaded_via=request.user_agent,
@@ -1448,6 +1471,15 @@ def file_upload(request):
                     set(project.users),
                     project_name=project.name,
                     filename=filename,
+                )
+
+            try:
+                validate_entrypoints(temporary_filename)
+            except InvalidWheelEntryPointsError:
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    f"Wheel '{filename}' has invalid entry points defined in "
+                    "the entry_points.txt file",
                 )
 
             """

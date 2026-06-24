@@ -37,7 +37,7 @@ from warehouse.accounts.interfaces import TokenExpired
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.authnz import Permissions
 from warehouse.manage import views
-from warehouse.manage.views import organizations as org_views
+from warehouse.manage.views import organizations as org_views, view_helpers
 from warehouse.oidc.models import PendingGitHubPublisher
 from warehouse.organizations import IOrganizationService
 from warehouse.organizations.models import (
@@ -408,7 +408,6 @@ class TestManageOrganizations:
     def test_manage_organizations(self, monkeypatch):
         request = pretend.stub(
             find_service=lambda *a, **kw: pretend.stub(),
-            organization_access=True,
             user=pretend.stub(),
         )
 
@@ -423,17 +422,6 @@ class TestManageOrganizations:
 
         assert result == default_response
 
-    def test_manage_organizations_disable_organizations(self):
-        request = pretend.stub(
-            find_service=lambda *a, **kw: pretend.stub(),
-            organization_access=False,
-        )
-
-        view = org_views.ManageOrganizationsViews(request)
-        with pytest.raises(HTTPNotFound):
-            view.manage_organizations()
-
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_create_organization_application(self, monkeypatch):
         admins = []
         user_service = pretend.stub(
@@ -485,7 +473,6 @@ class TestManageOrganizations:
                 IUserService: user_service,
                 IOrganizationService: organization_service,
             }[interface],
-            organization_access=True,
             remote_addr="0.0.0.0",
             ip_address=pretend.stub(
                 ip_address="0.0.0.0",
@@ -552,7 +539,6 @@ class TestManageOrganizations:
         ]
         assert isinstance(result, HTTPSeeOther)
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_create_organization_application_with_subscription(self, monkeypatch):
         admins = []
         user_service = pretend.stub(
@@ -605,7 +591,6 @@ class TestManageOrganizations:
                 IUserService: user_service,
                 IOrganizationService: organization_service,
             }[interface],
-            organization_access=True,
             remote_addr="0.0.0.0",
             ip_address=pretend.stub(
                 ip_address="0.0.0.0",
@@ -712,7 +697,6 @@ class TestManageOrganizations:
                 IUserService: user_service,
                 IOrganizationService: organization_service,
             }[interface],
-            organization_access=True,
             remote_addr="0.0.0.0",
             ip_address=pretend.stub(
                 ip_address="0.0.0.0",
@@ -756,19 +740,8 @@ class TestManageOrganizations:
             "create_organization_application_form": create_organization_application_obj
         }
 
-    def test_create_organization_application_disable_organizations(self):
-        request = pretend.stub(
-            find_service=lambda *a, **kw: pretend.stub(),
-            organization_access=False,
-        )
-
-        view = org_views.ManageOrganizationsViews(request)
-        with pytest.raises(HTTPNotFound):
-            view.create_organization_application()
-
 
 class TestManageOrganizationSettings:
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_manage_organization(self, db_request, organization_service, monkeypatch):
         db_request.user = pretend.stub()
         organization = OrganizationFactory.create()
@@ -815,7 +788,6 @@ class TestManageOrganizationSettings:
             ),
         ]
 
-    @pytest.mark.usefixtures("_enable_organizations")
     @pytest.mark.parametrize(
         ("orgtype", "has_customer"),
         [(orgtype, True) for orgtype in list(OrganizationType)]
@@ -908,7 +880,6 @@ class TestManageOrganizationSettings:
             ),
         ]
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_save_organization_validation_fails(
         self, db_request, organization_service, monkeypatch
     ):
@@ -952,7 +923,6 @@ class TestManageOrganizationSettings:
         }
         assert organization_service.update_organization.calls == []
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_save_organization_name_wrong_confirm(
         self, db_request, organization_service, monkeypatch
     ):
@@ -980,7 +950,6 @@ class TestManageOrganizationSettings:
             )
         ]
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_disable_save_organization_name(
         self,
         db_request,
@@ -1034,7 +1003,6 @@ class TestManageOrganizationSettings:
         assert send_email.calls == []
 
     # When support for renaming orgs is re-introduced
-    # @pytest.mark.usefixtures("_enable_organizations")
     # def test_save_organization_name(
     #    self,
     #    db_request,
@@ -1111,7 +1079,6 @@ class TestManageOrganizationSettings:
     #        ),
     #    ]
 
-    # @pytest.mark.usefixtures("_enable_organizations")
     # def test_save_organization_name_validation_fails(
     #    self, db_request, organization_service, monkeypatch
     # ):
@@ -1156,7 +1123,6 @@ class TestManageOrganizationSettings:
     #    }
     #    assert organization_service.rename_organization.calls == []
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_delete_organization(
         self,
         db_request,
@@ -1207,7 +1173,6 @@ class TestManageOrganizationSettings:
         ]
         assert db_request.route_path.calls == [pretend.call("manage.organizations")]
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_delete_organization_with_active_projects(
         self,
         db_request,
@@ -1252,7 +1217,6 @@ class TestManageOrganizationSettings:
         assert organization_service.delete_organization.calls == []
         assert db_request.route_path.calls == []
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_delete_organization_with_subscriptions(
         self,
         db_request,
@@ -1372,19 +1336,6 @@ class TestManageOrganizationBillingViews:
 
         assert customer_id.startswith("mockcus_")
 
-    def test_disable_organizations(
-        self,
-        db_request,
-        billing_service,
-        subscription_service,
-        organization,
-    ):
-        db_request.organization_access = False
-        view = org_views.ManageOrganizationBillingViews(organization, db_request)
-
-        with pytest.raises(HTTPNotFound):
-            view.create_or_manage_subscription()
-
     @pytest.mark.parametrize(
         ("next_param", "expected_url", "expected_route_calls"),
         [
@@ -1427,7 +1378,6 @@ class TestManageOrganizationBillingViews:
         assert db_request.route_path.calls == expected_route_calls
         assert return_url == expected_url
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_activate_subscription(
         self,
         db_request,
@@ -1454,7 +1404,6 @@ class TestManageOrganizationBillingViews:
             "form": organization_activate_billing_form_obj,
         }
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_post_activate_subscription_valid(
         self,
         db_request,
@@ -1475,7 +1424,6 @@ class TestManageOrganizationBillingViews:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "mock-billing-url"
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_post_activate_subscription_invalid(
         self,
         db_request,
@@ -1494,7 +1442,6 @@ class TestManageOrganizationBillingViews:
             "Terms of Service must be accepted."
         ]
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_create_subscription(
         self,
         db_request,
@@ -1534,7 +1481,6 @@ class TestManageOrganizationBillingViews:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "session-url"
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_create_subscription_local_mock(
         self,
         db_request,
@@ -1570,7 +1516,6 @@ class TestManageOrganizationBillingViews:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "mock-session-url"
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_manage_subscription(
         self,
         db_request,
@@ -1607,7 +1552,6 @@ class TestManageOrganizationBillingViews:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "session-url"
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_manage_subscription_local_mock(
         self,
         db_request,
@@ -1643,7 +1587,6 @@ class TestManageOrganizationBillingViews:
 
 
 class TestManageOrganizationTeams:
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_manage_teams(
         self,
         db_request,
@@ -1667,7 +1610,6 @@ class TestManageOrganizationTeams:
             "create_team_form": form,
         }
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_create_team(
         self,
         db_request,
@@ -1714,7 +1656,6 @@ class TestManageOrganizationTeams:
             )
         ]
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_create_team_invalid(
         self,
         db_request,
@@ -1748,7 +1689,6 @@ class TestManageOrganizationTeams:
 
 
 class TestManageOrganizationProjects:
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_manage_organization_projects(
         self,
         db_request,
@@ -1783,7 +1723,6 @@ class TestManageOrganizationProjects:
         }
         assert len(add_organization_project_cls.calls) == 1
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_add_organization_project_existing_project(
         self,
         db_request,
@@ -1828,7 +1767,7 @@ class TestManageOrganizationProjects:
             lambda req, user, **k: None
         )
         monkeypatch.setattr(
-            org_views,
+            view_helpers,
             "send_organization_project_added_email",
             send_organization_project_added_email,
         )
@@ -1849,7 +1788,6 @@ class TestManageOrganizationProjects:
             )
         ]
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_add_organization_project_existing_project_no_individual_owner(
         self,
         db_request,
@@ -1893,7 +1831,7 @@ class TestManageOrganizationProjects:
             lambda req, user, **k: None
         )
         monkeypatch.setattr(
-            org_views,
+            view_helpers,
             "send_organization_project_added_email",
             send_organization_project_added_email,
         )
@@ -1914,7 +1852,6 @@ class TestManageOrganizationProjects:
             )
         ]
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_add_organization_project_existing_project_invalid(
         self,
         db_request,
@@ -1958,7 +1895,6 @@ class TestManageOrganizationProjects:
         assert len(add_organization_project_cls.calls) == 1
         assert len(organization.projects) == 1
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_add_organization_project_new_project(
         self,
         db_request,
@@ -1989,7 +1925,7 @@ class TestManageOrganizationProjects:
             lambda req, user, **k: None
         )
         monkeypatch.setattr(
-            org_views,
+            view_helpers,
             "send_organization_project_added_email",
             send_organization_project_added_email,
         )
@@ -2017,7 +1953,6 @@ class TestManageOrganizationProjects:
             )
         ]
 
-    @pytest.mark.usefixtures("_enable_organizations")
     @pytest.mark.parametrize(
         ("invalid_name", "expected"),
         [
@@ -2079,7 +2014,6 @@ class TestManageOrganizationProjects:
         assert add_organization_project_obj.new_project_name.errors == [expected]
         assert len(organization.projects) == 1
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_add_organization_project_new_project_name_conflict(
         self,
         db_request,
@@ -2136,7 +2070,6 @@ class TestManageOrganizationProjects:
 
 
 class TestManageOrganizationRoles:
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_get_manage_organization_roles(self, db_request, pyramid_user):
         organization = OrganizationFactory.create(name="foobar")
         form_obj = pretend.stub()
@@ -2155,7 +2088,6 @@ class TestManageOrganizationRoles:
             "is_sole_owner": False,
         }
 
-    @pytest.mark.usefixtures("_enable_organizations")
     @freeze_time(datetime.datetime.now(datetime.UTC))
     @pytest.mark.parametrize("orgtype", list(OrganizationType))
     def test_post_new_organization_role(
@@ -2270,7 +2202,6 @@ class TestManageOrganizationRoles:
             )
         ]
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_post_duplicate_organization_role(
         self, db_request, organization_service, user_service
     ):
@@ -2318,7 +2249,6 @@ class TestManageOrganizationRoles:
 
         assert isinstance(result, HTTPSeeOther)
 
-    @pytest.mark.usefixtures("_enable_organizations")
     @pytest.mark.parametrize("with_email", [True, False])
     def test_post_unverified_email(
         self,
@@ -2370,7 +2300,6 @@ class TestManageOrganizationRoles:
 
         assert isinstance(result, HTTPSeeOther)
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_cannot_reinvite_organization_role(
         self, db_request, organization_service, user_service
     ):
@@ -2432,7 +2361,6 @@ class TestManageOrganizationRoles:
         ]
         assert isinstance(result, HTTPSeeOther)
 
-    @pytest.mark.usefixtures("_enable_organizations")
     @freeze_time(datetime.datetime.now(datetime.UTC))
     def test_reinvite_organization_role_after_expiration(
         self,
@@ -2561,7 +2489,6 @@ class TestManageOrganizationRoles:
             )
         ]
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_manage_organization_roles_not_in_good_standing(
         self, db_request, monkeypatch
     ):
@@ -2600,7 +2527,6 @@ class TestManageOrganizationRoles:
 
 
 class TestResendOrganizationInvitations:
-    @pytest.mark.usefixtures("_enable_organizations")
     @freeze_time(datetime.datetime.now(datetime.UTC))
     def test_resend_invitation(self, db_request, token_service, monkeypatch):
         organization = OrganizationFactory.create(name="foobar")
@@ -2716,7 +2642,6 @@ class TestResendOrganizationInvitations:
             )
         ]
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_resend_invitation_fails_corrupt_token(self, db_request, token_service):
         organization = OrganizationFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
@@ -2765,7 +2690,6 @@ class TestResendOrganizationInvitations:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/manage/organizations"
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_resend_invitation_fails_missing_invitation(
         self, db_request, token_service
     ):
@@ -2811,7 +2735,6 @@ class TestResendOrganizationInvitations:
 
 
 class TestRevokeOrganizationInvitation:
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_revoke_invitation(self, db_request, token_service, monkeypatch):
         organization = OrganizationFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
@@ -2893,7 +2816,6 @@ class TestRevokeOrganizationInvitation:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/manage/organizations"
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_invitation_does_not_exist(self, db_request, token_service):
         organization = OrganizationFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
@@ -2925,7 +2847,6 @@ class TestRevokeOrganizationInvitation:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/manage/organizations"
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_token_expired(self, db_request, token_service):
         organization = OrganizationFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
@@ -2969,7 +2890,6 @@ class TestRevokeOrganizationInvitation:
 
 
 class TestChangeOrganizationRole:
-    @pytest.mark.usefixtures("_enable_organizations")
     @pytest.mark.parametrize("orgtype", list(OrganizationType))
     def test_change_role(self, db_request, orgtype, monkeypatch):
         organization = OrganizationFactory.create(name="foobar", orgtype=orgtype)
@@ -3041,7 +2961,6 @@ class TestChangeOrganizationRole:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_change_organization_role_invalid_role_name(self, db_request):
         organization = OrganizationFactory.create(name="foobar")
 
@@ -3061,7 +2980,6 @@ class TestChangeOrganizationRole:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_change_missing_organization_role(self, db_request):
         organization = OrganizationFactory.create(name="foobar")
         missing_role_id = str(uuid.uuid4())
@@ -3082,7 +3000,6 @@ class TestChangeOrganizationRole:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_change_own_owner_organization_role(self, db_request):
         organization = OrganizationFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
@@ -3108,7 +3025,6 @@ class TestChangeOrganizationRole:
 
 
 class TestDeleteOrganizationRoles:
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_delete_role(self, db_request, monkeypatch):
         organization = OrganizationFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
@@ -3175,7 +3091,6 @@ class TestDeleteOrganizationRoles:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_delete_missing_role(self, db_request, monkeypatch):
         organization = OrganizationFactory.create(name="foobar")
         missing_role_id = str(uuid.uuid4())
@@ -3206,7 +3121,6 @@ class TestDeleteOrganizationRoles:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_delete_other_role_as_nonowner(self, db_request):
         organization = OrganizationFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
@@ -3239,7 +3153,6 @@ class TestDeleteOrganizationRoles:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_delete_own_owner_role(self, db_request):
         organization = OrganizationFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
@@ -3265,7 +3178,6 @@ class TestDeleteOrganizationRoles:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_delete_non_owner_role(self, db_request):
         organization = OrganizationFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")

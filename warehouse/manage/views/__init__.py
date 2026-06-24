@@ -2,7 +2,6 @@
 
 import base64
 import io
-import uuid
 
 import pyqrcode
 
@@ -19,8 +18,6 @@ from sqlalchemy.exc import NoResultFound
 from venusian import lift
 from webauthn.helpers import bytes_to_base64url
 from webob.multidict import MultiDict
-
-import warehouse.utils.otp as otp
 
 from warehouse.accounts.forms import RecoveryCodeAuthenticationForm
 from warehouse.accounts.interfaces import (
@@ -62,7 +59,6 @@ from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage.forms import (
-    AddAlternateRepositoryForm,
     AddEmailForm,
     ChangePasswordForm,
     ChangeRoleForm,
@@ -99,7 +95,6 @@ from warehouse.organizations.models import (
     TeamRole,
 )
 from warehouse.packaging.models import (
-    AlternateRepository,
     File,
     JournalEntry,
     LifecycleStatus,
@@ -110,6 +105,7 @@ from warehouse.packaging.models import (
     RoleInvitationStatus,
 )
 from warehouse.rate_limiting import IRateLimiter
+from warehouse.utils import otp
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import (
@@ -140,7 +136,7 @@ class ManageAccountMixin:
                 )
                 .one()
             )
-        except (NoResultFound, ValueError):
+        except NoResultFound, ValueError:
             self.request.session.flash("Email address not found", queue="error")
             if self.request.user.has_primary_verified_email:
                 return HTTPSeeOther(self.request.route_path("manage.account"))
@@ -1199,34 +1195,27 @@ class ManageProjectSettingsViews:
         self.project = project
         self.request = request
         self.transfer_organization_project_form_class = TransferOrganizationProjectForm
-        self.add_alternate_repository_form_class = AddAlternateRepositoryForm
 
     @view_config(request_method="GET")
     def manage_project_settings(self):
-        if not self.request.organization_access:
-            # Disable transfer of project to any organization.
-            organization_choices = set()
-        else:
-            # Allow transfer of project to active orgs owned or managed by user.
-            all_user_organizations = user_organizations(self.request)
-            active_organizations_owned = {
-                organization
-                for organization in all_user_organizations["organizations_owned"]
-                if organization.is_active
-            }
-            active_organizations_managed = {
-                organization
-                for organization in all_user_organizations["organizations_managed"]
-                if organization.is_active
-            }
-            current_organization = (
-                {self.project.organization} if self.project.organization else set()
-            )
-            organization_choices = (
-                active_organizations_owned | active_organizations_managed
-            ) - current_organization
-
-        add_alt_repo_form = self.add_alternate_repository_form_class()
+        # Allow transfer of project to active orgs owned or managed by user.
+        all_user_organizations = user_organizations(self.request)
+        active_organizations_owned = {
+            organization
+            for organization in all_user_organizations["organizations_owned"]
+            if organization.is_active
+        }
+        active_organizations_managed = {
+            organization
+            for organization in all_user_organizations["organizations_managed"]
+            if organization.is_active
+        }
+        current_organization = (
+            {self.project.organization} if self.project.organization else set()
+        )
+        organization_choices = (
+            active_organizations_owned | active_organizations_managed
+        ) - current_organization
 
         return {
             "project": self.project,
@@ -1237,163 +1226,7 @@ class ManageProjectSettingsViews:
                     organization_choices=organization_choices,
                 )
             ),
-            "add_alternate_repository_form_class": add_alt_repo_form,
         }
-
-    @view_config(
-        request_method="POST",
-        request_param=[
-            *AddAlternateRepositoryForm.__params__,
-            "alternate_repository_location=add",
-        ],
-        require_reauth=True,
-        permission=Permissions.ProjectsWrite,
-    )
-    def add_project_alternate_repository(self):
-        form = self.add_alternate_repository_form_class(self.request.POST)
-
-        if not form.validate():
-            self.request.session.flash(
-                self.request._("Invalid alternate repository location details"),
-                queue="error",
-            )
-            return HTTPSeeOther(
-                self.request.route_path(
-                    "manage.project.settings",
-                    project_name=self.project.name,
-                )
-            )
-
-        # add the alternate repository location entry
-        alt_repo = AlternateRepository(
-            project=self.project,
-            name=form.display_name.data,
-            url=form.link_url.data,
-            description=form.description.data,
-        )
-        self.request.db.add(alt_repo)
-        self.project.record_event(
-            tag=EventTag.Project.AlternateRepositoryAdd,
-            request=self.request,
-            additional={
-                "added_by": self.request.user.username,
-                "display_name": alt_repo.name,
-                "link_url": alt_repo.url,
-            },
-        )
-        self.request.user.record_event(
-            tag=EventTag.Account.AlternateRepositoryAdd,
-            request=self.request,
-            additional={
-                "added_by": self.request.user.username,
-                "display_name": alt_repo.name,
-                "link_url": alt_repo.url,
-            },
-        )
-        self.request.session.flash(
-            self.request._(
-                "Added alternate repository '${name}'",
-                mapping={"name": alt_repo.name},
-            ),
-            queue="success",
-        )
-
-        return HTTPSeeOther(
-            self.request.route_path(
-                "manage.project.settings",
-                project_name=self.project.name,
-            )
-        )
-
-    @view_config(
-        request_method="POST",
-        request_param=[
-            "alternate_repository_id",
-            "alternate_repository_location=delete",
-        ],
-        require_reauth=True,
-        permission=Permissions.ProjectsWrite,
-    )
-    def delete_project_alternate_repository(self):
-        confirm_name = self.request.POST.get("confirm_alternate_repository_name")
-        resp_inst = HTTPSeeOther(
-            self.request.route_path(
-                "manage.project.settings", project_name=self.project.name
-            )
-        )
-
-        # Must confirm alt repo name to delete.
-        if not confirm_name:
-            self.request.session.flash(
-                self.request._("Confirm the request"), queue="error"
-            )
-            return resp_inst
-
-        # Must provide a valid alt repo id.
-        alternate_repository_id = self.request.POST.get("alternate_repository_id", "")
-        try:
-            uuid.UUID(str(alternate_repository_id))
-        except ValueError:
-            alternate_repository_id = None
-        if not alternate_repository_id:
-            self.request.session.flash(
-                self.request._("Invalid alternate repository id"),
-                queue="error",
-            )
-            return resp_inst
-
-        # The provided alt repo id must be related to this project.
-        alt_repo: AlternateRepository = self.request.db.get(
-            AlternateRepository, alternate_repository_id
-        )
-        if not alt_repo or alt_repo not in self.project.alternate_repositories:
-            self.request.session.flash(
-                self.request._("Invalid alternate repository for project"),
-                queue="error",
-            )
-            return resp_inst
-
-        # The confirmed alt repo name must match the provided alt repo id.
-        if confirm_name != alt_repo.name:
-            self.request.session.flash(
-                self.request._(
-                    "Could not delete alternate repository - "
-                    "${confirm} is not the same as ${alt_repo_name}",
-                    mapping={"confirm": confirm_name, "alt_repo_name": alt_repo.name},
-                ),
-                queue="error",
-            )
-            return resp_inst
-
-        # delete the alternate repository location entry
-        self.request.db.delete(alt_repo)
-        self.project.record_event(
-            tag=EventTag.Project.AlternateRepositoryDelete,
-            request=self.request,
-            additional={
-                "deleted_by": self.request.user.username,
-                "display_name": alt_repo.name,
-                "link_url": alt_repo.url,
-            },
-        )
-        self.request.user.record_event(
-            tag=EventTag.Account.AlternateRepositoryDelete,
-            request=self.request,
-            additional={
-                "deleted_by": self.request.user.username,
-                "display_name": alt_repo.name,
-                "link_url": alt_repo.url,
-            },
-        )
-        self.request.session.flash(
-            self.request._(
-                "Deleted alternate repository '${name}'",
-                mapping={"name": alt_repo.name},
-            ),
-            queue="success",
-        )
-
-        return resp_inst
 
 
 def get_user_role_in_project(project, user, request):
@@ -1995,9 +1828,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
     form = _form_class(request.POST, user_service=user_service)
 
     # Team project roles and add internal collaborator form for organization projects.
-    enable_internal_collaborator = bool(
-        request.organization_access and project.organization
-    )
+    enable_internal_collaborator = bool(project.organization)
     if enable_internal_collaborator:
         team_project_roles = set(
             request.db.query(TeamProjectRole)
@@ -2260,7 +2091,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
     # has not updated invite status
     try:
         invite_token = token_service.loads(user_invite.token)
-    except (TokenExpired, AttributeError):
+    except TokenExpired, AttributeError:
         invite_token = None
 
     if user.primary_email is None or not user.primary_email.verified:

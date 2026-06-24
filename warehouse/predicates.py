@@ -5,8 +5,8 @@ from pyramid.exceptions import ConfigurationError
 from pyramid.httpexceptions import HTTPSeeOther
 from pyramid.util import is_same_domain
 
-from warehouse.admin.flags import AdminFlagValue
 from warehouse.organizations.models import Organization, Team
+from warehouse.utils.security_policy import AuthenticationMethod
 
 
 class DomainPredicate:
@@ -25,6 +25,36 @@ class DomainPredicate:
             return True
 
         return is_same_domain(request.domain, self.val)
+
+
+class AuthMethodsPredicate:
+    """Storage-only route predicate declaring which AuthenticationMethods
+    may grant an identity for the route. Security policies read this off
+    ``request.matched_route.predicates`` in their ``identity()``
+    implementations. Always matches; never affects route selection."""
+
+    def __init__(self, val, config):
+        self.val = frozenset(AuthenticationMethod(m) for m in val)
+
+    def text(self):
+        return f"auth_methods = {sorted(m.value for m in self.val)}"
+
+    phash = text
+
+    def __call__(self, info, request):
+        return True
+
+
+def auth_methods_for_route(route) -> frozenset[AuthenticationMethod] | None:
+    """Return the ``auth_methods`` predicate value for a route, if any.
+
+    Returns ``None`` when the route has no ``auth_methods`` predicate
+    configured. Callers decide their own default behavior in that case.
+    """
+    for predicate in route.predicates:
+        if isinstance(predicate, AuthMethodsPredicate):
+            return predicate.val
+    return None
 
 
 class HeadersPredicate:
@@ -55,12 +85,10 @@ class ActiveOrganizationPredicate:
     phash = text
 
     def __call__(self, context: Organization | Team, request):
-        """Check organizations are enabled globally and this organization is
-        operational.
+        """Check that this organization is operational.
 
-        1. `AdminFlagValue.DISABLE_ORGANIZATIONS` flag is off.
-        2. Organization is operational (uses consolidated is_in_good_standing()
-           method).
+        Organization is operational (uses consolidated is_in_good_standing()
+        method).
 
         """
         if self.val is False:
@@ -72,16 +100,12 @@ class ActiveOrganizationPredicate:
 
         if organization.is_in_good_standing():
             return True
-        if (
-            # Organization accounts are disabled.
-            request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS)
-        ):
-            return False
         raise HTTPSeeOther(request.route_path("manage.organizations"))
 
 
 def includeme(config):
     config.add_route_predicate("domain", DomainPredicate)
+    config.add_route_predicate("auth_methods", AuthMethodsPredicate)
     config.add_view_predicate("require_headers", HeadersPredicate)
     config.add_view_predicate(
         "require_active_organization", ActiveOrganizationPredicate

@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
 import pytest
 
 from packaging.version import parse
@@ -13,7 +12,6 @@ from warehouse.packaging.utils import API_VERSION, _valid_simple_detail_context
 
 from ...common.db.accounts import UserFactory
 from ...common.db.packaging import (
-    AlternateRepositoryFactory,
     FileFactory,
     JournalEntryFactory,
     ProjectFactory,
@@ -178,12 +176,12 @@ class TestSimpleIndex:
 
 
 class TestSimpleDetail:
-    def test_redirects(self, pyramid_request):
-        project = pretend.stub(normalized_name="foo")
+    def test_redirects(self, pyramid_request, mocker):
+        project = ProjectFactory.build(name="foo")
 
         pyramid_request.matchdict["name"] = "Foo"
-        pyramid_request.current_route_path = pretend.call_recorder(
-            lambda name: "/foobar/"
+        current_route_path = mocker.patch.object(
+            pyramid_request, "current_route_path", return_value="/foobar/"
         )
 
         resp = simple.simple_detail(project, pyramid_request)
@@ -191,7 +189,7 @@ class TestSimpleDetail:
         assert isinstance(resp, HTTPMovedPermanently)
         assert resp.headers["Location"] == "/foobar/"
         _assert_has_cors_headers(resp.headers)
-        assert pyramid_request.current_route_path.calls == [pretend.call(name="foo")]
+        current_route_path.assert_called_once_with(name="foo")
 
     @pytest.mark.parametrize(
         ("content_type", "renderer_override"),
@@ -210,7 +208,6 @@ class TestSimpleDetail:
             "project-status": {"status": "active"},
             "files": [],
             "versions": [],
-            "alternate-locations": [],
         }
         context = _update_context(context, content_type, renderer_override)
         assert simple.simple_detail(project, db_request) == context
@@ -232,18 +229,12 @@ class TestSimpleDetail:
         db_request.matchdict["name"] = project.normalized_name
         user = UserFactory.create()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
-        alts = [
-            AlternateRepositoryFactory.create(project=project),
-            AlternateRepositoryFactory.create(project=project),
-        ]
-
         context = {
             "meta": {"_last-serial": je.id, "api-version": API_VERSION},
             "name": project.normalized_name,
             "project-status": {"status": "active"},
             "files": [],
             "versions": [],
-            "alternate-locations": sorted(al.url for al in alts),
         }
         context = _update_context(context, content_type, renderer_override)
         assert simple.simple_detail(project, db_request) == context
@@ -296,7 +287,6 @@ class TestSimpleDetail:
                 }
                 for f in files
             ],
-            "alternate-locations": [],
         }
         context = _update_context(context, content_type, renderer_override)
         assert simple.simple_detail(project, db_request) == context
@@ -349,7 +339,6 @@ class TestSimpleDetail:
                 }
                 for f in files
             ],
-            "alternate-locations": [],
         }
         context = _update_context(context, content_type, renderer_override)
         assert simple.simple_detail(project, db_request) == context
@@ -410,7 +399,7 @@ class TestSimpleDetail:
         ]
 
         files = []
-        for files_release in zip(egg_files, tar_files, wheel_files):
+        for files_release in zip(egg_files, tar_files, wheel_files, strict=False):
             files += files_release
 
         urls_iter = (f"/file/{f.filename}" for f in files)
@@ -447,7 +436,6 @@ class TestSimpleDetail:
                 }
                 for f in files
             ],
-            "alternate-locations": [],
         }
         context = _update_context(context, content_type, renderer_override)
         assert simple.simple_detail(project, db_request) == context
@@ -480,7 +468,6 @@ class TestSimpleDetail:
             "project-status": {"status": "quarantined"},
             "files": [],
             "versions": [],
-            "alternate-locations": [],
         }
         context = _update_context(context, content_type, renderer_override)
 
@@ -513,7 +500,6 @@ class TestSimpleDetail:
             "project-status": {"status": "archived"},
             "files": [],
             "versions": [],
-            "alternate-locations": [],
         }
         context = _update_context(context, content_type, renderer_override)
 
@@ -573,7 +559,6 @@ class TestSimpleDetail:
             "project-status": {"status": "active"},
             "files": [],
             "versions": [],
-            "alternate-locations": [],
         }
         context = _update_context(context, content_type, renderer_override)
 
@@ -694,7 +679,6 @@ class TestSimpleDetail:
                 }
                 for f in files
             ],
-            "alternate-locations": [],
         }
         context = _update_context(context, content_type, renderer_override)
 

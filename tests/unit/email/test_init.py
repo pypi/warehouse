@@ -1003,8 +1003,37 @@ class TestPasswordCompromisedHIBPEmail:
 
 class TestTokenLeakEmail:
     @pytest.mark.parametrize("verified", [True, False])
+    @pytest.mark.parametrize(
+        ("kwargs", "expected_context"),
+        [
+            (
+                {"public_url": "http://example.com", "origin": "github"},
+                {
+                    "public_url": "http://example.com",
+                    "origin": "github",
+                    "admin_initiated": False,
+                    "reason": None,
+                },
+            ),
+            (
+                {"admin_initiated": True, "reason": "Found in a public CI log"},
+                {
+                    "public_url": None,
+                    "origin": None,
+                    "admin_initiated": True,
+                    "reason": "Found in a public CI log",
+                },
+            ),
+        ],
+    )
     def test_token_leak_email(
-        self, pyramid_request, pyramid_config, monkeypatch, verified
+        self,
+        pyramid_request,
+        pyramid_config,
+        monkeypatch,
+        verified,
+        kwargs,
+        expected_context,
     ):
         stub_user = pretend.stub(
             id=3,
@@ -1040,14 +1069,10 @@ class TestTokenLeakEmail:
         monkeypatch.setattr(email, "send_email", send_email)
 
         result = email.send_token_compromised_email_leak(
-            pyramid_request, stub_user, public_url="http://example.com", origin="github"
+            pyramid_request, stub_user, **kwargs
         )
 
-        assert result == {
-            "username": "username",
-            "public_url": "http://example.com",
-            "origin": "github",
-        }
+        assert result == {"username": "username", **expected_context}
         assert pyramid_request.task.calls == [pretend.call(send_email)]
         assert send_email.delay.calls == [
             pretend.call(
@@ -2817,6 +2842,62 @@ class TestOrganizationRenameEmails:
                 },
             )
         ]
+
+
+class TestOrganizationSubscriptionRequiredEmail:
+    def test_send_organization_subscription_required_email(
+        self,
+        db_request,
+        pyramid_user,
+        make_email_renderers,
+        send_email,
+    ):
+        user = UserFactory.create()
+        EmailFactory.create(user=user, verified=True)
+        organization_name = "example"
+
+        subject_renderer, body_renderer, html_renderer = make_email_renderers(
+            "organization-subscription-required"
+        )
+
+        result = email.send_organization_subscription_required_email(
+            db_request,
+            user,
+            organization_name=organization_name,
+        )
+
+        assert result == {
+            "username": user.username,
+            "organization_name": organization_name,
+        }
+        subject_renderer.assert_(**result)
+        body_renderer.assert_(**result)
+        html_renderer.assert_(**result)
+        db_request.task.assert_called_once_with(send_email)
+        send_email.delay.assert_called_once_with(
+            f"{user.name} <{user.email}>",
+            {
+                "sender": None,
+                "subject": subject_renderer.string_response,
+                "body_text": body_renderer.string_response,
+                "body_html": (
+                    f"<html>\n"
+                    f"<head></head>\n"
+                    f"<body>{html_renderer.string_response}</body>\n"
+                    f"</html>\n"
+                ),
+            },
+            {
+                "tag": "account:email:sent",
+                "user_id": user.id,
+                "additional": {
+                    "from_": db_request.registry.settings.get("mail.sender"),
+                    "to": user.email,
+                    "subject": subject_renderer.string_response,
+                    "redact_ip": True,
+                },
+            },
+        )
 
 
 class TestOrganizationDeleteEmails:
@@ -6202,7 +6283,7 @@ class TestUserTermsOfServiceUpdateEmail:
         pyramid_request.user = stub_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
-        send_method = getattr(email, "send_user_terms_of_service_updated")
+        send_method = email.send_user_terms_of_service_updated
         result = send_method(pyramid_request, stub_user)
 
         assert result == {"user": stub_user}

@@ -136,7 +136,7 @@ def _email(
     name: str,
     *,
     allow_unverified: bool = False,
-    repeat_window: int | None = None,
+    repeat_window: datetime.timedelta | None = None,
     override_from: str | None = None,
 ) -> typing.Callable:
     """
@@ -296,8 +296,16 @@ def send_password_reset_by_admin_email(request, user):
 
 
 @_email("token-compromised-leak", allow_unverified=True)
-def send_token_compromised_email_leak(request, user, *, public_url, origin):
-    return {"username": user.username, "public_url": public_url, "origin": origin}
+def send_token_compromised_email_leak(
+    request, user, *, public_url=None, origin=None, admin_initiated=False, reason=None
+):
+    return {
+        "username": user.username,
+        "public_url": public_url,
+        "origin": origin,
+        "admin_initiated": admin_initiated,
+        "reason": reason,
+    }
 
 
 @_email(
@@ -629,6 +637,22 @@ def send_organization_renamed_email(
 @_email("organization-deleted")
 def send_organization_deleted_email(request, user, *, organization_name):
     return {
+        "organization_name": organization_name,
+    }
+
+
+@_email(
+    "organization-subscription-required",
+    repeat_window=datetime.timedelta(days=30),
+)
+def send_organization_subscription_required_email(
+    request,
+    user,
+    *,
+    organization_name,
+):
+    return {
+        "username": user.username,
         "organization_name": organization_name,
     }
 

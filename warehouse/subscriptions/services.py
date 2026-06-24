@@ -294,6 +294,13 @@ class GenericBillingService:
         """
         return self.api.Subscription.delete(subscription_id)
 
+    def cancel_subscription_at_period_end(self, subscription_id):
+        """
+        Cancels a customer's subscription at the end of the current billing
+        period. The subscription remains active until then.
+        """
+        return self.api.Subscription.modify(subscription_id, cancel_at_period_end=True)
+
     def create_or_update_usage_record(
         self, subscription_item_id, organization_member_count
     ):
@@ -318,7 +325,7 @@ class MockStripeBillingService(GenericBillingService):
         stripe.api_version = request.registry.settings["billing.api_version"]
         stripe.api_key = "sk_test_123"
         publishable_key = "pk_test_123"
-        webhook_secret = "whsec_123"
+        webhook_secret = "whsec_123"  # noqa: S105
         domain = "localhost"
 
         return cls(stripe, publishable_key, webhook_secret, domain)
@@ -327,12 +334,14 @@ class MockStripeBillingService(GenericBillingService):
         # Mock Stripe doesn't return a customer_id so create a mock id by default
         customer = super().create_customer(name, description)
         customer["id"] = "mockcus_" + "".join(
-            random.choices(digits + ascii_letters, k=14)
+            random.choices(digits + ascii_letters, k=14)  # noqa: S311
         )
         return customer
 
-    def get_checkout_session(self, session_id, mock_checkout_session={}, **kwargs):
+    def get_checkout_session(self, session_id, mock_checkout_session=None, **kwargs):
         # Mock Stripe doesn't persist data so allow passing in a mock_checkout_session.
+        if mock_checkout_session is None:
+            mock_checkout_session = {}
         checkout_session = super().get_checkout_session(session_id)
         # Fill in customer ID, status, and subscription ID from mock_checkout_session.
         checkout_session["customer"]["id"] = mock_checkout_session.get(

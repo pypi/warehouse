@@ -53,6 +53,7 @@ from warehouse.packaging.models import (
 )
 from warehouse.packaging.typosnyper import typo_check_name
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
+from warehouse.rate_limiting.headers import record_rate_limit
 from warehouse.utils.exceptions import DevelopmentModeWarning
 from warehouse.utils.project import PROJECT_NAME_RE
 
@@ -62,7 +63,7 @@ logger = logging.getLogger(__name__)
 def _namespace_stdlib_list(module_list):
     for module_name in module_list:
         parts = module_name.split(".")
-        for i, part in enumerate(parts):
+        for i, _part in enumerate(parts):
             yield ".".join(parts[: i + 1])
 
 
@@ -90,6 +91,7 @@ class GenericLocalBlobStorage:
             "should not use it in production due to the lack of safe guards "
             "for safely locating files on disk.",
             InsecureStorageWarning,
+            stacklevel=2,
         )
 
         self.base = base
@@ -102,12 +104,12 @@ class GenericLocalBlobStorage:
         return open(os.path.join(self.base, path), "rb")
 
     def get_metadata(self, path):
-        return json.loads(open(os.path.join(self.base, path + ".meta")).read())
+        with open(os.path.join(self.base, path + ".meta")) as f:
+            return json.loads(f.read())
 
     def get_checksum(self, path):
-        return hashlib.md5(
-            open(os.path.join(self.base, path), "rb").read(), usedforsecurity=False
-        ).hexdigest()
+        with open(os.path.join(self.base, path), "rb") as f:
+            return hashlib.md5(f.read(), usedforsecurity=False).hexdigest()
 
     def store(self, path, file_path, *, meta=None):
         destination = os.path.join(self.base, path)
@@ -152,6 +154,7 @@ class LocalDocsStorage:
             "should not use it in production due to the lack of safe guards "
             "for safely locating files on disk.",
             InsecureStorageWarning,
+            stacklevel=2,
         )
 
         self.base = base
@@ -415,6 +418,24 @@ class ProjectService:
         self._query_results_cache = query_results_cache
 
     def _check_ratelimits(self, request, creator):
+        # Record the current limiter state so the egress tween can emit
+        # RateLimit / RateLimit-Policy headers, whether or not we reject below.
+        if request.remote_addr is not None:
+            record_rate_limit(
+                request,
+                "project.create.ip",
+                self.ratelimiters["project.create.ip"],
+                identifiers=(request.remote_addr,),
+                partition_key="ip",
+            )
+        record_rate_limit(
+            request,
+            "project.create.user",
+            self.ratelimiters["project.create.user"],
+            identifiers=(creator.id,),
+            partition_key="user",
+        )
+
         # First we want to check if a single IP is exceeding our rate limiter.
         if request.remote_addr is not None and not self.ratelimiters[
             "project.create.ip"
@@ -437,14 +458,39 @@ class ProjectService:
                 tags=["ratelimiter:user"],
             )
             raise TooManyProjectsCreated(
-                resets_in=self.ratelimiters["project.create.user"].resets_in(
+                resets_in=self.ratelimiters["project.create.user"].resets_in(creator.id)
+            )
+
+    def _hit_ratelimits(self, request, creator):
+        # `.hit()` atomically increments and returns False when the limit is
+        # exceeded. Concurrent requests can each pass the optimistic `.test()`
+        # in `_check_ratelimits` before any records a hit, so this atomic check
+        # is what actually enforces the limit: a request that pushes a counter
+        # past its limit is rejected here, rolling back the new project. The
+        # limiters are consulted in the same order as `_check_ratelimits`.
+        if request.remote_addr is not None and not self.ratelimiters[
+            "project.create.ip"
+        ].hit(request.remote_addr):
+            logger.warning("IP failed project create threshold reached.")
+            self._metrics.increment(
+                "warehouse.project.create.ratelimited",
+                tags=["ratelimiter:ip"],
+            )
+            raise TooManyProjectsCreated(
+                resets_in=self.ratelimiters["project.create.ip"].resets_in(
                     request.remote_addr
                 )
             )
 
-    def _hit_ratelimits(self, request, creator):
-        self.ratelimiters["project.create.user"].hit(creator.id)
-        self.ratelimiters["project.create.ip"].hit(request.remote_addr)
+        if not self.ratelimiters["project.create.user"].hit(creator.id):
+            logger.warning("User failed project create threshold reached.")
+            self._metrics.increment(
+                "warehouse.project.create.ratelimited",
+                tags=["ratelimiter:user"],
+            )
+            raise TooManyProjectsCreated(
+                resets_in=self.ratelimiters["project.create.user"].resets_in(creator.id)
+            )
 
     def check_project_name(self, name: str) -> None:
         """
@@ -490,8 +536,6 @@ class ProjectService:
                 check_name=typo_check_match[0],
                 existing_project_name=typo_check_match[1],
             )
-
-        return
 
     def create_project(
         self,

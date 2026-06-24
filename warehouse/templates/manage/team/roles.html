@@ -113,7 +113,9 @@
         aria_describedby="user-errors",
         ) }}
         <datalist id="organization-users">
-          {% for username in form.user_choices %}<option value="{{ username }}">{{ username }}</option>{% endfor %}
+          {% for username in form.user_choices %}
+            <option value="{{ username }}">{{ username }}</option>
+          {% endfor %}
         </datalist>
         <div id="user-errors">{{ field_errors(form.username) }}</div>
         <p class="form-group__help-text">

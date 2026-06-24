@@ -793,18 +793,17 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
 
         if user:
             requested_email = user.primary_email
+        elif user := user_service.get_user_by_email(form_field_input):
+            requested_email = first_true(
+                user.emails,
+                pred=lambda e: e.email == form_field_input,
+            )
         else:
-            if user := user_service.get_user_by_email(form_field_input):
-                requested_email = first_true(
-                    user.emails,
-                    pred=lambda e: e.email == form_field_input,
-                )
-            else:
-                # We could not find the user by username nor email.
-                # Return a response as if we did, to avoid leaking registered emails.
-                token_service = request.find_service(ITokenService, name="password")
-                n_hours = token_service.max_age // 60 // 60
-                return {"n_hours": n_hours}
+            # We could not find the user by username nor email.
+            # Return a response as if we did, to avoid leaking registered emails.
+            token_service = request.find_service(ITokenService, name="password")
+            n_hours = token_service.max_age // 60 // 60
+            return {"n_hours": n_hours}
 
         if requested_email and not requested_email.verified:
             # No verified email, log the attempt, ping the rate limit,

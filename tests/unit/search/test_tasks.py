@@ -420,8 +420,10 @@ class TestReindex:
         monkeypatch.setattr(warehouse.search.tasks, "_project_docs", project_docs)
 
         task = pretend.stub()
-        aws4auth_stub = pretend.stub()
-        aws4auth = pretend.call_recorder(lambda *a, **kw: aws4auth_stub)
+        signer_auth_stub = pretend.stub()
+        signer_auth = pretend.call_recorder(lambda *a, **kw: signer_auth_stub)
+        credentials_stub = pretend.stub()
+        credentials = pretend.call_recorder(lambda *a, **kw: credentials_stub)
         es_client = FakeESClient()
         es_client_init = pretend.call_recorder(lambda *a, **kw: es_client)
 
@@ -435,8 +437,9 @@ class TestReindex:
             "celery.scheduler_url": "redis://redis:6379/0",
         }
         monkeypatch.setattr(
-            warehouse.search.tasks.requests_aws4auth, "AWS4Auth", aws4auth
+            warehouse.search.tasks, "RequestsAWSV4SignerAuth", signer_auth
         )
+        monkeypatch.setattr(warehouse.search.tasks, "Credentials", credentials)
         monkeypatch.setattr(
             warehouse.search.tasks.opensearchpy, "OpenSearch", es_client_init
         )
@@ -459,12 +462,14 @@ class TestReindex:
             es_client_init.calls[0].kwargs["connection_class"]
             == opensearchpy.connection.http_requests.RequestsHttpConnection
         )
-        assert es_client_init.calls[0].kwargs["http_auth"] == aws4auth_stub
-        assert aws4auth.calls == [
+        assert es_client_init.calls[0].kwargs["http_auth"] == signer_auth_stub
+        assert credentials.calls == [
             pretend.call(
-                "AAAAAAAAAAAAAAAAAA", "deadbeefdeadbeefdeadbeef", "us-east-2", "es"
+                access_key="AAAAAAAAAAAAAAAAAA",
+                secret_key="deadbeefdeadbeefdeadbeef",
             )
         ]
+        assert signer_auth.calls == [pretend.call(credentials_stub, "us-east-2", "es")]
 
         assert parallel_bulk.calls == [
             pretend.call(
