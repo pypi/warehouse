@@ -171,6 +171,10 @@ class FakeESIndices:
         return self.indices
 
     def get_alias(self, name):
+        if name not in self.aliases:
+            raise opensearchpy.exceptions.NotFoundError(
+                404, "alias_not_found", "no alias"
+            )
         return self.aliases[name]
 
     def put_alias(self, name, index):
@@ -558,10 +562,10 @@ class TestDeleteOlderIndices:
     def test_deletes_older_than_two(self, db_request, monkeypatch):
         es_client = FakeESClient()
         es_client.indices.indices = {
-            "production-0001": None,
-            "production-0002": None,
-            "production-0003": None,
-            "production-0004": None,
+            "production-0001": {"settings": {"index": {"creation_date": "1"}}},
+            "production-0002": {"settings": {"index": {"creation_date": "2"}}},
+            "production-0003": {"settings": {"index": {"creation_date": "3"}}},
+            "production-0004": {"settings": {"index": {"creation_date": "4"}}},
         }
         es_client.indices.aliases = {"production": ["production-0004"]}
         self._setup(db_request, monkeypatch, es_client)
@@ -576,8 +580,8 @@ class TestDeleteOlderIndices:
     def test_keeps_two_most_recent(self, db_request, monkeypatch):
         es_client = FakeESClient()
         es_client.indices.indices = {
-            "production-0001": None,
-            "production-0002": None,
+            "production-0001": {"settings": {"index": {"creation_date": "1"}}},
+            "production-0002": {"settings": {"index": {"creation_date": "2"}}},
         }
         es_client.indices.aliases = {"production": ["production-0002"]}
         self._setup(db_request, monkeypatch, es_client)
@@ -588,7 +592,9 @@ class TestDeleteOlderIndices:
 
     def test_only_live_index(self, db_request, monkeypatch):
         es_client = FakeESClient()
-        es_client.indices.indices = {"production-0001": None}
+        es_client.indices.indices = {
+            "production-0001": {"settings": {"index": {"creation_date": "1"}}}
+        }
         es_client.indices.aliases = {"production": ["production-0001"]}
         self._setup(db_request, monkeypatch, es_client)
 

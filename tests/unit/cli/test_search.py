@@ -76,9 +76,15 @@ class TestCLISearch:
             ),
             get=pretend.call_recorder(
                 lambda **kw: {
-                    "production-2024-03-01": {},
-                    "production-2024-02-01": {},
-                    "production-2024-01-01": {},
+                    "production-2024-03-01": {
+                        "settings": {"index": {"creation_date": "3"}}
+                    },
+                    "production-2024-02-01": {
+                        "settings": {"index": {"creation_date": "2"}}
+                    },
+                    "production-2024-01-01": {
+                        "settings": {"index": {"creation_date": "1"}}
+                    },
                 }
             ),
             delete=pretend.call_recorder(lambda **kw: {"acknowledged": True}),
@@ -113,11 +119,21 @@ class TestCLISearch:
             ),
             get=pretend.call_recorder(
                 lambda **kw: {
-                    "production-2024-05-01": {},
-                    "production-2024-04-01": {},
-                    "production-2024-03-01": {},
-                    "production-2024-02-01": {},
-                    "production-2024-01-01": {},
+                    "production-2024-05-01": {
+                        "settings": {"index": {"creation_date": "5"}}
+                    },
+                    "production-2024-04-01": {
+                        "settings": {"index": {"creation_date": "4"}}
+                    },
+                    "production-2024-03-01": {
+                        "settings": {"index": {"creation_date": "3"}}
+                    },
+                    "production-2024-02-01": {
+                        "settings": {"index": {"creation_date": "2"}}
+                    },
+                    "production-2024-01-01": {
+                        "settings": {"index": {"creation_date": "1"}}
+                    },
                 }
             ),
             delete=pretend.call_recorder(lambda **kw: {"acknowledged": True}),
@@ -162,7 +178,13 @@ class TestCLISearch:
             get_alias=pretend.call_recorder(
                 lambda **kw: {"production-2024-03-01": {"aliases": {"production": {}}}}
             ),
-            get=pretend.call_recorder(lambda **kw: {"production-2024-03-01": {}}),
+            get=pretend.call_recorder(
+                lambda **kw: {
+                    "production-2024-03-01": {
+                        "settings": {"index": {"creation_date": "3"}}
+                    }
+                }
+            ),
             delete=pretend.call_recorder(lambda **kw: {"acknowledged": True}),
         )
         client = pretend.stub(indices=indices_client)
@@ -187,8 +209,12 @@ class TestCLISearch:
             ),
             get=pretend.call_recorder(
                 lambda **kw: {
-                    "production-2024-02-01": {},
-                    "production-2024-01-01": {},
+                    "production-2024-02-01": {
+                        "settings": {"index": {"creation_date": "2"}}
+                    },
+                    "production-2024-01-01": {
+                        "settings": {"index": {"creation_date": "1"}}
+                    },
                 }
             ),
             delete=pretend.call_recorder(lambda **kw: {"acknowledged": True}),
