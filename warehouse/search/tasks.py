@@ -5,7 +5,7 @@ import contextlib
 import os
 import urllib.parse
 
-from typing import Any
+from typing import Any, NamedTuple
 
 import certifi
 import opensearchpy
@@ -142,6 +142,58 @@ def _delete_index(client: opensearchpy.OpenSearch, index: str) -> None:
         sentry_sdk.capture_exception(exc)
 
 
+class PruneResult(NamedTuple):
+    current_index: str
+    deleted: list[str]
+
+
+def prune_older_indices(
+    client: opensearchpy.OpenSearch, index_base: str, *, keep: int = 2
+) -> PruneResult | None:
+    """
+    Delete stale search indices for ``index_base``, keeping the ``keep`` most
+    recently created (always including whatever the alias currently points at).
+
+    Reindex names indices with a random suffix rather than a timestamp, so
+    recency is taken from each index's ``creation_date`` setting, not its name.
+    Deletes are best-effort (see ``_delete_index``) so a snapshot-locked index
+    doesn't abort the sweep.
+
+    Returns the current index and the names of the indices that were deleted, or
+    ``None`` if ``index_base`` has no alias (nothing to do). Shared by the
+    scheduled ``delete_older_indices`` task and the
+    ``warehouse search delete-older-indices`` CLI command.
+    """
+    try:
+        alias = client.indices.get_alias(name=index_base)
+    except opensearchpy.exceptions.NotFoundError:
+        return None
+
+    current_index = next(iter(alias))
+
+    info = client.indices.get(index=f"{index_base}-*")
+    by_recency = sorted(
+        info,
+        key=lambda name: int(info[name]["settings"]["index"]["creation_date"]),
+        reverse=True,
+    )
+
+    # Always keep the live index, then the next most-recent ones until we've
+    # kept ``keep`` of them.
+    keep_set = {current_index}
+    for name in by_recency:
+        if len(keep_set) >= keep:
+            break
+        keep_set.add(name)
+
+    deleted = []
+    for name in by_recency:
+        if name not in keep_set:
+            _delete_index(client, name)
+            deleted.append(name)
+    return PruneResult(current_index, deleted)
+
+
 @tasks.task(bind=True, ignore_result=True, acks_late=True)
 def reindex(self, request):
     """
@@ -239,18 +291,7 @@ def delete_older_indices(self, request: Request) -> None:
         with SearchLock(r, timeout=30 * 60, blocking_timeout=30):
             client = _get_opensearch_client(request)
             index_base = request.registry["opensearch.index"]
-
-            if not client.indices.exists_alias(name=index_base):
-                return
-
-            current_index = next(iter(client.indices.get_alias(name=index_base)))
-            indices = sorted(client.indices.get(index=f"{index_base}-*"), reverse=True)
-            indices.remove(current_index)
-            if indices:
-                indices.pop(0)
-
-            for index in indices:
-                _delete_index(client, index)
+            prune_older_indices(client, index_base)
     except redis.exceptions.LockError as exc:
         sentry_sdk.capture_exception(exc)
         raise self.retry(countdown=60, exc=exc)
