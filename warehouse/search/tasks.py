@@ -109,7 +109,7 @@ class SearchLock(Lock):
 
 
 def _get_opensearch_client(request: Request) -> opensearchpy.OpenSearch:
-    """Helpe to grab OpenSearch client from the registr."""
+    """Helper to grab OpenSearch client from the registry."""
     p = parse_url(request.registry.settings["opensearch.url"])
     qs = urllib.parse.parse_qs(p.query)
 
