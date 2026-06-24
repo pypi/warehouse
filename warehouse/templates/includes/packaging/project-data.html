@@ -147,6 +147,17 @@
       </ul>
     </div>
   {% endif %}
+  <h6>{% trans %}Statistics{% endtrans %}</h6>
+  <ul class="vertical-tabs__list">
+    <li>
+      <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
+         href="https://pypistats.org/packages/{{ project.normalized_name }}"
+         rel="noopener">
+        <i class="fa fa-chart-bar" aria-hidden="true"></i>
+        {% trans %}Download stats{% endtrans %}
+      </a>
+    </li>
+  </ul>
   {% if maintainers %}
     <h6>{% trans %}Maintainers{% endtrans %}</h6>
     {% for maintainer in maintainers %}
