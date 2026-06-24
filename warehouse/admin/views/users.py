@@ -736,7 +736,7 @@ def user_recover_account_complete(user: User, request):
 @view_config(
     route_name="admin.user.burn_recovery_codes",
     require_methods=["POST"],
-    permission=Permissions.AdminUsersWrite,
+    permission=Permissions.AdminUsersRecoveryCodesBurn,
     uses_session=True,
     require_csrf=True,
     context=User,

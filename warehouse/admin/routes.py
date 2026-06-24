@@ -25,6 +25,11 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "admin.organization.subscription.cancel",
+        "/admin/organizations/{organization_id}/subscriptions/{subscription_id}/cancel/",
+        domain=warehouse,
+    )
+    config.add_route(
         "admin.organization.add_role",
         "/admin/organizations/{organization_id}/add_role/",
         domain=warehouse,

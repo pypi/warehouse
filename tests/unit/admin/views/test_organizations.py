@@ -16,8 +16,12 @@ from tests.common.db.organizations import (
     OrganizationOIDCIssuerFactory,
     OrganizationRoleFactory,
     OrganizationStripeCustomerFactory,
+    OrganizationStripeSubscriptionFactory,
 )
-from tests.common.db.subscriptions import StripeCustomerFactory
+from tests.common.db.subscriptions import (
+    StripeCustomerFactory,
+    StripeSubscriptionFactory,
+)
 from warehouse.admin.views import organizations as views
 from warehouse.events.tags import EventTag
 from warehouse.organizations.models import (
@@ -517,6 +521,80 @@ class TestOrganizationDetail:
         assert result["roles"] == []
         assert result["role_forms"] == {}
         assert isinstance(result["add_role_form"], views.AddOrganizationRoleForm)
+
+
+class TestCancelOrganizationSubscription:
+    def test_organization_not_found(self, db_request):
+        db_request.matchdict = {
+            "organization_id": "00000000-0000-0000-0000-000000000000",
+            "subscription_id": "00000000-0000-0000-0000-000000000000",
+        }
+
+        with pytest.raises(HTTPNotFound):
+            views.cancel_organization_subscription(db_request)
+
+    def test_subscription_not_found(self, db_request):
+        organization = OrganizationFactory.create()
+        db_request.matchdict = {
+            "organization_id": str(organization.id),
+            "subscription_id": "00000000-0000-0000-0000-000000000000",
+        }
+
+        with pytest.raises(HTTPNotFound):
+            views.cancel_organization_subscription(db_request)
+
+    def test_subscription_belongs_to_other_organization(self, db_request):
+        organization = OrganizationFactory.create()
+        other_organization = OrganizationFactory.create()
+        subscription = StripeSubscriptionFactory.create()
+        OrganizationStripeSubscriptionFactory.create(
+            organization=other_organization, subscription=subscription
+        )
+
+        db_request.matchdict = {
+            "organization_id": str(organization.id),
+            "subscription_id": str(subscription.id),
+        }
+
+        with pytest.raises(HTTPNotFound):
+            views.cancel_organization_subscription(db_request)
+
+    def test_cancels_subscription(self, db_request, mocker):
+        organization = OrganizationFactory.create()
+        subscription = StripeSubscriptionFactory.create()
+        OrganizationStripeSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
+
+        db_request.matchdict = {
+            "organization_id": str(organization.id),
+            "subscription_id": str(subscription.id),
+        }
+        db_request.route_path = mocker.Mock(
+            return_value=f"/admin/organizations/{organization.id}/"
+        )
+        db_request.session = mocker.Mock()
+        db_request.user = UserFactory.create(username="admin-user")
+
+        billing_service = db_request.find_service(IBillingService)
+        cancel = mocker.patch.object(
+            billing_service, "cancel_subscription_at_period_end"
+        )
+
+        result = views.cancel_organization_subscription(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.location == f"/admin/organizations/{organization.id}/"
+        cancel.assert_called_once_with(subscription.subscription_id)
+        db_request.session.flash.assert_called_once_with(
+            f"Subscription for {organization.name!r} set to cancel at period end",
+            queue="success",
+        )
+        event = organization.events[0]
+        assert event.tag == "organization:subscription:cancel"
+        assert event.additional["subscription_id"] == subscription.subscription_id
+        assert event.additional["at_period_end"] is True
+        assert event.additional["canceled_by"] == "admin-user"
 
 
 class TestOrganizationActions:
