@@ -140,7 +140,8 @@
       <div class="package-header__left">
         <h1 class="package-header__name">{{ release.project.name }} {{ release.version }}</h1>
         {% if files and not project.lifecycle_status == "quarantine-enter" and not release.lifecycle_status == "quarantine-enter" %}
-          <div data-controller="clipboard">
+          <div data-controller="clipboard"
+               data-clipboard-plausible-event-value="Copy Project Install Command">
             <p class="package-header__pip-instructions">
               <span id="pip-command" data-clipboard-target="source">{{ pip_command(release, request.matched_route.name, testPyPI) }}</span>
               <button type="button"

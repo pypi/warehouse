@@ -588,6 +588,7 @@ def test_root_factory_access_control_list():
                 Permissions.AdminUsersWrite,
                 Permissions.AdminUsersEmailWrite,
                 Permissions.AdminUsersAccountRecoveryWrite,
+                Permissions.AdminUsersRecoveryCodesBurn,
                 Permissions.AdminVulnerabilitiesRead,
                 Permissions.AdminVulnerabilitiesWrite,
             ),
@@ -622,6 +623,7 @@ def test_root_factory_access_control_list():
                 Permissions.AdminUsersRead,
                 Permissions.AdminUsersEmailWrite,
                 Permissions.AdminUsersAccountRecoveryWrite,
+                Permissions.AdminUsersRecoveryCodesBurn,
             ),
         ),
         (
