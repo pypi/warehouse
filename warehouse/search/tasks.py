@@ -5,6 +5,8 @@ import contextlib
 import os
 import urllib.parse
 
+from typing import Any
+
 import certifi
 import opensearchpy
 import redis
@@ -13,6 +15,7 @@ import sentry_sdk
 from botocore.credentials import Credentials
 from opensearchpy import RequestsAWSV4SignerAuth
 from opensearchpy.helpers import parallel_bulk
+from pyramid.request import Request
 from redis.lock import Lock
 from sqlalchemy import func, or_, select, text
 from urllib3.util import parse_url
@@ -105,6 +108,40 @@ class SearchLock(Lock):
         )
 
 
+def _get_opensearch_client(request: Request) -> opensearchpy.OpenSearch:
+    """Helpe to grab OpenSearch client from the registr."""
+    p = parse_url(request.registry.settings["opensearch.url"])
+    qs = urllib.parse.parse_qs(p.query)
+
+    kwargs: dict[str, Any] = {
+        "hosts": [urllib.parse.urlunparse((p.scheme, p.netloc) + ("",) * 4)],
+        "verify_certs": True,
+        "ca_certs": certifi.where(),
+        "timeout": 30,
+        "retry_on_timeout": True,
+        "serializer": opensearchpy.serializer.serializer,
+    }
+
+    aws_auth = bool(qs.get("aws_auth", False))
+    if aws_auth:
+        aws_region = qs.get("region", ["us-east-1"])[0]
+        kwargs["connection_class"] = opensearchpy.RequestsHttpConnection
+        credentials = Credentials(
+            access_key=request.registry.settings["aws.key_id"],
+            secret_key=request.registry.settings["aws.secret_key"],
+        )
+        kwargs["http_auth"] = RequestsAWSV4SignerAuth(credentials, aws_region, "es")
+    return opensearchpy.OpenSearch(**kwargs)
+
+
+def _delete_index(client: opensearchpy.OpenSearch, index: str) -> None:
+    """Delete an index but ignore any errors, instead send to sentry."""
+    try:
+        client.indices.delete(index=index)
+    except opensearchpy.exceptions.OpenSearchException as exc:
+        sentry_sdk.capture_exception(exc)
+
+
 @tasks.task(bind=True, ignore_result=True, acks_late=True)
 def reindex(self, request):
     """
@@ -113,28 +150,7 @@ def reindex(self, request):
     r = redis.StrictRedis.from_url(request.registry.settings["celery.scheduler_url"])
     try:
         with SearchLock(r, timeout=30 * 60, blocking_timeout=30):
-            p = parse_url(request.registry.settings["opensearch.url"])
-            qs = urllib.parse.parse_qs(p.query)
-            kwargs = {
-                "hosts": [urllib.parse.urlunparse((p.scheme, p.netloc) + ("",) * 4)],
-                "verify_certs": True,
-                "ca_certs": certifi.where(),
-                "timeout": 30,
-                "retry_on_timeout": True,
-                "serializer": opensearchpy.serializer.serializer,
-            }
-            aws_auth = bool(qs.get("aws_auth", False))
-            if aws_auth:
-                aws_region = qs.get("region", ["us-east-1"])[0]
-                kwargs["connection_class"] = opensearchpy.RequestsHttpConnection
-                credentials = Credentials(
-                    access_key=request.registry.settings["aws.key_id"],
-                    secret_key=request.registry.settings["aws.secret_key"],
-                )
-                kwargs["http_auth"] = RequestsAWSV4SignerAuth(
-                    credentials, aws_region, "es"
-                )
-            client = opensearchpy.OpenSearch(**kwargs)
+            client = _get_opensearch_client(request)
             number_of_replicas = request.registry.get("opensearch.replicas", 0)
             refresh_interval = request.registry.get("opensearch.interval", "1s")
 
@@ -204,9 +220,37 @@ def reindex(self, request):
                 actions.append({"add": {"index": new_index_name, "alias": index_base}})
                 client.indices.update_aliases(body={"actions": actions})
                 for index_to_delete in to_delete:
-                    client.indices.delete(index=index_to_delete)
+                    _delete_index(client, index_to_delete)
             else:
                 client.indices.put_alias(name=index_base, index=new_index_name)
+    except redis.exceptions.LockError as exc:
+        sentry_sdk.capture_exception(exc)
+        raise self.retry(countdown=60, exc=exc)
+
+
+@tasks.task(bind=True, ignore_result=True, acks_late=True)
+def delete_older_indices(self, request: Request) -> None:
+    """
+    Delete stale search indices orphaned by reindex, keeping the most recent two.
+    """
+    r = redis.StrictRedis.from_url(request.registry.settings["celery.scheduler_url"])
+    try:
+        # share lock with reindex so they dont clash
+        with SearchLock(r, timeout=30 * 60, blocking_timeout=30):
+            client = _get_opensearch_client(request)
+            index_base = request.registry["opensearch.index"]
+
+            if not client.indices.exists_alias(name=index_base):
+                return
+
+            current_index = next(iter(client.indices.get_alias(name=index_base)))
+            indices = sorted(client.indices.get(index=f"{index_base}-*"), reverse=True)
+            indices.remove(current_index)
+            if indices:
+                indices.pop(0)
+
+            for index in indices:
+                _delete_index(client, index)
     except redis.exceptions.LockError as exc:
         sentry_sdk.capture_exception(exc)
         raise self.retry(countdown=60, exc=exc)
