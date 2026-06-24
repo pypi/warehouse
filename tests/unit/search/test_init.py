@@ -3,6 +3,8 @@
 import opensearchpy
 import pretend
 
+from celery.schedules import crontab
+
 from warehouse import search
 
 from ...common.db.packaging import ProjectFactory, ReleaseFactory
@@ -159,6 +161,10 @@ def test_includeme(monkeypatch):
             search.services.SearchService.create_service,
             iface=search.interfaces.ISearchService,
         ),
+    ]
+    assert config.add_periodic_task.calls == [
+        pretend.call(crontab(minute=0, hour=6), search.reindex),
+        pretend.call(crontab(minute=0, hour=8), search.delete_older_indices),
     ]
 
 
