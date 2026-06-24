@@ -138,6 +138,12 @@ class IGenericBillingService(Interface):
         The customer will not be charged again for the subscription.
         """
 
+    def cancel_subscription_at_period_end(subscription_id):
+        """
+        Cancels a customer's subscription at the end of the current billing
+        period. The subscription remains active until then.
+        """
+
     def create_or_update_usage_record(subscription_item_id, organization_member_count):
         """
         Creates a usage record via Billing API

@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
 import pytest
 import webauthn as pywebauthn
 
@@ -18,7 +17,10 @@ from webauthn.helpers.structs import (
 )
 from webauthn.registration.verify_registration_response import VerifiedRegistration
 
+from warehouse.accounts.models import WebAuthn
 from warehouse.utils import webauthn
+
+from ...common.db.accounts import UserFactory
 
 
 def test_generate_webauthn_challenge():
@@ -28,7 +30,7 @@ def test_generate_webauthn_challenge():
     assert challenge == base64url_to_bytes(bytes_to_base64url(challenge))
 
 
-def test_verify_registration_response(monkeypatch):
+def test_verify_registration_response(mocker):
     fake_verified_registration = VerifiedRegistration(
         credential_id=b"foo",
         credential_public_key=b"bar",
@@ -41,11 +43,11 @@ def test_verify_registration_response(monkeypatch):
         credential_device_type="single_device",
         credential_backed_up=False,
     )
-    mock_verify_registration_response = pretend.call_recorder(
-        lambda *a, **kw: fake_verified_registration
-    )
-    monkeypatch.setattr(
-        pywebauthn, "verify_registration_response", mock_verify_registration_response
+    mock_verify_registration_response = mocker.patch.object(
+        pywebauthn,
+        "verify_registration_response",
+        autospec=True,
+        return_value=fake_verified_registration,
     )
 
     resp = webauthn.verify_registration_response(
@@ -59,30 +61,29 @@ def test_verify_registration_response(monkeypatch):
         origin="fake_origin",
     )
 
-    assert mock_verify_registration_response.calls == [
-        pretend.call(
-            credential=RegistrationCredential(
-                id="foo",
-                raw_id=b"~\x8a",
-                response=AuthenticatorAttestationResponse(
-                    client_data_json=b"m\xaa", attestation_object=b"~\x8a"
-                ),
-                type=PublicKeyCredentialType.PUBLIC_KEY,
+    mock_verify_registration_response.assert_called_once_with(
+        credential=RegistrationCredential(
+            id="foo",
+            raw_id=b"~\x8a",
+            response=AuthenticatorAttestationResponse(
+                client_data_json=b"m\xaa", attestation_object=b"~\x8a"
             ),
-            expected_challenge=bytes_to_base64url(b"not_a_real_challenge").encode(),
-            expected_rp_id="fake_rp_id",
-            expected_origin="fake_origin",
-            require_user_verification=False,
-        )
-    ]
+            type=PublicKeyCredentialType.PUBLIC_KEY,
+        ),
+        expected_challenge=bytes_to_base64url(b"not_a_real_challenge").encode(),
+        expected_rp_id="fake_rp_id",
+        expected_origin="fake_origin",
+        require_user_verification=False,
+    )
     assert resp == fake_verified_registration
 
 
-def test_verify_registration_response_failure(monkeypatch):
-    monkeypatch.setattr(
+def test_verify_registration_response_failure(mocker):
+    mocker.patch.object(
         pywebauthn,
         "verify_registration_response",
-        pretend.raiser(pywebauthn.helpers.exceptions.InvalidRegistrationResponse),
+        autospec=True,
+        side_effect=pywebauthn.helpers.exceptions.InvalidRegistrationResponse,
     )
 
     with pytest.raises(webauthn.RegistrationRejectedError):
@@ -98,7 +99,7 @@ def test_verify_registration_response_failure(monkeypatch):
         )
 
 
-def test_verify_assertion_response(monkeypatch):
+def test_verify_assertion_response(mocker):
     fake_verified_authentication = VerifiedAuthentication(
         credential_id=b"a credential id",
         new_sign_count=69,
@@ -106,22 +107,17 @@ def test_verify_assertion_response(monkeypatch):
         credential_backed_up=False,
         user_verified=False,
     )
-    mock_verify_authentication_response = pretend.call_recorder(
-        lambda *a, **kw: fake_verified_authentication
-    )
-    monkeypatch.setattr(
+    mock_verify_authentication_response = mocker.patch.object(
         pywebauthn,
         "verify_authentication_response",
-        mock_verify_authentication_response,
+        autospec=True,
+        return_value=fake_verified_authentication,
     )
 
-    not_a_real_user = pretend.stub(
-        webauthn=[
-            pretend.stub(
-                public_key=bytes_to_base64url(b"fake public key"), sign_count=68
-            )
-        ]
-    )
+    user = UserFactory.build()
+    user.webauthn = [
+        WebAuthn(public_key=bytes_to_base64url(b"fake public key"), sign_count=68)
+    ]
     resp = webauthn.verify_assertion_response(
         (
             b'{"id": "foo", "rawId": "foo", "response": '
@@ -130,46 +126,47 @@ def test_verify_assertion_response(monkeypatch):
             b'"type": "public-key"}'
         ),
         challenge=b"not_a_real_challenge",
-        user=not_a_real_user,
+        user=user,
         origin="fake_origin",
         rp_id="fake_rp_id",
     )
 
-    assert mock_verify_authentication_response.calls == [
-        pretend.call(
-            credential=AuthenticationCredential(
-                id="foo",
-                raw_id=b"~\x8a",
-                response=AuthenticatorAssertionResponse(
-                    client_data_json=b"m\xaa",
-                    authenticator_data=b"~\x8a",
-                    signature=b"\xc2\xebZ\x9e",
-                    user_handle=None,
-                ),
-                type=PublicKeyCredentialType.PUBLIC_KEY,
+    mock_verify_authentication_response.assert_called_once_with(
+        credential=AuthenticationCredential(
+            id="foo",
+            raw_id=b"~\x8a",
+            response=AuthenticatorAssertionResponse(
+                client_data_json=b"m\xaa",
+                authenticator_data=b"~\x8a",
+                signature=b"\xc2\xebZ\x9e",
+                user_handle=None,
             ),
-            expected_challenge=b"bm90X2FfcmVhbF9jaGFsbGVuZ2U",
-            expected_rp_id="fake_rp_id",
-            expected_origin="fake_origin",
-            credential_public_key=b"fake public key",
-            credential_current_sign_count=68,
-            require_user_verification=False,
-        )
-    ]
+            type=PublicKeyCredentialType.PUBLIC_KEY,
+        ),
+        expected_challenge=b"bm90X2FfcmVhbF9jaGFsbGVuZ2U",
+        expected_rp_id="fake_rp_id",
+        expected_origin="fake_origin",
+        credential_public_key=b"fake public key",
+        credential_current_sign_count=68,
+        require_user_verification=False,
+    )
     assert resp == fake_verified_authentication
 
 
-def test_verify_assertion_response_failure(monkeypatch):
-    monkeypatch.setattr(
+def test_verify_assertion_response_failure(mocker):
+    mocker.patch.object(
         pywebauthn,
         "verify_authentication_response",
-        pretend.raiser(pywebauthn.helpers.exceptions.InvalidAuthenticationResponse),
+        autospec=True,
+        side_effect=pywebauthn.helpers.exceptions.InvalidAuthenticationResponse,
     )
 
-    get_webauthn_users = pretend.call_recorder(
-        lambda *a, **kw: [(b"not a public key", 0)]
+    mocker.patch.object(
+        webauthn,
+        "_get_webauthn_user_public_keys",
+        autospec=True,
+        return_value=[(b"not a public key", 0)],
     )
-    monkeypatch.setattr(webauthn, "_get_webauthn_user_public_keys", get_webauthn_users)
 
     with pytest.raises(webauthn.AuthenticationRejectedError):
         webauthn.verify_assertion_response(
@@ -180,7 +177,7 @@ def test_verify_assertion_response_failure(monkeypatch):
                 b'"type": "public-key"}'
             ),
             challenge=b"not_a_real_challenge",
-            user=pretend.stub(),
+            user=mocker.sentinel.user,
             origin="fake_origin",
             rp_id="fake_rp_id",
         )
