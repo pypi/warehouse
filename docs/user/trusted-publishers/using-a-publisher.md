@@ -405,6 +405,7 @@ below describe the setup process for each supported Trusted Publisher.
       dependencies:
         - build-job
       id_tokens:
+        # Use "TESTPYPI_ID_TOKEN" if uploading to TestPyPI
         PYPI_ID_TOKEN:
           # Use "testpypi" if uploading to TestPyPI
           aud: pypi
