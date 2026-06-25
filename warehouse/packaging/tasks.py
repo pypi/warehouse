@@ -137,7 +137,14 @@ def reconcile_file_storages(request):
 
     logger.info("Running reconcile_file_storages with batch_size %s...", batch_size)
 
-    files_batch = request.db.query(File).filter_by(cached=False).limit(batch_size)
+    # SKIP LOCKED so two concurrent runs grab separate rows instead of both
+    # picking the same files and conflicting.
+    files_batch = (
+        request.db.query(File)
+        .filter_by(cached=False)
+        .with_for_update(skip_locked=True, of=File)
+        .limit(batch_size)
+    )
 
     for file in files_batch.all():
         logger.info("Checking File<%s> (%s)...", file.id, file.path)

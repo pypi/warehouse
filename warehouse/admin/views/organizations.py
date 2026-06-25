@@ -330,6 +330,7 @@ def organization_list(request):
 def organization_detail(request):
     organization_service = request.find_service(IOrganizationService, context=None)
     billing_service = request.find_service(IBillingService, context=None)
+    user_service = request.find_service(IUserService, context=None)
 
     organization_id = request.matchdict["organization_id"]
     organization = organization_service.get_organization(organization_id)
@@ -380,6 +381,7 @@ def organization_detail(request):
     return {
         "organization": organization,
         "activity": _organization_activity(request, organization),
+        "get_user": user_service.get_user,
         "form": form,
         "roles": roles,
         "role_forms": role_forms,
@@ -428,6 +430,51 @@ def organization_rename(request):
         queue="success",
     )
 
+    return HTTPSeeOther(
+        request.route_path("admin.organization.detail", organization_id=organization.id)
+    )
+
+
+@view_config(
+    route_name="admin.organization.subscription.cancel",
+    require_methods=["POST"],
+    permission=Permissions.AdminOrganizationsWrite,
+    has_translations=True,
+    uses_session=True,
+    require_csrf=True,
+)
+def cancel_organization_subscription(request):
+    organization_service = request.find_service(IOrganizationService, context=None)
+    billing_service = request.find_service(IBillingService, context=None)
+
+    organization = organization_service.get_organization(
+        request.matchdict["organization_id"]
+    )
+    if organization is None:
+        raise HTTPNotFound
+
+    subscription = request.db.get(
+        StripeSubscription, request.matchdict["subscription_id"]
+    )
+    if subscription is None or subscription.organization != organization:
+        raise HTTPNotFound
+
+    billing_service.cancel_subscription_at_period_end(subscription.subscription_id)
+
+    organization.record_event(
+        tag=EventTag.Organization.SubscriptionCancel,
+        request=request,
+        additional={
+            "subscription_id": subscription.subscription_id,
+            "at_period_end": True,
+            "canceled_by": request.user.username,
+        },
+    )
+
+    request.session.flash(
+        f"Subscription for {organization.name!r} set to cancel at period end",
+        queue="success",
+    )
     return HTTPSeeOther(
         request.route_path("admin.organization.detail", organization_id=organization.id)
     )
