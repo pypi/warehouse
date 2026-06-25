@@ -1120,7 +1120,11 @@ def test_burn_oidc_issued_token_invalid_payload(metrics):
     assert response == {"message": "Accepted", "errors": []}
     assert find_service.calls == [pretend.call(IMetricsService, context=None)]
     assert metrics.increment.calls == [
-        pretend.call("warehouse.oidc.burn_oidc_issued_token.attempt")
+        pretend.call("warehouse.oidc.burn_oidc_issued_token.attempt"),
+        pretend.call(
+            "warehouse.oidc.burn_oidc_issued_token.failure",
+            tags=["failure_reason:invalid_payload"],
+        ),
     ]
 
 
@@ -1151,7 +1155,11 @@ def test_burn_oidc_issued_token_invalid_macaroon(metrics):
     ]
     assert macaroon_service.find_from_raw.calls == [pretend.call("invalid-macaroon")]
     assert metrics.increment.calls == [
-        pretend.call("warehouse.oidc.burn_oidc_issued_token.attempt")
+        pretend.call("warehouse.oidc.burn_oidc_issued_token.attempt"),
+        pretend.call(
+            "warehouse.oidc.burn_oidc_issued_token.failure",
+            tags=["failure_reason:invalid_macaroon"],
+        ),
     ]
 
 
@@ -1190,7 +1198,11 @@ def test_burn_oidc_issued_token_user_macaroon(metrics, monkeypatch):
         pretend.call("Tried to burn an API token corresponding to a user: 'fakeuser'")
     ]
     assert metrics.increment.calls == [
-        pretend.call("warehouse.oidc.burn_oidc_issued_token.attempt")
+        pretend.call("warehouse.oidc.burn_oidc_issued_token.attempt"),
+        pretend.call(
+            "warehouse.oidc.burn_oidc_issued_token.failure",
+            tags=["failure_reason:not_oidc_publisher"],
+        ),
     ]
 
 
