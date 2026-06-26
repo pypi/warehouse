@@ -467,14 +467,13 @@ def burn_oidc_issued_token(request: Request):
     (indicating receipt, but not communicating the outcome).
     """
 
-    metrics = request.find_service(IMetricsService, context=None)
-    metrics.increment("warehouse.oidc.burn_oidc_issued_token.attempt")
+    request.metrics.increment("warehouse.oidc.burn_oidc_issued_token.attempt")
 
     try:
         payload = BurnPayload.model_validate_json(request.body)
         unverified_macaroon = payload.token
     except ValidationError:
-        metrics.increment(
+        request.metrics.increment(
             "warehouse.oidc.burn_oidc_issued_token.failure",
             tags=["failure_reason:invalid_payload"],
         )
@@ -487,7 +486,7 @@ def burn_oidc_issued_token(request: Request):
     try:
         macaroon: Macaroon = macaroon_service.find_from_raw(unverified_macaroon)
     except InvalidMacaroonError:
-        metrics.increment(
+        request.metrics.increment(
             "warehouse.oidc.burn_oidc_issued_token.failure",
             tags=["failure_reason:invalid_macaroon"],
         )
@@ -501,14 +500,14 @@ def burn_oidc_issued_token(request: Request):
         sentry_sdk.capture_message(
             f"Tried to burn an API token corresponding to a user: {username!r}"
         )
-        metrics.increment(
+        request.metrics.increment(
             "warehouse.oidc.burn_oidc_issued_token.failure",
             tags=["failure_reason:not_oidc_publisher"],
         )
         return _accepted(request=request)
 
     macaroon_service.delete_macaroon(macaroon.id)
-    metrics.increment(
+    request.metrics.increment(
         "warehouse.oidc.burn_oidc_issued_token.success",
         tags=[f"publisher_name:{macaroon.oidc_publisher.publisher_name}"],
     )

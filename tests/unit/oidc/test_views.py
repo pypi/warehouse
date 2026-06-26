@@ -1108,19 +1108,17 @@ def test_should_send_environment_warning_email(
 
 
 def test_burn_oidc_issued_token_invalid_payload(metrics):
-    find_service = pretend.call_recorder(lambda *a, **kw: metrics)
     request = pretend.stub(
         body=json.dumps({"token": None}),
         response=pretend.stub(status=None),
-        find_service=find_service,
+        metrics=metrics,
     )
 
     response = views.burn_oidc_issued_token(request)
 
     assert request.response.status == http.HTTPStatus.ACCEPTED
     assert response == {"message": "Accepted", "errors": []}
-    assert find_service.calls == [pretend.call(IMetricsService, context=None)]
-    assert metrics.increment.calls == [
+    assert request.metrics.increment.calls == [
         pretend.call("warehouse.oidc.burn_oidc_issued_token.attempt"),
         pretend.call(
             "warehouse.oidc.burn_oidc_issued_token.failure",
@@ -1136,7 +1134,6 @@ def test_burn_oidc_issued_token_invalid_macaroon(metrics):
 
     def find_service(iface, **kw):
         return {
-            IMetricsService: metrics,
             IMacaroonService: macaroon_service,
         }[iface]
 
@@ -1144,6 +1141,7 @@ def test_burn_oidc_issued_token_invalid_macaroon(metrics):
         body=json.dumps({"token": "invalid-macaroon"}),
         response=pretend.stub(status=None),
         find_service=pretend.call_recorder(find_service),
+        metrics=metrics,
     )
 
     response = views.burn_oidc_issued_token(request)
@@ -1151,11 +1149,10 @@ def test_burn_oidc_issued_token_invalid_macaroon(metrics):
     assert request.response.status == http.HTTPStatus.ACCEPTED
     assert response == {"message": "Accepted", "errors": []}
     assert request.find_service.calls == [
-        pretend.call(IMetricsService, context=None),
         pretend.call(IMacaroonService, context=None),
     ]
     assert macaroon_service.find_from_raw.calls == [pretend.call("invalid-macaroon")]
-    assert metrics.increment.calls == [
+    assert request.metrics.increment.calls == [
         pretend.call("warehouse.oidc.burn_oidc_issued_token.attempt"),
         pretend.call(
             "warehouse.oidc.burn_oidc_issued_token.failure",
@@ -1179,7 +1176,6 @@ def test_burn_oidc_issued_token_user_macaroon(metrics, monkeypatch):
 
     def find_service(iface, **kw):
         return {
-            IMetricsService: metrics,
             IMacaroonService: macaroon_service,
         }[iface]
 
@@ -1187,6 +1183,7 @@ def test_burn_oidc_issued_token_user_macaroon(metrics, monkeypatch):
         body=json.dumps({"token": "user-macaroon"}),
         response=pretend.stub(status=None),
         find_service=pretend.call_recorder(find_service),
+        metrics=metrics,
     )
 
     response = views.burn_oidc_issued_token(request)
@@ -1198,7 +1195,7 @@ def test_burn_oidc_issued_token_user_macaroon(metrics, monkeypatch):
     assert capture_message.calls == [
         pretend.call("Tried to burn an API token corresponding to a user: 'fakeuser'")
     ]
-    assert metrics.increment.calls == [
+    assert request.metrics.increment.calls == [
         pretend.call("warehouse.oidc.burn_oidc_issued_token.attempt"),
         pretend.call(
             "warehouse.oidc.burn_oidc_issued_token.failure",
@@ -1220,7 +1217,6 @@ def test_burn_oidc_issued_token_success(metrics):
 
     def find_service(iface, **kw):
         return {
-            IMetricsService: metrics,
             IMacaroonService: macaroon_service,
         }[iface]
 
@@ -1228,6 +1224,7 @@ def test_burn_oidc_issued_token_success(metrics):
         body=json.dumps({"token": "oidc-macaroon"}),
         response=pretend.stub(status=None),
         find_service=pretend.call_recorder(find_service),
+        metrics=metrics,
     )
 
     response = views.burn_oidc_issued_token(request)
@@ -1235,12 +1232,11 @@ def test_burn_oidc_issued_token_success(metrics):
     assert request.response.status == http.HTTPStatus.ACCEPTED
     assert response == {"message": "Accepted", "errors": []}
     assert request.find_service.calls == [
-        pretend.call(IMetricsService, context=None),
         pretend.call(IMacaroonService, context=None),
     ]
     assert macaroon_service.find_from_raw.calls == [pretend.call("oidc-macaroon")]
     assert macaroon_service.delete_macaroon.calls == [pretend.call("fake-macaroon-id")]
-    assert metrics.increment.calls == [
+    assert request.metrics.increment.calls == [
         pretend.call("warehouse.oidc.burn_oidc_issued_token.attempt"),
         pretend.call(
             "warehouse.oidc.burn_oidc_issued_token.success",
