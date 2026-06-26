@@ -5986,9 +5986,10 @@ class TestManageProjectHistory:
         file_events_query = (
             db_request.db.query(File.Event)
             .join(File.Event.source)
-            .filter(File.Event.additional["project_id"].astext == str(project.id))
+            .join(File.release)
+            .filter(Release.project_id == project.id)
         )
-        events_query = project_events_query.union(file_events_query).order_by(
+        events_query = project_events_query.union_all(file_events_query).order_by(
             Project.Event.time.desc(), File.Event.time.desc()
         )
 
@@ -6060,9 +6061,10 @@ class TestManageProjectHistory:
         file_events_query = (
             db_request.db.query(File.Event)
             .join(File.Event.source)
-            .filter(File.Event.additional["project_id"].astext == str(project.id))
+            .join(File.release)
+            .filter(Release.project_id == project.id)
         )
-        events_query = project_events_query.union(file_events_query).order_by(
+        events_query = project_events_query.union_all(file_events_query).order_by(
             Project.Event.time.desc(), File.Event.time.desc()
         )
 
@@ -6096,9 +6098,10 @@ class TestManageProjectHistory:
         file_events_query = (
             db_request.db.query(File.Event)
             .join(File.Event.source)
-            .filter(File.Event.additional["project_id"].astext == str(project.id))
+            .join(File.release)
+            .filter(Release.project_id == project.id)
         )
-        events_query = project_events_query.union(file_events_query).order_by(
+        events_query = project_events_query.union_all(file_events_query).order_by(
             Project.Event.time.desc(), File.Event.time.desc()
         )
 
@@ -6128,6 +6131,23 @@ class TestManageProjectHistory:
 
         with pytest.raises(HTTPNotFound):
             assert views.manage_project_history(project, db_request)
+
+    def test_only_returns_file_events_for_project(self, db_request):
+        """File events are scoped via the release -> project relationship, so a
+        file event belonging to another project must not leak into this
+        project's history."""
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project)
+        file_ = FileFactory.create(release=release)
+        own_event = FileEventFactory.create(source=file_, tag="fake:event")
+
+        # A file event on an unrelated project must not leak in. The factory
+        # builds its own distinct project -> release -> file chain.
+        FileEventFactory.create(tag="fake:event")
+
+        result = views.manage_project_history(project, db_request)
+
+        assert [event.id for event in result["events"]] == [own_event.id]
 
 
 class TestArchiveProject:
