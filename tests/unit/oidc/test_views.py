@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import http
 import json
 
 from datetime import datetime
@@ -96,7 +97,7 @@ def test_mint_token_from_oidc_not_enabled(token, service_name, request):
     )
 
     response = views.mint_token_from_oidc(request)
-    assert request.response.status == 422
+    assert request.response.status == http.HTTPStatus.UNPROCESSABLE_ENTITY
     assert response == {
         "message": "Token request failed",
         "errors": [
@@ -140,7 +141,7 @@ def test_mint_token_from_oidc_invalid_payload(body):
     req = Request()
     resp = views.mint_token_from_oidc(req)
 
-    assert req.response.status == 422
+    assert req.response.status == http.HTTPStatus.UNPROCESSABLE_ENTITY
     assert resp["message"] == "Token request failed"
     assert isinstance(resp["errors"], list)
     for err in resp["errors"]:
@@ -179,7 +180,7 @@ def test_mint_token_from_oidc_invalid_payload_malformed_jwt(body):
     req = Request()
     resp = views.mint_token_from_oidc(req)
 
-    assert req.response.status == 422
+    assert req.response.status == http.HTTPStatus.UNPROCESSABLE_ENTITY
     assert resp["message"] == "Token request failed"
     assert isinstance(resp["errors"], list)
     for err in resp["errors"]:
@@ -212,7 +213,7 @@ def test_mint_token_from_oidc_jwt_decode_leaky_exception(monkeypatch):
         pretend.call("jwt.decode raised generic error: oops")
     ]
 
-    assert req.response.status == 422
+    assert req.response.status == http.HTTPStatus.UNPROCESSABLE_ENTITY
     assert resp["message"] == "Token request failed"
     assert isinstance(resp["errors"], list)
     for err in resp["errors"]:
@@ -245,7 +246,7 @@ def test_mint_token_from_oidc_unknown_issuer(metrics):
     req = Request()
     resp = views.mint_token_from_oidc(req)
 
-    assert req.response.status == 422
+    assert req.response.status == http.HTTPStatus.UNPROCESSABLE_ENTITY
     assert resp["message"] == "Token request failed"
     assert isinstance(resp["errors"], list)
     for err in resp["errors"]:
@@ -329,7 +330,7 @@ def test_mint_token_from_trusted_publisher_verify_jwt_signature_fails():
     response = views.mint_token(
         oidc_service, DUMMY_GITHUB_OIDC_JWT, claims["iss"], request
     )
-    assert request.response.status == 422
+    assert request.response.status == http.HTTPStatus.UNPROCESSABLE_ENTITY
     assert response == {
         "message": "Token request failed",
         "errors": [
@@ -365,7 +366,7 @@ def test_mint_token_trusted_publisher_lookup_fails():
     response = views.mint_token(
         oidc_service, DUMMY_GITHUB_OIDC_JWT, claims["iss"], request
     )
-    assert request.response.status == 422
+    assert request.response.status == http.HTTPStatus.UNPROCESSABLE_ENTITY
     assert response == {
         "message": "Token request failed",
         "errors": [
@@ -409,7 +410,7 @@ def test_mint_token_duplicate_token():
     response = views.mint_token(
         oidc_service, DUMMY_GITHUB_OIDC_JWT, claims["iss"], request
     )
-    assert request.response.status == 422
+    assert request.response.status == http.HTTPStatus.UNPROCESSABLE_ENTITY
     assert response == {
         "message": "Token request failed",
         "errors": [
@@ -443,7 +444,7 @@ def test_mint_token_pending_publisher_project_already_exists(db_request):
     resp = views.mint_token(
         oidc_service, DUMMY_GITHUB_OIDC_JWT, claims["iss"], db_request
     )
-    assert db_request.response.status_code == 422
+    assert db_request.response.status_code == http.HTTPStatus.UNPROCESSABLE_ENTITY
     assert resp == {
         "message": "Token request failed",
         "errors": [
@@ -1116,7 +1117,7 @@ def test_burn_oidc_issued_token_invalid_payload(metrics):
 
     response = views.burn_oidc_issued_token(request)
 
-    assert request.response.status == 202
+    assert request.response.status == http.HTTPStatus.ACCEPTED
     assert response == {"message": "Accepted", "errors": []}
     assert find_service.calls == [pretend.call(IMetricsService, context=None)]
     assert metrics.increment.calls == [
@@ -1147,7 +1148,7 @@ def test_burn_oidc_issued_token_invalid_macaroon(metrics):
 
     response = views.burn_oidc_issued_token(request)
 
-    assert request.response.status == 202
+    assert request.response.status == http.HTTPStatus.ACCEPTED
     assert response == {"message": "Accepted", "errors": []}
     assert request.find_service.calls == [
         pretend.call(IMetricsService, context=None),
@@ -1190,7 +1191,7 @@ def test_burn_oidc_issued_token_user_macaroon(metrics, monkeypatch):
 
     response = views.burn_oidc_issued_token(request)
 
-    assert request.response.status == 202
+    assert request.response.status == http.HTTPStatus.ACCEPTED
     assert response == {"message": "Accepted", "errors": []}
     assert macaroon_service.find_from_raw.calls == [pretend.call("user-macaroon")]
     assert macaroon_service.delete_macaroon.calls == []
@@ -1231,7 +1232,7 @@ def test_burn_oidc_issued_token_success(metrics):
 
     response = views.burn_oidc_issued_token(request)
 
-    assert request.response.status == 202
+    assert request.response.status == http.HTTPStatus.ACCEPTED
     assert response == {"message": "Accepted", "errors": []}
     assert request.find_service.calls == [
         pretend.call(IMetricsService, context=None),
@@ -1358,5 +1359,5 @@ def test_mint_token_jti_stored_before_macaroon_creation(monkeypatch, db_request)
         "https://token.actions.githubusercontent.com",
         db_request,
     )
-    assert "422" in str(db_request.response.status)
+    assert str(http.HTTPStatus.UNPROCESSABLE_ENTITY) in str(db_request.response.status)
     assert response2["errors"][0]["code"] == "invalid-reuse-token"

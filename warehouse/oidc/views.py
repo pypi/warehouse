@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import http
 import time
 
 from datetime import datetime
@@ -72,7 +73,7 @@ def _ratelimiters(request: Request) -> dict[str, IRateLimiter]:
 
 
 def _invalid(errors: list[Error], request: Request) -> JsonResponse:
-    request.response.status = 422
+    request.response.status = http.HTTPStatus.UNPROCESSABLE_ENTITY
 
     return {
         "message": "Token request failed",
@@ -81,7 +82,7 @@ def _invalid(errors: list[Error], request: Request) -> JsonResponse:
 
 
 def _accepted(request: Request) -> JsonResponse:
-    request.response.status = 202
+    request.response.status = http.HTTPStatus.ACCEPTED
 
     return {"message": "Accepted", "errors": []}
 
@@ -462,7 +463,7 @@ def burn_oidc_issued_token(request: Request):
     Downstream integrators can call this endpoint to expedite the invalidation of a
     Trusted Publishing-issued token.
 
-    Unlike our other Trusted Publishing APIs, this API only ever returns an HTTP 202
+    Unlike our other Trusted Publishing APIs, this API only ever returns an HTTP Accepted
     (indicating receipt, but not communicating the outcome).
     """
 
