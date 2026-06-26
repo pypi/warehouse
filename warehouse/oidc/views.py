@@ -463,8 +463,8 @@ def burn_oidc_issued_token(request: Request):
     Downstream integrators can call this endpoint to expedite the invalidation of a
     Trusted Publishing-issued token.
 
-    Unlike our other Trusted Publishing APIs, this API only ever returns an HTTP Accepted
-    (indicating receipt, but not communicating the outcome).
+    Unlike our other Trusted Publishing APIs, this API only ever returns an
+    HTTP Accepted (indicating receipt, but not communicating the outcome).
     """
 
     request.metrics.increment("warehouse.oidc.burn_oidc_issued_token.attempt")
