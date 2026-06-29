@@ -1,0 +1,61 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{%- macro pip_command(release, request_route, test_environment) -%}
+  {%- if test_environment -%}
+    {% set index_url = " -i https://test.pypi.org/simple/" %}
+  {%- endif -%}
+  {%- if request_route == "packaging.release" -%}
+    {% set project_version = "==" + release.version %}
+  {%- endif -%}
+  {%- if release.version.epoch -%}
+    pip install{{ index_url }} '{{ release.project.name }}{{ project_version }}'
+  {%- else -%}
+    pip install{{ index_url }} {{ release.project.name }}{{ project_version }}
+  {%- endif -%}
+{%- endmacro -%}
+
+{% if project.lifecycle_status == "quarantine-enter" or release.lifecycle_status == "quarantine-enter" %}
+  {% set banner_modifier = "banner--quarantined" %}
+{% elif project.lifecycle_status in ["archived", "archived-noindex"] %}
+  {% set banner_modifier = "banner--archived" %}
+{% elif release.yanked %}
+  {% set banner_modifier = "banner--yanked" %}
+{% else %}
+  {% set banner_modifier = "" %}
+{% endif %}
+
+<div class="banner {{ banner_modifier }} banner--project">
+  <div class="project-header">
+    <h1 class="project-header__name">{{ release.project.name }} {{ release.version }}</h1>
+    {% if release.summary %}
+      <p class="project-header__summary">{{ release.summary }}</p>
+    {% endif %}
+    {% if files and not project.lifecycle_status == "quarantine-enter" and not release.lifecycle_status == "quarantine-enter" %}
+      <div data-controller="clipboard"
+            data-clipboard-plausible-event-value="Copy Project Install Command">
+        <p class="project-header__pip-instructions">
+          <span id="pip-command" data-clipboard-target="source">{{ pip_command(release, request.matched_route.name, testPyPI) }}</span>
+          <button type="button"
+                  class="copy-tooltip copy-tooltip-s"
+                  data-action="clipboard#copy"
+                  data-clipboard-target="tooltip"
+                  data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
+            <i class="fa fa-copy" aria-hidden="true"></i>
+            <span class="sr-only">{% trans %}Copy PIP instructions{% endtrans %}</span>
+          </button>
+        </p>
+      </div>
+    {% endif %}
+  </div>
+</div>

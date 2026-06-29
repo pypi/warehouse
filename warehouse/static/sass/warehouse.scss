@@ -39,7 +39,6 @@
 @use "base/typography" as typography2;
 
 // LAYOUT HELPERS LAYER: reusable layout helpers
-@use "layout-helpers/banner";
 @use "layout-helpers/columns";
 @use "layout-helpers/containers";
 @use "layout-helpers/floats";
@@ -74,6 +73,7 @@
 @use "blocks/form-group";
 @use "blocks/gravatar-form";
 @use "blocks/heading-wsubtitle";
+@use "blocks/banner";
 @use "blocks/homepage-banner";
 @use "blocks/hooray-list";
 @use "blocks/horizontal-menu";
@@ -87,13 +87,14 @@
 @use "blocks/org-roles";
 /*rtl:begin:ignore*/
 @use "blocks/organization-snippet";
-@use "blocks/package-description";
-@use "blocks/package-header";
 @use "blocks/package-snippet";
 /*rtl:end:ignore*/
 @use "blocks/password-strength";
 /*rtl:begin:ignore*/
 @use "blocks/project-description";
+@use "blocks/project-header";
+@use "blocks/project-status";
+@use "blocks/project-tabs";
 /*rtl:end:ignore*/
 @use "blocks/files";
 @use "blocks/radio-toggle-form";

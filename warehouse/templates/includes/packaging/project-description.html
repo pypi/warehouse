@@ -1,0 +1,36 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{# Tab: Project description #}
+<div id="description"
+     data-project-tabs-target="content"
+     class="project-tabs__content"
+     role="tabpanel"
+     aria-labelledby="description-tab"
+     tabindex="-1">
+
+  <div class="project-description">
+    <div class="project-description__main">
+      {% if description %}
+      <div class="project-description__content">{{ description|camoify|safe }}</div>
+      {% else %}
+      <div class="callout-block callout-block--neutral">
+        <p>{% trans %}The author of this package has not provided a project description{% endtrans %}</p>
+      </div>
+      {% endif %}
+    </div>
+    <div class="project-description__sidebar">
+      {% include "warehouse:templates/includes/packaging/project-metadata.html" %}
+    </div>
+  </div>
+</div>

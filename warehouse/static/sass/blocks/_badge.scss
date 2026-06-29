@@ -14,9 +14,10 @@
 */
 
 .badge {
-  font-size: 0.7em;
-  margin-left: 0.5em;
-  vertical-align: 0.15em;
+  font-size: 0.8rem;
+  letter-spacing: 0.05rem;
+  margin-left: 0.5rem;
+  vertical-align: 0.15rem;
   text-transform: uppercase;
   border: 1px solid colours.$primary-color;
   background-color: colours.$primary-color;
@@ -62,17 +63,22 @@
   }
 
   &--warning {
-    background-color: colours.$warning-background-color;
-    border-color: colours.$warning-background-color;
-    color: colours.$warning-color;
-
-    &:hover {
-      color: colours.$warning-color;
-    }
+    background-color: colours.$warning-color;
+    border-color: colours.$warning-color;
 
     &:focus,
     &:active {
       outline: 1px solid colours.$warning-color;
+    }
+  }
+
+  &--dark {
+    background-color: colours.$text-color;
+    border-color: colours.$text-color;
+
+    &:focus,
+    &:active {
+      outline: 1px solid colours.$text-color;
     }
   }
 
@@ -90,8 +96,15 @@
       outline: 1px solid color.adjust(colours.$base-grey, $lightness: -50%);
     }
   }
+
+  &--key-dates {
+    display: inline-block;
+    margin-top: 0.8em;
+    margin-left: 0;
+  }
+
 }
 
-a.badge {
+a.badge:hover {
   text-decoration: underline;
 }
