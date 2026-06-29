@@ -591,6 +591,108 @@ class TestCircleCIPublisher:
         result = CircleCIPublisher.lookup_by_claims(db_request.db, signed_claims)
         assert result == publisher
 
+    def test_lookup_selects_matching_vcs_ref_among_candidates(self, db_request):
+        # Two publishers share org/project/pipeline/context and differ only by
+        # vcs_ref. The lookup must return the one whose constraint matches the
+        # token rather than an arbitrary row, since there is no fallback to other
+        # candidates once verify_claims runs.
+        CircleCIPublisherFactory.create(
+            circleci_org_id=ORG_ID,
+            circleci_project_id=PROJECT_ID,
+            pipeline_definition_id=PIPELINE_DEF_ID,
+            context_id="",
+            vcs_ref="refs/heads/dev",
+            vcs_origin="",
+        )
+        matching = CircleCIPublisherFactory.create(
+            circleci_org_id=ORG_ID,
+            circleci_project_id=PROJECT_ID,
+            pipeline_definition_id=PIPELINE_DEF_ID,
+            context_id="",
+            vcs_ref=VCS_REF,
+            vcs_origin="",
+        )
+
+        signed_claims = new_signed_claims(vcs_ref=VCS_REF)
+
+        assert (
+            CircleCIPublisher.lookup_by_claims(db_request.db, signed_claims) == matching
+        )
+
+    def test_lookup_falls_back_when_vcs_constraint_mismatch(self, db_request):
+        # A publisher constrains vcs_ref to a value the token does not carry,
+        # while an unconstrained publisher also exists. The unconstrained one
+        # must win; the mismatching, more specific one is not a valid candidate.
+        CircleCIPublisherFactory.create(
+            circleci_org_id=ORG_ID,
+            circleci_project_id=PROJECT_ID,
+            pipeline_definition_id=PIPELINE_DEF_ID,
+            context_id="",
+            vcs_ref="refs/heads/dev",
+            vcs_origin="",
+        )
+        general = CircleCIPublisherFactory.create(
+            circleci_org_id=ORG_ID,
+            circleci_project_id=PROJECT_ID,
+            pipeline_definition_id=PIPELINE_DEF_ID,
+            context_id="",
+            vcs_ref="",
+            vcs_origin="",
+        )
+
+        signed_claims = new_signed_claims(vcs_ref=VCS_REF)
+
+        assert (
+            CircleCIPublisher.lookup_by_claims(db_request.db, signed_claims) == general
+        )
+
+    def test_lookup_raises_when_only_candidate_mismatches_vcs(self, db_request):
+        # The single matching-by-identity publisher constrains vcs_ref to a value
+        # the token does not carry. With no valid candidate, the lookup must raise
+        # rather than return a publisher that verify_claims would reject.
+        CircleCIPublisherFactory.create(
+            circleci_org_id=ORG_ID,
+            circleci_project_id=PROJECT_ID,
+            pipeline_definition_id=PIPELINE_DEF_ID,
+            context_id="",
+            vcs_ref="refs/heads/dev",
+            vcs_origin="",
+        )
+
+        signed_claims = new_signed_claims(vcs_ref=VCS_REF)
+
+        with pytest.raises(InvalidPublisherError):
+            CircleCIPublisher.lookup_by_claims(db_request.db, signed_claims)
+
+    def test_lookup_prefers_most_specific_publisher(self, db_request):
+        # Among several matching candidates, the one constraining the most
+        # optional fields is selected.
+        CircleCIPublisherFactory.create(
+            circleci_org_id=ORG_ID,
+            circleci_project_id=PROJECT_ID,
+            pipeline_definition_id=PIPELINE_DEF_ID,
+            context_id="",
+            vcs_ref=VCS_REF,
+            vcs_origin="",
+        )
+        most_specific = CircleCIPublisherFactory.create(
+            circleci_org_id=ORG_ID,
+            circleci_project_id=PROJECT_ID,
+            pipeline_definition_id=PIPELINE_DEF_ID,
+            context_id=CONTEXT_ID,
+            vcs_ref=VCS_REF,
+            vcs_origin=VCS_ORIGIN,
+        )
+
+        signed_claims = new_signed_claims(
+            context_ids=[CONTEXT_ID], vcs_ref=VCS_REF, vcs_origin=VCS_ORIGIN
+        )
+
+        assert (
+            CircleCIPublisher.lookup_by_claims(db_request.db, signed_claims)
+            == most_specific
+        )
+
     def test_lookup_by_claims_no_matching_publisher(self, db_request):
         signed_claims = new_signed_claims()
 

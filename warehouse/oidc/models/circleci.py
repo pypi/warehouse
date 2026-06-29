@@ -7,7 +7,6 @@ import typing
 from typing import Any, Self
 from uuid import UUID
 
-from more_itertools import first_true
 from pypi_attestations import Publisher
 from sqlalchemy import ForeignKey, String, UniqueConstraint, and_, exists
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
@@ -194,30 +193,52 @@ class CircleCIPublisherMixin:
         raise AttributeError(name)
 
     @classmethod
-    def _get_publisher_for_context(
-        cls, publishers: list[Self], context_ids: list[str] | None
-    ) -> Self | None:
-        # Find the most specific publisher: one with a matching context_id takes
-        # precedence over a publisher without context_id constraint.
-        if context_ids and (
-            specific_publisher := first_true(
-                publishers, pred=lambda p: p.context_id in context_ids
+    def _optional_constraints_match(
+        cls, publisher: Self, signed_claims: SignedClaims
+    ) -> bool:
+        # True if every optional constraint the publisher sets is satisfied by
+        # the token. Reuses the verify_claims check functions so a selected
+        # candidate is guaranteed to pass the later verification step.
+        return (
+            _check_context_id(
+                publisher.context_id,
+                signed_claims.get("oidc.circleci.com/context-ids"),
+                signed_claims,
             )
-        ):
-            return specific_publisher
+            and _check_optional_string(
+                publisher.vcs_ref,
+                signed_claims.get("oidc.circleci.com/vcs-ref"),
+                signed_claims,
+            )
+            and _check_optional_string(
+                publisher.vcs_origin,
+                signed_claims.get("oidc.circleci.com/vcs-origin"),
+                signed_claims,
+            )
+        )
 
-        # Fall back to a publisher without context_id constraint (empty string)
-        if general_publisher := first_true(
-            publishers, pred=lambda p: p.context_id == ""
-        ):
-            return general_publisher
-
-        return None
+    @classmethod
+    def _get_publisher_for_claims(
+        cls, publishers: list[Self], signed_claims: SignedClaims
+    ) -> Self | None:
+        candidates = [
+            publisher
+            for publisher in publishers
+            if cls._optional_constraints_match(publisher, signed_claims)
+        ]
+        # Every candidate already satisfies verify_claims, so any of them is
+        # valid. Prefer the most specific one: the publisher constraining the
+        # greatest number of optional fields.
+        return max(
+            candidates,
+            key=lambda p: sum(
+                bool(value) for value in (p.context_id, p.vcs_ref, p.vcs_origin)
+            ),
+            default=None,
+        )
 
     @classmethod
     def lookup_by_claims(cls, session: Session, signed_claims: SignedClaims) -> Self:
-        context_ids = signed_claims.get("oidc.circleci.com/context-ids")
-
         query: Query = Query(cls).filter_by(
             circleci_org_id=signed_claims["oidc.circleci.com/org-id"],
             circleci_project_id=signed_claims["oidc.circleci.com/project-id"],
@@ -227,7 +248,7 @@ class CircleCIPublisherMixin:
         )
         publishers = query.with_session(session).all()
 
-        if publisher := cls._get_publisher_for_context(publishers, context_ids):
+        if publisher := cls._get_publisher_for_claims(publishers, signed_claims):
             return publisher
         raise InvalidPublisherError("Publisher with matching claims was not found")
 
