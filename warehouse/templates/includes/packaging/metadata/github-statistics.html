@@ -1,0 +1,71 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% if release.verified_github_repo_info_url and release.verified_github_open_issue_info_url %}
+  <div class="hidden"
+       data-controller="github-repo-stats"
+       data-github-repo-stats-github-repo-info-outlet=".github-repo-info"
+       data-github-repo-stats-url-value="{{ release.verified_github_repo_info_url }}"
+       data-github-repo-stats-issue-url-value="{{ release.verified_github_open_issue_info_url }}"></div>
+  <div class="sidebar-section">
+    <h2 class="sidebar-section__title">{% trans %}GitHub Statistics{% endtrans %}</h2>
+    <div class="hidden github-repo-info" data-controller="github-repo-info">
+      <ul class="vertical-tabs__list vertical-tabs__list--stacked">
+        <li>
+          <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
+             rel="noopener"
+             href="https://github.com/{{ release.verified_github_user_name_and_repo_name|join('/') }}">
+            <i class="fab fa-github" aria-hidden="true"></i>
+            <strong>{% trans %}Repository{% endtrans %}</strong>
+          </a>
+        </li>
+        <li>
+          <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
+             data-github-repo-info-target="stargazersUrl"
+             rel="noopener">
+            <i class="fa fa-star" aria-hidden="true"></i>
+            <strong>{% trans %}Stars:{% endtrans %}</strong>
+            <span data-github-repo-info-target="stargazersCount"></span>
+          </a>
+        </li>
+        <li>
+          <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
+             data-github-repo-info-target="forksUrl"
+             rel="noopener">
+            <i class="fa fa-code-branch" aria-hidden="true"></i>
+            <strong>{% trans %}Forks:{% endtrans %}</strong>
+            <span data-github-repo-info-target="forksCount"></span>
+          </a>
+        </li>
+        <li>
+          <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
+             data-github-repo-info-target="openIssuesUrl"
+             rel="noopener">
+            <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+            <strong>{% trans %}Open issues:{% endtrans %}</strong>
+            <span data-github-repo-info-target="openIssuesCount"></span>
+          </a>
+        </li>
+        <li>
+          <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
+             data-github-repo-info-target="openPRsUrl"
+             rel="noopener">
+            <i class="fa fa-code-pull-request" aria-hidden="true"></i>
+            <strong>{% trans %}Open PRs:{% endtrans %}</strong>
+            <span data-github-repo-info-target="openPRsCount"></span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+{% endif %}

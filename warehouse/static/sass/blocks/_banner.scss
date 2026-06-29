@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "sass:color";
 @use "../settings/breakpoints";
 @use "../settings/colours";
 
@@ -19,5 +20,22 @@
 
   @media only screen and (max-width: breakpoints.$mobile) {
     padding: 25px 0;
+  }
+
+  &--project {
+    padding: 40px 0;
+  }
+
+  &--quarantined {
+    background-color: colours.$warning-color;
+  }
+
+  &--archived {
+    background-color: color.adjust(colours.$primary-color, $lightness: 60%, $saturation: -50%);
+    color: colours.$text-color;
+  }
+
+  &--yanked {
+    background-color: colours.$text-color;
   }
 }

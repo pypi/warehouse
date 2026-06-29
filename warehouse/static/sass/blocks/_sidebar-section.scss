@@ -20,7 +20,7 @@
 .sidebar-section {
   padding-bottom: 20px;
   margin-bottom: 20px;
-  border-bottom: 2px solid colours.$border-color;
+  // border-bottom: 2px solid colours.$border-color;
   word-wrap: break-word;
 
   .sidebar-section__title {
@@ -31,6 +31,16 @@
   .sidebar-section__user-gravatar {
     @include link-utilities.link-without-underline;
     @include link-utilities.link-focus-state(colours.$primary-color);
+  }
+
+  // container for verified / unverified content
+  .sidebar-setion__content {
+    padding: 5px;
+    border: 1px solid transparent;
+
+    &--verified {
+      border: 1px solid green;
+    }
   }
 
   .ethical-sidebar {
