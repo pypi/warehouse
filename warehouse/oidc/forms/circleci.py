@@ -83,8 +83,8 @@ class CircleCIPublisherBase(wtforms.Form):
     def _lookup_project_metadata(self, project_id: str) -> None:
         """Best-effort lookup of project metadata from CircleCI API."""
         # NOTE: The org and project name are meant as a convenience for
-        # the user - they are not necessary, but having them display is
-        # is a nicer UX for people. The only caveat here is it will NOT
+        # the user - they are not necessary, but having them displayed is
+        # nicer UX for people. The only caveat here is it will NOT
         # work for private projects, but I think that's a fair tradeoff
         try:
             response = requests.get(
