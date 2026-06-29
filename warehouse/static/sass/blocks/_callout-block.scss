@@ -106,6 +106,22 @@
     }
   }
 
+  &--dark {
+    border-color: #616161;
+
+    > :not(.modal, .button) {
+      color: #616161;
+    }
+
+    &::before {
+      background-color: #616161;
+    }
+
+    .callout-block__dismiss {
+      @include link-utilities.link-focus-state(#616161);
+    }
+  }
+
   &--neutral {
     border-color: colours.$border-color;
 

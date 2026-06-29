@@ -9,75 +9,41 @@
 @use "../tools/link-utilities";
 
 /*
-  The  main header of a package detail page. Contains key package information
+  The  main header of a project detail page. Contains key project information
   including name, description, license, etc.
 
   This block assumes it is placed inside a dark container.
 
-  <div class="package-header">
-    <div class="package-header__left">
-      <h1 class="package-header__name"></h1>
-      <p class="package-header__pip-instructions">
-        <span>// pip instructions</span>
-        <button><i></i></button> // copy icon
-      </p>
-    </div>
-    <div class="package-header__right">
-      // status badge here
-      <p class="package-header__date"></p>
-    </div>
+  <div class="project-header">
+    <h1 class="project-header__name"></h1>
+    <p class="project-header__summary"></p>
+    <p class="project-header__pip-instructions">
+      <span>// pip instructions</span>
+      <button><i></i></button> // copy icon
+    </p>
   </div>
 */
 
-.package-header {
+.project-header {
   @include layout-utilities.site-container;
-  display: flex;
-  direction: ltr;
-  text-align: left;
-
-  button {
-    color: colours.$white;
-  }
-
-  &__left {
-    width: 75%;
-    padding-right: grid.$spacing-unit;
-  }
-
-  &__right {
-    text-align: right;
-    width: 25%;
-  }
-
-  @media screen and (max-width: breakpoints.$tablet) {
-    display: block;
-
-    &__left,
-    &__right {
-      width: 100%;
-      padding-right: 0;
-      text-align: left;
-    }
-
-    &__right {
-      margin-top: grid.$half-spacing-unit;
-    }
-  }
 
   &__name {
     padding: 0;
     margin-top: -10px;
   }
 
+  &__summary {
+    padding: 10px 0;
+  }
+
   &__pip-instructions {
-    @include layout-utilities.clearfix;
-    margin: 10px 0 0;
+    margin-top: 10px;
     padding-bottom: 0;
 
     span {
       font-family: fonts.$code-font;
       font-weight: 500;
-      font-size: 1.2rem;
+      font-size: 1rem;
       float: left;
       background-color: color.adjust(colours.$black, $alpha: -0.85);
       padding: 8px;
@@ -110,16 +76,6 @@
       }
 
       @include link-utilities.link-focus-state(colours.$white);
-    }
-  }
-
-  &__date {
-    margin-top: 20px;
-    padding-bottom: 5px;
-
-    @media screen and (max-width: breakpoints.$tablet) {
-      margin-top: grid.$half-spacing-unit;
-      padding-bottom: 0;
     }
   }
 }
