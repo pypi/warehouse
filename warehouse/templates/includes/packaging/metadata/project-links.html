@@ -68,26 +68,32 @@
     <h2 class="sidebar-section__title">{% trans %}Project links{% endtrans %}</h2>
     {% if release.urls_by_verify_status(verified=True).values() | contains_valid_uris %}
       <div class="sidebar-section__content sidebar-section__content--verified">
-        <ul class="vertical-tabs__list">
-          {% for name, url in release.urls_by_verify_status(verified=True).items() %}
-            {% if is_valid_uri(url) %}
-              <li>
-                <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
-                  href="{{ url }}"
-                  rel="nofollow">{{ url_icon(name, url) }}{{ name }}</a>
-              </li>
-            {% endif %}
-          {% endfor %}
-        </ul>
+        <details class="sidebar-section__data-source">
+          <summary class="sidebar-section__data-source-label">{% trans date=humanize(release.created) %}Data verified by PyPI on&nbsp;{{ date }}{% endtrans %}</summary>
+          <div class="sidebar-section__data-source-description">{% trans %}Data provided by the project maintainers, verified at the time the release was uploaded to PyPI.{% endtrans %}</div>
+        </details>
+        <div class="sidebar-section__data-block">
+          <ul class="sidebar-links">
+            {% for name, url in release.urls_by_verify_status(verified=True).items() %}
+              {% if is_valid_uri(url) %}
+                <li>
+                  <a class="sidebar-links__link"
+                    href="{{ url }}"
+                    rel="nofollow">{{ url_icon(name, url) }}{{ name }}</a>
+                </li>
+              {% endif %}
+            {% endfor %}
+          </ul>
+        </div>
       </div>
     {% endif %}
     {% if release.urls_by_verify_status(verified=False).values() | contains_valid_uris %}
-      <div class="sidebar-section__content">
-        <ul class="vertical-tabs__list">
+      <div class="sidebar-section__data-block">
+        <ul class="sidebar-links">
           {% for name, url in release.urls_by_verify_status(verified=False).items() %}
             {% if is_valid_uri(url) %}
               <li>
-                <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
+                <a class="sidebar-links__link"
                   href="{{ url }}"
                   rel="nofollow">{{ url_icon(name, url) }}{{ name }}</a>
               </li>

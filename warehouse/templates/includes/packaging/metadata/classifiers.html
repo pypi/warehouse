@@ -11,36 +11,14 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-{% if release.keywords or release.classifiers %}
+{% if release.classifiers %}
   <div class="sidebar-section">
-    <h2 class="sidebar-section__title">
-      {% if release.keywords and release.classifiers %}
-        {% trans %}Tags &amp; classifiers{% endtrans %}
-      {% elif release.keywords %}
-        {% trans %}Tags{% endtrans %}
-      {% else %}
-        {% trans %}Classifiers{% endtrans %}
-      {% endif %}
-    </h3>
-    {% if release.keywords %}
-      <ul class="tags">
-        <li>
-          <span>
-            <i class="fa fa-tags" aria-hidden="true"></i>
-            {% for keyword in release.keywords | format_tags %}
-              <span class="package-keyword">
-                {{ keyword }}{% if not loop.last %},{% endif %}
-              </span>
-            {% endfor %}
-          </span>
-        </li>
-      </ul>
-    {% endif %}
-    {% if release.classifiers %}
+    <h2 class="sidebar-section__title">{% trans %}Classifiers{% endtrans %}</h2>
+    <div class="sidebar-section__data-block">
       <ul class="sidebar-section__classifiers">
         {% for classifier_head, classifier_tails in (release.classifiers|format_classifiers()).items() %}
           <li>
-            <strong>{{ classifier_head }}</strong>
+            {{ classifier_head }}
             <ul>
               {% for classifier_tail in classifier_tails %}
                 <li>
@@ -53,6 +31,6 @@
           </li>
         {% endfor %}
       </ul>
-    {% endif %}
+    </div>
   </div>
 {% endif %}
