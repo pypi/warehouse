@@ -13,13 +13,9 @@
 -#}
 {% if release.requires_python %}
   <div class="sidebar-section">
-    <h2 class="sidebar-section__title">{% trans %}Requires Python{% endtrans %}</h2>
-    <ul>
-      <li>
-        <span>
-          <strong>Python</strong> {{ release.requires_python|replace(',', ', ') }}
-        </span>
-      </li>
-    </ul>
+    <h2 class="sidebar-section__title">{% trans %}Requires{% endtrans %}</h2>
+    <div class="sidebar-section__data-block">
+      <p><strong>Python</strong> {{ release.requires_python|replace(',', ', ') }}</p>
+    </div>
   </div>
 {% endif %}

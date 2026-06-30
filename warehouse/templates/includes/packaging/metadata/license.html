@@ -13,29 +13,26 @@
 -#}
 {% if release.license_expression or license %}
   <div class="sidebar-section">
-    <h2 class="sidebar-section__title">{% trans %}License{% endtrans %}</h2>
-    <ul>
-      {% if release.license_expression %}
-        <li>
-          <span>
-            <strong>{% trans %}License Expression:{% endtrans %}</strong> {{ release.license_expression }}
+    {% if release.license_expression %}
+      <h2 class="sidebar-section__title">{% trans %}License expression{% endtrans %} <a href="https://spdx.github.io/spdx-spec/v3.0.1/annexes/spdx-license-expressions/" target="_blank" aria-label="{% trans %}About license expressions{% endtrans %}"><i class="fa fa-info-circle" aria-hidden="true"></i></a></h2>
+      <div class="sidebar-section__content sidebar-section__content--pypi">
+        <details class="sidebar-section__data-source">
+          <summary class="sidebar-section__data-source-label">{% trans %}PyPI data{% endtrans %}</summary>
+          <div class="sidebar-section__data-source-description">{% trans %}Data provided by the project maintainers, verified at the time the release was uploaded to PyPI.{% endtrans %}</div>
+        </details>
+        <div class="sidebar-section__data-block">
+          <p>
+            {{ release.license_expression }}
             <br>
-            <small>
-              <i>
-                <a target="_blank" href="https://spdx.org/licenses/">SPDX</a>
-                <a target="_blank"
-                   href="https://spdx.github.io/spdx-spec/v3.0.1/annexes/spdx-license-expressions/">{% trans %}License Expression{% endtrans %}</a>
-              </i>
-            </small>
-          </span>
-        </li>
-      {% elif license %}
-        <li>
-          <span>
-            <strong>{% trans %}License:{% endtrans %}</strong> {{ license }}
-          </span>
-        </li>
-      {% endif %}
-    </ul>
+            <small><a target="_blank" href="https://spdx.org/licenses/">{% trans %}View SPDX License List{% endtrans %}</a></small>
+          </p>
+        </div>
+      </div>
+    {% elif license %}
+      <h2 class="sidebar-section__title">{% trans %}License{% endtrans %}</h2>
+      <div class="sidebar-section__data-block">
+        <p>{{ license }}</p>
+      </div>
+    {% endif %}
   </div>
 {% endif %}

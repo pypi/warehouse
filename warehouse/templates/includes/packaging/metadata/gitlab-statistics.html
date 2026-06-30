@@ -18,53 +18,59 @@
        data-gitlab-repo-stats-repository-value="{{ release.verified_gitlab_repository }}"></div>
   <div class="sidebar-section">
     <h2 class="sidebar-section__title">{% trans %}GitLab Statistics{% endtrans %}</h2>
-    <div class="hidden gitlab-repo-info" data-controller="gitlab-repo-info">
-      <ul class="vertical-tabs__list vertical-tabs__list--stacked">
-        <li>
-          <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
-             rel="noopener"
-             href="https://gitlab.com/{{ release.verified_gitlab_user_name_and_repo_name|join('/') }}">
-            <i class="fab fa-gitlab" aria-hidden="true"></i>
-            <strong>{% trans %}Repository{% endtrans %}</strong>
-          </a>
-        </li>
-        <li>
-          <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
-             data-gitlab-repo-info-target="starrersUrl"
-             rel="noopener">
-            <i class="fa fa-star" aria-hidden="true"></i>
-            <strong>{% trans %}Stars:{% endtrans %}</strong>
-            <span data-gitlab-repo-info-target="starrersCount"></span>
-          </a>
-        </li>
-        <li>
-          <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
-             data-gitlab-repo-info-target="forksUrl"
-             rel="noopener">
-            <i class="fa fa-code-branch" aria-hidden="true"></i>
-            <strong>{% trans %}Forks:{% endtrans %}</strong>
-            <span data-gitlab-repo-info-target="forksCount"></span>
-          </a>
-        </li>
-        <li>
-          <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
-             data-gitlab-repo-info-target="openIssuesUrl"
-             rel="noopener">
-            <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
-            <strong>{% trans %}Open issues:{% endtrans %}</strong>
-            <span data-gitlab-repo-info-target="openIssuesCount"></span>
-          </a>
-        </li>
-        <li>
-          <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
-             data-gitlab-repo-info-target="openMRsUrl"
-             rel="noopener">
-            <i class="fa fa-code-pull-request" aria-hidden="true"></i>
-            <strong>{% trans %}Open merge requests:{% endtrans %}</strong>
-            <span data-gitlab-repo-info-target="openMRsCount"></span>
-          </a>
-        </li>
-      </ul>
+    <div class="sidebar-section__content sidebar-section__content--verified">
+      <details class="sidebar-section__data-source">
+        <summary class="sidebar-section__data-source-label">{% trans date=humanize(release.created) %}Data verified by PyPI on&nbsp;{{ date }}{% endtrans %}</summary>
+        <div class="sidebar-section__data-source-description">{% trans %}The GitLab source repository was provided by the project maintainers and verified by PyPI at the time of upload. Stars, forks, and open issues/PRs are derived from that repository and have not been independently verified.{% endtrans %}</div>
+      </details>
+      <div class="sidebar-section__data-block hidden gitlab-repo-info" data-controller="gitlab-repo-info">
+        <ul class="sidebar-links">
+          <li>
+            <a class="sidebar-links__link"
+               rel="noopener"
+               href="https://gitlab.com/{{ release.verified_gitlab_user_name_and_repo_name|join('/') }}">
+              <i class="fab fa-gitlab" aria-hidden="true"></i>
+              {% trans %}Repository{% endtrans %}
+            </a>
+          </li>
+          <li>
+            <a class="sidebar-links__link"
+               data-gitlab-repo-info-target="starrersUrl"
+               rel="noopener">
+              <i class="fa fa-star" aria-hidden="true"></i>
+              {% trans %}Stars{% endtrans %}:
+              <strong data-gitlab-repo-info-target="starrersCount"></strong>
+            </a>
+          </li>
+          <li>
+            <a class="sidebar-links__link"
+               data-gitlab-repo-info-target="forksUrl"
+               rel="noopener">
+              <i class="fa fa-code-branch" aria-hidden="true"></i>
+              {% trans %}Forks{% endtrans %}:
+              <strong data-gitlab-repo-info-target="forksCount"></strong>
+            </a>
+          </li>
+          <li>
+            <a class="sidebar-links__link"
+               data-gitlab-repo-info-target="openIssuesUrl"
+               rel="noopener">
+              <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+              {% trans %}Open issues{% endtrans %}:
+              <strong data-gitlab-repo-info-target="openIssuesCount"></strong>
+            </a>
+          </li>
+          <li>
+            <a class="sidebar-links__link"
+               data-gitlab-repo-info-target="openMRsUrl"
+               rel="noopener">
+              <i class="fa fa-code-pull-request" aria-hidden="true"></i>
+              {% trans %}Open merge requests{% endtrans %}:
+              <strong data-gitlab-repo-info-target="openMRsCount"></strong>
+            </a>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 {% endif %}

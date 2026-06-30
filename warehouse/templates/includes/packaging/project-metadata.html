@@ -15,13 +15,14 @@
 {% include "warehouse:templates/includes/packaging/metadata/key-dates.html" %}
 {% include "warehouse:templates/includes/packaging/metadata/organization.html" %}
 {% include "warehouse:templates/includes/packaging/metadata/maintainers.html" %}
+{% include "warehouse:templates/includes/packaging/metadata/credits.html" %}
 {% include "warehouse:templates/includes/packaging/metadata/github-statistics.html" %}
 {% include "warehouse:templates/includes/packaging/metadata/gitlab-statistics.html" %}
-{% include "warehouse:templates/includes/packaging/metadata/author.html" %}
 {% include "warehouse:templates/includes/packaging/metadata/license.html" %}
 {% include "warehouse:templates/includes/packaging/metadata/requires-python.html" %}
 {% include "warehouse:templates/includes/packaging/metadata/provides-extra.html" %}
-{% include "warehouse:templates/includes/packaging/metadata/tags-classifiers.html" %}
+{% include "warehouse:templates/includes/packaging/metadata/tags.html" %}
+{% include "warehouse:templates/includes/packaging/metadata/classifiers.html" %}
 <div class="sidebar-section">
   {% set include_sponsor_logos = project.organization.orgtype != OrganizationType.Company %}
   {% include "warehouse:templates/includes/sidebar-sponsor-logo.html" %}

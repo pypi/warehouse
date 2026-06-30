@@ -11,13 +11,13 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-{% if release.provides_extra %}
+{% if release.keywords %}
   <div class="sidebar-section">
-    <h2 class="sidebar-section__title">{% trans %}Provides Extra{% endtrans %}</h2>
+    <h2 class="sidebar-section__title">{% trans %}Tags{% endtrans %}</h2>
     <div class="sidebar-section__data-block">
-      <p>
-        {% for extra in release.provides_extra %}
-          <code>{{ extra }}</code>
+      <p class="tags">
+        {% for keyword in release.keywords | format_tags %}
+          <code>{{ keyword }}</code>
         {% endfor %}
       </p>
     </div>
