@@ -1,29 +1,21 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
+import types
 
 from warehouse import db
 from warehouse.cli import sponsors
 from warehouse.sponsors.models import Sponsor
 
 
-def raise_(ex):
-    """
-    Used by lambda functions to raise exception
-    """
-    raise ex
-
-
-def test_populate_sponsors_from_sponsors_dict(db_request, monkeypatch, cli):
-    engine = pretend.stub()
-    config = pretend.stub(registry={"sqlalchemy.engine": engine})
-    session_cls = pretend.call_recorder(lambda bind: db_request.db)
-    monkeypatch.setattr(db, "Session", session_cls)
+def test_populate_sponsors_from_sponsors_dict(db_request, mocker, cli):
+    engine = mocker.sentinel.engine
+    config = types.SimpleNamespace(registry={"sqlalchemy.engine": engine})
+    session_cls = mocker.patch.object(db, "Session", return_value=db_request.db)
 
     assert db_request.db.query(Sponsor).count() == 0
     cli.invoke(sponsors.populate_db, obj=config)
     assert len(sponsors.SPONSORS_DICTS) == db_request.db.query(Sponsor).count()
-    assert session_cls.calls == [pretend.call(bind=engine)]
+    session_cls.assert_called_once_with(bind=engine)
 
     # assert sponsors have the correct data
     for sponsor_dict in sponsors.SPONSORS_DICTS:
@@ -53,11 +45,10 @@ def test_populate_sponsors_from_sponsors_dict(db_request, monkeypatch, cli):
             assert db_sponsor.white_logo_url is None
 
 
-def test_do_not_duplicate_existing_sponsors(db_request, monkeypatch, cli):
-    engine = pretend.stub()
-    config = pretend.stub(registry={"sqlalchemy.engine": engine})
-    session_cls = pretend.call_recorder(lambda bind: db_request.db)
-    monkeypatch.setattr(db, "Session", session_cls)
+def test_do_not_duplicate_existing_sponsors(db_request, mocker, cli):
+    engine = mocker.sentinel.engine
+    config = types.SimpleNamespace(registry={"sqlalchemy.engine": engine})
+    mocker.patch.object(db, "Session", return_value=db_request.db)
 
     # command line called several times
     cli.invoke(sponsors.populate_db, obj=config)
@@ -68,21 +59,20 @@ def test_do_not_duplicate_existing_sponsors(db_request, monkeypatch, cli):
     assert len(sponsors.SPONSORS_DICTS) == db_request.db.query(Sponsor).count()
 
 
-def test_capture_exception_if_error_and_rollback(db_request, monkeypatch, cli):
-    engine = pretend.stub()
-    config = pretend.stub(registry={"sqlalchemy.engine": engine})
-    session = pretend.stub()
-    session.add = pretend.call_recorder(lambda obj: raise_(Exception("SQL exception")))
-    session.rollback = pretend.call_recorder(lambda: True)
-    session.commit = pretend.call_recorder(lambda: True)
-    session.query = db_request.db.query
-    session_cls = pretend.call_recorder(lambda bind: session)
-    monkeypatch.setattr(db, "Session", session_cls)
+def test_capture_exception_if_error_and_rollback(db_request, mocker, cli):
+    engine = mocker.sentinel.engine
+    config = types.SimpleNamespace(registry={"sqlalchemy.engine": engine})
+    add = mocker.patch.object(
+        db_request.db, "add", side_effect=Exception("SQL exception")
+    )
+    rollback = mocker.spy(db_request.db, "rollback")
+    commit = mocker.spy(db_request.db, "commit")
+    mocker.patch.object(db, "Session", return_value=db_request.db)
 
     cli.invoke(sponsors.populate_db, obj=config)
 
     # no new data at db and no exception being raised
     assert db_request.db.query(Sponsor).count() == 0
-    assert len(session.add.calls) == len(sponsors.SPONSORS_DICTS)
-    assert len(session.rollback.calls) == len(sponsors.SPONSORS_DICTS)
-    assert len(session.commit.calls) == 0
+    assert add.call_count == len(sponsors.SPONSORS_DICTS)
+    assert rollback.call_count == len(sponsors.SPONSORS_DICTS)
+    assert commit.call_count == 0
