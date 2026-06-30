@@ -29,8 +29,8 @@
       </nav>
     </div>
     <div class="project-tabs__panel">
-      <div class="project-tabs__content">
-        // Tab content
+      <div id="tab-id" data-project-tabs-target="content" role="tabpanel">
+        // Tab content. Shown/hidden by project_tabs_controller.js via the "content" Stimulus target.
       </div>
     </div>
   </div>
