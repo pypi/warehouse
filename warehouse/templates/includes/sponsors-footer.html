@@ -12,30 +12,34 @@
  # limitations under the License.
 -#}
 <div class="sponsors">
-  <p class="sponsors__title">Supported by</p>
-  <div class="sponsors__divider"></div>
-  {% for sponsor in request.sponsors | sort(attribute='name') %}
-    {# Short-circuit if we don't have an image for them #}
-    {% if sponsor.white_logo_url %}
-      {# Check if they belong in the footer #}
-      {% if sponsor.infra_sponsor or sponsor.footer %}
-        <a class="sponsors__sponsor"
+  <div class="sponsors__inner">
+    <p class="sponsors__title">Supported by</p>
+    <div class="sponsors__divider"></div>
+    {# Render every footer sponsor in a single compact row (no per-tier
+       stacking), preserving tier priority order. Infrastructure partners are
+       de-emphasized via the --infra modifier rather than a separate block so
+       the footer stays short. #}
+    {% for group in request.sponsors["footer"] %}
+      {% for sponsor in group.sponsors %}
+        <a class="sponsors__sponsor {{ 'sponsors__sponsor--infra' if sponsor.infra_sponsor }}"
            target="_blank"
            rel="noopener"
            href="{{ sponsor.link_url }}">
-          {{ sponsor.white_logo_img|camoify|safe }}
+          {% if sponsor.white_logo_url %}
+            {{ sponsor.white_logo_img|camoify|safe }}
+          {% else %}
+            <span class="sponsors__image-chip">{{ sponsor.color_logo_img|camoify|safe }}</span>
+          {% endif %}
           <span class="sponsors__name">{{ sponsor.name }}</span>
           <span class="sponsors__service">
-            {# If they're an infra sponsor, we should have a service for them,
-          otherwise they're a PSF sponsor #}
-            {% if sponsor.infra_sponsor %}
+            {%- if sponsor.infra_sponsor -%}
               {{ sponsor.service }}
-            {% elif sponsor.footer %}
-              PSF Sponsor
-            {% endif %}
+            {%- elif group.tier -%}
+              {{ group.tier }} Sponsor
+            {%- endif -%}
           </span>
         </a>
-      {% endif %}
-    {% endif %}
-  {% endfor %}
+      {% endfor %}
+    {% endfor %}
+  </div>
 </div>

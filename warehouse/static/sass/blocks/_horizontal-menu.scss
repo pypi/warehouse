@@ -86,3 +86,13 @@
     }
   }
 }
+
+// Header right-hand cluster: lays the main nav (or account menu) and the
+// language dropdown out on a single row instead of stacking them.
+#user-indicator {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  column-gap: grid.$half-spacing-unit;
+}
