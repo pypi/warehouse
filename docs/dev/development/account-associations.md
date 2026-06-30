@@ -83,7 +83,7 @@ This applies to every provider.
 
 Follow the `GitLabOAuthClient` pattern:
 
-1. Add the client class (and a `Null*OAuthClient`) in
+1. Add the client class (and a `Null*Client`) in
    `warehouse/accounts/oauth.py`, implementing `IOAuthProviderService`.
 2. Parse the backend env var in `warehouse/config.py` with `maybe_set_compound`.
 3. Register the service factory in `warehouse/accounts/__init__.py`
