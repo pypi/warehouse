@@ -19,30 +19,34 @@
       <div class="sidebar-section__data-source-description">{% trans %}Data sourced directly from PyPI's database.{% endtrans %}</div>
     </details>
     <div class="sidebar-section__data-block">
-      {% trans release_date=humanize(release.created) %}<strong>Released:</strong> {{ release_date }}{% endtrans %}<br/>
+      {% trans release_date=humanize(release.created) %}<strong>Released:</strong> {{ release_date }}{% endtrans %}
+      <br />
       {% if project.lifecycle_status == "quarantine-enter" and project.lifecycle_status_changed %}
-        {% trans date=humanize(project.lifecycle_status_changed) %}<strong>Quarantined:</strong> {{ date }}{% endtrans %}<br/>
+        {% trans date=humanize(project.lifecycle_status_changed) %}<strong>Quarantined:</strong> {{ date }}{% endtrans %}
+        <br />
       {% endif %}
       {% if release.lifecycle_status == "quarantine-enter" and release.lifecycle_status_changed %}
-        {% trans date=humanize(release.lifecycle_status_changed) %}<strong>Quarantined:</strong> {{ date }}{% endtrans %}<br/>
+        {% trans date=humanize(release.lifecycle_status_changed) %}<strong>Quarantined:</strong> {{ date }}{% endtrans %}
+        <br />
       {% endif %}
       {% if project.lifecycle_status in ["archived", "archived-noindex"] and project.lifecycle_status_changed %}
-        {% trans date=humanize(project.lifecycle_status_changed) %}<strong>Archived:</strong> {{ date }}{% endtrans %}<br/>
+        {% trans date=humanize(project.lifecycle_status_changed) %}<strong>Archived:</strong> {{ date }}{% endtrans %}
+        <br />
       {% endif %}
       <!-- TODO -->
       {% if release.yanked %}
-        {% trans %}<strong>Yanked:</strong> Show date here{% endtrans %}<br/>
+        {% trans %}<strong>Yanked:</strong> Show date here{% endtrans %}
+        <br />
       {% endif %}
-
       {% if latest_version %}
         {% if release.version|parse_version > latest_version.version|parse_version %}
           <a class="badge badge--key-dates badge--warning"
-              href="{{ request.route_path('packaging.project', name=release.project.name) }}">
+             href="{{ request.route_path('packaging.project', name=release.project.name) }}">
             <span>{% trans version=latest_version.version %}Stable version available ({{ version }}){% endtrans %}</span>
           </a>
         {% elif release.version|parse_version != latest_version.version|parse_version %}
           <a class="badge badge--key-dates badge--warning"
-              href="{{ request.route_path('packaging.project', name=release.project.name) }}">
+             href="{{ request.route_path('packaging.project', name=release.project.name) }}">
             <span>{% trans version=latest_version.version %}Newer version available ({{ version }}){% endtrans %}</span>
           </a>
         {% else %}

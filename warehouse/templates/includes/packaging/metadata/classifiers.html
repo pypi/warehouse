@@ -22,7 +22,7 @@
             <ul>
               {% for classifier_tail in classifier_tails %}
                 <li>
-                  <a href="{{ request.route_path('search', _query={'c': ' :: '.join((classifier_head, classifier_tail))}) }}">
+                  <a href="{{ request.route_path('search', _query={'c': ' :: '.join((classifier_head, classifier_tail) )}) }}">
                     {{ classifier_tail }}
                   </a>
                 </li>

@@ -14,7 +14,9 @@
 {% if maintainers %}
   <div class="sidebar-section">
     <h2 class="sidebar-section__title">
-      {% trans count=maintainers|count %}{{ count }} maintainer{% pluralize %}{{ count }} maintainers{% endtrans %}
+      {% trans count=maintainers|count %}{{ count }} maintainer
+    {% pluralize %}
+      {{ count }} maintainers{% endtrans %}
     </h2>
     <div class="sidebar-section__content sidebar-section__content--pypi">
       <details class="sidebar-section__data-source">

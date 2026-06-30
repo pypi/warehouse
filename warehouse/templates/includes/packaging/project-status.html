@@ -13,72 +13,72 @@
 -#}
 <div class="project-status">
   {% if project.lifecycle_status == "quarantine-enter" %}
-  <div class="project-status__item project-status__item--quarantined">
-    <div class="project-status__content">
-      <strong class="project-status__label">
-        <i class="fa fa-shield-halved" aria-hidden="true"></i>
-        {% trans %}Quarantined{% endtrans %}
-      </strong>
-      <p class="project-status__description">
-        {% trans href=request.route_path('help') + '#project_in_quarantine' %}This project has been <a href="{{ href }}">quarantined</a> by PyPI admins. It cannot be installed or modified until a security review is complete.{% endtrans %}
-      </p>
+    <div class="project-status__item project-status__item--quarantined">
+      <div class="project-status__content">
+        <strong class="project-status__label">
+          <i class="fa fa-shield-halved" aria-hidden="true"></i>
+          {% trans %}Quarantined{% endtrans %}
+        </strong>
+        <p class="project-status__description">
+          {% trans href=request.route_path('help') + '#project_in_quarantine' %}This project has been <a href="{{ href }}">quarantined</a> by PyPI admins. It cannot be installed or modified until a security review is complete.{% endtrans %}
+        </p>
+      </div>
     </div>
-  </div>
   {% endif %}
   {% if release.lifecycle_status == "quarantine-enter" %}
-  <div class="project-status__item project-status__item--quarantined">
-    <div class="project-status__content">
-      <strong class="project-status__label">
-        <i class="fa fa-shield-halved" aria-hidden="true"></i>
-        {% trans %}Quarantined{% endtrans %}
-      </strong>
-      <p class="project-status__description">
-        {% trans href=request.route_path('help') + '#project_in_quarantine' %}This release has been <a href="{{ href }}">quarantined</a> by PyPI admins. It cannot be installed or modified until a security review is complete.{% endtrans %}
-      </p>
+    <div class="project-status__item project-status__item--quarantined">
+      <div class="project-status__content">
+        <strong class="project-status__label">
+          <i class="fa fa-shield-halved" aria-hidden="true"></i>
+          {% trans %}Quarantined{% endtrans %}
+        </strong>
+        <p class="project-status__description">
+          {% trans href=request.route_path('help') + '#project_in_quarantine' %}This release has been <a href="{{ href }}">quarantined</a> by PyPI admins. It cannot be installed or modified until a security review is complete.{% endtrans %}
+        </p>
+      </div>
     </div>
-  </div>
   {% endif %}
   {% if project.lifecycle_status in ["archived", "archived-noindex"] %}
-  <div class="project-status__item project-status__item--archived">
-    <div class="project-status__content">
-      <strong class="project-status__label">
-        <i class="fa fa-box-archive" aria-hidden="true"></i>
-        {% trans %}Archived{% endtrans %}
-      </strong>
-      <p class="project-status__description">
-        {% trans href=request.route_path('help') + '#archived-project' %}This project has been <a href="{{ href }}">archived</a> by its maintainers, and is no longer receiving any updates.{% endtrans %}
-      </p>
+    <div class="project-status__item project-status__item--archived">
+      <div class="project-status__content">
+        <strong class="project-status__label">
+          <i class="fa fa-box-archive" aria-hidden="true"></i>
+          {% trans %}Archived{% endtrans %}
+        </strong>
+        <p class="project-status__description">
+          {% trans href=request.route_path('help') + '#archived-project' %}This project has been <a href="{{ href }}">archived</a> by its maintainers, and is no longer receiving any updates.{% endtrans %}
+        </p>
+      </div>
     </div>
-  </div>
   {% endif %}
   {% if release.is_prerelease %}
-  <div class="project-status__item project-status__item--pre-release">
-    <div class="project-status__content">
-      <strong class="project-status__label">
-        <i class="fa fa-flask" aria-hidden="true"></i>
-        {% trans %}Pre-release{% endtrans %}
-      </strong>
-      <p class="project-status__description">
-        {% trans href=request.route_path('help') + '#pre-release-versioning' %}This release is a <a href="{{ href }}">pre-release</a> and may not be stable for production use.{% endtrans %}
-      </p>
+    <div class="project-status__item project-status__item--pre-release">
+      <div class="project-status__content">
+        <strong class="project-status__label">
+          <i class="fa fa-flask" aria-hidden="true"></i>
+          {% trans %}Pre-release{% endtrans %}
+        </strong>
+        <p class="project-status__description">
+          {% trans href=request.route_path('help') + '#pre-release-versioning' %}This release is a <a href="{{ href }}">pre-release</a> and may not be stable for production use.{% endtrans %}
+        </p>
+      </div>
     </div>
-  </div>
   {% endif %}
   {% if release.yanked %}
-  <div class="project-status__item project-status__item--yanked">
-    <div class="project-status__content">
-      <strong class="project-status__label">
-        <i class="fa fa-ban" aria-hidden="true"></i>
-        {% trans %}Yanked{% endtrans %}
-      </strong>
-      <p class="project-status__description">
-        {% trans href=request.route_path('help') + '#yanked' %}This release has been <a href="{{ href }}">yanked</a> by its maintainers, and will be ignored by installers, except when explicitly specified.{% endtrans %}
-        {% if release.yanked_reason %}
-          <br/>
-          <strong>Reason:</strong> {{ release.yanked_reason }}
-        {% endif %}
-      </p>
+    <div class="project-status__item project-status__item--yanked">
+      <div class="project-status__content">
+        <strong class="project-status__label">
+          <i class="fa fa-ban" aria-hidden="true"></i>
+          {% trans %}Yanked{% endtrans %}
+        </strong>
+        <p class="project-status__description">
+          {% trans href=request.route_path('help') + '#yanked' %}This release has been <a href="{{ href }}">yanked</a> by its maintainers, and will be ignored by installers, except when explicitly specified.{% endtrans %}
+          {% if release.yanked_reason %}
+            <br />
+            <strong>Reason:</strong> {{ release.yanked_reason }}
+          {% endif %}
+        </p>
+      </div>
     </div>
-  </div>
   {% endif %}
 </div>

@@ -24,7 +24,6 @@
     pip install{{ index_url }} {{ release.project.name }}{{ project_version }}
   {%- endif -%}
 {%- endmacro -%}
-
 {% if project.lifecycle_status == "quarantine-enter" or release.lifecycle_status == "quarantine-enter" %}
   {% set banner_modifier = "banner--quarantined" %}
 {% elif project.lifecycle_status in ["archived", "archived-noindex"] %}
@@ -36,7 +35,6 @@
 {% else %}
   {% set banner_modifier = "" %}
 {% endif %}
-
 <div class="banner {{ banner_modifier }} banner--project">
   <div class="project-header">
     <h1 class="project-header__name">{{ release.project.name }} {{ release.version }}</h1>
@@ -45,7 +43,7 @@
     {% endif %}
     {% if files and not project.lifecycle_status == "quarantine-enter" and not release.lifecycle_status == "quarantine-enter" %}
       <div data-controller="clipboard"
-            data-clipboard-plausible-event-value="Copy Project Install Command">
+           data-clipboard-plausible-event-value="Copy Project Install Command">
         <p class="project-header__pip-instructions">
           <span id="pip-command" data-clipboard-target="source">{{ pip_command(release, request.matched_route.name, testPyPI) }}</span>
           <button type="button"

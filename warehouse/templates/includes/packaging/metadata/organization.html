@@ -23,8 +23,8 @@
         <ul class="sidebar-links">
           <li>
             <a class="sidebar-links__link"
-              href="{{ request.route_path('organizations.profile', organization=project.organization.name) }}"
-              aria-label="{{ project.organization.name }}">
+               href="{{ request.route_path('organizations.profile', organization=project.organization.name) }}"
+               aria-label="{{ project.organization.name }}">
               <i class="fa fa-sitemap" aria-hidden="true"></i>
               {{ project.organization.display_name }}
             </a>
