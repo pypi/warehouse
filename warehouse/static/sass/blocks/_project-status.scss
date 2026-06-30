@@ -37,15 +37,15 @@
     }
 
     &--archived {
-      background-color: color.adjust(colours.$primary-color, $lightness: 60%, $saturation: -50%);
+      background-color: colours.$base-grey;
       color: colours.$text-color;
 
       &:last-child {
-        border-bottom-color: color.adjust(colours.$text-color, $alpha: -0.8);
+        border-bottom-color: color.adjust(colours.$base-grey, $lightness: -10%);
       }
 
       .project-status__label {
-        border-right-color: color.adjust(colours.$text-color, $alpha: -0.8);
+        border-right-color: color.adjust(colours.$base-grey, $lightness: -10%);
       }
 
       .project-status__description a {
@@ -80,7 +80,7 @@
     gap: grid.$quarter-spacing-unit;
     font-weight: fonts.$bold-font-weight;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.05rem;
     white-space: nowrap;
     border-right: 1px solid color.adjust(colours.$white, $alpha: -0.6);
     padding-right: grid.$half-spacing-unit;
