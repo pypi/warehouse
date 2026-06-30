@@ -60,7 +60,6 @@
   {% endif %}
   <i class="{{ icon }}" aria-hidden="true"></i>
 {%- endmacro %}
-
 {% if release.urls %}
   <div class="sidebar-section">
     <h2 class="sidebar-section__title">{% trans %}Project links{% endtrans %}</h2>
@@ -75,9 +74,7 @@
             {% for name, url in release.urls_by_verify_status(verified=True).items() %}
               {% if is_valid_uri(url) %}
                 <li>
-                  <a class="sidebar-links__link"
-                    href="{{ url }}"
-                    rel="nofollow">{{ url_icon(name, url) }}{{ name }}</a>
+                  <a class="sidebar-links__link" href="{{ url }}" rel="nofollow">{{ url_icon(name, url) }}{{ name }}</a>
                 </li>
               {% endif %}
             {% endfor %}
@@ -91,9 +88,7 @@
           {% for name, url in release.urls_by_verify_status(verified=False).items() %}
             {% if is_valid_uri(url) %}
               <li>
-                <a class="sidebar-links__link"
-                  href="{{ url }}"
-                  rel="nofollow">{{ url_icon(name, url) }}{{ name }}</a>
+                <a class="sidebar-links__link" href="{{ url }}" rel="nofollow">{{ url_icon(name, url) }}{{ name }}</a>
               </li>
             {% endif %}
           {% endfor %}

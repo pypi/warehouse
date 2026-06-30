@@ -11,9 +11,7 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-
 {% extends "base.html" %}
-
 {# HTML HEAD metadata #}
 {% block title %}{{ release.project.name }}{% endblock %}
 {% block description %}{{ release.summary }}{% endblock %}
@@ -27,7 +25,6 @@
 {% block extra_meta %}
   {% if release.project.created|is_recent %}<meta name="googlebot" content="noindex">{% endif %}
 {% endblock %}
-
 {# Page content #}
 {% block content %}
   {% include "warehouse:templates/includes/packaging/project-status.html" %}

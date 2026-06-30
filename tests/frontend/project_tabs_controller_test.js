@@ -65,19 +65,19 @@ const tabsHTML = `
           </li>
         </ul>
         {# Tab: Project description #}
-        <div id="description" data-project-tabs-target="content" class="tabs__content" role="tabpanel" aria-labelledby="description-tab mobile-description-tab" tabindex="-1">
+        <div id="description" data-project-tabs-target="content" role="tabpanel" aria-labelledby="description-tab mobile-description-tab" tabindex="-1">
           <h2 class="page-title">Project description</h2>
           <div class="project-description">Description</div>
         </div>
 
         {# Tab: project details #}
-        <div id="data" data-project-tabs-target="content" class="tabs__content" role="tabpanel" aria-labelledby="mobile-data-tab" tabindex="-1">
+        <div id="data" data-project-tabs-target="content" role="tabpanel" aria-labelledby="mobile-data-tab" tabindex="-1">
           <h2 class="page-title">Project details</h2>
           <br>
         </div>
 
         {# Tab: Release history #}
-        <div id="history" data-project-tabs-target="content" class="tabs__content" role="tabpanel" aria-labelledby="history-tab mobile-history-tab" tabindex="-1">
+        <div id="history" data-project-tabs-target="content" role="tabpanel" aria-labelledby="history-tab mobile-history-tab" tabindex="-1">
           <h2 class="page-title split-layout">
             <span>Release history</span>
             <a class="reset-text margin-top" href="#project-release-notifications">Release notifications</a>
@@ -85,7 +85,7 @@ const tabsHTML = `
         </div>
 
         {# Tab: Download files #}
-        <div id="files" data-project-tabs-target="content" class="tabs__content" role="tabpanel" aria-labelledby="files-tab mobile-files-tab" tabindex="-1">
+        <div id="files" data-project-tabs-target="content" role="tabpanel" aria-labelledby="files-tab mobile-files-tab" tabindex="-1">
           <h2 class="page-title">Download files</h2>
           <div class="file">
             <div class="card file__card">
@@ -97,7 +97,7 @@ const tabsHTML = `
         </div>
 
         {# Tab: file details #}
-        <div id="sample-1.0.tar.gz" data-project-tabs-target="content" class="tabs__content" role="tabpanel" tabindex="-1">
+        <div id="sample-1.0.tar.gz" data-project-tabs-target="content" role="tabpanel" tabindex="-1">
           <h2 class="page-title">File details</h2>
           <p>Details for the file sample-1.0.tar.gz.</p>
         </div>

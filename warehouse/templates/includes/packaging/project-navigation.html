@@ -18,10 +18,10 @@
         <ul class="project-tabs__list">
           <li>
             <a href="#description"
-              class="project-tabs__tab"
-              data-project-tabs-target="tab"
-              data-action="project-tabs#onTabClick"
-              aria-label="{% trans %}Project description. Focus will be moved to the description.{% endtrans %}">
+               class="project-tabs__tab"
+               data-project-tabs-target="tab"
+               data-action="project-tabs#onTabClick"
+               aria-label="{% trans %}Project description. Focus will be moved to the description.{% endtrans %}">
               <span>
                 <i class="fa-regular fa-rectangle-list" aria-hidden="true"></i>
                 {% trans %}Description{% endtrans %}
@@ -30,10 +30,10 @@
           </li>
           <li>
             <a href="#history"
-              class="project-tabs__tab"
-              data-project-tabs-target="tab"
-              data-action="project-tabs#onTabClick"
-              aria-label="{% trans %}Release history. Focus will be moved to the history panel.{% endtrans %}">
+               class="project-tabs__tab"
+               data-project-tabs-target="tab"
+               data-action="project-tabs#onTabClick"
+               aria-label="{% trans %}Release history. Focus will be moved to the history panel.{% endtrans %}">
               <span>
                 <i class="fa fa-history" aria-hidden="true"></i>
                 {% trans %}Release history{% endtrans %}
@@ -43,22 +43,20 @@
           {% if files and not release.lifecycle_status == "quarantine-enter" %}
             <li>
               <a href="#files"
-                class="project-tabs__tab"
-                data-project-tabs-target="tab"
-                data-action="project-tabs#onTabClick"
-                aria-label="{% trans %}Download files. Focus will be moved to the project files.{% endtrans %}">
+                 class="project-tabs__tab"
+                 data-project-tabs-target="tab"
+                 data-action="project-tabs#onTabClick"
+                 aria-label="{% trans %}Download files. Focus will be moved to the project files.{% endtrans %}">
                 <span>
                   <i class="fa-regular fa-file" aria-hidden="true"></i>
-                  {% trans count=files|count %}{{ count }} File{% pluralize %}{{ count }} Files{% endtrans %}
+                  {% trans count=files|count %}{{ count }} File
+                {% pluralize %}
+                  {{ count }} Files{% endtrans %}
                 </span>
               </a>
             </li>
             <!-- <li>
-              <a href="#security"
-                class="project-tabs__tab"
-                data-project-tabs-target="tab"
-                data-action="project-tabs#onTabClick"
-                aria-label="{% trans %}Release security. Focus will be moved to the security panel.{% endtrans %}">
+              <a href="#security" class="project-tabs__tab" data-project-tabs-target="tab" data-action="project-tabs#onTabClick" aria-label="{% trans %}Release security. Focus will be moved to the security panel.{% endtrans %}">
                 <span>
                   <i class="fa fa-shield-halved" aria-hidden="true"></i>
                   {% trans %}Security{% endtrans %}
