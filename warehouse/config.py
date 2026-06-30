@@ -8,6 +8,7 @@ import os
 import secrets
 import shlex
 
+from collections import Counter
 from datetime import timedelta
 from urllib.parse import urlparse, urlunparse  # noqa: TID251
 
@@ -278,18 +279,24 @@ def from_base64_encoded_json(configuration):
 
 
 def reject_duplicate_post_keys_view(view, info):
-    if info.options.get("permit_duplicate_post_keys") or info.exception_only:
+    # Skip the check entirely when duplicate POST keys are allowed via
+    # permit_duplicate_post_keys = True, or for an exception-only view.
+    permit = info.options.get("permit_duplicate_post_keys")
+    if permit is True or info.exception_only:
         return view
 
-    # If this isn't an exception or hasn't been permitted to have duplicate
-    # POST keys, wrap the view with a check
+    # Passing a collection to permit_duplicate_post_keys will allow
+    # those keys to be duplicated.
+    allowed_duplicate_post_keys = set(permit) if permit else set()
 
+    # Wrap the view with a check that rejects any duplicate keys
+    # that aren't explicitly permitted.
     @functools.wraps(view)
     def wrapped(context, request):
         if request.POST:
-            # Determine if there are any duplicate keys
-            keys = list(request.POST.keys())
-            if len(keys) != len(set(keys)):
+            counts = Counter(request.POST.keys())
+            duplicated_post_keys = {key for key, count in counts.items() if count > 1}
+            if duplicated_post_keys - allowed_duplicate_post_keys:
                 return HTTPBadRequest(
                     f"POST body may not contain duplicate keys (URL: {request.url!r})"
                 )
