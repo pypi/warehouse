@@ -23,7 +23,13 @@
         <div class="sidebar-section__data-block">
           {% if release.author_email and release.author_email_verified %}
             <p>
-              <strong>{% if release.maintainer_email == release.author_email %}{% trans %}Author/Maintainer:{% endtrans %}{% else %}{% trans %}Author:{% endtrans %}{% endif %}</strong>
+              <strong>
+                {% if release.maintainer_email == release.author_email %}
+                  {% trans %}Author/Maintainer:{% endtrans %}
+                {% else %}
+                  {% trans %}Author:{% endtrans %}
+                {% endif %}
+              </strong>
               <a href="mailto:{{ release.author_email|format_email|last }}">{{ release.author or release.author_email|format_email|first }}</a>
             </p>
           {% endif %}
@@ -41,12 +47,24 @@
         <div class="sidebar-section__data-block">
           {% if release.author_email and not release.author_email_verified %}
             <p>
-              <strong>{% if release.maintainer_email == release.author_email %}{% trans %}Author/Maintainer:{% endtrans %}{% else %}{% trans %}Author:{% endtrans %}{% endif %}</strong>
+              <strong>
+                {% if release.maintainer_email == release.author_email %}
+                  {% trans %}Author/Maintainer:{% endtrans %}
+                {% else %}
+                  {% trans %}Author:{% endtrans %}
+                {% endif %}
+              </strong>
               <a href="mailto:{{ release.author_email|format_email|last }}">{{ release.author or release.author_email|format_email|first }}</a>
             </p>
           {% elif release.author and not release.author_email %}
             <p>
-              <strong>{% if release.maintainer == release.author %}{% trans %}Author/Maintainer:{% endtrans %}{% else %}{% trans %}Author:{% endtrans %}{% endif %}</strong> {{ release.author }}
+              <strong>
+                {% if release.maintainer == release.author %}
+                  {% trans %}Author/Maintainer:{% endtrans %}
+                {% else %}
+                  {% trans %}Author:{% endtrans %}
+                {% endif %}
+              </strong> {{ release.author }}
             </p>
           {% endif %}
           {% if release.maintainer_email and not release.maintainer_email_verified and release.maintainer_email != release.author_email %}

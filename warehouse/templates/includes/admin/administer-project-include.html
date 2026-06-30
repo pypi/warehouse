@@ -18,20 +18,20 @@
         <span><b>Admin tools for project: <code>{{ project_name }}</code></b></span>
         <div>
           <a href="{{ request.route_path('admin.project.detail', project_name=project_name) }}"
-            class="button button--small button--primary package-description__edit-button"
-            {{ "" if project else "disabled" }}>View project in admin</a>
+             class="button button--small button--primary package-description__edit-button"
+             {{ "" if project else "disabled" }}>View project in admin</a>
           {% if prohibited %}
             <a href="{{ request.route_path('admin.prohibited_project_names.list', _query={'q': project_name}) }}"
-              class="button button--small button--secondary package-description__edit-button">🚫 Prohibited</a>
+               class="button button--small button--secondary package-description__edit-button">🚫 Prohibited</a>
           {% else %}
             <form class="form-inline"
                   method="get"
                   action="{{ request.route_path('admin.prohibited_project_names.add') }}">
               <input name="project" type="hidden" value="{{ project_name }}">
               <input name="comment"
-                    type="hidden"
-                    value="dependency confusion"
-                    id="prohibitedComment">
+                     type="hidden"
+                     value="dependency confusion"
+                     id="prohibitedComment">
               <button type="submit"
                       class="button button--small button--warning"
                       title="{{ "Submitting requires superuser privileges" if not request.has_permission(Permissions.AdminProhibitedProjectsWrite) }}"
@@ -51,7 +51,7 @@
             </form>
           {% endif %}
           <a href="https://inspector.pypi.io/project/{{ project_name }}/"
-            class="button button--small button--tertiary package-description__edit-button">🕵️ Inspect</a>
+             class="button button--small button--tertiary package-description__edit-button">🕵️ Inspect</a>
         </div>
       </div>
       <div>
