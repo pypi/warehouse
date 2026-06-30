@@ -31,7 +31,8 @@
   }
 
   &--archived {
-    background-color: color.adjust(colours.$primary-color, $lightness: 60%, $saturation: -50%);
+    background-color: colours.$base-grey;
+    //background-color: color.adjust(colours.$base-grey, $lightness: -10%);
     color: colours.$text-color;
   }
 
