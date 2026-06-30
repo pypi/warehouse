@@ -31,12 +31,16 @@
   }
 
   &--archived {
-    background-color: colours.$base-grey;
-    //background-color: color.adjust(colours.$base-grey, $lightness: -10%);
+    background-color: #f7f7f7;
     color: colours.$text-color;
   }
 
   &--yanked {
     background-color: colours.$text-color;
+  }
+
+  &--pre-release {
+    background-color: colours.$primary-color-light-border;
+    color: colours.$text-color;
   }
 }

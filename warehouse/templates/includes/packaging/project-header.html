@@ -31,6 +31,8 @@
   {% set banner_modifier = "banner--archived" %}
 {% elif release.yanked %}
   {% set banner_modifier = "banner--yanked" %}
+{% elif release.is_prerelease %}
+  {% set banner_modifier = "banner--pre-release" %}
 {% else %}
   {% set banner_modifier = "" %}
 {% endif %}
@@ -47,7 +49,7 @@
         <p class="project-header__pip-instructions">
           <span id="pip-command" data-clipboard-target="source">{{ pip_command(release, request.matched_route.name, testPyPI) }}</span>
           <button type="button"
-                  class="copy-tooltip copy-tooltip-s"
+                  class="copy-tooltip copy-tooltip-n"
                   data-action="clipboard#copy"
                   data-clipboard-target="tooltip"
                   data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
