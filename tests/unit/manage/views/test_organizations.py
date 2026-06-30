@@ -9,7 +9,6 @@ import pytest
 
 from freezegun import freeze_time
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
-from psycopg.errors import UniqueViolation
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from webob.multidict import MultiDict
 
@@ -3684,7 +3683,12 @@ class TestManageOrganizationPublishingViews:
     def test_add_pending_github_oidc_publisher_unique_violation(
         self, db_request, monkeypatch
     ):
-        """Test UniqueViolation exception handling during publisher creation"""
+        """A UniqueViolation raised by the INSERT during ``flush()`` (another
+        pending publisher already targets the same external identity under a
+        different ``project_name``) must be handled as double-post protection:
+        roll back the now-aborted transaction so the session stays usable for
+        the end-of-request commit, then redirect. Regression test for GH-20006.
+        """
         organization = OrganizationFactory.create()
         user = UserFactory.create(with_verified_primary_email=True)
         db_request.POST = MultiDict()
@@ -3692,8 +3696,21 @@ class TestManageOrganizationPublishingViews:
         db_request.route_url = pretend.call_recorder(lambda *a, **kw: "/fake/route")
         db_request.user = user
 
-        # Mock db.add to raise UniqueViolation (simulates race condition)
-        db_request.db.add = pretend.raiser(UniqueViolation("foo", "bar", "baz"))
+        # A pending publisher with the same external identity but a *different*
+        # project_name. The early duplicate-check query keys on project_name so
+        # it misses this row, but the DB unique constraint does not -- so the
+        # next conflicting insert raises a real UniqueViolation during flush().
+        existing_publisher = PendingGitHubPublisherFactory.create(
+            project_name="test-project-existing",
+            repository_name="test-repo",
+            repository_owner="test-owner",
+            repository_owner_id="12345",
+            workflow_filename="release.yml",
+            environment="",
+            organization_id=organization.id,
+        )
+        db_request.db.add(existing_publisher)
+        db_request.db.flush()
 
         # Mock form
         form = pretend.stub(
@@ -3715,6 +3732,12 @@ class TestManageOrganizationPublishingViews:
         # Should return HTTPSeeOther redirect (double-post protection)
         assert isinstance(result, HTTPSeeOther)
         assert result.location == "/fake/path"
+        # The conflicting INSERT left the transaction aborted. Without an
+        # explicit rollback in the handler this query raises PendingRollbackError
+        # -- which is what surfaces to the user as a 500/503. The rollback also
+        # discards this request's uncommitted work, including the pre-existing
+        # publisher created above, so the count is 0.
+        assert db_request.db.query(PendingGitHubPublisher).count() == 0
 
     def test_two_orgs_can_create_pending_publishers_for_same_project_name(
         self, db_request, monkeypatch
