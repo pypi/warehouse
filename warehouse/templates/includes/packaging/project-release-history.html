@@ -50,7 +50,7 @@
           <p class="release__version">
             {{ hversion.version }}
             {% if hversion.is_prerelease %}
-              <span class="badge badge--warning">{% trans %}pre-release{% endtrans %}</span>
+              <span class="badge badge--pre-release">{% trans %}pre-release{% endtrans %}</span>
             {% endif %}
             {% if hversion.yanked %}
               <span class="badge badge--dark">{% trans %}yanked{% endtrans %}</span>

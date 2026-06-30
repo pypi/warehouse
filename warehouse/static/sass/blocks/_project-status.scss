@@ -33,19 +33,23 @@
     }
 
     &--quarantined {
-      background-color: colours.$warning-color;
+      background-color: color.adjust(colours.$warning-color, $lightness: -7%);
     }
 
     &--archived {
-      background-color: colours.$base-grey;
+      background-color: color.adjust(colours.$base-grey, $lightness: -6%);
       color: colours.$text-color;
 
+      & + & {
+        border-top-color: colours.$accessible-border-color;
+      }
+
       &:last-child {
-        border-bottom-color: color.adjust(colours.$base-grey, $lightness: -10%);
+        border-bottom-color: color.adjust(colours.$border-color, $lightness: -5%);
       }
 
       .project-status__label {
-        border-right-color: color.adjust(colours.$base-grey, $lightness: -10%);
+        border-right-color: color.adjust(colours.$border-color, $lightness: -5%);
       }
 
       .project-status__description a {
@@ -59,7 +63,33 @@
     }
 
     &--yanked {
-      background-color: colours.$text-color;
+      background-color: color.adjust(colours.$text-color, $lightness: -7%);
+    }
+
+    &--pre-release {
+      background-color: color.adjust(colours.$primary-color-light-border, $lightness: -9%);
+      color: colours.$text-color;
+
+      & + & {
+        border-top-color: color.adjust(colours.$primary-color-light-border, $lightness: -10%);
+      }
+
+      &:last-child {
+        border-bottom-color: color.adjust(colours.$primary-color-light-border, $lightness: -20%);
+      }
+
+      .project-status__label {
+        border-right-color: color.adjust(colours.$primary-color-light-border, $lightness: -20%);
+      }
+
+      .project-status__description a {
+        color: colours.$text-color;
+
+        &:focus,
+        &:active {
+          outline-color: colours.$text-color;
+        }
+      }
     }
   }
 
