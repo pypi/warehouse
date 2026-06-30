@@ -320,7 +320,7 @@ class ManageOrganizationApplicationViews:
     context=Organization,
     renderer="warehouse:templates/manage/organization/settings.html",
     uses_session=True,
-    require_active_organization=True,
+    require_active_organization=False,
     require_csrf=True,
     require_methods=False,
     permission=Permissions.OrganizationsManage,
