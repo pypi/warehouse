@@ -2,10 +2,8 @@
 
 import click
 
-from opensearchpy.exceptions import NotFoundError
-
 from warehouse.cli import warehouse
-from warehouse.search.tasks import reindex as _reindex
+from warehouse.search.tasks import prune_older_indices, reindex as _reindex
 
 
 @warehouse.group()
@@ -63,29 +61,13 @@ def delete_older_indices(config, env_name):
     """
     client = config.registry["opensearch.client"]
 
-    # Gets alias of current "live" index, don't remove that one
-    try:
-        alias = client.indices.get_alias(name=env_name)
-    except NotFoundError:
+    result = prune_older_indices(client, env_name)
+    if result is None:
         click.echo(f"No alias found for {env_name}, aborting.", err=True)
         raise click.Abort
 
-    current_index = next(iter(alias.keys()))
-    click.echo(f"Current index: {current_index}")
-
-    indices = client.indices.get(index=f"{env_name}-*")
-    # sort the response by date, keep most recent 2
-    indices = sorted(indices.keys(), reverse=True)
-    # remove current index from the list
-    indices.remove(current_index)
-    # Remove the most recent, non-alias one from the list
-    if indices:
-        indices.pop(0)
-    # Remaining indices are older than the most recent two, delete them
-    click.echo(f"Found {len(indices)} older indices to delete.")
-
-    for index in indices:
+    click.echo(f"Current index: {result.current_index}")
+    click.echo(f"Found {len(result.deleted)} older indices to delete.")
+    for index in result.deleted:
         click.echo(f"Deleting index: {index}")
-        client.indices.delete(index=index)
-
     click.echo("Done.")

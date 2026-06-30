@@ -17,7 +17,9 @@ import warehouse.search.tasks
 from warehouse.packaging.models import LifecycleStatus
 from warehouse.search.tasks import (
     SearchLock,
+    _delete_index,
     _project_docs,
+    delete_older_indices,
     reindex,
     reindex_project,
     unindex_project,
@@ -165,7 +167,14 @@ class FakeESIndices:
     def exists_alias(self, name):
         return name in self.aliases
 
+    def get(self, index):
+        return self.indices
+
     def get_alias(self, name):
+        if name not in self.aliases:
+            raise opensearchpy.exceptions.NotFoundError(
+                404, "alias_not_found", "no alias"
+            )
         return self.aliases[name]
 
     def put_alias(self, name, index):
@@ -501,6 +510,121 @@ class TestReindex:
                 body={"index": {"number_of_replicas": 0, "refresh_interval": "1s"}},
             )
         ]
+
+
+class TestDeleteIndex:
+    def test_deletes(self):
+        es_client = FakeESClient()
+
+        _delete_index(es_client, "warehouse-aaaaaaaaaa")
+
+        assert es_client.indices.delete.calls == [
+            pretend.call(index="warehouse-aaaaaaaaaa")
+        ]
+
+    def test_swallows_snapshot_in_progress(self, monkeypatch):
+        es_client = FakeESClient()
+        err = opensearchpy.exceptions.RequestError(
+            400, "snapshot_in_progress_exception", {}
+        )
+
+        def delete(index):
+            raise err
+
+        es_client.indices.delete = delete
+
+        captured = []
+        monkeypatch.setattr(
+            warehouse.search.tasks.sentry_sdk,
+            "capture_exception",
+            captured.append,
+        )
+
+        _delete_index(es_client, "warehouse-aaaaaaaaaa")
+
+        assert captured == [err]
+
+
+class TestDeleteOlderIndices:
+    def _setup(self, db_request, monkeypatch, es_client):
+        db_request.registry.update({"opensearch.index": "production"})
+        db_request.registry.settings = {
+            "opensearch.url": "http://some.url",
+            "celery.scheduler_url": "redis://redis:6379/0",
+        }
+        monkeypatch.setattr(
+            warehouse.search.tasks.opensearchpy,
+            "OpenSearch",
+            lambda *a, **kw: es_client,
+        )
+        monkeypatch.setattr(warehouse.search.tasks, "SearchLock", NotLock)
+
+    def test_deletes_older_than_two(self, db_request, monkeypatch):
+        es_client = FakeESClient()
+        es_client.indices.indices = {
+            "production-0001": {"settings": {"index": {"creation_date": "1"}}},
+            "production-0002": {"settings": {"index": {"creation_date": "2"}}},
+            "production-0003": {"settings": {"index": {"creation_date": "3"}}},
+            "production-0004": {"settings": {"index": {"creation_date": "4"}}},
+        }
+        es_client.indices.aliases = {"production": ["production-0004"]}
+        self._setup(db_request, monkeypatch, es_client)
+
+        delete_older_indices(pretend.stub(), db_request)
+
+        assert es_client.indices.delete.calls == [
+            pretend.call(index="production-0002"),
+            pretend.call(index="production-0001"),
+        ]
+
+    def test_keeps_two_most_recent(self, db_request, monkeypatch):
+        es_client = FakeESClient()
+        es_client.indices.indices = {
+            "production-0001": {"settings": {"index": {"creation_date": "1"}}},
+            "production-0002": {"settings": {"index": {"creation_date": "2"}}},
+        }
+        es_client.indices.aliases = {"production": ["production-0002"]}
+        self._setup(db_request, monkeypatch, es_client)
+
+        delete_older_indices(pretend.stub(), db_request)
+
+        assert es_client.indices.delete.calls == []
+
+    def test_only_live_index(self, db_request, monkeypatch):
+        es_client = FakeESClient()
+        es_client.indices.indices = {
+            "production-0001": {"settings": {"index": {"creation_date": "1"}}}
+        }
+        es_client.indices.aliases = {"production": ["production-0001"]}
+        self._setup(db_request, monkeypatch, es_client)
+
+        delete_older_indices(pretend.stub(), db_request)
+
+        assert es_client.indices.delete.calls == []
+
+    def test_no_alias_is_noop(self, db_request, monkeypatch):
+        es_client = FakeESClient()
+        es_client.indices.indices = {"production-0001": None}
+        self._setup(db_request, monkeypatch, es_client)
+
+        delete_older_indices(pretend.stub(), db_request)
+
+        assert es_client.indices.delete.calls == []
+
+    def test_retry_on_lock(self, db_request, monkeypatch):
+        task = pretend.stub(
+            retry=pretend.call_recorder(pretend.raiser(celery.exceptions.Retry))
+        )
+
+        db_request.registry.settings = {"celery.scheduler_url": "redis://redis:6379/0"}
+
+        le = redis.exceptions.LockError("Failed to acquire lock")
+        monkeypatch.setattr(SearchLock, "acquire", pretend.raiser(le))
+
+        with pytest.raises(celery.exceptions.Retry):
+            delete_older_indices(task, db_request)
+
+        assert task.retry.calls == [pretend.call(countdown=60, exc=le)]
 
 
 class TestPartialReindex:

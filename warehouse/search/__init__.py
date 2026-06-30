@@ -14,7 +14,7 @@ from warehouse import db
 from warehouse.packaging.models import LifecycleStatus, Project, Release
 from warehouse.search.interfaces import ISearchService
 from warehouse.search.services import SearchService
-from warehouse.search.tasks import reindex
+from warehouse.search.tasks import delete_older_indices, reindex
 from warehouse.search.utils import get_index
 
 
@@ -112,5 +112,6 @@ def includeme(config):
     config.add_request_method(opensearch, name="opensearch", reify=True)
 
     config.add_periodic_task(crontab(minute=0, hour=6), reindex)
+    config.add_periodic_task(crontab(minute=0, hour=8), delete_older_indices)
 
     config.register_service_factory(SearchService.create_service, iface=ISearchService)
