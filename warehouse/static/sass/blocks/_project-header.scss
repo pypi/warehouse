@@ -79,3 +79,23 @@
     }
   }
 }
+
+.banner--archived {
+  .project-header__pip-instructions {
+    span {
+      background-color: color.adjust(colours.$base-grey, $lightness: -2%);
+      color: colours.$text-color;
+      border-color: colours.$border-color;
+    }
+
+    button {
+      background-color: color.adjust(colours.$base-grey, $lightness: -2%);
+      color: colours.$text-color;
+      border-color: colours.$border-color;
+
+      &:hover {
+        background-color: color.adjust(colours.$base-grey, $lightness: -10%);
+      }
+    }
+  }
+}
