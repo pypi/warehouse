@@ -5,6 +5,7 @@
 // SETTINGS - COLOURS
 
 $primary-color:               #006dad;
+$primary-color-light-border:  color.mix($primary-color, white, 20%);
 $primary-color-light:         color.adjust($primary-color, $lightness: 45%);
 $primary-color-dark:          color.adjust($primary-color, $lightness: -10%);
 $success-color:               #148024;

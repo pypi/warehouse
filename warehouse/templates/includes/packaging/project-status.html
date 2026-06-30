@@ -51,6 +51,19 @@
     </div>
   </div>
   {% endif %}
+  {% if release.is_prerelease %}
+  <div class="project-status__item project-status__item--pre-release">
+    <div class="project-status__content">
+      <strong class="project-status__label">
+        <i class="fa fa-flask" aria-hidden="true"></i>
+        {% trans %}Pre-release{% endtrans %}
+      </strong>
+      <p class="project-status__description">
+        {% trans href=request.route_path('help') + '#pre-release-versioning' %}This release is a <a href="{{ href }}">pre-release</a> and may not be stable for production use.{% endtrans %}
+      </p>
+    </div>
+  </div>
+  {% endif %}
   {% if release.yanked %}
   <div class="project-status__item project-status__item--yanked">
     <div class="project-status__content">
