@@ -13,6 +13,7 @@ from ....common.db.integrations import VulnerabilityRecordFactory
 from ....common.db.organizations import OrganizationProjectFactory
 from ....common.db.packaging import (
     DescriptionFactory,
+    FileEventFactory,
     FileFactory,
     JournalEntryFactory,
     ProjectFactory,
@@ -279,6 +280,8 @@ class TestJSONProject:
                         "requires_python": None,
                         "yanked": False,
                         "yanked_reason": None,
+                        "uploaded_via": None,
+                        "trusted_publishing": False,
                     }
                 ],
                 "2.0": [
@@ -304,6 +307,8 @@ class TestJSONProject:
                         "requires_python": None,
                         "yanked": False,
                         "yanked_reason": None,
+                        "uploaded_via": None,
+                        "trusted_publishing": False,
                     }
                 ],
                 "3.0": [
@@ -329,6 +334,8 @@ class TestJSONProject:
                         "requires_python": None,
                         "yanked": False,
                         "yanked_reason": None,
+                        "uploaded_via": None,
+                        "trusted_publishing": False,
                     }
                 ],
             },
@@ -353,6 +360,8 @@ class TestJSONProject:
                     "requires_python": None,
                     "yanked": False,
                     "yanked_reason": None,
+                    "uploaded_via": None,
+                    "trusted_publishing": False,
                 }
             ],
             "last_serial": je.id,
@@ -362,6 +371,42 @@ class TestJSONProject:
                 "organization": None,
             },
         }
+
+    def test_renders_trusted_publishing(self, pyramid_config, db_request):
+        project = ProjectFactory.create(has_docs=False)
+        trusted_release = ReleaseFactory.create(project=project, version="1.0")
+        trusted_file = FileFactory.create(
+            release=trusted_release,
+            filename=f"{project.name}-1.0.tar.gz",
+            python_version="source",
+            size=200,
+        )
+        FileEventFactory.create(
+            source=trusted_file,
+            tag="fake:event",
+            additional={"uploaded_via_trusted_publisher": True},
+        )
+        plain_release = ReleaseFactory.create(project=project, version="2.0")
+        FileFactory.create(
+            release=plain_release,
+            filename=f"{project.name}-2.0.tar.gz",
+            python_version="source",
+            size=200,
+            uploaded_via="twine/4.0",
+        )
+
+        url = "/the/fake/url/"
+        db_request.route_url = pretend.call_recorder(lambda *args, **kw: url)
+        db_request.matchdict = {"name": project.normalized_name}
+
+        result = json.json_project(plain_release, db_request)
+
+        # all_releases=True must propagate each file's flags to the correct
+        # release entry.
+        assert result["releases"]["1.0"][0]["trusted_publishing"] is True
+        assert result["releases"]["1.0"][0]["uploaded_via"] is None
+        assert result["releases"]["2.0"][0]["trusted_publishing"] is False
+        assert result["releases"]["2.0"][0]["uploaded_via"] == "twine/4.0"
 
 
 class TestJSONProjectSlash:
@@ -600,6 +645,8 @@ class TestJSONRelease:
                     "requires_python": None,
                     "yanked": False,
                     "yanked_reason": None,
+                    "uploaded_via": None,
+                    "trusted_publishing": False,
                 }
             ],
             "last_serial": je.id,
@@ -698,6 +745,8 @@ class TestJSONRelease:
                     "requires_python": None,
                     "yanked": False,
                     "yanked_reason": None,
+                    "uploaded_via": None,
+                    "trusted_publishing": False,
                 }
             ],
             "last_serial": je.id,
@@ -707,6 +756,196 @@ class TestJSONRelease:
                 "organization": None,
             },
         }
+
+    @pytest.mark.parametrize(
+        ("uploaded_via", "expected"),
+        [
+            ("twine/4.0.0 CPython/3.11.0", "twine/4.0.0 CPython/3.11.0"),
+            # An empty user agent is coerced to null by `f.uploaded_via or None`.
+            ("", None),
+        ],
+    )
+    def test_uploaded_via_renders(
+        self, pyramid_config, db_request, uploaded_via, expected
+    ):
+        project = ProjectFactory.create(has_docs=False)
+        release = ReleaseFactory.create(project=project, version="0.1")
+        FileFactory.create(
+            release=release,
+            filename=f"{project.name}-{release.version}.tar.gz",
+            python_version="source",
+            size=200,
+            uploaded_via=uploaded_via,
+        )
+
+        url = "/the/fake/url/"
+        db_request.route_url = pretend.call_recorder(lambda *args, **kw: url)
+        db_request.matchdict = {
+            "name": project.normalized_name,
+            "version": release.canonical_version,
+        }
+
+        result = json.json_release(release, db_request)
+
+        assert result["urls"][0]["uploaded_via"] == expected
+        assert result["urls"][0]["trusted_publishing"] is False
+
+    def test_trusted_publishing_via_flag_renders(self, pyramid_config, db_request):
+        project = ProjectFactory.create(has_docs=False)
+        release = ReleaseFactory.create(project=project, version="0.1")
+        file = FileFactory.create(
+            release=release,
+            filename=f"{project.name}-{release.version}.tar.gz",
+            python_version="source",
+            size=200,
+        )
+        FileEventFactory.create(
+            source=file,
+            tag="fake:event",
+            additional={"uploaded_via_trusted_publisher": True},
+        )
+
+        url = "/the/fake/url/"
+        db_request.route_url = pretend.call_recorder(lambda *args, **kw: url)
+        db_request.matchdict = {
+            "name": project.normalized_name,
+            "version": release.canonical_version,
+        }
+
+        result = json.json_release(release, db_request)
+
+        assert result["urls"][0]["trusted_publishing"] is True
+
+    def test_trusted_publishing_via_publisher_url_renders(
+        self, pyramid_config, db_request
+    ):
+        project = ProjectFactory.create(has_docs=False)
+        release = ReleaseFactory.create(project=project, version="0.1")
+        file = FileFactory.create(
+            release=release,
+            filename=f"{project.name}-{release.version}.tar.gz",
+            python_version="source",
+            size=200,
+        )
+        FileEventFactory.create(
+            source=file,
+            tag="fake:event",
+            additional={"publisher_url": "https://github.com/foo/bar"},
+        )
+
+        url = "/the/fake/url/"
+        db_request.route_url = pretend.call_recorder(lambda *args, **kw: url)
+        db_request.matchdict = {
+            "name": project.normalized_name,
+            "version": release.canonical_version,
+        }
+
+        result = json.json_release(release, db_request)
+
+        assert result["urls"][0]["trusted_publishing"] is True
+
+    def test_trusted_publishing_non_qualifying_event_renders_false(
+        self, pyramid_config, db_request
+    ):
+        project = ProjectFactory.create(has_docs=False)
+        release = ReleaseFactory.create(project=project, version="0.1")
+        file = FileFactory.create(
+            release=release,
+            filename=f"{project.name}-{release.version}.tar.gz",
+            python_version="source",
+            size=200,
+        )
+        # An event exists but is not a trusted-publisher upload (no flag, no
+        # publisher_url), so the column must still resolve to False.
+        FileEventFactory.create(source=file, tag="fake:event")
+
+        url = "/the/fake/url/"
+        db_request.route_url = pretend.call_recorder(lambda *args, **kw: url)
+        db_request.matchdict = {
+            "name": project.normalized_name,
+            "version": release.canonical_version,
+        }
+
+        result = json.json_release(release, db_request)
+
+        assert result["urls"][0]["trusted_publishing"] is False
+
+    def test_trusted_publishing_multiple_events_no_duplicate(
+        self, pyramid_config, db_request
+    ):
+        project = ProjectFactory.create(has_docs=False)
+        release = ReleaseFactory.create(project=project, version="0.1")
+        file = FileFactory.create(
+            release=release,
+            filename=f"{project.name}-{release.version}.tar.gz",
+            python_version="source",
+            size=200,
+        )
+        # Multiple qualifying events for the same file must not duplicate the
+        # file in the output (regression guard for the EXISTS column).
+        FileEventFactory.create(
+            source=file,
+            tag="fake:event",
+            additional={"uploaded_via_trusted_publisher": True},
+        )
+        FileEventFactory.create(
+            source=file,
+            tag="fake:event",
+            additional={"publisher_url": "https://github.com/foo/bar"},
+        )
+
+        url = "/the/fake/url/"
+        db_request.route_url = pretend.call_recorder(lambda *args, **kw: url)
+        db_request.matchdict = {
+            "name": project.normalized_name,
+            "version": release.canonical_version,
+        }
+
+        result = json.json_release(release, db_request)
+
+        assert len(result["urls"]) == 1
+        assert result["urls"][0]["trusted_publishing"] is True
+
+    def test_multiple_files_pairing_renders(self, pyramid_config, db_request):
+        project = ProjectFactory.create(has_docs=False)
+        release = ReleaseFactory.create(project=project, version="0.1")
+        trusted_file = FileFactory.create(
+            release=release,
+            filename=f"{project.name}-{release.version}.tar.gz",
+            python_version="source",
+            packagetype="sdist",
+            size=200,
+        )
+        FileEventFactory.create(
+            source=trusted_file,
+            tag="fake:event",
+            additional={"publisher_url": "https://github.com/foo/bar"},
+        )
+        plain_file = FileFactory.create(
+            release=release,
+            filename=f"{project.name}-{release.version}-py3-none-any.whl",
+            python_version="py3",
+            packagetype="bdist_wheel",
+            size=200,
+            uploaded_via="twine/5.0",
+        )
+
+        url = "/the/fake/url/"
+        db_request.route_url = pretend.call_recorder(lambda *args, **kw: url)
+        db_request.matchdict = {
+            "name": project.normalized_name,
+            "version": release.canonical_version,
+        }
+
+        result = json.json_release(release, db_request)
+
+        # Index by filename so a mis-paired flag fails rather than passing by
+        # positional luck.
+        urls = {u["filename"]: u for u in result["urls"]}
+        assert urls[trusted_file.filename]["trusted_publishing"] is True
+        assert urls[trusted_file.filename]["uploaded_via"] is None
+        assert urls[plain_file.filename]["trusted_publishing"] is False
+        assert urls[plain_file.filename]["uploaded_via"] == "twine/5.0"
 
     @pytest.mark.parametrize("withdrawn", [None, "2022-06-28T16:39:06Z"])
     def test_vulnerabilities_renders(self, pyramid_config, db_request, withdrawn):
