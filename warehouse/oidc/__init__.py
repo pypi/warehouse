@@ -76,6 +76,7 @@ def includeme(config: Configurator) -> None:
     # NOTE: This is a legacy route for the above. Pyramid requires route
     # names to be unique, so we can't deduplicate it.
     config.add_route("oidc.github.mint_token", "/_/oidc/github/mint-token", domain=auth)
+    config.add_route("oidc.burn_token", "/_/oidc/burn-token", domain=auth)
 
     # Compute OIDC metrics periodically
     config.add_periodic_task(crontab(minute=0, hour="*"), compute_oidc_metrics)
