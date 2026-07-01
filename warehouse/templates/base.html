@@ -283,7 +283,8 @@
                    data-controller="search-focus"
                    data-action="keydown@window->search-focus#focusSearchField"
                    data-search-focus-target="searchField">
-            {% block search_form_extra_inputs %}{% endblock %}
+            {% block search_form_extra_inputs %}
+            {% endblock %}
             <button type="submit" class="search-form__button">
               <i class="fa fa-search" aria-hidden="true"></i>
               <span class="sr-only">{% trans %}Search{% endtrans %}</span>
