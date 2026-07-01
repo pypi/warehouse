@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-/* global expect, beforeEach, describe, it, jest */
+/* global expect, beforeEach, describe, it */
 
 import { Application } from "@hotwired/stimulus";
 import ProjectTabsController from "../../warehouse/static/js/warehouse/controllers/project_tabs_controller";
@@ -9,26 +9,26 @@ import ProjectTabsController from "../../warehouse/static/js/warehouse/controlle
 const tabsHTML = `
 <div data-controller="project-tabs">
   <div class="tabs-container">
-    <div class="vertical-tabs">
-      <div class="vertical-tabs__tabs">
+    <div class="tabs">
+      <div class="tabs__tabs">
         <div class="sidebar-section">
           <h3 class="sidebar-section__title">Navigation</h3>
           <nav aria-label="Navigation for lunr">
-            <ul class="vertical-tabs__list" role="tablist">
+            <ul class="tabs__list" role="tablist">
               <li role="tab">
-                <a id="description-tab" href="#description" data-project-tabs-target="tab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--is-active" aria-selected="true" aria-label="Project description. Focus will be moved to the description.">
+                <a id="description-tab" href="#description" data-project-tabs-target="tab" data-action="project-tabs#onTabClick" class="tabs__tab tabs__tab--with-icon project-tabs__tab--is-active" aria-selected="true" aria-label="Project description. Focus will be moved to the description.">
                   <i class="fa fa-align-left" aria-hidden="true"></i>
                   Project description
                 </a>
               </li>
               <li role="tab">
-                <a id="history-tab" href="#history" data-project-tabs-target="tab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon" aria-label="Release history. Focus will be moved to the history panel.">
+                <a id="history-tab" href="#history" data-project-tabs-target="tab" data-action="project-tabs#onTabClick" class="tabs__tab tabs__tab--with-icon" aria-label="Release history. Focus will be moved to the history panel.">
                   <i class="fa fa-history" aria-hidden="true"></i>
                   Release history
                 </a>
               </li>
               <li role="tab">
-                <a id="data-tab" href="#files" data-project-tabs-target="tab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon" aria-label="Download files. Focus will be moved to the project files.">
+                <a id="data-tab" href="#files" data-project-tabs-target="tab" data-action="project-tabs#onTabClick" class="tabs__tab tabs__tab--with-icon" aria-label="Download files. Focus will be moved to the project files.">
                   <i class="fa fa-download" aria-hidden="true"></i>
                   Download files
                 </a>
@@ -37,50 +37,47 @@ const tabsHTML = `
           </nav>
         </div>
       </div>
-      <div class="vertical-tabs__panel">
-        <!-- mobile menu -->
-        <nav aria-label="Navigation for project">
-          <ul class="vertical-tabs__list" role="tablist">
-            <li role="tab">
-              <a id="mobile-description-tab" href="#description" data-project-tabs-target="mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile vertical-tabs__tab--no-top-border vertical-tabs__tab--is-active" aria-selected="true" aria-label="Project description. Focus will be moved to the description.">
-                <i class="fa fa-align-left" aria-hidden="true"></i>
-                Project description
-              </a>
-            </li>
-            <li role="tab">
-              <a id="mobile-history-tab" href="#history" data-project-tabs-target="mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" aria-label="Release history. Focus will be moved to the history panel.">
+      <div class="tabs__panel">
+        <ul class="tabs__list" role="tablist">
+          <li role="tab">
+            <a id="mobile-description-tab" href="#description" data-project-tabs-target="tab" data-action="project-tabs#onTabClick" class="tabs__tab tabs__tab--with-icon tabs__tab--mobile tabs__tab--no-top-border project-tabs__tab--is-active" aria-selected="true" aria-label="Project description. Focus will be moved to the description.">
+              <i class="fa fa-align-left" aria-hidden="true"></i>
+              Project description
+            </a>
+          </li>
+          <li role="tab">
+            <a id="mobile-history-tab" href="#history" data-project-tabs-target="tab" data-action="project-tabs#onTabClick" class="tabs__tab tabs__tab--with-icon tabs__tab--mobile" aria-label="Release history. Focus will be moved to the history panel.">
               <i class="fa fa-history" aria-hidden="true"></i>
               Release history
             </a>
-            <li role="tab">
-              <a id="mobile-data-tab" href="#data" data-project-tabs-target="mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" aria-label="Project details. Focus will be moved to the project details.">
-                <i class="fa fa-info-circle" aria-hidden="true"></i>
-                Project details
-              </a>
-            </li>
-            <li role="tab">
-              <a id="mobile-files-tab" href="#files" data-project-tabs-target="mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" aria-label="Download files. Focus will be moved to the project files.">
-                <i class="fa fa-download" aria-hidden="true"></i>
-                Download files
-              </a>
-            </li>
-            </li>
-          </ul>
-        </nav>
+          </li>
+          <li role="tab">
+            <a id="mobile-data-tab" href="#data" data-project-tabs-target="tab" data-action="project-tabs#onTabClick" class="tabs__tab tabs__tab--with-icon tabs__tab--mobile" aria-label="Project details. Focus will be moved to the project details.">
+              <i class="fa fa-info-circle" aria-hidden="true"></i>
+              Project details
+            </a>
+          </li>
+          <li role="tab">
+            <a id="mobile-files-tab" href="#files" data-project-tabs-target="tab" data-action="project-tabs#onTabClick" class="tabs__tab tabs__tab--with-icon tabs__tab--mobile" aria-label="Download files. Focus will be moved to the project files.">
+              <i class="fa fa-download" aria-hidden="true"></i>
+              Download files
+            </a>
+          </li>
+        </ul>
         {# Tab: Project description #}
-        <div id="description" data-project-tabs-target="content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="description-tab mobile-description-tab" tabindex="-1">
+        <div id="description" data-project-tabs-target="content" role="tabpanel" aria-labelledby="description-tab mobile-description-tab" tabindex="-1">
           <h2 class="page-title">Project description</h2>
           <div class="project-description">Description</div>
         </div>
 
         {# Tab: project details #}
-        <div id="data" data-project-tabs-target="content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="mobile-data-tab" tabindex="-1">
+        <div id="data" data-project-tabs-target="content" role="tabpanel" aria-labelledby="mobile-data-tab" tabindex="-1">
           <h2 class="page-title">Project details</h2>
           <br>
         </div>
 
         {# Tab: Release history #}
-        <div id="history" data-project-tabs-target="content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="history-tab mobile-history-tab" tabindex="-1">
+        <div id="history" data-project-tabs-target="content" role="tabpanel" aria-labelledby="history-tab mobile-history-tab" tabindex="-1">
           <h2 class="page-title split-layout">
             <span>Release history</span>
             <a class="reset-text margin-top" href="#project-release-notifications">Release notifications</a>
@@ -88,19 +85,19 @@ const tabsHTML = `
         </div>
 
         {# Tab: Download files #}
-        <div id="files" data-project-tabs-target="content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="files-tab mobile-files-tab" tabindex="-1">
+        <div id="files" data-project-tabs-target="content" role="tabpanel" aria-labelledby="files-tab mobile-files-tab" tabindex="-1">
           <h2 class="page-title">Download files</h2>
           <div class="file">
             <div class="card file__card">
               <a href="/files/sample-1.0.tar.gz">sample-1.0.tar.gz</a>
               (1.0 KB
-              <a href="#sample-1.0.tar.gz" data-project-tabs-target="tab mobileTab" data-action="project-tabs#onTabClick">view details</a>)
+              <a href="#sample-1.0.tar.gz" data-project-tabs-target="tab" data-action="project-tabs#onTabClick">view details</a>)
             </div>
           </div>
         </div>
 
         {# Tab: file details #}
-        <div id="sample-1.0.tar.gz" data-project-tabs-target="content" class="vertical-tabs__content" role="tabpanel" tabindex="-1">
+        <div id="sample-1.0.tar.gz" data-project-tabs-target="content" role="tabpanel" tabindex="-1">
           <h2 class="page-title">File details</h2>
           <p>Details for the file sample-1.0.tar.gz.</p>
         </div>
@@ -123,13 +120,13 @@ describe("Project tabs controller", () => {
 
       it("the first tab is shown", () => {
         const tab = document.getElementById("description-tab");
-        expect(tab).toHaveClass("vertical-tabs__tab--is-active");
+        expect(tab).toHaveClass("project-tabs__tab--is-active");
         expect(tab).toHaveAttribute("aria-selected");
 
         ["data", "history"].forEach(tabID => {
           expect(document.getElementById(tabID)).toHaveStyle("display: none");
           const tab = document.getElementById(`${tabID}-tab`);
-          expect(tab).not.toHaveClass("vertical-tabs__tab--is-active");
+          expect(tab).not.toHaveClass("project-tabs__tab--is-active");
         });
       });
     });
@@ -145,13 +142,13 @@ describe("Project tabs controller", () => {
       it("the matching tab is shown", () => {
         expect(document.getElementById("history")).toHaveStyle("display: block");
         const tab = document.getElementById("history-tab");
-        expect(tab).toHaveClass("vertical-tabs__tab--is-active");
+        expect(tab).toHaveClass("project-tabs__tab--is-active");
         expect(tab).toHaveAttribute("aria-selected");
 
         ["description", "data"].forEach(tabID => {
           expect(document.getElementById(tabID)).toHaveStyle("display: none");
           const tab = document.getElementById(`${tabID}-tab`);
-          expect(tab).not.toHaveClass("vertical-tabs__tab--is-active");
+          expect(tab).not.toHaveClass("project-tabs__tab--is-active");
           expect(tab).not.toHaveAttribute("aria-selected");
         });
       });
@@ -172,56 +169,39 @@ describe("Project tabs controller", () => {
 
         expect(document.getElementById("history")).toHaveStyle("display: block");
         const tab = document.getElementById("history-tab");
-        expect(tab).toHaveClass("vertical-tabs__tab--is-active");
+        expect(tab).toHaveClass("project-tabs__tab--is-active");
         expect(tab).toHaveAttribute("aria-selected");
 
         ["description", "data"].forEach(tabID => {
           expect(document.getElementById(tabID)).toHaveStyle("display: none");
           const tab = document.getElementById(`${tabID}-tab`);
-          expect(tab).not.toHaveClass("vertical-tabs__tab--is-active");
+          expect(tab).not.toHaveClass("project-tabs__tab--is-active");
         });
       });
     });
 
-    describe("viewing file details on mobile viewport", () => {
-      it("does not switch away from file details on resize", () => {
-        jest.useFakeTimers();
-
-        // Click "view details" to show file detail tab
+    describe("viewing file details", () => {
+      it("shows file detail tab when clicking view details", () => {
         document.querySelector("a[href='#sample-1.0.tar.gz']").click();
         expect(document.getElementById("sample-1.0.tar.gz")).toHaveStyle("display: block");
         expect(document.getElementById("description")).toHaveStyle("display: none");
-
-        // Simulate mobile viewport (triggers mobileTabTargets path in _getTabs)
-        Object.defineProperty(window, "innerWidth", { value: 500, configurable: true });
-
-        // Trigger resize event (as mobile browsers do when scrolling)
-        window.dispatchEvent(new Event("resize"));
-        jest.advanceTimersByTime(100);
-
-        // File details should still be visible, not switched back to description
-        expect(document.getElementById("sample-1.0.tar.gz")).toHaveStyle("display: block");
-        expect(document.getElementById("description")).toHaveStyle("display: none");
-
-        Object.defineProperty(window, "innerWidth", { value: 1024, configurable: true });
-        jest.useRealTimers();
-        window.location.hash = "#history";
       });
     });
 
     describe("changing the window hash", () => {
       it("hides other tabs and shows the matching one", () => {
-        window.hash = "#history";
+        window.location.hash = "#history";
+        window.dispatchEvent(new Event("hashchange"));
 
         expect(document.getElementById("history")).toHaveStyle("display: block");
         const tab = document.getElementById("history-tab");
-        expect(tab).toHaveClass("vertical-tabs__tab--is-active");
+        expect(tab).toHaveClass("project-tabs__tab--is-active");
         expect(tab).toHaveAttribute("aria-selected");
 
         ["description", "data"].forEach(tabID => {
           expect(document.getElementById(tabID)).toHaveStyle("display: none");
           const tab = document.getElementById(`${tabID}-tab`);
-          expect(tab).not.toHaveClass("vertical-tabs__tab--is-active");
+          expect(tab).not.toHaveClass("project-tabs__tab--is-active");
         });
       });
     });

@@ -1,0 +1,73 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+<div class="horizontal-section horizontal-section--grey horizontal-section--no-padding">
+  <div class="site-container">
+    <div class="split-layout split-layout--middle project-tabs__tabs">
+      <nav aria-label="{% trans project=release.project.name %}Navigation for {{ project }}{% endtrans %}">
+        <ul class="project-tabs__list">
+          <li>
+            <a href="#description"
+               class="project-tabs__tab"
+               data-project-tabs-target="tab"
+               data-action="project-tabs#onTabClick"
+               aria-label="{% trans %}Project description. Focus will be moved to the description.{% endtrans %}">
+              <span>
+                <i class="fa-regular fa-rectangle-list" aria-hidden="true"></i>
+                {% trans %}Description{% endtrans %}
+              </span>
+            </a>
+          </li>
+          <li>
+            <a href="#history"
+               class="project-tabs__tab"
+               data-project-tabs-target="tab"
+               data-action="project-tabs#onTabClick"
+               aria-label="{% trans %}Release history. Focus will be moved to the history panel.{% endtrans %}">
+              <span>
+                <i class="fa fa-history" aria-hidden="true"></i>
+                {% trans %}Release history{% endtrans %}
+              </span>
+            </a>
+          </li>
+          {% if files and not release.lifecycle_status == "quarantine-enter" %}
+            <li>
+              <a href="#files"
+                 class="project-tabs__tab"
+                 data-project-tabs-target="tab"
+                 data-action="project-tabs#onTabClick"
+                 aria-label="{% trans %}Download files. Focus will be moved to the project files.{% endtrans %}">
+                <span>
+                  <i class="fa-regular fa-file" aria-hidden="true"></i>
+                  {% trans count=files|count %}{{ count }} File
+                {% pluralize %}
+                  {{ count }} Files{% endtrans %}
+                </span>
+              </a>
+            </li>
+            <!-- <li>
+              <a href="#security" class="project-tabs__tab" data-project-tabs-target="tab" data-action="project-tabs#onTabClick" aria-label="{% trans %}Release security. Focus will be moved to the security panel.{% endtrans %}">
+                <span>
+                  <i class="fa fa-shield-halved" aria-hidden="true"></i>
+                  {% trans %}Security{% endtrans %}
+                </span>
+              </a>
+            </li> -->
+          {% endif %}
+        </ul>
+      </nav>
+      {% csi request.route_path("includes.edit-project-button", project_name=project.normalized_name) %}
+    {% endcsi %}
+  </div>
+</div>
+</div>

@@ -1,0 +1,61 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% if maintainers %}
+  <div class="sidebar-section">
+    <h2 class="sidebar-section__title">
+      {% trans count=maintainers|count %}{{ count }} maintainer
+    {% pluralize %}
+      {{ count }} maintainers{% endtrans %}
+    </h2>
+    <div class="sidebar-section__content sidebar-section__content--pypi">
+      <details class="sidebar-section__data-source">
+        <summary class="sidebar-section__data-source-label">{% trans %}PyPI data{% endtrans %}</summary>
+        <div class="sidebar-section__data-source-description">{% trans %}Data sourced directly from PyPI's database.{% endtrans %}</div>
+      </details>
+      <div class="sidebar-section__data-block">
+        {% for maintainer in maintainers[:3] %}
+          {% set alt = gettext("Avatar for {username} from gravatar.com").format(username=maintainer.username) %}
+          <a class="sidebar-section__maintainer"
+             href="{{ request.route_path('accounts.profile', username=maintainer.username) }}"
+             aria-label="{{ maintainer.username }}">
+            <img src="{{ gravatar(request, maintainer.email, size=35) }}"
+                 height="35"
+                 width="35"
+                 alt="{{ alt }}"
+                 title="{{ alt }}">
+            {{ maintainer.username }}
+          </a>
+        {% endfor %}
+        {% if maintainers|length > 3 %}
+          <details class="sidebar-section__maintainers-overflow">
+            <summary>+{{ maintainers|length - 3 }} more</summary>
+            {% for maintainer in maintainers[3:] %}
+              {% set alt = gettext("Avatar for {username} from gravatar.com").format(username=maintainer.username) %}
+              <a class="sidebar-section__maintainer"
+                 href="{{ request.route_path('accounts.profile', username=maintainer.username) }}"
+                 aria-label="{{ maintainer.username }}">
+                <img src="{{ gravatar(request, maintainer.email, size=35) }}"
+                     height="35"
+                     width="35"
+                     alt="{{ alt }}"
+                     title="{{ alt }}">
+                {{ maintainer.username }}
+              </a>
+            {% endfor %}
+          </details>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endif %}

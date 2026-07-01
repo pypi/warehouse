@@ -1,0 +1,87 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+@use "sass:color";
+@use "../settings/breakpoints";
+@use "../settings/colours";
+@use "../settings/grid";
+@use "../tools/layout-utilities";
+@use "../tools/link-utilities";
+
+/*
+  Horizontal tabs on project detail page, with associated tab panel.
+  Panel takes up 100% width
+
+  <div class="project-tabs">
+    <div class="project-tabs__tabs">
+      <nav aria-label="label for navigation">
+        <ul class="project-tabs__list">
+          <li>
+            <a id="my-tab-id" class="project-tabs__tab project-tabs__tab--is-active" aria-selected="true">
+              // Active Tab. Remove --is-active and aria-selected for standard tab
+              <span class="project-tabs__link project-tabs__link--warning">
+                // Icon
+                // Text
+                // Warning icon, if applicable
+              </span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+    <div class="project-tabs__panel">
+      <div id="tab-id" data-project-tabs-target="content" role="tabpanel">
+        // Tab content. Shown/hidden by project_tabs_controller.js via the "content" Stimulus target.
+      </div>
+    </div>
+  </div>
+*/
+
+.project-tabs {
+  &__list {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+      float: left;
+    }
+  }
+
+  &__tab {
+    float: left;
+    padding: grid.$half-spacing-unit;
+    cursor: pointer;
+    @include link-utilities.link-without-underline;
+    border-top: 2px solid transparent;
+    border-bottom: 2px solid transparent;
+
+    &:hover {
+      color: color.adjust(colours.$primary-color, $lightness: -10%);
+    }
+
+    &--is-active {
+      border-bottom-color: colours.$primary-color;
+    }
+
+    .fa,
+    .fa-regular {
+      font-size: 16px;
+      width: 20px;
+      text-align: center;
+      margin-right: 5px;
+    }
+  }
+
+  &__link {
+    display: inline-block;
+    border-radius: 6px;
+    border: 2px solid transparent;
+    padding: 5px 10px;
+  }
+
+  &__panel {
+    margin-top: grid.$spacing-unit;
+    margin-bottom: grid.$spacing-unit *2;
+    width: 100%;
+  }
+}

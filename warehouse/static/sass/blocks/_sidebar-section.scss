@@ -2,6 +2,7 @@
 
 @use "../settings/breakpoints";
 @use "../settings/colours";
+@use "../settings/fonts";
 @use "../settings/grid";
 @use "../tools/link-utilities";
 
@@ -9,30 +10,225 @@
   A sidebar section. Currently used on the package detail page.
 
   <div class="sidebar-section">
-    <h3 class="sidebar-section__title">Title</h3>
-    // Content here
+    <h2 class="sidebar-section__title">Title</h2>
+
+    <div class="sidebar-section__content sidebar-section__content--pypi">
+      <details class="sidebar-section__data-source">
+        <summary class="sidebar-section__data-source-label">PyPI data</summary>
+        <div class="sidebar-section__data-source-description">...</div>
+      </details>
+      <div class="sidebar-section__data-block">...</div>
+    </div>
+
+    // Plain content (no data-source context)
+    <div class="sidebar-section__data-block">...</div>
   </div>
 
-  Modifiers:
-    - maintainers: Custom layout for maintainers section on package detail page.
+  Modifiers on __content:
+    - --pypi:     Data sourced from PyPI (primary colour)
+    - --verified: Data verified by PyPI (success colour)
 */
 
 .sidebar-section {
-  padding-bottom: 20px;
-  margin-bottom: 20px;
-  border-bottom: 2px solid colours.$border-color;
+  margin-bottom: grid.$spacing-unit;
   word-wrap: break-word;
 
-  .sidebar-section__title {
+  &__title {
     font-size: 1.1rem;
-    padding-top: 0;
+    padding: 0;
+    margin-bottom: grid.$quarter-spacing-unit;
+
+    &:has(+ .sidebar-section__content) {
+      margin-bottom: grid.$half-spacing-unit;;
+    }
+
+    a[target="_blank"] {
+      font-size: 0.8em;
+
+      &::after {
+        display: none;
+      }
+    }
   }
 
-  .sidebar-section__user-gravatar {
+  &__content {
+    &--pypi {
+      .sidebar-section__data-source {
+        background-color: color-mix(in srgb, #{colours.$primary-color} 5%, white);
+        border: 1px solid colours.$primary-color-light-border;
+        border-bottom: 0;
+      }
+
+      .sidebar-section__data-source-label {
+        color: colours.$primary-color;
+        background-color: color-mix(in srgb, #{colours.$primary-color} 5%, white);
+        border-color: colours.$primary-color-light-border;
+      }
+
+      .sidebar-section__data-source-description {
+        border-bottom-color: colours.$primary-color-light-border;
+      }
+
+      > .sidebar-section__data-block {
+        background-color: color-mix(in srgb, #{colours.$primary-color} 5%, white);
+        padding: 10px;
+        border: 1px solid colours.$primary-color-light-border;
+      }
+
+      .sidebar-section__data-source + .sidebar-section__data-block {
+        border-top: 0;
+      }
+    }
+
+    &--verified {
+      .sidebar-section__data-source {
+        background-color: color-mix(in srgb, #{colours.$base-grey} 50%, white);
+        border: 1px solid color-mix(in srgb, #{colours.$light-grey} 50%, white);
+        border-bottom: 0;
+      }
+
+      .sidebar-section__data-source-label {
+        color: colours.$text-color;
+        background-color: color-mix(in srgb, #{colours.$base-grey} 50%, white);
+        border-color: color-mix(in srgb, #{colours.$light-grey} 50%, white);
+      }
+
+      .sidebar-section__data-source-description {
+        border-bottom-color: color-mix(in srgb, #{colours.$light-grey} 50%, white);
+      }
+
+      > .sidebar-section__data-block {
+        background-color: color-mix(in srgb, #{colours.$base-grey} 50%, white);
+        padding: 10px;
+        border: 1px solid color-mix(in srgb, #{colours.$light-grey} 50%, white);
+      }
+
+      .sidebar-section__data-source + .sidebar-section__data-block {
+        border-top: 0;
+      }
+    }
+  }
+
+  &__data-source {
+    position: relative;
+    padding-top: 5px;
+
+    &-label {
+      position: absolute;
+      top: -10px;
+      left: 5px;
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.7rem;
+      cursor: pointer;
+      user-select: none;
+      border: 1px solid;
+      border-radius: 1rem;
+      padding: 1px 8px;
+
+      &::-webkit-details-marker {
+        display: none;
+      }
+
+      &::after {
+        content: "›";
+        margin-left: 5px;
+        transition: transform 0.15s ease;
+      }
+    }
+
+    &[open] &-label::after {
+      transform: rotate(90deg);
+    }
+
+    &:not([open]) &-label::after {
+      transform: rotate(0deg);
+    }
+
+    &-description {
+      padding: grid.$half-spacing-unit;
+      font-size: fonts.$small-font-size;
+      color: colours.$text-color;
+      border-bottom: 1px solid;
+    }
+  }
+
+  // Control padding for blocks that directly follows a PyPI/verified block
+  &__content + &__data-block {
+    padding: 10px;
+    padding-bottom: 0;
+  }
+
+  // Maintainers
+  &__maintainers-overflow {
+    summary {
+      cursor: pointer;
+      color: colours.$primary-color;
+      margin-top: 5px;
+      list-style: none;
+
+      &::-webkit-details-marker {
+        display: none;
+      }
+    }
+
+    &[open] summary {
+      display: none;
+    }
+  }
+
+  &__maintainer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 5px;
     @include link-utilities.link-without-underline;
     @include link-utilities.link-focus-state(colours.$primary-color);
+
+    img {
+      max-width: 35px;
+      flex-shrink: 0;
+      border-radius: 3px;
+
+      @media only screen and (max-width: breakpoints.$desktop) {
+        max-width: 30px;
+      }
+    }
   }
 
+  // Credits / Tags / Provides extra
+  &__data-block {
+    p {
+      padding-bottom: 0;
+    }
+
+    code {
+      margin-right: 0.4em;
+      margin-bottom: 0.4em;
+      display: inline-block;
+      white-space: nowrap;
+    }
+  }
+
+  // Classifiers
+  &__classifiers {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+
+    li {
+      margin: 0;
+      padding: 0;
+      margin-top: grid.$half-spacing-unit;
+
+      &:first-of-type,
+      ul li {
+        margin-top: 0;
+      }
+    }
+  }
+
+  // Ads
   .ethical-sidebar {
     border: 2px solid colours.$border-color;
     border-radius: 5px;
@@ -57,70 +253,11 @@
     padding-bottom: 1rem;
   }
 
+
+  // Remove bottom styling from final sidebar section
   &:last-of-type {
     margin-bottom: 0;
     padding-bottom: 0;
     border: 0;
-  }
-
-  &__maintainer {
-    display: flex;
-    align-items: center;
-
-    &:not(:last-of-type) {
-      margin-bottom: 5px;
-    }
-
-    a {
-      @include link-utilities.link-without-underline;
-      @include link-utilities.link-focus-state(colours.$primary-color);
-    }
-  }
-
-  &__classifiers {
-    margin: 0;
-    padding: 0;
-    list-style-type: none;
-
-    li {
-      margin: 0;
-      padding: 0;
-      margin-top: grid.$half-spacing-unit;
-
-      &:first-of-type,
-      ul li {
-        margin-top: 0;
-      }
-    }
-  }
-
-  &__user-gravatar {
-    margin-right: 10px;
-    margin-bottom: 5px;
-
-    img {
-      max-width: 50px;
-
-      @media only screen and (max-width: breakpoints.$desktop) {
-        max-width: 40px;
-        max-height: 40px;
-      }
-    }
-  }
-
-  &__user-gravatar-text {
-    margin-bottom: 5px;
-    word-break: break-word;
-    display: inline-block;
-    max-width: calc(100% - 60px);
-    text-decoration: none;
-    background-position: 0 1.15em;
-    background-repeat: repeat-x;
-    background-size: 100% 1.5px;
-    @include link-utilities.primary-underlined-link;
-
-    @media only screen and (max-width: breakpoints.$desktop) {
-      max-width: calc(100% - 50px);
-    }
   }
 }

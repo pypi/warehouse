@@ -1,0 +1,36 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% if release.classifiers %}
+  <div class="sidebar-section">
+    <h2 class="sidebar-section__title">{% trans %}Classifiers{% endtrans %}</h2>
+    <div class="sidebar-section__data-block">
+      <ul class="sidebar-section__classifiers">
+        {% for classifier_head, classifier_tails in (release.classifiers|format_classifiers()).items() %}
+          <li>
+            {{ classifier_head }}
+            <ul>
+              {% for classifier_tail in classifier_tails %}
+                <li>
+                  <a href="{{ request.route_path('search', _query={'c': ' :: '.join((classifier_head, classifier_tail) )}) }}">
+                    {{ classifier_tail }}
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+{% endif %}

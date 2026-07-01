@@ -1,0 +1,58 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+<div class="sidebar-section">
+  <h2 class="sidebar-section__title">{% trans %}Key dates{% endtrans %}</h2>
+  <div class="sidebar-section__content sidebar-section__content--pypi">
+    <details class="sidebar-section__data-source">
+      <summary class="sidebar-section__data-source-label">{% trans %}PyPI data{% endtrans %}</summary>
+      <div class="sidebar-section__data-source-description">{% trans %}Data sourced directly from PyPI's database.{% endtrans %}</div>
+    </details>
+    <div class="sidebar-section__data-block">
+      {% trans release_date=humanize(release.created) %}<strong>Released:</strong> {{ release_date }}{% endtrans %}
+      <br />
+      {% if project.lifecycle_status == "quarantine-enter" and project.lifecycle_status_changed %}
+        {% trans date=humanize(project.lifecycle_status_changed) %}<strong>Quarantined:</strong> {{ date }}{% endtrans %}
+        <br />
+      {% endif %}
+      {% if release.lifecycle_status == "quarantine-enter" and release.lifecycle_status_changed %}
+        {% trans date=humanize(release.lifecycle_status_changed) %}<strong>Quarantined:</strong> {{ date }}{% endtrans %}
+        <br />
+      {% endif %}
+      {% if project.lifecycle_status in ["archived", "archived-noindex"] and project.lifecycle_status_changed %}
+        {% trans date=humanize(project.lifecycle_status_changed) %}<strong>Archived:</strong> {{ date }}{% endtrans %}
+        <br />
+      {% endif %}
+      <!-- TODO -->
+      {% if release.yanked %}
+        {% trans %}<strong>Yanked:</strong> Show date here{% endtrans %}
+        <br />
+      {% endif %}
+      {% if latest_version %}
+        {% if release.version|parse_version > latest_version.version|parse_version %}
+          <a class="badge badge--key-dates badge--warning"
+             href="{{ request.route_path('packaging.project', name=release.project.name) }}">
+            <span>{% trans version=latest_version.version %}Stable version available ({{ version }}){% endtrans %}</span>
+          </a>
+        {% elif release.version|parse_version != latest_version.version|parse_version %}
+          <a class="badge badge--key-dates badge--warning"
+             href="{{ request.route_path('packaging.project', name=release.project.name) }}">
+            <span>{% trans version=latest_version.version %}Newer version available ({{ version }}){% endtrans %}</span>
+          </a>
+        {% else %}
+          <span class="badge badge--key-dates badge--success">{% trans %}Latest release{% endtrans %}</span>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+</div>

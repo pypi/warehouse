@@ -1,0 +1,84 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% if release.has_meta and (release.author or release.author_email or release.maintainer or release.maintainer_email) %}
+  <div class="sidebar-section">
+    <h2 class="sidebar-section__title">{% trans %}Credits{% endtrans %}</h2>
+    {% if release.author_email_verified or release.maintainer_email_verified %}
+      <div class="sidebar-section__content sidebar-section__content--pypi">
+        <details class="sidebar-section__data-source">
+          <summary class="sidebar-section__data-source-label">{% trans %}PyPI data{% endtrans %}</summary>
+          <div class="sidebar-section__data-source-description">{% trans %}Data sourced directly from PyPI's database.{% endtrans %}</div>
+        </details>
+        <div class="sidebar-section__data-block">
+          {% if release.author_email and release.author_email_verified %}
+            <p>
+              <strong>
+                {% if release.maintainer_email == release.author_email %}
+                  {% trans %}Author/Maintainer:{% endtrans %}
+                {% else %}
+                  {% trans %}Author:{% endtrans %}
+                {% endif %}
+              </strong>
+              <a href="mailto:{{ release.author_email|format_email|last }}">{{ release.author or release.author_email|format_email|first }}</a>
+            </p>
+          {% endif %}
+          {% if release.maintainer_email and release.maintainer_email_verified and release.maintainer_email != release.author_email %}
+            <p>
+              <strong>{% trans %}Maintainer:{% endtrans %}</strong>
+              <a href="mailto:{{ release.maintainer_email|format_email|last }}">{{ release.maintainer or release.maintainer_email|format_email|first }}</a>
+            </p>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+    {% if not release.author_email_verified or not release.maintainer_email_verified %}
+      {% if release.author_email and not release.author_email_verified or release.author and not release.author_email or release.maintainer_email and not release.maintainer_email_verified or release.maintainer and not release.maintainer_email %}
+        <div class="sidebar-section__data-block">
+          {% if release.author_email and not release.author_email_verified %}
+            <p>
+              <strong>
+                {% if release.maintainer_email == release.author_email %}
+                  {% trans %}Author/Maintainer:{% endtrans %}
+                {% else %}
+                  {% trans %}Author:{% endtrans %}
+                {% endif %}
+              </strong>
+              <a href="mailto:{{ release.author_email|format_email|last }}">{{ release.author or release.author_email|format_email|first }}</a>
+            </p>
+          {% elif release.author and not release.author_email %}
+            <p>
+              <strong>
+                {% if release.maintainer == release.author %}
+                  {% trans %}Author/Maintainer:{% endtrans %}
+                {% else %}
+                  {% trans %}Author:{% endtrans %}
+                {% endif %}
+              </strong> {{ release.author }}
+            </p>
+          {% endif %}
+          {% if release.maintainer_email and not release.maintainer_email_verified and release.maintainer_email != release.author_email %}
+            <p>
+              <strong>{% trans %}Maintainer:{% endtrans %}</strong>
+              <a href="mailto:{{ release.maintainer_email|format_email|last }}">{{ release.maintainer or release.maintainer_email|format_email|first }}</a>
+            </p>
+          {% elif release.maintainer and not release.maintainer_email and release.maintainer != release.author %}
+            <p>
+              <strong>{% trans %}Maintainer:{% endtrans %}</strong> {{ release.maintainer }}
+            </p>
+          {% endif %}
+        </div>
+      {% endif %}
+    {% endif %}
+  </div>
+{% endif %}
