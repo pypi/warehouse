@@ -111,7 +111,7 @@ allow-unsafe = true
 
 [tool.pytest]
 addopts = [
-  "--allow-hosts=localhost,::1,stripe,redis",
+  "--allow-hosts=localhost,::1,stripe,cache",
   "--disable-socket",
   "--durations=20",
   "--numprocesses=auto",
