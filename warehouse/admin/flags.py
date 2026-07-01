@@ -20,6 +20,7 @@ class AdminFlagValue(enum.Enum):
     DISALLOW_GITLAB_OIDC = "disallow-gitlab-oidc"
     DISALLOW_GOOGLE_OIDC = "disallow-google-oidc"
     DISALLOW_ACTIVESTATE_OIDC = "disallow-activestate-oidc"
+    DISALLOW_CIRCLECI_OIDC = "disallow-circleci-oidc"
     READ_ONLY = "read-only"
 
 
