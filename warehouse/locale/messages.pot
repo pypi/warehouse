@@ -162,7 +162,7 @@ msgstr ""
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:622 warehouse/manage/views/__init__.py:941
+#: warehouse/accounts/views.py:622 warehouse/manage/views/__init__.py:970
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -525,117 +525,117 @@ msgstr ""
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:401
+#: warehouse/manage/views/__init__.py:413
 msgid "Account details updated"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:432
+#: warehouse/manage/views/__init__.py:444
 #, python-brace-format
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:888
+#: warehouse/manage/views/__init__.py:917
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:890
+#: warehouse/manage/views/__init__.py:919
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:998
+#: warehouse/manage/views/__init__.py:1027
 msgid "Verify your email to create an API token."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1100
+#: warehouse/manage/views/__init__.py:1129
 msgid "API Token does not exist."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1132
+#: warehouse/manage/views/__init__.py:1161
 msgid "Invalid credentials. Try again"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1291
-#: warehouse/manage/views/__init__.py:1611
-#: warehouse/manage/views/__init__.py:1722
+#: warehouse/manage/views/__init__.py:1320
+#: warehouse/manage/views/__init__.py:1640
+#: warehouse/manage/views/__init__.py:1751
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1413
+#: warehouse/manage/views/__init__.py:1442
 msgid "This release is in quarantine and cannot be modified."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1437
-#: warehouse/manage/views/__init__.py:1524
-#: warehouse/manage/views/__init__.py:1627
-#: warehouse/manage/views/__init__.py:1730
+#: warehouse/manage/views/__init__.py:1466
+#: warehouse/manage/views/__init__.py:1553
+#: warehouse/manage/views/__init__.py:1656
+#: warehouse/manage/views/__init__.py:1759
 msgid "Confirm the request"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1450
+#: warehouse/manage/views/__init__.py:1479
 msgid "Could not yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1537
+#: warehouse/manage/views/__init__.py:1566
 msgid "Could not un-yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1640
+#: warehouse/manage/views/__init__.py:1669
 msgid "Could not delete release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1742
+#: warehouse/manage/views/__init__.py:1771
 msgid "Could not find file"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1747
+#: warehouse/manage/views/__init__.py:1776
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1895
+#: warehouse/manage/views/__init__.py:1924
 #, python-brace-format
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2002
+#: warehouse/manage/views/__init__.py:2031
 #, python-brace-format
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2069
+#: warehouse/manage/views/__init__.py:2098
 #, python-brace-format
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2100
+#: warehouse/manage/views/__init__.py:2129
 #, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2113
+#: warehouse/manage/views/__init__.py:2142
 #: warehouse/manage/views/organizations.py:922
 #, python-brace-format
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2178
+#: warehouse/manage/views/__init__.py:2207
 #: warehouse/manage/views/organizations.py:997
 #, python-brace-format
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2210
+#: warehouse/manage/views/__init__.py:2239
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2221
+#: warehouse/manage/views/__init__.py:2250
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2254
+#: warehouse/manage/views/__init__.py:2283
 #: warehouse/manage/views/organizations.py:1197
 #, python-brace-format
 msgid "Invitation revoked from '${username}'."
@@ -1309,7 +1309,7 @@ msgstr ""
 #: warehouse/templates/base.html:236
 #: warehouse/templates/includes/flash-messages.html:41
 #: warehouse/templates/includes/session-notifications.html:19
-#: warehouse/templates/manage/account.html:1011
+#: warehouse/templates/manage/account.html:1039
 #: warehouse/templates/manage/manage_base.html:360
 #: warehouse/templates/manage/manage_base.html:438
 #: warehouse/templates/manage/organization/settings.html:291
@@ -4274,7 +4274,7 @@ msgstr ""
 msgid "Cannot delete account"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:985
+#: warehouse/templates/manage/account.html:986
 #, python-format
 msgid ""
 "Your account is currently the <strong>sole owner</strong> of %(count)s "
@@ -4285,7 +4285,7 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/account.html:990
+#: warehouse/templates/manage/account.html:991
 msgid ""
 "You must transfer ownership or delete this project before you can delete "
 "your account."
@@ -4295,14 +4295,42 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/account.html:1000
+#: warehouse/templates/manage/account.html:1001
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a "
 "href=\"%(delete_href)s\">delete project</a>"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:1009
+#: warehouse/templates/manage/account.html:1012
+#, python-format
+msgid ""
+"Your account is currently the <strong>sole owner</strong> of %(count)s "
+"organization."
+msgid_plural ""
+"Your account is currently the <strong>sole owner</strong> of %(count)s "
+"organizations."
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/templates/manage/account.html:1017
+msgid ""
+"You must add another owner or delete this organization before you can "
+"delete your account."
+msgid_plural ""
+"You must add another owner or delete these organizations before you can "
+"delete your account."
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/templates/manage/account.html:1027
+#, python-format
+msgid ""
+"<a href=\"%(roles_href)s\">add an owner</a> or <a "
+"href=\"%(delete_href)s\">delete organization</a>"
+msgstr ""
+
+#: warehouse/templates/manage/account.html:1037
 #: warehouse/templates/manage/account/token.html:177
 #: warehouse/templates/manage/organization/settings.html:289
 #: warehouse/templates/manage/project/publishing.html:19
@@ -4310,11 +4338,11 @@ msgstr ""
 msgid "Proceed with caution!"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:1012
+#: warehouse/templates/manage/account.html:1040
 msgid "You will not be able to recover your account after you delete it"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:1014
+#: warehouse/templates/manage/account.html:1042
 msgid "Delete your PyPI account"
 msgstr ""
 

@@ -37,7 +37,15 @@ from warehouse.email import (
     send_account_recovery_initiated_email,
     send_password_reset_by_admin_email,
 )
+from warehouse.manage.views.view_helpers import (
+    deactivate_organization_for_owner_removal,
+)
 from warehouse.observations.models import ObservationKind
+from warehouse.organizations.models import (
+    Organization,
+    OrganizationRole,
+    OrganizationRoleType,
+)
 from warehouse.packaging.models import File, JournalEntry, Project, Release, Role
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import clear_project_quarantine, quarantine_project
@@ -383,6 +391,22 @@ def _nuke_user(user, request):
         .values(_submitted_by=deleted_user.username)
         .execution_options(synchronize_session=False)
     )
+
+    # Deactivate (and record an event for) any organization the user is the
+    # sole owner of: one Owner role, belonging to this user.
+    sole_owned_organizations = (
+        request.db.query(Organization)
+        .join(OrganizationRole, OrganizationRole.organization_id == Organization.id)
+        .filter(OrganizationRole.role_name == OrganizationRoleType.Owner)
+        .group_by(Organization.id)
+        .having(func.count(OrganizationRole.user_id) == 1)
+        .having(func.bool_or(OrganizationRole.user_id == user.id))
+        .all()
+    )
+    for organization in sole_owned_organizations:
+        deactivate_organization_for_owner_removal(
+            request, organization, target_user=user, reason="nuked"
+        )
 
     # Prohibit the username
     request.db.add(

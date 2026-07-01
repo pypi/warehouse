@@ -81,6 +81,7 @@ from warehouse.manage.views.organizations import (
     organization_owners,
 )
 from warehouse.manage.views.view_helpers import (
+    deactivate_organization_for_owner_removal,
     project_owners,
     user_organizations,
     user_projects,
@@ -357,6 +358,16 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
         return user_projects(request=self.request)["projects_sole_owned"]
 
     @property
+    def sole_organizations(self):
+        return [
+            organization
+            for organization in user_organizations(request=self.request)[
+                "organizations_with_sole_owner"
+            ]
+            if organization.is_in_good_standing()
+        ]
+
+    @property
     def default_response(self):
         return {
             "save_account_form": SaveAccountForm(
@@ -377,6 +388,7 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
             ),
             "account_associations": self.account_associations,
             "active_projects": self.active_projects,
+            "sole_organizations": self.sole_organizations,
         }
 
     @view_config(request_method="GET")
@@ -547,6 +559,23 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
                 "Cannot delete account with active project ownerships", queue="error"
             )
             return self.default_response
+
+        if self.sole_organizations:
+            self.request.session.flash(
+                "Cannot delete account with sole organization ownerships", queue="error"
+            )
+            return self.default_response
+
+        # orgs not in good standing aren't accessible so deactivate them
+        for organization in user_organizations(self.request)[
+            "organizations_with_sole_owner"
+        ]:
+            deactivate_organization_for_owner_removal(
+                self.request,
+                organization,
+                target_user=self.request.user,
+                reason="owner account deleted",
+            )
 
         # Update all journals to point to `deleted-user` instead
         deleted_user = (
