@@ -195,6 +195,10 @@ class EventTag:
         PendingOIDCPublisherAdded = "organization:oidc:pending-publisher-added"
         PendingOIDCPublisherRemoved = "organization:oidc:pending-publisher-removed"
 
+        SubscriptionCreate = "organization:subscription:create"
+        SubscriptionStatusChange = "organization:subscription:status_change"
+        SubscriptionCancel = "organization:subscription:cancel"
+
     class Team(EventTagEnum):
         """Tags for Organization events.
 

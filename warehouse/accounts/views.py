@@ -1898,6 +1898,11 @@ class ManageAccountPublishingViews:
             # pending publisher already targets the same external identity
             # under a different project name. Surface that conflict instead
             # of silently redirecting as if registration succeeded.
+            #
+            # The failed INSERT leaves the transaction in an aborted state, so
+            # roll back before doing anything else with the session -- otherwise
+            # rendering the response (or the end-of-request commit) blows up.
+            self.request.db.rollback()
             self.request.session.flash(
                 self.request._(
                     "A pending trusted publisher matching this configuration "

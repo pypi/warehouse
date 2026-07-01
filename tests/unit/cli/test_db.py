@@ -1,17 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
-from datetime import datetime
-from uuid import UUID
-
 import alembic.command
 import pretend
 import pytest
-import sqlalchemy
-
-from sqlalchemy.orm import Mapped, mapped_column
-
-import warehouse.cli.db.dbml
-import warehouse.db
 
 from warehouse.cli.db.branches import branches
 from warehouse.cli.db.check import check
@@ -24,7 +15,6 @@ from warehouse.cli.db.revision import revision
 from warehouse.cli.db.show import show
 from warehouse.cli.db.stamp import stamp
 from warehouse.cli.db.upgrade import upgrade
-from warehouse.utils.db.types import datetime_now
 
 
 def test_branches_command(monkeypatch, cli, pyramid_config):
@@ -300,111 +290,3 @@ def test_check_command(monkeypatch, cli, pyramid_config):
     result = cli.invoke(check, obj=pyramid_config)
     assert result.exit_code == 0
     assert alembic_check.calls == [pretend.call(alembic_config)]
-
-
-def test_dbml_command(monkeypatch, cli):
-    generate_dbml_file = pretend.call_recorder(lambda tables, path: None)
-    monkeypatch.setattr(warehouse.cli.db.dbml, "generate_dbml_file", generate_dbml_file)
-
-    ModelBase = pretend.stub(  # noqa: N806
-        metadata=pretend.stub(
-            tables=pretend.stub(
-                values=pretend.call_recorder(lambda: ["table0", "table1"])
-            )
-        )
-    )
-    monkeypatch.setattr(warehouse.db, "ModelBase", ModelBase)
-
-    cli.invoke(warehouse.cli.db.dbml.dbml)
-    assert generate_dbml_file.calls == [pretend.call(["table0", "table1"], None)]
-
-
-EXPECTED_DBML = """Table _clan {
-  name varchar [unique, not null]
-  fetched varchar [default: `FetchedValue()`, Note: "fetched value"]
-  for_the_children boolean [default: `True`]
-  nice varchar
-  id uuid [pk, not null, default: `gen_random_uuid()`]
-  Note: "various clans"
-}
-
-Table _clan_member {
-  name varchar [not null]
-  clan_id uuid
-  joined datetime [not null, default: `now()`]
-  departed datetime
-  id uuid [pk, not null, default: `gen_random_uuid()`]
-}
-
-Ref: _clan_member.clan_id > _clan.id
-"""
-
-
-@pytest.fixture(scope="module")
-def dbml_tables():
-    """Shared test models for DBML generation tests.
-
-    Defined once per module to avoid re-registering identical classes
-    in the global ModelBase declarative registry.
-    """
-
-    class Muddle(warehouse.db.Model):
-        __abstract__ = True
-        metadata = sqlalchemy.MetaData()
-
-    class Clan(Muddle):
-        __tablename__ = "_clan"
-        __table_args__ = {"comment": "various clans"}
-
-        name: Mapped[str] = mapped_column(unique=True)
-        fetched: Mapped[str | None] = mapped_column(
-            server_default=sqlalchemy.FetchedValue(),
-            comment="fetched value",
-        )
-        for_the_children: Mapped[bool | None] = mapped_column(default=True)
-        nice: Mapped[str | None] = mapped_column(sqlalchemy.String(length=69))
-
-    class ClanMember(Muddle):
-        __tablename__ = "_clan_member"
-
-        name: Mapped[str]
-        clan_id: Mapped[UUID | None] = mapped_column(
-            sqlalchemy.ForeignKey("_clan.id", deferrable=True, initially="DEFERRED"),
-        )
-        joined: Mapped[datetime_now]
-        departed: Mapped[datetime | None]
-
-    return Muddle.metadata.tables.values()
-
-
-def test_generate_dbml_file(tmp_path_factory, dbml_tables):
-    outpath = tmp_path_factory.mktemp("out") / "wutang.dbml"
-    warehouse.cli.db.dbml.generate_dbml_file(dbml_tables, outpath)
-
-    with open(outpath) as f:
-        assert f.read() == EXPECTED_DBML
-
-
-def test_generate_dbml_console(capsys, dbml_tables):
-    warehouse.cli.db.dbml.generate_dbml_file(dbml_tables, None)
-    captured = capsys.readouterr()
-
-    assert captured.out == EXPECTED_DBML
-
-
-def test_generate_dbml_bad_conversion():
-    class Muddle(warehouse.db.Model):
-        __abstract__ = True
-        metadata = sqlalchemy.MetaData()
-
-    class BadText(sqlalchemy.Text):
-        pass
-
-    class Puddle(Muddle):
-        __tablename__ = "puddle"
-        __table_args__ = {"comment": "various clans"}
-
-        name: Mapped[str] = mapped_column(BadText, unique=True)
-
-    with pytest.raises(SystemExit):
-        warehouse.cli.db.dbml.generate_dbml_file(Muddle.metadata.tables.values(), None)

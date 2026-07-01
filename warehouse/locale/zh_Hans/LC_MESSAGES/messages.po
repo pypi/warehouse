@@ -66,22 +66,23 @@
 # 123abc <3933676724@qq.com>, 2025.
 # Unwilling to disclose <q1111911111q@tutamail.com>, 2025.
 # 金羿ELS <W-YI_DoctorYI@outlook.com>, 2025.
+# Hosted Weblate user 54392 <hamburger2048@users.noreply.hosted.weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2024-02-26 14:55+0000\n"
-"Last-Translator: 大王叫我来巡山 <hamburger2048@users.noreply.hosted.weblate."
-"org>\n"
-"Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
-"pypa/warehouse/zh_Hans/>\n"
+"PO-Revision-Date: 2026-06-10 07:01+0000\n"
+"Last-Translator: Hosted Weblate user 54392 "
+"<hamburger2048@users.noreply.hosted.weblate.org>\n"
+"Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
+"projects/pypa/warehouse/zh_Hans/>\n"
 "Language: zh_Hans\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.5-dev\n"
+"X-Generator: Weblate 2026.6\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:149
@@ -5195,14 +5196,10 @@ msgid ""
 msgstr "在对你的账户做任何改动前，你必须验证下方列出的主邮箱地址。"
 
 #: warehouse/templates/manage/unverified-account.html:236
-#, fuzzy
-#| msgid ""
-#| "You must verify your **primary** email address before you can perform "
-#| "this action."
 msgid ""
 "If you cannot verify the primary email address listed, you can correct it "
 "below."
-msgstr "你必须验证你的主电子邮件地址方可执行此操作。"
+msgstr "如果无法验证所列出的主电子邮件地址，你可以在下方更正它。"
 
 #: warehouse/templates/manage/unverified-account.html:246
 msgid ""
@@ -5215,28 +5212,24 @@ msgstr ""
 "户。"
 
 #: warehouse/templates/manage/unverified-account.html:268
-#, fuzzy
-#| msgid "Remove this email address"
 msgid "Entered the wrong email address?"
-msgstr "删除此电子邮件地址"
+msgstr "输入了错误的电子邮件地址？"
 
 #: warehouse/templates/manage/unverified-account.html:270
 msgid ""
 "If you made a typo when registering, you can correct your email address "
 "below. A new verification email will be sent to the updated address."
 msgstr ""
+"如果在注册时输入错误，你可以在下方更正电子邮件地址。将发送一封新的验证电子邮"
+"件到更新的地址。"
 
 #: warehouse/templates/manage/unverified-account.html:283
-#, fuzzy
-#| msgid "Your email address"
 msgid "New email address"
-msgstr "你的电子邮件地址"
+msgstr "新的电子邮件地址"
 
 #: warehouse/templates/manage/unverified-account.html:300
-#, fuzzy
-#| msgid "Your email address"
 msgid "Update email address"
-msgstr "你的电子邮件地址"
+msgstr "更新电子邮件地址"
 
 #: warehouse/templates/manage/account/publishing.html:9
 #: warehouse/templates/manage/organization/publishing.html:9

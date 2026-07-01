@@ -136,7 +136,7 @@ def _email(
     name: str,
     *,
     allow_unverified: bool = False,
-    repeat_window: int | None = None,
+    repeat_window: datetime.timedelta | None = None,
     override_from: str | None = None,
 ) -> typing.Callable:
     """
@@ -637,6 +637,22 @@ def send_organization_renamed_email(
 @_email("organization-deleted")
 def send_organization_deleted_email(request, user, *, organization_name):
     return {
+        "organization_name": organization_name,
+    }
+
+
+@_email(
+    "organization-subscription-required",
+    repeat_window=datetime.timedelta(days=30),
+)
+def send_organization_subscription_required_email(
+    request,
+    user,
+    *,
+    organization_name,
+):
+    return {
+        "username": user.username,
         "organization_name": organization_name,
     }
 
