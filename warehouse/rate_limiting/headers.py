@@ -16,7 +16,7 @@ from typing import Literal
 
 from warehouse.rate_limiting.interfaces import IRateLimiter, WindowStats
 
-PartitionKey = Literal["ip", "user", "global"]
+PartitionKey = Literal["ip", "user", "org", "global"]
 
 
 @dataclass(frozen=True)

@@ -71,6 +71,11 @@ def test_includeme(mocker):
             domain=warehouse,
         ),
         mocker.call(
+            "admin.organization.set_project_create_limit",
+            "/admin/organizations/{organization_id}/set_project_create_limit/",
+            domain=warehouse,
+        ),
+        mocker.call(
             "admin.organization.add_oidc_issuer",
             "/admin/organizations/{organization_id}/oidc-issuers/add/",
             domain=warehouse,
@@ -194,6 +199,13 @@ def test_includeme(mocker):
         mocker.call(
             "admin.user.burn_recovery_codes",
             "/admin/users/{username}/burn_recovery_codes/",
+            domain=warehouse,
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}",
+        ),
+        mocker.call(
+            "admin.user.set_project_create_limit",
+            "/admin/users/{username}/set_project_create_limit/",
             domain=warehouse,
             factory="warehouse.accounts.models:UserFactory",
             traverse="/{username}",

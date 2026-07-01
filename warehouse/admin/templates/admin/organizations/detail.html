@@ -344,6 +344,31 @@
                   </td>
                 </form>
               </tr>
+              <tr>
+                <form method="POST" action="{{ request.route_path('admin.organization.set_project_create_limit', organization_id=organization.id) }}">
+                  <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                  <td>Project creation rate limit</td>
+                  <td>
+                    {% if organization.project_create_limit_string %}
+                    {{ organization.project_create_limit_string }}
+                    {% else %}
+                    Default
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% set limit_parts = (organization.project_create_limit_string or '').split(' per ') %}
+                    <input type="number" name="project_create_limit_count" id="projectCreateLimitCount" min="1" step="1" value="{{ limit_parts[0] }}"> per
+                    <select name="project_create_limit_period" id="projectCreateLimitPeriod">
+                      {% for period in ["hour", "day", "month"] %}
+                      <option value="{{ period }}" {{ 'selected' if limit_parts|length > 1 and limit_parts[1] == period }}>{{ period }}</option>
+                      {% endfor %}
+                    </select>
+                  </td>
+                  <td>
+                    <button type="submit" class="btn btn-primary btn-sm" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) }}>Submit</button>
+                  </td>
+                </form>
+              </tr>
             </tbody>
           </table>
         </div>

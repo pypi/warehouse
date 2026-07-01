@@ -1842,3 +1842,95 @@ class TestUserClearQuarantineProjects:
             pretend.call("Wrong confirmation input", queue="error")
         ]
         assert project.lifecycle_status == "quarantine-enter"
+
+
+class TestUserSetProjectCreateLimit:
+    def test_sets_limit(self, db_request):
+        user = UserFactory.create()
+        admin = UserFactory.create()
+
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = admin
+        db_request.POST = MultiDict(
+            {
+                "project_create_limit_count": "100",
+                "project_create_limit_period": "hour",
+            }
+        )
+
+        result = views.user_set_project_create_limit(user, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Project creation rate limit set to 100 per hour "
+                f"for user {user.username!r}",
+                queue="success",
+            )
+        ]
+        assert result.status_code == 303
+        assert result.location == "/foobar"
+        assert user.project_create_limit_string == "100 per hour"
+        event = user.events.one()
+        assert event.tag == "admin:user:set_project_create_limit"
+        assert event.additional == {
+            "old_project_create_limit": None,
+            "new_project_create_limit": "100 per hour",
+            "actor": admin.username,
+        }
+
+    def test_clears_limit(self, db_request):
+        user = UserFactory.create()
+        user.project_create_limit_string = "100 per hour"
+        admin = UserFactory.create()
+
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = admin
+        db_request.POST = MultiDict({"project_create_limit_count": ""})
+
+        result = views.user_set_project_create_limit(user, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"Project creation rate limit set to (default) "
+                f"for user {user.username!r}",
+                queue="success",
+            )
+        ]
+        assert result.status_code == 303
+        assert user.project_create_limit_string is None
+        event = user.events.one()
+        assert event.tag == "admin:user:set_project_create_limit"
+        assert event.additional == {
+            "old_project_create_limit": "100 per hour",
+            "new_project_create_limit": None,
+            "actor": admin.username,
+        }
+
+    def test_invalid_value(self, db_request):
+        user = UserFactory.create()
+
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.POST = MultiDict(
+            {
+                "project_create_limit_count": "0",
+                "project_create_limit_period": "hour",
+            }
+        )
+
+        result = views.user_set_project_create_limit(user, db_request)
+
+        assert len(db_request.session.flash.calls) == 1
+        call = db_request.session.flash.calls[0]
+        assert "at least 1" in call.args[0]
+        assert call.kwargs == {"queue": "error"}
+        assert result.status_code == 303
+        assert user.project_create_limit_string is None

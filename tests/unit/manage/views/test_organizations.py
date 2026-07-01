@@ -49,7 +49,8 @@ from warehouse.organizations.models import (
     OrganizationRoleType,
     OrganizationType,
 )
-from warehouse.packaging import Project
+from warehouse.packaging import IProjectService, Project
+from warehouse.packaging.interfaces import TooManyProjectsCreated
 from warehouse.utils.paginate import paginate_url_factory
 
 
@@ -1953,6 +1954,10 @@ class TestManageOrganizationProjects:
             )
         ]
 
+        db_request.db.flush()
+        purges = db_request.db.info.get("warehouse.cache.origin.purges", set())
+        assert f"org/{organization.normalized_name}" in purges
+
     @pytest.mark.parametrize(
         ("invalid_name", "expected"),
         [
@@ -2067,6 +2072,61 @@ class TestManageOrganizationProjects:
             )
         ]
         assert len(organization.projects) == 1
+
+    @pytest.mark.parametrize(
+        ("resets_in", "expected_error"),
+        [
+            (
+                datetime.timedelta(seconds=42),
+                "Too many new projects created. Try again in 42 seconds.",
+            ),
+            (None, "Too many new projects created. Try again later."),
+        ],
+    )
+    def test_add_organization_project_new_project_ratelimited(
+        self,
+        db_request,
+        pyramid_user,
+        organization_service,
+        monkeypatch,
+        resets_in,
+        expected_error,
+    ):
+        organization = OrganizationFactory.create()
+        OrganizationRoleFactory.create(
+            organization=organization, user=db_request.user, role_name="Owner"
+        )
+
+        add_organization_project_obj = pretend.stub(
+            add_existing_project=pretend.stub(data=False),
+            new_project_name=pretend.stub(data="some-new-project", errors=[]),
+            validate=lambda *a, **kw: True,
+        )
+        monkeypatch.setattr(
+            org_views,
+            "AddOrganizationProjectForm",
+            lambda *a, **kw: add_organization_project_obj,
+        )
+
+        project_service = pretend.stub(
+            create_project=pretend.raiser(TooManyProjectsCreated(resets_in=resets_in)),
+        )
+        db_request.find_service = lambda svc, **kw: (
+            project_service if svc is IProjectService else organization_service
+        )
+
+        view = org_views.ManageOrganizationProjectsViews(organization, db_request)
+        result = view.add_organization_project()
+
+        assert result == {
+            "organization": organization,
+            "active_projects": view.active_projects,
+            "projects_owned": set(),
+            "projects_sole_owned": set(),
+            "add_organization_project_form": add_organization_project_obj,
+        }
+        assert add_organization_project_obj.new_project_name.errors == [expected_error]
+        assert len(organization.projects) == 0
 
 
 class TestManageOrganizationRoles:

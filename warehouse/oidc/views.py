@@ -34,7 +34,7 @@ from warehouse.oidc.utils import (
     OIDC_ISSUER_SERVICE_NAMES,
     lookup_custom_issuer_type,
 )
-from warehouse.packaging.interfaces import IProjectService
+from warehouse.packaging.interfaces import IProjectService, TooManyProjectsCreated
 from warehouse.packaging.models import Project, ProjectFactory
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
@@ -226,13 +226,17 @@ def mint_token(
                     pending_publisher.project_name,
                     pending_publisher.added_by,
                     request,
-                    creator_is_owner=pending_publisher.organization_id is None,
-                    ratelimited=False,
                     organization_id=pending_publisher.organization_id,
+                    ratelimited=False,
                 )
             except HTTPException as exc:
                 return _invalid(
                     errors=[{"code": "invalid-payload", "description": str(exc)}],
+                    request=request,
+                )
+            except TooManyProjectsCreated as exc:
+                return _invalid(
+                    errors=[{"code": "too-many-projects", "description": exc.message}],
                     request=request,
                 )
 

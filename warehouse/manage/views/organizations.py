@@ -81,6 +81,7 @@ from warehouse.organizations.models import (
     TermsOfServiceEngagement,
 )
 from warehouse.packaging import IProjectService, Project, Role
+from warehouse.packaging.interfaces import TooManyProjectsCreated
 from warehouse.packaging.models import JournalEntry, ProjectFactory
 from warehouse.subscriptions import IBillingService, ISubscriptionService
 from warehouse.subscriptions.services import MockStripeBillingService
@@ -847,23 +848,32 @@ class ManageOrganizationProjectsViews:
                 )
         else:
             # Try to add a new project.
-            # Note that we pass `creator_is_owner=False`, since the project being
-            # created is controlled by the organization and not the user creating it.
+            # Passing organization_id routes through the project.create.org rate
+            # limit bucket and inserts the OrganizationProject row inline.
             project_service = self.request.find_service(IProjectService)
             try:
                 project = project_service.create_project(
                     form.new_project_name.data,
                     self.request.user,
                     request=self.request,
-                    creator_is_owner=False,
-                    ratelimited=False,
+                    organization_id=self.organization.id,
                 )
             except HTTPException as exc:
                 form.new_project_name.errors.append(exc.detail)
                 return default_response
+            except TooManyProjectsCreated as exc:
+                form.new_project_name.errors.append(exc.message)
+                return default_response
 
-        # Add project to organization, record events, and notify owners.
-        add_organization_project_and_notify(self.request, self.organization, project)
+        # Add project to organization, record events, and notify owners. New
+        # projects are already linked inline by create_project, so only link
+        # when attaching an existing project.
+        add_organization_project_and_notify(
+            self.request,
+            self.organization,
+            project,
+            link=form.add_existing_project.data,
+        )
 
         # Display notification message.
         self.request.session.flash(
