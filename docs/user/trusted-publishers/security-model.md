@@ -272,14 +272,12 @@ own security model and considerations.
       strings like `v1.2.3`.
 
     * **Limit the scope of your publishing job**: your publishing job should
-      (ideally) have only three steps:
+      (ideally) have only two steps:
 
         1. Retrieve the publishable distribution files from **a separate
           build job**;
 
-        2. Exchange the OIDC token for a PyPI API token;
-
-        3. Publish the distributions using `twine` with the API token.
+        2. Publish the distributions using `twine`, which handles the OIDC exchange.
 
       By using a separate build job, you keep the number of steps that can
       access the OIDC token to a bare minimum. This prevents both accidental

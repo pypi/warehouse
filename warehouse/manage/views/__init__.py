@@ -2469,10 +2469,11 @@ def manage_project_history(project, request):
     file_events_query = (
         request.db.query(File.Event)
         .join(File.Event.source)
-        .filter(File.Event.additional["project_id"].astext == str(project.id))
+        .join(File.release)
+        .filter(Release.project_id == project.id)
     )
 
-    events_query = project_events_query.union(file_events_query).order_by(
+    events_query = project_events_query.union_all(file_events_query).order_by(
         Project.Event.time.desc(), File.Event.time.desc()
     )
 
