@@ -112,6 +112,12 @@
                    title="{% trans %}Activate billing for this organization{% endtrans %}">
                   {% trans %}Activate Billing{% endtrans %}
                 </a>
+                {% if organization.is_active and organization.name in organizations_owned %}
+                  {# Owners can still manage (e.g. delete) an org with inactive billing #}
+                  <a class="button"
+                     href="{{ request.route_path('manage.organization.settings', organization_name=organization.normalized_name) }}"
+                     title="{% trans %}Manage this organization{% endtrans %}">{% trans %}Manage{% endtrans %}</a>
+                {% endif %}
               {% else %}
                 {# Show disabled "Manage" button for managers #}
                 <button class="button button--primary"
