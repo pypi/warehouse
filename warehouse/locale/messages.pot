@@ -2093,6 +2093,54 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/accounts/register.html:214
+msgid "Important: Prohibited actions put PyPI at risk"
+msgstr ""
+
+#: warehouse/templates/accounts/register.html:216
+#, python-format
+msgid ""
+"%(title)s is critical infrastructure for the Python community, with high "
+"volunteer engagement in keeping it secure. Unnecessary violations of our "
+"terms waste limited time we could dedicate to securing the ecosystem."
+msgstr ""
+
+#: warehouse/templates/accounts/register.html:220
+msgid ""
+"PyPI <strong>does not authorize</strong> using our infrastructure for "
+"<strong>any kind of security research</strong>, including probing "
+"vulnerabilities through dependency confusion or \"beacons\"."
+msgstr ""
+
+#: warehouse/templates/accounts/register.html:223
+msgid ""
+"Prohibited security research includes <strong>bug bounty "
+"programs</strong>, <strong>pentesting</strong>, and <strong>red team "
+"engagements</strong>, unless explicitly authorized by PyPI "
+"administration."
+msgstr ""
+
+#: warehouse/templates/accounts/register.html:226
+msgid ""
+"Violations will result in <strong>immediate account suspension</strong> "
+"and may include <strong>removal of all associated projects and "
+"files</strong>."
+msgstr ""
+
+#: warehouse/templates/accounts/register.html:230
+#, python-format
+msgid ""
+"If you are a security researcher, please refer to our <a "
+"href=\"%(security_page)s\">published security policy</a> and coordinate "
+"through proper disclosure channels."
+msgstr ""
+
+#: warehouse/templates/accounts/register.html:238
+msgid ""
+"I assert that I will not use this account for security research or "
+"testing."
+msgstr ""
+
+#: warehouse/templates/accounts/register.html:243
 msgid "Create account"
 msgstr ""
 
