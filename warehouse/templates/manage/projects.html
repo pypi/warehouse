@@ -4,6 +4,62 @@
 {% block title %}
   {% trans %}Your projects{% endtrans %}
 {% endblock %}
+{% macro package_snippet(project, projects_owned, projects_sole_owned) -%}
+  {% set release = project.releases[0] if project.releases else None %}
+  <div class="package-snippet">
+    <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
+      <div>
+        <h3 class="package-snippet__title">
+          {{ project.name }}
+          {% if project.organization %}
+            <a href="{{ request.route_path('manage.organization.projects', organization_name=project.organization.normalized_name) }}"
+               class="badge">
+              <i class="fa fa-sitemap" aria-hidden="true"></i>{{ project.organization.name }}
+            </a>
+          {% endif %}
+          {% if project.name in projects_sole_owned %}
+            <a href="{{ request.route_path('manage.project.roles', project_name=project.normalized_name) }}"
+               class="badge badge--warning">{% trans %}Sole owner{% endtrans %}</a>
+          {% endif %}
+        </h3>
+        {% if release %}
+          <p class="package-snippet__meta">
+            {% trans release_date=humanize(release.created) %}Last released {{ release_date }}{% endtrans %}
+          </p>
+          <p class="package-snippet__description">{{ release.summary }}</p>
+        {% else %}
+          <p class="package-snippet__meta">
+            {% trans creation_date=humanize(project.created) %}Created {{ creation_date }}{% endtrans %}
+          </p>
+        {% endif %}
+      </div>
+      <div class="package-snippet__buttons">
+        {% if project.name in projects_owned %}
+          {# Show manage button #}
+          <a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name) }}"
+             class="button button--primary"
+             title="{% trans %}Manage this project{% endtrans %}">{% trans %}Manage{% endtrans %}</a>
+        {% else %}
+          {# Show disabled button #}
+          <button class="button button--primary"
+                  disabled
+                  title="{% trans %}You are not an owner of this project{% endtrans %}">
+            {% trans %}Manage{% endtrans %}
+          </button>
+        {% endif %}
+        {% if project.releases %}
+          <a href="{{ request.route_path('packaging.project', name=project.normalized_name) }}"
+             class="button"
+             title="{% trans %}View this project's public page{% endtrans %}">{% trans %}View{% endtrans %}</a>
+        {% else %}
+          <button class="button"
+                  disabled
+                  title="{% trans %}This project has no releases{% endtrans %}">{% trans %}View{% endtrans %}</button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{%- endmacro %}
 {% block main %}
   {% if project_invites %}
     <h1 class="page-title">
@@ -53,78 +109,37 @@
     </div>
   {% endif %}
   <h1 class="page-title">
-    {% trans %}Your projects{% endtrans %}
-    <span class="badge badge--neutral">{{ projects|length }}</span>
+    {% trans %}Active Projects{% endtrans %}
+    <span class="badge badge--neutral">{{ projects_active|length }}</span>
   </h1>
   <div class="package-list">
-    {% set user_has_two_factor = request.user.has_two_factor %}
-    {% for project in projects %}
-      {% set release = project.releases[0] if project.releases else None %}
-      <div class="package-snippet">
-        <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
-          <div>
-            <h3 class="package-snippet__title">
-              {{ project.name }}
-              {% if project.organization %}
-                <a href="{{ request.route_path('manage.organization.projects', organization_name=project.organization.normalized_name) }}"
-                   class="badge">
-                  <i class="fa fa-sitemap" aria-hidden="true"></i>{{ project.organization.name }}
-                </a>
-              {% endif %}
-              {% if project.name in projects_sole_owned %}
-                <a href="{{ request.route_path('manage.project.roles', project_name=project.normalized_name) }}"
-                   class="badge badge--warning">{% trans %}Sole owner{% endtrans %}</a>
-              {% endif %}
-              {% if project.lifecycle_status in ["archived", "archived-noindex"] %}
-                <a href="{{ request.route_path('manage.project.settings', project_name=project.normalized_name) }}"
-                   class="badge badge--warning">{% trans %}Archived{% endtrans %}</a>
-              {% endif %}
-            </h3>
-            {% if release %}
-              <p class="package-snippet__meta">
-                {% trans release_date=humanize(release.created) %}Last released {{ release_date }}{% endtrans %}
-              </p>
-              <p class="package-snippet__description">{{ release.summary }}</p>
-            {% else %}
-              <p class="package-snippet__meta">
-                {% trans creation_date=humanize(project.created) %}Created {{ creation_date }}{% endtrans %}
-              </p>
-            {% endif %}
-          </div>
-          <div class="package-snippet__buttons">
-            {% if project.name in projects_owned %}
-              {# Show manage button #}
-              <a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name) }}"
-                 class="button button--primary"
-                 title="{% trans %}Manage this project{% endtrans %}">{% trans %}Manage{% endtrans %}</a>
-            {% else %}
-              {# Show disabled button #}
-              <button class="button button--primary"
-                      disabled
-                      title="{% trans %}You are not an owner of this project{% endtrans %}">
-                {% trans %}Manage{% endtrans %}
-              </button>
-            {% endif %}
-            {% if project.releases %}
-              <a href="{{ request.route_path('packaging.project', name=project.normalized_name) }}"
-                 class="button"
-                 title="{% trans %}View this project's public page{% endtrans %}">{% trans %}View{% endtrans %}</a>
-            {% else %}
-              <button class="button"
-                      disabled
-                      title="{% trans %}This project has no releases{% endtrans %}">
-                {% trans %}View{% endtrans %}
-              </button>
-            {% endif %}
-          </div>
-        </div>
-      </div>
+    {% for project in projects_active %}
+      {{ package_snippet(project, projects_owned, projects_sole_owned) }}
     {% else %}
-      <div class="callout-block no-top-margin">
-        <p>
-          {% trans href='https://packaging.python.org/' %}You have not uploaded any projects to PyPI, yet. To learn how to get started, visit the <a href="{{ href }}" target="_blank" rel="noopener">Python Packaging User Guide</a>{% endtrans %}
-        </p>
-      </div>
+      {% if projects_archived %}
+        <p>{% trans %}No active projects.{% endtrans %}</p>
+      {% else %}
+        <div class="callout-block no-top-margin">
+          <p>
+            {% trans href='https://packaging.python.org/' %}You have not uploaded any projects to PyPI, yet. To learn how to get started, visit the <a href="{{ href }}" target="_blank" rel="noopener">Python Packaging User Guide</a>{% endtrans %}
+          </p>
+        </div>
+      {% endif %}
     {% endfor %}
   </div>
+  {% if projects_archived %}
+    <details class="callout-block"
+             data-controller="collapsible"
+             data-collapsible-identifier="manage_projects_archived">
+      <summary class="callout-block__heading" data-action="click->collapsible#save">
+        {% trans %}Archived Projects{% endtrans %}
+        <span class="badge badge--neutral">{{ projects_archived|length }}</span>
+      </summary>
+      <div class="package-list">
+        {% for project in projects_archived %}
+          {{ package_snippet(project, projects_owned, projects_sole_owned) }}
+        {% endfor %}
+      </div>
+    </details>
+  {% endif %}
 {% endblock %}
