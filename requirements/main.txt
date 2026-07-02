@@ -472,9 +472,9 @@ charset-normalizer==3.4.7 \
     --hash=sha256:fbccdc05410c9ee21bbf16a35f4c1d16123dcdeb8a1d38f33654fa21d0234f79 \
     --hash=sha256:fea24543955a6a729c45a73fe90e08c743f0b3334bbf3201e6c4bc1b0c7fa464
     # via requests
-click==8.4.1 \
-    --hash=sha256:482be17c6991b8c19c5429a1e995d9b0efdbb63172824c41f99965dc0ade8ec2 \
-    --hash=sha256:918b5633eddf6b41c32d4f454bf0de810065c74e3f7dbf8ee5452f8be88d3e96
+click==8.4.2 \
+    --hash=sha256:9a6cea6e60b17ebe0a44c5cc636d94f09bd66142c1cd7d8b4cd731c4917a15f6 \
+    --hash=sha256:e6f9f66136c816745b9d65817da91d61d957fb16e02e4dcd0552553c5a197b76
     # via
     #   -r requirements/main.in
     #   celery
@@ -663,17 +663,17 @@ cssutils==2.15.0 \
     --hash=sha256:207faa466810a1aef109261673f2458356d0839ddedaebc0ee553376290fb6a9 \
     --hash=sha256:e9739237f3915037dacba787c4b58f280e3ec5d9864953e185bf23d40ff7d021
     # via premailer
-datadog==0.52.1 \
-    --hash=sha256:44c6deb563c4522dba206fba2e2bb93d3b04113c40191851ba3a241d82b5fd0b \
-    --hash=sha256:b8c92cd761618ee062f114171067e4c400d48c9f0dad16cb285042439d9d5d4e
+datadog==0.52.2 \
+    --hash=sha256:60fcc90ee7be3b767af878de4d5a6774a80c386cde1f15e900e66e42d2c6aaf9 \
+    --hash=sha256:a74b1704ce37f3d9a0c36b1a87127c45032171726a01960bd210a549f1400849
     # via -r requirements/main.in
 deprecated==1.3.1 \
     --hash=sha256:597bfef186b6f60181535a29fbe44865ce137a5079f295b479886c82729d5f3f \
     --hash=sha256:b1b50e0ff0c1fddaa5708a2c6b0a6588bb09b892825ab2b214ac9ea9d92a5223
     # via limits
-disposable-email-domains==0.0.208 \
-    --hash=sha256:a291702b87fac09ffe77f5ced8e88feae05f863f2652ca95000c0ccbc6add28a \
-    --hash=sha256:dd21b9f1c8ac0176cb78c7078c8bf0eccd3e417e3e7781a59994c4635bd1cf83
+disposable-email-domains==0.0.209 \
+    --hash=sha256:141578a2d9950e851c69d02d4115da7d71151891e436d63ab8632edb68f24821 \
+    --hash=sha256:6ff858e63ba18bdaa4a6c04dcdfe903aad1bc1f47de6c68b8108e4d40503fef4
     # via -r requirements/main.in
 dnspython==2.8.0 \
     --hash=sha256:01d9bbc4a2d76bf0db7c1f729812ded6d912bd318d3b1cf81d30c0f845dbf3af \
@@ -2676,17 +2676,17 @@ wtforms[email]==3.2.2 \
     --hash=sha256:72b90d5d921bd3119252069cf0301e9c13915f9e52792652bc91c5dda4b79e56 \
     --hash=sha256:7b00c73f8670f35d4edb0293dcd81b980528bee72fd662b182aaba27ae570b93
     # via -r requirements/main.in
-yara-x==1.18.0 \
-    --hash=sha256:10927461340d0bf808e96212689af0d7fe4d436429166af9cd302dad2cbbbdd0 \
-    --hash=sha256:120f0b0d0819049d98d8d266f172cb36fbd38dd7ff3cae22f2ee6d7fb9b5e530 \
-    --hash=sha256:3e7e164113df45bb798a3e1ab9577db8bf7a0bb622f78bf8f4e7f32cd59bc458 \
-    --hash=sha256:5a9579c5e173a082a59c79f379024d115525923808df439f5dac48d137a2efcd \
-    --hash=sha256:7ce986ef0b747926fd21f974527cc8dde642d606b6911d64ff735676af6d750e \
-    --hash=sha256:80cae2b5627b2f753619294b7bacc9a16f6e69c5ec96e0424646d7d0aac1d752 \
-    --hash=sha256:acce98637bb599141ec620f2f8d9423ee65a5e2839f9cefbb4be46e4038cf594 \
-    --hash=sha256:d4e298068d7bc6a27eb57bb1226f4b1da124fadb3978ae707fb7de474839619b \
-    --hash=sha256:d74730245f54e1bc859be40e8f3d98edd586d012f9219660fdcd72e15b03395c \
-    --hash=sha256:d891cc9b252b32fb6896d9f8607fb9484b566aa1753aa10c5aea80e4fd5e8641
+yara-x==1.19.0 \
+    --hash=sha256:146a70593b44b79d71772a8b60ee992e2b02d24ebdd3788889a5559b44812754 \
+    --hash=sha256:3844a0592952420c7a3ee0bbdef45fe0666a12c1e0292697b5697407814147ec \
+    --hash=sha256:6b62018986ae575406680fa876006ee6fcfaff730052106dc3e88ddcac9bf088 \
+    --hash=sha256:84ebae8afa82b0b41ae6f4947859a03f491e23da1013f4e0892905fd6f523998 \
+    --hash=sha256:9fe18e0da101608a31249852f451235f2443eed5406bfe0cbf910a207114cfba \
+    --hash=sha256:a5eb570baa7093eb7fd81b6f5592c6622e09cbc85ef09ab00f3794cffbc5c91c \
+    --hash=sha256:ab13d236f24e906cb3ec386b5e85d4e4bd5783f30656ee4c4dc090599b69661d \
+    --hash=sha256:b1c8b2e41bb06932db66cd9a73dc5ae41086861a89287d45878880596c335d2b \
+    --hash=sha256:f38e19b0bd3f6af8366ac789778d0c39e359a897473b86c3ff6f9b0c255e631e \
+    --hash=sha256:f9ea9e8e74cad2234c844d89b677a74e97d0858c05753e286b594aa6a6fa2b23
     # via -r requirements/main.in
 zope-deprecation==6.0 \
     --hash=sha256:18727ebda8e63a6d4bd28a290e8b46852e9f14473debb5cc40a0a2dccfadf15f \
