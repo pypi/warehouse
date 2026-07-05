@@ -10,21 +10,22 @@
 # Ranforingus <ranforingus@hotmail.com>, 2023.
 # Jos Verlinde <Jos.Verlinde@microsoft.com>, 2023, 2024.
 # Sam Plimmer <sam.g.plimmer@gmail.com>, 2024.
+# linux-rewritten-kernels <feddewestrahotmail@icloud.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2024-09-12 19:10+0000\n"
-"Last-Translator: Jos Verlinde <Jos.Verlinde@microsoft.com>\n"
-"Language-Team: Dutch <https://hosted.weblate.org/projects/pypa/warehouse/nl/"
-">\n"
+"PO-Revision-Date: 2026-06-19 16:00+0000\n"
+"Last-Translator: linux-rewritten-kernels <feddewestrahotmail@icloud.com>\n"
+"Language-Team: Dutch <https://hosted.weblate.org/projects/pypa/warehouse/nl/>"
+"\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.8-dev\n"
+"X-Generator: Weblate 2026.7.dev0\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:149
@@ -350,14 +351,10 @@ msgstr ""
 "intervention voor meer details."
 
 #: warehouse/accounts/views.py:1577
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
 msgid "disabled. See https://pypi.org/help#admin-intervention for details."
 msgstr ""
 "Registratie van nieuwe gebruikers is tijdelijk stopgezet. Zie https://"
-"pypi.org/help#admin-intervention voor meer details."
+"pypi.org/help#admin-intervention voor meer informatie."
 
 #: warehouse/accounts/views.py:1593
 msgid ""
@@ -408,8 +405,6 @@ msgstr ""
 
 #: warehouse/accounts/views.py:1813 warehouse/accounts/views.py:1826
 #: warehouse/accounts/views.py:1833
-#, fuzzy
-#| msgid "Create an account"
 msgid "Invalid publisher ID"
 msgstr "Ongeldige uitgever-ID"
 
@@ -423,25 +418,23 @@ msgstr "Bannervoorbeeld"
 
 #: warehouse/manage/forms.py:292
 msgid "Specify an association ID"
-msgstr ""
+msgstr "Geef een associatie-ID op"
 
 #: warehouse/manage/forms.py:293
-#, fuzzy
-#| msgid "Provider must be specified by ID"
 msgid "Association must be specified by ID"
-msgstr "Provider moet door middel van een ID worden gespecificeerd"
+msgstr "De koppeling moet worden gespecificeerd door middel van een ID."
 
 #: warehouse/manage/forms.py:308
 msgid "No account association with given ID"
-msgstr ""
+msgstr "Er is geen account gekoppeld aan de opgegeven ID."
 
 #: warehouse/manage/forms.py:313
 msgid "This association does not belong to you"
-msgstr ""
+msgstr "Deze vereniging is niet van jou."
 
 #: warehouse/manage/forms.py:417
 msgid "Provide your response to the request."
-msgstr ""
+msgstr "Geef uw antwoord op het verzoek."
 
 #: warehouse/manage/forms.py:459
 msgid "Choose an organization account name with 50 characters or less."
@@ -498,10 +491,10 @@ msgid ""
 msgstr "Deze projectnaam is al in gebruik. Kies een andere projectnaam."
 
 #: warehouse/manage/forms.py:589
-#, fuzzy
-#| msgid "Create an account"
 msgid "Cannot transfer to Company Organization with inactive billing"
-msgstr "Account aanmaken"
+msgstr ""
+"Overdracht naar een bedrijfsorganisatie met inactieve facturering is niet "
+"mogelijk."
 
 #: warehouse/manage/forms.py:642
 msgid ""
@@ -529,16 +522,12 @@ msgstr ""
 "of minder."
 
 #: warehouse/manage/forms.py:715
-#, fuzzy
-#| msgid ""
-#| "The organization description is too long. Choose a organization "
-#| "description with 400 characters or less."
 msgid ""
 "We don't need to know quite that much :), limit your usage description to "
 "1024 characters or less."
 msgstr ""
-"De organisatieomschrijving is te lang. Kies een omschrijving met 400 tekens "
-"of minder."
+"We hoeven niet zoveel te weten :), maximaal 1024 karakters of minder "
+"toegestaan."
 
 #: warehouse/manage/forms.py:737
 msgid "You have already submitted the maximum number of "
@@ -592,10 +581,8 @@ msgstr ""
 "of minder."
 
 #: warehouse/manage/views/__init__.py:203
-#, fuzzy
-#| msgid "Account details"
 msgid "Account details updated"
-msgstr "Accountgegevens bijgewerkt"
+msgstr "Account informatie bijgewerkt"
 
 #: warehouse/manage/views/__init__.py:232
 msgid "Email ${email_address} added - check your email for a verification link"
@@ -632,15 +619,11 @@ msgstr ""
 "pypi.org/help#admin-intervention voor meer details."
 
 #: warehouse/manage/views/__init__.py:1341
-#, fuzzy
-#| msgid ""
-#| "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
-#| "org/help#admin-intervention for details."
 msgid ""
 "GitLab-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
 msgstr ""
-"Vertrouwd publiceren op basis van GitHub is tijdelijk stopgezet. Zie https://"
+"Vertrouwd publiceren op basis van GitLab is tijdelijk stopgezet. Zie https://"
 "pypi.org/help#admin-intervention voor meer details."
 
 #: warehouse/manage/views/__init__.py:1453
@@ -658,25 +641,19 @@ msgstr "Uitnodiging accepteren"
 #: warehouse/manage/views/__init__.py:1797
 #: warehouse/manage/views/__init__.py:2098
 #: warehouse/manage/views/__init__.py:2206
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
-"Registratie van nieuwe gebruikers is tijdelijk stopgezet. Zie https://"
-"pypi.org/help#admin-intervention voor meer details."
+"Verwijdering van Projecten is tijdelijk stopgezet. Zie https://pypi.org/"
+"help#admin-intervention voor meer details."
 
 #: warehouse/manage/views/__init__.py:1929
 #: warehouse/manage/views/__init__.py:2014
 #: warehouse/manage/views/__init__.py:2115
 #: warehouse/manage/views/__init__.py:2215
-#, fuzzy
-#| msgid "Confirm Invite"
 msgid "Confirm the request"
-msgstr "Uitnodiging accepteren"
+msgstr "Aanvraag accepteren"
 
 #: warehouse/manage/views/__init__.py:1941
 msgid "Could not yank release - "
@@ -691,30 +668,24 @@ msgid "Could not delete release - "
 msgstr "Kon de release niet verwijderen - "
 
 #: warehouse/manage/views/__init__.py:2227
-#, fuzzy
-#| msgid "Could not find role invitation."
 msgid "Could not find file"
-msgstr "Kan roluitnodiging niet vinden."
+msgstr "Kan bestand niet vinden."
 
 #: warehouse/manage/views/__init__.py:2231
 msgid "Could not delete file - "
 msgstr "Kon dit bestand niet verwijderen - "
 
 #: warehouse/manage/views/__init__.py:2381
-#, fuzzy
-#| msgid "User '${username}' already has ${role_name} role for project"
 msgid "Team '${team_name}' already has ${role_name} role for project"
-msgstr "Gebruiker '${username}' heeft al de ${role_name} rol voor project"
+msgstr "Team '${username}' heeft al de ${role_name} rol voor project"
 
 #: warehouse/manage/views/__init__.py:2488
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "Gebruiker '${username}' heeft al de ${role_name} rol voor project"
 
 #: warehouse/manage/views/__init__.py:2555
-#, fuzzy
-#| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
-msgstr "U bent nu ${role} van het '${project_name}' project."
+msgstr "${username} is nu ${role} van het '${project_name}' project."
 
 #: warehouse/manage/views/__init__.py:2587
 msgid ""
@@ -768,10 +739,8 @@ msgid "Could not find organization invitation."
 msgstr "Kan de uitnodiging van de organisatie niet vinden."
 
 #: warehouse/manage/views/organizations.py:1039
-#, fuzzy
-#| msgid "Organization invitation no longer exists."
 msgid "Organization invitation could not be re-sent."
-msgstr "Organisatie-uitnodiging bestaat niet meer."
+msgstr "Organisatie-uitnodiging kon niet opnieuw worden verzonden."
 
 #: warehouse/manage/views/organizations.py:1086
 #, fuzzy
