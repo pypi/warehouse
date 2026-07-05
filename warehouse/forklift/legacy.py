@@ -47,6 +47,8 @@ from warehouse.forklift.decorators import ensure_uploads_allowed, sanitize
 from warehouse.forklift.forms import UploadForm, _filetype_extension_mapping
 from warehouse.forklift.utils import _exc_with_message
 from warehouse.macaroons.models import Macaroon
+from warehouse.manage.views.view_helpers import add_organization_project_and_notify
+from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
 from warehouse.packaging.metadata_verification import verify_email, verify_url
 from warehouse.packaging.models import (
@@ -556,6 +558,48 @@ def _ensure_user_can_upload(request: Request) -> None:
         ) from None
 
 
+def _ensure_user_can_add_project_to_organization(
+    request: Request, organization_name: str
+) -> None:
+    allowed = request.has_permission(
+        Permissions.OrganizationProjectsAdd
+    )  # XXX which organization?
+    if not allowed:
+        reason = getattr(allowed, "reason", None)
+        if request.user:
+            msg = (
+                (
+                    "The user {} isn't allowed to add project "
+                    "to organization '{}'. "
+                    "See {} for more information."
+                ).format(
+                    request.user.username,
+                    organization_name,
+                    request.help_url(_anchor="project-name"),
+                )
+                if reason is None
+                else allowed.msg
+            )
+        else:
+            msg = (
+                (
+                    "The given token isn't allowed to add project "
+                    "to organization '{}'. "
+                    "See {} for more information."
+                ).format(
+                    organization_name,
+                    request.help_url(_anchor="project-name"),
+                )
+                if reason is None
+                else allowed.msg
+            )
+        request.metrics.increment(
+            "warehouse.upload.failed",
+            tags=["reason:permission-denied"],  # XXX use another tag?
+        )
+        raise _exc_with_message(HTTPForbidden, msg)
+
+
 def _close_upload_tempfiles(request):
     # WebOb's multipart parsing creates two tempfiles when the body is large
     # enough to exceed ``request_body_tempfile_limit``: one buffering the raw
@@ -735,12 +779,34 @@ def file_upload(request):
         # so we don't leave an empty project record behind on rejection.
         _ensure_user_can_upload(request)
 
+        if form.organization.data:
+            _ensure_user_can_add_project_to_organization(
+                request, form.organization.data
+            )
+
         # We attempt to create the project.
         project_service = request.find_service(IProjectService)
         try:
-            project = project_service.create_project(
-                form.name.data, request.user, request
-            )
+            if form.organization.data:
+                organization_service = request.find_service(
+                    IOrganizationService,  # XXX some use context=None?
+                )
+                organization = organization_service.get_organization_by_name(
+                    form.organization.data
+                )
+                project = project_service.create_project(
+                    form.name.data,
+                    request.user,
+                    request,
+                    organization_id=organization.id,
+                    creator_is_owner=False,
+                    rate_limited=False,  # no rate limit for manual creation either
+                )
+                add_organization_project_and_notify(request, organization, project)
+            else:
+                project = project_service.create_project(
+                    form.name.data, request.user, request
+                )
         except HTTPException as exc:
             request.metrics.increment(
                 "warehouse.upload.failed", tags=["reason:project-creation-failed"]
