@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 @use "../settings/breakpoints";
+@use "../settings/colours";
 @use "../settings/grid";
 @use "../tools/layout-utilities";
 
@@ -45,6 +46,10 @@
 
   &__text {
     text-align: left;
+
+    @media (prefers-color-scheme: dark) {
+      color: colours.$light-grey;
+    }
 
     @media only screen and (max-width: breakpoints.$small-tablet) {
       display: block;

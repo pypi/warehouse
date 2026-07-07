@@ -34,6 +34,12 @@
     background-color: colours.$base-grey;
     border-bottom: 1px solid color.adjust(colours.$base-grey, $lightness: -10%);
     border-top: 1px solid color.adjust(colours.$base-grey, $lightness: -10%);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: colours.$black;
+      border-bottom-color: #333;
+      border-top-color: #333;
+    }
   }
 
   &--medium {

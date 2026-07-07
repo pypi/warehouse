@@ -100,4 +100,42 @@
       margin-bottom: 30px;
     }
   }
+
+  @media (prefers-color-scheme: dark) {
+    // Keep list cards distinct without using a bright surface on dark pages.
+    background-color: #111;
+    border-color: #333;
+    box-shadow: none;
+
+    &:hover,
+    &:active {
+      background-color: #080808;
+      border-color: #888;
+    }
+
+    @media only screen and (min-width: breakpoints.$tablet + 1px) {
+      position: relative;
+      background-image: none;
+
+      &::before {
+        content: "";
+        position: absolute;
+        left: 18px;
+        top: 50%;
+        width: 45px;
+        height: 45px;
+        transform: translateY(-50%);
+        background: $snippet-icon-png center / contain no-repeat;
+        background-image: $snippet-icon-svg, linear-gradient(transparent, transparent);
+        filter: brightness(0.8);
+        pointer-events: none;
+      }
+    }
+
+    &__created,
+    &__description,
+    &__meta {
+      color: colours.$light-grey;
+    }
+  }
 }

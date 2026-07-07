@@ -26,6 +26,13 @@ body {
   color: colours.$text-color;
   background-color: colours.$background-color;
   direction: ltr;
+
+  @media (prefers-color-scheme: dark) {
+    // Follow the browser color-scheme preference without requiring an application toggle.
+    color-scheme: dark;
+    color: colours.$light-grey;
+    background-color: colours.$black;
+  }
 }
 
 
@@ -104,6 +111,10 @@ strong {
 
 a {
   @include link-utilities.primary-underlined-link;
+
+  @media (prefers-color-scheme: dark) {
+    @include link-utilities.colored-link(colours.$primary-color-light);
+  }
 
   // Add 'external link' icon to most external links
   &[target="_blank"]:not(.copy-tooltip, .sponsors__sponsor) {

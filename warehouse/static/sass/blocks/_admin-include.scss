@@ -14,8 +14,15 @@
 .admin-include {
   padding: 0.5rem;
   background: repeating-linear-gradient(45deg, #ececec, #ececec 10px, color.adjust(colours.$danger-color, $alpha: -0.8) 10px, color.adjust(colours.$danger-color, $alpha: -0.8) 20px);
+  color: colours.$text-color;
 
   justify-items: center;
+
+  @media (prefers-color-scheme: dark) {
+    // Keep the admin warning banner readable on dark pages.
+    background: repeating-linear-gradient(45deg, #21090d, #21090d 10px, #4a1018 10px, #4a1018 20px);
+    color: colours.$white;
+  }
 
   form {
     display: inline;

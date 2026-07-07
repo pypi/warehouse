@@ -38,6 +38,11 @@
   padding: 60px 0;
   width: 100%;
 
+  @media (prefers-color-scheme: dark) {
+    // Reduce the visual weight of the footer against a black page background.
+    background-color: colours.$primary-color-dark;
+  }
+
   @media only screen and (max-width: breakpoints.$mobile) {
     padding-top: 40px 0;
   }

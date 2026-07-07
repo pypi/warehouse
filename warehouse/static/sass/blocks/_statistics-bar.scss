@@ -26,6 +26,10 @@
     margin: 0;
     box-sizing: border-box;
 
+    @media (prefers-color-scheme: dark) {
+      color: colours.$light-grey;
+    }
+
     @media only screen and (max-width: breakpoints.$tablet) {
       font-size: fonts.$base-font-size;
     }

@@ -116,6 +116,20 @@
       box-shadow: 0 0 0 2px colours.$primary-color;
     }
 
+    @media (prefers-color-scheme: dark) {
+      color: colours.$light-grey;
+
+      &:hover {
+        background-color: #111;
+        color: colours.$primary-color-light;
+      }
+
+      &:active,
+      &:focus {
+        box-shadow: 0 0 0 2px colours.$primary-color-light;
+      }
+    }
+
     &--mobile {
       display: none;
       @media only screen and (max-width: breakpoints.$tablet) {
@@ -139,6 +153,10 @@
       background: colours.$primary-color;
       color: colours.$white;
       border-color: transparent;
+
+      @media (prefers-color-scheme: dark) {
+        color: colours.$white;
+      }
     }
 
     &--condensed {

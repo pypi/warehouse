@@ -14,4 +14,8 @@
   font-weight: fonts.$bold-font-weight;
   font-size: 1.2rem;
   color: color.adjust(colours.$text-color, $lightness: 10%);
+
+  @media (prefers-color-scheme: dark) {
+    color: colours.$light-grey;
+  }
 }

@@ -49,6 +49,23 @@
   &:focus {
     @include input-field-active-styles;
   }
+
+  @media (prefers-color-scheme: dark) {
+    background-color: colours.$black;
+    border-color: #333;
+    color: colours.$light-grey;
+
+    &::placeholder {
+      color: colours.$light-grey;
+    }
+
+    &:hover,
+    &:active,
+    &:focus {
+      box-shadow: inset 0 0 0 1px colours.$primary-color-light;
+      border-color: colours.$primary-color-light;
+    }
+  }
 }
 
 input[type="checkbox"] {
@@ -63,6 +80,12 @@ input[type="checkbox"] {
   cursor: not-allowed;
   box-shadow: none;
   background-color: colours.$base-grey;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: #1a1a1a;
+    border-color: #333;
+    color: #777;
+  }
 }
 
 label {

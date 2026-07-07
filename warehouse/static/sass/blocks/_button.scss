@@ -56,6 +56,19 @@
     outline: none;
   }
 
+  @media (prefers-color-scheme: dark) {
+    border-color: #888;
+    color: colours.$light-grey;
+
+    &:hover,
+    &:active,
+    &:focus {
+      background-color: #111;
+      border-color: colours.$primary-color-light;
+      color: colours.$primary-color-light;
+    }
+  }
+
   &--small {
     font-size: fonts.$small-font-size;
     padding: 6px 8px;
@@ -90,6 +103,20 @@
   &--tertiary {
     border-color: colours.$light-grey;
     background-color: colours.$white;
+
+    @media (prefers-color-scheme: dark) {
+      background-color: #111;
+      border-color: #888;
+      color: colours.$light-grey;
+
+      &:hover,
+      &:active,
+      &:focus {
+        background-color: #080808;
+        border-color: colours.$primary-color-light;
+        color: colours.$primary-color-light;
+      }
+    }
   }
 
   &--danger {
@@ -150,6 +177,20 @@
       border-color: color.adjust(colours.$background-color, $lightness: -5%);
       color: color.adjust(colours.$background-color, $lightness: -12%);
       outline: none;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      background-color: #1a1a1a;
+      border-color: #333;
+      color: colours.$light-grey;
+
+      &:focus,
+      &:hover,
+      &:active {
+        background-color: #1a1a1a;
+        border-color: #333;
+        color: colours.$light-grey;
+      }
     }
   }
 

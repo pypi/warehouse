@@ -31,6 +31,22 @@
     padding-right: 28px;
     min-width: auto;
     border-color: colours.$white;
+
+    @media (prefers-color-scheme: dark) {
+      background-color: colours.$black;
+      border-color: #333;
+      color: colours.$light-grey;
+
+      &::placeholder {
+        color: colours.$light-grey;
+      }
+
+      &:hover,
+      &:active,
+      &:focus {
+        border-color: colours.$primary-color-light;
+      }
+    }
   }
 
   &__button {
@@ -43,6 +59,10 @@
     background-color: transparent;
     color: color.mix(colours.$text-color, colours.$border-color, 50%);
     font-size: 18px;
+
+    @media (prefers-color-scheme: dark) {
+      color: colours.$light-grey;
+    }
   }
 
   &--primary {

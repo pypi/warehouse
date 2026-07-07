@@ -1,5 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "../settings/colours";
+
 .horizontal-tabs {
   margin-top: 30px;
 
@@ -7,6 +9,11 @@
     overflow: hidden;
     border: 1px solid #ccc;
     background-color: #f1f1f1;
+
+    @media (prefers-color-scheme: dark) {
+      border-color: #333;
+      background-color: colours.$black;
+    }
 
     button {
       background-color: inherit;
@@ -17,13 +24,28 @@
       padding: 14px 16px;
       transition: 0.3s;
 
+      @media (prefers-color-scheme: dark) {
+        background-color: colours.$black;
+        color: colours.$light-grey;
+      }
+
       &:hover {
         background-color: #ddd;
+
+        @media (prefers-color-scheme: dark) {
+          background-color: #111;
+          color: colours.$primary-color-light;
+        }
       }
 
       &.is-active {
         background-color: #006dad;
         color: #fff;
+
+        @media (prefers-color-scheme: dark) {
+          background-color: colours.$primary-color;
+          color: colours.$white;
+        }
       }
     }
   }
@@ -33,6 +55,12 @@
     padding: 20px;
     border: 1px solid #ccc;
     border-top: none;
+
+    @media (prefers-color-scheme: dark) {
+      border-color: #333;
+      background-color: colours.$black;
+      color: colours.$light-grey;
+    }
 
     &.is-hidden {
       display: none;
