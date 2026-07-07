@@ -26,6 +26,14 @@ body {
   color: colours.$text-color;
   background-color: colours.$background-color;
   direction: ltr;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  // Keep short pages from ending above the viewport without fixing the footer.
+  flex: 1 0 auto;
 }
 
 
