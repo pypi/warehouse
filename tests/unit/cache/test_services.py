@@ -3,8 +3,6 @@
 import datetime
 import uuid
 
-import pretend
-
 from zope.interface.verify import verifyClass
 
 from warehouse.cache.interfaces import IQueryResultsCache
@@ -15,12 +13,10 @@ class TestRedisQueryResults:
     def test_interface_matches(self):
         assert verifyClass(IQueryResultsCache, RedisQueryResults)
 
-    def test_create_service(self):
-        request = pretend.stub(
-            registry=pretend.stub(settings={"db_results_cache.url": "redis://"})
-        )
+    def test_create_service(self, pyramid_request):
+        pyramid_request.registry.settings["db_results_cache.url"] = "redis://"
         # Create the service
-        service = RedisQueryResults.create_service(None, request)
+        service = RedisQueryResults.create_service(None, pyramid_request)
 
         assert isinstance(service, RedisQueryResults)
 
