@@ -24,6 +24,7 @@ import "admin-lte/build/js/AdminLTE";
 import "./treeview";
 import "./observer_charts";
 import "./project_charts";
+import "./journals";
 
 // Get our timeago function
 import timeAgo from "warehouse/utils/timeago";

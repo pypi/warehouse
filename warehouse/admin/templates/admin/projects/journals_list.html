@@ -2,8 +2,6 @@
 
 {% extends "admin/base.html" %}
 
-{% import "admin/utils/pagination.html" as pagination %}
-
 {% block title %}Journal Entries For {{ project.name }}{% endblock %}
 
 {% block breadcrumb %}
@@ -15,55 +13,9 @@
 {% block content %}
 <div class="card">
   <div class="card-body">
-    <form>
-      <div class="input-group input-group-lg">
-        <input name="q" type="text" class="form-control input-lg" placeholder="Search"{% if query %} value="{{ query }}"{% endif %}>
-        <div class="input-group-btn input-group-append">
-          <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
-        </div>
-      </div>
-    </form>
-  </div>
-</div>
-
-<div class="card">
-  <div class="card-body table-responsive p-0">
-    <table class="table table-hover table-striped">
-      <thead>
-      <tr>
-        <th>Name</th>
-        <th>Version</th>
-        <th>Date</th>
-        <th>Submitted By</th>
-        <th>Action</th>
-      </tr>
-      </thead>
-
-      <tbody>
-      {% for journal in journals %}
-      <tr>
-        <td>{{ journal.name }}</td>
-        <td>{{ journal.version }}</td>
-        <td>{{ journal.submitted_date }}</td>
-        <td><a href="{{ request.route_path('admin.user.detail', username=journal.submitted_by.username) }}">{{ journal.submitted_by.username }}</a></td>
-        <td>{{ journal.action }}</td>
-      </tr>
-      {% endfor %}
-      </tbody>
-    </table>
-
-    <div class="card-footer row">
-      <div class="col-sm-5">
-          {{ pagination.summary(journals) }}
-      </div>
-
-      <div class="col-sm-7">
-        <div class="float-right">
-            {{ pagination.paginate(journals) }}
-        </div>
-      </div>
-    </div>
-
+    <div id="journals-table"
+         data-url="{{ request.route_path('admin.journals.list') }}"
+         data-filter-name="{{ project.name }}"></div>
   </div>
 </div>
 {% endblock content %}

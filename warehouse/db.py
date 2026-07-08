@@ -177,6 +177,10 @@ def unwrap_dbapi_exceptions(context):
     """
     Listens for SQLAlchemy errors and raises the original
     DBAPI (e.g., psycopg) exception instead.
+
+    Downstream code depends on receiving the raw driver exception, e.g.
+    warehouse.admin.views.helpers.execute_bounded catches psycopg's
+    QueryCanceled directly.
     """
     if (
         isinstance(context.sqlalchemy_exception, DBAPIError)

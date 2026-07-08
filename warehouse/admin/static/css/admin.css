@@ -8,6 +8,8 @@
 @import "admin-lte/plugins/datatables-buttons/css/buttons.bootstrap4.css";
 @import "admin-lte/plugins/datatables-rowgroup/css/rowGroup.bootstrap4.css";
 
+@import "tabulator-tables/dist/css/tabulator_bootstrap4.css";
+
 @import "admin-lte/dist/css/adminlte.css";
 
 /* Admin styles for the Warehouse project (PyPI) */

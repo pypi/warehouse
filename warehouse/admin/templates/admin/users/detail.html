@@ -1259,7 +1259,7 @@
           </table>
         </div>
         <div class="card-footer">
-          <a href="{{ request.route_path('admin.journals.list', _query={"q": "user:" + user.username}) }}"
+          <a href="{{ request.route_path('admin.journals.list', _query={"submitted_by": user.username}) }}"
              class="btn btn-primary">View all journals for username</a>
         </div>
       </div>
