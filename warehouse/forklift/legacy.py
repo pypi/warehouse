@@ -76,8 +76,7 @@ from warehouse.utils.wheel import (
 PATH_HASHER = "blake2_256"
 
 # After a release has been published for this
-# number of days, send a warning message to
-# users that this may be rejected in the future.
+# number of days reject new uploaded files.
 MAXIMUM_AGE_FOR_NEW_UPLOADS_DAYS = 14
 MAXIMUM_AGE_FOR_NEW_UPLOADS_SECONDS = datetime.timedelta(
     days=MAXIMUM_AGE_FOR_NEW_UPLOADS_DAYS
