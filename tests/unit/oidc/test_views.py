@@ -1202,7 +1202,8 @@ def test_burn_oidc_issued_token_user_macaroon(metrics, monkeypatch):
 
 
 def test_burn_oidc_issued_token_success(metrics):
-    publisher = pretend.stub(publisher_name="GitHub")
+    projects = [pretend.stub(record_event=pretend.call_recorder(lambda *a, **kw: None))]
+    publisher = pretend.stub(publisher_name="GitHub", projects=projects)
     macaroon = pretend.stub(
         id="fake-macaroon-id",
         oidc_publisher=publisher,
@@ -1238,6 +1239,14 @@ def test_burn_oidc_issued_token_success(metrics):
             "warehouse.oidc.burn_oidc_issued_token",
             tags=["status:success", "publisher_name:GitHub"],
         ),
+    ]
+
+    assert macaroon.oidc_publisher.projects[0].record_event.calls == [
+        pretend.call(
+            tag=EventTag.Project.ShortLivedAPITokenRevoked,
+            request=request,
+            additional={},
+        )
     ]
 
 
