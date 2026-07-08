@@ -4944,7 +4944,7 @@ msgid ""
 "rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:135
+#: warehouse/templates/manage/projects.html:132
 msgid "Archived Projects"
 msgstr ""
 

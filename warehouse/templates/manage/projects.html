@@ -128,18 +128,14 @@
     {% endfor %}
   </div>
   {% if projects_archived %}
-    <details class="callout-block"
-             data-controller="collapsible"
-             data-collapsible-identifier="manage_projects_archived">
-      <summary class="callout-block__heading" data-action="click->collapsible#save">
-        {% trans %}Archived Projects{% endtrans %}
-        <span class="badge badge--neutral">{{ projects_archived|length }}</span>
-      </summary>
-      <div class="package-list">
-        {% for project in projects_archived %}
-          {{ package_snippet(project, projects_owned, projects_sole_owned) }}
-        {% endfor %}
-      </div>
-    </details>
+    <h1 class="page-title">
+      {% trans %}Archived Projects{% endtrans %}
+      <span class="badge badge--neutral">{{ projects_archived|length }}</span>
+    </h1>
+    <div class="package-list">
+      {% for project in projects_archived %}
+        {{ package_snippet(project, projects_owned, projects_sole_owned) }}
+      {% endfor %}
+    </div>
   {% endif %}
 {% endblock %}
