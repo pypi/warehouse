@@ -504,6 +504,13 @@ def burn_oidc_issued_token(request: Request):
         )
         return _accepted(request=request)
 
+    for project in macaroon.oidc_publisher.projects:
+        project.record_event(
+            tag=EventTag.Project.ShortLivedAPITokenRevoked,
+            request=request,
+            additional={},
+        )
+
     macaroon_service.delete_macaroon(macaroon.id)
     request.metrics.increment(
         "warehouse.oidc.burn_oidc_issued_token",
