@@ -96,3 +96,33 @@ class TestManageOrganizationSettings:
         list_page = webtest.get("/manage/organizations/", status=HTTPStatus.OK)
         manage_url = f"/manage/organization/{organization.normalized_name}/settings/"
         assert manage_url in list_page.text
+
+    def test_publishing_page_redirects_when_billing_inactive(self, webtest):
+        """
+        The trusted publishing page is gated behind good standing: an owner of
+        a Company organization with inactive billing is redirected back to the
+        organizations list instead.
+        """
+        owner = UserFactory.create(
+            with_verified_primary_email=True,
+            with_terms_of_service_agreement=True,
+            clear_pwd="password",
+        )
+        organization = OrganizationFactory.create(
+            name="billing-inactive-org",
+            orgtype=OrganizationType.Company,
+        )
+        assert not organization.is_in_good_standing()
+        OrganizationRoleFactory.create(
+            user=owner,
+            organization=organization,
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        self._login_user(webtest, owner)
+
+        response = webtest.get(
+            f"/manage/organization/{organization.normalized_name}/publishing/",
+            status=HTTPStatus.SEE_OTHER,
+        )
+        assert response.location.endswith("/manage/organizations/")
