@@ -4320,9 +4320,9 @@ msgstr ""
 #: warehouse/templates/manage/organization/projects.html:50
 #: warehouse/templates/manage/organization/projects.html:56
 #: warehouse/templates/manage/organization/teams.html:39
-#: warehouse/templates/manage/organizations.html:119
+#: warehouse/templates/manage/organizations.html:112
 #: warehouse/templates/manage/organizations.html:126
-#: warehouse/templates/manage/organizations.html:134
+#: warehouse/templates/manage/organizations.html:133
 #: warehouse/templates/manage/organizations.html:140
 #: warehouse/templates/manage/organizations.html:189
 #: warehouse/templates/manage/project/releases.html:69
@@ -4674,8 +4674,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/organizations.html:85
-#: warehouse/templates/manage/organizations.html:125
-#: warehouse/templates/manage/organizations.html:133
+#: warehouse/templates/manage/organizations.html:111
+#: warehouse/templates/manage/organizations.html:132
 msgid "This organization is not active"
 msgstr ""
 
@@ -4728,15 +4728,15 @@ msgstr ""
 msgid "View"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:112
+#: warehouse/templates/manage/organizations.html:119
 msgid "Activate billing for this organization"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:113
+#: warehouse/templates/manage/organizations.html:120
 msgid "Activate Billing"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:119
+#: warehouse/templates/manage/organizations.html:126
 #: warehouse/templates/manage/organizations.html:140
 msgid "Manage this organization"
 msgstr ""
