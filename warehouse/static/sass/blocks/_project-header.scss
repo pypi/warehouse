@@ -15,7 +15,10 @@
   This block assumes it is placed inside a dark container.
 
   <div class="project-header">
-    <h1 class="project-header__name"></h1>
+    <div class="project-header__title">
+      <h1 class="project-header__name"></h1>
+      // manage project button, if applicable
+    </div>
     <p class="project-header__summary"></p>
     <p class="project-header__pip-instructions">
       <span>// pip instructions</span>

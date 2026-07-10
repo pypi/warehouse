@@ -11,6 +11,8 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
+{% csi request.route_path("includes.edit-project-button", project_name=project.normalized_name) %}
+{% endcsi %}
 {% include "warehouse:templates/includes/packaging/metadata/project-links.html" %}
 {% include "warehouse:templates/includes/packaging/metadata/key-dates.html" %}
 {% include "warehouse:templates/includes/packaging/metadata/organization.html" %}
@@ -26,4 +28,10 @@
 <div class="sidebar-section">
   {% set include_sponsor_logos = project.organization.orgtype != OrganizationType.Company %}
   {% include "warehouse:templates/includes/sidebar-sponsor-logo.html" %}
+</div>
+<div class="sidebar-section">
+  <a class="button button--full-width button--warning"
+     href="{{ request.route_url('packaging.project.submit_malware_observation', name=project.name) }}"
+     rel="nofollow"
+     role="button">{% trans %}Report project as malware{% endtrans %}</a>
 </div>

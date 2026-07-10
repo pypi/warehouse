@@ -6,7 +6,6 @@
 @use "../settings/fonts";
 @use "../settings/grid";
 @use "../tools/design-utilities";
-@use "../tools/layout-utilities";
 
 /*
   Styles the main description panel for an individual project.
@@ -18,17 +17,18 @@
 */
 
 .project-description {
-  @include layout-utilities.clearfix;
-  @include layout-utilities.grid-container;
+  display: flex;
+  align-items: flex-start;
+  gap: grid.$spacing-unit * 2;
+
+  @media only screen and (max-width: breakpoints.$tablet) {
+    flex-direction: column;
+    gap: grid.$spacing-unit;
+  }
 
   &__main {
-    grid-column: span 9;
-    margin-right: grid.$spacing-unit;
-
-    @media only screen and (max-width: breakpoints.$tablet) {
-      grid-column: span 12;
-      width: 100%;
-    }
+    flex: 1;
+    min-width: 0;
 
     > *:first-child {
       margin-top: 0;
@@ -36,10 +36,10 @@
   }
 
   &__sidebar {
-    grid-column: span 3;
+    width: 250px;
+    flex-shrink: 0;
 
     @media only screen and (max-width: breakpoints.$tablet) {
-      grid-column: span 12;
       width: 100%;
     }
   }
@@ -72,7 +72,7 @@
     }
 
     a > img {
-      background-color: #fff;
+      background-color: colours.$white;
     }
 
     p {
