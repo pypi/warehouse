@@ -1193,23 +1193,6 @@ def file_upload(request):
                 + " for more information.",
             )
 
-        # Check to see if uploading this file would create a duplicate sdist
-        # for the current release.
-        if (
-            form.filetype.data == "sdist"
-            and request.db.query(
-                request.db.query(File)
-                .filter((File.release == release) & (File.packagetype == "sdist"))
-                .exists()
-            ).scalar()
-        ):
-            request.metrics.increment(
-                "warehouse.upload.failed", tags=["reason:duplicate-sdist"]
-            )
-            raise _exc_with_message(
-                HTTPBadRequest, "Only one sdist may be uploaded per release."
-            )
-
         # Check that the release is either new or that the release
         # is still within the window allowing new files to be published.
         # Note that this feature explicitly doesn't protect against
@@ -1226,6 +1209,23 @@ def file_upload(request):
                 HTTPBadRequest,
                 f"Uploading new files to releases older than "
                 f"{MAXIMUM_AGE_FOR_NEW_UPLOADS_DAYS} days is not allowed.",
+            )
+
+        # Check to see if uploading this file would create a duplicate sdist
+        # for the current release.
+        if (
+            form.filetype.data == "sdist"
+            and request.db.query(
+                request.db.query(File)
+                .filter((File.release == release) & (File.packagetype == "sdist"))
+                .exists()
+            ).scalar()
+        ):
+            request.metrics.increment(
+                "warehouse.upload.failed", tags=["reason:duplicate-sdist"]
+            )
+            raise _exc_with_message(
+                HTTPBadRequest, "Only one sdist may be uploaded per release."
             )
 
         # Check the file to make sure it is a valid distribution file.
