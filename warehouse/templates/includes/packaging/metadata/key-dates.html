@@ -42,14 +42,14 @@
         {% if release.version|parse_version > latest_version.version|parse_version %}
           <a class="badge badge--key-dates badge--warning"
              href="{{ request.route_path('packaging.project', name=release.project.name) }}">
-            <span>{% trans version=latest_version.version %}Stable version available ({{ version }}){% endtrans %}</span>
+            {% trans version=latest_version.version %}Stable release available ({{ version }}){% endtrans %}
           </a>
         {% elif release.version|parse_version != latest_version.version|parse_version %}
           <a class="badge badge--key-dates badge--warning"
              href="{{ request.route_path('packaging.project', name=release.project.name) }}">
-            <span>{% trans version=latest_version.version %}Newer version available ({{ version }}){% endtrans %}</span>
+            {% trans version=latest_version.version %}Newer release available ({{ version }}){% endtrans %}
           </a>
-        {% else %}
+        {% elif project.lifecycle_status != "quarantine-enter" and release.lifecycle_status != "quarantine-enter" %}
           <span class="badge badge--key-dates badge--success">{% trans %}Latest release{% endtrans %}</span>
         {% endif %}
       {% endif %}

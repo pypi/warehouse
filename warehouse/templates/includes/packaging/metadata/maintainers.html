@@ -11,6 +11,19 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
+{% macro maintainer_link(maintainer) %}
+  {% set alt = gettext("Avatar for {username} from gravatar.com").format(username=maintainer.username) %}
+  <a class="sidebar-section__maintainer"
+     href="{{ request.route_path('accounts.profile', username=maintainer.username) }}"
+     aria-label="{{ maintainer.username }}">
+    <img src="{{ gravatar(request, maintainer.email, size=35) }}"
+         height="35"
+         width="35"
+         alt="{{ alt }}"
+         title="{{ alt }}">
+    <span>{{ maintainer.username }}</span>
+  </a>
+{% endmacro %}
 {% if maintainers %}
   <div class="sidebar-section">
     <h2 class="sidebar-section__title">
@@ -25,33 +38,13 @@
       </details>
       <div class="sidebar-section__data-block">
         {% for maintainer in maintainers[:3] %}
-          {% set alt = gettext("Avatar for {username} from gravatar.com").format(username=maintainer.username) %}
-          <a class="sidebar-section__maintainer"
-             href="{{ request.route_path('accounts.profile', username=maintainer.username) }}"
-             aria-label="{{ maintainer.username }}">
-            <img src="{{ gravatar(request, maintainer.email, size=35) }}"
-                 height="35"
-                 width="35"
-                 alt="{{ alt }}"
-                 title="{{ alt }}">
-            {{ maintainer.username }}
-          </a>
+          {{ maintainer_link(maintainer) }}
         {% endfor %}
         {% if maintainers|length > 3 %}
           <details class="sidebar-section__maintainers-overflow">
             <summary>+{{ maintainers|length - 3 }} more</summary>
             {% for maintainer in maintainers[3:] %}
-              {% set alt = gettext("Avatar for {username} from gravatar.com").format(username=maintainer.username) %}
-              <a class="sidebar-section__maintainer"
-                 href="{{ request.route_path('accounts.profile', username=maintainer.username) }}"
-                 aria-label="{{ maintainer.username }}">
-                <img src="{{ gravatar(request, maintainer.email, size=35) }}"
-                     height="35"
-                     width="35"
-                     alt="{{ alt }}"
-                     title="{{ alt }}">
-                {{ maintainer.username }}
-              </a>
+              {{ maintainer_link(maintainer) }}
             {% endfor %}
           </details>
         {% endif %}

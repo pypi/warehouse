@@ -44,6 +44,11 @@
 
     li {
       float: left;
+
+      @media screen and (max-width: breakpoints.$small-tablet) {
+        float: none;
+        width: 100%;
+      }
     }
   }
 
@@ -69,6 +74,19 @@
       width: 20px;
       text-align: center;
       margin-right: 5px;
+    }
+
+    @media screen and (max-width: breakpoints.$small-tablet) {
+      display: block;
+      float: none;
+      width: 100%;
+      padding: grid.$half-spacing-unit;
+      border-top: 2px solid transparent;
+      border-bottom: 2px solid transparent;
+
+      &--is-active {
+        border-bottom-color: colours.$primary-color;
+      }
     }
   }
 
