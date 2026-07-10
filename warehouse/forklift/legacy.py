@@ -1062,24 +1062,6 @@ def file_upload(request):
         #       at least this should be some sort of hook or trigger.
         _sort_releases(request, project)
 
-    # Check that the release is either new or that the release
-    # is still within the window allowing new files to be published.
-    # Note that this feature explicitly doesn't protect against
-    # users deleting and recreating releases in the UI, only
-    # against uploads through compromised API tokens or workflows.
-    oldest_release_age_allowed = datetime.datetime.now() - datetime.timedelta(
-        seconds=MAXIMUM_AGE_FOR_NEW_UPLOADS_SECONDS
-    )
-    if release.created < oldest_release_age_allowed:
-        request.metrics.increment(
-            "warehouse.upload.failed", tags=["reason:closed-release"]
-        )
-        raise _exc_with_message(
-            HTTPBadRequest,
-            f"Uploading new files to releases older than "
-            f"{MAXIMUM_AGE_FOR_NEW_UPLOADS_DAYS} days is not allowed.",
-        )
-
     # Pull the filename out of our POST data.
     filename = request.POST["content"].filename
 
@@ -1209,6 +1191,24 @@ def file_upload(request):
                 "deleted. Use a different version. See "
                 + request.help_url(_anchor="file-name-reuse")
                 + " for more information.",
+            )
+
+        # Check that the release is either new or that the release
+        # is still within the window allowing new files to be published.
+        # Note that this feature explicitly doesn't protect against
+        # users deleting and recreating releases in the UI, only
+        # against uploads through compromised API tokens or workflows.
+        oldest_release_age_allowed = datetime.datetime.now() - datetime.timedelta(
+            seconds=MAXIMUM_AGE_FOR_NEW_UPLOADS_SECONDS
+        )
+        if release.created < oldest_release_age_allowed:
+            request.metrics.increment(
+                "warehouse.upload.failed", tags=["reason:closed-release"]
+            )
+            raise _exc_with_message(
+                HTTPBadRequest,
+                f"Uploading new files to releases older than "
+                f"{MAXIMUM_AGE_FOR_NEW_UPLOADS_DAYS} days is not allowed.",
             )
 
         # Check to see if uploading this file would create a duplicate sdist

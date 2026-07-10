@@ -6759,6 +6759,70 @@ class TestFileUpload:
             in resp.status
         )
 
+    def test_upload_duplicate_error_on_closed_releases(
+        self, tmpdir, monkeypatch, pyramid_config, db_request
+    ):
+        # 'File already exists' error should be favored over a
+        # 'Closed release' error, as this is a non-error outcome
+        # when used with --skip-existing on old releases.
+
+        now = datetime.datetime.now()
+        then = now - datetime.timedelta(
+            seconds=legacy.MAXIMUM_AGE_FOR_NEW_UPLOADS_SECONDS + 1
+        )
+
+        user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(
+            project=project,
+            version="1.0",
+            created=then,
+        )
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
+        file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "sdist",
+                "md5_digest": hashlib.md5(file_content.getvalue()).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename, file=file_content, type="application/tar"
+                ),
+            }
+        )
+        db_request.db.add(
+            FileFactory.create(
+                release=release,
+                filename=filename,
+                md5_digest=hashlib.md5(filename.encode("utf8")).hexdigest(),
+                sha256_digest=hashlib.sha256(filename.encode("utf8")).hexdigest(),
+                blake2_256_digest=hashlib.blake2b(
+                    filename.encode("utf8"), digest_size=256 // 8
+                ).hexdigest(),
+                path=f"source/{project.name[0]}/{project.name}/{filename}",
+                upload_time=then,
+            )
+        )
+        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+        resp = excinfo.value
+
+        # The error is 'File already exists', not the closed release error.
+        assert resp.status_code == 400
+        assert f"400 File already exists ({filename!r}" in resp.status
+
 
 def test_submit(pyramid_request):
     resp = legacy.submit(pyramid_request)
