@@ -21,13 +21,9 @@
               aria-haspopup="true"
               aria-expanded="false"
               aria-label="{% trans %}View menu{% endtrans %}">
-        <img class="user-image"
-             src="{{ gravatar(request, request.user.email, size=40) }}"
-             alt="User Image">
-        {{ request.user.username }}
-        <span class="dropdown__trigger-caret">
-          <i class="fa fa-caret-down" aria-hidden="true"></i>
-        </span>
+        {# djlint:off #}<img class="user-image"
+             src="{{ gravatar(request, request.user.email, size=22) }}"
+        alt="User Image">{{ request.user.username }}<span class="dropdown__trigger-caret"><i class="fa fa-caret-down" aria-hidden="true"></i></span>{# djlint:on #}
       </button>
       <ul class="dropdown__content"
           aria-hidden="true"
