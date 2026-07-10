@@ -5439,8 +5439,8 @@ msgstr ""
 #: warehouse/templates/manage/project/publishing.html:359
 #, python-format
 msgid ""
-"Read more about CircleCI's OpenID Connect support <a "
-"href=\"%(href)s\">here</a>."
+"CircleCI <a href=\"%(href)s\">guide</a> for setting up Trusted Publishing"
+" on Pypi."
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:411

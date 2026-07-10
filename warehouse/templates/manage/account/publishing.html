@@ -375,8 +375,8 @@
 {% endmacro %}
 {% macro circleci_form(request, pending_circleci_publisher_form) %}
   <p>
-    {% trans href="https://circleci.com/docs/openid-connect-tokens/" %}
-    Read more about CircleCI's OpenID Connect support <a href="{{ href }}">here</a>.
+    {% trans href="https://circleci.com/docs/guides/deploy/deploy-to-pypi-registry/" %}
+    CircleCI <a href="{{ href }}">guide</a> for setting up Trusted Publishing on Pypi.
   {% endtrans %}
 </p>
 {{ form_error_anchor(pending_circleci_publisher_form) }}
