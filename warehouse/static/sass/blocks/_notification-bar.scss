@@ -4,6 +4,7 @@
 @use "../settings/colours";
 @use "../settings/fonts";
 @use "../settings/grid";
+@use "../settings/breakpoints";
 @use "../tools/design-utilities";
 @use "../tools/link-utilities";
 @use "../tools/typography";
@@ -86,29 +87,72 @@
 */
 
 .notification-bar {
-  border-bottom: 2px solid colours.$white;
-  text-align: center;
-  background-color: colours.$primary-color-dark;
-  color: colours.$white;
-  padding: grid.$half-spacing-unit;
-  position: relative;
+  color: color.adjust(colours.$notification-color, $lightness: -80%);
+  background-color: colours.$notification-color;
+  border-bottom: 2px solid color.adjust(colours.$notification-color, $lightness: -40%);
+
+  &__container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: grid.$half-spacing-unit;
+    padding: grid.$half-spacing-unit grid.$spacing-unit;
+    position: relative;
+
+    @media screen and (max-width: breakpoints.$small-tablet) {
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      gap: 0;
+      padding-left: grid.$half-spacing-unit;
+      padding-right: grid.$half-spacing-unit;
+    }
+  }
 
   &__icon {
     font-size: fonts.$small-font-size;
-    margin-right: 3px;
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: color.adjust(colours.$notification-color, $lightness: -10%);
+    border: 1px solid color.adjust(colours.$notification-color, $lightness: -13%);
+
+    @media screen and (max-width: breakpoints.$small-tablet) {
+      display: none;
+    }
   }
 
   &__message {
-    @include typography.h3;
+    @include typography.h6;
+
+    @media screen and (max-width: breakpoints.$small-tablet) {
+      width: 100%;
+    }
 
     a:not(.button) {
-      @include link-utilities.white-underlined-link;
+      @include link-utilities.colored-link(color.adjust(colours.$notification-color, $lightness: -80%));
+    }
+  }
+
+  &__button {
+    font-size: fonts.$small-font-size;
+    padding: 6px 8px;
+    white-space: nowrap;
+    color: currentColor;
+    border-color: currentColor;
+
+    @media screen and (max-width: breakpoints.$small-tablet) {
+      margin-top: grid.$quarter-spacing-unit;
     }
   }
 
   &__dismiss {
     @include design-utilities.dismiss-button;
-    @include link-utilities.link-focus-state(inherit);
+    @include link-utilities.link-focus-state(color.adjust(colours.$notification-color, $lightness: -80%));
+    top: auto;
     color: inherit;
   }
 
@@ -117,45 +161,52 @@
   // notification controller is being used.
   &--dismissable {
     display: none;
-    padding: 15px 55px;
+
+    .notification-bar__container {
+      padding-right: 55px;
+    }
   }
 
   &--visible {
     display: block;
   }
 
-  &--warning {
-    background-color: colours.$warning-background-color;
-    color: colours.$warning-color;
+  &--danger {
+    background-color: colours.$danger-color;
+    color: colours.$white;
+    border-bottom-color: colours.$white;
+
+    .notification-bar__icon {
+      background-color: color.adjust(colours.$danger-color, $lightness: -5%);
+      border-color: color.adjust(colours.$danger-color, $lightness: -8%);
+    }
 
     a:not(.button) {
-      @include link-utilities.colored-link(colours.$warning-color);
+      @include link-utilities.white-underlined-link;
     }
 
     .notification-bar__dismiss {
-      @include link-utilities.link-focus-state(colours.$warning-color);
+      @include link-utilities.link-focus-state(colours.$white);
     }
-  }
-
-  &--danger {
-    background-color: colours.$danger-color;
   }
 
   &--success {
     background-color: colours.$success-color;
-  }
+    color: colours.$white;
+    border-bottom-color: colours.$white;
 
-  &--banner {
-    background-color: colours.$warning-background-color;
-    color: colours.$warning-color;
-    border-color: color.adjust(colours.$primary-color, $lightness: -10%);
-
-    a {
-      color: colours.$warning-color;
+    .notification-bar__icon {
+      background-color: color.adjust(colours.$success-color, $lightness: -5%);
+      border-color: color.adjust(colours.$success-color, $lightness: -8%);
     }
 
-    .button {
-      color: colours.$white;
+    a:not(.button) {
+      @include link-utilities.white-underlined-link;
+    }
+
+    .notification-bar__dismiss {
+      @include link-utilities.link-focus-state(colours.$white);
     }
   }
+
 }
