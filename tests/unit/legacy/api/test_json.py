@@ -30,6 +30,17 @@ def _assert_has_cors_headers(headers):
     assert headers["Access-Control-Expose-Headers"] == "X-PyPI-Last-Serial"
 
 
+def _assert_same_calls(actual, expected):
+    """Assert two call lists are equal ignoring order.
+
+    ``mock.call`` objects carrying kwargs are unhashable, so ``set()``
+    equality is unavailable; check containment in both directions instead so
+    the assertion stays exact (every expected call happened, and no others).
+    """
+    assert all(c in expected for c in actual)
+    assert all(c in actual for c in expected)
+
+
 class TestLatestReleaseFactory:
     def test_missing_release(self, db_request):
         project = ProjectFactory.create()
@@ -219,8 +230,7 @@ class TestJSONProject:
             ),
             mocker.call("legacy.docs", project=project.name),
         ]
-        assert all(c in expected_calls for c in route_url.call_args_list)
-        assert all(c in route_url.call_args_list for c in expected_calls)
+        _assert_same_calls(route_url.call_args_list, expected_calls)
 
         _assert_has_cors_headers(db_request.response.headers)
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
@@ -555,8 +565,7 @@ class TestJSONRelease:
             ),
             mocker.call("legacy.docs", project=project.name),
         ]
-        assert all(c in expected_calls for c in route_url.call_args_list)
-        assert all(c in route_url.call_args_list for c in expected_calls)
+        _assert_same_calls(route_url.call_args_list, expected_calls)
 
         _assert_has_cors_headers(db_request.response.headers)
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
@@ -658,8 +667,7 @@ class TestJSONRelease:
                 "packaging.release", name=project.name, version=release.version
             ),
         ]
-        assert all(c in expected_calls for c in route_url.call_args_list)
-        assert all(c in route_url.call_args_list for c in expected_calls)
+        _assert_same_calls(route_url.call_args_list, expected_calls)
 
         _assert_has_cors_headers(db_request.response.headers)
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
