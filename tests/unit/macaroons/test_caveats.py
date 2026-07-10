@@ -3,11 +3,11 @@
 import dataclasses
 import time
 
-import pretend
 import pytest
 
 from pydantic.dataclasses import dataclass
 from pymacaroons import Macaroon
+from pyramid.testing import DummySecurityPolicy
 
 from warehouse.accounts import _oidc_publisher
 from warehouse.accounts.utils import UserContext
@@ -46,10 +46,14 @@ def test_bools():
     assert bool(Failure("anything")) is False
 
 
-def test_caveat_verify_fails():
+def test_caveat_verify_fails(mocker):
     caveat = Caveat()
     with pytest.raises(NotImplementedError):
-        caveat.verify(pretend.stub(), pretend.stub(), pretend.stub())
+        caveat.verify(
+            mocker.sentinel.request,
+            mocker.sentinel.context,
+            mocker.sentinel.permission,
+        )
 
 
 @pytest.mark.parametrize(
@@ -143,7 +147,7 @@ class TestDeserialization:
     def test_valid_test_valid_deserialization_request_user(
         self, pyramid_request, pyramid_config
     ):
-        pyramid_request.user = pretend.stub(id="a uuid")
+        pyramid_request.user = UserFactory.build(id="a uuid")
         assert deserialize(b'{"version": 1, "permissions": "user"}') == RequestUser(
             user_id="a uuid"
         )
@@ -168,179 +172,216 @@ class TestDeserialization:
 
 
 class TestExpirationCaveat:
-    def test_verify_not_before(self):
+    def test_verify_not_before(self, mocker):
         not_before = int(time.time()) + 60
         expiry = not_before + 60
 
         caveat = Expiration(expires_at=expiry, not_before=not_before)
-        result = caveat.verify(pretend.stub(), pretend.stub(), pretend.stub())
+        result = caveat.verify(
+            mocker.sentinel.request,
+            mocker.sentinel.context,
+            mocker.sentinel.permission,
+        )
 
         assert result == Failure("token is expired")
 
-    def test_verify_already_expired(self):
+    def test_verify_already_expired(self, mocker):
         not_before = int(time.time()) - 10
         expiry = not_before - 5
 
         caveat = Expiration(expires_at=expiry, not_before=not_before)
-        result = caveat.verify(pretend.stub(), pretend.stub(), pretend.stub())
+        result = caveat.verify(
+            mocker.sentinel.request,
+            mocker.sentinel.context,
+            mocker.sentinel.permission,
+        )
 
         assert result == Failure("token is expired")
 
-    def test_verify_ok(self):
+    def test_verify_ok(self, mocker):
         not_before = int(time.time()) - 10
         expiry = int(time.time()) + 60
 
         caveat = Expiration(expires_at=expiry, not_before=not_before)
-        result = caveat.verify(pretend.stub(), pretend.stub(), pretend.stub())
+        result = caveat.verify(
+            mocker.sentinel.request,
+            mocker.sentinel.context,
+            mocker.sentinel.permission,
+        )
 
         assert result == Success()
 
 
 class TestProjectNameCaveat:
-    def test_verify_invalid_context(self):
+    def test_verify_invalid_context(self, mocker):
         caveat = ProjectName(normalized_names=[])
-        result = caveat.verify(pretend.stub(), pretend.stub(), pretend.stub())
+        result = caveat.verify(
+            mocker.sentinel.request,
+            mocker.sentinel.context,
+            mocker.sentinel.permission,
+        )
 
         assert result == Failure(
             "project-scoped token used outside of a project context"
         )
 
-    def test_verify_invalid_project_id(self, db_request):
+    def test_verify_invalid_project_id(self, db_request, mocker):
         project = ProjectFactory.create(name="foobar")
 
         caveat = ProjectName(normalized_names=["not_foobar"])
-        result = caveat.verify(db_request, project, pretend.stub())
+        result = caveat.verify(db_request, project, mocker.sentinel.permission)
 
         assert result == Failure(
             f"project-scoped token is not valid for project: {project.name!r}"
         )
 
-    def test_verify_ok(self, db_request):
+    def test_verify_ok(self, db_request, mocker):
         project = ProjectFactory.create(name="foobar")
 
         caveat = ProjectName(normalized_names=["foobar"])
-        result = caveat.verify(db_request, project, pretend.stub())
+        result = caveat.verify(db_request, project, mocker.sentinel.permission)
 
         assert result == Success()
 
 
 class TestProjectIDsCaveat:
-    def test_verify_invalid_context(self):
+    def test_verify_invalid_context(self, mocker):
         caveat = ProjectID(project_ids=[])
-        result = caveat.verify(pretend.stub(), pretend.stub(), pretend.stub())
+        result = caveat.verify(
+            mocker.sentinel.request,
+            mocker.sentinel.context,
+            mocker.sentinel.permission,
+        )
 
         assert result == Failure(
             "project-scoped token used outside of a project context"
         )
 
-    def test_verify_invalid_project_id(self, db_request):
+    def test_verify_invalid_project_id(self, db_request, mocker):
         project = ProjectFactory.create(name="foobar")
 
         caveat = ProjectID(project_ids=["not-foobars-uuid"])
-        result = caveat.verify(db_request, project, pretend.stub())
+        result = caveat.verify(db_request, project, mocker.sentinel.permission)
 
         assert result == Failure(
             f"project-scoped token is not valid for project: {project.name!r}"
         )
 
-    def test_verify_ok(self, db_request):
+    def test_verify_ok(self, db_request, mocker):
         project = ProjectFactory.create(name="foobar")
 
         caveat = ProjectID(project_ids=[str(project.id)])
-        result = caveat.verify(db_request, project, pretend.stub())
+        result = caveat.verify(db_request, project, mocker.sentinel.permission)
 
         assert result == Success()
 
 
 class TestRequestUserCaveat:
-    def test_verify_no_identity(self):
+    def test_verify_no_identity(self, pyramid_request, mocker):
+        # pyramid_request.identity defaults to None with no policy registered.
         caveat = RequestUser(user_id="invalid")
         result = caveat.verify(
-            pretend.stub(identity=None), pretend.stub(), pretend.stub()
+            pyramid_request, mocker.sentinel.context, mocker.sentinel.permission
         )
 
         assert result == Failure("token with user restriction without a user")
 
-    def test_verify_invalid_identity_no_user(self):
+    def test_verify_invalid_identity_no_user(
+        self, pyramid_request, pyramid_config, mocker
+    ):
+        pyramid_config.set_security_policy(
+            DummySecurityPolicy(identity=mocker.sentinel.identity)
+        )
+
         caveat = RequestUser(user_id="invalid")
         result = caveat.verify(
-            pretend.stub(identity=pretend.stub()), pretend.stub(), pretend.stub()
+            pyramid_request, mocker.sentinel.context, mocker.sentinel.permission
         )
 
         assert result == Failure("token with user restriction without a user")
 
-    def test_verify_invalid_identity_no_macaroon(self, db_request):
+    def test_verify_invalid_identity_no_macaroon(
+        self, db_request, pyramid_config, mocker
+    ):
         user = UserFactory.create()
         user_context = UserContext(user, None)
+        pyramid_config.set_security_policy(DummySecurityPolicy(identity=user_context))
 
         caveat = RequestUser(user_id=str(user.id))
         result = caveat.verify(
-            pretend.stub(identity=user_context), pretend.stub(), pretend.stub()
+            db_request, mocker.sentinel.context, mocker.sentinel.permission
         )
 
         assert result == Failure("token with user restriction without a macaroon")
 
-    def test_verify_invalid_user_id(self, db_request):
+    def test_verify_invalid_user_id(self, db_request, pyramid_config, mocker):
         user = UserFactory.create()
-        user_context = UserContext(user, pretend.stub())
+        user_context = UserContext(user, mocker.sentinel.macaroon)
+        pyramid_config.set_security_policy(DummySecurityPolicy(identity=user_context))
 
         caveat = RequestUser(user_id="invalid")
         result = caveat.verify(
-            pretend.stub(identity=user_context), pretend.stub(), pretend.stub()
+            db_request, mocker.sentinel.context, mocker.sentinel.permission
         )
 
         assert result == Failure(
             "current user does not match user restriction in token"
         )
 
-    def test_verify_ok(self, db_request):
+    def test_verify_ok(self, db_request, pyramid_config, mocker):
         user = UserFactory.create()
-        user_context = UserContext(user, pretend.stub())
+        user_context = UserContext(user, mocker.sentinel.macaroon)
+        pyramid_config.set_security_policy(DummySecurityPolicy(identity=user_context))
 
         caveat = RequestUser(user_id=str(user.id))
         result = caveat.verify(
-            pretend.stub(identity=user_context), pretend.stub(), pretend.stub()
+            db_request, mocker.sentinel.context, mocker.sentinel.permission
         )
 
         assert result == Success()
 
 
 class TestOIDCPublisherCaveat:
-    def test_verify_no_identity(self):
+    def test_verify_no_identity(self, pyramid_request, mocker):
+        # pyramid_request.oidc_publisher defaults to None.
         caveat = OIDCPublisher(oidc_publisher_id="invalid")
         result = caveat.verify(
-            pretend.stub(identity=None, oidc_publisher=None),
-            pretend.stub(),
-            pretend.stub(),
+            pyramid_request,
+            mocker.sentinel.context,
+            mocker.sentinel.permission,
         )
 
         assert result == Failure(
             "OIDC scoped token used outside of an OIDC identified request"
         )
 
-    def test_verify_invalid_publisher_id(self, db_request):
+    def test_verify_invalid_publisher_id(self, db_request, pyramid_config, mocker):
         identity = PublisherTokenContext(GitHubPublisherFactory.create(), None)
-        request = pretend.stub(identity=identity)
-        request.oidc_publisher = _oidc_publisher(request)
+        pyramid_config.set_security_policy(DummySecurityPolicy(identity=identity))
+        db_request.oidc_publisher = _oidc_publisher(db_request)
 
         caveat = OIDCPublisher(oidc_publisher_id="invalid")
-        result = caveat.verify(request, pretend.stub(), pretend.stub())
+        result = caveat.verify(
+            db_request, mocker.sentinel.context, mocker.sentinel.permission
+        )
 
         assert result == Failure(
             "current OIDC publisher does not match publisher restriction in token"
         )
 
-    def test_verify_invalid_context(self, db_request):
+    def test_verify_invalid_context(self, db_request, pyramid_config, mocker):
         identity = PublisherTokenContext(GitHubPublisherFactory.create(), None)
-        request = pretend.stub(identity=identity)
-        request.oidc_publisher = _oidc_publisher(request)
+        pyramid_config.set_security_policy(DummySecurityPolicy(identity=identity))
+        db_request.oidc_publisher = _oidc_publisher(db_request)
 
-        caveat = OIDCPublisher(oidc_publisher_id=str(request.oidc_publisher.id))
-        result = caveat.verify(request, pretend.stub(), pretend.stub())
+        caveat = OIDCPublisher(oidc_publisher_id=str(db_request.oidc_publisher.id))
+        result = caveat.verify(
+            db_request, mocker.sentinel.context, mocker.sentinel.permission
+        )
 
         assert result == Failure("OIDC scoped token used outside of a project context")
 
-    def test_verify_invalid_project(self, db_request):
+    def test_verify_invalid_project(self, db_request, pyramid_config, mocker):
         foobar = ProjectFactory.create(name="foobar")
         foobaz = ProjectFactory.create(name="foobaz")
 
@@ -349,15 +390,15 @@ class TestOIDCPublisherCaveat:
         identity = PublisherTokenContext(
             GitHubPublisherFactory.create(projects=[foobar]), None
         )
-        request = pretend.stub(identity=identity)
-        request.oidc_publisher = _oidc_publisher(request)
-        caveat = OIDCPublisher(oidc_publisher_id=str(request.oidc_publisher.id))
+        pyramid_config.set_security_policy(DummySecurityPolicy(identity=identity))
+        db_request.oidc_publisher = _oidc_publisher(db_request)
+        caveat = OIDCPublisher(oidc_publisher_id=str(db_request.oidc_publisher.id))
 
-        result = caveat.verify(request, foobaz, pretend.stub())
+        result = caveat.verify(db_request, foobaz, mocker.sentinel.permission)
 
         assert result == Failure("OIDC scoped token is not valid for project 'foobaz'")
 
-    def test_verify_ok(self, db_request):
+    def test_verify_ok(self, db_request, pyramid_config, mocker):
         foobar = ProjectFactory.create(name="foobar")
 
         # This OIDC publisher is only registered to "foobar", so it should
@@ -365,11 +406,11 @@ class TestOIDCPublisherCaveat:
         identity = PublisherTokenContext(
             GitHubPublisherFactory.create(projects=[foobar]), None
         )
-        request = pretend.stub(identity=identity)
-        request.oidc_publisher = _oidc_publisher(request)
-        caveat = OIDCPublisher(oidc_publisher_id=str(request.oidc_publisher.id))
+        pyramid_config.set_security_policy(DummySecurityPolicy(identity=identity))
+        db_request.oidc_publisher = _oidc_publisher(db_request)
+        caveat = OIDCPublisher(oidc_publisher_id=str(db_request.oidc_publisher.id))
 
-        result = caveat.verify(request, foobar, pretend.stub())
+        result = caveat.verify(db_request, foobar, mocker.sentinel.permission)
 
         assert result == Success()
 
@@ -383,54 +424,76 @@ class TestCaveatRegistry:
 
 
 class TestVerification:
-    def test_verify_invalid_signature(self):
+    def test_verify_invalid_signature(self, mocker):
         m = Macaroon(location="somewhere", identifier="something", key=b"a secure key")
         status = verify(
-            m, b"a different key", pretend.stub(), pretend.stub(), pretend.stub()
+            m,
+            b"a different key",
+            mocker.sentinel.request,
+            mocker.sentinel.context,
+            mocker.sentinel.permission,
         )
         assert not status
         assert status.msg == "signatures do not match"
 
-    def test_caveat_returns_false(self):
+    def test_caveat_returns_false(self, mocker):
         m = Macaroon(location="somewhere", identifier="something", key=b"a secure key")
         m.add_first_party_caveat(serialize(Expiration(expires_at=10, not_before=0)))
         status = verify(
-            m, b"a secure key", pretend.stub(), pretend.stub(), pretend.stub()
+            m,
+            b"a secure key",
+            mocker.sentinel.request,
+            mocker.sentinel.context,
+            mocker.sentinel.permission,
         )
         assert not status
         assert status.msg == "token is expired"
 
-    def test_caveat_errors_on_deserialize(self):
+    def test_caveat_errors_on_deserialize(self, mocker):
         m = Macaroon(location="somewhere", identifier="something", key=b"a secure key")
         m.add_first_party_caveat(b"[]")
         status = verify(
-            m, b"a secure key", pretend.stub(), pretend.stub(), pretend.stub()
+            m,
+            b"a secure key",
+            mocker.sentinel.request,
+            mocker.sentinel.context,
+            mocker.sentinel.permission,
         )
         assert not status
         assert status.msg == "caveat array cannot be empty"
 
-    def test_valid_caveat(self):
+    def test_valid_caveat(self, mocker):
         now = int(time.time())
         m = Macaroon(location="somewhere", identifier="something", key=b"a secure key")
         m.add_first_party_caveat(
             serialize(Expiration(expires_at=now + 1000, not_before=now - 1000))
         )
         status = verify(
-            m, b"a secure key", pretend.stub(), pretend.stub(), pretend.stub()
+            m,
+            b"a secure key",
+            mocker.sentinel.request,
+            mocker.sentinel.context,
+            mocker.sentinel.permission,
         )
         assert status
         assert status.msg == "signature and caveats OK"
 
-    def test_generic_exception(self, monkeypatch):
-        def _raiser(*args, **kwargs):
-            raise Exception("my generic exception")
-
-        monkeypatch.setattr(caveats, "deserialize", _raiser)
+    def test_generic_exception(self, mocker):
+        mocker.patch.object(
+            caveats,
+            "deserialize",
+            autospec=True,
+            side_effect=Exception("my generic exception"),
+        )
 
         m = Macaroon(location="somewhere", identifier="something", key=b"a secure key")
         m.add_first_party_caveat(serialize(Expiration(expires_at=1, not_before=1)))
         status = verify(
-            m, b"a secure key", pretend.stub(), pretend.stub(), pretend.stub()
+            m,
+            b"a secure key",
+            mocker.sentinel.request,
+            mocker.sentinel.context,
+            mocker.sentinel.permission,
         )
         assert not status
         assert status.msg == "unknown error"
