@@ -10,7 +10,7 @@ $primary-color-light:         color.adjust($primary-color, $lightness: 45%);
 $primary-color-dark:          color.adjust($primary-color, $lightness: -10%);
 $success-color:               #148024;
 $warning-color:               #c2410c;
-$warning-background-color:    #ffdf76;
+$notification-color:          #feecbe;
 $danger-color:                #dc2626;
 $highlight-color:             #ffd343;
 $white:                       #fff;
