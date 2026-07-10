@@ -45,6 +45,7 @@ Calling a function with the `_email` decorator does the following:
 ## Testing e-mails
 
 When an email is sent in the development environment, it's printed in the
-console, and sent to the `maildev` service using SMTP. `maildev` is a
+console, and sent to the `mailpit` service using SMTP. `mailpit` is a
 service defined in `docker-compose.yml` that receives emails, stores them and
-lets you read them from a web interface at <http://localhost:1080>.
+lets you read them from a web interface at <http://localhost:1080>. Messages
+are stored in a Docker volume so they persist across container recreations.
