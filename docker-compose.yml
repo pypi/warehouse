@@ -9,6 +9,7 @@ volumes:
   pgdata:
   cachedata:
   node_modules:
+  mailpit_data:
 
 services:
   db:
@@ -212,11 +213,15 @@ services:
       - node_modules:/opt/warehouse/src/node_modules
       - caches:/opt/warehouse/src/.cache
 
-  maildev:
-    image: maildev/maildev:2.2.1
+  mailpit:
+    image: axllent/mailpit:v1.30.4
+    environment:
+      MP_DATABASE: /data/mailpit.db
     ports:
-      - "1080:1080"
+      - "1080:8025"
       - "1025:1025"
+    volumes:
+      - mailpit_data:/data
 
   notdatadog:
     image: warehouse:docker-compose
