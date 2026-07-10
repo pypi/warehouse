@@ -2,6 +2,7 @@
 
 @use "sass:color";
 @use "../settings/colours";
+@use "../settings/fonts";
 @use "../tools/link-utilities";
 
 /*
@@ -14,15 +15,15 @@
 */
 
 .badge {
-  font-size: 0.8rem;
+  font-size: fonts.$small-font-size;
   letter-spacing: 0.02rem;
-  margin-left: 0.5rem;
+  margin-left: 0.3rem;
   vertical-align: 0.15rem;
   text-transform: uppercase;
   border: 1px solid colours.$primary-color;
   background-color: colours.$primary-color;
   color: colours.$white;
-  padding: 2px 8px;
+  padding: 1px 8px;
   border-radius: 3px;
   font-weight: 600;
   white-space: nowrap;
@@ -120,6 +121,7 @@
 
 }
 
+a.badge,
 a.badge:hover {
   text-decoration: underline;
 }

@@ -24,7 +24,7 @@
 
   &__link {
     display: block;
-    padding: 5px;
+    padding: 5px 0;
     @include link-utilities.link-without-underline;
 
     &:hover {

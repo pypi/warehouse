@@ -24,12 +24,14 @@
     pip install{{ index_url }} {{ release.project.name }}{{ project_version }}
   {%- endif -%}
 {%- endmacro -%}
-{% if project.lifecycle_status == "quarantine-enter" or release.lifecycle_status == "quarantine-enter" %}
+{% if project.lifecycle_status == "quarantine-enter" %}
   {% set banner_modifier = "banner--quarantined" %}
-{% elif project.lifecycle_status in ["archived", "archived-noindex"] %}
-  {% set banner_modifier = "banner--archived" %}
+{% elif release.lifecycle_status == "quarantine-enter" %}
+  {% set banner_modifier = "banner--quarantined" %}
 {% elif release.yanked %}
   {% set banner_modifier = "banner--yanked" %}
+{% elif project.lifecycle_status in ["archived", "archived-noindex"] %}
+  {% set banner_modifier = "banner--archived" %}
 {% elif release.is_prerelease %}
   {% set banner_modifier = "banner--pre-release" %}
 {% else %}

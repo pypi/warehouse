@@ -43,7 +43,7 @@
     }
 
     a[target="_blank"] {
-      font-size: 0.8em;
+      font-size: fonts.$small-font-size;
 
       &::after {
         display: none;
@@ -78,6 +78,18 @@
       .sidebar-section__data-source + .sidebar-section__data-block {
         border-top: 0;
       }
+
+       > .sidebar-section__data-block:has(.sidebar-links) {
+        padding: 0;
+      }
+
+      > .sidebar-section__data-block .sidebar-links {
+        padding: 5px 0;
+      }
+
+      > .sidebar-section__data-block .sidebar-links li a{
+        padding: 5px 10px;
+      }
     }
 
     &--verified {
@@ -106,20 +118,35 @@
       .sidebar-section__data-source + .sidebar-section__data-block {
         border-top: 0;
       }
+
+            .sidebar-section__data-source + .sidebar-section__data-block {
+        border-top: 0;
+      }
+
+       > .sidebar-section__data-block:has(.sidebar-links) {
+        padding: 0;
+      }
+
+            > .sidebar-section__data-block .sidebar-links {
+        padding: 8px 0;
+      }
+
+      > .sidebar-section__data-block .sidebar-links li a{
+        padding: 5px 10px;
+      }
     }
   }
 
   &__data-source {
     position: relative;
-    padding-top: 5px;
+    padding-top: 7px;
 
     &-label {
       position: absolute;
       top: -10px;
       left: 5px;
-      display: inline-flex;
-      align-items: center;
-      font-size: 0.7rem;
+      display: inline-block;
+      font-size: fonts.$small-font-size;
       cursor: pointer;
       user-select: none;
       border: 1px solid;
@@ -132,7 +159,11 @@
 
       &::after {
         content: "›";
+        position: relative;
+        top: -2px;
         margin-left: 5px;
+        vertical-align: middle;
+        display: inline-block;
         transition: transform 0.15s ease;
       }
     }
@@ -147,43 +178,37 @@
 
     &-description {
       padding: grid.$half-spacing-unit;
-      font-size: fonts.$small-font-size;
       color: colours.$text-color;
       border-bottom: 1px solid;
     }
   }
 
-  // Control padding for blocks that directly follows a PyPI/verified block
+  // Control padding for data blocks that follow content blocks
   &__content + &__data-block {
-    padding: 10px;
-    padding-bottom: 0;
+    padding: 5px 10px 0;
   }
 
   // Maintainers
-  &__maintainers-overflow {
-    summary {
-      cursor: pointer;
-      color: colours.$primary-color;
-      margin-top: 5px;
-      list-style: none;
-
-      &::-webkit-details-marker {
-        display: none;
-      }
-    }
-
-    &[open] summary {
-      display: none;
-    }
+  &__data-block:has(.sidebar-links__maintainer) {
+    padding: 5px 0;
   }
 
   &__maintainer {
     display: flex;
     align-items: center;
+    min-width: auto;
     gap: 8px;
-    margin-top: 5px;
+    margin-bottom: 5px;
     @include link-utilities.link-without-underline;
     @include link-utilities.link-focus-state(colours.$primary-color);
+
+    &:first-of-type {
+      margin-top: 2px;
+    }
+
+    &:last-of-type {
+      margin-bottom: 0;
+    }
 
     img {
       max-width: 35px;
@@ -194,7 +219,36 @@
         max-width: 30px;
       }
     }
+
+    span {
+      overflow-wrap: break-word;
+      word-wrap:break-word;
+      word-break: break-word;
+      hyphens: none;
+    }
   }
+
+  &__maintainers-overflow {
+    summary {
+      cursor: pointer;
+      color: colours.$primary-color;
+      list-style: none;
+      margin-top: 5px;
+
+      &::-webkit-details-marker {
+        display: none;
+      }
+    }
+
+    &[open] summary {
+      display: none;
+    }
+
+    &:first-of-type {
+      margin-top: 5px;
+    }
+  }
+
 
   // Credits / Tags / Provides extra
   &__data-block {
@@ -255,7 +309,7 @@
 
 
   // Remove bottom styling from final sidebar section
-  &:last-of-type {
+  &:last-of-type:not(&--manage-project) {
     margin-bottom: 0;
     padding-bottom: 0;
     border: 0;
