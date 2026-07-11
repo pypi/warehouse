@@ -290,7 +290,7 @@ class TestDeriver:
     def test_deriver(self, service_available, xmlrpc_cache, mockredis):
         context = pretend.stub()
         purger = pretend.call_recorder(lambda tags: None)
-        service = RedisXMLRPCCache("redis://127.0.0.2:6379/0", purger)
+        service = RedisXMLRPCCache("redis://192.0.2.2:6379/0", purger)
         service.redis_conn = mockredis
         service.redis_lru.conn = mockredis
         if service_available:

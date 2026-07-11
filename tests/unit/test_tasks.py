@@ -192,10 +192,10 @@ class TestWarehouseTask:
         assert request is pyramid_env["request"]
         assert isinstance(request.tm, transaction.TransactionManager)
         assert 1.5e12 < request.timings["new_request_start"] < 1e13
-        assert request.remote_addr == "127.0.0.1"
+        assert request.remote_addr == "192.0.2.1"
         assert (
             request.remote_addr_hashed
-            == "cc9dfe9c4e6b6579bbf789d04339bd2d7f10aadf84ff4394193d99f14a0333f0"
+            == "f72747897c9ed65a4cce54771a3db35afb693c7fa3213492010e8c8b0abcd750"
         )
 
     def test_reuses_request(self):
@@ -455,8 +455,8 @@ def test_make_celery_app():
         (
             Environment.production,
             True,
-            "redis://127.0.0.1:6379/10",
-            "redis://127.0.0.1:6379/10",
+            "redis://192.0.2.1:6379/10",
+            "redis://192.0.2.1:6379/10",
             {},
         ),
         (

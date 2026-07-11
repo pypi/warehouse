@@ -524,7 +524,7 @@ class TestDatabaseUserService:
     )
     def test_disable_password(self, user_service, reason, expected):
         request = pretend.stub(
-            remote_addr="127.0.0.1",
+            remote_addr="192.0.2.1",
             ip_address=IpAddressFactory.create(),
         )
         user = UserFactory.create()
@@ -552,7 +552,7 @@ class TestDatabaseUserService:
     )
     def test_is_disabled(self, user_service, disabled, reason):
         request = pretend.stub(
-            remote_addr="127.0.0.1",
+            remote_addr="192.0.2.1",
             ip_address=IpAddressFactory.create(),
             headers={},
             db=pretend.stub(add=lambda *a: None),
@@ -569,7 +569,7 @@ class TestDatabaseUserService:
 
     def test_updating_password_undisables(self, user_service):
         request = pretend.stub(
-            remote_addr="127.0.0.1",
+            remote_addr="192.0.2.1",
             ip_address=IpAddressFactory.create(),
             headers={},
             db=pretend.stub(add=lambda *a: None),

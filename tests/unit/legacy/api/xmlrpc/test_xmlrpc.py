@@ -28,7 +28,7 @@ class TestRateLimiting:
 
         ratelimited_view = xmlrpc.ratelimit()(view)
         context = pretend.stub()
-        pyramid_request.remote_addr = "127.0.0.1"
+        pyramid_request.remote_addr = "192.0.2.1"
         stats = [
             WindowStats(
                 amount=3600, window_seconds=3600, remaining=42, resets_in_seconds=10
@@ -59,7 +59,7 @@ class TestRateLimiting:
 
         ratelimited_view = xmlrpc.ratelimit()(view)
         context = pretend.stub()
-        pyramid_request.remote_addr = "127.0.0.1"
+        pyramid_request.remote_addr = "192.0.2.1"
         fake_rate_limiter = pretend.stub(
             test=lambda *a: False,
             hit=lambda *a: True,
@@ -96,7 +96,7 @@ class TestRateLimiting:
 
         ratelimited_view = xmlrpc.ratelimit()(view)
         context = pretend.stub()
-        pyramid_request.remote_addr = "127.0.0.1"
+        pyramid_request.remote_addr = "192.0.2.1"
         fake_rate_limiter = pretend.stub(
             test=lambda *a: False,
             hit=lambda *a: True,

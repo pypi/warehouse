@@ -1150,7 +1150,7 @@ class TestWebAuthnAuthenticationForm:
         )
 
     def test_credential_invalid(self):
-        request = pretend.stub(remote_addr="127.0.0.1")
+        request = pretend.stub(remote_addr="192.0.2.1")
         user = pretend.stub(
             record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
@@ -1269,7 +1269,7 @@ class TestRecoveryCodeForm:
     def test_invalid_recovery_code(
         self, pyramid_config, exception, expected_reason, expected_error
     ):
-        request = pretend.stub(remote_addr="127.0.0.1")
+        request = pretend.stub(remote_addr="192.0.2.1")
         user = pretend.stub(
             record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
@@ -1318,7 +1318,7 @@ class TestRecoveryCodeForm:
     def test_recovery_code_string_validation(
         self, monkeypatch, input_string, validates
     ):
-        request = pretend.stub(remote_addr="127.0.0.1")
+        request = pretend.stub(remote_addr="192.0.2.1")
         user = pretend.stub(id=pretend.stub(), username="foobar")
         form = forms.RecoveryCodeAuthenticationForm(
             request=request,
