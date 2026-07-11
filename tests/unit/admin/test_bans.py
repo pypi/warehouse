@@ -11,7 +11,7 @@ from ...common.db.ip_addresses import IpAddressFactory
 
 class TestAdminFlag:
     def test_no_ip_not_banned(self, db_request):
-        assert not db_request.banned.by_ip("4.3.2.1")
+        assert not db_request.banned.by_ip("192.0.2.4")
 
     def test_with_ip_not_banned(self, db_request):
         assert not db_request.banned.by_ip(db_request.ip_address.ip_address)

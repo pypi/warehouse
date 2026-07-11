@@ -5699,7 +5699,7 @@ class TestConfirmLogin:
 
     def test_ip_address_mismatch(self, db_request):
         user = UserFactory.create(last_login=datetime.datetime.now(datetime.UTC))
-        ip_address = IpAddressFactory.create(ip_address="1.1.1.1")
+        ip_address = IpAddressFactory.create(ip_address="192.0.2.1")
         unique_login = UserUniqueLoginFactory.create(user=user, ip_address=ip_address)
         db_request.user = None
         db_request.params = {"token": "foo"}
