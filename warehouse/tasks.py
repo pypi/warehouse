@@ -118,9 +118,9 @@ class WarehouseTask(celery.Task):
             env = pyramid.scripting.prepare(registry=registry)
             env["request"].tm = transaction.TransactionManager(explicit=True)
             env["request"].timings = {"new_request_start": time.time() * 1000}
-            env["request"].remote_addr = "192.0.2.1"
+            env["request"].remote_addr = "127.0.0.1"
             env["request"].remote_addr_hashed = hashlib.sha256(
-                ("192.0.2.1" + registry.settings["warehouse.ip_salt"]).encode("utf8")
+                ("127.0.0.1" + registry.settings["warehouse.ip_salt"]).encode("utf8")
             ).hexdigest()
             self.request.update(pyramid_env=env)
 

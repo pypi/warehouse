@@ -76,7 +76,7 @@ class DataDogMetrics:
     def create_service(cls, context, request):
         return cls(
             DogStatsd(
-                host=request.registry.settings.get("metrics.host", "192.0.2.1"),
+                host=request.registry.settings.get("metrics.host", "127.0.0.1"),
                 port=int(request.registry.settings.get("metrics.port", 8125)),
                 namespace=request.registry.settings.get("metrics.namespace"),
                 use_ms=True,
