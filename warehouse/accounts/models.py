@@ -74,6 +74,12 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
             "username ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'",
             name="users_valid_username",
         ),
+        Index(
+            "idx_users_username_trgm",
+            "username",
+            postgresql_using="gin",
+            postgresql_ops={"username": "gin_trgm_ops"},
+        ),
     )
 
     __repr__ = make_repr("username")

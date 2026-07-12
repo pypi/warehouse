@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import alembic.command
-import pretend
 import pytest
 
 from warehouse.cli.db.branches import branches
@@ -17,64 +16,37 @@ from warehouse.cli.db.stamp import stamp
 from warehouse.cli.db.upgrade import upgrade
 
 
-def test_branches_command(monkeypatch, cli, pyramid_config):
-    alembic_branches = pretend.call_recorder(lambda config: None)
-    monkeypatch.setattr(alembic.command, "branches", alembic_branches)
+def test_branches_command(mocker, cli, pyramid_config):
+    alembic_branches = mocker.patch.object(alembic.command, "branches", autospec=True)
 
-    alembic_config = pretend.stub(attributes={})
+    alembic_config = mocker.sentinel.alembic_config
     pyramid_config.alembic_config = lambda: alembic_config
-
-    connection = pretend.stub(
-        __enter__=lambda: connection,
-        __exit__=lambda *a, **k: None,
-        execute=pretend.call_recorder(lambda sql: None),
-    )
-    engine = pretend.stub(begin=lambda: connection)
-    pyramid_config.registry["sqlalchemy.engine"] = engine
 
     result = cli.invoke(branches, obj=pyramid_config)
     assert result.exit_code == 0
-    assert alembic_branches.calls == [pretend.call(alembic_config)]
+    alembic_branches.assert_called_once_with(alembic_config)
 
 
-def test_current_command(monkeypatch, cli, pyramid_config):
-    alembic_current = pretend.call_recorder(lambda config: None)
-    monkeypatch.setattr(alembic.command, "current", alembic_current)
+def test_current_command(mocker, cli, pyramid_config):
+    alembic_current = mocker.patch.object(alembic.command, "current", autospec=True)
 
-    alembic_config = pretend.stub(attributes={})
+    alembic_config = mocker.sentinel.alembic_config
     pyramid_config.alembic_config = lambda: alembic_config
-
-    connection = pretend.stub(
-        __enter__=lambda: connection,
-        __exit__=lambda *a, **k: None,
-        execute=pretend.call_recorder(lambda sql: None),
-    )
-    engine = pretend.stub(begin=lambda: connection)
-    pyramid_config.registry["sqlalchemy.engine"] = engine
 
     result = cli.invoke(current, obj=pyramid_config)
     assert result.exit_code == 0
-    assert alembic_current.calls == [pretend.call(alembic_config)]
+    alembic_current.assert_called_once_with(alembic_config)
 
 
-def test_downgrade_command(monkeypatch, cli, pyramid_config):
-    alembic_downgrade = pretend.call_recorder(lambda config, revision: None)
-    monkeypatch.setattr(alembic.command, "downgrade", alembic_downgrade)
+def test_downgrade_command(mocker, cli, pyramid_config):
+    alembic_downgrade = mocker.patch.object(alembic.command, "downgrade", autospec=True)
 
-    alembic_config = pretend.stub(attributes={})
+    alembic_config = mocker.sentinel.alembic_config
     pyramid_config.alembic_config = lambda: alembic_config
-
-    connection = pretend.stub(
-        __enter__=lambda: connection,
-        __exit__=lambda *a, **k: None,
-        execute=pretend.call_recorder(lambda sql: None),
-    )
-    engine = pretend.stub(begin=lambda: connection)
-    pyramid_config.registry["sqlalchemy.engine"] = engine
 
     result = cli.invoke(downgrade, ["--", "-1"], obj=pyramid_config)
     assert result.exit_code == 0
-    assert alembic_downgrade.calls == [pretend.call(alembic_config, "-1")]
+    alembic_downgrade.assert_called_once_with(alembic_config, "-1")
 
 
 @pytest.mark.parametrize(
@@ -85,44 +57,26 @@ def test_downgrade_command(monkeypatch, cli, pyramid_config):
         (["--resolve-dependencies"], {"resolve_dependencies": True}),
     ],
 )
-def test_heads_command(monkeypatch, cli, pyramid_config, args, ekwargs):
-    alembic_heads = pretend.call_recorder(lambda config, resolve_dependencies: None)
-    monkeypatch.setattr(alembic.command, "heads", alembic_heads)
+def test_heads_command(mocker, cli, pyramid_config, args, ekwargs):
+    alembic_heads = mocker.patch.object(alembic.command, "heads", autospec=True)
 
-    alembic_config = pretend.stub(attributes={})
+    alembic_config = mocker.sentinel.alembic_config
     pyramid_config.alembic_config = lambda: alembic_config
-
-    connection = pretend.stub(
-        __enter__=lambda: connection,
-        __exit__=lambda *a, **k: None,
-        execute=pretend.call_recorder(lambda sql: None),
-    )
-    engine = pretend.stub(begin=lambda: connection)
-    pyramid_config.registry["sqlalchemy.engine"] = engine
 
     result = cli.invoke(heads, args, obj=pyramid_config)
     assert result.exit_code == 0
-    assert alembic_heads.calls == [pretend.call(alembic_config, **ekwargs)]
+    alembic_heads.assert_called_once_with(alembic_config, **ekwargs)
 
 
-def test_history_command(monkeypatch, cli, pyramid_config):
-    alembic_history = pretend.call_recorder(lambda config, range: None)
-    monkeypatch.setattr(alembic.command, "history", alembic_history)
+def test_history_command(mocker, cli, pyramid_config):
+    alembic_history = mocker.patch.object(alembic.command, "history", autospec=True)
 
-    alembic_config = pretend.stub(attributes={})
+    alembic_config = mocker.sentinel.alembic_config
     pyramid_config.alembic_config = lambda: alembic_config
-
-    connection = pretend.stub(
-        __enter__=lambda: connection,
-        __exit__=lambda *a, **k: None,
-        execute=pretend.call_recorder(lambda sql: None),
-    )
-    engine = pretend.stub(begin=lambda: connection)
-    pyramid_config.registry["sqlalchemy.engine"] = engine
 
     result = cli.invoke(history, ["foo:bar"], obj=pyramid_config)
     assert result.exit_code == 0
-    assert alembic_history.calls == [pretend.call(alembic_config, "foo:bar")]
+    alembic_history.assert_called_once_with(alembic_config, "foo:bar")
 
 
 @pytest.mark.parametrize(
@@ -142,26 +96,15 @@ def test_history_command(monkeypatch, cli, pyramid_config):
         ),
     ],
 )
-def test_merge_command(monkeypatch, cli, pyramid_config, args, eargs, ekwargs):
-    alembic_merge = pretend.call_recorder(
-        lambda config, revisions, message, branch_label: None
-    )
-    monkeypatch.setattr(alembic.command, "merge", alembic_merge)
+def test_merge_command(mocker, cli, pyramid_config, args, eargs, ekwargs):
+    alembic_merge = mocker.patch.object(alembic.command, "merge", autospec=True)
 
-    alembic_config = pretend.stub(attributes={})
+    alembic_config = mocker.sentinel.alembic_config
     pyramid_config.alembic_config = lambda: alembic_config
-
-    connection = pretend.stub(
-        __enter__=lambda: connection,
-        __exit__=lambda *a, **k: None,
-        execute=pretend.call_recorder(lambda sql: None),
-    )
-    engine = pretend.stub(begin=lambda: connection)
-    pyramid_config.registry["sqlalchemy.engine"] = engine
 
     result = cli.invoke(merge, args, obj=pyramid_config)
     assert result.exit_code == 0
-    assert alembic_merge.calls == [pretend.call(alembic_config, *eargs, **ekwargs)]
+    alembic_merge.assert_called_once_with(alembic_config, *eargs, **ekwargs)
 
 
 @pytest.mark.parametrize(
@@ -198,95 +141,56 @@ def test_merge_command(monkeypatch, cli, pyramid_config, args, eargs, ekwargs):
         ),
     ],
 )
-def test_revision_command(monkeypatch, cli, pyramid_config, args, ekwargs):
-    alembic_revision = pretend.call_recorder(
-        lambda config, message, autogenerate, head, splice, branch_label: None
-    )
-    monkeypatch.setattr(alembic.command, "revision", alembic_revision)
+def test_revision_command(mocker, cli, pyramid_config, args, ekwargs):
+    alembic_revision = mocker.patch.object(alembic.command, "revision", autospec=True)
 
-    alembic_config = pretend.stub(attributes={})
+    alembic_config = mocker.sentinel.alembic_config
     pyramid_config.alembic_config = lambda: alembic_config
-
-    connection = pretend.stub(
-        __enter__=lambda: connection,
-        __exit__=lambda *a, **k: None,
-        execute=pretend.call_recorder(lambda sql: None),
-    )
-    engine = pretend.stub(begin=lambda: connection)
-    pyramid_config.registry["sqlalchemy.engine"] = engine
 
     result = cli.invoke(revision, args, obj=pyramid_config)
     assert result.exit_code == 0
-    assert alembic_revision.calls == [pretend.call(alembic_config, **ekwargs)]
+    alembic_revision.assert_called_once_with(alembic_config, **ekwargs)
 
 
-def test_show_command(monkeypatch, cli, pyramid_config):
-    alembic_show = pretend.call_recorder(lambda config, revision: None)
-    monkeypatch.setattr(alembic.command, "show", alembic_show)
+def test_show_command(mocker, cli, pyramid_config):
+    alembic_show = mocker.patch.object(alembic.command, "show", autospec=True)
 
-    alembic_config = pretend.stub(attributes={})
+    alembic_config = mocker.sentinel.alembic_config
     pyramid_config.alembic_config = lambda: alembic_config
-
-    connection = pretend.stub(
-        __enter__=lambda: connection,
-        __exit__=lambda *a, **k: None,
-        execute=pretend.call_recorder(lambda sql: None),
-    )
-    engine = pretend.stub(begin=lambda: connection)
-    pyramid_config.registry["sqlalchemy.engine"] = engine
 
     result = cli.invoke(show, ["foo"], obj=pyramid_config)
     assert result.exit_code == 0
-    assert alembic_show.calls == [pretend.call(alembic_config, "foo")]
+    alembic_show.assert_called_once_with(alembic_config, "foo")
 
 
-def test_stamp_command(monkeypatch, cli, pyramid_config):
-    alembic_stamp = pretend.call_recorder(lambda config, revision: None)
-    monkeypatch.setattr(alembic.command, "stamp", alembic_stamp)
+def test_stamp_command(mocker, cli, pyramid_config):
+    alembic_stamp = mocker.patch.object(alembic.command, "stamp", autospec=True)
 
-    alembic_config = pretend.stub(attributes={})
+    alembic_config = mocker.sentinel.alembic_config
     pyramid_config.alembic_config = lambda: alembic_config
-
-    connection = pretend.stub(
-        __enter__=lambda: connection,
-        __exit__=lambda *a, **k: None,
-        execute=pretend.call_recorder(lambda sql: None),
-    )
-    engine = pretend.stub(begin=lambda: connection)
-    pyramid_config.registry["sqlalchemy.engine"] = engine
 
     result = cli.invoke(stamp, ["foo"], obj=pyramid_config)
     assert result.exit_code == 0
-    assert alembic_stamp.calls == [pretend.call(alembic_config, "foo")]
+    alembic_stamp.assert_called_once_with(alembic_config, "foo")
 
 
-def test_upgrade_command(monkeypatch, cli, pyramid_config):
-    alembic_upgrade = pretend.call_recorder(lambda config, revision, sql: None)
-    monkeypatch.setattr(alembic.command, "upgrade", alembic_upgrade)
+def test_upgrade_command(mocker, cli, pyramid_config):
+    alembic_upgrade = mocker.patch.object(alembic.command, "upgrade", autospec=True)
 
-    alembic_config = pretend.stub(attributes={})
+    alembic_config = mocker.sentinel.alembic_config
     pyramid_config.alembic_config = lambda: alembic_config
-
-    connection = pretend.stub(
-        __enter__=lambda: connection,
-        __exit__=lambda *a, **k: None,
-        execute=pretend.call_recorder(lambda sql: None),
-    )
-    engine = pretend.stub(begin=lambda: connection)
-    pyramid_config.registry["sqlalchemy.engine"] = engine
 
     result = cli.invoke(upgrade, ["foo"], obj=pyramid_config)
     assert result.exit_code == 0
-    assert alembic_upgrade.calls == [pretend.call(alembic_config, "foo", sql=False)]
+    alembic_upgrade.assert_called_once_with(alembic_config, "foo", sql=False)
 
 
-def test_check_command(monkeypatch, cli, pyramid_config):
-    alembic_check = pretend.call_recorder(lambda config: None)
-    monkeypatch.setattr(alembic.command, "check", alembic_check)
+def test_check_command(mocker, cli, pyramid_config):
+    alembic_check = mocker.patch.object(alembic.command, "check", autospec=True)
 
-    alembic_config = pretend.stub(attributes={})
+    alembic_config = mocker.sentinel.alembic_config
     pyramid_config.alembic_config = lambda: alembic_config
 
     result = cli.invoke(check, obj=pyramid_config)
     assert result.exit_code == 0
-    assert alembic_check.calls == [pretend.call(alembic_config)]
+    alembic_check.assert_called_once_with(alembic_config)

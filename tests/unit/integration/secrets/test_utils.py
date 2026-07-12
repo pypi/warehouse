@@ -1,16 +1,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import json
 import time
-import uuid
 
-import pretend
 import pytest
 import requests
+import responses
 
+from tests.common.db.accounts import UserFactory
 from warehouse import integrations
 from warehouse.events.tags import EventTag
-from warehouse.integrations.secrets import tasks, utils
+from warehouse.integrations.secrets import utils
+from warehouse.macaroons import caveats
 
 
 def test_disclosure_origin_serialization(someorigin):
@@ -108,8 +108,8 @@ def test_token_leak_disclosure_request_from_api_record(source):
 
 
 class TestGenericTokenScanningPayloadVerifier:
-    def test_init(self, metrics, someorigin):
-        session = pretend.stub()
+    def test_init(self, metrics, someorigin, mocker):
+        session = mocker.sentinel.session
         token = "api_token"
         url = "http://foo"
         cache = integrations.PublicKeysCache(cache_time=12)
@@ -129,7 +129,8 @@ class TestGenericTokenScanningPayloadVerifier:
         assert generic_verifier._api_url == url
         assert generic_verifier._public_keys_cache is cache
 
-    def test_verify_cache_miss(self, metrics, someorigin):
+    @responses.activate
+    def test_verify_cache_miss(self, metrics, someorigin, mocker):
         # Example taken from
         # https://gist.github.com/ewjoachim/7dde11c31d9686ed6b4431c3ca166da2
         meta_payload = {
@@ -145,15 +146,12 @@ class TestGenericTokenScanningPayloadVerifier:
                 }
             ]
         }
-        response = pretend.stub(
-            json=lambda: meta_payload, raise_for_status=lambda: None
-        )
-        session = pretend.stub(get=lambda *a, **k: response)
+        responses.add(responses.GET, "http://foo", json=meta_payload)
         cache = integrations.PublicKeysCache(cache_time=12)
         generic_verifier = utils.GenericTokenScanningPayloadVerifier(
             origin=someorigin,
             api_url="http://foo",
-            session=session,
+            session=requests.Session(),
             metrics=metrics,
             api_token="api-token",
             public_keys_cache=cache,
@@ -174,13 +172,13 @@ class TestGenericTokenScanningPayloadVerifier:
             is True
         )
 
-        assert metrics.increment.calls == [
-            pretend.call("warehouse.token_leak.someorigin.auth.cache.miss"),
-            pretend.call("warehouse.token_leak.someorigin.auth.success"),
+        assert metrics.increment.call_args_list == [
+            mocker.call("warehouse.token_leak.someorigin.auth.cache.miss"),
+            mocker.call("warehouse.token_leak.someorigin.auth.success"),
         ]
 
-    def test_verify_cache_hit(self, metrics, someorigin):
-        session = pretend.stub()
+    def test_verify_cache_hit(self, metrics, someorigin, mocker):
+        session = mocker.sentinel.session
         cache = integrations.PublicKeysCache(cache_time=12)
         cache.cached_at = time.time()
         cache.cache = [
@@ -218,55 +216,58 @@ class TestGenericTokenScanningPayloadVerifier:
             is True
         )
 
-        assert metrics.increment.calls == [
-            pretend.call("warehouse.token_leak.someorigin.auth.cache.hit"),
-            pretend.call("warehouse.token_leak.someorigin.auth.success"),
+        assert metrics.increment.call_args_list == [
+            mocker.call("warehouse.token_leak.someorigin.auth.cache.hit"),
+            mocker.call("warehouse.token_leak.someorigin.auth.success"),
         ]
 
-    def test_verify_error(self, metrics, someorigin):
+    def test_verify_error(self, metrics, someorigin, mocker):
         cache = integrations.PublicKeysCache(cache_time=12)
         generic_verifier = utils.GenericTokenScanningPayloadVerifier(
             origin=someorigin,
             api_url="http://foo",
-            session=pretend.stub(),
+            session=mocker.sentinel.session,
             metrics=metrics,
             api_token="api-token",
             public_keys_cache=cache,
         )
-        generic_verifier.retrieve_public_key_payload = pretend.raiser(
-            integrations.InvalidPayloadSignatureError("Bla", "bla")
+        mocker.patch.object(
+            generic_verifier,
+            "retrieve_public_key_payload",
+            side_effect=integrations.InvalidPayloadSignatureError("Bla", "bla"),
         )
 
         assert generic_verifier.verify(payload={}, key_id="a", signature="a") is False
 
-        assert metrics.increment.calls == [
-            pretend.call("warehouse.token_leak.someorigin.auth.cache.miss"),
-            pretend.call("warehouse.token_leak.someorigin.auth.error.bla"),
+        assert metrics.increment.call_args_list == [
+            mocker.call("warehouse.token_leak.someorigin.auth.cache.miss"),
+            mocker.call("warehouse.token_leak.someorigin.auth.error.bla"),
         ]
 
-    def test_headers_auth_no_token(self, someorigin):
+    def test_headers_auth_no_token(self, someorigin, mocker):
         headers = utils.GenericTokenScanningPayloadVerifier(
             origin=someorigin,
             api_url="http://foo",
-            session=pretend.stub(),
-            metrics=pretend.stub(),
+            session=mocker.sentinel.session,
+            metrics=mocker.sentinel.metrics,
             api_token=None,
-            public_keys_cache=pretend.stub(),
+            public_keys_cache=mocker.sentinel.cache,
         )._headers_auth()
         assert headers == {}
 
-    def test_headers_auth_token(self, someorigin):
+    def test_headers_auth_token(self, someorigin, mocker):
         headers = utils.GenericTokenScanningPayloadVerifier(
             origin=someorigin,
             api_url="http://foo",
-            session=pretend.stub(),
-            metrics=pretend.stub(),
+            session=mocker.sentinel.session,
+            metrics=mocker.sentinel.metrics,
             api_token="api-token",
-            public_keys_cache=pretend.stub(),
+            public_keys_cache=mocker.sentinel.cache,
         )._headers_auth()
         assert headers == {"Authorization": "token api-token"}
 
-    def test_retrieve_public_key_payload(self, metrics, someorigin):
+    @responses.activate
+    def test_retrieve_public_key_payload(self, metrics, someorigin, mocker):
         meta_payload = {
             "public_keys": [
                 {
@@ -280,73 +281,61 @@ class TestGenericTokenScanningPayloadVerifier:
                 }
             ]
         }
-        response = pretend.stub(
-            json=lambda: meta_payload, raise_for_status=lambda: None
-        )
-        session = pretend.stub(get=pretend.call_recorder(lambda *a, **k: response))
+        responses.add(responses.GET, "http://foo", json=meta_payload)
 
         generic_verifier = utils.GenericTokenScanningPayloadVerifier(
             origin=someorigin,
             api_url="http://foo",
-            session=session,
+            session=requests.Session(),
             metrics=metrics,
             api_token="api-token",
-            public_keys_cache=pretend.stub(),
+            public_keys_cache=mocker.sentinel.cache,
         )
         assert generic_verifier.retrieve_public_key_payload() == meta_payload
-        assert session.get.calls == [
-            pretend.call(
-                "http://foo",
-                headers={"Authorization": "token api-token"},
-            )
-        ]
+        assert len(responses.calls) == 1
+        assert responses.calls[0].request.url == "http://foo/"
+        assert responses.calls[0].request.headers["Authorization"] == "token api-token"
 
-    def test_get_cached_public_key_cache_hit(self, someorigin):
-        session = pretend.stub()
+    def test_get_cached_public_key_cache_hit(self, someorigin, mocker):
+        session = mocker.sentinel.session
         cache = integrations.PublicKeysCache(cache_time=12)
-        cache_value = pretend.stub()
+        cache_value = mocker.sentinel.cache_value
         cache.set(now=time.time(), value=cache_value)
 
         generic_verifier = utils.GenericTokenScanningPayloadVerifier(
             origin=someorigin,
             api_url="http://foo",
             session=session,
-            metrics=pretend.stub(),
+            metrics=mocker.sentinel.metrics,
             public_keys_cache=cache,
         )
 
         assert generic_verifier._get_cached_public_keys() is cache_value
 
-    def test_get_cached_public_key_cache_miss_no_cache(self, someorigin):
-        session = pretend.stub()
+    def test_get_cached_public_key_cache_miss_no_cache(self, someorigin, mocker):
+        session = mocker.sentinel.session
         cache = integrations.PublicKeysCache(cache_time=12)
 
         generic_verifier = utils.GenericTokenScanningPayloadVerifier(
             origin=someorigin,
             api_url="http://foo",
             session=session,
-            metrics=pretend.stub(),
+            metrics=mocker.sentinel.metrics,
             public_keys_cache=cache,
         )
 
         with pytest.raises(integrations.CacheMissError):
             generic_verifier._get_cached_public_keys()
 
-    def test_retrieve_public_key_payload_http_error(self, someorigin):
-        response = pretend.stub(
-            status_code=418,
-            text="I'm a teapot",
-            raise_for_status=pretend.raiser(requests.HTTPError),
-        )
-        session = pretend.stub(
-            get=lambda *a, **k: response,
-        )
+    @responses.activate
+    def test_retrieve_public_key_payload_http_error(self, someorigin, mocker):
+        responses.add(responses.GET, "http://foo", status=418, body="I'm a teapot")
         generic_verifier = utils.GenericTokenScanningPayloadVerifier(
             origin=someorigin,
             api_url="http://foo",
-            session=session,
-            metrics=pretend.stub(),
-            public_keys_cache=pretend.stub(),
+            session=requests.Session(),
+            metrics=mocker.sentinel.metrics,
+            public_keys_cache=mocker.sentinel.cache,
         )
         with pytest.raises(utils.GenericPublicKeyMetaAPIError) as exc:
             generic_verifier.retrieve_public_key_payload()
@@ -354,19 +343,15 @@ class TestGenericTokenScanningPayloadVerifier:
         assert str(exc.value) == "Invalid response code 418: I'm a teapot"
         assert exc.value.reason == "public_key_api.status.418"
 
-    def test_retrieve_public_key_payload_json_error(self, someorigin):
-        response = pretend.stub(
-            text="Still a non-json teapot",
-            json=pretend.raiser(json.JSONDecodeError("", "", 3)),
-            raise_for_status=lambda: None,
-        )
-        session = pretend.stub(get=lambda *a, **k: response)
+    @responses.activate
+    def test_retrieve_public_key_payload_json_error(self, someorigin, mocker):
+        responses.add(responses.GET, "http://foo", body="Still a non-json teapot")
         generic_verifier = utils.GenericTokenScanningPayloadVerifier(
             origin=someorigin,
             api_url="http://foo",
-            session=session,
-            metrics=pretend.stub(),
-            public_keys_cache=pretend.stub(),
+            session=requests.Session(),
+            metrics=mocker.sentinel.metrics,
+            public_keys_cache=mocker.sentinel.cache,
         )
         with pytest.raises(utils.GenericPublicKeyMetaAPIError) as exc:
             generic_verifier.retrieve_public_key_payload()
@@ -374,15 +359,16 @@ class TestGenericTokenScanningPayloadVerifier:
         assert str(exc.value) == "Non-JSON response received: Still a non-json teapot"
         assert exc.value.reason == "public_key_api.invalid_json"
 
-    def test_retrieve_public_key_payload_connection_error(self, someorigin):
-        session = pretend.stub(get=pretend.raiser(requests.ConnectionError))
+    @responses.activate
+    def test_retrieve_public_key_payload_connection_error(self, someorigin, mocker):
+        responses.add(responses.GET, "http://foo", body=requests.ConnectionError())
 
         generic_verifier = utils.GenericTokenScanningPayloadVerifier(
             origin=someorigin,
             api_url="http://foo",
-            session=session,
-            metrics=pretend.stub(),
-            public_keys_cache=pretend.stub(),
+            session=requests.Session(),
+            metrics=mocker.sentinel.metrics,
+            public_keys_cache=mocker.sentinel.cache,
         )
 
         with pytest.raises(utils.GenericPublicKeyMetaAPIError) as exc:
@@ -391,7 +377,7 @@ class TestGenericTokenScanningPayloadVerifier:
         assert str(exc.value) == "Could not connect to SomeOrigin"
         assert exc.value.reason == "public_key_api.network_error"
 
-    def test_extract_public_keys(self, someorigin):
+    def test_extract_public_keys(self, someorigin, mocker):
         meta_payload = {
             "public_keys": [
                 {
@@ -409,8 +395,8 @@ class TestGenericTokenScanningPayloadVerifier:
         generic_verifier = utils.GenericTokenScanningPayloadVerifier(
             origin=someorigin,
             api_url="http://foo",
-            session=pretend.stub(),
-            metrics=pretend.stub(),
+            session=mocker.sentinel.session,
+            metrics=mocker.sentinel.metrics,
             public_keys_cache=cache,
         )
 
@@ -448,13 +434,13 @@ class TestGenericTokenScanningPayloadVerifier:
             ),
         ],
     )
-    def test_extract_public_keys_error(self, payload, expected, someorigin):
+    def test_extract_public_keys_error(self, payload, expected, someorigin, mocker):
         cache = integrations.PublicKeysCache(cache_time=12)
         generic_verifier = utils.GenericTokenScanningPayloadVerifier(
             origin=someorigin,
             api_url="http://foo",
-            session=pretend.stub(),
-            metrics=pretend.stub(),
+            session=mocker.sentinel.session,
+            metrics=mocker.sentinel.metrics,
             public_keys_cache=cache,
         )
 
@@ -465,13 +451,13 @@ class TestGenericTokenScanningPayloadVerifier:
         assert str(exc.value) == expected
         assert cache.cache is None
 
-    def test_check_public_key(self, someorigin):
+    def test_check_public_key(self, someorigin, mocker):
         generic_verifier = utils.GenericTokenScanningPayloadVerifier(
             origin=someorigin,
             api_url="http://foo",
-            session=pretend.stub(),
-            metrics=pretend.stub(),
-            public_keys_cache=pretend.stub(),
+            session=mocker.sentinel.session,
+            metrics=mocker.sentinel.metrics,
+            public_keys_cache=mocker.sentinel.cache,
         )
 
         keys = [
@@ -480,13 +466,13 @@ class TestGenericTokenScanningPayloadVerifier:
         ]
         assert generic_verifier._check_public_key(public_keys=keys, key_id="c") == "d"
 
-    def test_check_public_key_error(self, someorigin):
+    def test_check_public_key_error(self, someorigin, mocker):
         generic_verifier = utils.GenericTokenScanningPayloadVerifier(
             origin=someorigin,
             api_url="http://foo",
-            session=pretend.stub(),
-            metrics=pretend.stub(),
-            public_keys_cache=pretend.stub(),
+            session=mocker.sentinel.session,
+            metrics=mocker.sentinel.metrics,
+            public_keys_cache=mocker.sentinel.cache,
         )
 
         with pytest.raises(integrations.InvalidPayloadSignatureError) as exc:
@@ -506,13 +492,13 @@ class TestGenericTokenScanningPayloadVerifier:
             )
         ],
     )
-    def test_check_signature(self, origin, payload):
+    def test_check_signature(self, origin, payload, mocker):
         generic_verifier = utils.GenericTokenScanningPayloadVerifier(
             origin=origin,
             api_url="http://foo",
-            session=pretend.stub(),
-            metrics=pretend.stub(),
-            public_keys_cache=pretend.stub(),
+            session=mocker.sentinel.session,
+            metrics=mocker.sentinel.metrics,
+            public_keys_cache=mocker.sentinel.cache,
         )
         public_key = (
             "-----BEGIN PUBLIC KEY-----\n"
@@ -543,13 +529,13 @@ class TestGenericTokenScanningPayloadVerifier:
             )
         ],
     )
-    def test_check_signature_invalid_signature(self, origin, payload):
+    def test_check_signature_invalid_signature(self, origin, payload, mocker):
         generic_verifier = utils.GenericTokenScanningPayloadVerifier(
             origin=origin,
             api_url="http://foo",
-            session=pretend.stub(),
-            metrics=pretend.stub(),
-            public_keys_cache=pretend.stub(),
+            session=mocker.sentinel.session,
+            metrics=mocker.sentinel.metrics,
+            public_keys_cache=mocker.sentinel.cache,
         )
         public_key = (
             "-----BEGIN PUBLIC KEY-----\n"
@@ -571,13 +557,13 @@ class TestGenericTokenScanningPayloadVerifier:
         assert str(exc.value) == "Invalid signature"
         assert exc.value.reason == "invalid_signature"
 
-    def test_check_signature_invalid_crypto(self, someorigin):
+    def test_check_signature_invalid_crypto(self, someorigin, mocker):
         generic_verifier = utils.GenericTokenScanningPayloadVerifier(
             origin=someorigin,
             api_url="http://foo",
-            session=pretend.stub(),
-            metrics=pretend.stub(),
-            public_keys_cache=pretend.stub(),
+            session=mocker.sentinel.session,
+            metrics=mocker.sentinel.metrics,
+            public_keys_cache=mocker.sentinel.cache,
         )
         public_key = ""
         signature = ""
@@ -593,101 +579,95 @@ class TestGenericTokenScanningPayloadVerifier:
         assert exc.value.reason == "invalid_crypto"
 
 
-def test_analyze_disclosure(monkeypatch, metrics, someorigin):
-    user_id = uuid.UUID(bytes=b"0" * 16)
-    user = pretend.stub(
-        id=user_id,
-        record_event=pretend.call_recorder(lambda *a, **kw: None),
+def test_analyze_disclosure(db_request, mocker, macaroon_service, metrics, someorigin):
+    user = UserFactory.create()
+    serialized, macaroon = macaroon_service.create_macaroon(
+        "fake location",
+        "foo",
+        [caveats.RequestUser(user_id=str(user.id))],
+        user_id=user.id,
     )
-    database_macaroon = pretend.stub(
-        user=user,
-        id=12,
-        permissions_caveat={"permissions": "user", "version": 1},
-        caveats=[],
-        description="foo",
-    )
+    record_event = mocker.patch.object(user, "record_event", autospec=True)
 
-    find = pretend.call_recorder(lambda *a, **kw: database_macaroon)
-    delete = pretend.call_recorder(lambda *a, **kw: None)
     svc = {
         utils.IMetricsService: metrics,
-        utils.IMacaroonService: pretend.stub(
-            find_from_raw=find, delete_macaroon=delete
-        ),
+        utils.IMacaroonService: macaroon_service,
     }
+    db_request.find_service = lambda iface, context: svc[iface]
 
-    request = pretend.stub(
-        find_service=lambda iface, context: svc[iface], remote_addr="0.0.0.0"
+    send_email = mocker.patch.object(
+        utils, "send_token_compromised_email_leak", autospec=True
     )
 
-    send_email = pretend.call_recorder(lambda *a, **kw: None)
-    monkeypatch.setattr(utils, "send_token_compromised_email_leak", send_email)
-
     utils.analyze_disclosure(
-        request=request,
+        request=db_request,
         disclosure_record={
             "type": "pypi_api_token",
-            "token": "pypi-1234",
+            "token": serialized,
             "url": "http://example.com",
         },
         origin=someorigin,
     )
-    assert metrics.increment.calls == [
-        pretend.call("warehouse.token_leak.someorigin.received"),
-        pretend.call("warehouse.token_leak.someorigin.valid"),
-        pretend.call("warehouse.token_leak.someorigin.processed"),
+    assert metrics.increment.call_args_list == [
+        mocker.call("warehouse.token_leak.someorigin.received"),
+        mocker.call("warehouse.token_leak.someorigin.valid"),
+        mocker.call("warehouse.token_leak.someorigin.processed"),
     ]
-    assert send_email.calls == [
-        pretend.call(request, user, public_url="http://example.com", origin=someorigin)
-    ]
-    assert find.calls == [pretend.call(raw_macaroon="pypi-1234")]
-    assert delete.calls == [pretend.call(macaroon_id="12")]
-    assert user.record_event.calls == [
-        pretend.call(
-            tag=EventTag.Account.APITokenRemovedLeak,
-            request=request,
-            additional={
-                "macaroon_id": "12",
-                "public_url": "http://example.com",
-                "permissions": "user",
-                "caveats": [],
-                "description": "foo",
-                "origin": "SomeOrigin",
-            },
-        )
-    ]
+    send_email.assert_called_once_with(
+        db_request, user, public_url="http://example.com", origin=someorigin
+    )
+    record_event.assert_called_once_with(
+        tag=EventTag.Account.APITokenRemovedLeak,
+        request=db_request,
+        additional={
+            "macaroon_id": str(macaroon.id),
+            "public_url": "http://example.com",
+            "permissions": "user",
+            "caveats": macaroon.caveats,
+            "description": "foo",
+            "origin": "SomeOrigin",
+        },
+    )
+    # The macaroon was really deleted from the database.
+    with pytest.raises(utils.InvalidMacaroonError):
+        macaroon_service.find_from_raw(serialized)
 
 
-def test_analyze_disclosure_wrong_record(metrics, someorigin):
+def test_analyze_disclosure_wrong_record(
+    db_request, mocker, macaroon_service, metrics, someorigin
+):
     svc = {
         utils.IMetricsService: metrics,
-        utils.IMacaroonService: pretend.stub(),
+        utils.IMacaroonService: macaroon_service,
     }
 
-    request = pretend.stub(find_service=lambda iface, context: svc[iface])
+    db_request.find_service = lambda iface, context: svc[iface]
 
     utils.analyze_disclosure(
-        request=request,
+        request=db_request,
         disclosure_record={},
         origin=someorigin,
     )
-    assert metrics.increment.calls == [
-        pretend.call("warehouse.token_leak.someorigin.received"),
-        pretend.call("warehouse.token_leak.someorigin.error.format"),
+    assert metrics.increment.call_args_list == [
+        mocker.call("warehouse.token_leak.someorigin.received"),
+        mocker.call("warehouse.token_leak.someorigin.error.format"),
     ]
 
 
-def test_analyze_disclosure_invalid_macaroon(metrics, someorigin):
-    find = pretend.raiser(utils.InvalidMacaroonError("Bla", "bla"))
+def test_analyze_disclosure_invalid_macaroon(
+    db_request, mocker, macaroon_service, metrics, someorigin
+):
     svc = {
         utils.IMetricsService: metrics,
-        utils.IMacaroonService: pretend.stub(find_from_raw=find),
+        utils.IMacaroonService: macaroon_service,
     }
 
-    request = pretend.stub(find_service=lambda iface, context: svc[iface])
+    db_request.find_service = lambda iface, context: svc[iface]
 
+    # A token that is not a valid serialized macaroon makes the real
+    # macaroon service raise InvalidMacaroonError.
     utils.analyze_disclosure(
-        request=request,
+        request=db_request,
         disclosure_record={
             "type": "pypi_api_token",
             "token": "pypi-1234",
@@ -695,35 +675,37 @@ def test_analyze_disclosure_invalid_macaroon(metrics, someorigin):
         },
         origin=someorigin,
     )
-    assert metrics.increment.calls == [
-        pretend.call("warehouse.token_leak.someorigin.received"),
-        pretend.call("warehouse.token_leak.someorigin.error.invalid"),
+    assert metrics.increment.call_args_list == [
+        mocker.call("warehouse.token_leak.someorigin.received"),
+        mocker.call("warehouse.token_leak.someorigin.error.invalid"),
     ]
 
 
-def test_analyze_disclosure_unknown_error(metrics, monkeypatch, someorigin):
-    request = pretend.stub(find_service=lambda *a, **k: metrics)
+def test_analyze_disclosure_unknown_error(pyramid_request, mocker, metrics, someorigin):
+    pyramid_request.find_service = lambda *a, **k: metrics
 
     class SpecificError(Exception):
         pass
 
-    monkeypatch.setattr(utils, "_analyze_disclosure", pretend.raiser(SpecificError))
+    mocker.patch.object(
+        utils, "_analyze_disclosure", autospec=True, side_effect=SpecificError
+    )
 
     with pytest.raises(SpecificError):
         utils.analyze_disclosure(
-            request=request,
+            request=pyramid_request,
             disclosure_record={},
             origin=someorigin,
         )
-    assert metrics.increment.calls == [
-        pretend.call("warehouse.token_leak.someorigin.error.unknown"),
+    assert metrics.increment.call_args_list == [
+        mocker.call("warehouse.token_leak.someorigin.error.unknown"),
     ]
 
 
-def test_analyze_disclosures_wrong_type(metrics, someorigin):
+def test_analyze_disclosures_wrong_type(mocker, metrics, someorigin):
     with pytest.raises(utils.InvalidTokenLeakRequestError) as exc:
         utils.analyze_disclosures(
-            request=pretend.stub(),
+            request=mocker.sentinel.request,
             disclosure_records={},
             origin=someorigin,
             metrics=metrics,
@@ -733,21 +715,19 @@ def test_analyze_disclosures_wrong_type(metrics, someorigin):
     assert exc.value.reason == "format"
 
 
-def test_analyze_disclosures_raise(metrics, monkeypatch, someorigin):
-    task = pretend.stub(delay=pretend.call_recorder(lambda *a, **k: None))
-    request = pretend.stub(task=lambda x: task)
-
-    monkeypatch.setattr(tasks, "analyze_disclosure_task", task)
+def test_analyze_disclosures_raise(pyramid_request, mocker, metrics, someorigin):
+    delay = mocker.Mock()
+    pyramid_request.task = mocker.Mock(return_value=mocker.Mock(delay=delay))
 
     utils.analyze_disclosures(
-        request=request,
+        request=pyramid_request,
         disclosure_records=[1, 2, 3],
         origin=someorigin,
         metrics=metrics,
     )
 
-    assert task.delay.calls == [
-        pretend.call(disclosure_record=1, origin=someorigin.to_dict()),
-        pretend.call(disclosure_record=2, origin=someorigin.to_dict()),
-        pretend.call(disclosure_record=3, origin=someorigin.to_dict()),
+    assert delay.call_args_list == [
+        mocker.call(disclosure_record=1, origin=someorigin.to_dict()),
+        mocker.call(disclosure_record=2, origin=someorigin.to_dict()),
+        mocker.call(disclosure_record=3, origin=someorigin.to_dict()),
     ]
