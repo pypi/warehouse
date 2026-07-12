@@ -9,8 +9,10 @@ import pretend
 import pytest
 
 from warehouse.admin.views import helpscout as views
+from warehouse.organizations.models import OrganizationRoleType
 
 from ....common.db.accounts import EmailFactory
+from ....common.db.organizations import OrganizationRoleFactory
 
 
 class TestHelpscoutApp:
@@ -131,3 +133,44 @@ class TestHelpscoutApp:
             pretend.call("admin.user.detail", username=email.user.username),
         ]
         assert result["html"][:26] == '<div class="c-sb-section">'
+
+    def test_valid_auth_renders_organizations(self, db_request):
+        email = EmailFactory.create(email="rza@wutang.com")
+        role = OrganizationRoleFactory.create(
+            user=email.user, role_name=OrganizationRoleType.Member
+        )
+        # A separate owner of the same organization, surfaced as the org admin.
+        OrganizationRoleFactory.create(
+            organization=role.organization, role_name=OrganizationRoleType.Owner
+        )
+
+        db_request.registry.settings["admin.helpscout.app_secret"] = "s3cr3t"
+        db_request.json_body = {"customer": {"email": "rza@wutang.com"}}
+        db_request.body = json.dumps(db_request.json_body).encode()
+        db_request.headers["X-HelpScout-Signature"] = base64.b64encode(
+            hmac.digest(
+                db_request.registry.settings["admin.helpscout.app_secret"].encode(),
+                db_request.body,
+                hashlib.sha1,
+            )
+        )
+        db_request.route_url = pretend.call_recorder(
+            lambda *a, **kw: "http://example.com"
+        )
+        result = views.helpscout(db_request)
+
+        owner = role.organization.owners[0]
+        assert role.organization.name in result["html"]
+        assert "Member" in result["html"]
+        assert "Owners:" in result["html"]
+        assert owner.username in result["html"]
+        assert (
+            pretend.call("organizations.profile", organization=role.organization.name)
+            in db_request.route_url.calls
+        )
+        assert (
+            pretend.call(
+                "admin.organization.detail", organization_id=role.organization.id
+            )
+            in db_request.route_url.calls
+        )
