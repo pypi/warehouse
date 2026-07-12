@@ -41,9 +41,38 @@ from warehouse.organizations.models import (
     OrganizationRoleType,
     OrganizationType,
 )
+from warehouse.packaging.models import Project, Release
 from warehouse.subscriptions.interfaces import IBillingService
-from warehouse.subscriptions.models import StripeSubscription
+from warehouse.subscriptions.models import (
+    ACTIVE_SUBSCRIPTION_STATUSES,
+    StripeSubscription,
+)
 from warehouse.utils.paginate import paginate_url_factory
+
+ACTIVE_RELEASE_WINDOW = datetime.timedelta(days=365)
+
+
+def _organization_activity_predicates():
+    """activity-tier predicates shared by the list filter and detail view."""
+    release_cutoff = datetime.datetime.now(datetime.UTC) - ACTIVE_RELEASE_WINDOW
+    has_projects = Organization.projects.any()
+    has_recent_release = Organization.projects.any(
+        Project.releases.any(Release.created >= release_cutoff)
+    )
+    return has_projects, has_recent_release
+
+
+def _organization_activity(request, organization):
+    """activity tier: Inactive / Active / Dormant / Unused."""
+    if not organization.is_active:
+        return "Inactive"
+    has_projects, has_recent_release = _organization_activity_predicates()
+    projects, recent = (
+        request.db.query(has_projects, has_recent_release)
+        .filter(Organization.id == organization.id)
+        .one()
+    )
+    return "Active" if recent else "Dormant" if projects else "Unused"
 
 
 class OrganizationRoleForm(wtforms.Form):
@@ -192,10 +221,13 @@ def organization_list(request):
             # - desc:word
             # - description:word
             # - description:"whole phrase"
-            # - is:active
-            # - is:inactive
             # - type:company
             # - type:community
+            # - activity:active
+            # - activity:dormant
+            # - activity:unused
+            # - activity:inactive
+            # - has:subscription
             try:
                 field, value = term.lower().split(":", 1)
             except ValueError:
@@ -217,17 +249,34 @@ def organization_list(request):
             elif field in {"desc", "description"}:
                 # Add filter for `description` field.
                 filters.append(Organization.description.ilike(f"%{value}%"))
-            elif field == "is":
-                # Add filter for `is_active` field.
-                if "active".startswith(value):
-                    filters.append(Organization.is_active == True)  # noqa: E712
-                elif "inactive".startswith(value):
-                    filters.append(Organization.is_active == False)  # noqa: E712
             elif field == "type":
                 if "company".startswith(value):
                     filters.append(Organization.orgtype == OrganizationType.Company)
                 elif "community".startswith(value):
                     filters.append(Organization.orgtype == OrganizationType.Community)
+            elif field == "activity":
+                has_projects, has_recent_release = _organization_activity_predicates()
+                active = Organization.is_active.is_(True)
+                if "inactive".startswith(value):
+                    filters.append(Organization.is_active.is_(False))
+                elif "active".startswith(value):
+                    filters.extend([active, has_recent_release])
+                elif "dormant".startswith(value):
+                    filters.extend([active, has_projects, ~has_recent_release])
+                elif "unused".startswith(value):
+                    filters.extend([active, ~has_projects])
+            elif field == "has":
+                if "subscription".startswith(value):
+                    filters.extend(
+                        [
+                            Organization.orgtype == OrganizationType.Company,
+                            Organization.subscriptions.any(
+                                StripeSubscription.status.in_(
+                                    ACTIVE_SUBSCRIPTION_STATUSES
+                                )
+                            ),
+                        ]
+                    )
             else:
                 # Add filter for any field.
                 filters.append(
@@ -256,6 +305,8 @@ def organization_list(request):
         items_per_page=25,
         url_maker=paginate_url_factory(request),
     )
+    for organization in organizations:
+        organization.activity = _organization_activity(request, organization)
 
     return {"organizations": organizations, "query": q, "terms": terms}
 
@@ -333,6 +384,7 @@ def organization_detail(request):
 
     return {
         "organization": organization,
+        "activity": _organization_activity(request, organization),
         "get_user": user_service.get_user,
         "form": form,
         "roles": roles,

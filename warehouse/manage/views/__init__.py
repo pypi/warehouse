@@ -1172,8 +1172,20 @@ def manage_projects(request):
     project_invites = [
         (role_invite.project, role_invite.token) for role_invite in project_invites
     ]
+
+    archived_statuses = {LifecycleStatus.Archived, LifecycleStatus.ArchivedNoindex}
+    projects_sorted = sorted(projects, key=_key, reverse=True)
     return {
-        "projects": sorted(projects, key=_key, reverse=True),
+        "projects_active": [
+            project
+            for project in projects_sorted
+            if project.lifecycle_status not in archived_statuses
+        ],
+        "projects_archived": [
+            project
+            for project in projects_sorted
+            if project.lifecycle_status in archived_statuses
+        ],
         "projects_owned": projects_owned,
         "projects_sole_owned": projects_sole_owned,
         "project_invites": project_invites,
@@ -2440,10 +2452,11 @@ def manage_project_history(project, request):
     file_events_query = (
         request.db.query(File.Event)
         .join(File.Event.source)
-        .filter(File.Event.additional["project_id"].astext == str(project.id))
+        .join(File.release)
+        .filter(Release.project_id == project.id)
     )
 
-    events_query = project_events_query.union(file_events_query).order_by(
+    events_query = project_events_query.union_all(file_events_query).order_by(
         Project.Event.time.desc(), File.Event.time.desc()
     )
 

@@ -103,12 +103,6 @@ class _CallRecorder:
     def calls(self):
         return [pretend.call(*c.args, **c.kwargs) for c in self._mock.call_args_list]
 
-    @calls.setter
-    def calls(self, value):
-        # Support the legacy ``recorder.calls = []`` reset idiom.
-        assert value == [], "metrics recorder shim only supports resetting to []"
-        self._mock.reset_mock()
-
     def __getattr__(self, name):
         return getattr(self._mock, name)
 
