@@ -285,11 +285,15 @@
                     {{ "Subscription set to cancel at period end" if event.additional.at_period_end else "Subscription canceled" }}
                     {% if event.additional.canceled_by %}<span class="text-muted">by {{ event.additional.canceled_by }}</span>{% endif %}
                     {% elif event.tag == EventTag.Organization.OrganizationRoleAdd %}
-                    {{ get_user(event.additional.target_user_id).username }} added as {{ event.additional.role_name | lower }}
-                    <span class="text-muted">(seat +1) by {{ get_user(event.additional.submitted_by_user_id).username }}</span>
+                    {% set target_user = get_user(event.additional.target_user_id) %}
+                    {% set submitted_by = get_user(event.additional.submitted_by_user_id) %}
+                    {{ target_user.username if target_user else "[deleted user]" }} added as {{ event.additional.role_name | lower }}
+                    <span class="text-muted">(seat +1) by {{ submitted_by.username if submitted_by else "[deleted user]" }}</span>
                     {% elif event.tag == EventTag.Organization.OrganizationRoleRemove %}
-                    {{ get_user(event.additional.target_user_id).username }} removed as {{ event.additional.role_name | lower }}
-                    <span class="text-muted">(seat −1) by {{ get_user(event.additional.submitted_by_user_id).username }}</span>
+                    {% set target_user = get_user(event.additional.target_user_id) %}
+                    {% set submitted_by = get_user(event.additional.submitted_by_user_id) %}
+                    {{ target_user.username if target_user else "[deleted user]" }} removed as {{ event.additional.role_name | lower }}
+                    <span class="text-muted">(seat −1) by {{ submitted_by.username if submitted_by else "[deleted user]" }}</span>
                     {% endif %}
                   </td>
                 </tr>
