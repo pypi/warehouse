@@ -134,13 +134,13 @@ class TestHelpscoutApp:
         ]
         assert result["html"][:26] == '<div class="c-sb-section">'
 
-    def test_valid_auth_renders_organizations(self, db_request):
+    def test_valid_auth_renders_organizations(self, db_request, mocker):
         email = EmailFactory.create(email="rza@wutang.com")
         role = OrganizationRoleFactory.create(
             user=email.user, role_name=OrganizationRoleType.Member
         )
         # A separate owner of the same organization, surfaced as the org admin.
-        OrganizationRoleFactory.create(
+        owner_role = OrganizationRoleFactory.create(
             organization=role.organization, role_name=OrganizationRoleType.Owner
         )
 
@@ -154,23 +154,20 @@ class TestHelpscoutApp:
                 hashlib.sha1,
             )
         )
+        route_url = mocker.patch.object(
+            db_request, "route_url", return_value="http://example.com"
+        )
+
         result = views.helpscout(db_request)
 
-        owner = role.organization.owners[0]
         html = result["html"]
         assert role.organization.name in html
         assert "Member" in html
         assert "Owners:" in html
-        assert owner.username in html
-        assert (
-            db_request.route_url(
-                "organizations.profile", organization=role.organization.name
-            )
-            in html
+        assert owner_role.user.username in html
+        route_url.assert_any_call(
+            "organizations.profile", organization=role.organization.name
         )
-        assert (
-            db_request.route_url(
-                "admin.organization.detail", organization_id=role.organization.id
-            )
-            in html
+        route_url.assert_any_call(
+            "admin.organization.detail", organization_id=role.organization.id
         )
