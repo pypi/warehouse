@@ -1259,15 +1259,14 @@ class TestManageAccount:
             "Cannot delete account with sole organization ownerships", queue="error"
         )
 
-    def test_delete_account_deactivates_non_good_standing_sole_organizations(
-        self, monkeypatch, db_request, mocker
+    def test_delete_account_blocks_non_good_standing_sole_organizations(
+        self, db_request, mocker
     ):
         user = UserFactory.create()
-        UserFactory.create(username="deleted-user")
 
-        # Company org with no subscription is not in good standing, so the user
-        # cannot reach its management pages to hand it off. It must not block
-        # account deletion; it is deactivated instead of left ownerless.
+        # A Company org with no subscription is not in good standing, but its
+        # owner can still reach the settings page to delete it or hand it off,
+        # so it blocks account deletion like any other sole-owned organization.
         organization = OrganizationFactory.create(
             orgtype=OrganizationType.Company, is_active=True
         )
@@ -1280,30 +1279,29 @@ class TestManageAccount:
         db_request.user = user
         db_request.params = {"confirm_password": user.password}
         db_request.find_service = lambda *a, **kw: mocker.Mock()
+        db_request.session = mocker.Mock()
 
         confirm_password_obj = mocker.Mock(validate=lambda: True)
         mocker.patch.object(
             views, "ConfirmPasswordForm", return_value=confirm_password_obj
         )
-        send_email = mocker.patch.object(views, "send_account_deletion_email")
-        logout_response = mocker.Mock()
-        mocker.patch.object(views, "logout", return_value=logout_response)
+        default_response = mocker.Mock()
+        mocker.patch.object(
+            views.ManageVerifiedAccountViews, "default_response", default_response
+        )
 
         view = views.ManageVerifiedAccountViews(db_request)
 
-        assert view.delete_account() == logout_response
+        assert view.delete_account() == default_response
 
-        db_request.db.flush()
-
-        assert organization.is_active is False
-        assert EventTag.Organization.OrganizationRoleRemove.value in [
-            event.tag for event in organization.events
-        ]
+        db_request.session.flash.assert_called_once_with(
+            "Cannot delete account with sole organization ownerships", queue="error"
+        )
+        assert organization.is_active is True
         assert (
             db_request.db.query(User).filter(User.username == user.username).first()
-            is None
+            is not None
         )
-        send_email.assert_called_once_with(db_request, user)
 
 
 class Test2FA:
