@@ -41,9 +41,12 @@ class TestWarehouseTask:
     def test_call(self, mocker):
         registry = types.SimpleNamespace(settings={"warehouse.ip_salt": "peppa"})
 
+        # get_request() mutates the prepared request, so use a fresh object
+        # rather than a process-global mocker.sentinel.
+        request = types.SimpleNamespace()
         prepared = {
             "registry": registry,
-            "request": mocker.sentinel.request,
+            "request": request,
             "closer": mocker.stub(name="closer"),
         }
         prepare = mocker.patch.object(scripting, "prepare", return_value=prepared)
@@ -57,7 +60,7 @@ class TestWarehouseTask:
 
         assert task() is mocker.sentinel.result
         prepare.assert_called_once_with(registry=registry)
-        runner.assert_called_once_with(mocker.sentinel.request)
+        runner.assert_called_once_with(request)
 
     def test_retry(self, mocker, pyramid_request, metrics):
         class SpecificError(Exception):
@@ -106,8 +109,11 @@ class TestWarehouseTask:
             autospec=True,
             return_value=mocker.sentinel.async_result,
         )
+        # A fresh object rather than mocker.sentinel.request: sentinels are
+        # process-global, so an attribute leaked onto one by another test
+        # would make hasattr(request, "tm") unexpectedly true here.
         get_current_request = mocker.patch.object(
-            tasks, "get_current_request", return_value=mocker.sentinel.request
+            tasks, "get_current_request", return_value=types.SimpleNamespace()
         )
 
         task = tasks.WarehouseTask()
