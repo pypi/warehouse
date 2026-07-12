@@ -249,7 +249,7 @@
               <strong>{% trans %}Maintainer:{% endtrans %}</strong> <a href="mailto:{{ release.maintainer_email|format_email|last }}">{{ release.maintainer or release.maintainer_email|format_email|first }}</a>
             </span>
           </li>
-        {% elif release.maintainer %}
+        {% elif release.maintainer and not release.maintainer_email_verified %}
           <li>
             <span>
               <strong>{% trans %}Maintainer:{% endtrans %}</strong> {{ release.maintainer }}
