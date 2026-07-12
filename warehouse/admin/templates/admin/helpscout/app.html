@@ -73,6 +73,7 @@
     {% endfor %}
   </ul>
 </div>
+</div>
 
 <div class="c-sb-section">
 <div class="c-sb-section__title">
@@ -95,6 +96,7 @@
     {% endfor %}
   </ul>
 </div>
+</div>
 
 <div class="c-sb-section">
 <div class="c-sb-section__title">
@@ -105,9 +107,10 @@
     {% for role in user.organization_roles %}
     <li>
       <a target="_blank" rel="noopener" href="{{ request.route_url('organizations.profile', organization=role.organization.name) }}">{{ role.organization.name }}</a>
-      {% if role.role_name.value == 'Owner' %}<span class="badge green">{{ role.role_name.value }}</span>
-      {% elif role.role_name.value == 'Member' %}<span class="badge pending">{{ role.role_name.value }}</span>
-      {% else %}<span class="badge blue">{{ role.role_name.value }}</span>{% endif %}
+      {% if role.role_name == OrganizationRoleType.Owner %}{% set badge_color = 'green' %}
+      {% elif role.role_name == OrganizationRoleType.Member %}{% set badge_color = 'pending' %}
+      {% else %}{% set badge_color = 'blue' %}{% endif %}
+      <span class="badge {{ badge_color }}">{{ role.role_name.value }}</span>
       <span class="u-pull-right">(<a target="_blank" rel="noopener" href="{{ request.route_url('admin.organization.detail', organization_id=role.organization.id) }}">admin</a>)</span>
       {% set owners = role.organization.owners %}
       {% if owners %}
@@ -119,6 +122,7 @@
     </li>
     {% endfor %}
   </ul>
+</div>
 </div>
 
 <div class="c-sb-section">
@@ -134,5 +138,6 @@
     </li>
     {% endfor %}
   </ul>
+</div>
 </div>
 {% endfor -%}
