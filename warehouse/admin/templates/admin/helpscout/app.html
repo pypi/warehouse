@@ -98,6 +98,31 @@
 
 <div class="c-sb-section">
 <div class="c-sb-section__title">
+  <i class="icon-company icon-sb"></i> Organizations ({{ user.organization_roles|length }})
+</div>
+<div class="c-sb-section__body">
+  <ul class="unstyled">
+    {% for role in user.organization_roles %}
+    <li>
+      <a target="_blank" rel="noopener" href="{{ request.route_url('organizations.profile', organization=role.organization.name) }}">{{ role.organization.name }}</a>
+      {% if role.role_name.value == 'Owner' %}<span class="badge green">{{ role.role_name.value }}</span>
+      {% elif role.role_name.value == 'Member' %}<span class="badge pending">{{ role.role_name.value }}</span>
+      {% else %}<span class="badge blue">{{ role.role_name.value }}</span>{% endif %}
+      <span class="u-pull-right">(<a target="_blank" rel="noopener" href="{{ request.route_url('admin.organization.detail', organization_id=role.organization.id) }}">admin</a>)</span>
+      {% set owners = role.organization.owners %}
+      {% if owners %}
+      <div class="t-tx-charcoal-300">
+        Owners:
+        {% for owner in owners %}<a target="_blank" rel="noopener" href="{{ request.route_url('admin.user.detail', username=owner.username) }}">{{ owner.username }}</a>{% if not loop.last %}, {% endif %}{% endfor %}
+      </div>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+
+<div class="c-sb-section">
+<div class="c-sb-section__title">
   <i class="icon-archive icon-sb"></i> Projects ({{ user.projects|length }})
 </div>
 <div class="c-sb-section__body">
