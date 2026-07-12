@@ -154,23 +154,23 @@ class TestHelpscoutApp:
                 hashlib.sha1,
             )
         )
-        db_request.route_url = pretend.call_recorder(
-            lambda *a, **kw: "http://example.com"
-        )
         result = views.helpscout(db_request)
 
         owner = role.organization.owners[0]
-        assert role.organization.name in result["html"]
-        assert "Member" in result["html"]
-        assert "Owners:" in result["html"]
-        assert owner.username in result["html"]
+        html = result["html"]
+        assert role.organization.name in html
+        assert "Member" in html
+        assert "Owners:" in html
+        assert owner.username in html
         assert (
-            pretend.call("organizations.profile", organization=role.organization.name)
-            in db_request.route_url.calls
+            db_request.route_url(
+                "organizations.profile", organization=role.organization.name
+            )
+            in html
         )
         assert (
-            pretend.call(
+            db_request.route_url(
                 "admin.organization.detail", organization_id=role.organization.id
             )
-            in db_request.route_url.calls
+            in html
         )
