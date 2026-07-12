@@ -28,6 +28,7 @@ from warehouse.organizations.models import (
 )
 from warehouse.packaging import Project, Role
 from warehouse.subscriptions import IBillingService
+from warehouse.subscriptions.models import StripeSubscriptionStatus
 
 if typing.TYPE_CHECKING:
     from pyramid.request import Request
@@ -62,9 +63,20 @@ def deactivate_organization_for_owner_removal(
     """Cancel billing, deactivate, and log an organization whose sole owner is
     being removed.
     """
-    if organization.subscriptions:
+    # Stripe raises when canceling a subscription already in a terminal
+    # state, and warehouse retains those subscription rows.
+    cancelable_subscriptions = [
+        subscription
+        for subscription in organization.subscriptions
+        if subscription.status
+        not in (
+            StripeSubscriptionStatus.Canceled.value,
+            StripeSubscriptionStatus.IncompleteExpired.value,
+        )
+    ]
+    if cancelable_subscriptions:
         billing_service = request.find_service(IBillingService, context=None)
-        for subscription in organization.subscriptions:
+        for subscription in cancelable_subscriptions:
             billing_service.cancel_subscription(subscription.subscription_id)
 
     organization.record_event(

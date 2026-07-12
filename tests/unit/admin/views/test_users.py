@@ -22,6 +22,7 @@ from warehouse.events.tags import EventTag
 from warehouse.observations.models import ObservationKind
 from warehouse.organizations.models import OrganizationRoleType
 from warehouse.packaging.models import JournalEntry, Project, ReleaseURL
+from warehouse.subscriptions.models import StripeSubscriptionStatus
 
 from ....common.db.accounts import EmailFactory, User, UserFactory
 from ....common.db.organizations import (
@@ -530,6 +531,13 @@ class TestUserDelete:
         subscription = StripeSubscriptionFactory.create()
         OrganizationStripeSubscriptionFactory.create(
             organization=organization, subscription=subscription
+        )
+        # Terminal subscriptions are retained but cannot be canceled again.
+        canceled_subscription = StripeSubscriptionFactory.create(
+            status=StripeSubscriptionStatus.Canceled
+        )
+        OrganizationStripeSubscriptionFactory.create(
+            organization=organization, subscription=canceled_subscription
         )
 
         cancel_subscription = mocker.patch.object(
