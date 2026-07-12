@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPNotFound
@@ -29,14 +28,13 @@ def test_exc_with_message():
         ),
     ],
 )
-def test_forklifted(settings, expected_domain):
-    request = pretend.stub(
-        domain="example.com", registry=pretend.stub(settings=settings)
-    )
+def test_forklifted(settings, expected_domain, pyramid_request):
+    pyramid_request.domain = "example.com"
+    pyramid_request.registry.settings.update(settings)
 
     information_url = "TODO"
 
-    resp = pypi.forklifted(request)
+    resp = pypi.forklifted(pyramid_request)
 
     assert resp.status_code == 410
     assert resp.status == (
@@ -52,9 +50,9 @@ def test_doap(pyramid_request):
     assert resp.status == "410 DOAP is no longer supported."
 
 
-def test_forbidden_legacy():
-    exc, request = pretend.stub(), pretend.stub()
-    resp = pypi.forbidden_legacy(exc, request)
+def test_forbidden_legacy(mocker):
+    exc = mocker.sentinel.exc
+    resp = pypi.forbidden_legacy(exc, mocker.sentinel.request)
     assert resp is exc
 
 
@@ -65,42 +63,44 @@ def test_list_classifiers(db_request):
     assert resp.text == "\n".join(sorted_classifiers)
 
 
-def test_search():
-    term = pretend.stub()
-    request = pretend.stub(
-        params={"term": term},
-        route_path=pretend.call_recorder(lambda *a, **kw: "/the/path"),
+def test_search(pyramid_request, mocker):
+    term = mocker.sentinel.term
+    pyramid_request.params = {"term": term}
+    route_path = mocker.patch.object(
+        pyramid_request, "route_path", autospec=True, return_value="/the/path"
     )
 
-    result = pypi.search(request)
+    result = pypi.search(pyramid_request)
 
     assert isinstance(result, HTTPMovedPermanently)
     assert result.headers["Location"] == "/the/path"
     assert result.status_code == 301
-    assert request.route_path.calls == [pretend.call("search", _query={"q": term})]
+    route_path.assert_called_once_with("search", _query={"q": term})
 
 
 class TestBrowse:
-    def test_browse(self, db_request):
+    def test_browse(self, db_request, mocker):
         classifier = ClassifierFactory.create(classifier="foo :: bar")
 
         db_request.params = {"c": str(classifier.id)}
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the/path")
+        route_path = mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value="/the/path"
+        )
 
         result = pypi.browse(db_request)
 
         assert isinstance(result, HTTPMovedPermanently)
         assert result.headers["Location"] == "/the/path"
         assert result.status_code == 301
-        assert db_request.route_path.calls == [
-            pretend.call("search", _query={"c": classifier.classifier})
-        ]
+        route_path.assert_called_once_with(
+            "search", _query={"c": classifier.classifier}
+        )
 
-    def test_browse_no_id(self):
-        request = pretend.stub(params={})
+    def test_browse_no_id(self, pyramid_request):
+        pyramid_request.params = {}
 
         with pytest.raises(HTTPNotFound):
-            pypi.browse(request)
+            pypi.browse(pyramid_request)
 
     def test_browse_bad_id(self, db_request):
         db_request.params = {"c": "99999"}
@@ -108,21 +108,24 @@ class TestBrowse:
         with pytest.raises(HTTPNotFound):
             pypi.browse(db_request)
 
-    def test_brows_invalid_id(self, request):
-        request = pretend.stub(params={"c": '7"'})
+    def test_brows_invalid_id(self, pyramid_request):
+        pyramid_request.params = {"c": '7"'}
 
         with pytest.raises(HTTPNotFound):
-            pypi.browse(request)
+            pypi.browse(pyramid_request)
 
 
 class TestFiles:
-    def test_files(self, db_request):
+    def test_files(self, db_request, mocker):
         name = "pip"
         version = "10.0.0"
 
         db_request.params = {"name": name, "version": version}
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: f"/project/{name}/{version}/#files"
+        route_path = mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value=f"/project/{name}/{version}/#files",
         )
 
         result = pypi.files(db_request)
@@ -130,11 +133,9 @@ class TestFiles:
         assert isinstance(result, HTTPMovedPermanently)
         assert result.headers["Location"] == (f"/project/{name}/{version}/#files")
         assert result.status_code == 301
-        assert db_request.route_path.calls == [
-            pretend.call(
-                "packaging.release", name=name, version=version, _anchor="files"
-            )
-        ]
+        route_path.assert_called_once_with(
+            "packaging.release", name=name, version=version, _anchor="files"
+        )
 
     def test_files_no_version(self, db_request):
         name = "pip"
@@ -154,13 +155,16 @@ class TestFiles:
 
 
 class TestDisplay:
-    def test_display(self, db_request):
+    def test_display(self, db_request, mocker):
         name = "pip"
         version = "10.0.0"
 
         db_request.params = {"name": name, "version": version}
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: f"/project/{name}/{version}/"
+        route_path = mocker.patch.object(
+            db_request,
+            "route_path",
+            autospec=True,
+            return_value=f"/project/{name}/{version}/",
         )
 
         result = pypi.display(db_request)
@@ -168,17 +172,17 @@ class TestDisplay:
         assert isinstance(result, HTTPMovedPermanently)
         assert result.headers["Location"] == (f"/project/{name}/{version}/")
         assert result.status_code == 301
-        assert db_request.route_path.calls == [
-            pretend.call("packaging.release", name=name, version=version)
-        ]
+        route_path.assert_called_once_with(
+            "packaging.release", name=name, version=version
+        )
 
-    def test_display_no_version(self, db_request):
+    def test_display_no_version(self, db_request, mocker):
         name = "pip"
 
         db_request.params = {"name": name}
 
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: f"/project/{name}/"
+        route_path = mocker.patch.object(
+            db_request, "route_path", autospec=True, return_value=f"/project/{name}/"
         )
 
         result = pypi.display(db_request)
@@ -186,9 +190,7 @@ class TestDisplay:
         assert isinstance(result, HTTPMovedPermanently)
         assert result.headers["Location"] == (f"/project/{name}/")
         assert result.status_code == 301
-        assert db_request.route_path.calls == [
-            pretend.call("packaging.project", name=name)
-        ]
+        route_path.assert_called_once_with("packaging.project", name=name)
 
     def test_display_no_name(self, db_request):
         version = "10.0.0"
