@@ -159,6 +159,22 @@ class TestUserDetail:
                 "role_name": "Owner",
             }
         ]
+        assert result["sole_owned_organizations"] == []
+
+    def test_gets_user_with_sole_owned_organizations(self, db_request):
+        user = UserFactory.create()
+        organization = OrganizationFactory.create()
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=user,
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        db_request.matchdict["username"] = str(user.username)
+
+        result = views.user_detail(user, db_request)
+
+        assert result["sole_owned_organizations"] == [organization]
 
     def test_updates_user(self, db_request):
         user = UserFactory.create()

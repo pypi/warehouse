@@ -209,6 +209,21 @@
                         </li>
                       {% endfor %}
                       </ul>
+                      {% if sole_owned_organizations %}
+                      <p>
+                        This user is the sole owner of the following organizations,
+                        which will be deactivated and their subscriptions canceled:
+                      </p>
+                      <ul>
+                      {% for organization in sole_owned_organizations %}
+                        <li>
+                          <a href="{{ request.route_path('admin.organization.detail', organization_id=organization.id) }}">
+                            {{ organization.name }}
+                          </a>
+                        </li>
+                      {% endfor %}
+                      </ul>
+                      {% endif %}
                       <hr>
                       <p>
                         Enter username '{{ user.username }}'

@@ -231,6 +231,7 @@ def user_detail(user, request):
     return {
         "user": user,
         "user_projects": user_projects,
+        "sole_owned_organizations": _sole_owned_organizations(user, request),
         "form": form,
         "emails_form": emails_form,
         "roles": roles,
@@ -365,6 +366,19 @@ def user_email_delete(user: User, request: Request) -> HTTPSeeOther:
     return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
 
 
+def _sole_owned_organizations(user, request):
+    """Organizations with exactly one Owner role, belonging to this user."""
+    return (
+        request.db.query(Organization)
+        .join(OrganizationRole, OrganizationRole.organization_id == Organization.id)
+        .filter(OrganizationRole.role_name == OrganizationRoleType.Owner)
+        .group_by(Organization.id)
+        .having(func.count(OrganizationRole.user_id) == 1)
+        .having(func.bool_or(OrganizationRole.user_id == user.id))
+        .all()
+    )
+
+
 def _nuke_user(user, request):
     # Delete all the user's projects
     projects = request.db.query(Project).filter(
@@ -393,17 +407,8 @@ def _nuke_user(user, request):
     )
 
     # Deactivate (and record an event for) any organization the user is the
-    # sole owner of: one Owner role, belonging to this user.
-    sole_owned_organizations = (
-        request.db.query(Organization)
-        .join(OrganizationRole, OrganizationRole.organization_id == Organization.id)
-        .filter(OrganizationRole.role_name == OrganizationRoleType.Owner)
-        .group_by(Organization.id)
-        .having(func.count(OrganizationRole.user_id) == 1)
-        .having(func.bool_or(OrganizationRole.user_id == user.id))
-        .all()
-    )
-    for organization in sole_owned_organizations:
+    # sole owner of.
+    for organization in _sole_owned_organizations(user, request):
         deactivate_organization_for_owner_removal(
             request, organization, target_user=user, reason="nuked"
         )
