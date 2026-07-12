@@ -15,7 +15,7 @@ from ....common.db.accounts import EmailFactory
 from ....common.db.organizations import OrganizationRoleFactory
 
 
-def sign_request(db_request):
+def _sign_request(db_request):
     db_request.headers["X-HelpScout-Signature"] = base64.b64encode(
         hmac.digest(
             db_request.registry.settings["admin.helpscout.app_secret"].encode(),
@@ -47,7 +47,7 @@ class TestHelpscoutApp:
         db_request.registry.settings["admin.helpscout.app_secret"] = "s3cr3t"
         db_request.body = b"{}"
         db_request.json_body = {}
-        sign_request(db_request)
+        _sign_request(db_request)
         result = views.helpscout(db_request)
         assert result == {
             "html": '<span class="badge pending">No PyPI user found</span>'
@@ -66,7 +66,7 @@ class TestHelpscoutApp:
         db_request.registry.settings["admin.helpscout.app_secret"] = "s3cr3t"
         db_request.json_body = {"customer": {"email": invalid_email}}
         db_request.body = json.dumps(db_request.json_body).encode()
-        sign_request(db_request)
+        _sign_request(db_request)
         result = views.helpscout(db_request)
         assert result == {
             "html": '<span class="badge pending">No PyPI user found</span>'
@@ -85,7 +85,7 @@ class TestHelpscoutApp:
         db_request.registry.settings["admin.helpscout.app_secret"] = "s3cr3t"
         db_request.json_body = {"customer": {"email": search_email}}
         db_request.body = json.dumps(db_request.json_body).encode()
-        sign_request(db_request)
+        _sign_request(db_request)
         result = views.helpscout(db_request)
         assert result == {
             "html": '<span class="badge pending">No PyPI user found</span>'
@@ -108,7 +108,7 @@ class TestHelpscoutApp:
         db_request.registry.settings["admin.helpscout.app_secret"] = "s3cr3t"
         db_request.json_body = {"customer": {"email": f"{search_email}"}}
         db_request.body = json.dumps(db_request.json_body).encode()
-        sign_request(db_request)
+        _sign_request(db_request)
         db_request.route_url = pretend.call_recorder(
             lambda *a, **kw: "http://example.com"
         )
@@ -132,7 +132,7 @@ class TestHelpscoutApp:
         db_request.registry.settings["admin.helpscout.app_secret"] = "s3cr3t"
         db_request.json_body = {"customer": {"email": "rza@wutang.com"}}
         db_request.body = json.dumps(db_request.json_body).encode()
-        sign_request(db_request)
+        _sign_request(db_request)
         route_url = mocker.patch.object(
             db_request, "route_url", return_value="http://example.com"
         )
