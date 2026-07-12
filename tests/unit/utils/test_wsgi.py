@@ -151,7 +151,7 @@ class TestProxyFixer:
 
         environ = {
             "HTTP_X_FORWARDED_PROTO": "http",
-            "HTTP_X_FORWARDED_FOR": "192.0.2.1, 192.0.2.2, 192.0.2.3",
+            "HTTP_X_FORWARDED_FOR": "192.0.2.2, 192.0.2.1, 192.0.2.3",
             "HTTP_X_FORWARDED_HOST": "example.com",
             "HTTP_SOME_OTHER_HEADER": "woop",
         }
