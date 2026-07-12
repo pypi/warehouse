@@ -722,8 +722,11 @@ class Release(HasObservations, db.Model):
     )
     description: Mapped[Description] = orm.relationship(
         back_populates="release",
-        cascade="all, delete-orphan",
-        single_parent=True,
+        # Cleanup of the orphaned Description is enforced at the database level
+        # by the `releases_delete_orphaned_description` trigger, since the
+        # `description_id` foreign key points the "wrong" way for an ON DELETE
+        # CASCADE to reach it. See: https://github.com/pypi/warehouse/issues/14825
+        passive_deletes=True,
     )
 
     yanked: Mapped[bool_false]

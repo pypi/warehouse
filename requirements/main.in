@@ -1,4 +1,4 @@
-alembic>=0.7.0
+alembic>=1.18.5
 alembic-postgresql-enum
 Automat
 argon2-cffi
@@ -11,7 +11,7 @@ celery-redbeat
 certifi
 click
 cryptography>=48.0.1
-datadog>=0.19.0
+datadog>=0.52.2
 disposable-email-domains
 dnspython
 email-validator

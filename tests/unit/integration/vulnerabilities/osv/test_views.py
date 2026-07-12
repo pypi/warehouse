@@ -1,15 +1,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import json
-
-import pretend
+import types
 
 from warehouse.integrations.vulnerabilities import osv
 from warehouse.integrations.vulnerabilities.osv import views
 
 
 class TestReportVulnerabilities:
-    def test_report_vulnerabilities(self, pyramid_request, metrics, monkeypatch):
+    def test_report_vulnerabilities(self, pyramid_request, metrics, mocker):
         pyramid_request.headers = {
             "VULN-PUBLIC-KEY-IDENTIFIER": "vuln_pub_key_id",
             "VULN-PUBLIC-KEY-SIGNATURE": "vuln_pub_key_sig",
@@ -38,24 +37,22 @@ class TestReportVulnerabilities:
         ]
         pyramid_request.find_service = lambda *a, **k: metrics
 
-        http = pyramid_request.http = pretend.stub()
+        http = pyramid_request.http = mocker.sentinel.http
 
-        verify = pretend.call_recorder(lambda **k: True)
-        verifier = pretend.stub(verify=verify)
-        verifier_cls = pretend.call_recorder(lambda **k: verifier)
-        monkeypatch.setattr(osv, "VulnerabilityReportVerifier", verifier_cls)
+        verifier_cls = mocker.patch.object(
+            osv, "VulnerabilityReportVerifier", autospec=True
+        )
+        verifier_cls.return_value.verify.return_value = True
 
-        delay = pretend.call_recorder(lambda **k: None)
-        task = pretend.call_recorder(lambda a: pretend.stub(delay=delay))
-        pyramid_request.task = task
+        delay = mocker.Mock()
+        task = pyramid_request.task = mocker.Mock(return_value=mocker.Mock(delay=delay))
 
         response = views.report_vulnerabilities(pyramid_request)
 
         assert response.status_code == 204
-        assert verifier_cls.calls == [pretend.call(session=http, metrics=metrics)]
-        assert verify.calls == [
-            pretend.call(
-                payload="""[{
+        verifier_cls.assert_called_once_with(session=http, metrics=metrics)
+        verifier_cls.return_value.verify.assert_called_once_with(
+            payload="""[{
   "project": "vuln_project",
   "versions": [
     "v1",
@@ -67,25 +64,22 @@ class TestReportVulnerabilities:
     "vuln_alias"
   ]
 }]""",
-                key_id="vuln_pub_key_id",
-                signature="vuln_pub_key_sig",
-            )
-        ]
-        assert task.calls == [pretend.call(views.analyze_vulnerability_task)]
-        assert delay.calls == [
-            pretend.call(
-                vulnerability_report={
-                    "project": "vuln_project",
-                    "versions": ["v1", "v2"],
-                    "id": "vuln_id",
-                    "link": "vulns.com/vuln_id",
-                    "aliases": ["vuln_alias"],
-                },
-                origin="osv",
-            )
-        ]
+            key_id="vuln_pub_key_id",
+            signature="vuln_pub_key_sig",
+        )
+        task.assert_called_once_with(views.analyze_vulnerability_task)
+        delay.assert_called_once_with(
+            vulnerability_report={
+                "project": "vuln_project",
+                "versions": ["v1", "v2"],
+                "id": "vuln_id",
+                "link": "vulns.com/vuln_id",
+                "aliases": ["vuln_alias"],
+            },
+            origin="osv",
+        )
 
-    def test_report_vulnerabilities_verify_fail(self, monkeypatch, pyramid_request):
+    def test_report_vulnerabilities_verify_fail(self, mocker, pyramid_request):
         pyramid_request.headers = {
             "VULN-PUBLIC-KEY-IDENTIFIER": "vuln_pub_key_id",
             "VULN-PUBLIC-KEY-SIGNATURE": "vuln_pub_key_sig",
@@ -104,22 +98,22 @@ class TestReportVulnerabilities:
   ]
 }]"""
 
-        pyramid_request.http = pretend.stub()
+        pyramid_request.http = mocker.sentinel.http
 
-        verify = pretend.call_recorder(lambda **k: False)
-        verifier = pretend.stub(verify=verify)
-        verifier_cls = pretend.call_recorder(lambda **k: verifier)
-        monkeypatch.setattr(osv, "VulnerabilityReportVerifier", verifier_cls)
+        verifier_cls = mocker.patch.object(
+            osv, "VulnerabilityReportVerifier", autospec=True
+        )
+        verifier_cls.return_value.verify.return_value = False
 
         response = views.report_vulnerabilities(pyramid_request)
 
         assert response.status_int == 400
 
-    def test_report_vulnerabilities_verify_invalid_json(self, metrics, monkeypatch):
-        verify = pretend.call_recorder(lambda **k: True)
-        verifier = pretend.stub(verify=verify)
-        verifier_cls = pretend.call_recorder(lambda **k: verifier)
-        monkeypatch.setattr(osv, "VulnerabilityReportVerifier", verifier_cls)
+    def test_report_vulnerabilities_verify_invalid_json(self, metrics, mocker):
+        verifier_cls = mocker.patch.object(
+            osv, "VulnerabilityReportVerifier", autospec=True
+        )
+        verifier_cls.return_value.verify.return_value = True
 
         # We need to raise on a property access, can't do that with a stub.
         class Request:
@@ -136,23 +130,21 @@ class TestReportVulnerabilities:
             def find_service(self, *a, **k):
                 return metrics
 
-            response = pretend.stub(status_int=200)
-            http = pretend.stub()
+            response = types.SimpleNamespace(status_int=200)
+            http = mocker.sentinel.http
 
         request = Request()
         response = views.report_vulnerabilities(request)
 
         assert response.status_int == 400
-        assert metrics.increment.calls == [
-            pretend.call(
+        assert metrics.increment.call_args_list == [
+            mocker.call(
                 "warehouse.vulnerabilities.error.payload.json_error",
                 tags=["origin:osv"],
             )
         ]
 
-    def test_report_vulnerabilities_verify_invalid_vuln(
-        self, monkeypatch, pyramid_request
-    ):
+    def test_report_vulnerabilities_verify_invalid_vuln(self, mocker, pyramid_request):
         pyramid_request.headers = {
             "VULN-PUBLIC-KEY-IDENTIFIER": "vuln_pub_key_id",
             "VULN-PUBLIC-KEY-SIGNATURE": "vuln_pub_key_sig",
@@ -161,12 +153,12 @@ class TestReportVulnerabilities:
         pyramid_request.body = "{}"  # not a list
         pyramid_request.json_body = {}
 
-        pyramid_request.http = pretend.stub()
+        pyramid_request.http = mocker.sentinel.http
 
-        verify = pretend.call_recorder(lambda **k: True)
-        verifier = pretend.stub(verify=verify)
-        verifier_cls = pretend.call_recorder(lambda **k: verifier)
-        monkeypatch.setattr(osv, "VulnerabilityReportVerifier", verifier_cls)
+        verifier_cls = mocker.patch.object(
+            osv, "VulnerabilityReportVerifier", autospec=True
+        )
+        verifier_cls.return_value.verify.return_value = True
 
         response = views.report_vulnerabilities(pyramid_request)
 
