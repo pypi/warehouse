@@ -6,6 +6,7 @@
 @use "../settings/grid";
 @use "../tools/link-utilities";
 
+
 /*
   A sidebar section. Currently used on the package detail page.
 
@@ -138,20 +139,22 @@
   }
 
   &__data-source {
-    position: relative;
-    padding-top: 7px;
+    margin-top: 15px;
+    margin-bottom: -10px;
 
     &-label {
-      position: absolute;
-      top: -10px;
-      left: 5px;
-      display: inline-block;
+      position: relative;
       font-size: fonts.$small-font-size;
       cursor: pointer;
       user-select: none;
       border: 1px solid;
       border-radius: 1rem;
+      max-width: calc(100% - 28px);
       padding: 1px 8px;
+      display: inline-block;
+      vertical-align: top;
+      transform: translateY(-10px);
+      margin-left: 5px;
 
       &::-webkit-details-marker {
         display: none;
@@ -177,7 +180,9 @@
     }
 
     &-description {
-      padding: grid.$half-spacing-unit;
+      padding: 10px;
+      padding-top: 0;
+      margin-bottom: 10px;
       color: colours.$text-color;
       border-bottom: 1px solid;
     }
@@ -201,10 +206,6 @@
     margin-bottom: 5px;
     @include link-utilities.link-without-underline;
     @include link-utilities.link-focus-state(colours.$primary-color);
-
-    &:first-of-type {
-      margin-top: 2px;
-    }
 
     &:last-of-type {
       margin-bottom: 0;
