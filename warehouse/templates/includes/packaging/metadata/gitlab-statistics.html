@@ -20,7 +20,7 @@
     <h2 class="sidebar-section__title">{% trans %}GitLab Statistics{% endtrans %}</h2>
     <div class="sidebar-section__content sidebar-section__content--verified">
       <details class="sidebar-section__data-source">
-        <summary class="sidebar-section__data-source-label">{% trans date=humanize(release.created) %}Data verified by PyPI on&nbsp;{{ date }}{% endtrans %}</summary>
+        <summary class="sidebar-section__data-source-label" title="{% trans date=release.created.strftime('%Y-%m-%d') %}Data verified by PyPI on {{ date }}{% endtrans %}">{% trans date=humanize(release.created) %}Data verified by PyPI on&nbsp;{{ date }}{% endtrans %}</summary>
         <div class="sidebar-section__data-source-description">{% trans %}The GitLab source repository was provided by the project maintainers and verified by PyPI at the time of upload. Stars, forks, and open issues/PRs are derived from that repository and have not been independently verified.{% endtrans %}</div>
       </details>
       <div class="sidebar-section__data-block hidden gitlab-repo-info"
