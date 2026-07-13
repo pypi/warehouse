@@ -68,8 +68,12 @@
     {% if release.urls_by_verify_status(verified=True).values() | contains_valid_uris %}
       <div class="sidebar-section__content sidebar-section__content--verified">
         <details class="sidebar-section__data-source">
-          <summary class="sidebar-section__data-source-label">{% trans date=humanize(release.created) %}Data verified by PyPI on&nbsp;{{ date }}{% endtrans %}</summary>
-          <div class="sidebar-section__data-source-description">{% trans %}Data provided by the project maintainers, verified at the time the release was uploaded to PyPI.{% endtrans %}</div>
+          <summary class="sidebar-section__data-source-label" title="{% trans date=release.created.strftime('%Y-%m-%d') %}Data verified by PyPI on {{ date }}{% endtrans %}">
+            {% trans date=humanize(release.created) %}Data verified by PyPI on {{ date }}{% endtrans %}
+          </summary>
+          <div class="sidebar-section__data-source-description">
+            {% trans %}Data provided by the project maintainers, verified at the time the release was uploaded to PyPI.{% endtrans %}
+          </div>
         </details>
         <div class="sidebar-section__data-block">
           <ul class="sidebar-links">
