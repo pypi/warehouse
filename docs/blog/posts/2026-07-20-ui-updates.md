@@ -23,7 +23,7 @@ The first phase of changes is now staged on [TestPyPI](https://test.pypi.org/) a
 
 The PyPI user interface has remained largely unchanged since its 2018 launch. Over the intervening years, both PyPI and the Python ecosystem have grown significantly, while also attracting a higher volume of malicious activity. As a result, PyPI is taking a more active role in helping users assess and understand package security.
 
-In 2024, PyPI [introduced support for digital attestations](./2024-11-14-pypi-now-supports-digital-attestations.md). Uploaded by project maintainers when making a new release, attestations serve as a signed record of a release's build or publishing _provenance_, providing a verifiable way for users to see exactly where the release files came from.
+In 2024, PyPI [introduced support for digital attestations](2024-11-14-pypi-now-supports-digital-attestations.md). Uploaded by project maintainers when making a new release, attestations serve as a signed record of a release's build or publishing _provenance_, providing a verifiable way for users to see exactly where the release files came from.
 
 While this was a significant milestone, the initial release did not include the necessary UI updates to make those attestations easily understandable or consumable for the average PyPI user.
 
@@ -43,14 +43,13 @@ Key changes to the user interface include:
 
 *   **Metadata sidebar moved to the right:** We are shifting the sidebar to the right to place critical content (the package description/readme) on the left, aligning with a natural left-to-right reading pattern and mirroring the structure of other major platforms like GitHub and npm.
 
-*   **Labeling Trust Levels:** We are explicitly labeling project data intrinsic to PyPI (like release timestamps) and data provided by a maintainer and verified by PyPI (like upstream source repositories). This signaling will help users weigh the trustworthiness of data according to its source.
+*   **Labeling Trust Levels:** We are explicitly labeling project data intrinsic to PyPI (like release timestamps) and data provided by a maintainer and verified by PyPI (like upstream source repositories). This will help users weigh the trustworthiness of data according to its source.
 
 *   **Optimized Sidebar Hierarchy:** We are reordering sidebar metadata by utility, prioritizing project links and "freshness" signals (like release dates) at the top, while shifting classification data to the bottom.
 
 *   **Clearer Status Labeling:** We are introducing bolder colors and improved labels for quarantined, yanked, archived, and pre-release states to help users more easily distinguish between these conditions.
 
-![PyPI UI changes with new sidebar and links](../assets/2026-07-20-ui-updates.png)
-*Note: this screenshot does not yet include the new Security tab, which is coming in a later phase.*
+These updates are entirely visual and will not require action from project maintainers; existing and future digital attestations will map to the new UI automatically.
 
 ## Our Rollout Plan
 
