@@ -1,5 +1,5 @@
 ---
-title: "Planned updates to the PyPI User Interface"
+title: "Planned Updates to the PyPI User Interface"
 description: We are rolling out updates to the PyPI user interface to improve security signaling and the display of package details.
 authors:
   - nlh
