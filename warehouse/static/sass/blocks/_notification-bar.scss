@@ -138,8 +138,8 @@
     font-size: fonts.$small-font-size;
     padding: 6px 8px;
     white-space: nowrap;
-    color: currentColor;
-    border-color: currentColor;
+    color: currentcolor;
+    border-color: currentcolor;
 
     @media screen and (max-width: breakpoints.$small-tablet) {
       margin-top: grid.$quarter-spacing-unit;

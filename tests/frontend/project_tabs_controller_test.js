@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-/* global expect, beforeEach, describe, it */
+/* global expect, beforeEach, describe, it, jest */
 
 import { Application } from "@hotwired/stimulus";
 import ProjectTabsController from "../../warehouse/static/js/warehouse/controllers/project_tabs_controller";
