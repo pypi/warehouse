@@ -8,73 +8,58 @@ import ProjectTabsController from "../../warehouse/static/js/warehouse/controlle
 
 const tabsHTML = `
 <div data-controller="project-tabs">
-  <div class="tabs-container">
-    <div class="tabs">
-      <div class="tabs__tabs">
-        <div class="sidebar-section">
-          <h3 class="sidebar-section__title">Navigation</h3>
-          <nav aria-label="Navigation for lunr">
-            <ul class="tabs__list" role="tablist">
-              <li role="tab">
-                <a id="description-tab" href="#description" data-project-tabs-target="tab" data-action="project-tabs#tabClick" class="tabs__tab tabs__tab--with-icon project-tabs__tab--is-active" aria-selected="true" aria-label="Project description. Focus will be moved to the description.">
-                  <i class="fa fa-align-left" aria-hidden="true"></i>
-                  Project description
-                </a>
-              </li>
-              <li role="tab">
-                <a id="history-tab" href="#history" data-project-tabs-target="tab" data-action="project-tabs#tabClick" class="tabs__tab tabs__tab--with-icon" aria-label="Release history. Focus will be moved to the history panel.">
-                  <i class="fa fa-history" aria-hidden="true"></i>
-                  Release history
-                </a>
-              </li>
-              <li role="tab">
-                <a id="files-tab" href="#files" data-project-tabs-target="tab" data-action="project-tabs#tabClick" class="tabs__tab tabs__tab--with-icon" aria-label="Download files. Focus will be moved to the project files.">
-                  <i class="fa fa-download" aria-hidden="true"></i>
-                  Download files
-                </a>
-              </li>
-            </ul>
-          </nav>
+  <nav class="project-tabs__tabs" aria-label="Navigation for lunr">
+    <ul class="project-tabs__list">
+      <li>
+        <a id="description-tab" href="#description" data-project-tabs-target="tab" data-action="project-tabs#tabClick" class="project-tabs__tab project-tabs__tab--is-active" aria-selected="true" aria-label="Project description. Focus will be moved to the description.">
+          <span><i class="fa fa-align-left" aria-hidden="true"></i> Project description</span>
+        </a>
+      </li>
+      <li>
+        <a id="history-tab" href="#history" data-project-tabs-target="tab" data-action="project-tabs#tabClick" class="project-tabs__tab" aria-label="Release history. Focus will be moved to the history panel.">
+          <span><i class="fa fa-history" aria-hidden="true"></i> Release history</span>
+        </a>
+      </li>
+      <li>
+        <a id="files-tab" href="#files" data-project-tabs-target="tab" data-action="project-tabs#tabClick" class="project-tabs__tab" aria-label="Download files. Focus will be moved to the project files.">
+          <span><i class="fa fa-download" aria-hidden="true"></i> Download files</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+  <div class="project-tabs__panel">
+    <!-- Tab: Project description -->
+    <div id="description" data-project-tabs-target="content" role="tabpanel" aria-labelledby="description-tab" tabindex="-1">
+      <h2 class="page-title">Project description</h2>
+      <div class="project-description">Description</div>
+    </div>
+
+    <!-- Tab: Project details (no nav tab — kept for hide/show coverage) -->
+    <div id="data" data-project-tabs-target="content" role="tabpanel" tabindex="-1">
+      <h2 class="page-title">Project details</h2>
+    </div>
+
+    <!-- Tab: Release history -->
+    <div id="history" data-project-tabs-target="content" role="tabpanel" aria-labelledby="history-tab" tabindex="-1">
+      <h2 class="page-title">Release history</h2>
+    </div>
+
+    <!-- Tab: Download files -->
+    <div id="files" data-project-tabs-target="content" role="tabpanel" aria-labelledby="files-tab" tabindex="-1">
+      <h2 class="page-title">Download files</h2>
+      <div class="file">
+        <div class="card file__card">
+          <a href="/files/sample-1.0.tar.gz">sample-1.0.tar.gz</a>
+          (1.0 KB
+          <a href="#sample-1.0.tar.gz" data-project-tabs-target="tab" data-action="project-tabs#tabClick">view details</a>)
         </div>
       </div>
-      <div class="tabs__panel">
-        <!-- Tab: Project description -->
-        <div id="description" data-project-tabs-target="content" role="tabpanel" aria-labelledby="description-tab" tabindex="-1">
-          <h2 class="page-title">Project description</h2>
-          <div class="project-description">Description</div>
-        </div>
+    </div>
 
-        <!-- Tab: Project details (no nav tab — mobile only, kept for hide/show coverage) -->
-        <div id="data" data-project-tabs-target="content" role="tabpanel" tabindex="-1">
-          <h2 class="page-title">Project details</h2>
-        </div>
-
-        <!-- Tab: Release history -->
-        <div id="history" data-project-tabs-target="content" role="tabpanel" aria-labelledby="history-tab" tabindex="-1">
-          <h2 class="page-title split-layout">
-            <span>Release history</span>
-            <a class="reset-text margin-top" href="#project-release-notifications">Release notifications</a>
-          </h2>
-        </div>
-
-        <!-- Tab: Download files -->
-        <div id="files" data-project-tabs-target="content" role="tabpanel" aria-labelledby="files-tab" tabindex="-1">
-          <h2 class="page-title">Download files</h2>
-          <div class="file">
-            <div class="card file__card">
-              <a href="/files/sample-1.0.tar.gz">sample-1.0.tar.gz</a>
-              (1.0 KB
-              <a href="#sample-1.0.tar.gz" data-project-tabs-target="tab" data-action="project-tabs#tabClick">view details</a>)
-            </div>
-          </div>
-        </div>
-
-        <!-- File details sub-panel (no nav tab, child of Download files) -->
-        <div id="sample-1.0.tar.gz" data-project-tabs-target="content" role="tabpanel" tabindex="-1">
-          <h2 class="page-title">File details</h2>
-          <p>Details for the file sample-1.0.tar.gz.</p>
-        </div>
-      </div>
+    <!-- File details sub-panel (no nav tab, sibling of Download files) -->
+    <div id="sample-1.0.tar.gz" data-project-tabs-target="content" role="tabpanel" tabindex="-1">
+      <h2 class="page-title">File details</h2>
+      <p>Details for the file sample-1.0.tar.gz.</p>
     </div>
   </div>
 </div>
@@ -106,6 +91,27 @@ describe("Project tabs controller", () => {
 
         expect(document.getElementById("data")).toHaveStyle("display: none");
         expect(document.getElementById("sample-1.0.tar.gz")).toHaveStyle("display: none");
+      });
+    });
+
+    describe("with a file detail hash in location", () => {
+      beforeEach(() => {
+        window.location.hash = "#sample-1.0.tar.gz";
+        document.body.innerHTML = tabsHTML;
+
+        const application = Application.start();
+        application.register("project-tabs", ProjectTabsController);
+      });
+
+      it("shows the file detail panel and keeps the files tab active", () => {
+        expect(document.getElementById("sample-1.0.tar.gz")).toHaveStyle("display: block");
+        expect(document.getElementById("files-tab")).toHaveClass("project-tabs__tab--is-active");
+        expect(document.getElementById("files-tab")).toHaveAttribute("aria-selected");
+
+        expect(document.getElementById("files")).toHaveStyle("display: none");
+        expect(document.getElementById("description")).toHaveStyle("display: none");
+        expect(document.getElementById("description-tab")).not.toHaveClass("project-tabs__tab--is-active");
+        expect(document.getElementById("description-tab")).not.toHaveAttribute("aria-selected");
       });
     });
 
@@ -235,6 +241,20 @@ describe("Project tabs controller", () => {
         expect(document.getElementById("files")).toHaveStyle("display: none");
         expect(document.getElementById("files-tab")).not.toHaveClass("project-tabs__tab--is-active");
         expect(document.getElementById("files-tab")).not.toHaveAttribute("aria-selected");
+      });
+
+      it("falls back to the first tab when the hash is cleared", () => {
+        document.getElementById("history-tab").click();
+        window.location.hash = "";
+        window.dispatchEvent(new Event("hashchange"));
+
+        expect(document.getElementById("description")).toHaveStyle("display: block");
+        expect(document.getElementById("description-tab")).toHaveClass("project-tabs__tab--is-active");
+        expect(document.getElementById("description-tab")).toHaveAttribute("aria-selected");
+
+        expect(document.getElementById("history")).toHaveStyle("display: none");
+        expect(document.getElementById("history-tab")).not.toHaveClass("project-tabs__tab--is-active");
+        expect(document.getElementById("history-tab")).not.toHaveAttribute("aria-selected");
       });
     });
 
