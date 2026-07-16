@@ -317,7 +317,7 @@
   $dark-grey:     #303030;
   $pygments-black:         #000;
 
-  .project-description { // stylelint-disable-line no-duplicate-selectors -- Allow for visual organization
+  .project-description {
     .c { /* Comment */
       color: $pygments-light-grey;
     }

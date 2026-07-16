@@ -40,26 +40,26 @@
           {% trans href=request.route_path('manage.account.two-factor') %}
           Two factor authentication is available, <a href="{{ href }}">enable it now for your account.</a>
         {% endtrans %}
-        </span>
-        <button type="button"
-                title="Dismiss this notification"
-                data-notification-target="dismissButton"
-                data-action="click->notification#dismiss"
-                class="notification-bar__dismiss"
-                aria-label="{% trans %}Close{% endtrans %}">
-          <i class="fa fa-times" aria-hidden="true"></i>
-        </button>
-      </div>
+      </span>
+      <button type="button"
+              title="Dismiss this notification"
+              data-notification-target="dismissButton"
+              data-action="click->notification#dismiss"
+              class="notification-bar__dismiss"
+              aria-label="{% trans %}Close{% endtrans %}">
+        <i class="fa fa-times" aria-hidden="true"></i>
+      </button>
     </div>
-  {% elif request.referrer and not request.referrer.endswith(request.route_path('manage.account.two-factor')) and not request.user.has_recovery_codes %}
-    <div class="notification-bar notification-bar--warning">
-      <div class="notification-bar__container">
-        <span class="notification-bar__message">
-          {% trans href=request.route_path('manage.account.two-factor') %}
-          Two-factor recovery codes are available, <a href="{{ href }}">generate them now for your account.</a>
-        {% endtrans %}
-        </span>
-      </div>
-    </div>
-  {% endif %}
+  </div>
+{% elif request.referrer and not request.referrer.endswith(request.route_path('manage.account.two-factor')) and not request.user.has_recovery_codes %}
+  <div class="notification-bar notification-bar--warning">
+    <div class="notification-bar__container">
+      <span class="notification-bar__message">
+        {% trans href=request.route_path('manage.account.two-factor') %}
+        Two-factor recovery codes are available, <a href="{{ href }}">generate them now for your account.</a>
+      {% endtrans %}
+    </span>
+  </div>
+</div>
+{% endif %}
 {% endif %}

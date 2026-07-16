@@ -31,10 +31,10 @@
 </div>
 <div class="sidebar-section">
   {% if testPyPI %}
-  <a class="button button--full-width button--primary"
-     href="https://github.com/pypi/warehouse/issues/20267"
-     rel="nofollow"
-     role="button">{% trans %}Give design feedback{% endtrans %}</a>
+    <a class="button button--full-width button--primary"
+       href="https://github.com/pypi/warehouse/issues/20267"
+       rel="nofollow"
+       role="button">{% trans %}Give design feedback{% endtrans %}</a>
   {% endif %}
   <a class="button button--full-width button--warning"
      href="{{ request.route_url('packaging.project.submit_malware_observation', name=project.name) }}"
