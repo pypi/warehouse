@@ -2,7 +2,7 @@
 
 @use "sass:color";
 @use "../settings/breakpoints";
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/fonts";
 @use "../settings/grid";
 @use "../tools/design-utilities";
@@ -72,7 +72,7 @@
     }
 
     a > img {
-      background-color: colours.$white;
+      background-color: colors.$white;
     }
 
     p {
@@ -142,10 +142,10 @@
 
     blockquote {
       margin: grid.$half-spacing-unit 0 0 grid.$half-spacing-unit;
-      border-left: 3px solid colours.$light-grey;
+      border-left: 3px solid colors.$light-grey;
       font-style: italic;
       padding-left: grid.$half-spacing-unit;
-      color: color.adjust(colours.$text-color, $lightness: 20%);
+      color: color.adjust(colors.$text-color, $lightness: 20%);
 
       @media only screen and (max-width: breakpoints.$tablet) {
         margin-left: 0;
@@ -203,7 +203,7 @@
       margin: grid.$spacing-unit 0 0;
 
       tr {
-        border-bottom: 1px solid colours.$border-color;
+        border-bottom: 1px solid colors.$border-color;
       }
 
       th,
@@ -211,7 +211,7 @@
         margin: 0;
         border: 0;
         padding: 10px 7px;
-        border-right: 1px solid colours.$border-color;
+        border-right: 1px solid colors.$border-color;
 
         p {
           margin: inherit;
@@ -219,7 +219,7 @@
       }
 
       thead tr {
-        background-color: colours.$white;
+        background-color: colors.$white;
 
         th {
           vertical-align: bottom;
@@ -229,18 +229,18 @@
 
       tbody {
         tr {
-          background-color: color.adjust(colours.$background-color, $lightness: -0.75%);
+          background-color: color.adjust(colors.$background-color, $lightness: -0.75%);
         }
 
         tr:nth-child(even) {
-          background-color: color.adjust(colours.$background-color, $lightness: -2%);
+          background-color: color.adjust(colors.$background-color, $lightness: -2%);
         }
       }
     }
 
     hr {
       margin: grid.$half-spacing-unit 0 0;
-      border: 1px solid colours.$light-grey;
+      border: 1px solid colors.$light-grey;
     }
 
     // Add a margin at the top of commonly included status badges
@@ -301,14 +301,14 @@
 
   // PYGMENTS THEME
 
-  $blue:          colours.$primary-color;
+  $blue:          colors.$primary-color;
   $light-blue:    #0078bd;
-  $dark-blue:     color.adjust(colours.$primary-color, $lightness: -10%);
-  $darkest-blue:  color.adjust(colours.$primary-color, $lightness: -20%);
-  $green:         color.adjust(colours.$success-color, $lightness: -5%);
-  $light-green:   colours.$success-color;
-  $red:           colours.$danger-color;
-  $dark-red:      color.adjust(colours.$danger-color, $lightness: -20%);
+  $dark-blue:     color.adjust(colors.$primary-color, $lightness: -10%);
+  $darkest-blue:  color.adjust(colors.$primary-color, $lightness: -20%);
+  $green:         color.adjust(colors.$success-color, $lightness: -5%);
+  $light-green:   colors.$success-color;
+  $red:           colors.$danger-color;
+  $dark-red:      color.adjust(colors.$danger-color, $lightness: -20%);
   $purple:        #b06;
   $orange:        #a36200;
   $brown:         color.adjust($orange, $lightness: -7%);

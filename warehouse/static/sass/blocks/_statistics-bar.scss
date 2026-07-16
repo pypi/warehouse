@@ -2,7 +2,7 @@
 
 @use "sass:color";
 @use "../settings/breakpoints";
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/fonts";
 
 /*
@@ -19,7 +19,7 @@
   text-align: center;
 
   &__statistic {
-    color: color.adjust(colours.$primary-color, $lightness: -15%);
+    color: color.adjust(colors.$primary-color, $lightness: -15%);
     font-size: 1.2rem;
     display: inline-block;
     padding: 10px 20px;
