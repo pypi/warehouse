@@ -2,7 +2,7 @@
 
 @use "sass:color";
 
-// SETTINGS - COLOURS
+// SETTINGS - COLORS
 
 $primary-color:               #006dad;
 $primary-color-light-border:  color.mix($primary-color, white, 20%);
@@ -16,8 +16,10 @@ $highlight-color:             #ffd343;
 $white:                       #fff;
 $black:                       #000;
 $background-color:            #fdfdfd;
+$off-white:                   #f7f7f7;
 $base-grey:                   #ececec;
 $light-grey:                  #bbb;
+$mid-grey:                    #616161;
 $border-color:                color.adjust($base-grey, $lightness: -10%);
 $accessible-border-color:     #949494;
 $text-color:                  #464646;

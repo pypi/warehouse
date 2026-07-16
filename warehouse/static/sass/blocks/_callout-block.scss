@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 @use "../settings/breakpoints";
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/grid";
 @use "../tools/design-utilities";
 @use "../tools/link-utilities";
@@ -11,7 +11,7 @@
   A block for highlighting important information:
 
   // Basic component
-  <div class="callput-block">
+  <div class="callout-block">
     <h3 class="callout-block__heading">Optional Heading</h3>
     // Any important message here.
   </div>
@@ -30,11 +30,13 @@
 
   Modifiers:
     - neutral: Makes border grey
-    - danger: Makes border red
-    - warning: Makes border brown
+    - dark: Makes border dark grey
     - success: Makes border green
+    - warning: Makes border dark orange
+    - danger: Makes border red
     - message: Custom styles for messaging UI
     - bottom-margin: Adds extra margin below the callout
+    - dismissed: Hides the callout (applied by JS after dismissal)
 
   // Collapsible
     - Use <details> and <summary> instead of <div> and <h3>
@@ -46,14 +48,14 @@
     - Add open attribute to open callout block by default
 
   <details class="callout-block" data-controller="collapsible" data-collapsible-identifier="foo_bar" data-collapsible-setting="global" open>
-    <summary class="callout-block__heading data-action="click->collapsible#save">Required Heading</summary>
+    <summary class="callout-block__heading" data-action="click->collapsible#save">Required Heading</summary>
     // Any important message here.
   </details>
 */
 
 .callout-block {
   padding: 15px 15px 15px 30px;
-  border: 2px solid colours.$primary-color;
+  border: 2px solid colors.$primary-color;
   margin: 15px 0;
   position: relative;
   border-radius: 4px;
@@ -79,7 +81,7 @@
   &::before {
     content: "";
     width: 15px;
-    background-color: colours.$primary-color;
+    background-color: colors.$primary-color;
     position: absolute;
     top: -1px;
     left: -2px;
@@ -97,7 +99,7 @@
     &::after {
       content: "";
       width: 15px;
-      background-color: colours.$primary-color;
+      background-color: colors.$primary-color;
       position: absolute;
       top: -1px;
       right: -2px;
@@ -106,79 +108,39 @@
     }
   }
 
-  &--dark {
-    border-color: #616161;
-
-    > :not(.modal, .button) {
-      color: #616161;
-    }
-
-    &::before {
-      background-color: #616161;
-    }
-
-    .callout-block__dismiss {
-      @include link-utilities.link-focus-state(#616161);
-    }
-  }
-
   &--neutral {
-    border-color: colours.$border-color;
+    border-color: colors.$border-color;
 
     &::before {
-      background-color: colours.$border-color;
+      background-color: colors.$border-color;
     }
 
     &::after {
-      background-color: colours.$border-color;
+      background-color: colors.$border-color;
     }
   }
 
-  &--danger {
-    border-color: colours.$danger-color;
+  &--dark {
+    border-color: colors.$mid-grey;
 
     > :not(.modal, .button) {
-      color: colours.$danger-color;
-
-      a:not(.button) {
-        @include link-utilities.danger-underlined-link;
-      }
+      color: colors.$mid-grey;
     }
 
     &::before {
-      background-color: colours.$danger-color;
+      background-color: colors.$mid-grey;
     }
 
     .callout-block__dismiss {
-      @include link-utilities.link-focus-state(colours.$danger-color);
-    }
-  }
-
-  &--warning {
-    border-color: colours.$warning-color;
-
-    > :not(.modal, .button) {
-      color: colours.$warning-color;
-
-      a:not(.button) {
-        @include link-utilities.warning-underlined-link;
-      }
-    }
-
-    &::before {
-      background-color: colours.$warning-color;
-    }
-
-    .callout-block__dismiss {
-      @include link-utilities.link-focus-state(colours.$warning-color);
+      @include link-utilities.link-focus-state(colors.$mid-grey);
     }
   }
 
   &--success {
-    border-color: colours.$success-color;
+    border-color: colors.$success-color;
 
     > :not(.modal, .button) {
-      color: colours.$success-color;
+      color: colors.$success-color;
 
       a:not(.button) {
         @include link-utilities.success-underlined-link;
@@ -186,11 +148,51 @@
     }
 
     &::before {
-      background-color: colours.$success-color;
+      background-color: colors.$success-color;
     }
 
     .callout-block__dismiss {
-      @include link-utilities.link-focus-state(colours.$success-color);
+      @include link-utilities.link-focus-state(colors.$success-color);
+    }
+  }
+
+  &--warning {
+    border-color: colors.$warning-color;
+
+    > :not(.modal, .button) {
+      color: colors.$warning-color;
+
+      a:not(.button) {
+        @include link-utilities.warning-underlined-link;
+      }
+    }
+
+    &::before {
+      background-color: colors.$warning-color;
+    }
+
+    .callout-block__dismiss {
+      @include link-utilities.link-focus-state(colors.$warning-color);
+    }
+  }
+
+  &--danger {
+    border-color: colors.$danger-color;
+
+    > :not(.modal, .button) {
+      color: colors.$danger-color;
+
+      a:not(.button) {
+        @include link-utilities.danger-underlined-link;
+      }
+    }
+
+    &::before {
+      background-color: colors.$danger-color;
+    }
+
+    .callout-block__dismiss {
+      @include link-utilities.link-focus-state(colors.$danger-color);
     }
   }
 

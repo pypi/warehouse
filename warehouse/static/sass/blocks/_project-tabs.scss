@@ -2,9 +2,8 @@
 
 @use "sass:color";
 @use "../settings/breakpoints";
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/grid";
-@use "../tools/layout-utilities";
 @use "../tools/link-utilities";
 
 /*
@@ -18,10 +17,9 @@
           <li>
             <a id="my-tab-id" class="project-tabs__tab project-tabs__tab--is-active" aria-selected="true">
               // Active Tab. Remove --is-active and aria-selected for standard tab
-              <span class="project-tabs__link project-tabs__link--warning">
+              <span class="project-tabs__link">
                 // Icon
                 // Text
-                // Warning icon, if applicable
               </span>
             </a>
           </li>
@@ -61,11 +59,11 @@
     border-bottom: 2px solid transparent;
 
     &:hover {
-      color: color.adjust(colours.$primary-color, $lightness: -10%);
+      color: color.adjust(colors.$primary-color, $lightness: -10%);
     }
 
     &--is-active {
-      border-bottom-color: colours.$primary-color;
+      border-bottom-color: colors.$primary-color;
     }
 
     .fa,
@@ -85,7 +83,7 @@
       border-bottom: 2px solid transparent;
 
       &--is-active {
-        border-bottom-color: colours.$primary-color;
+        border-bottom-color: colors.$primary-color;
       }
     }
   }

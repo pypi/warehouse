@@ -2,7 +2,7 @@
 
 @use "sass:color";
 @use "../settings/breakpoints";
-@use "../settings/colours";
+@use "../settings/colors";
 
 /*
   A full width horizontal section that acts as a background container and
@@ -32,9 +32,9 @@
   }
 
   &--grey {
-    background-color: colours.$base-grey;
-    border-bottom: 1px solid color.adjust(colours.$base-grey, $lightness: -10%);
-    border-top: 1px solid color.adjust(colours.$base-grey, $lightness: -10%);
+    background-color: colors.$base-grey;
+    border-bottom: 1px solid color.adjust(colors.$base-grey, $lightness: -10%);
+    border-top: 1px solid color.adjust(colors.$base-grey, $lightness: -10%);
   }
 
   &--medium {

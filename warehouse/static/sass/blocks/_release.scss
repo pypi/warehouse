@@ -3,7 +3,7 @@
 @use "sass:color";
 @use "sass:list";
 @use "../settings/breakpoints";
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/fonts";
 @use "../settings/grid";
 @use "../settings/z-index";
@@ -38,7 +38,7 @@
   display: table;
   table-layout: fixed;
   width: 100%;
-  border-left: 1px solid colours.$background-color;
+  border-left: 1px solid colors.$background-color;
   padding: 0 grid.$half-spacing-unit;
 
   &__meta {
@@ -86,7 +86,7 @@
   }
 
   &__node {
-    background-color: colours.$background-color;
+    background-color: colors.$background-color;
     padding: 7px 0;
     position: relative;
     z-index: list.index(z-index.$z-index-scale, "history-node");
@@ -121,16 +121,16 @@
   }
 
   &--current {
-    background-color: color.adjust(colours.$background-color, $lightness: -1%);
-    border: 1px dotted #ccc;
+    background-color: color.adjust(colors.$background-color, $lightness: -1%);
+    border: 1px dotted colors.$border-color;
 
     .release__node {
-      background-color: color.adjust(colours.$background-color, $lightness: -1%);
+      background-color: colors.$off-white;
     }
 
     .release__card {
-      background-color: colours.$white;
-      box-shadow: 1px 1px 2px 1px color.adjust(colours.$black, $alpha: -0.95);
+      background-color: colors.$white;
+      box-shadow: 1px 1px 2px 1px color.adjust(colors.$black, $alpha: -0.95);
     }
   }
 

@@ -1,7 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-@use "../settings/colours";
-@use "../settings/grid";
+@use "../settings/colors";
 @use "../tools/link-utilities";
 
 /*
@@ -28,7 +27,7 @@
     @include link-utilities.link-without-underline;
 
     &:hover {
-      color: colours.$primary-color;
+      color: colors.$primary-color;
     }
 
     .fa,

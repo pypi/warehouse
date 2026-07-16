@@ -2,7 +2,7 @@
 
 @use "sass:color";
 @use "../settings/breakpoints";
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/fonts";
 @use "../settings/grid";
 @use "../tools/layout-utilities";
@@ -17,46 +17,23 @@
       <span class="project-status__description">Explanation here</span>
     </div>
   </div>
+
+  Modifiers:
+    - pre-release: Light blue background (dark text)
+    - archived: Light grey background (dark text)
+    - yanked: Dark grey background (white text)
+    - quarantined: Orange background (white text)
 */
 
 .project-status {
-  color: colours.$white;
-  border-bottom: 1px solid color.adjust(colours.$white, $alpha: -0.6);
-
-  &--quarantined {
-    background-color: color.adjust(colours.$warning-color, $lightness: -7%);
-  }
-
-  &--yanked {
-    background-color: color.adjust(colours.$text-color, $lightness: -7%);
-  }
-
-  &--archived {
-    $archived-border: color.adjust(colours.$border-color, $lightness: -5%);
-
-    background-color: color.adjust(colours.$base-grey, $lightness: -6%);
-    color: colours.$text-color;
-    border-bottom-color: $archived-border;
-
-    .project-status__label {
-      border-color: $archived-border;
-    }
-
-    .project-status__description a {
-      color: colours.$text-color;
-
-      &:focus,
-      &:active {
-        outline-color: colours.$text-color;
-      }
-    }
-  }
+  color: colors.$white;
+  border-bottom: 1px solid color.adjust(colors.$white, $alpha: -0.6);
 
   &--pre-release {
-    $pre-release-border: color.adjust(colours.$primary-color-light-border, $lightness: -20%);
+    $pre-release-border: color.adjust(colors.$primary-color-light-border, $lightness: -20%);
 
-    background-color: color.adjust(colours.$primary-color-light-border, $lightness: -9%);
-    color: colours.$text-color;
+    background-color: color.adjust(colors.$primary-color-light-border, $lightness: -9%);
+    color: colors.$text-color;
     border-bottom-color: $pre-release-border;
 
     .project-status__label {
@@ -64,13 +41,42 @@
     }
 
     .project-status__description a {
-      color: colours.$text-color;
+      color: colors.$text-color;
 
       &:focus,
       &:active {
-        outline-color: colours.$text-color;
+        outline-color: colors.$text-color;
       }
     }
+  }
+
+  &--archived {
+    $archived-border: color.adjust(colors.$border-color, $lightness: -5%);
+
+    background-color: color.adjust(colors.$base-grey, $lightness: -6%);
+    color: colors.$text-color;
+    border-bottom-color: $archived-border;
+
+    .project-status__label {
+      border-color: $archived-border;
+    }
+
+    .project-status__description a {
+      color: colors.$text-color;
+
+      &:focus,
+      &:active {
+        outline-color: colors.$text-color;
+      }
+    }
+  }
+
+  &--yanked {
+    background-color: color.adjust(colors.$text-color, $lightness: -7%);
+  }
+
+  &--quarantined {
+    background-color: color.adjust(colors.$warning-color, $lightness: -7%);
   }
 
   &__content {
@@ -101,13 +107,13 @@
     text-transform: uppercase;
     letter-spacing: 0.05rem;
     white-space: nowrap;
-    border-right: 1px solid color.adjust(colours.$white, $alpha: -0.6);
+    border-right: 1px solid color.adjust(colors.$white, $alpha: -0.6);
     padding-right: grid.$half-spacing-unit;
 
     @media screen and (max-width: breakpoints.$small-tablet) {
       align-self: normal;
       border-right: none;
-      border-bottom: 1px solid color.adjust(colours.$white, $alpha: -0.6);
+      border-bottom: 1px solid color.adjust(colors.$white, $alpha: -0.6);
       padding-right: 0;
       padding-bottom: grid.$half-spacing-unit;
       width: 100%;
@@ -118,12 +124,12 @@
     flex: 1;
 
     a {
-      color: colours.$white;
+      color: colors.$white;
       text-decoration: underline;
 
       &:focus,
       &:active {
-        outline-color: colours.$white;
+        outline-color: colors.$white;
       }
     }
   }

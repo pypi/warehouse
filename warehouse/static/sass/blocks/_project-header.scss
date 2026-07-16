@@ -2,7 +2,7 @@
 
 @use "sass:color";
 @use "../settings/breakpoints";
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/fonts";
 @use "../settings/grid";
 @use "../tools/layout-utilities";
@@ -48,9 +48,9 @@
       font-weight: 500;
       font-size: 1rem;
       float: left;
-      background-color: color.adjust(colours.$primary-color, $lightness: -5%);
+      background-color: color.adjust(colors.$primary-color, $lightness: -5%);
       padding: 8px;
-      border: 1px dotted colours.$transparent-white;
+      border: 1px dotted colors.$transparent-white;
       line-height: grid.$spacing-unit;
 
       @media only screen and (max-width: breakpoints.$tablet) {
@@ -63,22 +63,22 @@
     }
 
     button {
-      color: colours.$white;
+      color: colors.$white;
       line-height: grid.$spacing-unit;
       float: left;
       cursor: pointer;
       padding: 8px grid.$half-spacing-unit;
-      background-color: color.adjust(colours.$primary-color, $lightness: -5%);
-      border-right: 1px dotted colours.$transparent-white;
-      border-top: 1px dotted colours.$transparent-white;
-      border-bottom: 1px dotted colours.$transparent-white;
+      background-color: color.adjust(colors.$primary-color, $lightness: -5%);
+      border-right: 1px dotted colors.$transparent-white;
+      border-top: 1px dotted colors.$transparent-white;
+      border-bottom: 1px dotted colors.$transparent-white;
       border-left: 1px;
 
       &:hover {
-        background-color: color.adjust(colours.$primary-color, $lightness: -7%);
+        background-color: color.adjust(colors.$primary-color, $lightness: -7%);
       }
 
-      @include link-utilities.link-focus-state(colours.$white);
+      @include link-utilities.link-focus-state(colors.$white);
     }
   }
 }
@@ -86,14 +86,14 @@
 .banner--quarantined {
   .project-header__pip-instructions {
     span {
-      background-color: color.adjust(colours.$warning-color, $lightness: -5%);
+      background-color: color.adjust(colors.$warning-color, $lightness: -5%);
     }
 
     button {
-      background-color: color.adjust(colours.$warning-color, $lightness: -5%);
+      background-color: color.adjust(colors.$warning-color, $lightness: -5%);
 
       &:hover {
-        background-color: color.adjust(colours.$warning-color, $lightness: -7%);
+        background-color: color.adjust(colors.$warning-color, $lightness: -7%);
       }
     }
   }
@@ -102,16 +102,16 @@
 .banner--yanked {
   .project-header__pip-instructions {
     span {
-      background-color: color.adjust(colours.$text-color, $lightness: -5%);
-      border-color: colours.$transparent-white;
+      background-color: color.adjust(colors.$text-color, $lightness: -5%);
+      border-color: colors.$transparent-white;
     }
 
     button {
-      background-color: color.adjust(colours.$text-color, $lightness: -5%);
-      border-color: colours.$transparent-white;
+      background-color: color.adjust(colors.$text-color, $lightness: -5%);
+      border-color: colors.$transparent-white;
 
       &:hover {
-        background-color: color.adjust(colours.$text-color, $lightness: -7%);
+        background-color: color.adjust(colors.$text-color, $lightness: -7%);
       }
     }
   }
@@ -120,18 +120,18 @@
 .banner--archived {
   .project-header__pip-instructions {
     span {
-      background-color: color.adjust(colours.$base-grey, $lightness: -2%);
-      color: colours.$text-color;
-      border-color: colours.$border-color;
+      background-color: color.adjust(colors.$base-grey, $lightness: -2%);
+      color: colors.$text-color;
+      border-color: colors.$border-color;
     }
 
     button {
-      background-color: color.adjust(colours.$base-grey, $lightness: -2%);
-      color: colours.$text-color;
-      border-color: colours.$border-color;
+      background-color: color.adjust(colors.$base-grey, $lightness: -2%);
+      color: colors.$text-color;
+      border-color: colors.$border-color;
 
       &:hover {
-        background-color: color.adjust(colours.$base-grey, $lightness: -10%);
+        background-color: color.adjust(colors.$base-grey, $lightness: -10%);
       }
     }
   }
@@ -140,18 +140,18 @@
 .banner--pre-release {
   .project-header__pip-instructions {
     span {
-      background-color: color.adjust(colours.$primary-color-light-border, $lightness: -5%);
-      color: colours.$text-color;
-      border-color: color.adjust(colours.$primary-color-light-border, $lightness: -15%);
+      background-color: color.adjust(colors.$primary-color-light-border, $lightness: -5%);
+      color: colors.$text-color;
+      border-color: color.adjust(colors.$primary-color-light-border, $lightness: -15%);
     }
 
     button {
-      background-color: color.adjust(colours.$primary-color-light-border, $lightness: -5%);
-      color: colours.$text-color;
-      border-color: color.adjust(colours.$primary-color-light-border, $lightness: -15%);
+      background-color: color.adjust(colors.$primary-color-light-border, $lightness: -5%);
+      color: colors.$text-color;
+      border-color: color.adjust(colors.$primary-color-light-border, $lightness: -15%);
 
       &:hover {
-        background-color: color.adjust(colours.$primary-color-light-border, $lightness: -10%);
+        background-color: color.adjust(colors.$primary-color-light-border, $lightness: -10%);
       }
     }
   }

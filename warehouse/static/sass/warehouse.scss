@@ -21,7 +21,7 @@
 
 // SETTINGS LAYER: settings we use throughout the codebase
 @use "settings/breakpoints";
-@use "settings/colours";
+@use "settings/colors";
 @use "settings/fonts";
 @use "settings/grid";
 @use "settings/z-index";
@@ -119,9 +119,7 @@
 @use "blocks/twofa-login";
 @use "blocks/horizontal-tabs";
 @use "blocks/vertical-tabs";
-@use "blocks/verified";
 @use "blocks/viewport-section";
-@use "blocks/copyable";
 
 // TRUMPS LAYER: Overwrites everything else
 
@@ -161,7 +159,7 @@
 // COLORS
 // Make text or icons red to draw attention
 .danger {
-  color: colours.$danger-color;
+  color: colors.$danger-color;
 }
 
 // ALIGNMENT, PADDING & MARGINS
