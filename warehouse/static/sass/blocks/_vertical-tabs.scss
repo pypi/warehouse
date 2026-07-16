@@ -2,7 +2,7 @@
 
 @use "sass:color";
 @use "../settings/breakpoints";
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/grid";
 @use "../tools/layout-utilities";
 @use "../tools/link-utilities";
@@ -94,23 +94,23 @@
     @include link-utilities.link-without-underline;
 
     &:hover {
-      color: color.adjust(colours.$primary-color, $lightness: -10%);
+      color: color.adjust(colors.$primary-color, $lightness: -10%);
     }
 
     &:active,
     &:focus {
-      outline: 1px solid colours.$white;
-      box-shadow: 0 0 0 2px colours.$primary-color;
+      outline: 1px solid colors.$white;
+      box-shadow: 0 0 0 2px colors.$primary-color;
     }
 
     &--mobile {
       display: none;
       @media only screen and (max-width: breakpoints.$tablet) {
         display: block;
-        border-top: 1px solid colours.$border-color;
+        border-top: 1px solid colors.$border-color;
 
         &:last-of-type {
-          border-bottom: 1px solid colours.$border-color;
+          border-bottom: 1px solid colors.$border-color;
         }
       }
     }
@@ -123,8 +123,8 @@
 
     &--is-active,
     &--is-active:hover {
-      background: colours.$primary-color;
-      color: colours.$white;
+      background: colors.$primary-color;
+      color: colors.$white;
       border-color: transparent;
     }
 
@@ -159,7 +159,7 @@
     margin-left: grid.$spacing-unit;
 
     &:focus {
-      outline: 1px solid colours.$primary-color;
+      outline: 1px solid colors.$primary-color;
       outline-offset: 10px;
     }
 

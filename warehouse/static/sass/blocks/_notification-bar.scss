@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 @use "sass:color";
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/fonts";
 @use "../settings/grid";
 @use "../settings/breakpoints";
@@ -11,7 +11,7 @@
 
 /*
   A full width horizontal div that contains a short notification.
-  Use for single lines only, as all content will be styled as a h3.
+  Use for single lines only, as all content will be styled as a h6.
 
   Can be nested inside the .stick-to-top helper to stick to the top of the page.
 
@@ -26,22 +26,20 @@
   </div>
 
   Modifiers:
-    - danger: Applies a red background
-    - warning: Applies a yellow background
     - success: Applies a green background
+    - danger: Applies a red background
     - dismissable: Indicates notification can be dismissed. Defaults to hidden.
     - visible: Indicates a visible, non-dismissed notification
 
   Accessibility:
-  Roles should be added to danger, warning and success notifications to help
+  Roles should be added to danger and success notifications to help
   users using screen readers:
 
   - danger: Add role="alert". Use with care - as this will interrupt the
     standard screen reader workflow
-  - warning: Add role="status"
   - success: Add role="status"
 
-  Icons should also be added to danger, warning and success notifications, to
+  Icons should also be added to danger and success notifications, to
   ensure that color is not the only way of conveying the status of the
   notification. This is important for color blind users.
 
@@ -49,7 +47,6 @@
   label, as per the HTML example above.
 
    - danger: Add "fa fa-exclamation-triangle", sr-only="Error:"
-   - warning: Add "fa fa-exclamation-triangle", sr-only="Warning:"
    - success: Add "fa fa-check", sr-only="Success:"
 
   A notification bar can be made dismissable by adding the following to the main
@@ -87,9 +84,9 @@
 */
 
 .notification-bar {
-  color: color.adjust(colours.$notification-color, $lightness: -80%);
-  background-color: colours.$notification-color;
-  border-bottom: 2px solid color.adjust(colours.$notification-color, $lightness: -40%);
+  color: color.adjust(colors.$notification-color, $lightness: -80%);
+  background-color: colors.$notification-color;
+  border-bottom: 2px solid color.adjust(colors.$notification-color, $lightness: -40%);
 
   &__container {
     display: flex;
@@ -117,8 +114,8 @@
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    background-color: color.adjust(colours.$notification-color, $lightness: -10%);
-    border: 1px solid color.adjust(colours.$notification-color, $lightness: -13%);
+    background-color: color.adjust(colors.$notification-color, $lightness: -10%);
+    border: 1px solid color.adjust(colors.$notification-color, $lightness: -13%);
 
     @media screen and (max-width: breakpoints.$small-tablet) {
       display: none;
@@ -133,7 +130,7 @@
     }
 
     a:not(.button) {
-      @include link-utilities.colored-link(color.adjust(colours.$notification-color, $lightness: -80%));
+      @include link-utilities.colored-link(color.adjust(colors.$notification-color, $lightness: -80%));
     }
   }
 
@@ -151,7 +148,7 @@
 
   &__dismiss {
     @include design-utilities.dismiss-button;
-    @include link-utilities.link-focus-state(color.adjust(colours.$notification-color, $lightness: -80%));
+    @include link-utilities.link-focus-state(color.adjust(colors.$notification-color, $lightness: -80%));
     top: auto;
     color: inherit;
   }
@@ -171,33 +168,14 @@
     display: block;
   }
 
-  &--danger {
-    background-color: colours.$danger-color;
-    color: colours.$white;
-    border-bottom-color: colours.$white;
-
-    .notification-bar__icon {
-      background-color: color.adjust(colours.$danger-color, $lightness: -5%);
-      border-color: color.adjust(colours.$danger-color, $lightness: -8%);
-    }
-
-    a:not(.button) {
-      @include link-utilities.white-underlined-link;
-    }
-
-    .notification-bar__dismiss {
-      @include link-utilities.link-focus-state(colours.$white);
-    }
-  }
-
   &--success {
-    background-color: colours.$success-color;
-    color: colours.$white;
-    border-bottom-color: colours.$white;
+    background-color: colors.$success-color;
+    color: colors.$white;
+    border-bottom-color: colors.$white;
 
     .notification-bar__icon {
-      background-color: color.adjust(colours.$success-color, $lightness: -5%);
-      border-color: color.adjust(colours.$success-color, $lightness: -8%);
+      background-color: color.adjust(colors.$success-color, $lightness: -5%);
+      border-color: color.adjust(colors.$success-color, $lightness: -8%);
     }
 
     a:not(.button) {
@@ -205,8 +183,26 @@
     }
 
     .notification-bar__dismiss {
-      @include link-utilities.link-focus-state(colours.$white);
+      @include link-utilities.link-focus-state(colors.$white);
     }
   }
 
+  &--danger {
+    background-color: colors.$danger-color;
+    color: colors.$white;
+    border-bottom-color: colors.$white;
+
+    .notification-bar__icon {
+      background-color: color.adjust(colors.$danger-color, $lightness: -5%);
+      border-color: color.adjust(colors.$danger-color, $lightness: -8%);
+    }
+
+    a:not(.button) {
+      @include link-utilities.white-underlined-link;
+    }
+
+    .notification-bar__dismiss {
+      @include link-utilities.link-focus-state(colors.$white);
+    }
+  }
 }

@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 @use "sass:color";
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/fonts";
 @use "../settings/grid";
 
@@ -11,7 +11,7 @@
   <div class="form-group">
     <label class="form-group__label" for="myinput">
       Label here
-      <span class="form-group__required"(required)</span>
+      <span class="form-group__required">(required)</span>
     </label>
     <input class="form-group__field" id="myinput" />
     <p class="form-group__text">When a field is not editable, you can use me instead</p>
@@ -97,7 +97,7 @@
     margin-left: 0;
     margin-top: -1px;
     padding: 0;
-    border: 1px solid colours.$border-color;
+    border: 1px solid colors.$border-color;
     border-bottom: 0;
     position: absolute;
     z-index: 400;
@@ -105,9 +105,9 @@
     max-width: calc(100% - grid.$spacing-unit);
 
     li {
-      background-color: colours.$white;
-      border-bottom: 1px solid colours.$border-color;
-      color: colours.$text-color;
+      background-color: colors.$white;
+      border-bottom: 1px solid colors.$border-color;
+      color: colors.$text-color;
       cursor: pointer;
       list-style-type: none;
       padding: grid.$quarter-spacing-unit;
@@ -119,14 +119,14 @@
       &:hover,
       &:active,
       &:focus {
-        background-color: color.mix(colours.$white, colours.$primary-color-light, 90%);
-        color: colours.$primary-color-dark;
+        background-color: color.mix(colors.$white, colors.$primary-color-light, 90%);
+        color: colors.$primary-color-dark;
       }
 
       &:active,
       &:focus {
-        outline: 1px solid colours.$primary-color;
-        border-bottom-color: colours.$primary-color;
+        outline: 1px solid colors.$primary-color;
+        border-bottom-color: colors.$primary-color;
       }
     }
   }
@@ -135,11 +135,11 @@
 
   /* stylelint-disable-next-line selector-id-pattern -- Form sets name */
   input#totp_value:valid {
-    background-color: color.adjust(colours.$success-color, $lightness: 40%);
+    background-color: color.adjust(colors.$success-color, $lightness: 40%);
   }
 
   /* stylelint-disable-next-line selector-id-pattern -- Form sets name */
   input#totp_value:invalid {
-    background-color: color.adjust(colours.$danger-color, $lightness: 40%);
+    background-color: color.adjust(colors.$danger-color, $lightness: 40%);
   }
 }

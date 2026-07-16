@@ -55,7 +55,7 @@
             {% elif project.lifecycle_status in ["archived", "archived-noindex"] %}
               <span class="badge badge--neutral">{% trans %}archived{% endtrans %}</span>
             {% elif hversion.is_prerelease %}
-              <span class="badge badge--pre-release">{% trans %}pre-release{% endtrans %}</span>
+              <span class="badge badge--light">{% trans %}pre-release{% endtrans %}</span>
             {% endif %}
           </p>
           <p class="release__version-date">{{ humanize(hversion.created) }}</p>

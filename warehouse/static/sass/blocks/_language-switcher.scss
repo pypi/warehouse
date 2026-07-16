@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 @use "sass:color";
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/fonts";
 @use "../settings/grid";
 @use "../tools/link-utilities";
@@ -11,16 +11,16 @@
 
   <div class="language-switcher">
     <ul>
-      <li><button type="button" class="language-swticher__selected">Selected language</button><li>
+      <li><button type="button" class="language-switcher__selected">Selected language</button></li>
       <li><button type="button">Other language</button></li>
     </ul>
   </div>
 */
 
 .language-switcher {
-  background-color: color.adjust(colours.$primary-color, $lightness: 1%);
-  border-top: 1px solid color.adjust(colours.$primary-color, $lightness: -2%);
-  color: colours.$white;
+  background-color: color.adjust(colors.$primary-color, $lightness: 1%);
+  border-top: 1px solid color.adjust(colors.$primary-color, $lightness: -2%);
+  color: colors.$white;
   padding: grid.$half-spacing-unit 0;
   width: 100%;
   text-align: center;
@@ -35,7 +35,7 @@
     }
 
     button {
-      color: colours.$white;
+      color: colors.$white;
       border: 0;
       background-color: transparent;
       padding: 0;
@@ -52,7 +52,7 @@
         font-weight: 900;
         content: "\f105"#{'/*rtl:"\f104"*/'};
         margin-right: 4px;
-        color: colours.$white;
+        color: colors.$white;
         position: relative;
         top: 0.5px;
       }

@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 @use "../settings/breakpoints";
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/fonts";
 @use "../settings/grid";
 @use "../tools/link-utilities";
@@ -40,7 +40,7 @@
     margin-bottom: grid.$quarter-spacing-unit;
 
     &:has(+ .sidebar-section__content) {
-      margin-bottom: grid.$half-spacing-unit;;
+      margin-bottom: grid.$half-spacing-unit;
     }
 
     a[target="_blank"] {
@@ -55,25 +55,25 @@
   &__content {
     &--pypi {
       .sidebar-section__data-source {
-        background-color: color-mix(in srgb, #{colours.$primary-color} 5%, white);
-        border: 1px solid colours.$primary-color-light-border;
+        background-color: color-mix(in srgb, #{colors.$primary-color} 5%, white);
+        border: 1px solid colors.$primary-color-light-border;
         border-bottom: 0;
       }
 
       .sidebar-section__data-source-label {
-        color: colours.$primary-color;
-        background-color: color-mix(in srgb, #{colours.$primary-color} 5%, white);
-        border-color: colours.$primary-color-light-border;
+        color: colors.$primary-color;
+        background-color: color-mix(in srgb, #{colors.$primary-color} 5%, white);
+        border-color: colors.$primary-color-light-border;
       }
 
       .sidebar-section__data-source-description {
-        border-bottom-color: colours.$primary-color-light-border;
+        border-bottom-color: colors.$primary-color-light-border;
       }
 
       > .sidebar-section__data-block {
-        background-color: color-mix(in srgb, #{colours.$primary-color} 5%, white);
+        background-color: color-mix(in srgb, #{colors.$primary-color} 5%, white);
         padding: 10px;
-        border: 1px solid colours.$primary-color-light-border;
+        border: 1px solid colors.$primary-color-light-border;
       }
 
       .sidebar-section__data-source + .sidebar-section__data-block {
@@ -95,32 +95,28 @@
 
     &--verified {
       .sidebar-section__data-source {
-        background-color: color-mix(in srgb, #{colours.$base-grey} 50%, white);
-        border: 1px solid color-mix(in srgb, #{colours.$light-grey} 50%, white);
+        background-color: color-mix(in srgb, #{colors.$base-grey} 50%, white);
+        border: 1px solid color-mix(in srgb, #{colors.$light-grey} 50%, white);
         border-bottom: 0;
       }
 
       .sidebar-section__data-source-label {
-        color: colours.$text-color;
-        background-color: color-mix(in srgb, #{colours.$base-grey} 50%, white);
-        border-color: color-mix(in srgb, #{colours.$light-grey} 50%, white);
+        color: colors.$text-color;
+        background-color: color-mix(in srgb, #{colors.$base-grey} 50%, white);
+        border-color: color-mix(in srgb, #{colors.$light-grey} 50%, white);
       }
 
       .sidebar-section__data-source-description {
-        border-bottom-color: color-mix(in srgb, #{colours.$light-grey} 50%, white);
+        border-bottom-color: color-mix(in srgb, #{colors.$light-grey} 50%, white);
       }
 
       > .sidebar-section__data-block {
-        background-color: color-mix(in srgb, #{colours.$base-grey} 50%, white);
+        background-color: color-mix(in srgb, #{colors.$base-grey} 50%, white);
         padding: 10px;
-        border: 1px solid color-mix(in srgb, #{colours.$light-grey} 50%, white);
+        border: 1px solid color-mix(in srgb, #{colors.$light-grey} 50%, white);
       }
 
       .sidebar-section__data-source + .sidebar-section__data-block {
-        border-top: 0;
-      }
-
-            .sidebar-section__data-source + .sidebar-section__data-block {
         border-top: 0;
       }
 
@@ -147,7 +143,7 @@
       font-size: fonts.$small-font-size;
       cursor: pointer;
       user-select: none;
-      border: 1px solid;
+      border: 1px solid transparent;
       border-radius: 1rem;
       max-width: calc(100% - 28px);
       padding: 1px 8px;
@@ -183,8 +179,8 @@
       padding: 10px;
       padding-top: 0;
       margin-bottom: 10px;
-      color: colours.$text-color;
-      border-bottom: 1px solid;
+      color: colors.$text-color;
+      border-bottom: 1px solid transparent;
     }
   }
 
@@ -205,7 +201,7 @@
     gap: 8px;
     margin-bottom: 5px;
     @include link-utilities.link-without-underline;
-    @include link-utilities.link-focus-state(colours.$primary-color);
+    @include link-utilities.link-focus-state(colors.$primary-color);
 
     &:last-of-type {
       margin-bottom: 0;
@@ -232,7 +228,7 @@
   &__maintainers-overflow {
     summary {
       cursor: pointer;
-      color: colours.$primary-color;
+      color: colors.$primary-color;
       list-style: none;
       margin-top: 5px;
 
@@ -285,7 +281,7 @@
 
   // Ads
   .ethical-sidebar {
-    border: 2px solid colours.$border-color;
+    border: 2px solid colors.$border-color;
     border-radius: 5px;
     padding: 1rem 1rem 0.25rem 1em;
   }

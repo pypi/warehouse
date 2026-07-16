@@ -2,18 +2,18 @@
 
 @use "sass:color";
 @use "sass:list";
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/z-index";
 
 @mixin card {
-  border: 1px solid colours.$border-color;
+  border: 1px solid colors.$border-color;
   box-shadow: 1px 1px 2px 1px rgb(0 0 0 / 5%);
-  background-color: colours.$white;
+  background-color: colors.$white;
   text-decoration: none;
 
   &:hover,
   &:active {
-    border-color: colours.$border-color;
+    border-color: colors.$border-color;
     text-decoration: none;
   }
 }
@@ -21,7 +21,7 @@
 @mixin overlay {
   position: fixed;
   inset: 0;
-  background-color: color.adjust(colours.$black, $alpha: -0.5);
+  background-color: color.adjust(colors.$black, $alpha: -0.5);
   z-index: list.index(z-index.$z-index-scale, "dark-overlay");
   pointer-events: none;
   transition: opacity 0.3s;

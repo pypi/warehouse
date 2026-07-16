@@ -2,7 +2,7 @@
 
 @use "sass:color";
 @use "../settings/breakpoints";
-@use "../settings/colours";
+@use "../settings/colors";
 
 /*
   A horizontal search form, with an input on the left and a button on the right.
@@ -30,7 +30,7 @@
     display: inline;
     padding-right: 28px;
     min-width: auto;
-    border-color: colours.$white;
+    border-color: colors.$white;
   }
 
   &__button {
@@ -41,7 +41,7 @@
     width: 40px;
     border: 0;
     background-color: transparent;
-    color: color.mix(colours.$text-color, colours.$border-color, 50%);
+    color: color.mix(colors.$text-color, colors.$border-color, 50%);
     font-size: 18px;
   }
 

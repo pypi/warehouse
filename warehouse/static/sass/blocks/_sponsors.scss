@@ -2,7 +2,7 @@
 
 @use "sass:color";
 @use "../settings/breakpoints";
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/grid";
 @use "../tools/link-utilities";
 
@@ -25,8 +25,8 @@
 
 .sponsors {
   text-align: center;
-  border-top: 1px solid color.adjust(colours.$primary-color, $lightness: -2%);
-  background-color: colours.$primary-color;
+  border-top: 1px solid color.adjust(colors.$primary-color, $lightness: -2%);
+  background-color: colors.$primary-color;
   display: flex;
   flex-wrap: wrap;
   justify-content: center; // place the entire div in center page
@@ -36,8 +36,8 @@
     display: none;
     padding-bottom: 10px;
     margin-bottom: 10px;
-    border-bottom: 1px solid color.adjust(colours.$white, $alpha: -0.8);
-    color: colours.$white;
+    border-bottom: 1px solid color.adjust(colors.$white, $alpha: -0.8);
+    color: colors.$white;
 
     @media only screen and (max-width: breakpoints.$small-tablet) {
       display: block;
@@ -57,7 +57,7 @@
     padding: grid.$half-spacing-unit 13px 10px 13px;
     opacity: 0.95;
     @include link-utilities.link-without-underline;
-    @include link-utilities.link-focus-state(colours.$white);
+    @include link-utilities.link-focus-state(colors.$white);
 
     &:hover {
       opacity: 1;
@@ -91,7 +91,7 @@
     max-width: 100px;
     align-self: end;
     font-size: 0.75rem;
-    color: colours.$white;
+    color: colors.$white;
   }
 
   &__name {
