@@ -24,7 +24,7 @@
         ({{ file.size|filesizeformat() if file.size else 0|filesizeformat() }}
         <a href="#{{ file.filename }}"
            data-project-tabs-target="tab"
-           data-action="project-tabs#onTabClick">{%- trans -%}view details{%- endtrans -%}</a>)
+           data-action="project-tabs#tabClick">{%- trans -%}view details{%- endtrans -%}</a>)
         <p class="file__meta">
           Uploaded {{ humanize(file.upload_time) }}
           {% for tag in file.pretty_wheel_tags %}<code>{{ tag }}</code>{% endfor %}
