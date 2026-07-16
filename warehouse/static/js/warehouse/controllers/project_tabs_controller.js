@@ -61,7 +61,7 @@ export default class extends Controller {
   _getNavTabForContentId(contentId) {
     return this.tabTargets.find(tab =>
       tab.hash.slice(1) === contentId &&
-      !this.contentTargets.some(c => c.contains(tab))
+      !this.contentTargets.some(c => c.contains(tab)),
     );
   }
 
