@@ -51,7 +51,7 @@
             <img class="img-fluid rounded-circle elevation-2" src="{{ gravatar(request, user.email, size=128) }}" alt="User profile picture">
           </div>
 
-          <h3 class="widget-user-username text-center">{{ user.username }}</h3>
+          <h3 class="widget-user-username text-center"><a href="{{ request.route_path('accounts.profile', username=user.username)}}">{{ user.username }}</a></h3>
           <h5 class="widget-user-desc text-center">{{ user.name }}</h5>
         </div>
 
