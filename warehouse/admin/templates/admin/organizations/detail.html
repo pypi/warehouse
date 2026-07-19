@@ -15,7 +15,7 @@
       <div class="card card-primary">
         <div class="card-body card-widget widget-user-1">
           <div class="widget-user-header">
-            <h3 class="widget-user-username text-center">{{ organization.display_name }}</h3>
+            <h3 class="widget-user-username text-center"><a href="{{ request.route_path('organizations.profile', organization=organization.name)}}">{{ organization.display_name }}</a></h3>
           </div>
         </div>
         <div class="card-body">
@@ -149,7 +149,7 @@
     </div>
 
     <div class="col-md-9">
-      <div class="card">
+      <div class="card" id="organization-details">
         <div class="card-header with-border">
           <h3 class="card-title">Organization Details</h3>
         </div>
@@ -690,14 +690,14 @@
         {% endfor %}
       {% endif %}
 
-      <div class="card">
+      <div class="card"  id="projects">
         <div class="card-header with-border">
           <h3 class="card-title">Projects</h3>
         </div>
 
         <div class="card-body">
           {% if organization.projects %}
-          <table class="table table-hover" id="projects">
+          <table class="table table-hover">
             <thead>
               <tr>
                 <th>Project Name</th>
@@ -719,14 +719,14 @@
         </div>
       </div> <!-- .card -->
 
-      <div class="card">
+      <div class="card" id="members">
         <div class="card-header with-border">
           <h3 class="card-title">Members</h3>
         </div>
 
         <div class="card-body">
           {% if roles %}
-          <table class="table table-hover" id="members">
+          <table class="table table-hover">
             <thead>
               <tr>
                 <th>User</th>
@@ -817,7 +817,7 @@
 
         <div class="card-body">
           {% if organization.invitations %}
-          <table class="table table-hover" id="projects">
+          <table class="table table-hover">
             <thead>
               <tr>
                 <th>User</th>
@@ -839,14 +839,14 @@
         </div>
       </div> <!-- .card -->
 
-      <div class="card">
+      <div class="card"  id="teams">
         <div class="card-header with-border">
           <h3 class="card-title">Teams</h3>
         </div>
 
         <div class="card-body">
           {% if organization.teams %}
-          <table class="table table-hover" id="projects">
+          <table class="table table-hover">
             <thead>
               <tr>
                 <th>Team</th>
