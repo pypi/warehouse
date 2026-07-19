@@ -42,9 +42,13 @@
         {% trans href=request.route_path('accounts.profile', username=target_user), username=target_user, role_name=event.additional.role_name|lower %}<a href="{{ href }}">{{ username }}</a> added as organization {{ role_name }}{% endtrans %}
       </strong>
     {% elif event.tag == EventTag.Organization.OrganizationRoleRemove %}
-      {% set target_user = get_user(event.additional.target_user_id).username %}
+      {% set target_user_obj = get_user(event.additional.target_user_id) %}
       <strong>
-        {% trans href=request.route_path('accounts.profile', username=target_user), username=target_user, role_name=event.additional.role_name|lower %}<a href="{{ href }}">{{ username }}</a> removed as organization {{ role_name }}{% endtrans %}
+        {% if target_user_obj %}
+          {% trans href=request.route_path('accounts.profile', username=target_user_obj.username), username=target_user_obj.username, role_name=event.additional.role_name|lower %}<a href="{{ href }}">{{ username }}</a> removed as organization {{ role_name }}{% endtrans %}
+        {% else %}
+          {% trans role_name=event.additional.role_name|lower %}A deleted user was removed as organization {{ role_name }}{% endtrans %}
+        {% endif %}
       </strong>
     {% elif event.tag == EventTag.Organization.OrganizationRoleChange %}
       {% set target_user = get_user(event.additional.target_user_id).username %}

@@ -103,6 +103,7 @@ class TestWarehouseTask:
         get_current_request.assert_called_once_with()
 
     def test_request_without_tm(self, mocker):
+        request = types.SimpleNamespace()
         apply_async = mocker.patch.object(
             Task,
             "apply_async",
