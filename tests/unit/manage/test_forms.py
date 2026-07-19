@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
+from unittest import mock
+
 import pretend
 import pytest
 import wtforms
@@ -270,6 +272,19 @@ class TestAddEmailForm:
             mock_function,
         )
 
+        # Mock DNS resolution of the MX host's IP and its PTR record, so this
+        # test's coverage of the PTR-resolution lines does not depend on live,
+        # possibly-flaky network DNS lookups.
+        mock_a_record = mock.Mock(address="192.0.2.1")
+        mock_ptr_record = mock.Mock()
+        mock_ptr_record.target.to_text.return_value = f"{mx_record_domain}."
+        monkeypatch.setattr(
+            "dns.resolver.resolve", lambda *args, **kwargs: [mock_a_record]
+        )
+        monkeypatch.setattr(
+            "dns.resolver.resolve_address", lambda *args, **kwargs: [mock_ptr_record]
+        )
+
         prohibited_mx_domain = ProhibitedEmailDomain(
             domain=prohibited_domain,
             is_mx_record=True,
@@ -324,6 +339,19 @@ class TestAddEmailForm:
         monkeypatch.setattr(
             "email_validator.deliverability.validate_email_deliverability",
             mock_function,
+        )
+
+        # Mock DNS resolution of the MX host's IP and its PTR record, so this
+        # test's coverage of the PTR-resolution lines does not depend on live,
+        # possibly-flaky network DNS lookups.
+        mock_a_record = mock.Mock(address="192.0.2.1")
+        mock_ptr_record = mock.Mock()
+        mock_ptr_record.target.to_text.return_value = f"{mx_record_domain}."
+        monkeypatch.setattr(
+            "dns.resolver.resolve", lambda *args, **kwargs: [mock_a_record]
+        )
+        monkeypatch.setattr(
+            "dns.resolver.resolve_address", lambda *args, **kwargs: [mock_ptr_record]
         )
 
         prohibited_mx_domain = ProhibitedEmailDomain(
