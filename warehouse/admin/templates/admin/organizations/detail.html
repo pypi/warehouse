@@ -35,7 +35,60 @@
             {% endif %}
           </p>
         </div>
-      </div>
+          <div class="card-footer p-0">
+            <ul class="nav flex-column">
+              <li class="nav-item">
+                <a href="#organization-details" class="nav-link">
+                  Type <span class="float-right badge bg-info">{{  organization.orgtype }}</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#projects" class="nav-link">
+                  Projects <span class="float-right badge bg-primary">{{ organization.projects | list | length }}</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#projects" class="nav-link">
+                  Projects - Total Owned Size	<span class="float-right badge bg-success">{{ organization.projects | list | sum(attribute="total_size") | filesizeformat(binary=True) }}</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#organization-limits" class="nav-link">
+                  Upload Limit	
+                  <span class="float-right badge bg-info">
+                    {% if organization.upload_limit %}
+                    {{ organization.upload_limit|filesizeformat(binary=True) }}
+                    {% else %}
+                    Default ({{ MAX_FILESIZE|filesizeformat(binary=True) }})
+                    {% endif %}
+                  </span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#organization-limits" class="nav-link">
+                  Total Size Limit	
+                  <span class="float-right badge bg-info">
+                    {% if organization.total_size_limit %}
+                    {{ organization.total_size_limit|filesizeformat(binary=True) }}
+                    {% else %}
+                    Default ({{ MAX_PROJECT_SIZE|filesizeformat(binary=True) }})
+                    {% endif %}
+                  </span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#members" class="nav-link">
+                  Members <span class="float-right badge bg-primary">{{  roles | list | length }}</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#teams" class="nav-link">
+                  Teams <span class="float-right badge bg-info">{{  organization.teams | list | length }}</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
 
       <div class="card">
         <div class="card-header with-border">
