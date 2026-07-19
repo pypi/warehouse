@@ -114,7 +114,7 @@ class TestWarehouseTask:
         # process-global, so an attribute leaked onto one by another test
         # would make hasattr(request, "tm") unexpectedly true here.
         get_current_request = mocker.patch.object(
-            tasks, "get_current_request", return_value=types.SimpleNamespace()
+            tasks, "get_current_request", return_value=request
         )
 
         task = tasks.WarehouseTask()
