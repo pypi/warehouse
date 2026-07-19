@@ -40,10 +40,11 @@ class TestWarehouseTask:
 
     def test_call(self, mocker):
         registry = types.SimpleNamespace(settings={"warehouse.ip_salt": "peppa"})
+        request = types.SimpleNamespace()
 
         prepared = {
             "registry": registry,
-            "request": mocker.sentinel.request,
+            "request": request,
             "closer": mocker.stub(name="closer"),
         }
         prepare = mocker.patch.object(scripting, "prepare", return_value=prepared)
@@ -57,7 +58,7 @@ class TestWarehouseTask:
 
         assert task() is mocker.sentinel.result
         prepare.assert_called_once_with(registry=registry)
-        runner.assert_called_once_with(mocker.sentinel.request)
+        runner.assert_called_once_with(request)
 
     def test_retry(self, mocker, pyramid_request, metrics):
         class SpecificError(Exception):
@@ -100,6 +101,7 @@ class TestWarehouseTask:
         get_current_request.assert_called_once_with()
 
     def test_request_without_tm(self, mocker):
+        request = types.SimpleNamespace()
         apply_async = mocker.patch.object(
             Task,
             "apply_async",
@@ -107,7 +109,7 @@ class TestWarehouseTask:
             return_value=mocker.sentinel.async_result,
         )
         get_current_request = mocker.patch.object(
-            tasks, "get_current_request", return_value=mocker.sentinel.request
+            tasks, "get_current_request", return_value=request
         )
 
         task = tasks.WarehouseTask()
