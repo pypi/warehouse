@@ -2043,10 +2043,10 @@ msgstr ""
 #: warehouse/templates/accounts/register.html:67
 #: warehouse/templates/manage/account.html:149
 #: warehouse/templates/manage/account.html:635
-#: warehouse/templates/manage/project/history.html:284
-#: warehouse/templates/manage/project/history.html:295
-#: warehouse/templates/manage/project/history.html:306
-#: warehouse/templates/manage/project/history.html:317
+#: warehouse/templates/manage/project/history.html:286
+#: warehouse/templates/manage/project/history.html:297
+#: warehouse/templates/manage/project/history.html:308
+#: warehouse/templates/manage/project/history.html:319
 #: warehouse/templates/manage/unverified-account.html:119
 msgid "Name"
 msgstr ""
@@ -3904,7 +3904,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:713
 #: warehouse/templates/manage/account.html:732
-#: warehouse/templates/manage/project/history.html:247
+#: warehouse/templates/manage/project/history.html:249
 #: warehouse/templates/manage/unverified-account.html:349
 #: warehouse/templates/manage/unverified-account.html:368
 msgid "Reason:"
@@ -4112,15 +4112,15 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:858
 #: warehouse/templates/manage/account.html:880
-#: warehouse/templates/manage/project/history.html:238
-#: warehouse/templates/manage/project/history.html:245
+#: warehouse/templates/manage/project/history.html:240
+#: warehouse/templates/manage/project/history.html:247
 #: warehouse/templates/manage/unverified-account.html:468
 #: warehouse/templates/manage/unverified-account.html:490
 msgid "Token name:"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:873
-#: warehouse/templates/manage/project/history.html:240
+#: warehouse/templates/manage/project/history.html:242
 #: warehouse/templates/manage/unverified-account.html:483
 msgid "API token removed"
 msgstr ""
@@ -4216,7 +4216,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:950
 #: warehouse/templates/manage/organization/history.html:209
-#: warehouse/templates/manage/project/history.html:333
+#: warehouse/templates/manage/project/history.html:335
 #: warehouse/templates/manage/team/history.html:87
 #: warehouse/templates/manage/unverified-account.html:530
 msgid "Event"
@@ -4225,8 +4225,8 @@ msgstr ""
 #: warehouse/templates/manage/account.html:951
 #: warehouse/templates/manage/organization/history.html:210
 #: warehouse/templates/manage/organization/history.html:219
-#: warehouse/templates/manage/project/history.html:334
-#: warehouse/templates/manage/project/history.html:343
+#: warehouse/templates/manage/project/history.html:336
+#: warehouse/templates/manage/project/history.html:345
 #: warehouse/templates/manage/team/history.html:88
 #: warehouse/templates/manage/team/history.html:97
 #: warehouse/templates/manage/unverified-account.html:531
@@ -4253,7 +4253,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:967
 #: warehouse/templates/manage/organization/history.html:226
-#: warehouse/templates/manage/project/history.html:350
+#: warehouse/templates/manage/project/history.html:352
 #: warehouse/templates/manage/team/history.html:104
 #: warehouse/templates/manage/unverified-account.html:546
 msgid "Device Info"
@@ -4580,8 +4580,8 @@ msgstr ""
 #: warehouse/templates/manage/project/history.html:119
 #: warehouse/templates/manage/project/history.html:163
 #: warehouse/templates/manage/project/history.html:188
-#: warehouse/templates/manage/project/history.html:282
-#: warehouse/templates/manage/project/history.html:304
+#: warehouse/templates/manage/project/history.html:284
+#: warehouse/templates/manage/project/history.html:306
 #: warehouse/templates/manage/team/history.html:68
 msgid "Added by:"
 msgstr ""
@@ -6047,8 +6047,8 @@ msgid "Created by:"
 msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:154
-#: warehouse/templates/manage/project/history.html:293
-#: warehouse/templates/manage/project/history.html:315
+#: warehouse/templates/manage/project/history.html:295
+#: warehouse/templates/manage/project/history.html:317
 #: warehouse/templates/manage/team/history.html:57
 msgid "Deleted by:"
 msgstr ""
@@ -6086,7 +6086,7 @@ msgid "Revoked by:"
 msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:206
-#: warehouse/templates/manage/project/history.html:330
+#: warehouse/templates/manage/project/history.html:332
 #: warehouse/templates/manage/team/history.html:84
 #, python-format
 msgid "Security history for %(source_name)s"
@@ -6814,13 +6814,13 @@ msgid "Short-lived API token created"
 msgstr ""
 
 #: warehouse/templates/manage/project/history.html:201
-#: warehouse/templates/manage/project/history.html:229
-#: warehouse/templates/manage/project/history.html:241
+#: warehouse/templates/manage/project/history.html:231
+#: warehouse/templates/manage/project/history.html:243
 msgid "Permissions: Can upload to this project"
 msgstr ""
 
 #: warehouse/templates/manage/project/history.html:204
-#: warehouse/templates/manage/project/history.html:236
+#: warehouse/templates/manage/project/history.html:238
 msgid "Expiration:"
 msgstr ""
 
@@ -6837,76 +6837,80 @@ msgid "Creator"
 msgstr ""
 
 #: warehouse/templates/manage/project/history.html:228
+msgid "Short-lived API token revoked"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:230
 msgid "API token created"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:232
-#: warehouse/templates/manage/project/history.html:243
+#: warehouse/templates/manage/project/history.html:234
+#: warehouse/templates/manage/project/history.html:245
 msgid "Controlled by:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:251
+#: warehouse/templates/manage/project/history.html:253
 msgid "Trusted publisher added"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:254
+#: warehouse/templates/manage/project/history.html:256
 msgid "Trusted publisher removed"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:258
+#: warehouse/templates/manage/project/history.html:260
 msgid "2FA requirement enabled"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:260
+#: warehouse/templates/manage/project/history.html:262
 msgid "Enabled by:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:263
+#: warehouse/templates/manage/project/history.html:265
 msgid "2FA requirement disabled"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:265
+#: warehouse/templates/manage/project/history.html:267
 msgid "Disabled by:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:269
+#: warehouse/templates/manage/project/history.html:271
 msgid "Project archived"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:271
+#: warehouse/templates/manage/project/history.html:273
 msgid "Archived by:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:274
+#: warehouse/templates/manage/project/history.html:276
 msgid "Project unarchived"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:276
+#: warehouse/templates/manage/project/history.html:278
 msgid "Unarchived by:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:280
-#: warehouse/templates/manage/project/history.html:302
+#: warehouse/templates/manage/project/history.html:282
+#: warehouse/templates/manage/project/history.html:304
 msgid "Project alternate repository added"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:285
-#: warehouse/templates/manage/project/history.html:296
-#: warehouse/templates/manage/project/history.html:307
-#: warehouse/templates/manage/project/history.html:318
+#: warehouse/templates/manage/project/history.html:287
+#: warehouse/templates/manage/project/history.html:298
+#: warehouse/templates/manage/project/history.html:309
+#: warehouse/templates/manage/project/history.html:320
 msgid "Url"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:291
-#: warehouse/templates/manage/project/history.html:313
+#: warehouse/templates/manage/project/history.html:293
+#: warehouse/templates/manage/project/history.html:315
 msgid "Project alternate repository deleted"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:335
+#: warehouse/templates/manage/project/history.html:337
 msgid "Additional info"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:347
+#: warehouse/templates/manage/project/history.html:349
 #: warehouse/templates/manage/team/history.html:101
 msgid "Location info"
 msgstr ""
