@@ -175,7 +175,7 @@ def reindex(self, request):
                     max_chunk_bytes=10 * 1024 * 1024,  # 10MB, per OpenSearch defaults
                 ):
                     pass
-            except:
+            except Exception:
                 new_index.delete()
                 raise
             finally:
