@@ -13,7 +13,7 @@ links:
 
 Over the next few months, we will be rolling out changes to the PyPI user interface, improving how we surface security signals and updating the pages where users view package details.
 
-Updates will be staged to [TestPyPI](https://test.pypi.org/) and deployed to production in phases. This approach allows our team to thoroughly test the UI with production-like data, while providing the community with an opportunity to provide feedback.
+Updates will be staged to [TestPyPI](https://test.pypi.org/) and deployed to production in phases. This approach allows our team to thoroughly test the UI with production-like data, while providing the community with an opportunity to share feedback.
 
 The first phase of changes is now staged on [TestPyPI](https://test.pypi.org/) and ready for users to review!
 
@@ -27,9 +27,9 @@ In 2024, PyPI [introduced support for digital attestations](2024-11-14-pypi-now-
 
 While this was a significant milestone, the initial release did not include the necessary UI updates to make those attestations easily understandable or consumable for the average PyPI user.
 
-This isn't a PyPI-specific problem; communicating attestations clearly to end users is a challenge across the open source ecosystem. To address this, the [OpenSSF Securing Repositories Working Group](https://repos.openssf.org/) partnered with [Superbloom](https://superbloom.design/) and [Kabu&nbsp;Creative](https://kabucreative.com/) in 2025 to research and develop a standardized [style guide for displaying attestations on software repositories](https://repos.openssf.org/attestations-style-guide). This work included extensive user interviews with package consumers (including PyPI users) to understand how they evaluate package security and trustworthiness.
+This isn't a PyPI-specific problem; communicating attestations clearly to end users is a challenge across the open source ecosystem. To address this, the [OpenSSF Securing Software Repositories Working Group](https://repos.openssf.org/) partnered with [Superbloom](https://superbloom.design/) and [Kabu&nbsp;Creative](https://kabucreative.com/) in 2025 to research and develop a standardized [style guide for displaying attestations on software repositories](https://repos.openssf.org/attestations-style-guide). This work included extensive user interviews with package consumers (including PyPI users) to understand how they evaluate package security and trustworthiness.
 
-As a next step, PyPI is adopting the [highest-level recommendations](https://repos.openssf.org/attestations-style-guide/level-aaa) from the style guide, the first package repository to do so. Most notably, this involves adding a new "Security" tab and improving PyPI's user documentation.
+As a next step, PyPI is adopting the [highest-level recommendations](https://repos.openssf.org/attestations-style-guide/level-aaa) from the style guide, becoming the first package repository to do so. Most notably, this involves adding a new "Security" tab and improving PyPI's user documentation.
 
 We are also using this opportunity to deliver incremental improvements to the project detail pages, fine-tuning our 2018 design to improve information hierarchy and utility.
 
@@ -39,9 +39,9 @@ Key changes to the user interface include:
 
 *   **Dedicated Security Tab:** We are introducing a new Security tab to the project page to centralize provenance and attestation metadata, and to provide clear indicators when provenance is missing or has changed.
 
-*   **Navigation moved to horizontal tabs:** We are moving internal navigation out of the sidebar and into a horizontal tab structure. This allows us to reserve the sidebar exclusively for project- and release-related metadata.
+*   **Navigation Moved to Horizontal Tabs:** We are moving internal navigation out of the sidebar and into a horizontal tab structure. This allows us to reserve the sidebar exclusively for project- and release-related metadata.
 
-*   **Metadata sidebar moved to the right:** We are shifting the sidebar to the right to place critical content (the package description/readme) on the left, aligning with a natural left-to-right reading pattern and mirroring the structure of other major platforms like GitHub and npm.
+*   **Metadata Sidebar Moved to the Right:** We are shifting the sidebar to the right to place critical content (the package description/readme) on the left, aligning with a natural left-to-right reading pattern and mirroring the structure of other major platforms like GitHub and npm.
 
 *   **Labeling Trust Levels:** We are explicitly labeling project data intrinsic to PyPI (like release timestamps) and data provided by a maintainer and verified by PyPI (like upstream source repositories). This will help users weigh the trustworthiness of data according to its source.
 
@@ -57,7 +57,7 @@ We are rolling out these changes in four phases. You can follow our progress, vi
 
 *   **Phase 1: Project Details** (prototypes and discussion at [#19951](https://github.com/pypi/warehouse/issues/19951), now live on [TestPyPI](https://test.pypi.org/)) – Main page redesign, including updates to the sidebar order and positioning.
 *   **Phase 2: Files and Release History** (prototypes and discussion at [#20185](https://github.com/pypi/warehouse/issues/20185)) – Streamlining the file and release history tabs, adding attestation metadata where appropriate.
-*   **Phase 3: Security Tab** (prototypes and discussion at [#20069](https://github.com/pypi/warehouse/issues/20069)) – Building a dedicated space for surfacing provenance and attestation data, surfacing warnings where appropriate.
+*   **Phase 3: Security Tab** (prototypes and discussion at [#20069](https://github.com/pypi/warehouse/issues/20069)) – Building a dedicated space for surfacing provenance and attestation data, raising warnings where appropriate.
 *   **Phase 4: Documentation Refresh** – Refreshing PyPI's documentation to support the new UI, including adding security guidance.
 
 ## We Want Your Feedback
@@ -70,7 +70,7 @@ If you find a bug or defect, please open a ticket on [our issue tracker](https:/
 
 ## Acknowledgments
 
-We would like to thank the [Open&nbsp;Source&nbsp;Security&nbsp;Foundation](https://openssf.org/) for providing the funding for this initiative. We are also deeply grateful to Dustin Ingram, Zach Steindler, and the members of the [OpenSSF Securing Software Repos WG](http://repos.openssf.org/) for proposing this project for funding, and championing the larger effort to introduce attestations.
+We would like to thank the [Open&nbsp;Source&nbsp;Security&nbsp;Foundation](https://openssf.org/) for providing the funding for this initiative. We are also deeply grateful to Dustin Ingram, Zach Steindler, and the members of the [OpenSSF Securing Software Repos WG](https://repos.openssf.org/) for proposing this project for funding, and championing the larger effort to introduce attestations.
 
 We also want to extend a sincere thank you to the members of the Python community who participated in our most recent round of [user interviews](https://github.com/pypi/warehouse/issues/20111); your insights were instrumental in shaping the rationale and execution of these designs. Volunteers included:
 
