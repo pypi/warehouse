@@ -327,6 +327,7 @@ def test_configure(monkeypatch, mocker, settings, environment):
         "warehouse.manage.oidc.ip_registration_ratelimit_string": "100 per day",
         "warehouse.packaging.project_create_user_ratelimit_string": "20 per hour",
         "warehouse.packaging.project_create_ip_ratelimit_string": "40 per hour",
+        "warehouse.packaging.project_create_org_ratelimit_string": "20 per day",
         "warehouse.search.ratelimit_string": "5 per second",
         "oidc.backend": "warehouse.oidc.services.OIDCPublisherService",
         "integrity.backend": "warehouse.attestations.services.IntegrityService",

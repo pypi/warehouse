@@ -41,6 +41,7 @@ def test_includeme(monkeypatch, mocker):
         "docs.backend": "wu.tang",
         "warehouse.packaging.project_create_user_ratelimit_string": "20 per hour",
         "warehouse.packaging.project_create_ip_ratelimit_string": "40 per hour",
+        "warehouse.packaging.project_create_org_ratelimit_string": "20 per hour",
     }
 
     config = pretend.stub(
@@ -67,6 +68,7 @@ def test_includeme(monkeypatch, mocker):
     assert config.register_rate_limiter.calls == [
         pretend.call("20 per hour", "project.create.user"),
         pretend.call("40 per hour", "project.create.ip"),
+        pretend.call("20 per hour", "project.create.org"),
     ]
     assert config.register_origin_cache_keys.calls == [
         pretend.call(

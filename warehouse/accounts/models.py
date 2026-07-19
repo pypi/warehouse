@@ -107,6 +107,10 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
     )
     disabled_for: Mapped[DisableReason | None]
 
+    project_create_limit_string: Mapped[str | None] = mapped_column(
+        String, nullable=True
+    )
+
     totp_secret: Mapped[int | None] = mapped_column(LargeBinary(length=20))
     last_totp_value: Mapped[str | None]
 

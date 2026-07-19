@@ -1035,7 +1035,7 @@ class TestProjectService:
         service = ProjectService(session=db_request.db)
 
         with pytest.raises(HTTPForbidden) as exc:
-            service.create_project("foo", pretend.stub(), db_request, ratelimited=False)
+            service.create_project("foo", UserFactory.create(), db_request)
 
         resp = exc.value
         assert resp.status_code == 403
@@ -1200,6 +1200,7 @@ def test_project_service_factory(db_request, ratelimit_service):
     service = project_service_factory(pretend.stub(), db_request)
 
     assert service.db is db_request.db
-    # The factory resolves both rate limiters from the registry by name.
+    # The factory resolves all create rate limiters from the registry by name.
     assert service.ratelimiters["project.create.user"] is ratelimit_service
     assert service.ratelimiters["project.create.ip"] is ratelimit_service
+    assert service.ratelimiters["project.create.org"] is ratelimit_service

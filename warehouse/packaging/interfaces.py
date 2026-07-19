@@ -15,7 +15,12 @@ if typing.TYPE_CHECKING:
 
 
 class TooManyProjectsCreated(RateLimiterException):
-    pass
+    @property
+    def message(self) -> str:
+        if self.resets_in is not None:
+            seconds = max(1, int(self.resets_in.total_seconds()))
+            return f"Too many new projects created. Try again in {seconds} seconds."
+        return "Too many new projects created. Try again later."
 
 
 class IGenericFileStorage(Interface):
@@ -83,14 +88,18 @@ class IProjectService(Interface):
         creator,
         request,
         *,
-        creator_is_owner=True,
         organization_id: UUID | None = None,
+        ratelimited=True,
     ):
         """
         Creates a new project, recording a user as its creator.
 
-        If `creator_is_owner`, a `Role` is also added to the project
-        marking `creator` as a project owner.
+        If `organization_id` is provided the project is linked to that
+        organization; otherwise a `Role` is added to the project marking
+        `creator` as a project owner.
+
+        If `ratelimited` is False, the project creation rate limiters are
+        neither checked nor incremented (e.g. trusted-publisher auto-creation).
         """
 
 

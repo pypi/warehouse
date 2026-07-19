@@ -249,7 +249,7 @@ def _release_to_organization(
         return HTTPSeeOther(list_url)
 
     # The project is owned by the organization, so no individual Owner role is
-    # created (mirroring project creation with `creator_is_owner=False`).
+    # created (mirroring org-attached project creation).
     project = Project(name=project_name)
     request.db.add(project)
     request.db.delete(prohibited_project_name)

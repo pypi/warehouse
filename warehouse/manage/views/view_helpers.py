@@ -52,17 +52,21 @@ def organization_owners(request: Request, organization: Organization) -> list[Us
 
 
 def add_organization_project_and_notify(
-    request: Request, organization: Organization, project: Project
+    request: Request, organization: Organization, project: Project, *, link: bool = True
 ) -> None:
     """Associate ``project`` with ``organization``, record events, and notify owners.
 
     Shared by the manage-side "add project to organization" and "transfer
     project to organization" flows and the admin prohibited-name release flow.
+    Pass ``link=False`` when the OrganizationProject row already exists (e.g.
+    the project was just created via ``create_project(organization_id=...)``,
+    which links inline).
     """
-    organization_service = request.find_service(IOrganizationService, context=None)
-    organization_service.add_organization_project(
-        organization_id=organization.id, project_id=project.id
-    )
+    if link:
+        organization_service = request.find_service(IOrganizationService, context=None)
+        organization_service.add_organization_project(
+            organization_id=organization.id, project_id=project.id
+        )
 
     organization.record_event(
         tag=EventTag.Organization.OrganizationProjectAdd,
