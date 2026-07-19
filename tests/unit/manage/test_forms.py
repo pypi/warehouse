@@ -162,6 +162,22 @@ class TestSaveAccountForm:
         )
 
 
+def _mock_dns_resolution(monkeypatch, mx_record_domain):
+    """
+    Mock DNS resolution of an MX host's IP and its PTR record, so tests
+    exercising the PTR-resolution lines in `NewEmailMixin.validate_email` do
+    not depend on live, possibly-flaky network DNS lookups.
+    """
+    mock_a_record = mock.Mock(address="192.0.2.1")
+    mock_ptr_record = mock.Mock()
+    mock_ptr_record.target.to_text.return_value = f"{mx_record_domain}."
+
+    monkeypatch.setattr("dns.resolver.resolve", mock.Mock(return_value=[mock_a_record]))
+    monkeypatch.setattr(
+        "dns.resolver.resolve_address", mock.Mock(return_value=[mock_ptr_record])
+    )
+
+
 class TestAddEmailForm:
     @pytest.mark.usefixtures("no_email_deliverability_check")
     def test_validate(self, metrics):
@@ -272,18 +288,7 @@ class TestAddEmailForm:
             mock_function,
         )
 
-        # Mock DNS resolution of the MX host's IP and its PTR record, so this
-        # test's coverage of the PTR-resolution lines does not depend on live,
-        # possibly-flaky network DNS lookups.
-        mock_a_record = mock.Mock(address="192.0.2.1")
-        mock_ptr_record = mock.Mock()
-        mock_ptr_record.target.to_text.return_value = f"{mx_record_domain}."
-        monkeypatch.setattr(
-            "dns.resolver.resolve", lambda *args, **kwargs: [mock_a_record]
-        )
-        monkeypatch.setattr(
-            "dns.resolver.resolve_address", lambda *args, **kwargs: [mock_ptr_record]
-        )
+        _mock_dns_resolution(monkeypatch, mx_record_domain)
 
         prohibited_mx_domain = ProhibitedEmailDomain(
             domain=prohibited_domain,
@@ -341,18 +346,7 @@ class TestAddEmailForm:
             mock_function,
         )
 
-        # Mock DNS resolution of the MX host's IP and its PTR record, so this
-        # test's coverage of the PTR-resolution lines does not depend on live,
-        # possibly-flaky network DNS lookups.
-        mock_a_record = mock.Mock(address="192.0.2.1")
-        mock_ptr_record = mock.Mock()
-        mock_ptr_record.target.to_text.return_value = f"{mx_record_domain}."
-        monkeypatch.setattr(
-            "dns.resolver.resolve", lambda *args, **kwargs: [mock_a_record]
-        )
-        monkeypatch.setattr(
-            "dns.resolver.resolve_address", lambda *args, **kwargs: [mock_ptr_record]
-        )
+        _mock_dns_resolution(monkeypatch, mx_record_domain)
 
         prohibited_mx_domain = ProhibitedEmailDomain(
             domain=prohibited_domain,
