@@ -34,9 +34,8 @@
             <br>
             <small>{% trans %}A size limit increase request is pending review.{% endtrans %}</small>
           {% else %}
-            <a href="#request-project-size-increase" class="button button--primary float-right">
-              {% trans %}Request an increase{% endtrans %}
-            </a>
+            <a href="#request-project-size-increase"
+               class="button button--primary float-right">{% trans %}Request an increase{% endtrans %}</a>
             {% if project_size_limit_request and project_size_limit_request.status == "declined" %}
               <br>
               <small>

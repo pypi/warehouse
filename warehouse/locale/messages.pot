@@ -162,7 +162,7 @@ msgstr ""
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:622 warehouse/manage/views/__init__.py:952
+#: warehouse/accounts/views.py:622 warehouse/manage/views/__init__.py:955
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -525,117 +525,154 @@ msgstr ""
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:406
+#: warehouse/manage/forms.py:810
+msgid "Specify a new limit, in GiB"
+msgstr ""
+
+#: warehouse/manage/forms.py:812
+msgid "New limit must be at least 1 GiB"
+msgstr ""
+
+#: warehouse/manage/forms.py:819
+msgid "Select an index"
+msgstr ""
+
+#: warehouse/manage/forms.py:824
+msgid "Tell us about the project"
+msgstr ""
+
+#: warehouse/manage/forms.py:827 warehouse/manage/forms.py:838
+#: warehouse/manage/forms.py:849
+msgid "Limit your answer to 4096 characters or less"
+msgstr ""
+
+#: warehouse/manage/forms.py:834
+msgid "Tell us how large each release is"
+msgstr ""
+
+#: warehouse/manage/forms.py:845
+msgid "Tell us how frequently you release"
+msgstr ""
+
+#: warehouse/manage/views/__init__.py:409
 msgid "Account details updated"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:437
+#: warehouse/manage/views/__init__.py:440
 #, python-brace-format
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:899
+#: warehouse/manage/views/__init__.py:902
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:901
+#: warehouse/manage/views/__init__.py:904
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1009
+#: warehouse/manage/views/__init__.py:1012
 msgid "Verify your email to create an API token."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1111
+#: warehouse/manage/views/__init__.py:1114
 msgid "API Token does not exist."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1143
+#: warehouse/manage/views/__init__.py:1146
 msgid "Invalid credentials. Try again"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1314
-#: warehouse/manage/views/__init__.py:1634
-#: warehouse/manage/views/__init__.py:1745
+#: warehouse/manage/views/__init__.py:1285
+msgid "You already have a pending project size limit increase request."
+msgstr ""
+
+#: warehouse/manage/views/__init__.py:1324
+msgid "Your project size limit increase request has been submitted."
+msgstr ""
+
+#: warehouse/manage/views/__init__.py:1392
+#: warehouse/manage/views/__init__.py:1712
+#: warehouse/manage/views/__init__.py:1823
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1436
+#: warehouse/manage/views/__init__.py:1514
 msgid "This release is in quarantine and cannot be modified."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1460
-#: warehouse/manage/views/__init__.py:1547
-#: warehouse/manage/views/__init__.py:1650
-#: warehouse/manage/views/__init__.py:1753
+#: warehouse/manage/views/__init__.py:1538
+#: warehouse/manage/views/__init__.py:1625
+#: warehouse/manage/views/__init__.py:1728
+#: warehouse/manage/views/__init__.py:1831
 msgid "Confirm the request"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1473
+#: warehouse/manage/views/__init__.py:1551
 msgid "Could not yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1560
+#: warehouse/manage/views/__init__.py:1638
 msgid "Could not un-yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1663
+#: warehouse/manage/views/__init__.py:1741
 msgid "Could not delete release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1765
+#: warehouse/manage/views/__init__.py:1843
 msgid "Could not find file"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1770
+#: warehouse/manage/views/__init__.py:1848
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1918
+#: warehouse/manage/views/__init__.py:1996
 #, python-brace-format
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2025
+#: warehouse/manage/views/__init__.py:2103
 #, python-brace-format
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2092
+#: warehouse/manage/views/__init__.py:2170
 #, python-brace-format
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2123
+#: warehouse/manage/views/__init__.py:2201
 #, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2136
+#: warehouse/manage/views/__init__.py:2214
 #: warehouse/manage/views/organizations.py:922
 #, python-brace-format
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2201
+#: warehouse/manage/views/__init__.py:2279
 #: warehouse/manage/views/organizations.py:997
 #, python-brace-format
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2233
+#: warehouse/manage/views/__init__.py:2311
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2244
+#: warehouse/manage/views/__init__.py:2322
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2277
+#: warehouse/manage/views/__init__.py:2355
 #: warehouse/manage/views/organizations.py:1197
 #, python-brace-format
 msgid "Invitation revoked from '${username}'."
@@ -1316,9 +1353,9 @@ msgstr ""
 #: warehouse/templates/manage/organization/settings.html:297
 #: warehouse/templates/manage/project/documentation.html:13
 #: warehouse/templates/manage/project/release.html:236
-#: warehouse/templates/manage/project/settings.html:78
-#: warehouse/templates/manage/project/settings.html:123
-#: warehouse/templates/manage/project/settings.html:230
+#: warehouse/templates/manage/project/settings.html:203
+#: warehouse/templates/manage/project/settings.html:248
+#: warehouse/templates/manage/project/settings.html:355
 #: warehouse/templates/manage/team/settings.html:62
 msgid "Warning"
 msgstr ""
@@ -2037,6 +2074,7 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:394
 #: warehouse/templates/manage/manage_base.html:469
 #: warehouse/templates/manage/organization/activate_subscription.html:41
+#: warehouse/templates/manage/project/settings.html:148
 msgid "Cancel"
 msgstr ""
 
@@ -2769,6 +2807,21 @@ msgid ""
 "<code>%(new_email)s</code>"
 msgstr ""
 
+#: warehouse/templates/email/project-size-limit-request-approved/body.html:5
+#, python-format
+msgid ""
+"Your request to increase the total size limit for the project "
+"<strong>%(project_name)s</strong> has been approved. The new total size "
+"limit is <strong>%(requested_limit)s</strong>."
+msgstr ""
+
+#: warehouse/templates/email/project-size-limit-request-declined/body.html:5
+#, python-format
+msgid ""
+"Your request to increase the total size limit for the project "
+"<strong>%(project_name)s</strong> was not approved."
+msgstr ""
+
 #: warehouse/templates/email/recovery-code-reminder/body.html:5
 #, python-format
 msgid ""
@@ -3028,7 +3081,9 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:343
 #: warehouse/templates/manage/project/release.html:180
 #: warehouse/templates/manage/project/releases.html:206
-#: warehouse/templates/manage/project/settings.html:63
+#: warehouse/templates/manage/project/settings.html:59
+#: warehouse/templates/manage/project/settings.html:62
+#: warehouse/templates/manage/project/settings.html:188
 #: warehouse/templates/manage/unverified-account.html:186
 #: warehouse/templates/manage/unverified-account.html:189
 #: warehouse/templates/manage/unverified-account.html:204
@@ -3797,12 +3852,12 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account.html:626
-#: warehouse/templates/manage/project/settings.html:29
+#: warehouse/templates/manage/project/settings.html:154
 msgid "API tokens"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:628
-#: warehouse/templates/manage/project/settings.html:30
+#: warehouse/templates/manage/project/settings.html:155
 msgid ""
 "API tokens provide an alternative way to authenticate when uploading "
 "packages to PyPI."
@@ -5042,9 +5097,9 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:24
-#: warehouse/templates/manage/project/settings.html:97
-#: warehouse/templates/manage/project/settings.html:170
-#: warehouse/templates/manage/project/settings.html:304
+#: warehouse/templates/manage/project/settings.html:222
+#: warehouse/templates/manage/project/settings.html:295
+#: warehouse/templates/manage/project/settings.html:429
 msgid "Project Name"
 msgstr ""
 
@@ -7155,7 +7210,7 @@ msgstr ""
 
 #: warehouse/templates/manage/project/release.html:177
 #: warehouse/templates/manage/project/releases.html:203
-#: warehouse/templates/manage/project/settings.html:60
+#: warehouse/templates/manage/project/settings.html:185
 msgid "Dismiss"
 msgstr ""
 
@@ -7495,36 +7550,132 @@ msgid "Manage '%(project_name)s' settings"
 msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:8
-msgid "Project settings"
+#: warehouse/templates/packaging/detail.html:300
+#: warehouse/templates/packaging/detail.html:401
+msgid "Project details"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:11
-msgid "Project size:"
+#: warehouse/templates/manage/project/settings.html:12
+msgid "Project size and limits"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:18
-#: warehouse/templates/manage/project/settings.html:25
+#: warehouse/templates/manage/project/settings.html:15
+msgid "Project size"
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:19
+msgid "Upload limit"
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:23
 #, python-format
 msgid "<a href=\"%(help_url)s\">(request an increase)</a>"
 msgstr ""
 
+#: warehouse/templates/manage/project/settings.html:28
+msgid "Size limit"
+msgstr ""
+
 #: warehouse/templates/manage/project/settings.html:35
+msgid "A size limit increase request is pending review."
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:38
+msgid "Request an increase"
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:42
+msgid "Your last size limit increase request was declined."
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:72
+msgid "Request a project size increase"
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:74
+msgid ""
+"This request will be reviewed by PyPI admins. You'll see the status of "
+"your request on this page."
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:80
+msgid "New limit, in GiB"
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:91
+msgid "Which indexes do you need the increase for?"
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:96
+msgid "PyPI"
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:97
+msgid "TestPyPI"
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:98
+msgid "Both"
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:102
+msgid "About the project"
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:104
+msgid ""
+"What the project is and how long it has been active. If you expect your "
+"release sizes/total project size to increase in the future, mention it "
+"here."
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:117
+msgid "How large is each release?"
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:119
+msgid ""
+"Use MiB to describe the size, and provide a summary of what files are "
+"uploaded in each release. If you have made efforts to reduce the size of "
+"your PyPI releases, bundle other packages, or bundle example data, "
+"mention it here."
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:130
+msgid ""
+"e.g. ~200 MiB total: 2 Linux wheels at ~60 MiB due to bundled libxml "
+"binaries, 6 Windows/MacOS wheels at ~10 MiB, source tarball at ~10 MiB."
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:135
+msgid "How frequently do you make a release?"
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:141
+msgid "e.g. roughly once every three months."
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:149
+msgid "Submit request"
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:160
 #, python-format
 msgid "Create a token for %(project_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:40
+#: warehouse/templates/manage/project/settings.html:165
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add an API "
 "token for %(project_name)s."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:48
+#: warehouse/templates/manage/project/settings.html:173
 msgid "Project description and sidebar"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:50
+#: warehouse/templates/manage/project/settings.html:175
 #, python-format
 msgid ""
 "To set the '%(project_name)s' description, author, links, classifiers, "
@@ -7537,136 +7688,136 @@ msgid ""
 "Python Packaging User Guide</a> for more help."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:76
+#: warehouse/templates/manage/project/settings.html:201
 msgid "Remove project from organization"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:79
+#: warehouse/templates/manage/project/settings.html:204
 msgid "Removing this project from the organization will:"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:83
-#: warehouse/templates/manage/project/settings.html:129
+#: warehouse/templates/manage/project/settings.html:208
+#: warehouse/templates/manage/project/settings.html:254
 #, python-format
 msgid "Remove this project from the '%(organization_name)s' organization."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:86
-#: warehouse/templates/manage/project/settings.html:132
+#: warehouse/templates/manage/project/settings.html:211
+#: warehouse/templates/manage/project/settings.html:257
 #, python-format
 msgid ""
 "Revoke project permissions for teams in the '%(organization_name)s' "
 "organization."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:89
-#: warehouse/templates/manage/project/settings.html:94
+#: warehouse/templates/manage/project/settings.html:214
+#: warehouse/templates/manage/project/settings.html:219
 msgid ""
 "Individual owners and maintainers of the project will retain their "
 "project permissions."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:93
+#: warehouse/templates/manage/project/settings.html:218
 #, python-format
 msgid ""
 "This will remove the project from the '%(organization_name)s' "
 "organization."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:97
+#: warehouse/templates/manage/project/settings.html:222
 msgid "Remove project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:101
+#: warehouse/templates/manage/project/settings.html:226
 msgid "Cannot remove project from organization"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:103
+#: warehouse/templates/manage/project/settings.html:228
 msgid ""
 "Your organization is currently the <strong>sole owner</strong> of the "
 "project. You must add an individual owner to the project before you can "
 "remove the project from your organization."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:117
+#: warehouse/templates/manage/project/settings.html:242
 msgid "Transfer project to another organization"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:119
+#: warehouse/templates/manage/project/settings.html:244
 msgid "Transfer project to an organization"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:124
+#: warehouse/templates/manage/project/settings.html:249
 msgid "Transferring this project will:"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:135
+#: warehouse/templates/manage/project/settings.html:260
 msgid "Revoke your direct Owner role on the project."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:136
+#: warehouse/templates/manage/project/settings.html:261
 msgid ""
 "You will retain Owner permissions on the project through your "
 "organization role."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:140
+#: warehouse/templates/manage/project/settings.html:265
 msgid "Add the project to another organization that you own."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:142
+#: warehouse/templates/manage/project/settings.html:267
 msgid "Add the project to an organization that you own."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:145
+#: warehouse/templates/manage/project/settings.html:270
 msgid "Grant full project permissions to owners of the organization."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:148
+#: warehouse/templates/manage/project/settings.html:273
 msgid ""
 "All other individual owners and maintainers of the project will retain "
 "their project permissions."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:170
+#: warehouse/templates/manage/project/settings.html:295
 msgid "Transfer project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:176
+#: warehouse/templates/manage/project/settings.html:301
 msgid "Cannot transfer project to another organization"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:178
+#: warehouse/templates/manage/project/settings.html:303
 msgid "Cannot transfer project to an organization"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:183
+#: warehouse/templates/manage/project/settings.html:308
 msgid ""
 "Organization owners can transfer the project to organizations that they "
 "own or manage."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:184
+#: warehouse/templates/manage/project/settings.html:309
 msgid "You are not an owner or manager of any other organizations."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:186
+#: warehouse/templates/manage/project/settings.html:311
 msgid ""
 "Project owners can transfer the project to organizations that they own or"
 " manage."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:187
+#: warehouse/templates/manage/project/settings.html:312
 msgid "You are not an owner or manager of any organizations."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:192
-#: warehouse/templates/manage/project/settings.html:217
-#: warehouse/templates/manage/project/settings.html:221
+#: warehouse/templates/manage/project/settings.html:317
+#: warehouse/templates/manage/project/settings.html:342
+#: warehouse/templates/manage/project/settings.html:346
 msgid "Archive project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:196
+#: warehouse/templates/manage/project/settings.html:321
 #, python-format
 msgid ""
 "Archiving a project will prevent any new uploads, and remove the project "
@@ -7679,33 +7830,33 @@ msgid ""
 "description by editing the README file."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:208
-#: warehouse/templates/manage/project/settings.html:211
+#: warehouse/templates/manage/project/settings.html:333
+#: warehouse/templates/manage/project/settings.html:336
 msgid "Unarchive project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:212
+#: warehouse/templates/manage/project/settings.html:337
 msgid ""
 "Unarchiving a project will allow new file uploads and add the project to "
 "the search index."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:222
+#: warehouse/templates/manage/project/settings.html:347
 msgid ""
 "Archiving a project will block any new file uploads and remove the "
 "project from the search index."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:228
-#: warehouse/templates/manage/project/settings.html:304
+#: warehouse/templates/manage/project/settings.html:353
+#: warehouse/templates/manage/project/settings.html:429
 msgid "Delete project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:231
+#: warehouse/templates/manage/project/settings.html:356
 msgid "Deleting this project will:"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:236
+#: warehouse/templates/manage/project/settings.html:361
 #, python-format
 msgid ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s"
@@ -7716,15 +7867,15 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/project/settings.html:242
+#: warehouse/templates/manage/project/settings.html:367
 msgid "Irreversibly delete the project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:246
+#: warehouse/templates/manage/project/settings.html:371
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:249
+#: warehouse/templates/manage/project/settings.html:374
 msgid ""
 "This user will be able to make new releases under this project name, so "
 "long as the distribution filenames do not match filenames from a "
@@ -7956,11 +8107,6 @@ msgstr ""
 
 #: warehouse/templates/packaging/detail.html:298
 msgid "Project details. Focus will be moved to the project details."
-msgstr ""
-
-#: warehouse/templates/packaging/detail.html:300
-#: warehouse/templates/packaging/detail.html:401
-msgid "Project details"
 msgstr ""
 
 #: warehouse/templates/packaging/detail.html:373

@@ -6,6 +6,31 @@
 {% endblock %}
 {% block content %}
   <div class="card">
+    <div class="card-body">
+      <form>
+        <div class="input-group input-group-lg">
+          <input id="q" name="q" type="text" class="form-control input-lg" placeholder="Search"{% if query %} value="{{ query }}"{% endif %} aria-describedby="qHelpBlock">
+          <div class="input-group-btn input-group-append">
+            <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
+          </div>
+        </div>
+        <div id="qHelpBlock" class="help-block no-margin">
+          Examples: word "whole phrase"
+          <a href="#" data-input="q" data-append="project:">project:</a>foo
+          <a href="#" data-input="q" data-append="by:">by:</a>someuser
+          <br>
+          Filters:&nbsp;
+          <div class="btn-group btn-group-sm" role="group" data-input="q" data-state="status" aria-label="Status">
+            <button type="button" class="btn btn-secondary {{ 'active' if 'is:submitted' in terms else '' }}" data-status="is:submitted">Submitted</button>
+            <button type="button" class="btn btn-secondary {{ 'active' if 'is:approved' in terms else '' }}" data-status="is:approved">Approved</button>
+            <button type="button" class="btn btn-secondary {{ 'active' if 'is:declined' in terms else '' }}" data-status="is:declined">Declined</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card">
     <div class="card-body table-responsive p-0">
       <table class="table table-hover">
         <thead>

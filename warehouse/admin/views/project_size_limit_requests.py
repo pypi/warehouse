@@ -1,9 +1,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import shlex
+
 from pyramid.httpexceptions import HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
+from sqlalchemy import or_
 from sqlalchemy.orm import joinedload
 
+from warehouse.accounts.models import User
 from warehouse.authnz import Permissions
 from warehouse.email import (
     send_project_size_limit_request_approved_email,
@@ -11,6 +15,7 @@ from warehouse.email import (
 )
 from warehouse.events.tags import EventTag
 from warehouse.packaging.models import (
+    Project,
     ProjectSizeLimitRequest,
     ProjectSizeLimitRequestStatus,
 )
@@ -23,16 +28,74 @@ from warehouse.packaging.models import (
     uses_session=True,
 )
 def project_size_limit_requests_list(request):
-    size_limit_requests = (
-        request.db.query(ProjectSizeLimitRequest)
-        .options(
-            joinedload(ProjectSizeLimitRequest.project),
-            joinedload(ProjectSizeLimitRequest.submitted_by),
-        )
-        .order_by(ProjectSizeLimitRequest.submitted.desc())
-        .all()
+    q = request.params.get("q", "")
+    terms = shlex.split(q)
+
+    size_limit_requests_query = request.db.query(ProjectSizeLimitRequest).order_by(
+        ProjectSizeLimitRequest.submitted.desc()
     )
-    return {"project_size_limit_requests": size_limit_requests}
+
+    if q:
+        filters: list = []
+        for term in terms:
+            # Examples:
+            # - search individual words or "whole phrase" in any field
+            # - project:foo
+            # - name:foo
+            # - by:someuser
+            # - user:someuser
+            # - is:submitted
+            # - is:approved
+            # - is:declined
+            try:
+                field, value = term.lower().split(":", 1)
+            except ValueError:
+                field, value = "", term
+            if field in {"project", "name"}:
+                filters.append(
+                    ProjectSizeLimitRequest.project.has(
+                        or_(
+                            Project.name.ilike(f"%{value}%"),
+                            Project.normalized_name.ilike(f"%{value}%"),
+                        )
+                    )
+                )
+            elif field in {"by", "user", "requester"}:
+                filters.append(
+                    ProjectSizeLimitRequest.submitted_by.has(
+                        User.username.ilike(f"%{value}%")
+                    )
+                )
+            elif field == "is":
+                if value in ProjectSizeLimitRequestStatus:
+                    filters.append(ProjectSizeLimitRequest.status == value)
+            else:
+                filters.append(
+                    or_(
+                        ProjectSizeLimitRequest.project.has(
+                            or_(
+                                Project.name.ilike(f"%{term}%"),
+                                Project.normalized_name.ilike(f"%{term}%"),
+                            )
+                        ),
+                        ProjectSizeLimitRequest.submitted_by.has(
+                            User.username.ilike(f"%{term}%")
+                        ),
+                    )
+                )
+        for term_filter in filters:
+            size_limit_requests_query = size_limit_requests_query.filter(term_filter)
+
+    size_limit_requests = size_limit_requests_query.options(
+        joinedload(ProjectSizeLimitRequest.project),
+        joinedload(ProjectSizeLimitRequest.submitted_by),
+    ).all()
+
+    return {
+        "project_size_limit_requests": size_limit_requests,
+        "query": q,
+        "terms": terms,
+    }
 
 
 @view_config(
@@ -74,6 +137,7 @@ def _get_reviewable_request(request):
     route_name="admin.project_size_limit_request.approve",
     require_methods=["POST"],
     permission=Permissions.AdminProjectsSetLimit,
+    has_translations=True,
     uses_session=True,
     require_csrf=True,
 )
@@ -129,6 +193,7 @@ def project_size_limit_request_approve(request):
     route_name="admin.project_size_limit_request.decline",
     require_methods=["POST"],
     permission=Permissions.AdminProjectsSetLimit,
+    has_translations=True,
     uses_session=True,
     require_csrf=True,
 )

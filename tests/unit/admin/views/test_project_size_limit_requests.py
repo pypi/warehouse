@@ -16,7 +16,7 @@ from ....common.db.packaging import ProjectFactory, ProjectSizeLimitRequestFacto
 
 
 class TestProjectSizeLimitRequestsList:
-    def test_list(self, db_request):
+    def test_no_query(self, db_request):
         older = ProjectSizeLimitRequestFactory.create(
             submitted=datetime.datetime(2021, 1, 1)
         )
@@ -28,6 +28,96 @@ class TestProjectSizeLimitRequestsList:
 
         assert result["project_size_limit_requests"][0].id == newer.id
         assert result["project_size_limit_requests"][1].id == older.id
+        assert result["query"] == ""
+        assert result["terms"] == []
+
+    def test_basic_query(self, db_request):
+        project = ProjectFactory.create(name="findable-project")
+        match = ProjectSizeLimitRequestFactory.create(project=project)
+        ProjectSizeLimitRequestFactory.create()
+
+        db_request.GET["q"] = "findable-project"
+        result = views.project_size_limit_requests_list(db_request)
+
+        assert [r.id for r in result["project_size_limit_requests"]] == [match.id]
+        assert result["query"] == "findable-project"
+        assert result["terms"] == ["findable-project"]
+
+    def test_project_query(self, db_request):
+        project = ProjectFactory.create(name="findable-project")
+        match = ProjectSizeLimitRequestFactory.create(project=project)
+        ProjectSizeLimitRequestFactory.create()
+
+        db_request.GET["q"] = "project:findable-project"
+        result = views.project_size_limit_requests_list(db_request)
+
+        assert [r.id for r in result["project_size_limit_requests"]] == [match.id]
+
+    def test_by_query(self, db_request):
+        user = UserFactory.create(username="findable-user")
+        match = ProjectSizeLimitRequestFactory.create(submitted_by=user)
+        ProjectSizeLimitRequestFactory.create()
+
+        db_request.GET["q"] = "by:findable-user"
+        result = views.project_size_limit_requests_list(db_request)
+
+        assert [r.id for r in result["project_size_limit_requests"]] == [match.id]
+
+    def test_is_submitted_query(self, db_request):
+        submitted = ProjectSizeLimitRequestFactory.create(
+            status=ProjectSizeLimitRequestStatus.Submitted
+        )
+        ProjectSizeLimitRequestFactory.create(
+            status=ProjectSizeLimitRequestStatus.Approved
+        )
+        ProjectSizeLimitRequestFactory.create(
+            status=ProjectSizeLimitRequestStatus.Declined
+        )
+
+        db_request.GET["q"] = "is:submitted"
+        result = views.project_size_limit_requests_list(db_request)
+
+        assert [r.id for r in result["project_size_limit_requests"]] == [submitted.id]
+
+    def test_is_approved_query(self, db_request):
+        ProjectSizeLimitRequestFactory.create(
+            status=ProjectSizeLimitRequestStatus.Submitted
+        )
+        approved = ProjectSizeLimitRequestFactory.create(
+            status=ProjectSizeLimitRequestStatus.Approved
+        )
+        ProjectSizeLimitRequestFactory.create(
+            status=ProjectSizeLimitRequestStatus.Declined
+        )
+
+        db_request.GET["q"] = "is:approved"
+        result = views.project_size_limit_requests_list(db_request)
+
+        assert [r.id for r in result["project_size_limit_requests"]] == [approved.id]
+
+    def test_is_declined_query(self, db_request):
+        ProjectSizeLimitRequestFactory.create(
+            status=ProjectSizeLimitRequestStatus.Submitted
+        )
+        ProjectSizeLimitRequestFactory.create(
+            status=ProjectSizeLimitRequestStatus.Approved
+        )
+        declined = ProjectSizeLimitRequestFactory.create(
+            status=ProjectSizeLimitRequestStatus.Declined
+        )
+
+        db_request.GET["q"] = "is:declined"
+        result = views.project_size_limit_requests_list(db_request)
+
+        assert [r.id for r in result["project_size_limit_requests"]] == [declined.id]
+
+    def test_is_invalid_query(self, db_request):
+        ProjectSizeLimitRequestFactory.create_batch(3)
+
+        db_request.GET["q"] = "is:not-actually-a-valid-query"
+        result = views.project_size_limit_requests_list(db_request)
+
+        assert len(result["project_size_limit_requests"]) == 3
 
 
 class TestProjectSizeLimitRequestDetail:
