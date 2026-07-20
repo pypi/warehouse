@@ -966,33 +966,61 @@
 <hr>
 <section id="delete-account">
   <h2>{% trans %}Delete account{% endtrans %}</h2>
-  <div class="callout-block{% if not active_projects %} callout-block--danger{% endif %}">
-    {% if active_projects %}
+  <div class="callout-block{% if not active_projects and not sole_organizations %} callout-block--danger{% endif %}">
+    {% if active_projects or sole_organizations %}
       <h3>{% trans %}Cannot delete account{% endtrans %}</h3>
-      <p>
+      {% if active_projects %}
+        <p>
+          {% trans count=active_projects|length %}
+          Your account is currently the <strong>sole owner</strong> of {{ count }} project.
+        {% pluralize %}
+          Your account is currently the <strong>sole owner</strong> of {{ count }} projects.
+        {% endtrans %}
         {% trans count=active_projects|length %}
-        Your account is currently the <strong>sole owner</strong> of {{ count }} project.
+        You must transfer ownership or delete this project before you can delete your account.
       {% pluralize %}
-        Your account is currently the <strong>sole owner</strong> of {{ count }} projects.
+        You must transfer ownership or delete these projects before you can delete your account.
       {% endtrans %}
-      {% trans count=active_projects|length %}
-      You must transfer ownership or delete this project before you can delete your account.
-    {% pluralize %}
-      You must transfer ownership or delete these projects before you can delete your account.
+    </p>
+    <ul {% if not sole_organizations %}class="no-bottom-margin"{% endif %}>
+      {% for project in active_projects %}
+        <li>
+          <strong>{{ project.name }}</strong> -
+          {% trans transfer_href=request.route_path('manage.project.roles', project_name=project.name), delete_href=request.route_path('manage.project.settings', project_name=project.name) %}
+          <a href="{{ transfer_href }}">transfer ownership</a>
+          or
+          <a href="{{ delete_href }}">delete project</a>
+        {% endtrans %}
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}
+{% if sole_organizations %}
+  <p>
+    {% trans count=sole_organizations|length %}
+    Your account is currently the <strong>sole owner</strong> of {{ count }} organization.
+  {% pluralize %}
+    Your account is currently the <strong>sole owner</strong> of {{ count }} organizations.
+  {% endtrans %}
+  {% trans count=sole_organizations|length %}
+  You must add another owner or delete this organization before you can delete your account.
+{% pluralize %}
+  You must add another owner or delete these organizations before you can delete your account.
+{% endtrans %}
+</p>
+<ul class="no-bottom-margin">
+  {% for organization in sole_organizations %}
+    <li>
+      <strong>{{ organization.name }}</strong> -
+      {% trans roles_href=request.route_path('manage.organization.roles', organization_name=organization.name), delete_href=request.route_path('manage.organization.settings', organization_name=organization.name) %}
+      <a href="{{ roles_href }}">add an owner</a>
+      or
+      <a href="{{ delete_href }}">delete organization</a>
     {% endtrans %}
-  </p>
-  <ul class="no-bottom-margin">
-    {% for project in active_projects %}
-      <li>
-        <strong>{{ project.name }}</strong> -
-        {% trans transfer_href=request.route_path('manage.project.roles', project_name=project.name), delete_href=request.route_path('manage.project.settings', project_name=project.name) %}
-        <a href="{{ transfer_href }}">transfer ownership</a>
-        or
-        <a href="{{ delete_href }}">delete project</a>
-      {% endtrans %}
-    </li>
-  {% endfor %}
+  </li>
+{% endfor %}
 </ul>
+{% endif %}
 {% else %}
 <h3>{% trans %}Proceed with caution!{% endtrans %}</h3>
 <p>

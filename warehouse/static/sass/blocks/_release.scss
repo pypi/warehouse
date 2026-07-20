@@ -206,6 +206,7 @@
     }
 
     .release__card {
+      background-color: colors.$white;
       box-shadow: 1px 1px 2px 1px color.adjust(colors.$black, $alpha: -0.95);
     }
   }
