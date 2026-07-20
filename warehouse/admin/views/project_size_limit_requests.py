@@ -2,7 +2,8 @@
 
 import shlex
 
-from pyramid.httpexceptions import HTTPNotFound, HTTPSeeOther
+from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
 from sqlalchemy import or_
 from sqlalchemy.orm import joinedload
@@ -19,6 +20,7 @@ from warehouse.packaging.models import (
     ProjectSizeLimitRequest,
     ProjectSizeLimitRequestStatus,
 )
+from warehouse.utils.paginate import paginate_url_factory
 
 
 @view_config(
@@ -29,7 +31,15 @@ from warehouse.packaging.models import (
 )
 def project_size_limit_requests_list(request):
     q = request.params.get("q", "")
-    terms = shlex.split(q)
+    try:
+        terms = shlex.split(q)
+    except ValueError:
+        raise HTTPBadRequest("Invalid query.") from None
+
+    try:
+        page_num = int(request.params.get("page", 1))
+    except ValueError:
+        raise HTTPBadRequest("'page' must be an integer.") from None
 
     size_limit_requests_query = request.db.query(ProjectSizeLimitRequest).order_by(
         ProjectSizeLimitRequest.submitted.desc()
@@ -66,9 +76,8 @@ def project_size_limit_requests_list(request):
                         User.username.ilike(f"%{value}%")
                     )
                 )
-            elif field == "is":
-                if value in ProjectSizeLimitRequestStatus:
-                    filters.append(ProjectSizeLimitRequest.status == value)
+            elif field == "is" and value in ProjectSizeLimitRequestStatus:
+                filters.append(ProjectSizeLimitRequest.status == value)
             else:
                 filters.append(
                     or_(
@@ -86,10 +95,17 @@ def project_size_limit_requests_list(request):
         for term_filter in filters:
             size_limit_requests_query = size_limit_requests_query.filter(term_filter)
 
-    size_limit_requests = size_limit_requests_query.options(
+    size_limit_requests_query = size_limit_requests_query.options(
         joinedload(ProjectSizeLimitRequest.project),
         joinedload(ProjectSizeLimitRequest.submitted_by),
-    ).all()
+    )
+
+    size_limit_requests = SQLAlchemyORMPage(
+        size_limit_requests_query,
+        page=page_num,
+        items_per_page=25,
+        url_maker=paginate_url_factory(request),
+    )
 
     return {
         "project_size_limit_requests": size_limit_requests,
@@ -133,6 +149,21 @@ def _get_reviewable_request(request):
     return size_limit_request
 
 
+def _get_review_message(request, size_limit_request):
+    message = request.params.get("message") or None
+
+    if message is not None and len(message) > 4096:
+        request.session.flash("Message must be 4096 characters or less", queue="error")
+        raise HTTPSeeOther(
+            request.route_path(
+                "admin.project_size_limit_request.detail",
+                request_id=size_limit_request.id,
+            )
+        )
+
+    return message
+
+
 @view_config(
     route_name="admin.project_size_limit_request.approve",
     require_methods=["POST"],
@@ -148,7 +179,7 @@ def project_size_limit_request_approve(request):
     old_total_size_limit = project.total_size_limit
     project.total_size_limit = size_limit_request.requested_limit
 
-    message = request.params.get("message") or None
+    message = _get_review_message(request, size_limit_request)
 
     size_limit_request.status = ProjectSizeLimitRequestStatus.Approved
     size_limit_request.admin_message = message
@@ -201,7 +232,7 @@ def project_size_limit_request_decline(request):
     size_limit_request = _get_reviewable_request(request)
     project = size_limit_request.project
 
-    message = request.params.get("message") or None
+    message = _get_review_message(request, size_limit_request)
 
     size_limit_request.status = ProjectSizeLimitRequestStatus.Declined
     size_limit_request.admin_message = message

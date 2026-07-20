@@ -26,7 +26,12 @@ from warehouse.accounts.interfaces import (
     TokenExpired,
 )
 from warehouse.admin.flags import AdminFlagValue
-from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GIB
+from warehouse.constants import (
+    MAX_FILESIZE,
+    MAX_PROJECT_SIZE,
+    ONE_GIB,
+    PROJECT_SIZE_LIMIT_REQUEST_CAP,
+)
 from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
@@ -3025,6 +3030,8 @@ class TestManageProjectSettings:
             "project": project,
             "MAX_FILESIZE": MAX_FILESIZE,
             "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
+            "ONE_GIB": ONE_GIB,
+            "PROJECT_SIZE_LIMIT_REQUEST_CAP": PROJECT_SIZE_LIMIT_REQUEST_CAP,
             "transfer_organization_project_form": form,
             "project_size_limit_request": None,
         }
@@ -3065,6 +3072,8 @@ class TestManageProjectSettings:
             "project": project,
             "MAX_FILESIZE": MAX_FILESIZE,
             "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
+            "ONE_GIB": ONE_GIB,
+            "PROJECT_SIZE_LIMIT_REQUEST_CAP": PROJECT_SIZE_LIMIT_REQUEST_CAP,
             "transfer_organization_project_form": form,
             "project_size_limit_request": None,
         }
@@ -3108,6 +3117,8 @@ class TestManageProjectSettings:
             "project": project,
             "MAX_FILESIZE": MAX_FILESIZE,
             "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
+            "ONE_GIB": ONE_GIB,
+            "PROJECT_SIZE_LIMIT_REQUEST_CAP": PROJECT_SIZE_LIMIT_REQUEST_CAP,
             "transfer_organization_project_form": form,
             "project_size_limit_request": None,
         }

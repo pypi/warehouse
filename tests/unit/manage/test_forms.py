@@ -1316,3 +1316,19 @@ class TestCreateProjectSizeLimitRequestForm:
 
         assert not form.validate()
         assert "requested_limit" in form.errors
+
+    def test_validate_requested_limit_too_large(self):
+        form = forms.CreateProjectSizeLimitRequestForm(
+            MultiDict(
+                {
+                    "requested_limit": "1025",
+                    "indexes": "PyPI",
+                    "about_project": "About the project",
+                    "release_size": "Release size details",
+                    "release_frequency": "Release frequency details",
+                }
+            )
+        )
+
+        assert not form.validate()
+        assert "requested_limit" in form.errors

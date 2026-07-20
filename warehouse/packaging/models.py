@@ -590,6 +590,19 @@ class ProjectSizeLimitRequest(db.Model):
     __tablename__ = "project_size_limit_requests"
     __repr__ = make_repr("project_id", "status")
 
+    @declared_attr
+    def __table_args__(cls):
+        return (
+            Index(
+                "project_size_limit_requests_pending_project_uniq",
+                "project_id",
+                unique=True,
+                postgresql_where=(
+                    cls.status == ProjectSizeLimitRequestStatus.Submitted
+                ),
+            ),
+        )
+
     project_id: Mapped[UUID] = mapped_column(
         ForeignKey("projects.id", ondelete="CASCADE"),
         index=True,

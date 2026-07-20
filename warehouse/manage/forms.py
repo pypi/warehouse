@@ -12,6 +12,7 @@ from warehouse.accounts.forms import (
     TOTPValueMixin,
     WebAuthnCredentialMixin,
 )
+from warehouse.constants import ONE_GIB, PROJECT_SIZE_LIMIT_REQUEST_CAP
 from warehouse.i18n import localize as _
 from warehouse.organizations.models import (
     OrganizationMembershipSize,
@@ -809,7 +810,9 @@ class CreateProjectSizeLimitRequestForm(wtforms.Form):
         validators=[
             wtforms.validators.InputRequired(message=_("Specify a new limit, in GiB")),
             wtforms.validators.NumberRange(
-                min=1, message=_("New limit must be at least 1 GiB")
+                min=1,
+                max=PROJECT_SIZE_LIMIT_REQUEST_CAP // ONE_GIB,
+                message=_("New limit must be between 1 and 1024 GiB"),
             ),
         ]
     )

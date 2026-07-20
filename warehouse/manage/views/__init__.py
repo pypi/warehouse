@@ -13,7 +13,7 @@ from pyramid.httpexceptions import (
     HTTPSeeOther,
 )
 from pyramid.view import view_config, view_defaults
-from sqlalchemy import func, update
+from sqlalchemy import func, literal, update
 from sqlalchemy.exc import NoResultFound
 from venusian import lift
 from webauthn.helpers import bytes_to_base64url
@@ -30,7 +30,12 @@ from warehouse.accounts.models import Email, User
 from warehouse.accounts.views import logout
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.authnz import Permissions
-from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GIB
+from warehouse.constants import (
+    MAX_FILESIZE,
+    MAX_PROJECT_SIZE,
+    ONE_GIB,
+    PROJECT_SIZE_LIMIT_REQUEST_CAP,
+)
 from warehouse.email import (
     send_account_deletion_email,
     send_added_as_collaborator_email,
@@ -1247,6 +1252,8 @@ class ManageProjectSettingsViews:
             "project": self.project,
             "MAX_FILESIZE": MAX_FILESIZE,
             "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
+            "ONE_GIB": ONE_GIB,
+            "PROJECT_SIZE_LIMIT_REQUEST_CAP": PROJECT_SIZE_LIMIT_REQUEST_CAP,
             "transfer_organization_project_form": (
                 self.transfer_organization_project_form_class(
                     organization_choices=organization_choices,
@@ -1272,12 +1279,17 @@ class ManageProjectSettingsViews:
 )
 def request_project_size_limit_increase(project, request):
     has_pending_request = (
-        request.db.query(ProjectSizeLimitRequest)
+        request.db.query(literal(True))
         .filter(
-            ProjectSizeLimitRequest.project_id == project.id,
-            ProjectSizeLimitRequest.status == ProjectSizeLimitRequestStatus.Submitted,
+            request.db.query(ProjectSizeLimitRequest)
+            .filter(
+                ProjectSizeLimitRequest.project_id == project.id,
+                ProjectSizeLimitRequest.status
+                == ProjectSizeLimitRequestStatus.Submitted,
+            )
+            .exists()
         )
-        .count()
+        .scalar()
     )
     if has_pending_request:
         request.session.flash(

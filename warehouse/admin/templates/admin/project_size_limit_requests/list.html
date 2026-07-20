@@ -1,5 +1,6 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 {% extends "admin/base.html" %}
+{% import "admin/utils/pagination.html" as pagination %}
 {% block title %}Project Size Limit Requests{% endblock %}
 {% block breadcrumb %}
   <li class="breadcrumb-item active">Project Size Limit Requests</li>
@@ -74,6 +75,19 @@
           {% endfor %}
         </tbody>
       </table>
+    </div>
+    <div class="card-footer">
+      <div class="row">
+        <div class="col-sm-5">
+          {{ pagination.summary(project_size_limit_requests) }}
+        </div>
+
+        <div class="col-sm-7">
+          <div class="float-right">
+            {{ pagination.paginate(project_size_limit_requests) }}
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 {% endblock %}

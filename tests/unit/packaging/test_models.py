@@ -3,6 +3,7 @@
 from collections import OrderedDict
 
 import pretend
+import psycopg
 import pytest
 
 from pyramid.authorization import Allow, Authenticated
@@ -58,6 +59,28 @@ class TestProjectSizeLimitRequest:
     def test_repr(self, db_session):
         size_limit_request = DBProjectSizeLimitRequestFactory.create()
         assert isinstance(repr(size_limit_request), str)
+
+    def test_only_one_pending_request_per_project(self, db_session):
+        project = DBProjectFactory.create()
+        DBProjectSizeLimitRequestFactory.create(
+            project=project, status=ProjectSizeLimitRequestStatus.Submitted
+        )
+
+        with pytest.raises(psycopg.errors.UniqueViolation):
+            DBProjectSizeLimitRequestFactory.create(
+                project=project, status=ProjectSizeLimitRequestStatus.Submitted
+            )
+
+    def test_multiple_reviewed_requests_per_project_allowed(self, db_session):
+        project = DBProjectFactory.create()
+        DBProjectSizeLimitRequestFactory.create(
+            project=project, status=ProjectSizeLimitRequestStatus.Approved
+        )
+        DBProjectSizeLimitRequestFactory.create(
+            project=project, status=ProjectSizeLimitRequestStatus.Declined
+        )
+
+        db_session.flush()
 
 
 class TestRole:

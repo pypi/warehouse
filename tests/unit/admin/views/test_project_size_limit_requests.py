@@ -6,7 +6,7 @@ import uuid
 import pretend
 import pytest
 
-from pyramid.httpexceptions import HTTPNotFound, HTTPSeeOther
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 
 from warehouse.admin.views import project_size_limit_requests as views
 from warehouse.packaging.models import ProjectSizeLimitRequestStatus
@@ -117,7 +117,21 @@ class TestProjectSizeLimitRequestsList:
         db_request.GET["q"] = "is:not-actually-a-valid-query"
         result = views.project_size_limit_requests_list(db_request)
 
-        assert len(result["project_size_limit_requests"]) == 3
+        # An unrecognized `is:` value falls back to a plain keyword search
+        # instead of silently matching everything.
+        assert len(result["project_size_limit_requests"]) == 0
+
+    def test_invalid_query(self, db_request):
+        db_request.GET["q"] = 'foo"'
+
+        with pytest.raises(HTTPBadRequest):
+            views.project_size_limit_requests_list(db_request)
+
+    def test_invalid_page(self, db_request):
+        db_request.GET["page"] = "not-a-number"
+
+        with pytest.raises(HTTPBadRequest):
+            views.project_size_limit_requests_list(db_request)
 
 
 class TestProjectSizeLimitRequestDetail:
@@ -209,6 +223,28 @@ class TestProjectSizeLimitRequestApprove:
         assert db_request.session.flash.calls == [
             pretend.call("This request has already been reviewed", queue="error")
         ]
+
+    def test_approve_message_too_long(self, db_request):
+        size_limit_request = ProjectSizeLimitRequestFactory.create(
+            status=ProjectSizeLimitRequestStatus.Submitted
+        )
+
+        db_request.matchdict["request_id"] = str(size_limit_request.id)
+        db_request.method = "POST"
+        db_request.params = {"message": "x" * 4097}
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.project_size_limit_request_approve(db_request)
+
+        assert exc.value.headers["Location"] == "/the-redirect"
+        assert db_request.session.flash.calls == [
+            pretend.call("Message must be 4096 characters or less", queue="error")
+        ]
+        assert size_limit_request.status == ProjectSizeLimitRequestStatus.Submitted
 
 
 class TestProjectSizeLimitRequestDecline:
