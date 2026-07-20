@@ -10,8 +10,10 @@
              role="tab"
              class="project-tabs__tab project-tabs__tab--is-active"
              aria-selected="true"
+             aria-controls="description"
+             tabindex="0"
              data-project-tabs-target="tab"
-             data-action="project-tabs#tabClick"
+             data-action="project-tabs#tabClick keydown->project-tabs#tabKeydown"
              aria-label="{% trans %}Project description. Focus will be moved to the description.{% endtrans %}">
             <span>
               <i class="fa-regular fa-rectangle-list" aria-hidden="true"></i>
@@ -24,8 +26,11 @@
              href="#history"
              role="tab"
              class="project-tabs__tab"
+             aria-selected="false"
+             aria-controls="history"
+             tabindex="-1"
              data-project-tabs-target="tab"
-             data-action="project-tabs#tabClick"
+             data-action="project-tabs#tabClick keydown->project-tabs#tabKeydown"
              aria-label="{% trans %}Release history. Focus will be moved to the release history panel.{% endtrans %}">
             <span>
               <i class="fa fa-history" aria-hidden="true"></i>
@@ -39,8 +44,11 @@
                href="#files"
                role="tab"
                class="project-tabs__tab"
+               aria-selected="false"
+               aria-controls="files"
+               tabindex="-1"
                data-project-tabs-target="tab"
-               data-action="project-tabs#tabClick"
+               data-action="project-tabs#tabClick keydown->project-tabs#tabKeydown"
                aria-label="{% trans %}Files. Focus will be moved to the project files.{% endtrans %}">
               <span>
                 <i class="fa-regular fa-file" aria-hidden="true"></i>
@@ -50,8 +58,17 @@
               </span>
             </a>
           </li>
-          <!-- <li>
-              <a id="security-tab" href="#security" role="tab" class="project-tabs__tab" data-project-tabs-target="tab" data-action="project-tabs#tabClick" aria-label="{% trans %}Release security. Focus will be moved to the security panel.{% endtrans %}">
+          <!-- <li role="presentation">
+              <a id="security-tab"
+                 href="#security"
+                 role="tab"
+                 class="project-tabs__tab"
+                 aria-selected="false"
+                 aria-controls="security"
+                 tabindex="-1"
+                 data-project-tabs-target="tab"
+                 data-action="project-tabs#tabClick keydown->project-tabs#tabKeydown"
+                 aria-label="{% trans %}Release security. Focus will be moved to the security panel.{% endtrans %}">
                 <span>
                   <i class="fa fa-shield-halved" aria-hidden="true"></i>
                   {% trans %}Security{% endtrans %}
