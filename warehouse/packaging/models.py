@@ -459,6 +459,12 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
     @property
     def all_versions(self):
         session = orm_session_from_obj(self)
+        file_count = (
+            session.query(func.count(File.id))
+            .filter(File.release_id == Release.id)
+            .correlate(Release)
+            .scalar_subquery()
+        )
         return (
             session.query(
                 Release.version,
@@ -467,6 +473,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                 Release.yanked,
                 Release.yanked_reason,
                 Release.lifecycle_status,
+                file_count.label("file_count"),
             )
             .filter(Release.project == self)
             .order_by(Release._pypi_ordering.desc())

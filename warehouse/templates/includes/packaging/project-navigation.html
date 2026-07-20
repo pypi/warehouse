@@ -34,7 +34,9 @@
              aria-label="{% trans %}Release history. Focus will be moved to the release history panel.{% endtrans %}">
             <span>
               <i class="fa fa-history" aria-hidden="true"></i>
-              {% trans %}Release history{% endtrans %}
+              {% trans count=all_versions|count %}{{ count }} release
+              {% pluralize %}
+                {{ count }} releases{% endtrans %}
             </span>
           </a>
         </li>
@@ -52,9 +54,9 @@
                aria-label="{% trans %}Files. Focus will be moved to the project files.{% endtrans %}">
               <span>
                 <i class="fa-regular fa-file" aria-hidden="true"></i>
-                {% trans count=files|count %}{{ count }} File
+                {% trans count=files|count %}{{ count }} file
               {% pluralize %}
-                {{ count }} Files{% endtrans %}
+                {{ count }} files{% endtrans %}
               </span>
             </a>
           </li>

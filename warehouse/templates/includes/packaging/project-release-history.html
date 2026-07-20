@@ -32,28 +32,42 @@
             <img class="release__node" alt="" src="{{ white_cube }}">
           {% endif %}
         </div>
-        <a class="card release__card"
-           href="{{ request.route_path('packaging.release', name=release.project.name, version=hversion.version) }}">
-          <p class="release__version">
-            {{ hversion.version }}
-            {% if hversion.lifecycle_status == "quarantine-enter" or project.lifecycle_status == "quarantine-enter" %}
-              <span class="badge badge--warning">{% trans %}quarantined{% endtrans %}</span>
-            {% elif hversion.yanked %}
-              <span class="badge badge--dark">{% trans %}yanked{% endtrans %}</span>
-            {% elif project.lifecycle_status in ["archived", "archived-noindex"] %}
-              <span class="badge badge--neutral">{% trans %}archived{% endtrans %}</span>
-            {% elif hversion.is_prerelease %}
-              <span class="badge badge--light">{% trans %}pre-release{% endtrans %}</span>
-            {% endif %}
-          </p>
-          <p class="release__version-date">{{ humanize(hversion.created) }}</p>
-          {% if hversion.yanked and hversion.yanked_reason %}
-            <div class="callout-block callout-block--dark release__yanked-reason">
-              <p>{% trans %}Reason this release was yanked:{% endtrans %}</p>
-              <p>{{ hversion.yanked_reason }}</p>
+        <div class="card release__card">
+          {% if hversion.lifecycle_status == "quarantine-enter" or project.lifecycle_status == "quarantine-enter" %}
+            <div class="release__card-header release__card-header--quarantined">
+              <i class="fa fa-shield-halved" aria-hidden="true"></i> {% trans %}Quarantined{% endtrans %}
+            </div>
+          {% elif hversion.yanked %}
+            <div class="release__card-header release__card-header--yanked">
+              <i class="fa fa-ban" aria-hidden="true"></i> {% trans %}Yanked{% endtrans %}
+            </div>
+          {% elif project.lifecycle_status in ["archived", "archived-noindex"] %}
+            <div class="release__card-header release__card-header--archived">
+              <i class="fa fa-box-archive" aria-hidden="true"></i> {% trans %}Archived{% endtrans %}
+            </div>
+          {% elif hversion.is_prerelease %}
+            <div class="release__card-header release__card-header--pre-release">
+              <i class="fa fa-flask" aria-hidden="true"></i> {% trans %}Pre-release{% endtrans %}
             </div>
           {% endif %}
-        </a>
+          <div class="release__card-body">
+            <p class="release__version">
+              <a href="{{ request.route_path('packaging.release', name=release.project.name, version=hversion.version) }}">{{ hversion.version }}</a>
+            </p>
+            <p class="release__meta-row">
+              <span class="release__date"><i class="fa-regular fa-calendar" aria-hidden="true"></i> {{ humanize(hversion.created) }}</span>
+              <span class="release__meta-divider" aria-hidden="true"></span>
+              <a href="{{ request.route_path('packaging.release', name=release.project.name, version=hversion.version) }}#files"><i class="fa-regular fa-file" aria-hidden="true"></i> {% trans count=hversion.file_count %}{{ count }} file{% pluralize %}{{ count }} files{% endtrans %}</a>
+              <!-- <span class="release__meta-divider" aria-hidden="true"></span>
+              <a href="{{ request.route_path('packaging.release', name=release.project.name, version=hversion.version) }}#files"><i class="fa-solid fa-circle-check release__provenance-icon" aria-hidden="true"></i> {% trans %}Full provenance{% endtrans %}</a> -->
+            </p>
+          </div>
+          {% if hversion.yanked and hversion.yanked_reason %}
+            <div class="release__card-footer">
+              <p><strong>{% trans %}Yanked reason:{% endtrans %}</strong> {{ hversion.yanked_reason }}</p>
+            </div>
+          {% endif %}
+        </div>
       </div>
     {% endfor %}
   </div>

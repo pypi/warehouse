@@ -9,6 +9,7 @@
 @use "../settings/z-index";
 @use "../tools/design-utilities";
 @use "../tools/layout-utilities";
+@use "../tools/link-utilities";
 
 /*
   Individual release information represented as a card with meta data
@@ -93,30 +94,97 @@
   }
 
   &__card {
-    display: block;
     @include design-utilities.card;
-    padding: grid.$half-spacing-unit;
     margin: grid.$half-spacing-unit 0;
+    overflow: hidden;
+    border-radius: 4px;
+  }
+
+  &__card-header {
+    padding: 6px grid.$half-spacing-unit;
+    font-size: fonts.$small-font-size;
+    font-weight: fonts.$bold-font-weight;
+    text-transform: uppercase;
+    letter-spacing: 0.04rem;
+    color: colors.$white;
+
+    i {
+      margin-right: 4px;
+    }
+
+    &--quarantined {
+      background-color: colors.$warning-color;
+    }
+
+    &--yanked {
+      background-color: colors.$text-color;
+    }
+
+    &--archived {
+      background-color: colors.$base-grey;
+      color: colors.$text-color;
+    }
+
+    &--pre-release {
+      background-color: colors.$primary-color-light-border;
+      color: colors.$text-color;
+    }
+  }
+
+  &__card-body {
+    padding: grid.$half-spacing-unit;
   }
 
   &__version {
     padding-bottom: 0;
     font-size: 1.25rem;
     font-weight: fonts.$bold-font-weight;
+
+    a {
+      @include link-utilities.link-without-underline;
+    }
   }
 
-  &__version-date {
+  &__meta-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: grid.$quarter-spacing-unit;
     padding-bottom: 2px;
+    color: colors.$mid-grey;
+
+    a {
+      @include link-utilities.colored-link(colors.$primary-color);
+      @include link-utilities.link-without-underline;
+    }
   }
 
-  &__yanked-reason {
-    display: block;
-    margin-bottom: 0;
+  &__meta-divider {
+    display: inline-block;
+    width: 1px;
+    height: 0.85em;
+    background-color: colors.$light-grey;
+    flex-shrink: 0;
+  }
+
+  &__date {
+    white-space: nowrap;
+  }
+
+  &__provenance-icon {
+    color: colors.$primary-color;
+  }
+
+  &__card-footer {
+    padding: grid.$quarter-spacing-unit grid.$half-spacing-unit;
+    border-top: 1px solid colors.$border-color;
+    color: colors.$text-color;
 
     p {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      padding-bottom: 0;
     }
   }
 
@@ -129,7 +197,6 @@
     }
 
     .release__card {
-      background-color: colors.$white;
       box-shadow: 1px 1px 2px 1px color.adjust(colors.$black, $alpha: -0.95);
     }
   }
