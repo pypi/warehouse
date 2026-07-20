@@ -1068,14 +1068,14 @@ msgstr ""
 #: warehouse/templates/base.html:448 warehouse/templates/base.html:454
 #: warehouse/templates/base.html:460 warehouse/templates/base.html:473
 #: warehouse/templates/base.html:490 warehouse/templates/base.html:498
-#: warehouse/templates/includes/accounts/profile-callout.html:17
-#: warehouse/templates/includes/file-details.html:129
-#: warehouse/templates/includes/packaging/project-files.html:61
-#: warehouse/templates/includes/packaging/project-files.html:79
-#: warehouse/templates/includes/packaging/project-files.html:95
+#: warehouse/templates/includes/accounts/profile-callout.html:5
+#: warehouse/templates/includes/file-details.html:117
+#: warehouse/templates/includes/packaging/project-files.html:49
+#: warehouse/templates/includes/packaging/project-files.html:67
+#: warehouse/templates/includes/packaging/project-files.html:83
 #: warehouse/templates/index.html:99 warehouse/templates/index.html:106
-#: warehouse/templates/manage/account.html:253
-#: warehouse/templates/manage/account.html:260
+#: warehouse/templates/manage/account.html:241
+#: warehouse/templates/manage/account.html:248
 #: warehouse/templates/manage/account/totp-provision.html:17
 #: warehouse/templates/manage/account/webauthn-provision.html:10
 #: warehouse/templates/manage/account/webauthn-provision.html:12
@@ -1216,13 +1216,13 @@ msgid "Password strength:"
 msgstr ""
 
 #: warehouse/templates/base.html:31 warehouse/templates/base.html:53
-#: warehouse/templates/includes/current-user-indicator.html:17
+#: warehouse/templates/includes/current-user-indicator.html:5
 msgid "Main navigation"
 msgstr ""
 
 #: warehouse/templates/base.html:34 warehouse/templates/base.html:65
 #: warehouse/templates/base.html:341
-#: warehouse/templates/includes/current-user-indicator.html:71
+#: warehouse/templates/includes/current-user-indicator.html:59
 #: warehouse/templates/pages/help.html:212
 #: warehouse/templates/pages/sitemap.html:19
 msgid "Help"
@@ -1233,7 +1233,7 @@ msgid "Docs"
 msgstr ""
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:71
-#: warehouse/templates/includes/current-user-indicator.html:77
+#: warehouse/templates/includes/current-user-indicator.html:65
 #: warehouse/templates/pages/sitemap.html:43
 #: warehouse/templates/pages/sponsors.html:4
 msgid "Sponsors"
@@ -1251,7 +1251,7 @@ msgid "Register"
 msgstr ""
 
 #: warehouse/templates/base.html:58
-#: warehouse/templates/includes/current-user-indicator.html:23
+#: warehouse/templates/includes/current-user-indicator.html:11
 msgid "View menu"
 msgstr ""
 
@@ -1260,7 +1260,7 @@ msgid "Menu"
 msgstr ""
 
 #: warehouse/templates/base.html:63
-#: warehouse/templates/includes/current-user-indicator.html:30
+#: warehouse/templates/includes/current-user-indicator.html:18
 msgid "Main menu"
 msgstr ""
 
@@ -1307,9 +1307,9 @@ msgstr ""
 
 #: warehouse/templates/base.html:215 warehouse/templates/base.html:226
 #: warehouse/templates/base.html:238
-#: warehouse/templates/includes/flash-messages.html:44
-#: warehouse/templates/includes/session-notifications.html:20
-#: warehouse/templates/manage/account.html:1011
+#: warehouse/templates/includes/flash-messages.html:32
+#: warehouse/templates/includes/session-notifications.html:8
+#: warehouse/templates/manage/account.html:999
 #: warehouse/templates/manage/manage_base.html:360
 #: warehouse/templates/manage/manage_base.html:438
 #: warehouse/templates/manage/organization/settings.html:291
@@ -1593,11 +1593,11 @@ msgstr ""
 #: warehouse/templates/accounts/request-password-reset.html:5
 #: warehouse/templates/accounts/reset-password.html:5
 #: warehouse/templates/accounts/two-factor.html:5
-#: warehouse/templates/manage/account.html:20
+#: warehouse/templates/manage/account.html:8
 #: warehouse/templates/manage/account/token.html:8
 #: warehouse/templates/manage/account/totp-provision.html:8
-#: warehouse/templates/packaging/submit-malware-observation.html:18
-#: warehouse/templates/re-auth.html:17
+#: warehouse/templates/packaging/submit-malware-observation.html:6
+#: warehouse/templates/re-auth.html:5
 msgid "Error processing form"
 msgstr ""
 
@@ -1605,12 +1605,12 @@ msgstr ""
 #: warehouse/templates/accounts/register.html:183
 #: warehouse/templates/accounts/reset-password.html:62
 #: warehouse/templates/accounts/reset-password.html:67
-#: warehouse/templates/manage/account.html:453
-#: warehouse/templates/re-auth.html:19 warehouse/templates/re-auth.html:74
+#: warehouse/templates/manage/account.html:441
+#: warehouse/templates/re-auth.html:7 warehouse/templates/re-auth.html:62
 msgid "Confirm password"
 msgstr ""
 
-#: warehouse/templates/re-auth.html:31
+#: warehouse/templates/re-auth.html:19
 msgid "Confirm password to continue"
 msgstr ""
 
@@ -1618,7 +1618,7 @@ msgstr ""
 #: warehouse/templates/accounts/register.html:142
 #: warehouse/templates/accounts/reset-password.html:28
 #: warehouse/templates/manage/manage_base.html:447
-#: warehouse/templates/re-auth.html:49
+#: warehouse/templates/re-auth.html:37
 msgid "Password"
 msgstr ""
 
@@ -1634,12 +1634,12 @@ msgstr ""
 #: warehouse/templates/accounts/reset-password.html:30
 #: warehouse/templates/accounts/reset-password.html:64
 #: warehouse/templates/accounts/two-factor.html:82
-#: warehouse/templates/manage/account.html:293
-#: warehouse/templates/manage/account.html:314
-#: warehouse/templates/manage/account.html:367
-#: warehouse/templates/manage/account.html:401
-#: warehouse/templates/manage/account.html:426
-#: warehouse/templates/manage/account.html:450
+#: warehouse/templates/manage/account.html:281
+#: warehouse/templates/manage/account.html:302
+#: warehouse/templates/manage/account.html:355
+#: warehouse/templates/manage/account.html:389
+#: warehouse/templates/manage/account.html:414
+#: warehouse/templates/manage/account.html:438
 #: warehouse/templates/manage/account/publishing.html:26
 #: warehouse/templates/manage/account/publishing.html:39
 #: warehouse/templates/manage/account/publishing.html:52
@@ -1697,20 +1697,20 @@ msgstr ""
 #: warehouse/templates/manage/organizations.html:306
 #: warehouse/templates/manage/organizations.html:325
 #: warehouse/templates/manage/organizations.html:352
-#: warehouse/templates/manage/project/publishing.html:44
-#: warehouse/templates/manage/project/publishing.html:57
-#: warehouse/templates/manage/project/publishing.html:76
-#: warehouse/templates/manage/project/publishing.html:93
-#: warehouse/templates/manage/project/publishing.html:142
-#: warehouse/templates/manage/project/publishing.html:155
-#: warehouse/templates/manage/project/publishing.html:168
-#: warehouse/templates/manage/project/publishing.html:181
-#: warehouse/templates/manage/project/publishing.html:205
-#: warehouse/templates/manage/project/publishing.html:244
-#: warehouse/templates/manage/project/publishing.html:257
-#: warehouse/templates/manage/project/publishing.html:300
-#: warehouse/templates/manage/project/publishing.html:317
-#: warehouse/templates/manage/project/publishing.html:336
+#: warehouse/templates/manage/project/publishing.html:32
+#: warehouse/templates/manage/project/publishing.html:45
+#: warehouse/templates/manage/project/publishing.html:64
+#: warehouse/templates/manage/project/publishing.html:81
+#: warehouse/templates/manage/project/publishing.html:130
+#: warehouse/templates/manage/project/publishing.html:143
+#: warehouse/templates/manage/project/publishing.html:156
+#: warehouse/templates/manage/project/publishing.html:169
+#: warehouse/templates/manage/project/publishing.html:193
+#: warehouse/templates/manage/project/publishing.html:232
+#: warehouse/templates/manage/project/publishing.html:245
+#: warehouse/templates/manage/project/publishing.html:288
+#: warehouse/templates/manage/project/publishing.html:305
+#: warehouse/templates/manage/project/publishing.html:324
 #: warehouse/templates/manage/project/roles.html:320
 #: warehouse/templates/manage/project/roles.html:333
 #: warehouse/templates/manage/project/roles.html:344
@@ -1719,29 +1719,29 @@ msgstr ""
 #: warehouse/templates/manage/project/roles.html:416
 #: warehouse/templates/manage/team/roles.html:104
 #: warehouse/templates/manage/team/settings.html:22
-#: warehouse/templates/packaging/submit-malware-observation.html:54
-#: warehouse/templates/packaging/submit-malware-observation.html:67
-#: warehouse/templates/re-auth.html:51
+#: warehouse/templates/packaging/submit-malware-observation.html:42
+#: warehouse/templates/packaging/submit-malware-observation.html:55
+#: warehouse/templates/re-auth.html:39
 msgid "(required)"
 msgstr ""
 
 #: warehouse/templates/accounts/login.html:71
-#: warehouse/templates/re-auth.html:55
+#: warehouse/templates/re-auth.html:43
 msgid "Your password"
 msgstr ""
 
 #: warehouse/templates/accounts/login.html:68
 #: warehouse/templates/manage/manage_base.html:453
-#: warehouse/templates/re-auth.html:82
+#: warehouse/templates/re-auth.html:70
 msgid "Show password"
 msgstr ""
 
 #: warehouse/templates/accounts/login.html:95
-#: warehouse/templates/re-auth.html:86
+#: warehouse/templates/re-auth.html:74
 msgid "Forgot password?"
 msgstr ""
 
-#: warehouse/templates/re-auth.html:90
+#: warehouse/templates/re-auth.html:78
 #, python-format
 msgid ""
 "<b>Tip:</b> you are about to perform a <a href=\"%(href)s\">sensitive "
@@ -1815,7 +1815,7 @@ msgstr ""
 #: warehouse/templates/email/organization-member-invited/body.html:14
 #: warehouse/templates/email/organization-member-removed/body.html:14
 #: warehouse/templates/email/organization-member-role-changed/body.html:14
-#: warehouse/templates/manage/account.html:272
+#: warehouse/templates/manage/account.html:260
 #: warehouse/templates/manage/organization/roles.html:291
 #: warehouse/templates/manage/organization/roles.html:401
 #: warehouse/templates/manage/project/roles.html:171
@@ -1833,7 +1833,7 @@ msgstr ""
 
 #: warehouse/templates/accounts/logout.html:4
 #: warehouse/templates/accounts/logout.html:13
-#: warehouse/templates/includes/current-user-indicator.html:87
+#: warehouse/templates/includes/current-user-indicator.html:75
 msgid "Log out"
 msgstr ""
 
@@ -1866,7 +1866,7 @@ msgid "Profile of %(username)s"
 msgstr ""
 
 #: warehouse/templates/accounts/profile.html:15
-#: warehouse/templates/manage/account.html:245
+#: warehouse/templates/manage/account.html:233
 #: warehouse/templates/manage/organization/roles.html:211
 #: warehouse/templates/manage/organization/roles.html:302
 #: warehouse/templates/manage/project/roles.html:181
@@ -1924,7 +1924,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: warehouse/templates/accounts/profile.html:97
-#: warehouse/templates/includes/packaging/project-status.html:67
+#: warehouse/templates/includes/packaging/project-status.html:55
 msgid "Archived"
 msgstr ""
 
@@ -2034,7 +2034,7 @@ msgid "Confirm"
 msgstr ""
 
 #: warehouse/templates/accounts/register.html:51
-#: warehouse/templates/manage/account.html:573
+#: warehouse/templates/manage/account.html:561
 #: warehouse/templates/manage/manage_base.html:394
 #: warehouse/templates/manage/manage_base.html:469
 #: warehouse/templates/manage/organization/activate_subscription.html:41
@@ -2042,8 +2042,8 @@ msgid "Cancel"
 msgstr ""
 
 #: warehouse/templates/accounts/register.html:67
-#: warehouse/templates/manage/account.html:149
-#: warehouse/templates/manage/account.html:635
+#: warehouse/templates/manage/account.html:137
+#: warehouse/templates/manage/account.html:623
 #: warehouse/templates/manage/project/history.html:284
 #: warehouse/templates/manage/project/history.html:295
 #: warehouse/templates/manage/project/history.html:306
@@ -2057,13 +2057,13 @@ msgid "Your name"
 msgstr ""
 
 #: warehouse/templates/accounts/register.html:89
-#: warehouse/templates/manage/account.html:350
+#: warehouse/templates/manage/account.html:338
 #: warehouse/templates/manage/unverified-account.html:258
 msgid "Email address"
 msgstr ""
 
 #: warehouse/templates/accounts/register.html:94
-#: warehouse/templates/manage/account.html:370
+#: warehouse/templates/manage/account.html:358
 msgid "Your email address"
 msgstr ""
 
@@ -2077,7 +2077,7 @@ msgstr ""
 
 #: warehouse/templates/accounts/register.html:152
 #: warehouse/templates/accounts/reset-password.html:39
-#: warehouse/templates/manage/account.html:409
+#: warehouse/templates/manage/account.html:397
 msgid "Show passwords"
 msgstr ""
 
@@ -2137,7 +2137,7 @@ msgid "Reset your password"
 msgstr ""
 
 #: warehouse/templates/accounts/reset-password.html:42
-#: warehouse/templates/manage/account.html:431
+#: warehouse/templates/manage/account.html:419
 msgid "Select a new password"
 msgstr ""
 
@@ -2726,38 +2726,38 @@ msgid_plural "This link will expire in %(n_hours)s hours."
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/email/password-reset-unverified/body.html:31
+#: warehouse/templates/email/password-reset-unverified/body.html:19
 #: warehouse/templates/email/password-reset/body.html:15
 #: warehouse/templates/email/verify-email/body.html:15
 msgid "If you did not make this request, you can safely ignore this email."
 msgstr ""
 
-#: warehouse/templates/email/password-reset-unverified/body.html:17
+#: warehouse/templates/email/password-reset-unverified/body.html:5
 msgid ""
 "Someone, perhaps you, has made a password reset request for a PyPI "
 "account associated with this email address."
 msgstr ""
 
-#: warehouse/templates/email/password-reset-unverified/body.html:20
+#: warehouse/templates/email/password-reset-unverified/body.html:8
 msgid ""
 "However, the email used to make this request is not verified. Your email "
 "address must be verified before you can use it to reset your password."
 msgstr ""
 
-#: warehouse/templates/email/password-reset-unverified/body.html:23
+#: warehouse/templates/email/password-reset-unverified/body.html:11
 msgid ""
 "If you have another verified email address associated with your PyPI "
 "account, try that instead."
 msgstr ""
 
-#: warehouse/templates/email/password-reset-unverified/body.html:26
+#: warehouse/templates/email/password-reset-unverified/body.html:14
 #, python-format
 msgid ""
 "If you cannot use another verified email, follow <a "
 "href=\"%(href)s\">account recovery steps</a> for your PyPI account."
 msgstr ""
 
-#: warehouse/templates/email/password-reset-unverified/body.html:29
+#: warehouse/templates/email/password-reset-unverified/body.html:17
 #, python-format
 msgid "<a href=\"%(href)s\">Read more about verified emails.</a>"
 msgstr ""
@@ -3006,25 +3006,25 @@ msgstr ""
 msgid "This link will expire in %(n_hours)s hours."
 msgstr ""
 
-#: warehouse/templates/includes/banner-messages.html:30
-#: warehouse/templates/includes/flash-messages.html:26
-#: warehouse/templates/includes/flash-messages.html:48
-#: warehouse/templates/includes/flash-messages.html:65
-#: warehouse/templates/includes/flash-messages.html:87
+#: warehouse/templates/includes/banner-messages.html:18
+#: warehouse/templates/includes/flash-messages.html:14
+#: warehouse/templates/includes/flash-messages.html:36
+#: warehouse/templates/includes/flash-messages.html:53
+#: warehouse/templates/includes/flash-messages.html:75
 msgid "Dismiss this notification"
 msgstr ""
 
-#: warehouse/templates/includes/banner-messages.html:34
-#: warehouse/templates/includes/flash-messages.html:30
-#: warehouse/templates/includes/flash-messages.html:52
-#: warehouse/templates/includes/flash-messages.html:69
-#: warehouse/templates/includes/flash-messages.html:91
-#: warehouse/templates/includes/session-notifications.html:49
-#: warehouse/templates/manage/account.html:216
-#: warehouse/templates/manage/account.html:219
-#: warehouse/templates/manage/account.html:234
-#: warehouse/templates/manage/account.html:543
-#: warehouse/templates/manage/account.html:546
+#: warehouse/templates/includes/banner-messages.html:22
+#: warehouse/templates/includes/flash-messages.html:18
+#: warehouse/templates/includes/flash-messages.html:40
+#: warehouse/templates/includes/flash-messages.html:57
+#: warehouse/templates/includes/flash-messages.html:79
+#: warehouse/templates/includes/session-notifications.html:37
+#: warehouse/templates/manage/account.html:204
+#: warehouse/templates/manage/account.html:207
+#: warehouse/templates/manage/account.html:222
+#: warehouse/templates/manage/account.html:531
+#: warehouse/templates/manage/account.html:534
 #: warehouse/templates/manage/manage_base.html:340
 #: warehouse/templates/manage/manage_base.html:343
 #: warehouse/templates/manage/project/release.html:180
@@ -3037,18 +3037,18 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
-#: warehouse/templates/includes/current-user-indicator.html:36
+#: warehouse/templates/includes/current-user-indicator.html:24
 msgid "Admin"
 msgstr ""
 
-#: warehouse/templates/includes/current-user-indicator.html:44
+#: warehouse/templates/includes/current-user-indicator.html:32
 #: warehouse/templates/manage/manage_base.html:239
 #: warehouse/templates/manage/manage_base.html:279
 #: warehouse/templates/manage/projects.html:5
 msgid "Your projects"
 msgstr ""
 
-#: warehouse/templates/includes/current-user-indicator.html:51
+#: warehouse/templates/includes/current-user-indicator.html:39
 #: warehouse/templates/manage/manage_base.html:247
 #: warehouse/templates/manage/manage_base.html:287
 #: warehouse/templates/manage/organizations.html:5
@@ -3056,66 +3056,66 @@ msgstr ""
 msgid "Your organizations"
 msgstr ""
 
-#: warehouse/templates/includes/current-user-indicator.html:58
-#: warehouse/templates/manage/account.html:16
+#: warehouse/templates/includes/current-user-indicator.html:46
+#: warehouse/templates/manage/account.html:4
 #: warehouse/templates/manage/account/two-factor.html:4
 #: warehouse/templates/manage/manage_base.html:255
 #: warehouse/templates/manage/manage_base.html:295
 msgid "Account settings"
 msgstr ""
 
-#: warehouse/templates/includes/current-user-indicator.html:65
+#: warehouse/templates/includes/current-user-indicator.html:53
 msgid "Public profile"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:44
+#: warehouse/templates/includes/file-details.html:32
 msgid "File details"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:54
+#: warehouse/templates/includes/file-details.html:42
 #, python-format
 msgid "Upload date: %(upload_time)s"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:56
+#: warehouse/templates/includes/file-details.html:44
 #, python-format
 msgid "Size: %(size)s"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:58
+#: warehouse/templates/includes/file-details.html:46
 #, python-format
 msgid "Tags: %(tags)s"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:60
+#: warehouse/templates/includes/file-details.html:48
 #, python-format
 msgid "Uploaded using Trusted Publishing? %(is_tp)s"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:65
+#: warehouse/templates/includes/file-details.html:53
 #, python-format
 msgid "Uploaded via: %(uploaded_via)s"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:72
+#: warehouse/templates/includes/file-details.html:60
 #, python-format
 msgid "Hashes for %(filename)s"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:75
+#: warehouse/templates/includes/file-details.html:63
 msgid "Algorithm"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:76
+#: warehouse/templates/includes/file-details.html:64
 msgid "Hash digest"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:91
-#: warehouse/templates/includes/file-details.html:106
-#: warehouse/templates/includes/file-details.html:121
-#: warehouse/templates/includes/packaging/project-files.html:115
-#: warehouse/templates/includes/packaging/project-header.html:55
-#: warehouse/templates/manage/account.html:230
+#: warehouse/templates/includes/file-details.html:79
+#: warehouse/templates/includes/file-details.html:94
+#: warehouse/templates/includes/file-details.html:109
+#: warehouse/templates/includes/packaging/project-files.html:103
+#: warehouse/templates/includes/packaging/project-header.html:43
+#: warehouse/templates/manage/account.html:218
 #: warehouse/templates/manage/account/recovery_codes-provision.html:53
 #: warehouse/templates/manage/account/totp-provision.html:46
 #: warehouse/templates/manage/unverified-account.html:200
@@ -3123,11 +3123,11 @@ msgstr ""
 msgid "Copy to clipboard"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:92
-#: warehouse/templates/includes/file-details.html:107
-#: warehouse/templates/includes/file-details.html:122
-#: warehouse/templates/includes/packaging/project-files.html:116
-#: warehouse/templates/manage/account.html:231
+#: warehouse/templates/includes/file-details.html:80
+#: warehouse/templates/includes/file-details.html:95
+#: warehouse/templates/includes/file-details.html:110
+#: warehouse/templates/includes/packaging/project-files.html:104
+#: warehouse/templates/manage/account.html:219
 #: warehouse/templates/manage/account/recovery_codes-provision.html:54
 #: warehouse/templates/manage/account/totp-provision.html:47
 #: warehouse/templates/manage/unverified-account.html:201
@@ -3135,67 +3135,67 @@ msgstr ""
 msgid "Copy"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:129
+#: warehouse/templates/includes/file-details.html:117
 #, python-format
 msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">See more details on using hashes here.</a>"
 msgstr ""
 
-#: warehouse/templates/includes/flash-messages.html:22
+#: warehouse/templates/includes/flash-messages.html:10
 msgid "Error"
 msgstr ""
 
-#: warehouse/templates/includes/flash-messages.html:83
+#: warehouse/templates/includes/flash-messages.html:71
 msgid "Success"
 msgstr ""
 
-#: warehouse/templates/includes/manage-project-button.html:17
+#: warehouse/templates/includes/manage-project-button.html:5
 msgid "Manage project"
 msgstr ""
 
-#: warehouse/templates/includes/pagination.html:20
-#: warehouse/templates/includes/pagination.html:23
+#: warehouse/templates/includes/pagination.html:8
+#: warehouse/templates/includes/pagination.html:11
 msgid "Previous"
 msgstr ""
 
-#: warehouse/templates/includes/pagination.html:44
-#: warehouse/templates/includes/pagination.html:46
+#: warehouse/templates/includes/pagination.html:32
+#: warehouse/templates/includes/pagination.html:34
 msgid "Next"
 msgstr ""
 
-#: warehouse/templates/includes/session-notifications.html:24
+#: warehouse/templates/includes/session-notifications.html:12
 #, python-format
 msgid "Your primary email address (%(email_address)s) is unverified."
 msgstr ""
 
-#: warehouse/templates/includes/session-notifications.html:26
+#: warehouse/templates/includes/session-notifications.html:14
 msgid "You do not have a primary email address."
 msgstr ""
 
-#: warehouse/templates/includes/session-notifications.html:29
+#: warehouse/templates/includes/session-notifications.html:17
 msgid "Verify your email or add a new address."
 msgstr ""
 
-#: warehouse/templates/includes/session-notifications.html:40
+#: warehouse/templates/includes/session-notifications.html:28
 #, python-format
 msgid ""
 "Two factor authentication is available, <a href=\"%(href)s\">enable it "
 "now for your account.</a>"
 msgstr ""
 
-#: warehouse/templates/includes/session-notifications.html:58
+#: warehouse/templates/includes/session-notifications.html:46
 #, python-format
 msgid ""
 "Two-factor recovery codes are available, <a href=\"%(href)s\">generate "
 "them now for your account.</a>"
 msgstr ""
 
-#: warehouse/templates/includes/accounts/profile-actions.html:16
+#: warehouse/templates/includes/accounts/profile-actions.html:4
 msgid "Edit profile"
 msgstr ""
 
-#: warehouse/templates/includes/accounts/profile-callout.html:17
+#: warehouse/templates/includes/accounts/profile-callout.html:5
 #, python-format
 msgid ""
 "You have not uploaded any projects to PyPI, yet. To learn how to get "
@@ -3203,15 +3203,15 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
 
-#: warehouse/templates/includes/accounts/profile-callout.html:23
+#: warehouse/templates/includes/accounts/profile-callout.html:11
 #, python-format
 msgid "%(username)s has not uploaded any projects to PyPI, yet."
 msgstr ""
 
-#: warehouse/templates/includes/accounts/profile-public-email.html:16
+#: warehouse/templates/includes/accounts/profile-public-email.html:4
 #: warehouse/templates/manage/account/publishing.html:244
 #: warehouse/templates/manage/organization/publishing.html:257
-#: warehouse/templates/manage/project/publishing.html:242
+#: warehouse/templates/manage/project/publishing.html:230
 msgid "Email"
 msgstr ""
 
@@ -3247,7 +3247,7 @@ msgstr ""
 #: warehouse/templates/includes/manage/manage-organization-menu.html:45
 #: warehouse/templates/includes/manage/manage-project-menu.html:31
 #: warehouse/templates/includes/manage/manage-team-menu.html:28
-#: warehouse/templates/manage/account.html:657
+#: warehouse/templates/manage/account.html:645
 #: warehouse/templates/manage/organization/history.html:9
 #: warehouse/templates/manage/project/history.html:9
 #: warehouse/templates/manage/team/history.html:9
@@ -3292,512 +3292,34 @@ msgstr ""
 msgid "Members"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:16
+#: warehouse/templates/includes/packaging/project-data.html:4
 msgid "Verified details"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:18
+#: warehouse/templates/includes/packaging/project-data.html:6
 #, python-format
 msgid "Verified by PyPI on %(release_date)s"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:20
+#: warehouse/templates/includes/packaging/project-data.html:8
 #, python-format
 msgid "These details have been <a href=\"%(href)s\">verified by PyPI</a>"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/metadata/project-links.html:65
-#: warehouse/templates/includes/packaging/project-data.html:22
-#: warehouse/templates/includes/packaging/project-data.html:195
+#: warehouse/templates/includes/packaging/metadata/project-links.html:53
+#: warehouse/templates/includes/packaging/project-data.html:10
+#: warehouse/templates/includes/packaging/project-data.html:183
 msgid "Project links"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/metadata/github-statistics.html:21
-#: warehouse/templates/includes/packaging/project-data.html:49
-msgid "GitHub Statistics"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/github-statistics.html:36
-#: warehouse/templates/includes/packaging/metadata/gitlab-statistics.html:35
-#: warehouse/templates/includes/packaging/project-data.html:57
-#: warehouse/templates/includes/packaging/project-data.html:108
-msgid "Repository"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-data.html:65
-#: warehouse/templates/includes/packaging/project-data.html:116
-msgid "Stars:"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-data.html:74
-#: warehouse/templates/includes/packaging/project-data.html:125
-msgid "Forks:"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-data.html:83
-#: warehouse/templates/includes/packaging/project-data.html:134
-msgid "Open issues:"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-data.html:92
-msgid "Open PRs:"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/gitlab-statistics.html:20
-#: warehouse/templates/includes/packaging/project-data.html:100
-msgid "GitLab Statistics"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-data.html:143
-msgid "Open merge requests:"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-data.html:151
-msgid "Maintainers"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/maintainers.html:15
-#: warehouse/templates/includes/packaging/project-data.html:153
-#, python-brace-format
-msgid "Avatar for {username} from gravatar.com"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-data.html:171
-#: warehouse/templates/includes/packaging/project-data.html:210
-msgid "Meta"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/credits.html:31
-#: warehouse/templates/includes/packaging/metadata/credits.html:55
-#: warehouse/templates/includes/packaging/metadata/credits.html:66
-#: warehouse/templates/includes/packaging/project-data.html:176
-#: warehouse/templates/includes/packaging/project-data.html:236
-#: warehouse/templates/includes/packaging/project-data.html:242
-msgid "Author:"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/credits.html:39
-#: warehouse/templates/includes/packaging/metadata/credits.html:73
-#: warehouse/templates/includes/packaging/metadata/credits.html:78
-#: warehouse/templates/includes/packaging/project-data.html:183
-#: warehouse/templates/includes/packaging/project-data.html:249
-#: warehouse/templates/includes/packaging/project-data.html:255
-#: warehouse/templates/pages/help.html:1004
-msgid "Maintainer:"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-data.html:192
-msgid "Unverified details"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-data.html:193
-msgid "These details have <b>not</b> been verified by PyPI"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-data.html:215
-msgid "License Expression:"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-data.html:221
-msgid "License Expression"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-data.html:229
-msgid "License:"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/tags.html:16
-#: warehouse/templates/includes/packaging/project-data.html:263
-msgid "Tags"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-data.html:276
-msgid "Requires:"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-data.html:283
-msgid "Provides-Extra:"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/classifiers.html:16
-#: warehouse/templates/includes/packaging/project-data.html:296
-#: warehouse/templates/pages/classifiers.html:4
-#: warehouse/templates/pages/classifiers.html:9
-#: warehouse/templates/pages/sitemap.html:37
-msgid "Classifiers"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-description.html:26
-msgid "The author of this package has not provided a project description"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-files.html:27
-msgid "view details"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-files.html:37
-#: warehouse/templates/includes/packaging/project-files.html:44
-#, python-format
-msgid "%(title)s"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-files.html:59
-msgid "Download files"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-files.html:61
-#, python-format
-msgid ""
-"Download the file for your platform. If you're not sure which to choose, "
-"learn more about <a href=\"%(href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">installing packages</a>."
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-files.html:64
-msgid "Source Distribution"
-msgid_plural "Source Distributions"
-msgstr[0] ""
-msgstr[1] ""
-
-#: warehouse/templates/includes/packaging/project-files.html:78
-msgid "No source distribution files available for this release."
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-files.html:79
-#, python-format
-msgid ""
-"See tutorial on <a href=\"%(href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">generating distribution archives</a>."
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-files.html:85
-msgid "Built Distribution"
-msgid_plural "Built Distributions"
-msgstr[0] ""
-msgstr[1] ""
-
-#: warehouse/templates/includes/packaging/project-files.html:92
-msgid "Filter files by name, interpreter, ABI, and platform."
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-files.html:95
-#, python-format
-msgid ""
-"If you're not sure about the file name format, learn more about <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">wheel file names</a>."
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-files.html:99
-msgid "The dropdown lists show the available interpreters, ABIs, and platforms."
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-files.html:102
-msgid "Enable javascript to be able to filter the list of wheel files."
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-files.html:106
-msgid "Copy a direct link to the current filters"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-files.html:124
-#: warehouse/templates/includes/packaging/project-files.html:129
-msgid "File name"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-header.html:57
-msgid "Copy PIP instructions"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-metadata.html:37
-msgid "Give design feedback"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-metadata.html:42
-#: warehouse/templates/includes/packaging/project-security.html:23
-msgid "Report project as malware"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-navigation.html:17
-#, python-format
-msgid "Navigation for %(project)s"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-navigation.html:24
-msgid "Project description. Focus will be moved to the description."
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-navigation.html:27
-msgid "Description"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-navigation.html:36
-msgid "Release history. Focus will be moved to the release history panel."
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-navigation.html:39
-#: warehouse/templates/includes/packaging/project-release-history.html:20
-msgid "Release history"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-navigation.html:49
-msgid "Files. Focus will be moved to the project files."
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-navigation.html:52
-#, python-format
-msgid "%(count)s File"
-msgid_plural "%(count)s Files"
-msgstr[0] ""
-msgstr[1] ""
-
-#: warehouse/templates/includes/packaging/project-navigation.html:59
-msgid "Release security. Focus will be moved to the security panel."
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-navigation.html:62
-#: warehouse/templates/pages/security.html:4
-msgid "Security"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-release-history.html:22
-msgid "Release notifications"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-release-history.html:23
-msgid "RSS feed"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-release-history.html:34
-msgid "This release"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-release-history.html:52
-msgid "quarantined"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-release-history.html:54
-msgid "yanked"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-release-history.html:56
-msgid "archived"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-release-history.html:58
-msgid "pre-release"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-release-history.html:64
-msgid "Reason this release was yanked:"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-security.html:19
-msgid "Security for"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-status.html:19
-#: warehouse/templates/includes/packaging/project-status.html:31
-#: warehouse/templates/manage/project/releases.html:25
-msgid "Quarantined"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-status.html:22
-#, python-format
-msgid ""
-"This project has been <a href=\"%(href)s\">quarantined</a> by PyPI "
-"admins. It cannot be installed or modified until a security review is "
-"complete."
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-status.html:34
-#, python-format
-msgid ""
-"This release has been <a href=\"%(href)s\">quarantined</a> by PyPI "
-"admins. It cannot be installed or modified until a security review is "
-"complete."
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-status.html:37
-#: warehouse/templates/includes/packaging/project-status.html:53
-#, python-format
-msgid "Consider using <a href=\"%(href)s\">release %(version)s</a> instead."
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-status.html:47
-msgid "Yanked"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-status.html:50
-#, python-format
-msgid ""
-"This release has been <a href=\"%(href)s\">yanked</a> by its maintainers,"
-" and will be ignored by installers, except when explicitly specified."
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-status.html:70
-#, python-format
-msgid ""
-"This project has been <a href=\"%(href)s\">archived</a> by its "
-"maintainers, and is no longer receiving any updates."
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-status.html:79
-msgid "Pre-release"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-status.html:82
-#, python-format
-msgid ""
-"This release is a <a href=\"%(href)s\">pre-release</a> and may not be "
-"stable for production use."
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/credits.html:16
-msgid "Credits"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/credits.html:21
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:19
-#: warehouse/templates/includes/packaging/metadata/maintainers.html:37
-#: warehouse/templates/includes/packaging/metadata/organization.html:20
-msgid "PyPI data"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/credits.html:22
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:20
-#: warehouse/templates/includes/packaging/metadata/maintainers.html:38
-#: warehouse/templates/includes/packaging/metadata/organization.html:21
-msgid "Data sourced directly from PyPI's database."
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/credits.html:29
-#: warehouse/templates/includes/packaging/metadata/credits.html:53
-#: warehouse/templates/includes/packaging/metadata/credits.html:64
-msgid "Author/Maintainer:"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/github-statistics.html:25
-#: warehouse/templates/includes/packaging/metadata/gitlab-statistics.html:24
-#: warehouse/templates/includes/packaging/metadata/project-links.html:70
-#: warehouse/templates/includes/packaging/metadata/project-links.html:71
-#, python-format
-msgid "Data verified by PyPI on %(date)s"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/github-statistics.html:25
-#: warehouse/templates/includes/packaging/metadata/gitlab-statistics.html:24
-#, python-format
-msgid "Data verified by PyPI on&nbsp;%(date)s"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/github-statistics.html:26
-msgid ""
-"The GitHub source repository was provided by the project maintainers and "
-"verified by PyPI at the time of upload. Stars, forks, and open issues/PRs"
-" are derived from that repository and have not been independently "
-"verified."
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/github-statistics.html:44
-#: warehouse/templates/includes/packaging/metadata/gitlab-statistics.html:43
-msgid "Stars"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/github-statistics.html:53
-#: warehouse/templates/includes/packaging/metadata/gitlab-statistics.html:52
-msgid "Forks"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/github-statistics.html:62
-#: warehouse/templates/includes/packaging/metadata/gitlab-statistics.html:61
-msgid "Open issues"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/github-statistics.html:71
-msgid "Open PRs"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/gitlab-statistics.html:25
-msgid ""
-"The GitLab source repository was provided by the project maintainers and "
-"verified by PyPI at the time of upload. Stars, forks, and open issues/PRs"
-" are derived from that repository and have not been independently "
-"verified."
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/gitlab-statistics.html:70
-msgid "Open merge requests"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:15
-msgid "Key dates"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:23
-#, python-format
-msgid "<strong>Released:</strong> %(release_date)s"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:26
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:30
-#, python-format
-msgid "<strong>Quarantined:</strong> %(date)s"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:34
-#, python-format
-msgid "<strong>Archived:</strong> %(date)s"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:39
-msgid "<strong>Yanked:</strong> Show date here"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:46
-#, python-format
-msgid "Stable release available (%(version)s)"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:51
-#, python-format
-msgid "Newer release available (%(version)s)"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:54
-msgid "Latest release"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/license.html:18
-msgid "License expression"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/license.html:21
-msgid "About license expressions"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/license.html:29
-msgid "View SPDX License List"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/license.html:33
-msgid "License"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/maintainers.html:30
-#, python-format
-msgid "%(count)s maintainer"
-msgid_plural "%(count)s maintainers"
-msgstr[0] ""
-msgstr[1] ""
-
-#: warehouse/templates/includes/packaging/metadata/organization.html:16
+#: warehouse/templates/includes/packaging/metadata/organization.html:4
+#: warehouse/templates/includes/packaging/project-data.html:24
 #: warehouse/templates/manage/account/publishing.html:37
 #: warehouse/templates/manage/organization/publishing.html:34
 #: warehouse/templates/manage/organization/roles.html:49
 #: warehouse/templates/manage/organization/roles.html:234
 #: warehouse/templates/manage/organizations.html:91
-#: warehouse/templates/manage/project/publishing.html:42
+#: warehouse/templates/manage/project/publishing.html:30
 #: warehouse/templates/manage/project/roles.html:48
 #: warehouse/templates/manage/project/roles.html:86
 #: warehouse/templates/manage/project/roles.html:119
@@ -3807,76 +3329,564 @@ msgstr[1] ""
 msgid "Owner"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/metadata/project-links.html:74
+#: warehouse/templates/includes/packaging/metadata/github-statistics.html:9
+#: warehouse/templates/includes/packaging/project-data.html:37
+msgid "GitHub Statistics"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/github-statistics.html:24
+#: warehouse/templates/includes/packaging/metadata/gitlab-statistics.html:23
+#: warehouse/templates/includes/packaging/project-data.html:45
+#: warehouse/templates/includes/packaging/project-data.html:96
+msgid "Repository"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:53
+#: warehouse/templates/includes/packaging/project-data.html:104
+msgid "Stars:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:62
+#: warehouse/templates/includes/packaging/project-data.html:113
+msgid "Forks:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:71
+#: warehouse/templates/includes/packaging/project-data.html:122
+msgid "Open issues:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:80
+msgid "Open PRs:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/gitlab-statistics.html:8
+#: warehouse/templates/includes/packaging/project-data.html:88
+msgid "GitLab Statistics"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:131
+msgid "Open merge requests:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:139
+msgid "Maintainers"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/maintainers.html:3
+#: warehouse/templates/includes/packaging/project-data.html:141
+#, python-brace-format
+msgid "Avatar for {username} from gravatar.com"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:159
+#: warehouse/templates/includes/packaging/project-data.html:198
+msgid "Meta"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/credits.html:19
+#: warehouse/templates/includes/packaging/metadata/credits.html:43
+#: warehouse/templates/includes/packaging/metadata/credits.html:54
+#: warehouse/templates/includes/packaging/project-data.html:164
+#: warehouse/templates/includes/packaging/project-data.html:224
+#: warehouse/templates/includes/packaging/project-data.html:230
+msgid "Author:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/credits.html:27
+#: warehouse/templates/includes/packaging/metadata/credits.html:61
+#: warehouse/templates/includes/packaging/metadata/credits.html:66
+#: warehouse/templates/includes/packaging/project-data.html:171
+#: warehouse/templates/includes/packaging/project-data.html:237
+#: warehouse/templates/includes/packaging/project-data.html:243
+#: warehouse/templates/pages/help.html:1004
+msgid "Maintainer:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:180
+msgid "Unverified details"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:181
+msgid "These details have <b>not</b> been verified by PyPI"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:203
+msgid "License Expression:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:209
+msgid "License Expression"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:217
+msgid "License:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/tags.html:4
+#: warehouse/templates/includes/packaging/project-data.html:251
+msgid "Tags"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:264
+msgid "Requires:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:271
+msgid "Provides-Extra:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/classifiers.html:4
+#: warehouse/templates/includes/packaging/project-data.html:284
+#: warehouse/templates/pages/classifiers.html:4
+#: warehouse/templates/pages/classifiers.html:9
+#: warehouse/templates/pages/sitemap.html:37
+msgid "Classifiers"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-description.html:14
+msgid "The author of this package has not provided a project description"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-files.html:15
+msgid "view details"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-files.html:17
+#, python-format
+msgid "Uploaded %(upload_time)s"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-files.html:25
+#: warehouse/templates/includes/packaging/project-files.html:32
+#, python-format
+msgid "%(title)s"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-files.html:47
+msgid "Download files"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-files.html:49
+#, python-format
+msgid ""
+"Download the file for your platform. If you're not sure which to choose, "
+"learn more about <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">installing packages</a>."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-files.html:52
+msgid "Source Distribution"
+msgid_plural "Source Distributions"
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/templates/includes/packaging/project-files.html:66
+msgid "No source distribution files available for this release."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-files.html:67
+#, python-format
+msgid ""
+"See tutorial on <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">generating distribution archives</a>."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-files.html:73
+msgid "Built Distribution"
+msgid_plural "Built Distributions"
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/templates/includes/packaging/project-files.html:80
+msgid "Filter files by name, interpreter, ABI, and platform."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-files.html:83
+#, python-format
+msgid ""
+"If you're not sure about the file name format, learn more about <a "
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">wheel file names</a>."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-files.html:87
+msgid "The dropdown lists show the available interpreters, ABIs, and platforms."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-files.html:90
+msgid "Enable javascript to be able to filter the list of wheel files."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-files.html:94
+msgid "Copy a direct link to the current filters"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-files.html:112
+#: warehouse/templates/includes/packaging/project-files.html:117
+msgid "File name"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-header.html:45
+msgid "Copy PIP instructions"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-metadata.html:25
+msgid "Give design feedback"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-metadata.html:30
+#: warehouse/templates/includes/packaging/project-security.html:11
+msgid "Report project as malware"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-navigation.html:5
+#, python-format
+msgid "Navigation for %(project)s"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-navigation.html:17
+msgid "Project description. Focus will be moved to the description."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-navigation.html:20
+msgid "Description"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-navigation.html:34
+msgid "Release history. Focus will be moved to the release history panel."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-navigation.html:37
+#: warehouse/templates/includes/packaging/project-release-history.html:8
+msgid "Release history"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-navigation.html:52
+msgid "Files. Focus will be moved to the project files."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-navigation.html:55
+#, python-format
+msgid "%(count)s File"
+msgid_plural "%(count)s Files"
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/templates/includes/packaging/project-navigation.html:62
+msgid "Release security. Focus will be moved to the security panel."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-navigation.html:65
+#: warehouse/templates/pages/security.html:4
+msgid "Security"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-release-history.html:10
+msgid "Release notifications"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-release-history.html:11
+msgid "RSS feed"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-release-history.html:22
+msgid "This release"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-release-history.html:40
+msgid "quarantined"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-release-history.html:42
+msgid "yanked"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-release-history.html:44
+msgid "archived"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-release-history.html:46
+msgid "pre-release"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-release-history.html:52
+msgid "Reason this release was yanked:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-security.html:7
+msgid "Security for"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-status.html:7
+#: warehouse/templates/includes/packaging/project-status.html:19
+#: warehouse/templates/manage/project/releases.html:25
+msgid "Quarantined"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-status.html:10
+#, python-format
+msgid ""
+"This project has been <a href=\"%(href)s\">quarantined</a> by PyPI "
+"admins. It cannot be installed or modified until a security review is "
+"complete."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-status.html:22
+#, python-format
+msgid ""
+"This release has been <a href=\"%(href)s\">quarantined</a> by PyPI "
+"admins. It cannot be installed or modified until a security review is "
+"complete."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-status.html:25
+#: warehouse/templates/includes/packaging/project-status.html:41
+#, python-format
+msgid "Consider using <a href=\"%(href)s\">release %(version)s</a> instead."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-status.html:35
+msgid "Yanked"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-status.html:38
+#, python-format
+msgid ""
+"This release has been <a href=\"%(href)s\">yanked</a> by its maintainers,"
+" and will be ignored by installers, except when explicitly specified."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-status.html:45
+msgid "Reason given by maintainers:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-status.html:58
+#, python-format
+msgid ""
+"This project has been <a href=\"%(href)s\">archived</a> by its "
+"maintainers, and is no longer receiving any updates."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-status.html:67
+msgid "Pre-release"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-status.html:70
+#, python-format
+msgid ""
+"This release is a <a href=\"%(href)s\">pre-release</a> and may not be "
+"stable for production use."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/credits.html:4
+msgid "Credits"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/credits.html:9
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:7
+#: warehouse/templates/includes/packaging/metadata/maintainers.html:25
+#: warehouse/templates/includes/packaging/metadata/organization.html:8
+msgid "PyPI data"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/credits.html:10
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:8
+#: warehouse/templates/includes/packaging/metadata/maintainers.html:26
+#: warehouse/templates/includes/packaging/metadata/organization.html:9
+msgid "Data sourced directly from PyPI's database."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/credits.html:17
+#: warehouse/templates/includes/packaging/metadata/credits.html:41
+#: warehouse/templates/includes/packaging/metadata/credits.html:52
+msgid "Author/Maintainer:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/github-statistics.html:13
+#: warehouse/templates/includes/packaging/metadata/gitlab-statistics.html:12
+#: warehouse/templates/includes/packaging/metadata/project-links.html:58
+#: warehouse/templates/includes/packaging/metadata/project-links.html:59
+#, python-format
+msgid "Data verified by PyPI on %(date)s"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/github-statistics.html:13
+#: warehouse/templates/includes/packaging/metadata/gitlab-statistics.html:12
+#, python-format
+msgid "Data verified by PyPI on&nbsp;%(date)s"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/github-statistics.html:14
+msgid ""
+"The GitHub source repository was provided by the project maintainers and "
+"verified by PyPI at the time of upload. Stars, forks, and open issues/PRs"
+" are derived from that repository and have not been independently "
+"verified."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/github-statistics.html:32
+#: warehouse/templates/includes/packaging/metadata/gitlab-statistics.html:31
+msgid "Stars"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/github-statistics.html:41
+#: warehouse/templates/includes/packaging/metadata/gitlab-statistics.html:40
+msgid "Forks"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/github-statistics.html:50
+#: warehouse/templates/includes/packaging/metadata/gitlab-statistics.html:49
+msgid "Open issues"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/github-statistics.html:59
+msgid "Open PRs"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/gitlab-statistics.html:13
+msgid ""
+"The GitLab source repository was provided by the project maintainers and "
+"verified by PyPI at the time of upload. Stars, forks, and open issues/PRs"
+" are derived from that repository and have not been independently "
+"verified."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/gitlab-statistics.html:58
+msgid "Open merge requests"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:3
+msgid "Key dates"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:11
+#, python-format
+msgid "<strong>Released:</strong> %(release_date)s"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:14
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:18
+#, python-format
+msgid "<strong>Quarantined:</strong> %(date)s"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:22
+#, python-format
+msgid "<strong>Archived:</strong> %(date)s"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:27
+msgid "<strong>Yanked:</strong> Show date here"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:34
+#, python-format
+msgid "Stable release available (%(version)s)"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:39
+#, python-format
+msgid "Newer release available (%(version)s)"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:42
+msgid "Latest release"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/license.html:6
+msgid "License expression"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/license.html:9
+msgid "About license expressions"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/license.html:17
+msgid "View SPDX License List"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/license.html:21
+msgid "License"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/maintainers.html:18
+#, python-format
+msgid "%(count)s maintainer"
+msgid_plural "%(count)s maintainers"
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/templates/includes/packaging/metadata/project-links.html:62
 msgid ""
 "Data provided by the project maintainers, verified at the time the "
 "release was uploaded to PyPI."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/metadata/provides-extra.html:16
+#: warehouse/templates/includes/packaging/metadata/provides-extra.html:4
 msgid "Provides Extra"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/metadata/requires-python.html:16
+#: warehouse/templates/includes/packaging/metadata/requires-python.html:4
 msgid "Requires"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:29
+#: warehouse/templates/manage/account.html:17
 #: warehouse/templates/manage/unverified-account.html:14
 msgid "Verified*"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:31
+#: warehouse/templates/manage/account.html:19
 #: warehouse/templates/manage/unverified-account.html:16
 msgid "*Intermittent delivery problems may lead to verification loss"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:35
+#: warehouse/templates/manage/account.html:23
 #: warehouse/templates/manage/unverified-account.html:20
 msgid "Verified"
 msgstr ""
 
+#: warehouse/templates/manage/account.html:30
+#: warehouse/templates/manage/account.html:36
 #: warehouse/templates/manage/account.html:42
-#: warehouse/templates/manage/account.html:48
-#: warehouse/templates/manage/account.html:54
 #: warehouse/templates/manage/unverified-account.html:27
 #: warehouse/templates/manage/unverified-account.html:33
 #: warehouse/templates/manage/unverified-account.html:39
 msgid "Unverified*"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:44
+#: warehouse/templates/manage/account.html:32
 #: warehouse/templates/manage/unverified-account.html:29
 msgid "*Email from PyPI being treated as spam"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:50
+#: warehouse/templates/manage/account.html:38
 #: warehouse/templates/manage/unverified-account.html:35
 msgid "*Hard failure during delivery"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:56
+#: warehouse/templates/manage/account.html:44
 #: warehouse/templates/manage/unverified-account.html:41
 msgid "*Too many delivery problems"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:60
+#: warehouse/templates/manage/account.html:48
 #: warehouse/templates/manage/unverified-account.html:45
 msgid "Unverified"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:71
+#: warehouse/templates/manage/account.html:59
 #: warehouse/templates/manage/unverified-account.html:56
 msgid "Primary"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:83
+#: warehouse/templates/manage/account.html:71
 #: warehouse/templates/manage/unverified-account.html:68
 msgid "View email options"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:84
-#: warehouse/templates/manage/account.html:177
+#: warehouse/templates/manage/account.html:72
+#: warehouse/templates/manage/account.html:165
 #: warehouse/templates/manage/project/release.html:92
 #: warehouse/templates/manage/project/releases.html:56
 #: warehouse/templates/manage/unverified-account.html:69
@@ -3884,84 +3894,84 @@ msgstr ""
 msgid "Options"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:91
+#: warehouse/templates/manage/account.html:79
 #: warehouse/templates/manage/unverified-account.html:76
 #, python-format
 msgid "Options for %(email)s"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:101
-#: warehouse/templates/manage/account.html:103
+#: warehouse/templates/manage/account.html:89
+#: warehouse/templates/manage/account.html:91
 #: warehouse/templates/manage/unverified-account.html:86
 #: warehouse/templates/manage/unverified-account.html:88
 msgid "Resend verification email"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:117
+#: warehouse/templates/manage/account.html:105
 #: warehouse/templates/manage/unverified-account.html:103
 msgid "Set this email address as primary"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:119
+#: warehouse/templates/manage/account.html:107
 #: warehouse/templates/manage/unverified-account.html:105
 msgid "Set as primary"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:133
+#: warehouse/templates/manage/account.html:121
 msgid "Remove this email address"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:135
+#: warehouse/templates/manage/account.html:123
 msgid "Remove email"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:153
-#: warehouse/templates/manage/account.html:636
+#: warehouse/templates/manage/account.html:141
+#: warehouse/templates/manage/account.html:624
 #: warehouse/templates/manage/account/token.html:150
 #: warehouse/templates/manage/unverified-account.html:123
 msgid "Scope"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:155
+#: warehouse/templates/manage/account.html:143
 #: warehouse/templates/manage/unverified-account.html:125
 msgid "All projects"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:163
-#: warehouse/templates/manage/account.html:637
+#: warehouse/templates/manage/account.html:151
+#: warehouse/templates/manage/account.html:625
 #: warehouse/templates/manage/unverified-account.html:133
 msgid "Created"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:167
-#: warehouse/templates/manage/account.html:638
+#: warehouse/templates/manage/account.html:155
+#: warehouse/templates/manage/account.html:626
 #: warehouse/templates/manage/unverified-account.html:137
 msgid "Last used"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:168
+#: warehouse/templates/manage/account.html:156
 #: warehouse/templates/manage/unverified-account.html:138
 msgid "Never"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:176
+#: warehouse/templates/manage/account.html:164
 #: warehouse/templates/manage/unverified-account.html:146
 msgid "View token options"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:186
+#: warehouse/templates/manage/account.html:174
 #: warehouse/templates/manage/account/token.html:48
 #: warehouse/templates/manage/unverified-account.html:156
 msgid "Remove token"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:192
+#: warehouse/templates/manage/account.html:180
 #: warehouse/templates/manage/unverified-account.html:162
 msgid "View unique identifier"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:199
-#: warehouse/templates/manage/account.html:201
+#: warehouse/templates/manage/account.html:187
+#: warehouse/templates/manage/account.html:189
 #: warehouse/templates/manage/account/token.html:50
 #: warehouse/templates/manage/account/token.html:51
 #: warehouse/templates/manage/unverified-account.html:169
@@ -3969,7 +3979,7 @@ msgstr ""
 msgid "Remove API token"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:209
+#: warehouse/templates/manage/account.html:197
 #: warehouse/templates/manage/account/token.html:59
 #: warehouse/templates/manage/unverified-account.html:179
 msgid ""
@@ -3977,17 +3987,17 @@ msgid ""
 "PyPI."
 msgstr ""
 
-#: warehouse/templates/manage/account.html:223
+#: warehouse/templates/manage/account.html:211
 #: warehouse/templates/manage/unverified-account.html:193
 #, python-format
 msgid "Unique identifier for API token \"%(token_description)s\""
 msgstr ""
 
-#: warehouse/templates/manage/account.html:244
+#: warehouse/templates/manage/account.html:232
 msgid "Profile picture"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:253
+#: warehouse/templates/manage/account.html:241
 #, python-format
 msgid ""
 "We use <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -3995,59 +4005,59 @@ msgid ""
 "on your primary email address"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:263
+#: warehouse/templates/manage/account.html:251
 msgid "Change image on gravatar.com"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:270
+#: warehouse/templates/manage/account.html:258
 msgid "Account details"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:275
+#: warehouse/templates/manage/account.html:263
 msgid "Date Joined"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:279
+#: warehouse/templates/manage/account.html:267
 #, python-format
 msgid ""
 "Displayed on your <a href=\"%(href)s\">public profile</a>. Cannot be "
 "changed."
 msgstr ""
 
-#: warehouse/templates/manage/account.html:291
+#: warehouse/templates/manage/account.html:279
 msgid "Full name"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:296
+#: warehouse/templates/manage/account.html:284
 msgid "No name set"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:305
+#: warehouse/templates/manage/account.html:293
 #, python-format
 msgid "Displayed on your <a href=\"%(href)s\">public profile</a>"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:312
+#: warehouse/templates/manage/account.html:300
 msgid "️Public email"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:323
+#: warehouse/templates/manage/account.html:311
 #, python-format
 msgid ""
 "One of your verified emails can be displayed on your <a "
 "href=\"%(href)s\">public profile</a> to logged-in users."
 msgstr ""
 
-#: warehouse/templates/manage/account.html:328
+#: warehouse/templates/manage/account.html:316
 msgid "Update account"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:336
+#: warehouse/templates/manage/account.html:324
 #: warehouse/templates/manage/unverified-account.html:244
 msgid "Account emails"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:338
+#: warehouse/templates/manage/account.html:326
 msgid ""
 "You can associate several emails with your account. You can use any <span"
 " class=\"badge badge--success\"><i class=\"fa fa-check\" aria-"
@@ -4056,88 +4066,88 @@ msgid ""
 "notifications."
 msgstr ""
 
-#: warehouse/templates/manage/account.html:347
+#: warehouse/templates/manage/account.html:335
 #: warehouse/templates/manage/unverified-account.html:255
 msgid "Emails associated with your account"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:351
+#: warehouse/templates/manage/account.html:339
 #: warehouse/templates/manage/unverified-account.html:259
 msgid "Status"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:365
-#: warehouse/templates/manage/account.html:379
+#: warehouse/templates/manage/account.html:353
+#: warehouse/templates/manage/account.html:367
 msgid "Add email"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:386
+#: warehouse/templates/manage/account.html:374
 msgid "Change password"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:399
+#: warehouse/templates/manage/account.html:387
 msgid "Old password"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:412
+#: warehouse/templates/manage/account.html:400
 msgid "Your current password"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:424
+#: warehouse/templates/manage/account.html:412
 msgid "New password"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:448
+#: warehouse/templates/manage/account.html:436
 msgid "Confirm new password"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:471
+#: warehouse/templates/manage/account.html:459
 msgid "Update password"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:482
+#: warehouse/templates/manage/account.html:470
 msgid "Account associations"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:484
+#: warehouse/templates/manage/account.html:472
 msgid ""
 "Link your PyPI account with external services. Connected accounts may be "
 "used for account recovery or accessing service-specific features."
 msgstr ""
 
-#: warehouse/templates/manage/account.html:488
+#: warehouse/templates/manage/account.html:476
 msgid "Services linked to your account"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:491
-#: warehouse/templates/manage/account.html:501
+#: warehouse/templates/manage/account.html:479
+#: warehouse/templates/manage/account.html:489
 msgid "Service"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:492
-#: warehouse/templates/manage/account.html:511
+#: warehouse/templates/manage/account.html:480
+#: warehouse/templates/manage/account.html:499
 msgid "Account"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:493
-#: warehouse/templates/manage/account.html:525
+#: warehouse/templates/manage/account.html:481
+#: warehouse/templates/manage/account.html:513
 msgid "Connected"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:504
+#: warehouse/templates/manage/account.html:492
 msgid "GitHub"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:507
+#: warehouse/templates/manage/account.html:495
 msgid "GitLab"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:531
+#: warehouse/templates/manage/account.html:519
 #, python-format
 msgid "Remove %(service)s association"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:532
+#: warehouse/templates/manage/account.html:520
 #: warehouse/templates/manage/manage_base.html:69
 #: warehouse/templates/manage/manage_base.html:72
 #: warehouse/templates/manage/manage_base.html:91
@@ -4156,135 +4166,135 @@ msgstr ""
 msgid "Remove"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:557
+#: warehouse/templates/manage/account.html:545
 #, python-format
 msgid "Remove %(service)s association?"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:560
+#: warehouse/templates/manage/account.html:548
 #, python-format
 msgid ""
 "Removing this association will disconnect your %(service)s account "
 "<strong>%(username)s</strong> from PyPI."
 msgstr ""
 
-#: warehouse/templates/manage/account.html:565
+#: warehouse/templates/manage/account.html:553
 #, python-format
 msgid "You can reconnect your %(service)s account at any time."
 msgstr ""
 
-#: warehouse/templates/manage/account.html:576
+#: warehouse/templates/manage/account.html:564
 msgid "Remove association"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:586
+#: warehouse/templates/manage/account.html:574
 msgid "You have not connected any external accounts yet."
 msgstr ""
 
-#: warehouse/templates/manage/account.html:597
+#: warehouse/templates/manage/account.html:585
 msgid "Connect external accounts"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:599
+#: warehouse/templates/manage/account.html:587
 msgid ""
 "Link your external accounts to your PyPI account. You'll be redirected to"
 " authorize the connection."
 msgstr ""
 
-#: warehouse/templates/manage/account.html:606
+#: warehouse/templates/manage/account.html:594
 msgid "Connect GitHub"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:613
+#: warehouse/templates/manage/account.html:601
 msgid "Connect GitLab"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:620
+#: warehouse/templates/manage/account.html:608
 msgid ""
 "Need to connect a different account from the same service? Remove the "
 "existing connection first."
 msgstr ""
 
-#: warehouse/templates/manage/account.html:626
+#: warehouse/templates/manage/account.html:614
 #: warehouse/templates/manage/project/settings.html:29
 msgid "API tokens"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:628
+#: warehouse/templates/manage/account.html:616
 #: warehouse/templates/manage/project/settings.html:30
 msgid ""
 "API tokens provide an alternative way to authenticate when uploading "
 "packages to PyPI."
 msgstr ""
 
-#: warehouse/templates/manage/account.html:628
+#: warehouse/templates/manage/account.html:616
 msgid "Learn more about API tokens"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:632
+#: warehouse/templates/manage/account.html:620
 msgid "Active API tokens for this account"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:648
+#: warehouse/templates/manage/account.html:636
 msgid "Add API token"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:651
+#: warehouse/templates/manage/account.html:639
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add API "
 "tokens to your account."
 msgstr ""
 
-#: warehouse/templates/manage/account.html:675
-#: warehouse/templates/manage/account.html:885
+#: warehouse/templates/manage/account.html:663
+#: warehouse/templates/manage/account.html:873
 #: warehouse/templates/manage/unverified-account.html:313
 #: warehouse/templates/manage/unverified-account.html:495
 msgid "Token scope: entire account"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:677
-#: warehouse/templates/manage/account.html:887
+#: warehouse/templates/manage/account.html:665
+#: warehouse/templates/manage/account.html:875
 #: warehouse/templates/manage/unverified-account.html:315
 #: warehouse/templates/manage/unverified-account.html:497
 #, python-format
 msgid "Token scope: Project %(project_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:680
+#: warehouse/templates/manage/account.html:668
 #: warehouse/templates/manage/unverified-account.html:318
 #, python-format
 msgid "Expires: %(exp)s"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:685
+#: warehouse/templates/manage/account.html:673
 #: warehouse/templates/manage/unverified-account.html:323
 msgid "Account created"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:687
+#: warehouse/templates/manage/account.html:675
 #: warehouse/templates/manage/unverified-account.html:325
 msgid "Logged in"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:690
+#: warehouse/templates/manage/account.html:678
 #: warehouse/templates/manage/unverified-account.html:328
 msgid "Two factor method:"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:692
+#: warehouse/templates/manage/account.html:680
 #: warehouse/templates/manage/project/release.html:79
 #: warehouse/templates/manage/unverified-account.html:330
 msgid "None"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:695
+#: warehouse/templates/manage/account.html:683
 #: warehouse/templates/manage/manage_base.html:84
 #: warehouse/templates/manage/unverified-account.html:333
 msgid "Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:697
+#: warehouse/templates/manage/account.html:685
 #: warehouse/templates/manage/manage_base.html:58
 #: warehouse/templates/manage/unverified-account.html:335
 msgid ""
@@ -4292,161 +4302,161 @@ msgid ""
 "password\">TOTP</abbr>)"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:699
+#: warehouse/templates/manage/account.html:687
 #: warehouse/templates/manage/unverified-account.html:337
 msgid "Recovery code"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:701
+#: warehouse/templates/manage/account.html:689
 msgid "Remembered device"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:705
+#: warehouse/templates/manage/account.html:693
 #: warehouse/templates/manage/unverified-account.html:341
 msgid "Login failed"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:708
+#: warehouse/templates/manage/account.html:696
 #: warehouse/templates/manage/unverified-account.html:344
 msgid "- Basic Auth (Upload endpoint)"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:713
-#: warehouse/templates/manage/account.html:732
+#: warehouse/templates/manage/account.html:701
+#: warehouse/templates/manage/account.html:720
 #: warehouse/templates/manage/project/history.html:247
 #: warehouse/templates/manage/unverified-account.html:349
 #: warehouse/templates/manage/unverified-account.html:368
 msgid "Reason:"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:715
-#: warehouse/templates/manage/account.html:734
+#: warehouse/templates/manage/account.html:703
+#: warehouse/templates/manage/account.html:722
 #: warehouse/templates/manage/unverified-account.html:351
 #: warehouse/templates/manage/unverified-account.html:370
 msgid "Incorrect Password"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:717
+#: warehouse/templates/manage/account.html:705
 #: warehouse/templates/manage/unverified-account.html:353
 msgid "Invalid two factor (TOTP)"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:719
+#: warehouse/templates/manage/account.html:707
 #: warehouse/templates/manage/unverified-account.html:355
 msgid "Invalid two factor (WebAuthn)"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:721
-#: warehouse/templates/manage/account.html:723
+#: warehouse/templates/manage/account.html:709
+#: warehouse/templates/manage/account.html:711
 #: warehouse/templates/manage/unverified-account.html:357
 #: warehouse/templates/manage/unverified-account.html:359
 msgid "Invalid two factor (Recovery code)"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:729
+#: warehouse/templates/manage/account.html:717
 #: warehouse/templates/manage/unverified-account.html:365
 msgid "Session reauthentication failed"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:740
+#: warehouse/templates/manage/account.html:728
 #: warehouse/templates/manage/unverified-account.html:376
 msgid "Email added to account"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:744
+#: warehouse/templates/manage/account.html:732
 #: warehouse/templates/manage/unverified-account.html:380
 msgid "Email removed from account"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:748
+#: warehouse/templates/manage/account.html:736
 #: warehouse/templates/manage/unverified-account.html:384
 msgid "Email verified"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:752
+#: warehouse/templates/manage/account.html:740
 #: warehouse/templates/manage/unverified-account.html:388
 msgid "Email reverified"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:757
+#: warehouse/templates/manage/account.html:745
 #: warehouse/templates/manage/unverified-account.html:393
 msgid "Primary email changed"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:760
+#: warehouse/templates/manage/account.html:748
 #: warehouse/templates/manage/unverified-account.html:396
 msgid "Old primary email:"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:762
+#: warehouse/templates/manage/account.html:750
 #: warehouse/templates/manage/unverified-account.html:398
 msgid "New primary email:"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:765
+#: warehouse/templates/manage/account.html:753
 #: warehouse/templates/manage/unverified-account.html:401
 msgid "Primary email set"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:770
+#: warehouse/templates/manage/account.html:758
 #: warehouse/templates/manage/unverified-account.html:406
 msgid "Email sent"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:773
+#: warehouse/templates/manage/account.html:761
 #: warehouse/templates/manage/unverified-account.html:409
 msgid "From:"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:775
+#: warehouse/templates/manage/account.html:763
 #: warehouse/templates/manage/unverified-account.html:411
 msgid "To:"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:777
+#: warehouse/templates/manage/account.html:765
 #: warehouse/templates/manage/unverified-account.html:413
 msgid "Subject:"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:780
+#: warehouse/templates/manage/account.html:768
 #: warehouse/templates/manage/unverified-account.html:416
 msgid "Password reset requested"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:782
+#: warehouse/templates/manage/account.html:770
 #: warehouse/templates/manage/unverified-account.html:418
 msgid "Password reset attempted"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:784
+#: warehouse/templates/manage/account.html:772
 #: warehouse/templates/manage/unverified-account.html:420
 msgid "Password successfully reset"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:786
+#: warehouse/templates/manage/account.html:774
 #: warehouse/templates/manage/unverified-account.html:422
 msgid "Password successfully changed"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:788
+#: warehouse/templates/manage/account.html:776
 msgid "Password disabled"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:791
-#: warehouse/templates/manage/account.html:795
+#: warehouse/templates/manage/account.html:779
+#: warehouse/templates/manage/account.html:783
 #: warehouse/templates/manage/account/token.html:168
 #: warehouse/templates/manage/unverified-account.html:425
 #: warehouse/templates/manage/unverified-account.html:429
 msgid "Project:"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:798
+#: warehouse/templates/manage/account.html:786
 #: warehouse/templates/manage/unverified-account.html:432
 msgid "Two factor authentication added"
 msgstr ""
 
+#: warehouse/templates/manage/account.html:790
 #: warehouse/templates/manage/account.html:802
-#: warehouse/templates/manage/account.html:814
 #: warehouse/templates/manage/unverified-account.html:436
 #: warehouse/templates/manage/unverified-account.html:448
 msgid ""
@@ -4454,15 +4464,15 @@ msgid ""
 "authentication\">WebAuthn</abbr>)"
 msgstr ""
 
+#: warehouse/templates/manage/account.html:792
 #: warehouse/templates/manage/account.html:804
-#: warehouse/templates/manage/account.html:816
 #: warehouse/templates/manage/unverified-account.html:438
 #: warehouse/templates/manage/unverified-account.html:450
 msgid "Device name:"
 msgstr ""
 
+#: warehouse/templates/manage/account.html:794
 #: warehouse/templates/manage/account.html:806
-#: warehouse/templates/manage/account.html:818
 #: warehouse/templates/manage/unverified-account.html:440
 #: warehouse/templates/manage/unverified-account.html:452
 msgid ""
@@ -4470,57 +4480,57 @@ msgid ""
 "password\">TOTP</abbr>)"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:810
+#: warehouse/templates/manage/account.html:798
 #: warehouse/templates/manage/unverified-account.html:444
 msgid "Two factor authentication removed"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:822
+#: warehouse/templates/manage/account.html:810
 msgid "Two factor device remembered"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:824
+#: warehouse/templates/manage/account.html:812
 #: warehouse/templates/manage/unverified-account.html:456
 msgid "Recovery codes generated"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:827
+#: warehouse/templates/manage/account.html:815
 #: warehouse/templates/manage/unverified-account.html:459
 msgid "Recovery codes regenerated"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:830
+#: warehouse/templates/manage/account.html:818
 #: warehouse/templates/manage/unverified-account.html:462
 msgid "Recovery code used for login"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:833
+#: warehouse/templates/manage/account.html:821
 msgid "Account association added"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:838
-#: warehouse/templates/manage/account.html:849
+#: warehouse/templates/manage/account.html:826
+#: warehouse/templates/manage/account.html:837
 #, python-format
 msgid "GitHub: %(username)s"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:840
-#: warehouse/templates/manage/account.html:851
+#: warehouse/templates/manage/account.html:828
+#: warehouse/templates/manage/account.html:839
 #, python-format
 msgid "%(service)s: %(username)s"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:844
+#: warehouse/templates/manage/account.html:832
 msgid "Account association removed"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:855
+#: warehouse/templates/manage/account.html:843
 #: warehouse/templates/manage/unverified-account.html:465
 msgid "API token added"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:858
-#: warehouse/templates/manage/account.html:880
+#: warehouse/templates/manage/account.html:846
+#: warehouse/templates/manage/account.html:868
 #: warehouse/templates/manage/project/history.html:238
 #: warehouse/templates/manage/project/history.html:245
 #: warehouse/templates/manage/unverified-account.html:468
@@ -4528,88 +4538,88 @@ msgstr ""
 msgid "Token name:"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:873
+#: warehouse/templates/manage/account.html:861
 #: warehouse/templates/manage/project/history.html:240
 #: warehouse/templates/manage/unverified-account.html:483
 msgid "API token removed"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:875
-#: warehouse/templates/manage/account.html:882
+#: warehouse/templates/manage/account.html:863
+#: warehouse/templates/manage/account.html:870
 #: warehouse/templates/manage/unverified-account.html:485
 #: warehouse/templates/manage/unverified-account.html:492
 msgid "Unique identifier:"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:877
+#: warehouse/templates/manage/account.html:865
 #: warehouse/templates/manage/unverified-account.html:487
 msgid "API token automatically removed for security reasons"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:890
+#: warehouse/templates/manage/account.html:878
 #: warehouse/templates/manage/unverified-account.html:500
 #, python-format
 msgid "Reason: Token found at <a href=\"%(public_url)s\">public url</a>"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:894
+#: warehouse/templates/manage/account.html:882
 #: warehouse/templates/manage/unverified-account.html:504
 #, python-format
 msgid "Invited to join <a href=\"%(href)s\">%(organization_name)s</a>"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:898
+#: warehouse/templates/manage/account.html:886
 #: warehouse/templates/manage/unverified-account.html:508
 #, python-format
 msgid "Invitation to join <a href=\"%(href)s\">%(organization_name)s</a> declined"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:902
+#: warehouse/templates/manage/account.html:890
 #: warehouse/templates/manage/unverified-account.html:512
 #, python-format
 msgid "Invitation to join <a href=\"%(href)s\">%(organization_name)s</a> revoked"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:906
+#: warehouse/templates/manage/account.html:894
 #: warehouse/templates/manage/unverified-account.html:516
 #, python-format
 msgid "Invitation to join <a href=\"%(href)s\">%(organization_name)s</a> expired"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:910
+#: warehouse/templates/manage/account.html:898
 #, python-format
 msgid "Role in <a href=\"%(href)s\">%(organization_name)s</a> added"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:914
+#: warehouse/templates/manage/account.html:902
 #, python-format
 msgid "Role in <a href=\"%(href)s\">%(organization_name)s</a> changed"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:917
+#: warehouse/templates/manage/account.html:905
 msgid "Organization role removed"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:919
-#: warehouse/templates/manage/account.html:926
+#: warehouse/templates/manage/account.html:907
+#: warehouse/templates/manage/account.html:914
 #, python-format
 msgid "Project: %(project_name)s; role: %(role_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:924
-#: warehouse/templates/manage/account.html:931
+#: warehouse/templates/manage/account.html:912
+#: warehouse/templates/manage/account.html:919
 #, python-format
 msgid "%(heading)s"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:933
+#: warehouse/templates/manage/account.html:921
 #, python-format
 msgid ""
 "Organization: %(organization_name)s; team: %(team_name)s; role: "
 "%(role_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:942
+#: warehouse/templates/manage/account.html:930
 #: warehouse/templates/manage/unverified-account.html:523
 #, python-format
 msgid ""
@@ -4618,22 +4628,22 @@ msgid ""
 "your account</a> as soon as possible."
 msgstr ""
 
-#: warehouse/templates/manage/account.html:947
+#: warehouse/templates/manage/account.html:935
 #: warehouse/templates/manage/unverified-account.html:528
 msgid "Recent account activity"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:950
-#: warehouse/templates/manage/organization/history.html:213
+#: warehouse/templates/manage/account.html:938
+#: warehouse/templates/manage/organization/history.html:209
 #: warehouse/templates/manage/project/history.html:333
 #: warehouse/templates/manage/team/history.html:87
 #: warehouse/templates/manage/unverified-account.html:530
 msgid "Event"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:951
-#: warehouse/templates/manage/organization/history.html:214
-#: warehouse/templates/manage/organization/history.html:223
+#: warehouse/templates/manage/account.html:939
+#: warehouse/templates/manage/organization/history.html:210
+#: warehouse/templates/manage/organization/history.html:219
 #: warehouse/templates/manage/project/history.html:334
 #: warehouse/templates/manage/project/history.html:343
 #: warehouse/templates/manage/team/history.html:88
@@ -4642,46 +4652,46 @@ msgstr ""
 msgid "Time"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:952
-#: warehouse/templates/manage/organization/history.html:215
+#: warehouse/templates/manage/account.html:940
+#: warehouse/templates/manage/organization/history.html:211
 #: warehouse/templates/manage/team/history.html:89
 #: warehouse/templates/manage/unverified-account.html:532
 msgid "Additional Info"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:960
+#: warehouse/templates/manage/account.html:948
 #: warehouse/templates/manage/unverified-account.html:539
 msgid "Date / time"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:964
-#: warehouse/templates/manage/organization/history.html:227
+#: warehouse/templates/manage/account.html:952
+#: warehouse/templates/manage/organization/history.html:223
 #: warehouse/templates/manage/unverified-account.html:543
 msgid "Location Info"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:967
-#: warehouse/templates/manage/organization/history.html:230
+#: warehouse/templates/manage/account.html:955
+#: warehouse/templates/manage/organization/history.html:226
 #: warehouse/templates/manage/project/history.html:350
 #: warehouse/templates/manage/team/history.html:104
 #: warehouse/templates/manage/unverified-account.html:546
 msgid "Device Info"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:975
+#: warehouse/templates/manage/account.html:963
 #: warehouse/templates/manage/unverified-account.html:554
 msgid "Events will appear here as security-related actions occur on your account."
 msgstr ""
 
-#: warehouse/templates/manage/account.html:980
+#: warehouse/templates/manage/account.html:968
 msgid "Delete account"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:983
+#: warehouse/templates/manage/account.html:971
 msgid "Cannot delete account"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:986
+#: warehouse/templates/manage/account.html:973
 #, python-format
 msgid ""
 "Your account is currently the <strong>sole owner</strong> of %(count)s "
@@ -4692,7 +4702,7 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/account.html:991
+#: warehouse/templates/manage/account.html:978
 msgid ""
 "You must transfer ownership or delete this project before you can delete "
 "your account."
@@ -4702,54 +4712,26 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/account.html:1001
+#: warehouse/templates/manage/account.html:988
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a "
 "href=\"%(delete_href)s\">delete project</a>"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:1012
-#, python-format
-msgid ""
-"Your account is currently the <strong>sole owner</strong> of %(count)s "
-"organization."
-msgid_plural ""
-"Your account is currently the <strong>sole owner</strong> of %(count)s "
-"organizations."
-msgstr[0] ""
-msgstr[1] ""
-
-#: warehouse/templates/manage/account.html:1017
-msgid ""
-"You must add another owner or delete this organization before you can "
-"delete your account."
-msgid_plural ""
-"You must add another owner or delete these organizations before you can "
-"delete your account."
-msgstr[0] ""
-msgstr[1] ""
-
-#: warehouse/templates/manage/account.html:1027
-#, python-format
-msgid ""
-"<a href=\"%(roles_href)s\">add an owner</a> or <a "
-"href=\"%(delete_href)s\">delete organization</a>"
-msgstr ""
-
-#: warehouse/templates/manage/account.html:1037
+#: warehouse/templates/manage/account.html:997
 #: warehouse/templates/manage/account/token.html:177
 #: warehouse/templates/manage/organization/settings.html:289
-#: warehouse/templates/manage/project/publishing.html:19
+#: warehouse/templates/manage/project/publishing.html:7
 #: warehouse/templates/manage/team/settings.html:60
 msgid "Proceed with caution!"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:1040
+#: warehouse/templates/manage/account.html:1000
 msgid "You will not be able to recover your account after you delete it"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:1042
+#: warehouse/templates/manage/account.html:1002
 msgid "Delete your PyPI account"
 msgstr ""
 
@@ -5428,7 +5410,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:9
 #: warehouse/templates/manage/organization/publishing.html:9
-#: warehouse/templates/manage/project/publishing.html:28
+#: warehouse/templates/manage/project/publishing.html:16
 #, python-format
 msgid ""
 "Read more about GitHub Actions' OpenID Connect support <a "
@@ -5462,49 +5444,49 @@ msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:42
 #: warehouse/templates/manage/organization/publishing.html:39
-#: warehouse/templates/manage/project/publishing.html:47
+#: warehouse/templates/manage/project/publishing.html:35
 msgid "owner"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:44
 #: warehouse/templates/manage/organization/publishing.html:41
-#: warehouse/templates/manage/project/publishing.html:49
+#: warehouse/templates/manage/project/publishing.html:37
 msgid "The GitHub organization name or GitHub username that owns the repository"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:50
 #: warehouse/templates/manage/organization/publishing.html:47
-#: warehouse/templates/manage/project/publishing.html:55
+#: warehouse/templates/manage/project/publishing.html:43
 msgid "Repository name"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:55
 #: warehouse/templates/manage/organization/publishing.html:52
-#: warehouse/templates/manage/project/publishing.html:60
+#: warehouse/templates/manage/project/publishing.html:48
 msgid "repository"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:63
 #: warehouse/templates/manage/organization/publishing.html:60
-#: warehouse/templates/manage/project/publishing.html:68
+#: warehouse/templates/manage/project/publishing.html:56
 msgid "The name of the GitHub repository that contains the publishing workflow"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:69
 #: warehouse/templates/manage/organization/publishing.html:66
-#: warehouse/templates/manage/project/publishing.html:74
+#: warehouse/templates/manage/project/publishing.html:62
 msgid "Workflow name"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:74
 #: warehouse/templates/manage/organization/publishing.html:71
-#: warehouse/templates/manage/project/publishing.html:79
+#: warehouse/templates/manage/project/publishing.html:67
 msgid "workflow.yml"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:80
 #: warehouse/templates/manage/organization/publishing.html:77
-#: warehouse/templates/manage/project/publishing.html:85
+#: warehouse/templates/manage/project/publishing.html:73
 msgid ""
 "The filename of the publishing workflow. This file should exist in the "
 "<code>.github/workflows/</code> directory in the repository configured "
@@ -5515,8 +5497,8 @@ msgstr ""
 #: warehouse/templates/manage/account/publishing.html:185
 #: warehouse/templates/manage/organization/publishing.html:83
 #: warehouse/templates/manage/organization/publishing.html:182
-#: warehouse/templates/manage/project/publishing.html:91
-#: warehouse/templates/manage/project/publishing.html:179
+#: warehouse/templates/manage/project/publishing.html:79
+#: warehouse/templates/manage/project/publishing.html:167
 msgid "Environment name"
 msgstr ""
 
@@ -5526,15 +5508,15 @@ msgstr ""
 #: warehouse/templates/manage/organization/publishing.html:87
 #: warehouse/templates/manage/organization/publishing.html:186
 #: warehouse/templates/manage/organization/publishing.html:274
-#: warehouse/templates/manage/project/publishing.html:95
-#: warehouse/templates/manage/project/publishing.html:183
-#: warehouse/templates/manage/project/publishing.html:259
+#: warehouse/templates/manage/project/publishing.html:83
+#: warehouse/templates/manage/project/publishing.html:171
+#: warehouse/templates/manage/project/publishing.html:247
 msgid "(optional)"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:98
 #: warehouse/templates/manage/organization/publishing.html:95
-#: warehouse/templates/manage/project/publishing.html:104
+#: warehouse/templates/manage/project/publishing.html:92
 #, python-format
 msgid ""
 "The name of the <a href=\"%(href)s\">GitHub Actions environment</a> that "
@@ -5553,10 +5535,10 @@ msgstr ""
 #: warehouse/templates/manage/organization/publishing.html:223
 #: warehouse/templates/manage/organization/publishing.html:291
 #: warehouse/templates/manage/organization/publishing.html:384
-#: warehouse/templates/manage/project/publishing.html:118
-#: warehouse/templates/manage/project/publishing.html:220
-#: warehouse/templates/manage/project/publishing.html:276
-#: warehouse/templates/manage/project/publishing.html:351
+#: warehouse/templates/manage/project/publishing.html:106
+#: warehouse/templates/manage/project/publishing.html:208
+#: warehouse/templates/manage/project/publishing.html:264
+#: warehouse/templates/manage/project/publishing.html:339
 #: warehouse/templates/manage/project/roles.html:373
 #: warehouse/templates/manage/team/roles.html:127
 msgid "Add"
@@ -5564,7 +5546,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:119
 #: warehouse/templates/manage/organization/publishing.html:116
-#: warehouse/templates/manage/project/publishing.html:126
+#: warehouse/templates/manage/project/publishing.html:114
 #, python-format
 msgid ""
 "Read more about GitLab CI/CD OpenID Connect support <a "
@@ -5589,19 +5571,19 @@ msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:146
 #: warehouse/templates/manage/organization/publishing.html:143
-#: warehouse/templates/manage/project/publishing.html:140
+#: warehouse/templates/manage/project/publishing.html:128
 msgid "Namespace"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:151
 #: warehouse/templates/manage/organization/publishing.html:148
-#: warehouse/templates/manage/project/publishing.html:145
+#: warehouse/templates/manage/project/publishing.html:133
 msgid "namespace"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:153
 #: warehouse/templates/manage/organization/publishing.html:150
-#: warehouse/templates/manage/project/publishing.html:147
+#: warehouse/templates/manage/project/publishing.html:135
 msgid ""
 "The GitLab username or GitLab group/subgroup namespace that the project "
 "is under"
@@ -5610,7 +5592,7 @@ msgstr ""
 #: warehouse/templates/manage/account/publishing.html:159
 #: warehouse/templates/manage/organization/publishing.html:156
 #: warehouse/templates/manage/project/documentation.html:21
-#: warehouse/templates/manage/project/publishing.html:153
+#: warehouse/templates/manage/project/publishing.html:141
 #: warehouse/templates/manage/project/release.html:160
 #: warehouse/templates/pages/stats.html:65
 msgid "Project name"
@@ -5618,31 +5600,31 @@ msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:164
 #: warehouse/templates/manage/organization/publishing.html:161
-#: warehouse/templates/manage/project/publishing.html:158
+#: warehouse/templates/manage/project/publishing.html:146
 msgid "project"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:166
 #: warehouse/templates/manage/organization/publishing.html:163
-#: warehouse/templates/manage/project/publishing.html:160
+#: warehouse/templates/manage/project/publishing.html:148
 msgid "The name of the GitLab project that contains the publishing workflow"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:172
 #: warehouse/templates/manage/organization/publishing.html:169
-#: warehouse/templates/manage/project/publishing.html:166
+#: warehouse/templates/manage/project/publishing.html:154
 msgid "Top-level pipeline file path"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:177
 #: warehouse/templates/manage/organization/publishing.html:174
-#: warehouse/templates/manage/project/publishing.html:171
+#: warehouse/templates/manage/project/publishing.html:159
 msgid ".gitlab-ci.yml"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:179
 #: warehouse/templates/manage/organization/publishing.html:176
-#: warehouse/templates/manage/project/publishing.html:173
+#: warehouse/templates/manage/project/publishing.html:161
 msgid ""
 "The file path of the top-level pipeline, relative to the project's root. "
 "This file should exist in the project configured above (external "
@@ -5651,14 +5633,14 @@ msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:192
 #: warehouse/templates/manage/organization/publishing.html:189
-#: warehouse/templates/manage/project/publishing.html:98
-#: warehouse/templates/manage/project/publishing.html:186
+#: warehouse/templates/manage/project/publishing.html:86
+#: warehouse/templates/manage/project/publishing.html:174
 msgid "release"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:194
 #: warehouse/templates/manage/organization/publishing.html:191
-#: warehouse/templates/manage/project/publishing.html:188
+#: warehouse/templates/manage/project/publishing.html:176
 #, python-format
 msgid ""
 "The name of the <a href=\"%(href)s\">GitLab CI/CD environment</a> that "
@@ -5671,7 +5653,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:217
 #: warehouse/templates/manage/organization/publishing.html:230
-#: warehouse/templates/manage/project/publishing.html:228
+#: warehouse/templates/manage/project/publishing.html:216
 #, python-format
 msgid ""
 "Read more about Google's OpenID Connect support <a "
@@ -5680,25 +5662,25 @@ msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:249
 #: warehouse/templates/manage/organization/publishing.html:262
-#: warehouse/templates/manage/project/publishing.html:247
+#: warehouse/templates/manage/project/publishing.html:235
 msgid "email"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:251
 #: warehouse/templates/manage/organization/publishing.html:264
-#: warehouse/templates/manage/project/publishing.html:249
+#: warehouse/templates/manage/project/publishing.html:237
 msgid "The email address of the account or service account used to publish."
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:257
 #: warehouse/templates/manage/organization/publishing.html:270
-#: warehouse/templates/manage/project/publishing.html:255
+#: warehouse/templates/manage/project/publishing.html:243
 msgid "Subject"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:264
 #: warehouse/templates/manage/organization/publishing.html:277
-#: warehouse/templates/manage/project/publishing.html:262
+#: warehouse/templates/manage/project/publishing.html:250
 msgid "subject"
 msgstr ""
 
@@ -5713,7 +5695,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:285
 #: warehouse/templates/manage/organization/publishing.html:298
-#: warehouse/templates/manage/project/publishing.html:284
+#: warehouse/templates/manage/project/publishing.html:272
 #, python-format
 msgid ""
 "Read more about ActiveState's OpenID Connect support <a "
@@ -5721,56 +5703,56 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:318
-#: warehouse/templates/manage/project/publishing.html:298
+#: warehouse/templates/manage/project/publishing.html:286
 #: warehouse/templates/organizations/profile.html:17
 msgid "Organization"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:323
 #: warehouse/templates/manage/organization/publishing.html:336
-#: warehouse/templates/manage/project/publishing.html:303
+#: warehouse/templates/manage/project/publishing.html:291
 msgid "my-organization"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:330
 #: warehouse/templates/manage/organization/publishing.html:343
-#: warehouse/templates/manage/project/publishing.html:310
+#: warehouse/templates/manage/project/publishing.html:298
 msgid "The ActiveState organization name that owns the project"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:335
 #: warehouse/templates/manage/organization/publishing.html:348
-#: warehouse/templates/manage/project/publishing.html:315
+#: warehouse/templates/manage/project/publishing.html:303
 msgid "ActiveState Project name"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:340
 #: warehouse/templates/manage/organization/publishing.html:353
-#: warehouse/templates/manage/project/publishing.html:320
+#: warehouse/templates/manage/project/publishing.html:308
 msgid "my-project"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:348
 #: warehouse/templates/manage/organization/publishing.html:361
-#: warehouse/templates/manage/project/publishing.html:328
+#: warehouse/templates/manage/project/publishing.html:316
 msgid "The ActiveState project that will build your Python artifact."
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:354
 #: warehouse/templates/manage/organization/publishing.html:367
-#: warehouse/templates/manage/project/publishing.html:334
+#: warehouse/templates/manage/project/publishing.html:322
 msgid "Actor Username"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:359
 #: warehouse/templates/manage/organization/publishing.html:372
-#: warehouse/templates/manage/project/publishing.html:339
+#: warehouse/templates/manage/project/publishing.html:327
 msgid "my-username"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:365
 #: warehouse/templates/manage/organization/publishing.html:378
-#: warehouse/templates/manage/project/publishing.html:345
+#: warehouse/templates/manage/project/publishing.html:333
 msgid ""
 "The username for the ActiveState account that will trigger the build of "
 "your Python artifact."
@@ -5797,13 +5779,13 @@ msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:415
 #: warehouse/templates/manage/organization/publishing.html:415
-#: warehouse/templates/manage/project/publishing.html:375
+#: warehouse/templates/manage/project/publishing.html:363
 msgid "Publisher"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:416
 #: warehouse/templates/manage/organization/publishing.html:416
-#: warehouse/templates/manage/project/publishing.html:376
+#: warehouse/templates/manage/project/publishing.html:364
 msgid "Details"
 msgstr ""
 
@@ -5845,7 +5827,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:485
-#: warehouse/templates/manage/project/publishing.html:419
+#: warehouse/templates/manage/project/publishing.html:407
 #, python-format
 msgid ""
 "You must first enable <a href=\"%(href)s\">two-factor authentication</a> "
@@ -6613,12 +6595,12 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/organization/publishing.html:206
-#: warehouse/templates/manage/project/publishing.html:203
+#: warehouse/templates/manage/project/publishing.html:191
 msgid "GitLab instance"
 msgstr ""
 
 #: warehouse/templates/manage/organization/publishing.html:213
-#: warehouse/templates/manage/project/publishing.html:210
+#: warehouse/templates/manage/project/publishing.html:198
 msgid ""
 "The GitLab instance URL. Select <code>https://gitlab.com</code> for the "
 "public GitLab service, or a custom instance."
@@ -7370,13 +7352,13 @@ msgstr ""
 msgid "This project has been archived."
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:21
+#: warehouse/templates/manage/project/publishing.html:9
 msgid ""
 "Some form fields have been autofilled, please double-check their values "
 "before submitting the form."
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:270
+#: warehouse/templates/manage/project/publishing.html:258
 #, python-format
 msgid ""
 "The subject is the numeric ID that represents the principal making the "
@@ -7385,33 +7367,33 @@ msgid ""
 "here.</a>"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:367
+#: warehouse/templates/manage/project/publishing.html:355
 msgid "Manage current publishers"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:371
+#: warehouse/templates/manage/project/publishing.html:359
 #, python-format
 msgid "OpenID Connect publishers associated with %(project_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:385
+#: warehouse/templates/manage/project/publishing.html:373
 msgid "No publishers are currently configured."
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:389
+#: warehouse/templates/manage/project/publishing.html:377
 msgid "Add a new publisher"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:429
-#: warehouse/templates/manage/project/publishing.html:432
+#: warehouse/templates/manage/project/publishing.html:417
+#: warehouse/templates/manage/project/publishing.html:420
 msgid "Constrain environment"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:445
+#: warehouse/templates/manage/project/publishing.html:433
 msgid "This will restrict the Trusted Publisher's environment to"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:448
+#: warehouse/templates/manage/project/publishing.html:436
 #, python-format
 msgid ""
 "If you currently use multiple environments in your CI/CD workflows, you "
@@ -7419,7 +7401,7 @@ msgid ""
 "register each as a Trusted Publisher."
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:460
+#: warehouse/templates/manage/project/publishing.html:448
 #, python-format
 msgid ""
 "I understand that this Trusted Publisher will only allow uploads from "
@@ -7427,7 +7409,7 @@ msgid ""
 "environment."
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:465
+#: warehouse/templates/manage/project/publishing.html:453
 msgid "New Environment Name"
 msgstr ""
 
@@ -8236,20 +8218,20 @@ msgstr ""
 msgid "%(org)s has not uploaded any projects to PyPI, yet"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:21
+#: warehouse/templates/packaging/detail.html:9
 #, python-format
 msgid "RSS: latest releases for %(project_name)s"
 msgstr ""
 
-#: warehouse/templates/packaging/submit-malware-observation.html:20
+#: warehouse/templates/packaging/submit-malware-observation.html:8
 msgid "Submit Malware Report for Project"
 msgstr ""
 
-#: warehouse/templates/packaging/submit-malware-observation.html:25
+#: warehouse/templates/packaging/submit-malware-observation.html:13
 msgid "Submit Malware Report for Project:"
 msgstr ""
 
-#: warehouse/templates/packaging/submit-malware-observation.html:27
+#: warehouse/templates/packaging/submit-malware-observation.html:15
 msgid ""
 "Use this form to submit reports of malicious projects for review by the "
 "PyPI Administrators. Examples of malicious activity in projects include "
@@ -8257,7 +8239,7 @@ msgid ""
 "command/control, and other similar behaviors."
 msgstr ""
 
-#: warehouse/templates/packaging/submit-malware-observation.html:33
+#: warehouse/templates/packaging/submit-malware-observation.html:21
 #, python-format
 msgid ""
 "You'll be required to provide a link to notable source code using our <a "
@@ -8266,7 +8248,7 @@ msgid ""
 "portion of the relevant files."
 msgstr ""
 
-#: warehouse/templates/packaging/submit-malware-observation.html:39
+#: warehouse/templates/packaging/submit-malware-observation.html:27
 msgid ""
 "Your summary should include a general description of the malicious "
 "behavior as well as any other pertinent details such as what specific "
@@ -8274,11 +8256,11 @@ msgid ""
 "Project."
 msgstr ""
 
-#: warehouse/templates/packaging/submit-malware-observation.html:58
+#: warehouse/templates/packaging/submit-malware-observation.html:46
 msgid "Fill with a link to the problematic code lines from"
 msgstr ""
 
-#: warehouse/templates/packaging/submit-malware-observation.html:66
+#: warehouse/templates/packaging/submit-malware-observation.html:54
 msgid "Summary"
 msgstr ""
 

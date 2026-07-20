@@ -31,7 +31,7 @@ export default class extends Controller {
     if (!keys.includes(event.key)) return;
 
     const navTabs = this.tabTargets.filter(
-      tab => !this.contentTargets.some(c => c.contains(tab))
+      tab => !this.contentTargets.some(c => c.contains(tab)),
     );
     const currentIndex = navTabs.indexOf(event.currentTarget);
     if (currentIndex === -1) return;

@@ -14,7 +14,7 @@
            data-project-tabs-target="tab"
            data-action="project-tabs#tabClick">{%- trans -%}view details{%- endtrans -%}</a>)
         <p class="file__meta">
-          Uploaded {{ humanize(file.upload_time) }}
+          {% trans upload_time=humanize(file.upload_time) %}Uploaded {{ upload_time }}{% endtrans %}
           {% for tag in file.pretty_wheel_tags %}<code>{{ tag }}</code>{% endfor %}
         </p>
       </div>
