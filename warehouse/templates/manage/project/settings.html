@@ -88,17 +88,16 @@
                  required>
         </div>
         <div class="form-group">
-          <label>{% trans %}Which indexes do you need the increase for?{% endtrans %}</label>
-          <ul class="no-bullets">
-            <li>
-              <input type="checkbox" name="indexes" value="PyPI">
-              {% trans %}PyPI{% endtrans %}
-            </li>
-            <li>
-              <input type="checkbox" name="indexes" value="TestPyPI">
-              {% trans %}TestPyPI{% endtrans %}
-            </li>
-          </ul>
+          <label for="request-project-size-increase-indexes">
+            {% trans %}Which indexes do you need the increase for?{% endtrans %}
+          </label>
+          <select id="request-project-size-increase-indexes"
+                  name="indexes"
+                  class="form-group__field">
+            <option value="PyPI">{% trans %}PyPI{% endtrans %}</option>
+            <option value="TestPyPI">{% trans %}TestPyPI{% endtrans %}</option>
+            <option value="Both">{% trans %}Both{% endtrans %}</option>
+          </select>
         </div>
         <div class="form-group">
           <label for="request-project-size-increase-about">{% trans %}About the project{% endtrans %}</label>
@@ -112,6 +111,7 @@
         <textarea id="request-project-size-increase-about"
                   name="about_project"
                   class="form-group__field"
+                  rows="4"
                   required></textarea>
       </div>
       <div class="form-group">
@@ -127,6 +127,7 @@
       <textarea id="request-project-size-increase-release-size"
                 name="release_size"
                 class="form-group__field"
+                rows="4"
                 placeholder="{% trans %}e.g. ~200 MiB total: 2 Linux wheels at ~60 MiB due to bundled libxml binaries, 6 Windows/MacOS wheels at ~10 MiB, source tarball at ~10 MiB.{% endtrans %}"
                 required></textarea>
     </div>
@@ -137,6 +138,7 @@
       <textarea id="request-project-size-increase-release-frequency"
                 name="release_frequency"
                 class="form-group__field"
+                rows="4"
                 placeholder="{% trans %}e.g. roughly once every three months.{% endtrans %}"
                 required></textarea>
     </div>

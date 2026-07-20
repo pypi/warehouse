@@ -1257,24 +1257,39 @@ class TestCreateProjectSizeLimitRequestForm:
 
         assert form.validate()
         assert form.requested_limit.data == 20
-        assert form.indexes.data == ["PyPI"]
+        assert form.indexes.data == "PyPI"
 
-    def test_validate_multiple_indexes(self):
+    def test_validate_both_indexes(self):
         form = forms.CreateProjectSizeLimitRequestForm(
             MultiDict(
-                [
-                    ("requested_limit", "20"),
-                    ("indexes", "PyPI"),
-                    ("indexes", "TestPyPI"),
-                    ("about_project", "About the project"),
-                    ("release_size", "Release size details"),
-                    ("release_frequency", "Release frequency details"),
-                ]
+                {
+                    "requested_limit": "20",
+                    "indexes": "Both",
+                    "about_project": "About the project",
+                    "release_size": "Release size details",
+                    "release_frequency": "Release frequency details",
+                }
             )
         )
 
         assert form.validate()
-        assert form.indexes.data == ["PyPI", "TestPyPI"]
+        assert form.indexes.data == "Both"
+
+    def test_validate_invalid_indexes(self):
+        form = forms.CreateProjectSizeLimitRequestForm(
+            MultiDict(
+                {
+                    "requested_limit": "20",
+                    "indexes": "NotAnIndex",
+                    "about_project": "About the project",
+                    "release_size": "Release size details",
+                    "release_frequency": "Release frequency details",
+                }
+            )
+        )
+
+        assert not form.validate()
+        assert "indexes" in form.errors
 
     def test_validate_empty(self):
         form = forms.CreateProjectSizeLimitRequestForm(MultiDict({}))

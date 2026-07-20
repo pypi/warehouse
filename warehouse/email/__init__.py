@@ -908,6 +908,27 @@ def send_two_factor_removed_email(request, user, method):
     return {"method": pretty_methods[method], "username": user.username}
 
 
+@_email("project-size-limit-request-approved")
+def send_project_size_limit_request_approved_email(
+    request, user, *, project_name, requested_limit, message=""
+):
+    return {
+        "project_name": project_name,
+        "requested_limit": requested_limit,
+        "message": message,
+    }
+
+
+@_email("project-size-limit-request-declined")
+def send_project_size_limit_request_declined_email(
+    request, user, *, project_name, message=""
+):
+    return {
+        "project_name": project_name,
+        "message": message,
+    }
+
+
 @_email("removed-project")
 def send_removed_project_email(
     request, user, *, project_name, submitter_name, submitter_role, recipient_role

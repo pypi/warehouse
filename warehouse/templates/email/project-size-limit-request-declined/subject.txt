@@ -1,0 +1,5 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+
+{% extends "email/_base/subject.txt" %}
+
+{% block subject %}{% trans project_name=project_name %}Your project size limit increase request for '{{ project_name }}' was not approved{% endtrans %}{% endblock %}

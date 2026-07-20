@@ -1304,7 +1304,7 @@ def request_project_size_limit_increase(project, request):
         project=project,
         submitted_by=request.user,
         requested_limit=form.requested_limit.data * ONE_GIB,
-        indexes=", ".join(form.indexes.data),
+        indexes=form.indexes.data,
         about_project=form.about_project.data,
         release_size=form.release_size.data,
         release_frequency=form.release_frequency.data,

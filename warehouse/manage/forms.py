@@ -813,10 +813,10 @@ class CreateProjectSizeLimitRequestForm(wtforms.Form):
             ),
         ]
     )
-    indexes = wtforms.SelectMultipleField(
-        choices=[("PyPI", "PyPI"), ("TestPyPI", "TestPyPI")],
+    indexes = wtforms.SelectField(
+        choices=[("PyPI", "PyPI"), ("TestPyPI", "TestPyPI"), ("Both", "Both")],
         validators=[
-            wtforms.validators.InputRequired(message=_("Select at least one index")),
+            wtforms.validators.InputRequired(message=_("Select an index")),
         ],
     )
     about_project = wtforms.TextAreaField(

@@ -47,11 +47,12 @@ class TestProjectSizeLimitRequestDetail:
 
 
 class TestProjectSizeLimitRequestApprove:
-    def test_approve(self, db_request):
+    def test_approve(self, monkeypatch, db_request):
         project = ProjectFactory.create(name="foo")
         user = UserFactory.create()
         size_limit_request = ProjectSizeLimitRequestFactory.create(
             project=project,
+            submitted_by=user,
             requested_limit=150 * (1024**3),
             status=ProjectSizeLimitRequestStatus.Submitted,
         )
@@ -65,6 +66,11 @@ class TestProjectSizeLimitRequestApprove:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
 
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(
+            views, "send_project_size_limit_request_approved_email", send_email
+        )
+
         result = views.project_size_limit_request_approve(db_request)
 
         assert isinstance(result, HTTPSeeOther)
@@ -76,6 +82,16 @@ class TestProjectSizeLimitRequestApprove:
         tags = {event.tag for event in project.events}
         assert "admin:project:set_total_size_limit" in tags
         assert "admin:project:size_limit_request:approved" in tags
+
+        assert send_email.calls == [
+            pretend.call(
+                db_request,
+                user,
+                project_name="foo",
+                requested_limit=150 * (1024**3),
+                message="Looks good",
+            )
+        ]
 
     def test_approve_not_found(self, db_request):
         db_request.matchdict["request_id"] = str(uuid.uuid4())
@@ -106,11 +122,13 @@ class TestProjectSizeLimitRequestApprove:
 
 
 class TestProjectSizeLimitRequestDecline:
-    def test_decline(self, db_request):
+    def test_decline(self, monkeypatch, db_request):
         project = ProjectFactory.create(name="foo")
         user = UserFactory.create()
         size_limit_request = ProjectSizeLimitRequestFactory.create(
-            project=project, status=ProjectSizeLimitRequestStatus.Submitted
+            project=project,
+            submitted_by=user,
+            status=ProjectSizeLimitRequestStatus.Submitted,
         )
         old_total_size_limit = project.total_size_limit
 
@@ -123,6 +141,11 @@ class TestProjectSizeLimitRequestDecline:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
 
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(
+            views, "send_project_size_limit_request_declined_email", send_email
+        )
+
         result = views.project_size_limit_request_decline(db_request)
 
         assert isinstance(result, HTTPSeeOther)
@@ -133,6 +156,15 @@ class TestProjectSizeLimitRequestDecline:
 
         tags = {event.tag for event in project.events}
         assert "admin:project:size_limit_request:declined" in tags
+
+        assert send_email.calls == [
+            pretend.call(
+                db_request,
+                user,
+                project_name="foo",
+                message="Not eligible",
+            )
+        ]
 
     def test_decline_not_found(self, db_request):
         db_request.matchdict["request_id"] = str(uuid.uuid4())

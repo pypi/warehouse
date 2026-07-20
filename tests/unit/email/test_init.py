@@ -4051,6 +4051,185 @@ class TestTeamCollaboratorEmails:
         ]
 
 
+class TestSendProjectSizeLimitRequestApprovedEmail:
+    def test_send_project_size_limit_request_approved_email(
+        self, pyramid_request, pyramid_config, monkeypatch
+    ):
+        user = pretend.stub(
+            id="id",
+            username="username",
+            name="",
+            email="email@example.com",
+            primary_email=pretend.stub(email="email@example.com", verified=True),
+        )
+        project_name = "example"
+        requested_limit = 150 * (1024**3)
+        message = "example message"
+
+        subject_renderer = pyramid_config.testing_add_renderer(
+            "email/project-size-limit-request-approved/subject.txt"
+        )
+        subject_renderer.string_response = "Email Subject"
+        body_renderer = pyramid_config.testing_add_renderer(
+            "email/project-size-limit-request-approved/body.txt"
+        )
+        body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/project-size-limit-request-approved/body.html"
+        )
+        html_renderer.string_response = "<p>Email HTML Body</p>"
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        monkeypatch.setattr(email, "send_email", send_email)
+
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=user.id)
+                )
+            ),
+        )
+        pyramid_request.user = user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
+
+        result = email.send_project_size_limit_request_approved_email(
+            pyramid_request,
+            user,
+            project_name=project_name,
+            requested_limit=requested_limit,
+            message=message,
+        )
+
+        assert result == {
+            "project_name": project_name,
+            "requested_limit": requested_limit,
+            "message": message,
+        }
+        subject_renderer.assert_(project_name=project_name)
+        body_renderer.assert_(
+            project_name=project_name,
+            requested_limit=requested_limit,
+            message=message,
+        )
+        html_renderer.assert_(
+            project_name=project_name,
+            requested_limit=requested_limit,
+            message=message,
+        )
+        assert pyramid_request.task.calls == [pretend.call(send_email)]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{user.username} <{user.email}>",
+                {
+                    "sender": None,
+                    "subject": "Email Subject",
+                    "body_text": "Email Body",
+                    "body_html": (
+                        "<html>\n<head></head>\n"
+                        "<body><p>Email HTML Body</p></body>\n</html>\n"
+                    ),
+                },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": user.id,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": user.email,
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
+            )
+        ]
+
+
+class TestSendProjectSizeLimitRequestDeclinedEmail:
+    def test_send_project_size_limit_request_declined_email(
+        self, pyramid_request, pyramid_config, monkeypatch
+    ):
+        user = pretend.stub(
+            id="id",
+            username="username",
+            name="",
+            email="email@example.com",
+            primary_email=pretend.stub(email="email@example.com", verified=True),
+        )
+        project_name = "example"
+        message = "example message"
+
+        subject_renderer = pyramid_config.testing_add_renderer(
+            "email/project-size-limit-request-declined/subject.txt"
+        )
+        subject_renderer.string_response = "Email Subject"
+        body_renderer = pyramid_config.testing_add_renderer(
+            "email/project-size-limit-request-declined/body.txt"
+        )
+        body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/project-size-limit-request-declined/body.html"
+        )
+        html_renderer.string_response = "<p>Email HTML Body</p>"
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        monkeypatch.setattr(email, "send_email", send_email)
+
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=user.id)
+                )
+            ),
+        )
+        pyramid_request.user = user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
+
+        result = email.send_project_size_limit_request_declined_email(
+            pyramid_request,
+            user,
+            project_name=project_name,
+            message=message,
+        )
+
+        assert result == {
+            "project_name": project_name,
+            "message": message,
+        }
+        subject_renderer.assert_(project_name=project_name)
+        body_renderer.assert_(project_name=project_name, message=message)
+        html_renderer.assert_(project_name=project_name, message=message)
+        assert pyramid_request.task.calls == [pretend.call(send_email)]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{user.username} <{user.email}>",
+                {
+                    "sender": None,
+                    "subject": "Email Subject",
+                    "body_text": "Email Body",
+                    "body_html": (
+                        "<html>\n<head></head>\n"
+                        "<body><p>Email HTML Body</p></body>\n</html>\n"
+                    ),
+                },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": user.id,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": user.email,
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
+            )
+        ]
+
+
 class TestRemovedProjectEmail:
     def test_removed_project_email_to_maintainer(
         self, pyramid_request, pyramid_config, monkeypatch

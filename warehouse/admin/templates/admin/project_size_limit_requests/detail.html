@@ -55,6 +55,20 @@
                     title="Decline this request">
               <i class="icon fa fa-times"></i> Decline
             </button>
+            {% if size_limit_request.submitted_by.email %}
+              <a href="mailto:{{ size_limit_request.submitted_by.email }}?subject={{ ('Your project size limit request for ' ~ size_limit_request.project.name) | urlencode }}"
+                 class="btn btn-secondary btn-block"
+                 title="Email the requester about this request">
+                <i class="icon fa fa-envelope"></i> Contact
+              </a>
+            {% else %}
+              <button type="button"
+                      class="btn btn-secondary btn-block"
+                      disabled
+                      title="The requester has no email address on file">
+                <i class="icon fa fa-envelope"></i> Contact
+              </button>
+            {% endif %}
             <div class="modal fade" id="approveModal" tabindex="-1" role="dialog">
               <form method="POST"
                     action="{{ request.route_path('admin.project_size_limit_request.approve', request_id=size_limit_request.id) }}">

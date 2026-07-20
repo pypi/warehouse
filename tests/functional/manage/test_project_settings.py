@@ -52,7 +52,7 @@ class TestManageProjectSettings:
 
         form = settings_page.forms["request-project-size-increase-form"]
         form["requested_limit"] = "20"
-        form["indexes"] = ["PyPI"]
+        form["indexes"] = "PyPI"
         form["about_project"] = "About the project"
         form["release_size"] = "Release size details"
         form["release_frequency"] = "Release frequency details"

@@ -5,6 +5,10 @@ from pyramid.view import view_config
 from sqlalchemy.orm import joinedload
 
 from warehouse.authnz import Permissions
+from warehouse.email import (
+    send_project_size_limit_request_approved_email,
+    send_project_size_limit_request_declined_email,
+)
 from warehouse.events.tags import EventTag
 from warehouse.packaging.models import (
     ProjectSizeLimitRequest,
@@ -80,8 +84,18 @@ def project_size_limit_request_approve(request):
     old_total_size_limit = project.total_size_limit
     project.total_size_limit = size_limit_request.requested_limit
 
+    message = request.params.get("message") or None
+
     size_limit_request.status = ProjectSizeLimitRequestStatus.Approved
-    size_limit_request.admin_message = request.params.get("message") or None
+    size_limit_request.admin_message = message
+
+    send_project_size_limit_request_approved_email(
+        request,
+        size_limit_request.submitted_by,
+        project_name=project.name,
+        requested_limit=project.total_size_limit,
+        message=message or "",
+    )
 
     project.record_event(
         tag=EventTag.Project.ProjectSetTotalSizeLimit,
@@ -122,8 +136,17 @@ def project_size_limit_request_decline(request):
     size_limit_request = _get_reviewable_request(request)
     project = size_limit_request.project
 
+    message = request.params.get("message") or None
+
     size_limit_request.status = ProjectSizeLimitRequestStatus.Declined
-    size_limit_request.admin_message = request.params.get("message") or None
+    size_limit_request.admin_message = message
+
+    send_project_size_limit_request_declined_email(
+        request,
+        size_limit_request.submitted_by,
+        project_name=project.name,
+        message=message or "",
+    )
 
     project.record_event(
         tag=EventTag.Project.ProjectSizeLimitRequestDeclined,

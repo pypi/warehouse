@@ -1,0 +1,8 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% extends "email/_base/body.html" %}
+{% block content %}
+  <p>
+    {% trans project_name=project_name %}Your request to increase the total size limit for the project <strong>{{ project_name }}</strong> was not approved.{% endtrans %}
+  </p>
+  <p>{{ message }}</p>
+{% endblock %}
