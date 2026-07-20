@@ -51,6 +51,17 @@
           <div class="form-group">
             <button
               type="button"
+              class="btn btn-secondary btn-block"
+              data-toggle="modal"
+              data-hotkey-binding=78
+              data-target="#addNoteModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) }}
+              title="Add an internal note to this organization request"
+            >
+              <i class="icon fa fa-note-sticky"></i> Add Note
+            </button>
+
+            <button
+              type="button"
               class="btn btn-primary btn-block"
               data-toggle="modal"
               data-hotkey-binding=65
@@ -318,6 +329,41 @@
               </form>
             </div>
 
+            <div class="modal fade" id="addNoteModal" tabindex="-1" role="dialog">
+              <form method="POST" action="{{ request.route_path('admin.organization_application.addnote', organization_application_id=organization_application.id) }}">
+                <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h4 class="modal-title" id="addNoteModalLabel">
+                        Add Internal Note to {{ organization_application.name }}?
+                      </h4>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p>
+                        This note is for internal admin reference only. It will not be emailed to the applicant.
+                      </p>
+                      <div class="form-group">
+                        <label for="addNoteModalMessage">
+                          Note
+                        </label>
+                        <textarea id="addNoteModalMessage" class="form-control" name="message" placeholder="Internal note" rows=6></textarea>
+                      </div>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-secondary">
+                        <i class="icon fa fa-note-sticky"></i> Add Note
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+
             {% endif %}
           </div>
           <div class="form-group">
@@ -534,6 +580,31 @@
           </div>
         </div>
         {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    {% set notes = organization_application.notes %}
+    <div class="col-md-9 col-lg-6 offset-md-3">
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Internal Notes</h3>
+        </div>
+        <div class="card-body">
+          <div class="direct-chat-messages unset-height">
+            {% for note in notes %}
+            <div class="direct-chat-msg">
+              <div class="direct-chat-infos clearfix">
+                <span class="direct-chat-name float-left">{{ note.observer.parent.username }}</span>
+                <span class="direct-chat-timestamp float-right">{{ note.created|format_datetime }}</span>
+              </div>
+              <img class="direct-chat-img" src="{{ gravatar(request, note.observer.parent.email, size=128) }}" alt="Admin User Image">
+              <div class="direct-chat-text preserve-line-breaks">{{ note.payload.message }}</div>
+            </div>
+            {% else %}
+            <i>No internal notes yet.</i>
+            {% endfor %}
+          </div>
         </div>
       </div>
     </div>

@@ -765,6 +765,18 @@ class OrganizationApplication(OrganizationMixin, HasObservations, db.Model):
             reverse=True,
         )
 
+    @property
+    def notes(self):
+        return sorted(
+            [
+                observation
+                for observation in self.observations
+                if observation.kind == ObservationKind.AdminNote.value[0]
+            ],
+            key=lambda x: x.created,
+            reverse=True,
+        )
+
     def __lt__(self, other: OrganizationApplication) -> bool:
         return self.name < other.name
 

@@ -12,6 +12,7 @@ from pyramid.httpexceptions import HTTPPermanentRedirect
 from pyramid.location import lineage
 
 from warehouse.authnz import Permissions
+from warehouse.observations.models import ObservationKind
 from warehouse.organizations.models import (
     OIDCIssuerType,
     OrganizationApplicationFactory,
@@ -23,6 +24,7 @@ from warehouse.organizations.models import (
 from ...common.db.accounts import UserFactory as DBUserFactory
 from ...common.db.organizations import (
     OrganizationApplicationFactory as DBOrganizationApplicationFactory,
+    OrganizationApplicationObservationFactory,
     OrganizationFactory as DBOrganizationFactory,
     OrganizationManualActivationFactory as DBOrganizationManualActivationFactory,
     OrganizationNameCatalogFactory as DBOrganizationNameCatalogFactory,
@@ -64,6 +66,19 @@ class TestOrganizationApplication:
                 (Permissions.OrganizationApplicationsManage,),
             )
         ]
+
+    def test_notes(self, db_session):
+        organization_application = DBOrganizationApplicationFactory.create()
+        note = OrganizationApplicationObservationFactory.create(
+            related=organization_application,
+            kind=ObservationKind.AdminNote.value[0],
+        )
+        OrganizationApplicationObservationFactory.create(
+            related=organization_application,
+            kind=ObservationKind.InformationRequest.value[0],
+        )
+
+        assert organization_application.notes == [note]
 
 
 class TestOrganizationFactory:

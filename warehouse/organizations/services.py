@@ -282,6 +282,29 @@ class DatabaseOrganizationService:
 
         return organization_application
 
+    def add_organization_application_note(self, organization_application_id, request):
+        """
+        Records an internal admin note on an OrganizationApplication
+        """
+        organization_application = self.get_organization_application(
+            organization_application_id
+        )
+
+        message = request.params.get("message", "")
+
+        if not message:
+            raise ValueError
+
+        organization_application.record_observation(
+            request=request,
+            actor=request.user,
+            summary="Admin note added",
+            kind=ObservationKind.AdminNote,
+            payload={"message": message},
+        )
+
+        return organization_application
+
     def decline_organization_application(self, organization_application_id, request):
         """
         Performs operations necessary to decline an OrganizationApplication
