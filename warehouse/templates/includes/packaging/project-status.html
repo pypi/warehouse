@@ -54,7 +54,7 @@
         {% endif %}
         {% if release.yanked_reason %}
           <br />
-          <strong>Reason given by maintainers:</strong> {{ release.yanked_reason }}
+          <strong>{% trans %}Reason given by maintainers:{% endtrans %}</strong> {{ release.yanked_reason }}
         {% endif %}
       </p>
     </div>
