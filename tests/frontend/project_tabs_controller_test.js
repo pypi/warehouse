@@ -10,17 +10,17 @@ const tabsHTML = `
 <div data-controller="project-tabs">
   <nav class="project-tabs__tabs" aria-label="Navigation for lunr">
     <ul class="project-tabs__list" role="tablist">
-      <li>
+      <li role="presentation">
         <a id="description-tab" href="#description" role="tab" data-project-tabs-target="tab" data-action="project-tabs#tabClick" class="project-tabs__tab project-tabs__tab--is-active" aria-selected="true" aria-label="Project description. Focus will be moved to the description.">
           <span><i class="fa fa-align-left" aria-hidden="true"></i> Project description</span>
         </a>
       </li>
-      <li>
+      <li role="presentation">
         <a id="history-tab" href="#history" role="tab" data-project-tabs-target="tab" data-action="project-tabs#tabClick" class="project-tabs__tab" aria-label="Release history. Focus will be moved to the history panel.">
           <span><i class="fa fa-history" aria-hidden="true"></i> Release history</span>
         </a>
       </li>
-      <li>
+      <li role="presentation">
         <a id="files-tab" href="#files" role="tab" data-project-tabs-target="tab" data-action="project-tabs#tabClick" class="project-tabs__tab" aria-label="Download files. Focus will be moved to the project files.">
           <span><i class="fa fa-download" aria-hidden="true"></i> Download files</span>
         </a>
