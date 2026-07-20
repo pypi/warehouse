@@ -3,10 +3,13 @@
   <div class="site-container">
     <nav class="project-tabs__tabs"
          aria-label="{% trans project=release.project.name %}Navigation for {{ project }}{% endtrans %}">
-      <ul class="project-tabs__list">
+      <ul class="project-tabs__list" role="tablist">
         <li>
-          <a href="#description"
-             class="project-tabs__tab"
+          <a id="description-tab"
+             href="#description"
+             role="tab"
+             class="project-tabs__tab project-tabs__tab--is-active"
+             aria-selected="true"
              data-project-tabs-target="tab"
              data-action="project-tabs#tabClick"
              aria-label="{% trans %}Project description. Focus will be moved to the description.{% endtrans %}">
@@ -17,7 +20,9 @@
           </a>
         </li>
         <li>
-          <a href="#history"
+          <a id="history-tab"
+             href="#history"
+             role="tab"
              class="project-tabs__tab"
              data-project-tabs-target="tab"
              data-action="project-tabs#tabClick"
@@ -30,7 +35,9 @@
         </li>
         {% if files and not release.lifecycle_status == "quarantine-enter" %}
           <li>
-            <a href="#files"
+            <a id="files-tab"
+               href="#files"
+               role="tab"
                class="project-tabs__tab"
                data-project-tabs-target="tab"
                data-action="project-tabs#tabClick"
@@ -44,7 +51,7 @@
             </a>
           </li>
           <!-- <li>
-              <a href="#security" class="project-tabs__tab" data-project-tabs-target="tab" data-action="project-tabs#tabClick" aria-label="{% trans %}Release security. Focus will be moved to the security panel.{% endtrans %}">
+              <a id="security-tab" href="#security" role="tab" class="project-tabs__tab" data-project-tabs-target="tab" data-action="project-tabs#tabClick" aria-label="{% trans %}Release security. Focus will be moved to the security panel.{% endtrans %}">
                 <span>
                   <i class="fa fa-shield-halved" aria-hidden="true"></i>
                   {% trans %}Security{% endtrans %}
