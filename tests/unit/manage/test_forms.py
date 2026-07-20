@@ -1239,3 +1239,96 @@ class TestDeleteAccountAssociationForm:
         assert user_service.get_account_association.calls == [
             pretend.call(str(association.id))
         ]
+
+
+class TestCreateProjectSizeLimitRequestForm:
+    def test_validate(self):
+        form = forms.CreateProjectSizeLimitRequestForm(
+            MultiDict(
+                {
+                    "requested_limit": "20",
+                    "indexes": "PyPI",
+                    "about_project": "About the project",
+                    "release_size": "Release size details",
+                    "release_frequency": "Release frequency details",
+                }
+            )
+        )
+
+        assert form.validate()
+        assert form.requested_limit.data == 20
+        assert form.indexes.data == "PyPI"
+
+    def test_validate_both_indexes(self):
+        form = forms.CreateProjectSizeLimitRequestForm(
+            MultiDict(
+                {
+                    "requested_limit": "20",
+                    "indexes": "Both",
+                    "about_project": "About the project",
+                    "release_size": "Release size details",
+                    "release_frequency": "Release frequency details",
+                }
+            )
+        )
+
+        assert form.validate()
+        assert form.indexes.data == "Both"
+
+    def test_validate_invalid_indexes(self):
+        form = forms.CreateProjectSizeLimitRequestForm(
+            MultiDict(
+                {
+                    "requested_limit": "20",
+                    "indexes": "NotAnIndex",
+                    "about_project": "About the project",
+                    "release_size": "Release size details",
+                    "release_frequency": "Release frequency details",
+                }
+            )
+        )
+
+        assert not form.validate()
+        assert "indexes" in form.errors
+
+    def test_validate_empty(self):
+        form = forms.CreateProjectSizeLimitRequestForm(MultiDict({}))
+
+        assert not form.validate()
+        assert "requested_limit" in form.errors
+        assert "indexes" in form.errors
+        assert "about_project" in form.errors
+        assert "release_size" in form.errors
+        assert "release_frequency" in form.errors
+
+    def test_validate_requested_limit_too_small(self):
+        form = forms.CreateProjectSizeLimitRequestForm(
+            MultiDict(
+                {
+                    "requested_limit": "0",
+                    "indexes": "PyPI",
+                    "about_project": "About the project",
+                    "release_size": "Release size details",
+                    "release_frequency": "Release frequency details",
+                }
+            )
+        )
+
+        assert not form.validate()
+        assert "requested_limit" in form.errors
+
+    def test_validate_requested_limit_too_large(self):
+        form = forms.CreateProjectSizeLimitRequestForm(
+            MultiDict(
+                {
+                    "requested_limit": "1025",
+                    "indexes": "PyPI",
+                    "about_project": "About the project",
+                    "release_size": "Release size details",
+                    "release_frequency": "Release frequency details",
+                }
+            )
+        )
+
+        assert not form.validate()
+        assert "requested_limit" in form.errors

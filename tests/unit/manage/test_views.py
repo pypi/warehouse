@@ -26,7 +26,12 @@ from warehouse.accounts.interfaces import (
     TokenExpired,
 )
 from warehouse.admin.flags import AdminFlagValue
-from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE
+from warehouse.constants import (
+    MAX_FILESIZE,
+    MAX_PROJECT_SIZE,
+    ONE_GIB,
+    PROJECT_SIZE_LIMIT_REQUEST_CAP,
+)
 from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
@@ -47,6 +52,8 @@ from warehouse.packaging.models import (
     JournalEntry,
     LifecycleStatus,
     Project,
+    ProjectSizeLimitRequest,
+    ProjectSizeLimitRequestStatus,
     Release,
     Role,
     RoleInvitation,
@@ -72,6 +79,7 @@ from ...common.db.packaging import (
     JournalEntryFactory,
     ProjectEventFactory,
     ProjectFactory,
+    ProjectSizeLimitRequestFactory,
     ReleaseFactory,
     RoleFactory,
     RoleInvitationFactory,
@@ -2993,8 +3001,18 @@ class TestManageProjects:
 
 class TestManageProjectSettings:
     def test_manage_project_settings(self, monkeypatch):
-        request = pretend.stub()
-        project = pretend.stub(organization=None, lifecycle_status=None)
+        request = pretend.stub(
+            db=pretend.stub(
+                query=lambda a: pretend.stub(
+                    filter=lambda *a: pretend.stub(
+                        order_by=lambda *a: pretend.stub(first=lambda: None)
+                    )
+                )
+            )
+        )
+        project = pretend.stub(
+            id=pretend.stub(), organization=None, lifecycle_status=None
+        )
         view = views.ManageProjectSettingsViews(project, request)
         form = pretend.stub()
         view.transfer_organization_project_form_class = lambda *a, **kw: form
@@ -3012,14 +3030,29 @@ class TestManageProjectSettings:
             "project": project,
             "MAX_FILESIZE": MAX_FILESIZE,
             "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
+            "ONE_GIB": ONE_GIB,
+            "PROJECT_SIZE_LIMIT_REQUEST_CAP": PROJECT_SIZE_LIMIT_REQUEST_CAP,
             "transfer_organization_project_form": form,
+            "project_size_limit_request": None,
         }
 
     def test_manage_project_settings_in_organization_managed(self, monkeypatch):
-        request = pretend.stub()
+        request = pretend.stub(
+            db=pretend.stub(
+                query=lambda a: pretend.stub(
+                    filter=lambda *a: pretend.stub(
+                        order_by=lambda *a: pretend.stub(first=lambda: None)
+                    )
+                )
+            )
+        )
         organization_managed = pretend.stub(name="managed-org", is_active=True)
         organization_owned = pretend.stub(name="owned-org", is_active=True)
-        project = pretend.stub(organization=organization_managed, lifecycle_status=None)
+        project = pretend.stub(
+            id=pretend.stub(),
+            organization=organization_managed,
+            lifecycle_status=None,
+        )
         view = views.ManageProjectSettingsViews(project, request)
         form = pretend.stub()
         view.transfer_organization_project_form_class = pretend.call_recorder(
@@ -3039,17 +3072,32 @@ class TestManageProjectSettings:
             "project": project,
             "MAX_FILESIZE": MAX_FILESIZE,
             "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
+            "ONE_GIB": ONE_GIB,
+            "PROJECT_SIZE_LIMIT_REQUEST_CAP": PROJECT_SIZE_LIMIT_REQUEST_CAP,
             "transfer_organization_project_form": form,
+            "project_size_limit_request": None,
         }
         assert view.transfer_organization_project_form_class.calls == [
             pretend.call(organization_choices={organization_owned})
         ]
 
     def test_manage_project_settings_in_organization_owned(self, monkeypatch):
-        request = pretend.stub()
+        request = pretend.stub(
+            db=pretend.stub(
+                query=lambda a: pretend.stub(
+                    filter=lambda *a: pretend.stub(
+                        order_by=lambda *a: pretend.stub(first=lambda: None)
+                    )
+                )
+            )
+        )
         organization_managed = pretend.stub(name="managed-org", is_active=True)
         organization_owned = pretend.stub(name="owned-org", is_active=True)
-        project = pretend.stub(organization=organization_owned, lifecycle_status=None)
+        project = pretend.stub(
+            id=pretend.stub(),
+            organization=organization_owned,
+            lifecycle_status=None,
+        )
         view = views.ManageProjectSettingsViews(project, request)
         form = pretend.stub()
         view.transfer_organization_project_form_class = pretend.call_recorder(
@@ -3069,7 +3117,10 @@ class TestManageProjectSettings:
             "project": project,
             "MAX_FILESIZE": MAX_FILESIZE,
             "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
+            "ONE_GIB": ONE_GIB,
+            "PROJECT_SIZE_LIMIT_REQUEST_CAP": PROJECT_SIZE_LIMIT_REQUEST_CAP,
             "transfer_organization_project_form": form,
+            "project_size_limit_request": None,
         }
         assert view.transfer_organization_project_form_class.calls == [
             pretend.call(organization_choices={organization_managed})
@@ -6333,3 +6384,127 @@ class TestArchiveProject:
             pretend.call("manage.project.settings", project_name="foo")
         ]
         assert project.lifecycle_status == "quarantine-enter"
+
+
+class TestRequestProjectSizeLimitIncrease:
+    def test_submit(self, db_request):
+        project = ProjectFactory.create(name="foo")
+        user = UserFactory.create(username="testuser")
+
+        db_request.POST = MultiDict(
+            {
+                "requested_limit": "20",
+                "indexes": "PyPI",
+                "about_project": "About the project",
+                "release_size": "Release size details",
+                "release_frequency": "Release frequency details",
+            }
+        )
+        db_request.method = "POST"
+        db_request.user = user
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.request_project_size_limit_increase(project, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.settings", project_name=project.name)
+        ]
+
+        size_limit_request = (
+            db_request.db.query(ProjectSizeLimitRequest)
+            .filter(ProjectSizeLimitRequest.project_id == project.id)
+            .one()
+        )
+        assert size_limit_request.requested_limit == 20 * ONE_GIB
+        assert size_limit_request.indexes == "PyPI"
+        assert size_limit_request.about_project == "About the project"
+        assert size_limit_request.release_size == "Release size details"
+        assert size_limit_request.release_frequency == "Release frequency details"
+        assert size_limit_request.status == ProjectSizeLimitRequestStatus.Submitted
+        assert size_limit_request.submitted_by == user
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Your project size limit increase request has been submitted.",
+                queue="success",
+            )
+        ]
+
+    def test_submit_invalid_form(self, db_request, monkeypatch):
+        project = ProjectFactory.create(name="foo")
+        user = UserFactory.create(username="testuser")
+
+        db_request.POST = MultiDict({})
+        db_request.method = "POST"
+        db_request.user = user
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        invalid_form = pretend.stub(
+            validate=lambda: False,
+            errors={"requested_limit": ["Specify a new limit, in GiB"]},
+        )
+        monkeypatch.setattr(
+            views, "CreateProjectSizeLimitRequestForm", lambda *a, **kw: invalid_form
+        )
+
+        result = views.request_project_size_limit_increase(project, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.session.flash.calls == [
+            pretend.call("requested_limit: Specify a new limit, in GiB", queue="error")
+        ]
+        assert (
+            db_request.db.query(ProjectSizeLimitRequest)
+            .filter(ProjectSizeLimitRequest.project_id == project.id)
+            .count()
+            == 0
+        )
+
+    def test_submit_already_pending(self, db_request):
+        project = ProjectFactory.create(name="foo")
+        user = UserFactory.create(username="testuser")
+        ProjectSizeLimitRequestFactory.create(
+            project=project, status=ProjectSizeLimitRequestStatus.Submitted
+        )
+
+        db_request.POST = MultiDict(
+            {
+                "requested_limit": "20",
+                "indexes": "PyPI",
+                "about_project": "About the project",
+                "release_size": "Release size details",
+                "release_frequency": "Release frequency details",
+            }
+        )
+        db_request.method = "POST"
+        db_request.user = user
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.request_project_size_limit_increase(project, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "You already have a pending project size limit increase request.",
+                queue="error",
+            )
+        ]
+        assert (
+            db_request.db.query(ProjectSizeLimitRequest)
+            .filter(ProjectSizeLimitRequest.project_id == project.id)
+            .count()
+            == 1
+        )

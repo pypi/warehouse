@@ -411,6 +411,27 @@ def includeme(config):
         domain=warehouse,
     )
 
+    config.add_route(
+        "admin.project_size_limit_request.list",
+        "/admin/project_size_limit_requests/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.project_size_limit_request.detail",
+        "/admin/project_size_limit_requests/{request_id}/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.project_size_limit_request.approve",
+        "/admin/project_size_limit_requests/{request_id}/approve/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.project_size_limit_request.decline",
+        "/admin/project_size_limit_requests/{request_id}/decline/",
+        domain=warehouse,
+    )
+
     # Journal related Admin pages
     config.add_route("admin.journals.list", "/admin/journals/", domain=warehouse)
 

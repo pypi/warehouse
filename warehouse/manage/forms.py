@@ -12,6 +12,7 @@ from warehouse.accounts.forms import (
     TOTPValueMixin,
     WebAuthnCredentialMixin,
 )
+from warehouse.constants import ONE_GIB, PROJECT_SIZE_LIMIT_REQUEST_CAP
 from warehouse.i18n import localize as _
 from warehouse.organizations.models import (
     OrganizationMembershipSize,
@@ -799,3 +800,56 @@ class SaveTeamForm(wtforms.Form):
 
 class CreateTeamForm(SaveTeamForm):
     __params__ = SaveTeamForm.__params__
+
+
+# /manage/project/ forms
+
+
+class CreateProjectSizeLimitRequestForm(wtforms.Form):
+    requested_limit = wtforms.IntegerField(
+        validators=[
+            wtforms.validators.InputRequired(message=_("Specify a new limit, in GiB")),
+            wtforms.validators.NumberRange(
+                min=1,
+                max=PROJECT_SIZE_LIMIT_REQUEST_CAP // ONE_GIB,
+                message=_("New limit must be between 1 and 1024 GiB"),
+            ),
+        ]
+    )
+    indexes = wtforms.SelectField(
+        choices=[("PyPI", "PyPI"), ("TestPyPI", "TestPyPI"), ("Both", "Both")],
+        validators=[
+            wtforms.validators.InputRequired(message=_("Select an index")),
+        ],
+    )
+    about_project = wtforms.TextAreaField(
+        validators=[
+            wtforms.validators.InputRequired(message=_("Tell us about the project")),
+            wtforms.validators.Length(
+                max=4096,
+                message=_("Limit your answer to 4096 characters or less"),
+            ),
+        ]
+    )
+    release_size = wtforms.TextAreaField(
+        validators=[
+            wtforms.validators.InputRequired(
+                message=_("Tell us how large each release is")
+            ),
+            wtforms.validators.Length(
+                max=4096,
+                message=_("Limit your answer to 4096 characters or less"),
+            ),
+        ]
+    )
+    release_frequency = wtforms.TextAreaField(
+        validators=[
+            wtforms.validators.InputRequired(
+                message=_("Tell us how frequently you release")
+            ),
+            wtforms.validators.Length(
+                max=4096,
+                message=_("Limit your answer to 4096 characters or less"),
+            ),
+        ]
+    )

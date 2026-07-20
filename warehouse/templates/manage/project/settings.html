@@ -5,42 +5,168 @@
   {% trans project_name=project.name %}Manage '{{ project_name }}' settings{% endtrans %}
 {% endblock %}
 {% block main %}
-  <h2>{% trans %}Project settings{% endtrans %}</h2>
-  <ul>
-    <li>
-      {% trans %}Project size:{% endtrans %}
-      {{ project.total_size|filesizeformat(binary=True) }}
-    </li>
-    <li>
-      Project upload limit:
-      {% if project.upload_limit_size == MAX_FILESIZE %}Default{% endif %}
-      {{ project.upload_limit_size|filesizeformat(binary=True) }}
-      {% trans help_url=request.user_docs_url("/project-management/storage-limits", anchor="requesting-a-file-size-limit-increase") %}
-      <a href="{{ help_url }}">(request an increase)</a>{% endtrans %}
-    </li>
-    <li>
-      Project total size limit:
-      {% if project.total_size_limit_value == MAX_PROJECT_SIZE %}Default{% endif %}
-      {{ project.total_size_limit_value|filesizeformat(binary=True) }}
-      {% trans help_url=request.user_docs_url("/project-management/storage-limits", anchor="requesting-a-project-size-limit-increase") %}
-      <a href="{{ help_url }}">(request an increase)</a>{% endtrans %}
-    </li>
-  </ul>
-  <h3>{% trans %}API tokens{% endtrans %}</h3>
-  <p>{% trans %}API tokens provide an alternative way to authenticate when uploading packages to PyPI.{% endtrans %}</p>
-  {% if user.has_primary_verified_email %}
-    <p class="no-bottom-padding">
-      <a href="{{ request.route_path('manage.account.token', _query={'selected_project': project.name}) }}"
-         class="button button--primary">
-        {% trans project_name=project.name %}Create a token for {{ project_name }}{% endtrans %}
+  <h2>{% trans %}Project details{% endtrans %}</h2>
+  {% set project_size_limit = project.total_size_limit_value %}
+  {% set project_size_percent = ((project.total_size or 0) / project_size_limit * 100) %}
+  <table class="table table--information">
+    <caption class="sr-only">{% trans %}Project size and limits{% endtrans %}</caption>
+    <tbody>
+      <tr>
+        <th scope="row">{% trans %}Project size{% endtrans %}</th>
+        <td>{{ project.total_size|filesizeformat(binary=True) }}</td>
+      </tr>
+      <tr>
+        <th scope="row">{% trans %}Upload limit{% endtrans %}</th>
+        <td>
+          {% if project.upload_limit_size == MAX_FILESIZE %}Default{% endif %}
+          {{ project.upload_limit_size|filesizeformat(binary=True) }}
+          {% trans help_url=request.user_docs_url("/project-management/storage-limits", anchor="requesting-a-file-size-limit-increase") %}
+          <a href="{{ help_url }}">(request an increase)</a>{% endtrans %}
+        </td>
+      </tr>
+      <tr>
+        <th scope="row">{% trans %}Size limit{% endtrans %}</th>
+        <td>
+          {% if project_size_limit == MAX_PROJECT_SIZE %}Default{% endif %}
+          {{ project_size_limit|filesizeformat(binary=True) }}
+          ({{ project_size_percent|round(1) }}% used)
+          {% if project_size_limit_request and project_size_limit_request.status == "submitted" %}
+            <br>
+            <small>{% trans %}A size limit increase request is pending review.{% endtrans %}</small>
+          {% else %}
+            <a href="#request-project-size-increase"
+               class="button button--primary float-right">{% trans %}Request an increase{% endtrans %}</a>
+            {% if project_size_limit_request and project_size_limit_request.status == "declined" %}
+              <br>
+              <small>
+                {% trans %}Your last size limit increase request was declined.{% endtrans %}
+                {% if project_size_limit_request.admin_message %}
+                  {{ project_size_limit_request.admin_message }}
+                {% endif %}
+              </small>
+            {% endif %}
+          {% endif %}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div id="request-project-size-increase"
+       class="modal"
+       data-controller="modal-close">
+    <div class="modal__content" role="dialog">
+      <a href="#modal-close"
+         data-action="click->modal-close#cancel"
+         title="{% trans %}Close{% endtrans %}"
+         class="modal__close">
+        <i class="fa fa-times" aria-hidden="true"></i>
+        <span class="sr-only">{% trans %}Close{% endtrans %}</span>
       </a>
-    </p>
-  {% else %}
-    <p class="no-bottom-padding">
-      {% trans href='{url}#account-emails'.format(url=request.route_path('manage.account')), project_name=project.name %}
-      <a href="{{ href }}">Verify your primary email address</a> to add an API token for {{ project_name }}.
-    {% endtrans %}
+      <form id="request-project-size-increase-form"
+            method="post"
+            class="modal__form"
+            action="{{ request.route_path('manage.project.size_limit_request', project_name=project.normalized_name) }}">
+        <input name="csrf_token"
+               type="hidden"
+               value="{{ request.session.get_csrf_token() }}">
+        <div class="modal__body">
+          <h3 class="modal__title">{% trans %}Request a project size increase{% endtrans %}</h3>
+          <p>
+            {% trans %}
+            This request will be reviewed by PyPI admins. You'll see the
+            status of your request on this page.
+          {% endtrans %}
+        </p>
+        <div class="form-group">
+          <label for="request-project-size-increase-new-limit">{% trans %}New limit, in GiB{% endtrans %}</label>
+          <input id="request-project-size-increase-new-limit"
+                 name="requested_limit"
+                 type="number"
+                 min="1"
+                 max="{{ PROJECT_SIZE_LIMIT_REQUEST_CAP // ONE_GIB }}"
+                 step="1"
+                 class="form-group__field"
+                 required>
+        </div>
+        <div class="form-group">
+          <label for="request-project-size-increase-indexes">
+            {% trans %}Which indexes do you need the increase for?{% endtrans %}
+          </label>
+          <select id="request-project-size-increase-indexes"
+                  name="indexes"
+                  class="form-group__field">
+            <option value="PyPI">{% trans %}PyPI{% endtrans %}</option>
+            <option value="TestPyPI">{% trans %}TestPyPI{% endtrans %}</option>
+            <option value="Both">{% trans %}Both{% endtrans %}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="request-project-size-increase-about">{% trans %}About the project{% endtrans %}</label>
+          <p class="form-group__help-text">
+            {% trans %}
+            What the project is and how long it has been active.
+            If you expect your release sizes/total project size to
+            increase in the future, mention it here.
+          {% endtrans %}
+        </p>
+        <textarea id="request-project-size-increase-about"
+                  name="about_project"
+                  class="form-group__field"
+                  rows="4"
+                  required></textarea>
+      </div>
+      <div class="form-group">
+        <label for="request-project-size-increase-release-size">{% trans %}How large is each release?{% endtrans %}</label>
+        <p class="form-group__help-text">
+          {% trans %}
+          Use MiB to describe the size, and provide a summary of what
+          files are uploaded in each release. If you have made efforts
+          to reduce the size of your PyPI releases, bundle other
+          packages, or bundle example data, mention it here.
+        {% endtrans %}
+      </p>
+      <textarea id="request-project-size-increase-release-size"
+                name="release_size"
+                class="form-group__field"
+                rows="4"
+                placeholder="{% trans %}e.g. ~200 MiB total: 2 Linux wheels at ~60 MiB due to bundled libxml binaries, 6 Windows/MacOS wheels at ~10 MiB, source tarball at ~10 MiB.{% endtrans %}"
+                required></textarea>
+    </div>
+    <div class="form-group">
+      <label for="request-project-size-increase-release-frequency">
+        {% trans %}How frequently do you make a release?{% endtrans %}
+      </label>
+      <textarea id="request-project-size-increase-release-frequency"
+                name="release_frequency"
+                class="form-group__field"
+                rows="4"
+                placeholder="{% trans %}e.g. roughly once every three months.{% endtrans %}"
+                required></textarea>
+    </div>
+  </div>
+  <div class="modal__footer">
+    <button type="reset"
+            class="button modal__action js-cancel"
+            data-action="click->modal-close#cancel">{% trans %}Cancel{% endtrans %}</button>
+    <button type="submit" class="button button--primary modal__action">{% trans %}Submit request{% endtrans %}</button>
+  </div>
+</form>
+</div>
+</div>
+<h3>{% trans %}API tokens{% endtrans %}</h3>
+<p>{% trans %}API tokens provide an alternative way to authenticate when uploading packages to PyPI.{% endtrans %}</p>
+{% if user.has_primary_verified_email %}
+  <p class="no-bottom-padding">
+    <a href="{{ request.route_path('manage.account.token', _query={'selected_project': project.name}) }}"
+       class="button button--primary">
+      {% trans project_name=project.name %}Create a token for {{ project_name }}{% endtrans %}
+    </a>
   </p>
+{% else %}
+  <p class="no-bottom-padding">
+    {% trans href='{url}#account-emails'.format(url=request.route_path('manage.account')), project_name=project.name %}
+    <a href="{{ href }}">Verify your primary email address</a> to add an API token for {{ project_name }}.
+  {% endtrans %}
+</p>
 {% endif %}
 <div class="callout-block"
      data-controller="dismissable"

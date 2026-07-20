@@ -3,6 +3,7 @@
 from collections import OrderedDict
 
 import pretend
+import psycopg
 import pytest
 
 from pyramid.authorization import Allow, Authenticated
@@ -21,6 +22,7 @@ from warehouse.packaging.models import (
     Project,
     ProjectFactory,
     ProjectMacaroonWarningAssociation,
+    ProjectSizeLimitRequestStatus,
     ReleaseURL,
 )
 
@@ -38,10 +40,47 @@ from ...common.db.packaging import (
     FileEventFactory as DBFileEventFactory,
     FileFactory as DBFileFactory,
     ProjectFactory as DBProjectFactory,
+    ProjectSizeLimitRequestFactory as DBProjectSizeLimitRequestFactory,
     ReleaseFactory as DBReleaseFactory,
     RoleFactory as DBRoleFactory,
     RoleInvitationFactory as DBRoleInvitationFactory,
 )
+
+
+class TestProjectSizeLimitRequest:
+    def test_defaults(self, db_session):
+        project = DBProjectFactory.create()
+        size_limit_request = DBProjectSizeLimitRequestFactory.create(project=project)
+
+        assert size_limit_request.project == project
+        assert size_limit_request.status == ProjectSizeLimitRequestStatus.Submitted
+        assert size_limit_request.admin_message is None
+
+    def test_repr(self, db_session):
+        size_limit_request = DBProjectSizeLimitRequestFactory.create()
+        assert isinstance(repr(size_limit_request), str)
+
+    def test_only_one_pending_request_per_project(self, db_session):
+        project = DBProjectFactory.create()
+        DBProjectSizeLimitRequestFactory.create(
+            project=project, status=ProjectSizeLimitRequestStatus.Submitted
+        )
+
+        with pytest.raises(psycopg.errors.UniqueViolation):
+            DBProjectSizeLimitRequestFactory.create(
+                project=project, status=ProjectSizeLimitRequestStatus.Submitted
+            )
+
+    def test_multiple_reviewed_requests_per_project_allowed(self, db_session):
+        project = DBProjectFactory.create()
+        DBProjectSizeLimitRequestFactory.create(
+            project=project, status=ProjectSizeLimitRequestStatus.Approved
+        )
+        DBProjectSizeLimitRequestFactory.create(
+            project=project, status=ProjectSizeLimitRequestStatus.Declined
+        )
+
+        db_session.flush()
 
 
 class TestRole:

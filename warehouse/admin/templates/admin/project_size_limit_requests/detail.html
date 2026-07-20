@@ -1,0 +1,195 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% extends "admin/base.html" %}
+{% block title %}Size limit request for {{ size_limit_request.project.name }}{% endblock %}
+{% block breadcrumb %}
+  <li class="breadcrumb-item"><a href="{{ request.route_path('admin.project_size_limit_request.list') }}">Project Size Limit Requests</a></li>
+  <li class="breadcrumb-item active">{{ size_limit_request.project.name }}</li>
+{% endblock %}
+{% block content %}
+  <div class="row">
+    <div class="col-md-3">
+      <div class="card card-primary">
+        <div class="card-body card-widget widget-user-1">
+          <div class="widget-user-header">
+            <h3 class="widget-user-username text-center">
+              <a href="{{ request.route_path('admin.project.detail', project_name=size_limit_request.project.normalized_name) }}">{{ size_limit_request.project.name }}</a>
+            </h3>
+          </div>
+        </div>
+        <div class="card-body">
+          <p class="text-muted text-center">
+            Submitted on {{ size_limit_request.submitted.strftime("%Y-%m-%d %H:%M") }}
+            by
+            <a href="{{ request.route_path('admin.user.detail', username=size_limit_request.submitted_by.username) }}">{{ size_limit_request.submitted_by.username }}</a>
+          </p>
+          <p class="text-center">
+            {% if size_limit_request.status == "submitted" %}
+              <span class="badge badge-warning">Submitted</span>
+            {% elif size_limit_request.status == "approved" %}
+              <span class="badge badge-success">Approved</span>
+            {% elif size_limit_request.status == "declined" %}
+              <span class="badge badge-danger">Declined</span>
+            {% endif %}
+          </p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header with-border">
+          <h2 class="card-title">Actions</h2>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <button type="button"
+                    class="btn btn-primary btn-block"
+                    data-toggle="modal"
+                    data-target="#approveModal"
+                    {{ 'disabled' if not request.has_permission(Permissions.AdminProjectsSetLimit) or size_limit_request.status != "submitted" }}
+                    title="Approve this request and set the project's total size limit">
+              <i class="icon fa fa-check"></i> Approve
+            </button>
+            <button type="button"
+                    class="btn btn-danger btn-block"
+                    data-toggle="modal"
+                    data-target="#declineModal"
+                    {{ 'disabled' if not request.has_permission(Permissions.AdminProjectsSetLimit) or size_limit_request.status != "submitted" }}
+                    title="Decline this request">
+              <i class="icon fa fa-times"></i> Decline
+            </button>
+            {% if size_limit_request.submitted_by.email %}
+              <a href="mailto:{{ size_limit_request.submitted_by.email }}?subject={{ ('Your project size limit request for ' ~ size_limit_request.project.name) | urlencode }}"
+                 class="btn btn-secondary btn-block"
+                 title="Email the requester about this request">
+                <i class="icon fa fa-envelope"></i> Contact
+              </a>
+            {% else %}
+              <button type="button"
+                      class="btn btn-secondary btn-block"
+                      disabled
+                      title="The requester has no email address on file">
+                <i class="icon fa fa-envelope"></i> Contact
+              </button>
+            {% endif %}
+            <div class="modal fade" id="approveModal" tabindex="-1" role="dialog">
+              <form method="POST"
+                    action="{{ request.route_path('admin.project_size_limit_request.approve', request_id=size_limit_request.id) }}">
+                <input name="csrf_token"
+                       type="hidden"
+                       value="{{ request.session.get_csrf_token() }}">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h4 class="modal-title" id="approveModalLabel">
+                        Approve size limit increase for {{ size_limit_request.project.name }}?
+                      </h4>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p>
+                        This will set the total size limit for <strong>{{ size_limit_request.project.name }}</strong> to <strong>{{ size_limit_request.requested_limit|filesizeformat(binary=True) }}</strong>.
+                      </p>
+                      <div class="form-group">
+                        <label for="approveModalMessage">Message</label>
+                        <textarea id="approveModalMessage"
+                                  class="form-control"
+                                  name="message"
+                                  placeholder="Optional note, visible to the requester"></textarea>
+                      </div>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-primary">
+                        <i class="icon fa fa-check"></i> Approve request
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div class="modal fade" id="declineModal" tabindex="-1" role="dialog">
+              <form method="POST"
+                    action="{{ request.route_path('admin.project_size_limit_request.decline', request_id=size_limit_request.id) }}">
+                <input name="csrf_token"
+                       type="hidden"
+                       value="{{ request.session.get_csrf_token() }}">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h4 class="modal-title" id="declineModalLabel">
+                        Decline size limit increase for {{ size_limit_request.project.name }}?
+                      </h4>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <div class="form-group">
+                        <label for="declineModalMessage">Message</label>
+                        <textarea id="declineModalMessage"
+                                  class="form-control"
+                                  name="message"
+                                  placeholder="Optional note, visible to the requester"></textarea>
+                      </div>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-danger">
+                        <i class="icon fa fa-times"></i> Decline request
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-9">
+      <div class="card">
+        <div class="card-header with-border">
+          <h2 class="card-title">Request details</h2>
+        </div>
+        <div class="card-body">
+          <dl>
+            <dt>Requested limit</dt>
+            <dd>
+              {{ size_limit_request.requested_limit|filesizeformat(binary=True) }}
+            </dd>
+            <dt>Current limit</dt>
+            <dd>
+              {{ size_limit_request.project.total_size_limit_value|filesizeformat(binary=True) }}
+            </dd>
+            <dt>Current project size</dt>
+            <dd>
+              {{ size_limit_request.project.total_size|filesizeformat(binary=True) }}
+            </dd>
+            <dt>Indexes</dt>
+            <dd>
+              {{ size_limit_request.indexes }}
+            </dd>
+            <dt>About the project</dt>
+            <dd style="white-space: pre-wrap;">
+              {{ size_limit_request.about_project }}
+            </dd>
+            <dt>How large is each release?</dt>
+            <dd style="white-space: pre-wrap;">
+              {{ size_limit_request.release_size }}
+            </dd>
+            <dt>How frequently do they release?</dt>
+            <dd style="white-space: pre-wrap;">
+              {{ size_limit_request.release_frequency }}
+            </dd>
+            {% if size_limit_request.admin_message %}
+              <dt>Reviewer message</dt>
+              <dd style="white-space: pre-wrap;">
+                {{ size_limit_request.admin_message }}
+              </dd>
+            {% endif %}
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

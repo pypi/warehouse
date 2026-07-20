@@ -13,7 +13,7 @@ from pyramid.httpexceptions import (
     HTTPSeeOther,
 )
 from pyramid.view import view_config, view_defaults
-from sqlalchemy import func, update
+from sqlalchemy import func, literal, update
 from sqlalchemy.exc import NoResultFound
 from venusian import lift
 from webauthn.helpers import bytes_to_base64url
@@ -30,7 +30,12 @@ from warehouse.accounts.models import Email, User
 from warehouse.accounts.views import logout
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.authnz import Permissions
-from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE
+from warehouse.constants import (
+    MAX_FILESIZE,
+    MAX_PROJECT_SIZE,
+    ONE_GIB,
+    PROJECT_SIZE_LIMIT_REQUEST_CAP,
+)
 from warehouse.email import (
     send_account_deletion_email,
     send_added_as_collaborator_email,
@@ -66,6 +71,7 @@ from warehouse.manage.forms import (
     ConfirmPasswordForm,
     CreateInternalRoleForm,
     CreateMacaroonForm,
+    CreateProjectSizeLimitRequestForm,
     CreateRoleForm,
     DeleteMacaroonForm,
     DeleteTOTPForm,
@@ -99,6 +105,8 @@ from warehouse.packaging.models import (
     JournalEntry,
     LifecycleStatus,
     Project,
+    ProjectSizeLimitRequest,
+    ProjectSizeLimitRequestStatus,
     Release,
     Role,
     RoleInvitation,
@@ -1244,12 +1252,94 @@ class ManageProjectSettingsViews:
             "project": self.project,
             "MAX_FILESIZE": MAX_FILESIZE,
             "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
+            "ONE_GIB": ONE_GIB,
+            "PROJECT_SIZE_LIMIT_REQUEST_CAP": PROJECT_SIZE_LIMIT_REQUEST_CAP,
             "transfer_organization_project_form": (
                 self.transfer_organization_project_form_class(
                     organization_choices=organization_choices,
                 )
             ),
+            "project_size_limit_request": (
+                self.request.db.query(ProjectSizeLimitRequest)
+                .filter(ProjectSizeLimitRequest.project_id == self.project.id)
+                .order_by(ProjectSizeLimitRequest.submitted.desc())
+                .first()
+            ),
         }
+
+
+@view_config(
+    route_name="manage.project.size_limit_request",
+    context=Project,
+    uses_session=True,
+    require_methods=["POST"],
+    permission=Permissions.ProjectsWrite,
+    has_translations=True,
+    require_reauth=True,
+)
+def request_project_size_limit_increase(project, request):
+    has_pending_request = (
+        request.db.query(literal(True))
+        .filter(
+            request.db.query(ProjectSizeLimitRequest)
+            .filter(
+                ProjectSizeLimitRequest.project_id == project.id,
+                ProjectSizeLimitRequest.status
+                == ProjectSizeLimitRequestStatus.Submitted,
+            )
+            .exists()
+        )
+        .scalar()
+    )
+    if has_pending_request:
+        request.session.flash(
+            request._(
+                "You already have a pending project size limit increase request."
+            ),
+            queue="error",
+        )
+        return HTTPSeeOther(
+            request.route_path("manage.project.settings", project_name=project.name)
+        )
+
+    form = CreateProjectSizeLimitRequestForm(request.POST)
+
+    if not form.validate():
+        for field, errors in form.errors.items():
+            for error in errors:
+                request.session.flash(f"{field}: {error}", queue="error")
+        return HTTPSeeOther(
+            request.route_path("manage.project.settings", project_name=project.name)
+        )
+
+    size_limit_request = ProjectSizeLimitRequest(
+        project=project,
+        submitted_by=request.user,
+        requested_limit=form.requested_limit.data * ONE_GIB,
+        indexes=form.indexes.data,
+        about_project=form.about_project.data,
+        release_size=form.release_size.data,
+        release_frequency=form.release_frequency.data,
+    )
+    request.db.add(size_limit_request)
+
+    project.record_event(
+        tag=EventTag.Project.ProjectSizeLimitRequestSubmitted,
+        request=request,
+        additional={
+            "requested_limit": size_limit_request.requested_limit,
+            "actor": request.user.username,
+        },
+    )
+
+    request.session.flash(
+        request._("Your project size limit increase request has been submitted."),
+        queue="success",
+    )
+
+    return HTTPSeeOther(
+        request.route_path("manage.project.settings", project_name=project.name)
+    )
 
 
 def get_user_role_in_project(project, user, request):

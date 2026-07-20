@@ -1,0 +1,9 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+
+{% extends "email/_base/body.txt" %}
+
+{% block content %}
+{% trans project_name=project_name, requested_limit=requested_limit|filesizeformat(binary=True) %}Your request to increase the total size limit for the project '{{ project_name }}' has been approved. The new total size limit is {{ requested_limit }}.{% endtrans %}
+
+{{ message }}
+{% endblock %}

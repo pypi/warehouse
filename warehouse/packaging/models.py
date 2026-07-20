@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import datetime
 import enum
 import typing
 
@@ -17,6 +18,7 @@ from sqlalchemy import (
     BigInteger,
     CheckConstraint,
     Column,
+    Enum,
     FetchedValue,
     ForeignKey,
     Index,
@@ -570,6 +572,84 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
 
         valid_limits = [limit for limit in limits_to_check if limit is not None]
         return max(valid_limits)
+
+
+class ProjectSizeLimitRequestStatus(enum.StrEnum):
+    Submitted = "submitted"
+    Approved = "approved"
+    Declined = "declined"
+
+
+class ProjectSizeLimitRequest(db.Model):
+    """
+    A user-submitted request to increase a Project's total size limit.
+
+    Reviewed and actioned by PyPI admins.
+    """
+
+    __tablename__ = "project_size_limit_requests"
+    __repr__ = make_repr("project_id", "status")
+
+    @declared_attr
+    def __table_args__(cls):
+        return (
+            Index(
+                "project_size_limit_requests_pending_project_uniq",
+                "project_id",
+                unique=True,
+                postgresql_where=(
+                    cls.status == ProjectSizeLimitRequestStatus.Submitted
+                ),
+            ),
+        )
+
+    project_id: Mapped[UUID] = mapped_column(
+        ForeignKey("projects.id", ondelete="CASCADE"),
+        index=True,
+        comment="ID of the Project the request is for",
+    )
+    submitted_by_id: Mapped[UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"),
+        comment="ID of the User which submitted the request",
+    )
+    submitted: Mapped[datetime_now] = mapped_column(
+        index=True,
+        comment="Datetime the request was submitted",
+    )
+    updated: Mapped[datetime.datetime | None] = mapped_column(
+        onupdate=func.now(),
+        comment="Datetime the request was last updated",
+    )
+    status: Mapped[enum.Enum] = mapped_column(
+        Enum(
+            ProjectSizeLimitRequestStatus,
+            values_callable=lambda x: [e.value for e in x],
+        ),
+        server_default=ProjectSizeLimitRequestStatus.Submitted,
+        comment="Status of the request",
+    )
+    requested_limit: Mapped[int] = mapped_column(
+        BigInteger,
+        comment="Requested total project size limit, in bytes",
+    )
+    indexes: Mapped[str] = mapped_column(
+        comment="Which package indexes the increase is requested for",
+    )
+    about_project: Mapped[str] = mapped_column(
+        comment="What the project is and how long it has been active",
+    )
+    release_size: Mapped[str] = mapped_column(
+        comment="Description of the size of each release",
+    )
+    release_frequency: Mapped[str] = mapped_column(
+        comment="How frequently releases are made",
+    )
+    admin_message: Mapped[str | None] = mapped_column(
+        comment="Optional note left by the admin who reviewed the request",
+    )
+
+    project: Mapped[Project] = orm.relationship()
+    submitted_by: Mapped[User] = orm.relationship()
 
 
 class DependencyKind(enum.IntEnum):
