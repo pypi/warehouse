@@ -108,6 +108,15 @@
     letter-spacing: 0.04rem;
     color: colors.$white;
 
+    a {
+      color: inherit;
+      text-decoration: none;
+
+      span {
+        text-decoration: underline;
+      }
+    }
+
     i {
       margin-right: 4px;
     }

@@ -35,19 +35,19 @@
         <div class="card release__card">
           {% if hversion.lifecycle_status == "quarantine-enter" or project.lifecycle_status == "quarantine-enter" %}
             <div class="release__card-header release__card-header--quarantined">
-              <i class="fa fa-shield-halved" aria-hidden="true"></i> {% trans %}Quarantined{% endtrans %}
+              <a href="{{ request.route_path('help') }}#project_in_quarantine"><i class="fa fa-shield-halved" aria-hidden="true"></i> <span>{% trans %}Quarantined{% endtrans %}</span></a>
             </div>
           {% elif hversion.yanked %}
             <div class="release__card-header release__card-header--yanked">
-              <i class="fa fa-ban" aria-hidden="true"></i> {% trans %}Yanked{% endtrans %}
+              <a href="{{ request.route_path('help') }}#yanked"><i class="fa fa-ban" aria-hidden="true"></i> <span>{% trans %}Yanked{% endtrans %}</span></a>
             </div>
           {% elif project.lifecycle_status in ["archived", "archived-noindex"] %}
             <div class="release__card-header release__card-header--archived">
-              <i class="fa fa-box-archive" aria-hidden="true"></i> {% trans %}Archived{% endtrans %}
+              <a href="{{ request.route_path('help') }}#archived-project"><i class="fa fa-box-archive" aria-hidden="true"></i> <span>{% trans %}Archived{% endtrans %}</span></a>
             </div>
           {% elif hversion.is_prerelease %}
             <div class="release__card-header release__card-header--pre-release">
-              <i class="fa fa-flask" aria-hidden="true"></i> {% trans %}Pre-release{% endtrans %}
+              <a href="{{ request.route_path('help') }}#pre-release-versioning"><i class="fa fa-flask" aria-hidden="true"></i> <span>{% trans %}Pre-release{% endtrans %}</span></a>
             </div>
           {% endif %}
           <div class="release__card-body">
