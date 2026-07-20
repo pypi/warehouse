@@ -12,6 +12,10 @@
     <caption class="sr-only">{% trans %}Project size and limits{% endtrans %}</caption>
     <tbody>
       <tr>
+        <th scope="row">{% trans %}Project size{% endtrans %}</th>
+        <td>{{ project.total_size|filesizeformat(binary=True) }}</td>
+      </tr>
+      <tr>
         <th scope="row">{% trans %}Upload limit{% endtrans %}</th>
         <td>
           {% if project.upload_limit_size == MAX_FILESIZE %}Default{% endif %}
@@ -19,10 +23,6 @@
           {% trans help_url=request.user_docs_url("/project-management/storage-limits", anchor="requesting-a-file-size-limit-increase") %}
           <a href="{{ help_url }}">(request an increase)</a>{% endtrans %}
         </td>
-      </tr>
-      <tr>
-        <th scope="row">{% trans %}Project size{% endtrans %}</th>
-        <td>{{ project.total_size|filesizeformat(binary=True) }}</td>
       </tr>
       <tr>
         <th scope="row">{% trans %}Size limit{% endtrans %}</th>
@@ -34,7 +34,7 @@
             <br>
             <small>{% trans %}A size limit increase request is pending review.{% endtrans %}</small>
           {% else %}
-            <a href="#request-project-size-increase" class="button button--primary">
+            <a href="#request-project-size-increase" class="button button--primary float-right">
               {% trans %}Request an increase{% endtrans %}
             </a>
             {% if project_size_limit_request and project_size_limit_request.status == "declined" %}
