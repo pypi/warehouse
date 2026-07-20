@@ -1309,7 +1309,7 @@ msgstr ""
 #: warehouse/templates/base.html:238
 #: warehouse/templates/includes/flash-messages.html:32
 #: warehouse/templates/includes/session-notifications.html:8
-#: warehouse/templates/manage/account.html:999
+#: warehouse/templates/manage/account.html:1027
 #: warehouse/templates/manage/manage_base.html:360
 #: warehouse/templates/manage/manage_base.html:438
 #: warehouse/templates/manage/organization/settings.html:291
@@ -3306,7 +3306,7 @@ msgstr ""
 msgid "These details have been <a href=\"%(href)s\">verified by PyPI</a>"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/metadata/project-links.html:53
+#: warehouse/templates/includes/packaging/metadata/project-links.html:55
 #: warehouse/templates/includes/packaging/project-data.html:10
 #: warehouse/templates/includes/packaging/project-data.html:183
 msgid "Project links"
@@ -3705,8 +3705,8 @@ msgstr ""
 
 #: warehouse/templates/includes/packaging/metadata/github-statistics.html:13
 #: warehouse/templates/includes/packaging/metadata/gitlab-statistics.html:12
-#: warehouse/templates/includes/packaging/metadata/project-links.html:58
-#: warehouse/templates/includes/packaging/metadata/project-links.html:59
+#: warehouse/templates/includes/packaging/metadata/project-links.html:60
+#: warehouse/templates/includes/packaging/metadata/project-links.html:61
 #, python-format
 msgid "Data verified by PyPI on %(date)s"
 msgstr ""
@@ -3777,7 +3777,8 @@ msgid "<strong>Archived:</strong> %(date)s"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/metadata/key-dates.html:27
-msgid "<strong>Yanked:</strong> Show date here"
+#, python-format
+msgid "<strong>Yanked:</strong> %(yanked_date)s"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/metadata/key-dates.html:34
@@ -3817,7 +3818,7 @@ msgid_plural "%(count)s maintainers"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/includes/packaging/metadata/project-links.html:62
+#: warehouse/templates/includes/packaging/metadata/project-links.html:64
 msgid ""
 "Data provided by the project maintainers, verified at the time the "
 "release was uploaded to PyPI."
@@ -4634,7 +4635,7 @@ msgid "Recent account activity"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:938
-#: warehouse/templates/manage/organization/history.html:209
+#: warehouse/templates/manage/organization/history.html:213
 #: warehouse/templates/manage/project/history.html:333
 #: warehouse/templates/manage/team/history.html:87
 #: warehouse/templates/manage/unverified-account.html:530
@@ -4642,8 +4643,8 @@ msgid "Event"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:939
-#: warehouse/templates/manage/organization/history.html:210
-#: warehouse/templates/manage/organization/history.html:219
+#: warehouse/templates/manage/organization/history.html:214
+#: warehouse/templates/manage/organization/history.html:223
 #: warehouse/templates/manage/project/history.html:334
 #: warehouse/templates/manage/project/history.html:343
 #: warehouse/templates/manage/team/history.html:88
@@ -4653,7 +4654,7 @@ msgid "Time"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:940
-#: warehouse/templates/manage/organization/history.html:211
+#: warehouse/templates/manage/organization/history.html:215
 #: warehouse/templates/manage/team/history.html:89
 #: warehouse/templates/manage/unverified-account.html:532
 msgid "Additional Info"
@@ -4665,13 +4666,13 @@ msgid "Date / time"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:952
-#: warehouse/templates/manage/organization/history.html:223
+#: warehouse/templates/manage/organization/history.html:227
 #: warehouse/templates/manage/unverified-account.html:543
 msgid "Location Info"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:955
-#: warehouse/templates/manage/organization/history.html:226
+#: warehouse/templates/manage/organization/history.html:230
 #: warehouse/templates/manage/project/history.html:350
 #: warehouse/templates/manage/team/history.html:104
 #: warehouse/templates/manage/unverified-account.html:546
@@ -4691,7 +4692,7 @@ msgstr ""
 msgid "Cannot delete account"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:973
+#: warehouse/templates/manage/account.html:974
 #, python-format
 msgid ""
 "Your account is currently the <strong>sole owner</strong> of %(count)s "
@@ -4702,7 +4703,7 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/account.html:978
+#: warehouse/templates/manage/account.html:979
 msgid ""
 "You must transfer ownership or delete this project before you can delete "
 "your account."
@@ -4712,14 +4713,42 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/account.html:988
+#: warehouse/templates/manage/account.html:989
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a "
 "href=\"%(delete_href)s\">delete project</a>"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:997
+#: warehouse/templates/manage/account.html:1000
+#, python-format
+msgid ""
+"Your account is currently the <strong>sole owner</strong> of %(count)s "
+"organization."
+msgid_plural ""
+"Your account is currently the <strong>sole owner</strong> of %(count)s "
+"organizations."
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/templates/manage/account.html:1005
+msgid ""
+"You must add another owner or delete this organization before you can "
+"delete your account."
+msgid_plural ""
+"You must add another owner or delete these organizations before you can "
+"delete your account."
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/templates/manage/account.html:1015
+#, python-format
+msgid ""
+"<a href=\"%(roles_href)s\">add an owner</a> or <a "
+"href=\"%(delete_href)s\">delete organization</a>"
+msgstr ""
+
+#: warehouse/templates/manage/account.html:1025
 #: warehouse/templates/manage/account/token.html:177
 #: warehouse/templates/manage/organization/settings.html:289
 #: warehouse/templates/manage/project/publishing.html:7
@@ -4727,11 +4756,11 @@ msgstr ""
 msgid "Proceed with caution!"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:1000
+#: warehouse/templates/manage/account.html:1028
 msgid "You will not be able to recover your account after you delete it"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:1002
+#: warehouse/templates/manage/account.html:1030
 msgid "Delete your PyPI account"
 msgstr ""
 
