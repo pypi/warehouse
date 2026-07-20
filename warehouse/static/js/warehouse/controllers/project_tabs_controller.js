@@ -26,6 +26,30 @@ export default class extends Controller {
     document.getElementById(btn.hash.slice(1))?.focus({ preventScroll: true });
   }
 
+  tabKeydown(event) {
+    const keys = ["ArrowLeft", "ArrowRight", "Home", "End"];
+    if (!keys.includes(event.key)) return;
+
+    const navTabs = this.tabTargets.filter(
+      tab => !this.contentTargets.some(c => c.contains(tab))
+    );
+    const currentIndex = navTabs.indexOf(event.currentTarget);
+    if (currentIndex === -1) return;
+
+    event.preventDefault();
+
+    let nextIndex;
+    if (event.key === "ArrowRight") nextIndex = (currentIndex + 1) % navTabs.length;
+    else if (event.key === "ArrowLeft") nextIndex = (currentIndex - 1 + navTabs.length) % navTabs.length;
+    else if (event.key === "Home") nextIndex = 0;
+    else if (event.key === "End") nextIndex = navTabs.length - 1;
+
+    const nextTab = navTabs[nextIndex];
+    nextTab.focus();
+    this.toggleTab(nextTab);
+    history.pushState(null, "", nextTab.hash);
+  }
+
   toggleTab(btn) {
     if (!btn || !btn.hash) return;
     const contentId = btn.hash.slice(1);
@@ -46,11 +70,8 @@ export default class extends Controller {
       .forEach(tab => {
         const isActive = tab === activeNavTab;
         tab.classList.toggle(activeClass, isActive);
-        if (isActive) {
-          tab.setAttribute("aria-selected", "true");
-        } else {
-          tab.removeAttribute("aria-selected");
-        }
+        tab.setAttribute("aria-selected", isActive ? "true" : "false");
+        tab.setAttribute("tabindex", isActive ? "0" : "-1");
       });
   }
 

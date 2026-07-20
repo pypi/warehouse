@@ -11,17 +11,17 @@ const tabsHTML = `
   <nav class="project-tabs__tabs" aria-label="Navigation for lunr">
     <ul class="project-tabs__list" role="tablist">
       <li role="presentation">
-        <a id="description-tab" href="#description" role="tab" data-project-tabs-target="tab" data-action="project-tabs#tabClick" class="project-tabs__tab project-tabs__tab--is-active" aria-selected="true" aria-label="Project description. Focus will be moved to the description.">
+        <a id="description-tab" href="#description" role="tab" data-project-tabs-target="tab" data-action="project-tabs#tabClick keydown->project-tabs#tabKeydown" class="project-tabs__tab project-tabs__tab--is-active" aria-selected="true" tabindex="0" aria-label="Project description. Focus will be moved to the description.">
           <span><i class="fa fa-align-left" aria-hidden="true"></i> Project description</span>
         </a>
       </li>
       <li role="presentation">
-        <a id="history-tab" href="#history" role="tab" data-project-tabs-target="tab" data-action="project-tabs#tabClick" class="project-tabs__tab" aria-label="Release history. Focus will be moved to the history panel.">
+        <a id="history-tab" href="#history" role="tab" data-project-tabs-target="tab" data-action="project-tabs#tabClick keydown->project-tabs#tabKeydown" class="project-tabs__tab" aria-selected="false" tabindex="-1" aria-label="Release history. Focus will be moved to the history panel.">
           <span><i class="fa fa-history" aria-hidden="true"></i> Release history</span>
         </a>
       </li>
       <li role="presentation">
-        <a id="files-tab" href="#files" role="tab" data-project-tabs-target="tab" data-action="project-tabs#tabClick" class="project-tabs__tab" aria-label="Download files. Focus will be moved to the project files.">
+        <a id="files-tab" href="#files" role="tab" data-project-tabs-target="tab" data-action="project-tabs#tabClick keydown->project-tabs#tabKeydown" class="project-tabs__tab" aria-selected="false" tabindex="-1" aria-label="Download files. Focus will be moved to the project files.">
           <span><i class="fa fa-download" aria-hidden="true"></i> Download files</span>
         </a>
       </li>
@@ -51,7 +51,7 @@ const tabsHTML = `
         <div class="card file__card">
           <a href="/files/sample-1.0.tar.gz">sample-1.0.tar.gz</a>
           (1.0 KB
-          <a href="#sample-1.0.tar.gz" data-project-tabs-target="tab" data-action="project-tabs#tabClick">view details</a>)
+          <a href="#sample-1.0.tar.gz" data-project-tabs-target="tab" data-action="project-tabs#tabClick keydown->project-tabs#tabKeydown">view details</a>)
         </div>
       </div>
     </div>
@@ -79,15 +79,18 @@ describe("Project tabs controller", () => {
       it("shows the first tab and hides all others", () => {
         expect(document.getElementById("description")).toHaveStyle("display: block");
         expect(document.getElementById("description-tab")).toHaveClass("project-tabs__tab--is-active");
-        expect(document.getElementById("description-tab")).toHaveAttribute("aria-selected");
+        expect(document.getElementById("description-tab")).toHaveAttribute("aria-selected", "true");
+        expect(document.getElementById("description-tab")).toHaveAttribute("tabindex", "0");
 
         expect(document.getElementById("history")).toHaveStyle("display: none");
         expect(document.getElementById("history-tab")).not.toHaveClass("project-tabs__tab--is-active");
-        expect(document.getElementById("history-tab")).not.toHaveAttribute("aria-selected");
+        expect(document.getElementById("history-tab")).toHaveAttribute("aria-selected", "false");
+        expect(document.getElementById("history-tab")).toHaveAttribute("tabindex", "-1");
 
         expect(document.getElementById("files")).toHaveStyle("display: none");
         expect(document.getElementById("files-tab")).not.toHaveClass("project-tabs__tab--is-active");
-        expect(document.getElementById("files-tab")).not.toHaveAttribute("aria-selected");
+        expect(document.getElementById("files-tab")).toHaveAttribute("aria-selected", "false");
+        expect(document.getElementById("files-tab")).toHaveAttribute("tabindex", "-1");
 
         expect(document.getElementById("data")).toHaveStyle("display: none");
         expect(document.getElementById("sample-1.0.tar.gz")).toHaveStyle("display: none");
@@ -106,12 +109,14 @@ describe("Project tabs controller", () => {
       it("shows the file detail panel and keeps the files tab active", () => {
         expect(document.getElementById("sample-1.0.tar.gz")).toHaveStyle("display: block");
         expect(document.getElementById("files-tab")).toHaveClass("project-tabs__tab--is-active");
-        expect(document.getElementById("files-tab")).toHaveAttribute("aria-selected");
+        expect(document.getElementById("files-tab")).toHaveAttribute("aria-selected", "true");
+        expect(document.getElementById("files-tab")).toHaveAttribute("tabindex", "0");
 
         expect(document.getElementById("files")).toHaveStyle("display: none");
         expect(document.getElementById("description")).toHaveStyle("display: none");
         expect(document.getElementById("description-tab")).not.toHaveClass("project-tabs__tab--is-active");
-        expect(document.getElementById("description-tab")).not.toHaveAttribute("aria-selected");
+        expect(document.getElementById("description-tab")).toHaveAttribute("aria-selected", "false");
+        expect(document.getElementById("description-tab")).toHaveAttribute("tabindex", "-1");
       });
     });
 
@@ -127,15 +132,18 @@ describe("Project tabs controller", () => {
       it("shows the matching tab and hides all others", () => {
         expect(document.getElementById("history")).toHaveStyle("display: block");
         expect(document.getElementById("history-tab")).toHaveClass("project-tabs__tab--is-active");
-        expect(document.getElementById("history-tab")).toHaveAttribute("aria-selected");
+        expect(document.getElementById("history-tab")).toHaveAttribute("aria-selected", "true");
+        expect(document.getElementById("history-tab")).toHaveAttribute("tabindex", "0");
 
         expect(document.getElementById("description")).toHaveStyle("display: none");
         expect(document.getElementById("description-tab")).not.toHaveClass("project-tabs__tab--is-active");
-        expect(document.getElementById("description-tab")).not.toHaveAttribute("aria-selected");
+        expect(document.getElementById("description-tab")).toHaveAttribute("aria-selected", "false");
+        expect(document.getElementById("description-tab")).toHaveAttribute("tabindex", "-1");
 
         expect(document.getElementById("files")).toHaveStyle("display: none");
         expect(document.getElementById("files-tab")).not.toHaveClass("project-tabs__tab--is-active");
-        expect(document.getElementById("files-tab")).not.toHaveAttribute("aria-selected");
+        expect(document.getElementById("files-tab")).toHaveAttribute("aria-selected", "false");
+        expect(document.getElementById("files-tab")).toHaveAttribute("tabindex", "-1");
 
         expect(document.getElementById("data")).toHaveStyle("display: none");
         expect(document.getElementById("sample-1.0.tar.gz")).toHaveStyle("display: none");
@@ -147,6 +155,7 @@ describe("Project tabs controller", () => {
     let application;
 
     beforeEach(() => {
+      window.location.hash = "";
       document.body.innerHTML = tabsHTML;
 
       application = Application.start();
@@ -163,11 +172,11 @@ describe("Project tabs controller", () => {
 
         expect(document.getElementById("description")).toHaveStyle("display: none");
         expect(document.getElementById("description-tab")).not.toHaveClass("project-tabs__tab--is-active");
-        expect(document.getElementById("description-tab")).not.toHaveAttribute("aria-selected");
+        expect(document.getElementById("description-tab")).toHaveAttribute("aria-selected", "false");
 
         expect(document.getElementById("files")).toHaveStyle("display: none");
         expect(document.getElementById("files-tab")).not.toHaveClass("project-tabs__tab--is-active");
-        expect(document.getElementById("files-tab")).not.toHaveAttribute("aria-selected");
+        expect(document.getElementById("files-tab")).toHaveAttribute("aria-selected", "false");
       });
 
       it("updates the URL hash", () => {
@@ -185,6 +194,63 @@ describe("Project tabs controller", () => {
       });
     });
 
+    describe("keyboard navigation", () => {
+      it("ArrowRight moves to the next tab", () => {
+        document.getElementById("description-tab").dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+
+        expect(document.getElementById("history")).toHaveStyle("display: block");
+        expect(document.getElementById("history-tab")).toHaveClass("project-tabs__tab--is-active");
+        expect(document.getElementById("history-tab")).toHaveAttribute("aria-selected");
+        expect(document.getElementById("description")).toHaveStyle("display: none");
+      });
+
+      it("ArrowLeft moves to the previous tab", () => {
+        document.getElementById("history-tab").click();
+        document.getElementById("history-tab").dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true }));
+
+        expect(document.getElementById("description")).toHaveStyle("display: block");
+        expect(document.getElementById("description-tab")).toHaveClass("project-tabs__tab--is-active");
+        expect(document.getElementById("description-tab")).toHaveAttribute("aria-selected");
+      });
+
+      it("ArrowRight wraps from last to first tab", () => {
+        document.getElementById("files-tab").click();
+        document.getElementById("files-tab").dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+
+        expect(document.getElementById("description")).toHaveStyle("display: block");
+        expect(document.getElementById("description-tab")).toHaveClass("project-tabs__tab--is-active");
+      });
+
+      it("ArrowLeft wraps from first to last tab", () => {
+        document.getElementById("description-tab").dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true }));
+
+        expect(document.getElementById("files")).toHaveStyle("display: block");
+        expect(document.getElementById("files-tab")).toHaveClass("project-tabs__tab--is-active");
+      });
+
+      it("Home moves to the first tab", () => {
+        document.getElementById("files-tab").click();
+        document.getElementById("files-tab").dispatchEvent(new KeyboardEvent("keydown", { key: "Home", bubbles: true }));
+
+        expect(document.getElementById("description")).toHaveStyle("display: block");
+        expect(document.getElementById("description-tab")).toHaveClass("project-tabs__tab--is-active");
+      });
+
+      it("End moves to the last tab", () => {
+        document.getElementById("description-tab").dispatchEvent(new KeyboardEvent("keydown", { key: "End", bubbles: true }));
+
+        expect(document.getElementById("files")).toHaveStyle("display: block");
+        expect(document.getElementById("files-tab")).toHaveClass("project-tabs__tab--is-active");
+      });
+
+      it("ignores non-arrow keys", () => {
+        document.getElementById("description-tab").dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+
+        expect(document.getElementById("description")).toHaveStyle("display: block");
+        expect(document.getElementById("description-tab")).toHaveClass("project-tabs__tab--is-active");
+      });
+    });
+
     describe("viewing file details", () => {
       it("shows the file detail panel and keeps the files tab active", () => {
         document.getElementById("files-tab").click();
@@ -198,7 +264,7 @@ describe("Project tabs controller", () => {
         expect(document.getElementById("files-tab")).toHaveAttribute("aria-selected");
 
         expect(document.getElementById("description-tab")).not.toHaveClass("project-tabs__tab--is-active");
-        expect(document.getElementById("description-tab")).not.toHaveAttribute("aria-selected");
+        expect(document.getElementById("description-tab")).toHaveAttribute("aria-selected", "false");
       });
 
       it("focuses the file detail panel", () => {
@@ -221,7 +287,7 @@ describe("Project tabs controller", () => {
         expect(document.getElementById("history-tab")).toHaveAttribute("aria-selected");
 
         expect(document.getElementById("files-tab")).not.toHaveClass("project-tabs__tab--is-active");
-        expect(document.getElementById("files-tab")).not.toHaveAttribute("aria-selected");
+        expect(document.getElementById("files-tab")).toHaveAttribute("aria-selected", "false");
       });
     });
 
@@ -236,11 +302,11 @@ describe("Project tabs controller", () => {
 
         expect(document.getElementById("description")).toHaveStyle("display: none");
         expect(document.getElementById("description-tab")).not.toHaveClass("project-tabs__tab--is-active");
-        expect(document.getElementById("description-tab")).not.toHaveAttribute("aria-selected");
+        expect(document.getElementById("description-tab")).toHaveAttribute("aria-selected", "false");
 
         expect(document.getElementById("files")).toHaveStyle("display: none");
         expect(document.getElementById("files-tab")).not.toHaveClass("project-tabs__tab--is-active");
-        expect(document.getElementById("files-tab")).not.toHaveAttribute("aria-selected");
+        expect(document.getElementById("files-tab")).toHaveAttribute("aria-selected", "false");
       });
 
       it("falls back to the first tab when the hash is cleared", () => {
@@ -254,7 +320,7 @@ describe("Project tabs controller", () => {
 
         expect(document.getElementById("history")).toHaveStyle("display: none");
         expect(document.getElementById("history-tab")).not.toHaveClass("project-tabs__tab--is-active");
-        expect(document.getElementById("history-tab")).not.toHaveAttribute("aria-selected");
+        expect(document.getElementById("history-tab")).toHaveAttribute("aria-selected", "false");
       });
     });
 
