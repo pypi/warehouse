@@ -21,6 +21,7 @@ from warehouse.packaging.models import (
     Project,
     ProjectFactory,
     ProjectMacaroonWarningAssociation,
+    ProjectSizeLimitRequestStatus,
     ReleaseURL,
 )
 
@@ -38,10 +39,25 @@ from ...common.db.packaging import (
     FileEventFactory as DBFileEventFactory,
     FileFactory as DBFileFactory,
     ProjectFactory as DBProjectFactory,
+    ProjectSizeLimitRequestFactory as DBProjectSizeLimitRequestFactory,
     ReleaseFactory as DBReleaseFactory,
     RoleFactory as DBRoleFactory,
     RoleInvitationFactory as DBRoleInvitationFactory,
 )
+
+
+class TestProjectSizeLimitRequest:
+    def test_defaults(self, db_session):
+        project = DBProjectFactory.create()
+        size_limit_request = DBProjectSizeLimitRequestFactory.create(project=project)
+
+        assert size_limit_request.project == project
+        assert size_limit_request.status == ProjectSizeLimitRequestStatus.Submitted
+        assert size_limit_request.admin_message is None
+
+    def test_repr(self, db_session):
+        size_limit_request = DBProjectSizeLimitRequestFactory.create()
+        assert isinstance(repr(size_limit_request), str)
 
 
 class TestRole:

@@ -799,3 +799,54 @@ class SaveTeamForm(wtforms.Form):
 
 class CreateTeamForm(SaveTeamForm):
     __params__ = SaveTeamForm.__params__
+
+
+# /manage/project/ forms
+
+
+class CreateProjectSizeLimitRequestForm(wtforms.Form):
+    requested_limit = wtforms.IntegerField(
+        validators=[
+            wtforms.validators.InputRequired(message=_("Specify a new limit, in GiB")),
+            wtforms.validators.NumberRange(
+                min=1, message=_("New limit must be at least 1 GiB")
+            ),
+        ]
+    )
+    indexes = wtforms.SelectMultipleField(
+        choices=[("PyPI", "PyPI"), ("TestPyPI", "TestPyPI")],
+        validators=[
+            wtforms.validators.InputRequired(message=_("Select at least one index")),
+        ],
+    )
+    about_project = wtforms.TextAreaField(
+        validators=[
+            wtforms.validators.InputRequired(message=_("Tell us about the project")),
+            wtforms.validators.Length(
+                max=4096,
+                message=_("Limit your answer to 4096 characters or less"),
+            ),
+        ]
+    )
+    release_size = wtforms.TextAreaField(
+        validators=[
+            wtforms.validators.InputRequired(
+                message=_("Tell us how large each release is")
+            ),
+            wtforms.validators.Length(
+                max=4096,
+                message=_("Limit your answer to 4096 characters or less"),
+            ),
+        ]
+    )
+    release_frequency = wtforms.TextAreaField(
+        validators=[
+            wtforms.validators.InputRequired(
+                message=_("Tell us how frequently you release")
+            ),
+            wtforms.validators.Length(
+                max=4096,
+                message=_("Limit your answer to 4096 characters or less"),
+            ),
+        ]
+    )

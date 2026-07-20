@@ -1,0 +1,144 @@
+# SPDX-License-Identifier: Apache-2.0
+
+from pyramid.httpexceptions import HTTPNotFound, HTTPSeeOther
+from pyramid.view import view_config
+from sqlalchemy.orm import joinedload
+
+from warehouse.authnz import Permissions
+from warehouse.events.tags import EventTag
+from warehouse.packaging.models import (
+    ProjectSizeLimitRequest,
+    ProjectSizeLimitRequestStatus,
+)
+
+
+@view_config(
+    route_name="admin.project_size_limit_request.list",
+    renderer="warehouse.admin:templates/admin/project_size_limit_requests/list.html",
+    permission=Permissions.AdminProjectsRead,
+    uses_session=True,
+)
+def project_size_limit_requests_list(request):
+    size_limit_requests = (
+        request.db.query(ProjectSizeLimitRequest)
+        .options(
+            joinedload(ProjectSizeLimitRequest.project),
+            joinedload(ProjectSizeLimitRequest.submitted_by),
+        )
+        .order_by(ProjectSizeLimitRequest.submitted.desc())
+        .all()
+    )
+    return {"project_size_limit_requests": size_limit_requests}
+
+
+@view_config(
+    route_name="admin.project_size_limit_request.detail",
+    renderer="warehouse.admin:templates/admin/project_size_limit_requests/detail.html",
+    permission=Permissions.AdminProjectsRead,
+    uses_session=True,
+)
+def project_size_limit_request_detail(request):
+    size_limit_request = request.db.get(
+        ProjectSizeLimitRequest, request.matchdict["request_id"]
+    )
+    if size_limit_request is None:
+        raise HTTPNotFound
+
+    return {"size_limit_request": size_limit_request}
+
+
+def _get_reviewable_request(request):
+    size_limit_request = request.db.get(
+        ProjectSizeLimitRequest, request.matchdict["request_id"]
+    )
+    if size_limit_request is None:
+        raise HTTPNotFound
+
+    if size_limit_request.status != ProjectSizeLimitRequestStatus.Submitted:
+        request.session.flash("This request has already been reviewed", queue="error")
+        raise HTTPSeeOther(
+            request.route_path(
+                "admin.project_size_limit_request.detail",
+                request_id=size_limit_request.id,
+            )
+        )
+
+    return size_limit_request
+
+
+@view_config(
+    route_name="admin.project_size_limit_request.approve",
+    require_methods=["POST"],
+    permission=Permissions.AdminProjectsSetLimit,
+    uses_session=True,
+    require_csrf=True,
+)
+def project_size_limit_request_approve(request):
+    size_limit_request = _get_reviewable_request(request)
+    project = size_limit_request.project
+
+    old_total_size_limit = project.total_size_limit
+    project.total_size_limit = size_limit_request.requested_limit
+
+    size_limit_request.status = ProjectSizeLimitRequestStatus.Approved
+    size_limit_request.admin_message = request.params.get("message") or None
+
+    project.record_event(
+        tag=EventTag.Project.ProjectSetTotalSizeLimit,
+        request=request,
+        additional={
+            "old_total_size_limit": old_total_size_limit,
+            "new_total_size_limit": project.total_size_limit,
+            "actor": request.user.username,
+        },
+    )
+    project.record_event(
+        tag=EventTag.Project.ProjectSizeLimitRequestApproved,
+        request=request,
+        additional={"actor": request.user.username},
+    )
+
+    request.session.flash(
+        f"Approved the size limit increase request for {project.name!r}",
+        queue="success",
+    )
+
+    return HTTPSeeOther(
+        request.route_path(
+            "admin.project_size_limit_request.detail",
+            request_id=size_limit_request.id,
+        )
+    )
+
+
+@view_config(
+    route_name="admin.project_size_limit_request.decline",
+    require_methods=["POST"],
+    permission=Permissions.AdminProjectsSetLimit,
+    uses_session=True,
+    require_csrf=True,
+)
+def project_size_limit_request_decline(request):
+    size_limit_request = _get_reviewable_request(request)
+    project = size_limit_request.project
+
+    size_limit_request.status = ProjectSizeLimitRequestStatus.Declined
+    size_limit_request.admin_message = request.params.get("message") or None
+
+    project.record_event(
+        tag=EventTag.Project.ProjectSizeLimitRequestDeclined,
+        request=request,
+        additional={"actor": request.user.username},
+    )
+
+    request.session.flash(
+        f"Declined the size limit increase request for {project.name!r}",
+        queue="success",
+    )
+
+    return HTTPSeeOther(
+        request.route_path(
+            "admin.project_size_limit_request.detail",
+            request_id=size_limit_request.id,
+        )
+    )

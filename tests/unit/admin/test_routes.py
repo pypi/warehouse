@@ -401,6 +401,26 @@ def test_includeme(mocker):
             traverse="/{project_name}",
             domain=warehouse,
         ),
+        mocker.call(
+            "admin.project_size_limit_request.list",
+            "/admin/project_size_limit_requests/",
+            domain=warehouse,
+        ),
+        mocker.call(
+            "admin.project_size_limit_request.detail",
+            "/admin/project_size_limit_requests/{request_id}/",
+            domain=warehouse,
+        ),
+        mocker.call(
+            "admin.project_size_limit_request.approve",
+            "/admin/project_size_limit_requests/{request_id}/approve/",
+            domain=warehouse,
+        ),
+        mocker.call(
+            "admin.project_size_limit_request.decline",
+            "/admin/project_size_limit_requests/{request_id}/decline/",
+            domain=warehouse,
+        ),
         mocker.call("admin.journals.list", "/admin/journals/", domain=warehouse),
         mocker.call(
             "admin.prohibited_project_names.list",

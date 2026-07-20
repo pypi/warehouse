@@ -1,0 +1,54 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% extends "admin/base.html" %}
+{% block title %}Project Size Limit Requests{% endblock %}
+{% block breadcrumb %}
+  <li class="breadcrumb-item active">Project Size Limit Requests</li>
+{% endblock %}
+{% block content %}
+  <div class="card">
+    <div class="card-body table-responsive p-0">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Project</th>
+            <th>Requested by</th>
+            <th>Requested limit</th>
+            <th>Submitted</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for size_limit_request in project_size_limit_requests %}
+            <tr>
+              <td>
+                <a href="{{ request.route_path('admin.project.detail', project_name=size_limit_request.project.normalized_name) }}">{{ size_limit_request.project.name }}</a>
+              </td>
+              <td>
+                <a href="{{ request.route_path('admin.user.detail', username=size_limit_request.submitted_by.username) }}">{{ size_limit_request.submitted_by.username }}</a>
+              </td>
+              <td>{{ size_limit_request.requested_limit|filesizeformat(binary=True) }}</td>
+              <td>{{ size_limit_request.submitted.strftime("%Y-%m-%d %H:%M") }}</td>
+              <td>
+                {% if size_limit_request.status == "submitted" %}
+                  <span class="badge badge-warning">Submitted</span>
+                {% elif size_limit_request.status == "approved" %}
+                  <span class="badge badge-success">Approved</span>
+                {% elif size_limit_request.status == "declined" %}
+                  <span class="badge badge-danger">Declined</span>
+                {% endif %}
+              </td>
+              <td>
+                <a href="{{ request.route_path('admin.project_size_limit_request.detail', request_id=size_limit_request.id) }}"
+                   class="btn btn-primary btn-sm">Review</a>
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="6" class="text-center text-muted"><em>No project size limit requests</em></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

@@ -532,6 +532,13 @@ def test_routes(warehouse, mocker):
             domain=warehouse,
         ),
         mocker.call(
+            "manage.project.size_limit_request",
+            "/manage/project/{project_name}/size-limit-request/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        mocker.call(
             "packaging.project",
             "/project/{name}/",
             factory="warehouse.packaging.models:ProjectFactory",

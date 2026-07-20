@@ -17,6 +17,7 @@ from warehouse.packaging.models import (
     JournalEntry,
     ProhibitedProjectName,
     Project,
+    ProjectSizeLimitRequest,
     Provenance,
     Release,
     Role,
@@ -40,6 +41,27 @@ class ProjectFactory(WarehouseFactory):
     normalized_name = factory.LazyAttribute(
         lambda o: packaging.utils.canonicalize_name(o.name)
     )
+
+
+class ProjectSizeLimitRequestFactory(WarehouseFactory):
+    class Meta:
+        model = ProjectSizeLimitRequest
+
+    id = factory.Faker("uuid4", cast_to=None)
+    project = factory.SubFactory(ProjectFactory)
+    submitted_by = factory.SubFactory(UserFactory)
+    submitted = factory.Faker(
+        "date_time_between_dates",
+        datetime_start=datetime.datetime(2020, 1, 1),
+        datetime_end=datetime.datetime(2022, 1, 1),
+    )
+    requested_limit = factory.LazyAttribute(
+        lambda o: random.randint(1, 100) * (1024**3)
+    )
+    indexes = "PyPI"
+    about_project = factory.Faker("paragraph")
+    release_size = factory.Faker("paragraph")
+    release_frequency = factory.Faker("paragraph")
 
 
 class ProjectEventFactory(WarehouseFactory):
