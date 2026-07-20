@@ -4,7 +4,7 @@
     <nav class="project-tabs__tabs"
          aria-label="{% trans project=release.project.name %}Navigation for {{ project }}{% endtrans %}">
       <ul class="project-tabs__list" role="tablist">
-        <li>
+        <li role="presentation">
           <a id="description-tab"
              href="#description"
              role="tab"
@@ -19,7 +19,7 @@
             </span>
           </a>
         </li>
-        <li>
+        <li role="presentation">
           <a id="history-tab"
              href="#history"
              role="tab"
@@ -34,7 +34,7 @@
           </a>
         </li>
         {% if files and not release.lifecycle_status == "quarantine-enter" %}
-          <li>
+          <li role="presentation">
             <a id="files-tab"
                href="#files"
                role="tab"
