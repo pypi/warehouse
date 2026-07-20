@@ -24,7 +24,7 @@
       {% endif %}
       <!-- TODO -->
       {% if release.yanked %}
-        {% trans %}<strong>Yanked:</strong> Show date here{% endtrans %}
+        {% trans yanked_date=humanize(release.yanked_date) %}<strong>Yanked:</strong>{{ yanked_date }}{% endtrans %}
         <br />
       {% endif %}
       {% if latest_version %}
