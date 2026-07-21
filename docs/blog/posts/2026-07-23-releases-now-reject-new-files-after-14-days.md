@@ -13,7 +13,7 @@ meta:
 
 The Python Package Index (PyPI) now rejects new files being uploaded to releases
 that are older than 14 days. This restriction was [put in place](https://github.com/pypi/warehouse/pull/19727) to prevent
-old and long-stable releases being poisoned in case publishing tokens or workflows
+old and long-stable releases from being poisoned in case publishing tokens or workflows
 of PyPI projects were compromised. As far as we
 are aware this has not yet been abused, but there is no technical reason
 beyond that attackers weren't aware it was possible.
@@ -36,8 +36,8 @@ Originally the discussion stalled due to some projects depending on
 this behavior to add support for new Python versions to already-published releases.
 To quantify how disruptive this change would be to existing workflows,
 the PyPI database was queried for [projects that have published
-new files to old releases](https://discuss.python.org/t/restricting-open-ended-releases-on-pypi/43566/48) (bucketed by number of days since).
-Later specifically `cp314` wheels were queried for the top 15,000 packages, revealing
+new files to old releases](https://discuss.python.org/t/restricting-open-ended-releases-on-pypi/43566/48) (bucketed by number of days since the release).
+Later, specifically `cp314` wheels were queried for the top 15,000 packages, revealing
 that [only 56 projects of 15,000](https://discuss.python.org/t/restricting-open-ended-releases-on-pypi/43566/63) had published a 3.14-compatible wheel
 more than 14 days after a release was available.
 
