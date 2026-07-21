@@ -1,0 +1,35 @@
+name: Translation issue
+description: Report a poor translation, poor source content, or ask for more information when making a translation
+labels: ["i18n", "translation", "requires triaging"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Incorrect or suboptimal translation?** If you've found an incorrect or
+        suboptimal translation and have a suggestion on how to make it better, please
+        visit https://hosted.weblate.org/projects/pypa/warehouse/ to edit and/or
+        comment on the translation instead of opening an issue here.
+  - type: dropdown
+    id: issue-type
+    attributes:
+      label: What kind of translation issue is this?
+      options:
+        - Bad source in Weblate (a string that is poorly written or formatted)
+        - More information needed to translate effectively
+        - Something else
+    validations:
+      required: true
+  - type: input
+    id: source-string
+    attributes:
+      label: Link to the source string
+      description: Found in the Weblate sidebar.
+  - type: textarea
+    id: description
+    attributes:
+      label: Description of the problem
+      description: >
+        Describe the problem. If you need more information about a string to write
+        a good translation, describe what additional information you need.
+    validations:
+      required: true
