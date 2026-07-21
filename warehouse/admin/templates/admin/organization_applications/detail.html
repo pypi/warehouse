@@ -62,13 +62,13 @@
           <div class="form-group">
             <button
               type="button"
-              class="btn btn-secondary btn-block"
+              class="btn btn-warning btn-block"
               data-toggle="modal"
               data-hotkey-binding=78
               data-target="#addNoteModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) }}
               title="Add an internal note to this organization request"
             >
-              <i class="icon fa fa-note-sticky"></i> Add Note
+              <i class="icon fa fa-note-sticky text-white"></i> Add Note
             </button>
 
             <button
@@ -361,13 +361,13 @@
                         <label for="addNoteModalMessage">
                           Note
                         </label>
-                        <textarea id="addNoteModalMessage" class="form-control" name="message" placeholder="Internal note" rows=6></textarea>
+                        <textarea id="addNoteModalMessage" class="form-control" name="message" placeholder="Internal note" rows=6 required></textarea>
                       </div>
                     </div>
                     <div class="modal-footer justify-content-between">
                       <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                      <button type="submit" class="btn btn-secondary">
-                        <i class="icon fa fa-note-sticky"></i> Add Note
+                      <button type="submit" class="btn btn-warning">
+                        <i class="icon fa fa-note-sticky text-white"></i> Add Note
                       </button>
                     </div>
                   </div>

@@ -35,7 +35,7 @@ from warehouse import db
 from warehouse.accounts.models import TermsOfServiceEngagement, User
 from warehouse.authnz import Permissions
 from warehouse.events.models import HasEvents
-from warehouse.observations.models import HasObservations, ObservationKind
+from warehouse.observations.models import HasObservations, Observation, ObservationKind
 from warehouse.utils.attrs import make_repr
 from warehouse.utils.db import orm_session_from_obj
 from warehouse.utils.db.types import TZDateTime, bool_false, datetime_now
@@ -753,29 +753,26 @@ class OrganizationApplication(OrganizationMixin, HasObservations, db.Model):
         back_populates="application", viewonly=True
     )
 
+    def get_observations(
+        self, kind: ObservationKind | None = None
+    ) -> list[Observation]:
+        observations = list(self.observations)
+        if kind is not None:
+            observations = [
+                observation
+                for observation in observations
+                if observation.kind == observations.value[0]
+            ]
+
+        return sorted(observations, key=lambda x: x.created, reverse=True)
+
     @property
     def information_requests(self):
-        return sorted(
-            [
-                observation
-                for observation in self.observations
-                if observation.kind == ObservationKind.InformationRequest.value[0]
-            ],
-            key=lambda x: x.created,
-            reverse=True,
-        )
+        return self.get_observations(ObservationKind.InformationRequest)
 
     @property
     def notes(self):
-        return sorted(
-            [
-                observation
-                for observation in self.observations
-                if observation.kind == ObservationKind.AdminNote.value[0]
-            ],
-            key=lambda x: x.created,
-            reverse=True,
-        )
+        return self.get_observations(ObservationKind.AdminNote)
 
     @property
     def conversation(self):
