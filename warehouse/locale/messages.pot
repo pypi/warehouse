@@ -3760,38 +3760,33 @@ msgstr ""
 msgid "Key dates"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:11
-#, python-format
-msgid "<strong>Released:</strong> %(release_date)s"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:14
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:18
-#, python-format
-msgid "<strong>Quarantined:</strong> %(date)s"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:22
-#, python-format
-msgid "<strong>Archived:</strong> %(date)s"
-msgstr ""
-
 #: warehouse/templates/includes/packaging/metadata/key-dates.html:27
-#, python-format
-msgid "<strong>Yanked:</strong> %(yanked_date)s"
+msgid "Released:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:34
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:29
+msgid "Yanked:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:31
+msgid "Quarantined:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:33
+msgid "Archived:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:42
 #, python-format
 msgid "Stable release available (%(version)s)"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:39
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:47
 #, python-format
 msgid "Newer release available (%(version)s)"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:42
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:50
 msgid "Latest release"
 msgstr ""
 
