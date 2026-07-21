@@ -18,6 +18,8 @@ of PyPI projects were compromised. As far as we
 are aware this has not yet been abused, but there is no technical reason
 beyond that attackers weren't aware it was possible.
 
+<!-- more -->
+
 Users should not yet rely on this behavior as there are no defined semantics
 for “releases no longer accepting new files” or APIs available to confirm
 the state of the release. Instead, these semantics will be defined once
