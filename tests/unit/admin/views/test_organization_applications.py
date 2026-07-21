@@ -474,6 +474,30 @@ class TestOrganizationApplicationActions:
         assert result.status_code == 303
         assert result.location == "/admin/"
 
+    def test_defer_turbo_mode_with_next_application(self, db_request):
+        admin = UserFactory.create()
+        user = UserFactory.create()
+        organization_application = OrganizationApplicationFactory.create(
+            name="example", submitted_by=user
+        )
+        next_application = OrganizationApplicationFactory.create(name="next")
+
+        db_request.matchdict["organization_application_id"] = (
+            organization_application.id
+        )
+        db_request.params["organization_applications_turbo_mode"] = "true"
+        db_request.user = admin
+        db_request.route_path = _organization_application_routes
+
+        result = views.organization_application_defer(db_request)
+
+        assert organization_application.status == OrganizationApplicationStatus.Deferred
+        assert result.status_code == 303
+        assert (
+            result.location
+            == f"/admin/organization_applications/{next_application.id}/"
+        )
+
     def test_defer_not_found(self, db_request):
         db_request.matchdict["organization_application_id"] = uuid.uuid4()
 
