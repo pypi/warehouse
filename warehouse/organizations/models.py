@@ -753,16 +753,12 @@ class OrganizationApplication(OrganizationMixin, HasObservations, db.Model):
         back_populates="application", viewonly=True
     )
 
-    def get_observations(
-        self, kind: ObservationKind | None = None
-    ) -> list[Observation]:
-        observations = list(self.observations)
-        if kind is not None:
-            observations = [
-                observation
-                for observation in observations
-                if observation.kind == kind.value[0]
-            ]
+    def get_observations(self, kind: ObservationKind) -> list[Observation]:
+        observations = [
+            observation
+            for observation in self.observations
+            if observation.kind == kind.value[0]
+        ]
 
         return sorted(observations, key=lambda x: x.created, reverse=True)
 
