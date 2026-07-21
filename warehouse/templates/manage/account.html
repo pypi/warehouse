@@ -988,7 +988,7 @@
         {% pluralize %}
           Your account is currently the <strong>sole owner</strong> of {{ count }} projects.
         {% endtrans %}
-        {% trans count=active_projects|length %}
+        {% trans count=active_projects|length %} 
         You must transfer ownership or delete this project before you can delete your account.
       {% pluralize %}
         You must transfer ownership or delete these projects before you can delete your account.
@@ -1014,7 +1014,7 @@
   {% pluralize %}
     Your account is currently the <strong>sole owner</strong> of {{ count }} organizations.
   {% endtrans %}
-  {% trans count=sole_organizations|length %}
+  {% trans count=sole_organizations|length %} 
   You must add another owner or delete this organization before you can delete your account.
 {% pluralize %}
   You must add another owner or delete these organizations before you can delete your account.
