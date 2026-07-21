@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import datetime
 import enum
 import typing
 
@@ -732,6 +733,10 @@ class Release(HasObservations, db.Model):
     yanked: Mapped[bool_false]
 
     yanked_reason: Mapped[str] = mapped_column(server_default="")
+
+    yanked_date: Mapped[datetime.datetime | None] = mapped_column(
+        comment="When the release was yanked"
+    )
 
     dynamic = Column(  # type: ignore[var-annotated]
         ARRAY(DynamicFieldsEnum),
