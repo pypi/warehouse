@@ -225,7 +225,11 @@
                 <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
                 <span class="sr-only">{% trans %}Warning{% endtrans %}</span>
               </span>
-              <span class="notification-bar__message">{% trans %}You are using TestPyPI – a separate instance of the Python Package Index that allows you to try distribution tools and processes without affecting the real index.{% endtrans %}</span>
+              <span class="notification-bar__message">
+                {% trans %}You are using TestPyPI – a separate instance of the Python Package Index that allows you to try distribution tools and processes without affecting the real index.{% endtrans %}
+                <br />
+                {% trans %}We're currently testing a new design for project detail pages – <a href="https://github.com/pypi/warehouse/issues/20267" rel="nofollow">share your feedback here</a>.{% endtrans %}
+              </span>
             </div>
           </div>
         {% endif %}
