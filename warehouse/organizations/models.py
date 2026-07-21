@@ -777,6 +777,14 @@ class OrganizationApplication(OrganizationMixin, HasObservations, db.Model):
             reverse=True,
         )
 
+    @property
+    def conversation(self):
+        """
+        Information requests and internal notes, merged into a single
+        chronological (oldest first) thread for admin display.
+        """
+        return sorted(self.information_requests + self.notes, key=lambda x: x.created)
+
     def __lt__(self, other: OrganizationApplication) -> bool:
         return self.name < other.name
 
