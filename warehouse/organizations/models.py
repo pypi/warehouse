@@ -761,7 +761,7 @@ class OrganizationApplication(OrganizationMixin, HasObservations, db.Model):
             observations = [
                 observation
                 for observation in observations
-                if observation.kind == observations.value[0]
+                if observation.kind == kind.value[0]
             ]
 
         return sorted(observations, key=lambda x: x.created, reverse=True)
