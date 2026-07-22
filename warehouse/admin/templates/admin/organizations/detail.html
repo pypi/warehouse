@@ -15,7 +15,7 @@
       <div class="card card-primary">
         <div class="card-body card-widget widget-user-1">
           <div class="widget-user-header">
-            <h3 class="widget-user-username text-center">{{ organization.display_name }}</h3>
+            <h3 class="widget-user-username text-center"><a href="{{ request.route_path('organizations.profile', organization=organization.name)}}">{{ organization.display_name }}</a></h3>
           </div>
         </div>
         <div class="card-body">
@@ -35,7 +35,60 @@
             {% endif %}
           </p>
         </div>
-      </div>
+          <div class="card-footer p-0">
+            <ul class="nav flex-column">
+              <li class="nav-item">
+                <a href="#organization-details" class="nav-link">
+                  Type <span class="float-right badge bg-info">{{  organization.orgtype }}</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#projects" class="nav-link">
+                  Projects <span class="float-right badge bg-primary">{{ organization.projects | list | length }}</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#projects" class="nav-link">
+                  Projects - Total Owned Size	<span class="float-right badge bg-success">{{ organization.projects | list | sum(attribute="total_size") | filesizeformat(binary=True) }}</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#organization-limits" class="nav-link">
+                  Upload Limit	
+                  <span class="float-right badge bg-info">
+                    {% if organization.upload_limit %}
+                    {{ organization.upload_limit|filesizeformat(binary=True) }}
+                    {% else %}
+                    Default ({{ MAX_FILESIZE|filesizeformat(binary=True) }})
+                    {% endif %}
+                  </span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#organization-limits" class="nav-link">
+                  Total Size Limit	
+                  <span class="float-right badge bg-info">
+                    {% if organization.total_size_limit %}
+                    {{ organization.total_size_limit|filesizeformat(binary=True) }}
+                    {% else %}
+                    Default ({{ MAX_PROJECT_SIZE|filesizeformat(binary=True) }})
+                    {% endif %}
+                  </span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#members" class="nav-link">
+                  Members <span class="float-right badge bg-primary">{{  roles | list | length }}</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#teams" class="nav-link">
+                  Teams <span class="float-right badge bg-info">{{  organization.teams | list | length }}</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
 
       <div class="card">
         <div class="card-header with-border">
@@ -96,7 +149,7 @@
     </div>
 
     <div class="col-md-9">
-      <div class="card">
+      <div class="card" id="organization-details">
         <div class="card-header with-border">
           <h3 class="card-title">Organization Details</h3>
         </div>
@@ -285,11 +338,15 @@
                     {{ "Subscription set to cancel at period end" if event.additional.at_period_end else "Subscription canceled" }}
                     {% if event.additional.canceled_by %}<span class="text-muted">by {{ event.additional.canceled_by }}</span>{% endif %}
                     {% elif event.tag == EventTag.Organization.OrganizationRoleAdd %}
-                    {{ get_user(event.additional.target_user_id).username }} added as {{ event.additional.role_name | lower }}
-                    <span class="text-muted">(seat +1) by {{ get_user(event.additional.submitted_by_user_id).username }}</span>
+                    {% set target_user = get_user(event.additional.target_user_id) %}
+                    {% set submitted_by = get_user(event.additional.submitted_by_user_id) %}
+                    {{ target_user.username if target_user else "[deleted user]" }} added as {{ event.additional.role_name | lower }}
+                    <span class="text-muted">(seat +1) by {{ submitted_by.username if submitted_by else "[deleted user]" }}</span>
                     {% elif event.tag == EventTag.Organization.OrganizationRoleRemove %}
-                    {{ get_user(event.additional.target_user_id).username }} removed as {{ event.additional.role_name | lower }}
-                    <span class="text-muted">(seat −1) by {{ get_user(event.additional.submitted_by_user_id).username }}</span>
+                    {% set target_user = get_user(event.additional.target_user_id) %}
+                    {% set submitted_by = get_user(event.additional.submitted_by_user_id) %}
+                    {{ target_user.username if target_user else "[deleted user]" }} removed as {{ event.additional.role_name | lower }}
+                    <span class="text-muted">(seat −1) by {{ submitted_by.username if submitted_by else "[deleted user]" }}</span>
                     {% endif %}
                   </td>
                 </tr>
@@ -633,14 +690,14 @@
         {% endfor %}
       {% endif %}
 
-      <div class="card">
+      <div class="card"  id="projects">
         <div class="card-header with-border">
           <h3 class="card-title">Projects</h3>
         </div>
 
         <div class="card-body">
           {% if organization.projects %}
-          <table class="table table-hover" id="projects">
+          <table class="table table-hover">
             <thead>
               <tr>
                 <th>Project Name</th>
@@ -662,14 +719,14 @@
         </div>
       </div> <!-- .card -->
 
-      <div class="card">
+      <div class="card" id="members">
         <div class="card-header with-border">
           <h3 class="card-title">Members</h3>
         </div>
 
         <div class="card-body">
           {% if roles %}
-          <table class="table table-hover" id="members">
+          <table class="table table-hover">
             <thead>
               <tr>
                 <th>User</th>
@@ -760,7 +817,7 @@
 
         <div class="card-body">
           {% if organization.invitations %}
-          <table class="table table-hover" id="projects">
+          <table class="table table-hover">
             <thead>
               <tr>
                 <th>User</th>
@@ -782,14 +839,14 @@
         </div>
       </div> <!-- .card -->
 
-      <div class="card">
+      <div class="card"  id="teams">
         <div class="card-header with-border">
           <h3 class="card-title">Teams</h3>
         </div>
 
         <div class="card-body">
           {% if organization.teams %}
-          <table class="table table-hover" id="projects">
+          <table class="table table-hover">
             <thead>
               <tr>
                 <th>Team</th>
