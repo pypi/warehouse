@@ -595,6 +595,13 @@ def configure(settings=None):
 
     # OIDC feature flags and settings
     maybe_set(settings, "warehouse.oidc.audience", "OIDC_AUDIENCE")
+    maybe_set(
+        settings,
+        "warehouse.oidc.pending_publisher_expiry_warning_days",
+        "OIDC_PENDING_PUBLISHER_EXPIRY_WARNING_DAYS",
+        coercer=int,
+        default=5,
+    )
 
     maybe_set(
         settings,

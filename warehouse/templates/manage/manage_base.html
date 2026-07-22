@@ -606,6 +606,22 @@
         {% else %}
           -
         {% endif %}
+        {% if publisher.project_name is defined %}
+          <br>
+          {% trans registered_date=humanize(publisher.created) %}<b>Registered:</b> {{ registered_date }}{% endtrans %}
+          <br>
+          {% set days_left = publisher.days_until_expiry %}
+          {% trans count=days_left %}<b>Expires in:</b> {{ count }} day
+        {% pluralize %}
+          <b>Expires in:</b> {{ count }} days{% endtrans %}
+          {% set expiry_warning_days = request.registry.settings.get('warehouse.oidc.pending_publisher_expiry_warning_days', 5) | int %}
+          {% if days_left <= expiry_warning_days %}
+            <span class="badge badge--warning">
+              <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+              {% trans %}Expires soon{% endtrans %}
+            </span>
+          {% endif %}
+        {% endif %}
       </small>
     </td>
     <td scope="row">
