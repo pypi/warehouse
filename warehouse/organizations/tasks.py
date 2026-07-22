@@ -132,21 +132,14 @@ def reconcile_stripe_status(request):
 
     for org_subscription in organization_subscriptions:
         subscription = org_subscription.subscription
-        deleted = False
         try:
             remote = billing_service.retrieve_subscription(subscription.subscription_id)
         except TRANSIENT_STRIPE_ERRORS as exc:
             raise RetryableException from exc
-        except stripe.error.InvalidRequestError as exc:
-            # Only resource_missing means the subscription is gone on Stripe;
-            # anything else (bad key, API-version mismatch) must not be
-            # mistaken for a mass cancellation.
-            if exc.code != "resource_missing":
-                raise
-            deleted = True
-            remote_status = StripeSubscriptionStatus.Canceled.value
-        else:
-            remote_status = remote["status"]
+        deleted = remote is None
+        remote_status = (
+            StripeSubscriptionStatus.Canceled.value if deleted else remote["status"]
+        )
 
         if not StripeSubscriptionStatus.has_value(remote_status):
             logger.warning(
