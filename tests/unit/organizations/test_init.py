@@ -8,6 +8,7 @@ from warehouse.organizations.services import database_organization_factory
 from warehouse.organizations.tasks import (
     delete_declined_organization_applications,
     notify_organizations_requiring_subscription,
+    reconcile_stripe_status,
     update_organization_invitation_status,
     update_organziation_subscription_usage_record,
 )
@@ -26,6 +27,7 @@ def test_includeme(mocker):
         mocker.call(
             crontab(minute=0, hour=0), delete_declined_organization_applications
         ),
+        mocker.call(crontab(minute=0, hour=23), reconcile_stripe_status),
         mocker.call(
             crontab(minute=0, hour=0), update_organziation_subscription_usage_record
         ),

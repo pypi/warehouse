@@ -130,6 +130,15 @@ class TestMockStripeBillingService:
         assert customer is not None
         assert customer["id"]
 
+    def test_retrieve_subscription(self, billing_service):
+        subscription = billing_service.retrieve_subscription(
+            subscription_id="sub_12345"
+        )
+
+        assert subscription is not None
+        assert subscription["id"]
+        assert subscription["status"]
+
     def test_create_customer(self, billing_service, organization_service):
         organization = OrganizationFactory.create()
 
