@@ -21,7 +21,8 @@ class IGenericBillingService(Interface):
 
     def retrieve_subscription(subscription_id):
         """
-        Fetch the Subscription resource from the Billing API
+        Fetch the Subscription resource from the Billing API, or None if it
+        no longer exists
         """
 
     def create_customer(name, description):
