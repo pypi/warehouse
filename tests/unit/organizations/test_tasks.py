@@ -376,6 +376,40 @@ class TestReconcileStripeStatus:
         with pytest.raises(RetryableException):
             reconcile_stripe_status(db_request)
 
+    def test_skips_row_on_other_stripe_errors(
+        self, db_request, billing_service, metrics, mocker
+    ):
+        # A poisoned row must not wedge the run; later rows still reconcile.
+        _, bad_subscription = self._make_org_subscription()
+        _, good_subscription = self._make_org_subscription()
+        remote_by_id = {
+            bad_subscription.subscription_id: stripe.error.InvalidRequestError(
+                "Invalid subscription ID", None, code="invalid_request_error"
+            ),
+            good_subscription.subscription_id: {
+                "status": StripeSubscriptionStatus.Canceled.value
+            },
+        }
+
+        def retrieve(subscription_id):
+            remote = remote_by_id[subscription_id]
+            if isinstance(remote, Exception):
+                raise remote
+            return remote
+
+        mocker.patch.object(
+            billing_service, "retrieve_subscription", side_effect=retrieve
+        )
+
+        reconcile_stripe_status(db_request)
+
+        assert bad_subscription.status == StripeSubscriptionStatus.Active.value
+        assert good_subscription.status == StripeSubscriptionStatus.Canceled.value
+        metrics.increment.assert_any_call(
+            "warehouse.organizations.subscription.status.reconcile.error",
+            tags=["error_type:InvalidRequestError"],
+        )
+
     def test_skips_unknown_status(
         self, db_request, billing_service, subscription_service, metrics, mocker
     ):
