@@ -139,6 +139,29 @@ class TestMockStripeBillingService:
         assert subscription["id"]
         assert subscription["status"]
 
+    def test_retrieve_subscription_missing(self, billing_service, mocker):
+        mocker.patch.object(
+            billing_service.api.Subscription,
+            "retrieve",
+            side_effect=stripe.error.InvalidRequestError(
+                "No such subscription", None, code="resource_missing"
+            ),
+        )
+
+        assert billing_service.retrieve_subscription("sub_12345") is None
+
+    def test_retrieve_subscription_reraises_other_errors(self, billing_service, mocker):
+        mocker.patch.object(
+            billing_service.api.Subscription,
+            "retrieve",
+            side_effect=stripe.error.InvalidRequestError(
+                "Invalid API version", None, code="invalid_request_error"
+            ),
+        )
+
+        with pytest.raises(stripe.error.InvalidRequestError):
+            billing_service.retrieve_subscription("sub_12345")
+
     def test_create_customer(self, billing_service, organization_service):
         organization = OrganizationFactory.create()
 

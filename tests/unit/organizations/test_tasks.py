@@ -283,26 +283,8 @@ class TestUpdateOrganizationSubscriptionUsage:
     ):
         # A transient failure (rate limit, connection) must abort the run
         # so it retries, rather than being swallowed as a per-subscription skip.
-        organization = OrganizationFactory.create()
-        OrganizationRoleFactory(
-            organization=organization,
-            user=UserFactory.create(),
-            role_name=OrganizationRoleType.Owner,
-        )
-        stripe_customer = StripeCustomerFactory.create()
-        OrganizationStripeCustomerFactory.create(
-            organization=organization, customer=stripe_customer
-        )
-        subscription_price = StripeSubscriptionPriceFactory.create(
-            subscription_product=StripeSubscriptionProductFactory.create()
-        )
-        subscription = StripeSubscriptionFactory.create(
-            customer=stripe_customer, subscription_price=subscription_price
-        )
-        OrganizationStripeSubscriptionFactory.create(
-            organization=organization, subscription=subscription
-        )
-        StripeSubscriptionItemFactory.create(subscription=subscription)
+        org_subscription = OrganizationStripeSubscriptionFactory.create()
+        StripeSubscriptionItemFactory.create(subscription=org_subscription.subscription)
 
         mocker.patch.object(
             billing_service,
@@ -317,22 +299,10 @@ class TestUpdateOrganizationSubscriptionUsage:
 class TestReconcileStripeStatus:
     @staticmethod
     def _make_org_subscription(status=StripeSubscriptionStatus.Active):
-        organization = OrganizationFactory.create()
-        stripe_customer = StripeCustomerFactory.create()
-        OrganizationStripeCustomerFactory.create(
-            organization=organization, customer=stripe_customer
+        org_subscription = OrganizationStripeSubscriptionFactory.create(
+            subscription__status=status
         )
-        subscription = StripeSubscriptionFactory.create(
-            customer=stripe_customer,
-            subscription_price=StripeSubscriptionPriceFactory.create(
-                subscription_product=StripeSubscriptionProductFactory.create()
-            ),
-            status=status,
-        )
-        OrganizationStripeSubscriptionFactory.create(
-            organization=organization, subscription=subscription
-        )
-        return organization, subscription
+        return org_subscription.organization, org_subscription.subscription
 
     def test_syncs_status_from_stripe(
         self, db_request, billing_service, subscription_service, metrics, mocker
@@ -385,13 +355,7 @@ class TestReconcileStripeStatus:
     ):
         organization, subscription = self._make_org_subscription()
         record_event = mocker.patch.object(organization, "record_event", autospec=True)
-        mocker.patch.object(
-            billing_service,
-            "retrieve_subscription",
-            side_effect=stripe.error.InvalidRequestError(
-                "No such subscription", None, code="resource_missing"
-            ),
-        )
+        mocker.patch.object(billing_service, "retrieve_subscription", return_value=None)
 
         reconcile_stripe_status(db_request)
 
@@ -401,23 +365,6 @@ class TestReconcileStripeStatus:
             request=db_request,
             additional={"subscription_id": subscription.subscription_id},
         )
-
-    def test_reraises_non_missing_invalid_request_errors(
-        self, db_request, billing_service, subscription_service, mocker
-    ):
-        _, subscription = self._make_org_subscription()
-        mocker.patch.object(
-            billing_service,
-            "retrieve_subscription",
-            side_effect=stripe.error.InvalidRequestError(
-                "Invalid API version", None, code="invalid_request_error"
-            ),
-        )
-
-        with pytest.raises(stripe.error.InvalidRequestError):
-            reconcile_stripe_status(db_request)
-
-        assert subscription.status == StripeSubscriptionStatus.Active.value
 
     def test_retries_on_transient_stripe_errors(
         self, db_request, billing_service, subscription_service, mocker
