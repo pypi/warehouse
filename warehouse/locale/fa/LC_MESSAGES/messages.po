@@ -25,13 +25,14 @@
 # s2m00 <s2m00@yahoo.com>, 2024.
 # Code-Wizaard <aidinrahbaran.music@gmail.com>, 2025.
 # nikou <rezankf@chmail.ir>, 2025.
+# Kamrani <kamrani.exe@gmail.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2025-10-24 18:52+0000\n"
-"Last-Translator: nikou <rezankf@chmail.ir>\n"
+"PO-Revision-Date: 2026-07-19 22:37+0000\n"
+"Last-Translator: Kamrani <kamrani.exe@gmail.com>\n"
 "Language-Team: Persian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "fa/>\n"
 "Language: fa\n"
@@ -39,7 +40,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.14.1-dev\n"
+"X-Generator: Weblate 2026.8.dev0\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:149
@@ -88,6 +89,8 @@ msgid ""
 "Usernames are not the same as email addresses. Enter your username instead "
 "of your email address."
 msgstr ""
+"نام کاربری با آدرس ایمیل یکسان نیست. لطفاً به جای آدرس ایمیل، نام کاربری خود "
+"را وارد کنید."
 
 #: warehouse/accounts/forms.py:91
 msgid "No user found with that username"
@@ -116,7 +119,7 @@ msgstr ""
 #: warehouse/accounts/forms.py:168 warehouse/accounts/forms.py:217
 #: warehouse/accounts/forms.py:230
 msgid "Password too long."
-msgstr "رمز عبور خیلی طولانی است"
+msgstr "گذرواژه خیلی طولانی است."
 
 #: warehouse/accounts/forms.py:204
 #, fuzzy
@@ -463,7 +466,7 @@ msgstr "پیش نمایش بنر"
 
 #: warehouse/manage/forms.py:292
 msgid "Specify an association ID"
-msgstr ""
+msgstr "شناسه انجمن را مشخص کنید."
 
 #: warehouse/manage/forms.py:293
 #, fuzzy
@@ -473,15 +476,15 @@ msgstr "ناشر باید با شناسه مشخص شود"
 
 #: warehouse/manage/forms.py:308
 msgid "No account association with given ID"
-msgstr ""
+msgstr "هیچ ارتباط حسابی با شناسه داده‌شده وجود ندارد."
 
 #: warehouse/manage/forms.py:313
 msgid "This association does not belong to you"
-msgstr ""
+msgstr "این ارتباط متعلق به شما نیست"
 
 #: warehouse/manage/forms.py:417
 msgid "Provide your response to the request."
-msgstr ""
+msgstr "پاسخ خود را به درخواست ارائه دهید."
 
 #: warehouse/manage/forms.py:459
 msgid "Choose an organization account name with 50 characters or less."
@@ -854,18 +857,20 @@ msgstr "دعوت نامه سازمان نمیتواند باز-ارسال شود
 #: warehouse/manage/views/organizations.py:1209
 #, python-brace-format
 msgid "Expired invitation for '${username}' deleted."
-msgstr "دعوتنامه منقضی شده برای '${username}' حذف شد."
+msgstr "دعوت‌نامهٔ منقضی‌شده برای «${username}» حذف شد."
 
 #: warehouse/manage/views/organizations.py:1877
 msgid ""
 "This publisher has already been registered in your organization. See your "
 "existing pending publishers below."
 msgstr ""
+"این ناشر قبلاً در سازمان شما ثبت شده است. ناشران در انتظار موجود خود را در زیر "
+"ببینید."
 
 #: warehouse/oidc/forms/_core.py:38 warehouse/oidc/forms/_core.py:49
 #: warehouse/oidc/forms/gitlab.py:57 warehouse/oidc/forms/gitlab.py:61
 msgid "Invalid project name"
-msgstr "نام پروژه نامعتبر."
+msgstr "نام پروژه نامعتبر است"
 
 #: warehouse/oidc/forms/_core.py:68
 #, python-brace-format
@@ -873,6 +878,8 @@ msgid ""
 "This project already exists: use the project's publishing settings <a href='$"
 "{url}'>here</a> to create a Trusted Publisher for it."
 msgstr ""
+"این پروژه از قبل وجود دارد. برای ایجاد یک «ناشر مورد اعتماد» برای آن، از <a "
+"href='${url}'>تنظیمات انتشار پروژه</a> استفاده کنید."
 
 #: warehouse/oidc/forms/_core.py:77
 #, fuzzy
@@ -896,13 +903,15 @@ msgstr ""
 
 #: warehouse/oidc/forms/_core.py:86
 msgid "This project name is too similar to an existing project"
-msgstr ""
+msgstr "نام این پروژه بیش از حد به نام یک پروژهٔ موجود شباهت دارد"
 
 #: warehouse/oidc/forms/_core.py:91
 msgid ""
 "This project name isn't allowed (conflict with the Python standard library "
 "module name)"
 msgstr ""
+"استفاده از این نام برای پروژه مجاز نیست(زیرا با نام یکی از ماژول‌های کتابخانهٔ "
+"استاندارد پایتون تداخل دارد)"
 
 #: warehouse/oidc/forms/_core.py:119 warehouse/oidc/forms/_core.py:130
 msgid "Specify a publisher ID"
@@ -913,29 +922,28 @@ msgid "Publisher must be specified by ID"
 msgstr "ناشر باید با شناسه مشخص شود"
 
 #: warehouse/oidc/forms/_core.py:136
-#, fuzzy
-#| msgid "Specify project name"
 msgid "Specify an environment name"
-msgstr "نام پروژه را تعیین کنید"
+msgstr "نام محیط را مشخص کنید"
 
 #: warehouse/oidc/forms/activestate.py:37
 msgid "Double dashes are not allowed in the name"
-msgstr ""
+msgstr "استفاده از دو خط تیرهٔ پیاپی در نام مجاز نیست"
 
 #: warehouse/oidc/forms/activestate.py:44
 msgid "Leading or trailing dashes are not allowed in the name"
-msgstr ""
+msgstr "استفاده از خط تیره در ابتدا یا انتهای نام مجاز نیست"
 
 #: warehouse/oidc/forms/activestate.py:68
 #: warehouse/oidc/forms/activestate.py:81
 msgid "Unexpected error from ActiveState. Try again in a few minutes"
 msgstr ""
+"خطای غیرمنتظره‌ای از ActiveState رخ داد. چند دقیقهٔ دیگر دوباره تلاش کنید"
 
 #: warehouse/oidc/forms/activestate.py:76
 #: warehouse/oidc/forms/activestate.py:92
 #: warehouse/oidc/forms/activestate.py:101
 msgid "Unexpected error from ActiveState. Try again"
-msgstr ""
+msgstr "خطای غیرمنتظره‌ای از ActiveState رخ داد. دوباره تلاش کنید"
 
 #: warehouse/oidc/forms/activestate.py:111
 #, fuzzy
@@ -950,20 +958,16 @@ msgid "Specify ActiveState project name"
 msgstr "جستجوی پروژه ها"
 
 #: warehouse/oidc/forms/activestate.py:123
-#, fuzzy
-#| msgid "Invalid recovery code."
 msgid "Invalid ActiveState project name"
-msgstr "کد بازیابی نامعتبر."
+msgstr "نام پروژهٔ ActiveState نامعتبر است"
 
 #: warehouse/oidc/forms/activestate.py:146
-#, fuzzy
-#| msgid "Create an account"
 msgid "ActiveState organization not found"
-msgstr "ایجاد یک حساب کاربری"
+msgstr "سازمان ActiveState یافت نشد"
 
 #: warehouse/oidc/forms/activestate.py:166
 msgid "ActiveState actor not found"
-msgstr ""
+msgstr "عامل (Actor) مربوط به ActiveState یافت نشد"
 
 #: warehouse/oidc/forms/github.py:23
 msgid "Specify GitHub repository owner (username or organization)"
@@ -974,10 +978,8 @@ msgid "Specify repository name"
 msgstr "نام مخزن را مشخص کنید"
 
 #: warehouse/oidc/forms/github.py:32
-#, fuzzy
-#| msgid "Invalid recovery code."
 msgid "Invalid repository name"
-msgstr "کد بازیابی نامعتبر."
+msgstr "نام مخزن نامعتبر است"
 
 #: warehouse/oidc/forms/github.py:40
 msgid "Specify workflow filename"
@@ -991,40 +993,45 @@ msgstr "کاربر یا سازمان ناشناس GitHub."
 #: warehouse/oidc/forms/github.py:86
 msgid "GitHub has rate-limited this action. Try again in a few minutes."
 msgstr ""
+"به دلیل اعمال محدودیت نرخ از سوی GitHub، این عملیات در حال حاضر امکان‌پذیر "
+"نیست. چند دقیقهٔ دیگر دوباره تلاش کنید"
 
 #: warehouse/oidc/forms/github.py:95
 msgid "Unexpected error from GitHub. Try again."
-msgstr ""
+msgstr "خطای غیرمنتظره‌ای از GitHub رخ داد. لطفاً دوباره تلاش کنید."
 
 #: warehouse/oidc/forms/github.py:103
 msgid "Unexpected connection error from GitHub. Try again in a few minutes."
 msgstr ""
+"خطای غیرمنتظره‌ای در برقراری ارتباط با GitHub رخ داد. چند دقیقهٔ دیگر دوباره "
+"تلاش کنید."
 
 #: warehouse/oidc/forms/github.py:112
 msgid "Unexpected timeout from GitHub. Try again in a few minutes."
 msgstr ""
+"مهلت انتظار برای دریافت پاسخ از GitHub به‌طور غیرمنتظره به پایان رسید. چند "
+"دقیقهٔ دیگر دوباره تلاش کنید."
 
 #: warehouse/oidc/forms/github.py:124
 msgid "Invalid GitHub user or organization name."
-msgstr ""
+msgstr "ام کاربری یا نام سازمان GitHub نامعتبر است."
 
 #: warehouse/oidc/forms/github.py:140
 msgid "Workflow name must end with .yml or .yaml"
-msgstr ""
+msgstr "نام گردش‌کار باید با ‎.yml‎ یا ‎.yaml‎ پایان یابد"
 
 #: warehouse/oidc/forms/github.py:145
 msgid "Workflow filename must be a filename only, without directories"
 msgstr ""
+"نام فایل گردش‌کار باید فقط شامل نام فایل باشد و نباید شامل مسیر پوشه‌ها باشد"
 
 #: warehouse/oidc/forms/gitlab.py:33
-#, fuzzy
-#| msgid "Specify GitHub repository owner (username or organization)"
 msgid "Specify GitLab namespace (username or group/subgroup)"
-msgstr "مالک مخزن GitHub (نام کاربری یا سازمان) را مشخص کنید"
+msgstr "فضای نام GitLab را مشخص کنید (نام کاربری یا گروه/زیرگروه)"
 
 #: warehouse/oidc/forms/gitlab.py:37
 msgid "Invalid GitLab username or group/subgroup name."
-msgstr ""
+msgstr "نام کاربری یا نام گروه/زیرگروه GitLab نامعتبر است."
 
 #: warehouse/oidc/forms/gitlab.py:53
 #, fuzzy
@@ -1033,10 +1040,8 @@ msgid "Specify workflow filepath"
 msgstr "نام فایل گردش کار (workflow) را مشخص کنید"
 
 #: warehouse/oidc/forms/gitlab.py:61
-#, fuzzy
-#| msgid "Invalid recovery code."
 msgid "Invalid environment name"
-msgstr "کد بازیابی نامعتبر."
+msgstr "نام محیط نامعتبر است"
 
 #: warehouse/oidc/forms/gitlab.py:76
 msgid "Workflow file path must end with .yml or .yaml"
@@ -1049,33 +1054,31 @@ msgstr ""
 #: warehouse/subscriptions/models.py:35
 #: warehouse/templates/manage/project/history.html:230
 msgid "Active"
-msgstr ""
+msgstr "فعال"
 
 #: warehouse/subscriptions/models.py:25
-#, fuzzy
-#| msgid "Last used"
 msgid "Past Due"
-msgstr "آخرین استفاده"
+msgstr "سررسید گذشته"
 
 #: warehouse/subscriptions/models.py:26
 msgid "Unpaid"
-msgstr ""
+msgstr "پرداخت نشده"
 
 #: warehouse/subscriptions/models.py:27
 msgid "Canceled"
-msgstr ""
+msgstr "لغو شده"
 
 #: warehouse/subscriptions/models.py:28
 msgid "Incomplete"
-msgstr ""
+msgstr "ناتمام"
 
 #: warehouse/subscriptions/models.py:29
 msgid "Incomplete Expired"
-msgstr ""
+msgstr "تکمیل نشده و منقضی شده"
 
 #: warehouse/subscriptions/models.py:30
 msgid "Trialing"
-msgstr ""
+msgstr "آزمایشی"
 
 #: warehouse/templates/403.html:4
 msgid "Access Denied / Forbidden (403)"
@@ -1228,9 +1231,10 @@ msgid ""
 "serve you this site.</p> <p>We are aware of the problem and are working to "
 "resolve it as soon as possible.</p>"
 msgstr ""
-"<p> ما در حال تجربه موارد فنی هستیم که بر توانایی ما در ارائه این سایت به "
-"شما تأثیر می گذارد. </p> <p> ما از این مسئله آگاه هستیم و در تلاش هستیم تا "
-"هرچه سریعتر آن را برطرف کنیم. </p>"
+"<p>ما با مشکلات فنی مواجه شده‌ایم که بر توانایی ما برای ارائهٔ این سایت به شما "
+"تأثیر گذاشته است.</p>\n"
+"<p>ما از این مشکل آگاه هستیم و در حال تلاش برای رفع آن در سریع‌ترین زمان ممکن "
+"هستیم.</p>"
 
 #: warehouse/templates/500.html:20
 msgid "Check our status page"
@@ -1292,7 +1296,7 @@ msgstr "راهنمایی"
 
 #: warehouse/templates/base.html:37 warehouse/templates/base.html:71
 msgid "Docs"
-msgstr ""
+msgstr "مستندات"
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:74
 #: warehouse/templates/includes/current-user-indicator.html:83
@@ -1335,6 +1339,10 @@ msgid ""
 "and services associated with pypi.org. Any other use by any other party is "
 "prohibited."
 msgstr ""
+"\"%(wordmark)s\"، \"%(name)s\" و لوگوهای Blocks، علائم تجاری ثبت‌شدهٔ <a "
+"href=\"%(psf_href)s\" target=\"_blank\" rel=\"noopener\">بنیاد نرم‌افزار "
+"پایتون</a> هستند که به محصولات و خدمات مرتبط با pypi.org اشاره دارند. هرگونه "
+"استفادهٔ دیگر توسط هر شخص یا طرف دیگری ممنوع است."
 
 #: warehouse/templates/base.html:93
 #, python-format
@@ -1343,6 +1351,9 @@ msgid ""
 "href=\"%(trademarks_href)s\">trademarks</a> of the <a href=\"%(psf_href)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Software Foundation</a>."
 msgstr ""
+"\"%(wordmark)s\"، \"%(name)s\" و لوگوهای Blocks، <a href=\"%(trademarks_href)"
+"s\">علائم تجاری</a> ثبت‌شدهٔ <a href=\"%(psf_href)s\" target=\"_blank\" "
+"rel=\"noopener\">بنیاد نرم‌افزار پایتون</a> هستند."
 
 #: warehouse/templates/base.html:120 warehouse/templates/index.html:93
 msgid ""
@@ -1416,10 +1427,8 @@ msgid "Search PyPI"
 msgstr "جستجوی PyPI"
 
 #: warehouse/templates/base.html:278 warehouse/templates/index.html:35
-#, fuzzy
-#| msgid "Search projects"
 msgid "Type '/' to search projects"
-msgstr "جستجوی پروژه ها"
+msgstr "برای جستجوی پروژه‌ها، «/» را تایپ کنید"
 
 #: warehouse/templates/base.html:289 warehouse/templates/base.html:318
 #: warehouse/templates/error-base-with-search.html:19
@@ -1468,7 +1477,7 @@ msgstr "درباره پیمایش PyPI"
 
 #: warehouse/templates/base.html:376
 msgid "PyPI Blog"
-msgstr ""
+msgstr "وبلاگ پایتون (PyPI)"
 
 #: warehouse/templates/base.html:382
 msgid "Infrastructure dashboard"
@@ -1481,7 +1490,7 @@ msgstr "آمار"
 
 #: warehouse/templates/base.html:388
 msgid "Logos & trademarks"
-msgstr ""
+msgstr "لوگوها و علائم تجاری"
 
 #: warehouse/templates/base.html:391
 msgid "Our sponsors"
@@ -1548,13 +1557,11 @@ msgstr "سیاست حفظ حریم خصوصی"
 
 #: warehouse/templates/base.html:456
 msgid "Acceptable Use Policy"
-msgstr ""
+msgstr "سیاست استفادهٔ قابل قبول"
 
 #: warehouse/templates/base.html:466
-#, fuzzy
-#| msgid "Status: "
 msgid "Status:"
-msgstr "وضعیت: "
+msgstr "وضعیت:"
 
 #: warehouse/templates/base.html:470
 msgid "all systems operational"
@@ -1583,7 +1590,7 @@ msgstr "تأیید عملکرد"
 
 #: warehouse/templates/confirm-action.html:11
 msgid "Are you sure?"
-msgstr ""
+msgstr "آیا مطمئن هستید؟"
 
 #: warehouse/templates/error-base.html:24
 msgid "Error code"
@@ -1602,10 +1609,8 @@ msgid "Test Python package publishing with the Test Python Package Index"
 msgstr "انتشار بسته (پکیج) پایتون را با شاخص بسته (پکیج) پایتون آزمایش کنید"
 
 #: warehouse/templates/index.html:19
-#, fuzzy
-#| msgid "Test Python package publishing with the Test Python Package Index"
 msgid "Develop the codebase behind PyPI with the Dev Python Package Index"
-msgstr "انتشار بسته (پکیج) پایتون را با شاخص بسته (پکیج) پایتون آزمایش کنید"
+msgstr "با Dev Python Package Index، کدهای پشت‌صحنهٔ PyPI را توسعه دهید"
 
 #: warehouse/templates/index.html:21
 msgid "Find, install and publish Python packages with the Python Package Index"
