@@ -21,7 +21,7 @@ from warehouse.organizations.models import (
     OrganizationStripeSubscription,
     OrganizationType,
 )
-from warehouse.subscriptions.interfaces import IBillingService
+from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
 from warehouse.subscriptions.models import StripeSubscriptionStatus
 
 CLEANUP_AFTER = datetime.timedelta(days=30)
@@ -113,6 +113,59 @@ def update_organziation_subscription_usage_record(request):
             metrics.increment(
                 "warehouse.organizations.subscription.usage_record.updated"
             )
+
+
+@tasks.task(ignore_result=True, acks_late=True)
+def reconcile_stripe_status(request):
+    # Re-sync each subscription's status from Stripe so that state we would have
+    # learned from a webhook (e.g. a cancellation) is recovered even if the
+    # webhook was dropped. Mirrors the customer.subscription.updated handler.
+    organization_subscriptions = request.db.query(OrganizationStripeSubscription).all()
+
+    billing_service = request.find_service(IBillingService, context=None)
+    subscription_service = request.find_service(ISubscriptionService, context=None)
+    metrics = request.find_service(IMetricsService, context=None)
+
+    for org_subscription in organization_subscriptions:
+        subscription = org_subscription.subscription
+        try:
+            remote = billing_service.retrieve_subscription(subscription.subscription_id)
+        except stripe.error.InvalidRequestError:
+            # The subscription no longer exists on Stripe; mirror the
+            # customer.subscription.deleted handler and mark it canceled.
+            remote_status = StripeSubscriptionStatus.Canceled.value
+        else:
+            remote_status = remote["status"]
+
+        if not StripeSubscriptionStatus.has_value(remote_status):
+            logger.warning(
+                "Skipping subscription %s with unknown Stripe status %r",
+                subscription.subscription_id,
+                remote_status,
+            )
+            metrics.increment(
+                "warehouse.organizations.subscription.status.reconcile.skipped"
+            )
+            continue
+
+        previous_status = subscription.status
+        if previous_status == remote_status:
+            continue
+
+        subscription_service.update_subscription_status(subscription.id, remote_status)
+        org_subscription.organization.record_event(
+            tag=EventTag.Organization.SubscriptionStatusChange,
+            request=request,
+            additional={
+                "subscription_id": subscription.subscription_id,
+                "previous_status": previous_status,
+                "status": remote_status,
+            },
+        )
+        metrics.increment(
+            "warehouse.organizations.subscription.status.reconciled",
+            tags=[f"status:{remote_status}"],
+        )
 
 
 @tasks.task(ignore_result=True, acks_late=True)
