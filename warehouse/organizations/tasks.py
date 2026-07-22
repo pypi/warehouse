@@ -136,6 +136,17 @@ def reconcile_stripe_status(request):
             remote = billing_service.retrieve_subscription(subscription.subscription_id)
         except TRANSIENT_STRIPE_ERRORS as exc:
             raise RetryableException from exc
+        except stripe.error.StripeError as exc:
+            # Isolate a poisoned row (e.g. a malformed subscription_id) so it
+            # can't wedge the whole run at the same row every night.
+            logger.exception(
+                "Failed to reconcile subscription %s", subscription.subscription_id
+            )
+            metrics.increment(
+                "warehouse.organizations.subscription.status.reconcile.error",
+                tags=[f"error_type:{exc.__class__.__name__}"],
+            )
+            continue
         deleted = remote is None
         if deleted:
             remote_status = StripeSubscriptionStatus.Canceled.value
