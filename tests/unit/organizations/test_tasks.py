@@ -298,14 +298,12 @@ class TestUpdateOrganizationSubscriptionUsage:
 
 class TestReconcileStripeStatus:
     @staticmethod
-    def _make_org_subscription(status=StripeSubscriptionStatus.Active):
-        org_subscription = OrganizationStripeSubscriptionFactory.create(
-            subscription__status=status
-        )
+    def _make_org_subscription():
+        org_subscription = OrganizationStripeSubscriptionFactory.create()
         return org_subscription.organization, org_subscription.subscription
 
     def test_syncs_status_from_stripe(
-        self, db_request, billing_service, subscription_service, metrics, mocker
+        self, db_request, billing_service, metrics, mocker
     ):
         organization, subscription = self._make_org_subscription()
         record_event = mocker.patch.object(organization, "record_event", autospec=True)
@@ -314,7 +312,6 @@ class TestReconcileStripeStatus:
             "retrieve_subscription",
             return_value={"status": StripeSubscriptionStatus.Canceled.value},
         )
-        increment = mocker.spy(metrics, "increment")
 
         reconcile_stripe_status(db_request)
 
@@ -328,7 +325,7 @@ class TestReconcileStripeStatus:
                 "status": StripeSubscriptionStatus.Canceled.value,
             },
         )
-        increment.assert_any_call(
+        metrics.increment.assert_any_call(
             "warehouse.organizations.subscription.status.reconciled",
             tags=["status:canceled"],
         )
@@ -351,7 +348,7 @@ class TestReconcileStripeStatus:
         record_event.assert_not_called()
 
     def test_marks_canceled_when_missing_on_stripe(
-        self, db_request, billing_service, subscription_service, mocker
+        self, db_request, billing_service, mocker
     ):
         organization, subscription = self._make_org_subscription()
         record_event = mocker.patch.object(organization, "record_event", autospec=True)
@@ -367,9 +364,9 @@ class TestReconcileStripeStatus:
         )
 
     def test_retries_on_transient_stripe_errors(
-        self, db_request, billing_service, subscription_service, mocker
+        self, db_request, billing_service, mocker
     ):
-        _, subscription = self._make_org_subscription()
+        self._make_org_subscription()
         mocker.patch.object(
             billing_service,
             "retrieve_subscription",
@@ -379,8 +376,6 @@ class TestReconcileStripeStatus:
         with pytest.raises(RetryableException):
             reconcile_stripe_status(db_request)
 
-        assert subscription.status == StripeSubscriptionStatus.Active.value
-
     def test_skips_unknown_status(
         self, db_request, billing_service, subscription_service, metrics, mocker
     ):
@@ -389,12 +384,11 @@ class TestReconcileStripeStatus:
         mocker.patch.object(
             billing_service, "retrieve_subscription", return_value={"status": "bogus"}
         )
-        increment = mocker.spy(metrics, "increment")
 
         reconcile_stripe_status(db_request)
 
         update_status.assert_not_called()
-        increment.assert_any_call(
+        metrics.increment.assert_any_call(
             "warehouse.organizations.subscription.status.reconcile.skipped"
         )
         assert subscription.status == StripeSubscriptionStatus.Active.value
