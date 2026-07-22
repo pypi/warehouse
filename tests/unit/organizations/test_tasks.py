@@ -5,6 +5,8 @@ import datetime
 import pytest
 import stripe
 
+from pyramid_retry import RetryableException
+
 from warehouse.accounts.interfaces import ITokenService, TokenExpired
 from warehouse.events.tags import EventTag
 from warehouse.organizations.models import (
@@ -276,8 +278,10 @@ class TestUpdateOrganizationSubscriptionUsage:
             "warehouse.organizations.subscription.usage_record.updated"
         )
 
-    def test_reraises_systemic_stripe_errors(self, db_request, billing_service, mocker):
-        # A systemic failure (rate limit, auth, connection) must abort the run
+    def test_retries_on_transient_stripe_errors(
+        self, db_request, billing_service, mocker
+    ):
+        # A transient failure (rate limit, connection) must abort the run
         # so it retries, rather than being swallowed as a per-subscription skip.
         organization = OrganizationFactory.create()
         OrganizationRoleFactory(
@@ -306,7 +310,7 @@ class TestUpdateOrganizationSubscriptionUsage:
             side_effect=stripe.error.RateLimitError("Too many requests"),
         )
 
-        with pytest.raises(stripe.error.RateLimitError):
+        with pytest.raises(RetryableException):
             update_organziation_subscription_usage_record(db_request)
 
 
@@ -379,16 +383,56 @@ class TestReconcileStripeStatus:
     def test_marks_canceled_when_missing_on_stripe(
         self, db_request, billing_service, subscription_service, mocker
     ):
-        _, subscription = self._make_org_subscription()
+        organization, subscription = self._make_org_subscription()
+        record_event = mocker.patch.object(organization, "record_event", autospec=True)
         mocker.patch.object(
             billing_service,
             "retrieve_subscription",
-            side_effect=stripe.error.InvalidRequestError("No such subscription", None),
+            side_effect=stripe.error.InvalidRequestError(
+                "No such subscription", None, code="resource_missing"
+            ),
         )
 
         reconcile_stripe_status(db_request)
 
         assert subscription.status == StripeSubscriptionStatus.Canceled.value
+        record_event.assert_called_once_with(
+            tag=EventTag.Organization.SubscriptionCancel,
+            request=db_request,
+            additional={"subscription_id": subscription.subscription_id},
+        )
+
+    def test_reraises_non_missing_invalid_request_errors(
+        self, db_request, billing_service, subscription_service, mocker
+    ):
+        _, subscription = self._make_org_subscription()
+        mocker.patch.object(
+            billing_service,
+            "retrieve_subscription",
+            side_effect=stripe.error.InvalidRequestError(
+                "Invalid API version", None, code="invalid_request_error"
+            ),
+        )
+
+        with pytest.raises(stripe.error.InvalidRequestError):
+            reconcile_stripe_status(db_request)
+
+        assert subscription.status == StripeSubscriptionStatus.Active.value
+
+    def test_retries_on_transient_stripe_errors(
+        self, db_request, billing_service, subscription_service, mocker
+    ):
+        _, subscription = self._make_org_subscription()
+        mocker.patch.object(
+            billing_service,
+            "retrieve_subscription",
+            side_effect=stripe.error.RateLimitError("Too many requests"),
+        )
+
+        with pytest.raises(RetryableException):
+            reconcile_stripe_status(db_request)
+
+        assert subscription.status == StripeSubscriptionStatus.Active.value
 
     def test_skips_unknown_status(
         self, db_request, billing_service, subscription_service, metrics, mocker

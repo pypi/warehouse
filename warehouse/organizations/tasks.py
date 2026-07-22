@@ -5,6 +5,7 @@ import logging
 
 import stripe
 
+from pyramid_retry import RetryableException
 from sqlalchemy.orm import joinedload
 
 from warehouse import tasks
@@ -26,6 +27,12 @@ from warehouse.subscriptions.models import StripeSubscriptionStatus
 
 CLEANUP_AFTER = datetime.timedelta(days=30)
 SUBSCRIPTION_GRACE_PERIOD = datetime.timedelta(days=30)
+
+TRANSIENT_STRIPE_ERRORS = (
+    stripe.error.APIConnectionError,
+    stripe.error.APIError,
+    stripe.error.RateLimitError,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -95,11 +102,13 @@ def update_organziation_subscription_usage_record(request):
                 org_subscription.subscription.subscription_item.subscription_item_id,
                 len(org_subscription.organization.users),
             )
+        except TRANSIENT_STRIPE_ERRORS as exc:
+            # Abort and retry the whole run rather than silently reporting no
+            # usage for everyone.
+            raise RetryableException from exc
         except stripe.error.InvalidRequestError as exc:
             # Skip a single bad subscription (e.g. canceled on Stripe, stale
-            # locally). Transient/systemic errors (rate limit, auth, connection)
-            # are not caught here so the run fails and retries instead of
-            # silently reporting no usage for everyone.
+            # locally).
             logger.exception(
                 "Failed to update usage record for organization %r (subscription %s)",
                 org_subscription.organization.name,
@@ -128,11 +137,18 @@ def reconcile_stripe_status(request):
 
     for org_subscription in organization_subscriptions:
         subscription = org_subscription.subscription
+        deleted = False
         try:
             remote = billing_service.retrieve_subscription(subscription.subscription_id)
-        except stripe.error.InvalidRequestError:
-            # The subscription no longer exists on Stripe; mirror the
-            # customer.subscription.deleted handler and mark it canceled.
+        except TRANSIENT_STRIPE_ERRORS as exc:
+            raise RetryableException from exc
+        except stripe.error.InvalidRequestError as exc:
+            # Only resource_missing means the subscription is gone on Stripe;
+            # anything else (bad key, API-version mismatch) must not be
+            # mistaken for a mass cancellation.
+            if exc.code != "resource_missing":
+                raise
+            deleted = True
             remote_status = StripeSubscriptionStatus.Canceled.value
         else:
             remote_status = remote["status"]
@@ -153,15 +169,23 @@ def reconcile_stripe_status(request):
             continue
 
         subscription_service.update_subscription_status(subscription.id, remote_status)
-        org_subscription.organization.record_event(
-            tag=EventTag.Organization.SubscriptionStatusChange,
-            request=request,
-            additional={
-                "subscription_id": subscription.subscription_id,
-                "previous_status": previous_status,
-                "status": remote_status,
-            },
-        )
+        if deleted:
+            # Mirror the customer.subscription.deleted handler.
+            org_subscription.organization.record_event(
+                tag=EventTag.Organization.SubscriptionCancel,
+                request=request,
+                additional={"subscription_id": subscription.subscription_id},
+            )
+        else:
+            org_subscription.organization.record_event(
+                tag=EventTag.Organization.SubscriptionStatusChange,
+                request=request,
+                additional={
+                    "subscription_id": subscription.subscription_id,
+                    "previous_status": previous_status,
+                    "status": remote_status,
+                },
+            )
         metrics.increment(
             "warehouse.organizations.subscription.status.reconciled",
             tags=[f"status:{remote_status}"],
