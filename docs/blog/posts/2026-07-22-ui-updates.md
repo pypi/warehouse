@@ -3,7 +3,7 @@ title: "Planned Updates to the PyPI User Interface"
 description: We are rolling out updates to the PyPI user interface to improve security signaling and the display of package details.
 authors:
   - nlh
-date: 2026-07-20
+date: 2026-07-22
 tags:
   - user-interface
   - security
