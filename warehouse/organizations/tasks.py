@@ -24,15 +24,10 @@ from warehouse.organizations.models import (
 )
 from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
 from warehouse.subscriptions.models import StripeSubscriptionStatus
+from warehouse.subscriptions.services import TRANSIENT_STRIPE_ERRORS
 
 CLEANUP_AFTER = datetime.timedelta(days=30)
 SUBSCRIPTION_GRACE_PERIOD = datetime.timedelta(days=30)
-
-TRANSIENT_STRIPE_ERRORS = (
-    stripe.error.APIConnectionError,
-    stripe.error.APIError,
-    stripe.error.RateLimitError,
-)
 
 logger = logging.getLogger(__name__)
 
