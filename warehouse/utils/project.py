@@ -348,3 +348,44 @@ def unarchive_project(project: Project, request) -> None:
         },
     )
     request.session.flash("Project unarchived", queue="success")
+
+
+def deprecate_project(project: Project, request) -> None:
+    if (
+        project.lifecycle_status is not None
+        and project.lifecycle_status != LifecycleStatus.QuarantineExit
+    ):
+        request.session.flash(
+            f"Cannot deprecate project with status {project.lifecycle_status}",
+            queue="error",
+        )
+        return
+
+    project.lifecycle_status = LifecycleStatus.Deprecated
+    project.record_event(
+        tag=EventTag.Project.ProjectDeprecateEnter,
+        request=request,
+        additional={
+            "submitted_by": request.user.username,
+        },
+    )
+    request.session.flash("Project deprecated", queue="success")
+
+
+def undeprecate_project(project: Project, request) -> None:
+    if project.lifecycle_status != LifecycleStatus.Deprecated:
+        request.session.flash(
+            "Can only undeprecate a deprecated project",
+            queue="error",
+        )
+        return
+
+    project.lifecycle_status = None
+    project.record_event(
+        tag=EventTag.Project.ProjectDeprecateExit,
+        request=request,
+        additional={
+            "submitted_by": request.user.username,
+        },
+    )
+    request.session.flash("Project undeprecated", queue="success")
