@@ -137,20 +137,20 @@ def reconcile_stripe_status(request):
         except TRANSIENT_STRIPE_ERRORS as exc:
             raise RetryableException from exc
         deleted = remote is None
-        remote_status = (
-            StripeSubscriptionStatus.Canceled.value if deleted else remote["status"]
-        )
-
-        if not StripeSubscriptionStatus.has_value(remote_status):
-            logger.warning(
-                "Skipping subscription %s with unknown Stripe status %r",
-                subscription.subscription_id,
-                remote_status,
-            )
-            metrics.increment(
-                "warehouse.organizations.subscription.status.reconcile.skipped"
-            )
-            continue
+        if deleted:
+            remote_status = StripeSubscriptionStatus.Canceled.value
+        else:
+            remote_status = remote["status"]
+            if not StripeSubscriptionStatus.has_value(remote_status):
+                logger.warning(
+                    "Skipping subscription %s with unknown Stripe status %r",
+                    subscription.subscription_id,
+                    remote_status,
+                )
+                metrics.increment(
+                    "warehouse.organizations.subscription.status.reconcile.skipped"
+                )
+                continue
 
         previous_status = subscription.status
         if previous_status == remote_status:
