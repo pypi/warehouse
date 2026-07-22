@@ -95,9 +95,11 @@ def update_organziation_subscription_usage_record(request):
                 org_subscription.subscription.subscription_item.subscription_item_id,
                 len(org_subscription.organization.users),
             )
-        except stripe.error.StripeError as exc:
-            # Isolate per-subscription failures so one (e.g. canceled on Stripe with a
-            # stale local status) can't abort usage reporting for every other org.
+        except stripe.error.InvalidRequestError as exc:
+            # Skip a single bad subscription (e.g. canceled on Stripe, stale
+            # locally). Transient/systemic errors (rate limit, auth, connection)
+            # are not caught here so the run fails and retries instead of
+            # silently reporting no usage for everyone.
             logger.exception(
                 "Failed to update usage record for organization %r (subscription %s)",
                 org_subscription.organization.name,

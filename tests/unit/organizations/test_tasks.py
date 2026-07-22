@@ -2,6 +2,7 @@
 
 import datetime
 
+import pytest
 import stripe
 
 from warehouse.accounts.interfaces import ITokenService, TokenExpired
@@ -273,6 +274,39 @@ class TestUpdateOrganizationSubscriptionUsage:
         increment.assert_any_call(
             "warehouse.organizations.subscription.usage_record.updated"
         )
+
+    def test_reraises_systemic_stripe_errors(self, db_request, billing_service, mocker):
+        # A systemic failure (rate limit, auth, connection) must abort the run
+        # so it retries, rather than being swallowed as a per-subscription skip.
+        organization = OrganizationFactory.create()
+        OrganizationRoleFactory(
+            organization=organization,
+            user=UserFactory.create(),
+            role_name=OrganizationRoleType.Owner,
+        )
+        stripe_customer = StripeCustomerFactory.create()
+        OrganizationStripeCustomerFactory.create(
+            organization=organization, customer=stripe_customer
+        )
+        subscription_price = StripeSubscriptionPriceFactory.create(
+            subscription_product=StripeSubscriptionProductFactory.create()
+        )
+        subscription = StripeSubscriptionFactory.create(
+            customer=stripe_customer, subscription_price=subscription_price
+        )
+        OrganizationStripeSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
+        StripeSubscriptionItemFactory.create(subscription=subscription)
+
+        mocker.patch.object(
+            billing_service,
+            "create_or_update_usage_record",
+            side_effect=stripe.error.RateLimitError("Too many requests"),
+        )
+
+        with pytest.raises(stripe.error.RateLimitError):
+            update_organziation_subscription_usage_record(db_request)
 
 
 class TestNotifyOrganizationsRequiringSubscription:
