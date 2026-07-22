@@ -59,6 +59,12 @@ class GenericBillingService:
         )
         return subscription.customer
 
+    def retrieve_subscription(self, subscription_id):
+        """
+        Fetch the Subscription resource from the Billing API
+        """
+        return self.api.Subscription.retrieve(subscription_id)
+
     def create_customer(self, name, description):
         """
         Create the Customer resource via Billing API with the given name and description
