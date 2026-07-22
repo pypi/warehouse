@@ -175,6 +175,7 @@ class LifecycleStatus(enum.StrEnum):
     QuarantineExit = "quarantine-exit"
     Archived = "archived"
     ArchivedNoindex = "archived-noindex"
+    Deprecated = "deprecated"
 
 
 class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
@@ -525,9 +526,10 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             LifecycleStatus.ArchivedNoindex,
         ):
             return ProjectStatusMarker.Archived
+        if self.lifecycle_status == LifecycleStatus.Deprecated:
+            return ProjectStatusMarker.Deprecated
 
-        # PyPI doesn't yet have a deprecated lifecycle status
-        # and "quarantine-exit" means a return to active.
+        # "quarantine-exit" means a return to active.
         return ProjectStatusMarker.Active
 
     @property
