@@ -1,0 +1,31 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% csi request.route_path("includes.edit-project-button", project_name=project.normalized_name) %}
+{% endcsi %}
+{% include "warehouse:templates/includes/packaging/metadata/project-links.html" %}
+{% include "warehouse:templates/includes/packaging/metadata/key-dates.html" %}
+{% include "warehouse:templates/includes/packaging/metadata/organization.html" %}
+{% include "warehouse:templates/includes/packaging/metadata/maintainers.html" %}
+{% include "warehouse:templates/includes/packaging/metadata/credits.html" %}
+{% include "warehouse:templates/includes/packaging/metadata/github-statistics.html" %}
+{% include "warehouse:templates/includes/packaging/metadata/gitlab-statistics.html" %}
+{% include "warehouse:templates/includes/packaging/metadata/license.html" %}
+{% include "warehouse:templates/includes/packaging/metadata/requires-python.html" %}
+{% include "warehouse:templates/includes/packaging/metadata/provides-extra.html" %}
+{% include "warehouse:templates/includes/packaging/metadata/tags.html" %}
+{% include "warehouse:templates/includes/packaging/metadata/classifiers.html" %}
+<div class="sidebar-section">
+  {% set include_sponsor_logos = project.organization.orgtype != OrganizationType.Company %}
+  {% include "warehouse:templates/includes/sidebar-sponsor-logo.html" %}
+</div>
+<div class="sidebar-section">
+  {% if testPyPI %}
+    <a class="button button--full-width button--primary"
+       href="https://github.com/pypi/warehouse/issues/20267"
+       rel="nofollow"
+       role="button">{% trans %}Give design feedback{% endtrans %}</a>
+  {% endif %}
+  <a class="button button--full-width button--warning"
+     href="{{ request.route_url('packaging.project.submit_malware_observation', name=project.name) }}"
+     rel="nofollow"
+     role="button">{% trans %}Report project as malware{% endtrans %}</a>
+</div>

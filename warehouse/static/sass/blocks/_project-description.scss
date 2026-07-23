@@ -2,7 +2,7 @@
 
 @use "sass:color";
 @use "../settings/breakpoints";
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/fonts";
 @use "../settings/grid";
 @use "../tools/design-utilities";
@@ -17,512 +17,541 @@
 */
 
 .project-description {
-  direction: ltr;
-  margin-bottom: grid.$spacing-unit;
-  line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+  gap: grid.$spacing-unit * 2;
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    padding: 0;
-    margin: grid.$spacing-unit 0 0;
+  @media only screen and (max-width: breakpoints.$tablet) {
+    flex-direction: column;
+    gap: grid.$spacing-unit;
   }
 
-  h1 {
-    font-size: 1.7rem;
+  &__main {
+    flex: 1;
+    min-width: 0;
+
+    > *:first-child {
+      margin-top: 0;
+    }
   }
 
-  h1 + p,
-  h2 + p,
-  h3 + p,
-  h4 + p,
-  h5 + p,
-  h6 + p {
-    margin-top: grid.$spacing-unit;
+  &__sidebar {
+    width: 250px;
+    flex-shrink: 0;
+
+    @media only screen and (max-width: breakpoints.$tablet) {
+      width: 100%;
+    }
   }
 
-  a > img {
-    background-color: #fff;
-  }
+  &__content {
+    line-height: 1.5;
+    direction: ltr;
 
-  // Remove top margin on elements at the top of the description
-  > div:first-child > *:first-child,
-  > *:first-child {
-    margin-top: 0;
-  }
-
-  p {
-    padding: 0;
-    margin-top: grid.$half-spacing-unit;
-  }
-
-  strong,
-  b {
-    font-weight: fonts.$bold-font-weight;
-  }
-
-  em,
-  i {
-    font-style: italic;
-  }
-
-  pre {
-    display: block;
-    padding: grid.$half-spacing-unit;
-    margin: grid.$spacing-unit 0 0;
-    overflow-x: auto;
-  }
-
-  pre code {
-    font-size: inherit;
-    padding: 0;
-    background-color: transparent;
-    border: 0;
-    color: inherit;
-  }
-
-  ol,
-  ul {
-    margin: grid.$half-spacing-unit 0 0 grid.$spacing-unit;
-    padding-bottom: 0;
-
-    @media only screen and (max-width: breakpoints.$mobile) {
-      margin-left: grid.$half-spacing-unit;
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      padding: 0;
+      margin: grid.$spacing-unit 0 0;
     }
 
-    ul,
-    ol {
-      margin: 0 0 0 grid.$spacing-unit;
+    h1 {
+      font-size: 1.7rem;
+    }
+
+    h1 + p,
+    h2 + p,
+    h3 + p,
+    h4 + p,
+    h5 + p,
+    h6 + p {
+      margin-top: grid.$spacing-unit;
+    }
+
+    a > img {
+      background-color: colors.$white;
+    }
+
+    p {
+      padding: 0;
+      margin-top: grid.$half-spacing-unit;
+    }
+
+    strong,
+    b {
+      font-weight: fonts.$bold-font-weight;
+    }
+
+    em,
+    i {
+      font-style: italic;
+    }
+
+    pre {
+      display: block;
+      padding: grid.$half-spacing-unit;
+      margin: grid.$spacing-unit 0 0;
+      overflow-x: auto;
+    }
+
+    pre code {
+      font-size: inherit;
+      padding: 0;
+      background-color: transparent;
+      border: 0;
+      color: inherit;
+    }
+
+    ol,
+    ul {
+      margin: grid.$half-spacing-unit 0 0 grid.$spacing-unit;
+      padding-bottom: 0;
 
       @media only screen and (max-width: breakpoints.$mobile) {
         margin-left: grid.$half-spacing-unit;
       }
+
+      ul,
+      ol {
+        margin: 0 0 0 grid.$spacing-unit;
+
+        @media only screen and (max-width: breakpoints.$mobile) {
+          margin-left: grid.$half-spacing-unit;
+        }
+      }
     }
-  }
 
-  ul {
-    list-style-type: disc;
-  }
-
-  li {
-    padding: 2px 0;
-  }
-
-  li p:first-child {
-    margin-top: 0;
-  }
-
-  li pre {
-    margin-bottom: 15px;
-  }
-
-  blockquote {
-    margin: grid.$half-spacing-unit 0 0 grid.$half-spacing-unit;
-    border-left: 3px solid colours.$light-grey;
-    font-style: italic;
-    padding-left: grid.$half-spacing-unit;
-    color: color.adjust(colours.$text-color, $lightness: 20%);
-
-    @media only screen and (max-width: breakpoints.$tablet) {
-      margin-left: 0;
+    ul {
+      list-style-type: disc;
     }
-  }
 
-  dl {
-    margin: grid.$half-spacing-unit 0 0 0;
+    li {
+      padding: 2px 0;
+    }
 
-    &.docinfo,
-    &.field-list {
-      display: grid;
-      grid-template-columns: max-content auto;
+    li p:first-child {
+      margin-top: 0;
+    }
+
+    li pre {
+      margin-bottom: 15px;
+    }
+
+    blockquote {
+      margin: grid.$half-spacing-unit 0 0 grid.$half-spacing-unit;
+      border-left: 3px solid colors.$light-grey;
+      font-style: italic;
+      padding-left: grid.$half-spacing-unit;
+      color: color.adjust(colors.$text-color, $lightness: 20%);
+
+      @media only screen and (max-width: breakpoints.$tablet) {
+        margin-left: 0;
+      }
+    }
+
+    dl {
+      margin: grid.$half-spacing-unit 0 0 0;
+
+      &.docinfo,
+      &.field-list {
+        display: grid;
+        grid-template-columns: max-content auto;
+
+        dt {
+          grid-column-start: 1;
+
+          &:first-of-type {
+            margin-top: grid.$half-spacing-unit; // override inherited _lists.scss
+          }
+        }
+
+        dd {
+          grid-column-start: 2;
+        }
+      }
 
       dt {
-        grid-column-start: 1;
+        font-weight: fonts.$bold-font-weight;
 
-        &:first-of-type {
-          margin-top: grid.$half-spacing-unit; // override inherited _lists.scss
+        .classifier {
+          font-weight: normal;
+
+          &::before {
+            content: ":";
+            margin: 0 0.5em;
+          }
         }
       }
 
       dd {
-        grid-column-start: 2;
+        margin: 0 0 5px grid.$half-spacing-unit;
       }
     }
 
-    dt {
-      font-weight: fonts.$bold-font-weight;
+    table {
+      @include design-utilities.card;
+      border-collapse: collapse;
+      border-spacing: 0;
+      text-align: left;
+      width: fit-content;
+      max-width: 100%;
+      display: block;
+      overflow-x: auto;
+      margin: grid.$spacing-unit 0 0;
 
-      .classifier {
-        font-weight: normal;
+      tr {
+        border-bottom: 1px solid colors.$border-color;
+      }
 
-        &::before {
-          content: ":";
-          margin: 0 0.5em;
+      th,
+      td {
+        margin: 0;
+        border: 0;
+        padding: 10px 7px;
+        border-right: 1px solid colors.$border-color;
+
+        p {
+          margin: inherit;
+        }
+      }
+
+      thead tr {
+        background-color: colors.$white;
+
+        th {
+          vertical-align: bottom;
+          font-weight: fonts.$bold-font-weight;
+        }
+      }
+
+      tbody {
+        tr {
+          background-color: color.adjust(colors.$background-color, $lightness: -0.75%);
+        }
+
+        tr:nth-child(even) {
+          background-color: color.adjust(colors.$background-color, $lightness: -2%);
         }
       }
     }
 
-    dd {
-      margin: 0 0 5px grid.$half-spacing-unit;
+    hr {
+      margin: grid.$half-spacing-unit 0 0;
+      border: 1px solid colors.$light-grey;
+    }
+
+    // Add a margin at the top of commonly included status badges
+    > a {
+      margin-top: grid.$half-spacing-unit;
+    }
+
+    img.align-left,
+    .figure.align-left,
+    object.align-left {
+      clear: left;
+      float: left;
+      margin-top: grid.$half-spacing-unit;
+      margin-right: grid.$half-spacing-unit;
+    }
+
+    img.align-right,
+    .figure.align-right,
+    object.align-right {
+      clear: right;
+      float: right;
+      margin-top: grid.$half-spacing-unit;
+      margin-left: grid.$half-spacing-unit;
+    }
+
+    img.align-center,
+    .figure.align-center,
+    object.align-center {
+      display: block;
+      margin-top: grid.$half-spacing-unit;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    s { /* pygments Literal.String */
+
+      /* Override browser default behavior */
+      text-decoration: none;
+    }
+
+    aside.footnote p {
+      display: inline;
+    }
+
+    aside.footnote {
+      padding-left: 2em;
+      text-indent: -2em;
+    }
+
+    // Remove top margin from elements at the very top of the readme
+    > :first-child,
+    > :first-child > :first-child,
+    > :first-child > :first-child > :first-child {
+      margin-top: 0;
     }
   }
 
-  table {
-    @include design-utilities.card;
-    border-collapse: collapse;
-    border-spacing: 0;
-    text-align: left;
-    width: fit-content;
-    max-width: 100%;
-    display: block;
-    overflow-x: auto;
-    margin: grid.$spacing-unit 0 0;
 
-    tr {
-      border-bottom: 1px solid colours.$border-color;
+  // PYGMENTS THEME
+
+  $blue:          colors.$primary-color;
+  $light-blue:    #0078bd;
+  $dark-blue:     color.adjust(colors.$primary-color, $lightness: -10%);
+  $darkest-blue:  color.adjust(colors.$primary-color, $lightness: -20%);
+  $green:         color.adjust(colors.$success-color, $lightness: -5%);
+  $light-green:   colors.$success-color;
+  $red:           colors.$danger-color;
+  $dark-red:      color.adjust(colors.$danger-color, $lightness: -20%);
+  $purple:        #b06;
+  $orange:        #a36200;
+  $brown:         color.adjust($orange, $lightness: -7%);
+  $pygments-light-grey:    #737373;
+  $mid-grey:      #575757;
+  $dark-grey:     #303030;
+  $pygments-black:         #000;
+
+  .project-description {
+    .c { /* Comment */
+      color: $pygments-light-grey;
     }
 
-    th,
-    td {
-      margin: 0;
-      border: 0;
-      padding: 10px 7px;
-      border-right: 1px solid colours.$border-color;
-
-      p {
-        margin: inherit;
-      }
+    .err { /* Error */
+      color: $dark-red;
     }
 
-    thead tr {
-      background-color: colours.$white;
-
-      th {
-        vertical-align: bottom;
-        font-weight: fonts.$bold-font-weight;
-      }
+    .k { /* Keyword */
+      color: $darkest-blue;
     }
 
-    tbody {
-      tr {
-        background-color: color.adjust(colours.$background-color, $lightness: -0.75%);
-      }
-
-      tr:nth-child(even) {
-        background-color: color.adjust(colours.$background-color, $lightness: -2%);
-      }
+    .cm { /* Comment.Multiline */
+      color: $pygments-light-grey;
     }
-  }
-
-  hr {
-    margin: grid.$half-spacing-unit 0 0;
-    border: 1px solid colours.$light-grey;
-  }
-
-  // Add a margin at the top of commonly included status badges
-  > a {
-    margin-top: grid.$half-spacing-unit;
-  }
-
-  img.align-left,
-  .figure.align-left,
-  object.align-left {
-    clear: left;
-    float: left;
-    margin-top: grid.$half-spacing-unit;
-    margin-right: grid.$half-spacing-unit;
-  }
-
-  img.align-right,
-  .figure.align-right,
-  object.align-right {
-    clear: right;
-    float: right;
-    margin-top: grid.$half-spacing-unit;
-    margin-left: grid.$half-spacing-unit;
-  }
-
-  img.align-center,
-  .figure.align-center,
-  object.align-center {
-    display: block;
-    margin-top: grid.$half-spacing-unit;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  s { /* pygments Literal.String */
-
-    /* Override browser default behavior */
-    text-decoration: none;
-  }
-
-  aside.footnote p {
-    display: inline;
-  }
-
-  aside.footnote {
-    padding-left: 2em;
-    text-indent: -2em;
-  }
-}
-
-
-// PYGMENTS THEME
-
-$blue:          colours.$primary-color;
-$light-blue:    #0078bd;
-$dark-blue:     color.adjust(colours.$primary-color, $lightness: -10%);
-$darkest-blue:  color.adjust(colours.$primary-color, $lightness: -20%);
-$green:         color.adjust(colours.$success-color, $lightness: -5%);
-$light-green:   colours.$success-color;
-$red:           colours.$danger-color;
-$dark-red:      color.adjust(colours.$danger-color, $lightness: -20%);
-$purple:        #b06;
-$orange:        #a36200;
-$brown:         color.adjust($orange, $lightness: -7%);
-$pygments-light-grey:    #737373;
-$mid-grey:      #575757;
-$dark-grey:     #303030;
-$pygments-black:         #000;
-
-.project-description { // stylelint-disable-line no-duplicate-selectors -- Allow for visual organization
-  .c { /* Comment */
-    color: $pygments-light-grey;
-  }
-
-  .err { /* Error */
-    color: $dark-red;
-  }
-
-  .k { /* Keyword */
-    color: $darkest-blue;
-  }
-
-  .cm { /* Comment.Multiline */
-    color: $pygments-light-grey;
-  }
-
-  .cp { /* Comment.Preproc */
-    color: $dark-red;
-  }
-
-  .c1 {/* Comment.Single */
-    color: $pygments-light-grey;
-  }
-
-  .cs { /* Comment.Special */
-    color: $dark-red;
-  }
-
-  .gd { /* Generic.Deleted */
-    color: $dark-red;
-    background-color: color.adjust($red, $lightness: 45%);
-  }
-
-  .ge { /* Generic.Emph */
-    font-style: italic;
-  }
-
-  .gr { /* Generic.Error */
-    color: $dark-red;
-  }
-
-  .gh { /* Generic.Heading */
-    color: $dark-grey;
-  }
-
-  .gi { /* Generic.Inserted */
-    color: $green;
-    background-color: color.adjust($light-green, $lightness: 45%);
-  }
-
-  .go { /* Generic.Output */
-    color: $pygments-light-grey;
-  }
-
-  .gp { /* Generic.Prompt */
-    color: $mid-grey;
-  }
-
-  .gu { /* Generic.Subheading */
-    color: $mid-grey;
-  }
-
-  .gt { /* Generic.Traceback */
-    color: $dark-red;
-  }
-
-  .kc { /* Keyword.Constant */
-    color: $green;
-  }
-
-  .kd { /* Keyword.Declaration */
-    color: $green;
-  }
-
-  .kn { /* Keyword.Namespace */
-    color: $darkest-blue;
-  }
-
-  .kp {  /* Keyword.Pseudo */
-    color: $green;
-  }
-
-  .kr { /* Keyword.Reserved */
-    color: $green;
-  }
-
-  .kt { /* Keyword.Type */
-    color: $pygments-light-grey;
-  }
-
-  .m { /* Literal.Number */
-    color: $blue;
-  }
-
-  .s { /* Literal.String */
-    color: $red;
-  }
-
-  .na { /* Name.Attribute */
-    color: $light-blue;
-  }
-
-  .nb { /* Name.Builtin */
-    color: $darkest-blue;
-  }
-
-  .nc { /* Name.Class */
-    color: $purple;
-  }
-
-  .no { /* Name.Constant */
-    color: $darkest-blue;
-  }
-
-  // stylelint-disable-next-line comment-empty-line-before -- codespell syntax
-  .nd { /* Name.Decorator */ /* codespell:ignore nd */
-    color: $mid-grey;
-  }
-
-  .ne { /* Name.Exception */
-    color: $purple;
-  }
-
-  .nf { /* Name.Function */
-    color: $blue;
-  }
-
-  .nl { /* Name.Label */
-    color: $light-blue;
-    font-style: italic;
-  }
-
-  .nn { /* Name.Namespace */
-    color: $purple;
-  }
-
-  .py { /* Name.Property */
-    color: $light-blue;
-  }
-
-  .nt { /* Name.Tag */
-    color: $purple;
-  }
-
-  .nv { /* Name.Variable */
-    color: $light-blue;
-  }
-
-  .ow { /* Operator.Word */
-    color: $green;
-  }
-
-  .w { /* Text.Whitespace */
-    color: $pygments-light-grey;
-  }
-
-  .mf { /* Literal.Number.Float */
-    color: $blue;
-  }
-
-  .mh { /* Literal.Number.Hex */
-    color: $blue;
-  }
-
-  .mi { /* Literal.Number.Integer */
-    color: $green;
-  }
-
-  .mo { /* Literal.Number.Oct */
-    color: $blue;
-  }
-
-  .sb { /* Literal.String.Backtick */
-    color: $red;
-  }
-
-  .sc { /* Literal.String.Char */
-    color: $red;
-  }
-
-  .sd { /* Literal.String.Doc */
-    color: $red;
-  }
-
-  .s2 { /* Literal.String.Double */
-    color: $red;
-  }
-
-  .se { /* Literal.String.Escape */
-    color: $dark-blue;
-  }
-
-  .sh { /* Literal.String.Heredoc */
-    color: $red;
-  }
-
-  .si { /* Literal.String.Interpol */
-    color: $dark-blue;
-  }
-
-  .sx { /* Literal.String.Other */
-    color: $light-green;
-  }
-
-  .sr { /* Literal.String.Regex */
-    color: $green;
-  }
-
-  .s1 { /* Literal.String.Single */
-    color: $red;
-  }
-
-  .ss { /* Literal.String.Symbol */
-    color: $brown;
-  }
-
-  .bp { /* Name.Builtin.Pseudo */
-    color: $darkest-blue;
-  }
-
-  .vc { /* Name.Variable.Class */
-    color: $light-blue;
-  }
-
-  .vg { /* Name.Variable.Global */
-    color: $orange;
-  }
-
-  .vi { /* Name.Variable.Instance */
-    color: $dark-blue;
-  }
-
-  .il { /* Literal.Number.Integer.Long */
-    color: $blue;
+
+    .cp { /* Comment.Preproc */
+      color: $dark-red;
+    }
+
+    .c1 {/* Comment.Single */
+      color: $pygments-light-grey;
+    }
+
+    .cs { /* Comment.Special */
+      color: $dark-red;
+    }
+
+    .gd { /* Generic.Deleted */
+      color: $dark-red;
+      background-color: color.adjust($red, $lightness: 45%);
+    }
+
+    .ge { /* Generic.Emph */
+      font-style: italic;
+    }
+
+    .gr { /* Generic.Error */
+      color: $dark-red;
+    }
+
+    .gh { /* Generic.Heading */
+      color: $dark-grey;
+    }
+
+    .gi { /* Generic.Inserted */
+      color: $green;
+      background-color: color.adjust($light-green, $lightness: 45%);
+    }
+
+    .go { /* Generic.Output */
+      color: $pygments-light-grey;
+    }
+
+    .gp { /* Generic.Prompt */
+      color: $mid-grey;
+    }
+
+    .gu { /* Generic.Subheading */
+      color: $mid-grey;
+    }
+
+    .gt { /* Generic.Traceback */
+      color: $dark-red;
+    }
+
+    .kc { /* Keyword.Constant */
+      color: $green;
+    }
+
+    .kd { /* Keyword.Declaration */
+      color: $green;
+    }
+
+    .kn { /* Keyword.Namespace */
+      color: $darkest-blue;
+    }
+
+    .kp {  /* Keyword.Pseudo */
+      color: $green;
+    }
+
+    .kr { /* Keyword.Reserved */
+      color: $green;
+    }
+
+    .kt { /* Keyword.Type */
+      color: $pygments-light-grey;
+    }
+
+    .m { /* Literal.Number */
+      color: $blue;
+    }
+
+    .s { /* Literal.String */
+      color: $red;
+    }
+
+    .na { /* Name.Attribute */
+      color: $light-blue;
+    }
+
+    .nb { /* Name.Builtin */
+      color: $darkest-blue;
+    }
+
+    .nc { /* Name.Class */
+      color: $purple;
+    }
+
+    .no { /* Name.Constant */
+      color: $darkest-blue;
+    }
+
+    // stylelint-disable-next-line comment-empty-line-before -- codespell syntax
+    .nd { /* Name.Decorator */ /* codespell:ignore nd */
+      color: $mid-grey;
+    }
+
+    .ne { /* Name.Exception */
+      color: $purple;
+    }
+
+    .nf { /* Name.Function */
+      color: $blue;
+    }
+
+    .nl { /* Name.Label */
+      color: $light-blue;
+      font-style: italic;
+    }
+
+    .nn { /* Name.Namespace */
+      color: $purple;
+    }
+
+    .py { /* Name.Property */
+      color: $light-blue;
+    }
+
+    .nt { /* Name.Tag */
+      color: $purple;
+    }
+
+    .nv { /* Name.Variable */
+      color: $light-blue;
+    }
+
+    .ow { /* Operator.Word */
+      color: $green;
+    }
+
+    .w { /* Text.Whitespace */
+      color: $pygments-light-grey;
+    }
+
+    .mf { /* Literal.Number.Float */
+      color: $blue;
+    }
+
+    .mh { /* Literal.Number.Hex */
+      color: $blue;
+    }
+
+    .mi { /* Literal.Number.Integer */
+      color: $green;
+    }
+
+    .mo { /* Literal.Number.Oct */
+      color: $blue;
+    }
+
+    .sb { /* Literal.String.Backtick */
+      color: $red;
+    }
+
+    .sc { /* Literal.String.Char */
+      color: $red;
+    }
+
+    .sd { /* Literal.String.Doc */
+      color: $red;
+    }
+
+    .s2 { /* Literal.String.Double */
+      color: $red;
+    }
+
+    .se { /* Literal.String.Escape */
+      color: $dark-blue;
+    }
+
+    .sh { /* Literal.String.Heredoc */
+      color: $red;
+    }
+
+    .si { /* Literal.String.Interpol */
+      color: $dark-blue;
+    }
+
+    .sx { /* Literal.String.Other */
+      color: $light-green;
+    }
+
+    .sr { /* Literal.String.Regex */
+      color: $green;
+    }
+
+    .s1 { /* Literal.String.Single */
+      color: $red;
+    }
+
+    .ss { /* Literal.String.Symbol */
+      color: $brown;
+    }
+
+    .bp { /* Name.Builtin.Pseudo */
+      color: $darkest-blue;
+    }
+
+    .vc { /* Name.Variable.Class */
+      color: $light-blue;
+    }
+
+    .vg { /* Name.Variable.Global */
+      color: $orange;
+    }
+
+    .vi { /* Name.Variable.Instance */
+      color: $dark-blue;
+    }
+
+    .il { /* Literal.Number.Integer.Long */
+      color: $blue;
+    }
   }
 }

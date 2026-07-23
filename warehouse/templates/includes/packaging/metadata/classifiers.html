@@ -1,0 +1,24 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% if release.classifiers %}
+  <div class="sidebar-section">
+    <h2 class="sidebar-section__title">{% trans %}Classifiers{% endtrans %}</h2>
+    <div class="sidebar-section__data-block">
+      <ul class="sidebar-section__classifiers">
+        {% for classifier_head, classifier_tails in (release.classifiers|format_classifiers()).items() %}
+          <li>
+            {{ classifier_head }}
+            <ul>
+              {% for classifier_tail in classifier_tails %}
+                <li>
+                  <a href="{{ request.route_path('search', _query={'c': ' :: '.join((classifier_head, classifier_tail) )}) }}">
+                    {{ classifier_tail }}
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+{% endif %}

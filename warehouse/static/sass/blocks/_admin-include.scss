@@ -1,19 +1,19 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 @use "sass:color";
-@use "../settings/colours";
+@use "../settings/colors";
 
 /*
-  List with check marks, with items divided by a borer:
+  A wrapper that applies a diagonal stripe background to indicate admin-only UI.
 
-  <ul class="hooray-list">
-    <li>List item here</li>
-  </ul>
+  <div class="admin-include">
+    // Admin-only content here (buttons, etc.)
+  </div>
 */
 
 .admin-include {
   padding: 0.5rem;
-  background: repeating-linear-gradient(45deg, #ececec, #ececec 10px, color.adjust(colours.$danger-color, $alpha: -0.8) 10px, color.adjust(colours.$danger-color, $alpha: -0.8) 20px);
+  background: repeating-linear-gradient(45deg, colors.$base-grey, colors.$base-grey 10px, color.adjust(colors.$danger-color, $alpha: -0.8) 10px, color.adjust(colors.$danger-color, $alpha: -0.8) 20px);
 
   justify-items: center;
 

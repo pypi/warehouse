@@ -1,0 +1,67 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% if release.verified_github_repo_info_url and release.verified_github_open_issue_info_url %}
+  <div class="hidden"
+       data-controller="github-repo-stats"
+       data-github-repo-stats-github-repo-info-outlet=".github-repo-info"
+       data-github-repo-stats-url-value="{{ release.verified_github_repo_info_url }}"
+       data-github-repo-stats-issue-url-value="{{ release.verified_github_open_issue_info_url }}"></div>
+  <div class="sidebar-section">
+    <h2 class="sidebar-section__title">{% trans %}GitHub Statistics{% endtrans %}</h2>
+    <div class="sidebar-section__content sidebar-section__content--verified">
+      <details class="sidebar-section__data-source">
+        <summary class="sidebar-section__data-source-label"
+                 title="{% trans date=release.created.strftime('%Y-%m-%d') %}Data verified by PyPI on {{ date }}{% endtrans %}">{% trans date=humanize(release.created) %}Data verified by PyPI on&nbsp;{{ date }}{% endtrans %}</summary>
+        <div class="sidebar-section__data-source-description">{% trans %}The GitHub source repository was provided by the project maintainers and verified by PyPI at the time of upload. Stars, forks, and open issues/PRs are derived from that repository and have not been independently verified.{% endtrans %}</div>
+      </details>
+      <div class="sidebar-section__data-block hidden github-repo-info"
+           data-controller="github-repo-info">
+        <ul class="sidebar-links">
+          <li>
+            <a class="sidebar-links__link"
+               rel="noopener"
+               href="https://github.com/{{ release.verified_github_user_name_and_repo_name|join('/') }}">
+              <i class="fab fa-github" aria-hidden="true"></i>
+              {% trans %}Repository{% endtrans %}
+            </a>
+          </li>
+          <li>
+            <a class="sidebar-links__link"
+               data-github-repo-info-target="stargazersUrl"
+               rel="noopener">
+              <i class="fa fa-star" aria-hidden="true"></i>
+              {% trans %}Stars{% endtrans %}:
+              <strong data-github-repo-info-target="stargazersCount"></strong>
+            </a>
+          </li>
+          <li>
+            <a class="sidebar-links__link"
+               data-github-repo-info-target="forksUrl"
+               rel="noopener">
+              <i class="fa fa-code-branch" aria-hidden="true"></i>
+              {% trans %}Forks{% endtrans %}:
+              <strong data-github-repo-info-target="forksCount"></strong>
+            </a>
+          </li>
+          <li>
+            <a class="sidebar-links__link"
+               data-github-repo-info-target="openIssuesUrl"
+               rel="noopener">
+              <i class="fa fa-exclamation-circle" aria-hidden="true"></i>
+              {% trans %}Open issues{% endtrans %}:
+              <strong data-github-repo-info-target="openIssuesCount"></strong>
+            </a>
+          </li>
+          <li>
+            <a class="sidebar-links__link"
+               data-github-repo-info-target="openPRsUrl"
+               rel="noopener">
+              <i class="fa fa-code-pull-request" aria-hidden="true"></i>
+              {% trans %}Open PRs{% endtrans %}:
+              <strong data-github-repo-info-target="openPRsCount"></strong>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+{% endif %}

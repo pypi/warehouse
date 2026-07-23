@@ -1,0 +1,25 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% if project.organization %}
+  <div class="sidebar-section">
+    <h2 class="sidebar-section__title">{% trans %}Owner{% endtrans %}</h2>
+    <div class="sidebar-section__content sidebar-section__content--pypi">
+      <details class="sidebar-section__data-source">
+        <summary class="sidebar-section__data-source-label"
+                 title="{% trans %}PyPI data{% endtrans %}">{% trans %}PyPI data{% endtrans %}</summary>
+        <div class="sidebar-section__data-source-description">{% trans %}Data sourced directly from PyPI's database.{% endtrans %}</div>
+      </details>
+      <div class="sidebar-section__data-block">
+        <ul class="sidebar-links">
+          <li>
+            <a class="sidebar-links__link"
+               href="{{ request.route_path('organizations.profile', organization=project.organization.name) }}"
+               aria-label="{{ project.organization.name }}">
+              <i class="fa fa-sitemap" aria-hidden="true"></i>
+              {{ project.organization.display_name }}
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+{% endif %}

@@ -1,0 +1,27 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% if release.license_expression or license %}
+  <div class="sidebar-section">
+    {% if release.license_expression %}
+      <h2 class="sidebar-section__title">
+        {% trans %}License expression{% endtrans %}
+        <a href="https://spdx.github.io/spdx-spec/v3.0.1/annexes/spdx-license-expressions/"
+           target="_blank"
+           aria-label="{% trans %}About license expressions{% endtrans %}">
+          <i class="fa fa-info-circle" aria-hidden="true"></i>
+        </a>
+      </h2>
+      <div class="sidebar-section__data-block">
+        <p>
+          {{ release.license_expression }}
+          <br>
+          <a target="_blank" href="https://spdx.org/licenses/">{% trans %}View SPDX License List{% endtrans %}</a>
+        </p>
+      </div>
+    {% elif license %}
+      <h2 class="sidebar-section__title">{% trans %}License{% endtrans %}</h2>
+      <div class="sidebar-section__data-block">
+        <p>{{ license }}</p>
+      </div>
+    {% endif %}
+  </div>
+{% endif %}
