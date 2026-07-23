@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 @use "../settings/breakpoints";
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/grid";
 @use "../tools/link-utilities";
 
@@ -41,7 +41,7 @@
     display: inline-block;
     padding: 8px 10px;
     @include link-utilities.link-without-underline;
-    @include link-utilities.link-focus-state(colours.$white);
+    @include link-utilities.link-focus-state(colors.$white);
 
     &--with-icon {
       .fa {
@@ -49,6 +49,8 @@
       }
 
       .user-image {
+        width: 22px;
+        height: 22px;
         margin-right: 5px;
         border-radius: 10%;
       }
@@ -64,10 +66,10 @@
 
   &--light {
     .horizontal-menu__link {
-      color: colours.$white;
+      color: colors.$white;
 
       &:hover {
-        text-decoration-color: colours.$transparent-white;
+        text-decoration-color: colors.$transparent-white;
       }
     }
   }

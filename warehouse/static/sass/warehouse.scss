@@ -21,7 +21,7 @@
 
 // SETTINGS LAYER: settings we use throughout the codebase
 @use "settings/breakpoints";
-@use "settings/colours";
+@use "settings/colors";
 @use "settings/fonts";
 @use "settings/grid";
 @use "settings/z-index";
@@ -39,7 +39,6 @@
 @use "base/typography" as typography2;
 
 // LAYOUT HELPERS LAYER: reusable layout helpers
-@use "layout-helpers/banner";
 @use "layout-helpers/columns";
 @use "layout-helpers/containers";
 @use "layout-helpers/floats";
@@ -74,6 +73,7 @@
 @use "blocks/form-group";
 @use "blocks/gravatar-form";
 @use "blocks/heading-wsubtitle";
+@use "blocks/banner";
 @use "blocks/homepage-banner";
 @use "blocks/hooray-list";
 @use "blocks/horizontal-menu";
@@ -87,19 +87,21 @@
 @use "blocks/org-roles";
 /*rtl:begin:ignore*/
 @use "blocks/organization-snippet";
-@use "blocks/package-description";
-@use "blocks/package-header";
 @use "blocks/package-snippet";
 /*rtl:end:ignore*/
 @use "blocks/password-strength";
 /*rtl:begin:ignore*/
 @use "blocks/project-description";
+@use "blocks/project-header";
+@use "blocks/project-status";
+@use "blocks/project-tabs";
 /*rtl:end:ignore*/
 @use "blocks/files";
 @use "blocks/radio-toggle-form";
 @use "blocks/release";
 @use "blocks/release-timeline";
 @use "blocks/search-form";
+@use "blocks/sidebar-links";
 @use "blocks/sidebar-section";
 @use "blocks/site-header";
 @use "blocks/skip-to-content";
@@ -108,9 +110,6 @@
 @use "blocks/sponsors";
 @use "blocks/sponsorship-benefits";
 @use "blocks/sponsorship-intro";
-/*rtl:begin:ignore*/
-@use "blocks/status-badge";
-/*rtl:end:ignore*/
 @use "blocks/statistics-bar";
 @use "blocks/table";
 /*rtl:begin:ignore*/
@@ -120,9 +119,7 @@
 @use "blocks/twofa-login";
 @use "blocks/horizontal-tabs";
 @use "blocks/vertical-tabs";
-@use "blocks/verified";
 @use "blocks/viewport-section";
-@use "blocks/copyable";
 
 // TRUMPS LAYER: Overwrites everything else
 
@@ -162,7 +159,7 @@
 // COLORS
 // Make text or icons red to draw attention
 .danger {
-  color: colours.$danger-color;
+  color: colors.$danger-color;
 }
 
 // ALIGNMENT, PADDING & MARGINS

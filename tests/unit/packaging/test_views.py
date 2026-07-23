@@ -247,7 +247,14 @@ class TestReleaseDetail:
             "description": "rendered description",
             "latest_version": project.latest_version,
             "all_versions": [
-                (r.version, r.created, r.is_prerelease, r.yanked, r.yanked_reason)
+                (
+                    r.version,
+                    r.created,
+                    r.is_prerelease,
+                    r.yanked,
+                    r.yanked_reason,
+                    r.lifecycle_status,
+                )
                 for r in reversed(releases)
             ],
             "maintainers": sorted(users, key=lambda u: u.username.lower()),

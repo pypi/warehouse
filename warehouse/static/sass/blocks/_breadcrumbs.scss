@@ -2,7 +2,7 @@
 
 @use "sass:color";
 @use "../settings/breakpoints";
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/fonts";
 @use "../settings/grid";
 @use "../tools/layout-utilities";
@@ -43,13 +43,13 @@
   }
 
   &__breadcrumb {
-    color: color.grayscale(colours.$primary-color);
+    color: color.grayscale(colors.$primary-color);
     display: inline-block;
     float: left;
     list-style-type: none;
 
     &:first-child {
-      color: colours.$text-color;
+      color: colors.$text-color;
     }
 
     a {
@@ -67,7 +67,7 @@
       font-weight: 900;
       margin-left: 4px;
       margin-right: 6px;
-      color: colours.$light-grey;
+      color: colors.$light-grey;
       font-size: 12px;
     }
   }

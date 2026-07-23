@@ -2,7 +2,7 @@
 
 @use "sass:color";
 @use "../settings/breakpoints";
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/grid";
 @use "../tools/link-utilities";
 
@@ -33,13 +33,13 @@
 */
 
 .footer {
-  background-color: color.adjust(colours.$primary-color, $lightness: 2%);
-  color: colours.$white;
+  background-color: color.adjust(colors.$primary-color, $lightness: 2%);
+  color: colors.$white;
   padding: 60px 0;
   width: 100%;
 
   @media only screen and (max-width: breakpoints.$mobile) {
-    padding-top: 40px 0;
+    padding: 40px 0;
   }
 
   &__logo {
@@ -65,7 +65,7 @@
     padding: 0;
 
     h2 {
-      color: colours.$white;
+      color: colors.$white;
       margin-bottom: 5px;
       text-align: center;
     }
@@ -88,7 +88,7 @@
   }
 
   &__divider {
-    border: 1px solid color.adjust(colours.$white, $alpha: -0.7);
+    border: 1px solid color.adjust(colors.$white, $alpha: -0.7);
     margin: 0 auto grid.$spacing-unit;
     width: 200px;
     background: none;
@@ -96,7 +96,7 @@
   }
 
   &__text {
-    color: color.adjust(colours.$white, $alpha: -0.05);
+    color: color.adjust(colors.$white, $alpha: -0.05);
     font-size: 0.9rem;
     margin: auto;
     max-width: 600px;

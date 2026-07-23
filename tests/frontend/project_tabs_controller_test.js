@@ -8,103 +8,58 @@ import ProjectTabsController from "../../warehouse/static/js/warehouse/controlle
 
 const tabsHTML = `
 <div data-controller="project-tabs">
-  <div class="tabs-container">
-    <div class="vertical-tabs">
-      <div class="vertical-tabs__tabs">
-        <div class="sidebar-section">
-          <h3 class="sidebar-section__title">Navigation</h3>
-          <nav aria-label="Navigation for lunr">
-            <ul class="vertical-tabs__list" role="tablist">
-              <li role="tab">
-                <a id="description-tab" href="#description" data-project-tabs-target="tab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--is-active" aria-selected="true" aria-label="Project description. Focus will be moved to the description.">
-                  <i class="fa fa-align-left" aria-hidden="true"></i>
-                  Project description
-                </a>
-              </li>
-              <li role="tab">
-                <a id="history-tab" href="#history" data-project-tabs-target="tab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon" aria-label="Release history. Focus will be moved to the history panel.">
-                  <i class="fa fa-history" aria-hidden="true"></i>
-                  Release history
-                </a>
-              </li>
-              <li role="tab">
-                <a id="data-tab" href="#files" data-project-tabs-target="tab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon" aria-label="Download files. Focus will be moved to the project files.">
-                  <i class="fa fa-download" aria-hidden="true"></i>
-                  Download files
-                </a>
-              </li>
-            </ul>
-          </nav>
+  <nav class="project-tabs__tabs" aria-label="Navigation for lunr">
+    <ul class="project-tabs__list" role="tablist">
+      <li role="presentation">
+        <a id="description-tab" href="#description" role="tab" data-project-tabs-target="tab" data-action="project-tabs#tabClick keydown->project-tabs#tabKeydown" class="project-tabs__tab project-tabs__tab--is-active" aria-selected="true" tabindex="0" aria-label="Project description. Focus will be moved to the description.">
+          <span><i class="fa fa-align-left" aria-hidden="true"></i> Project description</span>
+        </a>
+      </li>
+      <li role="presentation">
+        <a id="history-tab" href="#history" role="tab" data-project-tabs-target="tab" data-action="project-tabs#tabClick keydown->project-tabs#tabKeydown" class="project-tabs__tab" aria-selected="false" tabindex="-1" aria-label="Release history. Focus will be moved to the history panel.">
+          <span><i class="fa fa-history" aria-hidden="true"></i> Release history</span>
+        </a>
+      </li>
+      <li role="presentation">
+        <a id="files-tab" href="#files" role="tab" data-project-tabs-target="tab" data-action="project-tabs#tabClick keydown->project-tabs#tabKeydown" class="project-tabs__tab" aria-selected="false" tabindex="-1" aria-label="Download files. Focus will be moved to the project files.">
+          <span><i class="fa fa-download" aria-hidden="true"></i> Download files</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+  <div class="project-tabs__panel">
+    <!-- Tab: Project description -->
+    <div id="description" data-project-tabs-target="content" role="tabpanel" aria-labelledby="description-tab" tabindex="-1">
+      <h2 class="page-title">Project description</h2>
+      <div class="project-description">Description</div>
+    </div>
+
+    <!-- Tab: Project details (no nav tab — kept for hide/show coverage) -->
+    <div id="data" data-project-tabs-target="content" role="tabpanel" tabindex="-1">
+      <h2 class="page-title">Project details</h2>
+    </div>
+
+    <!-- Tab: Release history -->
+    <div id="history" data-project-tabs-target="content" role="tabpanel" aria-labelledby="history-tab" tabindex="-1">
+      <h2 class="page-title">Release history</h2>
+    </div>
+
+    <!-- Tab: Download files -->
+    <div id="files" data-project-tabs-target="content" role="tabpanel" aria-labelledby="files-tab" tabindex="-1">
+      <h2 class="page-title">Download files</h2>
+      <div class="file">
+        <div class="card file__card">
+          <a href="/files/sample-1.0.tar.gz">sample-1.0.tar.gz</a>
+          (1.0 KB
+          <a href="#sample-1.0.tar.gz" data-project-tabs-target="tab" data-action="project-tabs#tabClick keydown->project-tabs#tabKeydown">view details</a>)
         </div>
       </div>
-      <div class="vertical-tabs__panel">
-        <!-- mobile menu -->
-        <nav aria-label="Navigation for project">
-          <ul class="vertical-tabs__list" role="tablist">
-            <li role="tab">
-              <a id="mobile-description-tab" href="#description" data-project-tabs-target="mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile vertical-tabs__tab--no-top-border vertical-tabs__tab--is-active" aria-selected="true" aria-label="Project description. Focus will be moved to the description.">
-                <i class="fa fa-align-left" aria-hidden="true"></i>
-                Project description
-              </a>
-            </li>
-            <li role="tab">
-              <a id="mobile-history-tab" href="#history" data-project-tabs-target="mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" aria-label="Release history. Focus will be moved to the history panel.">
-              <i class="fa fa-history" aria-hidden="true"></i>
-              Release history
-            </a>
-            <li role="tab">
-              <a id="mobile-data-tab" href="#data" data-project-tabs-target="mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" aria-label="Project details. Focus will be moved to the project details.">
-                <i class="fa fa-info-circle" aria-hidden="true"></i>
-                Project details
-              </a>
-            </li>
-            <li role="tab">
-              <a id="mobile-files-tab" href="#files" data-project-tabs-target="mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" aria-label="Download files. Focus will be moved to the project files.">
-                <i class="fa fa-download" aria-hidden="true"></i>
-                Download files
-              </a>
-            </li>
-            </li>
-          </ul>
-        </nav>
-        {# Tab: Project description #}
-        <div id="description" data-project-tabs-target="content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="description-tab mobile-description-tab" tabindex="-1">
-          <h2 class="page-title">Project description</h2>
-          <div class="project-description">Description</div>
-        </div>
+    </div>
 
-        {# Tab: project details #}
-        <div id="data" data-project-tabs-target="content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="mobile-data-tab" tabindex="-1">
-          <h2 class="page-title">Project details</h2>
-          <br>
-        </div>
-
-        {# Tab: Release history #}
-        <div id="history" data-project-tabs-target="content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="history-tab mobile-history-tab" tabindex="-1">
-          <h2 class="page-title split-layout">
-            <span>Release history</span>
-            <a class="reset-text margin-top" href="#project-release-notifications">Release notifications</a>
-          </h2>
-        </div>
-
-        {# Tab: Download files #}
-        <div id="files" data-project-tabs-target="content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="files-tab mobile-files-tab" tabindex="-1">
-          <h2 class="page-title">Download files</h2>
-          <div class="file">
-            <div class="card file__card">
-              <a href="/files/sample-1.0.tar.gz">sample-1.0.tar.gz</a>
-              (1.0 KB
-              <a href="#sample-1.0.tar.gz" data-project-tabs-target="tab mobileTab" data-action="project-tabs#onTabClick">view details</a>)
-            </div>
-          </div>
-        </div>
-
-        {# Tab: file details #}
-        <div id="sample-1.0.tar.gz" data-project-tabs-target="content" class="vertical-tabs__content" role="tabpanel" tabindex="-1">
-          <h2 class="page-title">File details</h2>
-          <p>Details for the file sample-1.0.tar.gz.</p>
-        </div>
-      </div>
+    <!-- File details sub-panel (no nav tab, sibling of Download files) -->
+    <div id="sample-1.0.tar.gz" data-project-tabs-target="content" role="tabpanel" tabindex="-1">
+      <h2 class="page-title">File details</h2>
+      <p>Details for the file sample-1.0.tar.gz.</p>
     </div>
   </div>
 </div>
@@ -121,16 +76,47 @@ describe("Project tabs controller", () => {
         application.register("project-tabs", ProjectTabsController);
       });
 
-      it("the first tab is shown", () => {
-        const tab = document.getElementById("description-tab");
-        expect(tab).toHaveClass("vertical-tabs__tab--is-active");
-        expect(tab).toHaveAttribute("aria-selected");
+      it("shows the first tab and hides all others", () => {
+        expect(document.getElementById("description")).toHaveStyle("display: block");
+        expect(document.getElementById("description-tab")).toHaveClass("project-tabs__tab--is-active");
+        expect(document.getElementById("description-tab")).toHaveAttribute("aria-selected", "true");
+        expect(document.getElementById("description-tab")).toHaveAttribute("tabindex", "0");
 
-        ["data", "history"].forEach(tabID => {
-          expect(document.getElementById(tabID)).toHaveStyle("display: none");
-          const tab = document.getElementById(`${tabID}-tab`);
-          expect(tab).not.toHaveClass("vertical-tabs__tab--is-active");
-        });
+        expect(document.getElementById("history")).toHaveStyle("display: none");
+        expect(document.getElementById("history-tab")).not.toHaveClass("project-tabs__tab--is-active");
+        expect(document.getElementById("history-tab")).toHaveAttribute("aria-selected", "false");
+        expect(document.getElementById("history-tab")).toHaveAttribute("tabindex", "-1");
+
+        expect(document.getElementById("files")).toHaveStyle("display: none");
+        expect(document.getElementById("files-tab")).not.toHaveClass("project-tabs__tab--is-active");
+        expect(document.getElementById("files-tab")).toHaveAttribute("aria-selected", "false");
+        expect(document.getElementById("files-tab")).toHaveAttribute("tabindex", "-1");
+
+        expect(document.getElementById("data")).toHaveStyle("display: none");
+        expect(document.getElementById("sample-1.0.tar.gz")).toHaveStyle("display: none");
+      });
+    });
+
+    describe("with a file detail hash in location", () => {
+      beforeEach(() => {
+        window.location.hash = "#sample-1.0.tar.gz";
+        document.body.innerHTML = tabsHTML;
+
+        const application = Application.start();
+        application.register("project-tabs", ProjectTabsController);
+      });
+
+      it("shows the file detail panel and keeps the files tab active", () => {
+        expect(document.getElementById("sample-1.0.tar.gz")).toHaveStyle("display: block");
+        expect(document.getElementById("files-tab")).toHaveClass("project-tabs__tab--is-active");
+        expect(document.getElementById("files-tab")).toHaveAttribute("aria-selected", "true");
+        expect(document.getElementById("files-tab")).toHaveAttribute("tabindex", "0");
+
+        expect(document.getElementById("files")).toHaveStyle("display: none");
+        expect(document.getElementById("description")).toHaveStyle("display: none");
+        expect(document.getElementById("description-tab")).not.toHaveClass("project-tabs__tab--is-active");
+        expect(document.getElementById("description-tab")).toHaveAttribute("aria-selected", "false");
+        expect(document.getElementById("description-tab")).toHaveAttribute("tabindex", "-1");
       });
     });
 
@@ -142,87 +128,210 @@ describe("Project tabs controller", () => {
         const application = Application.start();
         application.register("project-tabs", ProjectTabsController);
       });
-      it("the matching tab is shown", () => {
-        expect(document.getElementById("history")).toHaveStyle("display: block");
-        const tab = document.getElementById("history-tab");
-        expect(tab).toHaveClass("vertical-tabs__tab--is-active");
-        expect(tab).toHaveAttribute("aria-selected");
 
-        ["description", "data"].forEach(tabID => {
-          expect(document.getElementById(tabID)).toHaveStyle("display: none");
-          const tab = document.getElementById(`${tabID}-tab`);
-          expect(tab).not.toHaveClass("vertical-tabs__tab--is-active");
-          expect(tab).not.toHaveAttribute("aria-selected");
-        });
+      it("shows the matching tab and hides all others", () => {
+        expect(document.getElementById("history")).toHaveStyle("display: block");
+        expect(document.getElementById("history-tab")).toHaveClass("project-tabs__tab--is-active");
+        expect(document.getElementById("history-tab")).toHaveAttribute("aria-selected", "true");
+        expect(document.getElementById("history-tab")).toHaveAttribute("tabindex", "0");
+
+        expect(document.getElementById("description")).toHaveStyle("display: none");
+        expect(document.getElementById("description-tab")).not.toHaveClass("project-tabs__tab--is-active");
+        expect(document.getElementById("description-tab")).toHaveAttribute("aria-selected", "false");
+        expect(document.getElementById("description-tab")).toHaveAttribute("tabindex", "-1");
+
+        expect(document.getElementById("files")).toHaveStyle("display: none");
+        expect(document.getElementById("files-tab")).not.toHaveClass("project-tabs__tab--is-active");
+        expect(document.getElementById("files-tab")).toHaveAttribute("aria-selected", "false");
+        expect(document.getElementById("files-tab")).toHaveAttribute("tabindex", "-1");
+
+        expect(document.getElementById("data")).toHaveStyle("display: none");
+        expect(document.getElementById("sample-1.0.tar.gz")).toHaveStyle("display: none");
       });
     });
   });
 
   describe("functionality", () => {
+    let application;
+
     beforeEach(() => {
+      window.location.hash = "";
       document.body.innerHTML = tabsHTML;
 
-      const application = Application.start();
+      application = Application.start();
       application.register("project-tabs", ProjectTabsController);
     });
 
-    describe("clicking in tabs", () => {
-      it("hides other tabs and shows the matching one", () => {
-        document.getElementById("history").click();
+    describe("clicking a tab", () => {
+      it("shows the matching panel and hides all others", () => {
+        document.getElementById("history-tab").click();
 
         expect(document.getElementById("history")).toHaveStyle("display: block");
-        const tab = document.getElementById("history-tab");
-        expect(tab).toHaveClass("vertical-tabs__tab--is-active");
-        expect(tab).toHaveAttribute("aria-selected");
+        expect(document.getElementById("history-tab")).toHaveClass("project-tabs__tab--is-active");
+        expect(document.getElementById("history-tab")).toHaveAttribute("aria-selected");
 
-        ["description", "data"].forEach(tabID => {
-          expect(document.getElementById(tabID)).toHaveStyle("display: none");
-          const tab = document.getElementById(`${tabID}-tab`);
-          expect(tab).not.toHaveClass("vertical-tabs__tab--is-active");
-        });
+        expect(document.getElementById("description")).toHaveStyle("display: none");
+        expect(document.getElementById("description-tab")).not.toHaveClass("project-tabs__tab--is-active");
+        expect(document.getElementById("description-tab")).toHaveAttribute("aria-selected", "false");
+
+        expect(document.getElementById("files")).toHaveStyle("display: none");
+        expect(document.getElementById("files-tab")).not.toHaveClass("project-tabs__tab--is-active");
+        expect(document.getElementById("files-tab")).toHaveAttribute("aria-selected", "false");
+      });
+
+      it("updates the URL hash", () => {
+        const pushState = jest.spyOn(history, "pushState");
+        document.getElementById("history-tab").click();
+        expect(pushState).toHaveBeenCalledWith(null, "", "#history");
+        pushState.mockRestore();
+      });
+
+      it("focuses the content panel", () => {
+        const focus = jest.spyOn(HTMLElement.prototype, "focus");
+        document.getElementById("history-tab").click();
+        expect(focus).toHaveBeenCalledWith({ preventScroll: true });
+        focus.mockRestore();
       });
     });
 
-    describe("viewing file details on mobile viewport", () => {
-      it("does not switch away from file details on resize", () => {
-        jest.useFakeTimers();
+    describe("keyboard navigation", () => {
+      it("ArrowRight moves to the next tab", () => {
+        document.getElementById("description-tab").dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
 
-        // Click "view details" to show file detail tab
+        expect(document.getElementById("history")).toHaveStyle("display: block");
+        expect(document.getElementById("history-tab")).toHaveClass("project-tabs__tab--is-active");
+        expect(document.getElementById("history-tab")).toHaveAttribute("aria-selected");
+        expect(document.getElementById("description")).toHaveStyle("display: none");
+      });
+
+      it("ArrowLeft moves to the previous tab", () => {
+        document.getElementById("history-tab").click();
+        document.getElementById("history-tab").dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true }));
+
+        expect(document.getElementById("description")).toHaveStyle("display: block");
+        expect(document.getElementById("description-tab")).toHaveClass("project-tabs__tab--is-active");
+        expect(document.getElementById("description-tab")).toHaveAttribute("aria-selected");
+      });
+
+      it("ArrowRight wraps from last to first tab", () => {
+        document.getElementById("files-tab").click();
+        document.getElementById("files-tab").dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+
+        expect(document.getElementById("description")).toHaveStyle("display: block");
+        expect(document.getElementById("description-tab")).toHaveClass("project-tabs__tab--is-active");
+      });
+
+      it("ArrowLeft wraps from first to last tab", () => {
+        document.getElementById("description-tab").dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true }));
+
+        expect(document.getElementById("files")).toHaveStyle("display: block");
+        expect(document.getElementById("files-tab")).toHaveClass("project-tabs__tab--is-active");
+      });
+
+      it("Home moves to the first tab", () => {
+        document.getElementById("files-tab").click();
+        document.getElementById("files-tab").dispatchEvent(new KeyboardEvent("keydown", { key: "Home", bubbles: true }));
+
+        expect(document.getElementById("description")).toHaveStyle("display: block");
+        expect(document.getElementById("description-tab")).toHaveClass("project-tabs__tab--is-active");
+      });
+
+      it("End moves to the last tab", () => {
+        document.getElementById("description-tab").dispatchEvent(new KeyboardEvent("keydown", { key: "End", bubbles: true }));
+
+        expect(document.getElementById("files")).toHaveStyle("display: block");
+        expect(document.getElementById("files-tab")).toHaveClass("project-tabs__tab--is-active");
+      });
+
+      it("ignores non-arrow keys", () => {
+        document.getElementById("description-tab").dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+
+        expect(document.getElementById("description")).toHaveStyle("display: block");
+        expect(document.getElementById("description-tab")).toHaveClass("project-tabs__tab--is-active");
+      });
+    });
+
+    describe("viewing file details", () => {
+      it("shows the file detail panel and keeps the files tab active", () => {
+        document.getElementById("files-tab").click();
         document.querySelector("a[href='#sample-1.0.tar.gz']").click();
+
         expect(document.getElementById("sample-1.0.tar.gz")).toHaveStyle("display: block");
+        expect(document.getElementById("files")).toHaveStyle("display: none");
         expect(document.getElementById("description")).toHaveStyle("display: none");
 
-        // Simulate mobile viewport (triggers mobileTabTargets path in _getTabs)
-        Object.defineProperty(window, "innerWidth", { value: 500, configurable: true });
+        expect(document.getElementById("files-tab")).toHaveClass("project-tabs__tab--is-active");
+        expect(document.getElementById("files-tab")).toHaveAttribute("aria-selected");
 
-        // Trigger resize event (as mobile browsers do when scrolling)
-        window.dispatchEvent(new Event("resize"));
-        jest.advanceTimersByTime(100);
+        expect(document.getElementById("description-tab")).not.toHaveClass("project-tabs__tab--is-active");
+        expect(document.getElementById("description-tab")).toHaveAttribute("aria-selected", "false");
+      });
 
-        // File details should still be visible, not switched back to description
-        expect(document.getElementById("sample-1.0.tar.gz")).toHaveStyle("display: block");
-        expect(document.getElementById("description")).toHaveStyle("display: none");
+      it("focuses the file detail panel", () => {
+        document.getElementById("files-tab").click();
+        const focus = jest.spyOn(HTMLElement.prototype, "focus");
+        document.querySelector("a[href='#sample-1.0.tar.gz']").click();
+        expect(focus).toHaveBeenCalledWith({ preventScroll: true });
+        focus.mockRestore();
+      });
 
-        Object.defineProperty(window, "innerWidth", { value: 1024, configurable: true });
-        jest.useRealTimers();
-        window.location.hash = "#history";
+      it("is hidden when switching to another tab", () => {
+        document.getElementById("files-tab").click();
+        document.querySelector("a[href='#sample-1.0.tar.gz']").click();
+        document.getElementById("history-tab").click();
+
+        expect(document.getElementById("sample-1.0.tar.gz")).toHaveStyle("display: none");
+
+        expect(document.getElementById("history")).toHaveStyle("display: block");
+        expect(document.getElementById("history-tab")).toHaveClass("project-tabs__tab--is-active");
+        expect(document.getElementById("history-tab")).toHaveAttribute("aria-selected");
+
+        expect(document.getElementById("files-tab")).not.toHaveClass("project-tabs__tab--is-active");
+        expect(document.getElementById("files-tab")).toHaveAttribute("aria-selected", "false");
       });
     });
 
     describe("changing the window hash", () => {
-      it("hides other tabs and shows the matching one", () => {
-        window.hash = "#history";
+      it("shows the matching panel and hides all others", () => {
+        window.location.hash = "#history";
+        window.dispatchEvent(new Event("hashchange"));
 
         expect(document.getElementById("history")).toHaveStyle("display: block");
-        const tab = document.getElementById("history-tab");
-        expect(tab).toHaveClass("vertical-tabs__tab--is-active");
-        expect(tab).toHaveAttribute("aria-selected");
+        expect(document.getElementById("history-tab")).toHaveClass("project-tabs__tab--is-active");
+        expect(document.getElementById("history-tab")).toHaveAttribute("aria-selected");
 
-        ["description", "data"].forEach(tabID => {
-          expect(document.getElementById(tabID)).toHaveStyle("display: none");
-          const tab = document.getElementById(`${tabID}-tab`);
-          expect(tab).not.toHaveClass("vertical-tabs__tab--is-active");
-        });
+        expect(document.getElementById("description")).toHaveStyle("display: none");
+        expect(document.getElementById("description-tab")).not.toHaveClass("project-tabs__tab--is-active");
+        expect(document.getElementById("description-tab")).toHaveAttribute("aria-selected", "false");
+
+        expect(document.getElementById("files")).toHaveStyle("display: none");
+        expect(document.getElementById("files-tab")).not.toHaveClass("project-tabs__tab--is-active");
+        expect(document.getElementById("files-tab")).toHaveAttribute("aria-selected", "false");
+      });
+
+      it("falls back to the first tab when the hash is cleared", () => {
+        document.getElementById("history-tab").click();
+        window.location.hash = "";
+        window.dispatchEvent(new Event("hashchange"));
+
+        expect(document.getElementById("description")).toHaveStyle("display: block");
+        expect(document.getElementById("description-tab")).toHaveClass("project-tabs__tab--is-active");
+        expect(document.getElementById("description-tab")).toHaveAttribute("aria-selected");
+
+        expect(document.getElementById("history")).toHaveStyle("display: none");
+        expect(document.getElementById("history-tab")).not.toHaveClass("project-tabs__tab--is-active");
+        expect(document.getElementById("history-tab")).toHaveAttribute("aria-selected", "false");
+      });
+    });
+
+    describe("disconnect", () => {
+      it("removes the hashchange event listener", () => {
+        const element = document.querySelector("[data-controller='project-tabs']");
+        const controller = application.getControllerForElementAndIdentifier(element, "project-tabs");
+        const removeEventListener = jest.spyOn(window, "removeEventListener");
+        controller.disconnect();
+        expect(removeEventListener).toHaveBeenCalledWith("hashchange", expect.any(Function));
+        removeEventListener.mockRestore();
       });
     });
   });

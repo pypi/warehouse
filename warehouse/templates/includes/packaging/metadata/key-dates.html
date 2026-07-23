@@ -1,0 +1,55 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+<div class="sidebar-section">
+  <h2 class="sidebar-section__title">{% trans %}Key dates{% endtrans %}</h2>
+  <div class="sidebar-section__content sidebar-section__content--pypi">
+    <details class="sidebar-section__data-source">
+      <summary class="sidebar-section__data-source-label"
+               title="{% trans %}PyPI data{% endtrans %}">{% trans %}PyPI data{% endtrans %}</summary>
+      <div class="sidebar-section__data-source-description">{% trans %}Data sourced directly from PyPI's database.{% endtrans %}</div>
+    </details>
+    <div class="sidebar-section__data-block">
+      {% set events = [{'date': release.created, 'key': 'released'}] %}
+      {% if release.yanked and release.yanked_date %}
+        {% set _ = events.append({'date': release.yanked_date, 'key': 'yanked'}) %}
+      {% endif %}
+      {% if project.lifecycle_status == "quarantine-enter" and project.lifecycle_status_changed %}
+        {% set _ = events.append({'date': project.lifecycle_status_changed, 'key': 'quarantined'}) %}
+      {% elif release.lifecycle_status == "quarantine-enter" and release.lifecycle_status_changed %}
+        {% set _ = events.append({'date': release.lifecycle_status_changed, 'key': 'quarantined'}) %}
+      {% endif %}
+      {% if project.lifecycle_status in ["archived", "archived-noindex"] and project.lifecycle_status_changed %}
+        {% set _ = events.append({'date': project.lifecycle_status_changed, 'key': 'archived'}) %}
+      {% endif %}
+      <ul class="unstyled">
+        {% for event in events|sort(attribute='date') %}
+          <li>
+            {% if event.key == 'released' %}
+              <strong>{% trans %}Released:{% endtrans %}</strong> {{ humanize(event.date) }}
+            {% elif event.key == 'yanked' %}
+              <strong>{% trans %}Yanked:{% endtrans %}</strong> {{ humanize(event.date) }}
+            {% elif event.key == 'quarantined' %}
+              <strong>{% trans %}Quarantined:{% endtrans %}</strong> {{ humanize(event.date) }}
+            {% elif event.key == 'archived' %}
+              <strong>{% trans %}Archived:{% endtrans %}</strong> {{ humanize(event.date) }}
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+      {% if latest_version %}
+        {% if release.version|parse_version > latest_version.version|parse_version %}
+          <a class="badge badge--key-dates badge--warning"
+             href="{{ request.route_path('packaging.project', name=release.project.name) }}">
+            {% trans version=latest_version.version %}Stable release available ({{ version }}){% endtrans %}
+          </a>
+        {% elif release.version|parse_version != latest_version.version|parse_version %}
+          <a class="badge badge--key-dates badge--warning"
+             href="{{ request.route_path('packaging.project', name=release.project.name) }}">
+            {% trans version=latest_version.version %}Newer release available ({{ version }}){% endtrans %}
+          </a>
+        {% elif project.lifecycle_status != "quarantine-enter" and release.lifecycle_status != "quarantine-enter" %}
+          <span class="badge badge--key-dates badge--success">{% trans %}Latest release{% endtrans %}</span>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+</div>

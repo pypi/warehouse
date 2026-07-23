@@ -1,0 +1,60 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+<div id="history"
+     data-project-tabs-target="content"
+     role="tabpanel"
+     aria-labelledby="history-tab"
+     tabindex="-1">
+  <h2 class="page-title split-layout">
+    <span>{% trans %}Release history{% endtrans %}</span>
+    <span class="reset-text margin-top">
+      <a href="{{ request.route_path('help') }}#project-release-notifications">{% trans %}Release notifications{% endtrans %}</a> |
+      <a href="{{ request.route_path('rss.project.releases', name=release.project.normalized_name) }}">{% trans %}RSS feed{% endtrans %} <i class="fa fa-rss" aria-hidden="true"></i></a>
+    </span>
+  </h2>
+  <div class="release-timeline">
+    {% set blue_cube = request.static_url('warehouse:static/dist/images/blue-cube.svg') %}
+    {% set white_cube = request.static_url('warehouse:static/dist/images/white-cube.svg') %}
+    {% for hversion in all_versions %}
+      {% set is_current = (hversion.version == release.version) %}
+      <div class="release{{ ' release--latest' if loop.first else ' release--oldest' if loop.last }}{{ ' release--current' if is_current }}">
+        <div class="release__meta">
+          {% if is_current %}
+            <span class="badge">{% trans %}This release{% endtrans %}</span>
+          {% endif %}
+        </div>
+        <div class="release__graphic">
+          {% if loop.length > 1 %}
+            <div class="release__line"></div>
+          {% endif %}
+          {% if is_current %}
+            <img class="release__node" alt="" src="{{ blue_cube }}">
+          {% else %}
+            <img class="release__node" alt="" src="{{ white_cube }}">
+          {% endif %}
+        </div>
+        <a class="card release__card"
+           href="{{ request.route_path('packaging.release', name=release.project.name, version=hversion.version) }}">
+          <p class="release__version">
+            {{ hversion.version }}
+            {% if hversion.lifecycle_status == "quarantine-enter" or project.lifecycle_status == "quarantine-enter" %}
+              <span class="badge badge--warning">{% trans %}quarantined{% endtrans %}</span>
+            {% elif hversion.yanked %}
+              <span class="badge badge--dark">{% trans %}yanked{% endtrans %}</span>
+            {% elif project.lifecycle_status in ["archived", "archived-noindex"] %}
+              <span class="badge badge--neutral">{% trans %}archived{% endtrans %}</span>
+            {% elif hversion.is_prerelease %}
+              <span class="badge badge--light">{% trans %}pre-release{% endtrans %}</span>
+            {% endif %}
+          </p>
+          <p class="release__version-date">{{ humanize(hversion.created) }}</p>
+          {% if hversion.yanked and hversion.yanked_reason %}
+            <div class="callout-block callout-block--dark release__yanked-reason">
+              <p>{% trans %}Reason this release was yanked:{% endtrans %}</p>
+              <p>{{ hversion.yanked_reason }}</p>
+            </div>
+          {% endif %}
+        </a>
+      </div>
+    {% endfor %}
+  </div>
+</div>

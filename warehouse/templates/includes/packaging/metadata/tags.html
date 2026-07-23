@@ -1,0 +1,13 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% if release.keywords %}
+  <div class="sidebar-section">
+    <h2 class="sidebar-section__title">{% trans %}Tags{% endtrans %}</h2>
+    <div class="sidebar-section__data-block">
+      <p class="tags">
+        {% for keyword in release.keywords | format_tags %}
+          <code>{{ keyword }}</code>
+        {% endfor %}
+      </p>
+    </div>
+  </div>
+{% endif %}
