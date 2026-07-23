@@ -123,6 +123,9 @@ deps_upgrade_project: .state/docker-build-base
 translations: .state/docker-build-base
 	docker compose run --rm base bin/translations
 
+patch: .state/docker-build-base
+	docker compose run --rm base bin/patch
+
 requirements/%.txt: requirements/%.in
 	docker compose run --rm base pip-compile --generate-hashes --output-file=$@ $<
 
@@ -266,4 +269,4 @@ codeql-test: .state/codeql-packs
 codeql-clean:
 	rm -rf dev/codeql .state/codeql-db .state/codeql-packs .state/codeql-cli
 
-.PHONY: default build serve resetdb initdb shell dbshell tests dev-docs user-docs deps deps_upgrade_all deps_upgrade_project clean purge debug stop compile-pot runmigrations checkdb codeql codeql-db codeql-rebuild codeql-analyze codeql-test codeql-clean
+.PHONY: default build serve resetdb initdb shell dbshell tests dev-docs user-docs deps deps_upgrade_all deps_upgrade_project clean purge debug stop compile-pot runmigrations checkdb codeql codeql-db codeql-rebuild codeql-analyze codeql-test codeql-clean patch
