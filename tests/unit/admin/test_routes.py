@@ -1,100 +1,101 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
-
 from warehouse.admin.routes import includeme
 
 
-def test_includeme():
+def test_includeme(mocker):
     warehouse = "w.local"
-    config = pretend.stub(
-        add_route=pretend.call_recorder(lambda *a, **k: None),
-        get_settings=lambda: {"warehouse.domain": warehouse},
-    )
+    config = mocker.Mock()
+    config.get_settings.return_value = {"warehouse.domain": warehouse}
 
     includeme(config)
 
-    assert config.add_route.calls == [
-        pretend.call("admin.dashboard", "/admin/", domain=warehouse),
-        pretend.call(
+    assert config.add_route.call_args_list == [
+        mocker.call("admin.dashboard", "/admin/", domain=warehouse),
+        mocker.call(
             "admin.organization.list", "/admin/organizations/", domain=warehouse
         ),
-        pretend.call(
+        mocker.call(
             "admin.organization.detail",
             "/admin/organizations/{organization_id}/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.organization.rename",
             "/admin/organizations/{organization_id}/rename/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
+            "admin.organization.subscription.cancel",
+            "/admin/organizations/{organization_id}/subscriptions/{subscription_id}/cancel/",
+            domain=warehouse,
+        ),
+        mocker.call(
             "admin.organization.add_role",
             "/admin/organizations/{organization_id}/add_role/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.organization.update_role",
             "/admin/organizations/{organization_id}/update_role/{role_id}/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.organization.delete_role",
             "/admin/organizations/{organization_id}/delete_role/{role_id}/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.organization.add_manual_activation",
             "/admin/organizations/{organization_id}/add_manual_activation/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.organization.update_manual_activation",
             "/admin/organizations/{organization_id}/update_manual_activation/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.organization.delete_manual_activation",
             "/admin/organizations/{organization_id}/delete_manual_activation/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.organization.set_upload_limit",
             "/admin/organizations/{organization_id}/set_upload_limit/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.organization.set_total_size_limit",
             "/admin/organizations/{organization_id}/set_total_size_limit/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.organization.add_oidc_issuer",
             "/admin/organizations/{organization_id}/oidc-issuers/add/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.organization.delete_oidc_issuer",
             "/admin/organizations/{organization_id}/oidc-issuers/{issuer_id}/delete/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.organization_application.list",
             "/admin/organization_applications/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.organization_application.detail",
             "/admin/organization_applications/{organization_application_id}/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.organization_application.approve",
             "/admin/organization_applications/{organization_application_id}/approve/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.organization_application.requestmoreinfo",
             (
                 "/admin/organization_applications/{organization_application_id}"
@@ -102,503 +103,539 @@ def test_includeme():
             ),
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.organization_application.defer",
             "/admin/organization_applications/{organization_application_id}/defer/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.organization_application.decline",
             "/admin/organization_applications/{organization_application_id}/decline/",
             domain=warehouse,
         ),
-        pretend.call("admin.user.list", "/admin/users/", domain=warehouse),
-        pretend.call(
+        mocker.call(
+            "admin.organization_application.addnote",
+            "/admin/organization_applications/{organization_application_id}/addnote/",
+            domain=warehouse,
+        ),
+        mocker.call("admin.user.list", "/admin/users/", domain=warehouse),
+        mocker.call(
             "admin.user.detail",
             "/admin/users/{username}/",
             domain=warehouse,
             factory="warehouse.accounts.models:UserFactory",
             traverse="/{username}",
         ),
-        pretend.call(
+        mocker.call(
             "admin.user.submit_email",
             "/admin/users/{username}/emails/",
             domain=warehouse,
             factory="warehouse.accounts.models:UserFactory",
             traverse="/{username}",
         ),
-        pretend.call(
+        mocker.call(
             "admin.user.add_email",
             "/admin/users/{username}/add_email/",
             domain=warehouse,
             factory="warehouse.accounts.models:UserFactory",
             traverse="/{username}",
         ),
-        pretend.call(
+        mocker.call(
             "admin.user.email_domain_check",
             "/admin/users/{username}/email_domain_check/",
             domain=warehouse,
             factory="warehouse.accounts.models:UserFactory",
             traverse="/{username}",
         ),
-        pretend.call(
+        mocker.call(
             "admin.user.delete_email",
             "/admin/users/{username}/delete_email/",
             domain=warehouse,
             factory="warehouse.accounts.models:UserFactory",
             traverse="/{username}",
         ),
-        pretend.call(
+        mocker.call(
             "admin.user.delete",
             "/admin/users/{username}/delete/",
             domain=warehouse,
             factory="warehouse.accounts.models:UserFactory",
             traverse="/{username}",
         ),
-        pretend.call(
+        mocker.call(
             "admin.user.freeze",
             "/admin/users/{username}/freeze/",
             domain=warehouse,
             factory="warehouse.accounts.models:UserFactory",
             traverse="/{username}",
         ),
-        pretend.call(
+        mocker.call(
             "admin.user.reset_password",
             "/admin/users/{username}/reset_password/",
             domain=warehouse,
             factory="warehouse.accounts.models:UserFactory",
             traverse="/{username}",
         ),
-        pretend.call(
+        mocker.call(
             "admin.user.account_recovery.initiate",
             "/admin/users/{username}/account_recovery/initiate/",
             domain=warehouse,
             factory="warehouse.accounts.models:UserFactory",
             traverse="/{username}",
         ),
-        pretend.call(
+        mocker.call(
             "admin.user.account_recovery.cancel",
             "/admin/users/{username}/account_recovery/cancel/",
             domain=warehouse,
             factory="warehouse.accounts.models:UserFactory",
             traverse="/{username}",
         ),
-        pretend.call(
+        mocker.call(
             "admin.user.account_recovery.complete",
             "/admin/users/{username}/account_recovery/complete/",
             domain=warehouse,
             factory="warehouse.accounts.models:UserFactory",
             traverse="/{username}",
         ),
-        pretend.call(
+        mocker.call(
             "admin.user.burn_recovery_codes",
             "/admin/users/{username}/burn_recovery_codes/",
             domain=warehouse,
             factory="warehouse.accounts.models:UserFactory",
             traverse="/{username}",
         ),
-        pretend.call(
+        mocker.call(
             "admin.user.quarantine_projects",
             "/admin/users/{username}/quarantine_projects/",
             domain=warehouse,
             factory="warehouse.accounts.models:UserFactory",
             traverse="/{username}",
         ),
-        pretend.call(
+        mocker.call(
             "admin.user.clear_quarantine_projects",
             "/admin/users/{username}/clear_quarantine_projects/",
             domain=warehouse,
             factory="warehouse.accounts.models:UserFactory",
             traverse="/{username}",
         ),
-        pretend.call(
+        mocker.call(
             "admin.user.files",
             "/admin/users/{username}/files/",
             domain=warehouse,
             factory="warehouse.accounts.models:UserFactory",
             traverse="/{username}",
         ),
-        pretend.call(
+        mocker.call(
             "admin.macaroon.decode_token", "/admin/token/decode", domain=warehouse
         ),
-        pretend.call(
+        mocker.call(
             "admin.macaroon.detail", "/admin/macaroons/{macaroon_id}", domain=warehouse
         ),
-        pretend.call(
+        mocker.call(
             "admin.macaroon.delete",
             "/admin/macaroons/{macaroon_id}/delete",
             domain=warehouse,
         ),
-        pretend.call("admin.ip_address.list", "/admin/ip-addresses/", domain=warehouse),
-        pretend.call(
+        mocker.call("admin.ip_address.list", "/admin/ip-addresses/", domain=warehouse),
+        mocker.call(
             "admin.ip_address.detail",
             "/admin/ip-addresses/{ip_address}",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.ip_address.ban",
             "/admin/ip-addresses/{ip_address}/ban",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.ip_address.unban",
             "/admin/ip-addresses/{ip_address}/unban",
             domain=warehouse,
         ),
-        pretend.call("admin.project.list", "/admin/projects/", domain=warehouse),
-        pretend.call(
+        mocker.call("admin.project.list", "/admin/projects/", domain=warehouse),
+        mocker.call(
             "admin.project.detail",
             "/admin/projects/{project_name}/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.project.releases",
             "/admin/projects/{project_name}/releases/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.project.release",
             "/admin/projects/{project_name}/release/{version}",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}/{version}",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.project.release.render",
             "/admin/projects/{project_name}/release/{version}/render/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}/{version}",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.project.release.delete",
             "/admin/projects/{project_name}/release/{version}/delete/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}/{version}",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.project.release.file.delete",
             "/admin/projects/{project_name}/release/{version}/delete_file/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}/{version}",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.project.observations",
             "/admin/projects/{project_name}/observations/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.project.add_project_observation",
             "/admin/projects/{project_name}/add_project_observation/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.project.release.observations",
             "/admin/projects/{project_name}/release/{version}/observations/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}/{version}",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.project.release.add_release_observation",
             "/admin/projects/{project_name}/release/{version}/add_release_observation/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}/{version}",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
+            "admin.project.release.quarantine",
+            "/admin/projects/{project_name}/release/{version}/quarantine/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}/{version}",
+            domain=warehouse,
+        ),
+        mocker.call(
+            "admin.project.release.remove_from_quarantine",
+            "/admin/projects/{project_name}/release/{version}/remove_from_quarantine/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}/{version}",
+            domain=warehouse,
+        ),
+        mocker.call(
             "admin.project.remove_from_quarantine",
             "/admin/projects/{project_name}/remove_from_quarantine/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.project.journals",
             "/admin/projects/{project_name}/journals/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.project.set_upload_limit",
             "/admin/projects/{project_name}/set_upload_limit/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.project.set_total_size_limit",
             "/admin/projects/{project_name}/set_total_size_limit/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.project.add_role",
             "/admin/projects/{project_name}/add_role/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.project.delete_role",
             "/admin/projects/{project_name}/delete_role/{role_id}/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.project.delete",
             "/admin/projects/{project_name}/delete/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.project.reindex",
             "/admin/projects/{project_name}/reindex/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.project.archive",
             "/admin/projects/{project_name}/archive/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.project.unarchive",
             "/admin/projects/{project_name}/unarchive/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}",
             domain=warehouse,
         ),
-        pretend.call("admin.journals.list", "/admin/journals/", domain=warehouse),
-        pretend.call(
+        mocker.call("admin.journals.list", "/admin/journals/", domain=warehouse),
+        mocker.call(
             "admin.prohibited_project_names.list",
             "/admin/prohibited_project_names/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.prohibited_project_names.add",
             "/admin/prohibited_project_names/add/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.prohibited_project_names.bulk_add",
             "/admin/prohibited_project_names/bulk/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.prohibited_project_names.remove",
             "/admin/prohibited_project_names/remove/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.prohibited_project_names.release",
             "/admin/prohibited_project_names/release/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.prohibited_project_names.ultranorm_release",
             "/admin/prohibited_project_names/ultranorm_release/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.prohibited_user_names.list",
             "/admin/prohibited_user_names/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.prohibited_user_names.bulk_add",
             "/admin/prohibited_user_names/bulk/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.prohibited_email_domains.list",
             "/admin/prohibited_email_domains/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.prohibited_email_domains.add",
             "/admin/prohibited_email_domains/add/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.prohibited_email_domains.remove",
             "/admin/prohibited_email_domains/remove/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.observers.reputation",
             "/admin/observers/reputation/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.observers.detail",
             "/admin/observers/{observer_id}/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.observations.insights",
             "/admin/observations/insights/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.observations.list",
             "/admin/observations/",
             domain=warehouse,
         ),
-        pretend.call("admin.quarantine.list", "/admin/quarantine/", domain=warehouse),
-        pretend.call(
+        mocker.call("admin.quarantine.list", "/admin/quarantine/", domain=warehouse),
+        mocker.call(
             "admin.malware_reports.list",
             "/admin/malware_reports/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.malware_reports.project.list",
             "/admin/projects/{project_name}/malware_reports/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.malware_reports.project.verdict_not_malware",
             "/admin/projects/{project_name}/malware_reports/not_malware/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.malware_reports.project.verdict_quarantine",
             "/admin/projects/{project_name}/malware_reports/quarantine/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.malware_reports.project.verdict_remove_malware",
             "/admin/projects/{project_name}/malware_reports/remove_malware/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
+            "admin.malware_reports.project.verdict_remove_release",
+            "/admin/projects/{project_name}/malware_reports/remove_release/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        mocker.call(
             "admin.malware_reports.detail",
             "/admin/malware_reports/{observation_id}/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.malware_reports.detail.add_helpscout_conversation",
             "/admin/malware_reports/{observation_id}/add_helpscout_conversation/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.malware_reports.detail.send_to_helpscout",
             "/admin/malware_reports/{observation_id}/send_to_helpscout/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.malware_reports.detail.verdict_not_malware",
             "/admin/malware_reports/{observation_id}/not_malware/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.malware_reports.detail.verdict_quarantine",
             "/admin/malware_reports/{observation_id}/quarantine/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.malware_reports.detail.verdict_remove_malware",
             "/admin/malware_reports/{observation_id}/remove_malware/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
+            "admin.malware_reports.detail.verdict_quarantine_release",
+            "/admin/malware_reports/{observation_id}/quarantine_release/",
+            domain=warehouse,
+        ),
+        mocker.call(
+            "admin.malware_reports.detail.verdict_remove_release",
+            "/admin/malware_reports/{observation_id}/remove_release/",
+            domain=warehouse,
+        ),
+        mocker.call(
             "admin.vulnerabilities.list",
             "/admin/vulnerabilities/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.vulnerabilities.bulk_delete",
             "/admin/vulnerabilities/bulk_delete/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.vulnerabilities.detail",
             "/admin/vulnerabilities/{source}/{id}/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.vulnerabilities.detail.delete",
             "/admin/vulnerabilities/{source}/{id}/delete/",
             domain=warehouse,
         ),
-        pretend.call("admin.emails.list", "/admin/emails/", domain=warehouse),
-        pretend.call("admin.emails.mass", "/admin/emails/mass/", domain=warehouse),
-        pretend.call(
+        mocker.call("admin.emails.list", "/admin/emails/", domain=warehouse),
+        mocker.call("admin.emails.mass", "/admin/emails/mass/", domain=warehouse),
+        mocker.call(
             "admin.emails.detail", "/admin/emails/{email_id}/", domain=warehouse
         ),
-        pretend.call("admin.flags", "/admin/flags/", domain=warehouse),
-        pretend.call("admin.flags.edit", "/admin/flags/edit/", domain=warehouse),
-        pretend.call(
+        mocker.call("admin.flags", "/admin/flags/", domain=warehouse),
+        mocker.call("admin.flags.edit", "/admin/flags/edit/", domain=warehouse),
+        mocker.call(
             "admin.sponsor.list",
             "/admin/sponsors/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.sponsor.create",
             "/admin/sponsors/create/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.sponsor.delete",
             "/admin/sponsors/{sponsor_id}/delete/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.sponsor.edit",
             "/admin/sponsors/{sponsor_id}/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.banner.list",
             "/admin/banners/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.banner.create",
             "/admin/banners/create/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.banner.delete",
             "/admin/banners/{banner_id}/delete/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.banner.preview",
             "/admin/banners/{banner_id}/preview/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.banner.edit",
             "/admin/banners/{banner_id}/",
             domain=warehouse,
         ),
-        pretend.call(
+        mocker.call(
             "admin.helpscout",
             "/admin/helpscout/app/",
             domain=warehouse,

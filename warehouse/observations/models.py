@@ -61,15 +61,11 @@ class HasObservers:
     observer: AssociationProxy[Observer | None]
 
     @declared_attr
-    def observer_association_id(
-        cls: type[typing.Any],
-    ) -> Mapped[UUID | None]:
+    def observer_association_id(cls: typing.Any) -> Mapped[UUID | None]:
         return mapped_column(ForeignKey(f"{ObserverAssociation.__tablename__}.id"))
 
     @declared_attr
-    def observer_association(
-        cls: type[typing.Any],
-    ) -> Mapped[ObserverAssociation]:
+    def observer_association(cls: typing.Any) -> Mapped[ObserverAssociation]:
         name = cls.__name__
         discriminator = name.lower()
 
@@ -121,6 +117,7 @@ class ObservationKind(enum.Enum):
 
     # Organization Applications
     InformationRequest = ("information_request", "Information Request")
+    AdminNote = ("admin_note", "Admin Note")
 
 
 # A reverse-lookup map by the string value stored in the database
@@ -149,9 +146,9 @@ class Observation(AbstractConcreteBase, db.Model):
         # Declared here for type checking when querying via polymorphic union.
         related_name: Mapped[str]
         related_id: Mapped[UUID | None]
-        related: HasObservations
+        related: Mapped[HasObservations]
         observer_id: Mapped[UUID]
-        observer: Observer
+        observer: Mapped[Observer]
 
     created: Mapped[datetime_now] = mapped_column(
         comment="The time the observation was created"
@@ -194,6 +191,12 @@ class Observation(AbstractConcreteBase, db.Model):
         return kind_map[self.kind]
 
 
+# Reference to the base Observation type for use inside HasObservations, whose
+# `Observation` class attribute (the per-parent concrete subclass) shadows the
+# `Observation` name in annotations within that class body.
+_ObservationBase = Observation
+
+
 class HasObservations:
     """
     A mixin for models that can have Observations.
@@ -207,9 +210,21 @@ class HasObservations:
         some_model.observations  # a list of Observation objects
     """
 
+    if typing.TYPE_CHECKING:
+        # `observations` (below) builds a concrete Observation subclass per
+        # parent model at mapper-configuration time and stores it here, so the
+        # runtime value is e.g. `ProjectObservation`. Declared for the type
+        # checker as the base type so `Project.Observation` resolves and stays
+        # constrained to an Observation subclass.
+        Observation: typing.ClassVar[type[_ObservationBase]]
+
+    # `cls` is the mapped subclass at mapper-configuration time, not an
+    # instance. It's typed `Any` (not `type[Any]`) so type checkers don't treat
+    # it as an instance-method `self` and reject the class-level attribute reads
+    # and assignment below. Public types stay precise via the declarations above.
     @declared_attr
-    def observations(cls: type[typing.Any]) -> Mapped[list[Observation]]:
-        cls.Observation = type(
+    def observations(cls: typing.Any) -> Mapped[list[_ObservationBase]]:
+        observation_cls = type(
             f"{cls.__name__}Observation",
             (Observation, db.Model),
             {
@@ -238,6 +253,9 @@ class HasObservations:
                 "observer": relationship(Observer),
             },
         )
+        # `type(...)` is statically just `type`; the built class really is an
+        # Observation subclass, so assert that to match the ClassVar above.
+        cls.Observation = typing.cast(type[_ObservationBase], observation_cls)
         return relationship(cls.Observation)
 
     def record_observation(
@@ -248,7 +266,7 @@ class HasObservations:
         actor: User,  # TODO: Expand type as we add more HasObserver models
         summary: str,
         payload: dict,
-    ):
+    ) -> _ObservationBase:
         """
         Record an observation on the related model.
         """

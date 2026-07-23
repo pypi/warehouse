@@ -4,8 +4,6 @@ import time
 
 from http import HTTPStatus
 
-import pytest
-
 from tests.common.constants import REMOTE_ADDR
 from tests.common.db.accounts import UserFactory, UserUniqueLoginFactory
 from tests.common.db.ip_addresses import IpAddressFactory
@@ -15,23 +13,10 @@ from tests.common.db.organizations import (
     OrganizationRoleFactory,
 )
 from warehouse.accounts.models import UniqueLoginStatus
-from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.organizations.models import OrganizationRoleType
 from warehouse.utils.otp import _get_totp
 
 
-@pytest.fixture
-def _enable_organizations_functional(webtest):
-    """Enable organizations management in functional tests"""
-    db_sess = webtest.extra_environ["warehouse.db_session"]
-    flag = db_sess.get(AdminFlag, AdminFlagValue.DISABLE_ORGANIZATIONS.value)
-    original = flag.enabled
-    flag.enabled = False
-    yield
-    flag.enabled = original
-
-
-@pytest.mark.usefixtures("_enable_organizations_functional")
 class TestManageOrganizationRoles:
     def _login_user(self, webtest, user):
         """Log in a user with 2FA and pre-confirmed IP."""

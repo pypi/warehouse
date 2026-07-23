@@ -122,7 +122,11 @@ class EventTag:
         ProjectCreate = "project:create"
         ProjectQuarantineEnter = "project:quarantine:enter"
         ProjectQuarantineExit = "project:quarantine:exit"
+        ProjectSetTotalSizeLimit = "admin:project:set_total_size_limit"
+        ProjectSetUploadLimit = "admin:project:set_upload_limit"
         ReleaseAdd = "project:release:add"
+        ReleaseQuarantineEnter = "project:release:quarantine:enter"
+        ReleaseQuarantineExit = "project:release:quarantine:exit"
         ReleaseRemove = "project:release:remove"
         ReleaseUnyank = "project:release:unyank"
         ReleaseYank = "project:release:yank"
@@ -166,6 +170,8 @@ class EventTag:
         OrganizationDecline = "organization:decline"
         OrganizationDelete = "organization:delete"
         OrganizationRename = "organization:rename"
+        OrganizationSetUploadLimit = "admin:organization:set_upload_limit"
+        OrganizationSetTotalSizeLimit = "admin:organization:set_total_size_limit"
         OrganizationProjectAdd = "organization:organization_project:add"
         OrganizationProjectRemove = "organization:organization_project:remove"
         OrganizationRoleAdd = "organization:organization_role:add"
@@ -188,6 +194,10 @@ class EventTag:
         OIDCPublisherRemoved = "organization:oidc:publisher-removed"
         PendingOIDCPublisherAdded = "organization:oidc:pending-publisher-added"
         PendingOIDCPublisherRemoved = "organization:oidc:pending-publisher-removed"
+
+        SubscriptionCreate = "organization:subscription:create"
+        SubscriptionStatusChange = "organization:subscription:status_change"
+        SubscriptionCancel = "organization:subscription:cancel"
 
     class Team(EventTagEnum):
         """Tags for Organization events.

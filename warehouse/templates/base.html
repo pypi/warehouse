@@ -156,10 +156,12 @@
     <meta property="og:site_name" content="PyPI">
     <meta property="og:type" content="website">
     <meta property="og:image"
-          content="{% block image %}{{ request.static_url("warehouse:static/dist/images/twitter.jpg") }}{% endblock %}">
+          content="{% block image %}{{ request.static_url('warehouse:static/dist/images/twitter.jpg') }}{% endblock %}">
     <meta property="og:title"
           content="{{ self.title() |default('Python Package Index') }}">
     <meta property="og:description" content="{{ self.description() }}">
+    {% set source_commit = request.registry.settings.get("warehouse.commit") %}
+    {% if source_commit and source_commit != "null" %}<meta name="source-commit" content="{{ source_commit }}">{% endif %}
     {% block extra_meta %}{% endblock %}
     <link rel="search"
           type="application/opensearchdescription+xml"
@@ -184,15 +186,13 @@
       "accounts.verify-project-role"
     ] %}
     {% if request.matched_route and request.matched_route.name in analytics_sanitize_query_params_routes %}
-      <script defer
-              data-domain="pypi.org"
-              src="https://analytics.python.org/js/script.manual.js"></script>
-      <script defer
-              src="{{ request.static_path('warehouse:static/dist/js/utils/plausible-sanitized.js') }}"></script>
+      <script src="{{ request.static_path('warehouse:static/dist/js/utils/plausible-sanitized.js') }}"></script>
+      <script async
+              src="https://analytics.python.org/js/pa-Z-QYGvOKHwfKWak0xljXn.js"></script>
     {% else %}
-      <script defer
-              data-domain="pypi.org"
-              src="https://analytics.python.org/js/script.js"></script>
+      <script src="{{ request.static_path('warehouse:static/dist/js/utils/plausible-init.js') }}"></script>
+      <script async
+              src="https://analytics.python.org/js/pa-Z-QYGvOKHwfKWak0xljXn.js"></script>
     {% endif %}
     <script async
             src="https://media.ethicalads.io/media/client/v1.4.0/ethicalads.min.js"
@@ -283,7 +283,8 @@
                    data-controller="search-focus"
                    data-action="keydown@window->search-focus#focusSearchField"
                    data-search-focus-target="searchField">
-            {% block search_form_extra_inputs %}{% endblock %}
+            {% block search_form_extra_inputs %}
+            {% endblock %}
             <button type="submit" class="search-form__button">
               <i class="fa fa-search" aria-hidden="true"></i>
               <span class="sr-only">{% trans %}Search{% endtrans %}</span>
@@ -487,6 +488,11 @@
     <br>
     <a href="{{ request.route_path('sitemap') }}">{% trans %}Site map{% endtrans %}</a>
   </p>
+  {% if source_commit and source_commit != "null" %}
+    <p>
+      {% trans href='https://github.com/pypi/warehouse/commit/' ~ source_commit, sha=source_commit[:7], title=gettext('External link') %}Deployed from <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><code>{{ sha }}</code></a>{% endtrans %}
+    </p>
+  {% endif %}
 </div>
 <div class="centered hide-on-desktop">
   <button type="button"

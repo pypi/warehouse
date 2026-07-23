@@ -2,10 +2,10 @@
 
 import pytest
 
-from pretend import call, call_recorder, raiser, stub
 from pyramid.httpexceptions import HTTPSeeOther
 from sqlalchemy.orm import joinedload
 
+from warehouse.events.tags import EventTag
 from warehouse.packaging.models import (
     Dependency,
     File,
@@ -18,11 +18,14 @@ from warehouse.packaging.models import (
 from warehouse.utils.project import (
     PROJECT_NAME_RE,
     clear_project_quarantine,
+    clear_release_quarantine,
     confirm_project,
     destroy_docs,
     quarantine_project,
+    quarantine_release,
     remove_documentation,
     remove_project,
+    remove_release,
 )
 
 from ...common.db.accounts import UserFactory
@@ -47,65 +50,77 @@ def test_project_name_re_invalid(name: str) -> None:
     assert PROJECT_NAME_RE.match(name) is None
 
 
-def test_confirm():
-    project = stub(name="foobar", normalized_name="foobar")
-    request = stub(
-        POST={"confirm_project_name": "foobar"},
-        route_path=call_recorder(lambda *a, **kw: stub()),
-        session=stub(flash=call_recorder(lambda *a, **kw: stub())),
+def test_confirm(pyramid_request, mocker):
+    project = Project(name="foobar", normalized_name="foobar")
+    pyramid_request.POST = {"confirm_project_name": "foobar"}
+    route_path = mocker.patch.object(pyramid_request, "route_path", autospec=True)
+    flash = mocker.spy(pyramid_request.session, "flash")
+
+    confirm_project(project, pyramid_request, fail_route="fail_route")
+
+    route_path.assert_not_called()
+    flash.assert_not_called()
+
+
+def test_confirm_no_input(pyramid_request, mocker):
+    project = Project(name="foobar", normalized_name="foobar")
+    pyramid_request.POST = {"confirm_project_name": ""}
+    route_path = mocker.patch.object(
+        pyramid_request, "route_path", autospec=True, return_value="/the-redirect"
+    )
+    flash = mocker.spy(pyramid_request.session, "flash")
+
+    with pytest.raises(HTTPSeeOther) as err:
+        confirm_project(project, pyramid_request, fail_route="fail_route")
+    assert err.value.location == "/the-redirect"
+
+    route_path.assert_called_once_with("fail_route", project_name="foobar")
+    flash.assert_called_once_with("Confirm the request", queue="error")
+
+
+def test_confirm_incorrect_input(pyramid_request, mocker):
+    project = Project(name="foobar", normalized_name="foobar")
+    pyramid_request.POST = {"confirm_project_name": "bizbaz"}
+    route_path = mocker.patch.object(
+        pyramid_request, "route_path", autospec=True, return_value="/the-redirect"
+    )
+    flash = mocker.spy(pyramid_request.session, "flash")
+
+    with pytest.raises(HTTPSeeOther) as err:
+        confirm_project(project, pyramid_request, fail_route="fail_route")
+    assert err.value.location == "/the-redirect"
+
+    route_path.assert_called_once_with("fail_route", project_name="foobar")
+    flash.assert_called_once_with(
+        "Could not delete project - 'bizbaz' is not the same as 'foobar'",
+        queue="error",
     )
 
-    confirm_project(project, request, fail_route="fail_route")
 
-    assert request.route_path.calls == []
-    assert request.session.flash.calls == []
-
-
-def test_confirm_no_input():
-    project = stub(name="foobar", normalized_name="foobar")
-    request = stub(
-        POST={"confirm_project_name": ""},
-        route_path=call_recorder(lambda *a, **kw: "/the-redirect"),
-        session=stub(flash=call_recorder(lambda *a, **kw: stub())),
+def test_confirm_custom_fail_route_params(pyramid_request, mocker):
+    """An observation-scoped fail_route gets its own route params, not project_name."""
+    project = Project(name="foobar", normalized_name="foobar")
+    pyramid_request.POST = {"confirm_project_name": ""}
+    route_path = mocker.patch.object(
+        pyramid_request, "route_path", autospec=True, return_value="/the-redirect"
     )
 
     with pytest.raises(HTTPSeeOther) as err:
-        confirm_project(project, request, fail_route="fail_route")
-    assert err.value.location == "/the-redirect"
-
-    assert request.route_path.calls == [call("fail_route", project_name="foobar")]
-    assert request.session.flash.calls == [call("Confirm the request", queue="error")]
-
-
-def test_confirm_incorrect_input():
-    project = stub(name="foobar", normalized_name="foobar")
-    request = stub(
-        POST={"confirm_project_name": "bizbaz"},
-        route_path=call_recorder(lambda *a, **kw: "/the-redirect"),
-        session=stub(flash=call_recorder(lambda *a, **kw: stub())),
-    )
-
-    with pytest.raises(HTTPSeeOther) as err:
-        confirm_project(project, request, fail_route="fail_route")
-    assert err.value.location == "/the-redirect"
-
-    assert request.route_path.calls == [call("fail_route", project_name="foobar")]
-    assert request.session.flash.calls == [
-        call(
-            "Could not delete project - 'bizbaz' is not the same as 'foobar'",
-            queue="error",
+        confirm_project(
+            project, pyramid_request, fail_route="fail_route", observation_id="obs-1"
         )
-    ]
+    assert err.value.location == "/the-redirect"
+    route_path.assert_called_once_with("fail_route", observation_id="obs-1")
 
 
 @pytest.mark.parametrize("flash", [True, False])
-def test_quarantine_project(db_request, flash):
+def test_quarantine_project(db_request, flash, mocker):
     user = UserFactory.create()
     project = ProjectFactory.create(name="foo")
     RoleFactory.create(user=user, project=project)
 
     db_request.user = user
-    db_request.session = stub(flash=call_recorder(lambda *a, **kw: stub()))
+    flash_spy = mocker.spy(db_request.session, "flash")
 
     quarantine_project(project, db_request, flash=flash)
 
@@ -118,11 +133,11 @@ def test_quarantine_project(db_request, flash):
         .filter(Project.lifecycle_status == LifecycleStatus.QuarantineEnter)
         .first()
     )
-    assert bool(db_request.session.flash.calls) == flash
+    assert flash_spy.called == flash
 
 
 @pytest.mark.parametrize("flash", [True, False])
-def test_clear_project_quarantine(db_request, flash):
+def test_clear_project_quarantine(db_request, flash, mocker):
     user = UserFactory.create()
     project = ProjectFactory.create(
         name="foo", lifecycle_status=LifecycleStatus.QuarantineEnter
@@ -130,7 +145,7 @@ def test_clear_project_quarantine(db_request, flash):
     RoleFactory.create(user=user, project=project)
 
     db_request.user = user
-    db_request.session = stub(flash=call_recorder(lambda *a, **kw: stub()))
+    flash_spy = mocker.spy(db_request.session, "flash")
 
     clear_project_quarantine(project, db_request, flash=flash)
 
@@ -143,11 +158,114 @@ def test_clear_project_quarantine(db_request, flash):
         .filter(Project.lifecycle_status == LifecycleStatus.QuarantineExit)
         .first()
     )
-    assert bool(db_request.session.flash.calls) == flash
+    assert flash_spy.called == flash
 
 
 @pytest.mark.parametrize("flash", [True, False])
-def test_remove_project(db_request, flash):
+def test_quarantine_release(db_request, flash, mocker):
+    user = UserFactory.create()
+    project = ProjectFactory.create(name="foo")
+    release = ReleaseFactory.create(project=project, version="1.0")
+
+    db_request.user = user
+    flash_spy = mocker.spy(db_request.session, "flash")
+
+    quarantine_release(release, db_request, flash=flash)
+
+    refreshed = db_request.db.query(Release).filter(Release.id == release.id).one()
+    assert refreshed.lifecycle_status == LifecycleStatus.QuarantineEnter
+    assert refreshed.lifecycle_status_note == f"Quarantined by {user.username}."
+
+    # A journal entry should be recorded for the release-level action.
+    assert (
+        db_request.db.query(JournalEntry)
+        .filter(JournalEntry.name == project.name)
+        .filter(JournalEntry.version == release.version)
+        .filter(JournalEntry.action == "release quarantined")
+        .count()
+        == 1
+    )
+    # The project itself is not affected.
+    assert refreshed.project.lifecycle_status is None
+    assert flash_spy.called == flash
+
+
+@pytest.mark.parametrize("flash", [True, False])
+def test_clear_release_quarantine(db_request, flash, mocker):
+    user = UserFactory.create()
+    project = ProjectFactory.create(name="foo")
+    release = ReleaseFactory.create(
+        project=project,
+        version="1.0",
+        lifecycle_status=LifecycleStatus.QuarantineEnter,
+    )
+
+    db_request.user = user
+    flash_spy = mocker.spy(db_request.session, "flash")
+
+    clear_release_quarantine(release, db_request, flash=flash)
+
+    refreshed = db_request.db.query(Release).filter(Release.id == release.id).one()
+    assert refreshed.lifecycle_status == LifecycleStatus.QuarantineExit
+    assert (
+        db_request.db.query(JournalEntry)
+        .filter(JournalEntry.name == project.name)
+        .filter(JournalEntry.version == release.version)
+        .filter(JournalEntry.action == "release quarantine cleared")
+        .count()
+        == 1
+    )
+    assert flash_spy.called == flash
+
+
+def test_remove_release(db_request, mocker):
+    """Removes a release, journals it, emits the event. Does *not* email."""
+    user = UserFactory.create()
+    project = ProjectFactory.create(name="foo")
+    RoleFactory.create(user=user, project=project)
+    release = ReleaseFactory.create(project=project, version="1.0")
+    other_release = ReleaseFactory.create(project=project, version="1.1")
+    record_event = mocker.patch.object(project, "record_event", autospec=True)
+
+    db_request.user = user
+
+    # Contributor notification is the caller's responsibility. The helper
+    # mirrors :func:`remove_project`, which never emails.
+    send_email = mocker.patch(
+        "warehouse.email.send_removed_project_release_email", autospec=True
+    )
+
+    remove_release(release, db_request, reason="compromised account")
+
+    # The target release is gone, the sibling release is untouched.
+    remaining = db_request.db.query(Release).filter(Release.project == project).all()
+    assert [r.version for r in remaining] == [other_release.version]
+
+    entry = (
+        db_request.db.query(JournalEntry)
+        .options(joinedload(JournalEntry.submitted_by))
+        .filter(JournalEntry.action == "remove release")
+        .one()
+    )
+    assert entry.name == project.name
+    assert entry.version == "1.0"
+    assert entry.submitted_by == user
+
+    record_event.assert_called_once_with(
+        tag=EventTag.Project.ReleaseRemove,
+        request=db_request,
+        additional={
+            "submitted_by": user.username,
+            "canonical_version": "1",
+            "reason": "compromised account",
+        },
+    )
+
+    send_email.assert_not_called()
+
+
+@pytest.mark.parametrize("flash", [True, False])
+def test_remove_project(db_request, flash, mocker):
     user = UserFactory.create()
     project = ProjectFactory.create(name="foo")
     release = ReleaseFactory.create(project=project)
@@ -156,16 +274,14 @@ def test_remove_project(db_request, flash):
     DependencyFactory.create(release=release)
 
     db_request.user = user
-    db_request.session = stub(flash=call_recorder(lambda *a, **kw: stub()))
+    flash_spy = mocker.spy(db_request.session, "flash")
 
     remove_project(project, db_request, flash=flash)
 
     if flash:
-        assert db_request.session.flash.calls == [
-            call("Deleted the project 'foo'", queue="success")
-        ]
+        flash_spy.assert_called_once_with("Deleted the project 'foo'", queue="success")
     else:
-        assert db_request.session.flash.calls == []
+        flash_spy.assert_not_called()
 
     assert not (db_request.db.query(Role).filter(Role.project == project).count())
     assert not (
@@ -197,15 +313,15 @@ def test_remove_project(db_request, flash):
 
 
 @pytest.mark.parametrize("flash", [True, False])
-def test_destroy_docs(db_request, flash):
+def test_destroy_docs(db_request, flash, mocker):
     user = UserFactory.create()
     project = ProjectFactory.create(name="Foo", has_docs=True)
     RoleFactory.create(user=user, project=project)
 
     db_request.user = user
-    db_request.session = stub(flash=call_recorder(lambda *a, **kw: stub()))
-    remove_documentation_recorder = stub(delay=call_recorder(lambda *a, **kw: None))
-    db_request.task = call_recorder(lambda *a, **kw: remove_documentation_recorder)
+    flash_spy = mocker.spy(db_request.session, "flash")
+    remove_documentation_recorder = mocker.Mock()
+    db_request.task = mocker.Mock(return_value=remove_documentation_recorder)
 
     destroy_docs(project, db_request, flash=flash)
 
@@ -216,43 +332,41 @@ def test_destroy_docs(db_request, flash):
         .has_docs
     )
 
-    assert remove_documentation_recorder.delay.calls == [call("Foo"), call("foo")]
+    assert remove_documentation_recorder.delay.call_args_list == [
+        mocker.call("Foo"),
+        mocker.call("foo"),
+    ]
 
     if flash:
-        assert db_request.session.flash.calls == [
-            call("Deleted docs for project 'Foo'", queue="success")
-        ]
+        flash_spy.assert_called_once_with(
+            "Deleted docs for project 'Foo'", queue="success"
+        )
     else:
-        assert db_request.session.flash.calls == []
+        flash_spy.assert_not_called()
 
 
-def test_remove_documentation(db_request):
+def test_remove_documentation(db_request, mocker):
     project = ProjectFactory.create(name="foo", has_docs=True)
-    task = stub()
-    service = stub(remove_by_prefix=call_recorder(lambda project_name: None))
-    db_request.find_service = call_recorder(lambda interface, name=None: service)
-    db_request.log = stub(info=call_recorder(lambda *a, **kw: None))
+    task = mocker.sentinel.task
+    service = mocker.Mock(spec=["remove_by_prefix"])
+    mocker.patch.object(db_request, "find_service", autospec=True, return_value=service)
+    log_info = mocker.patch.object(db_request.log, "info")
 
     remove_documentation(task, db_request, project.name)
 
-    assert service.remove_by_prefix.calls == [call(f"{project.name}/")]
-
-    assert db_request.log.info.calls == [
-        call("Removing documentation for %s", project.name)
-    ]
+    service.remove_by_prefix.assert_called_once_with(f"{project.name}/")
+    log_info.assert_called_once_with("Removing documentation for %s", project.name)
 
 
-def test_remove_documentation_retry(db_request):
+def test_remove_documentation_retry(db_request, mocker):
     project = ProjectFactory.create(name="foo", has_docs=True)
-    task = stub(retry=call_recorder(lambda *a, **kw: None))
-    service = stub(remove_by_prefix=raiser(Exception))
-    db_request.find_service = call_recorder(lambda interface, name=None: service)
-    db_request.log = stub(info=call_recorder(lambda *a, **kw: None))
+    task = mocker.Mock(spec=["retry"])
+    service = mocker.Mock(spec=["remove_by_prefix"])
+    service.remove_by_prefix.side_effect = Exception
+    mocker.patch.object(db_request, "find_service", autospec=True, return_value=service)
+    log_info = mocker.patch.object(db_request.log, "info")
 
     remove_documentation(task, db_request, project.name)
 
-    assert len(task.retry.calls) == 1
-
-    assert db_request.log.info.calls == [
-        call("Removing documentation for %s", project.name)
-    ]
+    assert task.retry.call_count == 1
+    log_info.assert_called_once_with("Removing documentation for %s", project.name)

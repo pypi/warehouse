@@ -43,7 +43,7 @@ SIMPLE_BACKEND=warehouse.packaging.services.LocalSimpleStorage path=/var/opt/war
 DOCS_BACKEND=warehouse.packaging.services.LocalDocsStorage path=/var/opt/warehouse/docs/
 SPONSORLOGOS_BACKEND=warehouse.admin.services.LocalSponsorLogoStorage path=/var/opt/warehouse/sponsorlogos/
 ORIGIN_CACHE=warehouse.cache.origin.fastly.NullFastlyCache api_key=some_api_key service_id=some_service_id
-MAIL_BACKEND=warehouse.email.services.ConsoleAndSMTPEmailSender host=maildev port=1025 ssl=false sender=noreply@pypi.org
+MAIL_BACKEND=warehouse.email.services.ConsoleAndSMTPEmailSender host=mailpit port=1025 ssl=false sender=noreply@pypi.org
 
 BREACHED_EMAILS=warehouse.accounts.NullEmailBreachedService
 BREACHED_PASSWORDS=warehouse.accounts.NullPasswordBreachedService
@@ -103,5 +103,8 @@ HELPDESK_BACKEND="warehouse.helpdesk.services.ConsoleHelpDeskService"
 # HELPDESK_NOTIFICATION_SERVICE_URL="https://..."
 HELPDESK_NOTIFICATION_BACKEND="warehouse.helpdesk.services.ConsoleAdminNotificationService"
 
-# Example of Domain Status configuration
+# Example of Domain Status configuration (Fastly Domain Research API)
+# DOMAIN_STATUS_BACKEND="warehouse.accounts.services.FastlyDomainStatusService api_key=your_fastly_api_key"
+
+# Example of Domain Status configuration (legacy Domainr API)
 # DOMAIN_STATUS_BACKEND="warehouse.accounts.services.DomainrDomainStatusService client_id=some_client_id"

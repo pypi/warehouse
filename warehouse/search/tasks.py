@@ -8,9 +8,10 @@ import urllib.parse
 import certifi
 import opensearchpy
 import redis
-import requests_aws4auth
 import sentry_sdk
 
+from botocore.credentials import Credentials
+from opensearchpy import RequestsAWSV4SignerAuth
 from opensearchpy.helpers import parallel_bulk
 from redis.lock import Lock
 from sqlalchemy import func, or_, select, text
@@ -126,11 +127,12 @@ def reindex(self, request):
             if aws_auth:
                 aws_region = qs.get("region", ["us-east-1"])[0]
                 kwargs["connection_class"] = opensearchpy.RequestsHttpConnection
-                kwargs["http_auth"] = requests_aws4auth.AWS4Auth(
-                    request.registry.settings["aws.key_id"],
-                    request.registry.settings["aws.secret_key"],
-                    aws_region,
-                    "es",
+                credentials = Credentials(
+                    access_key=request.registry.settings["aws.key_id"],
+                    secret_key=request.registry.settings["aws.secret_key"],
+                )
+                kwargs["http_auth"] = RequestsAWSV4SignerAuth(
+                    credentials, aws_region, "es"
                 )
             client = opensearchpy.OpenSearch(**kwargs)
             number_of_replicas = request.registry.get("opensearch.replicas", 0)

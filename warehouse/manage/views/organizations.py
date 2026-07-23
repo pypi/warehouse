@@ -28,7 +28,6 @@ from warehouse.email import (
     send_organization_member_invited_email,
     send_organization_member_removed_email,
     send_organization_member_role_changed_email,
-    send_organization_project_added_email,
     send_organization_project_removed_email,
     send_organization_role_verification_email,
     send_organization_updated_email,
@@ -50,6 +49,8 @@ from warehouse.manage.forms import (
     TransferOrganizationProjectForm,
 )
 from warehouse.manage.views.view_helpers import (
+    add_organization_project_and_notify,
+    organization_owners,
     project_owners,
     user_organizations,
     user_projects,
@@ -87,20 +88,6 @@ from warehouse.utils.http import is_safe_url
 from warehouse.utils.organization import confirm_organization
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import confirm_project
-
-
-def organization_owners(request, organization):
-    """Return all users who are owners of the organization."""
-    owner_roles = (
-        request.db.query(User.id)
-        .join(OrganizationRole.user)
-        .filter(
-            OrganizationRole.role_name == OrganizationRoleType.Owner,
-            OrganizationRole.organization == organization,
-        )
-        .subquery()
-    )
-    return request.db.query(User).join(owner_roles, User.id == owner_roles.c.id).all()
 
 
 def organization_managers(request, organization):
@@ -215,10 +202,6 @@ class ManageOrganizationsViews:
 
     @view_config(request_method="GET")
     def manage_organizations(self):
-        # Organizations must be enabled.
-        if not self.request.organization_access:
-            raise HTTPNotFound
-
         return self.default_response
 
     @view_config(
@@ -226,10 +209,6 @@ class ManageOrganizationsViews:
         request_param=CreateOrganizationApplicationForm.__params__,
     )
     def create_organization_application(self):
-        # Organizations must be enabled.
-        if not self.request.organization_access:
-            raise HTTPNotFound
-
         form = CreateOrganizationApplicationForm(
             self.request.POST,
             organization_service=self.organization_service,
@@ -341,7 +320,7 @@ class ManageOrganizationApplicationViews:
     context=Organization,
     renderer="warehouse:templates/manage/organization/settings.html",
     uses_session=True,
-    require_active_organization=True,
+    require_active_organization=False,  # Allow deleting org with inactive billing.
     require_csrf=True,
     require_methods=False,
     permission=Permissions.OrganizationsManage,
@@ -660,10 +639,6 @@ class ManageOrganizationBillingViews:
 
     @view_config(route_name="manage.organization.subscription")
     def create_or_manage_subscription(self):
-        # Organizations must be enabled.
-        if not self.request.organization_access:
-            raise HTTPNotFound
-
         if not self.organization.manageable_subscription:
             # Create subscription if there are no manageable subscription.
             # This occurs if no subscription exists, or all subscriptions have reached
@@ -887,41 +862,8 @@ class ManageOrganizationProjectsViews:
                 form.new_project_name.errors.append(exc.detail)
                 return default_response
 
-        # Add project to organization.
-        self.organization_service.add_organization_project(
-            organization_id=self.organization.id,
-            project_id=project.id,
-        )
-
-        # Record events.
-        self.organization.record_event(
-            tag=EventTag.Organization.OrganizationProjectAdd,
-            request=self.request,
-            additional={
-                "submitted_by_user_id": str(self.request.user.id),
-                "project_name": project.name,
-            },
-        )
-        project.record_event(
-            tag=EventTag.Project.OrganizationProjectAdd,
-            request=self.request,
-            additional={
-                "submitted_by_user_id": str(self.request.user.id),
-                "organization_name": self.organization.name,
-            },
-        )
-
-        # Send notification emails.
-        owner_users = set(
-            organization_owners(self.request, self.organization)
-            + project_owners(self.request, project)
-        )
-        send_organization_project_added_email(
-            self.request,
-            owner_users,
-            organization_name=self.organization.name,
-            project_name=project.name,
-        )
+        # Add project to organization, record events, and notify owners.
+        add_organization_project_and_notify(self.request, self.organization, project)
 
         # Display notification message.
         self.request.session.flash(
@@ -947,7 +889,7 @@ def _send_organization_invitation(request, organization, role_name, user):
     # has not updated invite status
     try:
         invite_token = token_service.loads(organization_invite.token)
-    except (TokenExpired, AttributeError):
+    except TokenExpired, AttributeError:
         invite_token = None
 
     if existing_role:
@@ -1481,12 +1423,6 @@ def manage_organization_history(organization, request):
     require_reauth=True,
 )
 def remove_organization_project(project, request):
-    if not request.organization_access:
-        request.session.flash("Organizations are disabled", queue="error")
-        return HTTPSeeOther(
-            request.route_path("manage.project.settings", project_name=project.name)
-        )
-
     if (
         # Check that user has permission to remove projects from organization.
         (project.organization and request.user not in project.organization.owners)
@@ -1575,12 +1511,6 @@ def remove_organization_project(project, request):
     require_reauth=True,
 )
 def transfer_organization_project(project, request):
-    if not request.organization_access:
-        request.session.flash("Organizations are disabled", queue="error")
-        return HTTPSeeOther(
-            request.route_path("manage.project.settings", project_name=project.name)
-        )
-
     # Check that user has permission to remove projects from organization.
     if project.organization and request.user not in project.organization.owners:
         request.session.flash(
@@ -1693,39 +1623,9 @@ def transfer_organization_project(project, request):
         # Mark Organization as dirty, so purges will happen
         orm.attributes.flag_dirty(organization)
 
-    # Add project to selected organization.
+    # Add project to selected organization, record events, and notify owners.
     organization = organization_service.get_organization(form.organization.data)
-    organization_service.add_organization_project(organization.id, project.id)
-    organization.record_event(
-        tag=EventTag.Organization.OrganizationProjectAdd,
-        request=request,
-        additional={
-            "submitted_by_user_id": str(request.user.id),
-            "project_name": project.name,
-        },
-    )
-    project.record_event(
-        tag=EventTag.Project.OrganizationProjectAdd,
-        request=request,
-        additional={
-            "submitted_by_user_id": str(request.user.id),
-            "organization_name": organization.name,
-        },
-    )
-
-    # Mark Organization as dirty, so purges will happen
-    orm.attributes.flag_dirty(organization)
-
-    # Send notification emails.
-    owner_users = set(
-        organization_owners(request, organization) + project_owners(request, project)
-    )
-    send_organization_project_added_email(
-        request,
-        owner_users,
-        organization_name=organization.name,
-        project_name=project.name,
-    )
+    add_organization_project_and_notify(request, organization, project)
 
     request.session.flash(
         f"Transferred the project {project.name!r} to {organization.name!r}",
@@ -1742,6 +1642,7 @@ def transfer_organization_project(project, request):
     context=Organization,
     renderer="manage/organization/publishing.html",
     uses_session=True,
+    require_active_organization=True,
     require_csrf=True,
     require_methods=False,
     permission=Permissions.OrganizationsManage,
@@ -1884,9 +1785,12 @@ class ManageOrganizationPublishingViews:
 
         try:
             self.request.db.add(pending_publisher)
-            self.request.db.flush()  # To get the new ID
+            self.request.db.flush()  # To get the new ID  # ast-grep-ignore: db-flush
         except UniqueViolation:
-            # Double-post protection
+            # Double-post protection. The failed INSERT leaves the transaction
+            # in an aborted state, so roll back before redirecting -- otherwise
+            # the end-of-request commit blows up.
+            self.request.db.rollback()
             return HTTPSeeOther(self.request.path)
 
         # Record event on organization

@@ -15,7 +15,9 @@ from warehouse.macaroons.models import Macaroon
 from warehouse.oidc.models import GitHubPublisher
 from warehouse.organizations.models import OrganizationType, TeamProjectRoleType
 from warehouse.packaging.models import (
+    Description,
     File,
+    LifecycleStatus,
     Project,
     ProjectFactory,
     ProjectMacaroonWarningAssociation,
@@ -435,6 +437,31 @@ class TestProject:
         assert db_session.query(Project).filter_by(id=project.id).count() == 0
         assert db_session.query(GitHubPublisher).filter_by(id=publisher.id).count() == 1
 
+    def test_deletion_removes_release_descriptions(self, db_session):
+        """
+        When we remove a Project, ensure that the Description rows belonging to
+        its Releases are removed too, rather than left orphaned.
+
+        The ``releases.description_id`` foreign key points up to
+        ``release_descriptions``, so the database's ``ON DELETE CASCADE`` from
+        ``projects`` to ``releases`` does not reach the descriptions. Without an
+        explicit cleanup, deleting a Project leaves its descriptions behind.
+
+        See: https://github.com/pypi/warehouse/issues/14825
+        """
+        project = DBProjectFactory.create()
+        release = DBReleaseFactory.create(project=project)
+        description_id = release.description_id
+
+        assert db_session.query(Description).filter_by(id=description_id).count() == 1
+
+        db_session.delete(project)
+        # Flush session to trigger any FK constraints
+        db_session.flush()
+
+        assert db_session.query(Project).filter_by(id=project.id).count() == 0
+        assert db_session.query(Description).filter_by(id=description_id).count() == 0
+
     def test_deletion_project_with_macaroon_warning(self, db_session, macaroon_service):
         """
         When we remove a Project, ensure that we also remove any related
@@ -528,6 +555,29 @@ class TestProject:
         assert len(project.releases) == len(
             [active_release0, active_release1, yanked_release0]
         )
+
+    def test_latest_version_excludes_quarantined(self, db_session):
+        """Quarantined releases are skipped when computing latest_version."""
+        project = DBProjectFactory.create()
+        DBReleaseFactory.create(
+            project=project,
+            version="2.0",
+            lifecycle_status=LifecycleStatus.QuarantineEnter,
+        )
+        DBReleaseFactory.create(project=project, version="1.0")
+
+        assert project.latest_version.version == "1.0"
+
+    def test_latest_version_none_when_all_quarantined(self, db_session):
+        """latest_version is None when every release is quarantined."""
+        project = DBProjectFactory.create()
+        DBReleaseFactory.create(
+            project=project,
+            version="1.0",
+            lifecycle_status=LifecycleStatus.QuarantineEnter,
+        )
+
+        assert project.latest_version is None
 
 
 class TestDependency:
@@ -1161,15 +1211,24 @@ class TestRelease:
 
         assert not release.trusted_published
 
-    def test_description_relationship(self, db_request):
-        """When a Release is deleted, the Description is also deleted."""
+    def test_description_relationship(self, db_session):
+        """
+        When a Release is deleted, its Description is also deleted.
+
+        Enforced at the database level by the
+        ``releases_delete_orphaned_description`` trigger rather than the ORM,
+        since the ``description_id`` foreign key points the "wrong" way for an
+        ``ON DELETE CASCADE`` to reach the description.
+
+        See: https://github.com/pypi/warehouse/issues/14825
+        """
         release = DBReleaseFactory.create()  # also creates a Description
-        description = release.description
+        description_id = release.description_id
 
-        db_request.db.delete(release)
+        db_session.delete(release)
+        db_session.flush()
 
-        assert release in db_request.db.deleted
-        assert description in db_request.db.deleted
+        assert db_session.query(Description).filter_by(id=description_id).count() == 0
 
 
 class TestFile:

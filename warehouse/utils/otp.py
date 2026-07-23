@@ -30,7 +30,7 @@ def _get_totp(secret):
         * 6-digit code
         * 30-second interval
     """
-    return TOTP(secret, TOTP_LENGTH, SHA1(), TOTP_INTERVAL)
+    return TOTP(secret, TOTP_LENGTH, SHA1(), TOTP_INTERVAL)  # noqa: S303
 
 
 def generate_totp_secret():

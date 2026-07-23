@@ -52,11 +52,33 @@ def plain(**locals_):
 def shell(config, type_):
     """
     Open up a Python shell with Warehouse preconfigured in it.
+
+    Test factories are automatically configured to use the shell's database session.
+    Import and use them like:
+        from tests.common.db.accounts import UserFactory
+        user = UserFactory.create(username="testuser")
     """
 
-    # Imported here because we don't want to trigger an import from anything
-    # but warehouse.cli at the module scope.
-    from warehouse.db import Session
+    # Lazy import; this is the only thing we need before picking a Session.
+    from warehouse.config import Environment
+
+    is_dev = config.registry.settings.get("warehouse.env") == Environment.development
+
+    # In dev, use the scoped_session from `tests.common.db` that
+    # WarehouseFactory points at as its `sqlalchemy_session`. Calling it with
+    # `bind=` registers the resulting Session in the thread-local registry,
+    # so `UserFactory.create(...)` and `request.db` end up sharing one
+    # Session (same identity map, same transaction).
+    #
+    # Anywhere else, fall back to the bare `warehouse.db.Session` sessionmaker
+    # so we don't pull test code into a prod shell. The shell is still useful
+    # in prod for incident debugging; the factory wiring is the dev-only part.
+    # Importing a factory in a prod shell will fail because `factory_boy`
+    # isn't installed there, which is the right signal.
+    if is_dev:
+        from tests.common.db import Session
+    else:
+        from warehouse.db import Session
 
     if type_ is None:
         type_ = autodetect()

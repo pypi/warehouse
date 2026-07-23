@@ -37,7 +37,15 @@ from warehouse.email import (
     send_account_recovery_initiated_email,
     send_password_reset_by_admin_email,
 )
+from warehouse.manage.views.view_helpers import (
+    deactivate_organization_for_owner_removal,
+)
 from warehouse.observations.models import ObservationKind
+from warehouse.organizations.models import (
+    Organization,
+    OrganizationRole,
+    OrganizationRoleType,
+)
 from warehouse.packaging.models import File, JournalEntry, Project, Release, Role
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import clear_project_quarantine, quarantine_project
@@ -223,6 +231,7 @@ def user_detail(user, request):
     return {
         "user": user,
         "user_projects": user_projects,
+        "sole_owned_organizations": _sole_owned_organizations(user, request),
         "form": form,
         "emails_form": emails_form,
         "roles": roles,
@@ -357,6 +366,19 @@ def user_email_delete(user: User, request: Request) -> HTTPSeeOther:
     return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
 
 
+def _sole_owned_organizations(user, request):
+    """Organizations with exactly one Owner role, belonging to this user."""
+    return (
+        request.db.query(Organization)
+        .join(OrganizationRole, OrganizationRole.organization_id == Organization.id)
+        .filter(OrganizationRole.role_name == OrganizationRoleType.Owner)
+        .group_by(Organization.id)
+        .having(func.count(OrganizationRole.user_id) == 1)
+        .having(func.bool_or(OrganizationRole.user_id == user.id))
+        .all()
+    )
+
+
 def _nuke_user(user, request):
     # Delete all the user's projects
     projects = request.db.query(Project).filter(
@@ -383,6 +405,13 @@ def _nuke_user(user, request):
         .values(_submitted_by=deleted_user.username)
         .execution_options(synchronize_session=False)
     )
+
+    # Deactivate (and record an event for) any organization the user is the
+    # sole owner of.
+    for organization in _sole_owned_organizations(user, request):
+        deactivate_organization_for_owner_removal(
+            request, organization, target_user=user, reason="nuked"
+        )
 
     # Prohibit the username
     request.db.add(
@@ -607,7 +636,7 @@ def user_recover_account_initiate(user, request):
             )
 
             request.session.flash(
-                f"Initiatied account recovery for {user.username!r}", queue="success"
+                f"Initiated account recovery for {user.username!r}", queue="success"
             )
 
             return HTTPSeeOther(
@@ -695,7 +724,7 @@ def user_recover_account_complete(user: User, request):
 @view_config(
     route_name="admin.user.burn_recovery_codes",
     require_methods=["POST"],
-    permission=Permissions.AdminUsersWrite,
+    permission=Permissions.AdminUsersRecoveryCodesBurn,
     uses_session=True,
     require_csrf=True,
     context=User,
@@ -713,7 +742,7 @@ def user_burn_recovery_codes(user, request):
             try:
                 user_service.check_recovery_code(user.id, code, skip_ratelimits=True)
                 n_burned += 1
-            except (BurnedRecoveryCode, InvalidRecoveryCode):
+            except BurnedRecoveryCode, InvalidRecoveryCode:
                 pass
 
         request.session.flash(f"Burned {n_burned} recovery code(s)", queue="success")

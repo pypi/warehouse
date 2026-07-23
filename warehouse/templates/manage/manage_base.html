@@ -219,7 +219,7 @@
     {% block breadcrumbs %}
       <nav aria-label="{% trans %}Breadcrumbs{% endtrans %}" class="breadcrumbs">
         <ul>
-          {# Last breadcrumb can be overriden #}
+          {# Last breadcrumb can be overridden #}
           {% block breadcrumb %}
             <li class="breadcrumbs__breadcrumb">{% trans %}Your account{% endtrans %}</li>
           {% endblock %}
@@ -239,16 +239,14 @@
                   {% trans %}Your projects{% endtrans %}
                 </a>
               </li>
-              {% if request.organization_access %}
-                <li>
-                  <a href="{{ request.route_path('manage.organizations') }}"
-                     class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'organizations' %}vertical-tabs__tab--is-active{% endif %}"
-                     {% if active_tab == 'organizations' %}aria-selected="true"{% endif %}>
-                    <i class="fa fa-sitemap" aria-hidden="true"></i>
-                    {% trans %}Your organizations{% endtrans %}
-                  </a>
-                </li>
-              {% endif %}
+              <li>
+                <a href="{{ request.route_path('manage.organizations') }}"
+                   class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'organizations' %}vertical-tabs__tab--is-active{% endif %}"
+                   {% if active_tab == 'organizations' %}aria-selected="true"{% endif %}>
+                  <i class="fa fa-sitemap" aria-hidden="true"></i>
+                  {% trans %}Your organizations{% endtrans %}
+                </a>
+              </li>
               <li>
                 <a href="{{ request.route_path('manage.account') }}"
                    class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'account' %}vertical-tabs__tab--is-active{% endif %}"
@@ -281,16 +279,14 @@
                 {% trans %}Your projects{% endtrans %}
               </a>
             </li>
-            {% if request.organization_access %}
-              <li>
-                <a href="{{ request.route_path('manage.organizations') }}"
-                   class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--with-icon vertical-tabs__tab--no-top-border {% if active_tab == 'organizations' %}vertical-tabs__tab--is-active{% endif %}"
-                   {% if active_tab == 'organizations' %}aria-selected="true"{% endif %}>
-                  <i class="fa fa-sitemap" aria-hidden="true"></i>
-                  {% trans %}Your organizations{% endtrans %}
-                </a>
-              </li>
-            {% endif %}
+            <li>
+              <a href="{{ request.route_path('manage.organizations') }}"
+                 class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--with-icon vertical-tabs__tab--no-top-border {% if active_tab == 'organizations' %}vertical-tabs__tab--is-active{% endif %}"
+                 {% if active_tab == 'organizations' %}aria-selected="true"{% endif %}>
+                <i class="fa fa-sitemap" aria-hidden="true"></i>
+                {% trans %}Your organizations{% endtrans %}
+              </a>
+            </li>
             <li>
               <a href="{{ request.route_path('manage.account') }}"
                  class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--with-icon vertical-tabs__tab--no-top-border {% if active_tab == 'account' %}vertical-tabs__tab--is-active{% endif %}"

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import datetime
 import enum
 import typing
 
@@ -242,12 +243,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
     )
     releases: Mapped[list[Release]] = orm.relationship(
         cascade="all, delete-orphan",
-        order_by=lambda: Release._pypi_ordering.desc(),
-        passive_deletes=True,
-    )
-    alternate_repositories: Mapped[list[AlternateRepository]] = orm.relationship(
-        cascade="all, delete-orphan",
-        back_populates="project",
+        order_by=lambda: Release._pypi_ordering.desc(),  # noqa: PLW0108
         passive_deletes=True,
     )
 
@@ -484,7 +480,13 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             session.query(
                 Release.version, Release.created, Release.is_prerelease, Release.summary
             )
-            .filter(Release.project == self, Release.yanked.is_(False))
+            .filter(
+                Release.project == self,
+                Release.yanked.is_(False),
+                Release.lifecycle_status.is_distinct_from(
+                    LifecycleStatus.QuarantineEnter
+                ),
+            )
             .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
             .first()
         )
@@ -655,6 +657,7 @@ class Release(HasObservations, db.Model):
             Index("release_project_created_idx", cls.project_id, cls.created.desc()),
             Index("release_version_idx", cls.version),
             Index("release_canonical_version_idx", cls.canonical_version),
+            Index("releases_lifecycle_status_idx", cls.lifecycle_status),
             UniqueConstraint("project_id", "version"),
         )
 
@@ -703,19 +706,37 @@ class Release(HasObservations, db.Model):
     created: Mapped[datetime_now] = mapped_column()
     published: Mapped[bool_true] = mapped_column()
 
+    lifecycle_status: Mapped[LifecycleStatus | None] = mapped_column(
+        comment="Lifecycle status can change release visibility and access"
+    )
+    lifecycle_status_changed: Mapped[datetime_now | None] = mapped_column(
+        onupdate=func.now(),
+        comment="When the lifecycle status was last changed",
+    )
+    lifecycle_status_note: Mapped[str | None] = mapped_column(
+        comment="Note about the lifecycle status"
+    )
+
     description_id: Mapped[UUID] = mapped_column(
         ForeignKey("release_descriptions.id", onupdate="CASCADE", ondelete="CASCADE"),
         index=True,
     )
     description: Mapped[Description] = orm.relationship(
         back_populates="release",
-        cascade="all, delete-orphan",
-        single_parent=True,
+        # Cleanup of the orphaned Description is enforced at the database level
+        # by the `releases_delete_orphaned_description` trigger, since the
+        # `description_id` foreign key points the "wrong" way for an ON DELETE
+        # CASCADE to reach it. See: https://github.com/pypi/warehouse/issues/14825
+        passive_deletes=True,
     )
 
     yanked: Mapped[bool_false]
 
     yanked_reason: Mapped[str] = mapped_column(server_default="")
+
+    yanked_date: Mapped[datetime.datetime | None] = mapped_column(
+        comment="When the release was yanked"
+    )
 
     dynamic = Column(  # type: ignore[var-annotated]
         ARRAY(DynamicFieldsEnum),
@@ -733,7 +754,7 @@ class Release(HasObservations, db.Model):
     _project_urls: Mapped[list[ReleaseURL]] = orm.relationship(
         collection_class=attribute_keyed_dict("name"),
         cascade="all, delete-orphan",
-        order_by=lambda: ReleaseURL.name.asc(),
+        order_by=lambda: ReleaseURL.name.asc(),  # noqa: PLW0108
         passive_deletes=True,
     )
     project_urls = association_proxy(
@@ -1112,7 +1133,7 @@ class JournalEntry(db.ModelBase):
 @db.listens_for(db.Session, "before_flush")
 def ensure_monotonic_journals(config, session, flush_context, instances):
     # We rely on `journals.id` to be a monotonically increasing integer,
-    # however the way that SERIAL is implemented, it does not guarentee
+    # however the way that SERIAL is implemented, it does not guarantee
     # that is the case.
     #
     # Ultimately SERIAL fetches the next integer regardless of what happens
@@ -1207,37 +1228,6 @@ class ProjectMacaroonWarningAssociation(db.Model):
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         primary_key=True,
     )
-
-
-class AlternateRepository(db.Model):
-    """
-    Store an alternate repository name, url, description for a project.
-    One project can have zero, one, or more alternate repositories.
-
-    For each project, ensures the url and name are unique.
-    Urls must start with http(s).
-    """
-
-    __tablename__ = "alternate_repositories"
-    __table_args__ = (
-        UniqueConstraint("project_id", "url"),
-        UniqueConstraint("project_id", "name"),
-        CheckConstraint(
-            "url ~* '^https?://.+'::text",
-            name="alternate_repository_valid_url",
-        ),
-    )
-
-    __repr__ = make_repr("name", "url")
-
-    project_id: Mapped[UUID] = mapped_column(
-        ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
-    )
-    project: Mapped[Project] = orm.relationship(back_populates="alternate_repositories")
-
-    name: Mapped[str]
-    url: Mapped[str]
-    description: Mapped[str]
 
 
 @event.listens_for(File, "after_insert")

@@ -87,6 +87,17 @@
             This will permanently destroy the macaroon and cannot be undone.
           </p>
           <hr>
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="notifyUser" name="notify" value="true">
+            <label class="form-check-label" for="notifyUser">
+              Notify the user that this token was compromised
+            </label>
+          </div>
+          <div class="form-group mt-2">
+            <label for="notifyReason">Reason / public URL (optional)</label>
+            <textarea class="form-control" id="notifyReason" name="reason" rows="2"
+              placeholder="Included in the notification email, if sent."></textarea>
+          </div>
           <input type="hidden" name="macaroon" value="{{ macaroon.id }}">
         </div>
         <div class="modal-footer">

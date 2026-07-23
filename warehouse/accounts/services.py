@@ -29,9 +29,6 @@ from ua_parser import user_agent_parser
 from webauthn.helpers import bytes_to_base64url
 from zope.interface import implementer
 
-import warehouse.utils.otp as otp
-import warehouse.utils.webauthn as webauthn
-
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
     IDomainStatusService,
@@ -66,6 +63,7 @@ from warehouse.events.models import UserAgentInfo
 from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
+from warehouse.utils import otp, webauthn
 from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerializer
 
 if typing.TYPE_CHECKING:
@@ -73,7 +71,7 @@ if typing.TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-PASSWORD_FIELD = "password"
+PASSWORD_FIELD = "password"  # noqa: S105
 RECOVERY_CODE_COUNT = 8
 RECOVERY_CODE_BYTES = 8
 
@@ -301,7 +299,7 @@ class DatabaseUserService:
     def create_user(self, username, name, password):
         user = User(username=username, name=name, password=self.hasher.hash(password))
         self.db.add(user)
-        self.db.flush()  # flush the db now so user.id is available
+        self.db.flush()  # generate user.id  # ast-grep-ignore: db-flush
 
         return user
 
@@ -340,7 +338,7 @@ class DatabaseUserService:
             public=public,
         )
         self.db.add(email)
-        self.db.flush()  # flush the db now so email.id is available
+        self.db.flush()  # generate email.id  # ast-grep-ignore: db-flush
 
         if ratelimit:
             self.ratelimiters["email.add"].hit(self.remote_addr)
@@ -352,8 +350,9 @@ class DatabaseUserService:
         user = self.get_user(user_id)
         for attr, value in changes.items():
             if attr == PASSWORD_FIELD:
-                value = self.hasher.hash(value)
-            setattr(user, attr, value)
+                setattr(user, attr, self.hasher.hash(value))
+            else:
+                setattr(user, attr, value)
 
         # If we've given the user a new password, then we also want to unset the
         # reason for disable... because a new password means no more disabled
@@ -617,7 +616,7 @@ class DatabaseUserService:
 
         webauthn = WebAuthn(user=user, **kwargs)
         self.db.add(webauthn)
-        self.db.flush()  # flush the db now so webauthn.id is available
+        self.db.flush()  # generate webauthn.id  # ast-grep-ignore: db-flush
 
         return webauthn
 
@@ -779,7 +778,7 @@ class DatabaseUserService:
                 + datetime.timedelta(seconds=token_service.max_age),
             )
             request.db.add(unique_login)
-            request.db.flush()  # To get the ID for the token
+            request.db.flush()  # generaten token id  # ast-grep-ignore: db-flush
             should_send_email = True
 
             user.record_event(
@@ -907,7 +906,7 @@ class DatabaseUserService:
         )
         self.db.add(association)
         try:
-            self.db.flush()  # Flush to get the generated ID
+            self.db.flush()  # generate the id  # ast-grep-ignore: db-flush
         except UniqueViolation:
             self.db.rollback()
             raise ValueError(
@@ -1239,3 +1238,41 @@ class DomainrDomainStatusService:
             return None
 
         return resp.json()["status"][0]["status"].split()
+
+
+@implementer(IDomainStatusService)
+class FastlyDomainStatusService:
+    def __init__(self, *, session, api_key):
+        self._http = session
+        self.api_key = api_key
+
+    @classmethod
+    def create_service(cls, _context, request: Request) -> FastlyDomainStatusService:
+        fastly_api_key = request.registry.settings["domain_status.api_key"]
+        return cls(session=request.http, api_key=fastly_api_key)
+
+    def get_domain_status(self, domain: str) -> list[str] | None:
+        """
+        Check if a domain is available or not.
+        See https://www.fastly.com/documentation/reference/api/domain-management/domain-research/
+        """
+        try:
+            resp = self._http.get(
+                "https://api.fastly.com/domain-management/v1/tools/status",
+                params={"domain": domain},
+                headers={"Fastly-Key": self.api_key},
+                timeout=5,
+            )
+            resp.raise_for_status()
+        except requests.RequestException as exc:
+            logger.warning("Error contacting Fastly: %r", exc)
+            return None
+
+        body = resp.json()
+        if errors := body.get("errors"):
+            logger.warning(
+                {"status": "Error from Fastly", "errors": errors, "domain": domain}
+            )
+            return None
+
+        return body["status"].split()

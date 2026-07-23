@@ -18,10 +18,18 @@ from warehouse.accounts.models import (
     WebAuthn,
 )
 from warehouse.admin.views import users as views
+from warehouse.events.tags import EventTag
 from warehouse.observations.models import ObservationKind
+from warehouse.organizations.models import OrganizationRoleType
 from warehouse.packaging.models import JournalEntry, Project, ReleaseURL
+from warehouse.subscriptions.models import StripeSubscriptionStatus
 
 from ....common.db.accounts import EmailFactory, User, UserFactory
+from ....common.db.organizations import (
+    OrganizationFactory,
+    OrganizationRoleFactory,
+    OrganizationStripeSubscriptionFactory,
+)
 from ....common.db.packaging import (
     FileFactory,
     JournalEntryFactory,
@@ -29,6 +37,7 @@ from ....common.db.packaging import (
     ReleaseFactory,
     RoleFactory,
 )
+from ....common.db.subscriptions import StripeSubscriptionFactory
 
 
 class TestUserList:
@@ -112,7 +121,7 @@ class TestEmailForm:
 class TestUserForm:
     def test_validate(self):
         form = views.UserForm()
-        assert form.validate(), str(form.erros)
+        assert form.validate(), str(form.errors)
 
 
 class TestUserDetail:
@@ -150,6 +159,22 @@ class TestUserDetail:
                 "role_name": "Owner",
             }
         ]
+        assert result["sole_owned_organizations"] == []
+
+    def test_gets_user_with_sole_owned_organizations(self, db_request):
+        user = UserFactory.create()
+        organization = OrganizationFactory.create()
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=user,
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        db_request.matchdict["username"] = str(user.username)
+
+        result = views.user_detail(user, db_request)
+
+        assert result["sole_owned_organizations"] == [organization]
 
     def test_updates_user(self, db_request):
         user = UserFactory.create()
@@ -464,6 +489,88 @@ class TestUserDelete:
             .one()
         )
         assert remove_journal.name == project.name
+
+    def test_deletes_user_deactivates_sole_owned_organizations(
+        self, db_request, mocker
+    ):
+        user = UserFactory.create()
+        UserFactory.create(username="deleted-user")
+
+        # Organization the user is the sole owner of: deleting the user would
+        # otherwise orphan it, so it should be deactivated with an audit event.
+        sole_owned = OrganizationFactory.create(is_active=True)
+        OrganizationRoleFactory.create(
+            organization=sole_owned,
+            user=user,
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        # Organization with another owner: must be left untouched.
+        co_owned = OrganizationFactory.create(is_active=True)
+        OrganizationRoleFactory.create(
+            organization=co_owned, user=user, role_name=OrganizationRoleType.Owner
+        )
+        OrganizationRoleFactory.create(
+            organization=co_owned,
+            user=UserFactory.create(),
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        db_request.matchdict["username"] = str(user.username)
+        db_request.params = {"username": user.username}
+        db_request.route_path = mocker.Mock(return_value="/foobar")
+        db_request.user = UserFactory.create()
+
+        views.user_delete(user, db_request)
+
+        db_request.db.flush()
+
+        assert not db_request.db.get(User, user.id)
+        assert sole_owned.is_active is False
+        assert co_owned.is_active is True
+        assert EventTag.Organization.OrganizationRoleRemove.value in [
+            event.tag for event in sole_owned.events
+        ]
+
+    def test_deletes_user_cancels_subscriptions_for_sole_owned_organizations(
+        self, db_request, billing_service, mocker
+    ):
+        user = UserFactory.create()
+        UserFactory.create(username="deleted-user")
+
+        organization = OrganizationFactory.create(is_active=True)
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=user,
+            role_name=OrganizationRoleType.Owner,
+        )
+        subscription = StripeSubscriptionFactory.create()
+        OrganizationStripeSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
+        # Terminal subscriptions are retained but cannot be canceled again.
+        canceled_subscription = StripeSubscriptionFactory.create(
+            status=StripeSubscriptionStatus.Canceled
+        )
+        OrganizationStripeSubscriptionFactory.create(
+            organization=organization, subscription=canceled_subscription
+        )
+
+        cancel_subscription = mocker.patch.object(
+            billing_service, "cancel_subscription"
+        )
+
+        db_request.matchdict["username"] = str(user.username)
+        db_request.params = {"username": user.username}
+        db_request.route_path = mocker.Mock(return_value="/foobar")
+        db_request.user = UserFactory.create()
+
+        views.user_delete(user, db_request)
+
+        db_request.db.flush()
+
+        cancel_subscription.assert_called_once_with(subscription.subscription_id)
+        assert organization.is_active is False
 
     def test_deletes_user_bad_confirm(self, db_request, monkeypatch):
         user = UserFactory.create()

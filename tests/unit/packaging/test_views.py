@@ -7,6 +7,7 @@ from natsort import natsorted
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 
 from warehouse.packaging import views
+from warehouse.packaging.models import LifecycleStatus
 
 from ...common.db.accounts import UserFactory
 from ...common.db.classifiers import ClassifierFactory
@@ -111,6 +112,43 @@ class TestProjectDetail:
         project = ProjectFactory.create()
 
         release = ReleaseFactory.create(project=project, version="1.0", yanked=True)
+
+        response = pretend.stub()
+        release_detail = pretend.call_recorder(lambda ctx, request: response)
+        monkeypatch.setattr(views, "release_detail", release_detail)
+
+        resp = views.project_detail(project, db_request)
+
+        assert resp is response
+        assert release_detail.calls == [pretend.call(release, db_request)]
+
+    def test_prefers_non_quarantined_release(self, monkeypatch, db_request):
+        project = ProjectFactory.create()
+
+        ReleaseFactory.create(
+            project=project,
+            version="2.0",
+            lifecycle_status=LifecycleStatus.QuarantineEnter,
+        )
+        release = ReleaseFactory.create(project=project, version="1.0")
+
+        response = pretend.stub()
+        release_detail = pretend.call_recorder(lambda ctx, request: response)
+        monkeypatch.setattr(views, "release_detail", release_detail)
+
+        resp = views.project_detail(project, db_request)
+
+        assert resp is response
+        assert release_detail.calls == [pretend.call(release, db_request)]
+
+    def test_only_quarantined_release(self, monkeypatch, db_request):
+        project = ProjectFactory.create()
+
+        release = ReleaseFactory.create(
+            project=project,
+            version="1.0",
+            lifecycle_status=LifecycleStatus.QuarantineEnter,
+        )
 
         response = pretend.stub()
         release_detail = pretend.call_recorder(lambda ctx, request: response)

@@ -1,22 +1,86 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
+import types
+
+import pytest
 
 from pyramid.interfaces import ISecurityPolicy
+from pyramid.testing import DummySecurityPolicy
 from zope.interface.verify import verifyClass
 
 from tests.common.db.accounts import UserFactory
 from warehouse.accounts.utils import UserContext
+from warehouse.authnz import Permissions
 from warehouse.utils import security_policy
+from warehouse.utils.security_policy import (
+    AuthenticationMethod,
+    permission_allowed_by_authentication_method,
+)
 
 
 def test_principals_for():
-    identity = pretend.stub(__principals__=lambda: ["a", "b", "z"])
+    identity = types.SimpleNamespace()
+    identity.__principals__ = lambda: ["a", "b", "z"]
     assert security_policy.principals_for(identity) == ["a", "b", "z"]
 
 
 def test_principals_for_with_none():
-    assert security_policy.principals_for(pretend.stub()) == []
+    assert security_policy.principals_for(types.SimpleNamespace()) == []
+
+
+class TestPermissionAllowedByAuthenticationMethod:
+    @pytest.mark.parametrize(
+        "permission",
+        [
+            Permissions.ProjectsUpload,
+            # TODO: After danger-api sunset, move APIEcho and APIObservationsAdd
+            #       to test_macaroon_disallowed_permissions (they'll be dropped
+            #       from PERMISSION_AUTH_METHODS).
+            Permissions.APIEcho,
+            Permissions.APIObservationsAdd,
+        ],
+    )
+    def test_macaroon_allowed_permissions(self, permission):
+        assert permission_allowed_by_authentication_method(
+            permission, AuthenticationMethod.MACAROON
+        )
+
+    @pytest.mark.parametrize(
+        "permission",
+        [
+            Permissions.AccountManage,
+            Permissions.ProjectsWrite,
+            "nonexistent",
+        ],
+    )
+    def test_macaroon_disallowed_permissions(self, permission):
+        assert not permission_allowed_by_authentication_method(
+            permission, AuthenticationMethod.MACAROON
+        )
+
+    def test_unknown_permission_defaults_to_session_only(self):
+        assert permission_allowed_by_authentication_method(
+            "nonexistent", AuthenticationMethod.SESSION
+        )
+        assert not permission_allowed_by_authentication_method(
+            "nonexistent", AuthenticationMethod.MACAROON
+        )
+        assert not permission_allowed_by_authentication_method(
+            "nonexistent", AuthenticationMethod.BASIC_AUTH
+        )
+
+    def test_session_permission_allows_session(self):
+        assert permission_allowed_by_authentication_method(
+            Permissions.AccountManage, AuthenticationMethod.SESSION
+        )
+
+
+def test_api_key_auth_method_placeholder_exists():
+    # API_KEY is a placeholder for the dedicated API auth surface that
+    # will replace danger-api's macaroon abuse. No policy implements it
+    # yet; keeping it in the enum makes the PERMISSION_AUTH_METHODS table
+    # and route predicates self-documenting about the migration target.
+    assert AuthenticationMethod.API_KEY.value == "api-key"
 
 
 class TestMultiSecurityPolicy:
@@ -26,68 +90,61 @@ class TestMultiSecurityPolicy:
             security_policy.MultiSecurityPolicy,
         )
 
-    def test_reset(self):
-        identity1 = pretend.stub()
-        identity2 = pretend.stub()
+    def test_reset(self, pyramid_request, mocker):
+        identity1 = mocker.sentinel.identity1
+        identity2 = mocker.sentinel.identity2
         identities = iter([identity1, identity2])
 
-        subpolicies = [pretend.stub(identity=lambda r: next(identities))]
+        subpolicies = [types.SimpleNamespace(identity=lambda r: next(identities))]
         policy = security_policy.MultiSecurityPolicy(subpolicies)
 
-        request = pretend.stub(add_finished_callback=lambda *a, **kw: None)
+        assert policy.identity(pyramid_request) is identity1
+        assert policy.identity(pyramid_request) is identity1
 
-        assert policy.identity(request) is identity1
-        assert policy.identity(request) is identity1
+        policy.reset(pyramid_request)
 
-        policy.reset(request)
+        assert policy.identity(pyramid_request) is identity2
 
-        assert policy.identity(request) is identity2
-
-    def test_identity_none(self):
-        subpolicies = [pretend.stub(identity=lambda r: None)]
+    def test_identity_none(self, pyramid_request):
+        subpolicies = [DummySecurityPolicy(identity=None)]
         policy = security_policy.MultiSecurityPolicy(subpolicies)
 
-        request = pretend.stub(add_finished_callback=lambda *a, **kw: None)
-        assert policy.identity(request) is None
+        assert policy.identity(pyramid_request) is None
 
-    def test_identity_first_come_first_serve(self):
-        identity1 = pretend.stub()
-        identity2 = pretend.stub()
+    def test_identity_first_come_first_serve(self, pyramid_request, mocker):
+        identity1 = mocker.sentinel.identity1
+        identity2 = mocker.sentinel.identity2
         subpolicies = [
-            pretend.stub(identity=lambda r: None),
-            pretend.stub(identity=lambda r: identity1),
-            pretend.stub(identity=lambda r: identity2),
+            DummySecurityPolicy(identity=None),
+            DummySecurityPolicy(identity=identity1),
+            DummySecurityPolicy(identity=identity2),
         ]
         policy = security_policy.MultiSecurityPolicy(subpolicies)
 
-        request = pretend.stub(add_finished_callback=lambda *a, **kw: None)
-        assert policy.identity(request) is identity1
+        assert policy.identity(pyramid_request) is identity1
 
-    def test_authenticated_userid_no_identity(self):
-        request = pretend.stub(add_finished_callback=lambda *a, **kw: None)
-        subpolicies = [pretend.stub(identity=lambda r: None)]
+    def test_authenticated_userid_no_identity(self, pyramid_request):
+        subpolicies = [DummySecurityPolicy(identity=None)]
         policy = security_policy.MultiSecurityPolicy(subpolicies)
 
-        assert policy.authenticated_userid(request) is None
+        assert policy.authenticated_userid(pyramid_request) is None
 
-    def test_authenticated_userid_nonuser_identity(self, db_request):
-        request = pretend.stub(add_finished_callback=lambda *a, **kw: None)
-        nonuser = pretend.stub(id="not-a-user-instance")
-        subpolicies = [pretend.stub(identity=lambda r: nonuser)]
+    def test_authenticated_userid_nonuser_identity(self, db_request, mocker):
+        nonuser = mocker.sentinel.nonuser
+        subpolicies = [DummySecurityPolicy(identity=nonuser)]
         policy = security_policy.MultiSecurityPolicy(subpolicies)
 
-        assert policy.authenticated_userid(request) is None
+        assert policy.authenticated_userid(db_request) is None
 
-    def test_authenticated_userid_user_contex_macaroon(self, db_request):
+    def test_authenticated_userid_user_contex_macaroon(self, db_request, mocker):
         user = UserFactory.create()
-        user_ctx = UserContext(user, pretend.stub())
+        user_ctx = UserContext(user, mocker.sentinel.macaroon)
 
-        request = pretend.stub(add_finished_callback=lambda *a, **kw: None)
-        subpolicies = [pretend.stub(identity=lambda r: user_ctx)]
+        subpolicies = [DummySecurityPolicy(identity=user_ctx)]
         policy = security_policy.MultiSecurityPolicy(subpolicies)
 
         assert (
-            policy.authenticated_userid(request)
+            policy.authenticated_userid(db_request)
             == str(user.id)
             == str(user_ctx.user.id)
         )
@@ -96,37 +153,38 @@ class TestMultiSecurityPolicy:
         user = UserFactory.create()
         user_ctx = UserContext(user, None)
 
-        request = pretend.stub(add_finished_callback=lambda *a, **kw: None)
-        subpolicies = [pretend.stub(identity=lambda r: user_ctx)]
+        subpolicies = [DummySecurityPolicy(identity=user_ctx)]
         policy = security_policy.MultiSecurityPolicy(subpolicies)
 
-        assert policy.authenticated_userid(request) == str(user.id)
+        assert policy.authenticated_userid(db_request) == str(user.id)
 
-    def test_forget(self):
-        subpolicies = [pretend.stub(forget=lambda r, **kw: [("ForgetMe", "1")])]
+    def test_forget(self, mocker):
+        subpolicies = [DummySecurityPolicy(forget_result=[("ForgetMe", "1")])]
         policy = security_policy.MultiSecurityPolicy(subpolicies)
 
-        request = pretend.stub()
+        request = mocker.sentinel.request
         assert policy.forget(request, foo=None) == [("ForgetMe", "1")]
 
-    def test_remember(self):
+    def test_remember(self, mocker):
         subpolicies = [
-            pretend.stub(remember=lambda r, uid, foo, **kw: [("RememberMe", foo)])
+            types.SimpleNamespace(
+                remember=lambda r, uid, foo, **kw: [("RememberMe", foo)]
+            )
         ]
         policy = security_policy.MultiSecurityPolicy(subpolicies)
 
-        request = pretend.stub()
-        userid = pretend.stub()
+        request = mocker.sentinel.request
+        userid = mocker.sentinel.userid
         assert policy.remember(request, userid, foo="bob") == [("RememberMe", "bob")]
 
-    def test_permits(self):
-        identity1 = pretend.stub()
-        identity2 = pretend.stub()
-        context = pretend.stub()
+    def test_permits(self, pyramid_config, pyramid_request, mocker):
+        identity1 = mocker.sentinel.identity1
+        identity2 = mocker.sentinel.identity2
+        context = mocker.sentinel.context
 
         subpolicies = [
-            pretend.stub(identity=lambda r: None),
-            pretend.stub(
+            DummySecurityPolicy(identity=None),
+            types.SimpleNamespace(
                 identity=lambda r: identity1,
                 permits=(
                     lambda r, c, p: (
@@ -134,27 +192,23 @@ class TestMultiSecurityPolicy:
                     )
                 ),
             ),
-            pretend.stub(identity=lambda r: identity2),
+            DummySecurityPolicy(identity=identity2),
         ]
         policy = security_policy.MultiSecurityPolicy(subpolicies)
+        # Register the policy so request.identity resolves through it, exactly
+        # as in production -- the permits() sanity check compares the two.
+        pyramid_config.set_security_policy(policy)
 
-        request = pretend.stub(
-            identity=identity1,
-            add_finished_callback=lambda *a, **kw: None,
-        )
+        assert policy.permits(pyramid_request, context, "myperm")
 
-        assert policy.permits(request, context, "myperm")
-
-    def test_permits_no_policy(self):
+    def test_permits_no_policy(self, pyramid_config, pyramid_request, mocker):
         subpolicies = [
-            pretend.stub(identity=lambda r: None),
-            pretend.stub(identity=lambda r: None),
-            pretend.stub(identity=lambda r: None),
+            DummySecurityPolicy(identity=None),
+            DummySecurityPolicy(identity=None),
+            DummySecurityPolicy(identity=None),
         ]
         policy = security_policy.MultiSecurityPolicy(subpolicies)
-        request = pretend.stub(
-            identity=None, add_finished_callback=lambda *a, **kw: None
-        )
-        context = pretend.stub()
+        pyramid_config.set_security_policy(policy)
+        context = mocker.sentinel.context
 
-        assert not policy.permits(request, context, "myperm")
+        assert not policy.permits(pyramid_request, context, "myperm")

@@ -1,12 +1,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
+import types
+
 import pytest
 
 from zope.interface.verify import verifyClass
 
 from warehouse.accounts.models import User
 from warehouse.events.tags import EventTag
+from warehouse.observations.models import ObservationKind
 from warehouse.organizations import services
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
@@ -45,24 +47,20 @@ from ...common.db.packaging import ProjectFactory
 from ...common.db.subscriptions import StripeCustomerFactory, StripeSubscriptionFactory
 
 
-def test_database_organizations_factory():
-    db = pretend.stub()
-    context = pretend.stub()
-    request = pretend.stub(db=db)
-
-    service = services.database_organization_factory(context, request)
-    assert service.db is db
+def test_database_organizations_factory(mocker):
+    request = types.SimpleNamespace(db=mocker.sentinel.db)
+    service = services.database_organization_factory(None, request)
+    assert service.db is mocker.sentinel.db
 
 
 class TestDatabaseOrganizationService:
     def test_verify_service(self):
         assert verifyClass(IOrganizationService, services.DatabaseOrganizationService)
 
-    def test_service_creation(self):
-        session = pretend.stub()
-        service = services.DatabaseOrganizationService(session)
+    def test_service_creation(self, mocker):
+        service = services.DatabaseOrganizationService(mocker.sentinel.session)
 
-        assert service.db is session
+        assert service.db is mocker.sentinel.session
 
     def test_get_organization(self, organization_service):
         organization = OrganizationFactory.create()
@@ -105,14 +103,13 @@ class TestDatabaseOrganizationService:
         ) == [app]
 
     def test_approve_organization_application(
-        self, db_request, organization_service, monkeypatch
+        self, db_request, organization_service, mocker
     ):
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(
-            services, "send_new_organization_approved_email", send_email
+        send_approved = mocker.patch.object(
+            services, "send_new_organization_approved_email"
         )
-        monkeypatch.setattr(
-            services, "send_new_organization_declined_email", send_email
+        send_declined = mocker.patch.object(
+            services, "send_new_organization_declined_email"
         )
 
         admin = UserFactory(username="admin", is_superuser=True)
@@ -184,20 +181,18 @@ class TestDatabaseOrganizationService:
         )
         assert competing_organization_application.organization is None
 
-        assert send_email.calls == [
-            pretend.call(
-                db_request,
-                organization_application.submitted_by,
-                organization_name=organization.name,
-                message="",
-            ),
-            pretend.call(
-                db_request,
-                competing_organization_application.submitted_by,
-                organization_name=competing_organization_application.name,
-                message="",
-            ),
-        ]
+        send_approved.assert_called_once_with(
+            db_request,
+            organization_application.submitted_by,
+            organization_name=organization.name,
+            message="",
+        )
+        send_declined.assert_called_once_with(
+            db_request,
+            competing_organization_application.submitted_by,
+            organization_name=competing_organization_application.name,
+            message="",
+        )
 
         catalog_entry = (
             db_request.db.query(OrganizationNameCatalog)
@@ -252,11 +247,10 @@ class TestDatabaseOrganizationService:
         assert organization_application.status == OrganizationApplicationStatus.Deferred
 
     def test_request_more_information_organization_application(
-        self, db_request, organization_service, monkeypatch
+        self, db_request, organization_service, mocker
     ):
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(
-            services, "send_new_organization_moreinformationneeded_email", send_email
+        send_email = mocker.patch.object(
+            services, "send_new_organization_moreinformationneeded_email"
         )
 
         admin = UserFactory(username="admin", is_superuser=True)
@@ -273,22 +267,19 @@ class TestDatabaseOrganizationService:
             organization_application.status
             == OrganizationApplicationStatus.MoreInformationNeeded
         )
-        assert send_email.calls == [
-            pretend.call(
-                db_request,
-                organization_application.submitted_by,
-                organization_name=organization_application.name,
-                organization_application_id=organization_application.id,
-                message="some message",
-            ),
-        ]
+        send_email.assert_called_once_with(
+            db_request,
+            organization_application.submitted_by,
+            organization_name=organization_application.name,
+            organization_application_id=organization_application.id,
+            message="some message",
+        )
 
     def test_request_more_information_organization_application_no_message(
-        self, db_request, organization_service, monkeypatch
+        self, db_request, organization_service, mocker
     ):
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(
-            services, "send_new_organization_moreinformationneeded_email", send_email
+        send_email = mocker.patch.object(
+            services, "send_new_organization_moreinformationneeded_email"
         )
 
         admin = UserFactory(username="admin", is_superuser=True)
@@ -301,14 +292,45 @@ class TestDatabaseOrganizationService:
             )
 
         assert len(organization_application.observations) == 0
-        assert send_email.calls == []
+        send_email.assert_not_called()
+
+    def test_add_organization_application_note(self, db_request, organization_service):
+        admin = UserFactory(username="admin", is_superuser=True)
+        db_request.user = admin
+        db_request.params["message"] = "some note"
+
+        organization_application = OrganizationApplicationFactory.create()
+        organization_service.add_organization_application_note(
+            organization_application.id, db_request
+        )
+
+        assert len(organization_application.observations) == 1
+        observation = organization_application.observations[0]
+        assert observation.kind == ObservationKind.AdminNote.value[0]
+        assert observation.payload == {"message": "some note"}
+        assert (
+            organization_application.status == OrganizationApplicationStatus.Submitted
+        )
+
+    def test_add_organization_application_note_no_message(
+        self, db_request, organization_service
+    ):
+        admin = UserFactory(username="admin", is_superuser=True)
+        db_request.user = admin
+
+        organization_application = OrganizationApplicationFactory.create()
+        with pytest.raises(ValueError):  # noqa: PT011
+            organization_service.add_organization_application_note(
+                organization_application.id, db_request
+            )
+
+        assert len(organization_application.observations) == 0
 
     def test_decline_organization_application(
-        self, db_request, organization_service, monkeypatch
+        self, db_request, organization_service, mocker
     ):
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(
-            services, "send_new_organization_declined_email", send_email
+        send_email = mocker.patch.object(
+            services, "send_new_organization_declined_email"
         )
 
         admin = UserFactory(username="admin", is_superuser=True)
@@ -320,14 +342,12 @@ class TestDatabaseOrganizationService:
         )
 
         assert organization_application.status == OrganizationApplicationStatus.Declined
-        assert send_email.calls == [
-            pretend.call(
-                db_request,
-                organization_application.submitted_by,
-                organization_name=organization_application.name,
-                message="",
-            ),
-        ]
+        send_email.assert_called_once_with(
+            db_request,
+            organization_application.submitted_by,
+            organization_name=organization_application.name,
+            message="",
+        )
 
     def test_find_organizationid(self, organization_service):
         organization = OrganizationFactory.create()

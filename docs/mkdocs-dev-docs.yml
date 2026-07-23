@@ -102,6 +102,7 @@ nav:
       - Development Database: development/development-database.md
       - Cloud: development/cloud.md
       - Email: development/email.md
+      - Account Associations: development/account-associations.md
       - Token Scanning: development/token-scanning.md
       - Documentation: development/documentation.md
   - Warehouse codebase: application.md
@@ -112,6 +113,7 @@ nav:
   - UI Principles: ui-principles.md
   - Security:
       - Overview: security/index.md
+      - Security Policy Flow: security/security-policy-flow.md
       - Attestation Internals: security/attestation-internals.md
   - Translations: translations.md
   - Roadmap and Sprints: roadmap.md

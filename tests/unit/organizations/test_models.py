@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import datetime
+import types
 
-import pretend
 import psycopg
 import pytest
 
@@ -12,6 +12,7 @@ from pyramid.httpexceptions import HTTPPermanentRedirect
 from pyramid.location import lineage
 
 from warehouse.authnz import Permissions
+from warehouse.observations.models import ObservationKind
 from warehouse.organizations.models import (
     OIDCIssuerType,
     OrganizationApplicationFactory,
@@ -23,6 +24,7 @@ from warehouse.organizations.models import (
 from ...common.db.accounts import UserFactory as DBUserFactory
 from ...common.db.organizations import (
     OrganizationApplicationFactory as DBOrganizationApplicationFactory,
+    OrganizationApplicationObservationFactory,
     OrganizationFactory as DBOrganizationFactory,
     OrganizationManualActivationFactory as DBOrganizationManualActivationFactory,
     OrganizationNameCatalogFactory as DBOrganizationNameCatalogFactory,
@@ -65,6 +67,34 @@ class TestOrganizationApplication:
             )
         ]
 
+    def test_notes(self, db_session):
+        organization_application = DBOrganizationApplicationFactory.create()
+        note = OrganizationApplicationObservationFactory.create(
+            related=organization_application,
+            kind=ObservationKind.AdminNote.value[0],
+        )
+        OrganizationApplicationObservationFactory.create(
+            related=organization_application,
+            kind=ObservationKind.InformationRequest.value[0],
+        )
+
+        assert organization_application.notes == [note]
+
+    def test_conversation(self, db_session):
+        organization_application = DBOrganizationApplicationFactory.create()
+        older_request = OrganizationApplicationObservationFactory.create(
+            related=organization_application,
+            kind=ObservationKind.InformationRequest.value[0],
+            created=datetime.datetime(2021, 1, 1),
+        )
+        newer_note = OrganizationApplicationObservationFactory.create(
+            related=organization_application,
+            kind=ObservationKind.AdminNote.value[0],
+            created=datetime.datetime(2021, 6, 1),
+        )
+
+        assert organization_application.conversation == [older_request, newer_note]
+
 
 class TestOrganizationFactory:
     @pytest.mark.parametrize(("name", "normalized"), [("foo", "foo"), ("Bar", "bar")])
@@ -75,7 +105,9 @@ class TestOrganizationFactory:
         assert root[normalized] == organization
 
     def test_traversal_redirects(self, db_request):
-        db_request.matched_route = pretend.stub(generate=lambda *a, **kw: "route-path")
+        db_request.matched_route = types.SimpleNamespace(
+            generate=lambda *a, **kw: "route-path"
+        )
         organization = DBOrganizationFactory.create()
         DBOrganizationNameCatalogFactory.create(
             normalized_name="oldname",

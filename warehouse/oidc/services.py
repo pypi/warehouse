@@ -184,6 +184,8 @@ class OIDCPublisherService:
         prior to any verification.
         """
         unverified_header = jwt.get_unverified_header(token)
+        if "kid" not in unverified_header:
+            raise jwt.PyJWTError(f"Key ID not found for issuer {issuer_url!r}")
         return self._get_key(unverified_header["kid"], issuer_url)
 
     def jwt_identifier_exists(self, jti: str) -> bool:
@@ -205,7 +207,7 @@ class OIDCPublisherService:
             # ``exp``, so we add an extra 5-second margin on top.
             result = r.set(
                 f"/warehouse/oidc/{self.issuer_url}/{jti}",
-                exat=expiration + _JWT_LEEWAY + 5,
+                exat=expiration + _JWT_LEEWAY + 5,  # codespell:ignore exat
                 value="",  # empty value to lower memory usage
                 nx=True,
             )
@@ -379,6 +381,7 @@ class NullOIDCPublisherService(OIDCPublisherService):
             "you should not use it in production due to the lack of actual "
             "JWT verification.",
             InsecureOIDCPublisherWarning,
+            stacklevel=2,
         )
         super().__init__(*args, **kwargs)
 

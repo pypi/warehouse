@@ -176,7 +176,7 @@ class DatabaseOrganizationService:
                 "redact_ip": True,
             },
         )
-        self.db.flush()  # flush the db now so organization.id is available
+        self.db.flush()  # generate organization.id # ast-grep-ignore: db-flush
 
         organization_application.status = OrganizationApplicationStatus.Approved
         organization_application.organization = organization
@@ -260,27 +260,42 @@ class DatabaseOrganizationService:
             OrganizationApplicationStatus.MoreInformationNeeded
         )
 
-        message = request.params.get("message", "")
+        if message := request.params.get("message", ""):
+            organization_application.record_observation(
+                request=request,
+                actor=request.user,
+                summary="Organization request needs more information",
+                kind=ObservationKind.InformationRequest,
+                payload={"message": message},
+            )
+            send_new_organization_moreinformationneeded_email(
+                request,
+                organization_application.submitted_by,
+                organization_name=organization_application.name,
+                organization_application_id=organization_application.id,
+                message=message,
+            )
+            return organization_application
+        raise ValueError
 
-        if not message:
-            raise ValueError
-
-        organization_application.record_observation(
-            request=request,
-            actor=request.user,
-            summary="Organization request needs more information",
-            kind=ObservationKind.InformationRequest,
-            payload={"message": message},
+    def add_organization_application_note(self, organization_application_id, request):
+        """
+        Records an internal admin note on an OrganizationApplication
+        """
+        organization_application = self.get_organization_application(
+            organization_application_id
         )
-        send_new_organization_moreinformationneeded_email(
-            request,
-            organization_application.submitted_by,
-            organization_name=organization_application.name,
-            organization_application_id=organization_application.id,
-            message=message,
-        )
 
-        return organization_application
+        if message := request.params.get("message", ""):
+            organization_application.record_observation(
+                request=request,
+                actor=request.user,
+                summary="Admin note added",
+                kind=ObservationKind.AdminNote,
+                payload={"message": message},
+            )
+            return organization_application
+        raise ValueError
 
     def decline_organization_application(self, organization_application_id, request):
         """
@@ -517,7 +532,7 @@ class DatabaseOrganizationService:
         organization.name = name
 
         try:
-            self.db.flush()  # flush db now so organization.normalized_name available
+            self.db.flush()  # organization.normalized_name  # ast-grep-ignore: db-flush
             self.add_catalog_entry(organization_id)
         except UniqueViolation:
             raise ValueError(f'Organization name "{name}" has been used')
@@ -562,7 +577,7 @@ class DatabaseOrganizationService:
         )
 
         self.db.add(organization_project)
-        self.db.flush()  # Flush db so we can address the organization related object
+        self.db.flush()  # generate server ids  # ast-grep-ignore: db-flush
 
         # Mark Organization as dirty, so purges will happen
         orm.attributes.flag_dirty(organization_project.organization)
@@ -596,7 +611,7 @@ class DatabaseOrganizationService:
         #    -> organizations.models -> organizations.services
         #  Figure out circular imports and move to top of module,
         #  or better, cascade https://github.com/pypi/warehouse/issues/19748
-        from warehouse.oidc.models._core import OIDCPublisherProjectAssociation
+        from warehouse.oidc.models._core import OIDCPublisherProjectAssociation  # noqa: PLC0415,I001
 
         self.db.execute(
             delete(OIDCPublisherProjectAssociation).where(

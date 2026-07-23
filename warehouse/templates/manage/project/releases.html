@@ -21,6 +21,9 @@
           <th scope="row">
             <a href="{{ request.route_path('manage.project.release', project_name=project.name, version=release.version) }}"
                title="{% trans %}Manage version{% endtrans %}">{{ release.version }}</a>
+            {% if release.lifecycle_status == "quarantine-enter" %}
+              <span class="badge badge--warning">{% trans %}Quarantined{% endtrans %}</span>
+            {% endif %}
           </th>
           <td>{{ humanize(release.created) }}</td>
           <td>
@@ -58,7 +61,22 @@
           <ul class="dropdown__content"
               aria-hidden="true"
               aria-label="{% trans version=release.version %}Options for {{ version }}{% endtrans %}">
-            {% if release.yanked %}
+            {% if release.lifecycle_status == "quarantine-enter" %}
+              <li>
+                <a href="{{ request.route_path('manage.project.release', project_name=project.name, version=release.version) }}"
+                   class="dropdown__link">
+                  <i class="fa fa-pencil-alt" aria-hidden="true"></i>
+                  {% trans %}Manage{% endtrans %}
+                </a>
+              </li>
+              <li>
+                <a href="{{ request.route_path('packaging.release', name=release.project.name, version=release.version) }}"
+                   class="dropdown__link">
+                  <i class="fa fa-eye" aria-hidden="true"></i>
+                  {% trans %}View{% endtrans %}
+                </a>
+              </li>
+            {% elif release.yanked %}
               <li>
                 {% set title = gettext("Un-yank Release") %}
                 {% set confirm_name = "unyank_release" %}
@@ -102,7 +120,9 @@
           </ul>
         </nav>
         {% set action = request.route_path('manage.project.release', project_name=project.name, version=release.version) %}
-        {% if release.yanked %}
+        {% if release.lifecycle_status == "quarantine-enter" %}
+          {# Quarantined: no yank/delete modals #}
+        {% elif release.yanked %}
           {% set slug = 'unyank_release-modal-{}'.format(loop.index) %}
           {% set title = gettext("Un-yank release") %}
           {{ confirm_modal(title, gettext('Version') , 'unyank_version', release.version, slug, custom_warning_text=version_warning_text, action=action, warning=False) }}

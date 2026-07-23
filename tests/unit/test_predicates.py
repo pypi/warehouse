@@ -1,22 +1,29 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
+import datetime
+import types
+
 import pytest
 
+from freezegun import freeze_time
 from pyramid.exceptions import ConfigurationError
 from pyramid.httpexceptions import HTTPSeeOther
 
 from warehouse.organizations.models import OrganizationType
 from warehouse.predicates import (
     ActiveOrganizationPredicate,
+    AuthMethodsPredicate,
     DomainPredicate,
     HeadersPredicate,
+    auth_methods_for_route,
     includeme,
 )
 from warehouse.subscriptions.models import StripeSubscriptionStatus
+from warehouse.utils.security_policy import AuthenticationMethod
 
 from ..common.db.organizations import (
     OrganizationFactory,
+    OrganizationManualActivationFactory,
     OrganizationStripeCustomerFactory,
     OrganizationStripeSubscriptionFactory,
 )
@@ -37,13 +44,59 @@ class TestDomainPredicate:
         predicate = DomainPredicate(None, None)
         assert predicate(None, None)
 
-    def test_valid_value(self):
+    def test_valid_value(self, pyramid_request):
         predicate = DomainPredicate("upload.pypi.io", None)
-        assert predicate(None, pretend.stub(domain="upload.pypi.io"))
+        pyramid_request.domain = "upload.pypi.io"
+        assert predicate(None, pyramid_request)
 
-    def test_invalid_value(self):
+    def test_invalid_value(self, pyramid_request):
         predicate = DomainPredicate("upload.pyp.io", None)
-        assert not predicate(None, pretend.stub(domain="pypi.io"))
+        pyramid_request.domain = "pypi.io"
+        assert not predicate(None, pyramid_request)
+
+
+class TestAuthMethodsPredicate:
+    def test_text_and_phash(self):
+        predicate = AuthMethodsPredicate(
+            {AuthenticationMethod.SESSION, AuthenticationMethod.MACAROON}, None
+        )
+        assert predicate.text() == "auth_methods = ['macaroon', 'session']"
+        assert predicate.phash() == predicate.text()
+
+    def test_always_matches(self):
+        predicate = AuthMethodsPredicate({AuthenticationMethod.SESSION}, None)
+        assert predicate(None, None) is True
+
+    def test_accepts_enum_values(self):
+        predicate = AuthMethodsPredicate(
+            {AuthenticationMethod.SESSION, AuthenticationMethod.MACAROON}, None
+        )
+        assert predicate.val == frozenset(
+            {AuthenticationMethod.SESSION, AuthenticationMethod.MACAROON}
+        )
+
+    def test_accepts_string_values(self):
+        predicate = AuthMethodsPredicate({"session", "macaroon"}, None)
+        assert predicate.val == frozenset(
+            {AuthenticationMethod.SESSION, AuthenticationMethod.MACAROON}
+        )
+
+    def test_rejects_unknown_values(self):
+        with pytest.raises(ValueError, match="not a valid AuthenticationMethod"):
+            AuthMethodsPredicate({"not-a-real-method"}, None)
+
+
+class TestAuthMethodsForRoute:
+    def test_returns_predicate_val(self):
+        predicate = AuthMethodsPredicate({"macaroon"}, None)
+        route = types.SimpleNamespace(predicates=[predicate])
+        assert auth_methods_for_route(route) == frozenset(
+            {AuthenticationMethod.MACAROON}
+        )
+
+    def test_returns_none_when_no_auth_methods_predicate(self):
+        route = types.SimpleNamespace(predicates=[DomainPredicate("pypi.io", None)])
+        assert auth_methods_for_route(route) is None
 
 
 class TestHeadersPredicate:
@@ -67,17 +120,19 @@ class TestHeadersPredicate:
         "value",
         [["Foo", "Bar"], ["Foo", "Bar:baz"]],
     )
-    def test_valid_value(self, value):
+    def test_valid_value(self, value, pyramid_request):
         predicate = HeadersPredicate(value, None)
-        assert predicate(None, pretend.stub(headers={"Foo": "a", "Bar": "baz"}))
+        pyramid_request.headers = {"Foo": "a", "Bar": "baz"}
+        assert predicate(None, pyramid_request)
 
     @pytest.mark.parametrize(
         "value",
         [["Foo", "Baz"], ["Foo", "Bar:foo"]],
     )
-    def test_invalid_value(self, value):
+    def test_invalid_value(self, value, pyramid_request):
         predicate = HeadersPredicate(value, None)
-        assert not predicate(None, pretend.stub(headers={"Foo": "a", "Bar": "baz"}))
+        pyramid_request.headers = {"Foo": "a", "Bar": "baz"}
+        assert not predicate(None, pyramid_request)
 
 
 class TestActiveOrganizationPredicate:
@@ -132,18 +187,14 @@ class TestActiveOrganizationPredicate:
         predicate = ActiveOrganizationPredicate(False, None)
         assert predicate(organization, db_request)
 
-    def test_disable_organizations(self, db_request, organization):
-        predicate = ActiveOrganizationPredicate(True, None)
-        assert not predicate(organization, db_request)
-
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_inactive_organization(
         self,
         db_request,
         organization,
+        mocker,
     ):
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/manage/organizations/"
+        route_path = mocker.patch.object(
+            db_request, "route_path", return_value="/manage/organizations/"
         )
 
         organization.is_active = False
@@ -151,26 +202,29 @@ class TestActiveOrganizationPredicate:
         with pytest.raises(HTTPSeeOther):
             predicate(organization, db_request)
 
-        assert db_request.route_path.calls == [pretend.call("manage.organizations")]
+        route_path.assert_called_once_with("manage.organizations")
+        assert db_request.session.peek_flash("error") == [
+            "This organization's billing is inactive. Activate billing to "
+            "manage its projects, teams, and members."
+        ]
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_inactive_subscription(
         self,
         db_request,
         organization,
         inactive_subscription,
+        mocker,
     ):
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/manage/organizations/"
+        route_path = mocker.patch.object(
+            db_request, "route_path", return_value="/manage/organizations/"
         )
 
         predicate = ActiveOrganizationPredicate(True, None)
         with pytest.raises(HTTPSeeOther):
             predicate(organization, db_request)
 
-        assert db_request.route_path.calls == [pretend.call("manage.organizations")]
+        route_path.assert_called_once_with("manage.organizations")
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_active_subscription(
         self,
         db_request,
@@ -180,17 +234,11 @@ class TestActiveOrganizationPredicate:
         predicate = ActiveOrganizationPredicate(True, None)
         assert predicate(organization, db_request)
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_active_manual_activation(
         self,
         db_request,
         organization,
     ):
-        import datetime
-
-        from freezegun import freeze_time
-
-        from ..common.db.organizations import OrganizationManualActivationFactory
 
         with freeze_time("2024-01-15"):
             # Create an active manual activation
@@ -201,20 +249,15 @@ class TestActiveOrganizationPredicate:
             predicate = ActiveOrganizationPredicate(True, None)
             assert predicate(organization, db_request)
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_expired_manual_activation(
         self,
         db_request,
         organization,
+        mocker,
     ):
-        import datetime
 
-        from freezegun import freeze_time
-
-        from ..common.db.organizations import OrganizationManualActivationFactory
-
-        db_request.route_path = pretend.call_recorder(
-            lambda *a, **kw: "/manage/organizations/"
+        route_path = mocker.patch.object(
+            db_request, "route_path", return_value="/manage/organizations/"
         )
 
         with freeze_time("2024-01-15"):
@@ -227,19 +270,24 @@ class TestActiveOrganizationPredicate:
             with pytest.raises(HTTPSeeOther):
                 predicate(organization, db_request)
 
-        assert db_request.route_path.calls == [pretend.call("manage.organizations")]
+        route_path.assert_called_once_with("manage.organizations")
 
 
-def test_includeme():
-    config = pretend.stub(
-        add_route_predicate=pretend.call_recorder(lambda name, pred: None),
-        add_view_predicate=pretend.call_recorder(lambda name, pred: None),
+def test_includeme(pyramid_config, mocker):
+    add_route_predicate = mocker.patch.object(
+        pyramid_config, "add_route_predicate", autospec=True
     )
-    includeme(config)
+    add_view_predicate = mocker.patch.object(
+        pyramid_config, "add_view_predicate", autospec=True
+    )
+    includeme(pyramid_config)
 
-    assert config.add_route_predicate.calls == [pretend.call("domain", DomainPredicate)]
+    assert add_route_predicate.call_args_list == [
+        mocker.call("domain", DomainPredicate),
+        mocker.call("auth_methods", AuthMethodsPredicate),
+    ]
 
-    assert config.add_view_predicate.calls == [
-        pretend.call("require_headers", HeadersPredicate),
-        pretend.call("require_active_organization", ActiveOrganizationPredicate),
+    assert add_view_predicate.call_args_list == [
+        mocker.call("require_headers", HeadersPredicate),
+        mocker.call("require_active_organization", ActiveOrganizationPredicate),
     ]

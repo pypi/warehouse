@@ -37,8 +37,38 @@ from warehouse.organizations.models import (
     OrganizationRoleType,
     OrganizationType,
 )
+from warehouse.packaging.models import Project, Release
 from warehouse.subscriptions.interfaces import IBillingService
+from warehouse.subscriptions.models import (
+    ACTIVE_SUBSCRIPTION_STATUSES,
+    StripeSubscription,
+)
 from warehouse.utils.paginate import paginate_url_factory
+
+ACTIVE_RELEASE_WINDOW = datetime.timedelta(days=365)
+
+
+def _organization_activity_predicates():
+    """activity-tier predicates shared by the list filter and detail view."""
+    release_cutoff = datetime.datetime.now(datetime.UTC) - ACTIVE_RELEASE_WINDOW
+    has_projects = Organization.projects.any()
+    has_recent_release = Organization.projects.any(
+        Project.releases.any(Release.created >= release_cutoff)
+    )
+    return has_projects, has_recent_release
+
+
+def _organization_activity(request, organization):
+    """activity tier: Inactive / Active / Dormant / Unused."""
+    if not organization.is_active:
+        return "Inactive"
+    has_projects, has_recent_release = _organization_activity_predicates()
+    projects, recent = (
+        request.db.query(has_projects, has_recent_release)
+        .filter(Organization.id == organization.id)
+        .one()
+    )
+    return "Active" if recent else "Dormant" if projects else "Unused"
 
 
 class OrganizationRoleForm(wtforms.Form):
@@ -187,10 +217,13 @@ def organization_list(request):
             # - desc:word
             # - description:word
             # - description:"whole phrase"
-            # - is:active
-            # - is:inactive
             # - type:company
             # - type:community
+            # - activity:active
+            # - activity:dormant
+            # - activity:unused
+            # - activity:inactive
+            # - has:subscription
             try:
                 field, value = term.lower().split(":", 1)
             except ValueError:
@@ -203,26 +236,43 @@ def organization_list(request):
                         Organization.normalized_name.ilike(f"%{value}%"),
                     ]
                 )
-            elif field == "org" or field == "organization":
+            elif field in {"org", "organization"}:
                 # Add filter for `display_name` field.
                 filters.append(Organization.display_name.ilike(f"%{value}%"))
-            elif field == "url" or field == "link_url":
+            elif field in {"url", "link_url"}:
                 # Add filter for `link_url` field.
                 filters.append(Organization.link_url.ilike(f"%{value}%"))
-            elif field == "desc" or field == "description":
+            elif field in {"desc", "description"}:
                 # Add filter for `description` field.
                 filters.append(Organization.description.ilike(f"%{value}%"))
-            elif field == "is":
-                # Add filter for `is_active` field.
-                if "active".startswith(value):
-                    filters.append(Organization.is_active == True)  # noqa: E712
-                elif "inactive".startswith(value):
-                    filters.append(Organization.is_active == False)  # noqa: E712
             elif field == "type":
                 if "company".startswith(value):
                     filters.append(Organization.orgtype == OrganizationType.Company)
                 elif "community".startswith(value):
                     filters.append(Organization.orgtype == OrganizationType.Community)
+            elif field == "activity":
+                has_projects, has_recent_release = _organization_activity_predicates()
+                active = Organization.is_active.is_(True)
+                if "inactive".startswith(value):
+                    filters.append(Organization.is_active.is_(False))
+                elif "active".startswith(value):
+                    filters.extend([active, has_recent_release])
+                elif "dormant".startswith(value):
+                    filters.extend([active, has_projects, ~has_recent_release])
+                elif "unused".startswith(value):
+                    filters.extend([active, ~has_projects])
+            elif field == "has":
+                if "subscription".startswith(value):
+                    filters.extend(
+                        [
+                            Organization.orgtype == OrganizationType.Company,
+                            Organization.subscriptions.any(
+                                StripeSubscription.status.in_(
+                                    ACTIVE_SUBSCRIPTION_STATUSES
+                                )
+                            ),
+                        ]
+                    )
             else:
                 # Add filter for any field.
                 filters.append(
@@ -238,9 +288,8 @@ def organization_list(request):
         for filter_or_subfilters in filters:
             if isinstance(filter_or_subfilters, list):
                 # Add list of subfilters combined with OR.
-                filter_or_subfilters = filter_or_subfilters or [True]
                 organizations_query = organizations_query.filter(
-                    or_(False, *filter_or_subfilters)
+                    or_(False, *(filter_or_subfilters or [True]))
                 )
             else:
                 # Add single filter.
@@ -252,6 +301,8 @@ def organization_list(request):
         items_per_page=25,
         url_maker=paginate_url_factory(request),
     )
+    for organization in organizations:
+        organization.activity = _organization_activity(request, organization)
 
     return {"organizations": organizations, "query": q, "terms": terms}
 
@@ -279,6 +330,7 @@ def organization_list(request):
 def organization_detail(request):
     organization_service = request.find_service(IOrganizationService, context=None)
     billing_service = request.find_service(IBillingService, context=None)
+    user_service = request.find_service(IUserService, context=None)
 
     organization_id = request.matchdict["organization_id"]
     organization = organization_service.get_organization(organization_id)
@@ -328,6 +380,8 @@ def organization_detail(request):
 
     return {
         "organization": organization,
+        "activity": _organization_activity(request, organization),
+        "get_user": user_service.get_user,
         "form": form,
         "roles": roles,
         "role_forms": role_forms,
@@ -382,6 +436,51 @@ def organization_rename(request):
 
 
 @view_config(
+    route_name="admin.organization.subscription.cancel",
+    require_methods=["POST"],
+    permission=Permissions.AdminOrganizationsWrite,
+    has_translations=True,
+    uses_session=True,
+    require_csrf=True,
+)
+def cancel_organization_subscription(request):
+    organization_service = request.find_service(IOrganizationService, context=None)
+    billing_service = request.find_service(IBillingService, context=None)
+
+    organization = organization_service.get_organization(
+        request.matchdict["organization_id"]
+    )
+    if organization is None:
+        raise HTTPNotFound
+
+    subscription = request.db.get(
+        StripeSubscription, request.matchdict["subscription_id"]
+    )
+    if subscription is None or subscription.organization != organization:
+        raise HTTPNotFound
+
+    billing_service.cancel_subscription_at_period_end(subscription.subscription_id)
+
+    organization.record_event(
+        tag=EventTag.Organization.SubscriptionCancel,
+        request=request,
+        additional={
+            "subscription_id": subscription.subscription_id,
+            "at_period_end": True,
+            "canceled_by": request.user.username,
+        },
+    )
+
+    request.session.flash(
+        f"Subscription for {organization.name!r} set to cancel at period end",
+        queue="success",
+    )
+    return HTTPSeeOther(
+        request.route_path("admin.organization.detail", organization_id=organization.id)
+    )
+
+
+@view_config(
     route_name="admin.organization_application.list",
     renderer="warehouse.admin:templates/admin/organization_applications/list.html",
     permission=Permissions.AdminOrganizationsRead,
@@ -426,13 +525,13 @@ def organization_applications_list(request):
                         OrganizationApplication.normalized_name.ilike(f"%{value}%"),
                     ]
                 )
-            elif field == "org" or field == "organization":
+            elif field in {"org", "organization"}:
                 # Add filter for `display_name` field.
                 filters.append(OrganizationApplication.display_name.ilike(f"%{value}%"))
-            elif field == "url" or field == "link_url":
+            elif field in {"url", "link_url"}:
                 # Add filter for `link_url` field.
                 filters.append(OrganizationApplication.link_url.ilike(f"%{value}%"))
-            elif field == "desc" or field == "description":
+            elif field in {"desc", "description"}:
                 # Add filter for `description` field.
                 filters.append(OrganizationApplication.description.ilike(f"%{value}%"))
             elif field == "type":
@@ -462,10 +561,9 @@ def organization_applications_list(request):
         for filter_or_subfilters in filters:
             if isinstance(filter_or_subfilters, list):
                 # Add list of subfilters combined with OR.
-                filter_or_subfilters = filter_or_subfilters or [True]
                 organization_applications_query = (
                     organization_applications_query.filter(
-                        or_(False, *filter_or_subfilters)
+                        or_(False, *(filter_or_subfilters or [True]))
                     )
                 )
             else:
@@ -725,6 +823,43 @@ def organization_application_decline(request):
 
     if request.params.get("organization_applications_turbo_mode") == "true":
         return _turbo_mode(request)
+
+    return HTTPSeeOther(
+        request.route_path(
+            "admin.organization_application.detail",
+            organization_application_id=organization_application.id,
+        )
+    )
+
+
+@view_config(
+    route_name="admin.organization_application.addnote",
+    require_methods=["POST"],
+    permission=Permissions.AdminOrganizationsWrite,
+    has_translations=True,
+    uses_session=True,
+    require_csrf=True,
+)
+def organization_application_add_note(request):
+    organization_service = request.find_service(IOrganizationService, context=None)
+
+    organization_application_id = request.matchdict["organization_application_id"]
+    organization_application = organization_service.get_organization_application(
+        organization_application_id
+    )
+    if organization_application is None:
+        raise HTTPNotFound
+
+    try:
+        organization_service.add_organization_application_note(
+            organization_application.id, request
+        )
+        request.session.flash(
+            f'Note added to "{organization_application.name}" application',
+            queue="success",
+        )
+    except ValueError:
+        request.session.flash("No note text provided", queue="error")
 
     return HTTPSeeOther(
         request.route_path(
@@ -1061,7 +1196,18 @@ def set_upload_limit(request):
         )
 
     # Form validation has already converted to bytes or None
+    old_upload_limit = organization.upload_limit
     organization.upload_limit = form.upload_limit.data
+
+    organization.record_event(
+        request=request,
+        tag=EventTag.Organization.OrganizationSetUploadLimit,
+        additional={
+            "old_upload_limit": old_upload_limit,
+            "new_upload_limit": organization.upload_limit,
+            "actor": request.user.username,
+        },
+    )
 
     if organization.upload_limit:
         limit_msg = f"{organization.upload_limit / ONE_MIB}MiB"
@@ -1247,7 +1393,18 @@ def set_total_size_limit(request):
         )
 
     # Form validation has already converted to bytes or None
+    old_total_size_limit = organization.total_size_limit
     organization.total_size_limit = form.total_size_limit.data
+
+    organization.record_event(
+        request=request,
+        tag=EventTag.Organization.OrganizationSetTotalSizeLimit,
+        additional={
+            "old_total_size_limit": old_total_size_limit,
+            "new_total_size_limit": organization.total_size_limit,
+            "actor": request.user.username,
+        },
+    )
 
     if organization.total_size_limit:
         limit_msg = f"{organization.total_size_limit / ONE_GIB}GiB"

@@ -354,6 +354,21 @@ class TestRenderDatatablesPayload:
         expected = f"/admin/organization_applications/{org_app.id}/"
         assert payload["data"][0]["related_link"] == expected
 
+    def test_organization_application_note_produces_link(self, dt_request):
+        org_app = OrganizationApplicationFactory.create()
+        observer = ObserverFactory.create()
+        OrganizationApplicationObservationFactory.create(
+            kind="admin_note",
+            observer=observer,
+            related=org_app,
+        )
+
+        dt_request.params = _datatables_params(kind="admin_note")
+        payload = views._render_datatables_payload(dt_request)
+
+        expected = f"/admin/organization_applications/{org_app.id}/"
+        assert payload["data"][0]["related_link"] == expected
+
     def test_project_observation_with_unparseable_related_name(self, dt_request):
         """
         A project observation whose related_name doesn't match the
@@ -862,7 +877,7 @@ class TestGetAutoQuarantineStats:
         assert result["quarantine_rate"] == 50.0
 
     def test_invalid_related_name_format(self, db_request):
-        """Test with observations that have unparseable related_name format.
+        """Test with observations that have unparsable related_name format.
 
         When related_name doesn't match the expected Project(name='...') format,
         the observation is skipped for quarantine stats.
@@ -1311,7 +1326,7 @@ class TestGetTimelineData:
     """Tests for _get_timeline_data function."""
 
     def test_invalid_related_names_skip_journal_lookup(self, db_request):
-        """Test that observations with unparseable related_name skip journal lookup.
+        """Test that observations with unparsable related_name skip journal lookup.
 
         When no valid project names can be parsed from related_name,
         the function returns early without querying journal entries.

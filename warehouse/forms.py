@@ -21,9 +21,11 @@ class URIValidator:
     def __init__(
         self,
         require_scheme=True,
-        allowed_schemes={"http", "https"},
+        allowed_schemes=None,
         require_authority=True,
     ):
+        if allowed_schemes is None:
+            allowed_schemes = {"http", "https"}
         self.require_scheme = require_scheme
         self.allowed_schemes = allowed_schemes
         self.require_authority = require_authority

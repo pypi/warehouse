@@ -53,6 +53,10 @@ def _json_data(request, project, release, *, all_releases):
         )
         .outerjoin(File)
         .filter(Release.project == project)
+        # Exclude releases in quarantine.
+        .filter(
+            Release.lifecycle_status.is_distinct_from(LifecycleStatus.QuarantineEnter)
+        )
     )
 
     # If we're not looking for all_releases, then we'll filter this further
@@ -99,6 +103,15 @@ def _json_data(request, project, release, *, all_releases):
                     "sha256": f.sha256_digest,
                     "blake2b_256": f.blake2_256_digest,
                 },
+                # PEP 658 / PEP 714: expose the hash of the file's Core Metadata
+                # (the `.metadata` file served alongside the distribution) when
+                # it is available, so consumers such as mirrors don't have to
+                # fall back to the Simple API to discover it.
+                "core-metadata": (
+                    {"sha256": f.metadata_file_sha256_digest}
+                    if f.metadata_file_sha256_digest
+                    else False
+                ),
                 "size": f.size,
                 # TODO: Remove this once we've had a long enough time with it
                 #       here to consider it no longer in use.
@@ -213,6 +226,12 @@ def latest_release_factory(request):
                     LifecycleStatus.QuarantineEnter
                 )
             )
+            # Exclude releases in quarantine.
+            .filter(
+                Release.lifecycle_status.is_distinct_from(
+                    LifecycleStatus.QuarantineEnter
+                )
+            )
             .order_by(
                 Release.yanked.asc(),
                 Release.is_prerelease.nullslast(),
@@ -297,6 +316,10 @@ def release_factory(request):
         # Exclude projects in quarantine.
         .filter(
             Project.lifecycle_status.is_distinct_from(LifecycleStatus.QuarantineEnter)
+        )
+        # Exclude releases in quarantine.
+        .filter(
+            Release.lifecycle_status.is_distinct_from(LifecycleStatus.QuarantineEnter)
         )
     )
 

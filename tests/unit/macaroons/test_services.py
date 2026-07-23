@@ -3,10 +3,8 @@
 import binascii
 import struct
 
-from unittest import mock
 from uuid import uuid4
 
-import pretend
 import pymacaroons
 import pytest
 
@@ -20,17 +18,14 @@ from ...common.db.accounts import UserFactory
 from ...common.db.oidc import GitHubPublisherFactory
 
 
-def test_database_macaroon_factory():
-    db = pretend.stub()
-    request = pretend.stub(db=db)
-
-    service = services.database_macaroon_factory(pretend.stub(), request)
-    assert service.db is db
+def test_database_macaroon_factory(db_request):
+    service = services.database_macaroon_factory(None, db_request)
+    assert service.db is db_request.db
 
 
 class TestDatabaseMacaroonService:
-    def test_creation(self):
-        session = pretend.stub()
+    def test_creation(self, mocker):
+        session = mocker.sentinel.session
         service = services.DatabaseMacaroonService(session)
 
         assert service.db is session
@@ -110,13 +105,13 @@ class TestDatabaseMacaroonService:
         [
             "pypi-aaaa",  # Invalid macaroon
             # Macaroon properly formatted but not found.
-            # The string is purposedly cut to avoid triggering the github token
+            # The string is purposely cut to avoid triggering the github token
             # disclosure feature that this very function implements.
             "py"
             "pi-AgEIcHlwaS5vcmcCJGQ0ZDhhNzA2LTUxYTEtNDg0NC1hNDlmLTEyZDRiYzNkYjZmOQAABi"
             "D6hJOpYl9jFI4jBPvA8gvV1mSu1Ic3xMHmxA4CSA2w_g",
-            # Macaroon that is malformed and has an invaild (non utf-8) identifier
-            # The string is purposedly cut to avoid triggering the github token
+            # Macaroon that is malformed and has an invalid (non utf-8) identifier
+            # The string is purposely cut to avoid triggering the github token
             # disclosure feature that this very function implements.
             "py"
             "pi-MDAwZWxvY2F0aW9uIAowMDM0aWRlbnRpZmllciBhmTAyMWY0YS0xYWQzLTQ3OGEtYjljZi1"
@@ -145,8 +140,8 @@ class TestDatabaseMacaroonService:
         "raw_macaroon",
         [
             "pypi-thiswillnotdeserialize",
-            # Macaroon that is malformed and has an invaild (non utf-8) identifier
-            # The string is purposedly cut to avoid triggering the github token
+            # Macaroon that is malformed and has an invalid (non utf-8) identifier
+            # The string is purposely cut to avoid triggering the github token
             # disclosure feature that this very function implements.
             "py"
             "pi-MDAwZWxvY2F0aW9uIAowMDM0aWRlbnRpZmllciBhmTAyMWY0YS0xYWQzLTQ3OGEtYjljZi1"
@@ -191,7 +186,7 @@ class TestDatabaseMacaroonService:
 
         assert user.id == user_id
 
-    def test_verify_unprefixed_macaroon(self, macaroon_service):
+    def test_verify_unprefixed_macaroon(self, macaroon_service, mocker):
         raw_macaroon = pymacaroons.Macaroon(
             location="fake location",
             identifier=str(uuid4()),
@@ -203,10 +198,13 @@ class TestDatabaseMacaroonService:
             services.InvalidMacaroonError, match="malformed or nonexistent macaroon"
         ):
             macaroon_service.verify(
-                raw_macaroon, pretend.stub(), pretend.stub(), pretend.stub()
+                raw_macaroon,
+                mocker.sentinel.request,
+                mocker.sentinel.context,
+                mocker.sentinel.permissions,
             )
 
-    def test_verify_no_macaroon(self, macaroon_service):
+    def test_verify_no_macaroon(self, macaroon_service, mocker):
         raw_macaroon = pymacaroons.Macaroon(
             location="fake location",
             identifier=str(uuid4()),
@@ -219,10 +217,13 @@ class TestDatabaseMacaroonService:
             services.InvalidMacaroonError, match="deleted or nonexistent macaroon"
         ):
             macaroon_service.verify(
-                raw_macaroon, pretend.stub(), pretend.stub(), pretend.stub()
+                raw_macaroon,
+                mocker.sentinel.request,
+                mocker.sentinel.context,
+                mocker.sentinel.permissions,
             )
 
-    def test_verify_invalid_macaroon(self, monkeypatch, user_service, macaroon_service):
+    def test_verify_invalid_macaroon(self, mocker, user_service, macaroon_service):
         user = UserFactory.create()
         raw_macaroon, _ = macaroon_service.create_macaroon(
             "fake location",
@@ -231,32 +232,31 @@ class TestDatabaseMacaroonService:
             user_id=user.id,
         )
 
-        verify = pretend.call_recorder(lambda m, k, r, c, p: WarehouseDenied("foo"))
-        monkeypatch.setattr(caveats, "verify", verify)
+        verify = mocker.patch.object(
+            caveats, "verify", autospec=True, return_value=WarehouseDenied("foo")
+        )
 
-        request = pretend.stub()
-        context = pretend.stub()
-        permissions = pretend.stub()
+        request = mocker.sentinel.request
+        context = mocker.sentinel.context
+        permissions = mocker.sentinel.permissions
 
         with pytest.raises(services.InvalidMacaroonError, match="foo"):
             macaroon_service.verify(raw_macaroon, request, context, permissions)
-        assert verify.calls == [
-            pretend.call(mock.ANY, mock.ANY, request, context, permissions)
-        ]
+        verify.assert_called_once_with(
+            mocker.ANY, mocker.ANY, request, context, permissions
+        )
 
-    def test_deserialize_raw_macaroon_when_none(self, monkeypatch):
-        raw_macaroon = None
-        _extract_func = pretend.call_recorder(lambda a: raw_macaroon)
-        monkeypatch.setattr(services, "_extract_raw_macaroon", _extract_func)
+    def test_deserialize_raw_macaroon_when_none(self, mocker):
+        _extract_func = mocker.patch.object(
+            services, "_extract_raw_macaroon", autospec=True, return_value=None
+        )
 
         with pytest.raises(
             services.InvalidMacaroonError, match="malformed or nonexistent macaroon"
         ):
-            services.deserialize_raw_macaroon(raw_macaroon)
+            services.deserialize_raw_macaroon(None)
 
-        assert services._extract_raw_macaroon.calls == [
-            pretend.call(raw_macaroon),
-        ]
+        _extract_func.assert_called_once_with(None)
 
     @pytest.mark.parametrize(
         "exception",
@@ -271,12 +271,15 @@ class TestDatabaseMacaroonService:
             Exception,  # https://github.com/ecordell/pymacaroons/issues/50
         ],
     )
-    def test_deserialize_raw_macaroon(self, monkeypatch, exception):
-        raw_macaroon = pretend.stub()
-        monkeypatch.setattr(services, "_extract_raw_macaroon", lambda a: raw_macaroon)
-        monkeypatch.setattr(
-            pymacaroons.Macaroon, "deserialize", pretend.raiser(exception)
+    def test_deserialize_raw_macaroon(self, mocker, exception):
+        raw_macaroon = mocker.sentinel.raw_macaroon
+        mocker.patch.object(
+            services,
+            "_extract_raw_macaroon",
+            autospec=True,
+            return_value=raw_macaroon,
         )
+        mocker.patch.object(pymacaroons.Macaroon, "deserialize", side_effect=exception)
 
         with pytest.raises(services.InvalidMacaroonError):
             services.deserialize_raw_macaroon(raw_macaroon)
@@ -285,7 +288,7 @@ class TestDatabaseMacaroonService:
         with pytest.raises(services.InvalidMacaroonError):
             macaroon_service.verify("pypi-thiswillnotdeserialize", None, None, None)
 
-    def test_verify_valid_macaroon(self, monkeypatch, macaroon_service):
+    def test_verify_valid_macaroon(self, mocker, macaroon_service):
         user = UserFactory.create()
         raw_macaroon, _ = macaroon_service.create_macaroon(
             "fake location",
@@ -294,17 +297,18 @@ class TestDatabaseMacaroonService:
             user_id=user.id,
         )
 
-        verify = pretend.call_recorder(lambda m, k, r, c, p: True)
-        monkeypatch.setattr(caveats, "verify", verify)
+        verify = mocker.patch.object(
+            caveats, "verify", autospec=True, return_value=True
+        )
 
-        request = pretend.stub()
-        context = pretend.stub()
-        permissions = pretend.stub()
+        request = mocker.sentinel.request
+        context = mocker.sentinel.context
+        permissions = mocker.sentinel.permissions
 
         assert macaroon_service.verify(raw_macaroon, request, context, permissions)
-        assert verify.calls == [
-            pretend.call(mock.ANY, mock.ANY, request, context, permissions)
-        ]
+        verify.assert_called_once_with(
+            mocker.ANY, mocker.ANY, request, context, permissions
+        )
 
     def test_delete_macaroon(self, user_service, macaroon_service):
         user = UserFactory.create()
