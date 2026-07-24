@@ -404,20 +404,30 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         back_populates="pypi_organization",
     )
 
-    @property
-    def owners(self):
-        """Return all users who are owners of the organization."""
+    def _users_with_role(self, role_name):
         session = orm_session_from_obj(self)
-        owner_roles = (
+        role_holders = (
             session.query(User.id)
             .join(OrganizationRole.user)
             .filter(
-                OrganizationRole.role_name == OrganizationRoleType.Owner,
+                OrganizationRole.role_name == role_name,
                 OrganizationRole.organization == self,
             )
             .subquery()
         )
-        return session.query(User).join(owner_roles, User.id == owner_roles.c.id).all()
+        return (
+            session.query(User).join(role_holders, User.id == role_holders.c.id).all()
+        )
+
+    @property
+    def owners(self):
+        """Return all users who are owners of the organization."""
+        return self._users_with_role(OrganizationRoleType.Owner)
+
+    @property
+    def managers(self):
+        """Return all users who are managers of the organization."""
+        return self._users_with_role(OrganizationRoleType.Manager)
 
     def record_event(self, *, tag, request: Request = None, additional=None):
         """Record organization name in events in case organization is ever deleted."""

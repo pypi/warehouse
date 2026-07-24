@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any, Self, TypedDict, TypeVar, Unpack
 from uuid import UUID
 
@@ -388,6 +389,10 @@ class OIDCPublisher(OIDCPublisherMixin, db.Model):
     }
 
 
+# Pending publishers expire after this many days.
+PENDING_PUBLISHER_EXPIRY_DAYS = 30
+
+
 class PendingOIDCPublisher(OIDCPublisherMixin, db.Model):
     """
     A "pending" OIDC publisher, i.e. one that's been registered by a user
@@ -426,6 +431,38 @@ class PendingOIDCPublisher(OIDCPublisherMixin, db.Model):
         "polymorphic_identity": "pending_oidc_publishers",
         "polymorphic_on": OIDCPublisherMixin.discriminator,
     }
+
+    @property
+    def expires_at(self) -> datetime:
+        return self.created + timedelta(days=PENDING_PUBLISHER_EXPIRY_DAYS)
+
+    @property
+    def days_until_expiry(self) -> int:
+        # Compare calendar dates, not exact timestamps: a publisher created
+        # "10 days ago" should read as having 20 days left all day today,
+        # not drop to 19 after the moment-of-day it was originally created.
+        today = datetime.now(UTC).date()
+        return max((self.expires_at.date() - today).days, 0)
+
+    def notification_recipients(
+        self, *, org_recipients: set[User] | None = None
+    ) -> set[User]:
+        """
+        Return the users who should be notified about this pending publisher:
+        the user who registered it, plus, for publishers scoped to an
+        organization, that organization's owners and managers.
+
+        Callers processing many publishers at once may pass a pre-computed
+        `org_recipients` (that organization's owners union managers) to avoid
+        re-querying the same organization's roles once per publisher.
+        """
+        if self.pypi_organization is None:
+            return {self.added_by}
+        if org_recipients is None:
+            org_recipients = set(self.pypi_organization.owners) | set(
+                self.pypi_organization.managers
+            )
+        return {self.added_by} | org_recipients
 
     def reify(self, session: Session) -> OIDCPublisher:  # pragma: no cover
         """

@@ -5639,20 +5639,42 @@ class TestTrustedPublisherEmails:
         pyramid_request.user = stub_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
+        stub_publisher = pretend.stub(
+            publisher_name="GitHub",
+            created=datetime.datetime(2024, 1, 1),
+            expires_at=datetime.datetime(2024, 1, 31),
+        )
+
         result = email.send_pending_trusted_publisher_expired_email(
             pyramid_request,
             stub_user,
             project_name="test_project",
+            publisher=stub_publisher,
             days=30,
         )
 
         assert result == {
             "project_name": "test_project",
+            "publisher": stub_publisher,
             "days": 30,
+            "created_date": "2024-01-01",
+            "expiry_date": "2024-01-31",
         }
         subject_renderer.assert_()
-        body_renderer.assert_(project_name="test_project", days=30)
-        html_renderer.assert_(project_name="test_project", days=30)
+        body_renderer.assert_(
+            project_name="test_project",
+            publisher=stub_publisher,
+            days=30,
+            created_date="2024-01-01",
+            expiry_date="2024-01-31",
+        )
+        html_renderer.assert_(
+            project_name="test_project",
+            publisher=stub_publisher,
+            days=30,
+            created_date="2024-01-01",
+            expiry_date="2024-01-31",
+        )
 
     def test_pending_trusted_publisher_expiration_reminder_email(
         self, pyramid_request, pyramid_config, monkeypatch
@@ -5693,20 +5715,46 @@ class TestTrustedPublisherEmails:
         pyramid_request.user = stub_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
+        stub_publisher = pretend.stub(
+            publisher_name="GitHub",
+            created=datetime.datetime(2024, 1, 1),
+            expires_at=datetime.datetime(2024, 1, 31),
+        )
+
         result = email.send_pending_trusted_publisher_expiration_reminder_email(
             pyramid_request,
             stub_user,
             project_name="test_project",
+            publisher=stub_publisher,
             days_remaining=5,
+            expiry_days=30,
         )
 
         assert result == {
             "project_name": "test_project",
+            "publisher": stub_publisher,
             "days_remaining": 5,
+            "expiry_days": 30,
+            "created_date": "2024-01-01",
+            "expiry_date": "2024-01-31",
         }
         subject_renderer.assert_()
-        body_renderer.assert_(project_name="test_project", days_remaining=5)
-        html_renderer.assert_(project_name="test_project", days_remaining=5)
+        body_renderer.assert_(
+            project_name="test_project",
+            publisher=stub_publisher,
+            days_remaining=5,
+            expiry_days=30,
+            created_date="2024-01-01",
+            expiry_date="2024-01-31",
+        )
+        html_renderer.assert_(
+            project_name="test_project",
+            publisher=stub_publisher,
+            days_remaining=5,
+            expiry_days=30,
+            created_date="2024-01-01",
+            expiry_date="2024-01-31",
+        )
 
     def test_pending_trusted_publisher_reified_email(
         self, pyramid_request, pyramid_config, monkeypatch

@@ -1,6 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
-from warehouse.oidc.models._core import OIDCPublisher, PendingOIDCPublisher
+from warehouse.oidc.models._core import (
+    PENDING_PUBLISHER_EXPIRY_DAYS,
+    OIDCPublisher,
+    PendingOIDCPublisher,
+)
 from warehouse.oidc.models.activestate import (
     ACTIVESTATE_OIDC_ISSUER_URL,
     ActiveStatePublisher,
@@ -27,6 +31,7 @@ __all__ = [
     "GITHUB_OIDC_ISSUER_URL",
     "GITLAB_OIDC_ISSUER_URL",
     "GOOGLE_OIDC_ISSUER_URL",
+    "PENDING_PUBLISHER_EXPIRY_DAYS",
     "ActiveStatePublisher",
     "GitHubPublisher",
     "GitLabPublisher",

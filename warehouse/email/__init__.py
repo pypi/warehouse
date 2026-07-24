@@ -1078,20 +1078,29 @@ def send_pending_trusted_publisher_invalidated_email(request, user, project_name
 
 
 @_email("pending-trusted-publisher-expired")
-def send_pending_trusted_publisher_expired_email(request, user, project_name, days):
+def send_pending_trusted_publisher_expired_email(
+    request, user, project_name, publisher, days
+):
     return {
         "project_name": project_name,
+        "publisher": publisher,
         "days": days,
+        "created_date": publisher.created.strftime("%Y-%m-%d"),
+        "expiry_date": publisher.expires_at.strftime("%Y-%m-%d"),
     }
 
 
 @_email("pending-trusted-publisher-expiration-reminder")
 def send_pending_trusted_publisher_expiration_reminder_email(
-    request, user, project_name, days_remaining
+    request, user, project_name, publisher, days_remaining, expiry_days
 ):
     return {
         "project_name": project_name,
+        "publisher": publisher,
         "days_remaining": days_remaining,
+        "expiry_days": expiry_days,
+        "created_date": publisher.created.strftime("%Y-%m-%d"),
+        "expiry_date": publisher.expires_at.strftime("%Y-%m-%d"),
     }
 
 

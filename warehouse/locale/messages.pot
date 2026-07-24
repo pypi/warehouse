@@ -3733,7 +3733,7 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:72
 #: warehouse/templates/manage/manage_base.html:91
 #: warehouse/templates/manage/manage_base.html:95
-#: warehouse/templates/manage/manage_base.html:613
+#: warehouse/templates/manage/manage_base.html:629
 #: warehouse/templates/manage/organization/roles.html:276
 #: warehouse/templates/manage/organization/roles.html:280
 #: warehouse/templates/manage/organization/roles.html:291
@@ -4585,22 +4585,38 @@ msgstr ""
 msgid "Any"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:618
+#: warehouse/templates/manage/manage_base.html:611
+#, python-format
+msgid "<b>Registered:</b> %(registered_date)s"
+msgstr ""
+
+#: warehouse/templates/manage/manage_base.html:614
+#, python-format
+msgid "<b>Expires in:</b> %(count)s day"
+msgid_plural "<b>Expires in:</b> %(count)s days"
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/templates/manage/manage_base.html:621
+msgid "Expires soon"
+msgstr ""
+
+#: warehouse/templates/manage/manage_base.html:634
 msgid "Remove trusted publisher"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:621
+#: warehouse/templates/manage/manage_base.html:637
 #, python-format
 msgid ""
 "Removing this %(publisher_name)s trusted publisher will prevent automated"
 " package uploads from this source. You can re-add it later if needed."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:627
+#: warehouse/templates/manage/manage_base.html:643
 msgid "Remove publisher"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:631
+#: warehouse/templates/manage/manage_base.html:647
 #: warehouse/templates/manage/organization/history.html:113
 #: warehouse/templates/manage/organization/history.html:179
 #: warehouse/templates/manage/project/history.html:27
@@ -4614,7 +4630,7 @@ msgstr ""
 msgid "Added by:"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:633
+#: warehouse/templates/manage/manage_base.html:649
 #: warehouse/templates/manage/organization/history.html:121
 #: warehouse/templates/manage/organization/history.html:184
 #: warehouse/templates/manage/project/history.html:46
@@ -4626,24 +4642,24 @@ msgstr ""
 msgid "Removed by:"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:635
+#: warehouse/templates/manage/manage_base.html:651
 msgid "Submitted by:"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:638
+#: warehouse/templates/manage/manage_base.html:654
 #: warehouse/templates/manage/project/history.html:224
 msgid "Workflow:"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:640
+#: warehouse/templates/manage/manage_base.html:656
 msgid "Specifier:"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:642
+#: warehouse/templates/manage/manage_base.html:658
 msgid "Publisher:"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:644
+#: warehouse/templates/manage/manage_base.html:660
 #: warehouse/templates/manage/project/history.html:36
 #: warehouse/templates/manage/project/history.html:89
 msgid "URL:"
