@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import enum
 import typing
 
+from dataclasses import dataclass
 from functools import cached_property
 from uuid import UUID
 
@@ -44,3 +46,14 @@ class Provenance(db.Model):
         return pypi_attestations.Provenance.model_validate(self.provenance)
 
     __table_args__ = (Index("ix_provenance_file_id", file_id),)
+
+
+class ProvenanceState(enum.StrEnum):
+    pass
+
+
+@dataclass(frozen=True)
+class ProvenanceStatus:
+    states: set[ProvenanceState]
+    files_with_provenance: int
+    total_files: int

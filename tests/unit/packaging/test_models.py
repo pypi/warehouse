@@ -1211,6 +1211,10 @@ class TestRelease:
 
         assert not release.trusted_published
 
+    def test_provenance_status_none(self, db_session):
+        release = DBReleaseFactory.create()
+        assert release.provenance_status is None
+
     def test_description_relationship(self, db_session):
         """
         When a Release is deleted, its Description is also deleted.
