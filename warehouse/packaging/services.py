@@ -435,7 +435,10 @@ class ProjectService:
                 organization.id,
                 "organization",
             )
-        return self.ratelimiters["project.create.user"], creator.id, "user"
+        limiter = self.ratelimiters["project.create.user"].override(
+            creator.project_create_ratelimit_string
+        )
+        return limiter, creator.id, "user"
 
     def _reject_create(self, partition_key, resets_in):
         label = "IP" if partition_key == "ip" else partition_key.title()

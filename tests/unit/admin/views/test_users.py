@@ -668,6 +668,99 @@ class TestUserFreeze:
         ]
 
 
+class TestUserSetProjectCreateRatelimit:
+    def test_set_project_create_ratelimit_with_value(self, db_request):
+        user = UserFactory.create()
+        actor = UserFactory.create()
+
+        db_request.route_path = pretend.call_recorder(
+            lambda a, username: "/admin/users/foo/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = actor
+        db_request.POST = MultiDict(
+            {
+                "project_create_ratelimit_count": "5",
+                "project_create_ratelimit_period": "hour",
+            }
+        )
+
+        result = views.user_set_project_create_ratelimit(user, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"Project creation rate limit set to 5 per hour for user "
+                f"{user.username!r}",
+                queue="success",
+            )
+        ]
+        assert result.status_code == 303
+        assert result.location == "/admin/users/foo/"
+        assert user.project_create_ratelimit_string == "5 per hour"
+        event = user.events.one()
+        assert event.tag == "admin:account:set_project_create_ratelimit"
+        assert event.additional == {
+            "old_project_create_ratelimit_string": None,
+            "new_project_create_ratelimit_string": "5 per hour",
+            "actor": actor.username,
+        }
+
+    def test_set_project_create_ratelimit_with_none(self, db_request):
+        user = UserFactory.create()
+        user.project_create_ratelimit_string = "5 per hour"
+        actor = UserFactory.create()
+
+        db_request.route_path = pretend.call_recorder(
+            lambda a, username: "/admin/users/foo/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = actor
+        db_request.POST = MultiDict({"project_create_ratelimit_count": ""})
+
+        result = views.user_set_project_create_ratelimit(user, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"Project creation rate limit set to (default) for user "
+                f"{user.username!r}",
+                queue="success",
+            )
+        ]
+        assert result.status_code == 303
+        assert user.project_create_ratelimit_string is None
+        event = user.events.one()
+        assert event.additional == {
+            "old_project_create_ratelimit_string": "5 per hour",
+            "new_project_create_ratelimit_string": None,
+            "actor": actor.username,
+        }
+
+    def test_set_project_create_ratelimit_invalid_value(self, db_request):
+        user = UserFactory.create()
+
+        db_request.route_path = pretend.call_recorder(
+            lambda a, username: "/admin/users/foo/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.POST = MultiDict({"project_create_ratelimit_count": "0"})
+
+        result = views.user_set_project_create_ratelimit(user, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "project_create_ratelimit_count: Rate limit count must be at least 1",
+                queue="error",
+            )
+        ]
+        assert result.status_code == 303
+
+
 class TestUserResetPassword:
     def test_resets_password(self, db_request, monkeypatch):
         user = UserFactory.create()

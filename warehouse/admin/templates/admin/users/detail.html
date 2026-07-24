@@ -738,6 +738,43 @@
 
       <div class="card">
         <div class="card-header with-border">
+          <h3 class="card-title">User Limits</h3>
+        </div>
+        <div class="card-body">
+          <table class="table table-hover">
+            <tbody>
+              <tr>
+                <form method="POST" action="{{ request.route_path('admin.user.set_project_create_ratelimit', username=user.username) }}">
+                  <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                  <td>Project creation rate limit</td>
+                  <td>
+                    {% if user.project_create_ratelimit_string %}
+                    {{ user.project_create_ratelimit_string }}
+                    {% else %}
+                    Default ({{ DEFAULT_PROJECT_CREATE_USER_RATELIMIT }})
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% set limit_parts = (user.project_create_ratelimit_string or '').split(' per ') %}
+                    <input type="number" name="project_create_ratelimit_count" id="projectCreateRatelimitCount" min="1" step="1" value="{{ limit_parts[0] }}"> per
+                    <select name="project_create_ratelimit_period" id="projectCreateRatelimitPeriod">
+                      {% for period in ["hour", "day", "month"] %}
+                      <option value="{{ period }}" {{ 'selected' if limit_parts|length > 1 and limit_parts[1] == period }}>{{ period }}</option>
+                      {% endfor %}
+                    </select>
+                  </td>
+                  <td>
+                    <button type="submit" class="btn btn-primary btn-sm" {{ 'disabled' if not perms_admin_users_write }}>Submit</button>
+                  </td>
+                </form>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header with-border">
           <h3 class="card-title">2FA</h3>
         </div>
         <div>

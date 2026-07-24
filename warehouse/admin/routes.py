@@ -183,6 +183,13 @@ def includeme(config):
         traverse="/{username}",
     )
     config.add_route(
+        "admin.user.set_project_create_ratelimit",
+        "/admin/users/{username}/set_project_create_ratelimit/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+    )
+    config.add_route(
         "admin.user.account_recovery.initiate",
         "/admin/users/{username}/account_recovery/initiate/",
         domain=warehouse,

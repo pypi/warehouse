@@ -107,6 +107,13 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
     )
     disabled_for: Mapped[DisableReason | None]
 
+    project_create_ratelimit_string: Mapped[str | None] = mapped_column(
+        comment=(
+            "Custom project-creation rate limit (e.g. '50 per hour') for this "
+            "user. Overrides the global default when set."
+        ),
+    )
+
     totp_secret: Mapped[int | None] = mapped_column(LargeBinary(length=20))
     last_totp_value: Mapped[str | None]
 
