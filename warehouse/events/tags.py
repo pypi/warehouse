@@ -176,6 +176,9 @@ class EventTag:
         ManualActivationAdd = "admin:organization:manual_activation:add"
         ManualActivationUpdate = "admin:organization:manual_activation:update"
         ManualActivationDelete = "admin:organization:manual_activation:delete"
+        OrganizationSetProjectCreateRateLimit = (
+            "admin:organization:set_project_create_ratelimit"
+        )
         OrganizationProjectAdd = "organization:organization_project:add"
         OrganizationProjectRemove = "organization:organization_project:remove"
         OrganizationRoleAdd = "organization:organization_role:add"

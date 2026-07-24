@@ -108,3 +108,37 @@ class SetTotalSizeLimitForm(wtforms.Form):
 
         # Convert to bytes for storage
         field.data = limit_value * ONE_GIB
+
+
+class SetProjectCreateRateLimitForm(wtforms.Form):
+    """
+    Form for setting a custom project-creation rate limit for an
+    organization in the admin interface.
+
+    Presents a count + period pair instead of a raw `limits`-syntax string,
+    so admins don't need to know that library's exact syntax. Leaving the
+    count empty clears the override (falls back to the organization default).
+    """
+
+    project_create_ratelimit_count = wtforms.IntegerField(
+        validators=[
+            wtforms.validators.Optional(),
+            wtforms.validators.NumberRange(
+                min=1, message="Rate limit count must be at least 1"
+            ),
+        ],
+    )
+    project_create_ratelimit_period = wtforms.SelectField(
+        choices=[("hour", "hour"), ("day", "day"), ("month", "month")],
+        default="hour",
+    )
+
+    @property
+    def project_create_ratelimit_string(self):
+        """The composed `limits`-syntax string, or None to clear the override."""
+        if self.project_create_ratelimit_count.data is None:
+            return None
+        return (
+            f"{self.project_create_ratelimit_count.data} per "
+            f"{self.project_create_ratelimit_period.data}"
+        )

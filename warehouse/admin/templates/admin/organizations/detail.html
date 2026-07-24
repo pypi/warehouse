@@ -66,12 +66,24 @@
               </li>
               <li class="nav-item">
                 <a href="#organization-limits" class="nav-link">
-                  Total Size Limit	
+                  Total Size Limit
                   <span class="float-right badge bg-info">
                     {% if organization.total_size_limit %}
                     {{ organization.total_size_limit|filesizeformat(binary=True) }}
                     {% else %}
                     Default ({{ MAX_PROJECT_SIZE|filesizeformat(binary=True) }})
+                    {% endif %}
+                  </span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#organization-limits" class="nav-link">
+                  Project Creation Rate Limit
+                  <span class="float-right badge bg-info">
+                    {% if organization.project_create_ratelimit_string %}
+                    {{ organization.project_create_ratelimit_string }}
+                    {% else %}
+                    Default ({{ DEFAULT_PROJECT_CREATE_ORGANIZATION_RATELIMIT }})
                     {% endif %}
                   </span>
                 </a>
@@ -407,6 +419,31 @@
                     {% set total_size_limit_value = '' %}
                     {% endif %}
                     <input type="number" name="total_size_limit" id="totalSizeLimit" min="{{ MAX_PROJECT_SIZE / ONE_GIB }}" step=1 value="{{ total_size_limit_value|int }}"> GiB
+                  </td>
+                  <td>
+                    <button type="submit" class="btn btn-primary btn-sm" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) }}>Submit</button>
+                  </td>
+                </form>
+              </tr>
+              <tr>
+                <form method="POST" action="{{ request.route_path('admin.organization.set_project_create_ratelimit', organization_id=organization.id) }}">
+                  <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                  <td>Project creation rate limit</td>
+                  <td>
+                    {% if organization.project_create_ratelimit_string %}
+                    {{ organization.project_create_ratelimit_string }}
+                    {% else %}
+                    Default ({{ DEFAULT_PROJECT_CREATE_ORGANIZATION_RATELIMIT }})
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% set limit_parts = (organization.project_create_ratelimit_string or '').split(' per ') %}
+                    <input type="number" name="project_create_ratelimit_count" id="projectCreateRatelimitCount" min="1" step="1" value="{{ limit_parts[0] }}"> per
+                    <select name="project_create_ratelimit_period" id="projectCreateRatelimitPeriod">
+                      {% for period in ["hour", "day", "month"] %}
+                      <option value="{{ period }}" {{ 'selected' if limit_parts|length > 1 and limit_parts[1] == period }}>{{ period }}</option>
+                      {% endfor %}
+                    </select>
                   </td>
                   <td>
                     <button type="submit" class="btn btn-primary btn-sm" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) }}>Submit</button>
