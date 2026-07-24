@@ -23,24 +23,6 @@ from ....common.db.packaging import (
 )
 
 
-def _fake_route_path(name, **kw):
-    """Predictable route_path stub covering the routes the view uses."""
-    if name == "admin.user.detail":
-        return f"/admin/users/{kw['username']}/"
-    if name == "admin.project.detail":
-        return f"/admin/projects/{kw['project_name']}/"
-    if name == "admin.organization_application.detail":
-        return f"/admin/organization_applications/{kw['organization_application_id']}/"
-    raise AssertionError(f"unexpected route: {name}")  # pragma: no cover
-
-
-@pytest.fixture
-def dt_request(db_request):
-    """db_request with a predictable route_path for DataTables payload tests."""
-    db_request.route_path = _fake_route_path
-    return db_request
-
-
 def _datatables_params(
     *,
     draw=1,
@@ -232,15 +214,15 @@ class TestBuildObservationsQuery:
 
 
 class TestRenderDatatablesPayload:
-    def test_empty_database(self, dt_request):
-        dt_request.params = _datatables_params()
-        payload = views._render_datatables_payload(dt_request)
+    def test_empty_database(self, route_request):
+        route_request.params = _datatables_params()
+        payload = views._render_datatables_payload(route_request)
         assert payload["draw"] == 1
         assert payload["recordsFiltered"] == 0
         assert payload["data"] == []
         assert "recordsTotal" in payload
 
-    def test_returns_rows(self, dt_request):
+    def test_returns_rows(self, route_request):
         observer = ObserverFactory.create()
         user = UserFactory.create(username="reporter-1")
         user.observer = observer
@@ -252,8 +234,8 @@ class TestRenderDatatablesPayload:
             summary="malicious install hook",
         )
 
-        dt_request.params = _datatables_params(kind="is_malware")
-        payload = views._render_datatables_payload(dt_request)
+        route_request.params = _datatables_params(kind="is_malware")
+        payload = views._render_datatables_payload(route_request)
 
         assert payload["recordsFiltered"] == 1
         assert len(payload["data"]) == 1
@@ -265,26 +247,28 @@ class TestRenderDatatablesPayload:
         assert row["observer_link"] == "/admin/users/reporter-1/"
         assert row["related_link"] == "/admin/projects/evil-pkg/"
 
-    def test_pagination(self, dt_request):
+    def test_pagination(self, route_request):
         ProjectObservationFactory.create_batch(30, kind="is_malware")
 
-        dt_request.params = _datatables_params(kind="is_malware", start=10, length=10)
-        payload = views._render_datatables_payload(dt_request)
+        route_request.params = _datatables_params(
+            kind="is_malware", start=10, length=10
+        )
+        payload = views._render_datatables_payload(route_request)
 
         assert payload["recordsFiltered"] == 30
         assert len(payload["data"]) == 10
 
-    def test_kind_filter_narrows_results(self, dt_request):
+    def test_kind_filter_narrows_results(self, route_request):
         ProjectObservationFactory.create_batch(3, kind="is_malware")
         ProjectObservationFactory.create_batch(2, kind="is_spam")
 
-        dt_request.params = _datatables_params(kind="is_malware")
-        payload = views._render_datatables_payload(dt_request)
+        route_request.params = _datatables_params(kind="is_malware")
+        payload = views._render_datatables_payload(route_request)
 
         assert payload["recordsFiltered"] == 3
         assert all(r["kind"] == "is_malware" for r in payload["data"])
 
-    def test_global_search_matches_summary(self, dt_request):
+    def test_global_search_matches_summary(self, route_request):
         observer = ObserverFactory.create()
         ProjectObservationFactory.create(
             kind="is_malware", observer=observer, summary="extremely distinctive phrase"
@@ -293,13 +277,15 @@ class TestRenderDatatablesPayload:
             3, kind="is_malware", observer=observer, summary="boring"
         )
 
-        dt_request.params = _datatables_params(kind="is_malware", search="distinctive")
-        payload = views._render_datatables_payload(dt_request)
+        route_request.params = _datatables_params(
+            kind="is_malware", search="distinctive"
+        )
+        payload = views._render_datatables_payload(route_request)
 
         assert payload["recordsFiltered"] == 1
         assert "distinctive" in payload["data"][0]["summary"]
 
-    def test_related_link_none_when_related_deleted(self, dt_request):
+    def test_related_link_none_when_related_deleted(self, route_request):
         observer = ObserverFactory.create()
         ProjectObservationFactory.create(
             kind="is_malware",
@@ -308,23 +294,23 @@ class TestRenderDatatablesPayload:
             related_name="Project(id=None, name='deleted-pkg')",
         )
 
-        dt_request.params = _datatables_params(kind="is_malware")
-        payload = views._render_datatables_payload(dt_request)
+        route_request.params = _datatables_params(kind="is_malware")
+        payload = views._render_datatables_payload(route_request)
 
         assert payload["data"][0]["related_link"] is None
         assert payload["data"][0]["related"] == "deleted-pkg"
 
-    def test_observer_link_none_for_non_user_observer(self, dt_request):
+    def test_observer_link_none_for_non_user_observer(self, route_request):
         observer = ObserverFactory.create()  # Observer with no parent User
         ProjectObservationFactory.create(kind="is_malware", observer=observer)
 
-        dt_request.params = _datatables_params(kind="is_malware")
-        payload = views._render_datatables_payload(dt_request)
+        route_request.params = _datatables_params(kind="is_malware")
+        payload = views._render_datatables_payload(route_request)
 
         assert payload["data"][0]["observer"] == ""
         assert payload["data"][0]["observer_link"] is None
 
-    def test_user_observation_produces_user_link(self, dt_request):
+    def test_user_observation_produces_user_link(self, route_request):
         target_user = UserFactory.create(username="compromised-acct")
         observer = ObserverFactory.create()
         UserFactory.create(username="reporter").observer = observer
@@ -334,12 +320,12 @@ class TestRenderDatatablesPayload:
             related=target_user,
         )
 
-        dt_request.params = _datatables_params(kind="account_abuse")
-        payload = views._render_datatables_payload(dt_request)
+        route_request.params = _datatables_params(kind="account_abuse")
+        payload = views._render_datatables_payload(route_request)
 
         assert payload["data"][0]["related_link"] == "/admin/users/compromised-acct/"
 
-    def test_organization_application_observation_produces_link(self, dt_request):
+    def test_organization_application_observation_produces_link(self, route_request):
         org_app = OrganizationApplicationFactory.create()
         observer = ObserverFactory.create()
         OrganizationApplicationObservationFactory.create(
@@ -348,13 +334,13 @@ class TestRenderDatatablesPayload:
             related=org_app,
         )
 
-        dt_request.params = _datatables_params(kind="information_request")
-        payload = views._render_datatables_payload(dt_request)
+        route_request.params = _datatables_params(kind="information_request")
+        payload = views._render_datatables_payload(route_request)
 
         expected = f"/admin/organization_applications/{org_app.id}/"
         assert payload["data"][0]["related_link"] == expected
 
-    def test_organization_application_note_produces_link(self, dt_request):
+    def test_organization_application_note_produces_link(self, route_request):
         org_app = OrganizationApplicationFactory.create()
         observer = ObserverFactory.create()
         OrganizationApplicationObservationFactory.create(
@@ -363,13 +349,13 @@ class TestRenderDatatablesPayload:
             related=org_app,
         )
 
-        dt_request.params = _datatables_params(kind="admin_note")
-        payload = views._render_datatables_payload(dt_request)
+        route_request.params = _datatables_params(kind="admin_note")
+        payload = views._render_datatables_payload(route_request)
 
         expected = f"/admin/organization_applications/{org_app.id}/"
         assert payload["data"][0]["related_link"] == expected
 
-    def test_project_observation_with_unparseable_related_name(self, dt_request):
+    def test_project_observation_with_unparseable_related_name(self, route_request):
         """
         A project observation whose related_name doesn't match the
         Project(name='...') repr pattern should fall back to no link.
@@ -383,13 +369,13 @@ class TestRenderDatatablesPayload:
             related_name="mangled-repr-without-name",
         )
 
-        dt_request.params = _datatables_params(kind="is_malware")
-        payload = views._render_datatables_payload(dt_request)
+        route_request.params = _datatables_params(kind="is_malware")
+        payload = views._render_datatables_payload(route_request)
 
         assert payload["data"][0]["related_link"] is None
         assert payload["data"][0]["related"] == "mangled-repr-without-name"
 
-    def test_user_observation_with_unparseable_related_name(self, dt_request):
+    def test_user_observation_with_unparseable_related_name(self, route_request):
         """
         User observation with a still-present related_id but a related_name
         the regex can't parse and render plain text and no link.
@@ -403,12 +389,12 @@ class TestRenderDatatablesPayload:
             related_name="not-a-parseable-repr",
         )
 
-        dt_request.params = _datatables_params(kind="account_abuse")
-        payload = views._render_datatables_payload(dt_request)
+        route_request.params = _datatables_params(kind="account_abuse")
+        payload = views._render_datatables_payload(route_request)
 
         assert payload["data"][0]["related_link"] is None
 
-    def test_filtered_count_when_page_past_end(self, dt_request):
+    def test_filtered_count_when_page_past_end(self, route_request):
         """
         Seed 3 matching rows, request a page whose offset lands past the end.
         `_count_filtered` runs through the kind-filter branch.
@@ -418,13 +404,13 @@ class TestRenderDatatablesPayload:
             3, kind="is_malware", observer=observer, summary="needle phrase"
         )
 
-        dt_request.params = _datatables_params(kind="is_malware", start=10, length=5)
-        payload = views._render_datatables_payload(dt_request)
+        route_request.params = _datatables_params(kind="is_malware", start=10, length=5)
+        payload = views._render_datatables_payload(route_request)
 
         assert payload["data"] == []
         assert payload["recordsFiltered"] == 3
 
-    def test_filtered_count_with_search_when_page_past_end(self, dt_request):
+    def test_filtered_count_with_search_when_page_past_end(self, route_request):
         """
         Same as `test_filtered_count_when_page_past_end`, with a search value set,
         exercising the `ILIKE` branch of `_count_filtered`.
@@ -434,15 +420,15 @@ class TestRenderDatatablesPayload:
             2, kind="is_malware", observer=observer, summary="needle phrase"
         )
 
-        dt_request.params = _datatables_params(
+        route_request.params = _datatables_params(
             kind="is_malware", search="needle", start=10, length=5
         )
-        payload = views._render_datatables_payload(dt_request)
+        payload = views._render_datatables_payload(route_request)
 
         assert payload["data"] == []
         assert payload["recordsFiltered"] == 2
 
-    def test_filtered_count_without_kind_filter(self, dt_request):
+    def test_filtered_count_without_kind_filter(self, route_request):
         """
         No `kind` filter but a search value: `_count_filtered` takes the
         polymorphic path (base = Observation, no kind predicate).
@@ -452,13 +438,13 @@ class TestRenderDatatablesPayload:
             kind="is_malware", observer=observer, summary="needle phrase"
         )
 
-        dt_request.params = _datatables_params(search="needle", start=10, length=5)
-        payload = views._render_datatables_payload(dt_request)
+        route_request.params = _datatables_params(search="needle", start=10, length=5)
+        payload = views._render_datatables_payload(route_request)
 
         assert payload["data"] == []
         assert payload["recordsFiltered"] == 1
 
-    def test_observer_resolution_is_batched(self, dt_request, query_recorder):
+    def test_observer_resolution_is_batched(self, route_request, query_recorder):
         observer_a = ObserverFactory.create()
         observer_b = ObserverFactory.create()
         UserFactory.create(username="alice").observer = observer_a
@@ -466,9 +452,9 @@ class TestRenderDatatablesPayload:
         for observer in (observer_a, observer_b, observer_a, observer_b):
             ProjectObservationFactory.create(kind="is_malware", observer=observer)
 
-        dt_request.params = _datatables_params(kind="is_malware")
+        route_request.params = _datatables_params(kind="is_malware")
         with query_recorder:
-            views._render_datatables_payload(dt_request)
+            views._render_datatables_payload(route_request)
         # Expected queries:
         # total estimate + main windowed query + observer resolution = 3.
         # Regression sentinel for N+1s on observer or related.
@@ -480,9 +466,9 @@ class TestObservationsListViews:
         result = views.observations_list(db_request)
         assert result == {"observation_kinds": list(ObservationKind)}
 
-    def test_json_view_returns_payload(self, dt_request):
-        dt_request.params = _datatables_params()
-        result = views.observations_list_json(dt_request)
+    def test_json_view_returns_payload(self, route_request):
+        route_request.params = _datatables_params()
+        result = views.observations_list_json(route_request)
         assert set(result.keys()) == {
             "draw",
             "recordsTotal",

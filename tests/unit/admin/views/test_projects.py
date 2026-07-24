@@ -183,6 +183,7 @@ class TestProjectDetail:
             "releases": [],
             "maintainers": roles,
             "journal": journals[:30],
+            "journal_count": 75,
             "oidc_publishers": oidc_publishers,
             "ONE_MIB": views.ONE_MIB,
             "MAX_FILESIZE": warehouse.constants.MAX_FILESIZE,
@@ -505,95 +506,19 @@ class TestProjectReleasesList:
 
 
 class TestProjectJournalsList:
-    def test_no_query(self, db_request):
+    def test_returns_project(self, db_request):
         project = ProjectFactory.create()
-        journals = sorted(
-            JournalEntryFactory.create_batch(30, name=project.name),
-            key=lambda x: (x.submitted_date, x.id),
-            reverse=True,
-        )
         db_request.matchdict["project_name"] = project.normalized_name
+
         result = views.journals_list(project, db_request)
 
-        assert result == {"journals": journals[:25], "project": project, "query": None}
-
-    def test_with_page(self, db_request):
-        project = ProjectFactory.create()
-        journals = sorted(
-            JournalEntryFactory.create_batch(30, name=project.name),
-            key=lambda x: (x.submitted_date, x.id),
-            reverse=True,
-        )
-        db_request.matchdict["project_name"] = project.normalized_name
-        db_request.GET["page"] = "2"
-        result = views.journals_list(project, db_request)
-
-        assert result == {"journals": journals[25:], "project": project, "query": None}
-
-    def test_with_invalid_page(self, db_request):
-        project = ProjectFactory.create()
-        db_request.matchdict["project_name"] = project.normalized_name
-        db_request.GET["page"] = "not an integer"
-
-        with pytest.raises(HTTPBadRequest):
-            views.journals_list(project, db_request)
-
-    def test_version_query(self, db_request):
-        project = ProjectFactory.create()
-        journals = sorted(
-            JournalEntryFactory.create_batch(30, name=project.name),
-            key=lambda x: (x.submitted_date, x.id),
-            reverse=True,
-        )
-        db_request.matchdict["project_name"] = project.normalized_name
-        db_request.GET["q"] = f"version:{journals[3].version}"
-        result = views.journals_list(project, db_request)
-
-        assert result == {
-            "journals": [journals[3]],
-            "project": project,
-            "query": f"version:{journals[3].version}",
-        }
-
-    def test_invalid_key_query(self, db_request):
-        project = ProjectFactory.create()
-        journals = sorted(
-            JournalEntryFactory.create_batch(30, name=project.name),
-            key=lambda x: (x.submitted_date, x.id),
-            reverse=True,
-        )
-        db_request.matchdict["project_name"] = project.normalized_name
-        db_request.GET["q"] = "user:username"
-        result = views.journals_list(project, db_request)
-
-        assert result == {
-            "journals": journals[:25],
-            "project": project,
-            "query": "user:username",
-        }
-
-    def test_basic_query(self, db_request):
-        project = ProjectFactory.create()
-        journals = sorted(
-            JournalEntryFactory.create_batch(30, name=project.name),
-            key=lambda x: (x.submitted_date, x.id),
-            reverse=True,
-        )
-        db_request.matchdict["project_name"] = project.normalized_name
-        db_request.GET["q"] = f"{journals[3].version}"
-        result = views.journals_list(project, db_request)
-
-        assert result == {
-            "journals": journals[:25],
-            "project": project,
-            "query": f"{journals[3].version}",
-        }
+        assert result == {"project": project}
 
     def test_non_normalized_name(self, db_request):
         project = ProjectFactory.create(name="NotNormalized")
         db_request.matchdict["project_name"] = str(project.name)
-        db_request.current_route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/projects/the-redirect/journals/"
+        db_request.current_route_path = lambda *a, **kw: (
+            "/admin/projects/the-redirect/journals/"
         )
         with pytest.raises(HTTPMovedPermanently):
             views.journals_list(project, db_request)

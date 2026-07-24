@@ -15,11 +15,12 @@ import packaging.utils
 
 from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.view import view_config
-from sqlalchemy import func, or_, select, text
+from sqlalchemy import func, or_, select
 
 from warehouse.accounts.models import User
-from warehouse.admin.views.helpers import parse_days_param
+from warehouse.admin.views.helpers import estimate_row_count, parse_days_param
 from warehouse.authnz import Permissions
+from warehouse.cache.http import add_vary
 from warehouse.observations.models import (
     OBSERVATION_KIND_MAP,
     Observation,
@@ -221,18 +222,6 @@ def _count_filtered(request: Request, params: _DataTablesParams) -> int:
     )
 
 
-def _count_all_observations(request: Request) -> int:
-    """Estimate unfiltered total via pg_class.reltuples — sub-millisecond."""
-    result = request.db.execute(
-        text(
-            "SELECT COALESCE(SUM(reltuples)::bigint, 0) FROM pg_class "
-            "WHERE relname = ANY(:names) AND relkind = 'r'"
-        ),
-        {"names": list(_OBSERVATION_TABLE_NAMES)},
-    ).scalar()
-    return int(result or 0)
-
-
 def _resolve_observers(
     request: Request, observer_ids: set[UUID]
 ) -> dict[UUID, str | None]:
@@ -324,7 +313,7 @@ def _render_datatables_payload(request: Request) -> dict[str, Any]:
 
     return {
         "draw": params.draw,
-        "recordsTotal": _count_all_observations(request),
+        "recordsTotal": estimate_row_count(request, _OBSERVATION_TABLE_NAMES),
         "recordsFiltered": records_filtered,
         "data": data,
     }
@@ -379,6 +368,7 @@ def _fetch_malware_observations(request: Request, cutoff_date: datetime) -> list
     route_name="admin.observations.list",
     renderer="warehouse.admin:templates/admin/observations/list.html",
     accept="text/html",
+    decorator=[add_vary("Accept")],
     permission=Permissions.AdminObservationsRead,
     request_method="GET",
     uses_session=True,
@@ -393,6 +383,7 @@ def observations_list(request: Request) -> dict[str, Any]:
     route_name="admin.observations.list",
     renderer="json",
     accept="application/json",
+    decorator=[add_vary("Accept")],
     permission=Permissions.AdminObservationsRead,
     request_method="GET",
     uses_session=True,
