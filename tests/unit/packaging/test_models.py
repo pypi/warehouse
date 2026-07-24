@@ -39,6 +39,7 @@ from ...common.db.packaging import (
     FileEventFactory as DBFileEventFactory,
     FileFactory as DBFileFactory,
     ProjectFactory as DBProjectFactory,
+    ProvenanceFactory as DBProvenanceFactory,
     ReleaseFactory as DBReleaseFactory,
     RoleFactory as DBRoleFactory,
     RoleInvitationFactory as DBRoleInvitationFactory,
@@ -1224,6 +1225,28 @@ class TestRelease:
         assert status.states == {ProvenanceState.NO_PROVENANCE}
         assert status.files_with_provenance == 0
         assert status.total_files == 1
+
+    def test_provenance_status_full_provenance(self, db_session):
+        release = DBReleaseFactory.create()
+        file1 = DBFileFactory.create(
+            release=release,
+            filename="file1.tar.gz",
+            packagetype="sdist",
+        )
+        file2 = DBFileFactory.create(
+            release=release,
+            filename="file2.whl",
+            packagetype="bdist_wheel",
+        )
+        prov1 = DBProvenanceFactory.create(file=file1)
+        prov2 = DBProvenanceFactory.create(file=file2)
+        prov1.as_model = pretend.stub(attestation_bundles=[])
+        prov2.as_model = pretend.stub(attestation_bundles=[])
+        status = release.provenance_status
+        assert status is not None
+        assert status.states == {ProvenanceState.FULL_PROVENANCE}
+        assert status.files_with_provenance == 2
+        assert status.total_files == 2
 
     def test_description_relationship(self, db_session):
         """
