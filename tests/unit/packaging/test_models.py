@@ -1275,10 +1275,14 @@ class TestRelease:
     def test_provenance_status_inconsistent_multiple_repos(self, db_session):
         release = DBReleaseFactory.create()
         file1 = DBFileFactory.create(
-            release=release, filename="file1.tar.gz", packagetype="sdist"
+            release=release,
+            filename="file1.tar.gz",
+            packagetype="sdist",
         )
         file2 = DBFileFactory.create(
-            release=release, filename="file2.whl", packagetype="bdist_wheel"
+            release=release,
+            filename="file2.whl",
+            packagetype="bdist_wheel",
         )
         prov1 = DBProvenanceFactory.create(file=file1)
         prov2 = DBProvenanceFactory.create(file=file2)
@@ -1292,27 +1296,29 @@ class TestRelease:
         prov2.as_model = pretend.stub(
             attestation_bundles=[
                 pretend.stub(
-                    publisher=pretend.stub(repository="baz/qux", workflow="publish.yml")
+                    publisher=pretend.stub(repository="foo/baz", workflow="publish.yml")
                 )
             ]
         )
-
         status = release.provenance_status
         assert status is not None
         assert status.states == {
             ProvenanceState.FULL_PROVENANCE,
             ProvenanceState.INCONSISTENT_PROVENANCE,
         }
-        assert status.repository_counts == {"foo/bar": 1, "baz/qux": 1}
-        assert status.workflow_counts == {"publish.yml": 2}
+        assert status.repository_counts == {"foo/bar": 1, "foo/baz": 1}
 
     def test_provenance_status_inconsistent_multiple_workflows(self, db_session):
         release = DBReleaseFactory.create()
         file1 = DBFileFactory.create(
-            release=release, filename="file1.tar.gz", packagetype="sdist"
+            release=release,
+            filename="file1.tar.gz",
+            packagetype="sdist",
         )
         file2 = DBFileFactory.create(
-            release=release, filename="file2.whl", packagetype="bdist_wheel"
+            release=release,
+            filename="file2.whl",
+            packagetype="bdist_wheel",
         )
         prov1 = DBProvenanceFactory.create(file=file1)
         prov2 = DBProvenanceFactory.create(file=file2)
@@ -1330,27 +1336,27 @@ class TestRelease:
                 )
             ]
         )
-
         status = release.provenance_status
         assert status is not None
         assert status.states == {
             ProvenanceState.FULL_PROVENANCE,
             ProvenanceState.INCONSISTENT_PROVENANCE,
         }
-        assert status.repository_counts == {"foo/bar": 2}
         assert status.workflow_counts == {"publish.yml": 1, "release.yml": 1}
 
     def test_provenance_status_lost_provenance(self, db_session):
         project = DBProjectFactory.create()
         rel1 = DBReleaseFactory.create(
-            project=project, created=datetime.datetime(2026, 7, 1, 12, 0, 0)
+            project=project,
+            created=datetime.datetime(2026, 7, 1, 12, 0, 0),
         )
         file1 = DBFileFactory.create(release=rel1)
         prov1 = DBProvenanceFactory.create(file=file1)
         prov1.as_model = pretend.stub(attestation_bundles=[])
 
         rel2 = DBReleaseFactory.create(
-            project=project, created=datetime.datetime(2026, 7, 5, 12, 0, 0)
+            project=project,
+            created=datetime.datetime(2026, 7, 5, 12, 0, 0),
         )
         DBFileFactory.create(release=rel2)
 
@@ -1367,14 +1373,16 @@ class TestRelease:
     def test_provenance_status_lost_provenance_expired_window(self, db_session):
         project = DBProjectFactory.create()
         rel1 = DBReleaseFactory.create(
-            project=project, created=datetime.datetime(2026, 7, 1, 12, 0, 0)
+            project=project,
+            created=datetime.datetime(2026, 6, 1, 12, 0, 0),
         )
         file1 = DBFileFactory.create(release=rel1)
         prov1 = DBProvenanceFactory.create(file=file1)
         prov1.as_model = pretend.stub(attestation_bundles=[])
 
         rel2 = DBReleaseFactory.create(
-            project=project, created=datetime.datetime(2026, 7, 20, 12, 0, 0)
+            project=project,
+            created=datetime.datetime(2026, 7, 1, 12, 0, 0),
         )
         DBFileFactory.create(release=rel2)
 
@@ -1382,6 +1390,84 @@ class TestRelease:
         assert status is not None
         assert status.states == {ProvenanceState.NO_PROVENANCE}
         assert status.comparison_release is None
+
+    def test_provenance_status_changed_provenance_repo(self, db_session):
+        project = DBProjectFactory.create()
+        rel1 = DBReleaseFactory.create(
+            project=project,
+            created=datetime.datetime(2026, 7, 1, 12, 0, 0),
+        )
+        file1 = DBFileFactory.create(release=rel1)
+        prov1 = DBProvenanceFactory.create(file=file1)
+        prov1.as_model = pretend.stub(
+            attestation_bundles=[
+                pretend.stub(
+                    publisher=pretend.stub(repository="foo/bar", workflow="publish.yml")
+                )
+            ]
+        )
+
+        rel2 = DBReleaseFactory.create(
+            project=project,
+            created=datetime.datetime(2026, 7, 5, 12, 0, 0),
+        )
+        file2 = DBFileFactory.create(release=rel2)
+        prov2 = DBProvenanceFactory.create(file=file2)
+        prov2.as_model = pretend.stub(
+            attestation_bundles=[
+                pretend.stub(
+                    publisher=pretend.stub(repository="foo/baz", workflow="publish.yml")
+                )
+            ]
+        )
+
+        status = rel2.provenance_status
+        assert status is not None
+        assert status.states == {
+            ProvenanceState.FULL_PROVENANCE,
+            ProvenanceState.CHANGED_PROVENANCE,
+        }
+        assert status.added_repositories == {"foo/baz"}
+        assert status.removed_repositories == {"foo/bar"}
+
+    def test_provenance_status_changed_provenance_workflow(self, db_session):
+        project = DBProjectFactory.create()
+        rel1 = DBReleaseFactory.create(
+            project=project,
+            created=datetime.datetime(2026, 7, 1, 12, 0, 0),
+        )
+        file1 = DBFileFactory.create(release=rel1)
+        prov1 = DBProvenanceFactory.create(file=file1)
+        prov1.as_model = pretend.stub(
+            attestation_bundles=[
+                pretend.stub(
+                    publisher=pretend.stub(repository="foo/bar", workflow="publish.yml")
+                )
+            ]
+        )
+
+        rel2 = DBReleaseFactory.create(
+            project=project,
+            created=datetime.datetime(2026, 7, 5, 12, 0, 0),
+        )
+        file2 = DBFileFactory.create(release=rel2)
+        prov2 = DBProvenanceFactory.create(file=file2)
+        prov2.as_model = pretend.stub(
+            attestation_bundles=[
+                pretend.stub(
+                    publisher=pretend.stub(repository="foo/bar", workflow="release.yml")
+                )
+            ]
+        )
+
+        status = rel2.provenance_status
+        assert status is not None
+        assert status.states == {
+            ProvenanceState.FULL_PROVENANCE,
+            ProvenanceState.CHANGED_PROVENANCE,
+        }
+        assert status.added_workflows == {"release.yml"}
+        assert status.removed_workflows == {"publish.yml"}
 
     def test_provenance_status_comparison_release_branches(self, db_session):
         with pytest.raises(NoSessionError):

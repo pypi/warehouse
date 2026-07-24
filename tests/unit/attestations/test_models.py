@@ -5,7 +5,10 @@ import pypi_attestations
 
 from tests.common.db.oidc import GitHubPublisherFactory
 from tests.common.db.packaging import FileFactory
-from warehouse.attestations.models import get_file_provenance_sources
+from warehouse.attestations.models import (
+    ProvenanceStatus,
+    get_file_provenance_sources,
+)
 
 
 def test_provenance_as_model(db_request, integrity_service, dummy_attestation):
@@ -42,6 +45,20 @@ def test_get_file_provenance_sources_github():
     repos, workflows = get_file_provenance_sources(file)
     assert repos == {"foo/bar"}
     assert workflows == {"publish.yml"}
+
+
+def test_provenance_status_delta_properties_none():
+    status = ProvenanceStatus(
+        states=set(),
+        files_with_provenance=0,
+        total_files=0,
+        comparison_repository_counts=None,
+        comparison_workflow_counts=None,
+    )
+    assert status.added_repositories == set()
+    assert status.removed_repositories == set()
+    assert status.added_workflows == set()
+    assert status.removed_workflows == set()
 
 
 def test_get_file_provenance_sources_missing_attrs():

@@ -1014,6 +1014,8 @@ class Release(HasObservations, db.Model):
         comparison_release = self.comparison_provenance_release(window_days=14)
         comparison_files_with_provenance = None
         comparison_total_files = None
+        comparison_repository_counts: dict[str, int] | None = None
+        comparison_workflow_counts: dict[str, int] | None = None
 
         if comparison_release:
             comparison_total_files = (
@@ -1029,9 +1031,33 @@ class Release(HasObservations, db.Model):
                 .all()
             )
             comparison_files_with_provenance = len(comparison_provenance_objects)
+            comparison_repository_counter: Counter[str] = Counter()
+            comparison_workflow_counter: Counter[str] = Counter()
+            for comparison_provenance in comparison_provenance_objects:
+                comparison_repositories, comparison_workflows = (
+                    get_file_provenance_sources(comparison_provenance)
+                )
+                for repository in comparison_repositories:
+                    comparison_repository_counter[repository] += 1
+                for workflow in comparison_workflows:
+                    comparison_workflow_counter[workflow] += 1
+
+            comparison_repository_counts = dict(comparison_repository_counter)
+            comparison_workflow_counts = dict(comparison_workflow_counter)
 
             if files_with_provenance == 0 and comparison_files_with_provenance > 0:
                 states.add(ProvenanceState.LOST_PROVENANCE)
+            elif (
+                files_with_provenance > 0
+                and comparison_files_with_provenance > 0
+                and (
+                    set(repository_counter.keys())
+                    != set(comparison_repository_counts.keys())
+                    or set(workflow_counter.keys())
+                    != set(comparison_workflow_counts.keys())
+                )
+            ):
+                states.add(ProvenanceState.CHANGED_PROVENANCE)
 
         return ProvenanceStatus(
             states=states,
@@ -1042,6 +1068,8 @@ class Release(HasObservations, db.Model):
             comparison_release=comparison_release,
             comparison_files_with_provenance=comparison_files_with_provenance,
             comparison_total_files=comparison_total_files,
+            comparison_repository_counts=comparison_repository_counts,
+            comparison_workflow_counts=comparison_workflow_counts,
         )
 
 
