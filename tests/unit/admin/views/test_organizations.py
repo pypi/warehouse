@@ -1918,6 +1918,108 @@ class TestSetTotalSizeLimit:
         assert result.status_code == 303
 
 
+class TestSetProjectCreateRatelimit:
+    def test_set_project_create_ratelimit_with_value(self, db_request):
+        organization = OrganizationFactory.create(name="foo")
+        user = UserFactory.create()
+
+        db_request.route_path = pretend.call_recorder(
+            lambda a, organization_id: "/admin/organizations/1/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = user
+        db_request.matchdict["organization_id"] = organization.id
+        db_request.POST = MultiDict(
+            {
+                "project_create_ratelimit_count": "200",
+                "project_create_ratelimit_period": "hour",
+            }
+        )
+
+        result = views.set_project_create_ratelimit(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Project creation rate limit set to 200 per hour", queue="success"
+            )
+        ]
+        assert result.status_code == 303
+        assert result.location == "/admin/organizations/1/"
+        assert organization.project_create_ratelimit_string == "200 per hour"
+        event = organization.events.one()
+        assert event.tag == "admin:organization:set_project_create_ratelimit"
+        assert event.additional == {
+            "organization_name": organization.name,
+            "old_project_create_ratelimit_string": None,
+            "new_project_create_ratelimit_string": "200 per hour",
+            "actor": user.username,
+        }
+
+    def test_set_project_create_ratelimit_with_none(self, db_request):
+        organization = OrganizationFactory.create(name="foo")
+        organization.project_create_ratelimit_string = "200 per hour"
+        user = UserFactory.create()
+
+        db_request.route_path = pretend.call_recorder(
+            lambda a, organization_id: "/admin/organizations/1/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = user
+        db_request.matchdict["organization_id"] = organization.id
+        db_request.POST = MultiDict({"project_create_ratelimit_count": ""})
+
+        result = views.set_project_create_ratelimit(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Project creation rate limit set to (default)", queue="success"
+            )
+        ]
+        assert result.status_code == 303
+        assert result.location == "/admin/organizations/1/"
+        assert organization.project_create_ratelimit_string is None
+        event = organization.events.one()
+        assert event.tag == "admin:organization:set_project_create_ratelimit"
+        assert event.additional == {
+            "organization_name": organization.name,
+            "old_project_create_ratelimit_string": "200 per hour",
+            "new_project_create_ratelimit_string": None,
+            "actor": user.username,
+        }
+
+    def test_set_project_create_ratelimit_invalid_value(self, db_request):
+        organization = OrganizationFactory.create(name="foo")
+
+        db_request.route_path = pretend.call_recorder(
+            lambda a, organization_id: "/admin/organizations/1/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.matchdict["organization_id"] = organization.id
+        db_request.POST = MultiDict({"project_create_ratelimit_count": "0"})
+
+        result = views.set_project_create_ratelimit(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "project_create_ratelimit_count: Rate limit count must be at least 1",
+                queue="error",
+            )
+        ]
+        assert result.status_code == 303
+
+    def test_set_project_create_ratelimit_not_found(self, db_request):
+        db_request.matchdict["organization_id"] = "00000000-0000-0000-0000-000000000000"
+
+        with pytest.raises(HTTPNotFound):
+            views.set_project_create_ratelimit(db_request)
+
+
 class TestAddOIDCIssuer:
     def test_add_oidc_issuer_success(self, db_request, monkeypatch):
         organization = OrganizationFactory.create()

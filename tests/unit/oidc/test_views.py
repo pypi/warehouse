@@ -34,6 +34,7 @@ from warehouse.oidc.views import (
 )
 from warehouse.organizations.models import OrganizationProject
 from warehouse.packaging import services
+from warehouse.packaging.interfaces import IProjectService
 from warehouse.packaging.models import Project
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
@@ -603,6 +604,70 @@ def test_mint_token_from_oidc_pending_publisher_for_organization_ok(
             publisher_specifier=str(publisher),
         ),
     ]
+
+
+def test_mint_token_from_oidc_pending_publisher_for_organization_ratelimited(
+    monkeypatch, db_request
+):
+    """An organization that has exceeded its project-creation rate limit
+    gets a friendly invalid-payload error instead of an unhandled
+    RateLimiterException. Personal (non-organization) trusted-publisher
+    creation is covered separately and remains unaffected."""
+    user = UserFactory.create()
+    organization = OrganizationFactory.create()
+
+    pending_publisher = PendingGitHubPublisherFactory.create(
+        project_name="org-owned-project",
+        added_by=user,
+        repository_name="bar",
+        repository_owner="foo",
+        repository_owner_id="123",
+        workflow_filename="example.yml",
+        environment="fake",
+        organization_id=organization.id,
+    )
+
+    db_request.flags.disallow_oidc = lambda f=None: False
+    db_request.body = json.dumps({"token": DUMMY_GITHUB_OIDC_JWT})
+    db_request.remote_addr = "0.0.0.0"
+
+    ratelimiter = pretend.stub(clear=pretend.call_recorder(lambda id: None))
+    ratelimiters = {
+        "user.oidc": ratelimiter,
+        "ip.oidc": ratelimiter,
+    }
+    monkeypatch.setattr(views, "_ratelimiters", lambda r: ratelimiters)
+
+    project_service = db_request.find_service(IProjectService)
+    failing_limiter = pretend.stub(
+        test=lambda *a: False,
+        hit=lambda *a: False,
+        resets_in=lambda *a: None,
+        get_window_stats=lambda *a: [],
+    )
+    failing_limiter.override = lambda limit_string: failing_limiter
+    project_service.ratelimiters["project.create.organization"] = failing_limiter
+
+    resp = views.mint_token_from_oidc(db_request)
+
+    assert db_request.response.status_code == 422
+    assert resp == {
+        "message": "Token request failed",
+        "errors": [
+            {
+                "code": "invalid-payload",
+                "description": (
+                    "this organization has created too many new projects recently"
+                ),
+            }
+        ],
+    }
+    assert (
+        db_request.db.query(Project)
+        .filter(Project.name == pending_publisher.project_name)
+        .count()
+        == 0
+    )
 
 
 def test_mint_token_from_pending_trusted_publisher_invalidates_others(

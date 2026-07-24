@@ -71,6 +71,11 @@ def test_includeme(mocker):
             domain=warehouse,
         ),
         mocker.call(
+            "admin.organization.set_project_create_ratelimit",
+            "/admin/organizations/{organization_id}/set_project_create_ratelimit/",
+            domain=warehouse,
+        ),
+        mocker.call(
             "admin.organization.add_oidc_issuer",
             "/admin/organizations/{organization_id}/oidc-issuers/add/",
             domain=warehouse,

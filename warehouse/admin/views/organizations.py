@@ -14,7 +14,11 @@ from sqlalchemy.orm import joinedload
 
 from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import User
-from warehouse.admin.forms import SetTotalSizeLimitForm, SetUploadLimitForm
+from warehouse.admin.forms import (
+    SetProjectCreateRateLimitForm,
+    SetTotalSizeLimitForm,
+    SetUploadLimitForm,
+)
 from warehouse.authnz import Permissions
 from warehouse.constants import (
     MAX_FILESIZE,
@@ -393,6 +397,9 @@ def organization_detail(request):
         "ONE_GIB": ONE_GIB,
         "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
         "UPLOAD_LIMIT_CAP": UPLOAD_LIMIT_CAP,
+        "DEFAULT_PROJECT_CREATE_ORGANIZATION_RATELIMIT": request.registry.settings.get(
+            "warehouse.packaging.project_create_organization_ratelimit_string"
+        ),
     }
 
 
@@ -1412,6 +1419,63 @@ def set_total_size_limit(request):
         limit_msg = "(default)"
     request.session.flash(
         f"Total size limit set to {limit_msg}",
+        queue="success",
+    )
+
+    return HTTPSeeOther(
+        request.route_path(
+            "admin.organization.detail",
+            organization_id=organization.id,
+        )
+    )
+
+
+@view_config(
+    route_name="admin.organization.set_project_create_ratelimit",
+    permission=Permissions.AdminOrganizationsSetLimit,
+    request_method="POST",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def set_project_create_ratelimit(request):
+    organization_id = request.matchdict["organization_id"]
+    organization = request.db.get(Organization, organization_id)
+    if organization is None:
+        raise HTTPNotFound
+
+    form = SetProjectCreateRateLimitForm(request.POST)
+
+    if not form.validate():
+        for field, errors in form.errors.items():
+            for error in errors:
+                request.session.flash(f"{field}: {error}", queue="error")
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization.detail", organization_id=organization.id
+            )
+        )
+
+    old_project_create_ratelimit_string = organization.project_create_ratelimit_string
+    organization.project_create_ratelimit_string = form.project_create_ratelimit_string
+
+    organization.record_event(
+        request=request,
+        tag=EventTag.Organization.OrganizationSetProjectCreateRateLimit,
+        additional={
+            "old_project_create_ratelimit_string": (
+                old_project_create_ratelimit_string
+            ),
+            "new_project_create_ratelimit_string": (
+                organization.project_create_ratelimit_string
+            ),
+            "actor": request.user.username,
+        },
+    )
+
+    limit_msg = organization.project_create_ratelimit_string or "(default)"
+    request.session.flash(
+        f"Project creation rate limit set to {limit_msg}",
         queue="success",
     )
 

@@ -172,6 +172,9 @@ class EventTag:
         OrganizationRename = "organization:rename"
         OrganizationSetUploadLimit = "admin:organization:set_upload_limit"
         OrganizationSetTotalSizeLimit = "admin:organization:set_total_size_limit"
+        OrganizationSetProjectCreateRateLimit = (
+            "admin:organization:set_project_create_ratelimit"
+        )
         OrganizationProjectAdd = "organization:organization_project:add"
         OrganizationProjectRemove = "organization:organization_project:remove"
         OrganizationRoleAdd = "organization:organization_role:add"

@@ -354,6 +354,12 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         BigInteger,
         comment="Maximum total size limit in bytes for projects in this organization",
     )
+    project_create_ratelimit_string: Mapped[str | None] = mapped_column(
+        comment=(
+            "Custom project-creation rate limit (e.g. '200 per hour') for this "
+            "organization. Overrides the organization default when set."
+        ),
+    )
     application: Mapped[OrganizationApplication] = relationship(
         back_populates="organization"
     )

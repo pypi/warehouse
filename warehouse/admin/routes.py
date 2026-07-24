@@ -70,6 +70,11 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "admin.organization.set_project_create_ratelimit",
+        "/admin/organizations/{organization_id}/set_project_create_ratelimit/",
+        domain=warehouse,
+    )
+    config.add_route(
         "admin.organization.add_oidc_issuer",
         "/admin/organizations/{organization_id}/oidc-issuers/add/",
         domain=warehouse,
