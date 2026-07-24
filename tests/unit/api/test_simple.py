@@ -512,6 +512,29 @@ class TestSimpleDetail:
         ("content_type", "renderer_override"),
         CONTENT_TYPE_PARAMS,
     )
+    def test_with_deprecated_project(self, db_request, content_type, renderer_override):
+        db_request.accept = content_type
+        project = ProjectFactory.create(lifecycle_status="deprecated")
+        _ = ReleaseFactory.create_batch(3, project=project)
+
+        context = {
+            "meta": {"_last-serial": 0, "api-version": API_VERSION},
+            "name": project.normalized_name,
+            "project-status": {"status": "deprecated"},
+            "files": [],
+            "versions": [],
+        }
+        context = _update_context(context, content_type, renderer_override)
+
+        assert simple.simple_detail(project, db_request) == context
+
+        if renderer_override is not None:
+            assert db_request.override_renderer == renderer_override
+
+    @pytest.mark.parametrize(
+        ("content_type", "renderer_override"),
+        CONTENT_TYPE_PARAMS,
+    )
     def test_with_quarantined_release_omitted(
         self, db_request, content_type, renderer_override
     ):
