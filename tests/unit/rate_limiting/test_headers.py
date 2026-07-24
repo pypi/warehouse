@@ -19,10 +19,10 @@ class TestRecordRateLimit:
         request = pretend.stub(__dict__={})
 
         record_rate_limit(
-            request, "search", limiter, identifiers=("1.2.3.4",), partition_key="ip"
+            request, "search", limiter, identifiers=("192.0.2.1",), partition_key="ip"
         )
 
-        assert limiter.get_window_stats.calls == [pretend.call("1.2.3.4")]
+        assert limiter.get_window_stats.calls == [pretend.call("192.0.2.1")]
         assert request.__dict__["_rate_limit_snapshots"] == [
             RateLimitSnapshot(name="search", partition_key="ip", stats=stats)
         ]
@@ -34,7 +34,7 @@ class TestRecordRateLimit:
         request = pretend.stub(__dict__={})
 
         record_rate_limit(
-            request, "search", limiter, identifiers=("1.2.3.4",), partition_key="ip"
+            request, "search", limiter, identifiers=("192.0.2.1",), partition_key="ip"
         )
 
         assert "_rate_limit_snapshots" not in request.__dict__

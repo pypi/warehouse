@@ -5267,8 +5267,8 @@ class TestFileUpload:
     @pytest.mark.parametrize(
         ("failing_limiter", "remote_addr"),
         [
-            ("project.create.ip", "127.0.0.1"),
-            ("project.create.user", "127.0.0.1"),
+            ("project.create.ip", "192.0.2.1"),
+            ("project.create.user", "192.0.2.1"),
             ("project.create.user", None),
         ],
     )
