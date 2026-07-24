@@ -6,7 +6,7 @@ import datetime
 import enum
 import typing
 
-from collections import OrderedDict
+from collections import Counter, OrderedDict
 from uuid import UUID
 
 import packaging.utils
@@ -54,7 +54,12 @@ from urllib3.util import parse_url
 
 from warehouse import db
 from warehouse.accounts.models import User
-from warehouse.attestations.models import Provenance
+from warehouse.attestations.models import (
+    Provenance,
+    ProvenanceState,
+    ProvenanceStatus,
+    get_file_provenance_sources,
+)
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE
@@ -948,6 +953,124 @@ class Release(HasObservations, db.Model):
         if not files:
             return False
         return all(file.uploaded_via_trusted_publisher for file in files)
+
+    def comparison_provenance_release(self, window_days: int = 14) -> Release | None:
+        """Find preceding release with provenance within window_days."""
+        session = orm_session_from_obj(self)
+        query = (
+            session.query(Release)
+            .join(Release.files)
+            .join(File.provenance)
+            .filter(
+                Release.project_id == self.project_id,
+                Release.created < self.created,
+                Release.created >= self.created - datetime.timedelta(days=window_days),
+            )
+            .order_by(Release.created.desc())
+        )
+        return query.first()
+
+    @property
+    def provenance_status(self) -> ProvenanceStatus | None:
+        """Return the provenance status for this Release."""
+        session = orm_session_from_obj(self)
+        total_files = (
+            session.query(func.count(File.id))
+            .filter(File.release_id == self.id)
+            .scalar()
+        )
+        if not total_files:
+            return None
+
+        provenance_objects = (
+            session.query(Provenance)
+            .join(Provenance.file)
+            .filter(File.release_id == self.id)
+            .options(orm.undefer(Provenance.provenance))
+            .all()
+        )
+        files_with_provenance = len(provenance_objects)
+        repository_counter: Counter[str] = Counter()
+        workflow_counter: Counter[str] = Counter()
+
+        for provenance_object in provenance_objects:
+            repositories, workflows = get_file_provenance_sources(provenance_object)
+            for repository in repositories:
+                repository_counter[repository] += 1
+            for workflow in workflows:
+                workflow_counter[workflow] += 1
+
+        states: set[ProvenanceState] = set()
+        if files_with_provenance == 0:
+            states.add(ProvenanceState.NO_PROVENANCE)
+        elif files_with_provenance == total_files:
+            states.add(ProvenanceState.FULL_PROVENANCE)
+        else:
+            states.add(ProvenanceState.PARTIAL_PROVENANCE)
+
+        if len(repository_counter) > 1 or len(workflow_counter) > 1:
+            states.add(ProvenanceState.INCONSISTENT_PROVENANCE)
+
+        comparison_release = self.comparison_provenance_release(window_days=14)
+        comparison_files_with_provenance = None
+        comparison_total_files = None
+        comparison_repository_counts: dict[str, int] | None = None
+        comparison_workflow_counts: dict[str, int] | None = None
+
+        if comparison_release:
+            comparison_total_files = (
+                session.query(func.count(File.id))
+                .filter(File.release_id == comparison_release.id)
+                .scalar()
+            )
+            comparison_provenance_objects = (
+                session.query(Provenance)
+                .join(Provenance.file)
+                .filter(File.release_id == comparison_release.id)
+                .options(orm.undefer(Provenance.provenance))
+                .all()
+            )
+            comparison_files_with_provenance = len(comparison_provenance_objects)
+            comparison_repository_counter: Counter[str] = Counter()
+            comparison_workflow_counter: Counter[str] = Counter()
+            for comparison_provenance in comparison_provenance_objects:
+                comparison_repositories, comparison_workflows = (
+                    get_file_provenance_sources(comparison_provenance)
+                )
+                for repository in comparison_repositories:
+                    comparison_repository_counter[repository] += 1
+                for workflow in comparison_workflows:
+                    comparison_workflow_counter[workflow] += 1
+
+            comparison_repository_counts = dict(comparison_repository_counter)
+            comparison_workflow_counts = dict(comparison_workflow_counter)
+
+            if files_with_provenance == 0 and comparison_files_with_provenance > 0:
+                states.add(ProvenanceState.LOST_PROVENANCE)
+            elif (
+                files_with_provenance > 0
+                and comparison_files_with_provenance > 0
+                and (
+                    set(repository_counter.keys())
+                    != set(comparison_repository_counts.keys())
+                    or set(workflow_counter.keys())
+                    != set(comparison_workflow_counts.keys())
+                )
+            ):
+                states.add(ProvenanceState.CHANGED_PROVENANCE)
+
+        return ProvenanceStatus(
+            states=states,
+            files_with_provenance=files_with_provenance,
+            total_files=total_files,
+            repository_counts=dict(repository_counter),
+            workflow_counts=dict(workflow_counter),
+            comparison_release=comparison_release,
+            comparison_files_with_provenance=comparison_files_with_provenance,
+            comparison_total_files=comparison_total_files,
+            comparison_repository_counts=comparison_repository_counts,
+            comparison_workflow_counts=comparison_workflow_counts,
+        )
 
 
 class PackageType(enum.StrEnum):
