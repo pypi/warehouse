@@ -5,7 +5,6 @@ from pyramid.exceptions import ConfigurationError
 from pyramid.httpexceptions import HTTPSeeOther
 from pyramid.util import is_same_domain
 
-from warehouse.admin.flags import AdminFlagValue
 from warehouse.organizations.models import Organization, Team
 from warehouse.utils.security_policy import AuthenticationMethod
 
@@ -86,12 +85,10 @@ class ActiveOrganizationPredicate:
     phash = text
 
     def __call__(self, context: Organization | Team, request):
-        """Check organizations are enabled globally and this organization is
-        operational.
+        """Check that this organization is operational.
 
-        1. `AdminFlagValue.DISABLE_ORGANIZATIONS` flag is off.
-        2. Organization is operational (uses consolidated is_in_good_standing()
-           method).
+        Organization is operational (uses consolidated is_in_good_standing()
+        method).
 
         """
         if self.val is False:
@@ -103,11 +100,12 @@ class ActiveOrganizationPredicate:
 
         if organization.is_in_good_standing():
             return True
-        if (
-            # Organization accounts are disabled.
-            request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS)
-        ):
-            return False
+        request.session.flash(
+            "This organization's billing is inactive. Activate billing to "
+            "manage its projects, teams, and members.",
+            queue="error",
+            allow_duplicate=False,
+        )
         raise HTTPSeeOther(request.route_path("manage.organizations"))
 
 

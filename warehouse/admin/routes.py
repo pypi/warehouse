@@ -25,6 +25,11 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "admin.organization.subscription.cancel",
+        "/admin/organizations/{organization_id}/subscriptions/{subscription_id}/cancel/",
+        domain=warehouse,
+    )
+    config.add_route(
         "admin.organization.add_role",
         "/admin/organizations/{organization_id}/add_role/",
         domain=warehouse,
@@ -106,6 +111,11 @@ def includeme(config):
     config.add_route(
         "admin.organization_application.decline",
         "/admin/organization_applications/{organization_application_id}/decline/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.organization_application.addnote",
+        "/admin/organization_applications/{organization_application_id}/addnote/",
         domain=warehouse,
     )
 

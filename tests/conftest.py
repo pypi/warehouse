@@ -103,14 +103,29 @@ class _CallRecorder:
     def calls(self):
         return [pretend.call(*c.args, **c.kwargs) for c in self._mock.call_args_list]
 
-    @calls.setter
-    def calls(self, value):
-        # Support the legacy ``recorder.calls = []`` reset idiom.
-        assert value == [], "metrics recorder shim only supports resetting to []"
-        self._mock.reset_mock()
-
     def __getattr__(self, name):
         return getattr(self._mock, name)
+
+
+@pytest.fixture(autouse=True)
+def guard_mock_sentinels():
+    yield
+
+    mutations = []
+    # ``unittest.mock`` keeps every named sentinel in this process-global cache.
+    # Inspecting it lets us guard sentinels from mutation that would impact other tests.
+    for name, sentinel in mock.sentinel._sentinels.items():
+        attributes = vars(sentinel)
+        expected_attributes = {"name": name}
+        if attributes != expected_attributes:
+            mutations.append(f"mock.sentinel.{name} (attributes: {sorted(attributes)})")
+            attributes.clear()
+            attributes.update(expected_attributes)
+
+    assert not mutations, (
+        "mock sentinels must not be mutated; use a fresh object instead. Mutated: "
+        + ", ".join(mutations)
+    )
 
 
 @pytest.fixture
@@ -667,7 +682,6 @@ def db_request(pyramid_request, db_session, tm):
     pyramid_request.tm = tm
     pyramid_request.flags = admin.flags.Flags(pyramid_request)
     pyramid_request.banned = admin.bans.Bans(pyramid_request)
-    pyramid_request.organization_access = True
     pyramid_request.ip_address = IpAddressFactory.create(
         ip_address=pyramid_request.remote_addr,
         hashed_ip_address=pyramid_request.remote_addr_hashed,
@@ -695,14 +709,6 @@ def _enable_all_oidc_providers(webtest):
     for flag in flags:
         flag_db = db_sess.get(AdminFlag, flag.value)
         flag_db.enabled = original_flag_values[flag]
-
-
-@pytest.fixture
-def _enable_organizations(db_request):
-    flag = db_request.db.get(AdminFlag, AdminFlagValue.DISABLE_ORGANIZATIONS.value)
-    flag.enabled = False
-    yield
-    flag.enabled = True
 
 
 @pytest.fixture

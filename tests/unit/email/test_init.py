@@ -193,6 +193,21 @@ class TestSendEmailToUser:
         assert request.task.calls == []
         assert task.delay.calls == []
 
+    def test_doesnt_send_without_email_address(self):
+        """A user with no primary email address is skipped."""
+        task = pretend.stub(delay=pretend.call_recorder(lambda *a, **kw: None))
+        request = pretend.stub(task=pretend.call_recorder(lambda x: task))
+
+        user = pretend.stub(primary_email=None)
+
+        msg = EmailMessage(subject="My Subject", body_text="My Body")
+
+        skip_reason = email._send_email_to_user(request, user, msg)
+
+        assert skip_reason == "no-email-address"
+        assert request.task.calls == []
+        assert task.delay.calls == []
+
     def test_doesnt_send_within_repeat_window(self, pyramid_request, pyramid_services):
         email_service = pretend.stub(
             last_sent=pretend.call_recorder(
@@ -1409,7 +1424,7 @@ class TestAccountDeletionEmail:
         ]
 
     def test_account_deletion_email_unverified(
-        self, pyramid_request, pyramid_config, monkeypatch
+        self, pyramid_request, pyramid_config, metrics, monkeypatch
     ):
         stub_user = pretend.stub(
             id="id",
@@ -1455,6 +1470,17 @@ class TestAccountDeletionEmail:
         html_renderer.assert_(username=stub_user.username)
         assert pyramid_request.task.calls == []
         assert send_email.delay.calls == []
+        assert metrics.increment.calls == [
+            pretend.call(
+                "warehouse.emails.skipped",
+                tags=[
+                    "template_name:account-deleted",
+                    "allow_unverified:False",
+                    "repeat_window:none",
+                    "reason:unverified-email",
+                ],
+            )
+        ]
 
 
 class TestPrimaryEmailChangeEmail:
@@ -2842,6 +2868,62 @@ class TestOrganizationRenameEmails:
                 },
             )
         ]
+
+
+class TestOrganizationSubscriptionRequiredEmail:
+    def test_send_organization_subscription_required_email(
+        self,
+        db_request,
+        pyramid_user,
+        make_email_renderers,
+        send_email,
+    ):
+        user = UserFactory.create()
+        EmailFactory.create(user=user, verified=True)
+        organization_name = "example"
+
+        subject_renderer, body_renderer, html_renderer = make_email_renderers(
+            "organization-subscription-required"
+        )
+
+        result = email.send_organization_subscription_required_email(
+            db_request,
+            user,
+            organization_name=organization_name,
+        )
+
+        assert result == {
+            "username": user.username,
+            "organization_name": organization_name,
+        }
+        subject_renderer.assert_(**result)
+        body_renderer.assert_(**result)
+        html_renderer.assert_(**result)
+        db_request.task.assert_called_once_with(send_email)
+        send_email.delay.assert_called_once_with(
+            f"{user.name} <{user.email}>",
+            {
+                "sender": None,
+                "subject": subject_renderer.string_response,
+                "body_text": body_renderer.string_response,
+                "body_html": (
+                    f"<html>\n"
+                    f"<head></head>\n"
+                    f"<body>{html_renderer.string_response}</body>\n"
+                    f"</html>\n"
+                ),
+            },
+            {
+                "tag": "account:email:sent",
+                "user_id": user.id,
+                "additional": {
+                    "from_": db_request.registry.settings.get("mail.sender"),
+                    "to": user.email,
+                    "subject": subject_renderer.string_response,
+                    "redact_ip": True,
+                },
+            },
+        )
 
 
 class TestOrganizationDeleteEmails:

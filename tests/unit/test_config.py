@@ -1,12 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+import types
 
 from datetime import timedelta
-from unittest import mock
 
 import orjson
-import pretend
 import pytest
 
 from pyramid import renderers
@@ -19,38 +18,39 @@ from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
 
 
 class TestRequireHTTPSTween:
-    def test_noops_when_disabled(self):
-        handler = pretend.stub()
-        registry = pretend.stub(
-            settings=pretend.stub(get=pretend.call_recorder(lambda k, v: False))
-        )
+    def test_noops_when_disabled(self, mocker):
+        registry = mocker.Mock()
+        registry.settings.get.return_value = False
 
-        assert config.require_https_tween_factory(handler, registry) is handler
-        assert registry.settings.get.calls == [pretend.call("enforce_https", True)]
+        assert (
+            config.require_https_tween_factory(mocker.sentinel.handler, registry)
+            is mocker.sentinel.handler
+        )
+        registry.settings.get.assert_called_once_with("enforce_https", True)
 
     @pytest.mark.parametrize(
         ("params", "scheme"),
         [({}, "https"), ({":action": "thing"}, "https"), ({}, "http")],
     )
-    def test_allows_through(self, params, scheme):
-        request = pretend.stub(params=params, scheme=scheme)
-        response = pretend.stub()
-        handler = pretend.call_recorder(lambda req: response)
-        registry = pretend.stub(settings=pretend.stub(get=lambda k, v: True))
+    def test_allows_through(self, params, scheme, pyramid_request, mocker):
+        pyramid_request.params = params
+        pyramid_request.scheme = scheme
+        handler = mocker.Mock(return_value=mocker.sentinel.response)
+        registry = types.SimpleNamespace(settings={"enforce_https": True})
 
         tween = config.require_https_tween_factory(handler, registry)
 
-        assert tween(request) is response
-        assert handler.calls == [pretend.call(request)]
+        assert tween(pyramid_request) is mocker.sentinel.response
+        handler.assert_called_once_with(pyramid_request)
 
     @pytest.mark.parametrize(("params", "scheme"), [({":action": "thing"}, "http")])
-    def test_rejects(self, params, scheme):
-        request = pretend.stub(params=params, scheme=scheme)
-        handler = pretend.stub()
-        registry = pretend.stub(settings=pretend.stub(get=lambda k, v: True))
+    def test_rejects(self, params, scheme, pyramid_request, mocker):
+        pyramid_request.params = params
+        pyramid_request.scheme = scheme
+        registry = types.SimpleNamespace(settings={"enforce_https": True})
 
-        tween = config.require_https_tween_factory(handler, registry)
-        resp = tween(request)
+        tween = config.require_https_tween_factory(mocker.sentinel.handler, registry)
+        resp = tween(pyramid_request)
 
         assert resp.status == "403 SSL is required"
         assert resp.headers["X-Fastly-Error"] == "803"
@@ -62,25 +62,22 @@ class TestRequireHTTPSTween:
     ("path", "expected"),
     [("/foo/bar/", True), ("/static/wat/", False), ("/_debug_toolbar/thing/", False)],
 )
-def test_activate_hook(path, expected):
-    request = pretend.stub(path=path)
-    assert config.activate_hook(request) == expected
+def test_activate_hook(path, expected, pyramid_request):
+    pyramid_request.path = path
+    assert config.activate_hook(pyramid_request) == expected
 
 
 @pytest.mark.parametrize("route_kw", [None, {}, {"foo": "bar"}])
-def test_template_view(route_kw):
-    configobj = pretend.stub(
-        add_route=pretend.call_recorder(lambda *a, **kw: None),
-        add_view=pretend.call_recorder(lambda *a, **kw: None),
-    )
+def test_template_view(route_kw, mocker):
+    configobj = mocker.Mock(spec=["add_route", "add_view"])
 
     config.template_view(configobj, "test", "/test/", "test.html", route_kw=route_kw)
 
-    assert configobj.add_route.calls == [
-        pretend.call("test", "/test/", **({} if route_kw is None else route_kw))
+    assert configobj.add_route.call_args_list == [
+        mocker.call("test", "/test/", **({} if route_kw is None else route_kw))
     ]
-    assert configobj.add_view.calls == [
-        pretend.call(renderer="test.html", route_name="test")
+    assert configobj.add_view.call_args_list == [
+        mocker.call(renderer="test.html", route_name="test")
     ]
 
 
@@ -225,14 +222,14 @@ def test_maybe_set_redis(monkeypatch, environ, coercer, default, db, expected):
         ({"my settings": "the settings value"}, config.Environment.development),
     ],
 )
-def test_configure(monkeypatch, settings, environment):
-    json_renderer_obj = pretend.stub()
-    json_renderer_cls = pretend.call_recorder(lambda **kw: json_renderer_obj)
-    monkeypatch.setattr(renderers, "JSON", json_renderer_cls)
+def test_configure(monkeypatch, mocker, settings, environment):
+    json_renderer_cls = mocker.patch.object(
+        renderers, "JSON", return_value=mocker.sentinel.json_renderer_obj
+    )
 
-    xmlrpc_renderer_obj = pretend.stub()
-    xmlrpc_renderer_cls = pretend.call_recorder(lambda **kw: xmlrpc_renderer_obj)
-    monkeypatch.setattr(config, "XMLRPCRenderer", xmlrpc_renderer_cls)
+    xmlrpc_renderer_cls = mocker.patch.object(
+        config, "XMLRPCRenderer", return_value=mocker.sentinel.xmlrpc_renderer_obj
+    )
 
     # Ignore all environment variables in the test environment, except for WAREHOUSE_ENV
     monkeypatch.setattr(
@@ -260,40 +257,43 @@ def test_configure(monkeypatch, settings, environment):
             }
 
     configurator_settings = {}
-    configurator_obj = pretend.stub(
-        registry=FakeRegistry(),
-        set_root_factory=pretend.call_recorder(lambda rf: None),
-        include=pretend.call_recorder(lambda include: None),
-        add_directive=pretend.call_recorder(lambda name, fn, **k: None),
-        add_wsgi_middleware=pretend.call_recorder(lambda m, *a, **kw: None),
-        add_renderer=pretend.call_recorder(lambda name, renderer: None),
-        add_request_method=pretend.call_recorder(lambda fn: None),
-        add_jinja2_renderer=pretend.call_recorder(lambda renderer: None),
-        add_jinja2_search_path=pretend.call_recorder(lambda path, name: None),
-        get_settings=lambda: configurator_settings,
-        add_settings=pretend.call_recorder(configurator_settings.update),
-        add_tween=pretend.call_recorder(lambda tween_factory, **kw: None),
-        add_static_view=pretend.call_recorder(lambda *a, **kw: None),
-        add_cache_buster=pretend.call_recorder(lambda spec, buster: None),
-        whitenoise_serve_static=pretend.call_recorder(lambda *a, **kw: None),
-        whitenoise_add_files=pretend.call_recorder(lambda *a, **kw: None),
-        whitenoise_add_manifest=pretend.call_recorder(lambda *a, **kw: None),
-        scan=pretend.call_recorder(lambda categories, ignore: None),
-        commit=pretend.call_recorder(lambda: None),
-        add_view_deriver=pretend.call_recorder(lambda *a, **kw: None),
+    configurator_obj = mocker.Mock(
+        spec=[
+            "registry",
+            "set_root_factory",
+            "include",
+            "add_directive",
+            "add_wsgi_middleware",
+            "add_renderer",
+            "add_request_method",
+            "add_jinja2_renderer",
+            "add_jinja2_search_path",
+            "get_settings",
+            "add_settings",
+            "add_tween",
+            "add_static_view",
+            "add_cache_buster",
+            "whitenoise_serve_static",
+            "whitenoise_add_files",
+            "whitenoise_add_manifest",
+            "scan",
+            "commit",
+            "add_view_deriver",
+        ]
     )
-    configurator_cls = pretend.call_recorder(lambda settings: configurator_obj)
-    monkeypatch.setattr(config, "Configurator", configurator_cls)
-
-    cachebuster_obj = pretend.stub()
-    cachebuster_cls = pretend.call_recorder(lambda p, **kw: cachebuster_obj)
-    monkeypatch.setattr(config, "ManifestCacheBuster", cachebuster_cls)
-
-    transaction_manager = pretend.stub()
-    transaction = pretend.stub(
-        TransactionManager=pretend.call_recorder(lambda: transaction_manager)
+    configurator_obj.registry = FakeRegistry()
+    configurator_obj.get_settings.return_value = configurator_settings
+    configurator_obj.add_settings.side_effect = configurator_settings.update
+    configurator_cls = mocker.patch.object(
+        config, "Configurator", return_value=configurator_obj
     )
-    monkeypatch.setattr(config, "transaction", transaction)
+
+    cachebuster_cls = mocker.patch.object(
+        config, "ManifestCacheBuster", return_value=mocker.sentinel.cachebuster_obj
+    )
+
+    transaction = mocker.patch.object(config, "transaction")
+    transaction.TransactionManager.return_value = mocker.sentinel.transaction_manager
 
     result = config.configure(settings=settings.copy() if settings else None)
 
@@ -368,23 +368,25 @@ def test_configure(monkeypatch, settings, environment):
     if settings is not None:
         expected_settings.update(settings)
 
-    assert configurator_cls.calls == [pretend.call(settings=expected_settings)]
+    assert configurator_cls.call_args_list == [mocker.call(settings=expected_settings)]
     assert result is configurator_obj
-    assert configurator_obj.set_root_factory.calls == [pretend.call(config.RootFactory)]
-    assert configurator_obj.add_wsgi_middleware.calls == [
-        pretend.call(
+    assert configurator_obj.set_root_factory.call_args_list == [
+        mocker.call(config.RootFactory)
+    ]
+    assert configurator_obj.add_wsgi_middleware.call_args_list == [
+        mocker.call(
             ProxyFixer, token="insecure token", ip_salt="insecure salt", num_proxies=1
         ),
-        pretend.call(VhmRootRemover),
+        mocker.call(VhmRootRemover),
     ]
-    assert configurator_obj.include.calls == (
+    assert configurator_obj.include.call_args_list == (
         [
-            pretend.call("pyramid_services"),
-            pretend.call(".metrics"),
-            pretend.call(".csrf"),
+            mocker.call("pyramid_services"),
+            mocker.call(".metrics"),
+            mocker.call(".csrf"),
         ]
         + [
-            pretend.call(x)
+            mocker.call(x)
             for x in [
                 (
                     "pyramid_debugtoolbar"
@@ -395,90 +397,93 @@ def test_configure(monkeypatch, settings, environment):
             if x is not None
         ]
         + [
-            pretend.call(".logging"),
-            pretend.call("pyramid_jinja2"),
-            pretend.call(".filters"),
-            pretend.call("pyramid_mailer"),
-            pretend.call("pyramid_retry"),
-            pretend.call("pyramid_tm"),
-            pretend.call(".rate_limiting"),
-            pretend.call(".legacy.api.xmlrpc"),
-            pretend.call(".legacy.api.xmlrpc.cache"),
-            pretend.call("pyramid_rpc.xmlrpc"),
-            pretend.call(".legacy.action_routing"),
-            pretend.call(".predicates"),
-            pretend.call(".i18n"),
-            pretend.call(".db"),
-            pretend.call(".tasks"),
-            pretend.call(".static"),
-            pretend.call(".search"),
-            pretend.call(".aws"),
-            pretend.call(".b2"),
-            pretend.call(".gcloud"),
-            pretend.call(".sessions"),
-            pretend.call(".cache.http"),
-            pretend.call(".cache.origin"),
-            pretend.call(".cache"),
-            pretend.call(".email"),
-            pretend.call(".accounts"),
-            pretend.call(".macaroons"),
-            pretend.call(".oidc"),
-            pretend.call(".attestations"),
-            pretend.call(".manage"),
-            pretend.call(".organizations"),
-            pretend.call(".subscriptions"),
-            pretend.call(".packaging"),
-            pretend.call(".redirects"),
-            pretend.call("pyramid_redirect"),
-            pretend.call(".routes"),
-            pretend.call(".sponsors"),
-            pretend.call(".banners"),
-            pretend.call(".admin"),
-            pretend.call(".forklift"),
-            pretend.call(".api.config"),
-            pretend.call(".utils.wsgi"),
-            pretend.call(".sentry"),
-            pretend.call(".csp"),
-            pretend.call(".referrer_policy"),
-            pretend.call(".captcha"),
-            pretend.call(".helpdesk"),
-            pretend.call(".http"),
-            pretend.call(".utils.row_counter"),
+            mocker.call(".logging"),
+            mocker.call("pyramid_jinja2"),
+            mocker.call(".filters"),
+            mocker.call("pyramid_mailer"),
+            mocker.call("pyramid_retry"),
+            mocker.call("pyramid_tm"),
+            mocker.call(".rate_limiting"),
+            mocker.call(".legacy.api.xmlrpc"),
+            mocker.call(".legacy.api.xmlrpc.cache"),
+            mocker.call("pyramid_rpc.xmlrpc"),
+            mocker.call(".legacy.action_routing"),
+            mocker.call(".predicates"),
+            mocker.call(".i18n"),
+            mocker.call(".db"),
+            mocker.call(".tasks"),
+            mocker.call(".static"),
+            mocker.call(".search"),
+            mocker.call(".aws"),
+            mocker.call(".b2"),
+            mocker.call(".gcloud"),
+            mocker.call(".sessions"),
+            mocker.call(".cache.http"),
+            mocker.call(".cache.origin"),
+            mocker.call(".cache"),
+            mocker.call(".email"),
+            mocker.call(".accounts"),
+            mocker.call(".macaroons"),
+            mocker.call(".oidc"),
+            mocker.call(".attestations"),
+            mocker.call(".manage"),
+            mocker.call(".organizations"),
+            mocker.call(".subscriptions"),
+            mocker.call(".packaging"),
+            mocker.call(".redirects"),
+            mocker.call("pyramid_redirect"),
+            mocker.call(".routes"),
+            mocker.call(".sponsors"),
+            mocker.call(".banners"),
+            mocker.call(".admin"),
+            mocker.call(".forklift"),
+            mocker.call(".api.config"),
+            mocker.call(".utils.wsgi"),
+            mocker.call(".sentry"),
+            mocker.call(".csp"),
+            mocker.call(".referrer_policy"),
+            mocker.call(".captcha"),
+            mocker.call(".helpdesk"),
+            mocker.call(".http"),
+            mocker.call(".utils.row_counter"),
         ]
-        + [pretend.call(x) for x in [configurator_settings.get("warehouse.theme")] if x]
-        + [pretend.call(".sanity")]
+        + [mocker.call(x) for x in [configurator_settings.get("warehouse.theme")] if x]
+        + [mocker.call(".sanity")]
     )
-    assert configurator_obj.add_jinja2_renderer.calls == [
-        pretend.call(".html"),
-        pretend.call(".txt"),
-        pretend.call(".xml"),
+    assert configurator_obj.add_jinja2_renderer.call_args_list == [
+        mocker.call(".html"),
+        mocker.call(".txt"),
+        mocker.call(".xml"),
     ]
-    assert configurator_obj.add_jinja2_search_path.calls == [
-        pretend.call("warehouse:templates", name=".html"),
-        pretend.call("warehouse:templates", name=".txt"),
-        pretend.call("warehouse:templates", name=".xml"),
+    assert configurator_obj.add_jinja2_search_path.call_args_list == [
+        mocker.call("warehouse:templates", name=".html"),
+        mocker.call("warehouse:templates", name=".txt"),
+        mocker.call("warehouse:templates", name=".xml"),
     ]
-    assert configurator_obj.add_settings.calls == [
-        pretend.call({"jinja2.newstyle": True}),
-        pretend.call({"jinja2.i18n.domain": "messages"}),
-        pretend.call({"jinja2.lstrip_blocks": True}),
-        pretend.call({"jinja2.trim_blocks": True}),
-        pretend.call({"retry.attempts": 3}),
-        pretend.call(
+    assert configurator_obj.add_settings.call_args_list == [
+        mocker.call({"jinja2.newstyle": True}),
+        mocker.call({"jinja2.i18n.domain": "messages"}),
+        mocker.call({"jinja2.lstrip_blocks": True}),
+        mocker.call({"jinja2.trim_blocks": True}),
+        mocker.call({"retry.attempts": 3}),
+        mocker.call(
             {
-                "tm.manager_hook": mock.ANY,
+                "tm.manager_hook": mocker.ANY,
                 "tm.activate_hook": config.activate_hook,
                 "tm.annotate_user": False,
             }
         ),
-        pretend.call({"pyramid_redirect.structlog": True}),
-        pretend.call({"http": {"verify": "/etc/ssl/certs/"}}),
+        mocker.call({"pyramid_redirect.structlog": True}),
+        mocker.call({"http": {"verify": "/etc/ssl/certs/"}}),
     ]
-    add_settings_dict = configurator_obj.add_settings.calls[5].args[0]
-    assert add_settings_dict["tm.manager_hook"](pretend.stub()) is transaction_manager
-    assert configurator_obj.add_tween.calls == [
-        pretend.call("warehouse.config.require_https_tween_factory"),
-        pretend.call(
+    add_settings_dict = configurator_obj.add_settings.call_args_list[5].args[0]
+    assert (
+        add_settings_dict["tm.manager_hook"](mocker.sentinel.request)
+        is mocker.sentinel.transaction_manager
+    )
+    assert configurator_obj.add_tween.call_args_list == [
+        mocker.call("warehouse.config.require_https_tween_factory"),
+        mocker.call(
             "warehouse.utils.compression.compression_tween_factory",
             over=[
                 "warehouse.cache.http.conditional_http_tween_factory",
@@ -487,29 +492,29 @@ def test_configure(monkeypatch, settings, environment):
             ],
         ),
     ]
-    assert configurator_obj.add_static_view.calls == [
-        pretend.call("static", "warehouse:static/dist/", cache_max_age=315360000)
+    assert configurator_obj.add_static_view.call_args_list == [
+        mocker.call("static", "warehouse:static/dist/", cache_max_age=315360000)
     ]
-    assert configurator_obj.add_cache_buster.calls == [
-        pretend.call("warehouse:static/dist/", cachebuster_obj)
+    assert configurator_obj.add_cache_buster.call_args_list == [
+        mocker.call("warehouse:static/dist/", mocker.sentinel.cachebuster_obj)
     ]
-    assert cachebuster_cls.calls == [
-        pretend.call("warehouse:static/dist/manifest.json", reload=False, strict=True)
+    assert cachebuster_cls.call_args_list == [
+        mocker.call("warehouse:static/dist/manifest.json", reload=False, strict=True)
     ]
-    assert configurator_obj.whitenoise_serve_static.calls == [
-        pretend.call(autorefresh=False, max_age=315360000)
+    assert configurator_obj.whitenoise_serve_static.call_args_list == [
+        mocker.call(autorefresh=False, max_age=315360000)
     ]
-    assert configurator_obj.whitenoise_add_files.calls == [
-        pretend.call("warehouse:static/dist/", prefix="/static/")
+    assert configurator_obj.whitenoise_add_files.call_args_list == [
+        mocker.call("warehouse:static/dist/", prefix="/static/")
     ]
-    assert configurator_obj.whitenoise_add_manifest.calls == [
-        pretend.call("warehouse:static/dist/manifest.json", prefix="/static/")
+    assert configurator_obj.whitenoise_add_manifest.call_args_list == [
+        mocker.call("warehouse:static/dist/manifest.json", prefix="/static/")
     ]
-    assert configurator_obj.add_directive.calls == [
-        pretend.call("add_template_view", config.template_view, action_wrap=False)
+    assert configurator_obj.add_directive.call_args_list == [
+        mocker.call("add_template_view", config.template_view, action_wrap=False)
     ]
-    assert configurator_obj.scan.calls == [
-        pretend.call(
+    assert configurator_obj.scan.call_args_list == [
+        mocker.call(
             categories=(
                 "pyramid",
                 "warehouse",
@@ -517,27 +522,27 @@ def test_configure(monkeypatch, settings, environment):
             ignore=["warehouse.migrations.env", "warehouse.celery", "warehouse.wsgi"],
         )
     ]
-    assert configurator_obj.commit.calls == [pretend.call()]
-    assert configurator_obj.add_renderer.calls == [
-        pretend.call("json", json_renderer_obj),
-        pretend.call("xmlrpc", xmlrpc_renderer_obj),
+    assert configurator_obj.commit.call_args_list == [mocker.call()]
+    assert configurator_obj.add_renderer.call_args_list == [
+        mocker.call("json", mocker.sentinel.json_renderer_obj),
+        mocker.call("xmlrpc", mocker.sentinel.xmlrpc_renderer_obj),
     ]
-    assert configurator_obj.add_view_deriver.calls == [
-        pretend.call(
+    assert configurator_obj.add_view_deriver.call_args_list == [
+        mocker.call(
             config.reject_duplicate_post_keys_view,
             over="rendered_view",
             under="decorated_view",
         )
     ]
 
-    assert json_renderer_cls.calls == [
-        pretend.call(
+    assert json_renderer_cls.call_args_list == [
+        mocker.call(
             serializer=orjson.dumps,
             option=orjson.OPT_SORT_KEYS | orjson.OPT_APPEND_NEWLINE,
         )
     ]
 
-    assert xmlrpc_renderer_cls.calls == [pretend.call(allow_none=True)]
+    assert xmlrpc_renderer_cls.call_args_list == [mocker.call(allow_none=True)]
 
 
 def test_root_factory_access_control_list():
@@ -588,6 +593,7 @@ def test_root_factory_access_control_list():
                 Permissions.AdminUsersWrite,
                 Permissions.AdminUsersEmailWrite,
                 Permissions.AdminUsersAccountRecoveryWrite,
+                Permissions.AdminUsersRecoveryCodesBurn,
                 Permissions.AdminVulnerabilitiesRead,
                 Permissions.AdminVulnerabilitiesWrite,
             ),
@@ -622,6 +628,7 @@ def test_root_factory_access_control_list():
                 Permissions.AdminUsersRead,
                 Permissions.AdminUsersEmailWrite,
                 Permissions.AdminUsersAccountRecoveryWrite,
+                Permissions.AdminUsersRecoveryCodesBurn,
             ),
         ),
         (
