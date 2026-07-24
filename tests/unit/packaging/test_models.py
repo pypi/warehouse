@@ -1248,6 +1248,26 @@ class TestRelease:
         assert status.files_with_provenance == 2
         assert status.total_files == 2
 
+    def test_provenance_status_partial_provenance(self, db_session):
+        release = DBReleaseFactory.create()
+        file1 = DBFileFactory.create(
+            release=release,
+            filename="file1.tar.gz",
+            packagetype="sdist",
+        )
+        DBFileFactory.create(
+            release=release,
+            filename="file2.whl",
+            packagetype="bdist_wheel",
+        )
+        prov1 = DBProvenanceFactory.create(file=file1)
+        prov1.as_model = pretend.stub(attestation_bundles=[])
+        status = release.provenance_status
+        assert status is not None
+        assert status.states == {ProvenanceState.PARTIAL_PROVENANCE}
+        assert status.files_with_provenance == 1
+        assert status.total_files == 2
+
     def test_description_relationship(self, db_session):
         """
         When a Release is deleted, its Description is also deleted.

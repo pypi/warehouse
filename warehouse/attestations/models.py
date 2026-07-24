@@ -51,6 +51,7 @@ class Provenance(db.Model):
 class ProvenanceState(enum.StrEnum):
     NO_PROVENANCE = "no-provenance"
     FULL_PROVENANCE = "full-provenance"
+    PARTIAL_PROVENANCE = "partial-provenance"
 
 
 @dataclass(frozen=True)
