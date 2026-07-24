@@ -56,6 +56,7 @@ from warehouse import db
 from warehouse.accounts.models import User
 from warehouse.attestations.models import (
     Provenance,
+    ProvenanceState,
     ProvenanceStatus,
 )
 from warehouse.authnz import Permissions
@@ -964,9 +965,22 @@ class Release(HasObservations, db.Model):
         if not total_files:
             return None
 
+        provenance_objects = (
+            session.query(Provenance)
+            .join(Provenance.file)
+            .filter(File.release_id == self.id)
+            .options(orm.undefer(Provenance.provenance))
+            .all()
+        )
+        files_with_provenance = len(provenance_objects)
+
+        states: set[ProvenanceState] = set()
+        if files_with_provenance == 0:
+            states.add(ProvenanceState.NO_PROVENANCE)
+
         return ProvenanceStatus(
-            states=set(),
-            files_with_provenance=0,
+            states=states,
+            files_with_provenance=files_with_provenance,
             total_files=total_files,
         )
 

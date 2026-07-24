@@ -49,7 +49,7 @@ class Provenance(db.Model):
 
 
 class ProvenanceState(enum.StrEnum):
-    pass
+    NO_PROVENANCE = "no-provenance"
 
 
 @dataclass(frozen=True)
