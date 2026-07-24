@@ -507,7 +507,13 @@ def user_set_project_create_ratelimit(user, request):
         )
 
     old_project_create_ratelimit_string = user.project_create_ratelimit_string
-    user.project_create_ratelimit_string = form.project_create_ratelimit_string
+    ratelimit_count = form.project_create_ratelimit_count.data
+    user.project_create_ratelimit_count = ratelimit_count
+    user.project_create_ratelimit_period = (
+        form.project_create_ratelimit_period.data
+        if ratelimit_count is not None
+        else None
+    )
 
     user.record_event(
         request=request,

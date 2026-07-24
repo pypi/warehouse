@@ -1153,7 +1153,7 @@ class TestProjectService:
     ):
         """With no per-org override, the shared organization-tier default
         limiter (registered like project.create.user/.ip) governs."""
-        organization = OrganizationFactory.create(project_create_ratelimit_string=None)
+        organization = OrganizationFactory.create(project_create_ratelimit_count=None)
         project_service.ratelimiters["project.create.organization"] = ratelimit_service
 
         limiter = project_service._organization_ratelimiter(organization)
@@ -1164,7 +1164,7 @@ class TestProjectService:
         """A per-org override string is applied via the default limiter's
         own `.override()`, not by hand-building a new RateLimiter."""
         organization = OrganizationFactory.create(
-            project_create_ratelimit_string="200 per hour"
+            project_create_ratelimit_count=200, project_create_ratelimit_period="hour"
         )
         overridden = pretend.stub()
         default_limiter = pretend.stub(
@@ -1195,7 +1195,9 @@ class TestProjectService:
         """A per-user override string is applied via the default per-user
         limiter's own `.override()`, the same way organization overrides
         are — see `_organization_ratelimiter`."""
-        creator = UserFactory.create(project_create_ratelimit_string="5 per hour")
+        creator = UserFactory.create(
+            project_create_ratelimit_count=5, project_create_ratelimit_period="hour"
+        )
         overridden = pretend.stub()
         default_limiter = pretend.stub(
             override=pretend.call_recorder(lambda limit_string: overridden)
@@ -1290,7 +1292,7 @@ class TestProjectService:
     ):
         creator = UserFactory.create()
         organization = OrganizationFactory.create(
-            project_create_ratelimit_string="5 per hour"
+            project_create_ratelimit_count=5, project_create_ratelimit_period="hour"
         )
         overridden = pretend.stub(
             test=pretend.call_recorder(lambda *a: True),

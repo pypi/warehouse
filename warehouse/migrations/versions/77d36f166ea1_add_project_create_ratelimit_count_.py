@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 """
-Add project_create_ratelimit_string to organizations and users
+Add project_create_ratelimit_count/period to organizations and users
 
 Revision ID: 77d36f166ea1
 Revises: 423ffda7411f
@@ -41,29 +41,57 @@ def upgrade():
     op.add_column(
         "organizations",
         sa.Column(
-            "project_create_ratelimit_string",
+            "project_create_ratelimit_count",
+            sa.Integer(),
+            nullable=True,
+            comment=(
+                "Custom project-creation rate limit count for this organization "
+                "(e.g. 200, paired with project_create_ratelimit_period). "
+                "Overrides the organization default when set."
+            ),
+        ),
+    )
+    op.add_column(
+        "organizations",
+        sa.Column(
+            "project_create_ratelimit_period",
             sa.String(),
             nullable=True,
             comment=(
-                "Custom project-creation rate limit (e.g. '200 per hour') for "
-                "this organization. Overrides the organization default when set."
+                "Period unit ('hour', 'day', or 'month') for "
+                "project_create_ratelimit_count."
             ),
         ),
     )
     op.add_column(
         "users",
         sa.Column(
-            "project_create_ratelimit_string",
+            "project_create_ratelimit_count",
+            sa.Integer(),
+            nullable=True,
+            comment=(
+                "Custom project-creation rate limit count for this user "
+                "(e.g. 50, paired with project_create_ratelimit_period). "
+                "Overrides the global default when set."
+            ),
+        ),
+    )
+    op.add_column(
+        "users",
+        sa.Column(
+            "project_create_ratelimit_period",
             sa.String(),
             nullable=True,
             comment=(
-                "Custom project-creation rate limit (e.g. '50 per hour') for "
-                "this user. Overrides the global default when set."
+                "Period unit ('hour', 'day', or 'month') for "
+                "project_create_ratelimit_count."
             ),
         ),
     )
 
 
 def downgrade():
-    op.drop_column("users", "project_create_ratelimit_string")
-    op.drop_column("organizations", "project_create_ratelimit_string")
+    op.drop_column("users", "project_create_ratelimit_period")
+    op.drop_column("users", "project_create_ratelimit_count")
+    op.drop_column("organizations", "project_create_ratelimit_period")
+    op.drop_column("organizations", "project_create_ratelimit_count")

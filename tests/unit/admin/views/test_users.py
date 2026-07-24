@@ -709,7 +709,8 @@ class TestUserSetProjectCreateRatelimit:
 
     def test_set_project_create_ratelimit_with_none(self, db_request):
         user = UserFactory.create()
-        user.project_create_ratelimit_string = "5 per hour"
+        user.project_create_ratelimit_count = 5
+        user.project_create_ratelimit_period = "hour"
         actor = UserFactory.create()
 
         db_request.route_path = pretend.call_recorder(

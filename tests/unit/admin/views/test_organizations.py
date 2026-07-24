@@ -1959,7 +1959,8 @@ class TestSetProjectCreateRatelimit:
 
     def test_set_project_create_ratelimit_with_none(self, db_request):
         organization = OrganizationFactory.create(name="foo")
-        organization.project_create_ratelimit_string = "200 per hour"
+        organization.project_create_ratelimit_count = 200
+        organization.project_create_ratelimit_period = "hour"
         user = UserFactory.create()
 
         db_request.route_path = pretend.call_recorder(

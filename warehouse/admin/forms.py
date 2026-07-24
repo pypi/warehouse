@@ -132,13 +132,3 @@ class SetProjectCreateRateLimitForm(wtforms.Form):
         choices=[("hour", "hour"), ("day", "day"), ("month", "month")],
         default="hour",
     )
-
-    @property
-    def project_create_ratelimit_string(self):
-        """The composed `limits`-syntax string, or None to clear the override."""
-        if self.project_create_ratelimit_count.data is None:
-            return None
-        return (
-            f"{self.project_create_ratelimit_count.data} per "
-            f"{self.project_create_ratelimit_period.data}"
-        )

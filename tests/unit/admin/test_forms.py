@@ -123,21 +123,21 @@ class TestSetTotalSizeLimitForm:
 
 class TestSetProjectCreateRateLimitForm:
     def test_validate_empty_clears_override(self):
-        """An empty count clears the override (composed string is None)."""
+        """An empty count clears the override."""
         form = SetProjectCreateRateLimitForm(
             MultiDict({"project_create_ratelimit_count": ""})
         )
         assert form.validate()
-        assert form.project_create_ratelimit_string is None
+        assert form.project_create_ratelimit_count.data is None
 
     def test_validate_none_clears_override(self):
-        """A missing count clears the override (composed string is None)."""
+        """A missing count clears the override."""
         form = SetProjectCreateRateLimitForm(MultiDict({}))
         assert form.validate()
-        assert form.project_create_ratelimit_string is None
+        assert form.project_create_ratelimit_count.data is None
 
     def test_validate_composes_count_and_period(self):
-        """A count + period compose into a `limits`-syntax string."""
+        """A count + period are validated together."""
         form = SetProjectCreateRateLimitForm(
             MultiDict(
                 {
@@ -147,7 +147,8 @@ class TestSetProjectCreateRateLimitForm:
             )
         )
         assert form.validate()
-        assert form.project_create_ratelimit_string == "200 per hour"
+        assert form.project_create_ratelimit_count.data == 200
+        assert form.project_create_ratelimit_period.data == "hour"
 
     def test_validate_defaults_to_hour_period(self):
         """The period field defaults to "hour" when not submitted."""
@@ -155,7 +156,8 @@ class TestSetProjectCreateRateLimitForm:
             MultiDict({"project_create_ratelimit_count": "5"})
         )
         assert form.validate()
-        assert form.project_create_ratelimit_string == "5 per hour"
+        assert form.project_create_ratelimit_count.data == 5
+        assert form.project_create_ratelimit_period.data == "hour"
 
     def test_validate_below_minimum_count(self):
         """A count below 1 raises a validation error."""

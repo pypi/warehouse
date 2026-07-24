@@ -354,10 +354,17 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         BigInteger,
         comment="Maximum total size limit in bytes for projects in this organization",
     )
-    project_create_ratelimit_string: Mapped[str | None] = mapped_column(
+    project_create_ratelimit_count: Mapped[int | None] = mapped_column(
         comment=(
-            "Custom project-creation rate limit (e.g. '200 per hour') for this "
-            "organization. Overrides the organization default when set."
+            "Custom project-creation rate limit count for this organization "
+            "(e.g. 200, paired with project_create_ratelimit_period). "
+            "Overrides the organization default when set."
+        ),
+    )
+    project_create_ratelimit_period: Mapped[str | None] = mapped_column(
+        comment=(
+            "Period unit ('hour', 'day', or 'month') for "
+            "project_create_ratelimit_count."
         ),
     )
     application: Mapped[OrganizationApplication] = relationship(
@@ -409,6 +416,16 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
     pending_oidc_publishers: Mapped[list[PendingOIDCPublisher]] = relationship(
         back_populates="pypi_organization",
     )
+
+    @property
+    def project_create_ratelimit_string(self) -> str | None:
+        """Composed `limits`-syntax string, or None when no override is set."""
+        if self.project_create_ratelimit_count is None:
+            return None
+        return (
+            f"{self.project_create_ratelimit_count} per "
+            f"{self.project_create_ratelimit_period}"
+        )
 
     @property
     def owners(self):
