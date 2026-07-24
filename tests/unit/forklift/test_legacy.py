@@ -17,6 +17,7 @@ from textwrap import dedent
 from types import SimpleNamespace
 from unittest import mock
 
+import packaging
 import pretend
 import psycopg
 import pytest
@@ -83,25 +84,40 @@ def _get_tar_testdata(compression_type=""):
     return temp_f.getvalue()
 
 
-def _get_whl_testdata(name="fake_package", version="1.0"):
+def _format_tags(tags: str) -> bytes:
+    """
+    Build a mock WHEEL file from the given tags.
+    """
+    tags = packaging.tags.parse_tag(tags)
+    formatted = "Wheel-Version: 1.0\n" + "\n".join(f"Tag: {tag}" for tag in tags)
+    return formatted.encode("utf-8")
+
+
+def _get_whl_testdata(
+    name="fake_package",
+    version="1.0",
+    tags: bytes | None = _format_tags("py3-none-any"),
+):
     temp_f = io.BytesIO()
     with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
         zfp.writestr(f"{name}-{version}.dist-info/METADATA", "Fake metadata")
+        if tags:
+            zfp.writestr(f"{name}-{version}.dist-info/WHEEL", tags)
         zfp.writestr(f"{name}-{version}.dist-info/licenses/LICENSE.MIT", "Fake License")
         zfp.writestr(
             f"{name}-{version}.dist-info/licenses/LICENSE.APACHE", "Fake License"
         )
-        zfp.writestr(
-            f"{name}-{version}.dist-info/RECORD",
-            dedent(
-                f"""\
-                {name}-{version}.dist-info/METADATA,
-                {name}-{version}.dist-info/licenses/LICENSE.MIT,
-                {name}-{version}.dist-info/licenses/LICENSE.APACHE,
-                {name}-{version}.dist-info/RECORD,
-                """,
-            ),
+        record = dedent(
+            f"""\
+            {name}-{version}.dist-info/METADATA,
+            {name}-{version}.dist-info/licenses/LICENSE.MIT,
+            {name}-{version}.dist-info/licenses/LICENSE.APACHE,
+            {name}-{version}.dist-info/RECORD,
+            """,
         )
+        if tags:
+            record += f"{name}-{version}.dist-info/WHEEL,\n"
+        zfp.writestr(f"{name}-{version}.dist-info/RECORD", record)
     return temp_f.getvalue()
 
 
@@ -372,40 +388,101 @@ class TestFileValidation:
             "File exceeds compression ratio of 50",
         )
 
-    def test_wheel_no_wheel_file(self, tmpdir):
-        f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
+    @pytest.mark.parametrize(
+        ("tags_filename", "tags_file", "error"),
+        [
+            (
+                "py3-none-macosx_11_0_arm64",
+                b"Tag: py3-none-macosx_13_0_arm64",
+                "Wheel filename and WHEEL file tags mismatch: "
+                + "'py3-none-macosx_11_0_arm64' vs. 'py3-none-macosx_13_0_arm64'",
+            ),
+            (
+                "py2-none-any",
+                b"Tag: py2-none-any\nTag: py3-none-any",
+                "WHEEL file has tags not in wheel filename: 'py3-none-any'",
+            ),
+            (
+                "py2.py3-none-any",
+                b"Tag: py3-none-any",
+                "Wheel filename has tags not in WHEEL file: 'py2-none-any'",
+            ),
+            (
+                "py2.py3-none-any",
+                b"Tag: py2.py3-none-any",
+                "Tags in WHEEL file must be expanded, not compressed: "
+                + "'py2.py3-none-any'",
+            ),
+            (
+                "py3-none-macosx_11_0_arm64",
+                b"\xff\x00\xff",
+                "WHEEL file is not UTF-8 encoded",
+            ),
+            (
+                "py3-none-macosx_11_0_arm64",
+                None,
+                "WHEEL not found at <NAME>-1.0.dist-info/WHEEL",
+            ),
+        ],
+    )
+    def test_upload_wheel_tag_mismatches(
+        self,
+        pyramid_config,
+        db_request,
+        tags_filename,
+        tags_file,
+        error,
+    ):
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
 
-        with zipfile.ZipFile(f, "w") as zfp:
-            zfp.writestr("something.txt", b"Just a placeholder file")
-
-        assert legacy._is_valid_dist_file(f, "bdist_wheel", NullMetrics()) == (
-            False,
-            "WHEEL not found at test-1.0.dist-info/WHEEL",
+        name = project.normalized_name.replace("-", "_")
+        filename = f"{name}-{release.version}-{tags_filename}.whl"
+        data = _get_whl_testdata(
+            name=name,
+            version="1.0",
+            tags=tags_file,
         )
+        digest = hashlib.md5(data).hexdigest()
 
-    def test_wheel_has_wheel_file(self, tmpdir):
-        f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
-
-        with zipfile.ZipFile(f, "w") as zfp:
-            zfp.writestr("something.txt", b"Just a placeholder file")
-            zfp.writestr("test-1.0.dist-info/WHEEL", b"this is the package info")
-
-        assert legacy._is_valid_dist_file(f, "bdist_wheel", NullMetrics()) == (
-            True,
-            None,
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "2.4",
+                "name": project.name,
+                "version": "1.0",
+                "summary": "This is my summary!",
+                "filetype": "bdist_wheel",
+                "md5_digest": digest,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(data),
+                    type="application/zip",
+                ),
+            }
         )
+        db_request.POST.extend([("pyversion", "py3")])
 
-    def test_invalid_wheel_filename(self, tmpdir):
-        f = str(tmpdir.join("cheese.whl"))
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+        }.get(svc)
 
-        with zipfile.ZipFile(f, "w") as zfp:
-            zfp.writestr("something.txt", b"Just a placeholder file")
-            zfp.writestr("test-1.0.dist-info/WHEEL", b"this is the package info")
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
 
-        assert legacy._is_valid_dist_file(f, "bdist_wheel", NullMetrics()) == (
-            False,
-            "Unable to parse name and version from wheel filename",
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        rendered_error = f"400 Invalid distribution file. {error}".replace(
+            "<NAME>", name
         )
+        assert resp.status == rendered_error
 
     def test_incorrect_number_of_top_level_directories_sdist_tar(self, tmpdir):
         tar_fn = str(tmpdir.join("test.tar.gz"))
@@ -3074,7 +3151,9 @@ class TestFileUpload:
             project.normalized_name.replace("-", "_"), release.version, plat
         )
         filebody = _get_whl_testdata(
-            name=project.normalized_name.replace("-", "_"), version=release.version
+            name=project.normalized_name.replace("-", "_"),
+            version=release.version,
+            tags=_format_tags(f"cp34-none-{plat}"),
         )
         filestoragehash = _storage_hash(filebody)
 
@@ -3424,7 +3503,9 @@ class TestFileUpload:
             release.version,
         )
         filebody = _get_whl_testdata(
-            name=project.normalized_name.replace("-", "_"), version=release.version
+            name=project.normalized_name.replace("-", "_"),
+            version=release.version,
+            tags=_format_tags("cp34-none-any"),
         )
         filestoragehash = _storage_hash(filebody)
 
@@ -3724,6 +3805,10 @@ class TestFileUpload:
             zfp.writestr("some_file", "some_data")
             zfp.writestr(f"{project_name}-{release.version}.dist-info/METADATA", "")
             zfp.writestr(
+                f"{project_name}-{release.version}.dist-info/WHEEL",
+                "Tag: cp34-none-any",
+            )
+            zfp.writestr(
                 f"{project_name}-{release.version}.dist-info/RECORD",
                 f"{project_name}-{release.version}.dist-info/RECORD,",
             )
@@ -3799,10 +3884,15 @@ class TestFileUpload:
 
             zfp.writestr(f"{project_name}-{release.version}.dist-info/METADATA", "")
             zfp.writestr(
+                f"{project_name}-{release.version}.dist-info/WHEEL",
+                "Tag: cp34-none-any",
+            )
+            zfp.writestr(
                 f"{project_name}-{release.version}.dist-info/RECORD",
                 dedent(
                     f"""\
                     {project_name}-{release.version}.dist-info/METADATA,
+                    {project_name}-{release.version}.dist-info/WHEEL,
                     {project_name}-{release.version}.dist-info/RECORD,
                     """,
                 ),
@@ -3869,10 +3959,15 @@ class TestFileUpload:
         with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
             zfp.writestr(f"{project_name}-{release.version}.dist-info/METADATA", "")
             zfp.writestr(
+                f"{project_name}-{release.version}.dist-info/WHEEL",
+                "Tag: cp34-none-any",
+            )
+            zfp.writestr(
                 f"{project_name}-{release.version}.dist-info/RECORD",
                 dedent(
                     f"""\
                 {project_name}-{release.version}.dist-info\\METADATA,
+                {project_name}-{release.version}.dist-info\\WHEEL,
                 {project_name}-{release.version}.dist-info\\RECORD,
                 """,
                 ),
@@ -3944,6 +4039,10 @@ class TestFileUpload:
 
             zfp.writestr(f"{project_name}-{release.version}.dist-info/METADATA", "")
             zfp.writestr(
+                f"{project_name}-{release.version}.dist-info/WHEEL",
+                "Tag: cp34-none-any",
+            )
+            zfp.writestr(
                 f"{project_name}-{release.version}.dist-info/{exempt_filename}", ""
             )
             zfp.writestr(
@@ -3951,6 +4050,7 @@ class TestFileUpload:
                 dedent(
                     f"""\
                     {project_name}-{release.version}.dist-info/METADATA,
+                    {project_name}-{release.version}.dist-info/WHEEL,
                     {project_name}-{release.version}.dist-info/RECORD,
                     """,
                 ),
@@ -4017,6 +4117,10 @@ class TestFileUpload:
         with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
             zfp.writestr("some_file", "some_data")
             zfp.writestr(f"{project_name}-{release.version}.dist-info/METADATA", "")
+            zfp.writestr(
+                f"{project_name}-{release.version}.dist-info/WHEEL",
+                "Tag: cp34-none-any",
+            )
             zfp.writestr(f"not-dist-info/{exempt_filename}", "")
             zfp.writestr(
                 f"{project_name}-{release.version}.dist-info/RECORD",
