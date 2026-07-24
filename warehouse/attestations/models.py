@@ -5,7 +5,7 @@ from __future__ import annotations
 import enum
 import typing
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import cached_property
 from uuid import UUID
 
@@ -52,6 +52,7 @@ class ProvenanceState(enum.StrEnum):
     NO_PROVENANCE = "no-provenance"
     FULL_PROVENANCE = "full-provenance"
     PARTIAL_PROVENANCE = "partial-provenance"
+    INCONSISTENT_PROVENANCE = "inconsistent-provenance"
 
 
 @dataclass(frozen=True)
@@ -59,3 +60,30 @@ class ProvenanceStatus:
     states: set[ProvenanceState]
     files_with_provenance: int
     total_files: int
+    repository_counts: dict[str, int] = field(default_factory=dict)
+    workflow_counts: dict[str, int] = field(default_factory=dict)
+
+
+def get_file_provenance_sources(
+    file: File | Provenance,
+) -> tuple[set[str], set[str]]:
+    """Return (repositories, workflows) sets from an attestation bundle."""
+    repositories: set[str] = set()
+    workflows: set[str] = set()
+    provenance_object = (
+        file if hasattr(file, "as_model") else getattr(file, "provenance", None)
+    )
+    if not provenance_object or not getattr(provenance_object, "as_model", None):
+        return repositories, workflows
+
+    model = provenance_object.as_model
+    for bundle in model.attestation_bundles:
+        publisher = bundle.publisher
+        if getattr(publisher, "repository", None):
+            repositories.add(publisher.repository)
+        workflow = getattr(publisher, "workflow", None) or getattr(
+            publisher, "workflow_filepath", None
+        )
+        if workflow:
+            workflows.add(workflow)
+    return repositories, workflows

@@ -1268,6 +1268,74 @@ class TestRelease:
         assert status.files_with_provenance == 1
         assert status.total_files == 2
 
+    def test_provenance_status_inconsistent_multiple_repos(self, db_session):
+        release = DBReleaseFactory.create()
+        file1 = DBFileFactory.create(
+            release=release, filename="file1.tar.gz", packagetype="sdist"
+        )
+        file2 = DBFileFactory.create(
+            release=release, filename="file2.whl", packagetype="bdist_wheel"
+        )
+        prov1 = DBProvenanceFactory.create(file=file1)
+        prov2 = DBProvenanceFactory.create(file=file2)
+        prov1.as_model = pretend.stub(
+            attestation_bundles=[
+                pretend.stub(
+                    publisher=pretend.stub(repository="foo/bar", workflow="publish.yml")
+                )
+            ]
+        )
+        prov2.as_model = pretend.stub(
+            attestation_bundles=[
+                pretend.stub(
+                    publisher=pretend.stub(repository="baz/qux", workflow="publish.yml")
+                )
+            ]
+        )
+
+        status = release.provenance_status
+        assert status is not None
+        assert status.states == {
+            ProvenanceState.FULL_PROVENANCE,
+            ProvenanceState.INCONSISTENT_PROVENANCE,
+        }
+        assert status.repository_counts == {"foo/bar": 1, "baz/qux": 1}
+        assert status.workflow_counts == {"publish.yml": 2}
+
+    def test_provenance_status_inconsistent_multiple_workflows(self, db_session):
+        release = DBReleaseFactory.create()
+        file1 = DBFileFactory.create(
+            release=release, filename="file1.tar.gz", packagetype="sdist"
+        )
+        file2 = DBFileFactory.create(
+            release=release, filename="file2.whl", packagetype="bdist_wheel"
+        )
+        prov1 = DBProvenanceFactory.create(file=file1)
+        prov2 = DBProvenanceFactory.create(file=file2)
+        prov1.as_model = pretend.stub(
+            attestation_bundles=[
+                pretend.stub(
+                    publisher=pretend.stub(repository="foo/bar", workflow="publish.yml")
+                )
+            ]
+        )
+        prov2.as_model = pretend.stub(
+            attestation_bundles=[
+                pretend.stub(
+                    publisher=pretend.stub(repository="foo/bar", workflow="release.yml")
+                )
+            ]
+        )
+
+        status = release.provenance_status
+        assert status is not None
+        assert status.states == {
+            ProvenanceState.FULL_PROVENANCE,
+            ProvenanceState.INCONSISTENT_PROVENANCE,
+        }
+        assert status.repository_counts == {"foo/bar": 2}
+        assert status.workflow_counts == {"publish.yml": 1, "release.yml": 1}
+
     def test_description_relationship(self, db_session):
         """
         When a Release is deleted, its Description is also deleted.

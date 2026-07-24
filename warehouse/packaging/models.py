@@ -6,7 +6,7 @@ import datetime
 import enum
 import typing
 
-from collections import OrderedDict
+from collections import Counter, OrderedDict
 from uuid import UUID
 
 import packaging.utils
@@ -58,6 +58,7 @@ from warehouse.attestations.models import (
     Provenance,
     ProvenanceState,
     ProvenanceStatus,
+    get_file_provenance_sources,
 )
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
@@ -973,6 +974,15 @@ class Release(HasObservations, db.Model):
             .all()
         )
         files_with_provenance = len(provenance_objects)
+        repository_counter: Counter[str] = Counter()
+        workflow_counter: Counter[str] = Counter()
+
+        for provenance_object in provenance_objects:
+            repositories, workflows = get_file_provenance_sources(provenance_object)
+            for repository in repositories:
+                repository_counter[repository] += 1
+            for workflow in workflows:
+                workflow_counter[workflow] += 1
 
         states: set[ProvenanceState] = set()
         if files_with_provenance == 0:
@@ -982,10 +992,15 @@ class Release(HasObservations, db.Model):
         else:
             states.add(ProvenanceState.PARTIAL_PROVENANCE)
 
+        if len(repository_counter) > 1 or len(workflow_counter) > 1:
+            states.add(ProvenanceState.INCONSISTENT_PROVENANCE)
+
         return ProvenanceStatus(
             states=states,
             files_with_provenance=files_with_provenance,
             total_files=total_files,
+            repository_counts=dict(repository_counter),
+            workflow_counts=dict(workflow_counter),
         )
 
 
