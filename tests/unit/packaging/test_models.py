@@ -8,6 +8,7 @@ import pytest
 from pyramid.authorization import Allow, Authenticated
 from pyramid.location import lineage
 
+from warehouse.attestations.models import ProvenanceState
 from warehouse.authnz import Permissions
 from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GIB, ONE_MIB
 from warehouse.macaroons import caveats
@@ -1214,6 +1215,15 @@ class TestRelease:
     def test_provenance_status_none(self, db_session):
         release = DBReleaseFactory.create()
         assert release.provenance_status is None
+
+    def test_provenance_status_no_provenance(self, db_session):
+        release = DBReleaseFactory.create()
+        DBFileFactory.create(release=release)
+        status = release.provenance_status
+        assert status is not None
+        assert status.states == {ProvenanceState.NO_PROVENANCE}
+        assert status.files_with_provenance == 0
+        assert status.total_files == 1
 
     def test_description_relationship(self, db_session):
         """
