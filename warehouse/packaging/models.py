@@ -977,6 +977,8 @@ class Release(HasObservations, db.Model):
         states: set[ProvenanceState] = set()
         if files_with_provenance == 0:
             states.add(ProvenanceState.NO_PROVENANCE)
+        elif files_with_provenance == total_files:
+            states.add(ProvenanceState.FULL_PROVENANCE)
 
         return ProvenanceStatus(
             states=states,
