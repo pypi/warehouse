@@ -54,6 +54,7 @@ class ProvenanceState(enum.StrEnum):
     PARTIAL_PROVENANCE = "partial-provenance"
     INCONSISTENT_PROVENANCE = "inconsistent-provenance"
     LOST_PROVENANCE = "lost-provenance"
+    CHANGED_PROVENANCE = "changed-provenance"
 
 
 @dataclass(frozen=True)
@@ -66,6 +67,40 @@ class ProvenanceStatus:
     comparison_release: Release | None = None
     comparison_files_with_provenance: int | None = None
     comparison_total_files: int | None = None
+    comparison_repository_counts: dict[str, int] | None = None
+    comparison_workflow_counts: dict[str, int] | None = None
+
+    @property
+    def added_repositories(self) -> set[str]:
+        if not self.comparison_repository_counts:
+            return set()
+        return set(self.repository_counts.keys()) - set(
+            self.comparison_repository_counts.keys()
+        )
+
+    @property
+    def removed_repositories(self) -> set[str]:
+        if not self.comparison_repository_counts:
+            return set()
+        return set(self.comparison_repository_counts.keys()) - set(
+            self.repository_counts.keys()
+        )
+
+    @property
+    def added_workflows(self) -> set[str]:
+        if not self.comparison_workflow_counts:
+            return set()
+        return set(self.workflow_counts.keys()) - set(
+            self.comparison_workflow_counts.keys()
+        )
+
+    @property
+    def removed_workflows(self) -> set[str]:
+        if not self.comparison_workflow_counts:
+            return set()
+        return set(self.comparison_workflow_counts.keys()) - set(
+            self.workflow_counts.keys()
+        )
 
 
 def get_file_provenance_sources(
