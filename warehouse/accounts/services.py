@@ -762,14 +762,13 @@ class DatabaseUserService:
             )
             .one_or_none()
         )
-        should_send_email = False
-
         # Check if we've seen this device and it's been confirmed
         if unique_login and unique_login.status == UniqueLoginStatus.CONFIRMED:
             return True
 
         # Create a new login if we haven't seen this device before
-        if not unique_login:
+        is_new_device = unique_login is None
+        if is_new_device:
             unique_login = UserUniqueLogin(
                 user_id=userid,
                 ip_address=request.ip_address,
@@ -779,8 +778,6 @@ class DatabaseUserService:
             )
             request.db.add(unique_login)
             request.db.flush()  # generaten token id  # ast-grep-ignore: db-flush
-            should_send_email = True
-
             user.record_event(
                 tag=EventTag.Account.LoginNewDevice,
                 request=request,
@@ -788,19 +785,15 @@ class DatabaseUserService:
             )
 
         # Check if the login had expired
-        if unique_login.expires and unique_login.expires < datetime.datetime.now(
-            datetime.UTC
-        ):
-            # The previous token has expired, update the expiry for
-            # the login and re-send the email
+        window_lapsed = (
+            unique_login.expires is not None
+            and unique_login.expires < datetime.datetime.now(datetime.UTC)
+        )
+        if window_lapsed:
+            # The previous confirmation window has lapsed, extend the expiry
             unique_login.expires = datetime.datetime.now(
                 datetime.UTC
             ) + datetime.timedelta(seconds=token_service.max_age)
-            should_send_email = True
-
-        # If we don't need to send an email, short-circuit
-        if not should_send_email:
-            return False
 
         # Get User Agent Information
         user_agent_info_data = {}
@@ -836,13 +829,17 @@ class DatabaseUserService:
             }
         )
 
-        # Send the email
+        # The email is (re-)sent on every unconfirmed login attempt so that a
+        # lost, delayed, or bounced email doesn't strand the user.
         send_unrecognized_login_email(
             request,
             user,
             ip_address=str(request.ip_address.ip_address),
             user_agent=user_agent_info.display(),
             token=token,
+            # A new device or lapsed window means no valid token is
+            # outstanding, so disable the email's repeat_window throttle
+            **({"repeat_window": None} if is_new_device or window_lapsed else {}),
         )
 
         return False

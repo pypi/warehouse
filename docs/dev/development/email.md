@@ -45,6 +45,10 @@ Calling a function with the `_email` decorator does the following:
   send within `repeat_window`), a `warehouse.emails.skipped` metric is sent
   with the same tags plus a `reason` tag.
 
+Callers may pass a `repeat_window` keyword argument to override the
+decorator's value for a single call — pass `None` for a send that must
+always go out, e.g. notifying a newly-seen device.
+
 ## Testing e-mails
 
 When an email is sent in the development environment, it's printed in the

@@ -5662,7 +5662,7 @@ class TestConfirmLogin:
         pyramid_request.user = None
         pyramid_request.params = {}
         result = views.confirm_login(pyramid_request)
-        assert result == {}
+        assert result == {"repeat_window_minutes": 15}
 
     @pytest.mark.parametrize(
         ("exception", "message"),
