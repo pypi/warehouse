@@ -5,9 +5,13 @@ import struct
 import tarfile
 import zipfile
 
+from uuid import uuid4
+
+import pymacaroons
 import pytest
 import yara_x
 
+from warehouse.macaroons import caveats
 from warehouse.utils import scanner
 
 
@@ -16,6 +20,41 @@ def rules():
     compiled = scanner.compile_rules()
     assert compiled is not None
     return compiled
+
+
+def _generate_token(domain="pypi.org", projects_scope=False):
+    raw_macaroon = pymacaroons.Macaroon(
+        location=domain,
+        identifier=str(uuid4()),
+        key=b"fake key",
+        version=pymacaroons.MACAROON_V2,
+    )
+
+    if projects_scope:
+        caveats_ = [caveats.ProjectID(project_ids=[str(uuid4()) for _ in range(3)])]
+    else:
+        caveats_ = [
+            caveats.ProjectName(normalized_names=[f"project-{i}" for i in range(3)]),
+            caveats.RequestUser(user_id=str(uuid4())),
+        ]
+    for caveat in caveats_:
+        raw_macaroon.add_first_party_caveat(caveats.serialize(caveat))
+
+    return f"pypi-{raw_macaroon.serialize()}"
+
+
+@pytest.fixture(
+    scope="module", params=[False, True], ids=["user-scope", "projects-scope"]
+)
+def pypi_token(request):
+    return _generate_token(domain="pypi.org", projects_scope=request.param)
+
+
+@pytest.fixture(
+    scope="module", params=[False, True], ids=["user-scope", "projects-scope"]
+)
+def localhost_token(request):
+    return _generate_token(domain="localhost", projects_scope=request.param)
 
 
 def _make_wheel(tmp_path, files_dict, name="fake_package", version="1.0"):
@@ -248,22 +287,22 @@ class TestScanArchive:
         )
         assert scanner.scan_archive(whl, rules=rules) == []
 
-    def test_skips_non_python_files_in_wheel(self, tmp_path, rules):
+    def test_skips_excluded_files_in_wheel(self, tmp_path, rules):
         whl = _make_wheel(
             tmp_path,
             {
                 "pkg/data.json": "__pyarmor__(__name__, __file__, b'x')",
-                "pkg/readme.txt": "__pyarmor_enter__()",
+                "pkg/module.so": b"__pyarmor_enter__()",
             },
         )
         assert scanner.scan_archive(whl, rules=rules) == []
 
-    def test_skips_non_python_files_in_tarball(self, tmp_path, rules):
+    def test_skips_excluded_files_in_tarball(self, tmp_path, rules):
         tar = _make_tarball(
             tmp_path,
             {
                 "fake-1.0/data.json": "__pyarmor__(__name__, __file__, b'x')",
-                "fake-1.0/readme.txt": "__pyarmor_enter__()",
+                "fake-1.0/module.so": b"__pyarmor_enter__()",
             },
         )
         assert scanner.scan_archive(tar, rules=rules) == []
@@ -396,3 +435,77 @@ class TestSpoofedFileSize:
         assert len(matches) == 1
         assert matches[0][0] == "pkg/__init__.py"
         assert "pyarmor_encrypted" in matches[0][1]
+
+
+_FILENAMES_TO_SCAN = [
+    "setup.py",
+    "README.md",
+    "PUBLISHING.RST",
+    "publish.sh",
+    "info.txt",
+    ".env",
+    ".pypirc",
+    "pyproject.toml",
+    "upload.cfg",
+    "upload.conf",
+]
+
+
+class TestPyPITokenDetection:
+    @pytest.mark.parametrize("filename", _FILENAMES_TO_SCAN)
+    def test_detects_pypi_token_in_wheel(self, tmp_path, rules, pypi_token, filename):
+        whl = _make_wheel(tmp_path, {f"pkg/{filename}": pypi_token})
+        matches = scanner.scan_archive(whl, rules=rules)
+        assert len(matches) == 1
+        assert matches[0][0] == f"pkg/{filename}"
+        assert "secrets_pypi_token" in matches[0][1]
+
+    @pytest.mark.parametrize("filename", [*_FILENAMES_TO_SCAN, "PKG-INFO"])
+    def test_detects_pypi_token_in_tarball(self, tmp_path, rules, pypi_token, filename):
+        tar = _make_tarball(tmp_path, {f"fake-1.0/pkg/{filename}": pypi_token})
+        matches = scanner.scan_archive(tar, rules=rules)
+        assert len(matches) == 1
+        assert matches[0][0] == f"fake-1.0/pkg/{filename}"
+        assert "secrets_pypi_token" in matches[0][1]
+
+    def test_detection_in_wheel_metadata(self, tmp_path, rules, pypi_token):
+        """Case separated to prevent regressions by disabling .dist-info scanning."""
+        whl = _make_wheel(tmp_path, {"fake_package-1.0.dist-info/METADATA": pypi_token})
+        matches = scanner.scan_archive(whl, rules=rules)
+        assert len(matches) == 1
+        assert matches[0][0] == "fake_package-1.0.dist-info/METADATA"
+        assert "secrets_pypi_token" in matches[0][1]
+
+    @pytest.mark.parametrize("filename", [*_FILENAMES_TO_SCAN, "METADATA"])
+    def test_ignores_localhost_token_in_wheel(
+        self, tmp_path, rules, localhost_token, filename
+    ):
+        whl = _make_wheel(tmp_path, {f"pkg/{filename}": localhost_token})
+        matches = scanner.scan_archive(whl, rules=rules)
+        assert len(matches) == 0
+
+    @pytest.mark.parametrize("filename", [*_FILENAMES_TO_SCAN, "PKG-INFO"])
+    def test_ignores_localhost_token_in_tarball(
+        self, tmp_path, rules, localhost_token, filename
+    ):
+        tar = _make_tarball(tmp_path, {f"fake-1.0/pkg/{filename}": localhost_token})
+        matches = scanner.scan_archive(tar, rules=rules)
+        assert len(matches) == 0
+
+    @pytest.mark.parametrize("filename", _FILENAMES_TO_SCAN)
+    @pytest.mark.parametrize(
+        "token",
+        [
+            "pypi-AgEIcHlwaS5vcmcCJDxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            "pypi-AgEIcHlwaS5vcmcCJ...",
+        ],
+    )
+    @pytest.mark.parametrize(
+        "dist_factory", [_make_tarball, _make_wheel], ids=["tarball", "wheel"]
+    )
+    def test_ignores_sample_tokens(
+        self, tmp_path, rules, token, filename, dist_factory
+    ):
+        dist = dist_factory(tmp_path, {f"pkg/{filename}": token})
+        matches = scanner.scan_archive(dist, rules=rules)
+        assert len(matches) == 0
