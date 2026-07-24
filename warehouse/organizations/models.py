@@ -35,7 +35,7 @@ from warehouse import db
 from warehouse.accounts.models import TermsOfServiceEngagement, User
 from warehouse.authnz import Permissions
 from warehouse.events.models import HasEvents
-from warehouse.observations.models import HasObservations, ObservationKind
+from warehouse.observations.models import HasObservations, Observation, ObservationKind
 from warehouse.utils.attrs import make_repr
 from warehouse.utils.db import orm_session_from_obj
 from warehouse.utils.db.types import TZDateTime, bool_false, datetime_now
@@ -753,17 +753,30 @@ class OrganizationApplication(OrganizationMixin, HasObservations, db.Model):
         back_populates="application", viewonly=True
     )
 
+    def get_observations(self, kind: ObservationKind) -> list[Observation]:
+        observations = [
+            observation
+            for observation in self.observations
+            if observation.kind == kind.value[0]
+        ]
+
+        return sorted(observations, key=lambda x: x.created, reverse=True)
+
     @property
     def information_requests(self):
-        return sorted(
-            [
-                observation
-                for observation in self.observations
-                if observation.kind == ObservationKind.InformationRequest.value[0]
-            ],
-            key=lambda x: x.created,
-            reverse=True,
-        )
+        return self.get_observations(ObservationKind.InformationRequest)
+
+    @property
+    def notes(self):
+        return self.get_observations(ObservationKind.AdminNote)
+
+    @property
+    def conversation(self):
+        """
+        Information requests and internal notes, merged into a single
+        chronological (oldest first) thread for admin display.
+        """
+        return sorted(self.information_requests + self.notes, key=lambda x: x.created)
 
     def __lt__(self, other: OrganizationApplication) -> bool:
         return self.name < other.name

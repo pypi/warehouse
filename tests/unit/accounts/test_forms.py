@@ -1183,15 +1183,15 @@ class TestWebAuthnAuthenticationForm:
 class TestReAuthenticateForm:
     def test_validate(self):
         user_service = pretend.stub(
-            find_userid=lambda userid: 1,
-            check_password=lambda userid, password, tags=None: True,
+            check_password=pretend.call_recorder(
+                lambda userid, password, tags=None: True
+            ),
         )
         request = pretend.stub()
 
         form = forms.ReAuthenticateForm(
             formdata=MultiDict(
                 {
-                    "username": "username",
                     "password": "mysupersecurepassword1!",
                     "next_route": pretend.stub(),
                     "next_route_matchdict": pretend.stub(),
@@ -1199,21 +1199,90 @@ class TestReAuthenticateForm:
                 }
             ),
             request=request,
+            user_id=1,
             user_service=user_service,
         )
 
+        assert form.user_id == 1
         assert form.user_service is user_service
         assert form.__params__ == [
-            "username",
             "password",
             "next_route",
             "next_route_matchdict",
             "next_route_query",
         ]
-        assert isinstance(form.username, wtforms.StringField)
         assert isinstance(form.next_route, wtforms.StringField)
         assert isinstance(form.next_route_matchdict, wtforms.StringField)
         assert form.validate(), str(form.errors)
+        assert user_service.check_password.calls == [
+            pretend.call(1, "mysupersecurepassword1!", tags=None)
+        ]
+
+    def test_validate_ignores_posted_username(self):
+        user_service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda username: 2),
+            check_password=pretend.call_recorder(
+                lambda userid, password, tags=None: True
+            ),
+        )
+
+        form = forms.ReAuthenticateForm(
+            formdata=MultiDict(
+                {
+                    "username": "attacker-controlled",
+                    "password": "mysupersecurepassword1!",
+                    "next_route": pretend.stub(),
+                    "next_route_matchdict": pretend.stub(),
+                    "next_route_query": pretend.stub(),
+                }
+            ),
+            request=pretend.stub(),
+            user_id=1,
+            user_service=user_service,
+        )
+
+        assert form.validate(), str(form.errors)
+        assert user_service.check_password.calls == [
+            pretend.call(1, "mysupersecurepassword1!", tags=None)
+        ]
+        assert user_service.find_userid.calls == []
+
+    def test_validate_password_with_field_errors(self):
+        user_service = pretend.stub(
+            check_password=pretend.call_recorder(
+                lambda userid, password, tags=None: True
+            ),
+        )
+        form = forms.ReAuthenticateForm(
+            request=pretend.stub(),
+            user_id=1,
+            user_service=user_service,
+        )
+        field = pretend.stub(data="pw", errors=["This field is required."])
+
+        form.validate_password(field)
+
+        assert user_service.check_password.calls == []
+
+    def test_validate_password_too_many_failed(self):
+        user_service = pretend.stub(
+            check_password=pretend.call_recorder(
+                pretend.raiser(
+                    TooManyFailedLogins(resets_in=datetime.timedelta(seconds=600))
+                )
+            ),
+        )
+        form = forms.ReAuthenticateForm(
+            request=pretend.stub(),
+            user_id=1,
+            user_service=user_service,
+        )
+        field = pretend.stub(data="pw", errors=[])
+
+        with pytest.raises(wtforms.validators.ValidationError):
+            form.validate_password(field)
+
+        assert user_service.check_password.calls == [pretend.call(1, "pw", tags=None)]
 
 
 class TestRecoveryCodeForm:

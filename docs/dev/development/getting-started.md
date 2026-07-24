@@ -745,6 +745,13 @@ This is useful in scenarios like passing a
 TESTARGS="--randomly-seed=1234" make tests
 ```
 
+You can run the common tools (formatters, linting, translations) to make sure
+that a patch is ready by running:
+
+```shell
+make patch
+```
+
 You can run linters, programs that check the code, with:
 
 ```shell

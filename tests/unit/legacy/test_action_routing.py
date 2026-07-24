@@ -1,35 +1,32 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
+from pyramid.config import Configurator
 
 from warehouse.legacy import action_routing
 
 
-def test_add_pypi_action_route():
-    config = pretend.stub(add_route=pretend.call_recorder(lambda *a, **k: None))
+def test_add_pypi_action_route(mocker):
+    config = mocker.Mock(spec=Configurator)
 
     action_routing.add_pypi_action_route(config, "the name", "the action")
 
-    assert config.add_route.calls == [
-        pretend.call("the name", "/pypi", pypi_action="the action")
-    ]
-
-
-def test_includeme():
-    config = pretend.stub(
-        add_route_predicate=pretend.call_recorder(lambda name, pred: None),
-        add_directive=pretend.call_recorder(lambda name, f, action_wrap: None),
+    config.add_route.assert_called_once_with(
+        "the name", "/pypi", pypi_action="the action"
     )
+
+
+def test_includeme(mocker):
+    config = mocker.Mock(spec=Configurator)
 
     action_routing.includeme(config)
 
-    assert config.add_directive.calls == [
-        pretend.call(
+    assert config.add_directive.call_args_list == [
+        mocker.call(
             "add_pypi_action_route",
             action_routing.add_pypi_action_route,
             action_wrap=False,
         ),
-        pretend.call(
+        mocker.call(
             "add_pypi_action_redirect",
             action_routing.add_pypi_action_redirect,
             action_wrap=False,
