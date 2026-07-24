@@ -7,6 +7,24 @@
   <div class="horizontal-section">
     <div class="narrow-container">
       <h1 class="page-title">{% trans %}Classifiers{% endtrans %}</h1>
+      <div class="callout-block callout-block--info">
+        <p>
+          <strong>{% trans %}License classifiers are deprecated.{% endtrans %}</strong>
+        </p>
+        <p>
+          {% trans pep639_href='https://peps.python.org/pep-0639/', ppug_href='https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license', title=gettext('External link') %}
+            As defined in <a href="{{ pep639_href }}"
+    title="{{ title }}"
+    target="_blank"
+    rel="noopener"><abbr title="Python enhancement proposal">PEP</abbr> 639</a>,
+            License classifiers are deprecated and will be removed in a future release of PyPI.
+            See the <a href="{{ ppug_href }}"
+    title="{{ title }}"
+    target="_blank"
+    rel="noopener">Python Packaging User Guide</a> for how to specify licenses.
+          {% endtrans %}
+        </p>
+      </div>
       <p>
         {% trans %}Each project's maintainers provide PyPI with a list of "Trove classifiers" to categorize each release, describing who it's for, what systems it can run on, and how mature it is.{% endtrans %}
       </p>
