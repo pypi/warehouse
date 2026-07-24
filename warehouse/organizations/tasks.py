@@ -5,6 +5,7 @@ import logging
 
 import stripe
 
+from pyramid_retry import RetryableException
 from sqlalchemy.orm import joinedload
 
 from warehouse import tasks
@@ -21,8 +22,9 @@ from warehouse.organizations.models import (
     OrganizationStripeSubscription,
     OrganizationType,
 )
-from warehouse.subscriptions.interfaces import IBillingService
+from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
 from warehouse.subscriptions.models import StripeSubscriptionStatus
+from warehouse.subscriptions.services import TRANSIENT_STRIPE_ERRORS
 
 CLEANUP_AFTER = datetime.timedelta(days=30)
 SUBSCRIPTION_GRACE_PERIOD = datetime.timedelta(days=30)
@@ -95,9 +97,13 @@ def update_organziation_subscription_usage_record(request):
                 org_subscription.subscription.subscription_item.subscription_item_id,
                 len(org_subscription.organization.users),
             )
-        except stripe.error.StripeError as exc:
-            # Isolate per-subscription failures so one (e.g. canceled on Stripe with a
-            # stale local status) can't abort usage reporting for every other org.
+        except TRANSIENT_STRIPE_ERRORS as exc:
+            # Abort and retry the whole run rather than silently reporting no
+            # usage for everyone.
+            raise RetryableException from exc
+        except stripe.error.InvalidRequestError as exc:
+            # Skip a single bad subscription (e.g. canceled on Stripe, stale
+            # locally).
             logger.exception(
                 "Failed to update usage record for organization %r (subscription %s)",
                 org_subscription.organization.name,
@@ -111,6 +117,78 @@ def update_organziation_subscription_usage_record(request):
             metrics.increment(
                 "warehouse.organizations.subscription.usage_record.updated"
             )
+
+
+@tasks.task(ignore_result=True, acks_late=True)
+def reconcile_stripe_status(request):
+    # Re-sync each subscription's status from Stripe so that state we would have
+    # learned from a webhook (e.g. a cancellation) is recovered even if the
+    # webhook was dropped. Mirrors the customer.subscription.updated handler.
+    organization_subscriptions = request.db.query(OrganizationStripeSubscription).all()
+
+    billing_service = request.find_service(IBillingService, context=None)
+    subscription_service = request.find_service(ISubscriptionService, context=None)
+    metrics = request.find_service(IMetricsService, context=None)
+
+    for org_subscription in organization_subscriptions:
+        subscription = org_subscription.subscription
+        try:
+            remote = billing_service.retrieve_subscription(subscription.subscription_id)
+        except TRANSIENT_STRIPE_ERRORS as exc:
+            raise RetryableException from exc
+        except stripe.error.StripeError as exc:
+            # Isolate a poisoned row (e.g. a malformed subscription_id) so it
+            # can't wedge the whole run at the same row every night.
+            logger.exception(
+                "Failed to reconcile subscription %s", subscription.subscription_id
+            )
+            metrics.increment(
+                "warehouse.organizations.subscription.status.reconcile.error",
+                tags=[f"error_type:{exc.__class__.__name__}"],
+            )
+            continue
+        deleted = remote is None
+        if deleted:
+            remote_status = StripeSubscriptionStatus.Canceled.value
+        else:
+            remote_status = remote["status"]
+            if not StripeSubscriptionStatus.has_value(remote_status):
+                logger.warning(
+                    "Skipping subscription %s with unknown Stripe status %r",
+                    subscription.subscription_id,
+                    remote_status,
+                )
+                metrics.increment(
+                    "warehouse.organizations.subscription.status.reconcile.skipped"
+                )
+                continue
+
+        previous_status = subscription.status
+        if previous_status == remote_status:
+            continue
+
+        subscription_service.update_subscription_status(subscription.id, remote_status)
+        if deleted:
+            # Mirror the customer.subscription.deleted handler.
+            org_subscription.organization.record_event(
+                tag=EventTag.Organization.SubscriptionCancel,
+                request=request,
+                additional={"subscription_id": subscription.subscription_id},
+            )
+        else:
+            org_subscription.organization.record_event(
+                tag=EventTag.Organization.SubscriptionStatusChange,
+                request=request,
+                additional={
+                    "subscription_id": subscription.subscription_id,
+                    "previous_status": previous_status,
+                    "status": remote_status,
+                },
+            )
+        metrics.increment(
+            "warehouse.organizations.subscription.status.reconciled",
+            tags=[f"status:{remote_status}"],
+        )
 
 
 @tasks.task(ignore_result=True, acks_late=True)

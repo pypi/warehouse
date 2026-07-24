@@ -25,6 +25,12 @@ from warehouse.subscriptions.models import (
     StripeSubscriptionStatus,
 )
 
+TRANSIENT_STRIPE_ERRORS = (
+    stripe.error.APIConnectionError,
+    stripe.error.APIError,
+    stripe.error.RateLimitError,
+)
+
 
 class GenericBillingService:
     def __init__(self, api, publishable_key, webhook_secret, domain):
@@ -58,6 +64,18 @@ class GenericBillingService:
             expand=["customer"],
         )
         return subscription.customer
+
+    def retrieve_subscription(self, subscription_id):
+        """
+        Fetch the Subscription resource from the Billing API, or None if it
+        no longer exists
+        """
+        try:
+            return self.api.Subscription.retrieve(subscription_id)
+        except stripe.error.InvalidRequestError as exc:
+            if exc.code != "resource_missing":
+                raise
+            return None
 
     def create_customer(self, name, description):
         """

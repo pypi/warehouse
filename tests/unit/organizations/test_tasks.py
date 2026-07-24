@@ -2,7 +2,10 @@
 
 import datetime
 
+import pytest
 import stripe
+
+from pyramid_retry import RetryableException
 
 from warehouse.accounts.interfaces import ITokenService, TokenExpired
 from warehouse.events.tags import EventTag
@@ -16,6 +19,7 @@ from warehouse.organizations.models import (
 from warehouse.organizations.tasks import (
     delete_declined_organization_applications,
     notify_organizations_requiring_subscription,
+    reconcile_stripe_status,
     update_organization_invitation_status,
     update_organziation_subscription_usage_record,
 )
@@ -273,6 +277,155 @@ class TestUpdateOrganizationSubscriptionUsage:
         increment.assert_any_call(
             "warehouse.organizations.subscription.usage_record.updated"
         )
+
+    def test_retries_on_transient_stripe_errors(
+        self, db_request, billing_service, mocker
+    ):
+        # A transient failure (rate limit, connection) must abort the run
+        # so it retries, rather than being swallowed as a per-subscription skip.
+        org_subscription = OrganizationStripeSubscriptionFactory.create()
+        StripeSubscriptionItemFactory.create(subscription=org_subscription.subscription)
+
+        mocker.patch.object(
+            billing_service,
+            "create_or_update_usage_record",
+            side_effect=stripe.error.RateLimitError("Too many requests"),
+        )
+
+        with pytest.raises(RetryableException):
+            update_organziation_subscription_usage_record(db_request)
+
+
+class TestReconcileStripeStatus:
+    @staticmethod
+    def _make_org_subscription():
+        org_subscription = OrganizationStripeSubscriptionFactory.create()
+        return org_subscription.organization, org_subscription.subscription
+
+    def test_syncs_status_from_stripe(
+        self, db_request, billing_service, metrics, mocker
+    ):
+        organization, subscription = self._make_org_subscription()
+        record_event = mocker.patch.object(organization, "record_event", autospec=True)
+        mocker.patch.object(
+            billing_service,
+            "retrieve_subscription",
+            return_value={"status": StripeSubscriptionStatus.Canceled.value},
+        )
+
+        reconcile_stripe_status(db_request)
+
+        assert subscription.status == StripeSubscriptionStatus.Canceled.value
+        record_event.assert_called_once_with(
+            tag=EventTag.Organization.SubscriptionStatusChange,
+            request=db_request,
+            additional={
+                "subscription_id": subscription.subscription_id,
+                "previous_status": StripeSubscriptionStatus.Active.value,
+                "status": StripeSubscriptionStatus.Canceled.value,
+            },
+        )
+        metrics.increment.assert_any_call(
+            "warehouse.organizations.subscription.status.reconciled",
+            tags=["status:canceled"],
+        )
+
+    def test_no_change_when_status_matches(
+        self, db_request, billing_service, subscription_service, mocker
+    ):
+        organization, _ = self._make_org_subscription()
+        record_event = mocker.patch.object(organization, "record_event", autospec=True)
+        update_status = mocker.spy(subscription_service, "update_subscription_status")
+        mocker.patch.object(
+            billing_service,
+            "retrieve_subscription",
+            return_value={"status": StripeSubscriptionStatus.Active.value},
+        )
+
+        reconcile_stripe_status(db_request)
+
+        update_status.assert_not_called()
+        record_event.assert_not_called()
+
+    def test_marks_canceled_when_missing_on_stripe(
+        self, db_request, billing_service, mocker
+    ):
+        organization, subscription = self._make_org_subscription()
+        record_event = mocker.patch.object(organization, "record_event", autospec=True)
+        mocker.patch.object(billing_service, "retrieve_subscription", return_value=None)
+
+        reconcile_stripe_status(db_request)
+
+        assert subscription.status == StripeSubscriptionStatus.Canceled.value
+        record_event.assert_called_once_with(
+            tag=EventTag.Organization.SubscriptionCancel,
+            request=db_request,
+            additional={"subscription_id": subscription.subscription_id},
+        )
+
+    def test_retries_on_transient_stripe_errors(
+        self, db_request, billing_service, mocker
+    ):
+        self._make_org_subscription()
+        mocker.patch.object(
+            billing_service,
+            "retrieve_subscription",
+            side_effect=stripe.error.RateLimitError("Too many requests"),
+        )
+
+        with pytest.raises(RetryableException):
+            reconcile_stripe_status(db_request)
+
+    def test_skips_row_on_other_stripe_errors(
+        self, db_request, billing_service, metrics, mocker
+    ):
+        # A poisoned row must not wedge the run; later rows still reconcile.
+        _, bad_subscription = self._make_org_subscription()
+        _, good_subscription = self._make_org_subscription()
+        remote_by_id = {
+            bad_subscription.subscription_id: stripe.error.InvalidRequestError(
+                "Invalid subscription ID", None, code="invalid_request_error"
+            ),
+            good_subscription.subscription_id: {
+                "status": StripeSubscriptionStatus.Canceled.value
+            },
+        }
+
+        def retrieve(subscription_id):
+            remote = remote_by_id[subscription_id]
+            if isinstance(remote, Exception):
+                raise remote
+            return remote
+
+        mocker.patch.object(
+            billing_service, "retrieve_subscription", side_effect=retrieve
+        )
+
+        reconcile_stripe_status(db_request)
+
+        assert bad_subscription.status == StripeSubscriptionStatus.Active.value
+        assert good_subscription.status == StripeSubscriptionStatus.Canceled.value
+        metrics.increment.assert_any_call(
+            "warehouse.organizations.subscription.status.reconcile.error",
+            tags=["error_type:InvalidRequestError"],
+        )
+
+    def test_skips_unknown_status(
+        self, db_request, billing_service, subscription_service, metrics, mocker
+    ):
+        _, subscription = self._make_org_subscription()
+        update_status = mocker.spy(subscription_service, "update_subscription_status")
+        mocker.patch.object(
+            billing_service, "retrieve_subscription", return_value={"status": "bogus"}
+        )
+
+        reconcile_stripe_status(db_request)
+
+        update_status.assert_not_called()
+        metrics.increment.assert_any_call(
+            "warehouse.organizations.subscription.status.reconcile.skipped"
+        )
+        assert subscription.status == StripeSubscriptionStatus.Active.value
 
 
 class TestNotifyOrganizationsRequiringSubscription:
