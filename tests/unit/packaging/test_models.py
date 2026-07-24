@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import datetime
+
 from collections import OrderedDict
 
 import pretend
@@ -22,8 +24,10 @@ from warehouse.packaging.models import (
     Project,
     ProjectFactory,
     ProjectMacaroonWarningAssociation,
+    Release,
     ReleaseURL,
 )
+from warehouse.utils.db.orm import NoSessionError
 
 from ...common.db.oidc import GitHubPublisherFactory
 from ...common.db.organizations import (
@@ -1335,6 +1339,100 @@ class TestRelease:
         }
         assert status.repository_counts == {"foo/bar": 2}
         assert status.workflow_counts == {"publish.yml": 1, "release.yml": 1}
+
+    def test_provenance_status_lost_provenance(self, db_session):
+        project = DBProjectFactory.create()
+        rel1 = DBReleaseFactory.create(
+            project=project, created=datetime.datetime(2026, 7, 1, 12, 0, 0)
+        )
+        file1 = DBFileFactory.create(release=rel1)
+        prov1 = DBProvenanceFactory.create(file=file1)
+        prov1.as_model = pretend.stub(attestation_bundles=[])
+
+        rel2 = DBReleaseFactory.create(
+            project=project, created=datetime.datetime(2026, 7, 5, 12, 0, 0)
+        )
+        DBFileFactory.create(release=rel2)
+
+        status = rel2.provenance_status
+        assert status is not None
+        assert status.states == {
+            ProvenanceState.NO_PROVENANCE,
+            ProvenanceState.LOST_PROVENANCE,
+        }
+        assert status.comparison_release == rel1
+        assert status.comparison_files_with_provenance == 1
+        assert status.comparison_total_files == 1
+
+    def test_provenance_status_lost_provenance_expired_window(self, db_session):
+        project = DBProjectFactory.create()
+        rel1 = DBReleaseFactory.create(
+            project=project, created=datetime.datetime(2026, 7, 1, 12, 0, 0)
+        )
+        file1 = DBFileFactory.create(release=rel1)
+        prov1 = DBProvenanceFactory.create(file=file1)
+        prov1.as_model = pretend.stub(attestation_bundles=[])
+
+        rel2 = DBReleaseFactory.create(
+            project=project, created=datetime.datetime(2026, 7, 20, 12, 0, 0)
+        )
+        DBFileFactory.create(release=rel2)
+
+        status = rel2.provenance_status
+        assert status is not None
+        assert status.states == {ProvenanceState.NO_PROVENANCE}
+        assert status.comparison_release is None
+
+    def test_provenance_status_comparison_release_branches(self, db_session):
+        with pytest.raises(NoSessionError):
+            Release().comparison_provenance_release()
+
+        project = DBProjectFactory.create()
+        rel0 = DBReleaseFactory.create(
+            project=project,
+            created=datetime.datetime(2026, 7, 1, 12, 0, 0),
+        )
+        file0_prov = DBFileFactory.create(
+            release=rel0, packagetype="sdist", filename="file0.tar.gz"
+        )
+        prov0 = DBProvenanceFactory.create(file=file0_prov)
+        prov0.as_model = pretend.stub(
+            attestation_bundles=[
+                pretend.stub(
+                    publisher=pretend.stub(repository="foo/bar", workflow="publish.yml")
+                )
+            ]
+        )
+        DBFileFactory.create(
+            release=rel0, packagetype="bdist_wheel", filename="file0.whl"
+        )
+
+        rel1_noprov = DBReleaseFactory.create(
+            project=project,
+            created=datetime.datetime(2026, 7, 3, 12, 0, 0),
+        )
+        DBFileFactory.create(release=rel1_noprov)
+
+        rel2_same = DBReleaseFactory.create(
+            project=project,
+            created=datetime.datetime(2026, 7, 5, 12, 0, 0),
+        )
+        file2_prov = DBFileFactory.create(release=rel2_same)
+        prov2 = DBProvenanceFactory.create(file=file2_prov)
+        prov2.as_model = pretend.stub(
+            attestation_bundles=[
+                pretend.stub(
+                    publisher=pretend.stub(repository="foo/bar", workflow="publish.yml")
+                )
+            ]
+        )
+
+        status = rel2_same.provenance_status
+        assert status is not None
+        assert status.states == {ProvenanceState.FULL_PROVENANCE}
+        assert status.comparison_release == rel0
+        assert status.comparison_files_with_provenance == 1
+        assert status.comparison_total_files == 2
 
     def test_description_relationship(self, db_session):
         """
