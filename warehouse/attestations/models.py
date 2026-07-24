@@ -18,7 +18,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from warehouse import db
 
 if typing.TYPE_CHECKING:
-    from warehouse.packaging.models import File
+    from warehouse.packaging.models import File, Release
 
 
 class Provenance(db.Model):
@@ -53,6 +53,7 @@ class ProvenanceState(enum.StrEnum):
     FULL_PROVENANCE = "full-provenance"
     PARTIAL_PROVENANCE = "partial-provenance"
     INCONSISTENT_PROVENANCE = "inconsistent-provenance"
+    LOST_PROVENANCE = "lost-provenance"
 
 
 @dataclass(frozen=True)
@@ -62,6 +63,9 @@ class ProvenanceStatus:
     total_files: int
     repository_counts: dict[str, int] = field(default_factory=dict)
     workflow_counts: dict[str, int] = field(default_factory=dict)
+    comparison_release: Release | None = None
+    comparison_files_with_provenance: int | None = None
+    comparison_total_files: int | None = None
 
 
 def get_file_provenance_sources(
