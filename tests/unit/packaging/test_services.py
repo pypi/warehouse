@@ -30,6 +30,7 @@ from warehouse.packaging.interfaces import (
     ProjectNameUnavailableTypoSquattingError,
     TooManyProjectsCreated,
 )
+from warehouse.packaging.models import Role
 from warehouse.packaging.services import (
     B2FileStorage,
     GCSFileStorage,
@@ -1320,6 +1321,29 @@ class TestProjectService:
                 creator_is_owner=False,
                 organization_id=organization.id,
             )
+
+    def test_create_project_skips_owner_role_and_org_link_when_neither_applies(
+        self, project_service, db_request
+    ):
+        """`creator_is_owner=False` with no `organization_id` skips both the
+        owner-Role assignment and the OrganizationProject link — a project
+        created this way ends up with neither."""
+        creator = UserFactory.create()
+
+        project = project_service.create_project(
+            "some-new-project",
+            creator,
+            db_request,
+            creator_is_owner=False,
+        )
+
+        assert db_request.db.query(Role).filter_by(project_id=project.id).count() == 0
+        assert (
+            db_request.db.query(OrganizationProject)
+            .filter_by(project_id=project.id)
+            .count()
+            == 0
+        )
 
     def test_create_project_links_to_organization_by_default(
         self, project_service, db_request
