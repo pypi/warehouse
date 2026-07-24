@@ -116,6 +116,8 @@ def _simple_detail(project, request):
                     if file.provenance
                     else None
                 ),
+                "_uploaded_via": file.uploaded_via or None,
+                "_trusted_publishing": file.uploaded_via_trusted_publisher,
             }
             for file in files
         ],
