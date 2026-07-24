@@ -60,50 +60,35 @@
 
         <div class="row">
           <div class="col-lg-3 col-md-6 col-sm-6">
-            <div class="info-box">
-              <span class="info-box-icon bg-info"><i class="fa-solid fa-bullhorn"></i></span>
-              <div class="info-box-content">
-                <span class="info-box-text">Total Reports</span>
-                <span class="info-box-number">{{ corroboration.total_reports }}</span>
-              </div>
-            </div>
+            {% component "admin.info_box",
+               icon_bg="bg-info",
+               icon="fa-bullhorn",
+               text="Total Reports",
+               number=corroboration.total_reports | string %}
           </div>
           <div class="col-lg-3 col-md-6 col-sm-6">
-            <div class="info-box">
-              <span class="info-box-icon bg-success"><i class="fa-solid fa-check-double"></i></span>
-              <div class="info-box-content">
-                <span class="info-box-text">Corroborated Reports</span>
-                <span class="info-box-number">{{ corroboration.corroborated_reports }}</span>
-                <span class="info-box-text small">packages with 2+ observers</span>
-              </div>
-            </div>
+            {% component "admin.info_box",
+               icon_bg="bg-success",
+               icon="fa-check-double",
+               text="Corroborated Reports",
+               number=corroboration.corroborated_reports | string,
+               subtext="packages with 2+ observers" %}
           </div>
           <div class="col-lg-3 col-md-6 col-sm-6">
-            <div class="info-box">
-              <span class="info-box-icon bg-primary"><i class="fa-solid fa-percentage"></i></span>
-              <div class="info-box-content">
-                <span class="info-box-text">Corroboration Rate</span>
-                <span class="info-box-number">
-                  {% if corroboration.corroboration_rate is not none %}
-                    {{ corroboration.corroboration_rate }}%
-                  {% else %}
-                    N/A
-                  {% endif %}
-                </span>
-              </div>
-            </div>
+            {% component "admin.info_box",
+               icon_bg="bg-primary",
+               icon="fa-percentage",
+               text="Corroboration Rate",
+               number=(corroboration.corroboration_rate ~ "%")
+                      if corroboration.corroboration_rate is not none else "N/A" %}
           </div>
           <div class="col-lg-3 col-md-6 col-sm-6">
-            <div class="info-box">
-              <span class="info-box-icon bg-secondary"><i class="fa-solid fa-box"></i></span>
-              <div class="info-box-content">
-                <span class="info-box-text">Unique Packages</span>
-                <span class="info-box-number">{{ corroboration.total_packages }}</span>
-                <span class="info-box-text small">
-                  {{ corroboration.multi_report_packages }} with multiple reports
-                </span>
-              </div>
-            </div>
+            {% component "admin.info_box",
+               icon_bg="bg-secondary",
+               icon="fa-box",
+               text="Unique Packages",
+               number=corroboration.total_packages | string,
+               subtext=corroboration.multi_report_packages ~ " with multiple reports" %}
           </div>
         </div>
 
