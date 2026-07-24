@@ -93,7 +93,7 @@ msgstr "Гэтае імя ўжо выкарыстоўваецца. Абярыц�
 msgid "Password too long."
 msgstr "Пароль задоўгі."
 
-#: warehouse/accounts/forms.py:219
+#: warehouse/accounts/forms.py:219 warehouse/accounts/forms.py:604
 #, python-brace-format
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
@@ -148,15 +148,15 @@ msgstr "Няслушны код аўтэнтыфікацыі."
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Няслушнае цверджанне WebAuthn: благія даныя"
 
-#: warehouse/accounts/forms.py:609
+#: warehouse/accounts/forms.py:635
 msgid "Invalid recovery code."
 msgstr "Няслушны код узнаўлення."
 
-#: warehouse/accounts/forms.py:618
+#: warehouse/accounts/forms.py:644
 msgid "Recovery code has been previously used."
 msgstr "Код узнаўлення ўжо выкарыстаны."
 
-#: warehouse/accounts/forms.py:647
+#: warehouse/accounts/forms.py:673
 msgid "The username isn't valid. Try again."
 msgstr "Імя карыстальніка няслушнае. Паспрабуйце яшчэ раз."
 
@@ -1687,7 +1687,7 @@ msgstr ""
 #: warehouse/templates/accounts/reset-password.html:62
 #: warehouse/templates/accounts/reset-password.html:67
 #: warehouse/templates/manage/account.html:453
-#: warehouse/templates/re-auth.html:19 warehouse/templates/re-auth.html:74
+#: warehouse/templates/re-auth.html:19 warehouse/templates/re-auth.html:73
 msgid "Confirm password"
 msgstr ""
 
@@ -1699,7 +1699,7 @@ msgstr ""
 #: warehouse/templates/accounts/register.html:142
 #: warehouse/templates/accounts/reset-password.html:28
 #: warehouse/templates/manage/manage_base.html:447
-#: warehouse/templates/re-auth.html:49
+#: warehouse/templates/re-auth.html:48
 msgid "Password"
 msgstr ""
 
@@ -1802,27 +1802,27 @@ msgstr ""
 #: warehouse/templates/manage/team/settings.html:22
 #: warehouse/templates/packaging/submit-malware-observation.html:54
 #: warehouse/templates/packaging/submit-malware-observation.html:67
-#: warehouse/templates/re-auth.html:51
+#: warehouse/templates/re-auth.html:50
 msgid "(required)"
 msgstr ""
 
 #: warehouse/templates/accounts/login.html:71
-#: warehouse/templates/re-auth.html:55
+#: warehouse/templates/re-auth.html:54
 msgid "Your password"
 msgstr ""
 
 #: warehouse/templates/accounts/login.html:68
 #: warehouse/templates/manage/manage_base.html:453
-#: warehouse/templates/re-auth.html:82
+#: warehouse/templates/re-auth.html:81
 msgid "Show password"
 msgstr ""
 
 #: warehouse/templates/accounts/login.html:95
-#: warehouse/templates/re-auth.html:86
+#: warehouse/templates/re-auth.html:85
 msgid "Forgot password?"
 msgstr ""
 
-#: warehouse/templates/re-auth.html:90
+#: warehouse/templates/re-auth.html:89
 #, python-format
 msgid ""
 "<b>Tip:</b> you are about to perform a <a href=\"%(href)s\">sensitive "
