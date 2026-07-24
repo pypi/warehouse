@@ -54,7 +54,10 @@ from urllib3.util import parse_url
 
 from warehouse import db
 from warehouse.accounts.models import User
-from warehouse.attestations.models import Provenance
+from warehouse.attestations.models import (
+    Provenance,
+    ProvenanceStatus,
+)
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE
@@ -948,6 +951,24 @@ class Release(HasObservations, db.Model):
         if not files:
             return False
         return all(file.uploaded_via_trusted_publisher for file in files)
+
+    @property
+    def provenance_status(self) -> ProvenanceStatus | None:
+        """Return the provenance status for this Release."""
+        session = orm_session_from_obj(self)
+        total_files = (
+            session.query(func.count(File.id))
+            .filter(File.release_id == self.id)
+            .scalar()
+        )
+        if not total_files:
+            return None
+
+        return ProvenanceStatus(
+            states=set(),
+            files_with_provenance=0,
+            total_files=total_files,
+        )
 
 
 class PackageType(enum.StrEnum):
