@@ -42,6 +42,7 @@ class UploadForm(wtforms.Form):
             ),
         ],
     )
+    organization = wtforms.StringField(validators=[wtforms.validators.Optional()])
 
     # File metadata
     pyversion = wtforms.StringField(validators=[wtforms.validators.Optional()])
