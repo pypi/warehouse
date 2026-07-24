@@ -293,6 +293,9 @@ class TestDatabaseOrganizationService:
 
         assert len(organization_application.observations) == 0
         send_email.assert_not_called()
+        assert (
+            organization_application.status == OrganizationApplicationStatus.Submitted
+        )
 
     def test_add_organization_application_note(self, db_request, organization_service):
         admin = UserFactory(username="admin", is_superuser=True)
