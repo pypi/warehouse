@@ -14,7 +14,7 @@ msgstr ""
 msgid "Locale updated"
 msgstr ""
 
-#: warehouse/accounts/forms.py:40 warehouse/accounts/forms.py:305
+#: warehouse/accounts/forms.py:40 warehouse/accounts/forms.py:318
 msgid "The email address isn't valid. Try again."
 msgstr ""
 
@@ -63,67 +63,67 @@ msgid ""
 "different username."
 msgstr ""
 
-#: warehouse/accounts/forms.py:184 warehouse/accounts/forms.py:236
-#: warehouse/accounts/forms.py:249
+#: warehouse/accounts/forms.py:194 warehouse/accounts/forms.py:249
+#: warehouse/accounts/forms.py:262
 msgid "Password too long."
 msgstr ""
 
-#: warehouse/accounts/forms.py:219 warehouse/accounts/forms.py:604
+#: warehouse/accounts/forms.py:232
 #, python-brace-format
 msgid ""
 "There have been too many unsuccessful login attempts. You have been "
 "locked out for ${time}. Please try again later."
 msgstr ""
 
-#: warehouse/accounts/forms.py:252
+#: warehouse/accounts/forms.py:265
 msgid "Your passwords don't match. Try again."
 msgstr ""
 
-#: warehouse/accounts/forms.py:286
+#: warehouse/accounts/forms.py:299
 msgid "The email address is too long. Try again."
 msgstr ""
 
-#: warehouse/accounts/forms.py:358
+#: warehouse/accounts/forms.py:371
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:373
+#: warehouse/accounts/forms.py:386
 msgid ""
 "This email address is already being used by this account. Use a different"
 " email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:384
+#: warehouse/accounts/forms.py:397
 msgid ""
 "This email address is already being used by another account. Use a "
 "different email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:424 warehouse/manage/forms.py:129
+#: warehouse/accounts/forms.py:437 warehouse/manage/forms.py:129
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 
-#: warehouse/accounts/forms.py:429
+#: warehouse/accounts/forms.py:442
 msgid "URLs are not allowed in the name field."
 msgstr ""
 
-#: warehouse/accounts/forms.py:520
+#: warehouse/accounts/forms.py:531
 msgid "Invalid TOTP code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:537
+#: warehouse/accounts/forms.py:548
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr ""
 
-#: warehouse/accounts/forms.py:635
+#: warehouse/accounts/forms.py:612
 msgid "Invalid recovery code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:644
+#: warehouse/accounts/forms.py:621
 msgid "Recovery code has been previously used."
 msgstr ""
 
-#: warehouse/accounts/forms.py:673
+#: warehouse/accounts/forms.py:650
 msgid "The username isn't valid. Try again."
 msgstr ""
 

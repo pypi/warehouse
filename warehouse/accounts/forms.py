@@ -174,6 +174,16 @@ class NewUsernameMixin:
             )
 
 
+class UserIdMixin:
+    def __init__(self, *args, user_id, user_service, **kwargs):
+        self.user_id = user_id
+        self.user_service = user_service
+        super().__init__(*args, **kwargs)
+
+    def get_user_id(self):
+        return self.user_id
+
+
 class PasswordMixin:
     password = wtforms.PasswordField(
         validators=[
@@ -194,11 +204,14 @@ class PasswordMixin:
         self._check_password_metrics_tags = check_password_metrics_tags
         super().__init__(*args, **kwargs)
 
+    def get_user_id(self):
+        return self.user_service.find_userid(self.username.data)
+
     def validate_password(self, field):
         if field.errors:
             return
 
-        userid = self.user_service.find_userid(self.username.data)
+        userid = self.get_user_id()
         if userid is not None:
             try:
                 if not self.user_service.check_password(
@@ -492,12 +505,10 @@ class LoginForm(PasswordMixin, UsernameMixin, wtforms.Form):
                 )
 
 
-class _TwoFactorAuthenticationForm(wtforms.Form):
-    def __init__(self, *args, request, user_id, user_service, **kwargs):
+class _TwoFactorAuthenticationForm(UserIdMixin, wtforms.Form):
+    def __init__(self, *args, request, **kwargs):
         super().__init__(*args, **kwargs)
         self.request = request
-        self.user_id = user_id
-        self.user_service = user_service
 
     remember_device = wtforms.BooleanField(default=False)
 
@@ -558,7 +569,7 @@ class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticati
         self.validated_credential = validated_credential
 
 
-class ReAuthenticateForm(PasswordMixin, wtforms.Form):
+class ReAuthenticateForm(UserIdMixin, PasswordMixin, wtforms.Form):
     __params__ = [
         "password",
         "next_route",
@@ -575,40 +586,6 @@ class ReAuthenticateForm(PasswordMixin, wtforms.Form):
     next_route_query = wtforms.fields.HiddenField(
         validators=[wtforms.validators.InputRequired()]
     )
-
-    def __init__(self, *args, user_id, user_service, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.user_id = user_id
-        self.user_service = user_service
-
-    def validate_password(self, field):
-        if field.errors:
-            return
-
-        try:
-            if not self.user_service.check_password(
-                self.user_id,
-                field.data,
-                tags=self._check_password_metrics_tags,
-            ):
-                user = self.user_service.get_user(self.user_id)
-                user.record_event(
-                    tag=f"account:{self.action}:failure",
-                    request=self.request,
-                    additional={"reason": "invalid_password"},
-                )
-                raise wtforms.validators.ValidationError(INVALID_PASSWORD_MESSAGE)
-        except TooManyFailedLogins as err:
-            raise wtforms.validators.ValidationError(
-                _(
-                    "There have been too many unsuccessful login attempts. "
-                    "You have been locked out for ${time}. "
-                    "Please try again later.",
-                    mapping={
-                        "time": humanize.naturaldelta(err.resets_in.total_seconds())
-                    },
-                )
-            ) from None
 
 
 class RecoveryCodeAuthenticationForm(
