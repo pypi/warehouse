@@ -954,6 +954,22 @@ class Release(HasObservations, db.Model):
             return False
         return all(file.uploaded_via_trusted_publisher for file in files)
 
+    def comparison_provenance_release(self, window_days: int = 14) -> Release | None:
+        """Find preceding release with provenance within window_days."""
+        session = orm_session_from_obj(self)
+        query = (
+            session.query(Release)
+            .join(Release.files)
+            .join(File.provenance)
+            .filter(
+                Release.project_id == self.project_id,
+                Release.created < self.created,
+                Release.created >= self.created - datetime.timedelta(days=window_days),
+            )
+            .order_by(Release.created.desc())
+        )
+        return query.first()
+
     @property
     def provenance_status(self) -> ProvenanceStatus | None:
         """Return the provenance status for this Release."""
@@ -995,12 +1011,37 @@ class Release(HasObservations, db.Model):
         if len(repository_counter) > 1 or len(workflow_counter) > 1:
             states.add(ProvenanceState.INCONSISTENT_PROVENANCE)
 
+        comparison_release = self.comparison_provenance_release(window_days=14)
+        comparison_files_with_provenance = None
+        comparison_total_files = None
+
+        if comparison_release:
+            comparison_total_files = (
+                session.query(func.count(File.id))
+                .filter(File.release_id == comparison_release.id)
+                .scalar()
+            )
+            comparison_provenance_objects = (
+                session.query(Provenance)
+                .join(Provenance.file)
+                .filter(File.release_id == comparison_release.id)
+                .options(orm.undefer(Provenance.provenance))
+                .all()
+            )
+            comparison_files_with_provenance = len(comparison_provenance_objects)
+
+            if files_with_provenance == 0 and comparison_files_with_provenance > 0:
+                states.add(ProvenanceState.LOST_PROVENANCE)
+
         return ProvenanceStatus(
             states=states,
             files_with_provenance=files_with_provenance,
             total_files=total_files,
             repository_counts=dict(repository_counter),
             workflow_counts=dict(workflow_counter),
+            comparison_release=comparison_release,
+            comparison_files_with_provenance=comparison_files_with_provenance,
+            comparison_total_files=comparison_total_files,
         )
 
 
