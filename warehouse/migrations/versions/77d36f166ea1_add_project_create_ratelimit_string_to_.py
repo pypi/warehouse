@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 """
-Add project_create_ratelimit_string to organizations
+Add project_create_ratelimit_string to organizations and users
 
 Revision ID: 77d36f166ea1
 Revises: 423ffda7411f
@@ -50,7 +50,20 @@ def upgrade():
             ),
         ),
     )
+    op.add_column(
+        "users",
+        sa.Column(
+            "project_create_ratelimit_string",
+            sa.String(),
+            nullable=True,
+            comment=(
+                "Custom project-creation rate limit (e.g. '50 per hour') for "
+                "this user. Overrides the global default when set."
+            ),
+        ),
+    )
 
 
 def downgrade():
+    op.drop_column("users", "project_create_ratelimit_string")
     op.drop_column("organizations", "project_create_ratelimit_string")

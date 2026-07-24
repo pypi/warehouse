@@ -1190,6 +1190,26 @@ class TestProjectService:
         assert identifier == creator.id
         assert partition_key == "user"
 
+    def test_identity_ratelimiter_uses_user_override_when_set(self, project_service):
+        """A per-user override string is applied via the default per-user
+        limiter's own `.override()`, the same way organization overrides
+        are — see `_organization_ratelimiter`."""
+        creator = UserFactory.create(project_create_ratelimit_string="5 per hour")
+        overridden = pretend.stub()
+        default_limiter = pretend.stub(
+            override=pretend.call_recorder(lambda limit_string: overridden)
+        )
+        project_service.ratelimiters["project.create.user"] = default_limiter
+
+        limiter, identifier, partition_key = project_service._identity_ratelimiter(
+            creator, None
+        )
+
+        assert default_limiter.override.calls == [pretend.call("5 per hour")]
+        assert limiter is overridden
+        assert identifier == creator.id
+        assert partition_key == "user"
+
     def test_identity_ratelimiter_uses_organization_when_scoped(
         self, project_service, ratelimit_service
     ):
