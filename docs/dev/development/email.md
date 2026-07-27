@@ -40,7 +40,10 @@ Calling a function with the `_email` decorator does the following:
 - A security log is added to the user's account
 - The email is sent using Amazon SES (on production environment)
 - A metric is sent to Datadog named `warehouse.emails.scheduled` with the tags
-  `template_name`, `allow_unverified`, and `repeat_window`.
+  `template_name`, `allow_unverified`, and `repeat_window`. If the email is
+  skipped instead (missing email address, unverified address, or a repeat
+  send within `repeat_window`), a `warehouse.emails.skipped` metric is sent
+  with the same tags plus a `reason` tag.
 
 ## Testing e-mails
 

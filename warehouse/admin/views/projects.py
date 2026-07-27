@@ -200,6 +200,18 @@ def project_detail(project, request):
         .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
         .limit(30)
     )
+    # The card lists only the newest entries; the badge shows the true
+    # count. A short first page already proves the total; otherwise
+    # count(*) is an index-only scan on journals_name_idx.
+    if len(journal) < 30:
+        journal_count = len(journal)
+    else:
+        journal_count = (
+            request.db.query(func.count())
+            .select_from(JournalEntry)
+            .filter(JournalEntry.name == project.name)
+            .scalar()
+        )
     observations = list(
         request.db.query(project.Observation)
         .options(joinedload(project.Observation.observer))
@@ -213,6 +225,7 @@ def project_detail(project, request):
         "releases": releases,
         "maintainers": maintainers,
         "journal": journal,
+        "journal_count": journal_count,
         "oidc_publishers": project.oidc_publishers,
         "ONE_MIB": ONE_MIB,
         "MAX_FILESIZE": MAX_FILESIZE,
@@ -534,7 +547,11 @@ def release_render(release, request):
     uses_session=True,
 )
 def journals_list(project, request):
-    q = request.params.get("q")
+    """Render the shell for a project-scoped journals Tabulator table.
+
+    The table itself is fed by the shared JSON endpoint behind
+    `admin.journals.list`, pre-filtered on this project's name.
+    """
     project_name = request.matchdict["project_name"]
 
     if project_name != project.normalized_name:
@@ -542,39 +559,7 @@ def journals_list(project, request):
             request.current_route_path(project_name=project.normalized_name)
         )
 
-    try:
-        page_num = int(request.params.get("page", 1))
-    except ValueError:
-        raise HTTPBadRequest("'page' must be an integer.") from None
-
-    journals_query = (
-        request.db.query(JournalEntry)
-        .options(joinedload(JournalEntry.submitted_by))
-        .filter(JournalEntry.name == project.name)
-        .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
-    )
-
-    if q:
-        terms = shlex.split(q)
-
-        filters = []
-        for term in terms:
-            if ":" in term:
-                field, value = term.split(":", 1)
-                if field.lower() == "version":
-                    filters.append(JournalEntry.version.ilike(value))
-
-        filters = filters or [True]
-        journals_query = journals_query.filter(or_(False, *filters))
-
-    journals = SQLAlchemyORMPage(
-        journals_query,
-        page=page_num,
-        items_per_page=25,
-        url_maker=paginate_url_factory(request),
-    )
-
-    return {"journals": journals, "project": project, "query": q}
+    return {"project": project}
 
 
 @view_config(

@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import base64
+import datetime
 import io
 
 import pyqrcode
@@ -1508,6 +1509,7 @@ class ManageProjectRelease:
 
         self.release.yanked = True
         self.release.yanked_reason = yanked_reason
+        self.release.yanked_date = datetime.datetime.now(datetime.UTC)
 
         self.request.session.flash(
             self.request._(f"Yanked release {self.release.version!r}"), queue="success"
@@ -1594,6 +1596,7 @@ class ManageProjectRelease:
 
         self.release.yanked = False
         self.release.yanked_reason = ""
+        self.release.yanked_date = None
 
         self.request.session.flash(
             self.request._(f"Un-yanked release {self.release.version!r}"),

@@ -560,16 +560,12 @@ class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticati
 
 class ReAuthenticateForm(PasswordMixin, wtforms.Form):
     __params__ = [
-        "username",
         "password",
         "next_route",
         "next_route_matchdict",
         "next_route_query",
     ]
 
-    username = wtforms.fields.HiddenField(
-        validators=[wtforms.validators.InputRequired()]
-    )
     next_route = wtforms.fields.HiddenField(
         validators=[wtforms.validators.InputRequired()]
     )
@@ -580,9 +576,39 @@ class ReAuthenticateForm(PasswordMixin, wtforms.Form):
         validators=[wtforms.validators.InputRequired()]
     )
 
-    def __init__(self, *args, user_service, **kwargs):
+    def __init__(self, *args, user_id, user_service, **kwargs):
         super().__init__(*args, **kwargs)
+        self.user_id = user_id
         self.user_service = user_service
+
+    def validate_password(self, field):
+        if field.errors:
+            return
+
+        try:
+            if not self.user_service.check_password(
+                self.user_id,
+                field.data,
+                tags=self._check_password_metrics_tags,
+            ):
+                user = self.user_service.get_user(self.user_id)
+                user.record_event(
+                    tag=f"account:{self.action}:failure",
+                    request=self.request,
+                    additional={"reason": "invalid_password"},
+                )
+                raise wtforms.validators.ValidationError(INVALID_PASSWORD_MESSAGE)
+        except TooManyFailedLogins as err:
+            raise wtforms.validators.ValidationError(
+                _(
+                    "There have been too many unsuccessful login attempts. "
+                    "You have been locked out for ${time}. "
+                    "Please try again later.",
+                    mapping={
+                        "time": humanize.naturaldelta(err.resets_in.total_seconds())
+                    },
+                )
+            ) from None
 
 
 class RecoveryCodeAuthenticationForm(
