@@ -85,7 +85,7 @@ msgstr ""
 msgid "Password too long."
 msgstr ""
 
-#: warehouse/accounts/forms.py:219
+#: warehouse/accounts/forms.py:219 warehouse/accounts/forms.py:604
 #, python-brace-format
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
@@ -132,15 +132,15 @@ msgstr ""
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr ""
 
-#: warehouse/accounts/forms.py:609
+#: warehouse/accounts/forms.py:635
 msgid "Invalid recovery code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:618
+#: warehouse/accounts/forms.py:644
 msgid "Recovery code has been previously used."
 msgstr ""
 
-#: warehouse/accounts/forms.py:647
+#: warehouse/accounts/forms.py:673
 msgid "The username isn't valid. Try again."
 msgstr ""
 
@@ -1623,7 +1623,7 @@ msgstr ""
 #: warehouse/templates/accounts/reset-password.html:62
 #: warehouse/templates/accounts/reset-password.html:67
 #: warehouse/templates/manage/account.html:453
-#: warehouse/templates/re-auth.html:19 warehouse/templates/re-auth.html:74
+#: warehouse/templates/re-auth.html:19 warehouse/templates/re-auth.html:73
 msgid "Confirm password"
 msgstr "Serggeg awal n uɛeddi"
 
@@ -1635,7 +1635,7 @@ msgstr ""
 #: warehouse/templates/accounts/register.html:142
 #: warehouse/templates/accounts/reset-password.html:28
 #: warehouse/templates/manage/manage_base.html:447
-#: warehouse/templates/re-auth.html:49
+#: warehouse/templates/re-auth.html:48
 msgid "Password"
 msgstr "Awal n uɛeddi"
 
@@ -1738,27 +1738,27 @@ msgstr "Awal n uɛeddi"
 #: warehouse/templates/manage/team/settings.html:22
 #: warehouse/templates/packaging/submit-malware-observation.html:54
 #: warehouse/templates/packaging/submit-malware-observation.html:67
-#: warehouse/templates/re-auth.html:51
+#: warehouse/templates/re-auth.html:50
 msgid "(required)"
 msgstr "(yettwasra)"
 
 #: warehouse/templates/accounts/login.html:71
-#: warehouse/templates/re-auth.html:55
+#: warehouse/templates/re-auth.html:54
 msgid "Your password"
 msgstr "Awal-ik·im n uɛeddi"
 
 #: warehouse/templates/accounts/login.html:68
 #: warehouse/templates/manage/manage_base.html:453
-#: warehouse/templates/re-auth.html:82
+#: warehouse/templates/re-auth.html:81
 msgid "Show password"
 msgstr "Beqqeḍ awal n uɛeddi"
 
 #: warehouse/templates/accounts/login.html:95
-#: warehouse/templates/re-auth.html:86
+#: warehouse/templates/re-auth.html:85
 msgid "Forgot password?"
 msgstr "Tettuḍ awal n uɛeddi?"
 
-#: warehouse/templates/re-auth.html:90
+#: warehouse/templates/re-auth.html:89
 #, python-format
 msgid ""
 "<b>Tip:</b> you are about to perform a <a href=\"%(href)s\">sensitive "
