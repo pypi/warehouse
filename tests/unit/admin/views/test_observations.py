@@ -354,6 +354,21 @@ class TestRenderDatatablesPayload:
         expected = f"/admin/organization_applications/{org_app.id}/"
         assert payload["data"][0]["related_link"] == expected
 
+    def test_organization_application_note_produces_link(self, dt_request):
+        org_app = OrganizationApplicationFactory.create()
+        observer = ObserverFactory.create()
+        OrganizationApplicationObservationFactory.create(
+            kind="admin_note",
+            observer=observer,
+            related=org_app,
+        )
+
+        dt_request.params = _datatables_params(kind="admin_note")
+        payload = views._render_datatables_payload(dt_request)
+
+        expected = f"/admin/organization_applications/{org_app.id}/"
+        assert payload["data"][0]["related_link"] == expected
+
     def test_project_observation_with_unparseable_related_name(self, dt_request):
         """
         A project observation whose related_name doesn't match the

@@ -58,6 +58,7 @@ _KIND_TO_MODEL: dict[str, type[Observation]] = {
     "account_recovery": User.Observation,
     "email_unverified": User.Observation,
     "information_request": OrganizationApplication.Observation,
+    "admin_note": OrganizationApplication.Observation,
 }
 
 _KIND_TO_ADMIN_ROUTE: dict[str, str] = {
@@ -69,6 +70,7 @@ _KIND_TO_ADMIN_ROUTE: dict[str, str] = {
     "account_recovery": "admin.user.detail",
     "email_unverified": "admin.user.detail",
     "information_request": "admin.organization_application.detail",
+    "admin_note": "admin.organization_application.detail",
 }
 
 # Allowlist of DataTables `columns[i][name]` values that may drive ORDER BY.

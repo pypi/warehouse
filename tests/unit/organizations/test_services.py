@@ -8,6 +8,7 @@ from zope.interface.verify import verifyClass
 
 from warehouse.accounts.models import User
 from warehouse.events.tags import EventTag
+from warehouse.observations.models import ObservationKind
 from warehouse.organizations import services
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
@@ -292,6 +293,38 @@ class TestDatabaseOrganizationService:
 
         assert len(organization_application.observations) == 0
         send_email.assert_not_called()
+
+    def test_add_organization_application_note(self, db_request, organization_service):
+        admin = UserFactory(username="admin", is_superuser=True)
+        db_request.user = admin
+        db_request.params["message"] = "some note"
+
+        organization_application = OrganizationApplicationFactory.create()
+        organization_service.add_organization_application_note(
+            organization_application.id, db_request
+        )
+
+        assert len(organization_application.observations) == 1
+        observation = organization_application.observations[0]
+        assert observation.kind == ObservationKind.AdminNote.value[0]
+        assert observation.payload == {"message": "some note"}
+        assert (
+            organization_application.status == OrganizationApplicationStatus.Submitted
+        )
+
+    def test_add_organization_application_note_no_message(
+        self, db_request, organization_service
+    ):
+        admin = UserFactory(username="admin", is_superuser=True)
+        db_request.user = admin
+
+        organization_application = OrganizationApplicationFactory.create()
+        with pytest.raises(ValueError):  # noqa: PT011
+            organization_service.add_organization_application_note(
+                organization_application.id, db_request
+            )
+
+        assert len(organization_application.observations) == 0
 
     def test_decline_organization_application(
         self, db_request, organization_service, mocker
