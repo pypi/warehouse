@@ -472,8 +472,10 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                 Release.created,
                 Release.is_prerelease,
                 Release.yanked,
+                Release.yanked_date,
                 Release.yanked_reason,
                 Release.lifecycle_status,
+                Release.lifecycle_status_changed,
                 file_count.label("file_count"),
             )
             .filter(Release.project == self)
