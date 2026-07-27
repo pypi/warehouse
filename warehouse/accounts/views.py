@@ -1648,7 +1648,7 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
     form = _form_class(
         request.POST,
         request=request,
-        username=request.user.username,
+        user_id=request.user.id,
         next_route=request.matched_route.name,
         next_route_matchdict=json.dumps(request.matchdict),
         next_route_query=json.dumps(request.GET.mixed()),
@@ -1898,6 +1898,11 @@ class ManageAccountPublishingViews:
             # pending publisher already targets the same external identity
             # under a different project name. Surface that conflict instead
             # of silently redirecting as if registration succeeded.
+            #
+            # The failed INSERT leaves the transaction in an aborted state, so
+            # roll back before doing anything else with the session -- otherwise
+            # rendering the response (or the end-of-request commit) blows up.
+            self.request.db.rollback()
             self.request.session.flash(
                 self.request._(
                     "A pending trusted publisher matching this configuration "

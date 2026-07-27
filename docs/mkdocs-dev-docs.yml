@@ -102,6 +102,7 @@ nav:
       - Development Database: development/development-database.md
       - Cloud: development/cloud.md
       - Email: development/email.md
+      - Account Associations: development/account-associations.md
       - Token Scanning: development/token-scanning.md
       - Documentation: development/documentation.md
   - Warehouse codebase: application.md

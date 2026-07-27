@@ -14,13 +14,14 @@ from warehouse.packaging.interfaces import (
     IProjectService,
     ISimpleStorage,
 )
-from warehouse.packaging.models import AlternateRepository, File, Project, Release, Role
+from warehouse.packaging.models import File, Project, Release, Role
 from warehouse.packaging.services import project_service_factory
 from warehouse.packaging.tasks import (
     check_file_cache_tasks_outstanding,
     compute_2fa_metrics,
     compute_packaging_metrics,
     compute_top_dependents_corpus,
+    reconcile_file_storages,
     update_description_html,
 )
 
@@ -163,13 +164,6 @@ def includeme(config):
         ],
     )
     config.register_origin_cache_keys(
-        AlternateRepository,
-        cache_keys=["project/{obj.project.normalized_name}"],
-        purge_keys=[
-            key_factory("project/{obj.project.normalized_name}"),
-        ],
-    )
-    config.register_origin_cache_keys(
         OrganizationProject,
         purge_keys=[
             key_factory("project/{attr.normalized_name}", if_attr_exists="project"),
@@ -177,6 +171,9 @@ def includeme(config):
     )
 
     config.add_periodic_task(crontab(minute="*/1"), check_file_cache_tasks_outstanding)
+
+    # Sync S3 to B2
+    config.add_periodic_task(crontab(minute="*/15"), reconcile_file_storages)
 
     config.add_periodic_task(crontab(minute="*/5"), update_description_html)
     config.add_periodic_task(crontab(minute="*/5"), update_role_invitation_status)

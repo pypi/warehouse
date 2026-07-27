@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+import types
 
 import celery.exceptions
 import opensearchpy
 import packaging.version
-import pretend
 import pytest
 import redis
 import redis.lock
@@ -154,13 +154,13 @@ def test_project_docs_empty(db_session):
 
 
 class FakeESIndices:
-    def __init__(self):
+    def __init__(self, mocker):
         self.indices = {}
         self.aliases = {}
 
-        self.put_settings = pretend.call_recorder(lambda *a, **kw: None)
-        self.delete = pretend.call_recorder(lambda *a, **kw: None)
-        self.create = pretend.call_recorder(lambda *a, **kw: None)
+        self.put_settings = mocker.stub(name="put_settings")
+        self.delete = mocker.stub(name="delete")
+        self.create = mocker.stub(name="create")
 
     def exists_alias(self, name):
         return name in self.aliases
@@ -186,8 +186,8 @@ class FakeESIndices:
 
 
 class FakeESClient:
-    def __init__(self):
-        self.indices = FakeESIndices()
+    def __init__(self, mocker):
+        self.indices = FakeESIndices(mocker)
 
 
 class NotLock:
@@ -210,26 +210,19 @@ class TestSearchLock:
 
 
 class TestReindex:
-    def test_fails_when_raising(self, db_request, monkeypatch):
-        docs = pretend.stub()
+    def test_fails_when_raising(self, db_request, mocker):
+        docs = mocker.sentinel.docs
+        mocker.patch.object(warehouse.search.tasks, "_project_docs", return_value=docs)
 
-        def project_docs(db):
-            return docs
-
-        monkeypatch.setattr(warehouse.search.tasks, "_project_docs", project_docs)
-
-        task = pretend.stub()
-        es_client = FakeESClient()
+        es_client = FakeESClient(mocker)
 
         db_request.registry.update({"opensearch.index": "warehouse"})
         db_request.registry.settings = {
             "opensearch.url": "http://some.url",
             "celery.scheduler_url": "redis://redis:6379/0",
         }
-        monkeypatch.setattr(
-            warehouse.search.tasks.opensearchpy,
-            "OpenSearch",
-            lambda *a, **kw: es_client,
+        mocker.patch.object(
+            warehouse.search.tasks.opensearchpy, "OpenSearch", return_value=es_client
         )
 
         class TestError(Exception):
@@ -243,45 +236,38 @@ class TestReindex:
             assert index == "warehouse-cbcbcbcbcb"
             raise TestError
 
-        monkeypatch.setattr(warehouse.search.tasks, "SearchLock", NotLock)
-
-        monkeypatch.setattr(warehouse.search.tasks, "parallel_bulk", parallel_bulk)
-
-        monkeypatch.setattr(os, "urandom", lambda n: b"\xcb" * n)
+        mocker.patch.object(warehouse.search.tasks, "SearchLock", NotLock)
+        mocker.patch.object(
+            warehouse.search.tasks, "parallel_bulk", side_effect=parallel_bulk
+        )
+        mocker.patch.object(os, "urandom", side_effect=lambda n: b"\xcb" * n)
 
         with pytest.raises(TestError):
-            reindex(task, db_request)
+            reindex(mocker.sentinel.task, db_request)
 
-        assert es_client.indices.delete.calls == [
-            pretend.call(index="warehouse-cbcbcbcbcb")
-        ]
-        assert es_client.indices.put_settings.calls == []
+        es_client.indices.delete.assert_called_once_with(index="warehouse-cbcbcbcbcb")
+        es_client.indices.put_settings.assert_not_called()
 
-    def test_retry_on_lock(self, db_request, monkeypatch):
-        task = pretend.stub(
-            retry=pretend.call_recorder(pretend.raiser(celery.exceptions.Retry))
+    def test_retry_on_lock(self, db_request, mocker):
+        task = types.SimpleNamespace(
+            retry=mocker.Mock(side_effect=celery.exceptions.Retry)
         )
 
         db_request.registry.settings = {"celery.scheduler_url": "redis://redis:6379/0"}
 
         le = redis.exceptions.LockError("Failed to acquire lock")
-        monkeypatch.setattr(SearchLock, "acquire", pretend.raiser(le))
+        mocker.patch.object(SearchLock, "acquire", side_effect=le)
 
         with pytest.raises(celery.exceptions.Retry):
             reindex(task, db_request)
 
-        assert task.retry.calls == [pretend.call(countdown=60, exc=le)]
+        task.retry.assert_called_once_with(countdown=60, exc=le)
 
-    def test_successfully_indexes_and_adds_new(self, db_request, monkeypatch):
-        docs = pretend.stub()
+    def test_successfully_indexes_and_adds_new(self, db_request, mocker):
+        docs = mocker.sentinel.docs
+        mocker.patch.object(warehouse.search.tasks, "_project_docs", return_value=docs)
 
-        def project_docs(db):
-            return docs
-
-        monkeypatch.setattr(warehouse.search.tasks, "_project_docs", project_docs)
-
-        task = pretend.stub()
-        es_client = FakeESClient()
+        es_client = FakeESClient(mocker)
 
         db_request.registry.update(
             {"opensearch.index": "warehouse", "opensearch.shards": 42}
@@ -290,142 +276,117 @@ class TestReindex:
             "opensearch.url": "http://some.url",
             "celery.scheduler_url": "redis://redis:6379/0",
         }
-        monkeypatch.setattr(
-            warehouse.search.tasks.opensearchpy,
-            "OpenSearch",
-            lambda *a, **kw: es_client,
+        mocker.patch.object(
+            warehouse.search.tasks.opensearchpy, "OpenSearch", return_value=es_client
         )
-        monkeypatch.setattr(warehouse.search.tasks, "SearchLock", NotLock)
+        mocker.patch.object(warehouse.search.tasks, "SearchLock", NotLock)
 
-        parallel_bulk = pretend.call_recorder(
-            lambda client, iterable, index, chunk_size, max_chunk_bytes: [None]
+        parallel_bulk = mocker.patch.object(
+            warehouse.search.tasks, "parallel_bulk", return_value=[None]
         )
-        monkeypatch.setattr(warehouse.search.tasks, "parallel_bulk", parallel_bulk)
+        mocker.patch.object(os, "urandom", side_effect=lambda n: b"\xcb" * n)
 
-        monkeypatch.setattr(os, "urandom", lambda n: b"\xcb" * n)
+        reindex(mocker.sentinel.task, db_request)
 
-        reindex(task, db_request)
-
-        assert parallel_bulk.calls == [
-            pretend.call(
-                es_client,
-                docs,
-                index="warehouse-cbcbcbcbcb",
-                chunk_size=100,
-                max_chunk_bytes=10485760,
-            )
-        ]
-        assert es_client.indices.create.calls == [
-            pretend.call(
-                body={
-                    "settings": {
-                        "number_of_shards": 42,
-                        "number_of_replicas": 0,
-                        "refresh_interval": "-1",
-                    }
-                },
-                wait_for_active_shards=42,
-                index="warehouse-cbcbcbcbcb",
-            )
-        ]
-        assert es_client.indices.delete.calls == []
+        parallel_bulk.assert_called_once_with(
+            es_client,
+            docs,
+            index="warehouse-cbcbcbcbcb",
+            chunk_size=100,
+            max_chunk_bytes=10485760,
+        )
+        es_client.indices.create.assert_called_once_with(
+            body={
+                "settings": {
+                    "number_of_shards": 42,
+                    "number_of_replicas": 0,
+                    "refresh_interval": "-1",
+                }
+            },
+            wait_for_active_shards=42,
+            index="warehouse-cbcbcbcbcb",
+        )
+        es_client.indices.delete.assert_not_called()
         assert es_client.indices.aliases == {"warehouse": ["warehouse-cbcbcbcbcb"]}
-        assert es_client.indices.put_settings.calls == [
-            pretend.call(
-                index="warehouse-cbcbcbcbcb",
-                body={"index": {"number_of_replicas": 0, "refresh_interval": "1s"}},
-            )
-        ]
+        es_client.indices.put_settings.assert_called_once_with(
+            index="warehouse-cbcbcbcbcb",
+            body={"index": {"number_of_replicas": 0, "refresh_interval": "1s"}},
+        )
 
-    def test_successfully_indexes_and_replaces(self, db_request, monkeypatch):
-        docs = pretend.stub()
-        task = pretend.stub()
+    def test_successfully_indexes_and_replaces(self, db_request, mocker):
+        docs = mocker.sentinel.docs
+        mocker.patch.object(warehouse.search.tasks, "_project_docs", return_value=docs)
 
-        def project_docs(db):
-            return docs
-
-        monkeypatch.setattr(warehouse.search.tasks, "_project_docs", project_docs)
-
-        es_client = FakeESClient()
+        es_client = FakeESClient(mocker)
         es_client.indices.indices["warehouse-aaaaaaaaaa"] = None
         es_client.indices.aliases["warehouse"] = ["warehouse-aaaaaaaaaa"]
-        db_engine = pretend.stub()
 
         db_request.registry.update(
             {
                 "opensearch.index": "warehouse",
                 "opensearch.shards": 42,
-                "sqlalchemy.engine": db_engine,
+                "sqlalchemy.engine": mocker.sentinel.db_engine,
             }
         )
         db_request.registry.settings = {
             "opensearch.url": "http://some.url",
             "celery.scheduler_url": "redis://redis:6379/0",
         }
-        monkeypatch.setattr(
-            warehouse.search.tasks.opensearchpy,
-            "OpenSearch",
-            lambda *a, **kw: es_client,
+        mocker.patch.object(
+            warehouse.search.tasks.opensearchpy, "OpenSearch", return_value=es_client
         )
-        monkeypatch.setattr(warehouse.search.tasks, "SearchLock", NotLock)
+        mocker.patch.object(warehouse.search.tasks, "SearchLock", NotLock)
 
-        parallel_bulk = pretend.call_recorder(
-            lambda client, iterable, index, chunk_size, max_chunk_bytes: [None]
+        parallel_bulk = mocker.patch.object(
+            warehouse.search.tasks, "parallel_bulk", return_value=[None]
         )
-        monkeypatch.setattr(warehouse.search.tasks, "parallel_bulk", parallel_bulk)
+        mocker.patch.object(os, "urandom", side_effect=lambda n: b"\xcb" * n)
 
-        monkeypatch.setattr(os, "urandom", lambda n: b"\xcb" * n)
+        reindex(mocker.sentinel.task, db_request)
 
-        reindex(task, db_request)
-
-        assert parallel_bulk.calls == [
-            pretend.call(
-                es_client,
-                docs,
-                index="warehouse-cbcbcbcbcb",
-                chunk_size=100,
-                max_chunk_bytes=10485760,
-            )
-        ]
-        assert es_client.indices.create.calls == [
-            pretend.call(
-                body={
-                    "settings": {
-                        "number_of_shards": 42,
-                        "number_of_replicas": 0,
-                        "refresh_interval": "-1",
-                    }
-                },
-                wait_for_active_shards=42,
-                index="warehouse-cbcbcbcbcb",
-            )
-        ]
-        assert es_client.indices.delete.calls == [
-            pretend.call(index="warehouse-aaaaaaaaaa")
-        ]
+        parallel_bulk.assert_called_once_with(
+            es_client,
+            docs,
+            index="warehouse-cbcbcbcbcb",
+            chunk_size=100,
+            max_chunk_bytes=10485760,
+        )
+        es_client.indices.create.assert_called_once_with(
+            body={
+                "settings": {
+                    "number_of_shards": 42,
+                    "number_of_replicas": 0,
+                    "refresh_interval": "-1",
+                }
+            },
+            wait_for_active_shards=42,
+            index="warehouse-cbcbcbcbcb",
+        )
+        es_client.indices.delete.assert_called_once_with(index="warehouse-aaaaaaaaaa")
         assert es_client.indices.aliases == {"warehouse": ["warehouse-cbcbcbcbcb"]}
-        assert es_client.indices.put_settings.calls == [
-            pretend.call(
-                index="warehouse-cbcbcbcbcb",
-                body={"index": {"number_of_replicas": 0, "refresh_interval": "1s"}},
-            )
-        ]
+        es_client.indices.put_settings.assert_called_once_with(
+            index="warehouse-cbcbcbcbcb",
+            body={"index": {"number_of_replicas": 0, "refresh_interval": "1s"}},
+        )
 
-    def test_client_aws(self, db_request, monkeypatch):
-        docs = pretend.stub()
+    def test_client_aws(self, db_request, mocker):
+        docs = mocker.sentinel.docs
+        mocker.patch.object(warehouse.search.tasks, "_project_docs", return_value=docs)
 
-        def project_docs(db):
-            return docs
-
-        monkeypatch.setattr(warehouse.search.tasks, "_project_docs", project_docs)
-
-        task = pretend.stub()
-        signer_auth_stub = pretend.stub()
-        signer_auth = pretend.call_recorder(lambda *a, **kw: signer_auth_stub)
-        credentials_stub = pretend.stub()
-        credentials = pretend.call_recorder(lambda *a, **kw: credentials_stub)
-        es_client = FakeESClient()
-        es_client_init = pretend.call_recorder(lambda *a, **kw: es_client)
+        signer_auth = mocker.patch.object(
+            warehouse.search.tasks,
+            "RequestsAWSV4SignerAuth",
+            return_value=mocker.sentinel.signer_auth,
+        )
+        credentials = mocker.patch.object(
+            warehouse.search.tasks,
+            "Credentials",
+            return_value=mocker.sentinel.credentials,
+        )
+        es_client = FakeESClient(mocker)
+        es_client_init = mocker.patch.object(
+            warehouse.search.tasks.opensearchpy, "OpenSearch", return_value=es_client
+        )
 
         db_request.registry.update(
             {"opensearch.index": "warehouse", "opensearch.shards": 42}
@@ -436,86 +397,68 @@ class TestReindex:
             "opensearch.url": "https://some.url?aws_auth=1&region=us-east-2",
             "celery.scheduler_url": "redis://redis:6379/0",
         }
-        monkeypatch.setattr(
-            warehouse.search.tasks, "RequestsAWSV4SignerAuth", signer_auth
+        mocker.patch.object(warehouse.search.tasks, "SearchLock", NotLock)
+
+        parallel_bulk = mocker.patch.object(
+            warehouse.search.tasks, "parallel_bulk", return_value=[None]
         )
-        monkeypatch.setattr(warehouse.search.tasks, "Credentials", credentials)
-        monkeypatch.setattr(
-            warehouse.search.tasks.opensearchpy, "OpenSearch", es_client_init
-        )
-        monkeypatch.setattr(warehouse.search.tasks, "SearchLock", NotLock)
+        mocker.patch.object(os, "urandom", side_effect=lambda n: b"\xcb" * n)
 
-        parallel_bulk = pretend.call_recorder(
-            lambda client, iterable, index, chunk_size, max_chunk_bytes: [None]
-        )
-        monkeypatch.setattr(warehouse.search.tasks, "parallel_bulk", parallel_bulk)
+        reindex(mocker.sentinel.task, db_request)
 
-        monkeypatch.setattr(os, "urandom", lambda n: b"\xcb" * n)
-
-        reindex(task, db_request)
-
-        assert len(es_client_init.calls) == 1
-        assert es_client_init.calls[0].kwargs["hosts"] == ["https://some.url"]
-        assert es_client_init.calls[0].kwargs["timeout"] == 30
-        assert es_client_init.calls[0].kwargs["retry_on_timeout"] is True
+        assert es_client_init.call_count == 1
+        kwargs = es_client_init.call_args.kwargs
+        assert kwargs["hosts"] == ["https://some.url"]
+        assert kwargs["timeout"] == 30
+        assert kwargs["retry_on_timeout"] is True
         assert (
-            es_client_init.calls[0].kwargs["connection_class"]
+            kwargs["connection_class"]
             == opensearchpy.connection.http_requests.RequestsHttpConnection
         )
-        assert es_client_init.calls[0].kwargs["http_auth"] == signer_auth_stub
-        assert credentials.calls == [
-            pretend.call(
-                access_key="AAAAAAAAAAAAAAAAAA",
-                secret_key="deadbeefdeadbeefdeadbeef",
-            )
-        ]
-        assert signer_auth.calls == [pretend.call(credentials_stub, "us-east-2", "es")]
+        assert kwargs["http_auth"] == mocker.sentinel.signer_auth
+        credentials.assert_called_once_with(
+            access_key="AAAAAAAAAAAAAAAAAA",
+            secret_key="deadbeefdeadbeefdeadbeef",
+        )
+        signer_auth.assert_called_once_with(
+            mocker.sentinel.credentials, "us-east-2", "es"
+        )
 
-        assert parallel_bulk.calls == [
-            pretend.call(
-                es_client,
-                docs,
-                index="warehouse-cbcbcbcbcb",
-                chunk_size=100,
-                max_chunk_bytes=10485760,
-            )
-        ]
-        assert es_client.indices.create.calls == [
-            pretend.call(
-                body={
-                    "settings": {
-                        "number_of_shards": 42,
-                        "number_of_replicas": 0,
-                        "refresh_interval": "-1",
-                    }
-                },
-                wait_for_active_shards=42,
-                index="warehouse-cbcbcbcbcb",
-            )
-        ]
-        assert es_client.indices.delete.calls == []
+        parallel_bulk.assert_called_once_with(
+            es_client,
+            docs,
+            index="warehouse-cbcbcbcbcb",
+            chunk_size=100,
+            max_chunk_bytes=10485760,
+        )
+        es_client.indices.create.assert_called_once_with(
+            body={
+                "settings": {
+                    "number_of_shards": 42,
+                    "number_of_replicas": 0,
+                    "refresh_interval": "-1",
+                }
+            },
+            wait_for_active_shards=42,
+            index="warehouse-cbcbcbcbcb",
+        )
+        es_client.indices.delete.assert_not_called()
         assert es_client.indices.aliases == {"warehouse": ["warehouse-cbcbcbcbcb"]}
-        assert es_client.indices.put_settings.calls == [
-            pretend.call(
-                index="warehouse-cbcbcbcbcb",
-                body={"index": {"number_of_replicas": 0, "refresh_interval": "1s"}},
-            )
-        ]
+        es_client.indices.put_settings.assert_called_once_with(
+            index="warehouse-cbcbcbcbcb",
+            body={"index": {"number_of_replicas": 0, "refresh_interval": "1s"}},
+        )
 
 
 class TestPartialReindex:
-    def test_reindex_fails_when_raising(self, db_request, monkeypatch):
-        docs = pretend.stub()
-        task = pretend.stub()
+    def test_reindex_fails_when_raising(self, db_request, mocker):
+        docs = mocker.sentinel.docs
 
         db_request.registry.settings = {"celery.scheduler_url": "redis://redis:6379/0"}
 
-        def project_docs(db, project_name=None):
-            return docs
+        mocker.patch.object(warehouse.search.tasks, "_project_docs", return_value=docs)
 
-        monkeypatch.setattr(warehouse.search.tasks, "_project_docs", project_docs)
-
-        es_client = FakeESClient()
+        es_client = FakeESClient(mocker)
 
         db_request.registry.update(
             {"opensearch.client": es_client, "opensearch.index": "warehouse"}
@@ -529,117 +472,109 @@ class TestPartialReindex:
             assert iterable is docs
             raise TestError
 
-        monkeypatch.setattr(warehouse.search.tasks, "parallel_bulk", parallel_bulk)
-        monkeypatch.setattr(warehouse.search.tasks, "SearchLock", NotLock)
+        mocker.patch.object(
+            warehouse.search.tasks, "parallel_bulk", side_effect=parallel_bulk
+        )
+        mocker.patch.object(warehouse.search.tasks, "SearchLock", NotLock)
 
         with pytest.raises(TestError):
-            reindex_project(task, db_request, "foo")
+            reindex_project(mocker.sentinel.task, db_request, "foo")
 
-        assert es_client.indices.put_settings.calls == []
+        es_client.indices.put_settings.assert_not_called()
 
-    def test_unindex_fails_when_raising(self, db_request, monkeypatch):
-        task = pretend.stub()
-
+    def test_unindex_fails_when_raising(self, db_request, mocker):
         db_request.registry.settings = {"celery.scheduler_url": "redis://redis:6379/0"}
 
         class TestError(Exception):
             pass
 
-        es_client = FakeESClient()
-        es_client.delete = pretend.raiser(TestError)
-        monkeypatch.setattr(warehouse.search.tasks, "SearchLock", NotLock)
+        es_client = FakeESClient(mocker)
+        es_client.delete = mocker.Mock(side_effect=TestError)
+        mocker.patch.object(warehouse.search.tasks, "SearchLock", NotLock)
 
         db_request.registry.update(
             {"opensearch.client": es_client, "opensearch.index": "warehouse"}
         )
 
         with pytest.raises(TestError):
-            unindex_project(task, db_request, "foo")
+            unindex_project(mocker.sentinel.task, db_request, "foo")
 
-    def test_unindex_accepts_defeat(self, db_request, monkeypatch):
-        task = pretend.stub()
-
+    def test_unindex_accepts_defeat(self, db_request, mocker):
         db_request.registry.settings = {"celery.scheduler_url": "redis://redis:6379/0"}
 
-        es_client = FakeESClient()
-        es_client.delete = pretend.call_recorder(
-            pretend.raiser(opensearchpy.exceptions.NotFoundError)
+        es_client = FakeESClient(mocker)
+        es_client.delete = mocker.Mock(
+            side_effect=opensearchpy.exceptions.NotFoundError
         )
-        monkeypatch.setattr(warehouse.search.tasks, "SearchLock", NotLock)
+        mocker.patch.object(warehouse.search.tasks, "SearchLock", NotLock)
 
         db_request.registry.update(
             {"opensearch.client": es_client, "opensearch.index": "warehouse"}
         )
 
-        unindex_project(task, db_request, "foo")
+        unindex_project(mocker.sentinel.task, db_request, "foo")
 
-        assert es_client.delete.calls == [pretend.call(index="warehouse", id="foo")]
+        es_client.delete.assert_called_once_with(index="warehouse", id="foo")
 
-    def test_unindex_retry_on_lock(self, db_request, monkeypatch):
-        task = pretend.stub(
-            retry=pretend.call_recorder(pretend.raiser(celery.exceptions.Retry))
+    def test_unindex_retry_on_lock(self, db_request, mocker):
+        task = types.SimpleNamespace(
+            retry=mocker.Mock(side_effect=celery.exceptions.Retry)
         )
 
         db_request.registry.settings = {"celery.scheduler_url": "redis://redis:6379/0"}
 
         le = redis.exceptions.LockError("Failed to acquire lock")
-        monkeypatch.setattr(SearchLock, "acquire", pretend.raiser(le))
+        mocker.patch.object(SearchLock, "acquire", side_effect=le)
 
         with pytest.raises(celery.exceptions.Retry):
             unindex_project(task, db_request, "foo")
 
-        assert task.retry.calls == [pretend.call(countdown=60, exc=le)]
+        task.retry.assert_called_once_with(countdown=60, exc=le)
 
-    def test_reindex_retry_on_lock(self, db_request, monkeypatch):
-        task = pretend.stub(
-            retry=pretend.call_recorder(pretend.raiser(celery.exceptions.Retry))
+    def test_reindex_retry_on_lock(self, db_request, mocker):
+        task = types.SimpleNamespace(
+            retry=mocker.Mock(side_effect=celery.exceptions.Retry)
         )
 
         db_request.registry.settings = {"celery.scheduler_url": "redis://redis:6379/0"}
 
         le = redis.exceptions.LockError("Failed to acquire lock")
-        monkeypatch.setattr(SearchLock, "acquire", pretend.raiser(le))
+        mocker.patch.object(SearchLock, "acquire", side_effect=le)
 
         with pytest.raises(celery.exceptions.Retry):
             reindex_project(task, db_request, "foo")
 
-        assert task.retry.calls == [pretend.call(countdown=60, exc=le)]
+        task.retry.assert_called_once_with(countdown=60, exc=le)
 
-    def test_successfully_indexes(self, db_request, monkeypatch):
-        docs = pretend.stub()
-        task = pretend.stub()
+    def test_successfully_indexes(self, db_request, mocker):
+        docs = mocker.sentinel.docs
 
         db_request.registry.settings = {"celery.scheduler_url": "redis://redis:6379/0"}
 
-        def project_docs(db, project_name=None):
-            return docs
+        mocker.patch.object(warehouse.search.tasks, "_project_docs", return_value=docs)
 
-        monkeypatch.setattr(warehouse.search.tasks, "_project_docs", project_docs)
-
-        es_client = FakeESClient()
+        es_client = FakeESClient(mocker)
         es_client.indices.indices["warehouse-aaaaaaaaaa"] = None
         es_client.indices.aliases["warehouse"] = ["warehouse-aaaaaaaaaa"]
-        db_engine = pretend.stub()
 
         db_request.registry.update(
             {
                 "opensearch.client": es_client,
                 "opensearch.index": "warehouse",
                 "opensearch.shards": 42,
-                "sqlalchemy.engine": db_engine,
+                "sqlalchemy.engine": mocker.sentinel.db_engine,
             }
         )
 
-        parallel_bulk = pretend.call_recorder(
-            lambda client, iterable, index=None: [None]
+        parallel_bulk = mocker.patch.object(
+            warehouse.search.tasks, "parallel_bulk", return_value=[None]
         )
-        monkeypatch.setattr(warehouse.search.tasks, "parallel_bulk", parallel_bulk)
-        monkeypatch.setattr(warehouse.search.tasks, "SearchLock", NotLock)
+        mocker.patch.object(warehouse.search.tasks, "SearchLock", NotLock)
 
-        reindex_project(task, db_request, "foo")
+        reindex_project(mocker.sentinel.task, db_request, "foo")
 
-        assert parallel_bulk.calls == [pretend.call(es_client, docs, index="warehouse")]
-        assert es_client.indices.create.calls == []
-        assert es_client.indices.delete.calls == []
+        parallel_bulk.assert_called_once_with(es_client, docs, index="warehouse")
+        es_client.indices.create.assert_not_called()
+        es_client.indices.delete.assert_not_called()
         assert es_client.indices.aliases == {"warehouse": ["warehouse-aaaaaaaaaa"]}
-        assert es_client.indices.put_settings.calls == []
+        es_client.indices.put_settings.assert_not_called()

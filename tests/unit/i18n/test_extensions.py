@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
 import pytest
 
 from jinja2 import DictLoader, Environment, pass_context
@@ -34,69 +33,34 @@ def test_trim_trans_tags(ext, result):
     assert env.from_string("{% trans %}   hey   {% endtrans %}").render() == result
 
 
-pretend_gettext = pretend.call_recorder(lambda message: message)
-pretend_ngettext = pretend.call_recorder(
-    lambda singular, plural, n: singular if n == 1 else plural
-)
-pretend_pgettext = pretend.call_recorder(lambda context, message: message)
-pretend_npgettext = pretend.call_recorder(
-    lambda context, singular, plural, n: singular if n == 1 else plural
-)
-
-
 class TestFallbackInternationalizationExtension:
     @pytest.mark.parametrize(
-        (
-            "newstyle_env",
-            "newstyle_param",
-            "newer_gettext_expected",
-            "newer_ngettext_expected",
-            "pgettext",
-            "npgettext",
-        ),
+        ("newstyle_env", "newstyle_param", "newer_called", "pgettext", "npgettext"),
         [
-            (
-                True,
-                True,
-                [pretend.call(pretend_gettext)],
-                [pretend.call(pretend_ngettext)],
-                False,
-                False,
-            ),
-            (
-                True,
-                None,
-                [pretend.call(pretend_gettext)],
-                [pretend.call(pretend_ngettext)],
-                False,
-                False,
-            ),
-            (
-                False,
-                True,
-                [pretend.call(pretend_gettext)],
-                [pretend.call(pretend_ngettext)],
-                True,
-                True,
-            ),
-            (False, None, [], [], True, True),
+            (True, True, True, False, False),
+            (True, None, True, False, False),
+            (False, True, True, True, True),
+            (False, None, False, True, True),
         ],
     )
     def test_install(
         self,
-        monkeypatch,
+        mocker,
         newstyle_env,
         newstyle_param,
-        newer_gettext_expected,
-        newer_ngettext_expected,
+        newer_called,
         pgettext,
         npgettext,
     ):
-        _make_newer_gettext = pretend.call_recorder(lambda func: func)
-        _make_newer_ngettext = pretend.call_recorder(lambda func: func)
+        make_newer_gettext = mocker.patch.object(
+            extensions, "_make_newer_gettext", autospec=True, side_effect=lambda f: f
+        )
+        make_newer_ngettext = mocker.patch.object(
+            extensions, "_make_newer_ngettext", autospec=True, side_effect=lambda f: f
+        )
 
-        monkeypatch.setattr(extensions, "_make_newer_gettext", _make_newer_gettext)
-        monkeypatch.setattr(extensions, "_make_newer_ngettext", _make_newer_ngettext)
+        gettext = mocker.stub(name="gettext")
+        ngettext = mocker.stub(name="ngettext")
 
         env = Environment(
             autoescape=True,
@@ -106,15 +70,19 @@ class TestFallbackInternationalizationExtension:
         )
         env.newstyle_gettext = newstyle_env
         env.install_gettext_callables(
-            pretend_gettext,
-            pretend_ngettext,
+            gettext,
+            ngettext,
             newstyle=newstyle_param,
-            pgettext=pretend_pgettext if pgettext else None,
-            npgettext=pretend_npgettext if npgettext else None,
+            pgettext=mocker.stub(name="pgettext") if pgettext else None,
+            npgettext=mocker.stub(name="npgettext") if npgettext else None,
         )
 
-        assert _make_newer_gettext.calls == newer_gettext_expected
-        assert _make_newer_ngettext.calls == newer_ngettext_expected
+        if newer_called:
+            make_newer_gettext.assert_called_once_with(gettext)
+            make_newer_ngettext.assert_called_once_with(ngettext)
+        else:
+            make_newer_gettext.assert_not_called()
+            make_newer_ngettext.assert_not_called()
 
     @pytest.mark.parametrize(
         ("translation", "expected"),
@@ -124,7 +92,7 @@ class TestFallbackInternationalizationExtension:
             ("Youzer: %（user）", "User: monty"),  # noqa: RUF001 forces failure
         ],
     )
-    def test_gettext_fallback(self, translation, expected):
+    def test_gettext_fallback(self, mocker, translation, expected):
         templates = {"test.html": "{% trans %}User: {{ user }}{% endtrans %}"}
         languages = {
             "en_US": {
@@ -144,7 +112,9 @@ class TestFallbackInternationalizationExtension:
                 "warehouse.i18n.extensions.FallbackInternationalizationExtension"
             ],
         )
-        env.install_gettext_callables(gettext, pretend_ngettext, newstyle=True)
+        env.install_gettext_callables(
+            gettext, mocker.stub(name="ngettext"), newstyle=True
+        )
 
         tmpl = env.get_template("test.html")
         assert tmpl.render(LANGUAGE="en_US", user="monty") == expected
@@ -191,7 +161,7 @@ class TestFallbackInternationalizationExtension:
         ],
     )
     def test_ngettext_fallback(
-        self, monkeypatch, translation, translation_plural, num, expected
+        self, mocker, translation, translation_plural, num, expected
     ):
         templates = {
             "test.html": (
@@ -220,7 +190,9 @@ class TestFallbackInternationalizationExtension:
                 "warehouse.i18n.extensions.FallbackInternationalizationExtension"
             ],
         )
-        env.install_gettext_callables(pretend_gettext, ngettext, newstyle=True)
+        env.install_gettext_callables(
+            mocker.stub(name="gettext"), ngettext, newstyle=True
+        )
 
         tmpl = env.get_template("test.html")
         assert tmpl.render(LANGUAGE="en_US", user_num=num) == expected

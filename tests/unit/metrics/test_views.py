@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
+import types
+
 import pytest
 
 from warehouse.metrics import views
@@ -8,73 +9,67 @@ from warehouse.metrics import views
 
 class TestTimingView:
     @pytest.mark.parametrize("route", [None, "foo"])
-    def test_unknown_view(self, pyramid_services, metrics, route):
-        response = pretend.stub()
-        view = pretend.call_recorder(lambda request, context: response)
-        view_info = pretend.stub(original_view=pretend.stub())
+    def test_unknown_view(self, mocker, pyramid_request, metrics, route):
+        view = mocker.Mock(return_value=mocker.sentinel.response)
+        view_info = types.SimpleNamespace(original_view=types.SimpleNamespace())
 
         derived = views.timing_view(view, view_info)
 
-        request = pretend.stub(
-            matched_route=pretend.stub(name=route) if route else None,
-            find_service=pyramid_services.find_service,
+        pyramid_request.matched_route = (
+            types.SimpleNamespace(name=route) if route else None
         )
-        context = pretend.stub()
-
         route_tag = "route:null" if route is None else f"route:{route}"
 
-        assert derived(context, request) is response
-        assert view.calls == [pretend.call(context, request)]
-        assert metrics.timed.calls == [
-            pretend.call("pyramid.view.duration", tags=[route_tag, "view:unknown"])
-        ]
+        assert derived(mocker.sentinel.context, pyramid_request) is (
+            mocker.sentinel.response
+        )
+        view.assert_called_once_with(mocker.sentinel.context, pyramid_request)
+        metrics.timed.assert_called_once_with(
+            "pyramid.view.duration", tags=[route_tag, "view:unknown"]
+        )
 
     @pytest.mark.parametrize("route", [None, "foo"])
-    def test_qualname_view(self, pyramid_services, metrics, route):
-        response = pretend.stub()
-        view = pretend.call_recorder(lambda request, context: response)
-        view_info = pretend.stub(
-            original_view=pretend.stub(
+    def test_qualname_view(self, mocker, pyramid_request, metrics, route):
+        view = mocker.Mock(return_value=mocker.sentinel.response)
+        view_info = types.SimpleNamespace(
+            original_view=types.SimpleNamespace(
                 __module__="foo", __qualname__="bar", __name__="other"
             )
         )
 
         derived = views.timing_view(view, view_info)
 
-        request = pretend.stub(
-            matched_route=pretend.stub(name=route) if route else None,
-            find_service=pyramid_services.find_service,
+        pyramid_request.matched_route = (
+            types.SimpleNamespace(name=route) if route else None
         )
-        context = pretend.stub()
-
         route_tag = "route:null" if route is None else f"route:{route}"
 
-        assert derived(context, request) is response
-        assert view.calls == [pretend.call(context, request)]
-        assert metrics.timed.calls == [
-            pretend.call("pyramid.view.duration", tags=[route_tag, "view:foo.bar"])
-        ]
+        assert derived(mocker.sentinel.context, pyramid_request) is (
+            mocker.sentinel.response
+        )
+        view.assert_called_once_with(mocker.sentinel.context, pyramid_request)
+        metrics.timed.assert_called_once_with(
+            "pyramid.view.duration", tags=[route_tag, "view:foo.bar"]
+        )
 
     @pytest.mark.parametrize("route", [None, "foo"])
-    def test_name_view(self, pyramid_services, metrics, route):
-        response = pretend.stub()
-        view = pretend.call_recorder(lambda request, context: response)
-        view_info = pretend.stub(
-            original_view=pretend.stub(__module__="foo", __name__="other")
+    def test_name_view(self, mocker, pyramid_request, metrics, route):
+        view = mocker.Mock(return_value=mocker.sentinel.response)
+        view_info = types.SimpleNamespace(
+            original_view=types.SimpleNamespace(__module__="foo", __name__="other")
         )
 
         derived = views.timing_view(view, view_info)
 
-        request = pretend.stub(
-            matched_route=pretend.stub(name=route) if route else None,
-            find_service=pyramid_services.find_service,
+        pyramid_request.matched_route = (
+            types.SimpleNamespace(name=route) if route else None
         )
-        context = pretend.stub()
-
         route_tag = "route:null" if route is None else f"route:{route}"
 
-        assert derived(context, request) is response
-        assert view.calls == [pretend.call(context, request)]
-        assert metrics.timed.calls == [
-            pretend.call("pyramid.view.duration", tags=[route_tag, "view:foo.other"])
-        ]
+        assert derived(mocker.sentinel.context, pyramid_request) is (
+            mocker.sentinel.response
+        )
+        view.assert_called_once_with(mocker.sentinel.context, pyramid_request)
+        metrics.timed.assert_called_once_with(
+            "pyramid.view.duration", tags=[route_tag, "view:foo.other"]
+        )

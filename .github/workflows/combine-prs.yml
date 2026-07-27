@@ -1,15 +1,15 @@
 # Origin: https://github.com/marketplace/actions/combine-prs
 
-name: 'Combine PRs'
+name: "Combine PRs"
 
 # Controls when the action will run - in this case triggered manually
 on:
   workflow_dispatch:
     inputs:
       ignoreLabel:
-        description: 'Exclude PRs with this label'
+        description: "Exclude PRs with this label"
         required: true
-        default: 'blocked'
+        default: "blocked"
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -26,11 +26,15 @@ jobs:
 
     steps:
       - name: Generate GitHub App Token
-        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         id: generate_token
         with:
           app-id: ${{ secrets.COMBINE_PRS_APP_ID }}
           private-key: ${{ secrets.COMBINE_PRS_PRIVATE_KEY }}
+          # https://github.com/github/combine-prs#permissions
+          permission-contents: write
+          permission-pull-requests: write
+          permission-checks: read
 
       - name: combine-prs
         id: combine-prs

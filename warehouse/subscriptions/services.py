@@ -294,6 +294,13 @@ class GenericBillingService:
         """
         return self.api.Subscription.delete(subscription_id)
 
+    def cancel_subscription_at_period_end(self, subscription_id):
+        """
+        Cancels a customer's subscription at the end of the current billing
+        period. The subscription remains active until then.
+        """
+        return self.api.Subscription.modify(subscription_id, cancel_at_period_end=True)
+
     def create_or_update_usage_record(
         self, subscription_item_id, organization_member_count
     ):

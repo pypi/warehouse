@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
 import pytest
 import sentry_sdk
 
@@ -14,9 +13,9 @@ from ...common.db.ip_addresses import IpAddressFactory as DBIpAddressFactory
 
 
 class TestProxyFixer:
-    def test_skips_headers(self):
-        response = pretend.stub()
-        app = pretend.call_recorder(lambda e, s: response)
+    def test_skips_headers(self, mocker):
+        response = mocker.sentinel.response
+        app = mocker.Mock(return_value=response)
 
         environ = {
             "HTTP_WAREHOUSE_TOKEN": "NOPE",
@@ -24,44 +23,44 @@ class TestProxyFixer:
             "HTTP_WAREHOUSE_IP": REMOTE_ADDR,
             "HTTP_WAREHOUSE_HOST": "example.com",
         }
-        start_response = pretend.stub()
+        start_response = mocker.sentinel.start_response
 
         resp = wsgi.ProxyFixer(app, token="1234", ip_salt="pepa")(
             environ, start_response
         )
 
         assert resp is response
-        assert app.calls == [pretend.call({}, start_response)]
+        app.assert_called_once_with({}, start_response)
 
-    def test_token_mismatch_sends_sentry(self, monkeypatch):
+    def test_token_mismatch_sends_sentry(self, mocker):
         """In the event someone submits the WAREHOUSE_TOKEN header with an
         incorrect value, we send a Sentry.
         """
-        mock_set_context = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(sentry_sdk, "set_context", mock_set_context)
-        mock_capture_message = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(sentry_sdk, "capture_message", mock_capture_message)
+        mock_set_context = mocker.patch.object(sentry_sdk, "set_context", autospec=True)
+        mock_capture_message = mocker.patch.object(
+            sentry_sdk, "capture_message", autospec=True
+        )
 
-        response = pretend.stub()
-        app = pretend.call_recorder(lambda e, s: response)
+        response = mocker.sentinel.response
+        app = mocker.Mock(return_value=response)
 
         environ = {"HTTP_WAREHOUSE_TOKEN": "NOPE"}
-        start_response = pretend.stub()
+        start_response = mocker.sentinel.start_response
 
         resp = wsgi.ProxyFixer(app, token="1234", ip_salt="pepa")(
             environ, start_response
         )
 
         assert resp is response
-        assert app.calls == [pretend.call({}, start_response)]
-        assert mock_set_context.calls == [pretend.call("ProxyFixer", {"token": "NOPE"})]
-        assert mock_capture_message.calls == [
-            pretend.call("Invalid Proxy Token", level="warning")
-        ]
+        app.assert_called_once_with({}, start_response)
+        mock_set_context.assert_called_once_with("ProxyFixer", {"token": "NOPE"})
+        mock_capture_message.assert_called_once_with(
+            "Invalid Proxy Token", level="warning"
+        )
 
-    def test_accepts_warehouse_headers(self):
-        response = pretend.stub()
-        app = pretend.call_recorder(lambda e, s: response)
+    def test_accepts_warehouse_headers(self, mocker):
+        response = mocker.sentinel.response
+        app = mocker.Mock(return_value=response)
 
         environ = {
             "HTTP_WAREHOUSE_TOKEN": "1234",
@@ -71,43 +70,41 @@ class TestProxyFixer:
             "HTTP_WAREHOUSE_HOST": "example.com",
             "HTTP_WAREHOUSE_CITY": "Anytown, ST",
         }
-        start_response = pretend.stub()
+        start_response = mocker.sentinel.start_response
 
         resp = wsgi.ProxyFixer(app, token="1234", ip_salt="pepa")(
             environ, start_response
         )
 
         assert resp is response
-        assert app.calls == [
-            pretend.call(
-                {
-                    "REMOTE_ADDR": REMOTE_ADDR,
-                    "REMOTE_ADDR_HASHED": "hashbrowns",
-                    "HTTP_HOST": "example.com",
-                    "GEOIP_CITY": "Anytown, ST",
-                    "wsgi.url_scheme": "http",
-                },
-                start_response,
-            )
-        ]
+        app.assert_called_once_with(
+            {
+                "REMOTE_ADDR": REMOTE_ADDR,
+                "REMOTE_ADDR_HASHED": "hashbrowns",
+                "HTTP_HOST": "example.com",
+                "GEOIP_CITY": "Anytown, ST",
+                "wsgi.url_scheme": "http",
+            },
+            start_response,
+        )
 
-    def test_missing_headers(self):
-        response = pretend.stub()
-        app = pretend.call_recorder(lambda e, s: response)
+    def test_missing_headers(self, mocker):
+        response = mocker.sentinel.response
+        app = mocker.Mock(return_value=response)
 
         environ = {"HTTP_WAREHOUSE_TOKEN": "1234"}
-        start_response = pretend.stub()
+        start_response = mocker.sentinel.start_response
 
         resp = wsgi.ProxyFixer(app, token="1234", ip_salt="pepa")(
             environ, start_response
         )
 
         assert resp is response
-        assert app.calls == [pretend.call({}, start_response)]
+        app.assert_called_once_with({}, start_response)
 
-    def test_accepts_x_forwarded_headers(self):
-        response = pretend.stub()
-        app = pretend.call_recorder(lambda e, s: response)
+    def test_accepts_x_forwarded_headers(self, mocker):
+        response = mocker.sentinel.response
+        app = mocker.Mock(return_value=response)
 
         environ = {
             "HTTP_X_FORWARDED_PROTO": "http",
@@ -115,46 +112,42 @@ class TestProxyFixer:
             "HTTP_X_FORWARDED_HOST": "example.com",
             "HTTP_SOME_OTHER_HEADER": "woop",
         }
-        start_response = pretend.stub()
+        start_response = mocker.sentinel.start_response
 
         resp = wsgi.ProxyFixer(app, token=None, ip_salt="pepa")(environ, start_response)
 
         assert resp is response
-        assert app.calls == [
-            pretend.call(
-                {
-                    "HTTP_SOME_OTHER_HEADER": "woop",
-                    "REMOTE_ADDR": REMOTE_ADDR,
-                    "REMOTE_ADDR_HASHED": REMOTE_ADDR_SALTED,
-                    "HTTP_HOST": "example.com",
-                    "wsgi.url_scheme": "http",
-                },
-                start_response,
-            )
-        ]
+        app.assert_called_once_with(
+            {
+                "HTTP_SOME_OTHER_HEADER": "woop",
+                "REMOTE_ADDR": REMOTE_ADDR,
+                "REMOTE_ADDR_HASHED": REMOTE_ADDR_SALTED,
+                "HTTP_HOST": "example.com",
+                "wsgi.url_scheme": "http",
+            },
+            start_response,
+        )
 
-    def test_skips_x_forwarded_when_not_enough(self):
-        response = pretend.stub()
-        app = pretend.call_recorder(lambda e, s: response)
+    def test_skips_x_forwarded_when_not_enough(self, mocker):
+        response = mocker.sentinel.response
+        app = mocker.Mock(return_value=response)
 
         environ = {
             "HTTP_X_FORWARDED_FOR": REMOTE_ADDR,
             "HTTP_SOME_OTHER_HEADER": "woop",
         }
-        start_response = pretend.stub()
+        start_response = mocker.sentinel.start_response
 
         resp = wsgi.ProxyFixer(app, token=None, ip_salt=None, num_proxies=2)(
             environ, start_response
         )
 
         assert resp is response
-        assert app.calls == [
-            pretend.call({"HTTP_SOME_OTHER_HEADER": "woop"}, start_response)
-        ]
+        app.assert_called_once_with({"HTTP_SOME_OTHER_HEADER": "woop"}, start_response)
 
-    def test_selects_right_x_forwarded_value(self):
-        response = pretend.stub()
-        app = pretend.call_recorder(lambda e, s: response)
+    def test_selects_right_x_forwarded_value(self, mocker):
+        response = mocker.sentinel.response
+        app = mocker.Mock(return_value=response)
 
         environ = {
             "HTTP_X_FORWARDED_PROTO": "http",
@@ -162,49 +155,47 @@ class TestProxyFixer:
             "HTTP_X_FORWARDED_HOST": "example.com",
             "HTTP_SOME_OTHER_HEADER": "woop",
         }
-        start_response = pretend.stub()
+        start_response = mocker.sentinel.start_response
 
         resp = wsgi.ProxyFixer(app, token=None, ip_salt="pepa", num_proxies=2)(
             environ, start_response
         )
 
         assert resp is response
-        assert app.calls == [
-            pretend.call(
-                {
-                    "HTTP_SOME_OTHER_HEADER": "woop",
-                    "REMOTE_ADDR": REMOTE_ADDR,
-                    "REMOTE_ADDR_HASHED": REMOTE_ADDR_SALTED,
-                    "HTTP_HOST": "example.com",
-                    "wsgi.url_scheme": "http",
-                },
-                start_response,
-            )
-        ]
+        app.assert_called_once_with(
+            {
+                "HTTP_SOME_OTHER_HEADER": "woop",
+                "REMOTE_ADDR": REMOTE_ADDR,
+                "REMOTE_ADDR_HASHED": REMOTE_ADDR_SALTED,
+                "HTTP_HOST": "example.com",
+                "wsgi.url_scheme": "http",
+            },
+            start_response,
+        )
 
 
 class TestVhmRootRemover:
-    def test_removes_header(self):
-        response = pretend.stub()
-        app = pretend.call_recorder(lambda e, s: response)
+    def test_removes_header(self, mocker):
+        response = mocker.sentinel.response
+        app = mocker.Mock(return_value=response)
         environ = {"HTTP_X_VHM_ROOT": "/foo/bar"}
-        start_response = pretend.stub()
+        start_response = mocker.sentinel.start_response
 
         resp = wsgi.VhmRootRemover(app)(environ, start_response)
 
         assert resp is response
-        assert app.calls == [pretend.call({}, start_response)]
+        app.assert_called_once_with({}, start_response)
 
-    def test_passes_through_headers(self):
-        response = pretend.stub()
-        app = pretend.call_recorder(lambda e, s: response)
+    def test_passes_through_headers(self, mocker):
+        response = mocker.sentinel.response
+        app = mocker.Mock(return_value=response)
         environ = {"HTTP_X_FOOBAR": "wat"}
-        start_response = pretend.stub()
+        start_response = mocker.sentinel.start_response
 
         resp = wsgi.VhmRootRemover(app)(environ, start_response)
 
         assert resp is response
-        assert app.calls == [pretend.call({"HTTP_X_FOOBAR": "wat"}, start_response)]
+        app.assert_called_once_with({"HTTP_X_FOOBAR": "wat"}, start_response)
 
 
 def test_ip_address_exists(db_request):
@@ -274,15 +265,13 @@ def test_ip_address_updates_metadata_on_existing(db_request):
     assert result.geoip_info == {"city": "NewCity"}
 
 
-def test_remote_addr_hashed():
-    environ = {"REMOTE_ADDR_HASHED": REMOTE_ADDR_HASHED}
-    request = pretend.stub(environ=environ)
+def test_remote_addr_hashed(pyramid_request):
+    pyramid_request.environ["REMOTE_ADDR_HASHED"] = REMOTE_ADDR_HASHED
 
-    assert wsgi._remote_addr_hashed(request) == REMOTE_ADDR_HASHED
+    assert wsgi._remote_addr_hashed(pyramid_request) == REMOTE_ADDR_HASHED
 
 
-def test_remote_addr_hashed_missing():
-    environ = {}
-    request = pretend.stub(environ=environ)
+def test_remote_addr_hashed_missing(pyramid_request):
+    pyramid_request.environ = {}
 
-    assert wsgi._remote_addr_hashed(request) == ""
+    assert wsgi._remote_addr_hashed(pyramid_request) == ""

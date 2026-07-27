@@ -2,58 +2,54 @@
 
 import pytest
 
-from pretend import call, call_recorder, stub
 from pyramid.httpexceptions import HTTPSeeOther
 
+from warehouse.organizations.models import Organization
 from warehouse.utils.organization import confirm_organization
 
 
-def test_confirm():
-    organization = stub(name="foobar", normalized_name="foobar")
-    request = stub(
-        POST={"confirm_organization_name": "foobar"},
-        route_path=call_recorder(lambda *a, **kw: stub()),
-        session=stub(flash=call_recorder(lambda *a, **kw: stub())),
+def test_confirm(pyramid_request, mocker):
+    organization = Organization(name="foobar", normalized_name="foobar")
+    pyramid_request.POST = {"confirm_organization_name": "foobar"}
+    route_path = mocker.patch.object(pyramid_request, "route_path", autospec=True)
+    flash = mocker.spy(pyramid_request.session, "flash")
+
+    confirm_organization(organization, pyramid_request, fail_route="fail_route")
+
+    route_path.assert_not_called()
+    flash.assert_not_called()
+
+
+def test_confirm_no_input(pyramid_request, mocker):
+    organization = Organization(name="foobar", normalized_name="foobar")
+    pyramid_request.POST = {"confirm_organization_name": ""}
+    route_path = mocker.patch.object(
+        pyramid_request, "route_path", autospec=True, return_value="/the-redirect"
     )
-
-    confirm_organization(organization, request, fail_route="fail_route")
-
-    assert request.route_path.calls == []
-    assert request.session.flash.calls == []
-
-
-def test_confirm_no_input():
-    organization = stub(name="foobar", normalized_name="foobar")
-    request = stub(
-        POST={"confirm_organization_name": ""},
-        route_path=call_recorder(lambda *a, **kw: "/the-redirect"),
-        session=stub(flash=call_recorder(lambda *a, **kw: stub())),
-    )
+    flash = mocker.spy(pyramid_request.session, "flash")
 
     with pytest.raises(HTTPSeeOther) as err:
-        confirm_organization(organization, request, fail_route="fail_route")
+        confirm_organization(organization, pyramid_request, fail_route="fail_route")
     assert err.value.location == "/the-redirect"
 
-    assert request.route_path.calls == [call("fail_route", organization_name="foobar")]
-    assert request.session.flash.calls == [call("Confirm the request", queue="error")]
+    route_path.assert_called_once_with("fail_route", organization_name="foobar")
+    flash.assert_called_once_with("Confirm the request", queue="error")
 
 
-def test_confirm_incorrect_input():
-    organization = stub(name="foobar", normalized_name="foobar")
-    request = stub(
-        POST={"confirm_organization_name": "bizbaz"},
-        route_path=call_recorder(lambda *a, **kw: "/the-redirect"),
-        session=stub(flash=call_recorder(lambda *a, **kw: stub())),
+def test_confirm_incorrect_input(pyramid_request, mocker):
+    organization = Organization(name="foobar", normalized_name="foobar")
+    pyramid_request.POST = {"confirm_organization_name": "bizbaz"}
+    route_path = mocker.patch.object(
+        pyramid_request, "route_path", autospec=True, return_value="/the-redirect"
     )
+    flash = mocker.spy(pyramid_request.session, "flash")
 
     with pytest.raises(HTTPSeeOther) as err:
-        confirm_organization(organization, request, fail_route="fail_route")
+        confirm_organization(organization, pyramid_request, fail_route="fail_route")
     assert err.value.location == "/the-redirect"
 
-    assert request.route_path.calls == [call("fail_route", organization_name="foobar")]
-    assert request.session.flash.calls == [
-        call(
-            "Could not delete organization - 'bizbaz' is not the same as 'foobar'",
-            queue="error",
-        )
-    ]
+    route_path.assert_called_once_with("fail_route", organization_name="foobar")
+    flash.assert_called_once_with(
+        "Could not delete organization - 'bizbaz' is not the same as 'foobar'",
+        queue="error",
+    )

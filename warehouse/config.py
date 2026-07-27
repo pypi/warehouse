@@ -100,6 +100,7 @@ class RootFactory:
                 Permissions.AdminUsersWrite,
                 Permissions.AdminUsersEmailWrite,
                 Permissions.AdminUsersAccountRecoveryWrite,
+                Permissions.AdminUsersRecoveryCodesBurn,
                 Permissions.AdminVulnerabilitiesRead,
                 Permissions.AdminVulnerabilitiesWrite,
             ),
@@ -134,6 +135,7 @@ class RootFactory:
                 Permissions.AdminUsersRead,
                 Permissions.AdminUsersEmailWrite,
                 Permissions.AdminUsersAccountRecoveryWrite,
+                Permissions.AdminUsersRecoveryCodesBurn,
             ),
         ),
         (

@@ -2,14 +2,13 @@
 
 import os
 
-import pretend
-
 from warehouse.utils.crypto import random_token
 
 
-def test_random_token(monkeypatch):
-    random = pretend.call_recorder(lambda n: b"a" * n)
-    monkeypatch.setattr(os, "urandom", random)
+def test_random_token(mocker):
+    random = mocker.patch.object(
+        os, "urandom", autospec=True, side_effect=lambda n: b"a" * n
+    )
 
     assert random_token() == "YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWE"
-    assert random.calls == [pretend.call(32)]
+    random.assert_called_once_with(32)

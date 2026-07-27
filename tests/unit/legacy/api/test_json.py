@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
@@ -29,6 +28,17 @@ def _assert_has_cors_headers(headers):
     assert headers["Access-Control-Allow-Methods"] == "GET"
     assert headers["Access-Control-Max-Age"] == "86400"
     assert headers["Access-Control-Expose-Headers"] == "X-PyPI-Last-Serial"
+
+
+def _assert_same_calls(actual, expected):
+    """Assert two call lists are equal ignoring order.
+
+    ``mock.call`` objects carrying kwargs are unhashable, so ``set()``
+    equality is unavailable; check containment in both directions instead so
+    the assertion stays exact (every expected call happened, and no others).
+    """
+    assert all(c in expected for c in actual)
+    assert all(c in actual for c in expected)
 
 
 class TestLatestReleaseFactory:
@@ -123,13 +133,16 @@ class TestLatestReleaseFactory:
 
 
 class TestJSONProject:
-    def test_normalizing_redirects(self, db_request):
+    def test_normalizing_redirects(self, db_request, mocker):
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
 
         db_request.matchdict = {"name": project.name.swapcase()}
-        db_request.current_route_path = pretend.call_recorder(
-            lambda name: "/project/the-redirect/"
+        current_route_path = mocker.patch.object(
+            db_request,
+            "current_route_path",
+            autospec=True,
+            return_value="/project/the-redirect/",
         )
 
         resp = json.json_project(release, db_request)
@@ -137,11 +150,9 @@ class TestJSONProject:
         assert isinstance(resp, HTTPMovedPermanently)
         assert resp.headers["Location"] == "/project/the-redirect/"
         _assert_has_cors_headers(resp.headers)
-        assert db_request.current_route_path.calls == [
-            pretend.call(name=project.normalized_name)
-        ]
+        current_route_path.assert_called_once_with(name=project.normalized_name)
 
-    def test_renders(self, pyramid_config, db_request, db_session):
+    def test_renders(self, pyramid_config, db_request, db_session, mocker):
         project = ProjectFactory.create(has_docs=True)
         description_content_type = "text/x-rst"
         url = "/the/fake/url/"
@@ -202,21 +213,24 @@ class TestJSONProject:
         JournalEntryFactory.reset_sequence()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
-        db_request.route_url = pretend.call_recorder(lambda *args, **kw: url)
+        route_url = mocker.patch.object(
+            db_request, "route_url", autospec=True, return_value=url
+        )
         db_request.matchdict = {"name": project.normalized_name}
 
         result = json.json_project(releases[-1], db_request)
 
-        assert set(db_request.route_url.calls) == {
-            pretend.call("packaging.file", path=files[0].path),
-            pretend.call("packaging.file", path=files[1].path),
-            pretend.call("packaging.file", path=files[2].path),
-            pretend.call("packaging.project", name=project.name),
-            pretend.call(
+        expected_calls = [
+            mocker.call("packaging.file", path=files[0].path),
+            mocker.call("packaging.file", path=files[1].path),
+            mocker.call("packaging.file", path=files[2].path),
+            mocker.call("packaging.project", name=project.name),
+            mocker.call(
                 "packaging.release", name=project.name, version=releases[3].version
             ),
-            pretend.call("legacy.docs", project=project.name),
-        }
+            mocker.call("legacy.docs", project=project.name),
+        ]
+        _assert_same_calls(route_url.call_args_list, expected_calls)
 
         _assert_has_cors_headers(db_request.response.headers)
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
@@ -268,6 +282,7 @@ class TestJSONProject:
                             "sha256": files[0].sha256_digest,
                             "blake2b_256": files[0].blake2_256_digest,
                         },
+                        "core-metadata": False,
                         "packagetype": files[0].packagetype,
                         "python_version": "source",
                         "size": 200,
@@ -293,6 +308,7 @@ class TestJSONProject:
                             "sha256": files[1].sha256_digest,
                             "blake2b_256": files[1].blake2_256_digest,
                         },
+                        "core-metadata": False,
                         "packagetype": files[1].packagetype,
                         "python_version": "source",
                         "size": 200,
@@ -318,6 +334,7 @@ class TestJSONProject:
                             "md5": files[2].md5_digest,
                             "sha256": files[2].sha256_digest,
                         },
+                        "core-metadata": False,
                         "packagetype": files[2].packagetype,
                         "python_version": "source",
                         "size": 200,
@@ -344,6 +361,7 @@ class TestJSONProject:
                         "sha256": files[2].sha256_digest,
                         "blake2b_256": files[2].blake2_256_digest,
                     },
+                    "core-metadata": False,
                     "packagetype": files[2].packagetype,
                     "python_version": "source",
                     "size": 200,
@@ -365,13 +383,16 @@ class TestJSONProject:
 
 
 class TestJSONProjectSlash:
-    def test_normalizing_redirects(self, db_request):
+    def test_normalizing_redirects(self, db_request, mocker):
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
 
         db_request.matchdict = {"name": project.name.swapcase()}
-        db_request.current_route_path = pretend.call_recorder(
-            lambda name: "/project/the-redirect/"
+        current_route_path = mocker.patch.object(
+            db_request,
+            "current_route_path",
+            autospec=True,
+            return_value="/project/the-redirect/",
         )
 
         resp = json.json_project_slash(release, db_request)
@@ -379,9 +400,7 @@ class TestJSONProjectSlash:
         assert isinstance(resp, HTTPMovedPermanently)
         assert resp.headers["Location"] == "/project/the-redirect/"
         _assert_has_cors_headers(resp.headers)
-        assert db_request.current_route_path.calls == [
-            pretend.call(name=project.normalized_name)
-        ]
+        current_route_path.assert_called_once_with(name=project.normalized_name)
 
 
 class TestReleaseFactory:
@@ -443,15 +462,18 @@ class TestReleaseFactory:
 
 
 class TestJSONRelease:
-    def test_normalizing_redirects(self, db_request):
+    def test_normalizing_redirects(self, db_request, mocker):
         release = ReleaseFactory.create(version="3.0")
 
         db_request.matchdict = {
             "name": release.project.name.swapcase(),
             "version": "3.0",
         }
-        db_request.current_route_path = pretend.call_recorder(
-            lambda name: "/project/the-redirect/3.0/"
+        current_route_path = mocker.patch.object(
+            db_request,
+            "current_route_path",
+            autospec=True,
+            return_value="/project/the-redirect/3.0/",
         )
 
         resp = json.json_release(release, db_request)
@@ -459,11 +481,9 @@ class TestJSONRelease:
         assert isinstance(resp, HTTPMovedPermanently)
         assert resp.headers["Location"] == "/project/the-redirect/3.0/"
         _assert_has_cors_headers(resp.headers)
-        assert db_request.current_route_path.calls == [
-            pretend.call(name=release.project.normalized_name)
-        ]
+        current_route_path.assert_called_once_with(name=release.project.normalized_name)
 
-    def test_detail_renders(self, pyramid_config, db_request, db_session):
+    def test_detail_renders(self, pyramid_config, db_request, db_session, mocker):
         project = ProjectFactory.create(has_docs=True)
         description_content_type = "text/x-rst"
         url = "/the/fake/url/"
@@ -519,6 +539,7 @@ class TestJSONRelease:
                 filename=f"{project.name}-{r.version}.tar.gz",
                 python_version="source",
                 size=200,
+                metadata_file_sha256_digest="deadbeef" * 8,
             )
             for r in releases[1:]
         ]
@@ -526,7 +547,9 @@ class TestJSONRelease:
         JournalEntryFactory.reset_sequence()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
-        db_request.route_url = pretend.call_recorder(lambda *args, **kw: url)
+        route_url = mocker.patch.object(
+            db_request, "route_url", autospec=True, return_value=url
+        )
         db_request.matchdict = {
             "name": project.normalized_name,
             "version": "3.0",
@@ -534,14 +557,15 @@ class TestJSONRelease:
 
         result = json.json_release(releases[-1], db_request)
 
-        assert set(db_request.route_url.calls) == {
-            pretend.call("packaging.file", path=files[-1].path),
-            pretend.call("packaging.project", name=project.name),
-            pretend.call(
+        expected_calls = [
+            mocker.call("packaging.file", path=files[-1].path),
+            mocker.call("packaging.project", name=project.name),
+            mocker.call(
                 "packaging.release", name=project.name, version=releases[-1].version
             ),
-            pretend.call("legacy.docs", project=project.name),
-        }
+            mocker.call("legacy.docs", project=project.name),
+        ]
+        _assert_same_calls(route_url.call_args_list, expected_calls)
 
         _assert_has_cors_headers(db_request.response.headers)
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
@@ -591,6 +615,7 @@ class TestJSONRelease:
                         "sha256": files[-1].sha256_digest,
                         "blake2b_256": files[-1].blake2_256_digest,
                     },
+                    "core-metadata": {"sha256": files[-1].metadata_file_sha256_digest},
                     "packagetype": files[-1].packagetype,
                     "python_version": "source",
                     "size": 200,
@@ -610,7 +635,7 @@ class TestJSONRelease:
             },
         }
 
-    def test_minimal_renders(self, pyramid_config, db_request):
+    def test_minimal_renders(self, pyramid_config, db_request, mocker):
         project = ProjectFactory.create(has_docs=False)
         release = ReleaseFactory.create(project=project, version="0.1")
         file = FileFactory.create(
@@ -625,7 +650,9 @@ class TestJSONRelease:
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
         url = "/the/fake/url/"
-        db_request.route_url = pretend.call_recorder(lambda *args, **kw: url)
+        route_url = mocker.patch.object(
+            db_request, "route_url", autospec=True, return_value=url
+        )
         db_request.matchdict = {
             "name": project.normalized_name,
             "version": release.canonical_version,
@@ -633,13 +660,14 @@ class TestJSONRelease:
 
         result = json.json_release(release, db_request)
 
-        assert set(db_request.route_url.calls) == {
-            pretend.call("packaging.file", path=file.path),
-            pretend.call("packaging.project", name=project.name),
-            pretend.call(
+        expected_calls = [
+            mocker.call("packaging.file", path=file.path),
+            mocker.call("packaging.project", name=project.name),
+            mocker.call(
                 "packaging.release", name=project.name, version=release.version
             ),
-        }
+        ]
+        _assert_same_calls(route_url.call_args_list, expected_calls)
 
         _assert_has_cors_headers(db_request.response.headers)
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
@@ -689,6 +717,7 @@ class TestJSONRelease:
                         "sha256": file.sha256_digest,
                         "blake2b_256": file.blake2_256_digest,
                     },
+                    "core-metadata": False,
                     "packagetype": file.packagetype,
                     "python_version": "source",
                     "size": 200,
@@ -709,7 +738,9 @@ class TestJSONRelease:
         }
 
     @pytest.mark.parametrize("withdrawn", [None, "2022-06-28T16:39:06Z"])
-    def test_vulnerabilities_renders(self, pyramid_config, db_request, withdrawn):
+    def test_vulnerabilities_renders(
+        self, pyramid_config, db_request, withdrawn, mocker
+    ):
         project = ProjectFactory.create(has_docs=False)
         release = ReleaseFactory.create(project=project, version="0.1")
         VulnerabilityRecordFactory.create(
@@ -725,7 +756,7 @@ class TestJSONRelease:
         )
 
         url = "/the/fake/url/"
-        db_request.route_url = pretend.call_recorder(lambda *args, **kw: url)
+        mocker.patch.object(db_request, "route_url", autospec=True, return_value=url)
         db_request.matchdict = {
             "name": project.normalized_name,
             "version": release.canonical_version,
@@ -747,7 +778,7 @@ class TestJSONRelease:
         ]
         assert result["ownership"] == {"roles": [], "organization": None}
 
-    def test_ownership_with_organization(self, pyramid_config, db_request):
+    def test_ownership_with_organization(self, pyramid_config, db_request, mocker):
         release = ReleaseFactory.create()
         project = release.project
 
@@ -776,7 +807,9 @@ class TestJSONRelease:
             project=project,
         )
 
-        db_request.route_url = pretend.call_recorder(lambda *args, **kw: "/url/")
+        mocker.patch.object(
+            db_request, "route_url", autospec=True, return_value="/url/"
+        )
         db_request.matchdict = {
             "name": project.normalized_name,
             "version": release.canonical_version,
@@ -796,15 +829,18 @@ class TestJSONRelease:
 
 
 class TestJSONReleaseSlash:
-    def test_normalizing_redirects(self, db_request):
+    def test_normalizing_redirects(self, db_request, mocker):
         release = ReleaseFactory.create(version="3.0")
 
         db_request.matchdict = {
             "name": release.project.name.swapcase(),
             "version": "3.0",
         }
-        db_request.current_route_path = pretend.call_recorder(
-            lambda name: "/project/the-redirect/3.0/"
+        current_route_path = mocker.patch.object(
+            db_request,
+            "current_route_path",
+            autospec=True,
+            return_value="/project/the-redirect/3.0/",
         )
 
         resp = json.json_release_slash(release, db_request)
@@ -812,6 +848,4 @@ class TestJSONReleaseSlash:
         assert isinstance(resp, HTTPMovedPermanently)
         assert resp.headers["Location"] == "/project/the-redirect/3.0/"
         _assert_has_cors_headers(resp.headers)
-        assert db_request.current_route_path.calls == [
-            pretend.call(name=release.project.normalized_name)
-        ]
+        current_route_path.assert_called_once_with(name=release.project.normalized_name)

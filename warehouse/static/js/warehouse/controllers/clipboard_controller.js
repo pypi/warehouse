@@ -11,8 +11,15 @@ import { gettext } from "../utils/messages-access";
 // See `warehouse/static/sass/blocks/_copy-tooltip.scss` for style details.
 export default class extends Controller {
   static targets = [ "source", "tooltip" ];
+  static values = {
+    plausibleEvent: String,
+  };
 
   copy() {
+    if (this.hasPlausibleEventValue && window.plausible) {
+      window.plausible(this.plausibleEventValue);
+    }
+
     // save the original tooltip text
     const clipboardTooltipOriginalValue = this.tooltipTarget.dataset.clipboardTooltipValue;
     // copy the source text to clipboard

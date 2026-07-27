@@ -16,7 +16,7 @@
           <li class="breadcrumbs__breadcrumb">
             <a href="{{ request.route_path('manage.projects') }}">{% trans %}Your account{% endtrans %}</a>
           </li>
-          {% if request.organization_access and project.organization and request.user in project.organization.users %}
+          {% if project.organization and request.user in project.organization.users %}
             <li class="breadcrumbs__breadcrumb">
               <a href="{{ request.route_path('manage.organization.projects', organization_name=project.organization.normalized_name) }}">
                 <i class="fa fa-sm fa-sitemap" aria-hidden="true"></i>
@@ -67,7 +67,7 @@
           <p>{% trans %}This project has been archived.{% endtrans %}</p>
         </div>
       {% endif %}
-      {% if request.organization_access and project.organization %}
+      {% if project.organization %}
         <div class="organization-snippet organization-snippet--margin-bottom">
           <h1 class="organization-snippet__title organization-snippet__title--page-title">
             <a href="{{ request.route_path('organizations.profile', organization=project.organization.name) }}">{{ project.organization.name }}</a>
@@ -89,9 +89,11 @@
       {% with mode="mobile" %}
         {% include "warehouse:templates/includes/manage/manage-project-menu.html" %}
       {% endwith %}
-      {% block main %}{% endblock %}
+      {% block main %}
+      {% endblock %}
     </div>
-    {% block mobile_tabs_bottom %}{% endblock %}
+    {% block mobile_tabs_bottom %}
+    {% endblock %}
   </div>
 </div>
 </div>
