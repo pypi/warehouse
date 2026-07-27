@@ -833,6 +833,43 @@ def organization_application_decline(request):
 
 
 @view_config(
+    route_name="admin.organization_application.addnote",
+    require_methods=["POST"],
+    permission=Permissions.AdminOrganizationsWrite,
+    has_translations=True,
+    uses_session=True,
+    require_csrf=True,
+)
+def organization_application_add_note(request):
+    organization_service = request.find_service(IOrganizationService, context=None)
+
+    organization_application_id = request.matchdict["organization_application_id"]
+    organization_application = organization_service.get_organization_application(
+        organization_application_id
+    )
+    if organization_application is None:
+        raise HTTPNotFound
+
+    try:
+        organization_service.add_organization_application_note(
+            organization_application.id, request
+        )
+        request.session.flash(
+            f'Note added to "{organization_application.name}" application',
+            queue="success",
+        )
+    except ValueError:
+        request.session.flash("No note text provided", queue="error")
+
+    return HTTPSeeOther(
+        request.route_path(
+            "admin.organization_application.detail",
+            organization_application_id=organization_application.id,
+        )
+    )
+
+
+@view_config(
     route_name="admin.organization.add_role",
     permission=Permissions.AdminRoleAdd,
     request_method="POST",

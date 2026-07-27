@@ -117,6 +117,7 @@ class ObservationKind(enum.Enum):
 
     # Organization Applications
     InformationRequest = ("information_request", "Information Request")
+    AdminNote = ("admin_note", "Admin Note")
 
 
 # A reverse-lookup map by the string value stored in the database

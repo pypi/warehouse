@@ -4272,6 +4272,7 @@ class TestManageProjectRelease:
 
         assert release.yanked
         assert release.yanked_reason == "Yanky Doodle went to town"
+        assert isinstance(release.yanked_date, datetime.datetime)
 
         assert send_yanked_project_release_email.calls == [
             pretend.call(
@@ -4427,6 +4428,7 @@ class TestManageProjectRelease:
 
         assert not release.yanked
         assert not release.yanked_reason
+        assert release.yanked_date is None
 
         assert send_unyanked_project_release_email.calls == [
             pretend.call(
