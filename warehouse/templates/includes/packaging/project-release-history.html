@@ -70,8 +70,10 @@
             </p>
             <p class="release__meta">
               <span class="release__date"><i class="fa-regular fa-calendar" aria-hidden="true"></i> {{ humanize(hversion.created) }}</span>
-              <span class="release__meta-divider" aria-hidden="true"></span>
-              <a href="{{ request.route_path('packaging.release', name=release.project.name, version=hversion.version) }}#files"><i class="fa-regular fa-file" aria-hidden="true"></i> {% trans count=hversion.file_count %}{{ count }} file{% pluralize %}{{ count }} files{% endtrans %}</a>
+              {% if hversion.file_count %}
+                <span class="release__meta-divider" aria-hidden="true"></span>
+                <a href="{{ request.route_path('packaging.release', name=release.project.name, version=hversion.version) }}#files"><i class="fa-regular fa-file" aria-hidden="true"></i> {% trans count=hversion.file_count %}{{ count }} file{% pluralize %}{{ count }} files{% endtrans %}</a>
+              {% endif %}
               <!-- TODO: Add provenance status
               <span class="release__meta-divider" aria-hidden="true"></span>
               <a href="{{ request.route_path('packaging.release', name=release.project.name, version=hversion.version) }}#security"><i class="fa-solid fa-circle-check release__provenance-icon" aria-hidden="true"></i> {% trans %}Full provenance{% endtrans %}</a> -->
