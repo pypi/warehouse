@@ -15,23 +15,27 @@
   Individual release information represented as a card with meta data
 
   <div class="release">
-    <div class="release__meta">
-      // Badge here
+    <div class="release__current-badge">
+      // "This release" badge
     </div>
     <div class="release__graphic"> // Node graphic with connecting line
       <div class="release__line"></div>
       <img class="release__node">
     </div>
-    <a class="release__card" href="/link/to/version">
-      <p class="release__version"></p>
-      <p class="release__version-date"></p>
-    </a>
+    <div class="release__card">
+      <div class="release__card-header release__card-header--[quarantined|yanked|archived|pre-release]"></div>
+      <div class="release__card-body">
+        <p class="release__version"></p>
+        <p class="release__meta"></p>
+      </div>
+      <div class="release__card-footer"></div>
+    </div>
   </div>
 
   Modifiers:
     - current: adds grey background to current release
     - latest: prevents release__line from showing above
-    - oldest: precents release__line from showing below
+    - oldest: prevents release__line from showing below
 */
 
 .release {
@@ -42,24 +46,13 @@
   border-left: 1px solid colors.$background-color;
   padding: 0 grid.$half-spacing-unit;
 
-  &__meta {
+  &__current-badge {
     width: 110px;
     display: table-cell;
     vertical-align: middle;
     text-align: center;
 
-    & > .badge {
-      float: right;
-    }
-
     @media screen and (max-width: breakpoints.$tablet) {
-      & > .badge {
-        float: left;
-        margin-right: 10px;
-      }
-    }
-
-    @media screen and (max-width: breakpoints.$mobile) {
       display: none;
     }
   }
@@ -152,9 +145,17 @@
     a {
       @include link-utilities.link-without-underline;
     }
+
+    .badge {
+      display: none;
+
+      @media screen and (max-width: breakpoints.$tablet) {
+        display: inline;
+      }
+    }
   }
 
-  &__meta-row {
+  &__meta {
     display: flex;
     align-items: center;
     gap: 16px;
@@ -166,6 +167,12 @@
       @include link-utilities.colored-link(colors.$primary-color);
       @include link-utilities.link-without-underline;
     }
+
+    @media screen and (max-width: breakpoints.$small-tablet) {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: grid.$quarter-spacing-unit;
+    }
   }
 
   &__meta-divider {
@@ -174,6 +181,10 @@
     height: 0.85em;
     background-color: colors.$light-grey;
     flex-shrink: 0;
+
+    @media screen and (max-width: breakpoints.$small-tablet) {
+      display: none;
+    }
   }
 
   &__date {
