@@ -19,7 +19,12 @@ def verify_url_from_reference(*, reference_url: str, url: str) -> bool:
     # not. So "..\x/.." can walk past the reference path in a browser while
     # normalizing to a subpath here, which means the URL we verify and the
     # URL the user lands on can diverge. Reject backslashes.
-    if "\\" in url:
+    #
+    # WHATWG also counts ".%2e", "%2e." and "%2e%2e" as double-dot segments,
+    # while rfc3986 leaves "%2e" literal, so the same divergence applies.
+    # Reject percent-encoded dots. Note "%2f" needs no such guard: WHATWG does
+    # not decode it into a path separator, so it never forms a dot segment.
+    if "\\" in url or "%2e" in url.lower():
         return False
 
     reference_uri = rfc3986.api.uri_reference(reference_url).normalize()
