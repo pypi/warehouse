@@ -127,7 +127,6 @@ def reconcile_stripe_status(request):
     # learned from a webhook (e.g. a cancellation) is recovered even if the
     # webhook was dropped. Mirrors the customer.subscription.updated handler.
     organization_subscriptions = request.db.query(OrganizationStripeSubscription).all()
-
     billing_service = request.find_service(IBillingService, context=None)
     subscription_service = request.find_service(ISubscriptionService, context=None)
 
