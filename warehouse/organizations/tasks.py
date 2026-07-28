@@ -141,38 +141,40 @@ def reconcile_stripe_status(request):
         except TRANSIENT_STRIPE_ERRORS as exc:
             raise RetryableException from exc
         except stripe.error.StripeError as exc:
-            # Isolate a poisoned row (e.g. a malformed subscription_id) so it
-            # can't wedge the whole run at the same row every night.
+            # Isolate a poisoned row (e.g. a subscription_id Stripe has no record
+            # of) so it can't wedge the whole run at the same row every night.
+            # Deliberately leaves the local status alone: a resource_missing here
+            # means the id is unusable, not that the subscription was canceled.
             logger.exception(
                 "Failed to reconcile subscription %s", subscription.subscription_id
             )
             metrics.increment(
                 "warehouse.organizations.subscription.status.reconcile.error",
-                tags=[f"error_type:{exc.__class__.__name__}"],
+                tags=[
+                    f"error_type:{exc.__class__.__name__}",
+                    f"error_code:{exc.code}",
+                ],
             )
             continue
-        deleted = remote is None
-        if deleted:
-            remote_status = StripeSubscriptionStatus.Canceled.value
-        else:
-            remote_status = remote["status"]
-            if not StripeSubscriptionStatus.has_value(remote_status):
-                logger.warning(
-                    "Skipping subscription %s with unknown Stripe status %r",
-                    subscription.subscription_id,
-                    remote_status,
-                )
-                metrics.increment(
-                    "warehouse.organizations.subscription.status.reconcile.skipped"
-                )
-                continue
+
+        remote_status = remote["status"]
+        if not StripeSubscriptionStatus.has_value(remote_status):
+            logger.warning(
+                "Skipping subscription %s with unknown Stripe status %r",
+                subscription.subscription_id,
+                remote_status,
+            )
+            metrics.increment(
+                "warehouse.organizations.subscription.status.reconcile.skipped"
+            )
+            continue
 
         previous_status = subscription.status
         if previous_status == remote_status:
             continue
 
         subscription_service.update_subscription_status(subscription.id, remote_status)
-        if deleted:
+        if remote_status == StripeSubscriptionStatus.Canceled.value:
             # Mirror the customer.subscription.deleted handler.
             org_subscription.organization.record_event(
                 tag=EventTag.Organization.SubscriptionCancel,
