@@ -159,6 +159,10 @@ def user_detail(user, request):
     if user.username != request.matchdict.get("username", user.username):
         return HTTPMovedPermanently(request.current_route_path(username=user.username))
 
+    try:
+        page_num = int(request.params.get("page", 1))
+    except ValueError:
+        raise HTTPBadRequest("'page' must be an integer.") from None
     roles = (
         request.db.query(Role)
         .join(User)
@@ -192,18 +196,18 @@ def user_detail(user, request):
         .all()
     )
 
-    stmt = (
-        select(
-            Project.name,
-            Project.normalized_name,
-            Project.lifecycle_status,
-            Project.total_size,
-            Role.role_name,
-            func.count(Release.id),
+    projects_query = (
+        request.db.query(
+            Project.name.label("name"),
+            Project.normalized_name.label("normalized_name"),
+            Project.lifecycle_status.label("lifecycle_status"),
+            Project.total_size.label("total_size"),
+            Role.role_name.label("role_name"),
+            func.count(Release.id).label("releases_count"),
         )
         .join(Role, Project.id == Role.project_id)
         .outerjoin(Release, Project.id == Release.project_id)
-        .where(Role.user_id == user.id)
+        .filter(Role.user_id == user.id)
         .group_by(
             Project.name,
             Project.normalized_name,
@@ -214,19 +218,12 @@ def user_detail(user, request):
         .order_by(Project.normalized_name.asc())
     )
 
-    user_projects = []
-
-    for row in request.db.execute(stmt):
-        project = {
-            "name": row.name,
-            "normalized_name": row.normalized_name,
-            "lifecycle_status": row.lifecycle_status,
-            "total_size": row.total_size,
-            "role_name": row.role_name,
-            "releases_count": row.count,
-        }
-
-        user_projects.append(project)
+    user_projects = SQLAlchemyORMPage(
+        projects_query,
+        page=page_num,
+        items_per_page=25,
+        url_maker=paginate_url_factory(request),
+    )
 
     return {
         "user": user,

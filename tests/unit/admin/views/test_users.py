@@ -149,17 +149,41 @@ class TestUserDetail:
         assert result["roles"] == roles
         assert result["emails_form"].emails[0].primary.data
         assert result["submitted_by_journals"] == journal_entries[:5]
-        assert result["user_projects"] == [
-            {
-                "name": project.name,
-                "normalized_name": project.normalized_name,
-                "releases_count": 0,
-                "total_size": 0,
-                "lifecycle_status": None,
-                "role_name": "Owner",
-            }
-        ]
+        assert len(result["user_projects"]) == 1
+
+        user_project = result["user_projects"][0]
+
+        assert user_project.name == project.name
+        assert user_project.normalized_name == project.normalized_name
+        assert user_project.releases_count == 0
+        assert user_project.total_size == 0
+        assert user_project.lifecycle_status is None
+        assert user_project.role_name == "Owner"
         assert result["sole_owned_organizations"] == []
+
+    def test_gets_user_with_project_pagination(self, db_request):
+        user = UserFactory.create()
+
+        projects = []
+        for i in range(30):
+            project = ProjectFactory.create(name=f"project{i}")
+            RoleFactory(project=project, user=user, role_name="Owner")
+            projects.append(project)
+
+        db_request.matchdict["username"] = user.username
+        db_request.GET["page"] = "2"
+        db_request.POST = NoVars()
+
+        breach_service = pretend.stub(get_email_breach_count=lambda count: 0)
+        db_request.find_service = lambda interface, **kwargs: {
+            IEmailBreachedService: breach_service,
+        }[interface]
+
+        result = views.user_detail(user, db_request)
+
+        assert len(result["user_projects"]) == 5
+        assert result["user_projects"].page == 2
+        assert result["user_projects"].items_per_page == 25
 
     def test_gets_user_with_sole_owned_organizations(self, db_request):
         user = UserFactory.create()

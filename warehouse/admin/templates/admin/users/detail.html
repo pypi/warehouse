@@ -988,6 +988,18 @@
             {% endfor %}
             </tbody>
           </table>
+        
+          <div class="row mt-3">
+            <div class="col-sm-5">
+              {{ pagination.summary(user_projects) }}
+            </div>
+            <div class="col-sm-7">
+              <div class="float-right">
+                {{ pagination.paginate(user_projects) }}
+              </div>
+            </div>
+          </div>
+
           {% else %}
           No roles available.
           {% endif %}
