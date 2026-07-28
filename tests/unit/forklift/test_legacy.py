@@ -588,8 +588,9 @@ class TestFileValidation:
                 "deflate",
                 "Archive member 'test-1.0.dist-info/RECORD' is corrupt",
             ),
-            # Outside dist-info the scanner's read raises instead; no member name.
-            ("pkg/code.py", "deflate", None),
+            # Outside dist-info the scanner's read raises; no member name.
+            ("pkg/code.py", "crc", "Archive contains a corrupt member"),
+            ("pkg/code.py", "deflate", "Archive contains a corrupt member"),
         ],
     )
     def test_wheel_corrupt_member(self, tmpdir, metrics, member, mode, message):
@@ -606,13 +607,29 @@ class TestFileValidation:
             False,
             message,
         )
-        if message is not None:
-            metrics.increment.assert_called_once_with(
-                "warehouse.upload.zipfile.policy_error",
-                tags=["reason:corrupt-member"],
-            )
-        else:
-            metrics.increment.assert_not_called()
+        metrics.increment.assert_called_once_with(
+            "warehouse.upload.zipfile.policy_error",
+            tags=["reason:corrupt-member"],
+        )
+
+    def test_wheel_unreadable_central_directory(self, tmpdir):
+        f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
+        with zipfile.ZipFile(f, "w") as zfp:
+            zfp.writestr("pkg/__init__.py", b"")
+            zfp.writestr("test-1.0.dist-info/WHEEL", b"Wheel-Version: 1.0")
+        with open(f, "rb") as fp:
+            data = bytearray(fp.read())
+        # is_zipfile() checks only the first central directory entry, so
+        # breaking the second one gets past it and fails in ZipFile().
+        second = data.rindex(b"PK\x01\x02")
+        data[second : second + 4] = b"PK\x00\x00"
+        with open(f, "wb") as fp:
+            fp.write(data)
+
+        assert legacy._is_valid_dist_file(f, "bdist_wheel", NullMetrics()) == (
+            False,
+            None,
+        )
 
     @pytest.mark.parametrize("comment", [b"", b"\xffarchive comment"])
     def test_wheel_archive_comment(self, tmpdir, metrics, comment):

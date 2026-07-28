@@ -3,6 +3,7 @@
 import io
 import struct
 import tarfile
+import warnings
 import zipfile
 
 from uuid import uuid4
@@ -63,6 +64,66 @@ def _make_wheel(tmp_path, files_dict, name="fake_package", version="1.0"):
         for path, content in files_dict.items():
             zfp.writestr(path, content)
     return whl_path
+
+
+def _make_wheel_with_duplicate_names(tmp_path, path, first, second):
+    """Create a wheel carrying two entries under the same member name."""
+    whl_path = str(tmp_path / "fake_package-1.0-py3-none-any.whl")
+    with zipfile.ZipFile(whl_path, "w") as zfp, warnings.catch_warnings():
+        warnings.simplefilter("ignore", UserWarning)
+        zfp.writestr(path, first)
+        zfp.writestr(path, second)
+    return whl_path
+
+
+def _make_wheel_with_bad_crc(tmp_path, path, size):
+    """Create a single-file wheel whose CRC-32 no longer matches its payload."""
+    whl_path = _make_wheel(tmp_path, {path: "B" * size})
+    with open(whl_path, "rb") as fp:
+        data = bytearray(fp.read())
+    # CRC-32 lives at offset 16 in the central directory record and 14 in the
+    # local header; both must lie for the mismatch to survive a strict read.
+    struct.pack_into("<L", data, data.index(b"PK\x01\x02") + 16, 0xDEADBEEF)
+    struct.pack_into("<L", data, data.index(b"PK\x03\x04") + 14, 0xDEADBEEF)
+    with open(whl_path, "wb") as fp:
+        fp.write(data)
+    return whl_path
+
+
+class _CountingReader:
+    """File wrapper recording the bytes handed out and the largest request."""
+
+    def __init__(self, fp):
+        self._fp = fp
+        self.bytes_read = 0
+        self.largest_read = 0
+        self.largest_request = 0
+
+    def read(self, size=-1):
+        data = self._fp.read(size)
+        self.bytes_read += len(data)
+        self.largest_read = max(self.largest_read, len(data))
+        self.largest_request = max(self.largest_request, size)
+        return data
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        self._fp.close()
+
+
+def _count_reads(monkeypatch, cls, method):
+    """Wrap every member file returned by ``cls.method`` in a counting reader."""
+    readers = []
+    original = getattr(cls, method)
+
+    def _wrapped(self, *args, **kwargs):
+        readers.append(_CountingReader(original(self, *args, **kwargs)))
+        return readers[-1]
+
+    monkeypatch.setattr(cls, method, _wrapped)
+    return readers
 
 
 def _make_wheel_with_spoofed_file_size(tmp_path, files_dict, spoofed_size):
@@ -160,14 +221,6 @@ class TestCheckMembers:
             ("pkg/clean.py", 10, b"hello world"),
             ("pkg/also_clean.py", 8, b"good code"),
         ]
-        assert scanner.check_members(members, rules, archive_name="test.whl") is None
-
-    def test_skips_oversized_files(self, monkeypatch):
-        monkeypatch.setattr(scanner, "_SCAN_MAX_FILE_SIZE", 10)
-        rules = yara_x.compile(
-            'rule bad { meta: message = "blocked" strings: $a = "evil" condition: $a }'
-        )
-        members = [("pkg/big.py", 100, b"evil" * 100)]
         assert scanner.check_members(members, rules, archive_name="test.whl") is None
 
     @pytest.mark.parametrize(
@@ -291,7 +344,7 @@ class TestCheckMembers:
         members = [
             ("pkg/a.py", 5, b"hello"),
             ("pkg/b.py", 3, b"abc"),
-            ("pkg/big.py", 11, b"x" * 11),
+            ("pkg/big.py", 11, None),
         ]
         assert (
             scanner.check_members(members, rules, archive_type="zip", metrics=metrics)
@@ -395,11 +448,6 @@ class TestScanArchive:
         whl = _make_wheel(tmp_path, {f"pkg/{filename}": "__pyarmor_enter__()"})
         matches = scanner.scan_archive(whl, rules=rules)
         assert len(matches) == 0
-
-    def test_skips_oversized_files(self, tmp_path, rules, monkeypatch):
-        monkeypatch.setattr(scanner, "_SCAN_MAX_FILE_SIZE", 10)
-        whl = _make_wheel(tmp_path, {"pkg/__init__.py": "__pyarmor_enter__()" * 100})
-        assert scanner.scan_archive(whl, rules=rules) == []
 
     def test_returns_empty_when_rules_none(self, tmp_path, monkeypatch):
         monkeypatch.setattr(scanner, "_rules", None)
@@ -624,3 +672,109 @@ class TestPyPITokenDetection:
         dist = dist_factory(tmp_path, {f"pkg/{filename}": token})
         matches = scanner.scan_archive(dist, rules=rules)
         assert len(matches) == 0
+
+
+class TestBoundedMemberRead:
+    """The per-file cap must bound the read itself, not just filter afterwards.
+
+    A member larger than ``_SCAN_MAX_FILE_SIZE`` is yielded without data by
+    the iterators, which are the only place that can stop reading before the
+    whole member is resident, so a small archive declaring a huge member
+    cannot drive an unbounded allocation.
+
+    Reading exactly one byte past the cap is what makes the skip work: reading
+    only up to the cap would make an oversized member look like it exactly
+    fits and get scanned truncated instead of skipped.
+    """
+
+    def test_iter_zip_members_reads_in_chunks_no_larger_than_the_cap(
+        self, tmp_path, monkeypatch
+    ):
+        """Drains the oversized member for its CRC-32, one capped chunk at a time.
+
+        Checks the largest single read, so reading in full and slicing would fail.
+        """
+        whl_path = _make_wheel(tmp_path, {"pkg/big.py": "A" * 5000})
+        monkeypatch.setattr(scanner, "_SCAN_MAX_FILE_SIZE", 10)
+        readers = _count_reads(monkeypatch, zipfile.ZipFile, "open")
+        with zipfile.ZipFile(whl_path) as zfp:
+            assert list(scanner.iter_zip_members(zfp)) == [("pkg/big.py", 11, None)]
+        assert [(r.bytes_read, r.largest_read) for r in readers] == [(5000, 11)]
+
+    def test_iter_tar_members_reads_no_further_than_the_cap(
+        self, tmp_path, monkeypatch
+    ):
+        tar_path = _make_tarball(tmp_path, {"pkg/big.py": b"A" * 5000})
+        monkeypatch.setattr(scanner, "_SCAN_MAX_FILE_SIZE", 10)
+        readers = _count_reads(monkeypatch, tarfile.TarFile, "extractfile")
+        with tarfile.open(tar_path, "r:gz") as tar:
+            assert list(scanner.iter_tar_members(tar)) == [("pkg/big.py", 11, None)]
+        assert [r.bytes_read for r in readers] == [11]
+
+    def test_small_member_requests_only_its_declared_size(self, tmp_path, monkeypatch):
+        """tarfile allocates the requested size up front, so ask for no more."""
+        tar_path = _make_tarball(tmp_path, {"pkg/small.py": b"A" * 100})
+        readers = _count_reads(monkeypatch, tarfile.TarFile, "extractfile")
+        with tarfile.open(tar_path, "r:gz") as tar:
+            assert list(scanner.iter_tar_members(tar)) == [
+                ("pkg/small.py", 100, b"A" * 100)
+            ]
+        assert [r.largest_request for r in readers] == [101]
+
+    @pytest.mark.parametrize("archive", ["wheel", "tarball"])
+    def test_oversized_member_is_skipped_not_scanned_truncated(
+        self, tmp_path, rules, monkeypatch, archive
+    ):
+        """An oversized member must be skipped even with a marker in early bytes.
+
+        If the read stopped at the cap, the member would no longer look
+        oversized and its truncated head would be scanned.
+        """
+        monkeypatch.setattr(scanner, "_SCAN_MAX_FILE_SIZE", 32)
+        content = "__pyarmor_enter__" + "A" * 5000
+        make = _make_wheel if archive == "wheel" else _make_tarball
+        archive_path = make(tmp_path, {"pkg/big.py": content})
+        assert scanner.scan_archive(archive_path, rules=rules) == []
+
+    def test_member_at_cap_is_read_in_full(self, tmp_path, monkeypatch):
+        """A member exactly at the cap must be scanned, not truncated."""
+        monkeypatch.setattr(scanner, "_SCAN_MAX_FILE_SIZE", 10)
+        tar_path = _make_tarball(tmp_path, {"pkg/exact.py": b"B" * 10})
+        with tarfile.open(tar_path, "r:gz") as tar:
+            assert list(scanner.iter_tar_members(tar)) == [
+                ("pkg/exact.py", 10, b"B" * 10)
+            ]
+
+    @pytest.mark.parametrize("size", [8, 8192], ids=["within-cap", "oversized"])
+    def test_member_crc_is_verified(self, tmp_path, monkeypatch, size):
+        """Reading or draining a member to its end keeps zipfile's CRC-32 check.
+
+        The oversized member has to clear zipfile's 4 KiB minimum read: below
+        it the capped read drains the member incidentally, and the test would
+        pass without the explicit drain.
+        """
+        monkeypatch.setattr(scanner, "_SCAN_MAX_FILE_SIZE", 10)
+        whl_path = _make_wheel_with_bad_crc(tmp_path, "pkg/code.py", size)
+        with (
+            zipfile.ZipFile(whl_path) as zfp,
+            pytest.raises(zipfile.BadZipFile, match="Bad CRC-32"),
+        ):
+            list(scanner.iter_zip_members(zfp))
+
+
+class TestDuplicateMemberNames:
+    """Every entry must be read, not just the last one under a given name.
+
+    An archive can carry several entries under one name, and
+    ``ZipFile.read(name)`` resolves all of them to the last one in the central
+    directory. Reading by name therefore never sees the shadowed payloads.
+    Uploads reject duplicate names before the scan; ``scan_archive`` does not.
+    """
+
+    def test_detects_marker_in_shadowed_entry(self, tmp_path, rules):
+        whl = _make_wheel_with_duplicate_names(
+            tmp_path, "pkg/__init__.py", "__pyarmor_enter__()", "clean code"
+        )
+        assert scanner.scan_archive(whl, rules=rules) == [
+            ("pkg/__init__.py", ["pyarmor_encrypted"])
+        ]

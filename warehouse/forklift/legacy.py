@@ -347,12 +347,20 @@ def _is_valid_dist_file(
                 # the scanner can throw an exception and hide the contextual
                 # information about the corrupted file.
                 if scan:
-                    yara_match = scanner.check_members(
-                        scanner.iter_zip_members(zfp),
-                        archive_name=os.path.basename(filename),
-                        archive_type="zip",
-                        metrics=metrics,
-                    )
+                    archive_name = os.path.basename(filename)
+                    try:
+                        yara_match = scanner.check_members(
+                            scanner.iter_zip_members(zfp, archive_name=archive_name),
+                            archive_name=archive_name,
+                            archive_type="zip",
+                            metrics=metrics,
+                        )
+                    except zipfile.BadZipFile, zlib.error:
+                        metrics.increment(
+                            "warehouse.upload.zipfile.policy_error",
+                            tags=["reason:corrupt-member"],
+                        )
+                        return False, "Archive contains a corrupt member"
                     if yara_match is not None:
                         metrics.increment(
                             "warehouse.upload.yara.match",
@@ -360,7 +368,7 @@ def _is_valid_dist_file(
                         )
                         sentry_sdk.capture_message(
                             f"YARA rule {yara_match.rule!r} matched "
-                            f"{yara_match.member!r} in {os.path.basename(filename)}"
+                            f"{yara_match.member!r} in {archive_name}"
                         )
                         return False, yara_match.message
 
@@ -406,9 +414,10 @@ def _is_valid_dist_file(
 
                 # Scan archive members for YARA rule matches while open
                 if scan:
+                    archive_name = os.path.basename(filename)
                     yara_match = scanner.check_members(
-                        scanner.iter_tar_members(tar),
-                        archive_name=os.path.basename(filename),
+                        scanner.iter_tar_members(tar, archive_name=archive_name),
+                        archive_name=archive_name,
                         archive_type="tar",
                         metrics=metrics,
                     )
@@ -419,7 +428,7 @@ def _is_valid_dist_file(
                         )
                         sentry_sdk.capture_message(
                             f"YARA rule {yara_match.rule!r} matched "
-                            f"{yara_match.member!r} in {os.path.basename(filename)}"
+                            f"{yara_match.member!r} in {archive_name}"
                         )
                         return False, yara_match.message
 
