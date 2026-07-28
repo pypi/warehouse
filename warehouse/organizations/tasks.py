@@ -12,7 +12,6 @@ from warehouse import tasks
 from warehouse.accounts.interfaces import ITokenService, TokenExpired
 from warehouse.email import send_organization_subscription_required_email
 from warehouse.events.tags import EventTag
-from warehouse.metrics import IMetricsService
 from warehouse.organizations.models import (
     Organization,
     OrganizationApplication,
@@ -90,7 +89,6 @@ def update_organziation_subscription_usage_record(request):
     organization_subscriptions = request.db.query(OrganizationStripeSubscription).all()
 
     billing_service = request.find_service(IBillingService, context=None)
-    metrics = request.find_service(IMetricsService, context=None)
 
     # Call the Billing API to update the usage record of this subscription item
     for org_subscription in organization_subscriptions:
@@ -113,12 +111,12 @@ def update_organziation_subscription_usage_record(request):
                 org_subscription.organization.name,
                 org_subscription.subscription.subscription_id,
             )
-            metrics.increment(
+            request.metrics.increment(
                 "warehouse.organizations.subscription.usage_record.error",
                 tags=[f"error_type:{exc.__class__.__name__}"],
             )
         else:
-            metrics.increment(
+            request.metrics.increment(
                 "warehouse.organizations.subscription.usage_record.updated"
             )
 
@@ -132,7 +130,6 @@ def reconcile_stripe_status(request):
 
     billing_service = request.find_service(IBillingService, context=None)
     subscription_service = request.find_service(ISubscriptionService, context=None)
-    metrics = request.find_service(IMetricsService, context=None)
 
     for org_subscription in organization_subscriptions:
         subscription = org_subscription.subscription
@@ -148,7 +145,7 @@ def reconcile_stripe_status(request):
             logger.exception(
                 "Failed to reconcile subscription %s", subscription.subscription_id
             )
-            metrics.increment(
+            request.metrics.increment(
                 "warehouse.organizations.subscription.status.reconcile.error",
                 tags=[
                     f"error_type:{exc.__class__.__name__}",
@@ -164,7 +161,7 @@ def reconcile_stripe_status(request):
                 subscription.subscription_id,
                 remote_status,
             )
-            metrics.increment(
+            request.metrics.increment(
                 "warehouse.organizations.subscription.status.reconcile.skipped"
             )
             continue
@@ -191,7 +188,7 @@ def reconcile_stripe_status(request):
                     "status": remote_status,
                 },
             )
-        metrics.increment(
+        request.metrics.increment(
             "warehouse.organizations.subscription.status.reconciled",
             tags=[f"status:{remote_status}"],
         )
