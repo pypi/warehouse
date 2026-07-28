@@ -61,15 +61,9 @@ class GenericBillingService:
 
     def retrieve_subscription(self, subscription_id):
         """
-        Fetch the Subscription resource from the Billing API, or None if it
-        no longer exists
+        Fetch the Subscription resource from the Billing API
         """
-        try:
-            return self.api.Subscription.retrieve(subscription_id)
-        except stripe.error.InvalidRequestError as exc:
-            if exc.code != "resource_missing":
-                raise
-            return None
+        return self.api.Subscription.retrieve(subscription_id)
 
     def create_customer(self, name, description):
         """
