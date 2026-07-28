@@ -310,24 +310,24 @@ class TestReconcileStripeStatus:
         mocker.patch.object(
             billing_service,
             "retrieve_subscription",
-            return_value={"status": StripeSubscriptionStatus.Canceled.value},
+            return_value={"status": StripeSubscriptionStatus.PastDue.value},
         )
 
         reconcile_stripe_status(db_request)
 
-        assert subscription.status == StripeSubscriptionStatus.Canceled.value
+        assert subscription.status == StripeSubscriptionStatus.PastDue.value
         record_event.assert_called_once_with(
             tag=EventTag.Organization.SubscriptionStatusChange,
             request=db_request,
             additional={
                 "subscription_id": subscription.subscription_id,
                 "previous_status": StripeSubscriptionStatus.Active.value,
-                "status": StripeSubscriptionStatus.Canceled.value,
+                "status": StripeSubscriptionStatus.PastDue.value,
             },
         )
         metrics.increment.assert_any_call(
             "warehouse.organizations.subscription.status.reconciled",
-            tags=["status:canceled"],
+            tags=["status:past_due"],
         )
 
     def test_no_change_when_status_matches(
@@ -347,12 +347,18 @@ class TestReconcileStripeStatus:
         update_status.assert_not_called()
         record_event.assert_not_called()
 
-    def test_marks_canceled_when_missing_on_stripe(
+    def test_records_cancel_when_canceled_on_stripe(
         self, db_request, billing_service, mocker
     ):
+        # Cancellation is detected from the fetched status, mirroring the
+        # customer.subscription.deleted webhook handler.
         organization, subscription = self._make_org_subscription()
         record_event = mocker.patch.object(organization, "record_event", autospec=True)
-        mocker.patch.object(billing_service, "retrieve_subscription", return_value=None)
+        mocker.patch.object(
+            billing_service,
+            "retrieve_subscription",
+            return_value={"status": StripeSubscriptionStatus.Canceled.value},
+        )
 
         reconcile_stripe_status(db_request)
 
@@ -379,12 +385,14 @@ class TestReconcileStripeStatus:
     def test_skips_row_on_other_stripe_errors(
         self, db_request, billing_service, metrics, mocker
     ):
-        # A poisoned row must not wedge the run; later rows still reconcile.
+        # A poisoned row must not wedge the run; later rows still reconcile. A
+        # resource_missing must leave the row alone rather than cancel it, so a
+        # mode/account-mismatched key can't mass-cancel every subscription.
         _, bad_subscription = self._make_org_subscription()
         _, good_subscription = self._make_org_subscription()
         remote_by_id = {
             bad_subscription.subscription_id: stripe.error.InvalidRequestError(
-                "Invalid subscription ID", None, code="invalid_request_error"
+                "No such subscription", None, code="resource_missing"
             ),
             good_subscription.subscription_id: {
                 "status": StripeSubscriptionStatus.Canceled.value
@@ -407,7 +415,7 @@ class TestReconcileStripeStatus:
         assert good_subscription.status == StripeSubscriptionStatus.Canceled.value
         metrics.increment.assert_any_call(
             "warehouse.organizations.subscription.status.reconcile.error",
-            tags=["error_type:InvalidRequestError"],
+            tags=["error_type:InvalidRequestError", "error_code:resource_missing"],
         )
 
     def test_skips_unknown_status(

@@ -139,23 +139,17 @@ class TestMockStripeBillingService:
         assert subscription["id"]
         assert subscription["status"]
 
-    def test_retrieve_subscription_missing(self, billing_service, mocker):
+    def test_retrieve_subscription_does_not_swallow_missing(
+        self, billing_service, mocker
+    ):
+        # Canceled subscriptions stay retrievable from Stripe, so resource_missing
+        # means the id is unusable (wrong account, wrong mode), not canceled. It
+        # must reach the caller rather than be reported as an absent subscription.
         mocker.patch.object(
             billing_service.api.Subscription,
             "retrieve",
             side_effect=stripe.error.InvalidRequestError(
                 "No such subscription", None, code="resource_missing"
-            ),
-        )
-
-        assert billing_service.retrieve_subscription("sub_12345") is None
-
-    def test_retrieve_subscription_reraises_other_errors(self, billing_service, mocker):
-        mocker.patch.object(
-            billing_service.api.Subscription,
-            "retrieve",
-            side_effect=stripe.error.InvalidRequestError(
-                "Invalid API version", None, code="invalid_request_error"
             ),
         )
 
