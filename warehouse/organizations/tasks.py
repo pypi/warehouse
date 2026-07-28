@@ -131,30 +131,27 @@ def reconcile_stripe_status(request):
     billing_service = request.find_service(IBillingService, context=None)
     subscription_service = request.find_service(ISubscriptionService, context=None)
 
+    try:
+        remote_statuses = {
+            remote["id"]: remote["status"]
+            for remote in billing_service.list_subscriptions()
+        }
+    except TRANSIENT_STRIPE_ERRORS as exc:
+        raise RetryableException from exc
+
     for org_subscription in organization_subscriptions:
         subscription = org_subscription.subscription
-        try:
-            remote = billing_service.retrieve_subscription(subscription.subscription_id)
-        except TRANSIENT_STRIPE_ERRORS as exc:
-            raise RetryableException from exc
-        except stripe.error.StripeError as exc:
-            # Isolate a poisoned row (e.g. a subscription_id Stripe has no record
-            # of) so it can't wedge the whole run at the same row every night.
-            # Deliberately leaves the local status alone: a resource_missing here
-            # means the id is unusable, not that the subscription was canceled.
-            logger.exception(
-                "Failed to reconcile subscription %s", subscription.subscription_id
+        remote_status = remote_statuses.get(subscription.subscription_id)
+        if remote_status is None:
+            logger.warning(
+                "Skipping subscription %s with no record on Stripe",
+                subscription.subscription_id,
             )
             request.metrics.increment(
-                "warehouse.organizations.subscription.status.reconcile.error",
-                tags=[
-                    f"error_type:{exc.__class__.__name__}",
-                    f"error_code:{exc.code}",
-                ],
+                "warehouse.organizations.subscription.status.reconcile.missing"
             )
             continue
 
-        remote_status = remote["status"]
         if not StripeSubscriptionStatus.has_value(remote_status):
             logger.warning(
                 "Skipping subscription %s with unknown Stripe status %r",
