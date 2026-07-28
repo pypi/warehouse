@@ -166,28 +166,11 @@ def reconcile_stripe_status(request):
             )
             continue
 
-        previous_status = subscription.status
-        if previous_status == remote_status:
+        if not subscription_service.sync_subscription_status(
+            subscription.id, remote_status, request=request
+        ):
             continue
 
-        subscription_service.update_subscription_status(subscription.id, remote_status)
-        if remote_status == StripeSubscriptionStatus.Canceled.value:
-            # Mirror the customer.subscription.deleted handler.
-            org_subscription.organization.record_event(
-                tag=EventTag.Organization.SubscriptionCancel,
-                request=request,
-                additional={"subscription_id": subscription.subscription_id},
-            )
-        else:
-            org_subscription.organization.record_event(
-                tag=EventTag.Organization.SubscriptionStatusChange,
-                request=request,
-                additional={
-                    "subscription_id": subscription.subscription_id,
-                    "previous_status": previous_status,
-                    "status": remote_status,
-                },
-            )
         request.metrics.increment(
             "warehouse.organizations.subscription.status.reconciled",
             tags=[f"status:{remote_status}"],
