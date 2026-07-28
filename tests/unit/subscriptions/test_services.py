@@ -130,31 +130,17 @@ class TestMockStripeBillingService:
         assert customer is not None
         assert customer["id"]
 
-    def test_retrieve_subscription(self, billing_service):
-        subscription = billing_service.retrieve_subscription(
-            subscription_id="sub_12345"
+    def test_list_subscriptions(self, billing_service, mocker):
+        # status="all" is required: the list endpoint omits canceled
+        # subscriptions by default, and those are what reconciliation looks for.
+        list_subscriptions = mocker.patch.object(
+            billing_service.api.Subscription, "list"
         )
 
-        assert subscription is not None
-        assert subscription["id"]
-        assert subscription["status"]
+        billing_service.list_subscriptions()
 
-    def test_retrieve_subscription_does_not_swallow_missing(
-        self, billing_service, mocker
-    ):
-        # Canceled subscriptions stay retrievable from Stripe, so resource_missing
-        # means the id is unusable (wrong account, wrong mode), not canceled. It
-        # must reach the caller rather than be reported as an absent subscription.
-        mocker.patch.object(
-            billing_service.api.Subscription,
-            "retrieve",
-            side_effect=stripe.error.InvalidRequestError(
-                "No such subscription", None, code="resource_missing"
-            ),
-        )
-
-        with pytest.raises(stripe.error.InvalidRequestError):
-            billing_service.retrieve_subscription("sub_12345")
+        list_subscriptions.assert_called_once_with(status="all", limit=100)
+        list_subscriptions.return_value.auto_paging_iter.assert_called_once_with()
 
     def test_create_customer(self, billing_service, organization_service):
         organization = OrganizationFactory.create()

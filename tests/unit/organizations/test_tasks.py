@@ -302,6 +302,13 @@ class TestReconcileStripeStatus:
         org_subscription = OrganizationStripeSubscriptionFactory.create()
         return org_subscription.organization, org_subscription.subscription
 
+    @staticmethod
+    def _remote(*subscriptions):
+        return [
+            {"id": subscription.subscription_id, "status": status}
+            for subscription, status in subscriptions
+        ]
+
     def test_syncs_status_from_stripe(
         self, db_request, billing_service, metrics, mocker
     ):
@@ -309,8 +316,10 @@ class TestReconcileStripeStatus:
         record_event = mocker.patch.object(organization, "record_event", autospec=True)
         mocker.patch.object(
             billing_service,
-            "retrieve_subscription",
-            return_value={"status": StripeSubscriptionStatus.PastDue.value},
+            "list_subscriptions",
+            return_value=self._remote(
+                (subscription, StripeSubscriptionStatus.PastDue.value)
+            ),
         )
 
         reconcile_stripe_status(db_request)
@@ -333,13 +342,15 @@ class TestReconcileStripeStatus:
     def test_no_change_when_status_matches(
         self, db_request, billing_service, subscription_service, mocker
     ):
-        organization, _ = self._make_org_subscription()
+        organization, subscription = self._make_org_subscription()
         record_event = mocker.patch.object(organization, "record_event", autospec=True)
         update_status = mocker.spy(subscription_service, "update_subscription_status")
         mocker.patch.object(
             billing_service,
-            "retrieve_subscription",
-            return_value={"status": StripeSubscriptionStatus.Active.value},
+            "list_subscriptions",
+            return_value=self._remote(
+                (subscription, StripeSubscriptionStatus.Active.value)
+            ),
         )
 
         reconcile_stripe_status(db_request)
@@ -356,8 +367,10 @@ class TestReconcileStripeStatus:
         record_event = mocker.patch.object(organization, "record_event", autospec=True)
         mocker.patch.object(
             billing_service,
-            "retrieve_subscription",
-            return_value={"status": StripeSubscriptionStatus.Canceled.value},
+            "list_subscriptions",
+            return_value=self._remote(
+                (subscription, StripeSubscriptionStatus.Canceled.value)
+            ),
         )
 
         reconcile_stripe_status(db_request)
@@ -373,49 +386,39 @@ class TestReconcileStripeStatus:
         self, db_request, billing_service, mocker
     ):
         self._make_org_subscription()
-        mocker.patch.object(
-            billing_service,
-            "retrieve_subscription",
-            side_effect=stripe.error.RateLimitError("Too many requests"),
-        )
+
+        # Paging is lazy, so a transient error surfaces while the results are
+        # being consumed rather than when list_subscriptions is called.
+        def pages():
+            yield {"id": "sub_first", "status": StripeSubscriptionStatus.Active.value}
+            raise stripe.error.RateLimitError("Too many requests")
+
+        mocker.patch.object(billing_service, "list_subscriptions", side_effect=pages)
 
         with pytest.raises(RetryableException):
             reconcile_stripe_status(db_request)
 
-    def test_skips_row_on_other_stripe_errors(
+    def test_skips_subscription_missing_from_stripe(
         self, db_request, billing_service, metrics, mocker
     ):
-        # A poisoned row must not wedge the run; later rows still reconcile. A
-        # resource_missing must leave the row alone rather than cancel it, so a
-        # mode/account-mismatched key can't mass-cancel every subscription.
-        _, bad_subscription = self._make_org_subscription()
-        _, good_subscription = self._make_org_subscription()
-        remote_by_id = {
-            bad_subscription.subscription_id: stripe.error.InvalidRequestError(
-                "No such subscription", None, code="resource_missing"
-            ),
-            good_subscription.subscription_id: {
-                "status": StripeSubscriptionStatus.Canceled.value
-            },
-        }
-
-        def retrieve(subscription_id):
-            remote = remote_by_id[subscription_id]
-            if isinstance(remote, Exception):
-                raise remote
-            return remote
-
+        # An id Stripe has no record of must be left alone rather than canceled,
+        # so a mode/account-mismatched key can't mass-cancel every subscription.
+        _, missing_subscription = self._make_org_subscription()
+        _, known_subscription = self._make_org_subscription()
         mocker.patch.object(
-            billing_service, "retrieve_subscription", side_effect=retrieve
+            billing_service,
+            "list_subscriptions",
+            return_value=self._remote(
+                (known_subscription, StripeSubscriptionStatus.Canceled.value)
+            ),
         )
 
         reconcile_stripe_status(db_request)
 
-        assert bad_subscription.status == StripeSubscriptionStatus.Active.value
-        assert good_subscription.status == StripeSubscriptionStatus.Canceled.value
+        assert missing_subscription.status == StripeSubscriptionStatus.Active.value
+        assert known_subscription.status == StripeSubscriptionStatus.Canceled.value
         metrics.increment.assert_any_call(
-            "warehouse.organizations.subscription.status.reconcile.error",
-            tags=["error_type:InvalidRequestError", "error_code:resource_missing"],
+            "warehouse.organizations.subscription.status.reconcile.missing"
         )
 
     def test_skips_unknown_status(
@@ -424,7 +427,9 @@ class TestReconcileStripeStatus:
         _, subscription = self._make_org_subscription()
         update_status = mocker.spy(subscription_service, "update_subscription_status")
         mocker.patch.object(
-            billing_service, "retrieve_subscription", return_value={"status": "bogus"}
+            billing_service,
+            "list_subscriptions",
+            return_value=self._remote((subscription, "bogus")),
         )
 
         reconcile_stripe_status(db_request)
