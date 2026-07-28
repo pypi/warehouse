@@ -186,6 +186,12 @@ class ISubscriptionService(Interface):
         Update the status of a subscription object by subscription.id
         """
 
+    def sync_subscription_status(id, status, *, request):
+        """
+        Set a subscription's status, recording the organization event that
+        matches the transition, and return whether the status changed
+        """
+
     def delete_subscription(id):
         """
         Delete a subscription by ID
