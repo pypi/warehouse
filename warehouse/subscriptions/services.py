@@ -25,12 +25,6 @@ from warehouse.subscriptions.models import (
     StripeSubscriptionStatus,
 )
 
-TRANSIENT_STRIPE_ERRORS = (
-    stripe.error.APIConnectionError,
-    stripe.error.APIError,
-    stripe.error.RateLimitError,
-)
-
 
 class GenericBillingService:
     def __init__(self, api, publishable_key, webhook_secret, domain):
