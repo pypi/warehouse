@@ -159,7 +159,10 @@ def _email(
     Functions that are decorated by this need to accept two positional arguments, the
     first argument is the Pyramid request object, and the second argument is either
     a single User, or a list of Users. These users represent the recipients of this
-    email. Additional keyword arguments are supported, but are not otherwise restricted.
+    email.
+    Additional keyword arguments are passed through to the decorated function,
+    except ``repeat_window``, which the wrapper consumes as a per-call override
+    of the decorator's value (``None`` disables throttling).
 
     Functions decorated by this must return a mapping of context variables that will
     ultimately be returned, but which will also be used to render the templates for
@@ -179,7 +182,7 @@ def _email(
 
     def inner(fn):
         @functools.wraps(fn)
-        def wrapper(request, user_or_users, **kwargs):
+        def wrapper(request, user_or_users, *, repeat_window=repeat_window, **kwargs):
             if isinstance(user_or_users, (list, set)):
                 recipients = user_or_users
             else:
@@ -1040,7 +1043,14 @@ def send_recovery_code_reminder_email(request, user):
     return {"username": user.username}
 
 
-@_email("unrecognized-login", allow_unverified=True)
+UNRECOGNIZED_LOGIN_REPEAT_WINDOW = datetime.timedelta(minutes=15)
+
+
+@_email(
+    "unrecognized-login",
+    allow_unverified=True,
+    repeat_window=UNRECOGNIZED_LOGIN_REPEAT_WINDOW,
+)
 def send_unrecognized_login_email(request, user, *, ip_address, user_agent, token):
     return {
         "username": user.username,
