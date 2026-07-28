@@ -60,11 +60,13 @@ class GenericBillingService:
         )
         return subscription.customer
 
-    def retrieve_subscription(self, subscription_id):
+    def list_subscriptions(self):
         """
-        Fetch the Subscription resource from the Billing API
+        Iterate over every Subscription resource from the Billing API
+
+        Need ``status="all"`` to get subs including canceled ones for reconciling.
         """
-        return self.api.Subscription.retrieve(subscription_id)
+        return self.api.Subscription.list(status="all", limit=100).auto_paging_iter()
 
     def create_customer(self, name, description):
         """
