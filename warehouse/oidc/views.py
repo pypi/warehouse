@@ -36,7 +36,7 @@ from warehouse.oidc.utils import (
 )
 from warehouse.packaging.interfaces import IProjectService
 from warehouse.packaging.models import Project, ProjectFactory
-from warehouse.rate_limiting.interfaces import IRateLimiter
+from warehouse.rate_limiting.interfaces import IRateLimiter, RateLimiterException
 
 
 class Error(TypedDict):
@@ -219,7 +219,9 @@ def mint_token(
                     request=request,
                 )
 
-            # Try creating the new project
+            # Try creating the new project. Only organization-scoped creation
+            # is rate limited; personal trusted-publisher creation stays
+            # unlimited, unchanged from before.
             project_service = request.find_service(IProjectService)
             try:
                 new_project = project_service.create_project(
@@ -227,12 +229,25 @@ def mint_token(
                     pending_publisher.added_by,
                     request,
                     creator_is_owner=pending_publisher.organization_id is None,
-                    ratelimited=False,
+                    ratelimited=pending_publisher.organization_id is not None,
                     organization_id=pending_publisher.organization_id,
                 )
             except HTTPException as exc:
                 return _invalid(
                     errors=[{"code": "invalid-payload", "description": str(exc)}],
+                    request=request,
+                )
+            except RateLimiterException:
+                return _invalid(
+                    errors=[
+                        {
+                            "code": "invalid-payload",
+                            "description": (
+                                "this organization has created too many new "
+                                "projects recently"
+                            ),
+                        }
+                    ],
                     request=request,
                 )
 

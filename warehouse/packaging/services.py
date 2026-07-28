@@ -21,7 +21,7 @@ import stdlib_list
 
 from packaging.utils import canonicalize_name
 from pyramid.httpexceptions import HTTPBadRequest, HTTPConflict, HTTPForbidden
-from sqlalchemy import exists, func, select
+from sqlalchemy import exists, func, orm, select
 from zope.interface import implementer
 
 from warehouse.admin.flags import AdminFlagValue
@@ -31,7 +31,7 @@ from warehouse.events.tags import EventTag
 from warehouse.helpdesk.interfaces import IAdminNotificationService
 from warehouse.metrics import IMetricsService
 from warehouse.oidc.models import PendingOIDCPublisher
-from warehouse.organizations.models import OrganizationProject
+from warehouse.organizations.models import Organization, OrganizationProject
 from warehouse.packaging.interfaces import (
     IDocsStorage,
     IFileStorage,
@@ -417,80 +417,86 @@ class ProjectService:
         self._metrics = metrics
         self._query_results_cache = query_results_cache
 
-    def _check_ratelimits(self, request, creator):
+    def _organization_ratelimiter(self, organization):
+        return self.ratelimiters["project.create.organization"].override(
+            organization.project_create_ratelimit_string
+        )
+
+    def _identity_ratelimiter(self, creator, organization_id):
+        """
+        Project creation inside an organization is governed by that
+        organization's rate limit — shared across all its members — instead
+        of the creator's individual per-user limit.
+        """
+        if organization_id is not None:
+            organization = self.db.get(Organization, organization_id)
+            return (
+                self._organization_ratelimiter(organization),
+                organization.id,
+                "organization",
+            )
+        limiter = self.ratelimiters["project.create.user"].override(
+            creator.project_create_ratelimit_string
+        )
+        return limiter, creator.id, "user"
+
+    def _reject_create(self, partition_key, resets_in):
+        label = "IP" if partition_key == "ip" else partition_key.title()
+        logger.warning("%s failed project create threshold reached.", label)
+        self._metrics.increment(
+            "warehouse.project.create.ratelimited",
+            tags=[f"ratelimiter:{partition_key}"],
+        )
+        raise TooManyProjectsCreated(resets_in=resets_in)
+
+    def _check_ratelimits(self, request, creator, organization_id=None):
+        limiter, identifier, partition_key = self._identity_ratelimiter(
+            creator, organization_id
+        )
+        ip_limiter = self.ratelimiters["project.create.ip"]
+
         # Record the current limiter state so the egress tween can emit
         # RateLimit / RateLimit-Policy headers, whether or not we reject below.
         if request.remote_addr is not None:
             record_rate_limit(
                 request,
                 "project.create.ip",
-                self.ratelimiters["project.create.ip"],
+                ip_limiter,
                 identifiers=(request.remote_addr,),
                 partition_key="ip",
             )
         record_rate_limit(
             request,
-            "project.create.user",
-            self.ratelimiters["project.create.user"],
-            identifiers=(creator.id,),
-            partition_key="user",
+            f"project.create.{partition_key}",
+            limiter,
+            identifiers=(identifier,),
+            partition_key=partition_key,
         )
 
         # First we want to check if a single IP is exceeding our rate limiter.
-        if request.remote_addr is not None and not self.ratelimiters[
-            "project.create.ip"
-        ].test(request.remote_addr):
-            logger.warning("IP failed project create threshold reached.")
-            self._metrics.increment(
-                "warehouse.project.create.ratelimited",
-                tags=["ratelimiter:ip"],
-            )
-            raise TooManyProjectsCreated(
-                resets_in=self.ratelimiters["project.create.ip"].resets_in(
-                    request.remote_addr
-                )
-            )
+        if request.remote_addr is not None and not ip_limiter.test(request.remote_addr):
+            self._reject_create("ip", ip_limiter.resets_in(request.remote_addr))
 
-        if not self.ratelimiters["project.create.user"].test(creator.id):
-            logger.warning("User failed project create threshold reached.")
-            self._metrics.increment(
-                "warehouse.project.create.ratelimited",
-                tags=["ratelimiter:user"],
-            )
-            raise TooManyProjectsCreated(
-                resets_in=self.ratelimiters["project.create.user"].resets_in(creator.id)
-            )
+        if not limiter.test(identifier):
+            self._reject_create(partition_key, limiter.resets_in(identifier))
 
-    def _hit_ratelimits(self, request, creator):
+    def _hit_ratelimits(self, request, creator, organization_id=None):
+        limiter, identifier, partition_key = self._identity_ratelimiter(
+            creator, organization_id
+        )
+        ip_limiter = self.ratelimiters["project.create.ip"]
+
         # `.hit()` atomically increments and returns False when the limit is
         # exceeded. Concurrent requests can each pass the optimistic `.test()`
         # in `_check_ratelimits` before any records a hit, so this atomic check
         # is what actually enforces the limit: a request that pushes a counter
         # past its limit is rejected here, rolling back the new project. The
         # limiters are consulted in the same order as `_check_ratelimits`.
-        if request.remote_addr is not None and not self.ratelimiters[
-            "project.create.ip"
-        ].hit(request.remote_addr):
-            logger.warning("IP failed project create threshold reached.")
-            self._metrics.increment(
-                "warehouse.project.create.ratelimited",
-                tags=["ratelimiter:ip"],
-            )
-            raise TooManyProjectsCreated(
-                resets_in=self.ratelimiters["project.create.ip"].resets_in(
-                    request.remote_addr
-                )
-            )
+        if request.remote_addr is not None and not ip_limiter.hit(request.remote_addr):
+            self._reject_create("ip", ip_limiter.resets_in(request.remote_addr))
 
-        if not self.ratelimiters["project.create.user"].hit(creator.id):
-            logger.warning("User failed project create threshold reached.")
-            self._metrics.increment(
-                "warehouse.project.create.ratelimited",
-                tags=["ratelimiter:user"],
-            )
-            raise TooManyProjectsCreated(
-                resets_in=self.ratelimiters["project.create.user"].resets_in(creator.id)
-            )
+        if not limiter.hit(identifier):
+            self._reject_create(partition_key, limiter.resets_in(identifier))
 
     def check_project_name(self, name: str) -> None:
         """
@@ -548,7 +554,7 @@ class ProjectService:
         organization_id=None,
     ):
         if ratelimited:
-            self._check_ratelimits(request, creator)
+            self._check_ratelimits(request, creator, organization_id)
 
         # Check for AdminFlag set by a PyPI Administrator disabling new project
         # registration, reasons for this include Spammers, security
@@ -715,6 +721,8 @@ class ProjectService:
                     organization_id=organization_id, project_id=project.id
                 )
             )
+            # Mark the org dirty so its cached project listing is purged.
+            orm.attributes.flag_dirty(self.db.get(Organization, organization_id))
         elif creator_is_owner:
             # Mark the creator as the newly created project's owner, if configured.
             self.db.add(Role(user=creator, project=project, role_name="Owner"))
@@ -761,7 +769,7 @@ class ProjectService:
             request.db.delete(stale_publisher)
 
         if ratelimited:
-            self._hit_ratelimits(request, creator)
+            self._hit_ratelimits(request, creator, organization_id)
         return project
 
 
@@ -773,6 +781,9 @@ def project_service_factory(context, request):
         ),
         "project.create.ip": request.find_service(
             IRateLimiter, name="project.create.ip", context=None
+        ),
+        "project.create.organization": request.find_service(
+            IRateLimiter, name="project.create.organization", context=None
         ),
     }
     query_results_cache = request.find_service(IQueryResultsCache)

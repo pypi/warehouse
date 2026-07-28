@@ -49,7 +49,7 @@ from warehouse.organizations.models import (
     OrganizationRoleType,
     OrganizationType,
 )
-from warehouse.packaging import Project
+from warehouse.packaging import IProjectService, Project
 from warehouse.utils.paginate import paginate_url_factory
 
 
@@ -1952,6 +1952,59 @@ class TestManageOrganizationProjects:
                 project_name="fakepackage",
             )
         ]
+
+    def test_add_organization_project_new_project_ratelimited(
+        self,
+        db_request,
+        pyramid_user,
+        monkeypatch,
+    ):
+        """A rate-limited organization surfaces a friendly form error instead
+        of propagating the RateLimiterException."""
+        db_request.help_url = lambda *a, **kw: ""
+
+        organization = OrganizationFactory.create()
+        OrganizationRoleFactory.create(
+            organization=organization, user=db_request.user, role_name="Owner"
+        )
+
+        add_organization_project_obj = pretend.stub(
+            add_existing_project=pretend.stub(data=False),
+            new_project_name=pretend.stub(data="fakepackage", errors=[]),
+            validate=lambda *a, **kw: True,
+        )
+        add_organization_project_cls = pretend.call_recorder(
+            lambda *a, **kw: add_organization_project_obj
+        )
+        monkeypatch.setattr(
+            org_views, "AddOrganizationProjectForm", add_organization_project_cls
+        )
+
+        project_service = db_request.find_service(IProjectService)
+        failing_limiter = pretend.stub(
+            test=lambda *a: False,
+            hit=lambda *a: False,
+            resets_in=lambda *a: None,
+            get_window_stats=lambda *a: [],
+        )
+        failing_limiter.override = lambda limit_string: failing_limiter
+        project_service.ratelimiters["project.create.organization"] = failing_limiter
+
+        view = org_views.ManageOrganizationProjectsViews(organization, db_request)
+        result = view.add_organization_project()
+
+        assert result == {
+            "organization": organization,
+            "active_projects": view.active_projects,
+            "projects_owned": set(),
+            "projects_sole_owned": set(),
+            "add_organization_project_form": add_organization_project_obj,
+        }
+        assert add_organization_project_obj.new_project_name.errors == [
+            "This organization has created too many new projects recently. "
+            "Try again later."
+        ]
+        assert organization.projects == []
 
     @pytest.mark.parametrize(
         ("invalid_name", "expected"),

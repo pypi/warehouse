@@ -82,6 +82,7 @@ from warehouse.organizations.models import (
 )
 from warehouse.packaging import IProjectService, Project, Role
 from warehouse.packaging.models import JournalEntry, ProjectFactory
+from warehouse.rate_limiting.interfaces import RateLimiterException
 from warehouse.subscriptions import IBillingService, ISubscriptionService
 from warehouse.subscriptions.services import MockStripeBillingService
 from warehouse.utils.http import is_safe_url
@@ -849,6 +850,8 @@ class ManageOrganizationProjectsViews:
             # Try to add a new project.
             # Note that we pass `creator_is_owner=False`, since the project being
             # created is controlled by the organization and not the user creating it.
+            # organization_id also routes the rate limit check through the org's
+            # bucket and links the project to the organization inline.
             project_service = self.request.find_service(IProjectService)
             try:
                 project = project_service.create_project(
@@ -856,14 +859,28 @@ class ManageOrganizationProjectsViews:
                     self.request.user,
                     request=self.request,
                     creator_is_owner=False,
-                    ratelimited=False,
+                    ratelimited=True,
+                    organization_id=self.organization.id,
                 )
             except HTTPException as exc:
                 form.new_project_name.errors.append(exc.detail)
                 return default_response
+            except RateLimiterException:
+                form.new_project_name.errors.append(
+                    "This organization has created too many new projects "
+                    "recently. Try again later."
+                )
+                return default_response
 
-        # Add project to organization, record events, and notify owners.
-        add_organization_project_and_notify(self.request, self.organization, project)
+        # Add project to organization, record events, and notify owners. New
+        # projects are already linked inline by create_project, so only link
+        # here when attaching an existing project.
+        add_organization_project_and_notify(
+            self.request,
+            self.organization,
+            project,
+            link=form.add_existing_project.data,
+        )
 
         # Display notification message.
         self.request.session.flash(

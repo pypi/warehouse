@@ -107,6 +107,20 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
     )
     disabled_for: Mapped[DisableReason | None]
 
+    project_create_ratelimit_count: Mapped[int | None] = mapped_column(
+        comment=(
+            "Custom project-creation rate limit count for this user "
+            "(e.g. 50, paired with project_create_ratelimit_period). "
+            "Overrides the global default when set."
+        ),
+    )
+    project_create_ratelimit_period: Mapped[str | None] = mapped_column(
+        comment=(
+            "Period unit ('hour', 'day', or 'month') for "
+            "project_create_ratelimit_count."
+        ),
+    )
+
     totp_secret: Mapped[int | None] = mapped_column(LargeBinary(length=20))
     last_totp_value: Mapped[str | None]
 
@@ -281,6 +295,16 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
                 self.is_psf_staff,
                 self.prohibit_password_reset,
             ]
+        )
+
+    @property
+    def project_create_ratelimit_string(self) -> str | None:
+        """Composed `limits`-syntax string, or None when no override is set."""
+        if self.project_create_ratelimit_count is None:
+            return None
+        return (
+            f"{self.project_create_ratelimit_count} per "
+            f"{self.project_create_ratelimit_period}"
         )
 
     @property

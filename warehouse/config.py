@@ -588,6 +588,12 @@ def configure(settings=None):
     )
     maybe_set(
         settings,
+        "warehouse.packaging.project_create_organization_ratelimit_string",
+        "PROJECT_CREATE_ORGANIZATION_RATELIMIT_STRING",
+        default="20 per hour",
+    )
+    maybe_set(
+        settings,
         "warehouse.search.ratelimit_string",
         "SEARCH_RATELIMIT_STRING",
         default="5 per second",
