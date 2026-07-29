@@ -302,32 +302,32 @@ if (organizationApplicationTurboModeSwitch !== null) {
   }
 }
 
+// `data-field` names the textarea to fill, defaulting to the request-more-info modal.
 const savedReplyButtons = document.querySelectorAll(".saved-reply-button");
 
-if (savedReplyButtons.length > 0) {
-  const requestMoreInfoModalMessage = document.getElementById("requestMoreInfoModalMessage");
+savedReplyButtons.forEach(button => {
+  button.addEventListener("click", () => {
+    const templateElement = document.getElementById(button.dataset.template);
+    const field = document.getElementById(button.dataset.field || "requestMoreInfoModalMessage");
 
-  if (requestMoreInfoModalMessage) {
-    savedReplyButtons.forEach(button => {
-      button.addEventListener("click", () => {
-        const templateId = button.dataset.template;
+    if (templateElement && field) {
+      field.value = templateElement.innerHTML
+        .trim()
+        .replace(/\n/g, " ")
+        .replace(/\s{2,}/g, " ");
+    }
+  });
+});
 
-        if (templateId) {
-          const templateElement = document.getElementById(templateId);
-
-          if (templateElement) {
-            const templateContent = templateElement.innerHTML;
-            const cleanedContent = templateContent
-              .trim()
-              .replace(/\n/g, " ")
-              .replace(/\s{2,}/g, " ");
-            requestMoreInfoModalMessage.value = cleanedContent;
-          }
-        }
-      });
-    });
-  }
-}
+// `requestSubmit` over `submit` so required fields still validate.
+document.querySelectorAll(".modal form").forEach(function(modalForm) {
+  modalForm.addEventListener("keydown", function(event) {
+    if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+      event.preventDefault();
+      modalForm.requestSubmit();
+    }
+  });
+});
 
 let editModalForm = document.getElementById("editModalForm");
 if (editModalForm !== null) {
