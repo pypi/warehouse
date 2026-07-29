@@ -206,23 +206,100 @@
     }
   }
 
+  // Variables (Matching your existing naming convention)
   &--files {
     margin-bottom: $half-spacing-unit;
+    border-collapse: collapse;
+    width: 100%;
 
-    td.file-name {
-      padding-top:5px;
-      word-break: break-all;
+    // --- Header / Filter Styles ---
+    select.table-filter {
+      width: auto;
+      border: 0;
+      font-size: $base-font-size;
+      background: transparent;
+      font-weight: $bold-font-weight;
+      cursor: pointer;
+      padding-right: 20px;
+
+      &:focus {
+        outline: 2px solid rgba(0,0,0,0.1);
+      }
     }
 
-    td.file-metadata {
-      border-bottom: 0;
-      padding-bottom:5px;
+    // --- Row Layout ---
+    .file-row {
+      border-bottom: 1px solid $border-color;
     }
 
+    // --- The Main Content Cell (3 Lines) ---
+    .file-info-cell {
+      padding: 15px 10px;
+    }
+
+    // Line 1: Filename
+    .file-info__name {
+      margin-bottom: 5px;
+    }
+
+    .file-info__metadata {
+      display: flex;
+      align-items: space-between;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    // Line 3: Stats (Date and Size)
+    .file-info__stats small {
+      display: inline-block;
+      margin-top: 5px;
+      margin-right: 15px;
+    }
+
+    // --- Action Buttons Column ---
+    tr td.file-actions {
+      vertical-align: middle;
+      padding: 10px;
+      width: 140px; // Fixed width for the buttons
+      min-width: 140px;
+
+      .button {
+        display: block;
+        width: 100%;
+        text-align: center;
+        margin-bottom: 4px;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+
+    // --- Legacy / Special Rows ---
+    .file-metadata {
+       padding: 15px 10px;
+       color: #999;
+       font-style: italic;
+    }
+
+    // --- Mobile Responsive Handling ---
     @media only screen and (max-width: $desktop) {
       @include mobile-friendly-table;
+
+      // Ensure the stack still works on mobile
+      .file-info-cell {
+        display: flex;
+        width: 100%;
+      }
+
+      tr td.file-actions {
+        width: 100%;
+        max-width: none;
+        display: block;
+      }
     }
   }
+
 
   &--releases {
     word-wrap: break-word;

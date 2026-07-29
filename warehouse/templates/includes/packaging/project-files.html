@@ -22,8 +22,8 @@
   {% endfor %}
 {%- endmacro -%}
 {% macro filter_select(name, title, selected) %}
-  <label class="form-group__label sr-only" for="bdist-tags-{{ name }}">{% trans %}{{ title }}{% endtrans %}</label>
-  <select class="form-group__field"
+  <label class="sr-only" for="bdist-tags-{{ name }}">{% trans %}{{ title }}{% endtrans %}</label>
+  <select class="table-filter"
           id="bdist-tags-{{ name }}"
           name="bdist-tags-{{ name }}"
           data-action="filter-list#filter"

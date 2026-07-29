@@ -139,8 +139,9 @@
     padding: 0;
     background-color: transparent;
     border: 0;
-    color: $text-color;
+    color: $primary-color;
     display: inline-block;
+    text-decoration: underline;
 
     &:focus,
     &:hover,
