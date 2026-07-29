@@ -64,6 +64,7 @@ from warehouse.authnz import Permissions
 from warehouse.cache.origin import origin_cache
 from warehouse.captcha.interfaces import ICaptchaService
 from warehouse.email import (
+    UNRECOGNIZED_LOGIN_REPEAT_WINDOW,
     send_added_as_collaborator_email,
     send_added_as_organization_member_email,
     send_collaborator_added_email,
@@ -975,7 +976,11 @@ def confirm_login(request):
 
     if not request.params.get("token"):
         # Show a generic page for when a non-logged-in user lands here without a token
-        return {}
+        return {
+            "repeat_window_minutes": int(
+                UNRECOGNIZED_LOGIN_REPEAT_WINDOW.total_seconds() // 60
+            )
+        }
 
     user_service = request.find_service(IUserService, context=None)
     token_service = request.find_service(ITokenService, name="confirm_login")
@@ -1650,7 +1655,7 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
     form = _form_class(
         request.POST,
         request=request,
-        username=request.user.username,
+        user_id=request.user.id,
         next_route=request.matched_route.name,
         next_route_matchdict=json.dumps(request.matchdict),
         next_route_query=json.dumps(request.GET.mixed()),

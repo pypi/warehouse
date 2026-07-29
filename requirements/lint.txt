@@ -865,6 +865,10 @@ types-first==2.0.5.20260408 \
     --hash=sha256:4c6b545e86877033726a5c27e4e8491b65d38714ce6e400ab4b60e23c01a11bd \
     --hash=sha256:9a9e78fa829a17d2f84310f36597d0eb51b3c5e48a3fa39e8f8521948f159c79
     # via -r requirements/lint.in
+types-gunicorn==26.0.0.20260728 \
+    --hash=sha256:14e8fcfe9748177e76cabf7f13802fe5a67eae713eb73569ba88a5bae2c14f8b \
+    --hash=sha256:82aa51db88fc2b73d8b0ffb7f8cf51a2e5949b6409bcb9cdaee9edc230120548
+    # via -r requirements/lint.in
 types-html5lib==1.1.11.20260518 \
     --hash=sha256:4f33c087cb1119d65c4c80eca4323c2b501f9eaf8af9616b8b732ed4d8eae8fa \
     --hash=sha256:9baa7912224ebb37027c5ccb7e3768e43ea47b1dfdd977e7ddc4b0a4a550584d

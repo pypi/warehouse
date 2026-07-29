@@ -107,6 +107,27 @@ class _CallRecorder:
         return getattr(self._mock, name)
 
 
+@pytest.fixture(autouse=True)
+def guard_mock_sentinels():
+    yield
+
+    mutations = []
+    # ``unittest.mock`` keeps every named sentinel in this process-global cache.
+    # Inspecting it lets us guard sentinels from mutation that would impact other tests.
+    for name, sentinel in mock.sentinel._sentinels.items():
+        attributes = vars(sentinel)
+        expected_attributes = {"name": name}
+        if attributes != expected_attributes:
+            mutations.append(f"mock.sentinel.{name} (attributes: {sorted(attributes)})")
+            attributes.clear()
+            attributes.update(expected_attributes)
+
+    assert not mutations, (
+        "mock sentinels must not be mutated; use a fresh object instead. Mutated: "
+        + ", ".join(mutations)
+    )
+
+
 @pytest.fixture
 def metrics():
     """Real ``NullMetrics`` with each method wrapped to record calls.
