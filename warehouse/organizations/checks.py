@@ -31,7 +31,7 @@ if TYPE_CHECKING:
 
 _extractor = TLDExtract(suffix_list_urls=())
 
-# Hosts that are public suffixes so domain matching cant be used to affiliate
+# Hosts that are public suffixes, so domain matching can't be used to affiliate
 # to an org.
 UNVERIFIABLE_URL_HOSTS = {
     "bitbucket.org",
