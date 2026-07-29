@@ -34,9 +34,8 @@
              aria-label="{% trans %}Release history. Focus will be moved to the release history panel.{% endtrans %}">
             <span>
               <i class="fa fa-history" aria-hidden="true"></i>
-              {% trans count=all_versions|count %}{{ count }} release
-              {% pluralize %}
-                {{ count }} releases{% endtrans %}
+              {% trans %}Release history{% endtrans %}
+              <span class="badge badge--neutral">{{ all_versions|count }}</span>
             </span>
           </a>
         </li>
@@ -53,10 +52,9 @@
                data-action="project-tabs#tabClick keydown->project-tabs#tabKeydown"
                aria-label="{% trans %}Files. Focus will be moved to the project files.{% endtrans %}">
               <span>
-                <i class="fa-regular fa-file" aria-hidden="true"></i>
-                {% trans count=files|count %}{{ count }} file
-              {% pluralize %}
-                {{ count }} files{% endtrans %}
+                <i class="fa fa-download" aria-hidden="true"></i>
+                {% trans %}Download files{% endtrans %}
+                <span class="badge badge--neutral">{{ files|count }}</span>
               </span>
             </a>
           </li>

@@ -1931,7 +1931,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: warehouse/templates/accounts/profile.html:97
-#: warehouse/templates/includes/packaging/project-release-history.html:46
+#: warehouse/templates/includes/packaging/project-release-history.html:57
 #: warehouse/templates/includes/packaging/project-status.html:55
 msgid "Archived"
 msgstr ""
@@ -3320,6 +3320,7 @@ msgid "%(title)s"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-files.html:47
+#: warehouse/templates/includes/packaging/project-navigation.html:56
 msgid "Download files"
 msgstr ""
 
@@ -3410,36 +3411,21 @@ msgid "Release history. Focus will be moved to the release history panel."
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-navigation.html:37
-#, python-format
-msgid "%(count)s release"
-msgid_plural "%(count)s releases"
-msgstr[0] ""
-msgstr[1] ""
+#: warehouse/templates/includes/packaging/project-release-history.html:8
+msgid "Release history"
+msgstr ""
 
-#: warehouse/templates/includes/packaging/project-navigation.html:54
+#: warehouse/templates/includes/packaging/project-navigation.html:53
 msgid "Files. Focus will be moved to the project files."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-navigation.html:57
-#: warehouse/templates/includes/packaging/project-release-history.html:60
-#: warehouse/templates/manage/project/releases.html:32
-#, python-format
-msgid "%(count)s file"
-msgid_plural "%(count)s files"
-msgstr[0] ""
-msgstr[1] ""
-
-#: warehouse/templates/includes/packaging/project-navigation.html:64
+#: warehouse/templates/includes/packaging/project-navigation.html:62
 msgid "Release security. Focus will be moved to the security panel."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-navigation.html:67
+#: warehouse/templates/includes/packaging/project-navigation.html:65
 #: warehouse/templates/pages/security.html:4
 msgid "Security"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-release-history.html:8
-msgid "Release history"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-release-history.html:10
@@ -3451,31 +3437,59 @@ msgid "RSS feed"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-release-history.html:22
+#: warehouse/templates/includes/packaging/project-release-history.html:68
 msgid "This release"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-release-history.html:38
+#: warehouse/templates/includes/packaging/project-release-history.html:39
+#, python-format
+msgid "Release quarantined on %(date)s"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-release-history.html:41
+#, python-format
+msgid "Project quarantined on %(date)s"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-release-history.html:43
 #: warehouse/templates/includes/packaging/project-status.html:7
 #: warehouse/templates/includes/packaging/project-status.html:19
 #: warehouse/templates/manage/project/releases.html:25
 msgid "Quarantined"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-release-history.html:42
+#: warehouse/templates/includes/packaging/project-release-history.html:48
+#, python-format
+msgid "Release yanked on %(date)s"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-release-history.html:50
 #: warehouse/templates/includes/packaging/project-status.html:35
 msgid "Yanked"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-release-history.html:50
+#: warehouse/templates/includes/packaging/project-release-history.html:55
+#, python-format
+msgid "Project archived on %(date)s"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-release-history.html:61
 #: warehouse/templates/includes/packaging/project-status.html:67
 msgid "Pre-release"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-release-history.html:62
+#: warehouse/templates/includes/packaging/project-release-history.html:75
+#, python-format
+msgid "%(count)s download file"
+msgid_plural "%(count)s download files"
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/templates/includes/packaging/project-release-history.html:79
 msgid "Full provenance"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-release-history.html:67
+#: warehouse/templates/includes/packaging/project-release-history.html:84
 msgid "Yanked reason:"
 msgstr ""
 
@@ -7623,6 +7637,13 @@ msgstr ""
 #: warehouse/templates/manage/project/releases.html:23
 msgid "Manage version"
 msgstr ""
+
+#: warehouse/templates/manage/project/releases.html:32
+#, python-format
+msgid "%(count)s file"
+msgid_plural "%(count)s files"
+msgstr[0] ""
+msgstr[1] ""
 
 #: warehouse/templates/manage/project/releases.html:45
 msgid "No files"

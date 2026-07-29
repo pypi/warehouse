@@ -51,7 +51,7 @@
 
   &--neutral {
     background-color: colors.$base-grey;
-    border-color: colors.$base-grey;
+    border-color: colors.$border-color;
     color: color.adjust(colors.$base-grey, $lightness: -50%);
 
     &:hover {
