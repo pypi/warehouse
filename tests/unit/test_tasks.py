@@ -40,8 +40,10 @@ class TestWarehouseTask:
 
     def test_call(self, mocker):
         registry = types.SimpleNamespace(settings={"warehouse.ip_salt": "peppa"})
-        request = types.SimpleNamespace()
 
+        # get_request() mutates the prepared request, so use a fresh object
+        # rather than a process-global mocker.sentinel.
+        request = types.SimpleNamespace()
         prepared = {
             "registry": registry,
             "request": request,
@@ -108,6 +110,9 @@ class TestWarehouseTask:
             autospec=True,
             return_value=mocker.sentinel.async_result,
         )
+        # A fresh object rather than mocker.sentinel.request: sentinels are
+        # process-global, so an attribute leaked onto one by another test
+        # would make hasattr(request, "tm") unexpectedly true here.
         get_current_request = mocker.patch.object(
             tasks, "get_current_request", return_value=request
         )
