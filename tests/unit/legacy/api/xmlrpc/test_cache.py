@@ -349,7 +349,7 @@ class TestPurgeTask:
 
         pyramid_request.find_service.assert_called_once_with(IXMLRPCCache)
         purge.assert_called_once_with("foo")
-        pyramid_request.log.info.assert_called_once_with("Purging %s", "foo")
+        pyramid_request.log.info.assert_called_once_with("Purging cache tag", tag="foo")
 
     @pytest.mark.parametrize("exception_type", [CacheError])
     def test_purges_fails(self, pyramid_request, mocker, exception_type):
@@ -367,9 +367,9 @@ class TestPurgeTask:
         pyramid_request.find_service.assert_called_once_with(IXMLRPCCache)
         purge.assert_called_once_with("foo")
         task.retry.assert_called_once_with(exc=exc)
-        pyramid_request.log.info.assert_called_once_with("Purging %s", "foo")
+        pyramid_request.log.info.assert_called_once_with("Purging cache tag", tag="foo")
         pyramid_request.log.error.assert_called_once_with(
-            "Error purging %s: %s", "foo", str(exception_type())
+            "Error purging cache tag", tag="foo", error=str(exception_type())
         )
 
     def test_store_purge_keys(self, mocker):

@@ -2,7 +2,6 @@
 
 import enum
 import functools
-import logging
 
 from uuid import UUID
 
@@ -10,6 +9,7 @@ import alembic.config
 import psycopg.types.json
 import pyramid_retry
 import sqlalchemy
+import structlog
 import venusian
 import zope.sqlalchemy  # pyright: ignore[reportMissingImports]
 
@@ -24,7 +24,7 @@ from warehouse.utils.attrs import make_repr
 __all__ = ["Model", "ModelBase", "includeme", "metadata"]
 
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 DEFAULT_ISOLATION = "READ COMMITTED"
