@@ -13,6 +13,7 @@ from tests.common.db.organizations import (
 )
 from warehouse.admin.views import organizations as views
 from warehouse.organizations import services
+from warehouse.organizations.checks import Verdict
 from warehouse.organizations.models import (
     OrganizationApplicationStatus,
     OrganizationType,
@@ -241,6 +242,12 @@ class TestOrganizationApplicationDetail:
         assert result["form"].name.data == organization_application.name
         assert result["conflicting_applications"] == []
         assert result["organization_application"] == organization_application
+        assert {check.key for check in result["checks"]} >= {
+            "domain_match",
+            "email_verified",
+            "has_projects",
+        }
+        assert result["verdict"] in set(Verdict)
 
     def test_detail_edit(self, db_request):
         organization_application = OrganizationApplicationFactory.create()
@@ -449,6 +456,28 @@ class TestOrganizationApplicationActions:
             result.location
             == f"/admin/organization_applications/{organization_application.id}/"
         )
+
+    def test_defer_with_note(self, db_request):
+        admin = UserFactory.create()
+        user = UserFactory.create()
+        organization_application = OrganizationApplicationFactory.create(
+            name="example", submitted_by=user
+        )
+
+        db_request.matchdict["organization_application_id"] = (
+            organization_application.id
+        )
+        db_request.user = admin
+        db_request.route_path = _organization_application_routes
+        db_request.params["message"] = "Jurisdiction review pending."
+
+        result = views.organization_application_defer(db_request)
+
+        assert organization_application.status == OrganizationApplicationStatus.Deferred
+        assert [note.payload["message"] for note in organization_application.notes] == [
+            "Jurisdiction review pending."
+        ]
+        assert result.status_code == 303
 
     def test_defer_turbo_mode(self, db_request):
         admin = UserFactory.create()
