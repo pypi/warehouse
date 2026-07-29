@@ -105,6 +105,20 @@ table.dataTable {
   white-space: pre-wrap;
 }
 
+/* AdminLTE renders sidebar labels inline, so a long one wraps beneath the icon and
+   escapes the highlight. Keep each label on the icon's row and truncate instead. */
+.nav-sidebar .nav-link {
+  display: flex;
+  align-items: center;
+}
+
+.nav-sidebar .nav-link > p {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* Organization application review */
 .org-review-rail {
   position: sticky;
