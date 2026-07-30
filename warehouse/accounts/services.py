@@ -7,7 +7,6 @@ import datetime
 import functools
 import hashlib
 import http
-import logging
 import os
 import secrets
 import typing
@@ -18,6 +17,7 @@ from uuid import UUID
 import passlib.exc
 import pytz
 import requests
+import structlog
 
 from linehaul.ua import parser as linehaul_user_agent_parser
 from passlib.context import CryptContext
@@ -69,7 +69,7 @@ from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerial
 if typing.TYPE_CHECKING:
     from pyramid.request import Request
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 PASSWORD_FIELD = "password"  # noqa: S105
 RECOVERY_CODE_COUNT = 8
@@ -1082,7 +1082,7 @@ class HaveIBeenPwnedPasswordBreachedService:
             resp = self._http.get(self._get_url(hashed_password[:5]))
             resp.raise_for_status()
         except requests.RequestException as exc:
-            logger.warning("Error contacting HaveIBeenPwned: %r", exc)
+            logger.warning("Error contacting HaveIBeenPwned", error=repr(exc))
             self._metrics_increment(
                 "warehouse.compromised_password_check.error", tags=tags
             )
@@ -1174,7 +1174,7 @@ class HaveIBeenPwnedEmailBreachedService:
                 and exc.response.status_code == http.HTTPStatus.NOT_FOUND
             ):
                 return 0
-            logger.warning("Error contacting HaveIBeenPwned: %r", exc)
+            logger.warning("Error contacting HaveIBeenPwned", error=repr(exc))
             return -1
 
         return len(resp.json())
@@ -1225,13 +1225,11 @@ class DomainrDomainStatusService:
             )
             resp.raise_for_status()
         except requests.RequestException as exc:
-            logger.warning("Error contacting Domainr: %r", exc)
+            logger.warning("Error contacting Domainr", error=repr(exc))
             return None
 
         if errors := resp.json().get("errors"):
-            logger.warning(
-                {"status": "Error from Domainr", "errors": errors, "domain": domain}
-            )
+            logger.warning("Error from Domainr", errors=errors, domain=domain)
             return None
 
         return resp.json()["status"][0]["status"].split()
@@ -1262,14 +1260,12 @@ class FastlyDomainStatusService:
             )
             resp.raise_for_status()
         except requests.RequestException as exc:
-            logger.warning("Error contacting Fastly: %r", exc)
+            logger.warning("Error contacting Fastly", error=repr(exc))
             return None
 
         body = resp.json()
         if errors := body.get("errors"):
-            logger.warning(
-                {"status": "Error from Fastly", "errors": errors, "domain": domain}
-            )
+            logger.warning("Error from Fastly", errors=errors, domain=domain)
             return None
 
         return body["status"].split()
