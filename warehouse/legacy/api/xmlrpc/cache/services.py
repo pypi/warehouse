@@ -12,11 +12,11 @@ from warehouse.legacy.api.xmlrpc.cache import interfaces
 @tasks.task(bind=True, ignore_result=True, acks_late=True)
 def purge_tag(task, request, tag):
     service = request.find_service(interfaces.IXMLRPCCache)
-    request.log.info("Purging %s", tag)
+    request.log.info("Purging cache tag", tag=tag)
     try:
         service.purge(tag)
     except interfaces.CacheError as exc:
-        request.log.error("Error purging %s: %s", tag, str(exc))
+        request.log.error("Error purging cache tag", tag=tag, error=str(exc))
         raise task.retry(exc=exc)
 
 
