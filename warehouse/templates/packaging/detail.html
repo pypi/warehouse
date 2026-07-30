@@ -1,115 +1,5 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 {% extends "base.html" %}
-{# HTML HEAD metadata #}
-{%- macro sdists_table(files) -%}
-  <table class="table table--files">
-    <caption class="sr-only">{% trans name=release.project.name, release=release.version %}Source distribution for {{ name }} {{ version }}{% endtrans %}</caption>
-    <thead>
-      <tr>
-        <th scope="col">{% trans %}File{% endtrans %}</th>
-        <th scope="col">{% trans %}Uploaded{% endtrans %}</th>
-        <th scope="col">{% trans %}Size{% endtrans %}</th>
-        <th scope="col">{% trans %}Type{% endtrans %}</th>
-      </tr>
-    </thead>
-    {% for file in files %}
-      <tr>
-        <td class="file-metadata">
-          <span class="table__mobile-label">{% trans %}File{% endtrans %}</span>
-          <a href="{{ request.route_url('packaging.file', path=file.path) }}">{% trans %}Download{% endtrans %}</a>
-          <br>
-          <a href="#{{ file.filename }}"
-             data-project-tabs-target="tab"
-             data-action="project-tabs#onTabClick">{% trans %}Details{% endtrans %}</a>
-        </td>
-        <td class="file-metadata">
-          <span class="table__mobile-label">{% trans %}Uploaded{% endtrans %}</span>
-          {% trans upload_time=humanize(file.upload_time) %}Uploaded {{ upload_time }}{% endtrans %}
-        </td>
-        <td class="file-metadata">
-          <span class="table__mobile-label">{% trans %}Size{% endtrans %}</span>
-          {{ file.size|filesizeformat() if file.size else 0|filesizeformat() }}
-        </td>
-        <td class="file-metadata">
-          <span class="table__mobile-label">{% trans %}Type{% endtrans %}</span>
-          {% trans %}Source{% endtrans %}
-        </td>
-      </tr>
-      <tr>
-        <td colspan="4" class="file-name">
-          <small>{% trans file_name=file.filename %}Name: {{ file_name }}{% endtrans %}</small>
-        </td>
-      </tr>
-    {% endfor %}
-  </table>
-{%- endmacro -%}
-{%- macro bdists_table(files) -%}
-<table class="table table--files">
-  <caption class="sr-only">{% trans name=release.project.name, release=release.version %}Table of built distributions (wheels) for {{ name }} {{ release }}{% endtrans %}</caption>
-  <thead>
-    <tr>
-      <th scope="col">{{ filter_select('interpreter', 'Interpreter') }}</th>
-      <th scope="col">{{ filter_select('abi', 'ABI') }}</th>
-      <th scope="col">{{ filter_select('platform', 'Platform') }}</th>
-      <th scope="col">
-        <a href="{% if request.matched_route %}{{ request.current_route_url() }}{% else %}{{ request.url }}{% endif %}#files"
-           data-action="filter-list#filterClear"
-           class="hidden initial-toggle-visibility button button--link">
-          {% trans %}Reset filters{% endtrans %}
-        </a>
-      </th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for file in files %}
-    <tr class="file-row"
-        {% if 'source' not in file.python_version %}
-          data-filter-list-target="item"
-          data-filtered-target-filename='{{ (([file.filename] + file.pretty_wheel_tags) | list) | tojson }}'
-          {% for filter_name, filter_items in file.wheel_filters.items() %}
-            data-filtered-target-{{ filter_name }}='{{ (filter_items.keys() | list) | tojson }}'
-          {% endfor %}
-        {% endif %}>
-
-      {% if 'Egg' in file.pretty_wheel_tags %}
-        <td colspan="3" class="file-metadata">{% trans %}Legacy Egg format.{% endtrans %}</td>
-      {% else %}
-        <td colspan="3" class="file-info-cell">
-          <!-- Line 1: Filename -->
-          <div class="file-info__name">
-            <strong>{{ file.filename }}</strong>
-          </div>
-
-          <!-- Line 2: Metadata (Interpreter / ABI / Platform) -->
-          <div class="file-info__metadata">
-            {% for type in ['interpreter', 'abi', 'platform'] %}
-              {% set values = file.wheel_filters.get(type, {}) %}
-              {% for _, label in values.items() %}
-                <code>{{ label }}</code>
-              {% endfor %}
-            {% endfor %}
-          </div>
-
-          <!-- Line 3: Stats -->
-          <div class="file-info__stats">
-            <small>{{ humanize(file.upload_time) }}</small>
-            <small>{{ file.size|filesizeformat() if file.size else 0|filesizeformat() }}</small>
-          </div>
-        </td>
-
-        <td class="file-actions">
-          <a href="{{ request.route_url('packaging.file', path=file.path) }}" class="button button--small button--primary button--full-width">Download</a>
-          <a href="#{{ file.filename }}"
-             class="button button--small button--outline button--full-width"
-             data-project-tabs-target="tab"
-             data-action="project-tabs#onTabClick">{% trans %} Details{% endtrans %}</a>
-        </td>
-      {% endif %}
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
-{%- endmacro -%}
 {% block title %}{{ release.project.name }}{% endblock %}
 {% block description %}{{ release.summary }}{% endblock %}
 {% block additional_rss -%}
@@ -137,7 +27,9 @@
         {% include "warehouse:templates/includes/packaging/project-security.html" %}
       </div>
     </div>
-  </div>{% endblock %}{% block extra_js %}
+  </div>
+{% endblock %}
+{% block extra_js %}
   <script src="{{ request.static_path('warehouse:static/dist/js/utils/mathjax-config.js') }}"></script>
   <script async
           src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"

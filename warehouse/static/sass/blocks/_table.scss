@@ -206,9 +206,8 @@
     }
   }
 
-  // Variables (Matching your existing naming convention)
   &--files {
-    margin-bottom: $half-spacing-unit;
+    margin-bottom: grid.$half-spacing-unit;
     border-collapse: collapse;
     width: 100%;
 
@@ -216,9 +215,9 @@
     select.table-filter {
       width: auto;
       border: 0;
-      font-size: $base-font-size;
+      font-size: fonts.$base-font-size;
       background: transparent;
-      font-weight: $bold-font-weight;
+      font-weight: fonts.$bold-font-weight;
       cursor: pointer;
       padding-right: 20px;
 
@@ -229,7 +228,7 @@
 
     // --- Row Layout ---
     .file-row {
-      border-bottom: 1px solid $border-color;
+      border-bottom: 1px solid colors.$border-color;
     }
 
     // --- The Main Content Cell (3 Lines) ---
@@ -283,7 +282,7 @@
     }
 
     // --- Mobile Responsive Handling ---
-    @media only screen and (max-width: $desktop) {
+    @media only screen and (max-width: breakpoints.$desktop) {
       @include mobile-friendly-table;
 
       // Ensure the stack still works on mobile
