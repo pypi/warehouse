@@ -18,7 +18,7 @@ import {gettext, ngettext} from "../utils/messages-access";
  * - data-filtered-target-[name of filter group in kebab-case e.g. content-type]='(stringify-ed JSON)' (zero or more)
  */
 export default class extends Controller {
-  static targets = ["item", "filter", "summary", "url"];
+  static targets = ["item", "filter", "summary", "url", "clear"];
   static values = {group: String};
 
   /**
@@ -89,6 +89,8 @@ export default class extends Controller {
     this._setCopyUrl(filters);
 
     this._setFiltersHtmlElements(filters, included);
+
+    this._setClear(filters);
   }
 
   /**
@@ -146,7 +148,7 @@ export default class extends Controller {
         if (!dataAttrValue) {
           console.warn(`Item target at index ${index} does not have a value for data attribute '${dataAttrsKey}'.`);
         }
-        let value = null;
+        let value;
         try {
           value = JSON.parse(dataAttrValue || "[]");
         } catch {
@@ -469,11 +471,11 @@ export default class extends Controller {
     if (this.hasSummaryTarget) {
       let messages = [];
       if (shown === 0) {
-        messages.push(gettext("No files match the current filters."));
+        messages.push(gettext("No built distributions (wheels) match the current filters."));
       }
       messages.push(ngettext(
-        "Showing %1 of %2 file.",
-        "Showing %1 of %2 files.",
+        "Showing %1 of %2 built distribution (wheel) file.",
+        "Showing %1 of %2 built distribution (wheel) files.",
         total,
         shown.toString(),
         total.toString()));
@@ -511,6 +513,19 @@ export default class extends Controller {
       filters[filterKey] = [];
     }
     filters[filterKey].push(...values);
+  }
+
+  /**
+   * Show or hide the clear target based on whether any filter is active.
+   * @param filters {{[key: string]: string[]}} The current filter data.
+   * @returns {void}
+   * @private
+   */
+  _setClear(filters) {
+    if (this.hasClearTarget) {
+      const hasActiveFilter = Object.values(filters).some(values => values.some(v => v !== ""));
+      this.clearTarget.classList.toggle("hidden", !hasActiveFilter);
+    }
   }
 
   /**

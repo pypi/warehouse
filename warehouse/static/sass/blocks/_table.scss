@@ -37,7 +37,6 @@
 
    Modifiers:
      - information: table for displaying table data - ideally with row level headings
-     - downloads: specific styles for downloads table on project detail page
      - files: specific styles for files table on project detail page
      - releases: specific styles for releases table on manage project page
      - manage-files: specific styles for files table on the releases tab
@@ -192,109 +191,82 @@
     }
   }
 
-  &--downloads {
-    word-wrap: break-word;
-    margin-top: grid.$half-spacing-unit;
-
-    td .button span {
-      display: none;
-    }
-
-    @media only screen and (max-width: breakpoints.$tablet) {
-      @include mobile-friendly-table;
-      margin-bottom: grid.$half-spacing-unit;
-    }
-  }
-
   &--files {
     margin-bottom: grid.$half-spacing-unit;
     border-collapse: collapse;
     width: 100%;
 
-    // --- Header / Filter Styles ---
     select.table-filter {
       width: auto;
+      max-width: 130px;
       border: 0;
       font-size: fonts.$base-font-size;
       background: transparent;
       font-weight: fonts.$bold-font-weight;
       cursor: pointer;
       padding-right: 20px;
+      position: relative;
+      left: -8px;
 
       &:focus {
-        outline: 2px solid rgba(0,0,0,0.1);
+        outline: 2px solid rgb(0 0 0 / 10%);
       }
     }
 
-    // --- Row Layout ---
-    .file-row {
-      border-bottom: 1px solid colors.$border-color;
+    th:first-child,
+    td:first-child {
+      width: 50%;
     }
 
-    // --- The Main Content Cell (3 Lines) ---
-    .file-info-cell {
-      padding: 15px 10px;
-    }
-
-    // Line 1: Filename
     .file-info__name {
+      display: block;
       margin-bottom: 5px;
-    }
 
-    .file-info__metadata {
-      display: flex;
-      align-items: space-between;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
+      a {
+        text-decoration: none;
 
-    // Line 3: Stats (Date and Size)
-    .file-info__stats small {
-      display: inline-block;
-      margin-top: 5px;
-      margin-right: 15px;
-    }
-
-    // --- Action Buttons Column ---
-    tr td.file-actions {
-      vertical-align: middle;
-      padding: 10px;
-      width: 140px; // Fixed width for the buttons
-      min-width: 140px;
-
-      .button {
-        display: block;
-        width: 100%;
-        text-align: center;
-        margin-bottom: 4px;
-
-        &:last-child {
-          margin-bottom: 0;
+        span {
+          text-decoration: underline;
         }
       }
     }
 
-    // --- Legacy / Special Rows ---
-    .file-metadata {
-       padding: 15px 10px;
-       color: #999;
-       font-style: italic;
+    .file-info__metadata {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
     }
 
-    // --- Mobile Responsive Handling ---
-    @media only screen and (max-width: breakpoints.$desktop) {
+    .file-info__meta-divider {
+      display: inline-block;
+      width: 1px;
+      height: 0.85em;
+      background-color: colors.$light-grey;
+      flex-shrink: 0;
+    }
+
+    @media only screen and (max-width: breakpoints.$tablet) {
       @include mobile-friendly-table;
 
-      // Ensure the stack still works on mobile
-      .file-info-cell {
-        display: flex;
-        width: 100%;
+      .col--filter {
+        display: none;
       }
 
-      tr td.file-actions {
-        width: 100%;
-        max-width: none;
-        display: block;
+      .file-info__metadata {
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .file-info__metadata i {
+        display: none;
+      }
+
+      .file-info__metadata small {
+        font-size: fonts.$base-font-size;
+      }
+
+      .file-info__meta-divider {
+        display: none;
       }
     }
   }
