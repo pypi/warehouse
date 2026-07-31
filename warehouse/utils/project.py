@@ -27,7 +27,7 @@ if TYPE_CHECKING:
 
 @task(bind=True, ignore_result=True, acks_late=True)
 def remove_documentation(task, request, project_name):
-    request.log.info("Removing documentation for %s", project_name)
+    request.log.info("Removing documentation", project_name=project_name)
     storage = request.find_service(IDocsStorage)
     try:
         storage.remove_by_prefix(f"{project_name}/")

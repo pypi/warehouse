@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import io
 import zipfile
 
 from pathlib import Path
@@ -166,6 +167,20 @@ def _synthesize_entrypoints_wheel(ini_contents: bytes, tmp_path: Path) -> Path:
         )
 
     return wheel_path
+
+
+def test_validate_record_opens_wheel(tmp_path, monkeypatch):
+    wheel_path = _synthesize_entrypoints_wheel(b"", tmp_path)
+    monkeypatch.setattr(wheel, "_validate_record", lambda archive: True)
+    assert wheel.validate_record(str(wheel_path)) is True
+
+
+def test_wheel_filename_requires_named_archive():
+    with (
+        zipfile.ZipFile(io.BytesIO(), "w") as archive,
+        pytest.raises(ValueError, match="must be backed by a named file"),
+    ):
+        wheel._wheel_filename(archive)
 
 
 @pytest.mark.parametrize("section_name", ["console_scripts", "gui_scripts"])
