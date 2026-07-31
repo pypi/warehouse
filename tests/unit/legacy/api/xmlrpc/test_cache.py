@@ -1,11 +1,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import datetime
+import json
 import types
 
 import celery
 import pytest
 import redis
 
+from packaging.utils import canonicalize_name
 from pyramid.exceptions import ConfigurationError
 
 import warehouse.legacy.api.xmlrpc.cache
@@ -199,6 +202,57 @@ class TestRedisLru:
             func_test, [0, 1], {"kwarg0": 2, "kwarg1": 3}, None, None, None
         )
 
+    def test_stores_compact_json(self, mockredis):
+        """Values land in Redis as compact JSON that ``json.loads`` can read back."""
+        redis_lru = RedisLru(mockredis)
+
+        expected = func_test(0, 1)
+
+        assert redis_lru.fetch(func_test, [0, 1], {}, "[0,1]", None, None) == expected
+
+        stored = mockredis.cache["lru:tag:func_test"]["[0,1]"]
+        assert stored == '[[0,1],{"kwarg0":0,"kwarg1":1}]'
+        assert json.loads(stored) == expected
+
+    def test_stores_non_ascii_escaped(self, mockredis):
+        """Non-ASCII is escaped, keeping serializer output encodable by redis-py.
+
+        `ensure_ascii` is deliberately left at its default: with it disabled, a lone
+        surrogate serializes fine and then fails in redis-py's encoder with a
+        `UnicodeEncodeError`, which `add` does not handle.
+        """
+
+        def unicode_func():
+            return {"name": "日本語"}
+
+        redis_lru = RedisLru(mockredis)
+
+        assert redis_lru.fetch(unicode_func, [], {}, "[]", None, None) == {
+            "name": "日本語"
+        }
+
+        stored = mockredis.cache["lru:tag:unicode_func"]["[]"]
+        assert stored == '{"name":"\\u65e5\\u672c\\u8a9e"}'
+        assert stored.isascii()
+        assert json.loads(stored) == {"name": "日本語"}
+
+    def test_unserializable_value_raises(self, mockredis):
+        """Types the stdlib encoder rejects raise instead of being cached.
+
+        Limitation 1 on `xmlrpc_cache_by_project`. This covers `RedisLru` only; the
+        deriver's own handling of the raise is not exercised here.
+        """
+
+        def datetime_func():
+            return {"submitted": datetime.datetime(2020, 1, 1)}
+
+        redis_lru = RedisLru(mockredis)
+
+        with pytest.raises(TypeError, match="not JSON serializable"):
+            redis_lru.fetch(datetime_func, [], {}, "[]", None, None)
+
+        assert mockredis.cache == {}
+
     def test_redis_custom_metrics(self, metrics, mockredis, mocker):
         redis_lru = RedisLru(mockredis, metric_reporter=metrics)
 
@@ -317,6 +371,53 @@ class TestDeriver:
         derived_view = cached_return_view(view, info)
 
         assert derived_view(mocker.sentinel.context, request) is response
+        view.assert_called_once_with(mocker.sentinel.context, request)
+
+    def test_cache_key_is_a_json_string(self, mockredis, mocker):
+        """The derived cache key is a plain JSON string, used as-is for the hash field.
+
+        Pinned because the key format is part of the on-disk cache layout: changing
+        it orphans every existing entry. Mirrors what `xmlrpc_cache_by_project` and
+        `RedisXMLRPCCache.create_service` pass in production, so the asserted hash
+        name and field are the ones production would write.
+
+        The second call covers the read half of `RedisLru.fetch`, and shows the
+        tuple-to-list divergence documented as limitation 2: a miss returns the
+        view's tuples, a hit returns lists.
+        """
+        service = RedisXMLRPCCache(
+            "redis://127.0.0.2:6379/0", mocker.stub(name="purger"), name="xmlrpc"
+        )
+        service.redis_lru.conn = mockredis
+        fetch = mocker.spy(service, "fetch")
+        request = types.SimpleNamespace(
+            find_service=mocker.Mock(return_value=service),
+            rpc_method="package_roles",
+            rpc_args=("Django",),
+        )
+        view = mocker.Mock(
+            return_value=[("Owner", "someone")], __name__="package_roles"
+        )
+        info = types.SimpleNamespace(
+            options={
+                "xmlrpc_cache": True,
+                "xmlrpc_cache_tag": "project/%s",
+                "xmlrpc_cache_arg_index": 0,
+                "xmlrpc_cache_tag_processor": canonicalize_name,
+            },
+            exception_only=False,
+        )
+        derived_view = cached_return_view(view, info)
+
+        miss = derived_view(mocker.sentinel.context, request)
+        hit = derived_view(mocker.sentinel.context, request)
+
+        assert fetch.call_args.args[3] == '["Django"]'
+        assert mockredis.cache["xmlrpc:project/django:package_roles"] == {
+            '["Django"]': '[["Owner","someone"]]'
+        }
+        assert miss == [("Owner", "someone")]
+        assert hit == [["Owner", "someone"]]
         view.assert_called_once_with(mocker.sentinel.context, request)
 
     @pytest.mark.parametrize(
