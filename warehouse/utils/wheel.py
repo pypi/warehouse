@@ -89,67 +89,6 @@ def _normalize_arch(a: str) -> str:
     return _ARCHS.get(a, a)
 
 
-def _format_version(s: str) -> str:
-    return f"{s[0]}.{s[1:]}"
-
-
-def filename_to_tags(filename: str) -> set[packaging.tags.Tag]:
-    """Parse a wheel file name to extract the tags."""
-    try:
-        _, _, _, tags = packaging.utils.parse_wheel_filename(filename)
-        return set(tags)
-    except packaging.utils.InvalidWheelFilename:
-        return set()
-
-
-def filename_to_pretty_tags(filename: str) -> list[str]:
-    if filename.endswith(".egg"):
-        return ["Egg"]
-    if not filename.endswith(".whl"):
-        return ["Source"]
-
-    tags = filename_to_tags(filename)
-
-    pretty_tags = set()
-    for tag in tags:
-        if tag.platform != "any":
-            for prefix_re, tmpl in _PLATFORMS:
-                if match := prefix_re.match(tag.platform):
-                    pretty_tags.add(tmpl(match))
-
-        if len(tag.interpreter) < 3 or not tag.interpreter[:2].isalpha():
-            # This tag doesn't fit our format, give up
-            pass
-        elif tag.interpreter.startswith("pp"):
-            # PyPy tags are a disaster, give up.
-            pretty_tags.add("PyPy")
-        elif tag.interpreter.startswith("py"):
-            major, minor = tag.interpreter[2:3], tag.interpreter[3:]
-            pretty_tags.add(f"Python {major}{'.' if minor else ''}{minor}")
-        elif tag.interpreter.startswith("ip"):
-            major, minor = tag.interpreter[2:3], tag.interpreter[3:]
-            pretty_tags.add(f"IronPython {major}{'.' if minor else ''}{minor}")
-        elif tag.interpreter.startswith("jy"):
-            major, minor = tag.interpreter[2:3], tag.interpreter[3:]
-            pretty_tags.add(f"Jython {major}{'.' if minor else ''}{minor}")
-        elif tag.abi == "abi3":
-            assert tag.interpreter.startswith("cp")
-            version = _format_version(tag.interpreter.removeprefix("cp"))
-            pretty_tags.add(f"CPython {version}+")
-        elif tag.abi.startswith("cp"):
-            version = _format_version(tag.abi.removeprefix("cp"))
-            pretty_tags.add(f"CPython {version}")
-        elif tag.interpreter.startswith("cp"):
-            version = _format_version(tag.interpreter.removeprefix("cp"))
-            pretty_tags.add(f"CPython {version}")
-        else:
-            # There's a lot of cruft from over the years. If we can't identify
-            # the interpreter tag, just add it directly.
-            pretty_tags.add(tag.interpreter)
-
-    return sorted(pretty_tags)
-
-
 def filenames_to_filters(filenames: list[str]) -> dict[str, list[str]]:
     tags = set()
     for filename in filenames:
@@ -187,8 +126,9 @@ _PLATFORM_MAP = {
     "manylinux": [
         (
             re.compile(r"^manylinux_(\d+)_(\d+)_(.*?)$"),
-            lambda m: f"linux glibc {m.group(1)}.{m.group(2)}+ "
-            f"{_norm_arch(m.group(3))}",
+            lambda m: (
+                f"linux glibc {m.group(1)}.{m.group(2)}+ {_norm_arch(m.group(3))}"
+            ),
         )
     ],
     "manylinux2014": [
@@ -224,11 +164,13 @@ _PLATFORM_MAP = {
     "ios": [
         (
             re.compile(r"^ios_(\d+)_(\d+)_(.*?)_iphoneos$"),
-            lambda m: f"iOS {m.group(1)}.{m.group(2)}+ {_norm_arch(m.group(3))} Device",  # noqa: E501
+            lambda m: f"iOS {m.group(1)}.{m.group(2)}+ {_norm_arch(m.group(3))} Device",
         ),
         (
             re.compile(r"^ios_(\d+)_(\d+)_(.*?)_iphonesimulator$"),
-            lambda m: f"iOS {m.group(1)}.{m.group(2)}+ {_norm_arch(m.group(3))} Simulator",  # noqa: E501
+            lambda m: (
+                f"iOS {m.group(1)}.{m.group(2)}+ {_norm_arch(m.group(3))} Simulator"
+            ),
         ),
     ],
     "android": [
@@ -282,25 +224,24 @@ def _implementation_to_label(raw: str) -> str:
     if raw.startswith("pypy"):
         version = _norm_str(raw.removeprefix("pypy"))
         return f"PyPy {version}"
-    elif raw.startswith("py"):
+    if raw.startswith("py"):
         major, minor = raw[2:3], raw[3:]
         return f"Python {major}{'.' if minor else ''}{minor}"
-    elif raw.startswith("cp"):
+    if raw.startswith("cp"):
         version, suffixes = _format_cpython(raw.removeprefix("cp"))
         return f"CPython {version} {suffixes}".strip()
-    elif raw.startswith("pp"):
+    if raw.startswith("pp"):
         version = _norm_str(raw.removeprefix("pp"))
         return f"PyPy {version}"
-    elif raw.startswith("ip"):
+    if raw.startswith("ip"):
         major, minor = raw[2:3], raw[3:]
         return f"IronPython {major}{'.' if minor else ''}{minor}"
-    elif raw.startswith("jy"):
+    if raw.startswith("jy"):
         major, minor = raw[2:3], raw[3:]
         version = f"{major}{'.' if minor else ''}{minor}"
         return f"Jython {version}"
-    else:
-        # Unknown format. Normalise and return it.
-        return _norm_str(raw)
+    # Unknown format. Normalise and return it.
+    return _norm_str(raw)
 
 
 def _format_cpython(s: str) -> tuple[str, str]:
@@ -325,26 +266,23 @@ def _interpreter_to_label(tag: packaging.tags.Tag) -> str:
 def _abi_to_label(tag: packaging.tags.Tag) -> str:
     if tag.abi == "none":
         return "(none)"
-    elif tag.abi == "abi3":
+    if tag.abi == "abi3":
         # NOTE: CPython abi3 should have a CPython interpreter.
         # if not tag.interpreter.startswith("cp"):
         # A non- CPython interpreter with CPython abi3.
         # Should this be possible?
         # pass
         return "CPython abi3"
-    elif tag.abi.startswith("cp"):
+    if (
+        tag.abi.startswith("cp")
+        or tag.abi.startswith("pypy")
+        or tag.abi.startswith("pp")
+        or tag.abi.startswith("ip")
+        or tag.abi.startswith("jy")
+    ):
         return _implementation_to_label(tag.abi)
-    elif tag.abi.startswith("pypy"):
-        return _implementation_to_label(tag.abi)
-    elif tag.abi.startswith("pp"):
-        return _implementation_to_label(tag.abi)
-    elif tag.abi.startswith("ip"):
-        return _implementation_to_label(tag.abi)
-    elif tag.abi.startswith("jy"):
-        return _implementation_to_label(tag.abi)
-    else:
-        # Unknown abi. Just return it.
-        return _norm_str(tag.abi)
+    # Unknown abi. Just return it.
+    return _norm_str(tag.abi)
 
 
 def _platform_to_label(tag: packaging.tags.Tag) -> str:
@@ -379,8 +317,8 @@ def filename_to_tags(filename: str) -> set[packaging.tags.Tag]:
 def filename_to_pretty_tags(filename: str) -> list[str]:
     grouped_labels = filename_to_grouped_labels(filename)
     pretty_tags = set()
-    for kind, kind_items in grouped_labels.items():
-        for value, label in kind_items.items():
+    for kind_items in grouped_labels.values():
+        for label in kind_items.values():
             pretty_tags.add(label)
     return sorted(pretty_tags)
 
@@ -396,7 +334,7 @@ def filename_to_grouped_labels(filename: str) -> dict[str, dict[str, str]]:
     if filename.endswith(".egg"):
         grouped_labels["other"]["egg"] = "Egg"
         return grouped_labels
-    elif not filename.endswith(".whl"):
+    if not filename.endswith(".whl"):
         grouped_labels["other"]["source"] = "Source"
         return grouped_labels
 

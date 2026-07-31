@@ -243,7 +243,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
     )
     releases: Mapped[list[Release]] = orm.relationship(
         cascade="all, delete-orphan",
-        order_by=lambda: Release._pypi_ordering.desc(),
+        order_by=lambda: Release._pypi_ordering.desc(),  # noqa: PLW0108
         passive_deletes=True,
     )
 
@@ -764,7 +764,7 @@ class Release(HasObservations, db.Model):
     _project_urls: Mapped[list[ReleaseURL]] = orm.relationship(
         collection_class=attribute_keyed_dict("name"),
         cascade="all, delete-orphan",
-        order_by=lambda: ReleaseURL.name.asc(),
+        order_by=lambda: ReleaseURL.name.asc(),  # noqa: PLW0108
         passive_deletes=True,
     )
     project_urls = association_proxy(

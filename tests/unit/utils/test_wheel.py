@@ -613,8 +613,7 @@ nbval = nbval.plugin
             ),
         ),
         (
-            "numpy-2.3.4-pp311-ip27-"
-            "manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl",
+            "numpy-2.3.4-pp311-ip27-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl",
             _build(
                 interp_pp311="PyPy 311",
                 abi_ip27="IronPython 2.7",
@@ -623,8 +622,7 @@ nbval = nbval.plugin
             ),
         ),
         (
-            "numpy-2.3.4-pp311-jy38-"
-            "manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl",
+            "numpy-2.3.4-pp311-jy38-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl",
             _build(
                 interp_pp311="PyPy 311",
                 abi_jy38="Jython 3.8",
