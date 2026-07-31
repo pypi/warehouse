@@ -48,6 +48,12 @@ class RedisXMLRPCCache:
                     "warehouse.xmlrpc.cache.expires", 25 * 60 * 60
                 )
             ),
+            # `execute_purge` calls this factory with the Configurator rather than a
+            # request, and a Configurator has no `metrics`. That path only calls
+            # `purge_tags`, which enqueues celery tasks and never touches `RedisLru`,
+            # so falling back to `StubMetricReporter` there loses nothing: the real
+            # `purge` runs in the `purge_tag` task, which does have a request.
+            metric_reporter=getattr(request, "metrics", None),
         )
 
     def fetch(self, func, args, kwargs, key, tag, expires):
