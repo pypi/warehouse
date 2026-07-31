@@ -41,7 +41,6 @@
      - releases: specific styles for releases table on manage project page
      - manage-files: specific styles for files table on the releases tab
      - history: specific styles for project journals
-     - hashes: specific styles for the hashes table on an individual file
      - collaborators: specific styles for managing a project's collaborators
      - emails: specific styles for emails on the manage account page
      - 2fa: specific styles for 2fa methods on the manage account page
@@ -179,6 +178,10 @@
     th {
       width: 1%;
       white-space: nowrap;
+
+      a {
+        font-weight: normal;
+      }
     }
 
     td,
@@ -186,8 +189,45 @@
       vertical-align: baseline;
     }
 
-    @media only screen and (max-width: breakpoints.$mobile) {
+    @media only screen and (max-width: breakpoints.$tablet) {
       @include mobile-friendly-table;
+    }
+
+    td.file-download {
+      a {
+        text-decoration: none;
+        word-break: break-all;
+
+        span {
+          text-decoration: underline;
+        }
+      }
+    }
+
+    td.file-tags {
+      .badge {
+        display: inline-block;
+        margin-bottom: 4px;
+        margin-right: 4px;
+        margin-left: 0;
+      }
+    }
+
+    td.file-checksum {
+      vertical-align: middle;
+      align-items: center;
+
+      code {
+        word-break: break-all;
+        min-width: 0;
+        margin-right: 3px;
+      }
+
+      .button {
+        padding-top: 1px;
+        padding-bottom: 1px;
+        margin: 0;
+      }
     }
   }
 
@@ -288,37 +328,6 @@
 
     @media only screen and (max-width: breakpoints.$tablet) {
       @include mobile-friendly-table;
-    }
-  }
-
-  &--hashes {
-    padding: 0 10px;
-
-    td code {
-      word-break: break-all;
-    }
-
-    @media only screen and (max-width: breakpoints.$mobile) {
-      @include mobile-friendly-table;
-      margin-top: 0;
-
-      td .button {
-        &::after {
-          top: 100%;
-          right: 50%;
-          margin-top: 5px;
-          margin-right: auto;
-          bottom: auto;
-          transform: translate(50%, 0);
-        }
-
-        &::before {
-          inset: auto, 50%, -5px, auto;
-          margin-right: -5px;
-          border-color: transparent;
-          border-bottom-color: color.adjust(colors.$black, $alpha: -0.3);
-        }
-      }
     }
   }
 

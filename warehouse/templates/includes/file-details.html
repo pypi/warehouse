@@ -25,53 +25,53 @@
 {%- endmacro %}
 <div id="{{ file.filename }}"
      data-project-tabs-target="content"
-     class="vertical-tabs__content"
      role="tabpanel"
-     aria-labelledby="file-tab mobile-file-tab"
+     aria-labelledby="file-tab"
      tabindex="-1">
-  <h2 class="page-title">{% trans %}File details{% endtrans %}</h2>
-  <p>
-    Details for the file <code>{{ file.filename }}</code>.
-  </p>
-  <h3>File metadata</h3>
-  <div>
-    <ul>
-      <li>
-        Download URL: <a href="{{ request.route_url('packaging.file', path=file.path) }}">{{ file.filename }}</a>
-      </li>
-      <li>{% trans upload_time=humanize(file.upload_time) %} Upload date: {{ upload_time }} {% endtrans %}</li>
-      <li>
-        {% trans size=file.size|filesizeformat() if file.size else 0|filesizeformat() %} Size: {{ size }} {% endtrans %}
-      </li>
-      <li>{% trans tags=', '.join(file.pretty_wheel_tags) %} Tags: {{ tags }} {% endtrans %}</li>
-      <li>
-        {% trans is_tp="Yes" if file.uploaded_via_trusted_publisher else "No" %}
-        Uploaded using Trusted Publishing? {{ is_tp }}
-      {% endtrans %}
-    </li>
-    {% if file.uploaded_via %}
-      <li>{% trans uploaded_via=file.uploaded_via %} Uploaded via: {{ uploaded_via }} {% endtrans %}</li>
-    {% endif %}
-  </ul>
-</div>
-<h3>File hashes</h3>
-<div>
-  <table class="table table--hashes">
-    <caption class="sr-only">{% trans filename=file.filename %}Hashes for {{ filename }}{% endtrans %}</caption>
-    <thead>
-      <tr>
-        <th scope="col">{% trans %}Algorithm{% endtrans %}</th>
-        <th scope="col">{% trans %}Hash digest{% endtrans %}</th>
-        <th></th>
-      </tr>
-    </thead>
+  <h2 class="page-title">
+    <a href="#files"
+       data-project-tabs-target="tab"
+       data-action="project-tabs#onTabClick">{% trans %}Release files{% endtrans %}</a>
+    / {{ file.filename }}
+  </h2>
+  <table class="table table--information">
     <tbody>
+      <tr>
+        <th scope="row">{% trans %}Download URL{% endtrans %}</th>
+        <td class="file-download">
+          <a href="{{ request.route_url('packaging.file', path=file.path) }}">
+            <i class="fa-regular fa-circle-down" aria-hidden="true"></i>
+            <span>{{ file.filename }}</span>
+          </a>
+        </td>
+      </tr>
+      <tr>
+        <th scope="row">{% trans %}Size{% endtrans %}</th>
+        <td>{{ file.size|filesizeformat() if file.size else 0|filesizeformat() }}</td>
+      </tr>
+      {% if file.pretty_wheel_tags %}
+        <tr>
+          <th scope="row">{% trans %}Tags{% endtrans %}</th>
+          <td class="file-tags">
+            {% for tag in file.pretty_wheel_tags %}
+              {% if tag.lower() not in ['any', 'none'] %}
+                <span class="badge badge--neutral badge--no-uppercase">{{ tag }}</span>
+              {% endif %}
+            {% endfor %}
+          </td>
+        </tr>
+      {% endif %}
       <tr data-controller="clipboard">
-        <th scope="row">SHA256</th>
-        <td>
+        <th scope="row">
+          {% trans %}SHA256 checksum{% endtrans %}
+          <br>
+          <a href="https://pip.pypa.io/en/stable/topics/secure-installs/#hash-checking-mode"
+             title="{% trans %}External link{% endtrans %}"
+             target="_blank"
+             rel="noopener">{% trans %}How to use checksums{% endtrans %}</a>
+        </th>
+        <td class="file-checksum">
           <code data-clipboard-target="source">{{ file.sha256_digest }}</code>
-        </td>
-        <td class="table__align-right">
           <button type="button"
                   class="button button--small copy-tooltip copy-tooltip-w"
                   data-action="clipboard#copy"
@@ -82,26 +82,16 @@
         </td>
       </tr>
       <tr data-controller="clipboard">
-        <th scope="row">MD5</th>
-        <td>
-          <code data-clipboard-target="source">{{ file.md5_digest }}</code>
-        </td>
-        <td class="table__align-right">
-          <button type="button"
-                  class="button button--small copy-tooltip copy-tooltip-w"
-                  data-action="clipboard#copy"
-                  data-clipboard-target="tooltip"
-                  data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
-            {% trans %}Copy{% endtrans %}
-          </button>
-        </td>
-      </tr>
-      <tr data-controller="clipboard">
-        <th scope="row">BLAKE2b-256</th>
-        <td>
+        <th scope="row">
+          {% trans %}BLAKE2b-256 checksum{% endtrans %}
+          <br>
+          <a href="https://pip.pypa.io/en/stable/topics/secure-installs/#hash-checking-mode"
+             title="{% trans %}External link{% endtrans %}"
+             target="_blank"
+             rel="noopener">{% trans %}How to use checksums{% endtrans %}</a>
+        </th>
+        <td class="file-checksum">
           <code data-clipboard-target="source">{{ file.blake2_256_digest }}</code>
-        </td>
-        <td class="table__align-right">
           <button type="button"
                   class="button button--small copy-tooltip copy-tooltip-w"
                   data-action="clipboard#copy"
@@ -111,109 +101,127 @@
           </button>
         </td>
       </tr>
+      <tr>
+        <th scope="row">{% trans %}Upload date{% endtrans %}</th>
+        <td>{% trans upload_time=humanize(file.upload_time) %}{{ upload_time }}{% endtrans %}</td>
+      </tr>
+      <tr>
+        <th scope="row">
+          {% trans %}Uploaded using Trusted Publishing?{% endtrans %}
+          <br>
+          <a href="{{ request.user_docs_url('/trusted-publishers/') }}">{% trans %}What is trusted publishing?{% endtrans %}</a>
+        </th>
+        <td>
+          {% if file.uploaded_via_trusted_publisher %}
+            {% trans %}Yes{% endtrans %}
+          {% else %}
+            {% trans %}No{% endtrans %}
+          {% endif %}
+        </td>
+      </tr>
+      {% if file.uploaded_via %}
+        <tr>
+          <th scope="row">{% trans %}Uploaded via{% endtrans %}</th>
+          <td>{{ file.uploaded_via }}</td>
+        </tr>
+      {% endif %}
     </tbody>
   </table>
-  <p>
-    {% trans href='https://pip.pypa.io/en/stable/topics/secure-installs/#hash-checking-mode', title=gettext('External link') %}
-    <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">See more details on using hashes here.</a>
-  {% endtrans %}
-</p>
-</div>
-{% if file.provenance %}
-  <h3>Provenance</h3>
-  {% set provenance = file.provenance.as_model %}
-  <p>
-    The following attestation bundles were made for <code>{{ file.filename }}</code>:
-  </p>
-  {% for bundle in provenance.attestation_bundles %}
-    <div class="file">
-      <div class="file__graphic">
-        <i class="fa-solid fa-file-circle-check" aria-hidden="true"></i>
-      </div>
-      <div class="card file__card">
-        {{ publisher(bundle.publisher) }}
-        Attestations:
-        <small>
-          <i>Values shown here reflect the state when the release was signed and may no longer be current.</i>
-        </small>
-        <ul>
-          {% for attestation in bundle.attestations %}
-            {% set viewer = PEP740AttestationViewer(bundle.publisher, attestation) %}
-            <li>
-              Statement:
-              <ul>
-                <li>
-                  Statement type: <a href="{{ viewer.statement_type }}"><code>{{ viewer.statement_type }}</code></a>
-                </li>
-                <li>
-                  Predicate type: <a href="{{ viewer.predicate_type }}"><code>{{ viewer.predicate_type }}</code></a>
-                </li>
-                <li>
-                  Subject name: <code>{{ viewer.subject_name }}</code>
-                </li>
-                <li>
-                  Subject digest: <code>{{ viewer.subject_digest }}</code>
-                </li>
-                <li>
-                  Sigstore transparency entry: <a href="https://search.sigstore.dev/?logIndex={{ viewer.transparency_entry.logIndex }}">{{ viewer.transparency_entry.logIndex }}</a>
-                </li>
-                <li>Sigstore integration time: {{ humanize(viewer.transparency_entry.integratedTime | int | ctime, time="true") }}</li>
-              </ul>
-              {% if bundle.publisher.repository %}
-                Source repository:
+  {% if file.provenance %}
+    <h3>Provenance</h3>
+    {% set provenance = file.provenance.as_model %}
+    <p>
+      The following attestation bundles were made for <code>{{ file.filename }}</code>:
+    </p>
+    {% for bundle in provenance.attestation_bundles %}
+      <div class="file">
+        <div class="file__graphic">
+          <i class="fa-solid fa-file-circle-check" aria-hidden="true"></i>
+        </div>
+        <div class="card file__card">
+          {{ publisher(bundle.publisher) }}
+          Attestations:
+          <small>
+            <i>Values shown here reflect the state when the release was signed and may no longer be current.</i>
+          </small>
+          <ul>
+            {% for attestation in bundle.attestations %}
+              {% set viewer = PEP740AttestationViewer(bundle.publisher, attestation) %}
+              <li>
+                Statement:
                 <ul>
                   <li>
-                    Permalink: <a href="{{ viewer.permalink_with_digest }}">
-                    <code>{{ bundle.publisher.repository }}@{{ viewer.source_digest }}</code>
+                    Statement type: <a href="{{ viewer.statement_type }}"><code>{{ viewer.statement_type }}</code></a>
+                  </li>
+                  <li>
+                    Predicate type: <a href="{{ viewer.predicate_type }}"><code>{{ viewer.predicate_type }}</code></a>
+                  </li>
+                  <li>
+                    Subject name: <code>{{ viewer.subject_name }}</code>
+                  </li>
+                  <li>
+                    Subject digest: <code>{{ viewer.subject_digest }}</code>
+                  </li>
+                  <li>
+                    Sigstore transparency entry: <a href="https://search.sigstore.dev/?logIndex={{ viewer.transparency_entry.logIndex }}">{{ viewer.transparency_entry.logIndex }}</a>
+                  </li>
+                  <li>Sigstore integration time: {{ humanize(viewer.transparency_entry.integratedTime | int | ctime, time="true") }}</li>
+                </ul>
+                {% if bundle.publisher.repository %}
+                  Source repository:
+                  <ul>
+                    <li>
+                      Permalink: <a href="{{ viewer.permalink_with_digest }}">
+                      <code>{{ bundle.publisher.repository }}@{{ viewer.source_digest }}</code>
+                    </a>
+                  </li>
+                  <li>
+                    Branch / Tag: <a href="{{ viewer.permalink_with_reference }}">
+                    <code>{{ viewer.source_reference }}</code>
                   </a>
                 </li>
                 <li>
-                  Branch / Tag: <a href="{{ viewer.permalink_with_reference }}">
-                  <code>{{ viewer.source_reference }}</code>
-                </a>
-              </li>
+                  Owner: <a href="{{ viewer.owner }}">{{ viewer.owner }}</a>
+                </li>
+                <li>
+                  Access: <code>{{ viewer.access }}</code>
+                </li>
+              </ul>
+            {% endif %}
+            Publication detail:
+            <ul>
               <li>
-                Owner: <a href="{{ viewer.owner }}">{{ viewer.owner }}</a>
+                Token Issuer: <code>{{ viewer.issuer }}</code>
               </li>
-              <li>
-                Access: <code>{{ viewer.access }}</code>
-              </li>
+              {% if viewer.publisher.kind == "Google" %}
+                <li>
+                  Service Account: <code>{{ viewer.publisher.email }}</code>
+                </li>
+              {% endif %}
+              {% if viewer.environment %}
+                <li>
+                  Runner Environment: <code>{{ viewer.environment }}</code>
+                </li>
+              {% endif %}
+              {% if viewer.workflow_filename and viewer.build_digest %}
+                <li>
+                  Publication workflow:
+                  <a href="{{ viewer.workflow_url }}">
+                    <code>{{ viewer.workflow_filename }}@{{ viewer.build_digest }}</code>
+                  </a>
+                </li>
+              {% endif %}
+              {% if viewer.trigger %}
+                <li>
+                  Trigger Event: <code>{{ viewer.trigger }}</code>
+                </li>
+              {% endif %}
             </ul>
-          {% endif %}
-          Publication detail:
-          <ul>
-            <li>
-              Token Issuer: <code>{{ viewer.issuer }}</code>
-            </li>
-            {% if viewer.publisher.kind == "Google" %}
-              <li>
-                Service Account: <code>{{ viewer.publisher.email }}</code>
-              </li>
-            {% endif %}
-            {% if viewer.environment %}
-              <li>
-                Runner Environment: <code>{{ viewer.environment }}</code>
-              </li>
-            {% endif %}
-            {% if viewer.workflow_filename and viewer.build_digest %}
-              <li>
-                Publication workflow:
-                <a href="{{ viewer.workflow_url }}">
-                  <code>{{ viewer.workflow_filename }}@{{ viewer.build_digest }}</code>
-                </a>
-              </li>
-            {% endif %}
-            {% if viewer.trigger %}
-              <li>
-                Trigger Event: <code>{{ viewer.trigger }}</code>
-              </li>
-            {% endif %}
-          </ul>
-        </li>
-      {% endfor %}
-    </ul>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
   </div>
-</div>
 {% endfor %}
 {% endif %}
 </div>
