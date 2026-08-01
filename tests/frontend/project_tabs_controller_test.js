@@ -16,13 +16,13 @@ const tabsHTML = `
         </a>
       </li>
       <li role="presentation">
-        <a id="history-tab" href="#history" role="tab" data-project-tabs-target="tab" data-action="project-tabs#tabClick keydown->project-tabs#tabKeydown" class="project-tabs__tab" aria-selected="false" tabindex="-1" aria-label="Release history. Focus will be moved to the history panel.">
-          <span><i class="fa fa-history" aria-hidden="true"></i> Release history</span>
+        <a id="files-tab" href="#files" role="tab" data-project-tabs-target="tab" data-action="project-tabs#tabClick keydown->project-tabs#tabKeydown" class="project-tabs__tab" aria-selected="false" tabindex="-1" aria-label="Download files. Focus will be moved to the project files.">
+          <span><i class="fa fa-cirle-down" aria-hidden="true"></i> Download files</span>
         </a>
       </li>
       <li role="presentation">
-        <a id="files-tab" href="#files" role="tab" data-project-tabs-target="tab" data-action="project-tabs#tabClick keydown->project-tabs#tabKeydown" class="project-tabs__tab" aria-selected="false" tabindex="-1" aria-label="Download files. Focus will be moved to the project files.">
-          <span><i class="fa fa-download" aria-hidden="true"></i> Download files</span>
+        <a id="history-tab" href="#history" role="tab" data-project-tabs-target="tab" data-action="project-tabs#tabClick keydown->project-tabs#tabKeydown" class="project-tabs__tab" aria-selected="false" tabindex="-1" aria-label="Release history. Focus will be moved to the history panel.">
+          <span><i class="fa fa-history" aria-hidden="true"></i> Release history</span>
         </a>
       </li>
     </ul>
@@ -37,11 +37,6 @@ const tabsHTML = `
     <!-- Tab: Project details (no nav tab — kept for hide/show coverage) -->
     <div id="data" data-project-tabs-target="content" role="tabpanel" tabindex="-1">
       <h2 class="page-title">Project details</h2>
-    </div>
-
-    <!-- Tab: Release history -->
-    <div id="history" data-project-tabs-target="content" role="tabpanel" aria-labelledby="history-tab" tabindex="-1">
-      <h2 class="page-title">Release history</h2>
     </div>
 
     <!-- Tab: Download files -->
@@ -60,6 +55,11 @@ const tabsHTML = `
     <div id="sample-1.0.tar.gz" data-project-tabs-target="content" role="tabpanel" tabindex="-1">
       <h2 class="page-title">File details</h2>
       <p>Details for the file sample-1.0.tar.gz.</p>
+    </div>
+
+    <!-- Tab: Release history -->
+    <div id="history" data-project-tabs-target="content" role="tabpanel" aria-labelledby="history-tab" tabindex="-1">
+      <h2 class="page-title">Release history</h2>
     </div>
   </div>
 </div>
