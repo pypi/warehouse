@@ -853,9 +853,19 @@ class DatabaseOrganizationService:
         """
         Adds a team project role for the specified team and project
         """
+        organization_project = (
+            self.db.query(OrganizationProject)
+            .join(Team, Team.organization_id == OrganizationProject.organization_id)
+            .filter(
+                Team.id == team_id,
+                OrganizationProject.project_id == project_id,
+            )
+            .one()
+        )
         team_project_role = TeamProjectRole(
             team_id=team_id,
             project_id=project_id,
+            organization_project_id=organization_project.id,
             role_name=role_name,
         )
 

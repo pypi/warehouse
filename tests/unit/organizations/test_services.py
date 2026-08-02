@@ -812,6 +812,35 @@ class TestDatabaseOrganizationService:
             .count()
         )
 
+    def test_delete_organization_project_cascades_team_project_roles(
+        self, db_request
+    ):
+        organization = OrganizationFactory.create()
+        team = TeamFactory.create(organization=organization)
+        project = ProjectFactory.create()
+        organization_project = OrganizationProjectFactory.create(
+            organization=organization,
+            project=project,
+        )
+        TeamProjectRoleFactory.create(
+            team=team,
+            project=project,
+            organization_project=organization_project,
+        )
+
+        db_request.db.delete(organization_project)
+        db_request.db.flush()
+        db_request.db.expire_all()
+
+        assert not (
+            db_request.db.query(TeamProjectRole)
+            .filter(
+                TeamProjectRole.team_id == team.id,
+                TeamProjectRole.project_id == project.id,
+            )
+            .count()
+        )
+
     def test_record_tos_engagement_invalid_engagement(
         self, organization_service, db_request
     ):
@@ -1071,13 +1100,21 @@ class TestDatabaseOrganizationService:
     def test_add_team_project_role(self, organization_service, db_request):
         team = TeamFactory.create()
         project = ProjectFactory.create()
+        organization_project = OrganizationProjectFactory.create(
+            organization=team.organization,
+            project=project,
+        )
 
-        organization_service.add_team_project_role(team.id, project.id, "Owner")
+        team_project_role = organization_service.add_team_project_role(
+            team.id, project.id, "Owner"
+        )
+        assert team_project_role.organization_project_id == organization_project.id
         assert (
             db_request.db.query(TeamProjectRole)
             .filter(
                 TeamProjectRole.team_id == team.id,
                 TeamProjectRole.project_id == project.id,
+                TeamProjectRole.organization_project_id == organization_project.id,
                 TeamProjectRole.role_name == "Owner",
             )
             .count()

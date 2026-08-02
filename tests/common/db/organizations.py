@@ -205,6 +205,24 @@ class TeamRoleFactory(WarehouseFactory):
     team = factory.SubFactory(TeamFactory)
 
 
+def _get_or_create_organization_project(team, project):
+    session = OrganizationProjectFactory._meta.sqlalchemy_session
+    organization_project = (
+        session.query(OrganizationProject)
+        .filter(
+            OrganizationProject.organization_id == team.organization_id,
+            OrganizationProject.project_id == project.id,
+        )
+        .one_or_none()
+    )
+    if organization_project is None:
+        organization_project = OrganizationProjectFactory.create(
+            organization=team.organization,
+            project=project,
+        )
+    return organization_project
+
+
 class TeamProjectRoleFactory(WarehouseFactory):
     class Meta:
         model = TeamProjectRole
@@ -212,6 +230,9 @@ class TeamProjectRoleFactory(WarehouseFactory):
     role_name = TeamProjectRoleType.Owner
     project = factory.SubFactory(ProjectFactory)
     team = factory.SubFactory(TeamFactory)
+    organization_project = factory.LazyAttribute(
+        lambda o: _get_or_create_organization_project(o.team, o.project)
+    )
 
 
 class OrganizationOIDCIssuerFactory(WarehouseFactory):

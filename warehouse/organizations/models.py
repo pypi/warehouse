@@ -896,6 +896,7 @@ class TeamProjectRole(db.Model):
     __table_args__ = (
         Index("team_project_roles_project_id_idx", "project_id"),
         Index("team_project_roles_team_id_idx", "team_id"),
+        Index("team_project_roles_organization_project_id_idx", "organization_project_id"),
         UniqueConstraint(
             "project_id",
             "team_id",
@@ -914,11 +915,19 @@ class TeamProjectRole(db.Model):
     team_id: Mapped[UUID] = mapped_column(
         ForeignKey("teams.id", onupdate="CASCADE", ondelete="CASCADE"),
     )
+    organization_project_id: Mapped[UUID] = mapped_column(
+        ForeignKey(
+            "organization_projects.id",
+            onupdate="CASCADE",
+            ondelete="CASCADE",
+        ),
+    )
 
     project: Mapped[Project] = relationship(
         lazy=False, back_populates="team_project_roles"
     )
     team: Mapped[Team] = relationship(lazy=False)
+    organization_project: Mapped[OrganizationProject] = relationship(lazy=False)
 
 
 class TeamFactory:
