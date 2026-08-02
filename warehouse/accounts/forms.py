@@ -194,11 +194,14 @@ class PasswordMixin:
         self._check_password_metrics_tags = check_password_metrics_tags
         super().__init__(*args, **kwargs)
 
+    def _get_password_userid(self):
+        return self.user_service.find_userid(self.username.data)
+
     def validate_password(self, field):
         if field.errors:
             return
 
-        userid = self.user_service.find_userid(self.username.data)
+        userid = self._get_password_userid()
         if userid is not None:
             try:
                 if not self.user_service.check_password(
@@ -581,34 +584,8 @@ class ReAuthenticateForm(PasswordMixin, wtforms.Form):
         self.user_id = user_id
         self.user_service = user_service
 
-    def validate_password(self, field):
-        if field.errors:
-            return
-
-        try:
-            if not self.user_service.check_password(
-                self.user_id,
-                field.data,
-                tags=self._check_password_metrics_tags,
-            ):
-                user = self.user_service.get_user(self.user_id)
-                user.record_event(
-                    tag=f"account:{self.action}:failure",
-                    request=self.request,
-                    additional={"reason": "invalid_password"},
-                )
-                raise wtforms.validators.ValidationError(INVALID_PASSWORD_MESSAGE)
-        except TooManyFailedLogins as err:
-            raise wtforms.validators.ValidationError(
-                _(
-                    "There have been too many unsuccessful login attempts. "
-                    "You have been locked out for ${time}. "
-                    "Please try again later.",
-                    mapping={
-                        "time": humanize.naturaldelta(err.resets_in.total_seconds())
-                    },
-                )
-            ) from None
+    def _get_password_userid(self):
+        return self.user_id
 
 
 class RecoveryCodeAuthenticationForm(

@@ -1220,7 +1220,9 @@ class TestReAuthenticateForm:
 
     def test_validate_ignores_posted_username(self):
         user_service = pretend.stub(
-            find_userid=pretend.call_recorder(lambda username: 2),
+            find_userid=pretend.call_recorder(
+                pretend.raiser(AssertionError("find_userid should not be called"))
+            ),
             check_password=pretend.call_recorder(
                 lambda userid, password, tags=None: True
             ),
