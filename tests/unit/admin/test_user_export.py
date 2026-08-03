@@ -8,6 +8,7 @@ import json
 from warehouse.accounts.models import DisableReason
 from warehouse.admin import user_export
 from warehouse.ip_addresses.models import BanReason
+from warehouse.oidc.models import PendingOIDCPublisher
 
 from ...common.db.accounts import (
     EmailFactory,
@@ -22,6 +23,7 @@ from ...common.db.accounts import (
 from ...common.db.ip_addresses import IpAddressFactory
 from ...common.db.macaroons import MacaroonFactory
 from ...common.db.observations import ObserverFactory
+from ...common.db.oidc import PendingGitHubPublisherFactory
 from ...common.db.organizations import (
     OrganizationFactory,
     OrganizationInvitationFactory,
@@ -37,6 +39,13 @@ from ...common.db.packaging import (
     RoleInvitationFactory,
 )
 from ...common.db.ses import EmailMessageFactory, EventFactory as SESEventFactory
+
+# Queries issued by a full `export_user` call for a user with rows in every
+# section. Pinned so an unbounded or duplicated section query is visible.
+# The truncated count is the ceiling: every capped section fills its page and
+# pays for the COUNT that gives its true total.
+EXPECTED_QUERY_COUNT = 29
+EXPECTED_TRUNCATED_QUERY_COUNT = 35
 
 
 class TestHelpers:
@@ -420,3 +429,167 @@ class TestTimelineSection:
         received = [e for e in result["entries"] if e["kind"] == "observation_received"]
         assert len(received) == 1
         assert received[0]["observer"]["username"] == reporter.username
+
+
+class TestExportUser:
+    def test_document_shape(self, db_request):
+        """The assembled document has the full envelope and all zones."""
+        admin = UserFactory.create()
+        user = UserFactory.create()
+        db_request.user = admin
+        db_request.registry.settings["warehouse.commit"] = "deadbeef"
+
+        document = user_export.export_user(user, db_request)
+
+        assert document["export_schema_version"] == "1"
+        assert document["generated_by"] == {
+            "id": str(admin.id),
+            "username": admin.username,
+        }
+        assert document["warehouse_commit"] == "deadbeef"
+        assert document["generated_at"].endswith("+00:00")
+        for key in (
+            "user",
+            "projects",
+            "past_projects",
+            "organizations",
+            "teams",
+            "pending_oidc_publishers",
+            "timeline",
+        ):
+            assert key in document
+        assert json.dumps(document)
+
+    def test_pending_publishers(self, db_request):
+        """Pending trusted publishers added by the user are listed, with
+        provider-specific identifying fields in ``specifier``."""
+        user = UserFactory.create()
+        publisher = PendingGitHubPublisherFactory.create(added_by=user)
+        db_request.user = UserFactory.create()
+
+        document = user_export.export_user(user, db_request)
+
+        section = document["pending_oidc_publishers"]
+        assert section["count"] == 1
+        row = section["rows"][0]
+        assert row["id"] == str(publisher.id)
+        assert row["project_name"] == publisher.project_name
+        assert row["kind"] == publisher.publisher_name
+        assert row["url"] == publisher.publisher_url()
+        assert row["organization_id"] is None
+        assert row["specifier"] == {
+            "repository_owner": publisher.repository_owner,
+            "repository_name": publisher.repository_name,
+            "repository_owner_id": publisher.repository_owner_id,
+            "workflow_filename": publisher.workflow_filename,
+            "environment": publisher.environment,
+        }
+
+    def test_pending_publisher_organization_scoped(self, db_request):
+        """A pending publisher registered under an organization carries its id."""
+        user = UserFactory.create()
+        org = OrganizationFactory.create()
+        publisher = PendingGitHubPublisherFactory.create(
+            added_by=user, organization_id=org.id
+        )
+        db_request.user = UserFactory.create()
+
+        document = user_export.export_user(user, db_request)
+
+        row = document["pending_oidc_publishers"]["rows"][0]
+        assert row["id"] == str(publisher.id)
+        assert row["organization_id"] == str(org.id)
+
+    def test_specifier_fields_cover_all_pending_publisher_kinds(self):
+        """Every pending publisher subclass has a specifier field mapping."""
+        assert set(user_export._PUBLISHER_SPECIFIER_FIELDS) == set(
+            PendingOIDCPublisher.__subclasses__()
+        )
+        for klass, fields in user_export._PUBLISHER_SPECIFIER_FIELDS.items():
+            for field in fields:
+                assert hasattr(klass, field)
+
+    def test_constant_query_count(self, db_request, query_recorder, monkeypatch):
+        """
+        Query count stays fixed as row counts grow (no N+1).
+
+        Both absolute counts are pinned. On the common path no section fills
+        its page, so no section pays for a COUNT. Once every section is
+        truncated each one adds its COUNT, and that ceiling is pinned too, so
+        an accidentally unbounded or double-counted section shows up here.
+        """
+        admin = UserFactory.create()
+        user = UserFactory.create()
+        email = EmailFactory.create(user=user, primary=True)
+        org = OrganizationFactory.create()
+        OrganizationRoleFactory.create(user=user, organization=org)
+        team = TeamFactory.create(organization=org)
+        TeamRoleFactory.create(user=user, team=team)
+        observer = ObserverFactory.create()
+        UserObservationFactory.create(
+            related=user, observer=observer, kind="account_abuse"
+        )
+        user.observer = ObserverFactory.create()
+        UserObservationFactory.create(
+            related=UserFactory.create(), observer=user.observer, kind="account_abuse"
+        )
+        for _ in range(3):
+            project = ProjectFactory.create()
+            RoleFactory.create(user=user, project=project)
+            RoleFactory.create(user=UserFactory.create(), project=project)
+            ReleaseFactory.create(project=project, uploader=user)
+            UserEventFactory.create(source=user, tag="account:login:success")
+            JournalEntryFactory.create(submitted_by=user)
+            EmailMessageFactory.create(to=email.email)
+        MacaroonFactory.create(user_id=user.id)
+        UserUniqueLoginFactory.create(user=user)
+        PendingGitHubPublisherFactory.create(added_by=user)
+        db_request.user = admin
+        db_request.db.flush()
+
+        db_request.db.expire_all()
+        with query_recorder:
+            first_count_doc = user_export.export_user(user, db_request)
+        baseline = len(query_recorder.queries)
+        assert baseline == EXPECTED_QUERY_COUNT
+        query_recorder.clear()
+
+        # Double the volume across every section; the query count must not grow.
+        OrganizationRoleFactory.create(
+            user=user, organization=OrganizationFactory.create()
+        )
+        TeamRoleFactory.create(user=user, team=TeamFactory.create(organization=org))
+        UserObservationFactory.create(
+            related=user, observer=observer, kind="account_abuse"
+        )
+        UserObservationFactory.create(
+            related=UserFactory.create(), observer=user.observer, kind="account_abuse"
+        )
+        for _ in range(3):
+            project = ProjectFactory.create()
+            RoleFactory.create(user=user, project=project)
+            ReleaseFactory.create(project=project, uploader=user)
+            UserEventFactory.create(source=user, tag="account:login:success")
+            JournalEntryFactory.create(submitted_by=user)
+            EmailMessageFactory.create(to=email.email)
+        MacaroonFactory.create(user_id=user.id)
+        UserUniqueLoginFactory.create(user=user)
+        PendingGitHubPublisherFactory.create(added_by=user)
+        db_request.db.flush()
+
+        db_request.db.expire_all()
+        with query_recorder:
+            user_export.export_user(user, db_request)
+        assert len(query_recorder.queries) == baseline
+        assert first_count_doc["timeline"]["counts"]["total"] > 0
+        assert first_count_doc["timeline"]["counts"]["observation_made"] > 0
+        query_recorder.clear()
+
+        # Cap every section, so each one pays for its COUNT: the ceiling.
+        monkeypatch.setattr(user_export, "SECTION_ROW_LIMIT", 1)
+        db_request.db.expire_all()
+        with query_recorder:
+            truncated_doc = user_export.export_user(user, db_request)
+        assert len(query_recorder.queries) == EXPECTED_TRUNCATED_QUERY_COUNT
+        assert all(truncated_doc["timeline"]["truncated"].values())
+        assert truncated_doc["uploads"]["truncated"] is True

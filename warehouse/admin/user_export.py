@@ -18,14 +18,28 @@ import enum
 from collections.abc import Sequence, Sized
 from uuid import UUID
 
+from pyramid.request import Request
 from sqlalchemy import Row, Select, func, select
-from sqlalchemy.orm import InstrumentedAttribute, Session, joinedload, selectinload
+from sqlalchemy.orm import (
+    InstrumentedAttribute,
+    Session,
+    joinedload,
+    selectin_polymorphic,
+    selectinload,
+)
 
 from warehouse.accounts.models import OAuthAccountAssociation, User, UserUniqueLogin
 from warehouse.email.ses.models import EmailMessage
 from warehouse.ip_addresses.models import IpAddress
 from warehouse.macaroons.models import Macaroon
 from warehouse.observations.models import OBSERVATION_KIND_MAP, Observation
+from warehouse.oidc.models import (
+    PendingActiveStatePublisher,
+    PendingGitHubPublisher,
+    PendingGitLabPublisher,
+    PendingGooglePublisher,
+    PendingOIDCPublisher,
+)
 from warehouse.organizations.models import (
     OrganizationInvitation,
     OrganizationRole,
@@ -40,6 +54,7 @@ from warehouse.packaging.models import (
     RoleInvitation,
     RoleInvitationStatus,
 )
+from warehouse.utils import now
 
 EXPORT_SCHEMA_VERSION = "1"
 
@@ -686,4 +701,100 @@ def _timeline_section(user: User, db: Session) -> dict:
         "entries": entries,
         "email_sent_matched_addresses": addresses,
         "email_sent_match_note": EMAIL_SENT_MATCH_NOTE,
+    }
+
+
+# Per-kind identifying columns, over and above the common fields already on
+# PendingOIDCPublisher (id, project_name, created, added_by_id,
+# organization_id). Keyed by class rather than an isinstance/elif chain so
+# adding a new provider is a one-line addition here.
+_PUBLISHER_SPECIFIER_FIELDS: dict[type[PendingOIDCPublisher], tuple[str, ...]] = {
+    PendingGitHubPublisher: (
+        "repository_owner",
+        "repository_name",
+        "repository_owner_id",
+        "workflow_filename",
+        "environment",
+    ),
+    PendingGitLabPublisher: (
+        "namespace",
+        "project",
+        "workflow_filepath",
+        "environment",
+        "issuer_url",
+    ),
+    PendingGooglePublisher: ("email", "sub"),
+    PendingActiveStatePublisher: (
+        "organization",
+        "activestate_project_name",
+        "actor",
+        "actor_id",
+    ),
+}
+
+
+def _publisher_specifier(publisher: PendingOIDCPublisher) -> dict:
+    """The concrete publisher kind's identifying columns, by field name."""
+    fields = _PUBLISHER_SPECIFIER_FIELDS.get(type(publisher), ())
+    return {field: getattr(publisher, field) for field in fields}
+
+
+def _pending_publishers_section(user: User, db: Session) -> dict:
+    """Pending trusted publishers the user has registered."""
+    # PendingOIDCPublisher is joined-table inheritance: str(p) and other
+    # subclass attributes (e.g. GitHubPublisherMixin.__str__) live on the
+    # subclass table, so a plain lazy load of the base rows would issue one
+    # extra SELECT per row. selectin_polymorphic loads all subclass tables
+    # up front, in one query per subclass type - a fixed cost regardless of
+    # row count.
+    pending = db.scalars(
+        select(PendingOIDCPublisher)
+        .where(PendingOIDCPublisher.added_by_id == user.id)
+        .options(
+            selectin_polymorphic(
+                PendingOIDCPublisher, PendingOIDCPublisher.__subclasses__()
+            )
+        )
+        .order_by(PendingOIDCPublisher.created)
+    ).all()
+    rows = [
+        {
+            "id": str(p.id),
+            "kind": p.publisher_name,
+            "display": str(p),
+            "project_name": p.project_name,
+            "created": _dt(p.created),
+            "added_by_id": str(p.added_by_id),
+            "url": p.publisher_url(),
+            "organization_id": (str(p.organization_id) if p.organization_id else None),
+            "specifier": _publisher_specifier(p),
+        }
+        for p in pending
+    ]
+    return _wrap(rows)
+
+
+def export_user(
+    user: User, request: Request, generated_at: datetime.datetime | None = None
+) -> dict:
+    """
+    Assemble the full user account export document.
+
+    The result contains only JSON-native types; ``json.dumps`` needs no
+    custom encoder. Callers that need the generation instant for something
+    else, like a filename, pass their own ``generated_at``.
+    """
+    db = request.db
+    return {
+        "export_schema_version": EXPORT_SCHEMA_VERSION,
+        "generated_at": _dt(generated_at or now(tz=True)),
+        "generated_by": {
+            "id": str(request.user.id),
+            "username": request.user.username,
+        },
+        "warehouse_commit": request.registry.settings.get("warehouse.commit"),
+        "user": _user_section(user, db),
+        **_membership_sections(user, db),
+        "pending_oidc_publishers": _pending_publishers_section(user, db),
+        "timeline": _timeline_section(user, db),
     }
