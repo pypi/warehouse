@@ -10,24 +10,27 @@
   Horizontal tabs on project detail page, with associated tab panel.
   Panel takes up 100% width
 
-  <div class="project-tabs">
-    <div class="project-tabs__tabs">
-      <nav aria-label="label for navigation">
-        <ul class="project-tabs__list">
-          <li>
-            <a id="my-tab-id" class="project-tabs__tab project-tabs__tab--is-active" aria-selected="true">
-              // Active Tab. Remove --is-active and aria-selected for standard tab
-              <span class="project-tabs__link">
-                // Icon
-                // Text
-              </span>
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </div>
+  <div data-controller="project-tabs" class="project-tabs">
+    <nav class="project-tabs__tabs" aria-label="Navigation for {project}">
+      <ul class="project-tabs__list" role="tablist">
+        <li role="presentation">
+          <a id="my-tab-id" href="#tab-id" role="tab"
+             class="project-tabs__tab project-tabs__tab--is-active"
+             aria-selected="true" aria-controls="tab-id" tabindex="0"
+             data-project-tabs-target="tab"
+             data-action="project-tabs#tabClick keydown->project-tabs#tabKeydown"
+             aria-label="Tab label. Focus will be moved to the tab panel.">
+            // Active tab. Remove --is-active, set aria-selected="false", tabindex="-1" for inactive tabs.
+            <span>
+              // Icon
+              // Text
+            </span>
+          </a>
+        </li>
+      </ul>
+    </nav>
     <div class="project-tabs__panel">
-      <div id="tab-id" data-project-tabs-target="content" role="tabpanel">
+      <div id="tab-id" data-project-tabs-target="content" role="tabpanel" aria-labelledby="my-tab-id" tabindex="-1">
         // Tab content. Shown/hidden by project_tabs_controller.js via the "content" Stimulus target.
       </div>
     </div>
