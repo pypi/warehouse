@@ -5,7 +5,6 @@ import contextlib
 import hashlib
 import io
 import json
-import logging
 import os.path
 import shutil
 import warnings
@@ -18,6 +17,7 @@ import google.api_core.exceptions
 import google.api_core.retry
 import sentry_sdk
 import stdlib_list
+import structlog
 
 from packaging.utils import canonicalize_name
 from pyramid.httpexceptions import HTTPBadRequest, HTTPConflict, HTTPForbidden
@@ -57,7 +57,7 @@ from warehouse.rate_limiting.headers import record_rate_limit
 from warehouse.utils.exceptions import DevelopmentModeWarning
 from warehouse.utils.project import PROJECT_NAME_RE
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 def _namespace_stdlib_list(module_list):

@@ -21,25 +21,6 @@
             </span>
           </a>
         </li>
-        <li role="presentation">
-          <a id="history-tab"
-             href="#history"
-             role="tab"
-             class="project-tabs__tab"
-             aria-selected="false"
-             aria-controls="history"
-             tabindex="-1"
-             data-project-tabs-target="tab"
-             data-action="project-tabs#tabClick keydown->project-tabs#tabKeydown"
-             aria-label="{% trans %}Release history. Focus will be moved to the release history panel.{% endtrans %}">
-            <span>
-              <i class="fa fa-history" aria-hidden="true"></i>
-              {% trans count=all_versions|count %}{{ count }} release
-              {% pluralize %}
-                {{ count }} releases{% endtrans %}
-            </span>
-          </a>
-        </li>
         {% if files %}
           <li role="presentation">
             <a id="files-tab"
@@ -53,10 +34,8 @@
                data-action="project-tabs#tabClick keydown->project-tabs#tabKeydown"
                aria-label="{% trans %}Files. Focus will be moved to the project files.{% endtrans %}">
               <span>
-                <i class="fa-regular fa-file" aria-hidden="true"></i>
-                {% trans count=files|count %}{{ count }} file
-              {% pluralize %}
-                {{ count }} files{% endtrans %}
+                <i class="fa-regular fa-circle-down" aria-hidden="true"></i>
+                {% trans %}Download files{% endtrans %}
               </span>
             </a>
           </li>
@@ -69,6 +48,23 @@
               </a>
             </li> -->
         {% endif %}
+        <li role="presentation">
+          <a id="history-tab"
+             href="#history"
+             role="tab"
+             class="project-tabs__tab"
+             aria-selected="false"
+             aria-controls="history"
+             tabindex="-1"
+             data-project-tabs-target="tab"
+             data-action="project-tabs#tabClick keydown->project-tabs#tabKeydown"
+             aria-label="{% trans %}Release history. Focus will be moved to the release history panel.{% endtrans %}">
+            <span>
+              <i class="fa fa-history" aria-hidden="true"></i>
+              {% trans %}Release history{% endtrans %}
+            </span>
+          </a>
+        </li>
       </ul>
     </nav>
   </div>

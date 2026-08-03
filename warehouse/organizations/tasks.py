@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import datetime
-import logging
 
 import stripe
+import structlog
 
 from sqlalchemy.orm import joinedload
 
@@ -27,7 +27,7 @@ from warehouse.subscriptions.models import StripeSubscriptionStatus
 CLEANUP_AFTER = datetime.timedelta(days=30)
 SUBSCRIPTION_GRACE_PERIOD = datetime.timedelta(days=30)
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 @tasks.task(ignore_result=True, acks_late=True)
@@ -99,9 +99,9 @@ def update_organziation_subscription_usage_record(request):
             # Isolate per-subscription failures so one (e.g. canceled on Stripe with a
             # stale local status) can't abort usage reporting for every other org.
             logger.exception(
-                "Failed to update usage record for organization %r (subscription %s)",
-                org_subscription.organization.name,
-                org_subscription.subscription.subscription_id,
+                "Failed to update usage record",
+                organization_name=org_subscription.organization.name,
+                subscription_id=org_subscription.subscription.subscription_id,
             )
             metrics.increment(
                 "warehouse.organizations.subscription.usage_record.error",

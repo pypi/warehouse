@@ -183,12 +183,20 @@ def _zip_filename_is_dir(filename: str) -> bool:
     return filename.endswith(("/", "\\"))
 
 
-def validate_record(wheel_filepath: str) -> bool:
+def _wheel_filename(archive: zipfile.ZipFile) -> str:
+    if not isinstance(archive.filename, str):
+        raise ValueError("An open wheel archive must be backed by a named file")
+    return os.path.basename(archive.filename)
+
+
+def _validate_record(archive: zipfile.ZipFile) -> bool:
     """
     Extract RECORD file from a wheel and check the ZIP archive contents
     against the files listed in the RECORD. Mismatches are reported via email.
+
+    ``archive`` must be an open, named ``ZipFile``; it is not closed here.
     """
-    filename = os.path.basename(wheel_filepath)
+    filename = _wheel_filename(archive)
     name, version, _ = filename.split("-", 2)
     record_filename = f"{name}-{version}.dist-info/RECORD"
     # Files that must be missing from 'RECORD',
@@ -198,15 +206,14 @@ def validate_record(wheel_filepath: str) -> bool:
         f"{name}-{version}.dist-info/RECORD.p7s",
     }
     try:
-        with zipfile.ZipFile(wheel_filepath) as zfp:
-            wheel_record_contents = zfp.read(record_filename).decode()
+        wheel_record_contents = archive.read(record_filename).decode()
         record_entries = {
             fn.replace("\\", "/")  # Normalize Windows path separators.
             for fn, *_ in csv.reader(wheel_record_contents.splitlines())
         }
         wheel_entries = {
             fn
-            for fn in zfp.namelist()
+            for fn in archive.namelist()
             if not _zip_filename_is_dir(fn) and fn not in record_exemptions
         }
     except UnicodeError, KeyError, csv.Error:
@@ -220,6 +227,13 @@ def validate_record(wheel_filepath: str) -> bool:
             + (f"Wheel is missing {wheel_is_missing})" if wheel_is_missing else "")
         )
     return True
+
+
+def validate_record(wheel: str | zipfile.ZipFile) -> bool:
+    if isinstance(wheel, zipfile.ZipFile):
+        return _validate_record(wheel)
+    with zipfile.ZipFile(wheel) as archive:
+        return _validate_record(archive)
 
 
 # See: https://packaging.python.org/en/latest/specifications/entry-points/#data-model
@@ -237,7 +251,7 @@ def _validate_section(section: configparser.SectionProxy):
             )
 
 
-def validate_entrypoints(wheel_filepath: str) -> bool:
+def _validate_entrypoints(archive: zipfile.ZipFile) -> bool:
     """
     Extract `entry_points.txt` from a wheel and check that it is valid.
 
@@ -247,20 +261,21 @@ def validate_entrypoints(wheel_filepath: str) -> bool:
     that do not contain absolute or relative path components.
 
     Validation errors are not currently reported via email.
+
+    ``archive`` must be an open, named ``ZipFile``; it is not closed here.
     """
 
     # See: <https://packaging.python.org/en/latest/specifications/entry-points/#file-format>
     class CaseSensitiveConfigParser(configparser.ConfigParser):
         optionxform = staticmethod(str)  # type: ignore[assignment]
 
-    filename = os.path.basename(wheel_filepath)
+    filename = _wheel_filename(archive)
     name, version, _ = filename.split("-", 2)
     entry_points_filename = f"{name}-{version}.dist-info/entry_points.txt"
 
     # A wheel might not have an `entry_points.txt` file.
     try:
-        with zipfile.ZipFile(wheel_filepath) as zfp:
-            entry_points_contents = zfp.read(entry_points_filename).decode()
+        entry_points_contents = archive.read(entry_points_filename).decode()
     except KeyError:
         return True
     except UnicodeError:
@@ -288,6 +303,13 @@ def validate_entrypoints(wheel_filepath: str) -> bool:
         # See: https://packaging.python.org/en/latest/specifications/entry-points/#data-model
 
     return True
+
+
+def validate_entrypoints(wheel: str | zipfile.ZipFile) -> bool:
+    if isinstance(wheel, zipfile.ZipFile):
+        return _validate_entrypoints(wheel)
+    with zipfile.ZipFile(wheel) as archive:
+        return _validate_entrypoints(archive)
 
 
 def main(argv) -> int:  # pragma: no cover
