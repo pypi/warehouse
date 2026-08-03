@@ -19,6 +19,19 @@ from ...common.db.accounts import (
 )
 from ...common.db.ip_addresses import IpAddressFactory
 from ...common.db.macaroons import MacaroonFactory
+from ...common.db.organizations import (
+    OrganizationFactory,
+    OrganizationInvitationFactory,
+    OrganizationRoleFactory,
+    TeamFactory,
+    TeamRoleFactory,
+)
+from ...common.db.packaging import (
+    ProjectFactory,
+    ReleaseFactory,
+    RoleFactory,
+    RoleInvitationFactory,
+)
 
 
 class TestHelpers:
@@ -124,4 +137,145 @@ class TestUserSection:
         assert "key" not in result["macaroons"][0]
         assert len(result["unique_logins"]) == 1
         assert len(result["terms_of_service_engagements"]) == 1
+        assert json.dumps(result)
+
+
+class TestMembershipSections:
+    def test_empty(self, db_request):
+        """A user with no memberships gets stable empty sections."""
+        user = UserFactory.create()
+        result = user_export._membership_sections(user, db_request.db)
+        for key in ("projects", "past_projects", "organizations", "teams"):
+            assert result[key] == {"count": 0, "rows": []}
+        assert result["uploads"] == {
+            "count": 0,
+            "limit": user_export.SECTION_ROW_LIMIT,
+            "truncated": False,
+        }
+
+    def test_project_with_collaborators_and_releases(self, db_request):
+        """Project rows carry role, co-collaborators, and release summaries."""
+        user = UserFactory.create()
+        other = UserFactory.create()
+        project = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project, role_name="Owner")
+        RoleFactory.create(user=other, project=project, role_name="Maintainer")
+        first = ReleaseFactory.create(project=project, uploader=user, version="1.0")
+        latest = ReleaseFactory.create(
+            project=project,
+            uploader=user,
+            version="2.0",
+            created=first.created + datetime.timedelta(days=1),
+        )
+
+        result = user_export._membership_sections(user, db_request.db)
+
+        assert result["projects"]["count"] == 1
+        row = result["projects"]["rows"][0]
+        assert row["id"] == str(project.id)
+        assert row["role"] == "Owner"
+        assert row["invite_status"] is None
+        assert row["collaborators"] == [
+            {
+                "user_id": str(other.id),
+                "username": other.username,
+                "role_name": "Maintainer",
+            }
+        ]
+        assert row["releases_uploaded"] == {
+            "count": 2,
+            "first": {"version": "1.0", "created": user_export._dt(first.created)},
+            "latest": {"version": "2.0", "created": user_export._dt(latest.created)},
+        }
+        assert result["past_projects"] == {"count": 0, "rows": []}
+        assert result["uploads"] == {
+            "count": 2,
+            "limit": user_export.SECTION_ROW_LIMIT,
+            "truncated": False,
+        }
+        assert json.dumps(result)
+
+    def test_uploads_cap_at_the_row_limit(self, db_request, monkeypatch):
+        """Past the cap, the summary is partial and the section says so."""
+        monkeypatch.setattr(user_export, "SECTION_ROW_LIMIT", 1)
+        user = UserFactory.create()
+        project = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project, role_name="Owner")
+        first = ReleaseFactory.create(project=project, uploader=user, version="1.0")
+        ReleaseFactory.create(
+            project=project,
+            uploader=user,
+            version="2.0",
+            created=first.created + datetime.timedelta(days=1),
+        )
+
+        result = user_export._membership_sections(user, db_request.db)
+
+        assert result["uploads"] == {"count": 2, "limit": 1, "truncated": True}
+        summary = result["projects"]["rows"][0]["releases_uploaded"]
+        assert summary["count"] == 1
+        assert summary["latest"]["version"] == "1.0"
+
+    def test_invitation_only_project(self, db_request):
+        """An open invitation appears with a null role."""
+        user = UserFactory.create()
+        project = ProjectFactory.create()
+        RoleInvitationFactory.create(user=user, project=project)
+
+        result = user_export._membership_sections(user, db_request.db)
+
+        row = result["projects"]["rows"][0]
+        assert row["role"] is None
+        assert row["invite_status"] is not None
+
+    def test_past_project_from_uploads(self, db_request):
+        """Uploads to a project with no current role land in past_projects."""
+        user = UserFactory.create()
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, uploader=user)
+
+        result = user_export._membership_sections(user, db_request.db)
+
+        assert result["projects"] == {"count": 0, "rows": []}
+        assert result["past_projects"]["count"] == 1
+        row = result["past_projects"]["rows"][0]
+        assert row["role"] is None
+        assert row["releases_uploaded"]["count"] == 1
+        assert row["releases_uploaded"]["first"]["version"] == release.version
+
+    def test_organizations_and_teams(self, db_request):
+        """Org and team rows carry the user's role and co-members."""
+        user = UserFactory.create()
+        other = UserFactory.create()
+        org = OrganizationFactory.create()
+        OrganizationRoleFactory.create(user=user, organization=org)
+        OrganizationRoleFactory.create(user=other, organization=org)
+        team = TeamFactory.create(organization=org)
+        TeamRoleFactory.create(user=user, team=team)
+        TeamRoleFactory.create(user=other, team=team)
+
+        result = user_export._membership_sections(user, db_request.db)
+
+        assert result["organizations"]["count"] == 1
+        org_row = result["organizations"]["rows"][0]
+        assert org_row["id"] == str(org.id)
+        assert [m["username"] for m in org_row["members"]] == [other.username]
+        assert result["teams"]["count"] == 1
+        team_row = result["teams"]["rows"][0]
+        assert team_row["organization"]["id"] == str(org.id)
+        assert [m["username"] for m in team_row["members"]] == [other.username]
+        assert json.dumps(result)
+
+    def test_organization_invitation_only(self, db_request):
+        """An open org invitation appears with a null role and non-null status."""
+        user = UserFactory.create()
+        org = OrganizationFactory.create()
+        OrganizationInvitationFactory.create(user=user, organization=org)
+
+        result = user_export._membership_sections(user, db_request.db)
+
+        assert result["organizations"]["count"] == 1
+        org_row = result["organizations"]["rows"][0]
+        assert org_row["role"] is None
+        assert org_row["invite_status"] is not None
         assert json.dumps(result)
