@@ -19,11 +19,13 @@ from collections.abc import Sequence, Sized
 from uuid import UUID
 
 from sqlalchemy import Row, Select, func, select
-from sqlalchemy.orm import InstrumentedAttribute, Session, joinedload
+from sqlalchemy.orm import InstrumentedAttribute, Session, joinedload, selectinload
 
 from warehouse.accounts.models import OAuthAccountAssociation, User, UserUniqueLogin
+from warehouse.email.ses.models import EmailMessage
 from warehouse.ip_addresses.models import IpAddress
 from warehouse.macaroons.models import Macaroon
+from warehouse.observations.models import OBSERVATION_KIND_MAP, Observation
 from warehouse.organizations.models import (
     OrganizationInvitation,
     OrganizationRole,
@@ -31,6 +33,7 @@ from warehouse.organizations.models import (
     TeamRole,
 )
 from warehouse.packaging.models import (
+    JournalEntry,
     Project,
     Release,
     Role,
@@ -44,6 +47,13 @@ EXPORT_SCHEMA_VERSION = "1"
 # Anything older is left out, and the section says so: the true total is
 # always reported, alongside a `truncated` flag.
 SECTION_ROW_LIMIT = 10_000
+
+# The `email_sent` timeline source matches on `ses_emails.to`, which has no
+# user foreign key, so only addresses currently on the account can be found.
+EMAIL_SENT_MATCH_NOTE = (
+    "Matched on the email addresses currently on the account; mail sent to "
+    "addresses since removed from the account cannot be recovered."
+)
 
 
 def _dt(value: datetime.datetime | None) -> str | None:
@@ -464,4 +474,216 @@ def _membership_sections(user: User, db: Session) -> dict:
             "limit": SECTION_ROW_LIMIT,
             "truncated": uploads_truncated,
         },
+    }
+
+
+def _observation_kind(kind: str) -> dict:
+    """Expand a stored observation-kind string to value plus display name."""
+    known = OBSERVATION_KIND_MAP.get(kind)
+    return {"value": kind, "display": known.value[1] if known else kind}
+
+
+def _observation_fields(obs: Observation) -> dict:
+    """Fields common to made and received observation entries."""
+    return {
+        "kind_detail": _observation_kind(obs.kind),
+        "summary": obs.summary,
+        "payload": obs.payload,
+        "related_name": obs.related_name,
+        "related_id": str(obs.related_id) if obs.related_id else None,
+    }
+
+
+def _timeline_section(user: User, db: Session) -> dict:
+    """
+    All time-shaped records, merged flat and sorted ascending by time.
+
+    Each source is capped at ``SECTION_ROW_LIMIT`` most-recent rows so the
+    document stays bounded for long-lived accounts. ``counts`` always holds
+    the true totals and ``truncated`` says which sources dropped their older
+    rows; both come free unless a source fills its page.
+    """
+    entries: list[dict] = []
+    counts: dict[str, int] = dict.fromkeys(
+        ("event", "journal", "observation_made", "observation_received", "email_sent"),
+        0,
+    )
+    truncated: dict[str, bool] = dict.fromkeys(counts, False)
+
+    def _mark(kind: str, rows: Sized, count: Select[tuple[int]]) -> None:
+        """Record a source's true total and whether the cap dropped rows."""
+        counts[kind], truncated[kind] = _capped_total(db, rows, count)
+
+    events = db.scalars(
+        select(User.Event)
+        .where(User.Event.source_id == user.id)
+        .options(joinedload(User.Event.ip_address))
+        .order_by(User.Event.time.desc(), User.Event.id.desc())
+        .limit(SECTION_ROW_LIMIT)
+    ).all()
+    _mark(
+        "event",
+        events,
+        select(func.count(User.Event.id)).where(User.Event.source_id == user.id),
+    )
+    entries.extend(
+        {
+            "kind": "event",
+            "time": _dt(e.time),
+            "id": str(e.id),
+            "tag": e.tag,
+            "additional": e.additional,
+            "ip_address_id": str(e.ip_address_id) if e.ip_address_id else None,
+            "ip_address": _ip(e.ip_address),
+        }
+        for e in events
+    )
+
+    journals = db.scalars(
+        select(JournalEntry)
+        .where(JournalEntry._submitted_by == user.username)
+        .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
+        .limit(SECTION_ROW_LIMIT)
+    ).all()
+    _mark(
+        "journal",
+        journals,
+        select(func.count(JournalEntry.id)).where(
+            JournalEntry._submitted_by == user.username
+        ),
+    )
+    entries.extend(
+        {
+            "kind": "journal",
+            "time": _dt(j.submitted_date),
+            "id": str(j.id),
+            "name": j.name,
+            "version": j.version,
+            "action": j.action,
+        }
+        for j in journals
+    )
+
+    made: Sequence[Observation] = []
+    if user.observer is not None:
+        # Observations the user filed span every observed model, so this
+        # queries the polymorphic union rather than User.Observation.
+        made = db.scalars(
+            select(Observation)
+            .where(Observation.observer_id == user.observer.id)
+            .order_by(Observation.created.desc(), Observation.id.desc())
+            .limit(SECTION_ROW_LIMIT)
+        ).all()
+        _mark(
+            "observation_made",
+            made,
+            select(func.count(Observation.id)).where(
+                Observation.observer_id == user.observer.id
+            ),
+        )
+    entries.extend(
+        {
+            "kind": "observation_made",
+            "time": _dt(obs.created),
+            "id": str(obs.id),
+            **_observation_fields(obs),
+        }
+        for obs in made
+    )
+
+    received = db.scalars(
+        select(User.Observation)
+        .where(User.Observation.related_id == user.id)
+        .options(joinedload(User.Observation.observer))
+        .order_by(User.Observation.created.desc(), User.Observation.id.desc())
+        .limit(SECTION_ROW_LIMIT)
+    ).all()
+    _mark(
+        "observation_received",
+        received,
+        select(func.count(User.Observation.id)).where(
+            User.Observation.related_id == user.id
+        ),
+    )
+    # Observation.observer_id is NOT NULL, so every row has an observer; the
+    # Observer's parent user is optional, though (e.g. an API-only observer).
+    assoc_ids = {obs.observer._association_id for obs in received}
+    observer_parents = (
+        {
+            u.observer_association_id: u
+            for u in db.scalars(
+                select(User).where(User.observer_association_id.in_(assoc_ids))
+            )
+            .unique()
+            .all()
+        }
+        if assoc_ids
+        else {}
+    )
+    for obs in received:
+        parent = observer_parents.get(obs.observer._association_id)
+        entries.append(
+            {
+                "kind": "observation_received",
+                "time": _dt(obs.created),
+                "id": str(obs.id),
+                **_observation_fields(obs),
+                "observer": {
+                    "id": str(obs.observer.id),
+                    "username": parent.username if parent else None,
+                },
+            }
+        )
+
+    addresses = [e.email for e in user.emails]
+    messages: Sequence[EmailMessage] = []
+    if addresses:
+        messages = db.scalars(
+            select(EmailMessage)
+            .where(EmailMessage.to.in_(addresses))
+            .options(selectinload(EmailMessage.events))
+            .order_by(EmailMessage.created.desc(), EmailMessage.id.desc())
+            .limit(SECTION_ROW_LIMIT)
+        ).all()
+        _mark(
+            "email_sent",
+            messages,
+            select(func.count(EmailMessage.id)).where(EmailMessage.to.in_(addresses)),
+        )
+    entries.extend(
+        {
+            "kind": "email_sent",
+            "time": _dt(m.created),
+            "id": str(m.id),
+            "status": _enum(m.status),
+            "message_id": m.message_id,
+            "from": m.from_,
+            "to": m.to,
+            "subject": m.subject,
+            "missing": m.missing,
+            "delivery_events": [
+                {
+                    "id": str(ev.id),
+                    "created": _dt(ev.created),
+                    "event_type": _enum(ev.event_type),
+                    "data": ev.data,
+                }
+                for ev in m.events
+            ],
+        }
+        for m in messages
+    )
+
+    # All warehouse timestamps are stored UTC, so the ISO strings sort
+    # chronologically without re-parsing.
+    entries.sort(key=lambda e: e["time"] or "")
+
+    counts["total"] = sum(counts.values())
+    return {
+        "counts": counts,
+        "truncated": truncated,
+        "limit": SECTION_ROW_LIMIT,
+        "entries": entries,
+        "email_sent_matched_addresses": addresses,
+        "email_sent_match_note": EMAIL_SENT_MATCH_NOTE,
     }

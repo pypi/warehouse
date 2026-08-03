@@ -12,13 +12,16 @@ from warehouse.ip_addresses.models import BanReason
 from ...common.db.accounts import (
     EmailFactory,
     RecoveryCodeFactory,
+    UserEventFactory,
     UserFactory,
+    UserObservationFactory,
     UserTermsOfServiceEngagementFactory,
     UserUniqueLoginFactory,
     WebAuthnFactory,
 )
 from ...common.db.ip_addresses import IpAddressFactory
 from ...common.db.macaroons import MacaroonFactory
+from ...common.db.observations import ObserverFactory
 from ...common.db.organizations import (
     OrganizationFactory,
     OrganizationInvitationFactory,
@@ -27,11 +30,13 @@ from ...common.db.organizations import (
     TeamRoleFactory,
 )
 from ...common.db.packaging import (
+    JournalEntryFactory,
     ProjectFactory,
     ReleaseFactory,
     RoleFactory,
     RoleInvitationFactory,
 )
+from ...common.db.ses import EmailMessageFactory, EventFactory as SESEventFactory
 
 
 class TestHelpers:
@@ -279,3 +284,139 @@ class TestMembershipSections:
         assert org_row["role"] is None
         assert org_row["invite_status"] is not None
         assert json.dumps(result)
+
+
+class TestTimelineSection:
+    def test_empty(self, db_request):
+        """A user with no activity gets an empty timeline with zero counts."""
+        user = UserFactory.create()
+        result = user_export._timeline_section(user, db_request.db)
+        assert result["entries"] == []
+        assert result["counts"]["total"] == 0
+        assert result["email_sent_matched_addresses"] == []
+        assert result["email_sent_match_note"] == user_export.EMAIL_SENT_MATCH_NOTE
+        assert result["limit"] == user_export.SECTION_ROW_LIMIT
+        for kind in (
+            "event",
+            "journal",
+            "observation_made",
+            "observation_received",
+            "email_sent",
+        ):
+            assert result["counts"][kind] == 0
+            assert result["truncated"][kind] is False
+
+    def test_kinds_merge_sorted(self, db_request):
+        """Events, journals, observations, and sent emails interleave by time."""
+        user = UserFactory.create()
+        email = EmailFactory.create(user=user, primary=True)
+        UserEventFactory.create(
+            source=user, tag="account:login:success", additional={"foo": "bar"}
+        )
+        journal = JournalEntryFactory.create(submitted_by=user)
+        UserObservationFactory.create(related=user, kind="account_abuse")
+        message = EmailMessageFactory.create(to=email.email)
+        SESEventFactory.create(email=message)
+
+        result = user_export._timeline_section(user, db_request.db)
+
+        kinds = {e["kind"] for e in result["entries"]}
+        assert kinds == {"event", "journal", "observation_received", "email_sent"}
+        assert result["counts"]["total"] == 4
+        assert result["email_sent_matched_addresses"] == [email.email]
+        times = [e["time"] for e in result["entries"]]
+        assert times == sorted(times)
+        # Common spine on every entry, string-typed ids throughout
+        for entry in result["entries"]:
+            assert {"kind", "time", "id"} <= entry.keys()
+            assert isinstance(entry["id"], str)
+        journal_entry = next(e for e in result["entries"] if e["kind"] == "journal")
+        assert journal_entry["id"] == str(journal.id)
+        assert json.dumps(result)
+
+    def test_sources_cap_at_the_row_limit(self, db_request, monkeypatch):
+        """Each source keeps its most recent rows and flags the truncation."""
+        monkeypatch.setattr(user_export, "SECTION_ROW_LIMIT", 1)
+        observer = ObserverFactory.create()
+        user = UserFactory.create(observer=ObserverFactory.create())
+        email = EmailFactory.create(user=user, primary=True)
+        older = datetime.datetime(2020, 1, 1)
+        newer = datetime.datetime(2026, 1, 1)
+        for when in (older, newer):
+            UserEventFactory.create(source=user, tag="account:login:success", time=when)
+            JournalEntryFactory.create(submitted_by=user, submitted_date=when)
+            EmailMessageFactory.create(to=email.email, created=when)
+            UserObservationFactory.create(
+                related=user, observer=observer, kind="account_abuse"
+            )
+            UserObservationFactory.create(
+                related=UserFactory.create(),
+                observer=user.observer,
+                kind="account_abuse",
+            )
+
+        result = user_export._timeline_section(user, db_request.db)
+
+        assert result["limit"] == 1
+        assert result["counts"] == {
+            "event": 2,
+            "journal": 2,
+            "observation_made": 2,
+            "observation_received": 2,
+            "email_sent": 2,
+            "total": 10,
+        }
+        assert all(result["truncated"].values())
+        assert len(result["entries"]) == 5
+        assert {
+            e["time"]
+            for e in result["entries"]
+            if e["kind"] in {"event", "journal", "email_sent"}
+        } == {user_export._dt(newer)}
+
+    def test_event_entry_shape(self, db_request):
+        """Event entries carry tag, verbatim payload, and materialized IP."""
+        user = UserFactory.create()
+        event = UserEventFactory.create(source=user, tag="account:2fa:totp")
+
+        result = user_export._timeline_section(user, db_request.db)
+
+        entry = result["entries"][0]
+        assert entry["kind"] == "event"
+        assert entry["tag"] == "account:2fa:totp"
+        assert entry["id"] == str(event.id)
+        assert "ip_address" in entry
+
+    def test_observation_made(self, db_request):
+        """Observations the user filed appear with kind_detail expanded."""
+        observer = ObserverFactory.create()
+        user = UserFactory.create(observer=observer)
+        target = UserFactory.create()
+        observation = UserObservationFactory.create(
+            related=target, observer=observer, kind="account_abuse"
+        )
+
+        result = user_export._timeline_section(user, db_request.db)
+
+        made = [e for e in result["entries"] if e["kind"] == "observation_made"]
+        assert len(made) == 1
+        assert made[0]["kind_detail"] == {
+            "value": "account_abuse",
+            "display": "Account Abuse",
+        }
+        assert made[0]["related_name"] == observation.related_name
+
+    def test_observation_received_resolves_observer(self, db_request):
+        """Observations about the user materialize the observing user."""
+        observer = ObserverFactory.create()
+        reporter = UserFactory.create(is_observer=True, observer=observer)
+        user = UserFactory.create()
+        UserObservationFactory.create(
+            related=user, observer=observer, kind="account_abuse"
+        )
+
+        result = user_export._timeline_section(user, db_request.db)
+
+        received = [e for e in result["entries"] if e["kind"] == "observation_received"]
+        assert len(received) == 1
+        assert received[0]["observer"]["username"] == reporter.username
