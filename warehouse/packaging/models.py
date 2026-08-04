@@ -7,6 +7,7 @@ import enum
 import typing
 
 from collections import Counter, OrderedDict
+from functools import cached_property
 from uuid import UUID
 
 import packaging.utils
@@ -56,9 +57,11 @@ from warehouse import db
 from warehouse.accounts.models import User
 from warehouse.attestations.models import (
     Provenance,
-    ProvenanceState,
+    ProvenanceComparison,
+    ProvenanceCounts,
     ProvenanceStatus,
-    get_file_provenance_sources,
+    PublisherSource,
+    get_provenance_sources,
 )
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
@@ -86,6 +89,9 @@ if typing.TYPE_CHECKING:
 
 _MONOTONIC_SEQUENCE = 42
 PROJECT_NAME_PATTERN = "^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$"
+
+# How far back to look for a release to compare provenance against.
+PROVENANCE_COMPARISON_WINDOW_DAYS = 14
 
 
 class Role(db.Model):
@@ -954,9 +960,16 @@ class Release(HasObservations, db.Model):
             return False
         return all(file.uploaded_via_trusted_publisher for file in files)
 
-    def comparison_provenance_release(self, window_days: int = 14) -> Release | None:
-        """Find preceding release with provenance within window_days."""
+    def comparison_provenance_release(self) -> Release | None:
+        """
+        Find the preceding release with provenance, within the comparison window.
+
+        This inner-joins provenance, so it reaches past a nearer preceding
+        release that has none. Any release it returns therefore has at least
+        one file with provenance.
+        """
         session = orm_session_from_obj(self)
+        window = datetime.timedelta(days=PROVENANCE_COMPARISON_WINDOW_DAYS)
         query = (
             session.query(Release)
             .join(Release.files)
@@ -964,15 +977,15 @@ class Release(HasObservations, db.Model):
             .filter(
                 Release.project_id == self.project_id,
                 Release.created < self.created,
-                Release.created >= self.created - datetime.timedelta(days=window_days),
+                Release.created >= self.created - window,
             )
             .order_by(Release.created.desc())
         )
         return query.first()
 
-    @property
-    def provenance_status(self) -> ProvenanceStatus | None:
-        """Return the provenance status for this Release."""
+    @cached_property
+    def provenance_counts(self) -> ProvenanceCounts:
+        """Count the files, sources and workflows this Release attests to."""
         session = orm_session_from_obj(self)
         total_files = (
             session.query(func.count(File.id))
@@ -980,7 +993,7 @@ class Release(HasObservations, db.Model):
             .scalar()
         )
         if not total_files:
-            return None
+            return ProvenanceCounts(total_files=0, files_with_provenance=0)
 
         provenance_objects = (
             session.query(Provenance)
@@ -989,87 +1002,46 @@ class Release(HasObservations, db.Model):
             .options(orm.undefer(Provenance.provenance))
             .all()
         )
-        files_with_provenance = len(provenance_objects)
-        repository_counter: Counter[str] = Counter()
+        source_counter: Counter[PublisherSource] = Counter()
         workflow_counter: Counter[str] = Counter()
-
+        unreadable_files = 0
         for provenance_object in provenance_objects:
-            repositories, workflows = get_file_provenance_sources(provenance_object)
-            for repository in repositories:
-                repository_counter[repository] += 1
-            for workflow in workflows:
-                workflow_counter[workflow] += 1
+            extracted = get_provenance_sources(provenance_object)
+            if extracted is None:
+                unreadable_files += 1
+                continue
+            sources, workflows = extracted
+            source_counter.update(sources)
+            workflow_counter.update(workflows)
 
-        states: set[ProvenanceState] = set()
-        if files_with_provenance == 0:
-            states.add(ProvenanceState.NO_PROVENANCE)
-        elif files_with_provenance == total_files:
-            states.add(ProvenanceState.FULL_PROVENANCE)
-        else:
-            states.add(ProvenanceState.PARTIAL_PROVENANCE)
-
-        if len(repository_counter) > 1 or len(workflow_counter) > 1:
-            states.add(ProvenanceState.INCONSISTENT_PROVENANCE)
-
-        comparison_release = self.comparison_provenance_release(window_days=14)
-        comparison_files_with_provenance = None
-        comparison_total_files = None
-        comparison_repository_counts: dict[str, int] | None = None
-        comparison_workflow_counts: dict[str, int] | None = None
-
-        if comparison_release:
-            comparison_total_files = (
-                session.query(func.count(File.id))
-                .filter(File.release_id == comparison_release.id)
-                .scalar()
-            )
-            comparison_provenance_objects = (
-                session.query(Provenance)
-                .join(Provenance.file)
-                .filter(File.release_id == comparison_release.id)
-                .options(orm.undefer(Provenance.provenance))
-                .all()
-            )
-            comparison_files_with_provenance = len(comparison_provenance_objects)
-            comparison_repository_counter: Counter[str] = Counter()
-            comparison_workflow_counter: Counter[str] = Counter()
-            for comparison_provenance in comparison_provenance_objects:
-                comparison_repositories, comparison_workflows = (
-                    get_file_provenance_sources(comparison_provenance)
-                )
-                for repository in comparison_repositories:
-                    comparison_repository_counter[repository] += 1
-                for workflow in comparison_workflows:
-                    comparison_workflow_counter[workflow] += 1
-
-            comparison_repository_counts = dict(comparison_repository_counter)
-            comparison_workflow_counts = dict(comparison_workflow_counter)
-
-            if files_with_provenance == 0 and comparison_files_with_provenance > 0:
-                states.add(ProvenanceState.LOST_PROVENANCE)
-            elif (
-                files_with_provenance > 0
-                and comparison_files_with_provenance > 0
-                and (
-                    set(repository_counter.keys())
-                    != set(comparison_repository_counts.keys())
-                    or set(workflow_counter.keys())
-                    != set(comparison_workflow_counts.keys())
-                )
-            ):
-                states.add(ProvenanceState.CHANGED_PROVENANCE)
-
-        return ProvenanceStatus(
-            states=states,
-            files_with_provenance=files_with_provenance,
+        return ProvenanceCounts(
             total_files=total_files,
-            repository_counts=dict(repository_counter),
+            files_with_provenance=len(provenance_objects),
+            unreadable_files=unreadable_files,
+            source_counts=dict(source_counter),
             workflow_counts=dict(workflow_counter),
-            comparison_release=comparison_release,
-            comparison_files_with_provenance=comparison_files_with_provenance,
-            comparison_total_files=comparison_total_files,
-            comparison_repository_counts=comparison_repository_counts,
-            comparison_workflow_counts=comparison_workflow_counts,
+        )
+
+    @cached_property
+    def provenance_status(self) -> ProvenanceStatus | None:
+        """Return the provenance status for this Release."""
+        counts = self.provenance_counts
+        if not counts.total_files:
+            return None
+
+        # Reading the comparison's counts through the same cached property
+        # means a page rendering consecutive releases computes each one once.
+        comparison_release = self.comparison_provenance_release()
+        return ProvenanceStatus(
+            counts=counts,
+            comparison=(
+                ProvenanceComparison(
+                    release=comparison_release,
+                    counts=comparison_release.provenance_counts,
+                )
+                if comparison_release
+                else None
+            ),
         )
 
 

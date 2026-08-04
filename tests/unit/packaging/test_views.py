@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pretend
+import pypi_attestations
 import pytest
 
 from natsort import natsorted
@@ -370,8 +371,8 @@ class TestPEP740AttestationViewer:
         return github_provenance.attestation_bundles[0].attestations[0]
 
     def test_github_pep740(self, github_attestation):
-        github_publisher = pretend.stub(
-            kind="GitHub",
+        github_publisher = pypi_attestations.GitHubPublisher(
+            repository="pypa/sampleproject",
             workflow=".github/workflows/release.yml",
         )
 
@@ -419,8 +420,8 @@ class TestPEP740AttestationViewer:
         )
 
     def test_gitlab_pep740(self, gitlab_attestation):
-        gitlab_publisher = pretend.stub(
-            kind="GitLab",
+        gitlab_publisher = pypi_attestations.GitLabPublisher(
+            repository="pep740-example/sampleproject",
             workflow_filepath=".gitlab-ci.yml",
         )
 

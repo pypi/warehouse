@@ -5,12 +5,13 @@ import datetime
 from collections import OrderedDict
 
 import pretend
+import pypi_attestations
 import pytest
 
 from pyramid.authorization import Allow, Authenticated
 from pyramid.location import lineage
 
-from warehouse.attestations.models import ProvenanceState
+from warehouse.attestations.models import ProvenanceState, PublisherSource
 from warehouse.authnz import Permissions
 from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GIB, ONE_MIB
 from warehouse.macaroons import caveats
@@ -18,6 +19,7 @@ from warehouse.macaroons.models import Macaroon
 from warehouse.oidc.models import GitHubPublisher
 from warehouse.organizations.models import OrganizationType, TeamProjectRoleType
 from warehouse.packaging.models import (
+    PROVENANCE_COMPARISON_WINDOW_DAYS,
     Description,
     File,
     LifecycleStatus,
@@ -48,6 +50,37 @@ from ...common.db.packaging import (
     RoleFactory as DBRoleFactory,
     RoleInvitationFactory as DBRoleInvitationFactory,
 )
+
+
+def _release_pair(days_apart=4):
+    """An older and a newer release on one project, `days_apart` apart."""
+    project = DBProjectFactory.create()
+    older = DBReleaseFactory.create(
+        project=project, created=datetime.datetime(2026, 7, 1, 12, 0, 0)
+    )
+    newer = DBReleaseFactory.create(
+        project=project,
+        created=older.created + datetime.timedelta(days=days_apart),
+    )
+    return older, newer
+
+
+def _provenanced_file(release, publisher=None, **kwargs):
+    """
+    A file on `release` carrying real PEP 740 provenance from `publisher`.
+
+    Defaults to a wheel, since `release_files_single_sdist` allows only one
+    sdist per release and FileFactory picks a packagetype at random.
+    """
+    file = DBFileFactory.create(
+        release=release, **{"packagetype": "bdist_wheel", **kwargs}
+    )
+    DBProvenanceFactory.create(
+        file=file,
+        predicate_types=[pypi_attestations.AttestationType.PYPI_PUBLISH_V1],
+        publisher=publisher,
+    )
+    return file
 
 
 class TestRole:
@@ -1221,143 +1254,108 @@ class TestRelease:
         release = DBReleaseFactory.create()
         assert release.provenance_status is None
 
-    def test_provenance_status_no_provenance(self, db_session):
+    @pytest.mark.parametrize(
+        ("total_files", "provenanced_files", "expected_state"),
+        [
+            pytest.param(1, 0, ProvenanceState.NO_PROVENANCE, id="none-provenanced"),
+            pytest.param(2, 2, ProvenanceState.FULL_PROVENANCE, id="all-provenanced"),
+            pytest.param(
+                2, 1, ProvenanceState.PARTIAL_PROVENANCE, id="some-provenanced"
+            ),
+        ],
+    )
+    def test_provenance_status_coverage_states(
+        self, db_session, total_files, provenanced_files, expected_state
+    ):
         release = DBReleaseFactory.create()
-        DBFileFactory.create(release=release)
-        status = release.provenance_status
-        assert status is not None
-        assert status.states == {ProvenanceState.NO_PROVENANCE}
-        assert status.files_with_provenance == 0
-        assert status.total_files == 1
+        for index in range(total_files):
+            if index < provenanced_files:
+                _provenanced_file(release)
+            else:
+                DBFileFactory.create(release=release, packagetype="bdist_wheel")
 
-    def test_provenance_status_full_provenance(self, db_session):
-        release = DBReleaseFactory.create()
-        file1 = DBFileFactory.create(
-            release=release,
-            filename="file1.tar.gz",
-            packagetype="sdist",
-        )
-        file2 = DBFileFactory.create(
-            release=release,
-            filename="file2.whl",
-            packagetype="bdist_wheel",
-        )
-        prov1 = DBProvenanceFactory.create(file=file1)
-        prov2 = DBProvenanceFactory.create(file=file2)
-        prov1.as_model = pretend.stub(attestation_bundles=[])
-        prov2.as_model = pretend.stub(attestation_bundles=[])
         status = release.provenance_status
-        assert status is not None
-        assert status.states == {ProvenanceState.FULL_PROVENANCE}
-        assert status.files_with_provenance == 2
-        assert status.total_files == 2
 
-    def test_provenance_status_partial_provenance(self, db_session):
-        release = DBReleaseFactory.create()
-        file1 = DBFileFactory.create(
-            release=release,
-            filename="file1.tar.gz",
-            packagetype="sdist",
-        )
-        DBFileFactory.create(
-            release=release,
-            filename="file2.whl",
-            packagetype="bdist_wheel",
-        )
-        prov1 = DBProvenanceFactory.create(file=file1)
-        prov1.as_model = pretend.stub(attestation_bundles=[])
-        status = release.provenance_status
         assert status is not None
-        assert status.states == {ProvenanceState.PARTIAL_PROVENANCE}
-        assert status.files_with_provenance == 1
-        assert status.total_files == 2
+        assert status.states == {expected_state}
+        assert status.counts.files_with_provenance == provenanced_files
+        assert status.counts.total_files == total_files
 
-    def test_provenance_status_inconsistent_multiple_repos(self, db_session):
+    @pytest.mark.parametrize(
+        ("publisher_a", "publisher_b", "expected_sources", "expected_workflows"),
+        [
+            pytest.param(
+                pypi_attestations.GitHubPublisher(
+                    repository="foo/bar", workflow="publish.yml"
+                ),
+                pypi_attestations.GitHubPublisher(
+                    repository="foo/baz", workflow="publish.yml"
+                ),
+                {
+                    PublisherSource("GitHub", "foo/bar"): 1,
+                    PublisherSource("GitHub", "foo/baz"): 1,
+                },
+                {"publish.yml": 2},
+                id="two-repositories",
+            ),
+            pytest.param(
+                pypi_attestations.GitHubPublisher(
+                    repository="foo/bar", workflow="publish.yml"
+                ),
+                pypi_attestations.GitHubPublisher(
+                    repository="foo/bar", workflow="release.yml"
+                ),
+                {PublisherSource("GitHub", "foo/bar"): 2},
+                {"publish.yml": 1, "release.yml": 1},
+                id="two-workflows",
+            ),
+            pytest.param(
+                pypi_attestations.GooglePublisher(
+                    email="a@example.gserviceaccount.com"
+                ),
+                pypi_attestations.GooglePublisher(
+                    email="b@example.gserviceaccount.com"
+                ),
+                {
+                    PublisherSource("Google", "a@example.gserviceaccount.com"): 1,
+                    PublisherSource("Google", "b@example.gserviceaccount.com"): 1,
+                },
+                {},
+                id="two-google-service-accounts",
+            ),
+        ],
+    )
+    def test_provenance_status_inconsistent_provenance(
+        self,
+        db_session,
+        publisher_a,
+        publisher_b,
+        expected_sources,
+        expected_workflows,
+    ):
+        """
+        Files published from two identities make a release inconsistent.
+
+        The Google case is the one a repository-only notion of source cannot
+        see: two service accounts and not a repository between them.
+        """
         release = DBReleaseFactory.create()
-        file1 = DBFileFactory.create(
-            release=release,
-            filename="file1.tar.gz",
-            packagetype="sdist",
-        )
-        file2 = DBFileFactory.create(
-            release=release,
-            filename="file2.whl",
-            packagetype="bdist_wheel",
-        )
-        prov1 = DBProvenanceFactory.create(file=file1)
-        prov2 = DBProvenanceFactory.create(file=file2)
-        prov1.as_model = pretend.stub(
-            attestation_bundles=[
-                pretend.stub(
-                    publisher=pretend.stub(repository="foo/bar", workflow="publish.yml")
-                )
-            ]
-        )
-        prov2.as_model = pretend.stub(
-            attestation_bundles=[
-                pretend.stub(
-                    publisher=pretend.stub(repository="foo/baz", workflow="publish.yml")
-                )
-            ]
-        )
+        _provenanced_file(release, publisher=publisher_a)
+        _provenanced_file(release, publisher=publisher_b)
+
         status = release.provenance_status
+
         assert status is not None
         assert status.states == {
             ProvenanceState.FULL_PROVENANCE,
             ProvenanceState.INCONSISTENT_PROVENANCE,
         }
-        assert status.repository_counts == {"foo/bar": 1, "foo/baz": 1}
-
-    def test_provenance_status_inconsistent_multiple_workflows(self, db_session):
-        release = DBReleaseFactory.create()
-        file1 = DBFileFactory.create(
-            release=release,
-            filename="file1.tar.gz",
-            packagetype="sdist",
-        )
-        file2 = DBFileFactory.create(
-            release=release,
-            filename="file2.whl",
-            packagetype="bdist_wheel",
-        )
-        prov1 = DBProvenanceFactory.create(file=file1)
-        prov2 = DBProvenanceFactory.create(file=file2)
-        prov1.as_model = pretend.stub(
-            attestation_bundles=[
-                pretend.stub(
-                    publisher=pretend.stub(repository="foo/bar", workflow="publish.yml")
-                )
-            ]
-        )
-        prov2.as_model = pretend.stub(
-            attestation_bundles=[
-                pretend.stub(
-                    publisher=pretend.stub(repository="foo/bar", workflow="release.yml")
-                )
-            ]
-        )
-        status = release.provenance_status
-        assert status is not None
-        assert status.states == {
-            ProvenanceState.FULL_PROVENANCE,
-            ProvenanceState.INCONSISTENT_PROVENANCE,
-        }
-        assert status.workflow_counts == {"publish.yml": 1, "release.yml": 1}
+        assert status.counts.source_counts == expected_sources
+        assert status.counts.workflow_counts == expected_workflows
 
     def test_provenance_status_lost_provenance(self, db_session):
-        project = DBProjectFactory.create()
-        rel1 = DBReleaseFactory.create(
-            project=project,
-            created=datetime.datetime(2026, 7, 1, 12, 0, 0),
-        )
-        file1 = DBFileFactory.create(release=rel1)
-        prov1 = DBProvenanceFactory.create(file=file1)
-        prov1.as_model = pretend.stub(attestation_bundles=[])
-
-        rel2 = DBReleaseFactory.create(
-            project=project,
-            created=datetime.datetime(2026, 7, 5, 12, 0, 0),
-        )
+        rel1, rel2 = _release_pair()
+        _provenanced_file(rel1)
         DBFileFactory.create(release=rel2)
 
         status = rel2.provenance_status
@@ -1366,108 +1364,102 @@ class TestRelease:
             ProvenanceState.NO_PROVENANCE,
             ProvenanceState.LOST_PROVENANCE,
         }
-        assert status.comparison_release == rel1
-        assert status.comparison_files_with_provenance == 1
-        assert status.comparison_total_files == 1
+        assert status.comparison.release == rel1
+        assert status.comparison.counts.files_with_provenance == 1
+        assert status.comparison.counts.total_files == 1
 
     def test_provenance_status_lost_provenance_expired_window(self, db_session):
-        project = DBProjectFactory.create()
-        rel1 = DBReleaseFactory.create(
-            project=project,
-            created=datetime.datetime(2026, 6, 1, 12, 0, 0),
+        rel1, rel2 = _release_pair(
+            days_apart=PROVENANCE_COMPARISON_WINDOW_DAYS + 1,
         )
-        file1 = DBFileFactory.create(release=rel1)
-        prov1 = DBProvenanceFactory.create(file=file1)
-        prov1.as_model = pretend.stub(attestation_bundles=[])
-
-        rel2 = DBReleaseFactory.create(
-            project=project,
-            created=datetime.datetime(2026, 7, 1, 12, 0, 0),
-        )
+        _provenanced_file(rel1)
         DBFileFactory.create(release=rel2)
 
         status = rel2.provenance_status
         assert status is not None
         assert status.states == {ProvenanceState.NO_PROVENANCE}
-        assert status.comparison_release is None
+        assert status.comparison is None
+        assert status.comparison is None
 
-    def test_provenance_status_changed_provenance_repo(self, db_session):
-        project = DBProjectFactory.create()
-        rel1 = DBReleaseFactory.create(
-            project=project,
-            created=datetime.datetime(2026, 7, 1, 12, 0, 0),
-        )
-        file1 = DBFileFactory.create(release=rel1)
-        prov1 = DBProvenanceFactory.create(file=file1)
-        prov1.as_model = pretend.stub(
-            attestation_bundles=[
-                pretend.stub(
-                    publisher=pretend.stub(repository="foo/bar", workflow="publish.yml")
-                )
-            ]
-        )
+    @pytest.mark.parametrize(
+        ("old_publisher", "new_publisher", "expected_deltas"),
+        [
+            pytest.param(
+                pypi_attestations.GitHubPublisher(
+                    repository="foo/bar", workflow="publish.yml"
+                ),
+                pypi_attestations.GitHubPublisher(
+                    repository="foo/baz", workflow="publish.yml"
+                ),
+                {
+                    "added_sources": {PublisherSource("GitHub", "foo/baz")},
+                    "removed_sources": {PublisherSource("GitHub", "foo/bar")},
+                    "added_workflows": set(),
+                    "removed_workflows": set(),
+                },
+                id="repository-changed",
+            ),
+            pytest.param(
+                pypi_attestations.GitHubPublisher(
+                    repository="foo/bar", workflow="publish.yml"
+                ),
+                pypi_attestations.GitHubPublisher(
+                    repository="foo/bar", workflow="release.yml"
+                ),
+                {
+                    "added_sources": set(),
+                    "removed_sources": set(),
+                    "added_workflows": {"release.yml"},
+                    "removed_workflows": {"publish.yml"},
+                },
+                id="workflow-changed",
+            ),
+            pytest.param(
+                pypi_attestations.GooglePublisher(
+                    email="builder@example.gserviceaccount.com"
+                ),
+                pypi_attestations.GitHubPublisher(
+                    repository="foo/bar", workflow="publish.yml"
+                ),
+                {
+                    "added_sources": {PublisherSource("GitHub", "foo/bar")},
+                    "removed_sources": {
+                        PublisherSource("Google", "builder@example.gserviceaccount.com")
+                    },
+                    "added_workflows": {"publish.yml"},
+                    "removed_workflows": set(),
+                },
+                id="moved-from-google-to-github",
+            ),
+        ],
+    )
+    def test_provenance_status_changed_provenance(
+        self, db_session, old_publisher, new_publisher, expected_deltas
+    ):
+        """
+        A release that changed publisher reports what changed.
 
-        rel2 = DBReleaseFactory.create(
-            project=project,
-            created=datetime.datetime(2026, 7, 5, 12, 0, 0),
-        )
-        file2 = DBFileFactory.create(release=rel2)
-        prov2 = DBProvenanceFactory.create(file=file2)
-        prov2.as_model = pretend.stub(
-            attestation_bundles=[
-                pretend.stub(
-                    publisher=pretend.stub(repository="foo/baz", workflow="publish.yml")
-                )
-            ]
-        )
+        The delta sets have to agree with the `changed-provenance` state; a
+        release cannot claim its provenance changed and then report no
+        additions or removals.
+        """
+        rel1, rel2 = _release_pair()
+        _provenanced_file(rel1, publisher=old_publisher)
+        _provenanced_file(rel2, publisher=new_publisher)
 
         status = rel2.provenance_status
+
         assert status is not None
         assert status.states == {
             ProvenanceState.FULL_PROVENANCE,
             ProvenanceState.CHANGED_PROVENANCE,
         }
-        assert status.added_repositories == {"foo/baz"}
-        assert status.removed_repositories == {"foo/bar"}
-
-    def test_provenance_status_changed_provenance_workflow(self, db_session):
-        project = DBProjectFactory.create()
-        rel1 = DBReleaseFactory.create(
-            project=project,
-            created=datetime.datetime(2026, 7, 1, 12, 0, 0),
-        )
-        file1 = DBFileFactory.create(release=rel1)
-        prov1 = DBProvenanceFactory.create(file=file1)
-        prov1.as_model = pretend.stub(
-            attestation_bundles=[
-                pretend.stub(
-                    publisher=pretend.stub(repository="foo/bar", workflow="publish.yml")
-                )
-            ]
-        )
-
-        rel2 = DBReleaseFactory.create(
-            project=project,
-            created=datetime.datetime(2026, 7, 5, 12, 0, 0),
-        )
-        file2 = DBFileFactory.create(release=rel2)
-        prov2 = DBProvenanceFactory.create(file=file2)
-        prov2.as_model = pretend.stub(
-            attestation_bundles=[
-                pretend.stub(
-                    publisher=pretend.stub(repository="foo/bar", workflow="release.yml")
-                )
-            ]
-        )
-
-        status = rel2.provenance_status
-        assert status is not None
-        assert status.states == {
-            ProvenanceState.FULL_PROVENANCE,
-            ProvenanceState.CHANGED_PROVENANCE,
-        }
-        assert status.added_workflows == {"release.yml"}
-        assert status.removed_workflows == {"publish.yml"}
+        assert {
+            "added_sources": status.added_sources,
+            "removed_sources": status.removed_sources,
+            "added_workflows": status.added_workflows,
+            "removed_workflows": status.removed_workflows,
+        } == expected_deltas
 
     def test_provenance_status_comparison_release_branches(self, db_session):
         with pytest.raises(NoSessionError):
@@ -1478,17 +1470,7 @@ class TestRelease:
             project=project,
             created=datetime.datetime(2026, 7, 1, 12, 0, 0),
         )
-        file0_prov = DBFileFactory.create(
-            release=rel0, packagetype="sdist", filename="file0.tar.gz"
-        )
-        prov0 = DBProvenanceFactory.create(file=file0_prov)
-        prov0.as_model = pretend.stub(
-            attestation_bundles=[
-                pretend.stub(
-                    publisher=pretend.stub(repository="foo/bar", workflow="publish.yml")
-                )
-            ]
-        )
+        _provenanced_file(rel0, packagetype="sdist", filename="file0.tar.gz")
         DBFileFactory.create(
             release=rel0, packagetype="bdist_wheel", filename="file0.whl"
         )
@@ -1503,22 +1485,108 @@ class TestRelease:
             project=project,
             created=datetime.datetime(2026, 7, 5, 12, 0, 0),
         )
-        file2_prov = DBFileFactory.create(release=rel2_same)
-        prov2 = DBProvenanceFactory.create(file=file2_prov)
-        prov2.as_model = pretend.stub(
-            attestation_bundles=[
-                pretend.stub(
-                    publisher=pretend.stub(repository="foo/bar", workflow="publish.yml")
-                )
-            ]
-        )
+        _provenanced_file(rel2_same)
 
         status = rel2_same.provenance_status
         assert status is not None
         assert status.states == {ProvenanceState.FULL_PROVENANCE}
-        assert status.comparison_release == rel0
-        assert status.comparison_files_with_provenance == 1
-        assert status.comparison_total_files == 2
+        assert status.comparison.release == rel0
+        assert status.comparison.counts.files_with_provenance == 1
+        assert status.comparison.counts.total_files == 2
+
+    @pytest.mark.parametrize(
+        ("unparsable_on", "expected_files_with_provenance"),
+        [
+            pytest.param("release", 2, id="on-the-release-itself"),
+            pytest.param("comparison_release", 1, id="on-the-comparison-release"),
+        ],
+    )
+    def test_provenance_status_survives_unparsable_provenance(
+        self, db_session, unparsable_on, expected_files_with_provenance
+    ):
+        """
+        One unreadable row must not take down a whole release's status.
+
+        A provenance payload written against a different schema version than
+        the one installed still counts as a provenanced file, but contributes
+        no sources.
+        """
+        rel1, rel2 = _release_pair()
+        _provenanced_file(rel1)
+        _provenanced_file(rel2)
+
+        target = rel2 if unparsable_on == "release" else rel1
+        DBProvenanceFactory.create(
+            file=DBFileFactory.create(release=target, packagetype="bdist_wheel"),
+            provenance={"not": "a provenance object"},
+        )
+
+        status = rel2.provenance_status
+
+        assert status is not None
+        assert status.counts.files_with_provenance == expected_files_with_provenance
+        assert status.counts.source_counts == {
+            PublisherSource("GitHub", "example-org/example"): 1
+        }
+        assert status.comparison.counts.source_counts == {
+            PublisherSource("GitHub", "example-org/example"): 1
+        }
+
+    @pytest.mark.parametrize(
+        "unreadable_on",
+        ["release", "comparison_release"],
+        ids=["on-the-release-itself", "on-the-comparison-release"],
+    )
+    def test_provenance_status_unreadable_row_is_not_a_publisher_change(
+        self, db_session, unreadable_on
+    ):
+        """
+        A row we cannot read is unknown provenance, not changed provenance.
+
+        Reporting `changed-provenance` here would tell a project's users that
+        its publishing identity moved when all that happened is that we could
+        not parse one payload.
+        """
+        rel1, rel2 = _release_pair()
+        readable, unreadable = (
+            (rel1, rel2) if unreadable_on == "release" else (rel2, rel1)
+        )
+        _provenanced_file(readable)
+        DBProvenanceFactory.create(
+            file=DBFileFactory.create(release=unreadable, packagetype="bdist_wheel"),
+            provenance={"not": "a provenance object"},
+        )
+
+        status = rel2.provenance_status
+
+        assert status is not None
+        assert ProvenanceState.CHANGED_PROVENANCE not in status.states
+        assert status.added_sources == set()
+        assert status.removed_sources == set()
+
+    def test_provenance_status_is_cached(self, db_session, query_recorder):
+        """
+        Repeated access must not re-run the property body.
+
+        Templates read several attributes off the status object, and each
+        uncached read would re-issue every query behind it.
+        """
+        release = DBReleaseFactory.create()
+        _provenanced_file(release)
+        db_session.flush()
+
+        query_recorder.clear()
+        with query_recorder:
+            first_status = release.provenance_status
+        first_access_queries = len(query_recorder.queries)
+
+        query_recorder.clear()
+        with query_recorder:
+            repeat_statuses = [release.provenance_status for _ in range(3)]
+
+        assert first_access_queries > 0
+        assert query_recorder.queries == []
+        assert all(status is first_status for status in repeat_statuses)
 
     def test_description_relationship(self, db_session):
         """
