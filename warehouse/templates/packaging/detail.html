@@ -23,7 +23,9 @@
     <div class="site-container">
       <div class="project-tabs__panel">
         {% include "warehouse:templates/includes/packaging/project-description.html" %}
-        {% include "warehouse:templates/includes/packaging/project-files.html" %}
+        {% if files %}
+          {% include "warehouse:templates/includes/packaging/project-files.html" %}
+        {% endif %}
         {# {% include "warehouse:templates/includes/packaging/project-security.html" %} #}
         {% include "warehouse:templates/includes/packaging/project-release-history.html" %}
       </div>

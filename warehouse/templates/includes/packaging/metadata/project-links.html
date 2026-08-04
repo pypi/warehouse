@@ -50,37 +50,22 @@
   {% endif %}
   <i class="{{ icon }}" aria-hidden="true"></i>
 {%- endmacro %}
-{% if release.urls %}
-  <div class="sidebar-section">
-    <h2 class="sidebar-section__title">{% trans %}Project links{% endtrans %}</h2>
-    {% if release.urls_by_verify_status(verified=True).values() | contains_valid_uris %}
-      <div class="sidebar-section__content sidebar-section__content--verified">
-        <details class="sidebar-section__data-source">
-          <summary class="sidebar-section__data-source-label"
-                   title="{% trans date=release.created.strftime('%Y-%m-%d') %}Data verified by PyPI on {{ date }}{% endtrans %}">
-            {% trans date=humanize(release.created) %}Data verified by PyPI on {{ date }}{% endtrans %}
-          </summary>
-          <div class="sidebar-section__data-source-description">
-            {% trans %}Data provided by the project maintainers, verified at the time the release was uploaded to PyPI.{% endtrans %}
-          </div>
-        </details>
-        <div class="sidebar-section__data-block">
-          <ul class="sidebar-links">
-            {% for name, url in release.urls_by_verify_status(verified=True).items() %}
-              {% if is_valid_uri(url) %}
-                <li>
-                  <a class="sidebar-links__link" href="{{ url }}" rel="nofollow">{{ url_icon(name, url) }}{{ name }}</a>
-                </li>
-              {% endif %}
-            {% endfor %}
-          </ul>
+<div class="sidebar-section">
+  <h2 class="sidebar-section__title">{% trans %}Project links{% endtrans %}</h2>
+  {% if release.urls_by_verify_status(verified=True).values() | contains_valid_uris %}
+    <div class="sidebar-section__content sidebar-section__content--verified">
+      <details class="sidebar-section__data-source">
+        <summary class="sidebar-section__data-source-label"
+                 title="{% trans date=release.created.strftime('%Y-%m-%d') %}Data verified by PyPI on {{ date }}{% endtrans %}">
+          {% trans date=humanize(release.created) %}Data verified by PyPI on {{ date }}{% endtrans %}
+        </summary>
+        <div class="sidebar-section__data-source-description">
+          {% trans %}Data provided by the project maintainers, verified at the time the release was uploaded to PyPI.{% endtrans %}
         </div>
-      </div>
-    {% endif %}
-    {% if release.urls_by_verify_status(verified=False).values() | contains_valid_uris %}
+      </details>
       <div class="sidebar-section__data-block">
         <ul class="sidebar-links">
-          {% for name, url in release.urls_by_verify_status(verified=False).items() %}
+          {% for name, url in release.urls_by_verify_status(verified=True).items() %}
             {% if is_valid_uri(url) %}
               <li>
                 <a class="sidebar-links__link" href="{{ url }}" rel="nofollow">{{ url_icon(name, url) }}{{ name }}</a>
@@ -89,6 +74,19 @@
           {% endfor %}
         </ul>
       </div>
-    {% endif %}
-  </div>
-{% endif %}
+    </div>
+  {% endif %}
+  {% if release.urls_by_verify_status(verified=False).values() | contains_valid_uris %}
+    <div class="sidebar-section__data-block">
+      <ul class="sidebar-links">
+        {% for name, url in release.urls_by_verify_status(verified=False).items() %}
+          {% if is_valid_uri(url) %}
+            <li>
+              <a class="sidebar-links__link" href="{{ url }}" rel="nofollow">{{ url_icon(name, url) }}{{ name }}</a>
+            </li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+</div>
