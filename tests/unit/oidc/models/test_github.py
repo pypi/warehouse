@@ -210,7 +210,6 @@ class TestGitHubPublisher:
             "enterprise_id",
             "ref_protected",
             "check_run_id",
-            "repo_property_python_gar_access",
         }
 
     def test_github_publisher_computed_properties(self):
@@ -293,6 +292,27 @@ class TestGitHubPublisher:
             )
         ]
         assert scope.fingerprint == ["another-fake-claim", "fake-claim"]
+
+    @pytest.mark.parametrize(
+        "custom_claim",
+        [
+            "repo_property_python_gar_access",
+            "repo_property_custom_property",
+            "repo_property_env_tier",
+            "repo_property_pci_compliant",
+        ],
+    )
+    def test_github_publisher_repo_property_claims_accounted_for(
+        self, monkeypatch, custom_claim
+    ):
+        sentry_sdk = pretend.stub(capture_message=pretend.call_recorder(lambda s: None))
+        monkeypatch.setattr(_core, "sentry_sdk", sentry_sdk)
+
+        signed_claims = dict.fromkeys(github.GitHubPublisher.all_known_claims(), "fake")
+        signed_claims[custom_claim] = "fake"
+
+        github.GitHubPublisher.check_claims_existence(signed_claims)
+        assert sentry_sdk.capture_message.calls == []
 
     @pytest.mark.parametrize(
         "missing",
