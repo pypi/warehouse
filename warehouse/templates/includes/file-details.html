@@ -23,6 +23,143 @@
 </p>
 {% endif %}
 {%- endmacro %}
+
+{% macro attestation_block(viewer, bundle, file, request) %}
+  {% set is_slsa = "slsa" in viewer.predicate_type %}
+  {% if bundle.publisher.kind == "GitHub" %}
+    {% set platform_name = "GitHub Actions" %}
+    {% set platform_url = "https://github.com/features/actions" %}
+  {% elif bundle.publisher.kind == "GitLab" %}
+    {% set platform_name = "GitLab CI/CD" %}
+    {% set platform_url = "https://docs.gitlab.com/ci/" %}
+  {% elif bundle.publisher.kind == "Google" %}
+    {% set platform_name = "Google Cloud" %}
+    {% set platform_url = "" %}
+  {% endif %}
+  <div class="attestation {% if is_slsa %}attestation--slsa{% else %}attestation--pypi{% endif %}">
+    <div class="attestation__header">
+      <div class="attestation__publisher">
+        <div class="attestation__publisher-icons">
+          {% if bundle.publisher.kind == "GitHub" %}
+            <i class="fa-brands fa-github" aria-hidden="true"></i>
+          {% elif bundle.publisher.kind == "GitLab" %}
+            <i class="fa-brands fa-gitlab" aria-hidden="true"></i>
+          {% elif bundle.publisher.kind == "Google" %}
+            <i class="fa-brands fa-google" aria-hidden="true"></i>
+          {% endif %}
+          {% if is_slsa %}
+            <img src="{{ request.static_url('warehouse:static/dist/images/SLSA.svg') }}" alt="" aria-hidden="true">
+          {% else %}
+            <img src="{{ request.static_url('warehouse:static/dist/images/pypi-attestation-cube.svg') }}" alt="" aria-hidden="true">
+          {% endif %}
+        </div>
+      </div>
+      <div class="attestation__header-content">
+        {% if is_slsa %}
+          <h4><a href="{{ viewer.predicate_type }}" target="_blank" rel="noopener">SLSA Build Provenance</a> {% trans %}Attestation{% endtrans %}</h4>
+          <p>PyPI verified that this artifact, at this checksum, originated from the builder listed below.</p>
+          <p><strong>Built by {{ platform_name }}, verified by PyPI on <time datetime="{{ file.upload_time|format_datetime('yyyy-MM-ddTHH:mm:ss') }}" title="{{ file.upload_time|format_datetime('yyyy-MM-dd HH:mm:ss') }}">upload</time>.</strong></p>
+        {% else %}
+          <h4><a href="{{ request.user_docs_url('/attestations/publish/v1/') }}">PyPI Publish</a> {% trans %}Attestation{% endtrans %}</h4>
+          <p>PyPI verified that this artifact, at this checksum, originated from the publisher listed below.</p>
+          <p><strong>Signed by {{ platform_name }}, verified by PyPI on <time datetime="{{ file.upload_time|format_datetime('yyyy-MM-ddTHH:mm:ss') }}" title="{{ file.upload_time|format_datetime('yyyy-MM-dd HH:mm:ss') }}">upload</time>.</strong></p>
+        {% endif %}
+        <a href="https://search.sigstore.dev/?logIndex={{ viewer.transparency_entry.logIndex }}"
+           target="_blank"
+           rel="noopener"
+           title="{% trans %}Sigstore transparency entry{% endtrans %}">
+          {% trans %}Transparency log{% endtrans %}
+        </a>
+      </div>
+    </div>
+    <div class="attestation__details">
+      <div class="attestation__metadata">
+        <div class="attestation__metadata-header">
+          <span class="attestation__metadata-icon">
+            <i class="fa-solid fa-fingerprint" aria-hidden="true"></i>
+          </span>
+          <h5 class="attestation__metadata-title">{% trans %}Identity{% endtrans %}</h5>
+        </div>
+        <dl class="attestation__metadata-content">
+          <dt>{% if is_slsa %}{% trans %}Build platform{% endtrans %}{% else %}{% trans %}Publishing platform{% endtrans %}{% endif %}</dt>
+          <dd>
+            {% if platform_url %}
+              <a href="{{ platform_url }}" target="_blank" rel="noopener">{{ platform_name }}</a>
+            {% else %}
+              {{ platform_name }}
+            {% endif %}
+          </dd>
+          {% if bundle.publisher.repository %}
+            <dt>{% if is_slsa %}{% trans %}Build repository{% endtrans %}{% else %}{% trans %}Publishing repository{% endtrans %}{% endif %}</dt>
+            <dd>
+              <a href="{{ viewer.source }}" target="_blank" rel="noopener">{{ viewer.source | replace("https://", "") }}</a>
+            </dd>
+            <dt>{% if is_slsa %}{% trans %}Build commit{% endtrans %}{% else %}{% trans %}Publishing commit{% endtrans %}{% endif %}</dt>
+            <dd>
+              <a href="{{ viewer.permalink_with_digest }}" target="_blank" rel="noopener">{{ viewer.permalink_with_digest | replace("https://", "") }}</a>
+            </dd>
+          {% elif bundle.publisher.kind == "Google" %}
+            <dt>{% trans %}Service account{% endtrans %}</dt>
+            <dd>{{ bundle.publisher.email }}</dd>
+          {% endif %}
+        </dl>
+      </div>
+      <div class="attestation__metadata">
+        <div class="attestation__metadata-header">
+          <span class="attestation__metadata-icon">
+            {% if is_slsa %}
+              <i class="fa-solid fa-gear" aria-hidden="true"></i>
+            {% else %}
+              <i class="fa-solid fa-circle-play" aria-hidden="true"></i>
+            {% endif %}
+          </span>
+          <h5 class="attestation__metadata-title">{% if is_slsa %}{% trans %}Build{% endtrans %}{% else %}{% trans %}Workflow{% endtrans %}{% endif %}</h5>
+        </div>
+        <dl class="attestation__metadata-content">
+          {% if viewer.workflow_filename and viewer.build_digest %}
+            <dt>{% if is_slsa %}{% trans %}Build instructions{% endtrans %}{% else %}{% trans %}Publishing configuration{% endtrans %}{% endif %}</dt>
+            <dd>
+              <a href="{{ viewer.workflow_url }}" target="_blank" rel="noopener">{{ viewer.workflow_url | replace("https://", "") }}</a>
+            </dd>
+          {% endif %}
+          {% if viewer.source_reference %}
+            <dt>{% if is_slsa %}{% trans %}Build logs{% endtrans %}{% else %}{% trans %}Publishing logs{% endtrans %}{% endif %}</dt>
+            <dd>
+              <a href="{{ viewer.permalink_with_reference }}" target="_blank" rel="noopener">{{ viewer.permalink_with_reference | replace("https://", "") }}</a>
+            </dd>
+          {% endif %}
+        </dl>
+      </div>
+      <div class="attestation__metadata">
+        <div class="attestation__metadata-header">
+          <span class="attestation__metadata-icon">
+            <i class="fa-regular fa-file" aria-hidden="true"></i>
+          </span>
+          <h5 class="attestation__metadata-title">{% trans %}Artifact{% endtrans %}</h5>
+        </div>
+        <dl class="attestation__metadata-content">
+          <dt>{% trans %}File{% endtrans %}</dt>
+          <dd><code>{{ viewer.subject_name }}</code></dd>
+          <dt>{% trans %}SHA-256 checksum{% endtrans %}</dt>
+          <dd>
+            <div class="attestation__checksum" data-controller="clipboard">
+              <span data-clipboard-target="source">{{ viewer.subject_digest }}</span>
+              <button type="button"
+                      class="button button--small copy-tooltip copy-tooltip-w"
+                      data-action="clipboard#copy"
+                      data-clipboard-target="tooltip"
+                      data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
+                <i class="fa-regular fa-copy" aria-hidden="true"></i>
+              </button>
+            </div>
+            <a href="{{ request.user_docs_url('/attestations/consuming-attestations/') }}" target="_blank" rel="noopener">{% trans %}Verifying attestations{% endtrans %}</a>
+          </dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+{% endmacro %}
+
 <div id="{{ file.filename }}"
      data-project-tabs-target="content"
      role="tabpanel"
@@ -63,7 +200,7 @@
       {% endif %}
       <tr data-controller="clipboard">
         <th scope="row">
-          {% trans %}SHA256 checksum{% endtrans %}
+          {% trans %}SHA-256 checksum{% endtrans %}
           <br>
           <a href="https://pip.pypa.io/en/stable/topics/secure-installs/#hash-checking-mode"
              title="{% trans %}External link{% endtrans %}"
@@ -131,9 +268,21 @@
     <h3>Provenance</h3>
     {% set provenance = file.provenance.as_model %}
     <p>
-      The following attestation bundles were made for <code>{{ file.filename }}</code>:
+      <strong>Provenance</strong> describes where a file came from. On PyPI, provenance is shared via <strong>attestations</strong>, which provide a verifiable record of the build or publishing details. <a href="{{ request.user_docs_url('/attestations/') }}">View details, limitations and caveats.</a>
     </p>
     {% for bundle in provenance.attestation_bundles %}
+      {% for attestation in bundle.attestations %}
+        {% set viewer = PEP740AttestationViewer(bundle.publisher, attestation) %}
+        {{ attestation_block(viewer, bundle, file, request) }}
+        {% if not loop.last %}<hr>{% endif %}
+      {% endfor %}
+
+
+
+
+        <!-- The following attestation bundles were made for <code>{{ file.filename }}</code>: -->
+
+
       <div class="file">
         <div class="file__graphic">
           <i class="fa-solid fa-file-circle-check" aria-hidden="true"></i>
