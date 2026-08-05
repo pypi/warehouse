@@ -186,7 +186,10 @@ class GitHubPublisherMixin:
         "enterprise_id",
         "ref_protected",
         "check_run_id",
-        "repo_property_python_gar_access",
+    }
+
+    __unchecked_prefixed_claims__ = {
+        "repo_property_",
     }
 
     # Get the most specific publisher from a list of publishers,
