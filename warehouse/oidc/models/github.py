@@ -186,6 +186,7 @@ class GitHubPublisherMixin:
         "enterprise_id",
         "ref_protected",
         "check_run_id",
+        "repo_property_python_gar_access",
     }
 
     # Get the most specific publisher from a list of publishers,
