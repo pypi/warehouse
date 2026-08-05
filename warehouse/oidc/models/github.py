@@ -188,6 +188,10 @@ class GitHubPublisherMixin:
         "check_run_id",
     }
 
+    __unchecked_prefixed_claims__ = {
+        "repo_property_",
+    }
+
     # Get the most specific publisher from a list of publishers,
     # where publishers constrained with an environment are more
     # specific than publishers not constrained on environment.
