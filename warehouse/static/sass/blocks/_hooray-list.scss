@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/fonts";
 
 /*
@@ -13,10 +13,10 @@
 
 .hooray-list {
   margin-left: 0;
-  border-top: 1px dotted colours.$border-color;
+  border-top: 1px dotted colors.$border-color;
 
   li {
-    border-bottom: 1px dotted colours.$border-color;
+    border-bottom: 1px dotted colors.$border-color;
     padding: 10px 0 10px 30px;
     list-style-type: none;
     position: relative;
@@ -25,7 +25,7 @@
       font-family: fonts.$fa-font-family;
       font-weight: 900;
       content: "\f00c";
-      color: colours.$text-color;
+      color: colors.$text-color;
       position: absolute;
       left: 7px;
     }

@@ -2,7 +2,7 @@
 
 @use "sass:color";
 @use "sass:list";
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/z-index";
 @use "../tools/link-utilities";
 
@@ -65,7 +65,7 @@
     margin-bottom: -4px;
     box-shadow: 1px 1px 2px 1px rgb(0 0 0 / 5%);
     z-index: list.index(z-index.$z-index-scale, "dropdown");
-    border: 1px solid colours.$border-color;
+    border: 1px solid colors.$border-color;
     border-bottom: 0; // Each link has a bottom border, so we don't need one here
     display: none;
   }
@@ -75,10 +75,10 @@
     display: block;
     padding: 15px;
     border: 0; // Remove default border on buttons
-    border-bottom: 1px solid colours.$border-color;
-    background-color: colours.$white;
+    border-bottom: 1px solid colors.$border-color;
+    background-color: colors.$white;
     min-width: 180px;
-    color: colours.$text-color;
+    color: colors.$text-color;
     cursor: pointer;
     text-align: left;
     position: relative;
@@ -87,14 +87,14 @@
     &:hover,
     &:active,
     &:focus {
-      background-color: color.mix(colours.$white, colours.$primary-color-light, 90%);
-      color: colours.$primary-color-dark;
+      background-color: color.mix(colors.$white, colors.$primary-color-light, 90%);
+      color: colors.$primary-color-dark;
     }
 
     &:active,
     &:focus {
-      outline: 1px solid colours.$primary-color;
-      border-bottom-color: colours.$primary-color;
+      outline: 1px solid colors.$primary-color;
+      border-bottom-color: colors.$primary-color;
     }
 
     .fa {
@@ -119,31 +119,31 @@
     }
 
     .dropdown__content {
-      border-color: colours.$header-border-color;
+      border-color: colors.$header-border-color;
       margin-bottom: 0;
     }
 
     .dropdown__link,
     button.dropdown__link {
-      border-bottom-color: colours.$header-border-color;
-      background-color: colours.$header-background-color;
-      color: colours.$white;
+      border-bottom-color: colors.$header-border-color;
+      background-color: colors.$header-background-color;
+      color: colors.$white;
 
       a {
-        color: colours.$white;
+        color: colors.$white;
         text-decoration: none;
       }
 
       &:hover,
       &:active,
       &:focus {
-        background-color: color.adjust(colours.$header-background-color, $lightness: -1.5%);
-        color: colours.$white;
+        background-color: color.adjust(colors.$header-background-color, $lightness: -1.5%);
+        color: colors.$white;
       }
 
       &:focus {
-        outline: 1px solid colours.$white;
-        border-bottom-color: colours.$white;
+        outline: 1px solid colors.$white;
+        border-bottom-color: colors.$white;
       }
     }
   }

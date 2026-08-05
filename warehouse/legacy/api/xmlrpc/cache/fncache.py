@@ -43,16 +43,16 @@ class RedisLru:
         try:
             value = self.conn.hget(self.format_key(func_name, tag), str(key))
         except redis.exceptions.RedisError, redis.exceptions.ConnectionError:
-            self.metric_reporter.increment(f"{self.name}.cache.error")
+            self.metric_reporter.increment(f"warehouse.{self.name}.cache.error")
             return None
         if value:
-            self.metric_reporter.increment(f"{self.name}.cache.hit")
+            self.metric_reporter.increment(f"warehouse.{self.name}.cache.hit")
             value = orjson.loads(value)
         return value
 
     def add(self, func_name, key, value, tag, expires):
         try:
-            self.metric_reporter.increment(f"{self.name}.cache.miss")
+            self.metric_reporter.increment(f"warehouse.{self.name}.cache.miss")
             pipeline = self.conn.pipeline()
             pipeline.hset(
                 self.format_key(func_name, tag), str(key), orjson.dumps(value)
@@ -62,7 +62,7 @@ class RedisLru:
             pipeline.execute()
             return value
         except redis.exceptions.RedisError, redis.exceptions.ConnectionError:
-            self.metric_reporter.increment(f"{self.name}.cache.error")
+            self.metric_reporter.increment(f"warehouse.{self.name}.cache.error")
             return value
 
     def purge(self, tag):
@@ -72,12 +72,19 @@ class RedisLru:
             for key in keys:
                 pipeline.delete(key)
             pipeline.execute()
-            self.metric_reporter.increment(f"{self.name}.cache.purge")
+            self.metric_reporter.increment(f"warehouse.{self.name}.cache.purge")
         except redis.exceptions.RedisError, redis.exceptions.ConnectionError:
-            self.metric_reporter.increment(f"{self.name}.cache.error")
+            self.metric_reporter.increment(f"warehouse.{self.name}.cache.error")
             raise CacheError
 
     def fetch(self, func, args, kwargs, key, tag, expires):
-        return self.get(func.__name__, str(key), str(tag)) or self.add(
+        # `get` returns None for both a miss and a Redis error, so compare against
+        # None rather than testing truthiness: an empty list or dict is a real hit.
+        # Treating it as a miss counts the request as both a hit and a miss and
+        # re-runs the query on every call.
+        value = self.get(func.__name__, str(key), str(tag))
+        if value is not None:
+            return value
+        return self.add(
             func.__name__, str(key), func(*args, **kwargs), str(tag), expires
         )
