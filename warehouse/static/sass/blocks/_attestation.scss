@@ -12,6 +12,12 @@
   --attestation-icon-bg: #{colors.$primary-color};
   margin: grid.$half-spacing-unit 0;
 
+  & + & {
+    margin-top: grid.$spacing-unit;
+    padding-top: grid.$spacing-unit;
+    border-top: 1px solid colors.$border-color;
+  }
+
   &--slsa {
     --attestation-accent: #b84422;
     --attestation-icon-bg: #ff6740;
@@ -23,7 +29,7 @@
 
   &__header {
      @include design-utilities.card;
-    padding: grid.$half-spacing-unit;
+    padding: grid.$three-quarter-spacing-unit;
     display: flex;
     align-items: flex-start;
     gap: grid.$half-spacing-unit;
@@ -44,7 +50,7 @@
     gap: 6px;
     padding: 12px 10px;
     box-sizing: border-box;
-    background: #fff;
+    background: colors.$white;
     clip-path: polygon(
       0% 2.04%, 7.14% 0%, 14.29% 2.04%, 21.43% 0%, 28.57% 2.04%, 35.71% 0%,
       42.86% 2.04%, 50% 0%, 57.14% 2.04%, 64.29% 0%, 71.43% 2.04%, 78.57% 0%,
@@ -84,7 +90,7 @@
 
   &__metadata {
     @include design-utilities.card;
-    padding: grid.$half-spacing-unit;
+    padding: grid.$three-quarter-spacing-unit;
   }
 
   &__metadata-header {

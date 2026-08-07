@@ -432,6 +432,9 @@ class TestPEP740AttestationViewer:
 
         assert viewer.trigger == "push"
         assert viewer.access == "public"
+        assert viewer.run_invocation_uri == (
+            "https://github.com/pypa/sampleproject/actions/runs/11713038981/attempts/1"
+        )
 
         assert viewer.permalink_with_digest == (
             "https://github.com/pypa/sampleproject/tree/"
@@ -482,6 +485,9 @@ class TestPEP740AttestationViewer:
 
         assert viewer.trigger == "push"
         assert viewer.access == "private"
+        assert viewer.run_invocation_uri == (
+            "https://gitlab.com/pep740-example/sampleproject/-/jobs/8486974559"
+        )
 
         assert viewer.permalink_with_digest == (
             "https://gitlab.com/pep740-example/sampleproject/-/tree/"
