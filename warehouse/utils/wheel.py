@@ -283,7 +283,9 @@ def _validate_entrypoints(archive: zipfile.ZipFile) -> bool:
         raise InvalidWheelEntryPointsError("entry_points.txt is not decodable as UTF-8")
 
     # The Entry Points specification requires `=` as the delimiter.
-    parser = CaseSensitiveConfigParser(delimiters=("=",))
+    # We also disable interpolation. EPS doesn't specifically forbid it but it
+    # serves no purpose in `entry_points.txt` other than introducing malleability.
+    parser = CaseSensitiveConfigParser(delimiters=("=",), interpolation=None)
     try:
         parser.read_string(entry_points_contents)
     except configparser.Error as error:
