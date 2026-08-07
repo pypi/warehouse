@@ -26,7 +26,7 @@
           <th scope="col">{% trans %}File{% endtrans %}</th>
           <th scope="col">{% trans %}Size{% endtrans %}</th>
           <th scope="col">{% trans %}Uploaded{% endtrans %}</th>
-          <th scope="col">{% trans %}Provenance{% endtrans %}</th>
+          {# TODO: add provenance states with security page: <th scope="col">{% trans %}Provenance{% endtrans %}</th>#}
           <th scope="col"></th>
         </tr>
       </thead>
@@ -38,7 +38,7 @@
             </td>
             <td>{{ file.size|filesizeformat() if file.size else 0|filesizeformat() }}</td>
             <td>{% trans upload_time=humanize(file.upload_time) %}{{ upload_time }}{% endtrans %}</td>
-            <td>TODO</td>
+            {#<td>TODO</td>#}
             <td>
               <a href="#{{ file.filename }}"
                  class="button button--small button--outline button--full-width"
@@ -175,8 +175,9 @@
                 <small>{{ file.size|filesizeformat() if file.size else 0|filesizeformat() }}</small>
                 <span class="file-info__meta-divider" aria-hidden="true"></span>
                 <small><i class="fa-regular fa-calendar" aria-hidden="true"></i> {{ humanize(file.upload_time) }}</small>
+                {# TODO: add provenance states with security page
                 <span class="file-info__meta-divider" aria-hidden="true"></span>
-                <small><i class="fa-regular fa-circle-check" aria-hidden="true"></i> TODO</small>
+                <small><i class="fa-regular fa-circle-check" aria-hidden="true"></i> TODO</small> #}
               </span>
             </td>
             <td class="col--filter">
