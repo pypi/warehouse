@@ -1666,11 +1666,17 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
     )
 
     if form.next_route.data and form.next_route_matchdict.data:
-        redirect_to = request.route_path(
-            form.next_route.data,
-            **json.loads(form.next_route_matchdict.data)
-            | {"_query": json.loads(form.next_route_query.data)},
-        )
+        try:
+            matchdict = json.loads(form.next_route_matchdict.data)
+            query = json.loads(form.next_route_query.data)
+            if not isinstance(matchdict, dict) or not isinstance(query, dict):
+                raise HTTPBadRequest
+            redirect_to = request.route_path(
+                form.next_route.data,
+                **matchdict | {"_query": query},
+            )
+        except json.JSONDecodeError, KeyError, TypeError, ValueError:
+            raise HTTPBadRequest
     else:
         redirect_to = request.route_path("manage.projects")
 
