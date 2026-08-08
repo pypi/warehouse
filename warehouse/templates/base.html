@@ -208,24 +208,24 @@
       <div id="sticky-notifications" class="stick-to-top js-stick-to-top">
         <!-- Add browser warning. Will show for ie9 and below -->
         <!--[if IE]>
-      <div class="notification-bar notification-bar--warning" role="status">
-        <div class="notification-bar__container">
-          <span class="notification-bar__icon">
+      <div class="banner banner--warning" role="status">
+        <div class="banner__container">
+          <span class="banner__icon">
             <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
             <span class="sr-only">{% trans %}Warning{% endtrans %}</span>
           </span>
-          <span class="notification-bar__message">{% trans %}You are using an unsupported browser, upgrade to a newer version.{% endtrans %}</span>
+          <span class="banner__message">{% trans %}You are using an unsupported browser, upgrade to a newer version.{% endtrans %}</span>
         </div>
       </div>
       <![endif]-->
         {% if testPyPI %}
-          <div class="notification-bar notification-bar--warning" role="status">
-            <div class="notification-bar__container">
-              <span class="notification-bar__icon">
+          <div class="banner banner--warning" role="status">
+            <div class="banner__container">
+              <span class="banner__icon">
                 <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
                 <span class="sr-only">{% trans %}Warning{% endtrans %}</span>
               </span>
-              <span class="notification-bar__message">
+              <span class="banner__message">
                 {% trans %}You are using TestPyPI – a separate instance of the Python Package Index that allows you to try distribution tools and processes without affecting the real index.{% endtrans %}
                 <br />
                 {% trans %}We're currently testing a new design for project detail pages – <a href="https://github.com/pypi/warehouse/issues/20267" rel="nofollow">share your feedback here</a>.{% endtrans %}
@@ -234,14 +234,14 @@
           </div>
         {% endif %}
         <noscript>
-          <div class="notification-bar notification-bar--warning" role="status">
+          <div class="banner banner--warning" role="status">
             {# TODO: This should be removed once GH-3828 is fixed. #}
-            <div class="notification-bar__container">
-              <span class="notification-bar__icon">
+            <div class="banner__container">
+              <span class="banner__icon">
                 <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
                 <span class="sr-only">{% trans %}Warning{% endtrans %}</span>
               </span>
-              <span class="notification-bar__message">{% trans %}Some features may not work without JavaScript. Please try enabling it if you encounter problems.{% endtrans %}</span>
+              <span class="banner__message">{% trans %}Some features may not work without JavaScript. Please try enabling it if you encounter problems.{% endtrans %}</span>
             </div>
           </div>
         </noscript>
@@ -255,9 +255,9 @@
     {% endcsi %}
   {% endblock %}
   {% for flag in request.flags.notifications() %}
-    <div class="notification-bar">
-      <div class="notification-bar__container">
-        <span class="notification-bar__message">{{ flag.description }}</span>
+    <div class="banner">
+      <div class="banner__container">
+        <span class="banner__message">{{ flag.description }}</span>
       </div>
     </div>
   {% endfor %}

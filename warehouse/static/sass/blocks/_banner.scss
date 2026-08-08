@@ -1,53 +1,208 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 @use "sass:color";
-@use "../settings/breakpoints";
 @use "../settings/colors";
+@use "../settings/fonts";
+@use "../settings/grid";
+@use "../settings/breakpoints";
+@use "../tools/design-utilities";
+@use "../tools/link-utilities";
+@use "../tools/typography";
 
 /*
-  Large blue padded horizontal container for at the top of the page:
-  <div class="banner"></div>
+  A full width horizontal div that contains a short notification.
+  Use for single lines only, as all content will be styled as a h6.
+
+  Can be nested inside the .stick-to-top helper to stick to the top of the page.
+
+  <div class="banner">
+    <span class="banner__icon">
+      <i class="icon-classes" aria-hidden="true"></i>
+      <span class="sr-only">Icon label:</span>
+    </span>
+    <span class="banner__message">
+      // A one line notification goes here.
+    </span>
+  </div>
 
   Modifiers:
-    - project: Reduced padding for project pages
-    - pre-release: Light blue background with dark text
-    - archived: Light grey background with dark text
-    - yanked: Dark background
-    - quarantined: Orange background
+    - success: Applies a green background
+    - danger: Applies a red background
+    - dismissable: Indicates notification can be dismissed. Defaults to hidden.
+    - visible: Indicates a visible, non-dismissed notification
+
+  Accessibility:
+  Roles should be added to danger and success notifications to help
+  users using screen readers:
+
+  - danger: Add role="alert". Use with care - as this will interrupt the
+    standard screen reader workflow
+  - success: Add role="status"
+
+  Icons should also be added to danger and success notifications, to
+  ensure that color is not the only way of conveying the status of the
+  notification. This is important for color blind users.
+
+  Icons should be hidden with "aria-hidden=true" and given a screen reader
+  label, as per the HTML example above.
+
+   - danger: Add "fa fa-exclamation-triangle", sr-only="Error:"
+   - success: Add "fa fa-check", sr-only="Success:"
+
+  A notification bar can be made dismissable by adding the following to the main
+  banner div:
+
+    - .banner--dismissable to its classes
+    - data-controller="notification" as an attribute
+    - data-notification-target="notification" as an attribute
+    - a dismiss button (see html example below)
+
+  The data-controller and data-notification-target are used for handling visibility,
+  including adding .banner--visible to banner div if it has
+  not been dismissed (and persisted) yet.
+
+  <div class="banner banner--dismissable"
+    data-controller="notification" data-notification-target="notification">
+      <button
+       title="Dismiss this notification"
+       data-notification-target="dismissButton"
+       data-action="click->notification#dismiss"
+       class="banner__dismiss"
+       aria-label="close">
+        <i class="fa fa-times" aria-hidden="true"></i>
+      </button>
+      <span class="banner__icon">
+        // icon here
+      </span>
+      <span class="banner__message">
+        // A one line notification goes here.
+      </span>
+  </div>
+
+  Note that if JavaScript is disabled, the notification bar always defaults to
+  be visible.
 */
 
 .banner {
-  background-color: colors.$primary-color;
-  color: colors.$white;
-  padding: 50px 0;
+  color: color.adjust(colors.$notification-color, $lightness: -80%);
+  background-color: colors.$notification-color;
+  border-bottom: 2px solid color.adjust(colors.$notification-color, $lightness: -40%);
 
-  @media only screen and (max-width: breakpoints.$tablet) {
-    padding: 40px 0;
+  &__container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: grid.$half-spacing-unit;
+    padding: grid.$half-spacing-unit grid.$spacing-unit;
+    position: relative;
+
+    @media screen and (max-width: breakpoints.$small-tablet) {
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      gap: 0;
+      padding-left: grid.$half-spacing-unit;
+      padding-right: grid.$half-spacing-unit;
+    }
   }
 
-  @media only screen and (max-width: breakpoints.$mobile) {
-    padding: 25px 0;
+  &__icon {
+    font-size: fonts.$small-font-size;
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: color.adjust(colors.$notification-color, $lightness: -10%);
+    border: 1px solid color.adjust(colors.$notification-color, $lightness: -13%);
+
+    @media screen and (max-width: breakpoints.$small-tablet) {
+      display: none;
+    }
   }
 
-  &--project {
-    padding: 40px 0;
+  &__message {
+    @include typography.h6;
+
+    @media screen and (max-width: breakpoints.$small-tablet) {
+      width: 100%;
+    }
+
+    a:not(.button) {
+      @include link-utilities.colored-link(color.adjust(colors.$notification-color, $lightness: -80%));
+    }
   }
 
-  &--pre-release {
-    background-color: colors.$primary-color-light-border;
-    color: colors.$text-color;
+  &__button {
+    font-size: fonts.$small-font-size;
+    padding: 6px 8px;
+    white-space: nowrap;
+    color: currentcolor;
+    border-color: currentcolor;
+
+    @media screen and (max-width: breakpoints.$small-tablet) {
+      margin-top: grid.$quarter-spacing-unit;
+    }
   }
 
-  &--archived {
-    background-color: colors.$off-white;
-    color: colors.$text-color;
+  &__dismiss {
+    @include design-utilities.dismiss-button;
+    @include link-utilities.link-focus-state(color.adjust(colors.$notification-color, $lightness: -80%));
+    top: auto;
+    color: inherit;
   }
 
-  &--yanked {
-    background-color: colors.$text-color;
+  // Indicates that a notification is dismissable.
+  // Since this defaults to not displaying the element, one must make sure the
+  // notification controller is being used.
+  &--dismissable {
+    display: none;
+
+    .banner__container {
+      padding-right: 55px;
+    }
   }
 
-  &--quarantined {
-    background-color: colors.$warning-color;
+  &--visible {
+    display: block;
+  }
+
+  &--success {
+    background-color: colors.$success-color;
+    color: colors.$white;
+    border-bottom-color: colors.$white;
+
+    .banner__icon {
+      background-color: color.adjust(colors.$success-color, $lightness: -5%);
+      border-color: color.adjust(colors.$success-color, $lightness: -8%);
+    }
+
+    a:not(.button) {
+      @include link-utilities.white-underlined-link;
+    }
+
+    .banner__dismiss {
+      @include link-utilities.link-focus-state(colors.$white);
+    }
+  }
+
+  &--danger {
+    background-color: colors.$danger-color;
+    color: colors.$white;
+    border-bottom-color: colors.$white;
+
+    .banner__icon {
+      background-color: color.adjust(colors.$danger-color, $lightness: -5%);
+      border-color: color.adjust(colors.$danger-color, $lightness: -8%);
+    }
+
+    a:not(.button) {
+      @include link-utilities.white-underlined-link;
+    }
+
+    .banner__dismiss {
+      @include link-utilities.link-focus-state(colors.$white);
+    }
   }
 }

@@ -61,13 +61,13 @@
 <div class="package-list">
   {% if project_count %}
     {% for project in live_projects %}
-      <a class="package-snippet"
+      <a class="project-snippet"
          href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">
-        <h3 class="package-snippet__title">{{ project.name }}</h3>
-        <p class="package-snippet__meta">
+        <h3 class="project-snippet__title">{{ project.name }}</h3>
+        <p class="project-snippet__meta">
           {% trans release_date=humanize(project.created) %}Last released {{ release_date }}{% endtrans %}
         </p>
-        <p class="package-snippet__description">{{ project.summary }}</p>
+        <p class="project-snippet__description">{{ project.summary }}</p>
       </a>
     {% endfor %}
   {% else %}
@@ -90,16 +90,16 @@
 </h3>
 <div class="package-list">
   {% for project in archived_projects %}
-    <a class="package-snippet"
+    <a class="project-snippet"
        href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">
-      <h3 class="package-snippet__title">
+      <h3 class="project-snippet__title">
         {{ project.name }}
         <span class="badge badge--warning">{% trans %}Archived{% endtrans %}</span>
       </h3>
-      <p class="package-snippet__meta">
+      <p class="project-snippet__meta">
         {% trans release_date=humanize(project.created) %}Last released {{ release_date }}{% endtrans %}
       </p>
-      <p class="package-snippet__description">{{ project.summary }}</p>
+      <p class="project-snippet__description">{{ project.summary }}</p>
     </a>
   {% endfor %}
 </div>
