@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 @use "sass:color";
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/fonts";
 @use "../tools/link-utilities";
 
@@ -27,8 +27,8 @@
   font-weight: 500;
   font-size: fonts.$small-font-size;
   border-radius: 2px;
-  background-color: colours.$primary-color;
-  color: colours.$white;
+  background-color: colors.$primary-color;
+  color: colors.$white;
   display: table;
   float: left;
   margin: 0 5px 10px 0;
@@ -36,7 +36,7 @@
   &__icon {
     display: table-cell;
     padding: 6px 0 6px 6px;
-    color: colours.$white;
+    color: colors.$white;
     vertical-align: middle;
   }
 
@@ -48,17 +48,17 @@
 
   &__remove-button {
     display: table-cell;
-    color: colours.$white;
+    color: colors.$white;
     background: transparent;
     border: 0;
-    border-left: 1px solid color.adjust(colours.$white, $alpha: -0.8);
+    border-left: 1px solid color.adjust(colors.$white, $alpha: -0.8);
     padding: 6px;
 
     &:hover {
-      color: colours.$white;
-      background-color: color.adjust(colours.$primary-color, $lightness: -5%);
+      color: colors.$white;
+      background-color: color.adjust(colors.$primary-color, $lightness: -5%);
     }
 
-    @include link-utilities.link-focus-state(colours.$white);
+    @include link-utilities.link-focus-state(colors.$white);
   }
 }
