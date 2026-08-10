@@ -145,6 +145,8 @@ class ProvenanceFactory(WarehouseFactory):
         predicate_types = None
         repository = "example-org/example"
         workflow = "release.yml"
+        # Defaults to a GitHub publisher built from `repository` and `workflow`.
+        publisher = None
 
     file = factory.SubFactory(FileFactory)
     provenance = factory.LazyAttribute(
@@ -156,6 +158,7 @@ class ProvenanceFactory(WarehouseFactory):
                 o.repository,
                 o.workflow,
                 o.file.release.version,
+                o.publisher,
             )
             if o.predicate_types
             else fake.json()

@@ -56,8 +56,8 @@
     <div class="sidebar-section__content sidebar-section__content--verified">
       <details class="sidebar-section__data-source">
         <summary class="sidebar-section__data-source-label"
-                 title="{% trans date=release.created.strftime('%Y-%m-%d') %}Data verified by PyPI on {{ date }}{% endtrans %}">
-          {% trans date=humanize(release.created) %}Data verified by PyPI on {{ date }}{% endtrans %}
+                 title="{{ release.created|format_datetime('yyyy-MM-dd HH:mm:ss (xxx)') }}">
+          {% trans date=release.created.strftime('%b %-d, %Y') %}Data verified by PyPI on {{ date }}{% endtrans %}
         </summary>
         <div class="sidebar-section__data-source-description">
           {% trans %}Data provided by the project maintainers, verified at the time the release was uploaded to PyPI.{% endtrans %}
