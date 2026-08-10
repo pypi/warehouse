@@ -297,6 +297,10 @@ class TestDatabaseMacaroonService:
             user_id=user.id,
         )
 
+        dm = macaroon_service.find_from_raw(raw_macaroon)
+        # Add a database only caveat that has not been embedded into the macaroon
+        dm.caveats = [*dm.caveats, caveats.Expiration(expires_at=5, not_before=2)]
+
         verify = mocker.patch.object(
             caveats, "verify", autospec=True, return_value=True
         )
@@ -307,8 +311,29 @@ class TestDatabaseMacaroonService:
 
         assert macaroon_service.verify(raw_macaroon, request, context, permissions)
         verify.assert_called_once_with(
-            mocker.ANY, mocker.ANY, request, context, permissions
+            mocker.ANY, dm.key, request, context, permissions
         )
+
+        # Ensure that the macaroon that was verified is what was expected.
+        vm = verify.call_args.args[0]
+        assert vm.location == "fake location"
+        assert vm.identifier == str(dm.id).encode("utf8")
+        assert [c.to_dict() for c in vm.caveats] == [
+            # The embedded RequestUser caveat
+            {
+                "cid": f'[3,"{user.id!s}"]',
+                "cl": None,
+                "vid": None,
+            },
+            # The database stored RequestUser caveat
+            {
+                "cid": f'[3,"{user.id!s}"]',
+                "cl": None,
+                "vid": None,
+            },
+            # The database stored Expiration caveat
+            {"cid": "[0,5,2]", "cl": None, "vid": None},
+        ]
 
     def test_delete_macaroon(self, user_service, macaroon_service):
         user = UserFactory.create()
