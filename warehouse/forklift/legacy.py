@@ -1551,6 +1551,13 @@ def file_upload(request):
             try:
                 validate_entrypoints(zfp)
             except InvalidWheelEntryPointsError:
+                request.metrics.increment(
+                    "warehouse.upload.failed",
+                    tags=[
+                        "reason:invalid-entrypoints",
+                        f"filetype:{form.filetype.data}",
+                    ],
+                )
                 raise _exc_with_message(
                     HTTPBadRequest,
                     f"Wheel '{filename}' has invalid entry points defined in "
