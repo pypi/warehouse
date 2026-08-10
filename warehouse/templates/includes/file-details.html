@@ -10,7 +10,15 @@
        data-action="project-tabs#onTabClick">{% trans %}Release files{% endtrans %}</a>
     / {{ file.filename }}
   </h2>
-
+  {# Late upload warning #}
+  {% if first_upload and (file.upload_time - first_upload).days > maximum_age_for_new_uploads_days %}
+    <div class="callout-block callout-block--warning no-top-margin">
+      <h3 class="callout-block__heading">{% trans %}File added late{% endtrans %}</h3>
+      <p>{% trans days=maximum_age_for_new_uploads_days %}This file was uploaded more than {{ days }} days after the first file in this release.{% endtrans %}</p>
+      <p>{% trans %}While project maintainers occasionally add legitimate files to an existing release, late additions can also indicate a security compromise.{% endtrans %}</p>
+      <p>{% trans %}We recommend inspecting the release file before installing.{% endtrans %}</p>
+    </div>
+  {% endif %}
   {# File details table #}
   <table class="table table--information">
     <tbody>
@@ -105,7 +113,6 @@
       {% endif %}
     </tbody>
   </table>
-
   {# Provenance section #}
   {% if file.provenance %}
     <h3>Provenance</h3>
@@ -131,30 +138,58 @@
             <div class="attestation__publisher">
               <div class="attestation__publisher-icons">
                 {% if bundle.publisher.kind == "GitHub" %}
-                  <img src="{{ request.static_url('warehouse:static/dist/images/github.svg') }}" alt="" aria-hidden="true">
+                  <img src="{{ request.static_url('warehouse:static/dist/images/github.svg') }}"
+                       alt=""
+                       aria-hidden="true">
                 {% elif bundle.publisher.kind == "GitLab" %}
-                  <img src="{{ request.static_url('warehouse:static/dist/images/gitlab.svg') }}" alt="" aria-hidden="true">
+                  <img src="{{ request.static_url('warehouse:static/dist/images/gitlab.svg') }}"
+                       alt=""
+                       aria-hidden="true">
                 {% elif bundle.publisher.kind == "Google" %}
-                  <img src="{{ request.static_url('warehouse:static/dist/images/google-cloud.svg') }}" alt="" aria-hidden="true">
+                  <img src="{{ request.static_url('warehouse:static/dist/images/google-cloud.svg') }}"
+                       alt=""
+                       aria-hidden="true">
                 {% elif bundle.publisher.kind == "ActiveState" %}
-                  <img src="{{ request.static_url('warehouse:static/dist/images/active-state.svg') }}" alt="" aria-hidden="true">
+                  <img src="{{ request.static_url('warehouse:static/dist/images/active-state.svg') }}"
+                       alt=""
+                       aria-hidden="true">
                 {% endif %}
                 {% if is_slsa %}
-                  <img src="{{ request.static_url('warehouse:static/dist/images/SLSA.svg') }}" alt="" aria-hidden="true">
+                  <img src="{{ request.static_url('warehouse:static/dist/images/SLSA.svg') }}"
+                       alt=""
+                       aria-hidden="true">
                 {% else %}
-                  <img src="{{ request.static_url('warehouse:static/dist/images/pypi-attestation-cube.svg') }}" alt="" aria-hidden="true">
+                  <img src="{{ request.static_url('warehouse:static/dist/images/pypi-attestation-cube.svg') }}"
+                       alt=""
+                       aria-hidden="true">
                 {% endif %}
               </div>
             </div>
             <div class="attestation__header-content">
               {% if is_slsa %}
-                <h4>{% if viewer.predicate_type %}<a href="{{ viewer.predicate_type }}" target="_blank" rel="noopener">SLSA Build Provenance</a>{% else %}SLSA Build Provenance{% endif %} {% trans %}Attestation{% endtrans %}</h4>
+                <h4>
+                  {% if viewer.predicate_type %}
+                    <a href="{{ viewer.predicate_type }}" target="_blank" rel="noopener">SLSA Build Provenance</a>
+                  {% else %}
+                    SLSA Build Provenance
+                  {% endif %}
+                  {% trans %}Attestation{% endtrans %}
+                </h4>
                 <p>PyPI verified that this artifact, at this checksum, originated from the builder listed below.</p>
-                <p><strong>Built by {{ platform_name }}, verified by PyPI on <time datetime="{{ file.upload_time|format_datetime('yyyy-MM-ddTHH:mm:ss') }}" title="{{ file.upload_time|format_datetime('yyyy-MM-dd HH:mm:ss') }}">upload</time>.</strong></p>
+                <p><strong>Built by {{ platform_name }}, verified by PyPI on <time datetime="{{ file.upload_time|format_datetime('yyyy-MM-ddTHH:mm:ss') }}"
+       title="{{ file.upload_time|format_datetime('yyyy-MM-dd HH:mm:ss') }}">upload</time>.</strong></p>
               {% else %}
-                <h4>{% if viewer.predicate_type %}<a href="{{ viewer.predicate_type }}" target="_blank" rel="noopener">PyPI Publish</a>{% else %}PyPI Publish{% endif %} {% trans %}Attestation{% endtrans %}</h4>
+                <h4>
+                  {% if viewer.predicate_type %}
+                    <a href="{{ viewer.predicate_type }}" target="_blank" rel="noopener">PyPI Publish</a>
+                  {% else %}
+                    PyPI Publish
+                  {% endif %}
+                  {% trans %}Attestation{% endtrans %}
+                </h4>
                 <p>PyPI verified that this artifact, at this checksum, originated from the publisher listed below.</p>
-                <p><strong>Signed by {{ platform_name }}, verified by PyPI on <time datetime="{{ file.upload_time|format_datetime('yyyy-MM-ddTHH:mm:ss') }}" title="{{ file.upload_time|format_datetime('yyyy-MM-dd HH:mm:ss') }}">upload</time>.</strong></p>
+                <p><strong>Signed by {{ platform_name }}, verified by PyPI on <time datetime="{{ file.upload_time|format_datetime('yyyy-MM-ddTHH:mm:ss') }}"
+       title="{{ file.upload_time|format_datetime('yyyy-MM-dd HH:mm:ss') }}">upload</time>.</strong></p>
               {% endif %}
               {% if viewer.transparency_entry %}
                 <a href="https://search.sigstore.dev/?logIndex={{ viewer.transparency_entry.logIndex }}"
@@ -175,22 +210,52 @@
                 <h5 class="attestation__metadata-title">{% trans %}Identity{% endtrans %}</h5>
               </div>
               <dl class="attestation__metadata-content">
-                <dt>{% if is_slsa %}{% trans %}Build platform{% endtrans %}{% else %}{% trans %}Publishing platform{% endtrans %}{% endif %}</dt>
-                <dd>{{ platform_name }}</dd>
+                <dt>
+                  {% if is_slsa %}
+                    {% trans %}Build platform{% endtrans %}
+                  {% else %}
+                    {% trans %}Publishing platform{% endtrans %}
+                  {% endif %}
+                </dt>
+                <dd>
+                  {{ platform_name }}
+                </dd>
                 {% if viewer.source %}
-                  <dt>{% if is_slsa %}{% trans %}Build repository{% endtrans %}{% else %}{% trans %}Publishing repository{% endtrans %}{% endif %}</dt>
+                  <dt>
+                    {% if is_slsa %}
+                      {% trans %}Build repository{% endtrans %}
+                    {% else %}
+                      {% trans %}Publishing repository{% endtrans %}
+                    {% endif %}
+                  </dt>
                   <dd>
-                    <a href="{{ viewer.source }}" target="_blank" rel="noopener">{{ viewer.source | replace("https://", "") }}</a>
+                    <a href="{{ viewer.source }}" target="_blank" rel="noopener">{{ viewer.source | replace('https://', '') }}</a>
                   </dd>
                   {% if viewer.permalink_with_digest %}
-                    <dt>{% if is_slsa %}{% trans %}Build commit{% endtrans %}{% else %}{% trans %}Publishing commit{% endtrans %}{% endif %}</dt>
+                    <dt>
+                      {% if is_slsa %}
+                        {% trans %}Build commit{% endtrans %}
+                      {% else %}
+                        {% trans %}Publishing commit{% endtrans %}
+                      {% endif %}
+                    </dt>
                     <dd>
-                      <a href="{{ viewer.permalink_with_digest }}" target="_blank" rel="noopener">{{ viewer.permalink_with_digest | replace("https://", "") }}</a>
+                      <a href="{{ viewer.permalink_with_digest }}"
+                         target="_blank"
+                         rel="noopener">{{ viewer.permalink_with_digest | replace('https://', '') }}</a>
                     </dd>
                   {% endif %}
                 {% elif bundle.publisher.kind == "Google" and bundle.publisher.email %}
-                  <dt>{% if is_slsa %}{% trans %}Build account{% endtrans %}{% else %}{% trans %}Publisher account{% endtrans %}{% endif %}</dt>
-                  <dd>{{ bundle.publisher.email }}</dd>
+                  <dt>
+                    {% if is_slsa %}
+                      {% trans %}Build account{% endtrans %}
+                    {% else %}
+                      {% trans %}Publisher account{% endtrans %}
+                    {% endif %}
+                  </dt>
+                  <dd>
+                    {{ bundle.publisher.email }}
+                  </dd>
                 {% endif %}
               </dl>
             </div>
@@ -203,19 +268,37 @@
                     <i class="fa-solid fa-circle-play" aria-hidden="true"></i>
                   {% endif %}
                 </span>
-                <h5 class="attestation__metadata-title">{% if is_slsa %}{% trans %}Build{% endtrans %}{% else %}{% trans %}Workflow{% endtrans %}{% endif %}</h5>
+                <h5 class="attestation__metadata-title">
+                  {% if is_slsa %}
+                    {% trans %}Build{% endtrans %}
+                  {% else %}
+                    {% trans %}Workflow{% endtrans %}
+                  {% endif %}
+                </h5>
               </div>
               <dl class="attestation__metadata-content">
                 {% if viewer.workflow_filename and viewer.build_digest %}
-                  <dt>{% if is_slsa %}{% trans %}Build instructions{% endtrans %}{% else %}{% trans %}Publishing configuration{% endtrans %}{% endif %}</dt>
+                  <dt>
+                    {% if is_slsa %}
+                      {% trans %}Build instructions{% endtrans %}
+                    {% else %}
+                      {% trans %}Publishing configuration{% endtrans %}
+                    {% endif %}
+                  </dt>
                   <dd>
-                    <a href="{{ viewer.workflow_url }}" target="_blank" rel="noopener">{{ viewer.workflow_url | replace("https://", "") }}</a>
+                    <a href="{{ viewer.workflow_url }}" target="_blank" rel="noopener">{{ viewer.workflow_url | replace('https://', '') }}</a>
                   </dd>
                 {% endif %}
                 {% if viewer.run_invocation_uri %}
-                  <dt>{% if is_slsa %}{% trans %}Build logs{% endtrans %}{% else %}{% trans %}Publishing logs{% endtrans %}{% endif %}</dt>
+                  <dt>
+                    {% if is_slsa %}
+                      {% trans %}Build logs{% endtrans %}
+                    {% else %}
+                      {% trans %}Publishing logs{% endtrans %}
+                    {% endif %}
+                  </dt>
                   <dd>
-                    <a href="{{ viewer.run_invocation_uri }}" target="_blank" rel="noopener">{{ viewer.run_invocation_uri | replace("https://", "") }}</a>
+                    <a href="{{ viewer.run_invocation_uri }}" target="_blank" rel="noopener">{{ viewer.run_invocation_uri | replace('https://', '') }}</a>
                   </dd>
                 {% endif %}
               </dl>
@@ -230,7 +313,9 @@
               <dl class="attestation__metadata-content">
                 {% if viewer.subject_name %}
                   <dt>{% trans %}File{% endtrans %}</dt>
-                  <dd><code>{{ viewer.subject_name }}</code></dd>
+                  <dd>
+                    <code>{{ viewer.subject_name }}</code>
+                  </dd>
                 {% endif %}
                 {% if viewer.subject_digest %}
                   <dt>{% trans %}SHA-256 checksum{% endtrans %}</dt>
@@ -245,7 +330,9 @@
                         <i class="fa-regular fa-copy" aria-hidden="true"></i>
                       </button>
                     </div>
-                    <a href="{{ request.user_docs_url('/attestations/consuming-attestations/') }}" target="_blank" rel="noopener">{% trans %}Verifying attestations{% endtrans %}</a>
+                    <a href="{{ request.user_docs_url('/attestations/consuming-attestations/') }}"
+                       target="_blank"
+                       rel="noopener">{% trans %}Verifying attestations{% endtrans %}</a>
                   </dd>
                 {% endif %}
               </dl>
@@ -254,5 +341,5 @@
         </div>
       {% endfor %}
     {% endfor %}
-{% endif %}
+  {% endif %}
 </div>

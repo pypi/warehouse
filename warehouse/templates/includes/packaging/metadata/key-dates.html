@@ -9,6 +9,9 @@
     </details>
     <div class="sidebar-section__data-block">
       {% set events = [{'date': release.created, 'key': 'released'}] %}
+      {% if late_file_count > 0 and last_upload %}
+        {% set _ = events.append({'date': last_upload, 'key': 'last-file-added'}) %}
+      {% endif %}
       {% if release.yanked and release.yanked_date %}
         {% set _ = events.append({'date': release.yanked_date, 'key': 'yanked'}) %}
       {% endif %}
@@ -25,6 +28,9 @@
           <li>
             {% if event.key == 'released' %}
               <strong>{% trans %}Released:{% endtrans %}</strong> {{ humanize(event.date) }}
+            {% elif event.key == 'last-file-added' %}
+              <strong>{% trans %}Last file added:{% endtrans %}</strong> <span class="key-dates__late"
+       title="{{ ngettext('%(num)d file was added to this release late', '%(num)d files were added to this release late', late_file_count) }}">{{ humanize(event.date) }} <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></span>
             {% elif event.key == 'yanked' %}
               <strong>{% trans %}Yanked:{% endtrans %}</strong> {{ humanize(event.date) }}
             {% elif event.key == 'quarantined' %}

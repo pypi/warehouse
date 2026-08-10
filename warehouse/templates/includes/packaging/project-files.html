@@ -10,6 +10,22 @@
     <p>
       {% trans href='https://packaging.python.org/en/latest/discussions/package-formats/#package-formats', title=gettext('External link') %}For a detailed explanation of source distributions (sdists) and built distributions (wheels), please see the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">package formats documentation</a>.{% endtrans %}
     </p>
+    {% if late_file_count > 0 %}
+      <div class="callout-block callout-block--warning">
+        <h3 class="callout-block__heading">
+          {% trans count=late_file_count %}File added late
+        {% pluralize %}
+          Files added late{% endtrans %}
+        </h3>
+        <p>
+          {% trans count=late_file_count, days=maximum_age_for_new_uploads_days %}{{ count }} file was uploaded more than {{ days }} days after the first file in this release.
+        {% pluralize %}
+          {{ count }} files were uploaded more than {{ days }} days after the first file in this release.{% endtrans %}
+        </p>
+        <p>{% trans %}While project maintainers occasionally add legitimate files to an existing release, late additions can also indicate a security compromise.{% endtrans %}</p>
+        <p>{% trans %}We recommend inspecting the release files before installing.{% endtrans %}</p>
+      </div>
+    {% endif %}
     {% if sdists %}
       <h3>
         <i class="fa-regular fa-file-code" aria-hidden="true"></i>
@@ -34,14 +50,16 @@
         {% for file in sdists %}
           <tr>
             <td>
-              <a href="{{ request.route_url('packaging.file', path=file.path) }}"><i class="fa-regular fa-circle-down" aria-hidden="true"></i> {{ file.filename }}</a>
+              <span class="file-info__name">
+                <a href="{{ request.route_url('packaging.file', path=file.path) }}"><i class="fa-regular fa-circle-down" aria-hidden="true"></i> <span>{{ file.filename }}</span></a>
+              </span>
             </td>
             <td>{{ file.size|filesizeformat() if file.size else 0|filesizeformat() }}</td>
             <td>{% trans upload_time=humanize(file.upload_time) %}{{ upload_time }}{% endtrans %}</td>
             {#<td>TODO</td>#}
             <td>
               <a href="#{{ file.filename }}"
-                 class="button button--small button--outline button--full-width"
+                 class="button button--small button--outline file-info__details-button"
                  data-project-tabs-target="tab"
                  data-action="project-tabs#onTabClick">{% trans %}Details{% endtrans %}</a>
             </td>
@@ -165,7 +183,7 @@
             {% if 'source' not in file.python_version %} data-filter-list-target="item" data-filtered-target-filename='{{ (([file.filename] + file.pretty_wheel_tags) | list) | tojson }}' {% for filter_name, filter_items in file.wheel_filters.items() %} data-filtered-target-{{ filter_name }}='{{ (filter_items.keys() | list) | tojson }}' {% endfor %}
             {% endif %}>
           {% if 'Egg' in file.pretty_wheel_tags %}
-            <td>{% trans %}Legacy Egg format.{% endtrans %}</td>
+            <td colspan="5">{% trans %}Legacy Egg format.{% endtrans %}</td>
           {% else %}
             <td>
               <span class="file-info__name">
@@ -174,7 +192,17 @@
               <span class="file-info__metadata">
                 <small>{{ file.size|filesizeformat() if file.size else 0|filesizeformat() }}</small>
                 <span class="file-info__meta-divider" aria-hidden="true"></span>
-                <small><i class="fa-regular fa-calendar" aria-hidden="true"></i> {{ humanize(file.upload_time) }}</small>
+                {% if (file.upload_time - first_upload).days > maximum_age_for_new_uploads_days %}
+                  <small class="file-info__late">
+                    <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                    {{ humanize(file.upload_time) }}
+                  </small>
+                {% else %}
+                  <small>
+                    <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+                    {{ humanize(file.upload_time) }}
+                  </small>
+                {% endif %}
                 {# TODO: add provenance states with security page
                 <span class="file-info__meta-divider" aria-hidden="true"></span>
                 <small><i class="fa-regular fa-circle-check" aria-hidden="true"></i> TODO</small> #}
@@ -194,7 +222,7 @@
             </td>
             <td>
               <a href="#{{ file.filename }}"
-                 class="button button--small button--outline button--full-width"
+                 class="button button--small button--outline file-info__details-button"
                  data-project-tabs-target="tab"
                  data-action="project-tabs#onTabClick">{% trans %}Details{% endtrans %}</a>
             </td>

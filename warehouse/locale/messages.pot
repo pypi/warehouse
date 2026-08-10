@@ -948,7 +948,7 @@ msgstr ""
 msgid "Provide an Inspector link to specific lines of code."
 msgstr ""
 
-#: warehouse/packaging/views.py:350
+#: warehouse/packaging/views.py:374
 msgid "Your report has been recorded. Thank you for your help."
 msgstr ""
 
@@ -1073,8 +1073,8 @@ msgstr ""
 #: warehouse/templates/base.html:464 warehouse/templates/base.html:477
 #: warehouse/templates/base.html:494 warehouse/templates/base.html:502
 #: warehouse/templates/includes/accounts/profile-callout.html:5
-#: warehouse/templates/includes/file-details.html:69
-#: warehouse/templates/includes/file-details.html:89
+#: warehouse/templates/includes/file-details.html:55
+#: warehouse/templates/includes/file-details.html:75
 #: warehouse/templates/includes/packaging/project-files.html:11
 #: warehouse/templates/index.html:99 warehouse/templates/index.html:106
 #: warehouse/templates/manage/account.html:241
@@ -1935,7 +1935,7 @@ msgstr[1] ""
 
 #: warehouse/templates/accounts/profile.html:97
 #: warehouse/templates/includes/packaging/project-release-history.html:68
-#: warehouse/templates/includes/packaging/project-status.html:55
+#: warehouse/templates/includes/packaging/project-status.html:72
 msgid "Archived"
 msgstr ""
 
@@ -3079,35 +3079,63 @@ msgstr ""
 msgid "Public profile"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:34
+#: warehouse/templates/includes/file-details.html:10
 msgid "Release files"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:40
+#: warehouse/templates/includes/file-details.html:16
+#: warehouse/templates/includes/packaging/project-files.html:16
+#: warehouse/templates/includes/packaging/project-status.html:7
+msgid "File added late"
+msgid_plural "Files added late"
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/templates/includes/file-details.html:17
+#, python-format
+msgid ""
+"This file was uploaded more than %(days)s days after the first file in "
+"this release."
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:18
+#: warehouse/templates/includes/packaging/project-files.html:25
+msgid ""
+"While project maintainers occasionally add legitimate files to an "
+"existing release, late additions can also indicate a security compromise."
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:19
+msgid "We recommend inspecting the release file before installing."
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:26
 msgid "Download URL"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:49
-#: warehouse/templates/includes/packaging/project-files.html:27
+#: warehouse/templates/includes/file-details.html:35
+#: warehouse/templates/includes/packaging/project-files.html:43
 msgid "Size"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:54
+#: warehouse/templates/includes/file-details.html:40
 #: warehouse/templates/includes/packaging/metadata/tags.html:4
 msgid "Tags"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:66
-msgid "SHA256 checksum"
+#: warehouse/templates/includes/file-details.html:52
+#: warehouse/templates/includes/file-details.html:321
+msgid "SHA-256 checksum"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:71
-#: warehouse/templates/includes/file-details.html:91
+#: warehouse/templates/includes/file-details.html:57
+#: warehouse/templates/includes/file-details.html:77
 msgid "How to use checksums"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:79
-#: warehouse/templates/includes/file-details.html:99
+#: warehouse/templates/includes/file-details.html:65
+#: warehouse/templates/includes/file-details.html:85
+#: warehouse/templates/includes/file-details.html:329
 #: warehouse/templates/includes/packaging/project-header.html:43
 #: warehouse/templates/manage/account.html:218
 #: warehouse/templates/manage/account/recovery_codes-provision.html:53
@@ -3117,8 +3145,8 @@ msgstr ""
 msgid "Copy to clipboard"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:80
-#: warehouse/templates/includes/file-details.html:100
+#: warehouse/templates/includes/file-details.html:66
+#: warehouse/templates/includes/file-details.html:86
 #: warehouse/templates/manage/account.html:219
 #: warehouse/templates/manage/account/recovery_codes-provision.html:54
 #: warehouse/templates/manage/account/totp-provision.html:47
@@ -3127,40 +3155,127 @@ msgstr ""
 msgid "Copy"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:86
+#: warehouse/templates/includes/file-details.html:72
 msgid "BLAKE2b-256 checksum"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:105
+#: warehouse/templates/includes/file-details.html:91
 #: warehouse/templates/manage/project/release.html:60
 #: warehouse/templates/manage/project/release.html:82
 msgid "Upload date"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:106
-#: warehouse/templates/includes/packaging/project-files.html:40
+#: warehouse/templates/includes/file-details.html:92
+#: warehouse/templates/includes/packaging/project-files.html:58
 #, python-format
 msgid "%(upload_time)s"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:110
+#: warehouse/templates/includes/file-details.html:96
 msgid "Uploaded using Trusted Publishing?"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:112
+#: warehouse/templates/includes/file-details.html:98
 msgid "What is trusted publishing?"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:116
+#: warehouse/templates/includes/file-details.html:102
 msgid "Yes"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:118
+#: warehouse/templates/includes/file-details.html:104
 msgid "No"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:124
+#: warehouse/templates/includes/file-details.html:110
 msgid "Uploaded via"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:176
+#: warehouse/templates/includes/file-details.html:188
+msgid "Attestation"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:198
+msgid "Sigstore transparency entry"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:199
+msgid "Transparency log"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:210
+msgid "Identity"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:215
+msgid "Build platform"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:217
+msgid "Publishing platform"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:226
+msgid "Build repository"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:228
+msgid "Publishing repository"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:237
+msgid "Build commit"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:239
+msgid "Publishing commit"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:251
+msgid "Build account"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:253
+msgid "Publisher account"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:273
+msgid "Build"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:275
+msgid "Workflow"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:283
+msgid "Build instructions"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:285
+msgid "Publishing configuration"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:295
+msgid "Build logs"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:297
+msgid "Publishing logs"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:311
+msgid "Artifact"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:315
+#: warehouse/templates/includes/packaging/project-files.html:42
+#: warehouse/templates/includes/packaging/project-files.html:111
+msgid "File"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:335
+msgid "Verifying attestations"
 msgstr ""
 
 #: warehouse/templates/includes/flash-messages.html:10
@@ -3331,88 +3446,94 @@ msgid ""
 "documentation</a>."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:16
+#: warehouse/templates/includes/packaging/project-files.html:21
+#, python-format
+msgid ""
+"%(count)s file was uploaded more than %(days)s days after the first file "
+"in this release."
+msgid_plural ""
+"%(count)s files were uploaded more than %(days)s days after the first "
+"file in this release."
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/templates/includes/packaging/project-files.html:26
+msgid "We recommend inspecting the release files before installing."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-files.html:32
 msgid "Source distribution (sdist)"
 msgid_plural "Source distributions (sdists)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/includes/packaging/project-files.html:23
+#: warehouse/templates/includes/packaging/project-files.html:39
 #, python-format
 msgid "Source distribution for %(name)s %(version)s"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:26
-#: warehouse/templates/includes/packaging/project-files.html:93
-msgid "File"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-files.html:28
+#: warehouse/templates/includes/packaging/project-files.html:44
 msgid "Uploaded"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:29
-msgid "Provenance"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-files.html:46
-#: warehouse/templates/includes/packaging/project-files.html:198
+#: warehouse/templates/includes/packaging/project-files.html:64
+#: warehouse/templates/includes/packaging/project-files.html:227
 #: warehouse/templates/manage/account/publishing.html:416
 #: warehouse/templates/manage/organization/publishing.html:416
 #: warehouse/templates/manage/project/publishing.html:364
 msgid "Details"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:58
+#: warehouse/templates/includes/packaging/project-files.html:76
 msgid "Built distribution (wheel)"
 msgid_plural "Built distributions (wheels)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/includes/packaging/project-files.html:67
+#: warehouse/templates/includes/packaging/project-files.html:85
 msgid "Enable javascript to be able to filter the list of wheel files."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:72
+#: warehouse/templates/includes/packaging/project-files.html:90
 msgid "Search wheels"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:77
+#: warehouse/templates/includes/packaging/project-files.html:95
 msgid "Search wheels by file name"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:90
+#: warehouse/templates/includes/packaging/project-files.html:108
 #, python-format
 msgid "Table of built distributions (wheels) for %(name)s %(version)s"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:96
-#: warehouse/templates/includes/packaging/project-files.html:105
-#: warehouse/templates/includes/packaging/project-files.html:111
+#: warehouse/templates/includes/packaging/project-files.html:114
+#: warehouse/templates/includes/packaging/project-files.html:123
+#: warehouse/templates/includes/packaging/project-files.html:129
 msgid "Interpreter"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:116
-#: warehouse/templates/includes/packaging/project-files.html:125
-#: warehouse/templates/includes/packaging/project-files.html:131
+#: warehouse/templates/includes/packaging/project-files.html:134
+#: warehouse/templates/includes/packaging/project-files.html:143
+#: warehouse/templates/includes/packaging/project-files.html:149
 msgid "ABI"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:136
-#: warehouse/templates/includes/packaging/project-files.html:145
-#: warehouse/templates/includes/packaging/project-files.html:151
+#: warehouse/templates/includes/packaging/project-files.html:154
+#: warehouse/templates/includes/packaging/project-files.html:163
+#: warehouse/templates/includes/packaging/project-files.html:169
 msgid "Platform"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:158
+#: warehouse/templates/includes/packaging/project-files.html:176
 msgid "Reset"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:168
+#: warehouse/templates/includes/packaging/project-files.html:186
 msgid "Legacy Egg format."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:215
+#: warehouse/templates/includes/packaging/project-files.html:244
 msgid "Total release size:"
 msgstr ""
 
@@ -3488,8 +3609,8 @@ msgid "Project quarantined on %(date)s"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-release-history.html:48
-#: warehouse/templates/includes/packaging/project-status.html:7
-#: warehouse/templates/includes/packaging/project-status.html:19
+#: warehouse/templates/includes/packaging/project-status.html:24
+#: warehouse/templates/includes/packaging/project-status.html:36
 #: warehouse/templates/manage/project/releases.html:25
 msgid "Quarantined"
 msgstr ""
@@ -3500,7 +3621,7 @@ msgid "Release yanked on %(date)s"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-release-history.html:58
-#: warehouse/templates/includes/packaging/project-status.html:35
+#: warehouse/templates/includes/packaging/project-status.html:52
 msgid "Yanked"
 msgstr ""
 
@@ -3510,7 +3631,7 @@ msgid "Project archived on %(date)s"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-release-history.html:72
-#: warehouse/templates/includes/packaging/project-status.html:67
+#: warehouse/templates/includes/packaging/project-status.html:84
 msgid "Pre-release"
 msgstr ""
 
@@ -3533,7 +3654,20 @@ msgstr ""
 msgid "Security for"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-status.html:10
+#: warehouse/templates/includes/packaging/project-status.html:12
+#, python-format
+msgid ""
+"%(count)s file was added to this release more than %(days)s days after "
+"its initial publication. <a href=\"%(href)s\">Inspect the release "
+"files</a> before installing."
+msgid_plural ""
+"%(count)s files were added to this release more than %(days)s days after "
+"its initial publication. <a href=\"%(href)s\">Inspect the release "
+"files</a> before installing."
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/templates/includes/packaging/project-status.html:27
 #, python-format
 msgid ""
 "This project has been <a href=\"%(href)s\">quarantined</a> by PyPI "
@@ -3541,7 +3675,7 @@ msgid ""
 "complete."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-status.html:22
+#: warehouse/templates/includes/packaging/project-status.html:39
 #, python-format
 msgid ""
 "This release has been <a href=\"%(href)s\">quarantined</a> by PyPI "
@@ -3549,31 +3683,31 @@ msgid ""
 "complete."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-status.html:25
-#: warehouse/templates/includes/packaging/project-status.html:41
+#: warehouse/templates/includes/packaging/project-status.html:42
+#: warehouse/templates/includes/packaging/project-status.html:58
 #, python-format
 msgid "Consider using <a href=\"%(href)s\">release %(version)s</a> instead."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-status.html:38
+#: warehouse/templates/includes/packaging/project-status.html:55
 #, python-format
 msgid ""
 "This release has been <a href=\"%(href)s\">yanked</a> by its maintainers,"
 " and will be ignored by installers, except when explicitly specified."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-status.html:45
+#: warehouse/templates/includes/packaging/project-status.html:62
 msgid "Reason given by maintainers:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-status.html:58
+#: warehouse/templates/includes/packaging/project-status.html:75
 #, python-format
 msgid ""
 "This project has been <a href=\"%(href)s\">archived</a> by its "
 "maintainers, and is no longer receiving any updates."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-status.html:70
+#: warehouse/templates/includes/packaging/project-status.html:87
 #, python-format
 msgid ""
 "This release is a <a href=\"%(href)s\">pre-release</a> and may not be "
@@ -3694,33 +3828,44 @@ msgstr ""
 msgid "Key dates"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:27
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:30
 msgid "Released:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:29
-msgid "Yanked:"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:31
-msgid "Quarantined:"
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:32
+msgid "Last file added:"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/metadata/key-dates.html:33
+#, python-format
+msgid "%(num)d file was added to this release late"
+msgid_plural "%(num)d files were added to this release late"
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:35
+msgid "Yanked:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:37
+msgid "Quarantined:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:39
 msgid "Archived:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:42
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:48
 #, python-format
 msgid "Stable release available (%(version)s)"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:47
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:53
 #, python-format
 msgid "Newer release available (%(version)s)"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:50
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:56
 msgid "Latest release"
 msgstr ""
 

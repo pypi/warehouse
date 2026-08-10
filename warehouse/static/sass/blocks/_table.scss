@@ -260,7 +260,9 @@
 
     .file-info__name {
       display: block;
-      margin-bottom: 5px;
+      word-break: break-word;
+      position: relative;
+      left: -2px;
 
       a {
         text-decoration: none;
@@ -275,6 +277,7 @@
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
+      margin-top: 5px;
     }
 
     .file-info__meta-divider {
@@ -283,6 +286,15 @@
       height: 0.85em;
       background-color: colors.$light-grey;
       flex-shrink: 0;
+    }
+
+    .file-info__late {
+      color: colors.$warning-color;
+    }
+
+    .file-info__details-button {
+      min-width: 80px;
+      float: right;
     }
 
     @media only screen and (max-width: breakpoints.$tablet) {
