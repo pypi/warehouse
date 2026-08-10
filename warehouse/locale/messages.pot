@@ -948,7 +948,7 @@ msgstr ""
 msgid "Provide an Inspector link to specific lines of code."
 msgstr ""
 
-#: warehouse/packaging/views.py:357
+#: warehouse/packaging/views.py:350
 msgid "Your report has been recorded. Thank you for your help."
 msgstr ""
 
@@ -3586,14 +3586,6 @@ msgstr ""
 
 #: warehouse/templates/includes/packaging/metadata/github-statistics.html:12
 #: warehouse/templates/includes/packaging/metadata/gitlab-statistics.html:11
-#: warehouse/templates/includes/packaging/metadata/project-links.html:59
-#: warehouse/templates/includes/packaging/metadata/project-links.html:60
-#, python-format
-msgid "Data verified by PyPI on %(date)s"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/github-statistics.html:12
-#: warehouse/templates/includes/packaging/metadata/gitlab-statistics.html:11
 #, python-format
 msgid "Data verified by PyPI on&nbsp;%(date)s"
 msgstr ""
@@ -3726,6 +3718,11 @@ msgstr ""
 
 #: warehouse/templates/includes/packaging/metadata/project-links.html:54
 msgid "Project links"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/project-links.html:60
+#, python-format
+msgid "Data verified by PyPI on %(date)s"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/metadata/project-links.html:63
