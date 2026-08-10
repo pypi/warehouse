@@ -62,7 +62,7 @@ serving the information that installers care about. This is intentional:
 efforts to extend the simple index over the years have worked hard
 to put that state into both representations.
 
-Doing so with the HTML representation is often percussive, as
+Doing so with the HTML representation is often unwieldy, as
 metadata that naturally fits JSON's object model needs to be
 shoehorned into nooks and crannies (mainly HTML attributes and new `<meta>` tags)
 that won't interfere with pre-existing assumptions about the
