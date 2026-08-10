@@ -6,7 +6,7 @@ We're pleased that you are interested in working on Warehouse.
 
 After you set up your development environment and ensure you can run
 the tests and build the documentation (using the instructions in this
-document), take a look at [our guide to the Warehouse codebase](../application.md). Then, look at our [open issues that are labelled "good first issue"](https://github.com/pypi/warehouse/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22), find one you want to work on, comment on it to say you're working on
+document), take a look at [our guide to the Warehouse codebase](../application.md). Then, look at our [open issues that are labelled "good first issue for humans"](https://github.com/pypi/warehouse/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue+for+humans%22), find one you want to work on, comment on it to say you're working on
 it, then submit a pull request. Use our [submitting patches](submitting-patches.md) documentation
 to help.
 

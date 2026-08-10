@@ -53,6 +53,9 @@
 {% macro archived_project() %}
   {% trans %}What's an archived project?{% endtrans %}
 {% endmacro %}
+{% macro pre_release() %}
+  {% trans %}What is a pre-release?{% endtrans %}
+{% endmacro %}
 {# My Account #}
 {% macro verified_email() %}
   {% trans %}Why do I need a verified email address?{% endtrans %}
@@ -234,6 +237,9 @@
           </li>
           <li>
             <a href="#archived-project">{{ archived_project() }}</a>
+          </li>
+          <li>
+            <a href="#pre-release-versioning">{{ pre_release() }}</a>
           </li>
         </ul>
       </section>
@@ -485,6 +491,15 @@
   can still be resolved from the index by default, unlike deleted or
   <a href="{{ href }}">yanked</a> releases. An archived project cannot
   make new releases and will not appear in PyPI's search results.
+{% endtrans %}
+</p>
+<h3 id="pre-release-versioning">{{ pre_release() }}</h3>
+<p>
+  {% trans %}
+  A pre-release is a version of a package that is not yet considered stable for general use.
+  Pre-releases are typically labelled with suffixes such as <code>a</code> (alpha), <code>b</code> (beta),
+  or <code>rc</code> (release candidate) — for example, <code>1.0a1</code> or <code>2.3rc2</code>.
+  By default, installers such as pip will not install pre-release versions unless explicitly requested.
 {% endtrans %}
 </p>
 </section>
