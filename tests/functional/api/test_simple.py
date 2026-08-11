@@ -5,6 +5,8 @@ from http import HTTPStatus
 from warehouse.api.simple import MIME_PYPI_SIMPLE_V1_JSON
 from inline_snapshot import snapshot
 
+from warehouse.packaging.models import LifecycleStatus
+
 from ...common.db.packaging import (
     FileFactory,
     ProjectFactory,
@@ -119,6 +121,7 @@ def test_pep833_simple_api_detail_html_frozen(webtest):
     just the whitespace, make sure you have a good reason for doing do!
     """
 
+    # Basic example.
     project = ProjectFactory.create(name="example")
     release = ReleaseFactory.create(project=project, version="1.0.0")
     FileFactory.create(
@@ -137,6 +140,35 @@ def test_pep833_simple_api_detail_html_frozen(webtest):
   <body>
     <h1>Links for example</h1>
 <a href="http://localhost:7000/#sha256=7e657eb56fc128fcfbbc8c6c613f4b67ae589e93871c96aeb502754bbf24987f" >example-1.0.0.tar.gz</a><br />
+</body>
+</html>
+<!--SERIAL 0-->\
+""")  # noqa: E501
+
+    # A slightly less basic example, with a project status and requires-python marker.
+    project = ProjectFactory.create(
+        name="example2",
+        lifecycle_status=LifecycleStatus.Archived,
+    )
+    release = ReleaseFactory.create(
+        project=project, version="1.0.0", requires_python=">=3.14"
+    )
+    FileFactory.create(
+        filename="example2-1.0.0.tar.gz", release=release, packagetype="sdist"
+    )
+
+    resp = webtest.get(f"/simple/{project.normalized_name}/", status=HTTPStatus.OK)
+
+    assert resp.text == snapshot("""\
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="pypi:repository-version" content="1.4">
+<meta name="pypi:project-status" content="archived">    <title>Links for example2</title>
+  </head>
+  <body>
+    <h1>Links for example2</h1>
+<a href="http://localhost:7000/#sha256=a1dce4642866a610552fab0817cc7926f12d9ecc11f7016eb07bd5e721cee61e" data-requires-python="&gt;=3.14" >example2-1.0.0.tar.gz</a><br />
 </body>
 </html>
 <!--SERIAL 0-->\
