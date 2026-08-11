@@ -324,6 +324,7 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
                     Permissions.AdminUsersEmailWrite,
                     Permissions.AdminUsersAccountRecoveryWrite,
                     Permissions.AdminUsersRecoveryCodesBurn,
+                    Permissions.AdminUsersExport,
                     Permissions.AdminDashboardSidebarRead,
                     Permissions.AdminVulnerabilitiesRead,
                 ),

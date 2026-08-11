@@ -114,6 +114,9 @@ class Event:
     if typing.TYPE_CHECKING:
         # Attributes defined on concrete subclasses created by HasEvents.
         # Declared here for type checking when querying via polymorphic union.
+        # `id` comes from `db.Model`, which the generated subclass mixes in
+        # alongside this class - not visible to the type checker otherwise.
+        id: Mapped[UUID]
         source_id: Mapped[UUID]
         source: Mapped[HasEvents]
 

@@ -69,6 +69,7 @@ _KIND_TO_ADMIN_ROUTE: dict[str, str] = {
     "something_else": "admin.project.detail",
     "account_abuse": "admin.user.detail",
     "account_recovery": "admin.user.detail",
+    "account_export": "admin.user.detail",
     "email_unverified": "admin.user.detail",
     "information_request": "admin.organization_application.detail",
     "admin_note": "admin.organization_application.detail",
