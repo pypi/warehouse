@@ -711,16 +711,16 @@ github-reserved-names==2026.6.1 \
     --hash=sha256:2eed4f3e9dbc5b6336698ec235431533726ab0b67926a2c2f6e64a17a8f6d4c3 \
     --hash=sha256:4a26cc41b0e557aea4bfe6b0de407e364229ef98d5f9a91ab18fff14363cabc4
     # via -r requirements/main.in
-google-api-core[grpc]==2.31.0 \
-    --hash=sha256:2be84ee0f584c48e6bde1b36766e23348b361fb7e55e56135fc76ce1c397f9c2 \
-    --hash=sha256:ef79fb3784c71cbac89cbd03301ba0c8fb8ad2aa95d7f9204dd9628f7adf59ab
+google-api-core[grpc]==2.34.0 \
+    --hash=sha256:98a779fe72de956eb1c9c2f47ff4c4432a668ece1a002ec38bed07ec2698ae59 \
+    --hash=sha256:cdf9c67e7ca2402d86ccbfde5f2503fc83e3cc3f58cc78456ae96cad24a6d2de
     # via
     #   google-cloud-bigquery
     #   google-cloud-core
     #   google-cloud-storage
-google-auth[pyopenssl]==2.55.1 \
-    --hash=sha256:eada68dfd52b3b81191827601e2a0c3fa12540c818534b630ddc5355769c3995 \
-    --hash=sha256:fb2d9b730f2c9b8d326ec8d7222f21aef2ead15bf0513793d6442485d87af0a1
+google-auth[pyopenssl]==2.56.3 \
+    --hash=sha256:40e229fc901f0a305b553050e5fce562d509bee0435be053abfa91582b51b90c \
+    --hash=sha256:8ec438808f813ad034535000261eed1067475d229d05bbf4216e78c3f2362e53
     # via
     #   google-api-core
     #   google-cloud-bigquery
@@ -1976,7 +1976,6 @@ pyopenssl==26.2.0 \
     --hash=sha256:4f9d971bc5298b8bc1fab282803da04bf000c755d4ad9d99b52de2569ca19a70 \
     --hash=sha256:8c6fcecd1183a7fc897548dfe388b0cdb7f37e018200d8409cf33959dbe35387
     # via
-    #   google-auth
     #   sigstore
     #   webauthn
 pyparsing==3.3.2 \
