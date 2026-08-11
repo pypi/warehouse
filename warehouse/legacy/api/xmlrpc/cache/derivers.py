@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import orjson
+import json
 
 from warehouse.legacy.api.xmlrpc.cache import interfaces
 
@@ -21,7 +21,7 @@ def cached_return_view(view, info):
             except LookupError:
                 return view(context, request)
             try:
-                key = orjson.dumps(request.rpc_args[slice_obj])
+                key = json.dumps(request.rpc_args[slice_obj], separators=(",", ":"))
                 _tag = tag
                 if arg_index is not None:
                     _tag = tag % (tag_processor(str(request.rpc_args[arg_index])))

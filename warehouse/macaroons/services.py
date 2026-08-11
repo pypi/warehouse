@@ -132,6 +132,43 @@ class DatabaseMacaroonService:
         if dm is None:
             raise InvalidMacaroonError("deleted or nonexistent macaroon")
 
+        # Macaroons traditionally have caveats embedded inside them which act to
+        # restrict the scope of what that macaroon is able to do. However, each caveat
+        # that is added has to be serialized into the Macaroon which makes them longer
+        # the more restricted they become.
+        #
+        # In the common case, end users often don't add their own caveats to the
+        # macaroons we give them, the only caveats that exist are the ones that were
+        # added by Warehouse when the macaroons was first created. This allows end users
+        # to introspect the macaroon without having to talk to PyPI, but means that they
+        # are already longer than is typical for an API token out of the gate.
+        #
+        # Relying strictly on the embedded caveats also makes it more difficult to
+        # evolve the use cases that the token system is able to handle over time when
+        # assumptions that used to be made can no longer be assumed (such as they're
+        # only used for uploads and then wanting to use them for other use cases).
+        #
+        # To solve this, what we do is we allow storing caveats in the database in
+        # addition to the embedded caveats, and when verifying the macaroon we append
+        # those caveats to the end of the macaroon.
+        #
+        # This means:
+        #  1. The system generated caveats do not need to be embedded, because they are
+        #     in the database and dynamically added at verify time.
+        #  2. We can add new caveats to any existing macaroon by adding the caveat to
+        #     the stored caveats in the database.
+        #  3. When the macaroon has the system generated caveats embedded, appending
+        #     them is harmless (other than a small cpu cost) because it's just verifying
+        #     the same restrictions twice.
+        #
+        # NOTE: We choose to mutate the macaroon that was given to us by appending the
+        #       stored caveats to the end of it. This is safe and means that the caveat
+        #       verification code doesn't have to do anything special for stored vs
+        #       embedded caveats. However, it does mean that the macaroon we actually
+        #       end up verifying is a "sub" macaroon of what the user provided us.
+        for caveat in dm.caveats:
+            m.add_first_party_caveat(caveats.serialize(caveat))
+
         verified = caveats.verify(m, dm.key, request, context, permission)
         if verified:
             # Update last_used without dirtying the ORM object. A dirty
@@ -209,6 +246,8 @@ class DatabaseMacaroonService:
             key=dm.key,
             version=pymacaroons.MACAROON_V2,
         )
+        # TODO: Remove this to stop emitting embedded caveats, which are now
+        #       being stored in the database while still being verified.
         for caveat in scopes:
             m.add_first_party_caveat(caveats.serialize(caveat))
         serialized_macaroon = f"pypi-{m.serialize()}"
