@@ -18,6 +18,7 @@ from warehouse.legacy.api.xmlrpc.cache import (
     cached_return_view,
     services,
 )
+from warehouse.legacy.api.xmlrpc.cache.fncache import StubMetricReporter
 from warehouse.legacy.api.xmlrpc.cache.interfaces import CacheError, IXMLRPCCache
 
 
@@ -160,12 +161,29 @@ class TestIncludeMe:
 
         assert isinstance(service, RedisXMLRPCCache)
         assert service._purger is delay
-        assert delay.call_args_list == [
-            mocker.call("wu"),
-            mocker.call("tang"),
-            mocker.call("4"),
-            mocker.call("evah"),
-        ]
+        # Without this the cache falls back to StubMetricReporter and reports nothing.
+        assert service.redis_lru.metric_reporter is pyramid_request.metrics
+
+    def test_create_redis_service_without_a_request(self, mocker):
+        """The factory tolerates being handed something that is not a request.
+
+        `execute_purge` calls it with the Configurator, which has no `metrics`. That
+        path only enqueues purges, so a stubbed reporter there costs nothing, but an
+        AttributeError would break every `after_commit`.
+        """
+        delay = mocker.stub(name="delay")
+        config = types.SimpleNamespace(
+            registry=types.SimpleNamespace(
+                settings={"warehouse.xmlrpc.cache.url": "redis://"}
+            ),
+            task=mocker.Mock(return_value=mocker.Mock(delay=delay)),
+        )
+
+        service = RedisXMLRPCCache.create_service(None, config)
+        service.purge_tags(["wu", "tang"])
+
+        assert isinstance(service.redis_lru.metric_reporter, StubMetricReporter)
+        assert delay.call_args_list == [mocker.call("wu"), mocker.call("tang")]
 
 
 class TestRedisLru:
@@ -193,8 +211,28 @@ class TestRedisLru:
             func_test, [0, 1], {"kwarg0": 2, "kwarg1": 3}, None, None, None
         )
         assert metrics.increment.call_args_list == [
-            mocker.call("lru.cache.miss"),
-            mocker.call("lru.cache.hit"),
+            mocker.call("warehouse.lru.cache.miss"),
+            mocker.call("warehouse.lru.cache.hit"),
+        ]
+
+    def test_falsy_cached_value_is_a_single_hit(self, metrics, mockredis, mocker):
+        """An empty result is a real hit: counted once, and the view is not re-run.
+
+        `fetch` compares the cached value against None instead of testing its
+        truthiness. Testing truthiness reports the same request as both a hit and a
+        miss, which would make the hit rate unreadable, and re-runs the query every
+        time. `package_roles` returns `[]` for any unknown name.
+        """
+        empty_func = mocker.Mock(return_value=[], __name__="empty_func")
+        redis_lru = RedisLru(mockredis, metric_reporter=metrics)
+
+        assert redis_lru.fetch(empty_func, [], {}, "[]", None, None) == []
+        assert redis_lru.fetch(empty_func, [], {}, "[]", None, None) == []
+
+        empty_func.assert_called_once_with()
+        assert metrics.increment.call_args_list == [
+            mocker.call("warehouse.lru.cache.miss"),
+            mocker.call("warehouse.lru.cache.hit"),
         ]
 
     def test_redis_purge(self, metrics, mockredis, mocker):
@@ -216,11 +254,11 @@ class TestRedisLru:
             func_test, [0, 1], {"kwarg0": 2, "kwarg1": 3}, None, "test", None
         )
         assert metrics.increment.call_args_list == [
-            mocker.call("lru.cache.miss"),
-            mocker.call("lru.cache.hit"),
-            mocker.call("lru.cache.purge"),
-            mocker.call("lru.cache.miss"),
-            mocker.call("lru.cache.hit"),
+            mocker.call("warehouse.lru.cache.miss"),
+            mocker.call("warehouse.lru.cache.hit"),
+            mocker.call("warehouse.lru.cache.purge"),
+            mocker.call("warehouse.lru.cache.miss"),
+            mocker.call("warehouse.lru.cache.hit"),
         ]
 
     def test_redis_down(self, metrics, mocker):
@@ -242,13 +280,13 @@ class TestRedisLru:
             redis_lru.purge("test")
 
         assert metrics.increment.call_args_list == [
-            mocker.call("lru.cache.error"),  # Failed get
-            mocker.call("lru.cache.miss"),
-            mocker.call("lru.cache.error"),  # Failed add
-            mocker.call("lru.cache.error"),  # Failed get
-            mocker.call("lru.cache.miss"),
-            mocker.call("lru.cache.error"),  # Failed add
-            mocker.call("lru.cache.error"),  # Failed purge
+            mocker.call("warehouse.lru.cache.error"),  # Failed get
+            mocker.call("warehouse.lru.cache.miss"),
+            mocker.call("warehouse.lru.cache.error"),  # Failed add
+            mocker.call("warehouse.lru.cache.error"),  # Failed get
+            mocker.call("warehouse.lru.cache.miss"),
+            mocker.call("warehouse.lru.cache.error"),  # Failed add
+            mocker.call("warehouse.lru.cache.error"),  # Failed purge
         ]
 
 
@@ -349,7 +387,7 @@ class TestPurgeTask:
 
         pyramid_request.find_service.assert_called_once_with(IXMLRPCCache)
         purge.assert_called_once_with("foo")
-        pyramid_request.log.info.assert_called_once_with("Purging %s", "foo")
+        pyramid_request.log.info.assert_called_once_with("Purging cache tag", tag="foo")
 
     @pytest.mark.parametrize("exception_type", [CacheError])
     def test_purges_fails(self, pyramid_request, mocker, exception_type):
@@ -367,9 +405,9 @@ class TestPurgeTask:
         pyramid_request.find_service.assert_called_once_with(IXMLRPCCache)
         purge.assert_called_once_with("foo")
         task.retry.assert_called_once_with(exc=exc)
-        pyramid_request.log.info.assert_called_once_with("Purging %s", "foo")
+        pyramid_request.log.info.assert_called_once_with("Purging cache tag", tag="foo")
         pyramid_request.log.error.assert_called_once_with(
-            "Error purging %s: %s", "foo", str(exception_type())
+            "Error purging cache tag", tag="foo", error=str(exception_type())
         )
 
     def test_store_purge_keys(self, mocker):

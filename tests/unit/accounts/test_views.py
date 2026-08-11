@@ -3878,6 +3878,43 @@ class TestReAuthentication:
         assert pyramid_request.session.record_auth_timestamp.calls == []
         assert pyramid_request.session.record_password_timestamp.calls == []
 
+    @pytest.mark.parametrize(
+        ("next_route_matchdict", "next_route_query"),
+        [
+            ("invalid_json", "{}"),
+            ("{}", "invalid_json"),
+            ("{'single': 'quotes'}", "{}"),
+            ("123", "{}"),
+            ("{}", "123"),
+            ("[1, 2]", "{}"),
+            ("{}", "[1, 2]"),
+            ("true", "{}"),
+            ("{}", '"string"'),
+        ],
+    )
+    def test_reauth_invalid_json_raises_400(
+        self, pyramid_request, pyramid_services, next_route_matchdict, next_route_query
+    ):
+        user_service = pretend.stub()
+        pyramid_services.register_service(user_service, IUserService, None)
+
+        pyramid_request.user = pretend.stub(id=pretend.stub(), username=pretend.stub())
+        pyramid_request.matched_route = pretend.stub(name=pretend.stub())
+        pyramid_request.matchdict = {}
+        pyramid_request.GET = pretend.stub(mixed=lambda: {})
+        pyramid_request.route_path = pretend.call_recorder(lambda *a, **kw: "/target")
+
+        form_obj = pretend.stub(
+            next_route=pretend.stub(data="/manage/accounts"),
+            next_route_matchdict=pretend.stub(data=next_route_matchdict),
+            next_route_query=pretend.stub(data=next_route_query),
+            validate=lambda: True,
+        )
+        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
+
+        with pytest.raises(HTTPBadRequest):
+            views.reauthenticate(pyramid_request, _form_class=form_class)
+
 
 class TestManageAccountPublishingViews:
     def test_initializes(self, metrics):

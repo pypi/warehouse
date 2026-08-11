@@ -152,7 +152,7 @@ class OAuthAccountAssociationFactory(WarehouseFactory):
     service = "github"
     external_user_id = factory.Sequence(lambda n: f"{n}")
     external_username = factory.Faker("user_name")
-    metadata_ = {}
+    metadata_: dict = {}
 
 
 class UserObservationFactory(WarehouseFactory):
