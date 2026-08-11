@@ -101,6 +101,7 @@ class RootFactory:
                 Permissions.AdminUsersEmailWrite,
                 Permissions.AdminUsersAccountRecoveryWrite,
                 Permissions.AdminUsersRecoveryCodesBurn,
+                Permissions.AdminUsersExport,
                 Permissions.AdminVulnerabilitiesRead,
                 Permissions.AdminVulnerabilitiesWrite,
             ),
