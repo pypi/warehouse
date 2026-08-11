@@ -3,6 +3,7 @@
 from http import HTTPStatus
 
 from warehouse.api.simple import MIME_PYPI_SIMPLE_V1_JSON
+from inline_snapshot import snapshot
 
 from ...common.db.packaging import (
     FileFactory,
@@ -10,8 +11,6 @@ from ...common.db.packaging import (
     ProvenanceFactory,
     ReleaseFactory,
 )
-
-from inline_snapshot import snapshot
 
 
 def test_simple_api_html(webtest):
