@@ -7,7 +7,7 @@ description: >
   and development efforts will focus on the JSON representation.
 authors:
   - woodruffw
-date: 2026-08-10
+date: 2026-08-11
 tags:
   - apis
   - integrations
