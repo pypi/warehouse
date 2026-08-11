@@ -193,6 +193,21 @@ class TestSendEmailToUser:
         assert request.task.calls == []
         assert task.delay.calls == []
 
+    def test_doesnt_send_without_email_address(self):
+        """A user with no primary email address is skipped."""
+        task = pretend.stub(delay=pretend.call_recorder(lambda *a, **kw: None))
+        request = pretend.stub(task=pretend.call_recorder(lambda x: task))
+
+        user = pretend.stub(primary_email=None)
+
+        msg = EmailMessage(subject="My Subject", body_text="My Body")
+
+        skip_reason = email._send_email_to_user(request, user, msg)
+
+        assert skip_reason == "no-email-address"
+        assert request.task.calls == []
+        assert task.delay.calls == []
+
     def test_doesnt_send_within_repeat_window(self, pyramid_request, pyramid_services):
         email_service = pretend.stub(
             last_sent=pretend.call_recorder(
@@ -1409,7 +1424,7 @@ class TestAccountDeletionEmail:
         ]
 
     def test_account_deletion_email_unverified(
-        self, pyramid_request, pyramid_config, monkeypatch
+        self, pyramid_request, pyramid_config, metrics, monkeypatch
     ):
         stub_user = pretend.stub(
             id="id",
@@ -1455,6 +1470,17 @@ class TestAccountDeletionEmail:
         html_renderer.assert_(username=stub_user.username)
         assert pyramid_request.task.calls == []
         assert send_email.delay.calls == []
+        assert metrics.increment.calls == [
+            pretend.call(
+                "warehouse.emails.skipped",
+                tags=[
+                    "template_name:account-deleted",
+                    "allow_unverified:False",
+                    "repeat_window:none",
+                    "reason:unverified-email",
+                ],
+            )
+        ]
 
 
 class TestPrimaryEmailChangeEmail:
@@ -6414,6 +6440,115 @@ class TestSendUnrecognizedLoginEmail:
                         "redact_ip": False,
                     },
                 },
+            )
+        ]
+
+    def test_send_unrecognized_login_email_throttled_within_repeat_window(
+        self,
+        pyramid_request,
+        metrics,
+        email_service,
+        send_email,
+        make_email_renderers,
+        mocker,
+    ):
+        stub_user = pretend.stub(
+            id="id",
+            username="username",
+            name="",
+            email="email@example.com",
+            primary_email=pretend.stub(email="email@example.com", verified=True),
+        )
+        make_email_renderers("unrecognized-login")
+
+        # The same email went out moments ago, e.g. on a previous login attempt
+        last_sent = mocker.patch.object(
+            email_service,
+            "last_sent",
+            autospec=True,
+            return_value=datetime.datetime.now() - datetime.timedelta(minutes=1),
+        )
+
+        email.send_unrecognized_login_email(
+            pyramid_request,
+            stub_user,
+            ip_address="127.0.0.1",
+            user_agent="Test Browser",
+            token="test-token",
+        )
+
+        last_sent.assert_called_once_with(to=stub_user.email, subject="Email Subject")
+        assert pyramid_request.task.calls == []
+        assert send_email.delay.calls == []
+        assert metrics.increment.calls == [
+            pretend.call(
+                "warehouse.emails.skipped",
+                tags=[
+                    "template_name:unrecognized-login",
+                    "allow_unverified:True",
+                    "repeat_window:900.0",
+                    "reason:repeat-window",
+                ],
+            )
+        ]
+
+    def test_send_unrecognized_login_email_repeat_window_override(
+        self,
+        pyramid_request,
+        metrics,
+        email_service,
+        send_email,
+        make_email_renderers,
+        mocker,
+    ):
+        """A per-call repeat_window of None bypasses the decorator's throttle."""
+        stub_user = pretend.stub(
+            id="id",
+            username="username",
+            name="",
+            email="email@example.com",
+            primary_email=pretend.stub(email="email@example.com", verified=True),
+        )
+        make_email_renderers("unrecognized-login")
+
+        # The same email went out moments ago, e.g. for a different device
+        last_sent = mocker.patch.object(
+            email_service,
+            "last_sent",
+            autospec=True,
+            return_value=datetime.datetime.now() - datetime.timedelta(minutes=1),
+        )
+
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=stub_user.id)
+                )
+            ),
+        )
+        pyramid_request.user = stub_user
+
+        email.send_unrecognized_login_email(
+            pyramid_request,
+            stub_user,
+            ip_address="127.0.0.1",
+            user_agent="Test Browser",
+            token="test-token",
+            repeat_window=None,
+        )
+
+        # The throttle was never consulted and the email was scheduled
+        last_sent.assert_not_called()
+        assert pyramid_request.task.calls == [pretend.call(send_email)]
+        assert len(send_email.delay.calls) == 1
+        assert metrics.increment.calls == [
+            pretend.call(
+                "warehouse.emails.scheduled",
+                tags=[
+                    "template_name:unrecognized-login",
+                    "allow_unverified:True",
+                    "repeat_window:none",
+                ],
             )
         ]
 

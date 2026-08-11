@@ -6,7 +6,8 @@ import datetime
 import enum
 import typing
 
-from collections import OrderedDict
+from collections import Counter, OrderedDict
+from functools import cached_property
 from uuid import UUID
 
 import packaging.utils
@@ -54,7 +55,14 @@ from urllib3.util import parse_url
 
 from warehouse import db
 from warehouse.accounts.models import User
-from warehouse.attestations.models import Provenance
+from warehouse.attestations.models import (
+    Provenance,
+    ProvenanceComparison,
+    ProvenanceCounts,
+    ProvenanceStatus,
+    PublisherSource,
+    get_provenance_sources,
+)
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE
@@ -81,6 +89,9 @@ if typing.TYPE_CHECKING:
 
 _MONOTONIC_SEQUENCE = 42
 PROJECT_NAME_PATTERN = "^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$"
+
+# How far back to look for a release to compare provenance against.
+PROVENANCE_COMPARISON_WINDOW_DAYS = 14
 
 
 class Role(db.Model):
@@ -460,12 +471,6 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
     @property
     def all_versions(self):
         session = orm_session_from_obj(self)
-        file_count = (
-            session.query(func.count(File.id))
-            .filter(File.release_id == Release.id)
-            .correlate(Release)
-            .scalar_subquery()
-        )
         return (
             session.query(
                 Release.version,
@@ -476,7 +481,6 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                 Release.yanked_reason,
                 Release.lifecycle_status,
                 Release.lifecycle_status_changed,
-                file_count.label("file_count"),
             )
             .filter(Release.project == self)
             .order_by(Release._pypi_ordering.desc())
@@ -958,6 +962,90 @@ class Release(HasObservations, db.Model):
         if not files:
             return False
         return all(file.uploaded_via_trusted_publisher for file in files)
+
+    def comparison_provenance_release(self) -> Release | None:
+        """
+        Find the preceding release with provenance, within the comparison window.
+
+        This inner-joins provenance, so it reaches past a nearer preceding
+        release that has none. Any release it returns therefore has at least
+        one file with provenance.
+        """
+        session = orm_session_from_obj(self)
+        window = datetime.timedelta(days=PROVENANCE_COMPARISON_WINDOW_DAYS)
+        query = (
+            session.query(Release)
+            .join(Release.files)
+            .join(File.provenance)
+            .filter(
+                Release.project_id == self.project_id,
+                Release.created < self.created,
+                Release.created >= self.created - window,
+            )
+            .order_by(Release.created.desc())
+        )
+        return query.first()
+
+    @cached_property
+    def provenance_counts(self) -> ProvenanceCounts:
+        """Count the files, sources and workflows this Release attests to."""
+        session = orm_session_from_obj(self)
+        total_files = (
+            session.query(func.count(File.id))
+            .filter(File.release_id == self.id)
+            .scalar()
+        )
+        if not total_files:
+            return ProvenanceCounts(total_files=0, files_with_provenance=0)
+
+        provenance_objects = (
+            session.query(Provenance)
+            .join(Provenance.file)
+            .filter(File.release_id == self.id)
+            .options(orm.undefer(Provenance.provenance))
+            .all()
+        )
+        source_counter: Counter[PublisherSource] = Counter()
+        workflow_counter: Counter[str] = Counter()
+        unreadable_files = 0
+        for provenance_object in provenance_objects:
+            extracted = get_provenance_sources(provenance_object)
+            if extracted is None:
+                unreadable_files += 1
+                continue
+            sources, workflows = extracted
+            source_counter.update(sources)
+            workflow_counter.update(workflows)
+
+        return ProvenanceCounts(
+            total_files=total_files,
+            files_with_provenance=len(provenance_objects),
+            unreadable_files=unreadable_files,
+            source_counts=dict(source_counter),
+            workflow_counts=dict(workflow_counter),
+        )
+
+    @cached_property
+    def provenance_status(self) -> ProvenanceStatus | None:
+        """Return the provenance status for this Release."""
+        counts = self.provenance_counts
+        if not counts.total_files:
+            return None
+
+        # Reading the comparison's counts through the same cached property
+        # means a page rendering consecutive releases computes each one once.
+        comparison_release = self.comparison_provenance_release()
+        return ProvenanceStatus(
+            counts=counts,
+            comparison=(
+                ProvenanceComparison(
+                    release=comparison_release,
+                    counts=comparison_release.provenance_counts,
+                )
+                if comparison_release
+                else None
+            ),
+        )
 
 
 class PackageType(enum.StrEnum):

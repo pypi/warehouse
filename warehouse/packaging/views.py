@@ -1,12 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import cast
+import pypi_attestations
 
 from natsort import natsorted
 from pypi_attestations import (
     Attestation,
-    GitHubPublisher,
-    GitLabPublisher,
     Publisher,
     TransparencyLogEntry,
 )
@@ -15,6 +13,7 @@ from pyramid.view import view_config
 from sqlalchemy.exc import NoResultFound
 
 from warehouse.accounts.models import User
+from warehouse.attestations.models import publisher_workflow
 from warehouse.authnz import Permissions
 from warehouse.cache.origin import origin_cache
 from warehouse.forklift.legacy import MAXIMUM_AGE_FOR_NEW_UPLOADS_DAYS
@@ -42,10 +41,10 @@ class PEP740AttestationViewer:
 
         Reference can either be a hash or a named revision.
         """
-        match self.publisher.kind:
-            case "GitHub":
+        match self.publisher:
+            case pypi_attestations.GitHubPublisher():
                 return f"{base_url}/tree/{reference}"
-            case "GitLab":
+            case pypi_attestations.GitLabPublisher():
                 reference = reference.removeprefix("refs/heads/")
                 return f"{base_url}/-/tree/{reference}"
             case _:
@@ -87,13 +86,7 @@ class PEP740AttestationViewer:
     @property
     def workflow_filename(self) -> str:
         """The filename of the workflow configuration."""
-        match self.publisher.kind:
-            case "GitHub":
-                return cast(GitHubPublisher, self.publisher).workflow
-            case "GitLab":
-                return cast(GitLabPublisher, self.publisher).workflow_filepath
-            case _:
-                return ""
+        return publisher_workflow(self.publisher) or ""
 
     @property
     def workflow_url(self) -> str:

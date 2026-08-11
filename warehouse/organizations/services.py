@@ -256,11 +256,11 @@ class DatabaseOrganizationService:
         organization_application = self.get_organization_application(
             organization_application_id
         )
-        organization_application.status = (
-            OrganizationApplicationStatus.MoreInformationNeeded
-        )
 
         if message := request.params.get("message", ""):
+            organization_application.status = (
+                OrganizationApplicationStatus.MoreInformationNeeded
+            )
             organization_application.record_observation(
                 request=request,
                 actor=request.user,

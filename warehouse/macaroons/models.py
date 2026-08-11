@@ -71,13 +71,13 @@ class Macaroon(db.Model):
         JSONB,
         server_default=sql.text("'{}'"),
         comment=(
-            "The list of caveats that were attached to this Macaroon when we "
-            "generated it. Users can add additional caveats at any time without "
-            "communicating those additional caveats to us, which would not be "
-            "reflected in this data, and thus this field must only be used for "
-            "informational purposes and must not be used during the authorization "
-            "or authentication process. Older Macaroons may be missing caveats as "
-            "previously only the legacy permissions caveat were stored."
+            "The list of system generated caveats for this Macaroon. Users can add "
+            "additional caveats at any time without communicating those additional "
+            "caveats to us, which would not be reflected in this data, and thus this "
+            "if this field is used for authorization or authentication purposes, it "
+            "MUST be used as additional caveats along with whatever caveats are "
+            "attached to the Macaroon. Older Macaroons may be missing caveats as "
+            "previously only the legacy permissions caveats were stored."
         ),
     )
 

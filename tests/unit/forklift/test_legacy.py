@@ -12,6 +12,7 @@ import tempfile
 import zipfile
 
 from cgi import FieldStorage
+from contextlib import ExitStack
 from textwrap import dedent
 from types import SimpleNamespace
 from unittest import mock
@@ -205,6 +206,10 @@ class TestCloseUploadTempfiles:
 
 
 class TestFileValidation:
+    def test_open_dist_file_rejects_unsupported_extension(self):
+        with pytest.raises(ValueError, match="Unsupported distribution file"):
+            legacy._open_dist_file("test.exe", ExitStack())
+
     def test_defaults_to_true(self):
         assert legacy._is_valid_dist_file("", "", NullMetrics()) == (True, None)
 

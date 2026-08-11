@@ -970,12 +970,20 @@
 
         <div class="card-body">
           {% if roles %}
-          <table class="table table-hover" id="projects">
+          <table class="table table-hover" id="projects"
+                 data-tabulator
+                 tabulator-layout="fitDataFill"
+                 tabulator-responsiveLayout="collapse"
+                 tabulator-pagination="true"
+                 tabulator-paginationSize="25"
+                 tabulator-placeholder="No matching projects">
             <thead>
               <tr>
-                <th>Project Name</th>
-                <th>Role</th>
-                <th>Total Size</th>
+                <th tabulator-formatter="html" tabulator-headerFilter="input">Project Name</th>
+                <th tabulator-headerFilter="input" tabulator-responsive="2">Role</th>
+                <th tabulator-formatter="html" tabulator-headerFilter="input">Lifecycle Status</th>
+                <th tabulator-sorter="number" tabulator-responsive="4">Releases</th>
+                <th tabulator-formatter="filesize" tabulator-sorter="number" tabulator-responsive="3">Total Size</th>
               </tr>
             </thead>
             <tbody>
@@ -983,7 +991,9 @@
               <tr>
                 <td><a href="{{ request.route_path('admin.project.detail', project_name=project.normalized_name) }}">{{ project.name }}</a></td>
                 <td>{{ project.role_name }}</td>
-                <td>{{ project.total_size | filesizeformat(binary=True) }}</td>
+                <td>{% if project.lifecycle_status %}<span class="badge {{ 'badge-warning' if project.lifecycle_status == 'quarantine-enter' else 'badge-secondary' }}">{{ project.lifecycle_status }}</span>{% endif %}</td>
+                <td>{{ project.releases_count }}</td>
+                <td>{{ project.total_size or 0 }}</td>
               </tr>
             {% endfor %}
             </tbody>
@@ -1259,7 +1269,7 @@
           </table>
         </div>
         <div class="card-footer">
-          <a href="{{ request.route_path('admin.journals.list', _query={"q": "user:" + user.username}) }}"
+          <a href="{{ request.route_path('admin.journals.list', _query={"submitted_by": user.username}) }}"
              class="btn btn-primary">View all journals for username</a>
         </div>
       </div>

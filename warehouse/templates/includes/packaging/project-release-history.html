@@ -14,9 +14,24 @@
   <div class="release-timeline">
     {% set blue_cube = request.static_url('warehouse:static/dist/images/blue-cube.svg') %}
     {% set white_cube = request.static_url('warehouse:static/dist/images/white-cube.svg') %}
+    {% set provenance_statuses = {} %}
+    {% for r in project.releases %}
+      {% set _ = provenance_statuses.update({r.version: r.provenance_status}) %}
+    {% endfor %}
     {% for hversion in all_versions %}
       {% set is_current = (hversion.version == release.version) %}
-      <div class="release{{ ' release--latest' if loop.first else ' release--oldest' if loop.last }}{{ ' release--current' if is_current }}">
+      {% if hversion.lifecycle_status == "quarantine-enter" or project.lifecycle_status == "quarantine-enter" %}
+        {% set status_modifier = "release--quarantined" %}
+      {% elif hversion.yanked %}
+        {% set status_modifier = "release--yanked" %}
+      {% elif project.lifecycle_status in ["archived", "archived-noindex"] %}
+        {% set status_modifier = "release--archived" %}
+      {% elif hversion.is_prerelease %}
+        {% set status_modifier = "release--pre-release" %}
+      {% else %}
+        {% set status_modifier = "" %}
+      {% endif %}
+      <div class="release{{ ' release--current' if is_current }}{{ ' ' + status_modifier if status_modifier }}">
         <div class="release__current-badge">
           {% if is_current %}
             <span class="badge">{% trans %}This release{% endtrans %}</span>
@@ -34,7 +49,7 @@
         </div>
         <div class="release__card">
           {% if hversion.lifecycle_status == "quarantine-enter" or project.lifecycle_status == "quarantine-enter" %}
-            <div class="release__card-header release__card-header--quarantined">
+            <div class="release__card-header">
               {% if hversion.lifecycle_status == "quarantine-enter" and hversion.lifecycle_status_changed %}
                 {% set quarantine_title %}
                   {% trans date=hversion.lifecycle_status_changed|format_date %}Release quarantined on {{ date }}{% endtrans %}
@@ -48,7 +63,7 @@
                  {% if quarantine_title is defined %}title="{{ quarantine_title }}"{% endif %}><i class="fa fa-shield-halved" aria-hidden="true"></i> <span>{% trans %}Quarantined{% endtrans %}</span></a>
             </div>
           {% elif hversion.yanked %}
-            <div class="release__card-header release__card-header--yanked">
+            <div class="release__card-header">
               {% if hversion.yanked_date %}
                 {% set yanked_title %}
                   {% trans date=hversion.yanked_date|format_date %}Release yanked on {{ date }}{% endtrans %}
@@ -58,7 +73,7 @@
                  {% if yanked_title is defined %}title="{{ yanked_title }}"{% endif %}><i class="fa fa-ban" aria-hidden="true"></i> <span>{% trans %}Yanked{% endtrans %}</span></a>
             </div>
           {% elif project.lifecycle_status in ["archived", "archived-noindex"] %}
-            <div class="release__card-header release__card-header--archived">
+            <div class="release__card-header">
               {% if project.lifecycle_status_changed %}
                 {% set archived_title %}
                   {% trans date=project.lifecycle_status_changed|format_date %}Project archived on {{ date }}{% endtrans %}
@@ -68,7 +83,7 @@
                  {% if archived_title is defined %}title="{{ archived_title }}"{% endif %}><i class="fa fa-box-archive" aria-hidden="true"></i> <span>{% trans %}Archived{% endtrans %}</span></a>
             </div>
           {% elif hversion.is_prerelease %}
-            <div class="release__card-header release__card-header--pre-release">
+            <div class="release__card-header">
               <a href="{{ request.route_path('help') }}#pre-release-versioning"><i class="fa fa-flask" aria-hidden="true"></i> <span>{% trans %}Pre-release{% endtrans %}</span></a>
             </div>
           {% endif %}
@@ -81,11 +96,11 @@
             </p>
             <p class="release__meta">
               <span class="release__date"><i class="fa-regular fa-calendar" aria-hidden="true"></i> {{ humanize(hversion.created) }}</span>
-              {% if hversion.file_count %}
+              {% if provenance_statuses[hversion.version] %}
                 <span class="release__meta-divider" aria-hidden="true"></span>
-                <a href="{{ request.route_path('packaging.release', name=release.project.name, version=hversion.version) }}#files"><i class="fa fa-download" aria-hidden="true"></i> {% trans count=hversion.file_count %}{{ count }} download file
+                <a href="{{ request.route_path('packaging.release', name=release.project.name, version=hversion.version) }}#files"><i class="fa-regular fa-circle-down" aria-hidden="true"></i> {% trans count=provenance_statuses[hversion.version].counts.total_files %}{{ count }} file
                 {% pluralize %}
-                {{ count }} download files{% endtrans %}</a>
+                {{ count }} files{% endtrans %}</a>
               {% endif %}
               <!-- TODO: Add provenance status
               <span class="release__meta-divider" aria-hidden="true"></span>

@@ -23,7 +23,7 @@
       <img class="release__node">
     </div>
     <div class="release__card">
-      <div class="release__card-header release__card-header--[quarantined|yanked|archived|pre-release]"></div>
+      <div class="release__card-header"></div>
       <div class="release__card-body">
         <p class="release__version"></p>
         <p class="release__meta"></p>
@@ -34,8 +34,10 @@
 
   Modifiers:
     - current: adds grey background to current release
-    - latest: prevents release__line from showing above
-    - oldest: prevents release__line from showing below
+    - quarantined: styles card header for quarantined releases/projects
+    - yanked: styles card header for yanked releases
+    - archived: styles card header for archived projects
+    - pre-release: styles card header for pre-release versions
 */
 
 .release {
@@ -114,23 +116,6 @@
       margin-right: 4px;
     }
 
-    &--quarantined {
-      background-color: colors.$warning-color;
-    }
-
-    &--yanked {
-      background-color: colors.$text-color;
-    }
-
-    &--archived {
-      background-color: colors.$base-grey;
-      color: colors.$text-color;
-    }
-
-    &--pre-release {
-      background-color: colors.$primary-color-light-border;
-      color: colors.$text-color;
-    }
   }
 
   &__card-body {
@@ -222,17 +207,29 @@
     }
   }
 
-  &--latest,
-  &--oldest {
-    .release__line {
-      height: 50%;
+  &--quarantined {
+    .release__card-header {
+      background-color: colors.$warning-color;
     }
   }
 
-  &--oldest {
-    .release__line {
-      bottom: auto;
-      top: 0;
+  &--yanked {
+    .release__card-header {
+      background-color: colors.$text-color;
+    }
+  }
+
+  &--archived {
+    .release__card-header {
+      background-color: colors.$base-grey;
+      color: colors.$text-color;
+    }
+  }
+
+  &--pre-release {
+    .release__card-header {
+      background-color: colors.$primary-color-light-border;
+      color: colors.$text-color;
     }
   }
 }

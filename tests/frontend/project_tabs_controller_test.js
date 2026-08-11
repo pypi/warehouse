@@ -11,18 +11,18 @@ const tabsHTML = `
   <nav class="project-tabs__tabs" aria-label="Navigation for lunr">
     <ul class="project-tabs__list" role="tablist">
       <li role="presentation">
-        <a id="description-tab" href="#description" role="tab" data-project-tabs-target="tab" data-action="project-tabs#tabClick keydown->project-tabs#tabKeydown" class="project-tabs__tab project-tabs__tab--is-active" aria-selected="true" tabindex="0" aria-label="Project description. Focus will be moved to the description.">
-          <span><i class="fa fa-align-left" aria-hidden="true"></i> Project description</span>
+        <a id="description-tab" href="#description" role="tab" data-project-tabs-target="tab" data-action="project-tabs#tabClick keydown->project-tabs#tabKeydown" class="project-tabs__tab project-tabs__tab--is-active" aria-selected="true" aria-controls="description" tabindex="0" aria-label="Project description. Focus will be moved to the description.">
+          <span><i class="fa-regular fa-rectangle-list" aria-hidden="true"></i> Description</span>
         </a>
       </li>
       <li role="presentation">
-        <a id="history-tab" href="#history" role="tab" data-project-tabs-target="tab" data-action="project-tabs#tabClick keydown->project-tabs#tabKeydown" class="project-tabs__tab" aria-selected="false" tabindex="-1" aria-label="Release history. Focus will be moved to the history panel.">
+        <a id="files-tab" href="#files" role="tab" data-project-tabs-target="tab" data-action="project-tabs#tabClick keydown->project-tabs#tabKeydown" class="project-tabs__tab" aria-selected="false" aria-controls="files" tabindex="-1" aria-label="Files. Focus will be moved to the project files.">
+          <span><i class="fa-regular fa-circle-down" aria-hidden="true"></i> Download files</span>
+        </a>
+      </li>
+      <li role="presentation">
+        <a id="history-tab" href="#history" role="tab" data-project-tabs-target="tab" data-action="project-tabs#tabClick keydown->project-tabs#tabKeydown" class="project-tabs__tab" aria-selected="false" aria-controls="history" tabindex="-1" aria-label="Release history. Focus will be moved to the release history panel.">
           <span><i class="fa fa-history" aria-hidden="true"></i> Release history</span>
-        </a>
-      </li>
-      <li role="presentation">
-        <a id="files-tab" href="#files" role="tab" data-project-tabs-target="tab" data-action="project-tabs#tabClick keydown->project-tabs#tabKeydown" class="project-tabs__tab" aria-selected="false" tabindex="-1" aria-label="Download files. Focus will be moved to the project files.">
-          <span><i class="fa fa-download" aria-hidden="true"></i> Download files</span>
         </a>
       </li>
     </ul>
@@ -37,11 +37,6 @@ const tabsHTML = `
     <!-- Tab: Project details (no nav tab — kept for hide/show coverage) -->
     <div id="data" data-project-tabs-target="content" role="tabpanel" tabindex="-1">
       <h2 class="page-title">Project details</h2>
-    </div>
-
-    <!-- Tab: Release history -->
-    <div id="history" data-project-tabs-target="content" role="tabpanel" aria-labelledby="history-tab" tabindex="-1">
-      <h2 class="page-title">Release history</h2>
     </div>
 
     <!-- Tab: Download files -->
@@ -60,6 +55,11 @@ const tabsHTML = `
     <div id="sample-1.0.tar.gz" data-project-tabs-target="content" role="tabpanel" tabindex="-1">
       <h2 class="page-title">File details</h2>
       <p>Details for the file sample-1.0.tar.gz.</p>
+    </div>
+
+    <!-- Tab: Release history -->
+    <div id="history" data-project-tabs-target="content" role="tabpanel" aria-labelledby="history-tab" tabindex="-1">
+      <h2 class="page-title">Release history</h2>
     </div>
   </div>
 </div>
@@ -198,9 +198,9 @@ describe("Project tabs controller", () => {
       it("ArrowRight moves to the next tab", () => {
         document.getElementById("description-tab").dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
 
-        expect(document.getElementById("history")).toHaveStyle("display: block");
-        expect(document.getElementById("history-tab")).toHaveClass("project-tabs__tab--is-active");
-        expect(document.getElementById("history-tab")).toHaveAttribute("aria-selected");
+        expect(document.getElementById("files")).toHaveStyle("display: block");
+        expect(document.getElementById("files-tab")).toHaveClass("project-tabs__tab--is-active");
+        expect(document.getElementById("files-tab")).toHaveAttribute("aria-selected");
         expect(document.getElementById("description")).toHaveStyle("display: none");
       });
 
@@ -208,14 +208,14 @@ describe("Project tabs controller", () => {
         document.getElementById("history-tab").click();
         document.getElementById("history-tab").dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true }));
 
-        expect(document.getElementById("description")).toHaveStyle("display: block");
-        expect(document.getElementById("description-tab")).toHaveClass("project-tabs__tab--is-active");
-        expect(document.getElementById("description-tab")).toHaveAttribute("aria-selected");
+        expect(document.getElementById("files")).toHaveStyle("display: block");
+        expect(document.getElementById("files-tab")).toHaveClass("project-tabs__tab--is-active");
+        expect(document.getElementById("files-tab")).toHaveAttribute("aria-selected");
       });
 
       it("ArrowRight wraps from last to first tab", () => {
-        document.getElementById("files-tab").click();
-        document.getElementById("files-tab").dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+        document.getElementById("history-tab").click();
+        document.getElementById("history-tab").dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
 
         expect(document.getElementById("description")).toHaveStyle("display: block");
         expect(document.getElementById("description-tab")).toHaveClass("project-tabs__tab--is-active");
@@ -224,8 +224,8 @@ describe("Project tabs controller", () => {
       it("ArrowLeft wraps from first to last tab", () => {
         document.getElementById("description-tab").dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true }));
 
-        expect(document.getElementById("files")).toHaveStyle("display: block");
-        expect(document.getElementById("files-tab")).toHaveClass("project-tabs__tab--is-active");
+        expect(document.getElementById("history")).toHaveStyle("display: block");
+        expect(document.getElementById("history-tab")).toHaveClass("project-tabs__tab--is-active");
       });
 
       it("Home moves to the first tab", () => {
@@ -239,8 +239,8 @@ describe("Project tabs controller", () => {
       it("End moves to the last tab", () => {
         document.getElementById("description-tab").dispatchEvent(new KeyboardEvent("keydown", { key: "End", bubbles: true }));
 
-        expect(document.getElementById("files")).toHaveStyle("display: block");
-        expect(document.getElementById("files-tab")).toHaveClass("project-tabs__tab--is-active");
+        expect(document.getElementById("history")).toHaveStyle("display: block");
+        expect(document.getElementById("history-tab")).toHaveClass("project-tabs__tab--is-active");
       });
 
       it("ignores non-arrow keys", () => {

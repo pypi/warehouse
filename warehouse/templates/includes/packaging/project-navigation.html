@@ -21,6 +21,33 @@
             </span>
           </a>
         </li>
+        {% if files %}
+          <li role="presentation">
+            <a id="files-tab"
+               href="#files"
+               role="tab"
+               class="project-tabs__tab"
+               aria-selected="false"
+               aria-controls="files"
+               tabindex="-1"
+               data-project-tabs-target="tab"
+               data-action="project-tabs#tabClick keydown->project-tabs#tabKeydown"
+               aria-label="{% trans %}Files. Focus will be moved to the project files.{% endtrans %}">
+              <span>
+                <i class="fa-regular fa-circle-down" aria-hidden="true"></i>
+                {% trans %}Download files{% endtrans %}
+              </span>
+            </a>
+          </li>
+          {# <li role="presentation">
+              <a id="security-tab" href="#security" role="tab" class="project-tabs__tab" aria-selected="false" aria-controls="security" tabindex="-1" data-project-tabs-target="tab" data-action="project-tabs#tabClick keydown->project-tabs#tabKeydown" aria-label="{% trans %}Release security. Focus will be moved to the security panel.{% endtrans %}">
+                <span>
+                  <i class="fa fa-shield-halved" aria-hidden="true"></i>
+                  {% trans %}Security{% endtrans %}
+                </span>
+              </a>
+            </li> #}
+        {% endif %}
         <li role="presentation">
           <a id="history-tab"
              href="#history"
@@ -35,38 +62,9 @@
             <span>
               <i class="fa fa-history" aria-hidden="true"></i>
               {% trans %}Release history{% endtrans %}
-              <span class="badge badge--neutral">{{ all_versions|count }}</span>
             </span>
           </a>
         </li>
-        {% if files %}
-          <li role="presentation">
-            <a id="files-tab"
-               href="#files"
-               role="tab"
-               class="project-tabs__tab"
-               aria-selected="false"
-               aria-controls="files"
-               tabindex="-1"
-               data-project-tabs-target="tab"
-               data-action="project-tabs#tabClick keydown->project-tabs#tabKeydown"
-               aria-label="{% trans %}Files. Focus will be moved to the project files.{% endtrans %}">
-              <span>
-                <i class="fa fa-download" aria-hidden="true"></i>
-                {% trans %}Download files{% endtrans %}
-                <span class="badge badge--neutral">{{ files|count }}</span>
-              </span>
-            </a>
-          </li>
-          <!-- <li role="presentation">
-              <a id="security-tab" href="#security" role="tab" class="project-tabs__tab" aria-selected="false" aria-controls="security" tabindex="-1" data-project-tabs-target="tab" data-action="project-tabs#tabClick keydown->project-tabs#tabKeydown" aria-label="{% trans %}Release security. Focus will be moved to the security panel.{% endtrans %}">
-                <span>
-                  <i class="fa fa-shield-halved" aria-hidden="true"></i>
-                  {% trans %}Security{% endtrans %}
-                </span>
-              </a>
-            </li> -->
-        {% endif %}
       </ul>
     </nav>
   </div>
