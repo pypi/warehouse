@@ -36,7 +36,7 @@ markdown_extensions:
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.highlight:
-      use_pygments: false
+      use_pygments: true
   - pymdownx.tilde
   - abbr
   - attr_list
