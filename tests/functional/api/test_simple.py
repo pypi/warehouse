@@ -140,4 +140,4 @@ def test_pep833_simple_api_detail_html_frozen(webtest):
 </body>
 </html>
 <!--SERIAL 0-->\
-""")
+""")  # noqa: E501
