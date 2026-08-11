@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import json
 import os
 import types
 
@@ -224,7 +225,12 @@ def test_maybe_set_redis(monkeypatch, environ, coercer, default, db, expected):
 )
 def test_configure(monkeypatch, mocker, settings, environment):
     json_renderer_cls = mocker.patch.object(
-        renderers, "JSON", return_value=mocker.sentinel.json_renderer_obj
+        renderers,
+        "JSON",
+        side_effect=[
+            mocker.sentinel.json_renderer_obj,
+            mocker.sentinel.orjson_renderer_obj,
+        ],
     )
 
     xmlrpc_renderer_cls = mocker.patch.object(
@@ -525,6 +531,7 @@ def test_configure(monkeypatch, mocker, settings, environment):
     assert configurator_obj.commit.call_args_list == [mocker.call()]
     assert configurator_obj.add_renderer.call_args_list == [
         mocker.call("json", mocker.sentinel.json_renderer_obj),
+        mocker.call("orjson", mocker.sentinel.orjson_renderer_obj),
         mocker.call("xmlrpc", mocker.sentinel.xmlrpc_renderer_obj),
     ]
     assert configurator_obj.add_view_deriver.call_args_list == [
@@ -537,9 +544,14 @@ def test_configure(monkeypatch, mocker, settings, environment):
 
     assert json_renderer_cls.call_args_list == [
         mocker.call(
+            serializer=json.dumps,
+            sort_keys=True,
+            separators=(",", ":"),
+        ),
+        mocker.call(
             serializer=orjson.dumps,
             option=orjson.OPT_SORT_KEYS | orjson.OPT_APPEND_NEWLINE,
-        )
+        ),
     ]
 
     assert xmlrpc_renderer_cls.call_args_list == [mocker.call(allow_none=True)]
