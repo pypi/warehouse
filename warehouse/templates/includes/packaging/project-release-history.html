@@ -14,6 +14,10 @@
   <div class="release-timeline">
     {% set blue_cube = request.static_url('warehouse:static/dist/images/blue-cube.svg') %}
     {% set white_cube = request.static_url('warehouse:static/dist/images/white-cube.svg') %}
+    {% set provenance_statuses = {} %}
+    {% for r in project.releases %}
+      {% set _ = provenance_statuses.update({r.version: r.provenance_status}) %}
+    {% endfor %}
     {% for hversion in all_versions %}
       {% set is_current = (hversion.version == release.version) %}
       <div class="release{{ ' release--latest' if loop.first else ' release--oldest' if loop.last }}{{ ' release--current' if is_current }}">
@@ -81,9 +85,9 @@
             </p>
             <p class="release__meta">
               <span class="release__date"><i class="fa-regular fa-calendar" aria-hidden="true"></i> {{ humanize(hversion.created) }}</span>
-              {% if hversion.file_count %}
+              {% if provenance_statuses[hversion.version] %}
                 <span class="release__meta-divider" aria-hidden="true"></span>
-                <a href="{{ request.route_path('packaging.release', name=release.project.name, version=hversion.version) }}#files"><i class="fa-regular fa-circle-down" aria-hidden="true"></i> {% trans count=hversion.file_count %}{{ count }} file
+                <a href="{{ request.route_path('packaging.release', name=release.project.name, version=hversion.version) }}#files"><i class="fa-regular fa-circle-down" aria-hidden="true"></i> {% trans count=provenance_statuses[hversion.version].counts.total_files %}{{ count }} file
                 {% pluralize %}
                 {{ count }} files{% endtrans %}</a>
               {% endif %}

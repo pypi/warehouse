@@ -257,7 +257,6 @@ class TestReleaseDetail:
                     r.yanked_reason,
                     r.lifecycle_status,
                     r.lifecycle_status_changed,
-                    r.files.count(),
                 )
                 for r in reversed(releases)
             ],
