@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import tempfile
+import uuid
 
 from contextlib import contextmanager
 
@@ -13,6 +14,7 @@ from wtforms import Field, Form, StringField
 import warehouse.packaging.tasks
 
 from warehouse.accounts.models import WebAuthn
+from warehouse.observations.models import ObservationKind
 from warehouse.packaging.models import DependencyKind, Description
 from warehouse.packaging.tasks import (
     check_file_cache_tasks_outstanding,
@@ -755,12 +757,14 @@ def test_compute_top_dependents_corpus(db_request, project_name, specifier_strin
 
 
 def test_typo_check_project_name(db_request, metrics, notification_service, mocker):
-    """A name detected as a typo notifies the admins for review."""
+    """A name detected as a typo is annotated and reported to the admins."""
+    UserFactory.create(username="admin")
+    project = ProjectFactory.create(name="numpi")
     send_notification = mocker.spy(notification_service, "send_notification")
     db_request.route_url = lambda route, name, _host: f"https://{_host}/project/{name}/"
     db_request.registry.settings["warehouse.domain"] = "pypi.org"
 
-    typo_check_project_name(db_request, "numpi")
+    typo_check_project_name(db_request, project.id)
 
     payload = send_notification.call_args.kwargs["payload"]
     assert payload["blocks"][0]["text"]["text"] == "TypoSnyper :warning:"
@@ -771,14 +775,40 @@ def test_typo_check_project_name(db_request, metrics, notification_service, mock
         tags=["check_name:'common_typos'"],
     )
 
+    # The project is annotated for admin review, and left otherwise untouched.
+    observation = project.observations[0]
+    assert observation.kind == ObservationKind.IsTypoSnyperMatch.value[0]
+    assert observation.observer.parent.username == "admin"
+    assert observation.summary == "Potential typo of 'numpy'"
+    assert observation.payload == {
+        "check_name": "common_typos",
+        "existing_project_name": "numpy",
+        "origin": "typosnyper",
+    }
+    assert project.lifecycle_status is None
+
 
 def test_typo_check_project_name_no_typo(
     db_request, metrics, notification_service, mocker
 ):
-    """A name that isn't a typo notifies nobody."""
+    """A name that isn't a typo is neither annotated nor reported."""
+    project = ProjectFactory.create(name="very-unique-name")
     send_notification = mocker.spy(notification_service, "send_notification")
 
-    typo_check_project_name(db_request, "very-unique-name")
+    typo_check_project_name(db_request, project.id)
+
+    assert project.observations == []
+    send_notification.assert_not_called()
+    metrics.increment.assert_not_called()
+
+
+def test_typo_check_project_name_removed_project(
+    db_request, metrics, notification_service, mocker
+):
+    """A project removed before the task runs is skipped."""
+    send_notification = mocker.spy(notification_service, "send_notification")
+
+    typo_check_project_name(db_request, uuid.uuid4())
 
     send_notification.assert_not_called()
     metrics.increment.assert_not_called()

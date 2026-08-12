@@ -597,9 +597,9 @@ class ProjectService:
         self.db.flush()  # To get the new ID  # ast-grep-ignore: db-flush
 
         # Look for typo-squatting of a popular project name. The task is only
-        # dispatched once this transaction commits, so we don't notify admins
-        # about a project that was never created.
-        request.task(typo_check_project_name).delay(name)
+        # dispatched once this transaction commits, so we don't annotate or
+        # report a project that was never created.
+        request.task(typo_check_project_name).delay(project.id)
 
         # TODO: This should be handled by some sort of database trigger or a
         #       SQLAlchemy hook or the like instead of doing it inline in this
