@@ -20,6 +20,7 @@ from warehouse.packaging.tasks import (
     compute_packaging_metrics,
     compute_top_dependents_corpus,
     sync_file_to_cache,
+    typo_check_project_name,
     update_bigquery_release_files,
     update_description_html,
     update_release_description,
@@ -751,3 +752,33 @@ def test_compute_top_dependents_corpus(db_request, project_name, specifier_strin
     results = compute_top_dependents_corpus(db_request)
 
     assert results == {base_proj.normalized_name: 2}
+
+
+def test_typo_check_project_name(db_request, metrics, notification_service, mocker):
+    """A name detected as a typo notifies the admins for review."""
+    send_notification = mocker.spy(notification_service, "send_notification")
+    db_request.route_url = lambda route, name, _host: f"https://{_host}/project/{name}/"
+    db_request.registry.settings["warehouse.domain"] = "pypi.org"
+
+    typo_check_project_name(db_request, "numpi")
+
+    payload = send_notification.call_args.kwargs["payload"]
+    assert payload["blocks"][0]["text"]["text"] == "TypoSnyper :warning:"
+    assert "https://pypi.org/project/numpi/" in payload["blocks"][1]["text"]["text"]
+    assert "https://pypi.org/project/numpy/" in payload["blocks"][2]["text"]["text"]
+    metrics.increment.assert_called_once_with(
+        "warehouse.packaging.services.create_project.typo_squatting",
+        tags=["check_name:'common_typos'"],
+    )
+
+
+def test_typo_check_project_name_no_typo(
+    db_request, metrics, notification_service, mocker
+):
+    """A name that isn't a typo notifies nobody."""
+    send_notification = mocker.spy(notification_service, "send_notification")
+
+    typo_check_project_name(db_request, "very-unique-name")
+
+    send_notification.assert_not_called()
+    metrics.increment.assert_not_called()

@@ -26,7 +26,6 @@ from warehouse.packaging.interfaces import (
     ProjectNameUnavailableProhibitedError,
     ProjectNameUnavailableSimilarError,
     ProjectNameUnavailableStdlibError,
-    ProjectNameUnavailableTypoSquattingError,
     TooManyProjectsCreated,
 )
 from warehouse.packaging.services import (
@@ -44,6 +43,7 @@ from warehouse.packaging.services import (
     S3FileStorage,
     project_service_factory,
 )
+from warehouse.packaging.tasks import typo_check_project_name
 from warehouse.rate_limiting.interfaces import WindowStats
 
 from ...common.db.accounts import UserFactory
@@ -1181,13 +1181,19 @@ class TestProjectService:
             service.check_project_name("foo")
         assert exc.value.similar_project_name in (project1.name, project2.name)
 
-    def test_check_project_name_typosquatting_prohibited(self, db_session):
-        # TODO: Update this test once we have a dynamic TopN approach
-        service = ProjectService(session=db_session)
-        ProhibitedProjectFactory.create(name="numpy")
+    def test_create_project_enqueues_typo_check(self, db_request):
+        """Typo-squatting detection is handed off to a post-commit task, so it
+        never runs for a project creation that ends up rolled back."""
+        creator = UserFactory.create()
+        service = ProjectService(session=db_request.db)
 
-        with pytest.raises(ProjectNameUnavailableTypoSquattingError):
-            service.check_project_name("numpi")
+        project = service.create_project(
+            "numpi", creator, db_request, ratelimited=False
+        )
+
+        assert project.name == "numpi"
+        db_request.task.assert_called_once_with(typo_check_project_name)
+        db_request._task_stub.delay.assert_called_once_with("numpi")
 
     def test_check_project_name_ok(self, db_session):
         service = ProjectService(session=db_session)
