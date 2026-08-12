@@ -1,7 +1,7 @@
 coverage
 factory_boy
 freezegun
-inline-snapshot==0.35.3
+inline-snapshot
 pretend
 pytest
 pytest-icdiff
