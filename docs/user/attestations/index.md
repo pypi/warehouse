@@ -61,4 +61,4 @@ Publisher identities:
 
 [Google Cloud]: ../trusted-publishers/using-a-publisher.md#google-cloud
 
-[Google Cloud]: ../trusted-publishers/using-a-publisher.md#activestate
+[ActiveState]: ../trusted-publishers/using-a-publisher.md#activestate
