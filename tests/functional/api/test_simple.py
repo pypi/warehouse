@@ -2,6 +2,8 @@
 
 from http import HTTPStatus
 
+from warehouse.api.simple import MIME_PYPI_SIMPLE_V1_JSON
+
 from ...common.db.packaging import (
     FileFactory,
     ProjectFactory,
@@ -17,6 +19,18 @@ def test_simple_api_html(webtest):
     assert "X-PyPI-Last-Serial" in resp.headers
 
 
+def test_simple_api_json(webtest):
+    resp = webtest.get(
+        "/simple/",
+        headers={"Accept": MIME_PYPI_SIMPLE_V1_JSON},
+        status=HTTPStatus.OK,
+    )
+
+    assert resp.content_type == MIME_PYPI_SIMPLE_V1_JSON
+    assert resp.body.endswith(b"\n")
+    assert "projects" in resp.json
+
+
 def test_simple_api_detail(webtest):
     project = ProjectFactory.create()
     release = ReleaseFactory.create(project=project)
@@ -29,6 +43,23 @@ def test_simple_api_detail(webtest):
     assert resp.html.h1.string == f"Links for {project.normalized_name}"
     # There should be a link for every file
     assert len(resp.html.find_all("a")) == 2
+
+
+def test_simple_api_detail_json(webtest):
+    project = ProjectFactory.create()
+    release = ReleaseFactory.create(project=project)
+    FileFactory.create(release=release, packagetype="bdist_wheel")
+
+    resp = webtest.get(
+        f"/simple/{project.normalized_name}/",
+        headers={"Accept": MIME_PYPI_SIMPLE_V1_JSON},
+        status=HTTPStatus.OK,
+    )
+
+    assert resp.content_type == MIME_PYPI_SIMPLE_V1_JSON
+    assert resp.body.endswith(b"\n")
+    assert resp.json["name"] == project.normalized_name
+    assert len(resp.json["files"]) == 1
 
 
 def test_simple_api_has_provenance(webtest):
