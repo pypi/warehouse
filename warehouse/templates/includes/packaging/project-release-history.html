@@ -98,9 +98,9 @@
               <span class="release__date"><i class="fa-regular fa-calendar" aria-hidden="true"></i> {{ humanize(hversion.created) }}</span>
               {% if provenance_statuses[hversion.version] %}
                 <span class="release__meta-divider" aria-hidden="true"></span>
-                <a href="{{ request.route_path('packaging.release', name=release.project.name, version=hversion.version) }}#files"><i class="fa-regular fa-circle-down" aria-hidden="true"></i> {% trans count=provenance_statuses[hversion.version].counts.total_files %}{{ count }} file
+                <a href="{{ request.route_path('packaging.release', name=release.project.name, version=hversion.version) }}#files"><i class="fa-regular fa-circle-down" aria-hidden="true"></i> {% trans count=provenance_statuses[hversion.version].counts.total_files %}{{ count }} release file
                 {% pluralize %}
-                {{ count }} files{% endtrans %}</a>
+                {{ count }} release files{% endtrans %}</a>
               {% endif %}
               <!-- TODO: Add provenance status
               <span class="release__meta-divider" aria-hidden="true"></span>
