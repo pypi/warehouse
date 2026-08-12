@@ -101,6 +101,7 @@ class RootFactory:
                 Permissions.AdminUsersEmailWrite,
                 Permissions.AdminUsersAccountRecoveryWrite,
                 Permissions.AdminUsersRecoveryCodesBurn,
+                Permissions.AdminUsersExport,
                 Permissions.AdminVulnerabilitiesRead,
                 Permissions.AdminVulnerabilitiesWrite,
             ),
@@ -757,10 +758,19 @@ def configure(settings=None):
     config.add_jinja2_search_path("warehouse:templates", name=".txt")
     config.add_jinja2_search_path("warehouse:templates", name=".xml")
 
-    # We want to configure our JSON renderer to sort the keys, and also to use
-    # an ultra compact serialization format.
+    # Configure the default JSON renderer to sort keys and use compact output.
     config.add_renderer(
         "json",
+        renderers.JSON(
+            serializer=json.dumps,
+            sort_keys=True,
+            separators=(",", ":"),
+        ),
+    )
+
+    # Public project documents can explicitly opt into the faster orjson renderer.
+    config.add_renderer(
+        "orjson",
         renderers.JSON(
             serializer=orjson.dumps,
             option=orjson.OPT_SORT_KEYS | orjson.OPT_APPEND_NEWLINE,

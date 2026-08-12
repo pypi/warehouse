@@ -113,6 +113,7 @@ class ObservationKind(enum.Enum):
         "account_recovery",
         "Account Recovery",
     )
+    AccountExport = ("account_export", "User Account Export")
     EmailUnverified = ("email_unverified", "Email Unverified")
 
     # Organization Applications
