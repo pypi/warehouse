@@ -1,6 +1,5 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 {% set is_slsa = "slsa" in viewer.predicate_type %}
-
 {% if bundle.publisher.kind == "GitHub" %}
   {% set platform_name = "GitHub Actions" %}
 {% elif bundle.publisher.kind == "GitLab" %}
@@ -10,7 +9,6 @@
 {% elif bundle.publisher.kind == "ActiveState" %}
   {% set platform_name = "ActiveState" %}
 {% endif %}
-
 <div class="attestation {% if is_slsa %}attestation--slsa{% else %}attestation--pypi{% endif %}">
   <div class="attestation__header">
     <div class="attestation__publisher">
@@ -47,18 +45,26 @@
       <h4>
         {% if viewer.predicate_type %}
           <a href="{{ viewer.predicate_type }}" target="_blank" rel="noopener">
-            {% if is_slsa %}SLSA Build Provenance{% else %}PyPI Publish{% endif %}
+            {% if is_slsa %}
+              {% trans %}SLSA Build Provenance{% endtrans %}
+            {% else %}
+              {% trans %}PyPI Publish{% endtrans %}
+            {% endif %}
           </a>
         {% else %}
-          {% if is_slsa %}SLSA Build Provenance{% else %}PyPI Publish{% endif %}
+          {% if is_slsa %}
+            {% trans %}SLSA Build Provenance{% endtrans %}
+          {% else %}
+            {% trans %}PyPI Publish{% endtrans %}
+          {% endif %}
         {% endif %}
         {% trans %}Attestation{% endtrans %}
       </h4>
       <p>
         {% if is_slsa %}
-          PyPI verified that this artifact, at this checksum, originated from the builder listed below.
+          {% trans %}PyPI verified that this artifact, at this checksum, originated from the builder listed below.{% endtrans %}
         {% else %}
-          PyPI verified that this artifact, at this checksum, originated from the publisher listed below.
+          {% trans %}PyPI verified that this artifact, at this checksum, originated from the publisher listed below.{% endtrans %}
         {% endif %}
       </p>
       {% if viewer.transparency_entry %}
@@ -66,19 +72,21 @@
       {% else %}
         {% set verified_date = file.upload_time %}
       {% endif %}
+      {% set verified_date_display = verified_date|format_date %}
       <p>
         <strong>
-          {% if is_slsa %}Built{% else %}Signed{% endif %} by {{ platform_name }}, verified by PyPI on
-          <time datetime="{{ verified_date|format_datetime('yyyy-MM-ddTHH:mm:ss') }}">{{ verified_date|format_date }}</time>.
+          {% if is_slsa %}
+            {% trans platform_name=platform_name, verified_date=verified_date_display %}Built by {{ platform_name }}, verified by PyPI on {{ verified_date }}.{% endtrans %}
+          {% else %}
+            {% trans platform_name=platform_name, verified_date=verified_date_display %}Signed by {{ platform_name }}, verified by PyPI on {{ verified_date }}.{% endtrans %}
+          {% endif %}
         </strong>
       </p>
       {% if viewer.transparency_entry %}
         <a href="https://search.sigstore.dev/?logIndex={{ viewer.transparency_entry.logIndex }}"
            target="_blank"
            rel="noopener"
-           title="{% trans %}Sigstore transparency entry{% endtrans %}">
-          {% trans %}Transparency log{% endtrans %}
-        </a>
+           title="{% trans %}Sigstore transparency entry{% endtrans %}">{% trans %}Transparency log{% endtrans %}</a>
       {% endif %}
     </div>
   </div>
@@ -91,15 +99,35 @@
         <h5 class="attestation__metadata-title">{% trans %}Identity{% endtrans %}</h5>
       </div>
       <dl class="attestation__metadata-content">
-        <dt>{% if is_slsa %}{% trans %}Build platform{% endtrans %}{% else %}{% trans %}Publishing platform{% endtrans %}{% endif %}</dt>
-        <dd>{{ platform_name }}</dd>
+        <dt>
+          {% if is_slsa %}
+            {% trans %}Build platform{% endtrans %}
+          {% else %}
+            {% trans %}Publishing platform{% endtrans %}
+          {% endif %}
+        </dt>
+        <dd>
+          {{ platform_name }}
+        </dd>
         {% if viewer.source %}
-          <dt>{% if is_slsa %}{% trans %}Build repository{% endtrans %}{% else %}{% trans %}Publishing repository{% endtrans %}{% endif %}</dt>
+          <dt>
+            {% if is_slsa %}
+              {% trans %}Build repository{% endtrans %}
+            {% else %}
+              {% trans %}Publishing repository{% endtrans %}
+            {% endif %}
+          </dt>
           <dd>
             <a href="{{ viewer.source }}" target="_blank" rel="noopener">{{ viewer.source | replace('https://', '') }}</a>
           </dd>
           {% if viewer.permalink_with_digest %}
-            <dt>{% if is_slsa %}{% trans %}Build commit{% endtrans %}{% else %}{% trans %}Publishing commit{% endtrans %}{% endif %}</dt>
+            <dt>
+              {% if is_slsa %}
+                {% trans %}Build commit{% endtrans %}
+              {% else %}
+                {% trans %}Publishing commit{% endtrans %}
+              {% endif %}
+            </dt>
             <dd>
               <a href="{{ viewer.permalink_with_digest }}"
                  target="_blank"
@@ -107,8 +135,16 @@
             </dd>
           {% endif %}
         {% elif bundle.publisher.kind == "Google" and bundle.publisher.email %}
-          <dt>{% if is_slsa %}{% trans %}Build account{% endtrans %}{% else %}{% trans %}Publisher account{% endtrans %}{% endif %}</dt>
-          <dd>{{ bundle.publisher.email }}</dd>
+          <dt>
+            {% if is_slsa %}
+              {% trans %}Build account{% endtrans %}
+            {% else %}
+              {% trans %}Publisher account{% endtrans %}
+            {% endif %}
+          </dt>
+          <dd>
+            {{ bundle.publisher.email }}
+          </dd>
         {% endif %}
       </dl>
     </div>
@@ -122,18 +158,34 @@
           {% endif %}
         </span>
         <h5 class="attestation__metadata-title">
-          {% if is_slsa %}{% trans %}Build{% endtrans %}{% else %}{% trans %}Workflow{% endtrans %}{% endif %}
+          {% if is_slsa %}
+            {% trans %}Build{% endtrans %}
+          {% else %}
+            {% trans %}Workflow{% endtrans %}
+          {% endif %}
         </h5>
       </div>
       <dl class="attestation__metadata-content">
         {% if viewer.workflow_filename and viewer.build_digest %}
-          <dt>{% if is_slsa %}{% trans %}Build instructions{% endtrans %}{% else %}{% trans %}Publishing configuration{% endtrans %}{% endif %}</dt>
+          <dt>
+            {% if is_slsa %}
+              {% trans %}Build instructions{% endtrans %}
+            {% else %}
+              {% trans %}Publishing configuration{% endtrans %}
+            {% endif %}
+          </dt>
           <dd>
             <a href="{{ viewer.workflow_url }}" target="_blank" rel="noopener">{{ viewer.workflow_url | replace('https://', '') }}</a>
           </dd>
         {% endif %}
         {% if viewer.run_invocation_uri %}
-          <dt>{% if is_slsa %}{% trans %}Build logs{% endtrans %}{% else %}{% trans %}Publishing logs{% endtrans %}{% endif %}</dt>
+          <dt>
+            {% if is_slsa %}
+              {% trans %}Build logs{% endtrans %}
+            {% else %}
+              {% trans %}Publishing logs{% endtrans %}
+            {% endif %}
+          </dt>
           <dd>
             <a href="{{ viewer.run_invocation_uri }}" target="_blank" rel="noopener">{{ viewer.run_invocation_uri | replace('https://', '') }}</a>
           </dd>

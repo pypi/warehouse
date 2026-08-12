@@ -115,10 +115,10 @@
   </table>
   {# Provenance section #}
   {% if file.provenance %}
-    <h3>Provenance</h3>
+    <h3>{% trans %}Provenance{% endtrans %}</h3>
     {% set provenance = file.provenance.as_model %}
     <p>
-      <strong>Provenance</strong> describes where a file came from. On PyPI, provenance is shared via <strong>attestations</strong>, which provide a verifiable record of the build or publishing details. <a href="{{ request.user_docs_url('/attestations/') }}">View details, limitations and caveats.</a>
+      {% trans href=request.user_docs_url('/attestations/') %}<strong>Provenance</strong> describes where a file came from. On PyPI, provenance is shared via <strong>attestations</strong>, which provide a verifiable record of the build or publishing details. <a href="{{ href }}">View details, limitations and caveats.</a>{% endtrans %}
     </p>
     {% for bundle in provenance.attestation_bundles %}
       {% for attestation in bundle.attestations %}

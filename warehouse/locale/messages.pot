@@ -3080,6 +3080,7 @@ msgid "Public profile"
 msgstr ""
 
 #: warehouse/templates/includes/file-details.html:10
+#: warehouse/templates/includes/packaging/project-navigation.html:38
 msgid "Release files"
 msgstr ""
 
@@ -3124,7 +3125,7 @@ msgid "Tags"
 msgstr ""
 
 #: warehouse/templates/includes/file-details.html:52
-#: warehouse/templates/includes/file-details.html:321
+#: warehouse/templates/includes/packaging/provenance/attestation.html:210
 msgid "SHA-256 checksum"
 msgstr ""
 
@@ -3135,8 +3136,8 @@ msgstr ""
 
 #: warehouse/templates/includes/file-details.html:65
 #: warehouse/templates/includes/file-details.html:85
-#: warehouse/templates/includes/file-details.html:329
 #: warehouse/templates/includes/packaging/project-header.html:43
+#: warehouse/templates/includes/packaging/provenance/attestation.html:218
 #: warehouse/templates/manage/account.html:218
 #: warehouse/templates/manage/account/recovery_codes-provision.html:53
 #: warehouse/templates/manage/account/totp-provision.html:46
@@ -3191,91 +3192,17 @@ msgstr ""
 msgid "Uploaded via"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:176
-#: warehouse/templates/includes/file-details.html:188
-msgid "Attestation"
+#: warehouse/templates/includes/file-details.html:118
+msgid "Provenance"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:198
-msgid "Sigstore transparency entry"
-msgstr ""
-
-#: warehouse/templates/includes/file-details.html:199
-msgid "Transparency log"
-msgstr ""
-
-#: warehouse/templates/includes/file-details.html:210
-msgid "Identity"
-msgstr ""
-
-#: warehouse/templates/includes/file-details.html:215
-msgid "Build platform"
-msgstr ""
-
-#: warehouse/templates/includes/file-details.html:217
-msgid "Publishing platform"
-msgstr ""
-
-#: warehouse/templates/includes/file-details.html:226
-msgid "Build repository"
-msgstr ""
-
-#: warehouse/templates/includes/file-details.html:228
-msgid "Publishing repository"
-msgstr ""
-
-#: warehouse/templates/includes/file-details.html:237
-msgid "Build commit"
-msgstr ""
-
-#: warehouse/templates/includes/file-details.html:239
-msgid "Publishing commit"
-msgstr ""
-
-#: warehouse/templates/includes/file-details.html:251
-msgid "Build account"
-msgstr ""
-
-#: warehouse/templates/includes/file-details.html:253
-msgid "Publisher account"
-msgstr ""
-
-#: warehouse/templates/includes/file-details.html:273
-msgid "Build"
-msgstr ""
-
-#: warehouse/templates/includes/file-details.html:275
-msgid "Workflow"
-msgstr ""
-
-#: warehouse/templates/includes/file-details.html:283
-msgid "Build instructions"
-msgstr ""
-
-#: warehouse/templates/includes/file-details.html:285
-msgid "Publishing configuration"
-msgstr ""
-
-#: warehouse/templates/includes/file-details.html:295
-msgid "Build logs"
-msgstr ""
-
-#: warehouse/templates/includes/file-details.html:297
-msgid "Publishing logs"
-msgstr ""
-
-#: warehouse/templates/includes/file-details.html:311
-msgid "Artifact"
-msgstr ""
-
-#: warehouse/templates/includes/file-details.html:315
-#: warehouse/templates/includes/packaging/project-files.html:42
-#: warehouse/templates/includes/packaging/project-files.html:111
-msgid "File"
-msgstr ""
-
-#: warehouse/templates/includes/file-details.html:335
-msgid "Verifying attestations"
+#: warehouse/templates/includes/file-details.html:121
+#, python-format
+msgid ""
+"<strong>Provenance</strong> describes where a file came from. On PyPI, "
+"provenance is shared via <strong>attestations</strong>, which provide a "
+"verifiable record of the build or publishing details. <a "
+"href=\"%(href)s\">View details, limitations and caveats.</a>"
 msgstr ""
 
 #: warehouse/templates/includes/flash-messages.html:10
@@ -3472,6 +3399,12 @@ msgstr[1] ""
 msgid "Source distribution for %(name)s %(version)s"
 msgstr ""
 
+#: warehouse/templates/includes/packaging/project-files.html:42
+#: warehouse/templates/includes/packaging/project-files.html:111
+#: warehouse/templates/includes/packaging/provenance/attestation.html:204
+msgid "File"
+msgstr ""
+
 #: warehouse/templates/includes/packaging/project-files.html:44
 msgid "Uploaded"
 msgstr ""
@@ -3563,10 +3496,6 @@ msgstr ""
 msgid "Files. Focus will be moved to the project files."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-navigation.html:38
-msgid "Download files"
-msgstr ""
-
 #: warehouse/templates/includes/packaging/project-navigation.html:61
 msgid "Release history. Focus will be moved to the release history panel."
 msgstr ""
@@ -3627,10 +3556,9 @@ msgid "Pre-release"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-release-history.html:101
-#: warehouse/templates/manage/project/releases.html:32
 #, python-format
-msgid "%(count)s file"
-msgid_plural "%(count)s files"
+msgid "%(count)s release file"
+msgid_plural "%(count)s release files"
 msgstr[0] ""
 msgstr[1] ""
 
@@ -3918,6 +3846,118 @@ msgstr ""
 
 #: warehouse/templates/includes/packaging/metadata/requires-python.html:3
 msgid "Requires"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:49
+#: warehouse/templates/includes/packaging/provenance/attestation.html:56
+msgid "SLSA Build Provenance"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:51
+#: warehouse/templates/includes/packaging/provenance/attestation.html:58
+msgid "PyPI Publish"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:61
+msgid "Attestation"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:65
+msgid ""
+"PyPI verified that this artifact, at this checksum, originated from the "
+"builder listed below."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:67
+msgid ""
+"PyPI verified that this artifact, at this checksum, originated from the "
+"publisher listed below."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:79
+#, python-format
+msgid "Built by %(platform_name)s, verified by PyPI on %(verified_date)s."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:81
+#, python-format
+msgid "Signed by %(platform_name)s, verified by PyPI on %(verified_date)s."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:89
+msgid "Sigstore transparency entry"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:89
+msgid "Transparency log"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:99
+msgid "Identity"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:104
+msgid "Build platform"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:106
+msgid "Publishing platform"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:115
+msgid "Build repository"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:117
+msgid "Publishing repository"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:126
+msgid "Build commit"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:128
+msgid "Publishing commit"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:140
+msgid "Build account"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:142
+msgid "Publisher account"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:162
+msgid "Build"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:164
+msgid "Workflow"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:172
+msgid "Build instructions"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:174
+msgid "Publishing configuration"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:184
+msgid "Build logs"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:186
+msgid "Publishing logs"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:200
+msgid "Artifact"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:224
+msgid "Verifying attestations"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:17
@@ -7792,6 +7832,13 @@ msgstr ""
 #: warehouse/templates/manage/project/releases.html:23
 msgid "Manage version"
 msgstr ""
+
+#: warehouse/templates/manage/project/releases.html:32
+#, python-format
+msgid "%(count)s file"
+msgid_plural "%(count)s files"
+msgstr[0] ""
+msgstr[1] ""
 
 #: warehouse/templates/manage/project/releases.html:45
 msgid "No files"
