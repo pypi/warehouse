@@ -48,6 +48,11 @@
   border-left: 1px solid colors.$background-color;
   padding: 0 grid.$half-spacing-unit;
 
+  @media screen and (max-width: breakpoints.$tablet) {
+    padding: 0;
+    border: 0;
+  }
+
   &__current-badge {
     width: 110px;
     display: table-cell;
@@ -93,6 +98,10 @@
     margin: grid.$half-spacing-unit 0;
     overflow: hidden;
     border-radius: 4px;
+
+    @media screen and (max-width: breakpoints.$small-tablet) {
+      margin: grid.$quarter-spacing-unit 0;
+    }
   }
 
   &__card-header {
@@ -194,8 +203,10 @@
   }
 
   &--current {
-    background-color: color.adjust(colors.$background-color, $lightness: -1%);
-    border: 1px dotted colors.$border-color;
+    @media screen and (min-width: breakpoints.$tablet) {
+      background-color: color.adjust(colors.$background-color, $lightness: -1%);
+      border: 1px dotted colors.$border-color;
+    }
 
     .release__node {
       background-color: colors.$off-white;
