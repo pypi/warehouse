@@ -61,11 +61,15 @@
           PyPI verified that this artifact, at this checksum, originated from the publisher listed below.
         {% endif %}
       </p>
+      {% if viewer.transparency_entry %}
+        {% set verified_date = viewer.transparency_entry.integratedTime | int | ctime %}
+      {% else %}
+        {% set verified_date = file.upload_time %}
+      {% endif %}
       <p>
         <strong>
           {% if is_slsa %}Built{% else %}Signed{% endif %} by {{ platform_name }}, verified by PyPI on
-          <time datetime="{{ file.upload_time|format_datetime('yyyy-MM-ddTHH:mm:ss') }}"
-                title="{{ file.upload_time|format_datetime('yyyy-MM-dd HH:mm:ss') }}">upload</time>.
+          <time datetime="{{ verified_date|format_datetime('yyyy-MM-ddTHH:mm:ss') }}">{{ verified_date|format_date }}</time>.
         </strong>
       </p>
       {% if viewer.transparency_entry %}
