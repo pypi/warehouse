@@ -236,6 +236,26 @@
     border-collapse: collapse;
     width: 100%;
 
+    .table__filter-control {
+      display: inline-block;
+      position: relative;
+      left: 7px;
+
+      .fa-filter {
+        position: absolute;
+        top: 50%;
+        margin-top: -1px;
+        left: -11px;
+        transform: translateY(-50%);
+        font-size: fonts.$small-font-size;
+        color: colors.$light-grey;
+      }
+
+      &:has(select option[selected]:not([value=""])) .fa-filter {
+        color: colors.$mid-grey;
+      }
+    }
+
     select.table-filter {
       width: auto;
       max-width: 130px;
@@ -244,12 +264,14 @@
       background: transparent;
       font-weight: fonts.$bold-font-weight;
       cursor: pointer;
-      padding-right: 20px;
-      position: relative;
-      left: -8px;
+      appearance: none;
+      mask-image: linear-gradient(to right, black 80%, transparent 100%);
 
+      &:hover,
+      &:active,
       &:focus {
-        outline: 2px solid rgb(0 0 0 / 10%);
+        outline: none;
+        box-shadow: none;
       }
     }
 
@@ -300,7 +322,7 @@
     @media only screen and (max-width: breakpoints.$tablet) {
       @include mobile-friendly-table;
 
-      .col--filter {
+      .table__filter-col {
         display: none;
       }
 

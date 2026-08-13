@@ -109,62 +109,71 @@
     <thead>
       <tr>
         <th scope="col">{% trans %}File{% endtrans %}</th>
-        <th scope="col" class="col--filter">
+        <th scope="col" class="table__filter-col">
           {% if bdist_count > 3 %}
             <label class="sr-only" for="bdist-tags-interpreter">{% trans %}Interpreter{% endtrans %}</label>
-            <select class="table-filter"
-                    id="bdist-tags-interpreter"
-                    name="bdist-tags-interpreter"
-                    data-action="filter-list#filter"
-                    data-filter-list-target="filter"
-                    data-filtered-source="interpreter"
-                    data-comparison-type="exact"
-                    data-auto-update-url-querystring="true">
-              <option value="">{% trans %}Interpreter{% endtrans %}</option>
-              {% for value in wheel_filters_all['interpreter'] | sort %}
-                <option value="{{ value }}">{{ wheel_filters_all['interpreter'][value] }}</option>
-              {% endfor %}
-            </select>
+            <span class="table__filter-control">
+              <i class="fa-solid fa-filter" aria-hidden="true"></i>
+              <select class="table-filter"
+                      id="bdist-tags-interpreter"
+                      name="bdist-tags-interpreter"
+                      data-action="filter-list#filter"
+                      data-filter-list-target="filter"
+                      data-filtered-source="interpreter"
+                      data-comparison-type="exact"
+                      data-auto-update-url-querystring="true">
+                <option value="">{% trans %}Interpreter{% endtrans %}</option>
+                {% for value in wheel_filters_all['interpreter'] | sort %}
+                  <option value="{{ value }}">{{ wheel_filters_all['interpreter'][value] }}</option>
+                {% endfor %}
+              </select>
+            </span>
           {% else %}
             {% trans %}Interpreter{% endtrans %}
           {% endif %}
         </th>
-        <th scope="col" class="col--filter">
+        <th scope="col" class="table__filter-col">
           {% if bdist_count > 3 %}
             <label class="sr-only" for="bdist-tags-abi">{% trans %}ABI{% endtrans %}</label>
-            <select class="table-filter"
-                    id="bdist-tags-abi"
-                    name="bdist-tags-abi"
-                    data-action="filter-list#filter"
-                    data-filter-list-target="filter"
-                    data-filtered-source="abi"
-                    data-comparison-type="exact"
-                    data-auto-update-url-querystring="true">
-              <option value="">{% trans %}ABI{% endtrans %}</option>
-              {% for value in wheel_filters_all['abi'] | sort %}
-                <option value="{{ value }}">{{ wheel_filters_all['abi'][value] }}</option>
-              {% endfor %}
-            </select>
+            <span class="table__filter-control">
+              <i class="fa-solid fa-filter" aria-hidden="true"></i>
+              <select class="table-filter"
+                      id="bdist-tags-abi"
+                      name="bdist-tags-abi"
+                      data-action="filter-list#filter"
+                      data-filter-list-target="filter"
+                      data-filtered-source="abi"
+                      data-comparison-type="exact"
+                      data-auto-update-url-querystring="true">
+                <option value="">{% trans %}ABI{% endtrans %}</option>
+                {% for value in wheel_filters_all['abi'] | sort %}
+                  <option value="{{ value }}">{{ wheel_filters_all['abi'][value] }}</option>
+                {% endfor %}
+              </select>
+            </span>
           {% else %}
             {% trans %}ABI{% endtrans %}
           {% endif %}
         </th>
-        <th scope="col" class="col--filter">
+        <th scope="col" class="table__filter-col">
           {% if bdist_count > 3 %}
             <label class="sr-only" for="bdist-tags-platform">{% trans %}Platform{% endtrans %}</label>
-            <select class="table-filter"
-                    id="bdist-tags-platform"
-                    name="bdist-tags-platform"
-                    data-action="filter-list#filter"
-                    data-filter-list-target="filter"
-                    data-filtered-source="platform"
-                    data-comparison-type="exact"
-                    data-auto-update-url-querystring="true">
-              <option value="">{% trans %}Platform{% endtrans %}</option>
-              {% for value in wheel_filters_all['platform'] | sort %}
-                <option value="{{ value }}">{{ wheel_filters_all['platform'][value] }}</option>
-              {% endfor %}
-            </select>
+            <span class="table__filter-control">
+              <i class="fa-solid fa-filter" aria-hidden="true"></i>
+              <select class="table-filter"
+                      id="bdist-tags-platform"
+                      name="bdist-tags-platform"
+                      data-action="filter-list#filter"
+                      data-filter-list-target="filter"
+                      data-filtered-source="platform"
+                      data-comparison-type="exact"
+                      data-auto-update-url-querystring="true">
+                <option value="">{% trans %}Platform{% endtrans %}</option>
+                {% for value in wheel_filters_all['platform'] | sort %}
+                  <option value="{{ value }}">{{ wheel_filters_all['platform'][value] }}</option>
+                {% endfor %}
+              </select>
+            </span>
           {% else %}
             {% trans %}Platform{% endtrans %}
           {% endif %}
@@ -208,15 +217,15 @@
                 <small><i class="fa-regular fa-circle-check" aria-hidden="true"></i> TODO</small> #}
               </span>
             </td>
-            <td class="col--filter">
+            <td class="table__filter-col">
               {% set values = file.wheel_filters.get('interpreter', {}) %}
               {% for _, label in values.items() %}{{ label }}{% endfor %}
             </td>
-            <td class="col--filter">
+            <td class="table__filter-col">
               {% set values = file.wheel_filters.get('abi', {}) %}
               {% for _, label in values.items() %}{{ label }}{% endfor %}
             </td>
-            <td class="col--filter">
+            <td class="table__filter-col">
               {% set values = file.wheel_filters.get('platform', {}) %}
               {% for _, label in values.items() %}{{ label }}{% endfor %}
             </td>
