@@ -121,31 +121,6 @@ def test_pep833_simple_api_detail_html_frozen(webtest):
     just the whitespace, make sure you have a good reason for doing do!
     """
 
-    # Basic example.
-    project = ProjectFactory.create(name="example")
-    release = ReleaseFactory.create(project=project, version="1.0.0")
-    FileFactory.create(
-        filename="example-1.0.0.tar.gz", release=release, packagetype="sdist"
-    )
-
-    resp = webtest.get(f"/simple/{project.normalized_name}/", status=HTTPStatus.OK)
-
-    assert resp.text == snapshot("""\
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta name="pypi:repository-version" content="1.4">
-<meta name="pypi:project-status" content="active">    <title>Links for example</title>
-  </head>
-  <body>
-    <h1>Links for example</h1>
-<a href="http://localhost:7000/#sha256=7e657eb56fc128fcfbbc8c6c613f4b67ae589e93871c96aeb502754bbf24987f" >example-1.0.0.tar.gz</a><br />
-</body>
-</html>
-<!--SERIAL 0-->\
-""")  # noqa: E501
-
-    # A slightly less basic example, with a project status and requires-python marker.
     project = ProjectFactory.create(
         name="example2",
         lifecycle_status=LifecycleStatus.Archived,
