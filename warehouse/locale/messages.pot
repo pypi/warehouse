@@ -336,7 +336,7 @@ msgstr ""
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
 
-#: warehouse/accounts/views.py:1798 warehouse/accounts/views.py:2066
+#: warehouse/accounts/views.py:1804 warehouse/accounts/views.py:2072
 #: warehouse/manage/views/oidc_publishers.py:126
 #: warehouse/manage/views/organizations.py:1721
 msgid ""
@@ -344,22 +344,22 @@ msgid ""
 "#admin-intervention for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1819
+#: warehouse/accounts/views.py:1825
 #: warehouse/manage/views/organizations.py:1744
 msgid "disabled. See https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1835
+#: warehouse/accounts/views.py:1841
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1848
+#: warehouse/accounts/views.py:1854
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1863
+#: warehouse/accounts/views.py:1869
 #: warehouse/manage/views/oidc_publishers.py:308
 #: warehouse/manage/views/oidc_publishers.py:423
 #: warehouse/manage/views/oidc_publishers.py:539
@@ -369,7 +369,7 @@ msgid ""
 "again later."
 msgstr ""
 
-#: warehouse/accounts/views.py:1873
+#: warehouse/accounts/views.py:1879
 #: warehouse/manage/views/oidc_publishers.py:321
 #: warehouse/manage/views/oidc_publishers.py:436
 #: warehouse/manage/views/oidc_publishers.py:552
@@ -378,30 +378,30 @@ msgstr ""
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1888
+#: warehouse/accounts/views.py:1894
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's"
 " admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1913
+#: warehouse/accounts/views.py:1919
 msgid ""
 "A pending trusted publisher matching this configuration has already been "
 "registered for a different project name. Please contact PyPI's admins if "
 "this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1936
+#: warehouse/accounts/views.py:1942
 #: warehouse/manage/views/organizations.py:1812
 msgid "Registered a new pending publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:2079 warehouse/accounts/views.py:2092
-#: warehouse/accounts/views.py:2099
+#: warehouse/accounts/views.py:2085 warehouse/accounts/views.py:2098
+#: warehouse/accounts/views.py:2105
 msgid "Invalid publisher ID"
 msgstr ""
 
-#: warehouse/accounts/views.py:2106
+#: warehouse/accounts/views.py:2112
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -948,7 +948,7 @@ msgstr ""
 msgid "Provide an Inspector link to specific lines of code."
 msgstr ""
 
-#: warehouse/packaging/views.py:357
+#: warehouse/packaging/views.py:350
 msgid "Your report has been recorded. Thank you for your help."
 msgstr ""
 
@@ -3565,14 +3565,6 @@ msgstr ""
 
 #: warehouse/templates/includes/packaging/metadata/github-statistics.html:12
 #: warehouse/templates/includes/packaging/metadata/gitlab-statistics.html:11
-#: warehouse/templates/includes/packaging/metadata/project-links.html:59
-#: warehouse/templates/includes/packaging/metadata/project-links.html:60
-#, python-format
-msgid "Data verified by PyPI on %(date)s"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/metadata/github-statistics.html:12
-#: warehouse/templates/includes/packaging/metadata/gitlab-statistics.html:11
 #, python-format
 msgid "Data verified by PyPI on&nbsp;%(date)s"
 msgstr ""
@@ -3705,6 +3697,11 @@ msgstr ""
 
 #: warehouse/templates/includes/packaging/metadata/project-links.html:54
 msgid "Project links"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/project-links.html:60
+#, python-format
+msgid "Data verified by PyPI on %(date)s"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/metadata/project-links.html:63

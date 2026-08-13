@@ -30,6 +30,7 @@ from pypi_attestations import (
     Envelope,
     GitHubPublisher,
     Provenance,
+    Publisher,
     TransparencyLogEntry,
     VerificationMaterial,
 )
@@ -128,13 +129,22 @@ def fake_provenance(
     repository: str,
     workflow: str,
     version: str,
+    publisher: Publisher | None = None,
 ) -> dict:
-    """A PEP 740 provenance dict with one GitHub-published bundle."""
+    """
+    A PEP 740 provenance dict with one bundle.
+
+    The bundle is GitHub-published by default. Pass `publisher` to build a
+    bundle for another Trusted Publisher; the embedded certificate still
+    carries GitHub's Fulcio claims, since only the bundle's publisher
+    identity matters to callers that don't decode the certificate.
+    """
     certificate = fake_certificate(repository, workflow, f"refs/tags/v{version}")
     return Provenance(
         attestation_bundles=[
             AttestationBundle(
-                publisher=GitHubPublisher(
+                publisher=publisher
+                or GitHubPublisher(
                     repository=repository, workflow=workflow, environment="release"
                 ),
                 attestations=[

@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import datetime
+import json
 
 import freezegun
 import pretend
@@ -206,6 +207,66 @@ class TestUserDetail:
         assert db_request.current_route_path.calls == [
             pretend.call(username=user.username)
         ]
+
+
+class TestUserExport:
+    def test_exports_document(self, db_request):
+        """The view returns the document, rendered as a JSON attachment."""
+        admin = UserFactory.create()
+        user = UserFactory.create()
+        db_request.user = admin
+
+        document = views.user_export(user, db_request)
+
+        # The filename names the artifact and its subject, and its timestamp
+        # is the document's own generation instant.
+        timestamp = datetime.datetime.fromisoformat(document["generated_at"]).strftime(
+            "%Y%m%d%H%M%S"
+        )
+        assert db_request.response.content_disposition == (
+            "attachment; filename="
+            f'"user-account-export-{user.username}-{user.id}-{timestamp}.json"'
+        )
+        assert document["user"]["id"] == str(user.id)
+        assert document["generated_by"]["username"] == admin.username
+        times = [e["time"] for e in document["timeline"]["entries"]]
+        assert times == sorted(times)
+        assert document["timeline"]["counts"]["total"] == len(times)
+        assert json.dumps(document)
+
+    def test_records_an_observation(self, db_request):
+        """Exporting leaves an audit trail of who took a copy of the PII."""
+        admin = UserFactory.create()
+        user = UserFactory.create()
+        db_request.user = admin
+        db_request.remote_addr = "10.0.0.1"
+
+        views.user_export(user, db_request)
+
+        observation = user.observations[0]
+        assert observation.kind == ObservationKind.AccountExport.value[0]
+        assert observation.observer.parent == admin
+        assert observation.payload == {
+            "exported_by": admin.username,
+            "exported_by_id": str(admin.id),
+            "remote_addr": "10.0.0.1",
+        }
+
+    def test_redirects_to_canonical_username(self, db_request, mocker):
+        """A non-canonical username casing redirects permanently."""
+        user = UserFactory.create(username="wu-tang")
+        db_request.matchdict["username"] = "Wu-Tang"
+        current_route_path = mocker.patch.object(
+            db_request,
+            "current_route_path",
+            return_value="/user/the-redirect/export/",
+        )
+
+        result = views.user_export(user, db_request)
+
+        assert isinstance(result, HTTPMovedPermanently)
+        assert result.headers["Location"] == "/user/the-redirect/export/"
+        assert current_route_path.mock_calls == [mocker.call(username=user.username)]
 
 
 class TestUserFiles:
