@@ -67,18 +67,12 @@
           {% trans %}PyPI verified that this artifact, at this checksum, originated from the publisher listed below.{% endtrans %}
         {% endif %}
       </p>
-      {% if viewer.transparency_entry %}
-        {% set verified_date = viewer.transparency_entry.integratedTime | int | ctime %}
-      {% else %}
-        {% set verified_date = file.upload_time %}
-      {% endif %}
-      {% set verified_date_display = verified_date|format_date %}
       <p>
         <strong>
           {% if is_slsa %}
-            {% trans platform_name=platform_name, verified_date=verified_date_display %}Built by {{ platform_name }}, verified by PyPI on {{ verified_date }}.{% endtrans %}
+            {% trans platform_name=platform_name, verified_date=file.upload_time|format_date %}Built by {{ platform_name }}, verified by PyPI on {{ verified_date }}.{% endtrans %}
           {% else %}
-            {% trans platform_name=platform_name, verified_date=verified_date_display %}Signed by {{ platform_name }}, verified by PyPI on {{ verified_date }}.{% endtrans %}
+            {% trans platform_name=platform_name, verified_date=file.upload_time|format_date %}Signed by {{ platform_name }}, verified by PyPI on {{ verified_date }}.{% endtrans %}
           {% endif %}
         </strong>
       </p>
@@ -118,23 +112,24 @@
             {% endif %}
           </dt>
           <dd>
-            <a href="{{ viewer.source }}" target="_blank" rel="noopener">{{ viewer.source | replace('https://', '') }}</a>
+            <a href="{{ viewer.source }}  " target="_blank" rel="noopener">{{ viewer.source | replace('https://', '') }}</a>
           </dd>
-          {% if viewer.permalink_with_digest %}
-            <dt>
-              {% if is_slsa %}
-                {% trans %}Build commit{% endtrans %}
-              {% else %}
-                {% trans %}Publishing commit{% endtrans %}
-              {% endif %}
-            </dt>
-            <dd>
-              <a href="{{ viewer.permalink_with_digest }}"
-                 target="_blank"
-                 rel="noopener">{{ viewer.permalink_with_digest | replace('https://', '') }}</a>
-            </dd>
-          {% endif %}
-        {% elif bundle.publisher.kind == "Google" and bundle.publisher.email %}
+        {% endif %}
+        {% if viewer.permalink_with_digest %}
+          <dt>
+            {% if is_slsa %}
+              {% trans %}Build commit{% endtrans %}
+            {% else %}
+              {% trans %}Publishing commit{% endtrans %}
+            {% endif %}
+          </dt>
+          <dd>
+            <a href="{{ viewer.permalink_with_digest }}"
+                target="_blank"
+                rel="noopener">{{ viewer.permalink_with_digest | replace('https://', '') }}</a>
+          </dd>
+        {% endif %}
+        {% if bundle.publisher.kind == "Google" and bundle.publisher.email %}
           <dt>
             {% if is_slsa %}
               {% trans %}Build account{% endtrans %}
@@ -145,6 +140,9 @@
           <dd>
             {{ bundle.publisher.email }}
           </dd>
+        {% endif %}
+        {% if not viewer.source and not viewer.permalink_with_digest and not (bundle.publisher.kind == "Google" and bundle.publisher.email) %}
+          <dd>{% trans %}No identity information found{% endtrans %}</dd>
         {% endif %}
       </dl>
     </div>
@@ -166,7 +164,7 @@
         </h5>
       </div>
       <dl class="attestation__metadata-content">
-        {% if viewer.workflow_filename and viewer.build_digest %}
+        {% if viewer.workflow_url %}
           <dt>
             {% if is_slsa %}
               {% trans %}Build instructions{% endtrans %}
@@ -190,6 +188,13 @@
             <a href="{{ viewer.run_invocation_uri }}" target="_blank" rel="noopener">{{ viewer.run_invocation_uri | replace('https://', '') }}</a>
           </dd>
         {% endif %}
+        {% if not viewer.workflow_url and not viewer.run_invocation_uri %}
+          {% if is_slsa %}
+            <dd>{% trans %}No build instructions found{% endtrans %}</dd>
+          {% else %}
+            <dd>{% trans %}No publishing configuration found{% endtrans %}</dd>
+          {% endif %}
+        {% endif %}
       </dl>
     </div>
     <div class="attestation__metadata">
@@ -201,7 +206,7 @@
       </div>
       <dl class="attestation__metadata-content">
         {% if viewer.subject_name %}
-          <dt>{% trans %}File{% endtrans %}</dt>
+          <dt>{% trans %}Subject{% endtrans %}</dt>
           <dd>
             <code>{{ viewer.subject_name }}</code>
           </dd>
@@ -223,6 +228,9 @@
                target="_blank"
                rel="noopener">{% trans %}Verifying attestations{% endtrans %}</a>
           </dd>
+        {% endif %}
+        {% if not viewer.subject_name and not viewer.subject_digest %}
+          <dd>{% trans %}No artifact information found{% endtrans %}</dd>
         {% endif %}
       </dl>
     </div>
