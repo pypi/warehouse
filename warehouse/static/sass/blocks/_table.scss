@@ -282,7 +282,7 @@
 
     .file-info__name {
       display: block;
-      word-break: break-word;
+      overflow-wrap: anywhere;
       position: relative;
       left: -2px;
 
@@ -341,6 +341,11 @@
 
       .file-info__meta-divider {
         display: none;
+      }
+
+      .file-info__details-button {
+        float: none;
+        width: auto;
       }
     }
   }
