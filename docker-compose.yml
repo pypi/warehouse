@@ -247,31 +247,31 @@ services:
       context: .
       target: docs
     image: warehouse:docker-compose-docs
-    command: mkdocs serve -a 0.0.0.0:8000 -f docs/mkdocs-dev-docs.yml
+    command: mkdocs serve -a 0.0.0.0:10002 -f docs/mkdocs-dev-docs.yml
     stop_signal: SIGINT
     volumes:
       - ./bin:/opt/warehouse/src/bin:z
       - ./docs/mkdocs-dev-docs.yml:/opt/warehouse/src/docs/mkdocs-dev-docs.yml:z
       - ./docs:/opt/warehouse/src/docs:z
     ports:
-      - "10002:8000"
+      - "10002:10002"
 
   user-docs:
     image: warehouse:docker-compose-docs
     pull_policy: never
-    command: mkdocs serve -a 0.0.0.0:8000 -f docs/mkdocs-user-docs.yml
+    command: mkdocs serve -a 0.0.0.0:10000 -f docs/mkdocs-user-docs.yml
     stop_signal: SIGINT
     volumes:
       - ./bin:/opt/warehouse/src/bin:z
       - ./docs/mkdocs-user-docs.yml:/opt/warehouse/src/docs/mkdocs-user-docs.yml:z
       - ./docs:/opt/warehouse/src/docs:z
     ports:
-      - "10000:8000"
+      - "10000:10000"
 
   blog:
     image: warehouse:docker-compose-docs
     pull_policy: never
-    command: mkdocs serve -a 0.0.0.0:8000 -f docs/mkdocs-blog.yml
+    command: mkdocs serve -a 0.0.0.0:10001 -f docs/mkdocs-blog.yml
     stop_signal: SIGINT
     volumes:
       # we mount git because rss, thanks feed nerds
@@ -279,4 +279,4 @@ services:
       - ./bin:/opt/warehouse/src/bin:z
       - ./docs:/opt/warehouse/src/docs:z
     ports:
-      - "10001:8000"
+      - "10001:10001"
