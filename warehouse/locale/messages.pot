@@ -3125,7 +3125,7 @@ msgid "Tags"
 msgstr ""
 
 #: warehouse/templates/includes/file-details.html:52
-#: warehouse/templates/includes/packaging/provenance/attestation.html:210
+#: warehouse/templates/includes/packaging/provenance/attestation.html:221
 msgid "SHA-256 checksum"
 msgstr ""
 
@@ -3137,7 +3137,7 @@ msgstr ""
 #: warehouse/templates/includes/file-details.html:65
 #: warehouse/templates/includes/file-details.html:85
 #: warehouse/templates/includes/packaging/project-header.html:43
-#: warehouse/templates/includes/packaging/provenance/attestation.html:218
+#: warehouse/templates/includes/packaging/provenance/attestation.html:229
 #: warehouse/templates/manage/account.html:218
 #: warehouse/templates/manage/account/recovery_codes-provision.html:53
 #: warehouse/templates/manage/account/totp-provision.html:46
@@ -3401,7 +3401,6 @@ msgstr ""
 
 #: warehouse/templates/includes/packaging/project-files.html:42
 #: warehouse/templates/includes/packaging/project-files.html:111
-#: warehouse/templates/includes/packaging/provenance/attestation.html:204
 msgid "File"
 msgstr ""
 
@@ -3410,7 +3409,7 @@ msgid "Uploaded"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-files.html:64
-#: warehouse/templates/includes/packaging/project-files.html:227
+#: warehouse/templates/includes/packaging/project-files.html:236
 #: warehouse/templates/manage/account/publishing.html:416
 #: warehouse/templates/manage/organization/publishing.html:416
 #: warehouse/templates/manage/project/publishing.html:364
@@ -3441,32 +3440,32 @@ msgid "Table of built distributions (wheels) for %(name)s %(version)s"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-files.html:114
-#: warehouse/templates/includes/packaging/project-files.html:123
-#: warehouse/templates/includes/packaging/project-files.html:129
+#: warehouse/templates/includes/packaging/project-files.html:125
+#: warehouse/templates/includes/packaging/project-files.html:132
 msgid "Interpreter"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:134
-#: warehouse/templates/includes/packaging/project-files.html:143
-#: warehouse/templates/includes/packaging/project-files.html:149
+#: warehouse/templates/includes/packaging/project-files.html:137
+#: warehouse/templates/includes/packaging/project-files.html:148
+#: warehouse/templates/includes/packaging/project-files.html:155
 msgid "ABI"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:154
-#: warehouse/templates/includes/packaging/project-files.html:163
-#: warehouse/templates/includes/packaging/project-files.html:169
+#: warehouse/templates/includes/packaging/project-files.html:160
+#: warehouse/templates/includes/packaging/project-files.html:171
+#: warehouse/templates/includes/packaging/project-files.html:178
 msgid "Platform"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:176
+#: warehouse/templates/includes/packaging/project-files.html:185
 msgid "Reset"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:186
+#: warehouse/templates/includes/packaging/project-files.html:195
 msgid "Legacy Egg format."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:244
+#: warehouse/templates/includes/packaging/project-files.html:253
 msgid "Total release size:"
 msgstr ""
 
@@ -3874,58 +3873,62 @@ msgid ""
 "publisher listed below."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/provenance/attestation.html:79
+#: warehouse/templates/includes/packaging/provenance/attestation.html:73
 #, python-format
 msgid "Built by %(platform_name)s, verified by PyPI on %(verified_date)s."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/provenance/attestation.html:81
+#: warehouse/templates/includes/packaging/provenance/attestation.html:75
 #, python-format
 msgid "Signed by %(platform_name)s, verified by PyPI on %(verified_date)s."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/provenance/attestation.html:89
+#: warehouse/templates/includes/packaging/provenance/attestation.html:83
 msgid "Sigstore transparency entry"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/provenance/attestation.html:89
+#: warehouse/templates/includes/packaging/provenance/attestation.html:83
 msgid "Transparency log"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/provenance/attestation.html:99
+#: warehouse/templates/includes/packaging/provenance/attestation.html:93
 msgid "Identity"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/provenance/attestation.html:104
+#: warehouse/templates/includes/packaging/provenance/attestation.html:98
 msgid "Build platform"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/provenance/attestation.html:106
+#: warehouse/templates/includes/packaging/provenance/attestation.html:100
 msgid "Publishing platform"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/provenance/attestation.html:115
+#: warehouse/templates/includes/packaging/provenance/attestation.html:109
 msgid "Build repository"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/provenance/attestation.html:117
+#: warehouse/templates/includes/packaging/provenance/attestation.html:111
 msgid "Publishing repository"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/provenance/attestation.html:126
+#: warehouse/templates/includes/packaging/provenance/attestation.html:121
 msgid "Build commit"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/provenance/attestation.html:128
+#: warehouse/templates/includes/packaging/provenance/attestation.html:123
 msgid "Publishing commit"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/provenance/attestation.html:140
+#: warehouse/templates/includes/packaging/provenance/attestation.html:135
 msgid "Build account"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/provenance/attestation.html:142
+#: warehouse/templates/includes/packaging/provenance/attestation.html:137
 msgid "Publisher account"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:146
+msgid "No identity information found"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/provenance/attestation.html:162
@@ -3952,12 +3955,31 @@ msgstr ""
 msgid "Publishing logs"
 msgstr ""
 
+#: warehouse/templates/includes/packaging/provenance/attestation.html:196
+msgid "No build instructions found"
+msgstr ""
+
 #: warehouse/templates/includes/packaging/provenance/attestation.html:200
+msgid "No publishing configuration found"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:211
 msgid "Artifact"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/provenance/attestation.html:224
+#: warehouse/templates/includes/packaging/provenance/attestation.html:215
+#: warehouse/templates/manage/account/publishing.html:257
+#: warehouse/templates/manage/organization/publishing.html:270
+#: warehouse/templates/manage/project/publishing.html:243
+msgid "Subject"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:235
 msgid "Verifying attestations"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:240
+msgid "No artifact information found"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:17
@@ -5827,12 +5849,6 @@ msgstr ""
 #: warehouse/templates/manage/organization/publishing.html:264
 #: warehouse/templates/manage/project/publishing.html:237
 msgid "The email address of the account or service account used to publish."
-msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:257
-#: warehouse/templates/manage/organization/publishing.html:270
-#: warehouse/templates/manage/project/publishing.html:243
-msgid "Subject"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:264

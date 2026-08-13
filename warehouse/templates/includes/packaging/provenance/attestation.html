@@ -125,8 +125,8 @@
           </dt>
           <dd>
             <a href="{{ viewer.permalink_with_digest }}"
-                target="_blank"
-                rel="noopener">{{ viewer.permalink_with_digest | replace('https://', '') }}</a>
+               target="_blank"
+               rel="noopener">{{ viewer.permalink_with_digest | replace('https://', '') }}</a>
           </dd>
         {% endif %}
         {% if bundle.publisher.kind == "Google" and bundle.publisher.email %}
@@ -142,7 +142,9 @@
           </dd>
         {% endif %}
         {% if not viewer.source and not viewer.permalink_with_digest and not (bundle.publisher.kind == "Google" and bundle.publisher.email) %}
-          <dd>{% trans %}No identity information found{% endtrans %}</dd>
+          <dd>
+            {% trans %}No identity information found{% endtrans %}
+          </dd>
         {% endif %}
       </dl>
     </div>
@@ -190,9 +192,13 @@
         {% endif %}
         {% if not viewer.workflow_url and not viewer.run_invocation_uri %}
           {% if is_slsa %}
-            <dd>{% trans %}No build instructions found{% endtrans %}</dd>
+            <dd>
+              {% trans %}No build instructions found{% endtrans %}
+            </dd>
           {% else %}
-            <dd>{% trans %}No publishing configuration found{% endtrans %}</dd>
+            <dd>
+              {% trans %}No publishing configuration found{% endtrans %}
+            </dd>
           {% endif %}
         {% endif %}
       </dl>
@@ -230,7 +236,9 @@
           </dd>
         {% endif %}
         {% if not viewer.subject_name and not viewer.subject_digest %}
-          <dd>{% trans %}No artifact information found{% endtrans %}</dd>
+          <dd>
+            {% trans %}No artifact information found{% endtrans %}
+          </dd>
         {% endif %}
       </dl>
     </div>
