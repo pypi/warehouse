@@ -265,7 +265,7 @@ def _interpreter_to_label(tag: packaging.tags.Tag) -> str:
 
 def _abi_to_label(tag: packaging.tags.Tag) -> str:
     if tag.abi == "none":
-        return "(none)"
+        return "none"
     if tag.abi == "abi3":
         # NOTE: CPython abi3 should have a CPython interpreter.
         # if not tag.interpreter.startswith("cp"):
@@ -287,7 +287,7 @@ def _abi_to_label(tag: packaging.tags.Tag) -> str:
 
 def _platform_to_label(tag: packaging.tags.Tag) -> str:
     if tag.platform == "any":
-        return "(any)"
+        return "any"
 
     value = tag.platform
     key = value.split("_", maxsplit=1)[0] if "_" in value else value

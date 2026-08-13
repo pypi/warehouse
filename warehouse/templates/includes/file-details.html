@@ -40,7 +40,7 @@
           <th scope="row">{% trans %}Tags{% endtrans %}</th>
           <td class="file-tags">
             {% for tag in file.pretty_wheel_tags %}
-              {% if tag.lower() not in ['(any)', '(none)'] %}
+              {% if tag.lower() not in ['any', 'none'] %}
                 <span class="badge badge--neutral badge--no-uppercase">{{ tag }}</span>
               {% endif %}
             {% endfor %}

@@ -301,20 +301,20 @@ class TestReleaseDetail:
         assert [file.wheel_filters for file in result["files"]] == [
             {
                 "interpreter": {"cp310": "CPython 3.10"},
-                "abi": {"none": "(none)"},
-                "platform": {"any": "(any)"},
+                "abi": {"none": "none"},
+                "platform": {"any": "any"},
                 "other": {},
             },
             {
                 "interpreter": {"cp39": "CPython 3.9"},
-                "abi": {"none": "(none)"},
-                "platform": {"any": "(any)"},
+                "abi": {"none": "none"},
+                "platform": {"any": "any"},
                 "other": {},
             },
             {
                 "interpreter": {"cp27": "CPython 2.7"},
-                "abi": {"none": "(none)"},
-                "platform": {"any": "(any)"},
+                "abi": {"none": "none"},
+                "platform": {"any": "any"},
                 "other": {},
             },
         ]

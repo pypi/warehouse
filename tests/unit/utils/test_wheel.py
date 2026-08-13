@@ -465,7 +465,7 @@ nbval = nbval.plugin
         # Cannot parse 'pdfcomparator-0_2_0-py2-none-any.whl' - invalid version?
         (
             "pdfcomparator-0_2_0-py2-none-any.whl",
-            # _build(interp_py2="Python 2", abi_none="(none)", plat_any="(any)")),
+            # _build(interp_py2="Python 2", abi_none="none", plat_any="any")),
             _build(),
         ),
         (
@@ -485,15 +485,15 @@ nbval = nbval.plugin
                 interp_pp37="PyPy 37",
                 interp_pp38="PyPy 38",
                 interp_pp39="PyPy 39",
-                abi_none="(none)",
-                plat_any="(any)",
+                abi_none="none",
+                plat_any="any",
             ),
         ),
         (
             "ruff-0.3.2-py3-none-musllinux_1_2_armv7l.whl",
             _build(
                 interp_py3="Python 3",
-                abi_none="(none)",
+                abi_none="none",
                 plat_musllinux_1_2_armv7l="linux musl 1.2+ ARMv7l",
             ),
         ),
@@ -527,7 +527,7 @@ nbval = nbval.plugin
             "numpy-1.13.1-cp36-none-win_amd64.whl",
             _build(
                 interp_cp36="CPython 3.6",
-                abi_none="(none)",
+                abi_none="none",
                 plat_win_amd64="Windows x86-64",
             ),
         ),
@@ -546,33 +546,33 @@ nbval = nbval.plugin
                 interp_py37="Python 3.7",
                 interp_py38="Python 3.8",
                 interp_py39="Python 3.9",
-                abi_none="(none)",
-                plat_any="(any)",
+                abi_none="none",
+                plat_any="any",
             ),
         ),
         (
             "juriscraper-1.1.11-py27-none-any.whl",
-            _build(interp_py27="Python 2.7", abi_none="(none)", plat_any="(any)"),
+            _build(interp_py27="Python 2.7", abi_none="none", plat_any="any"),
         ),
         (
             "OZI-0.0.291-py312-none-any.whl",
-            _build(interp_py312="Python 3.12", abi_none="(none)", plat_any="(any)"),
+            _build(interp_py312="Python 3.12", abi_none="none", plat_any="any"),
         ),
         (
             "foo-0.0.0-ip27-none-any.whl",
-            _build(interp_ip27="IronPython 2.7", abi_none="(none)", plat_any="(any)"),
+            _build(interp_ip27="IronPython 2.7", abi_none="none", plat_any="any"),
         ),
         (
             "foo-0.0.0-jy38-none-any.whl",
-            _build(interp_jy38="Jython 3.8", abi_none="(none)", plat_any="(any)"),
+            _build(interp_jy38="Jython 3.8", abi_none="none", plat_any="any"),
         ),
         (
             "foo-0.0.0-garbage-none-any.whl",
-            _build(interp_garbage="garbage", abi_none="(none)", plat_any="(any)"),
+            _build(interp_garbage="garbage", abi_none="none", plat_any="any"),
         ),
         (
             "foo-0.0.0-69-none-any.whl",
-            _build(interp_69="69", abi_none="(none)", plat_any="(any)"),
+            _build(interp_69="69", abi_none="none", plat_any="any"),
         ),
         (
             "aiohttp-3.13.2-cp314-cp314udmtz-"
