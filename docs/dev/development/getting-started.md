@@ -293,7 +293,7 @@ The password for every account has been set to the string `password`.
 Using different accounts will allow you to see different parts of the site,
 and have slightly different experiences.
 
-Note that there are no Moderator accounts in the dev db. Any Superuser can 
+Note that there are no Moderator accounts in the dev db. Any Superuser can
 change a user to a moderator if needed.
 
 #### TOTP and Recovery Codes
@@ -303,7 +303,7 @@ To generate a TOTP token, run the following from your terminal:
 ```shell
 make totp
 ```
-Alternatively, you can scan the QR code below to add these accounts to 
+Alternatively, you can scan the QR code below to add these accounts to
 your authenticator app:
 
 ![TOTP QR Code](../assets/warehouse_admin_totp.png){ width="100" }
@@ -323,7 +323,7 @@ edc6ce3800c0fc94 -- burned
 
 #### Email Verification
 
-Auth verification emails are output to the console, or can be accessed 
+Auth verification emails are output to the console, or can be accessed
 from http://localhost:1080.
 
 See [Testing Emails](email.md#testing-e-mails) for more information.
@@ -763,6 +763,25 @@ formatting and linting. You can reformat with:
 
 ```shell
 make reformat
+```
+
+### Updating snapshots
+
+Some of Warehouse's tests make use of snapshots, specifically via the
+[inline_snapshot](https://15r10nk.github.io/inline-snapshot/) library.
+
+While running the tests in parallel, you may encounter a message like this:
+
+```
+INFO: inline-snapshot was disabled because you used xdist. This means that tests with snapshots will continue to run, but
+snapshot(x) will only return x and inline-snapshot will not be able to fix snapshots or generate reports.
+```
+
+If you need to update a specific snapshot, you can do so by selecting its module, which will
+disable test parallelism and enable the snapshot approval dialogue. For example:
+
+```shell
+T=tests/functional/api/test_simple.py make tests
 ```
 
 ## Building translations
