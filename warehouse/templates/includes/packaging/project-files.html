@@ -219,15 +219,15 @@
             </td>
             <td class="table__filter-col">
               {% set values = file.wheel_filters.get('interpreter', {}) %}
-              {% for _, label in values.items() %}{{ label }}{% endfor %}
+              {{ values.values() | list | join(', ') }}
             </td>
             <td class="table__filter-col">
               {% set values = file.wheel_filters.get('abi', {}) %}
-              {% for _, label in values.items() %}{{ label }}{% endfor %}
+              {{ values.values() | list | join(', ') }}
             </td>
             <td class="table__filter-col">
               {% set values = file.wheel_filters.get('platform', {}) %}
-              {% for _, label in values.items() %}{{ label }}{% endfor %}
+              {{ values.values() | list | join(', ') }}
             </td>
             <td>
               <a href="#{{ file.filename }}"
