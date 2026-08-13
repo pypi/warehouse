@@ -102,11 +102,20 @@ lint: .state/docker-build-base .state/docker-build-static
 dev-docs: .state/docker-build-docs
 	docker compose run --rm dev-docs bin/dev-docs
 
+dev-docs-serve: .state/docker-build-docs
+	docker compose up dev-docs
+
 user-docs: .state/docker-build-docs
 	docker compose run --rm user-docs bin/user-docs
 
+user-docs-serve: .state/docker-build-docs
+	docker compose up user-docs
+
 blog: .state/docker-build-docs
 	docker compose run --rm blog mkdocs build -f docs/mkdocs-blog.yml
+
+blog-serve: .state/docker-build-docs
+	docker compose up blog
 
 licenses: .state/docker-build-base
 	docker compose run --rm base bin/licenses
