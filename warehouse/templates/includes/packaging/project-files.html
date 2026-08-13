@@ -191,7 +191,7 @@
         <tr class="file-row"
             {% if 'source' not in file.python_version %} data-filter-list-target="item" data-filtered-target-filename='{{ (([file.filename] + file.pretty_wheel_tags) | list) | tojson }}' {% for filter_name, filter_items in file.wheel_filters.items() %} data-filtered-target-{{ filter_name }}='{{ (filter_items.keys() | list) | tojson }}' {% endfor %}
             {% endif %}>
-          {% if 'Egg' in file.pretty_wheel_tags %}
+          {% if 'Egg' in file.pretty_wheel_tags and bdist_count == 1 %}
             <td colspan="5">{% trans %}Legacy Egg format.{% endtrans %}</td>
           {% else %}
             <td>
