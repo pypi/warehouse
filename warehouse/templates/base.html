@@ -79,6 +79,7 @@
         </li>
       </ul>
     </nav>
+    {% include "warehouse:templates/includes/language-dropdown.html" %}
   </div>
 {%- endmacro %}
 {% macro trademarks(long=False) -%}
@@ -520,20 +521,6 @@
             data-action="viewport-toggle#switchToDesktop">{% trans %}Switch to desktop version{% endtrans %}</button>
   </div>
 </footer>
-<div class="language-switcher">
-  <form action="{{ request.route_path('locale') }}">
-    <ul>
-      {% for identifier, locale in KNOWN_LOCALES.items() %}
-        <li>
-          <button {% if request.locale_name == identifier %}class="language-switcher__selected"{% endif %}
-                  name="locale_id"
-                  value="{{ identifier }}"
-                  type="submit">{{ locale.display_name }}</button>
-        </li>
-      {% endfor %}
-    </ul>
-  </form>
-</div>
 {% include "warehouse:templates/includes/sponsors-footer.html" %}
 <div class="legal-footer">
   <ul>
