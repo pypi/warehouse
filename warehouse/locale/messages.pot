@@ -1060,14 +1060,14 @@ msgstr ""
 
 #: warehouse/templates/404.html:33 warehouse/templates/500.html:18
 #: warehouse/templates/accounts/two-factor.html:35
-#: warehouse/templates/base.html:376 warehouse/templates/base.html:382
-#: warehouse/templates/base.html:388 warehouse/templates/base.html:394
-#: warehouse/templates/base.html:410 warehouse/templates/base.html:416
-#: warehouse/templates/base.html:441 warehouse/templates/base.html:447
-#: warehouse/templates/base.html:456 warehouse/templates/base.html:469
-#: warehouse/templates/base.html:478 warehouse/templates/base.html:484
-#: warehouse/templates/base.html:490 warehouse/templates/base.html:503
-#: warehouse/templates/base.html:520 warehouse/templates/base.html:528
+#: warehouse/templates/base.html:377 warehouse/templates/base.html:391
+#: warehouse/templates/base.html:397 warehouse/templates/base.html:403
+#: warehouse/templates/base.html:409 warehouse/templates/base.html:425
+#: warehouse/templates/base.html:431 warehouse/templates/base.html:456
+#: warehouse/templates/base.html:462 warehouse/templates/base.html:471
+#: warehouse/templates/base.html:484 warehouse/templates/base.html:493
+#: warehouse/templates/base.html:499 warehouse/templates/base.html:505
+#: warehouse/templates/base.html:542 warehouse/templates/base.html:551
 #: warehouse/templates/includes/accounts/profile-callout.html:5
 #: warehouse/templates/includes/file-details.html:120
 #: warehouse/templates/includes/packaging/project-files.html:48
@@ -1148,11 +1148,11 @@ msgstr ""
 #: warehouse/templates/pages/help.html:1493
 #: warehouse/templates/pages/help.html:1499
 #: warehouse/templates/pages/help.html:1506
-#: warehouse/templates/pages/sponsors.html:23
-#: warehouse/templates/pages/sponsors.html:34
-#: warehouse/templates/pages/sponsors.html:42
-#: warehouse/templates/pages/sponsors.html:53
-#: warehouse/templates/pages/sponsors.html:85
+#: warehouse/templates/pages/sponsors.html:36
+#: warehouse/templates/pages/sponsors.html:47
+#: warehouse/templates/pages/sponsors.html:55
+#: warehouse/templates/pages/sponsors.html:66
+#: warehouse/templates/pages/sponsors.html:98
 #: warehouse/templates/upload.html:14
 msgid "External link"
 msgstr ""
@@ -1221,7 +1221,7 @@ msgid "Main navigation"
 msgstr ""
 
 #: warehouse/templates/base.html:34 warehouse/templates/base.html:65
-#: warehouse/templates/base.html:371
+#: warehouse/templates/base.html:386
 #: warehouse/templates/includes/current-user-indicator.html:59
 #: warehouse/templates/pages/help.html:212
 #: warehouse/templates/pages/sitemap.html:19
@@ -1235,7 +1235,7 @@ msgstr ""
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:71
 #: warehouse/templates/includes/current-user-indicator.html:65
 #: warehouse/templates/pages/sitemap.html:43
-#: warehouse/templates/pages/sponsors.html:4
+#: warehouse/templates/pages/sponsors.html:17
 msgid "Sponsors"
 msgstr ""
 
@@ -1377,146 +1377,146 @@ msgid "Search projects"
 msgstr ""
 
 #: warehouse/templates/base.html:372
-msgid "Help navigation"
-msgstr ""
-
-#: warehouse/templates/base.html:378
-msgid "Installing packages"
-msgstr ""
-
-#: warehouse/templates/base.html:384
-msgid "Uploading packages"
-msgstr ""
-
-#: warehouse/templates/base.html:390
-msgid "User guide"
-msgstr ""
-
-#: warehouse/templates/base.html:396
-msgid "Project name retention"
-msgstr ""
-
-#: warehouse/templates/base.html:399
-msgid "FAQs"
-msgstr ""
-
-#: warehouse/templates/base.html:405 warehouse/templates/pages/sitemap.html:34
-msgid "About PyPI"
-msgstr ""
-
-#: warehouse/templates/base.html:406
-msgid "About PyPI navigation"
-msgstr ""
-
-#: warehouse/templates/base.html:412
-msgid "PyPI Blog"
-msgstr ""
-
-#: warehouse/templates/base.html:418
-msgid "Infrastructure dashboard"
-msgstr ""
-
-#: warehouse/templates/base.html:421 warehouse/templates/pages/sitemap.html:40
-#: warehouse/templates/pages/stats.html:4
-msgid "Statistics"
-msgstr ""
-
-#: warehouse/templates/base.html:424
-msgid "Logos & trademarks"
-msgstr ""
-
-#: warehouse/templates/base.html:427
-msgid "Our sponsors"
-msgstr ""
-
-#: warehouse/templates/base.html:433
-msgid "Contributing to PyPI"
-msgstr ""
-
-#: warehouse/templates/base.html:434
-msgid "How to contribute navigation"
-msgstr ""
-
-#: warehouse/templates/base.html:437
-msgid "Bugs and feedback"
-msgstr ""
-
-#: warehouse/templates/base.html:443
-msgid "Contribute on GitHub"
-msgstr ""
-
-#: warehouse/templates/base.html:449
-msgid "Translate PyPI"
-msgstr ""
-
-#: warehouse/templates/base.html:452
-msgid "Sponsor PyPI"
-msgstr ""
-
-#: warehouse/templates/base.html:458
-msgid "Development credits"
-msgstr ""
-
-#: warehouse/templates/base.html:464 warehouse/templates/pages/sitemap.html:10
-msgid "Using PyPI"
-msgstr ""
-
-#: warehouse/templates/base.html:465
-msgid "Using PyPI navigation"
-msgstr ""
-
-#: warehouse/templates/base.html:471
-#: warehouse/templates/manage/organization/activate_subscription.html:21
-msgid "Terms of Service"
-msgstr ""
-
-#: warehouse/templates/base.html:474
-msgid "Report security issue"
-msgstr ""
-
-#: warehouse/templates/base.html:480
-msgid "Code of conduct"
-msgstr ""
-
-#: warehouse/templates/base.html:486
-msgid "Privacy Notice"
-msgstr ""
-
-#: warehouse/templates/base.html:492
-msgid "Acceptable Use Policy"
-msgstr ""
-
-#: warehouse/templates/base.html:502
-msgid "Status:"
-msgstr ""
-
-#: warehouse/templates/base.html:506
-msgid "all systems operational"
-msgstr ""
-
-#: warehouse/templates/base.html:510
 msgid ""
 "Developed and maintained by the Python community, for the Python "
 "community."
 msgstr ""
 
-#: warehouse/templates/base.html:512
+#: warehouse/templates/base.html:379
+msgid "Status:"
+msgstr ""
+
+#: warehouse/templates/base.html:379
+msgid "all systems operational"
+msgstr ""
+
+#: warehouse/templates/base.html:382
 msgid "Donate today!"
 msgstr ""
 
-#: warehouse/templates/base.html:524 warehouse/templates/pages/sitemap.html:4
+#: warehouse/templates/base.html:387
+msgid "Help navigation"
+msgstr ""
+
+#: warehouse/templates/base.html:393
+msgid "Installing packages"
+msgstr ""
+
+#: warehouse/templates/base.html:399
+msgid "Uploading packages"
+msgstr ""
+
+#: warehouse/templates/base.html:405
+msgid "User guide"
+msgstr ""
+
+#: warehouse/templates/base.html:411
+msgid "Project name retention"
+msgstr ""
+
+#: warehouse/templates/base.html:414
+msgid "FAQs"
+msgstr ""
+
+#: warehouse/templates/base.html:420 warehouse/templates/pages/sitemap.html:34
+msgid "About PyPI"
+msgstr ""
+
+#: warehouse/templates/base.html:421
+msgid "About PyPI navigation"
+msgstr ""
+
+#: warehouse/templates/base.html:427
+msgid "PyPI Blog"
+msgstr ""
+
+#: warehouse/templates/base.html:433
+msgid "Infrastructure dashboard"
+msgstr ""
+
+#: warehouse/templates/base.html:436 warehouse/templates/pages/sitemap.html:40
+#: warehouse/templates/pages/stats.html:4
+msgid "Statistics"
+msgstr ""
+
+#: warehouse/templates/base.html:439
+msgid "Logos & trademarks"
+msgstr ""
+
+#: warehouse/templates/base.html:442
+msgid "Our sponsors"
+msgstr ""
+
+#: warehouse/templates/base.html:448
+msgid "Contributing to PyPI"
+msgstr ""
+
+#: warehouse/templates/base.html:449
+msgid "How to contribute navigation"
+msgstr ""
+
+#: warehouse/templates/base.html:452
+msgid "Bugs and feedback"
+msgstr ""
+
+#: warehouse/templates/base.html:458
+msgid "Contribute on GitHub"
+msgstr ""
+
+#: warehouse/templates/base.html:464
+msgid "Translate PyPI"
+msgstr ""
+
+#: warehouse/templates/base.html:467
+msgid "Sponsor PyPI"
+msgstr ""
+
+#: warehouse/templates/base.html:473
+msgid "Development credits"
+msgstr ""
+
+#: warehouse/templates/base.html:479 warehouse/templates/pages/sitemap.html:10
+msgid "Using PyPI"
+msgstr ""
+
+#: warehouse/templates/base.html:480
+msgid "Using PyPI navigation"
+msgstr ""
+
+#: warehouse/templates/base.html:486
+#: warehouse/templates/manage/organization/activate_subscription.html:21
+msgid "Terms of Service"
+msgstr ""
+
+#: warehouse/templates/base.html:489
+msgid "Report security issue"
+msgstr ""
+
+#: warehouse/templates/base.html:495
+msgid "Code of conduct"
+msgstr ""
+
+#: warehouse/templates/base.html:501
+msgid "Privacy Notice"
+msgstr ""
+
+#: warehouse/templates/base.html:507
+msgid "Acceptable Use Policy"
+msgstr ""
+
+#: warehouse/templates/base.html:518
+msgid "Switch to desktop version"
+msgstr ""
+
+#: warehouse/templates/base.html:547 warehouse/templates/pages/sitemap.html:4
 msgid "Site map"
 msgstr ""
 
-#: warehouse/templates/base.html:528
+#: warehouse/templates/base.html:551
 #, python-format
 msgid ""
 "Deployed from <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\"><code>%(sha)s</code></a>"
-msgstr ""
-
-#: warehouse/templates/base.html:536
-msgid "Switch to desktop version"
 msgstr ""
 
 #: warehouse/templates/confirm-action.html:4
@@ -10047,31 +10047,31 @@ msgstr ""
 msgid "PyPI Trademarks"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:12
+#: warehouse/templates/pages/sponsors.html:25
 msgid "Support PyPI and related projects"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:13
+#: warehouse/templates/pages/sponsors.html:26
 msgid "Sponsor the Python Software Foundation"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:16
+#: warehouse/templates/pages/sponsors.html:29
 msgid ""
 "The Python Software Foundation raises and distributes funds to improve "
 "Python's packaging ecosystem."
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:18
+#: warehouse/templates/pages/sponsors.html:31
 msgid "Recent projects funded include:"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:21
+#: warehouse/templates/pages/sponsors.html:34
 msgid ""
 "The successful relaunch of the Python Package Index, powered by the new "
 "'Warehouse' codebase"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:23
+#: warehouse/templates/pages/sponsors.html:36
 #, python-format
 msgid ""
 "With <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -10080,13 +10080,13 @@ msgid ""
 "rel=\"noopener\">Mozilla Open Source Support Program</a> in 2018"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:32
+#: warehouse/templates/pages/sponsors.html:45
 msgid ""
 "Improving PyPI's security and accessibility, and adding support for "
 "multiple locales"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:34
+#: warehouse/templates/pages/sponsors.html:47
 #, python-format
 msgid ""
 "With $80,000 in funding from the <a href=\"%(funder_href)s\" "
@@ -10094,11 +10094,11 @@ msgid ""
 "Fund</a> in 2019"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:40
+#: warehouse/templates/pages/sponsors.html:53
 msgid "Additional security-focused features for PyPI"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:42
+#: warehouse/templates/pages/sponsors.html:55
 #, python-format
 msgid ""
 "With <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -10107,11 +10107,11 @@ msgid ""
 "Research</a> in 2019 and 2020"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:51
+#: warehouse/templates/pages/sponsors.html:64
 msgid "Overhauling pip's user experience and dependency resolver"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:53
+#: warehouse/templates/pages/sponsors.html:66
 #, python-format
 msgid ""
 "With <a href=\"%(project_href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -10122,67 +10122,67 @@ msgid ""
 "rel=\"noopener\">Mozilla Open Source Support Program</a> in 2020"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:66
+#: warehouse/templates/pages/sponsors.html:79
 msgid ""
 "With your support, the PSF can continue to fund packaging improvements, "
 "benefiting millions of Python users around the world."
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:74
+#: warehouse/templates/pages/sponsors.html:87
 msgid "PSF Sponsorship"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:78
+#: warehouse/templates/pages/sponsors.html:91
 msgid ""
 "All of these initiatives help maintain and support the tools that the "
 "Python community uses daily. This work can only be done with the generous"
 " financial support that you or your organization provides."
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:80
+#: warehouse/templates/pages/sponsors.html:93
 msgid "Your contributions matter and they make an impact. Every donation counts!"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:87
+#: warehouse/templates/pages/sponsors.html:100
 msgid "Become a sponsor"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:88
+#: warehouse/templates/pages/sponsors.html:101
 msgid ""
 "The PSF is recognized by the IRS as a 501(c)(3) non-profit charitable "
 "organization, and donations are tax-deductible for organizations that pay"
 " taxes in the United States."
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:98
+#: warehouse/templates/pages/sponsors.html:111
 msgid "Get your logo on PyPI.org"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:100
+#: warehouse/templates/pages/sponsors.html:113
 msgid ""
 "Looking for brand visibility? In the last year*, 21.1 million people from"
 " 237 countries visited PyPI.org."
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:103
+#: warehouse/templates/pages/sponsors.html:116
 msgid "* Data as of March 2020"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:107
+#: warehouse/templates/pages/sponsors.html:120
 msgid "Strengthen the Python ecosystem"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:109
+#: warehouse/templates/pages/sponsors.html:122
 msgid ""
 "Funds raised by the Python Software Foundation go directly towards "
 "improving the tools your company uses every day."
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:113
+#: warehouse/templates/pages/sponsors.html:126
 msgid "Boost your reputation"
 msgstr ""
 
-#: warehouse/templates/pages/sponsors.html:114
+#: warehouse/templates/pages/sponsors.html:127
 msgid ""
 "Enhance your company's reputation by investing in Python and the open "
 "source community."
