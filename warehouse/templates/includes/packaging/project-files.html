@@ -189,34 +189,36 @@
     <tbody>
       {% for file in bdists %}
         <tr class="file-row"
-            {% if 'source' not in file.python_version %} data-filter-list-target="item" data-filtered-target-filename='{{ (([file.filename] + file.pretty_wheel_tags) | list) | tojson }}' {% for filter_name, filter_items in file.wheel_filters.items() %} data-filtered-target-{{ filter_name }}='{{ (filter_items.keys() | list) | tojson }}' {% endfor %}
-            {% endif %}>
-          {% if 'Egg' in file.pretty_wheel_tags and bdist_count == 1 %}
-            <td colspan="5">{% trans %}Legacy Egg format.{% endtrans %}</td>
+          {% if 'source' not in file.python_version %} data-filter-list-target="item" data-filtered-target-filename='{{ (([file.filename] + file.pretty_wheel_tags) | list) | tojson }}' {% for filter_name, filter_items in file.wheel_filters.items() %} data-filtered-target-{{ filter_name }}='{{ (filter_items.keys() | list) | tojson }}' {% endfor %}
+          {% endif %}>
+          <td>
+            <span class="file-info__name">
+              <a href="{{ request.route_url('packaging.file', path=file.path) }}"><i class="fa-regular fa-circle-down" aria-hidden="true"></i> <span>{{ file.filename }}</span></a>
+            </span>
+            <span class="file-info__metadata">
+              <small>{{ file.size|filesizeformat() if file.size else 0|filesizeformat() }}</small>
+              <span class="file-info__meta-divider" aria-hidden="true"></span>
+              {% if (file.upload_time - first_upload).days > maximum_age_for_new_uploads_days %}
+                <small class="file-info__late">
+                  <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                  {{ humanize(file.upload_time) }}
+                </small>
+              {% else %}
+                <small>
+                  <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+                  {{ humanize(file.upload_time) }}
+                </small>
+              {% endif %}
+              {# TODO: add provenance states with security page
+              <span class="file-info__meta-divider" aria-hidden="true"></span>
+              <small><i class="fa-regular fa-circle-check" aria-hidden="true"></i> TODO</small> #}
+            </span>
+          </td>
+          {% if 'Egg' in file.pretty_wheel_tags %}
+            <td class="table__filter-col">{% trans %}Legacy Egg format{% endtrans %}</td>
+            <td class="table__filter-col">-</td>
+            <td class="table__filter-col">-</td>
           {% else %}
-            <td>
-              <span class="file-info__name">
-                <a href="{{ request.route_url('packaging.file', path=file.path) }}"><i class="fa-regular fa-circle-down" aria-hidden="true"></i> <span>{{ file.filename }}</span></a>
-              </span>
-              <span class="file-info__metadata">
-                <small>{{ file.size|filesizeformat() if file.size else 0|filesizeformat() }}</small>
-                <span class="file-info__meta-divider" aria-hidden="true"></span>
-                {% if (file.upload_time - first_upload).days > maximum_age_for_new_uploads_days %}
-                  <small class="file-info__late">
-                    <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
-                    {{ humanize(file.upload_time) }}
-                  </small>
-                {% else %}
-                  <small>
-                    <i class="fa-regular fa-calendar" aria-hidden="true"></i>
-                    {{ humanize(file.upload_time) }}
-                  </small>
-                {% endif %}
-                {# TODO: add provenance states with security page
-                <span class="file-info__meta-divider" aria-hidden="true"></span>
-                <small><i class="fa-regular fa-circle-check" aria-hidden="true"></i> TODO</small> #}
-              </span>
-            </td>
             <td class="table__filter-col">
               {% set values = file.wheel_filters.get('interpreter', {}) %}
               {{ values.values() | list | join(', ') }}
@@ -229,13 +231,13 @@
               {% set values = file.wheel_filters.get('platform', {}) %}
               {{ values.values() | list | join(', ') }}
             </td>
-            <td>
-              <a href="#{{ file.filename }}"
-                 class="button button--small button--outline file-info__details-button"
-                 data-project-tabs-target="tab"
-                 data-action="project-tabs#onTabClick">{% trans %}Details{% endtrans %}</a>
-            </td>
           {% endif %}
+          <td>
+            <a href="#{{ file.filename }}"
+                class="button button--small button--outline file-info__details-button"
+                data-project-tabs-target="tab"
+                data-action="project-tabs#onTabClick">{% trans %}Details{% endtrans %}</a>
+          </td>
         </tr>
       {% endfor %}
     </tbody>
