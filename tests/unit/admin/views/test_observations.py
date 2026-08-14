@@ -173,6 +173,14 @@ def _parsed(**overrides) -> views._DataTablesParams:
     return views._DataTablesParams(**fields)  # type: ignore[arg-type]
 
 
+@pytest.mark.parametrize("kind", list(ObservationKind))
+def test_every_kind_is_mapped(kind):
+    """The kind dropdown offers every ObservationKind, so a missing entry in
+    either mapping is a 500 or a dead link the moment an admin selects it."""
+    assert kind.value[0] in views._KIND_TO_MODEL
+    assert kind.value[0] in views._KIND_TO_ADMIN_ROUTE
+
+
 class TestBuildObservationsQuery:
     # db_request triggers ORM configuration so Observation.related_name (an
     # AbstractConcreteBase-aggregated column) is resolvable in compile-only tests.
