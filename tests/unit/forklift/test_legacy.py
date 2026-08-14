@@ -2499,7 +2499,7 @@ class TestFileUpload:
                 }[filetype],
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2539,7 +2539,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2582,7 +2582,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2621,7 +2621,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2662,7 +2662,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2706,7 +2706,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2755,7 +2755,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": SimpleNamespace(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2801,7 +2801,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": SimpleNamespace(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2852,7 +2852,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": SimpleNamespace(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2892,7 +2892,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": SimpleNamespace(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
