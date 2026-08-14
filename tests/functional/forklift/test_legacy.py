@@ -214,17 +214,13 @@ def test_duplicate_file_upload_error(webtest):
     assert "File already exists" in resp.body.decode()
 
 
-def test_typo_check_name_upload_passes(webtest, monkeypatch):
+def test_typo_check_name_upload_passes(webtest):
     """
-    Test not blocking the upload of a release with a typo in the project name,
-    and emits a notification to the admins.
-    """
-    # TODO: Replace with a better way to generate corpus
-    monkeypatch.setattr(
-        "warehouse.packaging.typosnyper._TOP_PROJECT_NAMES",
-        {"wutang", "requests"},
-    )
+    Test not blocking the upload of a release with a typo in the project name.
 
+    The typo checks themselves run in a post-commit task, so they don't execute
+    here - what this guards is that nothing on the upload path rejects the name.
+    """
     # Set up user, credentials
     user = UserFactory.create(with_verified_primary_email=True, clear_pwd="password")
     # Construct the macaroon

@@ -457,7 +457,7 @@ msgstr ""
 msgid "Select project"
 msgstr ""
 
-#: warehouse/manage/forms.py:540 warehouse/oidc/forms/_core.py:36
+#: warehouse/manage/forms.py:540 warehouse/oidc/forms/_core.py:32
 #: warehouse/oidc/forms/gitlab.py:54
 msgid "Specify project name"
 msgstr ""
@@ -765,45 +765,45 @@ msgid ""
 " existing pending publishers below."
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:38 warehouse/oidc/forms/_core.py:49
+#: warehouse/oidc/forms/_core.py:34 warehouse/oidc/forms/_core.py:45
 #: warehouse/oidc/forms/gitlab.py:57 warehouse/oidc/forms/gitlab.py:61
 msgid "Invalid project name"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:68
+#: warehouse/oidc/forms/_core.py:64
 #, python-brace-format
 msgid ""
 "This project already exists: use the project's publishing settings <a "
 "href='${url}'>here</a> to create a Trusted Publisher for it."
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:75
+#: warehouse/oidc/forms/_core.py:71
 msgid "This project already exists."
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:79
+#: warehouse/oidc/forms/_core.py:75
 msgid "This project name isn't allowed"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:83
+#: warehouse/oidc/forms/_core.py:79
 msgid "This project name is too similar to an existing project"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:88
+#: warehouse/oidc/forms/_core.py:84
 msgid ""
 "This project name isn't allowed (conflict with the Python standard "
 "library module name)"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:115 warehouse/oidc/forms/_core.py:126
+#: warehouse/oidc/forms/_core.py:100 warehouse/oidc/forms/_core.py:111
 msgid "Specify a publisher ID"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:116 warehouse/oidc/forms/_core.py:127
+#: warehouse/oidc/forms/_core.py:101 warehouse/oidc/forms/_core.py:112
 msgid "Publisher must be specified by ID"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:132
+#: warehouse/oidc/forms/_core.py:117
 msgid "Specify an environment name"
 msgstr ""
 
