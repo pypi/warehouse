@@ -265,7 +265,7 @@
       font-weight: fonts.$bold-font-weight;
       cursor: pointer;
       appearance: none;
-      mask-image: linear-gradient(to right, black 80%, transparent 100%);
+      mask-image: linear-gradient(to right, black 85%, transparent 100%);
 
       &:hover,
       &:active,
@@ -275,9 +275,15 @@
       }
     }
 
-    th:first-child,
-    td:first-child {
-      width: 50%;
+    .table__filter-col {
+      width: 14%;
+      overflow-wrap: anywhere;
+    }
+
+    th:last-child,
+    td:last-child {
+      width: 1%;
+      white-space: nowrap;
     }
 
     .file-info__name {
