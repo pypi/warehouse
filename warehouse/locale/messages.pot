@@ -3169,6 +3169,18 @@ msgstr ""
 msgid "Success"
 msgstr ""
 
+#: warehouse/templates/includes/language-dropdown.html:3
+msgid "Localization"
+msgstr ""
+
+#: warehouse/templates/includes/language-dropdown.html:8
+msgid "Change language"
+msgstr ""
+
+#: warehouse/templates/includes/language-dropdown.html:18
+msgid "Languages"
+msgstr ""
+
 #: warehouse/templates/includes/manage-project-button.html:5
 msgid "Manage project"
 msgstr ""
