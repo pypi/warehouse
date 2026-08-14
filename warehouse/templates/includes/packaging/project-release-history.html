@@ -102,9 +102,9 @@
                 {% pluralize %}
                 {{ count }} files{% endtrans %}</a>
               {% endif %}
-              <!-- TODO: Add provenance status
+              {# TODO: Add provenance status
               <span class="release__meta-divider" aria-hidden="true"></span>
-              <a href="{{ request.route_path('packaging.release', name=release.project.name, version=hversion.version) }}#security"><i class="fa-solid fa-circle-check release__provenance-icon" aria-hidden="true"></i> {% trans %}Full provenance{% endtrans %}</a> -->
+              <a href="{{ request.route_path('packaging.release', name=release.project.name, version=hversion.version) }}#security"><i class="fa-solid fa-circle-check release__provenance-icon" aria-hidden="true"></i> {% trans %}Full provenance{% endtrans %}</a> #}
             </p>
           </div>
           {% if hversion.yanked and hversion.yanked_reason %}
