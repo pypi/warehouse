@@ -1934,7 +1934,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: warehouse/templates/accounts/profile.html:97
-#: warehouse/templates/includes/packaging/project-release-history.html:83
+#: warehouse/templates/includes/packaging/project-release-history.html:93
 #: warehouse/templates/includes/packaging/project-status.html:72
 msgid "Archived"
 msgstr ""
@@ -3409,7 +3409,7 @@ msgid "Uploaded"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-files.html:64
-#: warehouse/templates/includes/packaging/project-files.html:236
+#: warehouse/templates/includes/packaging/project-files.html:239
 #: warehouse/templates/manage/account/publishing.html:416
 #: warehouse/templates/manage/organization/publishing.html:416
 #: warehouse/templates/manage/project/publishing.html:364
@@ -3461,11 +3461,11 @@ msgstr ""
 msgid "Reset"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:195
-msgid "Legacy Egg format."
+#: warehouse/templates/includes/packaging/project-files.html:218
+msgid "Legacy Egg format"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:253
+#: warehouse/templates/includes/packaging/project-files.html:255
 msgid "Total release size:"
 msgstr ""
 
@@ -3513,59 +3513,56 @@ msgid "RSS feed"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-release-history.html:37
-#: warehouse/templates/includes/packaging/project-release-history.html:94
+#: warehouse/templates/includes/packaging/project-release-history.html:104
 msgid "This release"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-release-history.html:55
-#, python-format
-msgid "Release quarantined on %(date)s"
+msgid "Release quarantined"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-release-history.html:59
 #, python-format
-msgid "Project quarantined on %(date)s"
+msgid "Release quarantined on %(date)s"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-release-history.html:63
-#: warehouse/templates/includes/packaging/project-status.html:24
-#: warehouse/templates/includes/packaging/project-status.html:36
-#: warehouse/templates/manage/project/releases.html:25
-msgid "Quarantined"
+#: warehouse/templates/includes/packaging/project-release-history.html:64
+msgid "Project quarantined"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-release-history.html:69
+#: warehouse/templates/includes/packaging/project-release-history.html:68
 #, python-format
-msgid "Release yanked on %(date)s"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-release-history.html:73
-#: warehouse/templates/includes/packaging/project-status.html:52
-msgid "Yanked"
+msgid "Project quarantined on %(date)s"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-release-history.html:79
 #, python-format
+msgid "Release yanked on %(date)s"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-release-history.html:83
+#: warehouse/templates/includes/packaging/project-status.html:52
+msgid "Yanked"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-release-history.html:89
+#, python-format
 msgid "Project archived on %(date)s"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-release-history.html:87
+#: warehouse/templates/includes/packaging/project-release-history.html:97
 #: warehouse/templates/includes/packaging/project-status.html:84
 msgid "Pre-release"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-release-history.html:101
+#: warehouse/templates/includes/packaging/project-release-history.html:111
 #, python-format
 msgid "%(count)s release file"
 msgid_plural "%(count)s release files"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/includes/packaging/project-release-history.html:107
-msgid "Full provenance"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-release-history.html:112
+#: warehouse/templates/includes/packaging/project-release-history.html:122
 msgid "Yanked reason:"
 msgstr ""
 
@@ -3585,6 +3582,12 @@ msgid_plural ""
 "files</a> before installing."
 msgstr[0] ""
 msgstr[1] ""
+
+#: warehouse/templates/includes/packaging/project-status.html:24
+#: warehouse/templates/includes/packaging/project-status.html:36
+#: warehouse/templates/manage/project/releases.html:25
+msgid "Quarantined"
+msgstr ""
 
 #: warehouse/templates/includes/packaging/project-status.html:27
 #, python-format

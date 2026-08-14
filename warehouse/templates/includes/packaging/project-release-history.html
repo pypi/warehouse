@@ -50,17 +50,27 @@
         <div class="release__card">
           {% if hversion.lifecycle_status == "quarantine-enter" or project.lifecycle_status == "quarantine-enter" %}
             <div class="release__card-header">
-              {% if hversion.lifecycle_status == "quarantine-enter" and hversion.lifecycle_status_changed %}
-                {% set quarantine_title %}
-                  {% trans date=hversion.lifecycle_status_changed|format_date %}Release quarantined on {{ date }}{% endtrans %}
+              {% if hversion.lifecycle_status == "quarantine-enter" %}
+                {% set quarantine_label %}
+                  {% trans %}Release quarantined{% endtrans %}
                 {% endset %}
-              {% elif project.lifecycle_status_changed %}
-                {% set quarantine_title %}
-                  {% trans date=project.lifecycle_status_changed|format_date %}Project quarantined on {{ date }}{% endtrans %}
+                {% if hversion.lifecycle_status_changed %}
+                  {% set quarantine_title %}
+                    {% trans date=hversion.lifecycle_status_changed|format_date %}Release quarantined on {{ date }}{% endtrans %}
+                  {% endset %}
+                {% endif %}
+              {% elif project.lifecycle_status == "quarantine-enter" %}
+                {% set quarantine_label %}
+                  {% trans %}Project quarantined{% endtrans %}
                 {% endset %}
+                {% if project.lifecycle_status_changed %}
+                  {% set quarantine_title %}
+                    {% trans date=project.lifecycle_status_changed|format_date %}Project quarantined on {{ date }}{% endtrans %}
+                  {% endset %}
+                {% endif %}
               {% endif %}
               <a href="{{ request.route_path('help') }}#project_in_quarantine"
-                 {% if quarantine_title is defined %}title="{{ quarantine_title }}"{% endif %}><i class="fa fa-shield-halved" aria-hidden="true"></i> <span>{% trans %}Quarantined{% endtrans %}</span></a>
+                 {% if quarantine_title is defined %}title="{{ quarantine_title }}"{% endif %}><i class="fa fa-shield-halved" aria-hidden="true"></i> <span>{{ quarantine_label }}</span></a>
             </div>
           {% elif hversion.yanked %}
             <div class="release__card-header">
@@ -102,9 +112,9 @@
                 {% pluralize %}
                 {{ count }} release files{% endtrans %}</a>
               {% endif %}
-              <!-- TODO: Add provenance status
+              {# TODO: Add provenance status
               <span class="release__meta-divider" aria-hidden="true"></span>
-              <a href="{{ request.route_path('packaging.release', name=release.project.name, version=hversion.version) }}#security"><i class="fa-solid fa-circle-check release__provenance-icon" aria-hidden="true"></i> {% trans %}Full provenance{% endtrans %}</a> -->
+              <a href="{{ request.route_path('packaging.release', name=release.project.name, version=hversion.version) }}#security"><i class="fa-solid fa-circle-check release__provenance-icon" aria-hidden="true"></i> {% trans %}Full provenance{% endtrans %}</a> #}
             </p>
           </div>
           {% if hversion.yanked and hversion.yanked_reason %}
