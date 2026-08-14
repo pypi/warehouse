@@ -14,3 +14,10 @@ repos:
         language: system
         files: '\.py$|\.html$'
         pass_filenames: false
+
+      - id: static-lint
+        name: static-lint
+        entry: make static_lint
+        language: system
+        files: '\.scss$|\.js$'
+        pass_filenames: false

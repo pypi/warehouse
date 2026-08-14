@@ -86,6 +86,9 @@ debug: .state/docker-build-base
 tests: .state/docker-build-base
 	docker compose run --rm --env COVERAGE=$(COVERAGE) --env COVERAGE_CORE=$(COVERAGE_CORE) tests bin/tests --postgresql-host db $(T) $(TESTARGS)
 
+static_lint: .state/docker-build-static
+	docker compose run --rm static bin/static_lint
+
 static_tests: .state/docker-build-static
 	docker compose run --rm static bin/static_tests $(T) $(TESTARGS)
 
