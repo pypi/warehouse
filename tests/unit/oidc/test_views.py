@@ -626,11 +626,14 @@ def test_mint_token_from_pending_trusted_publisher_invalidates_others(
     # each of which should be invalidated. Invalidations occur based on the
     # normalized project name.
     emailed_users = []
+    stale_publishers = []
     for project_name in ["does_not_exist", "does-not-exist", "dOeS-NoT-ExISt"]:
         user = UserFactory.create()
-        PendingGitHubPublisherFactory.create(
-            project_name=project_name,
-            added_by=user,
+        stale_publishers.append(
+            PendingGitHubPublisherFactory.create(
+                project_name=project_name,
+                added_by=user,
+            )
         )
         emailed_users.append(user)
 
@@ -664,12 +667,18 @@ def test_mint_token_from_pending_trusted_publisher_invalidates_others(
     assert resp["token"].startswith("pypi-")
 
     # We should have sent one invalidation email for each pending publisher that
-    # was invalidated by the minting operation.
-    assert send_pending_trusted_publisher_invalidated_email.calls == [
-        pretend.call(db_request, emailed_users[0], project_name="does_not_exist"),
-        pretend.call(db_request, emailed_users[1], project_name="does-not-exist"),
-        pretend.call(db_request, emailed_users[2], project_name="dOeS-NoT-ExISt"),
-    ]
+    # was invalidated by the minting operation. The order the emails go out in is
+    # unspecified, so compare without depending on it.
+    assert sorted(
+        send_pending_trusted_publisher_invalidated_email.calls,
+        key=lambda call: call.kwargs["project_name"],
+    ) == sorted(
+        (
+            pretend.call(db_request, user, project_name=publisher.project_name)
+            for publisher, user in zip(stale_publishers, emailed_users, strict=True)
+        ),
+        key=lambda call: call.kwargs["project_name"],
+    )
 
     assert ratelimiter.clear.calls == [
         pretend.call(pending_publisher.added_by.id),

@@ -64,6 +64,7 @@ from warehouse.authnz import Permissions
 from warehouse.cache.origin import origin_cache
 from warehouse.captcha.interfaces import ICaptchaService
 from warehouse.email import (
+    UNRECOGNIZED_LOGIN_REPEAT_WINDOW,
     send_added_as_collaborator_email,
     send_added_as_organization_member_email,
     send_collaborator_added_email,
@@ -973,7 +974,11 @@ def confirm_login(request):
 
     if not request.params.get("token"):
         # Show a generic page for when a non-logged-in user lands here without a token
-        return {}
+        return {
+            "repeat_window_minutes": int(
+                UNRECOGNIZED_LOGIN_REPEAT_WINDOW.total_seconds() // 60
+            )
+        }
 
     user_service = request.find_service(IUserService, context=None)
     token_service = request.find_service(ITokenService, name="confirm_login")
@@ -1661,11 +1666,17 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
     )
 
     if form.next_route.data and form.next_route_matchdict.data:
-        redirect_to = request.route_path(
-            form.next_route.data,
-            **json.loads(form.next_route_matchdict.data)
-            | {"_query": json.loads(form.next_route_query.data)},
-        )
+        try:
+            matchdict = json.loads(form.next_route_matchdict.data)
+            query = json.loads(form.next_route_query.data)
+            if not isinstance(matchdict, dict) or not isinstance(query, dict):
+                raise HTTPBadRequest
+            redirect_to = request.route_path(
+                form.next_route.data,
+                **matchdict | {"_query": query},
+            )
+        except json.JSONDecodeError, KeyError, TypeError, ValueError:
+            raise HTTPBadRequest
     else:
         redirect_to = request.route_path("manage.projects")
 

@@ -271,7 +271,7 @@ below describe the setup process for each supported Trusted Publisher.
     dependencies to automatically build cross-platform wheels of your PyPI
     projects. Once you're set up on the Platform and have linked your PyPI project,
     you're ready to publish. For more information on getting started with
-    ActiveState, go [here](https://docs.activestate.com/platform/start/pypi/). To
+    ActiveState, go [here](https://docs.activestate.com/platform/open-source-collaboration/pypi/). To
     begin:
 
     Publish your package to ActiveState's catalog. This will allow
@@ -363,7 +363,7 @@ below describe the setup process for each supported Trusted Publisher.
         The strings after `platforms = [` are the UUIDs of the supported
         platforms you want to build a wheel for. A list of all supported platforms can
         be found
-        [here](https://docs.activestate.com/platform/updates/supported-platforms).
+        [here](https://docs.activestate.com/curated-catalog/FAQs/#what-operating-systems-are-supported).
         Select all applicable to your project from the list provided.
 
     !!! note

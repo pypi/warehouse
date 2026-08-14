@@ -5,7 +5,6 @@ import contextlib
 import hashlib
 import io
 import json
-import logging
 import os.path
 import shutil
 import warnings
@@ -18,6 +17,7 @@ import google.api_core.exceptions
 import google.api_core.retry
 import sentry_sdk
 import stdlib_list
+import structlog
 
 from packaging.utils import canonicalize_name
 from pyramid.httpexceptions import HTTPBadRequest, HTTPConflict, HTTPForbidden
@@ -25,10 +25,8 @@ from sqlalchemy import exists, func, select
 from zope.interface import implementer
 
 from warehouse.admin.flags import AdminFlagValue
-from warehouse.cache import IQueryResultsCache
 from warehouse.email import send_pending_trusted_publisher_invalidated_email
 from warehouse.events.tags import EventTag
-from warehouse.helpdesk.interfaces import IAdminNotificationService
 from warehouse.metrics import IMetricsService
 from warehouse.oidc.models import PendingOIDCPublisher
 from warehouse.organizations.models import OrganizationProject
@@ -42,7 +40,6 @@ from warehouse.packaging.interfaces import (
     ProjectNameUnavailableProhibitedError,
     ProjectNameUnavailableSimilarError,
     ProjectNameUnavailableStdlibError,
-    ProjectNameUnavailableTypoSquattingError,
     TooManyProjectsCreated,
 )
 from warehouse.packaging.models import (
@@ -51,13 +48,13 @@ from warehouse.packaging.models import (
     Project,
     Role,
 )
-from warehouse.packaging.typosnyper import typo_check_name
+from warehouse.packaging.tasks import typo_check_project_name
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
 from warehouse.rate_limiting.headers import record_rate_limit
 from warehouse.utils.exceptions import DevelopmentModeWarning
 from warehouse.utils.project import PROJECT_NAME_RE
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 def _namespace_stdlib_list(module_list):
@@ -404,18 +401,13 @@ class GCSSimpleStorage(GenericGCSBlobStorage):
 
 @implementer(IProjectService)
 class ProjectService:
-    def __init__(
-        self, session, metrics=None, ratelimiters=None, query_results_cache=None
-    ) -> None:
+    def __init__(self, session, metrics=None, ratelimiters=None) -> None:
         if ratelimiters is None:
             ratelimiters = {}
-        if query_results_cache is None:
-            query_results_cache = {}
 
         self.db = session
         self.ratelimiters = collections.defaultdict(DummyRateLimiter, ratelimiters)
         self._metrics = metrics
-        self._query_results_cache = query_results_cache
 
     def _check_ratelimits(self, request, creator):
         # Record the current limiter state so the egress tween can emit
@@ -527,16 +519,6 @@ class ProjectService:
         ).first():
             raise ProjectNameUnavailableSimilarError(similar_project_name)
 
-        # Check for typo-squatting.
-        cached_corpus = self._query_results_cache.get("top_dependents_corpus")
-        if typo_check_match := typo_check_name(
-            canonicalize_name(name), corpus=cached_corpus
-        ):
-            raise ProjectNameUnavailableTypoSquattingError(
-                check_name=typo_check_match[0],
-                existing_project_name=typo_check_match[1],
-            )
-
     def create_project(
         self,
         name,
@@ -608,89 +590,16 @@ class ProjectService:
                     projecthelp=request.help_url(_anchor="project-name"),
                 ),
             ) from None
-        except ProjectNameUnavailableTypoSquattingError as exc:
-            # Don't yet raise an error here, as we want to allow the
-            # user to proceed with the project creation. We'll log a warning
-            # instead.
-            request.log.warning(
-                "ProjectNameUnavailableTypoSquattingError",
-                check_name=exc.check_name,
-                existing_project_name=exc.existing_project_name,
-            )
-            # Send notification to Admins for review
-            notification_service = request.find_service(IAdminNotificationService)
-
-            warehouse_domain = request.registry.settings.get("warehouse.domain")
-            new_project_page = request.route_url(
-                "packaging.project",
-                name=name,
-                _host=warehouse_domain,
-            )
-            new_project_text = (
-                f"During `file_upload`, Project Create for "
-                f"*<{new_project_page}|{name}>* was detected as a potential "
-                f"typo by the `{exc.check_name!r}` check."
-            )
-            existing_project_page = request.route_url(
-                "packaging.project",
-                name=exc.existing_project_name,
-                _host=warehouse_domain,
-            )
-            existing_project_text = (
-                f"<{existing_project_page}|Existing project: "
-                f"{exc.existing_project_name}>"
-            )
-
-            webhook_payload = {
-                "blocks": [
-                    {
-                        "type": "header",
-                        "text": {
-                            "type": "plain_text",
-                            "text": "TypoSnyper :warning:",
-                            "emoji": True,
-                        },
-                    },
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": new_project_text,
-                        },
-                    },
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": existing_project_text,
-                        },
-                    },
-                    {"type": "divider"},
-                    {
-                        "type": "context",
-                        "elements": [
-                            {
-                                "type": "plain_text",
-                                "text": "Once reviewed/confirmed, "
-                                "react to this message with :white_check_mark:",
-                                "emoji": True,
-                            }
-                        ],
-                    },
-                ]
-            }
-            notification_service.send_notification(payload=webhook_payload)
-
-            request.metrics.increment(
-                "warehouse.packaging.services.create_project.typo_squatting",
-                tags=[f"check_name:{exc.check_name!r}"],
-            )
-            # and continue with the project creation
 
         # The project name is valid: create it and add it
         project = Project(name=name)
         self.db.add(project)
         self.db.flush()  # To get the new ID  # ast-grep-ignore: db-flush
+
+        # Look for typo-squatting of a popular project name. The task is only
+        # dispatched once this transaction commits, so we don't annotate or
+        # report a project that was never created.
+        request.task(typo_check_project_name).delay(project.id)
 
         # TODO: This should be handled by some sort of database trigger or a
         #       SQLAlchemy hook or the like instead of doing it inline in this
@@ -775,10 +684,4 @@ def project_service_factory(context, request):
             IRateLimiter, name="project.create.ip", context=None
         ),
     }
-    query_results_cache = request.find_service(IQueryResultsCache)
-    return ProjectService(
-        request.db,
-        metrics=metrics,
-        ratelimiters=ratelimiters,
-        query_results_cache=query_results_cache,
-    )
+    return ProjectService(request.db, metrics=metrics, ratelimiters=ratelimiters)

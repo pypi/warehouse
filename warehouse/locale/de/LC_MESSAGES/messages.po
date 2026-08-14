@@ -25,13 +25,14 @@
 # 12LuA <Luca.strack@gmx.de>, 2024.
 # TheescapedShadow <ki.net@kijama.de>, 2024.
 # VfBFan <vfbfan@users.noreply.hosted.weblate.org>, 2026.
+# Nikita Karamov <me@kytta.dev>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2026-07-22 12:50+0000\n"
-"Last-Translator: VfBFan <vfbfan@users.noreply.hosted.weblate.org>\n"
+"PO-Revision-Date: 2026-07-24 13:15+0000\n"
+"Last-Translator: Nikita Karamov <me@kytta.dev>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/pypa/warehouse/"
 "de/>\n"
 "Language: de\n"
@@ -366,22 +367,14 @@ msgstr "Sie sind nun '${role}' vom Projekt '${project_name}'."
 
 #: warehouse/accounts/views.py:1556 warehouse/accounts/views.py:1799
 #: warehouse/manage/views/__init__.py:1212
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
-"Die vertrauenswürdige Veröffentlichung ist vorübergehend deaktiviert. Siehe "
+"Vertrauenswürdige Veröffentlichung ist vorübergehend deaktiviert. Siehe "
 "https://pypi.org/help#admin-intervention für weitere Informationen."
 
 #: warehouse/accounts/views.py:1577
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
 msgid "disabled. See https://pypi.org/help#admin-intervention for details."
 msgstr ""
 "deaktiviert. Siehe https://pypi.org/help#admin-intervention für weitere "
