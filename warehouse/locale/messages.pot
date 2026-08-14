@@ -1060,14 +1060,15 @@ msgstr ""
 
 #: warehouse/templates/404.html:33 warehouse/templates/500.html:18
 #: warehouse/templates/accounts/two-factor.html:35
-#: warehouse/templates/base.html:377 warehouse/templates/base.html:391
-#: warehouse/templates/base.html:397 warehouse/templates/base.html:403
-#: warehouse/templates/base.html:409 warehouse/templates/base.html:425
-#: warehouse/templates/base.html:431 warehouse/templates/base.html:456
-#: warehouse/templates/base.html:462 warehouse/templates/base.html:471
-#: warehouse/templates/base.html:484 warehouse/templates/base.html:493
-#: warehouse/templates/base.html:499 warehouse/templates/base.html:505
-#: warehouse/templates/base.html:542 warehouse/templates/base.html:551
+#: warehouse/templates/base.html:372 warehouse/templates/base.html:377
+#: warehouse/templates/base.html:391 warehouse/templates/base.html:397
+#: warehouse/templates/base.html:403 warehouse/templates/base.html:409
+#: warehouse/templates/base.html:425 warehouse/templates/base.html:431
+#: warehouse/templates/base.html:456 warehouse/templates/base.html:462
+#: warehouse/templates/base.html:471 warehouse/templates/base.html:484
+#: warehouse/templates/base.html:493 warehouse/templates/base.html:499
+#: warehouse/templates/base.html:505 warehouse/templates/base.html:542
+#: warehouse/templates/base.html:551
 #: warehouse/templates/includes/accounts/profile-callout.html:5
 #: warehouse/templates/includes/file-details.html:120
 #: warehouse/templates/includes/packaging/project-files.html:48
@@ -1377,9 +1378,11 @@ msgid "Search projects"
 msgstr ""
 
 #: warehouse/templates/base.html:372
+#, python-format
 msgid ""
-"Developed and maintained by the Python community, for the Python "
-"community."
+"Developed and maintained by the <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">Python Software Foundation</a> and "
+"Python community, for the Python community."
 msgstr ""
 
 #: warehouse/templates/base.html:379
