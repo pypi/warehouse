@@ -189,8 +189,8 @@
     <tbody>
       {% for file in bdists %}
         <tr class="file-row"
-          {% if 'source' not in file.python_version %} data-filter-list-target="item" data-filtered-target-filename='{{ (([file.filename] + file.pretty_wheel_tags) | list) | tojson }}' {% for filter_name, filter_items in file.wheel_filters.items() %} data-filtered-target-{{ filter_name }}='{{ (filter_items.keys() | list) | tojson }}' {% endfor %}
-          {% endif %}>
+            {% if 'source' not in file.python_version %} data-filter-list-target="item" data-filtered-target-filename='{{ (([file.filename] + file.pretty_wheel_tags) | list) | tojson }}' {% for filter_name, filter_items in file.wheel_filters.items() %} data-filtered-target-{{ filter_name }}='{{ (filter_items.keys() | list) | tojson }}' {% endfor %}
+            {% endif %}>
           <td>
             <span class="file-info__name">
               <a href="{{ request.route_url('packaging.file', path=file.path) }}"><i class="fa-regular fa-circle-down" aria-hidden="true"></i> <span>{{ file.filename }}</span></a>
@@ -234,9 +234,9 @@
           {% endif %}
           <td>
             <a href="#{{ file.filename }}"
-                class="button button--small button--outline file-info__details-button"
-                data-project-tabs-target="tab"
-                data-action="project-tabs#onTabClick">{% trans %}Details{% endtrans %}</a>
+               class="button button--small button--outline file-info__details-button"
+               data-project-tabs-target="tab"
+               data-action="project-tabs#onTabClick">{% trans %}Details{% endtrans %}</a>
           </td>
         </tr>
       {% endfor %}
