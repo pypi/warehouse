@@ -13,9 +13,9 @@
         {% set _ = events.append({'date': release.yanked_date, 'key': 'yanked'}) %}
       {% endif %}
       {% if project.lifecycle_status == "quarantine-enter" and project.lifecycle_status_changed %}
-        {% set _ = events.append({'date': project.lifecycle_status_changed, 'key': 'quarantined'}) %}
+        {% set _ = events.append({'date': project.lifecycle_status_changed, 'key': 'project-quarantined'}) %}
       {% elif release.lifecycle_status == "quarantine-enter" and release.lifecycle_status_changed %}
-        {% set _ = events.append({'date': release.lifecycle_status_changed, 'key': 'quarantined'}) %}
+        {% set _ = events.append({'date': release.lifecycle_status_changed, 'key': 'release-quarantined'}) %}
       {% endif %}
       {% if project.lifecycle_status in ["archived", "archived-noindex"] and project.lifecycle_status_changed %}
         {% set _ = events.append({'date': project.lifecycle_status_changed, 'key': 'archived'}) %}
@@ -27,8 +27,10 @@
               <strong>{% trans %}Released:{% endtrans %}</strong> {{ humanize(event.date) }}
             {% elif event.key == 'yanked' %}
               <strong>{% trans %}Yanked:{% endtrans %}</strong> {{ humanize(event.date) }}
-            {% elif event.key == 'quarantined' %}
-              <strong>{% trans %}Quarantined:{% endtrans %}</strong> {{ humanize(event.date) }}
+            {% elif event.key == 'project-quarantined' %}
+              <strong>{% trans %}Project quarantined:{% endtrans %}</strong> {{ humanize(event.date) }}
+            {% elif event.key == 'release-quarantined' %}
+              <strong>{% trans %}Release quarantined:{% endtrans %}</strong> {{ humanize(event.date) }}
             {% elif event.key == 'archived' %}
               <strong>{% trans %}Archived:{% endtrans %}</strong> {{ humanize(event.date) }}
             {% endif %}
