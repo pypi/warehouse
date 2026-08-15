@@ -11,7 +11,6 @@
 
 /*
   A full width horizontal div that contains a short notification.
-  Use for single lines only, as all content will be styled as a h6.
 
   Can be nested inside the .stick-to-top helper to stick to the top of the page.
 
@@ -32,16 +31,16 @@
     - visible: Indicates a visible, non-dismissed notification
 
   Accessibility:
-  Roles should be added to danger and success notifications to help
+  Roles should be added to danger and success banners to help
   users using screen readers:
 
   - danger: Add role="alert". Use with care - as this will interrupt the
     standard screen reader workflow
   - success: Add role="status"
 
-  Icons should also be added to danger and success notifications, to
+  Icons should also be added to danger and success banners, to
   ensure that color is not the only way of conveying the status of the
-  notification. This is important for color blind users.
+  banner. This is important for color blind users.
 
   Icons should be hidden with "aria-hidden=true" and given a screen reader
   label, as per the HTML example above.
@@ -49,7 +48,7 @@
    - danger: Add "fa fa-exclamation-triangle", sr-only="Error:"
    - success: Add "fa fa-check", sr-only="Success:"
 
-  A notification bar can be made dismissable by adding the following to the main
+  A banner can be made dismissable by adding the following to the main
   banner div:
 
     - .banner--dismissable to its classes
@@ -79,7 +78,7 @@
       </span>
   </div>
 
-  Note that if JavaScript is disabled, the notification bar always defaults to
+  Note that if JavaScript is disabled, the banner always defaults to
   be visible.
 */
 
