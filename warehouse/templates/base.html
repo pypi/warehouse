@@ -92,6 +92,25 @@
 {% endtrans %}
 {% endif %}
 {%- endmacro %}
+{# The preview image and every tag describing it travel together, so a page
+ # cannot override the image and silently keep the previous dimensions. #}
+{% macro preview_image_tags(url, width, height, alt) -%}
+  <meta property="og:image" content="{{ url }}">
+  <meta property="og:image:width" content="{{ width }}">
+  <meta property="og:image:height" content="{{ height }}">
+  <meta property="og:image:alt" content="{{ alt }}">
+  {# X reads alt text only from twitter:image:alt; it does not fall back to
+   # og:image:alt the way it does for title, description and image. #}
+  <meta name="twitter:image:alt" content="{{ alt }}">
+  <meta name="twitter:card" content="summary_large_image">
+{%- endmacro %}
+{# Pages that should not lend the official PyPI card to their content emit
+ # this instead. Dropping og:image matters more than the card type: Slack,
+ # Discord, Facebook and LinkedIn read og:image and ignore twitter:card, so
+ # downgrading only the latter would still hand them the branded card. #}
+{% macro no_preview_image() -%}
+  <meta name="twitter:card" content="summary">
+{%- endmacro %}
 {# Template-wide variables #}
 {% if request.registry.settings.get("warehouse.domain") == "test.pypi.org" %}
   {% set testPyPI = true %}
@@ -99,6 +118,8 @@
   {% set devPyPI = true %}
 {% endif %}
 {% set sitename = "TestPyPI" if testPyPI else "PyPI" %}
+{% set og_card = "warehouse:static/dist/images/og-card-test.png" if testPyPI else "warehouse:static/dist/images/og-card.png" %}
+{% set og_card_alt = gettext("TestPyPI, the Python Package Index test instance") if testPyPI else gettext("PyPI, the Python Package Index") %}
 <!DOCTYPE html>
 {# djlint:off H031 #}
 <html lang="{{ request.locale }}" dir="{{ request.locale.text_direction }}">
@@ -150,12 +171,17 @@
     {% endif %}
     <meta property="og:url"
           content="{% if request.matched_route %}{{ request.current_route_url() }}{% else %}{{ request.url }}{% endif %}">
-    <meta property="og:site_name" content="PyPI">
+    <meta property="og:site_name" content="{{ sitename }}">
     <meta property="og:type" content="website">
-    <meta property="og:image"
-          content="{% block image %}{{ request.static_url('warehouse:static/dist/images/twitter.jpg') }}{% endblock %}">
+    {# Declaring dimensions lets a crawler lay the card out without fetching
+     # and measuring the image first, which is what makes a link preview only
+     # on the second paste. Override this whole block, never part of it. #}
+    {% block preview_image %}{{ preview_image_tags(request.static_url(og_card) , 1200, 630, og_card_alt) }}{% endblock %}
+    {# `boolean=True` matters: templates that override `title_base` without
+     # defining `title` leave `self.title()` defined-but-empty, and the plain
+     # `default` filter only substitutes when a value is undefined. #}
     <meta property="og:title"
-          content="{{ self.title() |default('Python Package Index') }}">
+          content="{{ self.title() |default('Python Package Index', true) }}">
     <meta property="og:description" content="{{ self.description() }}">
     {% set source_commit = request.registry.settings.get("warehouse.commit") %}
     {% if source_commit and source_commit != "null" %}<meta name="source-commit" content="{{ source_commit }}">{% endif %}
