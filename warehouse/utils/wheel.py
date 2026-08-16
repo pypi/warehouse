@@ -23,168 +23,31 @@ class InvalidWheelEntryPointsError(Exception):
     """Internal exception used by this module"""
 
 
-_PLATFORMS = [
-    (re.compile(r"^win_(.*?)$"), lambda m: f"Windows {_normalize_arch(m.group(1))}"),
-    (re.compile(r"^win32$"), lambda m: "Windows x86"),
-    (
-        re.compile(r"^manylinux2010_(.*?)$"),
-        lambda m: f"manylinux: glibc 2.12+ {_normalize_arch(m.group(1))}",
-    ),
-    (
-        re.compile(r"^manylinux_(\d+)_(\d+)_(.*?)$"),
-        lambda m: (
-            f"manylinux: glibc {m.group(1)}.{m.group(2)}+ {_normalize_arch(m.group(3))}"
-        ),
-    ),
-    (
-        re.compile(r"^musllinux_(\d+)_(\d+)_(.*?)$"),
-        lambda m: (
-            f"musllinux: musl {m.group(1)}.{m.group(2)}+ {_normalize_arch(m.group(3))}"
-        ),
-    ),
-    (
-        re.compile(r"^macosx_(\d+)_(\d+)_(.*?)$"),
-        lambda m: f"macOS {m.group(1)}.{m.group(2)}+ {_normalize_arch(m.group(3))}",
-    ),
-    (
-        re.compile(r"^android_(\d+)_(.*?)$"),
-        lambda m: f"Android API level {m.group(1)}+ {_normalize_arch(m.group(2))}",
-    ),
-    (
-        re.compile(r"^ios_(\d+)_(\d+)_(.*?)_iphoneos$"),
-        lambda m: (
-            f"iOS {m.group(1)}.{m.group(2)}+ {_normalize_arch(m.group(3))} Device"
-        ),
-    ),
-    (
-        re.compile(r"^ios_(\d+)_(\d+)_(.*?)_iphonesimulator$"),
-        lambda m: (
-            f"iOS {m.group(1)}.{m.group(2)}+ {_normalize_arch(m.group(3))} Simulator"
-        ),
-    ),
-    (
-        re.compile(r"^pyemscripten_(\d+)_(\d+)_wasm32$"),
-        lambda m: f"PyEmscripten {m.group(1)}.{m.group(2)} wasm32",
-    ),
-]
+# Mapping from partial value to display names
+# for platform, architecture, abi / implementation, CPython suffix, and file format.
 
-_ARCHS = {
+_platform_display = {
+    "any": "any",
+    "win": "Windows",
+    "win32": "Windows x86-32",
+    "manylinux": "linux glibc",
+    "manylinux2014": "linux glibc 2.17+",
+    "manylinux2010": "linux glibc 2.12+",
+    "manylinux1": "linux glibc 2.5+",
+    "musllinux": "linux musl",
+    "macosx": "macOS",
+    "ios": "iOS",
+    "iphoneos": "Device",
+    "iphonesimulator": "Simulator",
+    "android": "Android",
+    "pyemscripten": "PyEmscripten",
+}
+_arch_display = {
     "amd64": "x86-64",
     "aarch64": "ARM64",
     "armeabi_v7a": "ARM EABI v7a",
     "arm64_v8a": "ARM64 v8a",
-    "x86_64": "x86-64",
-    "intel": "Intel (x86-64, i386)",
-    "fat": "fat (i386, PPC)",
-    "fat3": "fat3 (x86-64, i386, PPC)",
-    "fat64": "fat64 (x86-64, PPC64)",
-    "universal": "universal (x86-64, i386, PPC64, PPC)",
-    "universal2": "universal2 (ARM64, x86-64)",
-    "arm64": "ARM64",
-    "armv7l": "ARMv7l",
-}
-
-
-def _normalize_arch(a: str) -> str:
-    return _ARCHS.get(a, a)
-
-
-def filenames_to_filters(filenames: list[str]) -> dict[str, list[str]]:
-    tags = set()
-    for filename in filenames:
-        tags.update(filename_to_tags(filename))
-    return tags_to_filters(tags)
-
-
-def filename_to_filters(filename: str) -> dict[str, list[str]]:
-    tags = filename_to_tags(filename)
-    return tags_to_filters(tags)
-
-
-def tags_to_filters(tags: set[packaging.tags.Tag]) -> dict[str, list[str]]:
-    interpreters = set()
-    abis = set()
-    platforms = set()
-    for tag in tags or []:
-        interpreters.add(tag.interpreter)
-        abis.add(tag.abi)
-        platforms.add(tag.platform)
-
-    return {
-        "interpreters": sorted(interpreters),
-        "abis": sorted(abis),
-        "platforms": sorted(platforms),
-    }
-
-
-# Map known Python tags, ABI tags, Platform tags to labels.
-_PLATFORM_MAP = {
-    "win": [
-        (re.compile(r"^win_(.*?)$"), lambda m: f"Windows {_norm_arch(m.group(1))}")
-    ],
-    "win32": [(re.compile(r"^win32$"), lambda m: "Windows x86")],
-    "manylinux": [
-        (
-            re.compile(r"^manylinux_(\d+)_(\d+)_(.*?)$"),
-            lambda m: (
-                f"linux glibc {m.group(1)}.{m.group(2)}+ {_norm_arch(m.group(3))}"
-            ),
-        )
-    ],
-    "manylinux2014": [
-        (
-            re.compile(r"^manylinux2014_(.*?)$"),
-            lambda m: f"linux glibc 2.17+ {_norm_arch(m.group(1))}",
-        )
-    ],
-    "manylinux2010": [
-        (
-            re.compile(r"^manylinux2010_(.*?)$"),
-            lambda m: f"linux glibc 2.12+ {_norm_arch(m.group(1))}",
-        )
-    ],
-    "manylinux1": [
-        (
-            re.compile(r"^manylinux1_(.*?)$"),
-            lambda m: f"linux glibc 2.5+ {_norm_arch(m.group(1))}",
-        )
-    ],
-    "musllinux": [
-        (
-            re.compile(r"^musllinux_(\d+)_(\d+)_(.*?)$"),
-            lambda m: f"linux musl {m.group(1)}.{m.group(2)}+ {_norm_arch(m.group(3))}",
-        )
-    ],
-    "macosx": [
-        (
-            re.compile(r"^macosx_(\d+)_(\d+)_(.*?)$"),
-            lambda m: f"macOS {m.group(1)}.{m.group(2)}+ {_norm_arch(m.group(3))}",
-        )
-    ],
-    "ios": [
-        (
-            re.compile(r"^ios_(\d+)_(\d+)_(.*?)_iphoneos$"),
-            lambda m: f"iOS {m.group(1)}.{m.group(2)}+ {_norm_arch(m.group(3))} Device",
-        ),
-        (
-            re.compile(r"^ios_(\d+)_(\d+)_(.*?)_iphonesimulator$"),
-            lambda m: (
-                f"iOS {m.group(1)}.{m.group(2)}+ {_norm_arch(m.group(3))} Simulator"
-            ),
-        ),
-    ],
-    "android": [
-        (
-            re.compile(r"^android_(\d+)_(.*?)$"),
-            lambda m: f"Android API level {m.group(1)}+ {_norm_arch(m.group(2))}",
-        )
-    ],
-}
-_ARCH_MAP = {
-    "amd64": "x86-64",
-    "aarch64": "ARM64",
-    "armeabi_v7a": "ARM EABI v7a",
-    "arm64_v8a": "ARM64 v8a",
+    "x86": "x86-32",
     "x86_64": "x86-64",
     "intel": "Intel (x86-64, i386)",
     "fat": "fat (i386, PPC)",
@@ -199,21 +62,140 @@ _ARCH_MAP = {
     "ppc64le": "PowerPC 64-le",
     "s390x": "IBM System/390x",
     "riscv64": "RISC-V 64",
+    "wasm32": "WebAssembly",
 }
-_CPYTHON_SUFFIX_MAP = {
+_impl_display = {
+    "none": "none",
+    "abi3": "abi3",
+    "pypy": "PyPy",
+    "py": "Python",
+    "cp": "CPython",
+    "pp": "PyPy",
+    "ip": "IronPython",
+    "jy": "Jython",
+}
+_cpython_suffix_display = {
     "d": "debug",
     "m": "pymalloc",
     "t": "free-threading",
     "u": "wide-unicode",
 }
+_file_format_display = {
+    "egg": "Egg",
+    "source": "Source",
+}
+
+# Wheel platform checking and display constants.
+
+# Note: defining new platform ABI compatibility tags that don't
+#       have a python.org binary release to anchor them is a
+#       complex task that needs more than just OS+architecture info.
+#       For Linux specifically, the platform ABI is defined by each
+#       individual distro version, so wheels built on one version may
+#       not even work on older versions of the same distro, let alone
+#       a completely different distro.
+#
+#       That means new entries should only be added given an
+#       accompanying ABI spec that explains how to build a
+#       compatible binary (see the manylinux specs as examples).
+
+# These platforms can be handled by a simple static list:
+_allowed_platforms = {
+    "any",
+    "win32",
+    "win_arm64",
+    "win_amd64",
+    "win_ia64",
+    "manylinux1_x86_64",
+    "manylinux1_i686",
+    "manylinux2010_x86_64",
+    "manylinux2010_i686",
+    "manylinux2014_x86_64",
+    "manylinux2014_i686",
+    "manylinux2014_aarch64",
+    "manylinux2014_armv7l",
+    "manylinux2014_ppc64",
+    "manylinux2014_ppc64le",
+    "manylinux2014_s390x",
+    "linux_armv6l",
+    "linux_armv7l",
+}
+
+# macosx is a little more complicated:
+_macosx_platform_re = re.compile(
+    r"^(?P<plat>macosx)_(?P<major>\d+)_(?P<minor>\d+)_(?P<arch>.*)$"
+)
+_macosx_arches = {
+    "ppc",
+    "ppc64",
+    "i386",
+    "x86_64",
+    "arm64",
+    "intel",
+    "fat",
+    "fat3",
+    "fat64",
+    "universal",
+    "universal2",
+}
+# macosx 10 is also supported, but with different rules
+_macosx_major_versions = {
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "26",
+}
+
+_ios_platform_re = re.compile(
+    r"^(?P<plat>ios)_(?P<major>\d+)_(?P<minor>\d+)_(?P<arch>.*)_(?P<plat2>iphoneos|iphonesimulator)$"
+)
+_ios_arches = {
+    "arm64",
+    "x86_64",
+}
+
+_android_platform_re = re.compile(r"^(?P<plat>android)_(?P<major>\d+)_(?P<arch>.*)$")
+_android_arches = {
+    "armeabi_v7a",
+    "arm64_v8a",
+    "x86",
+    "x86_64",
+}
+
+# manylinux pep600 and musllinux pep656 are a little more complicated:
+_linux_platform_re = re.compile(
+    r"^(?P<plat>(?P<libc>(many|musl))linux)_(?P<major>\d+)_(?P<minor>\d+)_(?P<arch>.*)$"
+)
+_jointlinux_arches = {
+    "x86_64",
+    "i686",
+    "aarch64",
+    "armv7l",
+    "ppc64le",
+    "s390x",
+    "riscv64",
+}
+_manylinux_arches = _jointlinux_arches | {"ppc64"}
+_musllinux_arches = _jointlinux_arches
+
+_pyemscripten_platform_re = re.compile(
+    r"^(?P<plat>pyemscripten)_(?P<major>\d+)_(?P<minor>\d+)_(?P<arch>wasm32)$"
+)
 
 
 def _format_version(s: str) -> str:
-    return f"{s[0]}.{s[1:]}"
+    s = (s or "").strip()
+    length = len(s)
+    if length <= 1:
+        return s
+    major, minor = s[0], s[1:]
+    return f"{major}{'.' if minor else ''}{minor}"
 
 
 def _norm_arch(a: str) -> str:
-    return _ARCH_MAP.get(a, a)
+    return _arch_display.get(a, a)
 
 
 def _norm_str(s: str) -> str:
@@ -221,25 +203,34 @@ def _norm_str(s: str) -> str:
 
 
 def _implementation_to_label(raw: str) -> str:
+    if "_" in raw and (raw.startswith(("pypy", "pp"))):
+        parts = [_implementation_to_label(i) for i in raw.split("_")]
+        parts = [
+            parts[0].strip(),
+            *[
+                p.split(" ", maxsplit=1)[1].strip() if " " in p else p.strip()
+                for p in parts[1:]
+            ],
+        ]
+        return " ".join(parts)
     if raw.startswith("pypy"):
         version = _norm_str(raw.removeprefix("pypy"))
-        return f"PyPy {version}"
-    if raw.startswith("py"):
-        major, minor = raw[2:3], raw[3:]
-        return f"Python {major}{'.' if minor else ''}{minor}"
-    if raw.startswith("cp"):
-        version, suffixes = _format_cpython(raw.removeprefix("cp"))
-        return f"CPython {version} {suffixes}".strip()
+        return f"{_impl_display['pypy']} {version}"
     if raw.startswith("pp"):
         version = _norm_str(raw.removeprefix("pp"))
-        return f"PyPy {version}"
+        return f"{_impl_display['pp']} {version}"
+    if raw.startswith("cp"):
+        version, suffixes = _format_cpython(raw.removeprefix("cp"))
+        return f"{_impl_display['cp']} {version} {suffixes}".strip()
+    if raw.startswith("py"):
+        version = _format_version(raw.removeprefix("py"))
+        return f"{_impl_display['py']} {version}"
     if raw.startswith("ip"):
-        major, minor = raw[2:3], raw[3:]
-        return f"IronPython {major}{'.' if minor else ''}{minor}"
+        version = _format_version(raw.removeprefix("ip"))
+        return f"{_impl_display['ip']} {version}"
     if raw.startswith("jy"):
-        major, minor = raw[2:3], raw[3:]
-        version = f"{major}{'.' if minor else ''}{minor}"
-        return f"Jython {version}"
+        version = _format_version(raw.removeprefix("jy"))
+        return f"{_impl_display['jy']} {version}"
     # Unknown format. Normalise and return it.
     return _norm_str(raw)
 
@@ -249,7 +240,7 @@ def _format_cpython(s: str) -> tuple[str, str]:
     raw = (s or "").strip()
     while raw[-1].isalpha():
         last_char = raw[-1]
-        name = _CPYTHON_SUFFIX_MAP.get(last_char)
+        name = _cpython_suffix_display.get(last_char)
         if not name:
             # Unknown CPython abi suffix. Just include it.
             name = last_char
@@ -259,44 +250,107 @@ def _format_cpython(s: str) -> tuple[str, str]:
     return version, " ".join(sorted(suffixes))
 
 
-def _interpreter_to_label(tag: packaging.tags.Tag) -> str:
-    return _implementation_to_label(tag.interpreter)
-
-
 def _abi_to_label(tag: packaging.tags.Tag) -> str:
-    if tag.abi == "none":
-        return "none"
-    if tag.abi == "abi3":
-        # NOTE: CPython abi3 should have a CPython interpreter.
-        # if not tag.interpreter.startswith("cp"):
-        # A non- CPython interpreter with CPython abi3.
-        # Should this be possible?
-        # pass
-        return "CPython abi3"
-    if (
-        tag.abi.startswith("cp")
-        or tag.abi.startswith("pypy")
-        or tag.abi.startswith("pp")
-        or tag.abi.startswith("ip")
-        or tag.abi.startswith("jy")
-    ):
-        return _implementation_to_label(tag.abi)
+    key = tag.abi
+    # TODO: Is abi3 required to be a CPython interpreter?
+    #       tag.interpreter.startswith("cp")
+    if key in ["none", "abi3"]:
+        return _impl_display[key]
+    if key.startswith(("cp", "pypy", "pp", "ip", "jy")):
+        return _implementation_to_label(key)
     # Unknown abi. Just return it.
-    return _norm_str(tag.abi)
+    return _norm_str(key)
+
+
+def _parse_platform_tag(platform_tag) -> dict[str, str] | bool:
+    """Check wheel platform is recognised and a valid combination.
+    Return false if the platform tag is not valid.
+    Return true if a static platform tag matches.
+    Otherwise, return the valid parsed platform tag as a dict."""
+    if platform_tag in _allowed_platforms:
+        return True
+
+    # All valid platform tags start with an identifier used for
+    # building the displayed name.
+    # Use this as an initial check that the platform tag might be valid.
+    key = (
+        platform_tag.split("_", maxsplit=1)[0] if "_" in platform_tag else platform_tag
+    )
+    if key not in _platform_display:
+        return False
+
+    m = _macosx_platform_re.match(platform_tag)
+    # https://github.com/pypa/packaging.python.org/issues/1933
+    # There's two macosx formats: `macosx_10_{minor}` for the 10.x series where
+    # only the minor version ever increased, and `macosx_{major}_0` for the
+    # new release scheme where we don't know how many minor versions each
+    # release has.
+    if m and m.group("major") == "10" and m.group("arch") in _macosx_arches:
+        return m.groupdict()
+    if (
+        m
+        and m.group("major") in _macosx_major_versions
+        and m.group("minor") == "0"
+        and m.group("arch") in _macosx_arches
+    ):
+        return m.groupdict()
+
+    m = _linux_platform_re.match(platform_tag)
+    if m and m.group("libc") == "musl" and m.group("arch") in _musllinux_arches:
+        return m.groupdict()
+    if m and m.group("libc") == "many" and m.group("arch") in _manylinux_arches:
+        return m.groupdict()
+
+    m = _ios_platform_re.match(platform_tag)
+    if m and m.group("arch") in _ios_arches:
+        return m.groupdict()
+
+    m = _android_platform_re.match(platform_tag)
+    if m and m.group("arch") in _android_arches:
+        return m.groupdict()
+
+    m = _pyemscripten_platform_re.match(platform_tag)
+    if m:
+        return m.groupdict()
+    return False
 
 
 def _platform_to_label(tag: packaging.tags.Tag) -> str:
-    if tag.platform == "any":
-        return "any"
-
     value = tag.platform
-    key = value.split("_", maxsplit=1)[0] if "_" in value else value
+    parsed = _parse_platform_tag(value)
 
-    patterns = _PLATFORM_MAP.get(key, [])
-    for prefix_re, tmpl in patterns:
-        if match := prefix_re.match(value):
-            return tmpl(match)
+    if parsed is False or parsed is None:
+        # Unknown platform, just return it.
+        return _norm_str(value)
 
+    if parsed is True:
+        if "_" in value:
+            # for static platform tags,
+            # the value after the first underscore is the arch
+            plat, arch = value.split("_", maxsplit=1)
+            parsed = {"plat": plat, "arch": arch}
+        else:
+            parsed = {"plat": value}
+
+    plat = parsed.get("plat") or ""
+    major = parsed.get("major") or ""
+    minor = parsed.get("minor") or ""
+    arch = parsed.get("arch") or ""
+    plat2 = parsed.get("plat2") or ""
+
+    if plat in ["win", "manylinux2014", "manylinux2010", "manylinux1"]:
+        return f"{_platform_display[plat]} {_norm_arch(arch)}"
+    if plat in ["manylinux", "musllinux", "macosx", "pyemscripten"]:
+        return f"{_platform_display[plat]} {major}.{minor}+ {_norm_arch(arch)}"
+    if plat == "win32":
+        return _platform_display[plat]
+    if plat == "ios":
+        return (
+            f"{_platform_display[plat]} {major}.{minor}+ "
+            f"{_norm_arch(arch)} {_platform_display[plat2]}"
+        )
+    if plat == "android":
+        return f"{_platform_display[plat]} API level {major}+ {_norm_arch(arch)}"
     # Unknown platform. Just return it
     return _norm_str(value)
 
@@ -305,7 +359,7 @@ def _add_group_label(container: dict, group: str, value: str, label: str) -> Non
     container[group][value] = label
 
 
-def filename_to_tags(filename: str) -> set[packaging.tags.Tag]:
+def _filename_to_tags(filename: str) -> set[packaging.tags.Tag]:
     """Parse a wheel file name to extract the tags."""
     try:
         _, _, _, tags = packaging.utils.parse_wheel_filename(filename)
@@ -320,6 +374,11 @@ def filename_to_pretty_tags(filename: str) -> list[str]:
     for kind_items in grouped_labels.values():
         for label in kind_items.values():
             pretty_tags.add(label)
+
+    # only include tags that restrict matches - these indicate no restriction
+    pretty_tags.discard("any")
+    pretty_tags.discard("none")
+
     return sorted(pretty_tags)
 
 
@@ -332,17 +391,21 @@ def filename_to_grouped_labels(filename: str) -> dict[str, dict[str, str]]:
     }
 
     if filename.endswith(".egg"):
-        grouped_labels["other"]["egg"] = "Egg"
+        _add_group_label(grouped_labels, "other", "egg", _file_format_display["egg"])
         return grouped_labels
     if not filename.endswith(".whl"):
-        grouped_labels["other"]["source"] = "Source"
+        _add_group_label(
+            grouped_labels, "other", "source", _file_format_display["source"]
+        )
         return grouped_labels
 
-    tags = filename_to_tags(filename)
+    tags = _filename_to_tags(filename)
     for tag in tags:
-        _add_group_label(
-            grouped_labels, "interpreter", tag.interpreter, _interpreter_to_label(tag)
-        )
+        # Ignore implementation that is empty or all numbers.
+        impl = _implementation_to_label(tag.interpreter)
+        if impl and not all(c.isdigit() for c in impl):
+            _add_group_label(grouped_labels, "interpreter", tag.interpreter, impl)
+
         _add_group_label(grouped_labels, "abi", tag.abi, _abi_to_label(tag))
         _add_group_label(
             grouped_labels, "platform", tag.platform, _platform_to_label(tag)
@@ -364,6 +427,12 @@ def filenames_to_grouped_labels(filenames: list[str]) -> dict[str, dict[str, str
                 if value not in grouped_labels[kind]:
                     grouped_labels[kind][value] = label
     return grouped_labels
+
+
+def is_valid_platform_tag(platform_tag) -> bool:
+    """Check wheel platform is recognised and a valid combination."""
+    parsed = _parse_platform_tag(platform_tag)
+    return not (parsed is None or parsed is False)
 
 
 def _zip_filename_is_dir(filename: str) -> bool:

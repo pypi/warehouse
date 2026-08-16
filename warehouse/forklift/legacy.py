@@ -71,6 +71,7 @@ from warehouse.utils.wheel import (
     InvalidWheelEntryPointsError,
     InvalidWheelRecordError,
     MissingWheelRecordError,
+    is_valid_platform_tag,
     validate_entrypoints,
     validate_record,
 )
@@ -99,133 +100,9 @@ COMPRESSION_RATIO_THRESHOLD = 50
 # existing descriptions.
 MAX_DESCRIPTION_LENGTH_TO_BIGQUERY_IN_BYTES = 40000
 
-# Wheel platform checking
 
-# Note: defining new platform ABI compatibility tags that don't
-#       have a python.org binary release to anchor them is a
-#       complex task that needs more than just OS+architecture info.
-#       For Linux specifically, the platform ABI is defined by each
-#       individual distro version, so wheels built on one version may
-#       not even work on older versions of the same distro, let alone
-#       a completely different distro.
-#
-#       That means new entries should only be added given an
-#       accompanying ABI spec that explains how to build a
-#       compatible binary (see the manylinux specs as examples).
-
-# These platforms can be handled by a simple static list:
-_allowed_platforms = {
-    "any",
-    "win32",
-    "win_arm64",
-    "win_amd64",
-    "win_ia64",
-    "manylinux1_x86_64",
-    "manylinux1_i686",
-    "manylinux2010_x86_64",
-    "manylinux2010_i686",
-    "manylinux2014_x86_64",
-    "manylinux2014_i686",
-    "manylinux2014_aarch64",
-    "manylinux2014_armv7l",
-    "manylinux2014_ppc64",
-    "manylinux2014_ppc64le",
-    "manylinux2014_s390x",
-    "linux_armv6l",
-    "linux_armv7l",
-}
-# macosx is a little more complicated:
-_macosx_platform_re = re.compile(r"macosx_(?P<major>\d+)_(?P<minor>\d+)_(?P<arch>.*)")
-_macosx_arches = {
-    "ppc",
-    "ppc64",
-    "i386",
-    "x86_64",
-    "arm64",
-    "intel",
-    "fat",
-    "fat3",
-    "fat64",
-    "universal",
-    "universal2",
-}
-# macosx 10 is also supported, but with different rules
-_macosx_major_versions = {
-    "11",
-    "12",
-    "13",
-    "14",
-    "15",
-    "26",
-}
-
-_ios_platform_re = re.compile(
-    r"ios_(\d+)_(\d+)_(?P<arch>.*)_(iphoneos|iphonesimulator)"
-)
-_ios_arches = {
-    "arm64",
-    "x86_64",
-}
-
-_android_platform_re = re.compile(r"android_(\d+)_(?P<arch>.*)")
-_android_arches = {
-    "armeabi_v7a",
-    "arm64_v8a",
-    "x86",
-    "x86_64",
-}
-
-# manylinux pep600 and musllinux pep656 are a little more complicated:
-_linux_platform_re = re.compile(r"(?P<libc>(many|musl))linux_(\d+)_(\d+)_(?P<arch>.*)")
-_jointlinux_arches = {
-    "x86_64",
-    "i686",
-    "aarch64",
-    "armv7l",
-    "ppc64le",
-    "s390x",
-    "riscv64",
-}
-_manylinux_arches = _jointlinux_arches | {"ppc64"}
-_musllinux_arches = _jointlinux_arches
-
-_pyemscripten_platform_re = re.compile(
-    r"pyemscripten_(?P<major>\d+)_(?P<minor>\d+)_wasm32"
-)
-
-
-# Actual checking code;
 def _valid_platform_tag(platform_tag):
-    if platform_tag in _allowed_platforms:
-        return True
-    m = _macosx_platform_re.match(platform_tag)
-    # https://github.com/pypa/packaging.python.org/issues/1933
-    # There's two macosx formats: `macosx_10_{minor}` for the 10.x series where
-    # only the minor version ever increased, and `macosx_{major}_0` for the
-    # new release scheme where we don't know how many minor versions each
-    # release has.
-    if m and m.group("major") == "10" and m.group("arch") in _macosx_arches:
-        return True
-    if (
-        m
-        and m.group("major") in _macosx_major_versions
-        and m.group("minor") == "0"
-        and m.group("arch") in _macosx_arches
-    ):
-        return True
-    m = _linux_platform_re.match(platform_tag)
-    if m and m.group("libc") == "musl":
-        return m.group("arch") in _musllinux_arches
-    if m and m.group("libc") == "many":
-        return m.group("arch") in _manylinux_arches
-    m = _ios_platform_re.match(platform_tag)
-    if m and m.group("arch") in _ios_arches:
-        return True
-    m = _android_platform_re.match(platform_tag)
-    if m and m.group("arch") in _android_arches:
-        return True
-    m = _pyemscripten_platform_re.match(platform_tag)
-    return bool(m)
+    return is_valid_platform_tag(platform_tag)
 
 
 _error_message_order = ["metadata-version", "name", "version"]
