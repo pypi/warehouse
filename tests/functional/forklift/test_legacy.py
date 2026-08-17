@@ -213,7 +213,8 @@ def test_sparse_sdist_upload_rejected(webtest, tar_format):
     )
 
     assert response.status == (
-        "400 Invalid distribution file. sdists may not contain sparse members"
+        "400 Invalid distribution file. tar not accepted: Sparse members are not "
+        "allowed. See https://docs.pypi.org/archives for more information"
     )
 
 

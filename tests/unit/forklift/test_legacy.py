@@ -520,7 +520,10 @@ class TestFileValidation:
             scan=scan,
         ) == (
             False,
-            "sdists may not contain sparse members",
+            (
+                "tar not accepted: Sparse members are not allowed. "
+                "See https://docs.pypi.org/archives for more information"
+            ),
         )
         assert metrics.increment.calls == [
             pretend.call(

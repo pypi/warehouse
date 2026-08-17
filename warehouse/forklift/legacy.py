@@ -438,7 +438,13 @@ def _is_valid_dist_file(
                         "warehouse.upload.tarfile.policy_error",
                         tags=["reason:sparse-member"],
                     )
-                    return False, "sdists may not contain sparse members"
+                    return (
+                        False,
+                        (
+                            "tar not accepted: Sparse members are not allowed. "
+                            "See https://docs.pypi.org/archives for more information"
+                        ),
+                    )
                 if top_level in [".", "/", ""]:
                     return (
                         False,
