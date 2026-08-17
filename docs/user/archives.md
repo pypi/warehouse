@@ -12,7 +12,7 @@ encounter an error you can debug the issue and upload the fixed archive to PyPI.
 
 ## Wheels
 
-Wheels use the ZIP format, and are subject to the following restrictions.
+Wheels (also known as "built distributions") use the ZIP format, and are subject to the following restrictions.
 
 ### Multiple or malformed central directory
 
