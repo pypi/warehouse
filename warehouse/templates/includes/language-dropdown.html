@@ -6,11 +6,7 @@
           aria-haspopup="true"
           aria-expanded="false"
           aria-label="{% trans %}Change language{% endtrans %}">
-    <i class="fa fa-globe" aria-hidden="true"></i>
-    {{ request.locale.display_name }}
-    <span class="dropdown__trigger-caret">
-      <i class="fa fa-caret-down" aria-hidden="true"></i>
-    </span>
+    {# djlint:off #}<i class="fa-solid fa-language" aria-hidden="true"></i>{{ request.locale.display_name }}<span class="dropdown__trigger-caret"><i class="fa fa-caret-down" aria-hidden="true"></i></span>{# djlint:on #}
   </button>
   <form action="{{ request.route_path('locale') }}">
     <ul class="dropdown__content dropdown__content--languages"
