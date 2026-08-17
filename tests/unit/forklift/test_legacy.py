@@ -55,7 +55,7 @@ from warehouse.packaging.models import (
     Role,
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
-from warehouse.utils.scanner import TarPolicyError, YaraMatch
+from warehouse.utils.scanner import YaraMatch
 
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.classifiers import ClassifierFactory
@@ -483,26 +483,42 @@ class TestFileValidation:
             "Content not allowed.",
         )
 
-    def test_tar_policy_error_in_tarball(self, tmpdir, monkeypatch):
+    @pytest.mark.parametrize(
+        "tar_format",
+        [
+            pytest.param(tarfile.PAX_FORMAT, id="pax"),
+            pytest.param(tarfile.GNU_FORMAT, id="gnu"),
+        ],
+    )
+    @pytest.mark.parametrize("scan", [True, False], ids=["scan", "no-scan"])
+    def test_sparse_member_in_tarball(self, tmpdir, tar_format, scan):
         tar_fn = str(tmpdir.join("test.tar.gz"))
-        data_file = str(tmpdir.join("dummy_data"))
         metrics = NullMetrics()
         metrics.increment = pretend.call_recorder(lambda *args, **kwargs: None)
-        with open(data_file, "wb") as fp:
-            fp.write(b"content")
-        with tarfile.open(tar_fn, "w:gz") as tar:
-            tar.add(data_file, arcname="package/PKG-INFO")
-            tar.add(data_file, arcname="package/data.txt")
+        with tarfile.open(tar_fn, "w:gz", format=tar_format) as tar:
+            pkg_info = b"metadata"
+            info = tarfile.TarInfo(name="package/PKG-INFO")
+            info.size = len(pkg_info)
+            tar.addfile(info, io.BytesIO(pkg_info))
 
-        def reject_tar(*_args, **_kwargs):
-            raise TarPolicyError(
-                "sdists may not contain sparse members",
-                reason="sparse-member",
-            )
+            info = tarfile.TarInfo(name="package/sparse.dat")
+            if tar_format == tarfile.PAX_FORMAT:
+                info.size = 1
+                info.pax_headers = {
+                    "GNU.sparse.map": "0,1",
+                    "GNU.sparse.size": "10",
+                }
+            else:
+                info.type = tarfile.GNUTYPE_SPARSE
+                info.size = 0
+            tar.addfile(info, io.BytesIO(b"x"))
 
-        monkeypatch.setattr("warehouse.utils.scanner.check_members", reject_tar)
-
-        assert legacy._is_valid_dist_file(tar_fn, "sdist", metrics) == (
+        assert legacy._is_valid_dist_file(
+            tar_fn,
+            "sdist",
+            metrics,
+            scan=scan,
+        ) == (
             False,
             "sdists may not contain sparse members",
         )

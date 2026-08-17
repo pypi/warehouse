@@ -431,6 +431,14 @@ def _is_valid_dist_file(
                 # tar within.  Easy CPU DoS attack. :/
                 with metrics.timed("warehouse.upload.tarfile.getnames"):
                     top_level = _commonpath(tar.getnames())
+                # Sparse members rely on GNU extensions, including when stored
+                # in a pax header, and are not valid in PEP 625 sdists.
+                if any(member.issparse() for member in tar.getmembers()):
+                    metrics.increment(
+                        "warehouse.upload.tarfile.policy_error",
+                        tags=["reason:sparse-member"],
+                    )
+                    return False, "sdists may not contain sparse members"
                 if top_level in [".", "/", ""]:
                     return (
                         False,
@@ -457,12 +465,6 @@ def _is_valid_dist_file(
                         )
                         return False, yara_match.message
 
-        except scanner.TarPolicyError as exc:
-            metrics.increment(
-                "warehouse.upload.tarfile.policy_error",
-                tags=[f"reason:{exc.reason}"],
-            )
-            return False, str(exc)
         except tarfile.ReadError, EOFError:
             return False, None
 
