@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import datetime
+import json
 
 import freezegun
 import pretend
@@ -18,10 +19,18 @@ from warehouse.accounts.models import (
     WebAuthn,
 )
 from warehouse.admin.views import users as views
+from warehouse.events.tags import EventTag
 from warehouse.observations.models import ObservationKind
+from warehouse.organizations.models import OrganizationRoleType
 from warehouse.packaging.models import JournalEntry, Project, ReleaseURL
+from warehouse.subscriptions.models import StripeSubscriptionStatus
 
 from ....common.db.accounts import EmailFactory, User, UserFactory
+from ....common.db.organizations import (
+    OrganizationFactory,
+    OrganizationRoleFactory,
+    OrganizationStripeSubscriptionFactory,
+)
 from ....common.db.packaging import (
     FileFactory,
     JournalEntryFactory,
@@ -29,6 +38,7 @@ from ....common.db.packaging import (
     ReleaseFactory,
     RoleFactory,
 )
+from ....common.db.subscriptions import StripeSubscriptionFactory
 
 
 class TestUserList:
@@ -150,6 +160,22 @@ class TestUserDetail:
                 "role_name": "Owner",
             }
         ]
+        assert result["sole_owned_organizations"] == []
+
+    def test_gets_user_with_sole_owned_organizations(self, db_request):
+        user = UserFactory.create()
+        organization = OrganizationFactory.create()
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=user,
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        db_request.matchdict["username"] = str(user.username)
+
+        result = views.user_detail(user, db_request)
+
+        assert result["sole_owned_organizations"] == [organization]
 
     def test_updates_user(self, db_request):
         user = UserFactory.create()
@@ -181,6 +207,66 @@ class TestUserDetail:
         assert db_request.current_route_path.calls == [
             pretend.call(username=user.username)
         ]
+
+
+class TestUserExport:
+    def test_exports_document(self, db_request):
+        """The view returns the document, rendered as a JSON attachment."""
+        admin = UserFactory.create()
+        user = UserFactory.create()
+        db_request.user = admin
+
+        document = views.user_export(user, db_request)
+
+        # The filename names the artifact and its subject, and its timestamp
+        # is the document's own generation instant.
+        timestamp = datetime.datetime.fromisoformat(document["generated_at"]).strftime(
+            "%Y%m%d%H%M%S"
+        )
+        assert db_request.response.content_disposition == (
+            "attachment; filename="
+            f'"user-account-export-{user.username}-{user.id}-{timestamp}.json"'
+        )
+        assert document["user"]["id"] == str(user.id)
+        assert document["generated_by"]["username"] == admin.username
+        times = [e["time"] for e in document["timeline"]["entries"]]
+        assert times == sorted(times)
+        assert document["timeline"]["counts"]["total"] == len(times)
+        assert json.dumps(document)
+
+    def test_records_an_observation(self, db_request):
+        """Exporting leaves an audit trail of who took a copy of the PII."""
+        admin = UserFactory.create()
+        user = UserFactory.create()
+        db_request.user = admin
+        db_request.remote_addr = "10.0.0.1"
+
+        views.user_export(user, db_request)
+
+        observation = user.observations[0]
+        assert observation.kind == ObservationKind.AccountExport.value[0]
+        assert observation.observer.parent == admin
+        assert observation.payload == {
+            "exported_by": admin.username,
+            "exported_by_id": str(admin.id),
+            "remote_addr": "10.0.0.1",
+        }
+
+    def test_redirects_to_canonical_username(self, db_request, mocker):
+        """A non-canonical username casing redirects permanently."""
+        user = UserFactory.create(username="wu-tang")
+        db_request.matchdict["username"] = "Wu-Tang"
+        current_route_path = mocker.patch.object(
+            db_request,
+            "current_route_path",
+            return_value="/user/the-redirect/export/",
+        )
+
+        result = views.user_export(user, db_request)
+
+        assert isinstance(result, HTTPMovedPermanently)
+        assert result.headers["Location"] == "/user/the-redirect/export/"
+        assert current_route_path.mock_calls == [mocker.call(username=user.username)]
 
 
 class TestUserFiles:
@@ -464,6 +550,88 @@ class TestUserDelete:
             .one()
         )
         assert remove_journal.name == project.name
+
+    def test_deletes_user_deactivates_sole_owned_organizations(
+        self, db_request, mocker
+    ):
+        user = UserFactory.create()
+        UserFactory.create(username="deleted-user")
+
+        # Organization the user is the sole owner of: deleting the user would
+        # otherwise orphan it, so it should be deactivated with an audit event.
+        sole_owned = OrganizationFactory.create(is_active=True)
+        OrganizationRoleFactory.create(
+            organization=sole_owned,
+            user=user,
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        # Organization with another owner: must be left untouched.
+        co_owned = OrganizationFactory.create(is_active=True)
+        OrganizationRoleFactory.create(
+            organization=co_owned, user=user, role_name=OrganizationRoleType.Owner
+        )
+        OrganizationRoleFactory.create(
+            organization=co_owned,
+            user=UserFactory.create(),
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        db_request.matchdict["username"] = str(user.username)
+        db_request.params = {"username": user.username}
+        db_request.route_path = mocker.Mock(return_value="/foobar")
+        db_request.user = UserFactory.create()
+
+        views.user_delete(user, db_request)
+
+        db_request.db.flush()
+
+        assert not db_request.db.get(User, user.id)
+        assert sole_owned.is_active is False
+        assert co_owned.is_active is True
+        assert EventTag.Organization.OrganizationRoleRemove.value in [
+            event.tag for event in sole_owned.events
+        ]
+
+    def test_deletes_user_cancels_subscriptions_for_sole_owned_organizations(
+        self, db_request, billing_service, mocker
+    ):
+        user = UserFactory.create()
+        UserFactory.create(username="deleted-user")
+
+        organization = OrganizationFactory.create(is_active=True)
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=user,
+            role_name=OrganizationRoleType.Owner,
+        )
+        subscription = StripeSubscriptionFactory.create()
+        OrganizationStripeSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
+        # Terminal subscriptions are retained but cannot be canceled again.
+        canceled_subscription = StripeSubscriptionFactory.create(
+            status=StripeSubscriptionStatus.Canceled
+        )
+        OrganizationStripeSubscriptionFactory.create(
+            organization=organization, subscription=canceled_subscription
+        )
+
+        cancel_subscription = mocker.patch.object(
+            billing_service, "cancel_subscription"
+        )
+
+        db_request.matchdict["username"] = str(user.username)
+        db_request.params = {"username": user.username}
+        db_request.route_path = mocker.Mock(return_value="/foobar")
+        db_request.user = UserFactory.create()
+
+        views.user_delete(user, db_request)
+
+        db_request.db.flush()
+
+        cancel_subscription.assert_called_once_with(subscription.subscription_id)
+        assert organization.is_active is False
 
     def test_deletes_user_bad_confirm(self, db_request, monkeypatch):
         user = UserFactory.create()

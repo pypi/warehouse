@@ -233,7 +233,7 @@ def _handle_eocd64_locator(fp: typing.IO[bytes]) -> int:
     return eocd64_offset
 
 
-def validate_zipfile(zip_filepath: str) -> tuple[bool, str | None]:
+def _validate_zipfile(archive: zipfile.ZipFile) -> tuple[bool, str | None]:
     """
     Validates that a ZIP file would parse the same through
     a ZIP implementation that checks the Central Directory
@@ -245,22 +245,25 @@ def validate_zipfile(zip_filepath: str) -> tuple[bool, str | None]:
 
     Implemented using the ZIP standard (APPNOTE.TXT):
     https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT
+
+    ``archive`` must be open; its underlying stream position is restored
+    before returning.
     """
 
     # Process the zipfile through Python's
     # zipfile processor, the same used by
     # pip and other Python installers.
-    try:
-        zfp = zipfile.ZipFile(zip_filepath, mode="r")
-        # Store compression sizes from the CD for use later.
-        zipfile_files = {
-            zfi.orig_filename: (zfi.compress_size, zfi.file_size)
-            for zfi in zfp.filelist
-        }
-    except zipfile.BadZipfile as e:
-        return False, e.args[0]
+    # Store compression sizes from the CD for use later.
+    zipfile_files = {
+        zfi.orig_filename: (zfi.compress_size, zfi.file_size)
+        for zfi in archive.filelist
+    }
 
-    with open(zip_filepath, mode="rb") as fp:
+    assert archive.fp is not None
+    fp = archive.fp
+    original_position = fp.tell()
+    try:
+        fp.seek(0)
         # Track filenames that have been seen in
         # Local File and Central Directory headers
         # to avoid duplicates or missing entries.
@@ -388,7 +391,21 @@ def validate_zipfile(zip_filepath: str) -> tuple[bool, str | None]:
         if cur != fp.tell():
             return False, "Trailing data"
 
-    return True, None
+        return True, None
+    finally:
+        fp.seek(original_position)
+
+
+def validate_zipfile(
+    archive: str | zipfile.ZipFile,
+) -> tuple[bool, str | None]:
+    if isinstance(archive, zipfile.ZipFile):
+        return _validate_zipfile(archive)
+    try:
+        with zipfile.ZipFile(archive, mode="r") as zip_archive:
+            return _validate_zipfile(zip_archive)
+    except zipfile.BadZipFile as exc:
+        return False, str(exc)
 
 
 def main(argv) -> int:  # pragma: no cover

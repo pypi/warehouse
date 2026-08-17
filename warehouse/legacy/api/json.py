@@ -103,6 +103,15 @@ def _json_data(request, project, release, *, all_releases):
                     "sha256": f.sha256_digest,
                     "blake2b_256": f.blake2_256_digest,
                 },
+                # PEP 658 / PEP 714: expose the hash of the file's Core Metadata
+                # (the `.metadata` file served alongside the distribution) when
+                # it is available, so consumers such as mirrors don't have to
+                # fall back to the Simple API to discover it.
+                "core-metadata": (
+                    {"sha256": f.metadata_file_sha256_digest}
+                    if f.metadata_file_sha256_digest
+                    else False
+                ),
                 "size": f.size,
                 # TODO: Remove this once we've had a long enough time with it
                 #       here to consider it no longer in use.
@@ -253,7 +262,7 @@ def latest_release_factory(request):
 @view_config(
     route_name="legacy.api.json.project",
     context=Release,
-    renderer="json",
+    renderer="orjson",
     decorator=_PROJECT_CACHE_DECORATOR,
 )
 def json_project(release, request):
@@ -280,7 +289,7 @@ def json_project(release, request):
 @view_config(
     route_name="legacy.api.json.project_slash",
     context=Release,
-    renderer="json",
+    renderer="orjson",
     decorator=_PROJECT_CACHE_DECORATOR,
 )
 def json_project_slash(release, request):
@@ -336,7 +345,7 @@ def release_factory(request):
 @view_config(
     route_name="legacy.api.json.release",
     context=Release,
-    renderer="json",
+    renderer="orjson",
     decorator=_RELEASE_CACHE_DECORATOR,
 )
 def json_release(release, request):
@@ -361,7 +370,7 @@ def json_release(release, request):
 @view_config(
     route_name="legacy.api.json.release_slash",
     context=Release,
-    renderer="json",
+    renderer="orjson",
     decorator=_RELEASE_CACHE_DECORATOR,
 )
 def json_release_slash(release, request):

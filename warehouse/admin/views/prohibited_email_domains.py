@@ -27,7 +27,7 @@ def prohibited_email_domains(request):
         raise HTTPBadRequest("'page' must be an integer.") from None
 
     prohibited_email_domains_query = request.db.query(ProhibitedEmailDomain).order_by(
-        ProhibitedEmailDomain.created.desc()
+        ProhibitedEmailDomain.created.desc(), ProhibitedEmailDomain.id.desc()
     )
 
     if q:

@@ -2,6 +2,7 @@
 
 import base64
 import builtins
+import datetime
 import hashlib
 import io
 import json
@@ -11,6 +12,7 @@ import tempfile
 import zipfile
 
 from cgi import FieldStorage
+from contextlib import ExitStack
 from textwrap import dedent
 from types import SimpleNamespace
 from unittest import mock
@@ -204,6 +206,10 @@ class TestCloseUploadTempfiles:
 
 
 class TestFileValidation:
+    def test_open_dist_file_rejects_unsupported_extension(self):
+        with pytest.raises(ValueError, match="Unsupported distribution file"):
+            legacy._open_dist_file("test.exe", ExitStack())
+
     def test_defaults_to_true(self):
         assert legacy._is_valid_dist_file("", "", NullMetrics()) == (True, None)
 
@@ -2493,7 +2499,7 @@ class TestFileUpload:
                 }[filetype],
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2533,7 +2539,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2576,7 +2582,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2615,7 +2621,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2656,7 +2662,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2700,7 +2706,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2749,7 +2755,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": SimpleNamespace(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2795,7 +2801,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": SimpleNamespace(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2846,7 +2852,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": SimpleNamespace(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2886,7 +2892,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": SimpleNamespace(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -6701,6 +6707,126 @@ class TestFileUpload:
         resp = excinfo.value
         assert resp.status_code == 400
         assert "PyArmor-encrypted content is not allowed" in resp.status
+
+    def test_upload_fails_release_is_closed(
+        self, tmpdir, monkeypatch, pyramid_config, db_request
+    ):
+        monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
+
+        now = datetime.datetime.now()
+        then = now - datetime.timedelta(
+            seconds=legacy.MAXIMUM_AGE_FOR_NEW_UPLOADS_SECONDS + 1
+        )
+
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0", created=then)
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}-py3-none-any.whl".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
+        filebody = _get_whl_testdata(
+            name=project.normalized_name.replace("-", "_"), version=release.version
+        )
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "bdist_wheel",
+                "pyversion": "cp34",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+        assert resp.status_code == 400
+        assert (
+            f"Uploading new files to releases older than "
+            f"{legacy.MAXIMUM_AGE_FOR_NEW_UPLOADS_DAYS} days is not allowed."
+            in resp.status
+        )
+
+    def test_upload_duplicate_error_on_closed_releases(
+        self, tmpdir, monkeypatch, pyramid_config, db_request
+    ):
+        # 'File already exists' error should be favored over a
+        # 'Closed release' error, as this is a non-error outcome
+        # when used with --skip-existing on old releases.
+
+        now = datetime.datetime.now()
+        then = now - datetime.timedelta(
+            seconds=legacy.MAXIMUM_AGE_FOR_NEW_UPLOADS_SECONDS + 1
+        )
+
+        user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(
+            project=project,
+            version="1.0",
+            created=then,
+        )
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
+        file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "sdist",
+                "md5_digest": hashlib.md5(file_content.getvalue()).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename, file=file_content, type="application/tar"
+                ),
+            }
+        )
+        db_request.db.add(
+            FileFactory.create(
+                release=release,
+                filename=filename,
+                md5_digest=hashlib.md5(filename.encode("utf8")).hexdigest(),
+                sha256_digest=hashlib.sha256(filename.encode("utf8")).hexdigest(),
+                blake2_256_digest=hashlib.blake2b(
+                    filename.encode("utf8"), digest_size=256 // 8
+                ).hexdigest(),
+                path=f"source/{project.name[0]}/{project.name}/{filename}",
+                upload_time=then,
+            )
+        )
+        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+        resp = excinfo.value
+
+        # The error is 'File already exists', not the closed release error.
+        assert resp.status_code == 400
+        assert f"400 File already exists ({filename!r}" in resp.status
 
 
 def test_submit(pyramid_request):

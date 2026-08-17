@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import datetime
+
 from datetime import date, timedelta
 
 import pretend
@@ -14,10 +16,12 @@ from tests.common.db.organizations import (
     OrganizationFactory,
     OrganizationManualActivationFactory,
     OrganizationOIDCIssuerFactory,
+    OrganizationProjectFactory,
     OrganizationRoleFactory,
     OrganizationStripeCustomerFactory,
     OrganizationStripeSubscriptionFactory,
 )
+from tests.common.db.packaging import ProjectFactory, ReleaseFactory
 from tests.common.db.subscriptions import (
     StripeCustomerFactory,
     StripeSubscriptionFactory,
@@ -33,6 +37,7 @@ from warehouse.organizations.models import (
     OrganizationType,
 )
 from warehouse.subscriptions.interfaces import IBillingService
+from warehouse.subscriptions.models import StripeSubscriptionStatus
 
 
 class TestOrganizationForm:
@@ -177,42 +182,21 @@ class TestOrganizationList:
         assert result["query"] == f"description:'{organizations[0].description}'"
         assert result["terms"] == [f"description:{organizations[0].description}"]
 
-    def test_is_active_query(self, db_request):
+    def test_activity_inactive_query(self, db_request):
         organizations = sorted(
             OrganizationFactory.create_batch(5),
             key=lambda o: o.normalized_name,
         )
-        organizations[0].is_active = True
-        organizations[1].is_active = True
         organizations[2].is_active = False
         organizations[3].is_active = False
         organizations[4].is_active = False
-        db_request.GET["q"] = "is:active"
-        result = views.organization_list(db_request)
-
-        assert result == {
-            "organizations": organizations[:2],
-            "query": "is:active",
-            "terms": ["is:active"],
-        }
-
-    def test_is_inactive_query(self, db_request):
-        organizations = sorted(
-            OrganizationFactory.create_batch(5),
-            key=lambda o: o.normalized_name,
-        )
-        organizations[0].is_active = True
-        organizations[1].is_active = True
-        organizations[2].is_active = False
-        organizations[3].is_active = False
-        organizations[4].is_active = False
-        db_request.GET["q"] = "is:inactive"
+        db_request.GET["q"] = "activity:inactive"
         result = views.organization_list(db_request)
 
         assert result == {
             "organizations": organizations[2:],
-            "query": "is:inactive",
-            "terms": ["is:inactive"],
+            "query": "activity:inactive",
+            "terms": ["activity:inactive"],
         }
 
     def test_type_query(self, db_request):
@@ -248,19 +232,128 @@ class TestOrganizationList:
             "terms": ["type:invalid"],
         }
 
-    def test_is_invalid_query(self, db_request):
-        organizations = sorted(
-            OrganizationFactory.create_batch(5),
-            key=lambda o: o.normalized_name,
+    def test_activity_query(self, db_request):
+        # Active: owns a project released within the window.
+        active_org = OrganizationFactory.create()
+        active_project = ProjectFactory.create()
+        OrganizationProjectFactory.create(
+            organization=active_org, project=active_project
         )
-        db_request.GET["q"] = "is:not-actually-a-valid-query"
-        result = views.organization_list(db_request)
+        ReleaseFactory.create(project=active_project)
 
-        assert result == {
-            "organizations": organizations[:25],
-            "query": "is:not-actually-a-valid-query",
-            "terms": ["is:not-actually-a-valid-query"],
+        # Dormant: owns a project, but only released long ago.
+        dormant_org = OrganizationFactory.create()
+        dormant_project = ProjectFactory.create()
+        OrganizationProjectFactory.create(
+            organization=dormant_org, project=dormant_project
+        )
+        ReleaseFactory.create(
+            project=dormant_project, created=datetime.datetime(2020, 1, 1)
+        )
+
+        # Unused: owns no projects.
+        unused_org = OrganizationFactory.create()
+
+        db_request.GET["q"] = "activity:active"
+        assert views.organization_list(db_request)["organizations"] == [active_org]
+
+        db_request.GET["q"] = "activity:dormant"
+        assert views.organization_list(db_request)["organizations"] == [dormant_org]
+
+        db_request.GET["q"] = "activity:unused"
+        assert views.organization_list(db_request)["organizations"] == [unused_org]
+
+    def test_has_subscription_query(self, db_request):
+        active_org = OrganizationFactory.create(orgtype=OrganizationType.Company)
+        OrganizationStripeSubscriptionFactory.create(
+            organization=active_org,
+            subscription=StripeSubscriptionFactory.create(
+                status=StripeSubscriptionStatus.Active
+            ),
+        )
+        # A trialing subscription also counts.
+        trialing_org = OrganizationFactory.create(orgtype=OrganizationType.Company)
+        OrganizationStripeSubscriptionFactory.create(
+            organization=trialing_org,
+            subscription=StripeSubscriptionFactory.create(
+                status=StripeSubscriptionStatus.Trialing
+            ),
+        )
+
+        # A canceled subscription does not count.
+        OrganizationStripeSubscriptionFactory.create(
+            organization=OrganizationFactory.create(orgtype=OrganizationType.Company),
+            subscription=StripeSubscriptionFactory.create(
+                status=StripeSubscriptionStatus.Canceled
+            ),
+        )
+        # A Community org with a subscription does not count -- only Company
+        # organizations can subscribe.
+        OrganizationStripeSubscriptionFactory.create(
+            organization=OrganizationFactory.create(orgtype=OrganizationType.Community),
+            subscription=StripeSubscriptionFactory.create(
+                status=StripeSubscriptionStatus.Active
+            ),
+        )
+        OrganizationFactory.create()  # no subscription
+
+        db_request.GET["q"] = "has:subscription"
+        assert set(views.organization_list(db_request)["organizations"]) == {
+            active_org,
+            trialing_org,
         }
+
+    def test_invalid_activity_and_has_queries(self, db_request):
+        organization = OrganizationFactory.create()
+        db_request.GET["q"] = "activity:nope has:nope"
+        result = views.organization_list(db_request)
+        assert result["organizations"] == [organization]
+
+    def test_annotates_status(self, db_request):
+        active = OrganizationFactory.create()
+        project = ProjectFactory.create()
+        OrganizationProjectFactory.create(organization=active, project=project)
+        ReleaseFactory.create(project=project)
+        unused = OrganizationFactory.create()
+        inactive = OrganizationFactory.create(is_active=False)
+
+        status = {
+            organization.id: organization.activity
+            for organization in views.organization_list(db_request)["organizations"]
+        }
+        assert status[active.id] == "Active"
+        assert status[unused.id] == "Unused"
+        assert status[inactive.id] == "Inactive"
+
+
+class TestOrganizationActivity:
+    def test_unused(self, db_request):
+        organization = OrganizationFactory.create()
+        assert views._organization_activity(db_request, organization) == "Unused"
+
+    def test_dormant(self, db_request):
+        organization = OrganizationFactory.create()
+        project = ProjectFactory.create()
+        OrganizationProjectFactory.create(organization=organization, project=project)
+        ReleaseFactory.create(project=project, created=datetime.datetime(2020, 1, 1))
+        assert views._organization_activity(db_request, organization) == "Dormant"
+
+    def test_dormant_with_no_releases(self, db_request):
+        organization = OrganizationFactory.create()
+        project = ProjectFactory.create()
+        OrganizationProjectFactory.create(organization=organization, project=project)
+        assert views._organization_activity(db_request, organization) == "Dormant"
+
+    def test_active(self, db_request):
+        organization = OrganizationFactory.create()
+        project = ProjectFactory.create()
+        OrganizationProjectFactory.create(organization=organization, project=project)
+        ReleaseFactory.create(project=project)
+        assert views._organization_activity(db_request, organization) == "Active"
+
+    def test_inactive(self, db_request):
+        organization = OrganizationFactory.create(is_active=False)
+        assert views._organization_activity(db_request, organization) == "Inactive"
 
 
 class TestOrganizationDetail:

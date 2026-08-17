@@ -2,7 +2,6 @@
 
 import datetime
 
-import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPMethodNotAllowed
@@ -10,6 +9,7 @@ from pyramid_rpc.xmlrpc import XmlRpcApplicationError
 
 from warehouse.legacy.api.xmlrpc import views as xmlrpc
 from warehouse.packaging.models import Classifier
+from warehouse.rate_limiting import RateLimiter
 from warehouse.rate_limiting.interfaces import IRateLimiter, WindowStats
 
 from .....common.db.accounts import UserFactory
@@ -22,64 +22,64 @@ from .....common.db.packaging import (
 
 
 class TestRateLimiting:
-    def test_ratelimiting_pass(self, pyramid_services, pyramid_request, metrics):
+    def test_ratelimiting_pass(
+        self, pyramid_services, pyramid_request, metrics, mocker
+    ):
         def view(context, request):
             return None
 
         ratelimited_view = xmlrpc.ratelimit()(view)
-        context = pretend.stub()
         pyramid_request.remote_addr = "127.0.0.1"
         stats = [
             WindowStats(
                 amount=3600, window_seconds=3600, remaining=42, resets_in_seconds=10
             )
         ]
-        fake_rate_limiter = pretend.stub(
-            test=lambda *a: True,
-            hit=lambda *a: True,
-            resets_in=lambda *a: None,
-            get_window_stats=lambda *a: stats,
-        )
+        fake_rate_limiter = mocker.create_autospec(RateLimiter, instance=True)
+        fake_rate_limiter.test.return_value = True
+        fake_rate_limiter.hit.return_value = True
+        fake_rate_limiter.resets_in.return_value = None
+        fake_rate_limiter.get_window_stats.return_value = stats
         pyramid_services.register_service(
             fake_rate_limiter, IRateLimiter, None, name="xmlrpc.client"
         )
-        ratelimited_view(context, pyramid_request)
+        ratelimited_view(mocker.sentinel.context, pyramid_request)
 
-        assert metrics.increment.calls == [
-            pretend.call("warehouse.xmlrpc.ratelimiter.hit", tags=[])
-        ]
+        metrics.increment.assert_called_once_with(
+            "warehouse.xmlrpc.ratelimiter.hit", tags=[]
+        )
         snapshots = pyramid_request._rate_limit_snapshots
         assert [s.name for s in snapshots] == ["xmlrpc.client"]
         assert snapshots[0].partition_key == "ip"
         assert snapshots[0].stats is stats
 
-    def test_ratelimiting_block(self, pyramid_services, pyramid_request, metrics):
+    def test_ratelimiting_block(
+        self, pyramid_services, pyramid_request, metrics, mocker
+    ):
         def view(context, request):
             pytest.fail("view should not be called")
 
         ratelimited_view = xmlrpc.ratelimit()(view)
-        context = pretend.stub()
         pyramid_request.remote_addr = "127.0.0.1"
-        fake_rate_limiter = pretend.stub(
-            test=lambda *a: False,
-            hit=lambda *a: True,
-            resets_in=lambda *a: None,
-            get_window_stats=lambda *a: [],
-        )
+        fake_rate_limiter = mocker.create_autospec(RateLimiter, instance=True)
+        fake_rate_limiter.test.return_value = False
+        fake_rate_limiter.hit.return_value = True
+        fake_rate_limiter.resets_in.return_value = None
+        fake_rate_limiter.get_window_stats.return_value = []
         pyramid_services.register_service(
             fake_rate_limiter, IRateLimiter, None, name="xmlrpc.client"
         )
         with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
-            ratelimited_view(context, pyramid_request)
+            ratelimited_view(mocker.sentinel.context, pyramid_request)
 
         assert exc.value.faultString == (
             "HTTPTooManyRequests: The action could not be performed because there "
             "were too many requests by the client."
         )
 
-        assert metrics.increment.calls == [
-            pretend.call("warehouse.xmlrpc.ratelimiter.exceeded", tags=[])
-        ]
+        metrics.increment.assert_called_once_with(
+            "warehouse.xmlrpc.ratelimiter.exceeded", tags=[]
+        )
 
     @pytest.mark.parametrize(
         ("resets_in_delta", "expected"),
@@ -89,25 +89,29 @@ class TestRateLimiting:
         ],
     )
     def test_ratelimiting_block_with_hint(
-        self, pyramid_services, pyramid_request, metrics, resets_in_delta, expected
+        self,
+        pyramid_services,
+        pyramid_request,
+        metrics,
+        mocker,
+        resets_in_delta,
+        expected,
     ):
         def view(context, request):
             pytest.fail("view should not be called")
 
         ratelimited_view = xmlrpc.ratelimit()(view)
-        context = pretend.stub()
         pyramid_request.remote_addr = "127.0.0.1"
-        fake_rate_limiter = pretend.stub(
-            test=lambda *a: False,
-            hit=lambda *a: True,
-            resets_in=lambda *a: resets_in_delta,
-            get_window_stats=lambda *a: [],
-        )
+        fake_rate_limiter = mocker.create_autospec(RateLimiter, instance=True)
+        fake_rate_limiter.test.return_value = False
+        fake_rate_limiter.hit.return_value = True
+        fake_rate_limiter.resets_in.return_value = resets_in_delta
+        fake_rate_limiter.get_window_stats.return_value = []
         pyramid_services.register_service(
             fake_rate_limiter, IRateLimiter, None, name="xmlrpc.client"
         )
         with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
-            ratelimited_view(context, pyramid_request)
+            ratelimited_view(mocker.sentinel.context, pyramid_request)
 
         assert exc.value.faultString == (
             "HTTPTooManyRequests: The action could not be performed because there "
@@ -115,9 +119,9 @@ class TestRateLimiting:
             f"{expected} seconds."
         )
 
-        assert metrics.increment.calls == [
-            pretend.call("warehouse.xmlrpc.ratelimiter.exceeded", tags=[])
-        ]
+        metrics.increment.assert_called_once_with(
+            "warehouse.xmlrpc.ratelimiter.exceeded", tags=[]
+        )
 
 
 class TestSearch:
@@ -139,7 +143,7 @@ class TestSearch:
             "https://warehouse.pypa.io/api-reference/xml-rpc.html#deprecated-methods "
             "for more information."
         )
-        assert metrics.increment.calls == []
+        metrics.increment.assert_not_called()
 
 
 def test_list_packages(pyramid_request):

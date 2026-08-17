@@ -2,21 +2,24 @@
 
 @use "sass:color";
 
-// SETTINGS - COLOURS
+// SETTINGS - COLORS
 
 $primary-color:               #006dad;
+$primary-color-light-border:  color.mix($primary-color, white, 20%);
 $primary-color-light:         color.adjust($primary-color, $lightness: 45%);
 $primary-color-dark:          color.adjust($primary-color, $lightness: -10%);
 $success-color:               #148024;
-$warning-color:               #664e04;
-$warning-background-color:    #ffdf76;
-$danger-color:                #d52d40;
+$warning-color:               #c2410c;
+$notification-color:          #feecbe;
+$danger-color:                #dc2626;
 $highlight-color:             #ffd343;
 $white:                       #fff;
 $black:                       #000;
 $background-color:            #fdfdfd;
+$off-white:                   #f7f7f7;
 $base-grey:                   #ececec;
 $light-grey:                  #bbb;
+$mid-grey:                    #616161;
 $border-color:                color.adjust($base-grey, $lightness: -10%);
 $accessible-border-color:     #949494;
 $text-color:                  #464646;

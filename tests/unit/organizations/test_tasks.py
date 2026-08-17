@@ -2,6 +2,8 @@
 
 import datetime
 
+import stripe
+
 from warehouse.accounts.interfaces import ITokenService, TokenExpired
 from warehouse.events.tags import EventTag
 from warehouse.organizations.models import (
@@ -17,7 +19,6 @@ from warehouse.organizations.tasks import (
     update_organization_invitation_status,
     update_organziation_subscription_usage_record,
 )
-from warehouse.subscriptions.interfaces import IBillingService
 from warehouse.subscriptions.models import StripeSubscriptionStatus
 
 from ...common.db.organizations import (
@@ -207,7 +208,7 @@ class TestUpdateOrganizationSubscriptionUsage:
         )
         StripeSubscriptionItemFactory.create(subscription=subscription)
 
-        mocker.patch.object(
+        create_usage_record = mocker.patch.object(
             billing_service,
             "create_or_update_usage_record",
             return_value={
@@ -215,11 +216,63 @@ class TestUpdateOrganizationSubscriptionUsage:
                 "organization_member_count": "5",
             },
         )
-        find_service = mocker.spy(db_request, "find_service")
 
         update_organziation_subscription_usage_record(db_request)
 
-        find_service.assert_called_once_with(IBillingService, context=None)
+        # Only the active subscription is reported; the canceled one is skipped.
+        create_usage_record.assert_called_once()
+
+    def test_continues_when_a_subscription_fails(
+        self, db_request, billing_service, metrics, mocker
+    ):
+        # First usage report raises; the batch must still report the second org.
+        for _ in range(2):
+            organization = OrganizationFactory.create()
+            OrganizationRoleFactory(
+                organization=organization,
+                user=UserFactory.create(),
+                role_name=OrganizationRoleType.Owner,
+            )
+            stripe_customer = StripeCustomerFactory.create()
+            OrganizationStripeCustomerFactory.create(
+                organization=organization, customer=stripe_customer
+            )
+            subscription_price = StripeSubscriptionPriceFactory.create(
+                subscription_product=StripeSubscriptionProductFactory.create()
+            )
+            subscription = StripeSubscriptionFactory.create(
+                customer=stripe_customer, subscription_price=subscription_price
+            )
+            OrganizationStripeSubscriptionFactory.create(
+                organization=organization, subscription=subscription
+            )
+            StripeSubscriptionItemFactory.create(subscription=subscription)
+
+        create_usage_record = mocker.patch.object(
+            billing_service,
+            "create_or_update_usage_record",
+            side_effect=[
+                stripe.error.InvalidRequestError(
+                    "Cannot create the usage record because the subscription "
+                    "has been canceled.",
+                    None,
+                ),
+                {"subscription_item_id": "si_1234", "organization_member_count": "1"},
+            ],
+        )
+        increment = mocker.spy(metrics, "increment")
+
+        update_organziation_subscription_usage_record(db_request)
+
+        # Both subscriptions are attempted even though the first one raised.
+        assert create_usage_record.call_count == 2
+        increment.assert_any_call(
+            "warehouse.organizations.subscription.usage_record.error",
+            tags=["error_type:InvalidRequestError"],
+        )
+        increment.assert_any_call(
+            "warehouse.organizations.subscription.usage_record.updated"
+        )
 
 
 class TestNotifyOrganizationsRequiringSubscription:

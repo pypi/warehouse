@@ -24,9 +24,12 @@ import "admin-lte/build/js/AdminLTE";
 import "./treeview";
 import "./observer_charts";
 import "./project_charts";
+import "./journals";
+import "./tabulator";
 
 // Get our timeago function
 import timeAgo from "warehouse/utils/timeago";
+import filesize from "./utils/filesize";
 
 // Human-readable timestamps
 $(document).ready(function() {
@@ -387,11 +390,7 @@ if (userFilesModal.length) {
         let content = data.files.join("\n");
         $("#userFilesContent").text(content);
 
-        let sizes = ["B", "KiB", "MiB", "GiB", "TiB"];
-        let size = data.total_size;
-        let i = 0;
-        while (size >= 1024 && i < sizes.length - 1) { size /= 1024; i++; }
-        let sizeStr = (i === 0 ? size : size.toFixed(1)) + " " + sizes[i];
+        let sizeStr = filesize(data.total_size);
 
         $("#userFilesSummary").html(
           "<strong>" + data.file_count + "</strong> files (" +

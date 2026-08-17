@@ -27,6 +27,8 @@ from warehouse.organizations.models import (
     TeamRole,
 )
 from warehouse.packaging import Project, Role
+from warehouse.subscriptions import IBillingService
+from warehouse.subscriptions.models import StripeSubscriptionStatus
 
 if typing.TYPE_CHECKING:
     from pyramid.request import Request
@@ -49,6 +51,45 @@ def organization_owners(request: Request, organization: Organization) -> list[Us
         .subquery()
     )
     return request.db.query(User).join(owner_roles, User.id == owner_roles.c.id).all()
+
+
+def deactivate_organization_for_owner_removal(
+    request: Request,
+    organization: Organization,
+    *,
+    target_user: User,
+    reason: str,
+) -> None:
+    """Cancel billing, deactivate, and log an organization whose sole owner is
+    being removed.
+    """
+    # Stripe raises when canceling a subscription already in a terminal
+    # state, and warehouse retains those subscription rows.
+    cancelable_subscriptions = [
+        subscription
+        for subscription in organization.subscriptions
+        if subscription.status
+        not in (
+            StripeSubscriptionStatus.Canceled.value,
+            StripeSubscriptionStatus.IncompleteExpired.value,
+        )
+    ]
+    if cancelable_subscriptions:
+        billing_service = request.find_service(IBillingService, context=None)
+        for subscription in cancelable_subscriptions:
+            billing_service.cancel_subscription(subscription.subscription_id)
+
+    organization.record_event(
+        tag=EventTag.Organization.OrganizationRoleRemove,
+        request=request,
+        additional={
+            "submitted_by_user_id": str(request.user.id),
+            "role_name": OrganizationRoleType.Owner.value,
+            "target_user_id": str(target_user.id),
+            "reason": reason,
+        },
+    )
+    organization.is_active = False
 
 
 def add_organization_project_and_notify(

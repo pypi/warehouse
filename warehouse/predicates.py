@@ -100,6 +100,12 @@ class ActiveOrganizationPredicate:
 
         if organization.is_in_good_standing():
             return True
+        request.session.flash(
+            "This organization's billing is inactive. Activate billing to "
+            "manage its projects, teams, and members.",
+            queue="error",
+            allow_duplicate=False,
+        )
         raise HTTPSeeOther(request.route_path("manage.organizations"))
 
 

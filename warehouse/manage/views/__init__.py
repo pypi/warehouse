@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import base64
+import datetime
 import io
 
 import pyqrcode
@@ -357,6 +358,10 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
         return user_projects(request=self.request)["projects_sole_owned"]
 
     @property
+    def sole_organizations(self):
+        return user_organizations(request=self.request)["organizations_with_sole_owner"]
+
+    @property
     def default_response(self):
         return {
             "save_account_form": SaveAccountForm(
@@ -377,6 +382,7 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
             ),
             "account_associations": self.account_associations,
             "active_projects": self.active_projects,
+            "sole_organizations": self.sole_organizations,
         }
 
     @view_config(request_method="GET")
@@ -545,6 +551,12 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
         if self.active_projects:
             self.request.session.flash(
                 "Cannot delete account with active project ownerships", queue="error"
+            )
+            return self.default_response
+
+        if self.sole_organizations:
+            self.request.session.flash(
+                "Cannot delete account with sole organization ownerships", queue="error"
             )
             return self.default_response
 
@@ -1172,8 +1184,20 @@ def manage_projects(request):
     project_invites = [
         (role_invite.project, role_invite.token) for role_invite in project_invites
     ]
+
+    archived_statuses = {LifecycleStatus.Archived, LifecycleStatus.ArchivedNoindex}
+    projects_sorted = sorted(projects, key=_key, reverse=True)
     return {
-        "projects": sorted(projects, key=_key, reverse=True),
+        "projects_active": [
+            project
+            for project in projects_sorted
+            if project.lifecycle_status not in archived_statuses
+        ],
+        "projects_archived": [
+            project
+            for project in projects_sorted
+            if project.lifecycle_status in archived_statuses
+        ],
         "projects_owned": projects_owned,
         "projects_sole_owned": projects_sole_owned,
         "project_invites": project_invites,
@@ -1485,6 +1509,7 @@ class ManageProjectRelease:
 
         self.release.yanked = True
         self.release.yanked_reason = yanked_reason
+        self.release.yanked_date = datetime.datetime.now(datetime.UTC)
 
         self.request.session.flash(
             self.request._(f"Yanked release {self.release.version!r}"), queue="success"
@@ -1571,6 +1596,7 @@ class ManageProjectRelease:
 
         self.release.yanked = False
         self.release.yanked_reason = ""
+        self.release.yanked_date = None
 
         self.request.session.flash(
             self.request._(f"Un-yanked release {self.release.version!r}"),

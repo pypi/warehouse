@@ -320,7 +320,7 @@ class ManageOrganizationApplicationViews:
     context=Organization,
     renderer="warehouse:templates/manage/organization/settings.html",
     uses_session=True,
-    require_active_organization=True,
+    require_active_organization=False,  # Allow deleting org with inactive billing.
     require_csrf=True,
     require_methods=False,
     permission=Permissions.OrganizationsManage,
@@ -1642,6 +1642,7 @@ def transfer_organization_project(project, request):
     context=Organization,
     renderer="manage/organization/publishing.html",
     uses_session=True,
+    require_active_organization=True,
     require_csrf=True,
     require_methods=False,
     permission=Permissions.OrganizationsManage,

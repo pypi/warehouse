@@ -2,12 +2,16 @@
 
 import datetime
 
+import stripe
+import structlog
+
 from sqlalchemy.orm import joinedload
 
 from warehouse import tasks
 from warehouse.accounts.interfaces import ITokenService, TokenExpired
 from warehouse.email import send_organization_subscription_required_email
 from warehouse.events.tags import EventTag
+from warehouse.metrics import IMetricsService
 from warehouse.organizations.models import (
     Organization,
     OrganizationApplication,
@@ -22,6 +26,8 @@ from warehouse.subscriptions.models import StripeSubscriptionStatus
 
 CLEANUP_AFTER = datetime.timedelta(days=30)
 SUBSCRIPTION_GRACE_PERIOD = datetime.timedelta(days=30)
+
+logger = structlog.get_logger(__name__)
 
 
 @tasks.task(ignore_result=True, acks_late=True)
@@ -77,13 +83,33 @@ def update_organziation_subscription_usage_record(request):
     # Get organizations with a subscription
     organization_subscriptions = request.db.query(OrganizationStripeSubscription).all()
 
+    billing_service = request.find_service(IBillingService, context=None)
+    metrics = request.find_service(IMetricsService, context=None)
+
     # Call the Billing API to update the usage record of this subscription item
     for org_subscription in organization_subscriptions:
-        if org_subscription.subscription.status != StripeSubscriptionStatus.Canceled:
-            billing_service = request.find_service(IBillingService, context=None)
+        if org_subscription.subscription.status == StripeSubscriptionStatus.Canceled:
+            continue
+        try:
             billing_service.create_or_update_usage_record(
                 org_subscription.subscription.subscription_item.subscription_item_id,
                 len(org_subscription.organization.users),
+            )
+        except stripe.error.StripeError as exc:
+            # Isolate per-subscription failures so one (e.g. canceled on Stripe with a
+            # stale local status) can't abort usage reporting for every other org.
+            logger.exception(
+                "Failed to update usage record",
+                organization_name=org_subscription.organization.name,
+                subscription_id=org_subscription.subscription.subscription_id,
+            )
+            metrics.increment(
+                "warehouse.organizations.subscription.usage_record.error",
+                tags=[f"error_type:{exc.__class__.__name__}"],
+            )
+        else:
+            metrics.increment(
+                "warehouse.organizations.subscription.usage_record.updated"
             )
 
 

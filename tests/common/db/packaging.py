@@ -24,6 +24,7 @@ from warehouse.packaging.models import (
 )
 from warehouse.utils import readme
 
+from ..attestations import fake_provenance
 from .accounts import UserFactory
 from .base import WarehouseFactory
 from .observations import ObserverFactory
@@ -138,8 +139,31 @@ class ProvenanceFactory(WarehouseFactory):
     class Meta:
         model = Provenance
 
+    class Params:
+        # When set, build a valid PEP 740 provenance object instead of
+        # arbitrary JSON, e.g. `predicate_types=[AttestationType.PYPI_PUBLISH_V1]`.
+        predicate_types = None
+        repository = "example-org/example"
+        workflow = "release.yml"
+        # Defaults to a GitHub publisher built from `repository` and `workflow`.
+        publisher = None
+
     file = factory.SubFactory(FileFactory)
-    provenance = factory.Faker("json")
+    provenance = factory.LazyAttribute(
+        lambda o: (
+            fake_provenance(
+                o.file.filename,
+                o.file.sha256_digest,
+                o.predicate_types,
+                o.repository,
+                o.workflow,
+                o.file.release.version,
+                o.publisher,
+            )
+            if o.predicate_types
+            else fake.json()
+        )
+    )
 
 
 class FileEventFactory(WarehouseFactory):
