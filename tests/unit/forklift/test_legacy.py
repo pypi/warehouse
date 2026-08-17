@@ -521,7 +521,7 @@ class TestFileValidation:
         ) == (
             False,
             (
-                "tar not accepted: Sparse members are not allowed. "
+                "tar archive not accepted: Sparse members are not allowed. "
                 "See https://docs.pypi.org/archives for more information"
             ),
         )
