@@ -11,6 +11,7 @@ import pytest
 
 from pyramid import renderers
 from pyramid.authorization import Allow, Authenticated
+from pyramid.exceptions import ConfigurationError
 from pyramid.tweens import EXCVIEW
 
 from warehouse import config
@@ -555,6 +556,16 @@ def test_configure(monkeypatch, mocker, settings, environment):
     ]
 
     assert xmlrpc_renderer_cls.call_args_list == [mocker.call(allow_none=True)]
+
+
+@pytest.mark.parametrize("permit", ["versions", 42, {"versions", 1}])
+def test_reject_duplicate_post_keys_view_rejects_invalid_permit(permit, mocker):
+    info = mocker.Mock(
+        exception_only=False, options={"permit_duplicate_post_keys": permit}
+    )
+
+    with pytest.raises(ConfigurationError):
+        config.reject_duplicate_post_keys_view(mocker.sentinel.view, info)
 
 
 def test_root_factory_access_control_list():
