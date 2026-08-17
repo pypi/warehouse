@@ -27,7 +27,7 @@
   {% set login_url = request.route_path('accounts.login', _query={'next': next_url}) if next_url else request.route_path('accounts.login') %}
   <div id="user-indicator"
        class="horizontal-menu horizontal-menu--light horizontal-menu--tall">
-    <nav class="horizontal-menu horizontal-menu--light horizontal-menu--tall hide-on-tablet"
+    <nav class="horizontal-menu horizontal-menu--light horizontal-menu--tall hide-below-desktop"
          aria-label="{% trans %}Main navigation{% endtrans %}">
       <ul>
         <li class="horizontal-menu__item">
@@ -49,7 +49,7 @@
         </li>
       </ul>
     </nav>
-    <nav class="dropdown dropdown--on-menu hidden show-on-tablet"
+    <nav class="dropdown dropdown--on-menu hidden show-below-desktop"
          aria-label="{% trans %}Main navigation{% endtrans %}">
       <button type="button"
               class="horizontal-menu__link dropdown__trigger"
