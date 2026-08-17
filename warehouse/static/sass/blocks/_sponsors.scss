@@ -117,12 +117,10 @@
     padding: 6px 10px;
     margin-bottom: 10px;
 
-    .sponsors__image {
+    img {
       width: auto;
       height: 24px;
       max-width: 96px;
-      margin-bottom: 0;
-      opacity: 1;
     }
 
     @media only screen and (max-width: breakpoints.$tablet) {
