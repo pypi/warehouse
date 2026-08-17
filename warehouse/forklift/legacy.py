@@ -457,6 +457,12 @@ def _is_valid_dist_file(
                         )
                         return False, yara_match.message
 
+        except scanner.TarPolicyError as exc:
+            metrics.increment(
+                "warehouse.upload.tarfile.policy_error",
+                tags=[f"reason:{exc.reason}"],
+            )
+            return False, str(exc)
         except tarfile.ReadError, EOFError:
             return False, None
 

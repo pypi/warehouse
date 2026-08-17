@@ -55,7 +55,7 @@ from warehouse.packaging.models import (
     Role,
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
-from warehouse.utils.scanner import YaraMatch
+from warehouse.utils.scanner import TarPolicyError, YaraMatch
 
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.classifiers import ClassifierFactory
@@ -482,6 +482,36 @@ class TestFileValidation:
             False,
             "Content not allowed.",
         )
+
+    def test_tar_policy_error_in_tarball(self, tmpdir, monkeypatch):
+        tar_fn = str(tmpdir.join("test.tar.gz"))
+        data_file = str(tmpdir.join("dummy_data"))
+        metrics = NullMetrics()
+        metrics.increment = pretend.call_recorder(lambda *args, **kwargs: None)
+        with open(data_file, "wb") as fp:
+            fp.write(b"content")
+        with tarfile.open(tar_fn, "w:gz") as tar:
+            tar.add(data_file, arcname="package/PKG-INFO")
+            tar.add(data_file, arcname="package/data.txt")
+
+        def reject_tar(*_args, **_kwargs):
+            raise TarPolicyError(
+                "sdists may not contain sparse members",
+                reason="sparse-member",
+            )
+
+        monkeypatch.setattr("warehouse.utils.scanner.check_members", reject_tar)
+
+        assert legacy._is_valid_dist_file(tar_fn, "sdist", metrics) == (
+            False,
+            "sdists may not contain sparse members",
+        )
+        assert metrics.increment.calls == [
+            pretend.call(
+                "warehouse.upload.tarfile.policy_error",
+                tags=["reason:sparse-member"],
+            )
+        ]
 
     def test_scan_disabled_skips_yara_in_wheel(self, tmpdir, monkeypatch):
         f = str(tmpdir.join("test-1.0-py3-none-any.whl"))

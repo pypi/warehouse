@@ -51,6 +51,24 @@ def _make_tarball(tmp_path, files_dict, name="fake_package-1.0"):
     return tar_path
 
 
+def _make_sparse_tarball(tar_format):
+    tarball = io.BytesIO()
+    with tarfile.open(fileobj=tarball, mode="w", format=tar_format) as tar:
+        info = tarfile.TarInfo(name="fake_package-1.0/sparse.dat")
+        if tar_format == tarfile.PAX_FORMAT:
+            info.size = 1
+            info.pax_headers = {
+                "GNU.sparse.map": "0,1",
+                "GNU.sparse.size": "10",
+            }
+        else:
+            info.type = tarfile.GNUTYPE_SPARSE
+            info.size = 0
+        tar.addfile(info, io.BytesIO(b"x"))
+    tarball.seek(0)
+    return tarball
+
+
 class TestCompileRules:
     def test_succeeds(self):
         assert scanner.compile_rules() is not None
@@ -96,6 +114,34 @@ class TestGetRuleMessage:
         )
         matched = rules.scan(b"trigger").matching_rules[0]
         assert scanner._get_rule_message(matched) == "bad stuff"
+
+
+class TestIterTarMembers:
+    @pytest.mark.parametrize(
+        ("tar_format", "member_type"),
+        [
+            pytest.param(tarfile.PAX_FORMAT, tarfile.REGTYPE, id="pax"),
+            pytest.param(
+                tarfile.GNU_FORMAT,
+                tarfile.GNUTYPE_SPARSE,
+                id="gnu",
+            ),
+        ],
+    )
+    def test_rejects_sparse_members(self, tar_format, member_type):
+        tarball = _make_sparse_tarball(tar_format)
+
+        with tarfile.open(fileobj=tarball) as tar:
+            member = tar.getmember("fake_package-1.0/sparse.dat")
+            assert member.type == member_type
+            assert member.issparse()
+
+            with pytest.raises(
+                scanner.TarPolicyError,
+                match="sdists may not contain sparse members",
+            ) as exc_info:
+                list(scanner.iter_tar_members(tar))
+            assert exc_info.value.reason == "sparse-member"
 
 
 class TestCheckMembers:

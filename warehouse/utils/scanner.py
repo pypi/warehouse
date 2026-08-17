@@ -36,6 +36,14 @@ class YaraMatch:
     message: str  # User-facing message from rule metadata
 
 
+class TarPolicyError(Exception):
+    """Raised when a tar archive violates an sdist policy."""
+
+    def __init__(self, message: str, *, reason: str) -> None:
+        super().__init__(message)
+        self.reason = reason
+
+
 def _get_rule_message(rule: yara_x.Rule) -> str:
     """Extract the ``message`` metadata from a matched YARA rule.
 
@@ -88,6 +96,15 @@ def iter_zip_members(zfp: zipfile.ZipFile) -> typing.Iterator[tuple[str, int, by
 def iter_tar_members(tar: tarfile.TarFile) -> typing.Iterator[tuple[str, int, bytes]]:
     """Yield (name, size, data) for scannable files in a TarFile."""
     for member in tar.getmembers():
+        # Reject sparse members (whether GNU or pax-style) outright: these aren't
+        # compatible with PEP 625 (which stipulates pure pax) and have no business being
+        # in sdists anyways.
+        if member.issparse():
+            raise TarPolicyError(
+                "sdists may not contain sparse members",
+                reason="sparse-member",
+            )
+
         if not member.isfile():
             continue
         ext = Path(member.name).suffix.lower()
