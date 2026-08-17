@@ -72,7 +72,7 @@ format, and are subject to the following restrictions.
 Source distributions may not contain GNU or pax-style sparse
 members. These are not allowed in archives on PyPI because
 they're not (directly) part of the pax standard,
-and are handling in various inconsistent ways by different
+and are handled in various inconsistent ways by different
 tar parsers.
 
 ## Further reading
