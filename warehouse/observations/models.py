@@ -105,6 +105,7 @@ class ObservationKind(enum.Enum):
     IsDependencyConfusion = ("is_dependency_confusion", "Is Dependency Confusion")
     IsMalware = ("is_malware", "Is Malware")
     IsSpam = ("is_spam", "Is Spam")
+    IsTypoSnyperMatch = ("is_typosnyper_match", "Is TypoSnyper Match")
     SomethingElse = ("something_else", "Something Else")
 
     # Accounts

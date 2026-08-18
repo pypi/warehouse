@@ -363,7 +363,7 @@ below describe the setup process for each supported Trusted Publisher.
         The strings after `platforms = [` are the UUIDs of the supported
         platforms you want to build a wheel for. A list of all supported platforms can
         be found
-        [here](https://docs.activestate.com/platform/updates/supported-platforms).
+        [here](https://docs.activestate.com/curated-catalog/FAQs/#what-operating-systems-are-supported).
         Select all applicable to your project from the list provided.
 
     !!! note

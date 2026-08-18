@@ -483,6 +483,55 @@ class TestFileValidation:
             "Content not allowed.",
         )
 
+    @pytest.mark.parametrize(
+        "tar_format",
+        [
+            pytest.param(tarfile.PAX_FORMAT, id="pax"),
+            pytest.param(tarfile.GNU_FORMAT, id="gnu"),
+        ],
+    )
+    @pytest.mark.parametrize("scan", [True, False], ids=["scan", "no-scan"])
+    def test_sparse_member_in_tarball(self, tmpdir, tar_format, scan):
+        tar_fn = str(tmpdir.join("test.tar.gz"))
+        metrics = NullMetrics()
+        metrics.increment = pretend.call_recorder(lambda *args, **kwargs: None)
+        with tarfile.open(tar_fn, "w:gz", format=tar_format) as tar:
+            pkg_info = b"metadata"
+            info = tarfile.TarInfo(name="package/PKG-INFO")
+            info.size = len(pkg_info)
+            tar.addfile(info, io.BytesIO(pkg_info))
+
+            info = tarfile.TarInfo(name="package/sparse.dat")
+            if tar_format == tarfile.PAX_FORMAT:
+                info.size = 1
+                info.pax_headers = {
+                    "GNU.sparse.map": "0,1",
+                    "GNU.sparse.size": "10",
+                }
+            else:
+                info.type = tarfile.GNUTYPE_SPARSE
+                info.size = 0
+            tar.addfile(info, io.BytesIO(b"x"))
+
+        assert legacy._is_valid_dist_file(
+            tar_fn,
+            "sdist",
+            metrics,
+            scan=scan,
+        ) == (
+            False,
+            (
+                "tar archive not accepted: Sparse members are not allowed. "
+                "See https://docs.pypi.org/archives for more information"
+            ),
+        )
+        assert metrics.increment.calls == [
+            pretend.call(
+                "warehouse.upload.tarfile.policy_error",
+                tags=["reason:sparse-member"],
+            )
+        ]
+
     def test_scan_disabled_skips_yara_in_wheel(self, tmpdir, monkeypatch):
         f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
         with zipfile.ZipFile(f, "w") as zfp:
@@ -2499,7 +2548,7 @@ class TestFileUpload:
                 }[filetype],
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2539,7 +2588,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2582,7 +2631,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2621,7 +2670,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2662,7 +2711,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2706,7 +2755,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2755,7 +2804,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": SimpleNamespace(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2801,7 +2850,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": SimpleNamespace(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2852,7 +2901,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": SimpleNamespace(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2892,7 +2941,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": SimpleNamespace(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
