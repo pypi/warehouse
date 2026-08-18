@@ -91,23 +91,23 @@
   }
 }
 
-// Header right-hand cluster: lays the main nav (or account menu) and the
-// language dropdown out on a single row instead of stacking them.
 #user-indicator {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
   column-gap: grid.$half-spacing-unit;
+}
 
+.split-layout:has(.search-form--primary) #user-indicator {
   .horizontal-menu.hide-below-desktop {
-    @media screen and (min-width: breakpoints.$desktop + 1px) and (max-width: breakpoints.$large-desktop) {
+    @media screen and (min-width: breakpoints.$desktop + 1px) {
       display: none;
     }
   }
 
   .dropdown--on-menu.show-below-desktop {
-    @media screen and (min-width: breakpoints.$desktop + 1px) and (max-width: breakpoints.$large-desktop) {
+    @media screen and (min-width: breakpoints.$desktop + 1px) {
       display: block;
     }
   }
