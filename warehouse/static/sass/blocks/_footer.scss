@@ -64,8 +64,32 @@
     gap: grid.$half-spacing-unit;
 
     @media only screen and (max-width: breakpoints.$tablet) {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      column-gap: grid.$spacing-unit * 1.5;
+      row-gap: grid.$half-spacing-unit;
+      align-items: start;
       flex-basis: 100%;
       max-width: 100%;
+
+      .footer__brand-logo {
+        grid-column: 1 / -1;
+      }
+
+      .footer__brand-actions {
+        grid-column: 2;
+      }
+    }
+  }
+
+  &__brand-actions {
+    display: contents;
+
+    @media only screen and (max-width: breakpoints.$tablet) {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: grid.$half-spacing-unit;
     }
   }
 
@@ -124,6 +148,10 @@
       background-color: color.adjust(colors.$white, $alpha: -0.88);
       border-color: color.adjust(colors.$white, $alpha: -0.3);
       text-decoration: none;
+    }
+
+    @media only screen and (max-width: breakpoints.$tablet) {
+      margin-top: 0;
     }
   }
 
