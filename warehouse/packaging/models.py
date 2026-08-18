@@ -6,7 +6,7 @@ import datetime
 import enum
 import typing
 
-from collections import Counter, OrderedDict
+from collections import OrderedDict
 from functools import cached_property
 from uuid import UUID
 
@@ -60,8 +60,7 @@ from warehouse.attestations.models import (
     ProvenanceComparison,
     ProvenanceCounts,
     ProvenanceStatus,
-    PublisherSource,
-    get_provenance_sources,
+    counts_from_provenance,
 )
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
@@ -1003,25 +1002,7 @@ class Release(HasObservations, db.Model):
             .options(orm.undefer(Provenance.provenance))
             .all()
         )
-        source_counter: Counter[PublisherSource] = Counter()
-        workflow_counter: Counter[str] = Counter()
-        unreadable_files = 0
-        for provenance_object in provenance_objects:
-            extracted = get_provenance_sources(provenance_object)
-            if extracted is None:
-                unreadable_files += 1
-                continue
-            sources, workflows = extracted
-            source_counter.update(sources)
-            workflow_counter.update(workflows)
-
-        return ProvenanceCounts(
-            total_files=total_files,
-            files_with_provenance=len(provenance_objects),
-            unreadable_files=unreadable_files,
-            source_counts=dict(source_counter),
-            workflow_counts=dict(workflow_counter),
-        )
+        return counts_from_provenance(total_files, provenance_objects)
 
     @cached_property
     def provenance_status(self) -> ProvenanceStatus | None:

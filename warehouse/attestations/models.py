@@ -5,6 +5,7 @@ from __future__ import annotations
 import enum
 import typing
 
+from collections import Counter
 from dataclasses import dataclass, field
 from functools import cached_property
 from uuid import UUID
@@ -264,3 +265,35 @@ def get_provenance_sources(
         if workflow := publisher_workflow(bundle.publisher):
             workflows.add(workflow)
     return sources, workflows
+
+
+def counts_from_provenance(
+    total_files: int, provenance_objects: list[Provenance]
+) -> ProvenanceCounts:
+    """
+    Fold one release's provenance objects into its counts.
+
+    Kept beside the counts it builds rather than on the `Release`, so that a
+    caller counting many releases at once folds each of them the same way a
+    single release does.
+    """
+    source_counter: Counter[PublisherSource] = Counter()
+    workflow_counter: Counter[str] = Counter()
+    unreadable_files = 0
+
+    for provenance_object in provenance_objects:
+        extracted = get_provenance_sources(provenance_object)
+        if extracted is None:
+            unreadable_files += 1
+            continue
+        sources, workflows = extracted
+        source_counter.update(sources)
+        workflow_counter.update(workflows)
+
+    return ProvenanceCounts(
+        total_files=total_files,
+        files_with_provenance=len(provenance_objects),
+        unreadable_files=unreadable_files,
+        source_counts=dict(source_counter),
+        workflow_counts=dict(workflow_counter),
+    )
