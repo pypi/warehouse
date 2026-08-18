@@ -99,4 +99,16 @@
   align-items: center;
   justify-content: flex-end;
   column-gap: grid.$half-spacing-unit;
+
+  .horizontal-menu.hide-below-desktop {
+    @media screen and (min-width: breakpoints.$desktop + 1px) and (max-width: breakpoints.$large-desktop) {
+      display: none;
+    }
+  }
+
+  .dropdown--on-menu.show-below-desktop {
+    @media screen and (min-width: breakpoints.$desktop + 1px) and (max-width: breakpoints.$large-desktop) {
+      display: block;
+    }
+  }
 }
