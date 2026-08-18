@@ -21,7 +21,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from warehouse import db
 
 if typing.TYPE_CHECKING:
-    from warehouse.packaging.models import File, Release
+    from warehouse.packaging.models import File
 
 logger = structlog.get_logger(__name__)
 
@@ -101,9 +101,15 @@ class ProvenanceCounts:
 
 @dataclass(frozen=True)
 class ProvenanceComparison:
-    """The release a status is measured against, and what it attested to."""
+    """
+    The release a status is measured against, and what it attested to.
 
-    release: Release
+    A version rather than a `Release`: it is all a template can render or
+    route to, and carrying the ORM object would force a caller building
+    statuses in bulk to load every release row to fill it.
+    """
+
+    version: str
     counts: ProvenanceCounts
 
 
