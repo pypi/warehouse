@@ -523,6 +523,92 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             .all()
         )
 
+    @cached_property
+    def provenance_counts(self) -> dict[str, ProvenanceCounts]:
+        """
+        Count the files, sources and workflows every release in this Project
+        attests to.
+        """
+        session = orm_session_from_obj(self)
+        rows = (
+            session.query(
+                Release.version,
+                File.id,
+                Provenance,
+            )
+            .select_from(Release)
+            .outerjoin(File, File.release_id == Release.id)
+            .outerjoin(Provenance, Provenance.file_id == File.id)
+            .filter(Release.project_id == self.id)
+            .options(orm.undefer(Provenance.provenance))
+            .all()
+        )
+
+        counts_by_version: dict[
+            str,
+            tuple[
+                int,  # total_files
+                int,  # files_with_provenance
+                int,  # unreadable_files
+                Counter[PublisherSource],  # source_counter
+                Counter[str],  # workflow_counter
+            ],
+        ] = {}
+
+        for version, file_id, provenance_object in rows:
+            if version not in counts_by_version:
+                counts_by_version[version] = (
+                    0,
+                    0,
+                    0,
+                    Counter(),
+                    Counter(),
+                )
+            (
+                total_files,
+                files_with_provenance,
+                unreadable_files,
+                source_counter,
+                workflow_counter,
+            ) = counts_by_version[version]
+
+            if file_id is not None:
+                total_files += 1
+                if provenance_object is not None:
+                    files_with_provenance += 1
+                    extracted = get_provenance_sources(provenance_object)
+                    if extracted is None:
+                        unreadable_files += 1
+                    else:
+                        sources, workflows = extracted
+                        source_counter.update(sources)
+                        workflow_counter.update(workflows)
+
+            counts_by_version[version] = (
+                total_files,
+                files_with_provenance,
+                unreadable_files,
+                source_counter,
+                workflow_counter,
+            )
+
+        return {
+            version: ProvenanceCounts(
+                total_files=total_files,
+                files_with_provenance=files_with_provenance,
+                unreadable_files=unreadable_files,
+                source_counts=dict(source_counter),
+                workflow_counts=dict(workflow_counter),
+            )
+            for version, (
+                total_files,
+                files_with_provenance,
+                unreadable_files,
+                source_counter,
+                workflow_counter,
+            ) in counts_by_version.items()
+        }
+
     @property
     def project_status(self) -> ProjectStatusMarker:
         """

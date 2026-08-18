@@ -11,7 +11,11 @@ import pytest
 from pyramid.authorization import Allow, Authenticated
 from pyramid.location import lineage
 
-from warehouse.attestations.models import ProvenanceState, PublisherSource
+from warehouse.attestations.models import (
+    ProvenanceCounts,
+    ProvenanceState,
+    PublisherSource,
+)
 from warehouse.authnz import Permissions
 from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GIB, ONE_MIB
 from warehouse.macaroons import caveats
@@ -617,6 +621,79 @@ class TestProject:
         )
 
         assert project.latest_version is None
+
+    def test_provenance_counts(self, db_session, query_recorder, mocker):
+        empty_project = DBProjectFactory.create()
+        assert empty_project.provenance_counts == {}
+
+        project = DBProjectFactory.create()
+        DBReleaseFactory.create(project=project, version="1.0")
+
+        rel_no_prov = DBReleaseFactory.create(project=project, version="2.0")
+        DBFileFactory.create(release=rel_no_prov)
+        DBFileFactory.create(release=rel_no_prov)
+
+        rel_prov = DBReleaseFactory.create(project=project, version="3.0")
+        _provenanced_file(
+            rel_prov,
+            publisher=pypi_attestations.GitHubPublisher(
+                repository="foo/bar", workflow="publish.yml"
+            ),
+        )
+
+        rel_mixed = DBReleaseFactory.create(project=project, version="4.0")
+        _provenanced_file(
+            rel_mixed,
+            publisher=pypi_attestations.GitHubPublisher(
+                repository="foo/baz", workflow="publish.yml"
+            ),
+        )
+        DBFileFactory.create(release=rel_mixed)
+        file_unreadable = DBFileFactory.create(release=rel_mixed)
+        DBProvenanceFactory.create(
+            file=file_unreadable,
+            provenance={"not": "a provenance object"},
+        )
+
+        db_session.flush()
+        _ = project.id
+
+        query_recorder.clear()
+        with query_recorder:
+            counts = project.provenance_counts
+
+        assert len(query_recorder.queries) == 1, query_recorder.queries
+        assert counts == {
+            "1.0": ProvenanceCounts(
+                total_files=0,
+                files_with_provenance=0,
+            ),
+            "2.0": ProvenanceCounts(
+                total_files=2,
+                files_with_provenance=0,
+            ),
+            "3.0": ProvenanceCounts(
+                total_files=1,
+                files_with_provenance=1,
+                source_counts={PublisherSource("GitHub", "foo/bar"): 1},
+                workflow_counts={"publish.yml": 1},
+            ),
+            "4.0": ProvenanceCounts(
+                total_files=3,
+                files_with_provenance=2,
+                unreadable_files=1,
+                source_counts={PublisherSource("GitHub", "foo/baz"): 1},
+                workflow_counts={"publish.yml": 1},
+            ),
+        }
+
+        # Verify caching
+        query_recorder.clear()
+        with query_recorder:
+            repeat_counts = project.provenance_counts
+
+        assert len(query_recorder.queries) == 0
+        assert repeat_counts is counts
 
 
 class TestDependency:
