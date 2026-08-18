@@ -553,6 +553,12 @@ def configure(settings=None):
     )
     maybe_set(
         settings,
+        "warehouse.account.email_change_ratelimit_string",
+        "EMAIL_CHANGE_RATELIMIT_STRING",
+        default="5 per 5 minutes, 20 per hour",
+    )
+    maybe_set(
+        settings,
         "warehouse.account.accounts_search_ratelimit_string",
         "ACCOUNTS_SEARCH_RATELIMIT_STRING",
         default="100 per hour",
