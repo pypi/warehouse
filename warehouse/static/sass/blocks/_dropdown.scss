@@ -2,6 +2,7 @@
 
 @use "sass:color";
 @use "sass:list";
+@use "../settings/breakpoints";
 @use "../settings/colors";
 @use "../settings/z-index";
 @use "../tools/link-utilities";
@@ -57,6 +58,12 @@
   &__trigger-caret:hover {
     margin-left: 5px;
     text-decoration: none;
+  }
+
+  &__trigger-label {
+    @media only screen and (max-width: breakpoints.$mobile) {
+      display: none;
+    }
   }
 
   &__content {
