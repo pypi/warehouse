@@ -379,7 +379,8 @@
              rel="noopener">{% trans %}Status: {% endtrans %} <span data-statuspage-domain="{{ request.registry.settings['statuspage.url'] }}">{% trans %}all systems operational{% endtrans %}</span></a>
         </p>
       {% endif %}
-      <a class="footer__donate" href="https://donate.pypi.org">{% trans %}Donate today!{% endtrans %}</a>
+      <a class="button button--small footer__donate"
+         href="https://donate.pypi.org">{% trans %}Donate today!{% endtrans %}</a>
     </div>
     <div class="footer__menus">
       <div class="footer__menu">
@@ -511,9 +512,9 @@
       </div>
     </div>
   </div>
-  <div class="centered hide-on-desktop">
+  <div class="footer__switch-viewport hide-on-desktop">
     <button type="button"
-            class="button button--switch-to-desktop hidden"
+            class="button button--small button--switch-to-desktop hidden"
             data-viewport-toggle-target="switchToDesktop"
             data-action="viewport-toggle#switchToDesktop">{% trans %}Switch to desktop version{% endtrans %}</button>
   </div>
