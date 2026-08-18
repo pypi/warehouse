@@ -370,17 +370,19 @@
         <span>PyPI</span>
       </a>
       <p class="footer__tagline">{% trans href='https://www.python.org/psf/', title=gettext('External link') %}Developed and maintained by the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Software Foundation</a> and Python community, for the Python community.{% endtrans %}</p>
-      {% if request.registry.settings.get("statuspage.url") %}
-        <p class="footer__status">
-          <span class="footer__status-dot" aria-hidden="true"></span>
-          <a href="https://status.python.org/"
-             title="{% trans %}External link{% endtrans %}"
-             target="_blank"
-             rel="noopener">{% trans %}Status: {% endtrans %} <span data-statuspage-domain="{{ request.registry.settings['statuspage.url'] }}">{% trans %}all systems operational{% endtrans %}</span></a>
-        </p>
-      {% endif %}
-      <a class="button button--small footer__donate"
-         href="https://donate.pypi.org">{% trans %}Donate today!{% endtrans %}</a>
+      <div class="footer__brand-actions">
+        {% if request.registry.settings.get("statuspage.url") %}
+          <p class="footer__status">
+            <span class="footer__status-dot" aria-hidden="true"></span>
+            <a href="https://status.python.org/"
+               title="{% trans %}External link{% endtrans %}"
+               target="_blank"
+               rel="noopener">{% trans %}Status: {% endtrans %} <span data-statuspage-domain="{{ request.registry.settings['statuspage.url'] }}">{% trans %}all systems operational{% endtrans %}</span></a>
+          </p>
+        {% endif %}
+        <a class="button button--small footer__donate"
+           href="https://donate.pypi.org">{% trans %}Donate today!{% endtrans %}</a>
+      </div>
     </div>
     <div class="footer__menus">
       <div class="footer__menu">
