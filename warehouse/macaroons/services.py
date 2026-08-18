@@ -182,7 +182,7 @@ class DatabaseMacaroonService:
         # own stored caveats below, which would make the two indistinguishable. We
         # don't record this until we know the macaroon verifies, so that anyone who
         # reads an identifier out of a token can't skew the numbers with forgeries.
-        attenuated = caveats.attenuations(m, issued) if issued else None
+        attenuations = caveats.attenuations(m, issued) if issued else None
 
         # Macaroons traditionally have caveats embedded inside them which act to
         # restrict the scope of what that macaroon is able to do. However, each caveat
@@ -223,7 +223,7 @@ class DatabaseMacaroonService:
 
         verified = caveats.verify(m, dm.key, request, context, permission)
         if verified:
-            _record_attenuations(request, attenuated)
+            _record_attenuations(request, attenuations)
 
             # Update last_used without dirtying the ORM object. A dirty
             # macaroon causes autoflush during Project.__acl__() evaluation,
