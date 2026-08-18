@@ -431,6 +431,20 @@ def _is_valid_dist_file(
                 # tar within.  Easy CPU DoS attack. :/
                 with metrics.timed("warehouse.upload.tarfile.getnames"):
                     top_level = _commonpath(tar.getnames())
+                # Sparse members rely on GNU extensions, including when stored
+                # in a pax header, and are not valid in PEP 625 sdists.
+                if any(member.issparse() for member in tar.getmembers()):
+                    metrics.increment(
+                        "warehouse.upload.tarfile.policy_error",
+                        tags=["reason:sparse-member"],
+                    )
+                    return (
+                        False,
+                        (
+                            "tar archive not accepted: Sparse members are not allowed. "
+                            "See https://docs.pypi.org/archives for more information"
+                        ),
+                    )
                 if top_level in [".", "/", ""]:
                     return (
                         False,
