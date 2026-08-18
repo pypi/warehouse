@@ -630,8 +630,8 @@ class TestProject:
         DBReleaseFactory.create(project=project, version="1.0")
 
         rel_no_prov = DBReleaseFactory.create(project=project, version="2.0")
-        DBFileFactory.create(release=rel_no_prov)
-        DBFileFactory.create(release=rel_no_prov)
+        DBFileFactory.create(release=rel_no_prov, packagetype="sdist")
+        DBFileFactory.create(release=rel_no_prov, packagetype="bdist_wheel")
 
         rel_prov = DBReleaseFactory.create(project=project, version="3.0")
         _provenanced_file(
@@ -648,8 +648,10 @@ class TestProject:
                 repository="foo/baz", workflow="publish.yml"
             ),
         )
-        DBFileFactory.create(release=rel_mixed)
-        file_unreadable = DBFileFactory.create(release=rel_mixed)
+        DBFileFactory.create(release=rel_mixed, packagetype="bdist_wheel")
+        file_unreadable = DBFileFactory.create(
+            release=rel_mixed, packagetype="bdist_wheel"
+        )
         DBProvenanceFactory.create(
             file=file_unreadable,
             provenance={"not": "a provenance object"},
