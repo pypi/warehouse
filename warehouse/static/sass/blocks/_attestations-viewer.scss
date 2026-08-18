@@ -1,0 +1,173 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+@use "sass:color";
+@use "../settings/breakpoints";
+@use "../settings/colors";
+@use "../settings/fonts";
+@use "../settings/grid";
+@use "../tools/design-utilities";
+
+/*
+  Browse a release's files and their attestations: a list of files on the
+  left, and the attestation details for the selected file on the right.
+
+  <div class="attestations-viewer">
+    <div class="attestations-viewer__sidebar">
+      <div class="attestations-viewer__sidebar-header">
+        <div class="attestations-viewer__sidebar-title">Select from N files</div>
+        <div class="attestations-viewer__sidebar-actions">
+          <button type="button" class="button button--small button--outline" aria-label="Filter files">
+            <i class="fa-solid fa-filter"></i>
+          </button>
+          <button type="button" class="button button--small button--outline" aria-label="Sort files">
+            <i class="fa-solid fa-sort"></i>
+          </button>
+        </div>
+      </div>
+      <div class="attestations-viewer__sidebar-content">
+        <ul class="attestations-viewer__file-list">
+          <li class="attestations-viewer__file-item attestations-viewer__file-item--is-selected">
+            <i class="fa-solid fa-circle-check attestations-viewer__has-attestations-icon"></i>
+            <span class="attestations-viewer__file-info">
+              <span class="attestations-viewer__file-name">example-1.0.0.whl</span>
+              <span class="attestations-viewer__file-date">Jan 1, 2026</span>
+            </span>
+            <span class="badge badge--neutral badge--no-uppercase">2</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="attestations-viewer__content">
+      // Attestation(s) for the selected file
+    </div>
+  </div>
+*/
+
+.attestations-viewer {
+  @include design-utilities.card;
+  display: flex;
+  align-items: stretch;
+  margin: grid.$spacing-unit 0;
+  overflow: hidden;
+
+  @media screen and (max-width: breakpoints.$tablet) {
+    flex-direction: column;
+  }
+
+  &__sidebar {
+    flex: 0 0 250px;
+    max-width: 100%;
+    border-right: 1px solid colors.$border-color;
+
+    @media screen and (max-width: breakpoints.$tablet) {
+      flex-basis: auto;
+      width: 100%;
+      border-right: 0;
+      border-bottom: 1px solid colors.$border-color;
+    }
+  }
+
+  &__sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: grid.$half-spacing-unit;
+    padding: grid.$half-spacing-unit;
+    border-bottom: 1px solid colors.$border-color;
+    background-color: colors.$off-white;
+  }
+
+  &__sidebar-actions {
+    display: flex;
+    align-items: center;
+    gap: grid.$quarter-spacing-unit;
+    flex-shrink: 0;
+  }
+
+  &__sidebar-title {
+    font-weight: fonts.$bold-font-weight;
+    font-size: 0.9rem;
+  }
+
+  &__sidebar-content {
+    max-height: 480px;
+    overflow-y: auto;
+  }
+
+  &__file-list {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  &__file-item {
+    display: flex;
+    align-items: flex-start;
+    gap: grid.$quarter-spacing-unit;
+    padding: grid.$half-spacing-unit grid.$half-spacing-unit;
+    border-bottom: 1px solid colors.$border-color;
+
+    &:last-child {
+      border-bottom: 0;
+    }
+
+    &--is-selected {
+      background-color: color.mix(colors.$white, colors.$primary-color-light, 90%);
+      box-shadow: inset 3px 0 0 colors.$primary-color;
+    }
+  }
+
+  &__file-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  &__file-name {
+    font-size: 0.85rem;
+    color: colors.$primary-color;
+    word-break: break-all;
+  }
+
+  &__file-date {
+    color: colors.$mid-grey;
+    font-size: fonts.$small-font-size;
+  }
+
+  &__file-list-note {
+    margin: 0;
+    padding: grid.$half-spacing-unit grid.$three-quarter-spacing-unit;
+    color: colors.$mid-grey;
+    font-size: fonts.$small-font-size;
+    border-top: 1px solid colors.$border-color;
+  }
+
+  &__content {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: grid.$half-spacing-unit grid.$three-quarter-spacing-unit;
+
+    .attestation:first-of-type {
+      margin-top: 0;
+    }
+  }
+
+  &__empty {
+    @include design-utilities.card;
+    padding: grid.$half-spacing-unit;
+    color: colors.$mid-grey;
+    margin-top: 0;
+  }
+
+  &__no-attestations-icon {
+    color: colors.$mid-grey;
+    margin-top: 3px;
+  }
+
+  &__has-attestations-icon {
+    color: colors.$primary-color;
+    margin-top: 3px;
+  }
+}

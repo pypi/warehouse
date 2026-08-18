@@ -65,7 +65,8 @@
   }
 
   &__heading {
-    @include typography.h3;
+    font-size: 1rem;
+    font-weight: 600;
 
     details & {
       padding: 15px;

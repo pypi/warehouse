@@ -23,6 +23,8 @@
     - archived: Light grey background (dark text)
     - yanked: Dark grey background (white text)
     - quarantined: Orange background (white text)
+    - late-files: Orange background (white text)
+    - provenance-warning: Orange background (white text)
 */
 
 .project-status {
@@ -85,6 +87,10 @@
     &:has(+ .project-status--quarantined) {
       background-color: color.adjust(colors.$warning-color, $lightness: -12%);
     }
+  }
+
+  &--provenance-warning {
+    background-color: colors.$warning-color;
   }
 
   &__content {

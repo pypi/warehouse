@@ -123,7 +123,7 @@
     {% for bundle in provenance.attestation_bundles %}
       {% for attestation in bundle.attestations %}
         {% set viewer = PEP740AttestationViewer(bundle.publisher, attestation) %}
-        {% include "includes/packaging/provenance/attestation.html" %}
+        {% include "includes/packaging/security/attestation.html" %}
       {% endfor %}
     {% endfor %}
   {% endif %}

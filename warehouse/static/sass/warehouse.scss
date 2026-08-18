@@ -97,6 +97,7 @@
 @use "blocks/project-tabs";
 /*rtl:end:ignore*/
 @use "blocks/attestation";
+@use "blocks/attestations-viewer";
 @use "blocks/radio-toggle-form";
 @use "blocks/release";
 @use "blocks/release-timeline";
@@ -160,6 +161,11 @@
 // Make text or icons red to draw attention
 .danger {
   color: colors.$danger-color;
+}
+
+// Make text or icons blue to match the primary brand color
+.primary {
+  color: colors.$primary-color;
 }
 
 // ALIGNMENT, PADDING & MARGINS

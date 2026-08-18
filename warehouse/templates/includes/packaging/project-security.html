@@ -4,9 +4,145 @@
      role="tabpanel"
      aria-labelledby="security-tab"
      tabindex="-1">
-  <h2 class="page-title">{% trans %}Security for {% endtrans %}</h2>
-  <a class="button button--full-width button--warning"
-     href="{{ request.route_url('packaging.project.submit_malware_observation', name=project.name) }}"
-     rel="nofollow"
-     role="button">{% trans %}Report project as malware{% endtrans %}</a>
+  <div class="split-layout">
+    <h2 class="page-title">{% trans name=release.project.name, version=release.version %}Security for {{ name }} {{ version }}{% endtrans %}</h2>
+    <div>
+      <a class="button button--outline"
+         href="{{ request.route_url('packaging.project.submit_malware_observation', name=project.name) }}"
+         rel="nofollow"
+         role="button">{% trans %}Report project as malware{% endtrans %}</a>
+    </div>
+  </div>
+  {% if late_file_count > 0 %}
+    <h3 class="no-top-margin no-top-padding">{% trans %}Upload timing{% endtrans %}</h3>
+    {% set link_to_release_files = true %}
+    {% include "includes/packaging/security/late-files.html" %}
+    <hr />
+  {% endif %}
+  <h3 class="no-top-margin no-top-padding">{% trans %}Provenance{% endtrans %}</h3>
+  <p>
+    {% trans href=request.user_docs_url('/attestations/') %}<strong>Provenance</strong> describes where a file came from. On PyPI, provenance is shared via <strong>attestations</strong>, which provide a verifiable record of the build or publishing details. <a href="{{ href }}">View details, limitations and caveats.</a>{% endtrans %}
+  </p>
+  {% if release.provenance_status %}
+    {% set provenance_states = release.provenance_status.states %}
+    <div class="provenance-status">
+      {# These states are not mutually exclusive; show only the most important one. #}
+      {% if 'lost-provenance' in provenance_states %}
+        {% include "includes/packaging/security/lost-provenance.html" %}
+      {% elif 'changed-provenance' in provenance_states %}
+        {% include "includes/packaging/security/changed-provenance.html" %}
+      {% elif 'inconsistent-provenance' in provenance_states %}
+        {% include "includes/packaging/security/inconsistent-provenance.html" %}
+      {% elif 'partial-provenance' in provenance_states %}
+        {% include "includes/packaging/security/partial-provenance.html" %}
+      {% elif 'full-provenance' in provenance_states %}
+        {% include "includes/packaging/security/full-provenance.html" %}
+      {% elif 'no-provenance' in provenance_states %}
+        {% include "includes/packaging/security/no-provenance.html" %}
+      {% endif %}
+    </div>
+  {% endif %}
+  {# TODO: filter/sort and select-a-file interactivity, once the viewer has JS-driven selection #}
+  {% set viewer_files = files[:10] %}
+  {% set selected_file = viewer_files[0] %}
+  {% set file = selected_file %}
+  <div class="attestations-viewer">
+    <div class="attestations-viewer__sidebar">
+      <div class="attestations-viewer__sidebar-header">
+        <div class="attestations-viewer__sidebar-title">
+          {% trans count=viewer_files|length %}Select from {{ count }} file
+        {% pluralize %}
+          Select from {{ count }} files{% endtrans %}
+        </div>
+        {% if files|length > 8 %}
+          <div class="attestations-viewer__sidebar-actions">
+            <button type="button"
+                    class="button button--small button--outline"
+                    aria-label="{% trans %}Filter files{% endtrans %}">
+              <i class="fa-solid fa-filter" aria-hidden="true"></i>
+            </button>
+            <button type="button"
+                    class="button button--small button--outline"
+                    aria-label="{% trans %}Sort files{% endtrans %}">
+              <i class="fa-solid fa-sort" aria-hidden="true"></i>
+            </button>
+          </div>
+        {% endif %}
+      </div>
+      <div class="attestations-viewer__sidebar-content">
+        <ul class="attestations-viewer__file-list">
+          {% for vfile in viewer_files %}
+            {% set attestation_count = (vfile.provenance.as_model.attestation_bundles | map(attribute='attestations') | map('length') | sum) if vfile.provenance else 0 %}
+            <li class="attestations-viewer__file-item{{ ' attestations-viewer__file-item--is-selected' if vfile == selected_file }}">
+              {% if attestation_count %}
+                <i class="fa-solid fa-circle-check attestations-viewer__has-attestations-icon"
+                   aria-hidden="true"></i>
+              {% else %}
+                <i class="fa-solid fa-circle-xmark attestations-viewer__no-attestations-icon"
+                   aria-hidden="true"></i>
+              {% endif %}
+              <span class="attestations-viewer__file-info">
+                <span class="attestations-viewer__file-name">{{ vfile.filename }}</span>
+                <span class="attestations-viewer__file-date">
+                  <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+                  {{ humanize(vfile.upload_time) }}
+                </span>
+              </span>
+              {% if attestation_count > 1 %}
+                {% set attestation_count_label %}
+                  {% trans count=attestation_count %}{{ count }} attestation
+                {% pluralize %}
+                  {{ count }} attestations{% endtrans %}
+                {% endset %}
+                <span class="badge badge--neutral badge--compact"
+                      aria-label="{{ attestation_count_label }}">{{ attestation_count }}</span>
+              {% elif attestation_count == 1 %}
+                <span class="sr-only">{% trans %}1 attestation{% endtrans %}</span>
+              {% else %}
+                <span class="sr-only">{% trans %}No attestations{% endtrans %}</span>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+        {% if files|length > viewer_files|length %}
+          <p class="attestations-viewer__file-list-note">
+            {% trans shown=viewer_files|length, total=files|length %}Showing {{ shown }} of {{ total }} files{% endtrans %}
+          </p>
+        {% endif %}
+      </div>
+    </div>
+    <div class="attestations-viewer__content">
+      {% set selected_attestation_count = (selected_file.provenance.as_model.attestation_bundles | map(attribute='attestations') | map('length') | sum) if selected_file.provenance else 0 %}
+      {% set filename = selected_file.filename %}
+      {% set href = "#" + filename %}
+      <h3 class="no-top-margin">
+        {% trans count=selected_attestation_count, filename=filename, href=href %}Attestation for <a href="{{ href }}"
+    data-project-tabs-target="tab"
+    data-action="project-tabs#onTabClick">{{ filename }}</a>
+      {% pluralize %}
+        Attestations for <a href="{{ href }}"
+    data-project-tabs-target="tab"
+    data-action="project-tabs#onTabClick">{{ filename }}</a>{% endtrans %}
+      </h3>
+      {% if selected_file.provenance %}
+        {% set provenance = selected_file.provenance.as_model %}
+        {% for bundle in provenance.attestation_bundles %}
+          {% for attestation in bundle.attestations %}
+            {% set viewer = PEP740AttestationViewer(bundle.publisher, attestation) %}
+            {% include "includes/packaging/security/attestation.html" %}
+          {% endfor %}
+        {% endfor %}
+      {% else %}
+        <div class="attestations-viewer__empty">
+          <i class="fa-solid fa-circle-xmark attestations-viewer__no-attestations-icon"
+             aria-hidden="true"></i>
+          {% trans %}This file was uploaded without provenance metadata.{% endtrans %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+  <h3>{% trans %}A note on package security{% endtrans %}</h3>
+  <p>
+    {% trans %}PyPI is a repository for distributing packages, not a service for auditing them. While third-party security researchers and our staff do their best to detect and remove malicious packages, PyPI cannot guarantee the quality, security or suitability of any given package.{% endtrans %}
+  </p>
 </div>

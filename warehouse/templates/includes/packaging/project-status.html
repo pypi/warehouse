@@ -16,6 +16,59 @@
     </div>
   </div>
 {% endif %}
+{% if release.provenance_status %}
+  {% set provenance_states = release.provenance_status.states %}
+  {# These states are not mutually exclusive; show only the most important one. #}
+  {% if 'lost-provenance' in provenance_states %}
+    <div class="project-status project-status--provenance-warning">
+      <div class="project-status__content">
+        <strong class="project-status__label">
+          <i class="fa fa-triangle-exclamation" aria-hidden="true"></i>
+          {% trans %}Loss of provenance{% endtrans %}
+        </strong>
+        <p class="project-status__description">
+          {% trans href='#security' %}A previous release had provenance metadata, but this release does not. <a href="{{ href }}">View details</a>.{% endtrans %}
+        </p>
+      </div>
+    </div>
+  {% elif 'changed-provenance' in provenance_states %}
+    <div class="project-status project-status--provenance-warning">
+      <div class="project-status__content">
+        <strong class="project-status__label">
+          <i class="fa fa-triangle-exclamation" aria-hidden="true"></i>
+          {% trans %}Change of provenance{% endtrans %}
+        </strong>
+        <p class="project-status__description">
+          {% trans href='#security' %}The repository or configuration that created this release differ from a previous release. <a href="{{ href }}">View details</a>.{% endtrans %}
+        </p>
+      </div>
+    </div>
+  {% elif 'inconsistent-provenance' in provenance_states %}
+    <div class="project-status project-status--provenance-warning">
+      <div class="project-status__content">
+        <strong class="project-status__label">
+          <i class="fa fa-triangle-exclamation" aria-hidden="true"></i>
+          {% trans %}Inconsistent provenance{% endtrans %}
+        </strong>
+        <p class="project-status__description">
+          {% trans href='#security' %}Files in this release originate from inconsistent publishing repositories or configurations. <a href="{{ href }}">View details</a>.{% endtrans %}
+        </p>
+      </div>
+    </div>
+  {% elif 'partial-provenance' in provenance_states %}
+    <div class="project-status project-status--provenance-warning">
+      <div class="project-status__content">
+        <strong class="project-status__label">
+          <i class="fa fa-triangle-exclamation" aria-hidden="true"></i>
+          {% trans %}Incomplete provenance{% endtrans %}
+        </strong>
+        <p class="project-status__description">
+          {% trans without_count=release.provenance_status.counts.total_files - release.provenance_status.counts.files_with_provenance, total_count=release.provenance_status.counts.total_files, href='#security' %}{{ without_count }} of {{ total_count }} files were uploaded without provenance metadata. <a href="{{ href }}">View details</a>.{% endtrans %}
+        </p>
+      </div>
+    </div>
+  {% endif %}
+{% endif %}
 {% if project.lifecycle_status == "quarantine-enter" %}
   <div class="project-status project-status--quarantined">
     <div class="project-status__content">

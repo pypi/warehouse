@@ -1,0 +1,12 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+<div class="callout-block">
+  <h3 class="callout-block__heading">
+    <i class="fa-solid fa-circle-check primary" aria-hidden="true"></i>
+    {% trans %}Full provenance{% endtrans %}
+  </h3>
+  <p>
+    {% trans count=release.provenance_status.counts.total_files %}All {{ count }} file in this release has been uploaded with provenance metadata.
+  {% pluralize %}
+    All {{ count }} files in this release have been uploaded with provenance metadata.{% endtrans %}
+  </p>
+</div>

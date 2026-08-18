@@ -11,20 +11,7 @@
       {% trans href='https://packaging.python.org/en/latest/discussions/package-formats/#package-formats', title=gettext('External link') %}For a detailed explanation of source distributions (sdists) and built distributions (wheels), please see the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">package formats documentation</a>.{% endtrans %}
     </p>
     {% if late_file_count > 0 %}
-      <div class="callout-block callout-block--warning">
-        <h3 class="callout-block__heading">
-          {% trans count=late_file_count %}File added late
-        {% pluralize %}
-          Files added late{% endtrans %}
-        </h3>
-        <p>
-          {% trans count=late_file_count, days=maximum_age_for_new_uploads_days %}{{ count }} file was uploaded more than {{ days }} days after the first file in this release.
-        {% pluralize %}
-          {{ count }} files were uploaded more than {{ days }} days after the first file in this release.{% endtrans %}
-        </p>
-        <p>{% trans %}While project maintainers occasionally add legitimate files to an existing release, late additions can also indicate a security compromise.{% endtrans %}</p>
-        <p>{% trans %}We recommend inspecting the release files before installing.{% endtrans %}</p>
-      </div>
+      {% include "includes/packaging/security/late-files.html" %}
     {% endif %}
     {% if sdists %}
       <h3>
