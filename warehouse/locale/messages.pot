@@ -1069,7 +1069,7 @@ msgstr ""
 #: warehouse/templates/base.html:464 warehouse/templates/base.html:477
 #: warehouse/templates/base.html:494 warehouse/templates/base.html:502
 #: warehouse/templates/includes/accounts/profile-callout.html:5
-#: warehouse/templates/includes/file-details.html:117
+#: warehouse/templates/includes/file-details.html:120
 #: warehouse/templates/includes/packaging/project-files.html:48
 #: warehouse/templates/includes/packaging/project-files.html:66
 #: warehouse/templates/includes/packaging/project-files.html:82
@@ -3099,27 +3099,27 @@ msgstr ""
 msgid "Uploaded using Trusted Publishing? %(is_tp)s"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:53
+#: warehouse/templates/includes/file-details.html:56
 #, python-format
 msgid "Uploaded via: %(uploaded_via)s"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:60
+#: warehouse/templates/includes/file-details.html:63
 #, python-format
 msgid "Hashes for %(filename)s"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:63
+#: warehouse/templates/includes/file-details.html:66
 msgid "Algorithm"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:64
+#: warehouse/templates/includes/file-details.html:67
 msgid "Hash digest"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:79
-#: warehouse/templates/includes/file-details.html:94
-#: warehouse/templates/includes/file-details.html:109
+#: warehouse/templates/includes/file-details.html:82
+#: warehouse/templates/includes/file-details.html:97
+#: warehouse/templates/includes/file-details.html:112
 #: warehouse/templates/includes/packaging/project-files.html:102
 #: warehouse/templates/includes/packaging/project-header.html:43
 #: warehouse/templates/manage/account.html:218
@@ -3130,9 +3130,9 @@ msgstr ""
 msgid "Copy to clipboard"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:80
-#: warehouse/templates/includes/file-details.html:95
-#: warehouse/templates/includes/file-details.html:110
+#: warehouse/templates/includes/file-details.html:83
+#: warehouse/templates/includes/file-details.html:98
+#: warehouse/templates/includes/file-details.html:113
 #: warehouse/templates/includes/packaging/project-files.html:103
 #: warehouse/templates/manage/account.html:219
 #: warehouse/templates/manage/account/recovery_codes-provision.html:54
@@ -3142,7 +3142,7 @@ msgstr ""
 msgid "Copy"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:117
+#: warehouse/templates/includes/file-details.html:120
 #, python-format
 msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
