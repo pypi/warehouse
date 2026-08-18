@@ -48,7 +48,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: grid.$spacing-unit grid.$spacing-unit * 2;
-    max-width: 1100px;
+    max-width: 1450px;
     margin: 0 auto;
     padding: 0 grid.$spacing-unit;
   }
@@ -62,6 +62,11 @@
     flex-direction: column;
     align-items: flex-start;
     gap: grid.$half-spacing-unit;
+
+    @media only screen and (max-width: breakpoints.$tablet) {
+      flex-basis: 100%;
+      max-width: 100%;
+    }
   }
 
   &__brand-logo {
@@ -109,17 +114,10 @@
   }
 
   &__donate {
-    display: inline-flex;
-    align-items: center;
     margin-top: grid.$quarter-spacing-unit;
-    padding: 7px 16px;
-    border: 1px solid color.adjust(colors.$white, $alpha: -0.6);
-    border-radius: 4px;
+    border-color: color.adjust(colors.$white, $alpha: -0.6);
     color: colors.$white;
-    font-size: 0.85rem;
-    font-weight: 600;
     text-decoration: none;
-    transition: background-color 0.15s ease, border-color 0.15s ease;
 
     &:hover,
     &:focus {
@@ -134,12 +132,8 @@
   &__menus {
     flex: 2 1 460px;
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
     gap: grid.$spacing-unit grid.$spacing-unit;
-
-    @media only screen and (min-width: breakpoints.$tablet) {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
   }
 
   &__menu {
@@ -168,6 +162,12 @@
         @include link-utilities.white-underlined-link;
       }
     }
+  }
+
+  &__switch-viewport {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 grid.$spacing-unit;
   }
 
   // -- Bottom utility bar -----------------------------------------------------
