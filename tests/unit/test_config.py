@@ -6,7 +6,6 @@ import types
 
 from datetime import timedelta
 
-import orjson
 import pytest
 
 from pyramid import renderers
@@ -212,6 +211,19 @@ def test_maybe_set_redis(monkeypatch, environ, coercer, default, db, expected):
     assert settings == expected
 
 
+def test_json_dumps_with_newline():
+    assert (
+        config._json_dumps_with_newline(
+            {"name": "日本語"},
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        )
+        == '{"name":"日本語"}\n'
+    )
+
+
 @pytest.mark.parametrize(
     ("settings", "environment"),
     [
@@ -229,7 +241,7 @@ def test_configure(monkeypatch, mocker, settings, environment):
         "JSON",
         side_effect=[
             mocker.sentinel.json_renderer_obj,
-            mocker.sentinel.orjson_renderer_obj,
+            mocker.sentinel.json_with_newline_renderer_obj,
         ],
     )
 
@@ -532,7 +544,9 @@ def test_configure(monkeypatch, mocker, settings, environment):
     assert configurator_obj.commit.call_args_list == [mocker.call()]
     assert configurator_obj.add_renderer.call_args_list == [
         mocker.call("json", mocker.sentinel.json_renderer_obj),
-        mocker.call("orjson", mocker.sentinel.orjson_renderer_obj),
+        mocker.call(
+            "json-with-newline", mocker.sentinel.json_with_newline_renderer_obj
+        ),
         mocker.call("xmlrpc", mocker.sentinel.xmlrpc_renderer_obj),
     ]
     assert configurator_obj.add_view_deriver.call_args_list == [
@@ -550,8 +564,11 @@ def test_configure(monkeypatch, mocker, settings, environment):
             separators=(",", ":"),
         ),
         mocker.call(
-            serializer=orjson.dumps,
-            option=orjson.OPT_SORT_KEYS | orjson.OPT_APPEND_NEWLINE,
+            serializer=config._json_dumps_with_newline,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
         ),
     ]
 

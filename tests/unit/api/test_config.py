@@ -2,10 +2,27 @@
 
 import types
 
-import orjson
 import pytest
 
 from warehouse.api import config
+
+
+def test_strict_json_loads():
+    assert config._strict_json_loads(b'{"value":"\\ud83d\\ude00"}') == {"value": "😀"}
+
+
+@pytest.mark.parametrize(
+    ("value", "exception", "match"),
+    [
+        ('{"value": NaN}', ValueError, "Invalid JSON constant: NaN"),
+        ('{"value": 1e400}', ValueError, "outside the finite range"),
+        ('{"value": "\\ud800"}', ValueError, "valid Unicode"),
+        ('{"value": 1}'.encode("utf-16"), UnicodeDecodeError, "utf-8"),
+    ],
+)
+def test_strict_json_loads_rejects_invalid_input(value, exception, match):
+    with pytest.raises(exception, match=match):
+        config._strict_json_loads(value)
 
 
 def test_api_set_content_type(mocker):
@@ -60,7 +77,7 @@ def test_includeme(monkeypatch, env_name, mocker):
         "/mnt/dummy/openapi.yaml", route="/api/openapi.yaml"
     )
     conf.pyramid_openapi3_add_deserializer.assert_called_once_with(
-        "application/vnd.pypi.api-v0-danger+json", orjson.loads
+        "application/vnd.pypi.api-v0-danger+json", config._strict_json_loads
     )
     if env_name == "development":
         conf.pyramid_openapi3_add_explorer.assert_called_once_with(
