@@ -2402,6 +2402,16 @@ msgid ""
 "organization projects, collaborators, teams, or settings."
 msgstr ""
 
+#: warehouse/templates/email/new-organization-approved/body.html:9
+msgid "Action Required:"
+msgstr ""
+
+#: warehouse/templates/email/new-organization-approved/body.html:9
+msgid ""
+"As this is a corporate organization, you must purchase at least 1 seat or"
+" your organization will be deactivated."
+msgstr ""
+
 #: warehouse/templates/email/new-organization-declined/body.html:5
 #, python-format
 msgid ""
