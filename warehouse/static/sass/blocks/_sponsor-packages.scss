@@ -118,4 +118,9 @@
       margin-bottom: 15px;
     }
   }
+
+  &--equal-height {
+    height: calc(100% - #{grid.$spacing-unit});
+    margin-top: grid.$spacing-unit;
+  }
 }
