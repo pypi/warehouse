@@ -18,8 +18,6 @@ if typing.TYPE_CHECKING:
     from pyramid.config import Configurator
 
 
-# The stdlib decoder accepts non-standard constants, infinite floats, alternate
-# encodings, and unpaired surrogates. Keep this API limited to strict UTF-8 JSON.
 def _reject_json_constant(value: str) -> typing.NoReturn:
     raise ValueError(f"Invalid JSON constant: {value}")
 
@@ -47,6 +45,8 @@ def _validate_json_unicode(value) -> None:
             pending.extend(current)
 
 
+# Preserve behavior that orjson previously provided that is not built into the
+# stdlib json.
 def _strict_json_loads(value):
     if isinstance(value, (bytes, bytearray, memoryview)):
         value = bytes(value).decode("utf-8")
