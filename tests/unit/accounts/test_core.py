@@ -111,6 +111,7 @@ def test_includeme(monkeypatch):
                 "warehouse.account.2fa_user_ratelimit_string": "5 per 5 minutes, 20 per hour, 50 per day",  # noqa: E501
                 "warehouse.account.2fa_ip_ratelimit_string": "10 per 5 minutes, 50 per hour",  # noqa: E501
                 "warehouse.account.email_add_ratelimit_string": "2 per day",
+                "warehouse.account.email_change_ratelimit_string": "5 per 5 minutes, 20 per hour",  # noqa: E501
                 "warehouse.account.verify_email_ratelimit_string": "3 per 6 hours",
                 "warehouse.account.password_reset_ratelimit_string": "5 per day",
                 "warehouse.account.accounts_search_ratelimit_string": "100 per hour",
@@ -171,6 +172,7 @@ def test_includeme(monkeypatch):
         pretend.call("5 per 5 minutes, 20 per hour, 50 per day", "2fa.user"),
         pretend.call("10 per 5 minutes, 50 per hour", "2fa.ip"),
         pretend.call("2 per day", "email.add"),
+        pretend.call("5 per 5 minutes, 20 per hour", "email.change"),
         pretend.call("5 per day", "password.reset"),
         pretend.call("3 per 6 hours", "email.verify"),
         pretend.call("100 per hour", "accounts.search"),
@@ -221,6 +223,7 @@ def test_includeme_with_gitlab_oauth():
                 "warehouse.account.2fa_user_ratelimit_string": "5 per 5 minutes, 20 per hour, 50 per day",  # noqa: E501
                 "warehouse.account.2fa_ip_ratelimit_string": "10 per 5 minutes, 50 per hour",  # noqa: E501
                 "warehouse.account.email_add_ratelimit_string": "2 per day",
+                "warehouse.account.email_change_ratelimit_string": "5 per 5 minutes, 20 per hour",  # noqa: E501
                 "warehouse.account.verify_email_ratelimit_string": "3 per 6 hours",
                 "warehouse.account.password_reset_ratelimit_string": "5 per day",
                 "warehouse.account.accounts_search_ratelimit_string": "100 per hour",
