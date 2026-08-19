@@ -2416,6 +2416,24 @@ msgstr ""
 msgid "Activate your subscription"
 msgstr ""
 
+#: warehouse/templates/email/new-organization-approved/body.html:17
+msgid "Interested in a PyPI service agreement?"
+msgstr ""
+
+#: warehouse/templates/email/new-organization-approved/body.html:17
+msgid ""
+"Enhanced options like annual bulk seat purchases, higher project size "
+"limits, and prioritized support are available."
+msgstr ""
+
+#: warehouse/templates/email/new-organization-approved/body.html:17
+msgid "Fill out our service agreement interest survey"
+msgstr ""
+
+#: warehouse/templates/email/new-organization-approved/body.html:17
+msgid "and we'll follow up."
+msgstr ""
+
 #: warehouse/templates/email/new-organization-declined/body.html:5
 #, python-format
 msgid ""

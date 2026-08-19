@@ -1786,6 +1786,94 @@ class TestSendNewOrganizationApprovedEmail:
             )
         ]
 
+    @pytest.mark.parametrize(
+        ("organization_type", "expects_action_required"),
+        [
+            ("Company", True),
+            ("Community", False),
+        ],
+    )
+    def test_renders_action_required_only_for_company(
+        self,
+        pyramid_request,
+        pyramid_config,
+        monkeypatch,
+        organization_type,
+        expects_action_required,
+    ):
+        """
+        The rendered email should only nag Company organizations to buy a
+        seat -- Community organizations shouldn't see that content at all.
+        """
+        initiator_user = pretend.stub(
+            id="id",
+            username="username",
+            name="",
+            email="email@example.com",
+            primary_email=pretend.stub(email="email@example.com", verified=True),
+        )
+        organization_name = "example"
+
+        pyramid_config.include("pyramid_jinja2")
+        pyramid_config.add_settings({"jinja2.newstyle": True})
+        pyramid_config.add_settings({"jinja2.i18n.domain": "messages"})
+        pyramid_config.add_jinja2_renderer(".html")
+        pyramid_config.add_jinja2_renderer(".txt")
+        pyramid_config.add_jinja2_search_path("warehouse:templates", name=".html")
+        pyramid_config.add_jinja2_search_path("warehouse:templates", name=".txt")
+        pyramid_config.add_route(
+            "manage.organization.activate_subscription",
+            "/manage/organization/{organization_name}/subscription/activate/",
+        )
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        monkeypatch.setattr(email, "send_email", send_email)
+
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=initiator_user.id)
+                )
+            ),
+        )
+        pyramid_request.user = initiator_user
+        pyramid_request.registry.settings = {
+            "mail.sender": "noreply@example.com",
+            "warehouse.domain": "pypi.org",
+        }
+        pyramid_request.environ.update(
+            {
+                "wsgi.url_scheme": "https",
+                "SERVER_NAME": "pypi.org",
+                "SERVER_PORT": "443",
+                "HTTP_HOST": "pypi.org",
+            }
+        )
+
+        email.send_new_organization_approved_email(
+            pyramid_request,
+            initiator_user,
+            organization_name=organization_name,
+            organization_type=organization_type,
+            message="example message",
+        )
+
+        _, msg, _ = send_email.delay.calls[0].args
+        subject, body_text, body_html = (
+            msg["subject"],
+            msg["body_text"],
+            msg["body_html"],
+        )
+
+        assert ("Action Required" in subject) is expects_action_required
+        assert ("Action Required" in body_text) is expects_action_required
+        assert ("Action Required" in body_html) is expects_action_required
+        assert ("activate" in body_text) is expects_action_required
+        assert ("activate" in body_html) is expects_action_required
+
 
 class TestSendNewOrganizationRequestMoreInfoEmail:
     def test_send_new_organization_moreinformationneeded_email(

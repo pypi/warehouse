@@ -14,6 +14,10 @@
 {% trans %}To activate a subscription, visit your organization's billing page:{% endtrans %}
 
 {{ request.route_url('manage.organization.activate_subscription', organization_name=organization_name, _host=domain) }}
+
+{% trans %}Interested in a PyPI service agreement?{% endtrans %} {% trans %}Enhanced options like annual bulk seat purchases, higher project size limits, and prioritized support are available.{% endtrans %} {% trans %}Fill out our service agreement interest survey and we'll follow up:{% endtrans %}
+
+https://www.surveymonkey.com/r/H53HHSS
 {% endif %}
 
 {{ message }}
