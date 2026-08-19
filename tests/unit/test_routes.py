@@ -682,6 +682,13 @@ def test_routes(warehouse, mocker):
             view_kw={"has_translations": True},
         ),
         mocker.call(
+            "organizations",
+            "/organizations/",
+            "pages/organizations.html",
+            route_kw={"domain": warehouse},
+            view_kw={"has_translations": True},
+        ),
+        mocker.call(
             "sponsors",
             "/sponsors/",
             "pages/sponsors.html",
