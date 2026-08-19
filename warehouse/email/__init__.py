@@ -361,11 +361,17 @@ def send_new_organization_requested_email(request, user, *, organization_name):
 
 @_email("new-organization-approved")
 def send_new_organization_approved_email(
-    request, user, *, organization_name, message=""
+    request,
+    user,
+    *,
+    organization_name: str,
+    organization_type: str,
+    message: str | None = None,
 ):
     return {
         "message": message,
         "organization_name": organization_name,
+        "organization_type": organization_type,
     }
 
 
