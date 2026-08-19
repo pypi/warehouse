@@ -9,7 +9,7 @@
 {% trans %}You are the owner of the new organization and can log in to manage organization projects, collaborators, teams, or settings.{% endtrans %}
 {% if organization_type == 'Company' %}
 
-{% trans %}Action Required: As this is a corporate organization, you must purchase at least one (1) seat or your organization will be deactivated.{% endtrans %}
+{% trans %}Action Required:{% endtrans %} {% trans %}As this is a corporate organization, you must purchase at least one (1) seat or your organization will be deactivated.{% endtrans %}
 
 {% trans %}To activate a subscription, visit your organization's billing page:{% endtrans %}
 
