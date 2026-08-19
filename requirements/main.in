@@ -33,7 +33,6 @@ msgpack
 natsort
 nh3
 opensearch-py
-orjson
 packaging>=26.2
 packaging_legacy
 paginate>=0.5.2
