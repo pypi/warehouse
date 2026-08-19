@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
 import datetime
 import typing
 import uuid
@@ -15,6 +17,9 @@ from warehouse.macaroons import caveats
 from warehouse.macaroons.errors import InvalidMacaroonError
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.models import Macaroon
+
+if typing.TYPE_CHECKING:
+    from pyramid.request import Request
 
 
 def _extract_raw_macaroon(prefixed_macaroon: str | None) -> str | None:
@@ -48,6 +53,45 @@ def deserialize_raw_macaroon(raw_macaroon: str | None) -> pymacaroons.Macaroon:
         Exception,  # https://github.com/ecordell/pymacaroons/issues/50
     ) as e:
         raise InvalidMacaroonError("malformed macaroon") from e
+
+
+def _record_attenuations(request: Request, extra: list[str] | None) -> None:
+    """
+    Record how a verified macaroon was attenuated, as `attenuated:<state>` on
+    `warehouse.macaroon.verify.attenuated`. `extra` is the result of
+    `caveats.attenuations()`, or None if there was nothing to compare against.
+
+    The states are:
+
+    * `unknown`: we have no stored caveats for this macaroon, so we cannot tell
+      which of its embedded caveats are ours. Only macaroons created before we
+      started storing our caveats in the database land here, so this bucket
+      should shrink over time as those tokens are replaced.
+    * `false`: every embedded caveat is one that we issued. This is what a token
+      we minted looks like when the user hasn't touched it.
+    * `true`: the macaroon carries caveats that we did not issue, so someone
+      restricted it further after we handed it over. Each kind is counted on
+      `warehouse.macaroon.verify.attenuation_kind`, where "unknown" means a
+      caveat we could not deserialize at all rather than a `Caveat` subclass.
+
+    Only macaroons that passed verification are recorded, so these counts
+    describe tokens in real use rather than anything an anonymous caller can
+    present.
+    """
+    if extra is None:
+        request.metrics.increment(
+            "warehouse.macaroon.verify.attenuated", tags=["attenuated:unknown"]
+        )
+        return
+
+    request.metrics.increment(
+        "warehouse.macaroon.verify.attenuated",
+        tags=[f"attenuated:{'true' if extra else 'false'}"],
+    )
+    for kind in sorted(set(extra)):
+        request.metrics.increment(
+            "warehouse.macaroon.verify.attenuation_kind", tags=[f"caveat:{kind}"]
+        )
 
 
 @implementer(IMacaroonService)
@@ -132,6 +176,14 @@ class DatabaseMacaroonService:
         if dm is None:
             raise InvalidMacaroonError("deleted or nonexistent macaroon")
 
+        issued = dm.caveats
+
+        # Work out which caveats the end user added themselves before we append our
+        # own stored caveats below, which would make the two indistinguishable. We
+        # don't record this until we know the macaroon verifies, so that anyone who
+        # reads an identifier out of a token can't skew the numbers with forgeries.
+        attenuations = caveats.attenuations(m, issued) if issued else None
+
         # Macaroons traditionally have caveats embedded inside them which act to
         # restrict the scope of what that macaroon is able to do. However, each caveat
         # that is added has to be serialized into the Macaroon which makes them longer
@@ -166,11 +218,13 @@ class DatabaseMacaroonService:
         #       verification code doesn't have to do anything special for stored vs
         #       embedded caveats. However, it does mean that the macaroon we actually
         #       end up verifying is a "sub" macaroon of what the user provided us.
-        for caveat in dm.caveats:
+        for caveat in issued:
             m.add_first_party_caveat(caveats.serialize(caveat))
 
         verified = caveats.verify(m, dm.key, request, context, permission)
         if verified:
+            _record_attenuations(request, attenuations)
+
             # Update last_used without dirtying the ORM object. A dirty
             # macaroon causes autoflush during Project.__acl__() evaluation,
             # which can deadlock with the journal advisory lock under

@@ -28,6 +28,7 @@ FILTERS = {
     "localize_datetime": "warehouse.filters:localize_datetime",
     "ctime": "warehouse.filters:ctime",
     "canonicalize_name": "packaging.utils:canonicalize_name",
+    "is_recent": "warehouse.filters:is_recent",
 }
 
 # A compiled regex that matches a subject block, possibly with newlines inside
