@@ -366,7 +366,7 @@ def send_new_organization_approved_email(
     *,
     organization_name: str,
     organization_type: str,
-    message: str | None = None,
+    message: str = "",
 ):
     return {
         "message": message,
