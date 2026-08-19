@@ -63,7 +63,7 @@ Which is exactly why in-kind support isn't just a line item to us. A sponsor cho
 
 ## How you can help
 
-Three things, in order of how much they matter:
+Four things, in order of how much they matter:
 
 **Cache your installs.** If your CI pulls from PyPI on every run with a cold cache, you're a meaningful part of the graph. The PSF uses Docker cache mounts and pip's cache on our own builds, and npm and apt caching too, because it's faster for us and cheaper for everyone. [Free package repositories aren't a limitless resource](https://pyfound.blogspot.com/2025/10/open-infrastructure-is-not-free-pypi.html), and the fix is usually about six lines of config.
 
