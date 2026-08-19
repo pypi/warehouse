@@ -23,51 +23,47 @@
       <p>
         {% trans href='https://docs.pypi.org/organization-accounts/', title=gettext('External link') %}The features are the same for every organization. For full details, see the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">organization accounts documentation</a>.{% endtrans %}
       </p>
-      <div class="col-grid">
-        <div class="col-half">
-          <div class="sponsor-package sponsor-package--equal-height">
-            <div class="sponsor-package__header">
-              <div class="sponsor-package__icon">
-                <i class="fas fa-users" aria-hidden="true"></i>
-              </div>
-              <h2>{% trans %}Community organization{% endtrans %}</h2>
+      <div class="sponsor-packages">
+        <div class="sponsor-package">
+          <div class="sponsor-package__header">
+            <div class="sponsor-package__icon">
+              <i class="fas fa-users" aria-hidden="true"></i>
             </div>
-            <div class="sponsor-package__body">
-              <p>{% trans %}For community projects, maintained in the open by volunteers.{% endtrans %}</p>
-              <ul>
-                <li>{% trans %}All organization features, at no cost{% endtrans %}</li>
-                <li>{% trans %}No payment or billing information required{% endtrans %}</li>
-                <li>{% trans %}Applications are reviewed by the PyPI team{% endtrans %}</li>
-              </ul>
-              <p>{% trans %}Free for qualifying community projects{% endtrans %}</p>
-            </div>
-            <div class="sponsor-package__button">
-              <a class="button button--primary"
-                 href="{{ request.route_path('manage.organizations') }}">{% trans %}Create a community organization{% endtrans %}</a>
-            </div>
+            <h2>{% trans %}Community organization{% endtrans %}</h2>
+          </div>
+          <div class="sponsor-package__body">
+            <p>{% trans %}For community projects, maintained in the open by volunteers.{% endtrans %}</p>
+            <ul>
+              <li>{% trans %}All organization features, at no cost{% endtrans %}</li>
+              <li>{% trans %}No payment or billing information required{% endtrans %}</li>
+              <li>{% trans %}Applications are reviewed by the PyPI team{% endtrans %}</li>
+            </ul>
+            <p>{% trans %}Free for qualifying community projects{% endtrans %}</p>
+          </div>
+          <div class="sponsor-package__button">
+            <a class="button button--primary"
+               href="{{ request.route_path('manage.organizations') }}">{% trans %}Create a community organization{% endtrans %}</a>
           </div>
         </div>
-        <div class="col-half">
-          <div class="sponsor-package sponsor-package--equal-height">
-            <div class="sponsor-package__header">
-              <div class="sponsor-package__icon">
-                <i class="fas fa-building" aria-hidden="true"></i>
-              </div>
-              <h2>{% trans %}Company organization{% endtrans %}</h2>
+        <div class="sponsor-package">
+          <div class="sponsor-package__header">
+            <div class="sponsor-package__icon">
+              <i class="fas fa-building" aria-hidden="true"></i>
             </div>
-            <div class="sponsor-package__body">
-              <p>{% trans %}For companies and other private organizations.{% endtrans %}</p>
-              <ul>
-                <li>{% trans %}All current organization features, on a monthly subscription{% endtrans %}</li>
-                <li>{% trans %}Billed monthly by card through Stripe{% endtrans %}</li>
-                <li>{% trans %}Applications are reviewed by the PyPI team{% endtrans %}</li>
-              </ul>
-              <p>{% trans %}$5 per member, per month{% endtrans %}</p>
-            </div>
-            <div class="sponsor-package__button">
-              <a class="button button--primary"
-                 href="{{ request.route_path('manage.organizations') }}">{% trans %}Apply for a company organization{% endtrans %}</a>
-            </div>
+            <h2>{% trans %}Company organization{% endtrans %}</h2>
+          </div>
+          <div class="sponsor-package__body">
+            <p>{% trans %}For companies and other private organizations.{% endtrans %}</p>
+            <ul>
+              <li>{% trans %}All current organization features, on a monthly subscription{% endtrans %}</li>
+              <li>{% trans %}Billed monthly by card through Stripe{% endtrans %}</li>
+              <li>{% trans %}Applications are reviewed by the PyPI team{% endtrans %}</li>
+            </ul>
+            <p>{% trans %}$5 per member, per month{% endtrans %}</p>
+          </div>
+          <div class="sponsor-package__button">
+            <a class="button button--primary"
+               href="{{ request.route_path('manage.organizations') }}">{% trans %}Apply for a company organization{% endtrans %}</a>
           </div>
         </div>
       </div>
