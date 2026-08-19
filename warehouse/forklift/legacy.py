@@ -7,6 +7,7 @@ import re
 import tarfile
 import tempfile
 import zipfile
+import zlib
 
 from contextlib import ExitStack, nullcontext
 
@@ -471,7 +472,7 @@ def _is_valid_dist_file(
                         )
                         return False, yara_match.message
 
-        except tarfile.ReadError, EOFError:
+        except tarfile.ReadError, EOFError, zlib.error:
             return False, None
 
     # If we haven't yet decided it's not valid, then we'll assume it is and

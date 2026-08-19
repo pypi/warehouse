@@ -11,7 +11,6 @@ import shlex
 from datetime import timedelta
 from urllib.parse import urlparse, urlunparse  # noqa: TID251
 
-import orjson
 import platformdirs
 import transaction
 
@@ -32,6 +31,10 @@ from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
 class Environment(enum.StrEnum):
     production = "production"
     development = "development"
+
+
+def _json_dumps_with_newline(value, **kwargs):
+    return json.dumps(value, **kwargs) + "\n"
 
 
 class Configurator(_Configurator):
@@ -553,6 +556,12 @@ def configure(settings=None):
     )
     maybe_set(
         settings,
+        "warehouse.account.email_change_ratelimit_string",
+        "EMAIL_CHANGE_RATELIMIT_STRING",
+        default="5 per 5 minutes, 20 per hour",
+    )
+    maybe_set(
+        settings,
         "warehouse.account.accounts_search_ratelimit_string",
         "ACCOUNTS_SEARCH_RATELIMIT_STRING",
         default="100 per hour",
@@ -768,12 +777,15 @@ def configure(settings=None):
         ),
     )
 
-    # Public project documents can explicitly opt into the faster orjson renderer.
+    # Match the behavior of the previous serializer (orjson).
     config.add_renderer(
-        "orjson",
+        "json-with-newline",
         renderers.JSON(
-            serializer=orjson.dumps,
-            option=orjson.OPT_SORT_KEYS | orjson.OPT_APPEND_NEWLINE,
+            serializer=_json_dumps_with_newline,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
         ),
     )
 
