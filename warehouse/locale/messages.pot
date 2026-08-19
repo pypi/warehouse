@@ -1071,6 +1071,7 @@ msgstr ""
 #: warehouse/templates/base.html:531
 #: warehouse/templates/includes/accounts/profile-callout.html:5
 #: warehouse/templates/includes/file-details.html:120
+#: warehouse/templates/includes/manage/company-org-survey-callout.html:18
 #: warehouse/templates/includes/packaging/project-files.html:48
 #: warehouse/templates/includes/packaging/project-files.html:66
 #: warehouse/templates/includes/packaging/project-files.html:82
@@ -3035,6 +3036,7 @@ msgstr ""
 #: warehouse/templates/includes/flash-messages.html:40
 #: warehouse/templates/includes/flash-messages.html:57
 #: warehouse/templates/includes/flash-messages.html:79
+#: warehouse/templates/includes/manage/company-org-survey-callout.html:10
 #: warehouse/templates/includes/session-notifications.html:37
 #: warehouse/templates/manage/account.html:204
 #: warehouse/templates/manage/account.html:207
@@ -3247,6 +3249,34 @@ msgstr ""
 #: warehouse/templates/manage/organization/publishing.html:257
 #: warehouse/templates/manage/project/publishing.html:230
 msgid "Email"
+msgstr ""
+
+#: warehouse/templates/includes/manage/company-org-survey-callout.html:7
+#: warehouse/templates/manage/project/release.html:177
+#: warehouse/templates/manage/project/releases.html:203
+#: warehouse/templates/manage/project/settings.html:60
+msgid "Dismiss"
+msgstr ""
+
+#: warehouse/templates/includes/manage/company-org-survey-callout.html:13
+msgid "Interested in a PyPI service agreement?"
+msgstr ""
+
+#: warehouse/templates/includes/manage/company-org-survey-callout.html:15
+#, python-format
+msgid ""
+"Some companies need a formal agreement with PyPI covering support, "
+"availability, or compliance requirements. We are gathering interest to "
+"understand what companies need. Learn more about <a "
+"href=\"%(href)s\">organization accounts</a>."
+msgstr ""
+
+#: warehouse/templates/includes/manage/company-org-survey-callout.html:18
+#, python-format
+msgid ""
+"Tell us what you need by filling out the <a href=\"%(href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Service "
+"Agreement Interest</a> survey and we'll follow up."
 msgstr ""
 
 #: warehouse/templates/includes/manage/manage-organization-menu.html:2
@@ -7493,12 +7523,6 @@ msgstr ""
 
 #: warehouse/templates/manage/project/release.html:174
 msgid "No files found"
-msgstr ""
-
-#: warehouse/templates/manage/project/release.html:177
-#: warehouse/templates/manage/project/releases.html:203
-#: warehouse/templates/manage/project/settings.html:60
-msgid "Dismiss"
 msgstr ""
 
 #: warehouse/templates/manage/project/release.html:184
