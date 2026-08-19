@@ -82,6 +82,12 @@ def test_organizations_landing_page(webtest):
     assert "/manage/organizations/" in resp.text
 
 
+def test_homepage_links_to_organizations(webtest):
+    resp = webtest.get("/", status=HTTPStatus.OK)
+    banner = resp.html.find("div", {"class": "homepage-banner"})
+    assert banner.find("a", href="/organizations/") is not None
+
+
 def test_non_existent_route_404(webtest):
     resp = webtest.get("/asdadadasdasd/", status=HTTPStatus.NOT_FOUND)
     assert resp.status_code == HTTPStatus.NOT_FOUND
