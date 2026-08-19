@@ -76,6 +76,16 @@ def test_robots_txt(app_config, domain, indexable):
         )
 
 
+def test_organizations_landing_page(webtest):
+    """
+    The Organizations landing page renders for anonymous users, including the
+    service agreement survey call to action.
+    """
+    resp = webtest.get("/organizations/", status=HTTPStatus.OK)
+    assert "https://www.surveymonkey.com/r/H53HHSS" in resp.text
+    assert "/manage/organizations/" in resp.text
+
+
 def test_non_existent_route_404(webtest):
     resp = webtest.get("/asdadadasdasd/", status=HTTPStatus.NOT_FOUND)
     assert resp.status_code == HTTPStatus.NOT_FOUND
