@@ -8,7 +8,9 @@ from warehouse.api import config
 
 
 def test_strict_json_loads():
-    assert config._strict_json_loads(b'{"value":"\\ud83d\\ude00"}') == {"value": "😀"}
+    assert config._strict_json_loads(b'{"value":["\\ud83d\\ude00",1.5]}') == {
+        "value": ["😀", 1.5]
+    }
 
 
 @pytest.mark.parametrize(
