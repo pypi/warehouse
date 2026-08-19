@@ -1701,6 +1701,7 @@ class TestSendNewOrganizationApprovedEmail:
             primary_email=pretend.stub(email="email@example.com", verified=True),
         )
         organization_name = "example"
+        organization_type = "Community"
         message = "example message"
 
         subject_renderer = pyramid_config.testing_add_renderer(
@@ -1736,19 +1737,23 @@ class TestSendNewOrganizationApprovedEmail:
             pyramid_request,
             initiator_user,
             organization_name=organization_name,
+            organization_type=organization_type,
             message=message,
         )
 
         assert result == {
             "organization_name": organization_name,
+            "organization_type": organization_type,
             "message": message,
         }
         subject_renderer.assert_(
             organization_name=organization_name,
+            organization_type=organization_type,
             message=message,
         )
         body_renderer.assert_(
             organization_name=organization_name,
+            organization_type=organization_type,
             message=message,
         )
         html_renderer.assert_(
