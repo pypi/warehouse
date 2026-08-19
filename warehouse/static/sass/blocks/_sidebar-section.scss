@@ -253,6 +253,10 @@
       padding-bottom: 0;
     }
 
+    p + p {
+      margin-top: grid.$half-spacing-unit;
+    }
+
     .key-dates__late {
       color: colors.$warning-color;
     }

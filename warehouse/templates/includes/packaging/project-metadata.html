@@ -20,6 +20,7 @@
 {% if release.verified_gitlab_repository %}
   {% include "warehouse:templates/includes/packaging/metadata/gitlab-statistics.html" %}
 {% endif %}
+{% include "warehouse:templates/includes/packaging/metadata/provenance.html" %}
 {% if release.license_expression or license %}
   {% include "warehouse:templates/includes/packaging/metadata/license.html" %}
 {% endif %}

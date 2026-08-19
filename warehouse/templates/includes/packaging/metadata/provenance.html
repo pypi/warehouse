@@ -1,0 +1,76 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% if release.provenance_status %}
+  {% set provenance_status = release.provenance_status %}
+  {% set provenance_states = provenance_status.states %}
+  {# These states are not mutually exclusive; show only the most important one. #}
+  {% set has_error_state = 'lost-provenance' in provenance_states
+    or 'changed-provenance' in provenance_states
+    or 'inconsistent-provenance' in provenance_states
+    or 'partial-provenance' in provenance_states %}
+  {% if has_error_state or 'full-provenance' in provenance_states %}
+    <div class="sidebar-section">
+      <h2 class="sidebar-section__title">{% trans %}Provenance{% endtrans %}
+        <a href="{{ request.user_docs_url('/attestations/') }}"
+           target="_blank"
+           aria-label="{% trans %}About provenance{% endtrans %}">
+          <i class="fa fa-info-circle" aria-hidden="true"></i>
+        </a>
+      </h2>
+      {% if has_error_state %}
+        {% if 'lost-provenance' in provenance_states %}
+          {% set callout_modifier = 'warning' %}
+          {% set label %}{% trans %}Loss of provenance{% endtrans %}{% endset %}
+          {% set message %}{% trans %}A previous release had provenance metadata, but this release does not.{% endtrans %}{% endset %}
+        {% elif 'changed-provenance' in provenance_states %}
+          {% set callout_modifier = 'warning' %}
+          {% set label %}{% trans %}Change of provenance{% endtrans %}{% endset %}
+          {% set message %}{% trans %}The repository or configuration that created this release differ from a previous release.{% endtrans %}{% endset %}
+        {% elif 'inconsistent-provenance' in provenance_states %}
+          {% set callout_modifier = 'warning' %}
+          {% set label %}{% trans %}Inconsistent provenance{% endtrans %}{% endset %}
+          {% set message %}{% trans %}Files in this release originate from inconsistent publishing repositories or configurations.{% endtrans %}{% endset %}
+        {% elif 'partial-provenance' in provenance_states %}
+          {% set callout_modifier = 'warning' %}
+          {% set label %}{% trans %}Incomplete provenance{% endtrans %}{% endset %}
+          {% set message %}{% trans without_count=provenance_status.counts.total_files - provenance_status.counts.files_with_provenance, total_count=provenance_status.counts.total_files %}{{ without_count }} of {{ total_count }} files were uploaded without provenance metadata.{% endtrans %}{% endset %}
+        {% endif %}
+        <div class="callout-block callout-block--{{ callout_modifier }}">
+          <p>
+            <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+            <strong>{{ label }}</strong>
+          </p>
+          <p>{{ message }}</p>
+          <p>
+            <a href="#security"
+               data-project-tabs-target="tab"
+               data-action="project-tabs#onTabClick">{% trans %}View provenance details{% endtrans %}</a>
+          </p>
+        </div>
+      {% else %}
+        <div class="sidebar-section__content sidebar-section__content--verified">
+          <details class="sidebar-section__data-source">
+            <summary class="sidebar-section__data-source-label"
+                     title="{{ release.created|format_datetime('yyyy-MM-dd HH:mm:ss (xxx)') }}">{% trans date=release.created.strftime('%b %-d, %Y') %}Data verified by PyPI on&nbsp;{{ date }}{% endtrans %}</summary>
+            <div class="sidebar-section__data-source-description">{% trans %}Data provided by the project maintainers and verified by PyPI at the time of upload.{% endtrans %}</div>
+          </details>
+          <div class="sidebar-section__data-block">
+            <p>
+              <i class="fa-solid fa-circle-check primary" aria-hidden="true"></i>
+              <strong>{% trans %}Full provenance{% endtrans %}</strong>
+            </p>
+            <p>
+              {% trans count=provenance_status.counts.total_files %}All {{ count }} file in this release has provenance metadata.
+            {% pluralize %}
+              All {{ count }} files in this release have provenance metadata.{% endtrans %}
+            </p>
+            <p>
+              <a href="#security"
+                 data-project-tabs-target="tab"
+                 data-action="project-tabs#onTabClick">{% trans %}View provenance details{% endtrans %}</a>
+            </p>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+{% endif %}
