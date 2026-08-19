@@ -361,8 +361,8 @@ def send_new_organization_requested_email(request, user, *, organization_name):
 
 @_email("new-organization-approved")
 def send_new_organization_approved_email(
-    request,
-    user,
+    request: Request,
+    user: User,
     *,
     organization_name: str,
     organization_type: str,
