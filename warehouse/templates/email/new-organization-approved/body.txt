@@ -1,6 +1,7 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 
 {% extends "email/_base/body.txt" %}
+{% set domain = request.registry.settings.get('warehouse.domain') %}
 
 {% block content %}
 {% trans organization_name=organization_name %}Your new organization named '{{ organization_name }}' has been approved and created.{% endtrans %}
@@ -9,6 +10,10 @@
 {% if organization_type == 'Company' %}
 
 {% trans %}Action Required: As this is a corporate organization, you must purchase at least one (1) seat or your organization will be deactivated.{% endtrans %}
+
+{% trans %}To activate a subscription, visit your organization's billing page:{% endtrans %}
+
+{{ request.route_url('manage.organization.activate_subscription', organization_name=organization_name, _host=domain) }}
 {% endif %}
 
 {{ message }}

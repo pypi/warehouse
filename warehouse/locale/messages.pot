@@ -2389,27 +2389,31 @@ msgid ""
 "administrators."
 msgstr ""
 
-#: warehouse/templates/email/new-organization-approved/body.html:5
+#: warehouse/templates/email/new-organization-approved/body.html:6
 #, python-format
 msgid ""
 "Your new organization named '%(organization_name)s' has been approved and"
 " created."
 msgstr ""
 
-#: warehouse/templates/email/new-organization-approved/body.html:7
+#: warehouse/templates/email/new-organization-approved/body.html:8
 msgid ""
 "You are the owner of the new organization and can log in to manage "
 "organization projects, collaborators, teams, or settings."
 msgstr ""
 
-#: warehouse/templates/email/new-organization-approved/body.html:9
+#: warehouse/templates/email/new-organization-approved/body.html:11
 msgid "Action Required:"
 msgstr ""
 
-#: warehouse/templates/email/new-organization-approved/body.html:9
+#: warehouse/templates/email/new-organization-approved/body.html:11
 msgid ""
 "As this is a corporate organization, you must purchase at least one (1) "
 "seat or your organization will be deactivated."
+msgstr ""
+
+#: warehouse/templates/email/new-organization-approved/body.html:14
+msgid "Activate your subscription"
 msgstr ""
 
 #: warehouse/templates/email/new-organization-declined/body.html:5
