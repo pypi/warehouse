@@ -98,17 +98,3 @@
   justify-content: flex-end;
   column-gap: grid.$half-spacing-unit;
 }
-
-.split-layout:has(.search-form--primary) #user-indicator {
-  .horizontal-menu.hide-below-desktop {
-    @media screen and (min-width: breakpoints.$desktop + 1px) {
-      display: none;
-    }
-  }
-
-  .dropdown--on-menu.show-below-desktop {
-    @media screen and (min-width: breakpoints.$desktop + 1px) {
-      display: block;
-    }
-  }
-}
