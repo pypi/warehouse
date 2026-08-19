@@ -3,6 +3,7 @@
 import base64
 import builtins
 import datetime
+import gzip
 import hashlib
 import io
 import json
@@ -10,6 +11,7 @@ import re
 import tarfile
 import tempfile
 import zipfile
+import zlib
 
 from cgi import FieldStorage
 from contextlib import ExitStack
@@ -270,6 +272,39 @@ class TestFileValidation:
         assert tarfile.is_tarfile(fake_tar)
 
         # This should fail
+        assert legacy._is_valid_dist_file(fake_tar, "sdist", NullMetrics()) == (
+            False,
+            None,
+        )
+
+    def test_bails_with_tarfile_that_raises_zlib_error(self, tmpdir):
+        fake_tar = str(tmpdir.join("test.tar.gz"))
+
+        buffer = io.BytesIO()
+        with tarfile.open(fileobj=buffer, mode="w") as tar:
+            file_content = b"x"
+            tarinfo = tarfile.TarInfo(name="package/data")
+            tarinfo.size = len(file_content)
+            tar.addfile(tarinfo, io.BytesIO(file_content))
+
+        valid_gzip_member = gzip.compress(
+            buffer.getvalue()[: tarfile.BLOCKSIZE], mtime=0
+        )
+        # 0x07 starts a final DEFLATE block with the reserved block type.
+        invalid_gzip_member = bytes.fromhex("1f8b080000000000000307")
+        with open(fake_tar, "wb") as fp:
+            fp.write(valid_gzip_member + invalid_gzip_member)
+
+        assert tarfile.is_tarfile(fake_tar)
+        with (
+            pytest.raises(zlib.error) as exc_info,
+            tarfile.open(fake_tar, "r:gz") as archive,
+        ):
+            archive.getnames()
+        assert str(exc_info.value) == (
+            "Error -3 while decompressing data: invalid block type"
+        )
+
         assert legacy._is_valid_dist_file(fake_tar, "sdist", NullMetrics()) == (
             False,
             None,
