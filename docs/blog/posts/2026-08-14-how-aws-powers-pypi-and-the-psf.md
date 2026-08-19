@@ -17,7 +17,7 @@ At the PSF we support and maintain the infrastructure behind PyPI, Python.org, P
 
 ## The shape of it
 
-PyPI takes over three billion requests a day and about six billion counting file downloads. Package egress runs around 10 petabytes a day.
+PyPI takes over six billion requests a day and about thirteen billion counting file downloads. Package egress runs around 10 petabytes a day.
 
 Almost none of that reaches AWS. Fastly serves it at the edge through their Fast Forward program at a hit ratio just under 99%, so only about one request in seventy makes it to origin. That caching is the core reason our AWS bill is not measured in the millions of dollars a year.
 
@@ -26,7 +26,7 @@ What does reach us is the part that is not cached, including things like user up
 - **Amazon EC2** for the application fleet, almost entirely Graviton at this point. We're [huge fans of Arm-based hardware](https://newsroom.arm.com/blog/how-the-python-software-foundation-future-proofed-its-infrastructure-with-arm) at the PSF!
 - **Amazon RDS** for the Postgres database behind Warehouse, which is the application you're looking at when you're on pypi.org.
 - **Amazon OpenSearch Service** for project search.
-- **Amazon S3** holds ~304 TB of package archives, plus the release history (that nobody ever wants to need).
+- **Amazon S3** holds ~100 TB of package archives, plus the release history (that nobody ever wants to need).
 - **Amazon EKS**, newly stood up, as the target for migrating the whole fleet.
 
 ## What changed this year
@@ -41,7 +41,7 @@ Some of it is simply more of everything. Compute, search, and load balancing all
 
 At the PSF, we take the credits seriously, which means spending real engineering time on utilizing what we have in an optimal way so our usage doesn't increase. Being frugal with the credits entrusted to us is vital.
 
-When a widely used GitHub Action makes requests it doesn't need to make, fixing the Action beats anything we can do on our side. As an example, [the PSF pushed for exactly that in astral-sh/setup-uv](https://github.com/astral-sh/setup-uv/issues/745#issuecomment-3867334064), which is [now live](https://github.com/astral-sh/setup-uv/pull/967) and will shave off usage as people upgrade.
+When a widely used GitHub Action makes requests it doesn't need to make, fixing the Action beats anything we can do on our side. A popular Action can quietly turn a cache hit into a fresh download from PyPI on every run, and that adds up fast across thousands of CI pipelines. `astral-sh/setup-uv` [shipped exactly that kind of fix](https://github.com/astral-sh/setup-uv/pull/967).
 
 On the PSF side, the EKS migration is the big one. Once we're there, autoscaling lets capacity track demand instead of sitting provisioned for peak at 3 AM (San Francisco time) on a Sunday.
 
@@ -76,3 +76,5 @@ Four things, in order of how much they matter:
 The [open letter the PSF co-signed last year](https://openssf.org/blog/2025/09/23/open-infrastructure-is-not-free-a-joint-statement-on-sustainable-stewardship/) called this a critical inflection point rather than a crisis. A year on, with our first real break in eight years of flat infrastructure costs, that still reads about right.
 
 A big thanks to Mila Zhou and the AWS Open Source team, who have made the credits process about as painless as an annual funding renewal can be, and to everyone at AWS who's kept this program going for so long. PyPI would look very different without it.
+
+_This blog was recently edited to more accurately reflect numbers presented and work done._
