@@ -326,6 +326,7 @@ def test_configure(monkeypatch, mocker, settings, environment):
         "warehouse.account.2fa_user_ratelimit_string": "5 per 5 minutes, 20 per hour, 50 per day",  # noqa: E501
         "warehouse.account.2fa_ip_ratelimit_string": "10 per 5 minutes, 50 per hour",
         "warehouse.account.email_add_ratelimit_string": "2 per day",
+        "warehouse.account.email_change_ratelimit_string": "5 per 5 minutes, 20 per hour",  # noqa: E501
         "warehouse.account.verify_email_ratelimit_string": "3 per 6 hours",
         "warehouse.account.accounts_search_ratelimit_string": "100 per hour",
         "warehouse.account.password_reset_ratelimit_string": "5 per day",
