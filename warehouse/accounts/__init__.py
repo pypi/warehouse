@@ -196,6 +196,10 @@ def includeme(config):
         "warehouse.account.email_add_ratelimit_string"
     )
     config.register_rate_limiter(email_add_ratelimit_string, "email.add")
+    email_change_ratelimit_string = config.registry.settings.get(
+        "warehouse.account.email_change_ratelimit_string"
+    )
+    config.register_rate_limiter(email_change_ratelimit_string, "email.change")
     password_reset_ratelimit_string = config.registry.settings.get(
         "warehouse.account.password_reset_ratelimit_string"
     )
