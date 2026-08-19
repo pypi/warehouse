@@ -2408,7 +2408,7 @@ msgstr ""
 
 #: warehouse/templates/email/new-organization-approved/body.html:11
 msgid ""
-"As this is a corporate organization, you must purchase at least one (1) "
+"As this is a Company organization, you must purchase at least one (1) "
 "seat or your organization will be deactivated."
 msgstr ""
 
