@@ -16,9 +16,9 @@
   {% endtrans %}
 </p>
 <p>
-  {% trans href=request.route_url('manage.account', _host=domain), token_name=token_name %}
+  {% trans href=request.route_url('manage.account.tokens', _host=domain), token_name=token_name %}
   If you are the owner of this token, you can delete it by going to your
-  <a href="{{ href }}#api-tokens">API tokens configuration</a> and deleting the token named
+  <a href="{{ href }}">API tokens configuration</a> and deleting the token named
   <strong>{{ token_name }}</strong>.
 {% endtrans %}
 </p>

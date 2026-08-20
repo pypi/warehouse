@@ -2413,8 +2413,8 @@ msgstr ""
 #, python-format
 msgid ""
 "If you are the owner of this token, you can delete it by going to your <a"
-" href=\"%(href)s#api-tokens\">API tokens configuration</a> and deleting "
-"the token named <strong>%(token_name)s</strong>."
+" href=\"%(href)s\">API tokens configuration</a> and deleting the token "
+"named <strong>%(token_name)s</strong>."
 msgstr ""
 
 #: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:26
@@ -9285,8 +9285,8 @@ msgstr ""
 #: warehouse/templates/pages/help.html:859
 #, python-format
 msgid ""
-"In your <a href=\"%(href)s\">account settings</a>, go to the API tokens "
-"section and select \"Add API token\""
+"In your <a href=\"%(href)s\">API tokens settings</a>, select \"Add API "
+"token\""
 msgstr ""
 
 #: warehouse/templates/pages/help.html:862

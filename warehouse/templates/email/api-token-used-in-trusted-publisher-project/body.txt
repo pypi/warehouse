@@ -16,7 +16,7 @@
     We recommend removing the API token and only using the Trusted Publisher to publish.
   {% endtrans %}
 
-  {% trans href=request.route_url('manage.account', _host=domain), token_name=token_name %}
+  {% trans href=request.route_url('manage.account.tokens', _host=domain), token_name=token_name %}
     If you are the owner of this token, you can delete it by going to your API tokens
     configuration at {{ href }} and deleting the token named {{ token_name }}.
   {% endtrans %}
