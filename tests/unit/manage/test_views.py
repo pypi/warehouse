@@ -2415,7 +2415,9 @@ class TestProvisionMacaroonViews:
         view = views.ProvisionMacaroonViews(pyramid_request)
         result = view.create_macaroon()
 
-        assert pyramid_request.route_path.calls == [pretend.call("manage.account")]
+        assert pyramid_request.route_path.calls == [
+            pretend.call("manage.account.tokens")
+        ]
         assert pyramid_request.session.flash.calls == [
             pretend.call("Verify your email to create an API token.", queue="error")
         ]
@@ -2723,7 +2725,9 @@ class TestProvisionMacaroonViews:
         view = views.ProvisionMacaroonViews(pyramid_request)
         result = view.delete_macaroon()
 
-        assert pyramid_request.route_path.calls == [pretend.call("manage.account")]
+        assert pyramid_request.route_path.calls == [
+            pretend.call("manage.account.tokens")
+        ]
         assert isinstance(result, HTTPSeeOther)
         assert result.location == "/safe/route"
         assert macaroon_service.delete_macaroon.calls == []
@@ -2826,7 +2830,9 @@ class TestProvisionMacaroonViews:
         view = views.ProvisionMacaroonViews(pyramid_request)
         result = view.delete_macaroon()
 
-        assert pyramid_request.route_path.calls == [pretend.call("manage.account")]
+        assert pyramid_request.route_path.calls == [
+            pretend.call("manage.account.tokens")
+        ]
         assert isinstance(result, HTTPSeeOther)
         assert macaroon_service.find_macaroon.calls == [
             pretend.call(delete_macaroon_obj.macaroon_id.data)
@@ -2873,7 +2879,9 @@ class TestProvisionMacaroonViews:
         result = view.delete_macaroon()
 
         assert isinstance(result, HTTPSeeOther)
-        assert pyramid_request.route_path.calls == [pretend.call("manage.account")]
+        assert pyramid_request.route_path.calls == [
+            pretend.call("manage.account.tokens")
+        ]
         assert result.location == "/manage/account/"
         assert pyramid_request.session.flash.calls == [
             pretend.call("API Token does not exist.", queue="warning")
