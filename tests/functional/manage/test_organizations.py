@@ -51,9 +51,6 @@ def _login_user(webtest, user):
 
 
 class TestManageOrganizationSettings:
-    def _login_user(self, webtest, user):
-        _login_user(webtest, user)
-
     def _create_billing_inactive_org(self, role_name=OrganizationRoleType.Owner):
         """Create a Company org not in good standing and a user with a role in it."""
         user = UserFactory.create(
@@ -98,7 +95,7 @@ class TestManageOrganizationSettings:
         """
         owner, organization = self._create_billing_inactive_org()
 
-        self._login_user(webtest, owner)
+        _login_user(webtest, owner)
 
         settings_page = webtest.get(
             f"/manage/organization/{organization.normalized_name}/settings/",
@@ -113,7 +110,7 @@ class TestManageOrganizationSettings:
         """
         owner, organization = self._create_billing_inactive_org()
 
-        self._login_user(webtest, owner)
+        _login_user(webtest, owner)
 
         list_page = webtest.get("/manage/organizations/", status=HTTPStatus.OK)
         manage_url = f"/manage/organization/{organization.normalized_name}/settings/"
@@ -127,7 +124,7 @@ class TestManageOrganizationSettings:
         """
         owner, organization = self._create_billing_inactive_org()
 
-        self._login_user(webtest, owner)
+        _login_user(webtest, owner)
 
         response = webtest.get(
             f"/manage/organization/{organization.normalized_name}/publishing/",
@@ -143,7 +140,7 @@ class TestManageOrganizationSettings:
         owner, organization = self._create_billing_inactive_org()
         organization_id = organization.id
 
-        self._login_user(webtest, owner)
+        _login_user(webtest, owner)
 
         response = self._post_delete_organization(
             webtest, organization, status=HTTPStatus.SEE_OTHER
@@ -167,7 +164,7 @@ class TestManageOrganizationSettings:
         assert not organization.is_in_good_standing()
         organization_id = organization.id
 
-        self._login_user(webtest, owner)
+        _login_user(webtest, owner)
 
         response = self._post_delete_organization(
             webtest, organization, status=HTTPStatus.SEE_OTHER
@@ -188,7 +185,7 @@ class TestManageOrganizationSettings:
         """
         user, organization = self._create_billing_inactive_org(role_name=role_name)
 
-        self._login_user(webtest, user)
+        _login_user(webtest, user)
 
         self._post_delete_organization(
             webtest, organization, status=HTTPStatus.FORBIDDEN
@@ -204,18 +201,14 @@ class TestCompanyOrgSurveyCallout:
             clear_pwd="password",
         )
 
-    def _create_org_for(self, user, orgtype):
-        organization = OrganizationFactory.create(orgtype=orgtype)
+    def test_shown_for_company_org_owner(self, webtest):
+        user = self._create_user()
+        organization = OrganizationFactory.create(orgtype=OrganizationType.Company)
         OrganizationRoleFactory.create(
             user=user,
             organization=organization,
             role_name=OrganizationRoleType.Owner,
         )
-        return organization
-
-    def test_shown_for_company_org_owner(self, webtest):
-        user = self._create_user()
-        self._create_org_for(user, OrganizationType.Company)
 
         _login_user(webtest, user)
 
@@ -225,7 +218,12 @@ class TestCompanyOrgSurveyCallout:
 
     def test_not_shown_for_community_org_only(self, webtest):
         user = self._create_user()
-        self._create_org_for(user, OrganizationType.Community)
+        organization = OrganizationFactory.create(orgtype=OrganizationType.Community)
+        OrganizationRoleFactory.create(
+            user=user,
+            organization=organization,
+            role_name=OrganizationRoleType.Owner,
+        )
 
         _login_user(webtest, user)
 
