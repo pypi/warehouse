@@ -300,6 +300,9 @@ def includeme(config):
         "/manage/account/recovery-codes/burn",
         domain=warehouse,
     )
+    config.add_route(
+        "manage.account.tokens", "/manage/account/tokens/", domain=warehouse
+    )
     config.add_route("manage.account.token", "/manage/account/token/", domain=warehouse)
     config.add_route(
         "manage.account.associations.github.connect",
