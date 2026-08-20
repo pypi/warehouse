@@ -4,6 +4,7 @@
 @use "sass:list";
 @use "../settings/breakpoints";
 @use "../settings/colors";
+@use "../settings/fonts";
 @use "../settings/z-index";
 @use "../tools/link-utilities";
 
@@ -159,6 +160,11 @@
         border-bottom-color: colors.$white;
       }
     }
+  }
+
+  &__link--is-active,
+  &__link--is-active:hover {
+    font-weight: fonts.$bold-font-weight;
   }
 
   &--with-icons {
