@@ -3279,6 +3279,17 @@ msgid ""
 "Agreement Interest</a> survey and we'll follow up."
 msgstr ""
 
+#: warehouse/templates/includes/manage/company-org-survey-callout.html:22
+#, python-format
+msgid ""
+"You are seeing this because you belong to the company organization "
+"%(orgs)s."
+msgid_plural ""
+"You are seeing this because you belong to these company organizations: "
+"%(orgs)s."
+msgstr[0] ""
+msgstr[1] ""
+
 #: warehouse/templates/includes/manage/manage-organization-menu.html:2
 #, python-format
 msgid "Navigation for managing %(organization)s"
