@@ -12,6 +12,25 @@ volumes:
   mailpit_data:
 
 services:
+  traefik:
+    image: traefik:v3.6
+    command:
+      - "--api.insecure=true"  # enables dashboard on 8080 with no routing rules
+      - "--providers.docker=true"
+      - "--providers.docker.exposedByDefault=false"
+      - "--entrypoints.web.address=:80"  # port mapping to `web` service, not host-facing
+      # TODO: Is this too noisy, duplicating the web logs?
+      # - "--accesslog=true"
+      # - "--accesslog.format=json"
+    ports:
+      - "${WEB_PORT:-80}:80"
+      - "${TRAEFIK_DASHBOARD_PORT:-8080}:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      web:
+        condition: service_started  # no healthcheck yet
+
   db:
     image: postgres:17.5
     ports:
@@ -62,9 +81,12 @@ services:
 
   camo:
     image: pypa/warehouse-camo:2.0.0
-    command: "/bin/go-camo --listen=0.0.0.0:9000 --header 'Access-Control-Allow-Origin: http://localhost'"
-    ports:
-      - "9000:9000"
+    command: "/bin/go-camo --listen=0.0.0.0:9000 --header 'Access-Control-Allow-Origin: *'"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.camo.rule=Host(`camo.localhost`)"
+      - "traefik.http.routers.camo.entrypoints=web"
+      - "traefik.http.services.camo.loadbalancer.server.port=9000"
     environment:
       GOCAMO_HMAC: "insecurecamokey"
       GOCAMO_MAXSIZE: 10000
@@ -99,8 +121,12 @@ services:
     env_file: dev/environment
     pull_policy: never
     volumes: *base_volumes
-    ports:
-      - "${WEB_PORT:-80}:8000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.web.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.web.priority=1"
+      - "traefik.http.routers.web.entrypoints=web"
+      - "traefik.http.services.web.loadbalancer.server.port=8000"
     depends_on:
       db:
         condition: service_healthy
@@ -137,8 +163,11 @@ services:
       - sponsorlogos:/var/opt/warehouse/sponsorlogos
       - simple:/var/opt/warehouse/simple
       - rstuf-metadata:/var/opt/warehouse/tuf-metadata
-    ports:
-      - "9001:9001"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.files.rule=Host(`files.localhost`)"
+      - "traefik.http.routers.files.entrypoints=web"
+      - "traefik.http.services.files.loadbalancer.server.port=9001"
 
   worker:
     image: warehouse:docker-compose
