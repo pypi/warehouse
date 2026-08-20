@@ -82,6 +82,11 @@
     grid-column: span 3;
     padding-left: 1px;
 
+    // stick on scroll; grid items only stick with align-self: start
+    position: sticky;
+    top: grid.$half-spacing-unit;
+    align-self: start;
+
     @media only screen and (max-width: breakpoints.$tablet) {
       display: none;
     }
