@@ -122,6 +122,8 @@
 </section>
 <hr>
 <a href="." class="button">{% trans %}Create another token{% endtrans %}</a>
+<a href="{{ request.route_path('manage.account.tokens') }}"
+   class="button">{% trans %}Back to API tokens{% endtrans %}</a>
 {% else %}
 {{ form_error_anchor(create_macaroon_form) }}
 <section id="create-token">
