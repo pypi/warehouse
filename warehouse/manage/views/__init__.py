@@ -599,6 +599,19 @@ def manage_two_factor(request):
     return {}
 
 
+@view_config(
+    route_name="manage.account.security-history",
+    renderer="warehouse:templates/manage/account/security-history.html",
+    request_method="GET",
+    uses_session=True,
+    permission=Permissions.AccountManage,
+    has_translations=True,
+    require_reauth=True,
+)
+def manage_account_security_history(request):
+    return {"recent_events": request.user.recent_events.all()}
+
+
 @view_defaults(
     route_name="manage.account.totp-provision",
     renderer="warehouse:templates/manage/account/totp-provision.html",
