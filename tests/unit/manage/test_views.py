@@ -56,7 +56,7 @@ from warehouse.rate_limiting import IRateLimiter
 from warehouse.utils import otp
 from warehouse.utils.paginate import paginate_url_factory
 
-from ...common.db.accounts import EmailFactory, UserFactory
+from ...common.db.accounts import EmailFactory, UserEventFactory, UserFactory
 from ...common.db.macaroons import MacaroonFactory
 from ...common.db.organizations import (
     OrganizationFactory,
@@ -1357,6 +1357,25 @@ class TestManageAccount:
             db_request.db.query(User).filter(User.username == user.username).first()
             is not None
         )
+
+
+class TestManageAccountSecurityHistory:
+    def test_manage_account_security_history(self, db_request):
+        user = UserFactory.create()
+        events = [
+            UserEventFactory.create(source=user, tag=EventTag.Account.LoginSuccess),
+            UserEventFactory.create(source=user, tag=EventTag.Account.EmailAdd),
+        ]
+        # An unrelated user's events must not leak into the response
+        UserEventFactory.create(
+            source=UserFactory.create(), tag=EventTag.Account.LoginSuccess
+        )
+        db_request.user = user
+
+        response = views.manage_account_security_history(db_request)
+
+        assert set(response) == {"recent_events"}
+        assert set(response["recent_events"]) == set(events)
 
 
 class Test2FA:
