@@ -1655,7 +1655,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:8
 #: warehouse/templates/manage/account/token.html:8
 #: warehouse/templates/manage/account/totp-provision.html:8
-#: warehouse/templates/packaging/submit-malware-observation.html:6
+#: warehouse/templates/packaging/submit-malware-observation.html:7
 #: warehouse/templates/re-auth.html:5
 msgid "Error processing form"
 msgstr ""
@@ -1779,8 +1779,8 @@ msgstr ""
 #: warehouse/templates/manage/project/roles.html:416
 #: warehouse/templates/manage/team/roles.html:104
 #: warehouse/templates/manage/team/settings.html:22
-#: warehouse/templates/packaging/submit-malware-observation.html:42
-#: warehouse/templates/packaging/submit-malware-observation.html:55
+#: warehouse/templates/packaging/submit-malware-observation.html:43
+#: warehouse/templates/packaging/submit-malware-observation.html:56
 #: warehouse/templates/re-auth.html:38
 msgid "(required)"
 msgstr ""
@@ -8375,15 +8375,15 @@ msgstr ""
 msgid "RSS: latest releases for %(project_name)s"
 msgstr ""
 
-#: warehouse/templates/packaging/submit-malware-observation.html:8
+#: warehouse/templates/packaging/submit-malware-observation.html:9
 msgid "Submit Malware Report for Project"
 msgstr ""
 
-#: warehouse/templates/packaging/submit-malware-observation.html:13
+#: warehouse/templates/packaging/submit-malware-observation.html:14
 msgid "Submit Malware Report for Project:"
 msgstr ""
 
-#: warehouse/templates/packaging/submit-malware-observation.html:15
+#: warehouse/templates/packaging/submit-malware-observation.html:16
 msgid ""
 "Use this form to submit reports of malicious projects for review by the "
 "PyPI Administrators. Examples of malicious activity in projects include "
@@ -8391,7 +8391,7 @@ msgid ""
 "command/control, and other similar behaviors."
 msgstr ""
 
-#: warehouse/templates/packaging/submit-malware-observation.html:21
+#: warehouse/templates/packaging/submit-malware-observation.html:22
 #, python-format
 msgid ""
 "You'll be required to provide a link to notable source code using our <a "
@@ -8400,7 +8400,7 @@ msgid ""
 "portion of the relevant files."
 msgstr ""
 
-#: warehouse/templates/packaging/submit-malware-observation.html:27
+#: warehouse/templates/packaging/submit-malware-observation.html:28
 msgid ""
 "Your summary should include a general description of the malicious "
 "behavior as well as any other pertinent details such as what specific "
@@ -8408,11 +8408,11 @@ msgid ""
 "Project."
 msgstr ""
 
-#: warehouse/templates/packaging/submit-malware-observation.html:46
+#: warehouse/templates/packaging/submit-malware-observation.html:47
 msgid "Fill with a link to the problematic code lines from"
 msgstr ""
 
-#: warehouse/templates/packaging/submit-malware-observation.html:54
+#: warehouse/templates/packaging/submit-malware-observation.html:55
 msgid "Summary"
 msgstr ""
 
