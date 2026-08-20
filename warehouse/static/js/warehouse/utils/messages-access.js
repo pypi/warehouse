@@ -64,6 +64,42 @@ export function gettext(singular, ...extras) {
 }
 
 /**
+ * Check whether the current locale has a translation for a string.
+ * @param singular {string} The default string for the singular translation, used as the key.
+ * @returns {boolean}
+ */
+export function hasTranslation(singular) {
+  return hasTranslationCustom(singular, messagesAccessLocaleData);
+}
+
+/**
+ * Check whether the locale data has a translation for a string.
+ * @param singular {string} The default string for the singular translation, used as the key.
+ * @param data {{}} The locale data used for translation.
+ * @returns {boolean}
+ */
+export function hasTranslationCustom(singular, data) {
+  if (!singular) {
+    return false;
+  }
+  const language = data?.[""]?.["language"];
+  if (!language) {
+    return false;
+  }
+  if (language === "en") {
+    return true;
+  }
+  if (!Object.hasOwn(data, singular)) {
+    return false;
+  }
+  let value = data[singular];
+  if (!Array.isArray(value)) {
+    value = [value];
+  }
+  return value.length > 0 && value.every((str) => str !== "");
+}
+
+/**
  * Get the translation.
  * @param singular {string} The default string for the singular translation.
  * @param plural {string|null} The default string for the plural translation.
