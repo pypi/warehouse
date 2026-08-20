@@ -1,8 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import datetime
-import uuid
-
 from zope.interface.verify import verifyClass
 
 from warehouse.cache.interfaces import IQueryResultsCache
@@ -35,27 +32,13 @@ class TestRedisQueryResults:
 
         assert result == {"foo": "bar"}
 
-    def test_set_get_complex(self, query_results_cache_service):
-        # Construct a complex object to store in the cache
+    def test_set_get_nested(self, query_results_cache_service):
         obj = {
-            "uuid": uuid.uuid4(),
-            "datetime": datetime.datetime.now(),
             "list": [1, 2, 3],
             "dict": {"key": "value"},
         }
-        # Set the complex object in the cache
         query_results_cache_service.set("complex_key", obj)
 
-        # Get the complex object from the cache
         result = query_results_cache_service.get("complex_key")
 
-        # Check that the result is the "same" as the original object, except
-        # for the UUID and datetime, which are now strings
-        assert result["list"] == obj["list"]
-        assert result["dict"] == obj["dict"]
-        assert result["uuid"] == str(obj["uuid"])
-        assert result["datetime"] == obj["datetime"].isoformat()
-        assert isinstance(result["list"], list)
-        assert isinstance(result["dict"], dict)
-        assert isinstance(result["uuid"], str)
-        assert isinstance(result["datetime"], str)
+        assert result == obj

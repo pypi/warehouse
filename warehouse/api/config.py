@@ -6,16 +6,58 @@ Configuration for the warehouse API
 
 from __future__ import annotations
 
+import json
+import math
 import typing
 
 from pathlib import Path
-
-import orjson
 
 from warehouse.config import Environment
 
 if typing.TYPE_CHECKING:
     from pyramid.config import Configurator
+
+
+def _reject_json_constant(value: str) -> typing.NoReturn:
+    raise ValueError(f"Invalid JSON constant: {value}")
+
+
+def _parse_json_float(value: str) -> float:
+    result = float(value)
+    if not math.isfinite(result):
+        raise ValueError("JSON number is outside the finite range")
+    return result
+
+
+def _validate_json_unicode(value) -> None:
+    pending = [value]
+    while pending:
+        current = pending.pop()
+        if isinstance(current, str):
+            try:
+                current.encode("utf-8")
+            except UnicodeEncodeError as exc:
+                raise ValueError("JSON strings must contain valid Unicode") from exc
+        elif isinstance(current, dict):
+            pending.extend(current.keys())
+            pending.extend(current.values())
+        elif isinstance(current, list):
+            pending.extend(current)
+
+
+# Preserve behavior that orjson previously provided that is not built into the
+# stdlib json.
+def _strict_json_loads(value):
+    if isinstance(value, (bytes, bytearray, memoryview)):
+        value = bytes(value).decode("utf-8")
+
+    result = json.loads(
+        value,
+        parse_constant=_reject_json_constant,
+        parse_float=_parse_json_float,
+    )
+    _validate_json_unicode(result)
+    return result
 
 
 def _api_set_content_type(view, info):
@@ -56,7 +98,7 @@ def includeme(config: Configurator) -> None:
     # We use vendor prefixes to indicate the API version, so we need to add
     # deserializers for each version.
     config.pyramid_openapi3_add_deserializer(
-        "application/vnd.pypi.api-v0-danger+json", orjson.loads
+        "application/vnd.pypi.api-v0-danger+json", _strict_json_loads
     )
     if config.registry.settings["warehouse.env"] == Environment.development:
         # Set up the route for the OpenAPI Web UI
