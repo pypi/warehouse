@@ -8,6 +8,11 @@
 {% endblock %}
 {# Hide mobile search on manager pages #}
 {% block mobile_search %}{% endblock %}
+{% block header_section_menu_items %}
+  {% with mode="dropdown" %}
+    {% include "warehouse:templates/includes/manage/manage-team-menu.html" %}
+  {% endwith %}
+{% endblock %}
 {% block content %}
   <div class="tabs-container">
     {% block breadcrumbs %}
