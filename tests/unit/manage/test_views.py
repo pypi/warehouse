@@ -2980,6 +2980,24 @@ class TestProvisionMacaroonViews:
         ]
 
 
+class TestManageAccountTokens:
+    def test_manage_account_tokens(self, db_request):
+        user = UserFactory.create()
+        macaroon = MacaroonFactory.create(
+            user_id=user.id,
+            description="a token",
+            permissions_caveat={"permissions": "user"},
+        )
+        db_request.user = user
+
+        assert views.manage_account_tokens(db_request) == {"macaroons": [macaroon]}
+
+    def test_manage_account_tokens_empty(self, db_request):
+        db_request.user = UserFactory.create()
+
+        assert views.manage_account_tokens(db_request) == {"macaroons": []}
+
+
 class TestManageProjects:
     def test_manage_projects(self, db_request):
         older_release = ReleaseFactory(created=datetime.datetime(2015, 1, 1))
