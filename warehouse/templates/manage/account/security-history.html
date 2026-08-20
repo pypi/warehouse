@@ -2,7 +2,8 @@
 {% extends "manage/manage_base.html" %}
 {% set user = request.user %}
 {% set title = gettext("Security history") %}
-{% set active_tab = "account" %}
+{% set active_tab = "security" %}
+{% set active_subtab = "security-history" %}
 {% block title %}{{ title }}{% endblock %}
 {% block main %}
   <h1 class="page-title">{{ title }}</h1>

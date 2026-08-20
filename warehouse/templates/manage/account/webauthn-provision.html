@@ -2,7 +2,7 @@
 {% extends "manage/manage_base.html" %}
 {% set user = request.user %}
 {% set title = gettext("Set up 2FA with a security device (e.g. USB key)") %}
-{% set active_tab = "account" %}
+{% set active_tab = "security" %}
 {% block title %}{{ title }}{% endblock %}
 {% block main %}
   <h1 class="page-title page-title--wsubtitle heading-wsubtitle__heading">{{ title }}</h1>

@@ -2,7 +2,7 @@
 {% extends "manage/manage_base.html" %}
 {% set user = request.user %}
 {% set title = gettext("Set up 2FA with an authentication application (TOTP)") %}
-{% set active_tab = "account" %}
+{% set active_tab = "security" %}
 {% block title %}
   {% if provision_totp_form.errors %}
     {% trans %}Error processing form{% endtrans %} –
