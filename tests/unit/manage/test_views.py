@@ -1347,23 +1347,34 @@ class TestManageAccountSecurity:
                 "password_confirm": "n3w_p455w0rd",
             }
         )
-        user_service = mocker.Mock(update_user=mocker.Mock())
+        user_service = mocker.Mock(
+            update_user=mocker.Mock(), get_password_timestamp=mocker.Mock()
+        )
         db_request.find_service = lambda iface, **kw: {
             IUserService: user_service,
             IPasswordBreachedService: mocker.Mock(),
         }[iface]
         db_request.session = mocker.Mock(flash=mocker.Mock())
+        db_request.db = mocker.Mock()
+        record_event = mocker.patch.object(user, "record_event")
         send_email = mocker.patch.object(views, "send_password_change_email")
         form_obj = mocker.Mock(validate=mocker.Mock(return_value=False))
-        mocker.patch.object(views, "ChangePasswordForm", return_value=form_obj)
+        default_form_obj = mocker.Mock()
+        mocker.patch.object(
+            views, "ChangePasswordForm", side_effect=[form_obj, default_form_obj]
+        )
 
         view = views.ManageAccountSecurityViews(db_request)
         result = view.change_password()
 
-        assert result["change_password_form"] is form_obj
+        assert result == {"change_password_form": form_obj}
         assert db_request.session.flash.call_args_list == []
         assert send_email.call_args_list == []
         assert user_service.update_user.call_args_list == []
+        assert user_service.get_password_timestamp.call_args_list == []
+        assert record_event.call_args_list == []
+        assert db_request.db.flush.call_args_list == []
+        assert db_request.db.refresh.call_args_list == []
 
 
 class TestManageAccountSecurityHistory:
