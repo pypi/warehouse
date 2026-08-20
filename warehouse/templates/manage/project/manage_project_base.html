@@ -90,10 +90,6 @@
           <h1 class="package-snippet__title package-snippet__title--page-title">{{ project.name }}</h1>
         {% endif %}
       </a>
-      <!-- mobile nav -->
-      {% with mode="mobile" %}
-        {% include "warehouse:templates/includes/manage/manage-project-menu.html" %}
-      {% endwith %}
       {% block main %}
       {% endblock %}
     </div>
