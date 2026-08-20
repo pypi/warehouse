@@ -50,7 +50,10 @@
       {% endtrans %}
     </li>
     {% if file.uploaded_via %}
-      <li>{% trans uploaded_via=file.uploaded_via %} Uploaded via: {{ uploaded_via }} {% endtrans %}</li>
+      {% set uploaded_via %}
+        <code class="code-block">{{ file.uploaded_via }}</code>
+      {% endset %}
+      <li>{% trans uploaded_via=uploaded_via %} Uploaded via: {{ uploaded_via }} {% endtrans %}</li>
     {% endif %}
   </ul>
 </div>
