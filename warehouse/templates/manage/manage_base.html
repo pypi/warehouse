@@ -249,10 +249,6 @@
         <div class="sidebar-section">{% include "warehouse:templates/includes/manage/manage-account-menu.html" %}</div>
       </div>
       <div class="vertical-tabs__panel">
-        <!-- mobile nav -->
-        {% with mode="mobile" %}
-          {% include "warehouse:templates/includes/manage/manage-account-menu.html" %}
-        {% endwith %}
         <div class="vertical-tabs__content">
           {% block main %}
           {% endblock %}
