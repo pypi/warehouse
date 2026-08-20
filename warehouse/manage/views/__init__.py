@@ -549,6 +549,39 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
         return logout(self.request)
 
 
+@view_defaults(
+    route_name="manage.account.security",
+    renderer="warehouse:templates/manage/account/security.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    permission=Permissions.AccountManage,
+    has_translations=True,
+    require_reauth=True,
+)
+@lift()
+class ManageAccountSecurityViews:
+    def __init__(self, request):
+        self.request = request
+        self.user_service = request.find_service(IUserService, context=None)
+        self.breach_service = request.find_service(
+            IPasswordBreachedService, context=None
+        )
+
+    @property
+    def default_response(self):
+        return {
+            "change_password_form": ChangePasswordForm(
+                request=self.request,
+                user_service=self.user_service,
+                breach_service=self.breach_service,
+            ),
+        }
+
+    @view_config(request_method="GET")
+    def manage_account_security(self):
+        return self.default_response
+
     @view_config(request_method="POST", request_param=ChangePasswordForm.__params__)
     def change_password(self):
         form = ChangePasswordForm(
