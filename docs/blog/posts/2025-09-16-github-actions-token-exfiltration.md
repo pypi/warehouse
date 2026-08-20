@@ -65,8 +65,8 @@ If you use GitHub Actions to publish to PyPI, I recommend the following steps to
    GitHub Trusted Publishers use short-lived tokens that are scoped to a specific repository,
    and expire after a short period of time.
 2. Log into your account and review your security history for any suspicious activity.
-   You can do this by going to your [Account Settings](https://pypi.org/manage/account/)
-   and scrolling to the ["Security History" section](https://pypi.org/manage/account/#account-events).
+   You can do this by going to your
+   [Security history](https://pypi.org/manage/account/security-history/) page.
 
 While Trusted Publisher tokens can still be exfiltrated,
 using Trusted Publishers significantly reduces the risk of compromise.
