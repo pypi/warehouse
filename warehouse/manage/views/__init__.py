@@ -379,11 +379,6 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
                 user_service=self.user_service,
                 user_id=self.request.user.id,
             ),
-            "change_password_form": ChangePasswordForm(
-                request=self.request,
-                user_service=self.user_service,
-                breach_service=self.breach_service,
-            ),
             "account_associations": self.account_associations,
             "active_projects": self.active_projects,
             "sole_organizations": self.sole_organizations,
@@ -493,37 +488,6 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
 
         return self.default_response
 
-    @view_config(request_method="POST", request_param=ChangePasswordForm.__params__)
-    def change_password(self):
-        form = ChangePasswordForm(
-            self.request.POST,
-            request=self.request,
-            username=self.request.user.username,
-            full_name=self.request.user.name,
-            email=self.request.user.email,
-            user_service=self.user_service,
-            breach_service=self.breach_service,
-            check_password_metrics_tags=["method:new_password"],
-        )
-
-        if form.validate():
-            self.user_service.update_user(
-                self.request.user.id, password=form.new_password.data
-            )
-            self.request.user.record_event(
-                tag=EventTag.Account.PasswordChange,
-                request=self.request,
-            )
-            send_password_change_email(self.request, self.request.user)
-            self.request.db.flush()  # ast-grep-ignore: db-flush -- user.password_date
-            self.request.db.refresh(self.request.user)  # Pickup new password_date
-            self.request.session.record_password_timestamp(
-                self.user_service.get_password_timestamp(self.request.user.id)
-            )
-            self.request.session.flash("Password updated", queue="success")
-            return HTTPSeeOther(self.request.path)
-
-        return {**self.default_response, "change_password_form": form}
 
     @view_config(
         request_method="POST", request_param=DeleteTOTPForm.__params__
@@ -583,6 +547,39 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
         self.request.db.delete(self.request.user)
 
         return logout(self.request)
+
+
+    @view_config(request_method="POST", request_param=ChangePasswordForm.__params__)
+    def change_password(self):
+        form = ChangePasswordForm(
+            self.request.POST,
+            request=self.request,
+            username=self.request.user.username,
+            full_name=self.request.user.name,
+            email=self.request.user.email,
+            user_service=self.user_service,
+            breach_service=self.breach_service,
+            check_password_metrics_tags=["method:new_password"],
+        )
+
+        if form.validate():
+            self.user_service.update_user(
+                self.request.user.id, password=form.new_password.data
+            )
+            self.request.user.record_event(
+                tag=EventTag.Account.PasswordChange,
+                request=self.request,
+            )
+            send_password_change_email(self.request, self.request.user)
+            self.request.db.flush()  # user.password_date # ast-grep-ignore: db-flush
+            self.request.db.refresh(self.request.user)  # Pickup new password_date
+            self.request.session.record_password_timestamp(
+                self.user_service.get_password_timestamp(self.request.user.id)
+            )
+            self.request.session.flash("Password updated", queue="success")
+            return HTTPSeeOther(self.request.path)
+
+        return {**self.default_response, "change_password_form": form}
 
 
 @view_config(
