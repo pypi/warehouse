@@ -31,6 +31,7 @@ from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage import views
+from warehouse.manage.forms import ChangePasswordForm
 from warehouse.manage.views import (
     organizations as org_views,
     view_helpers,
@@ -417,10 +418,6 @@ class TestManageAccount:
         add_email_cls = pretend.call_recorder(lambda **kw: add_email_obj)
         monkeypatch.setattr(views, "AddEmailForm", add_email_cls)
 
-        change_pass_obj = pretend.stub()
-        change_pass_cls = pretend.call_recorder(lambda **kw: change_pass_obj)
-        monkeypatch.setattr(views, "ChangePasswordForm", change_pass_cls)
-
         view = views.ManageVerifiedAccountViews(request)
 
         monkeypatch.setattr(
@@ -431,7 +428,6 @@ class TestManageAccount:
         assert view.default_response == {
             "save_account_form": save_account_obj,
             "add_email_form": add_email_obj,
-            "change_password_form": change_pass_obj,
             "active_projects": view.active_projects,
             "sole_organizations": view.sole_organizations,
             "account_associations": account_associations,
@@ -449,13 +445,6 @@ class TestManageAccount:
         ]
         assert add_email_cls.calls == [
             pretend.call(request=request, user_id=user_id, user_service=user_service)
-        ]
-        assert change_pass_cls.calls == [
-            pretend.call(
-                request=request,
-                user_service=user_service,
-                breach_service=breach_service,
-            )
         ]
 
     def test_active_projects(self, db_request):
@@ -1065,108 +1054,6 @@ class TestManageAccount:
         ]
         assert send_email.calls == []
 
-    def test_change_password(self, monkeypatch):
-        old_password = "0ld_p455w0rd"
-        new_password = "n3w_p455w0rd"
-        user_service = pretend.stub(
-            update_user=pretend.call_recorder(lambda *a, **kw: None),
-            get_password_timestamp=lambda uid: 0,
-        )
-        request = pretend.stub(
-            POST={
-                "password": old_password,
-                "new_password": new_password,
-                "password_confirm": new_password,
-            },
-            session=pretend.stub(
-                flash=pretend.call_recorder(lambda *a, **kw: None),
-                record_password_timestamp=lambda ts: None,
-            ),
-            find_service=lambda *a, **kw: user_service,
-            user=pretend.stub(
-                id=pretend.stub(),
-                username=pretend.stub(),
-                email=pretend.stub(),
-                name=pretend.stub(),
-                record_event=pretend.call_recorder(lambda *a, **kw: None),
-            ),
-            db=pretend.stub(
-                flush=lambda: None,
-                refresh=lambda obj: None,
-            ),
-            remote_addr="0.0.0.0",
-            path="request-path",
-        )
-        change_pwd_obj = pretend.stub(
-            validate=lambda: True, new_password=pretend.stub(data=new_password)
-        )
-        change_pwd_cls = pretend.call_recorder(lambda *a, **kw: change_pwd_obj)
-        monkeypatch.setattr(views, "ChangePasswordForm", change_pwd_cls)
-
-        send_email = pretend.call_recorder(lambda *a: None)
-        monkeypatch.setattr(views, "send_password_change_email", send_email)
-        monkeypatch.setattr(
-            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
-        )
-        view = views.ManageVerifiedAccountViews(request)
-
-        assert isinstance(view.change_password(), HTTPSeeOther)
-        assert request.session.flash.calls == [
-            pretend.call("Password updated", queue="success")
-        ]
-        assert send_email.calls == [pretend.call(request, request.user)]
-        assert user_service.update_user.calls == [
-            pretend.call(request.user.id, password=new_password)
-        ]
-        assert request.user.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Account.PasswordChange,
-                request=request,
-            )
-        ]
-
-    def test_change_password_validation_fails(self, monkeypatch):
-        old_password = "0ld_p455w0rd"
-        new_password = "n3w_p455w0rd"
-        user_service = pretend.stub(
-            update_user=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        request = pretend.stub(
-            POST={
-                "password": old_password,
-                "new_password": new_password,
-                "password_confirm": new_password,
-            },
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            find_service=lambda *a, **kw: user_service,
-            user=pretend.stub(
-                id=pretend.stub(),
-                username=pretend.stub(),
-                email=pretend.stub(),
-                name=pretend.stub(),
-            ),
-        )
-        change_pwd_obj = pretend.stub(
-            validate=lambda: False, new_password=pretend.stub(data=new_password)
-        )
-        change_pwd_cls = pretend.call_recorder(lambda *a, **kw: change_pwd_obj)
-        monkeypatch.setattr(views, "ChangePasswordForm", change_pwd_cls)
-
-        send_email = pretend.call_recorder(lambda *a: None)
-        monkeypatch.setattr(views, "send_password_change_email", send_email)
-        monkeypatch.setattr(
-            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
-        )
-        view = views.ManageVerifiedAccountViews(request)
-
-        assert view.change_password() == {
-            **view.default_response,
-            "change_password_form": change_pwd_obj,
-        }
-        assert request.session.flash.calls == []
-        assert send_email.calls == []
-        assert user_service.update_user.calls == []
-
     def test_delete_account(self, monkeypatch, db_request):
         user = UserFactory.create()
         deleted_user = UserFactory.create(username="deleted-user")
@@ -1357,6 +1244,126 @@ class TestManageAccount:
             db_request.db.query(User).filter(User.username == user.username).first()
             is not None
         )
+
+
+class TestManageAccountSecurity:
+    def test_default_response(self, db_request, mocker):
+        db_request.user = UserFactory.create()
+        user_service = mocker.Mock()
+        breach_service = mocker.Mock()
+        db_request.find_service = lambda iface, **kw: {
+            IUserService: user_service,
+            IPasswordBreachedService: breach_service,
+        }[iface]
+        change_password_form_cls = mocker.patch.object(
+            views, "ChangePasswordForm", wraps=ChangePasswordForm
+        )
+
+        view = views.ManageAccountSecurityViews(db_request)
+        response = view.default_response
+
+        assert set(response) == {"change_password_form"}
+        assert isinstance(response["change_password_form"], ChangePasswordForm)
+        assert change_password_form_cls.call_args_list == [
+            mocker.call(
+                request=db_request,
+                user_service=user_service,
+                breach_service=breach_service,
+            )
+        ]
+
+    def test_manage_account_security(self, db_request, mocker):
+        db_request.user = UserFactory.create()
+        db_request.find_service = lambda iface, **kw: mocker.Mock()
+        view = views.ManageAccountSecurityViews(db_request)
+        default_response = {"a": "b"}
+        mocker.patch.object(
+            views.ManageAccountSecurityViews,
+            "default_response",
+            new_callable=mocker.PropertyMock,
+            return_value=default_response,
+        )
+
+        assert view.manage_account_security() == default_response
+
+    def test_change_password(self, db_request, mocker):
+        user = UserFactory.create()
+        new_password = "n3w_p455w0rd"
+        db_request.user = user
+        db_request.POST = MultiDict(
+            {
+                "password": "0ld_p455w0rd",
+                "new_password": new_password,
+                "password_confirm": new_password,
+            }
+        )
+        user_service = mocker.Mock(
+            update_user=mocker.Mock(),
+            get_password_timestamp=mocker.Mock(return_value=0),
+        )
+        db_request.find_service = lambda iface, **kw: {
+            IUserService: user_service,
+            IPasswordBreachedService: mocker.Mock(),
+        }[iface]
+        db_request.session = mocker.Mock(
+            flash=mocker.Mock(),
+            record_password_timestamp=mocker.Mock(),
+            get_csrf_token=mocker.Mock(return_value="token"),
+        )
+        record_event = mocker.patch.object(user, "record_event")
+        send_email = mocker.patch.object(views, "send_password_change_email")
+        mocker.patch.object(
+            views,
+            "ChangePasswordForm",
+            return_value=mocker.Mock(
+                validate=mocker.Mock(return_value=True),
+                new_password=mocker.Mock(data=new_password),
+            ),
+        )
+
+        view = views.ManageAccountSecurityViews(db_request)
+        result = view.change_password()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == db_request.path
+        assert user_service.update_user.call_args_list == [
+            mocker.call(user.id, password=new_password)
+        ]
+        assert record_event.call_args_list == [
+            mocker.call(tag=EventTag.Account.PasswordChange, request=db_request)
+        ]
+        assert send_email.call_args_list == [mocker.call(db_request, user)]
+        assert db_request.session.flash.call_args_list == [
+            mocker.call("Password updated", queue="success")
+        ]
+
+    def test_change_password_validation_fails(self, db_request, mocker):
+        user = UserFactory.create()
+        db_request.user = user
+        db_request.POST = MultiDict(
+            {
+                "password": "0ld_p455w0rd",
+                "new_password": "n3w_p455w0rd",
+                "password_confirm": "n3w_p455w0rd",
+            }
+        )
+        user_service = mocker.Mock(update_user=mocker.Mock())
+        db_request.find_service = lambda iface, **kw: {
+            IUserService: user_service,
+            IPasswordBreachedService: mocker.Mock(),
+        }[iface]
+        db_request.session = mocker.Mock(flash=mocker.Mock())
+        send_email = mocker.patch.object(views, "send_password_change_email")
+        form_obj = mocker.Mock(validate=mocker.Mock(return_value=False))
+        mocker.patch.object(views, "ChangePasswordForm", return_value=form_obj)
+
+        view = views.ManageAccountSecurityViews(db_request)
+        result = view.change_password()
+
+        assert result["change_password_form"] is form_obj
+        assert db_request.session.flash.call_args_list == []
+        assert send_email.call_args_list == []
+        assert user_service.update_user.call_args_list == []
 
 
 class TestManageAccountSecurityHistory:
