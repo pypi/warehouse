@@ -3,7 +3,8 @@
 {% from "warehouse:templates/includes/manage/forms-macros.html" import confirm_password_modal with context %}
 {% set user = request.user %}
 {% set title = gettext("API tokens") %}
-{% set active_tab = "account" %}
+{% set active_tab = "security" %}
+{% set active_subtab = "tokens" %}
 {% block title %}{{ title }}{% endblock %}
 {% macro api_row(macaroon) -%}
   <tr>

@@ -2,7 +2,8 @@
 {% extends "manage/manage_base.html" %}
 {% set user = request.user %}
 {% set title = gettext("Create API token") %}
-{% set active_tab = "account" %}
+{% set active_tab = "security" %}
+{% set active_subtab = "tokens" %}
 {% block title %}
   {% if create_macaroon_form.errors %}
     {% trans %}Error processing form{% endtrans %} –

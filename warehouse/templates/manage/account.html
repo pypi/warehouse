@@ -419,22 +419,6 @@
 {% endif %}
 </section>
 <hr>
-<section id="api-tokens">
-  <h2>{% trans %}API tokens{% endtrans %}</h2>
-  <p>
-    {% trans href=request.route_path('manage.account.tokens') %}API tokens provide an alternative way to authenticate when uploading packages to PyPI. <a href="{{ href }}">Manage your API tokens</a>.{% endtrans %}
-  </p>
-</section>
-<hr>
-<section id="account-events">
-  <h2>{% trans %}Security history{% endtrans %}</h2>
-  <p>
-    {% trans %}Security-related actions on your account are recorded, along with the time, location and device involved.{% endtrans %}
-  </p>
-  <a href="{{ request.route_path('manage.account.security-history') }}"
-     class="button button--primary">{% trans %}View security history{% endtrans %}</a>
-</section>
-<hr>
 <section id="delete-account">
   <h2>{% trans %}Delete account{% endtrans %}</h2>
   <div class="callout-block{% if not active_projects and not sole_organizations %} callout-block--danger{% endif %}">
