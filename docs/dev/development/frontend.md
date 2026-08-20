@@ -122,7 +122,7 @@ Nimbus Sans, Liberation Sans, or Arimo.
 We aim to support all major browsers. We also support one-back,
 and follow the `defaults` recommendation from `browserslist`.
 
-You can see the full list of supported browsers by running `npx browserslist`
+You can see the full list of supported browsers by running `npx browserslist@4.28.1`
 in the root of the project.
 
 ## HTML Code Style
