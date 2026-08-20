@@ -1,0 +1,138 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% extends "manage/manage_base.html" %}
+{% from "warehouse:templates/includes/manage/forms-macros.html" import confirm_password_modal with context %}
+{% set user = request.user %}
+{% set title = gettext("API tokens") %}
+{% set active_tab = "account" %}
+{% block title %}{{ title }}{% endblock %}
+{% macro api_row(macaroon) -%}
+  <tr>
+    <th scope="row">
+      <span class="table__mobile-label">{% trans %}Name{% endtrans %}</span>
+      {{ macaroon.description }}
+    </th>
+    <td>
+      <span class="table__mobile-label">{% trans %}Scope{% endtrans %}</span>
+      {% if macaroon.permissions_caveat.permissions == 'user' %}
+        {% trans %}All projects{% endtrans %}
+      {% else %}
+        {% for project in macaroon.permissions_caveat.get("permissions")['projects'] %}
+          <a href="{{ request.route_path('packaging.project', name=project) }}">{{ project }}</a>
+        {% endfor %}
+      {% endif %}
+    </td>
+    <td>
+      <span class="table__mobile-label">{% trans %}Created{% endtrans %}</span>
+      {{ humanize(macaroon.created) }}
+    </td>
+    <td>
+      <span class="table__mobile-label">{% trans %}Last used{% endtrans %}</span>
+      {{ humanize(macaroon.last_used) if macaroon.last_used else gettext("Never") }}
+    </td>
+    <td class="table__align-right">
+      <nav class="dropdown dropdown--with-icons dropdown--wide">
+        <button type="button"
+                class="button button--primary dropdown__trigger"
+                aria-haspopup="true"
+                aria-expanded="false"
+                aria-label="{% trans %}View token options{% endtrans %}">
+          {% trans %}Options{% endtrans %}
+          <span class="dropdown__trigger-caret">
+            <i class="fa fa-caret-down" aria-hidden="true"></i>
+          </span>
+        </button>
+        <ul class="dropdown__content">
+          <li>
+            <a href="#remove-API-token--{{ macaroon.id }}" class="dropdown__link">
+              <i class="fa fa-trash-alt" aria-hidden="true"></i>
+              {% trans %}Remove token{% endtrans %}
+            </a>
+          </li>
+          <li>
+            <a href="#view-identifier--{{ macaroon.id }}" class="dropdown__link">
+              <i class="fa fa-hashtag" aria-hidden="true"></i>
+              {% trans %}View unique identifier{% endtrans %}
+            </a>
+          </li>
+        </ul>
+      </nav>
+      {# modal to remove token #}
+      {% set slug = "remove-API-token--" + macaroon.id | string %}
+      {% set title = gettext("Remove API token") + " - " + macaroon.description %}
+      {% set action = request.route_path('manage.account.token') %}
+      {% set confirm_button_label = gettext("Remove API token") %}
+      {% set extra_fields %}
+        <input type="hidden"
+               name="macaroon_id"
+               value="{{ macaroon.id }}"
+               autocomplete="off">
+      {% endset %}
+      {% set token_warning_text %}
+        <p>{% trans %}Applications or scripts using this token will no longer have access to PyPI.{% endtrans %}</p>
+      {% endset %}
+      {{ confirm_password_modal(title=title, confirm_button_label=confirm_button_label, slug=slug, extra_fields=extra_fields, action=action, custom_warning_text=token_warning_text) }}
+      {# modal to view token ID #}
+      <div id="view-identifier--{{ macaroon.id }}" class="modal">
+        <div class="modal__content" role="dialog">
+          <a href="#modal-close"
+             title="{% trans %}Close{% endtrans %}"
+             class="modal__close">
+            <i class="fa fa-times" aria-hidden="true"></i>
+            <span class="sr-only">{% trans %}Close{% endtrans %}</span>
+          </a>
+          <div class="modal__body">
+            <h3 class="modal__title">
+              {% trans token_description=macaroon.description %}Unique identifier for API token "{{ token_description }}"{% endtrans %}
+            </h3>
+            <p>
+              <code>{{ macaroon.id }}</code>
+            </p>
+            <button type="button"
+                    class="button copy-tooltip copy-tooltip-e"
+                    data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}"
+                    data-clipboard-text="{{ macaroon.id }}">{% trans %}Copy{% endtrans %}</button>
+          </div>
+          <div class="modal__footer">
+            <a href="#modal-close" class="button button--primary modal__action">{% trans %}Close{% endtrans %}</a>
+          </div>
+        </div>
+      </div>
+    </td>
+  </tr>
+{%- endmacro %}
+{% block main %}
+  <h1 class="page-title">{{ title }}</h1>
+  <section id="api-tokens">
+    <p>
+      {% trans %}API tokens provide an alternative way to authenticate when uploading packages to PyPI.{% endtrans %} <a href="{{ request.help_url(_anchor='apitoken') }}">{% trans %}Learn more about API tokens{% endtrans %}</a>.
+    </p>
+    {% if macaroons|length > 0 %}
+      <table class="table table--api-tokens">
+        <caption class="sr-only">{% trans %}Active API tokens for this account{% endtrans %}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{% trans %}Name{% endtrans %}</th>
+            <th scope="col">{% trans %}Scope{% endtrans %}</th>
+            <th scope="col">{% trans %}Created{% endtrans %}</th>
+            <th scope="col" colspan="2">{% trans %}Last used{% endtrans %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for macaroon in macaroons %}{{ api_row(macaroon) }}{% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="callout-block">
+        <p>{% trans %}You have not created any API tokens yet.{% endtrans %}</p>
+      </div>
+    {% endif %}
+    {% if user.has_primary_verified_email %}
+      <a href="{{ request.route_path('manage.account.token') }}"
+         class="button button--primary">{% trans %}Add API token{% endtrans %}</a>
+    {% else %}
+      <p>
+        <strong>{% trans href=request.route_path('manage.account', _anchor='account-emails') %}<a href="{{ href }}">Verify your primary email address</a> to add API tokens to your account.{% endtrans %}</strong>
+      </p>
+    {% endif %}
+  </section>
+{% endblock %}
