@@ -1168,6 +1168,19 @@ class ProvisionMacaroonViews:
 
 
 @view_config(
+    route_name="manage.account.tokens",
+    renderer="warehouse:templates/manage/account/tokens.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    permission=Permissions.AccountAPITokens,
+    has_translations=True,
+)
+def manage_account_tokens(request):
+    return {"macaroons": request.user.macaroons}
+
+
+@view_config(
     route_name="manage.projects",
     renderer="warehouse:templates/manage/projects.html",
     uses_session=True,
