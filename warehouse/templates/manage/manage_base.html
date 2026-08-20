@@ -7,6 +7,24 @@
 {% block canonical_url %}{% endblock %}
 {# Hide mobile search on manager pages #}
 {% block mobile_search %}{% endblock %}
+{% block header_section_menu %}
+  <div class="horizontal-menu horizontal-menu--light horizontal-menu--tall horizontal-menu--push-right hidden show-on-tablet">
+    <div class="dropdown dropdown--on-menu dropdown--with-icons">
+      <button type="button"
+              class="horizontal-menu__link dropdown__trigger"
+              aria-haspopup="true"
+              aria-expanded="false"
+              aria-label="{% trans %}View menu{% endtrans %}">
+        {# djlint:off #}{% trans %}Menu{% endtrans %}<span class="dropdown__trigger-caret"><i class="fa fa-caret-down" aria-hidden="true"></i></span>{# djlint:on #}
+      </button>
+      {% block header_section_menu_items %}
+        {% with mode="dropdown" %}
+          {% include "warehouse:templates/includes/manage/manage-account-menu.html" %}
+        {% endwith %}
+      {% endblock %}
+    </div>
+  </div>
+{% endblock %}
 {% macro twofa_section() %}
   <section id="two-factor">
     <h2 class="sub-title">{% trans %}Two factor authentication (2FA){% endtrans %}</h2>
