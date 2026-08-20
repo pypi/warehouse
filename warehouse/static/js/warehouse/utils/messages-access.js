@@ -76,11 +76,10 @@ export function gettext(singular, ...extras) {
 export function ngettextCustom(singular, plural, num, extras, data, pluralForms) {
   // This function allows for testing and
   // allows ngettext and gettext to have the signatures required by pybabel.
-  const pluralFormsData = pluralForms(num);
   let value = getTranslationData(data, singular);
   if (Array.isArray(value)) {
-    value = value[pluralFormsData.index];
-  } else if (pluralFormsData.index > 0) {
+    value = value[pluralForms(num).index];
+  } else if (plural !== null && !Object.hasOwn(data, singular) && num !== 1) {
     value = plural;
   }
   return insertPlaceholderValues(value, extras);

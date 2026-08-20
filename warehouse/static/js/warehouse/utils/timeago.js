@@ -18,17 +18,25 @@ const enumerateTime = (timestampString) => {
 const convertToReadableText = (time) => {
   let { numDays, numMinutes, numHours } = time;
 
-  if (numDays >= 1) {
-    return ngettext("Yesterday", "About %1 days ago", numDays, numDays);
+  if (numDays === 1) {
+    return gettext("Yesterday");
+  } else if (numDays > 1) {
+    return ngettext("About %1 day ago", "About %1 days ago", numDays, numDays);
   }
 
-  if (numHours > 0) {
-    return ngettext("About an hour ago", "About %1 hours ago", numHours, numHours);
-  } else if (numMinutes > 0) {
-    return ngettext("About a minute ago", "About %1 minutes ago", numMinutes, numMinutes);
-  } else {
-    return gettext("Just now", "another");
+  if (numHours === 1) {
+    return gettext("About an hour ago");
+  } else if (numHours > 1) {
+    return ngettext("About %1 hour ago", "About %1 hours ago", numHours, numHours);
   }
+
+  if (numMinutes === 1) {
+    return gettext("About a minute ago");
+  } else if (numMinutes > 1) {
+    return ngettext("About %1 minute ago", "About %1 minutes ago", numMinutes, numMinutes);
+  }
+
+  return gettext("Just now");
 };
 
 export default () => {
@@ -37,7 +45,7 @@ export default () => {
     const datetime = timeElement.getAttribute("datetime");
     const time = enumerateTime(datetime);
     if (time.isBeforeCutoff) {
-      timeElement.innerText = convertToReadableText(time);
+      timeElement.textContent = convertToReadableText(time);
     }
   }
 };
