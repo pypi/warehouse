@@ -85,7 +85,9 @@ class TestManageAccount:
         )
 
         # Now visit the change password page
-        change_password_page = logged_in.goto("/manage/account/", status=HTTPStatus.OK)
+        change_password_page = logged_in.goto(
+            "/manage/account/security/", status=HTTPStatus.OK
+        )
 
         # Ensure that the CSRF token changes once logged in and a session is established
         logged_in_csrf_token = change_password_page.html.find(
