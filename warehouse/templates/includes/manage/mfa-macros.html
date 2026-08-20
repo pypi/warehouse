@@ -1,4 +1,5 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
+{% from "warehouse:templates/includes/datetime-macros.html" import humanize %}
 {% from "warehouse:templates/includes/manage/forms-macros.html" import confirm_modal, confirm_password_modal with context %}
 {% macro twofa_section() %}
   <section id="two-factor">
