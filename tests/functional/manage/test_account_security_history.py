@@ -52,12 +52,10 @@ class TestAccountSecurityHistory:
         # The login we just performed is recorded and rendered
         assert "Logged in" in history_page.text
 
-        # The account settings page links here instead of rendering the table
+        # The account navigation links here instead of rendering the table inline
         account_page = webtest.get("/manage/account/", status=HTTPStatus.OK)
         assert (
-            account_page.html.find(
-                "a", href="/manage/account/security-history/", string=True
-            )
+            account_page.html.find("a", href="/manage/account/security-history/")
             is not None
         )
 

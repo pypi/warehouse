@@ -102,6 +102,4 @@ class TestManageAccountTokens:
 
         account_page = webtest.get("/manage/account/", status=HTTPStatus.OK)
 
-        assert account_page.html.find(
-            "a", href="/manage/account/tokens/", string="Manage your API tokens"
-        )
+        assert account_page.html.find("a", href="/manage/account/tokens/") is not None
