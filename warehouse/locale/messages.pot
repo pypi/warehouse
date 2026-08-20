@@ -1149,8 +1149,8 @@ msgstr ""
 #: warehouse/templates/pages/help.html:1499
 #: warehouse/templates/pages/help.html:1506
 #: warehouse/templates/pages/organizations.html:24
-#: warehouse/templates/pages/organizations.html:80
-#: warehouse/templates/pages/organizations.html:85
+#: warehouse/templates/pages/organizations.html:81
+#: warehouse/templates/pages/organizations.html:86
 #: warehouse/templates/pages/sponsors.html:23
 #: warehouse/templates/pages/sponsors.html:34
 #: warehouse/templates/pages/sponsors.html:42
@@ -9958,69 +9958,75 @@ msgstr ""
 msgid "For community projects, maintained in the open by volunteers."
 msgstr ""
 
-#: warehouse/templates/pages/organizations.html:37
-msgid "All organization features, at no cost"
+#: warehouse/templates/pages/organizations.html:36
+msgid ""
+"Non-profits, NGOs, schools, and other non-commercial groups belong here "
+"too; you do not need to be an informal project to qualify."
 msgstr ""
 
 #: warehouse/templates/pages/organizations.html:38
-msgid "No payment or billing information required"
+msgid "All organization features, at no cost"
 msgstr ""
 
 #: warehouse/templates/pages/organizations.html:39
-#: warehouse/templates/pages/organizations.html:60
+msgid "No payment or billing information required"
+msgstr ""
+
+#: warehouse/templates/pages/organizations.html:40
+#: warehouse/templates/pages/organizations.html:61
 msgid "Applications are reviewed by the PyPI team"
 msgstr ""
 
-#: warehouse/templates/pages/organizations.html:41
+#: warehouse/templates/pages/organizations.html:42
 msgid "Free for qualifying community projects"
 msgstr ""
 
-#: warehouse/templates/pages/organizations.html:45
+#: warehouse/templates/pages/organizations.html:46
 msgid "Create a community organization"
 msgstr ""
 
-#: warehouse/templates/pages/organizations.html:53
+#: warehouse/templates/pages/organizations.html:54
 msgid "Company organization"
 msgstr ""
 
-#: warehouse/templates/pages/organizations.html:56
+#: warehouse/templates/pages/organizations.html:57
 msgid "For companies and other private organizations."
 msgstr ""
 
-#: warehouse/templates/pages/organizations.html:58
+#: warehouse/templates/pages/organizations.html:59
 msgid "All current organization features, on a monthly subscription"
 msgstr ""
 
-#: warehouse/templates/pages/organizations.html:59
+#: warehouse/templates/pages/organizations.html:60
 msgid "Billed monthly by card through Stripe"
 msgstr ""
 
-#: warehouse/templates/pages/organizations.html:62
+#: warehouse/templates/pages/organizations.html:63
 msgid "$5 per member, per month"
 msgstr ""
 
-#: warehouse/templates/pages/organizations.html:66
+#: warehouse/templates/pages/organizations.html:67
 msgid "Apply for a company organization"
 msgstr ""
 
-#: warehouse/templates/pages/organizations.html:74
+#: warehouse/templates/pages/organizations.html:75
 msgid "Does your company need a PyPI service agreement?"
 msgstr ""
 
-#: warehouse/templates/pages/organizations.html:76
+#: warehouse/templates/pages/organizations.html:77
 msgid ""
 "Some companies need a formal agreement with PyPI covering support, "
 "availability, or compliance requirements. We are gathering interest to "
 "understand what companies need."
 msgstr ""
 
-#: warehouse/templates/pages/organizations.html:78
+#: warehouse/templates/pages/organizations.html:79
 msgid ""
 "Tell us about your requirements and we will be in touch as this work "
 "progresses."
 msgstr ""
 
-#: warehouse/templates/pages/organizations.html:80
+#: warehouse/templates/pages/organizations.html:81
 #, python-format
 msgid ""
 "For help with an existing organization, see <a href=\"%(href)s\" "
@@ -10028,7 +10034,7 @@ msgid ""
 "accounts support</a>."
 msgstr ""
 
-#: warehouse/templates/pages/organizations.html:87
+#: warehouse/templates/pages/organizations.html:88
 msgid "PyPI Service Agreement Interest"
 msgstr ""
 
