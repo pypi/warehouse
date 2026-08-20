@@ -1,0 +1,125 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% from "warehouse:templates/includes/manage/forms-macros.html" import confirm_modal with context %}
+{% macro oidc_title() %}
+  {% trans %}Trusted Publisher Management{% endtrans %}
+{% endmacro %}
+{% macro oidc_desc() %}
+  <p>
+    {% trans %}
+    OpenID Connect (OIDC) provides a flexible, credential-free mechanism for delegating
+    publishing authority for a PyPI package to a trusted third party service,
+    like GitHub Actions.
+  {% endtrans %}
+</p>
+<p>
+  {% trans %}
+  PyPI users and projects can use trusted publishers to automate
+  their release processes, without needing to use API tokens or passwords.
+{% endtrans %}
+</p>
+<p class="no-bottom-padding">
+  {% trans href="https://docs.pypi.org/trusted-publishers/" %}
+  You can read more about trusted publishers and how to use them
+  <a href="{{ href }}">here</a>.
+{% endtrans %}
+</p>
+{% endmacro %}
+{% macro oidc_publisher_row(publisher) -%}
+  {# project_name is only defined for pending OIDC publishers -#}
+  {% if publisher.project_name is defined %}
+    {% set delete_route = request.route_path('manage.account.publishing') %}
+  {% else %}
+    {% set delete_route = request.route_path('manage.project.settings.publishing', project_name=project.name) %}
+  {% endif %}
+  <tr>
+    {% if publisher.project_name is defined %}<td scope="row">{{ publisher.project_name }}</td>{% endif %}
+    <td scope="row">{{ publisher.publisher_name }}</td>
+    <td scope="row">
+      <small>
+        {% if publisher.publisher_name == "GitHub" %}
+          <b>Repository:</b> <a href="{{ publisher.publisher_url() }}">{{ publisher.repository }}</a>
+          <br>
+          <b>Workflow:</b> {{ publisher.workflow_filename }}
+          <br>
+          <b>Environment name:</b>
+          {% if publisher.environment %}
+            {{ publisher.environment }}
+          {% else %}
+            <i>({% trans %}Any{% endtrans %})</i>
+          {% endif %}
+        {% elif publisher.publisher_name == "GitLab" %}
+          <b>Project:</b> <a href="{{ publisher.publisher_url() }}">{{ publisher.project_path }}</a>
+          <br>
+          <b>Top-level pipeline:</b> {{ publisher.workflow_filepath }}
+          <br>
+          <b>Environment name:</b>
+          {% if publisher.environment %}
+            {{ publisher.environment }}
+          {% else %}
+            <i>({% trans %}Any{% endtrans %})</i>
+          {% endif %}
+          <br>
+          <b>Issuer:</b> {{ publisher.issuer_url }}
+        {% elif publisher.publisher_name == "Google" %}
+          <b>Email:</b> {{ publisher.email }}
+          <br>
+          <b>Subject:</b>
+          {% if publisher.sub %}
+            {{ publisher.sub }}
+          {% else %}
+            <i>({% trans %}Any{% endtrans %})</i>
+          {% endif %}
+        {% elif publisher.publisher_name == "ActiveState" %}
+          <b>Organization:</b> {{ publisher.organization }}
+          <br>
+          <b>ActiveState Project:</b> <a href="{{ publisher.publisher_url() }}">{{ publisher.project }}</a>
+          <br>
+          <b>Actor:</b> {{ publisher.actor }}
+          <br>
+        {% else %}
+          -
+        {% endif %}
+      </small>
+    </td>
+    <td scope="row">
+      <a href="#remove-publisher-{{ publisher.id }}"
+         class="button button--danger">{% trans %}Remove{% endtrans %}</a>
+    </td>
+  </tr>
+  {# Confirmation modal for removing the publisher #}
+  {% set slug = "remove-publisher-" ~ publisher.id %}
+  {% set title = gettext("Remove trusted publisher") %}
+  {% set extra_description %}
+    <p>
+      {% trans publisher_name=publisher.publisher_name %}Removing this {{ publisher_name }} trusted publisher will prevent automated package uploads from this source. You can re-add it later if needed.{% endtrans %}
+    </p>
+  {% endset %}
+  {% set extra_fields %}
+    <input name="publisher_id" type="hidden" value="{{ publisher.id }}">
+  {% endset %}
+  {{ confirm_modal(title=title, label=publisher.publisher_name, confirm_name="", confirm_string="", slug=slug, context=None, extra_description=extra_description, extra_fields=extra_fields, action=delete_route, warning=False, confirm_button_label=gettext("Remove publisher") ) }}
+{%- endmacro %}
+{% macro oidc_audit_event(event) -%}
+  {% if event.tag == EventTag.Project.OIDCPublisherAdded or event.tag == EventTag.Account.PendingOIDCPublisherAdded %}
+    {% set submit_desc = _("Added by:") %}
+  {% elif event.tag == EventTag.Project.OIDCPublisherRemoved or event.tag == EventTag.Account.PendingOIDCPublisherRemoved %}
+    {% set submit_desc = _("Removed by:") %}
+  {% else %}
+    {% set submit_desc = _("Submitted by:") %}
+  {% endif %}
+  {% if event.additional.publisher == "GitHub" %}
+    {% set specifier_desc = _("Workflow:") %}
+  {% else %}
+    {% set specifier_desc = _("Specifier:") %}
+  {% endif %}
+  <small>{% trans %}Publisher:{% endtrans %} {{ event.additional.publisher }}</small>
+  {% if event.additional.url %}
+    <small>{% trans %}URL:{% endtrans %} {{ event.additional.url }}</small>
+  {% endif %}
+  <small>{{ specifier_desc }} {{ event.additional.specifier }}</small>
+  {% if event.additional.submitted_by %}
+    <small>
+      {{ submit_desc }} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
+    </small>
+  {% endif %}
+{%- endmacro %}

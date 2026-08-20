@@ -1,0 +1,216 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% macro modal_slug(title, index) %}
+{% endmacro %}
+{% macro confirm_modal(
+  title,
+  label,
+  confirm_name,
+  confirm_string,
+  slug,
+  context,
+  confirm_button_label=None,
+  extra_fields=None,
+  extra_description=None,
+  action=None,
+  method="POST",
+  warning=True,
+  custom_warning_text="",
+  confirm_string_in_title=True,
+  modifier="--danger")
+  %}
+  <div id="{{ slug }}"
+       class="modal"
+       data-controller="{% if confirm_string %}confirm {% endif %}modal-close">
+    <div class="modal__content" role="dialog">
+      <a href="#modal-close"
+         data-action="click->modal-close#cancel"
+         title="{% trans %}Close{% endtrans %}"
+         class="modal__close">
+        <i class="fa fa-times" aria-hidden="true"></i>
+        <span class="sr-only">{% trans %}Close{% endtrans %}</span>
+      </a>
+      <form method="{{ method }}"
+            class="modal__form"
+            action="{{ action or request.current_route_path() }}">
+        <input name="csrf_token"
+               type="hidden"
+               value="{{ request.session.get_csrf_token() }}">
+        <div class="modal__body">
+          <h3 class="modal__title">
+            {{ title }}
+            {% if confirm_string_in_title and confirm_string %}'{{ confirm_string }}'{% endif %}
+            ?
+          </h3>
+          {% if warning %}
+            <div class="callout-block callout-block--danger callout-block--bottom-margin no-top-margin">
+              <p>
+                <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
+                {% trans %}This action cannot be undone!{% endtrans %}
+              </p>
+              {% if custom_warning_text %}{{ custom_warning_text }}{% endif %}
+            </div>
+          {% endif %}
+          {{ extra_description if extra_description else '' }}
+          <div class="form-group">{{ extra_fields if extra_fields else '' }}</div>
+          {% if confirm_string %}
+            <p>
+              {% if confirm_name == 'username' %}
+                {% trans %}Confirm your username to continue.{% endtrans %}
+              {% else %}
+                {% trans item=label|lower %}Confirm the {{ item }} to continue.{% endtrans %}
+              {% endif %}
+            </p>
+            {% set name = "confirm_" + confirm_name.lower().replace(' ', '_') %}
+            <div class="form-group">
+              <label for="{{ slug }}-{{ name }}">{{ label }}</label>
+              <input id="{{ slug }}-{{ name }}"
+                     name="{{ name }}"
+                     data-action="input->confirm#check"
+                     data-confirm-target="input"
+                     data-modal-close-target="input"
+                     type="text"
+                     autocomplete="off"
+                     autocapitalize="off"
+                     spellcheck="false">
+            </div>
+          {% endif %}
+        </div>
+        <div class="modal__footer">
+          <button type="reset"
+                  class="button modal__action js-cancel"
+                  data-action="click->modal-close#cancel">{% trans %}Cancel{% endtrans %}</button>
+          <button type="submit"
+                  class="button button{{ modifier or '--primary' }} modal__action js-confirm"
+                  {% if confirm_string %}data-confirm-target="button" data-expected="{{ confirm_string }}"{% endif %}
+                  data-modal-close-target="button">
+            {{ confirm_button_label if confirm_button_label else title }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endmacro %}
+{% macro confirm_password_modal(
+  title,
+  slug,
+  confirm_button_label=None,
+  extra_fields=None,
+  action=None,
+  warning=True,
+  custom_warning_text=""
+  ) %}
+  <div id="{{ slug }}"
+       class="modal"
+       data-controller="confirm-password modal-close">
+    <div class="modal__content" role="dialog">
+      <a href="#modal-close"
+         data-action="click->modal-close#cancel"
+         title="Close"
+         class="modal__close">
+        <i class="fa fa-times" aria-hidden="true"></i>
+        <span class="sr-only">{% trans %}close{% endtrans %}</span>
+      </a>
+      <form method="post"
+            class="modal__form"
+            action="{{ action or request.current_route_path() }}">
+        <input name="csrf_token"
+               type="hidden"
+               value="{{ request.session.get_csrf_token() }}">
+        {{ extra_fields if extra_fields else '' }}
+        <div class="modal__body">
+          <h3 class="modal__title">{{ title }}</h3>
+          {% if warning %}
+            <div class="callout-block callout-block--danger callout-block--bottom-margin no-top-margin">
+              <p>
+                <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
+                {% trans %}This action cannot be undone!{% endtrans %}
+              </p>
+              {% if custom_warning_text %}{{ custom_warning_text }}{% endif %}
+            </div>
+          {% endif %}
+          <p>{% trans %}Enter your password to continue.{% endtrans %}</p>
+          <div class="form-group">
+            <div class="split-layout">
+              <label for="confirm_password">{% trans %}Password{% endtrans %}</label>
+              <label for="show-confirm-password-{{ slug }}" class="show-password">
+                <input data-action="change->confirm-password#setPasswordVisibility"
+                       data-confirm-password-target="showPassword"
+                       id="show-confirm-password-{{ slug }}"
+                       type="checkbox">
+                {% trans %}Show password{% endtrans %}
+              </label>
+            </div>
+            <input name="confirm_password"
+                   data-action="input->confirm-password#check"
+                   data-confirm-password-target="password"
+                   data-modal-close-target="input"
+                   type="password"
+                   autocomplete="off"
+                   autocorrect="off"
+                   autocapitalize="off">
+          </div>
+        </div>
+        <div class="modal__footer">
+          <button type="reset"
+                  class="button modal__action js-cancel"
+                  data-action="click->modal-close#cancel">{% trans %}Cancel{% endtrans %}</button>
+          <button type="submit"
+                  class="button button--danger modal__action js-confirm"
+                  data-confirm-password-target="button"
+                  data-modal-close-target="button">{{ confirm_button_label }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endmacro %}
+{% macro confirm_button(
+  title,
+  label,
+  confirm_name,
+  confirm_string,
+  confirm_button_label=None,
+  extra_fields=None,
+  extra_description=None,
+  action=None,
+  warning=True,
+  confirm_string_in_title=True,
+  modifier="--danger",
+  tooltip=None,
+  additional_attributes=None)
+  %}
+  {% set slug = confirm_name.lower().replace(' ', '-') + '-modal' %}
+  <a href="#{{ slug }}"
+     class="button button{{ modifier }}"
+     {% if tooltip != None %}title="{{ tooltip }}"{% endif %}
+     {{ additional_attributes or '' }}>
+    {{ confirm_button_label if confirm_button_label else title }}
+  </a>
+  {{ confirm_modal(title, label, confirm_name, confirm_string, slug, confirm_button_label=confirm_button_label, extra_fields=extra_fields, extra_description=extra_description, action=action, warning=warning, confirm_string_in_title=confirm_string_in_title, modifier=modifier) }}
+{% endmacro %}
+{% macro confirm_password_button(
+  title,
+  extra_fields=None,
+  action=None
+  )
+  %}
+  {% set slug = title.lower().replace(' ', '-') + '-modal' %}
+  <a href="#{{ slug }}" class="button button--danger">{{ title }}</a>
+  {{ confirm_password_modal(title, slug, confirm_button_label=title, extra_fields=extra_fields, action=action) }}
+{% endmacro %}
+{% macro form_error_anchor(form) %}
+  {% if form.errors %}<div id="errors"></div>{% endif %}
+{% endmacro %}
+{% macro form_errors(form) %}
+  {% if form.form_errors %}
+    <ul class="form-errors" role="alert">
+      {% for error in form.form_errors %}<li>{{ error }}</li>{% endfor %}
+    </ul>
+  {% endif %}
+{% endmacro %}
+{% macro field_errors(field) %}
+  {% if field.errors %}
+    <ul id="{{ field.name }}-errors" class="form-errors" role="alert">
+      {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
+    </ul>
+  {% endif %}
+{% endmacro %}
