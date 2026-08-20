@@ -247,6 +247,9 @@ def includeme(config):
         "manage.account.publishing", "/manage/account/publishing/", domain=warehouse
     )
     config.add_route(
+        "manage.account.security", "/manage/account/security/", domain=warehouse
+    )
+    config.add_route(
         "manage.account.security-history",
         "/manage/account/security-history/",
         domain=warehouse,
