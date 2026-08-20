@@ -2,7 +2,6 @@
 {% set tab_class = "dropdown__link" if mode == "dropdown" else "vertical-tabs__tab vertical-tabs__tab--with-icon" %}
 {% set active_tab_class = "dropdown__link--is-active" if mode == "dropdown" else "vertical-tabs__tab--is-active" %}
 {% set sub_tab_class = "dropdown__link--sub" if mode == "dropdown" else "vertical-tabs__tab--sub" %}
-
 <nav {% if mode == "dropdown" %}class="dropdown__content" aria-hidden="true"{% endif %}
      aria-label="{% trans %}Account navigation{% endtrans %}">
   <ul class="vertical-tabs__list">
