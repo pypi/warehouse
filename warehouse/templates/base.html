@@ -320,6 +320,7 @@
           </form>
         </div>
       {% endblock %}
+      {% block header_section_menu %}{% endblock %}
       {% csi request.route_path("includes.current-user-indicator") %}
       {{ main_navigation_logged_out(next_url=request.url) }}
     {% endcsi %}
