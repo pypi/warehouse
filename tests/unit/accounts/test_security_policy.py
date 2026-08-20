@@ -720,6 +720,7 @@ class TestPermits:
             "manage.account",
             "manage.account.recovery-codes",
             "manage.account.security-history",
+            "manage.account.tokens",
             "manage.account.totp-provision",
             "manage.account.two-factor",
             "manage.account.webauthn-provision",

@@ -256,6 +256,9 @@ def test_routes(warehouse, mocker):
             "/manage/account/recovery-codes/burn",
             domain=warehouse,
         ),
+        mocker.call(
+            "manage.account.tokens", "/manage/account/tokens/", domain=warehouse
+        ),
         mocker.call("manage.account.token", "/manage/account/token/", domain=warehouse),
         mocker.call(
             "manage.account.associations.github.connect",
