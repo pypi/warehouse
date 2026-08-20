@@ -1027,7 +1027,7 @@ class ProvisionMacaroonViews:
                 self.request._("Verify your email to create an API token."),
                 queue="error",
             )
-            return HTTPSeeOther(self.request.route_path("manage.account"))
+            return HTTPSeeOther(self.request.route_path("manage.account.tokens"))
 
         form = CreateMacaroonForm(
             self.request.POST,
@@ -1128,7 +1128,7 @@ class ProvisionMacaroonViews:
                 self.request.session.flash(
                     self.request._("API Token does not exist."), queue="warning"
                 )
-                return HTTPSeeOther(self.request.route_path("manage.account"))
+                return HTTPSeeOther(self.request.route_path("manage.account.tokens"))
 
             self.macaroon_service.delete_macaroon(form.macaroon_id.data)
             self.request.user.record_event(
@@ -1163,7 +1163,7 @@ class ProvisionMacaroonViews:
 
         redirect_to = self.request.referer
         if not is_safe_url(redirect_to, host=self.request.host):
-            redirect_to = self.request.route_path("manage.account")
+            redirect_to = self.request.route_path("manage.account.tokens")
         return HTTPSeeOther(redirect_to)
 
 
