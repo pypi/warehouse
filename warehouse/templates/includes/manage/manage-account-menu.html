@@ -1,6 +1,8 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 {% set tab_class = "dropdown__link" if mode == "dropdown" else "vertical-tabs__tab vertical-tabs__tab--with-icon" %}
 {% set active_tab_class = "dropdown__link--is-active" if mode == "dropdown" else "vertical-tabs__tab--is-active" %}
+{% set sub_tab_class = "dropdown__link--sub" if mode == "dropdown" else "vertical-tabs__tab--sub" %}
+
 <nav {% if mode == "dropdown" %}class="dropdown__content" aria-hidden="true"{% endif %}
      aria-label="{% trans %}Account navigation{% endtrans %}">
   <ul class="vertical-tabs__list">
@@ -26,6 +28,30 @@
          {% if active_tab == 'account' %}aria-selected="true"{% endif %}>
         <i class="fa fa-cog" aria-hidden="true"></i>
         {% trans %}Account settings{% endtrans %}
+      </a>
+    </li>
+    <li>
+      <a href="{{ request.route_path('manage.account.security') }}"
+         class="{{ tab_class }} {% if active_tab == 'security' and not active_subtab %}{{ active_tab_class }}{% endif %}"
+         {% if active_tab == 'security' and not active_subtab %}aria-selected="true"{% endif %}>
+        <i class="fa fa-shield-halved" aria-hidden="true"></i>
+        {% trans %}Security{% endtrans %}
+      </a>
+    </li>
+    <li>
+      <a href="{{ request.route_path('manage.account.tokens') }}"
+         class="{{ tab_class }} {{ sub_tab_class }} {% if active_subtab == 'tokens' %}{{ active_tab_class }}{% endif %}"
+         {% if active_subtab == 'tokens' %}aria-selected="true"{% endif %}>
+        <i class="fa fa-key" aria-hidden="true"></i>
+        {% trans %}API tokens{% endtrans %}
+      </a>
+    </li>
+    <li>
+      <a href="{{ request.route_path('manage.account.security-history') }}"
+         class="{{ tab_class }} {{ sub_tab_class }} {% if active_subtab == 'security-history' %}{{ active_tab_class }}{% endif %}"
+         {% if active_subtab == 'security-history' %}aria-selected="true"{% endif %}>
+        <i class="fa fa-history" aria-hidden="true"></i>
+        {% trans %}Security history{% endtrans %}
       </a>
     </li>
     <li>
