@@ -3,6 +3,7 @@
 @use "sass:color";
 @use "../settings/breakpoints";
 @use "../settings/colors";
+@use "../settings/fonts";
 @use "../settings/grid";
 @use "../tools/layout-utilities";
 @use "../tools/link-utilities";
@@ -118,6 +119,12 @@
           border-bottom: 1px solid colors.$border-color;
         }
       }
+    }
+
+    // Nested sub-item of the preceding top-level tab
+    &--sub {
+      padding-left: grid.$spacing-unit;
+      font-size: fonts.$small-font-size;
     }
 
     &--no-top-border {

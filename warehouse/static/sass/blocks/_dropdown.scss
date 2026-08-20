@@ -167,10 +167,24 @@
     font-weight: fonts.$bold-font-weight;
   }
 
+  // Nested sub-item of the preceding top-level link
+  &__link--sub {
+    padding-left: 30px;
+    font-size: fonts.$small-font-size;
+  }
+
   &--with-icons {
     .dropdown__link,
     button.dropdown__link {
       padding: 15px 15px 15px 40px;
+    }
+
+    .dropdown__link--sub {
+      padding-left: 55px;
+
+      .fa {
+        left: 30px;
+      }
     }
   }
 
