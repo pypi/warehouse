@@ -1148,6 +1148,9 @@ msgstr ""
 #: warehouse/templates/pages/help.html:1493
 #: warehouse/templates/pages/help.html:1499
 #: warehouse/templates/pages/help.html:1506
+#: warehouse/templates/pages/organizations.html:24
+#: warehouse/templates/pages/organizations.html:81
+#: warehouse/templates/pages/organizations.html:86
 #: warehouse/templates/pages/sponsors.html:23
 #: warehouse/templates/pages/sponsors.html:34
 #: warehouse/templates/pages/sponsors.html:42
@@ -9910,6 +9913,146 @@ msgid ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">#pypa on IRC "
 "(Libera)</a>, or <a href=\"%(discourse_href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">browse the online board</a>."
+msgstr ""
+
+#: warehouse/templates/pages/organizations.html:4
+msgid "Organizations"
+msgstr ""
+
+#: warehouse/templates/pages/organizations.html:10
+msgid "PyPI Organizations"
+msgstr ""
+
+#: warehouse/templates/pages/organizations.html:11
+msgid "Collaborate on your projects, as a team"
+msgstr ""
+
+#: warehouse/templates/pages/organizations.html:14
+msgid ""
+"Organizations let users from a company or community project assemble into"
+" teams and collaborate on projects, under a single unique brand on PyPI."
+msgstr ""
+
+#: warehouse/templates/pages/organizations.html:17
+msgid ""
+"Group your projects under one organization, with a shared organization "
+"profile"
+msgstr ""
+
+#: warehouse/templates/pages/organizations.html:18
+msgid ""
+"Create teams and manage who can publish, maintain, or view each project "
+"in one place"
+msgstr ""
+
+#: warehouse/templates/pages/organizations.html:19
+msgid ""
+"Give new maintainers the right permissions without handing out individual"
+" project roles"
+msgstr ""
+
+#: warehouse/templates/pages/organizations.html:20
+msgid "Set up trusted publishing for your organization's projects"
+msgstr ""
+
+#: warehouse/templates/pages/organizations.html:21
+msgid "Review your organization's history to see who changed what, and when"
+msgstr ""
+
+#: warehouse/templates/pages/organizations.html:24
+#, python-format
+msgid ""
+"The features are the same for every organization. For full details, see "
+"the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">organization accounts documentation</a>."
+msgstr ""
+
+#: warehouse/templates/pages/organizations.html:32
+msgid "Community organization"
+msgstr ""
+
+#: warehouse/templates/pages/organizations.html:35
+msgid "For community projects, maintained in the open by volunteers."
+msgstr ""
+
+#: warehouse/templates/pages/organizations.html:36
+msgid ""
+"Non-profits, NGOs, schools, and other non-commercial groups belong here "
+"too; you do not need to be an informal project to qualify."
+msgstr ""
+
+#: warehouse/templates/pages/organizations.html:38
+msgid "All organization features, at no cost"
+msgstr ""
+
+#: warehouse/templates/pages/organizations.html:39
+msgid "No payment or billing information required"
+msgstr ""
+
+#: warehouse/templates/pages/organizations.html:40
+#: warehouse/templates/pages/organizations.html:61
+msgid "Applications are reviewed by the PyPI team"
+msgstr ""
+
+#: warehouse/templates/pages/organizations.html:42
+msgid "Free for qualifying community projects"
+msgstr ""
+
+#: warehouse/templates/pages/organizations.html:46
+msgid "Create a community organization"
+msgstr ""
+
+#: warehouse/templates/pages/organizations.html:54
+msgid "Company organization"
+msgstr ""
+
+#: warehouse/templates/pages/organizations.html:57
+msgid "For companies and other private organizations."
+msgstr ""
+
+#: warehouse/templates/pages/organizations.html:59
+msgid "All current organization features, on a monthly subscription"
+msgstr ""
+
+#: warehouse/templates/pages/organizations.html:60
+msgid "Billed monthly by card through Stripe"
+msgstr ""
+
+#: warehouse/templates/pages/organizations.html:63
+msgid "$5 per member, per month"
+msgstr ""
+
+#: warehouse/templates/pages/organizations.html:67
+msgid "Apply for a company organization"
+msgstr ""
+
+#: warehouse/templates/pages/organizations.html:75
+msgid "Does your company need a PyPI service agreement?"
+msgstr ""
+
+#: warehouse/templates/pages/organizations.html:77
+msgid ""
+"Some companies need a formal agreement with PyPI covering support, "
+"availability, or compliance requirements. We are gathering interest to "
+"understand what companies need."
+msgstr ""
+
+#: warehouse/templates/pages/organizations.html:79
+msgid ""
+"Tell us about your requirements and we will be in touch as this work "
+"progresses."
+msgstr ""
+
+#: warehouse/templates/pages/organizations.html:81
+#, python-format
+msgid ""
+"For help with an existing organization, see <a href=\"%(href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">organization "
+"accounts support</a>."
+msgstr ""
+
+#: warehouse/templates/pages/organizations.html:88
+msgid "PyPI Service Agreement Interest"
 msgstr ""
 
 #: warehouse/templates/pages/security-key-giveaway.html:7
