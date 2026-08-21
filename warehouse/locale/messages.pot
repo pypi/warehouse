@@ -1070,6 +1070,7 @@ msgstr ""
 #: warehouse/templates/base.html:520 warehouse/templates/base.html:528
 #: warehouse/templates/includes/accounts/profile-callout.html:5
 #: warehouse/templates/includes/file-details.html:120
+#: warehouse/templates/includes/manage/company-org-survey-callout.html:18
 #: warehouse/templates/includes/packaging/project-files.html:48
 #: warehouse/templates/includes/packaging/project-files.html:66
 #: warehouse/templates/includes/packaging/project-files.html:82
@@ -1713,13 +1714,13 @@ msgstr ""
 #: warehouse/templates/manage/organization/settings.html:87
 #: warehouse/templates/manage/organization/settings.html:113
 #: warehouse/templates/manage/organization/teams.html:70
-#: warehouse/templates/manage/organizations.html:214
-#: warehouse/templates/manage/organizations.html:242
-#: warehouse/templates/manage/organizations.html:265
-#: warehouse/templates/manage/organizations.html:284
-#: warehouse/templates/manage/organizations.html:306
-#: warehouse/templates/manage/organizations.html:325
-#: warehouse/templates/manage/organizations.html:352
+#: warehouse/templates/manage/organizations.html:218
+#: warehouse/templates/manage/organizations.html:246
+#: warehouse/templates/manage/organizations.html:269
+#: warehouse/templates/manage/organizations.html:288
+#: warehouse/templates/manage/organizations.html:310
+#: warehouse/templates/manage/organizations.html:329
+#: warehouse/templates/manage/organizations.html:356
 #: warehouse/templates/manage/project/publishing.html:32
 #: warehouse/templates/manage/project/publishing.html:45
 #: warehouse/templates/manage/project/publishing.html:64
@@ -1806,15 +1807,15 @@ msgstr ""
 
 #: warehouse/templates/accounts/invite-confirmation.html:29
 #: warehouse/templates/accounts/organization-invite-confirmation.html:29
-#: warehouse/templates/manage/organizations.html:34
+#: warehouse/templates/manage/organizations.html:38
 #: warehouse/templates/manage/projects.html:98
 msgid "Accept"
 msgstr ""
 
 #: warehouse/templates/accounts/invite-confirmation.html:33
 #: warehouse/templates/accounts/organization-invite-confirmation.html:33
-#: warehouse/templates/manage/organizations.html:39
-#: warehouse/templates/manage/organizations.html:51
+#: warehouse/templates/manage/organizations.html:43
+#: warehouse/templates/manage/organizations.html:55
 #: warehouse/templates/manage/projects.html:102
 msgid "Decline"
 msgstr ""
@@ -2439,7 +2440,7 @@ msgstr ""
 
 #: warehouse/templates/email/new-organization-requested/body.html:7
 #: warehouse/templates/manage/organization/application.html:30
-#: warehouse/templates/manage/organizations.html:174
+#: warehouse/templates/manage/organizations.html:178
 msgid "You will receive an email when the organization has been approved"
 msgstr ""
 
@@ -3043,6 +3044,7 @@ msgstr ""
 #: warehouse/templates/includes/flash-messages.html:40
 #: warehouse/templates/includes/flash-messages.html:57
 #: warehouse/templates/includes/flash-messages.html:79
+#: warehouse/templates/includes/manage/company-org-survey-callout.html:10
 #: warehouse/templates/includes/session-notifications.html:37
 #: warehouse/templates/manage/account.html:204
 #: warehouse/templates/manage/account.html:207
@@ -3076,7 +3078,7 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:247
 #: warehouse/templates/manage/manage_base.html:287
 #: warehouse/templates/manage/organizations.html:5
-#: warehouse/templates/manage/organizations.html:59
+#: warehouse/templates/manage/organizations.html:63
 msgid "Your organizations"
 msgstr ""
 
@@ -3238,6 +3240,45 @@ msgstr ""
 #: warehouse/templates/manage/project/publishing.html:230
 msgid "Email"
 msgstr ""
+
+#: warehouse/templates/includes/manage/company-org-survey-callout.html:7
+#: warehouse/templates/manage/project/release.html:177
+#: warehouse/templates/manage/project/releases.html:203
+#: warehouse/templates/manage/project/settings.html:60
+msgid "Dismiss"
+msgstr ""
+
+#: warehouse/templates/includes/manage/company-org-survey-callout.html:13
+msgid "Interested in a PyPI service agreement?"
+msgstr ""
+
+#: warehouse/templates/includes/manage/company-org-survey-callout.html:15
+#, python-format
+msgid ""
+"Some companies need a formal agreement with PyPI covering support, "
+"availability, or compliance requirements. We are gathering interest to "
+"understand what companies need. Learn more about <a "
+"href=\"%(href)s\">organization accounts</a>."
+msgstr ""
+
+#: warehouse/templates/includes/manage/company-org-survey-callout.html:18
+#, python-format
+msgid ""
+"Tell us what you need by filling out the <a href=\"%(href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">PyPI Service "
+"Agreement Interest</a> survey and we'll follow up."
+msgstr ""
+
+#: warehouse/templates/includes/manage/company-org-survey-callout.html:22
+#, python-format
+msgid ""
+"You are seeing this because you belong to the company organization "
+"%(orgs)s."
+msgid_plural ""
+"You are seeing this because you belong to these company organizations: "
+"%(orgs)s."
+msgstr[0] ""
+msgstr[1] ""
 
 #: warehouse/templates/includes/manage/manage-organization-menu.html:2
 #, python-format
@@ -3724,7 +3765,7 @@ msgstr[1] ""
 #: warehouse/templates/manage/organization/publishing.html:34
 #: warehouse/templates/manage/organization/roles.html:49
 #: warehouse/templates/manage/organization/roles.html:234
-#: warehouse/templates/manage/organizations.html:91
+#: warehouse/templates/manage/organizations.html:95
 #: warehouse/templates/manage/project/publishing.html:30
 #: warehouse/templates/manage/project/roles.html:48
 #: warehouse/templates/manage/project/roles.html:86
@@ -4698,11 +4739,11 @@ msgstr ""
 #: warehouse/templates/manage/organization/projects.html:50
 #: warehouse/templates/manage/organization/projects.html:56
 #: warehouse/templates/manage/organization/teams.html:39
-#: warehouse/templates/manage/organizations.html:112
-#: warehouse/templates/manage/organizations.html:126
-#: warehouse/templates/manage/organizations.html:133
-#: warehouse/templates/manage/organizations.html:140
-#: warehouse/templates/manage/organizations.html:189
+#: warehouse/templates/manage/organizations.html:116
+#: warehouse/templates/manage/organizations.html:130
+#: warehouse/templates/manage/organizations.html:137
+#: warehouse/templates/manage/organizations.html:144
+#: warehouse/templates/manage/organizations.html:193
 #: warehouse/templates/manage/project/releases.html:69
 #: warehouse/templates/manage/project/releases.html:94
 #: warehouse/templates/manage/projects.html:41
@@ -4999,14 +5040,14 @@ msgstr ""
 msgid "URL:"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:10
+#: warehouse/templates/manage/organizations.html:14
 #: warehouse/templates/manage/projects.html:66
 msgid "Pending invitations"
 msgstr ""
 
 #: warehouse/templates/manage/organization/projects.html:41
-#: warehouse/templates/manage/organizations.html:22
-#: warehouse/templates/manage/organizations.html:98
+#: warehouse/templates/manage/organizations.html:26
+#: warehouse/templates/manage/organizations.html:102
 #: warehouse/templates/manage/projects.html:32
 #: warehouse/templates/manage/projects.html:85
 #: warehouse/templates/manage/team/projects.html:41
@@ -5014,74 +5055,74 @@ msgstr ""
 msgid "Created %(creation_date)s"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:46
+#: warehouse/templates/manage/organizations.html:50
 #, python-format
 msgid "Decline invitation to %(org)s"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:49
+#: warehouse/templates/manage/organizations.html:53
 msgid "Decline invitation"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:309
-#: warehouse/templates/manage/organizations.html:51
+#: warehouse/templates/manage/organizations.html:55
 msgid "Organization Name"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:74
-#: warehouse/templates/manage/organizations.html:165
+#: warehouse/templates/manage/organizations.html:78
+#: warehouse/templates/manage/organizations.html:169
 #, python-format
 msgid "Organization Type: %(org_type)s"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:74
-#: warehouse/templates/manage/organizations.html:165
+#: warehouse/templates/manage/organizations.html:78
+#: warehouse/templates/manage/organizations.html:169
 #, python-format
 msgid "%(org_type)s"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:78
-#: warehouse/templates/manage/organizations.html:81
+#: warehouse/templates/manage/organizations.html:82
+#: warehouse/templates/manage/organizations.html:85
 msgid "Billing Inactive"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:81
+#: warehouse/templates/manage/organizations.html:85
 msgid ""
 "This organization's billing can be activated by an organization owner or "
 "billing manager"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:85
-#: warehouse/templates/manage/organizations.html:111
-#: warehouse/templates/manage/organizations.html:132
+#: warehouse/templates/manage/organizations.html:89
+#: warehouse/templates/manage/organizations.html:115
+#: warehouse/templates/manage/organizations.html:136
 msgid "This organization is not active"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:182
-#: warehouse/templates/manage/organizations.html:85
+#: warehouse/templates/manage/organizations.html:89
 msgid "Inactive"
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:48
 #: warehouse/templates/manage/organization/roles.html:232
-#: warehouse/templates/manage/organizations.html:88
+#: warehouse/templates/manage/organizations.html:92
 msgid "Manager"
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:51
 #: warehouse/templates/manage/organization/roles.html:236
-#: warehouse/templates/manage/organizations.html:94
+#: warehouse/templates/manage/organizations.html:98
 msgid "Billing Manager"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:106
+#: warehouse/templates/manage/organizations.html:110
 msgid "View this organization"
 msgstr ""
 
 #: warehouse/templates/manage/organization/projects.html:62
 #: warehouse/templates/manage/organization/projects.html:67
 #: warehouse/templates/manage/organization/teams.html:44
-#: warehouse/templates/manage/organizations.html:106
+#: warehouse/templates/manage/organizations.html:110
 #: warehouse/templates/manage/project/releases.html:76
 #: warehouse/templates/manage/project/releases.html:101
 #: warehouse/templates/manage/projects.html:53
@@ -5091,172 +5132,172 @@ msgstr ""
 msgid "View"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:119
+#: warehouse/templates/manage/organizations.html:123
 msgid "Activate billing for this organization"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:120
+#: warehouse/templates/manage/organizations.html:124
 msgid "Activate Billing"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:126
-#: warehouse/templates/manage/organizations.html:140
+#: warehouse/templates/manage/organizations.html:130
+#: warehouse/templates/manage/organizations.html:144
 msgid "Manage this organization"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:147
+#: warehouse/templates/manage/organizations.html:151
 msgid "You have not joined any organizations on PyPI, yet."
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:153
+#: warehouse/templates/manage/organizations.html:157
 msgid "Pending organization requests"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:168
+#: warehouse/templates/manage/organizations.html:172
 msgid "This Organization request has been declined"
 msgstr ""
 
 #: warehouse/templates/manage/organization/application.html:20
-#: warehouse/templates/manage/organizations.html:168
+#: warehouse/templates/manage/organizations.html:172
 msgid "Declined"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:171
+#: warehouse/templates/manage/organizations.html:175
 msgid "More information is needed to process this Organization request"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:171
+#: warehouse/templates/manage/organizations.html:175
 msgid "More Information Needed"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:174
+#: warehouse/templates/manage/organizations.html:178
 msgid "Request Submitted"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:178
+#: warehouse/templates/manage/organizations.html:182
 #, python-format
 msgid "Submitted %(submitted)s"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:181
+#: warehouse/templates/manage/organizations.html:185
 msgid "Declined organization requests will be deleted 30 days after decision."
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:188
+#: warehouse/templates/manage/organizations.html:192
 msgid "Manage this organization request"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:203
-#: warehouse/templates/manage/organizations.html:381
+#: warehouse/templates/manage/organizations.html:207
+#: warehouse/templates/manage/organizations.html:385
 msgid "Request a new organization"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:212
+#: warehouse/templates/manage/organizations.html:216
 msgid "Organization Account Name"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:217
+#: warehouse/templates/manage/organizations.html:221
 msgid "Select an organization account name"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:17
-#: warehouse/templates/manage/organizations.html:233
+#: warehouse/templates/manage/organizations.html:237
 msgid "This account name is used in URLs on PyPI."
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:57
 #: warehouse/templates/manage/organization/settings.html:80
-#: warehouse/templates/manage/organizations.html:235
-#: warehouse/templates/manage/organizations.html:259
-#: warehouse/templates/manage/organizations.html:278
+#: warehouse/templates/manage/organizations.html:239
+#: warehouse/templates/manage/organizations.html:263
+#: warehouse/templates/manage/organizations.html:282
 msgid "For example"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:240
+#: warehouse/templates/manage/organizations.html:244
 msgid "Organization Display Name"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:39
-#: warehouse/templates/manage/organizations.html:245
+#: warehouse/templates/manage/organizations.html:249
 msgid "Name of your business, product, or project"
 msgstr ""
 
 #: warehouse/templates/manage/organization/application.html:43
 #: warehouse/templates/manage/organization/settings.html:62
-#: warehouse/templates/manage/organizations.html:263
+#: warehouse/templates/manage/organizations.html:267
 msgid "️Organization URL"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:68
-#: warehouse/templates/manage/organizations.html:269
+#: warehouse/templates/manage/organizations.html:273
 msgid "URL for your business, product, or project"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:282
+#: warehouse/templates/manage/organizations.html:286
 msgid "Organization Description"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:91
-#: warehouse/templates/manage/organizations.html:287
+#: warehouse/templates/manage/organizations.html:291
 msgid "Description of your business, product, or project"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:304
+#: warehouse/templates/manage/organizations.html:308
 msgid "️Organization Membership Size"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:315
+#: warehouse/templates/manage/organizations.html:319
 msgid ""
 "Estimated number of PyPI Users you anticipate joining this Organization. "
 "<b>Not</b> the number of people in your organization."
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:323
+#: warehouse/templates/manage/organizations.html:327
 msgid "Anticipated Usage"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:328
+#: warehouse/templates/manage/organizations.html:332
 msgid "Description how you plan to use PyPI Organizations features"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:343
+#: warehouse/templates/manage/organizations.html:347
 msgid ""
 "Tell us a little bit about how you plan to use PyPI Organizations "
 "features."
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:350
+#: warehouse/templates/manage/organizations.html:354
 msgid "️Organization Type"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:127
-#: warehouse/templates/manage/organizations.html:361
+#: warehouse/templates/manage/organizations.html:365
 msgid ""
 "Companies can create organization accounts as a paid service while "
 "community projects are granted complimentary access."
 msgstr ""
 
 #: warehouse/templates/manage/organization/teams.html:81
-#: warehouse/templates/manage/organizations.html:366
+#: warehouse/templates/manage/organizations.html:370
 msgid "Create"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:373
+#: warehouse/templates/manage/organizations.html:377
 #, python-format
 msgid ""
 "You must first enable <a href=\"%(href)s\">two-factor authentication</a> "
 "on your account before requesting an organization."
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:382
+#: warehouse/templates/manage/organizations.html:386
 msgid "Your request(s) for a new PyPI organization(s) have been submitted."
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:384
+#: warehouse/templates/manage/organizations.html:388
 msgid "You will receive an email when each organization has been approved"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:384
+#: warehouse/templates/manage/organizations.html:388
 #: warehouse/templates/manage/project/roles.html:166
 #: warehouse/templates/manage/project/roles.html:245
 #: warehouse/templates/manage/project/roles.html:289
@@ -7479,12 +7520,6 @@ msgstr ""
 
 #: warehouse/templates/manage/project/release.html:174
 msgid "No files found"
-msgstr ""
-
-#: warehouse/templates/manage/project/release.html:177
-#: warehouse/templates/manage/project/releases.html:203
-#: warehouse/templates/manage/project/settings.html:60
-msgid "Dismiss"
 msgstr ""
 
 #: warehouse/templates/manage/project/release.html:184
