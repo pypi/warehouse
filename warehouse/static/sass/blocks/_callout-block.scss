@@ -66,6 +66,10 @@
     @include design-utilities.dismiss-button;
   }
 
+  &__dismiss + p {
+    padding-right: 30px;
+  }
+
   &__heading {
     @include typography.h3;
 
