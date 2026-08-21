@@ -679,6 +679,31 @@ class OrganizationApplicationStatus(enum.StrEnum):
     MoreInformationNeeded = "moreinformationneeded"
     Approved = "approved"
 
+    @property
+    def label(self) -> str:
+        return _ORGANIZATION_APPLICATION_STATUS_LABELS[self]
+
+    @property
+    def badge_style(self) -> str:
+        return _ORGANIZATION_APPLICATION_STATUS_STYLES[self]
+
+
+_ORGANIZATION_APPLICATION_STATUS_LABELS = {
+    OrganizationApplicationStatus.Submitted: "Submitted",
+    OrganizationApplicationStatus.Declined: "Declined",
+    OrganizationApplicationStatus.Deferred: "Deferred",
+    OrganizationApplicationStatus.MoreInformationNeeded: "Info Needed",
+    OrganizationApplicationStatus.Approved: "Approved",
+}
+
+_ORGANIZATION_APPLICATION_STATUS_STYLES = {
+    OrganizationApplicationStatus.Submitted: "info",
+    OrganizationApplicationStatus.Declined: "danger",
+    OrganizationApplicationStatus.Deferred: "secondary",
+    OrganizationApplicationStatus.MoreInformationNeeded: "warning",
+    OrganizationApplicationStatus.Approved: "success",
+}
+
 
 class OrganizationMembershipSize(enum.StrEnum):
     none = ""
