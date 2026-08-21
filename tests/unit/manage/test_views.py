@@ -10,6 +10,7 @@ import pytest
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import (
     HTTPBadRequest,
+    HTTPFound,
     HTTPNotFound,
     HTTPOk,
     HTTPSeeOther,
@@ -1397,9 +1398,22 @@ class TestManageAccountSecurityHistory:
 
 
 class Test2FA:
-    def test_manage_two_factor(self):
-        request = pretend.stub()
-        assert views.manage_two_factor(request) == {}
+    def test_manage_two_factor_redirects_to_security(self, pyramid_request, mocker):
+        pyramid_request.GET = MultiDict({"next": "/manage/projects/"})
+        pyramid_request.route_path = mocker.Mock(
+            return_value="/manage/account/security/?next=%2Fmanage%2Fprojects%2F"
+        )
+
+        result = views.manage_two_factor(pyramid_request)
+
+        assert isinstance(result, HTTPFound)
+        assert pyramid_request.route_path.call_args_list == [
+            mocker.call(
+                "manage.account.security",
+                _query=pyramid_request.GET,
+                _anchor="two-factor",
+            )
+        ]
 
 
 class TestProvisionTOTP:
