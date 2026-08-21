@@ -174,3 +174,11 @@
     width: calc(100% - 50px);
   }
 }
+
+// A row of standalone buttons (not a merged .button-group), wrapping with a
+// consistent gap instead of relying on inline-block whitespace.
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: grid.$half-spacing-unit;
+}
