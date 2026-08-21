@@ -121,6 +121,35 @@ def test_urlparse():
 
 
 @pytest.mark.parametrize(
+    ("name", "url", "expected"),
+    [
+        ("Download", "https://example.com", "fas fa-cloud-download-alt"),
+        ("Home", "https://example.com", "fas fa-home"),
+        ("Documentation", "https://example.com", "fas fa-book"),
+        ("Bug Tracker", "https://example.com", "fas fa-bug"),
+        ("Funding", "https://example.com", "fas fa-donate"),
+        ("Project", "https://github.com/example/project", "fab fa-github"),
+        ("Project", "https://gitlab.com/example/project", "fab fa-gitlab"),
+        ("Project", "https://codeberg.org/example/project", "fab fa-codeberg"),
+        ("Project", "https://discord.gg/example", "fab fa-discord"),
+        ("Project", "https://google.com/example", "fab fa-google"),
+        ("Project", "https://bitbucket.org/example/project", "fab fa-bitbucket"),
+        ("Project", "https://reddit.com/r/example", "fab fa-reddit-alien"),
+        ("Slack", "https://example.com", "fab fa-slack"),
+        ("Project", "https://x.com/example", "fab fa-twitter"),
+        ("Bluesky", "https://example.com", "fab fa-bluesky"),
+        ("Project", "https://circleci.com/example", "fas fa-tasks"),
+        ("Project", "https://pypi.org/project/example", "fas fa-cube"),
+        ("Project", "https://python.org", "fab fa-python"),
+        ("Project", "https://youtube.com/watch?v=example", "fab fa-youtube"),
+        ("Mastodon", "https://example.com", "fab fa-mastodon"),
+        ("Something else", "https://example.com", "fas fa-external-link-square-alt"),
+    ],
+)
+def test_url_icon(name, url, expected):
+    assert filters.url_icon(url, name) == expected
+
+@pytest.mark.parametrize(
     ("inp", "expected"),
     [
         (
