@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import http
 import time
 
 from datetime import datetime
@@ -20,8 +21,9 @@ from warehouse.email import (
     send_pending_trusted_publisher_reified_email,
 )
 from warehouse.events.tags import EventTag
-from warehouse.macaroons import caveats
+from warehouse.macaroons import InvalidMacaroonError, caveats
 from warehouse.macaroons.interfaces import IMacaroonService
+from warehouse.macaroons.models import Macaroon
 from warehouse.macaroons.services import DatabaseMacaroonService
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.errors import InvalidPublisherError, ReusedTokenError
@@ -71,12 +73,18 @@ def _ratelimiters(request: Request) -> dict[str, IRateLimiter]:
 
 
 def _invalid(errors: list[Error], request: Request) -> JsonResponse:
-    request.response.status = 422
+    request.response.status = http.HTTPStatus.UNPROCESSABLE_ENTITY
 
     return {
         "message": "Token request failed",
         "errors": errors,
     }
+
+
+def _accepted(request: Request) -> JsonResponse:
+    request.response.status = http.HTTPStatus.ACCEPTED
+
+    return {"message": "Accepted", "errors": []}
 
 
 @view_config(
@@ -435,3 +443,81 @@ def should_send_environment_warning_email(
     claims_env = claims.get("environment")
 
     return publisher.environment == "" and claims_env is not None and claims_env != ""
+
+
+class BurnPayload(BaseModel):
+    token: StrictStr
+
+
+@view_config(
+    route_name="oidc.burn_token",
+    require_methods=["POST"],
+    renderer="json",
+    require_csrf=False,
+)
+def burn_oidc_issued_token(request: Request):
+    """
+    "Burns" (i.e. revokes) a PyPI token that was previously issued by
+    `mint_token_from_oidc`.
+
+    Downstream integrators can call this endpoint to expedite the invalidation of a
+    Trusted Publishing-issued token.
+
+    Unlike our other Trusted Publishing APIs, this API only ever returns an
+    HTTP Accepted (indicating receipt, but not communicating the outcome).
+    """
+
+    try:
+        payload = BurnPayload.model_validate_json(request.body)
+        unverified_macaroon = payload.token
+    except ValidationError:
+        request.metrics.increment(
+            "warehouse.oidc.burn_oidc_issued_token",
+            tags=["status:failure", "failure_reason:invalid_payload"],
+        )
+        return _accepted(request=request)
+
+    macaroon_service: DatabaseMacaroonService = request.find_service(
+        IMacaroonService, context=None
+    )
+
+    try:
+        macaroon: Macaroon = macaroon_service.find_from_raw(unverified_macaroon)
+    except InvalidMacaroonError:
+        request.metrics.increment(
+            "warehouse.oidc.burn_oidc_issued_token",
+            tags=["status:failure", "failure_reason:invalid_macaroon"],
+        )
+        return _accepted(request=request)
+
+    if macaroon.oidc_publisher is None:
+        # This macaroon was issued to a principal other than a Trusted Publisher,
+        # which means this endpoint can't burn it.
+        # NOTE: mypy can't see that `user` and `oidc_publisher` are disjoint.
+        username = macaroon.user.username  # type: ignore[union-attr]
+        sentry_sdk.capture_message(
+            f"Tried to burn an API token corresponding to a user: {username!r}"
+        )
+        request.metrics.increment(
+            "warehouse.oidc.burn_oidc_issued_token",
+            tags=["status:failure", "failure_reason:not_oidc_publisher"],
+        )
+        return _accepted(request=request)
+
+    for project in macaroon.oidc_publisher.projects:
+        project.record_event(
+            tag=EventTag.Project.ShortLivedAPITokenRevoked,
+            request=request,
+            additional={},
+        )
+
+    macaroon_service.delete_macaroon(macaroon.id)
+    request.metrics.increment(
+        "warehouse.oidc.burn_oidc_issued_token",
+        tags=[
+            "status:success",
+            f"publisher_name:{macaroon.oidc_publisher.publisher_name}",
+        ],
+    )
+
+    return _accepted(request=request)
