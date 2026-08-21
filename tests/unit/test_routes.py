@@ -314,6 +314,13 @@ def test_routes(warehouse, mocker):
             domain=warehouse,
         ),
         mocker.call(
+            "manage.organization.billing",
+            "/manage/organization/{organization_name}/billing/",
+            factory="warehouse.organizations.models:OrganizationFactory",
+            traverse="/{organization_name}",
+            domain=warehouse,
+        ),
+        mocker.call(
             "manage.organization.activate_subscription",
             "/manage/organization/{organization_name}/subscription/activate/",
             factory="warehouse.organizations.models:OrganizationFactory",
