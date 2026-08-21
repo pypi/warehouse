@@ -67,14 +67,14 @@
 # Unwilling to disclose <q1111911111q@tutamail.com>, 2025.
 # 金羿ELS <W-YI_DoctorYI@outlook.com>, 2025.
 # Hosted Weblate user 54392 <hamburger2048@users.noreply.hosted.weblate.org>, 2026.
+# B10112 <B10112@outlook.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2026-06-10 07:01+0000\n"
-"Last-Translator: Hosted Weblate user 54392 "
-"<hamburger2048@users.noreply.hosted.weblate.org>\n"
+"PO-Revision-Date: 2026-08-17 23:06+0000\n"
+"Last-Translator: B10112 <B10112@outlook.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
 "projects/pypa/warehouse/zh_Hans/>\n"
 "Language: zh_Hans\n"
@@ -82,7 +82,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2026.6\n"
+"X-Generator: Weblate 2026.9.dev0\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:149
@@ -1171,10 +1171,9 @@ msgid ""
 "and services associated with pypi.org. Any other use by any other party is "
 "prohibited."
 msgstr ""
-"\"%(wordmark)s\"、 \"%(name)s\"及方块图标为注册商标，所有人 <a "
-"href=\"%(psf_href)s\" target=\"_blank\" rel=\"noopener\">Python Software "
-"Foundation</a> ，指与 pypi.org 相关的产品和服务。禁止任何其他方的任何其他使"
-"用。"
+"\"%(wordmark)s\"、 \"%(name)s\" 及方块图标是 <a href=\"%(psf_href)s\" "
+"target=\"_blank\" rel=\"noopener\">Python 软件基金会</a> 的注册商标，专用于识"
+"别与 pypi.org 相关的产品和服务。未经授权，任何其他方不得使用。"
 
 # | msgid ""
 # | "Learn how to upload files on the <a href=\"%(href)s\"
@@ -1188,9 +1187,9 @@ msgid ""
 "href=\"%(trademarks_href)s\">trademarks</a> of the <a href=\"%(psf_href)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Software Foundation</a>."
 msgstr ""
-"\"%(wordmark)s\"、\"%(name)s\"及方块图标为注册 <a "
-"href=\"%(trademarks_href)s\">商标</a>，所有权属于 <a href=\"%(psf_href)s\" "
-"target=\"_blank\" rel=\"noopener\">Python 软件基金会</a>。"
+"\"%(wordmark)s\"、 \"%(name)s\" 及方块图标是 <a href=\"%(psf_href)s\" "
+"target=\"_blank\" rel=\"noopener\">Python 软件基金会</a> 的 <a href=\"%"
+"(trademarks_href)s\">注册商标</a>。"
 
 #: warehouse/templates/base.html:120 warehouse/templates/index.html:93
 msgid ""
@@ -1212,7 +1211,7 @@ msgstr "跳转到主要内容"
 
 #: warehouse/templates/base.html:210
 msgid "Switch to mobile version"
-msgstr "切换到手机版本"
+msgstr "切换到移动版本"
 
 #: warehouse/templates/base.html:217 warehouse/templates/base.html:226
 #: warehouse/templates/base.html:236
@@ -1242,8 +1241,8 @@ msgid ""
 "that allows you to try distribution tools and processes without affecting "
 "the real index."
 msgstr ""
-"你正在使用TestPyPI – Python包索引的单独实例，可让你尝试分发工具包并且不会影响"
-"实际索引."
+"你正在使用 TestPyPI。这是 Python 包索引的一个独立副本，让你可以测试分发工具，"
+"而无需担心影响到正式的包索引。"
 
 #: warehouse/templates/base.html:238
 msgid ""
