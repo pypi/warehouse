@@ -1073,7 +1073,7 @@ msgstr ""
 #: warehouse/templates/includes/packaging/project-files.html:48
 #: warehouse/templates/includes/packaging/project-files.html:66
 #: warehouse/templates/includes/packaging/project-files.html:82
-#: warehouse/templates/index.html:99 warehouse/templates/index.html:106
+#: warehouse/templates/index.html:102 warehouse/templates/index.html:109
 #: warehouse/templates/manage/account.html:241
 #: warehouse/templates/manage/account.html:248
 #: warehouse/templates/manage/account/totp-provision.html:17
@@ -1294,7 +1294,7 @@ msgstr ""
 msgid "PyPI, the Python Package Index"
 msgstr ""
 
-#: warehouse/templates/base.html:138 warehouse/templates/index.html:94
+#: warehouse/templates/base.html:138 warehouse/templates/index.html:97
 msgid ""
 "The Python Package Index (PyPI) is a repository of software for the "
 "Python programming language."
@@ -1559,49 +1559,54 @@ msgstr ""
 msgid "Or <a href=\"%(href)s\">browse projects</a>"
 msgstr ""
 
-#: warehouse/templates/index.html:56
+#: warehouse/templates/index.html:52
+#, python-format
+msgid "Publishing as a team? Use an <a href=\"%(href)s\">organization account</a>"
+msgstr ""
+
+#: warehouse/templates/index.html:59
 #, python-format
 msgid "%(num_projects_formatted)s project"
 msgid_plural "%(num_projects_formatted)s projects"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/index.html:63
+#: warehouse/templates/index.html:66
 #, python-format
 msgid "%(num_releases_formatted)s release"
 msgid_plural "%(num_releases_formatted)s releases"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/index.html:70
+#: warehouse/templates/index.html:73
 #, python-format
 msgid "%(num_files_formatted)s file"
 msgid_plural "%(num_files_formatted)s files"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/index.html:77
+#: warehouse/templates/index.html:80
 #, python-format
 msgid "%(num_users_formatted)s user"
 msgid_plural "%(num_users_formatted)s users"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/index.html:97
+#: warehouse/templates/index.html:100
 msgid ""
 "PyPI helps you find and install software developed and shared by the "
 "Python community."
 msgstr ""
 
-#: warehouse/templates/index.html:101
+#: warehouse/templates/index.html:104
 msgid "Learn about installing packages"
 msgstr ""
 
-#: warehouse/templates/index.html:104
+#: warehouse/templates/index.html:107
 msgid "Package authors use PyPI to distribute their software."
 msgstr ""
 
-#: warehouse/templates/index.html:108
+#: warehouse/templates/index.html:111
 msgid "Learn how to package your Python code for PyPI"
 msgstr ""
 
