@@ -1379,6 +1379,31 @@ class TestManageOrganizationBillingViews:
         assert db_request.route_path.calls == expected_route_calls
         assert return_url == expected_url
 
+    def test_billing_details(
+        self,
+        db_request,
+        billing_service,
+        subscription_service,
+        organization,
+    ):
+        organization.orgtype = OrganizationType.Company
+        view = org_views.ManageOrganizationBillingViews(organization, db_request)
+
+        assert view.billing_details() == {"organization": organization}
+
+    def test_billing_details_not_found_for_community_organization(
+        self,
+        db_request,
+        billing_service,
+        subscription_service,
+        organization,
+    ):
+        assert organization.orgtype == OrganizationType.Community
+
+        view = org_views.ManageOrganizationBillingViews(organization, db_request)
+        with pytest.raises(HTTPNotFound):
+            view.billing_details()
+
     def test_activate_subscription(
         self,
         db_request,
