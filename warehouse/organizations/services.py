@@ -227,6 +227,7 @@ class DatabaseOrganizationService:
             request,
             organization_application.submitted_by,
             organization_name=organization.name,
+            organization_type=organization.orgtype,
             message=message,
         )
 
