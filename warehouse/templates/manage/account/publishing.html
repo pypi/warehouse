@@ -482,7 +482,7 @@
 {% else %}
   {# user has not enabled 2FA #}
   <div class="callout-block callout-block--warning">
-    {% trans href=request.route_path('manage.account.two-factor') %}
+    {% trans href=request.route_path('manage.account.security', _anchor='two-factor') %}
     You must first enable <a href="{{ href }}">two-factor authentication</a> on your account before adding a new publisher.
   {% endtrans %}
 </div>
