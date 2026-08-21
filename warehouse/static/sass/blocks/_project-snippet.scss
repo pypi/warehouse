@@ -1,0 +1,21 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+@use "snippet";
+
+/*
+  A card that contains information about a project. Often found in project lists.
+  The card can be an "a" or "div" element, but if it contains a link, choosing
+  a top-level "a" element is recommended for accessibility reasons.
+
+  <a class="project-snippet" href="/link/to/target">
+    <h3 class="project-snippet__title">
+      // Project title
+      <span class="project-snippet__version">// Version</span> // Optional!
+    </h3>
+    <p class="project-snippet__description">// Description</p>
+  </a>
+*/
+
+.project-snippet {
+  @include snippet.snippet(url("../images/white-cubes.png"), url("../images/white-cubes.svg"));
+}

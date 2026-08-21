@@ -15,10 +15,10 @@
     {% set user_has_two_factor = request.user.has_two_factor %}
     {% for project in active_projects %}
       {% set release = project.releases[0] if project.releases else None %}
-      <div class="package-snippet">
+      <div class="project-snippet">
         <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
           <div>
-            <h3 class="package-snippet__title">
+            <h3 class="project-snippet__title">
               {{ project.name }}
               {% if project.organization %}
                 <a href="{{ request.route_path('manage.organization.projects', organization_name=project.organization.normalized_name) }}"
@@ -32,17 +32,17 @@
               {% endif %}
             </h3>
             {% if release %}
-              <p class="package-snippet__meta">
+              <p class="project-snippet__meta">
                 {% trans release_date=humanize(release.created) %}Last released {{ release_date }}{% endtrans %}
               </p>
-              <p class="package-snippet__description">{{ release.summary }}</p>
+              <p class="project-snippet__description">{{ release.summary }}</p>
             {% else %}
-              <p class="package-snippet__meta">
+              <p class="project-snippet__meta">
                 {% trans creation_date=humanize(project.created) %}Created {{ creation_date }}{% endtrans %}
               </p>
             {% endif %}
           </div>
-          <div class="package-snippet__buttons">
+          <div class="project-snippet__buttons">
             {% if project.name in projects_owned %}
               <a href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name) }}"
                  class="button button--primary"
