@@ -1,0 +1,23 @@
+name: Feature request
+description: Suggest a new feature for PyPI
+labels: ["feature request", "requires triaging"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What's the problem this feature will solve?
+      description: A clear and concise description of what the problem is.
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Describe the solution you'd like
+      description: A clear and concise description of what you want to happen.
+    validations:
+      required: true
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Add any other context, links, etc. about the feature here.
