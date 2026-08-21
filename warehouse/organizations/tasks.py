@@ -5,13 +5,13 @@ import datetime
 import stripe
 import structlog
 
+from pyramid_retry import RetryableException
 from sqlalchemy.orm import joinedload
 
 from warehouse import tasks
 from warehouse.accounts.interfaces import ITokenService, TokenExpired
 from warehouse.email import send_organization_subscription_required_email
 from warehouse.events.tags import EventTag
-from warehouse.metrics import IMetricsService
 from warehouse.organizations.models import (
     Organization,
     OrganizationApplication,
@@ -21,11 +21,16 @@ from warehouse.organizations.models import (
     OrganizationStripeSubscription,
     OrganizationType,
 )
-from warehouse.subscriptions.interfaces import IBillingService
+from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
 from warehouse.subscriptions.models import StripeSubscriptionStatus
 
 CLEANUP_AFTER = datetime.timedelta(days=30)
 SUBSCRIPTION_GRACE_PERIOD = datetime.timedelta(days=30)
+TRANSIENT_STRIPE_ERRORS = (
+    stripe.error.APIConnectionError,
+    stripe.error.APIError,
+    stripe.error.RateLimitError,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -84,7 +89,6 @@ def update_organziation_subscription_usage_record(request):
     organization_subscriptions = request.db.query(OrganizationStripeSubscription).all()
 
     billing_service = request.find_service(IBillingService, context=None)
-    metrics = request.find_service(IMetricsService, context=None)
 
     # Call the Billing API to update the usage record of this subscription item
     for org_subscription in organization_subscriptions:
@@ -95,22 +99,78 @@ def update_organziation_subscription_usage_record(request):
                 org_subscription.subscription.subscription_item.subscription_item_id,
                 len(org_subscription.organization.users),
             )
-        except stripe.error.StripeError as exc:
-            # Isolate per-subscription failures so one (e.g. canceled on Stripe with a
-            # stale local status) can't abort usage reporting for every other org.
+        except TRANSIENT_STRIPE_ERRORS as exc:
+            # Abort and retry the whole run rather than silently reporting no
+            # usage for everyone.
+            raise RetryableException from exc
+        except stripe.error.InvalidRequestError as exc:
+            # Skip a single bad subscription (e.g. canceled on Stripe, stale
+            # locally).
             logger.exception(
                 "Failed to update usage record",
                 organization_name=org_subscription.organization.name,
                 subscription_id=org_subscription.subscription.subscription_id,
             )
-            metrics.increment(
+            request.metrics.increment(
                 "warehouse.organizations.subscription.usage_record.error",
                 tags=[f"error_type:{exc.__class__.__name__}"],
             )
         else:
-            metrics.increment(
+            request.metrics.increment(
                 "warehouse.organizations.subscription.usage_record.updated"
             )
+
+
+@tasks.task(ignore_result=True, acks_late=True)
+def reconcile_stripe_status(request):
+    # Re-sync each subscription's status from Stripe so that state we would have
+    # learned from a webhook (e.g. a cancellation) is recovered even if the
+    # webhook was dropped. Mirrors the customer.subscription.updated handler.
+    organization_subscriptions = request.db.query(OrganizationStripeSubscription).all()
+    billing_service = request.find_service(IBillingService, context=None)
+    subscription_service = request.find_service(ISubscriptionService, context=None)
+
+    try:
+        remote_statuses = {
+            remote["id"]: remote["status"]
+            for remote in billing_service.list_subscriptions()
+        }
+    except TRANSIENT_STRIPE_ERRORS as exc:
+        raise RetryableException from exc
+
+    for org_subscription in organization_subscriptions:
+        subscription = org_subscription.subscription
+        remote_status = remote_statuses.get(subscription.subscription_id)
+        if remote_status is None:
+            logger.warning(
+                "Skipping subscription %s with no record on Stripe",
+                subscription.subscription_id,
+            )
+            request.metrics.increment(
+                "warehouse.organizations.subscription.status.reconcile.missing"
+            )
+            continue
+
+        if not StripeSubscriptionStatus.has_value(remote_status):
+            logger.warning(
+                "Skipping subscription %s with unknown Stripe status %r",
+                subscription.subscription_id,
+                remote_status,
+            )
+            request.metrics.increment(
+                "warehouse.organizations.subscription.status.reconcile.skipped"
+            )
+            continue
+
+        if not subscription_service.sync_subscription_status(
+            subscription.id, remote_status, request=request
+        ):
+            continue
+
+        request.metrics.increment(
+            "warehouse.organizations.subscription.status.reconciled",
+            tags=[f"status:{remote_status}"],
+        )
 
 
 @tasks.task(ignore_result=True, acks_late=True)
