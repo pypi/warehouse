@@ -127,6 +127,20 @@
       font-size: fonts.$small-font-size;
     }
 
+    &--danger {
+      color: colors.$danger-color;
+
+      &:hover {
+        color: color.adjust(colors.$danger-color, $lightness: -10%);
+      }
+    }
+
+    &--danger.vertical-tabs__tab--is-active,
+    &--danger.vertical-tabs__tab--is-active:hover {
+      background: colors.$danger-color;
+      color: colors.$white;
+    }
+
     &--no-top-border {
       @media only screen and (max-width: breakpoints.$tablet) {
         border-top: 0;
