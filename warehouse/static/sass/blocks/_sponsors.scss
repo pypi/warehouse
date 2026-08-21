@@ -25,7 +25,7 @@
   flex-wrap: wrap;
   justify-content: center;
   align-items: flex-start;
-  gap: grid.$quarter-spacing-unit;
+  gap: grid.$spacing-unit;
   text-align: center;
   border-top: 10px solid colors.$primary-color-light;
   padding: grid.$half-spacing-unit grid.$spacing-unit;
@@ -37,7 +37,7 @@
 
   &__sponsor {
     margin-top: grid.$quarter-spacing-unit;
-    width: 90px;
+    width: 80px;
     text-align: center;
     @include link-utilities.link-without-underline;
     @include link-utilities.link-focus-state(colors.$text-color);
@@ -51,7 +51,8 @@
 
   &__image {
     display: block;
-    max-width: 90px;
+    width: 80px;
+    height: 34px;
     margin-bottom: 10px;
 
     img {
