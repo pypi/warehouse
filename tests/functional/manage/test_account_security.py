@@ -108,6 +108,10 @@ class TestAccountSecurity:
         assert account_page.html.find("a", href="/manage/account/security/") is not None
         assert account_page.html.find("a", href="/manage/account/tokens/") is not None
         assert (
+            account_page.html.find("a", href="/manage/account/connected-accounts/")
+            is not None
+        )
+        assert (
             account_page.html.find("a", href="/manage/account/security-history/")
             is not None
         )
