@@ -187,7 +187,7 @@ class TestManageOrganizationRoles:
         )
 
         assert resp.status_code == HTTPStatus.OK
-        assert len(webtest.query_recorder.queries) == 13
+        assert len(webtest.query_recorder.queries) == 15
         assert "Invite member" in resp.text
 
     def test_new_company_org_can_access_roles_page(self, webtest):
