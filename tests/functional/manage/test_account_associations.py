@@ -43,7 +43,7 @@ class TestAccountAssociations:
         )
         two_factor_form.submit().follow(status=HTTPStatus.OK)
 
-    def test_view_account_associations_page(self, webtest):
+    def test_view_connected_accounts_page(self, webtest):
         """A user can view the account settings page with associations section."""
         # Create a user with a GitHub association
         user = UserFactory.create(
@@ -60,11 +60,13 @@ class TestAccountAssociations:
         # Login
         self._login_user(webtest, user)
 
-        # Visit account settings page
-        account_page = webtest.get("/manage/account/", status=HTTPStatus.OK)
+        # Visit the connected accounts page
+        account_page = webtest.get(
+            "/manage/account/connected-accounts/", status=HTTPStatus.OK
+        )
 
         # Verify associations section is present
-        assert "Account associations" in account_page.text
+        assert "Connected accounts" in account_page.text
         assert "testuser" in account_page.text
         assert "github" in account_page.text.lower()
 
@@ -101,7 +103,7 @@ class TestAccountAssociations:
         account_page = callback_response.follow(status=HTTPStatus.OK)
 
         # Verify association was created
-        assert "Account associations" in account_page.text
+        assert "Connected accounts" in account_page.text
         assert "mockuser_" in account_page.text
 
     def test_connect_github_account_invalid_state(self, webtest):
@@ -143,15 +145,19 @@ class TestAccountAssociations:
         # Login
         self._login_user(webtest, user)
 
-        # Visit account settings page
-        account_page = webtest.get("/manage/account/", status=HTTPStatus.OK)
+        # Visit the connected accounts page
+        account_page = webtest.get(
+            "/manage/account/connected-accounts/", status=HTTPStatus.OK
+        )
 
         # Verify association is present
         assert "testuser" in account_page.text
 
         # Re-authenticate for dangerous action (simulate confirm prompt)
         # In the real UI, this happens via a modal, but we'll POST directly
-        confirm_page = webtest.get("/manage/account/", status=HTTPStatus.OK)
+        confirm_page = webtest.get(
+            "/manage/account/connected-accounts/", status=HTTPStatus.OK
+        )
         csrf_token = confirm_page.html.find("input", {"name": "csrf_token"})["value"]
 
         # Submit delete form
@@ -187,8 +193,8 @@ class TestAccountAssociations:
         self._login_user(webtest, user1)
 
         # Get CSRF token
-        account_page = webtest.get("/manage/account/", status=HTTPStatus.OK)
-        csrf_token = account_page.html.find("input", {"name": "csrf_token"})["value"]
+        security_page = webtest.get("/manage/account/security/", status=HTTPStatus.OK)
+        csrf_token = security_page.html.find("input", {"name": "csrf_token"})["value"]
 
         # Try to delete user2's association
         # Should redirect back to account page with error message
@@ -367,7 +373,7 @@ class TestAccountAssociations:
         account_page = callback_response.follow(status=HTTPStatus.OK)
 
         # Verify association was created
-        assert "Account associations" in account_page.text
+        assert "Connected accounts" in account_page.text
         assert "mockuser_" in account_page.text
 
     def test_connect_gitlab_account_invalid_state(self, webtest):
@@ -485,10 +491,12 @@ class TestAccountAssociations:
 
         self._login_user(webtest, user)
 
-        # Visit account settings page
-        account_page = webtest.get("/manage/account/", status=HTTPStatus.OK)
+        # Visit the connected accounts page
+        account_page = webtest.get(
+            "/manage/account/connected-accounts/", status=HTTPStatus.OK
+        )
 
         # Verify GitLab association is present
-        assert "Account associations" in account_page.text
+        assert "Connected accounts" in account_page.text
         assert "gitlabuser" in account_page.text
         assert "gitlab" in account_page.text.lower()
