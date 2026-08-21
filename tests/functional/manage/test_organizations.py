@@ -50,29 +50,6 @@ def _login_user(webtest, user):
     two_factor_form.submit().follow(status=HTTPStatus.OK)
 
 
-class TestManageOrganizationSettings:
-    def _login_user(self, webtest, user):
-        _login_user(webtest, user)
-
-    def _create_billing_inactive_org(self, role_name=OrganizationRoleType.Owner):
-        """Create a Company org not in good standing and a user with a role in it."""
-        user = UserFactory.create(
-            with_verified_primary_email=True,
-            with_terms_of_service_agreement=True,
-            clear_pwd="password",
-        )
-        # Company org with no billing is not in good standing.
-        organization = OrganizationFactory.create(
-            name="billing-inactive-org",
-            orgtype=OrganizationType.Company,
-        )
-        assert not organization.is_in_good_standing()
-        OrganizationRoleFactory.create(
-            user=user,
-            organization=organization,
-            role_name=role_name,
-        )
-
 def _create_org_with_user(
     orgtype=OrganizationType.Company,
     role_name=OrganizationRoleType.Owner,
@@ -299,3 +276,85 @@ class TestCompanyOrgSurveyCallout:
             status=HTTPStatus.OK,
         )
         assert SURVEY_URL not in page.text
+
+
+class TestManageOrganizationBilling:
+    def _billing_url(self, organization):
+        return f"/manage/organization/{organization.normalized_name}/billing/"
+
+    def _settings_url(self, organization):
+        return f"/manage/organization/{organization.normalized_name}/settings/"
+
+    def test_owner_can_reach_billing_when_billing_inactive(self, webtest):
+        """
+        The billing page is where an owner reactivates billing, so it must be
+        reachable while the Company organization is not in good standing.
+        """
+        owner, organization = _create_org_with_user()
+        assert not organization.is_in_good_standing()
+
+        _login_user(webtest, owner)
+        billing_page = webtest.get(
+            self._billing_url(organization), status=HTTPStatus.OK
+        )
+        assert "Billing details" in billing_page.text
+        assert "Activate billing" in billing_page.text
+
+    def test_billing_page_shows_subscription_details(self, webtest):
+        """An active subscription renders its status and billing email."""
+        owner, organization = _create_org_with_user(name="billing-active-org")
+        subscription = StripeSubscriptionFactory.create(
+            status=StripeSubscriptionStatus.Active
+        )
+        OrganizationStripeSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
+        assert organization.is_in_good_standing()
+
+        _login_user(webtest, owner)
+        billing_page = webtest.get(
+            self._billing_url(organization), status=HTTPStatus.OK
+        )
+        assert subscription.customer.billing_email in billing_page.text
+        assert "Manage billing" in billing_page.text
+
+    def test_settings_page_no_longer_renders_billing(self, webtest):
+        """Billing moved to its own tab, so settings must not render it."""
+        owner, organization = _create_org_with_user()
+        _login_user(webtest, owner)
+        settings_page = webtest.get(
+            self._settings_url(organization), status=HTTPStatus.OK
+        )
+        assert "Billing details" not in settings_page.text
+        assert self._billing_url(organization) in settings_page.text
+
+    def test_menu_hides_billing_without_billing_permission(self, webtest):
+        """Members lack OrganizationsBillingManage, so they get no Billing tab."""
+        member, organization = _create_org_with_user(
+            role_name=OrganizationRoleType.Member
+        )
+
+        _login_user(webtest, member)
+        settings_page = webtest.get(
+            self._settings_url(organization), status=HTTPStatus.OK
+        )
+        assert self._billing_url(organization) not in settings_page.text
+
+        webtest.get(self._billing_url(organization), status=HTTPStatus.FORBIDDEN)
+
+    def test_billing_is_hidden_for_community_organization(self, webtest):
+        """
+        Community organizations are not billed: no Billing tab, and the page is
+        not reachable by URL either.
+        """
+        owner, organization = _create_org_with_user(
+            orgtype=OrganizationType.Community, name="community-org"
+        )
+
+        _login_user(webtest, owner)
+        settings_page = webtest.get(
+            self._settings_url(organization), status=HTTPStatus.OK
+        )
+        assert self._billing_url(organization) not in settings_page.text
+
+        webtest.get(self._billing_url(organization), status=HTTPStatus.NOT_FOUND)
