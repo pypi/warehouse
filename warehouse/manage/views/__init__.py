@@ -676,7 +676,7 @@ class ProvisionTOTPViews:
             self.request.session.flash(
                 "Verify your email to modify two factor authentication", queue="error"
             )
-            return HTTPSeeOther(self.request.route_path("manage.account"))
+            return HTTPSeeOther(self.request.route_path("manage.account.security"))
 
         totp_qr = pyqrcode.create(self.default_response["provision_totp_uri"])
         qr_buffer = io.BytesIO()
@@ -695,7 +695,7 @@ class ProvisionTOTPViews:
             self.request.session.flash(
                 "Verify your email to modify two factor authentication", queue="error"
             )
-            return HTTPSeeOther(self.request.route_path("manage.account"))
+            return HTTPSeeOther(self.request.route_path("manage.account.security"))
 
         # Clear the TOTP secret in the current session (if it exists) so this
         # page will generate a new TOTP secret rather than using the existing
@@ -710,7 +710,7 @@ class ProvisionTOTPViews:
             self.request.session.flash(
                 "Verify your email to modify two factor authentication", queue="error"
             )
-            return HTTPSeeOther(self.request.route_path("manage.account"))
+            return HTTPSeeOther(self.request.route_path("manage.account.security"))
 
         form = ProvisionTOTPForm(
             self.request.POST,
@@ -739,7 +739,7 @@ class ProvisionTOTPViews:
             )
             send_two_factor_added_email(self.request, self.request.user, method="totp")
 
-            return HTTPSeeOther(self.request.route_path("manage.account"))
+            return HTTPSeeOther(self.request.route_path("manage.account.security"))
 
         return {**self.default_response, "provision_totp_form": form}
 
@@ -749,18 +749,18 @@ class ProvisionTOTPViews:
             self.request.session.flash(
                 "Verify your email to modify two factor authentication", queue="error"
             )
-            return HTTPSeeOther(self.request.route_path("manage.account"))
+            return HTTPSeeOther(self.request.route_path("manage.account.security"))
 
         totp_secret = self.user_service.get_totp_secret(self.request.user.id)
         if not totp_secret:
             self.request.session.flash(
                 "There is no authentication application to delete", queue="error"
             )
-            return HTTPSeeOther(self.request.route_path("manage.account"))
+            return HTTPSeeOther(self.request.route_path("manage.account.security"))
 
         if self.request.user.has_single_2fa:
             self.request.session.flash("Cannot remove last 2FA method", queue="error")
-            return HTTPSeeOther(self.request.route_path("manage.account"))
+            return HTTPSeeOther(self.request.route_path("manage.account.security"))
 
         form = DeleteTOTPForm(
             formdata=MultiDict(
@@ -791,7 +791,7 @@ class ProvisionTOTPViews:
         else:
             self.request.session.flash("Invalid credentials. Try again", queue="error")
 
-        return HTTPSeeOther(self.request.route_path("manage.account"))
+        return HTTPSeeOther(self.request.route_path("manage.account.security"))
 
 
 @view_defaults(
@@ -891,11 +891,11 @@ class ProvisionWebAuthnViews:
             self.request.session.flash(
                 "There is no security device to delete", queue="error"
             )
-            return HTTPSeeOther(self.request.route_path("manage.account"))
+            return HTTPSeeOther(self.request.route_path("manage.account.security"))
 
         if self.request.user.has_single_2fa:
             self.request.session.flash("Cannot remove last 2FA method", queue="error")
-            return HTTPSeeOther(self.request.route_path("manage.account"))
+            return HTTPSeeOther(self.request.route_path("manage.account.security"))
 
         form = DeleteWebAuthnForm(
             self.request.POST,
@@ -918,7 +918,7 @@ class ProvisionWebAuthnViews:
         else:
             self.request.session.flash("Invalid credentials", queue="error")
 
-        return HTTPSeeOther(self.request.route_path("manage.account"))
+        return HTTPSeeOther(self.request.route_path("manage.account.security"))
 
 
 @view_defaults(
@@ -983,9 +983,9 @@ class ProvisionRecoveryCodesViews:
         user = self.user_service.get_user(self.request.user.id)
 
         if not user.has_recovery_codes:
-            return HTTPSeeOther(self.request.route_path("manage.account"))
+            return HTTPSeeOther(self.request.route_path("manage.account.security"))
         if user.has_burned_recovery_codes:
-            return HTTPSeeOther(self.request.route_path("manage.account.two-factor"))
+            return HTTPSeeOther(self.request.route_path("manage.account.security"))
 
         form = _form_class(
             self.request.POST,
@@ -1001,7 +1001,7 @@ class ProvisionRecoveryCodesViews:
                 ),
                 queue="success",
             )
-            return HTTPSeeOther(self.request.route_path("manage.account.two-factor"))
+            return HTTPSeeOther(self.request.route_path("manage.account.security"))
 
         return {"form": form}
 
