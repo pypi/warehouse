@@ -1,0 +1,41 @@
+[project]
+name = "pyramid-components"
+description = "Reusable HTML/CSS/JS components for Pyramid + Jinja2 applications"
+readme = "README.md"
+requires-python = ">=3.14"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+dependencies = ["jinja2", "markupsafe"]
+# Single source of truth for the version is __version__ in the package itself.
+dynamic = ["version"]
+
+[project.optional-dependencies]
+# Runtime feature extra: the framework itself needs only jinja2/markupsafe, but
+# the Pyramid integration (config.includeme) expects these in the host app.
+pyramid = ["pyramid", "pyramid_jinja2"]
+
+[dependency-groups]
+# Dev/test tooling (PEP 735) — not published as an installable extra. The suite
+# only needs pytest; jinja2 and markupsafe already arrive as runtime deps.
+test = ["pytest"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.dynamic]
+# Read statically (AST literal), so no import of the package happens at build time.
+version = { attr = "pyramid_components.__version__" }
+
+[tool.setuptools.package-data]
+# Ship the PEP 561 marker so consumers (and mypy) type-check against this package.
+pyramid_components = ["py.typed"]
+
+# NOTE: Inside warehouse this package is installed editable from its src/ layout
+# (`pip install -e ./pyramid_components` in the Dockerfile), so `import
+# pyramid_components` resolves like any installed dependency and dev bind-mounts
+# still live-reload. The config above keeps it publishable as-is once extracted.
+# The package's tests live alongside src/ (in ./tests) and are not packaged.

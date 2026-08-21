@@ -204,12 +204,21 @@ COPY --exclude=requirements \
      --exclude=webpack.plugin.localize.js \
         . /opt/warehouse/src/
 
+# Install the in-repo pyramid_components package (a src/ layout sibling of warehouse).
+# Editable + --no-deps so its deps come from warehouse's pinned requirements and dev
+# bind-mounts still live-reload; --no-build-isolation uses the venv's setuptools.
+RUN pip --disable-pip-version-check install \
+        --no-deps --no-build-isolation -e ./pyramid_components \
+    && pip check
+
 
 # Pre-compile our module's bytecode to save time collectively on container boot!
 # NOTE: We only do this when we're not building a dev build, because a dev build
 #       will likely have a checkout mounted over warehouse anyways, so these
 #       *.pyc files won't be used in that case.
-RUN if [ "$DEVEL" != "yes" ]; then python -m compileall warehouse/ -j 0; fi
+RUN if [ "$DEVEL" != "yes" ]; then \
+        python -m compileall warehouse/ pyramid_components/src/ -j 0; \
+    fi
 
 # Pre-cache TLD list
 # NOTE: We only do this when we're not building a dev build, because a dev build
