@@ -300,10 +300,6 @@ class DatabaseMacaroonService:
             key=dm.key,
             version=pymacaroons.MACAROON_V2,
         )
-        # TODO: Remove this to stop emitting embedded caveats, which are now
-        #       being stored in the database while still being verified.
-        for caveat in scopes:
-            m.add_first_party_caveat(caveats.serialize(caveat))
         serialized_macaroon = f"pypi-{m.serialize()}"
         return serialized_macaroon, dm
 

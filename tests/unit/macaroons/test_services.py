@@ -154,7 +154,7 @@ class TestDatabaseMacaroonService:
     def test_find_userid_valid_macaroon_trailinglinebreak(self, macaroon_service):
         user = UserFactory.create()
         raw_macaroon, _ = macaroon_service.create_macaroon(
-            "fake location",
+            "a fake location",
             "fake description",
             [caveats.ProjectName(normalized_names=["foo"])],
             user_id=user.id,
@@ -321,12 +321,6 @@ class TestDatabaseMacaroonService:
         assert vm.location == "fake location"
         assert vm.identifier == str(dm.id).encode("utf8")
         assert [c.to_dict() for c in vm.caveats] == [
-            # The embedded RequestUser caveat
-            {
-                "cid": f'[3,"{user.id!s}"]',
-                "cl": None,
-                "vid": None,
-            },
             # The database stored RequestUser caveat
             {
                 "cid": f'[3,"{user.id!s}"]',
