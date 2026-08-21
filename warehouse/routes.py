@@ -257,7 +257,9 @@ def includeme(config):
     config.add_route(
         "manage.account.two-factor", "/manage/account/two-factor/", domain=warehouse
     )
-    config.add_redirect("/2fa/", "/manage/account/two-factor/", domain=warehouse)
+    config.add_redirect(
+        "/2fa/", "/manage/account/security/#two-factor", domain=warehouse
+    )
     config.add_route(
         "manage.account.totp-provision",
         "/manage/account/totp-provision",
