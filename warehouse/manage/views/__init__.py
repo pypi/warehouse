@@ -355,10 +355,6 @@ class ManageUnverifiedAccountViews(ManageAccountMixin):
 @lift()
 class ManageVerifiedAccountViews(ManageAccountMixin):
     @property
-    def account_associations(self):
-        return self.user_service.get_account_associations(self.request.user.id)
-
-    @property
     def active_projects(self):
         return user_projects(request=self.request)["projects_sole_owned"]
 
@@ -380,7 +376,6 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
                 user_service=self.user_service,
                 user_id=self.request.user.id,
             ),
-            "account_associations": self.account_associations,
             "active_projects": self.active_projects,
             "sole_organizations": self.sole_organizations,
         }
@@ -548,6 +543,22 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
         self.request.db.delete(self.request.user)
 
         return logout(self.request)
+
+
+@view_config(
+    route_name="manage.account.connected-accounts",
+    renderer="warehouse:templates/manage/account/connected-accounts.html",
+    request_method="GET",
+    uses_session=True,
+    permission=Permissions.AccountManage,
+    has_translations=True,
+    require_reauth=True,
+)
+def manage_account_connected_accounts(request):
+    user_service = request.find_service(IUserService, context=None)
+    return {
+        "account_associations": user_service.get_account_associations(request.user.id)
+    }
 
 
 @view_defaults(
