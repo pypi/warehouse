@@ -555,8 +555,10 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                 Release.created,
                 Release.is_prerelease,
                 Release.yanked,
+                Release.yanked_date,
                 Release.yanked_reason,
                 Release.lifecycle_status,
+                Release.lifecycle_status_changed,
             )
             .filter(Release.project == self)
             .order_by(Release._pypi_ordering.desc())
