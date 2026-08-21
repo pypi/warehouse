@@ -62,7 +62,7 @@ def test_compute_recipient(user, address, expected):
         (None, pretend.stub(id="the_users_id"), REMOTE_ADDR, False),
         (None, pretend.stub(id="some_other_id"), REMOTE_ADDR, True),
         (None, None, REMOTE_ADDR, False),
-        (None, None, "127.0.0.1", True),
+        (None, None, "203.0.113.1", False),
     ],
 )
 def test_redact_ip(unauthenticated_userid, user, remote_addr, expected):
@@ -134,7 +134,7 @@ class TestSendEmailToUser:
         )
         pyramid_request.user = user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
-        pyramid_request.remote_addr = "10.69.10.69"
+        pyramid_request.remote_addr = "203.0.113.69"
 
         if address is not None:
             address = pretend.stub(email=address, verified=True)
@@ -6357,7 +6357,7 @@ class TestSendUnrecognizedLoginEmail:
             email="email@example.com",
             primary_email=pretend.stub(email="email@example.com", verified=True),
         )
-        ip_address = "127.0.0.1"
+        ip_address = "192.0.2.1"
         user_agent = "Test Browser"
         token = "test-token"
 
