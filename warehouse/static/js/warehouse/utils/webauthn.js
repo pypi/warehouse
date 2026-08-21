@@ -193,7 +193,7 @@ export const ProvisionWebAuthn = () => {
         return;
       }
 
-      window.location.replace("/manage/account");
+      window.location.replace("/manage/account/security/");
     }).catch((error) => {
       populateWebAuthnErrorList([error.message]);
       return;
