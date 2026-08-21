@@ -51,6 +51,9 @@ def _login_user(webtest, user):
 
 
 class TestManageOrganizationSettings:
+    def _login_user(self, webtest, user):
+        _login_user(webtest, user)
+
     def _create_billing_inactive_org(self, role_name=OrganizationRoleType.Owner):
         """Create a Company org not in good standing and a user with a role in it."""
         user = UserFactory.create(
@@ -69,6 +72,26 @@ class TestManageOrganizationSettings:
             organization=organization,
             role_name=role_name,
         )
+
+def _create_org_with_user(
+    orgtype=OrganizationType.Company,
+    role_name=OrganizationRoleType.Owner,
+    name="billing-inactive-org",
+):
+    """Create an organization with no billing and a user with a role in it."""
+    user = UserFactory.create(
+        with_verified_primary_email=True,
+        with_terms_of_service_agreement=True,
+        clear_pwd="password",
+    )
+    organization = OrganizationFactory.create(name=name, orgtype=orgtype)
+    OrganizationRoleFactory.create(
+        user=user,
+        organization=organization,
+        role_name=role_name,
+    )
+    return user, organization
+
         return user, organization
 
     def _post_delete_organization(self, webtest, organization, status):
