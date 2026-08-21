@@ -622,6 +622,17 @@ class ManageOrganizationBillingViews:
         return HTTPSeeOther(manage_subscription_url)
 
     @view_config(
+        route_name="manage.organization.billing",
+        renderer="warehouse:templates/manage/organization/billing.html",
+        request_method="GET",
+    )
+    def billing_details(self):
+        if self.organization.orgtype != OrganizationType.Company:
+            # Community organizations are not billed, so there is nothing to show.
+            raise HTTPNotFound
+        return {"organization": self.organization}
+
+    @view_config(
         route_name="manage.organization.activate_subscription",
         renderer="warehouse:templates/manage/organization/activate_subscription.html",
     )
