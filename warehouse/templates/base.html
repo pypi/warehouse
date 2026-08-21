@@ -374,14 +374,13 @@
         <p class="footer__status">
           <span class="footer__status-dot" aria-hidden="true"></span>
           <a href="https://status.python.org/"
-              title="{% trans %}External link{% endtrans %}"
-              target="_blank"
-              rel="noopener">{% trans %}Status: {% endtrans %} <span data-statuspage-domain="{{ request.registry.settings['statuspage.url'] }}">{% trans %}all systems operational{% endtrans %}</span></a>
+             title="{% trans %}External link{% endtrans %}"
+             target="_blank"
+             rel="noopener">{% trans %}Status: {% endtrans %} <span data-statuspage-domain="{{ request.registry.settings['statuspage.url'] }}">{% trans %}all systems operational{% endtrans %}</span></a>
         </p>
       {% endif %}
       <div class="footer__donate">
-        <a class="button button--small"
-           href="https://donate.pypi.org">{% trans %}Donate today!{% endtrans %}</a>
+        <a class="button button--small" href="https://donate.pypi.org">{% trans %}Donate today!{% endtrans %}</a>
       </div>
     </div>
     <div class="footer__right">
@@ -521,22 +520,17 @@
             data-action="viewport-toggle#switchToDesktop">{% trans %}Switch to desktop version{% endtrans %}</button>
   </div>
 </footer>
-
 <!-- <div class="language-switcher">
   <form action="{{ request.route_path('locale') }}">
     <ul>
       {% for identifier, locale in KNOWN_LOCALES.items() %}
         <li>
-          <button {% if request.locale_name == identifier %}class="language-switcher__selected"{% endif %}
-                  name="locale_id"
-                  value="{{ identifier }}"
-                  type="submit">{{ locale.display_name }}</button>
+          <button {% if request.locale_name == identifier %}class="language-switcher__selected"{% endif %} name="locale_id" value="{{ identifier }}" type="submit">{{ locale.display_name }}</button>
         </li>
       {% endfor %}
     </ul>
   </form>
 </div> -->
-
 <div class="legal-footer">
   <div class="legal-footer__inner">
     <ul class="legal-footer__meta">
@@ -558,9 +552,7 @@
     </ul>
   </div>
 </div>
-
 {% include "warehouse:templates/includes/sponsors-footer.html" %}
-
 {% endblock body %}
 </body>
 </html>
