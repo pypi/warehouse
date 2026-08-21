@@ -8,9 +8,7 @@
          target="_blank"
          rel="noopener"
          href="{{ sponsor.link_url }}">
-        <span class="sponsors__image">
-          {{ sponsor.color_logo_img|camoify|safe }}
-        </span>
+        <span class="sponsors__image">{{ sponsor.color_logo_img|camoify|safe }}</span>
         <span class="sponsors__name">{{ sponsor.name }}</span>
         <span class="sponsors__description">
           {%- if sponsor.infra_sponsor -%}
