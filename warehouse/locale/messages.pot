@@ -1939,7 +1939,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: warehouse/templates/accounts/profile.html:102
-#: warehouse/templates/includes/packaging/project-release-history.html:93
+#: warehouse/templates/includes/packaging/project-release-history.html:91
 #: warehouse/templates/includes/packaging/project-status.html:55
 msgid "Archived"
 msgstr ""
@@ -3435,50 +3435,50 @@ msgstr ""
 msgid "RSS feed"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-release-history.html:37
-#: warehouse/templates/includes/packaging/project-release-history.html:104
+#: warehouse/templates/includes/packaging/project-release-history.html:35
+#: warehouse/templates/includes/packaging/project-release-history.html:102
 msgid "This release"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-release-history.html:55
+#: warehouse/templates/includes/packaging/project-release-history.html:53
 msgid "Release quarantined"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-release-history.html:59
+#: warehouse/templates/includes/packaging/project-release-history.html:57
 #, python-format
 msgid "Release quarantined on %(date)s"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-release-history.html:64
+#: warehouse/templates/includes/packaging/project-release-history.html:62
 msgid "Project quarantined"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-release-history.html:68
+#: warehouse/templates/includes/packaging/project-release-history.html:66
 #, python-format
 msgid "Project quarantined on %(date)s"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-release-history.html:79
+#: warehouse/templates/includes/packaging/project-release-history.html:77
 #, python-format
 msgid "Release yanked on %(date)s"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-release-history.html:83
+#: warehouse/templates/includes/packaging/project-release-history.html:81
 #: warehouse/templates/includes/packaging/project-status.html:35
 msgid "Yanked"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-release-history.html:89
+#: warehouse/templates/includes/packaging/project-release-history.html:87
 #, python-format
 msgid "Project archived on %(date)s"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-release-history.html:97
+#: warehouse/templates/includes/packaging/project-release-history.html:95
 #: warehouse/templates/includes/packaging/project-status.html:67
 msgid "Pre-release"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-release-history.html:111
+#: warehouse/templates/includes/packaging/project-release-history.html:110
 #: warehouse/templates/manage/project/releases.html:32
 #, python-format
 msgid "%(count)s file"
@@ -3486,7 +3486,7 @@ msgid_plural "%(count)s files"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/includes/packaging/project-release-history.html:122
+#: warehouse/templates/includes/packaging/project-release-history.html:118
 msgid "Yanked reason:"
 msgstr ""
 

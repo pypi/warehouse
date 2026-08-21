@@ -15,7 +15,6 @@
     {% set blue_cube = request.static_url('warehouse:static/dist/images/blue-cube.svg') %}
     {% set white_cube = request.static_url('warehouse:static/dist/images/white-cube.svg') %}
     {% set provenance_statuses = project.provenance_statuses %}
-
     {% for hversion in all_versions %}
       {% set is_current = (hversion.version == release.version) %}
       {% if hversion.lifecycle_status == "quarantine-enter" or project.lifecycle_status == "quarantine-enter" %}
@@ -29,9 +28,7 @@
       {% else %}
         {% set status_modifier = "" %}
       {% endif %}
-
       {% set provenance_status = provenance_statuses[hversion.version] %}
-
       <div class="release{{ ' release--current' if is_current }}{{ ' ' + status_modifier if status_modifier }}">
         <div class="release__current-badge">
           {% if is_current %}
