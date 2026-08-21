@@ -46,6 +46,14 @@
       </a>
     </li>
     <li>
+      <a href="{{ request.route_path('manage.account.connected-accounts') }}"
+         class="{{ tab_class }} {{ sub_tab_class }} {% if active_subtab == 'connected-accounts' %}{{ active_tab_class }}{% endif %}"
+         {% if active_subtab == 'connected-accounts' %}aria-selected="true"{% endif %}>
+        <i class="fa fa-link" aria-hidden="true"></i>
+        {% trans %}Connected accounts{% endtrans %}
+      </a>
+    </li>
+    <li>
       <a href="{{ request.route_path('manage.account.security-history') }}"
          class="{{ tab_class }} {{ sub_tab_class }} {% if active_subtab == 'security-history' %}{{ active_tab_class }}{% endif %}"
          {% if active_subtab == 'security-history' %}aria-selected="true"{% endif %}>
