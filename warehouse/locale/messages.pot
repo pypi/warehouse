@@ -3662,24 +3662,28 @@ msgid "Yanked:"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/metadata/key-dates.html:31
-msgid "Quarantined:"
+msgid "Project quarantined:"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/metadata/key-dates.html:33
+msgid "Release quarantined:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:35
 msgid "Archived:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:42
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:44
 #, python-format
 msgid "Stable release available (%(version)s)"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:47
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:49
 #, python-format
 msgid "Newer release available (%(version)s)"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:50
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:52
 msgid "Latest release"
 msgstr ""
 
