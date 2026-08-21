@@ -54,10 +54,26 @@ const KNOWN_LOCALES = [
 //   remainder (%)
 const pluralFormPattern = new RegExp("^ *nplurals *= *[0-9]+ *; *plural *=[ n0-9()<>!=?:&|%]+;?$");
 
+// NOTE: declared here (rather than left further down, as in the original file)
+// because allLocaleData is computed eagerly at module-load time and its
+// missing-file warning references pluginName. Referencing a `const` before
+// its declaration throws a ReferenceError (temporal dead zone), so this must
+// come first.
+const pluginName = "WebpackLocalisationPlugin";
+
 const allLocaleData = KNOWN_LOCALES
   .filter(langCode => langCode !== "en")
   .map((langCode) => resolve(localeDir, langCode, "LC_MESSAGES/messages.po"))
-  .filter((file) => fs.statSync(file).isFile())
+  // FIX: statSync() throws ENOENT for a missing file, which would crash the
+  // entire webpack build. Use existsSync() to skip missing files gracefully
+  // instead, and warn so the gap is visible rather than silent.
+  .filter((file) => {
+    const exists = fs.existsSync(file) && fs.statSync(file).isFile();
+    if (!exists) {
+      console.warn(`[${pluginName}] Skipping missing locale file: ${path.relative(baseDir, file)}`);
+    }
+    return exists;
+  })
   .map((file) => ({path: path.relative(baseDir, file), data: fs.readFileSync(file, "utf8")}))
   .map((data) => {
     try {
@@ -71,11 +87,22 @@ const allLocaleData = KNOWN_LOCALES
       const parsed = gettextParser.po.parse(lines);
       const language = parsed.headers["Language"];
       const pluralForms = parsed.headers["Plural-Forms"];
-      const result = {
-        "": {
-          "language": language,
-          "plural-forms": pluralForms,
-        },
+
+      // FIX: give a clearer error when a required header is simply missing,
+      // rather than letting it fall through to the generic regex-mismatch error.
+      if (!language) {
+        throw new Error("Missing 'Language' header");
+      }
+      if (!pluralForms) {
+        throw new Error(`Missing 'Plural-Forms' header for '${language}'`);
+      }
+
+      // FIX: use a null-prototype object so a msgid literally equal to
+      // "__proto__", "constructor", etc. can't pollute the prototype chain.
+      const result = Object.create(null);
+      result[""] = {
+        "language": language,
+        "plural-forms": pluralForms,
       };
 
       if (!pluralFormPattern.test(pluralForms)) {
@@ -107,8 +134,6 @@ const allLocaleData = KNOWN_LOCALES
     }
   });
 
-
-const pluginName = "WebpackLocalisationPlugin";
 
 class WebpackLocalisationPlugin {
   constructor(localeData) {
