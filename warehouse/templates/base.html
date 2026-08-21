@@ -362,29 +362,29 @@
 </main>
 <footer class="footer">
   <div class="footer__inner">
-    <div class="footer__brand">
-      <a class="footer__brand-logo" href="{{ request.route_path('index') }}">
+    <div class="footer__left">
+      <a class="footer__logo" href="{{ request.route_path('index') }}">
         <img src="{{ request.static_path('warehouse:static/dist/images/white-cube.svg') }}"
              alt=""
              class="-js-white-cube">
         <span>PyPI</span>
       </a>
       <p class="footer__tagline">{% trans href='https://www.python.org/psf/', title=gettext('External link') %}Developed and maintained by the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Software Foundation</a> and Python community, for the Python community.{% endtrans %}</p>
-      <div class="footer__brand-actions">
-        {% if request.registry.settings.get("statuspage.url") %}
-          <p class="footer__status">
-            <span class="footer__status-dot" aria-hidden="true"></span>
-            <a href="https://status.python.org/"
-               title="{% trans %}External link{% endtrans %}"
-               target="_blank"
-               rel="noopener">{% trans %}Status: {% endtrans %} <span data-statuspage-domain="{{ request.registry.settings['statuspage.url'] }}">{% trans %}all systems operational{% endtrans %}</span></a>
-          </p>
-        {% endif %}
-        <a class="button button--small footer__donate"
+      {% if request.registry.settings.get("statuspage.url") %}
+        <p class="footer__status">
+          <span class="footer__status-dot" aria-hidden="true"></span>
+          <a href="https://status.python.org/"
+              title="{% trans %}External link{% endtrans %}"
+              target="_blank"
+              rel="noopener">{% trans %}Status: {% endtrans %} <span data-statuspage-domain="{{ request.registry.settings['statuspage.url'] }}">{% trans %}all systems operational{% endtrans %}</span></a>
+        </p>
+      {% endif %}
+      <div class="footer__donate">
+        <a class="button button--small"
            href="https://donate.pypi.org">{% trans %}Donate today!{% endtrans %}</a>
       </div>
     </div>
-    <div class="footer__menus">
+    <div class="footer__right">
       <div class="footer__menu">
         <h2>{% trans %}Help{% endtrans %}</h2>
         <nav aria-label="{% trans %}Help navigation{% endtrans %}">
@@ -521,7 +521,8 @@
             data-action="viewport-toggle#switchToDesktop">{% trans %}Switch to desktop version{% endtrans %}</button>
   </div>
 </footer>
-<div class="language-switcher">
+
+<!-- <div class="language-switcher">
   <form action="{{ request.route_path('locale') }}">
     <ul>
       {% for identifier, locale in KNOWN_LOCALES.items() %}
@@ -534,12 +535,12 @@
       {% endfor %}
     </ul>
   </form>
-</div>
-{% include "warehouse:templates/includes/sponsors-footer.html" %}
-<div class="footer__bar">
-  <div class="footer__bar-inner">
-    <p class="footer__legal">{{ trademarks() }}</p>
-    <ul class="footer__meta">
+</div> -->
+
+<div class="legal-footer">
+  <div class="legal-footer__inner">
+    <ul class="legal-footer__meta">
+      <li>{{ trademarks() }}</li>
       <li>
         © {{ now() |format_date('yyyy') }} <a href="https://www.python.org/psf-landing/"
     title="{% trans %}External link{% endtrans %}"
@@ -557,6 +558,9 @@
     </ul>
   </div>
 </div>
+
+{% include "warehouse:templates/includes/sponsors-footer.html" %}
+
 {% endblock body %}
 </body>
 </html>

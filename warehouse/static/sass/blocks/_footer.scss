@@ -4,17 +4,24 @@
 @use "../settings/breakpoints";
 @use "../settings/colors";
 @use "../settings/grid";
+@use "../settings/fonts";
 @use "../tools/link-utilities";
+@use "../tools/typography";
+
+$footer-narrow-width: 1100px;
 
 /*
   Footer:
 
   <footer class="footer">
-    <div class="footer__inner">              // max-width row: brand | menus
-      <div class="footer__brand">            // logo, tagline, status, donate
-        ...
+    <div class="footer__inner">              // max-width row: left | right
+      <div class="footer__left">
+        <a class="footer__logo">...</a>
+        <p class="footer__tagline">...</p>
+        <p class="footer__status">...</p>      // optional, statuspage.url
+        <div class="footer__donate">...</div>
       </div>
-      <div class="footer__menus">            // responsive grid of link groups
+      <div class="footer__right">            // responsive grid of link groups
         <div class="footer__menu">
           // H2: Menu title
           <nav aria-label="menu label">
@@ -23,21 +30,22 @@
         </div>
       </div>
     </div>
-    <div class="footer__bar">                 // bottom utility bar
-      <p class="footer__legal">...</p>        // trademark line
-      <ul class="footer__meta">...</ul>       // copyright, sitemap, deploy sha
+    <div class="footer__switch-viewport">    // mobile-only, hidden on desktop
+      <button>Switch to desktop version</button>
     </div>
   </footer>
+  <div class="legal-footer">...</div>          // see blocks/_legal-footer.scss
 */
 
 .footer {
-  background-color: color.adjust(colors.$primary-color, $lightness: 2%);
+  background-color: color.adjust(colors.$primary-color, $lightness: 1%);
   color: colors.$white;
   padding: 40px 0 24px;
   width: 100%;
+  font-size: 0.9rem;
 
   @media only screen and (max-width: breakpoints.$mobile) {
-    padding: 30px 0 20px;
+    padding: grid.$spacing-unit 0 20px;
   }
 
   a {
@@ -45,60 +53,51 @@
   }
 
   &__inner {
+    max-width: grid.$site-container;
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: grid.$spacing-unit grid.$spacing-unit * 2;
-    max-width: 1450px;
     margin: 0 auto;
     padding: 0 grid.$spacing-unit;
+
+    @media only screen and (max-width: breakpoints.$desktop) {
+      flex-wrap: wrap;
+      gap: 0;
+    }
+
+    @media only screen and (max-width: breakpoints.$small-tablet) {
+      padding: 0 grid.$half-spacing-unit;
+    }
   }
 
-  // -- Brand column -----------------------------------------------------------
+  // -- Left column
 
-  &__brand {
-    flex: 1 1 240px;
-    max-width: 340px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: grid.$half-spacing-unit;
+  &__left {
+    max-width: 240px;
+    padding-right: grid.$spacing-unit;
 
-    @media only screen and (max-width: breakpoints.$tablet) {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: grid.$half-spacing-unit grid.$spacing-unit * 1.5;
-      align-items: start;
+    @media only screen and (max-width: breakpoints.$desktop) {
       flex-basis: 100%;
       max-width: 100%;
-
-      .footer__brand-logo {
-        grid-column: 1 / -1;
-      }
-
-      .footer__brand-actions {
-        grid-column: 2;
-      }
+      border-bottom: 1px solid color.adjust(colors.$white, $alpha: -0.85);
+      padding-bottom: grid.$spacing-unit;
     }
-  }
 
-  &__brand-actions {
-    display: contents;
-
-    @media only screen and (max-width: breakpoints.$tablet) {
+    @media only screen and (max-width: breakpoints.$small-tablet) {
       display: flex;
       flex-direction: column;
-      align-items: flex-end;
-      gap: grid.$half-spacing-unit;
+      align-items: center;
+      text-align: center;
+      padding-right: 0;
     }
   }
 
-  &__brand-logo {
+  &__logo {
     display: inline-flex;
     align-items: center;
     gap: 10px;
     color: colors.$white;
-    font-size: 1.4rem;
-    font-weight: 600;
+    @include typography.h2;
     text-decoration: none;
 
     &:hover {
@@ -112,19 +111,24 @@
   }
 
   &__tagline {
-    margin: 0;
-    max-width: 28ch;
+    margin-top: grid.$half-spacing-unit;
     color: color.adjust(colors.$white, $alpha: -0.2);
-    font-size: 0.85rem;
-    line-height: 1.5;
+
+    @media only screen and (max-width: breakpoints.$tablet) {
+      max-width: 100%;
+    }
+
+    @media only screen and (max-width: breakpoints.$small-tablet) {
+      max-width: 80%;
+    }
   }
 
   &__status {
+    font-size: fonts.$small-font-size;
     display: inline-flex;
     align-items: center;
     gap: 8px;
     margin: 0;
-    font-size: 0.85rem;
   }
 
   &__status-dot {
@@ -138,39 +142,49 @@
 
   &__donate {
     margin-top: grid.$quarter-spacing-unit;
-    border-color: color.adjust(colors.$white, $alpha: -0.6);
-    color: colors.$white;
-    text-decoration: none;
 
-    &:hover,
-    &:focus {
-      background-color: color.adjust(colors.$white, $alpha: -0.88);
-      border-color: color.adjust(colors.$white, $alpha: -0.3);
-      text-decoration: none;
-    }
-
-    @media only screen and (max-width: breakpoints.$tablet) {
-      margin-top: 0;
+    .button {
+      border-color: color.adjust(colors.$white, $alpha: -0.15);
     }
   }
 
-  // -- Link groups ------------------------------------------------------------
+  // -- Right column
 
-  &__menus {
-    flex: 2 1 460px;
+  &__right {
+    flex: 1 1 0%;
+    min-width: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: grid.$spacing-unit grid.$spacing-unit;
+
+    @media only screen and (max-width: breakpoints.$desktop) {
+      flex-basis: 100%;
+      margin: grid.$spacing-unit 0;
+    }
+
+    @media only screen and (max-width: breakpoints.$tablet) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    @media only screen and (max-width: breakpoints.$small-tablet) {
+      grid-template-columns: 1fr;
+      justify-items: center;
+      text-align: center;
+    }
   }
 
   &__menu {
     padding: 0;
 
     h2 {
+      @include typography.h4;
       margin-bottom: 10px;
       color: colors.$white;
-      font-size: 0.95rem;
       text-align: left;
+
+      @media only screen and (max-width: breakpoints.$small-tablet) {
+        text-align: center;
+      }
     }
 
     ul {
@@ -183,8 +197,11 @@
       list-style: none;
       text-align: left;
 
+      @media only screen and (max-width: breakpoints.$small-tablet) {
+        text-align: center;
+      }
+
       a {
-        font-size: 0.85rem;
         text-decoration: none;
         @include link-utilities.white-underlined-link;
       }
@@ -192,59 +209,13 @@
   }
 
   &__switch-viewport {
-    max-width: 1100px;
+    max-width: $footer-narrow-width;
     margin: 0 auto;
     padding: 0 grid.$spacing-unit;
-  }
 
-  // -- Bottom utility bar -----------------------------------------------------
-  // A slim full-width band rendered below the sponsor strip (outside .footer),
-  // so it needs its own background, link colour, and compact padding.
-
-  &__bar {
-    width: 100%;
-    padding: grid.$half-spacing-unit grid.$spacing-unit;
-    border-top: 1px solid color.adjust(colors.$white, $alpha: -0.85);
-    background-color: color.adjust(colors.$primary-color, $lightness: 2%);
-    color: color.adjust(colors.$white, $alpha: -0.25);
-    font-size: 0.78rem;
-
-    a {
-      @include link-utilities.white-underlined-link;
-    }
-  }
-
-  &__bar-inner {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: grid.$quarter-spacing-unit grid.$spacing-unit;
-    max-width: 1100px;
-    margin: 0 auto;
-  }
-
-  &__legal {
-    flex: 1 1 320px;
-    min-width: 0;
-    margin: 0;
-    line-height: 1.5;
-  }
-
-  &__meta {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: flex-end;
-    row-gap: 4px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-
-    li + li::before {
-      content: "·";
-      margin: 0 0.6em;
-      color: color.adjust(colors.$white, $alpha: -0.6);
+    @media only screen and (max-width: breakpoints.$small-tablet) {
+      display: flex;
+      justify-content: center;
     }
   }
 }
