@@ -92,6 +92,16 @@ def _create_org_with_user(
     )
     return user, organization
 
+
+class TestManageOrganizationSettings:
+    def _login_user(self, webtest, user):
+        _login_user(webtest, user)
+
+    def _create_billing_inactive_org(self, role_name=OrganizationRoleType.Owner):
+        """Create a Company org not in good standing and a user with a role in it."""
+        user, organization = _create_org_with_user(role_name=role_name)
+        # Company org with no billing is not in good standing.
+        assert not organization.is_in_good_standing()
         return user, organization
 
     def _post_delete_organization(self, webtest, organization, status):
