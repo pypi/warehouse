@@ -248,6 +248,7 @@ def pyramid_services(
     services.register_service(search_service, ISearchService)
     services.register_service(domain_status_service, IDomainStatusService)
     services.register_service(ratelimit_service, IRateLimiter, name="email.add")
+    services.register_service(ratelimit_service, IRateLimiter, name="email.change")
     services.register_service(ratelimit_service, IRateLimiter, name="email.verify")
     services.register_service(
         ratelimit_service, IRateLimiter, name="project.create.user"
@@ -779,25 +780,23 @@ def tm():
     tm.abort()
 
 
-@pytest.fixture
-def webtest(app_config_dbsession_from_env, tm):
+def _make_webtest(app_config, tm, **settings):
     """
-    This fixture yields a test app with an alternative Pyramid configuration,
-    injecting the database session and transaction manager into the app.
+    Yield a test app with an alternative Pyramid configuration, injecting the
+    database session and transaction manager into the app.
 
     This is because the Warehouse app normally manages its own database session.
 
-    After the fixture has yielded the app, the transaction is rolled back and
-    the database is left in its previous state.
+    After the app has been yielded, the transaction is rolled back and the
+    database is left in its previous state.
     """
-
     # We want to disable anything that relies on TLS here.
-    app_config_dbsession_from_env.add_settings(enforce_https=False)
+    app_config.add_settings(enforce_https=False, **settings)
 
-    app = app_config_dbsession_from_env.make_wsgi_app()
-    engine = app_config_dbsession_from_env.registry["sqlalchemy.engine"]
+    app = app_config.make_wsgi_app()
+    engine = app_config.registry["sqlalchemy.engine"]
 
-    with get_db_session_for_app_config(app_config_dbsession_from_env) as _db_session:
+    with get_db_session_for_app_config(app_config) as _db_session:
         # Register the app with the external test environment, telling
         # request.db to use this db_session and use the Transaction manager.
         testapp = _TestApp(
@@ -812,6 +811,22 @@ def webtest(app_config_dbsession_from_env, tm):
         )
         yield testapp
         testapp.close()
+
+
+@pytest.fixture
+def webtest(app_config_dbsession_from_env, tm):
+    yield from _make_webtest(app_config_dbsession_from_env, tm)
+
+
+@pytest.fixture
+def testpypi_webtest(app_config_dbsession_from_env, tm):
+    """
+    As ``webtest``, but with a domain that marks the app as TestPyPI, so
+    templates branching on ``testPyPI`` can be exercised.
+    """
+    yield from _make_webtest(
+        app_config_dbsession_from_env, tm, **{"warehouse.domain": "test.pypi.org"}
+    )
 
 
 class _MockRedis:

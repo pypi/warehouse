@@ -2,7 +2,12 @@
 {% extends "base.html" %}
 {# HTML HEAD metadata #}
 {% block title %}{{ release.project.name }}{% endblock %}
-{% block description %}{{ release.summary }}{% endblock %}
+{# Jinja has no `finalize` configured, so a null summary rendered the literal
+ # string "None". The coalesce is load-bearing for that; `trim` additionally
+ # catches whitespace-only summaries. One line: renders into an attribute. #}
+{# djlint:off #}
+{% block description %}{% if (release.summary or "")|trim %}{{ release.summary }}{% else %}{% trans project_name=release.project.name %}{{ project_name }} is a package on the Python Package Index (PyPI).{% endtrans %}{% endif %}{% endblock %}
+{# djlint:on #}
 {% block additional_rss -%}
   <link rel="alternate"
         type="application/rss+xml"
@@ -10,9 +15,14 @@
         href="{{ request.route_path('rss.project.releases', name=release.project.normalized_name) }}">
 {%- endblock %}
 {% block canonical_url %}{{ request.route_url('packaging.project', name=release.project.name) }}{% endblock %}
+{# Brand-new projects are disproportionately typosquats and malware, so they
+ # are kept out of search results and are not lent the official PyPI card.
+ # One flag drives both, so the two cannot drift apart. #}
+{% set within_trust_window = release.project.created|is_recent %}
 {% block extra_meta %}
-  {% if release.project.created|is_recent %}<meta name="googlebot" content="noindex">{% endif %}
+  {% if within_trust_window %}<meta name="googlebot" content="noindex">{% endif %}
 {% endblock %}
+{% block preview_image %}{{ no_preview_image() if within_trust_window else super() }}{% endblock %}
 {# Page content #}
 {% block content %}
   {% include "warehouse:templates/includes/packaging/project-status.html" %}
