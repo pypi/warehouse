@@ -247,6 +247,9 @@ def includeme(config):
         "manage.account.publishing", "/manage/account/publishing/", domain=warehouse
     )
     config.add_route(
+        "manage.account.danger-zone", "/manage/account/danger-zone/", domain=warehouse
+    )
+    config.add_route(
         "manage.account.connected-accounts",
         "/manage/account/connected-accounts/",
         domain=warehouse,
