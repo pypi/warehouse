@@ -222,6 +222,7 @@ def _check_for_mfa(request, context) -> WarehouseDenied | None:
     # Management routes that don't require 2FA, mostly to set up 2FA.
     _exempt_routes = [
         "manage.account.recovery-codes",
+        "manage.account.connected-accounts",
         "manage.account.security",
         "manage.account.tokens",
         "manage.account.totp-provision",
