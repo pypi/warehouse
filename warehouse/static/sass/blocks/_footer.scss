@@ -4,70 +4,187 @@
 @use "../settings/breakpoints";
 @use "../settings/colors";
 @use "../settings/grid";
+@use "../settings/fonts";
 @use "../tools/link-utilities";
+@use "../tools/typography";
+
+$footer-narrow-width: 1100px;
 
 /*
   Footer:
 
-  <div class="footer">
-    <div class="footer__icon">
-      // footer icon image goes here
-    </div>
-    <div class="footer__menus"> // menu wrapper
-      <div class="footer__menu">
-        // H2: Menu title
-        <nav aria-label="menu label">
-          <ul>
-            <li><a>Menu Link</a></li>
-          </ul>
-        </nav>
+  <footer class="footer">
+    <div class="footer__inner">              // max-width row: left | right
+      <div class="footer__left">
+        <a class="footer__logo">...</a>
+        <p class="footer__tagline">...</p>
+        <p class="footer__status">...</p>      // optional, statuspage.url
+        <div class="footer__donate">...</div>
+      </div>
+      <div class="footer__right">            // responsive grid of link groups
+        <div class="footer__menu">
+          // H2: Menu title
+          <nav aria-label="menu label">
+            <ul><li><a>Menu Link</a></li></ul>
+          </nav>
+        </div>
       </div>
     </div>
-
-    <hr class="footer__divider">
-
-    <div class="footer__text">
-      // copyright, disclaimers,etc.
+    <div class="footer__switch-viewport">    // mobile-only, hidden on desktop
+      <button>Switch to desktop version</button>
     </div>
-  </div>
+  </footer>
+  <div class="legal-footer">...</div>          // see blocks/_legal-footer.scss
 */
 
 .footer {
-  background-color: color.adjust(colors.$primary-color, $lightness: 2%);
+  background-color: color.adjust(colors.$primary-color, $lightness: 1%);
   color: colors.$white;
-  padding: 60px 0;
+  padding: 40px 0 24px;
   width: 100%;
+  font-size: 0.9rem;
 
   @media only screen and (max-width: breakpoints.$mobile) {
-    padding: 40px 0;
+    padding: grid.$spacing-unit 0 20px;
+  }
+
+  a {
+    @include link-utilities.white-underlined-link;
+  }
+
+  &__inner {
+    max-width: grid.$site-container;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: grid.$spacing-unit grid.$spacing-unit * 2;
+    margin: 0 auto;
+    padding: 0 grid.$spacing-unit;
+
+    @media only screen and (max-width: breakpoints.$desktop) {
+      flex-wrap: wrap;
+      gap: 0;
+    }
+
+    @media only screen and (max-width: breakpoints.$small-tablet) {
+      padding: 0 grid.$half-spacing-unit;
+    }
+  }
+
+  // -- Left column
+
+  &__left {
+    max-width: 240px;
+    padding-right: grid.$spacing-unit;
+
+    @media only screen and (max-width: breakpoints.$desktop) {
+      flex-basis: 100%;
+      max-width: 100%;
+      border-bottom: 1px solid color.adjust(colors.$white, $alpha: -0.85);
+      padding-bottom: grid.$spacing-unit;
+    }
+
+    @media only screen and (max-width: breakpoints.$small-tablet) {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding-right: 0;
+    }
   }
 
   &__logo {
-    margin-bottom: grid.$spacing-unit;
-    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: colors.$white;
+    @include typography.h2;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: none;
+    }
+
+    img {
+      width: 28px;
+      height: auto;
+    }
   }
 
-  &__menus {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin-bottom: grid.$spacing-unit;
+  &__tagline {
+    margin-top: grid.$half-spacing-unit;
+    color: color.adjust(colors.$white, $alpha: -0.2);
 
-    @media only screen and (max-width: breakpoints.$mobile) {
-      margin-bottom: 10px;
+    @media only screen and (max-width: breakpoints.$tablet) {
+      max-width: 100%;
+    }
+
+    @media only screen and (max-width: breakpoints.$small-tablet) {
+      max-width: 80%;
+    }
+  }
+
+  &__status {
+    font-size: fonts.$small-font-size;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+  }
+
+  &__status-dot {
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: color.adjust(colors.$success-color, $lightness: 25%);
+    box-shadow: 0 0 0 3px color.adjust(colors.$success-color, $lightness: 25%, $alpha: -0.75);
+  }
+
+  &__donate {
+    margin-top: grid.$quarter-spacing-unit;
+
+    .button {
+      border-color: color.adjust(colors.$white, $alpha: -0.15);
+    }
+  }
+
+  // -- Right column
+
+  &__right {
+    flex: 1 1 0%;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: grid.$spacing-unit grid.$spacing-unit;
+
+    @media only screen and (max-width: breakpoints.$desktop) {
+      flex-basis: 100%;
+      margin: grid.$spacing-unit 0;
+    }
+
+    @media only screen and (max-width: breakpoints.$tablet) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    @media only screen and (max-width: breakpoints.$small-tablet) {
+      grid-template-columns: 1fr;
+      justify-items: center;
+      text-align: center;
     }
   }
 
   &__menu {
-    flex-basis: 220px;
-    flex-shrink: 0;
-    margin: 0 grid.$half-spacing-unit 40px;
     padding: 0;
 
     h2 {
+      @include typography.h4;
+      margin-bottom: 10px;
       color: colors.$white;
-      margin-bottom: 5px;
-      text-align: center;
+      text-align: left;
+
+      @media only screen and (max-width: breakpoints.$small-tablet) {
+        text-align: center;
+      }
     }
 
     ul {
@@ -76,9 +193,13 @@
     }
 
     li {
-      padding: 2px 0;
+      padding: 3px 0;
       list-style: none;
-      text-align: center;
+      text-align: left;
+
+      @media only screen and (max-width: breakpoints.$small-tablet) {
+        text-align: center;
+      }
 
       a {
         text-decoration: none;
@@ -87,24 +208,14 @@
     }
   }
 
-  &__divider {
-    border: 1px solid color.adjust(colors.$white, $alpha: -0.7);
-    margin: 0 auto grid.$spacing-unit;
-    width: 200px;
-    background: none;
-    height: 0;
-  }
+  &__switch-viewport {
+    max-width: $footer-narrow-width;
+    margin: 0 auto;
+    padding: 0 grid.$spacing-unit;
 
-  &__text {
-    color: color.adjust(colors.$white, $alpha: -0.05);
-    font-size: 0.9rem;
-    margin: auto;
-    max-width: 600px;
-    text-align: center;
-    padding: 0 20px;
-
-    a {
-      @include link-utilities.white-underlined-link;
+    @media only screen and (max-width: breakpoints.$small-tablet) {
+      display: flex;
+      justify-content: center;
     }
   }
 }
