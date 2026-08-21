@@ -202,6 +202,11 @@ def test_routes(warehouse, mocker):
             "manage.account.publishing", "/manage/account/publishing/", domain=warehouse
         ),
         mocker.call(
+            "manage.account.connected-accounts",
+            "/manage/account/connected-accounts/",
+            domain=warehouse,
+        ),
+        mocker.call(
             "manage.account.security", "/manage/account/security/", domain=warehouse
         ),
         mocker.call(
