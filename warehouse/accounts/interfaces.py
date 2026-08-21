@@ -1,5 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
+import dataclasses
+
 from zope.interface import Attribute, Interface
 
 from warehouse.rate_limiting.interfaces import RateLimiterException
@@ -329,4 +333,52 @@ class IDomainStatusService(Interface):
     def get_domain_status(domain: str) -> list[str] | None:
         """
         Returns a list of status strings for the given domain.
+        """
+
+
+@dataclasses.dataclass(frozen=True)
+class EmailDomainCheckResult:
+    """
+    What an email domain check service reported about a single domain.
+
+    Every signal defaults to "nothing to report", so that a service which
+    stops returning one of them can't turn into a false positive.
+    """
+
+    domain: str
+    mx: bool = True
+    disposable: bool = False
+    public_domain: bool = False
+    relay_domain: bool = False
+    spam: bool = False
+    blocklisted: bool = False
+
+    @property
+    def signals(self) -> list[str]:
+        """
+        The names of the negative signals reported for this domain, sorted, for
+        use in logs and metrics. Empty if nothing was reported.
+        """
+        return sorted(
+            name
+            for name, reported in {
+                "blocklisted": self.blocklisted,
+                "disposable": self.disposable,
+                "no_mx": not self.mx,
+                "public_domain": self.public_domain,
+                "relay_domain": self.relay_domain,
+                "spam": self.spam,
+            }.items()
+            if reported
+        )
+
+
+class IEmailDomainCheckService(Interface):
+    def check_domain(domain: str) -> EmailDomainCheckResult | None:
+        """
+        Returns what is known about the given domain, or None if no verdict
+        could be obtained -- callers are expected to fail open in that case.
+
+        Implementations are given a domain rather than a full email address, so
+        that no local part is ever handed to a third party.
         """

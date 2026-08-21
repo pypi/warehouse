@@ -22,6 +22,7 @@ from tldextract import TLDExtract
 from warehouse import forms
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
+    IEmailDomainCheckService,
     InvalidRecoveryCode,
     IUserService,
     NoRecoveryCodes,
@@ -422,6 +423,39 @@ class NewEmailMixin:
                 self.request._(
                     "This email address is already being used "
                     "by another account. Use a different email."
+                )
+            )
+
+        # Our third tier of email domain checks: ask a remote service what it
+        # knows about this domain. This is the only check here that costs us an
+        # external request, so it runs last, once the address has cleared every
+        # local check. We hand over the registrable domain only, never the full
+        # email address.
+        email_domain_check_service = self.request.find_service(IEmailDomainCheckService)
+        domain_check = email_domain_check_service.check_domain(domain)
+        if domain_check is not None and domain_check.disposable:
+            # Record the domain in our own blocklist, so that the next attempt
+            # to use it is caught by the database check above and we don't pay
+            # for the same answer twice. Any IntegrityError from a concurrent
+            # registration using the same domain is retryable, and the retry
+            # will be rejected by that database check.
+            self.request.db.add(
+                ProhibitedEmailDomain(
+                    domain=domain,
+                    comment=(
+                        "Automatically prohibited: reported as a disposable "
+                        "email domain"
+                    ),
+                )
+            )
+            self.request.metrics.increment(
+                "warehouse.accounts.forms.validate_email",
+                tags=["result:invalid", "reason:disposable_domain_reported"],
+            )
+            raise wtforms.validators.ValidationError(
+                self.request._(
+                    "You can't use an email address from this domain. Use a "
+                    "different email."
                 )
             )
 

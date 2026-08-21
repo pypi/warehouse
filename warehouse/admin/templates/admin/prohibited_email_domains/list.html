@@ -57,9 +57,13 @@
                 {% if prohibited_email_domain.is_mx_record %}<i class="fa fa-check text-success"></i>{% endif %}
               </td>
               <td>
-                <a href="{{ request.route_path('admin.user.detail', username=prohibited_email_domain.prohibited_by.username) }}">
-                  {{ prohibited_email_domain.prohibited_by.username }}
-                </a>
+                {% if prohibited_email_domain.prohibited_by %}
+                  <a href="{{ request.route_path('admin.user.detail', username=prohibited_email_domain.prohibited_by.username) }}">
+                    {{ prohibited_email_domain.prohibited_by.username }}
+                  </a>
+                {% else %}
+                  <em>automated</em>
+                {% endif %}
               </td>
               <td>{{ prohibited_email_domain.created | format_datetime }}</td>
               <td>{{ prohibited_email_domain.comment }}</td>

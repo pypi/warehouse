@@ -5,6 +5,7 @@ from celery.schedules import crontab
 from warehouse.accounts.interfaces import (
     IDomainStatusService,
     IEmailBreachedService,
+    IEmailDomainCheckService,
     IPasswordBreachedService,
     ITokenService,
     IUserService,
@@ -25,6 +26,7 @@ from warehouse.accounts.services import (
     HaveIBeenPwnedPasswordBreachedService,
     NullDomainStatusService,
     NullEmailBreachedService,
+    NullEmailDomainCheckService,
     NullPasswordBreachedService,
     TokenServiceFactory,
     database_login_factory,
@@ -132,6 +134,17 @@ def includeme(config):
     )
     config.register_service_factory(
         domain_status_class.create_service, IDomainStatusService
+    )
+
+    # Register our email domain check service. This is the third tier of email
+    # domain checks, after the static and database blocklists.
+    email_domain_check_class = config.maybe_dotted(
+        config.registry.settings.get(
+            "email_domain_check.backend", NullEmailDomainCheckService
+        )
+    )
+    config.register_service_factory(
+        email_domain_check_class.create_service, IEmailDomainCheckService
     )
 
     # Register GitHub OAuth service for account associations.

@@ -17,8 +17,10 @@ from zope.interface.verify import verifyClass
 from warehouse.accounts import services
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
+    EmailDomainCheckResult,
     IDomainStatusService,
     IEmailBreachedService,
+    IEmailDomainCheckService,
     InvalidRecoveryCode,
     IPasswordBreachedService,
     ITokenService,
@@ -2259,6 +2261,312 @@ class TestFastlyDomainStatusService:
 
         assert svc._http is request.http
         assert svc.api_key == "some_api_key"
+
+
+class TestNullEmailDomainCheckService:
+    def test_verify_service(self):
+        assert verifyClass(
+            IEmailDomainCheckService, services.NullEmailDomainCheckService
+        )
+
+    def test_check_domain_returns_no_signals(self):
+        svc = services.NullEmailDomainCheckService()
+
+        result = svc.check_domain("example.com")
+
+        assert result == EmailDomainCheckResult(domain="example.com")
+        assert result.signals == []
+
+    def test_factory(self):
+        context = pretend.stub()
+        request = pretend.stub()
+        svc = services.NullEmailDomainCheckService.create_service(context, request)
+
+        assert isinstance(svc, services.NullEmailDomainCheckService)
+        assert svc.check_domain("example.com").signals == []
+
+
+class TestUserCheckEmailDomainCheckService:
+    def test_verify_service(self):
+        assert verifyClass(
+            IEmailDomainCheckService, services.UserCheckEmailDomainCheckService
+        )
+
+    def test_factory(self):
+        context = pretend.stub()
+        request = pretend.stub(
+            http=pretend.stub(),
+            metrics=pretend.stub(),
+            registry=pretend.stub(
+                settings={"email_domain_check.api_key": "some_api_key"}
+            ),
+        )
+        svc = services.UserCheckEmailDomainCheckService.create_service(context, request)
+
+        assert svc._http is request.http
+        assert svc._metrics is request.metrics
+        assert svc.api_key == "some_api_key"
+
+    def _service(self, response, metrics=None):
+        session = pretend.stub(get=pretend.call_recorder(lambda *a, **kw: response))
+        return (
+            services.UserCheckEmailDomainCheckService(
+                session=session,
+                api_key="some_api_key",
+                metrics=metrics if metrics is not None else NullMetrics(),
+            ),
+            session,
+        )
+
+    def test_disposable_domain(self):
+        response = pretend.stub(
+            status_code=200,
+            json=lambda: {
+                "status": 200,
+                "domain": "dropmail.me",
+                "mx": True,
+                "disposable": True,
+                "public_domain": False,
+                "relay_domain": False,
+                "spam": False,
+                "blocklisted": False,
+            },
+            raise_for_status=lambda: None,
+        )
+        svc, session = self._service(response)
+
+        result = svc.check_domain("dropmail.me")
+
+        assert result == EmailDomainCheckResult(
+            domain="dropmail.me",
+            mx=True,
+            disposable=True,
+            public_domain=False,
+            relay_domain=False,
+            spam=False,
+            blocklisted=False,
+        )
+        assert result.signals == ["disposable"]
+        assert session.get.calls == [
+            pretend.call(
+                "https://api.usercheck.com/domain/dropmail.me",
+                headers={"Authorization": "Bearer some_api_key"},
+                timeout=5,
+            )
+        ]
+
+    def test_clean_domain(self):
+        response = pretend.stub(
+            status_code=200,
+            json=lambda: {
+                "status": 200,
+                "domain": "python.org",
+                "mx": True,
+                "disposable": False,
+                "public_domain": False,
+                "relay_domain": False,
+                "spam": False,
+                "blocklisted": False,
+            },
+            raise_for_status=lambda: None,
+        )
+        svc, _session = self._service(response)
+
+        result = svc.check_domain("python.org")
+
+        assert result.signals == []
+        assert not result.disposable
+
+    def test_multiple_signals_are_reported(self):
+        response = pretend.stub(
+            status_code=200,
+            json=lambda: {
+                "domain": "example.com",
+                "mx": False,
+                "disposable": True,
+                "public_domain": True,
+                "relay_domain": True,
+                "spam": True,
+                "blocklisted": True,
+            },
+            raise_for_status=lambda: None,
+        )
+        svc, _session = self._service(response)
+
+        result = svc.check_domain("example.com")
+
+        assert result.signals == [
+            "blocklisted",
+            "disposable",
+            "no_mx",
+            "public_domain",
+            "relay_domain",
+            "spam",
+        ]
+
+    def test_missing_keys_default_to_no_signal(self):
+        # We only rely on the keys we care about, and treat anything absent as
+        # "no signal", so that a change in the upstream payload can't turn into
+        # a false positive rejection.
+        response = pretend.stub(
+            status_code=200,
+            json=lambda: {"domain": "example.com"},
+            raise_for_status=lambda: None,
+        )
+        svc, _session = self._service(response)
+
+        result = svc.check_domain("example.com")
+
+        assert result == EmailDomainCheckResult(domain="example.com")
+        assert result.signals == []
+
+    def test_only_the_domain_is_sent(self):
+        # We never send the local part of an email address to a third party.
+        response = pretend.stub(
+            status_code=200,
+            json=lambda: {"domain": "example.com", "disposable": False},
+            raise_for_status=lambda: None,
+        )
+        svc, session = self._service(response)
+
+        svc.check_domain("example.com")
+
+        (call,) = session.get.calls
+        assert call.args == ("https://api.usercheck.com/domain/example.com",)
+        assert "@" not in call.args[0]
+
+    def test_domain_is_quoted(self):
+        response = pretend.stub(
+            status_code=200,
+            json=lambda: {"domain": "exam ple.com"},
+            raise_for_status=lambda: None,
+        )
+        svc, session = self._service(response)
+
+        svc.check_domain("exam ple.com")
+
+        (call,) = session.get.calls
+        assert call.args == ("https://api.usercheck.com/domain/exam%20ple.com",)
+
+    @pytest.mark.parametrize("status_code", [400, 401, 429, 500])
+    def test_http_error_fails_open(self, status_code):
+        class UserCheckHTTPError(requests.HTTPError):
+            def __init__(self):
+                self.response = pretend.stub(status_code=status_code)
+
+        response = pretend.stub(
+            status_code=status_code,
+            raise_for_status=pretend.raiser(UserCheckHTTPError),
+        )
+        metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
+        svc, _session = self._service(response, metrics=metrics)
+
+        assert svc.check_domain("example.com") is None
+        assert (
+            pretend.call(
+                "warehouse.email_domain_check.request",
+                tags=[
+                    "service:usercheck",
+                    "result:error",
+                    f"status_code:{status_code}",
+                ],
+            )
+            in metrics.increment.calls
+        )
+
+    def test_connection_error_fails_open(self):
+        session = pretend.stub(
+            get=pretend.raiser(requests.ConnectionError("no route to host"))
+        )
+        metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
+        svc = services.UserCheckEmailDomainCheckService(
+            session=session, api_key="some_api_key", metrics=metrics
+        )
+
+        assert svc.check_domain("example.com") is None
+        assert metrics.increment.calls == [
+            pretend.call(
+                "warehouse.email_domain_check.request",
+                tags=["service:usercheck", "result:error", "status_code:none"],
+            )
+        ]
+
+    def test_malformed_response_fails_open(self):
+        response = pretend.stub(
+            status_code=200,
+            json=pretend.raiser(requests.exceptions.JSONDecodeError("", "", 0)),
+            raise_for_status=lambda: None,
+        )
+        metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
+        svc, _session = self._service(response, metrics=metrics)
+
+        assert svc.check_domain("example.com") is None
+        assert metrics.increment.calls == [
+            pretend.call(
+                "warehouse.email_domain_check.request",
+                tags=["service:usercheck", "result:invalid_response"],
+            )
+        ]
+
+    def test_non_object_response_fails_open(self):
+        response = pretend.stub(
+            status_code=200,
+            json=lambda: ["not", "an", "object"],
+            raise_for_status=lambda: None,
+        )
+        metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
+        svc, _session = self._service(response, metrics=metrics)
+
+        assert svc.check_domain("example.com") is None
+        assert metrics.increment.calls == [
+            pretend.call(
+                "warehouse.email_domain_check.request",
+                tags=["service:usercheck", "result:invalid_response"],
+            )
+        ]
+
+    def test_metrics_for_successful_check(self):
+        response = pretend.stub(
+            status_code=200,
+            json=lambda: {"domain": "dropmail.me", "disposable": True, "spam": True},
+            raise_for_status=lambda: None,
+        )
+        metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
+        svc, _session = self._service(response, metrics=metrics)
+
+        svc.check_domain("dropmail.me")
+
+        assert metrics.increment.calls == [
+            pretend.call(
+                "warehouse.email_domain_check.request",
+                tags=["service:usercheck", "result:success"],
+            ),
+            pretend.call(
+                "warehouse.email_domain_check.signal",
+                tags=["service:usercheck", "signal:disposable"],
+            ),
+            pretend.call(
+                "warehouse.email_domain_check.signal",
+                tags=["service:usercheck", "signal:spam"],
+            ),
+        ]
+
+    def test_no_api_key_fails_open_without_request(self):
+        # If we haven't configured an API key, don't bother the remote service.
+        session = pretend.stub(get=pretend.call_recorder(lambda *a, **kw: None))
+        metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
+        svc = services.UserCheckEmailDomainCheckService(
+            session=session, api_key=None, metrics=metrics
+        )
+
+        assert svc.check_domain("example.com") is None
+        assert session.get.calls == []
+        assert metrics.increment.calls == [
+            pretend.call(
+                "warehouse.email_domain_check.request",
+                tags=["service:usercheck", "result:not_configured"],
+            )
+        ]
 
 
 class TestDeviceIsKnown:

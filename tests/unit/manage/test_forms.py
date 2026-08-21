@@ -185,13 +185,14 @@ class TestSaveAccountForm:
 
 class TestAddEmailForm:
     @pytest.mark.usefixtures("no_email_deliverability_check")
-    def test_validate(self, metrics):
+    def test_validate(self, metrics, email_domain_check_service):
         user_id = pretend.stub()
         user_service = pretend.stub(find_userid_by_email=lambda _: None)
         form = forms.AddEmailForm(
             request=pretend.stub(
                 db=pretend.stub(query=lambda *a: pretend.stub(scalar=lambda: False)),
                 metrics=metrics,
+                find_service=lambda *a, **kw: email_domain_check_service,
             ),
             formdata=MultiDict({"email": "foo@bar.com"}),
             user_id=user_id,
@@ -397,13 +398,14 @@ class TestAddEmailForm:
 
 class TestChangeUnverifiedPrimaryEmailForm:
     @pytest.mark.usefixtures("no_email_deliverability_check")
-    def test_validate(self, metrics):
+    def test_validate(self, metrics, email_domain_check_service):
         user_id = pretend.stub()
         user_service = pretend.stub(find_userid_by_email=lambda _: None)
         form = forms.ChangeUnverifiedPrimaryEmailForm(
             request=pretend.stub(
                 db=pretend.stub(query=lambda *a: pretend.stub(scalar=lambda: False)),
                 metrics=metrics,
+                find_service=lambda *a, **kw: email_domain_check_service,
             ),
             formdata=MultiDict({"email": "foo@bar.com"}),
             user_id=user_id,

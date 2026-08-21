@@ -25,6 +25,7 @@ from webob.multidict import MultiDict
 from warehouse.accounts import views
 from warehouse.accounts.interfaces import (
     IDomainStatusService,
+    IEmailDomainCheckService,
     IPasswordBreachedService,
     ITokenService,
     IUserService,
@@ -1934,6 +1935,9 @@ class TestRegister:
                 "csp": pretend.stub(merge=lambda *a, **kw: {}),
                 ICaptchaService: pretend.stub(
                     csp_policy={}, enabled=True, verify_response=lambda a: True
+                ),
+                IEmailDomainCheckService: pretend.stub(
+                    check_domain=lambda domain: None
                 ),
             }[key]
 

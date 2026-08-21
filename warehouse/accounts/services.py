@@ -31,8 +31,10 @@ from zope.interface import implementer
 
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
+    EmailDomainCheckResult,
     IDomainStatusService,
     IEmailBreachedService,
+    IEmailDomainCheckService,
     InvalidRecoveryCode,
     IPasswordBreachedService,
     ITokenService,
@@ -1269,3 +1271,118 @@ class FastlyDomainStatusService:
             return None
 
         return body["status"].split()
+
+
+@implementer(IEmailDomainCheckService)
+class NullEmailDomainCheckService:
+    @classmethod
+    def create_service(cls, _context, _request) -> NullEmailDomainCheckService:
+        return cls()
+
+    def check_domain(self, domain: str) -> EmailDomainCheckResult:
+        return EmailDomainCheckResult(domain=domain)
+
+
+@implementer(IEmailDomainCheckService)
+class UserCheckEmailDomainCheckService:
+    """
+    Check an email domain's reputation with UserCheck.
+
+    See https://www.usercheck.com/docs/get-started/overview
+
+    We use the `/domain/` endpoint rather than `/email/` on purpose: it reports
+    the same signals we act on, and it means the local part of a user's email
+    address is never sent to a third party.
+    """
+
+    API_BASE = "https://api.usercheck.com/domain"
+
+    def __init__(
+        self, *, session: requests.Session, api_key: str | None, metrics
+    ) -> None:
+        self._http = session
+        self._metrics = metrics
+        self.api_key = api_key
+
+    @classmethod
+    def create_service(
+        cls, _context, request: Request
+    ) -> UserCheckEmailDomainCheckService:
+        return cls(
+            session=request.http,
+            api_key=request.registry.settings.get("email_domain_check.api_key"),
+            metrics=request.metrics,
+        )
+
+    def check_domain(self, domain: str) -> EmailDomainCheckResult | None:
+        if not self.api_key:
+            logger.warning("No UserCheck API key configured")
+            self._metrics.increment(
+                "warehouse.email_domain_check.request",
+                tags=["service:usercheck", "result:not_configured"],
+            )
+            return None
+
+        try:
+            resp = self._http.get(
+                f"{self.API_BASE}/{urllib.parse.quote(domain)}",
+                headers={"Authorization": f"Bearer {self.api_key}"},
+                timeout=5,
+            )
+            resp.raise_for_status()
+        except requests.RequestException as exc:
+            # Fail open: an unavailable, unauthorized or rate-limited service
+            # must never stop somebody from using their email address.
+            status_code = (
+                exc.response.status_code if exc.response is not None else "none"
+            )
+            logger.warning("Error contacting UserCheck", error=repr(exc), domain=domain)
+            self._metrics.increment(
+                "warehouse.email_domain_check.request",
+                tags=[
+                    "service:usercheck",
+                    "result:error",
+                    f"status_code:{status_code}",
+                ],
+            )
+            return None
+
+        try:
+            body = resp.json()
+        except ValueError:
+            body = None
+
+        if not isinstance(body, dict):
+            logger.warning("Unexpected response from UserCheck", domain=domain)
+            self._metrics.increment(
+                "warehouse.email_domain_check.request",
+                tags=["service:usercheck", "result:invalid_response"],
+            )
+            return None
+
+        result = EmailDomainCheckResult(
+            domain=domain,
+            mx=bool(body.get("mx", True)),
+            disposable=bool(body.get("disposable", False)),
+            public_domain=bool(body.get("public_domain", False)),
+            relay_domain=bool(body.get("relay_domain", False)),
+            spam=bool(body.get("spam", False)),
+            blocklisted=bool(body.get("blocklisted", False)),
+        )
+
+        self._metrics.increment(
+            "warehouse.email_domain_check.request",
+            tags=["service:usercheck", "result:success"],
+        )
+        for signal in result.signals:
+            self._metrics.increment(
+                "warehouse.email_domain_check.signal",
+                tags=["service:usercheck", f"signal:{signal}"],
+            )
+        logger.info(
+            "Checked email domain with UserCheck",
+            domain=domain,
+            signals=result.signals,
+        )
+
+        return result

@@ -12,6 +12,7 @@ from webob.multidict import MultiDict
 from warehouse.accounts import forms
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
+    EmailDomainCheckResult,
     InvalidRecoveryCode,
     NoRecoveryCodes,
     TooManyFailedLogins,
@@ -439,7 +440,7 @@ class TestLoginForm:
 
 class TestRegistrationForm:
     @pytest.mark.usefixtures("no_email_deliverability_check")
-    def test_validate(self, metrics):
+    def test_validate(self, metrics, email_domain_check_service):
         captcha_service = pretend.stub(
             enabled=False,
             verify_response=pretend.call_recorder(lambda _: None),
@@ -459,6 +460,7 @@ class TestRegistrationForm:
             request=pretend.stub(
                 db=pretend.stub(query=lambda *a: pretend.stub(scalar=lambda: False)),
                 metrics=metrics,
+                find_service=lambda *a, **kw: email_domain_check_service,
             ),
             formdata=MultiDict(
                 {
@@ -565,11 +567,12 @@ class TestRegistrationForm:
         )
 
     @pytest.mark.usefixtures("no_email_deliverability_check")
-    def test_exotic_email_success(self, metrics):
+    def test_exotic_email_success(self, metrics, email_domain_check_service):
         form = forms.RegistrationForm(
             request=pretend.stub(
                 db=pretend.stub(query=lambda *a: pretend.stub(scalar=lambda: False)),
                 metrics=metrics,
+                find_service=lambda *a, **kw: email_domain_check_service,
             ),
             formdata=MultiDict({"email": "foo@n--tree.net"}),
             user_service=pretend.stub(
@@ -655,6 +658,218 @@ class TestRegistrationForm:
             == "You can't use an email address from this domain. Use a "
             "different email."
         )
+
+    @pytest.mark.usefixtures("no_email_deliverability_check")
+    def test_remote_disposable_email_error(
+        self, db_request, email_domain_check_service, metrics, monkeypatch
+    ):
+        monkeypatch.setattr(
+            email_domain_check_service,
+            "check_domain",
+            pretend.call_recorder(
+                lambda domain: EmailDomainCheckResult(domain=domain, disposable=True)
+            ),
+        )
+
+        form = forms.RegistrationForm(
+            request=db_request,
+            formdata=MultiDict({"email": "foo@mailtowin.com"}),
+            user_service=pretend.stub(
+                find_userid_by_email=pretend.call_recorder(lambda _: None)
+            ),
+            captcha_service=pretend.stub(enabled=True),
+            breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
+        )
+
+        assert not form.validate()
+        assert (
+            str(form.email.errors.pop())
+            == "You can't use an email address from this domain. Use a "
+            "different email."
+        )
+        # Only the domain is handed to the service, never the full address.
+        assert email_domain_check_service.check_domain.calls == [
+            pretend.call("mailtowin.com")
+        ]
+        assert (
+            pretend.call(
+                "warehouse.accounts.forms.validate_email",
+                tags=["result:invalid", "reason:disposable_domain_reported"],
+            )
+            in metrics.increment.calls
+        )
+
+    @pytest.mark.usefixtures("no_email_deliverability_check")
+    def test_remote_disposable_email_is_added_to_prohibited_domains(
+        self, db_request, email_domain_check_service, monkeypatch
+    ):
+        monkeypatch.setattr(
+            email_domain_check_service,
+            "check_domain",
+            lambda domain: EmailDomainCheckResult(domain=domain, disposable=True),
+        )
+
+        form = forms.RegistrationForm(
+            request=db_request,
+            formdata=MultiDict({"email": "foo@mailtowin.com"}),
+            user_service=pretend.stub(
+                find_userid_by_email=pretend.call_recorder(lambda _: None)
+            ),
+            captcha_service=pretend.stub(enabled=True),
+            breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
+        )
+
+        assert not form.validate()
+
+        prohibited = (
+            db_request.db.query(ProhibitedEmailDomain)
+            .filter(ProhibitedEmailDomain.domain == "mailtowin.com")
+            .one()
+        )
+        assert prohibited.is_mx_record is False
+        assert prohibited.prohibited_by is None
+        assert prohibited.comment == (
+            "Automatically prohibited: reported as a disposable email domain"
+        )
+
+    @pytest.mark.usefixtures("no_email_deliverability_check")
+    def test_remote_disposable_subdomain_prohibits_registrable_domain(
+        self, db_request, email_domain_check_service, monkeypatch
+    ):
+        monkeypatch.setattr(
+            email_domain_check_service,
+            "check_domain",
+            pretend.call_recorder(
+                lambda domain: EmailDomainCheckResult(domain=domain, disposable=True)
+            ),
+        )
+
+        form = forms.RegistrationForm(
+            request=db_request,
+            formdata=MultiDict({"email": "foo@mail.one.mailtowin.com"}),
+            user_service=pretend.stub(
+                find_userid_by_email=pretend.call_recorder(lambda _: None)
+            ),
+            captcha_service=pretend.stub(enabled=True),
+            breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
+        )
+
+        assert not form.validate()
+        assert email_domain_check_service.check_domain.calls == [
+            pretend.call("mailtowin.com")
+        ]
+        assert (
+            db_request.db.query(ProhibitedEmailDomain)
+            .filter(ProhibitedEmailDomain.domain == "mailtowin.com")
+            .one()
+        )
+
+    @pytest.mark.usefixtures("no_email_deliverability_check")
+    @pytest.mark.parametrize(
+        "result_kwargs",
+        [
+            {},
+            {"spam": True},
+            {"public_domain": True},
+            {"relay_domain": True},
+            {"blocklisted": True},
+            {"mx": False},
+        ],
+    )
+    def test_remote_non_disposable_signals_do_not_block(
+        self, db_request, email_domain_check_service, monkeypatch, result_kwargs
+    ):
+        # Anything other than "disposable" is recorded for observation only, so
+        # we can measure it before deciding whether to gate on it.
+        monkeypatch.setattr(
+            email_domain_check_service,
+            "check_domain",
+            lambda domain: EmailDomainCheckResult(domain=domain, **result_kwargs),
+        )
+
+        form = forms.RegistrationForm(
+            request=db_request,
+            formdata=MultiDict({"email": "foo@example.com"}),
+            user_service=pretend.stub(
+                find_userid_by_email=pretend.call_recorder(lambda _: None)
+            ),
+            captcha_service=pretend.stub(enabled=True),
+            breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
+        )
+
+        form.validate()
+
+        assert form.email.errors == []
+        assert (
+            db_request.db.query(ProhibitedEmailDomain)
+            .filter(ProhibitedEmailDomain.domain == "example.com")
+            .one_or_none()
+            is None
+        )
+
+    @pytest.mark.usefixtures("no_email_deliverability_check")
+    def test_remote_check_failure_fails_open(
+        self, db_request, email_domain_check_service, monkeypatch
+    ):
+        monkeypatch.setattr(
+            email_domain_check_service, "check_domain", lambda domain: None
+        )
+
+        form = forms.RegistrationForm(
+            request=db_request,
+            formdata=MultiDict({"email": "foo@example.com"}),
+            user_service=pretend.stub(
+                find_userid_by_email=pretend.call_recorder(lambda _: None)
+            ),
+            captcha_service=pretend.stub(enabled=True),
+            breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
+        )
+
+        form.validate()
+
+        assert form.email.errors == []
+
+    @pytest.mark.usefixtures("no_email_deliverability_check")
+    def test_remote_check_skipped_for_locally_prohibited_domain(
+        self, db_request, email_domain_check_service, monkeypatch
+    ):
+        # No need to spend a remote lookup on a domain we already know about.
+        db_request.db.add(ProhibitedEmailDomain(domain="wutang.net"))
+        check_domain = pretend.call_recorder(lambda domain: None)
+        monkeypatch.setattr(email_domain_check_service, "check_domain", check_domain)
+
+        form = forms.RegistrationForm(
+            request=db_request,
+            formdata=MultiDict({"email": "foo@wutang.net"}),
+            user_service=pretend.stub(
+                find_userid_by_email=pretend.call_recorder(lambda _: None)
+            ),
+            captcha_service=pretend.stub(enabled=True),
+            breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
+        )
+
+        assert not form.validate()
+        assert check_domain.calls == []
+
+    @pytest.mark.usefixtures("no_email_deliverability_check")
+    def test_remote_check_skipped_for_email_already_in_use(
+        self, db_request, email_domain_check_service, monkeypatch
+    ):
+        check_domain = pretend.call_recorder(lambda domain: None)
+        monkeypatch.setattr(email_domain_check_service, "check_domain", check_domain)
+
+        form = forms.RegistrationForm(
+            request=db_request,
+            formdata=MultiDict({"email": "foo@example.com"}),
+            user_service=pretend.stub(
+                find_userid_by_email=pretend.call_recorder(lambda _: pretend.stub())
+            ),
+            captcha_service=pretend.stub(enabled=True),
+            breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
+        )
+
+        assert not form.validate()
+        assert check_domain.calls == []
 
     def test_recaptcha_disabled(self):
         form = forms.RegistrationForm(

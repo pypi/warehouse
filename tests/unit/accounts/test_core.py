@@ -8,6 +8,7 @@ from warehouse import accounts
 from warehouse.accounts.interfaces import (
     IDomainStatusService,
     IEmailBreachedService,
+    IEmailDomainCheckService,
     IPasswordBreachedService,
     ITokenService,
     IUserService,
@@ -16,6 +17,7 @@ from warehouse.accounts.services import (
     HaveIBeenPwnedEmailBreachedService,
     HaveIBeenPwnedPasswordBreachedService,
     NullDomainStatusService,
+    NullEmailDomainCheckService,
     TokenServiceFactory,
     database_login_factory,
 )
@@ -159,6 +161,9 @@ def test_includeme(monkeypatch):
             IEmailBreachedService,
         ),
         pretend.call(NullDomainStatusService.create_service, IDomainStatusService),
+        pretend.call(
+            NullEmailDomainCheckService.create_service, IEmailDomainCheckService
+        ),
         pretend.call(
             accounts.NullGitHubOAuthClient.create_service,
             accounts.IOAuthProviderService,

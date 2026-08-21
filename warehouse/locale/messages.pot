@@ -14,116 +14,116 @@ msgstr ""
 msgid "Locale updated"
 msgstr ""
 
-#: warehouse/accounts/forms.py:48 warehouse/accounts/forms.py:344
+#: warehouse/accounts/forms.py:49 warehouse/accounts/forms.py:345
 msgid "The email address isn't valid. Try again."
 msgstr ""
 
-#: warehouse/accounts/forms.py:49
+#: warehouse/accounts/forms.py:50
 msgid "The password is invalid. Try again."
 msgstr ""
 
-#: warehouse/accounts/forms.py:51
+#: warehouse/accounts/forms.py:52
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a "
 "letter or number. Choose a different username."
 msgstr ""
 
-#: warehouse/accounts/forms.py:68
+#: warehouse/accounts/forms.py:69
 msgid "Null bytes are not allowed."
 msgstr ""
 
-#: warehouse/accounts/forms.py:84
+#: warehouse/accounts/forms.py:85
 msgid ""
 "Usernames are not the same as email addresses. Enter your username "
 "instead of your email address."
 msgstr ""
 
-#: warehouse/accounts/forms.py:96
+#: warehouse/accounts/forms.py:97
 msgid "No user found with that username"
 msgstr ""
 
-#: warehouse/accounts/forms.py:124
+#: warehouse/accounts/forms.py:125
 #, python-brace-format
 msgid "TOTP code must be ${totp_length} digits."
 msgstr ""
 
-#: warehouse/accounts/forms.py:147
+#: warehouse/accounts/forms.py:148
 #, python-brace-format
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr ""
 
-#: warehouse/accounts/forms.py:161
+#: warehouse/accounts/forms.py:162
 msgid "Choose a username with 50 characters or less."
 msgstr ""
 
-#: warehouse/accounts/forms.py:179
+#: warehouse/accounts/forms.py:180
 msgid ""
 "This username is already being used by another account. Choose a "
 "different username."
 msgstr ""
 
-#: warehouse/accounts/forms.py:218 warehouse/accounts/forms.py:275
-#: warehouse/accounts/forms.py:288
+#: warehouse/accounts/forms.py:219 warehouse/accounts/forms.py:276
+#: warehouse/accounts/forms.py:289
 msgid "Password too long."
 msgstr ""
 
-#: warehouse/accounts/forms.py:258
+#: warehouse/accounts/forms.py:259
 #, python-brace-format
 msgid ""
 "There have been too many unsuccessful login attempts. You have been "
 "locked out for ${time}. Please try again later."
 msgstr ""
 
-#: warehouse/accounts/forms.py:291
+#: warehouse/accounts/forms.py:292
 msgid "Your passwords don't match. Try again."
 msgstr ""
 
-#: warehouse/accounts/forms.py:325
+#: warehouse/accounts/forms.py:326
 msgid "The email address is too long. Try again."
 msgstr ""
 
-#: warehouse/accounts/forms.py:397
+#: warehouse/accounts/forms.py:398 warehouse/accounts/forms.py:457
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:412
+#: warehouse/accounts/forms.py:413
 msgid ""
 "This email address is already being used by this account. Use a different"
 " email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:423
+#: warehouse/accounts/forms.py:424
 msgid ""
 "This email address is already being used by another account. Use a "
 "different email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:463 warehouse/manage/forms.py:129
+#: warehouse/accounts/forms.py:497 warehouse/manage/forms.py:129
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 
-#: warehouse/accounts/forms.py:468
+#: warehouse/accounts/forms.py:502
 msgid "URLs are not allowed in the name field."
 msgstr ""
 
-#: warehouse/accounts/forms.py:557
+#: warehouse/accounts/forms.py:591
 msgid "Invalid TOTP code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:574
+#: warehouse/accounts/forms.py:608
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr ""
 
-#: warehouse/accounts/forms.py:638
+#: warehouse/accounts/forms.py:672
 msgid "Invalid recovery code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:647
+#: warehouse/accounts/forms.py:681
 msgid "Recovery code has been previously used."
 msgstr ""
 
-#: warehouse/accounts/forms.py:676
+#: warehouse/accounts/forms.py:710
 msgid "The username isn't valid. Try again."
 msgstr ""
 
