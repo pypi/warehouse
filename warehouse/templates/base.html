@@ -525,7 +525,10 @@
     <ul>
       {% for identifier, locale in KNOWN_LOCALES.items() %}
         <li>
-          <button {% if request.locale_name == identifier %}class="language-switcher__selected"{% endif %} name="locale_id" value="{{ identifier }}" type="submit">{{ locale.display_name }}</button>
+          <button {% if request.locale_name == identifier %}class="language-switcher__selected"{% endif %}
+                  name="locale_id"
+                  value="{{ identifier }}"
+                  type="submit">{{ locale.display_name }}</button>
         </li>
       {% endfor %}
     </ul>
