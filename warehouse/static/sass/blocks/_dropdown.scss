@@ -163,12 +163,14 @@
 
     .dropdown__link--danger,
     button.dropdown__link--danger {
-      color: colors.$danger-color;
+      background-color: colors.$danger-color;
+      color: colors.$white;
 
       &:hover,
       &:active,
       &:focus {
-        color: colors.$danger-color;
+        background-color: color.adjust(colors.$danger-color, $lightness: -8%);
+        color: colors.$white;
       }
     }
   }
