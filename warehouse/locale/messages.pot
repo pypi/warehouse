@@ -8227,6 +8227,20 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/pages/classifiers.html:17
+msgid "Notice:"
+msgstr ""
+
+#: warehouse/templates/pages/classifiers.html:17
+msgid ""
+"As of <a href=\"https://packaging.python.org/en/latest/specifications"
+"/license-expression/\" target=\"_blank\" rel=\"noopener\">PEP 639</a>, "
+"the use of <code>License</code> Trove classifiers is deprecated. Please "
+"use <a href=\"https://packaging.python.org/en/latest/specifications"
+"/license-expression/\" target=\"_blank\" rel=\"noopener\">license "
+"expressions</a> in <code>pyproject.toml</code> instead."
+msgstr ""
+
+#: warehouse/templates/pages/classifiers.html:20
 #, python-format
 msgid ""
 "Instructions for how to add Trove classifiers to a project can be found "
@@ -8237,14 +8251,14 @@ msgid ""
 "title=\"Python enhancement proposal\">PEP</abbr> 301</a>."
 msgstr ""
 
-#: warehouse/templates/pages/classifiers.html:29
+#: warehouse/templates/pages/classifiers.html:32
 msgid ""
 "To prevent a package from being uploaded to PyPI, use the special "
 "\"Private :: Do Not Upload\" classifier. PyPI will always reject packages"
 " with classifiers beginning with \"Private ::\"."
 msgstr ""
 
-#: warehouse/templates/pages/classifiers.html:31
+#: warehouse/templates/pages/classifiers.html:34
 msgid "List of classifiers"
 msgstr ""
 
@@ -10366,4 +10380,3 @@ msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] ""
 msgstr[1] ""
-
