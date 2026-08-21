@@ -475,6 +475,36 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
         return self.default_response
 
 
+@view_defaults(
+    route_name="manage.account.danger-zone",
+    renderer="warehouse:templates/manage/account/danger-zone.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    permission=Permissions.AccountManage,
+    has_translations=True,
+    require_reauth=True,
+)
+@lift()
+class ManageAccountDangerZoneViews(ManageAccountMixin):
+    @property
+    def active_projects(self):
+        return user_projects(request=self.request)["projects_sole_owned"]
+
+    @property
+    def sole_organizations(self):
+        return user_organizations(request=self.request)["organizations_with_sole_owner"]
+
+    @property
+    def default_response(self):
+        return {
+            "active_projects": self.active_projects,
+            "sole_organizations": self.sole_organizations,
+        }
+
+    @view_config(request_method="GET")
+    def manage_account_danger_zone(self):
+        return self.default_response
     @view_config(
         request_method="POST", request_param=DeleteTOTPForm.__params__
     )  # TODO: gate_action instead of confirm pass form
