@@ -160,6 +160,17 @@
         border-bottom-color: colors.$white;
       }
     }
+
+    .dropdown__link--danger,
+    button.dropdown__link--danger {
+      color: colors.$danger-color;
+
+      &:hover,
+      &:active,
+      &:focus {
+        color: colors.$danger-color;
+      }
+    }
   }
 
   &__link--is-active,
