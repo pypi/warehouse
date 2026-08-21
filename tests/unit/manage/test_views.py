@@ -2051,7 +2051,7 @@ class TestProvisionWebAuthn:
         assert request.session.flash.calls == [
             pretend.call("Security device removed", queue="success")
         ]
-        assert request.route_path.calls == [pretend.call("manage.account")]
+        assert request.route_path.calls == [pretend.call("manage.account.security")]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar"
         assert request.user.record_event.calls == [
@@ -2082,7 +2082,7 @@ class TestProvisionWebAuthn:
         assert request.session.flash.calls == [
             pretend.call("There is no security device to delete", queue="error")
         ]
-        assert request.route_path.calls == [pretend.call("manage.account")]
+        assert request.route_path.calls == [pretend.call("manage.account.security")]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar"
 
@@ -2112,7 +2112,7 @@ class TestProvisionWebAuthn:
         assert request.session.flash.calls == [
             pretend.call("Invalid credentials", queue="error")
         ]
-        assert request.route_path.calls == [pretend.call("manage.account")]
+        assert request.route_path.calls == [pretend.call("manage.account.security")]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar"
 
@@ -2130,7 +2130,7 @@ class TestProvisionWebAuthn:
         assert request.session.flash.calls == [
             pretend.call("Cannot remove last 2FA method", queue="error")
         ]
-        assert request.route_path.calls == [pretend.call("manage.account")]
+        assert request.route_path.calls == [pretend.call("manage.account.security")]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar"
 
@@ -2294,7 +2294,7 @@ class TestProvisionRecoveryCodes:
         assert isinstance(result, HTTPSeeOther)
         assert result.location == "/foo/bar"
 
-        assert request.route_path.calls == [pretend.call("manage.account.two-factor")]
+        assert request.route_path.calls == [pretend.call("manage.account.security")]
         assert form.validate.calls == [pretend.call()]
         assert request.session.flash.calls == [
             pretend.call(
@@ -2311,7 +2311,7 @@ class TestProvisionRecoveryCodes:
                     id=pretend.stub(),
                     has_recovery_codes=False,
                 ),
-                "manage.account",
+                "manage.account.security",
             ),
             (
                 pretend.stub(
@@ -2319,7 +2319,7 @@ class TestProvisionRecoveryCodes:
                     has_recovery_codes=True,
                     has_burned_recovery_codes=True,
                 ),
-                "manage.account.two-factor",
+                "manage.account.security",
             ),
         ],
     )

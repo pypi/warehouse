@@ -2958,7 +2958,9 @@ class TestVerifyEmail:
         assert user.is_active
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
-        db_request.route_path.assert_called_once_with("manage.account.two-factor")
+        db_request.route_path.assert_called_once_with(
+            "manage.account.security", _anchor="two-factor"
+        )
         mock_token_service_loads.assert_called_once_with("RANDOM_KEY")
         ratelimit_service.clear.assert_has_calls(
             [

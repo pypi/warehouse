@@ -718,7 +718,7 @@ def test_routes(warehouse, mocker):
     assert config.add_redirect.call_args_list == [
         mocker.call("/sponsor/", "/sponsors/", domain=warehouse),
         mocker.call("/u/{username}/", "/user/{username}/", domain=warehouse),
-        mocker.call("/2fa/", "/manage/account/two-factor/", domain=warehouse),
+        mocker.call("/2fa/", "/manage/account/security/#two-factor", domain=warehouse),
         mocker.call("/p/{name}/", "/project/{name}/", domain=warehouse),
         mocker.call(
             "/p/{name}/{version}/", "/project/{name}/{version}/", domain=warehouse

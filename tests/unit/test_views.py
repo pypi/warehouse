@@ -263,7 +263,7 @@ class TestForbiddenView:
         assert resp.status_code == 303
         assert resp.headers["Location"] == "/the/url/?next=/foo/bar/%3Fb%3Ds"
         assert request.route_url.calls == [
-            pretend.call("manage.account.two-factor", _query={"next": "/foo/bar/?b=s"})
+            pretend.call("manage.account.security", _query={"next": "/foo/bar/?b=s"})
         ]
         assert request.session.flash.calls == [
             pretend.call(
