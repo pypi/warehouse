@@ -65,7 +65,9 @@ def github_association_callback(request: Request) -> HTTPSeeOther:
         request.session.flash(
             request._("Invalid OAuth state - possible CSRF attack"), queue="error"
         )
-        return HTTPSeeOther(location=request.route_path("manage.account"))
+        return HTTPSeeOther(
+            location=request.route_path("manage.account.connected-accounts")
+        )
 
     # Check for OAuth error
     error = request.GET.get("error")
@@ -77,7 +79,9 @@ def github_association_callback(request: Request) -> HTTPSeeOther:
             ),
             queue="error",
         )
-        return HTTPSeeOther(location=request.route_path("manage.account"))
+        return HTTPSeeOther(
+            location=request.route_path("manage.account.connected-accounts")
+        )
 
     # Exchange code for access token
     code = request.GET.get("code")
@@ -85,7 +89,9 @@ def github_association_callback(request: Request) -> HTTPSeeOther:
         request.session.flash(
             request._("No authorization code received from GitHub"), queue="error"
         )
-        return HTTPSeeOther(location=request.route_path("manage.account"))
+        return HTTPSeeOther(
+            location=request.route_path("manage.account.connected-accounts")
+        )
 
     # Get OAuth client from registry
     oauth_client = request.find_service(IOAuthProviderService, name="github")
@@ -156,7 +162,9 @@ def github_association_callback(request: Request) -> HTTPSeeOther:
             queue="error",
         )
 
-    return HTTPSeeOther(location=request.route_path("manage.account"))
+    return HTTPSeeOther(
+        location=request.route_path("manage.account.connected-accounts")
+    )
 
 
 @view_config(
@@ -210,7 +218,9 @@ def gitlab_association_callback(request: Request) -> HTTPSeeOther | HTTPNotFound
         request.session.flash(
             request._("Invalid OAuth state - possible CSRF attack"), queue="error"
         )
-        return HTTPSeeOther(location=request.route_path("manage.account"))
+        return HTTPSeeOther(
+            location=request.route_path("manage.account.connected-accounts")
+        )
 
     # Check for OAuth error
     error = request.GET.get("error")
@@ -222,7 +232,9 @@ def gitlab_association_callback(request: Request) -> HTTPSeeOther | HTTPNotFound
             ),
             queue="error",
         )
-        return HTTPSeeOther(location=request.route_path("manage.account"))
+        return HTTPSeeOther(
+            location=request.route_path("manage.account.connected-accounts")
+        )
 
     # Exchange code for access token
     code = request.GET.get("code")
@@ -230,7 +242,9 @@ def gitlab_association_callback(request: Request) -> HTTPSeeOther | HTTPNotFound
         request.session.flash(
             request._("No authorization code received from GitLab"), queue="error"
         )
-        return HTTPSeeOther(location=request.route_path("manage.account"))
+        return HTTPSeeOther(
+            location=request.route_path("manage.account.connected-accounts")
+        )
 
     # Get OAuth client from registry
     oauth_client = request.find_service(IOAuthProviderService, name="gitlab")
@@ -302,7 +316,9 @@ def gitlab_association_callback(request: Request) -> HTTPSeeOther | HTTPNotFound
             queue="error",
         )
 
-    return HTTPSeeOther(location=request.route_path("manage.account"))
+    return HTTPSeeOther(
+        location=request.route_path("manage.account.connected-accounts")
+    )
 
 
 @view_config(
@@ -372,4 +388,6 @@ def delete_account_association(request: Request) -> HTTPSeeOther:
             request._("Failed to remove account association"), queue="error"
         )
 
-    return HTTPSeeOther(location=request.route_path("manage.account"))
+    return HTTPSeeOther(
+        location=request.route_path("manage.account.connected-accounts")
+    )
