@@ -416,16 +416,9 @@ class TestManageAccount:
 
         view = views.ManageVerifiedAccountViews(request)
 
-        monkeypatch.setattr(
-            views.ManageVerifiedAccountViews, "active_projects", pretend.stub()
-        )
-        monkeypatch.setattr(views.ManageVerifiedAccountViews, "sole_organizations", [])
-
         assert view.default_response == {
             "save_account_form": save_account_obj,
             "add_email_form": add_email_obj,
-            "active_projects": view.active_projects,
-            "sole_organizations": view.sole_organizations,
         }
         assert view.request == request
         assert view.user_service == user_service
@@ -440,36 +433,6 @@ class TestManageAccount:
         assert add_email_cls.calls == [
             pretend.call(request=request, user_id=user_id, user_service=user_service)
         ]
-
-    def test_active_projects(self, db_request):
-        user = UserFactory.create()
-        another_user = UserFactory.create()
-
-        db_request.user = user
-        db_request.find_service = lambda *a, **kw: pretend.stub()
-
-        # A project with a sole owner that is the user
-        with_sole_owner = ProjectFactory.create()
-        RoleFactory.create(user=user, project=with_sole_owner, role_name="Owner")
-        RoleFactory.create(
-            user=another_user, project=with_sole_owner, role_name="Maintainer"
-        )
-
-        # A project with multiple owners, including the user
-        with_multiple_owners = ProjectFactory.create()
-        RoleFactory.create(user=user, project=with_multiple_owners, role_name="Owner")
-        RoleFactory.create(
-            user=another_user, project=with_multiple_owners, role_name="Owner"
-        )
-
-        # A project with a sole owner that is not the user
-        not_an_owner = ProjectFactory.create()
-        RoleFactory.create(user=user, project=not_an_owner, role_name="Maintainer")
-        RoleFactory.create(user=another_user, project=not_an_owner, role_name="Owner")
-
-        view = views.ManageVerifiedAccountViews(db_request)
-
-        assert view.active_projects == [with_sole_owner]
 
     def test_manage_account(self, monkeypatch):
         user_service = pretend.stub()
@@ -1048,6 +1011,38 @@ class TestManageAccount:
         ]
         assert send_email.calls == []
 
+
+class TestManageAccountDangerZone:
+    def test_active_projects(self, db_request):
+        user = UserFactory.create()
+        another_user = UserFactory.create()
+
+        db_request.user = user
+        db_request.find_service = lambda *a, **kw: pretend.stub()
+
+        # A project with a sole owner that is the user
+        with_sole_owner = ProjectFactory.create()
+        RoleFactory.create(user=user, project=with_sole_owner, role_name="Owner")
+        RoleFactory.create(
+            user=another_user, project=with_sole_owner, role_name="Maintainer"
+        )
+
+        # A project with multiple owners, including the user
+        with_multiple_owners = ProjectFactory.create()
+        RoleFactory.create(user=user, project=with_multiple_owners, role_name="Owner")
+        RoleFactory.create(
+            user=another_user, project=with_multiple_owners, role_name="Owner"
+        )
+
+        # A project with a sole owner that is not the user
+        not_an_owner = ProjectFactory.create()
+        RoleFactory.create(user=user, project=not_an_owner, role_name="Maintainer")
+        RoleFactory.create(user=another_user, project=not_an_owner, role_name="Owner")
+
+        view = views.ManageAccountDangerZoneViews(db_request)
+
+        assert view.active_projects == [with_sole_owner]
+
     def test_delete_account(self, monkeypatch, db_request):
         user = UserFactory.create()
         deleted_user = UserFactory.create(username="deleted-user")
@@ -1064,17 +1059,19 @@ class TestManageAccount:
         monkeypatch.setattr(views, "ConfirmPasswordForm", confirm_password_cls)
 
         monkeypatch.setattr(
-            views.ManageVerifiedAccountViews, "default_response", pretend.stub()
+            views.ManageAccountDangerZoneViews, "default_response", pretend.stub()
         )
-        monkeypatch.setattr(views.ManageVerifiedAccountViews, "active_projects", [])
-        monkeypatch.setattr(views.ManageVerifiedAccountViews, "sole_organizations", [])
+        monkeypatch.setattr(views.ManageAccountDangerZoneViews, "active_projects", [])
+        monkeypatch.setattr(
+            views.ManageAccountDangerZoneViews, "sole_organizations", []
+        )
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, "send_account_deletion_email", send_email)
         logout_response = pretend.stub()
         logout = pretend.call_recorder(lambda *a: logout_response)
         monkeypatch.setattr(views, "logout", logout)
 
-        view = views.ManageVerifiedAccountViews(db_request)
+        view = views.ManageAccountDangerZoneViews(db_request)
 
         assert view.delete_account() == logout_response
 
@@ -1098,10 +1095,10 @@ class TestManageAccount:
         )
 
         monkeypatch.setattr(
-            views.ManageVerifiedAccountViews, "default_response", pretend.stub()
+            views.ManageAccountDangerZoneViews, "default_response", pretend.stub()
         )
 
-        view = views.ManageVerifiedAccountViews(request)
+        view = views.ManageAccountDangerZoneViews(request)
 
         assert view.delete_account() == view.default_response
         assert request.session.flash.calls == [
@@ -1123,10 +1120,10 @@ class TestManageAccount:
         monkeypatch.setattr(views, "ConfirmPasswordForm", confirm_password_cls)
 
         monkeypatch.setattr(
-            views.ManageVerifiedAccountViews, "default_response", pretend.stub()
+            views.ManageAccountDangerZoneViews, "default_response", pretend.stub()
         )
 
-        view = views.ManageVerifiedAccountViews(request)
+        view = views.ManageAccountDangerZoneViews(request)
 
         assert view.delete_account() == view.default_response
         assert request.session.flash.calls == [
@@ -1151,13 +1148,13 @@ class TestManageAccount:
         monkeypatch.setattr(views, "ConfirmPasswordForm", confirm_password_cls)
 
         monkeypatch.setattr(
-            views.ManageVerifiedAccountViews, "default_response", pretend.stub()
+            views.ManageAccountDangerZoneViews, "default_response", pretend.stub()
         )
         monkeypatch.setattr(
-            views.ManageVerifiedAccountViews, "active_projects", [pretend.stub()]
+            views.ManageAccountDangerZoneViews, "active_projects", [pretend.stub()]
         )
 
-        view = views.ManageVerifiedAccountViews(request)
+        view = views.ManageAccountDangerZoneViews(request)
 
         assert view.delete_account() == view.default_response
         assert request.session.flash.calls == [
@@ -1180,15 +1177,15 @@ class TestManageAccount:
         )
 
         mocker.patch.object(
-            views.ManageVerifiedAccountViews, "default_response", mocker.Mock()
+            views.ManageAccountDangerZoneViews, "default_response", mocker.Mock()
         )
         # No sole project ownerships, but a sole organization ownership.
-        mocker.patch.object(views.ManageVerifiedAccountViews, "active_projects", [])
+        mocker.patch.object(views.ManageAccountDangerZoneViews, "active_projects", [])
         mocker.patch.object(
-            views.ManageVerifiedAccountViews, "sole_organizations", [mocker.Mock()]
+            views.ManageAccountDangerZoneViews, "sole_organizations", [mocker.Mock()]
         )
 
-        view = views.ManageVerifiedAccountViews(request)
+        view = views.ManageAccountDangerZoneViews(request)
 
         assert view.delete_account() == view.default_response
         request.session.flash.assert_called_once_with(
@@ -1223,10 +1220,10 @@ class TestManageAccount:
         )
         default_response = mocker.Mock()
         mocker.patch.object(
-            views.ManageVerifiedAccountViews, "default_response", default_response
+            views.ManageAccountDangerZoneViews, "default_response", default_response
         )
 
-        view = views.ManageVerifiedAccountViews(db_request)
+        view = views.ManageAccountDangerZoneViews(db_request)
 
         assert view.delete_account() == default_response
 
