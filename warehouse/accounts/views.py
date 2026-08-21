@@ -1168,7 +1168,9 @@ def verify_email(request):
     if request.user.has_two_factor:
         return HTTPSeeOther(request.route_path("manage.account"))
     # Otherwise, send them to the two-factor setup page.
-    return HTTPSeeOther(request.route_path("manage.account.two-factor"))
+    return HTTPSeeOther(
+        request.route_path("manage.account.security", _anchor="two-factor")
+    )
 
 
 def _get_two_factor_data(request, _redirect_to="/"):
