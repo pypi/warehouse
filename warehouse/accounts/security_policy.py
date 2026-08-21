@@ -223,6 +223,7 @@ def _check_for_mfa(request, context) -> WarehouseDenied | None:
     _exempt_routes = [
         "manage.account.recovery-codes",
         "manage.account.connected-accounts",
+        "manage.account.danger-zone",
         "manage.account.security",
         "manage.account.tokens",
         "manage.account.totp-provision",

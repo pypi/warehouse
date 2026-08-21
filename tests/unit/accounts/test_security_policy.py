@@ -720,6 +720,7 @@ class TestPermits:
             "manage.account",
             "manage.account.recovery-codes",
             "manage.account.connected-accounts",
+            "manage.account.danger-zone",
             "manage.account.security",
             "manage.account.security-history",
             "manage.account.tokens",
