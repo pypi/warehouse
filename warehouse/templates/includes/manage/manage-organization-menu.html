@@ -49,6 +49,16 @@
         </a>
       </li>
     {% endif %}
+    {% if request.has_permission(Permissions.OrganizationsBillingManage) and organization.orgtype == OrganizationType.Company %}
+      <li>
+        <a href="{{ request.route_path('manage.organization.billing', organization_name=organization.normalized_name) }}"
+           class="{{ tab_class }} {% if active_tab == 'billing' %}{{ active_tab_class }}{% endif %}"
+           {% if active_tab == 'billing' %}aria-selected="true"{% endif %}>
+          <i class="fa fa-credit-card" aria-hidden="true"></i>
+          {% trans %}Billing{% endtrans %}
+        </a>
+      </li>
+    {% endif %}
     <li>
       <a href="{{ request.route_path('manage.organization.settings', organization_name=organization.normalized_name) }}"
          class="{{ tab_class }} {% if active_tab == 'settings' %}{{ active_tab_class }}{% endif %}"
