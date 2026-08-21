@@ -59,6 +59,20 @@
       <small>
         {% trans %}Yanked by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
       </small>
+    {% elif event.tag == EventTag.Project.ReleaseQuarantineEnter %}
+      <strong>
+        {% trans href=request.route_path('manage.project.release', project_name=project.name, version=event.additional.canonical_version), version=event.additional.canonical_version %}<a href="{{ href }}">Version {{ version }}</a> quarantined{% endtrans %}
+      </strong>
+      <small>
+        {% trans %}Quarantined by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
+      </small>
+    {% elif event.tag == EventTag.Project.ReleaseQuarantineExit %}
+      <strong>
+        {% trans href=request.route_path('manage.project.release', project_name=project.name, version=event.additional.canonical_version), version=event.additional.canonical_version %}<a href="{{ href }}">Version {{ version }}</a> quarantine cleared{% endtrans %}
+      </strong>
+      <small>
+        {% trans %}Cleared by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
+      </small>
       {# Display file events #}
     {% elif event.tag == EventTag.File.FileAdd %}
       <strong>
@@ -274,6 +288,71 @@
   <strong>{% trans %}Project unarchived{% endtrans %}</strong>
   <small>
     {% trans %}Unarchived by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
+  </small>
+  {# Display project deprecation enter/exit events #}
+{% elif event.tag == EventTag.Project.ProjectDeprecateEnter %}
+  <strong>{% trans %}Project deprecated{% endtrans %}</strong>
+  <small>
+    {% trans %}Deprecated by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
+  </small>
+{% elif event.tag == EventTag.Project.ProjectDeprecateExit %}
+  <strong>{% trans %}Project undeprecated{% endtrans %}</strong>
+  <small>
+    {% trans %}Undeprecated by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
+  </small>
+  {# Display project quarantine enter/exit events #}
+{% elif event.tag == EventTag.Project.ProjectQuarantineEnter %}
+  <strong>{% trans %}Project quarantined{% endtrans %}</strong>
+  <small>
+    {% trans %}Quarantined by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
+  </small>
+{% elif event.tag == EventTag.Project.ProjectQuarantineExit %}
+  <strong>{% trans %}Project quarantine cleared{% endtrans %}</strong>
+  <small>
+    {% trans %}Cleared by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
+  </small>
+  {# Display admin-set limit events #}
+{% elif event.tag == EventTag.Project.ProjectSetUploadLimit %}
+  <strong>{% trans %}Upload limit changed{% endtrans %}</strong>
+  <small>
+    {% trans %}Previous limit:{% endtrans %}
+    {% if event.additional.old_upload_limit %}
+      {{ event.additional.old_upload_limit|filesizeformat(binary=True) }}
+    {% else %}
+      {% trans %}Default{% endtrans %}
+    {% endif %}
+  </small>
+  <small>
+    {% trans %}New limit:{% endtrans %}
+    {% if event.additional.new_upload_limit %}
+      {{ event.additional.new_upload_limit|filesizeformat(binary=True) }}
+    {% else %}
+      {% trans %}Default{% endtrans %}
+    {% endif %}
+  </small>
+  <small>
+    {% trans %}Changed by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.actor) }}">{{ event.additional.actor }}</a>
+  </small>
+{% elif event.tag == EventTag.Project.ProjectSetTotalSizeLimit %}
+  <strong>{% trans %}Total size limit changed{% endtrans %}</strong>
+  <small>
+    {% trans %}Previous limit:{% endtrans %}
+    {% if event.additional.old_total_size_limit %}
+      {{ event.additional.old_total_size_limit|filesizeformat(binary=True) }}
+    {% else %}
+      {% trans %}Default{% endtrans %}
+    {% endif %}
+  </small>
+  <small>
+    {% trans %}New limit:{% endtrans %}
+    {% if event.additional.new_total_size_limit %}
+      {{ event.additional.new_total_size_limit|filesizeformat(binary=True) }}
+    {% else %}
+      {% trans %}Default{% endtrans %}
+    {% endif %}
+  </small>
+  <small>
+    {% trans %}Changed by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.actor) }}">{{ event.additional.actor }}</a>
   </small>
   {# Display Project Alternate Repository events  #}
 {% elif event.tag == EventTag.Account.AlternateRepositoryAdd %}
