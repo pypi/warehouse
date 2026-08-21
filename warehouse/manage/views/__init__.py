@@ -9,6 +9,7 @@ import pyqrcode
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import (
     HTTPBadRequest,
+    HTTPFound,
     HTTPNotFound,
     HTTPOk,
     HTTPSeeOther,
@@ -617,7 +618,6 @@ class ManageAccountSecurityViews:
 
 @view_config(
     route_name="manage.account.two-factor",
-    renderer="warehouse:templates/manage/account/two-factor.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -626,7 +626,11 @@ class ManageAccountSecurityViews:
     require_reauth=True,
 )
 def manage_two_factor(request):
-    return {}
+    return HTTPFound(
+        request.route_path(
+            "manage.account.security", _query=request.GET, _anchor="two-factor"
+        )
+    )
 
 
 @view_config(
