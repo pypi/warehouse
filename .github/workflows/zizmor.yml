@@ -1,4 +1,4 @@
-# https://github.com/woodruffw/zizmor
+# https://github.com/zizmorcore/zizmor-action
 name: GitHub Actions Security Analysis with Zizmor
 
 on:
@@ -23,15 +23,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Setup Python
-        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
       - name: Run zizmor
-        run: pipx run zizmor --format sarif . > results.sarif
-      - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@5595ccaf912efad79be6eef63a5619ff05969be3 # v4.37.6
+        uses: zizmorcore/zizmor-action@3dc1ecc9bcb9e94e9b2c709687979e1298497054 # v0.6.2
         with:
-          # Path to SARIF file relative to the root of the repository
-          sarif_file: results.sarif
-          # Optional category for the results
-          # Used to differentiate multiple results for one commit
-          category: zizmor
+          online-audits: true
