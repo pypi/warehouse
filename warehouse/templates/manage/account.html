@@ -133,6 +133,32 @@
 {%- endmacro %}
 {% block main %}
   <h1 class="page-title">{{ title }}</h1>
+  <div class="callout-block no-top-margin"
+       data-controller="dismissable"
+       data-dismissable-identifier="security_settings_moved"
+       data-dismissable-setting="global">
+    <button type="button"
+            title="{% trans %}Dismiss{% endtrans %}"
+            data-action="click->dismissable#dismiss"
+            class="callout-block__dismiss"
+            aria-label="{% trans %}Close{% endtrans %}">
+      <i class="fa fa-times" aria-hidden="true"></i>
+    </button>
+    <p>
+      <strong>{% trans %}Looking for your security settings?{% endtrans %}</strong>
+      {% trans %}Password, two-factor authentication, connected accounts, API tokens, and security history now have their own pages.{% endtrans %}
+    </p>
+    <p>
+      <a class="button"
+         href="{{ request.route_path('manage.account.security') }}">{% trans %}Security{% endtrans %}</a>
+      <a class="button"
+         href="{{ request.route_path('manage.account.tokens') }}">{% trans %}API tokens{% endtrans %}</a>
+      <a class="button"
+         href="{{ request.route_path('manage.account.connected-accounts') }}">{% trans %}Connected accounts{% endtrans %}</a>
+      <a class="button"
+         href="{{ request.route_path('manage.account.security-history') }}">{% trans %}Security history{% endtrans %}</a>
+    </p>
+  </div>
   <section id="profile-picture">
     <h2 class="no-top-padding sub-title">{% trans %}Profile picture{% endtrans %}</h2>
     {% set alt = gettext("Avatar for {user} from gravatar.com").format(user=user.name|default(user.username, true)) %}
