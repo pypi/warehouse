@@ -355,14 +355,6 @@ class ManageUnverifiedAccountViews(ManageAccountMixin):
 @lift()
 class ManageVerifiedAccountViews(ManageAccountMixin):
     @property
-    def active_projects(self):
-        return user_projects(request=self.request)["projects_sole_owned"]
-
-    @property
-    def sole_organizations(self):
-        return user_organizations(request=self.request)["organizations_with_sole_owner"]
-
-    @property
     def default_response(self):
         return {
             "save_account_form": SaveAccountForm(
@@ -376,8 +368,6 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
                 user_service=self.user_service,
                 user_id=self.request.user.id,
             ),
-            "active_projects": self.active_projects,
-            "sole_organizations": self.sole_organizations,
         }
 
     @view_config(request_method="GET")
