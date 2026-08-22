@@ -22,3 +22,7 @@ A custom styled code block.
   direction: ltr;
   overflow-x: auto;
 }
+
+.code-block--tight {
+  padding: grid.$quarter-spacing-unit;
+}
