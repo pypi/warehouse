@@ -44,7 +44,8 @@
     @include link-utilities.link-focus-state(colors.$white);
 
     &--with-icon {
-      .fa {
+      .fa,
+      .fa-solid {
         margin-right: 3px;
       }
 
@@ -57,6 +58,7 @@
 
       &:hover {
         .fa,
+        .fa-solid,
         .user-image {
           opacity: 0.8;
         }
@@ -87,4 +89,12 @@
       }
     }
   }
+}
+
+#user-indicator {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  column-gap: grid.$half-spacing-unit;
 }

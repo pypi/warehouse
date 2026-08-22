@@ -78,7 +78,6 @@
 @use "blocks/hooray-list";
 @use "blocks/horizontal-menu";
 @use "blocks/horizontal-section";
-@use "blocks/language-switcher";
 @use "blocks/large-input";
 @use "blocks/lede-paragraph";
 @use "blocks/legal-footer";
@@ -279,6 +278,10 @@
 @media screen and (max-width: breakpoints.$desktop) {
   .hide-below-desktop {
     display: none;
+  }
+
+  .show-below-desktop {
+    display: block;
   }
 }
 
