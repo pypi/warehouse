@@ -11,13 +11,18 @@ from typing import Any, NamedTuple
 import structlog
 
 from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
+from packaging.utils import canonicalize_name
+from requests.exceptions import RequestException
 from sqlalchemy import desc, func, nulls_last, select
 from sqlalchemy.orm import joinedload
 
 from warehouse import tasks
+from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import User, WebAuthn
 from warehouse.cache.interfaces import IQueryResultsCache
+from warehouse.helpdesk.interfaces import IAdminNotificationService
 from warehouse.metrics import IMetricsService
+from warehouse.observations.models import ObservationKind
 from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import (
     Dependency,
@@ -27,10 +32,13 @@ from warehouse.packaging.models import (
     Project,
     Release,
 )
+from warehouse.packaging.typosnyper import typo_check_name
 from warehouse.utils import readme
 from warehouse.utils.row_counter import RowCount
 
 if typing.TYPE_CHECKING:
+    from uuid import UUID
+
     from pyramid.request import Request
 
 logger = structlog.get_logger(__name__)
@@ -448,3 +456,116 @@ def compute_top_dependents_corpus(request: Request) -> dict[str, int]:
     logger.info("Stored `top_dependents_corpus` in query results cache.")
 
     return results
+
+
+@tasks.task(
+    ignore_result=True,
+    acks_late=True,
+    autoretry_for=(RequestException,),
+    retry_backoff=True,
+)
+def typo_check_project_name(request: Request, project_id: UUID) -> None:
+    """
+    Check a newly created project name for typo-squatting of a popular project,
+    recording an observation and notifying admins for review when it looks like
+    a typo.
+
+    Enqueued by project creation and dispatched only once that transaction
+    commits, so we neither run the checks nor notify for a project that was
+    never created.
+    """
+    project = request.db.get(Project, project_id)
+    if project is None:
+        # The project was removed between creation and this task running.
+        logger.info("Project no longer exists, skipping typo check.")
+        return
+
+    project_name = project.name
+    corpus = request.find_service(IQueryResultsCache).get("top_dependents_corpus")
+    typo_check_match = typo_check_name(canonicalize_name(project_name), corpus=corpus)
+    if typo_check_match is None:
+        return
+
+    check_name, existing_project_name = typo_check_match
+
+    logger.warning(
+        "Project name detected as a potential typo",
+        project_name=project_name,
+        check_name=check_name,
+        existing_project_name=existing_project_name,
+    )
+
+    # Annotate the project for admin review. This is a record only - the kind is
+    # not one that any of the observation reactions act on, so nothing about the
+    # project's lifecycle changes.
+    project.record_observation(
+        request=request,
+        kind=ObservationKind.IsTypoSnyperMatch,
+        actor=request.find_service(IUserService).get_admin_user(),
+        summary=f"Potential typo of {existing_project_name!r}",
+        payload={
+            "check_name": check_name,
+            "existing_project_name": existing_project_name,
+            "origin": "typosnyper",
+        },
+    )
+
+    warehouse_domain = request.registry.settings.get("warehouse.domain")
+    new_project_page = request.route_url(
+        "packaging.project",
+        name=project_name,
+        _host=warehouse_domain,
+    )
+    new_project_text = (
+        f"Project Create for *<{new_project_page}|{project_name}>* was "
+        f"detected as a potential typo by the `{check_name!r}` check."
+    )
+    existing_project_page = request.route_url(
+        "packaging.project",
+        name=existing_project_name,
+        _host=warehouse_domain,
+    )
+    existing_project_text = (
+        f"<{existing_project_page}|Existing project: {existing_project_name}>"
+    )
+
+    webhook_payload = {
+        "blocks": [
+            {
+                "type": "header",
+                "text": {
+                    "type": "plain_text",
+                    "text": "TypoSnyper :warning:",
+                    "emoji": True,
+                },
+            },
+            {
+                "type": "section",
+                "text": {"type": "mrkdwn", "text": new_project_text},
+            },
+            {
+                "type": "section",
+                "text": {"type": "mrkdwn", "text": existing_project_text},
+            },
+            {"type": "divider"},
+            {
+                "type": "context",
+                "elements": [
+                    {
+                        "type": "plain_text",
+                        "text": "Once reviewed/confirmed, "
+                        "react to this message with :white_check_mark:",
+                        "emoji": True,
+                    }
+                ],
+            },
+        ]
+    }
+    notification_service = request.find_service(IAdminNotificationService)
+    notification_service.send_notification(payload=webhook_payload)
+
+    metrics = request.find_service(IMetricsService, context=None)
+    metrics.increment(
+        "warehouse.packaging.services.create_project.typo_squatting",
+        tags=[f"check_name:{check_name!r}"],
+    )

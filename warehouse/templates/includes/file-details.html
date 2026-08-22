@@ -108,7 +108,11 @@
       {% if file.uploaded_via %}
         <tr>
           <th scope="row">{% trans %}Uploaded via{% endtrans %}</th>
-          <td>{{ file.uploaded_via }}</td>
+          <td>
+            {% set uploaded_via %}
+              <code class="code-block">{{ file.uploaded_via }}</code>
+            {% endset %}
+          </td>
         </tr>
       {% endif %}
     </tbody>

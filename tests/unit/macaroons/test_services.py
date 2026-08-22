@@ -223,7 +223,9 @@ class TestDatabaseMacaroonService:
                 mocker.sentinel.permissions,
             )
 
-    def test_verify_invalid_macaroon(self, mocker, user_service, macaroon_service):
+    def test_verify_invalid_macaroon(
+        self, mocker, db_request, user_service, macaroon_service
+    ):
         user = UserFactory.create()
         raw_macaroon, _ = macaroon_service.create_macaroon(
             "fake location",
@@ -236,7 +238,7 @@ class TestDatabaseMacaroonService:
             caveats, "verify", autospec=True, return_value=WarehouseDenied("foo")
         )
 
-        request = mocker.sentinel.request
+        request = db_request
         context = mocker.sentinel.context
         permissions = mocker.sentinel.permissions
 
@@ -288,7 +290,7 @@ class TestDatabaseMacaroonService:
         with pytest.raises(services.InvalidMacaroonError):
             macaroon_service.verify("pypi-thiswillnotdeserialize", None, None, None)
 
-    def test_verify_valid_macaroon(self, mocker, macaroon_service):
+    def test_verify_valid_macaroon(self, mocker, db_request, macaroon_service):
         user = UserFactory.create()
         raw_macaroon, _ = macaroon_service.create_macaroon(
             "fake location",
@@ -305,7 +307,7 @@ class TestDatabaseMacaroonService:
             caveats, "verify", autospec=True, return_value=True
         )
 
-        request = mocker.sentinel.request
+        request = db_request
         context = mocker.sentinel.context
         permissions = mocker.sentinel.permissions
 
@@ -333,6 +335,101 @@ class TestDatabaseMacaroonService:
             },
             # The database stored Expiration caveat
             {"cid": "[0,5,2]", "cl": None, "vid": None},
+        ]
+
+    @pytest.fixture
+    def user_macaroon(self, macaroon_service):
+        """A user-scoped macaroon, as a (raw, database model) pair."""
+        user = UserFactory.create()
+        return macaroon_service.create_macaroon(
+            "fake location",
+            "fake description",
+            [caveats.RequestUser(user_id=str(user.id))],
+            user_id=user.id,
+        )
+
+    def test_verify_records_unattenuated_macaroon(
+        self, mocker, db_request, macaroon_service, user_macaroon
+    ):
+        raw_macaroon, _ = user_macaroon
+        mocker.patch.object(caveats, "verify", autospec=True, return_value=True)
+
+        macaroon_service.verify(
+            raw_macaroon,
+            db_request,
+            mocker.sentinel.context,
+            mocker.sentinel.permission,
+        )
+
+        db_request.metrics.increment.assert_any_call(
+            "warehouse.macaroon.verify.attenuated", tags=["attenuated:false"]
+        )
+
+    def test_verify_records_attenuated_macaroon(
+        self, mocker, db_request, macaroon_service, user_macaroon
+    ):
+        raw_macaroon, _ = user_macaroon
+        # Attenuate the macaroon the way an end user would, without telling us.
+        m = services.deserialize_raw_macaroon(raw_macaroon)
+        m.add_first_party_caveat(
+            caveats.serialize(caveats.Expiration(expires_at=10, not_before=0))
+        )
+        mocker.patch.object(caveats, "verify", autospec=True, return_value=True)
+
+        macaroon_service.verify(
+            f"pypi-{m.serialize()}",
+            db_request,
+            mocker.sentinel.context,
+            mocker.sentinel.permission,
+        )
+
+        db_request.metrics.increment.assert_any_call(
+            "warehouse.macaroon.verify.attenuated", tags=["attenuated:true"]
+        )
+        db_request.metrics.increment.assert_any_call(
+            "warehouse.macaroon.verify.attenuation_kind", tags=["caveat:Expiration"]
+        )
+
+    def test_verify_records_macaroon_without_stored_caveats(
+        self, mocker, db_request, macaroon_service, user_macaroon
+    ):
+        """Macaroons issued before we stored caveats have nothing to compare to."""
+        raw_macaroon, dm = user_macaroon
+        dm.caveats = []
+        mocker.patch.object(caveats, "verify", autospec=True, return_value=True)
+
+        macaroon_service.verify(
+            raw_macaroon,
+            db_request,
+            mocker.sentinel.context,
+            mocker.sentinel.permission,
+        )
+
+        db_request.metrics.increment.assert_any_call(
+            "warehouse.macaroon.verify.attenuated", tags=["attenuated:unknown"]
+        )
+
+    def test_verify_records_nothing_for_invalid_macaroon(
+        self, mocker, db_request, macaroon_service, user_macaroon
+    ):
+        """Anyone can present a macaroon, so only verified ones are counted."""
+        raw_macaroon, _ = user_macaroon
+        mocker.patch.object(
+            caveats, "verify", autospec=True, return_value=WarehouseDenied("foo")
+        )
+
+        with pytest.raises(services.InvalidMacaroonError):
+            macaroon_service.verify(
+                raw_macaroon,
+                db_request,
+                mocker.sentinel.context,
+                mocker.sentinel.permission,
+            )
+
+        assert not [
+            call
+            for call in db_request.metrics.increment.call_args_list
+            if call.args[0].startswith("warehouse.macaroon.verify.attenuat")
         ]
 
     def test_delete_macaroon(self, user_service, macaroon_service):
