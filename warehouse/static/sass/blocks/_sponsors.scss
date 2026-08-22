@@ -27,8 +27,7 @@
   align-items: flex-start;
   gap: grid.$spacing-unit;
   text-align: center;
-  border-top: 10px solid colors.$primary-color-light;
-  padding: grid.$half-spacing-unit grid.$spacing-unit;
+  padding: grid.$spacing-unit;
 
   @media only screen and (max-width: breakpoints.$small-tablet) {
     display: block;

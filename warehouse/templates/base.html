@@ -536,25 +536,23 @@
 </div>
 {% include "warehouse:templates/includes/sponsors-footer.html" %}
 <div class="legal-footer">
-  <div class="legal-footer__inner">
-    <ul class="legal-footer__meta">
-      <li>{{ trademarks() }}</li>
-      <li>
-        © {{ now() |format_date('yyyy') }} <a href="https://www.python.org/psf-landing/"
+  <ul>
+    <li>{{ trademarks() }}</li>
+    <li>
+      © {{ now() |format_date('yyyy') }} <a href="https://www.python.org/psf-landing/"
     title="{% trans %}External link{% endtrans %}"
     target="_blank"
     rel="noopener">Python Software Foundation</a>
-      </li>
+    </li>
+    <li>
+      <a href="{{ request.route_path('sitemap') }}">{% trans %}Site map{% endtrans %}</a>
+    </li>
+    {% if source_commit and source_commit != "null" %}
       <li>
-        <a href="{{ request.route_path('sitemap') }}">{% trans %}Site map{% endtrans %}</a>
+        {% trans href='https://github.com/pypi/warehouse/commit/' ~ source_commit, sha=source_commit[:7], title=gettext('External link') %}Deployed from <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><code>{{ sha }}</code></a>{% endtrans %}
       </li>
-      {% if source_commit and source_commit != "null" %}
-        <li>
-          {% trans href='https://github.com/pypi/warehouse/commit/' ~ source_commit, sha=source_commit[:7], title=gettext('External link') %}Deployed from <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><code>{{ sha }}</code></a>{% endtrans %}
-        </li>
-      {% endif %}
-    </ul>
-  </div>
+    {% endif %}
+  </ul>
 </div>
 {% endblock body %}
 </body>
