@@ -1,4 +1,21 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
+{% if late_file_count > 0 %}
+  <div class="project-status project-status--late-files">
+    <div class="project-status__content">
+      <strong class="project-status__label">
+        <i class="fa fa-triangle-exclamation" aria-hidden="true"></i>
+        {% trans count=late_file_count %}File added late
+      {% pluralize %}
+        Files added late{% endtrans %}
+      </strong>
+      <p class="project-status__description">
+        {% trans count=late_file_count, days=maximum_age_for_new_uploads_days, href='#files' %}{{ count }} file was added to this release more than {{ days }} days after its initial publication. <a href="{{ href }}">Inspect the release files</a> before installing.
+      {% pluralize %}
+        {{ count }} files were added to this release more than {{ days }} days after its initial publication. <a href="{{ href }}">Inspect the release files</a> before installing.{% endtrans %}
+      </p>
+    </div>
+  </div>
+{% endif %}
 {% if project.lifecycle_status == "quarantine-enter" %}
   <div class="project-status project-status--quarantined">
     <div class="project-status__content">

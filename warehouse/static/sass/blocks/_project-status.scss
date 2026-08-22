@@ -79,6 +79,14 @@
     background-color: color.adjust(colors.$warning-color, $lightness: -7%);
   }
 
+  &--late-files {
+    background-color: colors.$warning-color;
+
+    &:has(+ .project-status--quarantined) {
+      background-color: color.adjust(colors.$warning-color, $lightness: -12%);
+    }
+  }
+
   &__content {
     @include layout-utilities.site-container;
 

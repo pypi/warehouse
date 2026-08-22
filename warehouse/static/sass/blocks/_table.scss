@@ -37,11 +37,10 @@
 
    Modifiers:
      - information: table for displaying table data - ideally with row level headings
-     - downloads: specific styles for downloads table on project detail page
+     - files: specific styles for files table on project detail page
      - releases: specific styles for releases table on manage project page
-     - files: specific styles for files table on releases tab
+     - manage-files: specific styles for files table on the releases tab
      - history: specific styles for project journals
-     - hashes: specific styles for the hashes table on an individual file
      - collaborators: specific styles for managing a project's collaborators
      - emails: specific styles for emails on the manage account page
      - 2fa: specific styles for 2fa methods on the manage account page
@@ -66,6 +65,7 @@
   tbody tr td:last-child {
     display: block;
     width: 100%;
+    max-width: 100%;
     text-align: left;
     border-bottom: 0;
     padding: 2px 0;
@@ -176,8 +176,12 @@
 
   &--information {
     th {
-      width: 1%; 
-      white-space: nowrap; 
+      width: 1%;
+      white-space: nowrap;
+
+      a {
+        font-weight: normal;
+      }
     }
 
     td,
@@ -185,24 +189,156 @@
       vertical-align: baseline;
     }
 
-    @media only screen and (max-width: breakpoints.$mobile) {
+    @media only screen and (max-width: breakpoints.$tablet) {
       @include mobile-friendly-table;
+    }
+
+    td.file-download {
+      a {
+        text-decoration: none;
+        word-break: break-all;
+
+        span {
+          text-decoration: underline;
+        }
+      }
+    }
+
+    td.file-tags {
+      .badge {
+        display: inline-block;
+        margin-bottom: 4px;
+        margin-right: 4px;
+        margin-left: 0;
+      }
     }
   }
 
-  &--downloads {
-    word-wrap: break-word;
-    margin-top: grid.$half-spacing-unit;
+  &--files {
+    margin-bottom: grid.$half-spacing-unit;
+    border-collapse: collapse;
+    width: 100%;
 
-    td .button span {
-      display: none;
+    .table__filter-control {
+      display: inline-block;
+      position: relative;
+      left: 7px;
+
+      .fa-filter {
+        position: absolute;
+        top: 50%;
+        margin-top: -1px;
+        left: -11px;
+        transform: translateY(-50%);
+        font-size: fonts.$small-font-size;
+        color: colors.$light-grey;
+      }
+
+      &:has(select option[selected]:not([value=""])) .fa-filter {
+        color: colors.$mid-grey;
+      }
+    }
+
+    select.table-filter {
+      width: auto;
+      max-width: 130px;
+      border: 0;
+      font-size: fonts.$base-font-size;
+      background: transparent;
+      font-weight: fonts.$bold-font-weight;
+      cursor: pointer;
+      appearance: none;
+      mask-image: linear-gradient(to right, black 85%, transparent 100%);
+
+      &:hover,
+      &:active,
+      &:focus {
+        outline: none;
+        box-shadow: none;
+      }
+    }
+
+    .table__filter-col {
+      width: 14%;
+      overflow-wrap: anywhere;
+    }
+
+    th:last-child,
+    td:last-child {
+      width: 1%;
+      white-space: nowrap;
+    }
+
+    .file-info__name {
+      display: block;
+      overflow-wrap: anywhere;
+      position: relative;
+      left: -2px;
+
+      a {
+        text-decoration: none;
+
+        span {
+          text-decoration: underline;
+        }
+      }
+    }
+
+    .file-info__metadata {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 5px;
+    }
+
+    .file-info__meta-divider {
+      display: inline-block;
+      width: 1px;
+      height: 0.85em;
+      background-color: colors.$light-grey;
+      flex-shrink: 0;
+    }
+
+    .file-info__late {
+      color: colors.$warning-color;
+    }
+
+    .file-info__details-button {
+      min-width: 80px;
+      float: right;
     }
 
     @media only screen and (max-width: breakpoints.$tablet) {
       @include mobile-friendly-table;
-      margin-bottom: grid.$half-spacing-unit;
+
+      .table__filter-col {
+        display: none;
+      }
+
+      .file-info__metadata {
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .file-info__metadata i {
+        display: none;
+      }
+
+      .file-info__metadata small {
+        font-size: fonts.$base-font-size;
+      }
+
+      .file-info__meta-divider {
+        display: none;
+      }
+
+      .file-info__details-button {
+        float: none;
+        width: auto;
+      }
     }
   }
+
 
   &--releases {
     word-wrap: break-word;
@@ -214,43 +350,12 @@
     }
   }
 
-  &--files,
+  &--manage-files,
   &--history {
     margin-top: grid.$half-spacing-unit;
 
     @media only screen and (max-width: breakpoints.$tablet) {
       @include mobile-friendly-table;
-    }
-  }
-
-  &--hashes {
-    padding: 0 10px;
-
-    td code {
-      word-break: break-all;
-    }
-
-    @media only screen and (max-width: breakpoints.$mobile) {
-      @include mobile-friendly-table;
-      margin-top: 0;
-
-      td .button {
-        &::after {
-          top: 100%;
-          right: 50%;
-          margin-top: 5px;
-          margin-right: auto;
-          bottom: auto;
-          transform: translate(50%, 0);
-        }
-
-        &::before {
-          inset: auto, 50%, -5px, auto;
-          margin-right: -5px;
-          border-color: transparent;
-          border-bottom-color: color.adjust(colors.$black, $alpha: -0.3);
-        }
-      }
     }
   }
 

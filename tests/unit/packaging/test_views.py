@@ -7,6 +7,7 @@ import pytest
 from natsort import natsorted
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 
+from warehouse.forklift.legacy import MAXIMUM_AGE_FOR_NEW_UPLOADS_DAYS
 from warehouse.packaging import views
 from warehouse.packaging.models import LifecycleStatus
 
@@ -263,13 +264,16 @@ class TestReleaseDetail:
             "maintainers": sorted(users, key=lambda u: u.username.lower()),
             "license": None,
             "PEP740AttestationViewer": views.PEP740AttestationViewer,
-            "wheel_filters_all": {"interpreters": [], "abis": [], "platforms": []},
-            "wheel_filters_params": {
-                "filename": "",
-                "interpreters": "",
-                "abis": "",
-                "platforms": "",
+            "wheel_filters_all": {
+                "interpreter": {},
+                "abi": {},
+                "platform": {},
+                "other": {},
             },
+            "maximum_age_for_new_uploads_days": MAXIMUM_AGE_FOR_NEW_UPLOADS_DAYS,
+            "first_upload": files[1].upload_time,
+            "last_upload": None,
+            "late_file_count": 0,
         }
 
     def test_detail_renders_files_natural_sort(self, db_request):
@@ -295,9 +299,24 @@ class TestReleaseDetail:
 
         assert result["files"] == sorted_files
         assert [file.wheel_filters for file in result["files"]] == [
-            {"interpreters": ["cp310"], "abis": ["none"], "platforms": ["any"]},
-            {"interpreters": ["cp39"], "abis": ["none"], "platforms": ["any"]},
-            {"interpreters": ["cp27"], "abis": ["none"], "platforms": ["any"]},
+            {
+                "interpreter": {"cp310": "CPython 3.10"},
+                "abi": {"none": "none"},
+                "platform": {"any": "any"},
+                "other": {},
+            },
+            {
+                "interpreter": {"cp39": "CPython 3.9"},
+                "abi": {"none": "none"},
+                "platform": {"any": "any"},
+                "other": {},
+            },
+            {
+                "interpreter": {"cp27": "CPython 2.7"},
+                "abi": {"none": "none"},
+                "platform": {"any": "any"},
+                "other": {},
+            },
         ]
 
     def test_license_from_classifier(self, db_request):
@@ -418,6 +437,9 @@ class TestPEP740AttestationViewer:
 
         assert viewer.trigger == "push"
         assert viewer.access == "public"
+        assert viewer.run_invocation_uri == (
+            "https://github.com/pypa/sampleproject/actions/runs/11713038981/attempts/1"
+        )
 
         assert viewer.permalink_with_digest == (
             "https://github.com/pypa/sampleproject/tree/"
@@ -468,6 +490,9 @@ class TestPEP740AttestationViewer:
 
         assert viewer.trigger == "push"
         assert viewer.access == "private"
+        assert viewer.run_invocation_uri == (
+            "https://gitlab.com/pep740-example/sampleproject/-/jobs/8486974559"
+        )
 
         assert viewer.permalink_with_digest == (
             "https://gitlab.com/pep740-example/sampleproject/-/tree/"

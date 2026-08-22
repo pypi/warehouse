@@ -16,6 +16,7 @@ from warehouse.accounts.models import User
 from warehouse.attestations.models import publisher_workflow
 from warehouse.authnz import Permissions
 from warehouse.cache.origin import origin_cache
+from warehouse.forklift.legacy import MAXIMUM_AGE_FOR_NEW_UPLOADS_DAYS
 from warehouse.observations.models import ObservationKind
 from warehouse.packaging.forms import SubmitMalwareObservationForm
 from warehouse.packaging.models import (
@@ -139,6 +140,11 @@ class PEP740AttestationViewer:
     def access(self) -> str:
         """Source Repository Visibility At Signing."""
         return self.claims.get("1.3.6.1.4.1.57264.1.22", "")
+
+    @property
+    def run_invocation_uri(self) -> str:
+        """Run Invocation URI — link to the specific build or publish run."""
+        return self.claims.get("1.3.6.1.4.1.57264.1.21", "")
 
     @property
     def permalink_with_digest(self) -> str:
@@ -272,21 +278,29 @@ def release_detail(release, request):
     )
 
     # Collect all the available bdist details to enable building filters.
-    wheel_filters_all = wheel.filenames_to_filters([bdist.filename for bdist in bdists])
+    wheel_filters_all = wheel.filenames_to_grouped_labels(
+        [bdist.filename for bdist in bdists]
+    )
 
-    # Get the querystring to load any pre-set parameters
-    wheel_filters_params = {
-        "filename": request.params.get("filename", ""),
-        "interpreters": request.params.get("interpreters", ""),
-        "abis": request.params.get("abis", ""),
-        "platforms": request.params.get("platforms", ""),
-    }
+    all_files = sdists + bdists
+    files_by_time = sorted(all_files, key=lambda f: f.upload_time)
+    first_upload = files_by_time[0].upload_time if files_by_time else None
+    last_upload = files_by_time[-1].upload_time if len(files_by_time) > 1 else None
+    late_file_count = (
+        sum(
+            1
+            for f in files_by_time
+            if (f.upload_time - first_upload).days > MAXIMUM_AGE_FOR_NEW_UPLOADS_DAYS
+        )
+        if first_upload
+        else 0
+    )
 
     return {
         "project": project,
         "release": release,
         "description": description_html,
-        "files": sdists + bdists,
+        "files": all_files,
         "sdists": sdists,
         "bdists": bdists,
         "latest_version": project.latest_version,
@@ -296,7 +310,10 @@ def release_detail(release, request):
         # Additional function to format the attestations
         "PEP740AttestationViewer": PEP740AttestationViewer,
         "wheel_filters_all": wheel_filters_all,
-        "wheel_filters_params": wheel_filters_params,
+        "maximum_age_for_new_uploads_days": MAXIMUM_AGE_FOR_NEW_UPLOADS_DAYS,
+        "first_upload": first_upload,
+        "last_upload": last_upload,
+        "late_file_count": late_file_count,
     }
 
 

@@ -51,7 +51,7 @@
 
   &--neutral {
     background-color: colors.$base-grey;
-    border-color: colors.$base-grey;
+    border-color: colors.$border-color;
     color: color.adjust(colors.$base-grey, $lightness: -50%);
 
     &:hover {
@@ -117,6 +117,10 @@
     &:active {
       outline: 1px solid colors.$danger-color;
     }
+  }
+
+  &--no-uppercase {
+    text-transform: none;
   }
 
   &--key-dates {
