@@ -56,15 +56,17 @@
              target="_blank"
              rel="noopener">{% trans %}How to use checksums{% endtrans %}</a>
         </th>
-        <td class="file-checksum">
-          <code data-clipboard-target="source">{{ file.sha256_digest }}</code>
-          <button type="button"
-                  class="button button--small copy-tooltip copy-tooltip-w"
-                  data-action="clipboard#copy"
-                  data-clipboard-target="tooltip"
-                  data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
-            {% trans %}Copy{% endtrans %}
-          </button>
+        <td>
+          <code class="code-block code-block--with-copy">
+            <span data-clipboard-target="source">{{ file.sha256_digest }}</span>
+            <button type="button"
+                    class="button button--small copy-tooltip copy-tooltip-w"
+                    data-action="clipboard#copy"
+                    data-clipboard-target="tooltip"
+                    data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
+              <i class="fa-regular fa-copy" aria-hidden="true"></i>
+            </button>
+          </code>
         </td>
       </tr>
       <tr data-controller="clipboard">
@@ -76,15 +78,17 @@
              target="_blank"
              rel="noopener">{% trans %}How to use checksums{% endtrans %}</a>
         </th>
-        <td class="file-checksum">
-          <code data-clipboard-target="source">{{ file.blake2_256_digest }}</code>
-          <button type="button"
-                  class="button button--small copy-tooltip copy-tooltip-w"
-                  data-action="clipboard#copy"
-                  data-clipboard-target="tooltip"
-                  data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
-            {% trans %}Copy{% endtrans %}
-          </button>
+        <td>
+          <code class="code-block code-block--with-copy">
+            <span data-clipboard-target="source">{{ file.blake2_256_digest }}</span>
+            <button type="button"
+                    class="button button--small copy-tooltip copy-tooltip-w"
+                    data-action="clipboard#copy"
+                    data-clipboard-target="tooltip"
+                    data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
+              <i class="fa-regular fa-copy" aria-hidden="true"></i>
+            </button>
+          </code>
         </td>
       </tr>
       <tr>

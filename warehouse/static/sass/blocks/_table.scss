@@ -212,23 +212,6 @@
         margin-left: 0;
       }
     }
-
-    td.file-checksum {
-      vertical-align: middle;
-      align-items: center;
-
-      code {
-        word-break: break-all;
-        min-width: 0;
-        margin-right: 3px;
-      }
-
-      .button {
-        padding-top: 1px;
-        padding-bottom: 1px;
-        margin: 0;
-      }
-    }
   }
 
   &--files {

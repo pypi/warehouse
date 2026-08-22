@@ -1074,7 +1074,7 @@ msgstr ""
 #: warehouse/templates/base.html:520 warehouse/templates/base.html:528
 #: warehouse/templates/includes/accounts/profile-callout.html:5
 #: warehouse/templates/includes/file-details.html:55
-#: warehouse/templates/includes/file-details.html:75
+#: warehouse/templates/includes/file-details.html:77
 #: warehouse/templates/includes/packaging/project-files.html:11
 #: warehouse/templates/index.html:99 warehouse/templates/index.html:106
 #: warehouse/templates/manage/account.html:241
@@ -3138,14 +3138,14 @@ msgid "SHA-256 checksum"
 msgstr ""
 
 #: warehouse/templates/includes/file-details.html:57
-#: warehouse/templates/includes/file-details.html:77
+#: warehouse/templates/includes/file-details.html:79
 msgid "How to use checksums"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:65
-#: warehouse/templates/includes/file-details.html:85
+#: warehouse/templates/includes/file-details.html:66
+#: warehouse/templates/includes/file-details.html:88
 #: warehouse/templates/includes/packaging/project-header.html:43
-#: warehouse/templates/includes/packaging/provenance/attestation.html:229
+#: warehouse/templates/includes/packaging/provenance/attestation.html:230
 #: warehouse/templates/manage/account.html:218
 #: warehouse/templates/manage/account/recovery_codes-provision.html:53
 #: warehouse/templates/manage/account/totp-provision.html:46
@@ -3154,57 +3154,47 @@ msgstr ""
 msgid "Copy to clipboard"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:66
-#: warehouse/templates/includes/file-details.html:86
-#: warehouse/templates/manage/account.html:219
-#: warehouse/templates/manage/account/recovery_codes-provision.html:54
-#: warehouse/templates/manage/account/totp-provision.html:47
-#: warehouse/templates/manage/unverified-account.html:201
-#: warehouse/templates/pages/classifiers.html:43
-msgid "Copy"
-msgstr ""
-
-#: warehouse/templates/includes/file-details.html:72
+#: warehouse/templates/includes/file-details.html:74
 msgid "BLAKE2b-256 checksum"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:91
+#: warehouse/templates/includes/file-details.html:95
 #: warehouse/templates/manage/project/release.html:60
 #: warehouse/templates/manage/project/release.html:82
 msgid "Upload date"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:92
+#: warehouse/templates/includes/file-details.html:96
 #: warehouse/templates/includes/packaging/project-files.html:58
 #, python-format
 msgid "%(upload_time)s"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:96
+#: warehouse/templates/includes/file-details.html:100
 msgid "Uploaded using Trusted Publishing?"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:98
+#: warehouse/templates/includes/file-details.html:102
 msgid "What is trusted publishing?"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:102
+#: warehouse/templates/includes/file-details.html:106
 msgid "Yes"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:104
+#: warehouse/templates/includes/file-details.html:108
 msgid "No"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:110
+#: warehouse/templates/includes/file-details.html:114
 msgid "Uploaded via"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:122
+#: warehouse/templates/includes/file-details.html:124
 msgid "Provenance"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:125
+#: warehouse/templates/includes/file-details.html:127
 #, python-format
 msgid ""
 "<strong>Provenance</strong> describes where a file came from. On PyPI, "
@@ -3564,10 +3554,9 @@ msgid "Pre-release"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-release-history.html:110
-#: warehouse/templates/manage/project/releases.html:32
 #, python-format
-msgid "%(count)s file"
-msgid_plural "%(count)s files"
+msgid "%(count)s release file"
+msgid_plural "%(count)s release files"
 msgstr[0] ""
 msgstr[1] ""
 
@@ -3986,11 +3975,11 @@ msgstr ""
 msgid "Subject"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/provenance/attestation.html:235
+#: warehouse/templates/includes/packaging/provenance/attestation.html:236
 msgid "Verifying attestations"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/provenance/attestation.html:240
+#: warehouse/templates/includes/packaging/provenance/attestation.html:241
 msgid "No artifact information found"
 msgstr ""
 
@@ -4154,6 +4143,14 @@ msgstr ""
 #: warehouse/templates/manage/unverified-account.html:193
 #, python-format
 msgid "Unique identifier for API token \"%(token_description)s\""
+msgstr ""
+
+#: warehouse/templates/manage/account.html:219
+#: warehouse/templates/manage/account/recovery_codes-provision.html:54
+#: warehouse/templates/manage/account/totp-provision.html:47
+#: warehouse/templates/manage/unverified-account.html:201
+#: warehouse/templates/pages/classifiers.html:43
+msgid "Copy"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:232
@@ -7860,6 +7857,13 @@ msgstr ""
 #: warehouse/templates/manage/project/releases.html:23
 msgid "Manage version"
 msgstr ""
+
+#: warehouse/templates/manage/project/releases.html:32
+#, python-format
+msgid "%(count)s file"
+msgid_plural "%(count)s files"
+msgstr[0] ""
+msgstr[1] ""
 
 #: warehouse/templates/manage/project/releases.html:45
 msgid "No files"

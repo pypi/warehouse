@@ -220,7 +220,8 @@
         {% if viewer.subject_digest %}
           <dt>{% trans %}SHA-256 checksum{% endtrans %}</dt>
           <dd>
-            <div class="attestation__checksum" data-controller="clipboard">
+            <code class="code-block code-block--with-copy attestation__checksum"
+                  data-controller="clipboard">
               <span data-clipboard-target="source">{{ viewer.subject_digest }}</span>
               <button type="button"
                       class="button button--small copy-tooltip copy-tooltip-w"
@@ -229,7 +230,7 @@
                       data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
                 <i class="fa-regular fa-copy" aria-hidden="true"></i>
               </button>
-            </div>
+            </code>
             <a href="{{ request.user_docs_url('/attestations/consuming-attestations/') }}"
                target="_blank"
                rel="noopener">{% trans %}Verifying attestations{% endtrans %}</a>

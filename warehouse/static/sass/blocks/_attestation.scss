@@ -153,26 +153,6 @@
   }
 
   &__checksum {
-    display: flex;
-    align-items: center;
-    gap: grid.$quarter-spacing-unit;
-    background-color: colors.$off-white;
-    border: 1px solid colors.$border-color;
-    border-radius: 4px;
-    padding: grid.$quarter-spacing-unit;
     margin-top: 5px;
-    margin-bottom: grid.$quarter-spacing-unit;
-
-    span {
-      flex: 1;
-      min-width: 0;
-      word-break: break-all;
-      font-family: fonts.$code-font;
-      font-size: 0.85rem;
-    }
-
-    .button {
-      border: 0;
-    }
   }
 }
