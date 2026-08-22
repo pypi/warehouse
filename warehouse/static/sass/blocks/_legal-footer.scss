@@ -11,24 +11,31 @@
   Legal footer:
 
   <div class="legal-footer">
-      <ul>...</ul>  // trademark, copyright, sitemap, deploy sha
+    <div class="legal-footer__inner">
+      <ul class="legal-footer__meta">...</ul>  // trademark, copyright, sitemap, deploy sha
     </div>
   </div>
 */
 
 .legal-footer {
   width: 100%;
-  border-top: 1px solid color.adjust(colors.$border-color, $lightness: 10%);
-  background-color: color.adjust(colors.$border-color, $lightness: 15%);
+  border-top: 1px solid color.adjust(colors.$primary-color, $lightness: -2%);
+  background-color: colors.$header-background-color;
+  color: colors.$white;
   font-size: fonts.$small-font-size;
-  text-align: center;
-  padding: grid.$half-spacing-unit grid.$spacing-unit;
 
-  @media only screen and (max-width: breakpoints.$small-tablet) {
-    padding: grid.$half-spacing-unit;
+  &__inner {
+    max-width: grid.$site-container;
+    padding: grid.$half-spacing-unit grid.$spacing-unit;
+    margin: 0 auto;
+
+    @media only screen and (max-width: breakpoints.$small-tablet) {
+      padding: grid.$half-spacing-unit;
+      text-align: center;
+    }
   }
 
-  ul {
+  &__meta {
     margin: 0;
     padding: 0;
     list-style: none;
@@ -36,6 +43,10 @@
     li {
       display: inline-block;
       margin-right: grid.$half-spacing-unit;
+
+      a {
+        @include link-utilities.white-underlined-link;
+      }
     }
   }
 }

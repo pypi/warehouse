@@ -40,7 +40,7 @@ $footer-narrow-width: 1100px;
 .footer {
   background-color: color.adjust(colors.$primary-color, $lightness: 1%);
   color: colors.$white;
-  padding: 40px 0;
+  padding: 40px 0 24px;
   width: 100%;
   font-size: 0.9rem;
 
