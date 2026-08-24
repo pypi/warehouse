@@ -294,12 +294,23 @@
     .file-info__meta-divider {
       display: inline-block;
       width: 1px;
-      height: 0.85em;
+      height: 18px;
+      position: relative;
+      top: 4px;
       background-color: colors.$light-grey;
       flex-shrink: 0;
     }
 
-    .file-info__late {
+    .file-info__meta {
+      padding: 2px 4px;
+      border: 2px solid transparent;
+      border-radius: 4px;
+      font-size: fonts.$small-font-size;
+    }
+
+    .file-info__meta--warning {
+      padding-right: 5px;
+      border-color: colors.$warning-color;
       color: colors.$warning-color;
     }
 
@@ -324,7 +335,7 @@
         display: none;
       }
 
-      .file-info__metadata small {
+      .file-info__meta {
         font-size: fonts.$base-font-size;
       }
 

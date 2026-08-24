@@ -19,7 +19,6 @@
     - success: Green background
     - warning: Orange background
     - danger: Red background
-    - key-dates: Adjusts spacing for use in the key dates sidebar section
 */
 
 .badge {
@@ -122,11 +121,4 @@
   &--no-uppercase {
     text-transform: none;
   }
-
-  &--key-dates {
-    display: inline-block;
-    margin-top: 0.8em;
-    margin-left: 0;
-  }
-
 }

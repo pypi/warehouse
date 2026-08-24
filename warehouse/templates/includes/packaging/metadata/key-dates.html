@@ -29,8 +29,7 @@
             {% if event.key == 'released' %}
               <strong>{% trans %}Released:{% endtrans %}</strong> {{ humanize(event.date) }}
             {% elif event.key == 'last-file-added' %}
-              <strong>{% trans %}Last file added:{% endtrans %}</strong> <span class="key-dates__late"
-       title="{{ ngettext('%(num)d file was added to this release late', '%(num)d files were added to this release late', late_file_count) }}">{{ humanize(event.date) }} <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></span>
+              <strong>{% trans %}Last file added:{% endtrans %}</strong> {{ humanize(event.date) }}
             {% elif event.key == 'yanked' %}
               <strong>{% trans %}Yanked:{% endtrans %}</strong> {{ humanize(event.date) }}
             {% elif event.key == 'quarantined' %}
@@ -43,18 +42,28 @@
       </ul>
       {% if latest_version %}
         {% if release.version|parse_version > latest_version.version|parse_version %}
-          <a class="badge badge--key-dates badge--warning"
+          <a class="badge badge--warning"
              href="{{ request.route_path('packaging.project', name=release.project.name) }}">
             {% trans version=latest_version.version %}Stable release available ({{ version }}){% endtrans %}
           </a>
         {% elif release.version|parse_version != latest_version.version|parse_version %}
-          <a class="badge badge--key-dates badge--warning"
+          <a class="badge badge--warning"
              href="{{ request.route_path('packaging.project', name=release.project.name) }}">
             {% trans version=latest_version.version %}Newer release available ({{ version }}){% endtrans %}
           </a>
         {% elif project.lifecycle_status != "quarantine-enter" and release.lifecycle_status != "quarantine-enter" %}
-          <span class="badge badge--key-dates badge--success">{% trans %}Latest release{% endtrans %}</span>
+          <span class="badge badge--success">{% trans %}Latest release{% endtrans %}</span>
         {% endif %}
+      {% endif %}
+      {% if late_file_count > 0 and last_upload %}
+        <a class="badge badge--warning"
+           href="#files"
+           data-project-tabs-target="tab"
+           data-action="project-tabs#onTabClick">
+          {% trans count=late_file_count %}File added late
+        {% pluralize %}
+          Files added late{% endtrans %}
+        </a>
       {% endif %}
     </div>
   </div>

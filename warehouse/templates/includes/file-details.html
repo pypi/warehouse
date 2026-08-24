@@ -13,7 +13,10 @@
   {# Late upload warning #}
   {% if first_upload and (file.upload_time - first_upload).days > maximum_age_for_new_uploads_days %}
     <div class="callout-block callout-block--warning no-top-margin">
-      <h3 class="callout-block__heading">{% trans %}File added late{% endtrans %}</h3>
+      <h3 class="callout-block__heading">
+        <i class="fa fa-triangle-exclamation" aria-hidden="true"></i>
+        {% trans %}File added late{% endtrans %}
+      </h3>
       <p>{% trans days=maximum_age_for_new_uploads_days %}This file was uploaded more than {{ days }} days after the first file in this release.{% endtrans %}</p>
       <p>{% trans %}While project maintainers occasionally add legitimate files to an existing release, late additions can also indicate a security compromise.{% endtrans %}</p>
       <p>{% trans %}We recommend inspecting the release file before installing.{% endtrans %}</p>
