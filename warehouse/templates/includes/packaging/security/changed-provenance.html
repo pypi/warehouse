@@ -85,11 +85,11 @@
   <div class="callout-block__footer">
     <p>
       {% if repo_changed and config_changed %}
-        {% trans href=request.user_docs_url('/attestations/') %}We recommend inspecting the publishing repository and configuration before proceeding. <a href="{{ href }}">Learn more</a>.{% endtrans %}
+        {% trans href=request.user_docs_url('/attestations/') %}We recommend inspecting the repository and configuration before proceeding. <a href="{{ href }}">Learn more</a>.{% endtrans %}
       {% elif repo_changed %}
-        {% trans href=request.user_docs_url('/attestations/') %}We recommend inspecting the publishing repository before proceeding. <a href="{{ href }}">Learn more</a>.{% endtrans %}
+        {% trans href=request.user_docs_url('/attestations/') %}We recommend inspecting the repository before proceeding. <a href="{{ href }}">Learn more</a>.{% endtrans %}
       {% elif config_changed %}
-        {% trans href=request.user_docs_url('/attestations/') %}We recommend inspecting the publishing configuration before proceeding. <a href="{{ href }}">Learn more</a>.{% endtrans %}
+        {% trans href=request.user_docs_url('/attestations/') %}We recommend inspecting the configuration before proceeding. <a href="{{ href }}">Learn more</a>.{% endtrans %}
       {% endif %}
     </p>
   </div>
