@@ -523,7 +523,9 @@ class ManageOrganizationDangerZoneViews:
     @view_config(request_method="POST", request_param=["confirm_organization_name"])
     def delete_organization(self):
         confirm_organization(
-            self.organization, self.request, fail_route="manage.organization.settings"
+            self.organization,
+            self.request,
+            fail_route="manage.organization.danger-zone",
         )
 
         if self.active_projects:
