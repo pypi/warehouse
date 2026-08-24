@@ -115,12 +115,24 @@ class TestManageOrganizationSettings:
             f"/manage/organization/{organization.normalized_name}/settings/",
             status=HTTPStatus.OK,
         )
-        assert "Delete organization" in settings_page.text
         assert (
             f"/manage/organization/{organization.normalized_name}/danger-zone/"
             in settings_page.text
         )
 
+    def test_owner_can_reach_danger_zone_when_billing_inactive(self, webtest):
+        """
+        An owner of a Company organization that is not in good standing can
+        still reach the danger zone page, so they are able to delete it.
+        """
+        owner, organization = self._create_billing_inactive_org()
+
+        self._login_user(webtest, owner)
+        danger_zone_page = webtest.get(
+            f"/manage/organization/{organization.normalized_name}/danger-zone/",
+            status=HTTPStatus.OK,
+        )
+        assert "Delete organization" in danger_zone_page.text
 
     def test_org_list_shows_manage_link_when_billing_inactive(self, webtest):
         """
