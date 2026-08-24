@@ -4,12 +4,13 @@
   {% set provenance_states = provenance_status.states %}
   {# These states are not mutually exclusive; show only the most important one. #}
   {% set has_error_state = 'lost-provenance' in provenance_states
-    or 'changed-provenance' in provenance_states
-    or 'inconsistent-provenance' in provenance_states
+      or 'changed-provenance' in provenance_states
+      or 'inconsistent-provenance' in provenance_states
     or 'partial-provenance' in provenance_states %}
   {% if has_error_state or 'full-provenance' in provenance_states %}
     <div class="sidebar-section">
-      <h2 class="sidebar-section__title">{% trans %}Provenance{% endtrans %}
+      <h2 class="sidebar-section__title">
+        {% trans %}Provenance{% endtrans %}
         <a href="{{ request.user_docs_url('/attestations/') }}"
            target="_blank"
            aria-label="{% trans %}About provenance{% endtrans %}">
@@ -18,27 +19,43 @@
       </h2>
       {% if has_error_state %}
         {% if 'lost-provenance' in provenance_states %}
-          {% set callout_modifier = 'warning' %}
-          {% set label %}{% trans %}Loss of provenance{% endtrans %}{% endset %}
-          {% set message %}{% trans %}A previous release had provenance metadata, but this release does not.{% endtrans %}{% endset %}
+          {% set callout_modifier = "warning" %}
+          {% set label %}
+            {% trans %}Loss of provenance{% endtrans %}
+          {% endset %}
+          {% set message %}
+            {% trans %}A previous release had provenance metadata, but this release does not.{% endtrans %}
+          {% endset %}
         {% elif 'changed-provenance' in provenance_states %}
-          {% set callout_modifier = 'warning' %}
-          {% set label %}{% trans %}Change of provenance{% endtrans %}{% endset %}
-          {% set message %}{% trans %}The repository or configuration that created this release differ from a previous release.{% endtrans %}{% endset %}
+          {% set callout_modifier = "warning" %}
+          {% set label %}
+            {% trans %}Change of provenance{% endtrans %}
+          {% endset %}
+          {% set message %}
+            {% trans %}The repository or configuration that created this release differ from a previous release.{% endtrans %}
+          {% endset %}
         {% elif 'inconsistent-provenance' in provenance_states %}
-          {% set callout_modifier = 'warning' %}
-          {% set label %}{% trans %}Inconsistent provenance{% endtrans %}{% endset %}
-          {% set message %}{% trans %}Files in this release originate from inconsistent publishing repositories or configurations.{% endtrans %}{% endset %}
+          {% set callout_modifier = "warning" %}
+          {% set label %}
+            {% trans %}Inconsistent provenance{% endtrans %}
+          {% endset %}
+          {% set message %}
+            {% trans %}Files in this release originate from inconsistent repositories or configurations.{% endtrans %}
+          {% endset %}
         {% elif 'partial-provenance' in provenance_states %}
-          {% set callout_modifier = 'warning' %}
-          {% set label %}{% trans %}Incomplete provenance{% endtrans %}{% endset %}
-          {% set message %}{% trans without_count=provenance_status.counts.total_files - provenance_status.counts.files_with_provenance, total_count=provenance_status.counts.total_files %}{{ without_count }} of {{ total_count }} files were uploaded without provenance metadata.{% endtrans %}{% endset %}
+          {% set callout_modifier = "warning" %}
+          {% set label %}
+            {% trans %}Incomplete provenance{% endtrans %}
+          {% endset %}
+          {% set message %}
+            {% trans without_count=provenance_status.counts.total_files - provenance_status.counts.files_with_provenance, total_count=provenance_status.counts.total_files %}{{ without_count }} of {{ total_count }} files were uploaded without provenance metadata.{% endtrans %}
+          {% endset %}
         {% endif %}
         <div class="callout-block callout-block--{{ callout_modifier }}">
-          <p>
+          <h3 class="callout-block__heading">
             <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
-            <strong>{{ label }}</strong>
-          </p>
+            {{ label }}
+          </h3>
           <p>{{ message }}</p>
           <p>
             <a href="#security"

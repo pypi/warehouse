@@ -1,0 +1,136 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+@use "sass:color";
+@use "../settings/colors";
+@use "../settings/fonts";
+@use "../settings/grid";
+@use "../tools/link-utilities";
+
+/*
+  A table of before/after rows, styled like a code diff, with columns
+  lined up like a table.
+
+  Use to compare two versions of something (a release, a config, a
+  dependency) one row per side.
+
+  <table class="provenance-diff">
+    <caption class="provenance-diff__title">
+      <i class="fa-solid fa-cube" aria-hidden="true"></i>
+      Title for table
+    </caption>
+    <tbody>
+      <tr class="provenance-diff__row provenance-diff__row--removed">
+        <td class="provenance-diff__marker">
+          <span aria-hidden="true">-</span>
+          <span class="sr-only">Removed</span>
+        </td>
+        <th scope="row">Row heading</th>
+        <td>Column data</td>
+      </tr>
+      <tr class="provenance-diff__row provenance-diff__row--added">
+        <td class="provenance-diff__marker">
+          <span aria-hidden="true">+</span>
+          <span class="sr-only">Added</span>
+        </td>
+        <th scope="row">Row heading</th>
+        <td>Column data</td>
+      </tr>
+    </tbody>
+  </table>
+
+  Row modifiers:
+    - removed: Tints the row red
+    - added: Tints the row green
+    - neutral: Tints the row grey, for a plain (non-diff) breakdown
+*/
+
+.provenance-diff {
+  width: calc(100% - #{grid.$half-spacing-unit});
+  margin-left: grid.$half-spacing-unit;
+  border-radius: 4px;
+  border-spacing: 0 4px;
+  overflow: hidden;
+  color: colors.$text-color;
+
+  & + & {
+    margin-top: grid.$half-spacing-unit;
+  }
+
+  a {
+    @include link-utilities.primary-underlined-link;
+  }
+
+  &__title {
+    caption-side: top;
+    text-align: left;
+    font-weight: fonts.$bold-font-weight;
+    font-size: 0.95rem;
+    padding-bottom: grid.$quarter-spacing-unit;
+
+    i {
+      margin-right: grid.$quarter-spacing-unit;
+    }
+  }
+
+  th,
+  td {
+    padding-top: grid.$quarter-spacing-unit;
+    padding-bottom: grid.$quarter-spacing-unit;
+    text-align: left;
+    vertical-align: middle;
+    font-size: 0.85rem;
+    white-space: nowrap;
+
+    &:first-child {
+      padding-left: grid.$half-spacing-unit;
+    }
+
+    &:not(:last-child) {
+      width: 1%;
+      padding-right: grid.$spacing-unit;
+    }
+  }
+
+  &__marker {
+    font-family: fonts.$code-font;
+    font-weight: fonts.$bold-font-weight;
+    text-align: center;
+  }
+
+  &__version,
+  &__count,
+  &__value {
+    font-family: fonts.$code-font;
+  }
+
+  &__value {
+    white-space: normal;
+    word-break: break-all;
+  }
+
+  &__status {
+    .badge {
+      float: left;
+    }
+  }
+
+  &__row--removed {
+    background-color: color.adjust(colors.$danger-color, $lightness: 45%);
+
+    .provenance-diff__marker {
+      color: colors.$danger-color;
+    }
+  }
+
+  &__row--added {
+    background-color: color.adjust(colors.$warning-color, $lightness: 55%);
+
+    .provenance-diff__marker {
+      color: colors.$warning-color;
+    }
+  }
+
+  &__row--neutral {
+    background-color: colors.$off-white;
+  }
+}

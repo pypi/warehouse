@@ -1,8 +1,61 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-<div class="callout-block callout-block--danger">
+<div class="callout-block callout-block--warning">
   <h3 class="callout-block__heading">
     <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
     {% trans %}Loss of provenance{% endtrans %}
   </h3>
-  <p>{% trans %}The previous release had provenance, but this release has none.{% endtrans %}</p>
+  <p>{% trans %}A previous release of these files had provenance metadata, but this release does not.{% endtrans %}</p>
+  <p>{% trans %}While this could reflect a routine change by the project maintainers, it may also indicate that the release files have been compromised.{% endtrans %}</p>
+  {% set comparison = release.provenance_status.comparison %}
+  {% if comparison %}
+    <table class="provenance-diff">
+      <caption class="provenance-diff__title">
+        <i class="fa-solid fa-cube" aria-hidden="true"></i>
+        {% trans %}Release comparison{% endtrans %}
+      </caption>
+      <tbody>
+        <tr class="provenance-diff__row provenance-diff__row--removed">
+          <td class="provenance-diff__marker">
+            <span aria-hidden="true">-</span>
+            <span class="sr-only">{% trans %}Removed{% endtrans %}</span>
+          </td>
+          <th scope="row" class="provenance-diff__version">
+            <a href="{{ request.route_path('packaging.release', name=release.project.name, version=comparison.version) }}#security">{{ comparison.version }}</a>
+          </th>
+          <td class="provenance-diff__count">
+            {% trans count=comparison.counts.total_files %}{{ count }} file
+          {% pluralize %}
+            {{ count }} files{% endtrans %}
+          </td>
+          <td class="provenance-diff__status">
+            {% if comparison.counts.files_with_provenance == comparison.counts.total_files %}
+              <span class="badge badge--compact">{% trans %}With provenance{% endtrans %}</span>
+            {% else %}
+              <span class="badge badge--warning badge--compact">{% trans %}Partial provenance{% endtrans %}</span>
+            {% endif %}
+          </td>
+        </tr>
+        <tr class="provenance-diff__row provenance-diff__row--added">
+          <td class="provenance-diff__marker">
+            <span aria-hidden="true">+</span>
+            <span class="sr-only">{% trans %}Added{% endtrans %}</span>
+          </td>
+          <th scope="row" class="provenance-diff__version">{{ release.version }}</th>
+          <td class="provenance-diff__count">
+            {% trans count=release.provenance_status.counts.total_files %}{{ count }} file
+          {% pluralize %}
+            {{ count }} files{% endtrans %}
+          </td>
+          <td class="provenance-diff__status">
+            <span class="badge badge--dark badge--compact">{% trans %}Without provenance{% endtrans %}</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  {% endif %}
+  <div class="callout-block__footer">
+    <p>
+      {% trans href=request.user_docs_url('/attestations/') %}We recommend further investigation before installing files from this release. <a href="{{ href }}">Learn more</a>.{% endtrans %}
+    </p>
+  </div>
 </div>
