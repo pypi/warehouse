@@ -341,10 +341,6 @@ class ManageOrganizationSettingsViews:
         self.billing_service = request.find_service(IBillingService, context=None)
 
     @property
-    def active_projects(self):
-        return self.organization.projects
-
-    @property
     def default_response(self):
         return {
             "organization": self.organization,
@@ -363,7 +359,6 @@ class ManageOrganizationSettingsViews:
                 organization_service=self.organization_service,
                 user=self.request.user,
             ),
-            "active_projects": self.active_projects,
         }
 
     @view_config(request_method="GET", permission=Permissions.OrganizationsRead)
