@@ -217,59 +217,10 @@
   </section>
   <hr>
   <section id="delete-organization">
-    <h2>{% trans %}Delete organization{% endtrans %}</h2>
-    <div class="callout-block{% if not active_projects %} callout-block--danger{% endif %}">
-      {% if active_projects %}
-        <h3>{% trans %}Cannot delete organization{% endtrans %}</h3>
-        <p>
-          {% trans count=active_projects|length %}
-          Your organization currently owns {{ count }} project.
-        {% pluralize %}
-          Your organization currently owns {{ count }} projects.
-        {% endtrans %}
-        {% trans %}For each project, you must either:{% endtrans %}
-        <ul>
-          <li>{% trans %}Transfer ownership and remove the project from your organization{% endtrans %}</li>
-          <li>{% trans %}Delete the project{% endtrans %}</li>
-        </ul>
-        {% trans %}Before you can delete your organization.{% endtrans %}
-      </p>
-      <ul class="no-bottom-margin">
-        {% for project in active_projects %}
-          <li>
-            <strong>{{ project.name }}</strong> -
-            {% trans transfer_href=request.route_path('manage.project.roles', project_name=project.name), remove_delete_href=request.route_path('manage.project.settings', project_name=project.name) %}
-            <a href="{{ transfer_href }}">transfer ownership</a> and <a href="{{ remove_delete_href }}">remove project</a>
-            <b>or</b>
-            <a href="{{ remove_delete_href }}">delete project</a>
-          {% endtrans %}
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <h3>{% trans %}Proceed with caution!{% endtrans %}</h3>
-    <p>
-      <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
-      {% trans %}You will not be able to recover your organization after you delete it.{% endtrans %}
-    </p>
-    {% if organization %}
-      {% if organization.subscriptions %}
-        <p>
-          <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
-          {% if organization.active_subscription %}
-            {% trans %}Your subscription will be cancelled, and you will lose access to the billing portal.{% endtrans %}
-          {% else %}
-            {% trans %}You will lose access to the billing portal.{% endtrans %}
-          {% endif %}
-          {% trans billing_href=request.route_path('manage.organization.subscription', organization_name=organization.normalized_name, _query={'next': request.current_route_path(organization_name=organization.normalized_name)}) %}
-          Please ensure you have retrieved all invoices from <a href="{{ billing_href }}">your billing portal</a> before proceeding.
-        {% endtrans %}
-      </p>
-    {% endif %}
-  {% endif %}
-  {{ confirm_button(gettext("Delete organization") , gettext("Organization Name"), "organization_name", organization.name) }}
-{% endif %}
-</div>
-</section>
+    <h2>{% trans %}Danger zone{% endtrans %}</h2>
+    <p>{% trans %}Delete this organization, or transfer or delete sole-owned projects.{% endtrans %}</p>
+    <a href="{{ request.route_path('manage.organization.danger-zone', organization_name=organization.normalized_name) }}"
+       class="button button--danger">{% trans %}Go to danger zone{% endtrans %}</a>
+  </section>
 {% endif %}
 {% endblock %}
