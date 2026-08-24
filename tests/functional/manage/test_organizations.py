@@ -210,16 +210,16 @@ class TestManageOrganizationSettings:
     def test_non_owners_cannot_delete_while_billing_inactive(self, webtest, role_name):
         """
         Billing managers and members can view the settings page (it only
-        requires OrganizationsRead), but lack OrganizationsManage, so POSTing
-        the delete confirmation for a billing-inactive organization is
-        forbidden.
+        requires OrganizationsRead), but lack OrganizationsManage, so the
+        danger zone page itself is forbidden, not just the delete POST.
         """
         user, organization = self._create_billing_inactive_org(role_name=role_name)
 
         _login_user(webtest, user)
 
-        self._post_delete_organization(
-            webtest, organization, status=HTTPStatus.FORBIDDEN
+        webtest.get(
+            f"/manage/organization/{organization.normalized_name}/danger-zone/",
+            status=HTTPStatus.FORBIDDEN,
         )
         assert Session.get(Organization, organization.id) is not None
 
