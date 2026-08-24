@@ -1,7 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import base64
+import hashlib
+import io
 import json
+import tarfile
 
 from http import HTTPStatus
 from pathlib import Path
@@ -35,6 +38,28 @@ from ...common.db.macaroons import MacaroonFactory
 _HERE = Path(__file__).parent
 _ASSETS = _HERE.parent / "_fixtures"
 assert _ASSETS.is_dir()
+
+
+def _make_sparse_sdist(tar_format):
+    sdist = io.BytesIO()
+    with tarfile.open(fileobj=sdist, mode="w:gz", format=tar_format) as tar:
+        pkg_info = b"Metadata-Version: 2.1\nName: sampleproject\nVersion: 1.0\n"
+        info = tarfile.TarInfo(name="sampleproject-1.0/PKG-INFO")
+        info.size = len(pkg_info)
+        tar.addfile(info, io.BytesIO(pkg_info))
+
+        info = tarfile.TarInfo(name="sampleproject-1.0/sparse.dat")
+        if tar_format == tarfile.PAX_FORMAT:
+            info.size = 1
+            info.pax_headers = {
+                "GNU.sparse.map": "0,1",
+                "GNU.sparse.size": "10",
+            }
+        else:
+            info.type = tarfile.GNUTYPE_SPARSE
+            info.size = 0
+        tar.addfile(info, io.BytesIO(b"x"))
+    return sdist.getvalue()
 
 
 def test_incorrect_post_redirect(webtest):
@@ -140,6 +165,59 @@ def test_file_upload(webtest, upload_url, additional_data):
     assert release.version == "3.0.0"
 
 
+@pytest.mark.parametrize(
+    "tar_format",
+    [
+        pytest.param(tarfile.PAX_FORMAT, id="pax"),
+        pytest.param(tarfile.GNU_FORMAT, id="gnu"),
+    ],
+)
+def test_sparse_sdist_upload_rejected(webtest, tar_format):
+    user = UserFactory.create(
+        with_verified_primary_email=True,
+        clear_pwd="password",
+    )
+    project = ProjectFactory.create(name="sampleproject")
+    RoleFactory.create(user=user, project=project, role_name="Owner")
+
+    dm = MacaroonFactory.create(
+        user_id=user.id,
+        caveats=[caveats.RequestUser(user_id=str(user.id))],
+    )
+    macaroon = pymacaroons.Macaroon(
+        location="localhost",
+        identifier=str(dm.id),
+        key=dm.key,
+        version=pymacaroons.MACAROON_V2,
+    )
+    for caveat in dm.caveats:
+        macaroon.add_first_party_caveat(caveats.serialize(caveat))
+    serialized_macaroon = f"pypi-{macaroon.serialize()}"
+    credentials = base64.b64encode(f"__token__:{serialized_macaroon}".encode()).decode(
+        "utf-8"
+    )
+
+    content = _make_sparse_sdist(tar_format)
+    response = webtest.post(
+        "/legacy/?:action=file_upload",
+        headers={"Authorization": f"Basic {credentials}"},
+        params={
+            "name": "sampleproject",
+            "sha256_digest": hashlib.sha256(content).hexdigest(),
+            "filetype": "sdist",
+            "metadata_version": "2.1",
+            "version": "1.0",
+        },
+        upload_files=[("content", "sampleproject-1.0.tar.gz", content)],
+        status=HTTPStatus.BAD_REQUEST,
+    )
+
+    assert response.status == (
+        "400 Invalid distribution file. tar archive not accepted: Sparse members are "
+        "not allowed. See https://docs.pypi.org/archives for more information"
+    )
+
+
 def test_duplicate_file_upload_error(webtest):
     user = UserFactory.create(with_verified_primary_email=True, clear_pwd="password")
 
@@ -214,17 +292,13 @@ def test_duplicate_file_upload_error(webtest):
     assert "File already exists" in resp.body.decode()
 
 
-def test_typo_check_name_upload_passes(webtest, monkeypatch):
+def test_typo_check_name_upload_passes(webtest):
     """
-    Test not blocking the upload of a release with a typo in the project name,
-    and emits a notification to the admins.
-    """
-    # TODO: Replace with a better way to generate corpus
-    monkeypatch.setattr(
-        "warehouse.packaging.typosnyper._TOP_PROJECT_NAMES",
-        {"wutang", "requests"},
-    )
+    Test not blocking the upload of a release with a typo in the project name.
 
+    The typo checks themselves run in a post-commit task, so they don't execute
+    here - what this guards is that nothing on the upload path rejects the name.
+    """
     # Set up user, credentials
     user = UserFactory.create(with_verified_primary_email=True, clear_pwd="password")
     # Construct the macaroon
