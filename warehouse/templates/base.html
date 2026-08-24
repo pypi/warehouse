@@ -25,34 +25,33 @@
 {%- endmacro %}
 {% macro main_navigation_logged_out(next_url=none) -%}
   {% set login_url = request.route_path('accounts.login', _query={'next': next_url}) if next_url else request.route_path('accounts.login') %}
-  <div id="user-indicator"
-       class="horizontal-menu horizontal-menu--light horizontal-menu--tall">
-    <nav class="horizontal-menu horizontal-menu--light horizontal-menu--tall hide-below-desktop"
+  <div class="site-menu">
+    <nav class="site-menu site-menu--dropdown-below-desktop"
          aria-label="{% trans %}Main navigation{% endtrans %}">
       <ul>
-        <li class="horizontal-menu__item">
-          <a href="{{ request.route_path('help') }}" class="horizontal-menu__link">{% trans %}Help{% endtrans %}</a>
+        <li class="site-menu__item">
+          <a href="{{ request.route_path('help') }}" class="site-menu__link">{% trans %}Help{% endtrans %}</a>
         </li>
-        <li class="horizontal-menu__item">
-          <a href="{{ request.user_docs_url('/') }}" class="horizontal-menu__link">{% trans %}Docs{% endtrans %}</a>
+        <li class="site-menu__item">
+          <a href="{{ request.user_docs_url('/') }}" class="site-menu__link">{% trans %}Docs{% endtrans %}</a>
         </li>
-        <li class="horizontal-menu__item">
-          <a href="{{ login_url }}" class="horizontal-menu__link">{% trans %}Log in{% endtrans %}</a>
+        <li class="site-menu__item">
+          <a href="{{ login_url }}" class="site-menu__link">{% trans %}Log in{% endtrans %}</a>
         </li>
-        <li class="horizontal-menu__item">
+        <li class="site-menu__item">
           <a href="{{ request.route_path('accounts.register') }}"
-             class="horizontal-menu__link">{% trans %}Register{% endtrans %}</a>
+             class="site-menu__link">{% trans %}Register{% endtrans %}</a>
         </li>
       </ul>
     </nav>
-    <nav class="dropdown dropdown--on-menu hidden show-below-desktop"
+    <nav class="dropdown dropdown--on-menu site-menu--dropdown site-menu--dropdown-below-desktop"
          aria-label="{% trans %}Main navigation{% endtrans %}">
       <button type="button"
-              class="horizontal-menu__link dropdown__trigger"
+              class="site-menu__link dropdown__trigger"
               aria-haspopup="true"
               aria-expanded="false"
               aria-label="{% trans %}View menu{% endtrans %}">
-        {# djlint:off #}{% trans %}Menu{% endtrans %}<span class="dropdown__trigger-caret"><i class="fa fa-caret-down" aria-hidden="true"></i></span>{# djlint:on #}
+        <i class="fa-solid fa-bars" aria-hidden="true"></i>
       </button>
       <ul class="dropdown__content"
           aria-hidden="true"
@@ -337,7 +336,7 @@
              class="search-form__search"
              type="text"
              name="q"
-             placeholder="{% trans %}Search projects{% endtrans %}"
+             placeholder="{% trans %}Type '/' to search projects{% endtrans %}"
              value="{{ term }}"
              autocomplete="off"
              autocapitalize="off"

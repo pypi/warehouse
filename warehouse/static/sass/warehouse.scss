@@ -76,7 +76,6 @@
 @use "blocks/banner";
 @use "blocks/homepage-banner";
 @use "blocks/hooray-list";
-@use "blocks/horizontal-menu";
 @use "blocks/horizontal-section";
 @use "blocks/large-input";
 @use "blocks/lede-paragraph";
@@ -104,6 +103,7 @@
 @use "blocks/sidebar-links";
 @use "blocks/sidebar-section";
 @use "blocks/site-header";
+@use "blocks/site-menu";
 @use "blocks/skip-to-content";
 @use "blocks/sponsor-grid";
 @use "blocks/sponsor-packages";

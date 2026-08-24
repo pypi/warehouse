@@ -1,12 +1,12 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-<nav class="dropdown dropdown--on-menu dropdown--with-icons"
+<nav class="dropdown dropdown--on-menu dropdown--with-icons site-menu--dropdown"
      aria-label="{% trans %}Localization{% endtrans %}">
   <button type="button"
-          class="horizontal-menu__link horizontal-menu__link--with-icon dropdown__trigger"
+          class="site-menu__link site-menu__link--with-icon dropdown__trigger"
           aria-haspopup="true"
           aria-expanded="false"
           aria-label="{% trans %}Change language{% endtrans %}">
-    {# djlint:off #}<i class="fa-solid fa-language" aria-hidden="true"></i><span class="dropdown__trigger-label">{{ request.locale.display_name }}</span><span class="dropdown__trigger-caret"><i class="fa fa-caret-down" aria-hidden="true"></i></span>{# djlint:on #}
+    <i class="fa-solid fa-language" aria-hidden="true"></i>
   </button>
   <form action="{{ request.route_path('locale') }}">
     <ul class="dropdown__content dropdown__content--languages"
