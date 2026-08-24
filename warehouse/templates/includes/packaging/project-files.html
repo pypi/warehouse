@@ -42,7 +42,16 @@
               </span>
             </td>
             <td>{{ file.size|filesizeformat() if file.size else 0|filesizeformat() }}</td>
-            <td>{% trans upload_time=humanize(file.upload_time) %}{{ upload_time }}{% endtrans %}</td>
+            <td>
+              {% if (file.upload_time - first_upload).days > maximum_age_for_new_uploads_days %}
+                <span class="file-info__meta file-info__meta--warning">
+                  <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                  {{ humanize(file.upload_time) }}
+                </span>
+              {% else %}
+                {{ humanize(file.upload_time) }}
+              {% endif %}
+            </td>
             {#<td>TODO</td>#}
             <td>
               <a href="#{{ file.filename }}"
@@ -183,22 +192,22 @@
               <a href="{{ request.route_url('packaging.file', path=file.path) }}"><i class="fa-regular fa-circle-down" aria-hidden="true"></i> <span>{{ file.filename }}</span></a>
             </span>
             <span class="file-info__metadata">
-              <small>{{ file.size|filesizeformat() if file.size else 0|filesizeformat() }}</small>
+              <span class="file-info__meta">{{ file.size|filesizeformat() if file.size else 0|filesizeformat() }}</span>
               <span class="file-info__meta-divider" aria-hidden="true"></span>
               {% if (file.upload_time - first_upload).days > maximum_age_for_new_uploads_days %}
-                <small class="file-info__late">
+                <span class="file-info__meta file-info__meta--warning">
                   <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
                   {{ humanize(file.upload_time) }}
-                </small>
+                </span>
               {% else %}
-                <small>
+                <span class="file-info__meta">
                   <i class="fa-regular fa-calendar" aria-hidden="true"></i>
                   {{ humanize(file.upload_time) }}
-                </small>
+                </span>
               {% endif %}
               {# TODO: add provenance states with security page
               <span class="file-info__meta-divider" aria-hidden="true"></span>
-              <small><i class="fa-regular fa-circle-check" aria-hidden="true"></i> TODO</small> #}
+              <span class="file-info__meta"><i class="fa-regular fa-circle-check" aria-hidden="true"></i> TODO</span> #}
             </span>
           </td>
           {% if 'Egg' in file.pretty_wheel_tags %}

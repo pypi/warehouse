@@ -20,7 +20,6 @@
     - warning: Orange background
     - danger: Red background
     - compact: Tighter padding, no left margin
-    - key-dates: Adjusts spacing for use in the key dates sidebar section
 */
 
 .badge {
@@ -128,11 +127,4 @@
     padding: 1px 6px;
     margin-left: 0;
   }
-
-  &--key-dates {
-    display: inline-block;
-    margin-top: 0.8em;
-    margin-left: 0;
-  }
-
 }

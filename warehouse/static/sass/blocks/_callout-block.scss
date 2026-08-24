@@ -2,6 +2,7 @@
 
 @use "../settings/breakpoints";
 @use "../settings/colors";
+@use "../settings/fonts";
 @use "../settings/grid";
 @use "../tools/design-utilities";
 @use "../tools/link-utilities";
@@ -74,8 +75,8 @@
   }
 
   &__heading {
-    font-size: 1rem;
-    font-weight: 600;
+    font-size: fonts.$base-font-size;
+    font-weight: fonts.$bold-font-weight;
 
     details & {
       padding: 15px;
@@ -175,12 +176,8 @@
   &--warning {
     border-color: colors.$warning-color;
 
-    > :not(.modal, .button, .provenance-diff, .provenance-bar) {
+    .callout-block__heading i {
       color: colors.$warning-color;
-
-      a:not(.button) {
-        @include link-utilities.warning-underlined-link;
-      }
     }
 
     &::before {
