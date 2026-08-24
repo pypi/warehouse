@@ -1,6 +1,8 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 {% set tab_class = "dropdown__link" if mode == "dropdown" else "vertical-tabs__tab vertical-tabs__tab--with-icon" %}
 {% set active_tab_class = "dropdown__link--is-active" if mode == "dropdown" else "vertical-tabs__tab--is-active" %}
+{% set sub_tab_class = "dropdown__link--sub" if mode == "dropdown" else "vertical-tabs__tab--sub" %}
+{% set danger_tab_class = "dropdown__link--danger" if mode == "dropdown" else "vertical-tabs__tab--danger" %}
 <nav {% if mode == "dropdown" %}class="dropdown__content" aria-hidden="true"{% endif %}
      aria-label="{% trans organization=organization.normalized_name %}Navigation for managing {{ organization }}{% endtrans %}">
   <ul class="vertical-tabs__list">
@@ -61,11 +63,21 @@
     {% endif %}
     <li>
       <a href="{{ request.route_path('manage.organization.settings', organization_name=organization.normalized_name) }}"
-         class="{{ tab_class }} {% if active_tab == 'settings' %}{{ active_tab_class }}{% endif %}"
-         {% if active_tab == 'settings' %}aria-selected="true"{% endif %}>
+         class="{{ tab_class }} {% if active_tab == 'settings' and not active_subtab %}{{ active_tab_class }}{% endif %}"
+         {% if active_tab == 'settings' and not active_subtab %}aria-selected="true"{% endif %}>
         <i class="fa fa-wrench" aria-hidden="true"></i>
         {% trans %}Settings{% endtrans %}
       </a>
     </li>
+    {% if can_manage %}
+      <li>
+        <a href="{{ request.route_path('manage.organization.danger-zone', organization_name=organization.normalized_name) }}"
+           class="{{ tab_class }} {{ sub_tab_class }} {{ danger_tab_class }} {% if active_subtab == 'danger-zone' %}{{ active_tab_class }}{% endif %}"
+           {% if active_subtab == 'danger-zone' %}aria-selected="true"{% endif %}>
+          <i class="fa fa-triangle-exclamation" aria-hidden="true"></i>
+          {% trans %}Danger zone{% endtrans %}
+        </a>
+      </li>
+    {% endif %}
   </ul>
 </nav>
