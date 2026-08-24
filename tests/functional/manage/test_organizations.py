@@ -104,7 +104,7 @@ class TestManageOrganizationSettings:
         """
         An owner of a Company organization that is not in good standing (no
         active subscription or manual activation) can still reach the
-        organization settings page, so they are able to delete it. Otherwise
+        organization settings page, which links to the danger zone. Otherwise
         the only self-service exit would be to first pay to reactivate billing.
         """
         owner, organization = self._create_billing_inactive_org()
@@ -116,6 +116,11 @@ class TestManageOrganizationSettings:
             status=HTTPStatus.OK,
         )
         assert "Delete organization" in settings_page.text
+        assert (
+            f"/manage/organization/{organization.normalized_name}/danger-zone/"
+            in settings_page.text
+        )
+
 
     def test_org_list_shows_manage_link_when_billing_inactive(self, webtest):
         """
