@@ -773,7 +773,6 @@ class TestManageOrganizationSettings:
             "organization": organization,
             "save_organization_form": save_organization_obj,
             "save_organization_name_form": save_organization_name_obj,
-            "active_projects": view.active_projects,
         }
         assert save_organization_cls.calls == [
             pretend.call(
