@@ -27,11 +27,14 @@ from warehouse.accounts.interfaces import (
 from warehouse.accounts.models import (
     DisableReason,
     Email,
-    ProhibitedEmailDomain,
     ProhibitedUserName,
     User,
 )
-from warehouse.accounts.utils import update_email_domain_status
+from warehouse.accounts.utils import (
+    prohibit_email_domain,
+    tld_extractor,
+    update_email_domain_status,
+)
 from warehouse.admin.user_export import export_user
 from warehouse.authnz import Permissions
 from warehouse.email import (
@@ -508,14 +511,21 @@ def user_freeze(user, request):
 
     user.is_frozen = True
 
+    # Blocklist only an email whose domain IS its own registrable: a
+    # subdomain-hosted address (grad.mit.edu, team.github.io) may live under
+    # a shared parent apex that other accounts legitimately use, so freezing
+    # one account must not blocklist the parent. Those are left for a
+    # deliberate admin decision.
     for email in user.emails:
-        if email.verified:
-            request.db.add(
-                ProhibitedEmailDomain(
-                    domain=email.domain,
-                    comment="frozen",
-                    prohibited_by=request.user,
-                )
+        if not email.verified:
+            continue
+        registrable = tld_extractor(email.domain).top_domain_under_public_suffix
+        if registrable and registrable == email.domain:
+            prohibit_email_domain(
+                request.db,
+                registrable,
+                comment="frozen",
+                prohibited_by=request.user,
             )
 
     request.session.flash(f"Froze user {user.username!r}", queue="success")
