@@ -82,13 +82,17 @@ class TestManageOrganizationSettings:
         return user, organization
 
     def _post_delete_organization(self, webtest, organization, status):
-        """GET the settings page for a CSRF token, then POST the delete confirmation."""
-        settings_url = f"/manage/organization/{organization.normalized_name}/settings/"
-        settings_page = webtest.get(settings_url, status=HTTPStatus.OK)
-        csrf_token = settings_page.html.find("input", {"name": "csrf_token"})["value"]
+        """GET the danger zone page for a CSRF token, then POST the delete."""
+        danger_zone_url = (
+            f"/manage/organization/{organization.normalized_name}/danger-zone/"
+        )
+        danger_zone_page = webtest.get(danger_zone_url, status=HTTPStatus.OK)
+        csrf_token = danger_zone_page.html.find("input", {"name": "csrf_token"})[
+            "value"
+        ]
 
         return webtest.post(
-            settings_url,
+            danger_zone_url,
             {
                 "csrf_token": csrf_token,
                 "confirm_organization_name": organization.name,
