@@ -27,7 +27,7 @@
       <div class="attestations-viewer__sidebar-content">
         <ul class="attestations-viewer__file-list">
           <li class="attestations-viewer__file-item attestations-viewer__file-item--is-selected">
-            <i class="fa-solid fa-circle-check attestations-viewer__has-attestations-icon"></i>
+            <i class="fa-solid fa-circle-check attestations-viewer__file-icon primary"></i>
             <span class="attestations-viewer__file-info">
               <span class="attestations-viewer__file-name">example-1.0.0.whl</span>
               <span class="attestations-viewer__file-date">Jan 1, 2026</span>
@@ -117,6 +117,10 @@
     }
   }
 
+  &__file-icon {
+    margin-top: 3px;
+  }
+
   &__file-info {
     display: flex;
     flex-direction: column;
@@ -159,15 +163,5 @@
     padding: grid.$half-spacing-unit;
     color: colors.$mid-grey;
     margin-top: 0;
-  }
-
-  &__no-attestations-icon {
-    color: colors.$mid-grey;
-    margin-top: 3px;
-  }
-
-  &__has-attestations-icon {
-    color: colors.$primary-color;
-    margin-top: 3px;
   }
 }

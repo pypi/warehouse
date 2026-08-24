@@ -75,10 +75,10 @@
             {% set attestation_count = (vfile.provenance.as_model.attestation_bundles | map(attribute='attestations') | map('length') | sum) if vfile.provenance else 0 %}
             <li class="attestations-viewer__file-item{{ ' attestations-viewer__file-item--is-selected' if vfile == selected_file }}">
               {% if attestation_count %}
-                <i class="fa-solid fa-circle-check attestations-viewer__has-attestations-icon"
+                <i class="fa-solid fa-circle-check attestations-viewer__file-icon primary"
                    aria-hidden="true"></i>
               {% else %}
-                <i class="fa-solid fa-circle-xmark attestations-viewer__no-attestations-icon"
+                <i class="fa-solid fa-circle-xmark attestations-viewer__file-icon muted"
                    aria-hidden="true"></i>
               {% endif %}
               <span class="attestations-viewer__file-info">
@@ -134,7 +134,7 @@
         {% endfor %}
       {% else %}
         <div class="attestations-viewer__empty">
-          <i class="fa-solid fa-circle-xmark attestations-viewer__no-attestations-icon"
+          <i class="fa-solid fa-circle-xmark muted"
              aria-hidden="true"></i>
           {% trans %}This file was uploaded without provenance metadata.{% endtrans %}
         </div>

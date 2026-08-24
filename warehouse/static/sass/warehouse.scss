@@ -2,6 +2,8 @@
 
 @charset "utf-8";
 
+@use "sass:color";
+
 // WAREHOUSE
 
 /*
@@ -166,6 +168,16 @@
 // Make text or icons blue to match the primary brand color
 .primary {
   color: colors.$primary-color;
+}
+
+// Make text or icons orange to draw attention
+.warning {
+  color: colors.$warning-color;
+}
+
+// Make text or icons grey to de-emphasize
+.muted {
+  color: color.mix(colors.$light-grey, colors.$mid-grey, 50%);
 }
 
 // ALIGNMENT, PADDING & MARGINS
