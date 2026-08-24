@@ -1123,6 +1123,8 @@ class TestManageOrganizationSettings:
     #    }
     #    assert organization_service.rename_organization.calls == []
 
+
+class TestManageOrganizationDangerZone:
     def test_delete_organization(
         self,
         db_request,
@@ -1156,7 +1158,7 @@ class TestManageOrganizationSettings:
             org_views, "organization_owners", lambda *a, **kw: [pyramid_user]
         )
 
-        view = org_views.ManageOrganizationSettingsViews(organization, db_request)
+        view = org_views.ManageOrganizationDangerZoneViews(organization, db_request)
         result = view.delete_organization()
 
         assert isinstance(result, HTTPSeeOther)
@@ -1210,7 +1212,7 @@ class TestManageOrganizationSettings:
             pretend.call_recorder(lambda *a, **kw: None),
         )
 
-        view = org_views.ManageOrganizationSettingsViews(organization, db_request)
+        view = org_views.ManageOrganizationDangerZoneViews(organization, db_request)
         result = view.delete_organization()
 
         assert result == view.default_response
@@ -1259,7 +1261,7 @@ class TestManageOrganizationSettings:
             org_views, "organization_owners", lambda *a, **kw: [pyramid_user]
         )
 
-        view = org_views.ManageOrganizationSettingsViews(organization, db_request)
+        view = org_views.ManageOrganizationDangerZoneViews(organization, db_request)
         result = view.delete_organization()
 
         assert isinstance(result, HTTPSeeOther)
