@@ -3,6 +3,8 @@
 import datetime
 import uuid
 
+from types import SimpleNamespace
+
 import freezegun
 import passlib.exc
 import pretend
@@ -29,6 +31,7 @@ from warehouse.accounts.interfaces import (
     TokenExpired,
     TokenInvalid,
     TokenMissing,
+    TooManyEmailReputationChecks,
     TooManyEmailsAdded,
     TooManyFailedLogins,
 )
@@ -41,6 +44,7 @@ from warehouse.accounts.models import (
 )
 from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService, NullMetrics
+from warehouse.rate_limiting import DummyRateLimiter
 from warehouse.rate_limiting.interfaces import IRateLimiter
 from warehouse.utils import otp, webauthn
 
@@ -2300,6 +2304,405 @@ class TestEmailReputationResult:
         result = EmailReputationResult(**result_kwargs)
 
         assert result.disposable_domain is expected
+
+
+class TestUserCheckEmailReputationService:
+    def test_verify_service(self):
+        assert verifyClass(
+            IEmailReputationService,
+            services.UserCheckEmailReputationService,
+        )
+
+    def test_factory(self):
+        ratelimiter = object()
+
+        def _find_service(iface, name=None, context=None):
+            return {(IRateLimiter, "email.reputation"): ratelimiter}[(iface, name)]
+
+        request = SimpleNamespace(
+            http=object(),
+            metrics=object(),
+            registry=SimpleNamespace(
+                settings={"email_reputation.api_key": "some_api_key"}
+            ),
+            find_service=_find_service,
+            remote_addr=REMOTE_ADDR,
+        )
+        svc = services.UserCheckEmailReputationService.create_service(None, request)
+
+        assert svc._http is request.http
+        assert svc._metrics is request.metrics
+        assert svc._ratelimiter is ratelimiter
+        assert svc._remote_addr == REMOTE_ADDR
+        assert svc.api_key == "some_api_key"
+
+    def _response(self, mocker, body):
+        response = mocker.Mock(spec=requests.Response)
+        response.status_code = 200
+        response.json.return_value = body
+        response.raise_for_status.return_value = None
+        return response
+
+    def _service(
+        self,
+        mocker,
+        response,
+        metrics=None,
+        ratelimiter=None,
+        remote_addr=REMOTE_ADDR,
+    ):
+        session = requests.Session()
+        mocker.patch.object(session, "get", autospec=True, return_value=response)
+        return (
+            services.UserCheckEmailReputationService(
+                session=session,
+                api_key="some_api_key",
+                metrics=metrics if metrics is not None else NullMetrics(),
+                ratelimiter=(
+                    ratelimiter if ratelimiter is not None else DummyRateLimiter()
+                ),
+                remote_addr=remote_addr,
+            ),
+            session,
+        )
+
+    def test_disposable_domain(self, mocker):
+        ratelimiter = DummyRateLimiter()
+        hit = mocker.spy(ratelimiter, "hit")
+        svc, session = self._service(
+            mocker,
+            self._response(
+                mocker,
+                {
+                    "status": 200,
+                    "email": "foo@dropmail.me",
+                    "domain": "dropmail.me",
+                    "mx": True,
+                    "disposable": True,
+                    "disposable_provider": "DropMail",
+                    "public_domain": False,
+                    "relay_domain": False,
+                    "spam": False,
+                    "blocklisted": False,
+                },
+            ),
+            ratelimiter=ratelimiter,
+        )
+
+        result = svc.check_email("foo@dropmail.me")
+
+        assert result == EmailReputationResult(
+            mx=True,
+            disposable=True,
+            public_domain=False,
+            relay_domain=False,
+            spam=False,
+            blocklisted=False,
+            disposable_provider="DropMail",
+        )
+        assert result.signals == ["disposable"]
+        assert result.disposable_domain
+        session.get.assert_called_once_with(
+            "https://api.usercheck.com/email/foo%40dropmail.me",
+            headers={"Authorization": "Bearer some_api_key"},
+            timeout=(0.25, 1),
+        )
+        # The budget is spent atomically, before the remote call.
+        hit.assert_called_once_with(REMOTE_ADDR)
+
+    def test_disposable_address_on_public_domain(self, mocker):
+        """
+        A throwaway alias on a public provider reports disposable for the
+        address, without implicating the domain itself.
+        """
+        svc, _session = self._service(
+            mocker,
+            self._response(
+                mocker,
+                {
+                    "email": "throwaway@gmail.com",
+                    "domain": "gmail.com",
+                    "disposable": True,
+                    "public_domain": True,
+                },
+            ),
+        )
+
+        result = svc.check_email("throwaway@gmail.com")
+
+        assert result.should_block
+        assert not result.disposable_domain
+        assert result.disposable_provider is None
+
+    def test_clean_address(self, mocker):
+        svc, _session = self._service(
+            mocker,
+            self._response(
+                mocker,
+                {
+                    "status": 200,
+                    "email": "foo@python.org",
+                    "domain": "python.org",
+                    "mx": True,
+                    "disposable": False,
+                    "public_domain": False,
+                    "relay_domain": False,
+                    "spam": False,
+                    "blocklisted": False,
+                },
+            ),
+        )
+
+        result = svc.check_email("foo@python.org")
+
+        assert result.signals == []
+        assert not result.should_block
+
+    def test_multiple_signals_are_reported(self, mocker):
+        svc, _session = self._service(
+            mocker,
+            self._response(
+                mocker,
+                {
+                    "domain": "example.com",
+                    "mx": False,
+                    "disposable": True,
+                    "public_domain": True,
+                    "relay_domain": True,
+                    "spam": True,
+                    "blocklisted": True,
+                },
+            ),
+        )
+
+        result = svc.check_email("foo@example.com")
+
+        assert result.signals == [
+            "blocklisted",
+            "disposable",
+            "no_mx",
+            "public_domain",
+            "relay_domain",
+            "spam",
+        ]
+
+    def test_missing_keys_are_unknown_signals(self, mocker):
+        """
+        Keys absent from the response are unknown, not clear, so they can
+        neither block nor escalate.
+        """
+        svc, _session = self._service(mocker, self._response(mocker, {}))
+
+        result = svc.check_email("foo@Example.COM")
+
+        assert result == EmailReputationResult()
+        assert result.signals == []
+        assert not result.should_block
+        assert not result.disposable_domain
+
+    def test_non_boolean_signals_are_unknown(self, mocker):
+        """
+        Type drift upstream ("false" as a string is truthy) must read as
+        unknown rather than as a signal.
+        """
+        svc, _session = self._service(
+            mocker,
+            self._response(
+                mocker,
+                {
+                    "domain": "example.com",
+                    "disposable": "false",
+                    "public_domain": "true",
+                },
+            ),
+        )
+
+        result = svc.check_email("foo@example.com")
+
+        assert result.disposable is None
+        assert result.public_domain is None
+        assert not result.should_block
+        assert not result.disposable_domain
+
+    def test_the_full_address_is_sent_quoted(self, mocker):
+        """
+        The /email/ endpoint evaluates the specific address, so the whole
+        address goes into the URL path, percent-encoded. That includes "/",
+        which is valid in a local part and would otherwise split the path
+        and fail the check open.
+        """
+        svc, session = self._service(
+            mocker,
+            self._response(mocker, {"domain": "example.com", "disposable": False}),
+        )
+
+        svc.check_email("foo/bar+tag@example.com")
+
+        (url,) = session.get.call_args.args
+        assert url == "https://api.usercheck.com/email/foo%2Fbar%2Btag%40example.com"
+
+    @pytest.mark.parametrize("status_code", [400, 401, 429, 500])
+    def test_http_error_fails_open_after_spending_budget(
+        self, metrics, mocker, status_code
+    ):
+        class UserCheckHTTPError(requests.HTTPError):
+            def __init__(self):
+                self.response = SimpleNamespace(status_code=status_code)
+
+        response = mocker.Mock(spec=requests.Response)
+        response.status_code = status_code
+        response.raise_for_status.side_effect = UserCheckHTTPError()
+        ratelimiter = DummyRateLimiter()
+        hit = mocker.spy(ratelimiter, "hit")
+        svc, _session = self._service(
+            mocker, response, metrics=metrics, ratelimiter=ratelimiter
+        )
+
+        assert svc.check_email("foo@example.com") is None
+        # The budget is spent atomically before the remote call, so a
+        # repeatedly failing upstream still consumes it -- bounding how
+        # hard we hammer a failing service.
+        hit.assert_called_once_with(REMOTE_ADDR)
+        metrics.increment.assert_any_call(
+            "warehouse.email_reputation.request",
+            tags=[
+                "service:usercheck",
+                "result:error",
+                f"status_code:{status_code}",
+            ],
+        )
+
+    def test_connection_error_fails_open(self, metrics, mocker):
+        svc, session = self._service(mocker, None, metrics=metrics)
+        session.get.side_effect = requests.ConnectionError("no route to host")
+
+        assert svc.check_email("foo@example.com") is None
+        assert metrics.increment.call_args_list == [
+            mocker.call(
+                "warehouse.email_reputation.request",
+                tags=["service:usercheck", "result:error", "status_code:none"],
+            )
+        ]
+
+    def test_malformed_response_fails_open(self, metrics, mocker):
+        response = mocker.Mock(spec=requests.Response)
+        response.status_code = 200
+        response.json.side_effect = requests.exceptions.JSONDecodeError("", "", 0)
+        response.raise_for_status.return_value = None
+        svc, _session = self._service(mocker, response, metrics=metrics)
+
+        assert svc.check_email("foo@example.com") is None
+        assert metrics.increment.call_args_list == [
+            mocker.call(
+                "warehouse.email_reputation.request",
+                tags=["service:usercheck", "result:invalid_response"],
+            )
+        ]
+
+    def test_non_object_response_fails_open(self, metrics, mocker):
+        svc, _session = self._service(
+            mocker, self._response(mocker, ["not", "an", "object"]), metrics=metrics
+        )
+
+        assert svc.check_email("foo@example.com") is None
+        assert metrics.increment.call_args_list == [
+            mocker.call(
+                "warehouse.email_reputation.request",
+                tags=["service:usercheck", "result:invalid_response"],
+            )
+        ]
+
+    def test_metrics_for_successful_check(self, metrics, mocker):
+        svc, _session = self._service(
+            mocker,
+            self._response(
+                mocker, {"domain": "dropmail.me", "disposable": True, "spam": True}
+            ),
+            metrics=metrics,
+        )
+
+        svc.check_email("foo@dropmail.me")
+
+        assert metrics.increment.call_args_list == [
+            mocker.call(
+                "warehouse.email_reputation.request",
+                tags=["service:usercheck", "result:success"],
+            ),
+            mocker.call(
+                "warehouse.email_reputation.signal",
+                tags=["service:usercheck", "signal:disposable"],
+            ),
+            mocker.call(
+                "warehouse.email_reputation.signal",
+                tags=["service:usercheck", "signal:spam"],
+            ),
+        ]
+
+    def test_rate_limited_raises_instead_of_failing_open(self, metrics, mocker):
+        """
+        The limiter is keyed on the caller's own address, so a client that
+        could exhaust it at will could otherwise skip the very check that
+        gates their own submissions. No remote call is made: hit() is an
+        atomic test-and-set, and a denied hit consumes nothing further.
+        """
+        resets_in = datetime.timedelta(minutes=10)
+        ratelimiter = DummyRateLimiter()
+        hit = mocker.patch.object(ratelimiter, "hit", autospec=True, return_value=False)
+        mocker.patch.object(
+            ratelimiter, "resets_in", autospec=True, return_value=resets_in
+        )
+        svc, session = self._service(
+            mocker, None, metrics=metrics, ratelimiter=ratelimiter
+        )
+
+        with pytest.raises(TooManyEmailReputationChecks) as excinfo:
+            svc.check_email("foo@example.com")
+
+        assert excinfo.value.resets_in == resets_in
+        session.get.assert_not_called()
+        hit.assert_called_once_with(REMOTE_ADDR)
+        assert metrics.increment.call_args_list == [
+            mocker.call(
+                "warehouse.email_reputation.request",
+                tags=["service:usercheck", "result:ratelimited"],
+            )
+        ]
+
+    @pytest.mark.parametrize("remote_addr", [None, ""])
+    def test_missing_remote_addr_skips_the_ratelimiter(self, mocker, remote_addr):
+        """
+        Without a client address there is no per-client budget to spend, so
+        the check proceeds instead of pooling every request into one shared
+        bucket keyed on None or the empty string.
+        """
+        ratelimiter = DummyRateLimiter()
+        hit = mocker.patch.object(ratelimiter, "hit", autospec=True, return_value=False)
+        svc, session = self._service(
+            mocker,
+            self._response(mocker, {"domain": "example.com"}),
+            ratelimiter=ratelimiter,
+            remote_addr=remote_addr,
+        )
+
+        result = svc.check_email("foo@example.com")
+
+        assert result == EmailReputationResult()
+        hit.assert_not_called()
+        session.get.assert_called_once()
+
+    def test_no_api_key_fails_open_without_request(self, metrics, mocker):
+        # If we haven't configured an API key, don't bother the remote service.
+        svc, session = self._service(mocker, None, metrics=metrics)
+        svc.api_key = None
+
+        assert svc.check_email("foo@example.com") is None
+        session.get.assert_not_called()
+        assert metrics.increment.call_args_list == [
+            mocker.call(
+                "warehouse.email_reputation.request",
+                tags=["service:usercheck", "result:not_configured"],
+            )
+        ]
 
 
 class TestDeviceIsKnown:
