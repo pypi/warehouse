@@ -483,6 +483,43 @@ class ManageOrganizationSettingsViews:
 
         # return {**self.default_response, "save_organization_name_form": form}
 
+
+@view_defaults(
+    route_name="manage.organization.danger-zone",
+    context=Organization,
+    renderer="warehouse:templates/manage/organization/danger-zone.html",
+    uses_session=True,
+    require_active_organization=False,  # Allow deleting org with inactive billing.
+    require_csrf=True,
+    require_methods=False,
+    permission=Permissions.OrganizationsManage,
+    has_translations=True,
+    require_reauth=True,
+)
+class ManageOrganizationDangerZoneViews:
+    def __init__(self, organization, request):
+        self.organization = organization
+        self.request = request
+        self.organization_service = request.find_service(
+            IOrganizationService, context=None
+        )
+        self.billing_service = request.find_service(IBillingService, context=None)
+
+    @property
+    def active_projects(self):
+        return self.organization.projects
+
+    @property
+    def default_response(self):
+        return {
+            "organization": self.organization,
+            "active_projects": self.active_projects,
+        }
+
+    @view_config(request_method="GET")
+    def manage_organization_danger_zone(self):
+        return self.default_response
+
     @view_config(request_method="POST", request_param=["confirm_organization_name"])
     def delete_organization(self):
         confirm_organization(
