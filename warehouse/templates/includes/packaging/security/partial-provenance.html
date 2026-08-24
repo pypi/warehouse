@@ -2,7 +2,7 @@
 <div class="callout-block callout-block--warning">
   <h3 class="callout-block__heading">
     <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
-    {% trans %}Provenance incomplete{% endtrans %}
+    {% trans %}Incomplete provenance{% endtrans %}
   </h3>
   {% set counts = release.provenance_status.counts %}
   {% set without_count = counts.total_files - counts.files_with_provenance %}

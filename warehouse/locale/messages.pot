@@ -3576,6 +3576,7 @@ msgstr ""
 #: warehouse/templates/includes/packaging/metadata/provenance.html:48
 #: warehouse/templates/includes/packaging/project-release-history.html:123
 #: warehouse/templates/includes/packaging/project-status.html:63
+#: warehouse/templates/includes/packaging/security/partial-provenance.html:5
 msgid "Incomplete provenance"
 msgstr ""
 
@@ -4345,10 +4346,6 @@ msgstr ""
 
 #: warehouse/templates/includes/packaging/security/no-provenance.html:7
 msgid "None of the files in this release were uploaded with provenance metadata."
-msgstr ""
-
-#: warehouse/templates/includes/packaging/security/partial-provenance.html:5
-msgid "Provenance incomplete"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/security/partial-provenance.html:18
