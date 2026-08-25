@@ -1067,8 +1067,8 @@ msgstr ""
 #: warehouse/templates/base.html:451 warehouse/templates/base.html:457
 #: warehouse/templates/base.html:466 warehouse/templates/base.html:479
 #: warehouse/templates/base.html:488 warehouse/templates/base.html:494
-#: warehouse/templates/base.html:500 warehouse/templates/base.html:523
-#: warehouse/templates/base.html:532
+#: warehouse/templates/base.html:500 warehouse/templates/base.html:522
+#: warehouse/templates/base.html:531
 #: warehouse/templates/includes/accounts/profile-callout.html:5
 #: warehouse/templates/includes/file-details.html:120
 #: warehouse/templates/includes/packaging/project-files.html:48
@@ -1496,11 +1496,11 @@ msgstr ""
 msgid "Switch to desktop version"
 msgstr ""
 
-#: warehouse/templates/base.html:528 warehouse/templates/pages/sitemap.html:4
+#: warehouse/templates/base.html:527 warehouse/templates/pages/sitemap.html:4
 msgid "Site map"
 msgstr ""
 
-#: warehouse/templates/base.html:532
+#: warehouse/templates/base.html:531
 #, python-format
 msgid ""
 "Deployed from <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
