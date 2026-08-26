@@ -1,4 +1,8 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
+{# is_selected controls whether the checksum's clipboard controller connects on render.
+   Callers that don't pass it (e.g. file-details.html, which never hides this include)
+   get the always-live default; project-security.html overrides it per file. #}
+{% set is_selected = is_selected | default(true) %}
 {% set is_slsa = "slsa" in viewer.predicate_type %}
 {% if bundle.publisher.kind == "GitHub" %}
   {% set platform_name = "GitHub Actions" %}
@@ -221,7 +225,7 @@
           <dt>{% trans %}SHA-256 checksum{% endtrans %}</dt>
           <dd>
             <code class="code-block code-block--with-copy attestation__checksum"
-                  data-controller="clipboard">
+                  {% if is_selected %}data-controller="clipboard"{% endif %}>
               <span data-clipboard-target="source">{{ viewer.subject_digest }}</span>
               <button type="button"
                       class="button button--small copy-tooltip copy-tooltip-w"

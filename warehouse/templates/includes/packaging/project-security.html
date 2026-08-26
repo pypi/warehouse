@@ -43,10 +43,9 @@
     </div>
   {% endif %}
   {# TODO: filter/sort and select-a-file interactivity, once the viewer has JS-driven selection #}
-  {% set viewer_files = files[:10] %}
+  {% set viewer_files = files %}
   {% set selected_file = viewer_files[0] %}
-  {% set file = selected_file %}
-  <div class="attestations-viewer">
+  <div class="attestations-viewer" data-controller="attestations-viewer">
     <div class="attestations-viewer__sidebar">
       <div class="attestations-viewer__sidebar-header">
         <div class="attestations-viewer__sidebar-title">
@@ -73,71 +72,76 @@
         <ul class="attestations-viewer__file-list">
           {% for vfile in viewer_files %}
             {% set attestation_count = (vfile.provenance.as_model.attestation_bundles | map(attribute='attestations') | map('length') | sum) if vfile.provenance else 0 %}
-            <li class="attestations-viewer__file-item{{ ' attestations-viewer__file-item--is-selected' if vfile == selected_file }}">
-              {% if attestation_count %}
-                <i class="fa-solid fa-circle-check attestations-viewer__file-icon primary"
-                   aria-hidden="true"></i>
-              {% else %}
-                <i class="fa-solid fa-circle-xmark attestations-viewer__file-icon muted"
-                   aria-hidden="true"></i>
-              {% endif %}
-              <span class="attestations-viewer__file-info">
-                <span class="attestations-viewer__file-name">{{ vfile.filename }}</span>
-                <span class="attestations-viewer__file-date">
-                  <i class="fa-regular fa-calendar" aria-hidden="true"></i>
-                  {{ humanize(vfile.upload_time) }}
+            <li class="attestations-viewer__file-item{{ ' attestations-viewer__file-item--is-selected' if vfile == selected_file }}"
+                data-attestations-viewer-target="item"
+                data-filename="{{ vfile.filename }}">
+              <button type="button"
+                      data-action="attestations-viewer#select"
+                      aria-pressed="{{ 'true' if vfile == selected_file else 'false' }}">
+                {% if attestation_count %}
+                  <i class="fa-solid fa-circle-check attestations-viewer__file-icon primary"
+                    aria-hidden="true"></i>
+                {% else %}
+                  <i class="fa-solid fa-circle-xmark attestations-viewer__file-icon muted"
+                    aria-hidden="true"></i>
+                {% endif %}
+                <span class="attestations-viewer__file-info">
+                  <span class="attestations-viewer__file-name">{{ vfile.filename }}</span>
+                  <span class="attestations-viewer__file-date">
+                    <i class="fa-regular fa-calendar" aria-hidden="true"></i>
+                    {{ humanize(vfile.upload_time) }}
+                  </span>
                 </span>
-              </span>
-              {% if attestation_count > 1 %}
-                {% set attestation_count_label %}
-                  {% trans count=attestation_count %}{{ count }} attestation
-                {% pluralize %}
-                  {{ count }} attestations{% endtrans %}
-                {% endset %}
-                <span class="badge badge--neutral badge--compact"
-                      aria-label="{{ attestation_count_label }}">{{ attestation_count }}</span>
-              {% elif attestation_count == 1 %}
-                <span class="sr-only">{% trans %}1 attestation{% endtrans %}</span>
-              {% else %}
-                <span class="sr-only">{% trans %}No attestations{% endtrans %}</span>
-              {% endif %}
+                {% if attestation_count > 1 %}
+                  {% set attestation_count_label %}
+                    {% trans count=attestation_count %}{{ count }} attestation
+                  {% pluralize %}
+                    {{ count }} attestations{% endtrans %}
+                  {% endset %}
+                  <span class="badge badge--neutral badge--compact"
+                        aria-label="{{ attestation_count_label }}">{{ attestation_count }}</span>
+                {% endif %}
+              </button>
             </li>
           {% endfor %}
         </ul>
-        {% if files|length > viewer_files|length %}
-          <p class="attestations-viewer__file-list-note">
-            {% trans shown=viewer_files|length, total=files|length %}Showing {{ shown }} of {{ total }} files{% endtrans %}
-          </p>
-        {% endif %}
       </div>
     </div>
     <div class="attestations-viewer__content">
-      {% set selected_attestation_count = (selected_file.provenance.as_model.attestation_bundles | map(attribute='attestations') | map('length') | sum) if selected_file.provenance else 0 %}
-      {% set filename = selected_file.filename %}
-      {% set href = "#" + filename %}
-      <h3 class="no-top-margin">
-        {% trans count=selected_attestation_count, filename=filename, href=href %}Attestation for <a href="{{ href }}"
+      {% for vfile in viewer_files %}
+        {% set is_selected = vfile == selected_file %}
+        {% set file_attestation_count = (vfile.provenance.as_model.attestation_bundles | map(attribute='attestations') | map('length') | sum) if vfile.provenance else 0 %}
+        {% set filename = vfile.filename %}
+        {% set href = "#" + filename %}
+        <div class="attestations-viewer__content-panel{{ '' if is_selected else ' hidden' }}"
+             data-attestations-viewer-target="content"
+             data-filename="{{ filename }}">
+          <h3 class="no-top-margin">
+            {% trans count=file_attestation_count, filename=filename, href=href %}Attestation for <a href="{{ href }}"
     data-project-tabs-target="tab"
     data-action="project-tabs#onTabClick">{{ filename }}</a>
-      {% pluralize %}
-        Attestations for <a href="{{ href }}"
+          {% pluralize %}
+            Attestations for <a href="{{ href }}"
     data-project-tabs-target="tab"
     data-action="project-tabs#onTabClick">{{ filename }}</a>{% endtrans %}
-      </h3>
-      {% if selected_file.provenance %}
-        {% set provenance = selected_file.provenance.as_model %}
-        {% for bundle in provenance.attestation_bundles %}
-          {% for attestation in bundle.attestations %}
-            {% set viewer = PEP740AttestationViewer(bundle.publisher, attestation) %}
-            {% include "includes/packaging/security/attestation.html" %}
-          {% endfor %}
-        {% endfor %}
-      {% else %}
-        <div class="attestations-viewer__empty">
-          <i class="fa-solid fa-circle-xmark muted" aria-hidden="true"></i>
-          {% trans %}This file was uploaded without provenance metadata.{% endtrans %}
+          </h3>
+          {% if vfile.provenance %}
+            {% set file = vfile %}
+            {% set provenance = vfile.provenance.as_model %}
+            {% for bundle in provenance.attestation_bundles %}
+              {% for attestation in bundle.attestations %}
+                {% set viewer = PEP740AttestationViewer(bundle.publisher, attestation) %}
+                {% include "includes/packaging/security/attestation.html" %}
+              {% endfor %}
+            {% endfor %}
+          {% else %}
+            <div class="attestations-viewer__empty">
+              <i class="fa-solid fa-circle-xmark muted" aria-hidden="true"></i>
+              {% trans %}This file was uploaded without provenance metadata.{% endtrans %}
+            </div>
+          {% endif %}
         </div>
-      {% endif %}
+      {% endfor %}
     </div>
   </div>
   <h3>{% trans %}A note on package security{% endtrans %}</h3>
