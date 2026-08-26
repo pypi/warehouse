@@ -1351,8 +1351,7 @@ msgstr ""
 msgid "Search PyPI"
 msgstr ""
 
-#: warehouse/templates/base.html:306 warehouse/templates/base.html:339
-#: warehouse/templates/index.html:36
+#: warehouse/templates/base.html:306 warehouse/templates/index.html:36
 msgid "Type '/' to search projects"
 msgstr ""
 
@@ -1360,6 +1359,11 @@ msgstr ""
 #: warehouse/templates/error-base-with-search.html:19
 #: warehouse/templates/index.html:45
 msgid "Search"
+msgstr ""
+
+#: warehouse/templates/base.html:339
+#: warehouse/templates/error-base-with-search.html:13
+msgid "Search projects"
 msgstr ""
 
 #: warehouse/templates/base.html:365
@@ -1513,10 +1517,6 @@ msgstr ""
 
 #: warehouse/templates/confirm-action.html:11
 msgid "Are you sure?"
-msgstr ""
-
-#: warehouse/templates/error-base-with-search.html:13
-msgid "Search projects"
 msgstr ""
 
 #: warehouse/templates/error-base.html:27
