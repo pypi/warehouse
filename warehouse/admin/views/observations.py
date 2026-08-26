@@ -1,13 +1,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
-"""Admin Views related to Observations"""
+"""Admin Views related to Observations
+
+The observations list is a Tabulator table fed by a JSON endpoint speaking
+Tabulator's remote pagination/sort/filter protocol, mirroring
+warehouse.admin.views.journals.
+"""
 
 from __future__ import annotations
 
 import re
 
-from collections.abc import Mapping
-from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 
@@ -18,7 +21,14 @@ from pyramid.view import view_config
 from sqlalchemy import func, or_, select
 
 from warehouse.accounts.models import User
-from warehouse.admin.views.helpers import estimate_row_count, parse_days_param
+from warehouse.admin.views.helpers import (
+    TABULATOR_STATEMENT_TIMEOUT_MS,
+    TabulatorParams,
+    execute_bounded,
+    parse_days_param,
+    parse_tabulator_params,
+    tabulator_page,
+)
 from warehouse.authnz import Permissions
 from warehouse.cache.http import add_vary
 from warehouse.observations.models import (
@@ -28,8 +38,7 @@ from warehouse.observations.models import (
     Observer,
 )
 from warehouse.observations.utils import calc_accuracy, classify_observation
-from warehouse.organizations.models import OrganizationApplication
-from warehouse.packaging.models import JournalEntry, Project
+from warehouse.packaging.models import JournalEntry
 
 if TYPE_CHECKING:
     from typing import Any
@@ -42,27 +51,6 @@ if TYPE_CHECKING:
 # Pattern to extract project name from related_name repr string
 # Format: Project(id=..., name='project-name', ...)
 _PROJECT_NAME_PATTERN = re.compile(r"name='([^']+)'")
-
-# Server-side DataTables constants
-_MAX_PAGE_LENGTH = 100
-_MAX_SEARCH_LENGTH = 500
-_DEFAULT_PAGE_LENGTH = 25
-
-# Filtering by kind lets us query the single concrete observation table for that
-# kind instead of the polymorphic UNION over every *_observations table.
-_KIND_TO_MODEL: dict[str, type[Observation]] = {
-    "is_malware": Project.Observation,
-    "is_dependency_confusion": Project.Observation,
-    "is_spam": Project.Observation,
-    "is_typosnyper_match": Project.Observation,
-    "something_else": Project.Observation,
-    "account_abuse": User.Observation,
-    "account_recovery": User.Observation,
-    "account_export": User.Observation,
-    "email_unverified": User.Observation,
-    "information_request": OrganizationApplication.Observation,
-    "admin_note": OrganizationApplication.Observation,
-}
 
 _KIND_TO_ADMIN_ROUTE: dict[str, str] = {
     "is_malware": "admin.project.detail",
@@ -78,126 +66,65 @@ _KIND_TO_ADMIN_ROUTE: dict[str, str] = {
     "admin_note": "admin.organization_application.detail",
 }
 
-# Allowlist of DataTables `columns[i][name]` values that may drive ORDER BY.
+# Allowlist of Tabulator `sort[0][field]` values that may drive ORDER BY.
 # Every entry's name is also a column attribute on the concrete tables.
-_SORTABLE_COLUMNS: frozenset[str] = frozenset({"created", "kind"})
+_SORTABLE_FIELDS: frozenset[str] = frozenset({"created", "kind"})
+
+# `kind` comes from the dropdown and is checked against OBSERVATION_KIND_MAP
+# in `_parse_params`; `summary` is free text matched against both the summary
+# and the related object's name.
+_FILTER_FIELDS: frozenset[str] = frozenset({"kind", "summary"})
 
 _OBSERVATION_TABLE_NAMES: tuple[str, ...] = tuple(
     cls.__tablename__ for cls in Observation.__subclasses__()
 )
 
 
-@dataclass(frozen=True)
-class _DataTablesParams:
-    draw: int
-    start: int
-    length: int
-    search_value: str
-    sort_column: str
-    sort_dir: str
-    kind_filter: str | None
-
-
-def _parse_datatables_params(params: Mapping[str, str]) -> _DataTablesParams:
-    """Parse and validate the DataTables 1.10+ server-side query params."""
-    try:
-        draw = int(params.get("draw", "1"))
-    except TypeError, ValueError:
-        raise HTTPBadRequest("'draw' must be an integer.") from None
-
-    try:
-        start = max(0, int(params.get("start", "0")))
-    except TypeError, ValueError:
-        raise HTTPBadRequest("'start' must be an integer.") from None
-
-    try:
-        raw_length = int(params.get("length", str(_DEFAULT_PAGE_LENGTH)))
-    except TypeError, ValueError:
-        raise HTTPBadRequest("'length' must be an integer.") from None
-    if raw_length == -1:
-        length = _MAX_PAGE_LENGTH
-    elif raw_length <= 0:
-        length = 1
-    else:
-        length = min(raw_length, _MAX_PAGE_LENGTH)
-
-    search_value = (params.get("search[value]") or "").strip()
-    if len(search_value) > _MAX_SEARCH_LENGTH:
-        raise HTTPBadRequest(
-            f"'search[value]' must be <= {_MAX_SEARCH_LENGTH} characters."
-        )
-
-    sort_column = "created"
-    sort_dir = "desc"
-    order_idx_raw = params.get("order[0][column]")
-    if order_idx_raw is not None:
-        try:
-            order_idx = int(order_idx_raw)
-        except TypeError, ValueError:
-            raise HTTPBadRequest("'order[0][column]' must be an integer.") from None
-        requested_dir = params.get("order[0][dir]", "desc")
-        if requested_dir not in ("asc", "desc"):
-            raise HTTPBadRequest("'order[0][dir]' must be 'asc' or 'desc'.")
-        sort_dir = requested_dir
-        col_name = params.get(f"columns[{order_idx}][name]")
-        if col_name in _SORTABLE_COLUMNS:
-            sort_column = col_name
-
-    kind_filter: str | None = None
-    # Find the kind column's per-column search value. DataTables sends
-    # columns[0..N]; we stop when we encounter an index with no [name].
-    i = 0
-    while True:
-        col_name = params.get(f"columns[{i}][name]")
-        if col_name is None:
-            break
-        if col_name == "kind":
-            raw_kind = (params.get(f"columns[{i}][search][value]") or "").strip()
-            if raw_kind and raw_kind in OBSERVATION_KIND_MAP:
-                kind_filter = raw_kind
-            break
-        i += 1
-
-    return _DataTablesParams(
-        draw=draw,
-        start=start,
-        length=length,
-        search_value=search_value,
-        sort_column=sort_column,
-        sort_dir=sort_dir,
-        kind_filter=kind_filter,
-    )
-
-
 def _base_and_conditions(
-    params: _DataTablesParams,
+    params: TabulatorParams,
 ) -> tuple[type[Observation], list[ColumnElement[bool]]]:
     """Pick the query target and build the WHERE conditions for a request.
 
-    When kind is filtered we target the single concrete observation table;
-    without a filter we fall back to the polymorphic union. The concrete table
-    can still hold multiple kinds (e.g. project_observations holds is_malware,
-    is_spam, ...), so the kind predicate is retained.
+    Always the polymorphic union over every *_observations table. A kind does
+    not pin down a table: the admin release page offers every ObservationKind,
+    so an "Is Malware" report can sit in release_observations as readily as in
+    project_observations, and narrowing to one of them would drop the other
+    from a filtered page while the unfiltered list still showed it.
     """
-    base: type[Observation] = (
-        _KIND_TO_MODEL[params.kind_filter] if params.kind_filter else Observation
-    )
+    base: type[Observation] = Observation
     conditions: list[ColumnElement[bool]] = []
-    if params.kind_filter:
-        conditions.append(base.kind == params.kind_filter)
-    if params.search_value:
-        pattern = f"%{params.search_value}%"
+    kind_filter = params.filters.get("kind")
+    if kind_filter:
+        conditions.append(base.kind == kind_filter)
+    search_value = params.filters.get("summary")
+    if search_value:
+        # autoescape, or a summary containing a literal % or _ silently
+        # searches for a wildcard instead.
         conditions.append(
-            or_(base.summary.ilike(pattern), base.related_name.ilike(pattern))
+            or_(
+                base.summary.icontains(search_value, autoescape=True),
+                base.related_name.icontains(search_value, autoescape=True),
+            )
         )
     return base, conditions
 
 
-def _build_observations_query(params: _DataTablesParams) -> Select[Any]:
-    """Build the main paginated SELECT with a windowed filtered count."""
+def _build_observations_query(params: TabulatorParams) -> Select[Any]:
+    """Build the page SELECT, fetching one extra row to detect a next page.
+
+    Neither sortable column is unique — `created` is a transaction-scoped
+    `now()`, so rows written together tie exactly, and `kind` has a handful of
+    values across the whole table. Paging is LIMIT/OFFSET over independent
+    statements, so without a unique tiebreak PostgreSQL may order a tied group
+    differently per page, repeating some rows and skipping others.
+    """
     base, conditions = _base_and_conditions(params)
-    sort_col = getattr(base, params.sort_column)
-    order_clause = sort_col.desc() if params.sort_dir == "desc" else sort_col.asc()
+    sort_col = getattr(base, params.sort_field)
+    descending = params.sort_dir == "desc"
+    order_by = (
+        sort_col.desc() if descending else sort_col.asc(),
+        base.id.desc() if descending else base.id.asc(),
+    )
 
     return (
         select(
@@ -208,21 +135,11 @@ def _build_observations_query(params: _DataTablesParams) -> Select[Any]:
             base.related_name,
             base.related_id,
             base.observer_id,
-            func.count().over().label("total_filtered"),
         )
         .where(*conditions)
-        .order_by(order_clause)
-        .limit(params.length)
-        .offset(params.start)
-    )
-
-
-def _count_filtered(request: Request, params: _DataTablesParams) -> int:
-    """Count matching rows when the page is empty but a filter is active."""
-    base, conditions = _base_and_conditions(params)
-    return (
-        request.db.scalar(select(func.count()).select_from(base).where(*conditions))
-        or 0
+        .order_by(*order_by)
+        .limit(params.size + 1)
+        .offset(params.offset)
     )
 
 
@@ -267,22 +184,40 @@ def _build_related_link(
     return None  # pragma: no cover -- all routes covered above
 
 
-def _render_datatables_payload(request: Request) -> dict[str, Any]:
-    params = _parse_datatables_params(request.params)
+def _parse_params(request: Request) -> TabulatorParams:
+    """Parse this view's Tabulator params, validating the kind value.
+
+    The shared parser allowlists field names, not values, so an unknown kind
+    would otherwise scan every observation table to return nothing, and say so
+    with an empty table rather than with the typo that caused it.
+    """
+    params = parse_tabulator_params(
+        request.params,
+        sortable_fields=_SORTABLE_FIELDS,
+        default_sort_field="created",
+        filter_fields=_FILTER_FIELDS,
+    )
+    kind = params.filters.get("kind")
+    if kind is not None and kind not in OBSERVATION_KIND_MAP:
+        raise HTTPBadRequest(f"Unknown observation kind {kind!r}.")
+    return params
+
+
+def _render_tabulator_payload(request: Request) -> dict[str, Any]:
+    """Execute the page query and shape Tabulator's expected response."""
+    params = _parse_params(request)
     stmt = _build_observations_query(params)
-    rows = request.db.execute(stmt).all()
+    rows = execute_bounded(request, stmt, timeout_ms=TABULATOR_STATEMENT_TIMEOUT_MS)
+    page_rows, pagination = tabulator_page(
+        request, rows, params, table_names=_OBSERVATION_TABLE_NAMES
+    )
 
-    if rows:
-        records_filtered = rows[0].total_filtered
-    elif params.start > 0 or params.search_value or params.kind_filter:
-        records_filtered = _count_filtered(request, params)
-    else:
-        records_filtered = 0
-
-    observer_usernames = _resolve_observers(request, {row.observer_id for row in rows})
+    observer_usernames = _resolve_observers(
+        request, {row.observer_id for row in page_rows}
+    )
 
     data: list[dict[str, Any]] = []
-    for row in rows:
+    for row in page_rows:
         parsed_name = _parse_project_name_from_repr(row.related_name)
         display = parsed_name or row.related_name
         related_link = _build_related_link(
@@ -315,12 +250,7 @@ def _render_datatables_payload(request: Request) -> dict[str, Any]:
             }
         )
 
-    return {
-        "draw": params.draw,
-        "recordsTotal": estimate_row_count(request, _OBSERVATION_TABLE_NAMES),
-        "recordsFiltered": records_filtered,
-        "data": data,
-    }
+    return {**pagination, "data": data}
 
 
 def _calc_stats(times: list) -> dict | None:
@@ -395,7 +325,7 @@ def observations_list(request: Request) -> dict[str, Any]:
     require_methods=False,
 )
 def observations_list_json(request: Request) -> dict[str, Any]:
-    return _render_datatables_payload(request)
+    return _render_tabulator_payload(request)
 
 
 def _get_corroboration_stats(observations: list) -> tuple[dict, dict]:
