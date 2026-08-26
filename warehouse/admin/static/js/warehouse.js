@@ -12,8 +12,6 @@ import "admin-lte/plugins/datatables-buttons/js/dataTables.buttons";
 import "admin-lte/plugins/datatables-buttons/js/buttons.bootstrap4";
 import "admin-lte/plugins/datatables-buttons/js/buttons.html5";
 import "admin-lte/plugins/datatables-buttons/js/buttons.colVis";
-import "admin-lte/plugins/datatables-rowgroup/js/dataTables.rowGroup";
-import "admin-lte/plugins/datatables-rowgroup/js/rowGroup.bootstrap4";
 
 // Import Chart JS
 import "admin-lte/plugins/chart.js/Chart";
@@ -162,28 +160,6 @@ if (tokenTable.length) {
   table.columns([".last_used", ".created"]).order([1, "desc"]).draw();
   table.columns([".permissions_caveat"]).visible(false);
   new $.fn.dataTable.Buttons(table, {buttons: ["colvis"]});
-  table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
-}
-
-// Malware Reports
-let malwareReportsTable = $("#malware-reports");
-if (malwareReportsTable.length) {
-  let table = malwareReportsTable.DataTable({
-    displayLength: 25,
-    lengthChange: false,
-    order: [[1, "desc"], [0, "asc"], [3, "desc"]],  // report count, alpha name, recent date
-    responsive: true,
-    rowGroup: {
-      dataSrc: 0,
-      // display row count in group header
-      startRender: function (rows, group) {
-        return group + " (" + rows.count() + ")";
-      },
-    },
-  });
-  // hide the project name and count, since they're in the group title
-  table.columns([0, 1]).visible(false);
-  new $.fn.dataTable.Buttons(table, {buttons: ["copy", "csv", "colvis"]});
   table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
 }
 

@@ -32,20 +32,23 @@ async function render(html) {
   return table;
 }
 
+// Mirrors the malware reports list.
 const GROUPED = `
   <table data-tabulator
          tabulator-layout="fitDataFill"
+         tabulator-responsiveLayout="collapse"
          tabulator-groupBy="project_name"
-         tabulator-pagination="true"
-         tabulator-paginationSize="25"
-         tabulator-paginationSizeSelector="25,50,100">
+         tabulator-headerSortTristate="true"
+         tabulator-maxHeight="70vh">
     <thead><tr>
       <th tabulator-visible="false">Project Name</th><th>Summary</th>
+      <th tabulator-responsive="2">Created</th>
+      <th tabulator-headerSort="false" tabulator-responsive="0">Details</th>
     </tr></thead>
     <tbody>
-      <tr><td><a href="/admin/projects/evil-pkg/">evil-pkg</a></td><td>one</td></tr>
-      <tr><td><a href="/admin/projects/evil-pkg/">evil-pkg</a></td><td>two</td></tr>
-      <tr><td><a href="/admin/projects/gone-pkg/">gone-pkg</a></td><td>three</td></tr>
+      <tr><td><a href="/admin/projects/evil-pkg/">evil-pkg</a></td><td>one</td><td>2026-01-02 00:00:00 UTC</td><td>view</td></tr>
+      <tr><td><a href="/admin/projects/evil-pkg/">evil-pkg</a></td><td>two</td><td>2026-01-01 00:00:00 UTC</td><td>view</td></tr>
+      <tr><td><code>gone-pkg</code> <span>removed</span></td><td>three</td><td>2026-01-03 00:00:00 UTC</td><td>view</td></tr>
     </tbody>
   </table>`;
 
@@ -59,7 +62,18 @@ describe("declarative admin tables", () => {
     // Grouping is the only thing rendering the project name on the malware
     // reports page, since its column is hidden.
     expect(table.getGroups()).toHaveLength(2);
-    expect(table.getColumns()[0].isVisible()).toBe(false);
+    expect(table.getColumns()[1].isVisible()).toBe(false);
+  });
+
+  it("caps the height and keeps the action column from folding", async () => {
+    const table = await render(GROUPED);
+    expect(table.options.maxHeight).toBe("70vh");
+    expect(table.options.height).toBe(false);
+    const details = table.getColumns().at(-1);
+    expect(details.getDefinition().title).toBe("Details");
+    expect(table.modules.responsiveLayout.columns).not.toContain(
+      details._column,
+    );
   });
 
   it("applies the layout mode named in the attribute", async () => {
@@ -68,7 +82,14 @@ describe("declarative admin tables", () => {
   });
 
   it("gives list and number options their real types", async () => {
-    const table = await render(GROUPED);
+    const table = await render(`
+      <table data-tabulator
+             tabulator-pagination="true"
+             tabulator-paginationSize="25"
+             tabulator-paginationSizeSelector="25,50,100">
+        <thead><tr><th>Name</th></tr></thead>
+        <tbody><tr><td>pkg</td></tr></tbody>
+      </table>`);
     expect(table.options.paginationSize).toBe(25);
     expect(table.options.paginationSizeSelector).toEqual([25, 50, 100]);
   });
@@ -226,6 +247,38 @@ describe("declarative admin tables", () => {
     // Both tables built: a throw while reading the first one's attributes
     // would have left the second as a plain <table>.
     expect(document.querySelectorAll("div.tabulator")).toHaveLength(2);
+  });
+
+  it("cycles a tristate column back to its original order on the third click", async () => {
+    const NAMES = ["Banana", "Apple", "Cherry"];
+    const unsortedTable = (tristate) => `
+      <table data-tabulator${tristate ? " tabulator-headerSortTristate=\"true\"" : ""}>
+        <thead><tr><th>Name</th></tr></thead>
+        <tbody>${NAMES.map((name) => `<tr><td>${name}</td></tr>`).join("")}</tbody>
+      </table>`;
+    const clickHeader = (table) =>
+      table
+        .getColumn("name")
+        .getElement()
+        .dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    const names = (table) => table.getData("active").map((row) => row.name);
+
+    const table = await render(unsortedTable(true));
+    clickHeader(table);
+    expect(names(table)).toEqual(["Apple", "Banana", "Cherry"]);
+    clickHeader(table);
+    clickHeader(table);
+    // The third click of a tristate column clears the sort rather than
+    // reversing it again, so the rows fall back to render order.
+    expect(names(table)).toEqual(NAMES);
+
+    const plain = await render(unsortedTable(false));
+    clickHeader(plain);
+    clickHeader(plain);
+    clickHeader(plain);
+    // Without the attribute a third click only reverses the sort again, so a
+    // table that never asked for tristate never makes it back to that order.
+    expect(names(plain)).not.toEqual(NAMES);
   });
 });
 

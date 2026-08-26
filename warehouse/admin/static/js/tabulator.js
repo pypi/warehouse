@@ -92,6 +92,7 @@ Tabulator.extendModule("sort", "sorters", {
 const TABLE_OPTIONS = {
   layout: ["layout", String],
   height: ["height", String],
+  maxheight: ["maxHeight", String],
   responsivelayout: ["responsiveLayout", String],
   responsivelayoutcollapsestartopen: [
     "responsiveLayoutCollapseStartOpen",
@@ -100,6 +101,7 @@ const TABLE_OPTIONS = {
   placeholder: ["placeholder", String],
   groupby: ["groupBy", String],
   pagination: ["pagination", (v) => v !== "false"],
+  headersorttristate: ["headerSortTristate", (v) => v !== "false"],
   paginationsize: ["paginationSize", Number],
   paginationsizeselector: [
     "paginationSizeSelector",
@@ -243,6 +245,10 @@ function numberColumnOptions(table) {
 
 function mountTable(element) {
   const options = tableOptions(element);
+  // headerSortTristate is a Tabulator column option, not a table one, so
+  // columnDefaults is what lets one attribute apply it to every column.
+  const headerSortTristate = options.headerSortTristate;
+  delete options.headerSortTristate;
 
   options.columnDefaults = {
     // Cell values are read out of the DOM as innerHTML, so they arrive
@@ -277,6 +283,7 @@ function mountTable(element) {
     // Admins can still drag a column wider.
     maxInitialWidth: 480,
     variableHeight: true,
+    headerSortTristate,
   };
 
   if (options.responsiveLayout === "collapse") {
