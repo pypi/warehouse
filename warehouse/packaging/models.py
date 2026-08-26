@@ -28,6 +28,7 @@ from sqlalchemy import (
     UniqueConstraint,
     cast,
     event,
+    exists,
     func,
     or_,
     orm,
@@ -1235,19 +1236,25 @@ class File(HasEvents, db.Model):
         passive_deletes=True,
     )
 
-    @property
+    @classmethod
+    def _trusted_publisher_event_filter(cls):
+        return or_(
+            cls.Event.additional["uploaded_via_trusted_publisher"].as_boolean(),
+            cls.Event.additional["publisher_url"].as_string().is_not(None),
+        )
+
+    @hybrid_property
     def uploaded_via_trusted_publisher(self) -> bool:
         """Return True if the file was uploaded via a trusted publisher."""
-        return (
-            self.events.where(
-                or_(
-                    self.Event.additional[
-                        "uploaded_via_trusted_publisher"
-                    ].as_boolean(),
-                    self.Event.additional["publisher_url"].as_string().is_not(None),
-                )
-            ).count()
-            > 0
+        return self.events.where(self._trusted_publisher_event_filter()).count() > 0
+
+    @uploaded_via_trusted_publisher.expression  # type: ignore[no-redef]
+    def uploaded_via_trusted_publisher(cls):
+        # A correlated EXISTS, so this can run as a column in the query
+        # that lists a project's files instead of a per-file COUNT query.
+        return exists().where(
+            cls.Event.source_id == cls.id,
+            cls._trusted_publisher_event_filter(),
         )
 
     @hybrid_property

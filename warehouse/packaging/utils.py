@@ -49,9 +49,14 @@ def _simple_index(request, serial):
 
 
 def _simple_detail(project, request):
-    # Get all of the files for this project.
-    files = sorted(
-        request.db.query(File)
+    # Get all of the files for this project, along with whether each was
+    # uploaded via a trusted publisher. That flag is computed as a
+    # correlated EXISTS column here, rather than via the `File` property of
+    # the same name, so a project with hundreds of files across many
+    # releases costs one query instead of one `COUNT` query per file.
+    trusted_publishing = File.uploaded_via_trusted_publisher.label("trusted_publishing")
+    rows = sorted(
+        request.db.query(File, trusted_publishing)
         .options(joinedload(File.release))
         .join(Release)
         .filter(Release.project == project)
@@ -66,8 +71,12 @@ def _simple_detail(project, request):
             Project.lifecycle_status.is_distinct_from(LifecycleStatus.QuarantineEnter)
         )
         .all(),
-        key=lambda f: (packaging_legacy.version.parse(f.release.version), f.filename),
+        key=lambda row: (
+            packaging_legacy.version.parse(row[0].release.version),
+            row[0].filename,
+        ),
     )
+    files = [file for file, _ in rows]
     versions = sorted(
         {f.release.version for f in files}, key=packaging_legacy.version.parse
     )
@@ -117,9 +126,9 @@ def _simple_detail(project, request):
                     else None
                 ),
                 "_uploaded_via": file.uploaded_via or None,
-                "_trusted_publishing": file.uploaded_via_trusted_publisher,
+                "_trusted_publishing": is_trusted_publisher,
             }
-            for file in files
+            for file, is_trusted_publisher in rows
         ],
     }
 
