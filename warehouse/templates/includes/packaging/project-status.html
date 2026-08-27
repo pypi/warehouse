@@ -1,5 +1,5 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-{% if late_file_count > 0 %}
+{% if late_file_count > 0 and project.lifecycle_status != "quarantine-enter" and release.lifecycle_status != "quarantine-enter" %}
   <div class="project-status project-status--late-files">
     <div class="project-status__content">
       <strong class="project-status__label">
