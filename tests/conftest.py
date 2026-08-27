@@ -315,10 +315,9 @@ def pyramid_user(pyramid_request):
 
 
 @pytest.fixture
-def cli():
-    runner = click.testing.CliRunner()
-    with runner.isolated_filesystem():
-        yield runner
+def cli(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    return click.testing.CliRunner()
 
 
 @pytest.fixture(scope="session")
