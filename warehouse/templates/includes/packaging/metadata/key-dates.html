@@ -9,6 +9,9 @@
     </details>
     <div class="sidebar-section__data-block">
       {% set events = [{'date': release.created, 'key': 'released'}] %}
+      {% if late_file_count > 0 and last_upload %}
+        {% set _ = events.append({'date': last_upload, 'key': 'last-file-added'}) %}
+      {% endif %}
       {% if release.yanked and release.yanked_date %}
         {% set _ = events.append({'date': release.yanked_date, 'key': 'yanked'}) %}
       {% endif %}
@@ -25,6 +28,8 @@
           <li>
             {% if event.key == 'released' %}
               <strong>{% trans %}Released:{% endtrans %}</strong> {{ humanize(event.date) }}
+            {% elif event.key == 'last-file-added' %}
+              <strong>{% trans %}Last file added:{% endtrans %}</strong> {{ humanize(event.date) }}
             {% elif event.key == 'yanked' %}
               <strong>{% trans %}Yanked:{% endtrans %}</strong> {{ humanize(event.date) }}
             {% elif event.key == 'quarantined' %}
@@ -49,6 +54,16 @@
         {% elif project.lifecycle_status != "quarantine-enter" and release.lifecycle_status != "quarantine-enter" %}
           <span class="badge badge--key-dates badge--success">{% trans %}Latest release{% endtrans %}</span>
         {% endif %}
+      {% endif %}
+      {% if late_file_count > 0 and last_upload %}
+        <a class="badge badge--warning"
+           href="#files"
+           data-project-tabs-target="tab"
+           data-action="project-tabs#onTabClick">
+          {% trans count=late_file_count %}File added late
+        {% pluralize %}
+          Files added late{% endtrans %}
+        </a>
       {% endif %}
     </div>
   </div>
