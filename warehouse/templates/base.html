@@ -25,38 +25,33 @@
 {%- endmacro %}
 {% macro main_navigation_logged_out(next_url=none) -%}
   {% set login_url = request.route_path('accounts.login', _query={'next': next_url}) if next_url else request.route_path('accounts.login') %}
-  <div id="user-indicator"
-       class="horizontal-menu horizontal-menu--light horizontal-menu--tall">
-    <nav class="horizontal-menu horizontal-menu--light horizontal-menu--tall hide-on-tablet"
+  <div class="site-menu">
+    <nav class="site-menu site-menu--dropdown-below-desktop"
          aria-label="{% trans %}Main navigation{% endtrans %}">
       <ul>
-        <li class="horizontal-menu__item">
-          <a href="{{ request.route_path('help') }}" class="horizontal-menu__link">{% trans %}Help{% endtrans %}</a>
+        <li class="site-menu__item">
+          <a href="{{ request.route_path('help') }}" class="site-menu__link">{% trans %}Help{% endtrans %}</a>
         </li>
-        <li class="horizontal-menu__item">
-          <a href="{{ request.user_docs_url('/') }}" class="horizontal-menu__link">{% trans %}Docs{% endtrans %}</a>
+        <li class="site-menu__item">
+          <a href="{{ request.user_docs_url('/') }}" class="site-menu__link">{% trans %}Docs{% endtrans %}</a>
         </li>
-        <li class="horizontal-menu__item">
-          <a href="{{ request.route_path('sponsors') }}"
-             class="horizontal-menu__link">{% trans %}Sponsors{% endtrans %}</a>
+        <li class="site-menu__item">
+          <a href="{{ login_url }}" class="site-menu__link">{% trans %}Log in{% endtrans %}</a>
         </li>
-        <li class="horizontal-menu__item">
-          <a href="{{ login_url }}" class="horizontal-menu__link">{% trans %}Log in{% endtrans %}</a>
-        </li>
-        <li class="horizontal-menu__item">
+        <li class="site-menu__item">
           <a href="{{ request.route_path('accounts.register') }}"
-             class="horizontal-menu__link">{% trans %}Register{% endtrans %}</a>
+             class="site-menu__link">{% trans %}Register{% endtrans %}</a>
         </li>
       </ul>
     </nav>
-    <nav class="dropdown dropdown--on-menu hidden show-on-tablet"
+    <nav class="dropdown dropdown--on-menu site-menu--dropdown site-menu--dropdown-below-desktop"
          aria-label="{% trans %}Main navigation{% endtrans %}">
       <button type="button"
-              class="horizontal-menu__link dropdown__trigger"
+              class="site-menu__link dropdown__trigger"
               aria-haspopup="true"
               aria-expanded="false"
               aria-label="{% trans %}View menu{% endtrans %}">
-        {# djlint:off #}{% trans %}Menu{% endtrans %}<span class="dropdown__trigger-caret"><i class="fa fa-caret-down" aria-hidden="true"></i></span>{# djlint:on #}
+        <i class="fa-solid fa-bars" aria-hidden="true"></i>
       </button>
       <ul class="dropdown__content"
           aria-hidden="true"
@@ -68,9 +63,6 @@
           <a class="dropdown__link" href="{{ request.user_docs_url('/') }}">{% trans %}Docs{% endtrans %}</a>
         </li>
         <li>
-          <a class="dropdown__link" href="{{ request.route_path('sponsors') }}">{% trans %}Sponsors{% endtrans %}</a>
-        </li>
-        <li>
           <a class="dropdown__link" href="{{ login_url }}">{% trans %}Log in{% endtrans %}</a>
         </li>
         <li>
@@ -79,6 +71,7 @@
         </li>
       </ul>
     </nav>
+    {% include "warehouse:templates/includes/language-dropdown.html" %}
   </div>
 {%- endmacro %}
 {% macro trademarks(long=False) -%}
@@ -520,20 +513,6 @@
             data-action="viewport-toggle#switchToDesktop">{% trans %}Switch to desktop version{% endtrans %}</button>
   </div>
 </footer>
-<div class="language-switcher">
-  <form action="{{ request.route_path('locale') }}">
-    <ul>
-      {% for identifier, locale in KNOWN_LOCALES.items() %}
-        <li>
-          <button {% if request.locale_name == identifier %}class="language-switcher__selected"{% endif %}
-                  name="locale_id"
-                  value="{{ identifier }}"
-                  type="submit">{{ locale.display_name }}</button>
-        </li>
-      {% endfor %}
-    </ul>
-  </form>
-</div>
 {% include "warehouse:templates/includes/sponsors-footer.html" %}
 <div class="legal-footer">
   <ul>
