@@ -1,0 +1,109 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+@use "../settings/breakpoints";
+@use "../settings/colors";
+@use "../settings/grid";
+@use "../tools/link-utilities";
+
+/*
+  The site header's main menu.
+
+  <nav class="site-menu" aria-label="my label">
+    <ul>
+      <li class="site-menu__item">
+        <a class="site-menu__link">A horizontal link</a>
+      </li>
+    </ul>
+  </nav>
+
+  Accessibility:
+    - Describe the menu with aria-label
+
+  Modifiers:
+    - dropdown: Marks a menu group that is always rendered as a dropdown
+      (pair with the .dropdown block classes)
+    - dropdown-below-desktop: Marks a menu group that collapses into a
+      dropdown below desktop width. Apply to the plain list version alone
+      to hide it below desktop width; combine with --dropdown on the
+      dropdown-styled counterpart to show it only below desktop width.
+*/
+
+.site-menu {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+
+  ul,
+  li {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  &__item {
+    display: inline;
+  }
+
+  &__link {
+    text-decoration: none;
+    display: inline-block;
+    @include link-utilities.link-without-underline;
+    @include link-utilities.link-focus-state(colors.$white);
+
+    &:hover {
+      text-decoration: underline;
+      text-decoration-color: colors.$transparent-white;
+    }
+
+    &--with-icon {
+      .fa,
+      .fa-solid {
+        margin-right: 3px;
+      }
+
+      .user-image {
+        width: 22px;
+        height: 22px;
+        margin-right: 5px;
+        border-radius: 10%;
+      }
+
+      &:hover {
+        .fa,
+        .fa-solid,
+        .user-image {
+          opacity: 0.8;
+        }
+      }
+    }
+  }
+
+  // Out-specify _dropdown.scss and _typography.scss
+  .site-menu__link {
+    padding: 32px grid.$half-spacing-unit;
+    color: colors.$white;
+
+    @media only screen and (max-width: breakpoints.$small-tablet) {
+      padding: 25px grid.$half-spacing-unit;
+    }
+  }
+
+  &--dropdown {
+    flex-shrink: 0;
+  }
+
+  &--dropdown-below-desktop {
+    @media only screen and (max-width: breakpoints.$desktop) {
+      display: none;
+    }
+
+    &.site-menu--dropdown {
+      display: none;
+
+      @media only screen and (max-width: breakpoints.$desktop) {
+        display: block;
+      }
+    }
+  }
+}

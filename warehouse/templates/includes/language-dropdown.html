@@ -1,0 +1,29 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+<nav class="dropdown dropdown--on-menu dropdown--with-icons site-menu--dropdown"
+     aria-label="{% trans %}Localization{% endtrans %}">
+  <button type="button"
+          class="site-menu__link site-menu__link--with-icon dropdown__trigger"
+          aria-haspopup="true"
+          aria-expanded="false"
+          aria-label="{% trans %}Change language{% endtrans %}">
+    <i class="fa-solid fa-language" aria-hidden="true"></i>
+  </button>
+  <form action="{{ request.route_path('locale') }}">
+    <ul class="dropdown__content dropdown__content--languages"
+        aria-hidden="true"
+        aria-label="{% trans %}Languages{% endtrans %}">
+      {% for identifier, locale in KNOWN_LOCALES.items() %}
+        <li>
+          <button name="locale_id"
+                  value="{{ identifier }}"
+                  type="submit"
+                  class="dropdown__link"
+                  {% if request.locale_name == identifier %}aria-current="true"{% endif %}>
+            {% if request.locale_name == identifier %}<i class="fa fa-check" aria-hidden="true"></i>{% endif %}
+            {{ locale.display_name }}
+          </button>
+        </li>
+      {% endfor %}
+    </ul>
+  </form>
+</nav>
