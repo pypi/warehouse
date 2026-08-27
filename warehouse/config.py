@@ -8,6 +8,8 @@ import os
 import secrets
 import shlex
 
+from collections import Counter
+from collections.abc import Collection
 from datetime import timedelta
 from urllib.parse import urlparse, urlunparse  # noqa: TID251
 
@@ -17,7 +19,7 @@ import transaction
 from pyramid import renderers
 from pyramid.authorization import Allow, Authenticated
 from pyramid.config import Configurator as _Configurator
-from pyramid.exceptions import HTTPForbidden
+from pyramid.exceptions import ConfigurationError, HTTPForbidden
 from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.tweens import EXCVIEW
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
@@ -282,21 +284,44 @@ def from_base64_encoded_json(configuration):
 
 
 def reject_duplicate_post_keys_view(view, info):
-    if info.options.get("permit_duplicate_post_keys") or info.exception_only:
+    # Skip the check entirely when duplicate POST keys are allowed via
+    # permit_duplicate_post_keys = True, or for an exception-only view.
+    permit = info.options.get("permit_duplicate_post_keys")
+    if permit is True or info.exception_only:
         return view
 
-    # If this isn't an exception or hasn't been permitted to have duplicate
-    # POST keys, wrap the view with a check
+    # Passing a collection of strings to permit_duplicate_post_keys will allow
+    # those keys to be duplicated. Fail at config time if the parameter is
+    # misconfigured.
+    if permit is not None and (
+        isinstance(permit, str)
+        or not isinstance(permit, Collection)
+        or not all(isinstance(key, str) for key in permit)
+    ):
+        raise ConfigurationError(
+            "permit_duplicate_post_keys must be True or a collection "
+            f"of POST key names, got: {permit!r}"
+        )
 
+    allowed_duplicate_post_keys = set(permit) if permit else set()
+
+    # Wrap the view with a check that rejects any duplicate keys
+    # that aren't explicitly permitted.
     @functools.wraps(view)
     def wrapped(context, request):
         if request.POST:
-            # Determine if there are any duplicate keys
             keys = list(request.POST.keys())
             if len(keys) != len(set(keys)):
-                return HTTPBadRequest(
-                    f"POST body may not contain duplicate keys (URL: {request.url!r})"
-                )
+                # count keys only when duplicates exist.
+                duplicated_post_keys = {
+                    key for key, count in Counter(keys).items() if count > 1
+                }
+                unexpected = sorted(duplicated_post_keys - allowed_duplicate_post_keys)
+                if unexpected:
+                    return HTTPBadRequest(
+                        "POST body may not contain duplicate keys "
+                        f"(duplicated: {unexpected}, URL: {request.url!r})"
+                    )
 
         # Casting succeeded, so just return the regular view
         return view(context, request)
