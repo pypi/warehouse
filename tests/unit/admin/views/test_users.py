@@ -8,6 +8,7 @@ import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
+from sqlalchemy import func, select
 from sqlalchemy.orm import joinedload
 from webob.multidict import MultiDict, NoVars
 
@@ -25,7 +26,12 @@ from warehouse.organizations.models import OrganizationRoleType
 from warehouse.packaging.models import JournalEntry, Project, ReleaseURL
 from warehouse.subscriptions.models import StripeSubscriptionStatus
 
-from ....common.db.accounts import EmailFactory, User, UserFactory
+from ....common.db.accounts import (
+    EmailFactory,
+    ProhibitedEmailDomainFactory,
+    User,
+    UserFactory,
+)
 from ....common.db.organizations import (
     OrganizationFactory,
     OrganizationRoleFactory,
@@ -692,6 +698,80 @@ class TestUserFreeze:
         assert db_request.route_path.calls == [pretend.call("admin.user.list")]
         assert result.status_code == 303
         assert result.location == "/foobar"
+
+    def test_freeze_blocklists_own_registrable_domain(self, db_request):
+        """
+        An email whose domain IS its own registrable domain gets that
+        domain blocklisted -- the form that validate_email's database
+        check matches.
+        """
+        user = UserFactory.create()
+        EmailFactory.create(
+            user=user, verified=True, primary=True, email="x@evil-corp.com"
+        )
+
+        db_request.matchdict["username"] = str(user.username)
+        db_request.params = {"username": user.username}
+        db_request.route_path = lambda a: "/foobar"
+        db_request.user = UserFactory.create()
+
+        views.user_freeze(user, db_request)
+
+        db_request.db.flush()
+
+        prohibition = db_request.db.scalars(select(ProhibitedEmailDomain)).one()
+        assert prohibition.domain == "evil-corp.com"
+
+    def test_freeze_does_not_blocklist_subdomain_parent(self, db_request):
+        """
+        A subdomain-hosted address (grad.mit.edu, team.github.io) may live
+        under a shared parent apex that other accounts legitimately use, so
+        freezing this account must not blocklist the parent.
+        """
+        user = UserFactory.create()
+        EmailFactory.create(
+            user=user, verified=True, primary=True, email="x@mail.evil-corp.com"
+        )
+
+        db_request.matchdict["username"] = str(user.username)
+        db_request.params = {"username": user.username}
+        db_request.route_path = lambda a: "/foobar"
+        db_request.user = UserFactory.create()
+
+        views.user_freeze(user, db_request)
+
+        db_request.db.flush()
+
+        assert (
+            db_request.db.scalars(select(ProhibitedEmailDomain)).one_or_none() is None
+        )
+
+    def test_freezes_user_with_already_prohibited_domain(self, db_request):
+        """
+        Freezing a user whose email domain is already prohibited must not
+        insert a duplicate row into the unique domain column.
+        """
+        user = UserFactory.create()
+        verified_email = EmailFactory.create(user=user, verified=True, primary=True)
+        ProhibitedEmailDomainFactory.create(domain=verified_email.domain)
+
+        db_request.matchdict["username"] = str(user.username)
+        db_request.params = {"username": user.username}
+        db_request.route_path = lambda a: "/foobar"
+        db_request.user = UserFactory.create()
+
+        result = views.user_freeze(user, db_request)
+
+        db_request.db.flush()
+
+        assert db_request.db.get(User, user.id).is_frozen
+        assert (
+            db_request.db.scalar(
+                select(func.count()).select_from(ProhibitedEmailDomain)
+            )
+            == 1
+        )
+        assert result.status_code == 303
 
     def test_freezes_user_bad_confirm(self, db_request, monkeypatch):
         user = UserFactory.create(is_frozen=False)
