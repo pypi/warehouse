@@ -63,6 +63,7 @@ from warehouse.packaging.models import (
     Project,
     ProjectMacaroonWarningAssociation,
     Release,
+    added_late,
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
 from warehouse.rate_limiting.interfaces import RateLimiterException
@@ -1237,10 +1238,7 @@ def file_upload(request):
         # Note that this feature explicitly doesn't protect against
         # users deleting and recreating releases in the UI, only
         # against uploads through compromised API tokens or workflows.
-        oldest_release_age_allowed = (
-            datetime.datetime.now() - MAXIMUM_AGE_FOR_NEW_UPLOADS
-        )
-        if release.created < oldest_release_age_allowed:
+        if added_late(datetime.datetime.now(), release.created):
             request.metrics.increment(
                 "warehouse.upload.failed", tags=["reason:closed-release"]
             )
