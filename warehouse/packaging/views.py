@@ -141,6 +141,11 @@ class PEP740AttestationViewer:
         return self.claims.get("1.3.6.1.4.1.57264.1.22", "")
 
     @property
+    def run_invocation_uri(self) -> str:
+        """Run Invocation URI — link to the specific build or publish run."""
+        return self.claims.get("1.3.6.1.4.1.57264.1.21", "")
+
+    @property
     def permalink_with_digest(self) -> str:
         """Construct a permalink using the source digest."""
         return self._format_url(self.source, self.source_digest)
