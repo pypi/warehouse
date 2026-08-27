@@ -40,7 +40,7 @@ from warehouse.attestations.errors import AttestationUploadError
 from warehouse.attestations.interfaces import IIntegrityService
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
-from warehouse.constants import ONE_GIB, ONE_MIB
+from warehouse.constants import MAXIMUM_AGE_FOR_NEW_UPLOADS, ONE_GIB, ONE_MIB
 from warehouse.email import (
     send_api_token_used_in_trusted_publisher_project_email,
     send_wheel_record_mismatch_email,
@@ -77,13 +77,6 @@ from warehouse.utils.wheel import (
 )
 
 PATH_HASHER = "blake2_256"
-
-# After a release has been published for this
-# number of days reject new uploaded files.
-MAXIMUM_AGE_FOR_NEW_UPLOADS_DAYS = 14
-MAXIMUM_AGE_FOR_NEW_UPLOADS_SECONDS = datetime.timedelta(
-    days=MAXIMUM_AGE_FOR_NEW_UPLOADS_DAYS
-).total_seconds()
 
 COMPRESSION_RATIO_MIN_SIZE = 64 * ONE_MIB
 
@@ -1244,8 +1237,8 @@ def file_upload(request):
         # Note that this feature explicitly doesn't protect against
         # users deleting and recreating releases in the UI, only
         # against uploads through compromised API tokens or workflows.
-        oldest_release_age_allowed = datetime.datetime.now() - datetime.timedelta(
-            seconds=MAXIMUM_AGE_FOR_NEW_UPLOADS_SECONDS
+        oldest_release_age_allowed = (
+            datetime.datetime.now() - MAXIMUM_AGE_FOR_NEW_UPLOADS
         )
         if release.created < oldest_release_age_allowed:
             request.metrics.increment(
@@ -1254,7 +1247,7 @@ def file_upload(request):
             raise _exc_with_message(
                 HTTPBadRequest,
                 f"Uploading new files to releases older than "
-                f"{MAXIMUM_AGE_FOR_NEW_UPLOADS_DAYS} days is not allowed.",
+                f"{MAXIMUM_AGE_FOR_NEW_UPLOADS.days} days is not allowed.",
             )
 
         # Check to see if uploading this file would create a duplicate sdist
