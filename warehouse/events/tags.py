@@ -120,6 +120,8 @@ class EventTag:
         ProjectArchiveEnter = "project:archive:enter"
         ProjectArchiveExit = "project:archive:exit"
         ProjectCreate = "project:create"
+        ProjectDeprecateEnter = "project:deprecate:enter"
+        ProjectDeprecateExit = "project:deprecate:exit"
         ProjectQuarantineEnter = "project:quarantine:enter"
         ProjectQuarantineExit = "project:quarantine:exit"
         ProjectSetTotalSizeLimit = "admin:project:set_total_size_limit"

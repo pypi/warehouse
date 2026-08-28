@@ -20,12 +20,14 @@ from warehouse.utils.project import (
     clear_project_quarantine,
     clear_release_quarantine,
     confirm_project,
+    deprecate_project,
     destroy_docs,
     quarantine_project,
     quarantine_release,
     remove_documentation,
     remove_project,
     remove_release,
+    undeprecate_project,
 )
 
 from ...common.db.accounts import UserFactory
@@ -159,6 +161,78 @@ def test_clear_project_quarantine(db_request, flash, mocker):
         .first()
     )
     assert flash_spy.called == flash
+
+
+def test_deprecate_project(db_request, mocker):
+    user = UserFactory.create()
+    project = ProjectFactory.create(name="foo")
+    RoleFactory.create(user=user, project=project)
+
+    db_request.user = user
+    flash_spy = mocker.spy(db_request.session, "flash")
+
+    deprecate_project(project, db_request)
+
+    assert (
+        db_request.db.query(Project).filter(Project.name == project.name).count() == 1
+    )
+    assert (
+        db_request.db.query(Project)
+        .filter(Project.name == project.name)
+        .filter(Project.lifecycle_status == LifecycleStatus.Deprecated)
+        .first()
+    )
+    assert flash_spy.called
+
+
+def test_deprecate_project_already_archived(db_request, mocker):
+    user = UserFactory.create()
+    project = ProjectFactory.create(
+        name="foo", lifecycle_status=LifecycleStatus.ArchivedNoindex
+    )
+    RoleFactory.create(user=user, project=project)
+
+    db_request.user = user
+    flash_spy = mocker.spy(db_request.session, "flash")
+
+    deprecate_project(project, db_request)
+
+    assert project.lifecycle_status == LifecycleStatus.ArchivedNoindex
+    flash_spy.assert_called_once_with(
+        "Cannot deprecate project with status archived-noindex", queue="error"
+    )
+
+
+def test_undeprecate_project(db_request, mocker):
+    user = UserFactory.create()
+    project = ProjectFactory.create(
+        name="foo", lifecycle_status=LifecycleStatus.Deprecated
+    )
+    RoleFactory.create(user=user, project=project)
+
+    db_request.user = user
+    flash_spy = mocker.spy(db_request.session, "flash")
+
+    undeprecate_project(project, db_request)
+
+    assert project.lifecycle_status is None
+    assert flash_spy.called
+
+
+def test_undeprecate_project_not_deprecated(db_request, mocker):
+    user = UserFactory.create()
+    project = ProjectFactory.create(name="foo")
+    RoleFactory.create(user=user, project=project)
+
+    db_request.user = user
+    flash_spy = mocker.spy(db_request.session, "flash")
+
+    undeprecate_project(project, db_request)
+
+    assert project.lifecycle_status is None
+    flash_spy.assert_called_once_with(
+        "Can only undeprecate a deprecated project", queue="error"
+    )
 
 
 @pytest.mark.parametrize("flash", [True, False])
