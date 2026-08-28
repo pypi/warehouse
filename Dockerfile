@@ -73,8 +73,8 @@ FROM base AS docs
 # because these are rarely ever going to change.
 # Usages:
 #  - build-essential: make
-#  - git: mkdocs plugin uses this for created/updated
-#  - libcairo2: mkdocs uses cairosvg
+#  - git: the blog's mkdocs-rss-plugin uses this for created/updated
+#  - libcairo2: the blog's social plugin uses cairosvg
 RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,id=apt-lib,target=/var/lib/apt,sharing=locked \
         apt-install \

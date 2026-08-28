@@ -247,7 +247,7 @@ services:
       context: .
       target: docs
     image: warehouse:docker-compose-docs
-    command: mkdocs serve -a 0.0.0.0:10002 -f docs/mkdocs-dev-docs.yml
+    command: zensical serve -a 0.0.0.0:10002 -f docs/mkdocs-dev-docs.yml
     stop_signal: SIGINT
     volumes:
       - ./bin:/opt/warehouse/src/bin:z
@@ -259,7 +259,7 @@ services:
   user-docs:
     image: warehouse:docker-compose-docs
     pull_policy: never
-    command: mkdocs serve -a 0.0.0.0:10000 -f docs/mkdocs-user-docs.yml
+    command: zensical serve -a 0.0.0.0:10000 -f docs/mkdocs-user-docs.yml
     stop_signal: SIGINT
     volumes:
       - ./bin:/opt/warehouse/src/bin:z
