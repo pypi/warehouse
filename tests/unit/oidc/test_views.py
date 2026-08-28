@@ -1116,9 +1116,18 @@ def test_should_send_environment_warning_email(
     assert should_send_environment_warning_email(publisher, claims) == should_send
 
 
-def test_burn_oidc_issued_token_invalid_payload(metrics):
+@pytest.mark.parametrize(
+    "payload",
+    [
+        {"token": None},
+        {"token": 123},
+        {"token": [123]},
+        {},
+    ],
+)
+def test_burn_oidc_issued_token_invalid_payload(metrics, payload):
     request = pretend.stub(
-        body=json.dumps({"token": None}),
+        body=json.dumps(payload),
         response=pretend.stub(status=None),
         metrics=metrics,
     )
