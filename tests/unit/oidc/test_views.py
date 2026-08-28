@@ -1137,7 +1137,9 @@ def test_burn_oidc_issued_token_invalid_payload(metrics):
 
 def test_burn_oidc_issued_token_invalid_macaroon(metrics):
     macaroon_service = pretend.stub(
-        find_from_raw=pretend.call_recorder(pretend.raiser(views.InvalidMacaroonError))
+        verify_signature_only=pretend.call_recorder(
+            pretend.raiser(views.InvalidMacaroonError)
+        )
     )
 
     def find_service(iface, **kw):
@@ -1159,7 +1161,9 @@ def test_burn_oidc_issued_token_invalid_macaroon(metrics):
     assert request.find_service.calls == [
         pretend.call(IMacaroonService, context=None),
     ]
-    assert macaroon_service.find_from_raw.calls == [pretend.call("invalid-macaroon")]
+    assert macaroon_service.verify_signature_only.calls == [
+        pretend.call("invalid-macaroon")
+    ]
     assert request.metrics.increment.calls == [
         pretend.call(
             "warehouse.oidc.burn_oidc_issued_token",
@@ -1175,7 +1179,7 @@ def test_burn_oidc_issued_token_user_macaroon(metrics, monkeypatch):
         user=pretend.stub(username="fakeuser"),
     )
     macaroon_service = pretend.stub(
-        find_from_raw=pretend.call_recorder(lambda token: macaroon),
+        verify_signature_only=pretend.call_recorder(lambda token: macaroon),
         delete_macaroon=pretend.call_recorder(lambda macaroon_id: None),
     )
     capture_message = pretend.call_recorder(lambda message: None)
@@ -1197,7 +1201,9 @@ def test_burn_oidc_issued_token_user_macaroon(metrics, monkeypatch):
 
     assert request.response.status == http.HTTPStatus.ACCEPTED
     assert response == {"message": "Accepted", "errors": []}
-    assert macaroon_service.find_from_raw.calls == [pretend.call("user-macaroon")]
+    assert macaroon_service.verify_signature_only.calls == [
+        pretend.call("user-macaroon")
+    ]
     assert macaroon_service.delete_macaroon.calls == []
     assert capture_message.calls == [
         pretend.call("Tried to burn an API token corresponding to a user: 'fakeuser'")
@@ -1218,7 +1224,7 @@ def test_burn_oidc_issued_token_success(metrics):
         oidc_publisher=publisher,
     )
     macaroon_service = pretend.stub(
-        find_from_raw=pretend.call_recorder(lambda token: macaroon),
+        verify_signature_only=pretend.call_recorder(lambda token: macaroon),
         delete_macaroon=pretend.call_recorder(lambda macaroon_id: None),
     )
 
@@ -1241,7 +1247,9 @@ def test_burn_oidc_issued_token_success(metrics):
     assert request.find_service.calls == [
         pretend.call(IMacaroonService, context=None),
     ]
-    assert macaroon_service.find_from_raw.calls == [pretend.call("oidc-macaroon")]
+    assert macaroon_service.verify_signature_only.calls == [
+        pretend.call("oidc-macaroon")
+    ]
     assert macaroon_service.delete_macaroon.calls == [pretend.call("fake-macaroon-id")]
     assert request.metrics.increment.calls == [
         pretend.call(

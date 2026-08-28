@@ -482,7 +482,13 @@ def burn_oidc_issued_token(request: Request):
     )
 
     try:
-        macaroon: Macaroon = macaroon_service.find_from_raw(unverified_macaroon)
+        # NOTE: We intentionally don't use `macaroon_service.verify` here, since
+        # that would verify caveats, which don't matter (and don't adhere to the burn
+        # path). Instead, we check that the signature is valid (which stops someone
+        # from spoofing a macaroon if they know just the UUID) and we check that the
+        # macaroon corresponds to an OIDC publisher below (since we don't allow burning
+        # of macaroons from non-OIDC principals).
+        macaroon: Macaroon = macaroon_service.verify_signature_only(unverified_macaroon)
     except InvalidMacaroonError:
         request.metrics.increment(
             "warehouse.oidc.burn_oidc_issued_token",

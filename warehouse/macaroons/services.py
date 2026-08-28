@@ -250,6 +250,38 @@ class DatabaseMacaroonService:
 
         raise InvalidMacaroonError(verified.msg)
 
+    def verify_signature_only(self, raw_macaroon: str) -> Macaroon:
+        """
+        Returns a macaroon model from the DB if the given raw (serialized)
+        macaroon exists and has a valid signature.
+
+        **NOTE**: this API is not a substitute for `verify`; most
+        users should call `verify` to validate both the signature
+        *and* the macaroon's caveats relative to the request.
+
+        Raises InvalidMacaroonError if the macaroon has an invalid
+        signature.
+        """
+
+        m = deserialize_raw_macaroon(raw_macaroon)
+        dm = self.find_macaroon(m.identifier.decode())
+
+        if not dm:
+            raise InvalidMacaroonError("Macaroon not found")
+
+        try:
+            verifier = pymacaroons.Verifier()
+            # Satisfy every caveat trivially, so that they get incorporated
+            # into the signature check.
+            verifier.satisfy_general(lambda _: True)
+            verifier.verify(m, dm.key)
+            return dm
+        except (
+            pymacaroons.exceptions.MacaroonInvalidSignatureException,
+            Exception,  # noqa: BLE001 https://github.com/ecordell/pymacaroons/issues/50
+        ):
+            raise InvalidMacaroonError("Invalid signature")
+
     def create_macaroon(
         self,
         location: str,
