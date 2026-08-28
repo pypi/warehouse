@@ -15,6 +15,7 @@
         <img alt="logo">
       </div>
       <h2>Heading Here</h2>
+      <span class="badge badge--light sponsor-grid__sponsor-level">Visionary sponsor</span>
       <div class="sponsor-grid__sponsor-activity">
         <p>Information about what the sponsor gives us</p>
       </div>
@@ -55,6 +56,12 @@
     font-size: 1.15rem;
     max-width: 700px;
     margin: 0 auto;
+  }
+
+  &__sponsor-level {
+    display: inline-block;
+    margin-top: 5px;
+    margin-left: 0;
   }
 
   &__sponsor-link {

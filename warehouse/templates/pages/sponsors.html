@@ -1,11 +1,15 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 {% extends "base.html" %}
-{% macro sponsor_card(sponsor, name_class="") %}
+{% macro sponsor_card(sponsor, name_class="", show_level=False) %}
   <div class="sponsor-grid__sponsor">
     <div class="sponsor-grid__sponsor-img">{{ sponsor.color_logo_img|camoify|safe }}</div>
     <div class="sponsor-grid__sponsor-description">
       <h2 {% if name_class %}class="{{ name_class }}"{% endif %}>{{ sponsor.name }}</h2>
-      <div class="sponsor-grid__sponsor-activity">{{ sponsor.activity|safe }}</div>
+      {% if show_level and sponsor.level_name %}
+        <span class="badge badge--light sponsor-grid__sponsor-level">{{ sponsor.level_name }} sponsor</span>
+      {% else %}
+        <div class="sponsor-grid__sponsor-activity">{{ sponsor.activity|safe }}</div>
+      {% endif %}
     </div>
     <a href="{{ sponsor.link_url }}"
        target="_blank"
@@ -153,7 +157,9 @@
              rel="noopener"
              class="sponsor-grid__sponsor-link button button--primary">See sponsorship packages</a>
         </div>
-        {% for sponsor in request.sponsors["psf"] %}{{ sponsor_card(sponsor, "sponsor-grid__sponsor-name") }}{% endfor %}
+        {% for sponsor in request.sponsors["psf"] %}
+          {{ sponsor_card(sponsor, "sponsor-grid__sponsor-name", show_level=True) }}
+        {% endfor %}
       </div>
       <div class="centered-heading">
         <h2 class="centered-heading__title">Infrastructure sponsors</h2>
