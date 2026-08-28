@@ -720,6 +720,7 @@ def configure(settings=None):
     filters.setdefault("camoify", "warehouse.filters:camoify")
     filters.setdefault("shorten_number", "warehouse.filters:shorten_number")
     filters.setdefault("urlparse", "warehouse.filters:urlparse")
+    filters.setdefault("url_icon", "warehouse.filters:url_icon")
     filters.setdefault("contains_valid_uris", "warehouse.filters:contains_valid_uris")
     filters.setdefault("format_package_type", "warehouse.filters:format_package_type")
     filters.setdefault("parse_version", "warehouse.filters:parse_version")
