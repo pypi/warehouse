@@ -40,6 +40,7 @@ from warehouse import admin, config, static
 from warehouse.accounts import services as account_services
 from warehouse.accounts.interfaces import (
     IDomainStatusService,
+    IEmailReputationService,
     ITokenService,
     IUserService,
 )
@@ -219,6 +220,7 @@ def pyramid_services(
     query_results_cache_service,
     search_service,
     domain_status_service,
+    email_reputation_service,
     ratelimit_service,
     github_oauth_provider_service,
 ):
@@ -247,6 +249,7 @@ def pyramid_services(
     services.register_service(query_results_cache_service, IQueryResultsCache)
     services.register_service(search_service, ISearchService)
     services.register_service(domain_status_service, IDomainStatusService)
+    services.register_service(email_reputation_service, IEmailReputationService)
     services.register_service(ratelimit_service, IRateLimiter, name="email.add")
     services.register_service(ratelimit_service, IRateLimiter, name="email.change")
     services.register_service(ratelimit_service, IRateLimiter, name="email.verify")
@@ -616,6 +619,11 @@ def domain_status_service(mocker):
     service = account_services.NullDomainStatusService()
     mocker.spy(service, "get_domain_status")
     return service
+
+
+@pytest.fixture
+def email_reputation_service():
+    return account_services.NullEmailReputationService()
 
 
 @pytest.fixture
