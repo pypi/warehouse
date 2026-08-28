@@ -3,8 +3,6 @@ site_url: https://docs.pypi.org/
 docs_dir: user
 site_dir: user-site
 plugins:
-  - search
-  - material-plausible
   - macros:
       module_name: user-macros
       j2_block_start_string: "<!--[[%"
@@ -33,6 +31,7 @@ markdown_extensions:
       repo: warehouse
 theme:
   name: material
+  custom_dir: user-overrides
   logo: assets/logo.png
   favicon: assets/favicon.ico
   homepage: https://pypi.org
