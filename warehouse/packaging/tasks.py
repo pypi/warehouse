@@ -13,7 +13,7 @@ import structlog
 from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
 from packaging.utils import canonicalize_name
 from requests.exceptions import RequestException
-from sqlalchemy import desc, func, nulls_last, select
+from sqlalchemy import delete, desc, func, nulls_last, select
 from sqlalchemy.orm import joinedload
 
 from warehouse import tasks
@@ -295,6 +295,51 @@ def update_description_html(request):
     for description in descriptions:
         description.html = readme.render(description.raw, description.content_type)
         description.rendered_by = renderer_version
+
+
+@tasks.task(ignore_result=True, acks_late=True)
+def delete_orphaned_descriptions(request):
+    """Drain the backlog of Descriptions that no Release points at.
+
+    `releases.description_id` points *up* at the description, so its
+    `ON DELETE CASCADE` fires in the wrong direction: deleting a Release never
+    removed its Description, and deleting a Project removed its Releases at the
+    database level without the ORM's `delete-orphan` cascade ever running. The
+    `releases_delete_orphaned_description` trigger stops new orphans appearing;
+    this removes the ~844k that accumulated before it.
+
+    The direction of that foreign key is also why this deletes in batches
+    checked against `releases` rather than from a precomputed list of ids:
+    deleting a Description that *is* still referenced would cascade into
+    deleting the Release. The `NOT EXISTS` therefore stays inside the `DELETE`,
+    so it is evaluated against the same snapshot that removes the rows.
+    """
+    metrics = request.find_service(IMetricsService, context=None)
+    batch_size = request.registry.settings["orphaned_descriptions.batch_size"]
+
+    orphaned = (
+        select(Description.id)
+        .where(
+            ~select(Release.id).where(Release.description_id == Description.id).exists()
+        )
+        .limit(batch_size)
+        # SKIP LOCKED so a run that overlaps the previous one picks up different
+        # rows instead of blocking on them.
+        .with_for_update(skip_locked=True, of=Description)
+        .scalar_subquery()
+    )
+    deleted = request.db.execute(
+        delete(Description).where(Description.id.in_(orphaned)),
+        # Nothing here loads a Description, so there is no session state to
+        # synchronize. Left to "auto" this becomes "fetch", which appends a
+        # RETURNING clause and drags every deleted id back over the wire.
+        execution_options={"synchronize_session": False},
+    ).rowcount
+
+    logger.info("Deleted orphaned descriptions", count=deleted, batch_size=batch_size)
+    metrics.increment(
+        "warehouse.packaging.orphaned_descriptions.deleted", value=deleted
+    )
 
 
 @tasks.task(bind=True, ignore_result=True, acks_late=True)
