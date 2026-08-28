@@ -1,4 +1,5 @@
 site_name: Warehouse Developer Documentation
+site_url: https://warehouse.pypa.io/
 docs_dir: dev
 site_dir: dev-site
 plugins:
