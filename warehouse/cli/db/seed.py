@@ -13,7 +13,8 @@ def seed(config):  # pragma: no cover # dev-only tool
 
     Creates a standard set of projects whose releases exhibit each of the
     provenance states surfaced in the UI (full/partial/inconsistent/lost/
-    changed provenance), owned by the `seed-user` account.
+    changed provenance) and each of the "file added late" cases, owned by the
+    `seed-user` account.
 
     Attestation material is fabricated; nothing seeded here will pass cryptographic
     verification.
@@ -26,6 +27,7 @@ def seed(config):  # pragma: no cover # dev-only tool
     from sqlalchemy import delete, select
 
     from warehouse.config import Environment
+    from warehouse.constants import MAXIMUM_AGE_FOR_NEW_UPLOADS
 
     # bail early if not in development
     if not config.registry.settings.get("warehouse.env") == Environment.development:
@@ -60,49 +62,108 @@ def seed(config):  # pragma: no cover # dev-only tool
     repo_a = ("seed-org/alpha", "release.yml")
     repo_b = ("seed-org/beta", "publish.yml")
 
-    # Each release is (version, days_ago, file_specs); each file spec is
-    # (predicate_types, (repository, workflow)) or None for no provenance.
+    # A file spec is (predicate_types, (repository, workflow), days_after_release),
+    # with `predicate_types` None for a file carrying no provenance. The named
+    # specs below all arrive with their release; `after()` moves one later.
+    pypi_a = ([pypi], repo_a, 0)
+    slsa_a = ([slsa], repo_a, 0)
+    both_a = ([pypi, slsa], repo_a, 0)
+    pypi_b = ([pypi], repo_b, 0)
+    unattested = (None, None, 0)
+
+    def after(spec, days):
+        """The same file, arriving `days` days after its release."""
+        predicate_types, repo, _ = spec
+        return (predicate_types, repo, days)
+
+    # Each release is (version, days_ago, file_specs). A release's `days_ago`
+    # has to exceed its longest delay, or its files would arrive in the future.
     scenarios = [
         {
             "name": "seed-provenance-full-pypi",
             "summary": "Dev seed: all files have PyPI publish attestations",
-            "releases": [("1.0.0", 1, [([pypi], repo_a)] * 3)],
+            "releases": [("1.0.0", 1, [pypi_a] * 3)],
         },
         {
             "name": "seed-provenance-full-slsa",
             "summary": "Dev seed: all files have SLSA provenance attestations",
-            "releases": [("1.0.0", 1, [([slsa], repo_a)] * 3)],
+            "releases": [("1.0.0", 1, [slsa_a] * 3)],
         },
         {
             "name": "seed-provenance-both",
             "summary": "Dev seed: all files have PyPI and SLSA attestations",
-            "releases": [("1.0.0", 1, [([pypi, slsa], repo_a)] * 3)],
+            "releases": [("1.0.0", 1, [both_a] * 3)],
         },
         {
             "name": "seed-provenance-partial",
             "summary": "Dev seed: 3 of 5 files have attestations",
-            "releases": [("1.0.0", 1, [([pypi], repo_a)] * 3 + [None] * 2)],
+            "releases": [("1.0.0", 1, [pypi_a] * 3 + [unattested] * 2)],
         },
         {
             "name": "seed-provenance-inconsistent",
             "summary": "Dev seed: files attested from two different repos",
-            "releases": [("1.0.0", 1, [([pypi], repo_a)] * 2 + [([pypi], repo_b)] * 2)],
+            "releases": [("1.0.0", 1, [pypi_a] * 2 + [pypi_b] * 2)],
         },
         {
             "name": "seed-provenance-lost",
             "summary": "Dev seed: previous release attested, this one is not",
             "releases": [
-                ("1.0.0", 7, [([pypi], repo_a)] * 2),
-                ("2.0.0", 1, [None] * 2),
+                ("1.0.0", 7, [pypi_a] * 2),
+                ("2.0.0", 1, [unattested] * 2),
             ],
         },
         {
             "name": "seed-provenance-changed",
             "summary": "Dev seed: repo/workflow changed since previous release",
             "releases": [
-                ("1.0.0", 7, [([pypi], repo_a)] * 2),
-                ("2.0.0", 1, [([pypi], repo_b)] * 2),
+                ("1.0.0", 7, [pypi_a] * 2),
+                ("2.0.0", 1, [pypi_b] * 2),
             ],
+        },
+        {
+            "name": "seed-late-file-single",
+            "summary": "Dev seed: one file added late, one just inside the window",
+            # The middle file is the control: the window is compared
+            # strictly, so its own final day is still punctual.
+            "releases": [
+                (
+                    "1.0.0",
+                    60,
+                    [
+                        pypi_a,
+                        after(pypi_a, MAXIMUM_AGE_FOR_NEW_UPLOADS.days),
+                        after(pypi_a, 45),
+                    ],
+                )
+            ],
+        },
+        {
+            "name": "seed-late-file-multiple",
+            "summary": "Dev seed: three files added late, at increasing delays",
+            "releases": [
+                (
+                    "1.0.0",
+                    100,
+                    [
+                        pypi_a,
+                        after(pypi_a, 20),
+                        after(pypi_a, 40),
+                        after(pypi_a, 80),
+                    ],
+                )
+            ],
+        },
+        {
+            "name": "seed-late-file-unattested",
+            "summary": "Dev seed: an unattested file added late to an attested release",
+            "releases": [("1.0.0", 60, [pypi_a] * 2 + [after(unattested, 45)])],
+        },
+        {
+            "name": "seed-late-file-changed-publisher",
+            "summary": "Dev seed: a file added late from a different repository",
+            # Two warnings at once: the release reads as inconsistent, and the
+            # file that made it so is the late one.
+            "releases": [("1.0.0", 60, [pypi_a] * 2 + [after(pypi_b, 45)])],
         },
     ]
 
@@ -149,7 +210,9 @@ def seed(config):  # pragma: no cover # dev-only tool
             # add_filename_to_registry); clear leftover reservations so
             # re-seeding after deleting the seed projects still works.
             session.execute(delete(Filename).where(Filename.filename.in_(filenames)))
-            for filename, spec in zip(filenames, file_specs, strict=True):
+            for filename, (predicate_types, repo, days_after) in zip(
+                filenames, file_specs, strict=True
+            ):
                 file = FileFactory.create(
                     release=release,
                     filename=filename,
@@ -161,10 +224,10 @@ def seed(config):  # pragma: no cover # dev-only tool
                         if filename.endswith(".tar.gz")
                         else filename.split("-")[-3]
                     ),
-                    upload_time=created,
+                    upload_time=created + datetime.timedelta(days=days_after),
                 )
-                if spec is not None:
-                    predicate_types, (repository, workflow) = spec
+                if predicate_types is not None:
+                    repository, workflow = repo
                     ProvenanceFactory.create(
                         file=file,
                         predicate_types=predicate_types,

@@ -468,6 +468,12 @@ def configure(settings=None):
     maybe_set_compound(settings, "breached_emails", "backend", "BREACHED_EMAILS")
     maybe_set_compound(settings, "breached_passwords", "backend", "BREACHED_PASSWORDS")
     maybe_set_compound(settings, "domain_status", "backend", "DOMAIN_STATUS_BACKEND")
+    maybe_set_compound(
+        settings,
+        "email_reputation",
+        "backend",
+        "EMAIL_REPUTATION_BACKEND",
+    )
     maybe_set_compound(settings, "github.oauth", "backend", "GITHUB_OAUTH_BACKEND")
     maybe_set_compound(settings, "gitlab.oauth", "backend", "GITLAB_OAUTH_BACKEND")
     maybe_set(
@@ -559,6 +565,12 @@ def configure(settings=None):
         "warehouse.account.email_change_ratelimit_string",
         "EMAIL_CHANGE_RATELIMIT_STRING",
         default="5 per 5 minutes, 20 per hour",
+    )
+    maybe_set(
+        settings,
+        "warehouse.account.email_reputation_ratelimit_string",
+        "EMAIL_REPUTATION_RATELIMIT_STRING",
+        default="100 per hour",
     )
     maybe_set(
         settings,
