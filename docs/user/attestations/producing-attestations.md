@@ -21,7 +21,7 @@ Before uploading attestations to the index, please:
 
 === "GitHub Actions"
 
-    <h3>The easy way</h3>
+    <h3 id="the-easy-way">The easy way</h3>
 
     If you publish to PyPI with [`pypa/gh-action-pypi-publish`][gh-action-pypi-publish]
     (the official PyPA action), attestations are generated and uploaded automatically
