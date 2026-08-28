@@ -2,16 +2,6 @@ site_name: Warehouse Developer Documentation
 site_url: https://warehouse.pypa.io/
 docs_dir: dev
 site_dir: dev-site
-plugins:
-  - search
-  - redirects:
-      redirect_maps:
-        'api-reference/feeds.md': 'https://docs.pypi.org/api/feeds/'
-        'api-reference/json.md': 'https://docs.pypi.org/api/json/'
-        'api-reference/legacy.md': 'https://docs.pypi.org/api/index-api/'
-        'api-reference/stats.md': 'https://docs.pypi.org/api/stats/'
-        'api-reference/integration-guide.md': 'https://docs.pypi.org/api/#integration-guide'
-        'api-reference/bigquery-datasets.md': 'https://docs.pypi.org/api/bigquery'
 markdown_extensions:
   - admonition
   - attr_list
