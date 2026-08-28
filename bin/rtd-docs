@@ -11,18 +11,18 @@ if [ "${READTHEDOCS_PROJECT}" = "warehouse" ]; then
   fi
   pip install -r requirements/docs-dev.txt
   asdf reshim
-  mkdocs build -f docs/mkdocs-dev-docs.yml
+  zensical build -f docs/mkdocs-dev-docs.yml
   mkdir _readthedocs && mv docs/dev-site _readthedocs/html
 fi
 
 if [ "${READTHEDOCS_PROJECT}" = "docspypiorg" ]; then
-  if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git diff --quiet origin/main -- docs/user requirements/docs-user.txt .readthedocs.yaml docs/mkdocs-user-docs.yml; then
+  if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git diff --quiet origin/main -- docs/user docs/user-overrides requirements/docs-user.txt .readthedocs.yaml docs/mkdocs-user-docs.yml; then
     echo "Nothing relevant changed, skipping build..."
     exit 183;
   fi
   pip install -r requirements/docs-user.txt
   asdf reshim
-  mkdocs build -f docs/mkdocs-user-docs.yml
+  zensical build -f docs/mkdocs-user-docs.yml
   mkdir _readthedocs && mv docs/user-site _readthedocs/html
 fi
 
