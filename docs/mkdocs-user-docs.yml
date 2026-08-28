@@ -1,4 +1,5 @@
 site_name: PyPI Docs
+site_url: https://docs.pypi.org/
 docs_dir: user
 site_dir: user-site
 plugins:
