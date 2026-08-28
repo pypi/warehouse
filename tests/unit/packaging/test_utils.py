@@ -12,7 +12,100 @@ from warehouse.packaging.utils import (
     render_simple_detail,
 )
 
-from ...common.db.packaging import FileFactory, ProjectFactory, ReleaseFactory
+from ...common.db.packaging import (
+    FileEventFactory,
+    FileFactory,
+    ProjectFactory,
+    ReleaseFactory,
+)
+
+
+def test_simple_detail_uploaded_via_none(db_request):
+    project = ProjectFactory.create()
+    release = ReleaseFactory.create(project=project, version="1.0")
+    FileFactory.create(release=release, uploaded_via=None)
+
+    db_request.route_url = lambda *a, **kw: "the-url"
+    result = _simple_detail(project, db_request)
+
+    assert result["files"][0]["_uploaded_via"] is None
+    assert result["files"][0]["_trusted_publishing"] is False
+
+
+def test_simple_detail_uploaded_via_set(db_request):
+    project = ProjectFactory.create()
+    release = ReleaseFactory.create(project=project, version="1.0")
+    FileFactory.create(release=release, uploaded_via="twine/6.2.0 CPython/3.14.4")
+
+    db_request.route_url = lambda *a, **kw: "the-url"
+    result = _simple_detail(project, db_request)
+
+    assert result["files"][0]["_uploaded_via"] == "twine/6.2.0 CPython/3.14.4"
+    assert result["files"][0]["_trusted_publishing"] is False
+
+
+def test_simple_detail_trusted_publishing_via_publisher_url(db_request):
+    project = ProjectFactory.create()
+    release = ReleaseFactory.create(project=project, version="1.0")
+    f = FileFactory.create(release=release, uploaded_via="twine/6.2.0 CPython/3.14.4")
+    FileEventFactory.create(
+        source=f,
+        tag="fake:event",
+        additional={"publisher_url": "https://github.com/actions/upload"},
+    )
+
+    db_request.route_url = lambda *a, **kw: "the-url"
+    result = _simple_detail(project, db_request)
+
+    assert result["files"][0]["_uploaded_via"] == "twine/6.2.0 CPython/3.14.4"
+    assert result["files"][0]["_trusted_publishing"] is True
+
+
+def test_simple_detail_trusted_publishing_via_flag(db_request):
+    project = ProjectFactory.create()
+    release = ReleaseFactory.create(project=project, version="1.0")
+    f = FileFactory.create(release=release)
+    FileEventFactory.create(
+        source=f,
+        tag="fake:event",
+        additional={"uploaded_via_trusted_publisher": True, "publisher_url": None},
+    )
+
+    db_request.route_url = lambda *a, **kw: "the-url"
+    result = _simple_detail(project, db_request)
+
+    assert result["files"][0]["_trusted_publishing"] is True
+
+
+def test_simple_detail_trusted_publishing_costs_one_query(db_request, query_recorder):
+    """
+    Trusted-publishing status comes back in the same query as the files.
+
+    `_trusted_publishing` used to call a per-file property that issued its
+    own `COUNT` query, so a project with many files across many releases
+    cost one query per file. Confirm that no longer happens: however many
+    files a project has, listing them costs the same one query.
+    """
+    project = ProjectFactory.create()
+    for i in range(5):
+        release = ReleaseFactory.create(project=project, version=f"{i}.0")
+        f = FileFactory.create(release=release)
+        FileEventFactory.create(
+            source=f,
+            tag="fake:event",
+            additional={"uploaded_via_trusted_publisher": True, "publisher_url": None},
+        )
+
+    db_request.route_url = lambda *a, **kw: "the-url"
+    assert project.lifecycle_status is None  # load the project row before counting
+
+    query_recorder.clear()
+    with query_recorder:
+        result = _simple_detail(project, db_request)
+
+    assert len(result["files"]) == 5
+    assert all(f["_trusted_publishing"] is True for f in result["files"])
+    assert len(query_recorder.queries) == 1, query_recorder.queries
 
 
 def test_simple_detail_empty_string(db_request):
