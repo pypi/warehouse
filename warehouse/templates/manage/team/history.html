@@ -54,7 +54,7 @@
     {% elif event.tag.endswith(":delete") %}
       {% set deleted_by = get_user(event.additional.deleted_by_user_id).username %}
       <small>
-        {% trans %}Deleted by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=deleted_by) }}">{{ deleted_by }}</a>
+        {% trans "team" %}Deleted by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=deleted_by) }}">{{ deleted_by }}</a>
       </small>
     {% elif event.tag.endswith(":rename") %}
       {% set renamed_by = get_user(event.additional.renamed_by_user_id).username %}

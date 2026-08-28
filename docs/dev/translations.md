@@ -61,6 +61,34 @@ ngettext("Yesterday", "In the past", numDays);
 // -> (en) numDays is 1: "Yesterday"; numDays is 3: "In the past"
 ```
 
+## Disambiguating strings that repeat
+
+The same English string can need different translations depending on what it
+refers to. `"Deleted by:"` appears on the organization, team and project
+history pages, and in Portuguese the participle inflects with the gender of the
+thing deleted - "project" is masculine where "organization" and "team" are
+feminine - so one catalog entry cannot serve all three.
+
+Give the string a context by putting a literal string immediately after
+`trans`:
+
+```html
+{% trans "organization" %}Deleted by:{% endtrans %}
+```
+
+Each context becomes a separate entry in the catalog, carrying an `msgctxt`
+line that tells the translator which occurrence they are looking at:
+
+```po
+msgctxt "organization"
+msgid "Deleted by:"
+msgstr ""
+```
+
+Adding a context to a string that already had translations resets them, since
+translators are now answering a different question. Only add one where the
+occurrences genuinely need to differ.
+
 ## Passing non-translatable values to translated strings
 
 In html, to pass values you don't want to be translated into

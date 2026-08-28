@@ -70,12 +70,54 @@ def _make_newer_ngettext(
     return ngettext
 
 
+# GNU gettext stores a contextual message under "context\x04message", which is
+# what pybabel compiles an `msgctxt` into.
+CONTEXT_SEPARATOR = "\x04"
+
+
+def _make_context_gettext(func: t.Callable[[str], str]) -> t.Callable[[str, str], str]:
+    """
+    Derive a pgettext from a plain gettext.
+
+    pyramid_jinja2 installs only gettext and ngettext, so without this
+    `{% trans "context" %}` renders a call to None. Looking the message up under
+    its context-prefixed key is all a real pgettext does; a key that comes back
+    unchanged had no translation, and the bare message is the fallback.
+    """
+
+    def pgettext(context: str, message: str) -> str:
+        key = f"{context}{CONTEXT_SEPARATOR}{message}"
+        translated = func(key)
+        return message if translated == key else translated
+
+    return pgettext
+
+
+def _make_context_ngettext(
+    func: t.Callable[[str, str, int], str],
+) -> t.Callable[[str, str, str, int], str]:
+    """
+    Derive an npgettext from a plain ngettext, as _make_context_gettext does.
+
+    The context prefixes the singular, since that is the key a catalog stores
+    the plural forms under.
+    """
+
+    def npgettext(context: str, singular: str, plural: str, num: int) -> str:
+        key = f"{context}{CONTEXT_SEPARATOR}{singular}"
+        translated = func(key, plural, num)
+        return singular if translated == key else translated
+
+    return npgettext
+
+
 class FallbackInternationalizationExtension(InternationalizationExtension):
     """
     Replica of InternationalizationExtension which overrides a single
     method _install_callables to inject our own wrappers for gettext
     and ngettext with the _make_newer_gettext and _make_newer_ngettext
-    defined above.
+    defined above, and to supply a pgettext/npgettext pair that our
+    renderer never passes in.
 
     Diff from original method is:
 
@@ -83,6 +125,8 @@ class FallbackInternationalizationExtension(InternationalizationExtension):
     -            ngettext = _make_new_ngettext(ngettext)
     +            gettext = _make_newer_gettext(gettext)
     +            ngettext = _make_newer_ngettext(ngettext)
+
+    plus the pgettext/npgettext defaulting above the newstyle branch.
     """
 
     def _install_callables(
@@ -95,15 +139,20 @@ class FallbackInternationalizationExtension(InternationalizationExtension):
     ) -> None:
         if newstyle is not None:
             self.environment.newstyle_gettext = newstyle  # type: ignore[attr-defined]
+
+        # pyramid_jinja2 calls install_gettext_callables() with gettext and
+        # ngettext only, so a template using `{% trans "context" %}` would
+        # otherwise call None. Derive the contextual pair from the plain ones.
+        if pgettext is None:
+            pgettext = _make_context_gettext(gettext)
+        if npgettext is None:
+            npgettext = _make_context_ngettext(ngettext)
+
         if self.environment.newstyle_gettext:  # type: ignore[attr-defined]
             gettext = _make_newer_gettext(gettext)
             ngettext = _make_newer_ngettext(ngettext)
-
-            if pgettext is not None:
-                pgettext = _make_new_pgettext(pgettext)
-
-            if npgettext is not None:
-                npgettext = _make_new_npgettext(npgettext)
+            pgettext = _make_new_pgettext(pgettext)
+            npgettext = _make_new_npgettext(npgettext)
 
         self.environment.globals.update(
             gettext=gettext, ngettext=ngettext, pgettext=pgettext, npgettext=npgettext

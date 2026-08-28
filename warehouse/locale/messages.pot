@@ -4567,7 +4567,7 @@ msgid "Recent account activity"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:938
-#: warehouse/templates/manage/organization/history.html:213
+#: warehouse/templates/manage/organization/history.html:218
 #: warehouse/templates/manage/project/history.html:333
 #: warehouse/templates/manage/team/history.html:87
 #: warehouse/templates/manage/unverified-account.html:530
@@ -4575,8 +4575,8 @@ msgid "Event"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:939
-#: warehouse/templates/manage/organization/history.html:214
-#: warehouse/templates/manage/organization/history.html:223
+#: warehouse/templates/manage/organization/history.html:219
+#: warehouse/templates/manage/organization/history.html:228
 #: warehouse/templates/manage/project/history.html:334
 #: warehouse/templates/manage/project/history.html:343
 #: warehouse/templates/manage/team/history.html:88
@@ -4586,7 +4586,7 @@ msgid "Time"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:940
-#: warehouse/templates/manage/organization/history.html:215
+#: warehouse/templates/manage/organization/history.html:220
 #: warehouse/templates/manage/team/history.html:89
 #: warehouse/templates/manage/unverified-account.html:532
 msgid "Additional Info"
@@ -4598,13 +4598,13 @@ msgid "Date / time"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:952
-#: warehouse/templates/manage/organization/history.html:227
+#: warehouse/templates/manage/organization/history.html:232
 #: warehouse/templates/manage/unverified-account.html:543
 msgid "Location Info"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:955
-#: warehouse/templates/manage/organization/history.html:230
+#: warehouse/templates/manage/organization/history.html:235
 #: warehouse/templates/manage/project/history.html:350
 #: warehouse/templates/manage/team/history.html:104
 #: warehouse/templates/manage/unverified-account.html:546
@@ -4954,7 +4954,7 @@ msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:631
 #: warehouse/templates/manage/organization/history.html:113
-#: warehouse/templates/manage/organization/history.html:179
+#: warehouse/templates/manage/organization/history.html:184
 #: warehouse/templates/manage/project/history.html:27
 #: warehouse/templates/manage/project/history.html:80
 #: warehouse/templates/manage/project/history.html:119
@@ -4968,7 +4968,7 @@ msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:633
 #: warehouse/templates/manage/organization/history.html:121
-#: warehouse/templates/manage/organization/history.html:184
+#: warehouse/templates/manage/organization/history.html:189
 #: warehouse/templates/manage/project/history.html:46
 #: warehouse/templates/manage/project/history.html:111
 #: warehouse/templates/manage/project/history.html:126
@@ -6417,45 +6417,49 @@ msgid "Created by:"
 msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:158
-#: warehouse/templates/manage/project/history.html:293
-#: warehouse/templates/manage/project/history.html:315
 #: warehouse/templates/manage/team/history.html:57
+msgctxt "team"
 msgid "Deleted by:"
 msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:163
+msgctxt "organization"
+msgid "Deleted by:"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:168
 #: warehouse/templates/manage/team/history.html:62
 msgid "Renamed by:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:168
+#: warehouse/templates/manage/organization/history.html:173
 msgid "Approved by:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:173
+#: warehouse/templates/manage/organization/history.html:178
 msgid "Declined by:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:189
+#: warehouse/templates/manage/organization/history.html:194
 #: warehouse/templates/manage/project/history.html:133
 #: warehouse/templates/manage/project/history.html:179
 #: warehouse/templates/manage/team/history.html:78
 msgid "Changed by:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:194
 #: warehouse/templates/manage/organization/history.html:199
+#: warehouse/templates/manage/organization/history.html:204
 #: warehouse/templates/manage/project/history.html:140
 #: warehouse/templates/manage/project/history.html:147
 msgid "Invited by:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:204
+#: warehouse/templates/manage/organization/history.html:209
 #: warehouse/templates/manage/project/history.html:154
 msgid "Revoked by:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:210
+#: warehouse/templates/manage/organization/history.html:215
 #: warehouse/templates/manage/project/history.html:330
 #: warehouse/templates/manage/team/history.html:84
 #, python-format
@@ -7270,6 +7274,12 @@ msgstr ""
 #: warehouse/templates/manage/project/history.html:291
 #: warehouse/templates/manage/project/history.html:313
 msgid "Project alternate repository deleted"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:293
+#: warehouse/templates/manage/project/history.html:315
+msgctxt "alternate repository"
+msgid "Deleted by:"
 msgstr ""
 
 #: warehouse/templates/manage/project/history.html:335
