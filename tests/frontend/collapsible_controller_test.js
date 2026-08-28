@@ -5,45 +5,77 @@
 import { Application } from "@hotwired/stimulus";
 import CollapsibleController from "../../warehouse/static/js/warehouse/controllers/collapsible_controller";
 
+const calloutBlock = `
+  <details id="element" class="callout-block" data-controller="collapsible" data-collapsible-identifier="project_roles" open>
+    <summary id="collapse" class="callout-block__heading" data-action="click->collapsible#save">Project Roles</summary>
+  </details>
+`;
+
+const start = () => {
+  const application = Application.start();
+  application.register("collapsible", CollapsibleController);
+};
+
 describe("Collapsible controller", () => {
   beforeEach(() => {
-    document.body.innerHTML = `
-  <details id="element" class="callout-block" data-controller="collapsible" data-collapsible-identifier="project_roles" open>
-    <summary id="collapse" class="callout-block__heading" data-action="click->collapsible#save">Project Roles</h3>
-  </details>
-    `;
-
-    const application = Application.start();
-    application.register("collapsible", CollapsibleController);
+    localStorage.clear();
+    document.body.innerHTML = calloutBlock;
   });
 
-  describe("no cookie is present", function() {
-    it("the element is not collapsed", function() {
-      const el = document.getElementById("element");
-      expect(el).toHaveAttribute("open");
+  describe("nothing stored", function () {
+    beforeEach(start);
+
+    it("the element keeps the state it was rendered with", function () {
+      expect(document.getElementById("element")).toHaveAttribute("open");
     });
 
-    it("the element is collapsible", function() {
-      const summary = document.getElementById("collapse");
-      summary.click();
+    it("collapsing stores the state", function (done) {
+      document.getElementById("collapse").click();
+      document.getElementById("element").removeAttribute("open");
 
-      const el = document.getElementById("element");
-      expect(el).not.toHaveAttribute("open");
-
-      setTimeout(function () {
-        expect(document.cookie).toContain("callout_block_project_role_collapsed=1");
+      // `save` defers to a macrotask so it observes the state the browser
+      // settles on after the summary click, so the assertion has to as well.
+      setTimeout(() => {
+        expect(localStorage.getItem("callout_block_project_roles_collapsed")).toEqual("1");
+        done();
       }, 0);
     });
   });
 
-  describe("cookie is present", function() {
-    it("the element is collapsed", function() {
-      document.cookie = "callout_block_settings_collapsed=1";
-      const application = Application.start();
-      application.register("collapsible", CollapsibleController);
+  describe("stored as collapsed", function () {
+    // Application.start() connects controllers asynchronously, so the store has
+    // to be seeded and the application started before the assertion's tick.
+    beforeEach(() => {
+      localStorage.setItem("callout_block_project_roles_collapsed", "1");
+      start();
+    });
 
-      const el = document.getElementById("element");
-      expect(el).toHaveAttribute("open");
+    it("the element starts collapsed", function () {
+      expect(document.getElementById("element")).not.toHaveAttribute("open");
+    });
+  });
+
+  describe("stored as expanded", function () {
+    // Application.start() connects controllers asynchronously, so the store has
+    // to be seeded and the application started before the assertion's tick.
+    beforeEach(() => {
+      localStorage.setItem("callout_block_project_roles_collapsed", "0");
+      start();
+    });
+
+    it("the element starts expanded", function () {
+      expect(document.getElementById("element")).toHaveAttribute("open");
+    });
+  });
+
+  describe("stored under a different identifier", function () {
+    beforeEach(() => {
+      localStorage.setItem("callout_block_organization_roles_collapsed", "1");
+      start();
+    });
+
+    it("the element is left alone", function () {
+      expect(document.getElementById("element")).toHaveAttribute("open");
     });
   });
 });
