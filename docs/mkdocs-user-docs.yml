@@ -5,7 +5,7 @@ plugins:
   - search
   - material-plausible
   - macros:
-      module_name: user/main
+      module_name: user-macros
       j2_block_start_string: "<!--[[%"
       j2_block_end_string: "%]]-->"
       j2_variable_start_string: "<!--[["
