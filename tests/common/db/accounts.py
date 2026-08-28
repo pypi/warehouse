@@ -12,10 +12,12 @@ from warehouse.accounts.models import (
     OAuthAccountAssociation,
     ProhibitedEmailDomain,
     ProhibitedUserName,
+    RecoveryCode,
     TermsOfServiceEngagement,
     User,
     UserTermsOfServiceEngagement,
     UserUniqueLogin,
+    WebAuthn,
 )
 
 from .base import WarehouseFactory
@@ -152,7 +154,27 @@ class OAuthAccountAssociationFactory(WarehouseFactory):
     service = "github"
     external_user_id = factory.Sequence(lambda n: f"{n}")
     external_username = factory.Faker("user_name")
-    metadata_ = {}
+    metadata_: dict = {}
+
+
+class WebAuthnFactory(WarehouseFactory):
+    class Meta:
+        model = WebAuthn
+
+    user = factory.SubFactory(UserFactory)
+    label = factory.Faker("word")
+    credential_id = factory.Faker("uuid4")
+    public_key = factory.Faker("uuid4")
+    sign_count = 0
+
+
+class RecoveryCodeFactory(WarehouseFactory):
+    class Meta:
+        model = RecoveryCode
+
+    user = factory.SubFactory(UserFactory)
+    code = factory.Faker("sha256")
+    generated = factory.Faker("date_time_between", start_date="-1y", tzinfo=None)
 
 
 class UserObservationFactory(WarehouseFactory):

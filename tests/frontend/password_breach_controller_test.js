@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-/* global expect, beforeEach, describe, it */
+/* global expect, beforeEach, afterEach, describe, it */
 
 import { fireEvent } from "@testing-library/dom";
 import { Application } from "@hotwired/stimulus";
@@ -20,6 +20,13 @@ describe("Password breach controller", () => {
 
     application = Application.start();
     application.register("password-breach", PasswordBreachController);
+  });
+
+  afterEach(() => {
+    // Each test starts its own application. Without stopping it the previous
+    // controllers stay bound to the input, and every one of them answers the
+    // next input event with its own request.
+    application.stop();
   });
 
   describe("initial state", () => {
@@ -87,9 +94,7 @@ describe("Password breach controller", () => {
         fireEvent.input(passwordField, { target: { value: "foo" } });
 
         await delay(25);
-        // TODO: mocks are not being reset between runs
-        // expect(fetch.mock.calls.length).toEqual(1);
-        expect(fetch.mock.calls.length).toEqual(3);
+        expect(fetch.mock.calls.length).toEqual(1);
         expect(document.getElementById("message")).not.toHaveClass("hidden");
       });
     });
@@ -103,9 +108,7 @@ describe("Password breach controller", () => {
         fireEvent.input(passwordField, { target: { value: verySecurePassword } });
 
         await delay(25);
-        // TODO: mocks are not being reset between runs
-        // expect(fetch.mock.calls.length).toEqual(1);
-        expect(fetch.mock.calls.length).toEqual(4);
+        expect(fetch.mock.calls.length).toEqual(1);
         expect(document.getElementById("message")).toHaveClass("hidden");
       });
     });

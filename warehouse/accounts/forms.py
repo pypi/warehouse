@@ -6,6 +6,8 @@ import contextlib
 import json
 import re
 
+from typing import TYPE_CHECKING
+
 import disposable_email_domains
 import dns.resolver
 import email_validator
@@ -21,6 +23,7 @@ from warehouse import forms
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
     InvalidRecoveryCode,
+    IUserService,
     NoRecoveryCodes,
     TooManyFailedLogins,
 )
@@ -35,6 +38,11 @@ from warehouse.email import (
 from warehouse.events.tags import EventTag
 from warehouse.i18n import localize as _
 from warehouse.utils import otp, webauthn
+
+if TYPE_CHECKING:
+    import uuid
+
+    from pyramid.request import Request
 
 # Common messages, set as constants to keep them from drifting.
 INVALID_EMAIL_MESSAGE = _("The email address isn't valid. Try again.")
@@ -174,7 +182,33 @@ class NewUsernameMixin:
             )
 
 
+class UserIdMixin:
+    # `user_id` is a `UUID` when it comes straight from the database, but a `str` once
+    # it has been round-tripped through an `ITokenService`, which stringifies its
+    # payload.
+    def __init__(
+        self, *args, user_id: uuid.UUID | str, user_service: IUserService, **kwargs
+    ) -> None:
+        # `PasswordMixin.validate_password` skips the password check entirely when
+        # there is no user id, so refuse to build a form that would accept any
+        # password. Callers are expected to have resolved a user by this point.
+        if user_id is None:
+            raise ValueError("user_id is required")
+        self.user_id = user_id
+        self.user_service = user_service
+        super().__init__(*args, **kwargs)
+
+    def get_user_id(self) -> uuid.UUID | str | None:
+        return self.user_id
+
+
 class PasswordMixin:
+    # Supplied by whatever this mixin is combined with:
+    # `username` by `UsernameMixin`
+    # `user_service` by `UserIdMixin` or the form itself.
+    username: wtforms.StringField
+    user_service: IUserService
+
     password = wtforms.PasswordField(
         validators=[
             wtforms.validators.InputRequired(),
@@ -194,11 +228,16 @@ class PasswordMixin:
         self._check_password_metrics_tags = check_password_metrics_tags
         super().__init__(*args, **kwargs)
 
+    # `find_userid` only ever returns a `UUID`, but the return type has to stay wide
+    # enough to compose with `UserIdMixin` in `ReAuthenticateForm`.
+    def get_user_id(self) -> uuid.UUID | str | None:
+        return self.user_service.find_userid(self.username.data)
+
     def validate_password(self, field):
         if field.errors:
             return
 
-        userid = self.user_service.find_userid(self.username.data)
+        userid = self.get_user_id()
         if userid is not None:
             try:
                 if not self.user_service.check_password(
@@ -492,12 +531,10 @@ class LoginForm(PasswordMixin, UsernameMixin, wtforms.Form):
                 )
 
 
-class _TwoFactorAuthenticationForm(wtforms.Form):
-    def __init__(self, *args, request, user_id, user_service, **kwargs):
+class _TwoFactorAuthenticationForm(UserIdMixin, wtforms.Form):
+    def __init__(self, *args, request: Request, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.request = request
-        self.user_id = user_id
-        self.user_service = user_service
 
     remember_device = wtforms.BooleanField(default=False)
 
@@ -558,18 +595,14 @@ class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticati
         self.validated_credential = validated_credential
 
 
-class ReAuthenticateForm(PasswordMixin, wtforms.Form):
+class ReAuthenticateForm(UserIdMixin, PasswordMixin, wtforms.Form):
     __params__ = [
-        "username",
         "password",
         "next_route",
         "next_route_matchdict",
         "next_route_query",
     ]
 
-    username = wtforms.fields.HiddenField(
-        validators=[wtforms.validators.InputRequired()]
-    )
     next_route = wtforms.fields.HiddenField(
         validators=[wtforms.validators.InputRequired()]
     )
@@ -579,10 +612,6 @@ class ReAuthenticateForm(PasswordMixin, wtforms.Form):
     next_route_query = wtforms.fields.HiddenField(
         validators=[wtforms.validators.InputRequired()]
     )
-
-    def __init__(self, *args, user_service, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.user_service = user_service
 
 
 class RecoveryCodeAuthenticationForm(

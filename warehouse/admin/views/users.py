@@ -27,18 +27,31 @@ from warehouse.accounts.interfaces import (
 from warehouse.accounts.models import (
     DisableReason,
     Email,
-    ProhibitedEmailDomain,
     ProhibitedUserName,
     User,
 )
-from warehouse.accounts.utils import update_email_domain_status
+from warehouse.accounts.utils import (
+    prohibit_email_domain,
+    tld_extractor,
+    update_email_domain_status,
+)
+from warehouse.admin.user_export import export_user
 from warehouse.authnz import Permissions
 from warehouse.email import (
     send_account_recovery_initiated_email,
     send_password_reset_by_admin_email,
 )
+from warehouse.manage.views.view_helpers import (
+    deactivate_organization_for_owner_removal,
+)
 from warehouse.observations.models import ObservationKind
+from warehouse.organizations.models import (
+    Organization,
+    OrganizationRole,
+    OrganizationRoleType,
+)
 from warehouse.packaging.models import File, JournalEntry, Project, Release, Role
+from warehouse.utils import now
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import clear_project_quarantine, quarantine_project
 
@@ -223,6 +236,7 @@ def user_detail(user, request):
     return {
         "user": user,
         "user_projects": user_projects,
+        "sole_owned_organizations": _sole_owned_organizations(user, request),
         "form": form,
         "emails_form": emails_form,
         "roles": roles,
@@ -230,6 +244,44 @@ def user_detail(user, request):
         "breached_email_count": breached_email_count,
         "submitted_by_journals": submitted_by_journals,
     }
+
+
+@view_config(
+    route_name="admin.user.export",
+    renderer="json",
+    permission=Permissions.AdminUsersExport,
+    request_method="GET",
+    uses_session=True,
+    context=User,
+)
+def user_export(user: User, request: Request) -> dict | HTTPMovedPermanently:
+    """Download a user account export: the account's full footprint as JSON."""
+    if user.username != request.matchdict.get("username", user.username):
+        return HTTPMovedPermanently(request.current_route_path(username=user.username))
+
+    generated_at = now(tz=True)
+    document = export_user(user, request, generated_at=generated_at)
+
+    # The export discloses the account's PII in full, so leave a record of
+    # who took a copy, and when.
+    user.record_observation(
+        request=request,
+        kind=ObservationKind.AccountExport,
+        actor=request.user,
+        summary="User Account Export",
+        payload={
+            "exported_by": request.user.username,
+            "exported_by_id": str(request.user.id),
+            "remote_addr": request.remote_addr,
+        },
+    )
+
+    timestamp = generated_at.strftime("%Y%m%d%H%M%S")
+    request.response.content_disposition = (
+        "attachment; "
+        f'filename="user-account-export-{user.username}-{user.id}-{timestamp}.json"'
+    )
+    return document
 
 
 @view_config(
@@ -357,6 +409,19 @@ def user_email_delete(user: User, request: Request) -> HTTPSeeOther:
     return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
 
 
+def _sole_owned_organizations(user, request):
+    """Organizations with exactly one Owner role, belonging to this user."""
+    return (
+        request.db.query(Organization)
+        .join(OrganizationRole, OrganizationRole.organization_id == Organization.id)
+        .filter(OrganizationRole.role_name == OrganizationRoleType.Owner)
+        .group_by(Organization.id)
+        .having(func.count(OrganizationRole.user_id) == 1)
+        .having(func.bool_or(OrganizationRole.user_id == user.id))
+        .all()
+    )
+
+
 def _nuke_user(user, request):
     # Delete all the user's projects
     projects = request.db.query(Project).filter(
@@ -383,6 +448,13 @@ def _nuke_user(user, request):
         .values(_submitted_by=deleted_user.username)
         .execution_options(synchronize_session=False)
     )
+
+    # Deactivate (and record an event for) any organization the user is the
+    # sole owner of.
+    for organization in _sole_owned_organizations(user, request):
+        deactivate_organization_for_owner_removal(
+            request, organization, target_user=user, reason="nuked"
+        )
 
     # Prohibit the username
     request.db.add(
@@ -439,14 +511,21 @@ def user_freeze(user, request):
 
     user.is_frozen = True
 
+    # Blocklist only an email whose domain IS its own registrable: a
+    # subdomain-hosted address (grad.mit.edu, team.github.io) may live under
+    # a shared parent apex that other accounts legitimately use, so freezing
+    # one account must not blocklist the parent. Those are left for a
+    # deliberate admin decision.
     for email in user.emails:
-        if email.verified:
-            request.db.add(
-                ProhibitedEmailDomain(
-                    domain=email.domain,
-                    comment="frozen",
-                    prohibited_by=request.user,
-                )
+        if not email.verified:
+            continue
+        registrable = tld_extractor(email.domain).top_domain_under_public_suffix
+        if registrable and registrable == email.domain:
+            prohibit_email_domain(
+                request.db,
+                registrable,
+                comment="frozen",
+                prohibited_by=request.user,
             )
 
     request.session.flash(f"Froze user {user.username!r}", queue="success")

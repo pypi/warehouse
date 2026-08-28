@@ -1,12 +1,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
+from google.cloud import bigquery
+from google.cloud.storage import Client as storage_Client
+
 from warehouse import gcloud
 
 
 def test_gcloud_bigquery_factory(pyramid_request, mocker):
     client = mocker.sentinel.client
     from_service_account_info = mocker.patch.object(
-        gcloud.bigquery.Client,
+        bigquery.Client,
         "from_service_account_info",
         autospec=True,
         return_value=client,
@@ -26,7 +29,7 @@ def test_gcloud_bigquery_factory(pyramid_request, mocker):
 def test_gcloud_gcs_factory(pyramid_request, mocker):
     client = mocker.sentinel.client
     from_service_account_info = mocker.patch.object(
-        gcloud.storage_Client,
+        storage_Client,
         "from_service_account_info",
         autospec=True,
         return_value=client,
@@ -52,3 +55,9 @@ def test_includeme(mocker):
         mocker.call(gcloud.gcloud_bigquery_factory, name="gcloud.bigquery"),
         mocker.call(gcloud.gcloud_gcs_factory, name="gcloud.gcs"),
     ]
+
+
+def test_no_module_level_google_imports():
+    """The google.cloud imports should be deferred, not at module level."""
+    assert not hasattr(gcloud, "bigquery")
+    assert not hasattr(gcloud, "storage_Client")

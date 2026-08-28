@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 @use "../settings/breakpoints";
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/fonts";
 
 /*
@@ -39,10 +39,10 @@
       top: 13px;
       width: 12px;
       height: 0;
-      border-top: 2px solid colours.$light-grey;
+      border-top: 2px solid colors.$light-grey;
 
       @media only screen and (max-width: breakpoints.$desktop) {
-        border-top-color: colours.$primary-color-light;
+        border-top-color: colors.$primary-color-light;
       }
     }
 
@@ -53,10 +53,10 @@
       height: 100%;
       width: 0;
       top: -2px;
-      border-left: 2px solid colours.$light-grey;
+      border-left: 2px solid colors.$light-grey;
 
       @media only screen and (max-width: breakpoints.$desktop) {
-        border-left-color: colours.$primary-color-light;
+        border-left-color: colors.$primary-color-light;
       }
     }
   }
@@ -73,7 +73,7 @@
   @media only screen and (max-width: breakpoints.$desktop) {
     &__checkbox[type="checkbox"]:active,
     &__checkbox[type="checkbox"]:focus {
-      outline: 1px solid colours.$white;
+      outline: 1px solid colors.$white;
     }
   }
 

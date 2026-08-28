@@ -2,7 +2,7 @@
 
 @use "sass:list";
 @use "../settings/breakpoints";
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/z-index";
 @use "../tools/design-utilities";
 @use "../tools/link-utilities";
@@ -36,7 +36,7 @@
     height: 100%;
     top: 0;
     left: 0;
-    background-color: colours.$primary-color;
+    background-color: colors.$primary-color;
     width: 300px;
     max-width: 100%;
     z-index: list.index(z-index.$z-index-scale, "filter-panel");
@@ -44,18 +44,18 @@
     &__close {
       display: inline-block;
       @include design-utilities.dismiss-button;
-      color: colours.$white;
-      @include link-utilities.link-focus-state(colours.$white);
+      color: colors.$white;
+      @include link-utilities.link-focus-state(colors.$white);
     }
 
     h2,
     label,
     a {
-      color: colours.$white;
+      color: colors.$white;
     }
 
     a {
-      color: colours.$white;
+      color: colors.$white;
       @include link-utilities.white-underlined-link;
     }
   }

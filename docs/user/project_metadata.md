@@ -113,12 +113,13 @@ An entry URL must point to a domain below to display a custom icon. Custom
 subdomains are also matched. For instance, if `domain.com` is listed, a URL
 ending in `.domain.com` will also match.
 
-| Service   | Icon                           | Domain                    |
-|:----------|:-------------------------------|:--------------------------|
-| Bitbucket | :fontawesome-brands-bitbucket: | `bitbucket.org`           |
-| GitHub    | :fontawesome-brands-github:    | `github.com`, `github.io` |
-| GitLab    | :fontawesome-brands-gitlab:    | `gitlab.com`              |
-| Google    | :fontawesome-brands-google:    | `google.com`              |
+| Service   | Icon                           | Domain                          |
+|:----------|:-------------------------------|:--------------------------------|
+| Bitbucket | :fontawesome-brands-bitbucket: | `bitbucket.org`                 |
+| Codeberg  | :simple-codeberg:              | `codeberg.org`, `codeberg.page` |
+| GitHub    | :fontawesome-brands-github:    | `github.com`, `github.io`       |
+| GitLab    | :fontawesome-brands-gitlab:    | `gitlab.com`                    |
+| Google    | :fontawesome-brands-google:    | `google.com`                    |
 
 
 #### Social Media Platforms

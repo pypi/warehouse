@@ -9,20 +9,29 @@
     "lint:fix": "eslint 'warehouse/static/js/warehouse/**' 'warehouse/admin/static/js/**' 'tests/frontend/**' 'webpack.*.js' --fix",
     "stylelint": "stylelint '**/*.scss' --cache --cache-location .cache/stylelint",
     "stylelint:fix": "stylelint '**/*.scss' --cache --cache-location .cache/stylelint --fix",
-    "test": "NODE_OPTIONS='$NODE_OPTIONS --experimental-vm-modules' jest --coverage"
+    "test": "NODE_OPTIONS=\"$NODE_OPTIONS --experimental-vm-modules\" jest --coverage"
   },
   "jest": {
     "setupFilesAfterEnv": [
       "./tests/frontend/setup.js"
     ],
     "testEnvironment": "jsdom",
-    "testRegex": ".*_test.js"
+    "testRegex": ".*_test.js",
+    "moduleNameMapper": {
+      "^tabulator-tables$": "<rootDir>/node_modules/tabulator-tables/dist/js/tabulator_esm.js"
+    },
+    "transformIgnorePatterns": [
+      "/node_modules/(?!tabulator-tables/)"
+    ],
+    "transform": {
+      "\\.m?[jt]sx?$": "babel-jest"
+    }
   },
   "dependencies": {
     "@fontsource/ewert": "^5.2.8",
     "@fontsource/source-code-pro": "^5.2.7",
     "@fontsource/source-sans-3": "^5.2.9",
-    "@fortawesome/fontawesome-free": "^7.1.0",
+    "@fortawesome/fontawesome-free": "^7.3.0",
     "@hotwired/stimulus": "^3.2.1",
     "@hotwired/stimulus-webpack-helpers": "^1.0.1",
     "@zxcvbn-ts/core": "^3.0.4",
@@ -33,7 +42,8 @@
     "debounce": "^1.2.1",
     "jquery": "^3.7.0",
     "normalize.css": "^8.0.1",
-    "stimulus-autocomplete": "^3.1.0"
+    "stimulus-autocomplete": "^3.1.0",
+    "tabulator-tables": "^6.4.0"
   },
   "overrides": {
     "datatables.net": "^1.13.11",
@@ -66,11 +76,11 @@
     "rtlcss": "^4.0.0",
     "sass-embedded": "^1.57.1",
     "sass-loader": "^16.0.4",
-    "sharp": "^0.34.0",
+    "sharp": "^0.35.0",
     "stylelint": "^16.6.1",
     "stylelint-config-standard-scss": "^14.0.0",
     "stylelint-selector-bem-pattern": "^4.0.0",
-    "svgo": "^3.0.2",
+    "svgo": "^4.0.0",
     "webpack": "^5.94.0",
     "webpack-cli": "^6.0.1",
     "webpack-livereload-plugin": "^3.0.2",

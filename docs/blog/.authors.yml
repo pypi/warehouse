@@ -39,3 +39,11 @@ authors:
     name: Maria Ashna
     description: PyPI Support Specialist (PSF)
     avatar: https://github.com/Thespi-Brain.png
+  nlh:
+    name: Nicole Harris
+    description: PyPI Design Contributor
+    avatar: https://github.com/nlhkabu.png
+  jacobcoffee:
+    name: Jacob Coffee
+    description: Director of Engineering, Python Software Foundation (PSF)
+    avatar: https://github.com/JacobCoffee.png

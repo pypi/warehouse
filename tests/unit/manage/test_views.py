@@ -38,6 +38,7 @@ from warehouse.manage.views import (
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     OrganizationRoleType,
+    OrganizationType,
     TeamProjectRole,
     TeamProjectRoleType,
 )
@@ -152,6 +153,8 @@ class TestManageUnverifiedAccount:
         user_service = pretend.stub(
             add_email=pretend.call_recorder(lambda *a, **kw: new_email),
         )
+        limiter = pretend.stub(test=lambda *a: True, hit=lambda *a: True)
+        limiters = {"email.change": limiter, "email.add": limiter}
         request = pretend.stub(
             POST={"change_unverified_primary_email": "correct@example.com"},
             user=user,
@@ -159,12 +162,9 @@ class TestManageUnverifiedAccount:
                 delete=pretend.call_recorder(lambda obj: None),
                 flush=lambda: None,
             ),
-            find_service=lambda svc, *a, **kw: {
-                IRateLimiter: pretend.stub(
-                    test=lambda *a: True,
-                    hit=lambda *a: None,
-                ),
-            }.get(svc, user_service),
+            find_service=lambda svc, *a, name=None, **kw: limiters.get(
+                name, user_service
+            ),
             session=pretend.stub(
                 flash=pretend.call_recorder(lambda *a, **kw: None),
             ),
@@ -206,6 +206,7 @@ class TestManageUnverifiedAccount:
         ]
 
     def test_change_unverified_primary_email_validation_fails(self, monkeypatch):
+        """A failed validation still spends the attempt budget."""
         user = pretend.stub(
             id=pretend.stub(),
             username="testuser",
@@ -216,12 +217,18 @@ class TestManageUnverifiedAccount:
             projects=[],
         )
         user_service = pretend.stub()
+        attempt_limiter = pretend.stub(hit=pretend.call_recorder(lambda *a: True))
+        add_limiter = pretend.stub(
+            test=lambda *a: True,
+            hit=pretend.call_recorder(lambda *a: True),
+        )
+        limiters = {"email.change": attempt_limiter, "email.add": add_limiter}
         request = pretend.stub(
             POST={"change_unverified_primary_email": "bad"},
             user=user,
-            find_service=lambda svc, *a, **kw: {
-                IRateLimiter: pretend.stub(test=lambda *a: True),
-            }.get(svc, user_service),
+            find_service=lambda svc, *a, name=None, **kw: limiters.get(
+                name, user_service
+            ),
             help_url=lambda *a, **kw: "/help",
             remote_addr="1.2.3.4",
         )
@@ -236,6 +243,48 @@ class TestManageUnverifiedAccount:
             "help_url": "/help",
             "change_unverified_primary_email_form": form_obj,
         }
+        assert attempt_limiter.hit.calls == [pretend.call(user.id)]
+        # The strict per-IP budget is only spent on a successful change.
+        assert add_limiter.hit.calls == []
+
+    def test_change_unverified_primary_email_attempt_rate_limited(self):
+        """Exhausting the attempt budget blocks before the form is validated."""
+        user = pretend.stub(
+            id=pretend.stub(),
+            username="testuser",
+            has_primary_verified_email=False,
+            has_two_factor=False,
+            emails=[],
+            projects=[],
+        )
+        attempt_limiter = pretend.stub(hit=pretend.call_recorder(lambda *a: False))
+        limiters = {
+            "email.change": attempt_limiter,
+            "email.add": pretend.stub(test=lambda *a: True),
+        }
+        request = pretend.stub(
+            POST={"change_unverified_primary_email": "new@example.com"},
+            user=user,
+            find_service=lambda svc, *a, name=None, **kw: limiters.get(
+                name, pretend.stub()
+            ),
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            ),
+            remote_addr="1.2.3.4",
+            route_path=lambda *a, **kw: "/manage/unverified/",
+        )
+        view = views.ManageUnverifiedAccountViews(request)
+        result = view.change_unverified_primary_email()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert request.session.flash.calls == [
+            pretend.call(
+                "Too many email change attempts. Try again later.",
+                queue="error",
+            )
+        ]
+        assert attempt_limiter.hit.calls == [pretend.call(user.id)]
 
     def test_change_unverified_primary_email_blocked_if_verified(self):
         request = pretend.stub(
@@ -296,7 +345,7 @@ class TestManageUnverifiedAccount:
             pretend.call(expected_message, queue="error")
         ]
 
-    def test_change_unverified_primary_email_rate_limited(self):
+    def test_change_unverified_primary_email_ip_rate_limited(self):
         user = pretend.stub(
             id=pretend.stub(),
             username="testuser",
@@ -305,12 +354,17 @@ class TestManageUnverifiedAccount:
             emails=[],
             projects=[],
         )
+        attempt_limiter = pretend.stub(hit=pretend.call_recorder(lambda *a: True))
+        limiters = {
+            "email.change": attempt_limiter,
+            "email.add": pretend.stub(test=lambda *a: False),
+        }
         request = pretend.stub(
             POST={"change_unverified_primary_email": "new@example.com"},
             user=user,
-            find_service=lambda svc, *a, **kw: {
-                IRateLimiter: pretend.stub(test=lambda *a: False),
-            }.get(svc, pretend.stub()),
+            find_service=lambda svc, *a, name=None, **kw: limiters.get(
+                name, pretend.stub()
+            ),
             session=pretend.stub(
                 flash=pretend.call_recorder(lambda *a, **kw: None),
             ),
@@ -327,6 +381,8 @@ class TestManageUnverifiedAccount:
                 queue="error",
             )
         ]
+        # Turned away before validation, so it doesn't cost the user an attempt.
+        assert attempt_limiter.hit.calls == []
 
 
 class TestManageAccount:
@@ -370,12 +426,14 @@ class TestManageAccount:
         monkeypatch.setattr(
             views.ManageVerifiedAccountViews, "active_projects", pretend.stub()
         )
+        monkeypatch.setattr(views.ManageVerifiedAccountViews, "sole_organizations", [])
 
         assert view.default_response == {
             "save_account_form": save_account_obj,
             "add_email_form": add_email_obj,
             "change_password_form": change_pass_obj,
             "active_projects": view.active_projects,
+            "sole_organizations": view.sole_organizations,
             "account_associations": account_associations,
         }
         assert view.request == request
@@ -1128,6 +1186,7 @@ class TestManageAccount:
             views.ManageVerifiedAccountViews, "default_response", pretend.stub()
         )
         monkeypatch.setattr(views.ManageVerifiedAccountViews, "active_projects", [])
+        monkeypatch.setattr(views.ManageVerifiedAccountViews, "sole_organizations", [])
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, "send_account_deletion_email", send_email)
         logout_response = pretend.stub()
@@ -1225,6 +1284,79 @@ class TestManageAccount:
                 "Cannot delete account with active project ownerships", queue="error"
             )
         ]
+
+    def test_delete_account_has_sole_organizations(self, mocker):
+        request = mocker.Mock(
+            params={"confirm_password": "password"},
+            user=mocker.Mock(username="username"),
+            session=mocker.Mock(),
+            find_service=lambda *a, **kw: mocker.Mock(),
+        )
+
+        confirm_password_obj = mocker.Mock(validate=lambda: True)
+        mocker.patch.object(
+            views, "ConfirmPasswordForm", return_value=confirm_password_obj
+        )
+
+        mocker.patch.object(
+            views.ManageVerifiedAccountViews, "default_response", mocker.Mock()
+        )
+        # No sole project ownerships, but a sole organization ownership.
+        mocker.patch.object(views.ManageVerifiedAccountViews, "active_projects", [])
+        mocker.patch.object(
+            views.ManageVerifiedAccountViews, "sole_organizations", [mocker.Mock()]
+        )
+
+        view = views.ManageVerifiedAccountViews(request)
+
+        assert view.delete_account() == view.default_response
+        request.session.flash.assert_called_once_with(
+            "Cannot delete account with sole organization ownerships", queue="error"
+        )
+
+    def test_delete_account_blocks_non_good_standing_sole_organizations(
+        self, db_request, mocker
+    ):
+        user = UserFactory.create()
+
+        # A Company org with no subscription is not in good standing, but its
+        # owner can still reach the settings page to delete it or hand it off,
+        # so it blocks account deletion like any other sole-owned organization.
+        organization = OrganizationFactory.create(
+            orgtype=OrganizationType.Company, is_active=True
+        )
+        OrganizationRoleFactory.create(
+            organization=organization,
+            user=user,
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        db_request.user = user
+        db_request.params = {"confirm_password": user.password}
+        db_request.find_service = lambda *a, **kw: mocker.Mock()
+        db_request.session = mocker.Mock()
+
+        confirm_password_obj = mocker.Mock(validate=lambda: True)
+        mocker.patch.object(
+            views, "ConfirmPasswordForm", return_value=confirm_password_obj
+        )
+        default_response = mocker.Mock()
+        mocker.patch.object(
+            views.ManageVerifiedAccountViews, "default_response", default_response
+        )
+
+        view = views.ManageVerifiedAccountViews(db_request)
+
+        assert view.delete_account() == default_response
+
+        db_request.session.flash.assert_called_once_with(
+            "Cannot delete account with sole organization ownerships", queue="error"
+        )
+        assert organization.is_active is True
+        assert (
+            db_request.db.query(User).filter(User.username == user.username).first()
+            is not None
+        )
 
 
 class Test2FA:
@@ -2836,6 +2968,11 @@ class TestManageProjects:
         team_project = ProjectFactory(
             name="team-proj", releases=[], created=datetime.datetime(2022, 3, 3)
         )
+        archived_project = ProjectFactory(
+            releases=[],
+            created=datetime.datetime(2019, 1, 1),
+            lifecycle_status=LifecycleStatus.Archived,
+        )
 
         db_request.user = UserFactory()
         RoleFactory.create(
@@ -2855,6 +2992,11 @@ class TestManageProjects:
             user=db_request.user,
             project=older_project_with_no_releases,
             role_name="Maintainer",
+        )
+        RoleFactory.create(
+            user=db_request.user,
+            project=archived_project,
+            role_name="Owner",
         )
         user_second_owner = UserFactory()
         RoleFactory.create(
@@ -2881,19 +3023,24 @@ class TestManageProjects:
         )
 
         assert views.manage_projects(db_request) == {
-            "projects": [
+            "projects_active": [
                 team_project,
                 newer_project_with_no_releases,
                 project_with_newer_release,
                 older_project_with_no_releases,
                 project_with_older_release,
             ],
+            "projects_archived": [
+                archived_project,
+            ],
             "projects_owned": {
                 project_with_newer_release.name,
                 newer_project_with_no_releases.name,
+                archived_project.name,
             },
             "projects_sole_owned": {
                 newer_project_with_no_releases.name,
+                archived_project.name,
             },
             "project_invites": [],
         }
@@ -4180,6 +4327,7 @@ class TestManageProjectRelease:
 
         assert release.yanked
         assert release.yanked_reason == "Yanky Doodle went to town"
+        assert isinstance(release.yanked_date, datetime.datetime)
 
         assert send_yanked_project_release_email.calls == [
             pretend.call(
@@ -4335,6 +4483,7 @@ class TestManageProjectRelease:
 
         assert not release.yanked
         assert not release.yanked_reason
+        assert release.yanked_date is None
 
         assert send_unyanked_project_release_email.calls == [
             pretend.call(

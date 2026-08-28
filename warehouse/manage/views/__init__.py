@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import base64
+import datetime
 import io
 
 import pyqrcode
@@ -253,37 +254,41 @@ class ManageUnverifiedAccountViews(ManageAccountMixin):
         request_param=ChangeUnverifiedPrimaryEmailForm.__params__,
     )
     def change_unverified_primary_email(self):
+        def _error(message):
+            self.request.session.flash(message, queue="error")
+            return HTTPSeeOther(self.request.route_path("manage.unverified-account"))
+
         # Guard: redirect if already verified
         if self.request.user.has_primary_verified_email:
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
         # Guard: block if user has 2FA (higher-risk account, needs admin help)
         if self.request.user.has_two_factor:
-            self.request.session.flash(
+            return _error(
                 "Cannot change email address on accounts with two-factor "
-                "authentication enabled",
-                queue="error",
+                "authentication enabled"
             )
-            return HTTPSeeOther(self.request.route_path("manage.unverified-account"))
 
         # Guard: block if user owns any projects (not a fresh registration)
         if self.request.user.projects:
-            self.request.session.flash(
-                "Cannot change email address on accounts with projects",
-                queue="error",
-            )
-            return HTTPSeeOther(self.request.route_path("manage.unverified-account"))
+            return _error("Cannot change email address on accounts with projects")
 
-        # Rate limit email changes by IP
-        email_change_ratelimit = self.request.find_service(
-            IRateLimiter, name="email.add"
+        # Rate limit successful email changes by IP. Checked first so that a
+        # request turned away here doesn't also cost the user an attempt.
+        email_add_ratelimit = self.request.find_service(IRateLimiter, name="email.add")
+        if not email_add_ratelimit.test(self.request.remote_addr):
+            return _error("Too many email change attempts. Try again later.")
+
+        # Rate limit attempts by user, spent whether or not the change
+        # succeeds. Validating the address costs us DNS lookups and tells the
+        # caller whether it is already registered, so failures have to be
+        # bounded too. `hit` tests and spends atomically, consuming nothing
+        # when it denies.
+        email_attempt_ratelimit = self.request.find_service(
+            IRateLimiter, name="email.change"
         )
-        if not email_change_ratelimit.test(self.request.remote_addr):
-            self.request.session.flash(
-                "Too many email change attempts. Try again later.",
-                queue="error",
-            )
-            return HTTPSeeOther(self.request.route_path("manage.unverified-account"))
+        if not email_attempt_ratelimit.hit(self.request.user.id):
+            return _error("Too many email change attempts. Try again later.")
 
         # Map the POST param to the "email" field expected by NewEmailMixin
         form = ChangeUnverifiedPrimaryEmailForm(
@@ -313,7 +318,7 @@ class ManageUnverifiedAccountViews(ManageAccountMixin):
             old_primary.primary = False
             self.request.db.delete(old_primary)
 
-        email_change_ratelimit.hit(self.request.remote_addr)
+        email_add_ratelimit.hit(self.request.remote_addr)
 
         # Send verification email to the new address
         send_email_verification_email(self.request, (self.request.user, new_email))
@@ -357,6 +362,10 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
         return user_projects(request=self.request)["projects_sole_owned"]
 
     @property
+    def sole_organizations(self):
+        return user_organizations(request=self.request)["organizations_with_sole_owner"]
+
+    @property
     def default_response(self):
         return {
             "save_account_form": SaveAccountForm(
@@ -377,6 +386,7 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
             ),
             "account_associations": self.account_associations,
             "active_projects": self.active_projects,
+            "sole_organizations": self.sole_organizations,
         }
 
     @view_config(request_method="GET")
@@ -545,6 +555,12 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
         if self.active_projects:
             self.request.session.flash(
                 "Cannot delete account with active project ownerships", queue="error"
+            )
+            return self.default_response
+
+        if self.sole_organizations:
+            self.request.session.flash(
+                "Cannot delete account with sole organization ownerships", queue="error"
             )
             return self.default_response
 
@@ -1172,8 +1188,20 @@ def manage_projects(request):
     project_invites = [
         (role_invite.project, role_invite.token) for role_invite in project_invites
     ]
+
+    archived_statuses = {LifecycleStatus.Archived, LifecycleStatus.ArchivedNoindex}
+    projects_sorted = sorted(projects, key=_key, reverse=True)
     return {
-        "projects": sorted(projects, key=_key, reverse=True),
+        "projects_active": [
+            project
+            for project in projects_sorted
+            if project.lifecycle_status not in archived_statuses
+        ],
+        "projects_archived": [
+            project
+            for project in projects_sorted
+            if project.lifecycle_status in archived_statuses
+        ],
         "projects_owned": projects_owned,
         "projects_sole_owned": projects_sole_owned,
         "project_invites": project_invites,
@@ -1485,6 +1513,7 @@ class ManageProjectRelease:
 
         self.release.yanked = True
         self.release.yanked_reason = yanked_reason
+        self.release.yanked_date = datetime.datetime.now(datetime.UTC)
 
         self.request.session.flash(
             self.request._(f"Yanked release {self.release.version!r}"), queue="success"
@@ -1571,6 +1600,7 @@ class ManageProjectRelease:
 
         self.release.yanked = False
         self.release.yanked_reason = ""
+        self.release.yanked_date = None
 
         self.request.session.flash(
             self.request._(f"Un-yanked release {self.release.version!r}"),

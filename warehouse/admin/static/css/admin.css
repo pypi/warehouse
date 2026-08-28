@@ -8,6 +8,8 @@
 @import "admin-lte/plugins/datatables-buttons/css/buttons.bootstrap4.css";
 @import "admin-lte/plugins/datatables-rowgroup/css/rowGroup.bootstrap4.css";
 
+@import "tabulator-tables/dist/css/tabulator_bootstrap4.css";
+
 @import "admin-lte/dist/css/adminlte.css";
 
 /* Admin styles for the Warehouse project (PyPI) */
@@ -20,6 +22,17 @@ table.dataTable {
 .table td,
 .table th {
   max-width: 30em;
+}
+
+/* Tabulator replaces the <table> with divs, so the rule above cannot reach its
+   cells, and its own stylesheet clips each one to a single line. Wrap instead:
+   the columns capped at `maxInitialWidth` are the payload and caveat blobs
+   admins are on the page to read. `anywhere` breaks an unspaced token — a
+   base64 caveat, a long URL — rather than letting it set the column width. */
+.tabulator-cell {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
 }
 
 .preserve-line-breaks {

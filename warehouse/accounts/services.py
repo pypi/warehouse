@@ -7,7 +7,6 @@ import datetime
 import functools
 import hashlib
 import http
-import logging
 import os
 import secrets
 import typing
@@ -18,6 +17,7 @@ from uuid import UUID
 import passlib.exc
 import pytz
 import requests
+import structlog
 
 from linehaul.ua import parser as linehaul_user_agent_parser
 from passlib.context import CryptContext
@@ -31,8 +31,10 @@ from zope.interface import implementer
 
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
+    EmailReputationResult,
     IDomainStatusService,
     IEmailBreachedService,
+    IEmailReputationService,
     InvalidRecoveryCode,
     IPasswordBreachedService,
     ITokenService,
@@ -69,7 +71,7 @@ from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerial
 if typing.TYPE_CHECKING:
     from pyramid.request import Request
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 PASSWORD_FIELD = "password"  # noqa: S105
 RECOVERY_CODE_COUNT = 8
@@ -762,14 +764,13 @@ class DatabaseUserService:
             )
             .one_or_none()
         )
-        should_send_email = False
-
         # Check if we've seen this device and it's been confirmed
         if unique_login and unique_login.status == UniqueLoginStatus.CONFIRMED:
             return True
 
         # Create a new login if we haven't seen this device before
-        if not unique_login:
+        is_new_device = unique_login is None
+        if is_new_device:
             unique_login = UserUniqueLogin(
                 user_id=userid,
                 ip_address=request.ip_address,
@@ -779,8 +780,6 @@ class DatabaseUserService:
             )
             request.db.add(unique_login)
             request.db.flush()  # generaten token id  # ast-grep-ignore: db-flush
-            should_send_email = True
-
             user.record_event(
                 tag=EventTag.Account.LoginNewDevice,
                 request=request,
@@ -788,19 +787,15 @@ class DatabaseUserService:
             )
 
         # Check if the login had expired
-        if unique_login.expires and unique_login.expires < datetime.datetime.now(
-            datetime.UTC
-        ):
-            # The previous token has expired, update the expiry for
-            # the login and re-send the email
+        window_lapsed = (
+            unique_login.expires is not None
+            and unique_login.expires < datetime.datetime.now(datetime.UTC)
+        )
+        if window_lapsed:
+            # The previous confirmation window has lapsed, extend the expiry
             unique_login.expires = datetime.datetime.now(
                 datetime.UTC
             ) + datetime.timedelta(seconds=token_service.max_age)
-            should_send_email = True
-
-        # If we don't need to send an email, short-circuit
-        if not should_send_email:
-            return False
 
         # Get User Agent Information
         user_agent_info_data = {}
@@ -836,13 +831,17 @@ class DatabaseUserService:
             }
         )
 
-        # Send the email
+        # The email is (re-)sent on every unconfirmed login attempt so that a
+        # lost, delayed, or bounced email doesn't strand the user.
         send_unrecognized_login_email(
             request,
             user,
             ip_address=str(request.ip_address.ip_address),
             user_agent=user_agent_info.display(),
             token=token,
+            # A new device or lapsed window means no valid token is
+            # outstanding, so disable the email's repeat_window throttle
+            **({"repeat_window": None} if is_new_device or window_lapsed else {}),
         )
 
         return False
@@ -1085,7 +1084,7 @@ class HaveIBeenPwnedPasswordBreachedService:
             resp = self._http.get(self._get_url(hashed_password[:5]))
             resp.raise_for_status()
         except requests.RequestException as exc:
-            logger.warning("Error contacting HaveIBeenPwned: %r", exc)
+            logger.warning("Error contacting HaveIBeenPwned", error=repr(exc))
             self._metrics_increment(
                 "warehouse.compromised_password_check.error", tags=tags
             )
@@ -1177,7 +1176,7 @@ class HaveIBeenPwnedEmailBreachedService:
                 and exc.response.status_code == http.HTTPStatus.NOT_FOUND
             ):
                 return 0
-            logger.warning("Error contacting HaveIBeenPwned: %r", exc)
+            logger.warning("Error contacting HaveIBeenPwned", error=repr(exc))
             return -1
 
         return len(resp.json())
@@ -1228,13 +1227,11 @@ class DomainrDomainStatusService:
             )
             resp.raise_for_status()
         except requests.RequestException as exc:
-            logger.warning("Error contacting Domainr: %r", exc)
+            logger.warning("Error contacting Domainr", error=repr(exc))
             return None
 
         if errors := resp.json().get("errors"):
-            logger.warning(
-                {"status": "Error from Domainr", "errors": errors, "domain": domain}
-            )
+            logger.warning("Error from Domainr", errors=errors, domain=domain)
             return None
 
         return resp.json()["status"][0]["status"].split()
@@ -1265,14 +1262,22 @@ class FastlyDomainStatusService:
             )
             resp.raise_for_status()
         except requests.RequestException as exc:
-            logger.warning("Error contacting Fastly: %r", exc)
+            logger.warning("Error contacting Fastly", error=repr(exc))
             return None
 
         body = resp.json()
         if errors := body.get("errors"):
-            logger.warning(
-                {"status": "Error from Fastly", "errors": errors, "domain": domain}
-            )
+            logger.warning("Error from Fastly", errors=errors, domain=domain)
             return None
 
         return body["status"].split()
+
+
+@implementer(IEmailReputationService)
+class NullEmailReputationService:
+    @classmethod
+    def create_service(cls, _context, _request) -> NullEmailReputationService:
+        return cls()
+
+    def check_email(self, email: str) -> EmailReputationResult:
+        return EmailReputationResult()

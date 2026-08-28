@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
 import datetime
 import typing
 import uuid
@@ -15,6 +17,9 @@ from warehouse.macaroons import caveats
 from warehouse.macaroons.errors import InvalidMacaroonError
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.models import Macaroon
+
+if typing.TYPE_CHECKING:
+    from pyramid.request import Request
 
 
 def _extract_raw_macaroon(prefixed_macaroon: str | None) -> str | None:
@@ -48,6 +53,45 @@ def deserialize_raw_macaroon(raw_macaroon: str | None) -> pymacaroons.Macaroon:
         Exception,  # https://github.com/ecordell/pymacaroons/issues/50
     ) as e:
         raise InvalidMacaroonError("malformed macaroon") from e
+
+
+def _record_attenuations(request: Request, extra: list[str] | None) -> None:
+    """
+    Record how a verified macaroon was attenuated, as `attenuated:<state>` on
+    `warehouse.macaroon.verify.attenuated`. `extra` is the result of
+    `caveats.attenuations()`, or None if there was nothing to compare against.
+
+    The states are:
+
+    * `unknown`: we have no stored caveats for this macaroon, so we cannot tell
+      which of its embedded caveats are ours. Only macaroons created before we
+      started storing our caveats in the database land here, so this bucket
+      should shrink over time as those tokens are replaced.
+    * `false`: every embedded caveat is one that we issued. This is what a token
+      we minted looks like when the user hasn't touched it.
+    * `true`: the macaroon carries caveats that we did not issue, so someone
+      restricted it further after we handed it over. Each kind is counted on
+      `warehouse.macaroon.verify.attenuation_kind`, where "unknown" means a
+      caveat we could not deserialize at all rather than a `Caveat` subclass.
+
+    Only macaroons that passed verification are recorded, so these counts
+    describe tokens in real use rather than anything an anonymous caller can
+    present.
+    """
+    if extra is None:
+        request.metrics.increment(
+            "warehouse.macaroon.verify.attenuated", tags=["attenuated:unknown"]
+        )
+        return
+
+    request.metrics.increment(
+        "warehouse.macaroon.verify.attenuated",
+        tags=[f"attenuated:{'true' if extra else 'false'}"],
+    )
+    for kind in sorted(set(extra)):
+        request.metrics.increment(
+            "warehouse.macaroon.verify.attenuation_kind", tags=[f"caveat:{kind}"]
+        )
 
 
 @implementer(IMacaroonService)
@@ -132,8 +176,55 @@ class DatabaseMacaroonService:
         if dm is None:
             raise InvalidMacaroonError("deleted or nonexistent macaroon")
 
+        issued = dm.caveats
+
+        # Work out which caveats the end user added themselves before we append our
+        # own stored caveats below, which would make the two indistinguishable. We
+        # don't record this until we know the macaroon verifies, so that anyone who
+        # reads an identifier out of a token can't skew the numbers with forgeries.
+        attenuations = caveats.attenuations(m, issued) if issued else None
+
+        # Macaroons traditionally have caveats embedded inside them which act to
+        # restrict the scope of what that macaroon is able to do. However, each caveat
+        # that is added has to be serialized into the Macaroon which makes them longer
+        # the more restricted they become.
+        #
+        # In the common case, end users often don't add their own caveats to the
+        # macaroons we give them, the only caveats that exist are the ones that were
+        # added by Warehouse when the macaroons was first created. This allows end users
+        # to introspect the macaroon without having to talk to PyPI, but means that they
+        # are already longer than is typical for an API token out of the gate.
+        #
+        # Relying strictly on the embedded caveats also makes it more difficult to
+        # evolve the use cases that the token system is able to handle over time when
+        # assumptions that used to be made can no longer be assumed (such as they're
+        # only used for uploads and then wanting to use them for other use cases).
+        #
+        # To solve this, what we do is we allow storing caveats in the database in
+        # addition to the embedded caveats, and when verifying the macaroon we append
+        # those caveats to the end of the macaroon.
+        #
+        # This means:
+        #  1. The system generated caveats do not need to be embedded, because they are
+        #     in the database and dynamically added at verify time.
+        #  2. We can add new caveats to any existing macaroon by adding the caveat to
+        #     the stored caveats in the database.
+        #  3. When the macaroon has the system generated caveats embedded, appending
+        #     them is harmless (other than a small cpu cost) because it's just verifying
+        #     the same restrictions twice.
+        #
+        # NOTE: We choose to mutate the macaroon that was given to us by appending the
+        #       stored caveats to the end of it. This is safe and means that the caveat
+        #       verification code doesn't have to do anything special for stored vs
+        #       embedded caveats. However, it does mean that the macaroon we actually
+        #       end up verifying is a "sub" macaroon of what the user provided us.
+        for caveat in issued:
+            m.add_first_party_caveat(caveats.serialize(caveat))
+
         verified = caveats.verify(m, dm.key, request, context, permission)
         if verified:
+            _record_attenuations(request, attenuations)
+
             # Update last_used without dirtying the ORM object. A dirty
             # macaroon causes autoflush during Project.__acl__() evaluation,
             # which can deadlock with the journal advisory lock under
@@ -209,6 +300,8 @@ class DatabaseMacaroonService:
             key=dm.key,
             version=pymacaroons.MACAROON_V2,
         )
+        # TODO: Remove this to stop emitting embedded caveats, which are now
+        #       being stored in the database while still being verified.
         for caveat in scopes:
             m.add_first_party_caveat(caveats.serialize(caveat))
         serialized_macaroon = f"pypi-{m.serialize()}"

@@ -113,12 +113,24 @@ def includeme(config):
         "/admin/organization_applications/{organization_application_id}/decline/",
         domain=warehouse,
     )
+    config.add_route(
+        "admin.organization_application.addnote",
+        "/admin/organization_applications/{organization_application_id}/addnote/",
+        domain=warehouse,
+    )
 
     # User related Admin pages
     config.add_route("admin.user.list", "/admin/users/", domain=warehouse)
     config.add_route(
         "admin.user.detail",
         "/admin/users/{username}/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+    )
+    config.add_route(
+        "admin.user.export",
+        "/admin/users/{username}/export/",
         domain=warehouse,
         factory="warehouse.accounts.models:UserFactory",
         traverse="/{username}",

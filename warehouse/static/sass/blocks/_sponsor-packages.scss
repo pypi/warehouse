@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 @use "../settings/breakpoints";
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/fonts";
 @use "../settings/grid";
 @use "../tools/link-utilities";
@@ -45,14 +45,14 @@
 }
 
 .sponsor-package {
-  border: 2px solid colours.$primary-color;
+  border: 2px solid colors.$primary-color;
   border-radius: 4px;
   position: relative;
   padding-bottom: 80px;
 
   &__header {
-    background-color: colours.$primary-color;
-    color: colours.$white;
+    background-color: colors.$primary-color;
+    color: colors.$white;
     padding: grid.$spacing-unit;
     text-align: center;
     position: relative;
@@ -78,7 +78,7 @@
     height: 60px;
     left: 50%;
     margin-left: -30px;
-    background-color: colours.$primary-color;
+    background-color: colors.$primary-color;
     font-size: 30px;
   }
 

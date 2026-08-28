@@ -11,7 +11,6 @@ import shlex
 from datetime import timedelta
 from urllib.parse import urlparse, urlunparse  # noqa: TID251
 
-import orjson
 import platformdirs
 import transaction
 
@@ -32,6 +31,10 @@ from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
 class Environment(enum.StrEnum):
     production = "production"
     development = "development"
+
+
+def _json_dumps_with_newline(value, **kwargs):
+    return json.dumps(value, **kwargs) + "\n"
 
 
 class Configurator(_Configurator):
@@ -101,6 +104,7 @@ class RootFactory:
                 Permissions.AdminUsersEmailWrite,
                 Permissions.AdminUsersAccountRecoveryWrite,
                 Permissions.AdminUsersRecoveryCodesBurn,
+                Permissions.AdminUsersExport,
                 Permissions.AdminVulnerabilitiesRead,
                 Permissions.AdminVulnerabilitiesWrite,
             ),
@@ -464,6 +468,12 @@ def configure(settings=None):
     maybe_set_compound(settings, "breached_emails", "backend", "BREACHED_EMAILS")
     maybe_set_compound(settings, "breached_passwords", "backend", "BREACHED_PASSWORDS")
     maybe_set_compound(settings, "domain_status", "backend", "DOMAIN_STATUS_BACKEND")
+    maybe_set_compound(
+        settings,
+        "email_reputation",
+        "backend",
+        "EMAIL_REPUTATION_BACKEND",
+    )
     maybe_set_compound(settings, "github.oauth", "backend", "GITHUB_OAUTH_BACKEND")
     maybe_set_compound(settings, "gitlab.oauth", "backend", "GITLAB_OAUTH_BACKEND")
     maybe_set(
@@ -549,6 +559,18 @@ def configure(settings=None):
         "warehouse.account.verify_email_ratelimit_string",
         "VERIFY_EMAIL_RATELIMIT_STRING",
         default="3 per 6 hours",
+    )
+    maybe_set(
+        settings,
+        "warehouse.account.email_change_ratelimit_string",
+        "EMAIL_CHANGE_RATELIMIT_STRING",
+        default="5 per 5 minutes, 20 per hour",
+    )
+    maybe_set(
+        settings,
+        "warehouse.account.email_reputation_ratelimit_string",
+        "EMAIL_REPUTATION_RATELIMIT_STRING",
+        default="100 per hour",
     )
     maybe_set(
         settings,
@@ -757,13 +779,25 @@ def configure(settings=None):
     config.add_jinja2_search_path("warehouse:templates", name=".txt")
     config.add_jinja2_search_path("warehouse:templates", name=".xml")
 
-    # We want to configure our JSON renderer to sort the keys, and also to use
-    # an ultra compact serialization format.
+    # Configure the default JSON renderer to sort keys and use compact output.
     config.add_renderer(
         "json",
         renderers.JSON(
-            serializer=orjson.dumps,
-            option=orjson.OPT_SORT_KEYS | orjson.OPT_APPEND_NEWLINE,
+            serializer=json.dumps,
+            sort_keys=True,
+            separators=(",", ":"),
+        ),
+    )
+
+    # Match the behavior of the previous serializer (orjson).
+    config.add_renderer(
+        "json-with-newline",
+        renderers.JSON(
+            serializer=_json_dumps_with_newline,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
         ),
     )
 
