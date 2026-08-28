@@ -517,7 +517,7 @@ def burn_oidc_issued_token(request: Request):
             additional={},
         )
 
-    macaroon_service.delete_macaroon(macaroon.id)
+    macaroon_service.delete_macaroon(str(macaroon.id))
     request.metrics.increment(
         "warehouse.oidc.burn_oidc_issued_token",
         tags=[

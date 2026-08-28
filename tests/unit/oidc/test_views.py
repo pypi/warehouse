@@ -2,6 +2,7 @@
 
 import http
 import json
+import uuid
 
 from datetime import datetime
 
@@ -1183,7 +1184,7 @@ def test_burn_oidc_issued_token_invalid_macaroon(metrics):
 
 def test_burn_oidc_issued_token_user_macaroon(metrics, monkeypatch):
     macaroon = pretend.stub(
-        id="fake-macaroon-id",
+        id=uuid.uuid4(),
         oidc_publisher=None,
         user=pretend.stub(username="fakeuser"),
     )
@@ -1228,8 +1229,9 @@ def test_burn_oidc_issued_token_user_macaroon(metrics, monkeypatch):
 def test_burn_oidc_issued_token_success(metrics):
     projects = [pretend.stub(record_event=pretend.call_recorder(lambda *a, **kw: None))]
     publisher = pretend.stub(publisher_name="GitHub", projects=projects)
+    macaroon_id = uuid.uuid4()
     macaroon = pretend.stub(
-        id="fake-macaroon-id",
+        id=macaroon_id,
         oidc_publisher=publisher,
     )
     macaroon_service = pretend.stub(
@@ -1259,7 +1261,7 @@ def test_burn_oidc_issued_token_success(metrics):
     assert macaroon_service.verify_signature_only.calls == [
         pretend.call("oidc-macaroon")
     ]
-    assert macaroon_service.delete_macaroon.calls == [pretend.call("fake-macaroon-id")]
+    assert macaroon_service.delete_macaroon.calls == [pretend.call(str(macaroon_id))]
     assert request.metrics.increment.calls == [
         pretend.call(
             "warehouse.oidc.burn_oidc_issued_token",
