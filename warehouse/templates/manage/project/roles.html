@@ -183,7 +183,8 @@
             <img src="{{ gravatar(request, role.user.email, size=50) }}"
                  height="50"
                  width="50"
-                 alt="{{ alt }}">
+                 alt="{{ alt }}"
+                 loading="lazy">
           </span>
           <span class="table__user-text">
             <strong>{{ role.user.username }}</strong>
@@ -262,7 +263,8 @@
             <img src="{{ gravatar(request, invite.user.email, size=50) }}"
                  height="50"
                  width="50"
-                 alt="{{ alt }}">
+                 alt="{{ alt }}"
+                 loading="lazy">
           </span>
           <span class="table__user-text">
             <strong>{{ invite.user.username }}</strong>

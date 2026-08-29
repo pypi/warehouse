@@ -359,7 +359,8 @@
       <a class="footer__logo" href="{{ request.route_path('index') }}">
         <img src="{{ request.static_path('warehouse:static/dist/images/white-cube.svg') }}"
              alt=""
-             class="-js-white-cube">
+             class="-js-white-cube"
+             loading="lazy">
         <span>PyPI</span>
       </a>
       <p class="footer__tagline">{% trans href='https://www.python.org/psf/', title=gettext('External link') %}Developed and maintained by the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Software Foundation</a> and Python community, for the Python community.{% endtrans %}</p>
