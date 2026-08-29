@@ -132,6 +132,7 @@ To display a custom icon, an entry must either :
 | Platform | Icon                              | Name     | Domain                                        |
 |:---------|:----------------------------------|:---------|:----------------------------------------------|
 | Discord  | :fontawesome-brands-discord:      |          | `discord.com`, `discordapp.com`, `discord.gg` |
+| Matrix   | :simple-matrix:                   |          | `matrix.to`                                   |
 | Gitter   | :fontawesome-brands-gitter:       |          | `gitter.im`                                   |
 | Mastodon | :fontawesome-brands-mastodon:     | Mastodon |                                               |
 | Reddit   | :fontawesome-brands-reddit-alien: |          | `reddit.com`                                  |
