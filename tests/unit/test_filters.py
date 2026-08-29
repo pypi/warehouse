@@ -61,7 +61,7 @@ class TestCamoify:
         assert result == (
             '<img src="https://camo.example.net/'
             "b410d235a3d2fc44b50ccab827e531dece213062/"
-            '687474703a2f2f6578616d706c652e636f6d2f696d6167652e6a7067">'
+            '687474703a2f2f6578616d706c652e636f6d2f696d6167652e6a7067" loading="lazy">'
         )
 
     def test_camoify_no_src(self, pyramid_request, mocker):
@@ -87,7 +87,7 @@ class TestCamoify:
 
         result = filters.camoify(ctx, html)
 
-        assert result == "<img>"
+        assert result == '<img loading="lazy">'
         gen_camo_url.assert_not_called()
 
 

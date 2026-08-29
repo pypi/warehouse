@@ -63,7 +63,7 @@ def camoify(ctx, value):
     request = ctx.get("request") or get_current_request()
 
     # Parse the rendered output and replace any inline images that don't point
-    # to HTTPS with camouflaged images.
+    # to HTTPS with camouflaged images, and ensure images are loaded lazily.
     tree_builder = html5lib.treebuilders.getTreeBuilder("dom")
     parser = html5lib.html5parser.HTMLParser(tree=tree_builder)
     dom = parser.parse(value)
@@ -72,9 +72,10 @@ def camoify(ctx, value):
         src = element.getAttribute("src")
         if src:
             element.setAttribute("src", request.camo_url(src))
+        element.setAttribute("loading", "lazy")
 
     tree_walker = html5lib.treewalkers.getTreeWalker("dom")
-    html_serializer = html5lib.serializer.HTMLSerializer()
+    html_serializer = html5lib.serializer.HTMLSerializer(quote_attr_values="always")
     return "".join(html_serializer.serialize(tree_walker(dom)))
 
 
