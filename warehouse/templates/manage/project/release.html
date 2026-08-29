@@ -86,8 +86,7 @@
             <nav class="dropdown dropdown--with-icons">
               <button type="button"
                       class="button button--primary dropdown__trigger"
-                      aria-haspopup="true"
-                      aria-expanded="false"
+                      popovertarget="file-options--{{ file.id }}"
                       aria-label="{% trans %}View file options{% endtrans %}">
                 {% trans %}Options{% endtrans %}
                 <span class="dropdown__trigger-caret">
@@ -95,7 +94,8 @@
                 </span>
               </button>
               <ul class="dropdown__content"
-                  aria-hidden="true"
+                  id="file-options--{{ file.id }}"
+                  popover
                   aria-label="{% trans %}File options{% endtrans %}">
                 <li>
                   <a href="{{ request.route_url('packaging.file', path=file.path) }}"

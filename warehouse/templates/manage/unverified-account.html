@@ -63,8 +63,7 @@
         <nav class="dropdown dropdown--with-icons dropdown--wide">
           <button type="button"
                   class="button button--primary dropdown__trigger"
-                  aria-haspopup="true"
-                  aria-expanded="false"
+                  popovertarget="email-options--{{ email.id }}"
                   aria-label="{% trans %}View email options{% endtrans %}">
             {% trans %}Options{% endtrans %}
             <span class="dropdown__trigger-caret">
@@ -72,7 +71,8 @@
             </span>
           </button>
           <ul class="dropdown__content"
-              aria-hidden="true"
+              id="email-options--{{ email.id }}"
+              popover
               aria-label="{% trans email=email.email %}Options for {{ email }}{% endtrans %}">
             {% if not email.verified %}
               <li>
@@ -141,15 +141,16 @@
       <nav class="dropdown dropdown--with-icons dropdown--wide">
         <button type="button"
                 class="button button--primary dropdown__trigger"
-                aria-haspopup="true"
-                aria-expanded="false"
+                popovertarget="api-token-options--{{ macaroon.id }}"
                 aria-label="{% trans %}View token options{% endtrans %}">
           {% trans %}Options{% endtrans %}
           <span class="dropdown__trigger-caret">
             <i class="fa fa-caret-down" aria-hidden="true"></i>
           </span>
         </button>
-        <ul class="dropdown__content">
+        <ul class="dropdown__content"
+            id="api-token-options--{{ macaroon.id }}"
+            popover>
           <li>
             <a href="#remove-API-token--{{ macaroon.id }}" class="dropdown__link">
               <i class="fa fa-trash-alt" aria-hidden="true"></i>

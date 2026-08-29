@@ -50,8 +50,7 @@
         <nav class="dropdown dropdown--with-icons">
           <button type="button"
                   class="button button--primary dropdown__trigger"
-                  aria-haspopup="true"
-                  aria-expanded="false"
+                  popovertarget="release-options--{{ loop.index }}"
                   aria-label="{% trans %}View release options{% endtrans %}">
             {% trans %}Options{% endtrans %}
             <span class="dropdown__trigger-caret">
@@ -59,7 +58,8 @@
             </span>
           </button>
           <ul class="dropdown__content"
-              aria-hidden="true"
+              id="release-options--{{ loop.index }}"
+              popover
               aria-label="{% trans version=release.version %}Options for {{ version }}{% endtrans %}">
             {% if release.lifecycle_status == "quarantine-enter" %}
               <li>

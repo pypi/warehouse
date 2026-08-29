@@ -5,15 +5,15 @@
          class="dropdown dropdown--on-menu dropdown--with-icons site-menu--dropdown">
       <button type="button"
               class="site-menu__link--with-icon site-menu__link dropdown__trigger"
-              aria-haspopup="true"
-              aria-expanded="false"
+              popovertarget="user-indicator-dropdown"
               aria-label="{% trans %}View menu{% endtrans %}">
         {# djlint:off #}<img class="user-image"
              src="{{ gravatar(request, request.user.email, size=22) }}"
         alt="User Image">{{ request.user.username }}<span class="dropdown__trigger-caret"><i class="fa fa-caret-down" aria-hidden="true"></i></span>{# djlint:on #}
       </button>
       <ul class="dropdown__content"
-          aria-hidden="true"
+          id="user-indicator-dropdown"
+          popover
           aria-label="{% trans %}Main menu{% endtrans %}">
         {% if request.has_permission(Permissions.AdminDashboardRead) %}
           <li>
