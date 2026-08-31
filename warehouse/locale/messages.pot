@@ -3737,16 +3737,16 @@ msgstr[1] ""
 msgid "Owner"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/metadata/project-links.html:54
+#: warehouse/templates/includes/packaging/metadata/project-links.html:56
 msgid "Project links"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/metadata/project-links.html:60
+#: warehouse/templates/includes/packaging/metadata/project-links.html:62
 #, python-format
 msgid "Data verified by PyPI on %(date)s"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/metadata/project-links.html:63
+#: warehouse/templates/includes/packaging/metadata/project-links.html:65
 msgid ""
 "Data provided by the project maintainers, verified at the time the "
 "release was uploaded to PyPI."
