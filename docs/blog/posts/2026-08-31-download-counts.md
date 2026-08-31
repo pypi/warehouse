@@ -40,7 +40,7 @@ Everything PyPI serves for a release lives under the same `/packages/<xx>/<yy>/<
 Matching on that prefix alone counted a fetch of any part of a release
 as a download of the distribution itself.
 
-- [PEP 658](https://peps.python.org/pep-0658/) `.metadata` sidecars.
+- [PEP 658](https://peps.python.org/pep-0658/) `.metadata` sidecars. (estimated at 40%)
   Installers may fetch these to read a wheel's metadata *without* downloading the wheel.
   Every metadata fetch was being logged as a distribution download.
 - `.asc` GPG signatures. PyPI [stopped accepting these in 2023](2023-05-23-removing-pgp.md),
