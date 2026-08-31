@@ -1,5 +1,5 @@
 ---
-title: "PyPI download counts look different now"
+title: "Metadata requests no longer tracked in PyPI download counts"
 description: PyPI stopped counting requests that were never artifact downloads. Historical counts were inflated, and comparisons across 2026-08-24 will not line up.
 authors:
   - miketheman
