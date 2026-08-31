@@ -66,7 +66,10 @@ so read the shape of the change rather than the final data point.
 If you compare download counts across 2026-08-24, the numbers will not line up.
 The counts after that date are lower and more accurate.
 Nothing was lost from the historical record - the older rows in BigQuery are unchanged,
-they were just measuring something broader than "someone downloaded this package".
+they were just measuring something broader than "someone downloaded this package" -
+they measured "someone downloaded a given file from PyPI".
+Most consumers of this dataset today do not filter specific to filename extensions,
+leading to inflated download counts for a given package.
 
 However, if you wanted to query the dataset yourself, you can write your own SQL queries
 to be able to distinguish a single project's distribution file downloads
