@@ -235,7 +235,8 @@
       <img src="{{ gravatar(request, user.email, size=140) }}"
            alt="{{ alt }}"
            title="{{ alt }}"
-           class="gravatar-form__image">
+           class="gravatar-form__image"
+           loading="lazy">
       <div class="gravatar-form__content">
         <p>
           {% trans href='https://gravatar.com/', title=gettext('External link') %}

@@ -21,7 +21,8 @@
           {% set email = 'hidden@pypi.org' if user.hide_avatar else user.email %}
           <img src="{{ gravatar(request, email, size=225) }}"
                alt="{{ alt }}"
-               title="{{ alt }}">
+               title="{{ alt }}"
+               loading="lazy">
           <div class="author-profile__info">
             {% if user.name %}<h1 class="author-profile__name">{{ user.name }}</h1>{% endif %}
             <div class="author-profile__meta">
