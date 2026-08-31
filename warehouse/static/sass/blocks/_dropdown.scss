@@ -12,10 +12,10 @@
   links.
 
   <nav class="dropdown" aria-label="Dropdown label">
-    <button type="button" class="dropdown__trigger" aria-haspopup="true" aria-expanded="false" aria-label="button label">
+    <button type="button" class="dropdown__trigger" popovertarget="my-dropdown" aria-label="button label">
       // Button text or icon
     </button>
-    <ul class="dropdown__content" aria-hidden="true" aria-label="Main menu">
+    <ul class="dropdown__content" id="my-dropdown" popover aria-label="Main menu">
       <li>
         <a class="dropdown__link" href="url">
           // Link text
@@ -26,10 +26,9 @@
 
   Accessibility:
     - .dropdown - aria-label: label the entire dropdown. E.g. "Main navigation"
+    - .dropdown__trigger - popovertarget: links the button to the popover element ID
     - .dropdown__trigger - aria-label: label the button. E.g. "Show menu"
-    - .dropdown__trigger - aria-haspopup: indicates that the button has a popup element attached
-    - .dropdown__trigger - aria-expended: indicates whether or not the popup is expanded
-    - .dropdown__content - aria-hidden: indicates whether or not list is hidden
+    - .dropdown__content - popover: native HTML popover
     - .dropdown__content - aria-label: labels the content. E.g. "Main menu"
 
   Modifiers:
@@ -41,6 +40,7 @@
 .dropdown {
   position: relative;
   display: inline-block;
+  anchor-scope: --dropdown-anchor;
 
   ul,
   li {
@@ -52,6 +52,7 @@
   &__trigger {
     cursor: pointer;
     white-space: nowrap;
+    anchor-name: --dropdown-anchor;
   }
 
   &__trigger-caret,
@@ -68,13 +69,19 @@
 
   &__content {
     position: absolute;
-    right: 0;
+    position-anchor: --dropdown-anchor;
+    position-area: bottom span-left;
+    inset: auto;
+    top: anchor(bottom, 100%);
+    right: anchor(right, 0);
+    margin: 0;
     margin-bottom: -4px;
+    padding: 0;
     box-shadow: 1px 1px 2px 1px rgb(0 0 0 / 5%);
     z-index: list.index(z-index.$z-index-scale, "dropdown");
     border: 1px solid colors.$border-color;
     border-bottom: 0; // Each link has a bottom border, so we don't need one here
-    display: none;
+    background-color: transparent;
   }
 
   // Long lists (e.g. the language picker) shouldn't run off-screen.

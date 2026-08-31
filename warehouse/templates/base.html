@@ -48,13 +48,13 @@
          aria-label="{% trans %}Main navigation{% endtrans %}">
       <button type="button"
               class="site-menu__link dropdown__trigger"
-              aria-haspopup="true"
-              aria-expanded="false"
+              popovertarget="mobile-nav-dropdown"
               aria-label="{% trans %}View menu{% endtrans %}">
         <i class="fa-solid fa-bars" aria-hidden="true"></i>
       </button>
       <ul class="dropdown__content"
-          aria-hidden="true"
+          id="mobile-nav-dropdown"
+          popover
           aria-label="{% trans %}Main menu{% endtrans %}">
         <li>
           <a class="dropdown__link" href="{{ request.route_path('help') }}">{% trans %}Help{% endtrans %}</a>

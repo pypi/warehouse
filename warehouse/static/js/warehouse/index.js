@@ -63,64 +63,6 @@ const onResize = () => {
 };
 window.addEventListener("resize", onResize, false);
 
-let bindDropdowns = function () {
-  // Bind click handlers to dropdowns for keyboard users
-  let dropdowns = document.querySelectorAll(".dropdown");
-  for (let dropdown of dropdowns) {
-    let trigger = dropdown.querySelector(".dropdown__trigger");
-    let content = dropdown.querySelector(".dropdown__content");
-
-    let openDropdown = function () {
-      content.classList.add("display-block");
-      content.removeAttribute("aria-hidden");
-      trigger.setAttribute("aria-expanded", "true");
-    };
-
-    let closeDropdown = function () {
-      content.classList.remove("display-block");
-      content.setAttribute("aria-hidden", "true");
-      trigger.setAttribute("aria-expanded", "false");
-    };
-
-    if (!trigger.dataset.dropdownBound) {
-      // If the user has clicked the trigger (either with a mouse or by
-      // pressing space/enter on the keyboard) show the content
-      trigger.addEventListener("click", function () {
-        if (content.classList.contains("display-block")) {
-          closeDropdown();
-        } else {
-          openDropdown();
-        }
-      });
-
-      // Close the dropdown when a user moves away with their mouse or keyboard
-      let closeInactiveDropdown = function (event) {
-        if (dropdown.contains(event.relatedTarget)) {
-          return;
-        }
-        closeDropdown();
-      };
-
-      dropdown.addEventListener("focusout", closeInactiveDropdown, false);
-      dropdown.addEventListener("mouseout", closeInactiveDropdown, false);
-
-      // Close the dropdown if the user presses the escape key
-      document.addEventListener("keydown", function(event) {
-        if (event.key === "Escape") {
-          closeDropdown();
-        }
-      });
-
-      // Set the 'data-dropdownBound' attribute so we don't bind multiple
-      // handlers to the same trigger after the client-side-includes load
-      trigger.dataset.dropdownBound = true;
-    }
-  }
-};
-
-// Bind the dropdowns when the page is ready
-bindDropdowns();
-
 // Get modal keypress event listeners ready
 BindModalKeys();
 
@@ -150,9 +92,6 @@ if (tokenSelect !== null) {
   });
 }
 
-// Bind again when client-side includes have been loaded (for the logged-in
-// user dropdown)
-document.addEventListener("CSILoaded", bindDropdowns);
 document.addEventListener("CSILoaded", PositionWarning);
 
 const application = Application.start();

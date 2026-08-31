@@ -3,14 +3,14 @@
      aria-label="{% trans %}Localization{% endtrans %}">
   <button type="button"
           class="site-menu__link site-menu__link--with-icon dropdown__trigger"
-          aria-haspopup="true"
-          aria-expanded="false"
+          popovertarget="language-dropdown"
           aria-label="{% trans %}Change language{% endtrans %}">
     <i class="fa-solid fa-language" aria-hidden="true"></i>
   </button>
   <form action="{{ request.route_path('locale') }}">
     <ul class="dropdown__content dropdown__content--languages"
-        aria-hidden="true"
+        id="language-dropdown"
+        popover
         aria-label="{% trans %}Languages{% endtrans %}">
       {% for identifier, locale in KNOWN_LOCALES.items() %}
         <li>
