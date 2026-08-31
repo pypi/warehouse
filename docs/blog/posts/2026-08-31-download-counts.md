@@ -76,7 +76,7 @@ It does not turn the number into a measure of how many people use a package.
 
 ## Future work: range requests
 
-A 206 Partial Content response counts exactly the same as a 200 right now.
+An HTTP response code `206 Partial Content` counts exactly the same as a `200 OK` right now.
 Reading two bytes out of a wheel to inspect its ZIP central directory
 is recorded as a download of the whole wheel,
 alongside a client that pulled all 30 MB.
