@@ -290,7 +290,7 @@
 {% elif event.tag == EventTag.Account.AlternateRepositoryDelete %}
   <strong>{% trans %}Project alternate repository deleted{% endtrans %}</strong>
   <small>
-    {% trans %}Deleted by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.deleted_by) }}">{{ event.additional.deleted_by }}</a>
+    {% trans "alternate repository" %}Deleted by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.deleted_by) }}">{{ event.additional.deleted_by }}</a>
   </small>
   <small>{% trans %}Name{% endtrans %}: {{ event.additional.display_name }}</small>
   <small>{% trans %}Url{% endtrans %}:
@@ -312,7 +312,7 @@
 {% elif event.tag == EventTag.Project.AlternateRepositoryDelete %}
   <strong>{% trans %}Project alternate repository deleted{% endtrans %}</strong>
   <small>
-    {% trans %}Deleted by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.deleted_by) }}">{{ event.additional.deleted_by }}</a>
+    {% trans "alternate repository" %}Deleted by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.deleted_by) }}">{{ event.additional.deleted_by }}</a>
   </small>
   <small>{% trans %}Name{% endtrans %}: {{ event.additional.display_name }}</small>
   <small>{% trans %}Url{% endtrans %}:

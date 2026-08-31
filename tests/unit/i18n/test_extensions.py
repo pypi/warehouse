@@ -33,6 +33,9 @@ def test_trim_trans_tags(ext, result):
     assert env.from_string("{% trans %}   hey   {% endtrans %}").render() == result
 
 
+PLURAL_CATALOG = {"team\x04%(num)s member": ("%(num)s membro", "%(num)s membros")}
+
+
 class TestFallbackInternationalizationExtension:
     @pytest.mark.parametrize(
         ("newstyle_env", "newstyle_param", "newer_called", "pgettext", "npgettext"),
@@ -83,6 +86,94 @@ class TestFallbackInternationalizationExtension:
         else:
             make_newer_gettext.assert_not_called()
             make_newer_ngettext.assert_not_called()
+
+    def test_install_derives_contextual_callables(self, mocker):
+        """pyramid_jinja2 passes gettext and ngettext only, so the contextual
+        pair has to be derived or `{% trans "context" %}` calls None."""
+        env = Environment(
+            autoescape=True,
+            extensions=[
+                "warehouse.i18n.extensions.FallbackInternationalizationExtension"
+            ],
+        )
+
+        env.install_gettext_callables(
+            mocker.stub(name="gettext"), mocker.stub(name="ngettext"), newstyle=True
+        )
+
+        assert env.globals["pgettext"] is not None
+        assert env.globals["npgettext"] is not None
+
+    @pytest.mark.parametrize(
+        ("catalog", "expected"),
+        [
+            # A translated context resolves to its own entry...
+            ({"team\x04Deleted by:": "Excluído por:"}, "Excluído por:"),
+            # ...and an untranslated one falls back to the bare message rather
+            # than leaking the context-prefixed key into the page.
+            ({}, "Deleted by:"),
+        ],
+    )
+    def test_pgettext_renders_context(self, mocker, catalog, expected):
+        templates = {"test.html": '{% trans "team" %}Deleted by:{% endtrans %}'}
+        env = Environment(
+            autoescape=True,
+            loader=DictLoader(templates),
+            extensions=[
+                "warehouse.i18n.extensions.FallbackInternationalizationExtension"
+            ],
+        )
+        env.install_gettext_callables(
+            lambda string: catalog.get(string, string),
+            mocker.stub(name="ngettext"),
+            newstyle=True,
+        )
+
+        assert env.get_template("test.html").render() == expected
+
+    @pytest.mark.parametrize(
+        ("catalog", "num", "expected"),
+        [
+            (
+                {"team\x04%(num)s member": ("%(num)s membro", "%(num)s membros")},
+                1,
+                "1 membro",
+            ),
+            (
+                {"team\x04%(num)s member": ("%(num)s membro", "%(num)s membros")},
+                2,
+                "2 membros",
+            ),
+            ({}, 1, "1 member"),
+            ({}, 2, "2 members"),
+        ],
+    )
+    def test_npgettext_renders_context(self, mocker, catalog, num, expected):
+        templates = {
+            "test.html": (
+                '{% trans "team" num=num %}{{ num }} member'
+                "{% pluralize %}{{ num }} members{% endtrans %}"
+            )
+        }
+
+        def ngettext(singular, plural, n):
+            forms = catalog.get(singular)
+            if forms is None:
+                return singular if n == 1 else plural
+            return forms[0] if n == 1 else forms[1]
+
+        env = Environment(
+            autoescape=True,
+            loader=DictLoader(templates),
+            extensions=[
+                "warehouse.i18n.extensions.FallbackInternationalizationExtension"
+            ],
+        )
+        env.install_gettext_callables(
+            mocker.stub(name="gettext"), ngettext, newstyle=True
+        )
+
+        assert env.get_template("test.html").render(num=num) == expected
 
     @pytest.mark.parametrize(
         ("translation", "expected"),
