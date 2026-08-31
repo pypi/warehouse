@@ -55,6 +55,14 @@ def deserialize_raw_macaroon(raw_macaroon: str | None) -> pymacaroons.Macaroon:
         raise InvalidMacaroonError("malformed macaroon") from e
 
 
+def _decode_identifier(macaroon: pymacaroons.Macaroon) -> str:
+    """Return a macaroon's UTF-8 identifier or raise InvalidMacaroonError."""
+    try:
+        return macaroon.identifier.decode()
+    except UnicodeDecodeError as e:
+        raise InvalidMacaroonError("malformed macaroon identifier") from e
+
+
 def _record_attenuations(request: Request, extra: list[str] | None) -> None:
     """
     Record how a verified macaroon was attenuated, as `attenuated:<state>` on
@@ -126,12 +134,8 @@ class DatabaseMacaroonService:
         """
         try:
             m = deserialize_raw_macaroon(raw_macaroon)
+            identifier = _decode_identifier(m)
         except InvalidMacaroonError:
-            return None
-
-        try:
-            identifier = m.identifier.decode()
-        except UnicodeDecodeError:
             return None
 
         dm = self.find_macaroon(identifier)
@@ -151,13 +155,7 @@ class DatabaseMacaroonService:
         Returns a DB macaroon matching the input, or raises InvalidMacaroonError
         """
         m = deserialize_raw_macaroon(raw_macaroon)
-
-        try:
-            identifier = m.identifier.decode()
-        except UnicodeDecodeError:
-            raise InvalidMacaroonError("Macaroon not found")
-
-        dm = self.find_macaroon(identifier)
+        dm = self.find_macaroon(_decode_identifier(m))
 
         if not dm:
             raise InvalidMacaroonError("Macaroon not found")
@@ -171,7 +169,7 @@ class DatabaseMacaroonService:
         Raises InvalidMacaroonError if the macaroon is not valid.
         """
         m = deserialize_raw_macaroon(raw_macaroon)
-        dm = self.find_macaroon(m.identifier.decode())
+        dm = self.find_macaroon(_decode_identifier(m))
 
         if dm is None:
             raise InvalidMacaroonError("deleted or nonexistent macaroon")
@@ -264,7 +262,7 @@ class DatabaseMacaroonService:
         """
 
         m = deserialize_raw_macaroon(raw_macaroon)
-        dm = self.find_macaroon(m.identifier.decode())
+        dm = self.find_macaroon(_decode_identifier(m))
 
         if not dm:
             raise InvalidMacaroonError("Macaroon not found")

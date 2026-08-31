@@ -483,6 +483,19 @@ class TestDatabaseMacaroonService:
         with pytest.raises(services.InvalidMacaroonError, match="Invalid signature"):
             macaroon_service.verify_signature_only(raw_macaroon)
 
+    def test_verify_signature_only_invalid_identifier(self, macaroon_service):
+        macaroon = pymacaroons.Macaroon(
+            location="fake location",
+            identifier=b"\xff",
+            key=b"fake key",
+            version=pymacaroons.MACAROON_V2,
+        )
+
+        with pytest.raises(
+            services.InvalidMacaroonError, match="malformed macaroon identifier"
+        ):
+            macaroon_service.verify_signature_only(f"pypi-{macaroon.serialize()}")
+
     def test_delete_macaroon(self, user_service, macaroon_service):
         user = UserFactory.create()
         _, macaroon = macaroon_service.create_macaroon(
