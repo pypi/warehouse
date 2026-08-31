@@ -432,6 +432,70 @@ class TestDatabaseMacaroonService:
             if call.args[0].startswith("warehouse.macaroon.verify.attenuat")
         ]
 
+    def test_verify_signature_only(
+        self,
+        user_macaroon,
+        macaroon_service,
+    ):
+        """
+        We can verify a signature on a macaroon without contextually evaluating its
+        caveats.
+        """
+        raw_macaroon, db_macaroon = user_macaroon
+
+        assert macaroon_service.verify_signature_only(raw_macaroon) == db_macaroon
+
+    def test_verify_signature_only_nonexistent(
+        self,
+        user_macaroon,
+        macaroon_service,
+    ):
+        """
+        Verifying only the signature on a macaroon fails if the macaroon doesn't
+        exist in the DB.
+        """
+
+        raw_macaroon, db_macaroon = user_macaroon
+
+        # Delete the macaroon so that lookup fails.
+        macaroon_service.delete_macaroon(str(db_macaroon.id))
+
+        with pytest.raises(services.InvalidMacaroonError, match="Macaroon not found"):
+            macaroon_service.verify_signature_only(raw_macaroon)
+
+    def test_verify_signature_only_invalid(
+        self,
+        user_macaroon,
+        macaroon_service,
+    ):
+        """
+        Verifying only the signature fails if the signature doesn't match.
+        """
+
+        raw_macaroon, db_macaroon = user_macaroon
+
+        # Sanity check: the signature matches.
+        assert macaroon_service.verify_signature_only(raw_macaroon) == db_macaroon
+
+        # Replace the DB-side key so that the signature cannot possibly match.
+        db_macaroon.key = b"banana"
+
+        with pytest.raises(services.InvalidMacaroonError, match="Invalid signature"):
+            macaroon_service.verify_signature_only(raw_macaroon)
+
+    def test_verify_signature_only_invalid_identifier(self, macaroon_service):
+        macaroon = pymacaroons.Macaroon(
+            location="fake location",
+            identifier=b"\xff",
+            key=b"fake key",
+            version=pymacaroons.MACAROON_V2,
+        )
+
+        with pytest.raises(
+            services.InvalidMacaroonError, match="malformed macaroon identifier"
+        ):
+            macaroon_service.verify_signature_only(f"pypi-{macaroon.serialize()}")
+
     def test_delete_macaroon(self, user_service, macaroon_service):
         user = UserFactory.create()
         _, macaroon = macaroon_service.create_macaroon(
