@@ -43,12 +43,11 @@ as a download of the distribution itself.
   Installers may fetch these to read a wheel's metadata *without* downloading the wheel.
   Every metadata fetch was being logged as a distribution download.
 - `.asc` GPG signatures. PyPI [stopped accepting these in 2023](2023-05-23-removing-pgp.md),
-  but the ones uploaded before then are still served,
-  and are still being fetched and counted.
+  but the ones uploaded before then are still served, and no longer counted.
 - `.egg` uploads were separately [deprecated in 2023](2023-06-26-deprecate-egg-uploads.md).
   All of these remain downloadable, and none of them are counted.
 - Formats frozen for upload since 2016 under [PEP 527](https://peps.python.org/pep-0527/),
-  such as `.exe`, `.msi`, and `.rpm`, are about 0.7% of the files on PyPI.
+  such as `.exe`, `.msi`, and `.rpm`, are about 0.2% of the files on PyPI, and are no longer counted.
 
 ## The correction
 
