@@ -75,7 +75,7 @@ However, if you wanted to query the dataset yourself, you can write your own SQL
 to be able to distinguish a single project's distribution file downloads
 from others with a BigQuery statement that looks a bit like this:
 
-```bigquery
+```sql
 SELECT
   DATE(timestamp) AS download_date,
   COUNT(*) AS all_objects,
