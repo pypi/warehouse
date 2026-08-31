@@ -42,10 +42,10 @@
       {% endif %}
     </div>
   {% endif %}
-  {# TODO: filter/sort and select-a-file interactivity, once the viewer has JS-driven selection #}
   {% set viewer_files = files %}
   {% set selected_file = viewer_files[0] %}
-  <div class="attestations-viewer" data-controller="attestations-viewer">
+  <div class="attestations-viewer"
+       data-controller="attestations-viewer filter-list">
     <div class="attestations-viewer__sidebar">
       <div class="attestations-viewer__sidebar-header">
         <div class="attestations-viewer__sidebar-title">
@@ -55,35 +55,152 @@
         </div>
         {% if files|length > 8 %}
           <div class="attestations-viewer__sidebar-actions">
-            <button type="button"
-                    class="button button--small button--outline"
-                    aria-label="{% trans %}Filter files{% endtrans %}">
-              <i class="fa-solid fa-filter" aria-hidden="true"></i>
-            </button>
-            <button type="button"
-                    class="button button--small button--outline"
-                    aria-label="{% trans %}Sort files{% endtrans %}">
-              <i class="fa-solid fa-sort" aria-hidden="true"></i>
-            </button>
+            <a href="{% if request.matched_route %}{{ request.current_route_url() }}{% else %}{{ request.url }}{% endif %}#security"
+               data-action="filter-list#filterClear"
+               data-filter-list-target="clear"
+               class="hidden attestations-viewer__filter-clear">{% trans %}Reset{% endtrans %}</a>
+            <div class="attestations-viewer__filter-dropdown"
+                 data-controller="filter-dropdown">
+              <button type="button"
+                      class="button button--small button--outline dropdown__trigger"
+                      aria-haspopup="true"
+                      aria-expanded="false"
+                      aria-label="{% trans %}Filter files{% endtrans %}"
+                      data-filter-dropdown-target="trigger"
+                      data-filter-list-target="trigger"
+                      data-action="filter-dropdown#toggle">
+                <i class="fa-solid fa-filter" aria-hidden="true"></i>
+                <span class="hidden attestations-viewer__filter-count"
+                      data-filter-list-target="count"></span>
+              </button>
+              <div class="dropdown__content attestations-viewer__filter-panel"
+                   aria-hidden="true"
+                   data-filter-dropdown-target="content">
+                <fieldset class="attestations-viewer__filter-group">
+                  <legend>{% trans %}Provenance{% endtrans %}</legend>
+                  <label for="security-filter-provenance-with">
+                    <input type="radio"
+                           id="security-filter-provenance-with"
+                           name="security-filter-provenance"
+                           value="with-provenance"
+                           data-action="filter-list#filter filter-dropdown#close"
+                           data-filter-list-target="filter"
+                           data-filtered-source="provenance"
+                           data-comparison-type="exact"
+                           data-auto-update-url-querystring="true">
+                    {% trans %}With provenance{% endtrans %}
+                  </label>
+                  <label for="security-filter-provenance-without">
+                    <input type="radio"
+                           id="security-filter-provenance-without"
+                           name="security-filter-provenance"
+                           value="without-provenance"
+                           data-action="filter-list#filter filter-dropdown#close"
+                           data-filter-list-target="filter"
+                           data-filtered-source="provenance"
+                           data-comparison-type="exact"
+                           data-auto-update-url-querystring="true">
+                    {% trans %}Without provenance{% endtrans %}
+                  </label>
+                </fieldset>
+                <fieldset class="attestations-viewer__filter-group">
+                  <legend>{% trans %}File type{% endtrans %}</legend>
+                  <label for="security-filter-file-type-sdist">
+                    <input type="radio"
+                           id="security-filter-file-type-sdist"
+                           name="security-filter-file-type"
+                           value="sdist"
+                           data-action="filter-list#filter filter-dropdown#close"
+                           data-filter-list-target="filter"
+                           data-filtered-source="fileType"
+                           data-comparison-type="exact"
+                           data-auto-update-url-querystring="true">
+                    {% trans %}Standard Distribution (sdist){% endtrans %}
+                  </label>
+                  <label for="security-filter-file-type-wheel">
+                    <input type="radio"
+                           id="security-filter-file-type-wheel"
+                           name="security-filter-file-type"
+                           value="wheel"
+                           data-action="filter-list#filter filter-dropdown#close"
+                           data-filter-list-target="filter"
+                           data-filtered-source="fileType"
+                           data-comparison-type="exact"
+                           data-auto-update-url-querystring="true">
+                    {% trans %}Wheel{% endtrans %}
+                  </label>
+                </fieldset>
+                {% if wheel_filters_all['interpreter'] %}
+                  <fieldset class="attestations-viewer__filter-group">
+                    <legend>{% trans %}Interpreter{% endtrans %}</legend>
+                    {% for value in wheel_filters_all['interpreter'] | sort %}
+                      <label for="security-filter-interpreter-{{ value }}">
+                        <input type="radio"
+                               id="security-filter-interpreter-{{ value }}"
+                               name="security-filter-interpreter"
+                               value="{{ value }}"
+                               data-action="filter-list#filter filter-dropdown#close"
+                               data-filter-list-target="filter"
+                               data-filtered-source="interpreter"
+                               data-comparison-type="exact"
+                               data-auto-update-url-querystring="true">
+                        {{ wheel_filters_all['interpreter'][value] }}
+                      </label>
+                    {% endfor %}
+                  </fieldset>
+                {% endif %}
+                {% if wheel_filters_all['platform'] %}
+                  <fieldset class="attestations-viewer__filter-group">
+                    <legend>{% trans %}Platform{% endtrans %}</legend>
+                    {% for value in wheel_filters_all['platform'] | sort %}
+                      <label for="security-filter-platform-{{ value }}">
+                        <input type="radio"
+                               id="security-filter-platform-{{ value }}"
+                               name="security-filter-platform"
+                               value="{{ value }}"
+                               data-action="filter-list#filter filter-dropdown#close"
+                               data-filter-list-target="filter"
+                               data-filtered-source="platform"
+                               data-comparison-type="exact"
+                               data-auto-update-url-querystring="true">
+                        {{ wheel_filters_all['platform'][value] }}
+                      </label>
+                    {% endfor %}
+                  </fieldset>
+                {% endif %}
+              </div>
+            </div>
           </div>
         {% endif %}
       </div>
       <div class="attestations-viewer__sidebar-content">
+        <div class="attestations-viewer__sidebar-empty hidden"
+             data-attestations-viewer-target="empty">
+          <i class="fa-solid fa-circle-xmark muted" aria-hidden="true"></i>
+          {% trans %}No files match the current filters.{% endtrans %}
+          <a href="{% if request.matched_route %}{{ request.current_route_url() }}{% else %}{{ request.url }}{% endif %}#security"
+             data-action="filter-list#filterClear">{% trans %}Reset filters{% endtrans %}</a>
+        </div>
         <ul class="attestations-viewer__file-list">
           {% for vfile in viewer_files %}
             {% set attestation_count = (vfile.provenance.as_model.attestation_bundles | map(attribute='attestations') | map('length') | sum) if vfile.provenance else 0 %}
             <li class="attestations-viewer__file-item{{ ' attestations-viewer__file-item--is-selected' if vfile == selected_file }}"
                 data-attestations-viewer-target="item"
-                data-filename="{{ vfile.filename }}">
+                data-filter-list-target="item"
+                data-filename="{{ vfile.filename }}"
+                data-filtered-target-provenance='{{ (["with-provenance"] if attestation_count else ["without-provenance"]) | tojson }}'
+                data-filtered-target-file-type='{{ (["sdist"] if vfile.packagetype == "sdist" else ["wheel"]) | tojson }}'
+                data-filtered-target-interpreter='{{ (vfile.wheel_filters.get("interpreter", {}).keys() | list) | tojson }}'
+                data-filtered-target-platform='{{ (vfile.wheel_filters.get("platform", {}).keys() | list) | tojson }}'>
               <button type="button"
                       data-action="attestations-viewer#select"
                       aria-pressed="{{ 'true' if vfile == selected_file else 'false' }}">
                 {% if attestation_count %}
                   <i class="fa-solid fa-circle-check attestations-viewer__file-icon primary"
-                    aria-hidden="true"></i>
+                     aria-hidden="true"></i>
                 {% else %}
                   <i class="fa-solid fa-circle-xmark attestations-viewer__file-icon muted"
-                    aria-hidden="true"></i>
+                     aria-hidden="true"></i>
                 {% endif %}
                 <span class="attestations-viewer__file-info">
                   <span class="attestations-viewer__file-name">{{ vfile.filename }}</span>

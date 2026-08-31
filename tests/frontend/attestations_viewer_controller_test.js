@@ -16,6 +16,7 @@ const viewerHTML = `
     </li>
   </ul>
   <div class="attestations-viewer__content">
+    <div class="hidden" data-attestations-viewer-target="empty">No files match the current filters.</div>
     <div data-attestations-viewer-target="content" data-filename="sample-1.0.tar.gz">
       <h3>Attestation for sample-1.0.tar.gz</h3>
       <code class="attestation__checksum" data-controller="clipboard">abc123</code>
@@ -29,12 +30,19 @@ const viewerHTML = `
 `;
 
 describe("Attestations viewer controller", () => {
+  let application;
+
   beforeEach(() => {
     document.body.innerHTML = viewerHTML;
 
-    const application = Application.start();
+    application = Application.start();
     application.register("attestations-viewer", AttestationsViewerController);
   });
+
+  const getController = () => {
+    const el = document.querySelector("[data-controller='attestations-viewer']");
+    return application.getControllerForElementAndIdentifier(el, "attestations-viewer");
+  };
 
   describe("on initialization", () => {
     it("shows the first file as selected and its content panel visible", () => {
@@ -93,6 +101,67 @@ describe("Attestations viewer controller", () => {
       const contents = document.querySelectorAll("[data-attestations-viewer-target='content']");
       expect(contents[0].querySelector(".attestation__checksum")).not.toHaveAttribute("data-controller");
       expect(contents[1].querySelector(".attestation__checksum")).toHaveAttribute("data-controller", "clipboard");
+    });
+  });
+
+  describe("selectFirstVisible", () => {
+    it("selects the first item not hidden by a filter", () => {
+      const items = document.querySelectorAll("[data-attestations-viewer-target='item']");
+      items[0].classList.add("hidden");
+
+      getController().selectFirstVisible();
+
+      expect(items[0]).not.toHaveClass("attestations-viewer__file-item--is-selected");
+      expect(items[1]).toHaveClass("attestations-viewer__file-item--is-selected");
+
+      const contents = document.querySelectorAll("[data-attestations-viewer-target='content']");
+      expect(contents[0]).toHaveClass("hidden");
+      expect(contents[1]).not.toHaveClass("hidden");
+
+      const empty = document.querySelector("[data-attestations-viewer-target='empty']");
+      expect(empty).toHaveClass("hidden");
+    });
+
+    it("shows the empty state and hides every content panel when nothing is visible", () => {
+      const items = document.querySelectorAll("[data-attestations-viewer-target='item']");
+      items[0].classList.add("hidden");
+      items[1].classList.add("hidden");
+
+      getController().selectFirstVisible();
+
+      expect(items[0]).not.toHaveClass("attestations-viewer__file-item--is-selected");
+      expect(items[1]).not.toHaveClass("attestations-viewer__file-item--is-selected");
+
+      const contents = document.querySelectorAll("[data-attestations-viewer-target='content']");
+      expect(contents[0]).toHaveClass("hidden");
+      expect(contents[1]).toHaveClass("hidden");
+
+      const empty = document.querySelector("[data-attestations-viewer-target='empty']");
+      expect(empty).not.toHaveClass("hidden");
+    });
+
+    it("leaves the current selection alone when it is still visible", () => {
+      const items = document.querySelectorAll("[data-attestations-viewer-target='item']");
+      getController()._selectFilename("sample-1.0-py3-none-any.whl");
+
+      getController().selectFirstVisible();
+
+      expect(items[0]).not.toHaveClass("attestations-viewer__file-item--is-selected");
+      expect(items[1]).toHaveClass("attestations-viewer__file-item--is-selected");
+    });
+
+    it("hides the empty state again once a visible item is selected", () => {
+      const items = document.querySelectorAll("[data-attestations-viewer-target='item']");
+      items[0].classList.add("hidden");
+      items[1].classList.add("hidden");
+      getController().selectFirstVisible();
+
+      items[1].classList.remove("hidden");
+      getController().selectFirstVisible();
+
+      const empty = document.querySelector("[data-attestations-viewer-target='empty']");
+      expect(empty).toHaveClass("hidden");
+      expect(items[1]).toHaveClass("attestations-viewer__file-item--is-selected");
     });
   });
 });

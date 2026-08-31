@@ -16,15 +16,31 @@
       <div class="attestations-viewer__sidebar-header">
         <div class="attestations-viewer__sidebar-title">Select from N files</div>
         <div class="attestations-viewer__sidebar-actions">
-          <button type="button" class="button button--small button--outline" aria-label="Filter files">
-            <i class="fa-solid fa-filter"></i>
-          </button>
+          <a href="#" class="hidden attestations-viewer__filter-clear">reset</a>
+          <div class="attestations-viewer__filter-dropdown" data-controller="filter-dropdown">
+            <button type="button" class="button button--small button--outline dropdown__trigger" aria-haspopup="true" aria-expanded="false" aria-label="Filter files" data-filter-dropdown-target="trigger" data-action="filter-dropdown#toggle">
+              <i class="fa-solid fa-filter"></i>
+              <span class="hidden attestations-viewer__filter-count">2</span>
+            </button>
+            <div class="dropdown__content attestations-viewer__filter-panel" aria-hidden="true" data-filter-dropdown-target="content">
+              <fieldset class="attestations-viewer__filter-group">
+                <legend>Provenance</legend>
+                <label for="with"><input type="radio" id="with" name="..." value="with-provenance"> With provenance</label>
+                <label for="without"><input type="radio" id="without" name="..." value="without-provenance"> Without provenance</label>
+              </fieldset>
+              // Further fieldset groups: File type, Interpreter, Platform
+            </div>
+          </div>
           <button type="button" class="button button--small button--outline" aria-label="Sort files">
             <i class="fa-solid fa-sort"></i>
           </button>
         </div>
       </div>
       <div class="attestations-viewer__sidebar-content">
+        <div class="hidden attestations-viewer__sidebar-empty">
+          No files match the current filters.
+          <a href="#" class="attestations-viewer__filter-clear">Reset filters</a>
+        </div>
         <ul class="attestations-viewer__file-list">
           <li class="attestations-viewer__file-item attestations-viewer__file-item--is-selected">
             <button type="button">
@@ -50,7 +66,6 @@
   display: flex;
   align-items: stretch;
   margin: grid.$spacing-unit 0;
-  overflow: hidden;
 
   @media screen and (max-width: breakpoints.$tablet) {
     flex-direction: column;
@@ -59,6 +74,7 @@
   &__sidebar {
     flex: 0 0 250px;
     max-width: 100%;
+    min-height: 300px;
     border-right: 1px solid colors.$border-color;
 
     @media screen and (max-width: breakpoints.$tablet) {
@@ -104,10 +120,6 @@
 
   &__file-item {
     border-bottom: 1px solid colors.$border-color;
-
-    &:last-child {
-      border-bottom: 0;
-    }
 
     // The button's own focus/active outline (below) is inset within its box,
     // but the item's border-bottom sits outside that box, right at the very
@@ -166,14 +178,6 @@
     font-size: fonts.$small-font-size;
   }
 
-  &__file-list-note {
-    margin: 0;
-    padding: grid.$half-spacing-unit grid.$three-quarter-spacing-unit;
-    color: colors.$mid-grey;
-    font-size: fonts.$small-font-size;
-    border-top: 1px solid colors.$border-color;
-  }
-
   &__content {
     flex: 1 1 auto;
     min-width: 0;
@@ -189,5 +193,108 @@
     padding: grid.$half-spacing-unit;
     color: colors.$mid-grey;
     margin-top: 0;
+  }
+
+  &__sidebar-empty {
+    padding: grid.$spacing-unit grid.$half-spacing-unit;
+    text-align: center;
+    color: colors.$mid-grey;
+
+    .attestations-viewer__filter-clear {
+      display: block;
+      margin-top: grid.$quarter-spacing-unit;
+    }
+  }
+
+  &__filter-dropdown {
+    position: relative;
+    display: inline-block;
+  }
+
+  &__filter-panel {
+    // No display rule here: visibility is driven by the shared .dropdown__content
+    // (display: none) / .display-block (from filter_dropdown_controller.js) toggle.
+    z-index: 22;
+    position: absolute;
+    min-width: 220px;
+    max-width: 300px;
+    max-height: 480px;
+    overflow-y: auto;
+    background-color: colors.$white;
+    border-bottom: 1px solid colors.$border-color;
+  }
+
+  &__filter-group {
+    border: 0;
+    border-bottom: 1px solid colors.$border-color;
+
+    legend {
+      display: block;
+      width: 100%;
+      padding: 0 grid.$half-spacing-unit;
+      font-size: fonts.$small-font-size;
+      font-weight: fonts.$bold-font-weight;
+      color: colors.$mid-grey;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-top: grid.$quarter-spacing-unit;
+      position: relative;
+      top: 5px;
+    }
+
+    label {
+      display: flex;
+      align-items: flex-start;
+      gap: grid.$quarter-spacing-unit;
+      padding: 4px grid.$quarter-spacing-unit;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    label:first-of-type {
+      padding-top: grid.$half-spacing-unit;
+    }
+
+    label:last-of-type {
+      padding-bottom: grid.$half-spacing-unit;
+    }
+
+    input[type="radio"] {
+      margin: 0;
+      position: relative;
+      top: 4px;
+      cursor: pointer;
+    }
+  }
+
+  &__filter-clear {
+    font-size: fonts.$small-font-size;
+    color: colors.$primary-color;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &__filter-count {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background-color: colors.$primary-color;
+    color: colors.$white;
+    font-size: 0.65rem;
+    font-weight: fonts.$bold-font-weight;
+    line-height: 16px;
+    text-align: center;
+  }
+
+  &__filter-dropdown-trigger--active {
+    border-color: colors.$primary-color;
+    color: colors.$primary-color;
   }
 }

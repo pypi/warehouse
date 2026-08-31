@@ -2,7 +2,6 @@
 {% set counts = release.provenance_status.counts %}
 {% set repo_inconsistent = counts.source_counts | length > 1 %}
 {% set config_inconsistent = counts.workflow_counts | length > 1 %}
-
 <div class="callout-block callout-block--warning">
   <h3 class="callout-block__heading">
     <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>

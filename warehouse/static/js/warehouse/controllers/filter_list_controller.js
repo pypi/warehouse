@@ -4,11 +4,12 @@ import {Controller} from "@hotwired/stimulus";
 import {gettext, ngettext} from "../utils/messages-access";
 
 /**
- * A Stimulus controller for filtering a list of items, using input and select elements.
+ * A Stimulus controller for filtering a list of items, using input, select, and radio/checkbox elements.
  *
  * Each element can filter on one data attribute applied to items in the list to be filtered.
+ * Multiple radio/checkbox inputs may share the same data-filtered-source to filter on a group of values.
  *
- * Add these data attributes to each input / select:
+ * Add these data attributes to each input / select / radio / checkbox:
  * - data-action="filter-list#filter"
  * - data-filter-list-target="filter"
  * - data-filtered-source="[name of filter group in camelCase e.g. contentType]"
@@ -18,7 +19,7 @@ import {gettext, ngettext} from "../utils/messages-access";
  * - data-filtered-target-[name of filter group in kebab-case e.g. content-type]='(stringify-ed JSON)' (zero or more)
  */
 export default class extends Controller {
-  static targets = ["item", "filter", "summary", "url", "clear"];
+  static targets = ["item", "filter", "summary", "url", "clear", "count", "trigger"];
   static values = {group: String};
 
   /**
@@ -91,6 +92,20 @@ export default class extends Controller {
     this._setFiltersHtmlElements(filters, included);
 
     this._setClear(filters);
+
+    this._notifyItemsFiltered();
+  }
+
+  /**
+   * Notify a sibling attestations-viewer controller on this same element, if present, that
+   * filtering has run, so it can select the first visible file or show a "no results" state.
+   * @private
+   */
+  _notifyItemsFiltered() {
+    const viewer = this.application.getControllerForElementAndIdentifier(this.element, "attestations-viewer");
+    if (viewer && typeof viewer.selectFirstVisible === "function") {
+      viewer.selectFirstVisible();
+    }
   }
 
   /**
@@ -111,10 +126,13 @@ export default class extends Controller {
   /**
    * Set the visibility of elements.
    * Use to show only relevant elements depending on whether js is enabled.
+   * Scoped to this controller's own element: querying the whole document would let a second
+   * filter-list instance elsewhere on the page (e.g. another list with its own progressive-
+   * enhancement markup) re-toggle elements that a first instance already revealed.
    * @private
    */
   _initVisibility() {
-    document.querySelectorAll(".initial-toggle-visibility").forEach(item => {
+    this.element.querySelectorAll(".initial-toggle-visibility").forEach(item => {
       if (item.classList.contains("hidden")) {
         item.classList.remove("hidden");
       } else {
@@ -130,7 +148,12 @@ export default class extends Controller {
    * @private
    */
   _initItemFilterData() {
-    const filters = this._getFiltersHtmlElements();
+    // Use the filter keys declared by the filter elements themselves, rather than the currently
+    // active filter values: an unchecked radio/checkbox contributes no value at all, so deriving
+    // the known keys from _getFiltersHtmlElements() would silently drop keys whose filters aren't
+    // checked/selected yet (this doesn't affect select elements, since their unselected default
+    // option still contributes an empty-string value).
+    const filterKeys = this._getFilterKeys();
 
     // reset the item filter mapping data
     this.#initialItemFilterData = {};
@@ -142,7 +165,7 @@ export default class extends Controller {
     this._getItemTargets().forEach((item, index) => {
       const dataAttrs = item.dataset;
       this.#initialItemFilterData[index] = {};
-      for (const filterKey in filters) {
+      for (const filterKey of filterKeys) {
         const dataAttrsKey = `filteredTarget${filterKey.charAt(0).toUpperCase()}${filterKey.slice(1)}`;
         const dataAttrValue = dataAttrs[dataAttrsKey];
         if (!dataAttrValue) {
@@ -287,6 +310,22 @@ export default class extends Controller {
   }
 
   /**
+   * Get the unique data-filtered-source keys declared across all filter targets.
+   * @returns {string[]}
+   * @private
+   */
+  _getFilterKeys() {
+    const keys = new Set();
+    this._getFilterTargets().forEach(filterTarget => {
+      const key = filterTarget.dataset.filteredSource;
+      if (key) {
+        keys.add(key);
+      }
+    });
+    return Array.from(keys);
+  }
+
+  /**
    * Get the items that are to be filtered.
    * @returns {HTMLElement[]}
    * @private
@@ -304,9 +343,7 @@ export default class extends Controller {
     const filters = {};
     const enabledFilterTargets = this._getAutoUpdateUrlQuerystringFilters();
     const currentSearchParams = new URLSearchParams(document.location.search);
-    const filterTargets = this._getFilterTargets();
-    for (const filterTarget of filterTargets) {
-      const key = filterTarget.dataset.filteredSource;
+    for (const key of this._getFilterKeys()) {
       if (!enabledFilterTargets.includes(key)) {
         continue;
       }
@@ -337,7 +374,9 @@ export default class extends Controller {
     for (const filterTarget of filterTargets) {
 
       let values;
-      if (filterTarget.nodeName === "INPUT") {
+      if (filterTarget.nodeName === "INPUT" && (filterTarget.type === "radio" || filterTarget.type === "checkbox")) {
+        values = filterTarget.checked ? [filterTarget.value] : [];
+      } else if (filterTarget.nodeName === "INPUT") {
         values = [filterTarget.value];
       } else if (filterTarget.nodeName === "SELECT") {
         values = Array.from(filterTarget.selectedOptions).map(selectedOption => selectedOption.value);
@@ -368,7 +407,9 @@ export default class extends Controller {
       const key = filterTarget.dataset.filteredSource;
       const values = filters[key] ?? [];
 
-      if (filterTarget.nodeName === "INPUT") {
+      if (filterTarget.nodeName === "INPUT" && (filterTarget.type === "radio" || filterTarget.type === "checkbox")) {
+        filterTarget.checked = values.includes(filterTarget.value);
+      } else if (filterTarget.nodeName === "INPUT") {
         this._setFiltersHtmlInputElement(filterTarget, values);
       } else if (filterTarget.nodeName === "SELECT") {
         this._setFiltersHtmlSelectElement(filterTarget, values, included[key] ?? []);
@@ -379,7 +420,7 @@ export default class extends Controller {
   }
 
   /**
-   * Set the filter for the HTML input element.
+   * Set the filter for a text-like HTML input element (radio/checkbox inputs are handled separately).
    * @param filterTarget {HTMLInputElement} The input element.
    * @param values {string[]} The filter values.
    * @private
@@ -516,15 +557,27 @@ export default class extends Controller {
   }
 
   /**
-   * Show or hide the clear target based on whether any filter is active.
+   * Show or hide the clear target, update the active filter count badge, and mark the
+   * trigger as active, all based on how many filter groups (keys) currently have a value.
    * @param filters {{[key: string]: string[]}} The current filter data.
    * @returns {void}
    * @private
    */
   _setClear(filters) {
+    const activeKeyCount = Object.values(filters).filter(values => values.some(v => v !== "")).length;
+    const hasActiveFilter = activeKeyCount > 0;
+
     if (this.hasClearTarget) {
-      const hasActiveFilter = Object.values(filters).some(values => values.some(v => v !== ""));
       this.clearTarget.classList.toggle("hidden", !hasActiveFilter);
+    }
+
+    if (this.hasCountTarget) {
+      this.countTarget.textContent = activeKeyCount.toString();
+      this.countTarget.classList.toggle("hidden", !hasActiveFilter);
+    }
+
+    if (this.hasTriggerTarget) {
+      this.triggerTarget.classList.toggle("attestations-viewer__filter-dropdown-trigger--active", hasActiveFilter);
     }
   }
 
@@ -538,13 +591,13 @@ export default class extends Controller {
   _buildFilterUrl(startUrl, filters) {
     const enabledFilterTargets = this._getAutoUpdateUrlQuerystringFilters();
     const currentUrl = new URL(startUrl);
-    const filterTargets = this._getFilterTargets();
 
     // Remove all existing search params.
     currentUrl.search = "";
 
-    for (const filterTarget of filterTargets) {
-      const key = filterTarget.dataset.filteredSource;
+    // Iterate unique keys, not filter targets: several targets (e.g. a radio group) can share
+    // the same key, and adding params per-target would append duplicate querystring values.
+    for (const key of this._getFilterKeys()) {
       if (!enabledFilterTargets.includes(key)) {
         continue;
       }

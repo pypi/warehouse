@@ -5,6 +5,7 @@
 
 import {Application} from "@hotwired/stimulus";
 import FilterListController from "../../warehouse/static/js/warehouse/controllers/filter_list_controller";
+import AttestationsViewerController from "../../warehouse/static/js/warehouse/controllers/attestations_viewer_controller";
 import {delay} from "./utils";
 
 
@@ -39,6 +40,23 @@ const testFixtureHTMLFilters = `
   <option value="contentType2">Content Type 2</option>
   <option value="contentType3">Content Type 3</option>
 </select>
+`;
+const testFixtureHTMLRadioFilters = `
+<a id="radio-filter-clear" href="#" data-action="filter-list#filterClear"
+    data-filter-list-target="clear" class="hidden">Clear filters</a>
+<button id="radio-filter-trigger" type="button" data-filter-list-target="trigger">
+  <span id="radio-filter-count" class="hidden" data-filter-list-target="count"></span>
+</button>
+<input id="filter-radio-color-red" type="radio" name="color" value="red" data-action="filter-list#filter"
+    data-filter-list-target="filter" data-filtered-source="color" data-comparison-type="exact"
+    data-auto-update-url-querystring="true">
+<input id="filter-radio-color-blue" type="radio" name="color" value="blue" data-action="filter-list#filter"
+    data-filter-list-target="filter" data-filtered-source="color" data-comparison-type="exact"
+    data-auto-update-url-querystring="true">
+`;
+const testFixtureHTMLRadioItems = `
+<div id="ritem-1" class="my-radio-item" data-filter-list-target="item" data-filtered-target-color='["red"]'>Item 1</div>
+<div id="ritem-2" class="my-radio-item" data-filter-list-target="item" data-filtered-target-color='["blue"]'>Item 2</div>
 `;
 const testFixtureHTMLItems = `
         <a id="url-update" href="http://localhost#testing" data-filter-list-target="url"></a>
@@ -216,6 +234,29 @@ describe("Filter list controller", () => {
     appStop(application);
   });
 
+  it("toggling visibility is scoped per controller instance, not document-wide", async () => {
+    // Two independent filter-list controllers on the same page (e.g. the Files tab's wheel
+    // search and the Security tab's attestations viewer) must not re-toggle each other's
+    // progressive-enhancement markup.
+    document.body.innerHTML = `
+      <div id="controller-a" data-controller="filter-list">
+        <div id="shown-a" class="hidden initial-toggle-visibility"></div>
+      </div>
+      <div id="controller-b" data-controller="filter-list">
+        <div id="shown-b" class="hidden initial-toggle-visibility"></div>
+      </div>
+    `;
+
+    const application = Application.start();
+    application.register("filter-list", FilterListController);
+    await delay(30);
+
+    expect(document.getElementById("shown-a").classList).not.toContain("hidden");
+    expect(document.getElementById("shown-b").classList).not.toContain("hidden");
+
+    appStop(application);
+  });
+
   it("has expected count when all items begin shown", async () => {
     const application = await appStart();
 
@@ -348,6 +389,184 @@ describe("Filter list controller", () => {
     expect(elItem3.classList).not.toContainEqual("hidden");
 
     appStop(application);
+  });
+
+  describe("radio button filters", () => {
+    const setFilterRadioChecked = function (filterId, checked) {
+      const elFilter = document.getElementById(filterId);
+      const dispatchEventSpy = jest.spyOn(elFilter, "dispatchEvent");
+
+      elFilter.checked = checked;
+
+      // Stimulus's default action event for any <input> (including radio/checkbox) is "input";
+      // real browsers dispatch both "input" and "change" when a radio/checkbox is toggled.
+      const event = new Event("input");
+      elFilter.dispatchEvent(event);
+      expect(dispatchEventSpy).toHaveBeenCalledWith(event);
+      return elFilter;
+    };
+    const clearRadioFilters = function () {
+      const elClear = document.getElementById("radio-filter-clear");
+      const dispatchEventSpy = jest.spyOn(elClear, "dispatchEvent");
+      const event = new Event("click");
+      elClear.dispatchEvent(event);
+      expect(dispatchEventSpy).toHaveBeenCalledWith(event);
+    };
+    const appStartRadio = async function () {
+      const div = document.createElement("div");
+      div.innerHTML = `
+        <div id="radio-controller" data-controller="filter-list">
+          ${testFixtureHTMLRadioFilters}
+          ${testFixtureHTMLRadioItems}
+        </div>
+        `;
+      document.body.appendChild(div);
+
+      const application = Application.start();
+      application.register("filter-list", FilterListController);
+
+      await delay(30);
+
+      return application;
+    };
+
+    it("shows all items and unchecked radios by default", async () => {
+      const application = await appStartRadio();
+
+      expect(document.getElementById("filter-radio-color-red").checked).toEqual(false);
+      expect(document.getElementById("filter-radio-color-blue").checked).toEqual(false);
+      expect(document.getElementById("ritem-1").classList).not.toContainEqual("hidden");
+      expect(document.getElementById("ritem-2").classList).not.toContainEqual("hidden");
+      expect(document.getElementById("radio-filter-clear").classList).toContain("hidden");
+      expect(document.getElementById("radio-filter-count").classList).toContain("hidden");
+      expect(document.getElementById("radio-filter-trigger").classList).not.toContain("attestations-viewer__filter-dropdown-trigger--active");
+
+      appStop(application);
+    });
+
+    it("filters items to the checked radio and updates the url", async () => {
+      const application = await appStartRadio();
+
+      setFilterRadioChecked("filter-radio-color-red", true);
+
+      expect(document.getElementById("filter-radio-color-red").checked).toEqual(true);
+      expect(document.getElementById("filter-radio-color-blue").checked).toEqual(false);
+      expect(document.getElementById("ritem-1").classList).not.toContainEqual("hidden");
+      expect(document.getElementById("ritem-2").classList).toContainEqual("hidden");
+      expect(document.location.href).toEqual("http://localhost/?color=red#testing");
+      expect(document.getElementById("radio-filter-clear").classList).not.toContain("hidden");
+      expect(document.getElementById("radio-filter-count").classList).not.toContain("hidden");
+      expect(document.getElementById("radio-filter-count").textContent).toEqual("1");
+      expect(document.getElementById("radio-filter-trigger").classList).toContain("attestations-viewer__filter-dropdown-trigger--active");
+
+      appStop(application);
+    });
+
+    it("switching the checked radio within the same group updates the filtered items", async () => {
+      const application = await appStartRadio();
+
+      setFilterRadioChecked("filter-radio-color-red", true);
+      setFilterRadioChecked("filter-radio-color-red", false);
+      setFilterRadioChecked("filter-radio-color-blue", true);
+
+      expect(document.getElementById("filter-radio-color-red").checked).toEqual(false);
+      expect(document.getElementById("filter-radio-color-blue").checked).toEqual(true);
+      expect(document.getElementById("ritem-1").classList).toContainEqual("hidden");
+      expect(document.getElementById("ritem-2").classList).not.toContainEqual("hidden");
+      expect(document.location.href).toEqual("http://localhost/?color=blue#testing");
+
+      appStop(application);
+    });
+
+    it("unchecks radios and shows all items after clearing", async () => {
+      const application = await appStartRadio();
+
+      setFilterRadioChecked("filter-radio-color-red", true);
+      clearRadioFilters();
+
+      expect(document.getElementById("filter-radio-color-red").checked).toEqual(false);
+      expect(document.getElementById("filter-radio-color-blue").checked).toEqual(false);
+      expect(document.getElementById("ritem-1").classList).not.toContainEqual("hidden");
+      expect(document.getElementById("ritem-2").classList).not.toContainEqual("hidden");
+      expect(document.location.href).toEqual("http://localhost/#testing");
+      expect(document.getElementById("radio-filter-clear").classList).toContain("hidden");
+      expect(document.getElementById("radio-filter-count").classList).toContain("hidden");
+      expect(document.getElementById("radio-filter-trigger").classList).not.toContain("attestations-viewer__filter-dropdown-trigger--active");
+
+      appStop(application);
+    });
+  });
+
+  describe("with a sibling attestations-viewer controller", () => {
+    const appStartViewer = async function () {
+      const div = document.createElement("div");
+      div.innerHTML = `
+        <div id="viewer-controller" data-controller="attestations-viewer filter-list">
+          <input id="viewer-filter-color-red" type="radio" name="color" value="red" data-action="filter-list#filter"
+              data-filter-list-target="filter" data-filtered-source="color" data-comparison-type="exact">
+          <input id="viewer-filter-color-blue" type="radio" name="color" value="blue" data-action="filter-list#filter"
+              data-filter-list-target="filter" data-filtered-source="color" data-comparison-type="exact">
+          <input id="viewer-filter-color-green" type="radio" name="color" value="green" data-action="filter-list#filter"
+              data-filter-list-target="filter" data-filtered-source="color" data-comparison-type="exact">
+          <ul>
+            <li id="vitem-1" data-attestations-viewer-target="item" data-filter-list-target="item"
+                data-filename="a" data-filtered-target-color='["red"]'>
+              <button type="button" data-action="attestations-viewer#select" aria-pressed="true">a</button>
+            </li>
+            <li id="vitem-2" data-attestations-viewer-target="item" data-filter-list-target="item"
+                data-filename="b" data-filtered-target-color='["blue"]'>
+              <button type="button" data-action="attestations-viewer#select" aria-pressed="false">b</button>
+            </li>
+          </ul>
+          <div>
+            <div class="hidden" data-attestations-viewer-target="empty">No files match the current filters.</div>
+            <div data-attestations-viewer-target="content" data-filename="a">Content A</div>
+            <div class="hidden" data-attestations-viewer-target="content" data-filename="b">Content B</div>
+          </div>
+        </div>
+        `;
+      document.body.appendChild(div);
+
+      const application = Application.start();
+      application.register("filter-list", FilterListController);
+      application.register("attestations-viewer", AttestationsViewerController);
+
+      await delay(30);
+
+      return application;
+    };
+
+    it("selects the first visible file once filtering hides the currently selected one", async () => {
+      const application = await appStartViewer();
+
+      document.getElementById("viewer-filter-color-blue").checked = true;
+      document.getElementById("viewer-filter-color-blue").dispatchEvent(new Event("input"));
+      await delay(10);
+
+      expect(document.getElementById("vitem-1")).not.toHaveClass("attestations-viewer__file-item--is-selected");
+      expect(document.getElementById("vitem-2")).toHaveClass("attestations-viewer__file-item--is-selected");
+      expect(document.querySelector("[data-filename='a'][data-attestations-viewer-target='content']")).toHaveClass("hidden");
+      expect(document.querySelector("[data-filename='b'][data-attestations-viewer-target='content']")).not.toHaveClass("hidden");
+
+      appStop(application);
+    });
+
+    it("shows the empty state when no file matches the filters", async () => {
+      const application = await appStartViewer();
+
+      // Neither item is green, so this filter legitimately matches nothing.
+      document.getElementById("viewer-filter-color-green").checked = true;
+      document.getElementById("viewer-filter-color-green").dispatchEvent(new Event("input"));
+      await delay(10);
+
+      expect(document.getElementById("vitem-1")).toHaveClass("hidden");
+      expect(document.getElementById("vitem-2")).toHaveClass("hidden");
+      expect(document.querySelector("[data-attestations-viewer-target='empty']")).not.toHaveClass("hidden");
+      expect(document.querySelector("[data-filename='a'][data-attestations-viewer-target='content']")).toHaveClass("hidden");
+      expect(document.querySelector("[data-filename='b'][data-attestations-viewer-target='content']")).toHaveClass("hidden");
+
+      appStop(application);
+    });
   });
 
 });

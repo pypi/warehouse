@@ -3,7 +3,6 @@
 {% set without_count = counts.total_files - counts.files_with_provenance %}
 {% set grouped_files = (files | selectattr('provenance') | list) + (files | rejectattr('provenance') | list) %}
 {% set grouped_files_without_first = (files | rejectattr('provenance') | list) + (files | selectattr('provenance') | list) %}
-
 <div class="callout-block callout-block--warning">
   <h3 class="callout-block__heading">
     <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
@@ -21,7 +20,8 @@
            role="img"
            aria-label="{% trans with_count=counts.files_with_provenance, total_count=counts.total_files %}{{ with_count }} of {{ total_count }} files with provenance{% endtrans %}">
         {% for file in grouped_files %}
-          <span class="provenance-bar__file {{ 'provenance-bar__file--with-provenance' if file.provenance }}" aria-hidden="true"></span>
+          <span class="provenance-bar__file {{ 'provenance-bar__file--with-provenance' if file.provenance }}"
+                aria-hidden="true"></span>
         {% endfor %}
       </div>
       <span class="provenance-bar__count">{{ counts.files_with_provenance }} / {{ counts.total_files }}</span>
@@ -34,7 +34,8 @@
            role="img"
            aria-label="{% trans without_count=without_count, total_count=counts.total_files %}{{ without_count }} of {{ total_count }} files without provenance{% endtrans %}">
         {% for file in grouped_files_without_first %}
-          <span class="provenance-bar__file {{ 'provenance-bar__file--without-provenance' if not file.provenance }}" aria-hidden="true"></span>
+          <span class="provenance-bar__file {{ 'provenance-bar__file--without-provenance' if not file.provenance }}"
+                aria-hidden="true"></span>
         {% endfor %}
       </div>
       <span class="provenance-bar__count">{{ without_count }} / {{ counts.total_files }}</span>

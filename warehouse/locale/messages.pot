@@ -956,11 +956,11 @@ msgstr ""
 msgid "Copied"
 msgstr ""
 
-#: warehouse/static/js/warehouse/controllers/filter_list_controller.js:474
+#: warehouse/static/js/warehouse/controllers/filter_list_controller.js:515
 msgid "No built distributions (wheels) match the current filters."
 msgstr ""
 
-#: warehouse/static/js/warehouse/controllers/filter_list_controller.js:481
+#: warehouse/static/js/warehouse/controllers/filter_list_controller.js:522
 msgid "Showing %1 of %2 built distribution (wheel) file."
 msgid_plural "Showing %1 of %2 built distribution (wheel) files."
 msgstr[0] ""
@@ -3134,7 +3134,7 @@ msgid "Tags"
 msgstr ""
 
 #: warehouse/templates/includes/file-details.html:55
-#: warehouse/templates/includes/packaging/security/attestation.html:221
+#: warehouse/templates/includes/packaging/security/attestation.html:225
 msgid "SHA-256 checksum"
 msgstr ""
 
@@ -3146,7 +3146,7 @@ msgstr ""
 #: warehouse/templates/includes/file-details.html:69
 #: warehouse/templates/includes/file-details.html:91
 #: warehouse/templates/includes/packaging/project-header.html:43
-#: warehouse/templates/includes/packaging/security/attestation.html:230
+#: warehouse/templates/includes/packaging/security/attestation.html:234
 #: warehouse/templates/manage/account.html:218
 #: warehouse/templates/manage/account/recovery_codes-provision.html:53
 #: warehouse/templates/manage/account/totp-provision.html:46
@@ -3193,6 +3193,7 @@ msgstr ""
 #: warehouse/templates/includes/file-details.html:127
 #: warehouse/templates/includes/packaging/metadata/provenance.html:13
 #: warehouse/templates/includes/packaging/project-security.html:22
+#: warehouse/templates/includes/packaging/project-security.html:81
 msgid "Provenance"
 msgstr ""
 
@@ -3428,6 +3429,7 @@ msgstr ""
 #: warehouse/templates/includes/packaging/project-files.html:110
 #: warehouse/templates/includes/packaging/project-files.html:121
 #: warehouse/templates/includes/packaging/project-files.html:128
+#: warehouse/templates/includes/packaging/project-security.html:136
 msgid "Interpreter"
 msgstr ""
 
@@ -3440,10 +3442,12 @@ msgstr ""
 #: warehouse/templates/includes/packaging/project-files.html:156
 #: warehouse/templates/includes/packaging/project-files.html:167
 #: warehouse/templates/includes/packaging/project-files.html:174
+#: warehouse/templates/includes/packaging/project-security.html:155
 msgid "Platform"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-files.html:181
+#: warehouse/templates/includes/packaging/project-security.html:62
 msgid "Reset"
 msgstr ""
 
@@ -3555,7 +3559,7 @@ msgstr[1] ""
 #: warehouse/templates/includes/packaging/metadata/provenance.html:24
 #: warehouse/templates/includes/packaging/project-release-history.html:117
 #: warehouse/templates/includes/packaging/project-status.html:27
-#: warehouse/templates/includes/packaging/security/lost-provenance.html:7
+#: warehouse/templates/includes/packaging/security/lost-provenance.html:6
 msgid "Loss of provenance"
 msgstr ""
 
@@ -3569,14 +3573,14 @@ msgstr ""
 #: warehouse/templates/includes/packaging/metadata/provenance.html:40
 #: warehouse/templates/includes/packaging/project-release-history.html:121
 #: warehouse/templates/includes/packaging/project-status.html:51
-#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:9
+#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:8
 msgid "Inconsistent provenance"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:48
 #: warehouse/templates/includes/packaging/project-release-history.html:123
 #: warehouse/templates/includes/packaging/project-status.html:63
-#: warehouse/templates/includes/packaging/security/partial-provenance.html:10
+#: warehouse/templates/includes/packaging/security/partial-provenance.html:9
 msgid "Incomplete provenance"
 msgstr ""
 
@@ -3614,35 +3618,50 @@ msgid_plural "Select from %(count)s files"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/includes/packaging/project-security.html:61
+#: warehouse/templates/includes/packaging/project-security.html:69
 msgid "Filter files"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-security.html:66
-msgid "Sort files"
+#: warehouse/templates/includes/packaging/project-security.html:92
+#: warehouse/templates/includes/packaging/security/lost-provenance.html:32
+msgid "With provenance"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-security.html:93
+#: warehouse/templates/includes/packaging/project-security.html:104
+#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:45
+#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:79
+#: warehouse/templates/includes/packaging/security/lost-provenance.html:50
+msgid "Without provenance"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-security.html:108
+msgid "File type"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-security.html:119
+msgid "Standard Distribution (sdist)"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-security.html:131
+msgid "Wheel"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-security.html:181
+msgid "No files match the current filters."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-security.html:183
+msgid "Reset filters"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-security.html:215
 #, python-format
 msgid "%(count)s attestation"
 msgid_plural "%(count)s attestations"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/includes/packaging/project-security.html:100
-msgid "1 attestation"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-security.html:102
-msgid "No attestations"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-security.html:109
-#, python-format
-msgid "Showing %(shown)s of %(total)s files"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-security.html:119
+#: warehouse/templates/includes/packaging/project-security.html:238
 #, python-format
 msgid ""
 "Attestation for <a href=\"%(href)s\" data-project-tabs-target=\"tab\" "
@@ -3653,15 +3672,15 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/includes/packaging/project-security.html:138
+#: warehouse/templates/includes/packaging/project-security.html:258
 msgid "This file was uploaded without provenance metadata."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-security.html:143
+#: warehouse/templates/includes/packaging/project-security.html:265
 msgid "A note on package security"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-security.html:145
+#: warehouse/templates/includes/packaging/project-security.html:267
 msgid ""
 "PyPI is a repository for distributing packages, not a service for "
 "auditing them. While third-party security researchers and our staff do "
@@ -3829,7 +3848,7 @@ msgstr ""
 #: warehouse/templates/includes/packaging/metadata/github-statistics.html:23
 #: warehouse/templates/includes/packaging/metadata/gitlab-statistics.html:22
 #: warehouse/templates/includes/packaging/security/changed-provenance.html:24
-#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:24
+#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:23
 msgid "Repository"
 msgstr ""
 
@@ -3986,7 +4005,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:51
-#: warehouse/templates/includes/packaging/security/partial-provenance.html:13
+#: warehouse/templates/includes/packaging/security/partial-provenance.html:12
 #, python-format
 msgid ""
 "%(without_count)s of %(total_count)s files were uploaded without "
@@ -4019,138 +4038,138 @@ msgstr ""
 msgid "Requires"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/attestation.html:49
-#: warehouse/templates/includes/packaging/security/attestation.html:56
+#: warehouse/templates/includes/packaging/security/attestation.html:53
+#: warehouse/templates/includes/packaging/security/attestation.html:60
 msgid "SLSA Build Provenance"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/attestation.html:51
-#: warehouse/templates/includes/packaging/security/attestation.html:58
+#: warehouse/templates/includes/packaging/security/attestation.html:55
+#: warehouse/templates/includes/packaging/security/attestation.html:62
 msgid "PyPI Publish"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/attestation.html:61
+#: warehouse/templates/includes/packaging/security/attestation.html:65
 msgid "Attestation"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/attestation.html:65
+#: warehouse/templates/includes/packaging/security/attestation.html:69
 msgid ""
 "PyPI verified that this artifact, at this checksum, originated from the "
 "builder listed below."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/attestation.html:67
+#: warehouse/templates/includes/packaging/security/attestation.html:71
 msgid ""
 "PyPI verified that this artifact, at this checksum, originated from the "
 "publisher listed below."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/attestation.html:73
+#: warehouse/templates/includes/packaging/security/attestation.html:77
 #, python-format
 msgid "Built by %(platform_name)s, verified by PyPI on %(verified_date)s."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/attestation.html:75
+#: warehouse/templates/includes/packaging/security/attestation.html:79
 #, python-format
 msgid "Signed by %(platform_name)s, verified by PyPI on %(verified_date)s."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/attestation.html:83
+#: warehouse/templates/includes/packaging/security/attestation.html:87
 msgid "Sigstore transparency entry"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/attestation.html:83
+#: warehouse/templates/includes/packaging/security/attestation.html:87
 msgid "Transparency log"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/attestation.html:93
+#: warehouse/templates/includes/packaging/security/attestation.html:97
 msgid "Identity"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/attestation.html:98
+#: warehouse/templates/includes/packaging/security/attestation.html:102
 msgid "Build platform"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/attestation.html:100
+#: warehouse/templates/includes/packaging/security/attestation.html:104
 msgid "Publishing platform"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/attestation.html:109
+#: warehouse/templates/includes/packaging/security/attestation.html:113
 msgid "Build repository"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/attestation.html:111
+#: warehouse/templates/includes/packaging/security/attestation.html:115
 msgid "Publishing repository"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/attestation.html:121
+#: warehouse/templates/includes/packaging/security/attestation.html:125
 msgid "Build commit"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/attestation.html:123
+#: warehouse/templates/includes/packaging/security/attestation.html:127
 msgid "Publishing commit"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/attestation.html:135
+#: warehouse/templates/includes/packaging/security/attestation.html:139
 msgid "Build account"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/attestation.html:137
+#: warehouse/templates/includes/packaging/security/attestation.html:141
 msgid "Publisher account"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/attestation.html:146
+#: warehouse/templates/includes/packaging/security/attestation.html:150
 msgid "No identity information found"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/attestation.html:162
+#: warehouse/templates/includes/packaging/security/attestation.html:166
 msgid "Build"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/attestation.html:164
+#: warehouse/templates/includes/packaging/security/attestation.html:168
 msgid "Workflow"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/attestation.html:172
+#: warehouse/templates/includes/packaging/security/attestation.html:176
 msgid "Build instructions"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/attestation.html:174
+#: warehouse/templates/includes/packaging/security/attestation.html:178
 msgid "Publishing configuration"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/attestation.html:184
+#: warehouse/templates/includes/packaging/security/attestation.html:188
 msgid "Build logs"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/attestation.html:186
+#: warehouse/templates/includes/packaging/security/attestation.html:190
 msgid "Publishing logs"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/attestation.html:196
+#: warehouse/templates/includes/packaging/security/attestation.html:200
 msgid "No build instructions found"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/attestation.html:200
+#: warehouse/templates/includes/packaging/security/attestation.html:204
 msgid "No publishing configuration found"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/attestation.html:211
+#: warehouse/templates/includes/packaging/security/attestation.html:215
 msgid "Artifact"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/attestation.html:215
+#: warehouse/templates/includes/packaging/security/attestation.html:219
 #: warehouse/templates/manage/account/publishing.html:257
 #: warehouse/templates/manage/organization/publishing.html:270
 #: warehouse/templates/manage/project/publishing.html:243
 msgid "Subject"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/attestation.html:236
+#: warehouse/templates/includes/packaging/security/attestation.html:240
 msgid "Verifying attestations"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/attestation.html:241
+#: warehouse/templates/includes/packaging/security/attestation.html:245
 msgid "No artifact information found"
 msgstr ""
 
@@ -4171,7 +4190,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/includes/packaging/security/changed-provenance.html:18
-#: warehouse/templates/includes/packaging/security/lost-provenance.html:10
+#: warehouse/templates/includes/packaging/security/lost-provenance.html:9
 msgid ""
 "While this could reflect a routine change by the project maintainers, it "
 "may also indicate that the release files have been compromised."
@@ -4179,18 +4198,18 @@ msgstr ""
 
 #: warehouse/templates/includes/packaging/security/changed-provenance.html:31
 #: warehouse/templates/includes/packaging/security/changed-provenance.html:63
-#: warehouse/templates/includes/packaging/security/lost-provenance.html:21
+#: warehouse/templates/includes/packaging/security/lost-provenance.html:20
 msgid "Removed"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/security/changed-provenance.html:43
 #: warehouse/templates/includes/packaging/security/changed-provenance.html:75
-#: warehouse/templates/includes/packaging/security/lost-provenance.html:42
+#: warehouse/templates/includes/packaging/security/lost-provenance.html:41
 msgid "Added"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/security/changed-provenance.html:56
-#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:58
+#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:57
 msgid "Configuration"
 msgstr ""
 
@@ -4226,32 +4245,32 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:12
+#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:11
 msgid ""
 "The release files originate from multiple, inconsistent repositories and "
 "configurations."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:14
+#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:13
 msgid "The release files originate from multiple, inconsistent repositories."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:16
+#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:15
 msgid "The release files originate from multiple, inconsistent configurations."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:18
+#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:17
 msgid ""
 "While this could reflect a legitimate choice by the project maintainers, "
 "it may also indicate that the release has been compromised."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:30
-#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:40
-#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:64
-#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:74
-#: warehouse/templates/includes/packaging/security/lost-provenance.html:27
-#: warehouse/templates/includes/packaging/security/lost-provenance.html:46
+#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:29
+#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:39
+#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:63
+#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:73
+#: warehouse/templates/includes/packaging/security/lost-provenance.html:26
+#: warehouse/templates/includes/packaging/security/lost-provenance.html:45
 #: warehouse/templates/manage/project/releases.html:32
 #, python-format
 msgid "%(count)s file"
@@ -4259,32 +4278,26 @@ msgid_plural "%(count)s files"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:45
-#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:79
+#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:44
+#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:78
 msgid "Unknown"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:46
-#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:80
-#: warehouse/templates/includes/packaging/security/lost-provenance.html:51
-msgid "Without provenance"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:90
+#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:89
 #, python-format
 msgid ""
 "We recommend inspecting each repository and configuration before "
 "proceeding. <a href=\"%(href)s\">Learn more</a>."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:92
+#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:91
 #, python-format
 msgid ""
 "We recommend inspecting each repository before proceeding. <a "
 "href=\"%(href)s\">Learn more</a>."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:94
+#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:93
 #, python-format
 msgid ""
 "We recommend inspecting each configuration before proceeding. <a "
@@ -4314,26 +4327,22 @@ msgstr ""
 msgid "We recommend inspecting the release files before installing."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/lost-provenance.html:9
+#: warehouse/templates/includes/packaging/security/lost-provenance.html:8
 msgid ""
 "A previous release of these files had provenance metadata, but this "
 "release does not."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/lost-provenance.html:15
+#: warehouse/templates/includes/packaging/security/lost-provenance.html:14
 msgid "Release comparison"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/lost-provenance.html:33
-msgid "With provenance"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/security/lost-provenance.html:35
+#: warehouse/templates/includes/packaging/security/lost-provenance.html:34
 msgid "Partial provenance"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/lost-provenance.html:59
-#: warehouse/templates/includes/packaging/security/partial-provenance.html:45
+#: warehouse/templates/includes/packaging/security/lost-provenance.html:58
+#: warehouse/templates/includes/packaging/security/partial-provenance.html:46
 #, python-format
 msgid ""
 "We recommend further investigation before installing files from this "
@@ -4348,11 +4357,11 @@ msgstr ""
 msgid "None of the files in this release were uploaded with provenance metadata."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/partial-provenance.html:19
+#: warehouse/templates/includes/packaging/security/partial-provenance.html:18
 msgid "Files with provenance"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/partial-provenance.html:22
+#: warehouse/templates/includes/packaging/security/partial-provenance.html:21
 #, python-format
 msgid "%(with_count)s of %(total_count)s files with provenance"
 msgstr ""
