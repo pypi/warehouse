@@ -7,7 +7,7 @@ import pytest
 from natsort import natsorted
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 
-from warehouse.forklift.legacy import MAXIMUM_AGE_FOR_NEW_UPLOADS_DAYS
+from warehouse.constants import MAXIMUM_AGE_FOR_NEW_UPLOADS
 from warehouse.packaging import views
 from warehouse.packaging.models import LifecycleStatus
 
@@ -270,10 +270,7 @@ class TestReleaseDetail:
                 "platform": {},
                 "other": {},
             },
-            "maximum_age_for_new_uploads_days": MAXIMUM_AGE_FOR_NEW_UPLOADS_DAYS,
-            "first_upload": files[1].upload_time,
-            "last_upload": None,
-            "late_file_count": 0,
+            "maximum_age_for_new_uploads_days": MAXIMUM_AGE_FOR_NEW_UPLOADS.days,
         }
 
     def test_detail_renders_files_natural_sort(self, db_request):

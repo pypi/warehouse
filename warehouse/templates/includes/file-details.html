@@ -11,7 +11,7 @@
     / {{ file.filename }}
   </h2>
   {# Late upload warning #}
-  {% if first_upload and (file.upload_time - first_upload).days > maximum_age_for_new_uploads_days %}
+  {% if file.added_late %}
     <div class="callout-block callout-block--warning no-top-margin">
       <h3 class="callout-block__heading">
         <i class="fa fa-triangle-exclamation" aria-hidden="true"></i>

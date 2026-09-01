@@ -9,8 +9,8 @@
     </details>
     <div class="sidebar-section__data-block">
       {% set events = [{'date': release.created, 'key': 'released'}] %}
-      {% if late_file_count > 0 and last_upload %}
-        {% set _ = events.append({'date': last_upload, 'key': 'last-file-added'}) %}
+      {% if release.late_file_status.late_files %}
+        {% set _ = events.append({'date': release.late_file_status.last_upload, 'key': 'last-file-added'}) %}
       {% endif %}
       {% if release.yanked and release.yanked_date %}
         {% set _ = events.append({'date': release.yanked_date, 'key': 'yanked'}) %}
@@ -55,12 +55,12 @@
           <span class="badge badge--success">{% trans %}Latest release{% endtrans %}</span>
         {% endif %}
       {% endif %}
-      {% if late_file_count > 0 and last_upload %}
+      {% if release.late_file_status.late_files %}
         <a class="badge badge--warning"
            href="#files"
            data-project-tabs-target="tab"
            data-action="project-tabs#onTabClick">
-          {% trans count=late_file_count %}File added late
+          {% trans count=release.late_file_status.late_files|length %}File added late
         {% pluralize %}
           Files added late{% endtrans %}
         </a>
