@@ -172,7 +172,6 @@
   &--switch-to-desktop {
     border-color: color.adjust(colors.$white, $alpha: -0.3);
     color: colors.$white;
-    margin: grid.$spacing-unit auto 0;
 
     &:hover,
     &:focus,

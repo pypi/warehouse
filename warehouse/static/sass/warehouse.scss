@@ -77,12 +77,10 @@
 @use "blocks/heading-wsubtitle";
 @use "blocks/homepage-banner";
 @use "blocks/hooray-list";
-@use "blocks/horizontal-menu";
 @use "blocks/horizontal-section";
-@use "blocks/horizontal-tabs";
-@use "blocks/language-switcher";
 @use "blocks/large-input";
 @use "blocks/lede-paragraph";
+@use "blocks/legal-footer";
 @use "blocks/mobile-search-bar";
 @use "blocks/modal";
 @use "blocks/notification-bar";
@@ -105,6 +103,7 @@
 @use "blocks/sidebar-links";
 @use "blocks/sidebar-section";
 @use "blocks/site-header";
+@use "blocks/site-menu";
 @use "blocks/skip-to-content";
 @use "blocks/sponsor-grid";
 @use "blocks/sponsor-packages";
@@ -278,6 +277,10 @@
 @media screen and (max-width: breakpoints.$desktop) {
   .hide-below-desktop {
     display: none;
+  }
+
+  .show-below-desktop {
+    display: block;
   }
 }
 
