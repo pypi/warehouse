@@ -16,7 +16,7 @@ from warehouse.accounts.models import User
 from warehouse.attestations.models import publisher_workflow
 from warehouse.authnz import Permissions
 from warehouse.cache.origin import origin_cache
-from warehouse.forklift.legacy import MAXIMUM_AGE_FOR_NEW_UPLOADS_DAYS
+from warehouse.constants import MAXIMUM_AGE_FOR_NEW_UPLOADS
 from warehouse.observations.models import ObservationKind
 from warehouse.packaging.forms import SubmitMalwareObservationForm
 from warehouse.packaging.models import (
@@ -283,18 +283,6 @@ def release_detail(release, request):
     )
 
     all_files = sdists + bdists
-    files_by_time = sorted(all_files, key=lambda f: f.upload_time)
-    first_upload = files_by_time[0].upload_time if files_by_time else None
-    last_upload = files_by_time[-1].upload_time if len(files_by_time) > 1 else None
-    late_file_count = (
-        sum(
-            1
-            for f in files_by_time
-            if (f.upload_time - first_upload).days > MAXIMUM_AGE_FOR_NEW_UPLOADS_DAYS
-        )
-        if first_upload
-        else 0
-    )
 
     return {
         "project": project,
@@ -307,13 +295,9 @@ def release_detail(release, request):
         "all_versions": project.all_versions,
         "maintainers": maintainers,
         "license": license,
-        # Additional function to format the attestations
         "PEP740AttestationViewer": PEP740AttestationViewer,
         "wheel_filters_all": wheel_filters_all,
-        "maximum_age_for_new_uploads_days": MAXIMUM_AGE_FOR_NEW_UPLOADS_DAYS,
-        "first_upload": first_upload,
-        "last_upload": last_upload,
-        "late_file_count": late_file_count,
+        "maximum_age_for_new_uploads_days": MAXIMUM_AGE_FOR_NEW_UPLOADS.days,
     }
 
 
