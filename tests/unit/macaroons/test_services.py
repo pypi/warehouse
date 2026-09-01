@@ -4,7 +4,7 @@ import base64
 import binascii
 import struct
 
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import pymacaroons
 import pytest
@@ -718,6 +718,29 @@ class TestDeserializePartialMacaroon:
     def test_oversized_token_is_not_walked(self):
         """A paste past a few kilobytes is refused."""
         token = _token(_HEADER, extra=bytes(services._MAX_TOKEN_BYTES))
+
+        assert services.deserialize_partial_macaroon(token) is None
+
+    def test_a_second_identifier_does_not_speak_over_the_first(self):
+        """Fields climb within a section, so the second identifier ends the read."""
+        token = _token([*_HEADER[:2], (BinarySerializer._IDENTIFIER, b'[3,"forged"]')])
+
+        partial = services.deserialize_partial_macaroon(token)
+
+        assert partial.identifier == "02ede3fe-dc00-45b9-9a13-9f16ad1c454d"
+        assert partial.caveats == []
+
+    def test_identifier_that_is_not_utf8(self):
+        """Hex would name a macaroon that the identifier itself cannot."""
+        # These 16 bytes are not UTF-8, and their hex is a valid UUID.
+        identifier = UUID("02ede3fe-dc00-45b9-9a13-9f16ad1c454d").bytes
+        token = _token(
+            [
+                (BinarySerializer._LOCATION, b"pypi.org"),
+                (BinarySerializer._IDENTIFIER, identifier),
+                (BinarySerializer._EOS, None),
+            ]
+        )
 
         assert services.deserialize_partial_macaroon(token) is None
 

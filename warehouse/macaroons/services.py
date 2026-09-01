@@ -152,14 +152,24 @@ def _read_packets(data: bytes) -> Iterator[_Packet]:
     rather than rejecting the macaroon as a whole. A packet whose payload was
     cut short is yielded last: its declared length takes the index past the
     end of `data`.
+
+    Field types climb within a section, so a repeated or out of order field
+    ends the read. Without that rule a second identifier packet would speak
+    over the first, and a caveat in a stream that never ends its header would
+    be read as the identifier.
     """
     index = 0
+    previous_field_type = _PACKET_EOS
     while index < len(data):
         try:
             field_type, index = _read_uvarint(data, index)
             if field_type == _PACKET_EOS:
+                previous_field_type = _PACKET_EOS
                 yield _Packet(field_type, b"", 0)
                 continue
+            if field_type <= previous_field_type:
+                return
+            previous_field_type = field_type
             declared_length, index = _read_uvarint(data, index)
         except ValueError:
             return
@@ -215,6 +225,12 @@ def deserialize_partial_macaroon(
             partial.location = _packet_text(packet)
         elif packet.field_type == _PACKET_IDENTIFIER:
             if in_header:
+                try:
+                    packet.payload.decode()
+                except UnicodeDecodeError:
+                    # `uuid.UUID` would take the hex we would render this
+                    # as, naming a macaroon the token itself cannot name.
+                    return None
                 partial.identifier = _packet_text(packet)
                 partial.identifier_complete = packet.complete
             else:
