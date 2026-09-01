@@ -15,6 +15,7 @@ from warehouse.oidc.tasks import (
 )
 from warehouse.oidc.utils import (
     ACTIVESTATE_OIDC_ISSUER_URL,
+    CIRCLECI_OIDC_ISSUER_URL,
     GITHUB_OIDC_ISSUER_URL,
     GITLAB_OIDC_ISSUER_URL,
     GOOGLE_OIDC_ISSUER_URL,
@@ -65,6 +66,16 @@ def includeme(config: Configurator) -> None:
         ),
         IOIDCPublisherService,
         name="activestate",
+    )
+
+    config.register_service_factory(
+        OIDCPublisherServiceFactory(
+            publisher="circleci",
+            issuer_url=CIRCLECI_OIDC_ISSUER_URL,
+            service_class=oidc_publisher_service_class,
+        ),
+        IOIDCPublisherService,
+        name="circleci",
     )
 
     # During deployments, we separate auth routes into their own subdomain
