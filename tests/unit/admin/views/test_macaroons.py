@@ -10,6 +10,10 @@ from warehouse.macaroons import caveats
 from ....common.db.accounts import UserFactory
 from ....common.db.macaroons import MacaroonFactory
 
+# Held apart from its `pypi-` prefix so secret scanners have no token pattern
+# to match. Truncated inside the macaroon identifier.
+_TRUNCATED_BODY = "AgEIcHlwaS5vcmcCJDAyZWRl"
+
 
 @pytest.fixture
 def raw_token():
@@ -66,6 +70,63 @@ class TestMacaroonDecodeToken:
 
         assert result["macaroon"].location == "fake location"
         assert result["db_record"].description == "real description"
+
+    def test_post_truncated_token(self, db_request, macaroon_service):
+        """A token cut short still resolves to its database record."""
+        user = UserFactory.create()
+        db_request.user = user
+        token, macaroon = macaroon_service.create_macaroon(
+            location="fake location",
+            description="real description",
+            scopes=[caveats.RequestUser(user_id=str(user.id))],
+            user_id=user.id,
+        )
+        db_request.method = "POST"
+        db_request.POST = {"token": token[:85]}
+
+        result = views.macaroon_decode_token(db_request)
+
+        assert "macaroon" not in result
+        assert result["partial"].identifier == str(macaroon.id)
+        assert result["partial"].signature is None
+        assert result["db_record"] == macaroon
+
+    def test_post_truncated_token_not_found(
+        self, db_request, macaroon_service, raw_token
+    ):
+        db_request.method = "POST"
+        db_request.POST = {"token": raw_token[:75]}
+
+        result = views.macaroon_decode_token(db_request)
+
+        assert result["partial"].location == "pypi.org"
+        assert result["db_record"] is None
+
+    def test_post_truncated_identifier_is_not_looked_up(
+        self, db_request, macaroon_service, mocker
+    ):
+        """A partial identifier cannot match a record, so it is not looked up."""
+        find_macaroon = mocker.spy(macaroon_service, "find_macaroon")
+        db_request.method = "POST"
+        db_request.POST = {"token": "pypi-" + _TRUNCATED_BODY}
+
+        result = views.macaroon_decode_token(db_request)
+
+        assert result["partial"].identifier_complete is False
+        assert result["db_record"] is None
+        find_macaroon.assert_not_called()
+
+    def test_post_token_with_non_ascii(self, db_request, macaroon_service):
+        """A token elided with an ellipsis gets a 400."""
+        db_request.method = "POST"
+        db_request.POST = {"token": "pypi-AgEIcHl\u2026"}
+
+        with pytest.raises(views.HTTPBadRequest) as excinfo:
+            views.macaroon_decode_token(db_request)
+        assert excinfo.value.message == (
+            "The token cannot be deserialized: InvalidMacaroonError('malformed "
+            "macaroon')"
+        )
 
     def test_post_token_not_found(self, db_request, macaroon_service, raw_token):
         db_request.method = "POST"

@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+import base64
+import dataclasses
 import datetime
 import typing
 import uuid
+
+from collections.abc import Iterator
 
 import pymacaroons
 
@@ -53,6 +57,170 @@ def deserialize_raw_macaroon(raw_macaroon: str | None) -> pymacaroons.Macaroon:
         Exception,  # https://github.com/ecordell/pymacaroons/issues/50
     ) as e:
         raise InvalidMacaroonError("malformed macaroon") from e
+
+
+# Packet field types of the v2 macaroon format, which is a stream of
+# `field_type, length, payload` packets, both numbers LEB128 varints, with a
+# zero byte ending each section: the header, then one section per caveat, then
+# the signature.
+# https://github.com/rescrv/libmacaroons/blob/master/doc/format.txt
+_PACKET_EOS = 0
+_PACKET_LOCATION = 1
+_PACKET_IDENTIFIER = 2
+_PACKET_SIGNATURE = 6
+
+# Three varint bytes already span 21 bits, well past any length a real packet
+# declares. Reading further only builds an integer too large to render.
+_MAX_VARINT_BYTES = 3
+
+# A token scoped to many projects names each one in a caveat, so leave room
+# for a few kilobytes of them. Past this a paste is not a macaroon.
+_MAX_TOKEN_BYTES = 16 * 1024
+
+
+@dataclasses.dataclass(frozen=True)
+class _Packet:
+    """
+    One packet of a v2 macaroon. A packet cut short has a `payload` shorter
+    than its `declared_length`.
+    """
+
+    field_type: int
+    payload: bytes
+    declared_length: int
+
+    @property
+    def complete(self) -> bool:
+        return len(self.payload) == self.declared_length
+
+
+@dataclasses.dataclass
+class PartialMacaroon:
+    """
+    The fields recovered from a macaroon that will not fully deserialize, as
+    display strings. A field cut short carries a note of its declared length.
+    """
+
+    location: str | None = None
+    identifier: str | None = None
+    identifier_complete: bool = False
+    """Whether the identifier was read whole, so it can be looked up."""
+
+    caveats: list[str] = dataclasses.field(default_factory=list)
+    signature: str | None = None
+
+
+def _b64_prefix_decode(raw_macaroon: str) -> bytes:
+    """
+    Decode a base64url string that may have been cut mid-quantum, keeping the
+    bytes its final partial quantum still encodes. Returns b"" if even that
+    cannot be decoded, as when the string holds a non-ASCII character such as
+    an elision ellipsis.
+    """
+    # A paste carries whitespace that b64decode would drop anyway, and that
+    # would throw off the quantum arithmetic below if left in.
+    body = "".join(raw_macaroon.split())
+    # A lone trailing character encodes no whole byte.
+    body = body[:-1] if len(body) % 4 == 1 else body
+    try:
+        return base64.urlsafe_b64decode(body + "=" * (-len(body) % 4))
+    except ValueError:
+        return b""
+
+
+def _read_uvarint(data: bytes, index: int) -> tuple[int, int]:
+    """
+    Read the LEB128 varint at `index`, returning it and the index after it.
+    Raises ValueError if `data` ends mid-varint, or if the varint runs on
+    longer than a packet field ever needs.
+    """
+    value = 0
+    for shift in range(0, 7 * _MAX_VARINT_BYTES, 7):
+        if index >= len(data):
+            raise ValueError("varint cut short")
+        byte = data[index]
+        index += 1
+        value |= (byte & 0x7F) << shift
+        if not byte & 0x80:
+            return value, index
+    raise ValueError("varint too long for a packet field")
+
+
+def _read_packets(data: bytes) -> Iterator[_Packet]:
+    """
+    Yield the packets of a v2 macaroon body, stopping once `data` runs out
+    rather than rejecting the macaroon as a whole. A packet whose payload was
+    cut short is yielded last: its declared length takes the index past the
+    end of `data`.
+    """
+    index = 0
+    while index < len(data):
+        try:
+            field_type, index = _read_uvarint(data, index)
+            if field_type == _PACKET_EOS:
+                yield _Packet(field_type, b"", 0)
+                continue
+            declared_length, index = _read_uvarint(data, index)
+        except ValueError:
+            return
+        payload = data[index : index + declared_length]
+        index += declared_length
+        yield _Packet(field_type, payload, declared_length)
+
+
+def _packet_text(packet: _Packet) -> str:
+    """Render a packet's payload for display, with a note if it was cut short."""
+    if packet.field_type == _PACKET_SIGNATURE:
+        text = packet.payload.hex()
+    else:
+        try:
+            text = packet.payload.decode()
+        except UnicodeDecodeError:
+            text = packet.payload.hex()
+
+    if not packet.complete:
+        note = f"(truncated, {packet.declared_length} bytes declared)"
+        return f"{text} {note}" if text else note
+    return text
+
+
+def deserialize_partial_macaroon(
+    prefixed_macaroon: str | None,
+) -> PartialMacaroon | None:
+    """
+    Returns whatever fields can still be read out of a PyPI macaroon that
+    `deserialize_raw_macaroon` rejects, usually one that was truncated.
+
+    Returns None if nothing could be read, including anything that is not a
+    v2 macaroon.
+    """
+    raw_macaroon = _extract_raw_macaroon(prefixed_macaroon)
+    if raw_macaroon is None:
+        return None
+
+    data = _b64_prefix_decode(raw_macaroon)
+    if not data or len(data) > _MAX_TOKEN_BYTES or data[0] != pymacaroons.MACAROON_V2:
+        return None
+
+    partial = PartialMacaroon()
+    in_header = True
+    for packet in _read_packets(data[1:]):
+        # A caveat's own location and verification key id are ignored: PyPI
+        # only issues first party caveats, which have neither.
+        if packet.field_type == _PACKET_EOS:
+            in_header = False
+        elif packet.field_type == _PACKET_SIGNATURE:
+            partial.signature = _packet_text(packet)
+        elif packet.field_type == _PACKET_LOCATION and in_header:
+            partial.location = _packet_text(packet)
+        elif packet.field_type == _PACKET_IDENTIFIER:
+            if in_header:
+                partial.identifier = _packet_text(packet)
+                partial.identifier_complete = packet.complete
+            else:
+                partial.caveats.append(_packet_text(packet))
+
+    return partial if partial != PartialMacaroon() else None
 
 
 def _decode_identifier(macaroon: pymacaroons.Macaroon) -> str:
