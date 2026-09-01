@@ -2,6 +2,7 @@
 
 import uuid
 
+import pymacaroons
 import pytest
 
 from warehouse.admin.views import macaroons as views
@@ -127,6 +128,22 @@ class TestMacaroonDecodeToken:
             "The token cannot be deserialized: InvalidMacaroonError('malformed "
             "macaroon')"
         )
+
+    def test_post_token_with_binary_identifier(self, db_request, macaroon_service):
+        """A macaroon can carry bytes here that no template can render."""
+        macaroon = pymacaroons.Macaroon(
+            location="pypi.org",
+            # These 16 bytes are not UTF-8, and their hex is a valid UUID.
+            identifier=uuid.UUID("02ede3fe-dc00-45b9-9a13-9f16ad1c454d").bytes,
+            key=b"fake key",
+            version=pymacaroons.MACAROON_V2,
+        )
+        db_request.method = "POST"
+        db_request.POST = {"token": "pypi-" + macaroon.serialize()}
+
+        with pytest.raises(views.HTTPBadRequest) as excinfo:
+            views.macaroon_decode_token(db_request)
+        assert "malformed macaroon identifier" in excinfo.value.message
 
     def test_post_token_not_found(self, db_request, macaroon_service, raw_token):
         db_request.method = "POST"

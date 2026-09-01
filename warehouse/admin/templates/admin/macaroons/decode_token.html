@@ -81,10 +81,10 @@
         <td>
           {%  if db_record.id %}
           <a href="{{ request.route_path('admin.macaroon.detail', macaroon_id=db_record.id) }}">
-            {{ macaroon.identifier.decode() }}
+            {{ identifier }}
           </a>
           {% else %}
-            {{ macaroon.identifier.decode() }} (Not found)
+            {{ identifier }} (Not found)
           {% endif %}
         </td>
       </tr>

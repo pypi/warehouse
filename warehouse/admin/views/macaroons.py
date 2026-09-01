@@ -11,6 +11,7 @@ from warehouse.macaroons.errors import InvalidMacaroonError
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.models import Macaroon
 from warehouse.macaroons.services import (
+    _decode_identifier,
     deserialize_partial_macaroon,
     deserialize_raw_macaroon,
 )
@@ -50,6 +51,8 @@ def macaroon_decode_token(request):
 
     try:
         macaroon = deserialize_raw_macaroon(token)
+        # Decoding here keeps the template from meeting bytes it cannot render.
+        identifier = _decode_identifier(macaroon)
     except InvalidMacaroonError as e:
         # A truncated token still names the macaroon it came from, so read
         # what is there instead of refusing the whole thing.
@@ -66,13 +69,11 @@ def macaroon_decode_token(request):
             ),
         }
 
-    # Try to find the database record for this macaroon
-    try:
-        db_record = macaroon_service.find_from_raw(token)
-    except InvalidMacaroonError:
-        db_record = None
-
-    return {"macaroon": macaroon, "db_record": db_record}
+    return {
+        "macaroon": macaroon,
+        "identifier": identifier,
+        "db_record": macaroon_service.find_macaroon(identifier),
+    }
 
 
 @view_config(
