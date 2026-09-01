@@ -96,14 +96,15 @@ recognition patterns are case-insensitive. Items marked with an asterisk (^*^)
 indicate a prefix. It means that any name starting with the specified pattern
 will be recognized.
 
-| Name             | Icon                                      | Description               | Aliases                                                                                                  |
-|:-----------------|:------------------------------------------|:--------------------------|:---------------------------------------------------------------------------------------------------------|
-| Homepage         | :fontawesome-solid-house-chimney:         | For the project homepage  |                                                                                                          |
-| Download         | :fontawesome-solid-cloud:                 | A download link           |                                                                                                          |
-| Changelog        | :fontawesome-solid-scroll:                | Changelog information     | Change log, Changes, Release notes, News, What's new, History                                            |
-| Documentation^*^ | :fontawesome-solid-book:                  | Project documentation     | Docs^*^ , a URL pointing to [Read the Docs] domains or a URL starting with `docs.` or `documentation.` |
-| Bug^*^           | :fontawesome-solid-bug:                   | Bug/Issue report location | Issue^*^, Tracker^*^, Report^*^                                                                          |
-| Funding^*^       | :fontawesome-solid-circle-dollar-to-slot: | Sponsoring information    | Sponsor^*^, Donation^*^, Donate^*^                                                                       |
+| Name             | Icon                                      | Description                  | Aliases                                                                                                |
+|:-----------------|:------------------------------------------|:-----------------------------|:-------------------------------------------------------------------------------------------------------|
+| Homepage         | :fontawesome-solid-house-chimney:         | For the project homepage     |                                                                                                        |
+| Download         | :fontawesome-solid-cloud:                 | A download link              |                                                                                                        |
+| Changelog        | :fontawesome-solid-scroll:                | Changelog information        | Change log, Changes, News, Whatsnew, What's new, History                                               |
+| Release notes    | :fontawesome-solid-newspaper:             | Curated release information  | Releasenotes                                                                                           |
+| Documentation^*^ | :fontawesome-solid-book:                  | Project documentation        | Docs^*^ , a URL pointing to [Read the Docs] domains or a URL starting with `docs.` or `documentation.` |
+| Bug^*^           | :fontawesome-solid-bug:                   | Bug/Issue report location    | Issue^*^, Tracker^*^, Report^*^                                                                        |
+| Funding^*^       | :fontawesome-solid-circle-dollar-to-slot: | Sponsoring information       | Sponsor^*^, Donation^*^, Donate^*^                                                                     |
 
 [Read the Docs]: https://about.readthedocs.com/
 
@@ -132,6 +133,7 @@ To display a custom icon, an entry must either :
 | Platform | Icon                              | Name     | Domain                                        |
 |:---------|:----------------------------------|:---------|:----------------------------------------------|
 | Discord  | :fontawesome-brands-discord:      |          | `discord.com`, `discordapp.com`, `discord.gg` |
+| Telegram | :fontawesome-brands-telegram:     |          | `t.me`, `telegram.me`, `telegram.dog`         |
 | Gitter   | :fontawesome-brands-gitter:       |          | `gitter.im`                                   |
 | Mastodon | :fontawesome-brands-mastodon:     | Mastodon |                                               |
 | Reddit   | :fontawesome-brands-reddit-alien: |          | `reddit.com`                                  |
