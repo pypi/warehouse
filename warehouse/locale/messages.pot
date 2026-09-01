@@ -166,177 +166,177 @@ msgstr ""
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
-#: warehouse/accounts/views.py:720
+#: warehouse/accounts/views.py:730
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help"
 "#admin-intervention for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:881
+#: warehouse/accounts/views.py:893
 msgid "Expired token: request a new password reset link"
 msgstr ""
 
-#: warehouse/accounts/views.py:883
+#: warehouse/accounts/views.py:895
 msgid "Invalid token: request a new password reset link"
 msgstr ""
 
-#: warehouse/accounts/views.py:885 warehouse/accounts/views.py:998
-#: warehouse/accounts/views.py:1063 warehouse/accounts/views.py:1169
-#: warehouse/accounts/views.py:1340
+#: warehouse/accounts/views.py:897 warehouse/accounts/views.py:1010
+#: warehouse/accounts/views.py:1075 warehouse/accounts/views.py:1181
+#: warehouse/accounts/views.py:1352
 msgid "Invalid token: no token supplied"
 msgstr ""
 
-#: warehouse/accounts/views.py:889
+#: warehouse/accounts/views.py:901
 msgid "Invalid token: not a password reset token"
 msgstr ""
 
-#: warehouse/accounts/views.py:894 warehouse/accounts/views.py:1007
+#: warehouse/accounts/views.py:906 warehouse/accounts/views.py:1019
 msgid "Invalid token: user not found"
 msgstr ""
 
-#: warehouse/accounts/views.py:905
+#: warehouse/accounts/views.py:917
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 
-#: warehouse/accounts/views.py:923
+#: warehouse/accounts/views.py:935
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
 
-#: warehouse/accounts/views.py:954
+#: warehouse/accounts/views.py:966
 msgid "You have reset your password"
 msgstr ""
 
-#: warehouse/accounts/views.py:994
+#: warehouse/accounts/views.py:1006
 msgid "Expired token: please try to login again"
 msgstr ""
 
-#: warehouse/accounts/views.py:996
+#: warehouse/accounts/views.py:1008
 msgid "Invalid token: please try to login again"
 msgstr ""
 
-#: warehouse/accounts/views.py:1002
+#: warehouse/accounts/views.py:1014
 msgid "Invalid token: not a login confirmation token"
 msgstr ""
 
-#: warehouse/accounts/views.py:1017
+#: warehouse/accounts/views.py:1029
 msgid "Invalid login attempt."
 msgstr ""
 
-#: warehouse/accounts/views.py:1022
+#: warehouse/accounts/views.py:1034
 msgid ""
 "Device details didn't match, please try again from the device you "
 "originally used to log in."
 msgstr ""
 
-#: warehouse/accounts/views.py:1033
+#: warehouse/accounts/views.py:1045
 msgid "Your login has been confirmed and this device is now recognized."
 msgstr ""
 
-#: warehouse/accounts/views.py:1059
+#: warehouse/accounts/views.py:1071
 msgid "Expired token: request a new email verification link"
 msgstr ""
 
-#: warehouse/accounts/views.py:1061
+#: warehouse/accounts/views.py:1073
 msgid "Invalid token: request a new email verification link"
 msgstr ""
 
-#: warehouse/accounts/views.py:1067
+#: warehouse/accounts/views.py:1079
 msgid "Invalid token: not an email verification token"
 msgstr ""
 
-#: warehouse/accounts/views.py:1076
+#: warehouse/accounts/views.py:1088
 msgid "Email not found"
 msgstr ""
 
-#: warehouse/accounts/views.py:1079
+#: warehouse/accounts/views.py:1091
 msgid "Email already verified"
 msgstr ""
 
-#: warehouse/accounts/views.py:1099
+#: warehouse/accounts/views.py:1111
 msgid "You can now set this email as your primary address"
 msgstr ""
 
-#: warehouse/accounts/views.py:1102
+#: warehouse/accounts/views.py:1114
 msgid "This is your primary address"
 msgstr ""
 
-#: warehouse/accounts/views.py:1108
+#: warehouse/accounts/views.py:1120
 #, python-brace-format
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr ""
 
-#: warehouse/accounts/views.py:1165
+#: warehouse/accounts/views.py:1177
 msgid "Expired token: request a new organization invitation"
 msgstr ""
 
-#: warehouse/accounts/views.py:1167
+#: warehouse/accounts/views.py:1179
 msgid "Invalid token: request a new organization invitation"
 msgstr ""
 
-#: warehouse/accounts/views.py:1173
+#: warehouse/accounts/views.py:1185
 msgid "Invalid token: not an organization invitation token"
 msgstr ""
 
-#: warehouse/accounts/views.py:1177 warehouse/accounts/views.py:1188
+#: warehouse/accounts/views.py:1189 warehouse/accounts/views.py:1200
 msgid "Organization invitation is not valid."
 msgstr ""
 
-#: warehouse/accounts/views.py:1186
+#: warehouse/accounts/views.py:1198
 msgid "Organization invitation no longer exists."
 msgstr ""
 
-#: warehouse/accounts/views.py:1240
+#: warehouse/accounts/views.py:1252
 #, python-brace-format
 msgid "Invitation for '${organization_name}' is declined."
 msgstr ""
 
-#: warehouse/accounts/views.py:1303
+#: warehouse/accounts/views.py:1315
 #, python-brace-format
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr ""
 
-#: warehouse/accounts/views.py:1336
+#: warehouse/accounts/views.py:1348
 msgid "Expired token: request a new project role invitation"
 msgstr ""
 
-#: warehouse/accounts/views.py:1338
+#: warehouse/accounts/views.py:1350
 msgid "Invalid token: request a new project role invitation"
 msgstr ""
 
-#: warehouse/accounts/views.py:1344
+#: warehouse/accounts/views.py:1356
 msgid "Invalid token: not a collaboration invitation token"
 msgstr ""
 
-#: warehouse/accounts/views.py:1348 warehouse/accounts/views.py:1368
+#: warehouse/accounts/views.py:1360 warehouse/accounts/views.py:1380
 msgid "Role invitation is not valid."
 msgstr ""
 
-#: warehouse/accounts/views.py:1355
+#: warehouse/accounts/views.py:1367
 msgid "Invalid token: project does not exist"
 msgstr ""
 
-#: warehouse/accounts/views.py:1366
+#: warehouse/accounts/views.py:1378
 msgid "Role invitation no longer exists."
 msgstr ""
 
-#: warehouse/accounts/views.py:1400
+#: warehouse/accounts/views.py:1412
 #, python-brace-format
 msgid "Invitation for '${project_name}' is declined."
 msgstr ""
 
-#: warehouse/accounts/views.py:1466
+#: warehouse/accounts/views.py:1478
 #, python-brace-format
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/accounts/views.py:1577
+#: warehouse/accounts/views.py:1589
 #, python-brace-format
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
 
-#: warehouse/accounts/views.py:1804 warehouse/accounts/views.py:2072
+#: warehouse/accounts/views.py:1816 warehouse/accounts/views.py:2084
 #: warehouse/manage/views/oidc_publishers.py:126
 #: warehouse/manage/views/organizations.py:1721
 msgid ""
@@ -344,22 +344,22 @@ msgid ""
 "#admin-intervention for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1825
+#: warehouse/accounts/views.py:1837
 #: warehouse/manage/views/organizations.py:1744
 msgid "disabled. See https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1841
+#: warehouse/accounts/views.py:1853
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1854
+#: warehouse/accounts/views.py:1866
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1869
+#: warehouse/accounts/views.py:1881
 #: warehouse/manage/views/oidc_publishers.py:308
 #: warehouse/manage/views/oidc_publishers.py:423
 #: warehouse/manage/views/oidc_publishers.py:539
@@ -369,7 +369,7 @@ msgid ""
 "again later."
 msgstr ""
 
-#: warehouse/accounts/views.py:1879
+#: warehouse/accounts/views.py:1891
 #: warehouse/manage/views/oidc_publishers.py:321
 #: warehouse/manage/views/oidc_publishers.py:436
 #: warehouse/manage/views/oidc_publishers.py:552
@@ -378,30 +378,30 @@ msgstr ""
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1894
+#: warehouse/accounts/views.py:1906
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's"
 " admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1919
+#: warehouse/accounts/views.py:1931
 msgid ""
 "A pending trusted publisher matching this configuration has already been "
 "registered for a different project name. Please contact PyPI's admins if "
 "this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1942
+#: warehouse/accounts/views.py:1954
 #: warehouse/manage/views/organizations.py:1812
 msgid "Registered a new pending publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:2085 warehouse/accounts/views.py:2098
-#: warehouse/accounts/views.py:2105
+#: warehouse/accounts/views.py:2097 warehouse/accounts/views.py:2110
+#: warehouse/accounts/views.py:2117
 msgid "Invalid publisher ID"
 msgstr ""
 
-#: warehouse/accounts/views.py:2112
+#: warehouse/accounts/views.py:2124
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -2052,10 +2052,10 @@ msgstr ""
 #: warehouse/templates/accounts/register.html:67
 #: warehouse/templates/manage/account.html:137
 #: warehouse/templates/manage/account.html:623
-#: warehouse/templates/manage/project/history.html:284
-#: warehouse/templates/manage/project/history.html:295
-#: warehouse/templates/manage/project/history.html:306
-#: warehouse/templates/manage/project/history.html:317
+#: warehouse/templates/manage/project/history.html:286
+#: warehouse/templates/manage/project/history.html:297
+#: warehouse/templates/manage/project/history.html:308
+#: warehouse/templates/manage/project/history.html:319
 #: warehouse/templates/manage/unverified-account.html:119
 msgid "Name"
 msgstr ""
@@ -3737,16 +3737,16 @@ msgstr[1] ""
 msgid "Owner"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/metadata/project-links.html:56
+#: warehouse/templates/includes/packaging/metadata/project-links.html:62
 msgid "Project links"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/metadata/project-links.html:62
+#: warehouse/templates/includes/packaging/metadata/project-links.html:68
 #, python-format
 msgid "Data verified by PyPI on %(date)s"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/metadata/project-links.html:65
+#: warehouse/templates/includes/packaging/metadata/project-links.html:71
 msgid ""
 "Data provided by the project maintainers, verified at the time the "
 "release was uploaded to PyPI."
@@ -4256,7 +4256,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:701
 #: warehouse/templates/manage/account.html:720
-#: warehouse/templates/manage/project/history.html:247
+#: warehouse/templates/manage/project/history.html:249
 #: warehouse/templates/manage/unverified-account.html:349
 #: warehouse/templates/manage/unverified-account.html:368
 msgid "Reason:"
@@ -4464,15 +4464,15 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:846
 #: warehouse/templates/manage/account.html:868
-#: warehouse/templates/manage/project/history.html:238
-#: warehouse/templates/manage/project/history.html:245
+#: warehouse/templates/manage/project/history.html:240
+#: warehouse/templates/manage/project/history.html:247
 #: warehouse/templates/manage/unverified-account.html:468
 #: warehouse/templates/manage/unverified-account.html:490
 msgid "Token name:"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:861
-#: warehouse/templates/manage/project/history.html:240
+#: warehouse/templates/manage/project/history.html:242
 #: warehouse/templates/manage/unverified-account.html:483
 msgid "API token removed"
 msgstr ""
@@ -4568,7 +4568,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:938
 #: warehouse/templates/manage/organization/history.html:213
-#: warehouse/templates/manage/project/history.html:333
+#: warehouse/templates/manage/project/history.html:335
 #: warehouse/templates/manage/team/history.html:87
 #: warehouse/templates/manage/unverified-account.html:530
 msgid "Event"
@@ -4577,8 +4577,8 @@ msgstr ""
 #: warehouse/templates/manage/account.html:939
 #: warehouse/templates/manage/organization/history.html:214
 #: warehouse/templates/manage/organization/history.html:223
-#: warehouse/templates/manage/project/history.html:334
-#: warehouse/templates/manage/project/history.html:343
+#: warehouse/templates/manage/project/history.html:336
+#: warehouse/templates/manage/project/history.html:345
 #: warehouse/templates/manage/team/history.html:88
 #: warehouse/templates/manage/team/history.html:97
 #: warehouse/templates/manage/unverified-account.html:531
@@ -4605,7 +4605,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:955
 #: warehouse/templates/manage/organization/history.html:230
-#: warehouse/templates/manage/project/history.html:350
+#: warehouse/templates/manage/project/history.html:352
 #: warehouse/templates/manage/team/history.html:104
 #: warehouse/templates/manage/unverified-account.html:546
 msgid "Device Info"
@@ -4960,8 +4960,8 @@ msgstr ""
 #: warehouse/templates/manage/project/history.html:119
 #: warehouse/templates/manage/project/history.html:163
 #: warehouse/templates/manage/project/history.html:188
-#: warehouse/templates/manage/project/history.html:282
-#: warehouse/templates/manage/project/history.html:304
+#: warehouse/templates/manage/project/history.html:284
+#: warehouse/templates/manage/project/history.html:306
 #: warehouse/templates/manage/team/history.html:68
 msgid "Added by:"
 msgstr ""
@@ -6417,8 +6417,8 @@ msgid "Created by:"
 msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:158
-#: warehouse/templates/manage/project/history.html:293
-#: warehouse/templates/manage/project/history.html:315
+#: warehouse/templates/manage/project/history.html:295
+#: warehouse/templates/manage/project/history.html:317
 #: warehouse/templates/manage/team/history.html:57
 msgid "Deleted by:"
 msgstr ""
@@ -6456,7 +6456,7 @@ msgid "Revoked by:"
 msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:210
-#: warehouse/templates/manage/project/history.html:330
+#: warehouse/templates/manage/project/history.html:332
 #: warehouse/templates/manage/team/history.html:84
 #, python-format
 msgid "Security history for %(source_name)s"
@@ -7184,13 +7184,13 @@ msgid "Short-lived API token created"
 msgstr ""
 
 #: warehouse/templates/manage/project/history.html:201
-#: warehouse/templates/manage/project/history.html:229
-#: warehouse/templates/manage/project/history.html:241
+#: warehouse/templates/manage/project/history.html:231
+#: warehouse/templates/manage/project/history.html:243
 msgid "Permissions: Can upload to this project"
 msgstr ""
 
 #: warehouse/templates/manage/project/history.html:204
-#: warehouse/templates/manage/project/history.html:236
+#: warehouse/templates/manage/project/history.html:238
 msgid "Expiration:"
 msgstr ""
 
@@ -7207,76 +7207,80 @@ msgid "Creator"
 msgstr ""
 
 #: warehouse/templates/manage/project/history.html:228
+msgid "Short-lived API token revoked"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:230
 msgid "API token created"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:232
-#: warehouse/templates/manage/project/history.html:243
+#: warehouse/templates/manage/project/history.html:234
+#: warehouse/templates/manage/project/history.html:245
 msgid "Controlled by:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:251
+#: warehouse/templates/manage/project/history.html:253
 msgid "Trusted publisher added"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:254
+#: warehouse/templates/manage/project/history.html:256
 msgid "Trusted publisher removed"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:258
+#: warehouse/templates/manage/project/history.html:260
 msgid "2FA requirement enabled"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:260
+#: warehouse/templates/manage/project/history.html:262
 msgid "Enabled by:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:263
+#: warehouse/templates/manage/project/history.html:265
 msgid "2FA requirement disabled"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:265
+#: warehouse/templates/manage/project/history.html:267
 msgid "Disabled by:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:269
+#: warehouse/templates/manage/project/history.html:271
 msgid "Project archived"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:271
+#: warehouse/templates/manage/project/history.html:273
 msgid "Archived by:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:274
+#: warehouse/templates/manage/project/history.html:276
 msgid "Project unarchived"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:276
+#: warehouse/templates/manage/project/history.html:278
 msgid "Unarchived by:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:280
-#: warehouse/templates/manage/project/history.html:302
+#: warehouse/templates/manage/project/history.html:282
+#: warehouse/templates/manage/project/history.html:304
 msgid "Project alternate repository added"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:285
-#: warehouse/templates/manage/project/history.html:296
-#: warehouse/templates/manage/project/history.html:307
-#: warehouse/templates/manage/project/history.html:318
+#: warehouse/templates/manage/project/history.html:287
+#: warehouse/templates/manage/project/history.html:298
+#: warehouse/templates/manage/project/history.html:309
+#: warehouse/templates/manage/project/history.html:320
 msgid "Url"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:291
-#: warehouse/templates/manage/project/history.html:313
+#: warehouse/templates/manage/project/history.html:293
+#: warehouse/templates/manage/project/history.html:315
 msgid "Project alternate repository deleted"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:335
+#: warehouse/templates/manage/project/history.html:337
 msgid "Additional info"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:347
+#: warehouse/templates/manage/project/history.html:349
 #: warehouse/templates/manage/team/history.html:101
 msgid "Location info"
 msgstr ""
