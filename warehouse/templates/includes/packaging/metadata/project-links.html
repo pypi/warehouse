@@ -49,7 +49,7 @@
     {% set icon = "fab fa-youtube" %}
   {% elif name|lower == "mastodon" %}
     {% set icon = "fab fa-mastodon" %}
-  {% elif name.lower().startswith(("source", "repository")) %}
+  {% elif name|lower in ["source", "source code", "sourcecode", "repository"] %}
     {% set icon = "fas fa-code-branch" %}
   {% else %}
     {% set icon = "fas fa-external-link-square-alt" %}

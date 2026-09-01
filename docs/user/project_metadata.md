@@ -105,7 +105,7 @@ will be recognized.
 | Documentation^*^ | :fontawesome-solid-book:                  | Project documentation       | Docs^*^ , a URL pointing to [Read the Docs] domains or a URL starting with `docs.` or `documentation.` |
 | Bug^*^           | :fontawesome-solid-bug:                   | Bug/Issue report location   | Issue^*^, Tracker^*^, Report^*^                                                                        |
 | Funding^*^       | :fontawesome-solid-circle-dollar-to-slot: | Sponsoring information      | Sponsor^*^, Donation^*^, Donate^*^                                                                     |
-| Source^*^        | :fontawesome-solid-code-branch:           | Source code repository      | Source^*^, Repository^*^                                                                               |
+| Source           | :fontawesome-solid-code-branch:           | Source code repository      | Source Code, Sourcecode, Repository                                                                    |
 
 [Read the Docs]: https://about.readthedocs.com/
 
