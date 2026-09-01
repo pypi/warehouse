@@ -29,6 +29,10 @@ from warehouse.macaroons.models import Macaroon
 from warehouse.oidc.models import GitHubPublisher
 from warehouse.organizations.models import OrganizationType, TeamProjectRoleType
 from warehouse.packaging.models import (
+    GITHUB_REPO_HOSTS,
+    GITHUB_RESERVED_NAMES,
+    GITLAB_REPO_HOSTS,
+    GITLAB_RESERVED_NAMES,
     PROVENANCE_COMPARISON_WINDOW_DAYS,
     Description,
     File,
@@ -38,6 +42,7 @@ from warehouse.packaging.models import (
     ProjectMacaroonWarningAssociation,
     Release,
     ReleaseURL,
+    parse_user_name_and_repo_name,
 )
 from warehouse.utils.db.orm import NoSessionError
 
@@ -2360,3 +2365,61 @@ class TestProjectLimitProperties:
         expected = max(MAX_PROJECT_SIZE, 5000 * ONE_GIB, large_limit)
         assert project.total_size_limit_value == expected
         assert project.total_size_limit_value == large_limit
+
+
+class TestParseUserNameAndRepoName:
+    @pytest.mark.parametrize(
+        ("url", "expected"),
+        [
+            # A repository, and a page inside one.
+            ("https://github.com/an-org/a-repo", ("an-org", "a-repo")),
+            ("https://github.com/an-org/a-repo/issues", ("an-org", "a-repo")),
+            ("https://github.com/an-org/a-repo.git", ("an-org", "a-repo")),
+            # An explicit port is not part of the host.
+            ("https://github.com:443/an-org/a-repo", ("an-org", "a-repo")),
+            # Not a repository.
+            ("https://github.com/an-org", None),
+            ("https://example.com/an-org/a-repo", None),
+            ("https://github.com/sponsors/an-org", None),
+            # A path that parses into an empty repository name.
+            ("https://github.com/an-org/.git", None),
+            ("https://github.com/an-org//a-repo", None),
+            # Unparsable.
+            ("https://[/an-org/a-repo", None),
+        ],
+    )
+    def test_parses_github_urls(self, url, expected):
+        assert (
+            parse_user_name_and_repo_name(url, GITHUB_REPO_HOSTS, GITHUB_RESERVED_NAMES)
+            == expected
+        )
+
+    @pytest.mark.parametrize(
+        ("url", "expected"),
+        [
+            ("https://github.com/an-org/a-repo", ("an-org", "a-repo")),
+            ("https://github.com/an-org/a-repo/issues", None),
+            ("https://github.com/an-org/a-repo/blob/main/README.md", None),
+        ],
+    )
+    def test_root_only_rejects_subpaths(self, url, expected):
+        assert (
+            parse_user_name_and_repo_name(
+                url, GITHUB_REPO_HOSTS, GITHUB_RESERVED_NAMES, root_only=True
+            )
+            == expected
+        )
+
+    @pytest.mark.parametrize(
+        "url",
+        [
+            "https://gitlab.com/explore/projects",
+            "https://gitlab.com/users/someone",
+            "https://gitlab.com/-/snippets/12345",
+        ],
+    )
+    def test_gitlab_service_paths_are_not_repositories(self, url):
+        assert (
+            parse_user_name_and_repo_name(url, GITLAB_REPO_HOSTS, GITLAB_RESERVED_NAMES)
+            is None
+        )
