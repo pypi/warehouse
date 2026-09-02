@@ -80,8 +80,10 @@
     @media screen and (max-width: breakpoints.$tablet) {
       flex-basis: auto;
       width: 100%;
+      min-height: auto;
       border-right: 0;
       border-bottom: 1px solid colors.$border-color;
+      box-shadow: 0 0 5px colors.$mid-grey;
     }
   }
 
@@ -110,6 +112,10 @@
   &__sidebar-content {
     max-height: 480px;
     overflow-y: auto;
+
+    @media screen and (max-width: breakpoints.$tablet) {
+      max-height: 300px;
+    }
   }
 
   &__file-list {

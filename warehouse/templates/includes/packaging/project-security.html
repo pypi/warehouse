@@ -49,7 +49,7 @@
     <div class="attestations-viewer__sidebar">
       <div class="attestations-viewer__sidebar-header">
         <div class="attestations-viewer__sidebar-title">
-          {% trans count=viewer_files|length %}Select from {{ count }} file
+          {% trans count=viewer_files|length %}{{ count }} file
         {% pluralize %}
           Select from {{ count }} files{% endtrans %}
         </div>
