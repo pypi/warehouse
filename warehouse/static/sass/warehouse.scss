@@ -161,6 +161,23 @@
   }
 }
 
+// TITLES
+// Adjust size of h1s on standalone pages
+.page-title {
+  @include typography.h1-title;
+}
+
+// Resolve conflict between .page-title and .heading-wsubtitle
+.page-title--wsubtitle {
+  padding-bottom: 5px;
+}
+
+// Add extra padding to subtitles
+.sub-title {
+  padding-bottom: 25px;
+}
+
+
 // COLORS
 // Make text or icons red to draw attention
 .danger {
@@ -181,6 +198,8 @@
 .muted {
   color: color.mix(colors.$light-grey, colors.$mid-grey, 50%);
 }
+
+
 
 // ALIGNMENT, PADDING & MARGINS
 // Make inline elements centered
@@ -260,22 +279,6 @@
   > * {
     margin-bottom: 5px;
   }
-}
-
-// TITLES
-// Adjust size of h1s on standalone pages
-.page-title {
-  @include typography.h1-title;
-}
-
-// Resolve conflict between .page-title and .heading-wsubtitle
-.page-title--wsubtitle {
-  padding-bottom: 5px;
-}
-
-// Add extra padding to subtitles
-.sub-title {
-  padding-bottom: 25px;
 }
 
 // VISIBILITY

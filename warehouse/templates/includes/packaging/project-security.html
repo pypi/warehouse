@@ -5,7 +5,7 @@
      aria-labelledby="security-tab"
      tabindex="-1">
   <div class="split-layout">
-    <h2 class="page-title">{% trans name=release.project.name, version=release.version %}Security for {{ name }} {{ version }}{% endtrans %}</h2>
+    <h2 class="page-title no-bottom-padding margin-bottom">{% trans name=release.project.name, version=release.version %}Security for {{ name }} {{ version }}{% endtrans %}</h2>
     <div>
       <a class="button button--outline"
          href="{{ request.route_url('packaging.project.submit_malware_observation', name=project.name) }}"
@@ -14,12 +14,12 @@
     </div>
   </div>
   {% if late_file_count > 0 %}
-    <h3 class="no-top-margin no-top-padding">{% trans %}Upload timing{% endtrans %}</h3>
+    <h3 class="no-top-margin">{% trans %}Upload timing{% endtrans %}</h3>
     {% set link_to_release_files = true %}
     {% include "includes/packaging/security/late-files.html" %}
     <hr />
   {% endif %}
-  <h3 class="no-top-margin no-top-padding">{% trans %}Provenance{% endtrans %}</h3>
+  <h3 class="no-top-margin">{% trans %}Provenance{% endtrans %}</h3>
   <p>
     {% trans href=request.user_docs_url('/attestations/') %}<strong>Provenance</strong> describes where a file came from. On PyPI, provenance is shared via <strong>attestations</strong>, which provide a verifiable record of the build or publishing details. <a href="{{ href }}">View details, limitations and caveats.</a>{% endtrans %}
   </p>
