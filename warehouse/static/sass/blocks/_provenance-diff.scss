@@ -1,56 +1,62 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 @use "sass:color";
+@use "../settings/breakpoints";
 @use "../settings/colors";
 @use "../settings/fonts";
 @use "../settings/grid";
 @use "../tools/link-utilities";
 
 /*
-  A table of before/after rows, styled like a code diff, with columns
-  lined up like a table.
+  A list of before/after rows, styled like a code diff.
 
   Use to compare two versions of something (a release, a config, a
-  dependency) one row per side.
+  dependency), or to break a release down by source/count with no
+  before/after framing (the --breakdown modifier).
 
-  <table class="provenance-diff">
-    <caption class="provenance-diff__title">
+  Built with CSS Grid: the same markup lays out as a single line on
+  wide screens and stacks (with detail lines aligned under the
+  version) on narrow ones, using one layout mechanism at every
+  breakpoint instead of switching between table layout and flexbox.
+
+  <div class="provenance-diff">
+    <p class="provenance-diff__title">
       <i class="fa-solid fa-cube" aria-hidden="true"></i>
-      Title for table
-    </caption>
-    <tbody>
-      <tr class="provenance-diff__row provenance-diff__row--removed">
-        <td class="provenance-diff__marker">
+      Title
+    </p>
+    <ul class="provenance-diff__rows">
+      <li class="provenance-diff__row provenance-diff__row--removed">
+        <span class="provenance-diff__marker">
           <span aria-hidden="true">-</span>
           <span class="sr-only">Removed</span>
-        </td>
-        <th scope="row">Row heading</th>
-        <td>Column data</td>
-      </tr>
-      <tr class="provenance-diff__row provenance-diff__row--added">
-        <td class="provenance-diff__marker">
-          <span aria-hidden="true">+</span>
-          <span class="sr-only">Added</span>
-        </td>
-        <th scope="row">Row heading</th>
-        <td>Column data</td>
-      </tr>
-    </tbody>
-  </table>
+        </span>
+        <a class="provenance-diff__version" href="#">1.2.3</a>
+        <span class="provenance-diff__value">Column data</span>
+      </li>
+    </ul>
+  </div>
 
   Row modifiers:
-    - removed: Tints the row red
-    - added: Tints the row green
-    - neutral: Tints the row grey, for a plain (non-diff) breakdown
+    - removed: tints the row red
+    - added: tints the row orange
+    - neutral: tints the row grey
+
+  Block modifiers (pick one; they select the row's structure):
+    - (none): marker + version + a single value
+    - status: marker + version + a file count + a provenance status
+      badge (see lost-provenance.html)
+    - breakdown: no marker/version; each row is just a count + a
+      value (see inconsistent-provenance.html)
 */
 
 .provenance-diff {
   width: calc(100% - #{grid.$half-spacing-unit});
   margin-left: grid.$half-spacing-unit;
-  border-radius: 4px;
-  border-spacing: 0 4px;
-  overflow: hidden;
   color: colors.$text-color;
+
+  @media only screen and (max-width: breakpoints.$small-tablet) {
+    margin-left: 0;
+  }
 
   & + & {
     margin-top: grid.$half-spacing-unit;
@@ -61,56 +67,88 @@
   }
 
   &__title {
-    caption-side: top;
-    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: grid.$quarter-spacing-unit;
     font-weight: fonts.$bold-font-weight;
     font-size: 0.95rem;
-    padding-bottom: grid.$quarter-spacing-unit;
+  }
 
-    i {
-      margin-right: grid.$quarter-spacing-unit;
+  &__rows {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  // Default shape: marker + version, then a single value.
+  &__row {
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    grid-template-areas: "marker version value";
+    align-items: baseline;
+    gap: 3px grid.$spacing-unit;
+    padding: grid.$quarter-spacing-unit grid.$half-spacing-unit;
+    font-size: 0.85rem;
+
+    & + & {
+      margin-top: 6px;
+    }
+
+    @media only screen and (max-width: breakpoints.$small-tablet) {
+      grid-template-columns: auto 1fr;
+      grid-template-areas:
+        "marker version"
+        ".      value";
+      gap: 3px grid.$half-spacing-unit;
     }
   }
 
-  th,
-  td {
-    padding-top: grid.$quarter-spacing-unit;
-    padding-bottom: grid.$quarter-spacing-unit;
-    text-align: left;
-    vertical-align: middle;
-    font-size: 0.85rem;
-    white-space: nowrap;
+  // Status shape: marker + version, then a file count and a
+  // provenance status badge, instead of a plain value.
+  &--status &__row {
+    grid-template-columns: auto auto auto 1fr;
+    grid-template-areas: "marker version count status";
 
-    &:first-child {
-      padding-left: grid.$half-spacing-unit;
-    }
-
-    &:not(:last-child) {
-      width: 1%;
-      padding-right: grid.$spacing-unit;
+    @media only screen and (max-width: breakpoints.$small-tablet) {
+      grid-template-columns: auto 1fr;
+      grid-template-areas:
+        "marker version"
+        ".      count"
+        ".      status";
     }
   }
 
   &__marker {
+    grid-area: marker;
     font-family: fonts.$code-font;
     font-weight: fonts.$bold-font-weight;
-    text-align: center;
   }
 
-  &__version,
-  &__count,
-  &__value {
+  &__version {
+    grid-area: version;
     font-family: fonts.$code-font;
+    white-space: nowrap;
+  }
+
+  &__count {
+    grid-area: count;
+    font-family: fonts.$code-font;
+    white-space: nowrap;
   }
 
   &__value {
-    white-space: normal;
+    grid-area: value;
+    font-family: fonts.$code-font;
     word-break: break-all;
   }
 
   &__status {
+    grid-area: status;
+
     .badge {
-      float: left;
+      display: inline-block;
     }
   }
 
@@ -132,5 +170,18 @@
 
   &__row--neutral {
     background-color: colors.$off-white;
+  }
+
+  // Breakdown shape: no marker/version, just a count + a value.
+  &--breakdown &__row {
+    grid-template-columns: auto 1fr;
+    grid-template-areas: "count value";
+
+    @media only screen and (max-width: breakpoints.$small-tablet) {
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        "count"
+        "value";
+    }
   }
 }

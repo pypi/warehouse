@@ -35,7 +35,7 @@
     gap: grid.$half-spacing-unit;
     margin-bottom: grid.$half-spacing-unit;
 
-    @media only screen and (max-width: breakpoints.$mobile) {
+    @media only screen and (max-width: breakpoints.$small-tablet) {
       flex-direction: column;
     }
   }
@@ -46,7 +46,7 @@
     margin-top: -3px;
     flex-shrink: 0;
 
-    @media only screen and (max-width: breakpoints.$mobile) {
+    @media only screen and (max-width: breakpoints.$small-tablet) {
       margin-top: 0;
       padding: 0;
     }
@@ -70,7 +70,7 @@
       28.57% 97.96%, 21.43% 100%, 14.29% 97.96%, 7.14% 100%, 0% 97.96%
     );
 
-    @media only screen and (max-width: breakpoints.$mobile) {
+    @media only screen and (max-width: breakpoints.$small-tablet) {
       flex-direction: row;
     }
 

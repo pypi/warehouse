@@ -19,7 +19,6 @@
     {% include "includes/packaging/security/late-files.html" %}
     <hr />
   {% endif %}
-
   {% set provenance_states = release.provenance_status.states %}
   <h3 class="no-top-margin">{% trans %}Provenance{% endtrans %}</h3>
   <p>
@@ -235,12 +234,12 @@
                data-filename="{{ filename }}">
             <h3 class="no-top-margin">
               {% trans count=file_attestation_count, filename=filename, href=href %}Attestation for <a href="{{ href }}"
-      data-project-tabs-target="tab"
-      data-action="project-tabs#onTabClick">{{ filename }}</a>
+    data-project-tabs-target="tab"
+    data-action="project-tabs#onTabClick">{{ filename }}</a>
             {% pluralize %}
               Attestations for <a href="{{ href }}"
-      data-project-tabs-target="tab"
-      data-action="project-tabs#onTabClick">{{ filename }}</a>{% endtrans %}
+    data-project-tabs-target="tab"
+    data-action="project-tabs#onTabClick">{{ filename }}</a>{% endtrans %}
             </h3>
             {% if vfile.provenance %}
               {% set file = vfile %}

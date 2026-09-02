@@ -3192,13 +3192,13 @@ msgstr ""
 
 #: warehouse/templates/includes/file-details.html:127
 #: warehouse/templates/includes/packaging/metadata/provenance.html:13
-#: warehouse/templates/includes/packaging/project-security.html:22
-#: warehouse/templates/includes/packaging/project-security.html:81
+#: warehouse/templates/includes/packaging/project-security.html:23
+#: warehouse/templates/includes/packaging/project-security.html:79
 msgid "Provenance"
 msgstr ""
 
 #: warehouse/templates/includes/file-details.html:130
-#: warehouse/templates/includes/packaging/project-security.html:24
+#: warehouse/templates/includes/packaging/project-security.html:25
 #, python-format
 msgid ""
 "<strong>Provenance</strong> describes where a file came from. On PyPI, "
@@ -3429,7 +3429,7 @@ msgstr ""
 #: warehouse/templates/includes/packaging/project-files.html:110
 #: warehouse/templates/includes/packaging/project-files.html:121
 #: warehouse/templates/includes/packaging/project-files.html:128
-#: warehouse/templates/includes/packaging/project-security.html:136
+#: warehouse/templates/includes/packaging/project-security.html:134
 msgid "Interpreter"
 msgstr ""
 
@@ -3442,12 +3442,12 @@ msgstr ""
 #: warehouse/templates/includes/packaging/project-files.html:156
 #: warehouse/templates/includes/packaging/project-files.html:167
 #: warehouse/templates/includes/packaging/project-files.html:174
-#: warehouse/templates/includes/packaging/project-security.html:155
+#: warehouse/templates/includes/packaging/project-security.html:153
 msgid "Platform"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-files.html:181
-#: warehouse/templates/includes/packaging/project-security.html:62
+#: warehouse/templates/includes/packaging/project-security.html:60
 msgid "Reset"
 msgstr ""
 
@@ -3611,57 +3611,64 @@ msgstr ""
 msgid "Upload timing"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-security.html:53
+#: warehouse/templates/includes/packaging/project-security.html:51
+#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:29
+#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:39
+#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:63
+#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:73
+#: warehouse/templates/includes/packaging/security/lost-provenance.html:25
+#: warehouse/templates/includes/packaging/security/lost-provenance.html:44
+#: warehouse/templates/manage/project/releases.html:32
 #, python-format
-msgid "Select from %(count)s file"
+msgid "%(count)s file"
 msgid_plural "Select from %(count)s files"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/includes/packaging/project-security.html:69
+#: warehouse/templates/includes/packaging/project-security.html:67
 msgid "Filter files"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-security.html:92
-#: warehouse/templates/includes/packaging/security/lost-provenance.html:32
+#: warehouse/templates/includes/packaging/project-security.html:90
+#: warehouse/templates/includes/packaging/security/lost-provenance.html:31
 msgid "With provenance"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-security.html:104
+#: warehouse/templates/includes/packaging/project-security.html:102
 #: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:45
 #: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:79
-#: warehouse/templates/includes/packaging/security/lost-provenance.html:50
+#: warehouse/templates/includes/packaging/security/lost-provenance.html:49
 msgid "Without provenance"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-security.html:108
+#: warehouse/templates/includes/packaging/project-security.html:106
 msgid "File type"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-security.html:119
+#: warehouse/templates/includes/packaging/project-security.html:117
 msgid "Standard Distribution (sdist)"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-security.html:131
+#: warehouse/templates/includes/packaging/project-security.html:129
 msgid "Wheel"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-security.html:181
+#: warehouse/templates/includes/packaging/project-security.html:179
 msgid "No files match the current filters."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-security.html:183
+#: warehouse/templates/includes/packaging/project-security.html:181
 msgid "Reset filters"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-security.html:215
+#: warehouse/templates/includes/packaging/project-security.html:213
 #, python-format
 msgid "%(count)s attestation"
 msgid_plural "%(count)s attestations"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/includes/packaging/project-security.html:238
+#: warehouse/templates/includes/packaging/project-security.html:236
 #, python-format
 msgid ""
 "Attestation for <a href=\"%(href)s\" data-project-tabs-target=\"tab\" "
@@ -3672,15 +3679,15 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/includes/packaging/project-security.html:258
+#: warehouse/templates/includes/packaging/project-security.html:256
 msgid "This file was uploaded without provenance metadata."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-security.html:265
+#: warehouse/templates/includes/packaging/project-security.html:264
 msgid "A note on package security"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-security.html:267
+#: warehouse/templates/includes/packaging/project-security.html:266
 msgid ""
 "PyPI is a repository for distributing packages, not a service for "
 "auditing them. While third-party security researchers and our staff do "
@@ -4197,37 +4204,37 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/includes/packaging/security/changed-provenance.html:31
-#: warehouse/templates/includes/packaging/security/changed-provenance.html:63
+#: warehouse/templates/includes/packaging/security/changed-provenance.html:62
 #: warehouse/templates/includes/packaging/security/lost-provenance.html:20
 msgid "Removed"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/changed-provenance.html:43
-#: warehouse/templates/includes/packaging/security/changed-provenance.html:75
-#: warehouse/templates/includes/packaging/security/lost-provenance.html:41
+#: warehouse/templates/includes/packaging/security/changed-provenance.html:42
+#: warehouse/templates/includes/packaging/security/changed-provenance.html:73
+#: warehouse/templates/includes/packaging/security/lost-provenance.html:40
 msgid "Added"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/changed-provenance.html:56
+#: warehouse/templates/includes/packaging/security/changed-provenance.html:55
 #: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:57
 msgid "Configuration"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/changed-provenance.html:88
+#: warehouse/templates/includes/packaging/security/changed-provenance.html:86
 #, python-format
 msgid ""
 "We recommend inspecting the repository and configuration before "
 "proceeding. <a href=\"%(href)s\">Learn more</a>."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/changed-provenance.html:90
+#: warehouse/templates/includes/packaging/security/changed-provenance.html:88
 #, python-format
 msgid ""
 "We recommend inspecting the repository before proceeding. <a "
 "href=\"%(href)s\">Learn more</a>."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/changed-provenance.html:92
+#: warehouse/templates/includes/packaging/security/changed-provenance.html:90
 #, python-format
 msgid ""
 "We recommend inspecting the configuration before proceeding. <a "
@@ -4264,19 +4271,6 @@ msgid ""
 "While this could reflect a legitimate choice by the project maintainers, "
 "it may also indicate that the release has been compromised."
 msgstr ""
-
-#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:29
-#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:39
-#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:63
-#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:73
-#: warehouse/templates/includes/packaging/security/lost-provenance.html:26
-#: warehouse/templates/includes/packaging/security/lost-provenance.html:45
-#: warehouse/templates/manage/project/releases.html:32
-#, python-format
-msgid "%(count)s file"
-msgid_plural "%(count)s files"
-msgstr[0] ""
-msgstr[1] ""
 
 #: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:44
 #: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:78
@@ -4337,11 +4331,11 @@ msgstr ""
 msgid "Release comparison"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/lost-provenance.html:34
+#: warehouse/templates/includes/packaging/security/lost-provenance.html:33
 msgid "Partial provenance"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/lost-provenance.html:58
+#: warehouse/templates/includes/packaging/security/lost-provenance.html:57
 #: warehouse/templates/includes/packaging/security/partial-provenance.html:46
 #, python-format
 msgid ""

@@ -18,68 +18,66 @@
   <p>{% trans %}While this could reflect a routine change by the project maintainers, it may also indicate that the release files have been compromised.{% endtrans %}</p>
   {% if comparison %}
     {% if repo_changed %}
-      <table class="provenance-diff">
-        <caption class="provenance-diff__title">
+      <div class="provenance-diff">
+        <p class="provenance-diff__title">
           <i class="fa-solid fa-code" aria-hidden="true"></i>
           {% trans %}Repository{% endtrans %}
-        </caption>
-        <tbody>
+        </p>
+        <ul class="provenance-diff__rows">
           {% for source in provenance_status.removed_sources %}
-            <tr class="provenance-diff__row provenance-diff__row--removed">
-              <td class="provenance-diff__marker">
+            <li class="provenance-diff__row provenance-diff__row--removed">
+              <span class="provenance-diff__marker">
                 <span aria-hidden="true">-</span>
                 <span class="sr-only">{% trans %}Removed{% endtrans %}</span>
-              </td>
-              <th scope="row" class="provenance-diff__version">
-                <a href="{{ request.route_path('packaging.release', name=release.project.name, version=comparison.version) }}#security">{{ comparison.version }}</a>
-              </th>
-              <td class="provenance-diff__value">{{ source.identity }}</td>
-            </tr>
+              </span>
+              <a class="provenance-diff__version"
+                 href="{{ request.route_path('packaging.release', name=release.project.name, version=comparison.version) }}#security">{{ comparison.version }}</a>
+              <span class="provenance-diff__value">{{ source.identity }}</span>
+            </li>
           {% endfor %}
           {% for source in provenance_status.added_sources %}
-            <tr class="provenance-diff__row provenance-diff__row--added">
-              <td class="provenance-diff__marker">
+            <li class="provenance-diff__row provenance-diff__row--added">
+              <span class="provenance-diff__marker">
                 <span aria-hidden="true">+</span>
                 <span class="sr-only">{% trans %}Added{% endtrans %}</span>
-              </td>
-              <th scope="row" class="provenance-diff__version">{{ release.version }}</th>
-              <td class="provenance-diff__value">{{ source.identity }}</td>
-            </tr>
+              </span>
+              <span class="provenance-diff__version">{{ release.version }}</span>
+              <span class="provenance-diff__value">{{ source.identity }}</span>
+            </li>
           {% endfor %}
-        </tbody>
-      </table>
+        </ul>
+      </div>
     {% endif %}
     {% if config_changed %}
-      <table class="provenance-diff">
-        <caption class="provenance-diff__title">
+      <div class="provenance-diff">
+        <p class="provenance-diff__title">
           <i class="fa-solid fa-circle-play" aria-hidden="true"></i>
           {% trans %}Configuration{% endtrans %}
-        </caption>
-        <tbody>
+        </p>
+        <ul class="provenance-diff__rows">
           {% for workflow in provenance_status.removed_workflows %}
-            <tr class="provenance-diff__row provenance-diff__row--removed">
-              <td class="provenance-diff__marker">
+            <li class="provenance-diff__row provenance-diff__row--removed">
+              <span class="provenance-diff__marker">
                 <span aria-hidden="true">-</span>
                 <span class="sr-only">{% trans %}Removed{% endtrans %}</span>
-              </td>
-              <th scope="row" class="provenance-diff__version">
-                <a href="{{ request.route_path('packaging.release', name=release.project.name, version=comparison.version) }}#security">{{ comparison.version }}</a>
-              </th>
-              <td class="provenance-diff__value">{{ workflow }}</td>
-            </tr>
+              </span>
+              <a class="provenance-diff__version"
+                 href="{{ request.route_path('packaging.release', name=release.project.name, version=comparison.version) }}#security">{{ comparison.version }}</a>
+              <span class="provenance-diff__value">{{ workflow }}</span>
+            </li>
           {% endfor %}
           {% for workflow in provenance_status.added_workflows %}
-            <tr class="provenance-diff__row provenance-diff__row--added">
-              <td class="provenance-diff__marker">
+            <li class="provenance-diff__row provenance-diff__row--added">
+              <span class="provenance-diff__marker">
                 <span aria-hidden="true">+</span>
                 <span class="sr-only">{% trans %}Added{% endtrans %}</span>
-              </td>
-              <th scope="row" class="provenance-diff__version">{{ release.version }}</th>
-              <td class="provenance-diff__value">{{ workflow }}</td>
-            </tr>
+              </span>
+              <span class="provenance-diff__version">{{ release.version }}</span>
+              <span class="provenance-diff__value">{{ workflow }}</span>
+            </li>
           {% endfor %}
-        </tbody>
-      </table>
+        </ul>
+      </div>
     {% endif %}
   {% endif %}
   <div class="callout-block__footer">

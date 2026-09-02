@@ -17,71 +17,71 @@
   <p>{% trans %}While this could reflect a legitimate choice by the project maintainers, it may also indicate that the release has been compromised.{% endtrans %}</p>
   {% if repo_inconsistent %}
     {% set unknown_source_files = counts.total_files - (counts.source_counts.values() | sum) %}
-    <table class="provenance-diff">
-      <caption class="provenance-diff__title">
+    <div class="provenance-diff provenance-diff--breakdown">
+      <p class="provenance-diff__title">
         <i class="fa-solid fa-code" aria-hidden="true"></i>
         {% trans %}Repository{% endtrans %}
-      </caption>
-      <tbody>
+      </p>
+      <ul class="provenance-diff__rows">
         {% for source, count in counts.source_counts.items() %}
-          <tr class="provenance-diff__row provenance-diff__row--neutral">
-            <td class="provenance-diff__count">
+          <li class="provenance-diff__row provenance-diff__row--neutral">
+            <span class="provenance-diff__count">
               {% trans count=count %}{{ count }} file
             {% pluralize %}
               {{ count }} files{% endtrans %}
-            </td>
-            <td class="provenance-diff__value">{{ source.identity }}</td>
-          </tr>
+            </span>
+            <span class="provenance-diff__value">{{ source.identity }}</span>
+          </li>
         {% endfor %}
         {% if unknown_source_files > 0 %}
-          <tr class="provenance-diff__row provenance-diff__row--neutral">
-            <td class="provenance-diff__count">
+          <li class="provenance-diff__row provenance-diff__row--neutral">
+            <span class="provenance-diff__count">
               {% trans count=unknown_source_files %}{{ count }} file
             {% pluralize %}
               {{ count }} files{% endtrans %}
-            </td>
-            <td class="provenance-diff__value">
+            </span>
+            <span class="provenance-diff__value">
               {% trans %}Unknown{% endtrans %}
               <span class="badge badge--dark badge--compact">{% trans %}Without provenance{% endtrans %}</span>
-            </td>
-          </tr>
+            </span>
+          </li>
         {% endif %}
-      </tbody>
-    </table>
+      </ul>
+    </div>
   {% endif %}
   {% if config_inconsistent %}
     {% set unknown_workflow_files = counts.total_files - (counts.workflow_counts.values() | sum) %}
-    <table class="provenance-diff">
-      <caption class="provenance-diff__title">
+    <div class="provenance-diff provenance-diff--breakdown">
+      <p class="provenance-diff__title">
         <i class="fa-solid fa-circle-play" aria-hidden="true"></i>
         {% trans %}Configuration{% endtrans %}
-      </caption>
-      <tbody>
+      </p>
+      <ul class="provenance-diff__rows">
         {% for workflow, count in counts.workflow_counts.items() %}
-          <tr class="provenance-diff__row provenance-diff__row--neutral">
-            <td class="provenance-diff__count">
+          <li class="provenance-diff__row provenance-diff__row--neutral">
+            <span class="provenance-diff__count">
               {% trans count=count %}{{ count }} file
             {% pluralize %}
               {{ count }} files{% endtrans %}
-            </td>
-            <td class="provenance-diff__value">{{ workflow }}</td>
-          </tr>
+            </span>
+            <span class="provenance-diff__value">{{ workflow }}</span>
+          </li>
         {% endfor %}
         {% if unknown_workflow_files > 0 %}
-          <tr class="provenance-diff__row provenance-diff__row--neutral">
-            <td class="provenance-diff__count">
+          <li class="provenance-diff__row provenance-diff__row--neutral">
+            <span class="provenance-diff__count">
               {% trans count=unknown_workflow_files %}{{ count }} file
             {% pluralize %}
               {{ count }} files{% endtrans %}
-            </td>
-            <td class="provenance-diff__value">
+            </span>
+            <span class="provenance-diff__value">
               {% trans %}Unknown{% endtrans %}
               <span class="badge badge--dark badge--compact">{% trans %}Without provenance{% endtrans %}</span>
-            </td>
-          </tr>
+            </span>
+          </li>
         {% endif %}
-      </tbody>
-    </table>
+      </ul>
+    </div>
   {% endif %}
   <div class="callout-block__footer">
     <p>

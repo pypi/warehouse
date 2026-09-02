@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
+@use "../settings/breakpoints";
 @use "../settings/colors";
 @use "../settings/grid";
 
@@ -33,7 +34,7 @@
 
 .provenance-bar {
   color: colors.$text-color;
-  margin: grid.$half-spacing-unit 0;
+  margin: grid.$quarter-spacing-unit 0;
 
   &--with-gap {
     .provenance-bar__files {
@@ -50,8 +51,17 @@
     align-items: center;
     gap: grid.$quarter-spacing-unit;
 
+    @media only screen and (max-width: breakpoints.$small-tablet) {
+      display: block;
+      position: relative;
+    }
+
     & + & {
       margin-top: grid.$quarter-spacing-unit;
+
+      @media only screen and (max-width: breakpoints.$small-tablet) {
+        margin-top: grid.$half-spacing-unit;
+      }
     }
   }
 
@@ -81,6 +91,11 @@
     flex: 1;
     flex-wrap: wrap;
     margin-left: grid.$quarter-spacing-unit;
+
+    @media only screen and (max-width: breakpoints.$small-tablet) {
+      margin-top: 3px;
+      margin-left: 0;
+    }
   }
 
   &__file {
@@ -105,5 +120,11 @@
     flex-shrink: 0;
     white-space: nowrap;
     margin-left: grid.$half-spacing-unit;
+
+    @media only screen and (max-width: breakpoints.$small-tablet) {
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
   }
 }
