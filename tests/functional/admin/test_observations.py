@@ -39,3 +39,30 @@ class TestObservationsList:
             "data",
         }
         assert len(response.json["data"]) == 1
+
+
+class TestObservationsInsights:
+    def test_insights_renders_info_boxes_via_component(self, webtest, login_admin):
+        login_admin(with_terms_of_service_agreement=True)
+
+        resp = webtest.get("/admin/observations/insights/", status=HTTPStatus.OK)
+
+        # The corroboration stat tiles come from the info_box component; with an
+        # empty DB they render zero counts.
+        assert "info-box-icon bg-info" in resp.text
+        assert "Total Reports" in resp.text
+        assert "Corroborated Reports" in resp.text
+        assert "packages with 2+ observers" in resp.text
+        assert "N/A" in resp.text  # no reports, so no corroboration rate
+
+    def test_insights_renders_corroboration_rate_when_reports_exist(
+        self, webtest, login_admin, make_malware_report
+    ):
+        """With a report present the rate tile renders a percentage, not "N/A"."""
+        login_admin(with_terms_of_service_agreement=True)
+        make_malware_report()
+
+        resp = webtest.get("/admin/observations/insights/", status=HTTPStatus.OK)
+
+        assert "Corroboration Rate" in resp.text
+        assert "0.0%" in resp.text  # one report, no package corroborated
