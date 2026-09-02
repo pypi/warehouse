@@ -66,3 +66,30 @@ class TestObservationsInsights:
 
         assert "Corroboration Rate" in resp.text
         assert "0.0%" in resp.text  # one report, no package corroborated
+
+
+class TestObserverReputation:
+    def test_reputation_renders_stat_cards_via_component(self, webtest, login_admin):
+        login_admin(with_terms_of_service_agreement=True)
+
+        resp = webtest.get("/admin/observers/reputation/", status=HTTPStatus.OK)
+
+        # The summary tiles come from the stat_card component; with an empty DB
+        # the accuracy rate has no data and renders as N/A.
+        assert "small-box bg-info" in resp.text
+        assert "Total Malware Reports" in resp.text
+        assert "Overall Accuracy Rate" in resp.text
+        assert "N/A" in resp.text
+        assert "Active Observers" in resp.text
+
+    def test_reputation_renders_accuracy_rate_when_resolved(
+        self, webtest, login_admin, make_malware_report
+    ):
+        """A resolved report takes the percentage branch instead of the "N/A" one."""
+        login_admin(with_terms_of_service_agreement=True)
+        make_malware_report({"1": {"action": "remove_malware"}})
+
+        resp = webtest.get("/admin/observers/reputation/", status=HTTPStatus.OK)
+
+        assert "Overall Accuracy Rate" in resp.text
+        assert "100.0%" in resp.text
