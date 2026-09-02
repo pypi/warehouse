@@ -7,8 +7,10 @@ updates:
     interval: daily
   open-pull-requests-limit: 99
   allow:
+  # Only the ~137 packages named in requirements/*.in. Checking the ~293
+  # packages in the compiled requirements/*.txt makes the grouped job too slow
+  # to finish, and transitive pins move anyway when pip-compile reruns.
   - dependency-type: direct
-  - dependency-type: indirect
   rebase-strategy: "disabled"
   ignore:
   # These update basically every day, and 99.9% of the time we don't care
