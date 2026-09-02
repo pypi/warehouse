@@ -152,6 +152,7 @@ describe("declarative admin tables", () => {
 
     expect(column.isVisible()).toBe(true);
   });
+
   it("shows a column the responsive layout folded as still wanted", async () => {
     const table = await render(`
       <table data-tabulator data-tabulator-column-menu
@@ -245,5 +246,129 @@ describe("declarative admin tables", () => {
       <table data-tabulator><thead><tr><th>Name</th></tr></thead>
         <tbody><tr><td>a</td></tr></tbody></table>`);
     expect(document.querySelector("div.btn-group")).toBeNull();
+  });
+});
+
+/**
+ * Mount a remote table whose every request is answered by hand.
+ *
+ * Each call to the table's request function takes the next entry from
+ * `queue`, so a test can settle two overlapping requests in whichever order
+ * it wants to reproduce.
+ */
+async function renderRemote() {
+  document.body.innerHTML = "<div id=\"remote\" data-url=\"/admin/observations/\"></div>";
+  const { remoteTable } = await import(
+    "../../warehouse/admin/static/js/utils/remote_table",
+  );
+  const queue = [];
+  const table = remoteTable(document.getElementById("remote"), {
+    columns: [{ title: "Summary", field: "summary" }],
+    ajaxRequestFunc: () =>
+      new Promise((resolve, reject) => queue.push({ resolve, reject })),
+  });
+  // Not `tableBuilt`: Tabulator holds that back until the first request
+  // settles, and here nothing settles until the test says so.
+  await waitFor(() => queue.length === 1);
+  return { table, queue };
+}
+
+async function waitFor(condition) {
+  for (let attempt = 0; attempt < 50 && !condition(); attempt++) {
+    await new Promise((resolve) => setTimeout(resolve));
+  }
+  expect(condition()).toBe(true);
+}
+
+const PAGE = { data: [{ summary: "a report" }], last_page: 1, total: 1 };
+
+/** Let the handler's own `await` settle before asserting on the DOM. */
+const flush = () => new Promise((resolve) => setTimeout(resolve));
+
+function rejection(message) {
+  return { json: async () => ({ message }) };
+}
+
+describe("remote admin tables", () => {
+  it("renders an endpoint's message as text rather than as markup", async () => {
+    const { table, queue } = await renderRemote();
+    queue[0].reject(
+      rejection(
+        "The server could not comply with the request.\n\n\n" +
+          "Unknown observation kind '<img src=x onerror=\"boom()\">'.\n\n",
+      ),
+    );
+    await flush();
+
+    const alert = document.querySelector(".tabulator-alert-msg");
+    // Tabulator assigns anything that is not an element with `innerHTML`, and
+    // this sentence quotes back whatever the request asked for.
+    expect(alert.textContent).toContain("<img src=x");
+    expect(alert.querySelector("img")).toBeNull();
+    table.destroy();
+  });
+
+  it("drops a failure that a later load has already answered", async () => {
+    const { table, queue } = await renderRemote();
+    // A second request overtakes the first, which is still running.
+    table.setFilter("summary", "like", "report");
+    await waitFor(() => queue.length === 2);
+
+    queue[1].resolve(PAGE);
+    await flush();
+    queue[0].reject(rejection("Query took too long; narrow your filters.\n"));
+    await flush();
+
+    // The rows the admin asked for are on screen; the slow query's complaint
+    // about a filter they have already replaced is not over the top of them.
+    expect(document.querySelector(".tabulator-alert-msg")).toBeNull();
+    expect(table.getData()).toHaveLength(1);
+    table.destroy();
+  });
+
+  it("still reports a failure of the newest load", async () => {
+    const { table, queue } = await renderRemote();
+    queue[0].resolve(PAGE);
+    await flush();
+
+    table.setFilter("summary", "like", "report");
+    await waitFor(() => queue.length === 2);
+    queue[1].reject(rejection("Query took too long; narrow your filters.\n"));
+    await flush();
+
+    expect(document.querySelector(".tabulator-alert-msg").textContent).toBe(
+      "Query took too long; narrow your filters.",
+    );
+    table.destroy();
+  });
+
+  it("pulls the endpoint's own sentence out of a rejected response", async () => {
+    const { loadErrorMessage } = await import(
+      "../../warehouse/admin/static/js/utils/remote_table",
+    );
+    // What Tabulator rejects with on a non-ok response: the Response itself.
+    const rejected = {
+      json: async () => ({
+        message:
+          "The server could not comply with the request since it is either " +
+          "malformed or otherwise incorrect.\n\n\n" +
+          "'submitted_date' filter must be an ISO date, e.g. 2023-01-31.\n\n",
+      }),
+    };
+
+    // The view's own sentence, not the generic status text wrapping it.
+    await expect(loadErrorMessage(rejected)).resolves.toBe(
+      "'submitted_date' filter must be an ISO date, e.g. 2023-01-31.",
+    );
+  });
+
+  it.each([
+    ["a connection failure with no body", new Error("network down")],
+    ["a body that is not JSON", { json: async () => { throw new Error("nope"); } }],
+  ])("falls back to Tabulator's own alert for %s", async (_label, error) => {
+    const { loadErrorMessage } = await import(
+      "../../warehouse/admin/static/js/utils/remote_table",
+    );
+    await expect(loadErrorMessage(error)).resolves.toBeNull();
   });
 });
