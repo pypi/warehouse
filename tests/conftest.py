@@ -185,6 +185,10 @@ def jinja():
         extensions=[
             "jinja2.ext.i18n",
             "warehouse.utils.html.ClientSideIncludeExtension",
+            # Templates rendered through this fixture may grow a {% component %}
+            # tag; without the extension that fails as a TemplateSyntaxError
+            # pointing at the template rather than at this fixture.
+            "pyramid_components.jinja2.ComponentExtension",
         ],
         cache_size=0,
     )
