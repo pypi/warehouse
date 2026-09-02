@@ -25,7 +25,7 @@ test = ["pytest"]
 requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools.packages.find]
+[tool.setuptools.packages.find]  # tombi: lint.rules.schema-resolution.disabled = true
 where = ["src"]
 
 [tool.setuptools.dynamic]
