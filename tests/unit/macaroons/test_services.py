@@ -1,14 +1,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import base64
 import binascii
 import struct
 
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import pymacaroons
 import pytest
 
 from pymacaroons.exceptions import MacaroonDeserializationException
+from pymacaroons.serializers.binary_serializer import BinarySerializer
 
 from warehouse.errors import WarehouseDenied
 from warehouse.macaroons import caveats, services
@@ -551,3 +553,206 @@ class TestDatabaseMacaroonService:
                 [{"version": 1, "permissions": "user"}],
                 user_id=user.id,
             )
+
+
+def _token(
+    packets: list[tuple[int, bytes | None]],
+    keep: int | None = None,
+    extra: bytes = b"",
+) -> str:
+    """
+    Build a `pypi-` token from raw v2 packets, however malformed, appending
+    `extra` bytes verbatim and optionally keeping only the first `keep`
+    characters of its base64 body.
+    """
+    serializer = BinarySerializer()
+    data = bytearray([pymacaroons.MACAROON_V2])
+    for field_type, payload in packets:
+        serializer._append_packet(data, field_type, payload)
+    data.extend(extra)
+
+    body = base64.urlsafe_b64encode(bytes(data)).decode().rstrip("=")
+    return "pypi-" + (body if keep is None else body[:keep])
+
+
+_HEADER = [
+    (BinarySerializer._LOCATION, b"pypi.org"),
+    (BinarySerializer._IDENTIFIER, b"02ede3fe-dc00-45b9-9a13-9f16ad1c454d"),
+    (BinarySerializer._EOS, None),
+]
+
+
+class TestDeserializePartialMacaroon:
+    def test_truncated_mid_caveat(self):
+        """A token cut off inside its first caveat, as a leak report would carry."""
+        token = _token(
+            [
+                *_HEADER,
+                (BinarySerializer._IDENTIFIER, b'[3,"%s"]' % (b"a" * 36)),
+                (BinarySerializer._EOS, None),
+            ],
+            keep=75,
+        )
+
+        partial = services.deserialize_partial_macaroon(token)
+
+        assert partial == services.PartialMacaroon(
+            location="pypi.org",
+            identifier="02ede3fe-dc00-45b9-9a13-9f16ad1c454d",
+            identifier_complete=True,
+            caveats=['[3," (truncated, 42 bytes declared)'],
+            signature=None,
+        )
+
+    @pytest.mark.parametrize(
+        ("suffix", "where"),
+        [("\n", "a trailing newline"), (" ", "a trailing space"), ("\r\n", "a CRLF")],
+    )
+    def test_whitespace_around_the_token(self, suffix, where):
+        """A pasted token brings whitespace with it, which is not data."""
+        token = _token(
+            [
+                *_HEADER,
+                (BinarySerializer._IDENTIFIER, b'[3,"%s"]' % (b"a" * 36)),
+                (BinarySerializer._EOS, None),
+            ],
+            keep=75,
+        )
+
+        assert services.deserialize_partial_macaroon(
+            token + suffix
+        ) == services.deserialize_partial_macaroon(token)
+
+    def test_truncated_mid_identifier(self):
+        """A half-read identifier is no use for a lookup."""
+        partial = services.deserialize_partial_macaroon(_token(_HEADER, keep=24))
+
+        assert partial == services.PartialMacaroon(
+            location="pypi.org",
+            identifier="02ede (truncated, 36 bytes declared)",
+            identifier_complete=False,
+        )
+
+    def test_truncated_before_any_payload(self):
+        """A packet header with no payload after it still names a length."""
+        partial = services.deserialize_partial_macaroon(_token(_HEADER, keep=4))
+
+        assert partial == services.PartialMacaroon(
+            location="(truncated, 8 bytes declared)"
+        )
+
+    def test_truncated_mid_packet_header(self):
+        """A cut inside a packet's own varints ends the read."""
+        token = _token([(BinarySerializer._LOCATION, b"pypi.org")], keep=3)
+
+        assert services.deserialize_partial_macaroon(token) is None
+
+    def test_long_caveat_uses_multibyte_length(self):
+        """A payload over 127 bytes declares its length in two varint bytes."""
+        token = _token(
+            [
+                *_HEADER,
+                (BinarySerializer._IDENTIFIER, b'[1,["%s"]]' % (b"a" * 200)),
+                (BinarySerializer._EOS, None),
+            ],
+            keep=80,
+        )
+
+        partial = services.deserialize_partial_macaroon(token)
+
+        assert partial.caveats == ['[1,["aa (truncated, 208 bytes declared)']
+
+    def test_malformed_header_still_yields_caveats_and_signature(self):
+        """A whole macaroon that will not deserialize still gives up its fields."""
+        token = _token(
+            [
+                (BinarySerializer._LOCATION, b"pypi.org"),
+                (BinarySerializer._EOS, None),  # no identifier: invalid header
+                (BinarySerializer._IDENTIFIER, b"\xff\xfe"),
+                (BinarySerializer._EOS, None),
+                (BinarySerializer._EOS, None),
+                (BinarySerializer._SIGNATURE, bytes(range(4))),
+            ]
+        )
+
+        with pytest.raises(services.InvalidMacaroonError):
+            services.deserialize_raw_macaroon(token)
+
+        assert services.deserialize_partial_macaroon(token) == services.PartialMacaroon(
+            location="pypi.org",
+            identifier=None,
+            caveats=["fffe"],  # not valid UTF-8, so shown as hex
+            signature="00010203",
+        )
+
+    def test_third_party_caveat_fields_are_ignored(self):
+        """A third party caveat's location and key id have nothing to show."""
+        token = _token(
+            [
+                *_HEADER,
+                (BinarySerializer._LOCATION, b"elsewhere.example"),
+                (BinarySerializer._IDENTIFIER, b"who knows"),
+                (BinarySerializer._VID, b"key id"),
+                (BinarySerializer._EOS, None),
+            ]
+        )
+
+        partial = services.deserialize_partial_macaroon(token)
+
+        assert partial.location == "pypi.org"
+        assert partial.caveats == ["who knows"]
+
+    def test_absurd_length_varint_stops_the_read(self):
+        """A length varint longer than any real one ends the read."""
+        token = _token(
+            _HEADER,
+            # A caveat identifier whose length runs to a fourth varint byte.
+            extra=bytes([BinarySerializer._IDENTIFIER, 0x80, 0x80, 0x80, 0x01]),
+        )
+
+        partial = services.deserialize_partial_macaroon(token)
+
+        assert partial.identifier == "02ede3fe-dc00-45b9-9a13-9f16ad1c454d"
+        assert partial.caveats == []
+
+    def test_oversized_token_is_not_walked(self):
+        """A paste past a few kilobytes is refused."""
+        token = _token(_HEADER, extra=bytes(services._MAX_TOKEN_BYTES))
+
+        assert services.deserialize_partial_macaroon(token) is None
+
+    def test_a_second_identifier_does_not_speak_over_the_first(self):
+        """Fields climb within a section, so the second identifier ends the read."""
+        token = _token([*_HEADER[:2], (BinarySerializer._IDENTIFIER, b'[3,"forged"]')])
+
+        partial = services.deserialize_partial_macaroon(token)
+
+        assert partial.identifier == "02ede3fe-dc00-45b9-9a13-9f16ad1c454d"
+        assert partial.caveats == []
+
+    def test_identifier_that_is_not_utf8(self):
+        """Hex would name a macaroon that the identifier itself cannot."""
+        # These 16 bytes are not UTF-8, and their hex is a valid UUID.
+        identifier = UUID("02ede3fe-dc00-45b9-9a13-9f16ad1c454d").bytes
+        token = _token(
+            [
+                (BinarySerializer._LOCATION, b"pypi.org"),
+                (BinarySerializer._IDENTIFIER, identifier),
+                (BinarySerializer._EOS, None),
+            ]
+        )
+
+        assert services.deserialize_partial_macaroon(token) is None
+
+    @pytest.mark.parametrize(
+        ("token", "reason"),
+        [
+            ("invalid", "no pypi- prefix"),
+            ("pypi-A!!!", "body is not decodable base64"),
+            ("pypi-AQEIcHlwaS5vcmc", "version 1, which we never issue"),
+            ("pypi-Ag", "nothing after the version byte"),
+            ("pypi-AgEIcHl\u2026", "a non-ASCII character, as when a UI elides"),
+        ],
+    )
+    def test_nothing_readable(self, token, reason):
+        assert services.deserialize_partial_macaroon(token) is None
