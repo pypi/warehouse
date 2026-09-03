@@ -6,7 +6,8 @@ import datetime
 import enum
 import typing
 
-from collections import Counter, OrderedDict
+from collections import OrderedDict
+from dataclasses import dataclass
 from functools import cached_property
 from uuid import UUID
 
@@ -40,6 +41,7 @@ from sqlalchemy.dialects.postgresql import (
     ENUM,
     REGCLASS,
 )
+from sqlalchemy.engine import Row
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -50,6 +52,7 @@ from sqlalchemy.orm import (
     mapped_column,
     validates,
 )
+from sqlalchemy.sql import Select
 from urllib3.exceptions import LocationParseError
 from urllib3.util import parse_url
 
@@ -60,12 +63,15 @@ from warehouse.attestations.models import (
     ProvenanceComparison,
     ProvenanceCounts,
     ProvenanceStatus,
-    PublisherSource,
-    get_provenance_sources,
+    counts_from_provenance,
 )
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
-from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE
+from warehouse.constants import (
+    MAX_FILESIZE,
+    MAX_PROJECT_SIZE,
+    MAXIMUM_AGE_FOR_NEW_UPLOADS,
+)
 from warehouse.events.models import HasEvents
 from warehouse.forklift import metadata
 from warehouse.integrations.vulnerabilities.models import VulnerabilityRecord
@@ -92,6 +98,160 @@ PROJECT_NAME_PATTERN = "^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$"
 
 # How far back to look for a release to compare provenance against.
 PROVENANCE_COMPARISON_WINDOW_DAYS = 14
+
+
+def _provenance_query() -> Select:
+    """
+    One row per release file, carrying the provenance that file has.
+
+    Outer-joined throughout, so a release with no files still yields a row and
+    a caller can tell a release it has counted from one it has not seen.
+
+    Ordered newest first. `created` defaults to a transaction-scoped `now()`,
+    so every release of a batch insert ties on it and date alone would leave
+    the comparison a release is measured against following physical row order.
+    `_pypi_ordering` breaks those ties the way the rest of this class already
+    orders releases, and `id` breaks the remainder, since `_pypi_ordering` is
+    nullable and cannot be relied on for a total order by itself.
+    """
+    return (
+        select(Release.version, Release.created, File.id, Provenance)
+        .select_from(Release)
+        .outerjoin(File, File.release_id == Release.id)
+        .outerjoin(Provenance, Provenance.file_id == File.id)
+        .options(orm.undefer(Provenance.provenance))
+        .order_by(
+            Release.created.desc(),
+            Release._pypi_ordering.desc(),
+            Release.id.desc(),
+        )
+    )
+
+
+def _counted_releases(rows) -> list[tuple[str, datetime.datetime, ProvenanceCounts]]:
+    """
+    Fold `_provenance_query` rows into one entry per release, newest first.
+
+    The joins fan out, so files are collected into a set rather than counted
+    row by row.
+    """
+    grouped: dict[str, tuple[datetime.datetime, set[UUID], list[Provenance]]] = {}
+    for version, created, file_id, provenance in rows:
+        if version not in grouped:  # not setdefault: it would build a bucket per row
+            grouped[version] = (created, set(), [])
+        _, file_ids, provenances = grouped[version]
+        if file_id is not None:
+            file_ids.add(file_id)
+        if provenance is not None:
+            provenances.append(provenance)
+
+    return [
+        (version, created, counts_from_provenance(len(file_ids), provenances))
+        for version, (created, file_ids, provenances) in grouped.items()
+    ]
+
+
+def _provenance_comparison(
+    counted: list[tuple[str, datetime.datetime, ProvenanceCounts]],
+    start: int,
+    created: datetime.datetime,
+    cutoff: datetime.datetime,
+) -> ProvenanceComparison | None:
+    """
+    The release a status is measured against, from the releases before it.
+
+    `counted` is ordered newest first, so the entries from `start` on are the
+    preceding releases. Indexed rather than sliced: the loop almost always
+    stops on its first or second entry, and both slicing and `islice` would
+    walk or copy the whole tail first, making the caller quadratic for no gain.
+
+    Walks past a nearer release carrying no provenance the same way
+    `Release.comparison_provenance_release` reaches past it by inner-joining,
+    and stops at `cutoff` rather than filtering on it.
+    """
+    for index in range(start, len(counted)):
+        version, other_created, counts = counted[index]
+        if other_created < cutoff:
+            return None
+        if other_created < created and counts.files_with_provenance:
+            return ProvenanceComparison(version=version, counts=counts)
+    return None
+
+
+@dataclass(frozen=True)
+class LateFile:
+    """
+    A file that arrived past the window its release accepts new files in.
+
+    Carries the filename instead of the `File`, so the surrounding status can
+    be built from rows a caller has already loaded.
+    """
+
+    filename: str
+    upload_time: datetime.datetime
+    # How long after the release was published the file arrived.
+    delay: datetime.timedelta
+
+
+@dataclass(frozen=True)
+class LateFileStatus:
+    """
+    When a release's files arrived, and which of them arrived late.
+
+    `first_upload` and `last_upload` bracket the files still present, so
+    neither is the release date: `first_upload` moves when the earliest file
+    is deleted, while `delay` stays anchored to `Release.created`.
+    """
+
+    total_files: int
+    first_upload: datetime.datetime
+    last_upload: datetime.datetime
+    late_files: tuple[LateFile, ...] = ()
+
+
+def added_late(upload_time: datetime.datetime, created: datetime.datetime) -> bool:
+    """
+    Whether a file arrived past the window its release accepts new files in.
+
+    Compared as timedeltas rather than whole days: `.days` truncates, and would
+    let a file arriving on the window's last day plus twenty-three hours pass
+    as punctual.
+    """
+    return upload_time - created > MAXIMUM_AGE_FOR_NEW_UPLOADS
+
+
+def late_file_status_from_files(
+    created: datetime.datetime, files: typing.Iterable[File | Row]
+) -> LateFileStatus | None:
+    """
+    Fold a release's files into the record of when they arrived.
+
+    Measured from `created` rather than the earliest surviving file: deleting
+    a release's original files would drag a first-file anchor forward and
+    clear the flag from the file it was raised for.
+
+    Returns `None` for a release with no files, the way `provenance_status`
+    does. Takes the files as an argument so a view already holding them need
+    not load them again; anything with `filename` and `upload_time` will do.
+    """
+    by_upload_time = sorted(files, key=lambda file: file.upload_time)
+    if not by_upload_time:
+        return None
+
+    return LateFileStatus(
+        total_files=len(by_upload_time),
+        first_upload=by_upload_time[0].upload_time,
+        last_upload=by_upload_time[-1].upload_time,
+        late_files=tuple(
+            LateFile(
+                filename=file.filename,
+                upload_time=file.upload_time,
+                delay=file.upload_time - created,
+            )
+            for file in by_upload_time
+            if added_late(file.upload_time, created)
+        ),
+    )
 
 
 class Role(db.Model):
@@ -477,13 +637,60 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                 Release.created,
                 Release.is_prerelease,
                 Release.yanked,
+                Release.yanked_date,
                 Release.yanked_reason,
                 Release.lifecycle_status,
+                Release.lifecycle_status_changed,
             )
             .filter(Release.project == self)
             .order_by(Release._pypi_ordering.desc())
             .all()
         )
+
+    @cached_property
+    def provenance_statuses(self) -> dict[str, ProvenanceStatus]:
+        """
+        Every release's provenance status, keyed by version.
+
+        The release history page needs a status per release. Reading
+        `Release.provenance_status` in a loop costs three queries for each one;
+        this takes one, and resolves each release's comparison against the
+        counts it is already holding.
+
+        A release with no files is absent from the mapping, matching
+        `Release.provenance_status` returning `None`. Read it with `.get()`:
+        a project can hold a release whose files have all been removed.
+
+        Cached for the life of the `Project`, so a caller holding one across a
+        commit sees the statuses as they were when it first asked. That suits
+        a request, which reads them once and renders; a long-lived task
+        wanting fresh counts should ask a `Release` instead.
+        """
+        counted = _counted_releases(
+            orm_session_from_obj(self)
+            .execute(_provenance_query().where(Release.project_id == self.id))
+            .all()
+        )
+        window = datetime.timedelta(days=PROVENANCE_COMPARISON_WINDOW_DAYS)
+        # Most projects attest nothing, and there the comparison walk can only
+        # ever come back empty. Checking once beats letting every release scan
+        # its whole window to find that out, which for releases sharing a
+        # `created` is the entire project.
+        attested = any(counts.files_with_provenance for _, _, counts in counted)
+        return {
+            version: ProvenanceStatus(
+                counts=counts,
+                comparison=(
+                    _provenance_comparison(
+                        counted, index + 1, created, created - window
+                    )
+                    if attested
+                    else None
+                ),
+            )
+            for index, (version, created, counts) in enumerate(counted)
+            if counts.total_files
+        }
 
     @property
     def latest_version(self):
@@ -968,6 +1175,12 @@ class Release(HasObservations, db.Model):
         This inner-joins provenance, so it reaches past a nearer preceding
         release that has none. Any release it returns therefore has at least
         one file with provenance.
+
+        Releases are ordered by id as well as date, because `created` defaults
+        to a transaction-scoped `now()` and so ties across every release of a
+        batch insert. Without the tiebreak this picks arbitrarily among them,
+        and can disagree with `Project.provenance_statuses` about which
+        release a status is measured against.
         """
         session = orm_session_from_obj(self)
         window = datetime.timedelta(days=PROVENANCE_COMPARISON_WINDOW_DAYS)
@@ -980,48 +1193,26 @@ class Release(HasObservations, db.Model):
                 Release.created < self.created,
                 Release.created >= self.created - window,
             )
-            .order_by(Release.created.desc())
+            .order_by(
+                Release.created.desc(),
+                Release._pypi_ordering.desc(),
+                Release.id.desc(),
+            )
         )
         return query.first()
 
     @cached_property
     def provenance_counts(self) -> ProvenanceCounts:
         """Count the files, sources and workflows this Release attests to."""
-        session = orm_session_from_obj(self)
-        total_files = (
-            session.query(func.count(File.id))
-            .filter(File.release_id == self.id)
-            .scalar()
-        )
-        if not total_files:
-            return ProvenanceCounts(total_files=0, files_with_provenance=0)
-
-        provenance_objects = (
-            session.query(Provenance)
-            .join(Provenance.file)
-            .filter(File.release_id == self.id)
-            .options(orm.undefer(Provenance.provenance))
+        counted = _counted_releases(
+            orm_session_from_obj(self)
+            .execute(_provenance_query().where(Release.id == self.id))
             .all()
         )
-        source_counter: Counter[PublisherSource] = Counter()
-        workflow_counter: Counter[str] = Counter()
-        unreadable_files = 0
-        for provenance_object in provenance_objects:
-            extracted = get_provenance_sources(provenance_object)
-            if extracted is None:
-                unreadable_files += 1
-                continue
-            sources, workflows = extracted
-            source_counter.update(sources)
-            workflow_counter.update(workflows)
-
-        return ProvenanceCounts(
-            total_files=total_files,
-            files_with_provenance=len(provenance_objects),
-            unreadable_files=unreadable_files,
-            source_counts=dict(source_counter),
-            workflow_counts=dict(workflow_counter),
-        )
+        if not counted:  # the release row is gone from under a live object
+            return ProvenanceCounts(total_files=0, files_with_provenance=0)
+        _, _, counts = counted[0]
+        return counts
 
     @cached_property
     def provenance_status(self) -> ProvenanceStatus | None:
@@ -1037,12 +1228,36 @@ class Release(HasObservations, db.Model):
             counts=counts,
             comparison=(
                 ProvenanceComparison(
-                    release=comparison_release,
+                    version=comparison_release.version,
                     counts=comparison_release.provenance_counts,
                 )
                 if comparison_release
                 else None
             ),
+        )
+
+    @cached_property
+    def late_file_status(self) -> LateFileStatus | None:
+        """
+        When this Release's files arrived, and which of them arrived late.
+
+        Reads two columns rather than iterating `files`, which is
+        `lazy="dynamic"` and eager-loads each file's provenance on the way
+        past. A caller already holding the files should use
+        `late_file_status_from_files`.
+
+        Cached like `provenance_status`, so a `Release` held across a commit
+        or a new upload keeps the answer it first gave; `File.added_late` is
+        not cached and can then disagree.
+        """
+        session = orm_session_from_obj(self)
+        return late_file_status_from_files(
+            self.created,
+            session.execute(
+                select(File.filename, File.upload_time).where(
+                    File.release_id == self.id
+                )
+            ).all(),
         )
 
 
@@ -1125,6 +1340,17 @@ class File(HasEvents, db.Model):
         lazy="joined",
         passive_deletes=True,
     )
+
+    @property
+    def added_late(self) -> bool:
+        """
+        Whether this file arrived past the window its release accepts files in.
+
+        Reads `self.release`, so a caller listing files off a `File` query
+        should use the module-level `added_late` against a release it holds
+        rather than pay a SELECT per release.
+        """
+        return added_late(self.upload_time, self.release.created)
 
     @property
     def uploaded_via_trusted_publisher(self) -> bool:

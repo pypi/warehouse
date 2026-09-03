@@ -11,9 +11,19 @@ import pytest
 from pyramid.authorization import Allow, Authenticated
 from pyramid.location import lineage
 
-from warehouse.attestations.models import ProvenanceState, PublisherSource
+from warehouse.attestations.models import (
+    ProvenanceCounts,
+    ProvenanceState,
+    PublisherSource,
+)
 from warehouse.authnz import Permissions
-from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GIB, ONE_MIB
+from warehouse.constants import (
+    MAX_FILESIZE,
+    MAX_PROJECT_SIZE,
+    MAXIMUM_AGE_FOR_NEW_UPLOADS,
+    ONE_GIB,
+    ONE_MIB,
+)
 from warehouse.macaroons import caveats
 from warehouse.macaroons.models import Macaroon
 from warehouse.oidc.models import GitHubPublisher
@@ -51,6 +61,27 @@ from ...common.db.packaging import (
     RoleInvitationFactory as DBRoleInvitationFactory,
 )
 
+_RELEASED_AT = datetime.datetime(2024, 3, 1, 12, 0, 0)
+
+
+def _release_with_uploads(*delays):
+    """
+    A release published at `_RELEASED_AT`, with one file per delay after it.
+
+    `packagetype` is pinned because `FileFactory` picks one at random and only
+    one sdist is allowed per release, which would otherwise make a multi-file
+    release fail on some seeds and not others.
+    """
+    release = DBReleaseFactory.create(version="1.0", created=_RELEASED_AT)
+    for index, delay in enumerate(delays):
+        DBFileFactory.create(
+            release=release,
+            filename=f"{release.project.name}-1.0-{index}.whl",
+            packagetype="bdist_wheel",
+            upload_time=_RELEASED_AT + delay,
+        )
+    return release
+
 
 def _release_pair(days_apart=4):
     """An older and a newer release on one project, `days_apart` apart."""
@@ -81,6 +112,28 @@ def _provenanced_file(release, publisher=None, **kwargs):
         publisher=publisher,
     )
     return file
+
+
+def _provenance_history(publisher=None):
+    """
+    A project whose three releases exercise every comparison branch.
+
+    The middle release carries no provenance, so the newest one has to reach
+    past it to find something to compare against, and the oldest has nothing
+    before it at all. Passing `publisher` publishes the newest release from
+    somewhere other than the factory default, which is what makes the newest
+    release's comparison report a change.
+    """
+    oldest, newest = _release_pair()
+    _provenanced_file(oldest, packagetype="sdist")
+    DBFileFactory.create(release=oldest, packagetype="bdist_wheel")
+    middle = DBReleaseFactory.create(
+        project=oldest.project,
+        created=oldest.created + datetime.timedelta(days=2),
+    )
+    DBFileFactory.create(release=middle, packagetype="bdist_wheel")
+    _provenanced_file(newest, publisher=publisher)
+    return oldest.project
 
 
 class TestRole:
@@ -617,6 +670,239 @@ class TestProject:
         )
 
         assert project.latest_version is None
+
+    def test_provenance_statuses_agree_with_each_release(self, db_session):
+        """
+        The batched statuses are the per-release ones, for every release.
+
+        Pinning them to each other is what lets the release history page read
+        the project-wide mapping while a release page reads its own status,
+        without the two drifting apart. The count is asserted first, so that
+        both sides returning nothing cannot satisfy the equality.
+        """
+        project = _provenance_history()
+
+        statuses = project.provenance_statuses
+
+        assert len(statuses) == 3
+        assert statuses == {
+            release.version: release.provenance_status
+            for release in project.releases
+            if release.provenance_status is not None
+        }
+
+    def test_provenance_statuses_costs_one_query_once(self, db_session, query_recorder):
+        """
+        Every release's status comes back in a single query, run only once.
+
+        This is the whole point of the property. The release history page
+        renders one card per release and reads several attributes off each
+        status, so neither the release count nor the number of reads may cost
+        another query.
+        """
+        project = _provenance_history()
+        db_session.flush()
+        assert project.id is not None  # load the project row before counting
+
+        query_recorder.clear()
+        with query_recorder:
+            statuses = [project.provenance_statuses for _ in range(3)]
+
+        assert len(statuses[0]) == 3
+        assert all(repeat is statuses[0] for repeat in statuses)
+        assert len(query_recorder.queries) == 1, query_recorder.queries
+
+    def test_provenance_statuses_omits_releases_without_files(self, db_session):
+        """A release with no files has no status, the same as on the release."""
+        project = DBProjectFactory.create()
+        empty = DBReleaseFactory.create(project=project, version="1.0")
+        populated = DBReleaseFactory.create(project=project, version="2.0")
+        _provenanced_file(populated)
+
+        assert empty.provenance_status is None
+        assert set(project.provenance_statuses) == {"2.0"}
+
+    def test_provenance_statuses_stop_at_the_comparison_window(self, db_session):
+        """A predecessor outside the window is not compared against."""
+        old, recent = _release_pair(
+            days_apart=PROVENANCE_COMPARISON_WINDOW_DAYS + 1,
+        )
+        _provenanced_file(old)
+        DBFileFactory.create(release=recent, packagetype="bdist_wheel")
+
+        status = old.project.provenance_statuses[recent.version]
+
+        assert status.comparison is None
+        assert status.states == {ProvenanceState.NO_PROVENANCE}
+
+    def test_provenance_statuses_report_a_publisher_change(self, db_session):
+        """
+        The batched path reports a change of publisher, not just coverage.
+
+        Every other test here publishes everything from the factory's default
+        publisher, so without this the mapping has never produced a state that
+        depends on reading publisher identity out of a payload.
+        """
+        project = _provenance_history(
+            publisher=pypi_attestations.GitHubPublisher(
+                repository="other/repo", workflow="publish.yml"
+            )
+        )
+        newest = max(project.releases, key=lambda release: release.created)
+
+        status = project.provenance_statuses[newest.version]
+
+        assert ProvenanceState.CHANGED_PROVENANCE in status.states
+        assert status.added_sources == {PublisherSource("GitHub", "other/repo")}
+        assert status.removed_sources == {
+            PublisherSource("GitHub", "example-org/example")
+        }
+        assert status.added_workflows == {"publish.yml"}
+        assert status.removed_workflows == {"release.yml"}
+
+    def test_provenance_statuses_suppress_a_change_against_unreadable(self, db_session):
+        """
+        An unreadable payload counts as unreadable and silences the delta.
+
+        The publishers of an unreadable file are unknown rather than absent,
+        so the batched path must not read their absence as a publisher change,
+        the same way the per-release path does not.
+        """
+        older, newer = _release_pair()
+        _provenanced_file(older)
+        file = DBFileFactory.create(release=newer, packagetype="bdist_wheel")
+        DBProvenanceFactory.create(file=file, provenance={"not": "a provenance object"})
+
+        status = older.project.provenance_statuses[newer.version]
+
+        assert status.counts.unreadable_files == 1
+        assert status.counts.files_with_provenance == 1
+        assert ProvenanceState.CHANGED_PROVENANCE not in status.states
+        assert status.removed_sources == set()
+
+    def test_provenance_statuses_break_created_ties(self, db_session):
+        """
+        Two releases sharing a `created` are compared against deterministically.
+
+        `Release.created` defaults to a transaction-scoped `now()`, so every
+        release of a batch insert ties on it. Both paths break the tie the same
+        way, and on the later version rather than on whichever row Postgres
+        happens to return first, so the release page and the release history
+        page name the same comparison.
+
+        Inserted oldest-version-first, so that physical row order and version
+        order disagree and only the tiebreak can produce the expected answer.
+        """
+        project = DBProjectFactory.create()
+        tied = datetime.datetime(2026, 7, 1, 12, 0, 0)
+        for version in ("1.0", "1.1"):
+            _provenanced_file(
+                DBReleaseFactory.create(project=project, version=version, created=tied)
+            )
+        newest = DBReleaseFactory.create(
+            project=project,
+            version="2.0",
+            created=tied + datetime.timedelta(days=1),
+        )
+        _provenanced_file(newest)
+
+        batched = project.provenance_statuses["2.0"].comparison
+
+        assert batched is not None
+        assert batched.version == "1.1"
+        assert newest.provenance_status.comparison.version == "1.1"
+
+    def test_provenance_statuses_compare_at_the_window_edge(self, db_session):
+        """
+        A predecessor exactly at the window edge is still compared against.
+
+        The window is spelled twice, as a SQL `>=` on the release page and as a
+        Python `<` cutoff here, so the inclusive boundary is the one place the
+        two can drift apart without either looking wrong on its own.
+        """
+        old, recent = _release_pair(days_apart=PROVENANCE_COMPARISON_WINDOW_DAYS)
+        _provenanced_file(old)
+        DBFileFactory.create(release=recent, packagetype="bdist_wheel")
+
+        status = old.project.provenance_statuses[recent.version]
+
+        assert status.comparison is not None
+        assert status.comparison.version == old.version
+        assert recent.provenance_status.comparison.version == old.version
+
+    def test_provenance_statuses_without_any_provenance(self, db_session):
+        """
+        A project that attests nothing reports no provenance and no comparison.
+
+        This is most projects, and the shape the comparison walk is skipped
+        for: with nothing to compare against, scanning for a predecessor can
+        only ever come back empty.
+        """
+        older, newer = _release_pair()
+        for release in (older, newer):
+            DBFileFactory.create(release=release, packagetype="bdist_wheel")
+
+        statuses = older.project.provenance_statuses
+
+        assert set(statuses) == {older.version, newer.version}
+        assert all(status.comparison is None for status in statuses.values())
+        assert statuses[newer.version].states == {ProvenanceState.NO_PROVENANCE}
+        assert statuses == {
+            release.version: release.provenance_status for release in (older, newer)
+        }
+
+    def test_provenance_statuses_drive_the_security_cascade(self, db_session):
+        """
+        Every state the release pages branch on is reachable from the mapping.
+
+        `project-security.html` and the metadata sidebar pick the most serious
+        of six states for one release; the release history page wants the same
+        verdict per release, from here. A mapping that could only report
+        coverage would show a release as fully attested while its own page
+        warned that its publisher had changed.
+        """
+        project = DBProjectFactory.create()
+        elsewhere = pypi_attestations.GitHubPublisher(
+            repository="other/repo", workflow="publish.yml"
+        )
+        day = datetime.datetime(2026, 7, 1, 12, 0, 0)
+
+        def _release(version, days):
+            return DBReleaseFactory.create(
+                project=project,
+                version=version,
+                created=day + datetime.timedelta(days=days),
+            )
+
+        no_prov = _release("1.0", 0)
+        DBFileFactory.create(release=no_prov, packagetype="bdist_wheel")
+        full = _release("2.0", 1)
+        _provenanced_file(full)
+        partial = _release("3.0", 2)
+        _provenanced_file(partial)
+        DBFileFactory.create(
+            release=partial, packagetype="sdist", python_version="source"
+        )
+        inconsistent = _release("4.0", 3)
+        _provenanced_file(inconsistent)
+        _provenanced_file(inconsistent, publisher=elsewhere)
+        changed = _release("5.0", 4)
+        _provenanced_file(changed, publisher=elsewhere)
+        lost = _release("6.0", 5)
+        DBFileFactory.create(release=lost, packagetype="bdist_wheel")
+
+        statuses = project.provenance_statuses
+
+        assert ProvenanceState.NO_PROVENANCE in statuses["1.0"].states
+        assert ProvenanceState.FULL_PROVENANCE in statuses["2.0"].states
+        assert ProvenanceState.PARTIAL_PROVENANCE in statuses["3.0"].states
+        assert ProvenanceState.INCONSISTENT_PROVENANCE in statuses["4.0"].states
+        assert ProvenanceState.CHANGED_PROVENANCE in statuses["5.0"].states
+        assert ProvenanceState.LOST_PROVENANCE in statuses["6.0"].states
+
+        # And each matches the verdict that release's own page would render.
+        for release in (no_prov, full, partial, inconsistent, changed, lost):
+            assert statuses[release.version].states == release.provenance_status.states
 
 
 class TestDependency:
@@ -1364,7 +1650,7 @@ class TestRelease:
             ProvenanceState.NO_PROVENANCE,
             ProvenanceState.LOST_PROVENANCE,
         }
-        assert status.comparison.release == rel1
+        assert status.comparison.version == rel1.version
         assert status.comparison.counts.files_with_provenance == 1
         assert status.comparison.counts.total_files == 1
 
@@ -1490,7 +1776,7 @@ class TestRelease:
         status = rel2_same.provenance_status
         assert status is not None
         assert status.states == {ProvenanceState.FULL_PROVENANCE}
-        assert status.comparison.release == rel0
+        assert status.comparison.version == rel0.version
         assert status.comparison.counts.files_with_provenance == 1
         assert status.comparison.counts.total_files == 2
 
@@ -1588,6 +1874,27 @@ class TestRelease:
         assert query_recorder.queries == []
         assert all(status is first_status for status in repeat_statuses)
 
+    def test_provenance_counts_when_the_release_row_is_gone(self, db_session):
+        """
+        A release deleted underneath a live object counts as empty, not raises.
+
+        A maintainer deleting a release, or a quarantine purge, can remove the
+        row while a request still holding the `Release` is rendering. Counting
+        it as having no files leaves `provenance_status` returning `None`, so
+        the page renders without the card rather than erroring.
+        """
+        release = DBReleaseFactory.create()
+        _provenanced_file(release)
+        db_session.flush()
+        db_session.query(Release).filter(Release.id == release.id).delete(
+            synchronize_session=False
+        )
+
+        assert release.provenance_counts == ProvenanceCounts(
+            total_files=0, files_with_provenance=0
+        )
+        assert release.provenance_status is None
+
     def test_description_relationship(self, db_session):
         """
         When a Release is deleted, its Description is also deleted.
@@ -1606,6 +1913,143 @@ class TestRelease:
         db_session.flush()
 
         assert db_session.query(Description).filter_by(id=description_id).count() == 0
+
+    def test_late_file_status_is_none_without_files(self, db_session):
+        """A release whose files have all been removed has nothing to report."""
+        release = _release_with_uploads(datetime.timedelta(0))
+        for file in release.files:
+            db_session.delete(file)
+        db_session.flush()
+
+        assert release.late_file_status is None
+
+    def test_late_file_status_needs_a_session(self):
+        """
+        An unattached Release raises rather than reporting itself clean.
+
+        `files` is `lazy="dynamic"`, and reading it detached hands back an
+        empty collection, which would otherwise make a release with late files
+        indistinguishable from one without.
+        """
+        with pytest.raises(NoSessionError):
+            _ = Release().late_file_status
+
+    def test_late_file_status_is_cached(self, db_session, query_recorder):
+        """
+        Repeat reads cost one query between them.
+
+        `files` cannot be eagerly loaded, so every uncached read is its own
+        SELECT; a template reading several attributes off the status must not
+        pay for each one.
+        """
+        release = _release_with_uploads(
+            datetime.timedelta(0), datetime.timedelta(days=30)
+        )
+        db_session.flush()
+        assert release.created is not None  # load the release row before counting
+
+        query_recorder.clear()
+        with query_recorder:
+            statuses = [release.late_file_status for _ in range(3)]
+
+        assert len(statuses[0].late_files) == 1
+        assert all(repeat is statuses[0] for repeat in statuses)
+        assert len(query_recorder.queries) == 1, query_recorder.queries
+
+    def test_late_file_status_brackets_the_uploads(self, db_session):
+        """The first and last arrivals bracket the release's files."""
+        release = _release_with_uploads(
+            datetime.timedelta(hours=2),
+            datetime.timedelta(0),
+            datetime.timedelta(days=3),
+        )
+
+        status = release.late_file_status
+
+        assert status.total_files == 3
+        assert status.first_upload == _RELEASED_AT
+        assert status.last_upload == _RELEASED_AT + datetime.timedelta(days=3)
+
+    def test_late_file_status_ignores_punctual_files(self, db_session):
+        """Files arriving inside the window are not late."""
+        release = _release_with_uploads(
+            datetime.timedelta(0),
+            datetime.timedelta(days=1),
+            MAXIMUM_AGE_FOR_NEW_UPLOADS - datetime.timedelta(hours=1),
+        )
+
+        status = release.late_file_status
+
+        assert status.late_files == ()
+
+    def test_late_file_status_finds_a_late_file(self, db_session):
+        """A file past the window is reported, with how long it took to arrive."""
+        release = _release_with_uploads(
+            datetime.timedelta(0),
+            datetime.timedelta(days=30),
+        )
+
+        status = release.late_file_status
+
+        assert status.total_files == 2
+        (late,) = status.late_files
+        assert late.filename == f"{release.project.name}-1.0-1.whl"
+        assert late.upload_time == _RELEASED_AT + datetime.timedelta(days=30)
+        assert late.delay == datetime.timedelta(days=30)
+
+    def test_late_file_status_reports_every_late_file_oldest_first(self, db_session):
+        """Several late files are all reported, ordered by when they arrived."""
+        release = _release_with_uploads(
+            datetime.timedelta(days=90),
+            datetime.timedelta(0),
+            datetime.timedelta(days=20),
+        )
+
+        status = release.late_file_status
+
+        assert [late.delay for late in status.late_files] == [
+            datetime.timedelta(days=20),
+            datetime.timedelta(days=90),
+        ]
+
+    @pytest.mark.parametrize(
+        ("delay", "late"),
+        [
+            (MAXIMUM_AGE_FOR_NEW_UPLOADS, False),
+            (MAXIMUM_AGE_FOR_NEW_UPLOADS + datetime.timedelta(hours=23), True),
+        ],
+    )
+    def test_late_file_status_measures_the_window_to_the_second(
+        self, db_session, delay, late
+    ):
+        """
+        The window is measured to the second.
+
+        A file arriving on the window's last day plus twenty-three hours is
+        late; truncating the delta to whole days would let it pass.
+        """
+        release = _release_with_uploads(datetime.timedelta(0), delay)
+
+        assert bool(release.late_file_status.late_files) is late
+
+    def test_late_file_status_measures_from_the_release(self, db_session):
+        """
+        Deleting a release's original files must not clear the flag from the
+        one it was raised for.
+        """
+        release = _release_with_uploads(
+            datetime.timedelta(0),
+            datetime.timedelta(days=30),
+        )
+        first, _ = sorted(release.files, key=lambda file: file.upload_time)
+        db_session.delete(first)
+        db_session.flush()
+
+        status = release.late_file_status
+
+        assert status.total_files == 1
+        assert len(status.late_files) == 1
+        assert status.first_upload == _RELEASED_AT + datetime.timedelta(days=30)
 
 
 class TestFile:
@@ -1735,6 +2179,21 @@ class TestFile:
         )
 
         assert rfile.pretty_wheel_tags == ["Source"]
+
+    @pytest.mark.parametrize(
+        ("delay", "expected"),
+        [
+            (datetime.timedelta(0), False),
+            (MAXIMUM_AGE_FOR_NEW_UPLOADS, False),
+            (MAXIMUM_AGE_FOR_NEW_UPLOADS + datetime.timedelta(seconds=1), True),
+        ],
+    )
+    def test_added_late(self, db_session, delay, expected):
+        """A file knows on its own whether it arrived late."""
+        release = _release_with_uploads(delay)
+        (file,) = release.files
+
+        assert file.added_late is expected
 
 
 class TestProjectLimitProperties:

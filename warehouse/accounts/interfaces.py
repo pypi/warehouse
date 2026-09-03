@@ -1,5 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
+from __future__ import annotations
+
+import dataclasses
+
 from zope.interface import Attribute, Interface
 
 from warehouse.rate_limiting.interfaces import RateLimiterException
@@ -10,6 +14,10 @@ class TooManyFailedLogins(RateLimiterException):
 
 
 class TooManyEmailsAdded(RateLimiterException):
+    pass
+
+
+class TooManyEmailReputationChecks(RateLimiterException):
     pass
 
 
@@ -329,4 +337,93 @@ class IDomainStatusService(Interface):
     def get_domain_status(domain: str) -> list[str] | None:
         """
         Returns a list of status strings for the given domain.
+        """
+
+
+@dataclasses.dataclass(frozen=True)
+class EmailReputationResult:
+    """
+    What an email reputation service reported about a single address.
+
+    "disposable" covers both a disposable domain and a single throwaway
+    address on a legitimate domain (an alias on a public provider); use
+    disposable_domain to tell whether the whole domain is implicated.
+
+    Signals are tri-state: True (reported), False (explicitly clear), and
+    None (unknown: absent from the response, or not a boolean). Blocking
+    and blocklisting act only on explicit values, so a payload revision
+    upstream can't turn into a false positive.
+    """
+
+    mx: bool | None = None
+    disposable: bool | None = None
+    public_domain: bool | None = None
+    relay_domain: bool | None = None
+    spam: bool | None = None
+    blocklisted: bool | None = None
+    disposable_provider: str | None = None
+
+    @property
+    def should_block(self) -> bool:
+        """
+        Whether this result should block use of the checked email address.
+        Only an explicit "disposable" blocks for now: every other signal is
+        observe-only, recorded in metrics until we've measured enough to
+        decide whether to gate on it too.
+        """
+        return self.disposable is True
+
+    @property
+    def disposable_domain(self) -> bool:
+        """
+        Whether the domain itself operates as a disposable provider, the
+        only case where prohibiting the whole domain is safe. The public and
+        relay flags must be explicitly clear: a throwaway address on a
+        public or relay domain, or one whose flags are unknown, must never
+        blocklist the domain, or the first disposable alias on gmail.com
+        would lock out everyone there.
+        """
+        return (
+            self.disposable is True
+            and self.public_domain is False
+            and self.relay_domain is False
+        )
+
+    @property
+    def signals(self) -> list[str]:
+        """
+        The names of the negative signals reported, sorted, for use in logs
+        and metrics. Empty if nothing was reported.
+        """
+        return sorted(
+            name
+            for name, reported in {
+                "blocklisted": self.blocklisted is True,
+                "disposable": self.disposable is True,
+                "no_mx": self.mx is False,
+                "public_domain": self.public_domain is True,
+                "relay_domain": self.relay_domain is True,
+                "spam": self.spam is True,
+            }.items()
+            if reported
+        )
+
+
+class IEmailReputationService(Interface):
+    def check_email(email: str) -> EmailReputationResult | None:
+        """
+        Returns what is known about the given email address, or None if no
+        verdict could be obtained -- callers are expected to fail open in
+        that case.
+
+        Raises TooManyEmailReputationChecks when the caller has spent their
+        rate-limit budget for the check. The budget is per-client, so failing
+        open here would let a caller exhaust it on purpose and skip the check
+        gating their own submissions.
+
+        Implementations receive the full address: a throwaway alias on a
+        public provider is invisible to a domain-only check, and catching
+        those is why this service exists. The compensating constraint is
+        that implementations must never write the address to logs; log
+        lines carry the domain only.
         """
