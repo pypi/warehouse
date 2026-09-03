@@ -25,29 +25,32 @@ from warehouse.organizations.models import (
 from warehouse.subscriptions.models import StripeSubscriptionStatus
 from warehouse.utils.otp import _get_totp
 
+SURVEY_URL = "https://www.surveymonkey.com/r/H53HHSS"
+
+
+def _login_user(webtest, user):
+    """Log in a user with 2FA and pre-confirmed IP."""
+    ip_address = IpAddressFactory.create(ip_address=REMOTE_ADDR)
+    UserUniqueLoginFactory.create(
+        user=user,
+        ip_address=ip_address,
+        status=UniqueLoginStatus.CONFIRMED,
+    )
+
+    login_page = webtest.get("/account/login/", status=HTTPStatus.OK)
+    login_form = login_page.forms["login-form"]
+    login_form["username"] = user.username
+    login_form["password"] = "password"
+
+    two_factor_page = login_form.submit().follow(status=HTTPStatus.OK)
+    two_factor_form = two_factor_page.forms["totp-auth-form"]
+    two_factor_form["totp_value"] = (
+        _get_totp(user.totp_secret).generate(time.time()).decode()
+    )
+    two_factor_form.submit().follow(status=HTTPStatus.OK)
+
 
 class TestManageOrganizationSettings:
-    def _login_user(self, webtest, user):
-        """Log in a user with 2FA and pre-confirmed IP."""
-        ip_address = IpAddressFactory.create(ip_address=REMOTE_ADDR)
-        UserUniqueLoginFactory.create(
-            user=user,
-            ip_address=ip_address,
-            status=UniqueLoginStatus.CONFIRMED,
-        )
-
-        login_page = webtest.get("/account/login/", status=HTTPStatus.OK)
-        login_form = login_page.forms["login-form"]
-        login_form["username"] = user.username
-        login_form["password"] = "password"
-
-        two_factor_page = login_form.submit().follow(status=HTTPStatus.OK)
-        two_factor_form = two_factor_page.forms["totp-auth-form"]
-        two_factor_form["totp_value"] = (
-            _get_totp(user.totp_secret).generate(time.time()).decode()
-        )
-        two_factor_form.submit().follow(status=HTTPStatus.OK)
-
     def _create_billing_inactive_org(self, role_name=OrganizationRoleType.Owner):
         """Create a Company org not in good standing and a user with a role in it."""
         user = UserFactory.create(
@@ -92,7 +95,7 @@ class TestManageOrganizationSettings:
         """
         owner, organization = self._create_billing_inactive_org()
 
-        self._login_user(webtest, owner)
+        _login_user(webtest, owner)
 
         settings_page = webtest.get(
             f"/manage/organization/{organization.normalized_name}/settings/",
@@ -107,7 +110,7 @@ class TestManageOrganizationSettings:
         """
         owner, organization = self._create_billing_inactive_org()
 
-        self._login_user(webtest, owner)
+        _login_user(webtest, owner)
 
         list_page = webtest.get("/manage/organizations/", status=HTTPStatus.OK)
         manage_url = f"/manage/organization/{organization.normalized_name}/settings/"
@@ -121,7 +124,7 @@ class TestManageOrganizationSettings:
         """
         owner, organization = self._create_billing_inactive_org()
 
-        self._login_user(webtest, owner)
+        _login_user(webtest, owner)
 
         response = webtest.get(
             f"/manage/organization/{organization.normalized_name}/publishing/",
@@ -137,7 +140,7 @@ class TestManageOrganizationSettings:
         owner, organization = self._create_billing_inactive_org()
         organization_id = organization.id
 
-        self._login_user(webtest, owner)
+        _login_user(webtest, owner)
 
         response = self._post_delete_organization(
             webtest, organization, status=HTTPStatus.SEE_OTHER
@@ -161,7 +164,7 @@ class TestManageOrganizationSettings:
         assert not organization.is_in_good_standing()
         organization_id = organization.id
 
-        self._login_user(webtest, owner)
+        _login_user(webtest, owner)
 
         response = self._post_delete_organization(
             webtest, organization, status=HTTPStatus.SEE_OTHER
@@ -182,9 +185,55 @@ class TestManageOrganizationSettings:
         """
         user, organization = self._create_billing_inactive_org(role_name=role_name)
 
-        self._login_user(webtest, user)
+        _login_user(webtest, user)
 
         self._post_delete_organization(
             webtest, organization, status=HTTPStatus.FORBIDDEN
         )
         assert Session.get(Organization, organization.id) is not None
+
+
+class TestCompanyOrgSurveyCallout:
+    def _create_user(self):
+        return UserFactory.create(
+            with_verified_primary_email=True,
+            with_terms_of_service_agreement=True,
+            clear_pwd="password",
+        )
+
+    def test_shown_for_company_org_owner(self, webtest):
+        user = self._create_user()
+        organization = OrganizationFactory.create(orgtype=OrganizationType.Company)
+        OrganizationRoleFactory.create(
+            user=user,
+            organization=organization,
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        _login_user(webtest, user)
+
+        page = webtest.get("/manage/organizations/", status=HTTPStatus.OK)
+        assert SURVEY_URL in page.text
+        assert "Interested in a PyPI service agreement?" in page.text
+
+    def test_not_shown_for_community_org_only(self, webtest):
+        user = self._create_user()
+        organization = OrganizationFactory.create(orgtype=OrganizationType.Community)
+        OrganizationRoleFactory.create(
+            user=user,
+            organization=organization,
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        _login_user(webtest, user)
+
+        page = webtest.get("/manage/organizations/", status=HTTPStatus.OK)
+        assert SURVEY_URL not in page.text
+
+    def test_not_shown_without_organizations(self, webtest):
+        user = self._create_user()
+
+        _login_user(webtest, user)
+
+        page = webtest.get("/manage/organizations/", status=HTTPStatus.OK)
+        assert SURVEY_URL not in page.text
