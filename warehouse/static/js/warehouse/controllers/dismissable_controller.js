@@ -23,10 +23,12 @@ export default class extends Controller {
    * @private
    */
   _setDismissedCookie(value) {
+    let cookie = `callout_block_${this.data.get("identifier")}_dismissed=${value}`;
     if (this.data.get("setting") === "global")
-      document.cookie = `callout_block_${this.data.get("identifier")}_dismissed=${value};path=/`;
-    else
-      document.cookie = `callout_block_${this.data.get("identifier")}_dismissed=${value}`;
+      cookie += ";path=/";
+    if (this.data.get("maxAge"))
+      cookie += `;max-age=${this.data.get("maxAge")}`;
+    document.cookie = cookie;
   }
 
   initialize() {
