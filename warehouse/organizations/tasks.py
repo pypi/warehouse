@@ -12,6 +12,10 @@ from warehouse.accounts.interfaces import ITokenService, TokenExpired
 from warehouse.email import send_organization_subscription_required_email
 from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService
+from warehouse.organizations.constants import (
+    CLEANUP_AFTER,
+    SUBSCRIPTION_GRACE_PERIOD,
+)
 from warehouse.organizations.models import (
     Organization,
     OrganizationApplication,
@@ -23,9 +27,6 @@ from warehouse.organizations.models import (
 )
 from warehouse.subscriptions.interfaces import IBillingService
 from warehouse.subscriptions.models import StripeSubscriptionStatus
-
-CLEANUP_AFTER = datetime.timedelta(days=30)
-SUBSCRIPTION_GRACE_PERIOD = datetime.timedelta(days=30)
 
 logger = structlog.get_logger(__name__)
 
