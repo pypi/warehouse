@@ -9,7 +9,12 @@ export default class extends Controller {
    */
   _getDismissedCookie() {
     const id = this.data.get("identifier");
-    const value = document.cookie.split(";").find(item => item.startsWith(`callout_block_${id}_dismissed=`));
+    // `document.cookie` joins pairs with "; ", so every segment but the first
+    // has a leading space to strip before matching.
+    const value = document.cookie
+      .split(";")
+      .map(item => item.trim())
+      .find(item => item.startsWith(`callout_block_${id}_dismissed=`));
     return value ? value.split("=")[1] : null;
   }
 
