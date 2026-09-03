@@ -4,28 +4,31 @@ import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
   /**
-   * Get element's collapsed status from the cookie.
+   * Get the localStorage key holding this element's collapsed state.
    * @private
    */
-  _getCollapsedCookie() {
-    const id = this.data.get("identifier");
-    const value = document.cookie.split(";").find(item => item.startsWith(`callout_block_${id}_collapsed=`));
-    return value ? value.split("=")[1] : null;
+  _storageKey() {
+    return `callout_block_${this.data.get("identifier")}_collapsed`;
   }
 
   /**
-   * Set element's collapsed status as a cookie.
+   * Get element's collapsed status from localStorage.
    * @private
    */
-  _setCollapsedCookie(value) {
-    if (this.data.get("setting") === "global")
-      document.cookie = `callout_block_${this.data.get("identifier")}_collapsed=${value};path=/`;
-    else
-      document.cookie = `callout_block_${this.data.get("identifier")}_collapsed=${value}`;
+  _getCollapsed() {
+    return localStorage.getItem(this._storageKey());
+  }
+
+  /**
+   * Persist element's collapsed status to localStorage.
+   * @private
+   */
+  _setCollapsed(value) {
+    localStorage.setItem(this._storageKey(), value);
   }
 
   initialize() {
-    switch (this._getCollapsedCookie()) {
+    switch (this._getCollapsed()) {
       case "1":
         this.collapse();
         break;
@@ -39,20 +42,20 @@ export default class extends Controller {
 
   collapse() {
     this.element.removeAttribute("open");
-    this._setCollapsedCookie("1");
+    this._setCollapsed("1");
   }
 
   expand() {
     this.element.setAttribute("open", "");
-    this._setCollapsedCookie("0");
+    this._setCollapsed("0");
   }
 
   save() {
     setTimeout(() => {
       if (!this.element.hasAttribute("open"))
-        this._setCollapsedCookie("1");
+        this._setCollapsed("1");
       else
-        this._setCollapsedCookie("0");
+        this._setCollapsed("0");
     }, 0);
   }
 }
