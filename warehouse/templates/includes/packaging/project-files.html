@@ -29,7 +29,7 @@
           <th scope="col">{% trans %}File{% endtrans %}</th>
           <th scope="col">{% trans %}Size{% endtrans %}</th>
           <th scope="col">{% trans %}Uploaded{% endtrans %}</th>
-          {# TODO: add provenance states with security page: <th scope="col">{% trans %}Provenance{% endtrans %}</th>#}
+          <th scope="col">{% trans %}Provenance{% endtrans %}</th>
           <th scope="col"></th>
         </tr>
       </thead>
@@ -52,7 +52,9 @@
                 {{ humanize(file.upload_time) }}
               {% endif %}
             </td>
-            {#<td>TODO</td>#}
+            <td>
+              {% include "includes/packaging/file-provenance-status.html" %}
+            </td>
             <td>
               <a href="#{{ file.filename }}"
                  class="button button--small button--outline file-info__details-button"
@@ -205,9 +207,10 @@
                   {{ humanize(file.upload_time) }}
                 </span>
               {% endif %}
-              {# TODO: add provenance states with security page
               <span class="file-info__meta-divider" aria-hidden="true"></span>
-              <span class="file-info__meta"><i class="fa-regular fa-circle-check" aria-hidden="true"></i> TODO</span> #}
+              <span class="file-info__meta">
+                {% include "includes/packaging/file-provenance-status.html" %}
+              </span>
             </span>
           </td>
           {% if 'Egg' in file.pretty_wheel_tags %}
