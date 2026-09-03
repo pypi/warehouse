@@ -70,23 +70,26 @@
       </div>
     </div>
   </div>
-  <div class="horizontal-section horizontal-section--grey horizontal-section--medium">
-    <div class="narrow-container">
-      <h2>{% trans %}Does your company need a PyPI service agreement?{% endtrans %}</h2>
-      <p>
-        {% trans %}Some companies need a formal agreement with PyPI covering support, availability, or compliance requirements. We are gathering interest to understand what companies need.{% endtrans %}
-      </p>
-      <p>{% trans %}Tell us about your requirements and we will be in touch as this work progresses.{% endtrans %}</p>
-      <p>
-        {% trans href='https://docs.pypi.org/organization-accounts/support/', title=gettext('External link') %}For help with an existing organization, see <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">organization accounts support</a>.{% endtrans %}
-      </p>
-      <p>
-        <a class="button button--primary"
-           href="https://www.surveymonkey.com/r/H53HHSS"
-           title="{% trans %}External link{% endtrans %}"
-           target="_blank"
-           rel="noopener">{% trans %}PyPI Service Agreement Interest{% endtrans %}</a>
-      </p>
+  {% set survey_url = request.registry.settings.get("warehouse.organizations.service_agreement_survey_url") %}
+  {% if survey_url %}
+    <div class="horizontal-section horizontal-section--grey horizontal-section--medium">
+      <div class="narrow-container">
+        <h2>{% trans %}Does your company need a PyPI service agreement?{% endtrans %}</h2>
+        <p>
+          {% trans %}Some companies need a formal agreement with PyPI covering support, availability, or compliance requirements. We are gathering interest to understand what companies need.{% endtrans %}
+        </p>
+        <p>{% trans %}Tell us about your requirements and we will be in touch as this work progresses.{% endtrans %}</p>
+        <p>
+          {% trans href='https://docs.pypi.org/organization-accounts/support/', title=gettext('External link') %}For help with an existing organization, see <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">organization accounts support</a>.{% endtrans %}
+        </p>
+        <p>
+          <a class="button button--primary"
+             href="{{ survey_url }}"
+             title="{% trans %}External link{% endtrans %}"
+             target="_blank"
+             rel="noopener">{% trans %}PyPI Service Agreement Interest{% endtrans %}</a>
+        </p>
+      </div>
     </div>
-  </div>
+  {% endif %}
 {% endblock %}
