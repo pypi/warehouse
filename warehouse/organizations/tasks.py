@@ -15,6 +15,7 @@ from warehouse.metrics import IMetricsService
 from warehouse.organizations.constants import (
     CLEANUP_AFTER,
     SUBSCRIPTION_GRACE_PERIOD,
+    SUBSCRIPTION_NOTICE_AFTER,
 )
 from warehouse.organizations.models import (
     Organization,
