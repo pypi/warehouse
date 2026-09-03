@@ -625,6 +625,11 @@ def configure(settings=None):
         coercer=int,
         default=3,
     )
+    maybe_set(
+        settings,
+        "warehouse.organizations.service_agreement_survey_url",
+        "ORGANIZATION_SERVICE_AGREEMENT_SURVEY_URL",
+    )
 
     # Add the settings we use when the environment is set to development.
     if settings["warehouse.env"] == Environment.development:
