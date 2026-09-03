@@ -76,6 +76,12 @@ def test_robots_txt(app_config, domain, indexable):
         )
 
 
+def test_organizations_landing_page(webtest):
+    resp = webtest.get("/organizations/", status=HTTPStatus.OK)
+    assert "https://example.com/service-agreement-survey" in resp.text
+    assert "/manage/organizations/" in resp.text
+
+
 def test_non_existent_route_404(webtest):
     resp = webtest.get("/asdadadasdasd/", status=HTTPStatus.NOT_FOUND)
     assert resp.status_code == HTTPStatus.NOT_FOUND
