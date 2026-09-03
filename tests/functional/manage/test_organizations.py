@@ -201,14 +201,18 @@ class TestCompanyOrgSurveyCallout:
             clear_pwd="password",
         )
 
-    def test_shown_for_company_org_owner(self, webtest):
-        user = self._create_user()
-        organization = OrganizationFactory.create(orgtype=OrganizationType.Company)
+    def _create_org_with_owner(self, user, orgtype):
+        organization = OrganizationFactory.create(orgtype=orgtype)
         OrganizationRoleFactory.create(
             user=user,
             organization=organization,
             role_name=OrganizationRoleType.Owner,
         )
+        return organization
+
+    def test_shown_for_company_org_owner(self, webtest):
+        user = self._create_user()
+        self._create_org_with_owner(user, OrganizationType.Company)
 
         _login_user(webtest, user)
 
@@ -218,12 +222,7 @@ class TestCompanyOrgSurveyCallout:
 
     def test_not_shown_for_community_org_only(self, webtest):
         user = self._create_user()
-        organization = OrganizationFactory.create(orgtype=OrganizationType.Community)
-        OrganizationRoleFactory.create(
-            user=user,
-            organization=organization,
-            role_name=OrganizationRoleType.Owner,
-        )
+        self._create_org_with_owner(user, OrganizationType.Community)
 
         _login_user(webtest, user)
 
@@ -236,4 +235,34 @@ class TestCompanyOrgSurveyCallout:
         _login_user(webtest, user)
 
         page = webtest.get("/manage/organizations/", status=HTTPStatus.OK)
+        assert SURVEY_URL not in page.text
+
+    def test_shown_on_company_org_settings(self, webtest):
+        user = self._create_user()
+        organization = self._create_org_with_owner(user, OrganizationType.Company)
+
+        _login_user(webtest, user)
+
+        page = webtest.get(
+            f"/manage/organization/{organization.normalized_name}/settings/",
+            status=HTTPStatus.OK,
+        )
+        assert SURVEY_URL in page.text
+        assert "Interested in a PyPI service agreement?" in page.text
+        callout = page.html.find(
+            "div", {"data-dismissable-identifier": "service_agreement_survey"}
+        )
+        assert callout is not None
+        assert organization.display_name in callout.text
+
+    def test_not_shown_on_community_org_settings(self, webtest):
+        user = self._create_user()
+        organization = self._create_org_with_owner(user, OrganizationType.Community)
+
+        _login_user(webtest, user)
+
+        page = webtest.get(
+            f"/manage/organization/{organization.normalized_name}/settings/",
+            status=HTTPStatus.OK,
+        )
         assert SURVEY_URL not in page.text
