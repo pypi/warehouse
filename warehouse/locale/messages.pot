@@ -1071,7 +1071,7 @@ msgstr ""
 #: warehouse/templates/base.html:531
 #: warehouse/templates/includes/accounts/profile-callout.html:5
 #: warehouse/templates/includes/file-details.html:120
-#: warehouse/templates/includes/manage/company-org-survey-callout.html:18
+#: warehouse/templates/includes/manage/company-org-survey-callout.html:19
 #: warehouse/templates/includes/packaging/project-files.html:48
 #: warehouse/templates/includes/packaging/project-files.html:66
 #: warehouse/templates/includes/packaging/project-files.html:82
@@ -3036,7 +3036,7 @@ msgstr ""
 #: warehouse/templates/includes/flash-messages.html:40
 #: warehouse/templates/includes/flash-messages.html:57
 #: warehouse/templates/includes/flash-messages.html:79
-#: warehouse/templates/includes/manage/company-org-survey-callout.html:10
+#: warehouse/templates/includes/manage/company-org-survey-callout.html:11
 #: warehouse/templates/includes/session-notifications.html:37
 #: warehouse/templates/manage/account.html:204
 #: warehouse/templates/manage/account.html:207
@@ -3251,18 +3251,18 @@ msgstr ""
 msgid "Email"
 msgstr ""
 
-#: warehouse/templates/includes/manage/company-org-survey-callout.html:7
+#: warehouse/templates/includes/manage/company-org-survey-callout.html:8
 #: warehouse/templates/manage/project/release.html:177
 #: warehouse/templates/manage/project/releases.html:203
 #: warehouse/templates/manage/project/settings.html:60
 msgid "Dismiss"
 msgstr ""
 
-#: warehouse/templates/includes/manage/company-org-survey-callout.html:13
+#: warehouse/templates/includes/manage/company-org-survey-callout.html:14
 msgid "Interested in a PyPI service agreement?"
 msgstr ""
 
-#: warehouse/templates/includes/manage/company-org-survey-callout.html:15
+#: warehouse/templates/includes/manage/company-org-survey-callout.html:16
 #, python-format
 msgid ""
 "Some companies need a formal agreement with PyPI covering support, "
@@ -3271,7 +3271,7 @@ msgid ""
 "href=\"%(href)s\">organization accounts</a>."
 msgstr ""
 
-#: warehouse/templates/includes/manage/company-org-survey-callout.html:18
+#: warehouse/templates/includes/manage/company-org-survey-callout.html:19
 #, python-format
 msgid ""
 "Tell us what you need by filling out the <a href=\"%(href)s\" "
@@ -3279,7 +3279,7 @@ msgid ""
 "Agreement Interest</a> survey and we'll follow up."
 msgstr ""
 
-#: warehouse/templates/includes/manage/company-org-survey-callout.html:22
+#: warehouse/templates/includes/manage/company-org-survey-callout.html:23
 #, python-format
 msgid ""
 "You are seeing this because you belong to the company organization "
