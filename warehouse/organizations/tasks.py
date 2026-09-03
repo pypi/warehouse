@@ -5,11 +5,14 @@ import datetime
 import stripe
 import structlog
 
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, selectinload
 
-from warehouse import tasks
+from warehouse import tasks, utils
 from warehouse.accounts.interfaces import ITokenService, TokenExpired
-from warehouse.email import send_organization_subscription_required_email
+from warehouse.email import (
+    send_organization_deactivated_email,
+    send_organization_subscription_required_email,
+)
 from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService
 from warehouse.organizations.constants import (
@@ -23,11 +26,16 @@ from warehouse.organizations.models import (
     OrganizationApplicationStatus,
     OrganizationInvitation,
     OrganizationInvitationStatus,
+    OrganizationManualActivation,
     OrganizationStripeSubscription,
     OrganizationType,
 )
 from warehouse.subscriptions.interfaces import IBillingService
-from warehouse.subscriptions.models import StripeSubscriptionStatus
+from warehouse.subscriptions.models import (
+    ACTIVE_SUBSCRIPTION_STATUSES,
+    StripeSubscription,
+    StripeSubscriptionStatus,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -149,5 +157,65 @@ def notify_organizations_requiring_subscription(request):
             send_organization_subscription_required_email(
                 request,
                 user,
+                organization_name=organization.name,
+            )
+
+
+@tasks.task(ignore_result=True, acks_late=True)
+def deactivate_organizations_requiring_subscription(request):
+    """
+    Deactivate company orgs that have not activated a sub.
+
+    Owners are sent notice when the organization is approved that a company
+    organization needs at least one seat within SUBSCRIPTION_GRACE_PERIOD, and
+    are reminded while that window is open by
+    ``notify_organizations_requiring_subscription``.
+    """
+    # Naive UTC: the column compared below is a naive DateTime.
+    now = utils.now()
+    metrics = request.find_service(IMetricsService, context=None)
+
+    organizations = (
+        request.db.query(Organization)
+        .filter(
+            Organization.is_active.is_(True),
+            Organization.orgtype == OrganizationType.Company,
+            Organization.created < (now - SUBSCRIPTION_GRACE_PERIOD),
+            # No active orgs + No orgs manually activaed that
+            # is still active
+            ~Organization.subscriptions.any(
+                StripeSubscription.status.in_(ACTIVE_SUBSCRIPTION_STATUSES)
+            ),
+            ~Organization.manual_activation.has(
+                OrganizationManualActivation.expires > datetime.date.today()
+            ),
+        )
+        .options(
+            selectinload(Organization.subscriptions),
+            joinedload(Organization.manual_activation),
+        )
+        .all()
+    )
+
+    # find all orgs not in good standing and deactivate + log + email
+    for organization in organizations:
+        # just in case
+        if organization.is_in_good_standing():
+            continue
+
+        organization.is_active = False
+        organization.record_event(
+            tag=EventTag.Organization.OrganizationDeactivate,
+            request=request,
+            additional={"reason": "subscription_required"},
+        )
+        metrics.increment("warehouse.organizations.subscription.deactivated")
+
+        for owner in organization.owners:
+            if owner.primary_email is None or not owner.primary_email.verified:
+                continue
+            send_organization_deactivated_email(
+                request,
+                owner,
                 organization_name=organization.name,
             )
