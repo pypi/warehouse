@@ -78,7 +78,7 @@ def test_robots_txt(app_config, domain, indexable):
 
 def test_organizations_landing_page(webtest):
     resp = webtest.get("/organizations/", status=HTTPStatus.OK)
-    assert "https://www.surveymonkey.com/r/H53HHSS" in resp.text
+    assert "https://example.com/service-agreement-survey" in resp.text
     assert "/manage/organizations/" in resp.text
 
 
