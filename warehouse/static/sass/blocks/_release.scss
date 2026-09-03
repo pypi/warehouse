@@ -159,7 +159,15 @@
 
     a {
       @include link-utilities.colored-link(colors.$primary-color);
-      @include link-utilities.link-without-underline;
+
+      i {
+        margin-right: 4px;
+        text-decoration: none;
+      }
+
+      .warning {
+        text-decoration: underline;
+      }
     }
 
     @media screen and (max-width: breakpoints.$small-tablet) {
@@ -183,10 +191,6 @@
 
   &__date {
     white-space: nowrap;
-  }
-
-  &__provenance-icon {
-    color: colors.$primary-color;
   }
 
   &__card-footer {

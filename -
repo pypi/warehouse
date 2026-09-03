@@ -1,0 +1,88 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+/* SPDX-License-Identifier: Apache-2.0 */
+/* SPDX-License-Identifier: Apache-2.0 */
+/* SPDX-License-Identifier: Apache-2.0 */
+/*
+  A row of segmented proportion bars, for showing how a total splits
+  across a small number of categories (e.g. files with/without something).
+
+  Each row's fill width is driven by --segment-bar-percent, and the number
+  of visible segments by --segment-bar-count (cap this for large totals,
+  since the fill width already reflects the true proportion regardless of
+  how many segments it's cut into).
+
+  <div class="segment-bar">
+    <div class="segment-bar__row">
+      <span class="segment-bar__swatch segment-bar__swatch--primary" aria-hidden="true"></span>
+      <span class="segment-bar__label">Category label</span>
+      <span class="segment-bar__track"
+            role="img"
+            aria-label="3 of 17"
+            style="--segment-bar-percent: 17.6%; --segment-bar-count: 17;">
+        <span class="segment-bar__fill segment-bar__fill--primary"></span>
+      </span>
+      <span class="segment-bar__value">3 / 17</span>
+    </div>
+  </div>
+
+  Modifiers (swatch and fill share the same set):
+    - primary: Blue
+    - dark: Grey
+*/
+.segment-bar {
+  color: #464646;
+}
+.segment-bar__row {
+  display: flex;
+  align-items: center;
+  gap: 7.5px;
+}
+.segment-bar__row + .segment-bar__row {
+  margin-top: 7.5px;
+}
+.segment-bar__swatch {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  border-radius: 2px;
+}
+.segment-bar__swatch--primary {
+  background-color: #006dad;
+}
+.segment-bar__swatch--dark {
+  background-color: #616161;
+}
+.segment-bar__label {
+  flex: 0 0 auto;
+  width: 160px;
+  font-size: 0.9rem;
+}
+.segment-bar__track {
+  position: relative;
+  flex: 1;
+  height: 20px;
+  border-radius: 3px;
+  background-color: #ececec;
+  overflow: hidden;
+  mask-image: repeating-linear-gradient(to right, #000 0, #000 calc(100% / var(--segment-bar-count, 1) - 2px), transparent calc(100% / var(--segment-bar-count, 1) - 2px), transparent calc(100% / var(--segment-bar-count, 1)));
+  -webkit-mask-image: repeating-linear-gradient(to right, #000 0, #000 calc(100% / var(--segment-bar-count, 1) - 2px), transparent calc(100% / var(--segment-bar-count, 1) - 2px), transparent calc(100% / var(--segment-bar-count, 1)));
+}
+.segment-bar__fill {
+  position: absolute;
+  inset: 0;
+  width: var(--segment-bar-percent, 0%);
+  background-color: currentColor;
+}
+.segment-bar__fill--primary {
+  color: #006dad;
+}
+.segment-bar__fill--dark {
+  color: #616161;
+}
+.segment-bar__value {
+  flex: 0 0 auto;
+  width: 50px;
+  text-align: right;
+  font-family: "Source Code Pro", monospace;
+  font-size: 0.9rem;
+}

@@ -1,0 +1,94 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% set comparison = release.provenance_status.comparison %}
+{% set provenance_status = release.provenance_status %}
+{% set repo_changed = provenance_status.removed_sources or provenance_status.added_sources %}
+{% set config_changed = provenance_status.removed_workflows or provenance_status.added_workflows %}
+<div class="callout-block callout-block--warning">
+  <h3 class="callout-block__heading">
+    <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+    {% trans %}Change of provenance{% endtrans %}
+  </h3>
+  {% if repo_changed and config_changed %}
+    <p>{% trans %}The repository and configuration that created this release differ from a previous release.{% endtrans %}</p>
+  {% elif repo_changed %}
+    <p>{% trans %}The repository that created this release differs from a previous release.{% endtrans %}</p>
+  {% elif config_changed %}
+    <p>{% trans %}The configuration that created this release differs from a previous release.{% endtrans %}</p>
+  {% endif %}
+  <p>{% trans %}While this could reflect a routine change by the project maintainers, it may also indicate that the release files have been compromised.{% endtrans %}</p>
+  {% if comparison %}
+    {% if repo_changed %}
+      <div class="provenance-diff">
+        <p class="provenance-diff__title">
+          <i class="fa-solid fa-code" aria-hidden="true"></i>
+          {% trans %}Repository{% endtrans %}
+        </p>
+        <ul class="provenance-diff__rows">
+          {% for source in provenance_status.removed_sources %}
+            <li class="provenance-diff__row provenance-diff__row--removed">
+              <span class="provenance-diff__marker">
+                <span aria-hidden="true">-</span>
+                <span class="sr-only">{% trans %}Removed{% endtrans %}</span>
+              </span>
+              <a class="provenance-diff__version"
+                 href="{{ request.route_path('packaging.release', name=release.project.name, version=comparison.version) }}#security">{{ comparison.version }}</a>
+              <span class="provenance-diff__value">{{ source.identity }}</span>
+            </li>
+          {% endfor %}
+          {% for source in provenance_status.added_sources %}
+            <li class="provenance-diff__row provenance-diff__row--added">
+              <span class="provenance-diff__marker">
+                <span aria-hidden="true">+</span>
+                <span class="sr-only">{% trans %}Added{% endtrans %}</span>
+              </span>
+              <span class="provenance-diff__version">{{ release.version }}</span>
+              <span class="provenance-diff__value">{{ source.identity }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+    {% if config_changed %}
+      <div class="provenance-diff">
+        <p class="provenance-diff__title">
+          <i class="fa-solid fa-circle-play" aria-hidden="true"></i>
+          {% trans %}Configuration{% endtrans %}
+        </p>
+        <ul class="provenance-diff__rows">
+          {% for workflow in provenance_status.removed_workflows %}
+            <li class="provenance-diff__row provenance-diff__row--removed">
+              <span class="provenance-diff__marker">
+                <span aria-hidden="true">-</span>
+                <span class="sr-only">{% trans %}Removed{% endtrans %}</span>
+              </span>
+              <a class="provenance-diff__version"
+                 href="{{ request.route_path('packaging.release', name=release.project.name, version=comparison.version) }}#security">{{ comparison.version }}</a>
+              <span class="provenance-diff__value">{{ workflow }}</span>
+            </li>
+          {% endfor %}
+          {% for workflow in provenance_status.added_workflows %}
+            <li class="provenance-diff__row provenance-diff__row--added">
+              <span class="provenance-diff__marker">
+                <span aria-hidden="true">+</span>
+                <span class="sr-only">{% trans %}Added{% endtrans %}</span>
+              </span>
+              <span class="provenance-diff__version">{{ release.version }}</span>
+              <span class="provenance-diff__value">{{ workflow }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  {% endif %}
+  <div class="callout-block__footer">
+    <p>
+      {% if repo_changed and config_changed %}
+        {% trans href=request.user_docs_url('/attestations/') %}We recommend inspecting the repository and configuration before proceeding. <a href="{{ href }}">Learn more</a>.{% endtrans %}
+      {% elif repo_changed %}
+        {% trans href=request.user_docs_url('/attestations/') %}We recommend inspecting the repository before proceeding. <a href="{{ href }}">Learn more</a>.{% endtrans %}
+      {% elif config_changed %}
+        {% trans href=request.user_docs_url('/attestations/') %}We recommend inspecting the configuration before proceeding. <a href="{{ href }}">Learn more</a>.{% endtrans %}
+      {% endif %}
+    </p>
+  </div>
+</div>

@@ -23,61 +23,13 @@
     - archived: Light grey background (dark text)
     - yanked: Dark grey background (white text)
     - quarantined: Orange background (white text)
+    - late-files: Orange background (white text)
+    - provenance-warning: Orange background (white text)
 */
 
 .project-status {
   color: colors.$white;
   border-bottom: 1px solid color.adjust(colors.$white, $alpha: -0.6);
-
-  &--pre-release {
-    $pre-release-border: color.adjust(colors.$primary-color-light-border, $lightness: -20%);
-
-    background-color: color.adjust(colors.$primary-color-light-border, $lightness: -9%);
-    color: colors.$text-color;
-    border-bottom-color: $pre-release-border;
-
-    .project-status__label {
-      border-color: $pre-release-border;
-    }
-
-    .project-status__description a {
-      color: colors.$text-color;
-
-      &:focus,
-      &:active {
-        outline-color: colors.$text-color;
-      }
-    }
-  }
-
-  &--archived {
-    $archived-border: color.adjust(colors.$border-color, $lightness: -5%);
-
-    background-color: color.adjust(colors.$base-grey, $lightness: -6%);
-    color: colors.$text-color;
-    border-bottom-color: $archived-border;
-
-    .project-status__label {
-      border-color: $archived-border;
-    }
-
-    .project-status__description a {
-      color: colors.$text-color;
-
-      &:focus,
-      &:active {
-        outline-color: colors.$text-color;
-      }
-    }
-  }
-
-  &--yanked {
-    background-color: color.adjust(colors.$text-color, $lightness: -7%);
-  }
-
-  &--quarantined {
-    background-color: color.adjust(colors.$warning-color, $lightness: -7%);
-  }
 
   &__content {
     @include layout-utilities.site-container;
@@ -132,5 +84,67 @@
         outline-color: colors.$white;
       }
     }
+  }
+
+  &--pre-release {
+    $pre-release-border: color.adjust(colors.$primary-color-light-border, $lightness: -20%);
+
+    background-color: color.adjust(colors.$primary-color-light-border, $lightness: -9%);
+    color: colors.$text-color;
+    border-bottom-color: $pre-release-border;
+
+    .project-status__label {
+      border-color: $pre-release-border;
+    }
+
+    .project-status__description a {
+      color: colors.$text-color;
+
+      &:focus,
+      &:active {
+        outline-color: colors.$text-color;
+      }
+    }
+  }
+
+  &--archived {
+    $archived-border: color.adjust(colors.$border-color, $lightness: -5%);
+
+    background-color: color.adjust(colors.$base-grey, $lightness: -6%);
+    color: colors.$text-color;
+    border-bottom-color: $archived-border;
+
+    .project-status__label {
+      border-color: $archived-border;
+    }
+
+    .project-status__description a {
+      color: colors.$text-color;
+
+      &:focus,
+      &:active {
+        outline-color: colors.$text-color;
+      }
+    }
+  }
+
+  &--yanked {
+    background-color: color.adjust(colors.$text-color, $lightness: -7%);
+  }
+
+  &--quarantined {
+    background-color: color.adjust(colors.$warning-color, $lightness: -7%);
+  }
+
+  &--late-files {
+    background-color: colors.$warning-color;
+
+    &:has(+ .project-status--quarantined) {
+      background-color: color.adjust(colors.$warning-color, $lightness: -12%);
+    }
+  }
+
+  &--provenance-warning {
+    background-color: colors.$warning-color;
   }
 }

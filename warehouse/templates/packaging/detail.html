@@ -1,6 +1,5 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 {% extends "base.html" %}
-{# HTML HEAD metadata #}
 {% block title %}{{ release.project.name }}{% endblock %}
 {# Jinja has no `finalize` configured, so a null summary rendered the literal
  # string "None". The coalesce is load-bearing for that; `trim` additionally
@@ -35,6 +34,7 @@
         {% include "warehouse:templates/includes/packaging/project-description.html" %}
         {% if files %}
           {% include "warehouse:templates/includes/packaging/project-files.html" %}
+          {% include "warehouse:templates/includes/packaging/project-security.html" %}
         {% endif %}
         {% include "warehouse:templates/includes/packaging/project-release-history.html" %}
       </div>

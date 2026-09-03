@@ -1,0 +1,49 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% set counts = release.provenance_status.counts %}
+{% set without_count = counts.total_files - counts.files_with_provenance %}
+{% set grouped_files = (files | selectattr('provenance') | list) + (files | rejectattr('provenance') | list) %}
+{% set grouped_files_without_first = (files | rejectattr('provenance') | list) + (files | selectattr('provenance') | list) %}
+<div class="callout-block callout-block--warning">
+  <h3 class="callout-block__heading">
+    <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+    {% trans %}Incomplete provenance{% endtrans %}
+  </h3>
+  <p>
+    {% trans without_count=without_count, total_count=counts.total_files %}{{ without_count }} of {{ total_count }} files were uploaded without provenance metadata.{% endtrans %}
+  </p>
+  <div class="provenance-bar {{ 'provenance-bar--with-gap' if counts.total_files < 20 }}">
+    <div class="provenance-bar__row">
+      <span class="provenance-bar__label provenance-bar__label--with-provenance"
+            aria-hidden="true"></span>
+      <span class="provenance-bar__name">{% trans %}Files with provenance{% endtrans %}</span>
+      <div class="provenance-bar__files"
+           role="img"
+           aria-label="{% trans with_count=counts.files_with_provenance, total_count=counts.total_files %}{{ with_count }} of {{ total_count }} files with provenance{% endtrans %}">
+        {% for file in grouped_files %}
+          <span class="provenance-bar__file {{ 'provenance-bar__file--with-provenance' if file.provenance }}"
+                aria-hidden="true"></span>
+        {% endfor %}
+      </div>
+      <span class="provenance-bar__count">{{ counts.files_with_provenance }} / {{ counts.total_files }}</span>
+    </div>
+    <div class="provenance-bar__row">
+      <span class="provenance-bar__label provenance-bar__label--without-provenance"
+            aria-hidden="true"></span>
+      <span class="provenance-bar__name">{% trans %}Files without provenance{% endtrans %}</span>
+      <div class="provenance-bar__files"
+           role="img"
+           aria-label="{% trans without_count=without_count, total_count=counts.total_files %}{{ without_count }} of {{ total_count }} files without provenance{% endtrans %}">
+        {% for file in grouped_files_without_first %}
+          <span class="provenance-bar__file {{ 'provenance-bar__file--without-provenance' if not file.provenance }}"
+                aria-hidden="true"></span>
+        {% endfor %}
+      </div>
+      <span class="provenance-bar__count">{{ without_count }} / {{ counts.total_files }}</span>
+    </div>
+  </div>
+  <div class="callout-block__footer">
+    <p>
+      {% trans href=request.user_docs_url('/attestations/') %}We recommend further investigation before installing files from this release. <a href="{{ href }}">Learn more</a>.{% endtrans %}
+    </p>
+  </div>
+</div>

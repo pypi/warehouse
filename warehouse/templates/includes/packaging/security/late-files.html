@@ -1,0 +1,24 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+<div class="callout-block callout-block--warning">
+  <h3 class="callout-block__heading">
+    <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+    {% trans count=release.late_file_status.late_files|length %}File added late
+  {% pluralize %}
+    Files added late{% endtrans %}
+  </h3>
+  <p>
+    {% trans count=release.late_file_status.late_files|length, days=maximum_age_for_new_uploads_days %}{{ count }} file was uploaded more than {{ days }} days after the first file in this release.
+  {% pluralize %}
+    {{ count }} files were uploaded more than {{ days }} days after the first file in this release.{% endtrans %}
+  </p>
+  <p>{% trans %}While project maintainers occasionally add legitimate files to an existing release, late additions can also indicate a security compromise.{% endtrans %}</p>
+  <p>
+    {% if link_to_release_files %}
+      {% trans href="#files" %}We recommend inspecting the <a href="{{ href }}"
+    data-project-tabs-target="tab"
+    data-action="project-tabs#onTabClick">release files</a> before installing.{% endtrans %}
+    {% else %}
+      {% trans %}We recommend inspecting the release files before installing.{% endtrans %}
+    {% endif %}
+  </p>
+</div>

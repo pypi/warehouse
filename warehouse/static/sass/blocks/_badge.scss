@@ -19,7 +19,7 @@
     - success: Green background
     - warning: Orange background
     - danger: Red background
-    - key-dates: Adjusts spacing for use in the key dates sidebar section
+    - compact: Tighter padding, no left margin
 */
 
 .badge {
@@ -51,7 +51,7 @@
 
   &--neutral {
     background-color: colors.$base-grey;
-    border-color: colors.$base-grey;
+    border-color: colors.$border-color;
     color: color.adjust(colors.$base-grey, $lightness: -50%);
 
     &:hover {
@@ -119,10 +119,12 @@
     }
   }
 
-  &--key-dates {
-    display: inline-block;
-    margin-top: 0.8em;
-    margin-left: 0;
+  &--no-uppercase {
+    text-transform: none;
   }
 
+  &--compact {
+    padding: 1px 6px;
+    margin-left: 0;
+  }
 }

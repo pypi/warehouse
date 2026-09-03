@@ -1,0 +1,251 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{# is_selected controls whether the checksum's clipboard controller connects on render.
+   Callers that don't pass it (e.g. file-details.html, which never hides this include)
+   get the always-live default; project-security.html overrides it per file. #}
+{% set is_selected = is_selected | default(true) %}
+{% set is_slsa = "slsa" in viewer.predicate_type %}
+{% if bundle.publisher.kind == "GitHub" %}
+  {% set platform_name = "GitHub Actions" %}
+{% elif bundle.publisher.kind == "GitLab" %}
+  {% set platform_name = "GitLab CI/CD" %}
+{% elif bundle.publisher.kind == "Google" %}
+  {% set platform_name = "Google Cloud" %}
+{% elif bundle.publisher.kind == "ActiveState" %}
+  {% set platform_name = "ActiveState" %}
+{% endif %}
+<div class="attestation {% if is_slsa %}attestation--slsa{% else %}attestation--pypi{% endif %}">
+  <div class="attestation__header">
+    <div class="attestation__publisher">
+      <div class="attestation__publisher-icons">
+        {% if bundle.publisher.kind == "GitHub" %}
+          <img src="{{ request.static_url('warehouse:static/dist/images/github.svg') }}"
+               alt=""
+               aria-hidden="true">
+        {% elif bundle.publisher.kind == "GitLab" %}
+          <img src="{{ request.static_url('warehouse:static/dist/images/gitlab.svg') }}"
+               alt=""
+               aria-hidden="true">
+        {% elif bundle.publisher.kind == "Google" %}
+          <img src="{{ request.static_url('warehouse:static/dist/images/google-cloud.svg') }}"
+               alt=""
+               aria-hidden="true">
+        {% elif bundle.publisher.kind == "ActiveState" %}
+          <img src="{{ request.static_url('warehouse:static/dist/images/active-state.svg') }}"
+               alt=""
+               aria-hidden="true">
+        {% endif %}
+        {% if is_slsa %}
+          <img src="{{ request.static_url('warehouse:static/dist/images/SLSA.svg') }}"
+               alt=""
+               aria-hidden="true">
+        {% else %}
+          <img src="{{ request.static_url('warehouse:static/dist/images/pypi-attestation-cube.svg') }}"
+               alt=""
+               aria-hidden="true">
+        {% endif %}
+      </div>
+    </div>
+    <div class="attestation__header-content">
+      <h4>
+        {% if viewer.predicate_type %}
+          <a href="{{ viewer.predicate_type }}" target="_blank" rel="noopener">
+            {% if is_slsa %}
+              {% trans %}SLSA Build Provenance{% endtrans %}
+            {% else %}
+              {% trans %}PyPI Publish{% endtrans %}
+            {% endif %}
+          </a>
+        {% else %}
+          {% if is_slsa %}
+            {% trans %}SLSA Build Provenance{% endtrans %}
+          {% else %}
+            {% trans %}PyPI Publish{% endtrans %}
+          {% endif %}
+        {% endif %}
+        {% trans %}Attestation{% endtrans %}
+      </h4>
+      <p>
+        {% if is_slsa %}
+          {% trans %}PyPI verified that this artifact, at this checksum, originated from the builder listed below.{% endtrans %}
+        {% else %}
+          {% trans %}PyPI verified that this artifact, at this checksum, originated from the publisher listed below.{% endtrans %}
+        {% endif %}
+      </p>
+      <p>
+        <strong>
+          {% if is_slsa %}
+            {% trans platform_name=platform_name, verified_date=file.upload_time|format_date %}Built by {{ platform_name }}, verified by PyPI on {{ verified_date }}.{% endtrans %}
+          {% else %}
+            {% trans platform_name=platform_name, verified_date=file.upload_time|format_date %}Signed by {{ platform_name }}, verified by PyPI on {{ verified_date }}.{% endtrans %}
+          {% endif %}
+        </strong>
+      </p>
+      {% if viewer.transparency_entry %}
+        <a href="https://search.sigstore.dev/?logIndex={{ viewer.transparency_entry.logIndex }}"
+           target="_blank"
+           rel="noopener"
+           title="{% trans %}Sigstore transparency entry{% endtrans %}">{% trans %}Transparency log{% endtrans %}</a>
+      {% endif %}
+    </div>
+  </div>
+  <div class="attestation__details">
+    <div class="attestation__metadata">
+      <div class="attestation__metadata-header">
+        <span class="attestation__metadata-icon">
+          <i class="fa-solid fa-fingerprint" aria-hidden="true"></i>
+        </span>
+        <h5 class="attestation__metadata-title">{% trans %}Identity{% endtrans %}</h5>
+      </div>
+      <dl class="attestation__metadata-content">
+        <dt>
+          {% if is_slsa %}
+            {% trans %}Build platform{% endtrans %}
+          {% else %}
+            {% trans %}Publishing platform{% endtrans %}
+          {% endif %}
+        </dt>
+        <dd>
+          {{ platform_name }}
+        </dd>
+        {% if viewer.source %}
+          <dt>
+            {% if is_slsa %}
+              {% trans %}Build repository{% endtrans %}
+            {% else %}
+              {% trans %}Publishing repository{% endtrans %}
+            {% endif %}
+          </dt>
+          <dd>
+            <a href="{{ viewer.source }}" target="_blank" rel="noopener">{{ viewer.source | replace('https://', '') }}</a>
+          </dd>
+        {% endif %}
+        {% if viewer.permalink_with_digest %}
+          <dt>
+            {% if is_slsa %}
+              {% trans %}Build commit{% endtrans %}
+            {% else %}
+              {% trans %}Publishing commit{% endtrans %}
+            {% endif %}
+          </dt>
+          <dd>
+            <a href="{{ viewer.permalink_with_digest }}"
+               target="_blank"
+               rel="noopener">{{ viewer.permalink_with_digest | replace('https://', '') }}</a>
+          </dd>
+        {% endif %}
+        {% if bundle.publisher.kind == "Google" and bundle.publisher.email %}
+          <dt>
+            {% if is_slsa %}
+              {% trans %}Build account{% endtrans %}
+            {% else %}
+              {% trans %}Publisher account{% endtrans %}
+            {% endif %}
+          </dt>
+          <dd>
+            {{ bundle.publisher.email }}
+          </dd>
+        {% endif %}
+        {% if not viewer.source and not viewer.permalink_with_digest and not (bundle.publisher.kind == "Google" and bundle.publisher.email) %}
+          <dd>
+            {% trans %}No identity information found{% endtrans %}
+          </dd>
+        {% endif %}
+      </dl>
+    </div>
+    <div class="attestation__metadata">
+      <div class="attestation__metadata-header">
+        <span class="attestation__metadata-icon">
+          {% if is_slsa %}
+            <i class="fa-solid fa-gear" aria-hidden="true"></i>
+          {% else %}
+            <i class="fa-solid fa-circle-play" aria-hidden="true"></i>
+          {% endif %}
+        </span>
+        <h5 class="attestation__metadata-title">
+          {% if is_slsa %}
+            {% trans %}Build{% endtrans %}
+          {% else %}
+            {% trans %}Workflow{% endtrans %}
+          {% endif %}
+        </h5>
+      </div>
+      <dl class="attestation__metadata-content">
+        {% if viewer.workflow_url %}
+          <dt>
+            {% if is_slsa %}
+              {% trans %}Build instructions{% endtrans %}
+            {% else %}
+              {% trans %}Publishing configuration{% endtrans %}
+            {% endif %}
+          </dt>
+          <dd>
+            <a href="{{ viewer.workflow_url }}" target="_blank" rel="noopener">{{ viewer.workflow_url | replace('https://', '') }}</a>
+          </dd>
+        {% endif %}
+        {% if viewer.run_invocation_uri %}
+          <dt>
+            {% if is_slsa %}
+              {% trans %}Build logs{% endtrans %}
+            {% else %}
+              {% trans %}Publishing logs{% endtrans %}
+            {% endif %}
+          </dt>
+          <dd>
+            <a href="{{ viewer.run_invocation_uri }}" target="_blank" rel="noopener">{{ viewer.run_invocation_uri | replace('https://', '') }}</a>
+          </dd>
+        {% endif %}
+        {% if not viewer.workflow_url and not viewer.run_invocation_uri %}
+          {% if is_slsa %}
+            <dd>
+              {% trans %}No build instructions found{% endtrans %}
+            </dd>
+          {% else %}
+            <dd>
+              {% trans %}No publishing configuration found{% endtrans %}
+            </dd>
+          {% endif %}
+        {% endif %}
+      </dl>
+    </div>
+    <div class="attestation__metadata">
+      <div class="attestation__metadata-header">
+        <span class="attestation__metadata-icon">
+          <i class="fa-regular fa-file" aria-hidden="true"></i>
+        </span>
+        <h5 class="attestation__metadata-title">{% trans %}Artifact{% endtrans %}</h5>
+      </div>
+      <dl class="attestation__metadata-content">
+        {% if viewer.subject_name %}
+          <dt>{% trans %}Subject{% endtrans %}</dt>
+          <dd>
+            <code>{{ viewer.subject_name }}</code>
+          </dd>
+        {% endif %}
+        {% if viewer.subject_digest %}
+          <dt>{% trans %}SHA-256 checksum{% endtrans %}</dt>
+          <dd>
+            <code class="code-block code-block--with-copy attestation__checksum"
+                  {% if is_selected %}data-controller="clipboard"{% endif %}>
+              <span data-clipboard-target="source">{{ viewer.subject_digest }}</span>
+              <button type="button"
+                      class="button button--small copy-tooltip copy-tooltip-w"
+                      data-action="clipboard#copy"
+                      data-clipboard-target="tooltip"
+                      data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
+                <i class="fa-regular fa-copy" aria-hidden="true"></i>
+              </button>
+            </code>
+            <a href="{{ request.user_docs_url('/attestations/consuming-attestations/') }}"
+               target="_blank"
+               rel="noopener">{% trans %}Verifying attestations{% endtrans %}</a>
+          </dd>
+        {% endif %}
+        {% if not viewer.subject_name and not viewer.subject_digest %}
+          <dd>
+            {% trans %}No artifact information found{% endtrans %}
+          </dd>
+        {% endif %}
+      </dl>
+    </div>
+  </div>
+</div>
