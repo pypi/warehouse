@@ -17,7 +17,13 @@ from warehouse.attestations.models import (
     PublisherSource,
 )
 from warehouse.authnz import Permissions
-from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GIB, ONE_MIB
+from warehouse.constants import (
+    MAX_FILESIZE,
+    MAX_PROJECT_SIZE,
+    MAXIMUM_AGE_FOR_NEW_UPLOADS,
+    ONE_GIB,
+    ONE_MIB,
+)
 from warehouse.macaroons import caveats
 from warehouse.macaroons.models import Macaroon
 from warehouse.oidc.models import GitHubPublisher
@@ -54,6 +60,27 @@ from ...common.db.packaging import (
     RoleFactory as DBRoleFactory,
     RoleInvitationFactory as DBRoleInvitationFactory,
 )
+
+_RELEASED_AT = datetime.datetime(2024, 3, 1, 12, 0, 0)
+
+
+def _release_with_uploads(*delays):
+    """
+    A release published at `_RELEASED_AT`, with one file per delay after it.
+
+    `packagetype` is pinned because `FileFactory` picks one at random and only
+    one sdist is allowed per release, which would otherwise make a multi-file
+    release fail on some seeds and not others.
+    """
+    release = DBReleaseFactory.create(version="1.0", created=_RELEASED_AT)
+    for index, delay in enumerate(delays):
+        DBFileFactory.create(
+            release=release,
+            filename=f"{release.project.name}-1.0-{index}.whl",
+            packagetype="bdist_wheel",
+            upload_time=_RELEASED_AT + delay,
+        )
+    return release
 
 
 def _release_pair(days_apart=4):
@@ -1887,6 +1914,143 @@ class TestRelease:
 
         assert db_session.query(Description).filter_by(id=description_id).count() == 0
 
+    def test_late_file_status_is_none_without_files(self, db_session):
+        """A release whose files have all been removed has nothing to report."""
+        release = _release_with_uploads(datetime.timedelta(0))
+        for file in release.files:
+            db_session.delete(file)
+        db_session.flush()
+
+        assert release.late_file_status is None
+
+    def test_late_file_status_needs_a_session(self):
+        """
+        An unattached Release raises rather than reporting itself clean.
+
+        `files` is `lazy="dynamic"`, and reading it detached hands back an
+        empty collection, which would otherwise make a release with late files
+        indistinguishable from one without.
+        """
+        with pytest.raises(NoSessionError):
+            _ = Release().late_file_status
+
+    def test_late_file_status_is_cached(self, db_session, query_recorder):
+        """
+        Repeat reads cost one query between them.
+
+        `files` cannot be eagerly loaded, so every uncached read is its own
+        SELECT; a template reading several attributes off the status must not
+        pay for each one.
+        """
+        release = _release_with_uploads(
+            datetime.timedelta(0), datetime.timedelta(days=30)
+        )
+        db_session.flush()
+        assert release.created is not None  # load the release row before counting
+
+        query_recorder.clear()
+        with query_recorder:
+            statuses = [release.late_file_status for _ in range(3)]
+
+        assert len(statuses[0].late_files) == 1
+        assert all(repeat is statuses[0] for repeat in statuses)
+        assert len(query_recorder.queries) == 1, query_recorder.queries
+
+    def test_late_file_status_brackets_the_uploads(self, db_session):
+        """The first and last arrivals bracket the release's files."""
+        release = _release_with_uploads(
+            datetime.timedelta(hours=2),
+            datetime.timedelta(0),
+            datetime.timedelta(days=3),
+        )
+
+        status = release.late_file_status
+
+        assert status.total_files == 3
+        assert status.first_upload == _RELEASED_AT
+        assert status.last_upload == _RELEASED_AT + datetime.timedelta(days=3)
+
+    def test_late_file_status_ignores_punctual_files(self, db_session):
+        """Files arriving inside the window are not late."""
+        release = _release_with_uploads(
+            datetime.timedelta(0),
+            datetime.timedelta(days=1),
+            MAXIMUM_AGE_FOR_NEW_UPLOADS - datetime.timedelta(hours=1),
+        )
+
+        status = release.late_file_status
+
+        assert status.late_files == ()
+
+    def test_late_file_status_finds_a_late_file(self, db_session):
+        """A file past the window is reported, with how long it took to arrive."""
+        release = _release_with_uploads(
+            datetime.timedelta(0),
+            datetime.timedelta(days=30),
+        )
+
+        status = release.late_file_status
+
+        assert status.total_files == 2
+        (late,) = status.late_files
+        assert late.filename == f"{release.project.name}-1.0-1.whl"
+        assert late.upload_time == _RELEASED_AT + datetime.timedelta(days=30)
+        assert late.delay == datetime.timedelta(days=30)
+
+    def test_late_file_status_reports_every_late_file_oldest_first(self, db_session):
+        """Several late files are all reported, ordered by when they arrived."""
+        release = _release_with_uploads(
+            datetime.timedelta(days=90),
+            datetime.timedelta(0),
+            datetime.timedelta(days=20),
+        )
+
+        status = release.late_file_status
+
+        assert [late.delay for late in status.late_files] == [
+            datetime.timedelta(days=20),
+            datetime.timedelta(days=90),
+        ]
+
+    @pytest.mark.parametrize(
+        ("delay", "late"),
+        [
+            (MAXIMUM_AGE_FOR_NEW_UPLOADS, False),
+            (MAXIMUM_AGE_FOR_NEW_UPLOADS + datetime.timedelta(hours=23), True),
+        ],
+    )
+    def test_late_file_status_measures_the_window_to_the_second(
+        self, db_session, delay, late
+    ):
+        """
+        The window is measured to the second.
+
+        A file arriving on the window's last day plus twenty-three hours is
+        late; truncating the delta to whole days would let it pass.
+        """
+        release = _release_with_uploads(datetime.timedelta(0), delay)
+
+        assert bool(release.late_file_status.late_files) is late
+
+    def test_late_file_status_measures_from_the_release(self, db_session):
+        """
+        Deleting a release's original files must not clear the flag from the
+        one it was raised for.
+        """
+        release = _release_with_uploads(
+            datetime.timedelta(0),
+            datetime.timedelta(days=30),
+        )
+        first, _ = sorted(release.files, key=lambda file: file.upload_time)
+        db_session.delete(first)
+        db_session.flush()
+
+        status = release.late_file_status
+
+        assert status.total_files == 1
+        assert len(status.late_files) == 1
+        assert status.first_upload == _RELEASED_AT + datetime.timedelta(days=30)
+
 
 class TestFile:
     def test_requires_python(self, db_session):
@@ -2015,6 +2179,21 @@ class TestFile:
         )
 
         assert rfile.pretty_wheel_tags == ["Source"]
+
+    @pytest.mark.parametrize(
+        ("delay", "expected"),
+        [
+            (datetime.timedelta(0), False),
+            (MAXIMUM_AGE_FOR_NEW_UPLOADS, False),
+            (MAXIMUM_AGE_FOR_NEW_UPLOADS + datetime.timedelta(seconds=1), True),
+        ],
+    )
+    def test_added_late(self, db_session, delay, expected):
+        """A file knows on its own whether it arrived late."""
+        release = _release_with_uploads(delay)
+        (file,) = release.files
+
+        assert file.added_late is expected
 
 
 class TestProjectLimitProperties:

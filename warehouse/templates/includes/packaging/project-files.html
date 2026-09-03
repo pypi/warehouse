@@ -10,7 +10,7 @@
     <p>
       {% trans href='https://packaging.python.org/en/latest/discussions/package-formats/#package-formats', title=gettext('External link') %}For a detailed explanation of source distributions (sdists) and built distributions (wheels), please see the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">package formats documentation</a>.{% endtrans %}
     </p>
-    {% if late_file_count > 0 %}
+    {% if release.late_file_status.late_files %}
       {% include "includes/packaging/security/late-files.html" %}
     {% endif %}
     {% if sdists %}
@@ -43,7 +43,7 @@
             </td>
             <td>{{ file.size|filesizeformat() if file.size else 0|filesizeformat() }}</td>
             <td>
-              {% if (file.upload_time - first_upload).days > maximum_age_for_new_uploads_days %}
+              {% if file.added_late %}
                 <span class="file-info__meta file-info__meta--warning">
                   <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
                   {{ humanize(file.upload_time) }}
@@ -194,7 +194,7 @@
             <span class="file-info__metadata">
               <span class="file-info__meta">{{ file.size|filesizeformat() if file.size else 0|filesizeformat() }}</span>
               <span class="file-info__meta-divider" aria-hidden="true"></span>
-              {% if (file.upload_time - first_upload).days > maximum_age_for_new_uploads_days %}
+              {% if file.added_late %}
                 <span class="file-info__meta file-info__meta--warning">
                   <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
                   {{ humanize(file.upload_time) }}

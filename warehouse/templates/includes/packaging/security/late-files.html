@@ -2,12 +2,12 @@
 <div class="callout-block callout-block--warning">
   <h3 class="callout-block__heading">
     <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
-    {% trans count=late_file_count %}File added late
+    {% trans count=release.late_file_status.late_files|length %}File added late
   {% pluralize %}
     Files added late{% endtrans %}
   </h3>
   <p>
-    {% trans count=late_file_count, days=maximum_age_for_new_uploads_days %}{{ count }} file was uploaded more than {{ days }} days after the first file in this release.
+    {% trans count=release.late_file_status.late_files|length, days=maximum_age_for_new_uploads_days %}{{ count }} file was uploaded more than {{ days }} days after the first file in this release.
   {% pluralize %}
     {{ count }} files were uploaded more than {{ days }} days after the first file in this release.{% endtrans %}
   </p>

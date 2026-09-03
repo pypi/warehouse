@@ -13,7 +13,7 @@
          role="button">{% trans %}Report project as malware{% endtrans %}</a>
     </div>
   </div>
-  {% if late_file_count > 0 %}
+  {% if release.late_file_status.late_files %}
     <h3 class="no-top-margin">{% trans %}Upload timing{% endtrans %}</h3>
     {% set link_to_release_files = true %}
     {% include "includes/packaging/security/late-files.html" %}
