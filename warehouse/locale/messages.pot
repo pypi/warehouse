@@ -1674,8 +1674,8 @@ msgstr ""
 #: warehouse/templates/manage/account/publishing.html:337
 #: warehouse/templates/manage/account/publishing.html:356
 #: warehouse/templates/manage/account/recovery_codes-burn.html:48
-#: warehouse/templates/manage/account/token.html:127
-#: warehouse/templates/manage/account/token.html:152
+#: warehouse/templates/manage/account/token.html:137
+#: warehouse/templates/manage/account/token.html:162
 #: warehouse/templates/manage/account/totp-provision.html:60
 #: warehouse/templates/manage/account/webauthn-provision.html:37
 #: warehouse/templates/manage/organization/activate_subscription.html:22
@@ -2905,7 +2905,7 @@ msgstr ""
 
 #: warehouse/templates/email/team-collaborator-added/body.html:17
 #: warehouse/templates/email/team-collaborator-role-changed/body.html:17
-#: warehouse/templates/manage/account/token.html:145
+#: warehouse/templates/manage/account/token.html:155
 msgid "Permissions"
 msgstr ""
 
@@ -3909,7 +3909,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:141
 #: warehouse/templates/manage/account.html:624
-#: warehouse/templates/manage/account/token.html:150
+#: warehouse/templates/manage/account/token.html:160
 #: warehouse/templates/manage/unverified-account.html:123
 msgid "Scope"
 msgstr ""
@@ -4426,7 +4426,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:779
 #: warehouse/templates/manage/account.html:783
-#: warehouse/templates/manage/account/token.html:168
+#: warehouse/templates/manage/account/token.html:178
 #: warehouse/templates/manage/unverified-account.html:425
 #: warehouse/templates/manage/unverified-account.html:429
 msgid "Project:"
@@ -4730,7 +4730,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account.html:1025
-#: warehouse/templates/manage/account/token.html:177
+#: warehouse/templates/manage/account/token.html:187
 #: warehouse/templates/manage/organization/settings.html:294
 #: warehouse/templates/manage/project/publishing.html:7
 #: warehouse/templates/manage/team/settings.html:60
@@ -5933,7 +5933,7 @@ msgid "Permissions:"
 msgstr ""
 
 #: warehouse/templates/manage/account/token.html:25
-#: warehouse/templates/manage/account/token.html:146
+#: warehouse/templates/manage/account/token.html:156
 msgid "Upload packages"
 msgstr ""
 
@@ -5943,7 +5943,7 @@ msgid "Scope:"
 msgstr ""
 
 #: warehouse/templates/manage/account/token.html:28
-#: warehouse/templates/manage/account/token.html:164
+#: warehouse/templates/manage/account/token.html:174
 msgid "Entire account (all projects)"
 msgstr ""
 
@@ -6023,33 +6023,49 @@ msgstr ""
 #: warehouse/templates/manage/account/token.html:110
 #, python-format
 msgid ""
+"Twine also supports other ways to provide credentials, including keyring "
+"integration. See the <a href=\"%(twine_docs_href)s\">Twine authentication"
+" documentation</a> for details."
+msgstr ""
+
+#: warehouse/templates/manage/account/token.html:115
+#, python-format
+msgid ""
+"When publishing from a supported automated environment, consider using <a"
+" href=\"%(trusted_publishing_href)s\">Trusted Publishing</a> instead of "
+"manually managing API tokens."
+msgstr ""
+
+#: warehouse/templates/manage/account/token.html:120
+#, python-format
+msgid ""
 "For further instructions on how to use this token, <a "
 "href=\"%(href)s\">visit the PyPI help page</a>."
 msgstr ""
 
-#: warehouse/templates/manage/account/token.html:114
+#: warehouse/templates/manage/account/token.html:124
 msgid "Create another token"
 msgstr ""
 
-#: warehouse/templates/manage/account/token.html:125
+#: warehouse/templates/manage/account/token.html:135
 msgid "Token name"
 msgstr ""
 
-#: warehouse/templates/manage/account/token.html:141
+#: warehouse/templates/manage/account/token.html:151
 msgid "What will you use this token for?"
 msgstr ""
 
-#: warehouse/templates/manage/account/token.html:162
+#: warehouse/templates/manage/account/token.html:172
 msgid "Select scope..."
 msgstr ""
 
-#: warehouse/templates/manage/account/token.html:179
+#: warehouse/templates/manage/account/token.html:189
 msgid ""
 "An API token scoped to your entire account will have upload permissions "
 "for all of your current and future projects."
 msgstr ""
 
-#: warehouse/templates/manage/account/token.html:183
+#: warehouse/templates/manage/account/token.html:193
 msgid "Create token"
 msgstr ""
 
