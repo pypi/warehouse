@@ -865,6 +865,99 @@ DynamicFieldsEnum = ENUM(
     name="release_dynamic_fields",
 )
 
+# Hosts whose `/{owner}/{repo}` paths address a git repository, paired with the
+# owner names that host reserves for itself. Deliberately excludes the Pages
+# domains (`*.github.io`, `*.gitlab.io`): a Trusted Publisher verifies those for
+# its own project, but they serve rendered docs rather than a git remote.
+#
+# These cover the public forges only. A self-hosted GitLab is a supported
+# Trusted Publisher issuer, so a repository there is genuinely verifiable and
+# still will not match. Callers ranking on the result get a false negative,
+# never a false positive.
+GITHUB_REPO_HOSTS = {"github.com", "www.github.com"}
+GITLAB_REPO_HOSTS = {"gitlab.com", "www.gitlab.com"}
+
+# gitlab.com serves these as its own pages, so `/{first}/{second}` under them
+# names no repository. GitHub's equivalent list is `github_reserved_names.ALL`.
+GITLAB_RESERVED_NAMES = frozenset(
+    {
+        "-",
+        "admin",
+        "api",
+        "dashboard",
+        "explore",
+        "groups",
+        "help",
+        "profile",
+        "projects",
+        "public",
+        "search",
+        "snippets",
+        "users",
+    }
+)
+
+
+def parse_user_name_and_repo_name(
+    url: str,
+    domains: set[str],
+    reserved_names: typing.Collection[str] | None = None,
+    *,
+    root_only: bool = False,
+) -> tuple[str, str] | None:
+    """
+    Split a repository URL into its owner and repository name.
+
+    Returns `None` unless the URL addresses a repository on one of `domains`,
+    which rules out an unrelated host, a path too short to name a repository, and
+    an owner segment the host reserves for its own pages.
+
+    By default a URL *inside* a repository resolves to that repository, so
+    `github.com/o/r/issues` yields `("o", "r")`. Pass `root_only` to reject it:
+    a caller offering the URL as a git remote needs the repository itself, and
+    Trusted Publisher verification extends to every subpath of the repository.
+    """
+    try:
+        parsed = parse_url(url)
+    except LocationParseError:
+        return None
+    # `host` rather than `netloc`, which carries any explicit port.
+    if parsed.host not in domains:
+        return None
+    segments = parsed.path.strip("/").split("/") if parsed.path else []
+    if len(segments) < 2 or (root_only and len(segments) != 2):
+        return None
+    user_name, repo_name = segments[:2]
+    if reserved_names and user_name in reserved_names:
+        return None
+    repo_name = repo_name.removesuffix(".git")
+    if not (user_name and repo_name):
+        return None
+    return user_name, repo_name
+
+
+REPO_FORGES = (
+    (GITHUB_REPO_HOSTS, GITHUB_RESERVED_NAMES),
+    (GITLAB_REPO_HOSTS, GITLAB_RESERVED_NAMES),
+)
+
+
+def is_repository_root(url: str) -> bool:
+    """
+    Report whether the URL addresses a repository a branch can be pushed to.
+
+    The forge list above is an allowlist, so this also demands a two-segment
+    path, which costs an answer on an allowlisted host: GitLab issues Trusted
+    Publishers for projects under a subgroup, so `gitlab.com/group/subgroup/repo`
+    really does take a push and is reported here as if it did not. Accepting it
+    would give up the only signal separating a repository root from a subpath on
+    GitLab.
+    """
+    return any(
+        parse_user_name_and_repo_name(url, hosts, reserved, root_only=True)
+        for hosts, reserved in REPO_FORGES
+    )
+
 
 class Release(HasObservations, db.Model):
     __tablename__ = "releases"
@@ -1094,24 +1187,14 @@ class Release(HasObservations, db.Model):
         self, domains: set[str], reserved_names: typing.Collection[str] | None = None
     ):
         for url in self.urls_by_verify_status(verified=True).values():
-            try:
-                parsed = parse_url(url)
-            except LocationParseError:
-                continue
-            segments = parsed.path.strip("/").split("/") if parsed.path else []
-            if parsed.netloc in domains and len(segments) >= 2:
-                user_name, repo_name = segments[:2]
-                if reserved_names and user_name in reserved_names:
-                    continue
-                if repo_name.endswith(".git"):
-                    repo_name = repo_name.removesuffix(".git")
-                return user_name, repo_name
+            if pair := parse_user_name_and_repo_name(url, domains, reserved_names):
+                return pair
         return None, None
 
     @property
     def verified_github_user_name_and_repo_name(self):
         return self.verified_user_name_and_repo_name(
-            {"github.com", "www.github.com"}, GITHUB_RESERVED_NAMES
+            GITHUB_REPO_HOSTS, GITHUB_RESERVED_NAMES
         )
 
     @property
@@ -1133,7 +1216,7 @@ class Release(HasObservations, db.Model):
 
     @property
     def verified_gitlab_user_name_and_repo_name(self):
-        return self.verified_user_name_and_repo_name({"gitlab.com", "www.gitlab.com"})
+        return self.verified_user_name_and_repo_name(GITLAB_REPO_HOSTS)
 
     @property
     def verified_gitlab_repository(self):

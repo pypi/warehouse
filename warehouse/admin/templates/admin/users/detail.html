@@ -451,7 +451,12 @@
                   <td>
                     <ul>
                       {% for url in account_recovery.payload["repos"] %}
-                      <li>{{ url[0] }}: <a href="{{ url[1] }}" data-check-link-url="{{ request.camo_url(url[1]) }}" ><i class="fa fa-question"></i> {{ url[1] }}</a></li>
+                      {# Older recoveries stored shorter entries, so index rather than unpack. #}
+                      <li>
+                        {{ url[0] }}: <a href="{{ url[1] }}" data-check-link-url="{{ request.camo_url(url[1]) }}" ><i class="fa fa-question"></i> {{ url[1] }}</a>
+                        {% if url|length > 2 and url[2] %}<span class="badge bg-success">verified</span>
+                        {% elif url|length > 3 and url[3] %}<span class="badge bg-secondary">verified, not pushable</span>{% endif %}
+                      </li>
                       {% endfor %}
                     </ul>
                   </td>
