@@ -9,7 +9,12 @@ export default class extends Controller {
    */
   _getDismissedCookie() {
     const id = this.data.get("identifier");
-    const value = document.cookie.split(";").find(item => item.startsWith(`callout_block_${id}_dismissed=`));
+    // `document.cookie` joins pairs with "; ", so every segment but the first
+    // has a leading space to strip before matching.
+    const value = document.cookie
+      .split(";")
+      .map(item => item.trim())
+      .find(item => item.startsWith(`callout_block_${id}_dismissed=`));
     return value ? value.split("=")[1] : null;
   }
 
@@ -18,10 +23,12 @@ export default class extends Controller {
    * @private
    */
   _setDismissedCookie(value) {
+    let cookie = `callout_block_${this.data.get("identifier")}_dismissed=${value}`;
     if (this.data.get("setting") === "global")
-      document.cookie = `callout_block_${this.data.get("identifier")}_dismissed=${value};path=/`;
-    else
-      document.cookie = `callout_block_${this.data.get("identifier")}_dismissed=${value}`;
+      cookie += ";path=/";
+    if (this.data.get("maxAge"))
+      cookie += `;max-age=${this.data.get("maxAge")}`;
+    document.cookie = cookie;
   }
 
   initialize() {

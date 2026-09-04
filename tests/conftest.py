@@ -408,6 +408,9 @@ def get_app_config(database, nondefaults=None):
         "sessions.secret": "123456",
         "sessions.url": "redis://localhost:0/",
         "statuspage.url": "https://2p66nmmycsj3.statuspage.io",
+        "warehouse.organizations.service_agreement_survey_url": (
+            "https://example.com/service-agreement-survey"
+        ),
         "warehouse.xmlrpc.cache.url": "redis://localhost:0/",
         "terms.revision": "initial",
         "oidc.jwk_cache_url": "redis://localhost:0/",
