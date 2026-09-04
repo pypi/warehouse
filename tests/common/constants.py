@@ -2,18 +2,18 @@
 
 # Pytest Fixture Constants
 
-REMOTE_ADDR = "1.2.3.4"
+REMOTE_ADDR = "192.0.2.1"
 
 """
 Static output of `hashlib.sha256(REMOTE_ADDR.encode("utf8")).hexdigest()`
 Created statically to prevent needing to calculate it every run.
 """
-REMOTE_ADDR_HASHED = "6694f83c9f476da31f5df6bcc520034e7e57d421d247b9d34f49edbfc84a764c"
+REMOTE_ADDR_HASHED = "37fcff24bf62035b2b08020afc08b4fecd4fcffce57ab23518e3561ff0fe76b9"
 
 """
 Output of `hashlib.sha256((REMOTE_ADDR + "pepa").encode("utf8")).hexdigest()`
 """
-REMOTE_ADDR_SALTED = "a69a49383d81404e4b1df297c7baa28e1cd6c4ee1495ed5d0ab165a63a147763"
+REMOTE_ADDR_SALTED = "8db49e1fc2fb3d793fae556d06d09e43cf314ce543ff55004709fcdfcd9ed919"
 
 """
     {

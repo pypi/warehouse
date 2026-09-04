@@ -29,7 +29,7 @@ class TestRateLimiting:
             return None
 
         ratelimited_view = xmlrpc.ratelimit()(view)
-        pyramid_request.remote_addr = "127.0.0.1"
+        pyramid_request.remote_addr = "192.0.2.1"
         stats = [
             WindowStats(
                 amount=3600, window_seconds=3600, remaining=42, resets_in_seconds=10
@@ -60,7 +60,7 @@ class TestRateLimiting:
             pytest.fail("view should not be called")
 
         ratelimited_view = xmlrpc.ratelimit()(view)
-        pyramid_request.remote_addr = "127.0.0.1"
+        pyramid_request.remote_addr = "192.0.2.1"
         fake_rate_limiter = mocker.create_autospec(RateLimiter, instance=True)
         fake_rate_limiter.test.return_value = False
         fake_rate_limiter.hit.return_value = True
@@ -101,7 +101,7 @@ class TestRateLimiting:
             pytest.fail("view should not be called")
 
         ratelimited_view = xmlrpc.ratelimit()(view)
-        pyramid_request.remote_addr = "127.0.0.1"
+        pyramid_request.remote_addr = "192.0.2.1"
         fake_rate_limiter = mocker.create_autospec(RateLimiter, instance=True)
         fake_rate_limiter.test.return_value = False
         fake_rate_limiter.hit.return_value = True

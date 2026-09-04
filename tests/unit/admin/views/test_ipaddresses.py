@@ -52,7 +52,7 @@ class TestIpAddressDetail:
             ip_views.ip_address_detail(db_request)
 
     def test_ip_address_not_found(self, db_request):
-        db_request.matchdict["ip_address"] = "69.69.69.69"
+        db_request.matchdict["ip_address"] = "192.0.2.69"
 
         with pytest.raises(HTTPBadRequest):
             ip_views.ip_address_detail(db_request)
@@ -87,7 +87,7 @@ class TestBanIpAddress:
             ip_views.ban_ip(db_request)
 
     def test_ban_ip_address_not_found(self, db_request):
-        db_request.matchdict["ip_address"] = "69.69.69.69"
+        db_request.matchdict["ip_address"] = "192.0.2.69"
 
         with pytest.raises(HTTPBadRequest):
             ip_views.ban_ip(db_request)
@@ -147,7 +147,7 @@ class TestUnbanIpAddress:
             ip_views.unban_ip(db_request)
 
     def test_unban_ip_address_not_found(self, db_request):
-        db_request.matchdict["ip_address"] = "69.69.69.69"
+        db_request.matchdict["ip_address"] = "192.0.2.69"
 
         with pytest.raises(HTTPBadRequest):
             ip_views.unban_ip(db_request)
