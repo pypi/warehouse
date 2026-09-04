@@ -43,6 +43,7 @@ from warehouse.accounts.interfaces import (
     TokenExpired,
     TokenInvalid,
     TokenMissing,
+    TooManyEmailReputationChecks,
     TooManyEmailsAdded,
     TooManyFailedLogins,
 )
@@ -59,6 +60,7 @@ from warehouse.accounts.models import (
     UserTermsOfServiceEngagement,
     UserUniqueLogin,
     WebAuthn,
+    email_domain,
 )
 from warehouse.email import send_unrecognized_login_email
 from warehouse.events.models import UserAgentInfo
@@ -1281,3 +1283,162 @@ class NullEmailReputationService:
 
     def check_email(self, email: str) -> EmailReputationResult:
         return EmailReputationResult()
+
+
+@implementer(IEmailReputationService)
+class UserCheckEmailReputationService:
+    """
+    Check an email address's reputation with UserCheck.
+
+    See https://www.usercheck.com/docs/api/email-endpoint
+
+    We use the `/email/` endpoint because an address can be disposable on a
+    domain that is not (a throwaway alias on a public provider), and only an
+    address-level check sees those. The address is sent to UserCheck but
+    never logged here: log lines carry the domain only.
+    """
+
+    API_BASE = "https://api.usercheck.com/email"
+
+    def __init__(
+        self,
+        *,
+        session: requests.Session,
+        api_key: str | None,
+        metrics,
+        ratelimiter: IRateLimiter,
+        remote_addr: str | None,
+    ) -> None:
+        self._http = session
+        self._metrics = metrics
+        self._ratelimiter = ratelimiter
+        self._remote_addr = remote_addr
+        self.api_key = api_key
+
+    @classmethod
+    def create_service(
+        cls, _context, request: Request
+    ) -> UserCheckEmailReputationService:
+        return cls(
+            session=request.http,
+            api_key=request.registry.settings.get("email_reputation.api_key"),
+            metrics=request.metrics,
+            ratelimiter=request.find_service(
+                IRateLimiter, name="email.reputation", context=None
+            ),
+            remote_addr=request.remote_addr,
+        )
+
+    @staticmethod
+    def _reported(value) -> bool | None:
+        """Accept only actual booleans; anything else is an unknown signal."""
+        return value if isinstance(value, bool) else None
+
+    def check_email(self, email: str) -> EmailReputationResult | None:
+        domain = email_domain(email)
+
+        if not self.api_key:
+            logger.warning("No UserCheck API key configured")
+            self._metrics.increment(
+                "warehouse.email_reputation.request",
+                tags=["service:usercheck", "result:not_configured"],
+            )
+            return None
+
+        # Every check costs a metered remote request, and the registration
+        # form reaches here unauthenticated, so bound how fast any one client
+        # can make us spend money. The budget is spent atomically, up front,
+        # via hit(): a test-then-spend pair would let a concurrent burst of
+        # requests all pass the test before any of them recorded a spend.
+        # Spending before the remote call also means a repeatedly failing
+        # upstream still consumes budget, bounding how hard we hammer a
+        # failing service. Denial raises instead of failing open: the
+        # limiter is keyed on the caller's own address, and a caller who can
+        # exhaust it at will could otherwise skip the check that gates their
+        # own submissions.
+        if self._remote_addr and not self._ratelimiter.hit(self._remote_addr):
+            logger.warning("Email reputation check rate limited", domain=domain)
+            self._metrics.increment(
+                "warehouse.email_reputation.request",
+                tags=["service:usercheck", "result:ratelimited"],
+            )
+            raise TooManyEmailReputationChecks(
+                resets_in=self._ratelimiter.resets_in(self._remote_addr)
+            )
+
+        try:
+            resp = self._http.get(
+                # safe="" also encodes "/", which is valid in a local part
+                # and would otherwise split the URL path.
+                f"{self.API_BASE}/{urllib.parse.quote(email, safe='')}",
+                headers={"Authorization": f"Bearer {self.api_key}"},
+                timeout=(0.25, 1),
+            )
+            resp.raise_for_status()
+        except requests.RequestException as exc:
+            # Fail open: an unavailable, unauthorized or rate-limited service
+            # must never stop somebody from using their email address. The
+            # exception repr embeds the request URL, and with it the address,
+            # so log only the exception type.
+            status_code = (
+                exc.response.status_code if exc.response is not None else "none"
+            )
+            logger.warning(
+                "Error contacting UserCheck",
+                error=type(exc).__name__,
+                status_code=status_code,
+                domain=domain,
+            )
+            self._metrics.increment(
+                "warehouse.email_reputation.request",
+                tags=[
+                    "service:usercheck",
+                    "result:error",
+                    f"status_code:{status_code}",
+                ],
+            )
+            return None
+
+        try:
+            body = resp.json()
+        except ValueError:
+            body = None
+
+        if not isinstance(body, dict):
+            logger.warning("Unexpected response from UserCheck", domain=domain)
+            self._metrics.increment(
+                "warehouse.email_reputation.request",
+                tags=["service:usercheck", "result:invalid_response"],
+            )
+            return None
+
+        disposable_provider = body.get("disposable_provider")
+        result = EmailReputationResult(
+            mx=self._reported(body.get("mx")),
+            disposable=self._reported(body.get("disposable")),
+            public_domain=self._reported(body.get("public_domain")),
+            relay_domain=self._reported(body.get("relay_domain")),
+            spam=self._reported(body.get("spam")),
+            blocklisted=self._reported(body.get("blocklisted")),
+            disposable_provider=(
+                str(disposable_provider) if disposable_provider else None
+            ),
+        )
+
+        signals = result.signals
+        self._metrics.increment(
+            "warehouse.email_reputation.request",
+            tags=["service:usercheck", "result:success"],
+        )
+        for signal in signals:
+            self._metrics.increment(
+                "warehouse.email_reputation.signal",
+                tags=["service:usercheck", f"signal:{signal}"],
+            )
+        logger.info(
+            "Checked email reputation with UserCheck",
+            domain=domain,
+            signals=signals,
+        )
+
+        return result
