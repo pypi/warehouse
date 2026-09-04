@@ -384,6 +384,7 @@ class TestOrganizationApplicationActions:
             db_request,
             user,
             organization_name=organization.name,
+            organization_type=organization.orgtype,
             message="Welcome!",
         )
         assert db_request.session.pop_flash("success") == [
