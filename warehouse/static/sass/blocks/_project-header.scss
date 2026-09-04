@@ -84,7 +84,7 @@
   }
 }
 
-.banner--quarantined {
+.page-hero--quarantined {
   .project-header__pip-instructions {
     span {
       background-color: color.adjust(colors.$warning-color, $lightness: -5%);
@@ -100,7 +100,7 @@
   }
 }
 
-.banner--yanked {
+.page-hero--yanked {
   .project-header__pip-instructions {
     span {
       background-color: color.adjust(colors.$text-color, $lightness: -5%);
@@ -118,7 +118,7 @@
   }
 }
 
-.banner--archived {
+.page-hero--archived {
   .project-header__pip-instructions {
     span {
       background-color: color.adjust(colors.$base-grey, $lightness: -2%);
@@ -138,7 +138,7 @@
   }
 }
 
-.banner--pre-release {
+.page-hero--pre-release {
   .project-header__pip-instructions {
     span {
       background-color: color.adjust(colors.$primary-color-light-border, $lightness: -5%);

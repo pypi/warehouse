@@ -82,11 +82,11 @@
 @use "blocks/legal-footer";
 @use "blocks/mobile-search-bar";
 @use "blocks/modal";
-@use "blocks/notification-bar";
+@use "blocks/page-hero";
 @use "blocks/org-roles";
 /*rtl:begin:ignore*/
 @use "blocks/organization-snippet";
-@use "blocks/package-snippet";
+@use "blocks/project-snippet";
 /*rtl:end:ignore*/
 @use "blocks/password-strength";
 /*rtl:begin:ignore*/
@@ -299,7 +299,7 @@
 // RTL SUPPORT. See https://rtlcss.com/
 /*rtl:begin:ignore*/
 // fix padding on split layouts
-html[dir="rtl"] .package-snippet .split-layout > :first-child,
+html[dir="rtl"] .project-snippet .split-layout > :first-child,
 html[dir="rtl"] .package-description.split-layout > :first-child {
   padding-left: 0;
   padding-right: grid.$spacing-unit;
