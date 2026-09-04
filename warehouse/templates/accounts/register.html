@@ -210,6 +210,35 @@
       </ul>
     </div>
     <div class="form-group">{{ captcha_html(request, form) }}</div>
+    <div class="callout-block callout-block--danger">
+      <h3 class="callout-block__heading">{% trans %}Important: Prohibited actions put PyPI at risk{% endtrans %}</h3>
+      <p>
+        {% trans title=title %}{{ title }} is critical infrastructure for the Python community, with high volunteer engagement in keeping it secure. Unnecessary violations of our terms waste limited time we could dedicate to securing the ecosystem.{% endtrans %}
+      </p>
+      <ul>
+        <li>
+          {% trans %}PyPI <strong>does not authorize</strong> using our infrastructure for <strong>any kind of security research</strong>, including probing vulnerabilities through dependency confusion or "beacons".{% endtrans %}
+        </li>
+        <li>
+          {% trans %}Prohibited security research includes <strong>bug bounty programs</strong>, <strong>pentesting</strong>, and <strong>red team engagements</strong>, unless explicitly authorized by PyPI administration.{% endtrans %}
+        </li>
+        <li>
+          {% trans %}Violations will result in <strong>immediate account suspension</strong> and may include <strong>removal of all associated projects and files</strong>.{% endtrans %}
+        </li>
+      </ul>
+      <p>
+        {% trans security_page=request.route_path('security') %}If you are a security researcher, please refer to our <a href="{{ security_page }}">published security policy</a> and coordinate through proper disclosure channels.{% endtrans %}
+      </p>
+      <div class="form-group form-group--wide">
+        <label for="acceptable_use">
+          <input type="checkbox"
+                 id="acceptable_use"
+                 name="acceptable_use"
+                 required="required">
+          {% trans %}I assert that I will not use this account for security research or testing.{% endtrans %}
+        </label>
+      </div>
+    </div>
     <input type="submit"
            value="{% trans %}Create account{% endtrans %}"
            class="button button--primary"
