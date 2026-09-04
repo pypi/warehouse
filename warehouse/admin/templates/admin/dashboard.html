@@ -8,98 +8,67 @@
   <h2>Organizations</h2>
   <div class="row">
     <div class="col-lg-4 col-6">
-      <div class="small-box bg-gradient-info">
-        <div class="inner">
-          <h3>{{ organizations_count.Total }} Approved</h3>
-          <h4>Community: {{ organizations_count.Community }}</h4>
-          <h4>Company : {{ organizations_count.Company }}</h4>
-        </div>
-        <div class="icon">
-          <i class="fa-solid fa-people-group"></i>
-        </div>
-        <a href="{{ request.route_path("admin.organization.list") }}"
-           class="small-box-footer">
-          View All <i class="fas fa-arrow-circle-right"></i>
-        </a>
-      </div>
+      {% component "admin.stat_card",
+         color="bg-gradient-info",
+         value=organizations_count.Total ~ " Approved",
+         sublines=["Community: " ~ organizations_count.Community,
+                   "Company : " ~ organizations_count.Company],
+         icon="fa-people-group",
+         footer_url=request.route_path("admin.organization.list") %}
     </div>
     <div class="col-lg-4 col-6">
-      <div class="small-box bg-gradient-purple">
-        <div class="inner">
-          <h3>{{ organization_applications_count.submitted }} To Review</h3>
-          <h4>Awaiting Response: {{ organization_applications_count.moreinformationneeded }}</h4>
-          <h4>Deferred: {{ organization_applications_count.deferred }}</h4>
-        </div>
-        <div class="icon">
-          <i class="fa-solid fa-inbox"></i>
-        </div>
-        <a href="{{ request.route_path("admin.organization_application.list") }}"
-           class="small-box-footer">
-          View All Reviewable <i class="fas fa-arrow-circle-right"></i>
-        </a>
-      </div>
+      {% component "admin.stat_card",
+         color="bg-gradient-purple",
+         value=organization_applications_count.submitted ~ " To Review",
+         sublines=["Awaiting Response: " ~ organization_applications_count.moreinformationneeded,
+                   "Deferred: " ~ organization_applications_count.deferred],
+         icon="fa-inbox",
+         footer_url=request.route_path("admin.organization_application.list"),
+         footer_text="View All Reviewable" %}
     </div>
   </div>
   <h3>Company Orgs</h3>
   <div class="row">
     <div class="col-lg-4 col-6">
-      <div class="small-box bg-gradient-success">
-        <div class="inner">
-          <h3>{{ active_company_organizations }} Subscribed</h3>
-          <h4>With {{ active_company_organization_users }} Users</h4>
-          <h4>${{ active_company_organization_users * 5 }} / mo</h4>
-        </div>
-        <div class="icon">
-          <i class="fa-solid fa-money-bill-trend-up"></i>
-        </div>
-      </div>
+      {% component "admin.stat_card",
+         color="bg-gradient-success",
+         value=active_company_organizations ~ " Subscribed",
+         sublines=["With " ~ active_company_organization_users ~ " Users",
+                   "$" ~ (active_company_organization_users * 5) ~ " / mo"],
+         icon="fa-money-bill-trend-up" %}
     </div>
   </div>
   <h3>Organization Utilization</h3>
   <div class="row">
     <div class="col-lg-4 col-6">
-      <div class="small-box bg-gradient-teal utilization-card">
-        <div class="inner">
-          <h3>{{ orgs_with_projects.Total }} With Projects</h3>
-          <h4>Community: {{ orgs_with_projects.get('Community', 0) }}</h4>
-          <h4>Company: {{ orgs_with_projects.get('Company', 0) }}</h4>
-        </div>
-        <div class="icon">
-          <i class="fa-solid fa-folder-open"></i>
-        </div>
-        <i class="fa fa-info-circle info-icon" title="Organizations that have at least one project"></i>
-      </div>
+      {% component "admin.stat_card",
+         color="bg-gradient-teal utilization-card",
+         value=orgs_with_projects.Total ~ " With Projects",
+         sublines=["Community: " ~ orgs_with_projects.get('Community', 0),
+                   "Company: " ~ orgs_with_projects.get('Company', 0)],
+         icon="fa-folder-open",
+         tooltip="Organizations that have at least one project" %}
     </div>
     <div class="col-lg-4 col-6">
-      <div class="small-box bg-gradient-teal utilization-card">
-        <div class="inner">
-          <h3>{{ orgs_with_multiple_members.Total }} With Members</h3>
-          <h4>Community: {{ orgs_with_multiple_members.get('Community', 0) }}</h4>
-          <h4>Company: {{ orgs_with_multiple_members.get('Company', 0) }}</h4>
-        </div>
-        <div class="icon">
-          <i class="fa-solid fa-users"></i>
-        </div>
-        <i class="fa fa-info-circle info-icon" title="Organizations with more than 1 member"></i>
-      </div>
+      {% component "admin.stat_card",
+         color="bg-gradient-teal utilization-card",
+         value=orgs_with_multiple_members.Total ~ " With Members",
+         sublines=["Community: " ~ orgs_with_multiple_members.get('Community', 0),
+                   "Company: " ~ orgs_with_multiple_members.get('Company', 0)],
+         icon="fa-users",
+         tooltip="Organizations with more than 1 member" %}
     </div>
   </div>
   <div class="row">
     {% if malware_reports_count %}
       <div class="col-lg-4 col-6">
-        <div class="small-box bg-gradient-warning">
-          <div class="inner">
-            <h3>{{ malware_reports_count }}</h3>
-            <p>Open Malware Reports</p>
-          </div>
-          <div class="icon">
-            <i class="fa-solid fa-dumpster-fire"></i>
-          </div>
-          <a href="{{ request.route_path("admin.malware_reports.list") }}"
-             class="small-box-footer">
-            More info <i class="fas fa-arrow-circle-right"></i>
-          </a>
-        </div>
+        {% component "admin.stat_card",
+           color="bg-gradient-warning",
+           value=malware_reports_count | string,
+           description="Open Malware Reports",
+           icon="fa-dumpster-fire",
+           footer_url=request.route_path("admin.malware_reports.list"),
+           footer_text="More info" %}
       </div>
     {% endif %}
   </div>

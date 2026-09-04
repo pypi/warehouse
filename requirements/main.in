@@ -1,3 +1,7 @@
+# NOTE: pyramid-components is a runtime dependency of warehouse.admin, but it
+#       lives in this repo (./pyramid_components) rather than on an index, so it
+#       cannot be pinned here: pip-compile has no hashes for a local path. The
+#       Dockerfile installs it editable.
 alembic>=1.18.5
 alembic-postgresql-enum
 Automat
