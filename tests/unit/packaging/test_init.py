@@ -18,6 +18,7 @@ from warehouse.packaging.models import File, Project, Release, Role
 from warehouse.packaging.services import project_service_factory
 from warehouse.packaging.tasks import (
     check_file_cache_tasks_outstanding,
+    delete_orphaned_descriptions,
     reconcile_file_storages,
     update_description_html,
 )
@@ -164,6 +165,10 @@ def test_includeme(monkeypatch, mocker):
     )
     assert (
         mocker.call(crontab(minute="*/5"), update_description_html)
+        in config.add_periodic_task.call_args_list
+    )
+    assert (
+        mocker.call(crontab(minute="*/5"), delete_orphaned_descriptions)
         in config.add_periodic_task.call_args_list
     )
     assert (
