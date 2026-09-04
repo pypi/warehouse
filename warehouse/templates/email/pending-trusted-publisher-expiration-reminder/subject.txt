@@ -2,4 +2,4 @@
 
 {% extends "email/_base/subject.txt" %}
 
-{% block subject %}Pending trusted publisher for {{ project_name }} expiring soon{% endblock %}
+{% block subject %}Your pending trusted publisher for "{{ project_name }}" expires in {{ days_remaining }} days{% endblock %}

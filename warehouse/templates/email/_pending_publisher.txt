@@ -1,0 +1,16 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% macro pending_publisher_manage_url(request, publisher) -%}
+  {%- set domain = request.registry.settings.get('warehouse.domain') -%}
+  {%- if publisher.pypi_organization -%}
+    {{ request.route_url('manage.organization.publishing', organization_name=publisher.pypi_organization.name, _host=domain) }}
+  {%- else -%}
+    {{ request.route_url('manage.account.publishing', _host=domain) }}
+  {%- endif -%}
+{%- endmacro %}
+{% macro pending_publisher_specifics(publisher) -%}
+  {%- if publisher.publisher_name == "GitHub" %} ({{ publisher.repository }} / {{ publisher.workflow_filename }})
+  {%- elif publisher.publisher_name == "GitLab" %} ({{ publisher.project_path }} / {{ publisher.workflow_filepath }})
+  {%- elif publisher.publisher_name == "Google" %} ({{ publisher.email }})
+  {%- elif publisher.publisher_name == "ActiveState" %} ({{ publisher.organization }} / {{ publisher.project }})
+  {%- endif -%}
+{%- endmacro %}

@@ -1,10 +1,20 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 {% extends "email/_base/body.html" %}
+{% from "email/_pending_publisher.txt" import pending_publisher_manage_url, pending_publisher_specifics %}
+{% set manage_url = pending_publisher_manage_url(request, publisher) %}
 {% block content %}
   <p>
-    You registered a pending trusted publisher for a project
-    (<strong>{{ project_name }}</strong>), but it has expired because the
-    project was not created within {{ days }} days.
+    The pending trusted publisher you registered on <strong>{{ created_date }}</strong>
+    expired on <strong>{{ expiry_date }}</strong> after {{ days }} days unused, and
+    has been removed.
   </p>
-  <p>If you still want to use this trusted publisher, you can register it again.</p>
+  <ul>
+    <li>project: {{ project_name }}</li>
+    <li>publisher: {{ publisher.publisher_name }}{{ pending_publisher_specifics(publisher) }}</li>
+  </ul>
+  <p>
+    Still want it? <a href="{{ manage_url }}">Register a new one here</a>. No other
+    action is needed.
+  </p>
+  <p>PyPI will never ask for your password or 2FA codes by email.</p>
 {% endblock %}

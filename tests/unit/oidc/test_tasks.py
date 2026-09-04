@@ -11,14 +11,17 @@ from warehouse.oidc.models import PendingOIDCPublisher
 from warehouse.oidc.tasks import (
     PENDING_PUBLISHER_EXPIRY_DAYS,
     PENDING_PUBLISHER_REMINDER_DAYS,
+    _cached_org_recipients,
     compute_oidc_metrics,
     delete_expired_oidc_macaroons,
     delete_expired_pending_publishers,
     pending_publisher_cutoff,
     send_pending_publisher_expiration_reminders,
 )
+from warehouse.organizations.models import OrganizationRoleType
 
 from ...common.db.oidc import GitHubPublisherFactory, PendingGitHubPublisherFactory
+from ...common.db.organizations import OrganizationFactory, OrganizationRoleFactory
 from ...common.db.packaging import (
     FileEventFactory,
     FileFactory,
@@ -26,6 +29,25 @@ from ...common.db.packaging import (
     ReleaseFactory,
     UserFactory,
 )
+
+
+def _organization_with_owner_and_manager():
+    """Create an organization with one owner, one manager, and one member.
+
+    Returns (organization, owner_role, manager_role) -- the member role is
+    created only to prove members are excluded from notifications.
+    """
+    organization = OrganizationFactory.create()
+    owner_role = OrganizationRoleFactory.create(
+        organization=organization, role_name=OrganizationRoleType.Owner
+    )
+    manager_role = OrganizationRoleFactory.create(
+        organization=organization, role_name=OrganizationRoleType.Manager
+    )
+    OrganizationRoleFactory.create(
+        organization=organization, role_name=OrganizationRoleType.Member
+    )
+    return organization, owner_role, manager_role
 
 
 def test_compute_oidc_metrics(db_request, metrics):
@@ -212,8 +234,9 @@ def test_delete_expired_pending_publishers(db_request, metrics, monkeypatch):
     assert send_email.calls == [
         pretend.call(
             db_request,
-            expired_publisher.added_by,
+            {expired_publisher.added_by},
             project_name="expired-project",
+            publisher=expired_publisher,
             days=PENDING_PUBLISHER_EXPIRY_DAYS,
         ),
     ]
@@ -239,6 +262,70 @@ def test_delete_expired_pending_publishers(db_request, metrics, monkeypatch):
     assert metrics.gauge.calls == [
         pretend.call("warehouse.oidc.expired_pending_publishers_deleted", 1),
     ]
+
+
+def test_delete_expired_pending_publishers_organization_scoped(
+    db_request, metrics, monkeypatch
+):
+    """
+    Org-scoped pending publishers also notify the organization's owners and
+    managers, not just the user who registered it.
+    """
+    send_email = pretend.call_recorder(lambda *a, **kw: None)
+    monkeypatch.setattr(
+        "warehouse.oidc.tasks.send_pending_trusted_publisher_expired_email",
+        send_email,
+    )
+
+    organization, owner_role, manager_role = _organization_with_owner_and_manager()
+
+    expired_publisher = PendingGitHubPublisherFactory.create(
+        project_name="expired-org-project",
+        organization_id=organization.id,
+        created=pending_publisher_cutoff(PENDING_PUBLISHER_EXPIRY_DAYS)
+        - datetime.timedelta(seconds=1),
+    )
+
+    delete_expired_pending_publishers(db_request)
+
+    assert send_email.calls == [
+        pretend.call(
+            db_request,
+            {expired_publisher.added_by, owner_role.user, manager_role.user},
+            project_name="expired-org-project",
+            publisher=expired_publisher,
+            days=PENDING_PUBLISHER_EXPIRY_DAYS,
+        ),
+    ]
+
+
+def test_cached_org_recipients_no_organization(db_request):
+    """A publisher with no organization has no org recipients to cache."""
+    publisher = PendingGitHubPublisherFactory.create()
+
+    assert _cached_org_recipients(publisher, {}) is None
+
+
+def test_cached_org_recipients_memoizes_per_organization(db_request):
+    """
+    Publishers scoped to the same organization share one cached recipient
+    set, instead of re-querying that organization's owners/managers once per
+    publisher.
+    """
+    organization, owner_role, manager_role = _organization_with_owner_and_manager()
+    first_publisher = PendingGitHubPublisherFactory.create(
+        organization_id=organization.id
+    )
+    second_publisher = PendingGitHubPublisherFactory.create(
+        organization_id=organization.id
+    )
+    cache: dict = {}
+
+    first_result = _cached_org_recipients(first_publisher, cache)
+    second_result = _cached_org_recipients(second_publisher, cache)
+
+    assert first_result == {owner_role.user, manager_role.user}
+    assert second_result is first_result
 
 
 def test_delete_expired_pending_publishers_none_expired(
@@ -289,9 +376,11 @@ def test_send_pending_publisher_expiration_reminders(db_request, metrics, monkey
     assert send_email.calls == [
         pretend.call(
             db_request,
-            needs_reminder.added_by,
+            {needs_reminder.added_by},
             project_name="needs-reminder",
+            publisher=needs_reminder,
             days_remaining=PENDING_PUBLISHER_REMINDER_DAYS,
+            expiry_days=PENDING_PUBLISHER_EXPIRY_DAYS,
         ),
     ]
 
@@ -301,6 +390,44 @@ def test_send_pending_publisher_expiration_reminders(db_request, metrics, monkey
 
     assert metrics.gauge.calls == [
         pretend.call("warehouse.oidc.pending_publisher_expiration_reminders_sent", 1),
+    ]
+
+
+def test_send_pending_publisher_expiration_reminders_organization_scoped(
+    db_request, metrics, monkeypatch
+):
+    """
+    Org-scoped pending publishers also notify the organization's owners and
+    managers, not just the user who registered it.
+    """
+    send_email = pretend.call_recorder(lambda *a, **kw: None)
+    monkeypatch.setattr(
+        "warehouse.oidc.tasks.send_pending_trusted_publisher_expiration_reminder_email",
+        send_email,
+    )
+
+    organization, owner_role, manager_role = _organization_with_owner_and_manager()
+
+    reminder_cutoff = pending_publisher_cutoff(
+        PENDING_PUBLISHER_EXPIRY_DAYS - PENDING_PUBLISHER_REMINDER_DAYS
+    )
+    needs_reminder = PendingGitHubPublisherFactory.create(
+        project_name="needs-reminder-org",
+        organization_id=organization.id,
+        created=reminder_cutoff - datetime.timedelta(seconds=1),
+    )
+
+    send_pending_publisher_expiration_reminders(db_request)
+
+    assert send_email.calls == [
+        pretend.call(
+            db_request,
+            {needs_reminder.added_by, owner_role.user, manager_role.user},
+            project_name="needs-reminder-org",
+            publisher=needs_reminder,
+            days_remaining=PENDING_PUBLISHER_REMINDER_DAYS,
+            expiry_days=PENDING_PUBLISHER_EXPIRY_DAYS,
+        ),
     ]
 
 

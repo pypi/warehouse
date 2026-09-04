@@ -1,12 +1,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
+from datetime import UTC, datetime, timedelta
+
 import pretend
 import psycopg
 import pytest
 
+from tests.common.db.accounts import UserFactory
 from tests.common.db.oidc import PendingGitHubPublisherFactory
+from tests.common.db.organizations import OrganizationFactory, OrganizationRoleFactory
 from warehouse.oidc import errors
 from warehouse.oidc.models import _core
+from warehouse.organizations.models import OrganizationRoleType
 
 
 def test_check_claim_binary():
@@ -45,6 +50,62 @@ class TestPendingOIDCPublisher:
         publisher = PendingGitHubPublisherFactory(project_name=valid_project_name)
 
         assert publisher.project_name == valid_project_name
+
+    def test_expires_at(self, db_session):
+        publisher = PendingGitHubPublisherFactory()
+
+        assert publisher.expires_at == publisher.created + timedelta(
+            days=_core.PENDING_PUBLISHER_EXPIRY_DAYS
+        )
+
+    def test_days_until_expiry(self, db_session):
+        publisher = PendingGitHubPublisherFactory()
+        publisher.created = datetime.now(UTC).replace(tzinfo=None) - timedelta(days=10)
+
+        assert publisher.days_until_expiry == _core.PENDING_PUBLISHER_EXPIRY_DAYS - 10
+
+    def test_days_until_expiry_clamped_at_zero(self, db_session):
+        publisher = PendingGitHubPublisherFactory()
+        publisher.created = datetime.now(UTC).replace(tzinfo=None) - timedelta(days=100)
+
+        assert publisher.days_until_expiry == 0
+
+    def test_notification_recipients_no_organization(self, db_session):
+        publisher = PendingGitHubPublisherFactory()
+
+        assert publisher.notification_recipients() == {publisher.added_by}
+
+    def test_notification_recipients_organization_scoped(self, db_session):
+        organization = OrganizationFactory.create()
+        owner_role = OrganizationRoleFactory.create(
+            organization=organization, role_name=OrganizationRoleType.Owner
+        )
+        manager_role = OrganizationRoleFactory.create(
+            organization=organization, role_name=OrganizationRoleType.Manager
+        )
+        # A member should NOT be included.
+        OrganizationRoleFactory.create(
+            organization=organization, role_name=OrganizationRoleType.Member
+        )
+        publisher = PendingGitHubPublisherFactory(organization_id=organization.id)
+
+        assert publisher.notification_recipients() == {
+            publisher.added_by,
+            owner_role.user,
+            manager_role.user,
+        }
+
+    def test_notification_recipients_uses_precomputed_org_recipients(self, db_session):
+        organization = OrganizationFactory.create()
+        publisher = PendingGitHubPublisherFactory(organization_id=organization.id)
+        other_user = UserFactory.create()
+
+        # A precomputed org_recipients set is trusted as-is, instead of
+        # re-querying the organization's owners/managers.
+        assert publisher.notification_recipients(org_recipients={other_user}) == {
+            publisher.added_by,
+            other_user,
+        }
 
 
 class TestOIDCPublisher:

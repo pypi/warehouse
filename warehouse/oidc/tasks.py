@@ -15,14 +15,15 @@ from warehouse.email import (
 )
 from warehouse.events.tags import EventTag
 from warehouse.macaroons.models import Macaroon
-from warehouse.oidc.models import OIDCPublisher, PendingOIDCPublisher
+from warehouse.oidc.models import (
+    PENDING_PUBLISHER_EXPIRY_DAYS,
+    OIDCPublisher,
+    PendingOIDCPublisher,
+)
 from warehouse.packaging.models import File, Project, Release
 
 if typing.TYPE_CHECKING:
     from pyramid.request import Request
-
-# Pending publishers expire after this many days.
-PENDING_PUBLISHER_EXPIRY_DAYS = 30
 
 # Pending publishers receive a reminder email this many days before expiry.
 PENDING_PUBLISHER_REMINDER_DAYS = 5
@@ -34,6 +35,25 @@ def pending_publisher_cutoff(days: int) -> datetime:
     Returned as naive UTC to match the naive `created` column for in-Python comparisons.
     """
     return datetime.now(tz=UTC).replace(tzinfo=None) - timedelta(days=days)
+
+
+def _cached_org_recipients(publisher: PendingOIDCPublisher, cache: dict) -> set | None:
+    """
+    Return the owners and managers of a pending publisher's organization, or
+    `None` if it isn't scoped to one.
+
+    Memoized per organization ID so that a batch containing several pending
+    publishers scoped to the same organization only queries that
+    organization's roles once, rather than once per publisher.
+    """
+    if publisher.pypi_organization is None:
+        return None
+    if publisher.organization_id not in cache:
+        organization = publisher.pypi_organization
+        cache[publisher.organization_id] = set(organization.owners) | set(
+            organization.managers
+        )
+    return cache[publisher.organization_id]
 
 
 @tasks.task(ignore_result=True, acks_late=True)
@@ -119,11 +139,15 @@ def delete_expired_pending_publishers(request: Request) -> None:
         select(PendingOIDCPublisher).where(PendingOIDCPublisher.created < cutoff)
     ).all()
 
+    org_recipients_cache: dict = {}
     for publisher in expired_publishers:
         send_pending_trusted_publisher_expired_email(
             request,
-            publisher.added_by,
+            publisher.notification_recipients(
+                org_recipients=_cached_org_recipients(publisher, org_recipients_cache)
+            ),
             project_name=publisher.project_name,
+            publisher=publisher,
             days=PENDING_PUBLISHER_EXPIRY_DAYS,
         )
         publisher.added_by.record_event(
@@ -163,12 +187,17 @@ def send_pending_publisher_expiration_reminders(request: Request) -> None:
         )
     ).all()
 
+    org_recipients_cache: dict = {}
     for publisher in publishers:
         send_pending_trusted_publisher_expiration_reminder_email(
             request,
-            publisher.added_by,
+            publisher.notification_recipients(
+                org_recipients=_cached_org_recipients(publisher, org_recipients_cache)
+            ),
             project_name=publisher.project_name,
+            publisher=publisher,
             days_remaining=PENDING_PUBLISHER_REMINDER_DAYS,
+            expiry_days=PENDING_PUBLISHER_EXPIRY_DAYS,
         )
         publisher.expiration_reminded = True
 
