@@ -71,6 +71,7 @@
           <tr>
             <th scope="col">Created</th>
             <th scope="col">User</th>
+            <th scope="col">Frozen</th>
             <th scope="col">Status</th>
             <th scope="col">Device Information</th>
           </tr>
@@ -80,6 +81,7 @@
           <tr>
             <td>{{ login.created }}</td>
             <td><a href="{{ request.route_path('admin.user.detail', username=login.user.username ) }}">{{ login.user.username }}</a></td>
+            <td>{% if login.user.is_frozen %}<i class="fa fa-check text-red"></i>{% endif %}</td>
             <td>{{ login.status.value }}</td>
             <td>{{ login.device_information }}</td>
           </tr>

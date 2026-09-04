@@ -3,9 +3,14 @@
 {% block title %}
   {% trans username=user.username %}Profile of {{ username }}{% endtrans %}
 {% endblock %}
+{# Brand-new accounts are kept out of search results and are not lent the
+ # official PyPI card, on the same terms as brand-new projects. One flag
+ # drives both, so the two cannot drift apart. #}
+{% set within_trust_window = user.date_joined|is_recent %}
 {% block extra_meta %}
-  {% if user.date_joined|is_recent %}<meta name="googlebot" content="noindex">{% endif %}
+  {% if within_trust_window %}<meta name="googlebot" content="noindex">{% endif %}
 {% endblock %}
+{% block preview_image %}{{ no_preview_image() if within_trust_window else super() }}{% endblock %}
 {% block canonical_url %}{{ request.canonical_url(username=user.username) }}{% endblock %}
 {% block content %}
   <div class="horizontal-section horizontal-section--medium">

@@ -7,6 +7,11 @@
   {% trans organization_name=organization.name %}Manage '{{ organization_name }}' settings{% endtrans %}
 {% endblock %}
 {% block main %}
+  {% if organization.orgtype == OrganizationType.Company %}
+    {% with company_organizations=[organization] %}
+      {% include "warehouse:templates/includes/manage/company-org-survey-callout.html" %}
+    {% endwith %}
+  {% endif %}
   <h2>{% trans %}Organization settings{% endtrans %}</h2>
   {{ form_error_anchor(save_organization_form) }}
   <section id="organization-details">

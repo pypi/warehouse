@@ -5,6 +5,7 @@ from celery.schedules import crontab
 from warehouse.accounts.interfaces import (
     IDomainStatusService,
     IEmailBreachedService,
+    IEmailReputationService,
     IPasswordBreachedService,
     ITokenService,
     IUserService,
@@ -25,6 +26,7 @@ from warehouse.accounts.services import (
     HaveIBeenPwnedPasswordBreachedService,
     NullDomainStatusService,
     NullEmailBreachedService,
+    NullEmailReputationService,
     NullPasswordBreachedService,
     TokenServiceFactory,
     database_login_factory,
@@ -134,6 +136,17 @@ def includeme(config):
         domain_status_class.create_service, IDomainStatusService
     )
 
+    # Register our email reputation service, the third tier of email checks
+    # after the static and database blocklists.
+    email_reputation_class = config.maybe_dotted(
+        config.registry.settings.get(
+            "email_reputation.backend", NullEmailReputationService
+        )
+    )
+    config.register_service_factory(
+        email_reputation_class.create_service, IEmailReputationService
+    )
+
     # Register GitHub OAuth service for account associations.
     github_oauth_class = config.maybe_dotted(
         config.registry.settings["github.oauth.backend"]
@@ -196,6 +209,14 @@ def includeme(config):
         "warehouse.account.email_add_ratelimit_string"
     )
     config.register_rate_limiter(email_add_ratelimit_string, "email.add")
+    email_change_ratelimit_string = config.registry.settings.get(
+        "warehouse.account.email_change_ratelimit_string"
+    )
+    config.register_rate_limiter(email_change_ratelimit_string, "email.change")
+    email_reputation_ratelimit_string = config.registry.settings.get(
+        "warehouse.account.email_reputation_ratelimit_string"
+    )
+    config.register_rate_limiter(email_reputation_ratelimit_string, "email.reputation")
     password_reset_ratelimit_string = config.registry.settings.get(
         "warehouse.account.password_reset_ratelimit_string"
     )

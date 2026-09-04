@@ -91,6 +91,21 @@ class ReleaseFactory(WarehouseFactory):
     description = factory.SubFactory(DescriptionFactory)
 
 
+class ReleaseObservationFactory(WarehouseFactory):
+    class Meta:
+        model = Release.Observation
+
+    related = factory.SubFactory(ReleaseFactory)
+    related_name = factory.LazyAttribute(lambda o: repr(o.related))
+    observer = factory.SubFactory(ObserverFactory)
+
+    kind = factory.Faker(
+        "random_element", elements=[kind.value[1] for kind in ObservationKind]
+    )
+    payload = factory.Faker("json")
+    summary = factory.Faker("paragraph")
+
+
 class FileFactory(WarehouseFactory):
     class Meta:
         model = File
@@ -145,6 +160,8 @@ class ProvenanceFactory(WarehouseFactory):
         predicate_types = None
         repository = "example-org/example"
         workflow = "release.yml"
+        # Defaults to a GitHub publisher built from `repository` and `workflow`.
+        publisher = None
 
     file = factory.SubFactory(FileFactory)
     provenance = factory.LazyAttribute(
@@ -156,6 +173,7 @@ class ProvenanceFactory(WarehouseFactory):
                 o.repository,
                 o.workflow,
                 o.file.release.version,
+                o.publisher,
             )
             if o.predicate_types
             else fake.json()

@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
+from itertools import groupby
+
 from celery.schedules import crontab
 from sqlalchemy import true
 
@@ -8,7 +10,33 @@ from warehouse.sponsors.tasks import update_pypi_sponsors
 
 
 def _sponsors(request):
-    return request.db.query(Sponsor).filter(Sponsor.is_active == true()).all()
+    """Return active sponsors grouped and ordered for template rendering."""
+    sponsors = (
+        request.db.query(Sponsor)
+        .filter(Sponsor.is_active == true())
+        .order_by(Sponsor.level_order, Sponsor.name)
+        .all()
+    )
+
+    infrastructure = [s for s in sponsors if s.infra_sponsor]
+    footer = [
+        {"tier": tier, "sponsors": list(group)}
+        for tier, group in groupby(
+            (s for s in sponsors if s.footer and not s.infra_sponsor),
+            key=lambda s: s.level_name,
+        )
+    ]
+
+    if infrastructure:
+        footer.append({"tier": None, "sponsors": infrastructure})
+
+    return {
+        "all": sponsors,
+        "psf": [s for s in sponsors if s.psf_sponsor],
+        "infrastructure": infrastructure,
+        "one_time": [s for s in sponsors if s.one_time],
+        "footer": footer,
+    }
 
 
 def includeme(config):

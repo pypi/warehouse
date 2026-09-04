@@ -24,6 +24,17 @@ table.dataTable {
   max-width: 30em;
 }
 
+/* Tabulator replaces the <table> with divs, so the rule above cannot reach its
+   cells, and its own stylesheet clips each one to a single line. Wrap instead:
+   the columns capped at `maxInitialWidth` are the payload and caveat blobs
+   admins are on the page to read. `anywhere` breaks an unspaced token — a
+   base64 caveat, a long URL — rather than letting it set the column width. */
+.tabulator-cell {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+}
+
 .preserve-line-breaks {
   white-space: pre-line;
 }

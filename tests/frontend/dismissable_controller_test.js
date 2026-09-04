@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-/* global expect, beforeEach, describe, it */
+/* global expect, beforeEach, describe, it, jest */
 
 import { Application } from "@hotwired/stimulus";
 import DismissableController from "../../warehouse/static/js/warehouse/controllers/dismissable_controller";
@@ -42,6 +42,40 @@ describe("Dismissable controller", () => {
       const el = document.getElementById("element");
       expect(el).toHaveClass("callout-block--dismissed");
       expect(document.cookie).toContain("callout_block_settings_dismissed=1");
+    });
+  });
+
+  describe("cookie is present alongside other cookies", function () {
+    it("the element is dismissed", async function () {
+      document.cookie = "user_id__insecure=deadbeef";
+      document.cookie = "callout_block_shared_dismissed=1";
+      // Not the first pair, so this segment carries a leading space.
+      expect(document.cookie).toContain("; callout_block_shared_dismissed=1");
+
+      document.body.innerHTML = `
+  <div id="shared" class="callout-block" data-controller="dismissable" data-dismissable-identifier="shared"></div>
+      `;
+      const application = Application.start();
+      application.register("dismissable", DismissableController);
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      expect(document.getElementById("shared")).toHaveClass("callout-block--dismissed");
+    });
+  });
+
+  describe("cookie attributes", function () {
+    it("scopes globally and sets a lifetime when configured", function () {
+      const el = document.getElementById("element");
+      el.setAttribute("data-dismissable-setting", "global");
+      el.setAttribute("data-dismissable-max-age", "15552000");
+
+      const setCookie = jest.spyOn(Document.prototype, "cookie", "set");
+      document.getElementById("dismiss").click();
+
+      expect(setCookie).toHaveBeenCalledWith(
+        "callout_block_settings_dismissed=1;path=/;max-age=15552000",
+      );
+      setCookie.mockRestore();
     });
   });
 

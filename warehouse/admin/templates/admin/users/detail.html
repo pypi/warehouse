@@ -8,6 +8,7 @@
 {% set perms_admin_users_write = request.has_permission(Permissions.AdminUsersWrite) %}
 {% set perms_admin_users_email_write = request.has_permission(Permissions.AdminUsersEmailWrite) %}
 {% set perms_admin_users_account_recovery_write = request.has_permission(Permissions.AdminUsersAccountRecoveryWrite) %}
+{% set perms_admin_users_export = request.has_permission(Permissions.AdminUsersExport) %}
 
 {% macro render_field(label, field, input_id, placeholder=None, class=None, permission=perms_admin_users_write) %}
 <div class="form-group row{% if field.errors %} has-error{% endif %}">
@@ -131,6 +132,11 @@
             <button type="button" class="btn btn-block btn-info" data-toggle="modal" data-target="#userFilesModal" id="userFilesBtn">
               <i class="icon fa fa-file"></i> List all files
             </button>
+            {% if perms_admin_users_export %}
+            <a href="{{ request.route_path('admin.user.export', username=user.username) }}" role="button" class="btn btn-block btn-info">
+              <i class="icon fa fa-download"></i> User account export (JSON)
+            </a>
+            {% endif %}
             <button type="button" class="btn btn-block btn-warning" data-toggle="modal" data-target="#quarantineAllProjectsModal" {{ "disabled" if not perms_admin_projects_write }}>
               <i class="icon fa fa-lock"></i> Quarantine all projects & freeze user
             </button>
@@ -979,11 +985,11 @@
                  tabulator-placeholder="No matching projects">
             <thead>
               <tr>
-                <th tabulator-formatter="html" tabulator-headerFilter="input">Project Name</th>
-                <th tabulator-headerFilter="input" tabulator-responsive="2">Role</th>
-                <th tabulator-formatter="html" tabulator-headerFilter="input">Lifecycle Status</th>
-                <th tabulator-sorter="number" tabulator-responsive="4">Releases</th>
-                <th tabulator-formatter="filesize" tabulator-sorter="number" tabulator-responsive="3">Total Size</th>
+                <th>Project Name</th>
+                <th tabulator-responsive="2">Role</th>
+                <th>Lifecycle Status</th>
+                <th tabulator-sorter="number" tabulator-headerFilter="false" tabulator-responsive="4">Releases</th>
+                <th tabulator-formatter="filesize" tabulator-sorter="number" tabulator-headerFilter="false" tabulator-responsive="3">Total Size</th>
               </tr>
             </thead>
             <tbody>

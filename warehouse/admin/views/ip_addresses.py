@@ -10,6 +10,7 @@ from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPSeeOther
 from pyramid.view import view_config
 from sqlalchemy.exc import NoResultFound
+from sqlalchemy.orm import joinedload
 
 from warehouse.accounts.models import UserUniqueLogin
 from warehouse.authnz import Permissions
@@ -62,6 +63,7 @@ def ip_address_detail(request: Request) -> dict[str, IpAddress]:
 
     unique_logins = (
         request.db.query(UserUniqueLogin)
+        .options(joinedload(UserUniqueLogin.user))
         .filter(UserUniqueLogin.ip_address == ip_address)
         .order_by(UserUniqueLogin.created.desc())
         .all()

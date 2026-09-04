@@ -27,11 +27,15 @@ from warehouse.accounts.interfaces import (
 from warehouse.accounts.models import (
     DisableReason,
     Email,
-    ProhibitedEmailDomain,
     ProhibitedUserName,
     User,
 )
-from warehouse.accounts.utils import update_email_domain_status
+from warehouse.accounts.utils import (
+    prohibit_email_domain,
+    tld_extractor,
+    update_email_domain_status,
+)
+from warehouse.admin.user_export import export_user
 from warehouse.authnz import Permissions
 from warehouse.email import (
     send_account_recovery_initiated_email,
@@ -47,6 +51,7 @@ from warehouse.organizations.models import (
     OrganizationRoleType,
 )
 from warehouse.packaging.models import File, JournalEntry, Project, Release, Role
+from warehouse.utils import now
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import clear_project_quarantine, quarantine_project
 
@@ -239,6 +244,44 @@ def user_detail(user, request):
         "breached_email_count": breached_email_count,
         "submitted_by_journals": submitted_by_journals,
     }
+
+
+@view_config(
+    route_name="admin.user.export",
+    renderer="json",
+    permission=Permissions.AdminUsersExport,
+    request_method="GET",
+    uses_session=True,
+    context=User,
+)
+def user_export(user: User, request: Request) -> dict | HTTPMovedPermanently:
+    """Download a user account export: the account's full footprint as JSON."""
+    if user.username != request.matchdict.get("username", user.username):
+        return HTTPMovedPermanently(request.current_route_path(username=user.username))
+
+    generated_at = now(tz=True)
+    document = export_user(user, request, generated_at=generated_at)
+
+    # The export discloses the account's PII in full, so leave a record of
+    # who took a copy, and when.
+    user.record_observation(
+        request=request,
+        kind=ObservationKind.AccountExport,
+        actor=request.user,
+        summary="User Account Export",
+        payload={
+            "exported_by": request.user.username,
+            "exported_by_id": str(request.user.id),
+            "remote_addr": request.remote_addr,
+        },
+    )
+
+    timestamp = generated_at.strftime("%Y%m%d%H%M%S")
+    request.response.content_disposition = (
+        "attachment; "
+        f'filename="user-account-export-{user.username}-{user.id}-{timestamp}.json"'
+    )
+    return document
 
 
 @view_config(
@@ -468,14 +511,21 @@ def user_freeze(user, request):
 
     user.is_frozen = True
 
+    # Blocklist only an email whose domain IS its own registrable: a
+    # subdomain-hosted address (grad.mit.edu, team.github.io) may live under
+    # a shared parent apex that other accounts legitimately use, so freezing
+    # one account must not blocklist the parent. Those are left for a
+    # deliberate admin decision.
     for email in user.emails:
-        if email.verified:
-            request.db.add(
-                ProhibitedEmailDomain(
-                    domain=email.domain,
-                    comment="frozen",
-                    prohibited_by=request.user,
-                )
+        if not email.verified:
+            continue
+        registrable = tld_extractor(email.domain).top_domain_under_public_suffix
+        if registrable and registrable == email.domain:
+            prohibit_email_domain(
+                request.db,
+                registrable,
+                comment="frozen",
+                prohibited_by=request.user,
             )
 
     request.session.flash(f"Froze user {user.username!r}", queue="success")

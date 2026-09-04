@@ -3,6 +3,7 @@
 import base64
 import builtins
 import datetime
+import gzip
 import hashlib
 import io
 import json
@@ -10,6 +11,7 @@ import re
 import tarfile
 import tempfile
 import zipfile
+import zlib
 
 from cgi import FieldStorage
 from contextlib import ExitStack
@@ -275,6 +277,39 @@ class TestFileValidation:
             None,
         )
 
+    def test_bails_with_tarfile_that_raises_zlib_error(self, tmpdir):
+        fake_tar = str(tmpdir.join("test.tar.gz"))
+
+        buffer = io.BytesIO()
+        with tarfile.open(fileobj=buffer, mode="w") as tar:
+            file_content = b"x"
+            tarinfo = tarfile.TarInfo(name="package/data")
+            tarinfo.size = len(file_content)
+            tar.addfile(tarinfo, io.BytesIO(file_content))
+
+        valid_gzip_member = gzip.compress(
+            buffer.getvalue()[: tarfile.BLOCKSIZE], mtime=0
+        )
+        # 0x07 starts a final DEFLATE block with the reserved block type.
+        invalid_gzip_member = bytes.fromhex("1f8b080000000000000307")
+        with open(fake_tar, "wb") as fp:
+            fp.write(valid_gzip_member + invalid_gzip_member)
+
+        assert tarfile.is_tarfile(fake_tar)
+        with (
+            pytest.raises(zlib.error) as exc_info,
+            tarfile.open(fake_tar, "r:gz") as archive,
+        ):
+            archive.getnames()
+        assert str(exc_info.value) == (
+            "Error -3 while decompressing data: invalid block type"
+        )
+
+        assert legacy._is_valid_dist_file(fake_tar, "sdist", NullMetrics()) == (
+            False,
+            None,
+        )
+
     @pytest.mark.parametrize("compression", ["gz"])
     def test_tarfile_validation_invalid(self, tmpdir, compression):
         file_extension = f".{compression}" if compression else ""
@@ -482,6 +517,55 @@ class TestFileValidation:
             False,
             "Content not allowed.",
         )
+
+    @pytest.mark.parametrize(
+        "tar_format",
+        [
+            pytest.param(tarfile.PAX_FORMAT, id="pax"),
+            pytest.param(tarfile.GNU_FORMAT, id="gnu"),
+        ],
+    )
+    @pytest.mark.parametrize("scan", [True, False], ids=["scan", "no-scan"])
+    def test_sparse_member_in_tarball(self, tmpdir, tar_format, scan):
+        tar_fn = str(tmpdir.join("test.tar.gz"))
+        metrics = NullMetrics()
+        metrics.increment = pretend.call_recorder(lambda *args, **kwargs: None)
+        with tarfile.open(tar_fn, "w:gz", format=tar_format) as tar:
+            pkg_info = b"metadata"
+            info = tarfile.TarInfo(name="package/PKG-INFO")
+            info.size = len(pkg_info)
+            tar.addfile(info, io.BytesIO(pkg_info))
+
+            info = tarfile.TarInfo(name="package/sparse.dat")
+            if tar_format == tarfile.PAX_FORMAT:
+                info.size = 1
+                info.pax_headers = {
+                    "GNU.sparse.map": "0,1",
+                    "GNU.sparse.size": "10",
+                }
+            else:
+                info.type = tarfile.GNUTYPE_SPARSE
+                info.size = 0
+            tar.addfile(info, io.BytesIO(b"x"))
+
+        assert legacy._is_valid_dist_file(
+            tar_fn,
+            "sdist",
+            metrics,
+            scan=scan,
+        ) == (
+            False,
+            (
+                "tar archive not accepted: Sparse members are not allowed. "
+                "See https://docs.pypi.org/archives for more information"
+            ),
+        )
+        assert metrics.increment.calls == [
+            pretend.call(
+                "warehouse.upload.tarfile.policy_error",
+                tags=["reason:sparse-member"],
+            )
+        ]
 
     def test_scan_disabled_skips_yara_in_wheel(self, tmpdir, monkeypatch):
         f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
@@ -2499,7 +2583,7 @@ class TestFileUpload:
                 }[filetype],
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2539,7 +2623,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2582,7 +2666,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2621,7 +2705,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2662,7 +2746,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2706,7 +2790,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2755,7 +2839,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": SimpleNamespace(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2801,7 +2885,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": SimpleNamespace(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2852,7 +2936,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": SimpleNamespace(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2892,7 +2976,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": SimpleNamespace(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -6717,9 +6801,7 @@ class TestFileUpload:
         )
 
         now = datetime.datetime.now()
-        then = now - datetime.timedelta(
-            seconds=legacy.MAXIMUM_AGE_FOR_NEW_UPLOADS_SECONDS + 1
-        )
+        then = now - legacy.MAXIMUM_AGE_FOR_NEW_UPLOADS - datetime.timedelta(seconds=1)
 
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -6760,7 +6842,7 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert (
             f"Uploading new files to releases older than "
-            f"{legacy.MAXIMUM_AGE_FOR_NEW_UPLOADS_DAYS} days is not allowed."
+            f"{legacy.MAXIMUM_AGE_FOR_NEW_UPLOADS.days} days is not allowed."
             in resp.status
         )
 
@@ -6772,9 +6854,7 @@ class TestFileUpload:
         # when used with --skip-existing on old releases.
 
         now = datetime.datetime.now()
-        then = now - datetime.timedelta(
-            seconds=legacy.MAXIMUM_AGE_FOR_NEW_UPLOADS_SECONDS + 1
-        )
+        then = now - legacy.MAXIMUM_AGE_FOR_NEW_UPLOADS - datetime.timedelta(seconds=1)
 
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
