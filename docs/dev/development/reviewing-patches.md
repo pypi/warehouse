@@ -107,7 +107,7 @@ If you are testing Warehouse locally, you may want to use [twine](https://github
 uploading a test package. First, checkout the branch you would like to test.
 Then, start up the development environment (as described in
 [Getting Started](getting-started.md)). Once you have the Warehouse site working on
-`localhost:80`, you can upload a package to the version of Warehouse running
+`localhost`, you can upload a package to the version of Warehouse running
 in your development environment with Twine using the following command:
 
 ```shell
