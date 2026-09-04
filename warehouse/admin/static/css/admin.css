@@ -115,3 +115,234 @@ table.dataTable {
 .preserve-whitespace {
   white-space: pre-wrap;
 }
+
+/* AdminLTE renders sidebar labels inline, so a long one wraps beneath the icon and
+   escapes the highlight. Keep each label on the icon's row and truncate instead. */
+.nav-sidebar .nav-link {
+  display: flex;
+  align-items: center;
+}
+
+.nav-sidebar .nav-link > p {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Organization application review */
+.org-review-rail {
+  position: sticky;
+  top: 1rem;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+
+  /* Bootstrap 4's lg breakpoint. */
+  @media (width <= 991.98px) {
+    position: static;
+    max-height: none;
+    overflow-y: visible;
+  }
+}
+
+/* Per-cell ring, so dividers survive wrapping and a short last row paints nothing. */
+.org-review-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  margin: 0;
+  padding: 1px 0 0;
+  list-style: none;
+}
+
+.org-review-check {
+  display: flex;
+  flex: 1 1 19rem;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 8%);
+}
+
+.org-review-check-icon {
+  flex: 0 0 auto;
+  margin-top: 0.2rem;
+}
+
+.org-review-check-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.org-review-check-label {
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.org-review-check-detail {
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.org-review-check-ask {
+  align-self: flex-start;
+  margin-top: auto;
+}
+
+.org-review-key {
+  float: right;
+  padding: 0 0.3rem;
+  border: 1px solid currentcolor;
+  border-radius: 3px;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  opacity: 0.65;
+}
+
+.org-review-dl {
+  margin: 0;
+
+  & > div {
+    display: flex;
+    gap: 1.5rem;
+    padding: 0.5rem 0;
+
+    & + div {
+      border-top: 1px solid rgb(0 0 0 / 6%);
+    }
+  }
+
+  & dt {
+    flex: 0 0 11rem;
+    font-weight: 500;
+    color: #6c757d; /* Bootstrap $gray-600 */
+  }
+
+  & dd {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  @media (width <= 575.98px) {
+    & > div {
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+  }
+}
+
+/* Rail chips float to a full-width button's far edge; modal buttons have none. */
+.org-review-key-inline {
+  float: none;
+  display: inline-block;
+  margin-left: 0.5rem;
+  vertical-align: baseline;
+}
+
+.org-review-identity {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 1rem;
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid rgb(0 0 0 / 8%);
+}
+
+.org-review-identity-name {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.org-review-email {
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+
+  & .badge {
+    margin-left: 0.25rem;
+  }
+}
+
+.org-review-facets {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.org-review-facet-empty,
+.org-review-facet > summary {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #6c757d;
+}
+
+.org-review-facet > summary {
+  cursor: pointer;
+
+  &:hover {
+    color: #495057;
+  }
+}
+
+.org-review-count {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+
+.org-review-facet-body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  max-height: 12rem;
+  overflow-y: auto;
+  padding: 0.45rem 0 0.15rem 1.1rem;
+}
+
+.org-review-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  max-width: 100%;
+  padding: 0.1rem 0.45rem;
+  border: 1px solid rgb(0 0 0 / 10%);
+  border-radius: 3px;
+  background-color: #f8f9fa;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+
+  & > a {
+    overflow-wrap: anywhere;
+  }
+}
+
+.org-review-chip-meta {
+  font-size: 0.6875rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.org-review-entry {
+  padding: 0.75rem 1rem 0;
+  border: 1px solid rgb(0 0 0 / 8%);
+  border-radius: 0.25rem;
+
+  & + & {
+    margin-top: 0.75rem;
+  }
+}
+
+.org-review-entry-open {
+  background-color: #fffaf0;
+}
+
+.org-review-entry-note {
+  background-color: #f6f6f7;
+}
