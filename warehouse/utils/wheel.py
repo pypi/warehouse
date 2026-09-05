@@ -30,11 +30,11 @@ _platform_display = {
     "any": "any",
     "win": "Windows",
     "win32": "Windows x86-32",
-    "manylinux": "linux glibc",
-    "manylinux2014": "linux glibc 2.17+",
-    "manylinux2010": "linux glibc 2.12+",
-    "manylinux1": "linux glibc 2.5+",
-    "musllinux": "linux musl",
+    "manylinux": "Linux glibc",
+    "manylinux2014": "Linux glibc 2.17+",
+    "manylinux2010": "Linux glibc 2.12+",
+    "manylinux1": "Linux glibc 2.5+",
+    "musllinux": "Linux musl",
     "macosx": "macOS",
     "ios": "iOS",
     "iphoneos": "Device",
@@ -202,23 +202,26 @@ def _norm_str(s: str) -> str:
     return (s or "").replace("_", " ").strip()
 
 
+_pypy_abi_impl_segment = re.compile(r"(pypy|pp)_?(\d+)_?")
+
+
+def _pypy_format(raw: str) -> str:
+    """Format PyPy abi and implementation tags.
+    Put the 'pypy' version first, then the 'pp' version, if both are present."""
+    versions = []
+    for match in _pypy_abi_impl_segment.finditer(raw):
+        name, num = match.groups()
+        versions.append((name, _format_version(num)))
+    if len(versions) == 0:
+        return raw
+    pypy_vers = [v for n, v in versions if n == "pypy"]
+    pp_vers = [v for n, v in versions if n == "pp"]
+    return f"{_impl_display[versions[0][0]]} {' '.join(pypy_vers + pp_vers)}".strip()
+
+
 def _implementation_to_label(raw: str) -> str:
-    if "_" in raw and (raw.startswith(("pypy", "pp"))):
-        parts = [_implementation_to_label(i) for i in raw.split("_")]
-        parts = [
-            parts[0].strip(),
-            *[
-                p.split(" ", maxsplit=1)[1].strip() if " " in p else p.strip()
-                for p in parts[1:]
-            ],
-        ]
-        return " ".join(parts)
-    if raw.startswith("pypy"):
-        version = _norm_str(raw.removeprefix("pypy"))
-        return f"{_impl_display['pypy']} {version}"
-    if raw.startswith("pp"):
-        version = _norm_str(raw.removeprefix("pp"))
-        return f"{_impl_display['pp']} {version}"
+    if raw.startswith(("pypy", "pp")):
+        return _pypy_format(raw)
     if raw.startswith("cp"):
         version, suffixes = _format_cpython(raw.removeprefix("cp"))
         return f"{_impl_display['cp']} {version} {suffixes}".strip()
