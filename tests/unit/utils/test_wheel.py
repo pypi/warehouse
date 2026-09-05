@@ -163,17 +163,17 @@ nbval = nbval.plugin
         (
             "cryptography-42.0.5-pp310-pypy310_pp73-win_amd64.whl",
             _build(
-                interp_pp310="PyPy 310",
-                abi_pypy310_pp73="PyPy 310 73",
+                interp_pp310="PyPy 3.10",
+                abi_pypy310_pp73="PyPy 3.10 7.3",
                 plat_win_amd64="Windows x86-64",
             ),
         ),
         (
             "cryptography-42.0.5-pp310-pypy310_pp73-manylinux_2_28_x86_64.whl",
             _build(
-                interp_pp310="PyPy 310",
-                abi_pypy310_pp73="PyPy 310 73",
-                plat_manylinux_2_28_x86_64="linux glibc 2.28+ x86-64",
+                interp_pp310="PyPy 3.10",
+                abi_pypy310_pp73="PyPy 3.10 7.3",
+                plat_manylinux_2_28_x86_64="Linux glibc 2.28+ x86-64",
             ),
         ),
         (
@@ -181,7 +181,7 @@ nbval = nbval.plugin
             _build(
                 interp_cp37="CPython 3.7",
                 abi_abi3="abi3",
-                plat_musllinux_1_2_x86_64="linux musl 1.2+ x86-64",
+                plat_musllinux_1_2_x86_64="Linux musl 1.2+ x86-64",
             ),
         ),
         (
@@ -321,12 +321,37 @@ nbval = nbval.plugin
                 plat_pyemscripten_2026_0_wasm32="PyEmscripten 2026.0+ WebAssembly",
             ),
         ),
+        # PyPy seems to have a variety of filename patterns
         (
             "pgf-1.0-pp27-pypy_73-manylinux2010_x86_64.whl",
             _build(
-                interp_pp27="PyPy 27",
-                abi_pypy_73="PyPy 73",
-                plat_manylinux2010_x86_64="linux glibc 2.12+ x86-64",
+                interp_pp27="PyPy 2.7",
+                abi_pypy_73="PyPy 7.3",
+                plat_manylinux2010_x86_64="Linux glibc 2.12+ x86-64",
+            ),
+        ),
+        (
+            "pgf-1.0-pp27-pypy73-manylinux2010_x86_64.whl",
+            _build(
+                interp_pp27="PyPy 2.7",
+                abi_pypy73="PyPy 7.3",
+                plat_manylinux2010_x86_64="Linux glibc 2.12+ x86-64",
+            ),
+        ),
+        (
+            "pgf-1.0-pp27-pypy73-manylinux2010_x86_64.whl",
+            _build(
+                interp_pp27="PyPy 2.7",
+                abi_pypy73="PyPy 7.3",
+                plat_manylinux2010_x86_64="Linux glibc 2.12+ x86-64",
+            ),
+        ),
+        (
+            "pgf-1.0-pp27-pypy_pp73-manylinux2010_x86_64.whl",
+            _build(
+                interp_pp27="PyPy 2.7",
+                abi_pypy_pp73="PyPy 7.3",
+                plat_manylinux2010_x86_64="Linux glibc 2.12+ x86-64",
             ),
         ),
         # Cannot parse 'pdfcomparator-0_2_0-py2-none-any.whl' - invalid version?
@@ -347,11 +372,11 @@ nbval = nbval.plugin
             "pep272_encryption-0.4-py2.pp35.pp36.pp37.pp38.pp39-none-any.whl",
             _build(
                 interp_py2="Python 2",
-                interp_pp35="PyPy 35",
-                interp_pp36="PyPy 36",
-                interp_pp37="PyPy 37",
-                interp_pp38="PyPy 38",
-                interp_pp39="PyPy 39",
+                interp_pp35="PyPy 3.5",
+                interp_pp36="PyPy 3.6",
+                interp_pp37="PyPy 3.7",
+                interp_pp38="PyPy 3.8",
+                interp_pp39="PyPy 3.9",
                 abi_none="none",
                 plat_any="any",
             ),
@@ -361,7 +386,7 @@ nbval = nbval.plugin
             _build(
                 interp_py3="Python 3",
                 abi_none="none",
-                plat_musllinux_1_2_armv7l="linux musl 1.2+ ARMv7l",
+                plat_musllinux_1_2_armv7l="Linux musl 1.2+ ARMv7l",
             ),
         ),
         (
@@ -369,7 +394,7 @@ nbval = nbval.plugin
             _build(
                 interp_cp312="CPython 3.12",
                 abi_cp312="CPython 3.12",
-                plat_musllinux_1_1_x86_64="linux musl 1.1+ x86-64",
+                plat_musllinux_1_1_x86_64="Linux musl 1.1+ x86-64",
             ),
         ),
         (
@@ -384,10 +409,10 @@ nbval = nbval.plugin
             "pydantic_core-2.16.2-pp39-pypy39_pp73-"
             "manylinux_2_17_aarch64.manylinux2014_aarch64.whl",
             _build(
-                interp_pp39="PyPy 39",
-                abi_pypy39_pp73="PyPy 39 73",
-                plat_manylinux_2_17_aarch64="linux glibc 2.17+ ARM64",
-                plat_manylinux2014_aarch64="linux glibc 2.17+ ARM64",
+                interp_pp39="PyPy 3.9",
+                abi_pypy39_pp73="PyPy 3.9 7.3",
+                plat_manylinux_2_17_aarch64="Linux glibc 2.17+ ARM64",
+                plat_manylinux2014_aarch64="Linux glibc 2.17+ ARM64",
             ),
         ),
         (
@@ -449,8 +474,8 @@ nbval = nbval.plugin
                 interp_cp314="CPython 3.14",
                 abi_cp314udmtz="CPython 3.14 "
                 "debug free-threading pymalloc wide-unicode z",
-                plat_manylinux_2_31_riscv64="linux glibc 2.31+ RISC-V 64",
-                plat_manylinux_2_39_riscv64="linux glibc 2.39+ RISC-V 64",
+                plat_manylinux_2_31_riscv64="Linux glibc 2.31+ RISC-V 64",
+                plat_manylinux_2_39_riscv64="Linux glibc 2.39+ RISC-V 64",
             ),
         ),
         (
@@ -459,9 +484,9 @@ nbval = nbval.plugin
             _build(
                 interp_cp314="CPython 3.14",
                 abi_cp314t="CPython 3.14 free-threading",
-                plat_manylinux2014_s390x="linux glibc 2.17+ IBM System/390x",
-                plat_manylinux_2_17_s390x="linux glibc 2.17+ IBM System/390x",
-                plat_manylinux_2_28_s390x="linux glibc 2.28+ IBM System/390x",
+                plat_manylinux2014_s390x="Linux glibc 2.17+ IBM System/390x",
+                plat_manylinux_2_17_s390x="Linux glibc 2.17+ IBM System/390x",
+                plat_manylinux_2_28_s390x="Linux glibc 2.28+ IBM System/390x",
             ),
         ),
         (
@@ -470,47 +495,47 @@ nbval = nbval.plugin
             _build(
                 interp_cp39="CPython 3.9",
                 abi_cp39="CPython 3.9",
-                plat_manylinux2014_ppc64le="linux glibc 2.17+ PowerPC 64-le",
-                plat_manylinux_2_17_ppc64le="linux glibc 2.17+ PowerPC 64-le",
-                plat_manylinux_2_28_ppc64le="linux glibc 2.28+ PowerPC 64-le",
+                plat_manylinux2014_ppc64le="Linux glibc 2.17+ PowerPC 64-le",
+                plat_manylinux_2_17_ppc64le="Linux glibc 2.17+ PowerPC 64-le",
+                plat_manylinux_2_28_ppc64le="Linux glibc 2.28+ PowerPC 64-le",
             ),
         ),
         (
             "numpy-2.3.4-pp311-pypy311_pp73-"
             "manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl",
             _build(
-                interp_pp311="PyPy 311",
-                abi_pypy311_pp73="PyPy 311 73",
-                plat_manylinux_2_27_aarch64="linux glibc 2.27+ ARM64",
-                plat_manylinux_2_28_aarch64="linux glibc 2.28+ ARM64",
+                interp_pp311="PyPy 3.11",
+                abi_pypy311_pp73="PyPy 3.11 7.3",
+                plat_manylinux_2_27_aarch64="Linux glibc 2.27+ ARM64",
+                plat_manylinux_2_28_aarch64="Linux glibc 2.28+ ARM64",
             ),
         ),
         (
             "numpy-2.3.4-pp311-pp73_pypy311-"
             "manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl",
             _build(
-                interp_pp311="PyPy 311",
-                abi_pp73_pypy311="PyPy 73 311",
-                plat_manylinux_2_27_aarch64="linux glibc 2.27+ ARM64",
-                plat_manylinux_2_28_aarch64="linux glibc 2.28+ ARM64",
+                interp_pp311="PyPy 3.11",
+                abi_pp73_pypy311="PyPy 3.11 7.3",
+                plat_manylinux_2_27_aarch64="Linux glibc 2.27+ ARM64",
+                plat_manylinux_2_28_aarch64="Linux glibc 2.28+ ARM64",
             ),
         ),
         (
             "numpy-2.3.4-pp311-ip27-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl",
             _build(
-                interp_pp311="PyPy 311",
+                interp_pp311="PyPy 3.11",
                 abi_ip27="IronPython 2.7",
-                plat_manylinux_2_27_aarch64="linux glibc 2.27+ ARM64",
-                plat_manylinux_2_28_aarch64="linux glibc 2.28+ ARM64",
+                plat_manylinux_2_27_aarch64="Linux glibc 2.27+ ARM64",
+                plat_manylinux_2_28_aarch64="Linux glibc 2.28+ ARM64",
             ),
         ),
         (
             "numpy-2.3.4-pp311-jy38-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl",
             _build(
-                interp_pp311="PyPy 311",
+                interp_pp311="PyPy 3.11",
                 abi_jy38="Jython 3.8",
-                plat_manylinux_2_27_aarch64="linux glibc 2.27+ ARM64",
-                plat_manylinux_2_28_aarch64="linux glibc 2.28+ ARM64",
+                plat_manylinux_2_27_aarch64="Linux glibc 2.27+ ARM64",
+                plat_manylinux_2_28_aarch64="Linux glibc 2.28+ ARM64",
             ),
         ),
     ],
