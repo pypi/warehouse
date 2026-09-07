@@ -339,14 +339,6 @@ nbval = nbval.plugin
             ),
         ),
         (
-            "pgf-1.0-pp27-pypy73-manylinux2010_x86_64.whl",
-            _build(
-                interp_pp27="PyPy 2.7",
-                abi_pypy73="PyPy 7.3",
-                plat_manylinux2010_x86_64="Linux glibc 2.12+ x86-64",
-            ),
-        ),
-        (
             "pgf-1.0-pp27-pypy_pp73-manylinux2010_x86_64.whl",
             _build(
                 interp_pp27="PyPy 2.7",
