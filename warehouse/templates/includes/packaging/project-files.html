@@ -69,6 +69,7 @@
             {#<td>TODO</td>#}
             <td>
               <a href="#{{ file.filename }}"
+                 id="{{ file.filename }}-tab"
                  class="button button--small button--outline file-info__details-button"
                  data-project-tabs-target="tab"
                  data-action="project-tabs#onTabClick">{% trans %}Details{% endtrans %}</a>
@@ -244,6 +245,7 @@
           {% endif %}
           <td>
             <a href="#{{ file.filename }}"
+               id="{{ file.filename }}-tab"
                class="button button--small button--outline file-info__details-button"
                data-project-tabs-target="tab"
                data-action="project-tabs#onTabClick">{% trans %}Details{% endtrans %}</a>
