@@ -134,8 +134,8 @@
                       data-comparison-type="exact"
                       data-auto-update-url-querystring="true">
                 <option value="">{% trans %}Interpreter{% endtrans %}</option>
-                {% for value in wheel_filters_all['interpreter'] | sort %}
-                  <option value="{{ value }}">{{ wheel_filters_all['interpreter'][value] }}</option>
+                {% for value, label in wheel_filters_all['interpreter'].items() | sort | unique(attribute=1) %}
+                  <option value="{{ value }}">{{ label }}</option>
                 {% endfor %}
               </select>
             </span>
@@ -157,8 +157,8 @@
                       data-comparison-type="exact"
                       data-auto-update-url-querystring="true">
                 <option value="">{% trans %}ABI{% endtrans %}</option>
-                {% for value in wheel_filters_all['abi'] | sort %}
-                  <option value="{{ value }}">{{ wheel_filters_all['abi'][value] }}</option>
+                {% for value, label in wheel_filters_all['abi'].items() | sort | unique(attribute=1) %}
+                  <option value="{{ value }}">{{ label }}</option>
                 {% endfor %}
               </select>
             </span>
@@ -180,8 +180,8 @@
                       data-comparison-type="exact"
                       data-auto-update-url-querystring="true">
                 <option value="">{% trans %}Platform{% endtrans %}</option>
-                {% for value in wheel_filters_all['platform'] | sort %}
-                  <option value="{{ value }}">{{ wheel_filters_all['platform'][value] }}</option>
+                {% for value, label in wheel_filters_all['platform'].items() | sort | unique(attribute=1) %}
+                  <option value="{{ value }}">{{ label }}</option>
                 {% endfor %}
               </select>
             </span>
@@ -232,15 +232,15 @@
           {% else %}
             <td class="table__filter-col">
               {% set values = file.wheel_filters.get('interpreter', {}) %}
-              {{ values.values() | list | join(', ') }}
+              {{ values.values() | unique | join(', ') }}
             </td>
             <td class="table__filter-col">
               {% set values = file.wheel_filters.get('abi', {}) %}
-              {{ values.values() | list | join(', ') }}
+              {{ values.values() | unique | join(', ') }}
             </td>
             <td class="table__filter-col">
               {% set values = file.wheel_filters.get('platform', {}) %}
-              {{ values.values() | list | join(', ') }}
+              {{ values.values() | unique | join(', ') }}
             </td>
           {% endif %}
           <td>
