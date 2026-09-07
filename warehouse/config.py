@@ -468,6 +468,12 @@ def configure(settings=None):
     maybe_set_compound(settings, "breached_emails", "backend", "BREACHED_EMAILS")
     maybe_set_compound(settings, "breached_passwords", "backend", "BREACHED_PASSWORDS")
     maybe_set_compound(settings, "domain_status", "backend", "DOMAIN_STATUS_BACKEND")
+    maybe_set_compound(
+        settings,
+        "email_reputation",
+        "backend",
+        "EMAIL_REPUTATION_BACKEND",
+    )
     maybe_set_compound(settings, "github.oauth", "backend", "GITHUB_OAUTH_BACKEND")
     maybe_set_compound(settings, "gitlab.oauth", "backend", "GITLAB_OAUTH_BACKEND")
     maybe_set(
@@ -562,6 +568,12 @@ def configure(settings=None):
     )
     maybe_set(
         settings,
+        "warehouse.account.email_reputation_ratelimit_string",
+        "EMAIL_REPUTATION_RATELIMIT_STRING",
+        default="100 per hour",
+    )
+    maybe_set(
+        settings,
         "warehouse.account.accounts_search_ratelimit_string",
         "ACCOUNTS_SEARCH_RATELIMIT_STRING",
         default="100 per hour",
@@ -612,6 +624,11 @@ def configure(settings=None):
         "ORGANIZATION_MAX_UNDECIDED_APPLICATIONS",
         coercer=int,
         default=3,
+    )
+    maybe_set(
+        settings,
+        "warehouse.organizations.service_agreement_survey_url",
+        "ORGANIZATION_SERVICE_AGREEMENT_SURVEY_URL",
     )
 
     # Add the settings we use when the environment is set to development.

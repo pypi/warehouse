@@ -7,6 +7,7 @@ import enum
 import typing
 
 from collections import OrderedDict
+from dataclasses import dataclass
 from functools import cached_property
 from uuid import UUID
 
@@ -40,6 +41,7 @@ from sqlalchemy.dialects.postgresql import (
     ENUM,
     REGCLASS,
 )
+from sqlalchemy.engine import Row
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -65,7 +67,11 @@ from warehouse.attestations.models import (
 )
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
-from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE
+from warehouse.constants import (
+    MAX_FILESIZE,
+    MAX_PROJECT_SIZE,
+    MAXIMUM_AGE_FOR_NEW_UPLOADS,
+)
 from warehouse.events.models import HasEvents
 from warehouse.forklift import metadata
 from warehouse.integrations.vulnerabilities.models import VulnerabilityRecord
@@ -170,6 +176,82 @@ def _provenance_comparison(
         if other_created < created and counts.files_with_provenance:
             return ProvenanceComparison(version=version, counts=counts)
     return None
+
+
+@dataclass(frozen=True)
+class LateFile:
+    """
+    A file that arrived past the window its release accepts new files in.
+
+    Carries the filename instead of the `File`, so the surrounding status can
+    be built from rows a caller has already loaded.
+    """
+
+    filename: str
+    upload_time: datetime.datetime
+    # How long after the release was published the file arrived.
+    delay: datetime.timedelta
+
+
+@dataclass(frozen=True)
+class LateFileStatus:
+    """
+    When a release's files arrived, and which of them arrived late.
+
+    `first_upload` and `last_upload` bracket the files still present, so
+    neither is the release date: `first_upload` moves when the earliest file
+    is deleted, while `delay` stays anchored to `Release.created`.
+    """
+
+    total_files: int
+    first_upload: datetime.datetime
+    last_upload: datetime.datetime
+    late_files: tuple[LateFile, ...] = ()
+
+
+def added_late(upload_time: datetime.datetime, created: datetime.datetime) -> bool:
+    """
+    Whether a file arrived past the window its release accepts new files in.
+
+    Compared as timedeltas rather than whole days: `.days` truncates, and would
+    let a file arriving on the window's last day plus twenty-three hours pass
+    as punctual.
+    """
+    return upload_time - created > MAXIMUM_AGE_FOR_NEW_UPLOADS
+
+
+def late_file_status_from_files(
+    created: datetime.datetime, files: typing.Iterable[File | Row]
+) -> LateFileStatus | None:
+    """
+    Fold a release's files into the record of when they arrived.
+
+    Measured from `created` rather than the earliest surviving file: deleting
+    a release's original files would drag a first-file anchor forward and
+    clear the flag from the file it was raised for.
+
+    Returns `None` for a release with no files, the way `provenance_status`
+    does. Takes the files as an argument so a view already holding them need
+    not load them again; anything with `filename` and `upload_time` will do.
+    """
+    by_upload_time = sorted(files, key=lambda file: file.upload_time)
+    if not by_upload_time:
+        return None
+
+    return LateFileStatus(
+        total_files=len(by_upload_time),
+        first_upload=by_upload_time[0].upload_time,
+        last_upload=by_upload_time[-1].upload_time,
+        late_files=tuple(
+            LateFile(
+                filename=file.filename,
+                upload_time=file.upload_time,
+                delay=file.upload_time - created,
+            )
+            for file in by_upload_time
+            if added_late(file.upload_time, created)
+        ),
+    )
 
 
 class Role(db.Model):
@@ -1154,6 +1236,30 @@ class Release(HasObservations, db.Model):
             ),
         )
 
+    @cached_property
+    def late_file_status(self) -> LateFileStatus | None:
+        """
+        When this Release's files arrived, and which of them arrived late.
+
+        Reads two columns rather than iterating `files`, which is
+        `lazy="dynamic"` and eager-loads each file's provenance on the way
+        past. A caller already holding the files should use
+        `late_file_status_from_files`.
+
+        Cached like `provenance_status`, so a `Release` held across a commit
+        or a new upload keeps the answer it first gave; `File.added_late` is
+        not cached and can then disagree.
+        """
+        session = orm_session_from_obj(self)
+        return late_file_status_from_files(
+            self.created,
+            session.execute(
+                select(File.filename, File.upload_time).where(
+                    File.release_id == self.id
+                )
+            ).all(),
+        )
+
 
 class PackageType(enum.StrEnum):
     bdist_dmg = "bdist_dmg"
@@ -1234,6 +1340,17 @@ class File(HasEvents, db.Model):
         lazy="joined",
         passive_deletes=True,
     )
+
+    @property
+    def added_late(self) -> bool:
+        """
+        Whether this file arrived past the window its release accepts files in.
+
+        Reads `self.release`, so a caller listing files off a `File` query
+        should use the module-level `added_late` against a release it holds
+        rather than pay a SELECT per release.
+        """
+        return added_late(self.upload_time, self.release.created)
 
     @property
     def uploaded_via_trusted_publisher(self) -> bool:

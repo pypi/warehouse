@@ -1,11 +1,10 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 {% if request.user %}
-  <div id="user-indicator"
-       class="horizontal-menu horizontal-menu--light horizontal-menu--tall">
+  <div id="user-indicator" class="site-menu">
     <nav aria-label="{% trans %}Main navigation{% endtrans %}"
-         class="dropdown dropdown--on-menu dropdown--with-icons">
+         class="dropdown dropdown--on-menu dropdown--with-icons site-menu--dropdown">
       <button type="button"
-              class="horizontal-menu__link--with-icon horizontal-menu__link dropdown__trigger"
+              class="site-menu__link--with-icon site-menu__link dropdown__trigger"
               aria-haspopup="true"
               aria-expanded="false"
               aria-label="{% trans %}View menu{% endtrans %}">
@@ -78,6 +77,7 @@
         </li>
       </ul>
     </nav>
+    {% include "warehouse:templates/includes/language-dropdown.html" %}
   </div>
 {% else %}
   {% from 'base.html' import main_navigation_logged_out with context %}

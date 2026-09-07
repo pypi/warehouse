@@ -707,14 +707,24 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
     has_translations=True,
 )
 def register(request, _form_class=RegistrationForm):
+    def _outcome(outcome):
+        """Count registration attempts by outcome, ignoring plain page loads."""
+        if request.method == "POST":
+            request.metrics.increment(
+                "warehouse.accounts.register", tags=[f"outcome:{outcome}"]
+            )
+
     if request.user is not None:
+        _outcome("authenticated")
         return HTTPSeeOther(request.route_path("manage.projects"))
 
     # Check if the honeypot field has been filled
     if request.method == "POST" and request.POST.get("confirm_form"):
+        _outcome("honeypot")
         return HTTPSeeOther(request.route_path("index"))
 
     if request.flags.enabled(AdminFlagValue.DISALLOW_NEW_USER_REGISTRATION):
+        _outcome("disabled")
         request.session.flash(
             request._(
                 "New user registration temporarily disabled. "
@@ -767,8 +777,10 @@ def register(request, _form_class=RegistrationForm):
         resp = HTTPSeeOther(request.route_path("index"))
         _set_userid_insecure_cookie(resp, user.id)
 
+        _outcome("ok")
         return resp
 
+    _outcome("invalid")
     return {"form": form}
 
 

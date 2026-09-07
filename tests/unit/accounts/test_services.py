@@ -17,8 +17,10 @@ from zope.interface.verify import verifyClass
 from warehouse.accounts import services
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
+    EmailReputationResult,
     IDomainStatusService,
     IEmailBreachedService,
+    IEmailReputationService,
     InvalidRecoveryCode,
     IPasswordBreachedService,
     ITokenService,
@@ -2259,6 +2261,45 @@ class TestFastlyDomainStatusService:
 
         assert svc._http is request.http
         assert svc.api_key == "some_api_key"
+
+
+class TestNullEmailReputationService:
+    def test_verify_service(self):
+        assert verifyClass(IEmailReputationService, services.NullEmailReputationService)
+
+    def test_check_email_returns_no_signals(self):
+        svc = services.NullEmailReputationService()
+
+        result = svc.check_email("foo@example.com")
+
+        assert result == EmailReputationResult()
+        assert result.signals == []
+        assert not result.should_block
+
+    def test_factory(self):
+        svc = services.NullEmailReputationService.create_service(None, None)
+
+        assert isinstance(svc, services.NullEmailReputationService)
+        assert svc.check_email("foo@example.com").signals == []
+
+
+class TestEmailReputationResult:
+    @pytest.mark.parametrize(
+        ("result_kwargs", "expected"),
+        [
+            # Domain-level disposability needs the public and relay flags
+            # to be explicitly clear.
+            ({"disposable": True, "public_domain": False, "relay_domain": False}, True),
+            ({"disposable": True, "public_domain": True, "relay_domain": False}, False),
+            ({"disposable": True, "public_domain": False, "relay_domain": True}, False),
+            ({"disposable": True}, False),
+            ({"public_domain": False, "relay_domain": False}, False),
+        ],
+    )
+    def test_disposable_domain_requires_explicit_flags(self, result_kwargs, expected):
+        result = EmailReputationResult(**result_kwargs)
+
+        assert result.disposable_domain is expected
 
 
 class TestDeviceIsKnown:

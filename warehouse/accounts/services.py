@@ -31,8 +31,10 @@ from zope.interface import implementer
 
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
+    EmailReputationResult,
     IDomainStatusService,
     IEmailBreachedService,
+    IEmailReputationService,
     InvalidRecoveryCode,
     IPasswordBreachedService,
     ITokenService,
@@ -1269,3 +1271,13 @@ class FastlyDomainStatusService:
             return None
 
         return body["status"].split()
+
+
+@implementer(IEmailReputationService)
+class NullEmailReputationService:
+    @classmethod
+    def create_service(cls, _context, _request) -> NullEmailReputationService:
+        return cls()
+
+    def check_email(self, email: str) -> EmailReputationResult:
+        return EmailReputationResult()

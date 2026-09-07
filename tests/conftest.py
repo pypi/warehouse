@@ -40,6 +40,7 @@ from warehouse import admin, config, static
 from warehouse.accounts import services as account_services
 from warehouse.accounts.interfaces import (
     IDomainStatusService,
+    IEmailReputationService,
     ITokenService,
     IUserService,
 )
@@ -219,6 +220,7 @@ def pyramid_services(
     query_results_cache_service,
     search_service,
     domain_status_service,
+    email_reputation_service,
     ratelimit_service,
     github_oauth_provider_service,
 ):
@@ -247,6 +249,7 @@ def pyramid_services(
     services.register_service(query_results_cache_service, IQueryResultsCache)
     services.register_service(search_service, ISearchService)
     services.register_service(domain_status_service, IDomainStatusService)
+    services.register_service(email_reputation_service, IEmailReputationService)
     services.register_service(ratelimit_service, IRateLimiter, name="email.add")
     services.register_service(ratelimit_service, IRateLimiter, name="email.change")
     services.register_service(ratelimit_service, IRateLimiter, name="email.verify")
@@ -315,10 +318,9 @@ def pyramid_user(pyramid_request):
 
 
 @pytest.fixture
-def cli():
-    runner = click.testing.CliRunner()
-    with runner.isolated_filesystem():
-        yield runner
+def cli(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    return click.testing.CliRunner()
 
 
 @pytest.fixture(scope="session")
@@ -402,6 +404,9 @@ def get_app_config(database, nondefaults=None):
         "sessions.secret": "123456",
         "sessions.url": "redis://localhost:0/",
         "statuspage.url": "https://2p66nmmycsj3.statuspage.io",
+        "warehouse.organizations.service_agreement_survey_url": (
+            "https://example.com/service-agreement-survey"
+        ),
         "warehouse.xmlrpc.cache.url": "redis://localhost:0/",
         "terms.revision": "initial",
         "oidc.jwk_cache_url": "redis://localhost:0/",
@@ -617,6 +622,11 @@ def domain_status_service(mocker):
     service = account_services.NullDomainStatusService()
     mocker.spy(service, "get_domain_status")
     return service
+
+
+@pytest.fixture
+def email_reputation_service():
+    return account_services.NullEmailReputationService()
 
 
 @pytest.fixture

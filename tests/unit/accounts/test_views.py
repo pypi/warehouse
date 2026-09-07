@@ -4,6 +4,8 @@ import datetime
 import json
 import uuid
 
+from types import SimpleNamespace
+
 import freezegun
 import pretend
 import pytest
@@ -41,6 +43,7 @@ from warehouse.accounts.models import (
     UniqueLoginStatus,
     UserUniqueLogin,
 )
+from warehouse.accounts.services import NullPasswordBreachedService
 from warehouse.accounts.views import (
     REMEMBER_DEVICE_COOKIE,
     two_factor_and_totp_validate,
@@ -1895,6 +1898,67 @@ class TestRegister:
         assert create_user.calls == []
         assert add_email.calls == []
         assert send_email.calls == []
+        assert db_request.metrics.increment.calls == [
+            pretend.call("warehouse.accounts.register", tags=["outcome:honeypot"])
+        ]
+
+    def test_register_counts_an_authenticated_post(self, db_request, metrics):
+        """Every POST lands in exactly one outcome, so the tags sum to attempts."""
+        db_request.method = "POST"
+        db_request.user = UserFactory.create()
+        db_request.route_path = lambda name: "/the-redirect"
+
+        assert isinstance(views.register(db_request), HTTPSeeOther)
+        metrics.increment.assert_any_call(
+            "warehouse.accounts.register", tags=["outcome:authenticated"]
+        )
+
+    def _register_form_services(self, pyramid_services):
+        """Register the services `register()` needs to build its form."""
+        pyramid_services.register_service(
+            NullPasswordBreachedService(), IPasswordBreachedService, None, name=""
+        )
+        pyramid_services.register_service(
+            SimpleNamespace(
+                enabled=False, csp_policy={}, verify_response=lambda response: None
+            ),
+            ICaptchaService,
+            None,
+            name="captcha",
+        )
+        pyramid_services.register_service(
+            SimpleNamespace(merge=lambda policy: None), None, None, name="csp"
+        )
+
+    @pytest.mark.usefixtures("no_email_deliverability_check")
+    def test_register_counts_invalid_attempts(
+        self, db_request, pyramid_services, metrics
+    ):
+        self._register_form_services(pyramid_services)
+
+        db_request.method = "POST"
+        db_request.POST.update({"username": "username_value", "email": "not-an-email"})
+
+        result = views.register(db_request)
+
+        assert result["form"].errors
+        metrics.increment.assert_any_call(
+            "warehouse.accounts.register", tags=["outcome:invalid"]
+        )
+
+    def test_register_does_not_count_page_loads(
+        self, db_request, pyramid_services, metrics
+    ):
+        """A GET is a page view, not an attempt, so it stays out of the counter."""
+        self._register_form_services(pyramid_services)
+
+        views.register(db_request)
+
+        assert not [
+            call
+            for call in metrics.increment.calls
+            if call.args == ("warehouse.accounts.register",)
+        ]
 
     @pytest.mark.usefixtures("no_email_deliverability_check")
     def test_register_redirect(self, db_request, monkeypatch):
@@ -1978,6 +2042,9 @@ class TestRegister:
                 },
             ),
         ]
+        db_request.metrics.increment.assert_any_call(
+            "warehouse.accounts.register", tags=["outcome:ok"]
+        )
 
     def test_register_fails_with_admin_flag_set(self, db_request):
         # This flag was already set via migration, just need to enable it
@@ -2012,6 +2079,9 @@ class TestRegister:
                 queue="error",
             )
         ]
+        db_request.metrics.increment.assert_any_call(
+            "warehouse.accounts.register", tags=["outcome:disabled"]
+        )
 
 
 class TestRequestPasswordReset:
