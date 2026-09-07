@@ -211,8 +211,8 @@ export default class extends Controller {
    */
   _compare(itemData, filters) {
     for (const [filterKey, filterValuesRaw] of Object.entries(filters)) {
-      const filterValues = Array.from(new Set((filterValuesRaw ?? []).map(i => i?.toString()?.trim() ?? "").filter(i => !!i)));
-      const itemValues = Array.from(new Set((itemData[filterKey] ?? []).map(i => i?.toString()?.trim() ?? "").filter(i => !!i)));
+      const filterValues = Array.from(new Set((filterValuesRaw ?? []).map(i => i?.toString()?.trim()?.toLowerCase() ?? "").filter(i => !!i)));
+      const itemValues = Array.from(new Set((itemData[filterKey] ?? []).map(i => i?.toString()?.trim()?.toLowerCase() ?? "").filter(i => !!i)));
       const comparisons = this.#initialFilterComparisons[filterKey] ?? [];
 
       // Not a match if the item values and filter values contain different values.
@@ -436,7 +436,8 @@ export default class extends Controller {
         // This allows the selection to be changed.
 
         // Restore the options that were selected before the update.
-        const isSelected = ([...selectedValues, ...filterValues]).includes(optionValue);
+        const optionValueLower = optionValue.toLowerCase();
+        const isSelected = ([...selectedValues, ...filterValues]).some(value => value.toLowerCase() === optionValueLower);
 
         filterTarget.options.add(new Option(optionLabel, optionValue, isSelected, isSelected));
       }

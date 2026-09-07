@@ -267,6 +267,41 @@ describe("Filter list controller", () => {
 
     appStop(application);
   });
+  it("filter by input text is case-insensitive", async () => {
+    const application = await appStart();
+
+    setFilterSelectValue("filter-select-myattr", "");
+    setFilterSelectValue("filter-select-contentType", "");
+    setFilterInputValue("filter-input-description", "DESCRIPTION 2");
+
+    const elItem1 = document.getElementById("item-1");
+    expect(elItem1.classList).toContainEqual("hidden");
+
+    const elItem2 = document.getElementById("item-2");
+    expect(elItem2.classList).not.toContainEqual("hidden");
+
+    const elItem3 = document.getElementById("item-3");
+    expect(elItem3.classList).toContainEqual("hidden");
+
+    appStop(application);
+  });
+  it("filter by select option is case-insensitive when loaded from the querystring", async () => {
+    const url = "http://localhost/?myattr=MYATTR2#testing";
+    window.history.replaceState({}, "", decodeURIComponent(url));
+
+    const application = await appStart();
+
+    const elItem1 = document.getElementById("item-1");
+    expect(elItem1.classList).toContainEqual("hidden");
+
+    const elItem2 = document.getElementById("item-2");
+    expect(elItem2.classList).not.toContainEqual("hidden");
+
+    const elItem3 = document.getElementById("item-3");
+    expect(elItem3.classList).toContainEqual("hidden");
+
+    appStop(application);
+  });
   it("shows all items after clearing the input text filter", async () => {
     const application = await appStart();
 
