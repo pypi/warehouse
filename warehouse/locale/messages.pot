@@ -1074,8 +1074,8 @@ msgstr ""
 #: warehouse/templates/base.html:500 warehouse/templates/base.html:522
 #: warehouse/templates/base.html:531
 #: warehouse/templates/includes/accounts/profile-callout.html:5
-#: warehouse/templates/includes/file-details.html:58
-#: warehouse/templates/includes/file-details.html:80
+#: warehouse/templates/includes/file-details.html:47
+#: warehouse/templates/includes/file-details.html:69
 #: warehouse/templates/includes/packaging/project-files.html:11
 #: warehouse/templates/index.html:99 warehouse/templates/index.html:106
 #: warehouse/templates/manage/account.html:241
@@ -1935,7 +1935,7 @@ msgstr[1] ""
 
 #: warehouse/templates/accounts/profile.html:102
 #: warehouse/templates/includes/packaging/project-release-history.html:91
-#: warehouse/templates/includes/packaging/project-status.html:125
+#: warehouse/templates/includes/packaging/project-status.html:124
 msgid "Archived"
 msgstr ""
 
@@ -3091,58 +3091,31 @@ msgid "Release files"
 msgstr ""
 
 #: warehouse/templates/includes/file-details.html:18
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:63
-#: warehouse/templates/includes/packaging/project-status.html:7
-#: warehouse/templates/includes/packaging/security/late-files.html:5
-msgid "File added late"
-msgid_plural "Files added late"
-msgstr[0] ""
-msgstr[1] ""
-
-#: warehouse/templates/includes/file-details.html:20
-#, python-format
-msgid ""
-"This file was uploaded more than %(days)s days after the first file in "
-"this release."
-msgstr ""
-
-#: warehouse/templates/includes/file-details.html:21
-#: warehouse/templates/includes/packaging/security/late-files.html:14
-msgid ""
-"While project maintainers occasionally add legitimate files to an "
-"existing release, late additions can also indicate a security compromise."
-msgstr ""
-
-#: warehouse/templates/includes/file-details.html:22
-msgid "We recommend inspecting the release file before installing."
-msgstr ""
-
-#: warehouse/templates/includes/file-details.html:29
 msgid "Download URL"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:38
-#: warehouse/templates/includes/packaging/project-files.html:30
+#: warehouse/templates/includes/file-details.html:27
+#: warehouse/templates/includes/packaging/project-files.html:28
 msgid "Size"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:43
+#: warehouse/templates/includes/file-details.html:32
 #: warehouse/templates/includes/packaging/metadata/tags.html:3
 msgid "Tags"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:55
+#: warehouse/templates/includes/file-details.html:44
 #: warehouse/templates/includes/packaging/security/attestation.html:225
 msgid "SHA-256 checksum"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:60
-#: warehouse/templates/includes/file-details.html:82
+#: warehouse/templates/includes/file-details.html:49
+#: warehouse/templates/includes/file-details.html:71
 msgid "How to use checksums"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:69
-#: warehouse/templates/includes/file-details.html:91
+#: warehouse/templates/includes/file-details.html:58
+#: warehouse/templates/includes/file-details.html:80
 #: warehouse/templates/includes/packaging/project-header.html:43
 #: warehouse/templates/includes/packaging/security/attestation.html:234
 #: warehouse/templates/manage/account.html:218
@@ -3153,50 +3126,51 @@ msgstr ""
 msgid "Copy to clipboard"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:77
+#: warehouse/templates/includes/file-details.html:66
 msgid "BLAKE2b-256 checksum"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:98
+#: warehouse/templates/includes/file-details.html:87
 #: warehouse/templates/manage/project/release.html:60
 #: warehouse/templates/manage/project/release.html:82
 msgid "Upload date"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:99
+#: warehouse/templates/includes/file-details.html:88
 #, python-format
 msgid "%(upload_time)s"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:103
+#: warehouse/templates/includes/file-details.html:92
 msgid "Uploaded using Trusted Publishing?"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:105
+#: warehouse/templates/includes/file-details.html:94
 msgid "What is trusted publishing?"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:109
+#: warehouse/templates/includes/file-details.html:98
 msgid "Yes"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:111
+#: warehouse/templates/includes/file-details.html:100
 msgid "No"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:117
+#: warehouse/templates/includes/file-details.html:106
 msgid "Uploaded via"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:127
+#: warehouse/templates/includes/file-details.html:116
 #: warehouse/templates/includes/packaging/metadata/provenance.html:13
-#: warehouse/templates/includes/packaging/project-security.html:23
-#: warehouse/templates/includes/packaging/project-security.html:79
+#: warehouse/templates/includes/packaging/project-files.html:30
+#: warehouse/templates/includes/packaging/project-security.html:35
+#: warehouse/templates/includes/packaging/project-security.html:91
 msgid "Provenance"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:130
-#: warehouse/templates/includes/packaging/project-security.html:25
+#: warehouse/templates/includes/file-details.html:119
+#: warehouse/templates/includes/packaging/project-security.html:37
 #, python-format
 msgid ""
 "<strong>Provenance</strong> describes where a file came from. On PyPI, "
@@ -3367,6 +3341,20 @@ msgstr ""
 msgid "Members"
 msgstr ""
 
+#: warehouse/templates/includes/packaging/file-provenance-status.html:3
+#: warehouse/templates/includes/packaging/project-security.html:102
+#: warehouse/templates/includes/packaging/security/lost-provenance.html:31
+msgid "With provenance"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/file-provenance-status.html:5
+#: warehouse/templates/includes/packaging/project-security.html:114
+#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:45
+#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:79
+#: warehouse/templates/includes/packaging/security/lost-provenance.html:49
+msgid "Without provenance"
+msgstr ""
+
 #: warehouse/templates/includes/packaging/project-description.html:14
 msgid "The author of this package has not provided a project description"
 msgstr ""
@@ -3385,87 +3373,87 @@ msgid ""
 "documentation</a>."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:19
+#: warehouse/templates/includes/packaging/project-files.html:17
 msgid "Source distribution (sdist)"
 msgid_plural "Source distributions (sdists)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/includes/packaging/project-files.html:26
+#: warehouse/templates/includes/packaging/project-files.html:24
 #, python-format
 msgid "Source distribution for %(name)s %(version)s"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:29
-#: warehouse/templates/includes/packaging/project-files.html:107
+#: warehouse/templates/includes/packaging/project-files.html:27
+#: warehouse/templates/includes/packaging/project-files.html:105
 msgid "File"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:31
+#: warehouse/templates/includes/packaging/project-files.html:29
 msgid "Uploaded"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:60
-#: warehouse/templates/includes/packaging/project-files.html:235
+#: warehouse/templates/includes/packaging/project-files.html:58
+#: warehouse/templates/includes/packaging/project-files.html:232
 #: warehouse/templates/manage/account/publishing.html:416
 #: warehouse/templates/manage/organization/publishing.html:416
 #: warehouse/templates/manage/project/publishing.html:364
 msgid "Details"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:72
+#: warehouse/templates/includes/packaging/project-files.html:70
 msgid "Built distribution (wheel)"
 msgid_plural "Built distributions (wheels)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/includes/packaging/project-files.html:81
+#: warehouse/templates/includes/packaging/project-files.html:79
 msgid "Enable javascript to be able to filter the list of wheel files."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:86
+#: warehouse/templates/includes/packaging/project-files.html:84
 msgid "Search wheels"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:91
+#: warehouse/templates/includes/packaging/project-files.html:89
 msgid "Search wheels by file name"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:104
+#: warehouse/templates/includes/packaging/project-files.html:102
 #, python-format
 msgid "Table of built distributions (wheels) for %(name)s %(version)s"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:110
-#: warehouse/templates/includes/packaging/project-files.html:121
-#: warehouse/templates/includes/packaging/project-files.html:128
-#: warehouse/templates/includes/packaging/project-security.html:134
+#: warehouse/templates/includes/packaging/project-files.html:108
+#: warehouse/templates/includes/packaging/project-files.html:119
+#: warehouse/templates/includes/packaging/project-files.html:126
+#: warehouse/templates/includes/packaging/project-security.html:146
 msgid "Interpreter"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:133
-#: warehouse/templates/includes/packaging/project-files.html:144
-#: warehouse/templates/includes/packaging/project-files.html:151
+#: warehouse/templates/includes/packaging/project-files.html:131
+#: warehouse/templates/includes/packaging/project-files.html:142
+#: warehouse/templates/includes/packaging/project-files.html:149
 msgid "ABI"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:156
-#: warehouse/templates/includes/packaging/project-files.html:167
-#: warehouse/templates/includes/packaging/project-files.html:174
-#: warehouse/templates/includes/packaging/project-security.html:153
+#: warehouse/templates/includes/packaging/project-files.html:154
+#: warehouse/templates/includes/packaging/project-files.html:165
+#: warehouse/templates/includes/packaging/project-files.html:172
+#: warehouse/templates/includes/packaging/project-security.html:165
 msgid "Platform"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:181
-#: warehouse/templates/includes/packaging/project-security.html:60
+#: warehouse/templates/includes/packaging/project-files.html:179
+#: warehouse/templates/includes/packaging/project-security.html:72
 msgid "Reset"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:214
+#: warehouse/templates/includes/packaging/project-files.html:211
 msgid "Legacy Egg format"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:251
+#: warehouse/templates/includes/packaging/project-files.html:248
 msgid "Total release size:"
 msgstr ""
 
@@ -3545,7 +3533,7 @@ msgid "Release yanked on %(date)s"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-release-history.html:81
-#: warehouse/templates/includes/packaging/project-status.html:105
+#: warehouse/templates/includes/packaging/project-status.html:104
 msgid "Yanked"
 msgstr ""
 
@@ -3555,7 +3543,7 @@ msgid "Project archived on %(date)s"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-release-history.html:95
-#: warehouse/templates/includes/packaging/project-status.html:137
+#: warehouse/templates/includes/packaging/project-status.html:136
 msgid "Pre-release"
 msgstr ""
 
@@ -3568,29 +3556,39 @@ msgstr[1] ""
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:24
 #: warehouse/templates/includes/packaging/project-release-history.html:117
-#: warehouse/templates/includes/packaging/project-status.html:27
+#: warehouse/templates/includes/packaging/project-status.html:10
 #: warehouse/templates/includes/packaging/security/lost-provenance.html:6
+#: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:9
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:14
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:31
 msgid "Loss of provenance"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:32
 #: warehouse/templates/includes/packaging/project-release-history.html:119
-#: warehouse/templates/includes/packaging/project-status.html:39
+#: warehouse/templates/includes/packaging/project-status.html:22
 #: warehouse/templates/includes/packaging/security/changed-provenance.html:9
+#: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:28
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:52
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:66
 msgid "Change of provenance"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:40
 #: warehouse/templates/includes/packaging/project-release-history.html:121
-#: warehouse/templates/includes/packaging/project-status.html:51
+#: warehouse/templates/includes/packaging/project-status.html:34
 #: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:8
+#: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:47
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:88
 msgid "Inconsistent provenance"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:48
 #: warehouse/templates/includes/packaging/project-release-history.html:123
-#: warehouse/templates/includes/packaging/project-status.html:63
+#: warehouse/templates/includes/packaging/project-status.html:46
 #: warehouse/templates/includes/packaging/security/partial-provenance.html:9
+#: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:66
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:118
 msgid "Incomplete provenance"
 msgstr ""
 
@@ -3621,7 +3619,37 @@ msgstr ""
 msgid "Upload timing"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-security.html:51
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:63
+#: warehouse/templates/includes/packaging/project-security.html:21
+#: warehouse/templates/includes/packaging/project-status.html:58
+#: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:88
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:141
+msgid "File added late"
+msgid_plural "Files added late"
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/templates/includes/packaging/project-security.html:26
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:146
+#, python-format
+msgid ""
+"%(count)s file was uploaded more than %(days)s days after the first file "
+"in this release."
+msgid_plural ""
+"%(count)s files were uploaded more than %(days)s days after the first "
+"file in this release."
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/templates/includes/packaging/project-security.html:30
+#: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:91
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:150
+msgid ""
+"While project maintainers occasionally add legitimate files to an "
+"existing release, late additions can also indicate a security compromise."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-security.html:63
 #: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:29
 #: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:39
 #: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:63
@@ -3635,50 +3663,38 @@ msgid_plural "Select from %(count)s files"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/includes/packaging/project-security.html:67
+#: warehouse/templates/includes/packaging/project-security.html:79
 msgid "Filter files"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-security.html:90
-#: warehouse/templates/includes/packaging/security/lost-provenance.html:31
-msgid "With provenance"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-security.html:102
-#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:45
-#: warehouse/templates/includes/packaging/security/inconsistent-provenance.html:79
-#: warehouse/templates/includes/packaging/security/lost-provenance.html:49
-msgid "Without provenance"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-security.html:106
+#: warehouse/templates/includes/packaging/project-security.html:118
 msgid "File type"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-security.html:117
+#: warehouse/templates/includes/packaging/project-security.html:129
 msgid "Standard Distribution (sdist)"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-security.html:129
+#: warehouse/templates/includes/packaging/project-security.html:141
 msgid "Wheel"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-security.html:179
+#: warehouse/templates/includes/packaging/project-security.html:191
 msgid "No files match the current filters."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-security.html:181
+#: warehouse/templates/includes/packaging/project-security.html:193
 msgid "Reset filters"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-security.html:213
+#: warehouse/templates/includes/packaging/project-security.html:225
 #, python-format
 msgid "%(count)s attestation"
 msgid_plural "%(count)s attestations"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/includes/packaging/project-security.html:236
+#: warehouse/templates/includes/packaging/project-security.html:248
 #, python-format
 msgid ""
 "Attestation for <a href=\"%(href)s\" data-project-tabs-target=\"tab\" "
@@ -3689,15 +3705,15 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/includes/packaging/project-security.html:256
+#: warehouse/templates/includes/packaging/project-security.html:268
 msgid "This file was uploaded without provenance metadata."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-security.html:264
+#: warehouse/templates/includes/packaging/project-security.html:276
 msgid "A note on package security"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-security.html:266
+#: warehouse/templates/includes/packaging/project-security.html:278
 msgid ""
 "PyPI is a repository for distributing packages, not a service for "
 "auditing them. While third-party security researchers and our staff do "
@@ -3705,7 +3721,35 @@ msgid ""
 " the quality, security or suitability of any given package."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-status.html:12
+#: warehouse/templates/includes/packaging/project-status.html:13
+#, python-format
+msgid ""
+"A previous release had provenance metadata, but this release does not. <a"
+" href=\"%(href)s\">View details</a>."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-status.html:25
+#, python-format
+msgid ""
+"The repository or configuration that created this release differ from a "
+"previous release. <a href=\"%(href)s\">View details</a>."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-status.html:37
+#, python-format
+msgid ""
+"Files in this release originate from inconsistent repositories or "
+"configurations. <a href=\"%(href)s\">View details</a>."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-status.html:49
+#, python-format
+msgid ""
+"%(without_count)s of %(total_count)s files were uploaded without "
+"provenance metadata. <a href=\"%(href)s\">View details</a>."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-status.html:63
 #, python-format
 msgid ""
 "%(count)s file was added to this release more than %(days)s days after "
@@ -3718,41 +3762,13 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/includes/packaging/project-status.html:30
-#, python-format
-msgid ""
-"A previous release had provenance metadata, but this release does not. <a"
-" href=\"%(href)s\">View details</a>."
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-status.html:42
-#, python-format
-msgid ""
-"The repository or configuration that created this release differ from a "
-"previous release. <a href=\"%(href)s\">View details</a>."
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-status.html:54
-#, python-format
-msgid ""
-"Files in this release originate from inconsistent repositories or "
-"configurations. <a href=\"%(href)s\">View details</a>."
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-status.html:66
-#, python-format
-msgid ""
-"%(without_count)s of %(total_count)s files were uploaded without "
-"provenance metadata. <a href=\"%(href)s\">View details</a>."
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-status.html:77
-#: warehouse/templates/includes/packaging/project-status.html:89
+#: warehouse/templates/includes/packaging/project-status.html:76
+#: warehouse/templates/includes/packaging/project-status.html:88
 #: warehouse/templates/manage/project/releases.html:25
 msgid "Quarantined"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-status.html:80
+#: warehouse/templates/includes/packaging/project-status.html:79
 #, python-format
 msgid ""
 "This project has been <a href=\"%(href)s\">quarantined</a> by PyPI "
@@ -3760,7 +3776,7 @@ msgid ""
 "complete."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-status.html:92
+#: warehouse/templates/includes/packaging/project-status.html:91
 #, python-format
 msgid ""
 "This release has been <a href=\"%(href)s\">quarantined</a> by PyPI "
@@ -3768,31 +3784,31 @@ msgid ""
 "complete."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-status.html:95
-#: warehouse/templates/includes/packaging/project-status.html:111
+#: warehouse/templates/includes/packaging/project-status.html:94
+#: warehouse/templates/includes/packaging/project-status.html:110
 #, python-format
 msgid "Consider using <a href=\"%(href)s\">release %(version)s</a> instead."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-status.html:108
+#: warehouse/templates/includes/packaging/project-status.html:107
 #, python-format
 msgid ""
 "This release has been <a href=\"%(href)s\">yanked</a> by its maintainers,"
 " and will be ignored by installers, except when explicitly specified."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-status.html:115
+#: warehouse/templates/includes/packaging/project-status.html:114
 msgid "Reason given by maintainers:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-status.html:128
+#: warehouse/templates/includes/packaging/project-status.html:127
 #, python-format
 msgid ""
 "This project has been <a href=\"%(href)s\">archived</a> by its "
 "maintainers, and is no longer receiving any updates."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-status.html:140
+#: warehouse/templates/includes/packaging/project-status.html:139
 #, python-format
 msgid ""
 "This release is a <a href=\"%(href)s\">pre-release</a> and may not be "
@@ -4023,6 +4039,7 @@ msgstr ""
 
 #: warehouse/templates/includes/packaging/metadata/provenance.html:51
 #: warehouse/templates/includes/packaging/security/partial-provenance.html:12
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:121
 #, python-format
 msgid ""
 "%(without_count)s of %(total_count)s files were uploaded without "
@@ -4308,29 +4325,6 @@ msgid ""
 "href=\"%(href)s\">Learn more</a>."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/security/late-files.html:10
-#, python-format
-msgid ""
-"%(count)s file was uploaded more than %(days)s days after the first file "
-"in this release."
-msgid_plural ""
-"%(count)s files were uploaded more than %(days)s days after the first "
-"file in this release."
-msgstr[0] ""
-msgstr[1] ""
-
-#: warehouse/templates/includes/packaging/security/late-files.html:17
-#, python-format
-msgid ""
-"We recommend inspecting the <a href=\"%(href)s\" data-project-tabs-"
-"target=\"tab\" data-action=\"project-tabs#onTabClick\">release files</a> "
-"before installing."
-msgstr ""
-
-#: warehouse/templates/includes/packaging/security/late-files.html:21
-msgid "We recommend inspecting the release files before installing."
-msgstr ""
-
 #: warehouse/templates/includes/packaging/security/lost-provenance.html:8
 msgid ""
 "A previous release of these files had provenance metadata, but this "
@@ -4377,6 +4371,201 @@ msgstr ""
 #: warehouse/templates/includes/packaging/security/partial-provenance.html:35
 #, python-format
 msgid "%(without_count)s of %(total_count)s files without provenance"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:11
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:12
+msgid "Loss of provenance, with file added late"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:14
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:17
+msgid ""
+"This file belongs to a release without provenance metadata, despite a "
+"prior release including this data."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:16
+#: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:35
+#: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:54
+#: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:77
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:19
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:57
+#, python-format
+msgid ""
+"The file was also added more than %(days)s days after the first file in "
+"this release."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:17
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:20
+msgid ""
+"These two factors together may indicate that the file has been "
+"compromised."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:19
+#: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:80
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:22
+#, python-format
+msgid ""
+"We recommend further investigation before installing this file. <a "
+"href=\"%(href)s\" data-project-tabs-target=\"tab\" data-action=\"project-"
+"tabs#onTabClick\">View details</a>."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:30
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:50
+msgid "Change of provenance, with file added late"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:33
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:55
+msgid ""
+"This file belongs to a release with changed provenance: the repository or"
+" configuration that created the release files differ from that of a "
+"previous release."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:36
+#: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:55
+#: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:78
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:58
+msgid ""
+"These two factors together may indicate that this file has been "
+"compromised."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:38
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:75
+#, python-format
+msgid ""
+"We recommend inspecting the repository and configuration before "
+"proceeding. <a href=\"%(href)s\" data-project-tabs-target=\"tab\" data-"
+"action=\"project-tabs#onTabClick\">View details</a>."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:49
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:84
+msgid "Inconsistent provenance, with file added late"
+msgid_plural "Inconsistent provenance, with files added late"
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:52
+msgid ""
+"This file belongs to a release with inconsistent provenance: the files in"
+" this release originate from different repositories or configurations."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:57
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:103
+#, python-format
+msgid ""
+"We recommend inspecting each repository and configuration before "
+"proceeding. <a href=\"%(href)s\" data-project-tabs-target=\"tab\" data-"
+"action=\"project-tabs#onTabClick\">View details</a>."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:68
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:114
+msgid "Incomplete provenance, with file added late"
+msgid_plural "Incomplete provenance, with files added late"
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:72
+msgid ""
+"This file belongs to a release with incomplete provenance: while this "
+"file has provenance metadata, other files in this release do not."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:74
+msgid ""
+"This file belongs to a release with incomplete provenance: while other "
+"files in this release have provenance metadata, this file does not."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:90
+#, python-format
+msgid ""
+"This file was uploaded more than %(days)s days after the first file in "
+"this release."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/security/warning-for-file-detail.html:92
+msgid "We recommend inspecting the release file before installing."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:29
+msgid "Loss of provenance, with files added late"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:34
+msgid ""
+"These files do not have provenance metadata, despite files in a prior "
+"release including this data."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:36
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:71
+#, python-format
+msgid ""
+"Some of these files were also added more than %(days)s days after the "
+"first file in this release."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:37
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:99
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:129
+msgid ""
+"These two factors together may indicate that the files have been "
+"compromised."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:39
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:133
+#, python-format
+msgid ""
+"We recommend further investigation before installing these files. <a "
+"href=\"%(href)s\" data-project-tabs-target=\"tab\" data-action=\"project-"
+"tabs#onTabClick\">View details</a>."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:64
+msgid "Change of provenance, with files added late"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:69
+msgid ""
+"The repository or configuration that created these release files differ "
+"from that of a previous release."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:72
+msgid ""
+"These two factors together may indicate that these files have been "
+"compromised."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:91
+msgid "These files originate from different repositories or configurations."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:94
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:124
+#, python-format
+msgid ""
+"%(count)s file was also added more than %(days)s days after the first "
+"file in this release."
+msgid_plural ""
+"%(count)s files were also added more than %(days)s days after the first "
+"file in this release."
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/templates/includes/packaging/security/warning-for-file-list.html:151
+msgid "We recommend inspecting the release files before installing."
 msgstr ""
 
 #: warehouse/templates/manage/account.html:17

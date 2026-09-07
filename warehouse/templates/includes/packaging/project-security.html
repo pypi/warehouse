@@ -15,8 +15,20 @@
   </div>
   {% if release.late_file_status.late_files %}
     <h3 class="no-top-margin">{% trans %}Upload timing{% endtrans %}</h3>
-    {% set link_to_release_files = true %}
-    {% include "includes/packaging/security/late-files.html" %}
+    <div class="callout-block callout-block--warning">
+      <h3 class="callout-block__heading">
+        <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+        {% trans count=release.late_file_status.late_files|length %}File added late
+      {% pluralize %}
+        Files added late{% endtrans %}
+      </h3>
+      <p>
+        {% trans count=release.late_file_status.late_files|length, days=maximum_age_for_new_uploads_days %}{{ count }} file was uploaded more than {{ days }} days after the first file in this release.
+      {% pluralize %}
+        {{ count }} files were uploaded more than {{ days }} days after the first file in this release.{% endtrans %}
+      </p>
+      <p>{% trans %}While project maintainers occasionally add legitimate files to an existing release, late additions can also indicate a security compromise.{% endtrans %}</p>
+    </div>
     <hr />
   {% endif %}
   {% set provenance_states = release.provenance_status.states %}

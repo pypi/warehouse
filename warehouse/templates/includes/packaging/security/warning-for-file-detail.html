@@ -1,0 +1,94 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% set provenance_states = release.provenance_status.states %}
+{# Provenance states are not mutually exclusive; show only the most important one. #}
+{% if 'lost-provenance' in provenance_states %}
+  <div class="callout-block callout-block--warning no-top-margin margin-bottom--xlarge">
+    <h3 class="callout-block__heading">
+      <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+      {% if not file.added_late %}
+        {% trans %}Loss of provenance{% endtrans %}
+      {% else %}
+        {% trans %}Loss of provenance, with file added late{% endtrans %}
+      {% endif %}
+    </h3>
+    <p>{% trans %}This file belongs to a release without provenance metadata, despite a prior release including this data.{% endtrans %}</p>
+    {% if file.added_late %}
+      <p>{% trans days=maximum_age_for_new_uploads_days %}The file was also added more than {{ days }} days after the first file in this release.{% endtrans %}</p>
+      <p>{% trans %}These two factors together may indicate that the file has been compromised.{% endtrans %}</p>
+    {% endif %}
+    <p>{% trans href="#security" %}We recommend further investigation before installing this file. <a href="{{ href }}"
+    data-project-tabs-target="tab"
+    data-action="project-tabs#onTabClick">View details</a>.{% endtrans %}</p>
+  </div>
+{% elif 'changed-provenance' in provenance_states %}
+  <div class="callout-block callout-block--warning no-top-margin margin-bottom--xlarge">
+    <h3 class="callout-block__heading">
+      <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+      {% if not file.added_late %}
+        {% trans %}Change of provenance{% endtrans %}
+      {% else %}
+        {% trans %}Change of provenance, with file added late{% endtrans %}
+      {% endif %}
+    </h3>
+    <p>{% trans %}This file belongs to a release with changed provenance: the repository or configuration that created the release files differ from that of a previous release.{% endtrans %}</p>
+    {% if file.added_late %}
+      <p>{% trans days=maximum_age_for_new_uploads_days %}The file was also added more than {{ days }} days after the first file in this release.{% endtrans %}</p>
+      <p>{% trans %}These two factors together may indicate that this file has been compromised.{% endtrans %}</p>
+    {% endif %}
+    <p>{% trans href="#security" %}We recommend inspecting the repository and configuration before proceeding. <a href="{{ href }}"
+    data-project-tabs-target="tab"
+    data-action="project-tabs#onTabClick">View details</a>.{% endtrans %}</p>
+  </div>
+{% elif 'inconsistent-provenance' in provenance_states %}
+  <div class="callout-block callout-block--warning no-top-margin margin-bottom--xlarge">
+    <h3 class="callout-block__heading">
+      <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+      {% if not file.added_late %}
+        {% trans %}Inconsistent provenance{% endtrans %}
+      {% else %}
+        {% trans %}Inconsistent provenance, with file added late{% endtrans %}
+      {% endif %}
+    </h3>
+    <p>{% trans %}This file belongs to a release with inconsistent provenance: the files in this release originate from different repositories or configurations.{% endtrans %}</p>
+    {% if file.added_late %}
+      <p>{% trans days=maximum_age_for_new_uploads_days %}The file was also added more than {{ days }} days after the first file in this release.{% endtrans %}</p>
+      <p>{% trans %}These two factors together may indicate that this file has been compromised.{% endtrans %}</p>
+    {% endif %}
+    <p>{% trans href="#security" %}We recommend inspecting each repository and configuration before proceeding. <a href="{{ href }}"
+    data-project-tabs-target="tab"
+    data-action="project-tabs#onTabClick">View details</a>.{% endtrans %}</p>
+  </div>
+{% elif 'partial-provenance' in provenance_states %}
+  <div class="callout-block callout-block--warning no-top-margin margin-bottom--xlarge">
+    <h3 class="callout-block__heading">
+      <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+      {% if not file.added_late %}
+        {% trans %}Incomplete provenance{% endtrans %}
+      {% else %}
+        {% trans %}Incomplete provenance, with file added late{% endtrans %}
+      {% endif %}
+    </h3>
+    {% if file.provenance %}
+      <p>{% trans %}This file belongs to a release with incomplete provenance: while this file has provenance metadata, other files in this release do not.{% endtrans %}</p>
+    {% else %}
+      <p>{% trans %}This file belongs to a release with incomplete provenance: while other files in this release have provenance metadata, this file does not.{% endtrans %}</p>
+    {% endif %}
+    {% if file.added_late %}
+      <p>{% trans days=maximum_age_for_new_uploads_days %}The file was also added more than {{ days }} days after the first file in this release.{% endtrans %}</p>
+      <p>{% trans %}These two factors together may indicate that this file has been compromised.{% endtrans %}</p>
+    {% endif %}
+    <p>{% trans href="#security" %}We recommend further investigation before installing this file. <a href="{{ href }}"
+    data-project-tabs-target="tab"
+    data-action="project-tabs#onTabClick">View details</a>.{% endtrans %}</p>
+  </div>
+{% elif file.added_late %}
+  <div class="callout-block callout-block--warning no-top-margin margin-bottom--xlarge">
+    <h3 class="callout-block__heading">
+      <i class="fa fa-triangle-exclamation" aria-hidden="true"></i>
+      {% trans %}File added late{% endtrans %}
+    </h3>
+    <p>{% trans days=maximum_age_for_new_uploads_days %}This file was uploaded more than {{ days }} days after the first file in this release.{% endtrans %}</p>
+    <p>{% trans %}While project maintainers occasionally add legitimate files to an existing release, late additions can also indicate a security compromise.{% endtrans %}</p>
+    <p>{% trans %}We recommend inspecting the release file before installing.{% endtrans %}</p>
+  </div>
+{% endif %}

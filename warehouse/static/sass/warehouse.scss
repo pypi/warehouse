@@ -250,6 +250,11 @@
   margin-bottom: grid.$half-spacing-unit;
 }
 
+// Add even larger margin to the bottom of elements
+.margin-bottom--xlarge {
+  margin-bottom: grid.$spacing-unit;
+}
+
 // Add small margin to the left of elements
 .margin-left {
   margin-left: grid.$quarter-spacing-unit;

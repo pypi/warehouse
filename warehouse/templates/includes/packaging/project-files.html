@@ -10,9 +10,7 @@
     <p>
       {% trans href='https://packaging.python.org/en/latest/discussions/package-formats/#package-formats', title=gettext('External link') %}For a detailed explanation of source distributions (sdists) and built distributions (wheels), please see the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">package formats documentation</a>.{% endtrans %}
     </p>
-    {% if release.late_file_status.late_files %}
-      {% include "includes/packaging/security/late-files.html" %}
-    {% endif %}
+    {% include "includes/packaging/security/warning-for-file-list.html" %}
     {% if sdists %}
       <h3>
         <i class="fa-regular fa-file-code" aria-hidden="true"></i>
@@ -52,9 +50,7 @@
                 {{ humanize(file.upload_time) }}
               {% endif %}
             </td>
-            <td>
-              {% include "includes/packaging/file-provenance-status.html" %}
-            </td>
+            <td>{% include "includes/packaging/file-provenance-status.html" %}</td>
             <td>
               <a href="#{{ file.filename }}"
                  class="button button--small button--outline file-info__details-button"
@@ -208,9 +204,7 @@
                 </span>
               {% endif %}
               <span class="file-info__meta-divider" aria-hidden="true"></span>
-              <span class="file-info__meta">
-                {% include "includes/packaging/file-provenance-status.html" %}
-              </span>
+              <span class="file-info__meta">{% include "includes/packaging/file-provenance-status.html" %}</span>
             </span>
           </td>
           {% if 'Egg' in file.pretty_wheel_tags %}
