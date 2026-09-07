@@ -134,7 +134,7 @@
                       data-comparison-type="exact"
                       data-auto-update-url-querystring="true">
                 <option value="">{% trans %}Interpreter{% endtrans %}</option>
-                {% for value, label in wheel_filters_all['interpreter'].items() | sort | unique(attribute=1) %}
+                {% for value, label in wheel_filters_all['interpreter'].items() | natsort | unique(attribute=1) %}
                   <option value="{{ value }}">{{ label }}</option>
                 {% endfor %}
               </select>
@@ -157,7 +157,7 @@
                       data-comparison-type="exact"
                       data-auto-update-url-querystring="true">
                 <option value="">{% trans %}ABI{% endtrans %}</option>
-                {% for value, label in wheel_filters_all['abi'].items() | sort | unique(attribute=1) %}
+                {% for value, label in wheel_filters_all['abi'].items() | natsort | unique(attribute=1) %}
                   <option value="{{ value }}">{{ label }}</option>
                 {% endfor %}
               </select>
@@ -180,7 +180,7 @@
                       data-comparison-type="exact"
                       data-auto-update-url-querystring="true">
                 <option value="">{% trans %}Platform{% endtrans %}</option>
-                {% for value, label in wheel_filters_all['platform'].items() | sort | unique(attribute=1) %}
+                {% for value, label in wheel_filters_all['platform'].items() | natsort | unique(attribute=1) %}
                   <option value="{{ value }}">{{ label }}</option>
                 {% endfor %}
               </select>
