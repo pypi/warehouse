@@ -2338,9 +2338,7 @@ class TestUserCheckEmailReputationService:
 
     def _response(self, mocker, body):
         response = mocker.Mock(spec=requests.Response)
-        response.status_code = 200
         response.json.return_value = body
-        response.raise_for_status.return_value = None
         return response
 
     def _service(
@@ -2366,9 +2364,7 @@ class TestUserCheckEmailReputationService:
             session,
         )
 
-    def test_disposable_domain(self, mocker):
-        ratelimiter = DummyRateLimiter()
-        hit = mocker.spy(ratelimiter, "hit")
+    def test_disposable_domain(self, mocker, ratelimit_service):
         svc, session = self._service(
             mocker,
             self._response(
@@ -2386,7 +2382,7 @@ class TestUserCheckEmailReputationService:
                     "blocklisted": False,
                 },
             ),
-            ratelimiter=ratelimiter,
+            ratelimiter=ratelimit_service,
         )
 
         result = svc.check_email("foo@dropmail.me")
@@ -2408,7 +2404,7 @@ class TestUserCheckEmailReputationService:
             timeout=(0.25, 1),
         )
         # The budget is spent atomically, before the remote call.
-        hit.assert_called_once_with(REMOTE_ADDR)
+        ratelimit_service.hit.assert_called_once_with(REMOTE_ADDR)
 
     def test_disposable_address_on_public_domain(self, mocker):
         """
@@ -2543,52 +2539,65 @@ class TestUserCheckEmailReputationService:
 
     @pytest.mark.parametrize("status_code", [400, 401, 429, 500])
     def test_http_error_fails_open_after_spending_budget(
-        self, metrics, mocker, status_code
+        self, metrics, mocker, ratelimit_service, status_code
     ):
-        class UserCheckHTTPError(requests.HTTPError):
-            def __init__(self):
-                self.response = SimpleNamespace(status_code=status_code)
-
-        response = mocker.Mock(spec=requests.Response)
-        response.status_code = status_code
-        response.raise_for_status.side_effect = UserCheckHTTPError()
-        ratelimiter = DummyRateLimiter()
-        hit = mocker.spy(ratelimiter, "hit")
+        response = self._response(mocker, None)
+        response.raise_for_status.side_effect = requests.HTTPError(
+            response=SimpleNamespace(status_code=status_code)
+        )
         svc, _session = self._service(
-            mocker, response, metrics=metrics, ratelimiter=ratelimiter
+            mocker, response, metrics=metrics, ratelimiter=ratelimit_service
         )
 
         assert svc.check_email("foo@example.com") is None
         # The budget is spent atomically before the remote call, so a
         # repeatedly failing upstream still consumes it -- bounding how
         # hard we hammer a failing service.
-        hit.assert_called_once_with(REMOTE_ADDR)
+        ratelimit_service.hit.assert_called_once_with(REMOTE_ADDR)
         metrics.increment.assert_any_call(
             "warehouse.email_reputation.request",
             tags=[
                 "service:usercheck",
                 "result:error",
                 f"status_code:{status_code}",
+                "error_type:HTTPError",
             ],
         )
 
-    def test_connection_error_fails_open(self, metrics, mocker):
+    @pytest.mark.parametrize(
+        ("exc", "error_type"),
+        [
+            (requests.ConnectionError("no route to host"), "ConnectionError"),
+            (requests.ConnectTimeout("timed out"), "ConnectTimeout"),
+            (requests.ReadTimeout("timed out"), "ReadTimeout"),
+        ],
+    )
+    def test_transport_error_fails_open(self, metrics, mocker, exc, error_type):
+        """
+        A failure below the HTTP layer never has a status code to report, so
+        the exception type is what separates them: a connect timeout means we
+        never reached UserCheck, a read timeout means we did and paid for a
+        call we then discarded.
+        """
         svc, session = self._service(mocker, None, metrics=metrics)
-        session.get.side_effect = requests.ConnectionError("no route to host")
+        session.get.side_effect = exc
 
         assert svc.check_email("foo@example.com") is None
         assert metrics.increment.call_args_list == [
             mocker.call(
                 "warehouse.email_reputation.request",
-                tags=["service:usercheck", "result:error", "status_code:none"],
+                tags=[
+                    "service:usercheck",
+                    "result:error",
+                    "status_code:none",
+                    f"error_type:{error_type}",
+                ],
             )
         ]
 
     def test_malformed_response_fails_open(self, metrics, mocker):
-        response = mocker.Mock(spec=requests.Response)
-        response.status_code = 200
+        response = self._response(mocker, None)
         response.json.side_effect = requests.exceptions.JSONDecodeError("", "", 0)
-        response.raise_for_status.return_value = None
         svc, _session = self._service(mocker, response, metrics=metrics)
 
         assert svc.check_email("foo@example.com") is None
@@ -2638,7 +2647,9 @@ class TestUserCheckEmailReputationService:
             ),
         ]
 
-    def test_rate_limited_raises_instead_of_failing_open(self, metrics, mocker):
+    def test_rate_limited_raises_instead_of_failing_open(
+        self, metrics, mocker, ratelimit_service
+    ):
         """
         The limiter is keyed on the caller's own address, so a client that
         could exhaust it at will could otherwise skip the very check that
@@ -2646,13 +2657,10 @@ class TestUserCheckEmailReputationService:
         atomic test-and-set, and a denied hit consumes nothing further.
         """
         resets_in = datetime.timedelta(minutes=10)
-        ratelimiter = DummyRateLimiter()
-        hit = mocker.patch.object(ratelimiter, "hit", autospec=True, return_value=False)
-        mocker.patch.object(
-            ratelimiter, "resets_in", autospec=True, return_value=resets_in
-        )
+        mocker.patch.object(ratelimit_service, "hit", return_value=False)
+        mocker.patch.object(ratelimit_service, "resets_in", return_value=resets_in)
         svc, session = self._service(
-            mocker, None, metrics=metrics, ratelimiter=ratelimiter
+            mocker, None, metrics=metrics, ratelimiter=ratelimit_service
         )
 
         with pytest.raises(TooManyEmailReputationChecks) as excinfo:
@@ -2660,7 +2668,7 @@ class TestUserCheckEmailReputationService:
 
         assert excinfo.value.resets_in == resets_in
         session.get.assert_not_called()
-        hit.assert_called_once_with(REMOTE_ADDR)
+        ratelimit_service.hit.assert_called_once_with(REMOTE_ADDR)
         assert metrics.increment.call_args_list == [
             mocker.call(
                 "warehouse.email_reputation.request",
@@ -2669,25 +2677,26 @@ class TestUserCheckEmailReputationService:
         ]
 
     @pytest.mark.parametrize("remote_addr", [None, ""])
-    def test_missing_remote_addr_skips_the_ratelimiter(self, mocker, remote_addr):
+    def test_missing_remote_addr_skips_the_ratelimiter(
+        self, mocker, ratelimit_service, remote_addr
+    ):
         """
         Without a client address there is no per-client budget to spend, so
         the check proceeds instead of pooling every request into one shared
         bucket keyed on None or the empty string.
         """
-        ratelimiter = DummyRateLimiter()
-        hit = mocker.patch.object(ratelimiter, "hit", autospec=True, return_value=False)
+        mocker.patch.object(ratelimit_service, "hit", return_value=False)
         svc, session = self._service(
             mocker,
             self._response(mocker, {"domain": "example.com"}),
-            ratelimiter=ratelimiter,
+            ratelimiter=ratelimit_service,
             remote_addr=remote_addr,
         )
 
         result = svc.check_email("foo@example.com")
 
         assert result == EmailReputationResult()
-        hit.assert_not_called()
+        ratelimit_service.hit.assert_not_called()
         session.get.assert_called_once()
 
     def test_no_api_key_fails_open_without_request(self, metrics, mocker):

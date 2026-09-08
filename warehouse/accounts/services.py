@@ -1395,6 +1395,7 @@ class UserCheckEmailReputationService:
                     "service:usercheck",
                     "result:error",
                     f"status_code:{status_code}",
+                    f"error_type:{type(exc).__name__}",
                 ],
             )
             return None
