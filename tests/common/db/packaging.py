@@ -19,6 +19,7 @@ from warehouse.packaging.models import (
     Project,
     Provenance,
     Release,
+    ReleaseURL,
     Role,
     RoleInvitation,
 )
@@ -104,6 +105,25 @@ class ReleaseObservationFactory(WarehouseFactory):
     )
     payload = factory.Faker("json")
     summary = factory.Faker("paragraph")
+
+
+class ReleaseURLFactory(WarehouseFactory):
+    """
+    Build a `Release.project_urls` entry.
+
+    Declare `name` before `release`: `Release._project_urls` is an
+    `attribute_keyed_dict("name")`, and the declarative constructor assigns
+    kwargs in order, so setting `release` first inserts into that dict while the
+    key attribute is still unset.
+    """
+
+    class Meta:
+        model = ReleaseURL
+
+    name = factory.Sequence(lambda n: f"Link {n}")
+    release = factory.SubFactory(ReleaseFactory)
+    url = factory.Faker("uri")
+    verified = False
 
 
 class FileFactory(WarehouseFactory):
