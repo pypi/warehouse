@@ -753,6 +753,47 @@ def register(request, _form_class=RegistrationForm):
         breach_service=breach_service,
     )
 
+    # Charged before validating anything: a failed attempt still costs the
+    # deliverability DNS lookups and discloses whether an address is registered.
+    #
+    # Deliberately no RateLimit/RateLimit-Policy headers, unlike the search and
+    # project-create limiters. This endpoint is unauthenticated and has no
+    # legitimate scripted callers, so publishing the remaining quota would tell
+    # an enumerator how to pace under the cap.
+    register_limiter = request.find_service(IRateLimiter, name="accounts.register")
+
+    if request.method == "POST" and not request.remote_addr:
+        # Nothing to key on, and one shared bucket for every address-less
+        # request is worse than no limit. Counted so that a limiter which
+        # has stopped running is still visible.
+        request.metrics.increment("warehouse.accounts.register.unmetered")
+    elif request.method == "POST" and not register_limiter.hit(request.remote_addr):
+        _outcome("ratelimited")
+        request.metrics.increment(
+            "warehouse.accounts.register.ratelimited",
+            tags=["ratelimiter:ip"],
+        )
+        # Form errors render without JavaScript; flashes do not.
+        request.response.status = 429
+        _resets_in = register_limiter.resets_in(request.remote_addr)
+        if _resets_in is not None:
+            request.response.retry_after = _resets_in.total_seconds()
+            form.form_errors.append(
+                request._(
+                    "Too many registration attempts from your network. "
+                    "Please try again in ${time}.",
+                    mapping={"time": humanize.naturaldelta(_resets_in.total_seconds())},
+                )
+            )
+        else:
+            form.form_errors.append(
+                request._(
+                    "Too many registration attempts from your network. "
+                    "Please try again later."
+                )
+            )
+        return {"form": form}
+
     if request.method == "POST" and form.validate():
         email_limiter = request.find_service(IRateLimiter, name="email.verify")
         user = user_service.create_user(
