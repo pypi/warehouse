@@ -15,12 +15,13 @@ import warehouse.packaging.tasks
 
 from warehouse.accounts.models import WebAuthn
 from warehouse.observations.models import ObservationKind
-from warehouse.packaging.models import DependencyKind, Description
+from warehouse.packaging.models import DependencyKind, Description, Release
 from warehouse.packaging.tasks import (
     check_file_cache_tasks_outstanding,
     compute_2fa_metrics,
     compute_packaging_metrics,
     compute_top_dependents_corpus,
+    delete_orphaned_descriptions,
     sync_file_to_cache,
     typo_check_project_name,
     update_bigquery_release_files,
@@ -380,6 +381,46 @@ def test_update_description_html(monkeypatch, db_request):
         (descriptions[1].raw, readme.render(descriptions[1].raw), current_version),
         (descriptions[2].raw, readme.render(descriptions[2].raw), current_version),
     }
+
+
+def test_delete_orphaned_descriptions(db_request, metrics):
+    # `releases.description_id` cascades the wrong way, so a referenced
+    # Description that got picked up here would take its Release with it.
+    attached = DescriptionFactory.create()
+    release = ReleaseFactory.create(description=attached)
+    orphans = [DescriptionFactory.create() for _ in range(3)]
+
+    db_request.find_service = pretend.call_recorder(
+        lambda svc, name=None, context=None: metrics
+    )
+    db_request.registry.settings["orphaned_descriptions.batch_size"] = 5000
+
+    delete_orphaned_descriptions(db_request)
+
+    assert db_request.db.query(Description.id).all() == [(attached.id,)]
+    assert db_request.db.get(Release, release.id) is not None
+    assert metrics.increment.calls == [
+        pretend.call(
+            "warehouse.packaging.orphaned_descriptions.deleted", value=len(orphans)
+        )
+    ]
+
+
+def test_delete_orphaned_descriptions_batches(db_request, metrics):
+    for _ in range(3):
+        DescriptionFactory.create()
+
+    db_request.find_service = pretend.call_recorder(
+        lambda svc, name=None, context=None: metrics
+    )
+    db_request.registry.settings["orphaned_descriptions.batch_size"] = 2
+
+    delete_orphaned_descriptions(db_request)
+
+    assert db_request.db.query(Description).count() == 1
+    assert metrics.increment.calls == [
+        pretend.call("warehouse.packaging.orphaned_descriptions.deleted", value=2)
+    ]
 
 
 def test_update_release_description(db_request):

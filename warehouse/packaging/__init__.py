@@ -21,6 +21,7 @@ from warehouse.packaging.tasks import (
     compute_2fa_metrics,
     compute_packaging_metrics,
     compute_top_dependents_corpus,
+    delete_orphaned_descriptions,
     reconcile_file_storages,
     update_description_html,
 )
@@ -176,6 +177,7 @@ def includeme(config):
     config.add_periodic_task(crontab(minute="*/15"), reconcile_file_storages)
 
     config.add_periodic_task(crontab(minute="*/5"), update_description_html)
+    config.add_periodic_task(crontab(minute="*/5"), delete_orphaned_descriptions)
     config.add_periodic_task(crontab(minute="*/5"), update_role_invitation_status)
 
     # Add a periodic task to generate 2FA metrics
