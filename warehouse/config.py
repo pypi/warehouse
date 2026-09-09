@@ -586,6 +586,12 @@ def configure(settings=None):
     )
     maybe_set(
         settings,
+        "warehouse.account.register_ratelimit_string",
+        "REGISTER_RATELIMIT_STRING",
+        default="10 per 5 minutes, 30 per hour",
+    )
+    maybe_set(
+        settings,
         "warehouse.manage.oidc.user_registration_ratelimit_string",
         "USER_OIDC_REGISTRATION_RATELIMIT_STRING",
         default="100 per day",

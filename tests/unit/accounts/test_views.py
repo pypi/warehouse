@@ -1930,10 +1930,101 @@ class TestRegister:
             SimpleNamespace(merge=lambda policy: None), None, None, name="csp"
         )
 
+    def _post_a_registration(self, db_request):
+        """Fill in a POST body that would otherwise pass form validation."""
+        db_request.method = "POST"
+        db_request.POST.update(
+            {
+                "username": "username_value",
+                "new_password": "MyStr0ng!shP455w0rd",
+                "password_confirm": "MyStr0ng!shP455w0rd",
+                "email": "foo@bar.com",
+                "full_name": "full_name",
+            }
+        )
+
+    @pytest.mark.parametrize(
+        ("resets_in", "retry_after", "message"),
+        [
+            (
+                datetime.timedelta(seconds=3300),
+                "3300",
+                "Too many registration attempts from your network. Please try "
+                "again in 55 minutes.",
+            ),
+            (
+                None,
+                None,
+                "Too many registration attempts from your network. Please try "
+                "again later.",
+            ),
+        ],
+    )
+    def test_register_ratelimited(
+        self,
+        db_request,
+        pyramid_services,
+        metrics,
+        ratelimit_service,
+        mocker,
+        resets_in,
+        retry_after,
+        message,
+    ):
+        """A denied attempt returns 429 with a form error and the typed values
+        intact.
+        """
+        self._register_form_services(pyramid_services)
+        mocker.patch.object(ratelimit_service, "hit", return_value=False)
+        mocker.patch.object(ratelimit_service, "resets_in", return_value=resets_in)
+        self._post_a_registration(db_request)
+
+        result = views.register(db_request)
+
+        assert db_request.response.status_int == 429
+        # The typed values survive, so the user is not asked to start over.
+        assert result["form"].email.data == "foo@bar.com"
+        assert result["form"].username.data == "username_value"
+        # Only the form-level key: the limiter runs before validate(), so no
+        # per-field errors appear.
+        assert result["form"].errors == {"": [message]}
+        # Asserted on the raw header: WebOb's `retry_after` getter parses it
+        # back into an absolute datetime.
+        assert db_request.response.headers.get("Retry-After") == retry_after
+        ratelimit_service.hit.assert_called_once_with(db_request.remote_addr)
+        metrics.increment.assert_any_call(
+            "warehouse.accounts.register", tags=["outcome:ratelimited"]
+        )
+        metrics.increment.assert_any_call(
+            "warehouse.accounts.register.ratelimited", tags=["ratelimiter:ip"]
+        )
+
+    @pytest.mark.usefixtures("no_email_deliverability_check")
+    @pytest.mark.parametrize("remote_addr", [None, ""])
+    def test_register_skips_the_limiter_without_a_remote_addr(
+        self, db_request, pyramid_services, metrics, ratelimit_service, remote_addr
+    ):
+        """An unkeyable request is not metered into one bucket shared by all.
+
+        Gunicorn on a unix socket sends '' as REMOTE_ADDR, not None, so both
+        are exercised here.
+        """
+        self._register_form_services(pyramid_services)
+        db_request.method = "POST"
+        db_request.POST.update({"username": "username_value", "email": "not-an-email"})
+        db_request.remote_addr = remote_addr
+
+        views.register(db_request)
+
+        assert ratelimit_service.hit.call_count == 0
+        # Counted, so a limiter that has stopped running is not silent.
+        metrics.increment.assert_any_call("warehouse.accounts.register.unmetered")
+
     @pytest.mark.usefixtures("no_email_deliverability_check")
     def test_register_counts_invalid_attempts(
-        self, db_request, pyramid_services, metrics
+        self, db_request, pyramid_services, metrics, ratelimit_service
     ):
+        """A failed attempt is charged, since validation costs DNS either way."""
         self._register_form_services(pyramid_services)
 
         db_request.method = "POST"
@@ -1942,18 +2033,20 @@ class TestRegister:
         result = views.register(db_request)
 
         assert result["form"].errors
+        ratelimit_service.hit.assert_called_once_with(db_request.remote_addr)
         metrics.increment.assert_any_call(
             "warehouse.accounts.register", tags=["outcome:invalid"]
         )
 
     def test_register_does_not_count_page_loads(
-        self, db_request, pyramid_services, metrics
+        self, db_request, pyramid_services, metrics, ratelimit_service
     ):
-        """A GET is a page view, not an attempt, so it stays out of the counter."""
+        """A GET is a page view, so it is neither counted nor charged."""
         self._register_form_services(pyramid_services)
 
         views.register(db_request)
 
+        assert ratelimit_service.hit.call_count == 0
         assert not [
             call
             for call in metrics.increment.calls
@@ -1974,9 +2067,10 @@ class TestRegister:
             lambda *args: None
         )
         db_request.session.record_password_timestamp = lambda ts: None
+        register_limiter_hit = pretend.call_recorder(lambda *a: True)
 
         def _find_service(service=None, name=None, context=None):
-            key = service or name
+            key = (service, name) if service is IRateLimiter else service or name
             return {
                 IUserService: pretend.stub(
                     username_is_prohibited=lambda a: False,
@@ -1994,7 +2088,10 @@ class TestRegister:
                 IPasswordBreachedService: pretend.stub(
                     check_password=lambda pw, tags=None: False,
                 ),
-                IRateLimiter: pretend.stub(hit=lambda user_id: None),
+                (IRateLimiter, "accounts.register"): pretend.stub(
+                    hit=register_limiter_hit
+                ),
+                (IRateLimiter, "email.verify"): pretend.stub(hit=lambda *a: True),
                 "csp": pretend.stub(merge=lambda *a, **kw: {}),
                 ICaptchaService: pretend.stub(
                     csp_policy={}, enabled=True, verify_response=lambda a: True
@@ -2003,16 +2100,8 @@ class TestRegister:
 
         db_request.find_service = pretend.call_recorder(_find_service)
         db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.POST.update(
-            {
-                "username": "username_value",
-                "new_password": "MyStr0ng!shP455w0rd",
-                "password_confirm": "MyStr0ng!shP455w0rd",
-                "email": "foo@bar.com",
-                "full_name": "full_name",
-                "g_recaptcha_response": "captchavalue",
-            }
-        )
+        self._post_a_registration(db_request)
+        db_request.POST.update({"g_recaptcha_response": "captchavalue"})
 
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, "send_email_verification_email", send_email)
@@ -2045,6 +2134,8 @@ class TestRegister:
         db_request.metrics.increment.assert_any_call(
             "warehouse.accounts.register", tags=["outcome:ok"]
         )
+        # Successes stay charged against the limiter too.
+        assert register_limiter_hit.calls == [pretend.call(db_request.remote_addr)]
 
     def test_register_fails_with_admin_flag_set(self, db_request):
         # This flag was already set via migration, just need to enable it
@@ -2053,17 +2144,7 @@ class TestRegister:
         )
         flag.enabled = True
 
-        db_request.method = "POST"
-
-        db_request.POST.update(
-            {
-                "username": "username_value",
-                "password": "MyStr0ng!shP455w0rd",
-                "password_confirm": "MyStr0ng!shP455w0rd",
-                "email": "foo@bar.com",
-                "full_name": "full_name",
-            }
-        )
+        self._post_a_registration(db_request)
 
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
 

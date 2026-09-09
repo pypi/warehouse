@@ -60,18 +60,34 @@
         Ensure that the Project has at least one reachable URL that leads to a public source code repository.
       </p>
     {% if repo_urls %}
-      {% for project_name, repo_urls in repo_urls.items() %}
-        {% if repo_urls %}
-          <div class="form-check">
-            <input class="form-check-input" type="radio" name="project_name" value="{{ project_name }}" name="{{ project_name }}">
-            <label class="form-check-label" for="{{ project_name }}"><a href="{{ request.route_url("admin.project.detail", project_name=project_name) }}">{{ project_name }}</a></label>
-            <ul>
-            {% for kind, repo_url in repo_urls %}
-              <li>{{ kind }}: <a href="{{ repo_url }}" data-check-link-url="{{ request.camo_url(repo_url) }}"><i class="fa fa-question"></i> {{ repo_url }}</a></li>
-            {% endfor %}
-            </ul>
-          </div>
-        {% endif %}
+      {% if explain_badge %}
+        <p class="card-text">
+          A <span class="badge bg-success">verified</span> repository was proven to belong to whoever uploaded the
+          release, which is not necessarily this account. Treat it as evidence about the project rather than about the
+          requester. Repositories you can push a branch to are listed first, as are the projects holding them.
+        </p>
+        <p class="card-text">
+          PyPI also verifies pages that take no <code>git push</code>: a project's own PyPI page, its docs site, and any
+          page inside a verified repository such as <code>/issues</code>. Those get a
+          <span class="badge bg-secondary">verified, not pushable</span> badge. A verified repository on a host PyPI
+          does not recognize, such as a self-hosted GitLab, gets no badge at all and sorts last.
+        </p>
+      {% endif %}
+      {% for project_name, project_repo_urls in repo_urls.items() %}
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="project_name" id="project-{{ project_name }}" value="{{ project_name }}">
+          <label class="form-check-label" for="project-{{ project_name }}">{{ project_name }}</label>
+          <a href="{{ request.route_url("admin.project.detail", project_name=project_name) }}">{{ project_name }} in admin</a>
+          <ul>
+          {% for kind, repo_url, proven, verified in project_repo_urls %}
+            <li>
+              {{ kind }}: <a href="{{ repo_url }}" data-check-link-url="{{ request.camo_url(repo_url) }}"><i class="fa fa-question"></i> {{ repo_url }}</a>
+              {% if proven %}<span class="badge bg-success">verified</span>
+              {% elif verified %}<span class="badge bg-secondary">verified, not pushable</span>{% endif %}
+            </li>
+          {% endfor %}
+          </ul>
+        </div>
       {% endfor %}
     {% else %}
       <i>No repos found. You can proceed with recovery based on response alone.</i>
