@@ -80,7 +80,7 @@
     "stylelint": "^16.6.1",
     "stylelint-config-standard-scss": "^14.0.0",
     "stylelint-selector-bem-pattern": "^4.0.0",
-    "svgo": "^4.0.0",
+    "svgo": "^4.1.0",
     "webpack": "^5.94.0",
     "webpack-cli": "^6.0.1",
     "webpack-livereload-plugin": "^3.0.2",
