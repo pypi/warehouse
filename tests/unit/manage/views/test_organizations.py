@@ -2525,6 +2525,40 @@ class TestManageOrganizationRoles:
         ]
         assert isinstance(result, HTTPSeeOther)  # Redirect due to inactive org
 
+    def test_manage_organization_roles_pre_billing_company(
+        self, db_request, organization_service, user_service
+    ):
+        """Test that pre-billing Company org passes allow_billing_manager_only=True."""
+        organization = OrganizationFactory.create(
+            name="new-company-org", orgtype=OrganizationType.Company
+        )
+        owner_user = UserFactory.create()
+        OrganizationRoleFactory(
+            user=owner_user,
+            organization=organization,
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        form_obj = pretend.stub(validate=pretend.call_recorder(lambda: False))
+        form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
+
+        db_request.method = "GET"
+        db_request.user = owner_user
+
+        org_views.manage_organization_roles(
+            organization, db_request, _form_class=form_class
+        )
+
+        assert form_class.calls == [
+            pretend.call(
+                db_request.POST,
+                orgtype=organization.orgtype,
+                organization_service=organization_service,
+                user_service=user_service,
+                allow_billing_manager_only=True,
+            )
+        ]
+
 
 class TestResendOrganizationInvitations:
     @freeze_time(datetime.datetime.now(datetime.UTC))

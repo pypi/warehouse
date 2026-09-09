@@ -380,9 +380,16 @@
             {% endif %}
           </p>
         </div>
+      {% elif organization.can_invite_billing_manager_without_billing %}
+        <div class="callout-block callout-block--info">
+          <p>
+            <strong>{% trans %}Billing not yet activated{% endtrans %}</strong>
+            {% trans %}This organization does not have an active subscription yet. You may only invite a <strong>Billing Manager</strong> until billing is activated.{% endtrans %}
+          </p>
+        </div>
       {% endif %}
     {% endif %}
-    {% if organization.is_in_good_standing() %}
+    {% if organization.is_in_good_standing() or organization.can_invite_billing_manager_without_billing %}
       <form method="post">
         <div class="form-group"
              data-controller="autocomplete"

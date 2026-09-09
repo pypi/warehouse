@@ -35,6 +35,7 @@ from warehouse import db
 from warehouse.accounts.models import TermsOfServiceEngagement, User
 from warehouse.authnz import Permissions
 from warehouse.events.models import HasEvents
+from warehouse.events.tags import EventTag
 from warehouse.observations.models import HasObservations, Observation, ObservationKind
 from warehouse.utils.attrs import make_repr
 from warehouse.utils.db import orm_session_from_obj
@@ -457,6 +458,35 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         # Company organizations need active subscription OR manual activation
         return self.active_subscription is not None or (
             self.manual_activation is not None and self.manual_activation.is_active
+        )
+
+    @property
+    def can_invite_billing_manager_without_billing(self) -> bool:
+        """Check if a Company org with no billing history can invite Billing Managers.
+
+        This allows newly approved Company organizations that have never been
+        activated to invite a Billing Manager before activating billing.
+        """
+        if (
+            not self.is_active
+            or self.orgtype != OrganizationType.Company
+            or self.is_in_good_standing()
+        ):
+            return False
+
+        if bool(self.subscriptions) or self.manual_activation is not None:
+            return False
+
+        return (
+            self.events.filter(
+                self.Event.tag.in_(
+                    (
+                        EventTag.Organization.SubscriptionCreate,
+                        "admin:organization:manual_activation:add",
+                    )
+                )
+            ).first()
+            is None
         )
 
     def get_billing_status_display(self) -> str:

@@ -588,9 +588,25 @@ class TransferOrganizationProjectForm(wtforms.Form):
 class CreateOrganizationRoleForm(
     OrganizationRoleNameMixin, UsernameMixin, wtforms.Form
 ):
-    def __init__(self, *args, orgtype, organization_service, user_service, **kwargs):
+    def __init__(
+        self,
+        *args,
+        orgtype,
+        organization_service,
+        user_service,
+        allow_billing_manager_only=False,
+        **kwargs,
+    ):
         super().__init__(*args, **kwargs)
-        if orgtype != OrganizationType.Company:
+        if allow_billing_manager_only:
+            # Only allow "Billing Manager" role for Company orgs without billing history
+            self.role_name.choices = [
+                choice
+                for choice in self.role_name.choices
+                if choice[0] == OrganizationRoleType.BillingManager.value
+                or choice[0] == ""
+            ]
+        elif orgtype != OrganizationType.Company:
             # Remove "Billing Manager" choice if organization is not a "Company"
             self.role_name.choices = [
                 choice

@@ -926,8 +926,17 @@ def _send_organization_invitation(request, organization, role_name, user):
             queue="error",
         )
     else:
-        # Check if organization is in good standing (allow invitations over seat limit)
-        if not organization.is_in_good_standing():
+        # Check if the organization may send the requested invitation.
+        is_billing_manager_invite = (
+            role_name == OrganizationRoleType.BillingManager.value
+        )
+        can_invite_billing_manager = (
+            organization.can_invite_billing_manager_without_billing
+        )
+
+        if not organization.is_in_good_standing() and not (
+            is_billing_manager_invite and can_invite_billing_manager
+        ):
             request.session.flash(
                 request._(
                     "Cannot invite new member. Organization is not in good standing."
@@ -1006,7 +1015,6 @@ def _send_organization_invitation(request, organization, role_name, user):
     context=Organization,
     renderer="warehouse:templates/manage/organization/roles.html",
     uses_session=True,
-    require_active_organization=True,
     require_methods=False,
     request_method="GET",
     permission=Permissions.OrganizationsRead,
@@ -1018,7 +1026,6 @@ def _send_organization_invitation(request, organization, role_name, user):
     context=Organization,
     renderer="warehouse:templates/manage/organization/roles.html",
     uses_session=True,
-    require_active_organization=True,
     require_methods=False,
     request_method="POST",
     permission=Permissions.OrganizationsManage,
@@ -1028,14 +1035,35 @@ def _send_organization_invitation(request, organization, role_name, user):
 def manage_organization_roles(
     organization, request, _form_class=CreateOrganizationRoleForm
 ):
+    # Preserve the inactive-billing redirect outside the pre-billing exception.
+    if (
+        not organization.is_in_good_standing()
+        and not organization.can_invite_billing_manager_without_billing
+    ):
+        request.session.flash(
+            request._(
+                "This organization's billing is inactive. Activate billing to "
+                "manage its projects, teams, and members."
+            ),
+            queue="error",
+            allow_duplicate=False,
+        )
+        return HTTPSeeOther(request.route_path("manage.organizations"))
+
     organization_service = request.find_service(IOrganizationService, context=None)
     user_service = request.find_service(IUserService, context=None)
-    form = _form_class(
-        request.POST,
-        orgtype=organization.orgtype,
-        organization_service=organization_service,
-        user_service=user_service,
-    )
+
+    allow_billing_manager_only = organization.can_invite_billing_manager_without_billing
+
+    form_kwargs = {
+        "orgtype": organization.orgtype,
+        "organization_service": organization_service,
+        "user_service": user_service,
+    }
+    if allow_billing_manager_only:
+        form_kwargs["allow_billing_manager_only"] = True
+
+    form = _form_class(request.POST, **form_kwargs)
 
     if request.method == "POST" and form.validate():
         username = form.username.data
