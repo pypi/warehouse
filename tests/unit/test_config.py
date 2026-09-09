@@ -43,7 +43,14 @@ class TestRequireHTTPSTween:
         assert tween(pyramid_request) is mocker.sentinel.response
         handler.assert_called_once_with(pyramid_request)
 
-    @pytest.mark.parametrize(("params", "scheme"), [({":action": "thing"}, "http")])
+    @pytest.mark.parametrize(
+        ("params", "scheme"),
+        [
+            ({":action": "thing"}, "http"),
+            ({":action": None}, "http"),
+            ({":action": ""}, "http"),
+        ],
+    )
     def test_rejects(self, params, scheme, pyramid_request, mocker):
         pyramid_request.params = params
         pyramid_request.scheme = scheme
