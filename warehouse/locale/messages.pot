@@ -983,25 +983,37 @@ msgstr ""
 msgid "Password is strong"
 msgstr ""
 
-#: warehouse/static/js/warehouse/utils/timeago.js:22
+#: warehouse/static/js/warehouse/utils/timeago.js:24
 msgid "Yesterday"
+msgstr ""
+
+#: warehouse/static/js/warehouse/utils/timeago.js:28
+msgid "About %1 day ago"
 msgid_plural "About %1 days ago"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/static/js/warehouse/utils/timeago.js:26
+#: warehouse/static/js/warehouse/utils/timeago.js:34
 msgid "About an hour ago"
+msgstr ""
+
+#: warehouse/static/js/warehouse/utils/timeago.js:38
+msgid "About %1 hour ago"
 msgid_plural "About %1 hours ago"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/static/js/warehouse/utils/timeago.js:28
+#: warehouse/static/js/warehouse/utils/timeago.js:44
 msgid "About a minute ago"
+msgstr ""
+
+#: warehouse/static/js/warehouse/utils/timeago.js:48
+msgid "About %1 minute ago"
 msgid_plural "About %1 minutes ago"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/static/js/warehouse/utils/timeago.js:30
+#: warehouse/static/js/warehouse/utils/timeago.js:53
 msgid "Just now"
 msgstr ""
 
