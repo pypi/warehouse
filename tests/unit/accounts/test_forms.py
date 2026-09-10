@@ -7,22 +7,27 @@ import pretend
 import pytest
 import wtforms
 
+from sqlalchemy import select
 from webob.multidict import MultiDict
 
-from warehouse.accounts import forms
+from warehouse.accounts import forms, services as account_services
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
+    EmailReputationResult,
     InvalidRecoveryCode,
     NoRecoveryCodes,
+    TooManyEmailReputationChecks,
     TooManyFailedLogins,
 )
 from warehouse.accounts.models import DisableReason, ProhibitedEmailDomain
+from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.captcha import recaptcha
 from warehouse.events.tags import EventTag
 from warehouse.utils import otp
 from warehouse.utils.webauthn import AuthenticationRejectedError
 
 from ...common.constants import REMOTE_ADDR
+from ...common.db.accounts import ProhibitedEmailDomainFactory
 
 
 class TestLoginForm:
@@ -439,7 +444,7 @@ class TestLoginForm:
 
 class TestRegistrationForm:
     @pytest.mark.usefixtures("no_email_deliverability_check")
-    def test_validate(self, metrics):
+    def test_validate(self, metrics, email_reputation_service):
         captcha_service = pretend.stub(
             enabled=False,
             verify_response=pretend.call_recorder(lambda _: None),
@@ -459,6 +464,7 @@ class TestRegistrationForm:
             request=pretend.stub(
                 db=pretend.stub(query=lambda *a: pretend.stub(scalar=lambda: False)),
                 metrics=metrics,
+                find_service=lambda *a, **kw: email_reputation_service,
             ),
             formdata=MultiDict(
                 {
@@ -565,11 +571,12 @@ class TestRegistrationForm:
         )
 
     @pytest.mark.usefixtures("no_email_deliverability_check")
-    def test_exotic_email_success(self, metrics):
+    def test_exotic_email_success(self, metrics, email_reputation_service):
         form = forms.RegistrationForm(
             request=pretend.stub(
                 db=pretend.stub(query=lambda *a: pretend.stub(scalar=lambda: False)),
                 metrics=metrics,
+                find_service=lambda *a, **kw: email_reputation_service,
             ),
             formdata=MultiDict({"email": "foo@n--tree.net"}),
             user_service=pretend.stub(
@@ -655,6 +662,461 @@ class TestRegistrationForm:
             == "You can't use an email address from this domain. Use a "
             "different email."
         )
+
+    def _remote_check_form(self, db_request, mocker, email):
+        """
+        A RegistrationForm whose non-email fields all validate, so that
+        form.validate() reaches the remote reputation check.
+        """
+        user_service = mocker.Mock(spec=account_services.DatabaseUserService)
+        user_service.username_is_prohibited.return_value = False
+        user_service.find_userid.return_value = None
+        user_service.find_userid_by_email.return_value = None
+        captcha_service = mocker.Mock(spec=recaptcha.Service)
+        captcha_service.enabled = False
+        captcha_service.verify_response.return_value = None
+        breach_service = mocker.Mock(
+            spec=account_services.HaveIBeenPwnedPasswordBreachedService
+        )
+        breach_service.check_password.return_value = False
+
+        return forms.RegistrationForm(
+            request=db_request,
+            formdata=MultiDict(
+                {
+                    "username": "myusername",
+                    "new_password": "mysupersecurepassword1!",
+                    "password_confirm": "mysupersecurepassword1!",
+                    "email": email,
+                }
+            ),
+            user_service=user_service,
+            captcha_service=captcha_service,
+            breach_service=breach_service,
+        )
+
+    @pytest.mark.usefixtures("no_email_deliverability_check")
+    def test_remote_disposable_email_error(
+        self, db_request, email_reputation_service, metrics, mocker
+    ):
+        check_email = mocker.patch.object(
+            email_reputation_service,
+            "check_email",
+            autospec=True,
+            return_value=EmailReputationResult(
+                disposable=True,
+                public_domain=False,
+                relay_domain=False,
+            ),
+        )
+        form = self._remote_check_form(db_request, mocker, "foo@mailtowin.com")
+
+        assert not form.validate()
+        assert (
+            str(form.email.errors.pop())
+            == "You can't use an email address from this domain. Use a "
+            "different email."
+        )
+        # The full address is handed to the service: the /email/ endpoint
+        # also catches throwaway addresses on otherwise legitimate domains.
+        check_email.assert_called_once_with("foo@mailtowin.com")
+        metrics.increment.assert_any_call(
+            "warehouse.accounts.forms.validate_email_reputation",
+            tags=["result:invalid", "reason:disposable_domain_reported"],
+        )
+
+    @pytest.mark.usefixtures("no_email_deliverability_check")
+    def test_remote_check_sends_the_ascii_form_of_an_idn_address(
+        self, db_request, email_reputation_service, mocker
+    ):
+        """
+        The vendor answers on the punycode domain, so a Unicode submission
+        has to be converted before it goes out; sending it raw errors the
+        lookup, which fails open and skips the check entirely.
+        """
+        check_email = mocker.patch.object(
+            email_reputation_service,
+            "check_email",
+            autospec=True,
+            return_value=EmailReputationResult(),
+        )
+        form = self._remote_check_form(db_request, mocker, "foo@münchen.de")
+
+        assert form.validate()
+        check_email.assert_called_once_with("foo@xn--mnchen-3ya.de")
+
+    @pytest.mark.usefixtures("no_email_deliverability_check")
+    def test_remote_disposable_domain_not_prohibited_when_flag_disabled(
+        self, db_request, email_reputation_service, mocker
+    ):
+        """
+        The auto-prohibit write is gated behind the (default-off)
+        AdminFlag; a disposable-domain verdict still blocks the attempt,
+        but does not write to the blocklist while the flag is off.
+        """
+        mocker.patch.object(
+            email_reputation_service,
+            "check_email",
+            autospec=True,
+            return_value=EmailReputationResult(
+                disposable=True,
+                public_domain=False,
+                relay_domain=False,
+            ),
+        )
+        form = self._remote_check_form(db_request, mocker, "foo@mailtowin.com")
+
+        assert not form.validate()
+        assert (
+            db_request.db.scalars(
+                select(ProhibitedEmailDomain).where(
+                    ProhibitedEmailDomain.domain == "mailtowin.com"
+                )
+            ).one_or_none()
+            is None
+        )
+
+    @pytest.mark.usefixtures("no_email_deliverability_check")
+    def test_remote_disposable_email_is_added_to_prohibited_domains(
+        self, db_request, email_reputation_service, mocker
+    ):
+        db_request.db.get(
+            AdminFlag, AdminFlagValue.AUTO_PROHIBIT_DISPOSABLE_DOMAINS.value
+        ).enabled = True
+        mocker.patch.object(
+            email_reputation_service,
+            "check_email",
+            autospec=True,
+            return_value=EmailReputationResult(
+                disposable=True,
+                public_domain=False,
+                relay_domain=False,
+            ),
+        )
+        form = self._remote_check_form(db_request, mocker, "foo@mailtowin.com")
+
+        assert not form.validate()
+
+        prohibited = db_request.db.scalars(
+            select(ProhibitedEmailDomain).where(
+                ProhibitedEmailDomain.domain == "mailtowin.com"
+            )
+        ).one()
+        assert prohibited.is_mx_record is False
+        assert prohibited.prohibited_by is None
+        assert prohibited.comment == (
+            "Automatically prohibited: reported as a disposable email domain"
+        )
+
+    @pytest.mark.usefixtures("no_email_deliverability_check")
+    @pytest.mark.parametrize(
+        "result_kwargs",
+        [
+            # A public or relay domain, or flags an upstream payload
+            # revision left unknown, must never escalate to a domain ban.
+            {"public_domain": True, "relay_domain": False},
+            {"public_domain": False, "relay_domain": True},
+            {},
+        ],
+    )
+    def test_remote_disposable_address_does_not_prohibit_domain(
+        self, db_request, email_reputation_service, metrics, mocker, result_kwargs
+    ):
+        mocker.patch.object(
+            email_reputation_service,
+            "check_email",
+            autospec=True,
+            return_value=EmailReputationResult(disposable=True, **result_kwargs),
+        )
+        form = self._remote_check_form(db_request, mocker, "throwaway@gmail.com")
+
+        assert not form.validate()
+        assert (
+            str(form.email.errors.pop())
+            == "You can't use a disposable email address. Use a different email."
+        )
+        assert (
+            db_request.db.scalars(
+                select(ProhibitedEmailDomain).where(
+                    ProhibitedEmailDomain.domain == "gmail.com"
+                )
+            ).one_or_none()
+            is None
+        )
+        metrics.increment.assert_any_call(
+            "warehouse.accounts.forms.validate_email_reputation",
+            tags=["result:invalid", "reason:disposable_address_reported"],
+        )
+
+    @pytest.mark.usefixtures("no_email_deliverability_check")
+    def test_remote_disposable_domain_provider_recorded_in_comment(
+        self, db_request, email_reputation_service, mocker
+    ):
+        db_request.db.get(
+            AdminFlag, AdminFlagValue.AUTO_PROHIBIT_DISPOSABLE_DOMAINS.value
+        ).enabled = True
+        mocker.patch.object(
+            email_reputation_service,
+            "check_email",
+            autospec=True,
+            return_value=EmailReputationResult(
+                disposable=True,
+                public_domain=False,
+                relay_domain=False,
+                disposable_provider="MailToWin",
+            ),
+        )
+        form = self._remote_check_form(db_request, mocker, "foo@mailtowin.com")
+
+        assert not form.validate()
+        prohibited = db_request.db.scalars(
+            select(ProhibitedEmailDomain).where(
+                ProhibitedEmailDomain.domain == "mailtowin.com"
+            )
+        ).one()
+        assert prohibited.comment == (
+            "Automatically prohibited: reported as a disposable email domain "
+            "(provider: MailToWin)"
+        )
+
+    @pytest.mark.usefixtures("no_email_deliverability_check")
+    def test_remote_disposable_email_existing_prohibition_not_duplicated(
+        self, db_request, email_reputation_service, mocker
+    ):
+        """
+        A domain already prohibited with is_mx_record=True doesn't match the
+        local database check for a direct use of that domain, so the remote
+        check still runs. Recording its verdict must skip the insert instead
+        of violating the unique constraint on domain.
+        """
+        db_request.db.get(
+            AdminFlag, AdminFlagValue.AUTO_PROHIBIT_DISPOSABLE_DOMAINS.value
+        ).enabled = True
+        existing = ProhibitedEmailDomainFactory.create(
+            domain="mailtowin.com", is_mx_record=True
+        )
+        mocker.patch.object(
+            email_reputation_service,
+            "check_email",
+            autospec=True,
+            return_value=EmailReputationResult(
+                disposable=True,
+                public_domain=False,
+                relay_domain=False,
+            ),
+        )
+        form = self._remote_check_form(db_request, mocker, "foo@mailtowin.com")
+
+        assert not form.validate()
+        assert (
+            str(form.email.errors.pop())
+            == "You can't use an email address from this domain. Use a "
+            "different email."
+        )
+        # Flushing would raise IntegrityError if a duplicate row was added.
+        db_request.db.flush()
+        prohibited = db_request.db.scalars(
+            select(ProhibitedEmailDomain).where(
+                ProhibitedEmailDomain.domain == "mailtowin.com"
+            )
+        ).one()
+        assert prohibited.id == existing.id
+        assert prohibited.is_mx_record is True
+
+    @pytest.mark.usefixtures("no_email_deliverability_check")
+    def test_remote_disposable_subdomain_does_not_prohibit_parent_domain(
+        self, db_request, email_reputation_service, mocker
+    ):
+        """
+        A disposable verdict on a subdomain-hosted address must not
+        escalate to the shared parent apex, even with the flag on: other
+        accounts may legitimately use that parent domain.
+        """
+        db_request.db.get(
+            AdminFlag, AdminFlagValue.AUTO_PROHIBIT_DISPOSABLE_DOMAINS.value
+        ).enabled = True
+        check_email = mocker.patch.object(
+            email_reputation_service,
+            "check_email",
+            autospec=True,
+            return_value=EmailReputationResult(
+                disposable=True,
+                public_domain=False,
+                relay_domain=False,
+            ),
+        )
+        form = self._remote_check_form(db_request, mocker, "foo@mail.one.mailtowin.com")
+
+        assert not form.validate()
+        check_email.assert_called_once_with("foo@mail.one.mailtowin.com")
+        assert (
+            db_request.db.scalars(
+                select(ProhibitedEmailDomain).where(
+                    ProhibitedEmailDomain.domain == "mailtowin.com"
+                )
+            ).one_or_none()
+            is None
+        )
+
+    @pytest.mark.usefixtures("no_email_deliverability_check")
+    def test_remote_disposable_email_with_empty_registrable_not_prohibited(
+        self, db_request, email_reputation_service, mocker
+    ):
+        """
+        A host whose PSL-unknown TLD extracts to an empty registrable
+        domain (e.g. a bare public suffix like "co.uk") must never be
+        written: a domain='' row would match every address whose host has
+        no registrable domain.
+        """
+        db_request.db.get(
+            AdminFlag, AdminFlagValue.AUTO_PROHIBIT_DISPOSABLE_DOMAINS.value
+        ).enabled = True
+        mocker.patch.object(
+            email_reputation_service,
+            "check_email",
+            autospec=True,
+            return_value=EmailReputationResult(
+                disposable=True,
+                public_domain=False,
+                relay_domain=False,
+            ),
+        )
+        form = self._remote_check_form(db_request, mocker, "foo@co.uk")
+
+        assert not form.validate()
+        assert (
+            db_request.db.scalars(
+                select(ProhibitedEmailDomain).where(ProhibitedEmailDomain.domain == "")
+            ).one_or_none()
+            is None
+        )
+
+    @pytest.mark.usefixtures("no_email_deliverability_check")
+    @pytest.mark.parametrize(
+        "result_kwargs",
+        [
+            {},
+            {"spam": True},
+            {"public_domain": True},
+            {"relay_domain": True},
+            {"blocklisted": True},
+            {"mx": False},
+        ],
+    )
+    def test_remote_non_disposable_signals_do_not_block(
+        self, db_request, email_reputation_service, mocker, result_kwargs
+    ):
+        # Anything other than "disposable" is recorded for observation only,
+        # so we can measure it before deciding whether to gate on it.
+        mocker.patch.object(
+            email_reputation_service,
+            "check_email",
+            autospec=True,
+            return_value=EmailReputationResult(**result_kwargs),
+        )
+        form = self._remote_check_form(db_request, mocker, "foo@example.com")
+
+        assert form.validate(), str(form.errors)
+        assert (
+            db_request.db.scalars(
+                select(ProhibitedEmailDomain).where(
+                    ProhibitedEmailDomain.domain == "example.com"
+                )
+            ).one_or_none()
+            is None
+        )
+
+    @pytest.mark.usefixtures("no_email_deliverability_check")
+    @pytest.mark.parametrize(
+        ("resets_in", "expected_error"),
+        [
+            (None, "Too many email addresses checked. Try again later."),
+            (
+                datetime.timedelta(minutes=10),
+                "Too many email addresses checked. Try again in 10 minutes.",
+            ),
+        ],
+    )
+    def test_remote_check_rate_limited_blocks_the_attempt(
+        self,
+        db_request,
+        email_reputation_service,
+        metrics,
+        mocker,
+        resets_in,
+        expected_error,
+    ):
+        """
+        A client that exhausted its own reputation-check budget is refused
+        outright: failing open here would let it skip the check at will.
+        """
+        mocker.patch.object(
+            email_reputation_service,
+            "check_email",
+            autospec=True,
+            side_effect=TooManyEmailReputationChecks(resets_in=resets_in),
+        )
+        form = self._remote_check_form(db_request, mocker, "foo@example.com")
+
+        assert not form.validate()
+        assert str(form.email.errors.pop()) == expected_error
+        metrics.increment.assert_any_call(
+            "warehouse.accounts.forms.validate_email_reputation",
+            tags=["result:invalid", "reason:ratelimited"],
+        )
+
+    @pytest.mark.usefixtures("no_email_deliverability_check")
+    def test_remote_check_failure_fails_open(
+        self, db_request, email_reputation_service, mocker
+    ):
+        mocker.patch.object(
+            email_reputation_service, "check_email", autospec=True, return_value=None
+        )
+        form = self._remote_check_form(db_request, mocker, "foo@example.com")
+
+        assert form.validate(), str(form.errors)
+
+    @pytest.mark.usefixtures("no_email_deliverability_check")
+    def test_remote_check_skipped_for_locally_prohibited_domain(
+        self, db_request, email_reputation_service, mocker
+    ):
+        # No need to spend a remote lookup on a domain we already know about.
+        ProhibitedEmailDomainFactory.create(domain="wutang.net")
+        check_email = mocker.patch.object(
+            email_reputation_service, "check_email", autospec=True, return_value=None
+        )
+        form = self._remote_check_form(db_request, mocker, "foo@wutang.net")
+
+        assert not form.validate()
+        check_email.assert_not_called()
+
+    @pytest.mark.usefixtures("no_email_deliverability_check")
+    def test_remote_check_skipped_for_email_already_in_use(
+        self, db_request, email_reputation_service, mocker
+    ):
+        check_email = mocker.patch.object(
+            email_reputation_service, "check_email", autospec=True, return_value=None
+        )
+        form = self._remote_check_form(db_request, mocker, "foo@example.com")
+        form.user_service.find_userid_by_email.return_value = "some-user-id"
+
+        assert not form.validate()
+        check_email.assert_not_called()
+
+    @pytest.mark.usefixtures("no_email_deliverability_check")
+    def test_remote_check_skipped_when_another_field_fails(
+        self, db_request, email_reputation_service, mocker
+    ):
+        # The remote call is metered: a submission that already failed its
+        # captcha (or any other field) must not spend the budget.
+        check_email = mocker.patch.object(
+            email_reputation_service, "check_email", autospec=True, return_value=None
+        )
+        form = self._remote_check_form(db_request, mocker, "foo@example.com")
+        form.captcha_service.enabled = True  # and no captcha response submitted
+
+        assert not form.validate()
+        check_email.assert_not_called()
 
     def test_recaptcha_disabled(self):
         form = forms.RegistrationForm(
