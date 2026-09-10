@@ -20,20 +20,8 @@
           {% endfor %}
         </select>
       </div>
-      <table id="observations-table"
-             class="table table-striped"
-             data-url="{{ request.route_path('admin.observations.list') }}"
-      >
-        <thead>
-          <tr>
-            <th>Created</th>
-            <th>Kind</th>
-            <th>Related</th>
-            <th>Summary</th>
-            <th>Observer</th>
-          </tr>
-        </thead>
-      </table>
+      <div id="observations-table"
+           data-url="{{ request.route_path('admin.observations.list') }}"></div>
     </div>
   </div>
 {% endblock %}
