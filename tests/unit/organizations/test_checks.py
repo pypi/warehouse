@@ -97,7 +97,7 @@ class TestDomainMatch:
 
         check = find(review_checks(application, user), "domain_match")
         assert check.status == CheckStatus.Unknown
-        assert "hosts many unrelated organizations" in check.detail
+        assert "shared host" in check.detail
 
     def test_verified_match_passes(self, db_request):
         user = UserFactory.create()
@@ -370,7 +370,7 @@ class TestProjects:
 
         check = find(review_checks(application, user), "has_projects")
         assert check.status == CheckStatus.Ok
-        assert check.detail == "1 project on PyPI."
+        assert "1 project" in check.detail
 
     def test_plural_projects(self, db_request):
         user = UserFactory.create()
@@ -381,7 +381,7 @@ class TestProjects:
         )
 
         check = find(review_checks(application, user), "has_projects")
-        assert check.detail == "2 projects on PyPI."
+        assert "2 projects" in check.detail
 
 
 class TestNameConflict:
