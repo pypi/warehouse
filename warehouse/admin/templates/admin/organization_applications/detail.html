@@ -80,10 +80,10 @@
 </div>
 {% endmacro %}
 
-{% macro field_row(label, value, extra_class=None) %}
+{% macro field_row(label, value, extra_class='') %}
 <div>
   <dt>{{ label }}</dt>
-  <dd class="{{ extra_class }}">{{ value if value else "—" }}</dd>
+  <dd class="{{ extra_class or '' }}">{{ value if value else "n/a" }}</dd>
 </div>
 {% endmacro %}
 
@@ -146,7 +146,6 @@
   </div>
 
   <div class="row">
-    {# ---------- Action rail ---------- #}
     <div class="col-lg-3 col-md-4">
       <div class="org-review-rail">
         <div class="card">
@@ -216,7 +215,7 @@
                 <input type="checkbox" class="custom-control-input" id="organizationApplicationTurboMode">
                 <label class="custom-control-label" for="organizationApplicationTurboMode">Turbo Mode</label>
               </div>
-              <small class="text-muted">Jump straight to the next submitted application after acting.</small>
+              <small class="text-muted">Open the next submitted application after approve, decline, or defer.</small>
             </div>
 
             {% if can_write %}
@@ -238,7 +237,6 @@
       </div>
     </div>
 
-    {# ---------- Evidence ---------- #}
     {% set information_requests = organization_application.information_requests %}
     {% set outstanding_information_requests = organization_application.information_requests|selectattr("additional", "defined")|map(attribute="additional")|selectattr("response", "undefined")|list %}
     <div class="col-lg-9 col-md-8">
@@ -385,9 +383,8 @@
     </div>
   </div>
 
-  {# ---------- Modals ----------
-     Deliberately outside the sticky rail: `position: sticky` creates a stacking context,
-     which would render these behind Bootstrap's body-level backdrop. -#}
+  {#- Kept outside the sticky rail: `position: sticky` creates a stacking context,
+      which would render these behind Bootstrap's body-level backdrop. -#}
   {% if user %}
   <div class="modal fade" id="editModal" tabindex="-1" role="dialog">
     <form method="POST" data-hotkey-submit action="{{ request.current_route_path() }}" id="editModalForm" class="{% if form.errors %}edit-form-errors{% endif %}">
@@ -481,7 +478,7 @@
               <label for="deferModalMessage">
                 Internal note
               </label>
-              <textarea id="deferModalMessage" class="form-control" name="message" placeholder="Optional — why this is being set aside" rows=4></textarea>
+              <textarea id="deferModalMessage" class="form-control" name="message" placeholder="Optional reason for deferral" rows=4></textarea>
               <span id="deferModalMessageHelpBlock">
                 Recorded on the application for admins only. It is not emailed to the applicant.
               </span>
@@ -526,9 +523,9 @@
       </div>
       <div class="hidden" id="ShouldBeCompanyTemplate">
           Hello {{ organization_application.submitted_by.username }}!
-          We’re reviewing your organization request and noticed that you might be a better fit for a Company organization.
+          We're reviewing your organization request and noticed that you might be a better fit for a Company organization.
           We can proceed with this request, but would need to change the name to suit, "{{ organization_application.name }}-community" or "{{ organization_application.name }}-opensource".
-          Let us know if you’d like to do that, or switch this to a Company Organization request.
+          Let us know if you'd like to do that, or switch this to a Company Organization request.
       </div>
       <div class="hidden" id="ReasonForApplicationTemplate">
           Hello {{ organization_application.submitted_by.username }}!
