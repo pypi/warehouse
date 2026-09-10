@@ -222,6 +222,10 @@ table.dataTable {
       flex-direction: column;
       gap: 0.15rem;
     }
+
+    & dt {
+      flex: none;
+    }
   }
 }
 
