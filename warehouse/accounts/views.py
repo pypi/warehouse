@@ -381,9 +381,11 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
     redirect_to = two_factor_data.get("redirect_to")
 
     user_service = request.find_service(IUserService, context=None)
+    user = user_service.get_user(userid)
+    can_use_phishable_2fa = getattr(user, "can_use_phishable_2fa", True)
 
     two_factor_state = {}
-    if user_service.has_totp(userid):
+    if can_use_phishable_2fa and user_service.has_totp(userid):
         two_factor_state["totp_form"] = _form_class(
             request.POST,
             request=request,
@@ -393,13 +395,22 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
         )
     if user_service.has_webauthn(userid):
         two_factor_state["has_webauthn"] = True
-    if user_service.has_recovery_codes(userid):
+    if can_use_phishable_2fa and user_service.has_recovery_codes(userid):
         two_factor_state["has_recovery_codes"] = True
     two_factor_state["remember_device_days"] = request.registry.settings[
         "remember_device.days"
     ]
 
     if request.method == "POST":
+        if not can_use_phishable_2fa or "totp_form" not in two_factor_state:
+            request.session.flash(
+                request._(
+                    "Authentication applications cannot be used for this account."
+                ),
+                queue="error",
+            )
+            return HTTPSeeOther(request.current_route_path())
+
         form = two_factor_state["totp_form"]
         if form.validate():
             two_factor_method = "totp"
@@ -598,6 +609,16 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
     redirect_to = two_factor_data.get("redirect_to")
 
     user_service = request.find_service(IUserService, context=None)
+    user = user_service.get_user(userid)
+
+    if not getattr(user, "can_use_phishable_2fa", True):
+        request.session.flash(
+            request._("Recovery codes cannot be used to log into this account."),
+            queue="error",
+        )
+        return HTTPSeeOther(
+            request.route_path("accounts.two-factor", _query=request.GET)
+        )
 
     form = _form_class(
         request.POST, request=request, user_id=userid, user_service=user_service

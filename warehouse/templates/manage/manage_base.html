@@ -58,7 +58,7 @@
                 {% trans %}Authentication application (<abbr title="time-based one-time password">TOTP</abbr>){% endtrans %}
               </th>
               <td class="table__align-right">
-                {% if user.totp_secret %}
+                {% if user.totp_secret and user.can_use_phishable_2fa %}
                   <a href="{{ request.route_path('manage.account.totp-provision') }}"
                      class="button button--primary">Edit</a>
                 {% endif %}
@@ -184,13 +184,15 @@
 </div>
 {% endif %}
 <div class="wrap-children">
-  <a href="{{ request.route_path('manage.account.totp-provision') }}"
-     class="button button--primary {{ "button--disabled" if disabled or user.totp_secret else "" }}"
-     title="{{ 'Only one authentication application (TOTP) can be used at a time' if user.totp_secret else '' }}">
-    {% trans %}
-    Add <abbr title="two factor authentication">2FA</abbr> with authentication application
-  {% endtrans %}
-</a>
+  {% if user.can_use_phishable_2fa %}
+    <a href="{{ request.route_path('manage.account.totp-provision') }}"
+       class="button button--primary {{ "button--disabled" if disabled or user.totp_secret else "" }}"
+       title="{{ 'Only one authentication application (TOTP) can be used at a time' if user.totp_secret else '' }}">
+      {% trans %}
+      Add <abbr title="two factor authentication">2FA</abbr> with authentication application
+    {% endtrans %}
+  </a>
+{% endif %}
 <a href="{{ request.route_path('manage.account.webauthn-provision') }}"
    class="button button--primary {{ "button--disabled" if disabled else "" }}"
    id="webauthn-button"

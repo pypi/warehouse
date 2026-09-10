@@ -1412,6 +1412,83 @@ class TestProvisionTOTP:
             )
         ]
 
+    def test_generate_totp_qr_admin_disallowed(self):
+        user_service = pretend.stub()
+        request = pretend.stub(
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            find_service=lambda interface, **kw: {IUserService: user_service}[
+                interface
+            ],
+            user=pretend.stub(can_use_phishable_2fa=False),
+            route_path=pretend.call_recorder(
+                lambda *a, **kw: "/manage/account/two-factor/"
+            ),
+        )
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.generate_totp_qr()
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/manage/account/two-factor/"
+        assert request.session.flash.calls == [
+            pretend.call(
+                "Two-factor authentication applications (TOTP) are not permitted "
+                "for this account.",
+                queue="error",
+            )
+        ]
+
+    def test_totp_provision_admin_disallowed(self):
+        user_service = pretend.stub()
+        request = pretend.stub(
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            find_service=lambda interface, **kw: {IUserService: user_service}[
+                interface
+            ],
+            user=pretend.stub(can_use_phishable_2fa=False),
+            route_path=pretend.call_recorder(
+                lambda *a, **kw: "/manage/account/two-factor/"
+            ),
+        )
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.totp_provision()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/manage/account/two-factor/"
+        assert request.session.flash.calls == [
+            pretend.call(
+                "Two-factor authentication applications (TOTP) are not permitted "
+                "for this account.",
+                queue="error",
+            )
+        ]
+
+    def test_validate_totp_provision_admin_disallowed(self):
+        user_service = pretend.stub()
+        request = pretend.stub(
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            find_service=lambda interface, **kw: {IUserService: user_service}[
+                interface
+            ],
+            user=pretend.stub(can_use_phishable_2fa=False),
+            route_path=pretend.call_recorder(
+                lambda *a, **kw: "/manage/account/two-factor/"
+            ),
+        )
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.validate_totp_provision()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/manage/account/two-factor/"
+        assert request.session.flash.calls == [
+            pretend.call(
+                "Two-factor authentication applications (TOTP) are not permitted "
+                "for this account.",
+                queue="error",
+            )
+        ]
+
     @pytest.mark.parametrize("current_totp_secret", [b"foobar", None])
     def test_totp_provision(self, monkeypatch, current_totp_secret):
         user_service = pretend.stub(get_totp_secret=lambda id: current_totp_secret)

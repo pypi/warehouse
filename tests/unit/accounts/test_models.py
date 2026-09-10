@@ -140,6 +140,18 @@ class TestUser:
         user = DBUserFactory.create(is_psf_staff=True)
         assert user.can_reset_password is False
 
+    def test_can_use_phishable_2fa(self, db_session):
+        user = DBUserFactory.create()
+        assert user.can_use_phishable_2fa is True
+        user_superuser = DBUserFactory.create(is_superuser=True)
+        assert user_superuser.can_use_phishable_2fa is False
+        user_support = DBUserFactory.create(is_support=True)
+        assert user_support.can_use_phishable_2fa is False
+        user_moderator = DBUserFactory.create(is_moderator=True)
+        assert user_moderator.can_use_phishable_2fa is False
+        user_staff = DBUserFactory.create(is_psf_staff=True)
+        assert user_staff.can_use_phishable_2fa is False
+
     def test_flag_prohibit_password_reset(self, db_session):
         user = DBUserFactory.create(prohibit_password_reset=True)
         assert user.can_reset_password is False

@@ -272,6 +272,17 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
         )
 
     @property
+    def can_use_phishable_2fa(self):
+        return not any(
+            [
+                self.is_superuser,
+                self.is_support,
+                self.is_moderator,
+                self.is_psf_staff,
+            ]
+        )
+
+    @property
     def can_reset_password(self):
         return not any(
             [

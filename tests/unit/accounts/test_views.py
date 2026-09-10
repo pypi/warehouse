@@ -911,6 +911,85 @@ class TestTwoFactor:
         ]
         assert result == {"has_webauthn": True, "remember_device_days": 30}
 
+    def test_get_admin_disallows_totp_and_recovery_codes(self, pyramid_request):
+        token_service = pretend.stub(
+            loads=pretend.call_recorder(
+                lambda *args, **kwargs: (
+                    {"userid": 1},
+                    datetime.datetime.now(datetime.UTC),
+                )
+            )
+        )
+        user = pretend.stub(
+            can_use_phishable_2fa=False,
+            last_login=datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1),
+        )
+        user_service = pretend.stub(
+            get_user=pretend.call_recorder(lambda userid: user),
+            has_totp=lambda uid: True,
+            has_webauthn=lambda uid: True,
+            has_recovery_codes=lambda uid: True,
+        )
+        pyramid_request.find_service = lambda interface, **kwargs: {
+            ITokenService: token_service,
+            IUserService: user_service,
+        }[interface]
+        pyramid_request.registry.settings = {"remember_device.days": 30}
+        pyramid_request.query_string = pretend.stub()
+
+        result = views.two_factor_and_totp_validate(
+            pyramid_request, _form_class=pretend.stub()
+        )
+        assert result == {
+            "has_webauthn": True,
+            "remember_device_days": 30,
+        }
+        assert "totp_form" not in result
+        assert "has_recovery_codes" not in result
+
+    def test_post_admin_disallows_totp(self, pyramid_request):
+        token_service = pretend.stub(
+            loads=pretend.call_recorder(
+                lambda *args, **kwargs: (
+                    {"userid": 1},
+                    datetime.datetime.now(datetime.UTC),
+                )
+            )
+        )
+        user = pretend.stub(
+            can_use_phishable_2fa=False,
+            last_login=datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1),
+        )
+        user_service = pretend.stub(
+            get_user=pretend.call_recorder(lambda userid: user),
+            has_totp=lambda uid: True,
+            has_webauthn=lambda uid: True,
+            has_recovery_codes=lambda uid: False,
+        )
+        pyramid_request.find_service = lambda interface, **kwargs: {
+            ITokenService: token_service,
+            IUserService: user_service,
+        }[interface]
+        pyramid_request.registry.settings = {"remember_device.days": 30}
+        pyramid_request.query_string = pretend.stub()
+        pyramid_request.method = "POST"
+        pyramid_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        pyramid_request.current_route_path = lambda: "/account/two-factor/"
+
+        result = views.two_factor_and_totp_validate(
+            pyramid_request, _form_class=pretend.stub()
+        )
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/account/two-factor/"
+        assert pyramid_request.session.flash.calls == [
+            pretend.call(
+                "Authentication applications cannot be used for this account.",
+                queue="error",
+            )
+        ]
+
     @pytest.mark.parametrize("redirect_url", [None, "/foo/bar/", "/wat/"])
     def test_get_returns_recovery_code_status(self, pyramid_request, redirect_url):
         query_params = {"userid": 1}
@@ -1524,6 +1603,51 @@ class TestRecoveryCode:
         assert result.headers["Location"] == "redirect_to"
         assert pyramid_request.session.flash.calls == [
             pretend.call("Invalid or expired two factor login.", queue="error")
+        ]
+
+    def test_admin_disallowed(self, pyramid_request):
+        token_service = pretend.stub(
+            loads=pretend.call_recorder(
+                lambda *args, **kwargs: (
+                    {"userid": 1},
+                    datetime.datetime.now(datetime.UTC),
+                )
+            )
+        )
+        user_service = pretend.stub(
+            get_user=pretend.call_recorder(
+                lambda userid: pretend.stub(
+                    can_use_phishable_2fa=False,
+                    last_login=(
+                        datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1)
+                    ),
+                )
+            ),
+        )
+        pyramid_request.find_service = lambda interface, **kwargs: {
+            ITokenService: token_service,
+            IUserService: user_service,
+        }[interface]
+        pyramid_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        pyramid_request.route_path = pretend.call_recorder(
+            lambda p, **kw: "redirect_to"
+        )
+        pyramid_request.GET = {"foo": "bar"}
+
+        result = views.recovery_code(pyramid_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert pyramid_request.route_path.calls == [
+            pretend.call("accounts.two-factor", _query={"foo": "bar"})
+        ]
+        assert result.headers["Location"] == "redirect_to"
+        assert pyramid_request.session.flash.calls == [
+            pretend.call(
+                "Recovery codes cannot be used to log into this account.",
+                queue="error",
+            )
         ]
 
     def test_get_returns_form(self, pyramid_request):

@@ -1,17 +1,27 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import datetime
 import time
 
 from http import HTTPStatus
 
+import msgpack
 import pytest
+
+from pyramid.interfaces import ISessionFactory
 
 from tests.common.constants import REMOTE_ADDR
 from tests.common.db import Session
-from tests.common.db.accounts import UserFactory, UserUniqueLoginFactory
+from tests.common.db.accounts import (
+    UserFactory,
+    UserUniqueLoginFactory,
+    WebAuthnFactory,
+)
 from tests.common.db.ip_addresses import IpAddressFactory
 from warehouse.accounts.models import UniqueLoginStatus
+from warehouse.accounts.views import USER_ID_INSECURE_COOKIE
 from warehouse.ip_addresses.models import IpAddress
+from warehouse.utils.msgpack import object_encode
 from warehouse.utils.otp import _get_totp
 
 
@@ -38,11 +48,40 @@ def login_user(webtest):
         login_form["password"] = "password"
 
         two_factor_page = login_form.submit().follow(status=HTTPStatus.OK)
-        two_factor_form = two_factor_page.forms["totp-auth-form"]
-        two_factor_form["totp_value"] = (
-            _get_totp(user.totp_secret).generate(time.time()).decode()
-        )
-        two_factor_form.submit().follow(status=HTTPStatus.OK)
+        if "totp-auth-form" in two_factor_page.forms:
+            two_factor_form = two_factor_page.forms["totp-auth-form"]
+            two_factor_form["totp_value"] = (
+                _get_totp(user.totp_secret).generate(time.time()).decode()
+            )
+            two_factor_form.submit().follow(status=HTTPStatus.OK)
+        else:
+            app = webtest.app
+            while not hasattr(app, "registry"):
+                if hasattr(app, "app"):
+                    app = app.app
+                elif hasattr(app, "application"):
+                    app = app.application
+                else:
+                    break
+            session_factory = app.registry.queryUtility(ISessionFactory)
+            cookie = webtest.cookies.get("session_id")
+            session_id = session_factory.signer.unsign(
+                cookie, max_age=session_factory.max_age
+            ).decode("utf8")
+            key = session_factory._redis_key(session_id)
+            bdata = session_factory.redis.get(key)
+            data = msgpack.unpackb(bdata, raw=False, use_list=True) if bdata else {}
+            data["auth.userid"] = str(user.id)
+            csrf = session_factory.signer.sign(b"csrf").decode("utf8")
+            data.setdefault("_csrf_token", csrf)
+            session_factory.redis.setex(
+                key,
+                session_factory.max_age,
+                msgpack.packb(data, default=object_encode, use_bin_type=True),
+            )
+            webtest.set_cookie(USER_ID_INSECURE_COOKIE, str(user.id))
+            user.last_login = datetime.datetime.now(datetime.UTC)
+            Session.flush()
         return user
 
     return _login
@@ -66,15 +105,15 @@ def login_admin(login_user):
 
     def _login(**kwargs):
         roles = {} if _ADMIN_ROLES & kwargs.keys() else {"is_superuser": True}
-        return login_user(
-            UserFactory.create(
-                **{
-                    **roles,
-                    "with_verified_primary_email": True,
-                    "clear_pwd": "password",
-                    **kwargs,
-                }
-            )
+        user = UserFactory.create(
+            **{
+                **roles,
+                "with_verified_primary_email": True,
+                "clear_pwd": "password",
+                **kwargs,
+            }
         )
+        WebAuthnFactory.create(user=user)
+        return login_user(user)
 
     return _login
