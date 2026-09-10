@@ -246,6 +246,10 @@ class DatabaseOrganizationService:
         )
         organization_application.status = OrganizationApplicationStatus.Deferred
 
+        # The note is optional; the recorder rejects an empty one.
+        if request.params.get("message", ""):
+            self.add_organization_application_note(organization_application_id, request)
+
         return organization_application
 
     def request_more_information(self, organization_application_id, request):
