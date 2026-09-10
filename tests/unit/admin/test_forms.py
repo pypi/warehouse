@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
+from types import SimpleNamespace
+
 from webob.multidict import MultiDict
 
 from warehouse.admin.forms import (
@@ -7,6 +9,7 @@ from warehouse.admin.forms import (
     SetTotalSizeLimitForm,
     SetUploadLimitForm,
 )
+from warehouse.constants import PROJECT_CREATE_RATELIMIT_CAP, RateLimitPeriod
 
 
 class TestSetUploadLimitForm:
@@ -123,7 +126,6 @@ class TestSetTotalSizeLimitForm:
 
 class TestSetProjectCreateRateLimitForm:
     def test_validate_empty_clears_override(self):
-        """An empty count clears the override."""
         form = SetProjectCreateRateLimitForm(
             MultiDict({"project_create_ratelimit_count": ""})
         )
@@ -131,36 +133,32 @@ class TestSetProjectCreateRateLimitForm:
         assert form.project_create_ratelimit_count.data is None
 
     def test_validate_none_clears_override(self):
-        """A missing count clears the override."""
         form = SetProjectCreateRateLimitForm(MultiDict({}))
         assert form.validate()
         assert form.project_create_ratelimit_count.data is None
 
     def test_validate_composes_count_and_period(self):
-        """A count + period are validated together."""
         form = SetProjectCreateRateLimitForm(
             MultiDict(
                 {
-                    "project_create_ratelimit_count": "200",
+                    "project_create_ratelimit_count": "50",
                     "project_create_ratelimit_period": "hour",
                 }
             )
         )
         assert form.validate()
-        assert form.project_create_ratelimit_count.data == 200
-        assert form.project_create_ratelimit_period.data == "hour"
+        assert form.project_create_ratelimit_count.data == 50
+        assert form.project_create_ratelimit_period.data is RateLimitPeriod.Hour
 
     def test_validate_defaults_to_hour_period(self):
-        """The period field defaults to "hour" when not submitted."""
         form = SetProjectCreateRateLimitForm(
             MultiDict({"project_create_ratelimit_count": "5"})
         )
         assert form.validate()
         assert form.project_create_ratelimit_count.data == 5
-        assert form.project_create_ratelimit_period.data == "hour"
+        assert form.project_create_ratelimit_period.data is RateLimitPeriod.Hour
 
     def test_validate_below_minimum_count(self):
-        """A count below 1 raises a validation error."""
         form = SetProjectCreateRateLimitForm(
             MultiDict({"project_create_ratelimit_count": "0"})
         )
@@ -169,3 +167,75 @@ class TestSetProjectCreateRateLimitForm:
             "Rate limit count must be at least 1" in error
             for error in form.project_create_ratelimit_count.errors
         )
+
+    def test_validate_rejects_a_count_above_the_cap(self):
+        form = SetProjectCreateRateLimitForm(
+            MultiDict(
+                {
+                    "project_create_ratelimit_count": str(
+                        PROJECT_CREATE_RATELIMIT_CAP + 1
+                    )
+                }
+            )
+        )
+        assert not form.validate()
+        assert any(
+            "must be at most" in error
+            for error in form.project_create_ratelimit_count.errors
+        )
+
+    def test_validate_accepts_the_cap(self):
+        form = SetProjectCreateRateLimitForm(
+            MultiDict(
+                {"project_create_ratelimit_count": str(PROJECT_CREATE_RATELIMIT_CAP)}
+            )
+        )
+        assert form.validate()
+
+    def test_validate_rejects_unknown_period(self):
+        form = SetProjectCreateRateLimitForm(
+            MultiDict(
+                {
+                    "project_create_ratelimit_count": "5",
+                    "project_create_ratelimit_period": "fortnight",
+                }
+            )
+        )
+        assert not form.validate()
+        assert form.project_create_ratelimit_period.errors
+
+    def test_apply_to_writes_both_columns(self):
+        entity = SimpleNamespace(
+            project_create_ratelimit_count=None,
+            project_create_ratelimit_period=None,
+            project_create_ratelimit_string=None,
+        )
+        form = SetProjectCreateRateLimitForm(
+            MultiDict(
+                {
+                    "project_create_ratelimit_count": "12",
+                    "project_create_ratelimit_period": "day",
+                }
+            )
+        )
+        assert form.validate()
+
+        assert form.apply_to(entity) is None
+        assert entity.project_create_ratelimit_count == 12
+        assert entity.project_create_ratelimit_period is RateLimitPeriod.Day
+
+    def test_apply_to_returns_the_replaced_limit(self):
+        entity = SimpleNamespace(
+            project_create_ratelimit_count=12,
+            project_create_ratelimit_period=RateLimitPeriod.Day,
+            project_create_ratelimit_string="12 per day",
+        )
+        form = SetProjectCreateRateLimitForm(
+            MultiDict({"project_create_ratelimit_count": ""})
+        )
+        assert form.validate()
+
+        assert form.apply_to(entity) == "12 per day"
+        assert entity.project_create_ratelimit_count is None
+        # Cleared overrides still carry a valid period.
+        assert entity.project_create_ratelimit_period is RateLimitPeriod.Hour
