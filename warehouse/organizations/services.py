@@ -246,15 +246,9 @@ class DatabaseOrganizationService:
         )
         organization_application.status = OrganizationApplicationStatus.Deferred
 
-        # reason for deferring is optional
-        if message := request.params.get("message", ""):
-            organization_application.record_observation(
-                request=request,
-                actor=request.user,
-                summary="Admin note added",
-                kind=ObservationKind.AdminNote,
-                payload={"message": message},
-            )
+        # The note is optional; the recorder rejects an empty one.
+        if request.params.get("message", ""):
+            self.add_organization_application_note(organization_application_id, request)
 
         return organization_application
 
