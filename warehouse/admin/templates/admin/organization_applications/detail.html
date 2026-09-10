@@ -390,7 +390,7 @@
      which would render these behind Bootstrap's body-level backdrop. -#}
   {% if user %}
   <div class="modal fade" id="editModal" tabindex="-1" role="dialog">
-    <form method="POST" action="{{ request.current_route_path() }}" id="editModalForm" class="{% if form.errors %}edit-form-errors{% endif %}">
+    <form method="POST" data-hotkey-submit action="{{ request.current_route_path() }}" id="editModalForm" class="{% if form.errors %}edit-form-errors{% endif %}">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -421,7 +421,7 @@
   </div>
 
   <div class="modal fade" id="approveModal" tabindex="-1" role="dialog">
-    <form method="POST" action="{{ request.route_path('admin.organization_application.approve', organization_application_id=organization_application.id) }}">
+    <form method="POST" data-hotkey-submit action="{{ request.route_path('admin.organization_application.approve', organization_application_id=organization_application.id) }}">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       <input name="organization_applications_turbo_mode" type="hidden" value=0>
       <div class="modal-dialog" role="document">
@@ -460,7 +460,7 @@
   </div>
 
   <div class="modal fade" id="deferModal" tabindex="-1" role="dialog">
-    <form method="POST" action="{{ request.route_path('admin.organization_application.defer', organization_application_id=organization_application.id) }}">
+    <form method="POST" data-hotkey-submit action="{{ request.route_path('admin.organization_application.defer', organization_application_id=organization_application.id) }}">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       <input name="organization_applications_turbo_mode" type="hidden" value=0>
       <div class="modal-dialog" role="document">
@@ -499,7 +499,7 @@
   </div>
 
   <div class="modal fade" id="requestMoreInfoModal" tabindex="-1" role="dialog">
-    <form method="POST" action="{{ request.route_path('admin.organization_application.requestmoreinfo', organization_application_id=organization_application.id) }}">
+    <form method="POST" data-hotkey-submit action="{{ request.route_path('admin.organization_application.requestmoreinfo', organization_application_id=organization_application.id) }}">
       <div class="hidden" id="AddOrgEmailTemplate">
           Hello {{ organization_application.submitted_by.username }}!
           We'd be happy to approve this organization request,
@@ -590,7 +590,7 @@
   </div>
 
   <div class="modal fade" id="declineModal" tabindex="-1" role="dialog">
-    <form method="POST" action="{{ request.route_path('admin.organization_application.decline', organization_application_id=organization_application.id) }}">
+    <form method="POST" data-hotkey-submit action="{{ request.route_path('admin.organization_application.decline', organization_application_id=organization_application.id) }}">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       <input name="organization_applications_turbo_mode" type="hidden" value=0>
       <div class="modal-dialog" role="document">
@@ -629,7 +629,7 @@
   </div>
 
   <div class="modal fade" id="addNoteModal" tabindex="-1" role="dialog">
-    <form method="POST" action="{{ request.route_path('admin.organization_application.addnote', organization_application_id=organization_application.id) }}">
+    <form method="POST" data-hotkey-submit action="{{ request.route_path('admin.organization_application.addnote', organization_application_id=organization_application.id) }}">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
