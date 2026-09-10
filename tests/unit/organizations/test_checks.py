@@ -6,6 +6,7 @@ from warehouse.organizations.checks import (
     CheckStatus,
     _email_domain,
     _Link,
+    application_domain,
     review_checks,
 )
 from warehouse.organizations.models import OrganizationApplicationStatus
@@ -458,3 +459,17 @@ class TestReviewChecks:
         ]
         assert ranks == sorted(ranks)
 
+
+class TestApplicationDomain:
+    @pytest.mark.parametrize(
+        ("link_url", "expected"),
+        [
+            ("https://www.acme.com", "acme.com"),
+            ("https://dept.acme.com", "acme.com"),
+            ("https://acme.com:99999", None),
+        ],
+    )
+    def test_domain(self, db_request, link_url, expected):
+        application = OrganizationApplicationFactory.create(link_url=link_url)
+
+        assert application_domain(application) == expected
