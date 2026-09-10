@@ -926,16 +926,12 @@ def _send_organization_invitation(request, organization, role_name, user):
             queue="error",
         )
     else:
-        # Check if the organization may send the requested invitation.
         is_billing_manager_invite = (
             role_name == OrganizationRoleType.BillingManager.value
         )
-        can_invite_billing_manager = (
-            organization.can_invite_billing_manager_without_billing
-        )
 
         if not organization.is_in_good_standing() and not (
-            is_billing_manager_invite and can_invite_billing_manager
+            is_billing_manager_invite and organization.is_awaiting_initial_billing
         ):
             request.session.flash(
                 request._(
@@ -1015,6 +1011,7 @@ def _send_organization_invitation(request, organization, role_name, user):
     context=Organization,
     renderer="warehouse:templates/manage/organization/roles.html",
     uses_session=True,
+    require_active_organization="or_awaiting_billing",
     require_methods=False,
     request_method="GET",
     permission=Permissions.OrganizationsRead,
@@ -1026,6 +1023,7 @@ def _send_organization_invitation(request, organization, role_name, user):
     context=Organization,
     renderer="warehouse:templates/manage/organization/roles.html",
     uses_session=True,
+    require_active_organization="or_awaiting_billing",
     require_methods=False,
     request_method="POST",
     permission=Permissions.OrganizationsManage,
@@ -1035,35 +1033,17 @@ def _send_organization_invitation(request, organization, role_name, user):
 def manage_organization_roles(
     organization, request, _form_class=CreateOrganizationRoleForm
 ):
-    # Preserve the inactive-billing redirect outside the pre-billing exception.
-    if (
-        not organization.is_in_good_standing()
-        and not organization.can_invite_billing_manager_without_billing
-    ):
-        request.session.flash(
-            request._(
-                "This organization's billing is inactive. Activate billing to "
-                "manage its projects, teams, and members."
-            ),
-            queue="error",
-            allow_duplicate=False,
-        )
-        return HTTPSeeOther(request.route_path("manage.organizations"))
-
     organization_service = request.find_service(IOrganizationService, context=None)
     user_service = request.find_service(IUserService, context=None)
+    awaiting_initial_billing = organization.is_awaiting_initial_billing
 
-    allow_billing_manager_only = organization.can_invite_billing_manager_without_billing
-
-    form_kwargs = {
-        "orgtype": organization.orgtype,
-        "organization_service": organization_service,
-        "user_service": user_service,
-    }
-    if allow_billing_manager_only:
-        form_kwargs["allow_billing_manager_only"] = True
-
-    form = _form_class(request.POST, **form_kwargs)
+    form = _form_class(
+        request.POST,
+        orgtype=organization.orgtype,
+        organization_service=organization_service,
+        user_service=user_service,
+        allow_billing_manager_only=awaiting_initial_billing,
+    )
 
     if request.method == "POST" and form.validate():
         username = form.username.data
@@ -1089,6 +1069,10 @@ def manage_organization_roles(
         "invitations": invitations,
         "form": form,
         "is_sole_owner": is_sole_owner,
+        "awaiting_initial_billing": awaiting_initial_billing,
+        "role_choices": ChangeOrganizationRoleForm(
+            orgtype=organization.orgtype
+        ).role_name.choices,
     }
 
 
@@ -1096,7 +1080,7 @@ def manage_organization_roles(
     route_name="manage.organization.resend_invite",
     context=Organization,
     uses_session=True,
-    require_active_organization=True,
+    require_active_organization="or_awaiting_billing",
     require_methods=["POST"],
     permission=Permissions.OrganizationsManage,
     has_translations=True,
