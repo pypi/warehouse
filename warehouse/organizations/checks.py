@@ -67,12 +67,6 @@ class CheckStatus(enum.StrEnum):
     Unknown = "unknown"
 
 
-class Verdict(enum.StrEnum):
-    Ready = "ready"
-    Review = "review"
-    NeedsInfo = "needsinfo"
-
-
 @dataclasses.dataclass(frozen=True)
 class Check:
     key: str
@@ -326,12 +320,3 @@ def review_checks(
         (check for check in candidates if check is not None),
         key=lambda check: _STATUS_ORDER[check.status],
     )
-
-
-def verdict(checks: list[Check]) -> Verdict:
-    statuses = {check.status for check in checks}
-    if CheckStatus.Fail in statuses:
-        return Verdict.NeedsInfo
-    if CheckStatus.Warn in statuses or CheckStatus.Unknown in statuses:
-        return Verdict.Review
-    return Verdict.Ready
