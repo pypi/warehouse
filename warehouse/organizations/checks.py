@@ -20,6 +20,7 @@ from difflib import SequenceMatcher
 from typing import TYPE_CHECKING
 
 from tldextract import TLDExtract
+from urllib3.exceptions import LocationParseError
 from urllib3.util import parse_url
 
 from warehouse.accounts.models import OAuthAccountAssociation
@@ -80,12 +81,24 @@ _STATUS_ORDER = {
 }
 
 
+def _host(value: str) -> str | None:
+    r"""Resolve and punycode a host.
+
+    `https://acme.example\@safe.example` therefore reads as `acme.example`.
+    """
+    try:
+        host = parse_url(value).host
+    except LocationParseError:
+        return None
+    return host.lower() if host else None
+
+
 class _Link:
     """Every view of an application's URL the checks need, parsed once."""
 
     def __init__(self, raw: str) -> None:
-        extracted = _extractor(raw)
-        self.host = parse_url(raw).host or raw
+        self.host = _host(raw)
+        extracted = _extractor(self.host or "")
         self.registered_domain = extracted.top_domain_under_public_suffix or None
         self.domain_label = extracted.domain
         # `github.io` and `readthedocs.io` are themselves public suffixes, so a match
@@ -95,9 +108,16 @@ class _Link:
         self.github = bool(parts & GITHUB_HOSTS)
 
 
+# urllib3 reads these as authority terminators, so `acme.com\evil.org` would
+# normalize to `acme.com`. An address holding one is not a domain to match on.
+_URL_DELIMITERS = "\\/?#@:[]"
+
+
 def _email_domain(email: str) -> str | None:
     _, _, domain = email.rpartition("@")
-    return _extractor(domain).top_domain_under_public_suffix or None if domain else None
+    if not domain or any(char in domain for char in _URL_DELIMITERS):
+        return None
+    return _extractor(_host(f"//{domain}") or "").top_domain_under_public_suffix or None
 
 
 def _comparable(value: str) -> str:
@@ -197,9 +217,6 @@ def _name_domain_check(
         _comparable(application.name),
         _comparable(application.display_name or ""),
     } - {""}
-    if not target or not candidates:
-        return None
-
     if any(_resembles(candidate, target) for candidate in candidates):
         return check(
             CheckStatus.Ok, f"“{application.name}” lines up with {link.domain_label}."
