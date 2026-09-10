@@ -25,7 +25,7 @@ from warehouse.constants import (
 )
 from warehouse.events.tags import EventTag
 from warehouse.manage.forms import OrganizationNameMixin, SaveOrganizationForm
-from warehouse.organizations.checks import review_checks
+from warehouse.organizations.checks import application_domain, review_checks
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     OIDCIssuerType,
@@ -680,6 +680,7 @@ def organization_application_detail(request):
         "conflicting_applications": conflicting_applications,
         "user": user,
         "checks": checks,
+        "link_domain": application_domain(organization_application),
     }
 
 
