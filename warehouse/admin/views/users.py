@@ -38,6 +38,7 @@ from warehouse.accounts.utils import (
 from warehouse.admin.forms import SetProjectCreateRateLimitForm
 from warehouse.admin.user_export import export_user
 from warehouse.authnz import Permissions
+from warehouse.constants import PROJECT_CREATE_RATELIMIT_CAP
 from warehouse.email import (
     send_account_recovery_initiated_email,
     send_password_reset_by_admin_email,
@@ -255,6 +256,7 @@ def user_detail(user, request):
         "DEFAULT_PROJECT_CREATE_USER_RATELIMIT": request.registry.settings.get(
             "warehouse.packaging.project_create_user_ratelimit_string"
         ),
+        "PROJECT_CREATE_RATELIMIT_CAP": PROJECT_CREATE_RATELIMIT_CAP,
     }
 
 
@@ -563,22 +565,13 @@ def user_set_project_create_ratelimit(user, request):
             request.route_path("admin.user.detail", username=user.username)
         )
 
-    old_project_create_ratelimit_string = user.project_create_ratelimit_string
-    ratelimit_count = form.project_create_ratelimit_count.data
-    user.project_create_ratelimit_count = ratelimit_count
-    user.project_create_ratelimit_period = (
-        form.project_create_ratelimit_period.data
-        if ratelimit_count is not None
-        else None
-    )
+    old_ratelimit = form.apply_to(user)
 
     user.record_event(
         request=request,
         tag=EventTag.Account.SetProjectCreateRateLimit,
         additional={
-            "old_project_create_ratelimit_string": (
-                old_project_create_ratelimit_string
-            ),
+            "old_project_create_ratelimit_string": old_ratelimit,
             "new_project_create_ratelimit_string": (
                 user.project_create_ratelimit_string
             ),
@@ -586,11 +579,11 @@ def user_set_project_create_ratelimit(user, request):
         },
     )
 
-    limit_msg = user.project_create_ratelimit_string or "(default)"
-    request.session.flash(
-        f"Project creation rate limit set to {limit_msg} for user {user.username!r}",
-        queue="success",
-    )
+    if limit := user.project_create_ratelimit_string:
+        msg = f"Project creation rate limit set to {limit}"
+    else:
+        msg = "Project creation rate limit override cleared; the default applies"
+    request.session.flash(f"{msg} for user {user.username!r}", queue="success")
     return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
 
 
