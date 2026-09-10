@@ -35,7 +35,7 @@ class TestLink:
             ("https://ACME.com", "acme.com"),
             # A backslash ends the host, so the credential-looking tail is not it.
             (r"https://acme.com\@evil.example", "acme.com"),
-            # Unparseable, rather than raising into the admin view.
+            # Unparsable, rather than raising into the admin view.
             ("https://acme.com:99999", None),
             # Parses, but carries no host.
             ("https://", None),
