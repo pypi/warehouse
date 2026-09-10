@@ -318,14 +318,20 @@ savedReplyButtons.forEach(button => {
   });
 });
 
+// Focus stays outside the form while a modal is open - on the rail button that opened
+// it, or on the modal shell - so a listener bound to the form never sees the keystroke.
 // `requestSubmit` over `submit` so required fields still validate.
-document.querySelectorAll(".modal form").forEach(function(modalForm) {
-  modalForm.addEventListener("keydown", function(event) {
-    if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
-      event.preventDefault();
-      modalForm.requestSubmit();
-    }
-  });
+document.addEventListener("keydown", function(event) {
+  if (!(event.metaKey || event.ctrlKey) || event.key !== "Enter") {
+    return;
+  }
+  const focused = event.target instanceof Element ? event.target : null;
+  const form = (focused && focused.closest("form[data-hotkey-submit]")) ||
+    document.querySelector(".modal.show form[data-hotkey-submit]");
+  if (form) {
+    event.preventDefault();
+    form.requestSubmit();
+  }
 });
 
 let editModalForm = document.getElementById("editModalForm");
