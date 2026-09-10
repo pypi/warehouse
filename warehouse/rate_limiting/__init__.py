@@ -73,11 +73,11 @@ class RateLimiter:
 
     def override(self, limit_string):
         """
-        Return a new RateLimiter using ``limit_string``, or self if it is
-        falsy.
+        Return a limiter for ``limit_string``, or self when it is falsy or
+        unparsable (a bad stored override must not fail the request).
 
-        A malformed ``limit_string`` (e.g. a bad per-entity override stored
-        in the database) falls back to self rather than failing the request.
+        The amount is part of the storage key, so a changed override starts a
+        fresh window.
         """
         if not limit_string:
             return self
