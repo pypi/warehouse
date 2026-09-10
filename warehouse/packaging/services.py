@@ -7,9 +7,11 @@ import io
 import json
 import os.path
 import shutil
+import uuid
 import warnings
 
 from itertools import chain
+from typing import NamedTuple
 
 import b2sdk.v2.exception
 import botocore.exceptions
@@ -50,7 +52,7 @@ from warehouse.packaging.models import (
 )
 from warehouse.packaging.tasks import typo_check_project_name
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
-from warehouse.rate_limiting.headers import record_rate_limit
+from warehouse.rate_limiting.headers import PartitionKey, record_rate_limit
 from warehouse.utils.exceptions import DevelopmentModeWarning
 from warehouse.utils.project import PROJECT_NAME_RE
 
@@ -399,6 +401,16 @@ class GCSSimpleStorage(GenericGCSBlobStorage):
         return cls(bucket, prefix=prefix)
 
 
+class _IdentityLimiter(NamedTuple):
+    """The non-IP limiter a single project creation is metered against."""
+
+    limiter: IRateLimiter
+    identifier: uuid.UUID
+    partition_key: PartitionKey
+    """Name the bucket for the metrics and RateLimit headers.
+    Matches the project.create.<key> limiter it came from."""
+
+
 @implementer(IProjectService)
 class ProjectService:
     def __init__(self, session, metrics=None, ratelimiters=None) -> None:
@@ -409,42 +421,36 @@ class ProjectService:
         self.ratelimiters = collections.defaultdict(DummyRateLimiter, ratelimiters)
         self._metrics = metrics
 
-    def _organization_ratelimiter(self, organization):
-        return self.ratelimiters["project.create.organization"].override(
-            organization.project_create_ratelimit_string
-        )
-
-    def _identity_ratelimiter(self, creator, organization_id):
-        """
-        Project creation inside an organization is governed by that
-        organization's rate limit — shared across all its members — instead
-        of the creator's individual per-user limit.
-        """
+    def _identity_limiter(self, creator, organization_id) -> _IdentityLimiter:
+        """Pick the non-IP limiter this creation is metered against."""
         if organization_id is not None:
             organization = self.db.get(Organization, organization_id)
-            return (
-                self._organization_ratelimiter(organization),
+            return _IdentityLimiter(
+                self.ratelimiters["project.create.organization"].override(
+                    organization.project_create_ratelimit_string
+                ),
                 organization.id,
                 "organization",
             )
-        limiter = self.ratelimiters["project.create.user"].override(
-            creator.project_create_ratelimit_string
+        return _IdentityLimiter(
+            self.ratelimiters["project.create.user"].override(
+                creator.project_create_ratelimit_string
+            ),
+            creator.id,
+            "user",
         )
-        return limiter, creator.id, "user"
 
     def _reject_create(self, partition_key, resets_in):
-        label = "IP" if partition_key == "ip" else partition_key.title()
-        logger.warning("%s failed project create threshold reached.", label)
+        logger.warning(
+            "Project create threshold reached for %s partition.", partition_key
+        )
         self._metrics.increment(
             "warehouse.project.create.ratelimited",
             tags=[f"ratelimiter:{partition_key}"],
         )
         raise TooManyProjectsCreated(resets_in=resets_in)
 
-    def _check_ratelimits(self, request, creator, organization_id=None):
-        limiter, identifier, partition_key = self._identity_ratelimiter(
-            creator, organization_id
-        )
+    def _check_ratelimits(self, request, identity: _IdentityLimiter):
         ip_limiter = self.ratelimiters["project.create.ip"]
 
         # Record the current limiter state so the egress tween can emit
@@ -459,23 +465,23 @@ class ProjectService:
             )
         record_rate_limit(
             request,
-            f"project.create.{partition_key}",
-            limiter,
-            identifiers=(identifier,),
-            partition_key=partition_key,
+            f"project.create.{identity.partition_key}",
+            identity.limiter,
+            identifiers=(identity.identifier,),
+            partition_key=identity.partition_key,
         )
 
         # First we want to check if a single IP is exceeding our rate limiter.
         if request.remote_addr is not None and not ip_limiter.test(request.remote_addr):
             self._reject_create("ip", ip_limiter.resets_in(request.remote_addr))
 
-        if not limiter.test(identifier):
-            self._reject_create(partition_key, limiter.resets_in(identifier))
+        if not identity.limiter.test(identity.identifier):
+            self._reject_create(
+                identity.partition_key,
+                identity.limiter.resets_in(identity.identifier),
+            )
 
-    def _hit_ratelimits(self, request, creator, organization_id=None):
-        limiter, identifier, partition_key = self._identity_ratelimiter(
-            creator, organization_id
-        )
+    def _hit_ratelimits(self, request, identity: _IdentityLimiter):
         ip_limiter = self.ratelimiters["project.create.ip"]
 
         # `.hit()` atomically increments and returns False when the limit is
@@ -487,8 +493,11 @@ class ProjectService:
         if request.remote_addr is not None and not ip_limiter.hit(request.remote_addr):
             self._reject_create("ip", ip_limiter.resets_in(request.remote_addr))
 
-        if not limiter.hit(identifier):
-            self._reject_create(partition_key, limiter.resets_in(identifier))
+        if not identity.limiter.hit(identity.identifier):
+            self._reject_create(
+                identity.partition_key,
+                identity.limiter.resets_in(identity.identifier),
+            )
 
     def check_project_name(self, name: str) -> None:
         """
@@ -535,8 +544,11 @@ class ProjectService:
         ratelimited=True,
         organization_id=None,
     ):
-        if ratelimited:
-            self._check_ratelimits(request, creator, organization_id)
+        identity_limiter = (
+            self._identity_limiter(creator, organization_id) if ratelimited else None
+        )
+        if identity_limiter is not None:
+            self._check_ratelimits(request, identity_limiter)
 
         # Check for AdminFlag set by a PyPI Administrator disabling new project
         # registration, reasons for this include Spammers, security
@@ -630,7 +642,6 @@ class ProjectService:
                     organization_id=organization_id, project_id=project.id
                 )
             )
-            # Mark the org dirty so its cached project listing is purged.
             orm.attributes.flag_dirty(self.db.get(Organization, organization_id))
         elif creator_is_owner:
             # Mark the creator as the newly created project's owner, if configured.
@@ -677,8 +688,8 @@ class ProjectService:
             )
             request.db.delete(stale_publisher)
 
-        if ratelimited:
-            self._hit_ratelimits(request, creator, organization_id)
+        if identity_limiter is not None:
+            self._hit_ratelimits(request, identity_limiter)
         return project
 
 
