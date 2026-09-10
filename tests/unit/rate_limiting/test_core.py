@@ -158,15 +158,25 @@ class TestRateLimiter:
 
         assert sibling is not limiter
         assert isinstance(sibling, RateLimiter)
-        assert sibling._storage is backend
+        # The override has to meter the same bucket, not a fresh namespace.
         assert sibling._identifiers == ["foo"]
-        assert sibling._metrics is metrics
-        # Default limit blocks after one hit; override allows many more under
-        # the same identifiers, and the two counters do not share a window.
         assert sibling.test("bar")
         for _ in range(50):
             assert sibling.hit("bar")
         assert sibling.test("bar")
+
+    def test_override_uses_a_separate_window(self, metrics):
+        """The amount is part of the storage key, so the override starts fresh."""
+        backend = storage.MemoryStorage()
+        limiter = RateLimiter(
+            backend, "1 per minute", identifiers=["foo"], metrics=metrics
+        )
+
+        assert limiter.hit("bar")
+        # Exhausted under the default limit.
+        assert not limiter.test("bar")
+
+        assert limiter.override("5 per minute").test("bar")
 
     def test_override_falsy_returns_self(self, metrics):
         limiter = RateLimiter(
@@ -187,12 +197,10 @@ class TestRateLimiter:
         )
 
         assert limiter.override("not a rate limit") is limiter
-        assert metrics.increment.calls == [
-            pretend.call(
-                "warehouse.ratelimiter.invalid_override",
-                tags=["identifiers:foo"],
-            )
-        ]
+        metrics.increment.assert_called_once_with(
+            "warehouse.ratelimiter.invalid_override",
+            tags=["identifiers:foo"],
+        )
 
 
 class TestDummyRateLimiter:
