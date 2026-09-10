@@ -77,7 +77,11 @@ class HeadersPredicate:
 
 class ActiveOrganizationPredicate:
     def __init__(self, val, config):
-        self.val = bool(val)
+        if val not in (True, False, "or_awaiting_billing"):
+            raise ConfigurationError(
+                f"Unknown require_active_organization value: {val!r}"
+            )
+        self.val = val
 
     def text(self):
         return f"require_active_organization = {self.val}"
@@ -85,20 +89,19 @@ class ActiveOrganizationPredicate:
     phash = text
 
     def __call__(self, context: Organization | Team, request):
-        """Check that this organization is operational.
-
-        Organization is operational (uses consolidated is_in_good_standing()
-        method).
-
-        """
-        if self.val is False:
+        if not self.val:
             return True
 
         organization = (
             context if isinstance(context, Organization) else context.organization
         )
 
-        if organization.is_in_good_standing():
+        if self.val == "or_awaiting_billing":
+            allowed = organization.can_manage_members()
+        else:
+            allowed = organization.is_in_good_standing()
+
+        if allowed:
             return True
         request.session.flash(
             "This organization's billing is inactive. Activate billing to "
