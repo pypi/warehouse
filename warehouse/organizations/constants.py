@@ -20,3 +20,12 @@ REACTIVATE_BY_PAYING_WITHIN = dt.timedelta(days=90)
 """How long after deactivation for no paid seat owners can reactivate by paying."""
 RECONCILE_MAX_DOWNGRADES = 10
 """Most subscriptions one reconciliation run may move off a paid status."""
+
+NAME_SIMILARITY_THRESHOLD = 0.6
+"""Lowest `difflib` ratio that still reads as the same organization."""
+
+MIN_SUBSTRING_LENGTH = 3
+"""Length both names must reach before one containing the other counts as a match.
+
+Below it, `ar` would match `litestar`.
+"""
