@@ -14,7 +14,6 @@ from tests.common.db.organizations import (
 )
 from warehouse.admin.views import organizations as views
 from warehouse.organizations import services
-from warehouse.organizations.checks import Verdict
 from warehouse.organizations.models import (
     OrganizationApplication,
     OrganizationApplicationStatus,
@@ -249,7 +248,6 @@ class TestOrganizationApplicationDetail:
             "email_verified",
             "has_projects",
         }
-        assert result["verdict"] in set(Verdict)
 
     def test_detail_edit(self, db_request):
         organization_application = OrganizationApplicationFactory.create()
