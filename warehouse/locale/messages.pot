@@ -355,8 +355,8 @@ msgid ""
 "#admin-intervention for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1879
-#: warehouse/manage/views/organizations.py:1773
+#: warehouse/accounts/views.py:1878
+#: warehouse/manage/views/organizations.py:1772
 msgid "disabled. See https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
