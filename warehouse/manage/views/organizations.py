@@ -4,6 +4,8 @@ import datetime
 
 from urllib.parse import urljoin
 
+import humanize
+
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from psycopg.errors import UniqueViolation
 from pyramid.httpexceptions import (
@@ -850,8 +852,6 @@ class ManageOrganizationProjectsViews:
             # Try to add a new project.
             # Note that we pass `creator_is_owner=False`, since the project being
             # created is controlled by the organization and not the user creating it.
-            # organization_id also routes the rate limit check through the org's
-            # bucket and links the project to the organization inline.
             project_service = self.request.find_service(IProjectService)
             try:
                 project = project_service.create_project(
@@ -865,16 +865,32 @@ class ManageOrganizationProjectsViews:
             except HTTPException as exc:
                 form.new_project_name.errors.append(exc.detail)
                 return default_response
-            except RateLimiterException:
-                form.new_project_name.errors.append(
-                    "This organization has created too many new projects "
-                    "recently. Try again later."
-                )
+            except RateLimiterException as exc:
+                self.request.tm.doom()
+                self.request.response.status = 429
+                if exc.resets_in is None:
+                    form.new_project_name.errors.append(
+                        self.request._(
+                            "This organization has created too many new "
+                            "projects recently. Try again later."
+                        )
+                    )
+                else:
+                    self.request.response.retry_after = exc.resets_in.total_seconds()
+                    form.new_project_name.errors.append(
+                        self.request._(
+                            "This organization has created too many new "
+                            "projects recently. Try again in ${time}.",
+                            mapping={
+                                "time": humanize.naturaldelta(
+                                    exc.resets_in.total_seconds()
+                                )
+                            },
+                        )
+                    )
                 return default_response
 
-        # Add project to organization, record events, and notify owners. New
-        # projects are already linked inline by create_project, so only link
-        # here when attaching an existing project.
+        # create_project already linked a new project; only link an existing one.
         add_organization_project_and_notify(
             self.request,
             self.organization,
