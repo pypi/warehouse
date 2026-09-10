@@ -1458,20 +1458,15 @@ def set_project_create_ratelimit(request):
             )
         )
 
-    old_ratelimit = form.apply_to(organization)
-    organization.record_event(
-        request=request,
-        tag=EventTag.Organization.OrganizationSetProjectCreateRateLimit,
-        additional={
-            "old_project_create_ratelimit_string": old_ratelimit,
-            "new_project_create_ratelimit_string": (
-                organization.project_create_ratelimit_string
-            ),
-            "actor": request.user.username,
-        },
+    organization_service = request.find_service(IOrganizationService, context=None)
+    limit = organization_service.set_project_create_ratelimit(
+        organization.id,
+        request,
+        form.project_create_ratelimit_count.data,
+        form.project_create_ratelimit_period.data,
     )
 
-    if limit := organization.project_create_ratelimit_string:
+    if limit:
         msg = f"Project creation rate limit set to {limit}"
     else:
         msg = "Project creation rate limit override cleared; the default applies"
