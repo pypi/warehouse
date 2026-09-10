@@ -49,9 +49,6 @@ UNVERIFIABLE_URL_HOSTS = {
 
 GITHUB_HOSTS = {"github.com", "github.io"}
 
-EMBARGOED_TLDS = {"cu", "ir", "kp", "sy"}
-SECTORAL_TLDS = {"by", "ru"}
-
 # Only reached for names the substring test misses, i.e. edits in the middle of a word.
 # A single dropped or transposed letter scores 0.75+, while unrelated names score under
 # 0.5 (`acme` against `globex` is 0.20), so any value in that gap behaves the same.
@@ -91,8 +88,6 @@ class _Link:
         self.host = parse_url(raw).host or raw
         self.registered_domain = extracted.top_domain_under_public_suffix or None
         self.domain_label = extracted.domain
-        # The country-code label of a suffix, so `co.ir` reads as `ir`.
-        self.terminal_tld = extracted.suffix.rpartition(".")[2]
         # `github.io` and `readthedocs.io` are themselves public suffixes, so a match
         # can land on either component depending on the host.
         parts = {extracted.top_domain_under_public_suffix, extracted.suffix}
@@ -259,22 +254,6 @@ def _projects_check(user: User) -> Check:
     )
 
 
-def _restricted_tld_check(link: _Link) -> Check | None:
-    if link.terminal_tld in EMBARGOED_TLDS:
-        reason = "a comprehensively embargoed jurisdiction"
-    elif link.terminal_tld in SECTORAL_TLDS:
-        reason = "a jurisdiction under targeted sectoral sanctions"
-    else:
-        return None
-
-    return Check(
-        "restricted_tld",
-        "Jurisdiction review",
-        CheckStatus.Warn,
-        f".{link.terminal_tld} maps to {reason} — confirm before approving.",
-    )
-
-
 def _name_conflict_check(
     application: OrganizationApplication,
     related_applications: Sequence[OrganizationApplication],
@@ -313,7 +292,6 @@ def review_checks(
         _email_verified_check(user),
         _github_association_check(link, user),
         _projects_check(user),
-        _restricted_tld_check(link),
         _name_conflict_check(application, related_applications),
     ]
     return sorted(
