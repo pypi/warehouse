@@ -138,7 +138,6 @@ table.dataTable {
   white-space: nowrap;
 }
 
-/* Organization application review */
 .org-review-rail {
   position: sticky;
   top: 1rem;
@@ -153,7 +152,7 @@ table.dataTable {
   }
 }
 
-/* Per-cell ring, so dividers survive wrapping and a short last row paints nothing. */
+/* Outline each cell, so borders survive wrapping. */
 .org-review-checks {
   display: flex;
   flex-wrap: wrap;
@@ -248,7 +247,7 @@ table.dataTable {
   }
 }
 
-/* Rail chips float to a full-width button's far edge; modal buttons have none. */
+/* Inline variant, for the modal buttons. */
 .org-review-key-inline {
   float: none;
   display: inline-block;
