@@ -37,8 +37,7 @@ down_revision = "964076d0c4ad"
 #       To whatever values are reasonable for this migration as part of your
 #       migration.
 
-# Every column added here is nullable with no default, so each ADD COLUMN is a
-# catalog-only change and takes no table rewrite -- which matters on `users`.
+# Nullable with no default: catalog-only ADD COLUMN, no rewrite of users.
 
 COUNT_COMMENT = (
     "Project creation rate limit count, e.g. the 20 in '20 per hour'. "
