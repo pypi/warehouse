@@ -42,7 +42,7 @@ def test_includeme(monkeypatch, mocker):
         "warehouse.packaging.project_create_user_ratelimit_string": "20 per hour",
         "warehouse.packaging.project_create_ip_ratelimit_string": "40 per hour",
         "warehouse.packaging.project_create_organization_ratelimit_string": (
-            "20 per hour"
+            "10 per day"
         ),
     }
 
@@ -70,7 +70,7 @@ def test_includeme(monkeypatch, mocker):
     assert config.register_rate_limiter.calls == [
         pretend.call("20 per hour", "project.create.user"),
         pretend.call("40 per hour", "project.create.ip"),
-        pretend.call("20 per hour", "project.create.organization"),
+        pretend.call("10 per day", "project.create.organization"),
     ]
     assert config.register_origin_cache_keys.calls == [
         pretend.call(
