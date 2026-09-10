@@ -229,6 +229,10 @@ def includeme(config):
         "warehouse.account.accounts_search_ratelimit_string"
     )
     config.register_rate_limiter(accounts_search_ratelimit_string, "accounts.search")
+    register_ratelimit_string = config.registry.settings.get(
+        "warehouse.account.register_ratelimit_string"
+    )
+    config.register_rate_limiter(register_ratelimit_string, "accounts.register")
 
     # Add a periodic task to generate Account metrics
     config.add_periodic_task(crontab(minute="*/20"), compute_user_metrics)

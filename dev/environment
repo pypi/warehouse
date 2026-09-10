@@ -110,3 +110,7 @@ HELPDESK_NOTIFICATION_BACKEND="warehouse.helpdesk.services.ConsoleAdminNotificat
 
 # Example of Domain Status configuration (legacy Domainr API)
 # DOMAIN_STATUS_BACKEND="warehouse.accounts.services.DomainrDomainStatusService client_id=some_client_id"
+
+# Email reputation checks default to the null service, which reports nothing.
+# Example of email reputation configuration (UserCheck API)
+# EMAIL_REPUTATION_BACKEND="warehouse.accounts.services.UserCheckEmailReputationService api_key=your_usercheck_api_key"

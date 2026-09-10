@@ -12,6 +12,7 @@ from pyramid.httpexceptions import HTTPPermanentRedirect
 from pyramid.location import lineage
 
 from warehouse.authnz import Permissions
+from warehouse.events.tags import EventTag
 from warehouse.observations.models import ObservationKind
 from warehouse.organizations.models import (
     OIDCIssuerType,
@@ -20,11 +21,13 @@ from warehouse.organizations.models import (
     OrganizationRoleType,
     TeamFactory,
 )
+from warehouse.subscriptions.models import StripeSubscriptionStatus
 
 from ...common.db.accounts import UserFactory as DBUserFactory
 from ...common.db.organizations import (
     OrganizationApplicationFactory as DBOrganizationApplicationFactory,
     OrganizationApplicationObservationFactory,
+    OrganizationEventFactory as DBOrganizationEventFactory,
     OrganizationFactory as DBOrganizationFactory,
     OrganizationManualActivationFactory as DBOrganizationManualActivationFactory,
     OrganizationNameCatalogFactory as DBOrganizationNameCatalogFactory,
@@ -731,6 +734,85 @@ class TestOrganizationBillingMethods:
     def test_is_in_good_standing_company_without_billing(self, db_session):
         organization = DBOrganizationFactory.create(orgtype="Company")
         assert not organization.is_in_good_standing()
+
+    def test_is_awaiting_initial_billing_new_company_org(self, db_session):
+        organization = DBOrganizationFactory.create(orgtype="Company")
+        assert organization.is_awaiting_initial_billing
+        assert organization.can_manage_members()
+
+    def test_is_awaiting_initial_billing_with_subscription_history(self, db_session):
+        organization = DBOrganizationFactory.create(orgtype="Company")
+        DBOrganizationEventFactory.create(
+            source=organization,
+            tag=EventTag.Organization.SubscriptionCreate,
+        )
+
+        assert not organization.subscriptions
+        assert not organization.is_awaiting_initial_billing
+        assert not organization.can_manage_members()
+
+    def test_is_awaiting_initial_billing_with_manual_activation_history(
+        self, db_session
+    ):
+        organization = DBOrganizationFactory.create(orgtype="Company")
+        DBOrganizationEventFactory.create(
+            source=organization,
+            tag=EventTag.Organization.ManualActivationAdd,
+        )
+
+        assert organization.manual_activation is None
+        assert not organization.is_awaiting_initial_billing
+
+    def test_is_awaiting_initial_billing_community_org(self, db_session):
+        organization = DBOrganizationFactory.create(orgtype="Community")
+        assert not organization.is_awaiting_initial_billing
+        assert organization.can_manage_members()
+
+    def test_is_awaiting_initial_billing_with_active_subscription(self, db_session):
+        organization = DBOrganizationFactory.create(orgtype="Company")
+        subscription = DBStripeSubscriptionFactory.create(
+            status=StripeSubscriptionStatus.Active.value
+        )
+        DBOrganizationStripeSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
+        assert organization.is_in_good_standing()
+        assert not organization.is_awaiting_initial_billing
+
+    def test_is_awaiting_initial_billing_with_lapsed_subscription(self, db_session):
+        organization = DBOrganizationFactory.create(orgtype="Company")
+        subscription = DBStripeSubscriptionFactory.create(
+            status=StripeSubscriptionStatus.Canceled.value
+        )
+        DBOrganizationStripeSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
+        assert not organization.is_in_good_standing()
+        assert not organization.is_awaiting_initial_billing
+
+    def test_is_awaiting_initial_billing_with_manual_activation(self, db_session):
+        organization = DBOrganizationFactory.create(orgtype="Company")
+        DBOrganizationManualActivationFactory.create(
+            organization=organization,
+            expires=datetime.date.today() + datetime.timedelta(days=365),
+        )
+        assert organization.is_in_good_standing()
+        assert not organization.is_awaiting_initial_billing
+
+    def test_is_awaiting_initial_billing_deactivated_org(self, db_session):
+        organization = DBOrganizationFactory.create(orgtype="Company", is_active=False)
+        assert not organization.is_awaiting_initial_billing
+
+    def test_is_awaiting_initial_billing_with_expired_manual_activation(
+        self, db_session
+    ):
+        organization = DBOrganizationFactory.create(orgtype="Company")
+        DBOrganizationManualActivationFactory.create(
+            organization=organization,
+            expires=datetime.date.today() - datetime.timedelta(days=1),
+        )
+        assert not organization.is_in_good_standing()
+        assert not organization.is_awaiting_initial_billing
 
     def test_is_in_good_standing_ignores_seat_limits(self, db_session):
         """Test that seat limits don't affect good standing - informational only."""
