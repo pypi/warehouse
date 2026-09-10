@@ -16,6 +16,7 @@ from zope.interface.verify import verifyClass
 import warehouse.packaging.services
 
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
+from warehouse.constants import RateLimitPeriod
 from warehouse.organizations.models import OrganizationProject
 from warehouse.packaging.interfaces import (
     IDocsStorage,
@@ -1081,8 +1082,10 @@ class TestProjectService:
         project_service.ratelimiters[limiter_name] = ratelimit_service
         mocker.patch.object(ratelimit_service, limiter_method, return_value=False)
 
+        identity = project_service._identity_limiter(creator, None)
+
         with pytest.raises(TooManyProjectsCreated):
-            enforce(project_service, db_request, creator)
+            enforce(project_service, db_request, identity)
 
         expected = creator.id if keyed_on_creator else db_request.remote_addr
         ratelimit_service.resets_in.assert_called_once_with(expected)
@@ -1098,7 +1101,9 @@ class TestProjectService:
         db_request.remote_addr = None
         project_service.ratelimiters["project.create.ip"] = ratelimit_service
 
-        project_service._hit_ratelimits(db_request, creator)
+        project_service._hit_ratelimits(
+            db_request, project_service._identity_limiter(creator, None)
+        )
 
         ratelimit_service.hit.assert_not_called()
 
@@ -1135,7 +1140,9 @@ class TestProjectService:
         project_service.ratelimiters["project.create.user"] = ratelimit_service
         project_service.ratelimiters["project.create.ip"] = ratelimit_service
 
-        project_service._check_ratelimits(db_request, creator)
+        project_service._check_ratelimits(
+            db_request, project_service._identity_limiter(creator, None)
+        )
 
         # Keyed on the request IP and the creator's id, in that order.
         assert ratelimit_service.get_window_stats.call_args_list == [
@@ -1148,85 +1155,78 @@ class TestProjectService:
             ("project.create.user", "user", stats),
         ]
 
-    def test_organization_ratelimiter_uses_default_without_override(
-        self, project_service, ratelimit_service
-    ):
-        """With no per-org override, the shared organization-tier default
-        limiter (registered like project.create.user/.ip) governs."""
-        organization = OrganizationFactory.create(project_create_ratelimit_count=None)
-        project_service.ratelimiters["project.create.organization"] = ratelimit_service
-
-        limiter = project_service._organization_ratelimiter(organization)
-
-        assert limiter is ratelimit_service
-
-    def test_organization_ratelimiter_delegates_to_override(self, project_service):
-        """A per-org override string is applied via the default limiter's
-        own `.override()`, not by hand-building a new RateLimiter."""
-        organization = OrganizationFactory.create(
-            project_create_ratelimit_count=200, project_create_ratelimit_period="hour"
-        )
-        overridden = pretend.stub()
-        default_limiter = pretend.stub(
-            override=pretend.call_recorder(lambda limit_string: overridden)
-        )
-        project_service.ratelimiters["project.create.organization"] = default_limiter
-
-        limiter = project_service._organization_ratelimiter(organization)
-
-        assert default_limiter.override.calls == [pretend.call("200 per hour")]
-        assert limiter is overridden
-
-    def test_identity_ratelimiter_defaults_to_user(
-        self, project_service, ratelimit_service
+    def test_identity_limiter_defaults_to_user(
+        self, project_service, ratelimit_service, mocker
     ):
         creator = UserFactory.create()
         project_service.ratelimiters["project.create.user"] = ratelimit_service
+        override = mocker.spy(ratelimit_service, "override")
 
-        limiter, identifier, partition_key = project_service._identity_ratelimiter(
-            creator, None
-        )
+        identity = project_service._identity_limiter(creator, None)
 
-        assert limiter is ratelimit_service
-        assert identifier == creator.id
-        assert partition_key == "user"
+        assert identity.limiter is ratelimit_service
+        assert identity.identifier == creator.id
+        assert identity.partition_key == "user"
+        # Nothing stored, so the configured default is used unchanged.
+        override.assert_called_once_with(None)
 
-    def test_identity_ratelimiter_uses_user_override_when_set(self, project_service):
-        """A per-user override string is applied via the default per-user
-        limiter's own `.override()`, the same way organization overrides
-        are — see `_organization_ratelimiter`."""
-        creator = UserFactory.create(
-            project_create_ratelimit_count=5, project_create_ratelimit_period="hour"
-        )
-        overridden = pretend.stub()
-        default_limiter = pretend.stub(
-            override=pretend.call_recorder(lambda limit_string: overridden)
-        )
-        project_service.ratelimiters["project.create.user"] = default_limiter
-
-        limiter, identifier, partition_key = project_service._identity_ratelimiter(
-            creator, None
-        )
-
-        assert default_limiter.override.calls == [pretend.call("5 per hour")]
-        assert limiter is overridden
-        assert identifier == creator.id
-        assert partition_key == "user"
-
-    def test_identity_ratelimiter_uses_organization_when_scoped(
-        self, project_service, ratelimit_service
+    def test_identity_limiter_applies_user_override(
+        self, project_service, ratelimit_service, mocker
     ):
-        creator = UserFactory.create()
-        organization = OrganizationFactory.create()
-        project_service.ratelimiters["project.create.organization"] = ratelimit_service
+        """An override is applied through the default limiter's `.override()`."""
+        creator = UserFactory.create(
+            project_create_ratelimit_count=5,
+            project_create_ratelimit_period=RateLimitPeriod.Hour,
+        )
+        project_service.ratelimiters["project.create.user"] = ratelimit_service
+        override = mocker.spy(ratelimit_service, "override")
 
-        limiter, identifier, partition_key = project_service._identity_ratelimiter(
-            creator, organization.id
+        identity = project_service._identity_limiter(creator, None)
+
+        override.assert_called_once_with("5 per hour")
+        assert identity.identifier == creator.id
+        assert identity.partition_key == "user"
+
+    def test_identity_limiter_uses_organization_when_scoped(
+        self, project_service, ratelimit_service, mocker
+    ):
+        """Creation inside an org is keyed on the org, not the creator."""
+        creator = UserFactory.create()
+        organization = OrganizationFactory.create(project_create_ratelimit_count=None)
+        project_service.ratelimiters["project.create.organization"] = ratelimit_service
+        override = mocker.spy(ratelimit_service, "override")
+
+        identity = project_service._identity_limiter(creator, organization.id)
+
+        assert identity.limiter is ratelimit_service
+        assert identity.identifier == organization.id
+        assert identity.partition_key == "organization"
+        override.assert_called_once_with(None)
+
+    @pytest.mark.parametrize(
+        ("period", "expected"),
+        [
+            (RateLimitPeriod.Hour, "200 per hour"),
+            (RateLimitPeriod.Day, "200 per day"),
+            (RateLimitPeriod.Month, "200 per month"),
+        ],
+    )
+    def test_identity_limiter_applies_organization_override(
+        self, project_service, ratelimit_service, mocker, period, expected
+    ):
+        organization = OrganizationFactory.create(
+            project_create_ratelimit_count=200,
+            project_create_ratelimit_period=period,
+        )
+        project_service.ratelimiters["project.create.organization"] = ratelimit_service
+        override = mocker.spy(ratelimit_service, "override")
+
+        identity = project_service._identity_limiter(
+            UserFactory.create(), organization.id
         )
 
-        assert limiter is ratelimit_service
-        assert identifier == organization.id
-        assert partition_key == "organization"
+        override.assert_called_once_with(expected)
+        assert identity.identifier == organization.id
 
     @pytest.mark.parametrize(
         ("enforce", "limiter_method"),
@@ -1236,76 +1236,81 @@ class TestProjectService:
         ],
         ids=["check", "hit"],
     )
-    def test_ratelimit_exceeded_for_organization_raises_with_correct_reset_hint(
+    def test_organization_ratelimit_exceeded_reports_the_organization_partition(
         self,
         project_service,
         db_request,
         ratelimit_service,
+        metrics,
         mocker,
         enforce,
         limiter_method,
     ):
-        """Creating a project for an organization is governed by that
-        organization's rate limit, keyed on the organization's id, instead of
-        the creator's individual per-user limit."""
-        creator = UserFactory.create()
+        """The metric tag and reset hint name the bucket that filled up."""
         organization = OrganizationFactory.create()
         project_service.ratelimiters["project.create.organization"] = ratelimit_service
+        identity = project_service._identity_limiter(
+            UserFactory.create(), organization.id
+        )
         mocker.patch.object(ratelimit_service, limiter_method, return_value=False)
 
         with pytest.raises(TooManyProjectsCreated):
-            enforce(project_service, db_request, creator, organization.id)
+            enforce(project_service, db_request, identity)
 
         ratelimit_service.resets_in.assert_called_once_with(organization.id)
+        metrics.increment.assert_any_call(
+            "warehouse.project.create.ratelimited",
+            tags=["ratelimiter:organization"],
+        )
 
     def test_check_ratelimits_for_organization_does_not_consult_user_limiter(
         self, project_service, db_request, ratelimit_service
     ):
-        creator = UserFactory.create()
         organization = OrganizationFactory.create()
         project_service.ratelimiters["project.create.user"] = ratelimit_service
         project_service.ratelimiters["project.create.organization"] = DummyRateLimiter()
+        identity = project_service._identity_limiter(
+            UserFactory.create(), organization.id
+        )
 
-        project_service._check_ratelimits(db_request, creator, organization.id)
+        project_service._check_ratelimits(db_request, identity)
 
         ratelimit_service.test.assert_not_called()
 
     def test_check_ratelimits_for_organization_still_checks_ip_limiter(
         self, project_service, db_request, ratelimit_service, mocker
     ):
-        """The IP limiter is an orthogonal anti-abuse measure and still
-        applies even when the organization-tier limiter takes over from the
-        per-user limiter."""
-        creator = UserFactory.create()
+        """The IP limiter still applies when the org limiter replaces the user one."""
         organization = OrganizationFactory.create()
         project_service.ratelimiters["project.create.ip"] = ratelimit_service
         project_service.ratelimiters["project.create.organization"] = DummyRateLimiter()
+        identity = project_service._identity_limiter(
+            UserFactory.create(), organization.id
+        )
         mocker.patch.object(ratelimit_service, "test", return_value=False)
 
         with pytest.raises(TooManyProjectsCreated):
-            project_service._check_ratelimits(db_request, creator, organization.id)
+            project_service._check_ratelimits(db_request, identity)
 
         ratelimit_service.resets_in.assert_called_once_with(db_request.remote_addr)
 
-    def test_check_ratelimits_uses_organization_override_when_set(
-        self, project_service, db_request
+    def test_create_project_resolves_the_identity_limiter_once(
+        self, project_service, db_request, mocker
     ):
-        creator = UserFactory.create()
-        organization = OrganizationFactory.create(
-            project_create_ratelimit_count=5, project_create_ratelimit_period="hour"
-        )
-        overridden = pretend.stub(
-            test=pretend.call_recorder(lambda *a: True),
-            resets_in=pretend.call_recorder(lambda *a: None),
-            get_window_stats=pretend.call_recorder(lambda *a: []),
-        )
-        project_service.ratelimiters["project.create.organization"] = pretend.stub(
-            override=pretend.call_recorder(lambda limit_string: overridden)
+        """One resolved limiter is shared, so a create does one org lookup."""
+        organization = OrganizationFactory.create()
+        project_service.ratelimiters["project.create.organization"] = DummyRateLimiter()
+        resolve = mocker.spy(project_service, "_identity_limiter")
+
+        project_service.create_project(
+            "some-new-project",
+            UserFactory.create(),
+            db_request,
+            creator_is_owner=False,
+            organization_id=organization.id,
         )
 
-        project_service._check_ratelimits(db_request, creator, organization.id)
-
-        assert overridden.test.calls == [pretend.call(organization.id)]
+        assert resolve.call_count == 1
 
     def test_create_project_for_organization_rejects_when_hit_exceeds_limit(
         self, project_service, db_request, ratelimit_service, mocker
@@ -1324,12 +1329,31 @@ class TestProjectService:
                 organization_id=organization.id,
             )
 
+    def test_create_project_skips_ratelimits_when_not_ratelimited(
+        self, project_service, db_request, ratelimit_service, mocker
+    ):
+        """`ratelimited=False` resolves no limiter at all."""
+        organization = OrganizationFactory.create()
+        project_service.ratelimiters["project.create.organization"] = ratelimit_service
+        resolve = mocker.spy(project_service, "_identity_limiter")
+
+        project_service.create_project(
+            "some-new-project",
+            UserFactory.create(),
+            db_request,
+            creator_is_owner=False,
+            ratelimited=False,
+            organization_id=organization.id,
+        )
+
+        resolve.assert_not_called()
+        ratelimit_service.test.assert_not_called()
+        ratelimit_service.hit.assert_not_called()
+
     def test_create_project_skips_owner_role_and_org_link_when_neither_applies(
         self, project_service, db_request
     ):
-        """`creator_is_owner=False` with no `organization_id` skips both the
-        owner-Role assignment and the OrganizationProject link — a project
-        created this way ends up with neither."""
+        """`creator_is_owner=False` with no org gets neither a Role nor a link."""
         creator = UserFactory.create()
 
         project = project_service.create_project(
@@ -1371,11 +1395,9 @@ class TestProjectService:
     def test_create_project_flags_organization_dirty_for_cache_purge(
         self, app_config, project_service, db_request
     ):
-        """Linking a new project to an organization inline must purge that
-        org's cached project listing too — not just links made through
-        IOrganizationService.add_organization_project (e.g. the OIDC
-        trusted-publisher auto-create path never calls that service method,
-        it only goes through create_project)."""
+        """The OIDC auto-create path never calls
+        IOrganizationService.add_organization_project, so create_project must
+        purge the org itself."""
         creator = UserFactory.create()
         organization = OrganizationFactory.create()
         db_request.db.flush()
