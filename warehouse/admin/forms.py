@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import typing
+
 import wtforms
 
 from warehouse.constants import (
@@ -7,8 +9,14 @@ from warehouse.constants import (
     MAX_PROJECT_SIZE,
     ONE_GIB,
     ONE_MIB,
+    PROJECT_CREATE_RATELIMIT_CAP,
     UPLOAD_LIMIT_CAP,
+    RateLimitPeriod,
 )
+
+if typing.TYPE_CHECKING:
+    from warehouse.accounts.models import User
+    from warehouse.organizations.models import Organization
 
 
 class SetUploadLimitForm(wtforms.Form):
@@ -111,13 +119,9 @@ class SetTotalSizeLimitForm(wtforms.Form):
 
 
 class SetProjectCreateRateLimitForm(wtforms.Form):
-    """
-    Form for setting a custom project-creation rate limit for an
-    organization in the admin interface.
+    """Admin override of a user's or organization's project-creation rate limit.
 
-    Presents a count + period pair instead of a raw `limits`-syntax string,
-    so admins don't need to know that library's exact syntax. Leaving the
-    count empty clears the override (falls back to the organization default).
+    An empty count clears the override.
     """
 
     project_create_ratelimit_count = wtforms.IntegerField(
@@ -126,9 +130,25 @@ class SetProjectCreateRateLimitForm(wtforms.Form):
             wtforms.validators.NumberRange(
                 min=1, message="Rate limit count must be at least 1"
             ),
+            wtforms.validators.NumberRange(
+                max=PROJECT_CREATE_RATELIMIT_CAP,
+                message=(
+                    f"Rate limit count must be at most {PROJECT_CREATE_RATELIMIT_CAP}"
+                ),
+            ),
         ],
     )
     project_create_ratelimit_period = wtforms.SelectField(
-        choices=[("hour", "hour"), ("day", "day"), ("month", "month")],
-        default="hour",
+        choices=[(period.value, period.value) for period in RateLimitPeriod],
+        coerce=RateLimitPeriod,
+        default=RateLimitPeriod.Hour,
     )
+
+    def apply_to(self, entity: User | Organization) -> str | None:
+        """Write the override; return the string it replaced, for the audit event."""
+        previous = entity.project_create_ratelimit_string
+        entity.project_create_ratelimit_count = self.project_create_ratelimit_count.data
+        entity.project_create_ratelimit_period = (
+            self.project_create_ratelimit_period.data
+        )
+        return previous
