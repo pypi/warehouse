@@ -57,6 +57,12 @@ NAME_SIMILARITY_THRESHOLD = 0.6
 
 _MIN_SUBSTRING_LENGTH = 3
 
+_OPEN_APPLICATION_STATUSES = {
+    OrganizationApplicationStatus.Submitted,
+    OrganizationApplicationStatus.Deferred,
+    OrganizationApplicationStatus.MoreInformationNeeded,
+}
+
 
 class CheckStatus(enum.StrEnum):
     Ok = "ok"
@@ -279,14 +285,14 @@ def _name_conflict_check(
         1
         for other in related_applications
         if other.normalized_name == application.normalized_name
-        and other.status != OrganizationApplicationStatus.Declined
+        and other.status in _OPEN_APPLICATION_STATUSES
     )
     if not count:
         return None
 
     return Check(
         "name_conflict",
-        "Organization name is unclaimed",
+        "No competing applications",
         CheckStatus.Warn,
         f"{count} other open application{'' if count == 1 else 's'} "
         f"for “{application.normalized_name}”.",
