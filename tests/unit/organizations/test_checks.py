@@ -403,6 +403,17 @@ class TestNameConflict:
 
         assert find(review_checks(application, user, [other]), "name_conflict") is None
 
+    def test_approved_conflicts_are_ignored(self, db_request):
+        user = UserFactory.create()
+        application = OrganizationApplicationFactory.create(
+            name="acme", link_url="https://acme.com", submitted_by=user
+        )
+        other = OrganizationApplicationFactory.create(
+            name="acme", status=OrganizationApplicationStatus.Approved
+        )
+
+        assert find(review_checks(application, user, [other]), "name_conflict") is None
+
     def test_warns_on_open_conflict(self, db_request):
         user = UserFactory.create()
         application = OrganizationApplicationFactory.create(
