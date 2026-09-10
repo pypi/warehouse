@@ -209,12 +209,6 @@ def user_projects(request):
         .filter(Role.role_name == "Owner", Role.user == request.user)
     )
 
-    projects_collaborator = (
-        request.db.query(Project.id)
-        .join(Role.project)
-        .filter(Role.user == request.user)
-    )
-
     with_sole_owner = (
         # Select projects having just one owner.
         request.db.query(Role.project_id)
@@ -280,7 +274,6 @@ def user_projects(request):
     )
 
     projects_owned = projects_owned.subquery()
-    projects_collaborator = projects_collaborator.subquery()
     with_sole_owner = with_sole_owner.subquery()
 
     return {

@@ -6801,9 +6801,7 @@ class TestFileUpload:
         )
 
         now = datetime.datetime.now()
-        then = now - datetime.timedelta(
-            seconds=legacy.MAXIMUM_AGE_FOR_NEW_UPLOADS_SECONDS + 1
-        )
+        then = now - legacy.MAXIMUM_AGE_FOR_NEW_UPLOADS - datetime.timedelta(seconds=1)
 
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -6844,7 +6842,7 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert (
             f"Uploading new files to releases older than "
-            f"{legacy.MAXIMUM_AGE_FOR_NEW_UPLOADS_DAYS} days is not allowed."
+            f"{legacy.MAXIMUM_AGE_FOR_NEW_UPLOADS.days} days is not allowed."
             in resp.status
         )
 
@@ -6856,9 +6854,7 @@ class TestFileUpload:
         # when used with --skip-existing on old releases.
 
         now = datetime.datetime.now()
-        then = now - datetime.timedelta(
-            seconds=legacy.MAXIMUM_AGE_FOR_NEW_UPLOADS_SECONDS + 1
-        )
+        then = now - legacy.MAXIMUM_AGE_FOR_NEW_UPLOADS - datetime.timedelta(seconds=1)
 
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)

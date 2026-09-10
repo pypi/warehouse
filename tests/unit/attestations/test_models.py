@@ -14,7 +14,6 @@ from warehouse.attestations.models import (
     PublisherSource,
     get_provenance_sources,
 )
-from warehouse.packaging.models import Release
 
 
 def test_provenance_as_model(db_request, integrity_service, dummy_attestation):
@@ -144,7 +143,7 @@ def _counts(**kwargs) -> ProvenanceCounts:
 
 def _comparison(**kwargs) -> ProvenanceComparison:
     """A comparison against a release the delta logic never has to read."""
-    return ProvenanceComparison(release=Release(), counts=_counts(**kwargs))
+    return ProvenanceComparison(version="0.9.0", counts=_counts(**kwargs))
 
 
 def _status(**kwargs) -> ProvenanceStatus:

@@ -874,6 +874,7 @@ class TestRegistrationForm:
 
 
 class TestRequestPasswordResetForm:
+    @pytest.mark.usefixtures("no_email_deliverability_check")
     @pytest.mark.parametrize(
         "form_input",
         [

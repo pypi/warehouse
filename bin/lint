@@ -20,6 +20,6 @@ python -m djlint --check --lint ./warehouse/templates ./docs/blog
 python -m mypy -p warehouse -p tests.common
 
 # lint our pyproject.toml file (as well as any other toml files)
-tombi lint --error-on-warnings
-tombi format --check --diff
+tombi lint --offline --error-on-warnings
+tombi format --offline --check --diff
 codespell

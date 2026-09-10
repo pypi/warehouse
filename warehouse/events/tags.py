@@ -109,6 +109,7 @@ class EventTag:
 
         # Name = "source_type:subject_type:action"
         ShortLivedAPITokenAdded = "account:short_lived_api_token:added"
+        ShortLivedAPITokenRevoked = "project:short_lived_api_token:revoked"
         APITokenAdded = "project:api_token:added"
         APITokenRemoved = "project:api_token:removed"
         OIDCPublisherAdded = "project:oidc:publisher-added"
@@ -172,6 +173,9 @@ class EventTag:
         OrganizationRename = "organization:rename"
         OrganizationSetUploadLimit = "admin:organization:set_upload_limit"
         OrganizationSetTotalSizeLimit = "admin:organization:set_total_size_limit"
+        ManualActivationAdd = "admin:organization:manual_activation:add"
+        ManualActivationUpdate = "admin:organization:manual_activation:update"
+        ManualActivationDelete = "admin:organization:manual_activation:delete"
         OrganizationProjectAdd = "organization:organization_project:add"
         OrganizationProjectRemove = "organization:organization_project:remove"
         OrganizationRoleAdd = "organization:organization_role:add"

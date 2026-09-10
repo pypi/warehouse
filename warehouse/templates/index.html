@@ -48,6 +48,9 @@
       <p class="homepage-banner__browse">
         {% trans href=request.route_path('search') %}Or <a href="{{ href }}">browse projects</a>{% endtrans %}
       </p>
+      <p class="homepage-banner__browse">
+        {% trans href=request.route_path('organizations') %}Publishing as a team? Use an <a href="{{ href }}">organization account</a>{% endtrans %}
+      </p>
     </div>
   </div>
   <div class="horizontal-section horizontal-section--grey horizontal-section--thin horizontal-section--statistics">

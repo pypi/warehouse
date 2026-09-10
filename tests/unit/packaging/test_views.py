@@ -253,8 +253,10 @@ class TestReleaseDetail:
                     r.created,
                     r.is_prerelease,
                     r.yanked,
+                    r.yanked_date,
                     r.yanked_reason,
                     r.lifecycle_status,
+                    r.lifecycle_status_changed,
                 )
                 for r in reversed(releases)
             ],
