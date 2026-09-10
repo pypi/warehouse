@@ -28,6 +28,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
 from warehouse.authnz import Permissions
+from warehouse.constants import RateLimitPeriod
 from warehouse.events.models import HasEvents
 from warehouse.ip_addresses.models import IpAddress
 from warehouse.observations.models import HasObservations, HasObservers, ObservationKind
@@ -109,15 +110,14 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
 
     project_create_ratelimit_count: Mapped[int | None] = mapped_column(
         comment=(
-            "Custom project-creation rate limit count for this user "
-            "(e.g. 50, paired with project_create_ratelimit_period). "
-            "Overrides the global default when set."
+            "Project creation rate limit count, e.g. the 20 in '20 per hour'. "
+            "NULL means no override: the configured default applies."
         ),
     )
-    project_create_ratelimit_period: Mapped[str | None] = mapped_column(
+    project_create_ratelimit_period: Mapped[RateLimitPeriod | None] = mapped_column(
         comment=(
-            "Period unit ('hour', 'day', or 'month') for "
-            "project_create_ratelimit_count."
+            "Period the count is measured over. Ignored while "
+            "project_create_ratelimit_count is NULL."
         ),
     )
 
@@ -302,10 +302,8 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
         """Composed `limits`-syntax string, or None when no override is set."""
         if self.project_create_ratelimit_count is None:
             return None
-        return (
-            f"{self.project_create_ratelimit_count} per "
-            f"{self.project_create_ratelimit_period}"
-        )
+        period = self.project_create_ratelimit_period or RateLimitPeriod.Hour
+        return f"{self.project_create_ratelimit_count} per {period.value}"
 
     @property
     def active_account_recoveries(self):
