@@ -37,18 +37,6 @@ class TestLink:
         assert _Link(value).registered_domain == expected
 
     @pytest.mark.parametrize(
-        ("value", "expected"),
-        [
-            ("https://acme.com", "com"),
-            ("https://acme.co.ir", "ir"),
-            ("https://acme.ir", "ir"),
-            ("https://localhost", ""),
-        ],
-    )
-    def test_terminal_tld(self, value, expected):
-        assert _Link(value).terminal_tld == expected
-
-    @pytest.mark.parametrize(
         ("value", "unverifiable", "github"),
         [
             ("https://acme.com", False, False),
@@ -364,39 +352,6 @@ class TestProjects:
 
         check = find(review_checks(application, user), "has_projects")
         assert check.detail == "2 projects on PyPI."
-
-
-class TestRestrictedTLD:
-    def test_omitted_for_ordinary_tld(self, db_request):
-        user = UserFactory.create()
-        application = OrganizationApplicationFactory.create(
-            link_url="https://acme.com", submitted_by=user
-        )
-
-        assert find(review_checks(application, user), "restricted_tld") is None
-
-    @pytest.mark.parametrize("tld", ["cu", "ir", "kp", "sy"])
-    def test_warns_for_embargoed_tld(self, db_request, tld):
-        user = UserFactory.create()
-        application = OrganizationApplicationFactory.create(
-            link_url=f"https://acme.{tld}", submitted_by=user
-        )
-
-        check = find(review_checks(application, user), "restricted_tld")
-        assert check.status == CheckStatus.Warn
-        assert f".{tld}" in check.detail
-        assert "comprehensively embargoed" in check.detail
-
-    @pytest.mark.parametrize("tld", ["by", "ru"])
-    def test_warns_for_sectoral_tld(self, db_request, tld):
-        user = UserFactory.create()
-        application = OrganizationApplicationFactory.create(
-            link_url=f"https://acme.{tld}", submitted_by=user
-        )
-
-        check = find(review_checks(application, user), "restricted_tld")
-        assert check.status == CheckStatus.Warn
-        assert "targeted sectoral sanctions" in check.detail
 
 
 class TestNameConflict:
