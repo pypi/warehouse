@@ -36,7 +36,7 @@
       {% trans %}Organization Roles{% endtrans %}
     </summary>
     <p>
-      {% trans number_of_roles=(form.role_name.choices|length - 1) %}There are {{ number_of_roles }} possible roles for people in this organization.
+      {% trans number_of_roles=(role_choices|length - 1) %}There are {{ number_of_roles }} possible roles for people in this organization.
       Refer to the following matrix for details on what each role can do.{% endtrans %}
     </p>
     <table class="table">
@@ -251,8 +251,7 @@
                           name="role_name"
                           data-action="change-role#change"
                           autocomplete="off">
-                    {# Reuse `.role_name.choices` from "Invite" form to include/exclude "Billing Manager" appropriately. #}
-                    {% for role_name, role_name_label in form.role_name.choices if role_name %}
+                    {% for role_name, role_name_label in role_choices if role_name %}
                       {% set role_name_label = gettext(role_name_label) %}
                       <option value="{{ role_name }}"
                               {{ 'selected' if role_name == role.role_name.value else '' }}>
