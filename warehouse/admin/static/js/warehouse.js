@@ -302,19 +302,18 @@ if (organizationApplicationTurboModeSwitch !== null) {
   }
 }
 
-// `data-field` names the textarea to fill, defaulting to the request-more-info modal.
 const savedReplyButtons = document.querySelectorAll(".saved-reply-button");
 
 savedReplyButtons.forEach(button => {
   button.addEventListener("click", () => {
     const templateElement = document.getElementById(button.dataset.template);
-    const field = document.getElementById(button.dataset.field || "requestMoreInfoModalMessage");
+    const field = document.getElementById("requestMoreInfoModalMessage");
 
     if (templateElement && field) {
-      field.value = templateElement.innerHTML
+      // `textContent`, so a URL's `&amp;` is not pasted into the reply.
+      field.value = templateElement.textContent
         .trim()
-        .replace(/\n/g, " ")
-        .replace(/\s{2,}/g, " ");
+        .replace(/\s+/g, " ");
     }
   });
 });
