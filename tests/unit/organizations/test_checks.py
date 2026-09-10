@@ -3,13 +3,10 @@
 import pytest
 
 from warehouse.organizations.checks import (
-    Check,
     CheckStatus,
-    Verdict,
     _email_domain,
     _Link,
     review_checks,
-    verdict,
 )
 from warehouse.organizations.models import OrganizationApplicationStatus
 
@@ -466,21 +463,3 @@ class TestReviewChecks:
         ]
         assert ranks == sorted(ranks)
 
-
-class TestVerdict:
-    @pytest.mark.parametrize(
-        ("statuses", "expected"),
-        [
-            ([CheckStatus.Ok], Verdict.Ready),
-            ([CheckStatus.Ok, CheckStatus.Warn], Verdict.Review),
-            ([CheckStatus.Ok, CheckStatus.Unknown], Verdict.Review),
-            ([CheckStatus.Warn, CheckStatus.Fail], Verdict.NeedsInfo),
-            ([], Verdict.Ready),
-        ],
-    )
-    def test_precedence(self, statuses, expected):
-        checks = [
-            Check(f"k{i}", "label", status, "detail")
-            for i, status in enumerate(statuses)
-        ]
-        assert verdict(checks) == expected
