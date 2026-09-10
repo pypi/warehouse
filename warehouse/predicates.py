@@ -77,7 +77,11 @@ class HeadersPredicate:
 
 class ActiveOrganizationPredicate:
     def __init__(self, val, config):
-        self.val = bool(val)
+        if val not in (True, False, "or_awaiting_billing"):
+            raise ConfigurationError(
+                f"Unknown require_active_organization value: {val!r}"
+            )
+        self.val = val
 
     def text(self):
         return f"require_active_organization = {self.val}"
