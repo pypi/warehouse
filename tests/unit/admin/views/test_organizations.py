@@ -1947,7 +1947,7 @@ class TestSetProjectCreateRatelimit:
         assert result.location == "/admin/organizations/1/"
         assert organization.project_create_ratelimit_string == "50 per hour"
         event = organization.events.one()
-        assert event.tag == "admin:organization:set_project_create_ratelimit"
+        assert event.tag == "organization:project_create_ratelimit:change"
         assert event.additional == {
             "organization_name": organization.name,
             "old_project_create_ratelimit_string": None,
@@ -2003,7 +2003,7 @@ class TestSetProjectCreateRatelimit:
         assert result.location == "/admin/organizations/1/"
         assert organization.project_create_ratelimit_string is None
         event = organization.events.one()
-        assert event.tag == "admin:organization:set_project_create_ratelimit"
+        assert event.tag == "organization:project_create_ratelimit:change"
         assert event.additional == {
             "organization_name": organization.name,
             "old_project_create_ratelimit_string": "200 per hour",

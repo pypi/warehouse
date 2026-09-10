@@ -836,7 +836,7 @@ class TestUserSetProjectCreateRatelimit:
         assert result.location == "/admin/users/foo/"
         assert user.project_create_ratelimit_string == "5 per hour"
         event = user.events.one()
-        assert event.tag == "admin:account:set_project_create_ratelimit"
+        assert event.tag == "account:project_create_ratelimit:change"
         assert event.additional == {
             "old_project_create_ratelimit_string": None,
             "new_project_create_ratelimit_string": "5 per hour",
