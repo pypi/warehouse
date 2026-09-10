@@ -246,6 +246,7 @@
 // Adjust size of h1s on standalone pages
 .page-title {
   @include typography.h1-title;
+  overflow-wrap: break-word;
 }
 
 // Resolve conflict between .page-title and .heading-wsubtitle
