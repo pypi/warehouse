@@ -20,6 +20,7 @@ from warehouse.accounts.models import (
     WebAuthn,
 )
 from warehouse.admin.views import users as views
+from warehouse.constants import RateLimitPeriod
 from warehouse.events.tags import EventTag
 from warehouse.observations.models import ObservationKind
 from warehouse.organizations.models import OrganizationRoleType
@@ -811,16 +812,12 @@ class TestUserFreeze:
 
 
 class TestUserSetProjectCreateRatelimit:
-    def test_set_project_create_ratelimit_with_value(self, db_request):
+    def test_set_project_create_ratelimit_with_value(self, db_request, mocker):
         user = UserFactory.create()
         actor = UserFactory.create()
 
-        db_request.route_path = pretend.call_recorder(
-            lambda a, username: "/admin/users/foo/"
-        )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        flash = mocker.spy(db_request.session, "flash")
+        mocker.patch.object(db_request, "route_path", return_value="/admin/users/foo/")
         db_request.user = actor
         db_request.POST = MultiDict(
             {
@@ -831,13 +828,10 @@ class TestUserSetProjectCreateRatelimit:
 
         result = views.user_set_project_create_ratelimit(user, db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"Project creation rate limit set to 5 per hour for user "
-                f"{user.username!r}",
-                queue="success",
-            )
-        ]
+        flash.assert_called_once_with(
+            f"Project creation rate limit set to 5 per hour for user {user.username!r}",
+            queue="success",
+        )
         assert result.status_code == 303
         assert result.location == "/admin/users/foo/"
         assert user.project_create_ratelimit_string == "5 per hour"
@@ -849,30 +843,24 @@ class TestUserSetProjectCreateRatelimit:
             "actor": actor.username,
         }
 
-    def test_set_project_create_ratelimit_with_none(self, db_request):
+    def test_set_project_create_ratelimit_with_none(self, db_request, mocker):
         user = UserFactory.create()
         user.project_create_ratelimit_count = 5
-        user.project_create_ratelimit_period = "hour"
+        user.project_create_ratelimit_period = RateLimitPeriod.Hour
         actor = UserFactory.create()
 
-        db_request.route_path = pretend.call_recorder(
-            lambda a, username: "/admin/users/foo/"
-        )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        flash = mocker.spy(db_request.session, "flash")
+        mocker.patch.object(db_request, "route_path", return_value="/admin/users/foo/")
         db_request.user = actor
         db_request.POST = MultiDict({"project_create_ratelimit_count": ""})
 
         result = views.user_set_project_create_ratelimit(user, db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                f"Project creation rate limit set to (default) for user "
-                f"{user.username!r}",
-                queue="success",
-            )
-        ]
+        flash.assert_called_once_with(
+            "Project creation rate limit override cleared; the default applies "
+            f"for user {user.username!r}",
+            queue="success",
+        )
         assert result.status_code == 303
         assert user.project_create_ratelimit_string is None
         event = user.events.one()
@@ -882,26 +870,36 @@ class TestUserSetProjectCreateRatelimit:
             "actor": actor.username,
         }
 
-    def test_set_project_create_ratelimit_invalid_value(self, db_request):
+    @pytest.mark.parametrize(
+        ("post", "expected"),
+        [
+            (
+                {"project_create_ratelimit_count": "0"},
+                "project_create_ratelimit_count: Rate limit count must be at least 1",
+            ),
+            (
+                {
+                    "project_create_ratelimit_count": "5",
+                    "project_create_ratelimit_period": "fortnight",
+                },
+                "project_create_ratelimit_period: Invalid Choice: could not coerce.",
+            ),
+        ],
+    )
+    def test_set_project_create_ratelimit_invalid_value(
+        self, db_request, mocker, post, expected
+    ):
         user = UserFactory.create()
 
-        db_request.route_path = pretend.call_recorder(
-            lambda a, username: "/admin/users/foo/"
-        )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        db_request.POST = MultiDict({"project_create_ratelimit_count": "0"})
+        flash = mocker.spy(db_request.session, "flash")
+        mocker.patch.object(db_request, "route_path", return_value="/admin/users/foo/")
+        db_request.POST = MultiDict(post)
 
         result = views.user_set_project_create_ratelimit(user, db_request)
 
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "project_create_ratelimit_count: Rate limit count must be at least 1",
-                queue="error",
-            )
-        ]
+        flash.assert_called_once_with(expected, queue="error")
         assert result.status_code == 303
+        assert user.project_create_ratelimit_count is None
 
 
 class TestUserResetPassword:
