@@ -379,7 +379,7 @@
             {% endif %}
           </p>
         </div>
-      {% elif organization.can_invite_billing_manager_without_billing %}
+      {% elif awaiting_initial_billing %}
         <div class="callout-block callout-block--info">
           <p>
             <strong>{% trans %}Billing not yet activated{% endtrans %}</strong>
@@ -388,7 +388,7 @@
         </div>
       {% endif %}
     {% endif %}
-    {% if organization.is_in_good_standing() or organization.can_invite_billing_manager_without_billing %}
+    {% if organization.is_in_good_standing() or awaiting_initial_billing %}
       <form method="post">
         <div class="form-group"
              data-controller="autocomplete"
