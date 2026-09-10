@@ -209,6 +209,7 @@ class TestManageOrganizationRoles:
         roles_page = self._get_roles_page(webtest, organization, status=HTTPStatus.OK)
         assert "Invite member" in roles_page.text
         assert "Billing not yet activated" in roles_page.text
+        assert "There are 4 possible roles" in roles_page.text
 
     def test_new_company_org_can_invite_billing_manager(self, webtest):
         """
@@ -282,6 +283,102 @@ class TestManageOrganizationRoles:
         )
         assert resp.status_code == HTTPStatus.OK
         assert "Not a valid choice" in resp.text
+
+    def test_new_company_org_shows_real_roles_for_existing_members(self, webtest):
+        owner, manager = self._create_owner_and_target()
+        organization = OrganizationFactory.create(
+            name="new-company-org", orgtype=OrganizationType.Company
+        )
+        for user, role_name in (
+            (owner, OrganizationRoleType.Owner),
+            (manager, OrganizationRoleType.Manager),
+        ):
+            OrganizationRoleFactory.create(
+                user=user, organization=organization, role_name=role_name
+            )
+
+        self._login_user(webtest, owner)
+
+        roles_page = self._get_roles_page(webtest, organization, status=HTTPStatus.OK)
+        member_select = roles_page.html.find(
+            "select",
+            {"name": "role_name", "id": lambda v: v and v.startswith("role-for-")},
+        )
+        assert member_select is not None, "existing member role select not found"
+        assert [option.get("value") for option in member_select.find_all("option")] == [
+            "Member",
+            "Manager",
+            "Owner",
+            "Billing Manager",
+        ]
+        assert member_select.find("option", {"selected": True})["value"] == "Manager"
+
+    def test_new_company_org_can_revoke_billing_manager_invite(self, webtest):
+        owner, target = self._create_owner_and_target()
+        organization = OrganizationFactory.create(
+            name="new-company-org", orgtype=OrganizationType.Company
+        )
+        OrganizationRoleFactory.create(
+            user=owner,
+            organization=organization,
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        self._login_user(webtest, owner)
+
+        roles_page = self._get_roles_page(webtest, organization, status=HTTPStatus.OK)
+        csrf_token = roles_page.html.find("input", {"name": "csrf_token"})["value"]
+        self._post_invite(
+            webtest, organization, target.username, "Billing Manager", csrf_token
+        )
+
+        resp = webtest.post(
+            f"/manage/organization/{organization.normalized_name}/people/revoke_invite/",
+            {"csrf_token": csrf_token, "user_id": str(target.id)},
+        )
+        assert resp.status_code == HTTPStatus.SEE_OTHER
+        assert resp.location.endswith(
+            f"/manage/organization/{organization.normalized_name}/people/"
+        )
+
+        roles_page = self._get_roles_page(webtest, organization, status=HTTPStatus.OK)
+        assert "Invite pending" not in roles_page.text
+
+    def test_new_company_org_can_change_an_existing_role(self, webtest):
+        """The role dropdown the page renders must actually save."""
+        owner, member = self._create_owner_and_target()
+        organization = OrganizationFactory.create(
+            name="new-company-org", orgtype=OrganizationType.Company
+        )
+        OrganizationRoleFactory.create(
+            user=owner,
+            organization=organization,
+            role_name=OrganizationRoleType.Owner,
+        )
+        member_role = OrganizationRoleFactory.create(
+            user=member,
+            organization=organization,
+            role_name=OrganizationRoleType.Member,
+        )
+
+        self._login_user(webtest, owner)
+
+        roles_page = self._get_roles_page(webtest, organization, status=HTTPStatus.OK)
+        csrf_token = roles_page.html.find("input", {"name": "csrf_token"})["value"]
+
+        resp = webtest.post(
+            f"/manage/organization/{organization.normalized_name}/people/change/",
+            {
+                "csrf_token": csrf_token,
+                "role_id": str(member_role.id),
+                "role_name": "Manager",
+            },
+        )
+        assert resp.status_code == HTTPStatus.SEE_OTHER
+        assert resp.location.endswith(
+            f"/manage/organization/{organization.normalized_name}/people/"
+        )
+        assert member_role.role_name == OrganizationRoleType.Manager
 
     def test_company_org_with_lapsed_subscription_blocked(self, webtest):
         """
