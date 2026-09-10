@@ -50,6 +50,7 @@ from warehouse.organizations.models import (
     OrganizationType,
 )
 from warehouse.packaging import IProjectService, Project
+from warehouse.rate_limiting import DummyRateLimiter
 from warehouse.utils.paginate import paginate_url_factory
 
 
@@ -1953,14 +1954,42 @@ class TestManageOrganizationProjects:
             )
         ]
 
+    @pytest.mark.parametrize(
+        ("resets_in", "retry_after", "expected_error"),
+        [
+            (
+                datetime.timedelta(seconds=600),
+                "600",
+                "This organization has created too many new projects recently. "
+                "Try again in 10 minutes.",
+            ),
+            (
+                None,
+                None,
+                "This organization has created too many new projects recently. "
+                "Try again later.",
+            ),
+        ],
+        ids=["with-reset-hint", "without-reset-hint"],
+    )
+    @pytest.mark.parametrize(
+        "limiter_method",
+        ["test", "hit"],
+        ids=["rejected-before-writing", "rejected-after-writing"],
+    )
     def test_add_organization_project_new_project_ratelimited(
         self,
         db_request,
         pyramid_user,
         monkeypatch,
+        mocker,
+        resets_in,
+        retry_after,
+        expected_error,
+        limiter_method,
     ):
-        """A rate-limited organization surfaces a friendly form error instead
-        of propagating the RateLimiterException."""
+        """`hit` rejects after the project is in the session, so the view must
+        doom the transaction or pyramid_tm commits the refused project."""
         db_request.help_url = lambda *a, **kw: ""
 
         organization = OrganizationFactory.create()
@@ -1973,22 +2002,17 @@ class TestManageOrganizationProjects:
             new_project_name=pretend.stub(data="fakepackage", errors=[]),
             validate=lambda *a, **kw: True,
         )
-        add_organization_project_cls = pretend.call_recorder(
-            lambda *a, **kw: add_organization_project_obj
-        )
         monkeypatch.setattr(
-            org_views, "AddOrganizationProjectForm", add_organization_project_cls
+            org_views,
+            "AddOrganizationProjectForm",
+            lambda *a, **kw: add_organization_project_obj,
         )
 
+        org_limiter = DummyRateLimiter()
+        mocker.patch.object(org_limiter, limiter_method, return_value=False)
+        mocker.patch.object(org_limiter, "resets_in", return_value=resets_in)
         project_service = db_request.find_service(IProjectService)
-        failing_limiter = pretend.stub(
-            test=lambda *a: False,
-            hit=lambda *a: False,
-            resets_in=lambda *a: None,
-            get_window_stats=lambda *a: [],
-        )
-        failing_limiter.override = lambda limit_string: failing_limiter
-        project_service.ratelimiters["project.create.organization"] = failing_limiter
+        project_service.ratelimiters["project.create.organization"] = org_limiter
 
         view = org_views.ManageOrganizationProjectsViews(organization, db_request)
         result = view.add_organization_project()
@@ -2000,11 +2024,10 @@ class TestManageOrganizationProjects:
             "projects_sole_owned": set(),
             "add_organization_project_form": add_organization_project_obj,
         }
-        assert add_organization_project_obj.new_project_name.errors == [
-            "This organization has created too many new projects recently. "
-            "Try again later."
-        ]
-        assert organization.projects == []
+        assert add_organization_project_obj.new_project_name.errors == [expected_error]
+        assert db_request.response.status_code == 429
+        assert db_request.response.headers.get("Retry-After") == retry_after
+        assert db_request.tm.isDoomed()
 
     @pytest.mark.parametrize(
         ("invalid_name", "expected"),

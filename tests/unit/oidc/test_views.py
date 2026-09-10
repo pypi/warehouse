@@ -4,7 +4,7 @@ import http
 import json
 import uuid
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pretend
 import pytest
@@ -38,6 +38,7 @@ from warehouse.organizations.models import OrganizationProject
 from warehouse.packaging import services
 from warehouse.packaging.interfaces import IProjectService
 from warehouse.packaging.models import Project
+from warehouse.rate_limiting import DummyRateLimiter
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
 from ...common.constants import DUMMY_ACTIVESTATE_OIDC_JWT, DUMMY_GITHUB_OIDC_JWT
@@ -608,17 +609,35 @@ def test_mint_token_from_oidc_pending_publisher_for_organization_ok(
     ]
 
 
+@pytest.mark.parametrize(
+    ("resets_in", "expected_description"),
+    [
+        (
+            timedelta(seconds=600),
+            "this organization has created too many new projects recently. "
+            "Try again in 600 seconds",
+        ),
+        (
+            None,
+            "this organization has created too many new projects recently",
+        ),
+    ],
+    ids=["with-reset-hint", "without-reset-hint"],
+)
+@pytest.mark.parametrize(
+    "limiter_method",
+    ["test", "hit"],
+    ids=["rejected-before-writing", "rejected-after-writing"],
+)
 def test_mint_token_from_oidc_pending_publisher_for_organization_ratelimited(
-    monkeypatch, db_request
+    monkeypatch, db_request, mocker, resets_in, expected_description, limiter_method
 ):
-    """An organization that has exceeded its project-creation rate limit
-    gets a friendly invalid-payload error instead of an unhandled
-    RateLimiterException. Personal (non-organization) trusted-publisher
-    creation is covered separately and remains unaffected."""
+    """`hit` rejects after the project is in the session; committing would leave
+    an org-owned project whose pending publisher was never reified."""
     user = UserFactory.create()
     organization = OrganizationFactory.create()
 
-    pending_publisher = PendingGitHubPublisherFactory.create(
+    PendingGitHubPublisherFactory.create(
         project_name="org-owned-project",
         added_by=user,
         repository_name="bar",
@@ -634,42 +653,26 @@ def test_mint_token_from_oidc_pending_publisher_for_organization_ratelimited(
     db_request.remote_addr = "0.0.0.0"
 
     ratelimiter = pretend.stub(clear=pretend.call_recorder(lambda id: None))
-    ratelimiters = {
-        "user.oidc": ratelimiter,
-        "ip.oidc": ratelimiter,
-    }
-    monkeypatch.setattr(views, "_ratelimiters", lambda r: ratelimiters)
-
-    project_service = db_request.find_service(IProjectService)
-    failing_limiter = pretend.stub(
-        test=lambda *a: False,
-        hit=lambda *a: False,
-        resets_in=lambda *a: None,
-        get_window_stats=lambda *a: [],
+    monkeypatch.setattr(
+        views,
+        "_ratelimiters",
+        lambda r: {"user.oidc": ratelimiter, "ip.oidc": ratelimiter},
     )
-    failing_limiter.override = lambda limit_string: failing_limiter
-    project_service.ratelimiters["project.create.organization"] = failing_limiter
+
+    org_limiter = DummyRateLimiter()
+    mocker.patch.object(org_limiter, limiter_method, return_value=False)
+    mocker.patch.object(org_limiter, "resets_in", return_value=resets_in)
+    project_service = db_request.find_service(IProjectService)
+    project_service.ratelimiters["project.create.organization"] = org_limiter
 
     resp = views.mint_token_from_oidc(db_request)
 
     assert db_request.response.status_code == 422
     assert resp == {
         "message": "Token request failed",
-        "errors": [
-            {
-                "code": "invalid-payload",
-                "description": (
-                    "this organization has created too many new projects recently"
-                ),
-            }
-        ],
+        "errors": [{"code": "rate-limited", "description": expected_description}],
     }
-    assert (
-        db_request.db.query(Project)
-        .filter(Project.name == pending_publisher.project_name)
-        .count()
-        == 0
-    )
+    assert db_request.tm.isDoomed()
 
 
 def test_mint_token_from_pending_trusted_publisher_invalidates_others(
