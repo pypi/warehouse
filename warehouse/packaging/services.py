@@ -23,7 +23,7 @@ import structlog
 
 from packaging.utils import canonicalize_name
 from pyramid.httpexceptions import HTTPBadRequest, HTTPConflict, HTTPForbidden
-from sqlalchemy import exists, func, orm, select
+from sqlalchemy import exists, func, select
 from zope.interface import implementer
 
 from warehouse.admin.flags import AdminFlagValue
@@ -31,7 +31,8 @@ from warehouse.email import send_pending_trusted_publisher_invalidated_email
 from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService
 from warehouse.oidc.models import PendingOIDCPublisher
-from warehouse.organizations.models import Organization, OrganizationProject
+from warehouse.organizations.interfaces import IOrganizationService
+from warehouse.organizations.models import Organization
 from warehouse.packaging.interfaces import (
     IDocsStorage,
     IFileStorage,
@@ -637,12 +638,12 @@ class ProjectService:
 
         if organization_id:
             # If an organization ID is provided, we never set the creator to owner
-            self.db.add(
-                OrganizationProject(
-                    organization_id=organization_id, project_id=project.id
-                )
+            organization_service = request.find_service(
+                IOrganizationService, context=None
             )
-            orm.attributes.flag_dirty(self.db.get(Organization, organization_id))
+            organization_service.add_organization_project(
+                organization_id=organization_id, project_id=project.id
+            )
         elif creator_is_owner:
             # Mark the creator as the newly created project's owner, if configured.
             self.db.add(Role(user=creator, project=project, role_name="Owner"))
