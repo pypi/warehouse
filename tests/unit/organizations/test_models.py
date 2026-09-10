@@ -735,12 +735,12 @@ class TestOrganizationBillingMethods:
         organization = DBOrganizationFactory.create(orgtype="Company")
         assert not organization.is_in_good_standing()
 
-    def test_can_invite_billing_manager_new_company_org(self, db_session):
-        """New Company org with no subscriptions can invite Billing Manager."""
+    def test_is_awaiting_initial_billing_new_company_org(self, db_session):
         organization = DBOrganizationFactory.create(orgtype="Company")
-        assert organization.can_invite_billing_manager_without_billing
+        assert organization.is_awaiting_initial_billing
+        assert organization.can_manage_members()
 
-    def test_can_invite_billing_manager_with_subscription_history(self, db_session):
+    def test_is_awaiting_initial_billing_with_subscription_history(self, db_session):
         organization = DBOrganizationFactory.create(orgtype="Company")
         DBOrganizationEventFactory.create(
             source=organization,
@@ -748,28 +748,27 @@ class TestOrganizationBillingMethods:
         )
 
         assert not organization.subscriptions
-        assert not organization.can_invite_billing_manager_without_billing
+        assert not organization.is_awaiting_initial_billing
+        assert not organization.can_manage_members()
 
-    def test_can_invite_billing_manager_with_manual_activation_history(
+    def test_is_awaiting_initial_billing_with_manual_activation_history(
         self, db_session
     ):
         organization = DBOrganizationFactory.create(orgtype="Company")
         DBOrganizationEventFactory.create(
             source=organization,
-            tag="admin:organization:manual_activation:add",
+            tag=EventTag.Organization.ManualActivationAdd,
         )
 
         assert organization.manual_activation is None
-        assert not organization.can_invite_billing_manager_without_billing
+        assert not organization.is_awaiting_initial_billing
 
-    def test_can_invite_billing_manager_community_org(self, db_session):
-        """Community org cannot use this feature (already in good standing)."""
+    def test_is_awaiting_initial_billing_community_org(self, db_session):
         organization = DBOrganizationFactory.create(orgtype="Community")
-        assert not organization.can_invite_billing_manager_without_billing
+        assert not organization.is_awaiting_initial_billing
+        assert organization.can_manage_members()
 
-    def test_can_invite_billing_manager_with_active_subscription(self, db_session):
-        """Company org with active subscription is in good standing,
-        uses normal flow."""
+    def test_is_awaiting_initial_billing_with_active_subscription(self, db_session):
         organization = DBOrganizationFactory.create(orgtype="Company")
         subscription = DBStripeSubscriptionFactory.create(
             status=StripeSubscriptionStatus.Active.value
@@ -778,10 +777,9 @@ class TestOrganizationBillingMethods:
             organization=organization, subscription=subscription
         )
         assert organization.is_in_good_standing()
-        assert not organization.can_invite_billing_manager_without_billing
+        assert not organization.is_awaiting_initial_billing
 
-    def test_can_invite_billing_manager_with_lapsed_subscription(self, db_session):
-        """Company org with lapsed subscription cannot invite Billing Manager."""
+    def test_is_awaiting_initial_billing_with_lapsed_subscription(self, db_session):
         organization = DBOrganizationFactory.create(orgtype="Company")
         subscription = DBStripeSubscriptionFactory.create(
             status=StripeSubscriptionStatus.Canceled.value
@@ -790,35 +788,31 @@ class TestOrganizationBillingMethods:
             organization=organization, subscription=subscription
         )
         assert not organization.is_in_good_standing()
-        assert not organization.can_invite_billing_manager_without_billing
+        assert not organization.is_awaiting_initial_billing
 
-    def test_can_invite_billing_manager_with_manual_activation(self, db_session):
-        """Company org with active manual activation is in good standing."""
+    def test_is_awaiting_initial_billing_with_manual_activation(self, db_session):
         organization = DBOrganizationFactory.create(orgtype="Company")
         DBOrganizationManualActivationFactory.create(
             organization=organization,
             expires=datetime.date.today() + datetime.timedelta(days=365),
         )
         assert organization.is_in_good_standing()
-        assert not organization.can_invite_billing_manager_without_billing
+        assert not organization.is_awaiting_initial_billing
 
-    def test_can_invite_billing_manager_deactivated_org(self, db_session):
-        """Deactivated Company org cannot invite Billing Manager."""
+    def test_is_awaiting_initial_billing_deactivated_org(self, db_session):
         organization = DBOrganizationFactory.create(orgtype="Company", is_active=False)
-        assert not organization.can_invite_billing_manager_without_billing
+        assert not organization.is_awaiting_initial_billing
 
-    def test_can_invite_billing_manager_with_expired_manual_activation(
+    def test_is_awaiting_initial_billing_with_expired_manual_activation(
         self, db_session
     ):
-        """Company org with expired manual activation cannot invite
-        Billing Manager (had prior activation)."""
         organization = DBOrganizationFactory.create(orgtype="Company")
         DBOrganizationManualActivationFactory.create(
             organization=organization,
             expires=datetime.date.today() - datetime.timedelta(days=1),
         )
         assert not organization.is_in_good_standing()
-        assert not organization.can_invite_billing_manager_without_billing
+        assert not organization.is_awaiting_initial_billing
 
     def test_is_in_good_standing_ignores_seat_limits(self, db_session):
         """Test that seat limits don't affect good standing - informational only."""
