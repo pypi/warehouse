@@ -227,9 +227,7 @@ def mint_token(
                     request=request,
                 )
 
-            # Try creating the new project. Only organization-scoped creation
-            # is rate limited; personal trusted-publisher creation stays
-            # unlimited, unchanged from before.
+            # Try creating the new project
             project_service = request.find_service(IProjectService)
             try:
                 new_project = project_service.create_project(
@@ -245,17 +243,19 @@ def mint_token(
                     errors=[{"code": "invalid-payload", "description": str(exc)}],
                     request=request,
                 )
-            except RateLimiterException:
+            except RateLimiterException as exc:
+                # See ManageOrganizationProjectsViews.add_organization_project:
+                # `.hit()` rejects after the project is in the session; a
+                # returned response commits it.
+                request.tm.doom()
+                description = (
+                    "this organization has created too many new projects recently"
+                )
+                if exc.resets_in is not None:
+                    resets_in = max(1, int(exc.resets_in.total_seconds()))
+                    description += f". Try again in {resets_in} seconds"
                 return _invalid(
-                    errors=[
-                        {
-                            "code": "invalid-payload",
-                            "description": (
-                                "this organization has created too many new "
-                                "projects recently"
-                            ),
-                        }
-                    ],
+                    errors=[{"code": "rate-limited", "description": description}],
                     request=request,
                 )
 
