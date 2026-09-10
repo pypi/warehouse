@@ -461,17 +461,9 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         )
 
     @property
-    def can_invite_billing_manager_without_billing(self) -> bool:
-        """Check if a Company org with no billing history can invite Billing Managers.
-
-        This allows newly approved Company organizations that have never been
-        activated to invite a Billing Manager before activating billing.
-        """
-        if (
-            not self.is_active
-            or self.orgtype != OrganizationType.Company
-            or self.is_in_good_standing()
-        ):
+    def is_awaiting_initial_billing(self) -> bool:
+        """Check if this Company organization has never activated billing."""
+        if not self.is_active or self.orgtype != OrganizationType.Company:
             return False
 
         if bool(self.subscriptions) or self.manual_activation is not None:
@@ -482,7 +474,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                 self.Event.tag.in_(
                     (
                         EventTag.Organization.SubscriptionCreate,
-                        "admin:organization:manual_activation:add",
+                        EventTag.Organization.ManualActivationAdd,
                     )
                 )
             ).first()
