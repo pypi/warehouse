@@ -1,7 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import typing
-
 import wtforms
 
 from warehouse.constants import (
@@ -13,10 +11,6 @@ from warehouse.constants import (
     UPLOAD_LIMIT_CAP,
     RateLimitPeriod,
 )
-
-if typing.TYPE_CHECKING:
-    from warehouse.accounts.models import User
-    from warehouse.organizations.models import Organization
 
 
 class SetUploadLimitForm(wtforms.Form):
@@ -143,12 +137,3 @@ class SetProjectCreateRateLimitForm(wtforms.Form):
         coerce=RateLimitPeriod,
         default=RateLimitPeriod.Hour,
     )
-
-    def apply_to(self, entity: User | Organization) -> str | None:
-        """Write the override; return the string it replaced, for the audit event."""
-        previous = entity.project_create_ratelimit_string
-        entity.project_create_ratelimit_count = self.project_create_ratelimit_count.data
-        entity.project_create_ratelimit_period = (
-            self.project_create_ratelimit_period.data
-        )
-        return previous
