@@ -24,6 +24,10 @@ from urllib3.exceptions import LocationParseError
 from urllib3.util import parse_url
 
 from warehouse.accounts.models import OAuthAccountAssociation
+from warehouse.organizations.constants import (
+    MIN_SUBSTRING_LENGTH,
+    NAME_SIMILARITY_THRESHOLD,
+)
 from warehouse.organizations.models import OrganizationApplicationStatus
 
 if TYPE_CHECKING:
@@ -50,18 +54,12 @@ UNVERIFIABLE_URL_HOSTS = {
 
 GITHUB_HOSTS = {"github.com", "github.io"}
 
-# Only reached for names the substring test misses, i.e. edits in the middle of a word.
-# A single dropped or transposed letter scores 0.75+, while unrelated names score under
-# 0.5 (`acme` against `globex` is 0.20), so any value in that gap behaves the same.
-NAME_SIMILARITY_THRESHOLD = 0.6
-
-_MIN_SUBSTRING_LENGTH = 3
-
-_OPEN_APPLICATION_STATUSES = {
+OPEN_APPLICATION_STATUSES = {
     OrganizationApplicationStatus.Submitted,
     OrganizationApplicationStatus.Deferred,
     OrganizationApplicationStatus.MoreInformationNeeded,
 }
+"""Which status is considered open for an org app."""
 
 
 class CheckStatus(enum.StrEnum):
@@ -131,7 +129,7 @@ def _comparable(value: str) -> str:
 
 
 def _resembles(candidate: str, target: str) -> bool:
-    if min(len(candidate), len(target)) >= _MIN_SUBSTRING_LENGTH and (
+    if min(len(candidate), len(target)) >= MIN_SUBSTRING_LENGTH and (
         candidate in target or target in candidate
     ):
         return True
@@ -285,7 +283,7 @@ def _name_conflict_check(
         1
         for other in related_applications
         if other.normalized_name == application.normalized_name
-        and other.status in _OPEN_APPLICATION_STATUSES
+        and other.status in OPEN_APPLICATION_STATUSES
     )
     if not count:
         return None
