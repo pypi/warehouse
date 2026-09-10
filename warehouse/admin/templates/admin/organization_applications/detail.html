@@ -88,23 +88,13 @@
 {% endmacro %}
 
 {% block content %}
-  {#- Maps each check key to the saved reply that resolves it. Defaults target the
-      request-more-info modal; restricted_tld routes to defer instead. -#}
-  {% set reply_actions = {
-    "domain_match": {"template": "AddOrgEmailTemplate"},
-    "email_verified": {"template": "AddOrgEmailTemplate"},
-    "url_shape_github": {"template": "GitHubAssociationTemplate"},
-    "url_shape_codehost": {"template": "UnverifiableURLTemplate"},
-    "has_projects": {"template": "ReasonForApplicationTemplate"},
-    "restricted_tld": {
-      "template": "JurisdictionNoteTemplate",
-      "target": "#deferModal",
-      "field": "deferModalMessage",
-      "icon": "fa-stopwatch",
-      "label": "Note & defer",
-      "done_if": "deferred",
-      "done_label": "Deferred",
-    },
+  {#- Each check key names the saved reply that resolves it. -#}
+  {% set reply_templates = {
+    "domain_match": "AddOrgEmailTemplate",
+    "email_verified": "AddOrgEmailTemplate",
+    "url_shape_github": "GitHubAssociationTemplate",
+    "url_shape_codehost": "UnverifiableURLTemplate",
+    "has_projects": "ReasonForApplicationTemplate",
   } %}
   {% set check_icons = {
     "ok": "fa-circle-check text-success",
@@ -128,20 +118,16 @@
           <div class="org-review-check-body">
             <span class="org-review-check-label">{{ check.label }}</span>
             <span class="org-review-check-detail text-muted">{{ check.detail }}</span>
-            {% set action = reply_actions.get(check.key) %}
-            {% if action and can_write and not is_decided and (check.status.value in ['fail', 'warn'] or action.done_if) %}
-            {% set done = action.done_if == status.value %}
+            {% set reply_template = reply_templates.get(check.key) %}
+            {% if reply_template and can_write and not is_decided and check.status.value in ['fail', 'warn'] %}
             <button
               type="button"
-              class="btn btn-xs btn-outline-{{ 'secondary' if action.target else 'info' }} saved-reply-button org-review-check-ask"
+              class="btn btn-xs btn-outline-info saved-reply-button org-review-check-ask"
               data-toggle="modal"
-              data-target="{{ action.get('target', '#requestMoreInfoModal') }}"
-              data-template="{{ action.template }}"
-              data-field="{{ action.get('field', 'requestMoreInfoModalMessage') }}"
-              {{ 'disabled' if done }}
+              data-target="#requestMoreInfoModal"
+              data-template="{{ reply_template }}"
             >
-              <i class="fa-solid {{ 'fa-check' if done else action.get('icon', 'fa-reply') }}"></i>
-              {{ action.done_label if done else action.get('label', 'Ask about this') }}
+              <i class="fa-solid fa-reply"></i> Ask about this
             </button>
             {% endif %}
           </div>
@@ -467,10 +453,6 @@
 
   <div class="modal fade" id="deferModal" tabindex="-1" role="dialog">
     <form method="POST" action="{{ request.route_path('admin.organization_application.defer', organization_application_id=organization_application.id) }}">
-      <div class="hidden" id="JurisdictionNoteTemplate">
-          Deferred for jurisdiction review: the application URL ({{ organization_application.link_url }})
-          uses a restricted-jurisdiction TLD. Confirming sanctions status before proceeding.
-      </div>
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       <input name="organization_applications_turbo_mode" type="hidden" value=0>
       <div class="modal-dialog" role="document">
