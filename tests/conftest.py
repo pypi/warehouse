@@ -250,6 +250,7 @@ def pyramid_services(
     services.register_service(search_service, ISearchService)
     services.register_service(domain_status_service, IDomainStatusService)
     services.register_service(email_reputation_service, IEmailReputationService)
+    services.register_service(ratelimit_service, IRateLimiter, name="accounts.register")
     services.register_service(ratelimit_service, IRateLimiter, name="email.add")
     services.register_service(ratelimit_service, IRateLimiter, name="email.change")
     services.register_service(ratelimit_service, IRateLimiter, name="email.verify")
