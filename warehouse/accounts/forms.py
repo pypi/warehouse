@@ -354,12 +354,12 @@ class NewEmailMixin:
         domain = tld_extractor(resp.domain.lower()).top_domain_under_public_suffix
         self._email_domain = resp.domain.lower()
         self._email_registrable = domain
-        # The reputation service answers on the ASCII form of the address, so
+        # The reputation service answers on the ASCII form of the domain, so
         # hand it that rather than the raw submission: an IDN domain sent as
         # Unicode is a different string to the vendor, and the errored lookup
-        # would silently fail open. ascii_email is None only when the local
-        # part itself is non-ASCII, which needs SMTPUTF8 anyway.
-        self._email_normalized = resp.ascii_email or resp.normalized
+        # would silently fail open. Assembling the address keeps the punycode
+        # domain even for a non-ASCII local part.
+        self._email_normalized = f"{resp.local_part}@{resp.ascii_domain}"
 
         mx_domains = set()
         if hasattr(resp, "mx") and resp.mx:
@@ -492,16 +492,16 @@ class NewEmailMixin:
             # is_mx_record=True, which that check doesn't match for a direct
             # use of the domain -- such a domain keeps costing a remote call
             # per attempt unless its own MX also resolves under it, and an
-            # admin has to flip the flag to stop that). The row survives the
-            # failed validation
-            # because our consumers return a 200 render, which commits; a
-            # consumer that raised 4xx here would roll it back and pay for
-            # the verdict again on every retry.
+            # admin has to flip the flag to stop that). The row survives
+            # the failed validation because our consumers return a 200
+            # render, which commits; a consumer that raised 4xx here would
+            # roll it back and pay for the verdict again on every retry.
             #
             # Only write when the registrable domain equals the address's
             # own host: that rules out both an empty registrable (a
             # PSL-unknown TLD) and escalating a subdomain-hosted service to
             # a shared parent apex.
+            prohibited = False
             if (
                 self._email_registrable
                 and self._email_registrable == self._email_domain
@@ -509,19 +509,23 @@ class NewEmailMixin:
                     AdminFlagValue.AUTO_PROHIBIT_DISPOSABLE_DOMAINS
                 )
             ):
-                comment = (
-                    "Automatically prohibited: reported as a disposable email domain"
-                )
-                if reputation.disposable_provider:
-                    comment += f" (provider: {reputation.disposable_provider})"
-                prohibit_email_domain(
+                prohibited = prohibit_email_domain(
                     self.request.db,
                     self._email_registrable,
-                    comment=comment,
+                    comment=(
+                        "Automatically prohibited: reported as a disposable "
+                        f"email domain (provider: {reputation.disposable_provider})"
+                    ),
                 )
             self.request.metrics.increment(
                 "warehouse.accounts.forms.validate_email_reputation",
-                tags=["result:invalid", "reason:disposable_domain_reported"],
+                tags=[
+                    "result:invalid",
+                    "reason:disposable_domain_reported",
+                    # Whether the domain went on the blocklist, or only
+                    # this attempt was refused.
+                    f"prohibited:{'true' if prohibited else 'false'}",
+                ],
             )
             self.email.errors.append(
                 self.request._(
@@ -535,7 +539,11 @@ class NewEmailMixin:
         # reject only this attempt and leave the domain alone.
         self.request.metrics.increment(
             "warehouse.accounts.forms.validate_email_reputation",
-            tags=["result:invalid", "reason:disposable_address_reported"],
+            tags=[
+                "result:invalid",
+                "reason:disposable_address_reported",
+                "prohibited:false",
+            ],
         )
         self.email.errors.append(
             self.request._(

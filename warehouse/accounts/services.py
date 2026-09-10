@@ -1296,6 +1296,10 @@ class UserCheckEmailReputationService:
     domain that is not (a throwaway alias on a public provider), and only an
     address-level check sees those. The address is sent to UserCheck but
     never logged here: log lines carry the domain only.
+
+    `disposable_provider`, which is what separates a disposable domain from
+    a throwaway address on a legitimate one, is a Pro plan field: on a
+    lesser plan it never arrives and no verdict is ever domain-level.
     """
 
     API_BASE = "https://api.usercheck.com/email"

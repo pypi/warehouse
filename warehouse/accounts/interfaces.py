@@ -346,8 +346,12 @@ class EmailReputationResult:
     What an email reputation service reported about a single address.
 
     "disposable" covers both a disposable domain and a single throwaway
-    address on a legitimate domain (an alias on a public provider); use
-    disposable_domain to tell whether the whole domain is implicated.
+    address on a legitimate domain; use disposable_domain to tell whether
+    the whole domain is implicated.
+
+    "disposable_provider" names the service operating the domain, and is
+    set only for a domain the service knows as a disposable provider,
+    which is what makes it the domain-level signal.
 
     Signals are tri-state: True (reported), False (explicitly clear), and
     None (unknown: absent from the response, or not a boolean). Blocking
@@ -377,14 +381,18 @@ class EmailReputationResult:
     def disposable_domain(self) -> bool:
         """
         Whether the domain itself operates as a disposable provider, the
-        only case where prohibiting the whole domain is safe. The public and
-        relay flags must be explicitly clear: a throwaway address on a
-        public or relay domain, or one whose flags are unknown, must never
-        blocklist the domain, or the first disposable alias on gmail.com
-        would lock out everyone there.
+        only case where prohibiting the whole domain is safe.
+
+        A "disposable" verdict alone doesn't say which, and a private
+        domain -- a university's, an employer's -- is neither public nor
+        relay, so those flags can't separate the two: require the provider
+        name. The public and relay flags must still be explicitly clear, or
+        the first disposable alias on gmail.com would lock out everyone
+        there.
         """
         return (
             self.disposable is True
+            and self.disposable_provider is not None
             and self.public_domain is False
             and self.relay_domain is False
         )

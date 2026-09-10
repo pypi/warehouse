@@ -2288,19 +2288,37 @@ class TestNullEmailReputationService:
 
 
 class TestEmailReputationResult:
+    DOMAIN_VERDICT = {
+        "disposable": True,
+        "public_domain": False,
+        "relay_domain": False,
+        "disposable_provider": "DropMail",
+    }
+
     @pytest.mark.parametrize(
         ("result_kwargs", "expected"),
         [
-            # Domain-level disposability needs the public and relay flags
-            # to be explicitly clear.
-            ({"disposable": True, "public_domain": False, "relay_domain": False}, True),
-            ({"disposable": True, "public_domain": True, "relay_domain": False}, False),
-            ({"disposable": True, "public_domain": False, "relay_domain": True}, False),
-            ({"disposable": True}, False),
-            ({"public_domain": False, "relay_domain": False}, False),
+            pytest.param(DOMAIN_VERDICT, True, id="named-provider-with-clear-flags"),
+            pytest.param(
+                DOMAIN_VERDICT | {"disposable_provider": None},
+                False,
+                id="throwaway-address-on-unnamed-domain",
+            ),
+            pytest.param(
+                DOMAIN_VERDICT | {"public_domain": True}, False, id="public-domain"
+            ),
+            pytest.param(
+                DOMAIN_VERDICT | {"relay_domain": True}, False, id="relay-domain"
+            ),
+            pytest.param({"disposable": True}, False, id="unknown-flags"),
+            pytest.param(
+                DOMAIN_VERDICT | {"disposable": False}, False, id="not-disposable"
+            ),
         ],
     )
-    def test_disposable_domain_requires_explicit_flags(self, result_kwargs, expected):
+    def test_disposable_domain_requires_provider_and_explicit_flags(
+        self, result_kwargs, expected
+    ):
         result = EmailReputationResult(**result_kwargs)
 
         assert result.disposable_domain is expected
