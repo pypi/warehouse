@@ -394,7 +394,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
             viewonly=True,
         )
     )
-    manual_activation: Mapped[OrganizationManualActivation] = relationship(
+    manual_activation: Mapped[OrganizationManualActivation | None] = relationship(
         back_populates="organization",
         uselist=False,
     )
