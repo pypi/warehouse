@@ -142,11 +142,11 @@ def _domain_match_check(link: _Link, user: User) -> Check:
     if link.unverifiable:
         return check(
             CheckStatus.Unknown,
-            f"{link.registered_domain} hosts many unrelated organizations, so an "
-            "address there would identify nobody. Establish affiliation another way.",
+            f"{link.registered_domain} is a shared host, so an address there does "
+            "not show affiliation. Verify another way.",
         )
 
-    verified = [email.email for email in user.emails if email.verified]
+    verified = sorted(email.email for email in user.emails if email.verified)
     if any(_email_domain(email) == link.registered_domain for email in verified):
         return check(
             CheckStatus.Ok, f"Verified @{link.registered_domain} address on file."
@@ -170,8 +170,8 @@ def _domain_match_check(link: _Link, user: User) -> Check:
 
     return check(
         CheckStatus.Fail,
-        f"No verified @{link.registered_domain} address — "
-        f"holds {', '.join(sorted(verified))}.",
+        f"No verified @{link.registered_domain} address. "
+        f"Verified addresses: {', '.join(verified)}.",
     )
 
 
@@ -181,20 +181,20 @@ def _url_shape_check(link: _Link) -> Check | None:
         return None
 
     label = "Application URL is an organization homepage"
-    if link.github:  # TODO: may want to also check for other code forgers
+    if link.github:
         return Check(
             "url_shape_github",
             label,
             CheckStatus.Warn,
-            f"Points at {link.host} rather than the organization's own site. Ask for "
+            f"URL is on {link.host}, not the organization's own domain. Ask for "
             "public GitHub membership and an account association.",
         )
     return Check(
         "url_shape_codehost",
         label,
         CheckStatus.Warn,
-        f"Points at {link.host}, a code or package host, rather than the "
-        "organization's own site.",
+        f"URL is on {link.host}, a code or package host, not the organization's "
+        "own domain.",
     )
 
 
@@ -215,13 +215,11 @@ def _name_domain_check(
         _comparable(application.display_name or ""),
     } - {""}
     if any(_resembles(candidate, target) for candidate in candidates):
-        return check(
-            CheckStatus.Ok, f"“{application.name}” lines up with {link.domain_label}."
-        )
+        return check(CheckStatus.Ok, f"Name lines up with {link.domain_label}.")
     return check(
         CheckStatus.Warn,
-        f"“{application.name}” looks unrelated to {link.domain_label} — "
-        "confirm they are the same organization.",
+        f"Name looks unrelated to {link.domain_label}. Confirm they are the same "
+        "organization.",
     )
 
 
@@ -234,7 +232,6 @@ def _email_verified_check(user: User) -> Check:
 
 
 def _github_association_check(link: _Link, user: User) -> Check | None:
-    """A link corroborates identity anywhere; absence only matters on GitHub URLs."""
     check = functools.partial(Check, "github_association", "GitHub account association")
 
     association = next(
@@ -250,22 +247,19 @@ def _github_association_check(link: _Link, user: User) -> Check | None:
 
     if not link.github:
         return None
-    return check(
-        CheckStatus.Warn, "No GitHub account linked, so membership cannot be verified."
-    )
+    return check(CheckStatus.Warn, "No GitHub account linked.")
 
 
 def _projects_check(user: User) -> Check:
-    check = functools.partial(Check, "has_projects", "Applicant has published projects")
+    check = functools.partial(Check, "has_projects", "Applicant has projects")
 
     count = len(user.projects)
     if count:
         return check(
-            CheckStatus.Ok, f"{count} project{'' if count == 1 else 's'} on PyPI."
+            CheckStatus.Ok,
+            f"{count} project{'' if count == 1 else 's'} on this account.",
         )
-    return check(
-        CheckStatus.Warn, "No projects on PyPI — ask why an organization is needed."
-    )
+    return check(CheckStatus.Warn, "No projects on this account.")
 
 
 def _name_conflict_check(
@@ -286,7 +280,7 @@ def _name_conflict_check(
         "No competing applications",
         CheckStatus.Warn,
         f"{count} other open application{'' if count == 1 else 's'} "
-        f"for “{application.normalized_name}”.",
+        f"for {application.normalized_name}.",
     )
 
 
