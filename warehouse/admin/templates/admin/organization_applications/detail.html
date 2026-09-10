@@ -102,7 +102,15 @@
     "warn": "fa-triangle-exclamation text-warning",
     "unknown": "fa-circle-question text-muted",
   } %}
+  {% set status_display = {
+    "submitted": ("info", "Submitted"),
+    "declined": ("danger", "Declined"),
+    "deferred": ("secondary", "Deferred"),
+    "moreinformationneeded": ("warning", "Info Needed"),
+    "approved": ("success", "Approved"),
+  } %}
   {% set status = organization_application.status %}
+  {% set status_style, status_label = status_display[status.value] %}
   {% set is_decided = status.value in ['approved', 'declined'] %}
   {% set can_write = request.has_permission(Permissions.AdminOrganizationsWrite) %}
 
@@ -241,7 +249,7 @@
             <small class="text-muted">{{ organization_application.display_name }}</small>
           </h3>
           <div class="card-tools">
-            <span class="badge badge-{{ status.badge_style }}">{{ status.label }}</span>
+            <span class="badge badge-{{ status_style }}">{{ status_label }}</span>
           </div>
         </div>
         <div class="card-body">
@@ -315,7 +323,7 @@
               <summary>Other applications <span class="badge badge-pill badge-light org-review-count">{{ other_applications|length }}</span></summary>
               <div class="org-review-facet-body">
                 {% for org_app in other_applications %}
-                <span class="org-review-chip"><a href="{{ request.route_path('admin.organization_application.detail', organization_application_id=org_app.id) }}">{{ org_app.name }}</a><span class="org-review-chip-meta text-muted">{{ org_app.status.label }}</span></span>
+                <span class="org-review-chip"><a href="{{ request.route_path('admin.organization_application.detail', organization_application_id=org_app.id) }}">{{ org_app.name }}</a><span class="org-review-chip-meta text-muted">{{ status_display[org_app.status.value][1] }}</span></span>
                 {% endfor %}
               </div>
             </details>
@@ -360,7 +368,7 @@
                   {% if application.normalized_name == organization_application.normalized_name %}<i class="fa fa-equals text-red" title="Exact name match"></i>{% endif %}
                   <a target="_blank" href="{{ request.route_url('admin.organization_application.detail', organization_application_id=application.id) }}">{{ application.name }}</a>
                 </td>
-                <td>{{ application.status.label }}</td>
+                <td>{{ status_display[application.status.value][1] }}</td>
                 <td>{{ application.submitted|format_date() }}</td>
                 <td><a target="_blank" href="{{ request.route_url('admin.user.detail', username=application.submitted_by.username) }}">{{ application.submitted_by.username }}</a></td>
               </tr>
