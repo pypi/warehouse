@@ -349,14 +349,14 @@ msgstr ""
 
 #: warehouse/accounts/views.py:1857 warehouse/accounts/views.py:2125
 #: warehouse/manage/views/oidc_publishers.py:126
-#: warehouse/manage/views/organizations.py:1733
+#: warehouse/manage/views/organizations.py:1768
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help"
 "#admin-intervention for details."
 msgstr ""
 
 #: warehouse/accounts/views.py:1878
-#: warehouse/manage/views/organizations.py:1756
+#: warehouse/manage/views/organizations.py:1791
 msgid "disabled. See https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
@@ -385,7 +385,7 @@ msgstr ""
 #: warehouse/manage/views/oidc_publishers.py:436
 #: warehouse/manage/views/oidc_publishers.py:552
 #: warehouse/manage/views/oidc_publishers.py:664
-#: warehouse/manage/views/organizations.py:1772
+#: warehouse/manage/views/organizations.py:1807
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
@@ -403,7 +403,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/accounts/views.py:1995
-#: warehouse/manage/views/organizations.py:1824
+#: warehouse/manage/views/organizations.py:1859
 msgid "Registered a new pending publisher to create "
 msgstr ""
 
@@ -487,52 +487,52 @@ msgstr ""
 msgid "Cannot transfer to Company Organization with inactive billing"
 msgstr ""
 
-#: warehouse/manage/forms.py:652
+#: warehouse/manage/forms.py:637
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:664
+#: warehouse/manage/forms.py:649
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:670
+#: warehouse/manage/forms.py:655
 msgid "The organization URL must start with http:// or https://"
 msgstr ""
 
-#: warehouse/manage/forms.py:682
+#: warehouse/manage/forms.py:667
 msgid ""
 "The organization description is too long. Choose a organization "
 "description with 400 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:725
+#: warehouse/manage/forms.py:710
 msgid ""
 "We don't need to know quite that much :), limit your usage description to"
 " 1024 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:747
+#: warehouse/manage/forms.py:732
 #, python-format
 msgid ""
 "You have already submitted the maximum number of Organization requests "
 "(%s)."
 msgstr ""
 
-#: warehouse/manage/forms.py:777
+#: warehouse/manage/forms.py:762
 msgid "Choose a team name with 50 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:784
+#: warehouse/manage/forms.py:769
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:811
+#: warehouse/manage/forms.py:796
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 
@@ -627,13 +627,13 @@ msgid ""
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2143
-#: warehouse/manage/views/organizations.py:922
+#: warehouse/manage/views/organizations.py:969
 #, python-brace-format
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2208
-#: warehouse/manage/views/organizations.py:1002
+#: warehouse/manage/views/organizations.py:1044
 #, python-brace-format
 msgid "Invitation sent to '${username}'"
 msgstr ""
@@ -647,7 +647,7 @@ msgid "Invitation already expired."
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2284
-#: warehouse/manage/views/organizations.py:1209
+#: warehouse/manage/views/organizations.py:1244
 #, python-brace-format
 msgid "Invitation revoked from '${username}'."
 msgstr ""
@@ -740,37 +740,50 @@ msgid ""
 "https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:898
+#: warehouse/manage/views/organizations.py:886
+msgid ""
+"This organization has created too many new projects recently. Try again "
+"later."
+msgstr ""
+
+#: warehouse/manage/views/organizations.py:894
+#, python-brace-format
+msgid ""
+"This organization has created too many new projects recently. Try again "
+"in ${time}."
+msgstr ""
+
+#: warehouse/manage/views/organizations.py:945
 #, python-brace-format
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:909
+#: warehouse/manage/views/organizations.py:956
 #, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:938
+#: warehouse/manage/views/organizations.py:980
 msgid "Cannot invite new member. Organization is not in good standing."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1104
-#: warehouse/manage/views/organizations.py:1146
+#: warehouse/manage/views/organizations.py:1139
+#: warehouse/manage/views/organizations.py:1181
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1114
+#: warehouse/manage/views/organizations.py:1149
 msgid "Organization invitation could not be re-sent."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1162
+#: warehouse/manage/views/organizations.py:1197
 #, python-brace-format
 msgid "Expired invitation for '${username}' deleted."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1788
+#: warehouse/manage/views/organizations.py:1823
 msgid ""
 "This publisher has already been registered in your organization. See your"
 " existing pending publishers below."
@@ -1710,8 +1723,8 @@ msgstr ""
 #: warehouse/templates/manage/organization/publishing.html:333
 #: warehouse/templates/manage/organization/publishing.html:350
 #: warehouse/templates/manage/organization/publishing.html:369
-#: warehouse/templates/manage/organization/roles.html:404
-#: warehouse/templates/manage/organization/roles.html:423
+#: warehouse/templates/manage/organization/roles.html:398
+#: warehouse/templates/manage/organization/roles.html:417
 #: warehouse/templates/manage/organization/settings.html:40
 #: warehouse/templates/manage/organization/settings.html:69
 #: warehouse/templates/manage/organization/settings.html:92
@@ -1843,8 +1856,8 @@ msgstr ""
 #: warehouse/templates/email/organization-member-removed/body.html:14
 #: warehouse/templates/email/organization-member-role-changed/body.html:14
 #: warehouse/templates/manage/account.html:260
-#: warehouse/templates/manage/organization/roles.html:290
-#: warehouse/templates/manage/organization/roles.html:407
+#: warehouse/templates/manage/organization/roles.html:291
+#: warehouse/templates/manage/organization/roles.html:401
 #: warehouse/templates/manage/project/roles.html:171
 #: warehouse/templates/manage/project/roles.html:250
 #: warehouse/templates/manage/project/roles.html:346
@@ -1895,7 +1908,7 @@ msgstr ""
 #: warehouse/templates/accounts/profile.html:20
 #: warehouse/templates/manage/account.html:233
 #: warehouse/templates/manage/organization/roles.html:211
-#: warehouse/templates/manage/organization/roles.html:301
+#: warehouse/templates/manage/organization/roles.html:302
 #: warehouse/templates/manage/project/roles.html:181
 #: warehouse/templates/manage/project/roles.html:260
 #: warehouse/templates/manage/team/roles.html:45
@@ -2484,7 +2497,7 @@ msgstr ""
 #: warehouse/templates/manage/organization/roles.html:46
 #: warehouse/templates/manage/organization/roles.html:200
 #: warehouse/templates/manage/organization/roles.html:248
-#: warehouse/templates/manage/organization/roles.html:421
+#: warehouse/templates/manage/organization/roles.html:415
 #: warehouse/templates/manage/project/roles.html:59
 #: warehouse/templates/manage/project/roles.html:133
 #: warehouse/templates/manage/project/roles.html:214
@@ -4150,9 +4163,9 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:91
 #: warehouse/templates/manage/manage_base.html:95
 #: warehouse/templates/manage/manage_base.html:613
-#: warehouse/templates/manage/organization/roles.html:275
-#: warehouse/templates/manage/organization/roles.html:279
-#: warehouse/templates/manage/organization/roles.html:290
+#: warehouse/templates/manage/organization/roles.html:276
+#: warehouse/templates/manage/organization/roles.html:280
+#: warehouse/templates/manage/organization/roles.html:291
 #: warehouse/templates/manage/project/roles.html:91
 #: warehouse/templates/manage/project/roles.html:160
 #: warehouse/templates/manage/project/roles.html:171
@@ -5916,7 +5929,7 @@ msgid "Download as file"
 msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-provision.html:61
-#: warehouse/templates/manage/organization/roles.html:265
+#: warehouse/templates/manage/organization/roles.html:266
 #: warehouse/templates/manage/project/roles.html:149
 #: warehouse/templates/manage/project/roles.html:229
 msgid "Save"
@@ -6772,140 +6785,130 @@ msgid "Users who can manage %(organization_name)s"
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:199
-#: warehouse/templates/manage/organization/roles.html:402
+#: warehouse/templates/manage/organization/roles.html:396
 #: warehouse/templates/manage/project/roles.html:395
 #: warehouse/templates/manage/team/roles.html:35
 #: warehouse/templates/manage/team/roles.html:102
 msgid "User"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:264
+#: warehouse/templates/manage/organization/roles.html:265
 #: warehouse/templates/manage/project/roles.html:148
 #: warehouse/templates/manage/project/roles.html:228
 msgid "Save role"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:274
+#: warehouse/templates/manage/organization/roles.html:275
 msgid "Cannot remove other people from the organization"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:278
+#: warehouse/templates/manage/organization/roles.html:279
 #: warehouse/templates/manage/project/roles.html:238
 msgid "Cannot remove yourself as Sole Owner"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:285
+#: warehouse/templates/manage/organization/roles.html:286
 #, python-format
 msgid "Remove %(user)s from this organization."
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:288
+#: warehouse/templates/manage/organization/roles.html:289
 #, python-format
 msgid "Remove %(user)s from this organization"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:319
+#: warehouse/templates/manage/organization/roles.html:320
 #: warehouse/templates/manage/project/roles.html:278
 msgid "Invite pending"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:321
+#: warehouse/templates/manage/organization/roles.html:322
 #: warehouse/templates/manage/project/roles.html:280
 msgid "Invite expired"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:331
+#: warehouse/templates/manage/organization/roles.html:332
 #, python-format
 msgid "Revoke invitation for %(user)s."
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:334
+#: warehouse/templates/manage/organization/roles.html:335
 #: warehouse/templates/manage/project/roles.html:289
 #: warehouse/templates/manage/project/roles.html:292
 #, python-format
 msgid "Revoke invitation for %(user)s"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:336
+#: warehouse/templates/manage/organization/roles.html:337
 #: warehouse/templates/manage/project/roles.html:294
 msgid "Revoke invite"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:339
+#: warehouse/templates/manage/organization/roles.html:340
 #, python-format
 msgid "Re-send invitation for %(user)s."
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:342
+#: warehouse/templates/manage/organization/roles.html:343
 #, python-format
 msgid "Re-send invitation for %(user)s"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:344
+#: warehouse/templates/manage/organization/roles.html:345
 msgid "Re-send"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:346
+#: warehouse/templates/manage/organization/roles.html:347
 #, python-format
 msgid "Delete expired invitation for %(user)s."
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:349
+#: warehouse/templates/manage/organization/roles.html:350
 #, python-format
 msgid "Delete expired invitation for %(user)s"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:351
+#: warehouse/templates/manage/organization/roles.html:352
 #: warehouse/templates/manage/project/release.html:115
 #: warehouse/templates/manage/project/releases.html:116
 msgid "Delete"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:360
+#: warehouse/templates/manage/organization/roles.html:361
 msgid "Invite member"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:365
+#: warehouse/templates/manage/organization/roles.html:366
 msgid "Billing Notice:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:366
+#: warehouse/templates/manage/organization/roles.html:367
 msgid ""
 "Accepted invitations will result in an additional $5 per user per month "
 "billing charge."
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:372
+#: warehouse/templates/manage/organization/roles.html:373
 msgid "Seat Usage:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:373
+#: warehouse/templates/manage/organization/roles.html:374
 #, python-format
 msgid "%(current)s of %(limit)s seats used."
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:376
+#: warehouse/templates/manage/organization/roles.html:377
 #, python-format
 msgid "%(available)s seats available."
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:378
+#: warehouse/templates/manage/organization/roles.html:379
 msgid ""
 "You have exceeded your seat limit. Invited members can still accept "
 "invitations."
 msgstr ""
 
-#: warehouse/templates/manage/organization/roles.html:385
-msgid "Billing not yet activated"
-msgstr ""
-
-#: warehouse/templates/manage/organization/roles.html:386
-msgid ""
-"This organization does not have an active subscription yet. You may only "
-"invite a <strong>Billing Manager</strong> until billing is activated."
-msgstr ""
-
-#: warehouse/templates/manage/organization/roles.html:433
+#: warehouse/templates/manage/organization/roles.html:427
 #: warehouse/templates/manage/project/roles.html:426
 msgid "Invite"
 msgstr ""
