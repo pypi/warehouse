@@ -290,6 +290,11 @@ def _name_conflict_check(
     )
 
 
+def application_domain(application: OrganizationApplication) -> str | None:
+    """The domain the checks matched against, for the saved replies to quote."""
+    return _Link(application.link_url).registered_domain
+
+
 def review_checks(
     application: OrganizationApplication,
     user: User,
