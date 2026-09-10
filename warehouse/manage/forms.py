@@ -599,7 +599,6 @@ class CreateOrganizationRoleForm(
     ):
         super().__init__(*args, **kwargs)
         if allow_billing_manager_only:
-            # Only allow "Billing Manager" role for Company orgs without billing history
             self.role_name.choices = [
                 choice
                 for choice in self.role_name.choices
