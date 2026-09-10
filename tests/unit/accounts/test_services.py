@@ -42,6 +42,7 @@ from warehouse.accounts.models import (
     User,
     UserTermsOfServiceEngagement,
 )
+from warehouse.constants import RateLimitPeriod
 from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService, NullMetrics
 from warehouse.rate_limiting import DummyRateLimiter
@@ -517,6 +518,45 @@ class TestDatabaseUserService:
         admin = UserFactory.create(is_superuser=True, username="admin")
 
         assert user_service.get_admin_user() == admin
+
+    def test_set_project_create_ratelimit(self, user_service, db_request):
+        user = UserFactory.create()
+        db_request.user = UserFactory.create()
+
+        limit = user_service.set_project_create_ratelimit(
+            user.id, db_request, 25, RateLimitPeriod.Day
+        )
+
+        assert limit == "25 per day"
+        assert user.project_create_ratelimit_count == 25
+        assert user.project_create_ratelimit_period is RateLimitPeriod.Day
+        event = user.events.one()
+        assert event.tag == "account:project_create_ratelimit:change"
+        assert event.additional == {
+            "old_project_create_ratelimit_string": None,
+            "new_project_create_ratelimit_string": "25 per day",
+            "actor": db_request.user.username,
+        }
+
+    def test_set_project_create_ratelimit_clears_override(
+        self, user_service, db_request
+    ):
+        """A None count clears the override and records what it replaced."""
+        user = UserFactory.create(
+            project_create_ratelimit_count=25,
+            project_create_ratelimit_period=RateLimitPeriod.Day,
+        )
+        db_request.user = UserFactory.create()
+
+        limit = user_service.set_project_create_ratelimit(
+            user.id, db_request, None, RateLimitPeriod.Hour
+        )
+
+        assert limit is None
+        assert user.project_create_ratelimit_string is None
+        event = user.events.one()
+        assert event.additional["old_project_create_ratelimit_string"] == "25 per day"
+        assert event.additional["new_project_create_ratelimit_string"] is None
 
     @pytest.mark.parametrize(
         ("reason", "expected"),
