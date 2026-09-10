@@ -283,7 +283,7 @@
         </div>
         <div class="card-body">
           {% if user %}
-          {% set other_applications = user.organization_applications|sort(attribute='status', reverse=True)|rejectattr('status', 'equalto', 'approved')|list %}
+          {% set other_applications = user.organization_applications|sort(attribute='status', reverse=True)|rejectattr('status', 'equalto', 'approved')|rejectattr('id', 'equalto', organization_application.id)|list %}
           <div class="org-review-identity">
             <a class="org-review-identity-name" href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a>
             {% for association in user.account_associations %}
