@@ -112,22 +112,13 @@
     "warn": "fa-triangle-exclamation text-warning",
     "unknown": "fa-circle-question text-muted",
   } %}
-  {% set verdict_display = {
-    "ready": ("card-success", "fa-circle-check", "Ready to approve"),
-    "review": ("card-warning", "fa-triangle-exclamation", "Needs a look"),
-    "needsinfo": ("card-danger", "fa-circle-xmark", "Information needed"),
-  } %}
-  {% set verdict_class, verdict_icon, verdict_title = verdict_display[verdict.value] %}
   {% set status = organization_application.status %}
   {% set is_decided = status.value in ['approved', 'declined'] %}
   {% set can_write = request.has_permission(Permissions.AdminOrganizationsWrite) %}
 
-  {# ---------- Verdict ---------- #}
-  <div class="card {{ verdict_class }} card-outline">
+  <div class="card card-outline card-secondary">
     <div class="card-header with-border">
-      <h3 class="card-title">
-        <i class="fa-solid {{ verdict_icon }}"></i> {{ verdict_title }}
-      </h3>
+      <h3 class="card-title">Review checks</h3>
     </div>
     <div class="card-body p-0">
       <ul class="org-review-checks">
