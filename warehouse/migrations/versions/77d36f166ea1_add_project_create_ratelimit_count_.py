@@ -3,16 +3,17 @@
 Add project_create_ratelimit_count/period to organizations and users
 
 Revision ID: 77d36f166ea1
-Revises: 423ffda7411f
+Revises: 964076d0c4ad
 Create Date: 2026-07-24 11:00:10.303063
 """
 
 import sqlalchemy as sa
 
 from alembic import op
+from sqlalchemy.dialects import postgresql
 
 revision = "77d36f166ea1"
-down_revision = "423ffda7411f"
+down_revision = "964076d0c4ad"
 
 # Note: It is VERY important to ensure that a migration does not lock for a
 #       long period of time and to ensure that each individual migration does
@@ -36,58 +37,42 @@ down_revision = "423ffda7411f"
 #       To whatever values are reasonable for this migration as part of your
 #       migration.
 
+# Every column added here is nullable with no default, so each ADD COLUMN is a
+# catalog-only change and takes no table rewrite -- which matters on `users`.
+
+COUNT_COMMENT = (
+    "Project creation rate limit count, e.g. the 20 in '20 per hour'. "
+    "NULL means no override: the configured default applies."
+)
+PERIOD_COMMENT = (
+    "Period the count is measured over. Ignored while "
+    "project_create_ratelimit_count is NULL."
+)
+PERIODS = ("hour", "day", "month")
+
 
 def upgrade():
-    op.add_column(
-        "organizations",
-        sa.Column(
-            "project_create_ratelimit_count",
-            sa.Integer(),
-            nullable=True,
-            comment=(
-                "Custom project-creation rate limit count for this organization "
-                "(e.g. 200, paired with project_create_ratelimit_period). "
-                "Overrides the organization default when set."
+    sa.Enum(*PERIODS, name="ratelimitperiod").create(op.get_bind())
+
+    for table in ("organizations", "users"):
+        op.add_column(
+            table,
+            sa.Column(
+                "project_create_ratelimit_count",
+                sa.Integer(),
+                nullable=True,
+                comment=COUNT_COMMENT,
             ),
-        ),
-    )
-    op.add_column(
-        "organizations",
-        sa.Column(
-            "project_create_ratelimit_period",
-            sa.String(),
-            nullable=True,
-            comment=(
-                "Period unit ('hour', 'day', or 'month') for "
-                "project_create_ratelimit_count."
+        )
+        op.add_column(
+            table,
+            sa.Column(
+                "project_create_ratelimit_period",
+                postgresql.ENUM(*PERIODS, name="ratelimitperiod", create_type=False),
+                nullable=True,
+                comment=PERIOD_COMMENT,
             ),
-        ),
-    )
-    op.add_column(
-        "users",
-        sa.Column(
-            "project_create_ratelimit_count",
-            sa.Integer(),
-            nullable=True,
-            comment=(
-                "Custom project-creation rate limit count for this user "
-                "(e.g. 50, paired with project_create_ratelimit_period). "
-                "Overrides the global default when set."
-            ),
-        ),
-    )
-    op.add_column(
-        "users",
-        sa.Column(
-            "project_create_ratelimit_period",
-            sa.String(),
-            nullable=True,
-            comment=(
-                "Period unit ('hour', 'day', or 'month') for "
-                "project_create_ratelimit_count."
-            ),
-        ),
-    )
+        )
 
 
 def downgrade():
@@ -95,3 +80,4 @@ def downgrade():
     op.drop_column("users", "project_create_ratelimit_count")
     op.drop_column("organizations", "project_create_ratelimit_period")
     op.drop_column("organizations", "project_create_ratelimit_count")
+    sa.Enum(name="ratelimitperiod").drop(op.get_bind())
