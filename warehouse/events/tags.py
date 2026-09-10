@@ -89,7 +89,7 @@ class EventTag:
         RoleInvite = "account:role:invite"
         RoleRemove = "account:role:remove"
         RoleRevokeInvite = "account:role:revoke_invite"
-        SetProjectCreateRateLimit = "admin:account:set_project_create_ratelimit"
+        ProjectCreateRateLimitChange = "account:project_create_ratelimit:change"
         TeamRoleAdd = "account:team_role:add"
         TeamRoleRemove = "account:team_role:remove"
         TwoFactorDeviceRemembered = "account:two_factor:device_remembered"
