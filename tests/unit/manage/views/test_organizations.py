@@ -2086,6 +2086,13 @@ class TestManageOrganizationRoles:
             "invitations": set(),
             "form": form_obj,
             "is_sole_owner": False,
+            "awaiting_initial_billing": False,
+            "role_choices": [
+                ("", "Select role"),
+                ("Member", "Member"),
+                ("Manager", "Manager"),
+                ("Owner", "Owner"),
+            ],
         }
 
     @freeze_time(datetime.datetime.now(datetime.UTC))
@@ -2236,6 +2243,7 @@ class TestManageOrganizationRoles:
                 orgtype=organization.orgtype,
                 organization_service=organization_service,
                 user_service=user_service,
+                allow_billing_manager_only=False,
             ),
         ]
         assert db_request.session.flash.calls == [
@@ -2285,6 +2293,7 @@ class TestManageOrganizationRoles:
                 orgtype=organization.orgtype,
                 organization_service=organization_service,
                 user_service=user_service,
+                allow_billing_manager_only=False,
             ),
         ]
         assert db_request.session.flash.calls == [
@@ -2351,6 +2360,7 @@ class TestManageOrganizationRoles:
                 orgtype=organization.orgtype,
                 organization_service=organization_service,
                 user_service=user_service,
+                allow_billing_manager_only=False,
             ),
         ]
         assert db_request.session.flash.calls == [
@@ -2434,6 +2444,7 @@ class TestManageOrganizationRoles:
                 orgtype=organization.orgtype,
                 organization_service=organization_service,
                 user_service=user_service,
+                allow_billing_manager_only=False,
             ),
         ]
         assert db_request.session.flash.calls == [
@@ -2528,7 +2539,6 @@ class TestManageOrganizationRoles:
     def test_manage_organization_roles_pre_billing_company(
         self, db_request, organization_service, user_service
     ):
-        """Test that pre-billing Company org passes allow_billing_manager_only=True."""
         organization = OrganizationFactory.create(
             name="new-company-org", orgtype=OrganizationType.Company
         )
@@ -2545,7 +2555,7 @@ class TestManageOrganizationRoles:
         db_request.method = "GET"
         db_request.user = owner_user
 
-        org_views.manage_organization_roles(
+        result = org_views.manage_organization_roles(
             organization, db_request, _form_class=form_class
         )
 
@@ -2557,6 +2567,14 @@ class TestManageOrganizationRoles:
                 user_service=user_service,
                 allow_billing_manager_only=True,
             )
+        ]
+        assert result["awaiting_initial_billing"] is True
+        assert [choice[0] for choice in result["role_choices"]] == [
+            "",
+            "Member",
+            "Manager",
+            "Owner",
+            "Billing Manager",
         ]
 
 
