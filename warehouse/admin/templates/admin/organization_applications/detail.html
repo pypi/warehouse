@@ -91,7 +91,7 @@
   {#- Each check key names the saved reply that resolves it. -#}
   {% set reply_templates = {
     "domain_match": "AddOrgEmailTemplate",
-    "email_verified": "AddOrgEmailTemplate",
+    "email_verified": "VerifyEmailTemplate",
     "url_shape_github": "GitHubAssociationTemplate",
     "url_shape_codehost": "UnverifiableURLTemplate",
     "has_projects": "ReasonForApplicationTemplate",
@@ -506,6 +506,12 @@
           but ask that you first add an @{{ link_domain or "NONE" }}
           email address to your PyPI account,
           complete the verification,
+          and respond using the linked form.
+      </div>
+      <div class="hidden" id="VerifyEmailTemplate">
+          Hello {{ organization_application.submitted_by.username }}!
+          We'd be happy to approve this organization request,
+          but ask that you first verify an email address on your PyPI account,
           and respond using the linked form.
       </div>
       <div class="hidden" id="BadURLTemplate">
