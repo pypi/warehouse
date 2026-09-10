@@ -74,6 +74,12 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
             "username ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'",
             name="users_valid_username",
         ),
+        Index(
+            "idx_users_username_trgm",
+            "username",
+            postgresql_using="gin",
+            postgresql_ops={"username": "gin_trgm_ops"},
+        ),
     )
 
     __repr__ = make_repr("username")
@@ -317,6 +323,8 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
                     Permissions.AdminUsersWrite,
                     Permissions.AdminUsersEmailWrite,
                     Permissions.AdminUsersAccountRecoveryWrite,
+                    Permissions.AdminUsersRecoveryCodesBurn,
+                    Permissions.AdminUsersExport,
                     Permissions.AdminDashboardSidebarRead,
                     Permissions.AdminVulnerabilitiesRead,
                 ),
@@ -328,6 +336,7 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
                     Permissions.AdminUsersRead,
                     Permissions.AdminUsersEmailWrite,
                     Permissions.AdminUsersAccountRecoveryWrite,
+                    Permissions.AdminUsersRecoveryCodesBurn,
                     Permissions.AdminDashboardSidebarRead,
                 ),
             ),
@@ -412,6 +421,11 @@ class UnverifyReasons(enum.Enum):
     DomainInvalid = "domain status invalid"
 
 
+def email_domain(address: str) -> str:
+    """The domain part of an email address, lowercased."""
+    return address.rsplit("@", 1)[-1].lower()
+
+
 class Email(db.ModelBase):
     __tablename__ = "user_emails"
     __table_args__ = (
@@ -445,7 +459,7 @@ class Email(db.ModelBase):
 
     @property
     def domain(self):
-        return self.email.split("@")[-1].lower()
+        return email_domain(self.email)
 
 
 class ProhibitedEmailDomain(db.Model):

@@ -12,9 +12,10 @@ def classify_observation(actions: dict | None, related_id) -> str:
     Classify an observation as true_positive, false_positive, or pending.
 
     Classification rules:
-    - true_positive: has 'remove_malware' action OR project removed (related_id=None)
+    - true_positive: has a 'remove_malware', 'confirm_malware', or 'remove_release'
+      action OR project removed (related_id=None)
     - false_positive: has 'verdict_not_malware' action AND project still exists
-    - pending: no verdict yet
+    - pending: no verdict yet (including reversible 'quarantine_release')
 
     Note: If a project was marked 'not malware' but later removed for another reason
     (e.g., spam), we don't penalize the observer - they correctly identified a
@@ -30,7 +31,7 @@ def classify_observation(actions: dict | None, related_id) -> str:
     has_not_malware = False
     for action_data in actions.values():
         action = action_data.get("action", "")
-        if action in ("remove_malware", "confirm_malware"):
+        if action in ("remove_malware", "confirm_malware", "remove_release"):
             return "true_positive"
         if action == "verdict_not_malware":
             has_not_malware = True

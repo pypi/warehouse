@@ -11,7 +11,8 @@
     </a>
   </div>
 {% endblock %}
-{% block mobile_search %}{% endblock %}
+{% block mobile_search %}
+{% endblock %}
 {% block content %}
   {% if testPyPI %}
     {% set banner = _("Test Python package publishing with the Test Python Package Index") %}
@@ -46,6 +47,9 @@
       </form>
       <p class="homepage-banner__browse">
         {% trans href=request.route_path('search') %}Or <a href="{{ href }}">browse projects</a>{% endtrans %}
+      </p>
+      <p class="homepage-banner__browse">
+        {% trans href=request.route_path('organizations') %}Publishing as a team? Use an <a href="{{ href }}">organization account</a>{% endtrans %}
       </p>
     </div>
   </div>

@@ -393,6 +393,22 @@ class TestMockStripeBillingService:
         # doesn't care enough to update the status for whatever reason ¯\_(ツ)_/¯
         assert subscription.status is not None
 
+    def test_cancel_subscription_at_period_end(
+        self, billing_service, subscription_service
+    ):
+        organization = OrganizationFactory.create()
+        stripe_customer = StripeCustomerFactory.create()
+        OrganizationStripeCustomerFactory.create(
+            organization=organization, customer=stripe_customer
+        )
+        db_subscription = StripeSubscriptionFactory.create(customer=stripe_customer)
+
+        subscription = billing_service.cancel_subscription_at_period_end(
+            subscription_id=db_subscription.subscription_id
+        )
+
+        assert subscription.cancel_at_period_end is True
+
     def test_create_or_update_usage_record(self, billing_service, subscription_service):
         result = billing_service.create_or_update_usage_record("si_1234", 5)
 

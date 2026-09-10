@@ -64,6 +64,7 @@ from warehouse.authnz import Permissions
 from warehouse.cache.origin import origin_cache
 from warehouse.captcha.interfaces import ICaptchaService
 from warehouse.email import (
+    UNRECOGNIZED_LOGIN_REPEAT_WINDOW,
     send_added_as_collaborator_email,
     send_added_as_organization_member_email,
     send_collaborator_added_email,
@@ -706,14 +707,24 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
     has_translations=True,
 )
 def register(request, _form_class=RegistrationForm):
+    def _outcome(outcome):
+        """Count registration attempts by outcome, ignoring plain page loads."""
+        if request.method == "POST":
+            request.metrics.increment(
+                "warehouse.accounts.register", tags=[f"outcome:{outcome}"]
+            )
+
     if request.user is not None:
+        _outcome("authenticated")
         return HTTPSeeOther(request.route_path("manage.projects"))
 
     # Check if the honeypot field has been filled
     if request.method == "POST" and request.POST.get("confirm_form"):
+        _outcome("honeypot")
         return HTTPSeeOther(request.route_path("index"))
 
     if request.flags.enabled(AdminFlagValue.DISALLOW_NEW_USER_REGISTRATION):
+        _outcome("disabled")
         request.session.flash(
             request._(
                 "New user registration temporarily disabled. "
@@ -742,6 +753,47 @@ def register(request, _form_class=RegistrationForm):
         breach_service=breach_service,
     )
 
+    # Charged before validating anything: a failed attempt still costs the
+    # deliverability DNS lookups and discloses whether an address is registered.
+    #
+    # Deliberately no RateLimit/RateLimit-Policy headers, unlike the search and
+    # project-create limiters. This endpoint is unauthenticated and has no
+    # legitimate scripted callers, so publishing the remaining quota would tell
+    # an enumerator how to pace under the cap.
+    register_limiter = request.find_service(IRateLimiter, name="accounts.register")
+
+    if request.method == "POST" and not request.remote_addr:
+        # Nothing to key on, and one shared bucket for every address-less
+        # request is worse than no limit. Counted so that a limiter which
+        # has stopped running is still visible.
+        request.metrics.increment("warehouse.accounts.register.unmetered")
+    elif request.method == "POST" and not register_limiter.hit(request.remote_addr):
+        _outcome("ratelimited")
+        request.metrics.increment(
+            "warehouse.accounts.register.ratelimited",
+            tags=["ratelimiter:ip"],
+        )
+        # Form errors render without JavaScript; flashes do not.
+        request.response.status = 429
+        _resets_in = register_limiter.resets_in(request.remote_addr)
+        if _resets_in is not None:
+            request.response.retry_after = _resets_in.total_seconds()
+            form.form_errors.append(
+                request._(
+                    "Too many registration attempts from your network. "
+                    "Please try again in ${time}.",
+                    mapping={"time": humanize.naturaldelta(_resets_in.total_seconds())},
+                )
+            )
+        else:
+            form.form_errors.append(
+                request._(
+                    "Too many registration attempts from your network. "
+                    "Please try again later."
+                )
+            )
+        return {"form": form}
+
     if request.method == "POST" and form.validate():
         email_limiter = request.find_service(IRateLimiter, name="email.verify")
         user = user_service.create_user(
@@ -766,8 +818,10 @@ def register(request, _form_class=RegistrationForm):
         resp = HTTPSeeOther(request.route_path("index"))
         _set_userid_insecure_cookie(resp, user.id)
 
+        _outcome("ok")
         return resp
 
+    _outcome("invalid")
     return {"form": form}
 
 
@@ -973,7 +1027,11 @@ def confirm_login(request):
 
     if not request.params.get("token"):
         # Show a generic page for when a non-logged-in user lands here without a token
-        return {}
+        return {
+            "repeat_window_minutes": int(
+                UNRECOGNIZED_LOGIN_REPEAT_WINDOW.total_seconds() // 60
+            )
+        }
 
     user_service = request.find_service(IUserService, context=None)
     token_service = request.find_service(ITokenService, name="confirm_login")
@@ -1648,7 +1706,7 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
     form = _form_class(
         request.POST,
         request=request,
-        username=request.user.username,
+        user_id=request.user.id,
         next_route=request.matched_route.name,
         next_route_matchdict=json.dumps(request.matchdict),
         next_route_query=json.dumps(request.GET.mixed()),
@@ -1661,11 +1719,17 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
     )
 
     if form.next_route.data and form.next_route_matchdict.data:
-        redirect_to = request.route_path(
-            form.next_route.data,
-            **json.loads(form.next_route_matchdict.data)
-            | {"_query": json.loads(form.next_route_query.data)},
-        )
+        try:
+            matchdict = json.loads(form.next_route_matchdict.data)
+            query = json.loads(form.next_route_query.data)
+            if not isinstance(matchdict, dict) or not isinstance(query, dict):
+                raise HTTPBadRequest
+            redirect_to = request.route_path(
+                form.next_route.data,
+                **matchdict | {"_query": query},
+            )
+        except json.JSONDecodeError, KeyError, TypeError, ValueError:
+            raise HTTPBadRequest
     else:
         redirect_to = request.route_path("manage.projects")
 
@@ -1898,6 +1962,11 @@ class ManageAccountPublishingViews:
             # pending publisher already targets the same external identity
             # under a different project name. Surface that conflict instead
             # of silently redirecting as if registration succeeded.
+            #
+            # The failed INSERT leaves the transaction in an aborted state, so
+            # roll back before doing anything else with the session -- otherwise
+            # rendering the response (or the end-of-request commit) blows up.
+            self.request.db.rollback()
             self.request.session.flash(
                 self.request._(
                     "A pending trusted publisher matching this configuration "

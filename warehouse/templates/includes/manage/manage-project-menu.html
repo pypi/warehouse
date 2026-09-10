@@ -16,7 +16,7 @@
          {% if active_tab == 'collaborators' %}aria-selected="true"{% endif %}>
         <i class="fa fa-user" aria-hidden="true"></i>
         {% trans %}Collaborators{% endtrans %}
-        {% if request.organization_access and project.organization %}
+        {% if project.organization %}
           <span class="badge badge--neutral">{{ 1 + project.team_project_roles|length + project.roles|length }}</span>
         {% else %}
           <span class="badge badge--neutral">{{ project.roles|length }}</span>

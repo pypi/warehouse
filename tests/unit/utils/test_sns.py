@@ -3,8 +3,8 @@
 import base64
 import datetime
 import textwrap
+import types
 
-import pretend
 import pytest
 
 from cryptography import x509
@@ -179,8 +179,10 @@ class TestMessageVerifier:
         ],
     )
     def test_invalid(self, sns_certificate, sns_privatekey, topics, data, error):
-        response = pretend.stub(raise_for_status=lambda: None, content=sns_certificate)
-        session = pretend.stub(get=lambda url: response)
+        response = types.SimpleNamespace(
+            raise_for_status=lambda: None, content=sns_certificate
+        )
+        session = types.SimpleNamespace(get=lambda url: response)
         verifier = MessageVerifier(topics=topics, session=session)
 
         if data.get("Signature") is VALID_SIGNATURE:
@@ -268,8 +270,10 @@ class TestMessageVerifier:
         ],
     )
     def test_valid(self, sns_certificate, sns_privatekey, topics, data):
-        response = pretend.stub(raise_for_status=lambda: None, content=sns_certificate)
-        session = pretend.stub(get=lambda url: response)
+        response = types.SimpleNamespace(
+            raise_for_status=lambda: None, content=sns_certificate
+        )
+        session = types.SimpleNamespace(get=lambda url: response)
         verifier = MessageVerifier(topics=topics, session=session)
 
         private_key = load_pem_private_key(sns_privatekey, password=None)
@@ -359,10 +363,10 @@ class TestMessageVerifier:
             ),
         ],
     )
-    def test_signature_data(self, data, expected):
+    def test_signature_data(self, data, expected, mocker):
         # We have this method tested specifically, because the above tests
         # don't actually test if this method is functioning correctly,
         # since it uses it for the input and the expected.
-        verifier = MessageVerifier(topics=[], session=pretend.stub())
+        verifier = MessageVerifier(topics=[], session=mocker.sentinel.session)
         expected = textwrap.dedent(expected).lstrip().encode("utf8")
         assert verifier._get_data_to_sign(data) == expected

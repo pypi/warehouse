@@ -13,6 +13,7 @@ from typing import Any, ClassVar, TypeVar
 from pydantic import ValidationError
 from pydantic.dataclasses import dataclass as pydantic_dataclass
 from pyramid.request import Request
+from pyramid.threadlocal import get_current_request
 
 from warehouse.macaroons.caveats import _legacy
 
@@ -121,12 +122,36 @@ def serialize(caveat: Caveat) -> bytes:
     ).encode("utf8")
 
 
+def _record_legacy_caveat(adapted: Sequence | None) -> None:
+    """
+    Count caveats that reached us in our original mapping format.
+
+    Only macaroons old enough to predate the current caveat format carry these, so
+    once `warehouse.macaroon.caveat.legacy` goes quiet, `_legacy` can be dropped.
+    The `caveat` tag is the modern caveat the mapping adapted to, or "unknown" for
+    a mapping we no longer know how to read, which tells us which of the legacy
+    shapes are still in use rather than only that some of them are.
+    """
+    request = get_current_request()
+    if request is None:
+        # Caveats are deserialized outside of a request as well, where there is no
+        # metrics service to reach for.
+        return
+
+    cls = _caveat_registry.lookup(adapted[0]) if adapted else None
+    request.metrics.increment(
+        "warehouse.macaroon.caveat.legacy",
+        tags=[f"caveat:{cls.__name__ if cls else 'unknown'}"],
+    )
+
+
 def deserialize_obj(obj: Any) -> Caveat:
     # Our original caveats were implemented as a mapping with arbitrary keys,
     # so if we've gotten one of our those, we'll attempt to adapt it to our
     # new format.
     if isinstance(obj, Mapping):
         obj = _legacy.adapt(obj)
+        _record_legacy_caveat(obj)
         if obj is None:
             raise CaveatDeserializationError("caveat must be an array")
 

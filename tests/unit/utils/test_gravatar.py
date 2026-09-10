@@ -2,7 +2,6 @@
 
 from functools import partial
 
-import pretend
 import pytest
 
 from warehouse.filters import _camo_url
@@ -68,18 +67,16 @@ from warehouse.utils.gravatar import gravatar, profile
         ),
     ],
 )
-def test_gravatar(email, size, expected, monkeypatch):
-    request = pretend.stub(
-        registry=pretend.stub(
-            settings={"camo.url": "https://camo.example.net/", "camo.key": "fake key"}
-        )
+def test_gravatar(email, size, expected, pyramid_request):
+    pyramid_request.registry.settings.update(
+        {"camo.url": "https://camo.example.net/", "camo.key": "fake key"}
     )
-    camo_url = partial(_camo_url, request)
-    request.camo_url = camo_url
+    camo_url = partial(_camo_url, pyramid_request)
+    pyramid_request.camo_url = camo_url
     kwargs = {}
     if size is not None:
         kwargs["size"] = size
-    assert gravatar(request, email, **kwargs) == expected
+    assert gravatar(pyramid_request, email, **kwargs) == expected
 
 
 def test_profile():

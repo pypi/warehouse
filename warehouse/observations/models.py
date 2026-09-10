@@ -105,6 +105,7 @@ class ObservationKind(enum.Enum):
     IsDependencyConfusion = ("is_dependency_confusion", "Is Dependency Confusion")
     IsMalware = ("is_malware", "Is Malware")
     IsSpam = ("is_spam", "Is Spam")
+    IsTypoSnyperMatch = ("is_typosnyper_match", "Is TypoSnyper Match")
     SomethingElse = ("something_else", "Something Else")
 
     # Accounts
@@ -113,10 +114,12 @@ class ObservationKind(enum.Enum):
         "account_recovery",
         "Account Recovery",
     )
+    AccountExport = ("account_export", "User Account Export")
     EmailUnverified = ("email_unverified", "Email Unverified")
 
     # Organization Applications
     InformationRequest = ("information_request", "Information Request")
+    AdminNote = ("admin_note", "Admin Note")
 
 
 # A reverse-lookup map by the string value stored in the database

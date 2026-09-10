@@ -3,7 +3,7 @@
 // Copyright (c) 2016 GitHub Inc
 
 @use "sass:color";
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/grid";
 
 /*
@@ -26,8 +26,8 @@
 
 
 $tooltip-max-width: 250px !default;
-$tooltip-background-color: color.adjust(colours.$black, $alpha: -0.3) !default;
-$tooltip-text-color: colours.$white !default;
+$tooltip-background-color: color.adjust(colors.$black, $alpha: -0.3) !default;
+$tooltip-text-color: colors.$white !default;
 $tooltip-delay: 0.4s !default;
 $tooltip-duration: 0.1s !default;
 

@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 @use "../settings/breakpoints";
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/fonts";
 @use "../settings/grid";
 @use "../tools/design-utilities";
@@ -29,7 +29,7 @@
     &,
     &:hover {
       // Use png fallback
-      background: colours.$white $snippet-icon-png no-repeat;
+      background: colors.$white $snippet-icon-png no-repeat;
 
       // Or svg if the browser supports it
       background-image: $snippet-icon-svg, linear-gradient(transparent, transparent);
@@ -62,7 +62,7 @@
   &__created {
     font-weight: fonts.$base-font-weight;
     float: right;
-    color: colours.$text-color;
+    color: colors.$text-color;
     font-size: 1rem;
 
     @media only screen and (max-width: breakpoints.$tablet) {
@@ -73,7 +73,7 @@
 
   &__description {
     clear: both;
-    color: colours.$text-color;
+    color: colors.$text-color;
   }
 
   &__buttons {

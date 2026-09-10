@@ -5,6 +5,7 @@ import stripe
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNoContent
 from pyramid.view import view_config
 
+from warehouse.events.tags import EventTag
 from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
 from warehouse.subscriptions.models import StripeSubscriptionStatus
 
@@ -54,6 +55,15 @@ def handle_billing_webhook_event(request, event):
                         subscription_item["id"],
                         billing_email,
                     )
+                # Record the new subscription on the organization.
+                db_subscription = subscription_service.get_subscription(
+                    subscription_service.find_subscriptionid(subscription_id)
+                )
+                db_subscription.organization.record_event(
+                    tag=EventTag.Organization.SubscriptionCreate,
+                    request=request,
+                    additional={"subscription_id": subscription_id},
+                )
         # Occurs whenever a customer's subscription ends.
         case "customer.subscription.deleted":
             subscription = event["data"]["object"]
@@ -71,6 +81,12 @@ def handle_billing_webhook_event(request, event):
                 subscription_service.update_subscription_status(
                     id, StripeSubscriptionStatus.Canceled
                 )
+                db_subscription = subscription_service.get_subscription(id)
+                db_subscription.organization.record_event(
+                    tag=EventTag.Organization.SubscriptionCancel,
+                    request=request,
+                    additional={"subscription_id": subscription_id},
+                )
         # Occurs whenever a subscription changes e.g. status changes.
         case "customer.subscription.updated":
             subscription = event["data"]["object"]
@@ -85,8 +101,20 @@ def handle_billing_webhook_event(request, event):
                 raise HTTPBadRequest("Invalid subscription ID")
 
             if id := subscription_service.find_subscriptionid(subscription_id):
+                db_subscription = subscription_service.get_subscription(id)
+                previous_status = db_subscription.status
                 # Update subscription status.
                 subscription_service.update_subscription_status(id, status)
+                if previous_status != status:
+                    db_subscription.organization.record_event(
+                        tag=EventTag.Organization.SubscriptionStatusChange,
+                        request=request,
+                        additional={
+                            "subscription_id": subscription_id,
+                            "previous_status": previous_status,
+                            "status": status,
+                        },
+                    )
         # Occurs whenever a customer is deleted.
         case "customer.deleted":
             customer = event["data"]["object"]

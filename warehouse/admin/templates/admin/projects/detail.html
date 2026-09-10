@@ -654,8 +654,8 @@
   <div class="card-header">
     <h3 class="card-title">Journals</h3>
     <div class="card-tools">
-      {% if journal %}
-      <span class="badge badge-secondary">{{ journal|length }}</span>
+      {% if journal_count %}
+      <span class="badge badge-secondary">{{ "{:,}".format(journal_count) }}</span>
       {% endif %}
       <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i>
       </button>

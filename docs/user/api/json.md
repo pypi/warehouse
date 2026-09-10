@@ -21,6 +21,13 @@ the values provided at upload time and does not necessarily match the
 content of the uploaded files. The first uploaded data for a release is
 stored, subsequent uploads do not update it.
 
+Each file object also includes a `core-metadata` key describing the
+[Core Metadata] served alongside the distribution (see [PEP 658] and
+[PEP 714]). Its value is `false` when no metadata file is available, or an
+object of hash digests (e.g. `{"sha256": "..."}`) when it is. This mirrors
+the `core-metadata` key already exposed by the [Index API] and lets mirrors
+discover and serve Core Metadata without an additional request.
+
 On this endpoint, the `vulnerabilities` array provides a listing for
 any known vulnerabilities in the most recent release (none, for the example
 above). Use the release-specific endpoint documented below for precise
@@ -127,6 +134,7 @@ Accept: application/json
             "1.2.0": [
                 {
                     "comment_text": "",
+                    "core-metadata": false,
                     "digests": {
                         "blake2b_256": "3052547eb3719d0e872bdd6fe3ab60cef92596f95262e925e1943f68f840df88",
                         "md5": "bab8eb22e6710eddae3c6c7ac3453bd9",
@@ -148,6 +156,7 @@ Accept: application/json
                 },
                 {
                     "comment_text": "",
+                    "core-metadata": false,
                     "digests": {
                         "blake2b_256": "eb4579be82bdeafcecb9dca474cad4003e32ef8e4a0dec6abbd4145ccb02abe1",
                         "md5": "d3bd605f932b3fb6e91f49be2d6f9479",
@@ -183,6 +192,9 @@ Accept: application/json
             "4.0.0": [
               {
                 "comment_text": "",
+                "core-metadata": {
+                  "sha256": "a1d0c6e83f027327d8461063f4ac58a6e4a7a5d0a0e0d5b6c3b2e1f0a9b8c7d6"
+                },
                 "digests": {
                   "blake2b_256": "d773c16e5f3f0d37c60947e70865c255a58dc408780a6474de0523afd0ec553a",
                   "md5": "d3857a217dacbca9e40a85f06f2b34f1",
@@ -204,6 +216,9 @@ Accept: application/json
               },
               {
                 "comment_text": "",
+                "core-metadata": {
+                  "sha256": "b2e1d7f94a138438e9572174a5bd69b7f5b8b6e1b1f1e6c7d4c3f2a1b0c9d8e7"
+                },
                 "digests": {
                   "blake2b_256": "488cc18d25735962870ccb6d1cd2ac7bde40008a332211055e260cb7ec4c6bab",
                   "md5": "9eab89661feaaf3b05b60fb1ed1f7171",
@@ -228,6 +243,9 @@ Accept: application/json
         "urls": [
             {
               "comment_text": "",
+              "core-metadata": {
+                "sha256": "a1d0c6e83f027327d8461063f4ac58a6e4a7a5d0a0e0d5b6c3b2e1f0a9b8c7d6"
+              },
               "digests": {
                 "blake2b_256": "d773c16e5f3f0d37c60947e70865c255a58dc408780a6474de0523afd0ec553a",
                 "md5": "d3857a217dacbca9e40a85f06f2b34f1",
@@ -249,6 +267,9 @@ Accept: application/json
             },
             {
               "comment_text": "",
+              "core-metadata": {
+                "sha256": "b2e1d7f94a138438e9572174a5bd69b7f5b8b6e1b1f1e6c7d4c3f2a1b0c9d8e7"
+              },
               "digests": {
                 "blake2b_256": "488cc18d25735962870ccb6d1cd2ac7bde40008a332211055e260cb7ec4c6bab",
                 "md5": "9eab89661feaaf3b05b60fb1ed1f7171",
@@ -396,6 +417,9 @@ Accept: application/json
         "urls": [
           {
             "comment_text": "",
+            "core-metadata": {
+              "sha256": "a1d0c6e83f027327d8461063f4ac58a6e4a7a5d0a0e0d5b6c3b2e1f0a9b8c7d6"
+            },
             "digests": {
               "blake2b_256": "d773c16e5f3f0d37c60947e70865c255a58dc408780a6474de0523afd0ec553a",
               "md5": "d3857a217dacbca9e40a85f06f2b34f1",
@@ -417,6 +441,9 @@ Accept: application/json
           },
           {
             "comment_text": "",
+            "core-metadata": {
+              "sha256": "b2e1d7f94a138438e9572174a5bd69b7f5b8b6e1b1f1e6c7d4c3f2a1b0c9d8e7"
+            },
             "digests": {
               "blake2b_256": "488cc18d25735962870ccb6d1cd2ac7bde40008a332211055e260cb7ec4c6bab",
               "md5": "9eab89661feaaf3b05b60fb1ed1f7171",
@@ -527,3 +554,6 @@ For example, here is what a withdrawn vulnerability might look like:
 [Index API]: ./index-api.md
 [`package_roles`]: https://docs.pypi.org/api/xml-rpc/#package_rolespackage_name
 [known vulnerabilities]: https://github.com/pypa/advisory-database
+[Core Metadata]: https://packaging.python.org/en/latest/specifications/core-metadata/
+[PEP 658]: https://peps.python.org/pep-0658/
+[PEP 714]: https://peps.python.org/pep-0714/

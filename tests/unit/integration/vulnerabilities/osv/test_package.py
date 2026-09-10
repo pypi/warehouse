@@ -1,19 +1,18 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import json
 import time
 
-import pretend
 import pytest
 import requests
+import responses
 
 from warehouse import integrations
 from warehouse.integrations.vulnerabilities import osv
 
 
 class TestVulnerabilityReportVerifier:
-    def test_init(self, metrics):
-        session = pretend.stub()
+    def test_init(self, metrics, mocker):
+        session = mocker.sentinel.session
         cache = integrations.PublicKeysCache(cache_time=12)
 
         vuln_report_verifier = osv.VulnerabilityReportVerifier(
@@ -26,7 +25,8 @@ class TestVulnerabilityReportVerifier:
         assert vuln_report_verifier._metrics is metrics
         assert vuln_report_verifier._public_keys_cache is cache
 
-    def test_verify_cache_miss(self, metrics):
+    @responses.activate
+    def test_verify_cache_miss(self, metrics, mocker):
         # Example taken from
         # https://gist.github.com/ewjoachim/7dde11c31d9686ed6b4431c3ca166da2
         meta_payload = {
@@ -42,14 +42,11 @@ class TestVulnerabilityReportVerifier:
                 }
             ]
         }
-        response = pretend.stub(
-            json=lambda: meta_payload, raise_for_status=lambda: None
-        )
-        session = pretend.stub(get=lambda *a, **k: response)
+        responses.add(responses.GET, "http://foo", json=meta_payload)
         cache = integrations.PublicKeysCache(cache_time=12)
         vuln_report_verifier = osv.VulnerabilityReportVerifier(
             public_keys_api_url="http://foo",
-            session=session,
+            session=requests.Session(),
             metrics=metrics,
             public_keys_cache=cache,
         )
@@ -73,13 +70,13 @@ class TestVulnerabilityReportVerifier:
             is True
         )
 
-        assert metrics.increment.calls == [
-            pretend.call("warehouse.vulnerabilities.osv.auth.cache.miss"),
-            pretend.call("warehouse.vulnerabilities.osv.auth.success"),
+        assert metrics.increment.call_args_list == [
+            mocker.call("warehouse.vulnerabilities.osv.auth.cache.miss"),
+            mocker.call("warehouse.vulnerabilities.osv.auth.success"),
         ]
 
-    def test_verify_cache_hit(self, metrics):
-        session = pretend.stub()
+    def test_verify_cache_hit(self, metrics, mocker):
+        session = mocker.sentinel.session
         cache = integrations.PublicKeysCache(cache_time=12)
         cache.cached_at = time.time()
         cache.cache = [
@@ -119,33 +116,36 @@ class TestVulnerabilityReportVerifier:
             is True
         )
 
-        assert metrics.increment.calls == [
-            pretend.call("warehouse.vulnerabilities.osv.auth.cache.hit"),
-            pretend.call("warehouse.vulnerabilities.osv.auth.success"),
+        assert metrics.increment.call_args_list == [
+            mocker.call("warehouse.vulnerabilities.osv.auth.cache.hit"),
+            mocker.call("warehouse.vulnerabilities.osv.auth.success"),
         ]
 
-    def test_verify_error(self, metrics):
+    def test_verify_error(self, metrics, mocker):
         cache = integrations.PublicKeysCache(cache_time=12)
         vuln_report_verifier = osv.VulnerabilityReportVerifier(
             public_keys_api_url="http://foo",
-            session=pretend.stub(),
+            session=mocker.sentinel.session,
             metrics=metrics,
             public_keys_cache=cache,
         )
-        vuln_report_verifier.retrieve_public_key_payload = pretend.raiser(
-            integrations.InvalidPayloadSignatureError("Bla", "bla")
+        mocker.patch.object(
+            vuln_report_verifier,
+            "retrieve_public_key_payload",
+            side_effect=integrations.InvalidPayloadSignatureError("Bla", "bla"),
         )
 
         assert (
             vuln_report_verifier.verify(payload={}, key_id="a", signature="a") is False
         )
 
-        assert metrics.increment.calls == [
-            pretend.call("warehouse.vulnerabilities.osv.auth.cache.miss"),
-            pretend.call("warehouse.vulnerabilities.osv.auth.error.bla"),
+        assert metrics.increment.call_args_list == [
+            mocker.call("warehouse.vulnerabilities.osv.auth.cache.miss"),
+            mocker.call("warehouse.vulnerabilities.osv.auth.error.bla"),
         ]
 
-    def test_retrieve_public_key_payload(self):
+    @responses.activate
+    def test_retrieve_public_key_payload(self, mocker):
         meta_payload = {
             "public_keys": [
                 {
@@ -159,67 +159,55 @@ class TestVulnerabilityReportVerifier:
                 }
             ]
         }
-        response = pretend.stub(
-            json=lambda: meta_payload, raise_for_status=lambda: None
-        )
-        session = pretend.stub(get=pretend.call_recorder(lambda *a, **k: response))
+        responses.add(responses.GET, "http://foo", json=meta_payload)
 
         vuln_report_verifier = osv.VulnerabilityReportVerifier(
             public_keys_api_url="http://foo",
-            session=session,
-            metrics=pretend.stub(),
-            public_keys_cache=pretend.stub(),
+            session=requests.Session(),
+            metrics=mocker.sentinel.metrics,
+            public_keys_cache=mocker.sentinel.cache,
         )
         assert vuln_report_verifier.retrieve_public_key_payload() == meta_payload
-        assert session.get.calls == [
-            pretend.call(
-                "http://foo",
-            )
-        ]
+        assert len(responses.calls) == 1
+        assert responses.calls[0].request.url == "http://foo/"
 
-    def test_get_cached_public_key_cache_hit(self):
-        session = pretend.stub()
+    def test_get_cached_public_key_cache_hit(self, mocker):
+        session = mocker.sentinel.session
         cache = integrations.PublicKeysCache(cache_time=12)
-        cache_value = pretend.stub()
+        cache_value = mocker.sentinel.cache_value
         cache.set(now=time.time(), value=cache_value)
 
         vuln_report_verifier = osv.VulnerabilityReportVerifier(
             public_keys_api_url="http://foo",
             session=session,
-            metrics=pretend.stub(),
+            metrics=mocker.sentinel.metrics,
             public_keys_cache=cache,
         )
 
         assert vuln_report_verifier._get_cached_public_keys() is cache_value
 
-    def test_get_cached_public_key_cache_miss_no_cache(self):
-        session = pretend.stub()
+    def test_get_cached_public_key_cache_miss_no_cache(self, mocker):
+        session = mocker.sentinel.session
         cache = integrations.PublicKeysCache(cache_time=12)
 
         vuln_report_verifier = osv.VulnerabilityReportVerifier(
             public_keys_api_url="http://foo",
             session=session,
-            metrics=pretend.stub(),
+            metrics=mocker.sentinel.metrics,
             public_keys_cache=cache,
         )
 
         with pytest.raises(integrations.CacheMissError):
             vuln_report_verifier._get_cached_public_keys()
 
-    def test_retrieve_public_key_payload_http_error(self):
-        response = pretend.stub(
-            status_code=418,
-            text="I'm a teapot",
-            raise_for_status=pretend.raiser(requests.HTTPError),
-        )
-        session = pretend.stub(
-            get=lambda *a, **k: response,
-        )
+    @responses.activate
+    def test_retrieve_public_key_payload_http_error(self, mocker):
+        responses.add(responses.GET, "http://foo", status=418, body="I'm a teapot")
         vuln_report_verifier = osv.VulnerabilityReportVerifier(
             public_keys_api_url="http://foo",
-            session=session,
-            metrics=pretend.stub(),
-            public_keys_cache=pretend.stub(),
+            session=requests.Session(),
+            metrics=mocker.sentinel.metrics,
+            public_keys_cache=mocker.sentinel.cache,
         )
         with pytest.raises(osv.OSVPublicKeyAPIError) as exc:
             vuln_report_verifier.retrieve_public_key_payload()
@@ -227,18 +215,14 @@ class TestVulnerabilityReportVerifier:
         assert str(exc.value) == "Invalid response code 418: I'm a teapot"
         assert exc.value.reason == "public_key_api.status.418"
 
-    def test_retrieve_public_key_payload_json_error(self):
-        response = pretend.stub(
-            text="Still a non-json teapot",
-            json=pretend.raiser(json.JSONDecodeError("", "", 3)),
-            raise_for_status=lambda: None,
-        )
-        session = pretend.stub(get=lambda *a, **k: response)
+    @responses.activate
+    def test_retrieve_public_key_payload_json_error(self, mocker):
+        responses.add(responses.GET, "http://foo", body="Still a non-json teapot")
         vuln_report_verifier = osv.VulnerabilityReportVerifier(
             public_keys_api_url="http://foo",
-            session=session,
-            metrics=pretend.stub(),
-            public_keys_cache=pretend.stub(),
+            session=requests.Session(),
+            metrics=mocker.sentinel.metrics,
+            public_keys_cache=mocker.sentinel.cache,
         )
         with pytest.raises(osv.OSVPublicKeyAPIError) as exc:
             vuln_report_verifier.retrieve_public_key_payload()
@@ -246,14 +230,15 @@ class TestVulnerabilityReportVerifier:
         assert str(exc.value) == "Non-JSON response received: Still a non-json teapot"
         assert exc.value.reason == "public_key_api.invalid_json"
 
-    def test_retrieve_public_key_payload_connection_error(self):
-        session = pretend.stub(get=pretend.raiser(requests.ConnectionError))
+    @responses.activate
+    def test_retrieve_public_key_payload_connection_error(self, mocker):
+        responses.add(responses.GET, "http://foo", body=requests.ConnectionError())
 
         vuln_report_verifier = osv.VulnerabilityReportVerifier(
             public_keys_api_url="http://foo",
-            session=session,
-            metrics=pretend.stub(),
-            public_keys_cache=pretend.stub(),
+            session=requests.Session(),
+            metrics=mocker.sentinel.metrics,
+            public_keys_cache=mocker.sentinel.cache,
         )
 
         with pytest.raises(osv.OSVPublicKeyAPIError) as exc:
@@ -262,7 +247,7 @@ class TestVulnerabilityReportVerifier:
         assert str(exc.value) == "Could not connect to OSV"
         assert exc.value.reason == "public_key_api.network_error"
 
-    def test_extract_public_keys(self):
+    def test_extract_public_keys(self, mocker):
         meta_payload = {
             "public_keys": [
                 {
@@ -279,8 +264,8 @@ class TestVulnerabilityReportVerifier:
         cache = integrations.PublicKeysCache(cache_time=12)
         vuln_report_verifier = osv.VulnerabilityReportVerifier(
             public_keys_api_url="http://foo",
-            session=pretend.stub(),
-            metrics=pretend.stub(),
+            session=mocker.sentinel.session,
+            metrics=mocker.sentinel.metrics,
             public_keys_cache=cache,
         )
 
@@ -319,12 +304,12 @@ class TestVulnerabilityReportVerifier:
             ),
         ],
     )
-    def test_extract_public_keys_error(self, payload, expected):
+    def test_extract_public_keys_error(self, payload, expected, mocker):
         cache = integrations.PublicKeysCache(cache_time=12)
         vuln_report_verifier = osv.VulnerabilityReportVerifier(
             public_keys_api_url="http://foo",
-            session=pretend.stub(),
-            metrics=pretend.stub(),
+            session=mocker.sentinel.session,
+            metrics=mocker.sentinel.metrics,
             public_keys_cache=cache,
         )
 
@@ -335,12 +320,12 @@ class TestVulnerabilityReportVerifier:
         assert str(exc.value) == expected
         assert cache.cache is None
 
-    def test_check_public_key(self):
+    def test_check_public_key(self, mocker):
         vuln_report_verifier = osv.VulnerabilityReportVerifier(
             public_keys_api_url="http://foo",
-            session=pretend.stub(),
-            metrics=pretend.stub(),
-            public_keys_cache=pretend.stub(),
+            session=mocker.sentinel.session,
+            metrics=mocker.sentinel.metrics,
+            public_keys_cache=mocker.sentinel.cache,
         )
 
         keys = [
@@ -351,12 +336,12 @@ class TestVulnerabilityReportVerifier:
             vuln_report_verifier._check_public_key(public_keys=keys, key_id="c") == "d"
         )
 
-    def test_check_public_key_error(self):
+    def test_check_public_key_error(self, mocker):
         vuln_report_verifier = osv.VulnerabilityReportVerifier(
             public_keys_api_url="http://foo",
-            session=pretend.stub(),
-            metrics=pretend.stub(),
-            public_keys_cache=pretend.stub(),
+            session=mocker.sentinel.session,
+            metrics=mocker.sentinel.metrics,
+            public_keys_cache=mocker.sentinel.cache,
         )
 
         with pytest.raises(integrations.InvalidPayloadSignatureError) as exc:
@@ -365,12 +350,12 @@ class TestVulnerabilityReportVerifier:
         assert str(exc.value) == "Key c not found in public keys"
         assert exc.value.reason == "wrong_key_id"
 
-    def test_check_signature(self):
+    def test_check_signature(self, mocker):
         vuln_report_verifier = osv.VulnerabilityReportVerifier(
             public_keys_api_url="http://foo",
-            session=pretend.stub(),
-            metrics=pretend.stub(),
-            public_keys_cache=pretend.stub(),
+            session=mocker.sentinel.session,
+            metrics=mocker.sentinel.metrics,
+            public_keys_cache=mocker.sentinel.cache,
         )
         public_key = (
             "-----BEGIN PUBLIC KEY-----\n"
@@ -396,12 +381,12 @@ class TestVulnerabilityReportVerifier:
             is None
         )
 
-    def test_check_signature_invalid_signature(self):
+    def test_check_signature_invalid_signature(self, mocker):
         vuln_report_verifier = osv.VulnerabilityReportVerifier(
             public_keys_api_url="http://foo",
-            session=pretend.stub(),
-            metrics=pretend.stub(),
-            public_keys_cache=pretend.stub(),
+            session=mocker.sentinel.session,
+            metrics=mocker.sentinel.metrics,
+            public_keys_cache=mocker.sentinel.cache,
         )
         public_key = (
             "-----BEGIN PUBLIC KEY-----\n"
@@ -428,12 +413,12 @@ class TestVulnerabilityReportVerifier:
         assert str(exc.value) == "Invalid signature"
         assert exc.value.reason == "invalid_signature"
 
-    def test_check_signature_invalid_crypto(self):
+    def test_check_signature_invalid_crypto(self, mocker):
         vuln_report_verifier = osv.VulnerabilityReportVerifier(
             public_keys_api_url="http://foo",
-            session=pretend.stub(),
-            metrics=pretend.stub(),
-            public_keys_cache=pretend.stub(),
+            session=mocker.sentinel.session,
+            metrics=mocker.sentinel.metrics,
+            public_keys_cache=mocker.sentinel.cache,
         )
         public_key = ""
         signature = ""

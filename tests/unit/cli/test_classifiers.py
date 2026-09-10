@@ -1,24 +1,23 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
+import types
 
 from warehouse import db
 from warehouse.classifiers.models import Classifier
 from warehouse.cli import classifiers
 
 
-def test_classifiers_update(db_request, monkeypatch, cli):
-    engine = pretend.stub()
-    config = pretend.stub(registry={"sqlalchemy.engine": engine})
-    session_cls = pretend.call_recorder(lambda bind: db_request.db)
-    monkeypatch.setattr(db, "Session", session_cls)
+def test_classifiers_update(db_request, mocker, cli):
+    engine = mocker.sentinel.engine
+    config = types.SimpleNamespace(registry={"sqlalchemy.engine": engine})
+    mocker.patch.object(db, "Session", return_value=db_request.db)
 
     cs = [
         c.classifier
         for c in db_request.db.query(Classifier).order_by(Classifier.ordering).all()
     ]
 
-    monkeypatch.setattr(classifiers, "sorted_classifiers", ["C :: D", "A :: B", *cs])
+    mocker.patch.object(classifiers, "sorted_classifiers", ["C :: D", "A :: B", *cs])
 
     db_request.db.add(Classifier(classifier="A :: B", ordering=0))
     assert db_request.db.query(Classifier).filter_by(classifier="C :: D").count() == 0
@@ -35,15 +34,14 @@ def test_classifiers_update(db_request, monkeypatch, cli):
     assert c.ordering == 1
 
 
-def test_classifiers_no_update(db_request, monkeypatch, cli):
-    engine = pretend.stub()
-    config = pretend.stub(registry={"sqlalchemy.engine": engine})
-    session_cls = pretend.call_recorder(lambda bind: db_request.db)
-    monkeypatch.setattr(db, "Session", session_cls)
+def test_classifiers_no_update(db_request, mocker, cli):
+    engine = mocker.sentinel.engine
+    config = types.SimpleNamespace(registry={"sqlalchemy.engine": engine})
+    mocker.patch.object(db, "Session", return_value=db_request.db)
 
     original = db_request.db.query(Classifier).order_by(Classifier.ordering).all()
 
-    monkeypatch.setattr(
+    mocker.patch.object(
         classifiers, "sorted_classifiers", [c.classifier for c in original]
     )
 

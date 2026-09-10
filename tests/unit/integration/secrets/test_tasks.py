@@ -1,16 +1,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
-
 from warehouse.integrations.secrets import tasks, utils
 
 
-def test_analyze_disclosure_task(monkeypatch, someorigin):
-    analyze_disclosure = pretend.call_recorder(lambda *a, **k: None)
-    monkeypatch.setattr(utils, "analyze_disclosure", analyze_disclosure)
+def test_analyze_disclosure_task(mocker, someorigin):
+    analyze_disclosure = mocker.patch.object(utils, "analyze_disclosure", autospec=True)
 
-    request = pretend.stub()
-    disclosure_record = pretend.stub()
+    request = mocker.sentinel.request
+    disclosure_record = mocker.sentinel.disclosure_record
 
     tasks.analyze_disclosure_task(
         request=request,
@@ -18,10 +15,8 @@ def test_analyze_disclosure_task(monkeypatch, someorigin):
         origin=someorigin.to_dict(),
     )
 
-    assert analyze_disclosure.calls == [
-        pretend.call(
-            request=request,
-            disclosure_record=disclosure_record,
-            origin=someorigin,
-        )
-    ]
+    analyze_disclosure.assert_called_once_with(
+        request=request,
+        disclosure_record=disclosure_record,
+        origin=someorigin,
+    )

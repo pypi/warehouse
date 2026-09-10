@@ -95,6 +95,7 @@ nav:
       - Getting Started: development/getting-started.md
       - Frontend: development/frontend.md
       - Patterns: development/patterns.md
+      - Logging: development/logging.md
       - Database Migrations: development/database-migrations.md
       - Submitting Patches: development/submitting-patches.md
       - Reviewing Patches: development/reviewing-patches.md
@@ -102,6 +103,7 @@ nav:
       - Development Database: development/development-database.md
       - Cloud: development/cloud.md
       - Email: development/email.md
+      - Account Associations: development/account-associations.md
       - Token Scanning: development/token-scanning.md
       - Documentation: development/documentation.md
   - Warehouse codebase: application.md

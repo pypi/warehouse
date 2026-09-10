@@ -183,6 +183,7 @@ class TestProjectDetail:
             "releases": [],
             "maintainers": roles,
             "journal": journals[:30],
+            "journal_count": 75,
             "oidc_publishers": oidc_publishers,
             "ONE_MIB": views.ONE_MIB,
             "MAX_FILESIZE": warehouse.constants.MAX_FILESIZE,
@@ -505,95 +506,19 @@ class TestProjectReleasesList:
 
 
 class TestProjectJournalsList:
-    def test_no_query(self, db_request):
+    def test_returns_project(self, db_request):
         project = ProjectFactory.create()
-        journals = sorted(
-            JournalEntryFactory.create_batch(30, name=project.name),
-            key=lambda x: (x.submitted_date, x.id),
-            reverse=True,
-        )
         db_request.matchdict["project_name"] = project.normalized_name
+
         result = views.journals_list(project, db_request)
 
-        assert result == {"journals": journals[:25], "project": project, "query": None}
-
-    def test_with_page(self, db_request):
-        project = ProjectFactory.create()
-        journals = sorted(
-            JournalEntryFactory.create_batch(30, name=project.name),
-            key=lambda x: (x.submitted_date, x.id),
-            reverse=True,
-        )
-        db_request.matchdict["project_name"] = project.normalized_name
-        db_request.GET["page"] = "2"
-        result = views.journals_list(project, db_request)
-
-        assert result == {"journals": journals[25:], "project": project, "query": None}
-
-    def test_with_invalid_page(self, db_request):
-        project = ProjectFactory.create()
-        db_request.matchdict["project_name"] = project.normalized_name
-        db_request.GET["page"] = "not an integer"
-
-        with pytest.raises(HTTPBadRequest):
-            views.journals_list(project, db_request)
-
-    def test_version_query(self, db_request):
-        project = ProjectFactory.create()
-        journals = sorted(
-            JournalEntryFactory.create_batch(30, name=project.name),
-            key=lambda x: (x.submitted_date, x.id),
-            reverse=True,
-        )
-        db_request.matchdict["project_name"] = project.normalized_name
-        db_request.GET["q"] = f"version:{journals[3].version}"
-        result = views.journals_list(project, db_request)
-
-        assert result == {
-            "journals": [journals[3]],
-            "project": project,
-            "query": f"version:{journals[3].version}",
-        }
-
-    def test_invalid_key_query(self, db_request):
-        project = ProjectFactory.create()
-        journals = sorted(
-            JournalEntryFactory.create_batch(30, name=project.name),
-            key=lambda x: (x.submitted_date, x.id),
-            reverse=True,
-        )
-        db_request.matchdict["project_name"] = project.normalized_name
-        db_request.GET["q"] = "user:username"
-        result = views.journals_list(project, db_request)
-
-        assert result == {
-            "journals": journals[:25],
-            "project": project,
-            "query": "user:username",
-        }
-
-    def test_basic_query(self, db_request):
-        project = ProjectFactory.create()
-        journals = sorted(
-            JournalEntryFactory.create_batch(30, name=project.name),
-            key=lambda x: (x.submitted_date, x.id),
-            reverse=True,
-        )
-        db_request.matchdict["project_name"] = project.normalized_name
-        db_request.GET["q"] = f"{journals[3].version}"
-        result = views.journals_list(project, db_request)
-
-        assert result == {
-            "journals": journals[:25],
-            "project": project,
-            "query": f"{journals[3].version}",
-        }
+        assert result == {"project": project}
 
     def test_non_normalized_name(self, db_request):
         project = ProjectFactory.create(name="NotNormalized")
         db_request.matchdict["project_name"] = str(project.name)
-        db_request.current_route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/projects/the-redirect/journals/"
+        db_request.current_route_path = lambda *a, **kw: (
+            "/admin/projects/the-redirect/journals/"
         )
         with pytest.raises(HTTPMovedPermanently):
             views.journals_list(project, db_request)
@@ -727,6 +652,7 @@ class TestProjectAddObservation:
 class TestProjectSetTotalSizeLimit:
     def test_sets_total_size_limitwith_integer(self, db_request):
         project = ProjectFactory.create(name="foo")
+        user = UserFactory.create()
 
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/admin/projects/"
@@ -734,6 +660,7 @@ class TestProjectSetTotalSizeLimit:
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
+        db_request.user = user
         db_request.matchdict["project_name"] = project.normalized_name
         db_request.POST = MultiDict({"total_size_limit": "150"})
 
@@ -744,10 +671,18 @@ class TestProjectSetTotalSizeLimit:
         ]
 
         assert project.total_size_limit == 150 * views.ONE_GIB
+        event = project.events.one()
+        assert event.tag == "admin:project:set_total_size_limit"
+        assert event.additional == {
+            "old_total_size_limit": None,
+            "new_total_size_limit": 150 * views.ONE_GIB,
+            "actor": user.username,
+        }
 
     def test_sets_total_size_limitwith_none(self, db_request):
         project = ProjectFactory.create(name="foo")
         project.total_size_limit = 150 * views.ONE_GIB
+        user = UserFactory.create()
 
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/admin/projects/"
@@ -755,6 +690,7 @@ class TestProjectSetTotalSizeLimit:
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
+        db_request.user = user
         db_request.matchdict["project_name"] = project.normalized_name
         db_request.POST = MultiDict({"total_size_limit": ""})
 
@@ -765,6 +701,13 @@ class TestProjectSetTotalSizeLimit:
         ]
 
         assert project.total_size_limit is None
+        event = project.events.one()
+        assert event.tag == "admin:project:set_total_size_limit"
+        assert event.additional == {
+            "old_total_size_limit": 150 * views.ONE_GIB,
+            "new_total_size_limit": None,
+            "actor": user.username,
+        }
 
     def test_sets_total_size_limitwith_non_integer(self, db_request):
         project = ProjectFactory.create(name="foo")
@@ -815,6 +758,7 @@ class TestProjectSetTotalSizeLimit:
 class TestProjectSetLimit:
     def test_sets_limitwith_integer(self, db_request):
         project = ProjectFactory.create(name="foo")
+        user = UserFactory.create()
 
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/admin/projects/"
@@ -822,6 +766,7 @@ class TestProjectSetLimit:
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
+        db_request.user = user
         db_request.matchdict["project_name"] = project.normalized_name
         new_upload_limit = warehouse.constants.MAX_FILESIZE // views.ONE_MIB
         db_request.POST = MultiDict({"upload_limit": str(new_upload_limit)})
@@ -833,10 +778,18 @@ class TestProjectSetLimit:
         ]
 
         assert project.upload_limit == new_upload_limit * views.ONE_MIB
+        event = project.events.one()
+        assert event.tag == "admin:project:set_upload_limit"
+        assert event.additional == {
+            "old_upload_limit": None,
+            "new_upload_limit": new_upload_limit * views.ONE_MIB,
+            "actor": user.username,
+        }
 
     def test_sets_limit_with_none(self, db_request):
         project = ProjectFactory.create(name="foo")
         project.upload_limit = 90 * views.ONE_MIB
+        user = UserFactory.create()
 
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/admin/projects/"
@@ -844,6 +797,7 @@ class TestProjectSetLimit:
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
+        db_request.user = user
         db_request.matchdict["project_name"] = project.normalized_name
         db_request.POST = MultiDict({"upload_limit": ""})
 
@@ -854,6 +808,13 @@ class TestProjectSetLimit:
         ]
 
         assert project.upload_limit is None
+        event = project.events.one()
+        assert event.tag == "admin:project:set_upload_limit"
+        assert event.additional == {
+            "old_upload_limit": 90 * views.ONE_MIB,
+            "new_upload_limit": None,
+            "actor": user.username,
+        }
 
     def test_sets_limit_with_non_integer(self, db_request):
         project = ProjectFactory.create(name="foo")

@@ -26,6 +26,17 @@
 </div>
 {% endmacro %}
 
+{% macro chat_message(name, timestamp, email, text, right=False) %}
+<div class="direct-chat-msg{% if right %} right{% endif %}">
+  <div class="direct-chat-infos clearfix">
+    <span class="direct-chat-name float-{{ "right" if right else "left" }}">{{ name }}</span>
+    <span class="direct-chat-timestamp float-{{ "left" if right else "right" }}">{{ timestamp }}</span>
+  </div>
+  <img class="direct-chat-img" src="{{ gravatar(request, email, size=128) }}" alt="Message User Image">
+  <div class="direct-chat-text preserve-line-breaks">{{ text }}</div>
+</div>
+{% endmacro %}
+
 {% block content %}
   <div class="row">
     <div class="col-md-3">
@@ -49,6 +60,17 @@
         </div>
         <div class="card-body">
           <div class="form-group">
+            <button
+              type="button"
+              class="btn btn-warning btn-block"
+              data-toggle="modal"
+              data-hotkey-binding=78
+              data-target="#addNoteModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) }}
+              title="Add an internal note to this organization request"
+            >
+              <i class="icon fa fa-note-sticky text-white"></i> Add Note
+            </button>
+
             <button
               type="button"
               class="btn btn-primary btn-block"
@@ -318,6 +340,41 @@
               </form>
             </div>
 
+            <div class="modal fade" id="addNoteModal" tabindex="-1" role="dialog">
+              <form method="POST" action="{{ request.route_path('admin.organization_application.addnote', organization_application_id=organization_application.id) }}">
+                <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h4 class="modal-title" id="addNoteModalLabel">
+                        Add Internal Note to {{ organization_application.name }}?
+                      </h4>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p>
+                        This note is for internal admin reference only. It will not be emailed to the applicant.
+                      </p>
+                      <div class="form-group">
+                        <label for="addNoteModalMessage">
+                          Note
+                        </label>
+                        <textarea id="addNoteModalMessage" class="form-control" name="message" placeholder="Internal note" rows=6 required></textarea>
+                      </div>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-warning">
+                        <i class="icon fa fa-note-sticky text-white"></i> Add Note
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+
             {% endif %}
           </div>
           <div class="form-group">
@@ -508,31 +565,29 @@
           <h3 class="card-title">Information Requests</h3>
         </div>
         <div class="card-body">
-        {% for information_request in information_requests|reverse %}
-        <div class="card {% if information_request.additional.response %}card-neutral{% else %}card-warning{% endif %} direct-chat direct-chat-primary"</div>
-          <div class="card-body">
-            <div class="direct-chat-messages unset-height">
-              <div class="direct-chat-msg">
-                <div class="direct-chat-infos clearfix">
-                  <span class="direct-chat-name float-left">{{ information_request.observer.parent.username }} (PyPI)</span>
-                  <span class="direct-chat-timestamp float-right">{{ information_request.created|format_datetime }}</span>
-                </div>
-                <img class="direct-chat-img" src="{{ gravatar(request, information_request.observer.parent.email, size=128) }}" alt="Message User Image">
-                <div class="direct-chat-text preserve-line-breaks">{{ information_request.payload.message }}</div>
+        {% for entry in organization_application.conversation %}
+          {% if entry.kind == "admin_note" %}
+          <div class="card card-warning card-outline direct-chat direct-chat-primary">
+            <div class="card-body">
+              <div class="direct-chat-messages unset-height">
+                {{ chat_message(entry.observer.parent.username ~ " (Internal Note)", entry.created|format_datetime, entry.observer.parent.email, entry.payload.message) }}
               </div>
-              {% if information_request.additional.response %}
-              <div class="direct-chat-msg right">
-                <div class="direct-chat-infos clearfix">
-                  <span class="direct-chat-name float-right">{{ organization_application.submitted_by.username }}</span>
-                  <span class="direct-chat-timestamp float-left">{{ information_request.additional.response_time|parse_isoformat|format_datetime }}</span>
-                </div>
-                <img class="direct-chat-img" src="{{ gravatar(request, organization_application.submitted_by.email, size=128) }}" alt="Message User Image">
-                <div class="direct-chat-text preserve-line-breaks">{{ information_request.additional.response }}</div>
-              </div>
-              {% endif %}
             </div>
           </div>
-        </div>
+          {% else %}
+          <div class="card {% if entry.additional.response %}card-neutral{% else %}card-warning{% endif %} direct-chat direct-chat-primary">
+            <div class="card-body">
+              <div class="direct-chat-messages unset-height">
+                {{ chat_message(entry.observer.parent.username ~ " (PyPI)", entry.created|format_datetime, entry.observer.parent.email, entry.payload.message) }}
+                {% if entry.additional.response %}
+                {{ chat_message(organization_application.submitted_by.username, entry.additional.response_time|parse_isoformat|format_datetime, organization_application.submitted_by.email, entry.additional.response, right=True) }}
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        {% else %}
+        <i>No information requests or internal notes yet.</i>
         {% endfor %}
         </div>
       </div>

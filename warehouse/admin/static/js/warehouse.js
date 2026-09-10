@@ -24,9 +24,13 @@ import "admin-lte/build/js/AdminLTE";
 import "./treeview";
 import "./observer_charts";
 import "./project_charts";
+import "./journals";
+import "./observations";
+import "./tabulator";
 
 // Get our timeago function
 import timeAgo from "warehouse/utils/timeago";
+import filesize from "./utils/filesize";
 
 // Human-readable timestamps
 $(document).ready(function() {
@@ -225,62 +229,6 @@ if (OrganizationApplicationsTable.length) {
   table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
 }
 
-// Admin Observations — server-side DataTable
-let observationsTable = $("#observations-table");
-if (observationsTable.length) {
-  const escape = $.fn.dataTable.render.text();
-  const table = observationsTable.DataTable({
-    serverSide: true,
-    processing: true,
-    searchDelay: 400,
-    lengthChange: false,
-    responsive: true,
-    order: [[0, "desc"]],
-    ajax: {
-      url: observationsTable.data("url"),
-      dataType: "json",
-    },
-    columns: [
-      {
-        data: "created",
-        name: "created",
-        render: (d, type) =>
-          type === "display" && d
-            ? new Date(d).toISOString().replace("T", " ").slice(0, 19)
-            : d,
-      },
-      { data: "kind_display", name: "kind" },
-      {
-        data: "related",
-        name: "related_name",
-        orderable: false,
-        render: (d, type, row) =>
-          row.related_link
-            ? `<a href="${escape.display(row.related_link)}">${escape.display(d)}</a>`
-            : escape.display(d),
-      },
-      {
-        data: "summary",
-        name: "summary",
-        orderable: false,
-        render: escape.display,
-      },
-      {
-        data: "observer",
-        orderable: false,
-        render: (d, type, row) =>
-          row.observer_link
-            ? `<a href="${escape.display(row.observer_link)}">${escape.display(d || "")}</a>`
-            : escape.display(d || ""),
-      },
-    ],
-  });
-
-  $("#observations-kind-filter").on("change", function () {
-    table.column("kind:name").search(this.value).draw();
-  });
-}
-
 let organizationApplicationTurboModeSwitch = document.getElementById("organizationApplicationTurboMode");
 if (organizationApplicationTurboModeSwitch !== null) {
   let organizationApplicationTurboModeEnabled = JSON.parse(localStorage.getItem("organizationApplicationTurboModeEnabled") || false);
@@ -387,11 +335,7 @@ if (userFilesModal.length) {
         let content = data.files.join("\n");
         $("#userFilesContent").text(content);
 
-        let sizes = ["B", "KiB", "MiB", "GiB", "TiB"];
-        let size = data.total_size;
-        let i = 0;
-        while (size >= 1024 && i < sizes.length - 1) { size /= 1024; i++; }
-        let sizeStr = (i === 0 ? size : size.toFixed(1)) + " " + sizes[i];
+        let sizeStr = filesize(data.total_size);
 
         $("#userFilesSummary").html(
           "<strong>" + data.file_count + "</strong> files (" +

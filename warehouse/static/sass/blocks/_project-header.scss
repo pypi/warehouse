@@ -1,0 +1,220 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+@use "sass:color";
+@use "../settings/breakpoints";
+@use "../settings/colors";
+@use "../settings/fonts";
+@use "../settings/grid";
+@use "../tools/layout-utilities";
+@use "../tools/link-utilities";
+
+/*
+  The  main header of a project detail page. Contains key project information
+  including name, description, license, etc.
+
+  This block assumes it is placed inside a dark container.
+
+  <div class="project-header">
+    <div class="project-header__title">
+      <h1 class="project-header__name"></h1>
+      // manage project button, if applicable
+    </div>
+    <p class="project-header__summary"></p>
+    <p class="project-header__pip-instructions">
+      <span>// pip instructions</span>
+      <button><i></i></button> // copy icon
+    </p>
+  </div>
+*/
+
+.project-header {
+  @include layout-utilities.site-container;
+
+  &__name {
+    padding: 0;
+    margin-top: -10px;
+    overflow-wrap: break-word;
+  }
+
+  &__summary {
+    padding: 10px 0;
+  }
+
+  &__pip-instructions {
+    margin-top: 10px;
+    display: inline-flex;
+    max-width: 100%;
+    padding-bottom: 0;
+
+    > span {
+      font-family: fonts.$code-font;
+      font-weight: 500;
+      font-size: 1rem;
+      min-width: 0;
+      overflow-wrap: anywhere;
+      background-color: color.adjust(colors.$primary-color, $lightness: -5%);
+      padding: 8px;
+      border: 1px dotted colors.$transparent-white;
+      line-height: grid.$spacing-unit;
+
+      @media only screen and (max-width: breakpoints.$tablet) {
+        font-size: 1.1rem;
+      }
+
+      @media only screen and (max-width: breakpoints.$mobile) {
+        font-size: 1rem;
+      }
+    }
+
+    > .project-header__installer {
+      position: relative;
+      flex-shrink: 0;
+      padding: 0;
+      border-right: 0;
+
+      &::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        right: 8px;
+        pointer-events: none;
+        border: 4px solid transparent;
+        border-top-color: currentColor;
+        transform: translateY(-25%);
+      }
+
+      select {
+        appearance: none;
+        min-width: 0;
+        min-height: 100%;
+        margin: 0;
+        padding: 8px 22px 8px 8px;
+        font: inherit;
+        line-height: inherit;
+        color: inherit;
+        background: transparent;
+        border: 0;
+        cursor: pointer;
+
+        option {
+          color: colors.$text-color;
+          background: colors.$white;
+        }
+
+        &:hover {
+          background-color: color.adjust(colors.$black, $alpha: -0.9);
+        }
+
+        &:focus-visible {
+          outline: 2px solid currentColor;
+          outline-offset: -3px;
+        }
+      }
+    }
+
+    button {
+      color: colors.$white;
+      line-height: grid.$spacing-unit;
+      flex-shrink: 0;
+      cursor: pointer;
+      padding: 8px grid.$half-spacing-unit;
+      background-color: color.adjust(colors.$primary-color, $lightness: -5%);
+      border-right: 1px dotted colors.$transparent-white;
+      border-top: 1px dotted colors.$transparent-white;
+      border-bottom: 1px dotted colors.$transparent-white;
+      border-left: 1px;
+
+      &:hover {
+        background-color: color.adjust(colors.$primary-color, $lightness: -7%);
+      }
+
+      @include link-utilities.link-focus-state(colors.$white);
+    }
+  }
+
+  &__installer-note {
+    margin: 6px 0 0;
+    font-size: 0.9rem;
+
+    code {
+      font-family: fonts.$code-font;
+      color: inherit;
+      overflow-wrap: anywhere;
+      user-select: all;
+    }
+  }
+}
+
+.banner--quarantined {
+  .project-header__pip-instructions {
+    span {
+      background-color: color.adjust(colors.$warning-color, $lightness: -5%);
+    }
+
+    button {
+      background-color: color.adjust(colors.$warning-color, $lightness: -5%);
+
+      &:hover {
+        background-color: color.adjust(colors.$warning-color, $lightness: -7%);
+      }
+    }
+  }
+}
+
+.banner--yanked {
+  .project-header__pip-instructions {
+    span {
+      background-color: color.adjust(colors.$text-color, $lightness: -5%);
+      border-color: colors.$transparent-white;
+    }
+
+    button {
+      background-color: color.adjust(colors.$text-color, $lightness: -5%);
+      border-color: colors.$transparent-white;
+
+      &:hover {
+        background-color: color.adjust(colors.$text-color, $lightness: -7%);
+      }
+    }
+  }
+}
+
+.banner--archived {
+  .project-header__pip-instructions {
+    span {
+      background-color: color.adjust(colors.$base-grey, $lightness: -2%);
+      color: colors.$text-color;
+      border-color: colors.$border-color;
+    }
+
+    button {
+      background-color: color.adjust(colors.$base-grey, $lightness: -2%);
+      color: colors.$text-color;
+      border-color: colors.$border-color;
+
+      &:hover {
+        background-color: color.adjust(colors.$base-grey, $lightness: -10%);
+      }
+    }
+  }
+}
+
+.banner--pre-release {
+  .project-header__pip-instructions {
+    span {
+      background-color: color.adjust(colors.$primary-color-light-border, $lightness: -5%);
+      color: colors.$text-color;
+      border-color: color.adjust(colors.$primary-color-light-border, $lightness: -15%);
+    }
+
+    button {
+      background-color: color.adjust(colors.$primary-color-light-border, $lightness: -5%);
+      color: colors.$text-color;
+      border-color: color.adjust(colors.$primary-color-light-border, $lightness: -15%);
+
+      &:hover {
+        background-color: color.adjust(colors.$primary-color-light-border, $lightness: -10%);
+      }
+    }
+  }
+}

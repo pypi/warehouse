@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 @use "../settings/breakpoints";
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/grid";
 @use "../tools/typography";
 
@@ -26,7 +26,7 @@
   &__rule {
     max-width: 300px;
     margin: grid.$half-spacing-unit auto (grid.$spacing-unit * 2);
-    background: colours.$base-grey;
+    background: colors.$base-grey;
 
     @media only screen and (max-width: breakpoints.$tablet) {
       display: none;

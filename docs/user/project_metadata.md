@@ -96,14 +96,17 @@ recognition patterns are case-insensitive. Items marked with an asterisk (^*^)
 indicate a prefix. It means that any name starting with the specified pattern
 will be recognized.
 
-| Name             | Icon                                      | Description               | Aliases                                                                                                  |
-|:-----------------|:------------------------------------------|:--------------------------|:---------------------------------------------------------------------------------------------------------|
-| Homepage         | :fontawesome-solid-house-chimney:         | For the project homepage  |                                                                                                          |
-| Download         | :fontawesome-solid-cloud:                 | A download link           |                                                                                                          |
-| Changelog        | :fontawesome-solid-scroll:                | Changelog information     | Change log, Changes, Release notes, News, What's new, History                                            |
-| Documentation^*^ | :fontawesome-solid-book:                  | Project documentation     | Docs^*^ , a URL pointing to [Read the Docs] domains or a URL starting with `docs.` or `documentation.` |
-| Bug^*^           | :fontawesome-solid-bug:                   | Bug/Issue report location | Issue^*^, Tracker^*^, Report^*^                                                                          |
-| Funding^*^       | :fontawesome-solid-circle-dollar-to-slot: | Sponsoring information    | Sponsor^*^, Donation^*^, Donate^*^                                                                       |
+| Name             | Icon                                      | Description                 | Aliases                                                                                                |
+|:-----------------|:------------------------------------------|:----------------------------|:-------------------------------------------------------------------------------------------------------|
+| Homepage         | :fontawesome-solid-house-chimney:         | For the project homepage    |                                                                                                        |
+| Download         | :fontawesome-solid-cloud:                 | A download link             |                                                                                                        |
+| Changelog        | :fontawesome-solid-scroll:                | Changelog information       | Change log, Changes, News, Whatsnew, What's new, History                                               |
+| Release notes    | :fontawesome-solid-newspaper:             | Curated release information | Releasenotes                                                                                           |
+| Documentation^*^ | :fontawesome-solid-book:                  | Project documentation       | Docs^*^ , a URL pointing to [Read the Docs] domains or a URL starting with `docs.` or `documentation.` |
+| Bug^*^           | :fontawesome-solid-bug:                   | Bug/Issue report location   | Issue^*^, Tracker^*^, Report^*^                                                                        |
+| Funding^*^       | :fontawesome-solid-circle-dollar-to-slot: | Sponsoring information      | Sponsor^*^, Donation^*^, Donate^*^                                                                     |
+| Security         | :fontawesome-solid-shield:                | Security policy or vulnerability reporting page | Security Policy, securitypolicy                                                                       |
+| Source           | :fontawesome-solid-code-branch:           | Source code repository      | Source Code, Sourcecode, Repository                                                                    |
 
 [Read the Docs]: https://about.readthedocs.com/
 
@@ -113,12 +116,13 @@ An entry URL must point to a domain below to display a custom icon. Custom
 subdomains are also matched. For instance, if `domain.com` is listed, a URL
 ending in `.domain.com` will also match.
 
-| Service   | Icon                           | Domain                    |
-|:----------|:-------------------------------|:--------------------------|
-| Bitbucket | :fontawesome-brands-bitbucket: | `bitbucket.org`           |
-| GitHub    | :fontawesome-brands-github:    | `github.com`, `github.io` |
-| GitLab    | :fontawesome-brands-gitlab:    | `gitlab.com`              |
-| Google    | :fontawesome-brands-google:    | `google.com`              |
+| Service   | Icon                           | Domain                          |
+|:----------|:-------------------------------|:--------------------------------|
+| Bitbucket | :fontawesome-brands-bitbucket: | `bitbucket.org`                 |
+| Codeberg  | :simple-codeberg:              | `codeberg.org`, `codeberg.page` |
+| GitHub    | :fontawesome-brands-github:    | `github.com`, `github.io`       |
+| GitLab    | :fontawesome-brands-gitlab:    | `gitlab.com`                    |
+| Google    | :fontawesome-brands-google:    | `google.com`                    |
 
 
 #### Social Media Platforms
@@ -131,6 +135,7 @@ To display a custom icon, an entry must either :
 | Platform | Icon                              | Name     | Domain                                        |
 |:---------|:----------------------------------|:---------|:----------------------------------------------|
 | Discord  | :fontawesome-brands-discord:      |          | `discord.com`, `discordapp.com`, `discord.gg` |
+| Telegram | :fontawesome-brands-telegram:     |          | `t.me`, `telegram.me`, `telegram.dog`         |
 | Gitter   | :fontawesome-brands-gitter:       |          | `gitter.im`                                   |
 | Mastodon | :fontawesome-brands-mastodon:     | Mastodon |                                               |
 | Reddit   | :fontawesome-brands-reddit-alien: |          | `reddit.com`                                  |
