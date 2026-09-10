@@ -25,6 +25,7 @@ from warehouse.constants import (
     MAX_PROJECT_SIZE,
     ONE_GIB,
     ONE_MIB,
+    PROJECT_CREATE_RATELIMIT_CAP,
     UPLOAD_LIMIT_CAP,
 )
 from warehouse.events.tags import EventTag
@@ -397,6 +398,7 @@ def organization_detail(request):
         "ONE_GIB": ONE_GIB,
         "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
         "UPLOAD_LIMIT_CAP": UPLOAD_LIMIT_CAP,
+        "PROJECT_CREATE_RATELIMIT_CAP": PROJECT_CREATE_RATELIMIT_CAP,
         "DEFAULT_PROJECT_CREATE_ORGANIZATION_RATELIMIT": request.registry.settings.get(
             "warehouse.packaging.project_create_organization_ratelimit_string"
         ),
@@ -1456,22 +1458,12 @@ def set_project_create_ratelimit(request):
             )
         )
 
-    old_project_create_ratelimit_string = organization.project_create_ratelimit_string
-    ratelimit_count = form.project_create_ratelimit_count.data
-    organization.project_create_ratelimit_count = ratelimit_count
-    organization.project_create_ratelimit_period = (
-        form.project_create_ratelimit_period.data
-        if ratelimit_count is not None
-        else None
-    )
-
+    old_ratelimit = form.apply_to(organization)
     organization.record_event(
         request=request,
         tag=EventTag.Organization.OrganizationSetProjectCreateRateLimit,
         additional={
-            "old_project_create_ratelimit_string": (
-                old_project_create_ratelimit_string
-            ),
+            "old_project_create_ratelimit_string": old_ratelimit,
             "new_project_create_ratelimit_string": (
                 organization.project_create_ratelimit_string
             ),
@@ -1479,11 +1471,11 @@ def set_project_create_ratelimit(request):
         },
     )
 
-    limit_msg = organization.project_create_ratelimit_string or "(default)"
-    request.session.flash(
-        f"Project creation rate limit set to {limit_msg}",
-        queue="success",
-    )
+    if limit := organization.project_create_ratelimit_string:
+        msg = f"Project creation rate limit set to {limit}"
+    else:
+        msg = "Project creation rate limit override cleared; the default applies"
+    request.session.flash(msg, queue="success")
 
     return HTTPSeeOther(
         request.route_path(
