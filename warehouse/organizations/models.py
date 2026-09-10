@@ -481,6 +481,13 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
             is None
         )
 
+    def can_manage_members(self) -> bool:
+        """Check if this organization may invite or remove members.
+
+        Only for good standing orgs or orgs needing to invite billing managers.
+        """
+        return self.is_in_good_standing() or self.is_awaiting_initial_billing
+
     def get_billing_status_display(self) -> str:
         """Get a human-readable billing status for display in forms.
 
