@@ -43,7 +43,6 @@ from warehouse.email import (
     send_account_recovery_initiated_email,
     send_password_reset_by_admin_email,
 )
-from warehouse.events.tags import EventTag
 from warehouse.manage.views.view_helpers import (
     deactivate_organization_for_owner_removal,
 )
@@ -565,21 +564,15 @@ def user_set_project_create_ratelimit(user, request):
             request.route_path("admin.user.detail", username=user.username)
         )
 
-    old_ratelimit = form.apply_to(user)
-
-    user.record_event(
-        request=request,
-        tag=EventTag.Account.SetProjectCreateRateLimit,
-        additional={
-            "old_project_create_ratelimit_string": old_ratelimit,
-            "new_project_create_ratelimit_string": (
-                user.project_create_ratelimit_string
-            ),
-            "actor": request.user.username,
-        },
+    user_service = request.find_service(IUserService, context=None)
+    limit = user_service.set_project_create_ratelimit(
+        user.id,
+        request,
+        form.project_create_ratelimit_count.data,
+        form.project_create_ratelimit_period.data,
     )
 
-    if limit := user.project_create_ratelimit_string:
+    if limit:
         msg = f"Project creation rate limit set to {limit}"
     else:
         msg = "Project creation rate limit override cleared; the default applies"
