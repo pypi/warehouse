@@ -31,6 +31,13 @@ class TestLink:
             ("https://dept.acme.com", "acme.com"),
             ("https://acme.co.uk", "acme.co.uk"),
             ("https://localhost", None),
+            ("https://ACME.com", "acme.com"),
+            # A backslash ends the host, so the credential-looking tail is not it.
+            (r"https://acme.com\@evil.example", "acme.com"),
+            # Unparseable, rather than raising into the admin view.
+            ("https://acme.com:99999", None),
+            # Parses, but carries no host.
+            ("https://", None),
         ],
     )
     def test_registered_domain(self, value, expected):
@@ -41,6 +48,7 @@ class TestLink:
         [
             ("https://acme.com", False, False),
             ("https://github.com/acme", True, True),
+            ("https://GITHUB.COM/acme", True, True),
             ("https://acme.github.io", True, True),
             ("https://gitlab.com/acme", True, False),
         ],
@@ -49,13 +57,14 @@ class TestLink:
         link = _Link(value)
         assert (link.unverifiable, link.github) == (unverifiable, github)
 
-    def test_host_falls_back_to_raw(self):
-        assert _Link("not a url").host == "not a url"
-
     @pytest.mark.parametrize(
         ("value", "expected"),
         [
             ("jdoe@acme.com", "acme.com"),
+            ("jdoe@ACME.com", "acme.com"),
+            ("jdoe@bücher.de", "xn--bcher-kva.de"),
+            # A backslash would otherwise truncate this to `acme.com`.
+            ("jdoe@acme.com\\evil.org", None),
             ("jdoe@mail.acme.com", "acme.com"),
             ("jdoe@localhost", None),
             ("", None),
@@ -94,6 +103,26 @@ class TestDomainMatch:
         EmailFactory.create(user=user, email="jdoe@acme.com", verified=True)
         application = OrganizationApplicationFactory.create(
             link_url="https://acme.com", submitted_by=user
+        )
+
+        check = find(review_checks(application, user), "domain_match")
+        assert check.status == CheckStatus.Ok
+
+    def test_verified_match_handles_internationalized_domains(self, db_request):
+        user = UserFactory.create()
+        EmailFactory.create(user=user, email="jdoe@bücher.de", verified=True)
+        application = OrganizationApplicationFactory.create(
+            link_url="https://bücher.de", submitted_by=user
+        )
+
+        check = find(review_checks(application, user), "domain_match")
+        assert check.status == CheckStatus.Ok
+
+    def test_verified_match_ignores_case(self, db_request):
+        user = UserFactory.create()
+        EmailFactory.create(user=user, email="jdoe@ACME.com", verified=True)
+        application = OrganizationApplicationFactory.create(
+            link_url="https://ACME.com", submitted_by=user
         )
 
         check = find(review_checks(application, user), "domain_match")
