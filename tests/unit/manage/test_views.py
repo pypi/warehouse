@@ -153,6 +153,8 @@ class TestManageUnverifiedAccount:
         user_service = pretend.stub(
             add_email=pretend.call_recorder(lambda *a, **kw: new_email),
         )
+        limiter = pretend.stub(test=lambda *a: True, hit=lambda *a: True)
+        limiters = {"email.change": limiter, "email.add": limiter}
         request = pretend.stub(
             POST={"change_unverified_primary_email": "correct@example.com"},
             user=user,
@@ -160,12 +162,9 @@ class TestManageUnverifiedAccount:
                 delete=pretend.call_recorder(lambda obj: None),
                 flush=lambda: None,
             ),
-            find_service=lambda svc, *a, **kw: {
-                IRateLimiter: pretend.stub(
-                    test=lambda *a: True,
-                    hit=lambda *a: None,
-                ),
-            }.get(svc, user_service),
+            find_service=lambda svc, *a, name=None, **kw: limiters.get(
+                name, user_service
+            ),
             session=pretend.stub(
                 flash=pretend.call_recorder(lambda *a, **kw: None),
             ),
@@ -207,6 +206,7 @@ class TestManageUnverifiedAccount:
         ]
 
     def test_change_unverified_primary_email_validation_fails(self, monkeypatch):
+        """A failed validation still spends the attempt budget."""
         user = pretend.stub(
             id=pretend.stub(),
             username="testuser",
@@ -217,12 +217,18 @@ class TestManageUnverifiedAccount:
             projects=[],
         )
         user_service = pretend.stub()
+        attempt_limiter = pretend.stub(hit=pretend.call_recorder(lambda *a: True))
+        add_limiter = pretend.stub(
+            test=lambda *a: True,
+            hit=pretend.call_recorder(lambda *a: True),
+        )
+        limiters = {"email.change": attempt_limiter, "email.add": add_limiter}
         request = pretend.stub(
             POST={"change_unverified_primary_email": "bad"},
             user=user,
-            find_service=lambda svc, *a, **kw: {
-                IRateLimiter: pretend.stub(test=lambda *a: True),
-            }.get(svc, user_service),
+            find_service=lambda svc, *a, name=None, **kw: limiters.get(
+                name, user_service
+            ),
             help_url=lambda *a, **kw: "/help",
             remote_addr="1.2.3.4",
         )
@@ -237,6 +243,48 @@ class TestManageUnverifiedAccount:
             "help_url": "/help",
             "change_unverified_primary_email_form": form_obj,
         }
+        assert attempt_limiter.hit.calls == [pretend.call(user.id)]
+        # The strict per-IP budget is only spent on a successful change.
+        assert add_limiter.hit.calls == []
+
+    def test_change_unverified_primary_email_attempt_rate_limited(self):
+        """Exhausting the attempt budget blocks before the form is validated."""
+        user = pretend.stub(
+            id=pretend.stub(),
+            username="testuser",
+            has_primary_verified_email=False,
+            has_two_factor=False,
+            emails=[],
+            projects=[],
+        )
+        attempt_limiter = pretend.stub(hit=pretend.call_recorder(lambda *a: False))
+        limiters = {
+            "email.change": attempt_limiter,
+            "email.add": pretend.stub(test=lambda *a: True),
+        }
+        request = pretend.stub(
+            POST={"change_unverified_primary_email": "new@example.com"},
+            user=user,
+            find_service=lambda svc, *a, name=None, **kw: limiters.get(
+                name, pretend.stub()
+            ),
+            session=pretend.stub(
+                flash=pretend.call_recorder(lambda *a, **kw: None),
+            ),
+            remote_addr="1.2.3.4",
+            route_path=lambda *a, **kw: "/manage/unverified/",
+        )
+        view = views.ManageUnverifiedAccountViews(request)
+        result = view.change_unverified_primary_email()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert request.session.flash.calls == [
+            pretend.call(
+                "Too many email change attempts. Try again later.",
+                queue="error",
+            )
+        ]
+        assert attempt_limiter.hit.calls == [pretend.call(user.id)]
 
     def test_change_unverified_primary_email_blocked_if_verified(self):
         request = pretend.stub(
@@ -297,7 +345,7 @@ class TestManageUnverifiedAccount:
             pretend.call(expected_message, queue="error")
         ]
 
-    def test_change_unverified_primary_email_rate_limited(self):
+    def test_change_unverified_primary_email_ip_rate_limited(self):
         user = pretend.stub(
             id=pretend.stub(),
             username="testuser",
@@ -306,12 +354,17 @@ class TestManageUnverifiedAccount:
             emails=[],
             projects=[],
         )
+        attempt_limiter = pretend.stub(hit=pretend.call_recorder(lambda *a: True))
+        limiters = {
+            "email.change": attempt_limiter,
+            "email.add": pretend.stub(test=lambda *a: False),
+        }
         request = pretend.stub(
             POST={"change_unverified_primary_email": "new@example.com"},
             user=user,
-            find_service=lambda svc, *a, **kw: {
-                IRateLimiter: pretend.stub(test=lambda *a: False),
-            }.get(svc, pretend.stub()),
+            find_service=lambda svc, *a, name=None, **kw: limiters.get(
+                name, pretend.stub()
+            ),
             session=pretend.stub(
                 flash=pretend.call_recorder(lambda *a, **kw: None),
             ),
@@ -328,6 +381,8 @@ class TestManageUnverifiedAccount:
                 queue="error",
             )
         ]
+        # Turned away before validation, so it doesn't cost the user an attempt.
+        assert attempt_limiter.hit.calls == []
 
 
 class TestManageAccount:

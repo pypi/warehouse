@@ -19,11 +19,13 @@ from warehouse.packaging.models import (
     Project,
     Provenance,
     Release,
+    ReleaseURL,
     Role,
     RoleInvitation,
 )
 from warehouse.utils import readme
 
+from ..attestations import fake_provenance
 from .accounts import UserFactory
 from .base import WarehouseFactory
 from .observations import ObserverFactory
@@ -90,6 +92,40 @@ class ReleaseFactory(WarehouseFactory):
     description = factory.SubFactory(DescriptionFactory)
 
 
+class ReleaseObservationFactory(WarehouseFactory):
+    class Meta:
+        model = Release.Observation
+
+    related = factory.SubFactory(ReleaseFactory)
+    related_name = factory.LazyAttribute(lambda o: repr(o.related))
+    observer = factory.SubFactory(ObserverFactory)
+
+    kind = factory.Faker(
+        "random_element", elements=[kind.value[1] for kind in ObservationKind]
+    )
+    payload = factory.Faker("json")
+    summary = factory.Faker("paragraph")
+
+
+class ReleaseURLFactory(WarehouseFactory):
+    """
+    Build a `Release.project_urls` entry.
+
+    Declare `name` before `release`: `Release._project_urls` is an
+    `attribute_keyed_dict("name")`, and the declarative constructor assigns
+    kwargs in order, so setting `release` first inserts into that dict while the
+    key attribute is still unset.
+    """
+
+    class Meta:
+        model = ReleaseURL
+
+    name = factory.Sequence(lambda n: f"Link {n}")
+    release = factory.SubFactory(ReleaseFactory)
+    url = factory.Faker("uri")
+    verified = False
+
+
 class FileFactory(WarehouseFactory):
     class Meta:
         model = File
@@ -138,8 +174,31 @@ class ProvenanceFactory(WarehouseFactory):
     class Meta:
         model = Provenance
 
+    class Params:
+        # When set, build a valid PEP 740 provenance object instead of
+        # arbitrary JSON, e.g. `predicate_types=[AttestationType.PYPI_PUBLISH_V1]`.
+        predicate_types = None
+        repository = "example-org/example"
+        workflow = "release.yml"
+        # Defaults to a GitHub publisher built from `repository` and `workflow`.
+        publisher = None
+
     file = factory.SubFactory(FileFactory)
-    provenance = factory.Faker("json")
+    provenance = factory.LazyAttribute(
+        lambda o: (
+            fake_provenance(
+                o.file.filename,
+                o.file.sha256_digest,
+                o.predicate_types,
+                o.repository,
+                o.workflow,
+                o.file.release.version,
+                o.publisher,
+            )
+            if o.predicate_types
+            else fake.json()
+        )
+    )
 
 
 class FileEventFactory(WarehouseFactory):

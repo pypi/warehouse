@@ -1156,7 +1156,7 @@ def add_manual_activation(request):
     # Record the event
     organization.record_event(
         request=request,
-        tag="admin:organization:manual_activation:add",
+        tag=EventTag.Organization.ManualActivationAdd,
         additional={
             "seat_limit": form.seat_limit.data,
             "expires": form.expires.data.isoformat(),
@@ -1287,7 +1287,7 @@ def update_manual_activation(request):
     # Record the event
     organization.record_event(
         request=request,
-        tag="admin:organization:manual_activation:update",
+        tag=EventTag.Organization.ManualActivationUpdate,
         additional={
             "old_seat_limit": old_seat_limit,
             "new_seat_limit": form.seat_limit.data,
@@ -1352,7 +1352,7 @@ def delete_manual_activation(request):
     # Record the event before deleting
     organization.record_event(
         request=request,
-        tag="admin:organization:manual_activation:delete",
+        tag=EventTag.Organization.ManualActivationDelete,
         additional={
             "seat_limit": manual_activation.seat_limit,
             "expires": manual_activation.expires.isoformat(),

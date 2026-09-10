@@ -1,12 +1,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import datetime
+import json
 
 import freezegun
 import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
+from sqlalchemy import func, select
 from sqlalchemy.orm import joinedload
 from webob.multidict import MultiDict, NoVars
 
@@ -21,10 +23,15 @@ from warehouse.admin.views import users as views
 from warehouse.events.tags import EventTag
 from warehouse.observations.models import ObservationKind
 from warehouse.organizations.models import OrganizationRoleType
-from warehouse.packaging.models import JournalEntry, Project, ReleaseURL
+from warehouse.packaging.models import JournalEntry, Project
 from warehouse.subscriptions.models import StripeSubscriptionStatus
 
-from ....common.db.accounts import EmailFactory, User, UserFactory
+from ....common.db.accounts import (
+    EmailFactory,
+    ProhibitedEmailDomainFactory,
+    User,
+    UserFactory,
+)
 from ....common.db.organizations import (
     OrganizationFactory,
     OrganizationRoleFactory,
@@ -35,6 +42,7 @@ from ....common.db.packaging import (
     JournalEntryFactory,
     ProjectFactory,
     ReleaseFactory,
+    ReleaseURLFactory,
     RoleFactory,
 )
 from ....common.db.subscriptions import StripeSubscriptionFactory
@@ -206,6 +214,66 @@ class TestUserDetail:
         assert db_request.current_route_path.calls == [
             pretend.call(username=user.username)
         ]
+
+
+class TestUserExport:
+    def test_exports_document(self, db_request):
+        """The view returns the document, rendered as a JSON attachment."""
+        admin = UserFactory.create()
+        user = UserFactory.create()
+        db_request.user = admin
+
+        document = views.user_export(user, db_request)
+
+        # The filename names the artifact and its subject, and its timestamp
+        # is the document's own generation instant.
+        timestamp = datetime.datetime.fromisoformat(document["generated_at"]).strftime(
+            "%Y%m%d%H%M%S"
+        )
+        assert db_request.response.content_disposition == (
+            "attachment; filename="
+            f'"user-account-export-{user.username}-{user.id}-{timestamp}.json"'
+        )
+        assert document["user"]["id"] == str(user.id)
+        assert document["generated_by"]["username"] == admin.username
+        times = [e["time"] for e in document["timeline"]["entries"]]
+        assert times == sorted(times)
+        assert document["timeline"]["counts"]["total"] == len(times)
+        assert json.dumps(document)
+
+    def test_records_an_observation(self, db_request):
+        """Exporting leaves an audit trail of who took a copy of the PII."""
+        admin = UserFactory.create()
+        user = UserFactory.create()
+        db_request.user = admin
+        db_request.remote_addr = "10.0.0.1"
+
+        views.user_export(user, db_request)
+
+        observation = user.observations[0]
+        assert observation.kind == ObservationKind.AccountExport.value[0]
+        assert observation.observer.parent == admin
+        assert observation.payload == {
+            "exported_by": admin.username,
+            "exported_by_id": str(admin.id),
+            "remote_addr": "10.0.0.1",
+        }
+
+    def test_redirects_to_canonical_username(self, db_request, mocker):
+        """A non-canonical username casing redirects permanently."""
+        user = UserFactory.create(username="wu-tang")
+        db_request.matchdict["username"] = "Wu-Tang"
+        current_route_path = mocker.patch.object(
+            db_request,
+            "current_route_path",
+            return_value="/user/the-redirect/export/",
+        )
+
+        result = views.user_export(user, db_request)
+
+        assert isinstance(result, HTTPMovedPermanently)
+        assert result.headers["Location"] == "/user/the-redirect/export/"
+        assert current_route_path.mock_calls == [mocker.call(username=user.username)]
 
 
 class TestUserFiles:
@@ -632,6 +700,80 @@ class TestUserFreeze:
         assert result.status_code == 303
         assert result.location == "/foobar"
 
+    def test_freeze_blocklists_own_registrable_domain(self, db_request):
+        """
+        An email whose domain IS its own registrable domain gets that
+        domain blocklisted -- the form that validate_email's database
+        check matches.
+        """
+        user = UserFactory.create()
+        EmailFactory.create(
+            user=user, verified=True, primary=True, email="x@evil-corp.com"
+        )
+
+        db_request.matchdict["username"] = str(user.username)
+        db_request.params = {"username": user.username}
+        db_request.route_path = lambda a: "/foobar"
+        db_request.user = UserFactory.create()
+
+        views.user_freeze(user, db_request)
+
+        db_request.db.flush()
+
+        prohibition = db_request.db.scalars(select(ProhibitedEmailDomain)).one()
+        assert prohibition.domain == "evil-corp.com"
+
+    def test_freeze_does_not_blocklist_subdomain_parent(self, db_request):
+        """
+        A subdomain-hosted address (grad.mit.edu, team.github.io) may live
+        under a shared parent apex that other accounts legitimately use, so
+        freezing this account must not blocklist the parent.
+        """
+        user = UserFactory.create()
+        EmailFactory.create(
+            user=user, verified=True, primary=True, email="x@mail.evil-corp.com"
+        )
+
+        db_request.matchdict["username"] = str(user.username)
+        db_request.params = {"username": user.username}
+        db_request.route_path = lambda a: "/foobar"
+        db_request.user = UserFactory.create()
+
+        views.user_freeze(user, db_request)
+
+        db_request.db.flush()
+
+        assert (
+            db_request.db.scalars(select(ProhibitedEmailDomain)).one_or_none() is None
+        )
+
+    def test_freezes_user_with_already_prohibited_domain(self, db_request):
+        """
+        Freezing a user whose email domain is already prohibited must not
+        insert a duplicate row into the unique domain column.
+        """
+        user = UserFactory.create()
+        verified_email = EmailFactory.create(user=user, verified=True, primary=True)
+        ProhibitedEmailDomainFactory.create(domain=verified_email.domain)
+
+        db_request.matchdict["username"] = str(user.username)
+        db_request.params = {"username": user.username}
+        db_request.route_path = lambda a: "/foobar"
+        db_request.user = UserFactory.create()
+
+        result = views.user_freeze(user, db_request)
+
+        db_request.db.flush()
+
+        assert db_request.db.get(User, user.id).is_frozen
+        assert (
+            db_request.db.scalar(
+                select(func.count()).select_from(ProhibitedEmailDomain)
+            )
+            == 1
+        )
+        assert result.status_code == 303
+
     def test_freezes_user_bad_confirm(self, db_request, monkeypatch):
         user = UserFactory.create(is_frozen=False)
         EmailFactory.create(user=user, verified=True, primary=True)
@@ -746,7 +888,7 @@ class TestUserResetPassword:
 
 
 class TestUserRecoverAccountInitiate:
-    def test_user_recover_account_initiate(self, db_request, db_session):
+    def test_user_recover_account_initiate(self, db_request):
         user = UserFactory.create(
             totp_secret=b"aaaaabbbbbcccccddddd",
             webauthn=[
@@ -761,29 +903,23 @@ class TestUserRecoverAccountInitiate:
         project0 = ProjectFactory.create()
         RoleFactory.create(user=user, project=project0)
         release0 = ReleaseFactory.create(project=project0)
-        db_session.add(
-            ReleaseURL(
-                release=release0, name="Homepage", url="https://example.com/home0"
-            )
+        ReleaseURLFactory.create(
+            name="Homepage", release=release0, url="https://example.com/home0"
         )
-        db_session.add(
-            ReleaseURL(
-                release=release0, name="Source Code", url="http://example.com/source0"
-            )
+        ReleaseURLFactory.create(
+            name="Source Code", release=release0, url="http://example.com/source0"
         )
         project1 = ProjectFactory.create()
         RoleFactory.create(user=user, project=project1)
         release1 = ReleaseFactory.create(project=project1)
-        db_session.add(
-            ReleaseURL(
-                release=release1, name="Homepage", url="https://example.com/home1"
-            )
+        ReleaseURLFactory.create(
+            name="Homepage", release=release1, url="https://example.com/home1"
         )
         project2 = ProjectFactory.create()
         RoleFactory.create(user=user, project=project2)
         release2 = ReleaseFactory.create(project=project2)
-        db_session.add(
-            ReleaseURL(release=release2, name="telnet", url="telnet://192.0.2.16:80/")
+        ReleaseURLFactory.create(
+            name="telnet", release=release2, url="telnet://192.0.2.16:80/"
         )
         project3 = ProjectFactory.create()
         RoleFactory.create(user=user, project=project3)
@@ -793,15 +929,186 @@ class TestUserRecoverAccountInitiate:
         assert result == {
             "user": user,
             "repo_urls": {
-                project0.name: {
-                    ("Homepage", "https://example.com/home0"),
-                    ("Source Code", "http://example.com/source0"),
-                },
-                project1.name: {
-                    ("Homepage", "https://example.com/home1"),
-                },
+                project0.name: [
+                    ("Homepage", "https://example.com/home0", False, False),
+                    ("Source Code", "http://example.com/source0", False, False),
+                ],
+                project1.name: [
+                    ("Homepage", "https://example.com/home1", False, False),
+                ],
             },
+            "explain_badge": False,
         }
+
+    def test_user_recover_account_initiate_prefers_verified_urls(self, db_request):
+        """A verified repository sorts first, as do the projects holding one."""
+        user = UserFactory.create()
+        unverified_project = ProjectFactory.create(name="aaa-unverified")
+        RoleFactory.create(user=user, project=unverified_project)
+        unverified_release = ReleaseFactory.create(project=unverified_project)
+        ReleaseURLFactory.create(
+            release=unverified_release,
+            name="Source",
+            url="https://github.com/an-org/unverified",
+        )
+
+        mixed_project = ProjectFactory.create(name="zzz-mixed")
+        RoleFactory.create(user=user, project=mixed_project)
+        mixed_release = ReleaseFactory.create(project=mixed_project)
+        for name, url, verified in [
+            ("Source", "https://gitlab.com/an-org/mixed", True),
+            ("Aardvark", "https://github.com/an-org/mixed-extras", False),
+            ("homepage", "https://mixed.example.com", False),
+        ]:
+            ReleaseURLFactory.create(
+                release=mixed_release, name=name, url=url, verified=verified
+            )
+
+        result = views.user_recover_account_initiate(user, db_request)
+
+        # `zzz-mixed` sorts ahead of `aaa-unverified` despite the name, because
+        # it holds a verified repository, which in turn sorts ahead of the
+        # alphabetically earlier `Aardvark`. Lowercase `homepage` sorts among the
+        # capitalized labels rather than after all of them.
+        assert list(result["repo_urls"].items()) == [
+            (
+                "zzz-mixed",
+                [
+                    ("Source", "https://gitlab.com/an-org/mixed", True, True),
+                    (
+                        "Aardvark",
+                        "https://github.com/an-org/mixed-extras",
+                        False,
+                        False,
+                    ),
+                    ("homepage", "https://mixed.example.com", False, False),
+                ],
+            ),
+            (
+                "aaa-unverified",
+                [("Source", "https://github.com/an-org/unverified", False, False)],
+            ),
+        ]
+        assert result["explain_badge"] is True
+
+    def test_user_recover_account_initiate_ignores_unpushable_verified_urls(
+        self, db_request
+    ):
+        """A verified URL that takes no git push must not outrank the repository.
+
+        `verify_url` marks verified both a project's own PyPI page and, for a
+        GitHub Trusted Publisher, its `{owner}.github.io/{repo}` docs site.
+        Neither accepts a branch, so neither may carry the badge.
+        """
+        user = UserFactory.create()
+        project = ProjectFactory.create(name="self-linker")
+        RoleFactory.create(user=user, project=project)
+        release = ReleaseFactory.create(project=project)
+        for name, url, verified in [
+            ("PyPI", "https://pypi.org/project/self-linker/", True),
+            ("Documentation", "https://an-org.github.io/self-linker/", True),
+            ("Source", "https://github.com/an-org/self-linker", False),
+        ]:
+            ReleaseURLFactory.create(
+                release=release, name=name, url=url, verified=verified
+            )
+
+        result = views.user_recover_account_initiate(user, db_request)
+
+        # The repository ranks first despite being unverified and sorting last
+        # alphabetically, because the other two take no push.
+        assert result["repo_urls"] == {
+            "self-linker": [
+                ("Source", "https://github.com/an-org/self-linker", False, False),
+                ("Documentation", "https://an-org.github.io/self-linker/", False, True),
+                ("PyPI", "https://pypi.org/project/self-linker/", False, True),
+            ]
+        }
+        # The legend still renders: two URLs are verified but carry no badge.
+        assert result["explain_badge"] is True
+
+    def test_user_recover_account_initiate_ignores_verified_subpaths(self, db_request):
+        """A verified page inside a repository must not outrank the repository.
+
+        A Trusted Publisher verifies every subpath of its repository, so an
+        issues page is as `verified` as the root. Only the root takes a push,
+        and it sorts last of the three by label, so nothing but the repository
+        check can put it first.
+        """
+        user = UserFactory.create()
+        project = ProjectFactory.create(name="subpaths")
+        RoleFactory.create(user=user, project=project)
+        release = ReleaseFactory.create(project=project)
+        for name, url in [
+            ("Bug Tracker", "https://github.com/an-org/subpaths/issues"),
+            ("Changelog", "https://github.com/an-org/subpaths/blob/main/CHANGELOG.md"),
+            ("Repository", "https://github.com/an-org/subpaths"),
+        ]:
+            ReleaseURLFactory.create(release=release, name=name, url=url, verified=True)
+
+        result = views.user_recover_account_initiate(user, db_request)
+
+        assert result["repo_urls"] == {
+            "subpaths": [
+                ("Repository", "https://github.com/an-org/subpaths", True, True),
+                (
+                    "Bug Tracker",
+                    "https://github.com/an-org/subpaths/issues",
+                    False,
+                    True,
+                ),
+                (
+                    "Changelog",
+                    "https://github.com/an-org/subpaths/blob/main/CHANGELOG.md",
+                    False,
+                    True,
+                ),
+            ]
+        }
+
+    def test_user_recover_account_initiate_ranks_projects_with_a_repo_first(
+        self, db_request
+    ):
+        """A project holding a repository outranks one holding none.
+
+        Neither is verified, so only the repository tier can reorder them, and
+        the names sort the other way round.
+        """
+        user = UserFactory.create()
+        for name, url_name, url in [
+            ("aaa-no-repo", "Documentation", "https://aaa.readthedocs.io/"),
+            ("zzz-has-repo", "Source", "https://github.com/an-org/zzz"),
+        ]:
+            project = ProjectFactory.create(name=name)
+            RoleFactory.create(user=user, project=project)
+            release = ReleaseFactory.create(project=project)
+            ReleaseURLFactory.create(release=release, name=url_name, url=url)
+
+        result = views.user_recover_account_initiate(user, db_request)
+
+        assert list(result["repo_urls"]) == ["zzz-has-repo", "aaa-no-repo"]
+        assert result["explain_badge"] is False
+
+    def test_user_recover_account_initiate_skips_host_reserved_paths(self, db_request):
+        """Forge service pages are not repositories, on either host."""
+        user = UserFactory.create()
+        project = ProjectFactory.create(name="reserved")
+        RoleFactory.create(user=user, project=project)
+        release = ReleaseFactory.create(project=project)
+        for name, url in [
+            ("Sponsor", "https://github.com/sponsors/an-org"),
+            ("Discuss", "https://gitlab.com/explore/projects"),
+            ("Snippet", "https://gitlab.com/-/snippets/12345"),
+        ]:
+            ReleaseURLFactory.create(release=release, name=name, url=url, verified=True)
+
+        result = views.user_recover_account_initiate(user, db_request)
+
+        assert [proven for *_, proven, _ in result["repo_urls"]["reserved"]] == [
+            False,
+            False,
+            False,
+        ]
 
     def test_user_recover_account_initiate_only_one(self, db_request):
         db_request.route_path = pretend.call_recorder(
@@ -836,9 +1143,7 @@ class TestUserRecoverAccountInitiate:
             pretend.call("admin.user.detail", username=user.username)
         ]
 
-    def test_user_recover_account_initiate_submit(
-        self, db_request, db_session, monkeypatch
-    ):
+    def test_user_recover_account_initiate_submit(self, db_request, monkeypatch):
         admin_user = UserFactory.create()
         user = UserFactory.create(
             totp_secret=b"aaaaabbbbbcccccddddd",
@@ -854,15 +1159,11 @@ class TestUserRecoverAccountInitiate:
         project = ProjectFactory.create()
         RoleFactory.create(user=user, project=project)
         release = ReleaseFactory.create(project=project)
-        db_session.add(
-            ReleaseURL(
-                release=release, name="Homepage", url="https://example.com/home0"
-            )
+        ReleaseURLFactory.create(
+            name="Homepage", release=release, url="https://example.com/home0"
         )
-        db_session.add(
-            ReleaseURL(
-                release=release, name="Source Code", url="http://example.com/source0"
-            )
+        ReleaseURLFactory.create(
+            name="Source Code", release=release, url="http://example.com/source0"
         )
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
@@ -904,19 +1205,17 @@ class TestUserRecoverAccountInitiate:
             "completed": None,
             "token": "deadbeef",
             "project_name": project.name,
-            "repos": sorted(
-                [
-                    ("Source Code", "http://example.com/source0"),
-                    ("Homepage", "https://example.com/home0"),
-                ]
-            ),
+            "repos": [
+                ("Homepage", "https://example.com/home0", False, False),
+                ("Source Code", "http://example.com/source0", False, False),
+            ],
             "support_issue_link": "https://github.com/pypi/support/issues/666",
             "override_to_email": None,
         }
         assert account_recovery.additional == {"status": "initiated"}
 
     def test_user_recover_account_initiate_no_urls_submit(
-        self, db_request, db_session, monkeypatch
+        self, db_request, monkeypatch
     ):
         admin_user = UserFactory.create()
         user = UserFactory.create(
@@ -933,8 +1232,8 @@ class TestUserRecoverAccountInitiate:
         project = ProjectFactory.create()
         RoleFactory.create(user=user, project=project)
         release = ReleaseFactory.create(project=project)
-        db_session.add(
-            ReleaseURL(release=release, name="telnet", url="telnet://192.0.2.16:80/")
+        ReleaseURLFactory.create(
+            name="telnet", release=release, url="telnet://192.0.2.16:80/"
         )
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
@@ -983,7 +1282,7 @@ class TestUserRecoverAccountInitiate:
         assert account_recovery.additional == {"status": "initiated"}
 
     def test_user_recover_account_initiate_override_email(
-        self, db_request, db_session, monkeypatch
+        self, db_request, monkeypatch
     ):
         admin_user = UserFactory.create()
         user = UserFactory.create(
@@ -1000,8 +1299,8 @@ class TestUserRecoverAccountInitiate:
         project = ProjectFactory.create()
         RoleFactory.create(user=user, project=project)
         release = ReleaseFactory.create(project=project)
-        db_session.add(
-            ReleaseURL(release=release, name="telnet", url="telnet://192.0.2.16:80/")
+        ReleaseURLFactory.create(
+            name="telnet", release=release, url="telnet://192.0.2.16:80/"
         )
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
@@ -1054,7 +1353,7 @@ class TestUserRecoverAccountInitiate:
         assert account_recovery.additional == {"status": "initiated"}
 
     def test_user_recover_account_initiate_override_email_exists(
-        self, db_request, db_session, monkeypatch
+        self, db_request, monkeypatch
     ):
         admin_user = UserFactory.create()
         user = UserFactory.create(
@@ -1074,8 +1373,8 @@ class TestUserRecoverAccountInitiate:
         project = ProjectFactory.create()
         RoleFactory.create(user=user, project=project)
         release = ReleaseFactory.create(project=project)
-        db_session.add(
-            ReleaseURL(release=release, name="telnet", url="telnet://192.0.2.16:80/")
+        ReleaseURLFactory.create(
+            name="telnet", release=release, url="telnet://192.0.2.16:80/"
         )
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
@@ -1128,7 +1427,7 @@ class TestUserRecoverAccountInitiate:
         assert account_recovery.additional == {"status": "initiated"}
 
     def test_user_recover_account_initiate_override_email_exists_wrong_user(
-        self, db_request, db_session, monkeypatch
+        self, db_request, monkeypatch
     ):
         admin_user = UserFactory.create()
         user = UserFactory.create(
@@ -1149,8 +1448,8 @@ class TestUserRecoverAccountInitiate:
         project = ProjectFactory.create()
         RoleFactory.create(user=user, project=project)
         release = ReleaseFactory.create(project=project)
-        db_session.add(
-            ReleaseURL(release=release, name="telnet", url="telnet://192.0.2.16:80/")
+        ReleaseURLFactory.create(
+            name="telnet", release=release, url="telnet://192.0.2.16:80/"
         )
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
@@ -1185,7 +1484,7 @@ class TestUserRecoverAccountInitiate:
         assert len(user.active_account_recoveries) == 0
 
     def test_user_recover_account_initiate_no_support_issue_link_submit(
-        self, db_request, db_session
+        self, db_request
     ):
         admin_user = UserFactory.create()
         user = UserFactory.create(
@@ -1202,8 +1501,8 @@ class TestUserRecoverAccountInitiate:
         project = ProjectFactory.create()
         RoleFactory.create(user=user, project=project)
         release = ReleaseFactory.create(project=project)
-        db_session.add(
-            ReleaseURL(release=release, name="telnet", url="telnet://192.0.2.16:80/")
+        ReleaseURLFactory.create(
+            name="telnet", release=release, url="telnet://192.0.2.16:80/"
         )
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
@@ -1233,7 +1532,7 @@ class TestUserRecoverAccountInitiate:
         assert len(user.active_account_recoveries) == 0
 
     def test_user_recover_account_initiate_invalid_support_issue_link_submit(
-        self, db_request, db_session
+        self, db_request
     ):
         admin_user = UserFactory.create()
         user = UserFactory.create(
@@ -1250,8 +1549,8 @@ class TestUserRecoverAccountInitiate:
         project = ProjectFactory.create()
         RoleFactory.create(user=user, project=project)
         release = ReleaseFactory.create(project=project)
-        db_session.add(
-            ReleaseURL(release=release, name="telnet", url="telnet://192.0.2.16:80/")
+        ReleaseURLFactory.create(
+            name="telnet", release=release, url="telnet://192.0.2.16:80/"
         )
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
@@ -1283,7 +1582,7 @@ class TestUserRecoverAccountInitiate:
         assert len(user.active_account_recoveries) == 0
 
     def test_recover_account_initiate_invalid_project_name_with_available_urls_submit(
-        self, db_request, db_session
+        self, db_request
     ):
         admin_user = UserFactory.create()
         user = UserFactory.create(
@@ -1300,8 +1599,8 @@ class TestUserRecoverAccountInitiate:
         project = ProjectFactory.create()
         RoleFactory.create(user=user, project=project)
         release = ReleaseFactory.create(project=project)
-        db_session.add(
-            ReleaseURL(release=release, name="Homepage", url="https://example.com/home")
+        ReleaseURLFactory.create(
+            name="Homepage", release=release, url="https://example.com/home"
         )
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)

@@ -874,6 +874,7 @@ class TestRegistrationForm:
 
 
 class TestRequestPasswordResetForm:
+    @pytest.mark.usefixtures("no_email_deliverability_check")
     @pytest.mark.parametrize(
         "form_input",
         [
@@ -1246,6 +1247,32 @@ class TestReAuthenticateForm:
             pretend.call(1, "mysupersecurepassword1!", tags=None)
         ]
         assert user_service.find_userid.calls == []
+
+    def test_requires_user_id(self):
+        # Without a user id, `validate_password` would skip the password check
+        # altogether and validate any password, so building the form must fail.
+        user_service = pretend.stub(
+            check_password=pretend.call_recorder(
+                lambda userid, password, tags=None: False
+            ),
+        )
+
+        with pytest.raises(ValueError, match="user_id is required"):
+            forms.ReAuthenticateForm(
+                formdata=MultiDict(
+                    {
+                        "password": "totally-the-wrong-password",
+                        "next_route": pretend.stub(),
+                        "next_route_matchdict": pretend.stub(),
+                        "next_route_query": pretend.stub(),
+                    }
+                ),
+                request=pretend.stub(),
+                user_id=None,
+                user_service=user_service,
+            )
+
+        assert user_service.check_password.calls == []
 
     def test_validate_password_with_field_errors(self):
         user_service = pretend.stub(

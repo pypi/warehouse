@@ -2,7 +2,7 @@
 
 @use "sass:color";
 @use "../settings/breakpoints";
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/fonts";
 @use "../settings/grid";
 @use "../tools/link-utilities";
@@ -52,7 +52,7 @@
 
 // TABLE
 @mixin mobile-friendly-table {
-  border-bottom: 1px solid colours.$base-grey;
+  border-bottom: 1px solid colors.$base-grey;
 
   thead {
     display: none;
@@ -73,7 +73,7 @@
 
   tbody tr td:first-child,
   tbody tr th:first-child {
-    border-top: 1px solid colours.$base-grey;
+    border-top: 1px solid colors.$base-grey;
     padding-top: 15px;
 
     .table__mobile-label {
@@ -136,7 +136,7 @@
 
   th,
   td {
-    border-bottom: 1px solid colours.$base-grey;
+    border-bottom: 1px solid colors.$base-grey;
   }
 
   tr th:first-child,
@@ -248,7 +248,7 @@
           inset: auto, 50%, -5px, auto;
           margin-right: -5px;
           border-color: transparent;
-          border-bottom-color: color.adjust(colours.$black, $alpha: -0.3);
+          border-bottom-color: color.adjust(colors.$black, $alpha: -0.3);
         }
       }
     }

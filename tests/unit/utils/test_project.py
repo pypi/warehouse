@@ -355,7 +355,9 @@ def test_remove_documentation(db_request, mocker):
     remove_documentation(task, db_request, project.name)
 
     service.remove_by_prefix.assert_called_once_with(f"{project.name}/")
-    log_info.assert_called_once_with("Removing documentation for %s", project.name)
+    log_info.assert_called_once_with(
+        "Removing documentation", project_name=project.name
+    )
 
 
 def test_remove_documentation_retry(db_request, mocker):
@@ -369,4 +371,6 @@ def test_remove_documentation_retry(db_request, mocker):
     remove_documentation(task, db_request, project.name)
 
     assert task.retry.call_count == 1
-    log_info.assert_called_once_with("Removing documentation for %s", project.name)
+    log_info.assert_called_once_with(
+        "Removing documentation", project_name=project.name
+    )

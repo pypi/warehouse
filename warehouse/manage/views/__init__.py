@@ -254,37 +254,41 @@ class ManageUnverifiedAccountViews(ManageAccountMixin):
         request_param=ChangeUnverifiedPrimaryEmailForm.__params__,
     )
     def change_unverified_primary_email(self):
+        def _error(message):
+            self.request.session.flash(message, queue="error")
+            return HTTPSeeOther(self.request.route_path("manage.unverified-account"))
+
         # Guard: redirect if already verified
         if self.request.user.has_primary_verified_email:
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
         # Guard: block if user has 2FA (higher-risk account, needs admin help)
         if self.request.user.has_two_factor:
-            self.request.session.flash(
+            return _error(
                 "Cannot change email address on accounts with two-factor "
-                "authentication enabled",
-                queue="error",
+                "authentication enabled"
             )
-            return HTTPSeeOther(self.request.route_path("manage.unverified-account"))
 
         # Guard: block if user owns any projects (not a fresh registration)
         if self.request.user.projects:
-            self.request.session.flash(
-                "Cannot change email address on accounts with projects",
-                queue="error",
-            )
-            return HTTPSeeOther(self.request.route_path("manage.unverified-account"))
+            return _error("Cannot change email address on accounts with projects")
 
-        # Rate limit email changes by IP
-        email_change_ratelimit = self.request.find_service(
-            IRateLimiter, name="email.add"
+        # Rate limit successful email changes by IP. Checked first so that a
+        # request turned away here doesn't also cost the user an attempt.
+        email_add_ratelimit = self.request.find_service(IRateLimiter, name="email.add")
+        if not email_add_ratelimit.test(self.request.remote_addr):
+            return _error("Too many email change attempts. Try again later.")
+
+        # Rate limit attempts by user, spent whether or not the change
+        # succeeds. Validating the address costs us DNS lookups and tells the
+        # caller whether it is already registered, so failures have to be
+        # bounded too. `hit` tests and spends atomically, consuming nothing
+        # when it denies.
+        email_attempt_ratelimit = self.request.find_service(
+            IRateLimiter, name="email.change"
         )
-        if not email_change_ratelimit.test(self.request.remote_addr):
-            self.request.session.flash(
-                "Too many email change attempts. Try again later.",
-                queue="error",
-            )
-            return HTTPSeeOther(self.request.route_path("manage.unverified-account"))
+        if not email_attempt_ratelimit.hit(self.request.user.id):
+            return _error("Too many email change attempts. Try again later.")
 
         # Map the POST param to the "email" field expected by NewEmailMixin
         form = ChangeUnverifiedPrimaryEmailForm(
@@ -314,7 +318,7 @@ class ManageUnverifiedAccountViews(ManageAccountMixin):
             old_primary.primary = False
             self.request.db.delete(old_primary)
 
-        email_change_ratelimit.hit(self.request.remote_addr)
+        email_add_ratelimit.hit(self.request.remote_addr)
 
         # Send verification email to the new address
         send_email_verification_email(self.request, (self.request.user, new_email))

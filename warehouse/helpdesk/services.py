@@ -6,11 +6,12 @@ HelpDesk service implementations to interact with other services.
 
 from __future__ import annotations
 
-import logging
 import pprint
 import typing
 
 from textwrap import dedent
+
+import structlog
 
 from pyramid_retry import RetryableException
 from requests.exceptions import RequestException
@@ -22,7 +23,7 @@ if typing.TYPE_CHECKING:
     from pyramid.request import Request
     from requests import Session
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 @implementer(IHelpDeskService)

@@ -127,6 +127,13 @@ def test_includeme(mocker):
             traverse="/{username}",
         ),
         mocker.call(
+            "admin.user.export",
+            "/admin/users/{username}/export/",
+            domain=warehouse,
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}",
+        ),
+        mocker.call(
             "admin.user.submit_email",
             "/admin/users/{username}/emails/",
             domain=warehouse,

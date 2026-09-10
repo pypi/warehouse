@@ -324,6 +324,7 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
                     Permissions.AdminUsersEmailWrite,
                     Permissions.AdminUsersAccountRecoveryWrite,
                     Permissions.AdminUsersRecoveryCodesBurn,
+                    Permissions.AdminUsersExport,
                     Permissions.AdminDashboardSidebarRead,
                     Permissions.AdminVulnerabilitiesRead,
                 ),
@@ -420,6 +421,11 @@ class UnverifyReasons(enum.Enum):
     DomainInvalid = "domain status invalid"
 
 
+def email_domain(address: str) -> str:
+    """The domain part of an email address, lowercased."""
+    return address.rsplit("@", 1)[-1].lower()
+
+
 class Email(db.ModelBase):
     __tablename__ = "user_emails"
     __table_args__ = (
@@ -453,7 +459,7 @@ class Email(db.ModelBase):
 
     @property
     def domain(self):
-        return self.email.split("@")[-1].lower()
+        return email_domain(self.email)
 
 
 class ProhibitedEmailDomain(db.Model):

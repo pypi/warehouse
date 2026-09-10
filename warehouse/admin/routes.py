@@ -129,6 +129,13 @@ def includeme(config):
         traverse="/{username}",
     )
     config.add_route(
+        "admin.user.export",
+        "/admin/users/{username}/export/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+    )
+    config.add_route(
         "admin.user.submit_email",
         "/admin/users/{username}/emails/",
         domain=warehouse,

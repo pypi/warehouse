@@ -7,6 +7,7 @@ import re
 import tarfile
 import tempfile
 import zipfile
+import zlib
 
 from contextlib import ExitStack, nullcontext
 
@@ -39,7 +40,7 @@ from warehouse.attestations.errors import AttestationUploadError
 from warehouse.attestations.interfaces import IIntegrityService
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
-from warehouse.constants import ONE_GIB, ONE_MIB
+from warehouse.constants import MAXIMUM_AGE_FOR_NEW_UPLOADS, ONE_GIB, ONE_MIB
 from warehouse.email import (
     send_api_token_used_in_trusted_publisher_project_email,
     send_wheel_record_mismatch_email,
@@ -62,6 +63,7 @@ from warehouse.packaging.models import (
     Project,
     ProjectMacaroonWarningAssociation,
     Release,
+    added_late,
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
 from warehouse.rate_limiting.interfaces import RateLimiterException
@@ -76,13 +78,6 @@ from warehouse.utils.wheel import (
 )
 
 PATH_HASHER = "blake2_256"
-
-# After a release has been published for this
-# number of days reject new uploaded files.
-MAXIMUM_AGE_FOR_NEW_UPLOADS_DAYS = 14
-MAXIMUM_AGE_FOR_NEW_UPLOADS_SECONDS = datetime.timedelta(
-    days=MAXIMUM_AGE_FOR_NEW_UPLOADS_DAYS
-).total_seconds()
 
 COMPRESSION_RATIO_MIN_SIZE = 64 * ONE_MIB
 
@@ -431,6 +426,20 @@ def _is_valid_dist_file(
                 # tar within.  Easy CPU DoS attack. :/
                 with metrics.timed("warehouse.upload.tarfile.getnames"):
                     top_level = _commonpath(tar.getnames())
+                # Sparse members rely on GNU extensions, including when stored
+                # in a pax header, and are not valid in PEP 625 sdists.
+                if any(member.issparse() for member in tar.getmembers()):
+                    metrics.increment(
+                        "warehouse.upload.tarfile.policy_error",
+                        tags=["reason:sparse-member"],
+                    )
+                    return (
+                        False,
+                        (
+                            "tar archive not accepted: Sparse members are not allowed. "
+                            "See https://docs.pypi.org/archives for more information"
+                        ),
+                    )
                 if top_level in [".", "/", ""]:
                     return (
                         False,
@@ -457,7 +466,7 @@ def _is_valid_dist_file(
                         )
                         return False, yara_match.message
 
-        except tarfile.ReadError, EOFError:
+        except tarfile.ReadError, EOFError, zlib.error:
             return False, None
 
     # If we haven't yet decided it's not valid, then we'll assume it is and
@@ -1229,17 +1238,14 @@ def file_upload(request):
         # Note that this feature explicitly doesn't protect against
         # users deleting and recreating releases in the UI, only
         # against uploads through compromised API tokens or workflows.
-        oldest_release_age_allowed = datetime.datetime.now() - datetime.timedelta(
-            seconds=MAXIMUM_AGE_FOR_NEW_UPLOADS_SECONDS
-        )
-        if release.created < oldest_release_age_allowed:
+        if added_late(datetime.datetime.now(), release.created):
             request.metrics.increment(
                 "warehouse.upload.failed", tags=["reason:closed-release"]
             )
             raise _exc_with_message(
                 HTTPBadRequest,
                 f"Uploading new files to releases older than "
-                f"{MAXIMUM_AGE_FOR_NEW_UPLOADS_DAYS} days is not allowed.",
+                f"{MAXIMUM_AGE_FOR_NEW_UPLOADS.days} days is not allowed.",
             )
 
         # Check to see if uploading this file would create a duplicate sdist
@@ -1551,6 +1557,13 @@ def file_upload(request):
             try:
                 validate_entrypoints(zfp)
             except InvalidWheelEntryPointsError:
+                request.metrics.increment(
+                    "warehouse.upload.failed",
+                    tags=[
+                        "reason:invalid-entrypoints",
+                        f"filetype:{form.filetype.data}",
+                    ],
+                )
                 raise _exc_with_message(
                     HTTPBadRequest,
                     f"Wheel '{filename}' has invalid entry points defined in "

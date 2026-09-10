@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 @use "../settings/breakpoints";
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/grid";
 @use "../tools/link-utilities";
 
@@ -14,20 +14,21 @@
 
   Modifiers:
     - test-pypi: Adds a 'testing' image in the bg for test PyPI
+    - dev-pypi: Adds a 'dev' image in the bg for dev PyPI
 */
 
 .site-header {
-  background-color: colours.$header-background-color;
+  background-color: colors.$header-background-color;
   background-repeat: repeat;
   background-position: 0 50%;
-  border-bottom: 1px solid colours.$header-border-color;
+  border-bottom: 1px solid colors.$header-border-color;
 
   &__logo {
     padding: grid.$half-spacing-unit 0;
     max-width: 65px;
     float: left;
     @include link-utilities.link-without-underline;
-    @include link-utilities.link-focus-state(colours.$white);
+    @include link-utilities.link-focus-state(colors.$white);
 
     @media screen and (max-width: breakpoints.$small-tablet) {
       max-width: 50px;

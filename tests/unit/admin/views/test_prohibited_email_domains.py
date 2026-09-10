@@ -12,9 +12,13 @@ from ....common.db.accounts import ProhibitedEmailDomain, ProhibitedEmailDomainF
 
 class TestProhibitedEmailDomainsList:
     def test_no_query(self, db_request):
+        # `created` is set once per transaction (Postgres `now()`), so every
+        # row in this batch shares the same value. Sort by `(created, id)` to
+        # match the view's tiebreaker and get a deterministic expected order.
         prohibited = sorted(
             ProhibitedEmailDomainFactory.create_batch(30),
-            key=lambda b: b.created,
+            key=lambda b: (b.created, b.id),
+            reverse=True,
         )
 
         result = views.prohibited_email_domains(db_request)
@@ -24,7 +28,8 @@ class TestProhibitedEmailDomainsList:
     def test_with_page(self, db_request):
         prohibited = sorted(
             ProhibitedEmailDomainFactory.create_batch(30),
-            key=lambda b: b.created,
+            key=lambda b: (b.created, b.id),
+            reverse=True,
         )
         db_request.GET["page"] = "2"
 
@@ -39,31 +44,31 @@ class TestProhibitedEmailDomainsList:
             views.prohibited_email_domains(request)
 
     def test_basic_query(self, db_request):
-        prohibited = sorted(
-            ProhibitedEmailDomainFactory.create_batch(30),
-            key=lambda b: b.created,
-        )
-        db_request.GET["q"] = prohibited[0].domain
+        # A single result, so ordering is irrelevant here.
+        target = ProhibitedEmailDomainFactory.create(domain="target.example.com")
+        ProhibitedEmailDomainFactory.create_batch(29)
+        db_request.GET["q"] = target.domain
 
         result = views.prohibited_email_domains(db_request)
 
         assert result == {
-            "prohibited_email_domains": [prohibited[0]],
-            "query": prohibited[0].domain,
+            "prohibited_email_domains": [target],
+            "query": target.domain,
         }
 
     def test_wildcard_query(self, db_request):
-        prohibited = sorted(
-            ProhibitedEmailDomainFactory.create_batch(30),
-            key=lambda b: b.created,
-        )
-        db_request.GET["q"] = f"{prohibited[0].domain[:-1]}%"
+        # Use an explicit domain so the wildcard can only match this one row,
+        # rather than a prefix of a generated domain that a sibling row in the
+        # batch might also match.
+        target = ProhibitedEmailDomainFactory.create(domain="target.example.com")
+        ProhibitedEmailDomainFactory.create_batch(29)
+        db_request.GET["q"] = "target.example.co%"
 
         result = views.prohibited_email_domains(db_request)
 
         assert result == {
-            "prohibited_email_domains": [prohibited[0]],
-            "query": f"{prohibited[0].domain[:-1]}%",
+            "prohibited_email_domains": [target],
+            "query": "target.example.co%",
         }
 
 

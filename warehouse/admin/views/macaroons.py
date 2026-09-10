@@ -10,7 +10,11 @@ from warehouse.events.tags import EventTag
 from warehouse.macaroons.errors import InvalidMacaroonError
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.models import Macaroon
-from warehouse.macaroons.services import deserialize_raw_macaroon
+from warehouse.macaroons.services import (
+    _decode_identifier,
+    deserialize_partial_macaroon,
+    deserialize_raw_macaroon,
+)
 
 
 @view_config(
@@ -43,19 +47,33 @@ def macaroon_decode_token(request):
     if not token:
         raise HTTPBadRequest("No token provided.")
 
+    macaroon_service = request.find_service(IMacaroonService, context=None)
+
     try:
         macaroon = deserialize_raw_macaroon(token)
+        # Decoding here keeps the template from meeting bytes it cannot render.
+        identifier = _decode_identifier(macaroon)
     except InvalidMacaroonError as e:
-        raise HTTPBadRequest(f"The token cannot be deserialized: {e!r}") from e
+        # A truncated token still names the macaroon it came from, so read
+        # what is there instead of refusing the whole thing.
+        partial = deserialize_partial_macaroon(token)
+        if partial is None:
+            raise HTTPBadRequest(f"The token cannot be deserialized: {e!r}") from e
 
-    # Try to find the database record for this macaroon
-    macaroon_service = request.find_service(IMacaroonService, context=None)
-    try:
-        db_record = macaroon_service.find_from_raw(token)
-    except InvalidMacaroonError:
-        db_record = None
+        return {
+            "partial": partial,
+            "db_record": (
+                macaroon_service.find_macaroon(partial.identifier)
+                if partial.identifier_complete
+                else None
+            ),
+        }
 
-    return {"macaroon": macaroon, "db_record": db_record}
+    return {
+        "macaroon": macaroon,
+        "identifier": identifier,
+        "db_record": macaroon_service.find_macaroon(identifier),
+    }
 
 
 @view_config(

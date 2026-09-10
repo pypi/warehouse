@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import json
 import os
 import types
 
 from datetime import timedelta
 
-import orjson
 import pytest
 
 from pyramid import renderers
@@ -43,7 +43,14 @@ class TestRequireHTTPSTween:
         assert tween(pyramid_request) is mocker.sentinel.response
         handler.assert_called_once_with(pyramid_request)
 
-    @pytest.mark.parametrize(("params", "scheme"), [({":action": "thing"}, "http")])
+    @pytest.mark.parametrize(
+        ("params", "scheme"),
+        [
+            ({":action": "thing"}, "http"),
+            ({":action": None}, "http"),
+            ({":action": ""}, "http"),
+        ],
+    )
     def test_rejects(self, params, scheme, pyramid_request, mocker):
         pyramid_request.params = params
         pyramid_request.scheme = scheme
@@ -211,6 +218,19 @@ def test_maybe_set_redis(monkeypatch, environ, coercer, default, db, expected):
     assert settings == expected
 
 
+def test_json_dumps_with_newline():
+    assert (
+        config._json_dumps_with_newline(
+            {"name": "日本語"},
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        )
+        == '{"name":"日本語"}\n'
+    )
+
+
 @pytest.mark.parametrize(
     ("settings", "environment"),
     [
@@ -224,7 +244,12 @@ def test_maybe_set_redis(monkeypatch, environ, coercer, default, db, expected):
 )
 def test_configure(monkeypatch, mocker, settings, environment):
     json_renderer_cls = mocker.patch.object(
-        renderers, "JSON", return_value=mocker.sentinel.json_renderer_obj
+        renderers,
+        "JSON",
+        side_effect=[
+            mocker.sentinel.json_renderer_obj,
+            mocker.sentinel.json_with_newline_renderer_obj,
+        ],
     )
 
     xmlrpc_renderer_cls = mocker.patch.object(
@@ -320,9 +345,12 @@ def test_configure(monkeypatch, mocker, settings, environment):
         "warehouse.account.2fa_user_ratelimit_string": "5 per 5 minutes, 20 per hour, 50 per day",  # noqa: E501
         "warehouse.account.2fa_ip_ratelimit_string": "10 per 5 minutes, 50 per hour",
         "warehouse.account.email_add_ratelimit_string": "2 per day",
+        "warehouse.account.email_change_ratelimit_string": "5 per 5 minutes, 20 per hour",  # noqa: E501
+        "warehouse.account.email_reputation_ratelimit_string": "100 per hour",
         "warehouse.account.verify_email_ratelimit_string": "3 per 6 hours",
         "warehouse.account.accounts_search_ratelimit_string": "100 per hour",
         "warehouse.account.password_reset_ratelimit_string": "5 per day",
+        "warehouse.account.register_ratelimit_string": "10 per 5 minutes, 30 per hour",
         "warehouse.manage.oidc.user_registration_ratelimit_string": "100 per day",
         "warehouse.manage.oidc.ip_registration_ratelimit_string": "100 per day",
         "warehouse.packaging.project_create_user_ratelimit_string": "20 per hour",
@@ -525,6 +553,9 @@ def test_configure(monkeypatch, mocker, settings, environment):
     assert configurator_obj.commit.call_args_list == [mocker.call()]
     assert configurator_obj.add_renderer.call_args_list == [
         mocker.call("json", mocker.sentinel.json_renderer_obj),
+        mocker.call(
+            "json-with-newline", mocker.sentinel.json_with_newline_renderer_obj
+        ),
         mocker.call("xmlrpc", mocker.sentinel.xmlrpc_renderer_obj),
     ]
     assert configurator_obj.add_view_deriver.call_args_list == [
@@ -537,9 +568,17 @@ def test_configure(monkeypatch, mocker, settings, environment):
 
     assert json_renderer_cls.call_args_list == [
         mocker.call(
-            serializer=orjson.dumps,
-            option=orjson.OPT_SORT_KEYS | orjson.OPT_APPEND_NEWLINE,
-        )
+            serializer=json.dumps,
+            sort_keys=True,
+            separators=(",", ":"),
+        ),
+        mocker.call(
+            serializer=config._json_dumps_with_newline,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        ),
     ]
 
     assert xmlrpc_renderer_cls.call_args_list == [mocker.call(allow_none=True)]
@@ -594,6 +633,7 @@ def test_root_factory_access_control_list():
                 Permissions.AdminUsersEmailWrite,
                 Permissions.AdminUsersAccountRecoveryWrite,
                 Permissions.AdminUsersRecoveryCodesBurn,
+                Permissions.AdminUsersExport,
                 Permissions.AdminVulnerabilitiesRead,
                 Permissions.AdminVulnerabilitiesWrite,
             ),

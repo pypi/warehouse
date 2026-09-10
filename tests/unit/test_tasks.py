@@ -3,15 +3,24 @@
 import types
 
 import pytest
+import structlog
 import transaction
 
-from celery import Celery, Task
+from celery import Celery, Task, signals
 from kombu import Queue
 from pyramid import scripting
 from pyramid_retry import RetryableException
 
 from warehouse import tasks
 from warehouse.config import Environment
+
+
+@pytest.fixture(autouse=True)
+def clean_contextvars():
+    """Keep structlog contextvars from leaking between tests in this module."""
+    structlog.contextvars.clear_contextvars()
+    yield
+    structlog.contextvars.clear_contextvars()
 
 
 def test_tls_redis_backend():
@@ -40,7 +49,7 @@ class TestWarehouseTask:
 
     def test_call(self, mocker):
         registry = types.SimpleNamespace(settings={"warehouse.ip_salt": "peppa"})
-        request = types.SimpleNamespace()
+        request = types.SimpleNamespace(id="a-request-id")
 
         prepared = {
             "registry": registry,
@@ -162,7 +171,7 @@ class TestWarehouseTask:
 
     def test_creates_request(self, mocker):
         registry = types.SimpleNamespace(settings={"warehouse.ip_salt": "peppa"})
-        pyramid_env = {"request": types.SimpleNamespace()}
+        pyramid_env = {"request": types.SimpleNamespace(id="a-request-id")}
 
         mocker.patch.object(scripting, "prepare", return_value=pyramid_env)
 
@@ -180,6 +189,7 @@ class TestWarehouseTask:
             request.remote_addr_hashed
             == "cc9dfe9c4e6b6579bbf789d04339bd2d7f10aadf84ff4394193d99f14a0333f0"
         )
+        assert structlog.contextvars.get_contextvars()["request.id"] == "a-request-id"
 
     def test_reuses_request(self, mocker):
         pyramid_env = {"request": mocker.sentinel.request}
@@ -397,6 +407,28 @@ def test_make_celery_app(mocker):
     assert tasks._get_celery_app(config) is mocker.sentinel.celery_app
 
 
+class TestTaskLoggingSignals:
+    def test_prerun_binds_task_context(self):
+        task = types.SimpleNamespace(name="warehouse.fake.task")
+
+        tasks.on_task_prerun(None, "task-id-123", task)
+
+        context = structlog.contextvars.get_contextvars()
+        assert context["task_id"] == "task-id-123"
+        assert context["task_name"] == "warehouse.fake.task"
+
+    def test_postrun_clears_task_context(self):
+        structlog.contextvars.bind_contextvars(
+            task_id="task-id-123", task_name="warehouse.fake.task"
+        )
+
+        tasks.on_task_postrun(
+            None, "task-id-123", types.SimpleNamespace(name="warehouse.fake.task")
+        )
+
+        assert structlog.contextvars.get_contextvars() == {}
+
+
 @pytest.mark.parametrize(
     (
         "env",
@@ -446,6 +478,13 @@ def test_includeme(mocker, env, ssl, broker_redis_url, expected_url, transport_o
         spec=["action", "add_directive", "add_request_method", "registry"]
     )
     config.registry = registry
+    task_prerun_connect = mocker.patch.object(
+        signals.task_prerun, "connect", autospec=True
+    )
+    task_postrun_connect = mocker.patch.object(
+        signals.task_postrun, "connect", autospec=True
+    )
+
     tasks.includeme(config)
 
     app = config.registry["celery.app"]
@@ -464,9 +503,12 @@ def test_includeme(mocker, env, ssl, broker_redis_url, expected_url, transport_o
         "task_queue_ha_policy": "all",
         "task_queues": (Queue("default", routing_key="task.#"),),
         "task_routes": {},
+        "worker_hijack_root_logger": False,
         "REDBEAT_REDIS_URL": (config.registry.settings["celery.scheduler_url"]),
     }.items():
         assert app.conf[key] == value
+    task_prerun_connect.assert_called_once_with(tasks.on_task_prerun)
+    task_postrun_connect.assert_called_once_with(tasks.on_task_postrun)
     config.action.assert_called_once_with(("celery", "finalize"), app.finalize)
     assert config.add_directive.call_args_list == [
         mocker.call("add_periodic_task", tasks._add_periodic_task, action_wrap=False),

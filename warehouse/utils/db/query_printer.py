@@ -2,11 +2,11 @@
 
 """Logs the query with the parameters embedded into the query."""
 
-import logging
+import structlog
 
 from sqlalchemy.dialects import postgresql
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 def print_query(query) -> None:

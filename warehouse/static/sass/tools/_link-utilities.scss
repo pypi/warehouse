@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 @use "sass:color";
-@use "../settings/colours";
+@use "../settings/colors";
 
 @mixin link-focus-state($color) {
   &:focus,
@@ -21,23 +21,23 @@
 }
 
 @mixin primary-underlined-link {
-  @include colored-link(colours.$primary-color);
+  @include colored-link(colors.$primary-color);
 }
 
 @mixin danger-underlined-link {
-  @include colored-link(colours.$danger-color);
+  @include colored-link(colors.$danger-color);
 }
 
 @mixin warning-underlined-link {
-  @include colored-link(colours.$warning-color);
+  @include colored-link(colors.$warning-color);
 }
 
 @mixin success-underlined-link {
-  @include colored-link(colours.$success-color);
+  @include colored-link(colors.$success-color);
 }
 
 @mixin white-underlined-link {
-  @include colored-link(colours.$white);
+  @include colored-link(colors.$white);
 }
 
 @mixin link-without-underline {
