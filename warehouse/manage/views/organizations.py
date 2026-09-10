@@ -926,8 +926,13 @@ def _send_organization_invitation(request, organization, role_name, user):
             queue="error",
         )
     else:
-        # Check if organization is in good standing (allow invitations over seat limit)
-        if not organization.is_in_good_standing():
+        is_billing_manager_invite = (
+            role_name == OrganizationRoleType.BillingManager.value
+        )
+
+        if not organization.is_in_good_standing() and not (
+            is_billing_manager_invite and organization.is_awaiting_initial_billing
+        ):
             request.session.flash(
                 request._(
                     "Cannot invite new member. Organization is not in good standing."
@@ -1006,7 +1011,7 @@ def _send_organization_invitation(request, organization, role_name, user):
     context=Organization,
     renderer="warehouse:templates/manage/organization/roles.html",
     uses_session=True,
-    require_active_organization=True,
+    require_active_organization="or_awaiting_billing",
     require_methods=False,
     request_method="GET",
     permission=Permissions.OrganizationsRead,
@@ -1018,7 +1023,7 @@ def _send_organization_invitation(request, organization, role_name, user):
     context=Organization,
     renderer="warehouse:templates/manage/organization/roles.html",
     uses_session=True,
-    require_active_organization=True,
+    require_active_organization="or_awaiting_billing",
     require_methods=False,
     request_method="POST",
     permission=Permissions.OrganizationsManage,
@@ -1030,11 +1035,14 @@ def manage_organization_roles(
 ):
     organization_service = request.find_service(IOrganizationService, context=None)
     user_service = request.find_service(IUserService, context=None)
+    awaiting_initial_billing = organization.is_awaiting_initial_billing
+
     form = _form_class(
         request.POST,
         orgtype=organization.orgtype,
         organization_service=organization_service,
         user_service=user_service,
+        allow_billing_manager_only=awaiting_initial_billing,
     )
 
     if request.method == "POST" and form.validate():
@@ -1061,6 +1069,10 @@ def manage_organization_roles(
         "invitations": invitations,
         "form": form,
         "is_sole_owner": is_sole_owner,
+        "awaiting_initial_billing": awaiting_initial_billing,
+        "role_choices": ChangeOrganizationRoleForm(
+            orgtype=organization.orgtype
+        ).role_name.choices,
     }
 
 
@@ -1068,7 +1080,7 @@ def manage_organization_roles(
     route_name="manage.organization.resend_invite",
     context=Organization,
     uses_session=True,
-    require_active_organization=True,
+    require_active_organization="or_awaiting_billing",
     require_methods=["POST"],
     permission=Permissions.OrganizationsManage,
     has_translations=True,
@@ -1115,7 +1127,7 @@ def resend_organization_invitation(organization, request):
     route_name="manage.organization.revoke_invite",
     context=Organization,
     uses_session=True,
-    require_active_organization=True,
+    require_active_organization="or_awaiting_billing",
     require_methods=["POST"],
     permission=Permissions.OrganizationsManage,
     has_translations=True,
@@ -1211,7 +1223,7 @@ def revoke_organization_invitation(organization, request):
     route_name="manage.organization.change_role",
     context=Organization,
     uses_session=True,
-    require_active_organization=True,
+    require_active_organization="or_awaiting_billing",
     require_methods=["POST"],
     permission=Permissions.OrganizationsManage,
     has_translations=True,
@@ -1287,7 +1299,7 @@ def change_organization_role(
     route_name="manage.organization.delete_role",
     context=Organization,
     uses_session=True,
-    require_active_organization=True,
+    require_active_organization="or_awaiting_billing",
     require_methods=["POST"],
     permission=Permissions.OrganizationsRoleRemove,
     has_translations=True,
