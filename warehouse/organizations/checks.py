@@ -8,8 +8,6 @@ returns None when it does not apply, and CheckStatus.Unknown when it applies but
 cannot reach an answer.
 """
 
-from __future__ import annotations
-
 import dataclasses
 import enum
 import functools
@@ -17,22 +15,20 @@ import re
 
 from collections.abc import Sequence
 from difflib import SequenceMatcher
-from typing import TYPE_CHECKING
 
 from tldextract import TLDExtract
 from urllib3.exceptions import LocationParseError
 from urllib3.util import parse_url
 
-from warehouse.accounts.models import OAuthAccountAssociation
+from warehouse.accounts.models import OAuthAccountAssociation, User
 from warehouse.organizations.constants import (
     MIN_SUBSTRING_LENGTH,
     NAME_SIMILARITY_THRESHOLD,
 )
-from warehouse.organizations.models import OrganizationApplicationStatus
-
-if TYPE_CHECKING:
-    from warehouse.accounts.models import User
-    from warehouse.organizations.models import OrganizationApplication
+from warehouse.organizations.models import (
+    OrganizationApplication,
+    OrganizationApplicationStatus,
+)
 
 _extractor = TLDExtract(suffix_list_urls=())
 
