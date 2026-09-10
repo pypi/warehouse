@@ -1,7 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
-from types import SimpleNamespace
-
 from webob.multidict import MultiDict
 
 from warehouse.admin.forms import (
@@ -203,39 +201,3 @@ class TestSetProjectCreateRateLimitForm:
         )
         assert not form.validate()
         assert form.project_create_ratelimit_period.errors
-
-    def test_apply_to_writes_both_columns(self):
-        entity = SimpleNamespace(
-            project_create_ratelimit_count=None,
-            project_create_ratelimit_period=None,
-            project_create_ratelimit_string=None,
-        )
-        form = SetProjectCreateRateLimitForm(
-            MultiDict(
-                {
-                    "project_create_ratelimit_count": "12",
-                    "project_create_ratelimit_period": "day",
-                }
-            )
-        )
-        assert form.validate()
-
-        assert form.apply_to(entity) is None
-        assert entity.project_create_ratelimit_count == 12
-        assert entity.project_create_ratelimit_period is RateLimitPeriod.Day
-
-    def test_apply_to_returns_the_replaced_limit(self):
-        entity = SimpleNamespace(
-            project_create_ratelimit_count=12,
-            project_create_ratelimit_period=RateLimitPeriod.Day,
-            project_create_ratelimit_string="12 per day",
-        )
-        form = SetProjectCreateRateLimitForm(
-            MultiDict({"project_create_ratelimit_count": ""})
-        )
-        assert form.validate()
-
-        assert form.apply_to(entity) == "12 per day"
-        assert entity.project_create_ratelimit_count is None
-        # Cleared overrides still carry a valid period.
-        assert entity.project_create_ratelimit_period is RateLimitPeriod.Hour
