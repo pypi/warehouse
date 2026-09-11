@@ -6,12 +6,12 @@ import { Controller } from "@hotwired/stimulus";
 // name). The select itself shows the installer name, so the visible UI
 // reads as "<select-value> <suffix>" with no duplication. ${u} is the
 // test-PyPI index URL ("" on prod). Each installer formats its own flag
-// since they differ (pip/uv/pipenv: -i, pdm: --index-url, poetry: --source
+// since they differ (pip/pipenv: -i, uv: --index, pdm: --index-url, poetry: --source
 // pointing at a source named "testpypi" that the user has registered once
 // via `poetry source add --priority=supplemental testpypi <url>`).
 const SUFFIX = {
   pip:    (s, u) => `install${u ? ` -i ${u}` : ""} ${s}`,
-  uv:     (s, u) => `pip install${u ? ` -i ${u}` : ""} ${s}`,
+  uv:     (s, u) => `add${u ? ` --index ${u}` : ""} ${s}`,
   pdm:    (s, u) => `add${u ? ` --index-url ${u}` : ""} ${s}`,
   pipenv: (s, u) => `install${u ? ` -i ${u}` : ""} ${s}`,
   poetry: (s, u) => `add${u ? " --source testpypi" : ""} ${s}`,
@@ -45,9 +45,10 @@ export default class extends Controller {
 
   connect() {
     const saved = readCookie(COOKIE);
-    if (saved && saved in SUFFIX) {
+    if (saved === "name" || Object.hasOwn(SUFFIX, saved)) {
       this.selectTarget.value = saved;
     }
+    this.selectTarget.disabled = false;
     this.render();
   }
 
@@ -58,12 +59,14 @@ export default class extends Controller {
 
   render() {
     const installer = this.selectTarget.value;
-    const tmpl = SUFFIX[installer] || SUFFIX[FALLBACK];
+    const nameOnly = installer === "name";
     const spec = `${this.nameValue}${this.specValue}`;
     const quoted = this.quoteValue ? `'${spec}'` : spec;
-    const suffix = tmpl(quoted, this.indexValue);
+    const suffix = nameOnly
+      ? this.nameValue
+      : (SUFFIX[installer] || SUFFIX[FALLBACK])(quoted, this.indexValue);
     if (this.hasCommandTarget) this.commandTarget.textContent = suffix;
-    if (this.hasFullTarget) this.fullTarget.textContent = `${installer} ${suffix}`;
+    if (this.hasFullTarget) this.fullTarget.textContent = nameOnly ? suffix : `${installer} ${suffix}`;
     if (this.hasPoetryNoteTarget) this.poetryNoteTarget.hidden = installer !== "poetry";
   }
 }
