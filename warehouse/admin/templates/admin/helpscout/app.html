@@ -104,7 +104,7 @@
 </div>
 <div class="c-sb-section__body">
   <ul class="unstyled">
-    {% for role in user.organization_roles %}
+    {% for role in user.organization_roles|sort(attribute='organization.name') %}
     <li>
       <a target="_blank" rel="noopener" href="{{ request.route_url('organizations.profile', organization=role.organization.name) }}">{{ role.organization.name }}</a>
       {% if role.role_name == OrganizationRoleType.Owner %}{% set badge_color = 'green' %}
