@@ -7,6 +7,11 @@
 {% trans organization_name=organization_name %}Your new organization named '{{ organization_name }}' has been approved and created.{% endtrans %}
 
 {% trans %}You are the owner of the new organization and can log in to manage organization projects, collaborators, teams, or settings.{% endtrans %}
+
+{% trans %}Manage organization{% endtrans %}
+
+{{ request.route_url('manage.organization.settings', organization_name=organization_name, _host=domain) }}
+
 {% if organization_type == 'Company' %}
 
 {% trans %}Action Required:{% endtrans %} {% trans %}As this is a Company organization, you must purchase at least one (1) seat. Company organizations without an active subscription are deactivated after 30 days.{% endtrans %}
@@ -21,4 +26,6 @@ https://www.surveymonkey.com/r/H53HHSS
 {% endif %}
 
 {{ message }}
+
+{% trans %}– The PyPI Team{% endtrans %}
 {% endblock %}

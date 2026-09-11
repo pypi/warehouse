@@ -6,6 +6,9 @@
     {% trans organization_name=organization_name %}Your new organization named '{{ organization_name }}' has been approved and created.{% endtrans %}
   </p>
   {% trans %}You are the owner of the new organization and can log in to manage organization projects, collaborators, teams, or settings.{% endtrans %}
+  <p>
+    <a href="{{ request.route_url('manage.organization.settings', organization_name=organization_name, _host=domain) }}">{% trans %}Manage organization{% endtrans %}</a>
+  </p>
   {% if organization_type == 'Company' %}
     <p>
       <strong>{% trans %}Action Required:{% endtrans %}</strong> {% trans %}As this is a Company organization, you must purchase at least one (1) seat. Company organizations without an active subscription are deactivated after 30 days.{% endtrans %}
@@ -18,4 +21,5 @@
     </p>
   {% endif %}
   <p>{{ message }}</p>
+  <p>{% trans %}– The PyPI Team{% endtrans %}</p>
 {% endblock %}
