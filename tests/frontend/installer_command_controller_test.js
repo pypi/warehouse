@@ -1,9 +1,11 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-/* global expect, beforeEach, describe, it */
+/* global expect, beforeEach, afterEach, describe, it */
 
 import { Application } from "@hotwired/stimulus";
 import InstallerCommandController from "../../warehouse/static/js/warehouse/controllers/installer_command_controller";
+
+let application;
 
 function mount({ name = "django", spec = "", index = "", quote = "false" } = {}) {
   document.body.innerHTML = `
@@ -19,13 +21,14 @@ function mount({ name = "django", spec = "", index = "", quote = "false" } = {})
         <option value="poetry">poetry</option>
         <option value="pdm">pdm</option>
         <option value="pipenv">pipenv</option>
+        <option value="name">Project name</option>
       </select>
       <span data-installer-command-target="command">placeholder</span>
       <span data-installer-command-target="full">placeholder</span>
       <p hidden data-installer-command-target="poetryNote">note</p>
     </div>
   `;
-  const application = Application.start();
+  application = Application.start();
   application.register("installer-command", InstallerCommandController);
   return {
     select: document.querySelector("select"),
@@ -43,6 +46,12 @@ describe("InstallerCommandController", () => {
     clearInstallerCookie();
   });
 
+  afterEach(() => {
+    application.stop();
+    document.body.innerHTML = "";
+    clearInstallerCookie();
+  });
+
   it("renders pip suffix and full command by default", async () => {
     const { command, full } = mount();
     await Promise.resolve();
@@ -55,8 +64,8 @@ describe("InstallerCommandController", () => {
     await Promise.resolve();
     select.value = "uv";
     select.dispatchEvent(new Event("change"));
-    expect(command.textContent).toBe("pip install django");
-    expect(full.textContent).toBe("uv pip install django");
+    expect(command.textContent).toBe("add django");
+    expect(full.textContent).toBe("uv add django");
     expect(document.cookie).toContain("pypi-installer=uv");
   });
 
@@ -77,7 +86,7 @@ describe("InstallerCommandController", () => {
     expect(full.textContent).toBe("pip install -i https://test.pypi.org/simple/ django");
     select.value = "uv";
     select.dispatchEvent(new Event("change"));
-    expect(full.textContent).toBe("uv pip install -i https://test.pypi.org/simple/ django");
+    expect(full.textContent).toBe("uv add --index https://test.pypi.org/simple/ django");
     select.value = "pdm";
     select.dispatchEvent(new Event("change"));
     expect(full.textContent).toBe("pdm add --index-url https://test.pypi.org/simple/ django");
@@ -118,6 +127,33 @@ describe("InstallerCommandController", () => {
     expect(full.textContent).toBe("pip install django");
   });
 
+  it("copies only the name on an epoch release from TestPyPI and restores the command", async () => {
+    const { select, command, full } = mount({
+      spec: "==1!2.0", quote: "true", index: "https://test.pypi.org/simple/",
+    });
+    await Promise.resolve();
+    select.value = "name";
+    select.dispatchEvent(new Event("change"));
+    expect(command.textContent).toBe("django");
+    expect(full.textContent).toBe("django");
+    expect(document.querySelector("[data-installer-command-target='poetryNote']").hidden).toBe(true);
+    select.value = "uv";
+    select.dispatchEvent(new Event("change"));
+    expect(full.textContent).toBe("uv add --index https://test.pypi.org/simple/ 'django==1!2.0'");
+  });
+
+  it("remembers name-only copying when navigating to another project", async () => {
+    const first = mount();
+    await Promise.resolve();
+    first.select.value = "name";
+    first.select.dispatchEvent(new Event("change"));
+    application.stop();
+    const second = mount({ name: "requests", spec: "==2.32.0" });
+    await Promise.resolve();
+    expect(second.select.value).toBe("name");
+    expect(second.full.textContent).toBe("requests");
+  });
+
   it("renders without errors when only one of command/full is present", async () => {
     document.body.innerHTML = `
       <div data-controller="installer-command"
@@ -133,7 +169,7 @@ describe("InstallerCommandController", () => {
         <code data-installer-command-target="full">placeholder</code>
       </div>
     `;
-    const application = Application.start();
+    application = Application.start();
     application.register("installer-command", InstallerCommandController);
     await Promise.resolve();
     const code = document.querySelector("code");
