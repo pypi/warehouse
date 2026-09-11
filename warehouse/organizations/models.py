@@ -335,6 +335,17 @@ class OrganizationMixin:
 class Organization(OrganizationMixin, HasEvents, db.Model):
     __tablename__ = "organizations"
 
+    @declared_attr
+    def __table_args__(cls):
+        return (
+            *super().__table_args__,
+            CheckConstraint(
+                "(project_create_ratelimit_count IS NULL) = "
+                "(project_create_ratelimit_period IS NULL)",
+                name="organizations_project_create_ratelimit_complete",
+            ),
+        )
+
     __repr__ = make_repr("name")
 
     normalized_name: Mapped[str] = mapped_column(
@@ -364,7 +375,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
     )
     project_create_ratelimit_period: Mapped[RateLimitPeriod | None] = mapped_column(
         comment=(
-            "Period the count is measured over. Ignored while "
+            "Period the count is measured over. Must be NULL exactly when "
             "project_create_ratelimit_count is NULL."
         ),
     )
@@ -421,10 +432,15 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
     @property
     def project_create_ratelimit_string(self) -> str | None:
         """Composed `limits`-syntax string, or None when no override is set."""
-        if self.project_create_ratelimit_count is None:
+        count = self.project_create_ratelimit_count
+        period = self.project_create_ratelimit_period
+        if count is None and period is None:
             return None
-        period = self.project_create_ratelimit_period or RateLimitPeriod.Hour
-        return f"{self.project_create_ratelimit_count} per {period.value}"
+        if count is None or period is None:
+            raise ValueError(
+                "Project creation rate limit requires both count and period"
+            )
+        return f"{count} per {period.value}"
 
     @property
     def owners(self):
