@@ -44,7 +44,7 @@ COUNT_COMMENT = (
     "NULL means no override: the configured default applies."
 )
 PERIOD_COMMENT = (
-    "Period the count is measured over. Ignored while "
+    "Period the count is measured over. Must be NULL exactly when "
     "project_create_ratelimit_count is NULL."
 )
 PERIODS = ("hour", "day", "month")
@@ -72,9 +72,19 @@ def upgrade():
                 comment=PERIOD_COMMENT,
             ),
         )
+        op.create_check_constraint(
+            f"{table}_project_create_ratelimit_complete",
+            table,
+            "(project_create_ratelimit_count IS NULL) = "
+            "(project_create_ratelimit_period IS NULL)",
+        )
 
 
 def downgrade():
+    for table in ("users", "organizations"):
+        op.drop_constraint(
+            f"{table}_project_create_ratelimit_complete", table, type_="check"
+        )
     op.drop_column("users", "project_create_ratelimit_period")
     op.drop_column("users", "project_create_ratelimit_count")
     op.drop_column("organizations", "project_create_ratelimit_period")
