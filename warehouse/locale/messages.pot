@@ -2415,17 +2415,72 @@ msgid ""
 "administrators."
 msgstr ""
 
-#: warehouse/templates/email/new-organization-approved/body.html:5
+#: warehouse/templates/email/new-organization-approved/body.html:6
 #, python-format
 msgid ""
 "Your new organization named '%(organization_name)s' has been approved and"
 " created."
 msgstr ""
 
-#: warehouse/templates/email/new-organization-approved/body.html:7
+#: warehouse/templates/email/new-organization-approved/body.html:8
 msgid ""
 "You are the owner of the new organization and can log in to manage "
 "organization projects, collaborators, teams, or settings."
+msgstr ""
+
+#: warehouse/templates/email/new-organization-approved/body.html:10
+msgid "Manage organization"
+msgstr ""
+
+#: warehouse/templates/email/new-organization-approved/body.html:14
+msgid "Action Required:"
+msgstr ""
+
+#: warehouse/templates/email/new-organization-approved/body.html:14
+msgid ""
+"As this is a Company organization, you must purchase at least one (1) "
+"seat. Company organizations without an active subscription are "
+"deactivated after 30 days. After deactivation, the organization name may "
+"be made available for others to claim through a new organization "
+"application."
+msgstr ""
+
+#: warehouse/templates/email/new-organization-approved/body.html:17
+msgid "Activate your subscription"
+msgstr ""
+
+#: warehouse/templates/email/new-organization-approved/body.html:20
+#: warehouse/templates/email/organization-subscription-required/body.html:20
+msgid ""
+"Company organizations are for for-profit companies. Community "
+"organizations are for community-supported projects and teams. Non-"
+"profits, NGOs, schools, and other non-commercial groups belong here too; "
+"you do not need to be an informal project to qualify. Publishing open-"
+"source packages does not by itself qualify a company for a Community "
+"organization."
+msgstr ""
+
+#: warehouse/templates/email/new-organization-approved/body.html:23
+#: warehouse/templates/includes/manage/company-org-survey-callout.html:14
+msgid "Interested in a PyPI service agreement?"
+msgstr ""
+
+#: warehouse/templates/email/new-organization-approved/body.html:23
+msgid ""
+"Enhanced options like annual bulk seat purchases, higher project size "
+"limits, and prioritized support are available."
+msgstr ""
+
+#: warehouse/templates/email/new-organization-approved/body.html:23
+msgid "Fill out our service agreement interest survey"
+msgstr ""
+
+#: warehouse/templates/email/new-organization-approved/body.html:23
+msgid "and we'll follow up."
+msgstr ""
+
+#: warehouse/templates/email/new-organization-approved/body.html:27
+msgid "– The PyPI Team"
 msgstr ""
 
 #: warehouse/templates/email/new-organization-declined/body.html:5
@@ -3280,10 +3335,6 @@ msgstr ""
 #: warehouse/templates/manage/project/releases.html:203
 #: warehouse/templates/manage/project/settings.html:60
 msgid "Dismiss"
-msgstr ""
-
-#: warehouse/templates/includes/manage/company-org-survey-callout.html:14
-msgid "Interested in a PyPI service agreement?"
 msgstr ""
 
 #: warehouse/templates/includes/manage/company-org-survey-callout.html:16
