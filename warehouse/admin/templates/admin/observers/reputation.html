@@ -35,73 +35,50 @@
 {# Summary Statistics #}
 <div class="row">
   <div class="col-lg-3 col-6">
-    <div class="small-box bg-info">
-      <div class="inner">
-        <h3>{{ summary.total_observations }}</h3>
-        <p>Total Malware Reports</p>
-      </div>
-      <div class="icon">
-        <i class="fa-solid fa-dumpster-fire"></i>
-      </div>
-    </div>
+    {% component "admin.stat_card",
+       color="bg-info",
+       value=summary.total_observations | string,
+       description="Total Malware Reports",
+       icon="fa-dumpster-fire" %}
   </div>
   <div class="col-lg-3 col-6">
-    <div class="small-box bg-success">
-      <div class="inner">
-        <h3>{{ summary.total_true_positives }}</h3>
-        <p>True Positives (Removed)</p>
-      </div>
-      <div class="icon">
-        <i class="fa-solid fa-check-circle"></i>
-      </div>
-    </div>
+    {% component "admin.stat_card",
+       color="bg-success",
+       value=summary.total_true_positives | string,
+       description="True Positives (Removed)",
+       icon="fa-check-circle" %}
   </div>
   <div class="col-lg-3 col-6">
-    <div class="small-box bg-danger">
-      <div class="inner">
-        <h3>{{ summary.total_false_positives }}</h3>
-        <p>False Positives</p>
-      </div>
-      <div class="icon">
-        <i class="fa-solid fa-times-circle"></i>
-      </div>
-    </div>
+    {% component "admin.stat_card",
+       color="bg-danger",
+       value=summary.total_false_positives | string,
+       description="False Positives",
+       icon="fa-times-circle" %}
   </div>
   <div class="col-lg-3 col-6">
-    <div class="small-box bg-warning">
-      <div class="inner">
-        <h3>{{ summary.total_pending }}</h3>
-        <p>Pending Review</p>
-      </div>
-      <div class="icon">
-        <i class="fa-solid fa-hourglass-half"></i>
-      </div>
-    </div>
+    {% component "admin.stat_card",
+       color="bg-warning",
+       value=summary.total_pending | string,
+       description="Pending Review",
+       icon="fa-hourglass-half" %}
   </div>
 </div>
 
 <div class="row">
   <div class="col-lg-3 col-6">
-    <div class="small-box bg-gradient-purple">
-      <div class="inner">
-        <h3>{{ summary.overall_accuracy if summary.overall_accuracy is not none else 'N/A' }}{% if summary.overall_accuracy is not none %}%{% endif %}</h3>
-        <p>Overall Accuracy Rate</p>
-      </div>
-      <div class="icon">
-        <i class="fa-solid fa-chart-line"></i>
-      </div>
-    </div>
+    {% component "admin.stat_card",
+       color="bg-gradient-purple",
+       value=(summary.overall_accuracy ~ "%")
+             if summary.overall_accuracy is not none else "N/A",
+       description="Overall Accuracy Rate",
+       icon="fa-chart-line" %}
   </div>
   <div class="col-lg-3 col-6">
-    <div class="small-box bg-gradient-teal">
-      <div class="inner">
-        <h3>{{ summary.observer_count }}</h3>
-        <p>Active Observers</p>
-      </div>
-      <div class="icon">
-        <i class="fa-solid fa-users"></i>
-      </div>
-    </div>
+    {% component "admin.stat_card",
+       color="bg-gradient-teal",
+       value=summary.observer_count | string,
+       description="Active Observers",
+       icon="fa-users" %}
   </div>
 </div>
 
