@@ -11,7 +11,7 @@
   </p>
   {% if organization_type == 'Company' %}
     <p>
-      <strong>{% trans %}Action Required:{% endtrans %}</strong> {% trans %}As this is a Company organization, you must purchase at least one (1) seat. Company organizations without an active subscription are deactivated after 30 days.{% endtrans %}
+      <strong>{% trans %}Action Required:{% endtrans %}</strong> {% trans %}As this is a Company organization, you must purchase at least one (1) seat. Company organizations without an active subscription are deactivated after 30 days. After deactivation, the organization name may be made available for others to claim through a new organization application.{% endtrans %}
     </p>
     <p>
       <strong><a href="{{ request.route_url('manage.organization.activate_subscription', organization_name=organization_name, _host=domain) }}">{% trans %}Activate your subscription{% endtrans %}</a></strong>
