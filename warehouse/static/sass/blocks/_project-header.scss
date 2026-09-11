@@ -79,12 +79,14 @@
         right: 8px;
         pointer-events: none;
         border: 4px solid transparent;
-        border-top-color: currentColor;
+        border-top-color: currentcolor;
         transform: translateY(-25%);
       }
 
       select {
         appearance: none;
+        field-sizing: content;
+        width: fit-content;
         min-width: 0;
         min-height: 100%;
         margin: 0;
@@ -106,7 +108,7 @@
         }
 
         &:focus-visible {
-          outline: 2px solid currentColor;
+          outline: 2px solid currentcolor;
           outline-offset: -3px;
         }
       }
