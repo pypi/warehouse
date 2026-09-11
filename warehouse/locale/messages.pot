@@ -2415,38 +2415,46 @@ msgid ""
 "organization projects, collaborators, teams, or settings."
 msgstr ""
 
-#: warehouse/templates/email/new-organization-approved/body.html:11
+#: warehouse/templates/email/new-organization-approved/body.html:10
+msgid "Manage organization"
+msgstr ""
+
+#: warehouse/templates/email/new-organization-approved/body.html:14
 msgid "Action Required:"
 msgstr ""
 
-#: warehouse/templates/email/new-organization-approved/body.html:11
+#: warehouse/templates/email/new-organization-approved/body.html:14
 msgid ""
 "As this is a Company organization, you must purchase at least one (1) "
 "seat. Company organizations without an active subscription are "
 "deactivated after 30 days."
 msgstr ""
 
-#: warehouse/templates/email/new-organization-approved/body.html:14
+#: warehouse/templates/email/new-organization-approved/body.html:17
 msgid "Activate your subscription"
 msgstr ""
 
-#: warehouse/templates/email/new-organization-approved/body.html:17
+#: warehouse/templates/email/new-organization-approved/body.html:20
 #: warehouse/templates/includes/manage/company-org-survey-callout.html:14
 msgid "Interested in a PyPI service agreement?"
 msgstr ""
 
-#: warehouse/templates/email/new-organization-approved/body.html:17
+#: warehouse/templates/email/new-organization-approved/body.html:20
 msgid ""
 "Enhanced options like annual bulk seat purchases, higher project size "
 "limits, and prioritized support are available."
 msgstr ""
 
-#: warehouse/templates/email/new-organization-approved/body.html:17
+#: warehouse/templates/email/new-organization-approved/body.html:20
 msgid "Fill out our service agreement interest survey"
 msgstr ""
 
-#: warehouse/templates/email/new-organization-approved/body.html:17
+#: warehouse/templates/email/new-organization-approved/body.html:20
 msgid "and we'll follow up."
+msgstr ""
+
+#: warehouse/templates/email/new-organization-approved/body.html:24
+msgid "– The PyPI Team"
 msgstr ""
 
 #: warehouse/templates/email/new-organization-declined/body.html:5
