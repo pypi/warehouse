@@ -677,19 +677,6 @@ def send_organization_subscription_required_email(
     }
 
 
-@_email("organization-deactivated")
-def send_organization_deactivated_email(
-    request: Request,
-    user: User,
-    *,
-    organization_name: str,
-) -> dict[str, str]:
-    return {
-        "username": user.username,
-        "organization_name": organization_name,
-    }
-
-
 @_email("team-created")
 def send_team_created_email(request, user, *, organization_name, team_name):
     return {

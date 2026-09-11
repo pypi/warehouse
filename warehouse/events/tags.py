@@ -168,7 +168,6 @@ class EventTag:
         OrganizationApprove = "organization:approve"
         OrganizationApplicationSubmit = "organization:application_submit"
         OrganizationCreate = "organization:create"
-        OrganizationDeactivate = "organization:deactivate"
         OrganizationDecline = "organization:decline"
         OrganizationDelete = "organization:delete"
         OrganizationRename = "organization:rename"

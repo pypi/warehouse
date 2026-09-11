@@ -5,7 +5,6 @@ from celery.schedules import crontab
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.services import database_organization_factory
 from warehouse.organizations.tasks import (
-    deactivate_organizations_requiring_subscription,
     delete_declined_organization_applications,
     notify_organizations_requiring_subscription,
     update_organization_invitation_status,
@@ -30,7 +29,4 @@ def includeme(config):
     config.add_periodic_task(
         crontab(minute=0, hour=0, day_of_week=1),
         notify_organizations_requiring_subscription,
-    )
-    config.add_periodic_task(
-        crontab(minute=0, hour=0), deactivate_organizations_requiring_subscription
     )
