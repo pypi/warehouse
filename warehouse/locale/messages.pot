@@ -2427,7 +2427,9 @@ msgstr ""
 msgid ""
 "As this is a Company organization, you must purchase at least one (1) "
 "seat. Company organizations without an active subscription are "
-"deactivated after 30 days."
+"deactivated after 30 days. After deactivation, the organization name may "
+"be made available for others to claim through a new organization "
+"application."
 msgstr ""
 
 #: warehouse/templates/email/new-organization-approved/body.html:17
