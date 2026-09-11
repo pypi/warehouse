@@ -10,6 +10,7 @@ from pyramid_jinja2 import IJinja2Environment
 from sqlalchemy.sql import func
 
 from warehouse.accounts.models import Email
+from warehouse.organizations.models import OrganizationRoleType
 
 NO_USER_FOUND_RESPONSE = {
     "html": '<span class="badge pending">No PyPI user found</span>'
@@ -63,7 +64,10 @@ def helpscout(request):
         return NO_USER_FOUND_RESPONSE
 
     env = request.registry.queryUtility(IJinja2Environment, name=".jinja2")
-    context = {"users": [e.user for e in emails]}
+    context = {
+        "users": [e.user for e in emails],
+        "OrganizationRoleType": OrganizationRoleType,
+    }
     template = env.get_template("admin/templates/admin/helpscout/app.html")
     content = template.render(**context, request=request)
 
