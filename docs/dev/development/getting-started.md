@@ -247,7 +247,7 @@ TUF trust root for development, and creates the initial set of TUF metadata.
     the TUF metadata repository:
 
     * RSTUF API: http://localhost:8001
-    * TUF Metadata Repository: http://files.localhost/tuf-metadata/
+    * TUF Metadata Repository: http://localhost:9001/tuf-metadata/
 
 ### Resetting the development database
 

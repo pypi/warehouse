@@ -13,18 +13,22 @@ volumes:
 
 services:
   traefik:
-    image: traefik:v3.6
+    image: traefik:v3.7
     command:
       - "--api.insecure=true"  # enables dashboard on 8080 with no routing rules
       - "--providers.docker=true"
       - "--providers.docker.exposedByDefault=false"
-      - "--entrypoints.web.address=:80"  # port mapping to `web` service, not host-facing
+      - "--entrypoints.web.address=:80"  # web application, addressable at http://localhost/
+      - "--entrypoints.camo.address=:9000"  # camo image proxy, addressable at http://localhost:9000/
+      - "--entrypoints.files.address=:9001"  # file server, addressable at http://localhost:9001/
       # TODO: Is this too noisy, duplicating the web logs?
       # - "--accesslog=true"
       # - "--accesslog.format=json"
     ports:
       - "${WEB_PORT:-80}:80"
       - "${TRAEFIK_DASHBOARD_PORT:-8080}:8080"
+      - "9000:9000"
+      - "9001:9001"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
@@ -84,8 +88,8 @@ services:
     command: "/bin/go-camo --listen=0.0.0.0:9000 --header 'Access-Control-Allow-Origin: *'"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.camo.rule=Host(`camo.localhost`)"
-      - "traefik.http.routers.camo.entrypoints=web"
+      - "traefik.http.routers.camo.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.camo.entrypoints=camo"
       - "traefik.http.services.camo.loadbalancer.server.port=9000"
     environment:
       GOCAMO_HMAC: "insecurecamokey"
@@ -165,8 +169,8 @@ services:
       - rstuf-metadata:/var/opt/warehouse/tuf-metadata
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.files.rule=Host(`files.localhost`)"
-      - "traefik.http.routers.files.entrypoints=web"
+      - "traefik.http.routers.files.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.files.entrypoints=files"
       - "traefik.http.services.files.loadbalancer.server.port=9001"
 
   worker:
