@@ -185,6 +185,7 @@ class TestDatabaseOrganizationService:
             db_request,
             organization_application.submitted_by,
             organization_name=organization.name,
+            organization_type=organization.orgtype,
             message="",
         )
         send_declined.assert_called_once_with(
