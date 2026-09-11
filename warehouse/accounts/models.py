@@ -476,7 +476,9 @@ class ProhibitedEmailDomain(db.Model):
         ForeignKey("users.id"),
         index=True,
     )
-    prohibited_by: Mapped[User] = orm.relationship(User)
+    # Nullable: rows the disposable-domain check writes have no admin behind
+    # them, so every reader has to guard before reaching for .username.
+    prohibited_by: Mapped[User | None] = orm.relationship(User)
     comment: Mapped[str] = mapped_column(server_default="")
 
 
