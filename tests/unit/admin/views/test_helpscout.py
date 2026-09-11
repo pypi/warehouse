@@ -122,7 +122,7 @@ class TestHelpscoutApp:
 
     def test_valid_auth_renders_organizations(self, db_request, mocker):
         email = EmailFactory.create(email="rza@wutang.com")
-        # excerise sorting
+        # exercise sorting
         member_org = OrganizationFactory.create(name="Zzz-wutang")
         member_role = OrganizationRoleFactory.create(
             organization=member_org,
@@ -153,6 +153,14 @@ class TestHelpscoutApp:
             role_name=OrganizationRoleType.BillingManager,
         )
 
+        # Another user's organization must not leak into this sidebar.
+        other_org = OrganizationFactory.create(name="nnn-notmine")
+        OrganizationRoleFactory.create(
+            organization=other_org,
+            user=UserFactory.create(username="ghostface"),
+            role_name=OrganizationRoleType.Owner,
+        )
+
         db_request.registry.settings["admin.helpscout.app_secret"] = "s3cr3t"
         db_request.json_body = {"customer": {"email": "rza@wutang.com"}}
         db_request.body = json.dumps(db_request.json_body).encode()
@@ -172,6 +180,9 @@ class TestHelpscoutApp:
         assert html.index("alpha-owner") < html.index("zeta-owner")
         # Only the two organizations that have an Owner list one.
         assert html.count("Owners:") == 2
+
+        assert other_org.name not in html
+        assert "ghostface" not in html
 
         # Organizations render sorted by name, case-insensitively.
         assert [
