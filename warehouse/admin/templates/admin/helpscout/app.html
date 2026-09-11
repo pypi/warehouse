@@ -106,7 +106,11 @@
   <ul class="unstyled">
     {% for role in user.organization_roles|sort(attribute='organization.name') %}
     <li>
+      {% if role.organization.is_active %}
       <a target="_blank" rel="noopener" href="{{ request.route_url('organizations.profile', organization=role.organization.name) }}">{{ role.organization.name }}</a>
+      {% else %}
+      {{ role.organization.name }} <span class="badge red">Inactive</span>
+      {% endif %}
       {% if role.role_name == OrganizationRoleType.Owner %}{% set badge_color = 'green' %}
       {% elif role.role_name == OrganizationRoleType.Member %}{% set badge_color = 'pending' %}
       {% else %}{% set badge_color = 'blue' %}{% endif %}
