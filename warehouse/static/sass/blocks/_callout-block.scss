@@ -19,6 +19,8 @@
   // Dismissable
     - Add data attributes to connect to JS script
     - Add ARIA labels to close button
+    - Add data-dismissable-setting="global" to persist across whole site
+      - Without "global" the dismissal persists for specific pages only
 
   <div class="callout-block" data-controller="dismissable" data-dismissable-identifier="releases">
     <button type="button" title="Dismiss" data-action="click->dismissable#dismiss" class="callout-block__dismiss" aria-label="Close">

@@ -250,6 +250,7 @@ def pyramid_services(
     services.register_service(search_service, ISearchService)
     services.register_service(domain_status_service, IDomainStatusService)
     services.register_service(email_reputation_service, IEmailReputationService)
+    services.register_service(ratelimit_service, IRateLimiter, name="accounts.register")
     services.register_service(ratelimit_service, IRateLimiter, name="email.add")
     services.register_service(ratelimit_service, IRateLimiter, name="email.change")
     services.register_service(ratelimit_service, IRateLimiter, name="email.verify")
@@ -404,6 +405,9 @@ def get_app_config(database, nondefaults=None):
         "sessions.secret": "123456",
         "sessions.url": "redis://localhost:0/",
         "statuspage.url": "https://2p66nmmycsj3.statuspage.io",
+        "warehouse.organizations.service_agreement_survey_url": (
+            "https://example.com/service-agreement-survey"
+        ),
         "warehouse.xmlrpc.cache.url": "redis://localhost:0/",
         "terms.revision": "initial",
         "oidc.jwk_cache_url": "redis://localhost:0/",
