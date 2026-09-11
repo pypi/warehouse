@@ -35,6 +35,7 @@ from warehouse import db
 from warehouse.accounts.models import TermsOfServiceEngagement, User
 from warehouse.authnz import Permissions
 from warehouse.events.models import HasEvents
+from warehouse.events.tags import EventTag
 from warehouse.observations.models import HasObservations, Observation, ObservationKind
 from warehouse.utils.attrs import make_repr
 from warehouse.utils.db import orm_session_from_obj
@@ -393,7 +394,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
             viewonly=True,
         )
     )
-    manual_activation: Mapped[OrganizationManualActivation] = relationship(
+    manual_activation: Mapped[OrganizationManualActivation | None] = relationship(
         back_populates="organization",
         uselist=False,
     )
@@ -458,6 +459,34 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         return self.active_subscription is not None or (
             self.manual_activation is not None and self.manual_activation.is_active
         )
+
+    @property
+    def is_awaiting_initial_billing(self) -> bool:
+        """Check if this Company organization has never activated billing."""
+        if not self.is_active or self.orgtype != OrganizationType.Company:
+            return False
+
+        if bool(self.subscriptions) or self.manual_activation is not None:
+            return False
+
+        return (
+            self.events.filter(
+                self.Event.tag.in_(
+                    (
+                        EventTag.Organization.SubscriptionCreate,
+                        EventTag.Organization.ManualActivationAdd,
+                    )
+                )
+            ).first()
+            is None
+        )
+
+    def can_manage_members(self) -> bool:
+        """Check if this organization may invite or remove members.
+
+        Only for good standing orgs or orgs needing to invite billing managers.
+        """
+        return self.is_in_good_standing() or self.is_awaiting_initial_billing
 
     def get_billing_status_display(self) -> str:
         """Get a human-readable billing status for display in forms.

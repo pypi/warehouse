@@ -43,7 +43,14 @@ class TestRequireHTTPSTween:
         assert tween(pyramid_request) is mocker.sentinel.response
         handler.assert_called_once_with(pyramid_request)
 
-    @pytest.mark.parametrize(("params", "scheme"), [({":action": "thing"}, "http")])
+    @pytest.mark.parametrize(
+        ("params", "scheme"),
+        [
+            ({":action": "thing"}, "http"),
+            ({":action": None}, "http"),
+            ({":action": ""}, "http"),
+        ],
+    )
     def test_rejects(self, params, scheme, pyramid_request, mocker):
         pyramid_request.params = params
         pyramid_request.scheme = scheme
@@ -343,6 +350,7 @@ def test_configure(monkeypatch, mocker, settings, environment):
         "warehouse.account.verify_email_ratelimit_string": "3 per 6 hours",
         "warehouse.account.accounts_search_ratelimit_string": "100 per hour",
         "warehouse.account.password_reset_ratelimit_string": "5 per day",
+        "warehouse.account.register_ratelimit_string": "10 per 5 minutes, 30 per hour",
         "warehouse.manage.oidc.user_registration_ratelimit_string": "100 per day",
         "warehouse.manage.oidc.ip_registration_ratelimit_string": "100 per day",
         "warehouse.packaging.project_create_user_ratelimit_string": "20 per hour",
