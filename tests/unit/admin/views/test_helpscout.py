@@ -12,7 +12,7 @@ from warehouse.admin.views import helpscout as views
 from warehouse.organizations.models import OrganizationRoleType
 
 from ....common.db.accounts import EmailFactory
-from ....common.db.organizations import OrganizationRoleFactory
+from ....common.db.organizations import OrganizationFactory, OrganizationRoleFactory
 
 
 def _sign_request(db_request):
@@ -122,11 +122,27 @@ class TestHelpscoutApp:
 
     def test_valid_auth_renders_organizations(self, db_request, mocker):
         email = EmailFactory.create(email="rza@wutang.com")
-        role = OrganizationRoleFactory.create(
-            user=email.user, role_name=OrganizationRoleType.Member
+        # excerise sorting
+        member_org = OrganizationFactory.create(name="Zzz-wutang")
+        member_role = OrganizationRoleFactory.create(
+            organization=member_org,
+            user=email.user,
+            role_name=OrganizationRoleType.Member,
         )
         owner_role = OrganizationRoleFactory.create(
-            organization=role.organization, role_name=OrganizationRoleType.Owner
+            organization=member_org, role_name=OrganizationRoleType.Owner
+        )
+        active_org = OrganizationFactory.create(name="aaa-wutang")
+        OrganizationRoleFactory.create(
+            organization=active_org,
+            user=email.user,
+            role_name=OrganizationRoleType.Owner,
+        )
+        inactive_org = OrganizationFactory.create(name="mmm-wutang", is_active=False)
+        OrganizationRoleFactory.create(
+            organization=inactive_org,
+            user=email.user,
+            role_name=OrganizationRoleType.BillingManager,
         )
 
         db_request.registry.settings["admin.helpscout.app_secret"] = "s3cr3t"
@@ -140,13 +156,35 @@ class TestHelpscoutApp:
         result = views.helpscout(db_request)
 
         html = result["html"]
-        assert role.organization.name in html
+        assert "Organizations (3)" in html
         assert '<span class="badge pending">Member</span>' in html
-        assert "Owners:" in html
+        assert '<span class="badge green">Owner</span>' in html
+        assert '<span class="badge blue">Billing Manager</span>' in html
         assert owner_role.user.username in html
-        route_url.assert_any_call(
-            "organizations.profile", organization=role.organization.name
+        # Only the two organizations that have an Owner list one.
+        assert html.count("Owners:") == 2
+
+        # Organizations render sorted by name, case-insensitively.
+        assert [
+            org.name
+            for org in sorted(
+                (active_org, inactive_org, member_org), key=lambda o: html.index(o.name)
+            )
+        ] == ["aaa-wutang", "mmm-wutang", "Zzz-wutang"]
+
+        # Inactive organizations have no public profile, so only name them.
+        assert f'{inactive_org.name} <span class="badge red">Inactive</span>' in html
+        assert (
+            mocker.call("organizations.profile", organization=inactive_org.name)
+            not in route_url.call_args_list
         )
         route_url.assert_any_call(
-            "admin.organization.detail", organization_id=role.organization.id
+            "organizations.profile", organization=member_role.organization.name
+        )
+        route_url.assert_any_call("organizations.profile", organization=active_org.name)
+        route_url.assert_any_call(
+            "admin.organization.detail", organization_id=inactive_org.id
+        )
+        route_url.assert_any_call(
+            "admin.organization.detail", organization_id=member_role.organization.id
         )
