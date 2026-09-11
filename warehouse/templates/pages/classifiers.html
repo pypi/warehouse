@@ -13,6 +13,9 @@
       <p>
         {% trans %}These standardized classifiers can then be used by community members to find projects based on their desired criteria.{% endtrans %}
       </p>
+      <div class="callout callout--warning" role="alert">
+        <p><strong>{% trans %}Notice:{% endtrans %}</strong> {% trans %}As of <a href="https://packaging.python.org/en/latest/specifications/license-expression/" target="_blank" rel="noopener">PEP 639</a>, the use of <code>License</code> Trove classifiers is deprecated. Please use <a href="https://packaging.python.org/en/latest/specifications/license-expression/" target="_blank" rel="noopener">license expressions</a> in <code>pyproject.toml</code> instead.{% endtrans %}</p>
+      </div>
       <p>
         {% trans ppug_href='https://packaging.python.org/guides/writing-pyproject-toml/#classifiers', pep301_href='https://peps.python.org/pep-0301/#distutils-trove-classification', title=gettext('External link') %}
         Instructions for how to add Trove classifiers to a project can be found on the <a href="{{ ppug_href }}"
