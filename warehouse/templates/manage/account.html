@@ -319,7 +319,7 @@
 </form>
 </section>
 <hr>
-{# Display preference: chosen installer is persisted in the
+{# Display preference: chosen copy format is persisted in the
    "pypi-installer" cookie by the installer-command Stimulus controller.
    No backend round-trip; the project detail page reads the same cookie. #}
 <section id="display-preferences"
@@ -330,8 +330,9 @@
          data-installer-command-quote-value="false">
   <h2 class="sub-title">{% trans %}Display preferences{% endtrans %}</h2>
   <div class="form-group">
-    <label class="form-group__label" for="default-installer">{% trans %}Default installer{% endtrans %}</label>
+    <label class="form-group__label" for="default-installer">{% trans %}Default copy format{% endtrans %}</label>
     <select id="default-installer"
+            disabled
             class="form-group__field"
             data-installer-command-target="select"
             data-action="change->installer-command#change">
@@ -340,9 +341,10 @@
       <option value="poetry">poetry</option>
       <option value="pdm">pdm</option>
       <option value="pipenv">pipenv</option>
+      <option value="name">{% trans %}Project name{% endtrans %}</option>
     </select>
     <p class="form-group__help-text">
-      {% trans %}Sets the default installer shown on each project page. Stored as a cookie in your browser.{% endtrans %}
+      {% trans %}Choose an installer or just the project name to copy from project pages. Stored as a cookie in your browser.{% endtrans %}
       <br>
       {% trans %}Preview:{% endtrans %}
       <code data-installer-command-target="full">pip install example-package</code>
