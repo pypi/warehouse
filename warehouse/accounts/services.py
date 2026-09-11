@@ -377,7 +377,7 @@ class DatabaseUserService:
         user = self.get_user(user_id)
         previous = user.project_create_ratelimit_string
         user.project_create_ratelimit_count = count
-        user.project_create_ratelimit_period = period
+        user.project_create_ratelimit_period = period if count is not None else None
 
         user.record_event(
             tag=EventTag.Account.ProjectCreateRateLimitChange,

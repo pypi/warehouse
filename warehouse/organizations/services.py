@@ -586,7 +586,9 @@ class DatabaseOrganizationService:
         organization = self.get_organization(organization_id)
         previous = organization.project_create_ratelimit_string
         organization.project_create_ratelimit_count = count
-        organization.project_create_ratelimit_period = period
+        organization.project_create_ratelimit_period = (
+            period if count is not None else None
+        )
 
         organization.record_event(
             tag=EventTag.Organization.OrganizationProjectCreateRateLimitChange,
