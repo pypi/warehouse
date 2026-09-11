@@ -116,7 +116,7 @@
       {% else %}{% set badge_color = 'blue' %}{% endif %}
       <span class="badge {{ badge_color }}">{{ role.role_name.value }}</span>
       <span class="u-pull-right">(<a target="_blank" rel="noopener" href="{{ request.route_url('admin.organization.detail', organization_id=role.organization.id) }}">admin</a>)</span>
-      {% set owners = role.organization.owners %}
+      {% set owners = role.organization.owners|sort(attribute='username') %}
       {% if owners %}
       <div class="t-tx-charcoal-300">
         Owners:
