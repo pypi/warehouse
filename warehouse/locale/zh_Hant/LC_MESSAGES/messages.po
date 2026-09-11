@@ -30,13 +30,14 @@
 # toto6038 <toto6038@gmail.com>, 2025.
 # Samlan <samlan@duck.com>, 2025.
 # tenido33 <giappoh@gmail.com>, 2025.
+# 為什麼不加空格 <c++23@users.noreply.hosted.weblate.org>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2025-08-12 13:51+0000\n"
-"Last-Translator: tenido33 <giappoh@gmail.com>\n"
+"PO-Revision-Date: 2026-09-10 22:45+0000\n"
+"Last-Translator: 為什麼不加空格 <c++23@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Chinese (Traditional Han script) <https://hosted.weblate.org/"
 "projects/pypa/warehouse/zh_Hant/>\n"
 "Language: zh_Hant\n"
@@ -44,7 +45,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.13-dev\n"
+"X-Generator: Weblate 2026.9.1\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:149
@@ -1392,7 +1393,7 @@ msgstr "安裝軟體套件"
 
 #: warehouse/templates/base.html:348
 msgid "Uploading packages"
-msgstr "正在上載軟體套件"
+msgstr "正在上傳軟體套件"
 
 #: warehouse/templates/base.html:354
 msgid "User guide"
@@ -1929,7 +1930,7 @@ msgstr "上一個發行版本日期：%(release_date)s"
 #: warehouse/templates/accounts/profile.html:77
 #, python-format
 msgid "%(user)s has not uploaded any projects to PyPI, yet"
-msgstr "%(user)s 尚未上載任何專案到PyPI"
+msgstr "%(user)s 尚未上傳任何專案到PyPI"
 
 #: warehouse/templates/accounts/profile.html:85
 #, python-format
@@ -2788,7 +2789,7 @@ msgstr ""
 "PyPI管理員認為您的密碼已經洩漏。\n"
 " 為了保障你和其他使用者的安全，我們已經重設你的使用者密碼，\n"
 " 你將無法以你現時的密碼登入至PyPI\n"
-" 或在PyPI上載任何內容。"
+" 或在PyPI上傳任何內容。"
 
 #: warehouse/templates/email/password-compromised/body.html:12
 #, fuzzy
@@ -3116,7 +3117,7 @@ msgid ""
 "Your team now has permissions to administer the project. You can add other "
 "collaborators, upload releases and delete files, releases or the entire "
 "project."
-msgstr "可以上載軟體包版本。可以增加協作者。可以刪除檔案，版本或整個專案。"
+msgstr "可以上傳軟體包版本。可以增加協作者。可以刪除檔案，版本或整個專案。"
 
 #: warehouse/templates/email/role-changed-as-team-collaborator/body.html:12
 #, fuzzy
@@ -3127,7 +3128,7 @@ msgid ""
 "Your team now has permissions to upload releases for the project. You can "
 "upload releases but cannot add collaborators, delete files, releases or the "
 "project."
-msgstr "可以上載軟體包版本。不能增加協作者。不能刪除檔案，版本或專案。"
+msgstr "可以上傳軟體包版本。不能增加協作者。不能刪除檔案，版本或專案。"
 
 #: warehouse/templates/email/role-changed-as-team-collaborator/body.html:17
 #, fuzzy, python-format
@@ -3660,7 +3661,7 @@ msgstr ""
 #: warehouse/templates/includes/accounts/profile-callout.html:23
 #, python-format
 msgid "%(username)s has not uploaded any projects to PyPI, yet."
-msgstr "%(username)s 尚未上載任何專案到PyPI。"
+msgstr "%(username)s 尚未上傳任何專案到PyPI。"
 
 #: warehouse/templates/includes/accounts/profile-public-email.html:16
 #: warehouse/templates/manage/account/publishing.html:244
@@ -4263,7 +4264,7 @@ msgstr "移除應用程式"
 #, fuzzy
 #| msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgid "You have not connected any external accounts yet."
-msgstr "%(user)s 尚未上載任何專案到PyPI"
+msgstr "%(user)s 尚未上傳任何專案到PyPI"
 
 #: warehouse/templates/manage/account.html:597
 #, fuzzy
@@ -5397,7 +5398,7 @@ msgstr "建立帳戶"
 #, fuzzy
 #| msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgid "You have not joined any organizations on PyPI, yet."
-msgstr "%(user)s 尚未上載任何專案到PyPI"
+msgstr "%(user)s 尚未上傳任何專案到PyPI"
 
 #: warehouse/templates/manage/organizations.html:147
 #, fuzzy
@@ -6316,7 +6317,7 @@ msgstr "權限："
 #: warehouse/templates/manage/account/token.html:25
 #: warehouse/templates/manage/account/token.html:146
 msgid "Upload packages"
-msgstr "上載軟體包"
+msgstr "上傳軟體包"
 
 #: warehouse/templates/manage/account/token.html:28
 #: warehouse/templates/manage/account/token.html:30
@@ -6374,7 +6375,7 @@ msgid ""
 "For example, if you are using <a href=\"%(href)s\">Twine</a> to upload your "
 "projects to PyPI, set up your <code>%(filename)s</code> file like this:"
 msgstr ""
-"例如，如果你使用 <a href=\"%(href)s\"> Twine</a> 上載專案至 PyPI，設定檔案 "
+"例如，如果你使用 <a href=\"%(href)s\"> Twine</a> 上傳專案至 PyPI，設定檔案 "
 "<code>%(filename)s</code> 如："
 
 #: warehouse/templates/manage/account/token.html:85
@@ -6384,7 +6385,7 @@ msgid ""
 "multiple projects to PyPI, you can set up your <code>%(filename)s</code> "
 "file like this:"
 msgstr ""
-"例如，如果你使用 <a href=\"%(href)s\"> Twine</a> 上載多個專案至 PyPI，設定檔"
+"例如，如果你使用 <a href=\"%(href)s\"> Twine</a> 上傳多個專案至 PyPI，設定檔"
 "案 <code>%(filename)s</code> 如："
 
 #: warehouse/templates/manage/account/token.html:97
@@ -6406,7 +6407,7 @@ msgid ""
 "You can then use <code>%(command)s</code> to use the correct token when "
 "uploading to PyPI."
 msgstr ""
-"然後，你可以使用 <code>%(command)s</code> 來切換成正確的密鑰，以上載檔案至 "
+"然後，你可以使用 <code>%(command)s</code> 來切換成正確的密鑰，以上傳檔案至 "
 "PyPI。"
 
 #: warehouse/templates/manage/account/token.html:110
@@ -7729,7 +7730,7 @@ msgstr "專案文件"
 
 #: warehouse/templates/manage/project/documentation.html:26
 msgid "Uploading new documentation is no longer supported"
-msgstr "不再支援上載新文件"
+msgstr "不再支援上傳新文件"
 
 #: warehouse/templates/manage/project/history.html:11
 msgid ""
@@ -8102,7 +8103,7 @@ msgstr "Python 版本"
 #: warehouse/templates/manage/project/release.html:42
 #: warehouse/templates/manage/project/release.html:64
 msgid "Upload date"
-msgstr "上載日期"
+msgstr "上傳日期"
 
 #: warehouse/templates/manage/project/release.html:73
 msgid "View file options"
@@ -8151,7 +8152,7 @@ msgstr ""
 
 #: warehouse/templates/manage/project/release.html:150
 msgid "Uploading new files"
-msgstr "上載新檔案"
+msgstr "上傳新檔案"
 
 #: warehouse/templates/manage/project/release.html:152
 msgid "No files found"
@@ -8170,7 +8171,7 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
 "在<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\"> Python 軟體打包使用者指引</a>學習如何上載檔案"
+"rel=\"noopener\"> Python 軟體打包使用者指引</a>學習如何上傳檔案"
 
 #: warehouse/templates/manage/project/release.html:165
 msgid "Release settings"
@@ -8318,7 +8319,7 @@ msgstr "刪除此版本將無法還原。"
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
 "the same version number."
-msgstr "您將無法用相同的版本編號重新上載同類型的新發佈。"
+msgstr "您將無法用相同的版本編號重新上傳同類型的新發佈。"
 
 #: warehouse/templates/manage/project/release.html:223
 #: warehouse/templates/manage/project/releases.html:134
@@ -8486,7 +8487,7 @@ msgstr "維護者"
 msgid ""
 "Has permissions to upload releases for the project. Can upload releases. "
 "Cannot invite collaborators. Cannot delete files, releases, or the project."
-msgstr "可以上載套件發行版本。不能邀請協作者。不能刪除檔案，發行版本或專案。"
+msgstr "可以上傳套件發行版本。不能邀請協作者。不能刪除檔案，發行版本或專案。"
 
 #: warehouse/templates/manage/project/roles.html:50
 #, fuzzy
@@ -8496,7 +8497,7 @@ msgstr "可以上載套件發行版本。不能邀請協作者。不能刪除檔
 msgid ""
 "Has permissions to administer the project. Can upload releases. Can invite "
 "other collaborators. Can delete files, releases, or the entire project."
-msgstr "可以上載軟體包版本。可以增加協作者。可以刪除檔案，版本或整個專案。"
+msgstr "可以上傳軟體包版本。可以增加協作者。可以刪除檔案，版本或整個專案。"
 
 #: warehouse/templates/manage/project/roles.html:55
 #, fuzzy, python-format
@@ -8808,7 +8809,7 @@ msgstr "密鑰無效：不是協作邀請密鑰"
 #, fuzzy
 #| msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgid "You are not an owner or manager of any organizations."
-msgstr "%(user)s 尚未上載任何專案到PyPI"
+msgstr "%(user)s 尚未上傳任何專案到PyPI"
 
 #: warehouse/templates/manage/project/settings.html:195
 msgid "Alternate repository locations"
@@ -9109,7 +9110,7 @@ msgstr "%(username)s 的個人檔案"
 #, fuzzy, python-format
 #| msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgid "%(org)s has not uploaded any projects to PyPI, yet"
-msgstr "%(user)s 尚未上載任何專案到PyPI"
+msgstr "%(user)s 尚未上傳任何專案到PyPI"
 
 #: warehouse/templates/packaging/detail.html:88
 #, fuzzy
@@ -9289,7 +9290,7 @@ msgid ""
 "rel=\"noopener\">generating distribution archives</a>."
 msgstr ""
 "在<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\"> Python 軟體打包使用者指引</a>學習如何上載檔案"
+"rel=\"noopener\"> Python 軟體打包使用者指引</a>學習如何上傳檔案"
 
 #: warehouse/templates/packaging/detail.html:470
 msgid "Built Distribution"
@@ -9630,7 +9631,7 @@ msgstr "我如何成為 PyPI專案的擁有者/維護者？"
 
 #: warehouse/templates/pages/help.html:129
 msgid "How can I upload a project description in a different format?"
-msgstr "我如何上載不同格式的專案敘述？"
+msgstr "我如何上傳不同格式的專案敘述？"
 
 #: warehouse/templates/pages/help.html:132
 msgid "How do I get a file size limit exemption or increase for my project?"
@@ -9660,7 +9661,7 @@ msgstr ""
 #: warehouse/templates/pages/help.html:148
 msgid ""
 "Why can't I manually upload files to PyPI, through the browser interface?"
-msgstr "為何我不能經由瀏覽器介面，手工上載檔案至 PyPI上？"
+msgstr "為何我不能經由瀏覽器介面，手工上傳檔案至 PyPI上？"
 
 #: warehouse/templates/pages/help.html:151
 msgid "I forgot my PyPI password. Can you help me?"
@@ -9937,7 +9938,7 @@ msgstr "註冊一個新專案。"
 
 #: warehouse/templates/pages/help.html:497
 msgid "Upload a new version or file."
-msgstr "上載一個新版本或檔案。"
+msgstr "上傳一個新版本或檔案。"
 
 #: warehouse/templates/pages/help.html:500
 msgid ""
@@ -10528,14 +10529,11 @@ msgid ""
 "will work for all projects associated with that account. Alternatively, you "
 "can limit a token's scope to a specific project."
 msgstr ""
-"\n"
-"          <p> API密鑰提供了一種替代方法（代替用戶名和密碼），用於<strong>上載"
-"軟體包</strong>到PyPI </p>。\n"
+"<p> API密鑰提供了一種替代方法（代替用戶名和密碼），用於<strong>上傳軟體包</"
+"strong>到PyPI </p>。\n"
 "<p>您可以為整個PyPI帳戶創建密鑰，在這種情況下，密鑰將適用於與該帳戶關聯的所有"
 "項目。 另外，您可以將密鑰的範圍限制為特定專案。</p>\n"
-" <p> <strong>我們強烈建議您盡可能使用API密鑰進行身份驗證。</strong> </p>\n"
-"\n"
-"        "
+" <p> <strong>我們強烈建議您盡可能使用API密鑰進行身份驗證。</strong> </p>"
 
 #: warehouse/templates/pages/help.html:824
 msgid ""
@@ -10837,7 +10835,7 @@ msgstr ""
 msgid ""
 "Can upload releases for a package. Cannot add collaborators. Cannot delete "
 "files, releases, or the project."
-msgstr "可以上載軟體包版本。不能增加協作者。不能刪除檔案，版本或專案。"
+msgstr "可以上傳軟體包版本。不能增加協作者。不能刪除檔案，版本或專案。"
 
 #: warehouse/templates/pages/help.html:992
 msgid "Owner:"
@@ -10847,7 +10845,7 @@ msgstr "擁有者："
 msgid ""
 "Can upload releases. Can add other collaborators. Can delete files, "
 "releases, or the entire project."
-msgstr "可以上載軟體包版本。可以增加協作者。可以刪除檔案，版本或整個專案。"
+msgstr "可以上傳軟體包版本。可以增加協作者。可以刪除檔案，版本或整個專案。"
 
 #: warehouse/templates/pages/help.html:996
 msgid ""
@@ -10904,7 +10902,7 @@ msgid ""
 "the upload file size limit (%(max_file_size_mb)s MiB by default; individual "
 "projects may differ), we can sometimes increase your limit."
 msgstr ""
-"如果你無法上載專案的版本至 PyPI, 可能是已達專案大小限制，首先可以移除不需要的"
+"如果你無法上傳專案的版本至 PyPI, 可能是已達專案大小限制，首先可以移除不需要的"
 "版本或檔案，以降低整體專案大小。"
 
 #: warehouse/templates/pages/help.html:1034
@@ -10926,7 +10924,7 @@ msgid ""
 "projects may differ), first <a href=\"%(href)s\">remove any unnecessary "
 "releases or individual files</a> to lower your overall project size."
 msgstr ""
-"如果你無法上載專案的版本至 PyPI, 可能是已達專案大小限制，首先可以移除不需要的"
+"如果你無法上傳專案的版本至 PyPI, 可能是已達專案大小限制，首先可以移除不需要的"
 "版本或檔案，以降低整體專案大小。"
 
 #: warehouse/templates/pages/help.html:1051
@@ -11216,10 +11214,10 @@ msgid ""
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">use "
 "twine to upload your project to PyPI</a>."
 msgstr ""
-"在PyPI的早期版本中，維護人員以前可以使用Web瀏覽器中的表單將發行版本上載到"
-"PyPI。 新版本的PyPI不推薦使用此功能——我們建議您<a href=\"%(href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">使用twine來將您的項目"
-"上傳到PyPI </a>。"
+"在PyPI的早期版本中，維護人員以前可以使用Web瀏覽器中的表單將發行版本上傳到PyPI"
+"。 新版本的PyPI不推薦使用此功能——我們建議您<a href=\"%(href)s\" title=\"%"
+"(title)s\" target=\"_blank\" rel=\"noopener\">使用twine來將您的項目上傳到"
+"PyPI </a>。"
 
 #: warehouse/templates/pages/help.html:1210
 msgid ""
