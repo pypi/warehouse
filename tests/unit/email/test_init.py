@@ -1825,6 +1825,10 @@ class TestSendNewOrganizationApprovedEmail:
             "manage.organization.activate_subscription",
             "/manage/organization/{organization_name}/subscription/activate/",
         )
+        pyramid_config.add_route(
+            "manage.organization.settings",
+            "/manage/organization/{organization_name}/settings/",
+        )
 
         send_email = pretend.stub(
             delay=pretend.call_recorder(lambda *args, **kwargs: None)
@@ -1873,6 +1877,11 @@ class TestSendNewOrganizationApprovedEmail:
         assert ("Action Required" in body_html) is expects_action_required
         assert ("activate" in body_text) is expects_action_required
         assert ("activate" in body_html) is expects_action_required
+        management_url = (
+            f"https://pypi.org/manage/organization/{organization_name}/settings/"
+        )
+        assert management_url in body_text
+        assert f'href="{management_url}"' in body_html
 
 
 class TestSendNewOrganizationRequestMoreInfoEmail:
