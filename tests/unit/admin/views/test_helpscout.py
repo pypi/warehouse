@@ -11,7 +11,7 @@ import pytest
 from warehouse.admin.views import helpscout as views
 from warehouse.organizations.models import OrganizationRoleType
 
-from ....common.db.accounts import EmailFactory
+from ....common.db.accounts import EmailFactory, UserFactory
 from ....common.db.organizations import OrganizationFactory, OrganizationRoleFactory
 
 
@@ -129,8 +129,16 @@ class TestHelpscoutApp:
             user=email.user,
             role_name=OrganizationRoleType.Member,
         )
+        # Two owners, created out of order, to pin the owners-list sort.
         owner_role = OrganizationRoleFactory.create(
-            organization=member_org, role_name=OrganizationRoleType.Owner
+            organization=member_org,
+            user=UserFactory.create(username="zeta-owner"),
+            role_name=OrganizationRoleType.Owner,
+        )
+        OrganizationRoleFactory.create(
+            organization=member_org,
+            user=UserFactory.create(username="alpha-owner"),
+            role_name=OrganizationRoleType.Owner,
         )
         active_org = OrganizationFactory.create(name="aaa-wutang")
         OrganizationRoleFactory.create(
@@ -161,6 +169,7 @@ class TestHelpscoutApp:
         assert '<span class="badge green">Owner</span>' in html
         assert '<span class="badge blue">Billing Manager</span>' in html
         assert owner_role.user.username in html
+        assert html.index("alpha-owner") < html.index("zeta-owner")
         # Only the two organizations that have an Owner list one.
         assert html.count("Owners:") == 2
 
