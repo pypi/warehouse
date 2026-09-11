@@ -2431,6 +2431,7 @@ msgid "Activate your subscription"
 msgstr ""
 
 #: warehouse/templates/email/new-organization-approved/body.html:17
+#: warehouse/templates/includes/manage/company-org-survey-callout.html:14
 msgid "Interested in a PyPI service agreement?"
 msgstr ""
 
@@ -3300,10 +3301,6 @@ msgstr ""
 #: warehouse/templates/manage/project/releases.html:203
 #: warehouse/templates/manage/project/settings.html:60
 msgid "Dismiss"
-msgstr ""
-
-#: warehouse/templates/includes/manage/company-org-survey-callout.html:14
-msgid "Interested in a PyPI service agreement?"
 msgstr ""
 
 #: warehouse/templates/includes/manage/company-org-survey-callout.html:16
