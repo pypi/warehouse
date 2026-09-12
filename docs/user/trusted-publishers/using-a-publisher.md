@@ -209,6 +209,71 @@ below describe the setup process for each supported Trusted Publisher.
               password: ${{ steps.mint-token.outputs.api-token }}
     ```
 
+=== "Buildkite"
+
+    The [`pypi-oidc` Buildkite
+    plugin](https://github.com/sj26/pypi-oidc-buildkite-plugin) handles the
+    complete token exchange. It discovers PyPI's expected audience, requests a
+    Buildkite OIDC token with the additional `organization_id`, `pipeline_id`,
+    and `jti` claims, exchanges it for a short-lived PyPI API token, and exports the
+    resulting Twine credentials without replacing Buildkite's default subject.
+    The `jti` claim prevents the same OIDC token from being exchanged twice;
+    the resulting upload credential remains reusable until it expires.
+    If authentication fails or returns an empty token, the plugin stops the job
+    before the publishing command runs.
+
+    The plugin requires Buildkite agent v3.45.0 or later, Bash, and Python 3.10
+    or later, and must run within an active Buildkite job. Install `build` and
+    `twine` on your agents beforehand. Build the distributions in a separate
+    step so the publishing step obtains its short-lived credentials only after
+    the build finishes:
+
+    ```yaml
+    steps:
+      - label: ":python: Build distributions"
+        key: build
+        command: python -m build
+        artifact_paths: "dist/*"
+
+      - label: ":python: Publish to PyPI"
+        key: publish
+        depends_on: build
+        plugin: sj26/pypi-oidc#v0.2.0
+        command: |
+          buildkite-agent artifact download "dist/*" .
+          python -m twine upload dist/*
+    ```
+
+    For TestPyPI, replace the publishing step with the following, configuring
+    the plugin and Twine with its upload URL:
+
+    ```yaml
+    steps:
+      - label: ":test-tube: Publish to TestPyPI"
+        key: publish
+        depends_on: build
+        plugin:
+          sj26/pypi-oidc#v0.2.0:
+            repository_url: https://test.pypi.org/legacy/
+        command: |
+          buildkite-agent artifact download "dist/*" .
+          python -m twine upload \
+            --repository-url https://test.pypi.org/legacy/ dist/*
+    ```
+
+    Set the publisher's optional step key restriction to `publish` to match
+    these examples.
+
+    The organization slug and pipeline slug are always required. PyPI pins the
+    publisher to each immutable ID when that claim is first seen. After an ID is
+    pinned, future tokens must include the same value. A missing claim remains
+    allowed only while that ID is unpinned. Any configured build branch, build
+    tag, or step key restrictions must also match the publishing job's claims.
+
+    See [Buildkite's OIDC documentation](https://buildkite.com/docs/pipelines/security/oidc)
+    and [`buildkite-agent oidc` reference](https://buildkite.com/docs/agent/cli/reference/oidc)
+    for details. Buildkite tokens are issued by `https://agent.buildkite.com`.
+
 === "Google Cloud"
 
     You can use the <https://pypi.org/project/id/> tool to automatically detect
