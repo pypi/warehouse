@@ -7,6 +7,7 @@ import pytest
 from zope.interface.verify import verifyClass
 
 from warehouse.accounts.models import User
+from warehouse.constants import RateLimitPeriod
 from warehouse.events.tags import EventTag
 from warehouse.observations.models import ObservationKind
 from warehouse.organizations import services
@@ -783,6 +784,46 @@ class TestDatabaseOrganizationService:
             organization_service.get_organization_project(organization.id, project.id)
             == organization_project
         )
+
+    def test_set_project_create_ratelimit(self, organization_service, db_request):
+        organization = OrganizationFactory.create()
+        db_request.user = UserFactory.create()
+
+        limit = organization_service.set_project_create_ratelimit(
+            organization.id, db_request, 25, RateLimitPeriod.Day
+        )
+
+        assert limit == "25 per day"
+        assert organization.project_create_ratelimit_count == 25
+        assert organization.project_create_ratelimit_period is RateLimitPeriod.Day
+        event = organization.events.one()
+        assert event.tag == "organization:project_create_ratelimit:change"
+        assert event.additional == {
+            "organization_name": organization.name,
+            "old_project_create_ratelimit_string": None,
+            "new_project_create_ratelimit_string": "25 per day",
+            "actor": db_request.user.username,
+        }
+
+    def test_set_project_create_ratelimit_clears_override(
+        self, organization_service, db_request
+    ):
+        """A None count clears the override and records what it replaced."""
+        organization = OrganizationFactory.create(
+            project_create_ratelimit_count=25,
+            project_create_ratelimit_period=RateLimitPeriod.Day,
+        )
+        db_request.user = UserFactory.create()
+
+        limit = organization_service.set_project_create_ratelimit(
+            organization.id, db_request, None, RateLimitPeriod.Hour
+        )
+
+        assert limit is None
+        assert organization.project_create_ratelimit_string is None
+        event = organization.events.one()
+        assert event.additional["old_project_create_ratelimit_string"] == "25 per day"
+        assert event.additional["new_project_create_ratelimit_string"] is None
 
     def test_add_organization_project(self, organization_service, db_request):
         organization = OrganizationFactory.create()

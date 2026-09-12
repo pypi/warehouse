@@ -3,6 +3,7 @@
 import datetime
 import uuid
 
+import psycopg
 import pytest
 
 from pyramid.authorization import Authenticated
@@ -15,6 +16,7 @@ from warehouse.accounts.models import (
     WebAuthn,
 )
 from warehouse.authnz import Permissions
+from warehouse.constants import RateLimitPeriod
 from warehouse.utils.security_policy import principals_for
 
 from ...common.db.accounts import (
@@ -346,3 +348,55 @@ class TestUserUniqueLogin:
             f"ip_address={unique_login.ip_address!r}, "
             f"status={unique_login.status!r})>"
         )
+
+
+class TestProjectCreateRateLimitOverride:
+    def test_no_count_means_no_override(self, db_session):
+        entity = DBUserFactory.create()
+
+        assert entity.project_create_ratelimit_string is None
+
+    def test_composes_count_and_period(self, db_session):
+        entity = DBUserFactory.create(
+            project_create_ratelimit_count=200,
+            project_create_ratelimit_period=RateLimitPeriod.Day,
+        )
+
+        assert entity.project_create_ratelimit_string == "200 per day"
+
+    def test_period_survives_a_round_trip(self, db_session):
+        """Stored as an enum, so it comes back a member, not a raw string."""
+        entity = DBUserFactory.create(
+            project_create_ratelimit_count=5,
+            project_create_ratelimit_period=RateLimitPeriod.Month,
+        )
+        db_session.flush()
+        db_session.expire(entity)
+
+        assert entity.project_create_ratelimit_period is RateLimitPeriod.Month
+        assert entity.project_create_ratelimit_string == "5 per month"
+
+    @pytest.mark.parametrize(
+        ("count", "period"), [(7, None), (None, RateLimitPeriod.Day)]
+    )
+    def test_incomplete_override_rejected_by_database(self, db_session, count, period):
+        with pytest.raises(
+            psycopg.errors.CheckViolation,
+            match="users_project_create_ratelimit_complete",
+        ):
+            DBUserFactory.create(
+                project_create_ratelimit_count=count,
+                project_create_ratelimit_period=period,
+            )
+
+    @pytest.mark.parametrize(
+        ("count", "period"), [(7, None), (None, RateLimitPeriod.Day)]
+    )
+    def test_incomplete_override_cannot_be_composed(self, count, period):
+        entity = DBUserFactory.build(
+            project_create_ratelimit_count=count,
+            project_create_ratelimit_period=period,
+        )
+
+        with pytest.raises(ValueError, match="count and period"):
+            _ = entity.project_create_ratelimit_string

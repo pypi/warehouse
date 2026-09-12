@@ -1,6 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import datetime
+import typing
+
+from uuid import UUID
 
 from psycopg.errors import UniqueViolation
 from sqlalchemy import delete, func, orm, select
@@ -8,6 +11,7 @@ from sqlalchemy.exc import NoResultFound
 from zope.interface import implementer
 
 from warehouse.accounts.models import TermsOfServiceEngagement, User
+from warehouse.constants import RateLimitPeriod
 from warehouse.email import (
     send_new_organization_approved_email,
     send_new_organization_declined_email,
@@ -36,6 +40,10 @@ from warehouse.organizations.models import (
 from warehouse.subscriptions.models import StripeSubscription, StripeSubscriptionItem
 
 NAME_FIELD = "name"
+
+
+if typing.TYPE_CHECKING:
+    from pyramid.request import Request
 
 
 @implementer(IOrganizationService)
@@ -567,6 +575,33 @@ class DatabaseOrganizationService:
             )
             .first()
         )
+
+    def set_project_create_ratelimit(
+        self,
+        organization_id: UUID,
+        request: Request,
+        count: int | None,
+        period: RateLimitPeriod | None,
+    ) -> str | None:
+        organization = self.get_organization(organization_id)
+        previous = organization.project_create_ratelimit_string
+        organization.project_create_ratelimit_count = count
+        organization.project_create_ratelimit_period = (
+            period if count is not None else None
+        )
+
+        organization.record_event(
+            tag=EventTag.Organization.OrganizationProjectCreateRateLimitChange,
+            request=request,
+            additional={
+                "old_project_create_ratelimit_string": previous,
+                "new_project_create_ratelimit_string": (
+                    organization.project_create_ratelimit_string
+                ),
+                "actor": request.user.username,
+            },
+        )
+        return organization.project_create_ratelimit_string
 
     def add_organization_project(self, organization_id, project_id):
         """

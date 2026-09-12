@@ -89,6 +89,7 @@ class EventTag:
         RoleInvite = "account:role:invite"
         RoleRemove = "account:role:remove"
         RoleRevokeInvite = "account:role:revoke_invite"
+        ProjectCreateRateLimitChange = "account:project_create_ratelimit:change"
         TeamRoleAdd = "account:team_role:add"
         TeamRoleRemove = "account:team_role:remove"
         TwoFactorDeviceRemembered = "account:two_factor:device_remembered"
@@ -176,6 +177,9 @@ class EventTag:
         ManualActivationAdd = "admin:organization:manual_activation:add"
         ManualActivationUpdate = "admin:organization:manual_activation:update"
         ManualActivationDelete = "admin:organization:manual_activation:delete"
+        OrganizationProjectCreateRateLimitChange = (
+            "organization:project_create_ratelimit:change"
+        )
         OrganizationProjectAdd = "organization:organization_project:add"
         OrganizationProjectRemove = "organization:organization_project:remove"
         OrganizationRoleAdd = "organization:organization_role:add"

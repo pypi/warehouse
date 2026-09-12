@@ -62,6 +62,7 @@ from warehouse.accounts.models import (
     WebAuthn,
     email_domain,
 )
+from warehouse.constants import RateLimitPeriod
 from warehouse.email import send_unrecognized_login_email
 from warehouse.events.models import UserAgentInfo
 from warehouse.events.tags import EventTag
@@ -365,6 +366,31 @@ class DatabaseUserService:
             user.disabled_for = None
 
         return user
+
+    def set_project_create_ratelimit(
+        self,
+        user_id: UUID,
+        request: Request,
+        count: int | None,
+        period: RateLimitPeriod | None,
+    ) -> str | None:
+        user = self.get_user(user_id)
+        previous = user.project_create_ratelimit_string
+        user.project_create_ratelimit_count = count
+        user.project_create_ratelimit_period = period if count is not None else None
+
+        user.record_event(
+            tag=EventTag.Account.ProjectCreateRateLimitChange,
+            request=request,
+            additional={
+                "old_project_create_ratelimit_string": previous,
+                "new_project_create_ratelimit_string": (
+                    user.project_create_ratelimit_string
+                ),
+                "actor": request.user.username,
+            },
+        )
+        return user.project_create_ratelimit_string
 
     def disable_password(self, user_id, request, reason=None):
         user = self.get_user(user_id)

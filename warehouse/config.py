@@ -616,6 +616,12 @@ def configure(settings=None):
     )
     maybe_set(
         settings,
+        "warehouse.packaging.project_create_organization_ratelimit_string",
+        "PROJECT_CREATE_ORGANIZATION_RATELIMIT_STRING",
+        default="10 per day",
+    )
+    maybe_set(
+        settings,
         "warehouse.search.ratelimit_string",
         "SEARCH_RATELIMIT_STRING",
         default="5 per second",
@@ -777,6 +783,7 @@ def configure(settings=None):
     jglobals.setdefault(
         "OrganizationType", "warehouse.organizations.models:OrganizationType"
     )
+    jglobals.setdefault("RateLimitPeriod", "warehouse.constants:RateLimitPeriod")
     jglobals.setdefault(
         "RoleInvitationStatus", "warehouse.packaging.models:RoleInvitationStatus"
     )

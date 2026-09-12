@@ -148,6 +148,60 @@ class TestRateLimiter:
         assert resets_in > datetime.timedelta(seconds=0)
         assert resets_in <= datetime.timedelta(seconds=5)
 
+    def test_override_returns_sibling(self, metrics):
+        backend = storage.MemoryStorage()
+        limiter = RateLimiter(
+            backend, "1 per minute", identifiers=["foo"], metrics=metrics
+        )
+
+        sibling = limiter.override("100 per minute")
+
+        assert sibling is not limiter
+        assert isinstance(sibling, RateLimiter)
+        # The override has to meter the same bucket, not a fresh namespace.
+        assert sibling._identifiers == ["foo"]
+        assert sibling.test("bar")
+        for _ in range(50):
+            assert sibling.hit("bar")
+        assert sibling.test("bar")
+
+    def test_override_uses_a_separate_window(self, metrics):
+        """The amount is part of the storage key, so the override starts fresh."""
+        backend = storage.MemoryStorage()
+        limiter = RateLimiter(
+            backend, "1 per minute", identifiers=["foo"], metrics=metrics
+        )
+
+        assert limiter.hit("bar")
+        # Exhausted under the default limit.
+        assert not limiter.test("bar")
+
+        assert limiter.override("5 per minute").test("bar")
+
+    def test_override_falsy_returns_self(self, metrics):
+        limiter = RateLimiter(
+            storage.MemoryStorage(),
+            "1 per minute",
+            identifiers=["foo"],
+            metrics=metrics,
+        )
+        assert limiter.override(None) is limiter
+        assert limiter.override("") is limiter
+
+    def test_override_invalid_string_returns_self(self, metrics):
+        limiter = RateLimiter(
+            storage.MemoryStorage(),
+            "1 per minute",
+            identifiers=["foo"],
+            metrics=metrics,
+        )
+
+        assert limiter.override("not a rate limit") is limiter
+        metrics.increment.assert_called_once_with(
+            "warehouse.ratelimiter.invalid_override",
+            tags=["identifiers:foo"],
+        )
+
 
 class TestDummyRateLimiter:
     def test_basic(self):
@@ -158,6 +212,7 @@ class TestDummyRateLimiter:
         assert limiter.clear() is None
         assert limiter.resets_in() is None
         assert limiter.get_window_stats() == []
+        assert limiter.override("100 per minute") is limiter
 
 
 class TestRateLimit:
