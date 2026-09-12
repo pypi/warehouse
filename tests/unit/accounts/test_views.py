@@ -56,6 +56,7 @@ from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.oidc.models import (
     PendingActiveStatePublisher,
+    PendingBuildkitePublisher,
     PendingGitHubPublisher,
     PendingGitLabPublisher,
     PendingGooglePublisher,
@@ -4224,6 +4225,13 @@ class TestManageAccountPublishingViews:
             "PendingActiveStatePublisherForm",
             pending_activestate_publisher_form_cls,
         )
+        pending_buildkite_publisher_form_obj = pretend.stub()
+        pending_buildkite_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_buildkite_publisher_form_obj
+        )
+        monkeypatch.setattr(
+            views, "PendingBuildkitePublisherForm", pending_buildkite_publisher_form_cls
+        )
 
         view = views.ManageAccountPublishingViews(request)
 
@@ -4233,12 +4241,14 @@ class TestManageAccountPublishingViews:
                 "GitLab": False,
                 "Google": False,
                 "ActiveState": False,
+                "Buildkite": False,
             },
             "project_names_with_publishers": [],
             "pending_github_publisher_form": pending_github_publisher_form_obj,
             "pending_gitlab_publisher_form": pending_gitlab_publisher_form_obj,
             "pending_google_publisher_form": pending_google_publisher_form_obj,
             "pending_activestate_publisher_form": pending_activestate_publisher_form_obj,  # noqa: E501
+            "pending_buildkite_publisher_form": pending_buildkite_publisher_form_obj,
         }
 
         assert request.flags.disallow_oidc.calls == [
@@ -4247,6 +4257,7 @@ class TestManageAccountPublishingViews:
             pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_BUILDKITE_OIDC),
         ]
         assert pending_github_publisher_form_cls.calls == [
             pretend.call(
@@ -4316,6 +4327,13 @@ class TestManageAccountPublishingViews:
             "PendingActiveStatePublisherForm",
             pending_activestate_publisher_form_cls,
         )
+        pending_buildkite_publisher_form_obj = pretend.stub()
+        pending_buildkite_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_buildkite_publisher_form_obj
+        )
+        monkeypatch.setattr(
+            views, "PendingBuildkitePublisherForm", pending_buildkite_publisher_form_cls
+        )
 
         view = views.ManageAccountPublishingViews(pyramid_request)
 
@@ -4325,12 +4343,14 @@ class TestManageAccountPublishingViews:
                 "GitLab": True,
                 "Google": True,
                 "ActiveState": True,
+                "Buildkite": True,
             },
             "project_names_with_publishers": [],
             "pending_github_publisher_form": pending_github_publisher_form_obj,
             "pending_gitlab_publisher_form": pending_gitlab_publisher_form_obj,
             "pending_google_publisher_form": pending_google_publisher_form_obj,
             "pending_activestate_publisher_form": pending_activestate_publisher_form_obj,  # noqa: E501
+            "pending_buildkite_publisher_form": pending_buildkite_publisher_form_obj,
         }
 
         assert pyramid_request.flags.disallow_oidc.calls == [
@@ -4339,6 +4359,7 @@ class TestManageAccountPublishingViews:
             pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_BUILDKITE_OIDC),
         ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
@@ -4389,6 +4410,11 @@ class TestManageAccountPublishingViews:
                 "add_pending_activestate_oidc_publisher",
                 AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC,
                 "ActiveState",
+            ),
+            (
+                "add_pending_buildkite_oidc_publisher",
+                AdminFlagValue.DISALLOW_BUILDKITE_OIDC,
+                "Buildkite",
             ),
         ],
     )
@@ -4449,6 +4475,13 @@ class TestManageAccountPublishingViews:
         monkeypatch.setattr(
             views, "PendingGooglePublisherForm", pending_google_publisher_form_cls
         )
+        pending_buildkite_publisher_form_obj = pretend.stub()
+        pending_buildkite_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_buildkite_publisher_form_obj
+        )
+        monkeypatch.setattr(
+            views, "PendingBuildkitePublisherForm", pending_buildkite_publisher_form_cls
+        )
 
         view = views.ManageAccountPublishingViews(pyramid_request)
 
@@ -4458,12 +4491,14 @@ class TestManageAccountPublishingViews:
                 "GitLab": True,
                 "Google": True,
                 "ActiveState": True,
+                "Buildkite": True,
             },
             "project_names_with_publishers": [],
             "pending_github_publisher_form": pending_github_publisher_form_obj,
             "pending_gitlab_publisher_form": pending_gitlab_publisher_form_obj,
             "pending_google_publisher_form": pending_google_publisher_form_obj,
             "pending_activestate_publisher_form": pending_activestate_publisher_form_obj,  # noqa: E501
+            "pending_buildkite_publisher_form": pending_buildkite_publisher_form_obj,
         }
 
         assert pyramid_request.flags.disallow_oidc.calls == [
@@ -4471,6 +4506,7 @@ class TestManageAccountPublishingViews:
             pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_BUILDKITE_OIDC),
             pretend.call(flag),
         ]
         assert pyramid_request.session.flash.calls == [
@@ -4523,6 +4559,11 @@ class TestManageAccountPublishingViews:
                 "add_pending_activestate_oidc_publisher",
                 AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC,
                 "ActiveState",
+            ),
+            (
+                "add_pending_buildkite_oidc_publisher",
+                AdminFlagValue.DISALLOW_BUILDKITE_OIDC,
+                "Buildkite",
             ),
         ],
     )
@@ -4590,6 +4631,13 @@ class TestManageAccountPublishingViews:
             "PendingActiveStatePublisherForm",
             pending_activestate_publisher_form_cls,
         )
+        pending_buildkite_publisher_form_obj = pretend.stub()
+        pending_buildkite_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_buildkite_publisher_form_obj
+        )
+        monkeypatch.setattr(
+            views, "PendingBuildkitePublisherForm", pending_buildkite_publisher_form_cls
+        )
 
         view = views.ManageAccountPublishingViews(pyramid_request)
 
@@ -4599,12 +4647,14 @@ class TestManageAccountPublishingViews:
                 "GitLab": False,
                 "Google": False,
                 "ActiveState": False,
+                "Buildkite": False,
             },
             "project_names_with_publishers": [],
             "pending_github_publisher_form": pending_github_publisher_form_obj,
             "pending_gitlab_publisher_form": pending_gitlab_publisher_form_obj,
             "pending_google_publisher_form": pending_google_publisher_form_obj,
             "pending_activestate_publisher_form": pending_activestate_publisher_form_obj,  # noqa: E501
+            "pending_buildkite_publisher_form": pending_buildkite_publisher_form_obj,
         }
 
         assert pyramid_request.flags.disallow_oidc.calls == [
@@ -4612,6 +4662,7 @@ class TestManageAccountPublishingViews:
             pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_BUILDKITE_OIDC),
             pretend.call(flag),
         ]
         assert view.metrics.increment.calls == [
@@ -4707,6 +4758,23 @@ class TestManageAccountPublishingViews:
                 ),
                 PendingActiveStatePublisher,
             ),
+            (
+                "add_pending_buildkite_oidc_publisher",
+                AdminFlagValue.DISALLOW_BUILDKITE_OIDC,
+                "Buildkite",
+                lambda i, user_id: PendingBuildkitePublisher(
+                    project_name="some-project-name-" + str(i),
+                    added_by_id=user_id,
+                    organization_slug="some-org",
+                    pipeline_slug="some-pipeline-" + str(i),
+                    buildkite_organization_id="",
+                    pipeline_id="",
+                    build_branch="",
+                    build_tag="",
+                    step_key="publish",
+                ),
+                PendingBuildkitePublisher,
+            ),
         ],
     )
     def test_add_pending_github_oidc_publisher_too_many_already(
@@ -4754,6 +4822,7 @@ class TestManageAccountPublishingViews:
             pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_BUILDKITE_OIDC),
             pretend.call(flag),
         ]
         assert view.metrics.increment.calls == [
@@ -4788,6 +4857,10 @@ class TestManageAccountPublishingViews:
             (
                 "add_pending_activestate_oidc_publisher",
                 "ActiveState",
+            ),
+            (
+                "add_pending_buildkite_oidc_publisher",
+                "Buildkite",
             ),
         ],
     )
@@ -4866,6 +4939,10 @@ class TestManageAccountPublishingViews:
             (
                 "add_pending_activestate_oidc_publisher",
                 "ActiveState",
+            ),
+            (
+                "add_pending_buildkite_oidc_publisher",
+                "Buildkite",
             ),
         ],
     )
@@ -5026,6 +5103,31 @@ class TestManageAccountPublishingViews:
                         "organization": "some-org",
                         "project": "some-project",
                         "actor": "some-user",
+                        "project_name": "some-project-name",
+                    }
+                ),
+            ),
+            (
+                "add_pending_buildkite_oidc_publisher",
+                "Buildkite",
+                lambda user_id: PendingBuildkitePublisher(
+                    project_name="some-project-name",
+                    added_by_id=user_id,
+                    organization_slug="some-org",
+                    pipeline_slug="some-pipeline",
+                    buildkite_organization_id="",
+                    pipeline_id="",
+                    build_branch="main",
+                    build_tag="",
+                    step_key="publish",
+                ),
+                MultiDict(
+                    {
+                        "organization_slug": "some-org",
+                        "pipeline_slug": "some-pipeline",
+                        "build_branch": "main",
+                        "build_tag": "",
+                        "step_key": "publish",
                         "project_name": "some-project-name",
                     }
                 ),
@@ -5207,6 +5309,32 @@ class TestManageAccountPublishingViews:
                     }
                 ),
             ),
+            (
+                "add_pending_buildkite_oidc_publisher",
+                "Buildkite",
+                PendingBuildkitePublisher,
+                lambda user_id: PendingBuildkitePublisher(
+                    project_name="some-other-project-name",
+                    added_by_id=user_id,
+                    organization_slug="some-org",
+                    pipeline_slug="some-pipeline",
+                    buildkite_organization_id="",
+                    pipeline_id="",
+                    build_branch="main",
+                    build_tag="",
+                    step_key="publish",
+                ),
+                MultiDict(
+                    {
+                        "organization_slug": "some-org",
+                        "pipeline_slug": "some-pipeline",
+                        "build_branch": "main",
+                        "build_tag": "",
+                        "step_key": "publish",
+                        "project_name": "some-project-name",
+                    }
+                ),
+            ),
         ],
     )
     def test_add_pending_oidc_publisher_uniqueviolation(
@@ -5353,6 +5481,21 @@ class TestManageAccountPublishingViews:
                     }
                 ),
                 PendingActiveStatePublisher,
+            ),
+            (
+                "add_pending_buildkite_oidc_publisher",
+                "Buildkite",
+                MultiDict(
+                    {
+                        "organization_slug": "some-org",
+                        "pipeline_slug": "some-pipeline",
+                        "build_branch": "main",
+                        "build_tag": "",
+                        "step_key": "publish",
+                        "project_name": "some-project-name",
+                    }
+                ),
+                PendingBuildkitePublisher,
             ),
         ],
     )
@@ -5507,6 +5650,13 @@ class TestManageAccountPublishingViews:
             "PendingActiveStatePublisherForm",
             pending_activestate_publisher_form_cls,
         )
+        pending_buildkite_publisher_form_obj = pretend.stub()
+        pending_buildkite_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_buildkite_publisher_form_obj
+        )
+        monkeypatch.setattr(
+            views, "PendingBuildkitePublisherForm", pending_buildkite_publisher_form_cls
+        )
 
         view = views.ManageAccountPublishingViews(pyramid_request)
 
@@ -5516,12 +5666,14 @@ class TestManageAccountPublishingViews:
                 "GitLab": True,
                 "Google": True,
                 "ActiveState": True,
+                "Buildkite": True,
             },
             "project_names_with_publishers": [],
             "pending_github_publisher_form": pending_github_publisher_form_obj,
             "pending_gitlab_publisher_form": pending_gitlab_publisher_form_obj,
             "pending_google_publisher_form": pending_google_publisher_form_obj,
             "pending_activestate_publisher_form": pending_activestate_publisher_form_obj,  # noqa: E501
+            "pending_buildkite_publisher_form": pending_buildkite_publisher_form_obj,
         }
 
         assert pyramid_request.flags.disallow_oidc.calls == [
@@ -5530,6 +5682,7 @@ class TestManageAccountPublishingViews:
             pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_BUILDKITE_OIDC),
         ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(

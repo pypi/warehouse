@@ -58,6 +58,7 @@ from warehouse.manage.views.view_helpers import (
 from warehouse.observations.models import Observation
 from warehouse.oidc.forms import (
     PendingActiveStatePublisherForm,
+    PendingBuildkitePublisherForm,
     PendingGitHubPublisherForm,
     PendingGitLabPublisherForm,
     PendingGooglePublisherForm,
@@ -65,6 +66,7 @@ from warehouse.oidc.forms import (
 from warehouse.oidc.models import (
     GitLabPublisher,
     PendingActiveStatePublisher,
+    PendingBuildkitePublisher,
     PendingGitHubPublisher,
     PendingGitLabPublisher,
     PendingGooglePublisher,
@@ -1696,6 +1698,12 @@ class ManageOrganizationPublishingViews:
             check_project_name=self.project_service.check_project_name,
             user=request.user,
         )
+        self.pending_buildkite_publisher_form = PendingBuildkitePublisherForm(
+            self.request.POST,
+            route_url=self.request.route_url,
+            check_project_name=self.project_service.check_project_name,
+            user=request.user,
+        )
 
     @property
     def default_response(self):
@@ -1708,6 +1716,7 @@ class ManageOrganizationPublishingViews:
             "pending_gitlab_publisher_form": self.pending_gitlab_publisher_form,
             "pending_google_publisher_form": self.pending_google_publisher_form,
             "pending_activestate_publisher_form": self.pending_activestate_publisher_form,  # noqa: E501
+            "pending_buildkite_publisher_form": self.pending_buildkite_publisher_form,
             "pending_oidc_publishers": pending_oidc_publishers,
             "disabled": {
                 "GitHub": self.request.flags.disallow_oidc(
@@ -1721,6 +1730,9 @@ class ManageOrganizationPublishingViews:
                 ),
                 "ActiveState": self.request.flags.disallow_oidc(
                     AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC
+                ),
+                "Buildkite": self.request.flags.disallow_oidc(
+                    AdminFlagValue.DISALLOW_BUILDKITE_OIDC
                 ),
             },
         }
@@ -1891,6 +1903,39 @@ class ManageOrganizationPublishingViews:
                 "workflow_filepath": form.workflow_filepath.data,
                 "environment": form.environment.data,
                 "issuer_url": form.issuer_url.data,
+            },
+        )
+
+    @view_config(
+        request_method="POST",
+        request_param=PendingBuildkitePublisherForm.__params__,
+    )
+    def add_pending_buildkite_oidc_publisher(self):
+        form = self.pending_buildkite_publisher_form
+        return self._add_pending_oidc_publisher(
+            publisher_name="Buildkite",
+            publisher_class=PendingBuildkitePublisher,
+            admin_flag=AdminFlagValue.DISALLOW_BUILDKITE_OIDC,
+            form=form,
+            make_pending_publisher=lambda request, form: PendingBuildkitePublisher(
+                project_name=form.project_name.data,
+                added_by=request.user,
+                organization_slug=form.normalized_organization_slug,
+                pipeline_slug=form.normalized_pipeline_slug,
+                buildkite_organization_id="",
+                pipeline_id="",
+                build_branch=form.normalized_build_branch,
+                build_tag=form.normalized_build_tag,
+                step_key=form.normalized_step_key,
+                organization_id=self.organization.id,
+            ),
+            make_existence_filters=lambda form: {
+                "project_name": form.project_name.data,
+                "organization_slug": form.normalized_organization_slug,
+                "pipeline_slug": form.normalized_pipeline_slug,
+                "build_branch": form.normalized_build_branch,
+                "build_tag": form.normalized_build_tag,
+                "step_key": form.normalized_step_key,
             },
         )
 
