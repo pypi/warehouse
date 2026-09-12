@@ -1010,14 +1010,27 @@ class TestProjectCreateRateLimitOverride:
         assert entity.project_create_ratelimit_period is RateLimitPeriod.Month
         assert entity.project_create_ratelimit_string == "5 per month"
 
-    def test_missing_period_falls_back_to_hour(self, db_session):
-        """A count with no period -- only reachable via a fixture or a manual
-        UPDATE, never the admin form -- still composes something `limits` can
-        parse.
-        """
-        entity = DBOrganizationFactory.create(
-            project_create_ratelimit_count=7,
-            project_create_ratelimit_period=None,
+    @pytest.mark.parametrize(
+        ("count", "period"), [(7, None), (None, RateLimitPeriod.Day)]
+    )
+    def test_incomplete_override_rejected_by_database(self, db_session, count, period):
+        with pytest.raises(
+            psycopg.errors.CheckViolation,
+            match="organizations_project_create_ratelimit_complete",
+        ):
+            DBOrganizationFactory.create(
+                project_create_ratelimit_count=count,
+                project_create_ratelimit_period=period,
+            )
+
+    @pytest.mark.parametrize(
+        ("count", "period"), [(7, None), (None, RateLimitPeriod.Day)]
+    )
+    def test_incomplete_override_cannot_be_composed(self, count, period):
+        entity = DBOrganizationFactory.build(
+            project_create_ratelimit_count=count,
+            project_create_ratelimit_period=period,
         )
 
-        assert entity.project_create_ratelimit_string == "7 per hour"
+        with pytest.raises(ValueError, match="count and period"):
+            _ = entity.project_create_ratelimit_string
