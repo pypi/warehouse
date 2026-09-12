@@ -204,7 +204,7 @@ class TestAccountAssociations:
             "/_includes/unauthed/flash-messages/", status=HTTPStatus.OK
         )
         error_message = flash_messages.html.find(
-            "span", {"class": "notification-bar__message"}
+            "span", {"class": "banner__message"}
         )
         assert error_message is not None
         assert "Failed to remove account association" in error_message.text
@@ -295,7 +295,7 @@ class TestAccountAssociations:
             "/_includes/unauthed/flash-messages/", status=HTTPStatus.OK
         )
         error_message = flash_messages.html.find(
-            "span", {"class": "notification-bar__message"}
+            "span", {"class": "banner__message"}
         )
         assert error_message is not None
         assert "GitHub OAuth failed" in error_message.text
@@ -334,7 +334,7 @@ class TestAccountAssociations:
             status=HTTPStatus.OK,
         )
         error_message = flash_messages.html.find(
-            "span", {"class": "notification-bar__message"}
+            "span", {"class": "banner__message"}
         )
         assert error_message is not None
         assert "No authorization code received from GitHub" in error_message.text
@@ -427,7 +427,7 @@ class TestAccountAssociations:
             "/_includes/unauthed/flash-messages/", status=HTTPStatus.OK
         )
         error_message = flash_messages.html.find(
-            "span", {"class": "notification-bar__message"}
+            "span", {"class": "banner__message"}
         )
         assert error_message is not None
         assert "GitLab OAuth failed" in error_message.text
@@ -465,7 +465,7 @@ class TestAccountAssociations:
             status=HTTPStatus.OK,
         )
         error_message = flash_messages.html.find(
-            "span", {"class": "notification-bar__message"}
+            "span", {"class": "banner__message"}
         )
         assert error_message is not None
         assert "No authorization code received from GitLab" in error_message.text

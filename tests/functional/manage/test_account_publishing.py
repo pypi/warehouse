@@ -93,7 +93,7 @@ class TestManageAccountPublishing:
             "/_includes/unauthed/flash-messages/", status=HTTPStatus.OK
         )
         success_message = flash_messages.html.find(
-            "span", {"class": "notification-bar__message"}
+            "span", {"class": "banner__message"}
         )
         assert success_message is not None
         assert "Registered a new pending publisher" in success_message.text
@@ -159,7 +159,7 @@ class TestManageAccountPublishing:
             "/_includes/unauthed/flash-messages/", status=HTTPStatus.OK
         )
         success_message = flash_messages.html.find(
-            "span", {"class": "notification-bar__message"}
+            "span", {"class": "banner__message"}
         )
         assert success_message is not None
         assert "Registered a new pending publisher" in success_message.text

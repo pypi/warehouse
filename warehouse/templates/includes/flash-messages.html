@@ -1,20 +1,20 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 {% for message in request.session.pop_flash(queue="error") %}
-  <div class="notification-bar notification-bar--danger notification-bar--dismissable"
+  <div class="banner banner--danger banner--dismissable"
        data-controller="notification"
        data-notification-target="notification"
        role="alert">
-    <div class="notification-bar__container">
-      <span class="notification-bar__icon">
+    <div class="banner__container">
+      <span class="banner__icon">
         <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
         <span class="sr-only">{% trans %}Error{% endtrans %}</span>
       </span>
-      <span class="notification-bar__message">{{ message }}</span>
+      <span class="banner__message">{{ message }}</span>
       <button type="button"
               title="{% trans %}Dismiss this notification{% endtrans %}"
               data-notification-target="dismissButton"
               data-action="click->notification#dismiss"
-              class="notification-bar__dismiss"
+              class="banner__dismiss"
               aria-label="{% trans %}Close{% endtrans %}">
         <i class="fa fa-times" aria-hidden="true"></i>
       </button>
@@ -22,21 +22,21 @@
   </div>
 {% endfor %}
 {% for message in request.session.pop_flash(queue="warning") %}
-  <div class="notification-bar notification-bar--warning notification-bar--dismissable"
+  <div class="banner banner--warning banner--dismissable"
        data-controller="notification"
        data-notification-target="notification"
        role="alert">
-    <div class="notification-bar__container">
-      <span class="notification-bar__icon">
+    <div class="banner__container">
+      <span class="banner__icon">
         <i class="fa fa-exclamation" aria-hidden="true"></i>
         <span class="sr-only">{% trans %}Warning{% endtrans %}</span>
       </span>
-      <span class="notification-bar__message">{{ message }}</span>
+      <span class="banner__message">{{ message }}</span>
       <button type="button"
               title="{% trans %}Dismiss this notification{% endtrans %}"
               data-notification-target="dismissButton"
               data-action="click->notification#dismiss"
-              class="notification-bar__dismiss"
+              class="banner__dismiss"
               aria-label="{% trans %}Close{% endtrans %}">
         <i class="fa fa-times" aria-hidden="true"></i>
       </button>
@@ -44,16 +44,16 @@
   </div>
 {% endfor %}
 {% for message in request.session.pop_flash() %}
-  <div class="notification-bar notification-bar--dismissable"
+  <div class="banner banner--dismissable"
        data-controller="notification"
        data-notification-target="notification">
-    <div class="notification-bar__container">
-      <span class="notification-bar__message">{{ message }}</span>
+    <div class="banner__container">
+      <span class="banner__message">{{ message }}</span>
       <button type="button"
               title="{% trans %}Dismiss this notification{% endtrans %}"
               data-notification-target="dismissButton"
               data-action="click->notification#dismiss"
-              class="notification-bar__dismiss"
+              class="banner__dismiss"
               aria-label="{% trans %}Close{% endtrans %}">
         <i class="fa fa-times" aria-hidden="true"></i>
       </button>
@@ -61,21 +61,21 @@
   </div>
 {% endfor %}
 {% for message in request.session.pop_flash(queue="success") %}
-  <div class="notification-bar notification-bar--success notification-bar--dismissable"
+  <div class="banner banner--success banner--dismissable"
        data-controller="notification"
        data-notification-target="notification"
        role="status">
-    <div class="notification-bar__container">
-      <span class="notification-bar__icon">
+    <div class="banner__container">
+      <span class="banner__icon">
         <i class="fa fa-check" aria-hidden="true"></i>
         <span class="sr-only">{% trans %}Success{% endtrans %}</span>
       </span>
-      <span class="notification-bar__message">{{ message }}</span>
+      <span class="banner__message">{{ message }}</span>
       <button type="button"
               title="{% trans %}Dismiss this notification{% endtrans %}"
               data-notification-target="dismissButton"
               data-action="click->notification#dismiss"
-              class="notification-bar__dismiss"
+              class="banner__dismiss"
               aria-label="{% trans %}Close{% endtrans %}">
         <i class="fa fa-times" aria-hidden="true"></i>
       </button>

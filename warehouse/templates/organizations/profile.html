@@ -48,13 +48,13 @@
       <div class="package-list">
         {% if projects_with_releases %}
           {% for project in projects_with_releases %}
-            <a class="package-snippet"
+            <a class="project-snippet"
                href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">
-              <h3 class="package-snippet__title">{{ project.name }}</h3>
-              <p class="package-snippet__meta">
+              <h3 class="project-snippet__title">{{ project.name }}</h3>
+              <p class="project-snippet__meta">
                 {% trans release_date=humanize(project.latest_version.created) %}Last released {{ release_date }}{% endtrans %}
               </p>
-              <p class="package-snippet__description">{{ project.latest_version.summary }}</p>
+              <p class="project-snippet__description">{{ project.latest_version.summary }}</p>
             </a>
           {% endfor %}
         {% else %}
