@@ -158,6 +158,43 @@ own security model and considerations.
       access the OIDC token to a bare minimum. This prevents both accidental
       and malicious disclosure.
 
+=== "Buildkite"
+
+    <h3>Security model</h3>
+
+    A Buildkite job can request an OIDC token that identifies its organization,
+    pipeline, build, step, and agent. PyPI initially identifies an authorized
+    pipeline by its organization slug and pipeline slug. Every token must
+    contain non-empty `organization_id`, `pipeline_id`, and `jti` claims.
+    Buildkite includes these claims for the `pypi` and `testpypi` audiences.
+    PyPI pins both immutable IDs on the first successful exchange, without
+    requiring users to enter them during registration. Future tokens must
+    contain the same IDs. Preserve Buildkite's default subject.
+
+    The required `jti` claim enables PyPI's existing replay protection: an OIDC
+    token can be exchanged only once. Tokens missing any of these three claims
+    are rejected, even before the first publish. The resulting PyPI upload
+    credential is not single-use; it remains reusable until it expires.
+
+    <h3>Considerations</h3>
+
+    * Anyone who can modify or run commands in an authorized pipeline may be
+      able to request its OIDC token. Protect pipeline configuration and agent
+      hooks as carefully as a long-lived PyPI API token.
+    * Configure a step key restriction so only the publishing step can exchange
+      a token. Branch and tag restrictions can further limit when that step is
+      authorized.
+    * ID pinning is trust on first use. Before the first successful exchange,
+      a token from a pipeline with matching slugs and optional restrictions can
+      establish the initial pins. Register the publisher only after creating
+      the intended Buildkite pipeline.
+    * Self-hosted agents execute the publishing job in infrastructure you
+      control. Secure those agents against untrusted workloads that could read
+      or request credentials for another job.
+
+    See [Buildkite's OIDC security documentation](https://buildkite.com/docs/pipelines/security/oidc)
+    for more information.
+
 === "Google Cloud"
 
     <h3>Security Model</h3>
