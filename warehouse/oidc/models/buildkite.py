@@ -4,19 +4,44 @@ from __future__ import annotations
 
 import typing
 
+from typing import Any, Self
 from uuid import UUID
 
+from more_itertools import first_true
 from sqlalchemy import ForeignKey, String, UniqueConstraint, and_, exists
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, Query, mapped_column
 
+from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.interfaces import SignedClaims
-from warehouse.oidc.models._core import OIDCPublisher, PendingOIDCPublisher
+from warehouse.oidc.models._core import (
+    CheckClaimCallable,
+    OIDCPublisher,
+    PendingOIDCPublisher,
+    check_claim_binary,
+    check_existing_jti,
+)
 
 if typing.TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
+    from warehouse.oidc.services import OIDCPublisherService
+
 
 BUILDKITE_OIDC_ISSUER_URL = "https://agent.buildkite.com"
+
+_PINNED_ID_CLAIMS = (
+    ("organization_id", "buildkite_organization_id", "organization"),
+    ("pipeline_id", "pipeline_id", "pipeline"),
+)
+
+
+def _check_optional_constraint(
+    ground_truth: str | None,
+    signed_claim: str | None,
+    _all_signed_claims: SignedClaims,
+    **_kwargs,
+) -> bool:
+    return ground_truth in (None, signed_claim)
 
 
 class BuildkitePublisherMixin:
@@ -29,6 +54,116 @@ class BuildkitePublisherMixin:
     build_branch: Mapped[str | None] = mapped_column(String, nullable=True)
     build_tag: Mapped[str | None] = mapped_column(String, nullable=True)
     step_key: Mapped[str | None] = mapped_column(String, nullable=True)
+
+    __required_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
+        "organization_slug": check_claim_binary(str.__eq__),
+        "pipeline_slug": check_claim_binary(str.__eq__),
+        "jti": check_existing_jti,
+    }
+
+    __required_unverifiable_claims__: set[str] = {
+        # Verified against the independently pinned IDs below.
+        "organization_id",
+        "pipeline_id",
+        "sub",
+        "build_number",
+        "build_commit",
+        "job_id",
+        "agent_id",
+        "runner_environment",
+        "build_source",
+    }
+
+    __optional_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
+        "build_branch": _check_optional_constraint,
+        "build_tag": _check_optional_constraint,
+        "step_key": _check_optional_constraint,
+    }
+
+    __unchecked_claims__ = {
+        "build_id",
+        "cluster_id",
+        "cluster_name",
+        "queue_id",
+        "queue_key",
+    }
+    __unchecked_prefixed_claims__ = {"agent_tag:"}
+
+    @classmethod
+    def check_claims_existence(cls, signed_claims: SignedClaims) -> None:
+        super().check_claims_existence(signed_claims)  # type: ignore[misc]
+        for claim in ("organization_id", "pipeline_id", "jti"):
+            value = signed_claims[claim]
+            if not isinstance(value, str) or not value:
+                raise InvalidPublisherError(
+                    f"Buildkite token claim {claim!r} must be a non-empty string"
+                )
+
+    @property
+    def jti(self) -> str:
+        """Placeholder value for JTI."""
+        return "placeholder"
+
+    def _verify_pinned_ids(self, signed_claims: SignedClaims) -> None:
+        for claim, attribute, label in _PINNED_ID_CLAIMS:
+            pinned_id = getattr(self, attribute)
+            if pinned_id is not None and pinned_id != signed_claims[claim]:
+                raise InvalidPublisherError(
+                    f"Buildkite token claim {claim!r} does not match the publisher's "
+                    f"pinned {label} ID"
+                )
+
+    def _pinned_ids_match(self, signed_claims: SignedClaims) -> bool:
+        return all(
+            not getattr(self, attribute)
+            or getattr(self, attribute) == signed_claims.get(claim)
+            for claim, attribute, _ in _PINNED_ID_CLAIMS
+        )
+
+    @classmethod
+    def lookup_by_claims(cls, session: Session, signed_claims: SignedClaims) -> Self:
+        query: Query = Query(cls).filter_by(
+            organization_slug=signed_claims["organization_slug"],
+            pipeline_slug=signed_claims["pipeline_slug"],
+        )
+        publishers = query.with_for_update().with_session(session).all()
+
+        candidates = [
+            publisher
+            for publisher in publishers
+            if all(
+                not configured or configured == signed_claims.get(claim)
+                for claim, configured in (
+                    ("build_branch", publisher.build_branch),
+                    ("build_tag", publisher.build_tag),
+                    ("step_key", publisher.step_key),
+                )
+            )
+        ]
+
+        if publisher := first_true(
+            candidates,
+            pred=lambda publisher: publisher._pinned_ids_match(signed_claims),
+        ):
+            return publisher
+        if candidates:
+            candidates[0]._verify_pinned_ids(signed_claims)
+        raise InvalidPublisherError("Publisher with matching claims was not found")
+
+    def verify_claims(
+        self,
+        signed_claims: SignedClaims,
+        publisher_service: OIDCPublisherService,
+    ) -> bool:
+        self._verify_pinned_ids(signed_claims)
+        return super().verify_claims(  # type: ignore[misc]
+            signed_claims, publisher_service
+        )
+
+    def pin_claims(self, signed_claims: SignedClaims) -> None:
+        for claim, attribute, _ in _PINNED_ID_CLAIMS:
+            if getattr(self, attribute) is None:
+                setattr(self, attribute, signed_claims[claim])
 
     @property
     def publisher_name(self) -> str:
