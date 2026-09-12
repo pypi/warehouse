@@ -168,3 +168,65 @@ class TestManageProjectPublishing:
         assert "Added" in success_message.text
         assert ".gitlab-ci.yml" in success_message.text
         assert "gitlab-project" in success_message.text
+
+    @responses.activate
+    def test_add_buildkite_publisher_to_existing_project(self, webtest):
+        """Register with slugs and show the publisher's current ID pins."""
+        user = UserFactory.create(
+            with_verified_primary_email=True,
+            with_terms_of_service_agreement=True,
+            clear_pwd="password",
+        )
+        project = ProjectFactory.create(name="buildkite-project")
+        RoleFactory.create(user=user, project=project, role_name="Owner")
+        ip_address = IpAddressFactory.create(ip_address=REMOTE_ADDR)
+        UserUniqueLoginFactory.create(
+            user=user, ip_address=ip_address, status=UniqueLoginStatus.CONFIRMED
+        )
+
+        login_page = webtest.get("/account/login/", status=HTTPStatus.OK)
+        login_form = login_page.forms["login-form"]
+        csrf_token = login_form["csrf_token"].value
+        login_form["username"] = user.username
+        login_form["password"] = "password"
+        two_factor_page = login_form.submit().follow(status=HTTPStatus.OK)
+        two_factor_form = two_factor_page.forms["totp-auth-form"]
+        two_factor_form["csrf_token"] = csrf_token
+        two_factor_form["totp_value"] = (
+            _get_totp(user.totp_secret).generate(time.time()).decode()
+        )
+        two_factor_form.submit().follow(status=HTTPStatus.OK)
+
+        publishing_page = webtest.get(
+            f"/manage/project/{project.name}/settings/publishing/",
+            status=HTTPStatus.OK,
+        )
+        buildkite_form = publishing_page.forms["buildkite-publisher-form"]
+        buildkite_form["organization_slug"] = "acme"
+        buildkite_form["pipeline_slug"] = "widgets"
+        buildkite_form["build_branch"] = "main"
+        buildkite_form["step_key"] = "publish"
+        registered_page = buildkite_form.submit(status=HTTPStatus.SEE_OTHER).follow(
+            status=HTTPStatus.OK
+        )
+        assert registered_page.text.count("Not yet pinned") == 2
+
+        publisher = project.oidc_publishers[0]
+        assert publisher.organization_slug == "acme"
+        assert publisher.pipeline_slug == "widgets"
+        assert publisher.build_branch == "main"
+        assert publisher.step_key == "publish"
+        assert publisher.buildkite_organization_id is None
+        assert publisher.pipeline_id is None
+
+        # Render the pinned state independently of the token exchange tests.
+        publisher.buildkite_organization_id = "00000000-1111-2222-3333-444444444444"
+        publisher.pipeline_id = "11111111-2222-3333-4444-555555555555"
+        webtest.extra_environ["warehouse.db_session"].flush()
+        pinned_page = webtest.get(
+            f"/manage/project/{project.name}/settings/publishing/",
+            status=HTTPStatus.OK,
+        )
+        assert "00000000-1111-2222-3333-444444444444" in pinned_page
+        assert "11111111-2222-3333-4444-555555555555" in pinned_page
+        assert "Not yet pinned" not in pinned_page
