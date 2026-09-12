@@ -1,5 +1,6 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 {% extends "manage/manage_base.html" %}
+{% from "manage/_buildkite_publisher_form.html" import buildkite_publisher_form as render_buildkite_publisher_form with context %}
 {% set user = request.user %}
 {% set pending_oidc_enabled = user.has_primary_verified_email %}
 {% set active_tab = "publishing" %}
@@ -459,6 +460,7 @@
       ("GitLab", gitlab_form(request, pending_gitlab_publisher_form)),
       ("Google", google_form(request, pending_google_publisher_form)),
       ("ActiveState", activestate_form(request, pending_activestate_publisher_form)),
+      ("Buildkite", render_buildkite_publisher_form(request, pending_buildkite_publisher_form, request.route_path('manage.account.publishing'), form_error_anchor, form_errors, field_errors, pending=true, disabled=not pending_oidc_enabled)),
     ] %}
   <div class="horizontal-tabs"
        data-controller="horizontal-tabs"

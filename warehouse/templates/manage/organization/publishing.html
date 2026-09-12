@@ -1,5 +1,6 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 {% extends "manage/organization/manage_organization_base.html" %}
+{% from "manage/_buildkite_publisher_form.html" import buildkite_publisher_form as render_buildkite_publisher_form with context %}
 {% set active_tab = "publishing" %}
 {% block title %}
   {% trans organization_name=organization.name %}Trusted Publisher Management for '{{ organization_name }}'{% endtrans %}
@@ -405,7 +406,7 @@
     They can be used to create a new project on first upload.
   {% endtrans %}
 </p>
-{% if pending_github_publisher_form or pending_gitlab_publisher_form or pending_google_publisher_form or pending_activestate_publisher_form %}
+{% if pending_github_publisher_form or pending_gitlab_publisher_form or pending_google_publisher_form or pending_activestate_publisher_form or pending_buildkite_publisher_form %}
   {% if pending_oidc_publishers %}
     <table class="table table--publisher-list">
       <caption class="sr-only">{% trans %}Pending publishers for this organization{% endtrans %}</caption>
@@ -452,6 +453,7 @@
   ("GitLab", gitlab_form(request, pending_gitlab_publisher_form, organization)),
   ("Google", google_form(request, pending_google_publisher_form, organization)),
   ("ActiveState", activestate_form(request, pending_activestate_publisher_form, organization)),
+  ("Buildkite", render_buildkite_publisher_form(request, pending_buildkite_publisher_form, request.route_path('manage.organization.publishing', organization_name=organization.normalized_name), form_error_anchor, form_errors, field_errors, pending=true)),
 ] %}
 <div class="horizontal-tabs"
      data-controller="horizontal-tabs"
