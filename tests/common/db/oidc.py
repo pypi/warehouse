@@ -5,10 +5,12 @@ import faker
 
 from warehouse.oidc.models import (
     ActiveStatePublisher,
+    BuildkitePublisher,
     GitHubPublisher,
     GitLabPublisher,
     GooglePublisher,
     PendingActiveStatePublisher,
+    PendingBuildkitePublisher,
     PendingGitHubPublisher,
     PendingGitLabPublisher,
     PendingGooglePublisher,
@@ -30,6 +32,36 @@ class GitHubPublisherFactory(WarehouseFactory):
     repository_owner_id = factory.Faker("pystr", max_chars=12)
     workflow_filename = "example.yml"
     environment = "production"
+
+
+class BuildkitePublisherFactory(WarehouseFactory):
+    class Meta:
+        model = BuildkitePublisher
+
+    id = factory.Faker("uuid4", cast_to=None)
+    organization_slug = factory.Faker("slug")
+    pipeline_slug = factory.Faker("slug")
+    buildkite_organization_id = factory.Faker("uuid4")
+    pipeline_id = factory.Faker("uuid4")
+    build_branch = ""
+    build_tag = ""
+    step_key = "publish"
+
+
+class PendingBuildkitePublisherFactory(WarehouseFactory):
+    class Meta:
+        model = PendingBuildkitePublisher
+
+    id = factory.Faker("uuid4", cast_to=None)
+    project_name = "fake-nonexistent-project"
+    organization_slug = factory.Faker("slug")
+    pipeline_slug = factory.Faker("slug")
+    buildkite_organization_id = factory.Faker("uuid4")
+    pipeline_id = factory.Faker("uuid4")
+    build_branch = ""
+    build_tag = ""
+    step_key = "publish"
+    added_by = factory.SubFactory(UserFactory)
 
 
 class PendingGitHubPublisherFactory(WarehouseFactory):
