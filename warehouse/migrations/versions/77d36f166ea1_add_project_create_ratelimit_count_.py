@@ -3,7 +3,7 @@
 Add project_create_ratelimit_count/period to organizations and users
 
 Revision ID: 77d36f166ea1
-Revises: 964076d0c4ad
+Revises: 45301e80ef72
 Create Date: 2026-07-24 11:00:10.303063
 """
 
@@ -13,7 +13,7 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision = "77d36f166ea1"
-down_revision = "964076d0c4ad"
+down_revision = "45301e80ef72"
 
 # Note: It is VERY important to ensure that a migration does not lock for a
 #       long period of time and to ensure that each individual migration does
