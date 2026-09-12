@@ -32,6 +32,7 @@
 @use "resets/reset";
 
 // BASE LAYER: adds styles to anything without a class
+@use "base/layout";
 @use "base/images-figures";
 @use "base/forms";
 @use "base/lists";

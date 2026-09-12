@@ -73,19 +73,6 @@ then periodically do a conditional HTTP GET to `/simple/` with that
 ETag included. A 200 OK response indicates something has been added or
 removed; if you get a 304 Not Modified, then nothing has changed.
 
-## Changes to XMLRPC API
-
-- `list_packages`, `package_releases`, `release_urls`, and `release_data`
-  permanently deprecated and disabled. See [Deprecated Methods](#deprecated-methods) for alternatives.
-
-- `search` Permanently deprecated and disabled due to excessive traffic
-  driven by unidentified traffic, presumably automated. [See historical
-  incident](https://status.python.org/incidents/grk0k7sz6zkp).
-
-- `release_downloads` and `top_packages` No longer supported. Use
-  [BigQuery Datasets](https://docs.pypi.org/api/bigquery/) instead ([guidance](https://packaging.python.org/guides/analyzing-pypi-package-downloads/),
-  [tips](https://langui.sh/2016/12/09/data-driven-decisions/)).
-
 ## Mirroring Support
 
 !!! note
@@ -110,11 +97,11 @@ values.
 Retrieve a dictionary mapping package names to the last serial for each
 package.
 
-## Package querying
+## Deprecated Methods
 
-!!! warning
-    The following methods are considered unsupported and will be deprecated
-    in the future.
+!!! warning "Still available, but going away"
+    The following methods currently work, but are unsupported and will be
+    removed in a future release. Do not build new integrations against them.
 
 ### `user_packages(user)`
 
@@ -127,34 +114,22 @@ Retrieve a list of `[name, version]` of all releases classified with all of
 the given classifiers. `classifiers` must be a list of Trove classifier
 strings.
 
-## Deprecated Methods
+### `package_roles(package_name)`
 
-!!! danger "Permanently Deprecated"
-    The following methods are permanently deprecated and will return a
-    `RuntimeError`
+Retrieve a list of `[role, username]` for a given `package_name`.
+Role is either `Maintainer` or `Owner`. Use the
+[JSON API](https://docs.pypi.org/api/json/) `ownership` key instead for new
+integrations.
+
+## Dead / Removed Methods
+
+!!! danger "Permanently disabled"
+    The following methods are permanently disabled. Calling one raises an
+    error.
 
 ### `changelog(since, with_ids=False)`
 
-Deprecated in favor of `changelog_since_serial`.
-
-### `package_data(package_name, version)`
-
-Deprecated, the [JSON API](https://docs.pypi.org/api/json/) should be used.
-
-### `package_urls(package_name, version)`
-
-Deprecated, the [JSON API](https://docs.pypi.org/api/json/) should be used.
-
-### `top_packages(num=None)`
-
-Use [BigQuery Datasets](https://docs.pypi.org/api/bigquery/)
-instead ([guidance](https://packaging.python.org/guides/analyzing-pypi-package-downloads/),
-[tips](https://langui.sh/2016/12/09/data-driven-decisions/)).
-
-### `search(spec[, operator])`
-
-Permanently deprecated and disabled due to excessive traffic
-driven by unidentified traffic, presumably automated. [See historical incident](https://status.python.org/incidents/grk0k7sz6zkp).
+Deprecated in favor of [`changelog_since_serial`](#changelog_since_serialsince_serial).
 
 ### `list_packages()`
 
@@ -167,19 +142,40 @@ Use the [JSON API](https://docs.pypi.org/api/json/) or
 [Index API](https://docs.pypi.org/api/index-api/) to query for available
 releases of a given project.
 
-### `release_urls(package_name, release_version)`
-
-Use the [JSON API](https://docs.pypi.org/api/json/) or
-[Index API](https://docs.pypi.org/api/index-api/) to query for file download
-URLs for a given release.
-
 ### `release_data(package_name, release_version)`
 
 Use the [JSON API](https://docs.pypi.org/api/json/) or
 [Index API](https://docs.pypi.org/api/index-api/) to query for metadata of a
 given release.
 
-### `package_roles(package_name)`
+### `release_urls(package_name, release_version)`
 
-Use the [JSON API](https://docs.pypi.org/api/json/) `ownership` key to
-query for roles of a given project.
+Use the [JSON API](https://docs.pypi.org/api/json/) or
+[Index API](https://docs.pypi.org/api/index-api/) to query for file download
+URLs for a given release.
+
+### `package_data(package_name, version)`
+
+Deprecated, the [JSON API](https://docs.pypi.org/api/json/) should be used.
+
+### `package_urls(package_name, version)`
+
+Deprecated, the [JSON API](https://docs.pypi.org/api/json/) should be used.
+
+### `search(spec[, operator])`
+
+Permanently disabled due to excessive traffic  driven by unidentified traffic,
+presumably automated.
+[See historical incident](https://status.python.org/incidents/grk0k7sz6zkp).
+
+### `top_packages(num=None)`
+
+Removed. Use [BigQuery Datasets](https://docs.pypi.org/api/bigquery/) instead
+([guidance](https://packaging.python.org/guides/analyzing-pypi-package-downloads/),
+[tips](https://langui.sh/2016/12/09/data-driven-decisions/)).
+
+### `release_downloads`
+
+Removed. Use [BigQuery Datasets](https://docs.pypi.org/api/bigquery/) instead
+([guidance](https://packaging.python.org/guides/analyzing-pypi-package-downloads/),
+[tips](https://langui.sh/2016/12/09/data-driven-decisions/)).
