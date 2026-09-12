@@ -26,6 +26,25 @@ Publisher information:
 * Organization: {{ publisher.organization }}
 * Project: {{ publisher.activestate_project_name }}
 * Actor: {{ publisher.actor }}
+{% elif publisher.publisher_name == "Buildkite" %}
+* Pipeline URL: {{ publisher.publisher_url() }}
+* Organization: {{ publisher.organization_slug }}
+* Pipeline: {{ publisher.pipeline_slug }}
+{%- if publisher.buildkite_organization_id %}
+* Organization ID: {{ publisher.buildkite_organization_id }}
+{%- endif %}
+{%- if publisher.pipeline_id %}
+* Pipeline ID: {{ publisher.pipeline_id }}
+{%- endif %}
+{%- if publisher.build_branch %}
+* Build branch: {{ publisher.build_branch }}
+{%- endif %}
+{%- if publisher.build_tag %}
+* Build tag: {{ publisher.build_tag }}
+{%- endif %}
+{%- if publisher.step_key %}
+* Step key: {{ publisher.step_key }}
+{%- endif %}
 {%- endif %}
 
 If you did not make this change and you think it was made in error, you can

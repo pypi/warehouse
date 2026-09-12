@@ -52,6 +52,22 @@ provide the name of the PyPI project that will be created.
 
     ![Image showing a newly added GitHub publisher](../assets/trusted-publishing/github/pending-publisher-registered.png)
 
+=== "Buildkite"
+
+    Provide the PyPI project name along with the Buildkite organization slug,
+    and pipeline slug. PyPI automatically pins the publisher to the immutable
+    organization and pipeline IDs the first time each value appears in a
+    successful token exchange. We recommend requesting both IDs and a replay
+    identifier with `--claim organization_id,pipeline_id,jti` while preserving
+    Buildkite's default subject. Once an ID is pinned, all future tokens must
+    include the same value.
+
+    You can optionally restrict publishing to a build branch, build tag, or
+    step key. A configured restriction only authorizes jobs with a matching
+    claim. Clicking "Add" will register the pending publisher. See [Buildkite's OIDC
+    documentation](https://buildkite.com/docs/pipelines/security/oidc) for more
+    information.
+
 === "Google Cloud"
 
     If you have a service account named

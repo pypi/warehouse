@@ -3399,6 +3399,7 @@ class TestManageOrganizationPublishingViews:
         assert "pending_gitlab_publisher_form" in result
         assert "pending_google_publisher_form" in result
         assert "pending_activestate_publisher_form" in result
+        assert "pending_buildkite_publisher_form" in result
         assert result["pending_oidc_publishers"] == organization.pending_oidc_publishers
 
     def test_add_pending_github_oidc_publisher_success(self, db_request, monkeypatch):
@@ -3536,6 +3537,47 @@ class TestManageOrganizationPublishingViews:
             tags=["publisher:GitLab", "organization:true"],
         )
 
+    def test_add_pending_buildkite_oidc_publisher_success(
+        self, db_request, monkeypatch
+    ):
+        organization = OrganizationFactory.create()
+        user = UserFactory.create(with_verified_primary_email=True)
+        db_request.flags = pretend.stub(
+            disallow_oidc=pretend.call_recorder(lambda *a: False)
+        )
+        db_request.POST = MultiDict()
+        db_request.path = "/fake/path"
+        db_request.route_url = pretend.call_recorder(lambda *a, **kw: "/fake/route")
+        db_request.user = user
+
+        form = pretend.stub(
+            validate=pretend.call_recorder(lambda: True),
+            project_name=pretend.stub(data="test-project"),
+            normalized_organization_slug="buildkite-org",
+            normalized_pipeline_slug="release-pipeline",
+            normalized_build_branch="main",
+            normalized_build_tag="",
+            normalized_step_key="publish",
+        )
+        monkeypatch.setattr(
+            org_views, "PendingBuildkitePublisherForm", lambda *a, **kw: form
+        )
+
+        view = org_views.ManageOrganizationPublishingViews(organization, db_request)
+        result = view.add_pending_buildkite_oidc_publisher()
+
+        assert isinstance(result, HTTPSeeOther)
+        publisher = organization.pending_oidc_publishers[0]
+        assert publisher.organization_id == organization.id
+        assert publisher.organization_slug == "buildkite-org"
+        assert publisher.pipeline_slug == "release-pipeline"
+        assert publisher.buildkite_organization_id == ""
+        assert publisher.pipeline_id == ""
+        assert db_request.metrics.increment.calls[-1] == pretend.call(
+            "warehouse.oidc.add_pending_publisher.ok",
+            tags=["publisher:Buildkite", "organization:true"],
+        )
+
     def test_gitlab_form_includes_issuer_url_choices(self, db_request, monkeypatch):
         """Test that GitLab form is created with issuer_url_choices"""
         organization = OrganizationFactory.create()
@@ -3623,6 +3665,12 @@ class TestManageOrganizationPublishingViews:
             org_views,
             "PendingActiveStatePublisherForm",
             lambda *a, **kw: pending_activestate_publisher_form_obj,
+        )
+        pending_buildkite_publisher_form_obj = pretend.stub()
+        monkeypatch.setattr(
+            org_views,
+            "PendingBuildkitePublisherForm",
+            lambda *a, **kw: pending_buildkite_publisher_form_obj,
         )
 
         view = org_views.ManageOrganizationPublishingViews(organization, db_request)

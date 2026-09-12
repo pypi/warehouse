@@ -17,6 +17,7 @@ from warehouse.metrics import IMetricsService
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.oidc.models import (
     ActiveStatePublisher,
+    BuildkitePublisher,
     GitHubPublisher,
     GitLabPublisher,
     GooglePublisher,
@@ -136,12 +137,14 @@ class TestManageOIDCPublisherViews:
                 "GitLab": False,
                 "Google": False,
                 "ActiveState": False,
+                "Buildkite": False,
             },
             "project": project,
             "github_publisher_form": view.github_publisher_form,
             "gitlab_publisher_form": view.gitlab_publisher_form,
             "google_publisher_form": view.google_publisher_form,
             "activestate_publisher_form": view.activestate_publisher_form,
+            "buildkite_publisher_form": view.buildkite_publisher_form,
             "prefilled_provider": view.prefilled_provider,
         }
 
@@ -151,6 +154,7 @@ class TestManageOIDCPublisherViews:
             pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_BUILDKITE_OIDC),
         ]
 
     def test_manage_project_oidc_publishers_admin_disabled(
@@ -180,12 +184,14 @@ class TestManageOIDCPublisherViews:
                 "GitLab": True,
                 "Google": True,
                 "ActiveState": True,
+                "Buildkite": True,
             },
             "project": project,
             "github_publisher_form": view.github_publisher_form,
             "gitlab_publisher_form": view.gitlab_publisher_form,
             "google_publisher_form": view.google_publisher_form,
             "activestate_publisher_form": view.activestate_publisher_form,
+            "buildkite_publisher_form": view.buildkite_publisher_form,
             "prefilled_provider": view.prefilled_provider,
         }
 
@@ -195,6 +201,7 @@ class TestManageOIDCPublisherViews:
             pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_BUILDKITE_OIDC),
         ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
@@ -251,6 +258,18 @@ class TestManageOIDCPublisherViews:
                     "actor": "my_actor",
                 },
             ),
+            # All fields of Buildkite provider
+            (
+                "buildkite_publisher_form",
+                {
+                    "provider": "buildkite",
+                    "organization_slug": "my-org",
+                    "pipeline_slug": "my-pipeline",
+                    "build_branch": "main",
+                    "build_tag": "v1.0.0",
+                    "step_key": "publish",
+                },
+            ),
             # All fields of GitHub provider, case-insensitive
             (
                 "github_publisher_form",
@@ -290,12 +309,14 @@ class TestManageOIDCPublisherViews:
                 "GitLab": False,
                 "Google": False,
                 "ActiveState": False,
+                "Buildkite": False,
             },
             "project": project,
             "github_publisher_form": view.github_publisher_form,
             "gitlab_publisher_form": view.gitlab_publisher_form,
             "google_publisher_form": view.google_publisher_form,
             "activestate_publisher_form": view.activestate_publisher_form,
+            "buildkite_publisher_form": view.buildkite_publisher_form,
             "prefilled_provider": prefilled_data["provider"].lower(),
         }
 
@@ -373,12 +394,14 @@ class TestManageOIDCPublisherViews:
                 "GitLab": False,
                 "Google": False,
                 "ActiveState": False,
+                "Buildkite": False,
             },
             "project": project,
             "github_publisher_form": view.github_publisher_form,
             "gitlab_publisher_form": view.gitlab_publisher_form,
             "google_publisher_form": view.google_publisher_form,
             "activestate_publisher_form": view.activestate_publisher_form,
+            "buildkite_publisher_form": view.buildkite_publisher_form,
             "prefilled_provider": prefilled_data["provider"].lower(),
         }
 
@@ -426,12 +449,14 @@ class TestManageOIDCPublisherViews:
                 "GitLab": False,
                 "Google": False,
                 "ActiveState": False,
+                "Buildkite": False,
             },
             "project": project,
             "github_publisher_form": view.github_publisher_form,
             "gitlab_publisher_form": view.gitlab_publisher_form,
             "google_publisher_form": view.google_publisher_form,
             "activestate_publisher_form": view.activestate_publisher_form,
+            "buildkite_publisher_form": view.buildkite_publisher_form,
             "prefilled_provider": None,
         }
 
@@ -829,6 +854,15 @@ class TestManageOIDCPublisherViews:
                 email="some-email@example.com",
                 sub="some-sub",
             ),
+            BuildkitePublisher(
+                organization_slug="some-org",
+                pipeline_slug="some-pipeline",
+                buildkite_organization_id="",
+                pipeline_id="11111111-2222-3333-4444-555555555555",
+                build_branch="main",
+                build_tag="",
+                step_key="publish",
+            ),
         ],
     )
     def test_constrain_unsupported_publisher(
@@ -1092,6 +1126,31 @@ class TestManageOIDCPublisherViews:
                     actor_id="some-user-id",
                 ),
             ),
+            (
+                "add_buildkite_oidc_publisher",
+                pretend.stub(
+                    id="fakeid",
+                    publisher_name="Buildkite",
+                    publisher_url=(
+                        lambda x=None: "https://buildkite.com/fakeorg/fakepipeline"
+                    ),
+                    organization_slug="fakeorg",
+                    pipeline_slug="fakepipeline",
+                    buildkite_organization_id="",
+                    pipeline_id="",
+                    build_branch="main",
+                    build_tag="",
+                    step_key="publish",
+                ),
+                lambda publisher: pretend.stub(
+                    validate=pretend.call_recorder(lambda: True),
+                    normalized_organization_slug=publisher.organization_slug,
+                    normalized_pipeline_slug=publisher.pipeline_slug,
+                    normalized_build_branch=publisher.build_branch,
+                    normalized_build_tag=publisher.build_tag,
+                    normalized_step_key=publisher.step_key,
+                ),
+            ),
         ],
     )
     def test_add_oidc_publisher_preexisting(
@@ -1125,7 +1184,8 @@ class TestManageOIDCPublisherViews:
             POST=pretend.stub(),
             db=pretend.stub(
                 query=lambda *a: pretend.stub(
-                    filter=lambda *a: pretend.stub(one_or_none=lambda: publisher)
+                    filter=lambda *a: pretend.stub(one_or_none=lambda: publisher),
+                    filter_by=lambda **kw: pretend.stub(one_or_none=lambda: publisher),
                 ),
                 add=pretend.call_recorder(lambda o: None),
             ),
@@ -1138,6 +1198,7 @@ class TestManageOIDCPublisherViews:
         monkeypatch.setattr(oidc_views, "GitLabPublisherForm", publisher_form_cls)
         monkeypatch.setattr(oidc_views, "GooglePublisherForm", publisher_form_cls)
         monkeypatch.setattr(oidc_views, "ActiveStatePublisherForm", publisher_form_cls)
+        monkeypatch.setattr(oidc_views, "BuildkitePublisherForm", publisher_form_cls)
 
         view = oidc_views.ManageOIDCPublisherViews(project, request)
         monkeypatch.setattr(
@@ -1241,6 +1302,18 @@ class TestManageOIDCPublisherViews:
                 ),
                 "ActiveState",
             ),
+            (
+                "add_buildkite_oidc_publisher",
+                pretend.stub(
+                    validate=pretend.call_recorder(lambda: True),
+                    normalized_organization_slug="fakeorg",
+                    normalized_pipeline_slug="fakepipeline",
+                    normalized_build_branch="main",
+                    normalized_build_tag="",
+                    normalized_step_key="publish",
+                ),
+                "Buildkite",
+            ),
         ],
     )
     def test_add_oidc_publisher_created(
@@ -1272,7 +1345,8 @@ class TestManageOIDCPublisherViews:
             POST=pretend.stub(),
             db=pretend.stub(
                 query=lambda *a: pretend.stub(
-                    filter=lambda *a: pretend.stub(one_or_none=lambda: None)
+                    filter=lambda *a: pretend.stub(one_or_none=lambda: None),
+                    filter_by=lambda **kw: pretend.stub(one_or_none=lambda: None),
                 ),
                 add=pretend.call_recorder(lambda o: setattr(o, "id", "fakeid")),
             ),
@@ -1284,6 +1358,7 @@ class TestManageOIDCPublisherViews:
         monkeypatch.setattr(oidc_views, "GitLabPublisherForm", publisher_form_cls)
         monkeypatch.setattr(oidc_views, "GooglePublisherForm", publisher_form_cls)
         monkeypatch.setattr(oidc_views, "ActiveStatePublisherForm", publisher_form_cls)
+        monkeypatch.setattr(oidc_views, "BuildkitePublisherForm", publisher_form_cls)
         monkeypatch.setattr(
             oidc_views,
             "send_trusted_publisher_added_email",
@@ -1426,6 +1501,28 @@ class TestManageOIDCPublisherViews:
                     }
                 ),
             ),
+            (
+                "add_buildkite_oidc_publisher",
+                "Buildkite",
+                BuildkitePublisher(
+                    organization_slug="some-org",
+                    pipeline_slug="some-pipeline",
+                    buildkite_organization_id="11111111-2222-3333-4444-555555555555",
+                    pipeline_id="22222222-3333-4444-5555-666666666666",
+                    build_branch="main",
+                    build_tag="",
+                    step_key="publish",
+                ),
+                MultiDict(
+                    {
+                        "organization_slug": "some-org",
+                        "pipeline_slug": "some-pipeline",
+                        "build_branch": "main",
+                        "build_tag": "",
+                        "step_key": "publish",
+                    }
+                ),
+            ),
         ],
     )
     def test_add_oidc_publisher_already_registered_with_project(
@@ -1488,12 +1585,14 @@ class TestManageOIDCPublisherViews:
                 "GitLab": False,
                 "Google": False,
                 "ActiveState": False,
+                "Buildkite": False,
             },
             "project": project,
             "github_publisher_form": view.github_publisher_form,
             "gitlab_publisher_form": view.gitlab_publisher_form,
             "google_publisher_form": view.google_publisher_form,
             "activestate_publisher_form": view.activestate_publisher_form,
+            "buildkite_publisher_form": view.buildkite_publisher_form,
             "prefilled_provider": view.prefilled_provider,
         }
         assert view.metrics.increment.calls == [
@@ -1573,12 +1672,14 @@ class TestManageOIDCPublisherViews:
                 "GitLab": False,
                 "Google": False,
                 "ActiveState": False,
+                "Buildkite": False,
             },
             "project": project,
             "github_publisher_form": view.github_publisher_form,
             "gitlab_publisher_form": view.gitlab_publisher_form,
             "google_publisher_form": view.google_publisher_form,
             "activestate_publisher_form": view.activestate_publisher_form,
+            "buildkite_publisher_form": view.buildkite_publisher_form,
             "prefilled_provider": view.prefilled_provider,
         }
         assert view.metrics.increment.calls == [
@@ -1602,6 +1703,7 @@ class TestManageOIDCPublisherViews:
             ("add_gitlab_oidc_publisher", "GitLab"),
             ("add_google_oidc_publisher", "Google"),
             ("add_activestate_oidc_publisher", "ActiveState"),
+            ("add_buildkite_oidc_publisher", "Buildkite"),
         ],
     )
     def test_add_oidc_publisher_ratelimited(
@@ -1652,6 +1754,7 @@ class TestManageOIDCPublisherViews:
             ("add_gitlab_oidc_publisher", "GitLab"),
             ("add_google_oidc_publisher", "Google"),
             ("add_activestate_oidc_publisher", "ActiveState"),
+            ("add_buildkite_oidc_publisher", "Buildkite"),
         ],
     )
     def test_add_oidc_publisher_admin_disabled(
@@ -1695,6 +1798,7 @@ class TestManageOIDCPublisherViews:
             ("add_gitlab_oidc_publisher", "GitLab"),
             ("add_google_oidc_publisher", "Google"),
             ("add_activestate_oidc_publisher", "ActiveState"),
+            ("add_buildkite_oidc_publisher", "Buildkite"),
         ],
     )
     def test_add_oidc_publisher_invalid_form(
@@ -1721,6 +1825,7 @@ class TestManageOIDCPublisherViews:
         monkeypatch.setattr(oidc_views, "GitLabPublisherForm", publisher_form_cls)
         monkeypatch.setattr(oidc_views, "GooglePublisherForm", publisher_form_cls)
         monkeypatch.setattr(oidc_views, "ActiveStatePublisherForm", publisher_form_cls)
+        monkeypatch.setattr(oidc_views, "BuildkitePublisherForm", publisher_form_cls)
 
         view = oidc_views.ManageOIDCPublisherViews(project, request)
         default_response = {
@@ -1728,6 +1833,7 @@ class TestManageOIDCPublisherViews:
             "gitlab_publisher_form": publisher_form_obj,
             "google_publisher_form": publisher_form_obj,
             "activestate_publisher_form": publisher_form_obj,
+            "buildkite_publisher_form": publisher_form_obj,
         }
         monkeypatch.setattr(
             oidc_views.ManageOIDCPublisherViews, "default_response", default_response
@@ -1776,6 +1882,15 @@ class TestManageOIDCPublisherViews:
                 activestate_project_name="some-project",
                 actor="some-user",
                 actor_id="some-user-id",
+            ),
+            BuildkitePublisher(
+                organization_slug="some-org",
+                pipeline_slug="some-pipeline",
+                buildkite_organization_id="11111111-2222-3333-4444-555555555555",
+                pipeline_id="11111111-2222-3333-4444-555555555555",
+                build_branch="main",
+                build_tag="",
+                step_key="publish",
             ),
         ],
     )
@@ -1891,6 +2006,15 @@ class TestManageOIDCPublisherViews:
                 activestate_project_name="some-project",
                 actor="some-user",
                 actor_id="some-user-id",
+            ),
+            BuildkitePublisher(
+                organization_slug="some-org",
+                pipeline_slug="some-pipeline",
+                buildkite_organization_id="11111111-2222-3333-4444-555555555555",
+                pipeline_id="11111111-2222-3333-4444-555555555555",
+                build_branch="main",
+                build_tag="",
+                step_key="publish",
             ),
         ],
     )

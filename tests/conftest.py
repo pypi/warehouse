@@ -705,6 +705,7 @@ def db_request(pyramid_request, db_session, tm):
 def _enable_all_oidc_providers(webtest):
     flags = (
         AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC,
+        AdminFlagValue.DISALLOW_BUILDKITE_OIDC,
         AdminFlagValue.DISALLOW_GITLAB_OIDC,
         AdminFlagValue.DISALLOW_GITHUB_OIDC,
         AdminFlagValue.DISALLOW_GOOGLE_OIDC,

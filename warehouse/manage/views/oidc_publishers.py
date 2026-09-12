@@ -13,6 +13,7 @@ from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService
 from warehouse.oidc.forms import (
     ActiveStatePublisherForm,
+    BuildkitePublisherForm,
     DeletePublisherForm,
     GitHubPublisherForm,
     GitLabPublisherForm,
@@ -22,6 +23,7 @@ from warehouse.oidc.forms._core import ConstrainEnvironmentForm
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.oidc.models import (
     ActiveStatePublisher,
+    BuildkitePublisher,
     GitHubPublisher,
     GitLabPublisher,
     GooglePublisher,
@@ -61,6 +63,7 @@ class ManageOIDCPublisherViews:
         )
         self.google_publisher_form = GooglePublisherForm(self.request.POST)
         self.activestate_publisher_form = ActiveStatePublisherForm(self.request.POST)
+        self.buildkite_publisher_form = BuildkitePublisherForm(self.request.POST)
         self.prefilled_provider = None
 
     @property
@@ -101,6 +104,7 @@ class ManageOIDCPublisherViews:
             "gitlab_publisher_form": self.gitlab_publisher_form,
             "google_publisher_form": self.google_publisher_form,
             "activestate_publisher_form": self.activestate_publisher_form,
+            "buildkite_publisher_form": self.buildkite_publisher_form,
             "disabled": {
                 "GitHub": self.request.flags.disallow_oidc(
                     AdminFlagValue.DISALLOW_GITHUB_OIDC
@@ -113,6 +117,9 @@ class ManageOIDCPublisherViews:
                 ),
                 "ActiveState": self.request.flags.disallow_oidc(
                     AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC
+                ),
+                "Buildkite": self.request.flags.disallow_oidc(
+                    AdminFlagValue.DISALLOW_BUILDKITE_OIDC
                 ),
             },
             "prefilled_provider": self.prefilled_provider,
@@ -138,6 +145,7 @@ class ManageOIDCPublisherViews:
             "gitlab": self.gitlab_publisher_form,
             "google": self.google_publisher_form,
             "activestate": self.activestate_publisher_form,
+            "buildkite": self.buildkite_publisher_form,
         }
         params = self.request.params
         provider = params.get("provider")
@@ -507,6 +515,109 @@ class ManageOIDCPublisherViews:
             "warehouse.oidc.add_publisher.ok", tags=["publisher:GitLab"]
         )
 
+        return HTTPSeeOther(self.request.path)
+
+    @view_config(
+        request_method="POST",
+        request_param=BuildkitePublisherForm.__params__,
+    )
+    def add_buildkite_oidc_publisher(self):
+        if self.request.flags.disallow_oidc(AdminFlagValue.DISALLOW_BUILDKITE_OIDC):
+            self.request.session.flash(
+                self.request._(
+                    "Buildkite-based trusted publishing is temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+            return self.default_response
+
+        self.metrics.increment(
+            "warehouse.oidc.add_publisher.attempt", tags=["publisher:Buildkite"]
+        )
+
+        try:
+            self._check_ratelimits()
+        except TooManyOIDCRegistrations as exc:
+            self.metrics.increment(
+                "warehouse.oidc.add_publisher.ratelimited",
+                tags=["publisher:Buildkite"],
+            )
+            return HTTPTooManyRequests(
+                self.request._(
+                    "There have been too many attempted trusted publisher "
+                    "registrations. Try again later."
+                ),
+                retry_after=exc.resets_in.total_seconds(),
+            )
+
+        self._hit_ratelimits()
+
+        response = self.default_response
+        form = response["buildkite_publisher_form"]
+        if not form.validate():
+            self.request.session.flash(
+                self.request._("The trusted publisher could not be registered"),
+                queue="error",
+            )
+            return response
+
+        filters = {
+            "organization_slug": form.normalized_organization_slug,
+            "pipeline_slug": form.normalized_pipeline_slug,
+            "build_branch": form.normalized_build_branch,
+            "build_tag": form.normalized_build_tag,
+            "step_key": form.normalized_step_key,
+        }
+        publisher = (
+            self.request.db.query(BuildkitePublisher).filter_by(**filters).one_or_none()
+        )
+        if publisher is None:
+            publisher = BuildkitePublisher(
+                **filters,
+                buildkite_organization_id="",
+                pipeline_id="",
+            )
+            self.request.db.add(publisher)
+
+        if publisher in self.project.oidc_publishers:
+            self.request.session.flash(
+                self.request._(
+                    f"{publisher} is already registered with {self.project.name}"
+                ),
+                queue="error",
+            )
+            return response
+
+        for user in self.project.users:
+            send_trusted_publisher_added_email(
+                self.request,
+                user,
+                project_name=self.project.name,
+                publisher=publisher,
+            )
+
+        self.project.oidc_publishers.append(publisher)
+        self.project.record_event(
+            tag=EventTag.Project.OIDCPublisherAdded,
+            request=self.request,
+            additional={
+                "publisher": publisher.publisher_name,
+                "id": str(publisher.id),
+                "specifier": str(publisher),
+                "url": publisher.publisher_url(),
+                "submitted_by": self.request.user.username,
+                "reified_from_pending_publisher": False,
+                "constrained_from_existing_publisher": False,
+            },
+        )
+        self.request.session.flash(
+            f"Added {publisher} in {publisher.publisher_url()} to {self.project.name}",
+            queue="success",
+        )
+        self.metrics.increment(
+            "warehouse.oidc.add_publisher.ok", tags=["publisher:Buildkite"]
+        )
         return HTTPSeeOther(self.request.path)
 
     @view_config(
