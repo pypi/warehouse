@@ -52,6 +52,27 @@ each.
     be able to generate short-lived API tokens from PyPI for the project you've registered
     it against.
 
+=== "Buildkite"
+
+    For Buildkite, you **must** provide the organization slug and pipeline slug.
+    PyPI records the organization and pipeline IDs on the first successful
+    token exchange. All future tokens must contain the same IDs.
+
+    You may also restrict the publisher to a build branch, build tag, or step
+    key. Each configured optional restriction only authorizes jobs whose
+    corresponding OIDC claim matches it.
+
+    ![Image showing adding a new Buildkite publisher](../assets/trusted-publishing/buildkite/project-publishing-form.png)
+
+    Once you click "Add", the publisher will appear at the top of the page:
+
+    ![Image showing a newly added Buildkite publisher](../assets/trusted-publishing/buildkite/project-publisher-registered.png)
+
+    The pipeline will then be able to generate short-lived API tokens for this
+    project. See [Buildkite's OIDC
+    documentation](https://buildkite.com/docs/pipelines/security/oidc) for more
+    information about the claims issued to pipeline jobs.
+
 === "Google Cloud"
 
     For Google Cloud, you **must** provide the email address of the account or
