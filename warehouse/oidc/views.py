@@ -28,7 +28,12 @@ from warehouse.macaroons.services import DatabaseMacaroonService
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.errors import InvalidPublisherError, ReusedTokenError
 from warehouse.oidc.interfaces import IOIDCPublisherService, SignedClaims
-from warehouse.oidc.models import GitHubPublisher, OIDCPublisher, PendingOIDCPublisher
+from warehouse.oidc.models import (
+    BuildkitePublisher,
+    GitHubPublisher,
+    OIDCPublisher,
+    PendingOIDCPublisher,
+)
 from warehouse.oidc.models.gitlab import GitLabPublisher
 from warehouse.oidc.services import OIDCPublisherService
 from warehouse.oidc.utils import (
@@ -326,6 +331,11 @@ def mint_token(
                 ],
                 request=request,
             )
+
+    # Buildkite lookup locks matching rows until this request completes, making
+    # first-use pinning atomic after token replay protection has succeeded.
+    if isinstance(publisher, BuildkitePublisher):
+        publisher.pin_claims(claims)
 
     # At this point, we've verified that the given JWT is valid for the given
     # project. All we need to do is mint a new token.
