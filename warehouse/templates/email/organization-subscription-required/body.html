@@ -1,0 +1,29 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% extends "email/_base/body.html" %}
+{% set site = request.registry.settings["site.name"] %}
+{% set domain = request.registry.settings.get('warehouse.domain') %}
+{% block content %}
+  <p>Hello {{ username }},</p>
+  <p>
+    Your Company organization <strong>{{ organization_name }}</strong> on PyPI was approved, but it does not currently have an active subscription.
+  </p>
+  <p>
+    Continued use of a Company organization requires a paid subscription with at least 1 seat purchased. Without an active subscription, your organization's features (such as uploads and member invitations) may be restricted.
+  </p>
+  <p>
+    <strong><a href="{{ request.route_url('manage.organization.activate_subscription', organization_name=organization_name, _host=domain) }}">Activate your subscription</a></strong>
+  </p>
+  <p>
+    If you no longer want this organization, you can <a href="{{ request.route_url('manage.organization.settings', organization_name=organization_name, _host=domain) }}">delete it yourself from its settings page</a>, and we will stop emailing you about it. Deleting an organization requires that it owns no projects, so remove or transfer any projects first.
+  </p>
+  <p>
+    {% trans %}Company organizations are for for-profit companies. Community organizations are for community-supported projects and teams. Non-profits, NGOs, schools, and other non-commercial groups belong here too; you do not need to be an informal project to qualify. Publishing open-source packages does not by itself qualify a company for a Community organization.{% endtrans %}
+  </p>
+  <p>
+    If you believe you qualify for a Community organization instead, please reach out to us at <a href="mailto:support+orgs@pypi.org">support+orgs@pypi.org</a>.
+  </p>
+  <p>– The PyPI Team</p>
+{% endblock %}
+{% block reason %}
+  You are receiving this because you are an owner of the <strong>{{ organization_name }}</strong> organization on PyPI. If you own multiple PyPI Organizations you may receive multiple emails.
+{% endblock %}

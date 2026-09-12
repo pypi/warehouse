@@ -2,7 +2,6 @@
 
 import json
 
-import pretend
 import pytest
 import stripe
 
@@ -21,7 +20,7 @@ from ...common.db.subscriptions import StripeCustomerFactory, StripeSubscription
 class TestHandleBillingWebhookEvent:
     # checkout.session.completed
     def test_handle_billing_webhook_event_checkout_complete_not_us(
-        self, db_request, subscription_service, monkeypatch, billing_service
+        self, db_request, subscription_service, mocker, billing_service
     ):
         organization = OrganizationFactory.create()
         stripe_customer = StripeCustomerFactory.create()
@@ -47,34 +46,17 @@ class TestHandleBillingWebhookEvent:
             },
         }
 
-        checkout_session = {
-            "id": "cs_test_12345",
-            "customer": {
-                "id": stripe_customer.customer_id,
-                "email": "good@day.com",
-            },
-            "status": "complete",
-            "subscription": {
-                "id": subscription.subscription_id,
-                "items": {
-                    "data": [{"id": "si_12345"}],
-                },
-            },
-        }
-
-        get_checkout_session = pretend.call_recorder(lambda *a, **kw: checkout_session)
-        monkeypatch.setattr(
-            billing_service, "get_checkout_session", get_checkout_session
+        get_checkout_session = mocker.patch.object(
+            billing_service, "get_checkout_session"
         )
 
         billing.handle_billing_webhook_event(db_request, event)
 
-        assert (
-            get_checkout_session.calls == []
-        )  # Should have stopped immediately before this call
+        # Should have stopped immediately before this call
+        get_checkout_session.assert_not_called()
 
     def test_handle_billing_webhook_event_checkout_complete_update(
-        self, db_request, subscription_service, monkeypatch, billing_service
+        self, db_request, subscription_service, mocker, billing_service
     ):
         organization = OrganizationFactory.create()
         stripe_customer = StripeCustomerFactory.create()
@@ -117,15 +99,14 @@ class TestHandleBillingWebhookEvent:
             },
         }
 
-        get_checkout_session = pretend.call_recorder(lambda *a, **kw: checkout_session)
-        monkeypatch.setattr(
-            billing_service, "get_checkout_session", get_checkout_session
+        mocker.patch.object(
+            billing_service, "get_checkout_session", return_value=checkout_session
         )
 
         billing.handle_billing_webhook_event(db_request, event)
 
     def test_handle_billing_webhook_event_checkout_complete_add(
-        self, db_request, subscription_service, monkeypatch, billing_service
+        self, db_request, subscription_service, mocker, billing_service
     ):
         organization = OrganizationFactory.create()
         stripe_customer = StripeCustomerFactory.create()
@@ -164,9 +145,8 @@ class TestHandleBillingWebhookEvent:
             },
         }
 
-        get_checkout_session = pretend.call_recorder(lambda *a, **kw: checkout_session)
-        monkeypatch.setattr(
-            billing_service, "get_checkout_session", get_checkout_session
+        mocker.patch.object(
+            billing_service, "get_checkout_session", return_value=checkout_session
         )
 
         billing.handle_billing_webhook_event(db_request, event)
@@ -194,7 +174,7 @@ class TestHandleBillingWebhookEvent:
             billing.handle_billing_webhook_event(db_request, event)
 
     def test_handle_billing_webhook_event_checkout_complete_invalid_customer(
-        self, db_request, monkeypatch, billing_service
+        self, db_request, mocker, billing_service
     ):
         event = {
             "type": "checkout.session.completed",
@@ -227,16 +207,15 @@ class TestHandleBillingWebhookEvent:
             },
         }
 
-        get_checkout_session = pretend.call_recorder(lambda *a, **kw: checkout_session)
-        monkeypatch.setattr(
-            billing_service, "get_checkout_session", get_checkout_session
+        mocker.patch.object(
+            billing_service, "get_checkout_session", return_value=checkout_session
         )
 
         with pytest.raises(HTTPBadRequest):
             billing.handle_billing_webhook_event(db_request, event)
 
     def test_handle_billing_webhook_event_checkout_complete_invalid_subscription(
-        self, db_request, monkeypatch, billing_service
+        self, db_request, mocker, billing_service
     ):
         event = {
             "type": "checkout.session.completed",
@@ -266,9 +245,8 @@ class TestHandleBillingWebhookEvent:
             },
         }
 
-        get_checkout_session = pretend.call_recorder(lambda *a, **kw: checkout_session)
-        monkeypatch.setattr(
-            billing_service, "get_checkout_session", get_checkout_session
+        mocker.patch.object(
+            billing_service, "get_checkout_session", return_value=checkout_session
         )
 
         with pytest.raises(HTTPBadRequest):

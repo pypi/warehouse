@@ -28,15 +28,13 @@ endif
 # TODO: Flip to `sysmon` when we're on Python 3.14
 COVERAGE_CORE ?= ctrace
 
-default:
-	@echo "Call a specific subcommand:"
-	@echo
-	@$(MAKE) -pRrq -f $(lastword $(MAKEFILE_LIST)) : 2>/dev/null\
-	| awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}'\
-	| sort\
-	| egrep -v -e '^[^[:alnum:]]' -e '^$@$$'
-	@echo
-	@exit 1
+.DEFAULT_GOAL := help
+
+.PHONY: help
+help: ## Show available commands
+	@awk 'BEGIN {FS = ":.*##"; printf "Warehouse development commands\n\nUsage:\n  make \033[36m<target>\033[0m\n"} \
+		/^[a-zA-Z0-9_.-]+:.*##/ {printf "  \033[36m%-24s\033[0m %s\n", $$1, $$2} \
+		/^##@/ {printf "\n\033[1m%s\033[0m\n", substr($$0, 5)}' $(MAKEFILE_LIST)
 
 .state/docker-build-base: Dockerfile package.json package-lock.json requirements/main.txt requirements/deploy.txt requirements/lint.txt requirements/tests.txt requirements/dev.txt
 	# Build our base container for this project.
@@ -70,63 +68,91 @@ default:
 	mkdir -p .state
 	touch .state/docker-build
 
-build:
+##@ Build & Serve
+
+build: ## Build all development containers
 	@$(MAKE) .state/docker-build
 
 	docker system prune -f --filter "label=com.docker.compose.project=warehouse"
 
-serve: .state/docker-build
+serve: .state/docker-build ## Start Warehouse and its dependencies
 	$(MAKE) .state/db-populated
 	$(MAKE) .state/search-indexed
 	docker compose up --remove-orphans
 
-debug: .state/docker-build-base
+debug: .state/docker-build-base ## Start the web service in debug mode
 	docker compose run --rm --service-ports web
 
-tests: .state/docker-build-base
+shell: .state/docker-build-base ## Open a Warehouse Python shell
+	docker compose run --rm web python -m warehouse shell
+
+totp: .state/docker-build-base ## Generate a dev TOTP code
+	@docker compose run --rm base bin/devtotp
+
+##@ Testing & Quality
+
+tests: .state/docker-build-base ## Run Python tests; use T=path/to/test.py
 	docker compose run --rm --env COVERAGE=$(COVERAGE) --env COVERAGE_CORE=$(COVERAGE_CORE) tests bin/tests --postgresql-host db $(T) $(TESTARGS)
 
-static_tests: .state/docker-build-static
+static_tests: .state/docker-build-static ## Run static asset tests
 	docker compose run --rm static bin/static_tests $(T) $(TESTARGS)
 
-static_pipeline: .state/docker-build-static
+static_pipeline: .state/docker-build-static ## Build the static asset pipeline
 	docker compose run --rm static bin/static_pipeline $(T) $(TESTARGS)
 
-reformat: .state/docker-build-base
+reformat: .state/docker-build-base ## Reformat source files
 	docker compose run --rm base bin/reformat
 
-lint: .state/docker-build-base .state/docker-build-static
+lint: .state/docker-build-base .state/docker-build-static ## Run Python and static linters
 	docker compose run --rm base bin/lint
 	docker compose run --rm static bin/static_lint
 
-dev-docs: .state/docker-build-docs
+##@ Documentation
+
+dev-docs: .state/docker-build-docs ## Build developer documentation
 	docker compose run --rm dev-docs bin/dev-docs
 
-user-docs: .state/docker-build-docs
+dev-docs-serve: .state/docker-build-docs ## Serve developer documentation
+	docker compose up dev-docs
+
+user-docs: .state/docker-build-docs ## Build user documentation
 	docker compose run --rm user-docs bin/user-docs
 
-blog: .state/docker-build-docs
+user-docs-serve: .state/docker-build-docs ## Serve user documentation
+	docker compose up user-docs
+
+blog: .state/docker-build-docs ## Build the blog
 	docker compose run --rm blog mkdocs build -f docs/mkdocs-blog.yml
 
-licenses: .state/docker-build-base
+blog-serve: .state/docker-build-docs ## Serve the blog
+	docker compose up blog
+
+##@ Dependencies & Maintenance
+
+licenses: .state/docker-build-base ## Check dependency licenses
 	docker compose run --rm base bin/licenses
 
-deps: .state/docker-build-base
+deps: .state/docker-build-base ## Check for outdated dependencies
 	docker compose run --rm base bin/deps
 
-deps_upgrade_all: .state/docker-build-base
+deps_upgrade_all: .state/docker-build-base ## Upgrade all dependencies
 	docker compose run --rm base bin/deps-upgrade -a
 
-deps_upgrade_project: .state/docker-build-base
+deps_upgrade_project: .state/docker-build-base ## Upgrade dependencies for one project; use P=name
 	docker compose run --rm base bin/deps-upgrade -p $(P)
 
-translations: .state/docker-build-base
+translations: .state/docker-build-base ## Update translation catalogs
 	docker compose run --rm base bin/translations
+
+patch: .state/docker-build-base ## Apply local patches
+	docker compose run --rm base bin/patch
 
 requirements/%.txt: requirements/%.in
 	docker compose run --rm base pip-compile --generate-hashes --output-file=$@ $<
 
-resetdb: .state/docker-build-base
+##@ Database
+
+resetdb: .state/docker-build-base ## Reset and repopulate the database
 	docker compose pause web worker
 	docker compose up -d db
 	docker compose exec --user postgres db /docker-entrypoint-initdb.d/init-dbs.sh
@@ -150,43 +176,39 @@ resetdb: .state/docker-build-base
 	$(MAKE) runmigrations
 	mkdir -p .state && touch .state/db-migrated
 
-initdb: .state/docker-build-base .state/db-populated
+initdb: .state/docker-build-base .state/db-populated ## Initialize and populate the database
 	$(MAKE) reindex
 
-inittuf: .state/db-migrated
+inittuf: .state/db-migrated ## Bootstrap the TUF repository
 	docker compose up -d rstuf-api
 	docker compose up -d rstuf-worker
 	docker compose run --rm web python -m warehouse tuf bootstrap dev/rstuf/bootstrap.json --api-server http://rstuf-api
 
-runmigrations: .state/docker-build-base
+runmigrations: .state/docker-build-base ## Run database migrations
 	docker compose run --rm web python -m warehouse db upgrade head
 
-checkdb: .state/docker-build-base
+checkdb: .state/docker-build-base ## Check database consistency
 	docker compose run --rm web bin/db-check
 
-reindex: .state/docker-build-base
+reindex: .state/docker-build-base ## Rebuild the search index
 	docker compose run --rm web python -m warehouse search reindex
 
-shell: .state/docker-build-base
-	docker compose run --rm web python -m warehouse shell
-
-totp: .state/docker-build-base
-	@docker compose run --rm base bin/devtotp
-
-dbshell: .state/docker-build-base
+dbshell: .state/docker-build-base ## Open a PostgreSQL shell
 	docker compose run --rm web psql -h db -d warehouse -U postgres
 
-clean:
+##@ Cleanup
+
+clean: ## Remove generated project files
 	rm -rf dev/*.sql
 	rm -rf docs/blog-site/ docs/dev-site/ docs/user-site/
 	rm -rf warehouse/static/dist/ warehouse/admin/static/dist/
 
-purge: stop clean
+purge: stop clean ## Remove generated files, containers, and volumes
 	rm -rf .state .coverage* .cache .state/db-populated .state/db-migrated
 	docker compose down -v --remove-orphans
 	docker compose rm --force
 
-stop:
+stop: ## Stop development containers
 	docker compose stop
 
 # ============================================================================
@@ -243,9 +265,11 @@ _codeql_sources          := $(shell git ls-files 'warehouse/*.py' 'warehouse/*.j
 		--codescanning-config=.github/codeql/codeql-config.yml
 	@mkdir -p .state && touch .state/codeql-db
 
-codeql-db: .state/codeql-db
+##@ CodeQL
 
-codeql-rebuild:
+codeql-db: .state/codeql-db ## Build the CodeQL database
+
+codeql-rebuild: ## Force a CodeQL database rebuild
 	rm -rf $(_codeql_db) .state/codeql-db
 	$(MAKE) codeql-db
 
@@ -256,14 +280,14 @@ codeql-analyze-%: .state/codeql-db
 		--output=$(_codeql_results)/$*.sarif \
 		$(_codeql_custom_$*)
 
-codeql-analyze: $(addprefix codeql-analyze-,$(CODEQL_LANGS))
+codeql-analyze: $(addprefix codeql-analyze-,$(CODEQL_LANGS)) ## Analyze the existing CodeQL database
 
-codeql: codeql-analyze
+codeql: codeql-analyze ## Build the CodeQL database and run analysis
 
-codeql-test: .state/codeql-packs
+codeql-test: .state/codeql-packs ## Run custom CodeQL query tests
 	codeql test run $(_codeql_pack_python)/tests
 
-codeql-clean:
+codeql-clean: ## Remove CodeQL-generated files
 	rm -rf dev/codeql .state/codeql-db .state/codeql-packs .state/codeql-cli
 
-.PHONY: default build serve resetdb initdb shell dbshell tests dev-docs user-docs deps deps_upgrade_all deps_upgrade_project clean purge debug stop compile-pot runmigrations checkdb codeql codeql-db codeql-rebuild codeql-analyze codeql-test codeql-clean
+.PHONY: help build serve resetdb initdb shell dbshell tests dev-docs user-docs deps deps_upgrade_all deps_upgrade_project clean purge debug stop compile-pot runmigrations checkdb codeql codeql-db codeql-rebuild codeql-analyze codeql-test codeql-clean patch

@@ -14,19 +14,19 @@ from .extensions import FallbackInternationalizationExtension
 KNOWN_LOCALES = {
     identifier: Locale.parse(identifier, sep="_")
     for identifier in [
+        "de",  # German
         "en",  # English
         "es",  # Spanish
+        "eo",  # Esperanto
         "fr",  # French
-        "ja",  # Japanese
         "pt_BR",  # Brazilian Portuguese
-        "uk",  # Ukrainian
         "el",  # Greek
-        "de",  # German
+        "ru",  # Russian
+        "uk",  # Ukrainian
+        "he",  # Hebrew
         "zh_Hans",  # Simplified Chinese
         "zh_Hant",  # Traditional Chinese
-        "ru",  # Russian
-        "he",  # Hebrew
-        "eo",  # Esperanto
+        "ja",  # Japanese
         "ko",  # Korean
     ]
 }

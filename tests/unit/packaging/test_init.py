@@ -14,15 +14,16 @@ from warehouse.packaging.interfaces import (
     IProjectService,
     ISimpleStorage,
 )
-from warehouse.packaging.models import AlternateRepository, File, Project, Release, Role
+from warehouse.packaging.models import File, Project, Release, Role
 from warehouse.packaging.services import project_service_factory
 from warehouse.packaging.tasks import (
     check_file_cache_tasks_outstanding,
+    reconcile_file_storages,
     update_description_html,
 )
 
 
-def test_includeme(monkeypatch):
+def test_includeme(monkeypatch, mocker):
     storage_class = pretend.stub(
         create_service=pretend.call_recorder(lambda *a, **kw: pretend.stub())
     )
@@ -51,7 +52,7 @@ def test_includeme(monkeypatch):
         registry=pretend.stub(settings=settings),
         register_origin_cache_keys=pretend.call_recorder(lambda c, **kw: None),
         get_settings=lambda: settings,
-        add_periodic_task=pretend.call_recorder(lambda *a, **kw: None),
+        add_periodic_task=mocker.Mock(),
     )
 
     packaging.includeme(config)
@@ -146,13 +147,6 @@ def test_includeme(monkeypatch):
             ],
         ),
         pretend.call(
-            AlternateRepository,
-            cache_keys=["project/{obj.project.normalized_name}"],
-            purge_keys=[
-                key_factory("project/{obj.project.normalized_name}"),
-            ],
-        ),
-        pretend.call(
             OrganizationProject,
             purge_keys=[
                 key_factory("project/{attr.normalized_name}", if_attr_exists="project"),
@@ -161,14 +155,18 @@ def test_includeme(monkeypatch):
     ]
 
     assert (
-        pretend.call(crontab(minute="*/1"), check_file_cache_tasks_outstanding)
-        in config.add_periodic_task.calls
+        mocker.call(crontab(minute="*/1"), check_file_cache_tasks_outstanding)
+        in config.add_periodic_task.call_args_list
     )
     assert (
-        pretend.call(crontab(minute="*/5"), update_description_html)
-        in config.add_periodic_task.calls
+        mocker.call(crontab(minute="*/15"), reconcile_file_storages)
+        in config.add_periodic_task.call_args_list
     )
     assert (
-        pretend.call(crontab(minute="*/5"), update_role_invitation_status)
-        in config.add_periodic_task.calls
+        mocker.call(crontab(minute="*/5"), update_description_html)
+        in config.add_periodic_task.call_args_list
+    )
+    assert (
+        mocker.call(crontab(minute="*/5"), update_role_invitation_status)
+        in config.add_periodic_task.call_args_list
     )

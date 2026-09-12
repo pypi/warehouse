@@ -8,6 +8,8 @@ from warehouse import db, tasks
 from warehouse.accounts.models import User
 from warehouse.packaging.models import File, Project, Release
 
+# Exact counts, refreshed by a periodic task. For tables too large to
+# COUNT(*), use warehouse.admin.views.helpers.estimate_row_count instead.
 COUNTED_TABLES = [User, Project, Release, File]
 
 

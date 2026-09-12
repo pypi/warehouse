@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
+from types import SimpleNamespace
+
 import pretend
 import pytest
 import wtforms
@@ -14,6 +16,27 @@ from ...common.constants import REMOTE_ADDR
 from ...common.db.accounts import OAuthAccountAssociationFactory, UserFactory
 from ...common.db.organizations import OrganizationFactory
 from ...common.db.packaging import ProjectFactory
+
+
+def _stub_mx_ptr_resolution(monkeypatch, ptr_host):
+    """
+    Stub ``dns.resolver`` so the MX-record-to-PTR lookup in email validation
+    runs deterministically without live network queries.
+
+    Without this, coverage of the PTR-resolution branch in
+    ``warehouse/accounts/forms.py`` depends on CI DNS resolving real MX hosts,
+    which is non-deterministic and produces flaky coverage failures.
+    """
+    monkeypatch.setattr(
+        "dns.resolver.resolve",
+        lambda *a, **kw: [SimpleNamespace(address="192.0.2.1")],
+    )
+    monkeypatch.setattr(
+        "dns.resolver.resolve_address",
+        lambda *a, **kw: [
+            SimpleNamespace(target=SimpleNamespace(to_text=lambda: ptr_host))
+        ],
+    )
 
 
 class TestCreateRoleForm:
@@ -162,13 +185,14 @@ class TestSaveAccountForm:
 
 class TestAddEmailForm:
     @pytest.mark.usefixtures("no_email_deliverability_check")
-    def test_validate(self, metrics):
+    def test_validate(self, metrics, email_reputation_service):
         user_id = pretend.stub()
         user_service = pretend.stub(find_userid_by_email=lambda _: None)
         form = forms.AddEmailForm(
             request=pretend.stub(
                 db=pretend.stub(query=lambda *a: pretend.stub(scalar=lambda: False)),
                 metrics=metrics,
+                find_service=lambda *a, **kw: email_reputation_service,
             ),
             formdata=MultiDict({"email": "foo@bar.com"}),
             user_id=user_id,
@@ -238,14 +262,23 @@ class TestAddEmailForm:
         )
 
     @pytest.mark.parametrize(
-        ("email_address", "mx_record_domain", "prohibited_domain"),
+        ("email_address", "mx_record_domain", "mx_ptr_host", "prohibited_domain"),
         [
-            ("foo@wutang.net", "in.mail.net", "mail.net"),
-            ("foo@wutang.net", "in.mail.net", "in.mail.net"),
+            # Prohibited via the MX record's own domain
+            ("foo@wutang.net", "in.mail.net", "ptr.example.org", "mail.net"),
+            ("foo@wutang.net", "in.mail.net", "ptr.example.org", "in.mail.net"),
             (
                 "foo@outlook.com",
                 "outlook-com.mail.protection.outlook.com",
+                "ptr.example.org",
                 "outlook.com",
+            ),
+            # Prohibited via the domain the MX host's IP resolves back to (PTR)
+            (
+                "foo@wutang.net",
+                "in.someisp.com",
+                "mx1.prohibited-ptr.net",
+                "prohibited-ptr.net",
             ),
         ],
     )
@@ -255,10 +288,16 @@ class TestAddEmailForm:
         db_request,
         email_address,
         mx_record_domain,
+        mx_ptr_host,
         prohibited_domain,
     ):
         """
         Similar to `test_prohibited_email_error()`, checking the MX domain.
+
+        Both the MX record's own domain and the domain its IP points back to
+        (via a PTR lookup) are checked against the prohibited list. DNS
+        resolution is stubbed so coverage of the PTR-resolution branch does not
+        depend on live network lookups.
         """
         mock_deliverability_info = {"mx": [(10, mx_record_domain)]}
 
@@ -269,6 +308,7 @@ class TestAddEmailForm:
             "email_validator.deliverability.validate_email_deliverability",
             mock_function,
         )
+        _stub_mx_ptr_resolution(monkeypatch, mx_ptr_host)
 
         prohibited_mx_domain = ProhibitedEmailDomain(
             domain=prohibited_domain,
@@ -325,6 +365,7 @@ class TestAddEmailForm:
             "email_validator.deliverability.validate_email_deliverability",
             mock_function,
         )
+        _stub_mx_ptr_resolution(monkeypatch, "ptr.example.org")
 
         prohibited_mx_domain = ProhibitedEmailDomain(
             domain=prohibited_domain,
@@ -357,13 +398,14 @@ class TestAddEmailForm:
 
 class TestChangeUnverifiedPrimaryEmailForm:
     @pytest.mark.usefixtures("no_email_deliverability_check")
-    def test_validate(self, metrics):
+    def test_validate(self, metrics, email_reputation_service):
         user_id = pretend.stub()
         user_service = pretend.stub(find_userid_by_email=lambda _: None)
         form = forms.ChangeUnverifiedPrimaryEmailForm(
             request=pretend.stub(
                 db=pretend.stub(query=lambda *a: pretend.stub(scalar=lambda: False)),
                 metrics=metrics,
+                find_service=lambda *a, **kw: email_reputation_service,
             ),
             formdata=MultiDict({"email": "foo@bar.com"}),
             user_id=user_id,

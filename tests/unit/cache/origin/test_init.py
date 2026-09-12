@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
+import types
+
 import pytest
 
 from tests.common.db.accounts import UserFactory
@@ -18,7 +19,7 @@ from warehouse.cache.origin.interfaces import IOriginCache
 from warehouse.observations.models import ObservationKind
 
 
-def test_store_purge_keys():
+def test_store_purge_keys(mocker):
     class Type1:
         pass
 
@@ -35,7 +36,7 @@ def test_store_purge_keys():
     class Type5:
         pass
 
-    config = pretend.stub(
+    config = types.SimpleNamespace(
         registry={
             "cache_keys": {
                 Type1: lambda o: origin.CacheKeys(cache=[], purge=["type_1"]),
@@ -45,14 +46,14 @@ def test_store_purge_keys():
             }
         }
     )
-    session = pretend.stub(
+    session = types.SimpleNamespace(
         info={},
         new={Type1(), Type5()},
         dirty={Type2()},
         deleted={Type3(), Type4()},
     )
 
-    origin.store_purge_keys(config, session, pretend.stub())
+    origin.store_purge_keys(config, session, mocker.sentinel.flush_context)
 
     assert session.info["warehouse.cache.origin.purges"] == {
         "type_1",
@@ -171,18 +172,20 @@ def test_store_purge_keys_skips_project_dirty_on_releases_change(
     assert ("Project", "dirty") not in logged_classes
 
 
-def test_execute_purge_success(app_config, monkeypatch):
-    cacher = pretend.stub(purge=pretend.call_recorder(lambda purges: None))
-    factory = pretend.call_recorder(lambda ctx, config: cacher)
-    monkeypatch.setattr(app_config, "find_service_factory", lambda *a, **kw: factory)
-    session = pretend.stub(
+def test_execute_purge_success(app_config, mocker):
+    cacher = mocker.Mock(spec=["purge"])
+    factory = mocker.Mock(return_value=cacher)
+    mocker.patch.object(
+        app_config, "find_service_factory", autospec=True, return_value=factory
+    )
+    session = types.SimpleNamespace(
         info={"warehouse.cache.origin.purges": {"type_1", "type_2", "foobar"}}
     )
 
     origin.execute_purge(app_config, session)
 
-    assert factory.calls == [pretend.call(None, app_config)]
-    assert cacher.purge.calls == [pretend.call({"type_1", "type_2", "foobar"})]
+    factory.assert_called_once_with(None, app_config)
+    cacher.purge.assert_called_once_with({"type_1", "type_2", "foobar"})
     assert "warehouse.cache.origin.purges" not in session.info
 
 
@@ -193,79 +196,61 @@ def test_execute_purge_empty(app_config, db_session):
     assert "warehouse.cache.origin.purges" not in db_session.info
 
 
-def test_execute_purge_no_backend():
-    @pretend.call_recorder
-    def find_service_factory(interface):
-        raise LookupError
-
-    config = pretend.stub(find_service_factory=find_service_factory)
-    session = pretend.stub(
+def test_execute_purge_no_backend(app_config, mocker):
+    find_service_factory = mocker.patch.object(
+        app_config, "find_service_factory", autospec=True, side_effect=LookupError
+    )
+    session = types.SimpleNamespace(
         info={"warehouse.cache.origin.purges": {"type_1", "type_2", "foobar"}}
     )
 
-    origin.execute_purge(config, session)
+    origin.execute_purge(app_config, session)
 
-    assert find_service_factory.calls == [pretend.call(origin.IOriginCache)]
+    find_service_factory.assert_called_once_with(origin.IOriginCache)
     assert "warehouse.cache.origin.purges" not in session.info
 
 
 class TestOriginCache:
-    def test_no_cache_key(self):
-        response = pretend.stub()
+    def test_no_cache_key(self, pyramid_request, mocker):
+        response = mocker.sentinel.response
 
         @origin.origin_cache(1)
         def view(context, request):
             return response
 
-        def raiser(iface):
-            raise LookupError
+        # IOriginCache is unregistered, so the real find_service raises LookupError
+        pyramid_request.registry["cache_keys"] = {}
+        context = mocker.sentinel.context
 
-        context = pretend.stub()
-        request = pretend.stub(registry={"cache_keys": {}}, find_service=raiser)
+        assert view(context, pyramid_request) is response
 
-        assert view(context, request) is response
-
-    def test_no_origin_cache(self):
+    def test_no_origin_cache(self, pyramid_request, mocker):
         class Fake:
             pass
 
-        response = pretend.stub()
+        response = mocker.sentinel.response
 
         @origin.origin_cache(1)
         def view(context, request):
             return response
-
-        @pretend.call_recorder
-        def raiser(iface):
-            raise LookupError
 
         context = Fake()
-        request = pretend.stub(
-            registry={
-                "cache_keys": {
-                    Fake: lambda X: origin.CacheKeys(cache=[], purge=[])  # noqa: N803
-                }
-            },
-            find_service=raiser,
-        )
+        pyramid_request.registry["cache_keys"] = {
+            Fake: lambda X: origin.CacheKeys(cache=[], purge=[])  # noqa: N803
+        }
+        # IOriginCache is unregistered, so the real find_service raises LookupError
+        find_service = mocker.spy(pyramid_request, "find_service")
 
-        assert view(context, request) is response
-        assert raiser.calls == [pretend.call(IOriginCache)]
+        assert view(context, pyramid_request) is response
+        find_service.assert_called_once_with(IOriginCache)
 
     @pytest.mark.parametrize(("seconds", "keys"), [(745, None), (823, ["nope", "yup"])])
-    def test_response_hook(self, seconds, keys):
+    def test_response_hook(self, seconds, keys, pyramid_request, mocker):
         class Fake:
             pass
 
-        class Cache:
-            @staticmethod
-            @pretend.call_recorder
-            def cache(
-                keys, request, response, seconds, stale_while_revalidate, stale_if_error
-            ):
-                pass
-
-        response = pretend.stub()
+        response = mocker.sentinel.response
+        cacher = mocker.Mock(spec=["cache"])
 
         deco = origin.origin_cache(seconds, keys=keys)
 
@@ -273,34 +258,27 @@ class TestOriginCache:
         def view(context, request):
             return response
 
-        key_maker = pretend.call_recorder(
-            lambda obj: origin.CacheKeys(cache=["one", "two"], purge=[])
+        key_maker = mocker.Mock(
+            return_value=origin.CacheKeys(cache=["one", "two"], purge=[])
         )
-        cacher = Cache()
         context = Fake()
-        callbacks = []
-        request = pretend.stub(
-            registry={"cache_keys": {Fake: key_maker}},
-            find_service=lambda iface: cacher,
-            add_response_callback=callbacks.append,
+        pyramid_request.registry["cache_keys"] = {Fake: key_maker}
+        mocker.patch.object(pyramid_request, "find_service", return_value=cacher)
+
+        assert view(context, pyramid_request) is response
+        key_maker.assert_called_once_with(context)
+        assert len(pyramid_request.response_callbacks) == 1
+
+        pyramid_request.response_callbacks[0](pyramid_request, response)
+
+        cacher.cache.assert_called_once_with(
+            ["one", "two"] + ([] if keys is None else keys),
+            pyramid_request,
+            response,
+            seconds=seconds,
+            stale_while_revalidate=None,
+            stale_if_error=None,
         )
-
-        assert view(context, request) is response
-        assert key_maker.calls == [pretend.call(context)]
-        assert len(callbacks) == 1
-
-        callbacks[0](request, response)
-
-        assert cacher.cache.calls == [
-            pretend.call(
-                ["one", "two"] + ([] if keys is None else keys),
-                request,
-                response,
-                seconds=seconds,
-                stale_while_revalidate=None,
-                stale_if_error=None,
-            )
-        ]
 
 
 class TestKeyMaker:
@@ -312,7 +290,7 @@ class TestKeyMaker:
                 origin.key_factory("bar/{obj.attr}"),
             ],
         )
-        cache_keys = key_maker(pretend.stub(attr="bar"))
+        cache_keys = key_maker(types.SimpleNamespace(attr="bar"))
 
         assert isinstance(cache_keys, origin.CacheKeys)
         assert cache_keys.cache == ["foo", "foo/bar"]
@@ -322,7 +300,7 @@ class TestKeyMaker:
         key_maker = origin.key_maker_factory(
             cache_keys=["foo", "foo/{obj.attr}"], purge_keys=None
         )
-        cache_keys = key_maker(pretend.stub(attr="bar"))
+        cache_keys = key_maker(types.SimpleNamespace(attr="bar"))
 
         assert isinstance(cache_keys, origin.CacheKeys)
         assert cache_keys.cache == ["foo", "foo/bar"]
@@ -336,7 +314,7 @@ class TestKeyMaker:
                 origin.key_factory("bar/{obj.attr}"),
             ],
         )
-        cache_keys = key_maker(pretend.stub(attr="bar"))
+        cache_keys = key_maker(types.SimpleNamespace(attr="bar"))
 
         assert isinstance(cache_keys, origin.CacheKeys)
         assert cache_keys.cache == []
@@ -350,7 +328,7 @@ class TestKeyMaker:
                 origin.key_factory("bar/{itr}", iterate_on="iterate_me"),
             ],
         )
-        cache_keys = key_maker(pretend.stub(iterate_me=["biz", "baz"]))
+        cache_keys = key_maker(types.SimpleNamespace(iterate_me=["biz", "baz"]))
 
         assert isinstance(cache_keys, origin.CacheKeys)
         assert cache_keys.cache == ["foo"]
@@ -364,7 +342,7 @@ class TestKeyMaker:
                 origin.key_factory("bar/{attr}", if_attr_exists="foo"),
             ],
         )
-        cache_keys = key_maker(pretend.stub(foo="bar"))
+        cache_keys = key_maker(types.SimpleNamespace(foo="bar"))
 
         assert isinstance(cache_keys, origin.CacheKeys)
         assert cache_keys.cache == ["foo"]
@@ -378,7 +356,9 @@ class TestKeyMaker:
                 origin.key_factory("bar/{attr}", if_attr_exists="foo.bar"),
             ],
         )
-        cache_keys = key_maker(pretend.stub(foo=pretend.stub(bar="bar")))
+        cache_keys = key_maker(
+            types.SimpleNamespace(foo=types.SimpleNamespace(bar="bar"))
+        )
 
         assert isinstance(cache_keys, origin.CacheKeys)
         assert cache_keys.cache == ["foo"]
@@ -392,7 +372,7 @@ class TestKeyMaker:
                 origin.key_factory("bar/{attr}", if_attr_exists="foo"),
             ],
         )
-        cache_keys = key_maker(pretend.stub())
+        cache_keys = key_maker(types.SimpleNamespace())
 
         assert isinstance(cache_keys, origin.CacheKeys)
         assert cache_keys.cache == ["foo"]
@@ -406,7 +386,7 @@ class TestKeyMaker:
                 origin.key_factory("bar/{attr}", if_attr_exists="foo.bar"),
             ],
         )
-        cache_keys = key_maker(pretend.stub())
+        cache_keys = key_maker(types.SimpleNamespace())
 
         assert isinstance(cache_keys, origin.CacheKeys)
         assert cache_keys.cache == ["foo"]
@@ -424,18 +404,19 @@ class TestReceiveSet:
         assert f"user/{user.username}" in purges
 
 
-def test_register_origin_keys(monkeypatch):
+def test_register_origin_keys(mocker):
     class Fake1:
         pass
 
     class Fake2:
         pass
 
-    key_maker = pretend.stub()
-    key_maker_factory = pretend.call_recorder(lambda **kw: key_maker)
-    monkeypatch.setattr(origin, "key_maker_factory", key_maker_factory)
+    key_maker = mocker.sentinel.key_maker
+    key_maker_factory = mocker.patch.object(
+        origin, "key_maker_factory", autospec=True, return_value=key_maker
+    )
 
-    config = pretend.stub(registry={})
+    config = types.SimpleNamespace(registry={})
 
     origin.register_origin_cache_keys(
         config, Fake1, cache_keys=["one", "two/{obj.attr}"]
@@ -444,49 +425,49 @@ def test_register_origin_keys(monkeypatch):
         config, Fake2, cache_keys=["three"], purge_keys=["lol"]
     )
 
-    assert key_maker_factory.calls == [
-        pretend.call(cache_keys=["one", "two/{obj.attr}"], purge_keys=None),
-        pretend.call(cache_keys=["three"], purge_keys=["lol"]),
+    assert key_maker_factory.call_args_list == [
+        mocker.call(cache_keys=["one", "two/{obj.attr}"], purge_keys=None),
+        mocker.call(cache_keys=["three"], purge_keys=["lol"]),
     ]
     assert config.registry == {"cache_keys": {Fake1: key_maker, Fake2: key_maker}}
 
 
-def test_includeme_no_origin_cache():
-    config = pretend.stub(
-        add_directive=pretend.call_recorder(lambda name, func: None),
-        registry=pretend.stub(settings={}),
-    )
+def test_includeme_no_origin_cache(mocker):
+    config = mocker.Mock(spec=["add_directive", "registry"])
+    config.registry.settings = {}
 
     origin.includeme(config)
 
-    assert config.add_directive.calls == [
-        pretend.call("register_origin_cache_keys", origin.register_origin_cache_keys)
-    ]
-
-
-def test_includeme_with_origin_cache():
-    cache_class = pretend.stub(create_service=pretend.stub())
-    config = pretend.stub(
-        add_directive=pretend.call_recorder(lambda name, func: None),
-        add_view_deriver=pretend.call_recorder(lambda deriver: None),
-        registry=pretend.stub(
-            settings={
-                "origin_cache.backend": "warehouse.cache.origin.fastly.FastlyCache"
-            }
-        ),
-        maybe_dotted=pretend.call_recorder(lambda n: cache_class),
-        register_service_factory=pretend.call_recorder(lambda f, iface: None),
+    config.add_directive.assert_called_once_with(
+        "register_origin_cache_keys", origin.register_origin_cache_keys
     )
+
+
+def test_includeme_with_origin_cache(mocker):
+    cache_class = mocker.Mock(spec=["create_service"])
+    config = mocker.Mock(
+        spec=[
+            "add_directive",
+            "add_view_deriver",
+            "maybe_dotted",
+            "register_service_factory",
+            "registry",
+        ]
+    )
+    config.registry.settings = {
+        "origin_cache.backend": "warehouse.cache.origin.fastly.FastlyCache"
+    }
+    config.maybe_dotted.return_value = cache_class
 
     origin.includeme(config)
 
-    assert config.add_directive.calls == [
-        pretend.call("register_origin_cache_keys", origin.register_origin_cache_keys)
-    ]
-    assert config.add_view_deriver.calls == [pretend.call(html_cache_deriver)]
-    assert config.maybe_dotted.calls == [
-        pretend.call("warehouse.cache.origin.fastly.FastlyCache")
-    ]
-    assert config.register_service_factory.calls == [
-        pretend.call(cache_class.create_service, IOriginCache)
-    ]
+    config.add_directive.assert_called_once_with(
+        "register_origin_cache_keys", origin.register_origin_cache_keys
+    )
+    config.add_view_deriver.assert_called_once_with(html_cache_deriver)
+    config.maybe_dotted.assert_called_once_with(
+        "warehouse.cache.origin.fastly.FastlyCache"
+    )
+    config.register_service_factory.assert_called_once_with(
+        cache_class.create_service, IOriginCache
+    )

@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 @use "../settings/breakpoints";
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/grid";
 
 /*
@@ -27,7 +27,7 @@
   margin: grid.$spacing-unit 0;
 
   &__qr {
-    border: 1px solid colours.$border-color;
+    border: 1px solid colors.$border-color;
     margin-bottom: grid.$spacing-unit;
 
     img {

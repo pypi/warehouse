@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 @use "../settings/breakpoints";
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/fonts";
 @use "../settings/grid";
 @use "../tools/link-utilities";
@@ -36,7 +36,7 @@
     cursor: pointer;
     border: 0;
     background-color: transparent;
-    color: colours.$primary-color;
+    color: colors.$primary-color;
     @include link-utilities.link-without-underline;
 
     &::before {
@@ -47,8 +47,8 @@
     }
 
     @media only screen and (max-width: breakpoints.$desktop) {
-      color: colours.$white;
-      @include link-utilities.link-focus-state(colours.$white);
+      color: colors.$white;
+      @include link-utilities.link-focus-state(colors.$white);
     }
   }
 

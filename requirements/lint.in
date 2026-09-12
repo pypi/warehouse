@@ -12,9 +12,11 @@ types-babel
 boto3-stubs
 types-certifi
 types-first
+types-gunicorn
 types-html5lib
 types-itsdangerous
 types-passlib
+types-pyasn1
 types-python-slugify
 types-pytz
 types-redis

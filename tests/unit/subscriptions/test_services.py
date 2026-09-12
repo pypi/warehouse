@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import importlib
+import types
 
-import pretend
 import pytest
 import stripe
 
@@ -42,38 +42,34 @@ class TestStripeBillingService:
     def test_verify_service(self):
         assert verifyClass(IBillingService, StripeBillingService)
 
-    def test_basic_init(self):
-        api = pretend.stub()
-
+    def test_basic_init(self, mocker):
         billing_service = StripeBillingService(
-            api=api,
+            api=mocker.sentinel.api,
             publishable_key="secret_to_everybody",
             webhook_secret="keep_it_secret_keep_it_safe",
             domain="tests",
         )
 
-        assert billing_service.api is api
+        assert billing_service.api is mocker.sentinel.api
         assert billing_service.publishable_key == "secret_to_everybody"
         assert billing_service.webhook_secret == "keep_it_secret_keep_it_safe"
         assert billing_service.domain == "tests"
 
-    def test_create_service(self):
+    def test_create_service(self, pyramid_request):
         # Reload stripe to reset the global stripe.api_key to default.
         importlib.reload(stripe)
 
-        request = pretend.stub(
-            registry=pretend.stub(
-                settings={
-                    "billing.api_base": "http://localhost:12111",
-                    "billing.api_version": "2020-08-27",
-                    "billing.secret_key": "sk_test_123",
-                    "billing.publishable_key": "pk_test_123",
-                    "billing.webhook_key": "whsec_123",
-                    "billing.domain": "tests",
-                }
-            )
+        pyramid_request.registry.settings.update(
+            {
+                "billing.api_base": "http://localhost:12111",
+                "billing.api_version": "2020-08-27",
+                "billing.secret_key": "sk_test_123",
+                "billing.publishable_key": "pk_test_123",
+                "billing.webhook_key": "whsec_123",
+                "billing.domain": "tests",
+            }
         )
-        billing_service = StripeBillingService.create_service(None, request)
+        billing_service = StripeBillingService.create_service(None, pyramid_request)
         # Assert api_base isn't overwritten with mock service even if we try
         assert billing_service.api.api_base != "http://localhost:12111"
         assert billing_service.api.api_version == "2020-08-27"
@@ -87,34 +83,30 @@ class TestMockStripeBillingService:
     def test_verify_service(self):
         assert verifyClass(IBillingService, MockStripeBillingService)
 
-    def test_basic_init(self):
-        api = pretend.stub()
-
+    def test_basic_init(self, mocker):
         billing_service = MockStripeBillingService(
-            api=api,
+            api=mocker.sentinel.api,
             publishable_key="secret_to_everybody",
             webhook_secret="keep_it_secret_keep_it_safe",
             domain="tests",
         )
 
-        assert billing_service.api is api
+        assert billing_service.api is mocker.sentinel.api
         assert billing_service.publishable_key == "secret_to_everybody"
         assert billing_service.webhook_secret == "keep_it_secret_keep_it_safe"
         assert billing_service.domain == "tests"
 
-    def test_create_service(self):
-        request = pretend.stub(
-            registry=pretend.stub(
-                settings={
-                    "billing.api_base": "http://localhost:12111",
-                    "billing.api_version": "2020-08-27",
-                    "billing.secret_key": "sk_test_123",
-                    "billing.publishable_key": "pk_test_123",
-                    "billing.webhook_key": "whsec_123",
-                }
-            )
+    def test_create_service(self, pyramid_request):
+        pyramid_request.registry.settings.update(
+            {
+                "billing.api_base": "http://localhost:12111",
+                "billing.api_version": "2020-08-27",
+                "billing.secret_key": "sk_test_123",
+                "billing.publishable_key": "pk_test_123",
+                "billing.webhook_key": "whsec_123",
+            }
         )
-        billing_service = MockStripeBillingService.create_service(None, request)
+        billing_service = MockStripeBillingService.create_service(None, pyramid_request)
         assert billing_service.api.api_base == "http://localhost:12111"
         assert billing_service.api.api_version == "2020-08-27"
         assert billing_service.api.api_key == "sk_test_123"
@@ -192,26 +184,28 @@ class TestMockStripeBillingService:
         )
         assert session_url is not None
 
-    def test_webhook_received(self, billing_service, monkeypatch):
-        payload = pretend.stub()
-        sig_header = pretend.stub()
+    def test_webhook_received(self, billing_service, mocker):
+        construct_event = mocker.patch.object(stripe.Webhook, "construct_event")
 
-        construct_event = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(stripe.Webhook, "construct_event", construct_event)
+        billing_service.webhook_received(
+            mocker.sentinel.payload, mocker.sentinel.sig_header
+        )
 
-        billing_service.webhook_received(payload, sig_header)
-
-        assert construct_event.calls == [
-            pretend.call(payload, sig_header, billing_service.webhook_secret),
-        ]
+        construct_event.assert_called_once_with(
+            mocker.sentinel.payload,
+            mocker.sentinel.sig_header,
+            billing_service.webhook_secret,
+        )
 
     def test_create_or_update_product(
-        self, billing_service, subscription_service, monkeypatch
+        self, billing_service, subscription_service, mocker
     ):
         subscription_product = StripeSubscriptionProductFactory.create()
 
-        search_products = pretend.call_recorder(
-            lambda *a, **kw: {
+        mocker.patch.object(
+            billing_service,
+            "search_products",
+            return_value={
                 "data": [
                     {
                         "id": str(subscription_product.id),
@@ -219,9 +213,8 @@ class TestMockStripeBillingService:
                         "created": 0,
                     },
                 ],
-            }
+            },
         )
-        monkeypatch.setattr(billing_service, "search_products", search_products)
 
         product = billing_service.create_or_update_product(
             name=subscription_product.product_name,
@@ -232,9 +225,10 @@ class TestMockStripeBillingService:
 
         assert product is not None
 
-    def test_create_or_update_product_new_product(self, billing_service, monkeypatch):
-        search_products = pretend.call_recorder(lambda *a, **kw: {"data": []})
-        monkeypatch.setattr(billing_service, "search_products", search_products)
+    def test_create_or_update_product_new_product(self, billing_service, mocker):
+        mocker.patch.object(
+            billing_service, "search_products", return_value={"data": []}
+        )
 
         product = billing_service.create_or_update_product(
             name="Vitamin PyPI",
@@ -341,7 +335,7 @@ class TestMockStripeBillingService:
         assert prices is not None
 
     def test_create_or_update_price(
-        self, billing_service, subscription_service, monkeypatch
+        self, billing_service, subscription_service, mocker
     ):
         subscription_price = StripeSubscriptionPriceFactory.create()
         price = {
@@ -370,8 +364,8 @@ class TestMockStripeBillingService:
             "tax_behavior": subscription_price.tax_behavior,
             "created": 0,
         }
-        monkeypatch.setattr(
-            billing_service, "search_prices", lambda *a, **kw: {"data": [price, other]}
+        mocker.patch.object(
+            billing_service, "search_prices", return_value={"data": [price, other]}
         )
 
         price = billing_service.create_or_update_price(
@@ -399,6 +393,22 @@ class TestMockStripeBillingService:
         # doesn't care enough to update the status for whatever reason ¯\_(ツ)_/¯
         assert subscription.status is not None
 
+    def test_cancel_subscription_at_period_end(
+        self, billing_service, subscription_service
+    ):
+        organization = OrganizationFactory.create()
+        stripe_customer = StripeCustomerFactory.create()
+        OrganizationStripeCustomerFactory.create(
+            organization=organization, customer=stripe_customer
+        )
+        db_subscription = StripeSubscriptionFactory.create(customer=stripe_customer)
+
+        subscription = billing_service.cancel_subscription_at_period_end(
+            subscription_id=db_subscription.subscription_id
+        )
+
+        assert subscription.cancel_at_period_end is True
+
     def test_create_or_update_usage_record(self, billing_service, subscription_service):
         result = billing_service.create_or_update_usage_record("si_1234", 5)
 
@@ -409,44 +419,38 @@ class TestMockStripeBillingService:
 
 
 class TestGenericBillingService:
-    def test_basic_init(self):
-        api = pretend.stub()
-
+    def test_basic_init(self, mocker):
         billing_service = GenericBillingService(
-            api=api,
+            api=mocker.sentinel.api,
             publishable_key="secret_to_everybody",
             webhook_secret="keep_it_secret_keep_it_safe",
             domain="tests",
         )
 
-        assert billing_service.api is api
+        assert billing_service.api is mocker.sentinel.api
         assert billing_service.publishable_key == "secret_to_everybody"
         assert billing_service.webhook_secret == "keep_it_secret_keep_it_safe"
         assert billing_service.domain == "tests"
 
     def test_notimplementederror(self):
         with pytest.raises(NotImplementedError):
-            GenericBillingService.create_service(pretend.stub(), pretend.stub())
+            GenericBillingService.create_service(None, None)
 
 
-def test_subscription_factory():
-    db = pretend.stub()
-    context = pretend.stub()
-    request = pretend.stub(db=db)
-
-    service = services.subscription_factory(context, request)
-    assert service.db is db
+def test_subscription_factory(mocker):
+    request = types.SimpleNamespace(db=mocker.sentinel.db)
+    service = services.subscription_factory(None, request)
+    assert service.db is mocker.sentinel.db
 
 
 class TestStripeSubscriptionService:
     def test_verify_service(self):
         assert verifyClass(ISubscriptionService, services.StripeSubscriptionService)
 
-    def test_service_creation(self):
-        session = pretend.stub()
-        service = services.StripeSubscriptionService(session)
+    def test_service_creation(self, mocker):
+        service = services.StripeSubscriptionService(mocker.sentinel.session)
 
-        assert service.db is session
+        assert service.db is mocker.sentinel.session
 
     def test_find_subscriptionid_nonexistent_sub(self, subscription_service):
         assert subscription_service.find_subscriptionid("fake_news") is None

@@ -3,44 +3,66 @@
 {% set site_name = request.registry.settings["site.name"] %}
 {% block content %}
   <h3>What?</h3>
-  <p>
-    A third party ({{ origin.name }}) has informed us that a {{ site_name }} API token
-    associated with your account "{{ username }}" was found to be accessible at the
-    following public URL. We have automatically revoked this token.
-  </p>
-  <p>
-    <a href="{{ public_url }}">{{ public_url }}</a>
-  </p>
+  {% if admin_initiated %}
+    <p>
+      A {{ site_name }} administrator has revoked an API token associated with your account
+      "{{ username }}" because it was found to be compromised.
+    </p>
+    {% if reason %}
+      <p>Additional details from the administrator:</p>
+      <p>{{ reason }}</p>
+    {% endif %}
+  {% else %}
+    <p>
+      A third party ({{ origin.name }}) has informed us that a {{ site_name }} API token
+      associated with your account "{{ username }}" was found to be accessible at the
+      following public URL. We have automatically revoked this token.
+    </p>
+    <p>
+      <a href="{{ public_url }}">{{ public_url }}</a>
+    </p>
+  {% endif %}
   <h3>What should I do?</h3>
+  {% if not admin_initiated %}
+    <p>
+      First, we recommend that you inspect the public page where the token
+      appeared. Please investigate whether this is the result of an error on your side or if
+      someone else acquired and published your token.
+    </p>
+    <p>
+      If the token was not published by you, it means it was stolen, either from you or from
+      someone with access to your account on {{ site_name }}. We urge you to take all the
+      necessary steps to secure all your credentials.
+    </p>
+  {% endif %}
   <p>
-    First, we recommend that you inspect the public page where the token
-    appeared. Please investigate whether this is the result of an error on your side or if
-    someone else acquired and published your token.
-  </p>
-  <p>
-    If the token was not published by you, it means it was stolen, either from you or from
-    someone with access to your account on {{ site_name }}. We urge you to take all the
-    necessary steps to secure all your credentials.
-  </p>
-  <p>
-    Once you have taken the applicable steps to ensure the token will not become public
+    Once you have taken the applicable steps to ensure the token will not become compromised
     again, you're welcome to generate a new one. Log into your account and head to your
     profile page to create a new API token. You will need to update your existing
     integrations with the new token.
   </p>
   <p>
+    If you publish from a CI/CD service such as GitHub Actions or GitLab CI, consider
+    adopting
+    <a href="{{ request.user_docs_url('/trusted-publishers/') }}">Trusted Publishing</a>
+    instead of API tokens. It uses short-lived, automatically rotated credentials, so
+    there is no long-lived token that can be leaked.
+  </p>
+  <p>
     Lastly, please review the releases of all your packages. You should make
-    sure a third party did not use your publicly accessible token to impersonate
+    sure a third party did not use your compromised token to impersonate
     you and release a malicious package.
   </p>
-  <h3>How do you know this?</h3>
-  <p>
-    This is an automated message. Our partner {{ origin.name }} analyzes all the data it
-    receives for unintentional {{ site_name }} token publications and warns us every time
-    it finds one. We check every disclosure we receive and take action when the token
-    appears
-    valid.
-  </p>
+  {% if not admin_initiated %}
+    <h3>How do you know this?</h3>
+    <p>
+      This is an automated message. Our partner {{ origin.name }} analyzes all the data it
+      receives for unintentional {{ site_name }} token publications and warns us every time
+      it finds one. We check every disclosure we receive and take action when the token
+      appears
+      valid.
+    </p>
+  {% endif %}
   <p>
     For more information, see our
     <a href="{{ request.help_url(_anchor='compromised-token') }}">FAQ</a>.

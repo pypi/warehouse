@@ -14,21 +14,22 @@
 # Bijay Nayak <bijay6779@gmail.com>, 2024.
 # kumar Shivam <rajputshivam.cse@gmail.com>, 2024.
 # Shipra <ships3040@gmail.com>, 2025.
+# Harshit Verma <738vermaharshit@gmail.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2025-09-04 09:02+0000\n"
-"Last-Translator: Shipra <ships3040@gmail.com>\n"
-"Language-Team: Hindi <https://hosted.weblate.org/projects/pypa/warehouse/hi/"
-">\n"
+"PO-Revision-Date: 2026-06-23 15:35+0000\n"
+"Last-Translator: Harshit Verma <738vermaharshit@gmail.com>\n"
+"Language-Team: Hindi <https://hosted.weblate.org/projects/pypa/warehouse/hi/>"
+"\n"
 "Language: hi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.13.1-rc\n"
+"X-Generator: Weblate 2026.7.dev0\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:149
@@ -74,6 +75,7 @@ msgid ""
 "Usernames are not the same as email addresses. Enter your username instead "
 "of your email address."
 msgstr ""
+"यूज़रनेम और ईमेल एड्रेस एक जैसे नहीं होते। अपने ईमेल एड्रेस की जगह अपना यूज़रनेम डालें।"
 
 #: warehouse/accounts/forms.py:91
 msgid "No user found with that username"
@@ -157,22 +159,16 @@ msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "अमान्य WebAuthn दावा: खराब पेलोड"
 
 #: warehouse/accounts/forms.py:514
-#, fuzzy
-#| msgid "Invalid Recovery Code."
 msgid "Invalid recovery code."
-msgstr "पुनर्प्राप्ति कुंजी अमान्य।"
+msgstr "गलत रिकवरी कोड।"
 
 #: warehouse/accounts/forms.py:523
-#, fuzzy
-#| msgid "Recovery codes regenerated"
 msgid "Recovery code has been previously used."
-msgstr "पुनर्प्राप्ति कोड का उपयोग पहले किया जा चुका है।"
+msgstr "रिकवरी कोड पहले इस्तेमाल किया जा चुका है।"
 
 #: warehouse/accounts/forms.py:553
-#, fuzzy
-#| msgid "The email address isn't valid. Try again."
 msgid "The username isn't valid. Try again."
-msgstr "उपयोक्तानाम मान्य नहीं है. पुनः प्रयास करें।"
+msgstr "यूज़रनेम वैलिड नहीं है. फिर से कोशिश करें।"
 
 #: warehouse/accounts/views.py:120
 #, fuzzy
@@ -194,17 +190,13 @@ msgstr ""
 "करें और सत्यापन लिंकों का अनुसरण करें। (IP: ${ip})"
 
 #: warehouse/accounts/views.py:149
-#, fuzzy
-#| msgid ""
-#| "Too many emails have been added to this account without verifying them. "
-#| "Check your inbox and follow the verification links. (IP: ${ip})"
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: $"
 "{ip})"
 msgstr ""
-"इस खाते के लिए बिना पूर्ण किए बहुत अधिक पासवर्ड रीसेट अनुरोध किए गए हैं। कृपया अपना "
-"इनबॉक्स जांचें और सत्यापन लिंक का पालन करें। (आईपी: ${ip})"
+"इस अकाउंट के लिए बहुत सारे पासवर्ड रीसेट करने के लिए रिक्वेस्ट किए गए हैं, लेकिन उन्हें पूरा "
+"नहीं किया गया है। अपना इनबॉक्स चेक करें और वेरिफिकेशन लिंक को फॉलो करें। (आईपी: ${ip})"
 
 #: warehouse/accounts/views.py:331 warehouse/accounts/views.py:400
 #: warehouse/accounts/views.py:402 warehouse/accounts/views.py:431
@@ -301,28 +293,20 @@ msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "ईमेल पता ${email_address} सत्यापित। ${confirm_message}।"
 
 #: warehouse/accounts/views.py:1016
-#, fuzzy
-#| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new organization invitation"
-msgstr "खारिज टोकन: एक नई परियोजना भूमिका का अनुरोध करें"
+msgstr "टोकन समाप्त: नए ऑर्गनाइज़ेशन आमंत्रण का अनुरोध करें"
 
 #: warehouse/accounts/views.py:1018
-#, fuzzy
-#| msgid "Invalid token: request a new project role invite"
 msgid "Invalid token: request a new organization invitation"
-msgstr "अमान्य टोकन: एक नई परियोजना भूमिका का अनुरोध करें"
+msgstr "अमान्य टोकन: नए ऑर्गनाइज़ेशन आमंत्रण का अनुरोध करें"
 
 #: warehouse/accounts/views.py:1024
-#, fuzzy
-#| msgid "Invalid token: not a collaboration invitation token"
 msgid "Invalid token: not an organization invitation token"
-msgstr "अमान्य टोकन: यह सहकार्यता टोकन नहीं है"
+msgstr "अमान्य टोकन: यह ऑर्गनाइज़ेशन आमंत्रण नहीं है"
 
 #: warehouse/accounts/views.py:1028
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "Organization invitation is not valid."
-msgstr "कृत्य आमंत्रण अमान्य है।"
+msgstr "ऑर्गनाइज़ेशन आमंत्रण अमान्य है।"
 
 #: warehouse/accounts/views.py:1037
 #, fuzzy

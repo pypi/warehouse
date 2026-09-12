@@ -2,122 +2,98 @@
 
 import { Controller } from "@hotwired/stimulus";
 
-// These values should be kept in sync with the CSS breakpoints
-const BREAKPOINTS = {
-  "mobile": 400,
-  "small-tablet": 600,
-  "tablet": 800,
-  "desktop": 1000,
-  "large-desktop": 1200,
-};
-
-const activeClass = "vertical-tabs__tab--is-active";
+const activeClass = "project-tabs__tab--is-active";
 
 export default class extends Controller {
-  static targets = ["tab", "mobileTab", "content"];
+  static targets = ["tab", "content"];
 
   connect() {
-    // Set up initial content
-    let contentId = window.location.hash.substr(1);
-    this.toggleTab(this._getTabForContentId(contentId) || this._getTabs()[0]);
-    // Handle resizing events to update the displayed content
-    this.resizeTimeout = null;
-    this._handleResize = this._handleResize.bind(this);
-    window.addEventListener("resize", this._handleResize, false);
-    // Handle hash change events to update the displayed content
+    const contentId = window.location.hash.slice(1);
+    this.toggleTab(this._getTabForContentId(contentId) || this.tabTargets[0]);
     this._handleHashChange = this._handleHashChange.bind(this);
     window.addEventListener("hashchange", this._handleHashChange, false);
-    // force scrolling after hiding element, only necessary in Firefox
-    if (contentId) {
-      window.location.hash = "#" + contentId;
-    }
   }
 
-  onTabClick(event) {
-    event.preventDefault();
-    let btn = event.target;
-    this.toggleTabAndPushState(btn);
+  disconnect() {
+    window.removeEventListener("hashchange", this._handleHashChange);
+  }
 
-    // Focus tab, only on click
-    let contentId = window.location.hash.substr(1);
-    document.getElementById(contentId).focus();
+  tabClick(event) {
+    event.preventDefault();
+    const btn = event.currentTarget;
+    this.toggleTab(btn);
+    history.pushState(null, "", btn.hash);
+    document.getElementById(btn.hash.slice(1))?.focus({ preventScroll: true });
+  }
+
+  tabKeydown(event) {
+    const keys = ["ArrowLeft", "ArrowRight", "Home", "End"];
+    if (!keys.includes(event.key)) return;
+
+    const navTabs = this.tabTargets.filter(
+      tab => !this.contentTargets.some(c => c.contains(tab)),
+    );
+    const currentIndex = navTabs.indexOf(event.currentTarget);
+    if (currentIndex === -1) return;
+
+    event.preventDefault();
+
+    let nextIndex;
+    if (event.key === "ArrowRight") nextIndex = (currentIndex + 1) % navTabs.length;
+    else if (event.key === "ArrowLeft") nextIndex = (currentIndex - 1 + navTabs.length) % navTabs.length;
+    else if (event.key === "Home") nextIndex = 0;
+    else if (event.key === "End") nextIndex = navTabs.length - 1;
+
+    const nextTab = navTabs[nextIndex];
+    nextTab.focus();
+    this.toggleTab(nextTab);
+    history.pushState(null, "", nextTab.hash);
   }
 
   toggleTab(btn) {
-    let contentId = btn.getAttribute("href").substr(1);
-    // toggle display setting for the content related to the tab button
+    if (!btn || !btn.hash) return;
+    const contentId = btn.hash.slice(1);
+
+    // If btn lives inside a content panel it's an inline sub-panel link (e.g. "view details").
+    // In that case keep the parent content panel's nav tab active instead.
+    const parentContent = this.contentTargets.find(c => c.contains(btn));
+    const activeNavTab = parentContent
+      ? this._getNavTabForContentId(parentContent.id)
+      : this._getNavTabForContentId(contentId);
+
     this.contentTargets.forEach(content => {
-      if (content.getAttribute("id") !== contentId) {
-        this._hide(content);
-      } else {
-        this._show(content);
-      }
+      content.style.display = content.id === contentId ? "block" : "none";
     });
-  }
 
-  toggleTabAndPushState(btn) {
-    this.toggleTab(btn);
-    history.pushState(null, "", btn.getAttribute("href"));
-  }
-
-  _hide(content) {
-    content.style.display = "none";
-    let contentId = content.getAttribute("id");
-    this._getAllTabsForContentId(contentId)
+    this.tabTargets
+      .filter(tab => !this.contentTargets.some(c => c.contains(tab)))
       .forEach(tab => {
-        tab.classList.remove(activeClass);
-        tab.removeAttribute("aria-selected");
+        const isActive = tab === activeNavTab;
+        tab.classList.toggle(activeClass, isActive);
+        tab.setAttribute("aria-selected", isActive ? "true" : "false");
+        tab.setAttribute("tabindex", isActive ? "0" : "-1");
       });
-  }
-
-  _show(content) {
-    content.style.display = "block";
-    let contentId = content.getAttribute("id");
-    this._getAllTabsForContentId(contentId)
-      .forEach(tab => {
-        tab.classList.add(activeClass);
-        tab.setAttribute("aria-selected", "true");
-      });
-    this.data.set("content", contentId);
   }
 
   _getTabForContentId(contentId) {
-    let tabs = this._getTabs();
-    return tabs.find(tab => tab.getAttribute("href").substr(1) === contentId);
+    return this.tabTargets.find(tab => tab.hash.slice(1) === contentId);
   }
 
-  _getAllTabsForContentId(contentId) {
-    return Array.of(...this.tabTargets, ...this.mobileTabTargets)
-      .filter(tab => tab.getAttribute("href").substr(1) === contentId);
-  }
-
-  _getTabs() {
-    return window.innerWidth <= BREAKPOINTS.tablet ?
-      this.mobileTabTargets : this.tabTargets;
-  }
-
-  _handleResize() {
-    // throttle resize event to 15fps
-    if (!this.resizeTimeout) {
-      this.resizeTimeout = setTimeout(() => {
-        this.resizeTimeout = null;
-        let tab = this._getTabForContentId(this.data.get("content"));
-        if (!tab) {
-          let btn = this._getTabs()[0];
-          this.toggleTabAndPushState(btn);
-        }
-      }, 66);
-    }
+  _getNavTabForContentId(contentId) {
+    return this.tabTargets.find(tab =>
+      tab.hash.slice(1) === contentId &&
+      !this.contentTargets.some(c => c.contains(tab)),
+    );
   }
 
   _handleHashChange() {
-    let contentId = window.location.hash.substr(1);
+    const contentId = window.location.hash.slice(1);
     if (!contentId) {
-      this.toggleTab(this._getTabs()[0]);
+      this.toggleTab(this.tabTargets[0]);
     } else {
-      let tab = this._getTabForContentId(contentId);
+      const tab = this._getTabForContentId(contentId);
       if (tab) {
-        this.toggleTabAndPushState(tab);
+        this.toggleTab(tab);
       }
     }
   }

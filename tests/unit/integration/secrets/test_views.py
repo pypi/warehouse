@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import json
+import types
 
-import pretend
 import pytest
 
 from webob.headers import EnvironHeaders
@@ -54,7 +54,7 @@ class TestDiscloseToken:
         self,
         pyramid_request,
         metrics,
-        monkeypatch,
+        mocker,
         origin,
         headers,
         settings,
@@ -69,39 +69,36 @@ class TestDiscloseToken:
         pyramid_request.registry.settings = settings
         pyramid_request.find_service = lambda *a, **k: metrics
 
-        http = pyramid_request.http = pretend.stub()
+        http = pyramid_request.http = mocker.sentinel.http
 
-        verify = pretend.call_recorder(lambda **k: True)
-        verifier = pretend.stub(verify=verify)
-        verifier_cls = pretend.call_recorder(lambda **k: verifier)
-        monkeypatch.setattr(utils, "GenericTokenScanningPayloadVerifier", verifier_cls)
+        verifier_cls = mocker.patch.object(
+            utils, "GenericTokenScanningPayloadVerifier", autospec=True
+        )
+        verifier_cls.return_value.verify.return_value = True
 
-        analyze_disclosures = pretend.call_recorder(lambda **k: None)
-        monkeypatch.setattr(utils, "analyze_disclosures", analyze_disclosures)
+        analyze_disclosures = mocker.patch.object(
+            utils, "analyze_disclosures", autospec=True
+        )
 
         response = views.disclose_token(pyramid_request)
 
         assert response.status_code == 204
-        assert verifier_cls.calls == [
-            pretend.call(
-                session=http,
-                metrics=metrics,
-                origin=origin,
-                api_token=api_token,
-                api_url=api_url,
-            )
-        ]
-        assert verify.calls == [
-            pretend.call(payload="[1, 2, 3]", key_id="foo", signature="bar")
-        ]
-        assert analyze_disclosures.calls == [
-            pretend.call(
-                request=pyramid_request,
-                disclosure_records=[1, 2, 3],
-                origin=origin,
-                metrics=metrics,
-            )
-        ]
+        verifier_cls.assert_called_once_with(
+            session=http,
+            metrics=metrics,
+            origin=origin,
+            api_token=api_token,
+            api_url=api_url,
+        )
+        verifier_cls.return_value.verify.assert_called_once_with(
+            payload="[1, 2, 3]", key_id="foo", signature="bar"
+        )
+        analyze_disclosures.assert_called_once_with(
+            request=pyramid_request,
+            disclosure_records=[1, 2, 3],
+            origin=origin,
+            metrics=metrics,
+        )
 
     @pytest.mark.parametrize(
         ("headers"),
@@ -112,22 +109,19 @@ class TestDiscloseToken:
             },
         ],
     )
-    def test_disclose_token_no_token(
-        self, pyramid_request, metrics, monkeypatch, headers
-    ):
+    def test_disclose_token_no_token(self, pyramid_request, metrics, mocker, headers):
         pyramid_request.headers = headers
         pyramid_request.body = "[1, 2, 3]"
         pyramid_request.json_body = [1, 2, 3]
         pyramid_request.find_service = lambda *a, **k: metrics
-        pyramid_request.http = pretend.stub()
+        pyramid_request.http = mocker.sentinel.http
 
-        verify = pretend.call_recorder(lambda **k: True)
-        verifier = pretend.stub(verify=verify)
-        verifier_cls = pretend.call_recorder(lambda **k: verifier)
-        monkeypatch.setattr(utils, "GenericTokenScanningPayloadVerifier", verifier_cls)
+        verifier_cls = mocker.patch.object(
+            utils, "GenericTokenScanningPayloadVerifier", autospec=True
+        )
+        verifier_cls.return_value.verify.return_value = True
 
-        analyze_disclosures = pretend.call_recorder(lambda **k: None)
-        monkeypatch.setattr(utils, "analyze_disclosures", analyze_disclosures)
+        mocker.patch.object(utils, "analyze_disclosures", autospec=True)
 
         response = views.disclose_token(pyramid_request)
 
@@ -148,18 +142,18 @@ class TestDiscloseToken:
         ],
     )
     def test_disclose_token_verify_fail(
-        self, pyramid_request, metrics, monkeypatch, headers, settings
+        self, pyramid_request, metrics, mocker, headers, settings
     ):
         pyramid_request.headers = headers
         pyramid_request.body = "[1, 2, 3]"
         pyramid_request.find_service = lambda *a, **k: metrics
         pyramid_request.registry.settings = settings
-        pyramid_request.http = pretend.stub()
+        pyramid_request.http = mocker.sentinel.http
 
-        verify = pretend.call_recorder(lambda **k: False)
-        verifier = pretend.stub(verify=verify)
-        verifier_cls = pretend.call_recorder(lambda **k: verifier)
-        monkeypatch.setattr(utils, "GenericTokenScanningPayloadVerifier", verifier_cls)
+        verifier_cls = mocker.patch.object(
+            utils, "GenericTokenScanningPayloadVerifier", autospec=True
+        )
+        verifier_cls.return_value.verify.return_value = False
 
         response = views.disclose_token(pyramid_request)
 
@@ -181,12 +175,12 @@ class TestDiscloseToken:
         ],
     )
     def test_disclose_token_verify_invalid_json(
-        self, metrics, monkeypatch, origin, headers, settings
+        self, metrics, mocker, origin, headers, settings
     ):
-        verify = pretend.call_recorder(lambda **k: True)
-        verifier = pretend.stub(verify=verify)
-        verifier_cls = pretend.call_recorder(lambda **k: verifier)
-        monkeypatch.setattr(utils, "GenericTokenScanningPayloadVerifier", verifier_cls)
+        verifier_cls = mocker.patch.object(
+            utils, "GenericTokenScanningPayloadVerifier", autospec=True
+        )
+        verifier_cls.return_value.verify.return_value = True
 
         # We need to raise on a property access, can't do that with a stub.
         class Request:
@@ -201,16 +195,16 @@ class TestDiscloseToken:
             def find_service(self, *a, **k):
                 return metrics
 
-            response = pretend.stub(status_int=200)
-            http = pretend.stub()
-            registry = pretend.stub(settings=settings)
+            response = types.SimpleNamespace(status_int=200)
+            http = mocker.sentinel.http
+            registry = types.SimpleNamespace(settings=settings)
 
         request = Request(headers, "[")
         response = views.disclose_token(request)
 
         assert response.status_int == 400
-        assert metrics.increment.calls == [
-            pretend.call(
+        assert metrics.increment.call_args_list == [
+            mocker.call(
                 f"warehouse.token_leak.{origin.lower()}.error.payload.json_error"
             )
         ]
@@ -231,7 +225,7 @@ class TestDiscloseToken:
         ],
     )
     def test_disclose_token_wrong_payload(
-        self, pyramid_request, metrics, monkeypatch, origin, headers, settings
+        self, pyramid_request, metrics, mocker, origin, headers, settings
     ):
         pyramid_request.headers = headers
         pyramid_request.body = "{}"
@@ -239,18 +233,18 @@ class TestDiscloseToken:
         pyramid_request.registry.settings = settings
         pyramid_request.find_service = lambda *a, **k: metrics
 
-        pyramid_request.http = pretend.stub()
+        pyramid_request.http = mocker.sentinel.http
 
-        verify = pretend.call_recorder(lambda **k: True)
-        verifier = pretend.stub(verify=verify)
-        verifier_cls = pretend.call_recorder(lambda **k: verifier)
-        monkeypatch.setattr(utils, "GenericTokenScanningPayloadVerifier", verifier_cls)
+        verifier_cls = mocker.patch.object(
+            utils, "GenericTokenScanningPayloadVerifier", autospec=True
+        )
+        verifier_cls.return_value.verify.return_value = True
 
         response = views.disclose_token(pyramid_request)
 
         assert response.status_code == 400
-        assert metrics.increment.calls == [
-            pretend.call(f"warehouse.token_leak.{origin.lower()}.error.format")
+        assert metrics.increment.call_args_list == [
+            mocker.call(f"warehouse.token_leak.{origin.lower()}.error.format")
         ]
 
     def test_disclose_token_missing_headers(self, pyramid_request):

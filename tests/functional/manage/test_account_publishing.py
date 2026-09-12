@@ -204,8 +204,7 @@ class TestManageAccountPublishing:
         webtest.get("/manage/account/publishing/", status=HTTPStatus.OK)
 
         # Assert: total query count is fixed regardless of the number of
-        # projects or publishers attached to them. The 7 queries are:
+        # projects or publishers attached to them. The 6 queries are:
         # ip-ban check, session user load, admin flags, projects with
-        # publishers (this view), user's organizations, pending publishers,
-        # active sponsors.
-        assert len(webtest.query_recorder.queries) == 7
+        # publishers (this view), pending publishers, active sponsors.
+        assert len(webtest.query_recorder.queries) == 6
