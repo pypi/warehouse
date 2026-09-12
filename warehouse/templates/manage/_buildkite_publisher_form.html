@@ -1,0 +1,86 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+{% macro buildkite_publisher_form(request, form, action, form_error_anchor, form_errors, field_errors, pending=false, disabled=false, prefilled=false) %}
+  {% if prefilled %}
+    <div id="prefilled-warning" class="callout-block callout-block--warning">
+      <h3 class="callout-block__heading">{% trans %}Proceed with caution!{% endtrans %}</h3>
+      <p>{% trans %}Some form fields have been autofilled, please double-check their values before submitting the form.{% endtrans %}</p>
+    </div>
+  {% endif %}
+  <p>
+    {% trans href="https://buildkite.com/docs/pipelines/security/oidc" %}
+    Read more about Buildkite's OpenID Connect support <a href="{{ href }}">here</a>.
+  {% endtrans %}
+</p>
+{{ form_error_anchor(form) }}
+<form id="{{ 'pending-' if pending else '' }}buildkite-publisher-form"
+      method="post"
+      action="{{ action }}#errors">
+  <input name="csrf_token"
+         type="hidden"
+         value="{{ request.session.get_csrf_token() }}">
+  {{ form_errors(form) }}
+  {% if pending %}
+    <div class="form-group">
+      <label for="project_name" class="form-group__label">
+        {{ sitename }} {% trans %}Project Name{% endtrans %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+      </label>
+      {{ form.project_name(placeholder=gettext("project name") , autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", aria_describedby="buildkite-project-name-errors") }}
+      <p class="form-group__help-text">
+        {% trans sitename=sitename %}The project that will be created on {{ sitename }} when this publisher is used{% endtrans %}
+      </p>
+      <div id="buildkite-project-name-errors">{{ field_errors(form.project_name) }}</div>
+    </div>
+  {% endif %}
+  <div class="form-group">
+    <label for="organization_slug" class="form-group__label">
+      {% trans %}Organization slug{% endtrans %}
+      <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+    </label>
+    {{ form.organization_slug(placeholder=gettext("my-organization") , autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", aria_describedby="organization-slug-errors") }}
+    <p class="form-group__help-text">{% trans %}The Buildkite organization that owns the pipeline{% endtrans %}</p>
+    <div id="organization-slug-errors">{{ field_errors(form.organization_slug) }}</div>
+  </div>
+  <div class="form-group">
+    <label for="pipeline_slug" class="form-group__label">
+      {% trans %}Pipeline slug{% endtrans %}
+      <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+    </label>
+    {{ form.pipeline_slug(placeholder=gettext("my-pipeline") , autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", aria_describedby="pipeline-slug-errors") }}
+    <p class="form-group__help-text">{% trans %}The URL slug of the Buildkite pipeline that will publish{% endtrans %}</p>
+    <div id="pipeline-slug-errors">{{ field_errors(form.pipeline_slug) }}</div>
+  </div>
+  <div class="form-group">
+    <label for="build_branch" class="form-group__label">
+      {% trans %}Build branch{% endtrans %}
+      <span class="form-group__required">{% trans %}(optional){% endtrans %}</span>
+    </label>
+    {{ form.build_branch(placeholder=gettext("main") , autocomplete="off", class_="form-group__field", aria_describedby="build-branch-errors") }}
+    <p class="form-group__help-text">{% trans %}Only allow builds of this branch{% endtrans %}</p>
+    <div id="build-branch-errors">{{ field_errors(form.build_branch) }}</div>
+  </div>
+  <div class="form-group">
+    <label for="build_tag" class="form-group__label">
+      {% trans %}Build tag{% endtrans %}
+      <span class="form-group__required">{% trans %}(optional){% endtrans %}</span>
+    </label>
+    {{ form.build_tag(placeholder=gettext("v1.0.0") , autocomplete="off", class_="form-group__field", aria_describedby="build-tag-errors") }}
+    <p class="form-group__help-text">{% trans %}Only allow builds with this tag{% endtrans %}</p>
+    <div id="build-tag-errors">{{ field_errors(form.build_tag) }}</div>
+  </div>
+  <div class="form-group">
+    <label for="step_key" class="form-group__label">
+      {% trans %}Step key{% endtrans %}
+      <span class="form-group__required">{% trans %}(optional){% endtrans %}</span>
+    </label>
+    {{ form.step_key(placeholder=gettext("publish") , autocomplete="off", class_="form-group__field", aria_describedby="step-key-errors") }}
+    <p class="form-group__help-text">{% trans %}Only allow jobs from the pipeline step with this key{% endtrans %}</p>
+    <div id="step-key-errors">{{ field_errors(form.step_key) }}</div>
+  </div>
+  <div>
+    <input type="submit"
+           value="{% trans %}Add{% endtrans %}"
+           class="button button--primary {{ 'button--disabled' if disabled else '' }}">
+  </div>
+</form>
+{% endmacro %}
