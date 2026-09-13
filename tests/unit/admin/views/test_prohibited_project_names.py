@@ -617,6 +617,7 @@ class TestReleaseProhibitedProjectName:
             {owner},
             organization_name="wu-tang-corp",
             project_name="wutangclan",
+            submitter_username=db_request.user.username,
         )
 
 

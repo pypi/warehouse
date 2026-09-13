@@ -1490,6 +1490,7 @@ def remove_organization_project(project, request):
             owner_users,
             organization_name=organization.name,
             project_name=project.name,
+            submitter_username=request.user.username,
         )
         # Display notification message.
         request.session.flash(
@@ -1630,6 +1631,7 @@ def transfer_organization_project(project, request):
             owner_users,
             organization_name=organization.name,
             project_name=project.name,
+            submitter_username=request.user.username,
         )
 
         # Mark Organization as dirty, so purges will happen
