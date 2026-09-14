@@ -83,6 +83,10 @@ json_path = re.compile(JSON_REGEX)
 @view_config(context=HTTPException)
 @notfound_view_config(append_slash=HTTPMovedPermanently)
 @notfound_view_config(path_info=JSON_REGEX, append_slash=False)
+@forbidden_view_config(route_name="api.simple.index")
+@forbidden_view_config(route_name="api.simple.detail")
+@exception_view_config(PredicateMismatch, route_name="api.simple.index")
+@exception_view_config(PredicateMismatch, route_name="api.simple.detail")
 def httpexception_view(exc, request):
     # If this is a 404 for a Project, provide the project name requested
     if isinstance(request.context, Project):
@@ -103,12 +107,12 @@ def httpexception_view(exc, request):
             }
         )
     try:
-        # Lightweight version of 404 page for `/simple/`
-        if isinstance(exc, HTTPNotFound) and request.path.startswith("/simple/"):
-            response = HTTPNotFound(
-                body="404 Not Found",
-                content_type="text/plain",
-            )
+        # PEP 847 errors use the same representation for both Simple API formats.
+        if 400 <= exc.status_code < 600 and request.path.startswith("/simple/"):
+            if exc.content_type == PROBLEM_CONTENT_TYPE:
+                response = exc
+            else:
+                response = problem(type(exc), exc.detail or exc.explanation)
         elif isinstance(exc, HTTPNotFound) and json_path.match(request.path):
             response = HTTPNotFound(
                 body='{"message": "Not Found"}',
