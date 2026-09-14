@@ -16,6 +16,7 @@ from pyramid.httpexceptions import (
     HTTPSeeOther,
     HTTPServiceUnavailable,
     HTTPTooManyRequests,
+    exception_response,
 )
 from pyramid.response import FileResponse
 from trove_classifiers import sorted_classifiers
@@ -69,7 +70,7 @@ class TestHTTPExceptionView:
         pyramid_config.testing_add_renderer("non-existent.html")
 
         response = context = pretend.stub(status_code=499)
-        request = pretend.stub(context=None)
+        request = pretend.stub(context=None, path="")
         assert httpexception_view(context, request) is response
 
     @pytest.mark.parametrize("status_code", [403, 404, 410, 500])
@@ -81,7 +82,7 @@ class TestHTTPExceptionView:
             status_code=status_code,
             headers={},
         )
-        request = pretend.stub(context=None)
+        request = pretend.stub(context=None, path="")
         response = httpexception_view(context, request)
 
         assert response.status_code == status_code
@@ -98,7 +99,7 @@ class TestHTTPExceptionView:
             status_code=status_code,
             headers={"Foo": "Bar"},
         )
-        request = pretend.stub(context=None)
+        request = pretend.stub(context=None, path="")
         response = httpexception_view(context, request)
 
         assert response.status_code == status_code
@@ -139,9 +140,50 @@ class TestHTTPExceptionView:
             response = httpexception_view(context, request)
             assert response.status_code == 404
             assert response.status == "404 Not Found"
-            assert response.content_type == "text/plain"
-            assert response.text == "404 Not Found"
+            assert response.content_type == "application/problem+json"
+            assert response.json == {
+                "status": 404,
+                "title": "Not Found",
+                "detail": context.explanation,
+            }
             _assert_has_cors_headers(response.headers)
+
+    @pytest.mark.parametrize("path", ["/simple/", "/simple/example/"])
+    @pytest.mark.parametrize("status_code", [400, 401, 403, 406, 410, 429, 500, 503])
+    @pytest.mark.parametrize("detail", [None, "Please try again later."])
+    def test_simple_problem_details(self, path, status_code, detail):
+        context = exception_response(
+            status_code,
+            detail=detail,
+            headers={
+                "Retry-After": "60",
+                "WWW-Authenticate": 'Basic realm="example"',
+            },
+        )
+        context.status = f"{status_code} My Cool Status"
+        request = pretend.stub(context=None, path=path)
+
+        response = httpexception_view(context, request)
+
+        assert response.status == context.status
+        assert response.content_type == "application/problem+json"
+        assert response.content_length == len(response.body)
+        assert response.json == {
+            "status": status_code,
+            "title": context.title,
+            "detail": detail or context.explanation,
+        }
+        assert response.headers["Retry-After"] == "60"
+        assert response.headers["WWW-Authenticate"] == 'Basic realm="example"'
+        _assert_has_cors_headers(response.headers)
+
+    @pytest.mark.parametrize("status_code", [200, 301, 304, 399, 600])
+    def test_simple_non_errors_unchanged(self, pyramid_config, status_code):
+        pyramid_config.testing_add_renderer("non-existent.html")
+        context = pretend.stub(status_code=status_code)
+        request = pretend.stub(context=None, path="/simple/")
+
+        assert httpexception_view(context, request) is context
 
     def test_json_404(self):
         csp = {}
@@ -223,7 +265,7 @@ class TestForbiddenView:
         exc = pretend.stub(
             status_code=403, status="403 Forbidden", headers={}, result=pretend.stub()
         )
-        request = pretend.stub(user=pretend.stub(), context=None)
+        request = pretend.stub(user=pretend.stub(), context=None, path="")
         resp = forbidden(exc, request)
         assert resp.status_code == 403
         renderer.assert_()
@@ -313,7 +355,7 @@ class TestForbiddenView:
         exc = pretend.stub(
             status_code=403, status="403 Forbidden", headers={}, result=result
         )
-        request = pretend.stub(user=pretend.stub(), context=None)
+        request = pretend.stub(user=pretend.stub(), context=None, path="")
         resp = forbidden(exc, request)
         assert resp.status_code == 403
         renderer.assert_()
