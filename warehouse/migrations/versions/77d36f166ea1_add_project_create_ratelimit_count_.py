@@ -51,11 +51,9 @@ PERIODS = ("hour", "day", "month")
 
 
 def upgrade():
-    op.execute("lock table users, organizations in access exclusive mode nowait")
-
     sa.Enum(*PERIODS, name="ratelimitperiod").create(op.get_bind())
 
-    for table in ("organizations", "users"):
+    for table in ("users", "organizations"):
         op.add_column(
             table,
             sa.Column(
@@ -83,8 +81,6 @@ def upgrade():
 
 
 def downgrade():
-    op.execute("lock table users, organizations in access exclusive mode nowait")
-
     for table in ("users", "organizations"):
         op.drop_constraint(
             f"{table}_project_create_ratelimit_complete", table, type_="check"
