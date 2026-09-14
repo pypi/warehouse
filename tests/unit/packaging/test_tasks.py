@@ -394,7 +394,10 @@ def test_update_release_description(db_request):
     update_release_description(task, db_request, release.id)
 
     updated_description = db_request.db.get(Description, description.id)
-    assert updated_description.html == "<p>body text</p>\n"
+    assert (
+        updated_description.html
+        == '<section id="user-content-rst">\n<h1>rst<a title="link to this section" href="#user-content-rst" rel="nofollow"></a></h1>\n<p>body text</p>\n</section>\n'  # noqa: E501
+    )
     assert updated_description.rendered_by == readme.renderer_version()
 
 
