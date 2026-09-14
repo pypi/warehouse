@@ -1786,6 +1786,7 @@ class TestManageOrganizationProjects:
                 {db_request.user},
                 organization_name=organization.name,
                 project_name=project.name,
+                submitter_username=db_request.user.username,
             )
         ]
 
@@ -1850,6 +1851,7 @@ class TestManageOrganizationProjects:
                 {db_request.user},
                 organization_name=organization.name,
                 project_name=project.name,
+                submitter_username=db_request.user.username,
             )
         ]
 
@@ -1951,6 +1953,7 @@ class TestManageOrganizationProjects:
                 {db_request.user},
                 organization_name=organization.name,
                 project_name="fakepackage",
+                submitter_username=db_request.user.username,
             )
         ]
 
