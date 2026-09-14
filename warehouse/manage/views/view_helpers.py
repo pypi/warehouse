@@ -130,6 +130,7 @@ def add_organization_project_and_notify(
         owner_users,
         organization_name=organization.name,
         project_name=project.name,
+        submitter_username=request.user.username,
     )
 
 
