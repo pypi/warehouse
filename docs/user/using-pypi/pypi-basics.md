@@ -8,12 +8,16 @@ title: PyPI Basics
 
 PyPI serves two main audiences:
 
--   Package consumers: Users who want to download and install code to use in their own projects
-    
--   Package publishers (or maintainers): Users who want to share their code with the Python community
-    
+* **Package consumers**: Users who want to download and install code to use in their own projects
+* **Package publishers (or maintainers)**: Users who want to share their code with the Python community
 
 This section of the documentation focuses on helping **package consumers**. Documentation for package publishers can be found under *Configuring and managing PyPI projects* and *Publishing projects to PyPI*.
+
+## Using package managers with PyPI
+
+While you can browse and search for projects on the PyPI website, the most common way to interact with PyPI is through a package manager. The standard package manager included with Python is [pip](https://pip.pypa.io/). Other popular package management tools like [PDM](https://pdm-project.org/latest/), [Poetry](https://python-poetry.org/), and [uv](https://docs.astral.sh/uv/) also use PyPI as their default source for packages.
+
+For information on installing packages with package managers, see [finding and installing packages](finding-and-installing.md).
 
 ## Projects, releases and files (packages) on PyPI
 
@@ -25,40 +29,33 @@ A "file", also known as a "package", on PyPI is something that you can download 
 
 When you search for software on the PyPI website, the page you see is for a specific **release** of a project. It shows you:
 
-- The project name and a description of what it does  
-- The "Release files" tab, which shows the individual files (packages) for the release
-- The "Secuirty" tab, which provides shows security information about the rlease
-- The "Release history" tab, which lists all available releases
+* The project name and a description of what it does  
+* The "Release files" tab, which shows the individual files (packages) for the release
+* The "Security" tab, which provides shows security information about the release
+* The "Release history" tab, which lists all available releases
     
 ## Project and release status
 
 Sometimes, the status of a project or release can change:
 
-- **Pre-release**: A version of a package that is not yet considered stable for general use. Pre-releases are typically labelled with suffixes such as a (alpha), b (beta), or rc (release candidate) — for example, 1.0a1 or 2.3rc2. By default, installers such as pip will not install pre-release versions unless explicitly requested.
-
-- **Yanked release**: A release that is always ignored by an installer, unless it is the only release that matches a version specifier (using either == or ===). A maintainer might yank a release if a critical bug is discovered.
-
-- **Archived project**: A project that is no longer receiving any updates. A project maintainer can mark a project as archived to signal to users that future updates should not be expected. An archived project cannot make new releases and will not appear in PyPI's search results, but unlike a deleted or yanked release, it remains publicly visible and can still be installed as normal.
-
-- **Quarantined project or release**: A project, or a single release within it, placed in quarantine for suspicion of malicious activity, spam, or other violations of the Terms of Service or Acceptable Use Policy. A quarantined project cannot be installed by package installers, cannot be modified by its maintainers, and is excluded from PyPI's search results; a quarantined release is excluded from installation and the index APIs while the rest of the project is unaffected. PyPI Administrators must review it before it can be restored.
+* **Pre-release**: A version of a package that is not yet considered stable for general use. Pre-releases are typically labelled with suffixes such as a (alpha), b (beta), or rc (release candidate) — for example, 1.0a1 or 2.3rc2. By default, installers such as pip will not install pre-release versions unless explicitly requested.
+* **Yanked release**: A release that is always ignored by an installer, unless it is the only release that matches a version specifier (using either == or ===). A maintainer might yank a release if a critical bug is discovered.
+* **Archived project**: A project that is no longer receiving any updates. A project maintainer can mark a project as archived to signal to users that future updates should not be expected. An archived project cannot make new releases and will not appear in PyPI's search results, but unlike a deleted or yanked release, it remains publicly visible and can still be installed as normal.
+* **Quarantined project or release**: A project, or a single release within it, placed in quarantine for suspicion of malicious activity, spam, or other violations of the Terms of Service or Acceptable Use Policy. While in quarantine, the project or release cannot be installed by package installers, cannot be modified by its maintainers, and is excluded from PyPI's search results and index APIs. When a single release is quarantined, other releases of the same project are unaffected. PyPI Administrators must review it before it can be restored.
 
 ## Project data
 
-PyPI is a public repository where anyone can upload projects of any quality. Projects are not reviewed or "approved" by PyPI administrators before publishing.
+PyPI is a public repository where anyone can upload projects of any quality. Because PyPI does not pre-screen or review projects before they are published, most of the information you see is provided by the project maintainers rather than PyPI itself.
 
-When evaluating a project, keep in mind there are three types of data on display:
+When evaluating a project, it is important to distinguish between the three types of data on display:
 
-- **PyPI data**: System metadata from PyPI itself (e.g., upload time, owners, maintainers).
-- **Verified data**: Author-provided metadata that PyPI verified at the time of upload.
-- **Unverified data**: Author-provided metadata that PyPI did not check at the time of upload.
+* **PyPI data**: System metadata managed by PyPI (e.g., upload time, owners, maintainers).
+* **Verified data**: Author-provided metadata that PyPI explicitly verified at the time of upload
+* **Unverified data**: Author-provided metadata that PyPI did not check or validate
 
-Unless a piece of information is explicitly labeled as "PyPI data" or "Verified", assume it is unverified. For more information on metadata, please see our [project metadata](../project_metadata.md) documentation. For more information on security signals, see our [package security guide](package-security/introduction.md).
+**Unless a piece of information is explicitly labeled as "PyPI data" or "Verified," assume it is unverified.**
 
-## Using package managers with PyPI
-
-While you can browse and search for projects on the PyPI website, the most common way to interact with PyPI is through a package manager. The standard package manager included with Python is [pip](https://pip.pypa.io/). Other popular package management tools like [PDM](https://pdm-project.org/latest/), [Poetry](https://python-poetry.org/), and [uv](https://docs.astral.sh/uv/) also use PyPI as their default source for packages.
-
-For information on installing packages with package managers, see the [Finding and installing packages](finding-and-installing.md) page.
+For more information on metadata, please see our [project metadata](../project_metadata.md) documentation. For more information on security signals, see our [package security guide](package-security/introduction.md).
 
 ## A note on security
 

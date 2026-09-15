@@ -4,7 +4,7 @@ title: Two-Factor Authentication
 
 # Two-Factor Authentication
 
-To enhance the security of the Python ecosystem, PyPI has implemented [mandatory two-factor authentication (2FA) for all accounts](https://blog.pypi.org/posts/2024-01-01-2fa-enforced/). This measure is a crucial step in safeguarding accounts from unauthorized access and protecting PyPI users from malicious attacks.
+To enhance the security of the Python ecosystem, PyPI has implemented [mandatory two-factor authentication (2FA) for all accounts](https://blog.pypi.org/posts/2024-01-01-2fa-enforced/) since 2024. This measure is a crucial step in safeguarding accounts from unauthorized access and protecting PyPI users from malicious attacks.
 
 ## What is two-factor authentication?
 

@@ -8,6 +8,13 @@ User Guide].
 
 [Python Packaging User Guide]: https://packaging.python.org/en/latest/specifications/core-metadata/#core-metadata-specifications
 
+When evaluating a project, keep in mind there are three types of data on display:
+
+* **PyPI data**: System metadata managed by PyPI (e.g., upload time, owners, maintainers).
+* **Verified data**: Author-provided metadata that PyPI explicitly verified at the time of upload
+* **Unverified data**: Author-provided metadata that PyPI did not check or validate
+
+**Unless a piece of information is explicitly labeled as "PyPI data" or "Verified," assume it is unverified.**
 
 ## Project URLs
 
@@ -80,6 +87,13 @@ The URLs that can be verified depend on the Trusted Publisher used:
 [active-tab]: trusted-publishers/creating-a-project-through-oidc.md#activestate
 [gitlab-tab]: trusted-publishers/creating-a-project-through-oidc.md#gitlab-cicd
 
+## Author and maintainer emails
+
+Packages can specify an author or maintainer email address in their metadata (the `authors` and `maintainers` fields in `pyproject.toml`, or the equivalent `setup.py` arguments).
+
+PyPI verifies these email addresses at upload time by checking them against the verified, public email addresses of the project's owners and maintainers. Verified addresses are displayed in the "Credits" section of the project page as a mailto link, labeled as PyPI data. Unverified addresses are still displayed, but without that label.
+
+As with project URLs, this verification only happens once, at the time a release file is uploaded — it does not get repeated afterward.
 
 ### Icons
 
@@ -89,20 +103,25 @@ While the labels or URLs can be arbitrary, PyPI recognizes the ones from the
 lists below and changes the default icon from
 :fontawesome-solid-square-up-right: to a customized one.
 
+If a URL could match more than one pattern below — for example, a link labeled
+"Source" that points to `github.com` — the hosting platform, social media, CI,
+or Python ecosystem domain match takes priority over the generic name-based
+match in the General URL table.
+
 #### General URL
 
-To display a custom icon, an entry must match one of the pattern. The
+To display a custom icon, an entry must match one of the patterns below. The
 recognition patterns are case-insensitive. Items marked with an asterisk (^*^)
 indicate a prefix. It means that any name starting with the specified pattern
 will be recognized.
 
 | Name             | Icon                                      | Description                 | Aliases                                                                                                |
 |:-----------------|:------------------------------------------|:----------------------------|:-------------------------------------------------------------------------------------------------------|
-| Homepage         | :fontawesome-solid-house-chimney:         | For the project homepage    |                                                                                                        |
+| Homepage         | :fontawesome-solid-house-chimney:         | For the project homepage    | Home, Home Page                                                                                       |
 | Download         | :fontawesome-solid-cloud:                 | A download link             |                                                                                                        |
 | Changelog        | :fontawesome-solid-scroll:                | Changelog information       | Change log, Changes, News, Whatsnew, What's new, History                                               |
 | Release notes    | :fontawesome-solid-newspaper:             | Curated release information | Releasenotes                                                                                           |
-| Documentation^*^ | :fontawesome-solid-book:                  | Project documentation       | Docs^*^ , a URL pointing to [Read the Docs] domains or a URL starting with `docs.` or `documentation.` |
+| Documentation^*^ | :fontawesome-solid-book:                  | Project documentation       | Docs^*^, a URL pointing to [Read the Docs] domains (including the `rtfd.io`/`rtfd.org` shorthand) or a URL starting with `docs.` or `documentation.` |
 | Bug^*^           | :fontawesome-solid-bug:                   | Bug/Issue report location   | Issue^*^, Tracker^*^, Report^*^                                                                        |
 | Funding^*^       | :fontawesome-solid-circle-dollar-to-slot: | Sponsoring information      | Sponsor^*^, Donation^*^, Donate^*^                                                                     |
 | Security         | :fontawesome-solid-shield:                | Security policy or vulnerability reporting page | Security Policy, securitypolicy                                                                       |

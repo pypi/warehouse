@@ -35,11 +35,11 @@ To make an API token:
     
 To use an API token:
 
--   Set your username to \_\_token\_\_
+-   Set your username to `__token__`
     
--   Set your password to the token value, including the pypi- prefix
+-   Set your password to the token value, including the `pypi-` prefix
 
-Where you edit or add these values will depend on your individual use case. For example, some users may need to edit[their .pypirc file](https://packaging.python.org/guides/distributing-packages-using-setuptools/#create-an-account), while others may need to update their CI configuration file (e.g.[.travis.yml if you are using Travis](https://docs.travis-ci.com/user/deployment/pypi/)).
+Where you edit or add these values will depend on your individual use case. For example, some users may need to edit [their .pypirc file](https://packaging.python.org/guides/distributing-packages-using-setuptools/#create-an-account), while others may need to update their CI configuration file (e.g. [.travis.yml if you are using Travis](https://docs.travis-ci.com/user/deployment/pypi/)).
 
 [Twine](https://twine.readthedocs.io/) also supports other ways to provide credentials, including keyring integration. See the [Twine authentication documentation](https://twine.readthedocs.io/en/stable/#authentication) for details.
 
@@ -51,14 +51,14 @@ Advanced users may wish to inspect their token by decoding it with base64, and c
 
 1.  Ensure that your API token is valid and has not been revoked (see below)
     
-2.  Ensure that your API token is[properly formatted](https://pypi.org/help/#apitoken) and does not contain any trailing characters such as newlines.
+2.  Ensure that your API token is [properly formatted](https://pypi.org/help/#apitoken) and does not contain any trailing characters such as newlines.
     
-3.  Ensure that the username you are using is \_\_token\_\_.
+3.  Ensure that the username you are using is `__token__`.
     
 
 Remember that PyPI and TestPyPI each require you to create an account, so your credentials may be different.
 
-If you're using Windows and trying to paste your token in the Command Prompt or PowerShell, note that Ctrl-V and Shift+Insert won't work. Instead, you can use "Edit > Paste" from the window menu, or enable "Use Ctrl+Shift+C/V as Copy/Paste" in "Properties". This is a[known issue](https://bugs.python.org/issue37426) with Python's getpass module.
+If you're using Windows and trying to paste your token in the Command Prompt or PowerShell, note that Ctrl-V and Shift+Insert won't work. Instead, you can use "Edit > Paste" from the window menu, or enable "Use Ctrl+Shift+C/V as Copy/Paste" in "Properties". This is a [known issue](https://bugs.python.org/issue37426) with Python's getpass module.
 
 #### Compromised API token
 

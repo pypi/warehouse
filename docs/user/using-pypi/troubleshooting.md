@@ -4,35 +4,22 @@ title: Troubleshooting
 
 # Troubleshooting Common Errors
 
-## Why am I getting "the description failed to render" error?
+## Why am I getting "No matching distribution found" or "Could not fetch URL" errors during pip install?
 
-PyPI will reject uploads if the package description fails to render. You may [use twine's check command](https://twine.readthedocs.io/#twine-check) to locally check a description for validity.
+Transport Layer Security, or TLS, is part of how we make sure connections between your computer and PyPI are private and secure. It's a cryptographic protocol that's had several versions over time. PyPI [turned off support for TLS versions 1.0 and 1.1](https://mail.python.org/pipermail/python-announce-list/2018-April/011885.html) in April 2018. [Learn why on the PSF blog](https://pyfound.blogspot.com/2017/01/time-to-upgrade-your-python-tls-v12.html).
 
-## How can I restore a deleted project, release or file?
+If you are having trouble with pip install and get a "No matching distribution found" or "Could not fetch URL" error, try adding `-v` to the command to get more information:
 
-Deletion of a project, release or file on PyPI is permanent and irreversible, without exception. Deletion of a project makes it uninstallable, and releases the project name for use by any other PyPI user. Deleted files [cannot be re-uploaded](https://pypi.org/help/#file-name-reuse). Deleted projects, releases or files cannot be restored by PyPI administrators. 
+```console
+pip install --upgrade -v pip
+```
 
-Instead of deleting projects, we recommend project owners [archive projects instead](../project-management/archiving-projects.md).
+If you see an error like "There was a problem confirming the ssl certificate" or "tlsv1 alert protocol version" or `TLSV1_ALERT_PROTOCOL_VERSION`, you need to be connecting to PyPI with a newer TLS support library.
 
-## Where does PyPI get its data on project vulnerabilities from, and how can I correct it?
+The specific steps you need to take will depend on your operating system version, where your installation of Python originated (python.org, your OS vendor, or an intermediate distributor), and the installed versions of Python, setuptools, and pip.
 
-PyPI receives reports on vulnerabilities in the packages hosted on it from the [Open Source Vulnerabilities project](https://osv.dev/), which in turn ingests vulnerabilities from the [Python Packaging Advisory Database](https://github.com/pypa/advisory-database).
+For help, go to [the #pypa IRC channel on Libera](https://web.libera.chat/#pypa), file an issue at [pypa/packaging-problems/issues](https://github.com/pypa/packaging-problems/issues), or [discuss on the Discourse](https://discuss.python.org/c/packaging/14), including your OS and installation details and the output of `pip install --upgrade -vvv pip`.
 
-If you believe vulnerability data for your project is invalid or incorrect, [file an issue](https://github.com/pypa/advisory-database/issues) with details.
+!!! note
 
-## My project or release says it's in quarantine. What does that mean?
-
-Projects and releases may get placed in quarantine for any number of reasons, such as suspicion of malicious activity, spam, or other violations of the [Terms of Service](https://policies.python.org/pypi.org/Terms-of-Service/) or [Acceptable Use Policy](https://policies.python.org/pypi.org/Acceptable-Use-Policy/).
-
-PyPI can quarantine either an entire project or a single release within it:
-
-* A **quarantined project** is not installable by clients, and cannot be modified by its maintainers.
-* A **quarantined release** is excluded from installation and from the index APIs, while the project's other releases are unaffected.
-
-PyPI Administrators will need to review the project or release before it can be restored.
-
-If you believe your project or release has mistakenly been flagged for quarantine, contact PyPI via [security@pypi.org](mailto:security@pypi.org) with any details.
-
-## How can I publish my private packages to PyPI?
-
-PyPI does not support publishing private packages. If you need to publish your private package to a package index, the recommended solution is to run your own deployment of the [devpi project](https://pypi.org/project/devpi/).
+    All users submitting feedback, reporting issues or contributing to Warehouse are expected to follow the [PSF Code of Conduct](https://github.com/pypa/.github/blob/main/CODE_OF_CONDUCT.md).

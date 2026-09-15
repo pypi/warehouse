@@ -20,7 +20,7 @@ Always check package names from LLM output, as an attacker could register a mali
 
 This attack targets you when you use a mix of package sources - i.e. private packages from an internal or company source, alongside public packages from PyPI.org.
 
-An attacker discovers the name of a private package you want to install (e.g. `internal-billing`) and publishes a malicious public package on PyPI with the exact same name.
+An attacker discovers the name of a private package you want to install (e.g. `mycompany-internal-billing`) and publishes a malicious public package on PyPI with the exact same name.
 
 When your machine or a build system installs dependencies, it can prioritize installing the malicious public package instead of the intended private package.
 
@@ -38,7 +38,7 @@ To protect yourself, use pip with [hash checking mode](https://pip.pypa.io/en/st
 
 In this attack, an attacker gains access to a maintainer's PyPI account and pushes a new, malicious version of a popular, legitimate package. From your perspective, the malicious version appears to come from the original author, making it difficult to detect.
 
-Since you can't know if a maintainer's account has been compromised, your best defense is to look for signals of good security practice. Prefer packages that use [Trusted Publishing](../../trusted-publishers/index.md), which you can identify by the presence of an [attestation](provenance.md) on the project's security page.
+Since you can't know if a maintainer's account has been compromised, your best defense is to look for signals of good security practice. Prefer packages that use [Trusted Publishing](../../trusted-publishers/index.md), which you can identify by the presence of an [attestation](provenance.md) on the release's security page.
 
 This indicates the package was uploaded via an automated process without the use of API tokens that can be stolen.
 

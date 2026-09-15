@@ -25,6 +25,7 @@ To reduce spam and automated abuse, PyPI applies some limits when creating a new
 
 * **Disposable email addresses are rejected.** PyPI checks the reputation of the email domain used during registration, and will reject signups that use a known disposable or temporary email provider. Use a persistent email address you control to register.
 * **Registration attempts are rate limited by network.** If too many accounts are registered from the same network (IP address) in a short period, further registration attempts from that network will be temporarily blocked. If you see a "Too many registration attempts" error, wait and try again later.
+* **New registrations may be disabled entirely during an attack.** If PyPI administrators are dealing with a large-scale spam or malware campaign, they can temporarily disable new user or new project registration site-wide to contain the threat, independently of the per-account limits above. See [Security and Internals](../about/security-and-internals.md#pypi-security-features) for more information, and the [status page](https://status.python.org/) for updates during such an event.
 
 ## Email address verification
 
