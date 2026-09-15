@@ -62,79 +62,40 @@
         {% for error in form.form_errors %}<li>{{ error }}</li>{% endfor %}
       </ul>
     {% endif %}
-    <div class="form-group">
-      <label for="full_name" class="form-group__label">
-        {% trans %}Name{% endtrans %}
-        {% if form.full_name.flags.required %}
-          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
-        {% endif %}
-      </label>
-      {{ form.full_name(placeholder=gettext("Your name") ,
-      autocomplete="name",
-      autocapitalize="off",
-      spellcheck="false",
-      class_="form-group__field",
-      aria_describedby="name-errors",
-      ) }}
-      <div id="name-errors">
-        {% if form.full_name.errors %}
-          <ul class="form-errors" role="alert">
-            {% for error in form.full_name.errors %}<li>{{ error }}</li>{% endfor %}
-          </ul>
-        {% endif %}
-      </div>
-    </div>
-    <div class="form-group">
-      <label for="email" class="form-group__label">
-        {% trans %}Email address{% endtrans %}
-        {% if form.email.flags.required %}
-          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
-        {% endif %}
-      </label>
-      {{ form.email(placeholder=gettext("Your email address") ,
-      autocomplete="email",
-      spellcheck="false",
-      required="required",
-      class_="form-group__field",
-      aria_describedby="email-errors",
-      ) }}
-      <div id="email-errors">
-        {% if form.email.errors %}
-          <ul class="form-errors" role="alert">
-            {% for error in form.email.errors %}<li>{{ error }}</li>{% endfor %}
-          </ul>
-        {% endif %}
-      </div>
-    </div>
+{{ render_form_field(
+    form.full_name,
+    label=gettext("Name"),
+    placeholder=gettext("Your name"),
+    class_="form-group__field",
+    autocomplete="name",
+    autocapitalize="off",
+    spellcheck="false"
+) }}
+{{ render_form_field(
+    form.email,
+    label=gettext("Email address"),
+    placeholder=gettext("Your email address"),
+    class_="form-group__field",
+    autocomplete="email",
+    spellcheck="false",
+    required="required"
+) }}
     {# The following is a honeypot field and is hidden from the user #}
     <div class="form-group confirm-form">
       <label for="confirm_form" class="form-group__label">{% trans %}Confirm form{% endtrans %}</label>
       {{ form.confirm_form(class="form-group__field",
             aria_hidden='true',) }}
     </div>
-    <div class="form-group">
-      <label for="username" class="form-group__label">
-        {% trans %}Username{% endtrans %}
-        {% if form.username.flags.required %}
-          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
-        {% endif %}
-      </label>
-      {{ form.username(placeholder=gettext("Select a username") ,
-      autocapitalize="off",
-      autocomplete="username",
-      spellcheck="false",
-      required="required",
-      class_="form-group__field",
-      aria_describedby="username-errors",
-      ) }}
-      <div id="username-errors">
-        {% if form.username.errors %}
-          <ul class="form-errors" role="alert">
-            {% for error in form.username.errors %}<li>{{ error }}</li>{% endfor %}
-          </ul>
-        {% endif %}
-      </div>
-    </div>
+{{ render_form_field(
+    form.username,
+    label=gettext("Username"),
+    placeholder=gettext("Select a username"),
+    class_="form-group__field",
+    autocapitalize="off",
+    autocomplete="username",
+    spellcheck="false",
+    required="required"
+) }}
     <div>
       <div class="form-group">
         <div class="split-layout">
