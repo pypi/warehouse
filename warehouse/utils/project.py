@@ -72,6 +72,54 @@ def confirm_project(
         raise HTTPSeeOther(request.route_path(fail_route, **fail_route_params))
 
 
+#: Acknowledgments the user must check to delete a project, named to match the
+#: ``delete_project_acknowledgments()`` macro in ``manage/manage_base.html``.
+#: The functional tests assert the rendered form carries exactly these names.
+DELETE_PROJECT_ACKNOWLEDGMENTS = (
+    "acknowledge_delete_releases",
+    "acknowledge_install_break",
+    "acknowledge_no_reupload",
+    "acknowledge_name_release",
+    "acknowledge_no_reregister",
+    "acknowledge_irreversible",
+    "acknowledge_admins_cannot_undo",
+)
+
+#: Acknowledgments the user must check to delete a release, named to match the
+#: ``delete_release_acknowledgments()`` macro in ``manage/manage_base.html``.
+#: The functional tests assert the rendered form carries exactly these names.
+DELETE_RELEASE_ACKNOWLEDGMENTS = (
+    "acknowledge_delete_files",
+    "acknowledge_install_break",
+    "acknowledge_no_reupload",
+    "acknowledge_irreversible",
+    "acknowledge_admins_cannot_undo",
+)
+
+
+def confirm_acknowledgments(
+    request,
+    fail_route,
+    field_names,
+    error_message,
+    **fail_route_params,
+):
+    """
+    Require the user to check every acknowledgment box to confirm a destructive
+    action.
+
+    Raises ``HTTPSeeOther`` to ``fail_route`` when any acknowledgment is absent
+    from the POST body. ``fail_route_params`` are the keyword arguments used to
+    build that redirect.
+    """
+    if not all(request.POST.get(field_name) for field_name in field_names):
+        request.session.flash(
+            f"{error_message} - acknowledge all of the consequences to continue",
+            queue="error",
+        )
+        raise HTTPSeeOther(request.route_path(fail_route, **fail_route_params))
+
+
 def prohibit_and_remove_project(
     project: Project | str,
     request,
