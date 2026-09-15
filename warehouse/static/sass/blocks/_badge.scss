@@ -1,8 +1,8 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 @use "sass:color";
-@use "../settings/colours";
-@use "../tools/link-utilities";
+@use "../settings/colors";
+@use "../settings/fonts";
 
 /*
   A badge for highlighting important information.
@@ -10,88 +10,119 @@
 
   <span class="badge">Contributor</span>
   or
-  <a class="badge">Sole owner</span>
+  <a class="badge">Sole owner</a>
+
+  Modifiers:
+    - neutral: Light grey background with dark text
+    - dark: Dark grey background
+    - light: Light blue background with dark text
+    - success: Green background
+    - warning: Orange background
+    - danger: Red background
+    - key-dates: Adjusts spacing for use in the key dates sidebar section
 */
 
 .badge {
-  font-size: 0.7em;
-  margin-left: 0.5em;
-  vertical-align: 0.15em;
+  font-size: fonts.$small-font-size;
+  letter-spacing: 0.02rem;
+  margin-left: 0.3rem;
+  vertical-align: 0.15rem;
   text-transform: uppercase;
-  border: 1px solid colours.$primary-color;
-  background-color: colours.$primary-color;
-  color: colours.$white;
-  padding: 0 7px;
+  border: 1px solid colors.$primary-color;
+  background-color: colors.$primary-color;
+  color: colors.$white;
+  padding: 1px 8px;
   border-radius: 3px;
   font-weight: 600;
-  white-space: nowrap;
-  @include link-utilities.link-without-underline;
 
   .fa {
     margin-right: 0.4em;
   }
 
   &:hover {
-    color: colours.$white;
+    color: colors.$white;
   }
 
   &:focus,
   &:active {
-    border-color: colours.$white;
-    outline: 1px solid colours.$primary-color;
+    border-color: colors.$white;
+    outline: 1px solid colors.$primary-color;
   }
 
-  &--success {
-    background-color: colours.$success-color;
-    border-color: colours.$success-color;
+  &--neutral {
+    background-color: colors.$base-grey;
+    border-color: colors.$base-grey;
+    color: color.adjust(colors.$base-grey, $lightness: -50%);
+
+    &:hover {
+      color: color.adjust(colors.$base-grey, $lightness: -60%);
+    }
 
     &:focus,
     &:active {
-      outline: 1px solid colours.$success-color;
+      outline: 1px solid color.adjust(colors.$base-grey, $lightness: -50%);
     }
   }
 
-  &--danger {
-    background-color: colours.$danger-color;
-    border-color: colours.$danger-color;
+  &--dark {
+    background-color: colors.$text-color;
+    border-color: colors.$text-color;
 
     &:focus,
     &:active {
-      outline: 1px solid colours.$danger-color;
+      outline: 1px solid colors.$text-color;
+    }
+  }
+
+  &--light {
+    background-color: color.adjust(colors.$primary-color-light-border, $lightness: -9%);
+    border-color: color.adjust(colors.$primary-color-light-border, $lightness: -10%);
+    color: colors.$text-color;
+
+    &:hover {
+      color: colors.$text-color;
+    }
+
+    &:focus,
+    &:active {
+      outline: 1px solid colors.$text-color;
+    }
+  }
+
+  &--success {
+    background-color: colors.$success-color;
+    border-color: colors.$success-color;
+
+    &:focus,
+    &:active {
+      outline: 1px solid colors.$success-color;
     }
   }
 
   &--warning {
-    background-color: colours.$warning-background-color;
-    border-color: colours.$warning-background-color;
-    color: colours.$warning-color;
-
-    &:hover {
-      color: colours.$warning-color;
-    }
+    background-color: colors.$warning-color;
+    border-color: colors.$warning-color;
 
     &:focus,
     &:active {
-      outline: 1px solid colours.$warning-color;
+      outline: 1px solid colors.$warning-color;
     }
   }
 
-  &--neutral {
-    background-color: colours.$base-grey;
-    border-color: colours.$base-grey;
-    color: color.adjust(colours.$base-grey, $lightness: -50%);
-
-    &:hover {
-      color: color.adjust(colours.$base-grey, $lightness: -60%);
-    }
+  &--danger {
+    background-color: colors.$danger-color;
+    border-color: colors.$danger-color;
 
     &:focus,
     &:active {
-      outline: 1px solid color.adjust(colours.$base-grey, $lightness: -50%);
+      outline: 1px solid colors.$danger-color;
     }
   }
-}
 
-a.badge {
-  text-decoration: underline;
+  &--key-dates {
+    display: inline-block;
+    margin-top: 0.8em;
+    margin-left: 0;
+  }
+
 }

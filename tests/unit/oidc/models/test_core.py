@@ -59,6 +59,23 @@ class TestOIDCPublisher:
             publisher.check_claims_existence(signed_claims={})
         assert str(e.value) == "No required verifiable claims"
 
+    def test_check_claims_existence_with_prefixed_claims(self, monkeypatch):
+        class TestPrefixedPublisher(_core.OIDCPublisher):
+            __abstract__ = True
+            __required_verifiable_claims__ = {"required_claim": pretend.stub()}
+            __unchecked_prefixed_claims__ = {"custom_"}
+
+        sentry_sdk = pretend.stub(capture_message=pretend.call_recorder(lambda s: None))
+        monkeypatch.setattr(_core, "sentry_sdk", sentry_sdk)
+
+        signed_claims = {
+            "required_claim": "value",
+            "custom_foo": "bar",
+            "custom_123": "baz",
+        }
+        TestPrefixedPublisher.check_claims_existence(signed_claims)
+        assert sentry_sdk.capture_message.calls == []
+
     def test_attestation_identity(self):
         publisher = _core.OIDCPublisher(projects=[])
         assert not publisher.attestation_identity

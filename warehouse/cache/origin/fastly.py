@@ -21,7 +21,7 @@ class UnsuccessfulPurgeError(Exception):
 def purge_key(task, request, key):
     cacher = request.find_service(IOriginCache)
     metrics = request.find_service(IMetricsService, context=None)
-    request.log.info("Purging %s", key)
+    request.log.info("Purging cache key", key=key)
     try:
         cacher.purge_key(key, metrics=metrics)
     except (
@@ -30,7 +30,7 @@ def purge_key(task, request, key):
         requests.Timeout,
         UnsuccessfulPurgeError,
     ) as exc:
-        request.log.error("Error purging %s: %s", key, str(exc))
+        request.log.error("Error purging cache key", key=key, error=str(exc))
         raise task.retry(exc=exc)
 
 

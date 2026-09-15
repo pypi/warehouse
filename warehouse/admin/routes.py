@@ -70,6 +70,11 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "admin.organization.set_project_create_ratelimit",
+        "/admin/organizations/{organization_id}/set_project_create_ratelimit/",
+        domain=warehouse,
+    )
+    config.add_route(
         "admin.organization.add_oidc_issuer",
         "/admin/organizations/{organization_id}/oidc-issuers/add/",
         domain=warehouse,
@@ -129,6 +134,13 @@ def includeme(config):
         traverse="/{username}",
     )
     config.add_route(
+        "admin.user.export",
+        "/admin/users/{username}/export/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+    )
+    config.add_route(
         "admin.user.submit_email",
         "/admin/users/{username}/emails/",
         domain=warehouse,
@@ -173,6 +185,13 @@ def includeme(config):
     config.add_route(
         "admin.user.reset_password",
         "/admin/users/{username}/reset_password/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+    )
+    config.add_route(
+        "admin.user.set_project_create_ratelimit",
+        "/admin/users/{username}/set_project_create_ratelimit/",
         domain=warehouse,
         factory="warehouse.accounts.models:UserFactory",
         traverse="/{username}",

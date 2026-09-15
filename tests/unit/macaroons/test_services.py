@@ -1,14 +1,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import base64
 import binascii
 import struct
 
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import pymacaroons
 import pytest
 
 from pymacaroons.exceptions import MacaroonDeserializationException
+from pymacaroons.serializers.binary_serializer import BinarySerializer
 
 from warehouse.errors import WarehouseDenied
 from warehouse.macaroons import caveats, services
@@ -223,7 +225,9 @@ class TestDatabaseMacaroonService:
                 mocker.sentinel.permissions,
             )
 
-    def test_verify_invalid_macaroon(self, mocker, user_service, macaroon_service):
+    def test_verify_invalid_macaroon(
+        self, mocker, db_request, user_service, macaroon_service
+    ):
         user = UserFactory.create()
         raw_macaroon, _ = macaroon_service.create_macaroon(
             "fake location",
@@ -236,7 +240,7 @@ class TestDatabaseMacaroonService:
             caveats, "verify", autospec=True, return_value=WarehouseDenied("foo")
         )
 
-        request = mocker.sentinel.request
+        request = db_request
         context = mocker.sentinel.context
         permissions = mocker.sentinel.permissions
 
@@ -288,7 +292,7 @@ class TestDatabaseMacaroonService:
         with pytest.raises(services.InvalidMacaroonError):
             macaroon_service.verify("pypi-thiswillnotdeserialize", None, None, None)
 
-    def test_verify_valid_macaroon(self, mocker, macaroon_service):
+    def test_verify_valid_macaroon(self, mocker, db_request, macaroon_service):
         user = UserFactory.create()
         raw_macaroon, _ = macaroon_service.create_macaroon(
             "fake location",
@@ -297,18 +301,202 @@ class TestDatabaseMacaroonService:
             user_id=user.id,
         )
 
+        dm = macaroon_service.find_from_raw(raw_macaroon)
+        # Add a database only caveat that has not been embedded into the macaroon
+        dm.caveats = [*dm.caveats, caveats.Expiration(expires_at=5, not_before=2)]
+
         verify = mocker.patch.object(
             caveats, "verify", autospec=True, return_value=True
         )
 
-        request = mocker.sentinel.request
+        request = db_request
         context = mocker.sentinel.context
         permissions = mocker.sentinel.permissions
 
         assert macaroon_service.verify(raw_macaroon, request, context, permissions)
         verify.assert_called_once_with(
-            mocker.ANY, mocker.ANY, request, context, permissions
+            mocker.ANY, dm.key, request, context, permissions
         )
+
+        # Ensure that the macaroon that was verified is what was expected.
+        vm = verify.call_args.args[0]
+        assert vm.location == "fake location"
+        assert vm.identifier == str(dm.id).encode("utf8")
+        assert [c.to_dict() for c in vm.caveats] == [
+            # The embedded RequestUser caveat
+            {
+                "cid": f'[3,"{user.id!s}"]',
+                "cl": None,
+                "vid": None,
+            },
+            # The database stored RequestUser caveat
+            {
+                "cid": f'[3,"{user.id!s}"]',
+                "cl": None,
+                "vid": None,
+            },
+            # The database stored Expiration caveat
+            {"cid": "[0,5,2]", "cl": None, "vid": None},
+        ]
+
+    @pytest.fixture
+    def user_macaroon(self, macaroon_service):
+        """A user-scoped macaroon, as a (raw, database model) pair."""
+        user = UserFactory.create()
+        return macaroon_service.create_macaroon(
+            "fake location",
+            "fake description",
+            [caveats.RequestUser(user_id=str(user.id))],
+            user_id=user.id,
+        )
+
+    def test_verify_records_unattenuated_macaroon(
+        self, mocker, db_request, macaroon_service, user_macaroon
+    ):
+        raw_macaroon, _ = user_macaroon
+        mocker.patch.object(caveats, "verify", autospec=True, return_value=True)
+
+        macaroon_service.verify(
+            raw_macaroon,
+            db_request,
+            mocker.sentinel.context,
+            mocker.sentinel.permission,
+        )
+
+        db_request.metrics.increment.assert_any_call(
+            "warehouse.macaroon.verify.attenuated", tags=["attenuated:false"]
+        )
+
+    def test_verify_records_attenuated_macaroon(
+        self, mocker, db_request, macaroon_service, user_macaroon
+    ):
+        raw_macaroon, _ = user_macaroon
+        # Attenuate the macaroon the way an end user would, without telling us.
+        m = services.deserialize_raw_macaroon(raw_macaroon)
+        m.add_first_party_caveat(
+            caveats.serialize(caveats.Expiration(expires_at=10, not_before=0))
+        )
+        mocker.patch.object(caveats, "verify", autospec=True, return_value=True)
+
+        macaroon_service.verify(
+            f"pypi-{m.serialize()}",
+            db_request,
+            mocker.sentinel.context,
+            mocker.sentinel.permission,
+        )
+
+        db_request.metrics.increment.assert_any_call(
+            "warehouse.macaroon.verify.attenuated", tags=["attenuated:true"]
+        )
+        db_request.metrics.increment.assert_any_call(
+            "warehouse.macaroon.verify.attenuation_kind", tags=["caveat:Expiration"]
+        )
+
+    def test_verify_records_macaroon_without_stored_caveats(
+        self, mocker, db_request, macaroon_service, user_macaroon
+    ):
+        """Macaroons issued before we stored caveats have nothing to compare to."""
+        raw_macaroon, dm = user_macaroon
+        dm.caveats = []
+        mocker.patch.object(caveats, "verify", autospec=True, return_value=True)
+
+        macaroon_service.verify(
+            raw_macaroon,
+            db_request,
+            mocker.sentinel.context,
+            mocker.sentinel.permission,
+        )
+
+        db_request.metrics.increment.assert_any_call(
+            "warehouse.macaroon.verify.attenuated", tags=["attenuated:unknown"]
+        )
+
+    def test_verify_records_nothing_for_invalid_macaroon(
+        self, mocker, db_request, macaroon_service, user_macaroon
+    ):
+        """Anyone can present a macaroon, so only verified ones are counted."""
+        raw_macaroon, _ = user_macaroon
+        mocker.patch.object(
+            caveats, "verify", autospec=True, return_value=WarehouseDenied("foo")
+        )
+
+        with pytest.raises(services.InvalidMacaroonError):
+            macaroon_service.verify(
+                raw_macaroon,
+                db_request,
+                mocker.sentinel.context,
+                mocker.sentinel.permission,
+            )
+
+        assert not [
+            call
+            for call in db_request.metrics.increment.call_args_list
+            if call.args[0].startswith("warehouse.macaroon.verify.attenuat")
+        ]
+
+    def test_verify_signature_only(
+        self,
+        user_macaroon,
+        macaroon_service,
+    ):
+        """
+        We can verify a signature on a macaroon without contextually evaluating its
+        caveats.
+        """
+        raw_macaroon, db_macaroon = user_macaroon
+
+        assert macaroon_service.verify_signature_only(raw_macaroon) == db_macaroon
+
+    def test_verify_signature_only_nonexistent(
+        self,
+        user_macaroon,
+        macaroon_service,
+    ):
+        """
+        Verifying only the signature on a macaroon fails if the macaroon doesn't
+        exist in the DB.
+        """
+
+        raw_macaroon, db_macaroon = user_macaroon
+
+        # Delete the macaroon so that lookup fails.
+        macaroon_service.delete_macaroon(str(db_macaroon.id))
+
+        with pytest.raises(services.InvalidMacaroonError, match="Macaroon not found"):
+            macaroon_service.verify_signature_only(raw_macaroon)
+
+    def test_verify_signature_only_invalid(
+        self,
+        user_macaroon,
+        macaroon_service,
+    ):
+        """
+        Verifying only the signature fails if the signature doesn't match.
+        """
+
+        raw_macaroon, db_macaroon = user_macaroon
+
+        # Sanity check: the signature matches.
+        assert macaroon_service.verify_signature_only(raw_macaroon) == db_macaroon
+
+        # Replace the DB-side key so that the signature cannot possibly match.
+        db_macaroon.key = b"banana"
+
+        with pytest.raises(services.InvalidMacaroonError, match="Invalid signature"):
+            macaroon_service.verify_signature_only(raw_macaroon)
+
+    def test_verify_signature_only_invalid_identifier(self, macaroon_service):
+        macaroon = pymacaroons.Macaroon(
+            location="fake location",
+            identifier=b"\xff",
+            key=b"fake key",
+            version=pymacaroons.MACAROON_V2,
+        )
+
+        with pytest.raises(
+            services.InvalidMacaroonError, match="malformed macaroon identifier"
+        ):
+            macaroon_service.verify_signature_only(f"pypi-{macaroon.serialize()}")
 
     def test_delete_macaroon(self, user_service, macaroon_service):
         user = UserFactory.create()
@@ -365,3 +553,206 @@ class TestDatabaseMacaroonService:
                 [{"version": 1, "permissions": "user"}],
                 user_id=user.id,
             )
+
+
+def _token(
+    packets: list[tuple[int, bytes | None]],
+    keep: int | None = None,
+    extra: bytes = b"",
+) -> str:
+    """
+    Build a `pypi-` token from raw v2 packets, however malformed, appending
+    `extra` bytes verbatim and optionally keeping only the first `keep`
+    characters of its base64 body.
+    """
+    serializer = BinarySerializer()
+    data = bytearray([pymacaroons.MACAROON_V2])
+    for field_type, payload in packets:
+        serializer._append_packet(data, field_type, payload)
+    data.extend(extra)
+
+    body = base64.urlsafe_b64encode(bytes(data)).decode().rstrip("=")
+    return "pypi-" + (body if keep is None else body[:keep])
+
+
+_HEADER = [
+    (BinarySerializer._LOCATION, b"pypi.org"),
+    (BinarySerializer._IDENTIFIER, b"02ede3fe-dc00-45b9-9a13-9f16ad1c454d"),
+    (BinarySerializer._EOS, None),
+]
+
+
+class TestDeserializePartialMacaroon:
+    def test_truncated_mid_caveat(self):
+        """A token cut off inside its first caveat, as a leak report would carry."""
+        token = _token(
+            [
+                *_HEADER,
+                (BinarySerializer._IDENTIFIER, b'[3,"%s"]' % (b"a" * 36)),
+                (BinarySerializer._EOS, None),
+            ],
+            keep=75,
+        )
+
+        partial = services.deserialize_partial_macaroon(token)
+
+        assert partial == services.PartialMacaroon(
+            location="pypi.org",
+            identifier="02ede3fe-dc00-45b9-9a13-9f16ad1c454d",
+            identifier_complete=True,
+            caveats=['[3," (truncated, 42 bytes declared)'],
+            signature=None,
+        )
+
+    @pytest.mark.parametrize(
+        ("suffix", "where"),
+        [("\n", "a trailing newline"), (" ", "a trailing space"), ("\r\n", "a CRLF")],
+    )
+    def test_whitespace_around_the_token(self, suffix, where):
+        """A pasted token brings whitespace with it, which is not data."""
+        token = _token(
+            [
+                *_HEADER,
+                (BinarySerializer._IDENTIFIER, b'[3,"%s"]' % (b"a" * 36)),
+                (BinarySerializer._EOS, None),
+            ],
+            keep=75,
+        )
+
+        assert services.deserialize_partial_macaroon(
+            token + suffix
+        ) == services.deserialize_partial_macaroon(token)
+
+    def test_truncated_mid_identifier(self):
+        """A half-read identifier is no use for a lookup."""
+        partial = services.deserialize_partial_macaroon(_token(_HEADER, keep=24))
+
+        assert partial == services.PartialMacaroon(
+            location="pypi.org",
+            identifier="02ede (truncated, 36 bytes declared)",
+            identifier_complete=False,
+        )
+
+    def test_truncated_before_any_payload(self):
+        """A packet header with no payload after it still names a length."""
+        partial = services.deserialize_partial_macaroon(_token(_HEADER, keep=4))
+
+        assert partial == services.PartialMacaroon(
+            location="(truncated, 8 bytes declared)"
+        )
+
+    def test_truncated_mid_packet_header(self):
+        """A cut inside a packet's own varints ends the read."""
+        token = _token([(BinarySerializer._LOCATION, b"pypi.org")], keep=3)
+
+        assert services.deserialize_partial_macaroon(token) is None
+
+    def test_long_caveat_uses_multibyte_length(self):
+        """A payload over 127 bytes declares its length in two varint bytes."""
+        token = _token(
+            [
+                *_HEADER,
+                (BinarySerializer._IDENTIFIER, b'[1,["%s"]]' % (b"a" * 200)),
+                (BinarySerializer._EOS, None),
+            ],
+            keep=80,
+        )
+
+        partial = services.deserialize_partial_macaroon(token)
+
+        assert partial.caveats == ['[1,["aa (truncated, 208 bytes declared)']
+
+    def test_malformed_header_still_yields_caveats_and_signature(self):
+        """A whole macaroon that will not deserialize still gives up its fields."""
+        token = _token(
+            [
+                (BinarySerializer._LOCATION, b"pypi.org"),
+                (BinarySerializer._EOS, None),  # no identifier: invalid header
+                (BinarySerializer._IDENTIFIER, b"\xff\xfe"),
+                (BinarySerializer._EOS, None),
+                (BinarySerializer._EOS, None),
+                (BinarySerializer._SIGNATURE, bytes(range(4))),
+            ]
+        )
+
+        with pytest.raises(services.InvalidMacaroonError):
+            services.deserialize_raw_macaroon(token)
+
+        assert services.deserialize_partial_macaroon(token) == services.PartialMacaroon(
+            location="pypi.org",
+            identifier=None,
+            caveats=["fffe"],  # not valid UTF-8, so shown as hex
+            signature="00010203",
+        )
+
+    def test_third_party_caveat_fields_are_ignored(self):
+        """A third party caveat's location and key id have nothing to show."""
+        token = _token(
+            [
+                *_HEADER,
+                (BinarySerializer._LOCATION, b"elsewhere.example"),
+                (BinarySerializer._IDENTIFIER, b"who knows"),
+                (BinarySerializer._VID, b"key id"),
+                (BinarySerializer._EOS, None),
+            ]
+        )
+
+        partial = services.deserialize_partial_macaroon(token)
+
+        assert partial.location == "pypi.org"
+        assert partial.caveats == ["who knows"]
+
+    def test_absurd_length_varint_stops_the_read(self):
+        """A length varint longer than any real one ends the read."""
+        token = _token(
+            _HEADER,
+            # A caveat identifier whose length runs to a fourth varint byte.
+            extra=bytes([BinarySerializer._IDENTIFIER, 0x80, 0x80, 0x80, 0x01]),
+        )
+
+        partial = services.deserialize_partial_macaroon(token)
+
+        assert partial.identifier == "02ede3fe-dc00-45b9-9a13-9f16ad1c454d"
+        assert partial.caveats == []
+
+    def test_oversized_token_is_not_walked(self):
+        """A paste past a few kilobytes is refused."""
+        token = _token(_HEADER, extra=bytes(services._MAX_TOKEN_BYTES))
+
+        assert services.deserialize_partial_macaroon(token) is None
+
+    def test_a_second_identifier_does_not_speak_over_the_first(self):
+        """Fields climb within a section, so the second identifier ends the read."""
+        token = _token([*_HEADER[:2], (BinarySerializer._IDENTIFIER, b'[3,"forged"]')])
+
+        partial = services.deserialize_partial_macaroon(token)
+
+        assert partial.identifier == "02ede3fe-dc00-45b9-9a13-9f16ad1c454d"
+        assert partial.caveats == []
+
+    def test_identifier_that_is_not_utf8(self):
+        """Hex would name a macaroon that the identifier itself cannot."""
+        # These 16 bytes are not UTF-8, and their hex is a valid UUID.
+        identifier = UUID("02ede3fe-dc00-45b9-9a13-9f16ad1c454d").bytes
+        token = _token(
+            [
+                (BinarySerializer._LOCATION, b"pypi.org"),
+                (BinarySerializer._IDENTIFIER, identifier),
+                (BinarySerializer._EOS, None),
+            ]
+        )
+
+        assert services.deserialize_partial_macaroon(token) is None
+
+    @pytest.mark.parametrize(
+        ("token", "reason"),
+        [
+            ("invalid", "no pypi- prefix"),
+            ("pypi-A!!!", "body is not decodable base64"),
+            ("pypi-AQEIcHlwaS5vcmc", "version 1, which we never issue"),
+            ("pypi-Ag", "nothing after the version byte"),
+            ("pypi-AgEIcHl\u2026", "a non-ASCII character, as when a UI elides"),
+        ],
+    )
+    def test_nothing_readable(self, token, reason):
+        assert services.deserialize_partial_macaroon(token) is None

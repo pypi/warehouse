@@ -159,6 +159,10 @@ class OIDCPublisherMixin:
     # not checked as part of verifying the JWT.
     __unchecked_claims__: set[str] = set()
 
+    # Individual publishers can override this set to indicate prefixes of custom
+    # claims that are known to be present and should be ignored without exact matching.
+    __unchecked_prefixed_claims__: set[str] = set()
+
     # Whether this publisher type supports custom (non-canonical) issuer URLs.
     # When True, lookup_by_claims MUST filter by the JWT's "iss" claim to
     # prevent cross-issuer publisher confusion. Defaults to False, meaning the
@@ -212,7 +216,13 @@ class OIDCPublisherMixin:
         # All claims should be accounted for.
         # The presence of an unaccounted claim is not an error, only a warning
         # that the JWT payload has changed.
-        unaccounted_claims = sorted(signed_claims.keys() - cls.all_known_claims())
+        known_claims = cls.all_known_claims()
+        unaccounted_claims = sorted(
+            claim
+            for claim in signed_claims
+            if claim not in known_claims
+            and not claim.startswith(tuple(cls.__unchecked_prefixed_claims__))
+        )
         if unaccounted_claims:
             with sentry_sdk.new_scope() as scope:
                 scope.fingerprint = unaccounted_claims

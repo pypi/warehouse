@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/fonts";
 @use "../settings/grid";
 
@@ -34,7 +34,7 @@
       font-weight: 900;
       content: "\f059";
       margin-right: 5px;
-      color: colours.$primary-color;
+      color: colors.$primary-color;
     }
   }
 

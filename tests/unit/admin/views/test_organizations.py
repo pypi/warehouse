@@ -8,6 +8,7 @@ import pretend
 import pytest
 
 from freezegun import freeze_time
+from limits import parse_many
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from webob.multidict import MultiDict
 
@@ -27,6 +28,7 @@ from tests.common.db.subscriptions import (
     StripeSubscriptionFactory,
 )
 from warehouse.admin.views import organizations as views
+from warehouse.constants import RateLimitPeriod
 from warehouse.events.tags import EventTag
 from warehouse.organizations.models import (
     OIDCIssuerType,
@@ -1916,6 +1918,138 @@ class TestSetTotalSizeLimit:
             )
         ]
         assert result.status_code == 303
+
+
+class TestSetProjectCreateRatelimit:
+    def test_set_project_create_ratelimit_with_value(self, db_request, mocker):
+        organization = OrganizationFactory.create(name="foo")
+        user = UserFactory.create()
+
+        flash = mocker.spy(db_request.session, "flash")
+        mocker.patch.object(
+            db_request, "route_path", return_value="/admin/organizations/1/"
+        )
+        db_request.user = user
+        db_request.matchdict["organization_id"] = organization.id
+        db_request.POST = MultiDict(
+            {
+                "project_create_ratelimit_count": "50",
+                "project_create_ratelimit_period": "hour",
+            }
+        )
+
+        result = views.set_project_create_ratelimit(db_request)
+
+        flash.assert_called_once_with(
+            "Project creation rate limit set to 50 per hour", queue="success"
+        )
+        assert result.status_code == 303
+        assert result.location == "/admin/organizations/1/"
+        assert organization.project_create_ratelimit_string == "50 per hour"
+        event = organization.events.one()
+        assert event.tag == "organization:project_create_ratelimit:change"
+        assert event.additional == {
+            "organization_name": organization.name,
+            "old_project_create_ratelimit_string": None,
+            "new_project_create_ratelimit_string": "50 per hour",
+            "actor": user.username,
+        }
+
+    @pytest.mark.parametrize("period", list(RateLimitPeriod))
+    def test_set_project_create_ratelimit_accepts_every_period(
+        self, db_request, mocker, period
+    ):
+        organization = OrganizationFactory.create(name="foo")
+        mocker.spy(db_request.session, "flash")
+        mocker.patch.object(
+            db_request, "route_path", return_value="/admin/organizations/1/"
+        )
+        db_request.user = UserFactory.create()
+        db_request.matchdict["organization_id"] = organization.id
+        db_request.POST = MultiDict(
+            {
+                "project_create_ratelimit_count": "5",
+                "project_create_ratelimit_period": period.value,
+            }
+        )
+
+        views.set_project_create_ratelimit(db_request)
+
+        assert organization.project_create_ratelimit_period == period
+        assert organization.project_create_ratelimit_string == f"5 per {period.value}"
+        assert parse_many(organization.project_create_ratelimit_string)
+
+    def test_set_project_create_ratelimit_with_none(self, db_request, mocker):
+        organization = OrganizationFactory.create(name="foo")
+        organization.project_create_ratelimit_count = 200
+        organization.project_create_ratelimit_period = RateLimitPeriod.Hour
+        user = UserFactory.create()
+
+        flash = mocker.spy(db_request.session, "flash")
+        mocker.patch.object(
+            db_request, "route_path", return_value="/admin/organizations/1/"
+        )
+        db_request.user = user
+        db_request.matchdict["organization_id"] = organization.id
+        db_request.POST = MultiDict({"project_create_ratelimit_count": ""})
+
+        result = views.set_project_create_ratelimit(db_request)
+
+        flash.assert_called_once_with(
+            "Project creation rate limit override cleared; the default applies",
+            queue="success",
+        )
+        assert result.status_code == 303
+        assert result.location == "/admin/organizations/1/"
+        assert organization.project_create_ratelimit_string is None
+        event = organization.events.one()
+        assert event.tag == "organization:project_create_ratelimit:change"
+        assert event.additional == {
+            "organization_name": organization.name,
+            "old_project_create_ratelimit_string": "200 per hour",
+            "new_project_create_ratelimit_string": None,
+            "actor": user.username,
+        }
+
+    @pytest.mark.parametrize(
+        ("post", "expected"),
+        [
+            (
+                {"project_create_ratelimit_count": "0"},
+                "project_create_ratelimit_count: Rate limit count must be at least 1",
+            ),
+            (
+                {
+                    "project_create_ratelimit_count": "5",
+                    "project_create_ratelimit_period": "fortnight",
+                },
+                "project_create_ratelimit_period: Invalid Choice: could not coerce.",
+            ),
+        ],
+    )
+    def test_set_project_create_ratelimit_invalid_value(
+        self, db_request, mocker, post, expected
+    ):
+        organization = OrganizationFactory.create(name="foo")
+
+        flash = mocker.spy(db_request.session, "flash")
+        mocker.patch.object(
+            db_request, "route_path", return_value="/admin/organizations/1/"
+        )
+        db_request.matchdict["organization_id"] = organization.id
+        db_request.POST = MultiDict(post)
+
+        result = views.set_project_create_ratelimit(db_request)
+
+        flash.assert_called_once_with(expected, queue="error")
+        assert result.status_code == 303
+        assert organization.project_create_ratelimit_count is None
+
+    def test_set_project_create_ratelimit_not_found(self, db_request):
+        db_request.matchdict["organization_id"] = "00000000-0000-0000-0000-000000000000"
+
+        with pytest.raises(HTTPNotFound):
+            views.set_project_create_ratelimit(db_request)
 
 
 class TestAddOIDCIssuer:

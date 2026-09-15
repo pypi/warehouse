@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import datetime
-import logging
 
 import stripe
+import structlog
 
 from sqlalchemy.orm import joinedload
 
@@ -12,6 +12,10 @@ from warehouse.accounts.interfaces import ITokenService, TokenExpired
 from warehouse.email import send_organization_subscription_required_email
 from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService
+from warehouse.organizations.constants import (
+    CLEANUP_AFTER,
+    SUBSCRIPTION_NOTICE_AFTER,
+)
 from warehouse.organizations.models import (
     Organization,
     OrganizationApplication,
@@ -24,10 +28,7 @@ from warehouse.organizations.models import (
 from warehouse.subscriptions.interfaces import IBillingService
 from warehouse.subscriptions.models import StripeSubscriptionStatus
 
-CLEANUP_AFTER = datetime.timedelta(days=30)
-SUBSCRIPTION_GRACE_PERIOD = datetime.timedelta(days=30)
-
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 @tasks.task(ignore_result=True, acks_late=True)
@@ -99,9 +100,9 @@ def update_organziation_subscription_usage_record(request):
             # Isolate per-subscription failures so one (e.g. canceled on Stripe with a
             # stale local status) can't abort usage reporting for every other org.
             logger.exception(
-                "Failed to update usage record for organization %r (subscription %s)",
-                org_subscription.organization.name,
-                org_subscription.subscription.subscription_id,
+                "Failed to update usage record",
+                organization_name=org_subscription.organization.name,
+                subscription_id=org_subscription.subscription.subscription_id,
             )
             metrics.increment(
                 "warehouse.organizations.subscription.usage_record.error",
@@ -119,8 +120,8 @@ def notify_organizations_requiring_subscription(request):
     Email owners of company orgs that have no active subscription
     (or manual activation) that 1 seat is required for paid orgs.
 
-    Orgs get 30 days (SUBSCRIPTION_GRACE_PERIOD) to activate a subscription
-    before they are considered not in good standing.
+    Reminders start at SUBSCRIPTION_NOTICE_AFTER, before the 30-day
+    subscription deadline communicated in the approval email.
     """
     organizations = (
         request.db.query(Organization)
@@ -128,7 +129,7 @@ def notify_organizations_requiring_subscription(request):
             Organization.is_active.is_(True),
             Organization.orgtype == OrganizationType.Company,
             Organization.created
-            < (datetime.datetime.now(datetime.UTC) - SUBSCRIPTION_GRACE_PERIOD),
+            < (datetime.datetime.now(datetime.UTC) - SUBSCRIPTION_NOTICE_AFTER),
         )
         .options(
             joinedload(Organization.subscriptions),

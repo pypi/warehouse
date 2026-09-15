@@ -2,7 +2,7 @@
 
 @use "sass:color";
 @use "../settings/breakpoints";
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/grid";
 @use "../tools/link-utilities";
 
@@ -10,7 +10,7 @@
   A section that is the height of the viewport.
 
   <div class="viewport-section">
-    <div class-"viewport-section__content">
+    <div class="viewport-section__content">
       <h1 class="viewport-section__heading">Heading here</h1>
       <!-- search here -->
       <div class="viewport-section__text">
@@ -59,8 +59,8 @@
   }
 
   &--dark {
-    background-color: colours.$primary-color;
-    color: colours.$white;
+    background-color: colors.$primary-color;
+    color: colors.$white;
 
     a {
       @include link-utilities.white-underlined-link;
@@ -79,8 +79,8 @@
       display: inline;
       font-family: Ewert, cursive;
       font-weight: 400;
-      color: color.adjust(colours.$primary-color, $lightness: -15%);
-      background: colours.$highlight-color;
+      color: color.adjust(colors.$primary-color, $lightness: -15%);
+      background: colors.$highlight-color;
 
       span {
         line-height: 1;
@@ -123,9 +123,9 @@
         padding-top: 25px;
         margin-bottom: 25px;
         height: 0;
-        background-color: color.adjust(colours.$primary-color, $lightness: -15%);
-        border: 9px dashed #fff;
-        outline: 9px solid color.adjust(colours.$primary-color, $lightness: -15%);
+        background-color: color.adjust(colors.$primary-color, $lightness: -15%);
+        border: 9px dashed colors.$white;
+        outline: 9px solid color.adjust(colors.$primary-color, $lightness: -15%);
 
         iframe {
           position: absolute;

@@ -2,6 +2,7 @@
 
 import time
 
+from collections.abc import Sequence
 from typing import Any
 
 from pydantic import StrictInt, StrictStr
@@ -28,7 +29,14 @@ from warehouse.macaroons.caveats._core import (
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.packaging.models import Project
 
-__all__ = ["deserialize", "deserialize_obj", "serialize", "serialize_obj", "verify"]
+__all__ = [
+    "attenuations",
+    "deserialize",
+    "deserialize_obj",
+    "serialize",
+    "serialize_obj",
+    "verify",
+]
 
 
 # NOTE: Under the covers, caveat serialization is done as an array
@@ -142,6 +150,46 @@ class OIDCPublisher(Caveat):
             )
 
         return Success()
+
+
+def attenuations(macaroon: Macaroon, issued: Sequence[Caveat]) -> list[str]:
+    """
+    Return the kinds of caveats embedded in `macaroon` that we did not issue.
+
+    Users can attenuate the macaroons we give them at any time without telling us,
+    so any embedded caveat that `issued` cannot account for was added by someone
+    else. Each element is the name of a known `Caveat` subclass, or "unknown" for
+    a caveat we cannot deserialize at all.
+
+    An empty result means every embedded caveat is one of ours, which covers both
+    of the shapes we hand out: today we embed the caveats we issue, and if we ever
+    stop, a macaroon carrying none at all is just as unattenuated.
+
+    `issued` accounts for one embedded copy of each of its caveats, so a second
+    copy of one we issued is an attenuation. Comparison is by deserialized value
+    rather than by bytes, which keeps a caveat class gaining a defaulted field
+    from reading as an attenuation on every macaroon issued before the change.
+    """
+    unmatched = list(issued)
+    extra = []
+
+    for embedded in macaroon.caveats:
+        try:
+            caveat = deserialize(embedded.caveat_id_bytes)
+        except Exception:  # noqa: BLE001
+            # Anything a user can put in a caveat reaches this, so we catch broadly:
+            # recording a metric must never be able to fail the request.
+            extra.append("unknown")
+            continue
+
+        # Each issued caveat only accounts for one embedded copy of itself, so a
+        # duplicate is an attenuation like any other unaccounted for caveat.
+        if caveat in unmatched:
+            unmatched.remove(caveat)
+        else:
+            extra.append(type(caveat).__name__)
+
+    return extra
 
 
 def verify(

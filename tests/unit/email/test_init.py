@@ -1701,6 +1701,7 @@ class TestSendNewOrganizationApprovedEmail:
             primary_email=pretend.stub(email="email@example.com", verified=True),
         )
         organization_name = "example"
+        organization_type = "Community"
         message = "example message"
 
         subject_renderer = pyramid_config.testing_add_renderer(
@@ -1736,19 +1737,23 @@ class TestSendNewOrganizationApprovedEmail:
             pyramid_request,
             initiator_user,
             organization_name=organization_name,
+            organization_type=organization_type,
             message=message,
         )
 
         assert result == {
             "organization_name": organization_name,
+            "organization_type": organization_type,
             "message": message,
         }
         subject_renderer.assert_(
             organization_name=organization_name,
+            organization_type=organization_type,
             message=message,
         )
         body_renderer.assert_(
             organization_name=organization_name,
+            organization_type=organization_type,
             message=message,
         )
         html_renderer.assert_(
@@ -1780,6 +1785,103 @@ class TestSendNewOrganizationApprovedEmail:
                 },
             )
         ]
+
+    @pytest.mark.parametrize(
+        ("organization_type", "expects_action_required"),
+        [
+            ("Company", True),
+            ("Community", False),
+        ],
+    )
+    def test_renders_action_required_only_for_company(
+        self,
+        pyramid_request,
+        pyramid_config,
+        monkeypatch,
+        organization_type,
+        expects_action_required,
+    ):
+        """
+        The rendered email should only nag Company organizations to buy a
+        seat -- Community organizations shouldn't see that content at all.
+        """
+        initiator_user = pretend.stub(
+            id="id",
+            username="username",
+            name="",
+            email="email@example.com",
+            primary_email=pretend.stub(email="email@example.com", verified=True),
+        )
+        organization_name = "example"
+
+        pyramid_config.include("pyramid_jinja2")
+        pyramid_config.add_settings({"jinja2.newstyle": True})
+        pyramid_config.add_settings({"jinja2.i18n.domain": "messages"})
+        pyramid_config.add_jinja2_renderer(".html")
+        pyramid_config.add_jinja2_renderer(".txt")
+        pyramid_config.add_jinja2_search_path("warehouse:templates", name=".html")
+        pyramid_config.add_jinja2_search_path("warehouse:templates", name=".txt")
+        pyramid_config.add_route(
+            "manage.organization.activate_subscription",
+            "/manage/organization/{organization_name}/subscription/activate/",
+        )
+        pyramid_config.add_route(
+            "manage.organization.settings",
+            "/manage/organization/{organization_name}/settings/",
+        )
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        monkeypatch.setattr(email, "send_email", send_email)
+
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=initiator_user.id)
+                )
+            ),
+        )
+        pyramid_request.user = initiator_user
+        pyramid_request.registry.settings = {
+            "mail.sender": "noreply@example.com",
+            "warehouse.domain": "pypi.org",
+        }
+        pyramid_request.environ.update(
+            {
+                "wsgi.url_scheme": "https",
+                "SERVER_NAME": "pypi.org",
+                "SERVER_PORT": "443",
+                "HTTP_HOST": "pypi.org",
+            }
+        )
+
+        email.send_new_organization_approved_email(
+            pyramid_request,
+            initiator_user,
+            organization_name=organization_name,
+            organization_type=organization_type,
+            message="example message",
+        )
+
+        _, msg, _ = send_email.delay.calls[0].args
+        subject, body_text, body_html = (
+            msg["subject"],
+            msg["body_text"],
+            msg["body_html"],
+        )
+
+        assert ("Action Required" in subject) is expects_action_required
+        assert ("Action Required" in body_text) is expects_action_required
+        assert ("Action Required" in body_html) is expects_action_required
+        assert ("activate" in body_text) is expects_action_required
+        assert ("activate" in body_html) is expects_action_required
+        management_url = (
+            f"https://pypi.org/manage/organization/{organization_name}/settings/"
+        )
+        assert management_url in body_text
+        assert f'href="{management_url}"' in body_html
 
 
 class TestSendNewOrganizationRequestMoreInfoEmail:
@@ -1999,16 +2101,20 @@ class TestOrganizationProjectEmails:
             email_template_name
         )
 
+        submitter_username = "submitter"
+
         result = send_organization_project_email(
             db_request,
             self.user,
             organization_name=self.organization_name,
             project_name=self.project_name,
+            submitter_username=submitter_username,
         )
 
         assert result == {
             "organization_name": self.organization_name,
             "project_name": self.project_name,
+            "submitter": submitter_username,
         }
         subject_renderer.assert_(**result)
         body_renderer.assert_(**result)
@@ -6440,6 +6546,115 @@ class TestSendUnrecognizedLoginEmail:
                         "redact_ip": False,
                     },
                 },
+            )
+        ]
+
+    def test_send_unrecognized_login_email_throttled_within_repeat_window(
+        self,
+        pyramid_request,
+        metrics,
+        email_service,
+        send_email,
+        make_email_renderers,
+        mocker,
+    ):
+        stub_user = pretend.stub(
+            id="id",
+            username="username",
+            name="",
+            email="email@example.com",
+            primary_email=pretend.stub(email="email@example.com", verified=True),
+        )
+        make_email_renderers("unrecognized-login")
+
+        # The same email went out moments ago, e.g. on a previous login attempt
+        last_sent = mocker.patch.object(
+            email_service,
+            "last_sent",
+            autospec=True,
+            return_value=datetime.datetime.now() - datetime.timedelta(minutes=1),
+        )
+
+        email.send_unrecognized_login_email(
+            pyramid_request,
+            stub_user,
+            ip_address="127.0.0.1",
+            user_agent="Test Browser",
+            token="test-token",
+        )
+
+        last_sent.assert_called_once_with(to=stub_user.email, subject="Email Subject")
+        assert pyramid_request.task.calls == []
+        assert send_email.delay.calls == []
+        assert metrics.increment.calls == [
+            pretend.call(
+                "warehouse.emails.skipped",
+                tags=[
+                    "template_name:unrecognized-login",
+                    "allow_unverified:True",
+                    "repeat_window:900.0",
+                    "reason:repeat-window",
+                ],
+            )
+        ]
+
+    def test_send_unrecognized_login_email_repeat_window_override(
+        self,
+        pyramid_request,
+        metrics,
+        email_service,
+        send_email,
+        make_email_renderers,
+        mocker,
+    ):
+        """A per-call repeat_window of None bypasses the decorator's throttle."""
+        stub_user = pretend.stub(
+            id="id",
+            username="username",
+            name="",
+            email="email@example.com",
+            primary_email=pretend.stub(email="email@example.com", verified=True),
+        )
+        make_email_renderers("unrecognized-login")
+
+        # The same email went out moments ago, e.g. for a different device
+        last_sent = mocker.patch.object(
+            email_service,
+            "last_sent",
+            autospec=True,
+            return_value=datetime.datetime.now() - datetime.timedelta(minutes=1),
+        )
+
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=stub_user.id)
+                )
+            ),
+        )
+        pyramid_request.user = stub_user
+
+        email.send_unrecognized_login_email(
+            pyramid_request,
+            stub_user,
+            ip_address="127.0.0.1",
+            user_agent="Test Browser",
+            token="test-token",
+            repeat_window=None,
+        )
+
+        # The throttle was never consulted and the email was scheduled
+        last_sent.assert_not_called()
+        assert pyramid_request.task.calls == [pretend.call(send_email)]
+        assert len(send_email.delay.calls) == 1
+        assert metrics.increment.calls == [
+            pretend.call(
+                "warehouse.emails.scheduled",
+                tags=[
+                    "template_name:unrecognized-login",
+                    "allow_unverified:True",
+                    "repeat_window:none",
+                ],
             )
         ]
 

@@ -226,7 +226,7 @@ class EmailMessage(db.Model):
     __tablename__ = "ses_emails"
 
     created: Mapped[datetime_now]
-    status: Mapped[Enum] = mapped_column(
+    status: Mapped[EmailStatuses] = mapped_column(
         Enum(EmailStatuses, values_callable=lambda x: [e.value for e in x]),
         server_default=EmailStatuses.Accepted.value,
     )
@@ -269,7 +269,7 @@ class Event(db.Model):
     )
 
     event_id: Mapped[str] = mapped_column(unique=True, index=True)
-    event_type: Mapped[Enum] = mapped_column(
+    event_type: Mapped[EventTypes] = mapped_column(
         Enum(EventTypes, values_callable=lambda x: [e.value for e in x])
     )
 

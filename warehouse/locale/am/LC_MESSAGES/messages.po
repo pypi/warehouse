@@ -4,13 +4,14 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # Helen Bire <helenapocali@gmail.com>, 2019.
 # Kidus Worku <kidusmik@gmail.com>, 2022.
+# Slem Posh <slemposh77@gmail.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2022-09-28 16:59+0000\n"
-"Last-Translator: Kidus Worku <kidusmik@gmail.com>\n"
+"PO-Revision-Date: 2026-08-03 14:09+0000\n"
+"Last-Translator: Slem Posh <slemposh77@gmail.com>\n"
 "Language-Team: Amharic <https://hosted.weblate.org/projects/pypa/warehouse/"
 "am/>\n"
 "Language: am\n"
@@ -18,14 +19,14 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.14.1\n"
+"X-Generator: Weblate 2026.8.dev0\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:149
 msgid ""
 "You must verify your **primary** email address before you can perform this "
 "action."
-msgstr ""
+msgstr "slemposh77@gmail.com"
 
 #: warehouse/views.py:165
 msgid ""

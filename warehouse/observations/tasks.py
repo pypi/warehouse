@@ -166,7 +166,8 @@ def evaluate_project_for_quarantine(
     - Observed Project is not already quarantined
     - EITHER:
       - Trusted observer (`User.is_observer`) reports a young project (<24h old)
-      - OR: Project has at least 2 Observations, at least 1 by `User.is_observer`
+      - OR: Project has at least 2 malware Observations, at least 1 by
+        `User.is_observer`
     """
     # Fetch the Observation from the database, load the related Project
     observation = request.db.get(Observation, observation_id)
@@ -201,8 +202,14 @@ def evaluate_project_for_quarantine(
             "Auto-quarantining young project (<24h) reported by trusted observer."
         )
     else:
-        # Corroboration required: 2+ observers, at least 1 trusted
-        observer_users = {obs.observer.parent for obs in project.observations}
+        # Corroboration required: 2+ observers, at least 1 trusted.
+        # Only malware reports corroborate a malware report - observations of
+        # other kinds, including system-generated ones, must not tip the count.
+        observer_users = {
+            obs.observer.parent
+            for obs in project.observations
+            if OBSERVATION_KIND_MAP[obs.kind] == ObservationKind.IsMalware
+        }
         if len(observer_users) < 2:
             logger.info("Project has fewer than 2 observers. Not quarantining.")
             return

@@ -2,7 +2,7 @@
 
 @use "sass:color";
 @use "../settings/breakpoints";
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/fonts";
 @use "../settings/grid";
 @use "../tools/link-utilities";
@@ -23,8 +23,8 @@ body {
   font-size: fonts.$base-font-size;
   line-height: fonts.$base-line-height;
   font-weight: fonts.$base-font-weight;
-  color: colours.$text-color;
-  background-color: colours.$background-color;
+  color: colors.$text-color;
+  background-color: colors.$background-color;
   direction: ltr;
 }
 
@@ -38,11 +38,11 @@ samp,
 tt,
 .docutils.literal {
   font-family: fonts.$code-font;
-  background-color: color.adjust(colours.$base-grey, $lightness: 5%);
-  border: 1px solid colours.$border-color;
+  background-color: color.adjust(colors.$base-grey, $lightness: 5%);
+  border: 1px solid colors.$border-color;
   padding: 0 2px 1px;
   font-size: 0.85rem;
-  color: color.adjust(colours.$text-color, $lightness: 15%);
+  color: color.adjust(colors.$text-color, $lightness: 15%);
 }
 
 // HEADINGS
@@ -149,13 +149,13 @@ a {
 
 button {
   @include link-utilities.link-without-underline;
-  @include link-utilities.link-focus-state(colours.$primary-color);
+  @include link-utilities.link-focus-state(colors.$primary-color);
   line-height: fonts.$base-line-height;
 }
 
 ::selection {
-  color: color.adjust(colours.$primary-color, $lightness: -15%);
-  background: colours.$highlight-color;
+  color: color.adjust(colors.$primary-color, $lightness: -15%);
+  background: colors.$highlight-color;
 }
 
 abbr[title] {
@@ -196,8 +196,8 @@ hr {
   margin: (grid.$spacing-unit * 1.5) 0;
   border: 0;
   height: 2px;
-  background: colours.$border-color;
-  background-image: linear-gradient(to right, colours.$border-color, colours.$white);
+  background: colors.$border-color;
+  background-image: linear-gradient(to right, colors.$border-color, colors.$white);
 }
 
 // Pre-formatted text

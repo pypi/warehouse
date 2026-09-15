@@ -1,0 +1,136 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+@use "sass:color";
+@use "../settings/breakpoints";
+@use "../settings/colors";
+@use "../settings/fonts";
+@use "../settings/grid";
+@use "../tools/layout-utilities";
+
+/*
+  Compact status banner shown at the top of a project page.
+
+  <div class="project-status project-status--modifier">
+    <div class="project-status__content">
+      <i class="fa fa-icon"></i>
+      <strong class="project-status__label">Status</strong>
+      <span class="project-status__description">Explanation here</span>
+    </div>
+  </div>
+
+  Modifiers:
+    - pre-release: Light blue background (dark text)
+    - archived: Light grey background (dark text)
+    - yanked: Dark grey background (white text)
+    - quarantined: Orange background (white text)
+*/
+
+.project-status {
+  color: colors.$white;
+  border-bottom: 1px solid color.adjust(colors.$white, $alpha: -0.6);
+
+  &--pre-release {
+    $pre-release-border: color.adjust(colors.$primary-color-light-border, $lightness: -20%);
+
+    background-color: color.adjust(colors.$primary-color-light-border, $lightness: -9%);
+    color: colors.$text-color;
+    border-bottom-color: $pre-release-border;
+
+    .project-status__label {
+      border-color: $pre-release-border;
+    }
+
+    .project-status__description a {
+      color: colors.$text-color;
+
+      &:focus,
+      &:active {
+        outline-color: colors.$text-color;
+      }
+    }
+  }
+
+  &--archived {
+    $archived-border: color.adjust(colors.$border-color, $lightness: -5%);
+
+    background-color: color.adjust(colors.$base-grey, $lightness: -6%);
+    color: colors.$text-color;
+    border-bottom-color: $archived-border;
+
+    .project-status__label {
+      border-color: $archived-border;
+    }
+
+    .project-status__description a {
+      color: colors.$text-color;
+
+      &:focus,
+      &:active {
+        outline-color: colors.$text-color;
+      }
+    }
+  }
+
+  &--yanked {
+    background-color: color.adjust(colors.$text-color, $lightness: -7%);
+  }
+
+  &--quarantined {
+    background-color: color.adjust(colors.$warning-color, $lightness: -7%);
+  }
+
+  &__content {
+    @include layout-utilities.site-container;
+
+    display: flex;
+    align-items: center;
+    gap: grid.$half-spacing-unit;
+    padding-top: grid.$half-spacing-unit;
+    padding-bottom: grid.$half-spacing-unit;
+
+    &::after { // remove clearfix pseudo-element
+      display: none;
+    }
+
+    @media screen and (max-width: breakpoints.$small-tablet) {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+
+  &__label {
+    display: flex;
+    align-items: center;
+    align-self: stretch;
+    gap: grid.$quarter-spacing-unit;
+    font-weight: fonts.$bold-font-weight;
+    text-transform: uppercase;
+    letter-spacing: 0.05rem;
+    white-space: nowrap;
+    border-right: 1px solid color.adjust(colors.$white, $alpha: -0.6);
+    padding-right: grid.$half-spacing-unit;
+
+    @media screen and (max-width: breakpoints.$small-tablet) {
+      align-self: normal;
+      border-right: none;
+      border-bottom: 1px solid color.adjust(colors.$white, $alpha: -0.6);
+      padding-right: 0;
+      padding-bottom: grid.$half-spacing-unit;
+      width: 100%;
+    }
+  }
+
+  &__description {
+    flex: 1;
+
+    a {
+      color: colors.$white;
+      text-decoration: underline;
+
+      &:focus,
+      &:active {
+        outline-color: colors.$white;
+      }
+    }
+  }
+}
