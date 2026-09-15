@@ -35,7 +35,7 @@ class TestPurgeKey:
             call(IMetricsService, context=None),
         ]
         cacher.purge_key.assert_called_once_with("foo", metrics=metrics)
-        pyramid_request.log.info.assert_called_once_with("Purging %s", "foo")
+        pyramid_request.log.info.assert_called_once_with("Purging cache key", key="foo")
 
     @pytest.mark.parametrize(
         "exception_type",
@@ -71,9 +71,9 @@ class TestPurgeKey:
         ]
         cacher.purge_key.assert_called_once_with("foo", metrics=metrics)
         task.retry.assert_called_once_with(exc=exc)
-        pyramid_request.log.info.assert_called_once_with("Purging %s", "foo")
+        pyramid_request.log.info.assert_called_once_with("Purging cache key", key="foo")
         pyramid_request.log.error.assert_called_once_with(
-            "Error purging %s: %s", "foo", str(exc)
+            "Error purging cache key", key="foo", error=str(exc)
         )
 
 

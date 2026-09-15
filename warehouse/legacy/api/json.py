@@ -262,7 +262,7 @@ def latest_release_factory(request):
 @view_config(
     route_name="legacy.api.json.project",
     context=Release,
-    renderer="json",
+    renderer="json-with-newline",
     decorator=_PROJECT_CACHE_DECORATOR,
 )
 def json_project(release, request):
@@ -289,7 +289,7 @@ def json_project(release, request):
 @view_config(
     route_name="legacy.api.json.project_slash",
     context=Release,
-    renderer="json",
+    renderer="json-with-newline",
     decorator=_PROJECT_CACHE_DECORATOR,
 )
 def json_project_slash(release, request):
@@ -345,7 +345,7 @@ def release_factory(request):
 @view_config(
     route_name="legacy.api.json.release",
     context=Release,
-    renderer="json",
+    renderer="json-with-newline",
     decorator=_RELEASE_CACHE_DECORATOR,
 )
 def json_release(release, request):
@@ -370,7 +370,7 @@ def json_release(release, request):
 @view_config(
     route_name="legacy.api.json.release_slash",
     context=Release,
-    renderer="json",
+    renderer="json-with-newline",
     decorator=_RELEASE_CACHE_DECORATOR,
 )
 def json_release_slash(release, request):

@@ -176,6 +176,10 @@ class TestActiveOrganizationPredicate:
         [
             (True, "require_active_organization = True"),
             (False, "require_active_organization = False"),
+            (
+                "or_awaiting_billing",
+                "require_active_organization = or_awaiting_billing",
+            ),
         ],
     )
     def test_text(self, value, expected):
@@ -183,8 +187,16 @@ class TestActiveOrganizationPredicate:
         assert predicate.text() == expected
         assert predicate.phash() == expected
 
+    def test_unknown_value(self):
+        with pytest.raises(ConfigurationError):
+            ActiveOrganizationPredicate("or_awaiting_biling", None)
+
     def test_disable_predicate(self, db_request, organization):
         predicate = ActiveOrganizationPredicate(False, None)
+        assert predicate(organization, db_request)
+
+    def test_or_awaiting_billing_admits_new_company_org(self, db_request, organization):
+        predicate = ActiveOrganizationPredicate("or_awaiting_billing", None)
         assert predicate(organization, db_request)
 
     def test_inactive_organization(
@@ -208,18 +220,20 @@ class TestActiveOrganizationPredicate:
             "manage its projects, teams, and members."
         ]
 
+    @pytest.mark.parametrize("value", [True, "or_awaiting_billing"])
     def test_inactive_subscription(
         self,
         db_request,
         organization,
         inactive_subscription,
         mocker,
+        value,
     ):
         route_path = mocker.patch.object(
             db_request, "route_path", return_value="/manage/organizations/"
         )
 
-        predicate = ActiveOrganizationPredicate(True, None)
+        predicate = ActiveOrganizationPredicate(value, None)
         with pytest.raises(HTTPSeeOther):
             predicate(organization, db_request)
 

@@ -1,6 +1,9 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
 {% extends "base.html" %}
 {% block title %}{{ super() }}{% endblock %}
+{# A dead or mistyped URL should not preview as an official full-width card
+ # promising a working package repository. #}
+{% block preview_image %}{{ no_preview_image() }}{% endblock %}
 {% block body %}
   {% if project_name %}
     {% csi request.route_path("includes.administer-project-include", project_name=project_name) %}

@@ -66,12 +66,24 @@
               </li>
               <li class="nav-item">
                 <a href="#organization-limits" class="nav-link">
-                  Total Size Limit	
+                  Total Size Limit
                   <span class="float-right badge bg-info">
                     {% if organization.total_size_limit %}
                     {{ organization.total_size_limit|filesizeformat(binary=True) }}
                     {% else %}
                     Default ({{ MAX_PROJECT_SIZE|filesizeformat(binary=True) }})
+                    {% endif %}
+                  </span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="#organization-limits" class="nav-link">
+                  Project Creation Rate Limit
+                  <span class="float-right badge bg-info">
+                    {% if organization.project_create_ratelimit_string %}
+                    {{ organization.project_create_ratelimit_string }}
+                    {% else %}
+                    Default ({{ DEFAULT_PROJECT_CREATE_ORGANIZATION_RATELIMIT }})
                     {% endif %}
                   </span>
                 </a>
@@ -413,6 +425,30 @@
                   </td>
                 </form>
               </tr>
+              <tr>
+                <form method="POST" action="{{ request.route_path('admin.organization.set_project_create_ratelimit', organization_id=organization.id) }}">
+                  <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                  <td>Project creation rate limit</td>
+                  <td>
+                    {% if organization.project_create_ratelimit_string %}
+                    {{ organization.project_create_ratelimit_string }}
+                    {% else %}
+                    Default ({{ DEFAULT_PROJECT_CREATE_ORGANIZATION_RATELIMIT }})
+                    {% endif %}
+                  </td>
+                  <td>
+                    <input type="number" name="project_create_ratelimit_count" id="projectCreateRatelimitCount" min="1" max="{{ PROJECT_CREATE_RATELIMIT_CAP }}" step="1" value="{{ organization.project_create_ratelimit_count or '' }}"> per
+                    <select name="project_create_ratelimit_period" id="projectCreateRatelimitPeriod">
+                      {% for period in RateLimitPeriod %}
+                      <option value="{{ period.value }}" {{ 'selected' if organization.project_create_ratelimit_period == period }}>{{ period.value }}</option>
+                      {% endfor %}
+                    </select>
+                  </td>
+                  <td>
+                    <button type="submit" class="btn btn-primary btn-sm" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) }}>Submit</button>
+                  </td>
+                </form>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -697,18 +733,26 @@
 
         <div class="card-body">
           {% if organization.projects %}
-          <table class="table table-hover">
+          <table class="table table-hover"
+                 data-tabulator
+                 tabulator-layout="fitDataFill"
+                 tabulator-responsiveLayout="collapse"
+                 tabulator-pagination="true"
+                 tabulator-paginationSize="25"
+                 tabulator-placeholder="No matching projects">
             <thead>
               <tr>
                 <th>Project Name</th>
-                <th>Total Size</th>
+                <th>Lifecycle Status</th>
+                <th tabulator-formatter="filesize" tabulator-sorter="number" tabulator-headerFilter="false" tabulator-responsive="2">Total Size</th>
               </tr>
             </thead>
             <tbody>
             {% for project in organization.projects %}
               <tr>
                 <td><a href="{{ request.route_path('admin.project.detail', project_name=project.normalized_name) }}">{{ project.name }}</a></td>
-                <td>{{ project.total_size | filesizeformat(binary=True) }}</td>
+                <td>{% if project.lifecycle_status %}<span class="badge {{ 'badge-warning' if project.lifecycle_status == 'quarantine-enter' else 'badge-secondary' }}">{{ project.lifecycle_status }}</span>{% endif %}</td>
+                <td>{{ project.total_size or 0 }}</td>
               </tr>
             {% endfor %}
             </tbody>

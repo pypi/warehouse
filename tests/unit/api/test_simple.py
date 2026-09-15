@@ -73,7 +73,7 @@ class TestContentNegotiation:
 CONTENT_TYPE_PARAMS = [
     (simple.MIME_TEXT_HTML, None),
     (simple.MIME_PYPI_SIMPLE_V1_HTML, None),
-    (simple.MIME_PYPI_SIMPLE_V1_JSON, "json"),
+    (simple.MIME_PYPI_SIMPLE_V1_JSON, "json-with-newline"),
 ]
 
 
@@ -689,7 +689,7 @@ class TestSimpleDetail:
 
 
 def _update_context(context, content_type, renderer_override):
-    if renderer_override != "json" or content_type in [
+    if renderer_override != "json-with-newline" or content_type in [
         simple.MIME_TEXT_HTML,
         simple.MIME_PYPI_SIMPLE_V1_HTML,
     ]:

@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import datetime
-import logging
 
 import stripe
+import structlog
 
 from pyramid_retry import RetryableException
 from sqlalchemy.orm import joinedload
@@ -12,6 +12,10 @@ from warehouse import tasks
 from warehouse.accounts.interfaces import ITokenService, TokenExpired
 from warehouse.email import send_organization_subscription_required_email
 from warehouse.events.tags import EventTag
+from warehouse.organizations.constants import (
+    CLEANUP_AFTER,
+    SUBSCRIPTION_NOTICE_AFTER,
+)
 from warehouse.organizations.models import (
     Organization,
     OrganizationApplication,
@@ -24,15 +28,13 @@ from warehouse.organizations.models import (
 from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
 from warehouse.subscriptions.models import StripeSubscriptionStatus
 
-CLEANUP_AFTER = datetime.timedelta(days=30)
-SUBSCRIPTION_GRACE_PERIOD = datetime.timedelta(days=30)
 TRANSIENT_STRIPE_ERRORS = (
     stripe.error.APIConnectionError,
     stripe.error.APIError,
     stripe.error.RateLimitError,
 )
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 @tasks.task(ignore_result=True, acks_late=True)
@@ -107,9 +109,9 @@ def update_organziation_subscription_usage_record(request):
             # Skip a single bad subscription (e.g. canceled on Stripe, stale
             # locally).
             logger.exception(
-                "Failed to update usage record for organization %r (subscription %s)",
-                org_subscription.organization.name,
-                org_subscription.subscription.subscription_id,
+                "Failed to update usage record",
+                organization_name=org_subscription.organization.name,
+                subscription_id=org_subscription.subscription.subscription_id,
             )
             request.metrics.increment(
                 "warehouse.organizations.subscription.usage_record.error",
@@ -143,8 +145,8 @@ def reconcile_stripe_status(request):
         remote_status = remote_statuses.get(subscription.subscription_id)
         if remote_status is None:
             logger.warning(
-                "Skipping subscription %s with no record on Stripe",
-                subscription.subscription_id,
+                "Skipping subscription with no record on Stripe",
+                subscription_id=subscription.subscription_id,
             )
             request.metrics.increment(
                 "warehouse.organizations.subscription.status.reconcile.missing"
@@ -153,9 +155,9 @@ def reconcile_stripe_status(request):
 
         if not StripeSubscriptionStatus.has_value(remote_status):
             logger.warning(
-                "Skipping subscription %s with unknown Stripe status %r",
-                subscription.subscription_id,
-                remote_status,
+                "Skipping subscription with unknown Stripe status",
+                subscription_id=subscription.subscription_id,
+                status=remote_status,
             )
             request.metrics.increment(
                 "warehouse.organizations.subscription.status.reconcile.skipped"
@@ -179,8 +181,8 @@ def notify_organizations_requiring_subscription(request):
     Email owners of company orgs that have no active subscription
     (or manual activation) that 1 seat is required for paid orgs.
 
-    Orgs get 30 days (SUBSCRIPTION_GRACE_PERIOD) to activate a subscription
-    before they are considered not in good standing.
+    Reminders start at SUBSCRIPTION_NOTICE_AFTER, before the 30-day
+    subscription deadline communicated in the approval email.
     """
     organizations = (
         request.db.query(Organization)
@@ -188,7 +190,7 @@ def notify_organizations_requiring_subscription(request):
             Organization.is_active.is_(True),
             Organization.orgtype == OrganizationType.Company,
             Organization.created
-            < (datetime.datetime.now(datetime.UTC) - SUBSCRIPTION_GRACE_PERIOD),
+            < (datetime.datetime.now(datetime.UTC) - SUBSCRIPTION_NOTICE_AFTER),
         )
         .options(
             joinedload(Organization.subscriptions),

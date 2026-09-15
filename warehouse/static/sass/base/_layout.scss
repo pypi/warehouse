@@ -1,0 +1,14 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+// HIGH LEVEL
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  // Keep short pages from ending above the viewport without fixing the footer.
+  flex: 1 0 auto;
+}

@@ -30,6 +30,19 @@ class IMacaroonService(Interface):
         Raises InvalidMacaroonError if the macaroon is not valid.
         """
 
+    def verify_signature_only(raw_macaroon):
+        """
+        Returns a macaroon model from the DB if the given raw (serialized)
+        macaroon exists and has a valid signature.
+
+        **NOTE**: this API is not a substitute for `verify`; most
+        users should call `verify` to validate both the signature
+        *and* the macaroon's caveats relative to the request.
+
+        Raises InvalidMacaroonError if the macaroon has an invalid
+        signature.
+        """
+
     def create_macaroon(
         location,
         description,

@@ -93,17 +93,26 @@ def deactivate_organization_for_owner_removal(
 
 
 def add_organization_project_and_notify(
-    request: Request, organization: Organization, project: Project
+    request: Request,
+    organization: Organization,
+    project: Project,
+    *,
+    link: bool = True,
 ) -> None:
     """Associate ``project`` with ``organization``, record events, and notify owners.
 
     Shared by the manage-side "add project to organization" and "transfer
     project to organization" flows and the admin prohibited-name release flow.
+
+    Pass ``link=False`` when the ``OrganizationProject`` association was
+    already created by the caller (e.g. ``create_project(organization_id=...)``
+    links inline), so it isn't linked twice.
     """
-    organization_service = request.find_service(IOrganizationService, context=None)
-    organization_service.add_organization_project(
-        organization_id=organization.id, project_id=project.id
-    )
+    if link:
+        organization_service = request.find_service(IOrganizationService, context=None)
+        organization_service.add_organization_project(
+            organization_id=organization.id, project_id=project.id
+        )
 
     organization.record_event(
         tag=EventTag.Organization.OrganizationProjectAdd,
@@ -130,6 +139,7 @@ def add_organization_project_and_notify(
         owner_users,
         organization_name=organization.name,
         project_name=project.name,
+        submitter_username=request.user.username,
     )
 
 
@@ -209,12 +219,6 @@ def user_projects(request):
         .filter(Role.role_name == "Owner", Role.user == request.user)
     )
 
-    projects_collaborator = (
-        request.db.query(Project.id)
-        .join(Role.project)
-        .filter(Role.user == request.user)
-    )
-
     with_sole_owner = (
         # Select projects having just one owner.
         request.db.query(Role.project_id)
@@ -280,7 +284,6 @@ def user_projects(request):
     )
 
     projects_owned = projects_owned.subquery()
-    projects_collaborator = projects_collaborator.subquery()
     with_sole_owner = with_sole_owner.subquery()
 
     return {

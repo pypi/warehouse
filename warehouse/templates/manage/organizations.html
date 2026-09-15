@@ -5,6 +5,10 @@
   {% trans %}Your organizations{% endtrans %}
 {% endblock %}
 {% block main %}
+  {% set company_organizations = organizations | selectattr('orgtype', 'equalto', OrganizationType.Company) | list %}
+  {% if company_organizations %}
+    {% include "warehouse:templates/includes/manage/company-org-survey-callout.html" %}
+  {% endif %}
   {% if organization_invites %}
     <h1 class="page-title">
       {% trans %}Pending invitations{% endtrans %}

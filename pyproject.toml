@@ -65,6 +65,9 @@ extend_exclude = "warehouse/templates/api/simple/*"
 # T028: Handled by warehouse config. See: https://github.com/pypi/warehouse/pull/14709
 ignore = "H006,T002,T003,T028"
 
+[tool.inline-snapshot]
+format-command = "ruff format --stdin-filename {filename}"
+
 [tool.mypy]
 python_version = "3.14"
 warn_unreachable = true
@@ -216,7 +219,7 @@ ignore = [
   "S108",  # tests use hardcoded tmp paths that get stubbed out
   "S303",  # strength of the hash functions used in tests doesn't matter
   "S311",  # tests don't need cryptographically strong randomness
-  "S324"  # strength of the hash functions used in tests doesn't matter
+  "S324",  # strength of the hash functions used in tests doesn't matter
 ]
 
 [tool.ruff.lint.isort]

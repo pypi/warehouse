@@ -50,6 +50,13 @@ def includeme(config):
         route_kw={"domain": warehouse},
         view_kw={"has_translations": True},
     )
+    config.add_template_view(
+        "organizations",
+        "/organizations/",
+        "pages/organizations.html",
+        route_kw={"domain": warehouse},
+        view_kw={"has_translations": True},
+    )
     # Redirect the old "sponsor PyPI" page to the sponsors page
     config.add_redirect("/sponsor/", "/sponsors/", domain=warehouse)
     config.add_template_view(
