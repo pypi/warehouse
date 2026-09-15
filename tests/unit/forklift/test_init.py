@@ -1,78 +1,76 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
 import pytest
 
 from warehouse import forklift
 
 
 @pytest.mark.parametrize("forklift_domain", [None, "upload.pypi.io"])
-def test_includeme(forklift_domain, monkeypatch):
+def test_includeme(forklift_domain, monkeypatch, mocker):
     settings = {}
     if forklift_domain:
         settings["forklift.domain"] = forklift_domain
 
-    _help_url = pretend.stub()
+    _help_url = mocker.sentinel.help_url
     monkeypatch.setattr(forklift, "_help_url", _help_url)
 
-    _user_docs_url = pretend.stub()
+    _user_docs_url = mocker.sentinel.user_docs_url
     monkeypatch.setattr(forklift, "_user_docs_url", _user_docs_url)
 
-    config = pretend.stub(
-        get_settings=lambda: settings,
-        include=pretend.call_recorder(lambda n: None),
-        add_legacy_action_route=pretend.call_recorder(lambda *a, **k: None),
-        add_template_view=pretend.call_recorder(lambda *a, **kw: None),
-        add_request_method=pretend.call_recorder(lambda *a, **kw: None),
-        add_route=pretend.call_recorder(lambda *a, **kw: None),
+    config = mocker.Mock(
+        spec=[
+            "get_settings",
+            "include",
+            "add_legacy_action_route",
+            "add_template_view",
+            "add_request_method",
+            "add_route",
+        ]
     )
+    config.get_settings.return_value = settings
 
     forklift.includeme(config)
 
-    assert config.include.calls == [pretend.call(".action_routing")]
-    assert config.add_legacy_action_route.calls == [
-        pretend.call(
+    config.include.assert_called_once_with(".action_routing")
+    assert config.add_legacy_action_route.call_args_list == [
+        mocker.call(
             "forklift.legacy.file_upload",
             "file_upload",
             auth_methods={"basic-auth", "macaroon"},
             domain=forklift_domain,
         ),
-        pretend.call("forklift.legacy.submit", "submit", domain=forklift_domain),
-        pretend.call(
+        mocker.call("forklift.legacy.submit", "submit", domain=forklift_domain),
+        mocker.call(
             "forklift.legacy.submit_pkg_info", "submit_pkg_info", domain=forklift_domain
         ),
-        pretend.call(
-            "forklift.legacy.doc_upload", "doc_upload", domain=forklift_domain
-        ),
+        mocker.call("forklift.legacy.doc_upload", "doc_upload", domain=forklift_domain),
     ]
 
-    assert config.add_route.calls == [
-        pretend.call(
-            "forklift.legacy.missing_trailing_slash", "/legacy", domain=forklift_domain
-        ),
-    ]
+    config.add_route.assert_called_once_with(
+        "forklift.legacy.missing_trailing_slash", "/legacy", domain=forklift_domain
+    )
 
-    assert config.add_request_method.calls == [
-        pretend.call(_help_url, name="help_url"),
-        pretend.call(_user_docs_url, name="user_docs_url"),
+    assert config.add_request_method.call_args_list == [
+        mocker.call(_help_url, name="help_url"),
+        mocker.call(_user_docs_url, name="user_docs_url"),
     ]
     if forklift_domain:
-        assert config.add_template_view.calls == [
-            pretend.call(
+        assert config.add_template_view.call_args_list == [
+            mocker.call(
                 "forklift.index",
                 "/",
                 "upload.html",
                 route_kw={"domain": forklift_domain},
                 view_kw={"has_translations": True},
             ),
-            pretend.call(
+            mocker.call(
                 "forklift.robots.txt",
                 "/robots.txt",
                 "forklift.robots.txt",
                 route_kw={"domain": forklift_domain},
                 view_kw={"has_translations": False},
             ),
-            pretend.call(
+            mocker.call(
                 "forklift.legacy.invalid_request",
                 "/legacy/",
                 "upload.html",
@@ -81,31 +79,27 @@ def test_includeme(forklift_domain, monkeypatch):
             ),
         ]
     else:
-        assert config.add_template_view.calls == []
+        config.add_template_view.assert_not_called()
 
 
-def test_help_url():
-    warehouse_domain = pretend.stub()
-    result = pretend.stub()
-    request = pretend.stub(
-        route_url=pretend.call_recorder(lambda *a, **kw: result),
-        registry=pretend.stub(settings={"warehouse.domain": warehouse_domain}),
+def test_help_url(pyramid_request, mocker):
+    warehouse_domain = mocker.sentinel.warehouse_domain
+    result = mocker.sentinel.result
+    pyramid_request.registry.settings["warehouse.domain"] = warehouse_domain
+    route_url = mocker.patch.object(
+        pyramid_request, "route_url", autospec=True, return_value=result
     )
 
-    assert forklift._help_url(request, _anchor="foo") == result
-    assert request.route_url.calls == [
-        pretend.call("help", _host=warehouse_domain, _anchor="foo")
-    ]
+    assert forklift._help_url(pyramid_request, _anchor="foo") == result
+    route_url.assert_called_once_with("help", _host=warehouse_domain, _anchor="foo")
 
 
-def test_user_docs_url():
+def test_user_docs_url(pyramid_request):
     docs_domain = "http://example.com"
-    request = pretend.stub(
-        registry=pretend.stub(settings={"userdocs.domain": docs_domain}),
-    )
+    pyramid_request.registry.settings["userdocs.domain"] = docs_domain
 
-    assert forklift._user_docs_url(request, "/foo") == f"{docs_domain}/foo"
+    assert forklift._user_docs_url(pyramid_request, "/foo") == f"{docs_domain}/foo"
     assert (
-        forklift._user_docs_url(request, "/foo", anchor="bar")
+        forklift._user_docs_url(pyramid_request, "/foo", anchor="bar")
         == f"{docs_domain}/foo#bar"
     )
