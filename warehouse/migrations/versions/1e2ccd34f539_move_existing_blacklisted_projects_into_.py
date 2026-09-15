@@ -16,12 +16,10 @@ down_revision = "b6a20b9c888d"
 def upgrade():
     # Fix the trigger execution.
     op.execute("DROP TRIGGER normalize_blacklist ON blacklist")
-    op.execute(
-        """ CREATE TRIGGER normalize_blacklist
+    op.execute(""" CREATE TRIGGER normalize_blacklist
             BEFORE INSERT OR UPDATE ON blacklist
             FOR EACH ROW EXECUTE PROCEDURE ensure_normalized_blacklist();
-        """
-    )
+        """)
 
     # Insert our default values, taken from existing legacy code.
     op.execute("INSERT INTO blacklist (name) VALUES ('requirements.txt')")

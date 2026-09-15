@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 """
-Remove the rego_otk table abd related index
+Remove the rego_otk table and related index
 
 Revision ID: 42e76a605cac
 Revises: 895279cc4490

@@ -7,23 +7,23 @@ from warehouse import db
 from warehouse.accounts.models import Email, User
 from warehouse.cache.origin import key_factory, receive_set
 from warehouse.manage.tasks import update_role_invitation_status
-from warehouse.organizations.models import Organization
+from warehouse.organizations.models import Organization, OrganizationProject
 from warehouse.packaging.interfaces import (
     IDocsStorage,
     IFileStorage,
     IProjectService,
     ISimpleStorage,
 )
-from warehouse.packaging.models import AlternateRepository, File, Project, Release, Role
+from warehouse.packaging.models import File, Project, Release, Role
 from warehouse.packaging.services import project_service_factory
 from warehouse.packaging.tasks import (
     check_file_cache_tasks_outstanding,
     compute_2fa_metrics,
     compute_packaging_metrics,
     compute_top_dependents_corpus,
+    reconcile_file_storages,
     update_description_html,
 )
-from warehouse.rate_limiting import IRateLimiter, RateLimit
 
 
 @db.listens_for(User.name, "set")
@@ -76,18 +76,19 @@ def includeme(config):
     project_create_user_limit_string = config.registry.settings.get(
         "warehouse.packaging.project_create_user_ratelimit_string"
     )
-    config.register_service_factory(
-        RateLimit(project_create_user_limit_string),
-        IRateLimiter,
-        name="project.create.user",
+    config.register_rate_limiter(
+        project_create_user_limit_string, "project.create.user"
     )
     project_create_ip_limit_string = config.registry.settings.get(
         "warehouse.packaging.project_create_ip_ratelimit_string"
     )
-    config.register_service_factory(
-        RateLimit(project_create_ip_limit_string),
-        IRateLimiter,
-        name="project.create.ip",
+    config.register_rate_limiter(project_create_ip_limit_string, "project.create.ip")
+
+    project_create_organization_limit_string = config.registry.settings.get(
+        "warehouse.packaging.project_create_organization_ratelimit_string"
+    )
+    config.register_rate_limiter(
+        project_create_organization_limit_string, "project.create.organization"
     )
 
     config.register_service_factory(project_service_factory, IProjectService)
@@ -170,14 +171,16 @@ def includeme(config):
         ],
     )
     config.register_origin_cache_keys(
-        AlternateRepository,
-        cache_keys=["project/{obj.project.normalized_name}"],
+        OrganizationProject,
         purge_keys=[
-            key_factory("project/{obj.project.normalized_name}"),
+            key_factory("project/{attr.normalized_name}", if_attr_exists="project"),
         ],
     )
 
     config.add_periodic_task(crontab(minute="*/1"), check_file_cache_tasks_outstanding)
+
+    # Sync S3 to B2
+    config.add_periodic_task(crontab(minute="*/15"), reconcile_file_storages)
 
     config.add_periodic_task(crontab(minute="*/5"), update_description_html)
     config.add_periodic_task(crontab(minute="*/5"), update_role_invitation_status)

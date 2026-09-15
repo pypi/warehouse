@@ -15,7 +15,6 @@ import searchFilterToggle from "warehouse/utils/search-filter-toggle";
 import BindModalKeys from "warehouse/utils/bind-modal-keys";
 import BindFilterKeys from "warehouse/utils/bind-filter-keys";
 import {GuardWebAuthn, AuthenticateWebAuthn, ProvisionWebAuthn} from "warehouse/utils/webauthn";
-import checkProxyProtection from "warehouse/utils/proxy-protection";
 
 // Show unsupported browser warning if necessary
 if (navigator.appVersion.includes("MSIE 10")) {
@@ -136,9 +135,6 @@ ProvisionWebAuthn();
 
 // Get WebAuthn authentication ready
 AuthenticateWebAuthn();
-
-// Initialize proxy protection
-checkProxyProtection();
 
 const tokenSelect = document.getElementById("token_scope");
 

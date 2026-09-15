@@ -1,15 +1,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
 """Observations and associated models."""
+
 from __future__ import annotations
 
 import enum
+import re
 import typing
 
 from uuid import UUID
 
 from sqlalchemy import ForeignKey, String, sql
-from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.associationproxy import AssociationProxy, association_proxy
 from sqlalchemy.ext.declarative import AbstractConcreteBase
 from sqlalchemy.ext.mutable import MutableDict
@@ -56,29 +58,29 @@ class Observer(db.Model):
 class HasObservers:
     """A mixin for models that can have observers."""
 
-    @declared_attr
-    def observer_association_id(cls):  # noqa: N805
-        return mapped_column(
-            PG_UUID, ForeignKey(f"{ObserverAssociation.__tablename__}.id")
-        )
+    observer: AssociationProxy[Observer | None]
 
     @declared_attr
-    def observer_association(cls):  # noqa: N805
+    def observer_association_id(cls: typing.Any) -> Mapped[UUID | None]:
+        return mapped_column(ForeignKey(f"{ObserverAssociation.__tablename__}.id"))
+
+    @declared_attr
+    def observer_association(cls: typing.Any) -> Mapped[ObserverAssociation]:
         name = cls.__name__
         discriminator = name.lower()
 
         assoc_cls = type(
             f"{name}ObserverAssociation",
             (ObserverAssociation,),
-            dict(
-                __tablename__=None,
-                __mapper_args__={"polymorphic_identity": discriminator},
-                parent=relationship(
+            {
+                "__tablename__": None,
+                "__mapper_args__": {"polymorphic_identity": discriminator},
+                "parent": relationship(
                     name,
                     back_populates="observer_association",
                     uselist=False,
                 ),
-            ),
+            },
         )
 
         cls.observer = association_proxy(
@@ -103,6 +105,7 @@ class ObservationKind(enum.Enum):
     IsDependencyConfusion = ("is_dependency_confusion", "Is Dependency Confusion")
     IsMalware = ("is_malware", "Is Malware")
     IsSpam = ("is_spam", "Is Spam")
+    IsTypoSnyperMatch = ("is_typosnyper_match", "Is TypoSnyper Match")
     SomethingElse = ("something_else", "Something Else")
 
     # Accounts
@@ -111,10 +114,12 @@ class ObservationKind(enum.Enum):
         "account_recovery",
         "Account Recovery",
     )
+    AccountExport = ("account_export", "User Account Export")
     EmailUnverified = ("email_unverified", "Email Unverified")
 
     # Organization Applications
     InformationRequest = ("information_request", "Information Request")
+    AdminNote = ("admin_note", "Admin Note")
 
 
 # A reverse-lookup map by the string value stored in the database
@@ -138,6 +143,15 @@ class Observation(AbstractConcreteBase, db.Model):
         "polymorphic_identity": "observation",
     }
 
+    if typing.TYPE_CHECKING:
+        # Attributes defined on concrete subclasses created by HasObservations.
+        # Declared here for type checking when querying via polymorphic union.
+        related_name: Mapped[str]
+        related_id: Mapped[UUID | None]
+        related: Mapped[HasObservations]
+        observer_id: Mapped[UUID]
+        observer: Mapped[Observer]
+
     created: Mapped[datetime_now] = mapped_column(
         comment="The time the observation was created"
     )
@@ -160,6 +174,16 @@ class Observation(AbstractConcreteBase, db.Model):
     def __repr__(self):
         return f"<{self.__class__.__name__} {self.kind}>"
 
+    _NAME_FROM_REPR_RE = re.compile(r"name='([^']+)'")
+
+    @property
+    def display_name(self) -> str:
+        """Return the related model's name, falling back to related_name."""
+        if self.related_id is None:
+            match = self._NAME_FROM_REPR_RE.search(self.related_name)
+            return match.group(1) if match else self.related_name
+        return getattr(self.related, "name", None) or self.related_name
+
     @property
     def kind_display(self) -> str:
         """
@@ -167,6 +191,12 @@ class Observation(AbstractConcreteBase, db.Model):
         """
         kind_map = {k.value[0]: k.value[1] for k in ObservationKind}
         return kind_map[self.kind]
+
+
+# Reference to the base Observation type for use inside HasObservations, whose
+# `Observation` class attribute (the per-parent concrete subclass) shadows the
+# `Observation` name in annotations within that class body.
+_ObservationBase = Observation
 
 
 class HasObservations:
@@ -182,41 +212,52 @@ class HasObservations:
         some_model.observations  # a list of Observation objects
     """
 
-    Observation: typing.ClassVar[type]
+    if typing.TYPE_CHECKING:
+        # `observations` (below) builds a concrete Observation subclass per
+        # parent model at mapper-configuration time and stores it here, so the
+        # runtime value is e.g. `ProjectObservation`. Declared for the type
+        # checker as the base type so `Project.Observation` resolves and stays
+        # constrained to an Observation subclass.
+        Observation: typing.ClassVar[type[_ObservationBase]]
 
+    # `cls` is the mapped subclass at mapper-configuration time, not an
+    # instance. It's typed `Any` (not `type[Any]`) so type checkers don't treat
+    # it as an instance-method `self` and reject the class-level attribute reads
+    # and assignment below. Public types stay precise via the declarations above.
     @declared_attr
-    def observations(cls):  # noqa: N805
-        cls.Observation = type(
+    def observations(cls: typing.Any) -> Mapped[list[_ObservationBase]]:
+        observation_cls = type(
             f"{cls.__name__}Observation",
             (Observation, db.Model),
-            dict(
-                __tablename__=f"{cls.__name__.lower()}_observations",
-                __mapper_args__={
+            {
+                "__tablename__": f"{cls.__name__.lower()}_observations",
+                "__mapper_args__": {
                     "polymorphic_identity": cls.__name__.lower(),
                     "concrete": True,
                 },
-                related_id=mapped_column(
-                    PG_UUID,
+                "related_id": mapped_column(
                     ForeignKey(f"{cls.__tablename__}.id"),
                     comment="The ID of the related model",
                     nullable=True,
                     index=True,
                 ),
-                related=relationship(cls, back_populates="observations"),
-                related_name=mapped_column(
+                "related": relationship(cls, back_populates="observations"),
+                "related_name": mapped_column(
                     String,
                     comment="The name of the related model",
                     nullable=False,
                 ),
-                observer_id=mapped_column(
-                    PG_UUID,
+                "observer_id": mapped_column(
                     ForeignKey("observers.id"),
                     comment="ID of the Observer who created the Observation",
                     nullable=False,
                 ),
-                observer=relationship(Observer),
-            ),
+                "observer": relationship(Observer),
+            },
         )
+        # `type(...)` is statically just `type`; the built class really is an
+        # Observation subclass, so assert that to match the ClassVar above.
+        cls.Observation = typing.cast(type[_ObservationBase], observation_cls)
         return relationship(cls.Observation)
 
     def record_observation(
@@ -227,7 +268,7 @@ class HasObservations:
         actor: User,  # TODO: Expand type as we add more HasObserver models
         summary: str,
         payload: dict,
-    ):
+    ) -> _ObservationBase:
         """
         Record an observation on the related model.
         """

@@ -1,15 +1,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import collections
+import contextlib
 import hashlib
 import io
 import json
-import logging
 import os.path
 import shutil
+import uuid
 import warnings
 
 from itertools import chain
+from typing import NamedTuple
 
 import b2sdk.v2.exception
 import botocore.exceptions
@@ -17,6 +19,7 @@ import google.api_core.exceptions
 import google.api_core.retry
 import sentry_sdk
 import stdlib_list
+import structlog
 
 from packaging.utils import canonicalize_name
 from pyramid.httpexceptions import HTTPBadRequest, HTTPConflict, HTTPForbidden
@@ -24,13 +27,12 @@ from sqlalchemy import exists, func, select
 from zope.interface import implementer
 
 from warehouse.admin.flags import AdminFlagValue
-from warehouse.cache import IQueryResultsCache
 from warehouse.email import send_pending_trusted_publisher_invalidated_email
 from warehouse.events.tags import EventTag
-from warehouse.helpdesk.interfaces import IAdminNotificationService
 from warehouse.metrics import IMetricsService
 from warehouse.oidc.models import PendingOIDCPublisher
-from warehouse.organizations.models import OrganizationProject
+from warehouse.organizations.interfaces import IOrganizationService
+from warehouse.organizations.models import Organization
 from warehouse.packaging.interfaces import (
     IDocsStorage,
     IFileStorage,
@@ -41,7 +43,6 @@ from warehouse.packaging.interfaces import (
     ProjectNameUnavailableProhibitedError,
     ProjectNameUnavailableSimilarError,
     ProjectNameUnavailableStdlibError,
-    ProjectNameUnavailableTypoSquattingError,
     TooManyProjectsCreated,
 )
 from warehouse.packaging.models import (
@@ -50,18 +51,19 @@ from warehouse.packaging.models import (
     Project,
     Role,
 )
-from warehouse.packaging.typosnyper import typo_check_name
+from warehouse.packaging.tasks import typo_check_project_name
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
+from warehouse.rate_limiting.headers import PartitionKey, record_rate_limit
 from warehouse.utils.exceptions import DevelopmentModeWarning
 from warehouse.utils.project import PROJECT_NAME_RE
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 def _namespace_stdlib_list(module_list):
     for module_name in module_list:
         parts = module_name.split(".")
-        for i, part in enumerate(parts):
+        for i, _part in enumerate(parts):
             yield ".".join(parts[: i + 1])
 
 
@@ -89,6 +91,7 @@ class GenericLocalBlobStorage:
             "should not use it in production due to the lack of safe guards "
             "for safely locating files on disk.",
             InsecureStorageWarning,
+            stacklevel=2,
         )
 
         self.base = base
@@ -101,19 +104,18 @@ class GenericLocalBlobStorage:
         return open(os.path.join(self.base, path), "rb")
 
     def get_metadata(self, path):
-        return json.loads(open(os.path.join(self.base, path + ".meta")).read())
+        with open(os.path.join(self.base, path + ".meta")) as f:
+            return json.loads(f.read())
 
     def get_checksum(self, path):
-        return hashlib.md5(
-            open(os.path.join(self.base, path), "rb").read(), usedforsecurity=False
-        ).hexdigest()
+        with open(os.path.join(self.base, path), "rb") as f:
+            return hashlib.md5(f.read(), usedforsecurity=False).hexdigest()
 
     def store(self, path, file_path, *, meta=None):
         destination = os.path.join(self.base, path)
         os.makedirs(os.path.dirname(destination), exist_ok=True)
-        with open(destination, "wb") as dest_fp:
-            with open(file_path, "rb") as src_fp:
-                dest_fp.write(src_fp.read())
+        with open(destination, "wb") as dest_fp, open(file_path, "rb") as src_fp:
+            dest_fp.write(src_fp.read())
         if meta is not None:
             with open(destination + ".meta", "w") as dest_fp:
                 dest_fp.write(json.dumps(meta))
@@ -152,6 +154,7 @@ class LocalDocsStorage:
             "should not use it in production due to the lack of safe guards "
             "for safely locating files on disk.",
             InsecureStorageWarning,
+            stacklevel=2,
         )
 
         self.base = base
@@ -162,10 +165,8 @@ class LocalDocsStorage:
 
     def remove_by_prefix(self, prefix):
         directory = os.path.join(self.base, prefix)
-        try:
+        with contextlib.suppress(FileNotFoundError):
             shutil.rmtree(directory)
-        except FileNotFoundError:
-            pass
 
 
 class GenericBlobStorage:
@@ -401,51 +402,103 @@ class GCSSimpleStorage(GenericGCSBlobStorage):
         return cls(bucket, prefix=prefix)
 
 
+class _IdentityLimiter(NamedTuple):
+    """The non-IP limiter a single project creation is metered against."""
+
+    limiter: IRateLimiter
+    identifier: uuid.UUID
+    partition_key: PartitionKey
+    """Name the bucket for the metrics and RateLimit headers.
+    Matches the project.create.<key> limiter it came from."""
+
+
 @implementer(IProjectService)
 class ProjectService:
-    def __init__(
-        self, session, metrics=None, ratelimiters=None, query_results_cache=None
-    ) -> None:
+    def __init__(self, session, metrics=None, ratelimiters=None) -> None:
         if ratelimiters is None:
             ratelimiters = {}
-        if query_results_cache is None:
-            query_results_cache = {}
 
         self.db = session
         self.ratelimiters = collections.defaultdict(DummyRateLimiter, ratelimiters)
         self._metrics = metrics
-        self._query_results_cache = query_results_cache
 
-    def _check_ratelimits(self, request, creator):
-        # First we want to check if a single IP is exceeding our rate limiter.
+    def _identity_limiter(self, creator, organization_id) -> _IdentityLimiter:
+        """Pick the non-IP limiter this creation is metered against."""
+        if organization_id is not None:
+            organization = self.db.get(Organization, organization_id)
+            return _IdentityLimiter(
+                self.ratelimiters["project.create.organization"].override(
+                    organization.project_create_ratelimit_string
+                ),
+                organization.id,
+                "organization",
+            )
+        return _IdentityLimiter(
+            self.ratelimiters["project.create.user"].override(
+                creator.project_create_ratelimit_string
+            ),
+            creator.id,
+            "user",
+        )
+
+    def _reject_create(self, partition_key, resets_in):
+        logger.warning(
+            "Project create threshold reached for %s partition.", partition_key
+        )
+        self._metrics.increment(
+            "warehouse.project.create.ratelimited",
+            tags=[f"ratelimiter:{partition_key}"],
+        )
+        raise TooManyProjectsCreated(resets_in=resets_in)
+
+    def _check_ratelimits(self, request, identity: _IdentityLimiter):
+        ip_limiter = self.ratelimiters["project.create.ip"]
+
+        # Record the current limiter state so the egress tween can emit
+        # RateLimit / RateLimit-Policy headers, whether or not we reject below.
         if request.remote_addr is not None:
-            if not self.ratelimiters["project.create.ip"].test(request.remote_addr):
-                logger.warning("IP failed project create threshold reached.")
-                self._metrics.increment(
-                    "warehouse.project.create.ratelimited",
-                    tags=["ratelimiter:ip"],
-                )
-                raise TooManyProjectsCreated(
-                    resets_in=self.ratelimiters["project.create.ip"].resets_in(
-                        request.remote_addr
-                    )
-                )
-
-        if not self.ratelimiters["project.create.user"].test(creator.id):
-            logger.warning("User failed project create threshold reached.")
-            self._metrics.increment(
-                "warehouse.project.create.ratelimited",
-                tags=["ratelimiter:user"],
+            record_rate_limit(
+                request,
+                "project.create.ip",
+                ip_limiter,
+                identifiers=(request.remote_addr,),
+                partition_key="ip",
             )
-            raise TooManyProjectsCreated(
-                resets_in=self.ratelimiters["project.create.user"].resets_in(
-                    request.remote_addr
-                )
+        record_rate_limit(
+            request,
+            f"project.create.{identity.partition_key}",
+            identity.limiter,
+            identifiers=(identity.identifier,),
+            partition_key=identity.partition_key,
+        )
+
+        # First we want to check if a single IP is exceeding our rate limiter.
+        if request.remote_addr is not None and not ip_limiter.test(request.remote_addr):
+            self._reject_create("ip", ip_limiter.resets_in(request.remote_addr))
+
+        if not identity.limiter.test(identity.identifier):
+            self._reject_create(
+                identity.partition_key,
+                identity.limiter.resets_in(identity.identifier),
             )
 
-    def _hit_ratelimits(self, request, creator):
-        self.ratelimiters["project.create.user"].hit(creator.id)
-        self.ratelimiters["project.create.ip"].hit(request.remote_addr)
+    def _hit_ratelimits(self, request, identity: _IdentityLimiter):
+        ip_limiter = self.ratelimiters["project.create.ip"]
+
+        # `.hit()` atomically increments and returns False when the limit is
+        # exceeded. Concurrent requests can each pass the optimistic `.test()`
+        # in `_check_ratelimits` before any records a hit, so this atomic check
+        # is what actually enforces the limit: a request that pushes a counter
+        # past its limit is rejected here, rolling back the new project. The
+        # limiters are consulted in the same order as `_check_ratelimits`.
+        if request.remote_addr is not None and not ip_limiter.hit(request.remote_addr):
+            self._reject_create("ip", ip_limiter.resets_in(request.remote_addr))
+
+        if not identity.limiter.hit(identity.identifier):
+            self._reject_create(
+                identity.partition_key,
+                identity.limiter.resets_in(identity.identifier),
+            )
 
     def check_project_name(self, name: str) -> None:
         """
@@ -455,11 +508,11 @@ class ProjectService:
         unavailable for any reason.
         """
         if not PROJECT_NAME_RE.match(name):
-            raise ProjectNameUnavailableInvalidError()
+            raise ProjectNameUnavailableInvalidError
 
         # Also check for collisions with Python Standard Library modules.
         if canonicalize_name(name) in STDLIB_PROHIBITED:
-            raise ProjectNameUnavailableStdlibError()
+            raise ProjectNameUnavailableStdlibError
 
         if existing_project := self.db.scalars(
             select(Project).where(
@@ -473,7 +526,7 @@ class ProjectService:
                 ProhibitedProjectName.name == func.normalize_pep426_name(name)
             )
         ).scalar():
-            raise ProjectNameUnavailableProhibitedError()
+            raise ProjectNameUnavailableProhibitedError
 
         if similar_project_name := self.db.scalars(
             select(Project.name).where(
@@ -481,18 +534,6 @@ class ProjectService:
             )
         ).first():
             raise ProjectNameUnavailableSimilarError(similar_project_name)
-
-        # Check for typo-squatting.
-        cached_corpus = self._query_results_cache.get("top_dependents_corpus")
-        if typo_check_match := typo_check_name(
-            canonicalize_name(name), corpus=cached_corpus
-        ):
-            raise ProjectNameUnavailableTypoSquattingError(
-                check_name=typo_check_match[0],
-                existing_project_name=typo_check_match[1],
-            )
-
-        return None
 
     def create_project(
         self,
@@ -504,8 +545,11 @@ class ProjectService:
         ratelimited=True,
         organization_id=None,
     ):
-        if ratelimited:
-            self._check_ratelimits(request, creator)
+        identity_limiter = (
+            self._identity_limiter(creator, organization_id) if ratelimited else None
+        )
+        if identity_limiter is not None:
+            self._check_ratelimits(request, identity_limiter)
 
         # Check for AdminFlag set by a PyPI Administrator disabling new project
         # registration, reasons for this include Spammers, security
@@ -565,90 +609,16 @@ class ProjectService:
                     projecthelp=request.help_url(_anchor="project-name"),
                 ),
             ) from None
-        except ProjectNameUnavailableTypoSquattingError as exc:
-            # Don't yet raise an error here, as we want to allow the
-            # user to proceed with the project creation. We'll log a warning
-            # instead.
-            request.log.warning(
-                "ProjectNameUnavailableTypoSquattingError",
-                check_name=exc.check_name,
-                existing_project_name=exc.existing_project_name,
-            )
-            # Send notification to Admins for review
-            notification_service = request.find_service(IAdminNotificationService)
-
-            warehouse_domain = request.registry.settings.get("warehouse.domain")
-            new_project_page = request.route_url(
-                "packaging.project",
-                name=name,
-                _host=warehouse_domain,
-            )
-            new_project_text = (
-                f"During `file_upload`, Project Create for "
-                f"*<{new_project_page}|{name}>* was detected as a potential "
-                f"typo by the `{exc.check_name!r}` check."
-            )
-            existing_project_page = request.route_url(
-                "packaging.project",
-                name=exc.existing_project_name,
-                _host=warehouse_domain,
-            )
-            existing_project_text = (
-                f"<{existing_project_page}|Existing project: "
-                f"{exc.existing_project_name}>"
-            )
-
-            webhook_payload = {
-                "blocks": [
-                    {
-                        "type": "header",
-                        "text": {
-                            "type": "plain_text",
-                            "text": "TypoSnyper :warning:",
-                            "emoji": True,
-                        },
-                    },
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": new_project_text,
-                        },
-                    },
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": existing_project_text,
-                        },
-                    },
-                    {"type": "divider"},
-                    {
-                        "type": "context",
-                        "elements": [
-                            {
-                                "type": "plain_text",
-                                "text": "Once reviewed/confirmed, "
-                                "react to this message with :white_check_mark:",
-                                "emoji": True,
-                            }
-                        ],
-                    },
-                ]
-            }
-            notification_service.send_notification(payload=webhook_payload)
-
-            request.metrics.increment(
-                "warehouse.packaging.services.create_project.typo_squatting",
-                tags=[f"check_name:{exc.check_name!r}"],
-            )
-            # and continue with the project creation
-            pass
 
         # The project name is valid: create it and add it
         project = Project(name=name)
         self.db.add(project)
-        self.db.flush()  # To get the new ID
+        self.db.flush()  # To get the new ID  # ast-grep-ignore: db-flush
+
+        # Look for typo-squatting of a popular project name. The task is only
+        # dispatched once this transaction commits, so we don't annotate or
+        # report a project that was never created.
+        request.task(typo_check_project_name).delay(project.id)
 
         # TODO: This should be handled by some sort of database trigger or a
         #       SQLAlchemy hook or the like instead of doing it inline in this
@@ -668,10 +638,11 @@ class ProjectService:
 
         if organization_id:
             # If an organization ID is provided, we never set the creator to owner
-            self.db.add(
-                OrganizationProject(
-                    organization_id=organization_id, project_id=project.id
-                )
+            organization_service = request.find_service(
+                IOrganizationService, context=None
+            )
+            organization_service.add_organization_project(
+                organization_id=organization_id, project_id=project.id
             )
         elif creator_is_owner:
             # Mark the creator as the newly created project's owner, if configured.
@@ -718,8 +689,8 @@ class ProjectService:
             )
             request.db.delete(stale_publisher)
 
-        if ratelimited:
-            self._hit_ratelimits(request, creator)
+        if identity_limiter is not None:
+            self._hit_ratelimits(request, identity_limiter)
         return project
 
 
@@ -732,11 +703,8 @@ def project_service_factory(context, request):
         "project.create.ip": request.find_service(
             IRateLimiter, name="project.create.ip", context=None
         ),
+        "project.create.organization": request.find_service(
+            IRateLimiter, name="project.create.organization", context=None
+        ),
     }
-    query_results_cache = request.find_service(IQueryResultsCache)
-    return ProjectService(
-        request.db,
-        metrics=metrics,
-        ratelimiters=ratelimiters,
-        query_results_cache=query_results_cache,
-    )
+    return ProjectService(request.db, metrics=metrics, ratelimiters=ratelimiters)

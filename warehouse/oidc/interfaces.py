@@ -26,7 +26,6 @@ class IOIDCPublisherService(Interface):
         This method does **not** verify the claim set itself -- the API
         consumer is responsible for evaluating the claim set.
         """
-        pass
 
     def find_publisher(
         signed_claims: SignedClaims, *, pending: bool = False
@@ -38,7 +37,6 @@ class IOIDCPublisherService(Interface):
 
         If no publisher matches the claims, `None` is returned.
         """
-        pass
 
     def reify_pending_publisher(
         pending_publisher: PendingOIDCPublisher, project: Project
@@ -49,7 +47,6 @@ class IOIDCPublisherService(Interface):
 
         Returns the reified publisher.
         """
-        pass
 
 
 class TooManyOIDCRegistrations(RateLimiterException):

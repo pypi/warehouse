@@ -170,7 +170,7 @@ class TestIntegrityService:
             [dummy_attestation] * max_attestations
         )
 
-        monkeypatch.setattr(Verifier, "production", lambda: pretend.stub())
+        monkeypatch.setattr(Verifier, "production", pretend.stub)
         monkeypatch.setattr(
             Attestation, "verify", lambda *args: (AttestationType.PYPI_PUBLISH_V1, {})
         )
@@ -259,7 +259,7 @@ class TestIntegrityService:
             [dummy_attestation]
         )
 
-        monkeypatch.setattr(Verifier, "production", lambda: pretend.stub())
+        monkeypatch.setattr(Verifier, "production", pretend.stub)
         monkeypatch.setattr(
             Attestation, "verify", lambda *args: ("wrong-predicate", {})
         )
@@ -294,7 +294,7 @@ class TestIntegrityService:
             [dummy_attestation]
         )
 
-        monkeypatch.setattr(Verifier, "production", lambda: pretend.stub())
+        monkeypatch.setattr(Verifier, "production", pretend.stub)
         monkeypatch.setattr(
             Attestation, "verify", lambda *args: (AttestationType.PYPI_PUBLISH_V1, {})
         )

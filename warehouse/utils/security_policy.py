@@ -8,6 +8,7 @@ from pyramid.security import Denied
 from zope.interface import implementer
 
 from warehouse.accounts.utils import UserContext
+from warehouse.authnz import Permissions
 
 
 # NOTE: Is there a better place for this to live? It may not even need to exist
@@ -22,6 +23,37 @@ class AuthenticationMethod(enum.Enum):
     BASIC_AUTH = "basic-auth"
     SESSION = "session"
     MACAROON = "macaroon"
+    # Placeholder for the dedicated API auth surface that will replace
+    # danger-api's macaroon abuse. No policy implements it yet.
+    API_KEY = "api-key"
+
+
+# Which AuthenticationMethods may grant a given Permission. Anything not in
+# this table defaults to SESSION-only (browser flows).
+#
+# MACAROON should long-term only grant ProjectsUpload. The APIEcho and
+# APIObservationsAdd entries are migration debt from danger-api and go away
+# when the new API auth surface ships. Don't add new MACAROON entries here;
+# new API endpoints get a new AuthenticationMethod instead.
+PERMISSION_AUTH_METHODS: dict[Permissions, frozenset[AuthenticationMethod]] = {
+    Permissions.ProjectsUpload: frozenset(
+        {AuthenticationMethod.MACAROON, AuthenticationMethod.BASIC_AUTH}
+    ),
+    # Migration debt: move to the new API auth surface, then delete.
+    Permissions.APIEcho: frozenset({AuthenticationMethod.MACAROON}),
+    Permissions.APIObservationsAdd: frozenset({AuthenticationMethod.MACAROON}),
+}
+
+
+def permission_allowed_by_authentication_method(
+    permission: Permissions | str, method: AuthenticationMethod
+) -> bool:
+    """Return whether ``method`` may grant ``permission``."""
+    if not isinstance(permission, Permissions):
+        return method == AuthenticationMethod.SESSION
+    return method in PERMISSION_AUTH_METHODS.get(
+        permission, frozenset({AuthenticationMethod.SESSION})
+    )
 
 
 @implementer(ISecurityPolicy)
@@ -65,15 +97,14 @@ class MultiSecurityPolicy:
         return identity
 
     def authenticated_userid(self, request):
-        if ident := self.identity(request):
+        if (ident := self.identity(request)) and isinstance(ident, UserContext):
             # TODO: Note, this logic breaks the contract of a SecurityPolicy, the
             #       authenticated_userid is intended to be used to fetch the unique
             #       identifier that represents the current identity. We're leaving
             #       it here for now, because there are a number of views directly
             #       using this to detect user vs not, which we'll need to move to a
             #       more correct pattern before fixing this.
-            if isinstance(ident, UserContext):
-                return str(ident.user.id)
+            return str(ident.user.id)
         return None
 
     def forget(self, request, **kw):
@@ -100,5 +131,4 @@ class MultiSecurityPolicy:
         # for this request.
         if policy is not None:
             return policy.permits(request, context, permission)
-        else:
-            return Denied("unknown identity")
+        return Denied("unknown identity")

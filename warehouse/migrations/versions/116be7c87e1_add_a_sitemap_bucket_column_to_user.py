@@ -22,19 +22,16 @@ def upgrade():
         "accounts_user", sa.Column("sitemap_bucket", sa.Text(), nullable=True)
     )
 
-    op.execute(
-        """
+    op.execute("""
         UPDATE accounts_user
         SET sitemap_bucket = sitemap_bucket(username)
         WHERE sitemap_bucket IS NULL
-        """
-    )
+        """)
 
     # Now that data has been backfilled, we'll set nullable to False.
     op.alter_column("accounts_user", "sitemap_bucket", nullable=False)
 
-    op.execute(
-        """ CREATE OR REPLACE FUNCTION maintain_accounts_user_sitemap_bucket()
+    op.execute(""" CREATE OR REPLACE FUNCTION maintain_accounts_user_sitemap_bucket()
             RETURNS TRIGGER AS $$
                 BEGIN
                     NEW.sitemap_bucket := sitemap_bucket(NEW.username);
@@ -42,18 +39,15 @@ def upgrade():
                 END;
             $$
             LANGUAGE plpgsql
-        """
-    )
+        """)
 
     # Finally, add the trigger which will keep the sitemap_bucket column
     # populated.
-    op.execute(
-        """ CREATE TRIGGER accounts_user_update_sitemap_bucket
+    op.execute(""" CREATE TRIGGER accounts_user_update_sitemap_bucket
             BEFORE INSERT OR UPDATE OF username ON accounts_user
             FOR EACH ROW
             EXECUTE PROCEDURE maintain_accounts_user_sitemap_bucket()
-        """
-    )
+        """)
 
 
 def downgrade():

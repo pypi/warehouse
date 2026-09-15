@@ -14,8 +14,7 @@ down_revision = "5dcbd2bc748f"
 
 
 def upgrade():
-    op.execute(
-        """
+    op.execute("""
         INSERT INTO admin_flags(id, description, enabled, notify)
         VALUES (
             'disallow-github-oidc',
@@ -23,10 +22,8 @@ def upgrade():
             FALSE,
             FALSE
         )
-        """
-    )
-    op.execute(
-        """
+        """)
+    op.execute("""
         INSERT INTO admin_flags(id, description, enabled, notify)
         VALUES (
             'disallow-google-oidc',
@@ -34,8 +31,7 @@ def upgrade():
             FALSE,
             FALSE
         )
-        """
-    )
+        """)
 
 
 def downgrade():

@@ -14,8 +14,7 @@ down_revision = "48def930fcfd"
 
 
 def upgrade():
-    op.execute(
-        """CREATE OR REPLACE FUNCTION projects_total_size()
+    op.execute("""CREATE OR REPLACE FUNCTION projects_total_size()
         RETURNS TRIGGER AS $$
         DECLARE
             _release_id uuid;
@@ -43,13 +42,11 @@ def upgrade():
             RETURN NULL;
         END;
         $$ LANGUAGE plpgsql;
-        """
-    )
+        """)
 
 
 def downgrade():
-    op.execute(
-        """CREATE OR REPLACE FUNCTION projects_total_size()
+    op.execute("""CREATE OR REPLACE FUNCTION projects_total_size()
         RETURNS TRIGGER AS $$
         DECLARE
             _release_id uuid;
@@ -77,5 +74,4 @@ def downgrade():
             RETURN NULL;
         END;
         $$ LANGUAGE plpgsql;
-        """
-    )
+        """)

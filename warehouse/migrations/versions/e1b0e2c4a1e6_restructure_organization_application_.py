@@ -43,27 +43,21 @@ def upgrade():
             comment="Status of the request",
         ),
     )
-    op.execute(
-        """ UPDATE organization_applications
+    op.execute(""" UPDATE organization_applications
             SET status = 'submitted'
             WHERE
                 is_approved = NULL
-        """
-    )
-    op.execute(
-        """ UPDATE organization_applications
+        """)
+    op.execute(""" UPDATE organization_applications
             SET status = 'approved'
             WHERE
                 is_approved = TRUE
-        """
-    )
-    op.execute(
-        """ UPDATE organization_applications
+        """)
+    op.execute(""" UPDATE organization_applications
             SET status = 'declined'
             WHERE
                 is_approved = FALSE
-        """
-    )
+        """)
     op.add_column(
         "organization_applications",
         sa.Column(
@@ -98,25 +92,19 @@ def downgrade():
             comment="Status of administrator approval of the request",
         ),
     )
-    op.execute(
-        """ UPDATE organization_applications
+    op.execute(""" UPDATE organization_applications
             SET is_approved = TRUE
             WHERE
                 status = 'approved'
-        """
-    )
-    op.execute(
-        """ UPDATE organization_applications
+        """)
+    op.execute(""" UPDATE organization_applications
             SET is_approved = FALSE
             WHERE
                 status = 'declined'
-        """
-    )
-    op.execute(
-        """ UPDATE organizations
+        """)
+    op.execute(""" UPDATE organizations
             SET is_approved = TRUE
-        """
-    )
+        """)
     op.drop_column("organization_applications", "updated")
     op.drop_column("organization_applications", "status")
     sa.Enum(

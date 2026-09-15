@@ -1,32 +1,35 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import types
+
 import click
-import pretend
 
 import warehouse.cli
 import warehouse.config
 
 
-def test_lazy_config_delays(monkeypatch):
-    config = pretend.stub(foo="bar", another="thing")
-    configure = pretend.call_recorder(lambda a, settings: config)
-    monkeypatch.setattr(warehouse.config, "configure", configure)
+def test_lazy_config_delays(mocker):
+    config = types.SimpleNamespace(foo="bar", another="thing")
+    configure = mocker.patch.object(
+        warehouse.config, "configure", autospec=True, return_value=config
+    )
 
-    lconfig = warehouse.cli.LazyConfig("thing", settings={"lol": "wat"})
+    lconfig = warehouse.cli.LazyConfig(settings={"lol": "wat"})
 
-    assert configure.calls == []
+    configure.assert_not_called()
     assert lconfig.foo == "bar"
-    assert configure.calls == [pretend.call("thing", settings={"lol": "wat"})]
+    configure.assert_called_once_with(settings={"lol": "wat"})
     assert lconfig.another == "thing"
-    assert configure.calls == [pretend.call("thing", settings={"lol": "wat"})]
+    configure.assert_called_once_with(settings={"lol": "wat"})
 
 
 # TODO: This test doesn't actually test anything, as the command is not registered.
 #  The test output is effectively "command not found".
-def test_cli_no_settings(monkeypatch, cli):
-    config = pretend.stub()
-    configure = pretend.call_recorder(lambda: config)
-    monkeypatch.setattr(warehouse.cli, "LazyConfig", configure)
+def test_cli_no_settings(mocker, cli):
+    config = mocker.sentinel.config
+    configure = mocker.patch.object(
+        warehouse.cli, "LazyConfig", autospec=True, return_value=config
+    )
 
     @warehouse.cli.warehouse.command()
     @click.pass_obj
@@ -36,15 +39,13 @@ def test_cli_no_settings(monkeypatch, cli):
     result = cli.invoke(warehouse.cli.warehouse, ["cli-test-command"])
 
     assert result.exit_code == 2
-    assert configure.calls == []
+    configure.assert_not_called()
 
 
-def test_cli_help(monkeypatch, cli):
-    config = pretend.stub()
-    configure = pretend.call_recorder(lambda: config)
-    monkeypatch.setattr(warehouse.cli, "LazyConfig", configure)
+def test_cli_help(mocker, cli):
+    configure = mocker.patch.object(warehouse.cli, "LazyConfig", autospec=True)
 
     result = cli.invoke(warehouse.cli.warehouse, ["db", "-h"])
 
     assert result.exit_code == 0
-    assert configure.calls == [pretend.call()]
+    configure.assert_called_once_with()

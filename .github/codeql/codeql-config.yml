@@ -1,0 +1,32 @@
+paths-ignore:
+  - .venv
+  - node_modules
+  - "**/*.min.js"
+  - "**/*.bundle.js"
+  - "**/generated/**"
+  - "**/dist/**"
+  - .github/codeql
+  - coverage
+  - dev
+  - docs
+  - tests
+  - warehouse/migrations
+
+queries:
+  - uses: ./.github/codeql/custom-queries/python/warehouse-suite.qls
+
+# Top-level filters apply to every loaded query, including ones from the
+# default `code-scanning` suite that `codeql-action` runs alongside our custom
+# suite. Suite-local `exclude:` blocks only filter queries loaded by that
+# suite, so rules from the default suite slip through without this.
+query-filters:
+  # pyramid_jinja2 auto-escapes all .html templates; CodeQL's Pyramid model
+  # does not account for this and flags every search view that returns `q` to
+  # a template context.
+  - exclude:
+      id: py/reflective-xss
+  - exclude:
+      id: py/jinja2/autoescape-false
+  # All call sites validate via is_safe_url() before redirecting.
+  - exclude:
+      id: py/url-redirection

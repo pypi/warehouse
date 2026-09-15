@@ -18,13 +18,15 @@ class TestTUF:
         resp = stub(
             raise_for_status=(lambda *a: None), json=(lambda *a, **kw: resp_json)
         )
-        get = call_recorder(lambda *a: resp)
+        get = call_recorder(lambda *a, **kw: resp)
         monkeypatch.setattr(tuf.requests, "get", get)
 
         result = tuf.get_task_state(self.server, self.task_id)
 
         assert result == state
-        assert get.calls == [call(f"{self.server}/api/v1/task?task_id={self.task_id}")]
+        assert get.calls == [
+            call(f"{self.server}/api/v1/task?task_id={self.task_id}", timeout=5)
+        ]
 
     def test_post_bootstrap(self, monkeypatch):
         payload = ["foo"]
@@ -40,7 +42,9 @@ class TestTUF:
         result = tuf.post_bootstrap(self.server, payload)
 
         assert result == self.task_id
-        assert post.calls == [call(f"{self.server}/api/v1/bootstrap", json=payload)]
+        assert post.calls == [
+            call(f"{self.server}/api/v1/bootstrap", json=payload, timeout=5)
+        ]
 
         # Test fail with incomplete response json
         del resp_json["data"]

@@ -5,14 +5,17 @@ from celery.schedules import crontab
 from warehouse.accounts.interfaces import (
     IDomainStatusService,
     IEmailBreachedService,
+    IEmailReputationService,
     IPasswordBreachedService,
     ITokenService,
     IUserService,
 )
 from warehouse.accounts.oauth import (
     GitHubAppClient,
+    GitLabOAuthClient,
     IOAuthProviderService,
-    NullOAuthClient,
+    NullGitHubOAuthClient,
+    NullGitLabOAuthClient,
 )
 from warehouse.accounts.security_policy import (
     BasicAuthSecurityPolicy,
@@ -23,6 +26,7 @@ from warehouse.accounts.services import (
     HaveIBeenPwnedPasswordBreachedService,
     NullDomainStatusService,
     NullEmailBreachedService,
+    NullEmailReputationService,
     NullPasswordBreachedService,
     TokenServiceFactory,
     database_login_factory,
@@ -34,20 +38,19 @@ from warehouse.accounts.tasks import (
     unverify_emails_with_expired_domains,
 )
 from warehouse.accounts.utils import UserContext
-from warehouse.admin.flags import AdminFlagValue
 from warehouse.macaroons.security_policy import MacaroonSecurityPolicy
 from warehouse.oidc.utils import PublisherTokenContext
-from warehouse.organizations.services import IOrganizationService
-from warehouse.rate_limiting import IRateLimiter, RateLimit
 from warehouse.utils.security_policy import MultiSecurityPolicy
 
 __all__ = [
-    "NullPasswordBreachedService",
+    "GitHubAppClient",
+    "GitLabOAuthClient",
+    "HaveIBeenPwnedEmailBreachedService",
     "HaveIBeenPwnedPasswordBreachedService",
     "NullEmailBreachedService",
-    "HaveIBeenPwnedEmailBreachedService",
-    "GitHubAppClient",
-    "NullOAuthClient",
+    "NullGitHubOAuthClient",
+    "NullGitLabOAuthClient",
+    "NullPasswordBreachedService",
 ]
 
 
@@ -60,8 +63,7 @@ def _user(request):
 
     if isinstance(request.identity, UserContext):
         return request.identity.user
-    else:
-        return None
+    return None
 
 
 def _oidc_publisher(request):
@@ -77,18 +79,6 @@ def _oidc_claims(request):
         request.identity.claims
         if isinstance(request.identity, PublisherTokenContext)
         else None
-    )
-
-
-def _organization_access(request):
-    if (user := _user(request)) is None:
-        return False
-
-    organization_service = request.find_service(IOrganizationService, context=None)
-    organizations = organization_service.get_organizations_by_user(user.id)
-    return (
-        not request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS)
-        or len(organizations) > 0
     )
 
 
@@ -146,15 +136,32 @@ def includeme(config):
         domain_status_class.create_service, IDomainStatusService
     )
 
-    # Register our GitHub App service for account associations.
-    # Setting must be explicitly configured - use NullOAuthClient for development
-    # or GitHubAppClient for production with real GitHub App integration.
-    github_app_class = config.maybe_dotted(
+    # Register our email reputation service, the third tier of email checks
+    # after the static and database blocklists.
+    email_reputation_class = config.maybe_dotted(
+        config.registry.settings.get(
+            "email_reputation.backend", NullEmailReputationService
+        )
+    )
+    config.register_service_factory(
+        email_reputation_class.create_service, IEmailReputationService
+    )
+
+    # Register GitHub OAuth service for account associations.
+    github_oauth_class = config.maybe_dotted(
         config.registry.settings["github.oauth.backend"]
     )
     config.register_service_factory(
-        github_app_class.create_service, IOAuthProviderService, name="github"
+        github_oauth_class.create_service, IOAuthProviderService, name="github"
     )
+    # Register GitLab OAuth service for account associations (optional).
+    # Only enabled when GITLAB_OAUTH_BACKEND is configured.
+    gitlab_oauth_backend = config.registry.settings.get("gitlab.oauth.backend")
+    if gitlab_oauth_backend:
+        gitlab_oauth_class = config.maybe_dotted(gitlab_oauth_backend)
+        config.register_service_factory(
+            gitlab_oauth_class.create_service, IOAuthProviderService, name="gitlab"
+        )
 
     # Register our security policies.
     config.set_security_policy(
@@ -172,9 +179,6 @@ def includeme(config):
     config.add_request_method(_user, name="user", reify=True)
     config.add_request_method(_oidc_publisher, name="oidc_publisher", reify=True)
     config.add_request_method(_oidc_claims, name="oidc_claims", reify=True)
-    config.add_request_method(
-        _organization_access, name="organization_access", reify=True
-    )
 
     config.add_request_method(_unauthenticated_userid, name="_unauthenticated_userid")
 
@@ -183,62 +187,52 @@ def includeme(config):
     user_login_ratelimit_string = config.registry.settings.get(
         "warehouse.account.user_login_ratelimit_string"
     )
-    config.register_service_factory(
-        RateLimit(user_login_ratelimit_string), IRateLimiter, name="user.login"
-    )
+    config.register_rate_limiter(user_login_ratelimit_string, "user.login")
     ip_login_ratelimit_string = config.registry.settings.get(
         "warehouse.account.ip_login_ratelimit_string"
     )
-    config.register_service_factory(
-        RateLimit(ip_login_ratelimit_string), IRateLimiter, name="ip.login"
-    )
+    config.register_rate_limiter(ip_login_ratelimit_string, "ip.login")
     global_login_ratelimit_string = config.registry.settings.get(
         "warehouse.account.global_login_ratelimit_string"
     )
-    config.register_service_factory(
-        RateLimit(global_login_ratelimit_string), IRateLimiter, name="global.login"
-    )
+    config.register_rate_limiter(global_login_ratelimit_string, "global.login")
     # Register separate rate limiters for 2FA attempts
     twofa_user_ratelimit_string = config.registry.settings.get(
         "warehouse.account.2fa_user_ratelimit_string"
     )
-    config.register_service_factory(
-        RateLimit(twofa_user_ratelimit_string), IRateLimiter, name="2fa.user"
-    )
+    config.register_rate_limiter(twofa_user_ratelimit_string, "2fa.user")
     twofa_ip_ratelimit_string = config.registry.settings.get(
         "warehouse.account.2fa_ip_ratelimit_string"
     )
-    config.register_service_factory(
-        RateLimit(twofa_ip_ratelimit_string), IRateLimiter, name="2fa.ip"
-    )
+    config.register_rate_limiter(twofa_ip_ratelimit_string, "2fa.ip")
     email_add_ratelimit_string = config.registry.settings.get(
         "warehouse.account.email_add_ratelimit_string"
     )
-    config.register_service_factory(
-        RateLimit(email_add_ratelimit_string), IRateLimiter, name="email.add"
+    config.register_rate_limiter(email_add_ratelimit_string, "email.add")
+    email_change_ratelimit_string = config.registry.settings.get(
+        "warehouse.account.email_change_ratelimit_string"
     )
+    config.register_rate_limiter(email_change_ratelimit_string, "email.change")
+    email_reputation_ratelimit_string = config.registry.settings.get(
+        "warehouse.account.email_reputation_ratelimit_string"
+    )
+    config.register_rate_limiter(email_reputation_ratelimit_string, "email.reputation")
     password_reset_ratelimit_string = config.registry.settings.get(
         "warehouse.account.password_reset_ratelimit_string"
     )
-    config.register_service_factory(
-        RateLimit(password_reset_ratelimit_string), IRateLimiter, name="password.reset"
-    )
+    config.register_rate_limiter(password_reset_ratelimit_string, "password.reset")
     verify_email_ratelimit_string = config.registry.settings.get(
         "warehouse.account.verify_email_ratelimit_string"
     )
-    config.register_service_factory(
-        RateLimit(verify_email_ratelimit_string),
-        IRateLimiter,
-        name="email.verify",
-    )
+    config.register_rate_limiter(verify_email_ratelimit_string, "email.verify")
     accounts_search_ratelimit_string = config.registry.settings.get(
         "warehouse.account.accounts_search_ratelimit_string"
     )
-    config.register_service_factory(
-        RateLimit(accounts_search_ratelimit_string),
-        IRateLimiter,
-        name="accounts.search",
+    config.register_rate_limiter(accounts_search_ratelimit_string, "accounts.search")
+    register_ratelimit_string = config.registry.settings.get(
+        "warehouse.account.register_ratelimit_string"
     )
+    config.register_rate_limiter(register_ratelimit_string, "accounts.register")
 
     # Add a periodic task to generate Account metrics
     config.add_periodic_task(crontab(minute="*/20"), compute_user_metrics)

@@ -7,7 +7,7 @@ from uuid import UUID
 import automat
 
 from sqlalchemy import Enum, ForeignKey, orm, sql
-from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -205,7 +205,7 @@ class EmailStatus:
         # If the email was missing previously, then we don't want subsequent
         # events to re-add it, so we'll just skip them.
         if self._email_message.missing:
-            return
+            return None
 
         session = orm_session_from_obj(self._email_message)
         email = (
@@ -226,7 +226,7 @@ class EmailMessage(db.Model):
     __tablename__ = "ses_emails"
 
     created: Mapped[datetime_now]
-    status: Mapped[Enum] = mapped_column(
+    status: Mapped[EmailStatuses] = mapped_column(
         Enum(EmailStatuses, values_callable=lambda x: [e.value for e in x]),
         server_default=EmailStatuses.Accepted.value,
     )
@@ -238,7 +238,7 @@ class EmailMessage(db.Model):
     missing: Mapped[bool_false]
 
     # Relationships!
-    events: Mapped[list["Event"]] = orm.relationship(
+    events: Mapped[list[Event]] = orm.relationship(
         back_populates="email",
         cascade="all, delete-orphan",
         lazy=False,
@@ -258,7 +258,6 @@ class Event(db.Model):
     created: Mapped[datetime_now]
 
     email_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
         ForeignKey(
             "ses_emails.id", deferrable=True, initially="DEFERRED", ondelete="CASCADE"
         ),
@@ -270,7 +269,7 @@ class Event(db.Model):
     )
 
     event_id: Mapped[str] = mapped_column(unique=True, index=True)
-    event_type: Mapped[Enum] = mapped_column(
+    event_type: Mapped[EventTypes] = mapped_column(
         Enum(EventTypes, values_callable=lambda x: [e.value for e in x])
     )
 

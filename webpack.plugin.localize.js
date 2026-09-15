@@ -103,7 +103,7 @@ const allLocaleData = KNOWN_LOCALES
       }
       return result;
     } catch (e) {
-      throw new Error(`Could not parse file ${data.path}: ${e.message}\n${e}`);
+      throw new Error(`Could not parse file ${data.path}: ${e.message}\n${e}`, { cause: e });
     }
   });
 

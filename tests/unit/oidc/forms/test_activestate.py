@@ -128,7 +128,6 @@ class TestActiveStatePublisherForm:
         )
         requests = pretend.stub(
             post=pretend.call_recorder(lambda o, **kw: response),
-            expception=_requests.exceptions,
             Timeout=Timeout,
             HTTPError=HTTPError,
             ConnectionError=ConnectionError,
@@ -160,7 +159,6 @@ class TestActiveStatePublisherForm:
         )
         requests = pretend.stub(
             post=pretend.call_recorder(lambda o, **kw: response),
-            expception=_requests.exceptions,
             Timeout=Timeout,
             HTTPError=HTTPError,
             ConnectionError=ConnectionError,
@@ -611,7 +609,6 @@ class TestActiveStatePublisherForm:
         ],
     )
     def test_validate_basic_invalid_fields(self, monkeypatch, data):
-        print(data)
         form = activestate.ActiveStatePublisherForm(MultiDict(data))
 
         monkeypatch.setattr(form, "_lookup_actor", lambda o: fake_user_info)

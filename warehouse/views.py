@@ -6,6 +6,7 @@ import collections
 import re
 import typing
 
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import opensearchpy
@@ -57,6 +58,7 @@ from warehouse.packaging.models import (
     ReleaseClassifiers,
 )
 from warehouse.rate_limiting import IRateLimiter
+from warehouse.rate_limiting.headers import record_rate_limit
 from warehouse.search.queries import SEARCH_FILTER_ORDER, get_opensearch_query
 from warehouse.utils.cors import _CORS_HEADERS
 from warehouse.utils.http import is_safe_url
@@ -261,6 +263,40 @@ def funding_manifest_urls(request):
 
 
 @view_config(
+    route_name="security-txt",
+    decorator=[
+        cache_control(1 * 24 * 60 * 60),  # 1 day
+        origin_cache(
+            1 * 24 * 60 * 60,  # 1 day
+            stale_while_revalidate=6 * 60 * 60,  # 6 hours
+            stale_if_error=1 * 24 * 60 * 60,  # 1 day
+        ),
+    ],
+)
+def securitytxt(request):
+    # Calculate expiration date (1 year from now)
+    expires = datetime.now(UTC) + timedelta(days=365)
+    expires_str = expires.strftime("%Y-%m-%dT%H:%M:%S.000Z")
+
+    # Build dynamic URLs
+    canonical_url = request.route_url("security-txt")
+    policy_url = request.route_url("security")
+
+    content = f"""\
+Contact: mailto:security@pypi.org
+Expires: {expires_str}
+Preferred-Languages: en
+Canonical: {canonical_url}
+Policy: {policy_url}
+"""
+    return Response(
+        content,
+        content_type="text/plain",
+        charset="utf-8",
+    )
+
+
+@view_config(
     route_name="opensearch.xml",
     renderer="warehouse:templates/opensearch.xml",
     decorator=[
@@ -370,6 +406,13 @@ def search(request):
     metrics = request.find_service(IMetricsService, context=None)
 
     ratelimiter.hit(request.remote_addr)
+    record_rate_limit(
+        request,
+        "search",
+        ratelimiter,
+        identifiers=(request.remote_addr,),
+        partition_key="ip",
+    )
     if not ratelimiter.test(request.remote_addr):
         metrics.increment("warehouse.search.ratelimiter.exceeded")
         message = (

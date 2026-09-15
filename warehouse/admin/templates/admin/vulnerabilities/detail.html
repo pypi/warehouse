@@ -1,0 +1,103 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+
+{% extends "admin/base.html" %}
+
+{% block title %}{{ vulnerability.source }}:{{ vulnerability.id }}{% endblock %}
+
+{% block breadcrumb %}
+  <li class="breadcrumb-item">Observations</li>
+  <li class="breadcrumb-item"><a href="{{ request.route_path('admin.vulnerabilities.list') }}">Vulnerabilities</a></li>
+  <li class="breadcrumb-item active">{{ vulnerability.source }}:{{ vulnerability.id }}</li>
+{% endblock %}
+
+{% block content %}
+{% set perms_write = request.has_permission(Permissions.AdminVulnerabilitiesWrite) %}
+
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">{{ vulnerability.source }}:{{ vulnerability.id }}</h3>
+  </div>
+  <div class="card-body">
+    <dl class="row">
+      <dt class="col-sm-2">Source</dt>
+      <dd class="col-sm-10">{{ vulnerability.source }}</dd>
+
+      <dt class="col-sm-2">ID</dt>
+      <dd class="col-sm-10">{{ vulnerability.id }}</dd>
+
+      <dt class="col-sm-2">Link</dt>
+      <dd class="col-sm-10">
+        {% if vulnerability.link %}<a href="{{ vulnerability.link }}">{{ vulnerability.link }}</a>{% endif %}
+      </dd>
+
+      <dt class="col-sm-2">Aliases</dt>
+      <dd class="col-sm-10">{{ (vulnerability.aliases or []) | join(", ") }}</dd>
+
+      <dt class="col-sm-2">Summary</dt>
+      <dd class="col-sm-10">{{ vulnerability.summary or "" }}</dd>
+
+      <dt class="col-sm-2">Details</dt>
+      <dd class="col-sm-10"><pre class="mb-0">{{ vulnerability.details or "" }}</pre></dd>
+
+      <dt class="col-sm-2">Fixed in</dt>
+      <dd class="col-sm-10">{{ (vulnerability.fixed_in or []) | join(", ") }}</dd>
+
+      <dt class="col-sm-2">Withdrawn</dt>
+      <dd class="col-sm-10">
+        {% if vulnerability.withdrawn %}{{ vulnerability.withdrawn|format_datetime() }}{% endif %}
+      </dd>
+    </dl>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">Affected releases ({{ releases|length }})</h3>
+  </div>
+  <div class="card-body table-responsive p-0">
+    <table class="table table-hover table-striped">
+      <thead>
+        <tr><th>Project</th><th>Version</th></tr>
+      </thead>
+      <tbody>
+        {% for release in releases %}
+          <tr>
+            <td>
+              <a href="{{ request.route_path('admin.project.detail', project_name=release.project.normalized_name) }}">
+                {{ release.project.name }}
+              </a>
+            </td>
+            <td>{{ release.version }}</td>
+          </tr>
+        {% else %}
+          <tr><td colspan="2" class="text-center">No releases associated.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card card-danger">
+  <div class="card-header">
+    <h3 class="card-title">Delete vulnerability</h3>
+  </div>
+  <form method="POST" action="{{ request.route_path('admin.vulnerabilities.detail.delete', source=vulnerability.source, id=vulnerability.id) }}">
+    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+    <div class="card-body">
+      <p>
+        This will delete the <code>{{ vulnerability.source }}:{{ vulnerability.id }}</code>
+        record and cascade-remove its {{ releases|length }} release association(s).
+      </p>
+      <div class="form-group">
+        <label for="confirmId">Type the vulnerability id to confirm:</label>
+        <input name="confirm" id="confirmId" class="form-control" autocomplete="off" {{ "disabled" if not perms_write }}>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button type="submit" class="btn btn-danger float-right" title="{{ 'Requires admin privileges' if not perms_write }}" {{ "disabled" if not perms_write }}>
+        <i class="fa fa-trash"></i> Delete
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock content %}

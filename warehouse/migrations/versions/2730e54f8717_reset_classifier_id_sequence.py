@@ -14,12 +14,10 @@ down_revision = "8fd3400c760f"
 
 
 def upgrade():
-    op.execute(
-        """
+    op.execute("""
         SELECT setval('trove_classifiers_id_seq', max(id))
         FROM trove_classifiers;
-    """
-    )
+    """)
 
 
 def downgrade():

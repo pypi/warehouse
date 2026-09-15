@@ -8,6 +8,8 @@ volumes:
   rstuf-metadata:
   pgdata:
   cachedata:
+  node_modules:
+  mailpit_data:
 
 services:
   db:
@@ -77,36 +79,23 @@ services:
     image: warehouse:docker-compose
     environment:
       # Runs as `nobody`, override the home directory
-      - PIP_CACHE_DIR=/opt/warehouse/src/dev/.pip-cache
-      - PIP_TOOLS_CACHE_DIR=/opt/warehouse/src/dev/.pip-tools-cache
+      - XDG_CACHE_HOME=/opt/warehouse/src/.cache
+      - PIP_CACHE_DIR=/opt/warehouse/src/.cache/pip
+      - PIP_TOOLS_CACHE_DIR=/opt/warehouse/src/.cache/pip-tools
     volumes: &base_volumes
-      # We specify paths explicitly to only add what we need, and to avoid
-      # adding the entire repository.
       # The :z option fixes permission issues with SELinux by setting a
       # permissive security context.
-      - ./dev:/opt/warehouse/src/dev:z
-      - ./docs:/opt/warehouse/src/docs:z
-      - ./warehouse:/opt/warehouse/src/warehouse:z
-      - ./tests:/opt/warehouse/src/tests:z
-      - ./htmlcov:/opt/warehouse/src/htmlcov:z
-      - ./setup.cfg:/opt/warehouse/src/setup.cfg:z
-      - ./pyproject.toml:/opt/warehouse/src/pyproject.toml:z
-      # Site customization shim to enable multiprocess coverage collection in tests.
-      # See: https://coverage.readthedocs.io/en/latest/subprocess.html
-      - ./sitecustomize.py:/opt/warehouse/src/sitecustomize.py:z
+      - .:/opt/warehouse/src:z
       - packages:/var/opt/warehouse/packages
       - packages-archive:/var/opt/warehouse/packages-archive
       - sponsorlogos:/var/opt/warehouse/sponsorlogos
       - simple:/var/opt/warehouse/simple
-      - ./bin:/opt/warehouse/src/bin:z
-      - ./requirements:/opt/warehouse/src/requirements:z
-      # Included to support linters during development
-      - ./gunicorn-prod.conf.py:/opt/warehouse/src/gunicorn-prod.conf.py:z
-      - ./gunicorn-uploads.conf.py:/opt/warehouse/src/gunicorn-uploads.conf.py:z
+      - node_modules:/opt/warehouse/src/node_modules
+      - caches:/opt/warehouse/src/.cache
 
   web:
     image: warehouse:docker-compose
-    command: gunicorn --reload --reload-extra-file=warehouse/api/openapi.yaml -b 0.0.0.0:8000 --access-logfile - --error-logfile - warehouse.wsgi:application
+    command: gunicorn --reload --reload-extra-file=warehouse/api/openapi.yaml --threads 4 -b 0.0.0.0:8000 --access-logfile - --error-logfile - --logger-class warehouse.logging.GunicornLogger warehouse.wsgi:application
     env_file: dev/environment
     pull_policy: never
     volumes: *base_volumes
@@ -156,15 +145,22 @@ services:
     pull_policy: never
     command: hupper --shutdown-interval 10 --reload-interval 10 -m celery -A warehouse worker --concurrency=1 --beat --scheduler redbeat.RedBeatScheduler -l info
     volumes:
-      - ./warehouse:/opt/warehouse/src/warehouse:z
+      - .:/opt/warehouse/src:z
       - packages:/var/opt/warehouse/packages
       - packages-archive:/var/opt/warehouse/packages-archive
+      - node_modules:/opt/warehouse/src/node_modules
+      - caches:/opt/warehouse/src/.cache
     env_file: dev/environment
     environment:
       C_FORCE_ROOT: "1"
       FILES_BACKEND: "warehouse.packaging.services.LocalFileStorage path=/var/opt/warehouse/packages/ url=http://files:9001/packages/{path}"
       ARCHIVE_FILES_BACKEND: "warehouse.packaging.services.LocalArchiveFileStorage path=/var/opt/warehouse/packages-archive/ url=http://files:9001/packages-archive/{path}"
       SIMPLE_BACKEND: "warehouse.packaging.services.LocalSimpleStorage path=/var/opt/warehouse/simple/ url=http://files:9001/simple/{path}"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
 
   rstuf-api:
     image: ghcr.io/repository-service-tuf/repository-service-tuf-api:v0.12.0b1
@@ -213,22 +209,19 @@ services:
     command: ["npm", "run", "watch"]
     stop_signal: SIGKILL
     volumes:
-      - ./warehouse:/opt/warehouse/src/warehouse:z
-      - ./webpack.config.js:/opt/warehouse/src/webpack.config.js:z
-      - ./webpack.plugin.localize.js:/opt/warehouse/src/webpack.plugin.localize.js:z
-      - ./babel.config.js:/opt/warehouse/src/babel.config.js:z
-      - ./.stylelintrc.json:/opt/warehouse/src/.stylelintrc.json:z
-      - ./tests/frontend:/opt/warehouse/src/tests/frontend:z
-      - ./bin:/opt/warehouse/src/bin:z
-      - ./package.json:/opt/warehouse/src/package.json:z
-      - ./package-lock.json:/opt/warehouse/src/package-lock.json:z
-      - caches:/opt/warehouse/src/.stylelintcache
+      - .:/opt/warehouse/src:z
+      - node_modules:/opt/warehouse/src/node_modules
+      - caches:/opt/warehouse/src/.cache
 
-  maildev:
-    image: maildev/maildev:2.2.1
+  mailpit:
+    image: axllent/mailpit:v1.30.4
+    environment:
+      MP_DATABASE: /data/mailpit.db
     ports:
-      - "1080:1080"
+      - "1080:8025"
       - "1025:1025"
+    volumes:
+      - mailpit_data:/data
 
   notdatadog:
     image: warehouse:docker-compose
@@ -254,31 +247,31 @@ services:
       context: .
       target: docs
     image: warehouse:docker-compose-docs
-    command: mkdocs serve -a 0.0.0.0:8000 -f docs/mkdocs-dev-docs.yml
+    command: mkdocs serve -a 0.0.0.0:10002 -f docs/mkdocs-dev-docs.yml
     stop_signal: SIGINT
     volumes:
       - ./bin:/opt/warehouse/src/bin:z
       - ./docs/mkdocs-dev-docs.yml:/opt/warehouse/src/docs/mkdocs-dev-docs.yml:z
       - ./docs:/opt/warehouse/src/docs:z
     ports:
-      - "10002:8000"
+      - "10002:10002"
 
   user-docs:
     image: warehouse:docker-compose-docs
     pull_policy: never
-    command: mkdocs serve -a 0.0.0.0:8000 -f docs/mkdocs-user-docs.yml
+    command: mkdocs serve -a 0.0.0.0:10000 -f docs/mkdocs-user-docs.yml
     stop_signal: SIGINT
     volumes:
       - ./bin:/opt/warehouse/src/bin:z
       - ./docs/mkdocs-user-docs.yml:/opt/warehouse/src/docs/mkdocs-user-docs.yml:z
       - ./docs:/opt/warehouse/src/docs:z
     ports:
-      - "10000:8000"
+      - "10000:10000"
 
   blog:
     image: warehouse:docker-compose-docs
     pull_policy: never
-    command: mkdocs serve -a 0.0.0.0:8000 -f docs/mkdocs-blog.yml
+    command: mkdocs serve -a 0.0.0.0:10001 -f docs/mkdocs-blog.yml
     stop_signal: SIGINT
     volumes:
       # we mount git because rss, thanks feed nerds
@@ -286,4 +279,4 @@ services:
       - ./bin:/opt/warehouse/src/bin:z
       - ./docs:/opt/warehouse/src/docs:z
     ports:
-      - "10001:8000"
+      - "10001:10001"

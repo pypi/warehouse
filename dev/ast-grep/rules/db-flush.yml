@@ -1,0 +1,30 @@
+id: db-flush
+language: python
+
+severity: error
+message: manually flushing the database session
+note: |
+  Use of flush() is _often_ unnecessary and should be annotated with a comment:
+
+      obj = MyObject()
+      self.db.add(obj)
+      self.db.flush()  # generate obj.id  # ast-grep-ignore: db-flush
+      method_that_depends_on_id(obj)
+
+  is a common pattern when auto-generated ids are needed.
+
+  Parts of the warehouse codebase (namely our cache_key/purge_key machinery)
+  react to flushes and may have unintended side-effects as a result of calls to
+  flush().
+
+rule:
+  any:
+    - pattern: $_.$OBJ.flush()
+    - pattern: $OBJ.flush()
+
+constraints:
+  OBJ:
+    regex: ^(db|session|db_session)$
+
+ignores:
+  - tests/**/*.py

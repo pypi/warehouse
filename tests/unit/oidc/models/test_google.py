@@ -86,10 +86,7 @@ class TestGooglePublisher:
         monkeypatch.setattr(_core, "sentry_sdk", sentry_sdk)
 
         # We don't care if these actually verify, only that they're present.
-        signed_claims = {
-            claim_name: "fake"
-            for claim_name in google.GooglePublisher.all_known_claims()
-        }
+        signed_claims = dict.fromkeys(google.GooglePublisher.all_known_claims(), "fake")
         signed_claims["fake-claim"] = "fake"
         signed_claims["another-fake-claim"] = "also-fake"
 
@@ -119,10 +116,7 @@ class TestGooglePublisher:
         )
         monkeypatch.setattr(_core, "sentry_sdk", sentry_sdk)
 
-        signed_claims = {
-            claim_name: "fake"
-            for claim_name in google.GooglePublisher.all_known_claims()
-        }
+        signed_claims = dict.fromkeys(google.GooglePublisher.all_known_claims(), "fake")
         # Pop the first signed claim, so that it's the first one to fail.
         signed_claims.pop(missing)
         assert missing not in signed_claims

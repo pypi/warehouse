@@ -1,72 +1,57 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
+import types
 
 from warehouse.cache.origin import derivers
 
 
-def test_no_renderer():
-    view = pretend.stub()
-    info = pretend.stub(options={})
+def test_no_renderer(mocker):
+    view = mocker.sentinel.view
+    info = types.SimpleNamespace(options={})
 
     assert derivers.html_cache_deriver(view, info) == view
 
 
-def test_non_html_renderer():
-    view = pretend.stub()
-    renderer = pretend.stub(name="foo.txt")
-    info = pretend.stub(options={"renderer": renderer})
+def test_non_html_renderer(mocker):
+    view = mocker.sentinel.view
+    renderer = types.SimpleNamespace(name="foo.txt")
+    info = types.SimpleNamespace(options={"renderer": renderer})
 
     assert derivers.html_cache_deriver(view, info) == view
 
 
-def test_no_origin_cache_found():
-    view_result = pretend.stub()
-    view = pretend.call_recorder(lambda context, request: view_result)
-    renderer = pretend.stub(name="foo.html")
-    info = pretend.stub(options={"renderer": renderer})
-    context = pretend.stub()
+def test_no_origin_cache_found(pyramid_request, mocker):
+    view_result = mocker.sentinel.view_result
+    view = mocker.Mock(return_value=view_result)
+    renderer = types.SimpleNamespace(name="foo.html")
+    info = types.SimpleNamespace(options={"renderer": renderer})
+    context = mocker.sentinel.context
+    add_response_callback = mocker.spy(pyramid_request, "add_response_callback")
 
-    def raise_lookuperror(*a):
-        raise LookupError
-
-    request = pretend.stub(
-        find_service=raise_lookuperror,
-        add_response_callback=pretend.call_recorder(lambda a: None),
+    # IOriginCache is unregistered, so the real find_service raises LookupError
+    assert (
+        derivers.html_cache_deriver(view, info)(context, pyramid_request) == view_result
     )
-
-    assert derivers.html_cache_deriver(view, info)(context, request) == view_result
-    assert request.add_response_callback.calls == []
+    add_response_callback.assert_not_called()
 
 
-def test_response_hook():
-    class Cache:
-        @staticmethod
-        @pretend.call_recorder
-        def cache(keys, request, response):
-            pass
-
-    response = pretend.stub()
-
-    @pretend.call_recorder
-    def view(context, request):
-        return response
-
-    context = pretend.stub()
-    cacher = Cache()
-    callbacks = []
-    request = pretend.stub(
-        find_service=lambda iface: cacher, add_response_callback=callbacks.append
+def test_response_hook(pyramid_request, mocker):
+    cacher = mocker.Mock(spec=["cache"])
+    response = mocker.sentinel.response
+    view = mocker.Mock(return_value=response)
+    context = mocker.sentinel.context
+    mocker.patch.object(pyramid_request, "find_service", return_value=cacher)
+    info = types.SimpleNamespace(
+        options={"renderer": types.SimpleNamespace(name="foo.html")}
     )
-    info = pretend.stub(options={"renderer": pretend.stub(name="foo.html")})
     derived_view = derivers.html_cache_deriver(view, info)
 
-    assert derived_view(context, request) is response
-    assert view.calls == [pretend.call(context, request)]
-    assert len(callbacks) == 1
+    assert derived_view(context, pyramid_request) is response
+    view.assert_called_once_with(context, pyramid_request)
+    assert len(pyramid_request.response_callbacks) == 1
 
-    callbacks[0](request, response)
+    pyramid_request.response_callbacks[0](pyramid_request, response)
 
-    assert cacher.cache.calls == [
-        pretend.call(["all-html", "foo.html"], request, response)
-    ]
+    cacher.cache.assert_called_once_with(
+        ["all-html", "foo.html"], pyramid_request, response
+    )

@@ -53,6 +53,10 @@ def _json_data(request, project, release, *, all_releases):
         )
         .outerjoin(File)
         .filter(Release.project == project)
+        # Exclude releases in quarantine.
+        .filter(
+            Release.lifecycle_status.is_distinct_from(LifecycleStatus.QuarantineEnter)
+        )
     )
 
     # If we're not looking for all_releases, then we'll filter this further
@@ -99,6 +103,15 @@ def _json_data(request, project, release, *, all_releases):
                     "sha256": f.sha256_digest,
                     "blake2b_256": f.blake2_256_digest,
                 },
+                # PEP 658 / PEP 714: expose the hash of the file's Core Metadata
+                # (the `.metadata` file served alongside the distribution) when
+                # it is available, so consumers such as mirrors don't have to
+                # fall back to the Simple API to discover it.
+                "core-metadata": (
+                    {"sha256": f.metadata_file_sha256_digest}
+                    if f.metadata_file_sha256_digest
+                    else False
+                ),
                 "size": f.size,
                 # TODO: Remove this once we've had a long enough time with it
                 #       here to consider it no longer in use.
@@ -106,7 +119,7 @@ def _json_data(request, project, release, *, all_releases):
                 "upload_time": f.upload_time.strftime("%Y-%m-%dT%H:%M:%S"),
                 "upload_time_iso_8601": f.upload_time.isoformat() + "Z",
                 "url": request.route_url("packaging.file", path=f.path),
-                "requires_python": r.requires_python if r.requires_python else None,
+                "requires_python": r.requires_python or None,
                 "yanked": r.yanked,
                 "yanked_reason": r.yanked_reason or None,
             }
@@ -134,6 +147,15 @@ def _json_data(request, project, release, *, all_releases):
         for vulnerability_record in release.vulnerabilities
     ]
 
+    # Serialize ownership data for this project
+    roles_data = sorted(
+        [
+            {"role": role.role_name, "user": role.user.username}
+            for role in project.roles
+        ],
+        key=lambda r: (r["role"] != "Owner", r["user"]),
+    )
+
     data = {
         "info": {
             "name": project.name,
@@ -155,7 +177,7 @@ def _json_data(request, project, release, *, all_releases):
             "downloads": {"last_day": -1, "last_week": -1, "last_month": -1},
             "package_url": request.route_url("packaging.project", name=project.name),
             "project_url": request.route_url("packaging.project", name=project.name),
-            "project_urls": release.urls if release.urls else None,
+            "project_urls": release.urls or None,
             "release_url": request.route_url(
                 "packaging.release", name=project.name, version=release.version
             ),
@@ -176,6 +198,12 @@ def _json_data(request, project, release, *, all_releases):
         "urls": releases[release.version],
         "vulnerabilities": vulnerabilities,
         "last_serial": project.last_serial,
+        "ownership": {
+            "roles": roles_data,
+            "organization": (
+                project.organization.name if project.organization else None
+            ),
+        },
     }
 
     if all_releases:
@@ -198,6 +226,12 @@ def latest_release_factory(request):
                     LifecycleStatus.QuarantineEnter
                 )
             )
+            # Exclude releases in quarantine.
+            .filter(
+                Release.lifecycle_status.is_distinct_from(
+                    LifecycleStatus.QuarantineEnter
+                )
+            )
             .order_by(
                 Release.yanked.asc(),
                 Release.is_prerelease.nullslast(),
@@ -209,7 +243,7 @@ def latest_release_factory(request):
     except NoResultFound:
         return HTTPNotFound(headers=_CORS_HEADERS)
 
-    release = (
+    return (
         request.db.query(Release)
         .join(Project)
         .outerjoin(ReleaseURL)
@@ -217,18 +251,18 @@ def latest_release_factory(request):
             contains_eager(Release.project),
             contains_eager(Release._project_urls),
             joinedload(Release._requires_dist),
+            contains_eager(Release.project).selectinload(Project.roles),
+            contains_eager(Release.project).joinedload(Project.organization),
         )
         .filter(Release.id == latest.id)
         .one()
     )
 
-    return release
-
 
 @view_config(
     route_name="legacy.api.json.project",
     context=Release,
-    renderer="json",
+    renderer="json-with-newline",
     decorator=_PROJECT_CACHE_DECORATOR,
 )
 def json_project(release, request):
@@ -255,7 +289,7 @@ def json_project(release, request):
 @view_config(
     route_name="legacy.api.json.project_slash",
     context=Release,
-    renderer="json",
+    renderer="json-with-newline",
     decorator=_PROJECT_CACHE_DECORATOR,
 )
 def json_project_slash(release, request):
@@ -275,11 +309,17 @@ def release_factory(request):
             contains_eager(Release.project),
             contains_eager(Release._project_urls),
             joinedload(Release._requires_dist),
+            contains_eager(Release.project).selectinload(Project.roles),
+            contains_eager(Release.project).joinedload(Project.organization),
         )
         .filter(Project.normalized_name == normalized_name)
         # Exclude projects in quarantine.
         .filter(
             Project.lifecycle_status.is_distinct_from(LifecycleStatus.QuarantineEnter)
+        )
+        # Exclude releases in quarantine.
+        .filter(
+            Release.lifecycle_status.is_distinct_from(LifecycleStatus.QuarantineEnter)
         )
     )
 
@@ -305,7 +345,7 @@ def release_factory(request):
 @view_config(
     route_name="legacy.api.json.release",
     context=Release,
-    renderer="json",
+    renderer="json-with-newline",
     decorator=_RELEASE_CACHE_DECORATOR,
 )
 def json_release(release, request):
@@ -330,7 +370,7 @@ def json_release(release, request):
 @view_config(
     route_name="legacy.api.json.release_slash",
     context=Release,
-    renderer="json",
+    renderer="json-with-newline",
     decorator=_RELEASE_CACHE_DECORATOR,
 )
 def json_release_slash(release, request):

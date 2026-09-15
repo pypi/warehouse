@@ -42,22 +42,18 @@ def upgrade():
 
     # Setup a trigger that will ensure that we never commit a name that hasn't
     # been normalized to our blacklist.
-    op.execute(
-        """ CREATE OR REPLACE FUNCTION ensure_normalized_blacklist()
+    op.execute(""" CREATE OR REPLACE FUNCTION ensure_normalized_blacklist()
             RETURNS TRIGGER AS $$
             BEGIN
                 NEW.name = normalize_pep426_name(NEW.name);
                 RETURN NEW;
             END;
             $$ LANGUAGE plpgsql;
-        """
-    )
-    op.execute(
-        """ CREATE TRIGGER normalize_blacklist
+        """)
+    op.execute(""" CREATE TRIGGER normalize_blacklist
             AFTER INSERT OR UPDATE OR DELETE ON blacklist
             FOR EACH ROW EXECUTE PROCEDURE ensure_normalized_blacklist();
-        """
-    )
+        """)
 
 
 def downgrade():

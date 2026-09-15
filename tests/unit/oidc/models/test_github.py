@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import re
+
 import pretend
 import psycopg
 import pytest
@@ -78,11 +80,6 @@ from warehouse.oidc.models import _core, github
 )
 def test_extract_workflow_filename(workflow_ref, expected):
     assert github._extract_workflow_filename(workflow_ref) == expected
-
-
-@pytest.mark.parametrize("claim", ["", "repo", "repo:"])
-def test_check_sub(claim):
-    assert github._check_sub(pretend.stub(), claim, pretend.stub()) is False
 
 
 class TestGitHubPublisher:
@@ -174,7 +171,6 @@ class TestGitHubPublisher:
     def test_github_publisher_all_known_claims(self):
         assert github.GitHubPublisher.all_known_claims() == {
             # required verifiable claims
-            "sub",
             "repository",
             "repository_owner",
             "repository_owner_id",
@@ -192,6 +188,7 @@ class TestGitHubPublisher:
             "aud",
             "jti",
             # unchecked claims
+            "sub",
             "actor",
             "actor_id",
             "run_id",
@@ -224,7 +221,7 @@ class TestGitHubPublisher:
             environment="fakeenv",
         )
 
-        for claim_name in publisher.__required_verifiable_claims__.keys():
+        for claim_name in publisher.__required_verifiable_claims__:
             assert getattr(publisher, claim_name) is not None
 
         assert str(publisher) == "fakeworkflow.yml"
@@ -283,10 +280,7 @@ class TestGitHubPublisher:
         monkeypatch.setattr(_core, "sentry_sdk", sentry_sdk)
 
         # We don't care if these actually verify, only that they're present.
-        signed_claims = {
-            claim_name: "fake"
-            for claim_name in github.GitHubPublisher.all_known_claims()
-        }
+        signed_claims = dict.fromkeys(github.GitHubPublisher.all_known_claims(), "fake")
         signed_claims["fake-claim"] = "fake"
         signed_claims["another-fake-claim"] = "also-fake"
 
@@ -298,6 +292,27 @@ class TestGitHubPublisher:
             )
         ]
         assert scope.fingerprint == ["another-fake-claim", "fake-claim"]
+
+    @pytest.mark.parametrize(
+        "custom_claim",
+        [
+            "repo_property_python_gar_access",
+            "repo_property_custom_property",
+            "repo_property_env_tier",
+            "repo_property_pci_compliant",
+        ],
+    )
+    def test_github_publisher_repo_property_claims_accounted_for(
+        self, monkeypatch, custom_claim
+    ):
+        sentry_sdk = pretend.stub(capture_message=pretend.call_recorder(lambda s: None))
+        monkeypatch.setattr(_core, "sentry_sdk", sentry_sdk)
+
+        signed_claims = dict.fromkeys(github.GitHubPublisher.all_known_claims(), "fake")
+        signed_claims[custom_claim] = "fake"
+
+        github.GitHubPublisher.check_claims_existence(signed_claims)
+        assert sentry_sdk.capture_message.calls == []
 
     @pytest.mark.parametrize(
         "missing",
@@ -323,10 +338,7 @@ class TestGitHubPublisher:
         )
         monkeypatch.setattr(_core, "sentry_sdk", sentry_sdk)
 
-        signed_claims = {
-            claim_name: "fake"
-            for claim_name in github.GitHubPublisher.all_known_claims()
-        }
+        signed_claims = dict.fromkeys(github.GitHubPublisher.all_known_claims(), "fake")
         # Pop the missing claim, so that it's missing.
         signed_claims.pop(missing)
         assert missing not in signed_claims
@@ -386,17 +398,15 @@ class TestGitHubPublisher:
         )
 
         noop_check = pretend.call_recorder(lambda gt, sc, ac, **kwargs: True)
-        verifiable_claims = {
-            claim_name: noop_check
-            for claim_name in publisher.__required_verifiable_claims__
-        }
+        verifiable_claims = dict.fromkeys(
+            publisher.__required_verifiable_claims__, noop_check
+        )
         monkeypatch.setattr(
             publisher, "__required_verifiable_claims__", verifiable_claims
         )
-        optional_verifiable_claims = {
-            claim_name: noop_check
-            for claim_name in publisher.__optional_verifiable_claims__
-        }
+        optional_verifiable_claims = dict.fromkeys(
+            publisher.__optional_verifiable_claims__, noop_check
+        )
         monkeypatch.setattr(
             publisher, "__optional_verifiable_claims__", optional_verifiable_claims
         )
@@ -435,22 +445,17 @@ class TestGitHubPublisher:
         check = github.GitHubPublisher.__required_verifiable_claims__["repository"]
         assert check(truth, claim, pretend.stub()) == valid
 
-    def test_check_event_name_emits_metrics(self, metrics):
+    def test_check_event_name_invalid(self):
         check = github.GitHubPublisher.__required_verifiable_claims__["event_name"]
-        publisher_service = pretend.stub(metrics=metrics)
 
-        assert check(
-            "throwaway",
-            "pull_request_target",
-            pretend.stub(),
-            publisher_service=publisher_service,
-        )
-        assert metrics.increment.calls == [
-            pretend.call(
-                "warehouse.oidc.claim",
-                tags=["publisher:GitHub", "event_name:pull_request_target"],
+        with pytest.raises(
+            errors.InvalidPublisherError,
+            match=re.escape(
+                "Publishing from a workflow invoked via 'pull_request_target' "
+                "is not supported."
             ),
-        ]
+        ):
+            check("throwaway", "pull_request_target", pretend.stub())
 
     @pytest.mark.parametrize(
         ("claim", "ref", "sha", "valid", "expected"),
@@ -622,24 +627,8 @@ class TestGitHubPublisher:
             assert check(publisher.job_workflow_ref, claim, claims) is True
         else:
             with pytest.raises(errors.InvalidPublisherError) as e:
-                check(publisher.job_workflow_ref, claim, claims) is True
+                check(publisher.job_workflow_ref, claim, claims)
             assert str(e.value) == expected
-
-    @pytest.mark.parametrize(
-        ("truth", "claim", "valid"),
-        [
-            ("repo:foo/bar", "repo:foo/bar:someotherstuff", True),
-            ("repo:foo/bar", "repo:foo/bar:", True),
-            ("repo:fOo/BaR", "repo:foo/bar", True),
-            ("repo:foo/bar", "repo:fOo/BaR:", True),
-            ("repo:foo/bar:someotherstuff", "repo:foo/bar", False),
-            ("repo:foo/bar-baz", "repo:foo/bar", False),
-            ("repo:foo/bar", "repo:foo/bar-baz", False),
-        ],
-    )
-    def test_github_publisher_sub_claim(self, truth, claim, valid):
-        check = github.GitHubPublisher.__required_verifiable_claims__["sub"]
-        assert check(truth, claim, pretend.stub()) is valid
 
     @pytest.mark.parametrize(
         ("truth", "claim", "valid"),

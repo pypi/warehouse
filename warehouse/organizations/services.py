@@ -1,6 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import datetime
+import typing
+
+from uuid import UUID
 
 from psycopg.errors import UniqueViolation
 from sqlalchemy import delete, func, orm, select
@@ -8,6 +11,7 @@ from sqlalchemy.exc import NoResultFound
 from zope.interface import implementer
 
 from warehouse.accounts.models import TermsOfServiceEngagement, User
+from warehouse.constants import RateLimitPeriod
 from warehouse.email import (
     send_new_organization_approved_email,
     send_new_organization_declined_email,
@@ -36,6 +40,10 @@ from warehouse.organizations.models import (
 from warehouse.subscriptions.models import StripeSubscription, StripeSubscriptionItem
 
 NAME_FIELD = "name"
+
+
+if typing.TYPE_CHECKING:
+    from pyramid.request import Request
 
 
 @implementer(IOrganizationService)
@@ -100,7 +108,7 @@ class DatabaseOrganizationService:
                 .one()
             )
         except NoResultFound:
-            return
+            return None
 
         return organization_id
 
@@ -176,7 +184,7 @@ class DatabaseOrganizationService:
                 "redact_ip": True,
             },
         )
-        self.db.flush()  # flush the db now so organization.id is available
+        self.db.flush()  # generate organization.id # ast-grep-ignore: db-flush
 
         organization_application.status = OrganizationApplicationStatus.Approved
         organization_application.organization = organization
@@ -227,6 +235,7 @@ class DatabaseOrganizationService:
             request,
             organization_application.submitted_by,
             organization_name=organization.name,
+            organization_type=organization.orgtype,
             message=message,
         )
 
@@ -256,31 +265,46 @@ class DatabaseOrganizationService:
         organization_application = self.get_organization_application(
             organization_application_id
         )
-        organization_application.status = (
-            OrganizationApplicationStatus.MoreInformationNeeded
+
+        if message := request.params.get("message", ""):
+            organization_application.status = (
+                OrganizationApplicationStatus.MoreInformationNeeded
+            )
+            organization_application.record_observation(
+                request=request,
+                actor=request.user,
+                summary="Organization request needs more information",
+                kind=ObservationKind.InformationRequest,
+                payload={"message": message},
+            )
+            send_new_organization_moreinformationneeded_email(
+                request,
+                organization_application.submitted_by,
+                organization_name=organization_application.name,
+                organization_application_id=organization_application.id,
+                message=message,
+            )
+            return organization_application
+        raise ValueError
+
+    def add_organization_application_note(self, organization_application_id, request):
+        """
+        Records an internal admin note on an OrganizationApplication
+        """
+        organization_application = self.get_organization_application(
+            organization_application_id
         )
 
-        message = request.params.get("message", "")
-
-        if not message:
-            raise ValueError
-
-        organization_application.record_observation(
-            request=request,
-            actor=request.user,
-            summary="Organization request needs more information",
-            kind=ObservationKind.InformationRequest,
-            payload={"message": message},
-        )
-        send_new_organization_moreinformationneeded_email(
-            request,
-            organization_application.submitted_by,
-            organization_name=organization_application.name,
-            organization_application_id=organization_application.id,
-            message=message,
-        )
-
-        return organization_application
+        if message := request.params.get("message", ""):
+            organization_application.record_observation(
+                request=request,
+                actor=request.user,
+                summary="Admin note added",
+                kind=ObservationKind.AdminNote,
+                payload={"message": message},
+            )
+            return organization_application
+        raise ValueError
 
     def decline_organization_application(self, organization_application_id, request):
         """
@@ -351,7 +375,7 @@ class DatabaseOrganizationService:
                 .one()
             )
         except NoResultFound:
-            return
+            return None
 
         return organization_role
 
@@ -414,7 +438,7 @@ class DatabaseOrganizationService:
                 .one()
             )
         except NoResultFound:
-            return
+            return None
 
         return organization_invite
 
@@ -517,7 +541,7 @@ class DatabaseOrganizationService:
         organization.name = name
 
         try:
-            self.db.flush()  # flush db now so organization.normalized_name available
+            self.db.flush()  # organization.normalized_name  # ast-grep-ignore: db-flush
             self.add_catalog_entry(organization_id)
         except UniqueViolation:
             raise ValueError(f'Organization name "{name}" has been used')
@@ -552,6 +576,33 @@ class DatabaseOrganizationService:
             .first()
         )
 
+    def set_project_create_ratelimit(
+        self,
+        organization_id: UUID,
+        request: Request,
+        count: int | None,
+        period: RateLimitPeriod | None,
+    ) -> str | None:
+        organization = self.get_organization(organization_id)
+        previous = organization.project_create_ratelimit_string
+        organization.project_create_ratelimit_count = count
+        organization.project_create_ratelimit_period = (
+            period if count is not None else None
+        )
+
+        organization.record_event(
+            tag=EventTag.Organization.OrganizationProjectCreateRateLimitChange,
+            request=request,
+            additional={
+                "old_project_create_ratelimit_string": previous,
+                "new_project_create_ratelimit_string": (
+                    organization.project_create_ratelimit_string
+                ),
+                "actor": request.user.username,
+            },
+        )
+        return organization.project_create_ratelimit_string
+
     def add_organization_project(self, organization_id, project_id):
         """
         Adds an association between the specified organization and project
@@ -562,7 +613,7 @@ class DatabaseOrganizationService:
         )
 
         self.db.add(organization_project)
-        self.db.flush()  # Flush db so we can address the organization related object
+        self.db.flush()  # generate server ids  # ast-grep-ignore: db-flush
 
         # Mark Organization as dirty, so purges will happen
         orm.attributes.flag_dirty(organization_project.organization)
@@ -571,10 +622,37 @@ class DatabaseOrganizationService:
 
     def delete_organization_project(self, organization_id, project_id):
         """
-        Delete association between specified organization and project
+        Delete association between specified organization and project,
+        including team project roles and OIDC publisher associations
+        that were scoped to the departing organization.
+
         """
         organization_project = self.get_organization_project(
             organization_id, project_id
+        )
+
+        # Delete team project roles for teams belonging to the departing org.
+        self.db.execute(
+            delete(TeamProjectRole).where(
+                TeamProjectRole.project_id == project_id,
+                TeamProjectRole.team_id.in_(
+                    select(Team.id).where(Team.organization_id == organization_id)
+                ),
+            )
+        )
+
+        # Delete OIDC publisher associations for this project.
+        # TODO: Import here to avoid circular import:
+        #  organizations.services -> oidc.models._core -> packaging.models
+        #    -> organizations.models -> organizations.services
+        #  Figure out circular imports and move to top of module,
+        #  or better, cascade https://github.com/pypi/warehouse/issues/19748
+        from warehouse.oidc.models._core import OIDCPublisherProjectAssociation  # noqa: PLC0415,I001
+
+        self.db.execute(
+            delete(OIDCPublisherProjectAssociation).where(
+                OIDCPublisherProjectAssociation.project_id == project_id,
+            )
         )
 
         self.db.delete(organization_project)
@@ -696,7 +774,7 @@ class DatabaseOrganizationService:
                 .one()
             )
         except NoResultFound:
-            return
+            return None
 
         return team_id
 

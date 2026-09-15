@@ -11,9 +11,11 @@ from pyramid.security import Allowed
 from zope.interface import implementer
 
 from warehouse.accounts.interfaces import IUserService
+from warehouse.accounts.models import DisableReason
 from warehouse.accounts.utils import UserContext
 from warehouse.cache.http import add_vary_callback
 from warehouse.errors import WarehouseDenied
+from warehouse.predicates import auth_methods_for_route
 from warehouse.utils.security_policy import AuthenticationMethod, principals_for
 
 
@@ -42,19 +44,16 @@ class SessionSecurityPolicy:
         if not request.matched_route:
             return None
 
-        # Session authentication cannot be used for uploading
-        if request.matched_route.name == "forklift.legacy.file_upload":
+        # The api.* routes don't have session middleware installed, so calling
+        # the session helper raises a `uses_session` RuntimeError. See:
+        # https://github.com/pypi/warehouse/pull/13854
+        if request.matched_route.name.startswith("api."):
             return None
 
-        # TODO: This feels wrong - special casing for paths and
-        #  prefixes isn't sustainable.
-        #  May need to revisit https://github.com/pypi/warehouse/pull/13854
-        #  Without this guard, we raise a RuntimeError related to `uses_session`,
-        #  because the `SessionAuthenticationHelper()` is called with no session.
-        #  Alternately, we could wrap the call to `authenticated_userid` in a
-        #  try/except RuntimeError block, but that feels like a band-aid.
-        # Session authentication cannot be used for /api routes
-        if request.matched_route.name.startswith("api."):
+        # Honor explicit auth_methods declarations on the route (e.g. forklift
+        # uploads, which only accept basic-auth or macaroon).
+        allowed = auth_methods_for_route(request.matched_route)
+        if allowed is not None and AuthenticationMethod.SESSION not in allowed:
             return None
 
         userid = self._session_helper.authenticated_userid(request)
@@ -75,10 +74,17 @@ class SessionSecurityPolicy:
             return None
 
         # User may have been frozen or disabled since the session was created.
-        is_disabled, _ = login_service.is_disabled(userid)
+        is_disabled, disabled_reason = login_service.is_disabled(userid)
         if is_disabled:
             request.session.invalidate()
-            request.session.flash("Session invalidated", queue="error")
+            if disabled_reason == DisableReason.AccountFrozen:
+                request.session.flash(
+                    "Your account has been suspended. "
+                    "Please contact security@pypi.org for assistance.",
+                    queue="error",
+                )
+            else:
+                request.session.flash("Session invalidated", queue="error")
             return None
 
         # Our session might be "valid" despite predating a password change.
@@ -121,20 +127,23 @@ class BasicAuthSecurityPolicy:
         request.authentication_method = AuthenticationMethod.BASIC_AUTH
 
         if not request.matched_route:
-            return None
-        if request.matched_route.name != "forklift.legacy.file_upload":
-            return None
+            return
+
+        # Only engage on routes that explicitly accept basic-auth.
+        allowed = auth_methods_for_route(request.matched_route)
+        if allowed is None or AuthenticationMethod.BASIC_AUTH not in allowed:
+            return
 
         credentials = extract_http_basic_credentials(request)
         if credentials is None:
-            return None
+            return
 
         username, _password = credentials
 
         # The API Token username is allowed to pass through to the
         # MacaroonSecurityPolicy.
         if username == "__token__":
-            return None
+            return
 
         raise _format_exc_status(
             HTTPForbidden(),

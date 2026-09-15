@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import datetime
 import enum
 import typing
 
 from collections import OrderedDict
+from dataclasses import dataclass
+from functools import cached_property
 from uuid import UUID
 
 import packaging.utils
@@ -37,8 +40,8 @@ from sqlalchemy.dialects.postgresql import (
     CITEXT,
     ENUM,
     REGCLASS,
-    UUID as PG_UUID,
 )
+from sqlalchemy.engine import Row
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -49,15 +52,26 @@ from sqlalchemy.orm import (
     mapped_column,
     validates,
 )
+from sqlalchemy.sql import Select
 from urllib3.exceptions import LocationParseError
 from urllib3.util import parse_url
 
 from warehouse import db
 from warehouse.accounts.models import User
-from warehouse.attestations.models import Provenance
+from warehouse.attestations.models import (
+    Provenance,
+    ProvenanceComparison,
+    ProvenanceCounts,
+    ProvenanceStatus,
+    counts_from_provenance,
+)
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
-from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE
+from warehouse.constants import (
+    MAX_FILESIZE,
+    MAX_PROJECT_SIZE,
+    MAXIMUM_AGE_FOR_NEW_UPLOADS,
+)
 from warehouse.events.models import HasEvents
 from warehouse.forklift import metadata
 from warehouse.integrations.vulnerabilities.models import VulnerabilityRecord
@@ -80,6 +94,164 @@ if typing.TYPE_CHECKING:
     from warehouse.oidc.models import OIDCPublisher
 
 _MONOTONIC_SEQUENCE = 42
+PROJECT_NAME_PATTERN = "^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$"
+
+# How far back to look for a release to compare provenance against.
+PROVENANCE_COMPARISON_WINDOW_DAYS = 14
+
+
+def _provenance_query() -> Select:
+    """
+    One row per release file, carrying the provenance that file has.
+
+    Outer-joined throughout, so a release with no files still yields a row and
+    a caller can tell a release it has counted from one it has not seen.
+
+    Ordered newest first. `created` defaults to a transaction-scoped `now()`,
+    so every release of a batch insert ties on it and date alone would leave
+    the comparison a release is measured against following physical row order.
+    `_pypi_ordering` breaks those ties the way the rest of this class already
+    orders releases, and `id` breaks the remainder, since `_pypi_ordering` is
+    nullable and cannot be relied on for a total order by itself.
+    """
+    return (
+        select(Release.version, Release.created, File.id, Provenance)
+        .select_from(Release)
+        .outerjoin(File, File.release_id == Release.id)
+        .outerjoin(Provenance, Provenance.file_id == File.id)
+        .options(orm.undefer(Provenance.provenance))
+        .order_by(
+            Release.created.desc(),
+            Release._pypi_ordering.desc(),
+            Release.id.desc(),
+        )
+    )
+
+
+def _counted_releases(rows) -> list[tuple[str, datetime.datetime, ProvenanceCounts]]:
+    """
+    Fold `_provenance_query` rows into one entry per release, newest first.
+
+    The joins fan out, so files are collected into a set rather than counted
+    row by row.
+    """
+    grouped: dict[str, tuple[datetime.datetime, set[UUID], list[Provenance]]] = {}
+    for version, created, file_id, provenance in rows:
+        if version not in grouped:  # not setdefault: it would build a bucket per row
+            grouped[version] = (created, set(), [])
+        _, file_ids, provenances = grouped[version]
+        if file_id is not None:
+            file_ids.add(file_id)
+        if provenance is not None:
+            provenances.append(provenance)
+
+    return [
+        (version, created, counts_from_provenance(len(file_ids), provenances))
+        for version, (created, file_ids, provenances) in grouped.items()
+    ]
+
+
+def _provenance_comparison(
+    counted: list[tuple[str, datetime.datetime, ProvenanceCounts]],
+    start: int,
+    created: datetime.datetime,
+    cutoff: datetime.datetime,
+) -> ProvenanceComparison | None:
+    """
+    The release a status is measured against, from the releases before it.
+
+    `counted` is ordered newest first, so the entries from `start` on are the
+    preceding releases. Indexed rather than sliced: the loop almost always
+    stops on its first or second entry, and both slicing and `islice` would
+    walk or copy the whole tail first, making the caller quadratic for no gain.
+
+    Walks past a nearer release carrying no provenance the same way
+    `Release.comparison_provenance_release` reaches past it by inner-joining,
+    and stops at `cutoff` rather than filtering on it.
+    """
+    for index in range(start, len(counted)):
+        version, other_created, counts = counted[index]
+        if other_created < cutoff:
+            return None
+        if other_created < created and counts.files_with_provenance:
+            return ProvenanceComparison(version=version, counts=counts)
+    return None
+
+
+@dataclass(frozen=True)
+class LateFile:
+    """
+    A file that arrived past the window its release accepts new files in.
+
+    Carries the filename instead of the `File`, so the surrounding status can
+    be built from rows a caller has already loaded.
+    """
+
+    filename: str
+    upload_time: datetime.datetime
+    # How long after the release was published the file arrived.
+    delay: datetime.timedelta
+
+
+@dataclass(frozen=True)
+class LateFileStatus:
+    """
+    When a release's files arrived, and which of them arrived late.
+
+    `first_upload` and `last_upload` bracket the files still present, so
+    neither is the release date: `first_upload` moves when the earliest file
+    is deleted, while `delay` stays anchored to `Release.created`.
+    """
+
+    total_files: int
+    first_upload: datetime.datetime
+    last_upload: datetime.datetime
+    late_files: tuple[LateFile, ...] = ()
+
+
+def added_late(upload_time: datetime.datetime, created: datetime.datetime) -> bool:
+    """
+    Whether a file arrived past the window its release accepts new files in.
+
+    Compared as timedeltas rather than whole days: `.days` truncates, and would
+    let a file arriving on the window's last day plus twenty-three hours pass
+    as punctual.
+    """
+    return upload_time - created > MAXIMUM_AGE_FOR_NEW_UPLOADS
+
+
+def late_file_status_from_files(
+    created: datetime.datetime, files: typing.Iterable[File | Row]
+) -> LateFileStatus | None:
+    """
+    Fold a release's files into the record of when they arrived.
+
+    Measured from `created` rather than the earliest surviving file: deleting
+    a release's original files would drag a first-file anchor forward and
+    clear the flag from the file it was raised for.
+
+    Returns `None` for a release with no files, the way `provenance_status`
+    does. Takes the files as an argument so a view already holding them need
+    not load them again; anything with `filename` and `upload_time` will do.
+    """
+    by_upload_time = sorted(files, key=lambda file: file.upload_time)
+    if not by_upload_time:
+        return None
+
+    return LateFileStatus(
+        total_files=len(by_upload_time),
+        first_upload=by_upload_time[0].upload_time,
+        last_upload=by_upload_time[-1].upload_time,
+        late_files=tuple(
+            LateFile(
+                filename=file.filename,
+                upload_time=file.upload_time,
+                delay=file.upload_time - created,
+            )
+            for file in by_upload_time
+            if added_late(file.upload_time, created)
+        ),
+    )
 
 
 class Role(db.Model):
@@ -104,7 +276,7 @@ class Role(db.Model):
     project: Mapped[Project] = orm.relationship(lazy=False, back_populates="roles")
 
 
-class RoleInvitationStatus(str, enum.Enum):
+class RoleInvitationStatus(enum.StrEnum):
     Pending = "pending"
     Expired = "expired"
 
@@ -242,18 +414,13 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
     )
     releases: Mapped[list[Release]] = orm.relationship(
         cascade="all, delete-orphan",
-        order_by=lambda: Release._pypi_ordering.desc(),
-        passive_deletes=True,
-    )
-    alternate_repositories: Mapped[list[AlternateRepository]] = orm.relationship(
-        cascade="all, delete-orphan",
-        back_populates="project",
+        order_by=lambda: Release._pypi_ordering.desc(),  # noqa: PLW0108
         passive_deletes=True,
     )
 
     __table_args__ = (
         CheckConstraint(
-            "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'::text",
+            f"name ~* '{PROJECT_NAME_PATTERN}'::text",
             name="projects_valid_name",
         ),
         CheckConstraint(
@@ -320,6 +487,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                     Permissions.AdminProjectsWrite,
                     Permissions.AdminRoleAdd,
                     Permissions.AdminRoleDelete,
+                    Permissions.AdminVulnerabilitiesRead,
                 ),
             ),
             (
@@ -342,14 +510,15 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
         if self.lifecycle_status not in [
             LifecycleStatus.Archived,
             LifecycleStatus.ArchivedNoindex,
+            LifecycleStatus.QuarantineEnter,
         ]:
             # The project has zero or more OIDC publishers registered to it,
             # each of which serves as an identity with the ability to upload releases
-            # (only if the project is not archived)
-            for publisher in self.oidc_publishers:
-                acls.append(
-                    (Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload])
-                )
+            # (only if the project is not archived or quarantined)
+            acls.extend(
+                (Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload])
+                for publisher in self.oidc_publishers
+            )
 
         # Get all of the users for this project.
         user_query = (
@@ -427,7 +596,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
 
         # If the project doesn't have docs, then we'll just return a None here.
         if not self.has_docs:
-            return
+            return None
 
         return request.route_url("legacy.docs", project=self.name)
 
@@ -468,12 +637,60 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                 Release.created,
                 Release.is_prerelease,
                 Release.yanked,
+                Release.yanked_date,
                 Release.yanked_reason,
+                Release.lifecycle_status,
+                Release.lifecycle_status_changed,
             )
             .filter(Release.project == self)
             .order_by(Release._pypi_ordering.desc())
             .all()
         )
+
+    @cached_property
+    def provenance_statuses(self) -> dict[str, ProvenanceStatus]:
+        """
+        Every release's provenance status, keyed by version.
+
+        The release history page needs a status per release. Reading
+        `Release.provenance_status` in a loop costs three queries for each one;
+        this takes one, and resolves each release's comparison against the
+        counts it is already holding.
+
+        A release with no files is absent from the mapping, matching
+        `Release.provenance_status` returning `None`. Read it with `.get()`:
+        a project can hold a release whose files have all been removed.
+
+        Cached for the life of the `Project`, so a caller holding one across a
+        commit sees the statuses as they were when it first asked. That suits
+        a request, which reads them once and renders; a long-lived task
+        wanting fresh counts should ask a `Release` instead.
+        """
+        counted = _counted_releases(
+            orm_session_from_obj(self)
+            .execute(_provenance_query().where(Release.project_id == self.id))
+            .all()
+        )
+        window = datetime.timedelta(days=PROVENANCE_COMPARISON_WINDOW_DAYS)
+        # Most projects attest nothing, and there the comparison walk can only
+        # ever come back empty. Checking once beats letting every release scan
+        # its whole window to find that out, which for releases sharing a
+        # `created` is the entire project.
+        attested = any(counts.files_with_provenance for _, _, counts in counted)
+        return {
+            version: ProvenanceStatus(
+                counts=counts,
+                comparison=(
+                    _provenance_comparison(
+                        counted, index + 1, created, created - window
+                    )
+                    if attested
+                    else None
+                ),
+            )
+            for index, (version, created, counts) in enumerate(counted)
+            if counts.total_files
+        }
 
     @property
     def latest_version(self):
@@ -482,7 +699,13 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             session.query(
                 Release.version, Release.created, Release.is_prerelease, Release.summary
             )
-            .filter(Release.project == self, Release.yanked.is_(False))
+            .filter(
+                Release.project == self,
+                Release.yanked.is_(False),
+                Release.lifecycle_status.is_distinct_from(
+                    LifecycleStatus.QuarantineEnter
+                ),
+            )
             .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
             .first()
         )
@@ -516,7 +739,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
 
         if self.lifecycle_status == LifecycleStatus.QuarantineEnter:
             return ProjectStatusMarker.Quarantined
-        elif self.lifecycle_status in (
+        if self.lifecycle_status in (
             LifecycleStatus.Archived,
             LifecycleStatus.ArchivedNoindex,
         ):
@@ -642,17 +865,111 @@ DynamicFieldsEnum = ENUM(
     name="release_dynamic_fields",
 )
 
+# Hosts whose `/{owner}/{repo}` paths address a git repository, paired with the
+# owner names that host reserves for itself. Deliberately excludes the Pages
+# domains (`*.github.io`, `*.gitlab.io`): a Trusted Publisher verifies those for
+# its own project, but they serve rendered docs rather than a git remote.
+#
+# These cover the public forges only. A self-hosted GitLab is a supported
+# Trusted Publisher issuer, so a repository there is genuinely verifiable and
+# still will not match. Callers ranking on the result get a false negative,
+# never a false positive.
+GITHUB_REPO_HOSTS = {"github.com", "www.github.com"}
+GITLAB_REPO_HOSTS = {"gitlab.com", "www.gitlab.com"}
+
+# gitlab.com serves these as its own pages, so `/{first}/{second}` under them
+# names no repository. GitHub's equivalent list is `github_reserved_names.ALL`.
+GITLAB_RESERVED_NAMES = frozenset(
+    {
+        "-",
+        "admin",
+        "api",
+        "dashboard",
+        "explore",
+        "groups",
+        "help",
+        "profile",
+        "projects",
+        "public",
+        "search",
+        "snippets",
+        "users",
+    }
+)
+
+
+def parse_user_name_and_repo_name(
+    url: str,
+    domains: set[str],
+    reserved_names: typing.Collection[str] | None = None,
+    *,
+    root_only: bool = False,
+) -> tuple[str, str] | None:
+    """
+    Split a repository URL into its owner and repository name.
+
+    Returns `None` unless the URL addresses a repository on one of `domains`,
+    which rules out an unrelated host, a path too short to name a repository, and
+    an owner segment the host reserves for its own pages.
+
+    By default a URL *inside* a repository resolves to that repository, so
+    `github.com/o/r/issues` yields `("o", "r")`. Pass `root_only` to reject it:
+    a caller offering the URL as a git remote needs the repository itself, and
+    Trusted Publisher verification extends to every subpath of the repository.
+    """
+    try:
+        parsed = parse_url(url)
+    except LocationParseError:
+        return None
+    # `host` rather than `netloc`, which carries any explicit port.
+    if parsed.host not in domains:
+        return None
+    segments = parsed.path.strip("/").split("/") if parsed.path else []
+    if len(segments) < 2 or (root_only and len(segments) != 2):
+        return None
+    user_name, repo_name = segments[:2]
+    if reserved_names and user_name in reserved_names:
+        return None
+    repo_name = repo_name.removesuffix(".git")
+    if not (user_name and repo_name):
+        return None
+    return user_name, repo_name
+
+
+REPO_FORGES = (
+    (GITHUB_REPO_HOSTS, GITHUB_RESERVED_NAMES),
+    (GITLAB_REPO_HOSTS, GITLAB_RESERVED_NAMES),
+)
+
+
+def is_repository_root(url: str) -> bool:
+    """
+    Report whether the URL addresses a repository a branch can be pushed to.
+
+    The forge list above is an allowlist, so this also demands a two-segment
+    path, which costs an answer on an allowlisted host: GitLab issues Trusted
+    Publishers for projects under a subgroup, so `gitlab.com/group/subgroup/repo`
+    really does take a push and is reported here as if it did not. Accepting it
+    would give up the only signal separating a repository root from a subpath on
+    GitLab.
+    """
+    return any(
+        parse_user_name_and_repo_name(url, hosts, reserved, root_only=True)
+        for hosts, reserved in REPO_FORGES
+    )
+
 
 class Release(HasObservations, db.Model):
     __tablename__ = "releases"
 
     @declared_attr
-    def __table_args__(cls):  # noqa
+    def __table_args__(cls):
         return (
             Index("release_created_idx", cls.created.desc()),
             Index("release_project_created_idx", cls.project_id, cls.created.desc()),
             Index("release_version_idx", cls.version),
             Index("release_canonical_version_idx", cls.canonical_version),
+            Index("releases_lifecycle_status_idx", cls.lifecycle_status),
             UniqueConstraint("project_id", "version"),
         )
 
@@ -701,19 +1018,37 @@ class Release(HasObservations, db.Model):
     created: Mapped[datetime_now] = mapped_column()
     published: Mapped[bool_true] = mapped_column()
 
+    lifecycle_status: Mapped[LifecycleStatus | None] = mapped_column(
+        comment="Lifecycle status can change release visibility and access"
+    )
+    lifecycle_status_changed: Mapped[datetime_now | None] = mapped_column(
+        onupdate=func.now(),
+        comment="When the lifecycle status was last changed",
+    )
+    lifecycle_status_note: Mapped[str | None] = mapped_column(
+        comment="Note about the lifecycle status"
+    )
+
     description_id: Mapped[UUID] = mapped_column(
         ForeignKey("release_descriptions.id", onupdate="CASCADE", ondelete="CASCADE"),
         index=True,
     )
     description: Mapped[Description] = orm.relationship(
         back_populates="release",
-        cascade="all, delete-orphan",
-        single_parent=True,
+        # Cleanup of the orphaned Description is enforced at the database level
+        # by the `releases_delete_orphaned_description` trigger, since the
+        # `description_id` foreign key points the "wrong" way for an ON DELETE
+        # CASCADE to reach it. See: https://github.com/pypi/warehouse/issues/14825
+        passive_deletes=True,
     )
 
     yanked: Mapped[bool_false]
 
     yanked_reason: Mapped[str] = mapped_column(server_default="")
+
+    yanked_date: Mapped[datetime.datetime | None] = mapped_column(
+        comment="When the release was yanked"
+    )
 
     dynamic = Column(  # type: ignore[var-annotated]
         ARRAY(DynamicFieldsEnum),
@@ -731,7 +1066,7 @@ class Release(HasObservations, db.Model):
     _project_urls: Mapped[list[ReleaseURL]] = orm.relationship(
         collection_class=attribute_keyed_dict("name"),
         cascade="all, delete-orphan",
-        order_by=lambda: ReleaseURL.name.asc(),
+        order_by=lambda: ReleaseURL.name.asc(),  # noqa: PLW0108
         passive_deletes=True,
     )
     project_urls = association_proxy(
@@ -832,7 +1167,7 @@ class Release(HasObservations, db.Model):
     def urls_by_verify_status(self, *, verified: bool):
         matching_urls = {
             release_url.url
-            for release_url in self._project_urls.values()  # type: ignore[attr-defined] # noqa: E501
+            for release_url in self._project_urls.values()  # type: ignore[attr-defined]
             if release_url.verified == verified
         }
         if self.home_page and self.home_page_verified == verified:
@@ -851,25 +1186,15 @@ class Release(HasObservations, db.Model):
     def verified_user_name_and_repo_name(
         self, domains: set[str], reserved_names: typing.Collection[str] | None = None
     ):
-        for _, url in self.urls_by_verify_status(verified=True).items():
-            try:
-                parsed = parse_url(url)
-            except LocationParseError:
-                continue
-            segments = parsed.path.strip("/").split("/") if parsed.path else []
-            if parsed.netloc in domains and len(segments) >= 2:
-                user_name, repo_name = segments[:2]
-                if reserved_names and user_name in reserved_names:
-                    continue
-                if repo_name.endswith(".git"):
-                    repo_name = repo_name.removesuffix(".git")
-                return user_name, repo_name
+        for url in self.urls_by_verify_status(verified=True).values():
+            if pair := parse_user_name_and_repo_name(url, domains, reserved_names):
+                return pair
         return None, None
 
     @property
     def verified_github_user_name_and_repo_name(self):
         return self.verified_user_name_and_repo_name(
-            {"github.com", "www.github.com"}, GITHUB_RESERVED_NAMES
+            GITHUB_REPO_HOSTS, GITHUB_RESERVED_NAMES
         )
 
     @property
@@ -877,6 +1202,7 @@ class Release(HasObservations, db.Model):
         user_name, repo_name = self.verified_github_user_name_and_repo_name
         if user_name and repo_name:
             return f"https://api.github.com/repos/{user_name}/{repo_name}"
+        return None
 
     @property
     def verified_github_open_issue_info_url(self):
@@ -886,10 +1212,11 @@ class Release(HasObservations, db.Model):
                 f"https://api.github.com/search/issues?q=repo:{user_name}/{repo_name}"
                 "+type:issue+state:open&per_page=1"
             )
+        return None
 
     @property
     def verified_gitlab_user_name_and_repo_name(self):
-        return self.verified_user_name_and_repo_name({"gitlab.com", "www.gitlab.com"})
+        return self.verified_user_name_and_repo_name(GITLAB_REPO_HOSTS)
 
     @property
     def verified_gitlab_repository(self):
@@ -924,8 +1251,100 @@ class Release(HasObservations, db.Model):
             return False
         return all(file.uploaded_via_trusted_publisher for file in files)
 
+    def comparison_provenance_release(self) -> Release | None:
+        """
+        Find the preceding release with provenance, within the comparison window.
 
-class PackageType(str, enum.Enum):
+        This inner-joins provenance, so it reaches past a nearer preceding
+        release that has none. Any release it returns therefore has at least
+        one file with provenance.
+
+        Releases are ordered by id as well as date, because `created` defaults
+        to a transaction-scoped `now()` and so ties across every release of a
+        batch insert. Without the tiebreak this picks arbitrarily among them,
+        and can disagree with `Project.provenance_statuses` about which
+        release a status is measured against.
+        """
+        session = orm_session_from_obj(self)
+        window = datetime.timedelta(days=PROVENANCE_COMPARISON_WINDOW_DAYS)
+        query = (
+            session.query(Release)
+            .join(Release.files)
+            .join(File.provenance)
+            .filter(
+                Release.project_id == self.project_id,
+                Release.created < self.created,
+                Release.created >= self.created - window,
+            )
+            .order_by(
+                Release.created.desc(),
+                Release._pypi_ordering.desc(),
+                Release.id.desc(),
+            )
+        )
+        return query.first()
+
+    @cached_property
+    def provenance_counts(self) -> ProvenanceCounts:
+        """Count the files, sources and workflows this Release attests to."""
+        counted = _counted_releases(
+            orm_session_from_obj(self)
+            .execute(_provenance_query().where(Release.id == self.id))
+            .all()
+        )
+        if not counted:  # the release row is gone from under a live object
+            return ProvenanceCounts(total_files=0, files_with_provenance=0)
+        _, _, counts = counted[0]
+        return counts
+
+    @cached_property
+    def provenance_status(self) -> ProvenanceStatus | None:
+        """Return the provenance status for this Release."""
+        counts = self.provenance_counts
+        if not counts.total_files:
+            return None
+
+        # Reading the comparison's counts through the same cached property
+        # means a page rendering consecutive releases computes each one once.
+        comparison_release = self.comparison_provenance_release()
+        return ProvenanceStatus(
+            counts=counts,
+            comparison=(
+                ProvenanceComparison(
+                    version=comparison_release.version,
+                    counts=comparison_release.provenance_counts,
+                )
+                if comparison_release
+                else None
+            ),
+        )
+
+    @cached_property
+    def late_file_status(self) -> LateFileStatus | None:
+        """
+        When this Release's files arrived, and which of them arrived late.
+
+        Reads two columns rather than iterating `files`, which is
+        `lazy="dynamic"` and eager-loads each file's provenance on the way
+        past. A caller already holding the files should use
+        `late_file_status_from_files`.
+
+        Cached like `provenance_status`, so a `Release` held across a commit
+        or a new upload keeps the answer it first gave; `File.added_late` is
+        not cached and can then disagree.
+        """
+        session = orm_session_from_obj(self)
+        return late_file_status_from_files(
+            self.created,
+            session.execute(
+                select(File.filename, File.upload_time).where(
+                    File.release_id == self.id
+                )
+            ).all(),
+        )
+
+
+class PackageType(enum.StrEnum):
     bdist_dmg = "bdist_dmg"
     bdist_dumb = "bdist_dumb"
     bdist_egg = "bdist_egg"
@@ -940,7 +1359,7 @@ class File(HasEvents, db.Model):
     __tablename__ = "release_files"
 
     @declared_attr
-    def __table_args__(cls):  # noqa
+    def __table_args__(cls):
         return (
             CheckConstraint("sha256_digest ~* '^[A-F0-9]{64}$'"),
             CheckConstraint("blake2_256_digest ~* '^[A-F0-9]{64}$'"),
@@ -950,8 +1369,7 @@ class File(HasEvents, db.Model):
                 "packagetype",
                 unique=True,
                 postgresql_where=(
-                    (cls.packagetype == "sdist")
-                    & (cls.allow_multiple_sdist == False)  # noqa
+                    (cls.packagetype == "sdist") & (cls.allow_multiple_sdist == False)  # noqa: E712
                 ),
             ),
             Index("release_files_release_id_idx", "release_id"),
@@ -1007,17 +1425,26 @@ class File(HasEvents, db.Model):
     )
 
     @property
+    def added_late(self) -> bool:
+        """
+        Whether this file arrived past the window its release accepts files in.
+
+        Reads `self.release`, so a caller listing files off a `File` query
+        should use the module-level `added_late` against a release it holds
+        rather than pay a SELECT per release.
+        """
+        return added_late(self.upload_time, self.release.created)
+
+    @property
     def uploaded_via_trusted_publisher(self) -> bool:
         """Return True if the file was uploaded via a trusted publisher."""
         return (
             self.events.where(
                 or_(
-                    self.Event.additional[  # type: ignore[attr-defined]
+                    self.Event.additional[
                         "uploaded_via_trusted_publisher"
                     ].as_boolean(),
-                    self.Event.additional["publisher_url"]  # type: ignore[attr-defined]
-                    .as_string()
-                    .is_not(None),
+                    self.Event.additional["publisher_url"].as_string().is_not(None),
                 )
             ).count()
             > 0
@@ -1027,9 +1454,9 @@ class File(HasEvents, db.Model):
     def metadata_path(self):
         return self.path + ".metadata"
 
-    @metadata_path.expression  # type: ignore
-    def metadata_path(self):
-        return func.concat(self.path, ".metadata")
+    @metadata_path.expression  # type: ignore[no-redef]
+    def metadata_path(cls):
+        return func.concat(cls.path, ".metadata")
 
     @validates("requires_python")
     def validates_requires_python(self, *args, **kwargs):
@@ -1063,7 +1490,6 @@ class ReleaseClassifiers(db.ModelBase):
         primary_key=True,
     )
     release_id: Mapped[UUID] = mapped_column(
-        PG_UUID,
         ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),
         primary_key=True,
     )
@@ -1073,7 +1499,7 @@ class JournalEntry(db.ModelBase):
     __tablename__ = "journals"
 
     @declared_attr
-    def __table_args__(cls):  # noqa
+    def __table_args__(cls):
         return (
             Index("journals_changelog", "submitted_date", "name", "version", "action"),
             Index("journals_name_idx", "name"),
@@ -1112,7 +1538,7 @@ class JournalEntry(db.ModelBase):
 @db.listens_for(db.Session, "before_flush")
 def ensure_monotonic_journals(config, session, flush_context, instances):
     # We rely on `journals.id` to be a monotonically increasing integer,
-    # however the way that SERIAL is implemented, it does not guarentee
+    # however the way that SERIAL is implemented, it does not guarantee
     # that is the case.
     #
     # Ultimately SERIAL fetches the next integer regardless of what happens
@@ -1123,17 +1549,41 @@ def ensure_monotonic_journals(config, session, flush_context, instances):
     # The way this works, not even the SERIALIZABLE transaction types give
     # us this property. Instead we have to implement our own locking that
     # ensures that each new journal entry will be serialized.
-    for obj in session.new:
-        if isinstance(obj, JournalEntry):
-            session.execute(
-                select(
-                    func.pg_advisory_xact_lock(
-                        cast(cast(JournalEntry.__tablename__, REGCLASS), Integer),
-                        _MONOTONIC_SEQUENCE,
-                    )
-                )
+    journal_entries = [obj for obj in session.new if isinstance(obj, JournalEntry)]
+    if not journal_entries:
+        return
+
+    has_other_pending = session.dirty or any(
+        not isinstance(obj, JournalEntry) for obj in session.new
+    )
+    if has_other_pending:
+        # This flush contains both JournalEntries and other pending changes.
+        # Acquiring the advisory lock here would hold it while non-journal
+        # INSERTs/UPDATEs execute (e.g., File INSERT unique constraint checks),
+        # which can deadlock with concurrent transactions waiting for the same
+        # advisory lock. Defer the JournalEntries to a subsequent flush where
+        # they'll be the only pending objects, minimizing lock hold scope.
+        for je in journal_entries:
+            session.expunge(je)
+        session.info.setdefault("_deferred_journals", []).extend(journal_entries)
+        return
+
+    session.execute(
+        select(
+            func.pg_advisory_xact_lock(
+                cast(cast(JournalEntry.__tablename__, REGCLASS), Integer),
+                _MONOTONIC_SEQUENCE,
             )
-            return
+        )
+    )
+
+
+@db.listens_for(db.Session, "after_flush")
+def _restore_deferred_journals(config, session, flush_context):
+    deferred = session.info.pop("_deferred_journals", None)
+    if deferred:
+        for je in deferred:
+            session.add(je)
 
 
 class ProhibitedProjectName(db.Model):
@@ -1149,9 +1599,7 @@ class ProhibitedProjectName(db.Model):
 
     created: Mapped[datetime_now]
     name: Mapped[str] = mapped_column(unique=True)
-    _prohibited_by = mapped_column(
-        "prohibited_by", PG_UUID(as_uuid=True), ForeignKey("users.id"), index=True
-    )
+    _prohibited_by = mapped_column("prohibited_by", ForeignKey("users.id"), index=True)
     prohibited_by: Mapped[User] = orm.relationship()
     comment: Mapped[str] = mapped_column(server_default="")
     observation_kind: Mapped[str] = mapped_column(
@@ -1185,37 +1633,6 @@ class ProjectMacaroonWarningAssociation(db.Model):
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         primary_key=True,
     )
-
-
-class AlternateRepository(db.Model):
-    """
-    Store an alternate repository name, url, description for a project.
-    One project can have zero, one, or more alternate repositories.
-
-    For each project, ensures the url and name are unique.
-    Urls must start with http(s).
-    """
-
-    __tablename__ = "alternate_repositories"
-    __table_args__ = (
-        UniqueConstraint("project_id", "url"),
-        UniqueConstraint("project_id", "name"),
-        CheckConstraint(
-            "url ~* '^https?://.+'::text",
-            name="alternate_repository_valid_url",
-        ),
-    )
-
-    __repr__ = make_repr("name", "url")
-
-    project_id: Mapped[UUID] = mapped_column(
-        ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
-    )
-    project: Mapped[Project] = orm.relationship(back_populates="alternate_repositories")
-
-    name: Mapped[str]
-    url: Mapped[str]
-    description: Mapped[str]
 
 
 @event.listens_for(File, "after_insert")

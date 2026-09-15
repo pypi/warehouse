@@ -6,7 +6,7 @@ We're pleased that you are interested in working on Warehouse.
 
 After you set up your development environment and ensure you can run
 the tests and build the documentation (using the instructions in this
-document), take a look at [our guide to the Warehouse codebase](../application.md). Then, look at our [open issues that are labelled "good first issue"](https://github.com/pypi/warehouse/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22), find one you want to work on, comment on it to say you're working on
+document), take a look at [our guide to the Warehouse codebase](../application.md). Then, look at our [open issues that are labelled "good first issue for humans"](https://github.com/pypi/warehouse/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue+for+humans%22), find one you want to work on, comment on it to say you're working on
 it, then submit a pull request. Use our [submitting patches](submitting-patches.md) documentation
 to help.
 
@@ -293,7 +293,7 @@ The password for every account has been set to the string `password`.
 Using different accounts will allow you to see different parts of the site,
 and have slightly different experiences.
 
-Note that there are no Moderator accounts in the dev db. Any Superuser can 
+Note that there are no Moderator accounts in the dev db. Any Superuser can
 change a user to a moderator if needed.
 
 #### TOTP and Recovery Codes
@@ -303,7 +303,7 @@ To generate a TOTP token, run the following from your terminal:
 ```shell
 make totp
 ```
-Alternatively, you can scan the QR code below to add these accounts to 
+Alternatively, you can scan the QR code below to add these accounts to
 your authenticator app:
 
 ![TOTP QR Code](../assets/warehouse_admin_totp.png){ width="100" }
@@ -323,7 +323,7 @@ edc6ce3800c0fc94 -- burned
 
 #### Email Verification
 
-Auth verification emails are output to the console, or can be accessed 
+Auth verification emails are output to the console, or can be accessed
 from http://localhost:1080.
 
 See [Testing Emails](email.md#testing-e-mails) for more information.
@@ -349,7 +349,7 @@ totp-cli instant <<< IU7UP3EMIPI7EBPQUUSEHEJUFNBIWOYG
 This will emit a 6-digit code you can paste into the 2FA form.
 
 For other accounts, you'll need to preserve the Key used
-to genreate the TOTP code the next time you need to log in.
+to generate the TOTP code the next time you need to log in.
 
 To be able to "forget" the initial Key, and use it like a TOTP app,
 create a storage and set a password, like so:
@@ -428,11 +428,17 @@ into a shell, you can use `make debug` instead of `make serve`.
 
 * If the `Dockerfile` is edited or new dependencies are added
   (either by you or a prior pull request), a new container will need
-  to built. A new container can be built by running `make
+  to be built. A new container can be built by running `make
   build`. This should be done before running `make serve` again.
 
 * If `make serve` hangs after a new build, you should stop any
   running containers and repeat `make serve`.
+
+* If using Windows Subsystem for Linux (WSL) and running `code .` results in an
+  `Exec format error`, ensure that the VS Code WSL extension is installed and
+  that the project is opened using **"Open Folder in WSL"** from Visual Studio Code.
+
+  Reinstalling the VS Code server in WSL may also resolve the issue.
 
 * To run Warehouse behind a proxy set the appropriate proxy settings in the
   `Dockerfile`.
@@ -466,7 +472,7 @@ into a shell, you can use `make debug` instead of `make serve`.
 
 * If `make initdb` fails with an error like:
 
-    ```shellsesion
+    ```shellsession
     A fatal error has been detected by the Java Runtime Environment:
     SIGILL (0x4) at pc=0x0000f819dfc67c5c, pid=25, tid=26
     ```
@@ -500,7 +506,7 @@ https://github.com/chadoe/docker-cleanup-volumes)
 
 ### `make initdb` is slow or appears to make no progress
 
-This typically occur when Docker is not allocated enough memory to perform the
+This typically occurs when Docker is not allocated enough memory to perform the
 migrations. Try modifying your Docker configuration to allow more RAM for each
 container, temporarily stop `make_serve` and run `make initdb` again.
 
@@ -573,10 +579,11 @@ make shell
 
 The interactive shell will have the following variables defined in it:
 
-| Variable | Description                                                                                       |
-|----------|---------------------------------------------------------------------------------------------------|
-| config   | The Pyramid `Configurator` object which has already been configured by Warehouse.                 |
-| db       | The SQLAlchemy ORM `Session` object which has already been configured to connect to the database. |
+| Variable   | Description                                                                                                                                                                     |
+|------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `config`   | The Pyramid `Configurator` object which has already been configured by Warehouse.                                                                                               |
+| `db`       | The SQLAlchemy ORM `Session` object which has already been configured to connect to the database.                                                                               |
+| `request`  | A dummy Pyramid ``Request`` object which has already been configured to provide a request-like object. **Does not autocommit**, call ``request.db.commit()`` to commit changes. |
 
 To use the `db` object in the interactive shell, import the class you're
 planning to use. For example, if I wanted to use the User object, I would
@@ -594,6 +601,46 @@ Starting warehouse_redis_1 ...
 [User(username='test')]
 ```
 
+### Creating test data with factories
+
+In development, the shell is wired up so the `factory_boy` factories from
+the test suite share the same database session as `db` and `request.db`.
+That makes it easy to mint Users, Projects, Releases, and so on right at
+the prompt for ad-hoc exploration:
+
+```pycon
+>>> from sqlalchemy import text
+>>> db.execute(text("select count(*) from users")).scalar()
+40239
+>>> from tests.common.db.accounts import UserFactory
+>>> UserFactory.create_batch(100)
+[...]
+>>> db.execute(text("select count(*) from users")).scalar()
+40339
+```
+
+The shell does not autocommit, so call `db.commit()` once you're happy
+with the results. Anything a factory creates lands in the same transaction
+as your manual queries, so identity and pending state line up the way
+you'd expect.
+
+A few factories that come up often:
+
+- `tests.common.db.accounts.UserFactory`
+- `tests.common.db.packaging.ProjectFactory`
+- `tests.common.db.packaging.ReleaseFactory`
+- `tests.common.db.organizations.OrganizationFactory`
+
+Browse `tests/common/db/` for the full set.
+
+This is a development convenience. Production images don't ship
+`factory_boy`, and `warehouse shell` only reaches for the test factories
+when `warehouse.env=development`. Importing a factory in a prod shell
+would raise `ModuleNotFoundError: No module named 'factory'`, which is
+the intended signal.
+
+### IPython shell
+
 You can also run the IPython shell as the interactive shell. To do so export
 the environment variable WAREHOUSE_IPYTHON_SHELL *prior to running the*
 `make build` *step*:
@@ -604,6 +651,42 @@ export WAREHOUSE_IPYTHON_SHELL=1
 
 Now you will be able to run the `make shell` command to get the IPython
 shell.
+
+## Running Pyramid p-scripts
+
+Pyramid ships with a set of [p-scripts](https://docs.pylonsproject.org/projects/pyramid/en/latest/pscripts/index.html)
+that let you inspect the running application's configuration. These are
+useful for investigating the tween chain, registered routes, and views.
+
+Available scripts: `ptweens`, `proutes`, `pviews`, `pshell`, `prequest`,
+`pdistreport`. `pserve` is not supported — use `make serve` (gunicorn)
+instead.
+
+To run them inside the `web` container, use `development.ini`:
+
+```shell
+docker compose run --rm web ptweens development.ini
+docker compose run --rm web proutes development.ini
+docker compose run --rm web pviews development.ini /
+docker compose run --rm web pshell development.ini
+```
+
+`prequest` issues a request directly against the application (without
+needing a running server), which is handy for scripting or quick checks:
+
+```shell
+# Fetch homepage HTML with response headers
+docker compose run --rm web prequest development.ini / -d
+
+# Fetch JSON API for a project
+docker compose run --rm web prequest development.ini /pypi/pip/json -d
+```
+
+!!! note
+    The `development.ini` file is a minimal PasteDeploy configuration
+    that delegates to the same `configure()` function used by gunicorn.
+    All application settings still come from environment variables
+    (loaded via `dev/environment`).
 
 ## Running tests and linters
 
@@ -662,17 +745,43 @@ This is useful in scenarios like passing a
 TESTARGS="--randomly-seed=1234" make tests
 ```
 
+You can run the common tools (formatters, linting, translations) to make sure
+that a patch is ready by running:
+
+```shell
+make patch
+```
+
 You can run linters, programs that check the code, with:
 
 ```shell
 make lint
 ```
 
-Warehouse uses [black](https://github.com/psf/black) for opinionated
+Warehouse uses [ruff](https://docs.astral.sh/ruff/) for opinionated
 formatting and linting. You can reformat with:
 
 ```shell
 make reformat
+```
+
+### Updating snapshots
+
+Some of Warehouse's tests make use of snapshots, specifically via the
+[inline_snapshot](https://15r10nk.github.io/inline-snapshot/) library.
+
+While running the tests in parallel, you may encounter a message like this:
+
+```
+INFO: inline-snapshot was disabled because you used xdist. This means that tests with snapshots will continue to run, but
+snapshot(x) will only return x and inline-snapshot will not be able to fix snapshots or generate reports.
+```
+
+If you need to update a specific snapshot, you can do so by selecting its module, which will
+disable test parallelism and enable the snapshot approval dialogue. For example:
+
+```shell
+T=tests/functional/api/test_simple.py make tests
 ```
 
 ## Building translations

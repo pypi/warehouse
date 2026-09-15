@@ -15,7 +15,7 @@ class TestIsSafeUrl:
             "http://example.com",
             "http:///example.com",
             "https://example.com",
-            "ftp://exampel.com",
+            "ftp://example.com",
             r"\\example.com",
             r"\\\example.com",
             r"/\\/example.com",
@@ -31,6 +31,14 @@ class TestIsSafeUrl:
             "\x08//example.com",
             "\n",
             "view/?param=//example.com",
+            # urllib.parse strips tab/CR/LF before parsing, so "/\t/evil.com/"
+            # looks host-less here but webob's urljoin later emits
+            # "//evil.com/". Reject before that happens.
+            "/\t/evil.com/",
+            "/\n/evil.com/",
+            "/\r/evil.com/",
+            "/\t\t/evil.com",
+            "//\tevil.com/",
         ],
     )
     def test_rejects_bad_url(self, url):
@@ -41,7 +49,7 @@ class TestIsSafeUrl:
         [
             "/view/?param=http://example.com",
             "/view/?param=https://example.com",
-            "/view?param=ftp://exampel.com",
+            "/view?param=ftp://example.com",
             "https://testserver/",
             "HTTPS://testserver/",
             "//testserver/",

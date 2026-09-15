@@ -137,7 +137,7 @@ own security model and considerations.
         For example, here is how `pypa/pip-audit`'s `release` environment
         restricts reviews to members of the maintenance and admin teams:
 
-        ![Screenshot of an example configuring an environment on GitHub](/assets/trusted-publishing/github/required-reviewers.png)
+        ![Screenshot of an example configuring an environment on GitHub](../assets/trusted-publishing/github/required-reviewers.png)
 
     * **[Use tag protection rules]**: if you use a tag-based publishing workflow
       (e.g. triggering on tags pushed), then you can limit tag creation and
@@ -197,7 +197,7 @@ own security model and considerations.
     * The ActiveState Platform project must be private.
 
     For more information about Trusted Publishing using the ActiveState Platform please
-    see the [PyPI configuration documentation](https://docs.activestate.com/platform/start/pypi/) and the [ActiveState Platform documentation](https://docs.activestate.com/platform).
+    see the [PyPI configuration documentation](https://docs.activestate.com/platform/open-source-collaboration/pypi/) and the [ActiveState Platform documentation](https://docs.activestate.com/platform).
 
 === "GitLab CI/CD"
 
@@ -272,14 +272,12 @@ own security model and considerations.
       strings like `v1.2.3`.
 
     * **Limit the scope of your publishing job**: your publishing job should
-      (ideally) have only three steps:
+      (ideally) have only two steps:
 
         1. Retrieve the publishable distribution files from **a separate
           build job**;
 
-        2. Exchange the OIDC token for a PyPI API token;
-
-        3. Publish the distributions using `twine` with the API token.
+        2. Publish the distributions using `twine`, which handles the OIDC exchange.
 
       By using a separate build job, you keep the number of steps that can
       access the OIDC token to a bare minimum. This prevents both accidental
@@ -287,7 +285,7 @@ own security model and considerations.
 
 [played a major role in cyber attacks]: https://therecord.media/cisa-cyberattacks-using-valid-credentials
 
-[Attestations]: /attestations/
+[Attestations]: ../attestations/index.md
 
 [fundamentally dangerous]: https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
 
@@ -296,7 +294,7 @@ own security model and considerations.
 [Use tag protection rules]: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/managing-repository-settings/configuring-tag-protection-rules
 
 [account resurrection attacks]:
-../internals/#what-are-account-resurrection-attacks-and-how-does-pypi-protect-against-them
+internals.md#what-are-account-resurrection-attacks-and-how-does-pypi-protect-against-them
 
 [required reviewers]: https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment#required-reviewers
 

@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import tempfile
+import uuid
 
 from contextlib import contextmanager
 
@@ -13,6 +14,7 @@ from wtforms import Field, Form, StringField
 import warehouse.packaging.tasks
 
 from warehouse.accounts.models import WebAuthn
+from warehouse.observations.models import ObservationKind
 from warehouse.packaging.models import DependencyKind, Description
 from warehouse.packaging.tasks import (
     check_file_cache_tasks_outstanding,
@@ -20,6 +22,7 @@ from warehouse.packaging.tasks import (
     compute_packaging_metrics,
     compute_top_dependents_corpus,
     sync_file_to_cache,
+    typo_check_project_name,
     update_bigquery_release_files,
     update_description_html,
     update_release_description,
@@ -391,7 +394,10 @@ def test_update_release_description(db_request):
     update_release_description(task, db_request, release.id)
 
     updated_description = db_request.db.get(Description, description.id)
-    assert updated_description.html == "<p>body text</p>\n"
+    assert (
+        updated_description.html
+        == '<section id="user-content-rst">\n<h1>rst<a title="link to this section" href="#user-content-rst" rel="nofollow"></a></h1>\n<p>body text</p>\n</section>\n'  # noqa: E501
+    )
     assert updated_description.rendered_by == readme.renderer_version()
 
 
@@ -526,7 +532,7 @@ class TestUpdateBigQueryMetadata:
         )
 
         # Process the mocked wtform fields
-        for key, value in form_factory.items():
+        for value in form_factory.values():
             value.process(None)
 
         get_table = pretend.stub(schema=bq_schema)
@@ -622,7 +628,7 @@ class TestUpdateBigQueryMetadata:
                         "keywords": form_factory["description_content_type"].data
                         or None,
                         "classifiers": form_factory["classifiers"].data or [],
-                        "platform": [form_factory["platform"].data] or [],
+                        "platform": [form_factory["platform"].data],
                         "home_page": form_factory["home_page"].data or None,
                         "download_url": form_factory["download_url"].data or None,
                         "requires_python": form_factory["requires_python"].data or None,
@@ -751,3 +757,61 @@ def test_compute_top_dependents_corpus(db_request, project_name, specifier_strin
     results = compute_top_dependents_corpus(db_request)
 
     assert results == {base_proj.normalized_name: 2}
+
+
+def test_typo_check_project_name(db_request, metrics, notification_service, mocker):
+    """A name detected as a typo is annotated and reported to the admins."""
+    UserFactory.create(username="admin")
+    project = ProjectFactory.create(name="numpi")
+    send_notification = mocker.spy(notification_service, "send_notification")
+    db_request.route_url = lambda route, name, _host: f"https://{_host}/project/{name}/"
+    db_request.registry.settings["warehouse.domain"] = "pypi.org"
+
+    typo_check_project_name(db_request, project.id)
+
+    payload = send_notification.call_args.kwargs["payload"]
+    assert payload["blocks"][0]["text"]["text"] == "TypoSnyper :warning:"
+    assert "https://pypi.org/project/numpi/" in payload["blocks"][1]["text"]["text"]
+    assert "https://pypi.org/project/numpy/" in payload["blocks"][2]["text"]["text"]
+    metrics.increment.assert_called_once_with(
+        "warehouse.packaging.services.create_project.typo_squatting",
+        tags=["check_name:'common_typos'"],
+    )
+
+    # The project is annotated for admin review, and left otherwise untouched.
+    observation = project.observations[0]
+    assert observation.kind == ObservationKind.IsTypoSnyperMatch.value[0]
+    assert observation.observer.parent.username == "admin"
+    assert observation.summary == "Potential typo of 'numpy'"
+    assert observation.payload == {
+        "check_name": "common_typos",
+        "existing_project_name": "numpy",
+        "origin": "typosnyper",
+    }
+    assert project.lifecycle_status is None
+
+
+def test_typo_check_project_name_no_typo(
+    db_request, metrics, notification_service, mocker
+):
+    """A name that isn't a typo is neither annotated nor reported."""
+    project = ProjectFactory.create(name="very-unique-name")
+    send_notification = mocker.spy(notification_service, "send_notification")
+
+    typo_check_project_name(db_request, project.id)
+
+    assert project.observations == []
+    send_notification.assert_not_called()
+    metrics.increment.assert_not_called()
+
+
+def test_typo_check_project_name_removed_project(
+    db_request, metrics, notification_service, mocker
+):
+    """A project removed before the task runs is skipped."""
+    send_notification = mocker.spy(notification_service, "send_notification")
+
+    typo_check_project_name(db_request, uuid.uuid4())
+
+    send_notification.assert_not_called()
+    metrics.increment.assert_not_called()

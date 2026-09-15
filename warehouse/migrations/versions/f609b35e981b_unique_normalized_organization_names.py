@@ -19,17 +19,14 @@ def upgrade():
     op.add_column(
         "organizations", sa.Column("normalized_name", sa.String(), nullable=True)
     )
-    op.execute(
-        """
+    op.execute("""
         UPDATE organizations
         SET normalized_name = normalize_pep426_name(name)
-        """
-    )
+        """)
     op.alter_column("organizations", "normalized_name", nullable=False)
     op.create_unique_constraint(None, "organizations", ["normalized_name"])
 
-    op.execute(
-        """ CREATE OR REPLACE FUNCTION maintain_organizations_normalized_name()
+    op.execute(""" CREATE OR REPLACE FUNCTION maintain_organizations_normalized_name()
             RETURNS TRIGGER AS $$
                 BEGIN
                     NEW.normalized_name :=  normalize_pep426_name(NEW.name);
@@ -37,16 +34,13 @@ def upgrade():
                 END;
             $$
             LANGUAGE plpgsql
-        """
-    )
+        """)
 
-    op.execute(
-        """ CREATE TRIGGER organizations_update_normalized_name
+    op.execute(""" CREATE TRIGGER organizations_update_normalized_name
             BEFORE INSERT OR UPDATE OF name ON organizations
             FOR EACH ROW
             EXECUTE PROCEDURE maintain_organizations_normalized_name()
-        """
-    )
+        """)
 
 
 def downgrade():

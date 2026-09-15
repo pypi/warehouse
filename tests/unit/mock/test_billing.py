@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPNotFound, HTTPSeeOther
@@ -14,26 +15,27 @@ class TestMockBillingViews:
     def organization(self):
         return OrganizationFactory.create()
 
-    def test_disable_organizations(self, db_request, organization):
-        db_request.organization_access = False
+    def test_not_mock_billing_service_raises_404(self, db_request, organization):
+        # Test HTTPNotFound when billing service is not MockStripeBillingService
+        db_request.find_service = pretend.call_recorder(
+            lambda *a, **kw: pretend.stub()  # Not MockStripeBillingService
+        )
+
         with pytest.raises(HTTPNotFound):
             billing.MockBillingViews(organization, db_request)
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_mock_checkout_session(self, db_request, organization):
         view = billing.MockBillingViews(organization, db_request)
         result = view.mock_checkout_session()
 
         assert result == {"organization": organization}
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_mock_portal_session(self, db_request, organization):
         view = billing.MockBillingViews(organization, db_request)
         result = view.mock_portal_session()
 
         assert result == {"organization": organization}
 
-    @pytest.mark.usefixtures("_enable_organizations")
     def test_mock_trigger_checkout_session_completed(
         self, db_request, organization, monkeypatch
     ):

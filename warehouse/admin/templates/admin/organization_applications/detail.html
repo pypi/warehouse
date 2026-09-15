@@ -26,6 +26,17 @@
 </div>
 {% endmacro %}
 
+{% macro chat_message(name, timestamp, email, text, right=False) %}
+<div class="direct-chat-msg{% if right %} right{% endif %}">
+  <div class="direct-chat-infos clearfix">
+    <span class="direct-chat-name float-{{ "right" if right else "left" }}">{{ name }}</span>
+    <span class="direct-chat-timestamp float-{{ "left" if right else "right" }}">{{ timestamp }}</span>
+  </div>
+  <img class="direct-chat-img" src="{{ gravatar(request, email, size=128) }}" alt="Message User Image">
+  <div class="direct-chat-text preserve-line-breaks">{{ text }}</div>
+</div>
+{% endmacro %}
+
 {% block content %}
   <div class="row">
     <div class="col-md-3">
@@ -49,6 +60,17 @@
         </div>
         <div class="card-body">
           <div class="form-group">
+            <button
+              type="button"
+              class="btn btn-warning btn-block"
+              data-toggle="modal"
+              data-hotkey-binding=78
+              data-target="#addNoteModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) }}
+              title="Add an internal note to this organization request"
+            >
+              <i class="icon fa fa-note-sticky text-white"></i> Add Note
+            </button>
+
             <button
               type="button"
               class="btn btn-primary btn-block"
@@ -227,6 +249,13 @@
                     Since you don't have a project already, we need to know what your reason for applying for a PyPI Org account is and how having a PyPI Org account might help you.
                     Let us know and we will go from there, thanks!
                 </div>
+                <div class="hidden" id="GitHubAssociationTemplate">
+                    Please ensure that your membership to the GitHub organization you've linked is public,
+                    and complete an Account Association to link your PyPI and GitHub accounts at
+                    https://pypi.org/manage/account/#account-associations
+
+                    Let us know when that is complete and we can proceed with your request.
+                </div>
                 <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
                 <input name="organization_applications_turbo_mode" type="hidden" value=0>
                 <div class="modal-dialog" role="document">
@@ -249,6 +278,7 @@
                         <button type="button" class="btn btn-outline-primary saved-reply-button" data-template="UnverifiableURLTemplate">Unverifiable URL</button>
                         <button type="button" class="btn btn-outline-primary saved-reply-button" data-template="ShouldBeCompanyTemplate">Should Be Company</button>
                         <button type="button" class="btn btn-outline-primary saved-reply-button" data-template="ReasonForApplicationTemplate">Reason For Application</button>
+                        <button type="button" class="btn btn-outline-primary saved-reply-button" data-template="GitHubAssociationTemplate">GitHub Organization and Association</button>
                       </div>
                       <div class="form-group">
                         <label for="requestMoreInfoModalMessage">
@@ -310,6 +340,41 @@
               </form>
             </div>
 
+            <div class="modal fade" id="addNoteModal" tabindex="-1" role="dialog">
+              <form method="POST" action="{{ request.route_path('admin.organization_application.addnote', organization_application_id=organization_application.id) }}">
+                <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h4 class="modal-title" id="addNoteModalLabel">
+                        Add Internal Note to {{ organization_application.name }}?
+                      </h4>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p>
+                        This note is for internal admin reference only. It will not be emailed to the applicant.
+                      </p>
+                      <div class="form-group">
+                        <label for="addNoteModalMessage">
+                          Note
+                        </label>
+                        <textarea id="addNoteModalMessage" class="form-control" name="message" placeholder="Internal note" rows=6 required></textarea>
+                      </div>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-warning">
+                        <i class="icon fa fa-note-sticky text-white"></i> Add Note
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+
             {% endif %}
           </div>
           <div class="form-group">
@@ -357,6 +422,17 @@
                 {% for email in user.emails %}
                 <i class="fa-solid fa-envelope"></i> <a href="mailto:{{ email.email }}">{{ email.email }}</a> {% if email.primary %}(primary){% endif %} {% if email.verified %}<i class="fa fa-check text-green"></i>{% else %}<i class="fa fa-times text-red"></i>{% endif %}<br>
                 {% endfor %}
+
+                {% if user.account_associations %}
+                  {% for association in user.account_associations %}
+                    {% if association.service == 'github' %}
+                      <i class="fa-brands fa-github"></i>
+                      <a href="https://github.com/{{ association.external_username }}" target="_blank" rel="noopener">
+                        {{ association.external_username }}
+                      </a>
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
                 {% else %}
                 <i>n/a</i>
                 {% endif %}
@@ -376,20 +452,22 @@
                 Conflicting Applications <i class="fa fa-clipboard-question text-orange"></i>
               </label>
               <div class="col-12">
-                <table class="table">
-                  <tr><th>Application</th><th>Status</th><th>Submitted</th><th>Requestor</th></tr>
-                  {% for application in conflicting_applications %}
-                    <tr>
-                      <td>
-                        {% if application.normalized_name == organization_application.normalized_name %}<i class="fa fa-equals text-red"></i>{% endif %}
-                        <a target="_blank" href="{{ request.route_url('admin.organization_application.detail', organization_application_id=application.id) }}">{{ application.name }}</a>
-                      </td>
-                      <td>{{ application.status }}</td>
-                      <td>{{ application.submitted|format_date() }}</td>
-                      <td><a target="_blank" href="{{ request.route_url('admin.user.detail', username=application.submitted_by.username) }}">{{ application.submitted_by.username }}</a></td>
-                    </tr>
-                  {% endfor %}
-                </table>
+                <div class="table-responsive">
+                  <table class="table">
+                    <tr><th>Application</th><th>Status</th><th>Submitted</th><th>Requester</th></tr>
+                    {% for application in conflicting_applications %}
+                      <tr>
+                        <td>
+                          {% if application.normalized_name == organization_application.normalized_name %}<i class="fa fa-equals text-red"></i>{% endif %}
+                          <a target="_blank" href="{{ request.route_url('admin.organization_application.detail', organization_application_id=application.id) }}">{{ application.name }}</a>
+                        </td>
+                        <td>{{ application.status }}</td>
+                        <td>{{ application.submitted|format_date() }}</td>
+                        <td><a target="_blank" href="{{ request.route_url('admin.user.detail', username=application.submitted_by.username) }}">{{ application.submitted_by.username }}</a></td>
+                      </tr>
+                    {% endfor %}
+                  </table>
+                </div>
               </div>
             </div>
             {% endif %}
@@ -489,31 +567,29 @@
           <h3 class="card-title">Information Requests</h3>
         </div>
         <div class="card-body">
-        {% for information_request in information_requests|reverse %}
-        <div class="card {% if information_request.additional.response %}card-neutral{% else %}card-warning{% endif %} direct-chat direct-chat-primary"</div>
-          <div class="card-body">
-            <div class="direct-chat-messages unset-height">
-              <div class="direct-chat-msg">
-                <div class="direct-chat-infos clearfix">
-                  <span class="direct-chat-name float-left">{{ information_request.observer.parent.username }} (PyPI)</span>
-                  <span class="direct-chat-timestamp float-right">{{ information_request.created|format_datetime }}</span>
-                </div>
-                <img class="direct-chat-img" src="{{ gravatar(request, information_request.observer.parent.email, size=128) }}" alt="Message User Image">
-                <div class="direct-chat-text preserve-line-breaks">{{ information_request.payload.message }}</div>
+        {% for entry in organization_application.conversation %}
+          {% if entry.kind == "admin_note" %}
+          <div class="card card-warning card-outline direct-chat direct-chat-primary">
+            <div class="card-body">
+              <div class="direct-chat-messages unset-height">
+                {{ chat_message(entry.observer.parent.username ~ " (Internal Note)", entry.created|format_datetime, entry.observer.parent.email, entry.payload.message) }}
               </div>
-              {% if information_request.additional.response %}
-              <div class="direct-chat-msg right">
-                <div class="direct-chat-infos clearfix">
-                  <span class="direct-chat-name float-right">{{ organization_application.submitted_by.username }}</span>
-                  <span class="direct-chat-timestamp float-left">{{ information_request.additional.response_time|parse_isoformat|format_datetime }}</span>
-                </div>
-                <img class="direct-chat-img" src="{{ gravatar(request, organization_application.submitted_by.email, size=128) }}" alt="Message User Image">
-                <div class="direct-chat-text preserve-line-breaks">{{ information_request.additional.response }}</div>
-              </div>
-              {% endif %}
             </div>
           </div>
-        </div>
+          {% else %}
+          <div class="card {% if entry.additional.response %}card-neutral{% else %}card-warning{% endif %} direct-chat direct-chat-primary">
+            <div class="card-body">
+              <div class="direct-chat-messages unset-height">
+                {{ chat_message(entry.observer.parent.username ~ " (PyPI)", entry.created|format_datetime, entry.observer.parent.email, entry.payload.message) }}
+                {% if entry.additional.response %}
+                {{ chat_message(organization_application.submitted_by.username, entry.additional.response_time|parse_isoformat|format_datetime, organization_application.submitted_by.email, entry.additional.response, right=True) }}
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        {% else %}
+        <i>No information requests or internal notes yet.</i>
         {% endfor %}
         </div>
       </div>

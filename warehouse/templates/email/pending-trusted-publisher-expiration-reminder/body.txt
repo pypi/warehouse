@@ -1,0 +1,13 @@
+{# SPDX-License-Identifier: Apache-2.0 -#}
+
+{% extends "email/_base/body.txt" %}
+
+{% block content %}
+The pending trusted publisher you registered for the project
+{{ project_name }} will expire in {{ days_remaining }} days if it has not
+been used to publish.
+
+If you still want to use this trusted publisher, publish a release
+through it before it expires. Otherwise, you can register it again
+later.
+{% endblock %}

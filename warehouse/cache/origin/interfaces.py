@@ -17,7 +17,7 @@ class IOriginCache(Interface):
         *,
         seconds=None,
         stale_while_revalidate=None,
-        stale_if_error=None
+        stale_if_error=None,
     ):
         """
         A hook that will be called after the request has been processed, used

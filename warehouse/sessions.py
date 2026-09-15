@@ -13,12 +13,9 @@ from pyramid import viewderivers
 from pyramid.interfaces import ISession, ISessionFactory
 from zope.interface import implementer
 
-import warehouse.utils.otp as otp
-import warehouse.utils.webauthn as webauthn
-
 from warehouse.accounts.views import USER_ID_INSECURE_COOKIE
 from warehouse.cache.http import add_vary
-from warehouse.utils import crypto
+from warehouse.utils import crypto, otp, webauthn
 from warehouse.utils.msgpack import object_encode
 
 
@@ -74,12 +71,12 @@ def _changed_method(method):
 
 @implementer(ISession)
 class Session(dict):
-    _csrf_token_key = "_csrf_token"
+    _csrf_token_key = "_csrf_token"  # noqa: S105
     _flash_key = "_flash_messages"
-    _totp_secret_key = "_totp_secret"
+    _totp_secret_key = "_totp_secret"  # noqa: S105
     _webauthn_challenge_key = "_webauthn_challenge"
     _reauth_timestamp_key = "_reauth_timestamp"
-    _password_timestamp_key = "_password_timestamp"
+    _password_timestamp_key = "_password_timestamp"  # noqa: S105
 
     # A number of our methods need to be decorated so that they also call
     # self.changed()
@@ -179,7 +176,7 @@ class Session(dict):
     def pop_flash(self, queue=""):
         queue_key = self._get_flash_queue_key(queue)
         messages = [
-            markupsafe.Markup(m["msg"]) if m["safe"] else m["msg"]
+            markupsafe.Markup(m["msg"]) if m["safe"] else m["msg"]  # noqa: S704
             for m in self.get(queue_key, [])
         ]
         self.pop(queue_key, None)
@@ -262,15 +259,13 @@ class SessionFactory:
         # De-serialize our session data
         try:
             data = msgpack.unpackb(bdata, raw=False, use_list=True)
-        except (msgpack.exceptions.UnpackException, msgpack.exceptions.ExtraData):
+        except msgpack.exceptions.UnpackException, msgpack.exceptions.ExtraData:
             # If the session data was invalid we'll give the user a new session
             return Session()
 
         # If we were able to load existing session data, load it into a
         # Session class
-        session = Session(data, session_id, False)
-
-        return session
+        return Session(data, session_id, False)
 
     def _process_response(self, request, response):
         # If the request has an InvalidSession, then the view can't have
@@ -330,45 +325,45 @@ def session_view(view, info):
         # with a small wrapper around it to ensure that it has a Vary: Cookie
         # header.
         return add_vary("Cookie")(view)
-    elif info.exception_only:
+    if info.exception_only:
         return view
-    else:
-        # If we're not using the session on this view, then we'll wrap the view
-        # with a wrapper that just ensures that the session cannot be used.
-        @functools.wraps(view)
-        def wrapped(context, request):
-            # This whole method is a little bit of an odd duck, we want to make
-            # sure that we don't actually *access* request.session, because
-            # doing so triggers the machinery to create a new session. So
-            # instead we will dig into the request object __dict__ to
-            # effectively do the same thing, just without triggering an access
-            # on request.session.
 
-            # Save the original session so that we can restore it once the
-            # inner views have been called.
-            nothing = object()
-            original_session = request.__dict__.get("session", nothing)
+    # If we're not using the session on this view, then we'll wrap the view
+    # with a wrapper that just ensures that the session cannot be used.
+    @functools.wraps(view)
+    def wrapped(context, request):
+        # This whole method is a little bit of an odd duck, we want to make
+        # sure that we don't actually *access* request.session, because
+        # doing so triggers the machinery to create a new session. So
+        # instead we will dig into the request object __dict__ to
+        # effectively do the same thing, just without triggering an access
+        # on request.session.
 
-            # This particular view hasn't been set to allow access to the
-            # session, so we'll just assign an InvalidSession to
-            # request.session
-            request.__dict__["session"] = InvalidSession()
+        # Save the original session so that we can restore it once the
+        # inner views have been called.
+        nothing = object()
+        original_session = request.__dict__.get("session", nothing)
 
-            try:
-                # Invoke the real view
-                return view(context, request)
-            finally:
-                # Restore the original session so that things like
-                # pyramid_debugtoolbar can access it.
-                if original_session is nothing:
-                    del request.__dict__["session"]
-                else:
-                    request.__dict__["session"] = original_session
+        # This particular view hasn't been set to allow access to the
+        # session, so we'll just assign an InvalidSession to
+        # request.session
+        request.__dict__["session"] = InvalidSession()
 
-        return wrapped
+        try:
+            # Invoke the real view
+            return view(context, request)
+        finally:
+            # Restore the original session so that things like
+            # pyramid_debugtoolbar can access it.
+            if original_session is nothing:
+                del request.__dict__["session"]
+            else:
+                request.__dict__["session"] = original_session
+
+    return wrapped
 
 
-session_view.options = {"uses_session"}  # type: ignore
+session_view.options = {"uses_session"}  # type: ignore[attr-defined]
 
 
 def includeme(config):

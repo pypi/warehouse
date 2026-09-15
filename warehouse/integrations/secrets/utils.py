@@ -15,7 +15,6 @@ from warehouse.metrics import IMetricsService
 
 
 class DisclosureOrigin:
-
     def __init__(
         self, name, key_id_header, signature_header, verification_url, api_token=None
     ):
@@ -320,7 +319,7 @@ def analyze_disclosure(request, disclosure_record, origin):
 
 
 def analyze_disclosures(request, disclosure_records, origin, metrics):
-    from warehouse.integrations.secrets import tasks
+    from warehouse.integrations.secrets import tasks  # noqa: PLC0415
 
     if not isinstance(disclosure_records, list):
         metrics.increment(f"warehouse.token_leak.{origin.metric_name}.error.format")

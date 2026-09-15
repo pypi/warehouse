@@ -28,18 +28,40 @@ from warehouse.accounts.interfaces import (
 from warehouse.accounts.models import (
     DisableReason,
     Email,
-    ProhibitedEmailDomain,
     ProhibitedUserName,
     User,
 )
-from warehouse.accounts.utils import update_email_domain_status
+from warehouse.accounts.utils import (
+    prohibit_email_domain,
+    tld_extractor,
+    update_email_domain_status,
+)
+from warehouse.admin.forms import SetProjectCreateRateLimitForm
+from warehouse.admin.user_export import export_user
 from warehouse.authnz import Permissions
+from warehouse.constants import PROJECT_CREATE_RATELIMIT_CAP
 from warehouse.email import (
     send_account_recovery_initiated_email,
     send_password_reset_by_admin_email,
 )
+from warehouse.manage.views.view_helpers import (
+    deactivate_organization_for_owner_removal,
+)
 from warehouse.observations.models import ObservationKind
-from warehouse.packaging.models import JournalEntry, Project, Release, Role
+from warehouse.organizations.models import (
+    Organization,
+    OrganizationRole,
+    OrganizationRoleType,
+)
+from warehouse.packaging.models import (
+    File,
+    JournalEntry,
+    Project,
+    Release,
+    Role,
+    is_repository_root,
+)
+from warehouse.utils import now
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import clear_project_quarantine, quarantine_project
 
@@ -224,12 +246,90 @@ def user_detail(user, request):
     return {
         "user": user,
         "user_projects": user_projects,
+        "sole_owned_organizations": _sole_owned_organizations(user, request),
         "form": form,
         "emails_form": emails_form,
         "roles": roles,
         "add_email_form": EmailForm(),
         "breached_email_count": breached_email_count,
         "submitted_by_journals": submitted_by_journals,
+        "DEFAULT_PROJECT_CREATE_USER_RATELIMIT": request.registry.settings.get(
+            "warehouse.packaging.project_create_user_ratelimit_string"
+        ),
+        "PROJECT_CREATE_RATELIMIT_CAP": PROJECT_CREATE_RATELIMIT_CAP,
+    }
+
+
+@view_config(
+    route_name="admin.user.export",
+    renderer="json",
+    permission=Permissions.AdminUsersExport,
+    request_method="GET",
+    uses_session=True,
+    context=User,
+)
+def user_export(user: User, request: Request) -> dict | HTTPMovedPermanently:
+    """Download a user account export: the account's full footprint as JSON."""
+    if user.username != request.matchdict.get("username", user.username):
+        return HTTPMovedPermanently(request.current_route_path(username=user.username))
+
+    generated_at = now(tz=True)
+    document = export_user(user, request, generated_at=generated_at)
+
+    # The export discloses the account's PII in full, so leave a record of
+    # who took a copy, and when.
+    user.record_observation(
+        request=request,
+        kind=ObservationKind.AccountExport,
+        actor=request.user,
+        summary="User Account Export",
+        payload={
+            "exported_by": request.user.username,
+            "exported_by_id": str(request.user.id),
+            "remote_addr": request.remote_addr,
+        },
+    )
+
+    timestamp = generated_at.strftime("%Y%m%d%H%M%S")
+    request.response.content_disposition = (
+        "attachment; "
+        f'filename="user-account-export-{user.username}-{user.id}-{timestamp}.json"'
+    )
+    return document
+
+
+@view_config(
+    route_name="admin.user.files",
+    renderer="json",
+    permission=Permissions.AdminUsersRead,
+    request_method="GET",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    context=User,
+)
+def user_files(user, request):
+    stmt = (
+        select(File.path, File.size)
+        .join(Release, File.release_id == Release.id)
+        .join(Project, Release.project_id == Project.id)
+        .join(Role, Project.id == Role.project_id)
+        .where(Role.user_id == user.id)
+        .order_by(Project.name, Release.version, File.filename)
+    )
+    rows = request.db.execute(stmt).all()
+
+    paths = []
+    total_size = 0
+    for row in rows:
+        paths.append(row.path)
+        paths.append(row.path + ".metadata")
+        total_size += row.size
+
+    return {
+        "files": paths,
+        "total_size": total_size,
+        "file_count": len(rows),
     }
 
 
@@ -323,6 +423,19 @@ def user_email_delete(user: User, request: Request) -> HTTPSeeOther:
     return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
 
 
+def _sole_owned_organizations(user, request):
+    """Organizations with exactly one Owner role, belonging to this user."""
+    return (
+        request.db.query(Organization)
+        .join(OrganizationRole, OrganizationRole.organization_id == Organization.id)
+        .filter(OrganizationRole.role_name == OrganizationRoleType.Owner)
+        .group_by(Organization.id)
+        .having(func.count(OrganizationRole.user_id) == 1)
+        .having(func.bool_or(OrganizationRole.user_id == user.id))
+        .all()
+    )
+
+
 def _nuke_user(user, request):
     # Delete all the user's projects
     projects = request.db.query(Project).filter(
@@ -349,6 +462,13 @@ def _nuke_user(user, request):
         .values(_submitted_by=deleted_user.username)
         .execution_options(synchronize_session=False)
     )
+
+    # Deactivate (and record an event for) any organization the user is the
+    # sole owner of.
+    for organization in _sole_owned_organizations(user, request):
+        deactivate_organization_for_owner_removal(
+            request, organization, target_user=user, reason="nuked"
+        )
 
     # Prohibit the username
     request.db.add(
@@ -405,18 +525,60 @@ def user_freeze(user, request):
 
     user.is_frozen = True
 
+    # Blocklist only an email whose domain IS its own registrable: a
+    # subdomain-hosted address (grad.mit.edu, team.github.io) may live under
+    # a shared parent apex that other accounts legitimately use, so freezing
+    # one account must not blocklist the parent. Those are left for a
+    # deliberate admin decision.
     for email in user.emails:
-        if email.verified:
-            request.db.add(
-                ProhibitedEmailDomain(
-                    domain=email.domain,
-                    comment="frozen",
-                    prohibited_by=request.user,
-                )
+        if not email.verified:
+            continue
+        registrable = tld_extractor(email.domain).top_domain_under_public_suffix
+        if registrable and registrable == email.domain:
+            prohibit_email_domain(
+                request.db,
+                registrable,
+                comment="frozen",
+                prohibited_by=request.user,
             )
 
     request.session.flash(f"Froze user {user.username!r}", queue="success")
     return HTTPSeeOther(request.route_path("admin.user.list"))
+
+
+@view_config(
+    route_name="admin.user.set_project_create_ratelimit",
+    require_methods=["POST"],
+    permission=Permissions.AdminUsersWrite,
+    uses_session=True,
+    require_csrf=True,
+    context=User,
+)
+def user_set_project_create_ratelimit(user, request):
+    form = SetProjectCreateRateLimitForm(request.POST)
+
+    if not form.validate():
+        for field, errors in form.errors.items():
+            for error in errors:
+                request.session.flash(f"{field}: {error}", queue="error")
+        return HTTPSeeOther(
+            request.route_path("admin.user.detail", username=user.username)
+        )
+
+    user_service = request.find_service(IUserService, context=None)
+    limit = user_service.set_project_create_ratelimit(
+        user.id,
+        request,
+        form.project_create_ratelimit_count.data,
+        form.project_create_ratelimit_period.data,
+    )
+
+    if limit:
+        msg = f"Project creation rate limit set to {limit}"
+    else:
+        msg = "Project creation rate limit override cleared; the default applies"
+    request.session.flash(f"{msg} for user {user.username!r}", queue="success")
+    return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
 
 
 def _user_reset_password(user, request):
@@ -453,20 +615,74 @@ def user_reset_password(user, request):
 
 
 def _is_a_valid_url(url):
-    return url.startswith("https://") or url.startswith("http://")
+    return url.startswith(("https://", "http://"))
 
 
-def _get_related_urls(user):
-    project_to_urls = defaultdict(set)
+def _get_related_urls(user: User) -> dict[str, list[tuple[str, str, bool, bool]]]:
+    """
+    Collect candidate repository URLs for the account recovery challenge.
+
+    Returns `{project_name: [(label, url, proven, verified), ...]}`. `proven`
+    means PyPI confirmed the URL belongs to the uploader AND it is a repository
+    root a branch can be pushed to. Those sort first within a project, and
+    projects holding one sort ahead of the rest.
+
+    `verified` alone is too broad to rank on. `verify_url` also sets it for a
+    project's own PyPI page, for each Trusted Publisher's docs site
+    (`{owner}.github.io/{repo}`, `{owner}.gitlab.io/...`, a
+    `platform.activestate.com` project page), and for every subpath of the
+    verified repository, so an issues page or a blob link carries it too. Those
+    were all genuinely proven and none accepts a git push, so ranking on
+    `verified` would put a docs site above the repository beside it.
+
+    `is_repository_root` decides the other half, and its own limits mean a
+    repository can lose a badge it earned rather than gain one it did not.
+
+    Both flags are kept. The recovery observation stores this list verbatim and a
+    later release replaces the `ReleaseURL` rows, leaving it the only record of
+    what PyPI had verified when the challenge was issued; with `proven` alone an
+    auditor cannot tell "never verified" from "verified, but not a repository".
+    """
+    ranked: defaultdict[str, list[tuple[bool, bool, str, str, bool]]] = defaultdict(
+        list
+    )
     for project in user.projects:
         if project.releases:
             release = project.releases[0]
+            verified_urls = set(release.urls_by_verify_status(verified=True).values())
 
             for kind, url in release.urls.items():
                 if _is_a_valid_url(url):
-                    project_to_urls[project.name].add((kind, url))
+                    pushable = is_repository_root(url)
+                    verified = url in verified_urls
+                    proven = pushable and verified
+                    ranked[project.name].append((proven, pushable, kind, url, verified))
 
-    return dict(project_to_urls)
+    # A repository ranks above a page that takes no push even when neither is
+    # proven, so a moderator never has to scroll past a docs site to find the
+    # repo. Labels break the remaining ties case-insensitively, since both
+    # `Homepage` and `repository` are idiomatic and raw ASCII would put every
+    # capitalized label first.
+    for entries in ranked.values():
+        entries.sort(key=lambda e: (not e[0], not e[1], e[2].casefold(), e[3]))
+
+    # Projects rank on the same two tiers as the URLs inside them, so the entry
+    # just sorted to the front states the project's tier. Proven URLs need a
+    # Trusted Publisher upload and so are rare; without the `pushable` tier a
+    # project with no repository at all would outrank one that has one.
+    return {
+        name: [
+            (kind, url, proven, verified) for proven, _, kind, url, verified in entries
+        ]
+        for name, entries in sorted(
+            ranked.items(),
+            key=lambda item: (
+                not item[1][0][0],
+                not item[1][0][1],
+                item[0].casefold(),
+            ),
+        )
+    }
 
 
 @view_config(
@@ -492,7 +708,6 @@ def user_recover_account_initiate(user, request):
     repo_urls = _get_related_urls(user)
 
     if request.method == "POST":
-
         support_issue_link = request.POST.get("support_issue_link")
         project_name = request.POST.get("project_name")
 
@@ -572,7 +787,7 @@ def user_recover_account_initiate(user, request):
                     "completed": None,
                     "token": token,
                     "project_name": project_name,
-                    "repos": sorted(list(repo_urls.get(project_name, []))),
+                    "repos": repo_urls.get(project_name, []),
                     "support_issue_link": support_issue_link,
                     "override_to_email": override_to_email,
                 },
@@ -589,7 +804,7 @@ def user_recover_account_initiate(user, request):
             )
 
             request.session.flash(
-                f"Initiatied account recovery for {user.username!r}", queue="success"
+                f"Initiated account recovery for {user.username!r}", queue="success"
             )
 
             return HTTPSeeOther(
@@ -605,6 +820,12 @@ def user_recover_account_initiate(user, request):
     return {
         "user": user,
         "repo_urls": repo_urls,
+        # The legend earns its space only when a badge is on screen, which needs
+        # a Trusted Publisher upload and so is rare. `proven` implies
+        # `verified`, so this one scan covers both badges.
+        "explain_badge": any(
+            verified for urls in repo_urls.values() for *_, verified in urls
+        ),
     }
 
 
@@ -677,7 +898,7 @@ def user_recover_account_complete(user: User, request):
 @view_config(
     route_name="admin.user.burn_recovery_codes",
     require_methods=["POST"],
-    permission=Permissions.AdminUsersWrite,
+    permission=Permissions.AdminUsersRecoveryCodesBurn,
     uses_session=True,
     require_csrf=True,
     context=User,
@@ -695,7 +916,7 @@ def user_burn_recovery_codes(user, request):
             try:
                 user_service.check_recovery_code(user.id, code, skip_ratelimits=True)
                 n_burned += 1
-            except (BurnedRecoveryCode, InvalidRecoveryCode):
+            except BurnedRecoveryCode, InvalidRecoveryCode:
                 pass
 
         request.session.flash(f"Burned {n_burned} recovery code(s)", queue="success")
@@ -743,7 +964,7 @@ def user_quarantine_projects(user, request):
     quarantined_count = 0
     for project in user.projects:
         # Only quarantine projects that aren't already quarantined
-        if project.lifecycle_status not in ["quarantine-enter"]:
+        if project.lifecycle_status != "quarantine-enter":
             quarantine_project(project, request, flash=False)
             quarantined_count += 1
 

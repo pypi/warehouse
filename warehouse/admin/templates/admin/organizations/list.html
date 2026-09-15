@@ -29,12 +29,17 @@
         <br>
         Filters:&nbsp;
         <div class="btn-group btn-group-sm" role="group" data-input="q" data-state="status" aria-label="Status">
-          <button type="button" class="btn btn-secondary {{ 'active' if 'is:active' in terms else '' }}" data-status="is:active">Active</button>
-          <button type="button" class="btn btn-secondary {{ 'active' if 'is:inactive' in terms else '' }}" data-status="is:inactive">Inactive</button>
+          <button type="button" class="btn btn-secondary {{ 'active' if 'activity:active' in terms else '' }}" data-status="activity:active" title="Owns a project released in the last year">Active</button>
+          <button type="button" class="btn btn-secondary {{ 'active' if 'activity:dormant' in terms else '' }}" data-status="activity:dormant" title="Owns projects, none released in the last year">Dormant</button>
+          <button type="button" class="btn btn-secondary {{ 'active' if 'activity:unused' in terms else '' }}" data-status="activity:unused" title="Owns no projects">Unused</button>
+          <button type="button" class="btn btn-secondary {{ 'active' if 'activity:inactive' in terms else '' }}" data-status="activity:inactive" title="Deactivated">Inactive</button>
         </div>&nbsp;
         <div class="btn-group btn-group-sm" role="group" data-input="q" data-state="status" aria-label="Type">
           <button type="button" class="btn btn-secondary {{ 'active' if 'type:company' in terms else '' }}" data-status="type:company">Company</button>
           <button type="button" class="btn btn-secondary {{ 'active' if 'type:community' in terms else '' }}" data-status="type:community">Community</button>
+        </div>&nbsp;
+        <div class="btn-group btn-group-sm" role="group" data-input="q" data-state="status" aria-label="Subscription">
+          <button type="button" class="btn btn-secondary {{ 'active' if 'has:subscription' in terms else '' }}" data-status="has:subscription" title="Has an active, valid paying subscription">Has Subscription</button>
         </div>
       </div>
     </form>
@@ -67,10 +72,19 @@
         </td>
         <td>{{ organization.description }}</td>
         <td>{{ organization.orgtype.value }}</td>
-        {% if organization.is_active %}
+        {% if organization.activity == "Active" %}
         <td><i class="fa fa-fw fa-check text-green"></i> Active</td>
+        {% elif organization.activity == "Dormant" %}
+        <td><i class="fa fa-fw fa-clock text-yellow"></i> Dormant</td>
+        {% elif organization.activity == "Unused" %}
+        <td><i class="fa fa-fw fa-minus text-muted"></i> Unused</td>
         {% else %}
         <td><i class="fa fa-fw fa-times text-red"></i> Inactive</td>
+        {% endif %}
+        {% if organization.active_subscription %}
+        <td><i class="fa fa-fw fa-check text-green"></i> Yes</td>
+        {% else %}
+        <td><i class="fa fa-fw fa-times text-red"></i> No</td>
         {% endif %}
         {% if organization.good_standing %}
         <td><i class="fa fa-fw fa-check text-green"></i> Yes</td>

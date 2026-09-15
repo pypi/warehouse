@@ -350,7 +350,7 @@ class ManageTeamRolesViews:
     @view_config(
         request_method="POST",
         route_name="manage.team.delete_role",
-        permission=Permissions.OrganizationTeamsRead,
+        permission=Permissions.OrganizationsRoleRemove,
     )
     def delete_team_role(self):
         # Get team role.
@@ -514,10 +514,9 @@ def change_team_project_role(project, request, _form_class=ChangeTeamProjectRole
                 request.db.add(
                     JournalEntry(
                         name=project.name,
-                        action="change {} {} to {}".format(
-                            role.role_name.value,
-                            role.team.name,
-                            form.team_project_role_name.data.value,
+                        action=(
+                            f"change {role.role_name.value} {role.team.name} to "
+                            f"{form.team_project_role_name.data.value}"
                         ),
                         submitted_by=request.user,
                     )

@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pretend
-import pytest
 
 from celery.schedules import crontab
 
@@ -9,6 +8,7 @@ from warehouse import accounts
 from warehouse.accounts.interfaces import (
     IDomainStatusService,
     IEmailBreachedService,
+    IEmailReputationService,
     IPasswordBreachedService,
     ITokenService,
     IUserService,
@@ -17,6 +17,7 @@ from warehouse.accounts.services import (
     HaveIBeenPwnedEmailBreachedService,
     HaveIBeenPwnedPasswordBreachedService,
     NullDomainStatusService,
+    NullEmailReputationService,
     TokenServiceFactory,
     database_login_factory,
 )
@@ -25,7 +26,6 @@ from warehouse.accounts.utils import UserContext
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.models import OIDCPublisher
 from warehouse.oidc.utils import PublisherTokenContext
-from warehouse.rate_limiting import IRateLimiter, RateLimit
 
 from ...common.db.accounts import UserFactory
 from ...common.db.oidc import GitHubPublisherFactory
@@ -81,34 +81,6 @@ class TestOIDCPublisherAndClaims:
         assert accounts._oidc_claims(request) is None
 
 
-class TestOrganizationAccess:
-    @pytest.mark.parametrize(
-        ("identity", "flag", "orgs", "expected"),
-        [
-            (False, True, [], False),  # Unauth'd always have no access
-            (False, False, [], False),  # Unauth'd always have no access
-            (True, False, [], True),  # Flag allows all authenticated users
-            (True, True, [], False),  # Flag blocks all authenticated users without orgs
-            (
-                True,
-                True,
-                [pretend.stub()],
-                True,
-            ),  # Flag allows users with organizations
-        ],
-    )
-    def test_organization_access(self, db_session, identity, flag, orgs, expected):
-        user = None if not identity else UserFactory()
-        request = pretend.stub(
-            identity=UserContext(user, None),
-            find_service=lambda interface, context=None: pretend.stub(
-                get_organizations_by_user=lambda x: orgs
-            ),
-            flags=pretend.stub(enabled=lambda flag_name: flag),
-        )
-        assert expected == accounts._organization_access(request)
-
-
 class TestUnauthenticatedUserid:
     def test_unauthenticated_userid(self):
         request = pretend.stub()
@@ -141,15 +113,19 @@ def test_includeme(monkeypatch):
                 "warehouse.account.2fa_user_ratelimit_string": "5 per 5 minutes, 20 per hour, 50 per day",  # noqa: E501
                 "warehouse.account.2fa_ip_ratelimit_string": "10 per 5 minutes, 50 per hour",  # noqa: E501
                 "warehouse.account.email_add_ratelimit_string": "2 per day",
+                "warehouse.account.email_change_ratelimit_string": "5 per 5 minutes, 20 per hour",  # noqa: E501
+                "warehouse.account.email_reputation_ratelimit_string": "100 per hour",
                 "warehouse.account.verify_email_ratelimit_string": "3 per 6 hours",
                 "warehouse.account.password_reset_ratelimit_string": "5 per day",
                 "warehouse.account.accounts_search_ratelimit_string": "100 per hour",
-                "github.oauth.backend": accounts.NullOAuthClient,
+                "warehouse.account.register_ratelimit_string": "10 per 5 minutes, 30 per hour",  # noqa: E501
+                "github.oauth.backend": accounts.NullGitHubOAuthClient,
             }
         ),
         register_service_factory=pretend.call_recorder(
             lambda factory, iface, name=None: None
         ),
+        register_rate_limiter=pretend.call_recorder(lambda limit_string, name: None),
         add_request_method=pretend.call_recorder(lambda f, name, reify=False: None),
         set_security_policy=pretend.call_recorder(lambda p: None),
         maybe_dotted=pretend.call_recorder(lambda path: path),
@@ -188,35 +164,33 @@ def test_includeme(monkeypatch):
         ),
         pretend.call(NullDomainStatusService.create_service, IDomainStatusService),
         pretend.call(
-            accounts.NullOAuthClient.create_service,
+            NullEmailReputationService.create_service,
+            IEmailReputationService,
+        ),
+        pretend.call(
+            accounts.NullGitHubOAuthClient.create_service,
             accounts.IOAuthProviderService,
             name="github",
         ),
-        pretend.call(RateLimit("10 per 5 minutes"), IRateLimiter, name="user.login"),
-        pretend.call(RateLimit("10 per 5 minutes"), IRateLimiter, name="ip.login"),
-        pretend.call(
-            RateLimit("1000 per 5 minutes"), IRateLimiter, name="global.login"
-        ),
-        pretend.call(
-            RateLimit("5 per 5 minutes, 20 per hour, 50 per day"),
-            IRateLimiter,
-            name="2fa.user",
-        ),
-        pretend.call(
-            RateLimit("10 per 5 minutes, 50 per hour"), IRateLimiter, name="2fa.ip"
-        ),
-        pretend.call(RateLimit("2 per day"), IRateLimiter, name="email.add"),
-        pretend.call(RateLimit("5 per day"), IRateLimiter, name="password.reset"),
-        pretend.call(RateLimit("3 per 6 hours"), IRateLimiter, name="email.verify"),
-        pretend.call(RateLimit("100 per hour"), IRateLimiter, name="accounts.search"),
+    ]
+    assert config.register_rate_limiter.calls == [
+        pretend.call("10 per 5 minutes", "user.login"),
+        pretend.call("10 per 5 minutes", "ip.login"),
+        pretend.call("1000 per 5 minutes", "global.login"),
+        pretend.call("5 per 5 minutes, 20 per hour, 50 per day", "2fa.user"),
+        pretend.call("10 per 5 minutes, 50 per hour", "2fa.ip"),
+        pretend.call("2 per day", "email.add"),
+        pretend.call("5 per 5 minutes, 20 per hour", "email.change"),
+        pretend.call("100 per hour", "email.reputation"),
+        pretend.call("5 per day", "password.reset"),
+        pretend.call("3 per 6 hours", "email.verify"),
+        pretend.call("100 per hour", "accounts.search"),
+        pretend.call("10 per 5 minutes, 30 per hour", "accounts.register"),
     ]
     assert config.add_request_method.calls == [
         pretend.call(accounts._user, name="user", reify=True),
         pretend.call(accounts._oidc_publisher, name="oidc_publisher", reify=True),
         pretend.call(accounts._oidc_claims, name="oidc_claims", reify=True),
-        pretend.call(
-            accounts._organization_access, name="organization_access", reify=True
-        ),
         pretend.call(accounts._unauthenticated_userid, name="_unauthenticated_userid"),
     ]
     assert config.set_security_policy.calls == [pretend.call(multi_policy_obj)]
@@ -232,4 +206,58 @@ def test_includeme(monkeypatch):
     assert (
         pretend.call(crontab(minute="*/20"), compute_user_metrics)
         in config.add_periodic_task.calls
+    )
+
+    # Verify GitLab OAuth is NOT registered when setting is absent
+    assert (
+        pretend.call(
+            accounts.NullGitLabOAuthClient.create_service,
+            accounts.IOAuthProviderService,
+            name="gitlab",
+        )
+        not in config.register_service_factory.calls
+    )
+
+
+def test_includeme_with_gitlab_oauth():
+    """Verify GitLab OAuth service is registered when configured."""
+    register_service_factory = pretend.call_recorder(
+        lambda factory, iface, name=None: None
+    )
+    config = pretend.stub(
+        registry=pretend.stub(
+            settings={
+                "warehouse.account.user_login_ratelimit_string": "10 per 5 minutes",
+                "warehouse.account.ip_login_ratelimit_string": "10 per 5 minutes",
+                "warehouse.account.global_login_ratelimit_string": "1000 per 5 minutes",
+                "warehouse.account.2fa_user_ratelimit_string": "5 per 5 minutes, 20 per hour, 50 per day",  # noqa: E501
+                "warehouse.account.2fa_ip_ratelimit_string": "10 per 5 minutes, 50 per hour",  # noqa: E501
+                "warehouse.account.email_add_ratelimit_string": "2 per day",
+                "warehouse.account.email_change_ratelimit_string": "5 per 5 minutes, 20 per hour",  # noqa: E501
+                "warehouse.account.verify_email_ratelimit_string": "3 per 6 hours",
+                "warehouse.account.password_reset_ratelimit_string": "5 per day",
+                "warehouse.account.accounts_search_ratelimit_string": "100 per hour",
+                "warehouse.account.register_ratelimit_string": "10 per 5 minutes, 30 per hour",  # noqa: E501
+                "github.oauth.backend": accounts.NullGitHubOAuthClient,
+                "gitlab.oauth.backend": accounts.NullGitLabOAuthClient,
+            }
+        ),
+        register_service_factory=register_service_factory,
+        register_rate_limiter=pretend.call_recorder(lambda limit_string, name: None),
+        add_request_method=pretend.call_recorder(lambda f, name, reify=False: None),
+        set_security_policy=pretend.call_recorder(lambda p: None),
+        maybe_dotted=pretend.call_recorder(lambda path: path),
+        add_route_predicate=pretend.call_recorder(lambda name, cls: None),
+        add_periodic_task=pretend.call_recorder(lambda *a, **kw: None),
+    )
+
+    accounts.includeme(config)
+
+    assert (
+        pretend.call(
+            accounts.NullGitLabOAuthClient.create_service,
+            accounts.IOAuthProviderService,
+            name="gitlab",
+        )
+        in register_service_factory.calls
     )

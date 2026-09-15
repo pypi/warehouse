@@ -1,15 +1,15 @@
 # Origin: https://github.com/marketplace/actions/combine-prs
 
-name: 'Combine PRs'
+name: "Combine PRs"
 
 # Controls when the action will run - in this case triggered manually
 on:
   workflow_dispatch:
     inputs:
       ignoreLabel:
-        description: 'Exclude PRs with this label'
+        description: "Exclude PRs with this label"
         required: true
-        default: 'blocked'
+        default: "blocked"
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -25,17 +25,20 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - name: Use GitHub App Token
-        uses: wow-actions/use-app-token@9e8487c993ab4085b2dd8cb90ab446b6a18cf834 # v2.1.1
+      - name: Generate GitHub App Token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         id: generate_token
         with:
-          app_id: ${{ secrets.COMBINE_PRS_APP_ID }}
-          private_key: ${{ secrets.COMBINE_PRS_PRIVATE_KEY }}
-          fallback: ${{ secrets.GITHUB_TOKEN }} # fall back to the default token if the app token is
+          app-id: ${{ secrets.COMBINE_PRS_APP_ID }}
+          private-key: ${{ secrets.COMBINE_PRS_PRIVATE_KEY }}
+          # https://github.com/github/combine-prs#permissions
+          permission-contents: write
+          permission-pull-requests: write
+          permission-checks: read
 
       - name: combine-prs
         id: combine-prs
         uses: github/combine-prs@2909f404763c3177a456e052bdb7f2e85d3a7cb3 # v5.2.0
         with:
-          github_token: ${{ steps.generate_token.outputs.BOT_TOKEN }}
+          github_token: ${{ steps.generate_token.outputs.token }}
           ignore_label: ${{ github.event.inputs.ignoreLabel || 'blocked' }}

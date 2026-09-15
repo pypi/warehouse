@@ -16,15 +16,28 @@ import warehouse.constants
 
 from tests.common.db.oidc import GitHubPublisherFactory
 from warehouse.admin.views import projects as views
+from warehouse.events.tags import EventTag
 from warehouse.observations.models import ObservationKind
-from warehouse.packaging.models import LifecycleStatus, Project, Role
+from warehouse.packaging.models import (
+    File,
+    JournalEntry,
+    LifecycleStatus,
+    Project,
+    Release,
+    Role,
+)
 from warehouse.packaging.tasks import update_release_description
 from warehouse.search.tasks import reindex_project
 from warehouse.utils.paginate import paginate_url_factory
 
 from ....common.db.accounts import UserFactory
 from ....common.db.observations import ObserverFactory
+from ....common.db.organizations import (
+    OrganizationFactory,
+    OrganizationProjectFactory,
+)
 from ....common.db.packaging import (
+    FileFactory,
     JournalEntryFactory,
     ProjectFactory,
     ProjectObservationFactory,
@@ -35,26 +48,57 @@ from ....common.db.packaging import (
 
 class TestProjectList:
     def test_no_query(self, db_request):
-        projects = sorted(
-            ProjectFactory.create_batch(30),
-            key=lambda p: p.normalized_name,
-        )
+        projects = ProjectFactory.create_batch(5)
         result = views.project_list(db_request)
 
-        assert result == {"projects": projects[:25], "query": None, "exact_match": None}
+        assert result["query"] is None
+        assert result["days"] == 30
+        assert result["allowed_days"] == (30, 60, 90)
+        assert len(result["creation_series"]) == 30
+        total = sum(count for _, count in result["creation_series"])
+        assert total == 5
+        recent = result["recent_projects"]
+        assert len(recent) == 5
+        assert {r.name for r in recent} == {p.name for p in projects}
+        # Each row should have the expected columns
+        for row in recent:
+            assert hasattr(row, "name")
+            assert hasattr(row, "normalized_name")
+            assert hasattr(row, "created")
+            assert hasattr(row, "latest_version")
 
-    def test_with_page(self, db_request):
-        projects = sorted(
-            ProjectFactory.create_batch(30),
-            key=lambda p: p.normalized_name,
-        )
-        db_request.GET["page"] = "2"
+    def test_no_query_with_days_param(self, db_request):
+        ProjectFactory.create_batch(3)
+        db_request.GET["days"] = "60"
         result = views.project_list(db_request)
 
-        assert result == {"projects": projects[25:], "query": None, "exact_match": None}
+        assert result["days"] == 60
+        assert len(result["creation_series"]) == 60
+        total = sum(count for _, count in result["creation_series"])
+        assert total == 3
+
+    def test_no_query_with_non_integer_days_param(self, db_request):
+        ProjectFactory.create()
+        db_request.GET["days"] = "abc"
+        result = views.project_list(db_request)
+
+        assert result["days"] == 30
+
+    def test_no_query_with_invalid_days_param(self, db_request):
+        ProjectFactory.create()
+        db_request.GET["days"] = "999"
+        result = views.project_list(db_request)
+
+        assert result["days"] == 30
+
+    def test_no_query_recent_projects_limit(self, db_request):
+        ProjectFactory.create_batch(15)
+        result = views.project_list(db_request)
+
+        assert len(result["recent_projects"]) == 10
 
     def test_with_invalid_page(self):
-        request = pretend.stub(params={"page": "not an integer"})
+        request = pretend.stub(params={"q": "something", "page": "not an integer"})
 
         with pytest.raises(HTTPBadRequest):
             views.project_list(request)
@@ -71,6 +115,51 @@ class TestProjectList:
             "query": projects[0].name,
             "exact_match": None,
         }
+
+    def test_basic_query_with_page(self, db_request):
+        projects = sorted(
+            ProjectFactory.create_batch(30),
+            key=lambda p: p.normalized_name,
+        )
+        db_request.GET["q"] = projects[0].name
+        db_request.GET["page"] = "1"
+        result = views.project_list(db_request)
+
+        assert result == {
+            "projects": [projects[0]],
+            "query": projects[0].name,
+            "exact_match": None,
+        }
+
+    def test_id_query(self, db_request):
+        projects = ProjectFactory.create_batch(3)
+        target = projects[1]
+        db_request.GET["q"] = f"id:{target.id}"
+        result = views.project_list(db_request)
+
+        assert result == {
+            "projects": [target],
+            "query": f"id:{target.id}",
+            "exact_match": None,
+        }
+
+    def test_id_query_not_found(self, db_request):
+        ProjectFactory.create()
+        missing_id = uuid.uuid4()
+        db_request.GET["q"] = f"id:{missing_id}"
+        result = views.project_list(db_request)
+
+        assert result == {
+            "projects": [],
+            "query": f"id:{missing_id}",
+            "exact_match": None,
+        }
+
+    def test_id_query_invalid_uuid(self, db_request):
+        db_request.GET["q"] = "id:not-a-uuid"
+
+        with pytest.raises(HTTPBadRequest):
+            views.project_list(db_request)
 
 
 class TestProjectDetail:
@@ -94,6 +183,7 @@ class TestProjectDetail:
             "releases": [],
             "maintainers": roles,
             "journal": journals[:30],
+            "journal_count": 75,
             "oidc_publishers": oidc_publishers,
             "ONE_MIB": views.ONE_MIB,
             "MAX_FILESIZE": warehouse.constants.MAX_FILESIZE,
@@ -114,10 +204,6 @@ class TestProjectDetail:
             views.project_detail(project, db_request)
 
     def test_with_organization(self, db_request):
-        from ....common.db.organizations import (
-            OrganizationFactory,
-            OrganizationProjectFactory,
-        )
 
         organization = OrganizationFactory.create(
             upload_limit=150 * views.ONE_MIB,
@@ -280,6 +366,49 @@ class TestProjectQuarantine:
             )
         ]
 
+    def test_release_quarantine(self, db_request):
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/release/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+
+        result = views.release_quarantine(release, db_request)
+
+        assert result.status_code == 303
+        assert release.lifecycle_status == LifecycleStatus.QuarantineEnter
+        assert db_request.route_path.calls == [
+            pretend.call(
+                "admin.project.release",
+                project_name=project.normalized_name,
+                version=release.version,
+            )
+        ]
+
+    def test_release_remove_from_quarantine(self, db_request):
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(
+            project=project,
+            version="1.0",
+            lifecycle_status=LifecycleStatus.QuarantineEnter,
+        )
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/release/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+
+        result = views.release_remove_from_quarantine(release, db_request)
+
+        assert result.status_code == 303
+        assert release.lifecycle_status == LifecycleStatus.QuarantineExit
+
 
 class TestProjectReleasesList:
     def test_no_query(self, db_request):
@@ -377,95 +506,19 @@ class TestProjectReleasesList:
 
 
 class TestProjectJournalsList:
-    def test_no_query(self, db_request):
+    def test_returns_project(self, db_request):
         project = ProjectFactory.create()
-        journals = sorted(
-            JournalEntryFactory.create_batch(30, name=project.name),
-            key=lambda x: (x.submitted_date, x.id),
-            reverse=True,
-        )
         db_request.matchdict["project_name"] = project.normalized_name
+
         result = views.journals_list(project, db_request)
 
-        assert result == {"journals": journals[:25], "project": project, "query": None}
-
-    def test_with_page(self, db_request):
-        project = ProjectFactory.create()
-        journals = sorted(
-            JournalEntryFactory.create_batch(30, name=project.name),
-            key=lambda x: (x.submitted_date, x.id),
-            reverse=True,
-        )
-        db_request.matchdict["project_name"] = project.normalized_name
-        db_request.GET["page"] = "2"
-        result = views.journals_list(project, db_request)
-
-        assert result == {"journals": journals[25:], "project": project, "query": None}
-
-    def test_with_invalid_page(self, db_request):
-        project = ProjectFactory.create()
-        db_request.matchdict["project_name"] = project.normalized_name
-        db_request.GET["page"] = "not an integer"
-
-        with pytest.raises(HTTPBadRequest):
-            views.journals_list(project, db_request)
-
-    def test_version_query(self, db_request):
-        project = ProjectFactory.create()
-        journals = sorted(
-            JournalEntryFactory.create_batch(30, name=project.name),
-            key=lambda x: (x.submitted_date, x.id),
-            reverse=True,
-        )
-        db_request.matchdict["project_name"] = project.normalized_name
-        db_request.GET["q"] = f"version:{journals[3].version}"
-        result = views.journals_list(project, db_request)
-
-        assert result == {
-            "journals": [journals[3]],
-            "project": project,
-            "query": f"version:{journals[3].version}",
-        }
-
-    def test_invalid_key_query(self, db_request):
-        project = ProjectFactory.create()
-        journals = sorted(
-            JournalEntryFactory.create_batch(30, name=project.name),
-            key=lambda x: (x.submitted_date, x.id),
-            reverse=True,
-        )
-        db_request.matchdict["project_name"] = project.normalized_name
-        db_request.GET["q"] = "user:username"
-        result = views.journals_list(project, db_request)
-
-        assert result == {
-            "journals": journals[:25],
-            "project": project,
-            "query": "user:username",
-        }
-
-    def test_basic_query(self, db_request):
-        project = ProjectFactory.create()
-        journals = sorted(
-            JournalEntryFactory.create_batch(30, name=project.name),
-            key=lambda x: (x.submitted_date, x.id),
-            reverse=True,
-        )
-        db_request.matchdict["project_name"] = project.normalized_name
-        db_request.GET["q"] = f"{journals[3].version}"
-        result = views.journals_list(project, db_request)
-
-        assert result == {
-            "journals": journals[:25],
-            "project": project,
-            "query": f"{journals[3].version}",
-        }
+        assert result == {"project": project}
 
     def test_non_normalized_name(self, db_request):
         project = ProjectFactory.create(name="NotNormalized")
         db_request.matchdict["project_name"] = str(project.name)
-        db_request.current_route_path = pretend.call_recorder(
-            lambda *a, **kw: "/admin/projects/the-redirect/journals/"
+        db_request.current_route_path = lambda *a, **kw: (
+            "/admin/projects/the-redirect/journals/"
         )
         with pytest.raises(HTTPMovedPermanently):
             views.journals_list(project, db_request)
@@ -599,6 +652,7 @@ class TestProjectAddObservation:
 class TestProjectSetTotalSizeLimit:
     def test_sets_total_size_limitwith_integer(self, db_request):
         project = ProjectFactory.create(name="foo")
+        user = UserFactory.create()
 
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/admin/projects/"
@@ -606,6 +660,7 @@ class TestProjectSetTotalSizeLimit:
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
+        db_request.user = user
         db_request.matchdict["project_name"] = project.normalized_name
         db_request.POST = MultiDict({"total_size_limit": "150"})
 
@@ -616,10 +671,18 @@ class TestProjectSetTotalSizeLimit:
         ]
 
         assert project.total_size_limit == 150 * views.ONE_GIB
+        event = project.events.one()
+        assert event.tag == "admin:project:set_total_size_limit"
+        assert event.additional == {
+            "old_total_size_limit": None,
+            "new_total_size_limit": 150 * views.ONE_GIB,
+            "actor": user.username,
+        }
 
     def test_sets_total_size_limitwith_none(self, db_request):
         project = ProjectFactory.create(name="foo")
         project.total_size_limit = 150 * views.ONE_GIB
+        user = UserFactory.create()
 
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/admin/projects/"
@@ -627,6 +690,7 @@ class TestProjectSetTotalSizeLimit:
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
+        db_request.user = user
         db_request.matchdict["project_name"] = project.normalized_name
         db_request.POST = MultiDict({"total_size_limit": ""})
 
@@ -637,6 +701,13 @@ class TestProjectSetTotalSizeLimit:
         ]
 
         assert project.total_size_limit is None
+        event = project.events.one()
+        assert event.tag == "admin:project:set_total_size_limit"
+        assert event.additional == {
+            "old_total_size_limit": 150 * views.ONE_GIB,
+            "new_total_size_limit": None,
+            "actor": user.username,
+        }
 
     def test_sets_total_size_limitwith_non_integer(self, db_request):
         project = ProjectFactory.create(name="foo")
@@ -687,6 +758,7 @@ class TestProjectSetTotalSizeLimit:
 class TestProjectSetLimit:
     def test_sets_limitwith_integer(self, db_request):
         project = ProjectFactory.create(name="foo")
+        user = UserFactory.create()
 
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/admin/projects/"
@@ -694,6 +766,7 @@ class TestProjectSetLimit:
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
+        db_request.user = user
         db_request.matchdict["project_name"] = project.normalized_name
         new_upload_limit = warehouse.constants.MAX_FILESIZE // views.ONE_MIB
         db_request.POST = MultiDict({"upload_limit": str(new_upload_limit)})
@@ -705,10 +778,18 @@ class TestProjectSetLimit:
         ]
 
         assert project.upload_limit == new_upload_limit * views.ONE_MIB
+        event = project.events.one()
+        assert event.tag == "admin:project:set_upload_limit"
+        assert event.additional == {
+            "old_upload_limit": None,
+            "new_upload_limit": new_upload_limit * views.ONE_MIB,
+            "actor": user.username,
+        }
 
     def test_sets_limit_with_none(self, db_request):
         project = ProjectFactory.create(name="foo")
         project.upload_limit = 90 * views.ONE_MIB
+        user = UserFactory.create()
 
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/admin/projects/"
@@ -716,6 +797,7 @@ class TestProjectSetLimit:
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
+        db_request.user = user
         db_request.matchdict["project_name"] = project.normalized_name
         db_request.POST = MultiDict({"upload_limit": ""})
 
@@ -726,6 +808,13 @@ class TestProjectSetLimit:
         ]
 
         assert project.upload_limit is None
+        event = project.events.one()
+        assert event.tag == "admin:project:set_upload_limit"
+        assert event.additional == {
+            "old_upload_limit": 90 * views.ONE_MIB,
+            "new_upload_limit": None,
+            "actor": user.username,
+        }
 
     def test_sets_limit_with_non_integer(self, db_request):
         project = ProjectFactory.create(name="foo")
@@ -1130,3 +1219,338 @@ class TestProjectArchival:
             pretend.call("admin.project.detail", project_name="foo")
         ]
         assert project.lifecycle_status == "quarantine-enter"
+
+
+class TestDeleteRelease:
+    def test_no_confirm(self):
+        release = pretend.stub(
+            version="1.0",
+            project=pretend.stub(
+                name="foo",
+                normalized_name="foo",
+            ),
+        )
+        request = pretend.stub(
+            POST={},
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.delete_release(release, request)
+        assert exc.value.status_code == 303
+        assert exc.value.headers["Location"] == "/the-redirect"
+
+        assert request.session.flash.calls == [
+            pretend.call("Confirm the request", queue="error")
+        ]
+        assert request.route_path.calls == [
+            pretend.call(
+                "admin.project.release",
+                project_name="foo",
+                version="1.0",
+            )
+        ]
+
+    def test_wrong_confirm(self):
+        release = pretend.stub(
+            version="1.0",
+            project=pretend.stub(
+                name="foo",
+                normalized_name="foo",
+            ),
+        )
+        request = pretend.stub(
+            POST={"confirm_version": "wrong"},
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.delete_release(release, request)
+        assert exc.value.status_code == 303
+        assert exc.value.headers["Location"] == "/the-redirect"
+
+        assert request.session.flash.calls == [
+            pretend.call(
+                "Could not delete release - 'wrong' is not the same as '1.0'",
+                queue="error",
+            )
+        ]
+
+    def test_no_reason(self):
+        release = pretend.stub(
+            version="1.0",
+            project=pretend.stub(
+                name="foo",
+                normalized_name="foo",
+            ),
+        )
+        request = pretend.stub(
+            POST={"confirm_version": "1.0", "reason": ""},
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.delete_release(release, request)
+        assert exc.value.status_code == 303
+        assert exc.value.headers["Location"] == "/the-redirect"
+
+        assert request.session.flash.calls == [
+            pretend.call("Provide a reason", queue="error")
+        ]
+
+    def test_deletes_release(self, monkeypatch, db_request):
+        user = UserFactory.create()
+        project = ProjectFactory.create(name="foobar")
+        RoleFactory.create(user=user, project=project)
+        release = ReleaseFactory.create(project=project)
+        project.record_event = pretend.call_recorder(lambda *a, **kw: None)
+
+        db_request.POST = {
+            "confirm_version": release.version,
+            "reason": "compromised account",
+        }
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = user
+
+        send_email = pretend.call_recorder(lambda req, contrib, **k: None)
+        monkeypatch.setattr(views, "send_removed_project_release_email", send_email)
+
+        result = views.delete_release(release, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        # Release is deleted
+        assert db_request.db.query(Release).all() == []
+
+        # JournalEntry created
+        entry = (
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .one()
+        )
+        assert entry.name == project.name
+        assert entry.action == "remove release"
+        assert entry.version == release.version
+        assert entry.submitted_by == user
+
+        # Event recorded with reason
+        assert project.record_event.calls == [
+            pretend.call(
+                tag=EventTag.Project.ReleaseRemove,
+                request=db_request,
+                additional={
+                    "submitted_by": user.username,
+                    "canonical_version": release.canonical_version,
+                    "reason": "compromised account",
+                },
+            )
+        ]
+
+        # Email sent to contributors with reason
+        assert send_email.calls == [
+            pretend.call(
+                db_request,
+                user,
+                release=release,
+                submitter_name=user.username,
+                submitter_role="admin",
+                recipient_role="Owner",
+                reason="compromised account",
+            )
+        ]
+
+        assert db_request.session.flash.calls == [
+            pretend.call(f"Deleted release {release.version!r}", queue="success")
+        ]
+
+        assert db_request.route_path.calls == [
+            pretend.call(
+                "admin.project.detail",
+                project_name=project.normalized_name,
+            )
+        ]
+
+
+class TestDeleteReleaseFile:
+    def test_no_confirm(self):
+        release = pretend.stub(
+            version="1.0",
+            project=pretend.stub(
+                name="foo",
+                normalized_name="foo",
+            ),
+        )
+        request = pretend.stub(
+            POST={},
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.delete_release_file(release, request)
+        assert exc.value.status_code == 303
+        assert exc.value.headers["Location"] == "/the-redirect"
+
+        assert request.session.flash.calls == [
+            pretend.call("Confirm the request", queue="error")
+        ]
+
+    def test_wrong_confirm(self):
+        release = pretend.stub(
+            version="1.0",
+            project=pretend.stub(
+                name="foo",
+                normalized_name="foo",
+            ),
+        )
+        request = pretend.stub(
+            POST={"confirm_project_name": "wrong"},
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.delete_release_file(release, request)
+        assert exc.value.status_code == 303
+        assert exc.value.headers["Location"] == "/the-redirect"
+
+        assert request.session.flash.calls == [
+            pretend.call(
+                "Could not delete file - 'wrong' is not the same as 'foo'",
+                queue="error",
+            )
+        ]
+
+    def test_no_reason(self):
+        release = pretend.stub(
+            version="1.0",
+            project=pretend.stub(
+                name="foo",
+                normalized_name="foo",
+            ),
+        )
+        request = pretend.stub(
+            POST={"confirm_project_name": "foo", "file_id": "abc", "reason": ""},
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.delete_release_file(release, request)
+        assert exc.value.status_code == 303
+        assert exc.value.headers["Location"] == "/the-redirect"
+
+        assert request.session.flash.calls == [
+            pretend.call("Provide a reason", queue="error")
+        ]
+
+    def test_file_not_found(self, db_request):
+        release = ReleaseFactory.create()
+        db_request.POST = {
+            "confirm_project_name": release.project.name,
+            "file_id": str(uuid.uuid4()),
+            "reason": "malware detected",
+        }
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.delete_release_file(release, db_request)
+        assert exc.value.status_code == 303
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Could not find file", queue="error")
+        ]
+
+    def test_deletes_file(self, monkeypatch, db_request):
+        user = UserFactory.create()
+        project = ProjectFactory.create(name="foobar")
+        RoleFactory.create(user=user, project=project)
+        release = ReleaseFactory.create(project=project)
+        release_file = FileFactory.create(release=release, filename="foobar-1.0.tar.gz")
+        project.record_event = pretend.call_recorder(lambda *a, **kw: None)
+
+        db_request.POST = {
+            "confirm_project_name": project.name,
+            "file_id": str(release_file.id),
+            "reason": "malware detected",
+        }
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = user
+
+        send_email = pretend.call_recorder(lambda req, contrib, **k: None)
+        monkeypatch.setattr(
+            views, "send_removed_project_release_file_email", send_email
+        )
+
+        result = views.delete_release_file(release, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        # File is deleted
+        assert db_request.db.query(File).all() == []
+
+        # JournalEntry created
+        entry = (
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .one()
+        )
+        assert entry.name == project.name
+        assert entry.action == "remove file foobar-1.0.tar.gz"
+        assert entry.version == release.version
+        assert entry.submitted_by == user
+
+        # Event recorded on project (not file, which gets cascade-deleted)
+        assert project.record_event.calls == [
+            pretend.call(
+                tag=EventTag.File.FileRemove,
+                request=db_request,
+                additional={
+                    "submitted_by": user.username,
+                    "canonical_version": release.canonical_version,
+                    "filename": "foobar-1.0.tar.gz",
+                    "project_id": str(project.id),
+                    "reason": "malware detected",
+                },
+            )
+        ]
+
+        # Email sent with reason
+        assert send_email.calls == [
+            pretend.call(
+                db_request,
+                user,
+                file="foobar-1.0.tar.gz",
+                release=release,
+                submitter_name=user.username,
+                submitter_role="admin",
+                recipient_role="Owner",
+                reason="malware detected",
+            )
+        ]
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Deleted file 'foobar-1.0.tar.gz'", queue="success")
+        ]
+
+        assert db_request.route_path.calls == [
+            pretend.call(
+                "admin.project.release",
+                project_name=project.normalized_name,
+                version=release.version,
+            )
+        ]

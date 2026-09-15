@@ -1,0 +1,32 @@
+id: metrics-tag-type
+snapshots:
+  'metrics.histogram("hist", tags={"dict": "value"})':
+    labels:
+    - source: 'tags={"dict": "value"}'
+      style: primary
+      start: 26
+      end: 48
+    - source: 'metrics.histogram("hist", tags={"dict": "value"})'
+      style: secondary
+      start: 0
+      end: 49
+  metrics.increment("counter", tags="string"):
+    labels:
+    - source: tags="string"
+      style: primary
+      start: 29
+      end: 42
+    - source: metrics.increment("counter", tags="string")
+      style: secondary
+      start: 0
+      end: 43
+  request.metrics.gauge("gauge", tags=("tuple",)):
+    labels:
+    - source: tags=("tuple",)
+      style: primary
+      start: 31
+      end: 46
+    - source: request.metrics.gauge("gauge", tags=("tuple",))
+      style: secondary
+      start: 0
+      end: 47

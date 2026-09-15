@@ -7,7 +7,9 @@ from warehouse.constants import (
     MAX_PROJECT_SIZE,
     ONE_GIB,
     ONE_MIB,
+    PROJECT_CREATE_RATELIMIT_CAP,
     UPLOAD_LIMIT_CAP,
+    RateLimitPeriod,
 )
 
 
@@ -40,7 +42,7 @@ class SetUploadLimitForm(wtforms.Form):
 
         try:
             limit_value = int(field.data)
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             raise wtforms.ValidationError(
                 "Upload limit must be a valid integer or empty"
             )
@@ -92,7 +94,7 @@ class SetTotalSizeLimitForm(wtforms.Form):
 
         try:
             limit_value = int(field.data)
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             raise wtforms.ValidationError(
                 "Total size limit must be a valid integer or empty"
             )
@@ -108,3 +110,30 @@ class SetTotalSizeLimitForm(wtforms.Form):
 
         # Convert to bytes for storage
         field.data = limit_value * ONE_GIB
+
+
+class SetProjectCreateRateLimitForm(wtforms.Form):
+    """Admin override of a user's or organization's project-creation rate limit.
+
+    An empty count clears the override.
+    """
+
+    project_create_ratelimit_count = wtforms.IntegerField(
+        validators=[
+            wtforms.validators.Optional(),
+            wtforms.validators.NumberRange(
+                min=1, message="Rate limit count must be at least 1"
+            ),
+            wtforms.validators.NumberRange(
+                max=PROJECT_CREATE_RATELIMIT_CAP,
+                message=(
+                    f"Rate limit count must be at most {PROJECT_CREATE_RATELIMIT_CAP}"
+                ),
+            ),
+        ],
+    )
+    project_create_ratelimit_period = wtforms.SelectField(
+        choices=[(period.value, period.value) for period in RateLimitPeriod],
+        coerce=RateLimitPeriod,
+        default=RateLimitPeriod.Hour,
+    )

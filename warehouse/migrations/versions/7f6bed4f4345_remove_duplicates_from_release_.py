@@ -17,8 +17,7 @@ def upgrade():
     op.execute("SET statement_timeout = 60000")  # 60s
     op.execute("SET lock_timeout = 60000")  # 60s
 
-    op.execute(
-        """
+    op.execute("""
         DELETE FROM release_classifiers a USING (
             SELECT MIN(ctid) as ctid, release_id, trove_id
             FROM release_classifiers
@@ -28,8 +27,7 @@ def upgrade():
         WHERE a.release_id = b.release_id
         AND a.trove_id = b.trove_id
         AND a.ctid <> b.ctid;
-        """
-    )
+        """)
 
 
 def downgrade():

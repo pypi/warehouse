@@ -14,8 +14,7 @@ down_revision = "34b18e18775c"
 
 
 def upgrade():
-    op.execute(
-        """
+    op.execute("""
         INSERT INTO admin_flags(id, description, enabled, notify)
         VALUES (
             'disallow-deletion',
@@ -23,8 +22,7 @@ def upgrade():
             FALSE,
             FALSE
         )
-    """
-    )
+    """)
 
 
 def downgrade():

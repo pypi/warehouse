@@ -1,15 +1,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import binascii
+import contextlib
 import os
 import urllib.parse
 
 import certifi
 import opensearchpy
 import redis
-import requests_aws4auth
 import sentry_sdk
 
+from botocore.credentials import Credentials
+from opensearchpy import RequestsAWSV4SignerAuth
 from opensearchpy.helpers import parallel_bulk
 from redis.lock import Lock
 from sqlalchemy import func, or_, select, text
@@ -125,11 +127,12 @@ def reindex(self, request):
             if aws_auth:
                 aws_region = qs.get("region", ["us-east-1"])[0]
                 kwargs["connection_class"] = opensearchpy.RequestsHttpConnection
-                kwargs["http_auth"] = requests_aws4auth.AWS4Auth(
-                    request.registry.settings["aws.key_id"],
-                    request.registry.settings["aws.secret_key"],
-                    aws_region,
-                    "es",
+                credentials = Credentials(
+                    access_key=request.registry.settings["aws.key_id"],
+                    secret_key=request.registry.settings["aws.secret_key"],
+                )
+                kwargs["http_auth"] = RequestsAWSV4SignerAuth(
+                    credentials, aws_region, "es"
                 )
             client = opensearchpy.OpenSearch(**kwargs)
             number_of_replicas = request.registry.get("opensearch.replicas", 0)
@@ -172,7 +175,7 @@ def reindex(self, request):
                     max_chunk_bytes=10 * 1024 * 1024,  # 10MB, per OpenSearch defaults
                 ):
                     pass
-            except:  # noqa
+            except:
                 new_index.delete()
                 raise
             finally:
@@ -241,10 +244,8 @@ def unindex_project(self, request, project_name):
         with SearchLock(r, timeout=15, blocking_timeout=1):
             client = request.registry["opensearch.client"]
             index_name = request.registry["opensearch.index"]
-            try:
+            with contextlib.suppress(opensearchpy.exceptions.NotFoundError):
                 client.delete(index=index_name, id=project_name)
-            except opensearchpy.exceptions.NotFoundError:
-                pass
     except redis.exceptions.LockError as exc:
         sentry_sdk.capture_exception(exc)
         raise self.retry(countdown=60, exc=exc)

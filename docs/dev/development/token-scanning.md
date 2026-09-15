@@ -11,7 +11,7 @@ User-facing documentation about this feature is available here:
 ## How to test it manually
 
 A fake token reporting service is launched by Docker Compose. Head your browser to
-`http://localhost:8964`. Create/reorder/... one ore more public keys, make
+<http://localhost:8964>. Create/reorder/... one or more public keys, make
 sure one key is marked as current, then write your payload, using the following
 format:
 

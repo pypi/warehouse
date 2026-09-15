@@ -46,7 +46,7 @@ class Sponsor(db.Model):
             return ""
         return (
             '<img class="sponsors__image" '
-            + f'src="{self.white_logo_url}" alt="" loading="lazy">'
+            f'src="{self.white_logo_url}" alt="" loading="lazy">'
         )
 
     @property

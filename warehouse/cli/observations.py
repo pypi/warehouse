@@ -60,8 +60,8 @@ def generate_random_observations(config):  # pragma: no cover # dev-only tool
         [
             project.record_observation(
                 request=request,
-                kind=random.choice(list(ObservationKind)),
-                actor=random.choice(users),
+                kind=random.choice(list(ObservationKind)),  # noqa: S311
+                actor=random.choice(users),  # noqa: S311
                 summary="CLI Generated: " + faker.Faker().paragraph(nb_sentences=3),
                 payload={"origin": "CLI"},
             )

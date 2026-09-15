@@ -12,6 +12,13 @@ def redirect_view_factory(target, redirect=HTTPMovedPermanently, **kw):
         if set(redirect_to) & {"\n", "\r"}:
             raise HTTPBadRequest("URL may not contain control characters")
 
+        # Backslashes go into the Location header verbatim, but browsers
+        # treat them as "/" in http(s) URLs (WHATWG). A redirect target of
+        # "/project/..\account\logout\..." would walk straight to
+        # "/account/logout/", so refuse them.
+        if "\\" in redirect_to:
+            raise HTTPBadRequest("URL may not contain backslashes")
+
         return redirect(redirect_to)
 
     return redirect_view

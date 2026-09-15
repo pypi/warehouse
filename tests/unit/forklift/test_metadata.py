@@ -18,7 +18,7 @@ def _assert_invalid_metadata(exc, field):
 
 
 class TestParse:
-    def test_valid_from_file(self):
+    def test_valid_from_file_2_4(self):
         meta = metadata.parse(
             b"Metadata-Version: 2.4\nName: foo\nVersion: 1.0\n"
             b"License-File: Something\nLicense-File: Something Else\n"
@@ -30,7 +30,22 @@ class TestParse:
             "Something Else",
         ]
 
-    def test_valid_from_form(self):
+    def test_valid_from_file_2_5(self):
+        meta = metadata.parse(
+            b"Metadata-Version: 2.5\nName: foo\nVersion: 1.0\n"
+            b"License-File: Something\nLicense-File: Something Else\n"
+            b"Import-Name: widget\nImport-Namespace: gadget\n"
+        )
+        assert meta.name == "foo"
+        assert meta.version == Version("1.0")
+        assert meta.license_files == [
+            "Something",
+            "Something Else",
+        ]
+        assert meta.import_names == ["widget"]
+        assert meta.import_namespaces == ["gadget"]
+
+    def test_valid_from_form_2_4(self):
         data = MultiDict(metadata_version="2.4", name="spam", version="2.0")
         data.extend([("license_file", "Something"), ("license_file", "Something Else")])
         meta = metadata.parse(None, form_data=data)
@@ -40,6 +55,21 @@ class TestParse:
             "Something",
             "Something Else",
         ]
+
+    def test_valid_from_form_2_5(self):
+        data = MultiDict(metadata_version="2.5", name="spam", version="2.0")
+        data.extend([("license_file", "Something"), ("license_file", "Something Else")])
+        data.add("import_name", "widget")
+        data.add("import_namespace", "gadget")
+        meta = metadata.parse(None, form_data=data)
+        assert meta.name == "spam"
+        assert meta.version == Version("2.0")
+        assert meta.license_files == [
+            "Something",
+            "Something Else",
+        ]
+        assert meta.import_names == ["widget"]
+        assert meta.import_namespaces == ["gadget"]
 
     def test_invalid_no_data(self):
         with pytest.raises(metadata.NoMetadataError):
@@ -53,7 +83,7 @@ class TestValidation:
         monkeypatch.setattr(
             packaging.metadata,
             "_VALID_METADATA_VERSIONS",
-            packaging.metadata._VALID_METADATA_VERSIONS + ["100000.0"],
+            [*packaging.metadata._VALID_METADATA_VERSIONS, "100000.0"],
         )
 
         # Make sure that our monkeypatching worked
@@ -148,7 +178,7 @@ class TestValidation:
     def test_deprecated_classifiers_with_replacement(self, backfill):
         data = (
             b"Metadata-Version: 2.1\nName: spam\nVersion: 2.0\n"
-            b"Classifier: Natural Language :: Ukranian\n"
+            b"Classifier: Natural Language :: Ukranian\n"  # codespell:ignore
         )
 
         if not backfill:
@@ -157,7 +187,9 @@ class TestValidation:
             _assert_invalid_metadata(excinfo.value, "classifier")
         else:
             meta = metadata.parse(data, backfill=True)
-            assert meta.classifiers == ["Natural Language :: Ukranian"]
+            assert meta.classifiers == [
+                "Natural Language :: Ukranian"  # codespell:ignore
+            ]
 
     @pytest.mark.parametrize("backfill", [True, False])
     def test_deprecated_classifiers_no_replacement(self, backfill):

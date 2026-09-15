@@ -121,7 +121,7 @@ which have both index-side and installer-side semantics:
   will not offer it for installation, and installers are encouraged to
   produce a warning when users attempt to install it[^warning].
 * **deprecated**: Indicates that the project is considered obsolete,
-  and may have been superceded by another project. Unlike archived projects,
+  and may have been superseded by another project. Unlike archived projects,
   deprecated projects can still be uploaded to, but installers are encouraged
   to inform users about the project's deprecation.
 

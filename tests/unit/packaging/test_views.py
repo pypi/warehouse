@@ -1,12 +1,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pretend
+import pypi_attestations
 import pytest
 
 from natsort import natsorted
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 
 from warehouse.packaging import views
+from warehouse.packaging.models import LifecycleStatus
 
 from ...common.db.accounts import UserFactory
 from ...common.db.classifiers import ClassifierFactory
@@ -121,6 +123,43 @@ class TestProjectDetail:
         assert resp is response
         assert release_detail.calls == [pretend.call(release, db_request)]
 
+    def test_prefers_non_quarantined_release(self, monkeypatch, db_request):
+        project = ProjectFactory.create()
+
+        ReleaseFactory.create(
+            project=project,
+            version="2.0",
+            lifecycle_status=LifecycleStatus.QuarantineEnter,
+        )
+        release = ReleaseFactory.create(project=project, version="1.0")
+
+        response = pretend.stub()
+        release_detail = pretend.call_recorder(lambda ctx, request: response)
+        monkeypatch.setattr(views, "release_detail", release_detail)
+
+        resp = views.project_detail(project, db_request)
+
+        assert resp is response
+        assert release_detail.calls == [pretend.call(release, db_request)]
+
+    def test_only_quarantined_release(self, monkeypatch, db_request):
+        project = ProjectFactory.create()
+
+        release = ReleaseFactory.create(
+            project=project,
+            version="1.0",
+            lifecycle_status=LifecycleStatus.QuarantineEnter,
+        )
+
+        response = pretend.stub()
+        release_detail = pretend.call_recorder(lambda ctx, request: response)
+        monkeypatch.setattr(views, "release_detail", release_detail)
+
+        resp = views.project_detail(project, db_request)
+
+        assert resp is response
+        assert release_detail.calls == [pretend.call(release, db_request)]
+
 
 class TestReleaseDetail:
     def test_normalizing_name_redirects(self, db_request):
@@ -209,7 +248,16 @@ class TestReleaseDetail:
             "description": "rendered description",
             "latest_version": project.latest_version,
             "all_versions": [
-                (r.version, r.created, r.is_prerelease, r.yanked, r.yanked_reason)
+                (
+                    r.version,
+                    r.created,
+                    r.is_prerelease,
+                    r.yanked,
+                    r.yanked_date,
+                    r.yanked_reason,
+                    r.lifecycle_status,
+                    r.lifecycle_status_changed,
+                )
                 for r in reversed(releases)
             ],
             "maintainers": sorted(users, key=lambda u: u.username.lower()),
@@ -232,10 +280,8 @@ class TestReleaseDetail:
         files = [
             FileFactory.create(
                 release=release,
-                filename="-".join(
-                    [project.name, release.version, py_ver, py_abi, py_platform]
-                )
-                + ".whl",
+                filename=f"{project.name}-{release.version}-{py_ver}-{py_abi}-{py_platform}"
+                ".whl",
                 python_version="py2.py3",
                 packagetype="bdist_wheel",
             )
@@ -325,7 +371,6 @@ class TestReleaseDetail:
 
 
 class TestPEP740AttestationViewer:
-
     @pytest.fixture
     def gitlab_attestation(self, gitlab_provenance):
         return gitlab_provenance.attestation_bundles[0].attestations[0]
@@ -335,8 +380,8 @@ class TestPEP740AttestationViewer:
         return github_provenance.attestation_bundles[0].attestations[0]
 
     def test_github_pep740(self, github_attestation):
-        github_publisher = pretend.stub(
-            kind="GitHub",
+        github_publisher = pypi_attestations.GitHubPublisher(
+            repository="pypa/sampleproject",
             workflow=".github/workflows/release.yml",
         )
 
@@ -384,8 +429,8 @@ class TestPEP740AttestationViewer:
         )
 
     def test_gitlab_pep740(self, gitlab_attestation):
-        gitlab_publisher = pretend.stub(
-            kind="GitLab",
+        gitlab_publisher = pypi_attestations.GitLabPublisher(
+            repository="pep740-example/sampleproject",
             workflow_filepath=".gitlab-ci.yml",
         )
 

@@ -11,8 +11,6 @@ import redis
 from pyramid import viewderivers
 
 import warehouse.sessions
-import warehouse.utils.otp as otp
-import warehouse.utils.webauthn as webauthn
 
 from warehouse.sessions import (
     InvalidSession,
@@ -21,7 +19,7 @@ from warehouse.sessions import (
     includeme,
     session_view,
 )
-from warehouse.utils import crypto
+from warehouse.utils import crypto, otp, webauthn
 from warehouse.utils.msgpack import object_encode
 
 

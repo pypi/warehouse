@@ -7,6 +7,11 @@
       <li>
         <strong>Deleted by:</strong> {{ submitter_name }} with a role: {{ submitter_role }}.
       </li>
+      {% if reason %}
+        <li>
+          <strong>Reason:</strong> {{ reason }}
+        </li>
+      {% endif %}
     </ul>
   </p>
   <p>

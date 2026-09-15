@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
+import types
+
 import pytest
 
 from webob.multidict import MultiDict
@@ -24,7 +25,7 @@ class TestURIValidator:
         ],
     )
     def test_valid(self, uri):
-        URIValidator()(pretend.stub(), pretend.stub(data=uri))
+        URIValidator()(types.SimpleNamespace(), types.SimpleNamespace(data=uri))
 
     @pytest.mark.parametrize(
         "uri", ["javascript:alert(0)", "UNKNOWN", "ftp://example.com/"]
@@ -32,24 +33,27 @@ class TestURIValidator:
     def test_invalid(self, uri):
         validator = URIValidator()
         with pytest.raises(ValidationError):
-            validator(pretend.stub(), pretend.stub(data=uri))
+            validator(types.SimpleNamespace(), types.SimpleNamespace(data=uri))
 
     def test_plain_schemes(self):
         validator = URIValidator(require_scheme=True, allowed_schemes=[])
-        validator(pretend.stub(), pretend.stub(data="ftp://example.com/"))
+        validator(
+            types.SimpleNamespace(),
+            types.SimpleNamespace(data="ftp://example.com/"),
+        )
 
 
 class TestPasswordStrengthValidator:
     def test_invalid_fields(self):
         validator = PasswordStrengthValidator(user_input_fields=["foo"])
         with pytest.raises(ValidationError) as exc:
-            validator({}, pretend.stub())
+            validator({}, types.SimpleNamespace())
         assert str(exc.value) == "Invalid field name: 'foo'"
 
     @pytest.mark.parametrize("password", ["this is a great password!"])
     def test_good_passwords(self, password):
         validator = PasswordStrengthValidator()
-        validator(pretend.stub(), pretend.stub(data=password))
+        validator(types.SimpleNamespace(), types.SimpleNamespace(data=password))
 
     @pytest.mark.parametrize(
         ("password", "expected"),
@@ -74,7 +78,7 @@ class TestPasswordStrengthValidator:
     def test_invalid_password(self, password, expected):
         validator = PasswordStrengthValidator(required_strength=5)
         with pytest.raises(ValidationError) as exc:
-            validator(pretend.stub(), pretend.stub(data=password))
+            validator(types.SimpleNamespace(), types.SimpleNamespace(data=password))
         assert str(exc.value) == expected
 
 
@@ -96,13 +100,14 @@ class TestPreventHTMLTagsValidator:
     )
     def test_valid(self, inbound_data):
         validator = PreventHTMLTagsValidator()
-        validator(pretend.stub(), pretend.stub(data=inbound_data))
+        validator(types.SimpleNamespace(), types.SimpleNamespace(data=inbound_data))
 
     def test_invalid(self):
         validator = PreventHTMLTagsValidator()
         with pytest.raises(ValidationError) as exc:
             validator(
-                pretend.stub(), pretend.stub(data="<img src='https://example.com'>")
+                types.SimpleNamespace(),
+                types.SimpleNamespace(data="<img src='https://example.com'>"),
             )
 
         assert str(exc.value) == "HTML tags are not allowed"
@@ -111,7 +116,8 @@ class TestPreventHTMLTagsValidator:
         validator = PreventHTMLTagsValidator(message="No HTML allowed")
         with pytest.raises(ValidationError) as exc:
             validator(
-                pretend.stub(), pretend.stub(data="<img src='https://example.com'>")
+                types.SimpleNamespace(),
+                types.SimpleNamespace(data="<img src='https://example.com'>"),
             )
 
         assert str(exc.value) == "No HTML allowed"

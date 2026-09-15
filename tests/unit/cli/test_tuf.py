@@ -2,21 +2,19 @@
 
 import json
 
-from pretend import call, call_recorder
-
 from warehouse.cli import tuf
 
 
 class TestTUF:
-    def test_bootstrap(self, cli, monkeypatch):
+    def test_bootstrap(self, cli, mocker):
         task_id = "123456"
         server = "rstuf.api"
         payload = ["foo"]
 
-        post = call_recorder(lambda *a: task_id)
-        wait = call_recorder(lambda *a: None)
-        monkeypatch.setattr(tuf, "post_bootstrap", post)
-        monkeypatch.setattr(tuf, "wait_for_success", wait)
+        post = mocker.patch.object(
+            tuf, "post_bootstrap", autospec=True, return_value=task_id
+        )
+        wait = mocker.patch.object(tuf, "wait_for_success", autospec=True)
 
         result = cli.invoke(
             tuf.bootstrap, args=["--api-server", server, "-"], input=json.dumps(payload)
@@ -24,5 +22,5 @@ class TestTUF:
 
         assert result.exit_code == 0
 
-        assert post.calls == [call(server, payload)]
-        assert wait.calls == [call(server, task_id)]
+        post.assert_called_once_with(server, payload)
+        wait.assert_called_once_with(server, task_id)

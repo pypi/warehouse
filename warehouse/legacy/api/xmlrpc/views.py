@@ -34,6 +34,7 @@ from warehouse.packaging.models import (
     Role,
 )
 from warehouse.rate_limiting import IRateLimiter
+from warehouse.rate_limiting.headers import record_rate_limit
 
 # From https://stackoverflow.com/a/22273639
 _illegal_ranges = [
@@ -61,7 +62,7 @@ _illegal_ranges = [
     "\U000ffffe-\U000fffff",
     "\U0010fffe-\U0010ffff",
 ]
-_illegal_xml_chars_re = re.compile("[%s]" % "".join(_illegal_ranges))
+_illegal_xml_chars_re = re.compile("[{}]".format("".join(_illegal_ranges)))
 
 XMLRPC_DEPRECATION_URL = (
     "https://warehouse.pypa.io/api-reference/xml-rpc.html#deprecated-methods"
@@ -108,6 +109,13 @@ def ratelimit():
             )
             metrics = request.find_service(IMetricsService, context=None)
             ratelimiter.hit(request.remote_addr)
+            record_rate_limit(
+                request,
+                "xmlrpc.client",
+                ratelimiter,
+                identifiers=(request.remote_addr,),
+                partition_key="ip",
+            )
             if not ratelimiter.test(request.remote_addr):
                 metrics.increment("warehouse.xmlrpc.ratelimiter.exceeded", tags=[])
                 message = (
@@ -149,6 +157,45 @@ def xmlrpc_method(**kwargs):
     return decorator
 
 
+# Caching wrappers for XML-RPC methods. Both store the view's return value in
+# Redis as JSON (see `warehouse.legacy.api.xmlrpc.cache`), so a view is only safe
+# to wrap if its return value survives a `json.dumps()`/`json.loads()` round
+# trip. Known limitations, roughly in order of how likely they are to bite:
+#
+# 1. Types the stdlib encoder rejects raise `TypeError` from inside the view
+#    deriver, and nothing catches it: the RPC call fails outright instead of
+#    degrading to an uncached response, after the view has already done its
+#    work. `datetime`, `date`, `time`, `UUID` and `Decimal` are all in this
+#    bucket, so convert them before wrapping a view -- see the POSIX-integer
+#    conversion in `changelog_since_serial`.
+#
+# 2. Tuples come back as lists. `xmlrpc.client` marshals both to `<array>`, so
+#    the wire format is unchanged, but a hit and a miss hand different Python
+#    types to any in-process caller.
+#
+# 3. Non-str dict keys are coerced silently, so `{1: "a"}` caches as
+#    `{"1": "a"}` and a hit no longer matches a miss. `float("nan")` and
+#    `float("inf")` serialize to the non-standard `NaN`/`Infinity` literals,
+#    which round-trip through our own cache but are not valid JSON.
+#
+# 4. Falsy results are never hits. `RedisLru.fetch` is `get(...) or add(...)`,
+#    so a view returning `[]`, `{}`, `0` or `None` re-runs its query on every
+#    request and rewrites the same entry each time.
+#
+# 5. The cache key is the JSON-encoded arguments verbatim while the purge tag is
+#    canonicalized, so `package_roles("Django")` and `package_roles("django")`
+#    occupy separate entries holding identical data. Both are purged together.
+#
+# 6. Invalidation is only as good as the `purge_keys` registered for the models
+#    a view reads (see `warehouse.packaging.includeme`). Wrapping a view whose
+#    result depends on a model with no matching purge key leaves it stale for up
+#    to `xmlrpc_cache_expires`.
+#
+# 7. Changing the serializer or the key format invalidates everything, and the
+#    orphans are not self-cleaning: `add` re-`expire`s the whole hash on every
+#    write, and Redis EXPIRE replaces the existing TTL, so a field written in the
+#    old format survives as long as any field in that hash keeps being written.
+#    `RedisLru` has no `hdel`, so only a `purge_tag` or Redis eviction clears it.
 xmlrpc_cache_by_project = functools.partial(
     xmlrpc_method,
     xmlrpc_cache=True,
@@ -167,36 +214,33 @@ xmlrpc_cache_all_projects = functools.partial(
 )
 
 
-class XMLRPCServiceUnavailable(XmlRpcError):
-    # NOQA due to N815 'mixedCase variable in class scope',
+class XMLRPCServiceUnavailable(XmlRpcError):  # noqa: N818
     # This is the interface for specifying fault code and string for XmlRpcError
-    faultCode = -32403  # NOQA: ignore=N815
-    faultString = "server error; service unavailable"  # NOQA: ignore=N815
+    faultCode = -32403  # noqa: N815
+    faultString = "server error; service unavailable"  # noqa: N815
 
 
 class XMLRPCInvalidParamTypes(XmlRpcInvalidMethodParams):
     def __init__(self, exc):
         self.exc = exc
 
-    # NOQA due to N802 'function name should be lowercase'
     # This is the interface for specifying fault string for XmlRpcError
     @property
-    def faultString(self):  # NOQA: ignore=N802
+    def faultString(self):  # noqa: N802
         return f"client error; {self.exc}"
 
 
 class XMLRPCWrappedError(xmlrpc.client.Fault):
     def __init__(self, exc):
-        # NOQA due to N815 'mixedCase variable in class scope',
-        # This is the interface for specifying fault code and string for XmlRpcError
-        self.faultCode = -32500  # NOQA: ignore=N815
-        self.wrapped_exception = exc  # NOQA: ignore=N815
 
-    # NOQA due to N802 'function name should be lowercase'
+        # This is the interface for specifying fault code and string for XmlRpcError
+        self.faultCode = -32500
+        self.wrapped_exception = exc
+
     # This is the interface for specifying fault string for XmlRpcError
     @property
-    def faultString(self):  # NOQA: ignore=N802
-        return "{exc.__class__.__name__}: {exc}".format(exc=self.wrapped_exception)
+    def faultString(self):  # noqa: N802
+        return f"{self.wrapped_exception.__class__.__name__}: {self.wrapped_exception}"
 
 
 class TypedMapplyViewMapper(MapplyViewMapper):
@@ -333,8 +377,7 @@ def browse(request, classifiers: list[StrictStr]):
 def multicall(request, args):
     raise XMLRPCWrappedError(
         ValueError(
-            "MultiCall requests have been deprecated, use individual "
-            "requests instead."
+            "MultiCall requests have been deprecated, use individual requests instead."
         )
     )
 

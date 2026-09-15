@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import datetime
+import types
 
 from functools import partial
 
 import packaging.version
 import packaging_legacy.version
-import pretend
 import pytest
 
 from urllib3.util import parse_url
@@ -30,13 +30,11 @@ def test_now_with_timezone():
     assert now(tz=True) <= datetime.datetime.now(datetime.UTC)
 
 
-def test_camo_url():
-    request = pretend.stub(
-        registry=pretend.stub(
-            settings={"camo.url": "https://camo.example.net/", "camo.key": "fake key"}
-        )
+def test_camo_url(pyramid_request):
+    pyramid_request.registry.settings.update(
+        {"camo.url": "https://camo.example.net/", "camo.key": "fake key"}
     )
-    c_url = filters._camo_url(request, "http://example.com/image.jpg")
+    c_url = filters._camo_url(pyramid_request, "http://example.com/image.jpg")
     assert c_url == (
         "https://camo.example.net/b410d235a3d2fc44b50ccab827e531dece213062/"
         "687474703a2f2f6578616d706c652e636f6d2f696d6167652e6a7067"
@@ -44,21 +42,19 @@ def test_camo_url():
 
 
 class TestCamoify:
-    def test_camoify(self):
+    def test_camoify(self, pyramid_request):
         html = "<img src=http://example.com/image.jpg>"
 
-        request = pretend.stub(
-            registry=pretend.stub(
-                settings={
-                    "camo.url": "https://camo.example.net/",
-                    "camo.key": "fake key",
-                }
-            )
+        pyramid_request.registry.settings.update(
+            {
+                "camo.url": "https://camo.example.net/",
+                "camo.key": "fake key",
+            }
         )
-        camo_url = partial(filters._camo_url, request)
-        request.camo_url = camo_url
+        camo_url = partial(filters._camo_url, pyramid_request)
+        pyramid_request.camo_url = camo_url
 
-        ctx = {"request": request}
+        ctx = {"request": pyramid_request}
 
         result = filters.camoify(ctx, html)
 
@@ -68,31 +64,31 @@ class TestCamoify:
             '687474703a2f2f6578616d706c652e636f6d2f696d6167652e6a7067">'
         )
 
-    def test_camoify_no_src(self, monkeypatch):
+    def test_camoify_no_src(self, pyramid_request, mocker):
         html = "<img>"
 
-        request = pretend.stub(
-            registry=pretend.stub(
-                settings={
-                    "camo.url": "https://camo.example.net/",
-                    "camo.key": "fake key",
-                }
-            )
+        pyramid_request.registry.settings.update(
+            {
+                "camo.url": "https://camo.example.net/",
+                "camo.key": "fake key",
+            }
         )
-        camo_url = partial(filters._camo_url, request)
-        request.camo_url = camo_url
+        camo_url = partial(filters._camo_url, pyramid_request)
+        pyramid_request.camo_url = camo_url
 
-        ctx = {"request": request}
+        ctx = {"request": pyramid_request}
 
-        gen_camo_url = pretend.call_recorder(
-            lambda curl, ckey, url: "https://camo.example.net/image.jpg"
+        gen_camo_url = mocker.patch.object(
+            filters,
+            "_camo_url",
+            autospec=True,
+            return_value="https://camo.example.net/image.jpg",
         )
-        monkeypatch.setattr(filters, "_camo_url", gen_camo_url)
 
         result = filters.camoify(ctx, html)
 
         assert result == "<img>"
-        assert gen_camo_url.calls == []
+        gen_camo_url.assert_not_called()
 
 
 @pytest.mark.parametrize(
@@ -298,7 +294,6 @@ def test_format_email(meta_email, expected_name, expected_email):
     ("inp", "expected"),
     [
         ("foo", "foo"),  # no change
-        (" foo  bar ", " foo  bar "),  # U+001B : <control> ESCAPE [ESC]
         ("foo \x1b bar", "foo  bar"),  # U+001B : <control> ESCAPE [ESC]
         ("foo \x00 bar", "foo  bar"),  # U+0000 : <control> NULL
         ("foo 🐍 bar", "foo 🐍 bar"),  # U+1F40D : SNAKE [snake] (emoji) [Python]
@@ -312,23 +307,23 @@ def test_remove_invalid_xml_unicode(inp, expected):
     assert filters.remove_invalid_xml_unicode(inp) == expected
 
 
-def test_canonical_url():
-    request = pretend.stub(
-        matched_route=pretend.stub(name="foo"),
-        route_url=pretend.call_recorder(lambda a: "bar"),
+def test_canonical_url(pyramid_request, mocker):
+    pyramid_request.matched_route = types.SimpleNamespace(name="foo")
+    route_url = mocker.patch.object(
+        pyramid_request, "route_url", autospec=True, return_value="bar"
     )
-    assert filters._canonical_url(request) == "bar"
-    assert request.route_url.calls == [pretend.call("foo")]
+    assert filters._canonical_url(pyramid_request) == "bar"
+    route_url.assert_called_once_with("foo")
 
 
-def test_canonical_url_no_matched_route():
-    request = pretend.stub(matched_route=None)
-    assert filters._canonical_url(request) is None
+def test_canonical_url_no_matched_route(pyramid_request):
+    pyramid_request.matched_route = None
+    assert filters._canonical_url(pyramid_request) is None
 
 
-def test_canonical_url_missing_kwargs():
-    request = pretend.stub(
-        matched_route=pretend.stub(name="foo"),
-        route_url=pretend.raiser(KeyError),
+def test_canonical_url_missing_kwargs(pyramid_request, mocker):
+    pyramid_request.matched_route = types.SimpleNamespace(name="foo")
+    mocker.patch.object(
+        pyramid_request, "route_url", autospec=True, side_effect=KeyError
     )
-    assert filters._canonical_url(request) is None
+    assert filters._canonical_url(pyramid_request) is None

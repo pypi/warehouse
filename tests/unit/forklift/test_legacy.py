@@ -2,6 +2,8 @@
 
 import base64
 import builtins
+import datetime
+import gzip
 import hashlib
 import io
 import json
@@ -9,9 +11,12 @@ import re
 import tarfile
 import tempfile
 import zipfile
+import zlib
 
 from cgi import FieldStorage
+from contextlib import ExitStack
 from textwrap import dedent
+from types import SimpleNamespace
 from unittest import mock
 
 import pretend
@@ -20,7 +25,7 @@ import pytest
 
 from pypi_attestations import Attestation, Envelope, VerificationMaterial
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPTooManyRequests
-from sqlalchemy import and_, exists
+from sqlalchemy import and_, event, exists
 from sqlalchemy.orm import joinedload
 from trove_classifiers import classifiers
 from webob.multidict import MultiDict
@@ -28,12 +33,15 @@ from webob.multidict import MultiDict
 import warehouse.constants
 
 from warehouse.accounts.utils import UserContext
-from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.attestations.interfaces import IIntegrityService
 from warehouse.classifiers.models import Classifier
+from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE
+from warehouse.events.models import HasEvents
+from warehouse.events.tags import EventTag
 from warehouse.forklift import legacy, metadata
 from warehouse.macaroons import IMacaroonService, caveats, security_policy
 from warehouse.metrics import IMetricsService
+from warehouse.metrics.services import NullMetrics
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.utils import PublisherTokenContext
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
@@ -49,6 +57,7 @@ from warehouse.packaging.models import (
     Role,
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
+from warehouse.utils.scanner import YaraMatch
 
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.classifiers import ClassifierFactory
@@ -113,35 +122,6 @@ _TAR_BZ2_PKG_SHA256 = hashlib.sha256(_TAR_BZ2_PKG_TESTDATA).hexdigest()
 _TAR_BZ2_PKG_STORAGE_HASH = _storage_hash(_TAR_BZ2_PKG_TESTDATA)
 
 
-class TestExcWithMessage:
-    def test_exc_with_message(self):
-        exc = legacy._exc_with_message(HTTPBadRequest, "My Test Message.")
-        assert isinstance(exc, HTTPBadRequest)
-        assert exc.status_code == 400
-        assert exc.status == "400 My Test Message."
-
-    def test_exc_with_exotic_message(self):
-        exc = legacy._exc_with_message(
-            HTTPBadRequest, "look at these wild chars: аÃ¤â€—"
-        )
-        assert isinstance(exc, HTTPBadRequest)
-        assert exc.status_code == 400
-        assert exc.status == "400 look at these wild chars: ?Ã¤â??"
-
-    def test_exc_with_missing_message(self, monkeypatch):
-        sentry_sdk = pretend.stub(
-            capture_message=pretend.call_recorder(lambda message: None)
-        )
-        monkeypatch.setattr(legacy, "sentry_sdk", sentry_sdk)
-        exc = legacy._exc_with_message(HTTPBadRequest, "")
-        assert isinstance(exc, HTTPBadRequest)
-        assert exc.status_code == 400
-        assert exc.status == "400 Bad Request"
-        assert sentry_sdk.capture_message.calls == [
-            pretend.call("Attempting to _exc_with_message without a message")
-        ]
-
-
 def test_construct_dependencies():
     types = {
         "requires": DependencyKind.requires,
@@ -192,9 +172,48 @@ def test_sort_releases(db_request, versions, expected):
     ] == expected
 
 
+class TestCloseUploadTempfiles:
+    def test_closes_content_file_and_body_file(self):
+        content_file = pretend.stub(close=pretend.call_recorder(lambda: None))
+        body_file = pretend.stub(
+            closed=False, close=pretend.call_recorder(lambda: None)
+        )
+        request = pretend.stub(
+            POST={"content": pretend.stub(file=content_file)},
+            body_file_raw=body_file,
+        )
+
+        legacy._close_upload_tempfiles(request)
+
+        assert content_file.close.calls == [pretend.call()]
+        assert body_file.close.calls == [pretend.call()]
+
+    def test_no_content_field(self):
+        body_file = pretend.stub(
+            closed=False, close=pretend.call_recorder(lambda: None)
+        )
+        request = pretend.stub(POST={}, body_file_raw=body_file)
+
+        legacy._close_upload_tempfiles(request)
+
+        assert body_file.close.calls == [pretend.call()]
+
+    def test_skips_already_closed_body_file(self):
+        body_file = pretend.stub(closed=True, close=pretend.call_recorder(lambda: None))
+        request = pretend.stub(POST={}, body_file_raw=body_file)
+
+        legacy._close_upload_tempfiles(request)
+
+        assert body_file.close.calls == []
+
+
 class TestFileValidation:
+    def test_open_dist_file_rejects_unsupported_extension(self):
+        with pytest.raises(ValueError, match="Unsupported distribution file"):
+            legacy._open_dist_file("test.exe", ExitStack())
+
     def test_defaults_to_true(self):
-        assert legacy._is_valid_dist_file("", "") == (True, None)
+        assert legacy._is_valid_dist_file("", "", NullMetrics()) == (True, None)
 
     @pytest.mark.parametrize(
         ("filename", "filetype"),
@@ -209,7 +228,7 @@ class TestFileValidation:
         with open(f, "wb") as fp:
             fp.write(b"this isn't a valid zip file")
 
-        assert legacy._is_valid_dist_file(f, filetype) == (
+        assert legacy._is_valid_dist_file(f, filetype, NullMetrics()) == (
             False,
             "File is not a zipfile",
         )
@@ -221,7 +240,7 @@ class TestFileValidation:
         with open(fake_tar, "wb") as fp:
             fp.write(b"Definitely not a valid tar file.")
 
-        assert legacy._is_valid_dist_file(fake_tar, "sdist") == (
+        assert legacy._is_valid_dist_file(fake_tar, "sdist", NullMetrics()) == (
             False,
             "File is not a tarfile",
         )
@@ -253,7 +272,43 @@ class TestFileValidation:
         assert tarfile.is_tarfile(fake_tar)
 
         # This should fail
-        assert legacy._is_valid_dist_file(fake_tar, "sdist") == (False, None)
+        assert legacy._is_valid_dist_file(fake_tar, "sdist", NullMetrics()) == (
+            False,
+            None,
+        )
+
+    def test_bails_with_tarfile_that_raises_zlib_error(self, tmpdir):
+        fake_tar = str(tmpdir.join("test.tar.gz"))
+
+        buffer = io.BytesIO()
+        with tarfile.open(fileobj=buffer, mode="w") as tar:
+            file_content = b"x"
+            tarinfo = tarfile.TarInfo(name="package/data")
+            tarinfo.size = len(file_content)
+            tar.addfile(tarinfo, io.BytesIO(file_content))
+
+        valid_gzip_member = gzip.compress(
+            buffer.getvalue()[: tarfile.BLOCKSIZE], mtime=0
+        )
+        # 0x07 starts a final DEFLATE block with the reserved block type.
+        invalid_gzip_member = bytes.fromhex("1f8b080000000000000307")
+        with open(fake_tar, "wb") as fp:
+            fp.write(valid_gzip_member + invalid_gzip_member)
+
+        assert tarfile.is_tarfile(fake_tar)
+        with (
+            pytest.raises(zlib.error) as exc_info,
+            tarfile.open(fake_tar, "r:gz") as archive,
+        ):
+            archive.getnames()
+        assert str(exc_info.value) == (
+            "Error -3 while decompressing data: invalid block type"
+        )
+
+        assert legacy._is_valid_dist_file(fake_tar, "sdist", NullMetrics()) == (
+            False,
+            None,
+        )
 
     @pytest.mark.parametrize("compression", ["gz"])
     def test_tarfile_validation_invalid(self, tmpdir, compression):
@@ -268,7 +323,7 @@ class TestFileValidation:
             tar.add(data_file, arcname="package/__init__.py")
             tar.add(data_file, arcname="package/module.py")
 
-        assert legacy._is_valid_dist_file(tar_fn, "sdist") == (
+        assert legacy._is_valid_dist_file(tar_fn, "sdist", NullMetrics()) == (
             False,
             "PKG-INFO not found at package/PKG-INFO",
         )
@@ -287,7 +342,10 @@ class TestFileValidation:
             tar.add(data_file, arcname="package/PKG-INFO")
             tar.add(data_file, arcname="package/data_file.txt")
 
-        assert legacy._is_valid_dist_file(tar_fn, "sdist") == (True, None)
+        assert legacy._is_valid_dist_file(tar_fn, "sdist", NullMetrics()) == (
+            True,
+            None,
+        )
 
     def test_zip_no_pkg_info(self, tmpdir):
         f = str(tmpdir.join("test.zip"))
@@ -296,7 +354,7 @@ class TestFileValidation:
             zfp.writestr("package/something.txt", b"Just a placeholder file")
             zfp.writestr("package/else.txt", b"Just a placeholder file")
 
-        assert legacy._is_valid_dist_file(f, "sdist") == (
+        assert legacy._is_valid_dist_file(f, "sdist", NullMetrics()) == (
             False,
             "PKG-INFO not found at package/PKG-INFO",
         )
@@ -308,7 +366,7 @@ class TestFileValidation:
             zfp.writestr("package/something.txt", b"Just a placeholder file")
             zfp.writestr("package/PKG-INFO", b"this is the package info")
 
-        assert legacy._is_valid_dist_file(f, "sdist") == (True, None)
+        assert legacy._is_valid_dist_file(f, "sdist", NullMetrics()) == (True, None)
 
     def test_zipfile_supported_compression(self, tmpdir):
         f = str(tmpdir.join("test.zip"))
@@ -319,7 +377,7 @@ class TestFileValidation:
             zfp.writestr("test-1.0/1.txt", b"1", zipfile.ZIP_STORED)
             zfp.writestr("test-1.0/2.txt", b"2", zipfile.ZIP_DEFLATED)
 
-        assert legacy._is_valid_dist_file(f, "") == (True, None)
+        assert legacy._is_valid_dist_file(f, "", NullMetrics()) == (True, None)
 
     @pytest.mark.parametrize("method", [zipfile.ZIP_BZIP2, zipfile.ZIP_LZMA])
     def test_zipfile_unsupported_compression(self, tmpdir, method):
@@ -330,7 +388,7 @@ class TestFileValidation:
             zfp.writestr("test-1.0/2.txt", b"2", zipfile.ZIP_DEFLATED)
             zfp.writestr("test-1.0/3.txt", b"3", method)
 
-        assert legacy._is_valid_dist_file(f, "") == (
+        assert legacy._is_valid_dist_file(f, "", NullMetrics()) == (
             False,
             "File does not use a supported compression type",
         )
@@ -344,7 +402,7 @@ class TestFileValidation:
                 "1.dat", b"0" * 65 * warehouse.constants.ONE_MIB, zipfile.ZIP_DEFLATED
             )
 
-        assert legacy._is_valid_dist_file(f, "") == (
+        assert legacy._is_valid_dist_file(f, "", NullMetrics()) == (
             False,
             "File exceeds compression ratio of 50",
         )
@@ -355,7 +413,7 @@ class TestFileValidation:
         with zipfile.ZipFile(f, "w") as zfp:
             zfp.writestr("something.txt", b"Just a placeholder file")
 
-        assert legacy._is_valid_dist_file(f, "bdist_wheel") == (
+        assert legacy._is_valid_dist_file(f, "bdist_wheel", NullMetrics()) == (
             False,
             "WHEEL not found at test-1.0.dist-info/WHEEL",
         )
@@ -367,7 +425,10 @@ class TestFileValidation:
             zfp.writestr("something.txt", b"Just a placeholder file")
             zfp.writestr("test-1.0.dist-info/WHEEL", b"this is the package info")
 
-        assert legacy._is_valid_dist_file(f, "bdist_wheel") == (True, None)
+        assert legacy._is_valid_dist_file(f, "bdist_wheel", NullMetrics()) == (
+            True,
+            None,
+        )
 
     def test_invalid_wheel_filename(self, tmpdir):
         f = str(tmpdir.join("cheese.whl"))
@@ -376,7 +437,7 @@ class TestFileValidation:
             zfp.writestr("something.txt", b"Just a placeholder file")
             zfp.writestr("test-1.0.dist-info/WHEEL", b"this is the package info")
 
-        assert legacy._is_valid_dist_file(f, "bdist_wheel") == (
+        assert legacy._is_valid_dist_file(f, "bdist_wheel", NullMetrics()) == (
             False,
             "Unable to parse name and version from wheel filename",
         )
@@ -394,7 +455,7 @@ class TestFileValidation:
             tar.add(data_file, arcname="package/data_file.txt")
             tar.add(data_file, arcname="notpackage/test.txt")
 
-        assert legacy._is_valid_dist_file(tar_fn, "sdist") == (
+        assert legacy._is_valid_dist_file(tar_fn, "sdist", NullMetrics()) == (
             False,
             "Incorrect number of top-level directories in sdist",
         )
@@ -409,10 +470,165 @@ class TestFileValidation:
             zfp.writestr("test-1.0/2.txt", b"2", zipfile.ZIP_DEFLATED)
             zfp.writestr("notpackage/test.txt", b"2", zipfile.ZIP_DEFLATED)
 
-        assert legacy._is_valid_dist_file(f, "") == (
+        assert legacy._is_valid_dist_file(f, "", NullMetrics()) == (
             False,
             "Incorrect number of top-level directories in sdist",
         )
+
+    def test_yara_match_in_wheel(self, tmpdir, monkeypatch):
+        f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
+        with zipfile.ZipFile(f, "w") as zfp:
+            zfp.writestr("test-1.0.dist-info/WHEEL", b"Wheel-Version: 1.0")
+            zfp.writestr("pkg/__init__.py", b"bad content")
+
+        match = YaraMatch(
+            rule="test_rule",
+            member="pkg/__init__.py",
+            message="Content not allowed.",
+        )
+        monkeypatch.setattr(
+            "warehouse.utils.scanner.check_members", lambda *a, **kw: match
+        )
+
+        assert legacy._is_valid_dist_file(f, "bdist_wheel", NullMetrics()) == (
+            False,
+            "Content not allowed.",
+        )
+
+    def test_yara_match_in_tarball(self, tmpdir, monkeypatch):
+        tar_fn = str(tmpdir.join("test.tar.gz"))
+        data_file = str(tmpdir.join("dummy_data"))
+        with open(data_file, "wb") as fp:
+            fp.write(b"bad content")
+        with tarfile.open(tar_fn, "w:gz") as tar:
+            tar.add(data_file, arcname="package/PKG-INFO")
+            tar.add(data_file, arcname="package/__init__.py")
+
+        match = YaraMatch(
+            rule="test_rule",
+            member="package/__init__.py",
+            message="Content not allowed.",
+        )
+        monkeypatch.setattr(
+            "warehouse.utils.scanner.check_members", lambda *a, **kw: match
+        )
+
+        assert legacy._is_valid_dist_file(tar_fn, "sdist", NullMetrics()) == (
+            False,
+            "Content not allowed.",
+        )
+
+    @pytest.mark.parametrize(
+        "tar_format",
+        [
+            pytest.param(tarfile.PAX_FORMAT, id="pax"),
+            pytest.param(tarfile.GNU_FORMAT, id="gnu"),
+        ],
+    )
+    @pytest.mark.parametrize("scan", [True, False], ids=["scan", "no-scan"])
+    def test_sparse_member_in_tarball(self, tmpdir, tar_format, scan):
+        tar_fn = str(tmpdir.join("test.tar.gz"))
+        metrics = NullMetrics()
+        metrics.increment = pretend.call_recorder(lambda *args, **kwargs: None)
+        with tarfile.open(tar_fn, "w:gz", format=tar_format) as tar:
+            pkg_info = b"metadata"
+            info = tarfile.TarInfo(name="package/PKG-INFO")
+            info.size = len(pkg_info)
+            tar.addfile(info, io.BytesIO(pkg_info))
+
+            info = tarfile.TarInfo(name="package/sparse.dat")
+            if tar_format == tarfile.PAX_FORMAT:
+                info.size = 1
+                info.pax_headers = {
+                    "GNU.sparse.map": "0,1",
+                    "GNU.sparse.size": "10",
+                }
+            else:
+                info.type = tarfile.GNUTYPE_SPARSE
+                info.size = 0
+            tar.addfile(info, io.BytesIO(b"x"))
+
+        assert legacy._is_valid_dist_file(
+            tar_fn,
+            "sdist",
+            metrics,
+            scan=scan,
+        ) == (
+            False,
+            (
+                "tar archive not accepted: Sparse members are not allowed. "
+                "See https://docs.pypi.org/archives for more information"
+            ),
+        )
+        assert metrics.increment.calls == [
+            pretend.call(
+                "warehouse.upload.tarfile.policy_error",
+                tags=["reason:sparse-member"],
+            )
+        ]
+
+    def test_scan_disabled_skips_yara_in_wheel(self, tmpdir, monkeypatch):
+        f = str(tmpdir.join("test-1.0-py3-none-any.whl"))
+        with zipfile.ZipFile(f, "w") as zfp:
+            zfp.writestr("test-1.0.dist-info/WHEEL", b"Wheel-Version: 1.0")
+            zfp.writestr("pkg/__init__.py", b"bad content")
+
+        # check_members would match, but scan=False skips it entirely.
+        monkeypatch.setattr(
+            "warehouse.utils.scanner.check_members",
+            lambda *a, **kw: (_ for _ in ()).throw(AssertionError("should not scan")),
+        )
+
+        assert legacy._is_valid_dist_file(
+            f, "bdist_wheel", NullMetrics(), scan=False
+        ) == (
+            True,
+            None,
+        )
+
+    def test_scan_disabled_skips_yara_in_tarball(self, tmpdir, monkeypatch):
+        tar_fn = str(tmpdir.join("test.tar.gz"))
+        data_file = str(tmpdir.join("dummy_data"))
+        with open(data_file, "wb") as fp:
+            fp.write(b"bad content")
+        with tarfile.open(tar_fn, "w:gz") as tar:
+            tar.add(data_file, arcname="package/PKG-INFO")
+            tar.add(data_file, arcname="package/__init__.py")
+
+        monkeypatch.setattr(
+            "warehouse.utils.scanner.check_members",
+            lambda *a, **kw: (_ for _ in ()).throw(AssertionError("should not scan")),
+        )
+
+        assert legacy._is_valid_dist_file(
+            tar_fn, "sdist", NullMetrics(), scan=False
+        ) == (
+            True,
+            None,
+        )
+
+    def test_tarfile_zipfile_polyglot(self, tmpdir):
+        tar_buf = io.BytesIO()
+        zip_buf = io.BytesIO()
+        with zipfile.ZipFile(zip_buf, "w") as zfp:
+            zfp.writestr("PKG-INFO", b"this is the package info")
+        with tarfile.open(fileobj=tar_buf, mode="w:gz") as tar:
+            data_file = tmpdir.join("data-file.txt")
+            with open(data_file, "wb") as f:
+                f.write(b"this is the package info")
+            tar: tarfile.TarFile
+            tar.add(data_file, arcname="package/PKG-INFO")
+
+        for filename in ("package.tar.gz", "package.zip"):
+            tar_zip = str(tmpdir.join(filename))
+            with open(tar_zip, "wb") as fp:
+                fp.write(tar_buf.getvalue())
+                fp.write(zip_buf.getvalue())
+
+            assert legacy._is_valid_dist_file(tar_zip, "", NullMetrics()) == (
+                False,
+                "File is both a zip and a tar file",
+            )
 
 
 class TestIsDuplicateFile:
@@ -441,9 +657,7 @@ class TestIsDuplicateFile:
                 md5_digest=hashes["md5"],
                 sha256_digest=hashes["sha256"],
                 blake2_256_digest=hashes["blake2_256"],
-                path="source/{name[0]}/{name}/{filename}".format(
-                    name=project.name, filename=filename
-                ),
+                path=f"source/{project.name[0]}/{project.name}/{filename}",
             )
         )
 
@@ -477,9 +691,7 @@ class TestIsDuplicateFile:
                 md5_digest=hashes["md5"],
                 sha256_digest=hashes["sha256"],
                 blake2_256_digest=hashes["blake2_256"],
-                path="source/{name[0]}/{name}/{filename}".format(
-                    name=project.name, filename=filename
-                ),
+                path=f"source/{project.name[0]}/{project.name}/{filename}",
             )
         )
 
@@ -518,9 +730,7 @@ class TestIsDuplicateFile:
                 md5_digest=hashes["md5"],
                 sha256_digest=hashes["sha256"],
                 blake2_256_digest=hashes["blake2_256"],
-                path="source/{name[0]}/{name}/{filename}".format(
-                    name=project.name, filename=filename
-                ),
+                path=f"source/{project.name[0]}/{project.name}/{filename}",
             )
         )
 
@@ -557,9 +767,7 @@ class TestIsDuplicateFile:
                 md5_digest=hashes["md5"],
                 sha256_digest=hashes["sha256"],
                 blake2_256_digest=hashes["blake2_256"],
-                path="source/{name[0]}/{name}/{filename}".format(
-                    name=project.name, filename=filename
-                ),
+                path=f"source/{project.name[0]}/{project.name}/{filename}",
             )
         )
 
@@ -567,24 +775,6 @@ class TestIsDuplicateFile:
 
 
 class TestFileUpload:
-    def test_fails_disallow_new_upload(self, pyramid_config, pyramid_request):
-        pyramid_request.flags = pretend.stub(
-            enabled=lambda value: value == AdminFlagValue.DISALLOW_NEW_UPLOAD
-        )
-        pyramid_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
-        pyramid_request.user = pretend.stub(primary_email=pretend.stub(verified=True))
-
-        with pytest.raises(HTTPForbidden) as excinfo:
-            legacy.file_upload(pyramid_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 403
-        assert resp.status == (
-            "403 New uploads are temporarily disabled. "
-            "See /the/help/url/ for more information."
-        )
-
     @pytest.mark.parametrize("version", ["2", "3", "-1", "0", "dog", "cat"])
     def test_fails_invalid_version(self, pyramid_config, pyramid_request, version):
         pyramid_request.POST["protocol_version"] = version
@@ -779,27 +969,18 @@ class TestFileUpload:
                 "https://packaging.python.org/specifications/core-metadata for more "
                 "information.",
             ),
-            # classifiers are a FieldStorage
+            # local version error
             (
                 {
                     "metadata_version": "1.2",
                     "name": "example",
-                    "version": "1.0",
+                    "version": "1.0+local",
+                    "md5_digest": "bad",
                     "filetype": "sdist",
-                    "classifiers": FieldStorage(),
                 },
-                "classifiers: Should not be a tuple.",
-            ),
-            # keywords are a FieldStorage
-            (
-                {
-                    "metadata_version": "1.2",
-                    "name": "example",
-                    "version": "1.0",
-                    "filetype": "sdist",
-                    "keywords": FieldStorage(),
-                },
-                "keywords: Should not be a tuple.",
+                "The use of local versions in '1.0+local' is not allowed. "
+                "See https://packaging.python.org/en/latest/specifications/"
+                "version-specifiers/#local-version-identifiers for more information.",
             ),
         ],
     )
@@ -854,8 +1035,9 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (
-            "400 The name {!r} isn't allowed. See /the/help/url/ for more information."
-        ).format(name)
+            f"400 The name {name!r} isn't allowed. See /the/help/url/ for more "
+            "information."
+        )
 
     @pytest.mark.parametrize(
         "conflicting_name",
@@ -904,9 +1086,9 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (
-            "400 The name {!r} is too similar to an existing project. "
+            f"400 The name {conflicting_name!r} is too similar to an existing project. "
             "See /the/help/url/ for more information."
-        ).format(conflicting_name)
+        )
 
     @pytest.mark.parametrize(
         ("description_content_type", "description", "message"),
@@ -1025,54 +1207,10 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (
-            "400 The name {!r} isn't allowed (conflict "
+            f"400 The name {name!r} isn't allowed (conflict "
             "with Python Standard Library module name). "
             "See /the/help/url/ "
             "for more information."
-        ).format(name)
-
-    def test_fails_with_admin_flag_set(self, pyramid_config, db_request):
-        admin_flag = (
-            db_request.db.query(AdminFlag)
-            .filter(
-                AdminFlag.id == AdminFlagValue.DISALLOW_NEW_PROJECT_REGISTRATION.value
-            )
-            .first()
-        )
-        admin_flag.enabled = True
-        user = UserFactory.create()
-        EmailFactory.create(user=user)
-        pyramid_config.testing_securitypolicy(identity=user)
-        db_request.user = user
-        name = "fails-with-admin-flag"
-        db_request.POST = MultiDict(
-            {
-                "metadata_version": "1.2",
-                "name": name,
-                "version": "1.0",
-                "filetype": "sdist",
-                "md5_digest": "a fake md5 digest",
-                "content": pretend.stub(
-                    filename=f"{name}-1.0.tar.gz",
-                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
-                    type="application/tar",
-                ),
-            }
-        )
-
-        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
-
-        with pytest.raises(HTTPForbidden) as excinfo:
-            legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 403
-        assert resp.status == (
-            "403 New project registration temporarily "
-            "disabled. See "
-            "/the/help/url/ for "
-            "more information."
         )
 
     def test_upload_fails_without_file(self, pyramid_config, db_request):
@@ -1097,48 +1235,6 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == "400 Upload payload does not have a file."
-
-    @pytest.mark.parametrize("value", [("UNKNOWN"), ("UNKNOWN\n\n")])
-    def test_upload_cleans_unknown_values(self, pyramid_config, db_request, value):
-        user = UserFactory.create()
-        pyramid_config.testing_securitypolicy(identity=user)
-        db_request.user = user
-        EmailFactory.create(user=user)
-        db_request.POST = MultiDict(
-            {
-                "metadata_version": "1.2",
-                "name": value,
-                "version": "1.0",
-                "filetype": "sdist",
-                "md5_digest": "a fake md5 digest",
-            }
-        )
-
-        with pytest.raises(HTTPBadRequest):
-            legacy.file_upload(db_request)
-
-        assert "name" not in db_request.POST
-
-    def test_upload_escapes_nul_characters(self, pyramid_config, db_request):
-        user = UserFactory.create()
-        EmailFactory.create(user=user)
-        pyramid_config.testing_securitypolicy(identity=user)
-        db_request.user = user
-        db_request.POST = MultiDict(
-            {
-                "metadata_version": "1.2",
-                "name": "testing",
-                "summary": "I want to go to the \x00",
-                "version": "1.0",
-                "filetype": "sdist",
-                "md5_digest": "a fake md5 digest",
-            }
-        )
-
-        with pytest.raises(HTTPBadRequest):
-            legacy.file_upload(db_request)
-
-        assert "\x00" not in db_request.POST["summary"]
 
     @pytest.mark.parametrize("macaroon_in_user_context", [True, False])
     @pytest.mark.parametrize(
@@ -1579,7 +1675,7 @@ class TestFileUpload:
         classifier = ClassifierFactory(classifier="AA :: BB")
 
         monkeypatch.setattr(
-            metadata, "all_classifiers", metadata.all_classifiers + ["AA :: BB"]
+            metadata, "all_classifiers", [*metadata.all_classifiers, "AA :: BB"]
         )
         monkeypatch.setattr(metadata, "deprecated_classifiers", deprecated_classifiers)
 
@@ -1860,7 +1956,7 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == (
             "400 Project size too large."
-            + " Limit for project 'foobar' total size is 10 GB. "
+            " Limit for project 'foobar' total size is 10 GB. "
             "See /the/help/url/"
         )
 
@@ -1877,8 +1973,7 @@ class TestFileUpload:
             upload_limit=warehouse.constants.MAX_FILESIZE,
             total_size=warehouse.constants.MAX_PROJECT_SIZE,
             total_size_limit=(
-                warehouse.constants.MAX_PROJECT_SIZE
-                + one_megabyte
+                warehouse.constants.MAX_PROJECT_SIZE + one_megabyte
                 # Custom Limit for the project
             ),
         )
@@ -1921,7 +2016,7 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == (
             "400 Project size too large."
-            + " Limit for project 'foobar' total size is 10 GB. "
+            " Limit for project 'foobar' total size is 10 GB. "
             "See /the/help/url/"
         )
 
@@ -2041,13 +2136,11 @@ class TestFileUpload:
 
         db_request.user_agent = "warehouse-tests/6.6.6"
 
-        wheel_metadata = dedent(
-            """
+        wheel_metadata = dedent("""
             Metadata-Version: 2.1
             Name: {project.name}
             Version: {release.version}
-            """
-        ).encode("utf-8")
+            """).encode("utf-8")
 
         wheel_testdata = _get_whl_testdata(
             name=project.normalized_name.replace("-", "_"), version=release.version
@@ -2189,9 +2282,7 @@ class TestFileUpload:
                 blake2_256_digest=hashlib.blake2b(
                     file_content.getvalue(), digest_size=256 // 8
                 ).hexdigest(),
-                path="source/{name[0]}/{name}/{filename}".format(
-                    name=project.name, filename=filename
-                ),
+                path=f"source/{project.name[0]}/{project.name}/{filename}",
             )
         )
 
@@ -2240,9 +2331,7 @@ class TestFileUpload:
                 blake2_256_digest=hashlib.blake2b(
                     filename.encode("utf8"), digest_size=256 // 8
                 ).hexdigest(),
-                path="source/{name[0]}/{name}/{filename}".format(
-                    name=project.name, filename=filename
-                ),
+                path=f"source/{project.name[0]}/{project.name}/{filename}",
             )
         )
         db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
@@ -2300,9 +2389,7 @@ class TestFileUpload:
                 md5_digest=hashlib.md5(file_content.getvalue()).hexdigest(),
                 sha256_digest=hashlib.sha256(file_content.getvalue()).hexdigest(),
                 blake2_256_digest=blake2_256_digest,
-                path="source/{name[0]}/{name}/{filename}".format(
-                    name=project.name, filename=filename
-                ),
+                path=f"source/{project.name[0]}/{project.name}/{filename}",
             )
         )
         db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
@@ -2496,7 +2583,7 @@ class TestFileUpload:
                 }[filetype],
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2536,7 +2623,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2579,7 +2666,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2618,7 +2705,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2659,7 +2746,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2675,10 +2762,10 @@ class TestFileUpload:
         assert db_request.help_url.calls == [pretend.call(_anchor="project-name")]
         assert resp.status_code == 403
         assert resp.status == (
-            "403 The user '{}' "
-            "isn't allowed to upload to project '{}'. "
+            f"403 The user '{user2.username}' "
+            f"isn't allowed to upload to project '{project.name}'. "
             "See /the/help/url/ for more information."
-        ).format(user2.username, project.name)
+        )
 
     def test_upload_fails_without_oidc_publisher_permission(
         self, pyramid_config, db_request
@@ -2703,7 +2790,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a"),
                     type="application/tar",
                 ),
             }
@@ -2719,9 +2806,202 @@ class TestFileUpload:
         assert db_request.help_url.calls == [pretend.call(_anchor="project-name")]
         assert resp.status_code == 403
         assert resp.status == (
-            "403 The given token isn't allowed to upload to project '{}'. "
+            f"403 The given token isn't allowed to upload to project '{project.name}'. "
             "See /the/help/url/ for more information."
-        ).format(project.name)
+        )
+
+    def test_upload_fails_with_unverified_email_after_permission_check(
+        self, pyramid_config, db_request, mocker
+    ):
+        """The email check fires from inside the view, after the permission
+        check passes, so a maintainer without a verified primary email gets
+        the email error.
+
+        See: https://github.com/pypi/warehouse/issues/18575
+        """
+        user = UserFactory.create()
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "sdist",
+                "md5_digest": "nope!",
+                "content": SimpleNamespace(
+                    filename=filename,
+                    file=io.BytesIO(b"a"),
+                    type="application/tar",
+                ),
+            }
+        )
+        db_request.help_url = mocker.Mock(return_value="/the/help/url/")
+
+        with pytest.raises(HTTPForbidden) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 403
+        assert resp.status == (
+            f"403 User {user.username!r}, associated with the API token used, "
+            "does not have a verified primary email address. Please add a "
+            "verified primary email before attempting to upload to PyPI. "
+            "See /the/help/url/ for more information."
+        )
+
+    def test_upload_fails_without_two_factor_after_permission_check(
+        self, pyramid_config, db_request, mocker
+    ):
+        """A user with permission and a verified email but no 2FA receives
+        the 2FA error from the view, after the permission check."""
+        user = UserFactory.create(with_verified_primary_email=True)
+        user.totp_secret = None  # Drop totp_secret so has_two_factor is False.
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "sdist",
+                "md5_digest": "nope!",
+                "content": SimpleNamespace(
+                    filename=filename,
+                    file=io.BytesIO(b"a"),
+                    type="application/tar",
+                ),
+            }
+        )
+        db_request.help_url = mocker.Mock(return_value="/the/help/url/")
+
+        with pytest.raises(HTTPForbidden) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 403
+        assert resp.status == (
+            f"403 User {user.username!r}, associated with the API token used, "
+            "does not have two-factor authentication enabled. Please enable "
+            "two-factor authentication before attempting to upload to PyPI. "
+            "See /the/help/url/ for more information."
+        )
+
+    def test_upload_permission_error_surfaces_before_email_check(
+        self, pyramid_config, db_request, mocker
+    ):
+        """When a user lacks both project permission and a verified email,
+        the permission error surfaces first because it is the more useful
+        diagnostic for the misconfigured-token case.
+
+        See: https://github.com/pypi/warehouse/issues/18575
+        """
+        owner = UserFactory.create()
+        EmailFactory.create(user=owner)
+        intruder = UserFactory.create()  # No verified email, no 2FA.
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=owner, project=project)
+
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
+
+        pyramid_config.testing_securitypolicy(identity=intruder, permissive=False)
+        db_request.user = intruder
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "sdist",
+                "md5_digest": "nope!",
+                "content": SimpleNamespace(
+                    filename=filename,
+                    file=io.BytesIO(b"a"),
+                    type="application/tar",
+                ),
+            }
+        )
+        db_request.help_url = mocker.Mock(return_value="/the/help/url/")
+
+        with pytest.raises(HTTPForbidden) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 403
+        assert resp.status == (
+            f"403 The user {intruder.username!r} "
+            f"isn't allowed to upload to project '{project.name}'. "
+            "See /the/help/url/ for more information."
+        )
+
+    def test_upload_new_project_fails_with_unverified_email(
+        self, pyramid_config, db_request, mocker
+    ):
+        """A user attempting to upload (and thereby create) a brand new
+        project without a verified email is rejected before the project
+        gets created, so we don't leave an empty project record behind."""
+        user = UserFactory.create()  # No verified email.
+
+        filename = "new_project-1.0.tar.gz"
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": "new-project",
+                "version": "1.0",
+                "filetype": "sdist",
+                "md5_digest": "nope!",
+                "content": SimpleNamespace(
+                    filename=filename,
+                    file=io.BytesIO(b"a"),
+                    type="application/tar",
+                ),
+            }
+        )
+        db_request.help_url = mocker.Mock(return_value="/the/help/url/")
+
+        with pytest.raises(HTTPForbidden) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 403
+        assert resp.status == (
+            f"403 User {user.username!r}, associated with the API token used, "
+            "does not have a verified primary email address. Please add a "
+            "verified primary email before attempting to upload to PyPI. "
+            "See /the/help/url/ for more information."
+        )
+        # The project must not have been created.
+        assert (
+            db_request.db.query(Project)
+            .filter(Project.normalized_name == "new-project")
+            .first()
+            is None
+        )
 
     def test_upload_attestation_fails_without_oidc_publisher(
         self,
@@ -2755,7 +3035,7 @@ class TestFileUpload:
             version=1,
             verification_material=VerificationMaterial(
                 certificate=base64.b64encode(b"some_cert"),
-                transparency_entries=[dict()],
+                transparency_entries=[{}],
             ),
             envelope=Envelope(
                 statement=base64.b64encode(b"somebase64string"),
@@ -2860,6 +3140,7 @@ class TestFileUpload:
                 "macosx_10_6_intel.macosx_10_9_intel.macosx_10_9_x86_64."
                 "macosx_10_10_intel.macosx_10_10_x86_64"
             ),
+            "pyemscripten_2026_0_wasm32",
         ],
     )
     def test_upload_succeeds_with_wheel(
@@ -3871,6 +4152,69 @@ class TestFileUpload:
         ]
         assert resp.status_code == 200
 
+    def test_upload_fails_with_invalid_entrypoints_wheel(
+        self, monkeypatch, pyramid_config, db_request
+    ):
+        """
+        Uploading a wheel fails if the entry_points.txt file is invalid.
+        """
+
+        user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        temp_f = io.BytesIO()
+        project_name = project.normalized_name.replace("-", "_")
+        with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
+            zfp.writestr("some_file", "some_data")
+            zfp.writestr(f"{project_name}-{release.version}.dist-info/METADATA", "")
+            zfp.writestr(
+                f"{project_name}-{release.version}.dist-info/entry_points.txt",
+                "[console_scripts]\n/bin/evil = evil:main\n",
+            )
+            zfp.writestr(
+                f"{project_name}-{release.version}.dist-info/RECORD",
+                dedent(
+                    f"""\
+                    some_file,
+                    {project_name}-{release.version}.dist-info/METADATA,
+                    {project_name}-{release.version}.dist-info/entry_points.txt,
+                    {project_name}-{release.version}.dist-info/RECORD,
+                    """,
+                ),
+            )
+
+        filename = f"{project_name}-{release.version}-cp34-none-any.whl"
+        filebody = temp_f.getvalue()
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "bdist_wheel",
+                "pyversion": "cp34",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
+
+        with pytest.raises(HTTPBadRequest, match="has invalid entry points"):
+            legacy.file_upload(db_request)
+
     def test_upload_fails_with_missing_metadata_wheel(
         self, monkeypatch, pyramid_config, db_request
     ):
@@ -3896,10 +4240,7 @@ class TestFileUpload:
                 ),
             )
 
-        filename = "{}-{}-cp34-none-any.whl".format(
-            project_name,
-            release.version,
-        )
+        filename = f"{project_name}-{release.version}-cp34-none-any.whl"
         filebody = temp_f.getvalue()
 
         db_request.POST = MultiDict(
@@ -4010,8 +4351,6 @@ class TestFileUpload:
         expected_version,
         test_with_user,
     ):
-        from warehouse.events.models import HasEvents
-        from warehouse.events.tags import EventTag
 
         project = ProjectFactory.create()
         if test_with_user:
@@ -4178,7 +4517,6 @@ class TestFileUpload:
         db_request,
         integrity_service,
     ):
-        from warehouse.events.models import HasEvents
 
         project = ProjectFactory.create()
         version = "1.0"
@@ -4201,7 +4539,7 @@ class TestFileUpload:
         attestation = Attestation(
             version=1,
             verification_material=VerificationMaterial(
-                certificate="somebase64string", transparency_entries=[dict()]
+                certificate="somebase64string", transparency_entries=[{}]
             ),
             envelope=Envelope(
                 statement="somebase64string",
@@ -4283,7 +4621,6 @@ class TestFileUpload:
         db_request,
         invalid_attestations,
     ):
-        from warehouse.events.models import HasEvents
 
         project = ProjectFactory.create()
         version = "1.0"
@@ -4580,6 +4917,98 @@ class TestFileUpload:
             "Download": release.download_url,
         }
         assert not release_db.urls_by_verify_status(verified=False)
+
+    def test_retroactive_verification_requires_url_match(
+        self,
+        pyramid_config,
+        db_request,
+    ):
+        """
+        Retroactive verification of home_page and download_url must only
+        grant the verified badge when the URL in the new upload matches
+        the URL already stored on the release. A second upload with a
+        different (verifiable) URL must not verify the original stored URL.
+        """
+        stored_url = "https://attacker.example.com"
+        publisher_url = "https://github.com/foo/my_new_repo"
+
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        # Simulate first upload: stored URLs are unverified
+        release.home_page = stored_url
+        release.home_page_verified = False
+        release.download_url = stored_url
+        release.download_url_verified = False
+        release.project_urls = {}
+
+        publisher = GitHubPublisherFactory.create(
+            projects=[project],
+            repository_owner="foo",
+            repository_name="my_new_repo",
+        )
+        claims = {"sha": "somesha"}
+        identity = PublisherTokenContext(publisher, SignedClaims(claims))
+        db_request.oidc_publisher = identity.publisher
+        db_request.oidc_claims = identity.claims
+
+        db_request.db.add(Classifier(classifier="Environment :: Other Environment"))
+        db_request.db.add(Classifier(classifier="Programming Language :: Python"))
+
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), "1.0"
+        )
+
+        pyramid_config.testing_securitypolicy(identity=identity)
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0",
+                "summary": "This is my summary!",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+        db_request.POST.extend(
+            [
+                ("classifiers", "Environment :: Other Environment"),
+                ("classifiers", "Programming Language :: Python"),
+                ("requires_dist", "foo"),
+                ("requires_dist", "bar (>1.0)"),
+                ("requires_external", "Cheese (>1.0)"),
+                ("provides", "testing"),
+                # Second upload sends a DIFFERENT, verifiable URL
+                ("home_page", publisher_url),
+                ("download_url", publisher_url),
+            ]
+        )
+        # At least one project_url is required for the retroactive verification
+        # block to execute (it's guarded by `if not is_new_release and project_urls`)
+        db_request.POST.add("project_urls", f"Source, {publisher_url}")
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+        }.get(svc)
+
+        legacy.file_upload(db_request)
+
+        release_db = (
+            db_request.db.query(Release).filter(Release.project == project).one()
+        )
+
+        # The stored URLs don't match the uploaded URLs, so they must
+        # remain unverified even though the uploaded URLs are verifiable.
+        assert release_db.home_page == stored_url
+        assert release_db.home_page_verified is False
+        assert release_db.download_url == stored_url
+        assert release_db.download_url_verified is False
 
     def test_new_release_email_verified(self, monkeypatch, pyramid_config, db_request):
         owner = UserFactory.create()
@@ -4958,10 +5387,13 @@ class TestFileUpload:
         )
         db_request.remote_addr = remote_addr
 
-        project_service.ratelimiters[failing_limiter] = pretend.stub(
+        limiter = pretend.stub(
             test=lambda *a, **kw: False,
             resets_in=lambda *a, **kw: 60,
+            get_window_stats=lambda *a, **kw: [],
         )
+        limiter.override = lambda limit_string: limiter
+        project_service.ratelimiters[failing_limiter] = limiter
         storage_service = pretend.stub(store=lambda path, filepath, meta: None)
         db_request.find_service = lambda svc, name=None, context=None: {
             IFileStorage: storage_service,
@@ -5092,125 +5524,6 @@ class TestFileUpload:
 
         assert resp.status_code == 200
 
-    def test_upload_fails_without_two_factor(
-        self, pyramid_config, db_request, project_service, monkeypatch
-    ):
-        user = UserFactory.create(totp_secret=None, with_verified_primary_email=True)
-
-        pyramid_config.testing_securitypolicy(identity=user)
-        db_request.user = user
-        db_request.POST = MultiDict(
-            {
-                "metadata_version": "1.2",
-                "name": "example",
-                "version": "1.0",
-                "filetype": "sdist",
-                "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
-                    filename="example-1.0.tar.gz",
-                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
-                    type="application/tar",
-                ),
-            }
-        )
-
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc, name=None, context=None: {
-            IFileStorage: storage_service,
-            IProjectService: project_service,
-        }.get(svc)
-        db_request.user_agent = "warehouse-tests/6.6.6"
-        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
-
-        with pytest.raises(HTTPBadRequest) as excinfo:
-            legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == (
-            (
-                "400 User {!r} does not have two-factor authentication enabled. "
-                "Please enable two-factor authentication before attempting to "
-                "upload to PyPI. See /the/help/url/ for more information."
-            ).format(user.username)
-        )
-        assert db_request.help_url.calls == [
-            pretend.call(_anchor="two-factor-authentication")
-        ]
-
-    @pytest.mark.parametrize(
-        ("emails_verified", "expected_success"),
-        [
-            ([], False),
-            ([True], True),
-            ([False], False),
-            ([True, True], True),
-            ([True, False], True),
-            ([False, False], False),
-            ([False, True], False),
-        ],
-    )
-    def test_upload_requires_verified_email(
-        self,
-        pyramid_config,
-        db_request,
-        emails_verified,
-        expected_success,
-        project_service,
-    ):
-        user = UserFactory.create()
-        for i, verified in enumerate(emails_verified):
-            EmailFactory.create(user=user, verified=verified, primary=i == 0)
-
-        filename = "{}-{}.tar.gz".format("example", "1.0")
-
-        pyramid_config.testing_securitypolicy(identity=user)
-        db_request.user = user
-        db_request.POST = MultiDict(
-            {
-                "metadata_version": "1.2",
-                "name": "example",
-                "version": "1.0",
-                "filetype": "sdist",
-                "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
-                    type="application/tar",
-                ),
-            }
-        )
-
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc, name=None, context=None: {
-            IFileStorage: storage_service,
-            IProjectService: project_service,
-        }.get(svc)
-        db_request.user_agent = "warehouse-tests/6.6.6"
-
-        if expected_success:
-            resp = legacy.file_upload(db_request)
-            assert resp.status_code == 200
-        else:
-            db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
-
-            with pytest.raises(HTTPBadRequest) as excinfo:
-                legacy.file_upload(db_request)
-
-            resp = excinfo.value
-
-            assert db_request.help_url.calls == [pretend.call(_anchor="verified-email")]
-            assert resp.status_code == 400
-            assert resp.status == (
-                (
-                    "400 User {!r} does not have a verified primary email "
-                    "address. Please add a verified primary email before "
-                    "attempting to upload to PyPI. See /the/help/url/ for "
-                    "more information."
-                ).format(user.username)
-            )
-
     def test_upload_purges_legacy(
         self,
         pyramid_config,
@@ -5250,33 +5563,6 @@ class TestFileUpload:
         resp = legacy.file_upload(db_request)
 
         assert resp.status_code == 200
-
-    def test_fails_in_read_only_mode(self, pyramid_request):
-        pyramid_request.flags = pretend.stub(enabled=lambda *a: True)
-
-        with pytest.raises(HTTPForbidden) as excinfo:
-            legacy.file_upload(pyramid_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 403
-        assert resp.status == ("403 Read-only mode: Uploads are temporarily disabled.")
-
-    def test_fails_without_user(self, pyramid_config, pyramid_request):
-        pyramid_request.flags = pretend.stub(enabled=lambda *a: False)
-        pyramid_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
-        pyramid_config.testing_securitypolicy(userid=None)
-
-        with pytest.raises(HTTPForbidden) as excinfo:
-            legacy.file_upload(pyramid_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 403
-        assert resp.status == (
-            "403 Invalid or non-existent authentication information. "
-            "See /the/help/url/ for more information."
-        )
 
     @pytest.mark.parametrize(
         # The only case where we expect the warning email to be sent is the first one:
@@ -5685,6 +5971,99 @@ class TestFileUpload:
             ("v1.0", "1.0", "bdist_wheel", "application/zip"),
         ],
     )
+    def test_upload_succeeds_creates_release_metadata_2_5(
+        self,
+        pyramid_config,
+        db_request,
+        monkeypatch,
+        version,
+        expected_version,
+        filetype,
+        mimetype,
+    ):
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project)
+
+        if filetype == "sdist":
+            filename = "{}-{}.tar.gz".format(
+                project.normalized_name.replace("-", "_"), "1.0"
+            )
+            digest = _TAR_GZ_PKG_MD5
+            data = _TAR_GZ_PKG_TESTDATA
+        elif filetype == "bdist_wheel":  # pragma: no branch
+            filename = "{}-{}-py3-none-any.whl".format(
+                project.normalized_name.replace("-", "_"), "1.0"
+            )
+            data = _get_whl_testdata(
+                name=project.normalized_name.replace("-", "_"), version="1.0"
+            )
+            digest = hashlib.md5(data).hexdigest()
+            monkeypatch.setattr(
+                legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+            )
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "2.5",
+                "name": project.name,
+                "version": version,
+                "summary": "This is my summary!",
+                "filetype": filetype,
+                "md5_digest": digest,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(data),
+                    type=mimetype,
+                ),
+            }
+        )
+        if filetype == "bdist_wheel":
+            db_request.POST.extend([("pyversion", "py3")])
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+        }.get(svc)
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+        # Ensure that a Release object has been created.
+        release = (
+            db_request.db.query(Release)
+            .filter(
+                (Release.project == project) & (Release.version == expected_version)
+            )
+            .one()
+        )
+        assert release.summary == "This is my summary!"
+        assert release.version == expected_version
+        assert release.canonical_version == "1"
+        assert release.uploaded_via == "warehouse-tests/6.6.6"
+
+        # Ensure that a File object has been created.
+        db_request.db.query(File).filter(
+            (File.release == release) & (File.filename == filename)
+        ).one()
+
+        # Ensure that a Filename object has been created.
+        db_request.db.query(Filename).filter(Filename.filename == filename).one()
+
+    @pytest.mark.parametrize(
+        ("version", "expected_version", "filetype", "mimetype"),
+        [
+            ("1.0", "1.0", "sdist", "application/tar"),
+            ("v1.0", "1.0", "sdist", "application/tar"),
+            ("1.0", "1.0", "bdist_wheel", "application/zip"),
+            ("v1.0", "1.0", "bdist_wheel", "application/zip"),
+        ],
+    )
     def test_upload_fails_missing_license_file_metadata_2_4(
         self,
         pyramid_config,
@@ -5940,7 +6319,8 @@ class TestFileUpload:
         self, pyramid_config, db_request, monkeypatch
     ):
         organization = OrganizationFactory.create(
-            orgtype="Company", upload_limit=120 * (1024**2)  # 120 MiB
+            orgtype="Company",
+            upload_limit=120 * (1024**2),  # 120 MiB
         )
         user = UserFactory.create(with_verified_primary_email=True)
         OrganizationRoleFactory.create(organization=organization, user=user)
@@ -6011,7 +6391,8 @@ class TestFileUpload:
         self, pyramid_config, db_request, monkeypatch
     ):
         organization = OrganizationFactory.create(
-            orgtype="Company", total_size_limit=100 * (1024**3)  # 100 GiB
+            orgtype="Company",
+            total_size_limit=100 * (1024**3),  # 100 GiB
         )
         user = UserFactory.create(with_verified_primary_email=True)
         OrganizationRoleFactory.create(organization=organization, user=user)
@@ -6147,7 +6528,8 @@ class TestFileUpload:
         """Integration test: verify upload uses project.upload_limit_size property"""
         # Create organization with generous limit
         organization = OrganizationFactory.create(
-            orgtype="Company", upload_limit=150 * (1024**2)  # 150 MiB
+            orgtype="Company",
+            upload_limit=150 * (1024**2),  # 150 MiB
         )
         user = UserFactory.create(with_verified_primary_email=True)
         OrganizationRoleFactory.create(organization=organization, user=user)
@@ -6216,7 +6598,8 @@ class TestFileUpload:
         """Integration test: verify upload uses total_size_limit_value property"""
         # Create organization with generous total size limit
         organization = OrganizationFactory.create(
-            orgtype="Company", total_size_limit=60 * (1024**3)  # 60 GiB
+            orgtype="Company",
+            total_size_limit=60 * (1024**3),  # 60 GiB
         )
         user = UserFactory.create(with_verified_primary_email=True)
         OrganizationRoleFactory.create(organization=organization, user=user)
@@ -6298,8 +6681,6 @@ class TestFileUpload:
         RoleFactory.create(user=user, project=project)
 
         # Verify model properties return system defaults
-        from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE
-
         assert project.upload_limit_size == MAX_FILESIZE
         assert project.total_size_limit_value == MAX_PROJECT_SIZE
 
@@ -6359,6 +6740,176 @@ class TestFileUpload:
         resp = legacy.file_upload(db_request)
         assert resp.status_code == 200
 
+    def test_upload_fails_with_yara_match(
+        self, tmpdir, monkeypatch, pyramid_config, db_request
+    ):
+        monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
+
+        monkeypatch.setattr(
+            legacy,
+            "_is_valid_dist_file",
+            lambda *a, **kw: (
+                False,
+                "PyArmor-encrypted content is not allowed. "
+                "See https://pypi.org/policy/terms-of-use/ for more information.",
+            ),
+        )
+
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}-py3-none-any.whl".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
+        filebody = _get_whl_testdata(
+            name=project.normalized_name.replace("-", "_"), version=release.version
+        )
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "bdist_wheel",
+                "pyversion": "cp34",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+        assert resp.status_code == 400
+        assert "PyArmor-encrypted content is not allowed" in resp.status
+
+    def test_upload_fails_release_is_closed(
+        self, tmpdir, monkeypatch, pyramid_config, db_request
+    ):
+        monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
+        monkeypatch.setattr(
+            legacy, "_is_valid_dist_file", lambda *a, **kw: (True, None)
+        )
+
+        now = datetime.datetime.now()
+        then = now - legacy.MAXIMUM_AGE_FOR_NEW_UPLOADS - datetime.timedelta(seconds=1)
+
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0", created=then)
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}-py3-none-any.whl".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
+        filebody = _get_whl_testdata(
+            name=project.normalized_name.replace("-", "_"), version=release.version
+        )
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "bdist_wheel",
+                "pyversion": "cp34",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+        assert resp.status_code == 400
+        assert (
+            f"Uploading new files to releases older than "
+            f"{legacy.MAXIMUM_AGE_FOR_NEW_UPLOADS.days} days is not allowed."
+            in resp.status
+        )
+
+    def test_upload_duplicate_error_on_closed_releases(
+        self, tmpdir, monkeypatch, pyramid_config, db_request
+    ):
+        # 'File already exists' error should be favored over a
+        # 'Closed release' error, as this is a non-error outcome
+        # when used with --skip-existing on old releases.
+
+        now = datetime.datetime.now()
+        then = now - legacy.MAXIMUM_AGE_FOR_NEW_UPLOADS - datetime.timedelta(seconds=1)
+
+        user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(
+            project=project,
+            version="1.0",
+            created=then,
+        )
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), release.version
+        )
+        file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "sdist",
+                "md5_digest": hashlib.md5(file_content.getvalue()).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename, file=file_content, type="application/tar"
+                ),
+            }
+        )
+        db_request.db.add(
+            FileFactory.create(
+                release=release,
+                filename=filename,
+                md5_digest=hashlib.md5(filename.encode("utf8")).hexdigest(),
+                sha256_digest=hashlib.sha256(filename.encode("utf8")).hexdigest(),
+                blake2_256_digest=hashlib.blake2b(
+                    filename.encode("utf8"), digest_size=256 // 8
+                ).hexdigest(),
+                path=f"source/{project.name[0]}/{project.name}/{filename}",
+                upload_time=then,
+            )
+        )
+        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+        resp = excinfo.value
+
+        # The error is 'File already exists', not the closed release error.
+        assert resp.status_code == 400
+        assert f"400 File already exists ({filename!r}" in resp.status
+
 
 def test_submit(pyramid_request):
     resp = legacy.submit(pyramid_request)
@@ -6391,3 +6942,142 @@ def test_missing_trailing_slash_redirect(pyramid_request):
         "/legacy/ (with a trailing slash)"
     )
     assert resp.headers["Location"] == "/legacy/"
+
+
+class TestFileUploadAdvisoryLockTiming:
+    """
+    Tests that JournalEntries are isolated from other flush operations,
+    minimizing advisory lock hold time and preventing deadlocks.
+
+    The ensure_monotonic_journals listener acquires a global advisory lock
+    whenever a JournalEntry is flushed. If JournalEntries are flushed
+    alongside other objects (File INSERT, etc.), the advisory lock is held
+    while those other operations execute, which can deadlock with concurrent
+    transactions waiting for the same advisory lock.
+
+    The fix: ensure_monotonic_journals automatically defers JournalEntries
+    to a separate flush cycle when other objects are also pending, so the
+    advisory lock is only held during the JournalEntry-only flush.
+    """
+
+    def test_journal_entries_deferred_until_final_flush(
+        self,
+        tmpdir,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+    ):
+        """Verify that JournalEntries are automatically separated from other
+        objects into their own flush cycle, and only appear after storage upload.
+
+        ensure_monotonic_journals expunges JournalEntries when other objects
+        are pending in the same flush, then re-adds them via after_flush for a
+        subsequent flush cycle. This ensures the advisory lock is only acquired
+        in a flush containing exclusively JournalEntries.
+        """
+        monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
+
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project)
+
+        filename = "{}-{}.tar.gz".format(
+            project.normalized_name.replace("-", "_"), "1.0"
+        )
+
+        db_request.user = user
+        identity = UserContext(user, pretend.stub())
+        pyramid_config.testing_securitypolicy(identity=identity)
+        db_request.user_agent = "warehouse-tests/6.6.6"
+
+        content = FieldStorage()
+        content.filename = filename
+        content.file = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
+        content.type = "application/tar"
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": content,
+            }
+        )
+
+        # Track storage calls to know when S3 upload happened relative to flushes
+        storage_calls = []
+
+        def track_store(path, filepath, meta):
+            storage_calls.append(path)
+
+        storage_service = pretend.stub(store=track_store)
+        db_request.find_service = pretend.call_recorder(
+            lambda svc, name=None, context=None: {
+                IFileStorage: storage_service,
+            }.get(svc)
+        )
+        db_request.registry.settings = {
+            "warehouse.release_files_table": None,
+        }
+        delay = pretend.call_recorder(lambda a: None)
+        db_request.task = pretend.call_recorder(lambda a: pretend.stub(delay=delay))
+
+        # Track what's actually in the session when each flush executes.
+        flush_log = []
+
+        @event.listens_for(db_request.db, "before_flush")
+        def log_flush_contents(session, flush_context, instances):
+            flush_log.append(
+                {
+                    "new_types": sorted(type(o).__name__ for o in session.new),
+                    "has_journal": any(
+                        isinstance(obj, JournalEntry) for obj in session.new
+                    ),
+                    "storage_uploaded": len(storage_calls) > 0,
+                }
+            )
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+        assert storage_calls, "Expected at least one storage.store() call"
+
+        # The ensure_monotonic_journals listener defers JournalEntries when
+        # other objects are also pending. They're re-added to session.new
+        # via after_flush and flushed in a subsequent cycle (normally at
+        # commit time via zope.sqlalchemy). Trigger that flush here.
+        db_request.db.flush()
+
+        # Find flushes that contain JournalEntry
+        journal_flushes = [f for f in flush_log if f["has_journal"]]
+        assert journal_flushes, "Expected at least one flush containing a JournalEntry"
+
+        # The key assertion: every flush that contains a JournalEntry must
+        # happen AFTER the storage upload.
+        for f in journal_flushes:
+            assert f["storage_uploaded"], (
+                "JournalEntry was flushed BEFORE storage upload completed. "
+                "This means the advisory lock (from ensure_monotonic_journals) "
+                "would be held through the entire S3 upload, "
+                "serializing all concurrent uploads. "
+                f"Flush log: {flush_log}"
+            )
+
+        # The JournalEntry flush must NOT also contain File or other
+        # non-JournalEntry objects. ensure_monotonic_journals should
+        # automatically separate them to prevent deadlocks.
+        for f in journal_flushes:
+            non_journal_types = [
+                t for t in f["new_types"] if t != JournalEntry.__name__
+            ]
+            assert not non_journal_types, (
+                "JournalEntry was flushed alongside other objects: "
+                f"{non_journal_types}. ensure_monotonic_journals should "
+                "automatically defer JournalEntries to a separate flush cycle "
+                "to prevent deadlocks from holding the advisory lock while "
+                "other INSERT/UPDATE operations execute. "
+                f"Flush log: {flush_log}"
+            )

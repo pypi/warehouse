@@ -13,7 +13,7 @@ def test_sponsor_white_logo_img_tag(db_request):
     sponsor = SponsorFactory.create()
     expected = (
         f'<img class="sponsors__image" src="{sponsor.white_logo_url}"'
-        + ' alt="" loading="lazy">'
+        ' alt="" loading="lazy">'
     )
     assert sponsor.white_logo_img == expected
 

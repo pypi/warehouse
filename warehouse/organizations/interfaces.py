@@ -1,19 +1,28 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import typing
+
+from uuid import UUID
+
 from zope.interface import Interface
+
+from warehouse.constants import RateLimitPeriod
+
+if typing.TYPE_CHECKING:
+    from pyramid.request import Request
 
 
 class IOrganizationService(Interface):
     def get_organization(organization_id):
         """
-        Return the organization object that represents the given organizationid, or None if
-        there is no organization for that ID.
+        Return the organization object that represents the given organizationid, or None
+        if there is no organization for that ID.
         """
 
     def get_organization_by_name(name):
         """
-        Return the organization object corresponding with the given organization name, or None
-        if there is no organization with that name.
+        Return the organization object corresponding with the given organization name,
+        or None if there is no organization with that name.
         """
 
     def get_organization_application(organization_application_id):
@@ -153,6 +162,20 @@ class IOrganizationService(Interface):
         organization and project or None
         """
 
+    def set_project_create_ratelimit(
+        organization_id: UUID,
+        request: Request,
+        count: int | None,
+        period: RateLimitPeriod | None,
+    ) -> str | None:
+        """
+        Override this organization's project-creation rate limit, recording the
+        change on the organization's event log. A `count` of None clears the
+        override.
+
+        Returns the resulting limit string, or None when cleared.
+        """
+
     def add_organization_project(organization_id, project_id):
         """
         Adds an association between the specified organization and project
@@ -259,7 +282,8 @@ class IOrganizationService(Interface):
 
     def get_team_project_role(team_project_role_id):
         """
-        Return the team project role object that represents the given team project role id,
+        Return the team project role object that represents the given team project
+        role id.
         """
 
     def add_team_project_role(team_id, project_id, role_name):

@@ -4,11 +4,12 @@ import datetime
 import json
 import uuid
 
+from types import SimpleNamespace
+
 import freezegun
 import pretend
 import pytest
 
-from psycopg.errors import UniqueViolation
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPMovedPermanently,
@@ -26,6 +27,7 @@ from webob.multidict import MultiDict
 from warehouse.accounts import views
 from warehouse.accounts.interfaces import (
     IDomainStatusService,
+    IEmailReputationService,
     IPasswordBreachedService,
     ITokenService,
     IUserService,
@@ -42,6 +44,7 @@ from warehouse.accounts.models import (
     UniqueLoginStatus,
     UserUniqueLogin,
 )
+from warehouse.accounts.services import NullPasswordBreachedService
 from warehouse.accounts.views import (
     REMEMBER_DEVICE_COOKIE,
     two_factor_and_totp_validate,
@@ -1012,7 +1015,7 @@ class TestTwoFactor:
             check_totp_value=lambda userid, totp_value: True,
             get_password_timestamp=lambda userid: 0,
             needs_tos_flash=lambda userid, revision: False,
-            device_is_known=lambda *a: True,
+            device_is_known=lambda *a, **kw: True,
         )
 
         new_session = {}
@@ -1044,9 +1047,7 @@ class TestTwoFactor:
         )
         form_class = pretend.call_recorder(lambda d, user_service, **kw: form_obj)
         db_request.route_path = pretend.call_recorder(lambda a: "/account/two-factor")
-        db_request.params = pretend.stub(
-            get=pretend.call_recorder(lambda k: query_params.get(k))
-        )
+        db_request.params = pretend.stub(get=pretend.call_recorder(query_params.get))
         db_request.user = user
 
         send_email = pretend.call_recorder(lambda *a: None)
@@ -1207,7 +1208,7 @@ class TestTwoFactor:
             has_totp=lambda uid: True,
             has_webauthn=lambda uid: False,
             has_recovery_codes=lambda uid: False,
-            device_is_known=lambda *a: False,
+            device_is_known=lambda *a, **kw: False,
             check_totp_value=lambda userid, totp_value: True,
         )
 
@@ -1312,7 +1313,7 @@ class TestWebAuthn:
             POST={},
             session=pretend.stub(
                 get_webauthn_challenge=pretend.call_recorder(lambda: "not_real"),
-                clear_webauthn_challenge=pretend.call_recorder(lambda: pretend.stub()),
+                clear_webauthn_challenge=pretend.call_recorder(pretend.stub),
             ),
             find_service=lambda *a, **kw: pretend.stub(),
             host_url=pretend.stub(),
@@ -1365,7 +1366,7 @@ class TestWebAuthn:
         )
         pyramid_request.session = pretend.stub(
             get_webauthn_challenge=pretend.call_recorder(lambda: "not_real"),
-            clear_webauthn_challenge=pretend.call_recorder(lambda: pretend.stub()),
+            clear_webauthn_challenge=pretend.call_recorder(pretend.stub),
         )
         pyramid_request.find_service = lambda *a, **kw: user_service
         pyramid_request.user = user
@@ -1613,7 +1614,7 @@ class TestRecoveryCode:
             check_recovery_code=lambda userid, recovery_code_value: True,
             get_password_timestamp=lambda userid: 0,
             needs_tos_flash=lambda userid, revision: False,
-            device_is_known=lambda *a: True,
+            device_is_known=lambda *a, **kw: True,
         )
 
         new_session = {}
@@ -1646,9 +1647,7 @@ class TestRecoveryCode:
         )
         form_class = pretend.call_recorder(lambda d, **kw: form_obj)
         db_request.route_path = pretend.call_recorder(lambda a: "/account/two-factor")
-        db_request.params = pretend.stub(
-            get=pretend.call_recorder(lambda k: query_params.get(k))
-        )
+        db_request.params = pretend.stub(get=pretend.call_recorder(query_params.get))
 
         result = views.recovery_code(db_request, _form_class=form_class)
 
@@ -1767,7 +1766,7 @@ class TestRecoveryCode:
             get_user=lambda userid: user,
             has_recovery_codes=lambda userid: True,
             check_recovery_code=lambda userid, recovery_code_value: True,
-            device_is_known=lambda *a: False,
+            device_is_known=lambda *a, **kw: False,
         )
 
         db_request.find_service = lambda interface, **kwargs: {
@@ -1900,7 +1899,162 @@ class TestRegister:
         assert create_user.calls == []
         assert add_email.calls == []
         assert send_email.calls == []
+        assert db_request.metrics.increment.calls == [
+            pretend.call("warehouse.accounts.register", tags=["outcome:honeypot"])
+        ]
 
+    def test_register_counts_an_authenticated_post(self, db_request, metrics):
+        """Every POST lands in exactly one outcome, so the tags sum to attempts."""
+        db_request.method = "POST"
+        db_request.user = UserFactory.create()
+        db_request.route_path = lambda name: "/the-redirect"
+
+        assert isinstance(views.register(db_request), HTTPSeeOther)
+        metrics.increment.assert_any_call(
+            "warehouse.accounts.register", tags=["outcome:authenticated"]
+        )
+
+    def _register_form_services(self, pyramid_services):
+        """Register the services `register()` needs to build its form."""
+        pyramid_services.register_service(
+            NullPasswordBreachedService(), IPasswordBreachedService, None, name=""
+        )
+        pyramid_services.register_service(
+            SimpleNamespace(
+                enabled=False, csp_policy={}, verify_response=lambda response: None
+            ),
+            ICaptchaService,
+            None,
+            name="captcha",
+        )
+        pyramid_services.register_service(
+            SimpleNamespace(merge=lambda policy: None), None, None, name="csp"
+        )
+
+    def _post_a_registration(self, db_request):
+        """Fill in a POST body that would otherwise pass form validation."""
+        db_request.method = "POST"
+        db_request.POST.update(
+            {
+                "username": "username_value",
+                "new_password": "MyStr0ng!shP455w0rd",
+                "password_confirm": "MyStr0ng!shP455w0rd",
+                "email": "foo@bar.com",
+                "full_name": "full_name",
+            }
+        )
+
+    @pytest.mark.parametrize(
+        ("resets_in", "retry_after", "message"),
+        [
+            (
+                datetime.timedelta(seconds=3300),
+                "3300",
+                "Too many registration attempts from your network. Please try "
+                "again in 55 minutes.",
+            ),
+            (
+                None,
+                None,
+                "Too many registration attempts from your network. Please try "
+                "again later.",
+            ),
+        ],
+    )
+    def test_register_ratelimited(
+        self,
+        db_request,
+        pyramid_services,
+        metrics,
+        ratelimit_service,
+        mocker,
+        resets_in,
+        retry_after,
+        message,
+    ):
+        """A denied attempt returns 429 with a form error and the typed values
+        intact.
+        """
+        self._register_form_services(pyramid_services)
+        mocker.patch.object(ratelimit_service, "hit", return_value=False)
+        mocker.patch.object(ratelimit_service, "resets_in", return_value=resets_in)
+        self._post_a_registration(db_request)
+
+        result = views.register(db_request)
+
+        assert db_request.response.status_int == 429
+        # The typed values survive, so the user is not asked to start over.
+        assert result["form"].email.data == "foo@bar.com"
+        assert result["form"].username.data == "username_value"
+        # Only the form-level key: the limiter runs before validate(), so no
+        # per-field errors appear.
+        assert result["form"].errors == {"": [message]}
+        # Asserted on the raw header: WebOb's `retry_after` getter parses it
+        # back into an absolute datetime.
+        assert db_request.response.headers.get("Retry-After") == retry_after
+        ratelimit_service.hit.assert_called_once_with(db_request.remote_addr)
+        metrics.increment.assert_any_call(
+            "warehouse.accounts.register", tags=["outcome:ratelimited"]
+        )
+        metrics.increment.assert_any_call(
+            "warehouse.accounts.register.ratelimited", tags=["ratelimiter:ip"]
+        )
+
+    @pytest.mark.usefixtures("no_email_deliverability_check")
+    @pytest.mark.parametrize("remote_addr", [None, ""])
+    def test_register_skips_the_limiter_without_a_remote_addr(
+        self, db_request, pyramid_services, metrics, ratelimit_service, remote_addr
+    ):
+        """An unkeyable request is not metered into one bucket shared by all.
+
+        Gunicorn on a unix socket sends '' as REMOTE_ADDR, not None, so both
+        are exercised here.
+        """
+        self._register_form_services(pyramid_services)
+        db_request.method = "POST"
+        db_request.POST.update({"username": "username_value", "email": "not-an-email"})
+        db_request.remote_addr = remote_addr
+
+        views.register(db_request)
+
+        assert ratelimit_service.hit.call_count == 0
+        # Counted, so a limiter that has stopped running is not silent.
+        metrics.increment.assert_any_call("warehouse.accounts.register.unmetered")
+
+    @pytest.mark.usefixtures("no_email_deliverability_check")
+    def test_register_counts_invalid_attempts(
+        self, db_request, pyramid_services, metrics, ratelimit_service
+    ):
+        """A failed attempt is charged, since validation costs DNS either way."""
+        self._register_form_services(pyramid_services)
+
+        db_request.method = "POST"
+        db_request.POST.update({"username": "username_value", "email": "not-an-email"})
+
+        result = views.register(db_request)
+
+        assert result["form"].errors
+        ratelimit_service.hit.assert_called_once_with(db_request.remote_addr)
+        metrics.increment.assert_any_call(
+            "warehouse.accounts.register", tags=["outcome:invalid"]
+        )
+
+    def test_register_does_not_count_page_loads(
+        self, db_request, pyramid_services, metrics, ratelimit_service
+    ):
+        """A GET is a page view, so it is neither counted nor charged."""
+        self._register_form_services(pyramid_services)
+
+        views.register(db_request)
+
+        assert ratelimit_service.hit.call_count == 0
+        assert not [
+            call
+            for call in metrics.increment.calls
+            if call.args == ("warehouse.accounts.register",)
+        ]
+
+    @pytest.mark.usefixtures("no_email_deliverability_check")
     def test_register_redirect(self, db_request, monkeypatch):
         db_request.method = "POST"
 
@@ -1914,9 +2068,10 @@ class TestRegister:
             lambda *args: None
         )
         db_request.session.record_password_timestamp = lambda ts: None
+        register_limiter_hit = pretend.call_recorder(lambda *a: True)
 
         def _find_service(service=None, name=None, context=None):
-            key = service or name
+            key = (service, name) if service is IRateLimiter else service or name
             return {
                 IUserService: pretend.stub(
                     username_is_prohibited=lambda a: False,
@@ -1934,25 +2089,21 @@ class TestRegister:
                 IPasswordBreachedService: pretend.stub(
                     check_password=lambda pw, tags=None: False,
                 ),
-                IRateLimiter: pretend.stub(hit=lambda user_id: None),
+                (IRateLimiter, "accounts.register"): pretend.stub(
+                    hit=register_limiter_hit
+                ),
+                (IRateLimiter, "email.verify"): pretend.stub(hit=lambda *a: True),
                 "csp": pretend.stub(merge=lambda *a, **kw: {}),
                 ICaptchaService: pretend.stub(
                     csp_policy={}, enabled=True, verify_response=lambda a: True
                 ),
+                IEmailReputationService: pretend.stub(check_email=lambda email: None),
             }[key]
 
         db_request.find_service = pretend.call_recorder(_find_service)
         db_request.route_path = pretend.call_recorder(lambda name: "/")
-        db_request.POST.update(
-            {
-                "username": "username_value",
-                "new_password": "MyStr0ng!shP455w0rd",
-                "password_confirm": "MyStr0ng!shP455w0rd",
-                "email": "foo@bar.com",
-                "full_name": "full_name",
-                "g_recaptcha_response": "captchavalue",
-            }
-        )
+        self._post_a_registration(db_request)
+        db_request.POST.update({"g_recaptcha_response": "captchavalue"})
 
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, "send_email_verification_email", send_email)
@@ -1976,9 +2127,17 @@ class TestRegister:
             pretend.call(
                 tag=EventTag.Account.LoginSuccess,
                 request=db_request,
-                additional={"two_factor_method": None, "two_factor_label": None},
+                additional={
+                    "two_factor_method": "registration",
+                    "two_factor_label": None,
+                },
             ),
         ]
+        db_request.metrics.increment.assert_any_call(
+            "warehouse.accounts.register", tags=["outcome:ok"]
+        )
+        # Successes stay charged against the limiter too.
+        assert register_limiter_hit.calls == [pretend.call(db_request.remote_addr)]
 
     def test_register_fails_with_admin_flag_set(self, db_request):
         # This flag was already set via migration, just need to enable it
@@ -1987,17 +2146,7 @@ class TestRegister:
         )
         flag.enabled = True
 
-        db_request.method = "POST"
-
-        db_request.POST.update(
-            {
-                "username": "username_value",
-                "password": "MyStr0ng!shP455w0rd",
-                "password_confirm": "MyStr0ng!shP455w0rd",
-                "email": "foo@bar.com",
-                "full_name": "full_name",
-            }
-        )
+        self._post_a_registration(db_request)
 
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
 
@@ -2013,6 +2162,9 @@ class TestRegister:
                 queue="error",
             )
         ]
+        db_request.metrics.increment.assert_any_call(
+            "warehouse.accounts.register", tags=["outcome:disabled"]
+        )
 
 
 class TestRequestPasswordReset:
@@ -2289,7 +2441,9 @@ class TestRequestPasswordReset:
             pretend.call(stub_user.id)
         ]
 
-    def test_password_reset_prohibited(self, pyramid_request, user_service, mocker):
+    def test_password_reset_prohibited(
+        self, pyramid_request, user_service, token_service, mocker
+    ):
         user = UserFactory.create(
             with_verified_primary_email=True,
             prohibit_password_reset=True,
@@ -2305,6 +2459,7 @@ class TestRequestPasswordReset:
         pyramid_request.find_service = pretend.call_recorder(
             lambda interface, **kw: {
                 IUserService: user_service,
+                ITokenService: token_service,
             }[interface]
         )
         form_obj = pretend.stub(
@@ -2312,14 +2467,13 @@ class TestRequestPasswordReset:
             validate=pretend.call_recorder(lambda: True),
         )
         form_class = pretend.call_recorder(lambda d, user_service: form_obj)
+        n_hours = token_service.max_age // 60 // 60
 
         result = views.request_password_reset(pyramid_request, _form_class=form_class)
 
-        assert isinstance(result, HTTPSeeOther)
-        assert pyramid_request.route_path.calls == [
-            pretend.call("accounts.request-password-reset")
-        ]
-        assert result.headers["Location"] == "/the-redirect"
+        # Response must be indistinguishable from a normal user reset
+        assert result == {"n_hours": n_hours}
+        assert not isinstance(result, HTTPSeeOther)
 
         mock_record_event.assert_called_once_with(
             user,
@@ -2928,6 +3082,7 @@ class TestVerifyOrganizationRole:
         OrganizationInvitationFactory.create(
             organization=organization,
             user=user,
+            token="RANDOM_KEY",
         )
         owner_user = UserFactory.create()
         OrganizationRoleFactory(
@@ -3110,6 +3265,7 @@ class TestVerifyOrganizationRole:
         OrganizationInvitationFactory.create(
             organization=organization,
             user=user,
+            token="RANDOM_KEY",
         )
         owner_user = UserFactory.create()
         OrganizationRoleFactory(
@@ -3216,6 +3372,46 @@ class TestVerifyOrganizationRole:
         ]
         assert db_request.route_path.calls == [pretend.call("manage.organizations")]
 
+    def test_verify_fails_with_token_mismatch(self, db_request, token_service):
+        desired_role = "Manager"
+        organization = OrganizationFactory.create()
+        user = UserFactory.create()
+        # Create invitation with a different token than what's in the request
+        OrganizationInvitationFactory.create(
+            organization=organization,
+            user=user,
+            token="WRONG_TOKEN",
+        )
+        owner_user = UserFactory.create()
+        OrganizationRoleFactory(
+            organization=organization,
+            user=owner_user,
+            role_name=OrganizationRoleType.Owner,
+        )
+
+        db_request.user = user
+        db_request.method = "POST"
+        db_request.GET.update({"token": "RANDOM_KEY"})
+        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        db_request.remote_addr = "192.168.1.1"
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+        token_service.loads = pretend.call_recorder(
+            lambda token: {
+                "action": "email-organization-role-verify",
+                "desired_role": desired_role,
+                "user_id": user.id,
+                "organization_id": organization.id,
+                "submitter_id": owner_user.id,
+            }
+        )
+
+        views.verify_organization_role(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Organization invitation is not valid.", queue="error")
+        ]
+        assert db_request.route_path.calls == [pretend.call("manage.organizations")]
+
     def test_verify_role_get_confirmation(self, db_request, token_service):
         desired_role = "Manager"
         organization = OrganizationFactory.create()
@@ -3223,6 +3419,7 @@ class TestVerifyOrganizationRole:
         OrganizationInvitationFactory.create(
             organization=organization,
             user=user,
+            token="RANDOM_KEY",
         )
         owner_user = UserFactory.create()
         OrganizationRoleFactory(
@@ -3262,7 +3459,7 @@ class TestVerifyProjectRole:
     ):
         project = ProjectFactory.create()
         user = UserFactory.create()
-        RoleInvitationFactory.create(user=user, project=project)
+        RoleInvitationFactory.create(user=user, project=project, token="RANDOM_KEY")
         owner_user = UserFactory.create()
         RoleFactory(user=owner_user, project=project, role_name="Owner")
 
@@ -3450,7 +3647,7 @@ class TestVerifyProjectRole:
     ):
         project = ProjectFactory.create()
         user = UserFactory.create()
-        RoleInvitationFactory.create(user=user, project=project)
+        RoleInvitationFactory.create(user=user, project=project, token="RANDOM_KEY")
 
         db_request.user = user
         db_request.method = "POST"
@@ -3523,6 +3720,44 @@ class TestVerifyProjectRole:
         ]
         assert db_request.route_path.calls == [pretend.call("manage.projects")]
 
+    def test_verify_fails_with_token_mismatch(
+        self, db_request, user_service, token_service
+    ):
+        project = ProjectFactory.create()
+        user = UserFactory.create()
+        # Create invitation with a different token than what's in the request
+        RoleInvitationFactory.create(user=user, project=project, token="WRONG_TOKEN")
+
+        db_request.user = user
+        db_request.method = "POST"
+        db_request.GET.update({"token": "RANDOM_KEY"})
+        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        db_request.remote_addr = "192.168.1.1"
+        token_service.loads = pretend.call_recorder(
+            lambda token: {
+                "action": "email-project-role-verify",
+                "desired_role": "Maintainer",
+                "user_id": user.id,
+                "project_id": project.id,
+                "submitter_id": db_request.user.id,
+            }
+        )
+        user_service.get_user = pretend.call_recorder(lambda user_id: user)
+        db_request.find_service = pretend.call_recorder(
+            lambda iface, context=None, name=None: {
+                ITokenService: token_service,
+                IUserService: user_service,
+            }.get(iface)
+        )
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+
+        views.verify_project_role(db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call("Role invitation is not valid.", queue="error")
+        ]
+        assert db_request.route_path.calls == [pretend.call("manage.projects")]
+
     def test_verify_fails_with_missing_project(
         self, db_request, user_service, token_service
     ):
@@ -3566,7 +3801,7 @@ class TestVerifyProjectRole:
     ):
         project = ProjectFactory.create()
         user = UserFactory.create()
-        RoleInvitationFactory.create(user=user, project=project)
+        RoleInvitationFactory.create(user=user, project=project, token="RANDOM_KEY")
 
         db_request.user = user
         db_request.method = "GET"
@@ -3704,7 +3939,7 @@ class TestReAuthentication:
             pretend.call(
                 pyramid_request.POST,
                 request=pyramid_request,
-                username=pyramid_request.user.username,
+                user_id=pyramid_request.user.id,
                 next_route=pyramid_request.matched_route.name,
                 next_route_matchdict=json.dumps(pyramid_request.matchdict),
                 next_route_query=json.dumps(pyramid_request.GET.mixed()),
@@ -3726,6 +3961,112 @@ class TestReAuthentication:
         assert isinstance(result, HTTPSeeOther)
         assert pyramid_request.route_path.calls == [pretend.call("accounts.login")]
         assert result.headers["Location"] == "/the-redirect"
+
+    def test_reauth_rejects_different_users_password(
+        self, monkeypatch, pyramid_request, pyramid_services
+    ):
+        alice = pretend.stub(
+            id=1,
+            username="alice",
+            record_event=pretend.call_recorder(lambda **kwargs: None),
+        )
+        user_service = pretend.stub(
+            check_password=pretend.call_recorder(
+                lambda user_id, password, tags=None: (
+                    user_id == 2 and password == "bob-password"
+                )
+            ),
+            find_userid=pretend.call_recorder(lambda username: 2),
+            get_user=pretend.call_recorder(lambda user_id: alice),
+            get_password_timestamp=pretend.call_recorder(lambda user_id: 0),
+        )
+        response = pretend.stub(headers={"Location": "/target"})
+
+        monkeypatch.setattr(views, "HTTPSeeOther", lambda url: response)
+        pyramid_services.register_service(user_service, IUserService, None)
+
+        pyramid_request.method = "POST"
+        pyramid_request.POST = MultiDict(
+            {
+                "username": "bob",
+                "password": "bob-password",
+                "next_route": "manage.account.publishing",
+                "next_route_matchdict": "{}",
+                "next_route_query": "{}",
+            }
+        )
+        pyramid_request.user = alice
+        pyramid_request.matched_route = pretend.stub(name="manage.account.publishing")
+        pyramid_request.matchdict = {}
+        pyramid_request.GET = pretend.stub(mixed=lambda: {})
+        pyramid_request.route_path = pretend.call_recorder(lambda *a, **kw: "/target")
+        pyramid_request.session.record_auth_timestamp = pretend.call_recorder(
+            lambda: None
+        )
+        pyramid_request.session.record_password_timestamp = pretend.call_recorder(
+            lambda ts: None
+        )
+
+        result = views.reauthenticate(pyramid_request)
+
+        assert result is response
+        assert user_service.check_password.calls == [
+            pretend.call(
+                alice.id,
+                "bob-password",
+                tags=[
+                    "method:reauth",
+                    "auth_method:reauthenticate_form",
+                ],
+            )
+        ]
+        assert user_service.find_userid.calls == []
+        assert alice.record_event.calls == [
+            pretend.call(
+                tag="account:reauthenticate:failure",
+                request=pyramid_request,
+                additional={"reason": "invalid_password"},
+            )
+        ]
+        assert pyramid_request.session.record_auth_timestamp.calls == []
+        assert pyramid_request.session.record_password_timestamp.calls == []
+
+    @pytest.mark.parametrize(
+        ("next_route_matchdict", "next_route_query"),
+        [
+            ("invalid_json", "{}"),
+            ("{}", "invalid_json"),
+            ("{'single': 'quotes'}", "{}"),
+            ("123", "{}"),
+            ("{}", "123"),
+            ("[1, 2]", "{}"),
+            ("{}", "[1, 2]"),
+            ("true", "{}"),
+            ("{}", '"string"'),
+        ],
+    )
+    def test_reauth_invalid_json_raises_400(
+        self, pyramid_request, pyramid_services, next_route_matchdict, next_route_query
+    ):
+        user_service = pretend.stub()
+        pyramid_services.register_service(user_service, IUserService, None)
+
+        pyramid_request.user = pretend.stub(id=pretend.stub(), username=pretend.stub())
+        pyramid_request.matched_route = pretend.stub(name=pretend.stub())
+        pyramid_request.matchdict = {}
+        pyramid_request.GET = pretend.stub(mixed=lambda: {})
+        pyramid_request.route_path = pretend.call_recorder(lambda *a, **kw: "/target")
+
+        form_obj = pretend.stub(
+            next_route=pretend.stub(data="/manage/accounts"),
+            next_route_matchdict=pretend.stub(data=next_route_matchdict),
+            next_route_query=pretend.stub(data=next_route_query),
+            validate=lambda: True,
+        )
+        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
+
+        with pytest.raises(HTTPBadRequest):
+            views.reauthenticate(pyramid_request, _form_class=form_class)
 
 
 class TestManageAccountPublishingViews:
@@ -3789,8 +4130,7 @@ class TestManageAccountPublishingViews:
 
             if name == "user_oidc.publisher.register":
                 return user_rate_limiter
-            else:
-                return ip_rate_limiter
+            return ip_rate_limiter
 
         request = pretend.stub(
             find_service=pretend.call_recorder(find_service),
@@ -3834,7 +4174,7 @@ class TestManageAccountPublishingViews:
     def test_manage_publishing(self, metrics, monkeypatch):
         route_url = pretend.stub()
         request = pretend.stub(
-            user=pretend.stub(),
+            user=pretend.stub(id=pretend.stub()),
             route_url=route_url,
             registry=pretend.stub(
                 settings={
@@ -3848,6 +4188,7 @@ class TestManageAccountPublishingViews:
             flags=pretend.stub(
                 disallow_oidc=pretend.call_recorder(lambda f=None: False)
             ),
+            db=pretend.stub(scalars=lambda *a, **kw: pretend.stub(all=lambda: [])),
             POST=pretend.stub(),
         )
 
@@ -3893,6 +4234,7 @@ class TestManageAccountPublishingViews:
                 "Google": False,
                 "ActiveState": False,
             },
+            "project_names_with_publishers": [],
             "pending_github_publisher_form": pending_github_publisher_form_obj,
             "pending_gitlab_publisher_form": pending_gitlab_publisher_form_obj,
             "pending_google_publisher_form": pending_google_publisher_form_obj,
@@ -3928,7 +4270,10 @@ class TestManageAccountPublishingViews:
         project_service = pretend.stub(check_project_name=lambda name: None)
         pyramid_request.find_service = lambda _, **kw: project_service
 
-        pyramid_request.user = pretend.stub()
+        pyramid_request.user = pretend.stub(id=pretend.stub())
+        pyramid_request.db = pretend.stub(
+            scalars=lambda *a, **kw: pretend.stub(all=lambda: [])
+        )
         pyramid_request.registry = pretend.stub(
             settings={
                 "github.token": "fake-api-token",
@@ -3981,6 +4326,7 @@ class TestManageAccountPublishingViews:
                 "Google": True,
                 "ActiveState": True,
             },
+            "project_names_with_publishers": [],
             "pending_github_publisher_form": pending_github_publisher_form_obj,
             "pending_gitlab_publisher_form": pending_gitlab_publisher_form_obj,
             "pending_google_publisher_form": pending_google_publisher_form_obj,
@@ -4055,7 +4401,10 @@ class TestManageAccountPublishingViews:
             IMetricsService: pretend.stub(),
         }[interface]
 
-        pyramid_request.user = pretend.stub()
+        pyramid_request.user = pretend.stub(id=pretend.stub())
+        pyramid_request.db = pretend.stub(
+            scalars=lambda *a, **kw: pretend.stub(all=lambda: [])
+        )
         pyramid_request.registry = pretend.stub(
             settings={
                 "github.token": "fake-api-token",
@@ -4110,6 +4459,7 @@ class TestManageAccountPublishingViews:
                 "Google": True,
                 "ActiveState": True,
             },
+            "project_names_with_publishers": [],
             "pending_github_publisher_form": pending_github_publisher_form_obj,
             "pending_gitlab_publisher_form": pending_gitlab_publisher_form_obj,
             "pending_google_publisher_form": pending_google_publisher_form_obj,
@@ -4122,10 +4472,6 @@ class TestManageAccountPublishingViews:
             pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
             pretend.call(flag),
-            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
         ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
@@ -4202,6 +4548,10 @@ class TestManageAccountPublishingViews:
         )
         pyramid_request.user = pretend.stub(
             has_primary_verified_email=False,
+            id=pretend.stub(),
+        )
+        pyramid_request.db = pretend.stub(
+            scalars=lambda *a, **kw: pretend.stub(all=lambda: [])
         )
         pyramid_request.flags = pretend.stub(
             disallow_oidc=pretend.call_recorder(lambda f=None: False),
@@ -4250,6 +4600,7 @@ class TestManageAccountPublishingViews:
                 "Google": False,
                 "ActiveState": False,
             },
+            "project_names_with_publishers": [],
             "pending_github_publisher_form": pending_github_publisher_form_obj,
             "pending_gitlab_publisher_form": pending_gitlab_publisher_form_obj,
             "pending_google_publisher_form": pending_google_publisher_form_obj,
@@ -4262,10 +4613,6 @@ class TestManageAccountPublishingViews:
             pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
             pretend.call(flag),
-            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
         ]
         assert view.metrics.increment.calls == [
             pretend.call(
@@ -4408,14 +4755,6 @@ class TestManageAccountPublishingViews:
             pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
             pretend.call(flag),
-            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
-            pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
         ]
         assert view.metrics.increment.calls == [
             pretend.call(
@@ -4458,6 +4797,10 @@ class TestManageAccountPublishingViews:
         pyramid_request.user = pretend.stub(
             has_primary_verified_email=True,
             pending_oidc_publishers=[],
+            id=pretend.stub(),
+        )
+        pyramid_request.db = pretend.stub(
+            scalars=lambda *a, **kw: pretend.stub(all=lambda: [])
         )
         pyramid_request.registry = pretend.stub(
             settings={
@@ -4532,6 +4875,7 @@ class TestManageAccountPublishingViews:
         db_request.user = pretend.stub(
             has_primary_verified_email=True,
             pending_oidc_publishers=[],
+            id=uuid.uuid4(),
         )
         db_request.registry = pretend.stub(
             settings={
@@ -4768,10 +5112,133 @@ class TestManageAccountPublishingViews:
             )
         ]
 
-    def test_add_pending_oidc_publisher_uniqueviolation(self, monkeypatch, db_request):
+    @pytest.mark.parametrize(
+        (
+            "view_name",
+            "publisher_name",
+            "publisher_class",
+            "make_publisher",
+            "post_body",
+        ),
+        [
+            (
+                "add_pending_github_oidc_publisher",
+                "GitHub",
+                PendingGitHubPublisher,
+                lambda user_id: PendingGitHubPublisher(
+                    project_name="some-other-project-name",
+                    repository_name="some-repository",
+                    repository_owner="some-owner",
+                    repository_owner_id="some-owner-id",
+                    workflow_filename="some-workflow-filename.yml",
+                    environment="some-environment",
+                    added_by_id=user_id,
+                ),
+                MultiDict(
+                    {
+                        "owner": "some-owner",
+                        "repository": "some-repository",
+                        "workflow_filename": "some-workflow-filename.yml",
+                        "environment": "some-environment",
+                        "project_name": "some-project-name",
+                    }
+                ),
+            ),
+            (
+                "add_pending_gitlab_oidc_publisher",
+                "GitLab",
+                PendingGitLabPublisher,
+                lambda user_id: PendingGitLabPublisher(
+                    project_name="some-other-project-name",
+                    namespace="some-owner",
+                    project="some-repository",
+                    workflow_filepath="subfolder/some-workflow-filename.yml",
+                    environment="some-environment",
+                    issuer_url="https://gitlab.com",
+                    added_by_id=user_id,
+                ),
+                MultiDict(
+                    {
+                        "namespace": "some-owner",
+                        "project": "some-repository",
+                        "workflow_filepath": "subfolder/some-workflow-filename.yml",
+                        "environment": "some-environment",
+                        "project_name": "some-project-name",
+                        "issuer_url": "https://gitlab.com",
+                    }
+                ),
+            ),
+            (
+                "add_pending_google_oidc_publisher",
+                "Google",
+                PendingGooglePublisher,
+                lambda user_id: PendingGooglePublisher(
+                    project_name="some-other-project-name",
+                    email="some-email@example.com",
+                    sub="some-sub",
+                    added_by_id=user_id,
+                ),
+                MultiDict(
+                    {
+                        "email": "some-email@example.com",
+                        "sub": "some-sub",
+                        "project_name": "some-project-name",
+                    }
+                ),
+            ),
+            (
+                "add_pending_activestate_oidc_publisher",
+                "ActiveState",
+                PendingActiveStatePublisher,
+                lambda user_id: PendingActiveStatePublisher(
+                    project_name="some-other-project-name",
+                    added_by_id=user_id,
+                    organization="some-org",
+                    activestate_project_name="some-project",
+                    actor="some-user",
+                    actor_id="some-user-id",
+                ),
+                MultiDict(
+                    {
+                        "organization": "some-org",
+                        "project": "some-project",
+                        "actor": "some-user",
+                        "project_name": "some-project-name",
+                    }
+                ),
+            ),
+        ],
+    )
+    def test_add_pending_oidc_publisher_uniqueviolation(
+        self,
+        monkeypatch,
+        db_request,
+        view_name,
+        publisher_name,
+        publisher_class,
+        make_publisher,
+        post_body,
+    ):
+        """A UniqueViolation raised by the INSERT during ``flush()`` means
+        another pending publisher already exists for the same external
+        identity tuple but with a different ``project_name``. The early
+        duplicate-check query keys on ``project_name`` so it misses that row,
+        but the DB unique constraint does not, so the insert fails.
+
+        Surface the conflict to the user instead of silently redirecting as if
+        the registration succeeded -- and crucially, roll back the now-aborted
+        transaction so the session stays usable for the rest of the request
+        (template rendering, the end-of-request commit). Regression test for
+        GH-20006.
+        """
         db_request.user = UserFactory.create()
         EmailFactory(user=db_request.user, verified=True, primary=True)
-        db_request.db.add = pretend.raiser(UniqueViolation("foo", "bar", "baz"))
+        # A pending publisher with the same external identity but a *different*
+        # project_name. flush()-ing it sends the INSERT to the DB so the next
+        # conflicting insert raises a real UniqueViolation.
+        existing_publisher = make_publisher(db_request.user.id)
+        db_request.db.add(existing_publisher)
+        db_request.db.flush()
 
         db_request.registry = pretend.stub(
             settings={
@@ -4781,15 +5248,10 @@ class TestManageAccountPublishingViews:
         db_request.flags = pretend.stub(
             disallow_oidc=pretend.call_recorder(lambda f=None: False)
         )
-        db_request.POST = MultiDict(
-            {
-                "owner": "some-owner",
-                "repository": "some-repository",
-                "workflow_filename": "some-workflow-filename.yml",
-                "environment": "some-environment",
-                "project_name": "some-project-name",
-            }
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
         )
+        db_request.POST = post_body
 
         view = views.ManageAccountPublishingViews(db_request)
 
@@ -4797,6 +5259,16 @@ class TestManageAccountPublishingViews:
             views.PendingGitHubPublisherForm,
             "_lookup_owner",
             lambda *a: {"login": "some-owner", "id": "some-owner-id"},
+        )
+        monkeypatch.setattr(
+            views.PendingActiveStatePublisherForm,
+            "_lookup_organization",
+            lambda *a: None,
+        )
+        monkeypatch.setattr(
+            views.PendingActiveStatePublisherForm,
+            "_lookup_actor",
+            lambda *a: {"user_id": "some-user-id"},
         )
 
         monkeypatch.setattr(
@@ -4806,8 +5278,24 @@ class TestManageAccountPublishingViews:
             view, "_hit_ratelimits", pretend.call_recorder(lambda: None)
         )
 
-        resp = view.add_pending_github_oidc_publisher()
-        assert isinstance(resp, HTTPSeeOther)
+        assert getattr(view, view_name)() == view.default_response
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                (
+                    "A pending trusted publisher matching this configuration "
+                    "has already been registered for a different project name. "
+                    "Please contact PyPI's admins if this wasn't intentional."
+                ),
+                queue="error",
+            )
+        ]
+        # The conflicting INSERT left the transaction aborted. Without an
+        # explicit rollback in the handler this query raises PendingRollbackError
+        # -- which is what surfaces to the user as a 500/503 once the template
+        # tries to render the user's existing pending publishers. The rollback
+        # also discards this request's uncommitted work, including the
+        # pre-existing publisher created above, so the count is 0.
+        assert db_request.db.query(publisher_class).count() == 0
 
     @pytest.mark.parametrize(
         ("view_name", "publisher_name", "post_body", "publisher_class"),
@@ -4973,7 +5461,10 @@ class TestManageAccountPublishingViews:
             IMetricsService: pretend.stub(),
         }[interface]
 
-        pyramid_request.user = pretend.stub()
+        pyramid_request.user = pretend.stub(id=pretend.stub())
+        pyramid_request.db = pretend.stub(
+            scalars=lambda *a, **kw: pretend.stub(all=lambda: [])
+        )
         pyramid_request.registry = pretend.stub(
             settings={
                 "github.token": "fake-api-token",
@@ -5026,6 +5517,7 @@ class TestManageAccountPublishingViews:
                 "Google": True,
                 "ActiveState": True,
             },
+            "project_names_with_publishers": [],
             "pending_github_publisher_form": pending_github_publisher_form_obj,
             "pending_gitlab_publisher_form": pending_gitlab_publisher_form_obj,
             "pending_google_publisher_form": pending_google_publisher_form_obj,
@@ -5360,7 +5852,7 @@ class TestConfirmLogin:
         pyramid_request.user = None
         pyramid_request.params = {}
         result = views.confirm_login(pyramid_request)
-        assert result == {}
+        assert result == {"repeat_window_minutes": 15}
 
     @pytest.mark.parametrize(
         ("exception", "message"),
@@ -5521,7 +6013,9 @@ class TestConfirmLogin:
             IUserService: {None: user_service},
         }[interface][name]
 
-        _login_user = pretend.call_recorder(lambda request, userid: [("foo", "bar")])
+        _login_user = pretend.call_recorder(
+            lambda request, userid, two_factor_method=None: [("foo", "bar")]
+        )
         monkeypatch.setattr(views, "_login_user", _login_user)
         _set_userid_insecure_cookie = pretend.call_recorder(lambda resp, userid: None)
         monkeypatch.setattr(
@@ -5535,5 +6029,7 @@ class TestConfirmLogin:
         assert isinstance(result, HTTPSeeOther)
         assert result.location == "/manage.projects"
         assert unique_login.status == UniqueLoginStatus.CONFIRMED
-        assert _login_user.calls == [pretend.call(db_request, user.id)]
+        assert _login_user.calls == [
+            pretend.call(db_request, user.id, two_factor_method="email-confirmation")
+        ]
         assert _set_userid_insecure_cookie.calls == [pretend.call(result, user.id)]

@@ -8,7 +8,7 @@ _github_origin = utils.DisclosureOrigin(
     key_id_header="GITHUB-PUBLIC-KEY-IDENTIFIER",
     signature_header="GITHUB-PUBLIC-KEY-SIGNATURE",
     verification_url="https://api.github.com/meta/public_keys/token_scanning",
-    api_token="github.token",
+    api_token="github.token",  # noqa: S106
 )
 _depsdev_origin = utils.DisclosureOrigin(
     name="Deps.dev",

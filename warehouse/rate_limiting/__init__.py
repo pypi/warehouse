@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import functools
-import logging
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import redis
+import structlog
 
 from limits import parse_many
 from limits.storage import storage_from_string
@@ -14,9 +14,9 @@ from more_itertools import first_true
 from zope.interface import implementer
 
 from warehouse.metrics import IMetricsService
-from warehouse.rate_limiting.interfaces import IRateLimiter
+from warehouse.rate_limiting.interfaces import IRateLimiter, WindowStats
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 def _return_on_exception(rvalue, *exceptions):
@@ -26,7 +26,7 @@ def _return_on_exception(rvalue, *exceptions):
             try:
                 return fn(self, *args, **kwargs)
             except exceptions as exc:
-                logging.warning("Error computing rate limits: %r", exc)
+                logger.warning("Error computing rate limits", error=repr(exc))
                 self._metrics.increment(
                     "warehouse.ratelimiter.error", tags=[f"call:{fn.__name__}"]
                 )
@@ -55,25 +55,49 @@ class RateLimiter:
     @_return_on_exception(True, redis.RedisError)
     def test(self, *identifiers):
         return all(
-            [
-                self._window.test(limit, *self._get_identifiers(identifiers))
-                for limit in self._limits
-            ]
+            self._window.test(limit, *self._get_identifiers(identifiers))
+            for limit in self._limits
         )
 
     @_return_on_exception(True, redis.RedisError)
     def hit(self, *identifiers):
         return all(
-            [
-                self._window.hit(limit, *self._get_identifiers(identifiers))
-                for limit in self._limits
-            ]
+            self._window.hit(limit, *self._get_identifiers(identifiers))
+            for limit in self._limits
         )
 
     @_return_on_exception(None, redis.RedisError)
     def clear(self, *identifiers):
         for limit in self._limits:
             self._storage.clear(limit.key_for(*self._get_identifiers(identifiers)))
+
+    def override(self, limit_string):
+        """
+        Return a limiter for ``limit_string``, or self when it is falsy or
+        unparsable (a bad stored override must not fail the request).
+
+        The amount is part of the storage key, so a changed override starts a
+        fresh window.
+        """
+        if not limit_string:
+            return self
+
+        try:
+            return RateLimiter(
+                self._storage,
+                limit_string,
+                identifiers=self._identifiers,
+                metrics=self._metrics,
+            )
+        except ValueError:
+            logger.warning(
+                "Invalid rate limit override %r; using default", limit_string
+            )
+            self._metrics.increment(
+                "warehouse.ratelimiter.invalid_override",
+                tags=[f"identifiers:{','.join(self._identifiers)}"],
+            )
+            return self
 
     @_return_on_exception(None, redis.RedisError)
     def resets_in(self, *identifiers):
@@ -88,11 +112,11 @@ class RateLimiter:
             if remaining > 0:
                 continue
 
-            current = datetime.now(tz=timezone.utc)
-            reset = datetime.fromtimestamp(resets_at, tz=timezone.utc)
+            current = datetime.now(tz=UTC)
+            reset = datetime.fromtimestamp(resets_at, tz=UTC)
 
             # If our current datetime is either greater than or equal to when
-            # the limit resets, then we will skipp it since it has either
+            # the limit resets, then we will skip it since it has either
             # already reset, or it is resetting now.
             if current >= reset:
                 continue
@@ -104,6 +128,26 @@ class RateLimiter:
         # is going to reset soonest and use that as our hint for when this
         # limit might be available again.
         return first_true(sorted(resets))
+
+    @_return_on_exception([], redis.RedisError)
+    def get_window_stats(self, *identifiers):
+        stats = []
+        now = datetime.now(tz=UTC)
+        for limit in self._limits:
+            resets_at, remaining = self._window.get_window_stats(
+                limit, *self._get_identifiers(identifiers)
+            )
+            reset = datetime.fromtimestamp(resets_at, tz=UTC)
+            resets_in_seconds = max(0, int((reset - now).total_seconds()))
+            stats.append(
+                WindowStats(
+                    amount=limit.amount,
+                    window_seconds=limit.get_expiry(),
+                    remaining=remaining,
+                    resets_in_seconds=resets_in_seconds,
+                )
+            )
+        return stats
 
 
 @implementer(IRateLimiter)
@@ -117,8 +161,14 @@ class DummyRateLimiter:
     def clear(self, *identifiers):
         return None
 
+    def override(self, limit_string):
+        return self
+
     def resets_in(self, *identifiers):
         return None
+
+    def get_window_stats(self, *identifiers):
+        return []
 
 
 class RateLimit:
@@ -152,7 +202,18 @@ class RateLimit:
         )
 
 
+def _register_rate_limiter(config, limit_string, name):
+    """Register a rate limiter service with identifiers matching the service name."""
+    config.register_service_factory(
+        RateLimit(limit_string, identifiers=[name]),
+        IRateLimiter,
+        name=name,
+    )
+
+
 def includeme(config):
+    config.add_directive("register_rate_limiter", _register_rate_limiter)
     config.registry["ratelimiter.storage"] = storage_from_string(
         config.registry.settings["ratelimit.url"]
     )
+    config.add_tween("warehouse.rate_limiting.headers.rate_limit_headers_tween_factory")

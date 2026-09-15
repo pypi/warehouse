@@ -11,7 +11,6 @@ from uuid import UUID
 from more_itertools import first_true
 from pypi_attestations import GitLabPublisher as GitLabIdentity, Publisher
 from sqlalchemy import ForeignKey, String, UniqueConstraint, and_, exists, func
-from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, Query, mapped_column
 
 from warehouse.oidc.errors import InvalidPublisherError
@@ -50,15 +49,14 @@ _WORKFLOW_FILEPATH_RE = re.compile(
     )
     (?=@)             # lookahead match for `@`, constraining the group above
     """,
-    re.X,
+    re.VERBOSE,
 )
 
 
 def _extract_workflow_filepath(ci_config_ref_uri: str) -> str | None:
     if match := _WORKFLOW_FILEPATH_RE.search(ci_config_ref_uri):
         return match.group(0)
-    else:
-        return None
+    return None
 
 
 def _check_project_path(
@@ -180,6 +178,12 @@ class GitLabPublisherMixin:
 
     __required_unverifiable_claims__: set[str] = {"ref_path", "sha"}
 
+    # GitLab supports custom issuers (self-managed instances).
+    # lookup_by_claims filters by cls.issuer_url == signed_claims["iss"],
+    # ensuring a self-managed instance can only match publishers registered
+    # with that specific issuer URL.
+    __supports_custom_issuer__: bool = True
+
     __optional_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
         "environment": _check_environment,
     }
@@ -213,6 +217,7 @@ class GitLabPublisherMixin:
         "job_namespace_path",
         "job_project_id",
         "job_project_path",
+        "job_source",
     }
 
     # Get the most specific publisher from a list of publishers,
@@ -222,11 +227,12 @@ class GitLabPublisherMixin:
     def _get_publisher_for_environment(
         cls, publishers: list[Self], environment: str | None
     ) -> Self | None:
-        if environment:
-            if specific_publisher := first_true(
+        if environment and (
+            specific_publisher := first_true(
                 publishers, pred=lambda p: p.environment == environment
-            ):
-                return specific_publisher
+            )
+        ):
+            return specific_publisher
 
         if general_publisher := first_true(
             publishers, pred=lambda p: p.environment == ""
@@ -298,11 +304,11 @@ class GitLabPublisherMixin:
         return GitLabIdentity(
             repository=self.project_path,
             workflow_filepath=self.workflow_filepath,
-            environment=self.environment if self.environment else None,
+            environment=self.environment or None,
         )
 
     def stored_claims(self, claims: SignedClaims | None = None) -> dict:
-        claims_obj = claims if claims else {}
+        claims_obj = claims or SignedClaims({})
         return {"ref_path": claims_obj.get("ref_path"), "sha": claims_obj.get("sha")}
 
     def __str__(self) -> str:
@@ -355,7 +361,7 @@ class GitLabPublisherMixin:
             if organization
             else set()
         )
-        return [GITLAB_OIDC_ISSUER_URL] + sorted(issuer_urls)
+        return [GITLAB_OIDC_ISSUER_URL, *sorted(issuer_urls)]
 
 
 class GitLabPublisher(GitLabPublisherMixin, OIDCPublisher):
@@ -371,9 +377,7 @@ class GitLabPublisher(GitLabPublisherMixin, OIDCPublisher):
         ),
     )
 
-    id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True), ForeignKey(OIDCPublisher.id), primary_key=True
-    )
+    id: Mapped[UUID] = mapped_column(ForeignKey(OIDCPublisher.id), primary_key=True)
 
     def verify_url(self, url: str) -> bool:
         """
@@ -447,7 +451,7 @@ class PendingGitLabPublisher(GitLabPublisherMixin, PendingOIDCPublisher):
     )
 
     id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True), ForeignKey(PendingOIDCPublisher.id), primary_key=True
+        ForeignKey(PendingOIDCPublisher.id), primary_key=True
     )
 
     def reify(self, session: Session) -> GitLabPublisher:

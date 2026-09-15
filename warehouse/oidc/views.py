@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import http
 import time
 
 from datetime import datetime
@@ -12,11 +13,17 @@ from pydantic import BaseModel, StrictStr, ValidationError
 from pyramid.httpexceptions import HTTPException, HTTPForbidden
 from pyramid.request import Request
 from pyramid.view import view_config
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
-from warehouse.email import send_environment_ignored_in_trusted_publisher_email
+from warehouse.email import (
+    send_environment_ignored_in_trusted_publisher_email,
+    send_pending_trusted_publisher_reified_email,
+)
 from warehouse.events.tags import EventTag
-from warehouse.macaroons import caveats
+from warehouse.macaroons import InvalidMacaroonError, caveats
 from warehouse.macaroons.interfaces import IMacaroonService
+from warehouse.macaroons.models import Macaroon
 from warehouse.macaroons.services import DatabaseMacaroonService
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.errors import InvalidPublisherError, ReusedTokenError
@@ -30,8 +37,8 @@ from warehouse.oidc.utils import (
     lookup_custom_issuer_type,
 )
 from warehouse.packaging.interfaces import IProjectService
-from warehouse.packaging.models import ProjectFactory
-from warehouse.rate_limiting.interfaces import IRateLimiter
+from warehouse.packaging.models import Project, ProjectFactory
+from warehouse.rate_limiting.interfaces import IRateLimiter, RateLimiterException
 
 
 class Error(TypedDict):
@@ -66,12 +73,18 @@ def _ratelimiters(request: Request) -> dict[str, IRateLimiter]:
 
 
 def _invalid(errors: list[Error], request: Request) -> JsonResponse:
-    request.response.status = 422
+    request.response.status = http.HTTPStatus.UNPROCESSABLE_ENTITY
 
     return {
         "message": "Token request failed",
         "errors": errors,
     }
+
+
+def _accepted(request: Request) -> JsonResponse:
+    request.response.status = http.HTTPStatus.ACCEPTED
+
+    return {"message": "Accepted", "errors": []}
 
 
 @view_config(
@@ -119,10 +132,10 @@ def mint_token_from_oidc(request: Request):
     # use the `iss` to key into the right `OIDCPublisherService`.
     try:
         unverified_claims = jwt.decode(
-            unverified_jwt, options=dict(verify_signature=False)
+            unverified_jwt, options={"verify_signature": False}
         )
         unverified_issuer: str = unverified_claims["iss"]
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         metrics = request.find_service(IMetricsService, context=None)
         metrics.increment("warehouse.oidc.mint_token_from_oidc.malformed_jwt")
 
@@ -222,7 +235,7 @@ def mint_token(
                     pending_publisher.added_by,
                     request,
                     creator_is_owner=pending_publisher.organization_id is None,
-                    ratelimited=False,
+                    ratelimited=pending_publisher.organization_id is not None,
                     organization_id=pending_publisher.organization_id,
                 )
             except HTTPException as exc:
@@ -230,12 +243,27 @@ def mint_token(
                     errors=[{"code": "invalid-payload", "description": str(exc)}],
                     request=request,
                 )
+            except RateLimiterException as exc:
+                # See ManageOrganizationProjectsViews.add_organization_project:
+                # `.hit()` rejects after the project is in the session; a
+                # returned response commits it.
+                request.tm.doom()
+                description = (
+                    "this organization has created too many new projects recently"
+                )
+                if exc.resets_in is not None:
+                    resets_in = max(1, int(exc.resets_in.total_seconds()))
+                    description += f". Try again in {resets_in} seconds"
+                return _invalid(
+                    errors=[{"code": "rate-limited", "description": description}],
+                    request=request,
+                )
 
             # Reify the pending publisher against the newly created project
             reified_publisher = oidc_service.reify_pending_publisher(
                 pending_publisher, new_project
             )
-            request.db.flush()  # To get the reified_publisher.id
+            request.db.flush()  # reified_publisher.id  # ast-grep-ignore: db-flush
             new_project.record_event(
                 tag=EventTag.Project.OIDCPublisherAdded,
                 request=request,
@@ -248,6 +276,16 @@ def mint_token(
                     "reified_from_pending_publisher": True,
                     "constrained_from_existing_publisher": False,
                 },
+            )
+
+            # Notify the registrant that their pending publisher was used to
+            # create a real project. Provides an audit trail and lets the
+            # registrant spot uses they didn't expect.
+            send_pending_trusted_publisher_reified_email(
+                request,
+                pending_publisher.added_by,
+                project_name=new_project.name,
+                publisher_specifier=str(reified_publisher),
             )
 
             # Successfully converting a pending publisher into a normal publisher
@@ -288,6 +326,22 @@ def mint_token(
             request=request,
         )
 
+    # Atomically claim the JTI before minting a macaroon. The SET NX ensures
+    # that only one request can proceed for a given JTI.
+    # Of note, exp is coming from a verified JWT here, so we don't validate it.
+    if jwt_identifier := claims.get("jti"):
+        expiration = cast(int, claims.get("exp"))
+        if not oidc_service.store_jwt_identifier(jwt_identifier, expiration):
+            return _invalid(
+                errors=[
+                    {
+                        "code": "invalid-reuse-token",
+                        "description": "invalid token: already used",
+                    }
+                ],
+                request=request,
+            )
+
     # At this point, we've verified that the given JWT is valid for the given
     # project. All we need to do is mint a new token.
     # NOTE: For OIDC-minted API tokens, the Macaroon's description string
@@ -297,10 +351,10 @@ def mint_token(
     )
     not_before = int(time.time())
     expires_at = not_before + 900
-    serialized, dm = macaroon_service.create_macaroon(
+    serialized, _dm = macaroon_service.create_macaroon(
         request.domain,
         (
-            f"OpenID token: {str(publisher)} "
+            f"OpenID token: {publisher!s} "
             f"({datetime.fromtimestamp(not_before).isoformat()})"
         ),
         [
@@ -314,12 +368,17 @@ def mint_token(
         additional={"oidc": publisher.stored_claims(claims)},
     )
 
-    # We have used the given JWT to mint a new token. Let now store it to prevent
-    # its reuse if the claims contain a JTI. Of note, exp is coming from a trusted
-    # source here, so we don't validate it
-    if jwt_identifier := claims.get("jti"):
-        expiration = cast(int, claims.get("exp"))
-        oidc_service.store_jwt_identifier(jwt_identifier, expiration)
+    # Loading `publisher.projects` back-populates `Project.oidc_publishers`,
+    # which marks each project as dirty. At flush time, the cache-purge
+    # bookkeeping in `warehouse.cache.origin` then accesses `project.users`
+    # per dirty project (via the `iterate_on="users"` purge-key factory),
+    # producing an N+1. Pre-load every project's users in a single batched
+    # query so those later accesses hit the relationship cache.
+    request.db.execute(
+        select(Project)
+        .where(Project.id.in_([p.id for p in publisher.projects]))
+        .options(selectinload(Project.users))
+    ).all()
 
     for project in publisher.projects:
         project.record_event(
@@ -399,3 +458,87 @@ def should_send_environment_warning_email(
     claims_env = claims.get("environment")
 
     return publisher.environment == "" and claims_env is not None and claims_env != ""
+
+
+class BurnPayload(BaseModel):
+    token: StrictStr
+
+
+@view_config(
+    route_name="oidc.burn_token",
+    require_methods=["POST"],
+    renderer="json",
+    require_csrf=False,
+)
+def burn_oidc_issued_token(request: Request):
+    """
+    "Burns" (i.e. revokes) a PyPI token that was previously issued by
+    `mint_token_from_oidc`.
+
+    Downstream integrators can call this endpoint to expedite the invalidation of a
+    Trusted Publishing-issued token.
+
+    Unlike our other Trusted Publishing APIs, this API only ever returns an
+    HTTP Accepted (indicating receipt, but not communicating the outcome).
+    """
+
+    try:
+        payload = BurnPayload.model_validate_json(request.body)
+        unverified_macaroon = payload.token
+    except ValidationError:
+        request.metrics.increment(
+            "warehouse.oidc.burn_oidc_issued_token",
+            tags=["status:failure", "failure_reason:invalid_payload"],
+        )
+        return _accepted(request=request)
+
+    macaroon_service: DatabaseMacaroonService = request.find_service(
+        IMacaroonService, context=None
+    )
+
+    try:
+        # NOTE: We intentionally don't use `macaroon_service.verify` here, since
+        # that would verify caveats, which don't matter (and don't adhere to the burn
+        # path). Instead, we check that the signature is valid (which stops someone
+        # from spoofing a macaroon if they know just the UUID) and we check that the
+        # macaroon corresponds to an OIDC publisher below (since we don't allow burning
+        # of macaroons from non-OIDC principals).
+        macaroon: Macaroon = macaroon_service.verify_signature_only(unverified_macaroon)
+    except InvalidMacaroonError:
+        request.metrics.increment(
+            "warehouse.oidc.burn_oidc_issued_token",
+            tags=["status:failure", "failure_reason:invalid_macaroon"],
+        )
+        return _accepted(request=request)
+
+    if macaroon.oidc_publisher is None:
+        # This macaroon was issued to a principal other than a Trusted Publisher,
+        # which means this endpoint can't burn it.
+        # NOTE: mypy can't see that `user` and `oidc_publisher` are disjoint.
+        username = macaroon.user.username  # type: ignore[union-attr]
+        sentry_sdk.capture_message(
+            f"Tried to burn an API token corresponding to a user: {username!r}"
+        )
+        request.metrics.increment(
+            "warehouse.oidc.burn_oidc_issued_token",
+            tags=["status:failure", "failure_reason:not_oidc_publisher"],
+        )
+        return _accepted(request=request)
+
+    for project in macaroon.oidc_publisher.projects:
+        project.record_event(
+            tag=EventTag.Project.ShortLivedAPITokenRevoked,
+            request=request,
+            additional={},
+        )
+
+    macaroon_service.delete_macaroon(str(macaroon.id))
+    request.metrics.increment(
+        "warehouse.oidc.burn_oidc_issued_token",
+        tags=[
+            "status:success",
+            f"publisher_name:{macaroon.oidc_publisher.publisher_name}",
+        ],
+    )
+
+    return _accepted(request=request)

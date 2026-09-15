@@ -11,8 +11,9 @@ from warehouse.metrics import IMetricsService
 
 def _detect_origin(request):
     for origin in config.origins:
-        if all([k in request.headers for k in origin.headers]):
+        if all(k in request.headers for k in origin.headers):
             return origin
+    return None
 
 
 @view_config(

@@ -1,17 +1,20 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import datetime
 import shlex
+import uuid
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 from pyramid.view import view_config
-from sqlalchemy import func, or_
+from sqlalchemy import func, or_, select
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
 
 from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import User
 from warehouse.admin.forms import SetTotalSizeLimitForm, SetUploadLimitForm
+from warehouse.admin.views.helpers import ALLOWED_DAYS, parse_days_param
 from warehouse.authnz import Permissions
 from warehouse.constants import (
     MAX_FILESIZE,
@@ -20,17 +23,25 @@ from warehouse.constants import (
     ONE_MIB,
     UPLOAD_LIMIT_CAP,
 )
+from warehouse.email import (
+    send_removed_project_release_email,
+    send_removed_project_release_file_email,
+)
 from warehouse.events.tags import EventTag
+from warehouse.manage.views import get_user_role_in_project
 from warehouse.observations.models import OBSERVATION_KIND_MAP, ObservationKind
-from warehouse.packaging.models import JournalEntry, Project, Release, Role
+from warehouse.packaging.models import File, JournalEntry, Project, Release, Role
 from warehouse.packaging.tasks import update_release_description
 from warehouse.search.tasks import reindex_project as _reindex_project
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import (
     archive_project,
     clear_project_quarantine,
+    clear_release_quarantine,
     confirm_project,
+    quarantine_release,
     remove_project,
+    remove_release,
     unarchive_project,
 )
 
@@ -45,6 +56,68 @@ from warehouse.utils.project import (
 def project_list(request):
     q = request.params.get("q")
 
+    # When there's no search query, show the dashboard view
+    if not q:
+        days = parse_days_param(request)
+
+        now = datetime.datetime.now(datetime.UTC)
+        cutoff = now - datetime.timedelta(days=days)
+        created_date = func.date_trunc("day", Project.created)
+
+        daily_counts = request.db.execute(
+            select(created_date.label("date"), func.count(Project.id))
+            .where(Project.created >= cutoff)
+            .group_by(created_date)
+            .order_by(created_date)
+        ).all()
+
+        # Build a complete series with zeros for days with no creations
+        counts_by_date = {
+            row_date.date().isoformat(): count for row_date, count in daily_counts
+        }
+
+        creation_series = []
+        for i in range(days):
+            day = (cutoff + datetime.timedelta(days=i + 1)).date().isoformat()
+            creation_series.append((day, counts_by_date.get(day, 0)))
+
+        latest_release = (
+            select(Release.version)
+            .where(
+                Release.project_id == Project.id,
+                Release.yanked.is_(False),
+            )
+            .order_by(
+                Release.is_prerelease.nullslast(),
+                Release._pypi_ordering.desc(),
+            )
+            .limit(1)
+            .correlate(Project)
+            .scalar_subquery()
+            .label("latest_version")
+        )
+
+        recent_projects = request.db.execute(
+            select(
+                Project.name,
+                Project.normalized_name,
+                Project.created,
+                latest_release,
+            )
+            .where(Project.created.isnot(None))
+            .order_by(Project.created.desc())
+            .limit(10)
+        ).all()
+
+        return {
+            "query": None,
+            "days": days,
+            "allowed_days": ALLOWED_DAYS,
+            "creation_series": creation_series,
+            "recent_projects": recent_projects,
+        }
+
+    # Search mode
     try:
         page_num = int(request.params.get("page", 1))
     except ValueError:
@@ -53,7 +126,13 @@ def project_list(request):
     projects_query = request.db.query(Project).order_by(Project.normalized_name)
     exact_match = None
 
-    if q:
+    if q.startswith("id:"):
+        try:
+            project_id = uuid.UUID(q[3:])
+        except ValueError:
+            raise HTTPBadRequest("Invalid UUID.") from None
+        projects_query = projects_query.filter(Project.id == project_id)
+    else:
         projects_query = projects_query.filter(
             func.ultranormalize_name(Project.name) == func.ultranormalize_name(q)
         )
@@ -106,27 +185,33 @@ def project_detail(project, request):
         .all()
     )
 
-    maintainers = [
-        role
-        for role in (
-            request.db.query(Role)
-            .join(User)
-            .filter(Role.project == project)
-            .distinct(User.username)
-            .all()
-        )
-    ]
+    maintainers = list(
+        request.db.query(Role)
+        .join(User)
+        .filter(Role.project == project)
+        .distinct(User.username)
+        .all()
+    )
     maintainers = sorted(maintainers, key=lambda x: (x.role_name, x.user.username))
-    journal = [
-        entry
-        for entry in (
-            request.db.query(JournalEntry)
-            .options(joinedload(JournalEntry.submitted_by))
+    journal = list(
+        request.db.query(JournalEntry)
+        .options(joinedload(JournalEntry.submitted_by))
+        .filter(JournalEntry.name == project.name)
+        .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
+        .limit(30)
+    )
+    # The card lists only the newest entries; the badge shows the true
+    # count. A short first page already proves the total; otherwise
+    # count(*) is an index-only scan on journals_name_idx.
+    if len(journal) < 30:
+        journal_count = len(journal)
+    else:
+        journal_count = (
+            request.db.query(func.count())
+            .select_from(JournalEntry)
             .filter(JournalEntry.name == project.name)
-            .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
-            .limit(30)
+            .scalar()
         )
-    ]
     observations = list(
         request.db.query(project.Observation)
         .options(joinedload(project.Observation.observer))
@@ -140,6 +225,7 @@ def project_detail(project, request):
         "releases": releases,
         "maintainers": maintainers,
         "journal": journal,
+        "journal_count": journal_count,
         "oidc_publishers": project.oidc_publishers,
         "ONE_MIB": ONE_MIB,
         "MAX_FILESIZE": MAX_FILESIZE,
@@ -395,6 +481,44 @@ def remove_from_quarantine(project, request):
 
 
 @view_config(
+    route_name="admin.project.release.quarantine",
+    permission=Permissions.AdminProjectsWrite,
+    request_method="POST",
+    uses_session=True,
+    require_methods=False,
+)
+def release_quarantine(release, request):
+    quarantine_release(release, request)
+
+    return HTTPSeeOther(
+        request.route_path(
+            "admin.project.release",
+            project_name=release.project.normalized_name,
+            version=release.version,
+        )
+    )
+
+
+@view_config(
+    route_name="admin.project.release.remove_from_quarantine",
+    permission=Permissions.AdminProjectsWrite,
+    request_method="POST",
+    uses_session=True,
+    require_methods=False,
+)
+def release_remove_from_quarantine(release, request):
+    clear_release_quarantine(release, request)
+
+    return HTTPSeeOther(
+        request.route_path(
+            "admin.project.release",
+            project_name=release.project.normalized_name,
+            version=release.version,
+        )
+    )
+
+
+@view_config(
     route_name="admin.project.release.render",
     permission=Permissions.AdminProjectsRead,
     request_method="GET",
@@ -423,7 +547,11 @@ def release_render(release, request):
     uses_session=True,
 )
 def journals_list(project, request):
-    q = request.params.get("q")
+    """Render the shell for a project-scoped journals Tabulator table.
+
+    The table itself is fed by the shared JSON endpoint behind
+    `admin.journals.list`, pre-filtered on this project's name.
+    """
     project_name = request.matchdict["project_name"]
 
     if project_name != project.normalized_name:
@@ -431,39 +559,7 @@ def journals_list(project, request):
             request.current_route_path(project_name=project.normalized_name)
         )
 
-    try:
-        page_num = int(request.params.get("page", 1))
-    except ValueError:
-        raise HTTPBadRequest("'page' must be an integer.") from None
-
-    journals_query = (
-        request.db.query(JournalEntry)
-        .options(joinedload(JournalEntry.submitted_by))
-        .filter(JournalEntry.name == project.name)
-        .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
-    )
-
-    if q:
-        terms = shlex.split(q)
-
-        filters = []
-        for term in terms:
-            if ":" in term:
-                field, value = term.split(":", 1)
-                if field.lower() == "version":
-                    filters.append(JournalEntry.version.ilike(value))
-
-        filters = filters or [True]
-        journals_query = journals_query.filter(or_(False, *filters))
-
-    journals = SQLAlchemyORMPage(
-        journals_query,
-        page=page_num,
-        items_per_page=25,
-        url_maker=paginate_url_factory(request),
-    )
-
-    return {"journals": journals, "project": project, "query": q}
+    return {"project": project}
 
 
 @view_config(
@@ -486,7 +582,18 @@ def set_upload_limit(project, request):
             )
         )
 
+    old_upload_limit = project.upload_limit
     project.upload_limit = form.upload_limit.data
+
+    project.record_event(
+        tag=EventTag.Project.ProjectSetUploadLimit,
+        request=request,
+        additional={
+            "old_upload_limit": old_upload_limit,
+            "new_upload_limit": project.upload_limit,
+            "actor": request.user.username,
+        },
+    )
 
     request.session.flash(f"Set the upload limit on {project.name!r}", queue="success")
 
@@ -515,7 +622,18 @@ def set_total_size_limit(project, request):
             )
         )
 
+    old_total_size_limit = project.total_size_limit
     project.total_size_limit = form.total_size_limit.data
+
+    project.record_event(
+        tag=EventTag.Project.ProjectSetTotalSizeLimit,
+        request=request,
+        additional={
+            "old_total_size_limit": old_total_size_limit,
+            "new_total_size_limit": project.total_size_limit,
+            "actor": request.user.username,
+        },
+    )
 
     request.session.flash(
         f"Set the total size limit on {project.name!r}", queue="success"
@@ -738,4 +856,162 @@ def unarchive_project_view(project, request) -> HTTPSeeOther:
     unarchive_project(project, request)
     return HTTPSeeOther(
         request.route_path("admin.project.detail", project_name=project.name)
+    )
+
+
+@view_config(
+    route_name="admin.project.release.delete",
+    permission=Permissions.AdminProjectsDelete,
+    request_method="POST",
+    uses_session=True,
+    require_methods=False,
+)
+def delete_release(release, request):
+    def _error(message):
+        request.session.flash(message, queue="error")
+        raise HTTPSeeOther(
+            request.route_path(
+                "admin.project.release",
+                project_name=release.project.normalized_name,
+                version=release.version,
+            )
+        )
+
+    version = request.POST.get("confirm_version")
+    if not version:
+        _error("Confirm the request")
+
+    if version != release.version:
+        _error(
+            f"Could not delete release - {version!r} is not the same as "
+            f"{release.version!r}"
+        )
+
+    reason = request.POST.get("reason", "").strip()
+    if not reason:
+        _error("Provide a reason")
+
+    project_normalized_name = release.project.normalized_name
+    deleted_version = release.version
+
+    # Notify contributors before the row goes away, since send-time email
+    # composition reads from `release` and its project.
+    for contributor in release.project.users:
+        contributor_role = get_user_role_in_project(
+            release.project, contributor, request
+        )
+
+        send_removed_project_release_email(
+            request,
+            contributor,
+            release=release,
+            submitter_name=request.user.username,
+            submitter_role="admin",
+            recipient_role=contributor_role,
+            reason=reason,
+        )
+
+    remove_release(release, request, reason=reason)
+
+    request.session.flash(f"Deleted release {deleted_version!r}", queue="success")
+
+    return HTTPSeeOther(
+        request.route_path(
+            "admin.project.detail",
+            project_name=project_normalized_name,
+        )
+    )
+
+
+@view_config(
+    route_name="admin.project.release.file.delete",
+    permission=Permissions.AdminProjectsDelete,
+    request_method="POST",
+    uses_session=True,
+    require_methods=False,
+)
+def delete_release_file(release, request):
+    def _error(message):
+        request.session.flash(message, queue="error")
+        raise HTTPSeeOther(
+            request.route_path(
+                "admin.project.release",
+                project_name=release.project.normalized_name,
+                version=release.version,
+            )
+        )
+
+    project_name = request.POST.get("confirm_project_name")
+    if not project_name:
+        _error("Confirm the request")
+
+    if project_name != release.project.name:
+        _error(
+            f"Could not delete file - {project_name!r} is not the same as "
+            f"{release.project.name!r}"
+        )
+
+    reason = request.POST.get("reason", "").strip()
+    if not reason:
+        _error("Provide a reason")
+
+    try:
+        release_file = (
+            request.db.query(File)
+            .filter(
+                File.release == release,
+                File.id == request.POST.get("file_id"),
+            )
+            .one()
+        )
+    except NoResultFound:
+        _error("Could not find file")
+
+    request.db.add(
+        JournalEntry(
+            name=release.project.name,
+            action=f"remove file {release_file.filename}",
+            version=release.version,
+            submitted_by=request.user,
+        )
+    )
+
+    release.project.record_event(
+        tag=EventTag.File.FileRemove,
+        request=request,
+        additional={
+            "submitted_by": request.user.username,
+            "canonical_version": release.canonical_version,
+            "filename": release_file.filename,
+            "project_id": str(release.project.id),
+            "reason": reason,
+        },
+    )
+
+    for contributor in release.project.users:
+        contributor_role = get_user_role_in_project(
+            release.project, contributor, request
+        )
+
+        send_removed_project_release_file_email(
+            request,
+            contributor,
+            file=release_file.filename,
+            release=release,
+            submitter_name=request.user.username,
+            submitter_role="admin",
+            recipient_role=contributor_role,
+            reason=reason,
+        )
+
+    request.db.delete(release_file)
+
+    request.session.flash(f"Deleted file {release_file.filename!r}", queue="success")
+
+    return HTTPSeeOther(
+        request.route_path(
+            "admin.project.release",
+            project_name=release.project.normalized_name,
+            version=release.version,
+        )
     )

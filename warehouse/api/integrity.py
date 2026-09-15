@@ -26,8 +26,7 @@ def _select_content_type(request: Request) -> str | None:
     # Client provided an Accept header, but none of the offers matched.
     if not offers:
         return None
-    else:
-        return offers[0][0]
+    return offers[0][0]
 
 
 @view_config(

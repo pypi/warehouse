@@ -7,23 +7,23 @@ from celery.schedules import crontab
 from warehouse import packaging
 from warehouse.accounts.models import Email, User
 from warehouse.manage.tasks import update_role_invitation_status
-from warehouse.organizations.models import Organization
+from warehouse.organizations.models import Organization, OrganizationProject
 from warehouse.packaging.interfaces import (
     IDocsStorage,
     IFileStorage,
     IProjectService,
     ISimpleStorage,
 )
-from warehouse.packaging.models import AlternateRepository, File, Project, Release, Role
+from warehouse.packaging.models import File, Project, Release, Role
 from warehouse.packaging.services import project_service_factory
 from warehouse.packaging.tasks import (
     check_file_cache_tasks_outstanding,
+    reconcile_file_storages,
     update_description_html,
 )
-from warehouse.rate_limiting import IRateLimiter, RateLimit
 
 
-def test_includeme(monkeypatch):
+def test_includeme(monkeypatch, mocker):
     storage_class = pretend.stub(
         create_service=pretend.call_recorder(lambda *a, **kw: pretend.stub())
     )
@@ -41,6 +41,9 @@ def test_includeme(monkeypatch):
         "docs.backend": "wu.tang",
         "warehouse.packaging.project_create_user_ratelimit_string": "20 per hour",
         "warehouse.packaging.project_create_ip_ratelimit_string": "40 per hour",
+        "warehouse.packaging.project_create_organization_ratelimit_string": (
+            "10 per day"
+        ),
     }
 
     config = pretend.stub(
@@ -48,10 +51,11 @@ def test_includeme(monkeypatch):
         register_service_factory=pretend.call_recorder(
             lambda factory, iface, name=None: None
         ),
+        register_rate_limiter=pretend.call_recorder(lambda limit_string, name: None),
         registry=pretend.stub(settings=settings),
         register_origin_cache_keys=pretend.call_recorder(lambda c, **kw: None),
         get_settings=lambda: settings,
-        add_periodic_task=pretend.call_recorder(lambda *a, **kw: None),
+        add_periodic_task=mocker.Mock(),
     )
 
     packaging.includeme(config)
@@ -61,11 +65,12 @@ def test_includeme(monkeypatch):
         pretend.call(storage_class.create_service, IFileStorage, name="archive"),
         pretend.call(storage_class.create_service, ISimpleStorage),
         pretend.call(storage_class.create_service, IDocsStorage),
-        pretend.call(
-            RateLimit("20 per hour"), IRateLimiter, name="project.create.user"
-        ),
-        pretend.call(RateLimit("40 per hour"), IRateLimiter, name="project.create.ip"),
         pretend.call(project_service_factory, IProjectService),
+    ]
+    assert config.register_rate_limiter.calls == [
+        pretend.call("20 per hour", "project.create.user"),
+        pretend.call("40 per hour", "project.create.ip"),
+        pretend.call("10 per day", "project.create.organization"),
     ]
     assert config.register_origin_cache_keys.calls == [
         pretend.call(
@@ -146,23 +151,26 @@ def test_includeme(monkeypatch):
             ],
         ),
         pretend.call(
-            AlternateRepository,
-            cache_keys=["project/{obj.project.normalized_name}"],
+            OrganizationProject,
             purge_keys=[
-                key_factory("project/{obj.project.normalized_name}"),
+                key_factory("project/{attr.normalized_name}", if_attr_exists="project"),
             ],
         ),
     ]
 
     assert (
-        pretend.call(crontab(minute="*/1"), check_file_cache_tasks_outstanding)
-        in config.add_periodic_task.calls
+        mocker.call(crontab(minute="*/1"), check_file_cache_tasks_outstanding)
+        in config.add_periodic_task.call_args_list
     )
     assert (
-        pretend.call(crontab(minute="*/5"), update_description_html)
-        in config.add_periodic_task.calls
+        mocker.call(crontab(minute="*/15"), reconcile_file_storages)
+        in config.add_periodic_task.call_args_list
     )
     assert (
-        pretend.call(crontab(minute="*/5"), update_role_invitation_status)
-        in config.add_periodic_task.calls
+        mocker.call(crontab(minute="*/5"), update_description_html)
+        in config.add_periodic_task.call_args_list
+    )
+    assert (
+        mocker.call(crontab(minute="*/5"), update_role_invitation_status)
+        in config.add_periodic_task.call_args_list
     )

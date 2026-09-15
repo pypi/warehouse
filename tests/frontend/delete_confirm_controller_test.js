@@ -31,7 +31,7 @@ describe("DeleteConfirm controller", () => {
 
   describe("functionality", function() {
     describe("checking one box", function() {
-      it("doesnt enable the button", function() {
+      it("doesn't enable the button", function() {
         const inputOne = document.getElementById("input-one");
         expect(inputOne).not.toBeChecked();
         fireEvent.click(inputOne);

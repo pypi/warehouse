@@ -4,6 +4,7 @@ from pyramid.view import view_config
 from sqlalchemy import func, select
 
 from warehouse.accounts.models import User
+from warehouse.organizations.models import Organization
 from warehouse.packaging.models import ProhibitedProjectName, Project
 
 
@@ -52,3 +53,13 @@ def administer_project_include(request):
 )
 def administer_user_include(user, request):
     return {"user": user}
+
+
+@view_config(
+    route_name="includes.administer-organization-include",
+    context=Organization,
+    renderer="warehouse:templates/includes/admin/administer-organization-include.html",
+    uses_session=True,
+)
+def administer_organization_include(organization, request):
+    return {"organization": organization}

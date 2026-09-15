@@ -125,7 +125,7 @@ Again, the list above is not exclusive. The maintainers of the Package Index
 recommend users to get in touch with each other and solve the issue by
 respectful communication (see the [PSF Code of Conduct]).
 
-[PSF Code of Conduct]: ../python.org/code-of-conduct/index.md
+[PSF Code of Conduct]: https://policies.python.org/python.org/code-of-conduct/
 
 ### Invalid projects
 
@@ -143,7 +143,7 @@ considered invalid and will be removed from the Index:
 - project uses obfuscation to hide or mask functionality; or
 - project is abusing the Package Index for purposes it was not intended.
 
-The Package Index maintainers pre-emptively declare certain package names as
+The Package Index maintainers preemptively declare certain package names as
 unavailable for security reasons.
 
 ### Intellectual property policy

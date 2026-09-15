@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import datetime
+import types
 
 import freezegun
-import pretend
 import pytest
 
 from warehouse.metrics.event_handlers import (
@@ -28,7 +28,7 @@ def test_on_new_request(pyramid_request):
 
     now = datetime.datetime.now(datetime.UTC)
     with freezegun.freeze_time(now):
-        on_new_request(pretend.stub(request=pyramid_request))
+        on_new_request(types.SimpleNamespace(request=pyramid_request))
 
     assert pyramid_request.timings == {"new_request_start": now.timestamp() * 1000}
 
@@ -40,11 +40,9 @@ def test_on_before_traversal(pyramid_request, metrics):
     pyramid_request.timings = {"new_request_start": new_request.timestamp() * 1000}
 
     with freezegun.freeze_time(route_match_duration):
-        on_before_traversal(pretend.stub(request=pyramid_request))
+        on_before_traversal(types.SimpleNamespace(request=pyramid_request))
 
-    assert metrics.timing.calls == [
-        pretend.call("pyramid.request.duration.route_match", 1000)
-    ]
+    metrics.timing.assert_called_once_with("pyramid.request.duration.route_match", 1000)
     assert pyramid_request.timings == {
         "new_request_start": new_request.timestamp() * 1000,
         "route_match_duration": (
@@ -62,11 +60,9 @@ def test_on_context_found(pyramid_request, metrics):
     pyramid_request.timings = {"new_request_start": new_request.timestamp() * 1000}
 
     with freezegun.freeze_time(traversal_duration):
-        on_context_found(pretend.stub(request=pyramid_request))
+        on_context_found(types.SimpleNamespace(request=pyramid_request))
 
-    assert metrics.timing.calls == [
-        pretend.call("pyramid.request.duration.traversal", 2000)
-    ]
+    metrics.timing.assert_called_once_with("pyramid.request.duration.traversal", 2000)
     assert pyramid_request.timings == {
         "new_request_start": new_request.timestamp() * 1000,
         "traversal_duration": (traversal_duration.timestamp() - new_request.timestamp())
@@ -85,14 +81,14 @@ class TestOnBeforeRender:
         with freezegun.freeze_time(before_render_start):
             on_before_render({"request": pyramid_request})
 
-        assert metrics.timing.calls == []
+        metrics.timing.assert_not_called()
         assert pyramid_request.timings == {
             "before_render_start": before_render_start.timestamp() * 1000
         }
 
     @pytest.mark.parametrize(
         ("matched_route", "route_tag"),
-        [(None, "route:null"), (pretend.stub(name="foo"), "route:foo")],
+        [(None, "route:null"), (types.SimpleNamespace(name="foo"), "route:foo")],
     )
     def test_with_view_duration(
         self, pyramid_request, metrics, matched_route, route_tag
@@ -108,9 +104,9 @@ class TestOnBeforeRender:
         with freezegun.freeze_time(before_render_start):
             on_before_render({"request": pyramid_request})
 
-        assert metrics.timing.calls == [
-            pretend.call("pyramid.request.duration.view", 1500, tags=[route_tag])
-        ]
+        metrics.timing.assert_called_once_with(
+            "pyramid.request.duration.view", 1500, tags=[route_tag]
+        )
         assert pyramid_request.timings == {
             "view_code_start": view_code_start.timestamp() * 1000,
             "view_duration": 1500.0,
@@ -120,12 +116,12 @@ class TestOnBeforeRender:
 
 class TestOnNewResponse:
     def test_without_timings(self, pyramid_request, metrics):
-        on_new_response(pretend.stub(request=pyramid_request))
+        on_new_response(types.SimpleNamespace(request=pyramid_request))
 
-        assert metrics.timing.calls == []
+        metrics.timing.assert_not_called()
 
     def test_without_route(self, pyramid_request, metrics):
-        response = pretend.stub(status_code="200")
+        response = types.SimpleNamespace(status_code="200")
 
         new_request = datetime.datetime.now(datetime.UTC)
         new_response = new_request + datetime.timedelta(seconds=1)
@@ -134,46 +130,46 @@ class TestOnNewResponse:
         pyramid_request.matched_route = None
 
         with freezegun.freeze_time(new_response):
-            on_new_response(pretend.stub(request=pyramid_request, response=response))
-
-        assert metrics.timing.calls == [
-            pretend.call(
-                "pyramid.request.duration.total",
-                1000,
-                tags=["status_code:200", "status_type:2xx"],
+            on_new_response(
+                types.SimpleNamespace(request=pyramid_request, response=response)
             )
-        ]
+
+        metrics.timing.assert_called_once_with(
+            "pyramid.request.duration.total",
+            1000,
+            tags=["status_code:200", "status_type:2xx"],
+        )
         assert pyramid_request.timings == {
             "new_request_start": new_request.timestamp() * 1000,
             "request_duration": 1000.0,
         }
 
     def test_without_render(self, pyramid_request, metrics):
-        response = pretend.stub(status_code="200")
+        response = types.SimpleNamespace(status_code="200")
 
         new_request = datetime.datetime.now(datetime.UTC)
         new_response = new_request + datetime.timedelta(seconds=1)
 
         pyramid_request.timings = {"new_request_start": new_request.timestamp() * 1000}
-        pyramid_request.matched_route = pretend.stub(name="thing")
+        pyramid_request.matched_route = types.SimpleNamespace(name="thing")
 
         with freezegun.freeze_time(new_response):
-            on_new_response(pretend.stub(request=pyramid_request, response=response))
-
-        assert metrics.timing.calls == [
-            pretend.call(
-                "pyramid.request.duration.total",
-                1000,
-                tags=["route:thing", "status_code:200", "status_type:2xx"],
+            on_new_response(
+                types.SimpleNamespace(request=pyramid_request, response=response)
             )
-        ]
+
+        metrics.timing.assert_called_once_with(
+            "pyramid.request.duration.total",
+            1000,
+            tags=["route:thing", "status_code:200", "status_type:2xx"],
+        )
         assert pyramid_request.timings == {
             "new_request_start": new_request.timestamp() * 1000,
             "request_duration": 1000.0,
         }
 
-    def test_with_render(self, pyramid_request, metrics):
-        response = pretend.stub(status_code="200")
+    def test_with_render(self, mocker, pyramid_request, metrics):
+        response = types.SimpleNamespace(status_code="200")
 
         new_request = datetime.datetime.now(datetime.UTC)
         before_render = new_request + datetime.timedelta(seconds=1)
@@ -183,16 +179,18 @@ class TestOnNewResponse:
             "new_request_start": new_request.timestamp() * 1000,
             "before_render_start": before_render.timestamp() * 1000,
         }
-        pyramid_request.matched_route = pretend.stub(name="thing")
+        pyramid_request.matched_route = types.SimpleNamespace(name="thing")
 
         with freezegun.freeze_time(new_response):
-            on_new_response(pretend.stub(request=pyramid_request, response=response))
+            on_new_response(
+                types.SimpleNamespace(request=pyramid_request, response=response)
+            )
 
-        assert metrics.timing.calls == [
-            pretend.call(
+        assert metrics.timing.call_args_list == [
+            mocker.call(
                 "pyramid.request.duration.template_render", 1000, tags=["route:thing"]
             ),
-            pretend.call(
+            mocker.call(
                 "pyramid.request.duration.total",
                 2000,
                 tags=["route:thing", "status_code:200", "status_type:2xx"],
@@ -209,13 +207,13 @@ class TestOnNewResponse:
 class TestOnBeforeRetry:
     @pytest.mark.parametrize(
         ("matched_route", "route_tag"),
-        [(None, "route:null"), (pretend.stub(name="foo"), "route:foo")],
+        [(None, "route:null"), (types.SimpleNamespace(name="foo"), "route:foo")],
     )
     def test_emits_metric(self, pyramid_request, metrics, matched_route, route_tag):
         pyramid_request.matched_route = matched_route
 
-        on_before_retry(pretend.stub(request=pyramid_request))
+        on_before_retry(types.SimpleNamespace(request=pyramid_request))
 
-        assert metrics.increment.calls == [
-            pretend.call("pyramid.request.retry", tags=[route_tag])
-        ]
+        metrics.increment.assert_called_once_with(
+            "pyramid.request.retry", tags=[route_tag]
+        )

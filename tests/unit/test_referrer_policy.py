@@ -1,27 +1,27 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
+import types
 
 from warehouse import referrer_policy
 
 
 class TestReferrerPolicyTween:
-    def test_referrer_policy(self):
-        response = pretend.stub(headers={})
-        handler = pretend.call_recorder(lambda request: response)
-        registry = pretend.stub()
+    def test_referrer_policy(self, mocker):
+        response = types.SimpleNamespace(headers={})
+        handler = mocker.Mock(return_value=response)
+        registry = mocker.sentinel.registry
         tween = referrer_policy.referrer_policy_tween_factory(handler, registry)
 
-        request = pretend.stub(path="/project/foobar/")
+        request = types.SimpleNamespace(path="/project/foobar/")
 
         assert tween(request) is response
         assert response.headers == {"Referrer-Policy": "origin-when-cross-origin"}
 
 
-def test_includeme():
-    config = pretend.stub(add_tween=pretend.call_recorder(lambda tween: None))
-    referrer_policy.includeme(config)
+def test_includeme(pyramid_config, mocker):
+    spy = mocker.spy(pyramid_config, "add_tween")
+    referrer_policy.includeme(pyramid_config)
 
-    assert config.add_tween.calls == [
-        pretend.call("warehouse.referrer_policy.referrer_policy_tween_factory")
-    ]
+    spy.assert_called_once_with(
+        "warehouse.referrer_policy.referrer_policy_tween_factory"
+    )

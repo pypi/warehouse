@@ -35,8 +35,8 @@ class TestAdminFlag:
         flag.enabled = disallow_github_oidc
 
         assert (
-            not db_request.flags.disallow_oidc(AdminFlagValue.DISALLOW_GITHUB_OIDC)
-            == oidc_enabled
+            db_request.flags.disallow_oidc(AdminFlagValue.DISALLOW_GITHUB_OIDC)
+            != oidc_enabled
         )
         assert db_request.flags.disallow_oidc() == disallow_oidc
 

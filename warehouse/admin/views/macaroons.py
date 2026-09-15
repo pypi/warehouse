@@ -5,17 +5,22 @@ from pyramid.view import view_config
 from sqlalchemy.orm import joinedload
 
 from warehouse.authnz import Permissions
+from warehouse.email import send_token_compromised_email_leak
 from warehouse.events.tags import EventTag
 from warehouse.macaroons.errors import InvalidMacaroonError
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.models import Macaroon
-from warehouse.macaroons.services import deserialize_raw_macaroon
+from warehouse.macaroons.services import (
+    _decode_identifier,
+    deserialize_partial_macaroon,
+    deserialize_raw_macaroon,
+)
 
 
 @view_config(
     route_name="admin.macaroon.decode_token",
     renderer="warehouse.admin:templates/admin/macaroons/decode_token.html",
-    permission=Permissions.AdminMacaroonsRead,
+    permission=Permissions.AdminMacaroonsInspect,
     request_method="GET",
     uses_session=True,
     require_csrf=True,
@@ -24,7 +29,7 @@ from warehouse.macaroons.services import deserialize_raw_macaroon
 @view_config(
     route_name="admin.macaroon.decode_token",
     renderer="warehouse.admin:templates/admin/macaroons/decode_token.html",
-    permission=Permissions.AdminMacaroonsRead,
+    permission=Permissions.AdminMacaroonsInspect,
     request_method="POST",
     uses_session=True,
     require_csrf=True,
@@ -42,19 +47,33 @@ def macaroon_decode_token(request):
     if not token:
         raise HTTPBadRequest("No token provided.")
 
+    macaroon_service = request.find_service(IMacaroonService, context=None)
+
     try:
         macaroon = deserialize_raw_macaroon(token)
+        # Decoding here keeps the template from meeting bytes it cannot render.
+        identifier = _decode_identifier(macaroon)
     except InvalidMacaroonError as e:
-        raise HTTPBadRequest(f"The token cannot be deserialized: {e!r}") from e
+        # A truncated token still names the macaroon it came from, so read
+        # what is there instead of refusing the whole thing.
+        partial = deserialize_partial_macaroon(token)
+        if partial is None:
+            raise HTTPBadRequest(f"The token cannot be deserialized: {e!r}") from e
 
-    # Try to find the database record for this macaroon
-    macaroon_service = request.find_service(IMacaroonService, context=None)
-    try:
-        db_record = macaroon_service.find_from_raw(token)
-    except InvalidMacaroonError:
-        db_record = None
+        return {
+            "partial": partial,
+            "db_record": (
+                macaroon_service.find_macaroon(partial.identifier)
+                if partial.identifier_complete
+                else None
+            ),
+        }
 
-    return {"macaroon": macaroon, "db_record": db_record}
+    return {
+        "macaroon": macaroon,
+        "identifier": identifier,
+        "db_record": macaroon_service.find_macaroon(identifier),
+    }
 
 
 @view_config(
@@ -74,7 +93,7 @@ def macaroon_detail(request):
     )
 
     if macaroon is None:
-        raise HTTPNotFound()
+        raise HTTPNotFound
 
     return {"macaroon": macaroon}
 
@@ -82,7 +101,9 @@ def macaroon_detail(request):
 @view_config(
     route_name="admin.macaroon.delete",
     permission=Permissions.AdminMacaroonsWrite,
+    request_method="POST",
     uses_session=True,
+    require_csrf=True,
     require_methods=False,
 )
 def macaroon_delete(request):
@@ -90,20 +111,35 @@ def macaroon_delete(request):
 
     macaroon_service = request.find_service(IMacaroonService, context=None)
     macaroon = macaroon_service.find_macaroon(macaroon_id)
+    if macaroon is None:
+        raise HTTPNotFound
 
-    # TODO: Shows up in user history. Should it? `removed_by` is not shown.
+    user = macaroon.user
+    notify = bool(request.POST.get("notify"))
+    reason = request.POST.get("reason", "").strip() or None
+
+    additional = {
+        "macaroon_id": str(macaroon.id),
+        "description": macaroon.description,
+        "removed_by": request.user.username,  # not displayed to user
+        "redact_ip": True,
+    }
+    if reason:
+        additional["reason"] = reason
+
     # Since we still have a macaroon, record the event to the associated user
-    macaroon.user.record_event(
+    user.record_event(
         tag=EventTag.Account.APITokenRemoved,
         request=request,
-        additional={
-            "macaroon_id": str(macaroon.id),
-            "description": macaroon.description,
-            "removed_by": request.user.username,
-        },
+        additional=additional,
     )
 
     macaroon_service.delete_macaroon(macaroon_id)
+
+    if notify:
+        send_token_compromised_email_leak(
+            request, user, admin_initiated=True, reason=reason
+        )
 
     request.session.flash(
         f"Macaroon with ID {macaroon_id} has been deleted.", queue="success"

@@ -14,8 +14,7 @@ down_revision = "d15f020ee3df"
 
 
 def upgrade():
-    op.execute(
-        """
+    op.execute("""
         CREATE OR REPLACE FUNCTION sitemap_bucket(text) RETURNS text AS $$
                 SELECT substring(
                     encode(digest($1, 'sha512'), 'hex')
@@ -26,25 +25,19 @@ def upgrade():
             LANGUAGE SQL
             IMMUTABLE
             RETURNS NULL ON NULL INPUT;
-    """
-    )
-    op.execute(
-        """
+    """)
+    op.execute("""
         UPDATE users
         SET sitemap_bucket = sitemap_bucket(username)
-        """
-    )
-    op.execute(
-        """
+        """)
+    op.execute("""
         UPDATE projects
         SET sitemap_bucket = sitemap_bucket(name)
-        """
-    )
+        """)
 
 
 def downgrade():
-    op.execute(
-        """
+    op.execute("""
         CREATE OR REPLACE FUNCTION sitemap_bucket(text) RETURNS text AS $$
                 SELECT substring(
                     encode(digest($1, 'sha512'), 'hex')
@@ -55,17 +48,12 @@ def downgrade():
             LANGUAGE SQL
             IMMUTABLE
             RETURNS NULL ON NULL INPUT;
-    """
-    )
-    op.execute(
-        """
+    """)
+    op.execute("""
         UPDATE users
         SET sitemap_bucket = sitemap_bucket(username)
-        """
-    )
-    op.execute(
-        """
+        """)
+    op.execute("""
         UPDATE projects
         SET sitemap_bucket = sitemap_bucket(name)
-        """
-    )
+        """)

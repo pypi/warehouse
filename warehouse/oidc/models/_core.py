@@ -9,14 +9,23 @@ from uuid import UUID
 import rfc3986
 import sentry_sdk
 
-from sqlalchemy import ForeignKey, Index, String, UniqueConstraint, func, orm
-from sqlalchemy.dialects.postgresql import UUID as PG_UUID
+from sqlalchemy import (
+    CheckConstraint,
+    ForeignKey,
+    Index,
+    String,
+    UniqueConstraint,
+    func,
+    orm,
+)
 from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
 from warehouse.oidc.errors import InvalidPublisherError, ReusedTokenError
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.urls import verify_url_from_reference
+from warehouse.packaging.models import PROJECT_NAME_PATTERN
+from warehouse.utils.db.types import bool_false, datetime_now
 
 if TYPE_CHECKING:
     from pypi_attestations import Publisher
@@ -39,7 +48,7 @@ class CheckNamedArguments(TypedDict, total=False):
 CheckClaimCallable = Callable[[C, C, SignedClaims, Unpack[CheckNamedArguments]], bool]
 
 
-def check_claim_binary(binary_func: Callable[[C, C], bool]) -> CheckClaimCallable[C]:
+def check_claim_binary[C](binary_func: Callable[[C, C], bool]) -> CheckClaimCallable[C]:
     """
     Wraps a binary comparison function so that it takes three arguments instead,
     ignoring the third.
@@ -59,7 +68,7 @@ def check_claim_binary(binary_func: Callable[[C, C], bool]) -> CheckClaimCallabl
     return wrapper
 
 
-def check_claim_invariant(value: C) -> CheckClaimCallable[C]:
+def check_claim_invariant[C](value: C) -> CheckClaimCallable[C]:
     """
     Wraps a fixed value comparison into a three-argument function.
 
@@ -93,7 +102,7 @@ def check_existing_jti(
             "warehouse.oidc.reused_token",
             tags=[f"publisher:{publisher_service.publisher}"],
         )
-        raise ReusedTokenError()
+        raise ReusedTokenError
 
     return True
 
@@ -103,13 +112,11 @@ class OIDCPublisherProjectAssociation(db.Model):
     __table_args__ = (UniqueConstraint("oidc_publisher_id", "project_id"),)
 
     oidc_publisher_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
         ForeignKey("oidc_publishers.id"),
         nullable=False,
         primary_key=True,
     )
     project_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
         primary_key=True,
@@ -129,13 +136,13 @@ class OIDCPublisherMixin:
 
     # A map of claim names to "check" functions, each of which
     # has the signature `check(ground-truth, signed-claim, all-signed-claims) -> bool`.
-    __required_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = dict()
+    __required_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {}
 
     # A set of claim names which must be present, but can't be verified
     __required_unverifiable_claims__: set[str] = set()
 
-    # Simlar to __verificable_claims__, but these claims are optional
-    __optional_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = dict()
+    # Similar to __required_verifiable_claims__, but these claims are optional
+    __optional_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {}
 
     # Claims that have already been verified during the JWT signature
     # verification phase if present.
@@ -151,6 +158,16 @@ class OIDCPublisherMixin:
     # indicating any custom claims that are known to be present but are
     # not checked as part of verifying the JWT.
     __unchecked_claims__: set[str] = set()
+
+    # Individual publishers can override this set to indicate prefixes of custom
+    # claims that are known to be present and should be ignored without exact matching.
+    __unchecked_prefixed_claims__: set[str] = set()
+
+    # Whether this publisher type supports custom (non-canonical) issuer URLs.
+    # When True, lookup_by_claims MUST filter by the JWT's "iss" claim to
+    # prevent cross-issuer publisher confusion. Defaults to False, meaning the
+    # service-level issuer URL mismatch check is enforced.
+    __supports_custom_issuer__: bool = False
 
     # Individual publishers can have complex unique constraints on their
     # required and optional attributes, and thus can't be naively looked
@@ -199,7 +216,13 @@ class OIDCPublisherMixin:
         # All claims should be accounted for.
         # The presence of an unaccounted claim is not an error, only a warning
         # that the JWT payload has changed.
-        unaccounted_claims = sorted(list(signed_claims.keys() - cls.all_known_claims()))
+        known_claims = cls.all_known_claims()
+        unaccounted_claims = sorted(
+            claim
+            for claim in signed_claims
+            if claim not in known_claims
+            and not claim.startswith(tuple(cls.__unchecked_prefixed_claims__))
+        )
         if unaccounted_claims:
             with sentry_sdk.new_scope() as scope:
                 scope.fingerprint = unaccounted_claims
@@ -385,11 +408,10 @@ class PendingOIDCPublisher(OIDCPublisherMixin, db.Model):
 
     project_name: Mapped[str] = mapped_column(String, nullable=False)
     added_by_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True
+        ForeignKey("users.id"), nullable=False, index=True
     )
     added_by: Mapped[User] = orm.relationship(back_populates="pending_oidc_publishers")
     organization_id: Mapped[UUID | None] = mapped_column(
-        PG_UUID(as_uuid=True),
         ForeignKey("organizations.id"),
         nullable=True,
         index=True,
@@ -397,8 +419,14 @@ class PendingOIDCPublisher(OIDCPublisherMixin, db.Model):
     pypi_organization: Mapped[Organization | None] = orm.relationship(
         back_populates="pending_oidc_publishers"
     )
+    created: Mapped[datetime_now]
+    expiration_reminded: Mapped[bool_false]
 
     __table_args__ = (
+        CheckConstraint(
+            f"project_name ~* '{PROJECT_NAME_PATTERN}'::text",
+            name="pending_oidc_publishers_project_name_valid_name",
+        ),
         Index(
             "pending_project_name_ultranormalized",
             func.ultranormalize_name(project_name),

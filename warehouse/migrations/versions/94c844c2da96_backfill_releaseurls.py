@@ -17,8 +17,7 @@ def upgrade():
     op.create_check_constraint(
         "release_urls_valid_name", "release_urls", "char_length(name) BETWEEN 1 AND 32"
     )
-    op.execute(
-        r"""
+    op.execute(r"""
         INSERT INTO release_urls (release_id, name, url)
             SELECT release_id,
                 (regexp_match(specifier, '^([^,]+)\s*,\s*(.*)$'))[1],
@@ -27,8 +26,7 @@ def upgrade():
             WHERE release_dependencies.kind = 8
             ON CONFLICT ON CONSTRAINT release_urls_release_id_name_key
             DO NOTHING;
-        """
-    )
+        """)
 
 
 def downgrade():

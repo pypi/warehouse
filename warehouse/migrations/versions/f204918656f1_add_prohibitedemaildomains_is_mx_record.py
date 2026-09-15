@@ -26,13 +26,11 @@ def upgrade():
             comment="Prohibit any domains that have this domain as an MX record?",
         ),
     )
-    op.execute(
-        """
+    op.execute("""
         UPDATE prohibited_email_domains
         SET is_mx_record = false
         WHERE is_mx_record IS NULL
-    """
-    )
+    """)
     op.alter_column("prohibited_email_domains", "is_mx_record", nullable=False)
 
 

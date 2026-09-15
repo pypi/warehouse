@@ -1,12 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import cast
+import pypi_attestations
 
 from natsort import natsorted
 from pypi_attestations import (
     Attestation,
-    GitHubPublisher,
-    GitLabPublisher,
     Publisher,
     TransparencyLogEntry,
 )
@@ -15,16 +13,23 @@ from pyramid.view import view_config
 from sqlalchemy.exc import NoResultFound
 
 from warehouse.accounts.models import User
+from warehouse.attestations.models import publisher_workflow
 from warehouse.authnz import Permissions
 from warehouse.cache.origin import origin_cache
 from warehouse.observations.models import ObservationKind
 from warehouse.packaging.forms import SubmitMalwareObservationForm
-from warehouse.packaging.models import Description, File, Project, Release, Role
+from warehouse.packaging.models import (
+    Description,
+    File,
+    LifecycleStatus,
+    Project,
+    Release,
+    Role,
+)
 from warehouse.utils import wheel
 
 
 class PEP740AttestationViewer:
-
     def __init__(self, publisher: Publisher, attestation: Attestation):
         self.publisher = publisher
         self.attestation = attestation
@@ -35,10 +40,10 @@ class PEP740AttestationViewer:
 
         Reference can either be a hash or a named revision.
         """
-        match self.publisher.kind:
-            case "GitHub":
+        match self.publisher:
+            case pypi_attestations.GitHubPublisher():
                 return f"{base_url}/tree/{reference}"
-            case "GitLab":
+            case pypi_attestations.GitLabPublisher():
                 reference = reference.removeprefix("refs/heads/")
                 return f"{base_url}/-/tree/{reference}"
             case _:
@@ -80,13 +85,7 @@ class PEP740AttestationViewer:
     @property
     def workflow_filename(self) -> str:
         """The filename of the workflow configuration."""
-        match self.publisher.kind:
-            case "GitHub":
-                return cast(GitHubPublisher, self.publisher).workflow
-            case "GitLab":
-                return cast(GitLabPublisher, self.publisher).workflow_filepath
-            case _:
-                return ""
+        return publisher_workflow(self.publisher) or ""
 
     @property
     def workflow_url(self) -> str:
@@ -158,7 +157,8 @@ class PEP740AttestationViewer:
     renderer="warehouse:templates/packaging/detail.html",
     decorator=[
         origin_cache(
-            1 * 24 * 60 * 60, stale_if_error=5 * 24 * 60 * 60  # 1 day, 5 days stale
+            1 * 24 * 60 * 60,
+            stale_if_error=5 * 24 * 60 * 60,  # 1 day, 5 days stale
         )
     ],
     has_translations=True,
@@ -172,6 +172,9 @@ def project_detail(project, request):
             request.db.query(Release)
             .filter(Release.project == project)
             .order_by(
+                Release.lifecycle_status.is_not_distinct_from(
+                    LifecycleStatus.QuarantineEnter
+                ),
                 Release.yanked,
                 Release.is_prerelease.nullslast(),
                 Release._pypi_ordering.desc(),
@@ -191,7 +194,8 @@ def project_detail(project, request):
     renderer="warehouse:templates/packaging/detail.html",
     decorator=[
         origin_cache(
-            1 * 24 * 60 * 60, stale_if_error=5 * 24 * 60 * 60  # 1 day, 5 days stale
+            1 * 24 * 60 * 60,
+            stale_if_error=5 * 24 * 60 * 60,  # 1 day, 5 days stale
         )
     ],
     has_translations=True,

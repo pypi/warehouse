@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 
@@ -11,66 +11,6 @@ from warehouse.admin.views import observers as views
 from ....common.db.accounts import UserFactory
 from ....common.db.observations import ObserverFactory
 from ....common.db.packaging import ProjectObservationFactory
-
-
-class TestClassifyObservation:
-    """Tests for the _classify_observation helper function."""
-
-    @pytest.mark.parametrize(
-        ("actions", "related_id", "expected"),
-        [
-            # No actions cases
-            (None, "some-uuid", "pending"),  # project exists
-            (None, None, "true_positive"),  # project removed
-            ({}, "some-uuid", "pending"),  # empty actions, project exists
-            ({}, None, "true_positive"),  # empty actions, project removed
-            # Single action cases - project exists
-            (
-                {123: {"action": "remove_malware", "actor": "admin"}},
-                "some-uuid",
-                "true_positive",
-            ),
-            (
-                {123: {"action": "verdict_not_malware", "actor": "admin"}},
-                "some-uuid",
-                "false_positive",
-            ),
-            (
-                {123: {"action": "some_other_action", "actor": "admin"}},
-                "some-uuid",
-                "pending",
-            ),
-            # Project removed cases - removal takes precedence
-            (
-                {123: {"action": "remove_malware", "actor": "admin"}},
-                None,
-                "true_positive",
-            ),
-            # Key case: verdict_not_malware but project later removed for other reason
-            # Observer should NOT be penalized - they correctly identified a problem
-            (
-                {123: {"action": "verdict_not_malware", "actor": "admin"}},
-                None,
-                "true_positive",
-            ),
-            (
-                {123: {"action": "some_other_action", "actor": "admin"}},
-                None,
-                "true_positive",
-            ),
-            # Precedence: remove_malware wins over verdict_not_malware
-            (
-                {
-                    123: {"action": "verdict_not_malware", "actor": "admin"},
-                    124: {"action": "remove_malware", "actor": "admin"},
-                },
-                "some-uuid",
-                "true_positive",
-            ),
-        ],
-    )
-    def test_classify_observation(self, actions, related_id, expected):
-        assert views._classify_observation(actions, related_id) == expected
 
 
 class TestParseDaysParam:
@@ -90,7 +30,7 @@ class TestParseDaysParam:
     )
     def test_parse_days_param(self, db_request, params, expected):
         db_request.params = params
-        assert views._parse_days_param(db_request) == expected
+        assert views.parse_days_param(db_request) == expected
 
     @pytest.mark.parametrize(
         ("params", "expected"),
@@ -104,7 +44,7 @@ class TestParseDaysParam:
     def test_parse_days_param_with_detail_allowed(self, db_request, params, expected):
         """Test parsing days with ALLOWED_DAYS_DETAIL (includes 0 for lifetime)."""
         db_request.params = params
-        result = views._parse_days_param(db_request, views.ALLOWED_DAYS_DETAIL)
+        result = views.parse_days_param(db_request, views.ALLOWED_DAYS_DETAIL)
         assert result == expected
 
 
@@ -160,7 +100,7 @@ class TestGetObserverStats:
         observer = ObserverFactory.create()
         user.observer = observer
 
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         ProjectObservationFactory.create(
             kind="is_malware",
             observer=observer,
@@ -187,7 +127,7 @@ class TestGetObserverStats:
         observer = ObserverFactory.create()
         user.observer = observer
 
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         ProjectObservationFactory.create(
             kind="is_malware",
             observer=observer,
@@ -213,7 +153,7 @@ class TestGetObserverStats:
         observer = ObserverFactory.create()
         user.observer = observer
 
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         # 3 true positives
         for _ in range(3):
             ProjectObservationFactory.create(
@@ -392,7 +332,7 @@ class TestObserverDetail:
         observer = ObserverFactory.create()
         user.observer = observer
 
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
 
         # True positive (removed)
         ProjectObservationFactory.create(
@@ -526,7 +466,7 @@ class TestGetObserverDetailStats:
         observer = ObserverFactory.create()
         user.observer = observer
 
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
 
         # Create one of each type
         ProjectObservationFactory.create(

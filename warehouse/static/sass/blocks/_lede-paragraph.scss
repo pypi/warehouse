@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: Apache-2.0 */
 
 @use "sass:color";
-@use "../settings/colours";
+@use "../settings/colors";
 @use "../settings/fonts";
 
 /*
@@ -13,5 +13,5 @@
 .lede-paragraph {
   font-weight: fonts.$bold-font-weight;
   font-size: 1.2rem;
-  color: color.adjust(colours.$text-color, $lightness: 10%);
+  color: color.adjust(colors.$text-color, $lightness: 10%);
 }

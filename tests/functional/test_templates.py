@@ -28,12 +28,28 @@ FILTERS = {
     "localize_datetime": "warehouse.filters:localize_datetime",
     "ctime": "warehouse.filters:ctime",
     "canonicalize_name": "packaging.utils:canonicalize_name",
+    "is_recent": "warehouse.filters:is_recent",
 }
 
 # A compiled regex that matches a subject block, possibly with newlines inside
 SUBJECT_BLOCK_EXPRESSION = re.compile(
     r"\{% block subject %}.*\{% endblock %}", re.DOTALL
 )
+
+
+def _make_env(dir_name: Path) -> Environment:
+    env = Environment(
+        autoescape=True,
+        loader=FileSystemLoader(dir_name),
+        extensions=[
+            "jinja2.ext.i18n",
+            "warehouse.utils.html.ClientSideIncludeExtension",
+            "warehouse.i18n.extensions.TrimmedTranslatableTagsExtension",
+        ],
+        cache_size=0,
+    )
+    env.filters.update(FILTERS)
+    return env
 
 
 @pytest.mark.parametrize(
@@ -48,19 +64,7 @@ def test_templates_for_empty_titles(template: Path):
     Test if all HTML templates have defined the title block. See
     https://github.com/pypi/warehouse/issues/784
     """
-    dir_name = Path(warehouse.__path__[0]) / "templates"
-
-    env = Environment(
-        loader=FileSystemLoader(dir_name),
-        extensions=[
-            "jinja2.ext.i18n",
-            "warehouse.utils.html.ClientSideIncludeExtension",
-            "warehouse.i18n.extensions.TrimmedTranslatableTagsExtension",
-        ],
-        cache_size=0,
-    )
-
-    env.filters.update(FILTERS)
+    env = _make_env(Path(warehouse.__path__[0]) / "templates")
 
     if any(
         parent.name in ["includes", "api", "legacy", "email"]
@@ -85,26 +89,33 @@ def test_render_templates(template):
     Test if all HTML templates are rendered without Jinja exceptions.
     see https://github.com/pypi/warehouse/issues/6634
     """
-    dir_name = Path(warehouse.__path__[0]) / "templates"
-
-    env = Environment(
-        loader=FileSystemLoader(dir_name),
-        extensions=[
-            "jinja2.ext.i18n",
-            "warehouse.utils.html.ClientSideIncludeExtension",
-            "warehouse.i18n.extensions.TrimmedTranslatableTagsExtension",
-        ],
-        cache_size=0,
-    )
-
-    env.filters.update(FILTERS)
+    env = _make_env(Path(warehouse.__path__[0]) / "templates")
 
     assert env.get_template(str(template))
 
 
 @pytest.mark.parametrize(
     "template",
-    [f for f in Path(warehouse.__path__[0]).glob("templates/email/**/subject.txt")],
+    [
+        f.relative_to(Path(warehouse.__path__[0]) / "admin" / "templates")
+        for f in Path(warehouse.__path__[0]).glob("admin/templates/**/*.html")
+    ],
+)
+def test_render_admin_templates(template):
+    """
+    Test if all admin HTML templates are rendered without Jinja exceptions.
+
+    The admin templates live outside `warehouse/templates`, so neither
+    `test_render_templates` nor `bin/lint`'s djlint invocation reaches them.
+    """
+    env = _make_env(Path(warehouse.__path__[0]) / "admin" / "templates")
+
+    assert env.get_template(str(template))
+
+
+@pytest.mark.parametrize(
+    "template",
+    list(Path(warehouse.__path__[0]).glob("templates/email/**/subject.txt")),
 )
 def test_email_subjects_for_multiple_lines(template: Path):
     """
@@ -118,3 +129,28 @@ def test_email_subjects_for_multiple_lines(template: Path):
         assert match is not None
         # There should NOT be a newline inside the subject block
         assert "\n" not in match.group(0)
+
+
+def test_all_templates_exist(app_config):
+    """
+    It's possible that the template passed into a @view_config() decorator does
+    not actually exist, which would typically not be discovered until runtime
+    when we attempt to render that template.
+
+    So we'll go through all of our registered templates (which will be registered
+    by @view_config()) and make sure that they do, in fact, exist.
+    """
+    # Gets a list of all of our templates as "asset spec" paths, which looks
+    # like import.package.name:some/relative/file/path.ext, as well as the name
+    # of the renderer that they're using.
+    templates = [
+        (i["introspectable"]["name"], i["introspectable"]["type"])
+        for i in app_config.registry.introspector.get_category("templates")
+    ]
+
+    # Go through each template, and use the jinja2.Environment to determine if
+    # the file that it points to actually exists.
+    for template, renderer in templates:
+        env = app_config.get_jinja2_environment(name=renderer)
+        assert env is not None, f"{renderer} is not a jinja2 template type"
+        env.get_template(template)  # this will raise TemplateNotFound

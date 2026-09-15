@@ -1,0 +1,117 @@
+/* SPDX-License-Identifier: Apache-2.0 */
+
+@charset "utf-8";
+@import "@fortawesome/fontawesome-free/css/all.min.css";
+
+@import "admin-lte/plugins/datatables-bs4/css/dataTables.bootstrap4.css";
+@import "admin-lte/plugins/datatables-responsive/css/responsive.bootstrap4.css";
+@import "admin-lte/plugins/datatables-buttons/css/buttons.bootstrap4.css";
+@import "admin-lte/plugins/datatables-rowgroup/css/rowGroup.bootstrap4.css";
+
+@import "tabulator-tables/dist/css/tabulator_bootstrap4.css";
+
+@import "admin-lte/dist/css/adminlte.css";
+
+/* Admin styles for the Warehouse project (PyPI) */
+
+/* Force DataTables to fill their container instead of using a fixed pixel width */
+table.dataTable {
+  width: 100% !important;
+}
+
+.table td,
+.table th {
+  max-width: 30em;
+}
+
+/* Tabulator replaces the <table> with divs, so the rule above cannot reach its
+   cells, and its own stylesheet clips each one to a single line. Wrap instead:
+   the columns capped at `maxInitialWidth` are the payload and caveat blobs
+   admins are on the page to read. `anywhere` breaks an unspaced token — a
+   base64 caveat, a long URL — rather than letting it set the column width. */
+.tabulator-cell {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+}
+
+.preserve-line-breaks {
+  white-space: pre-line;
+}
+
+.unset-height {
+  height: unset;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Responsive quarantine table */
+.quarantine-table {
+  .project-info {
+    min-width: 200px;
+  }
+
+  .project-name {
+    font-weight: 500;
+  }
+
+  @media (width <= 768px) {
+    & td {
+      padding: 0.75rem 0.5rem;
+    }
+
+    .btn-group-vertical .btn {
+      font-size: 0.875rem;
+    }
+  }
+}
+
+/* Timeline */
+.timeline-body dl dd {
+  overflow-inline: auto; /* Prevent long lines in malware report bodies from breaking the layout */
+}
+
+/* Dashboard utilization cards */
+.utilization-card {
+  .info-icon {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    font-size: 14px;
+    opacity: 0.7;
+    cursor: help;
+  }
+}
+
+/* Chart container for CSP-compliant Chart.js rendering */
+.chart-container {
+  position: relative;
+  height: 300px;
+  width: 100%;
+}
+
+/* User files modal - full screen with scrollable body */
+.user-files-dialog {
+  max-width: 95vw;
+  height: 90vh;
+
+  .modal-content {
+    height: 100%;
+  }
+}
+
+.user-files-content {
+  font-size: 12px;
+}
+
+/* Muted text for use on colored card backgrounds */
+.text-white-muted {
+  opacity: 0.8;
+}
+
+/* Preserve newlines/whitespace in free-text fields while still wrapping */
+.preserve-whitespace {
+  white-space: pre-wrap;
+}

@@ -1,8 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pretend
+import psycopg
 import pytest
 
+from tests.common.db.oidc import PendingGitHubPublisherFactory
 from warehouse.oidc import errors
 from warehouse.oidc.models import _core
 
@@ -31,6 +33,20 @@ def test_check_claim_invariant():
     assert wrapped(identity, identity, pretend.stub()) is True
 
 
+class TestPendingOIDCPublisher:
+    def test_project_name_constraint(self, db_session):
+        invalid_project_name = "İnspect"
+
+        with pytest.raises(psycopg.errors.CheckViolation):
+            PendingGitHubPublisherFactory(project_name=invalid_project_name)
+
+    def test_project_name_constraint_valid(self, db_session):
+        valid_project_name = "good-name_123"
+        publisher = PendingGitHubPublisherFactory(project_name=valid_project_name)
+
+        assert publisher.project_name == valid_project_name
+
+
 class TestOIDCPublisher:
     def test_lookup_by_claims_raises(self):
         with pytest.raises(NotImplementedError):
@@ -42,6 +58,23 @@ class TestOIDCPublisher:
         with pytest.raises(errors.InvalidPublisherError) as e:
             publisher.check_claims_existence(signed_claims={})
         assert str(e.value) == "No required verifiable claims"
+
+    def test_check_claims_existence_with_prefixed_claims(self, monkeypatch):
+        class TestPrefixedPublisher(_core.OIDCPublisher):
+            __abstract__ = True
+            __required_verifiable_claims__ = {"required_claim": pretend.stub()}
+            __unchecked_prefixed_claims__ = {"custom_"}
+
+        sentry_sdk = pretend.stub(capture_message=pretend.call_recorder(lambda s: None))
+        monkeypatch.setattr(_core, "sentry_sdk", sentry_sdk)
+
+        signed_claims = {
+            "required_claim": "value",
+            "custom_foo": "bar",
+            "custom_123": "baz",
+        }
+        TestPrefixedPublisher.check_claims_existence(signed_claims)
+        assert sentry_sdk.capture_message.calls == []
 
     def test_attestation_identity(self):
         publisher = _core.OIDCPublisher(projects=[])

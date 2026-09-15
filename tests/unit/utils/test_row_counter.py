@@ -1,7 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
-
 from celery.schedules import crontab
 
 from warehouse.accounts.models import User
@@ -59,9 +57,9 @@ def test_compute_row_counts(db_request):
     assert counts == {"users": 3, "projects": 2, "releases": 3, "release_files": 4}
 
 
-def test_includeme():
-    config = pretend.stub(add_periodic_task=pretend.call_recorder(lambda c, f: None))
+def test_includeme(mocker):
+    config = mocker.Mock(spec=["add_periodic_task"])
     row_counter.includeme(config)
-    assert config.add_periodic_task.calls == [
-        pretend.call(crontab(minute="*/5"), row_counter.compute_row_counts),
-    ]
+    config.add_periodic_task.assert_called_once_with(
+        crontab(minute="*/5"), row_counter.compute_row_counts
+    )

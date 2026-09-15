@@ -227,12 +227,12 @@ class TestQueries:
                                                         "should": [
                                                             {
                                                                 "term": {
-                                                                    "classifiers": classifier  # noqa
+                                                                    "classifiers": classifier  # noqa: E501
                                                                 }
                                                             },
                                                             {
                                                                 "prefix": {
-                                                                    "classifiers": classifier  # noqa
+                                                                    "classifiers": classifier  # noqa: E501
                                                                     + " :: "
                                                                 }
                                                             },

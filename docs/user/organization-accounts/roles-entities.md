@@ -48,7 +48,7 @@ upload releases for a project
 * **Owner**: A collaborator assigned this role can manage
 the project and collaborators for the project
 
-This table summarizes the roles and perimissions within an organization.
+This table summarizes the roles and permissions within an organization.
 
 | Action | Member | Manager | Owner | Billing Manager |
 | ---------------------------------- | ------ | ------ | ------ | ------ |

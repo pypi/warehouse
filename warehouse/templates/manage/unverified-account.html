@@ -233,10 +233,9 @@
   {% endtrans %}
 </p>
 <p>
-  {% trans help_url=help_url %}
+  {% trans %}
   If you cannot verify the primary email address listed,
-  please see <a href="{{ help_url }}">{{ help_url }}</a>
-  to recover access to your account.
+  you can correct it below.
 {% endtrans %}
 </p>
 {% endif %}
@@ -265,6 +264,44 @@
       {% for email in sorted_emails %}{{ email_row(email) }}{% endfor %}
     </tbody>
   </table>
+  {% if not user.has_two_factor and not user.projects %}
+    <h3>{% trans %}Entered the wrong email address?{% endtrans %}</h3>
+    <p>
+      {% trans %}
+      If you made a typo when registering, you can correct your email address below.
+      A new verification email will be sent to the updated address.
+    {% endtrans %}
+  </p>
+  {% set form = change_unverified_primary_email_form | default(None) %}
+  <form method="post">
+    <input name="csrf_token"
+           type="hidden"
+           value="{{ request.session.get_csrf_token() }}">
+    {# Hidden marker field to trigger the correct view via request_param #}
+    <input name="change_unverified_primary_email" type="hidden" value="1">
+    <div class="form-group">
+      <label for="email" class="form-group__label">{% trans %}New email address{% endtrans %}</label>
+      <input id="email"
+             name="email"
+             type="email"
+             autocomplete="email"
+             class="form-group__field"
+             aria-describedby="change-email-errors"
+             value="{{ form.email.data if form and form.email.data else '' }}"
+             required>
+      {% if form and form.email.errors %}
+        <ul id="change-email-errors" class="form-errors" role="alert">
+          {% for error in form.email.errors %}<li>{{ error }}</li>{% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+    <div>
+      <input type="submit"
+             value="{% trans %}Update email address{% endtrans %}"
+             class="button button--primary">
+    </div>
+  </form>
+{% endif %}
 </section>
 <section id="account-events">
   <h2>{% trans %}Security history{% endtrans %}</h2>

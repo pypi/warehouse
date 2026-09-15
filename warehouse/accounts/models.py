@@ -21,13 +21,14 @@ from sqlalchemy import (
     select,
     sql,
 )
-from sqlalchemy.dialects.postgresql import ARRAY, CITEXT, JSONB, UUID as PG_UUID
+from sqlalchemy.dialects.postgresql import ARRAY, CITEXT, JSONB
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
 from warehouse.authnz import Permissions
+from warehouse.constants import RateLimitPeriod
 from warehouse.events.models import HasEvents
 from warehouse.ip_addresses.models import IpAddress
 from warehouse.observations.models import HasObservations, HasObservers, ObservationKind
@@ -74,6 +75,17 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
             "username ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'",
             name="users_valid_username",
         ),
+        CheckConstraint(
+            "(project_create_ratelimit_count IS NULL) = "
+            "(project_create_ratelimit_period IS NULL)",
+            name="users_project_create_ratelimit_complete",
+        ),
+        Index(
+            "idx_users_username_trgm",
+            "username",
+            postgresql_using="gin",
+            postgresql_ops={"username": "gin_trgm_ops"},
+        ),
     )
 
     __repr__ = make_repr("username")
@@ -100,6 +112,19 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
         TZDateTime, server_default=sql.func.now()
     )
     disabled_for: Mapped[DisableReason | None]
+
+    project_create_ratelimit_count: Mapped[int | None] = mapped_column(
+        comment=(
+            "Project creation rate limit count, e.g. the 20 in '20 per hour'. "
+            "NULL means no override: the configured default applies."
+        ),
+    )
+    project_create_ratelimit_period: Mapped[RateLimitPeriod | None] = mapped_column(
+        comment=(
+            "Period the count is measured over. Must be NULL exactly when "
+            "project_create_ratelimit_count is NULL."
+        ),
+    )
 
     totp_secret: Mapped[int | None] = mapped_column(LargeBinary(length=20))
     last_totp_value: Mapped[str | None]
@@ -201,23 +226,25 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
         primaries = [x for x in self.emails if x.primary]
         if primaries:
             return primaries[0]
+        return None
 
     @property
     def public_email(self):
         publics = [x for x in self.emails if x.public]
         if publics:
             return publics[0]
+        return None
 
     @hybrid_property
     def email(self):
         primary_email = self.primary_email
         return primary_email.email if primary_email else None
 
-    @email.expression  # type: ignore
-    def email(self):
+    @email.expression  # type: ignore[no-redef]
+    def email(cls):
         return (
             select(Email.email)
-            .where((Email.user_id == self.id) & (Email.primary.is_(True)))
+            .where((Email.user_id == cls.id) & (Email.primary.is_(True)))
             .scalar_subquery()
         )
 
@@ -276,6 +303,19 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
         )
 
     @property
+    def project_create_ratelimit_string(self) -> str | None:
+        """Composed `limits`-syntax string, or None when no override is set."""
+        count = self.project_create_ratelimit_count
+        period = self.project_create_ratelimit_period
+        if count is None and period is None:
+            return None
+        if count is None or period is None:
+            raise ValueError(
+                "Project creation rate limit requires both count and period"
+            )
+        return f"{count} per {period.value}"
+
+    @property
     def active_account_recoveries(self):
         return [
             observation
@@ -315,7 +355,10 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
                     Permissions.AdminUsersWrite,
                     Permissions.AdminUsersEmailWrite,
                     Permissions.AdminUsersAccountRecoveryWrite,
+                    Permissions.AdminUsersRecoveryCodesBurn,
+                    Permissions.AdminUsersExport,
                     Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminVulnerabilitiesRead,
                 ),
             ),
             (
@@ -325,6 +368,7 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
                     Permissions.AdminUsersRead,
                     Permissions.AdminUsersEmailWrite,
                     Permissions.AdminUsersAccountRecoveryWrite,
+                    Permissions.AdminUsersRecoveryCodesBurn,
                     Permissions.AdminDashboardSidebarRead,
                 ),
             ),
@@ -377,7 +421,6 @@ class WebAuthn(db.Model):
     )
 
     user_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
         ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
         nullable=False,
         index=True,
@@ -393,7 +436,6 @@ class RecoveryCode(db.Model):
     __tablename__ = "user_recovery_codes"
 
     user_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
         ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
         nullable=False,
         index=True,
@@ -411,6 +453,11 @@ class UnverifyReasons(enum.Enum):
     DomainInvalid = "domain status invalid"
 
 
+def email_domain(address: str) -> str:
+    """The domain part of an email address, lowercased."""
+    return address.rsplit("@", 1)[-1].lower()
+
+
 class Email(db.ModelBase):
     __tablename__ = "user_emails"
     __table_args__ = (
@@ -420,7 +467,6 @@ class Email(db.ModelBase):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
         ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
     )
     user: Mapped[User] = orm.relationship(back_populates="emails")
@@ -445,7 +491,7 @@ class Email(db.ModelBase):
 
     @property
     def domain(self):
-        return self.email.split("@")[-1].lower()
+        return email_domain(self.email)
 
 
 class ProhibitedEmailDomain(db.Model):
@@ -453,17 +499,18 @@ class ProhibitedEmailDomain(db.Model):
     __repr__ = make_repr("domain")
 
     created: Mapped[datetime_now]
-    domain: Mapped[str] = mapped_column(unique=True)
+    domain: Mapped[str] = mapped_column(CITEXT, unique=True)
     is_mx_record: Mapped[bool_false] = mapped_column(
         comment="Prohibit any domains that have this domain as an MX record?"
     )
     _prohibited_by: Mapped[UUID | None] = mapped_column(
         "prohibited_by",
-        PG_UUID(as_uuid=True),
         ForeignKey("users.id"),
         index=True,
     )
-    prohibited_by: Mapped[User] = orm.relationship(User)
+    # Nullable: rows the disposable-domain check writes have no admin behind
+    # them, so every reader has to guard before reaching for .username.
+    prohibited_by: Mapped[User | None] = orm.relationship(User)
     comment: Mapped[str] = mapped_column(server_default="")
 
 
@@ -485,7 +532,6 @@ class ProhibitedUserName(db.Model):
     name: Mapped[str] = mapped_column(unique=True)
     _prohibited_by: Mapped[UUID | None] = mapped_column(
         "prohibited_by",
-        PG_UUID(as_uuid=True),
         ForeignKey("users.id"),
         index=True,
     )
@@ -493,7 +539,7 @@ class ProhibitedUserName(db.Model):
     comment: Mapped[str] = mapped_column(server_default="")
 
 
-class UniqueLoginStatus(str, enum.Enum):
+class UniqueLoginStatus(enum.StrEnum):
     PENDING = "pending"
     CONFIRMED = "confirmed"
 
@@ -515,7 +561,6 @@ class UserUniqueLogin(db.Model):
     )
 
     user_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
         ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
         index=True,
@@ -579,7 +624,6 @@ class AccountAssociation(db.Model):
 
     _user_id: Mapped[UUID] = mapped_column(
         "user_id",
-        PG_UUID(as_uuid=True),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
@@ -623,7 +667,6 @@ class OAuthAccountAssociation(AccountAssociation):
     __repr__ = make_repr("service", "external_username")
 
     id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
         ForeignKey("account_associations.id", ondelete="CASCADE"),
         primary_key=True,
     )

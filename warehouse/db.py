@@ -2,7 +2,6 @@
 
 import enum
 import functools
-import logging
 
 from uuid import UUID
 
@@ -10,22 +9,22 @@ import alembic.config
 import psycopg.types.json
 import pyramid_retry
 import sqlalchemy
+import structlog
 import venusian
-import zope.sqlalchemy
+import zope.sqlalchemy  # pyright: ignore[reportMissingImports]
 
 from pyramid.renderers import JSON
 from sqlalchemy import event, func, inspect
-from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.exc import DBAPIError, IntegrityError, OperationalError
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 
 from warehouse.metrics import IMetricsService
 from warehouse.utils.attrs import make_repr
 
-__all__ = ["includeme", "metadata", "ModelBase", "Model"]
+__all__ = ["Model", "ModelBase", "includeme", "metadata"]
 
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 DEFAULT_ISOLATION = "READ COMMITTED"
@@ -86,7 +85,6 @@ class Model(ModelBase):
     __abstract__ = True
 
     id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
         primary_key=True,
         server_default=func.gen_random_uuid(),
     )
@@ -115,11 +113,19 @@ def _configure_alembic(config):
     alembic_cfg = alembic.config.Config()
     alembic_cfg.set_main_option("script_location", "warehouse:migrations")
     alembic_cfg.set_main_option("url", config.registry.settings["database.url"])
-    alembic_cfg.set_section_option("post_write_hooks", "hooks", "black, isort")
-    alembic_cfg.set_section_option("post_write_hooks", "black.type", "console_scripts")
-    alembic_cfg.set_section_option("post_write_hooks", "black.entrypoint", "black")
-    alembic_cfg.set_section_option("post_write_hooks", "isort.type", "console_scripts")
-    alembic_cfg.set_section_option("post_write_hooks", "isort.entrypoint", "isort")
+    alembic_cfg.set_section_option(
+        "post_write_hooks", "hooks", "ruff_check, ruff_format"
+    )
+    alembic_cfg.set_section_option("post_write_hooks", "ruff_check.type", "exec")
+    alembic_cfg.set_section_option("post_write_hooks", "ruff_check.executable", "ruff")
+    alembic_cfg.set_section_option(
+        "post_write_hooks", "ruff_check.options", "check --fix REVISION_SCRIPT_FILENAME"
+    )
+    alembic_cfg.set_section_option("post_write_hooks", "ruff_format.type", "exec")
+    alembic_cfg.set_section_option("post_write_hooks", "ruff_format.executable", "ruff")
+    alembic_cfg.set_section_option(
+        "post_write_hooks", "ruff_format.options", "format REVISION_SCRIPT_FILENAME"
+    )
     return alembic_cfg
 
 
@@ -137,7 +143,7 @@ def _create_session(request):
         # this is a transient error that will go away.
         logger.warning("Got an error connecting to PostgreSQL", exc_info=True)
         metrics.increment("warehouse.db.session.error", tags=["error_in:connecting"])
-        raise DatabaseNotAvailableError()
+        raise DatabaseNotAvailableError
 
     # Now, create a session from our connection
     session = Session(bind=connection)
@@ -156,7 +162,7 @@ def _create_session(request):
     # Check if we're in read-only mode. This _cannot_ use the request.flags
     # request method, as that would lead to a circular call as AdminFlag objects
     # must be queried from the DB
-    from warehouse.admin.flags import AdminFlag, AdminFlagValue
+    from warehouse.admin.flags import AdminFlag, AdminFlagValue  # noqa: PLC0415
 
     flag = session.get(AdminFlag, AdminFlagValue.READ_ONLY.value)
     if flag and flag.enabled:
@@ -171,6 +177,10 @@ def unwrap_dbapi_exceptions(context):
     """
     Listens for SQLAlchemy errors and raises the original
     DBAPI (e.g., psycopg) exception instead.
+
+    Downstream code depends on receiving the raw driver exception, e.g.
+    warehouse.admin.views.helpers.execute_bounded catches psycopg's
+    QueryCanceled directly.
     """
     if (
         isinstance(context.sqlalchemy_exception, DBAPIError)

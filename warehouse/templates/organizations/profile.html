@@ -32,39 +32,41 @@
         </div>
         {% set projects_with_releases = organization.projects|selectattr("latest_version")|list %}
         <div class="vertical-tabs__panel">
-          <h2>
-            {% if organization.projects %}
-              {% trans count=projects_with_releases|length %}
-              {{ count }} project
-            {% pluralize %}
-              {{ count }} projects
-            {% endtrans %}
-          {% else %}
-            {% trans %}No projects{% endtrans %}
-          {% endif %}
-        </h2>
-        <div class="package-list">
-          {% if projects_with_releases %}
-            {% for project in projects_with_releases %}
-              <a class="package-snippet"
-                 href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">
-                <h3 class="package-snippet__title">{{ project.name }}</h3>
-                <p class="package-snippet__meta">
-                  {% trans release_date=humanize(project.latest_version.created) %}Last released {{ release_date }}{% endtrans %}
-                </p>
-                <p class="package-snippet__description">{{ project.latest_version.summary }}</p>
-              </a>
-            {% endfor %}
-          {% else %}
-            <div class="callout-block no-top-margin">
-              <p>
-                {% trans org=organization.display_name|default(organization.name, true) %}{{ org }} has not uploaded any projects to PyPI, yet{% endtrans %}
+          {% csi request.route_path("includes.administer-organization-include", organization=organization.normalized_name) %}
+        {% endcsi %}
+        <h2>
+          {% if organization.projects %}
+            {% trans count=projects_with_releases|length %}
+            {{ count }} project
+          {% pluralize %}
+            {{ count }} projects
+          {% endtrans %}
+        {% else %}
+          {% trans %}No projects{% endtrans %}
+        {% endif %}
+      </h2>
+      <div class="package-list">
+        {% if projects_with_releases %}
+          {% for project in projects_with_releases %}
+            <a class="package-snippet"
+               href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">
+              <h3 class="package-snippet__title">{{ project.name }}</h3>
+              <p class="package-snippet__meta">
+                {% trans release_date=humanize(project.latest_version.created) %}Last released {{ release_date }}{% endtrans %}
               </p>
-            </div>
-          {% endif %}
-        </div>
+              <p class="package-snippet__description">{{ project.latest_version.summary }}</p>
+            </a>
+          {% endfor %}
+        {% else %}
+          <div class="callout-block no-top-margin">
+            <p>
+              {% trans org=organization.display_name|default(organization.name, true) %}{{ org }} has not uploaded any projects to PyPI, yet{% endtrans %}
+            </p>
+          </div>
+        {% endif %}
       </div>
     </div>
   </div>
+</div>
 </div>
 {% endblock %}

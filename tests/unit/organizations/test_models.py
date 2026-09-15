@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import datetime
+import types
 
-import pretend
 import psycopg
 import pytest
 
@@ -12,6 +12,9 @@ from pyramid.httpexceptions import HTTPPermanentRedirect
 from pyramid.location import lineage
 
 from warehouse.authnz import Permissions
+from warehouse.constants import RateLimitPeriod
+from warehouse.events.tags import EventTag
+from warehouse.observations.models import ObservationKind
 from warehouse.organizations.models import (
     OIDCIssuerType,
     OrganizationApplicationFactory,
@@ -19,10 +22,13 @@ from warehouse.organizations.models import (
     OrganizationRoleType,
     TeamFactory,
 )
+from warehouse.subscriptions.models import StripeSubscriptionStatus
 
 from ...common.db.accounts import UserFactory as DBUserFactory
 from ...common.db.organizations import (
     OrganizationApplicationFactory as DBOrganizationApplicationFactory,
+    OrganizationApplicationObservationFactory,
+    OrganizationEventFactory as DBOrganizationEventFactory,
     OrganizationFactory as DBOrganizationFactory,
     OrganizationManualActivationFactory as DBOrganizationManualActivationFactory,
     OrganizationNameCatalogFactory as DBOrganizationNameCatalogFactory,
@@ -65,6 +71,34 @@ class TestOrganizationApplication:
             )
         ]
 
+    def test_notes(self, db_session):
+        organization_application = DBOrganizationApplicationFactory.create()
+        note = OrganizationApplicationObservationFactory.create(
+            related=organization_application,
+            kind=ObservationKind.AdminNote.value[0],
+        )
+        OrganizationApplicationObservationFactory.create(
+            related=organization_application,
+            kind=ObservationKind.InformationRequest.value[0],
+        )
+
+        assert organization_application.notes == [note]
+
+    def test_conversation(self, db_session):
+        organization_application = DBOrganizationApplicationFactory.create()
+        older_request = OrganizationApplicationObservationFactory.create(
+            related=organization_application,
+            kind=ObservationKind.InformationRequest.value[0],
+            created=datetime.datetime(2021, 1, 1),
+        )
+        newer_note = OrganizationApplicationObservationFactory.create(
+            related=organization_application,
+            kind=ObservationKind.AdminNote.value[0],
+            created=datetime.datetime(2021, 6, 1),
+        )
+
+        assert organization_application.conversation == [older_request, newer_note]
+
 
 class TestOrganizationFactory:
     @pytest.mark.parametrize(("name", "normalized"), [("foo", "foo"), ("Bar", "bar")])
@@ -75,7 +109,9 @@ class TestOrganizationFactory:
         assert root[normalized] == organization
 
     def test_traversal_redirects(self, db_request):
-        db_request.matched_route = pretend.stub(generate=lambda *a, **kw: "route-path")
+        db_request.matched_route = types.SimpleNamespace(
+            generate=lambda *a, **kw: "route-path"
+        )
         organization = DBOrganizationFactory.create()
         DBOrganizationNameCatalogFactory.create(
             normalized_name="oldname",
@@ -146,97 +182,113 @@ class TestOrganization:
                 ),
             ),
             (Allow, "group:moderators", Permissions.AdminOrganizationsRead),
-        ] + sorted(
-            [
-                (
-                    Allow,
-                    f"user:{owner1.user.id}",
-                    [
-                        Permissions.OrganizationsRead,
-                        Permissions.OrganizationTeamsRead,
-                        Permissions.OrganizationsManage,
-                        Permissions.OrganizationTeamsManage,
-                        Permissions.OrganizationsBillingManage,
-                        Permissions.OrganizationProjectsAdd,
-                        Permissions.OrganizationProjectsRemove,
-                    ],
-                ),
-                (
-                    Allow,
-                    f"user:{owner2.user.id}",
-                    [
-                        Permissions.OrganizationsRead,
-                        Permissions.OrganizationTeamsRead,
-                        Permissions.OrganizationsManage,
-                        Permissions.OrganizationTeamsManage,
-                        Permissions.OrganizationsBillingManage,
-                        Permissions.OrganizationProjectsAdd,
-                        Permissions.OrganizationProjectsRemove,
-                    ],
-                ),
-            ],
-            key=lambda x: x[1],
-        ) + sorted(
-            [
-                (
-                    Allow,
-                    f"user:{billing_mgr1.user.id}",
-                    [
-                        Permissions.OrganizationsRead,
-                        Permissions.OrganizationTeamsRead,
-                        Permissions.OrganizationsBillingManage,
-                    ],
-                ),
-                (
-                    Allow,
-                    f"user:{billing_mgr2.user.id}",
-                    [
-                        Permissions.OrganizationsRead,
-                        Permissions.OrganizationTeamsRead,
-                        Permissions.OrganizationsBillingManage,
-                    ],
-                ),
-            ],
-            key=lambda x: x[1],
-        ) + sorted(
-            [
-                (
-                    Allow,
-                    f"user:{account_mgr1.user.id}",
-                    [
-                        Permissions.OrganizationsRead,
-                        Permissions.OrganizationTeamsRead,
-                        Permissions.OrganizationTeamsManage,
-                        Permissions.OrganizationProjectsAdd,
-                    ],
-                ),
-                (
-                    Allow,
-                    f"user:{account_mgr2.user.id}",
-                    [
-                        Permissions.OrganizationsRead,
-                        Permissions.OrganizationTeamsRead,
-                        Permissions.OrganizationTeamsManage,
-                        Permissions.OrganizationProjectsAdd,
-                    ],
-                ),
-            ],
-            key=lambda x: x[1],
-        ) + sorted(
-            [
-                (
-                    Allow,
-                    f"user:{member1.user.id}",
-                    [Permissions.OrganizationsRead, Permissions.OrganizationTeamsRead],
-                ),
-                (
-                    Allow,
-                    f"user:{member2.user.id}",
-                    [Permissions.OrganizationsRead, Permissions.OrganizationTeamsRead],
-                ),
-            ],
-            key=lambda x: x[1],
-        )
+            *sorted(
+                [
+                    (
+                        Allow,
+                        f"user:{owner1.user.id}",
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationsRoleRemove,
+                            Permissions.OrganizationTeamsRead,
+                            Permissions.OrganizationsManage,
+                            Permissions.OrganizationTeamsManage,
+                            Permissions.OrganizationsBillingManage,
+                            Permissions.OrganizationProjectsAdd,
+                            Permissions.OrganizationProjectsRemove,
+                        ],
+                    ),
+                    (
+                        Allow,
+                        f"user:{owner2.user.id}",
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationsRoleRemove,
+                            Permissions.OrganizationTeamsRead,
+                            Permissions.OrganizationsManage,
+                            Permissions.OrganizationTeamsManage,
+                            Permissions.OrganizationsBillingManage,
+                            Permissions.OrganizationProjectsAdd,
+                            Permissions.OrganizationProjectsRemove,
+                        ],
+                    ),
+                ],
+                key=lambda x: x[1],
+            ),
+            *sorted(
+                [
+                    (
+                        Allow,
+                        f"user:{billing_mgr1.user.id}",
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationTeamsRead,
+                            Permissions.OrganizationsBillingManage,
+                        ],
+                    ),
+                    (
+                        Allow,
+                        f"user:{billing_mgr2.user.id}",
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationTeamsRead,
+                            Permissions.OrganizationsBillingManage,
+                        ],
+                    ),
+                ],
+                key=lambda x: x[1],
+            ),
+            *sorted(
+                [
+                    (
+                        Allow,
+                        f"user:{account_mgr1.user.id}",
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationsRoleRemove,
+                            Permissions.OrganizationTeamsRead,
+                            Permissions.OrganizationTeamsManage,
+                            Permissions.OrganizationProjectsAdd,
+                        ],
+                    ),
+                    (
+                        Allow,
+                        f"user:{account_mgr2.user.id}",
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationsRoleRemove,
+                            Permissions.OrganizationTeamsRead,
+                            Permissions.OrganizationTeamsManage,
+                            Permissions.OrganizationProjectsAdd,
+                        ],
+                    ),
+                ],
+                key=lambda x: x[1],
+            ),
+            *sorted(
+                [
+                    (
+                        Allow,
+                        f"user:{member1.user.id}",
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationsRoleRemove,
+                            Permissions.OrganizationTeamsRead,
+                        ],
+                    ),
+                    (
+                        Allow,
+                        f"user:{member2.user.id}",
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationsRoleRemove,
+                            Permissions.OrganizationTeamsRead,
+                        ],
+                    ),
+                ],
+                key=lambda x: x[1],
+            ),
+        ]
 
     def test_record_event_with_geoip(self, db_request):
         """
@@ -354,97 +406,113 @@ class TestTeam:
                 ),
             ),
             (Allow, "group:moderators", Permissions.AdminOrganizationsRead),
-        ] + sorted(
-            [
-                (
-                    Allow,
-                    f"user:{owner1.user.id}",
-                    [
-                        Permissions.OrganizationsRead,
-                        Permissions.OrganizationTeamsRead,
-                        Permissions.OrganizationsManage,
-                        Permissions.OrganizationTeamsManage,
-                        Permissions.OrganizationsBillingManage,
-                        Permissions.OrganizationProjectsAdd,
-                        Permissions.OrganizationProjectsRemove,
-                    ],
-                ),
-                (
-                    Allow,
-                    f"user:{owner2.user.id}",
-                    [
-                        Permissions.OrganizationsRead,
-                        Permissions.OrganizationTeamsRead,
-                        Permissions.OrganizationsManage,
-                        Permissions.OrganizationTeamsManage,
-                        Permissions.OrganizationsBillingManage,
-                        Permissions.OrganizationProjectsAdd,
-                        Permissions.OrganizationProjectsRemove,
-                    ],
-                ),
-            ],
-            key=lambda x: x[1],
-        ) + sorted(
-            [
-                (
-                    Allow,
-                    f"user:{billing_mgr1.user.id}",
-                    [
-                        Permissions.OrganizationsRead,
-                        Permissions.OrganizationTeamsRead,
-                        Permissions.OrganizationsBillingManage,
-                    ],
-                ),
-                (
-                    Allow,
-                    f"user:{billing_mgr2.user.id}",
-                    [
-                        Permissions.OrganizationsRead,
-                        Permissions.OrganizationTeamsRead,
-                        Permissions.OrganizationsBillingManage,
-                    ],
-                ),
-            ],
-            key=lambda x: x[1],
-        ) + sorted(
-            [
-                (
-                    Allow,
-                    f"user:{account_mgr1.user.id}",
-                    [
-                        Permissions.OrganizationsRead,
-                        Permissions.OrganizationTeamsRead,
-                        Permissions.OrganizationTeamsManage,
-                        Permissions.OrganizationProjectsAdd,
-                    ],
-                ),
-                (
-                    Allow,
-                    f"user:{account_mgr2.user.id}",
-                    [
-                        Permissions.OrganizationsRead,
-                        Permissions.OrganizationTeamsRead,
-                        Permissions.OrganizationTeamsManage,
-                        Permissions.OrganizationProjectsAdd,
-                    ],
-                ),
-            ],
-            key=lambda x: x[1],
-        ) + sorted(
-            [
-                (
-                    Allow,
-                    f"user:{member1.user.id}",
-                    [Permissions.OrganizationsRead, Permissions.OrganizationTeamsRead],
-                ),
-                (
-                    Allow,
-                    f"user:{member2.user.id}",
-                    [Permissions.OrganizationsRead, Permissions.OrganizationTeamsRead],
-                ),
-            ],
-            key=lambda x: x[1],
-        )
+            *sorted(
+                [
+                    (
+                        Allow,
+                        f"user:{owner1.user.id}",
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationsRoleRemove,
+                            Permissions.OrganizationTeamsRead,
+                            Permissions.OrganizationsManage,
+                            Permissions.OrganizationTeamsManage,
+                            Permissions.OrganizationsBillingManage,
+                            Permissions.OrganizationProjectsAdd,
+                            Permissions.OrganizationProjectsRemove,
+                        ],
+                    ),
+                    (
+                        Allow,
+                        f"user:{owner2.user.id}",
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationsRoleRemove,
+                            Permissions.OrganizationTeamsRead,
+                            Permissions.OrganizationsManage,
+                            Permissions.OrganizationTeamsManage,
+                            Permissions.OrganizationsBillingManage,
+                            Permissions.OrganizationProjectsAdd,
+                            Permissions.OrganizationProjectsRemove,
+                        ],
+                    ),
+                ],
+                key=lambda x: x[1],
+            ),
+            *sorted(
+                [
+                    (
+                        Allow,
+                        f"user:{billing_mgr1.user.id}",
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationTeamsRead,
+                            Permissions.OrganizationsBillingManage,
+                        ],
+                    ),
+                    (
+                        Allow,
+                        f"user:{billing_mgr2.user.id}",
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationTeamsRead,
+                            Permissions.OrganizationsBillingManage,
+                        ],
+                    ),
+                ],
+                key=lambda x: x[1],
+            ),
+            *sorted(
+                [
+                    (
+                        Allow,
+                        f"user:{account_mgr1.user.id}",
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationsRoleRemove,
+                            Permissions.OrganizationTeamsRead,
+                            Permissions.OrganizationTeamsManage,
+                            Permissions.OrganizationProjectsAdd,
+                        ],
+                    ),
+                    (
+                        Allow,
+                        f"user:{account_mgr2.user.id}",
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationsRoleRemove,
+                            Permissions.OrganizationTeamsRead,
+                            Permissions.OrganizationTeamsManage,
+                            Permissions.OrganizationProjectsAdd,
+                        ],
+                    ),
+                ],
+                key=lambda x: x[1],
+            ),
+            *sorted(
+                [
+                    (
+                        Allow,
+                        f"user:{member1.user.id}",
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationsRoleRemove,
+                            Permissions.OrganizationTeamsRead,
+                        ],
+                    ),
+                    (
+                        Allow,
+                        f"user:{member2.user.id}",
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationsRoleRemove,
+                            Permissions.OrganizationTeamsRead,
+                        ],
+                    ),
+                ],
+                key=lambda x: x[1],
+            ),
+        ]
 
     def test_active_subscription(self, db_session):
         organization = DBOrganizationFactory.create()
@@ -668,6 +736,85 @@ class TestOrganizationBillingMethods:
         organization = DBOrganizationFactory.create(orgtype="Company")
         assert not organization.is_in_good_standing()
 
+    def test_is_awaiting_initial_billing_new_company_org(self, db_session):
+        organization = DBOrganizationFactory.create(orgtype="Company")
+        assert organization.is_awaiting_initial_billing
+        assert organization.can_manage_members()
+
+    def test_is_awaiting_initial_billing_with_subscription_history(self, db_session):
+        organization = DBOrganizationFactory.create(orgtype="Company")
+        DBOrganizationEventFactory.create(
+            source=organization,
+            tag=EventTag.Organization.SubscriptionCreate,
+        )
+
+        assert not organization.subscriptions
+        assert not organization.is_awaiting_initial_billing
+        assert not organization.can_manage_members()
+
+    def test_is_awaiting_initial_billing_with_manual_activation_history(
+        self, db_session
+    ):
+        organization = DBOrganizationFactory.create(orgtype="Company")
+        DBOrganizationEventFactory.create(
+            source=organization,
+            tag=EventTag.Organization.ManualActivationAdd,
+        )
+
+        assert organization.manual_activation is None
+        assert not organization.is_awaiting_initial_billing
+
+    def test_is_awaiting_initial_billing_community_org(self, db_session):
+        organization = DBOrganizationFactory.create(orgtype="Community")
+        assert not organization.is_awaiting_initial_billing
+        assert organization.can_manage_members()
+
+    def test_is_awaiting_initial_billing_with_active_subscription(self, db_session):
+        organization = DBOrganizationFactory.create(orgtype="Company")
+        subscription = DBStripeSubscriptionFactory.create(
+            status=StripeSubscriptionStatus.Active.value
+        )
+        DBOrganizationStripeSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
+        assert organization.is_in_good_standing()
+        assert not organization.is_awaiting_initial_billing
+
+    def test_is_awaiting_initial_billing_with_lapsed_subscription(self, db_session):
+        organization = DBOrganizationFactory.create(orgtype="Company")
+        subscription = DBStripeSubscriptionFactory.create(
+            status=StripeSubscriptionStatus.Canceled.value
+        )
+        DBOrganizationStripeSubscriptionFactory.create(
+            organization=organization, subscription=subscription
+        )
+        assert not organization.is_in_good_standing()
+        assert not organization.is_awaiting_initial_billing
+
+    def test_is_awaiting_initial_billing_with_manual_activation(self, db_session):
+        organization = DBOrganizationFactory.create(orgtype="Company")
+        DBOrganizationManualActivationFactory.create(
+            organization=organization,
+            expires=datetime.date.today() + datetime.timedelta(days=365),
+        )
+        assert organization.is_in_good_standing()
+        assert not organization.is_awaiting_initial_billing
+
+    def test_is_awaiting_initial_billing_deactivated_org(self, db_session):
+        organization = DBOrganizationFactory.create(orgtype="Company", is_active=False)
+        assert not organization.is_awaiting_initial_billing
+
+    def test_is_awaiting_initial_billing_with_expired_manual_activation(
+        self, db_session
+    ):
+        organization = DBOrganizationFactory.create(orgtype="Company")
+        DBOrganizationManualActivationFactory.create(
+            organization=organization,
+            expires=datetime.date.today() - datetime.timedelta(days=1),
+        )
+        assert not organization.is_in_good_standing()
+        assert not organization.is_awaiting_initial_billing
+
     def test_is_in_good_standing_ignores_seat_limits(self, db_session):
         """Test that seat limits don't affect good standing - informational only."""
         organization = DBOrganizationFactory.create(orgtype="Company")
@@ -835,3 +982,55 @@ class TestOrganizationOIDCIssuer:
         # Test the relationship
         assert issuer.created_by == admin_user
         assert issuer.created_by_id == admin_user.id
+
+
+class TestProjectCreateRateLimitOverride:
+    def test_no_count_means_no_override(self, db_session):
+        entity = DBOrganizationFactory.create()
+
+        assert entity.project_create_ratelimit_string is None
+
+    def test_composes_count_and_period(self, db_session):
+        entity = DBOrganizationFactory.create(
+            project_create_ratelimit_count=200,
+            project_create_ratelimit_period=RateLimitPeriod.Day,
+        )
+
+        assert entity.project_create_ratelimit_string == "200 per day"
+
+    def test_period_survives_a_round_trip(self, db_session):
+        """Stored as an enum, so it comes back a member, not a raw string."""
+        entity = DBOrganizationFactory.create(
+            project_create_ratelimit_count=5,
+            project_create_ratelimit_period=RateLimitPeriod.Month,
+        )
+        db_session.flush()
+        db_session.expire(entity)
+
+        assert entity.project_create_ratelimit_period is RateLimitPeriod.Month
+        assert entity.project_create_ratelimit_string == "5 per month"
+
+    @pytest.mark.parametrize(
+        ("count", "period"), [(7, None), (None, RateLimitPeriod.Day)]
+    )
+    def test_incomplete_override_rejected_by_database(self, db_session, count, period):
+        with pytest.raises(
+            psycopg.errors.CheckViolation,
+            match="organizations_project_create_ratelimit_complete",
+        ):
+            DBOrganizationFactory.create(
+                project_create_ratelimit_count=count,
+                project_create_ratelimit_period=period,
+            )
+
+    @pytest.mark.parametrize(
+        ("count", "period"), [(7, None), (None, RateLimitPeriod.Day)]
+    )
+    def test_incomplete_override_cannot_be_composed(self, count, period):
+        entity = DBOrganizationFactory.build(
+            project_create_ratelimit_count=count,
+            project_create_ratelimit_period=period,
+        )
+
+        with pytest.raises(ValueError, match="count and period"):
+            _ = entity.project_create_ratelimit_string
