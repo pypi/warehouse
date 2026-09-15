@@ -110,7 +110,10 @@ from warehouse.utils import otp
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import (
+    DELETE_PROJECT_ACKNOWLEDGMENTS,
+    DELETE_RELEASE_ACKNOWLEDGMENTS,
     archive_project,
+    confirm_acknowledgments,
     confirm_project,
     destroy_docs,
     remove_project,
@@ -1342,6 +1345,15 @@ def delete_project(project, request):
         )
 
     confirm_project(project, request, fail_route="manage.project.settings")
+    confirm_acknowledgments(
+        request,
+        "manage.project.settings",
+        DELETE_PROJECT_ACKNOWLEDGMENTS,
+        error_message=request._(
+            "Could not delete project - acknowledge all of the consequences to continue"
+        ),
+        project_name=project.normalized_name,
+    )
 
     submitter_role = get_user_role_in_project(project, request.user, request)
 
@@ -1695,6 +1707,18 @@ class ManageProjectRelease:
                     version=self.release.version,
                 )
             )
+
+        confirm_acknowledgments(
+            self.request,
+            "manage.project.release",
+            DELETE_RELEASE_ACKNOWLEDGMENTS,
+            error_message=self.request._(
+                "Could not delete release - "
+                "acknowledge all of the consequences to continue"
+            ),
+            project_name=self.release.project.name,
+            version=self.release.version,
+        )
 
         submitter_role = get_user_role_in_project(
             self.release.project, self.request.user, self.request
