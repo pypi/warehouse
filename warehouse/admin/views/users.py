@@ -35,8 +35,10 @@ from warehouse.accounts.utils import (
     tld_extractor,
     update_email_domain_status,
 )
+from warehouse.admin.forms import SetProjectCreateRateLimitForm
 from warehouse.admin.user_export import export_user
 from warehouse.authnz import Permissions
+from warehouse.constants import PROJECT_CREATE_RATELIMIT_CAP
 from warehouse.email import (
     send_account_recovery_initiated_email,
     send_password_reset_by_admin_email,
@@ -50,7 +52,14 @@ from warehouse.organizations.models import (
     OrganizationRole,
     OrganizationRoleType,
 )
-from warehouse.packaging.models import File, JournalEntry, Project, Release, Role
+from warehouse.packaging.models import (
+    File,
+    JournalEntry,
+    Project,
+    Release,
+    Role,
+    is_repository_root,
+)
 from warehouse.utils import now
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import clear_project_quarantine, quarantine_project
@@ -243,6 +252,10 @@ def user_detail(user, request):
         "add_email_form": EmailForm(),
         "breached_email_count": breached_email_count,
         "submitted_by_journals": submitted_by_journals,
+        "DEFAULT_PROJECT_CREATE_USER_RATELIMIT": request.registry.settings.get(
+            "warehouse.packaging.project_create_user_ratelimit_string"
+        ),
+        "PROJECT_CREATE_RATELIMIT_CAP": PROJECT_CREATE_RATELIMIT_CAP,
     }
 
 
@@ -532,6 +545,41 @@ def user_freeze(user, request):
     return HTTPSeeOther(request.route_path("admin.user.list"))
 
 
+@view_config(
+    route_name="admin.user.set_project_create_ratelimit",
+    require_methods=["POST"],
+    permission=Permissions.AdminUsersWrite,
+    uses_session=True,
+    require_csrf=True,
+    context=User,
+)
+def user_set_project_create_ratelimit(user, request):
+    form = SetProjectCreateRateLimitForm(request.POST)
+
+    if not form.validate():
+        for field, errors in form.errors.items():
+            for error in errors:
+                request.session.flash(f"{field}: {error}", queue="error")
+        return HTTPSeeOther(
+            request.route_path("admin.user.detail", username=user.username)
+        )
+
+    user_service = request.find_service(IUserService, context=None)
+    limit = user_service.set_project_create_ratelimit(
+        user.id,
+        request,
+        form.project_create_ratelimit_count.data,
+        form.project_create_ratelimit_period.data,
+    )
+
+    if limit:
+        msg = f"Project creation rate limit set to {limit}"
+    else:
+        msg = "Project creation rate limit override cleared; the default applies"
+    request.session.flash(f"{msg} for user {user.username!r}", queue="success")
+    return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
+
+
 def _user_reset_password(user, request):
     login_service = request.find_service(IUserService, context=None)
     send_password_reset_by_admin_email(request, user)
@@ -569,17 +617,71 @@ def _is_a_valid_url(url):
     return url.startswith(("https://", "http://"))
 
 
-def _get_related_urls(user):
-    project_to_urls = defaultdict(set)
+def _get_related_urls(user: User) -> dict[str, list[tuple[str, str, bool, bool]]]:
+    """
+    Collect candidate repository URLs for the account recovery challenge.
+
+    Returns `{project_name: [(label, url, proven, verified), ...]}`. `proven`
+    means PyPI confirmed the URL belongs to the uploader AND it is a repository
+    root a branch can be pushed to. Those sort first within a project, and
+    projects holding one sort ahead of the rest.
+
+    `verified` alone is too broad to rank on. `verify_url` also sets it for a
+    project's own PyPI page, for each Trusted Publisher's docs site
+    (`{owner}.github.io/{repo}`, `{owner}.gitlab.io/...`, a
+    `platform.activestate.com` project page), and for every subpath of the
+    verified repository, so an issues page or a blob link carries it too. Those
+    were all genuinely proven and none accepts a git push, so ranking on
+    `verified` would put a docs site above the repository beside it.
+
+    `is_repository_root` decides the other half, and its own limits mean a
+    repository can lose a badge it earned rather than gain one it did not.
+
+    Both flags are kept. The recovery observation stores this list verbatim and a
+    later release replaces the `ReleaseURL` rows, leaving it the only record of
+    what PyPI had verified when the challenge was issued; with `proven` alone an
+    auditor cannot tell "never verified" from "verified, but not a repository".
+    """
+    ranked: defaultdict[str, list[tuple[bool, bool, str, str, bool]]] = defaultdict(
+        list
+    )
     for project in user.projects:
         if project.releases:
             release = project.releases[0]
+            verified_urls = set(release.urls_by_verify_status(verified=True).values())
 
             for kind, url in release.urls.items():
                 if _is_a_valid_url(url):
-                    project_to_urls[project.name].add((kind, url))
+                    pushable = is_repository_root(url)
+                    verified = url in verified_urls
+                    proven = pushable and verified
+                    ranked[project.name].append((proven, pushable, kind, url, verified))
 
-    return dict(project_to_urls)
+    # A repository ranks above a page that takes no push even when neither is
+    # proven, so a moderator never has to scroll past a docs site to find the
+    # repo. Labels break the remaining ties case-insensitively, since both
+    # `Homepage` and `repository` are idiomatic and raw ASCII would put every
+    # capitalized label first.
+    for entries in ranked.values():
+        entries.sort(key=lambda e: (not e[0], not e[1], e[2].casefold(), e[3]))
+
+    # Projects rank on the same two tiers as the URLs inside them, so the entry
+    # just sorted to the front states the project's tier. Proven URLs need a
+    # Trusted Publisher upload and so are rare; without the `pushable` tier a
+    # project with no repository at all would outrank one that has one.
+    return {
+        name: [
+            (kind, url, proven, verified) for proven, _, kind, url, verified in entries
+        ]
+        for name, entries in sorted(
+            ranked.items(),
+            key=lambda item: (
+                not item[1][0][0],
+                not item[1][0][1],
+                item[0].casefold(),
+            ),
+        )
+    }
 
 
 @view_config(
@@ -669,7 +771,7 @@ def user_recover_account_initiate(user, request):
                     "completed": None,
                     "token": token,
                     "project_name": project_name,
-                    "repos": sorted(repo_urls.get(project_name, [])),
+                    "repos": repo_urls.get(project_name, []),
                     "support_issue_link": support_issue_link,
                     "override_to_email": override_to_email,
                 },
@@ -702,6 +804,12 @@ def user_recover_account_initiate(user, request):
     return {
         "user": user,
         "repo_urls": repo_urls,
+        # The legend earns its space only when a badge is on screen, which needs
+        # a Trusted Publisher upload and so is rare. `proven` implies
+        # `verified`, so this one scan covers both badges.
+        "explain_badge": any(
+            verified for urls in repo_urls.values() for *_, verified in urls
+        ),
     }
 
 

@@ -214,7 +214,7 @@ def require_https_tween_factory(handler, registry):
     def require_https_tween(request):
         # If we have an :action URL and we're not using HTTPS, then we want to
         # return a 403 error.
-        if request.params.get(":action", None) and request.scheme != "https":
+        if ":action" in request.params and request.scheme != "https":
             resp = HTTPForbidden(body="SSL is required.", content_type="text/plain")
             resp.status = "403 SSL is required"
             resp.headers["X-Fastly-Error"] = "803"
@@ -586,6 +586,12 @@ def configure(settings=None):
     )
     maybe_set(
         settings,
+        "warehouse.account.register_ratelimit_string",
+        "REGISTER_RATELIMIT_STRING",
+        default="10 per 5 minutes, 30 per hour",
+    )
+    maybe_set(
+        settings,
         "warehouse.manage.oidc.user_registration_ratelimit_string",
         "USER_OIDC_REGISTRATION_RATELIMIT_STRING",
         default="100 per day",
@@ -607,6 +613,12 @@ def configure(settings=None):
         "warehouse.packaging.project_create_ip_ratelimit_string",
         "PROJECT_CREATE_IP_RATELIMIT_STRING",
         default="40 per hour",
+    )
+    maybe_set(
+        settings,
+        "warehouse.packaging.project_create_organization_ratelimit_string",
+        "PROJECT_CREATE_ORGANIZATION_RATELIMIT_STRING",
+        default="10 per day",
     )
     maybe_set(
         settings,
@@ -771,6 +783,7 @@ def configure(settings=None):
     jglobals.setdefault(
         "OrganizationType", "warehouse.organizations.models:OrganizationType"
     )
+    jglobals.setdefault("RateLimitPeriod", "warehouse.constants:RateLimitPeriod")
     jglobals.setdefault(
         "RoleInvitationStatus", "warehouse.packaging.models:RoleInvitationStatus"
     )

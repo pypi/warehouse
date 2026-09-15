@@ -37,6 +37,21 @@ SUBJECT_BLOCK_EXPRESSION = re.compile(
 )
 
 
+def _make_env(dir_name: Path) -> Environment:
+    env = Environment(
+        autoescape=True,
+        loader=FileSystemLoader(dir_name),
+        extensions=[
+            "jinja2.ext.i18n",
+            "warehouse.utils.html.ClientSideIncludeExtension",
+            "warehouse.i18n.extensions.TrimmedTranslatableTagsExtension",
+        ],
+        cache_size=0,
+    )
+    env.filters.update(FILTERS)
+    return env
+
+
 @pytest.mark.parametrize(
     "template",
     [
@@ -49,20 +64,7 @@ def test_templates_for_empty_titles(template: Path):
     Test if all HTML templates have defined the title block. See
     https://github.com/pypi/warehouse/issues/784
     """
-    dir_name = Path(warehouse.__path__[0]) / "templates"
-
-    env = Environment(
-        autoescape=True,
-        loader=FileSystemLoader(dir_name),
-        extensions=[
-            "jinja2.ext.i18n",
-            "warehouse.utils.html.ClientSideIncludeExtension",
-            "warehouse.i18n.extensions.TrimmedTranslatableTagsExtension",
-        ],
-        cache_size=0,
-    )
-
-    env.filters.update(FILTERS)
+    env = _make_env(Path(warehouse.__path__[0]) / "templates")
 
     if any(
         parent.name in ["includes", "api", "legacy", "email"]
@@ -87,20 +89,26 @@ def test_render_templates(template):
     Test if all HTML templates are rendered without Jinja exceptions.
     see https://github.com/pypi/warehouse/issues/6634
     """
-    dir_name = Path(warehouse.__path__[0]) / "templates"
+    env = _make_env(Path(warehouse.__path__[0]) / "templates")
 
-    env = Environment(
-        autoescape=True,
-        loader=FileSystemLoader(dir_name),
-        extensions=[
-            "jinja2.ext.i18n",
-            "warehouse.utils.html.ClientSideIncludeExtension",
-            "warehouse.i18n.extensions.TrimmedTranslatableTagsExtension",
-        ],
-        cache_size=0,
-    )
+    assert env.get_template(str(template))
 
-    env.filters.update(FILTERS)
+
+@pytest.mark.parametrize(
+    "template",
+    [
+        f.relative_to(Path(warehouse.__path__[0]) / "admin" / "templates")
+        for f in Path(warehouse.__path__[0]).glob("admin/templates/**/*.html")
+    ],
+)
+def test_render_admin_templates(template):
+    """
+    Test if all admin HTML templates are rendered without Jinja exceptions.
+
+    The admin templates live outside `warehouse/templates`, so neither
+    `test_render_templates` nor `bin/lint`'s djlint invocation reaches them.
+    """
+    env = _make_env(Path(warehouse.__path__[0]) / "admin" / "templates")
 
     assert env.get_template(str(template))
 

@@ -118,6 +118,7 @@ def test_includeme(monkeypatch):
                 "warehouse.account.verify_email_ratelimit_string": "3 per 6 hours",
                 "warehouse.account.password_reset_ratelimit_string": "5 per day",
                 "warehouse.account.accounts_search_ratelimit_string": "100 per hour",
+                "warehouse.account.register_ratelimit_string": "10 per 5 minutes, 30 per hour",  # noqa: E501
                 "github.oauth.backend": accounts.NullGitHubOAuthClient,
             }
         ),
@@ -184,6 +185,7 @@ def test_includeme(monkeypatch):
         pretend.call("5 per day", "password.reset"),
         pretend.call("3 per 6 hours", "email.verify"),
         pretend.call("100 per hour", "accounts.search"),
+        pretend.call("10 per 5 minutes, 30 per hour", "accounts.register"),
     ]
     assert config.add_request_method.calls == [
         pretend.call(accounts._user, name="user", reify=True),
@@ -235,6 +237,7 @@ def test_includeme_with_gitlab_oauth():
                 "warehouse.account.verify_email_ratelimit_string": "3 per 6 hours",
                 "warehouse.account.password_reset_ratelimit_string": "5 per day",
                 "warehouse.account.accounts_search_ratelimit_string": "100 per hour",
+                "warehouse.account.register_ratelimit_string": "10 per 5 minutes, 30 per hour",  # noqa: E501
                 "github.oauth.backend": accounts.NullGitHubOAuthClient,
                 "gitlab.oauth.backend": accounts.NullGitLabOAuthClient,
             }

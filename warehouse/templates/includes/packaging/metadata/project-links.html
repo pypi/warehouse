@@ -15,6 +15,8 @@
     {% set icon = "fas fa-bug" %}
   {% elif name.lower().startswith(("funding", "donate", "donation", "sponsor")) %}
     {% set icon = "fas fa-donate" %}
+  {% elif name|lower in ["security", "security policy", "securitypolicy"] %}
+    {% set icon = "fas fa-shield" %}
   {% elif parsed.netloc in ["github.com", "github.io"] or parsed.netloc.endswith((".github.com", ".github.io")) %}
     {% set icon = "fab fa-github" %}
   {% elif parsed.netloc == "gitlab.com" or parsed.netloc.endswith(".gitlab.com") %}
@@ -27,6 +29,8 @@
     {% set icon = "fab fa-discord" %}
   {% elif parsed.netloc in ["t.me", "telegram.me", "telegram.dog"] or parsed.netloc.endswith((".t.me", ".telegram.me", ".telegram.dog")) %}
     {% set icon = "fab fa-telegram" %}
+  {% elif parsed.netloc == "matrix.to" %}
+    {% set icon = "fab fa-matrix" %}
   {% elif parsed.netloc == "google.com" or parsed.netloc.endswith(".google.com") %}
     {% set icon = "fab fa-google" %}
   {% elif parsed.netloc == "bitbucket.org" or parsed.netloc.endswith(".bitbucket.org") %}

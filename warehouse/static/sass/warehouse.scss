@@ -32,6 +32,7 @@
 @use "resets/reset";
 
 // BASE LAYER: adds styles to anything without a class
+@use "base/layout";
 @use "base/images-figures";
 @use "base/forms";
 @use "base/lists";
@@ -246,6 +247,7 @@
 // Adjust size of h1s on standalone pages
 .page-title {
   @include typography.h1-title;
+  overflow-wrap: break-word;
 }
 
 // Resolve conflict between .page-title and .heading-wsubtitle

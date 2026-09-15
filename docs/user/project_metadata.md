@@ -105,6 +105,7 @@ will be recognized.
 | Documentation^*^ | :fontawesome-solid-book:                  | Project documentation       | Docs^*^ , a URL pointing to [Read the Docs] domains or a URL starting with `docs.` or `documentation.` |
 | Bug^*^           | :fontawesome-solid-bug:                   | Bug/Issue report location   | Issue^*^, Tracker^*^, Report^*^                                                                        |
 | Funding^*^       | :fontawesome-solid-circle-dollar-to-slot: | Sponsoring information      | Sponsor^*^, Donation^*^, Donate^*^                                                                     |
+| Security         | :fontawesome-solid-shield:                | Security policy or vulnerability reporting page | Security Policy, securitypolicy                                                                       |
 | Source           | :fontawesome-solid-code-branch:           | Source code repository      | Source Code, Sourcecode, Repository                                                                    |
 
 [Read the Docs]: https://about.readthedocs.com/
@@ -135,6 +136,7 @@ To display a custom icon, an entry must either :
 |:---------|:----------------------------------|:---------|:----------------------------------------------|
 | Discord  | :fontawesome-brands-discord:      |          | `discord.com`, `discordapp.com`, `discord.gg` |
 | Telegram | :fontawesome-brands-telegram:     |          | `t.me`, `telegram.me`, `telegram.dog`         |
+| Matrix   | :simple-matrix:                   |          | `matrix.to`                                   |
 | Gitter   | :fontawesome-brands-gitter:       |          | `gitter.im`                                   |
 | Mastodon | :fontawesome-brands-mastodon:     | Mastodon |                                               |
 | Reddit   | :fontawesome-brands-reddit-alien: |          | `reddit.com`                                  |
