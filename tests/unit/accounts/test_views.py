@@ -27,6 +27,7 @@ from webob.multidict import MultiDict
 from warehouse.accounts import views
 from warehouse.accounts.interfaces import (
     IDomainStatusService,
+    IEmailReputationService,
     IPasswordBreachedService,
     ITokenService,
     IUserService,
@@ -2096,6 +2097,7 @@ class TestRegister:
                 ICaptchaService: pretend.stub(
                     csp_policy={}, enabled=True, verify_response=lambda a: True
                 ),
+                IEmailReputationService: pretend.stub(check_email=lambda email: None),
             }[key]
 
         db_request.find_service = pretend.call_recorder(_find_service)

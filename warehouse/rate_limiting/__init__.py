@@ -71,6 +71,34 @@ class RateLimiter:
         for limit in self._limits:
             self._storage.clear(limit.key_for(*self._get_identifiers(identifiers)))
 
+    def override(self, limit_string):
+        """
+        Return a limiter for ``limit_string``, or self when it is falsy or
+        unparsable (a bad stored override must not fail the request).
+
+        The amount is part of the storage key, so a changed override starts a
+        fresh window.
+        """
+        if not limit_string:
+            return self
+
+        try:
+            return RateLimiter(
+                self._storage,
+                limit_string,
+                identifiers=self._identifiers,
+                metrics=self._metrics,
+            )
+        except ValueError:
+            logger.warning(
+                "Invalid rate limit override %r; using default", limit_string
+            )
+            self._metrics.increment(
+                "warehouse.ratelimiter.invalid_override",
+                tags=[f"identifiers:{','.join(self._identifiers)}"],
+            )
+            return self
+
     @_return_on_exception(None, redis.RedisError)
     def resets_in(self, *identifiers):
         resets = []
@@ -132,6 +160,9 @@ class DummyRateLimiter:
 
     def clear(self, *identifiers):
         return None
+
+    def override(self, limit_string):
+        return self
 
     def resets_in(self, *identifiers):
         return None
