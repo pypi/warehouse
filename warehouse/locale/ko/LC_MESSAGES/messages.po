@@ -39,21 +39,22 @@
 # 이치노 <itchino.v@gmail.com>, 2025.
 # "from south korea." <seon06.dev@gmail.com>, 2025.
 # 스이미 <soo.wim3@gmail.com>, 2026.
+# Seong-ho Cho <darkcircle.0426@gmail.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2026-02-04 15:05+0000\n"
-"Last-Translator: 스이미 <soo.wim3@gmail.com>\n"
-"Language-Team: Korean <https://hosted.weblate.org/projects/pypa/warehouse/ko/"
-">\n"
+"PO-Revision-Date: 2026-09-13 14:58+0000\n"
+"Last-Translator: Seong-ho Cho <darkcircle.0426@gmail.com>\n"
+"Language-Team: Korean <https://hosted.weblate.org/projects/pypa/warehouse/"
+"ko/>\n"
 "Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.16-dev\n"
+"X-Generator: Weblate 2026.10.dev0\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:149
@@ -181,8 +182,6 @@ msgid "Recovery code has been previously used."
 msgstr "복구 코드는 이전에 사용되었습니다."
 
 #: warehouse/accounts/forms.py:553
-#, fuzzy
-#| msgid "The email address isn't valid. Try again."
 msgid "The username isn't valid. Try again."
 msgstr "유효하지 않은 사용자명입니다. 다시 시도해 주세요."
 
@@ -591,15 +590,11 @@ msgstr ""
 "pypi.org/help#admin-intervention 에서 자세한 내용을 확인하세요."
 
 #: warehouse/manage/views/__init__.py:1341
-#, fuzzy
-#| msgid ""
-#| "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
-#| "org/help#admin-intervention for details."
 msgid ""
 "GitLab-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
 msgstr ""
-"GitHub을 기반으로 하는 새 사용자 등록이 잠시 불가능한 상태입니다. https://"
+"GitLab을 기반으로 하는 새 사용자 등록이 잠시 불가능한 상태입니다. https://"
 "pypi.org/help#admin-intervention 에서 자세한 내용을 확인하세요."
 
 #: warehouse/manage/views/__init__.py:1453
@@ -611,16 +606,12 @@ msgstr ""
 "https://pypi.org/help#admin-intervention 에서 자세한 내용을 확인하세요."
 
 #: warehouse/manage/views/__init__.py:1562
-#, fuzzy
-#| msgid ""
-#| "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
-#| "org/help#admin-intervention for details."
 msgid ""
 "ActiveState-based trusted publishing is temporarily disabled. See https://"
 "pypi.org/help#admin-intervention for details."
 msgstr ""
-"GitHub을 기반으로 하는 새 사용자 등록이 잠시 불가능한 상태입니다. https://"
-"pypi.org/help#admin-intervention 에서 자세한 내용을 확인하세요."
+"ActiveState를 기반으로 하는 새 사용자 등록이 잠시 불가능한 상태입니다. "
+"https://pypi.org/help#admin-intervention 에서 자세한 내용을 확인하세요."
 
 #: warehouse/manage/views/__init__.py:1797
 #: warehouse/manage/views/__init__.py:2098
@@ -869,16 +860,12 @@ msgid "Workflow filename must be a filename only, without directories"
 msgstr "워크플로우 파일명에는 경로가 포함되지 않고 파일 이름만 가능합니다"
 
 #: warehouse/oidc/forms/gitlab.py:33
-#, fuzzy
-#| msgid "Specify GitHub repository owner (username or organization)"
 msgid "Specify GitLab namespace (username or group/subgroup)"
-msgstr "깃허브 리파지토리 소유자를 입력하세요(이름 혹은 조직)"
+msgstr "깃랩 이름영역을 지정하세요 (사용자명 또는 그룹/하위그룹)"
 
 #: warehouse/oidc/forms/gitlab.py:37
-#, fuzzy
-#| msgid "Invalid GitHub user or organization name."
 msgid "Invalid GitLab username or group/subgroup name."
-msgstr "잘못된 Github 사용자 또는 조직 이름."
+msgstr "잘못된 깃랩 사용자명 또는 그룹/하위그룹 이름입니다."
 
 #: warehouse/oidc/forms/gitlab.py:53
 #, fuzzy
@@ -887,10 +874,8 @@ msgid "Specify workflow filepath"
 msgstr "워크플로우 파일명을 입력하세요"
 
 #: warehouse/oidc/forms/gitlab.py:61
-#, fuzzy
-#| msgid "Invalid project name"
 msgid "Invalid environment name"
-msgstr "잘못된 프로젝트 명입니다."
+msgstr "잘못된 환경 이름입니다"
 
 #: warehouse/oidc/forms/gitlab.py:76
 #, fuzzy
@@ -1123,7 +1108,7 @@ msgstr "비밀번호 강도:"
 #: warehouse/templates/base.html:31 warehouse/templates/base.html:53
 #: warehouse/templates/includes/current-user-indicator.html:17
 msgid "Main navigation"
-msgstr "메인 내비게이션"
+msgstr "메인 탐색"
 
 #: warehouse/templates/base.html:34 warehouse/templates/base.html:68
 #: warehouse/templates/base.html:335
@@ -1239,8 +1224,8 @@ msgstr "경고"
 #: warehouse/templates/base.html:219
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr ""
-"현재 지원되지 않는 브라우저를 사용하고 계십니다. 새로운 버전으로 업그레이드 "
-"하세요."
+"현재 지원되지 않는 브라우저를 사용하고 계십니다. 새 버전으로 "
+"업그레이드하세요."
 
 #: warehouse/templates/base.html:228
 msgid ""
@@ -1256,8 +1241,8 @@ msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
 msgstr ""
-"일부 기능은 자바스크립트 없이는 작동하지 않을 수 있습니다. 문제가 발생할 경"
-"우 활성화하세요."
+"일부 기능은 자바스크립트 없이는 작동하지 않을 수 있습니다. 문제가 나타나면 "
+"활성화하세요."
 
 #: warehouse/templates/base.html:273 warehouse/templates/base.html:305
 #: warehouse/templates/error-base-with-search.html:8
@@ -1267,7 +1252,7 @@ msgstr "PyPI 검색"
 
 #: warehouse/templates/base.html:278 warehouse/templates/index.html:35
 msgid "Type '/' to search projects"
-msgstr "프로젝트 검색을 하려면 '/'을 입력하세요"
+msgstr "프로젝트 검색을 하려면 '/'를 입력하세요"
 
 #: warehouse/templates/base.html:289 warehouse/templates/base.html:318
 #: warehouse/templates/error-base-with-search.html:19
@@ -1282,7 +1267,7 @@ msgstr "프로젝트 검색"
 
 #: warehouse/templates/base.html:336
 msgid "Help navigation"
-msgstr "도움말 내비게이션"
+msgstr "도움말 탐색"
 
 #: warehouse/templates/base.html:342
 msgid "Installing packages"
@@ -1310,7 +1295,7 @@ msgstr "PyPI에 대하여"
 
 #: warehouse/templates/base.html:370
 msgid "About PyPI navigation"
-msgstr "PyPI에 관한 내비게이션"
+msgstr "PyPI 탐색 정보"
 
 #: warehouse/templates/base.html:376
 msgid "PyPI Blog"
@@ -1339,7 +1324,7 @@ msgstr "PyPI에 기여하기"
 
 #: warehouse/templates/base.html:398
 msgid "How to contribute navigation"
-msgstr "PyPI에 기여하기 내비게이션"
+msgstr "탐색 기능 기여 방법"
 
 #: warehouse/templates/base.html:401
 msgid "Bugs and feedback"
@@ -1367,7 +1352,7 @@ msgstr "PyPI 사용하기"
 
 #: warehouse/templates/base.html:429
 msgid "Using PyPI navigation"
-msgstr "PyPI 내비게이션 사용하기"
+msgstr "PyPI 탐색 사용 방법"
 
 #: warehouse/templates/base.html:435
 #: warehouse/templates/manage/organization/activate_subscription.html:21
@@ -1923,8 +1908,8 @@ msgid ""
 "For more information, please read the full <a href=\"%(aup)s\" "
 "rel=\"noopener\">Acceptable Use Policy</a>."
 msgstr ""
-"자세한 내용은 <a href=\"%(tou)s\" rel=\"noopener\">이용 약관</a> 및 <a "
-"href=\"%(aup)s\" rel=\"noopener\">허용 사용 정책</a>을 참고하세요."
+"자세한 내용은 <a href=\"%(aup)s\" rel=\"noopener\">허용 사용 정책</a>을 "
+"참고하세요."
 
 #: warehouse/templates/accounts/register.html:37
 #, python-format
@@ -2152,17 +2137,15 @@ msgstr ""
 "다. <a href=\"%(href)s\">복구 코드 도움말</a></p>"
 
 #: warehouse/templates/email/account-association-added/body.html:5
-#, fuzzy, python-format
-#| msgid ""
-#| "Someone, perhaps you, has added a %(method)s two-factor authentication "
-#| "method to your PyPI account <strong>%(username)s</strong>."
+#, python-format
 msgid ""
 "Someone, perhaps you, has connected the <strong>%(service)s</strong> account "
 "<strong>@%(external_username)s</strong> to your PyPI account "
 "<strong>%(username)s</strong>."
 msgstr ""
-"누군가(또는 당신)가 당신의 계정 <strong>%(username)s</strong>에 %(method)s 2"
-"단계 인증을 추가하였습니다."
+"당신일지도 모르는 누군가가 <strong>%(service)s</strong> <strong>@%"
+"(external_username)s</strong> 계정을 <strong>%(username)s</strong> PyPI "
+"계정에 연결했습니다."
 
 #: warehouse/templates/email/account-association-added/body.html:8
 #: warehouse/templates/email/account-association-removed/body.html:8
@@ -2184,22 +2167,20 @@ msgstr ""
 "하세요."
 
 #: warehouse/templates/email/account-association-removed/body.html:5
-#, fuzzy, python-format
-#| msgid ""
-#| "Someone, perhaps you, has removed a %(method)s two-factor authentication "
-#| "method from your PyPI account <strong>%(username)s</strong>."
+#, python-format
 msgid ""
 "Someone, perhaps you, has disconnected the <strong>%(service)s</strong> "
 "account <strong>@%(external_username)s</strong> from your PyPI account "
 "<strong>%(username)s</strong>."
 msgstr ""
-"누군가(또는 당신)가 당신의 계정 <strong>%(username)s</strong>에서 %(method)s "
-"2단계 인증을 제거하였습니다."
+"당신일지도 모르는 누군가가 <strong>%(service)s</strong> <strong>@%"
+"(external_username)s</strong> 계정을 <strong>%(username)s</strong> PyPI "
+"계정에서 연결을 끊었습니다."
 
 #: warehouse/templates/email/account-deleted/body.html:5
 #, python-format
 msgid "Your PyPI account <strong>%(username)s</strong> has been deleted."
-msgstr "PyPI 계정 <strong>%(username)s</strong> 삭제되었습니다."
+msgstr "<strong>%(username)s</strong> PyPI 계정을 삭제했습니다."
 
 #: warehouse/templates/email/added-as-collaborator/body.html:9
 #, fuzzy, python-format
@@ -3113,19 +3094,15 @@ msgstr ""
 #: warehouse/templates/manage/account/publishing.html:346
 #: warehouse/templates/manage/project/publishing.html:277
 #: warehouse/templates/organizations/profile.html:30
-#, fuzzy
-#| msgid "Project documentation"
 msgid "Organization"
-msgstr "프로젝트 문서"
+msgstr "조직"
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:46
 #: warehouse/templates/email/trusted-publisher-removed/body.html:44
 #: warehouse/templates/manage/account/publishing.html:368
 #: warehouse/templates/manage/project/publishing.html:299
-#, fuzzy
-#| msgid "Project name"
 msgid "ActiveState Project name"
-msgstr "프로젝트 이름"
+msgstr "ActiveState 프로젝트 이름"
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:47
 #: warehouse/templates/email/trusted-publisher-removed/body.html:45
@@ -3498,7 +3475,7 @@ msgstr "설정"
 #: warehouse/templates/includes/manage/manage-project-menu.html:2
 #, python-format
 msgid "Navigation for managing %(project)s"
-msgstr "%(project)s 관리를 위한 내비게이션"
+msgstr "%(project)s 관리용 탐색"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:9
 #: warehouse/templates/manage/project/release.html:21
@@ -3930,10 +3907,8 @@ msgid "Update password"
 msgstr "패스워드 변경"
 
 #: warehouse/templates/manage/account.html:482
-#, fuzzy
-#| msgid "Account navigation"
 msgid "Account associations"
-msgstr "계정 내비게이션"
+msgstr "계정 연계"
 
 #: warehouse/templates/manage/account.html:484
 msgid ""
@@ -4000,10 +3975,9 @@ msgid "Remove"
 msgstr "삭제"
 
 #: warehouse/templates/manage/account.html:557
-#, fuzzy, python-format
-#| msgid "Remove %(user)s from this organization"
+#, python-format
 msgid "Remove %(service)s association?"
-msgstr "이 조직에서 %(user)s를 제거"
+msgstr "%(service)s 연계를 제거할까요?"
 
 #: warehouse/templates/manage/account.html:560
 #, python-format
@@ -4351,30 +4325,24 @@ msgid "Recovery code used for login"
 msgstr "복구 코드가 로그인에 사용됨"
 
 #: warehouse/templates/manage/account.html:833
-#, fuzzy
-#| msgid "Account navigation"
 msgid "Account association added"
-msgstr "계정 내비게이션"
+msgstr "계정 연계를 추가했습니다"
 
 #: warehouse/templates/manage/account.html:838
 #: warehouse/templates/manage/account.html:849
-#, fuzzy, python-format
-#| msgid "Hi %(username)s!"
+#, python-format
 msgid "GitHub: %(username)s"
-msgstr "안녕하세요 %(username)s!"
+msgstr "깃허브: %(username)s"
 
 #: warehouse/templates/manage/account.html:840
 #: warehouse/templates/manage/account.html:851
-#, fuzzy, python-format
-#| msgid "Hi %(username)s!"
+#, python-format
 msgid "%(service)s: %(username)s"
-msgstr "안녕하세요 %(username)s!"
+msgstr "%(service)s: %(username)s"
 
 #: warehouse/templates/manage/account.html:844
-#, fuzzy
-#| msgid "Account navigation"
 msgid "Account association removed"
-msgstr "계정 내비게이션"
+msgstr "계정 연계를 제거했습니다"
 
 #: warehouse/templates/manage/account.html:855
 #: warehouse/templates/manage/unverified-account.html:465
@@ -4412,55 +4380,54 @@ msgstr "보안상의 이유로 API 토큰이 자동으로 제거됨"
 #: warehouse/templates/manage/unverified-account.html:500
 #, python-format
 msgid "Reason: Token found at <a href=\"%(public_url)s\">public url</a>"
-msgstr "이유: <a href=\"%(public_url)s\">공개 URL</a>에서 토큰을 찾았습니다."
+msgstr "이유: <a href=\"%(public_url)s\">공개 URL</a>에서 토큰을 찾았습니다"
 
 #: warehouse/templates/manage/account.html:894
 #: warehouse/templates/manage/unverified-account.html:504
 #, python-format
 msgid "Invited to join <a href=\"%(href)s\">%(organization_name)s</a>"
-msgstr "<a href=\"%(href)s\">%(organization_name)s</a>에 초대되었습니다."
+msgstr "<a href=\"%(href)s\">%(organization_name)s</a>에 초대받았습니다"
 
 #: warehouse/templates/manage/account.html:898
 #: warehouse/templates/manage/unverified-account.html:508
 #, python-format
 msgid ""
 "Invitation to join <a href=\"%(href)s\">%(organization_name)s</a> declined"
-msgstr "<a href=\"%(href)s\">%(organization_name)s의 초대가 거부되었습니다."
+msgstr "<a href=\"%(href)s\">%(organization_name)s</a>의 초대를 거부했습니다"
 
 #: warehouse/templates/manage/account.html:902
 #: warehouse/templates/manage/unverified-account.html:512
 #, python-format
 msgid ""
 "Invitation to join <a href=\"%(href)s\">%(organization_name)s</a> revoked"
-msgstr ""
-"<a href=\"%(href)s\">%(organization_name)s</a>에 대한 초대가 취소되었습니다"
+msgstr "<a href=\"%(href)s\">%(organization_name)s</a>의 초대를 취소했습니다"
 
 #: warehouse/templates/manage/account.html:906
 #: warehouse/templates/manage/unverified-account.html:516
 #, python-format
 msgid ""
 "Invitation to join <a href=\"%(href)s\">%(organization_name)s</a> expired"
-msgstr "=<a href=\"%(href)s\">%(organization_name)s의 초대가 만료되었습니다"
+msgstr "<a href=\"%(href)s\">%(organization_name)s</a>의 초대 기한이 지났습니다"
 
 #: warehouse/templates/manage/account.html:910
 #, python-format
 msgid "Role in <a href=\"%(href)s\">%(organization_name)s</a> added"
-msgstr "<a href=\"%(href)s\">%(organization_name)s의 역할이 추가되었습니다"
+msgstr "<a href=\"%(href)s\">%(organization_name)s에서 추가 역할을 받았습니다"
 
 #: warehouse/templates/manage/account.html:914
 #, python-format
 msgid "Role in <a href=\"%(href)s\">%(organization_name)s</a> changed"
-msgstr "<a href=\"%(href)s\">%(organization_name)s의 역할이 변경되었습니다"
+msgstr "<a href=\"%(href)s\">%(organization_name)s</a>의 역할이 바뀌었습니다"
 
 #: warehouse/templates/manage/account.html:917
 msgid "Organization role removed"
-msgstr "조직의 역할이 제거되었습니다"
+msgstr "조직의 역할을 제거했습니다"
 
 #: warehouse/templates/manage/account.html:919
 #: warehouse/templates/manage/account.html:926
 #, python-format
 msgid "Project: %(project_name)s; role: %(role_name)s"
-msgstr "프로젝트명: %(project_name)s; 역할: %(role_name)s"
+msgstr "프로젝트: %(project_name)s; 역할: %(role_name)s"
 
 #: warehouse/templates/manage/account.html:924
 #: warehouse/templates/manage/account.html:931
@@ -4558,8 +4525,7 @@ msgid ""
 msgid_plural ""
 "Your account is currently the <strong>sole owner</strong> of %(count)s "
 "projects."
-msgstr[0] ""
-"이 계정은 현재 %(count)s 개 프로젝트의 <strong>독점 소유자</strong>입니다."
+msgstr[0] "이 계정은 현재 프로젝트 %(count)s개의 <strong>독점 소유자</strong>입니다."
 
 #: warehouse/templates/manage/account.html:990
 msgid ""
@@ -4711,8 +4677,8 @@ msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> before adding "
 "additional two factor authentication methods to your account."
 msgstr ""
-"2단계 인증을 추가하기 전에 <a href=\"%(href)s\">기본 이메일 주소를 인증</a>해"
-"야 합니다."
+"계정에 2단계 인증 방법을 추가하기 전에 <a href=\"%(href)s\">기본 이메일 "
+"주소를 인증</a>해야 합니다."
 
 #: warehouse/templates/manage/manage_base.html:123
 #, python-format
@@ -4720,8 +4686,8 @@ msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> before enabling "
 "two factor authentication on your account."
 msgstr ""
-"2단계 인증을 활성화하기 위해서는 먼저 <a href=\"%(href)s\">기본 이메일 주소"
-"를 인증</a>해야 합니다."
+"계정에 2단계 인증 방법을 사용하기 전에 <a href=\"%(href)s\">기본 이메일 "
+"주소를 인증</a>해야 합니다."
 
 #: warehouse/templates/manage/manage_base.html:134
 msgid ""
@@ -4747,18 +4713,18 @@ msgstr "복구 코드를 생성하기"
 msgid ""
 "Use a recovery code before adding additional two factor authentication "
 "methods to your account."
-msgstr "계정에 2단계 인증 방법을 추가하기 전에 복구 코드를 사용하세요."
+msgstr "계정에 2단계 인증을 추가하기 전에 복구 코드를 사용하세요."
 
 #: warehouse/templates/manage/manage_base.html:160
 msgid ""
 "Use a recovery code before enabling two factor authentication on your "
 "account."
-msgstr "계정에 2단계 인증을 활성화하기 전에 복구 코드를 사용할 수 없다."
+msgstr "계정에 2단계 인증을 사용하기 전 복구 코드를 사용하세요."
 
 #: warehouse/templates/manage/account/recovery_codes-burn.html:4
 #: warehouse/templates/manage/manage_base.html:170
 msgid "Use a recovery code"
-msgstr "계속하기 위해 복구 코드를 입력하세요"
+msgstr "복구 코드 사용"
 
 #: warehouse/templates/manage/manage_base.html:180
 msgid "You have not enabled two factor authentication on your account."
@@ -4817,7 +4783,7 @@ msgstr "사용자 계정"
 #: warehouse/templates/manage/manage_base.html:232
 #: warehouse/templates/manage/manage_base.html:274
 msgid "Account navigation"
-msgstr "계정 내비게이션"
+msgstr "계정 탐색"
 
 #: warehouse/templates/manage/manage_base.html:365
 #: warehouse/templates/manage/manage_base.html:443
@@ -4839,7 +4805,7 @@ msgstr "닫기"
 
 #: warehouse/templates/manage/manage_base.html:448
 msgid "Enter your password to continue."
-msgstr "계속하기 위해 패스워드를 확인해주세요."
+msgstr "계속하려면 비밀번호를 입력하세요."
 
 #: warehouse/templates/manage/manage_base.html:535
 msgid "Trusted Publisher Management"
@@ -4869,8 +4835,8 @@ msgid ""
 "You can read more about trusted publishers and how to use them <a "
 "href=\"%(href)s\">here</a>."
 msgstr ""
-"신뢰할 수 있는 퍼블리셔 및 사용 방법에 대한 자세한 내용은 <a "
-"href=\"%(href)s\">여기</a>에서 확인할 수 있습니다."
+"신뢰할 수 있는 게시자 및 자세한 사용 방법은 <a href=\"%(href)s\">여기</a>"
+"에서 확인할 수 있습니다."
 
 #: warehouse/templates/manage/manage_base.html:546
 #: warehouse/templates/manage/manage_base.html:555
@@ -4887,7 +4853,7 @@ msgstr "모든"
 #: warehouse/templates/manage/project/history.html:208
 #: warehouse/templates/manage/team/history.html:88
 msgid "Added by:"
-msgstr "추가한 사용자:"
+msgstr "추가자:"
 
 #: warehouse/templates/manage/manage_base.html:584
 #: warehouse/templates/manage/organization/history.html:171
@@ -4898,28 +4864,22 @@ msgstr "추가한 사용자:"
 #: warehouse/templates/manage/project/history.html:216
 #: warehouse/templates/manage/team/history.html:93
 msgid "Removed by:"
-msgstr "제거한 사용자:"
+msgstr "제거자:"
 
 #: warehouse/templates/manage/manage_base.html:586
-#, fuzzy
-#| msgid "Changed by:"
 msgid "Submitted by:"
 msgstr "제출자:"
 
 #: warehouse/templates/manage/manage_base.html:589
 #: warehouse/templates/manage/project/history.html:247
 msgid "Workflow:"
-msgstr "이름을 입력해주세요:"
+msgstr "작업 흐름:"
 
 #: warehouse/templates/manage/manage_base.html:591
-#, fuzzy
-#| msgid "Verify application"
 msgid "Specifier:"
-msgstr "식별자:"
+msgstr "지정자:"
 
 #: warehouse/templates/manage/manage_base.html:594
-#, fuzzy
-#| msgid "Username"
 msgid "Publisher:"
 msgstr "게시자:"
 
@@ -4962,7 +4922,7 @@ msgstr "조직 이름"
 #: warehouse/templates/manage/organizations.html:159
 #, python-format
 msgid "Organization Type: %(org_type)s"
-msgstr "조직 종류: %(org_type)s"
+msgstr "조직 유형: %(org_type)s"
 
 #: warehouse/templates/manage/organizations.html:74
 #: warehouse/templates/manage/organizations.html:159
@@ -4985,7 +4945,7 @@ msgstr "이 조직의 청구는 조직 소유자 또는 청구 관리자가 활�
 #: warehouse/templates/manage/organizations.html:119
 #: warehouse/templates/manage/organizations.html:127
 msgid "This organization is not active"
-msgstr "이 조직은 활성 상태가 아닙니다."
+msgstr "이 조직은 활성 상태가 아닙니다"
 
 #: warehouse/templates/manage/organization/settings.html:182
 #: warehouse/templates/manage/organizations.html:85
@@ -5116,8 +5076,6 @@ msgid "For example"
 msgstr "예를 들어"
 
 #: warehouse/templates/manage/organizations.html:234
-#, fuzzy
-#| msgid "Organization display name"
 msgid "Organization Display Name"
 msgstr "조직 표시 이름"
 
@@ -5138,8 +5096,6 @@ msgid "URL for your business, product, or project"
 msgstr "기업, 제품, 또는 프로젝트 URL"
 
 #: warehouse/templates/manage/organizations.html:276
-#, fuzzy
-#| msgid "Organization description"
 msgid "Organization Description"
 msgstr "조직 설명"
 
@@ -5174,8 +5130,6 @@ msgid ""
 msgstr "PyPI 조직 기능을 어떻게 활용할 계획인지 간단히 알려주세요."
 
 #: warehouse/templates/manage/organizations.html:344
-#, fuzzy
-#| msgid "️Organization type"
 msgid "️Organization Type"
 msgstr "조직 유형"
 
@@ -5199,8 +5153,8 @@ msgid ""
 "You must first enable <a href=\"%(href)s\">two-factor authentication</a> on "
 "your account before requesting an organization."
 msgstr ""
-"조직을 요청하기 전에 계정에 <a href=\"%(href)s\">2단계 인증</a>을 활성화해야 "
-"합니다."
+"조직을 요청하기 전에 계정에 <a href=\"%(href)s\">2단계 인증</a>을 우선 "
+"활성화해야 합니다."
 
 #: warehouse/templates/manage/organizations.html:376
 msgid "Your request(s) for a new PyPI organization(s) have been submitted."
@@ -5315,28 +5269,24 @@ msgstr ""
 "야 합니다."
 
 #: warehouse/templates/manage/unverified-account.html:268
-#, fuzzy
-#| msgid "Remove this email address"
 msgid "Entered the wrong email address?"
-msgstr "이 이메일 주소 삭제"
+msgstr "잘못된 이메일 주소를 입력하셨나요?"
 
 #: warehouse/templates/manage/unverified-account.html:270
 msgid ""
 "If you made a typo when registering, you can correct your email address "
 "below. A new verification email will be sent to the updated address."
 msgstr ""
+"등록할 때 오타가 있다면 아래의 이메일 주소를 수정할 수 있습니다. 새 검증 "
+"이메일을 업데이트한 이메일 주소로 보냅니다."
 
 #: warehouse/templates/manage/unverified-account.html:283
-#, fuzzy
-#| msgid "Your email address"
 msgid "New email address"
-msgstr "이메일 주소를 입력해주세요"
+msgstr "새 이메일 주소"
 
 #: warehouse/templates/manage/unverified-account.html:300
-#, fuzzy
-#| msgid "Your email address"
 msgid "Update email address"
-msgstr "이메일 주소를 입력해주세요"
+msgstr "이메일 주소 업데이트"
 
 #: warehouse/templates/manage/account/publishing.html:9
 #: warehouse/templates/manage/organization/publishing.html:9
@@ -5346,8 +5296,8 @@ msgid ""
 "Read more about GitHub Actions' OpenID Connect support <a "
 "href=\"%(href)s\">here</a>."
 msgstr ""
-"GitHub Actions의 OpenID Connect 지원에 대한 자세한 내용은 <a "
-"href=\"%(href)s\">여기</a>에서 확인하세요."
+"<a href=\"%(href)s\">여기</a>에서 GitHub Actions의 OpenID Connect 지원을 더 "
+"알아보세요."
 
 #: warehouse/templates/manage/account/publishing.html:38
 #: warehouse/templates/manage/account/publishing.html:157
@@ -5575,7 +5525,7 @@ msgstr ""
 #: warehouse/templates/manage/project/publishing.html:98
 #: warehouse/templates/manage/project/publishing.html:186
 msgid "release"
-msgstr "릴리즈"
+msgstr "릴리스"
 
 #: warehouse/templates/manage/account/publishing.html:194
 #: warehouse/templates/manage/organization/publishing.html:191
@@ -5603,8 +5553,8 @@ msgid ""
 "Read more about GitLab CI/CD OpenID Connect support <a "
 "href=\"%(href)s\">here</a>."
 msgstr ""
-"계정에 다시 접근 권한을 얻기 위해서는, PyPI에서 <a href=\"%(href)s\">패스워드"
-"를 재설정</a>하세요."
+"<a href=\"%(href)s\">여기</a>에서 GitLab CI/CD OpenID Connect 지원에 대해 좀 "
+"더 알아보세요."
 
 #: warehouse/templates/manage/account/publishing.html:172
 #: warehouse/templates/manage/project/publishing.html:140
@@ -5688,24 +5638,24 @@ msgid ""
 "project has maintainers with commit access who shouldn't have PyPI "
 "publishing access."
 msgstr ""
+"작업 과정에서 게시에 사용하는 <a href=\"%(href)s\">GitLab CI/CD 환경</a>의 "
+"이름입니다.  이 환경은 프로젝트 설정에서 구성해야 합니다. 필수 사항은 "
+"아니지만, <strong>특히</strong> 프로젝트에 커밋할 권한은 있지만 PyPI 게시 "
+"권한이 없어야 하는 유지 관리자가 있을 경우 전용 게시 환경 설정을 <strong>"
+"강력히</strong> 권장합니다."
 
 #: warehouse/templates/manage/account/publishing.html:248
 #: warehouse/templates/manage/project/publishing.html:216
-#, fuzzy, python-format
-#| msgid ""
-#| "To regain access to your account, <a href=\"%(href)s\">reset your "
-#| "password</a> on PyPI."
+#, python-format
 msgid ""
 "Read more about Google's OpenID Connect support <a href=\"%(href)s\">here</"
 "a>."
 msgstr ""
-"Google의 OpenID Connect support <a href=\"%(href)s\">here</a>에 대해 자세히 "
-"알아보십시오."
+"<a href=\"%(href)s\">여기</a>에서 Google의 OpenID Connect support에 대해 좀 "
+"더 알아보세요."
 
 #: warehouse/templates/manage/account/publishing.html:279
 #: warehouse/templates/manage/project/publishing.html:232
-#, fuzzy
-#| msgid "Email"
 msgid "email"
 msgstr "이메일"
 
@@ -5716,8 +5666,6 @@ msgstr "게시에 사용되는 계정 또는 서비스 계정의 이메일 주�
 
 #: warehouse/templates/manage/account/publishing.html:297
 #: warehouse/templates/manage/project/publishing.html:250
-#, fuzzy
-#| msgid "Subject"
 msgid "subject"
 msgstr "제목"
 
@@ -5734,32 +5682,23 @@ msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:352
 #: warehouse/templates/manage/project/publishing.html:283
-#, fuzzy
-#| msgid "Project documentation"
 msgid "my-organization"
-msgstr "프로젝트 문서"
+msgstr "my-organization"
 
 #: warehouse/templates/manage/account/publishing.html:360
 #: warehouse/templates/manage/project/publishing.html:291
-#, fuzzy
-#| msgid ""
-#| "The GitHub organization name or GitHub username that owns the repository"
 msgid "The ActiveState organization name that owns the project"
-msgstr "저장소를 소유한 GitHub 조직 이름 또는 GitHub 사용자 이름"
+msgstr "프로젝트를 소유한 ActiveState 조직 이름"
 
 #: warehouse/templates/manage/account/publishing.html:374
 #: warehouse/templates/manage/project/publishing.html:305
-#, fuzzy
-#| msgid "Project"
 msgid "my-project"
-msgstr "프로젝트"
+msgstr "my-project"
 
 #: warehouse/templates/manage/account/publishing.html:382
 #: warehouse/templates/manage/project/publishing.html:313
 msgid "The ActiveState project that will build your Python artifact."
-msgstr ""
-"<a href=\"%(href)s\">여기</a>에서 ActiveState의 OpenID Connect 지원에 대해 자"
-"세히 알아보세요."
+msgstr "파이썬 아티팩트를 빌드할 ActiveState 프로젝트입니다."
 
 #: warehouse/templates/manage/account/publishing.html:390
 #: warehouse/templates/manage/project/publishing.html:321
@@ -5770,21 +5709,17 @@ msgstr "활성화된 사용자명"
 
 #: warehouse/templates/manage/account/publishing.html:396
 #: warehouse/templates/manage/project/publishing.html:327
-#, fuzzy
-#| msgid "Username"
 msgid "my-username"
-msgstr "내 이름"
+msgstr "my-username"
 
 #: warehouse/templates/manage/account/publishing.html:402
 #: warehouse/templates/manage/project/publishing.html:333
 msgid ""
 "The username for the ActiveState account that will trigger the build of your "
 "Python artifact."
-msgstr "Python atrifact 빌드를 작동할 ActiveState 계정의 사용자 이름입니다."
+msgstr "파이썬 아티팩트 빌드를 실행할 ActiveState 계정의 사용자 이름입니다."
 
 #: warehouse/templates/manage/account/publishing.html:420
-#, fuzzy
-#| msgid "Manage"
 msgid "Manage publishers"
 msgstr "게시자 관리"
 
@@ -5801,10 +5736,8 @@ msgstr ""
 "의 퍼블리싱 구성에서 추가할 수 있습니다."
 
 #: warehouse/templates/manage/account/publishing.html:464
-#, fuzzy
-#| msgid "Trending projects"
 msgid "Pending project name"
-msgstr "임시 프로젝트명"
+msgstr "대기 중인 프로젝트명"
 
 #: warehouse/templates/manage/account/publishing.html:465
 #: warehouse/templates/manage/project/publishing.html:367
@@ -5821,8 +5754,8 @@ msgid ""
 "No pending publishers are currently configured. Publishers for projects that "
 "don't exist yet can be added below."
 msgstr ""
-"현재 구성된 보류 중인 퍼블리셔가 없습니다. 아직 존재하지 않는 프로젝트의 퍼블"
-"리셔는 아래에서 추가할 수 있습니다."
+"현재 대기 중인 게시자가 없는 상태로 구성했습니다. 아직 존재하지 않는 "
+"프로젝트의 게시자를 아래에서 추가할 수 있습니다."
 
 #: warehouse/templates/manage/account/publishing.html:486
 msgid "Add a new pending publisher"
@@ -7011,9 +6944,9 @@ msgid ""
 "Community account, you can email <a href=\"mailto:%(email)s\">%(email)s</a> "
 "to communicate with %(site)s administrators."
 msgstr ""
-"조직 계정을 회사 계정에서 커뮤니티 계정으로 전환하려면,  <a href=\"mailto:"
-"%(email)s\">%(email)s</a>로 이메일을 보내 %(site)s 관리자와 소통할 수 있습니"
-"다."
+"조직 계정을 회사 계정에서 커뮤니티 계정으로 전환하려면, <a href=\"mailto:%"
+"(email)s\">%(email)s</a>로 이메일을 보내 %(site)s 관리자와 연락할 수 "
+"있습니다."
 
 #: warehouse/templates/manage/organization/settings.html:141
 msgid "Update organization"
@@ -7974,7 +7907,7 @@ msgstr "조직 소유자는 제거할 수 없습니다"
 #, python-format
 msgid "%(count)s team member"
 msgid_plural "%(count)s team members"
-msgstr[0] "%(count)s 팀 멤버"
+msgstr[0] "팀 구성원 %(count)s명"
 
 #: warehouse/templates/manage/project/roles.html:159
 msgid "Cannot remove your own team as Owner"
@@ -8395,7 +8328,7 @@ msgstr ""
 #: warehouse/templates/manage/team/roles.html:5
 #, python-format
 msgid "Manage members of '%(team_name)s'"
-msgstr "'%(team_name)s'의 멤버 관리"
+msgstr "'%(team_name)s의 구성원 관리"
 
 #: warehouse/templates/manage/team/roles.html:29
 msgid ""
@@ -8414,7 +8347,7 @@ msgstr "%(user)s를 이 팀에서 제거하기"
 
 #: warehouse/templates/manage/team/roles.html:87
 msgid "There are no members in this team, yet."
-msgstr "이 팀에는 아직 멤버가 없습니다."
+msgstr "이 팀에는 아직 구성원이 없습니다."
 
 #: warehouse/templates/manage/team/roles.html:89
 msgid "Get started by adding a team member below."
@@ -8422,7 +8355,7 @@ msgstr "아래에서 팀원을 추가하여 시작하세요."
 
 #: warehouse/templates/manage/team/roles.html:95
 msgid "Add member"
-msgstr "멤버 추가"
+msgstr "구성원 추가"
 
 #: warehouse/templates/manage/team/roles.html:120
 #, python-format
@@ -8431,9 +8364,9 @@ msgid ""
 "href=\"%(href)s\">Manage organization members</a> to view all users in the "
 "organization or to invite a user to the organization."
 msgstr ""
-"조직 소유자, 관리자 또는 멤버를 팀에 추가하세요. <a href=\"%(href)s\">조직 멤"
-"버 관리</a>를 통해 조직의 모든 사용자를 확인하거나 사용자를 조직에 초대할 수 "
-"있습니다."
+"조직 소유자, 관리자 또는 구성원을 팀에 추가하세요. <a href=\"%(href)s\">조직 "
+"구성원 관리</a>에서 조직의 모든 사용자를 확인하거나 사용자를 조직에 초대할 "
+"수 있습니다."
 
 #: warehouse/templates/manage/team/settings.html:4
 #: warehouse/templates/manage/team/settings.html:10
@@ -8478,7 +8411,7 @@ msgstr "%(orgname)s의 프로필"
 #: warehouse/templates/organizations/profile.html:61
 #, python-format
 msgid "%(org)s has not uploaded any projects to PyPI, yet"
-msgstr "%(org)s는 아직 PyPI에 프로젝트를 업로드하지 않았습니다."
+msgstr "%(org)s은(는) 아직 PyPI에 어떤 프로젝트도 업로드하지 않았습니다"
 
 #: warehouse/templates/packaging/detail.html:88
 msgid "view details"
@@ -8486,10 +8419,9 @@ msgstr "세부 사항 보기"
 
 #: warehouse/templates/packaging/detail.html:98
 #: warehouse/templates/packaging/detail.html:105
-#, fuzzy, python-format
-#| msgid "Log in to %(title)s"
+#, python-format
 msgid "%(title)s"
-msgstr "%(title)s에 로그인"
+msgstr "%(title)s"
 
 #: warehouse/templates/packaging/detail.html:117
 #, python-format
@@ -8520,7 +8452,7 @@ msgstr "사용 가능한 최신 버전 (%(version)s)"
 
 #: warehouse/templates/packaging/detail.html:186
 msgid "Latest release"
-msgstr "최신 버전"
+msgstr "최신 릴리스"
 
 #: warehouse/templates/packaging/detail.html:191
 #, python-format
@@ -8539,7 +8471,7 @@ msgstr "내비게이션"
 #: warehouse/templates/packaging/detail.html:269
 #, python-format
 msgid "Navigation for %(project)s"
-msgstr "%(project)s의 내비게이션"
+msgstr "%(project)s 탐색"
 
 #: warehouse/templates/packaging/detail.html:226
 #: warehouse/templates/packaging/detail.html:278
@@ -8651,7 +8583,7 @@ msgid ""
 "rel=\"noopener\">generating distribution archives</a>."
 msgstr ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">"
-"배포 아카이브 생성</a>에 대한 튜토리얼을 참조하세요."
+"배포 아카이브 생성</a> 지침서를 살펴보세요."
 
 #: warehouse/templates/packaging/detail.html:470
 msgid "Built Distribution"
@@ -8660,45 +8592,35 @@ msgstr[0] "빌드된 배포판"
 
 #: warehouse/templates/packaging/detail.html:477
 msgid "Filter files by name, interpreter, ABI, and platform."
-msgstr ""
+msgstr "이름, 인터프리터, ABI, 플랫폼별로 파일을 선별 검색합니다."
 
 #: warehouse/templates/packaging/detail.html:480
-#, fuzzy, python-format
-#| msgid ""
-#| "Download the file for your platform. If you're not sure which to choose, "
-#| "learn more about <a href=\"%(href)s\" title=\"%(title)s\" "
-#| "target=\"_blank\" rel=\"noopener\">installing packages</a>."
+#, python-format
 msgid ""
 "If you're not sure about the file name format, learn more about <a "
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">wheel file names</a>."
 msgstr ""
-"자신의 플랫폼에 맞는 파일을 다운로드하세요. 어떤 파일을 선택해야 할지 확실하"
-"지 않다면, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">패키지 설치 방법</a>에 대해 자세히 알아보세요."
+"파일 이름 형식을 잘 모르겠다면, <a href=\"%(href)s\" title=\"%(title)s\" "
+"target=\"_blank\" rel=\"noopener\">휠 파일 이름</a>을 알아보세요."
 
 #: warehouse/templates/packaging/detail.html:484
 msgid ""
 "The dropdown lists show the available interpreters, ABIs, and platforms."
-msgstr ""
+msgstr "드롭다운 목록에서 사용할 수 있는 인터프리터, ABI, 플랫폼을 보여줍니다."
 
 #: warehouse/templates/packaging/detail.html:487
-#, fuzzy
-#| msgid ""
-#| "Enter a search query, or select a filter from the list of classifiers."
 msgid "Enable javascript to be able to filter the list of wheel files."
-msgstr "검색 쿼리를 입력하거나 분류자 리스트에서의 필터를 선택하세요."
+msgstr "휠 파일 목록을 선별 검색할 수 있도록 자바스크립트를 사용합니다."
 
 #: warehouse/templates/packaging/detail.html:491
 msgid "Copy a direct link to the current filters"
-msgstr ""
+msgstr "현재 검색 조건에 직접 링크 복사"
 
 #: warehouse/templates/packaging/detail.html:509
 #: warehouse/templates/packaging/detail.html:514
-#, fuzzy
-#| msgid "Filename:"
 msgid "File name"
-msgstr "파일명:"
+msgstr "파일 이름"
 
 #: warehouse/templates/packaging/submit-malware-observation.html:20
 msgid "Submit Malware Report for Project"
@@ -11013,8 +10935,8 @@ msgid ""
 "If you believe you've identified a security issue with PyPI, <strong>DO NOT</"
 "strong> report the issue in any public forum, including (but not limited to):"
 msgstr ""
-"PyPI에서 보안 문제를 발견했다고 생각되면, <strong>절대로</strong> 이를 공개 "
-"포럼에 보고하지 마세요. (예: 아래 항목 포함, 제한되지 않음)"
+"PyPI에서 보안 문제를 발견했다는 생각이 들면, 다음 내용은 (제한을 두지 "
+"않겠지만) 공개 포럼에 보고 <strong>하지 마세요</strong>:"
 
 #: warehouse/templates/pages/security.html:17
 msgid "Our GitHub issue tracker"

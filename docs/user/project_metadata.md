@@ -136,6 +136,7 @@ To display a custom icon, an entry must either :
 |:---------|:----------------------------------|:---------|:----------------------------------------------|
 | Discord  | :fontawesome-brands-discord:      |          | `discord.com`, `discordapp.com`, `discord.gg` |
 | Telegram | :fontawesome-brands-telegram:     |          | `t.me`, `telegram.me`, `telegram.dog`         |
+| Matrix   | :simple-matrix:                   |          | `matrix.to`                                   |
 | Gitter   | :fontawesome-brands-gitter:       |          | `gitter.im`                                   |
 | Mastodon | :fontawesome-brands-mastodon:     | Mastodon |                                               |
 | Reddit   | :fontawesome-brands-reddit-alien: |          | `reddit.com`                                  |
