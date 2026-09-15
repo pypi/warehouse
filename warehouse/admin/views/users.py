@@ -35,8 +35,10 @@ from warehouse.accounts.utils import (
     tld_extractor,
     update_email_domain_status,
 )
+from warehouse.admin.forms import SetProjectCreateRateLimitForm
 from warehouse.admin.user_export import export_user
 from warehouse.authnz import Permissions
+from warehouse.constants import PROJECT_CREATE_RATELIMIT_CAP
 from warehouse.email import (
     send_account_recovery_initiated_email,
     send_password_reset_by_admin_email,
@@ -250,6 +252,10 @@ def user_detail(user, request):
         "add_email_form": EmailForm(),
         "breached_email_count": breached_email_count,
         "submitted_by_journals": submitted_by_journals,
+        "DEFAULT_PROJECT_CREATE_USER_RATELIMIT": request.registry.settings.get(
+            "warehouse.packaging.project_create_user_ratelimit_string"
+        ),
+        "PROJECT_CREATE_RATELIMIT_CAP": PROJECT_CREATE_RATELIMIT_CAP,
     }
 
 
@@ -537,6 +543,41 @@ def user_freeze(user, request):
 
     request.session.flash(f"Froze user {user.username!r}", queue="success")
     return HTTPSeeOther(request.route_path("admin.user.list"))
+
+
+@view_config(
+    route_name="admin.user.set_project_create_ratelimit",
+    require_methods=["POST"],
+    permission=Permissions.AdminUsersWrite,
+    uses_session=True,
+    require_csrf=True,
+    context=User,
+)
+def user_set_project_create_ratelimit(user, request):
+    form = SetProjectCreateRateLimitForm(request.POST)
+
+    if not form.validate():
+        for field, errors in form.errors.items():
+            for error in errors:
+                request.session.flash(f"{field}: {error}", queue="error")
+        return HTTPSeeOther(
+            request.route_path("admin.user.detail", username=user.username)
+        )
+
+    user_service = request.find_service(IUserService, context=None)
+    limit = user_service.set_project_create_ratelimit(
+        user.id,
+        request,
+        form.project_create_ratelimit_count.data,
+        form.project_create_ratelimit_period.data,
+    )
+
+    if limit:
+        msg = f"Project creation rate limit set to {limit}"
+    else:
+        msg = "Project creation rate limit override cleared; the default applies"
+    request.session.flash(f"{msg} for user {user.username!r}", queue="success")
+    return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
 
 
 def _user_reset_password(user, request):

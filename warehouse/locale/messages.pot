@@ -14,116 +14,129 @@ msgstr ""
 msgid "Locale updated"
 msgstr ""
 
-#: warehouse/accounts/forms.py:48 warehouse/accounts/forms.py:344
+#: warehouse/accounts/forms.py:51 warehouse/accounts/forms.py:350
 msgid "The email address isn't valid. Try again."
 msgstr ""
 
-#: warehouse/accounts/forms.py:49
+#: warehouse/accounts/forms.py:52
 msgid "The password is invalid. Try again."
 msgstr ""
 
-#: warehouse/accounts/forms.py:51
+#: warehouse/accounts/forms.py:54
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a "
 "letter or number. Choose a different username."
 msgstr ""
 
-#: warehouse/accounts/forms.py:68
+#: warehouse/accounts/forms.py:71
 msgid "Null bytes are not allowed."
 msgstr ""
 
-#: warehouse/accounts/forms.py:84
+#: warehouse/accounts/forms.py:87
 msgid ""
 "Usernames are not the same as email addresses. Enter your username "
 "instead of your email address."
 msgstr ""
 
-#: warehouse/accounts/forms.py:96
+#: warehouse/accounts/forms.py:99
 msgid "No user found with that username"
 msgstr ""
 
-#: warehouse/accounts/forms.py:124
+#: warehouse/accounts/forms.py:127
 #, python-brace-format
 msgid "TOTP code must be ${totp_length} digits."
 msgstr ""
 
-#: warehouse/accounts/forms.py:147
+#: warehouse/accounts/forms.py:150
 #, python-brace-format
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr ""
 
-#: warehouse/accounts/forms.py:161
+#: warehouse/accounts/forms.py:164
 msgid "Choose a username with 50 characters or less."
 msgstr ""
 
-#: warehouse/accounts/forms.py:179
+#: warehouse/accounts/forms.py:182
 msgid ""
 "This username is already being used by another account. Choose a "
 "different username."
 msgstr ""
 
-#: warehouse/accounts/forms.py:218 warehouse/accounts/forms.py:275
-#: warehouse/accounts/forms.py:288
+#: warehouse/accounts/forms.py:221 warehouse/accounts/forms.py:278
+#: warehouse/accounts/forms.py:291
 msgid "Password too long."
 msgstr ""
 
-#: warehouse/accounts/forms.py:258
+#: warehouse/accounts/forms.py:261
 #, python-brace-format
 msgid ""
 "There have been too many unsuccessful login attempts. You have been "
 "locked out for ${time}. Please try again later."
 msgstr ""
 
-#: warehouse/accounts/forms.py:291
+#: warehouse/accounts/forms.py:294
 msgid "Your passwords don't match. Try again."
 msgstr ""
 
-#: warehouse/accounts/forms.py:325
+#: warehouse/accounts/forms.py:328
 msgid "The email address is too long. Try again."
 msgstr ""
 
-#: warehouse/accounts/forms.py:397
+#: warehouse/accounts/forms.py:410 warehouse/accounts/forms.py:532
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:412
+#: warehouse/accounts/forms.py:425
 msgid ""
 "This email address is already being used by this account. Use a different"
 " email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:423
+#: warehouse/accounts/forms.py:436
 msgid ""
 "This email address is already being used by another account. Use a "
 "different email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:463 warehouse/manage/forms.py:129
+#: warehouse/accounts/forms.py:468
+#, python-brace-format
+msgid "Too many email addresses checked. Try again in ${time}."
+msgstr ""
+
+#: warehouse/accounts/forms.py:475
+msgid "Too many email addresses checked. Try again later."
+msgstr ""
+
+#: warehouse/accounts/forms.py:550
+msgid "You can't use a disposable email address. Use a different email."
+msgstr ""
+
+#: warehouse/accounts/forms.py:585 warehouse/manage/forms.py:129
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 
-#: warehouse/accounts/forms.py:468
+#: warehouse/accounts/forms.py:590
 msgid "URLs are not allowed in the name field."
 msgstr ""
 
-#: warehouse/accounts/forms.py:557
+#: warehouse/accounts/forms.py:679
 msgid "Invalid TOTP code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:574
+#: warehouse/accounts/forms.py:696
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr ""
 
-#: warehouse/accounts/forms.py:638
+#: warehouse/accounts/forms.py:760
 msgid "Invalid recovery code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:647
+#: warehouse/accounts/forms.py:769
 msgid "Recovery code has been previously used."
 msgstr ""
 
-#: warehouse/accounts/forms.py:676
+#: warehouse/accounts/forms.py:798
 msgid "The username isn't valid. Try again."
 msgstr ""
 
@@ -349,14 +362,14 @@ msgstr ""
 
 #: warehouse/accounts/views.py:1857 warehouse/accounts/views.py:2125
 #: warehouse/manage/views/oidc_publishers.py:126
-#: warehouse/manage/views/organizations.py:1733
+#: warehouse/manage/views/organizations.py:1768
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help"
 "#admin-intervention for details."
 msgstr ""
 
 #: warehouse/accounts/views.py:1878
-#: warehouse/manage/views/organizations.py:1756
+#: warehouse/manage/views/organizations.py:1791
 msgid "disabled. See https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
@@ -385,7 +398,7 @@ msgstr ""
 #: warehouse/manage/views/oidc_publishers.py:436
 #: warehouse/manage/views/oidc_publishers.py:552
 #: warehouse/manage/views/oidc_publishers.py:664
-#: warehouse/manage/views/organizations.py:1772
+#: warehouse/manage/views/organizations.py:1807
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
@@ -403,7 +416,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/accounts/views.py:1995
-#: warehouse/manage/views/organizations.py:1824
+#: warehouse/manage/views/organizations.py:1859
 msgid "Registered a new pending publisher to create "
 msgstr ""
 
@@ -627,13 +640,13 @@ msgid ""
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2143
-#: warehouse/manage/views/organizations.py:922
+#: warehouse/manage/views/organizations.py:955
 #, python-brace-format
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2208
-#: warehouse/manage/views/organizations.py:1002
+#: warehouse/manage/views/organizations.py:1035
 #, python-brace-format
 msgid "Invitation sent to '${username}'"
 msgstr ""
@@ -647,7 +660,7 @@ msgid "Invitation already expired."
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2284
-#: warehouse/manage/views/organizations.py:1209
+#: warehouse/manage/views/organizations.py:1242
 #, python-brace-format
 msgid "Invitation revoked from '${username}'."
 msgstr ""
@@ -740,37 +753,50 @@ msgid ""
 "https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:898
+#: warehouse/manage/views/organizations.py:874
+msgid ""
+"This organization has created too many new projects recently. Try again "
+"later."
+msgstr ""
+
+#: warehouse/manage/views/organizations.py:882
+#, python-brace-format
+msgid ""
+"This organization has created too many new projects recently. Try again "
+"in ${time}."
+msgstr ""
+
+#: warehouse/manage/views/organizations.py:931
 #, python-brace-format
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:909
+#: warehouse/manage/views/organizations.py:942
 #, python-brace-format
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:938
+#: warehouse/manage/views/organizations.py:971
 msgid "Cannot invite new member. Organization is not in good standing."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1104
-#: warehouse/manage/views/organizations.py:1146
+#: warehouse/manage/views/organizations.py:1137
+#: warehouse/manage/views/organizations.py:1179
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1114
+#: warehouse/manage/views/organizations.py:1147
 msgid "Organization invitation could not be re-sent."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1162
+#: warehouse/manage/views/organizations.py:1195
 #, python-brace-format
 msgid "Expired invitation for '${username}' deleted."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1788
+#: warehouse/manage/views/organizations.py:1823
 msgid ""
 "This publisher has already been registered in your organization. See your"
 " existing pending publishers below."
@@ -2402,17 +2428,72 @@ msgid ""
 "administrators."
 msgstr ""
 
-#: warehouse/templates/email/new-organization-approved/body.html:5
+#: warehouse/templates/email/new-organization-approved/body.html:6
 #, python-format
 msgid ""
 "Your new organization named '%(organization_name)s' has been approved and"
 " created."
 msgstr ""
 
-#: warehouse/templates/email/new-organization-approved/body.html:7
+#: warehouse/templates/email/new-organization-approved/body.html:8
 msgid ""
 "You are the owner of the new organization and can log in to manage "
 "organization projects, collaborators, teams, or settings."
+msgstr ""
+
+#: warehouse/templates/email/new-organization-approved/body.html:10
+msgid "Manage organization"
+msgstr ""
+
+#: warehouse/templates/email/new-organization-approved/body.html:14
+msgid "Action Required:"
+msgstr ""
+
+#: warehouse/templates/email/new-organization-approved/body.html:14
+msgid ""
+"As this is a Company organization, you must purchase at least one (1) "
+"seat. Company organizations without an active subscription are "
+"deactivated after 30 days. After deactivation, the organization name may "
+"be made available for others to claim through a new organization "
+"application."
+msgstr ""
+
+#: warehouse/templates/email/new-organization-approved/body.html:17
+msgid "Activate your subscription"
+msgstr ""
+
+#: warehouse/templates/email/new-organization-approved/body.html:20
+#: warehouse/templates/email/organization-subscription-required/body.html:20
+msgid ""
+"Company organizations are for for-profit companies. Community "
+"organizations are for community-supported projects and teams. Non-"
+"profits, NGOs, schools, and other non-commercial groups belong here too; "
+"you do not need to be an informal project to qualify. Publishing open-"
+"source packages does not by itself qualify a company for a Community "
+"organization."
+msgstr ""
+
+#: warehouse/templates/email/new-organization-approved/body.html:23
+#: warehouse/templates/includes/manage/company-org-survey-callout.html:14
+msgid "Interested in a PyPI service agreement?"
+msgstr ""
+
+#: warehouse/templates/email/new-organization-approved/body.html:23
+msgid ""
+"Enhanced options like annual bulk seat purchases, higher project size "
+"limits, and prioritized support are available."
+msgstr ""
+
+#: warehouse/templates/email/new-organization-approved/body.html:23
+msgid "Fill out our service agreement interest survey"
+msgstr ""
+
+#: warehouse/templates/email/new-organization-approved/body.html:23
+msgid "and we'll follow up."
+msgstr ""
+
+#: warehouse/templates/email/new-organization-approved/body.html:27
+msgid "– The PyPI Team"
 msgstr ""
 
 #: warehouse/templates/email/new-organization-declined/body.html:5
@@ -2457,8 +2538,8 @@ msgstr ""
 #: warehouse/templates/email/organization-member-invited/body.html:28
 #: warehouse/templates/email/organization-member-removed/body.html:25
 #: warehouse/templates/email/organization-member-role-changed/body.html:28
-#: warehouse/templates/email/organization-project-added/body.html:9
-#: warehouse/templates/email/organization-project-removed/body.html:9
+#: warehouse/templates/email/organization-project-added/body.html:12
+#: warehouse/templates/email/organization-project-removed/body.html:12
 #: warehouse/templates/email/organization-renamed/body.html:14
 #: warehouse/templates/email/organization-updated/body.html:60
 #, python-format
@@ -2502,6 +2583,7 @@ msgid "Member of"
 msgstr ""
 
 #: warehouse/templates/email/organization-member-added/body.html:23
+#: warehouse/templates/email/organization-project-added/body.html:9
 #: warehouse/templates/email/team-collaborator-added/body.html:23
 #: warehouse/templates/email/team-collaborator-role-changed/body.html:23
 msgid "Added by"
@@ -2551,6 +2633,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/organization-member-removed/body.html:20
+#: warehouse/templates/email/organization-project-removed/body.html:9
 #: warehouse/templates/email/team-collaborator-removed/body.html:20
 msgid "Removed by"
 msgstr ""
@@ -2577,8 +2660,8 @@ msgid ""
 "\"%(organization_name)s\" organization."
 msgstr ""
 
-#: warehouse/templates/email/organization-project-added/body.html:13
-#: warehouse/templates/email/organization-project-removed/body.html:13
+#: warehouse/templates/email/organization-project-added/body.html:16
+#: warehouse/templates/email/organization-project-removed/body.html:16
 msgid ""
 "You are receiving this because you are an owner of the project or the "
 "organization."
@@ -3270,10 +3353,6 @@ msgstr ""
 msgid "Dismiss"
 msgstr ""
 
-#: warehouse/templates/includes/manage/company-org-survey-callout.html:14
-msgid "Interested in a PyPI service agreement?"
-msgstr ""
-
 #: warehouse/templates/includes/manage/company-org-survey-callout.html:16
 #, python-format
 msgid ""
@@ -3817,16 +3896,16 @@ msgstr[1] ""
 msgid "Owner"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/metadata/project-links.html:62
+#: warehouse/templates/includes/packaging/metadata/project-links.html:64
 msgid "Project links"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/metadata/project-links.html:68
+#: warehouse/templates/includes/packaging/metadata/project-links.html:70
 #, python-format
 msgid "Data verified by PyPI on %(date)s"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/metadata/project-links.html:71
+#: warehouse/templates/includes/packaging/metadata/project-links.html:73
 msgid ""
 "Data provided by the project maintainers, verified at the time the "
 "release was uploaded to PyPI."

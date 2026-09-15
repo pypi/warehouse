@@ -17,18 +17,21 @@ import wtforms
 import wtforms.fields
 
 from sqlalchemy import exists
-from tldextract import TLDExtract
 
 from warehouse import forms
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
+    IEmailReputationService,
     InvalidRecoveryCode,
     IUserService,
     NoRecoveryCodes,
+    TooManyEmailReputationChecks,
     TooManyFailedLogins,
 )
 from warehouse.accounts.models import DisableReason, ProhibitedEmailDomain
 from warehouse.accounts.services import RECOVERY_CODE_BYTES
+from warehouse.accounts.utils import prohibit_email_domain, tld_extractor
+from warehouse.admin.flags import AdminFlagValue
 from warehouse.captcha import CaptchaError
 from warehouse.constants import MAX_PASSWORD_SIZE
 from warehouse.email import (
@@ -329,6 +332,9 @@ class NewEmailMixin:
 
     def __init__(self, *args, request, **kwargs):
         self.request = request
+        self._email_domain = None
+        self._email_registrable = None
+        self._email_normalized = None
         super().__init__(*args, **kwargs)
 
     def validate_email(self, field):
@@ -345,13 +351,20 @@ class NewEmailMixin:
             ) from e
 
         # Check if the domain is valid
-        extractor = TLDExtract(suffix_list_urls=())  # Updated during image build
-        domain = extractor(resp.domain.lower()).top_domain_under_public_suffix
+        domain = tld_extractor(resp.domain.lower()).top_domain_under_public_suffix
+        self._email_domain = resp.domain.lower()
+        self._email_registrable = domain
+        # The reputation service answers on the ASCII form of the domain, so
+        # hand it that rather than the raw submission: an IDN domain sent as
+        # Unicode is a different string to the vendor, and the errored lookup
+        # would silently fail open. Assembling the address keeps the punycode
+        # domain even for a non-ASCII local part.
+        self._email_normalized = f"{resp.local_part}@{resp.ascii_domain}"
 
         mx_domains = set()
         if hasattr(resp, "mx") and resp.mx:
             mx_domains = {
-                extractor(mx_host.lower()).top_domain_under_public_suffix
+                tld_extractor(mx_host.lower()).top_domain_under_public_suffix
                 for _prio, mx_host in resp.mx
             }
             mx_domains.update({mx_host.lower() for _prio, mx_host in resp.mx})
@@ -367,7 +380,7 @@ class NewEmailMixin:
             ):
                 mx_ip = dns.resolver.resolve(mx_domain, "A")
                 mx_ptr = dns.resolver.resolve_address(mx_ip[0].address)
-                mx_ptr_domain = extractor(
+                mx_ptr_domain = tld_extractor(
                     mx_ptr[0].target.to_text().lower()
                 ).top_domain_under_public_suffix
                 all_mx_domains.add(mx_ptr_domain)
@@ -429,6 +442,115 @@ class NewEmailMixin:
             "warehouse.accounts.forms.validate_email",
             tags=["result:valid"],
         )
+
+    def validate(self, extra_validators=None):
+        """
+        Run the remote reputation check after every field has passed. The
+        remote call is metered, so a submission already doomed by its
+        captcha, username, or password fields must not spend the budget.
+        """
+        if not super().validate(extra_validators):
+            return False
+
+        email_reputation_service = self.request.find_service(IEmailReputationService)
+        try:
+            reputation = email_reputation_service.check_email(self._email_normalized)
+        except TooManyEmailReputationChecks as exc:
+            # A client that has spent its whole budget of reputation checks is
+            # not registering email addresses in good faith, so refuse the
+            # attempt outright rather than skipping the check.
+            self.request.metrics.increment(
+                "warehouse.accounts.forms.validate_email_reputation",
+                tags=["result:invalid", "reason:ratelimited"],
+            )
+            if exc.resets_in is not None:
+                message = self.request._(
+                    "Too many email addresses checked. Try again in ${time}.",
+                    mapping={
+                        "time": humanize.naturaldelta(exc.resets_in.total_seconds())
+                    },
+                )
+            else:
+                message = self.request._(
+                    "Too many email addresses checked. Try again later."
+                )
+            self.email.errors.append(message)
+            return False
+
+        if reputation is None or not reputation.should_block:
+            self.request.metrics.increment(
+                "warehouse.accounts.forms.validate_email_reputation",
+                tags=["result:valid"],
+            )
+            return True
+
+        if reputation.disposable_domain:
+            # The whole domain operates as a disposable provider: record it
+            # in our own blocklist so the database check in validate_email
+            # catches the next attempt without another remote call. The
+            # helper skips domains that already have an entry (e.g. one with
+            # is_mx_record=True, which that check doesn't match for a direct
+            # use of the domain -- such a domain keeps costing a remote call
+            # per attempt unless its own MX also resolves under it, and an
+            # admin has to flip the flag to stop that). The row survives
+            # the failed validation because our consumers return a 200
+            # render, which commits; a consumer that raised 4xx here would
+            # roll it back and pay for the verdict again on every retry.
+            #
+            # Only write when the registrable domain equals the address's
+            # own host: that rules out both an empty registrable (a
+            # PSL-unknown TLD) and escalating a subdomain-hosted service to
+            # a shared parent apex.
+            prohibited = False
+            if (
+                self._email_registrable
+                and self._email_registrable == self._email_domain
+                and self.request.flags.enabled(
+                    AdminFlagValue.AUTO_PROHIBIT_DISPOSABLE_DOMAINS
+                )
+            ):
+                prohibited = prohibit_email_domain(
+                    self.request.db,
+                    self._email_registrable,
+                    comment=(
+                        "Automatically prohibited: reported as a disposable "
+                        f"email domain (provider: {reputation.disposable_provider})"
+                    ),
+                )
+            self.request.metrics.increment(
+                "warehouse.accounts.forms.validate_email_reputation",
+                tags=[
+                    "result:invalid",
+                    "reason:disposable_domain_reported",
+                    # Whether the domain went on the blocklist, or only
+                    # this attempt was refused.
+                    f"prohibited:{'true' if prohibited else 'false'}",
+                ],
+            )
+            self.email.errors.append(
+                self.request._(
+                    "You can't use an email address from this domain. Use a "
+                    "different email."
+                )
+            )
+            return False
+
+        # The address is a throwaway on an otherwise legitimate domain, so
+        # reject only this attempt and leave the domain alone.
+        self.request.metrics.increment(
+            "warehouse.accounts.forms.validate_email_reputation",
+            tags=[
+                "result:invalid",
+                "reason:disposable_address_reported",
+                "prohibited:false",
+            ],
+        )
+        self.email.errors.append(
+            self.request._(
+                "You can't use a disposable email address. Use a different email."
+            )
+        )
+        return False
 
 
 class HoneypotMixin:

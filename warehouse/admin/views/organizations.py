@@ -14,13 +14,18 @@ from sqlalchemy.orm import joinedload
 
 from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import User
-from warehouse.admin.forms import SetTotalSizeLimitForm, SetUploadLimitForm
+from warehouse.admin.forms import (
+    SetProjectCreateRateLimitForm,
+    SetTotalSizeLimitForm,
+    SetUploadLimitForm,
+)
 from warehouse.authnz import Permissions
 from warehouse.constants import (
     MAX_FILESIZE,
     MAX_PROJECT_SIZE,
     ONE_GIB,
     ONE_MIB,
+    PROJECT_CREATE_RATELIMIT_CAP,
     UPLOAD_LIMIT_CAP,
 )
 from warehouse.events.tags import EventTag
@@ -393,6 +398,10 @@ def organization_detail(request):
         "ONE_GIB": ONE_GIB,
         "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
         "UPLOAD_LIMIT_CAP": UPLOAD_LIMIT_CAP,
+        "PROJECT_CREATE_RATELIMIT_CAP": PROJECT_CREATE_RATELIMIT_CAP,
+        "DEFAULT_PROJECT_CREATE_ORGANIZATION_RATELIMIT": request.registry.settings.get(
+            "warehouse.packaging.project_create_organization_ratelimit_string"
+        ),
     }
 
 
@@ -1414,6 +1423,54 @@ def set_total_size_limit(request):
         f"Total size limit set to {limit_msg}",
         queue="success",
     )
+
+    return HTTPSeeOther(
+        request.route_path(
+            "admin.organization.detail",
+            organization_id=organization.id,
+        )
+    )
+
+
+@view_config(
+    route_name="admin.organization.set_project_create_ratelimit",
+    permission=Permissions.AdminOrganizationsSetLimit,
+    request_method="POST",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+)
+def set_project_create_ratelimit(request):
+    organization_id = request.matchdict["organization_id"]
+    organization = request.db.get(Organization, organization_id)
+    if organization is None:
+        raise HTTPNotFound
+
+    form = SetProjectCreateRateLimitForm(request.POST)
+
+    if not form.validate():
+        for field, errors in form.errors.items():
+            for error in errors:
+                request.session.flash(f"{field}: {error}", queue="error")
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.organization.detail", organization_id=organization.id
+            )
+        )
+
+    organization_service = request.find_service(IOrganizationService, context=None)
+    limit = organization_service.set_project_create_ratelimit(
+        organization.id,
+        request,
+        form.project_create_ratelimit_count.data,
+        form.project_create_ratelimit_period.data,
+    )
+
+    if limit:
+        msg = f"Project creation rate limit set to {limit}"
+    else:
+        msg = "Project creation rate limit override cleared; the default applies"
+    request.session.flash(msg, queue="success")
 
     return HTTPSeeOther(
         request.route_path(
