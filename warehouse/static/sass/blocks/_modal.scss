@@ -118,9 +118,11 @@
     }
 
     .inline-checkbox {
-      // Resets width for checkboxes in modal
+      // Resets the text-input sizing and spacing for checkboxes in modal,
+      // so the rows are spaced by their list item rather than by input margin
       width: auto;
       min-width: auto;
+      margin: 0;
     }
   }
 

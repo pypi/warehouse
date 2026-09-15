@@ -163,7 +163,7 @@
     rel="noopener">post release</a> instead.{% endtrans %}
           </p>
         {% endset %}
-        {{ confirm_modal(title, gettext('Version') , 'delete_version', release.version, slug, custom_warning_text=custom_warning_text, action=action) }}
+        {{ confirm_modal(title, gettext('Version') , 'delete_version', release.version, slug, custom_warning_text=custom_warning_text, action=action, extra_description=delete_release_acknowledgments(release.version), wide=True) }}
       {% endif %}
     </td>
   </tr>
