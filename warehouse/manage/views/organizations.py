@@ -513,9 +513,9 @@ class ManageOrganizationSettingsViews:
         # Get owners before deleting organization.
         owner_users = set(organization_owners(self.request, self.organization))
 
-        # Cancel any subscriptions tied to this organization.
-        if self.organization.subscriptions:
-            for subscription in self.organization.subscriptions:
+        # Cancel subscriptions that have not already been canceled.
+        for subscription in self.organization.subscriptions:
+            if subscription.is_manageable:
                 self.billing_service.cancel_subscription(subscription.subscription_id)
 
         self.organization_service.delete_organization(self.organization.id)
