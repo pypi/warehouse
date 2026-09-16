@@ -1218,23 +1218,34 @@ class TestManageOrganizationSettings:
         assert organization_service.delete_organization.calls == []
         assert db_request.route_path.calls == []
 
+    @pytest.mark.parametrize(
+        ("subscription_status", "should_cancel"),
+        [("active", True), ("past_due", True), ("canceled", False)],
+    )
     def test_delete_organization_with_subscriptions(
         self,
         db_request,
         pyramid_user,
+        billing_service,
         organization_service,
         user_service,
         monkeypatch,
+        subscription_status,
+        should_cancel,
     ):
         organization = OrganizationFactory.create()
         stripe_customer = StripeCustomerFactory.create()
         OrganizationStripeCustomerFactory.create(
             organization=organization, customer=stripe_customer
         )
-        subscription = StripeSubscriptionFactory.create(customer=stripe_customer)
+        subscription = StripeSubscriptionFactory.create(
+            customer=stripe_customer, status=subscription_status
+        )
         OrganizationStripeSubscriptionFactory.create(
             organization=organization, subscription=subscription
         )
+        cancel_subscription = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(billing_service, "cancel_subscription", cancel_subscription)
 
         db_request.POST = {"confirm_organization_name": organization.name}
         db_request.route_path = pretend.call_recorder(
@@ -1265,6 +1276,9 @@ class TestManageOrganizationSettings:
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/manage/organizations/"
+        assert cancel_subscription.calls == (
+            [pretend.call(subscription.subscription_id)] if should_cancel else []
+        )
         assert organization_service.delete_organization.calls == [
             pretend.call(organization.id)
         ]
