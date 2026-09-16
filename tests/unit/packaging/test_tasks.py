@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import tempfile
+import io
 import uuid
 
-from contextlib import contextmanager
+from pathlib import Path
 
 import pretend
 import pytest
@@ -41,45 +41,41 @@ from ...common.db.packaging import (
 
 
 @pytest.mark.parametrize("cached", [True, False])
-def test_sync_file_to_cache(db_request, monkeypatch, cached):
-    file = FileFactory(cached=cached)
-    archive_stub = pretend.stub(
-        get_metadata=pretend.call_recorder(lambda path: {"fizz": "buzz"}),
-        get=pretend.call_recorder(
-            lambda path: pretend.stub(read=lambda: b"my content")
-        ),
+@pytest.mark.parametrize("has_metadata", [True, False])
+def test_sync_file_to_cache(db_request, cached, has_metadata):
+    file = FileFactory(
+        cached=cached,
+        metadata_file_sha256_digest="deadbeef" if has_metadata else None,
     )
-    cache_stub = pretend.stub(
-        store=pretend.call_recorder(lambda filename, path, meta=None: None)
-    )
-    db_request.find_service = pretend.call_recorder(
-        lambda iface, name=None: {"cache": cache_stub, "archive": archive_stub}[name]
-    )
+    contents = {file.path: b"distribution content"}
+    if has_metadata:
+        contents[file.metadata_path] = b"metadata content"
+    streams = {}
+    stored = {}
 
-    @contextmanager
-    def mock_named_temporary_file():
-        yield pretend.stub(
-            name="/tmp/wutang",
-            write=lambda bites: None,
-            flush=lambda: None,
-        )
+    def get(path):
+        streams[path] = io.BytesIO(contents[path])
+        return streams[path]
 
-    monkeypatch.setattr(tempfile, "NamedTemporaryFile", mock_named_temporary_file)
+    def store(path, filename, *, meta=None):
+        stored[path] = (Path(filename).read_bytes(), meta)
+
+    archive = pretend.stub(get_metadata=lambda path: {"fizz": "buzz"}, get=get)
+    cache = pretend.stub(store=store)
+    db_request.find_service = lambda iface, name=None: {
+        "cache": cache,
+        "archive": archive,
+    }[name]
 
     sync_file_to_cache(db_request, file.id)
 
     assert file.cached
-
-    if not cached:
-        assert archive_stub.get_metadata.calls == [pretend.call(file.path)]
-        assert archive_stub.get.calls == [pretend.call(file.path)]
-        assert cache_stub.store.calls == [
-            pretend.call(file.path, "/tmp/wutang", meta={"fizz": "buzz"}),
-        ]
-    else:
-        assert archive_stub.get_metadata.calls == []
-        assert archive_stub.get.calls == []
-        assert cache_stub.store.calls == []
+    assert stored == (
+        {}
+        if cached
+        else {path: (content, {"fizz": "buzz"}) for path, content in contents.items()}
+    )
+    assert all(stream.closed for stream in streams.values())
 
 
 def test_compute_packaging_metrics(db_request, metrics):
@@ -106,56 +102,35 @@ def test_compute_packaging_metrics(db_request, metrics):
     ]
 
 
-@pytest.mark.parametrize("cached", [True, False])
-def test_sync_file_to_cache_includes_bonus_files(db_request, monkeypatch, cached):
-    file = FileFactory(
-        cached=cached,
-        metadata_file_sha256_digest="deadbeefdeadbeefdeadbeefdeadbeef",
-    )
-    archive_stub = pretend.stub(
-        get_metadata=pretend.call_recorder(lambda path: {"fizz": "buzz"}),
-        get=pretend.call_recorder(
-            lambda path: pretend.stub(read=lambda: b"my content")
-        ),
-    )
-    cache_stub = pretend.stub(
-        store=pretend.call_recorder(lambda filename, path, meta=None: None)
-    )
-    db_request.find_service = pretend.call_recorder(
-        lambda iface, name=None: {"cache": cache_stub, "archive": archive_stub}[name]
-    )
+@pytest.mark.parametrize("upload_fails", [False, True])
+def test_copy_file_to_cache_streams_and_closes(upload_fails):
+    content = b"x" * (3 * 1024 * 1024 + 17)
 
-    @contextmanager
-    def mock_named_temporary_file():
-        yield pretend.stub(
-            name="/tmp/wutang",
-            write=lambda bites: None,
-            flush=lambda: None,
-        )
+    class BoundedStream(io.BytesIO):
+        def read(self, size=-1):
+            assert 0 < size <= 1024 * 1024
+            return super().read(size)
 
-    monkeypatch.setattr(tempfile, "NamedTemporaryFile", mock_named_temporary_file)
+    stream = BoundedStream(content)
+    temporary_paths = []
 
-    sync_file_to_cache(db_request, file.id)
+    def store(path, filename, *, meta=None):
+        temporary_paths.append(filename)
+        assert Path(filename).read_bytes() == content
+        if upload_fails:
+            raise OSError("upload failed")
 
-    assert file.cached
+    archive = pretend.stub(get_metadata=lambda path: {}, get=lambda path: stream)
+    cache = pretend.stub(store=store)
 
-    if not cached:
-        assert archive_stub.get_metadata.calls == [
-            pretend.call(file.path),
-            pretend.call(file.metadata_path),
-        ]
-        assert archive_stub.get.calls == [
-            pretend.call(file.path),
-            pretend.call(file.metadata_path),
-        ]
-        assert cache_stub.store.calls == [
-            pretend.call(file.path, "/tmp/wutang", meta={"fizz": "buzz"}),
-            pretend.call(file.metadata_path, "/tmp/wutang", meta={"fizz": "buzz"}),
-        ]
+    if upload_fails:
+        with pytest.raises(OSError, match="upload failed"):
+            warehouse.packaging.tasks._copy_file_to_cache(archive, cache, "file")
     else:
-        assert archive_stub.get_metadata.calls == []
-        assert archive_stub.get.calls == []
-        assert cache_stub.store.calls == []
+        warehouse.packaging.tasks._copy_file_to_cache(archive, cache, "file")
+
+    assert stream.closed
+    assert not Path(temporary_paths[0]).exists()
 
 
 def test_check_file_cache_tasks_outstanding(db_request, metrics):
