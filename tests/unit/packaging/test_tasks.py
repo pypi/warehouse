@@ -4,14 +4,13 @@ import tempfile
 import uuid
 
 from contextlib import contextmanager
+from unittest.mock import call
 
 import pretend
 import pytest
 
 from google.cloud.bigquery import SchemaField
 from wtforms import Field, Form, StringField
-
-import warehouse.packaging.tasks
 
 from warehouse.accounts.models import WebAuthn
 from warehouse.observations.models import ObservationKind
@@ -21,6 +20,8 @@ from warehouse.packaging.tasks import (
     compute_2fa_metrics,
     compute_packaging_metrics,
     compute_top_dependents_corpus,
+    fetch_sizes,
+    reconcile_file_storages,
     sync_file_to_cache,
     typo_check_project_name,
     update_bigquery_release_files,
@@ -169,192 +170,165 @@ def test_check_file_cache_tasks_outstanding(db_request, metrics):
     ]
 
 
-def test_fetch_checksums():
-    file_stub = pretend.stub(
-        path="/path",
-        metadata_path="/path.metadata",
-    )
-    storage_stub = pretend.stub(
-        get_checksum=lambda pth: f"{pth}-deadbeef",
-    )
+class TestReconcileFileStorages:
+    @pytest.fixture
+    def sized_storage(self, mocker):
+        """Build a storage stub answering get_size from a {path: size} mapping."""
 
-    assert warehouse.packaging.tasks.fetch_checksums(storage_stub, file_stub) == (
-        "/path-deadbeef",
-        "/path.metadata-deadbeef",
-    )
+        def _raise_not_found(path):
+            raise FileNotFoundError(f"No such key: {path!r}")
 
+        def _sized_storage(sizes):
+            storage = mocker.Mock()
+            storage.get_size.side_effect = lambda path: (
+                sizes[path] if path in sizes else _raise_not_found(path)
+            )
+            return storage
 
-def test_fetch_checksums_none():
-    file_stub = pretend.stub(
-        path="/path",
-        metadata_path="/path.metadata",
-    )
-    storage_stub = pretend.stub(get_checksum=pretend.raiser(FileNotFoundError))
+        return _sized_storage
 
-    assert warehouse.packaging.tasks.fetch_checksums(storage_stub, file_stub) == (
-        None,
-        None,
-    )
+    @pytest.fixture
+    def reconcile(self, db_request, metrics):
+        """Run the task against the given archive and cache storages."""
 
+        def _reconcile(archive_storage, cache_storage):
+            db_request.find_service = lambda svc, name=None, context=None: {
+                "warehouse.packaging.interfaces.IFileStorage-archive": archive_storage,
+                "warehouse.packaging.interfaces.IFileStorage-cache": cache_storage,
+                "warehouse.metrics.interfaces.IMetricsService-None": metrics,
+            }.get(f"{svc}-{name}")
+            db_request.registry.settings = {"reconcile_file_storages.batch_size": 3}
+            reconcile_file_storages(db_request)
 
-def test_reconcile_file_storages_all_good(db_request, metrics):
-    project = ProjectFactory.create()
-    release = ReleaseFactory.create(project=project)
-    all_good = FileFactory.create(release=release, cached=False)
-    all_good.md5_digest = f"{all_good.path}-deadbeef"
-    all_good.metadata_file_sha256_digest = f"{all_good.path}-feedbeef"
+        return _reconcile
 
-    storage_service = pretend.stub(get_checksum=lambda pth: f"{pth}-deadbeef")
-    db_request.find_service = pretend.call_recorder(
-        lambda svc, name=None, context=None: {
-            "warehouse.packaging.interfaces.IFileStorage-cache": storage_service,
-            "warehouse.packaging.interfaces.IFileStorage-archive": storage_service,
-            "warehouse.metrics.interfaces.IMetricsService-None": metrics,
-        }.get(f"{svc}-{name}")
-    )
-    db_request.registry.settings = {
-        "reconcile_file_storages.batch_size": 3,
-    }
-
-    warehouse.packaging.tasks.reconcile_file_storages(db_request)
-
-    assert metrics.increment.calls == []
-    assert all_good.cached is True
-
-
-def test_reconcile_file_storages_fixable(db_request, monkeypatch, metrics):
-    project = ProjectFactory.create()
-    release = ReleaseFactory.create(project=project)
-    fixable = FileFactory.create(release=release, cached=False)
-    fixable.md5_digest = f"{fixable.path}-deadbeef"
-    fixable.metadata_file_sha256_digest = f"{fixable.path}-feedbeef"
-
-    storage_service = pretend.stub(get_checksum=lambda pth: f"{pth}-deadbeef")
-    broke_storage_service = pretend.stub(get_checksum=lambda pth: None)
-    db_request.find_service = pretend.call_recorder(
-        lambda svc, name=None, context=None: {
-            "warehouse.packaging.interfaces.IFileStorage-cache": broke_storage_service,
-            "warehouse.packaging.interfaces.IFileStorage-archive": storage_service,
-            "warehouse.metrics.interfaces.IMetricsService-None": metrics,
-        }.get(f"{svc}-{name}")
-    )
-    db_request.registry.settings = {
-        "reconcile_file_storages.batch_size": 3,
-    }
-
-    copy_file = pretend.call_recorder(lambda archive, cache, path: None)
-    monkeypatch.setattr(warehouse.packaging.tasks, "_copy_file_to_cache", copy_file)
-
-    warehouse.packaging.tasks.reconcile_file_storages(db_request)
-
-    assert metrics.increment.calls == [
-        pretend.call("warehouse.filestorage.reconciled", tags=["type:dist"]),
-        pretend.call("warehouse.filestorage.reconciled", tags=["type:metadata"]),
-    ]
-    assert copy_file.calls == [
-        pretend.call(storage_service, broke_storage_service, fixable.path),
-        pretend.call(storage_service, broke_storage_service, fixable.metadata_path),
-    ]
-    assert fixable.cached is True
-
-
-@pytest.mark.parametrize(
-    (
-        "borked_ext",
-        "metrics_tag",
-    ),
-    [
-        (
-            "",
-            "type:dist",
-        ),
-        (
-            ".metadata",
-            "type:metadata",
-        ),
-    ],
-)
-def test_reconcile_file_storages_borked(
-    db_request, monkeypatch, metrics, borked_ext, metrics_tag
-):
-    project = ProjectFactory.create()
-    release = ReleaseFactory.create(project=project)
-    borked = FileFactory.create(release=release, cached=False)
-    borked.md5_digest = f"{borked.path}-deadbeef"
-    borked.metadata_file_sha256_digest = f"{borked.path}-feedbeef"
-
-    storage_service = pretend.stub(get_checksum=lambda pth: f"{pth}-deadbeef")
-    bad_storage_service = pretend.stub(
-        get_checksum=lambda pth: (
-            None if pth == borked.path + borked_ext else f"{pth}-deadbeef"
+    @pytest.fixture
+    def file(self, db_session):
+        """An uncached file large enough that S3 stores it as a multipart upload."""
+        return FileFactory.create(
+            cached=False,
+            size=345187092,
+            metadata_file_sha256_digest="deadbeef",
         )
-    )
-    db_request.find_service = pretend.call_recorder(
-        lambda svc, name=None, context=None: {
-            "warehouse.packaging.interfaces.IFileStorage-cache": storage_service,
-            "warehouse.packaging.interfaces.IFileStorage-archive": bad_storage_service,
-            "warehouse.metrics.interfaces.IMetricsService-None": metrics,
-        }.get(f"{svc}-{name}")
-    )
-    db_request.registry.settings = {
-        "reconcile_file_storages.batch_size": 3,
-    }
 
-    copy_file = pretend.call_recorder(lambda archive, cache, path: None)
-    monkeypatch.setattr(warehouse.packaging.tasks, "_copy_file_to_cache", copy_file)
-
-    warehouse.packaging.tasks.reconcile_file_storages(db_request)
-
-    assert copy_file.calls == []
-    assert metrics.increment.calls == [
-        pretend.call("warehouse.filestorage.unreconciled", tags=[metrics_tag])
-    ]
-    assert borked.cached is False
-
-
-@pytest.mark.parametrize(
-    (
-        "borked_ext",
-        "metrics_tag",
-    ),
-    [
-        (
-            ".metadata",
-            "type:metadata",
-        ),
-    ],
-)
-def test_not_all_files(db_request, monkeypatch, metrics, borked_ext, metrics_tag):
-    project = ProjectFactory.create()
-    release = ReleaseFactory.create(project=project)
-    just_dist = FileFactory.create(release=release, cached=False)
-    just_dist.md5_digest = f"{just_dist.path}-deadbeef"
-
-    storage_service = pretend.stub(get_checksum=lambda pth: f"{pth}-deadbeef")
-    bad_storage_service = pretend.stub(
-        get_checksum=lambda pth: (
-            None if pth == just_dist.path + borked_ext else f"{pth}-deadbeef"
+    @pytest.fixture
+    def copy_file(self, mocker):
+        return mocker.patch(
+            "warehouse.packaging.tasks._copy_file_to_cache", autospec=True
         )
-    )
-    db_request.find_service = pretend.call_recorder(
-        lambda svc, name=None, context=None: {
-            "warehouse.packaging.interfaces.IFileStorage-cache": storage_service,
-            "warehouse.packaging.interfaces.IFileStorage-archive": bad_storage_service,
-            "warehouse.metrics.interfaces.IMetricsService-None": metrics,
-        }.get(f"{svc}-{name}")
-    )
-    db_request.registry.settings = {
-        "reconcile_file_storages.batch_size": 3,
-    }
 
-    copy_file = pretend.call_recorder(lambda archive, cache, path: None)
-    monkeypatch.setattr(warehouse.packaging.tasks, "_copy_file_to_cache", copy_file)
+    def test_fetch_sizes(self, sized_storage, file):
+        storage = sized_storage({file.path: 10, file.metadata_path: 20})
 
-    warehouse.packaging.tasks.reconcile_file_storages(db_request)
+        assert fetch_sizes(storage, file) == (10, 20)
 
-    assert copy_file.calls == []
-    assert metrics.increment.calls == []
-    assert just_dist.cached is True
+    def test_fetch_sizes_missing(self, sized_storage, file):
+        assert fetch_sizes(sized_storage({}), file) == (None, None)
+
+    def test_both_stores_agree_with_db(
+        self, sized_storage, reconcile, file, copy_file, metrics
+    ):
+        """A file present and correctly sized in both stores needs no work.
+
+        This previously compared an S3 multipart ETag against ``md5_digest``,
+        which can never match, so every file over the 8MB multipart threshold
+        errored on every run and never became cached.
+
+        See: https://github.com/pypi/warehouse/issues/19704
+        """
+        sizes = {file.path: file.size, file.metadata_path: 20}
+
+        reconcile(sized_storage(sizes), sized_storage(sizes))
+
+        copy_file.assert_not_called()
+        metrics.increment.assert_not_called()
+        assert file.cached is True
+
+    def test_cache_missing_is_pulled_from_archive(
+        self, sized_storage, reconcile, file, copy_file, metrics
+    ):
+        archive = sized_storage({file.path: file.size, file.metadata_path: 20})
+        cache = sized_storage({})
+
+        reconcile(archive, cache)
+
+        assert copy_file.call_args_list == [
+            call(archive, cache, file.path),
+            call(archive, cache, file.metadata_path),
+        ]
+        assert metrics.increment.call_args_list == [
+            call("warehouse.filestorage.reconciled", tags=["type:dist"]),
+            call("warehouse.filestorage.reconciled", tags=["type:metadata"]),
+        ]
+        assert file.cached is True
+
+    def test_cache_size_differs_is_pulled_from_archive(
+        self, sized_storage, reconcile, file, copy_file, metrics
+    ):
+        archive = sized_storage({file.path: file.size, file.metadata_path: 20})
+        cache = sized_storage({file.path: file.size - 1, file.metadata_path: 20})
+
+        reconcile(archive, cache)
+
+        assert copy_file.call_args_list == [call(archive, cache, file.path)]
+        assert metrics.increment.call_args_list == [
+            call("warehouse.filestorage.reconciled", tags=["type:dist"])
+        ]
+        assert file.cached is True
+
+    def test_archive_size_disagrees_with_db(
+        self, sized_storage, reconcile, file, copy_file, metrics
+    ):
+        """The archive is only golden where it matches what we recorded on upload."""
+        sizes = {file.path: file.size - 1, file.metadata_path: 20}
+
+        reconcile(sized_storage(sizes), sized_storage(sizes))
+
+        copy_file.assert_not_called()
+        assert metrics.increment.call_args_list == [
+            call("warehouse.filestorage.unreconciled", tags=["type:dist"])
+        ]
+        assert file.cached is False
+
+    def test_archive_missing_dist(
+        self, sized_storage, reconcile, file, copy_file, metrics
+    ):
+        archive = sized_storage({file.metadata_path: 20})
+        cache = sized_storage({file.path: file.size, file.metadata_path: 20})
+
+        reconcile(archive, cache)
+
+        copy_file.assert_not_called()
+        assert metrics.increment.call_args_list == [
+            call("warehouse.filestorage.unreconciled", tags=["type:dist"])
+        ]
+        assert file.cached is False
+
+    def test_archive_missing_metadata(
+        self, sized_storage, reconcile, file, copy_file, metrics
+    ):
+        archive = sized_storage({file.path: file.size})
+        cache = sized_storage({file.path: file.size})
+
+        reconcile(archive, cache)
+
+        copy_file.assert_not_called()
+        assert metrics.increment.call_args_list == [
+            call("warehouse.filestorage.unreconciled", tags=["type:metadata"])
+        ]
+        assert file.cached is False
+
+    def test_no_metadata_file_expected(
+        self, db_session, sized_storage, reconcile, copy_file, metrics
+    ):
+        file = FileFactory.create(cached=False, metadata_file_sha256_digest=None)
+        sizes = {file.path: file.size}
+
+        reconcile(sized_storage(sizes), sized_storage(sizes))
+
+        copy_file.assert_not_called()
+        metrics.increment.assert_not_called()
+        assert file.cached is True
 
 
 def test_update_description_html(monkeypatch, db_request):

@@ -2,7 +2,6 @@
 
 import collections
 import contextlib
-import hashlib
 import io
 import json
 import os.path
@@ -107,9 +106,8 @@ class GenericLocalBlobStorage:
         with open(os.path.join(self.base, path + ".meta")) as f:
             return json.loads(f.read())
 
-    def get_checksum(self, path):
-        with open(os.path.join(self.base, path), "rb") as f:
-            return hashlib.md5(f.read(), usedforsecurity=False).hexdigest()
+    def get_size(self, path) -> int:
+        return os.path.getsize(os.path.join(self.base, path))
 
     def store(self, path, file_path, *, meta=None):
         destination = os.path.join(self.base, path)
@@ -203,12 +201,10 @@ class GenericB2BlobStorage(GenericBlobStorage):
         except b2sdk.v2.exception.FileNotPresent:
             raise FileNotFoundError(f"No such key: {path!r}") from None
 
-    def get_checksum(self, path: str):
+    def get_size(self, path: str) -> int:
         path = self._get_path(path)
         try:
-            return self.bucket.get_file_info_by_id(
-                self.bucket.get_file_info_by_name(path).id_
-            ).content_md5
+            return self.bucket.get_file_info_by_name(path).size
         except b2sdk.v2.exception.FileNotPresent:
             raise FileNotFoundError(f"No such key: {path!r}") from None
 
@@ -251,11 +247,9 @@ class GenericS3BlobStorage(GenericBlobStorage):
                 raise
             raise FileNotFoundError(f"No such key: {path!r}") from None
 
-    def get_checksum(self, path: str):
+    def get_size(self, path: str) -> int:
         try:
-            return (
-                self.bucket.Object(self._get_path(path)).e_tag.rstrip('"').lstrip('"')
-            )
+            return self.bucket.Object(self._get_path(path)).content_length
         except botocore.exceptions.ClientError as exc:
             if exc.response["ResponseMetadata"]["HTTPStatusCode"] != 404:
                 #  https://docs.aws.amazon.com/AmazonS3/latest/API/API_HeadObject.html#API_HeadObject_RequestBody
@@ -337,7 +331,7 @@ class GenericGCSBlobStorage(GenericBlobStorage):
     def get_metadata(self, path: str):
         raise NotImplementedError
 
-    def get_checksum(self, path: str):
+    def get_size(self, path: str) -> int:
         raise NotImplementedError
 
     @google.api_core.retry.Retry(
