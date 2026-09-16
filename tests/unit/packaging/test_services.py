@@ -471,15 +471,37 @@ class TestS3FileStorage:
         assert metadata == {"foo": "bar", "wu": "tang"}
         assert bucket.Object.calls == [pretend.call("file.txt")]
 
-    def test_gets_checksum(self):
-        s3key = pretend.stub(e_tag="deadbeef")
-        bucket = pretend.stub(Object=pretend.call_recorder(lambda path: s3key))
-        storage = S3FileStorage(bucket)
+    @pytest.mark.parametrize("multipart", [False, True])
+    def test_gets_checksum(self, multipart):
+        content = b"x" * (9 * 1024 * 1024)
+        expected = hashlib.md5(content, usedforsecurity=False).hexdigest()
 
-        checksum = storage.get_checksum("file.txt")
+        class BoundedStream(io.BytesIO):
+            def read(self, size=-1):
+                assert 0 < size <= 1024 * 1024
+                return super().read(size)
 
-        assert checksum == "deadbeef"
-        assert bucket.Object.calls == [pretend.call("file.txt")]
+        body = BoundedStream(content)
+        etag = f"{expected}-2" if multipart else expected
+        s3key = pretend.stub(e_tag=f'"{etag}"', get=lambda: {"Body": body})
+        storage = S3FileStorage(pretend.stub(Object=lambda path: s3key))
+
+        assert storage.get_checksum("file.txt") == expected
+        if multipart:
+            assert body.closed
+
+    def test_multipart_checksum_closes_body_on_read_error(self):
+        body = pretend.stub(
+            read=pretend.raiser(OSError("read failed")),
+            close=pretend.call_recorder(lambda: None),
+        )
+        s3key = pretend.stub(e_tag='"deadbeef-2"', get=lambda: {"Body": body})
+        storage = S3FileStorage(pretend.stub(Object=lambda path: s3key))
+
+        with pytest.raises(OSError, match="read failed"):
+            storage.get_checksum("file.txt")
+
+        assert body.close.calls == [pretend.call()]
 
     def test_raises_when_key_non_existent(self):
         def raiser():
