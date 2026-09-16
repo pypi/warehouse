@@ -154,7 +154,8 @@
         --admonition-color: #{colors.$primary-color};
       }
 
-      &.tip {
+      &.tip,
+      &.hint {
         --admonition-color: #{colors.$success-color};
       }
 
@@ -162,12 +163,14 @@
         --admonition-color: #8250df;
       }
 
-      &.warning {
+      &.warning,
+      &.attention {
         --admonition-color: #{colors.$warning-color};
       }
 
       &.caution,
-      &.danger {
+      &.danger,
+      &.error {
         --admonition-color: #{colors.$danger-color};
       }
     }
@@ -187,7 +190,8 @@
       }
     }
 
-    .tip > .admonition-title::before {
+    .tip > .admonition-title::before,
+    .hint > .admonition-title::before {
       content: "\f0eb";
     }
 
@@ -195,12 +199,14 @@
       content: "\f06a";
     }
 
-    .warning > .admonition-title::before {
+    .warning > .admonition-title::before,
+    .attention > .admonition-title::before {
       content: "\f071";
     }
 
     .caution > .admonition-title::before,
-    .danger > .admonition-title::before {
+    .danger > .admonition-title::before,
+    .error > .admonition-title::before {
       content: "\f057";
     }
 
