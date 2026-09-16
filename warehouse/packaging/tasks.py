@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import contextlib
 import datetime
+import shutil
 import tempfile
 import typing
 
@@ -46,9 +48,11 @@ logger = structlog.get_logger(__name__)
 
 def _copy_file_to_cache(archive_storage, cache_storage, path):
     metadata = archive_storage.get_metadata(path)
-    file_obj = archive_storage.get(path)
-    with tempfile.NamedTemporaryFile() as file_for_cache:
-        file_for_cache.write(file_obj.read())
+    with (
+        contextlib.closing(archive_storage.get(path)) as file_obj,
+        tempfile.NamedTemporaryFile() as file_for_cache,
+    ):
+        shutil.copyfileobj(file_obj, file_for_cache, length=1024 * 1024)
         file_for_cache.flush()
         cache_storage.store(path, file_for_cache.name, meta=metadata)
 

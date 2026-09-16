@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import tempfile
+import io
 import uuid
 
-from contextlib import contextmanager
+from pathlib import Path
 from unittest.mock import call
 
 import pretend
@@ -16,6 +16,7 @@ from warehouse.accounts.models import WebAuthn
 from warehouse.observations.models import ObservationKind
 from warehouse.packaging.models import DependencyKind, Description
 from warehouse.packaging.tasks import (
+    _copy_file_to_cache,
     check_file_cache_tasks_outstanding,
     compute_2fa_metrics,
     compute_packaging_metrics,
@@ -41,46 +42,100 @@ from ...common.db.packaging import (
 )
 
 
+class TestCopyFileToCache:
+    @pytest.fixture
+    def bounded_stream(self):
+        """A stream that refuses to be read in one go.
+
+        Reading a whole distribution into memory is how the archive copy used
+        to work, and a 345MB wheel is 345MB of worker RSS.
+        """
+
+        class BoundedStream(io.BytesIO):
+            def read(self, size=-1):
+                assert 0 < size <= 1024 * 1024, "archive object read in one go"
+                return super().read(size)
+
+        return BoundedStream
+
+    @pytest.fixture
+    def archive(self, mocker):
+        storage = mocker.Mock()
+        storage.get_metadata.return_value = {"fizz": "buzz"}
+        return storage
+
+    def test_streams_in_chunks_and_closes_the_source(
+        self, bounded_stream, archive, mocker
+    ):
+        content = b"x" * (3 * 1024 * 1024 + 17)
+        stream = bounded_stream(content)
+        archive.get.return_value = stream
+        stored = {}
+
+        def store(path, filename, *, meta=None):
+            stored["path"] = path
+            stored["content"] = Path(filename).read_bytes()
+            stored["meta"] = meta
+            stored["filename"] = filename
+
+        cache = mocker.Mock()
+        cache.store.side_effect = store
+
+        _copy_file_to_cache(archive, cache, "some/file.whl")
+
+        assert stored["path"] == "some/file.whl"
+        assert stored["content"] == content
+        assert stored["meta"] == {"fizz": "buzz"}
+        assert stream.closed
+        assert not Path(stored["filename"]).exists()
+
+    def test_closes_the_source_when_the_cache_upload_fails(
+        self, bounded_stream, archive, mocker
+    ):
+        stream = bounded_stream(b"x" * 1024)
+        archive.get.return_value = stream
+        cache = mocker.Mock()
+        cache.store.side_effect = OSError("upload failed")
+
+        with pytest.raises(OSError, match="upload failed"):
+            _copy_file_to_cache(archive, cache, "some/file.whl")
+
+        assert stream.closed
+
+
 @pytest.mark.parametrize("cached", [True, False])
-def test_sync_file_to_cache(db_request, monkeypatch, cached):
-    file = FileFactory(cached=cached)
-    archive_stub = pretend.stub(
-        get_metadata=pretend.call_recorder(lambda path: {"fizz": "buzz"}),
-        get=pretend.call_recorder(
-            lambda path: pretend.stub(read=lambda: b"my content")
-        ),
+@pytest.mark.parametrize("has_metadata", [True, False])
+def test_sync_file_to_cache(db_request, mocker, cached, has_metadata):
+    file = FileFactory(
+        cached=cached,
+        metadata_file_sha256_digest="deadbeef" if has_metadata else None,
     )
-    cache_stub = pretend.stub(
-        store=pretend.call_recorder(lambda filename, path, meta=None: None)
-    )
-    db_request.find_service = pretend.call_recorder(
-        lambda iface, name=None: {"cache": cache_stub, "archive": archive_stub}[name]
-    )
+    contents = {file.path: b"distribution content"}
+    if has_metadata:
+        contents[file.metadata_path] = b"metadata content"
+    stored = {}
 
-    @contextmanager
-    def mock_named_temporary_file():
-        yield pretend.stub(
-            name="/tmp/wutang",
-            write=lambda bites: None,
-            flush=lambda: None,
-        )
+    def store(path, filename, *, meta=None):
+        stored[path] = (Path(filename).read_bytes(), meta)
 
-    monkeypatch.setattr(tempfile, "NamedTemporaryFile", mock_named_temporary_file)
+    archive = mocker.Mock()
+    archive.get_metadata.return_value = {"fizz": "buzz"}
+    archive.get.side_effect = lambda path: io.BytesIO(contents[path])
+    cache = mocker.Mock()
+    cache.store.side_effect = store
+    db_request.find_service = lambda iface, name=None: {
+        "archive": archive,
+        "cache": cache,
+    }[name]
 
     sync_file_to_cache(db_request, file.id)
 
     assert file.cached
-
-    if not cached:
-        assert archive_stub.get_metadata.calls == [pretend.call(file.path)]
-        assert archive_stub.get.calls == [pretend.call(file.path)]
-        assert cache_stub.store.calls == [
-            pretend.call(file.path, "/tmp/wutang", meta={"fizz": "buzz"}),
-        ]
-    else:
-        assert archive_stub.get_metadata.calls == []
-        assert archive_stub.get.calls == []
-        assert cache_stub.store.calls == []
+    assert stored == (
+        {}
+        if cached
+        else {path: (content, {"fizz": "buzz"}) for path, content in contents.items()}
+    )
 
 
 def test_compute_packaging_metrics(db_request, metrics):
@@ -105,58 +160,6 @@ def test_compute_packaging_metrics(db_request, metrics):
         pretend.call("warehouse.packaging.total_releases", 3),
         pretend.call("warehouse.packaging.total_files", 4),
     ]
-
-
-@pytest.mark.parametrize("cached", [True, False])
-def test_sync_file_to_cache_includes_bonus_files(db_request, monkeypatch, cached):
-    file = FileFactory(
-        cached=cached,
-        metadata_file_sha256_digest="deadbeefdeadbeefdeadbeefdeadbeef",
-    )
-    archive_stub = pretend.stub(
-        get_metadata=pretend.call_recorder(lambda path: {"fizz": "buzz"}),
-        get=pretend.call_recorder(
-            lambda path: pretend.stub(read=lambda: b"my content")
-        ),
-    )
-    cache_stub = pretend.stub(
-        store=pretend.call_recorder(lambda filename, path, meta=None: None)
-    )
-    db_request.find_service = pretend.call_recorder(
-        lambda iface, name=None: {"cache": cache_stub, "archive": archive_stub}[name]
-    )
-
-    @contextmanager
-    def mock_named_temporary_file():
-        yield pretend.stub(
-            name="/tmp/wutang",
-            write=lambda bites: None,
-            flush=lambda: None,
-        )
-
-    monkeypatch.setattr(tempfile, "NamedTemporaryFile", mock_named_temporary_file)
-
-    sync_file_to_cache(db_request, file.id)
-
-    assert file.cached
-
-    if not cached:
-        assert archive_stub.get_metadata.calls == [
-            pretend.call(file.path),
-            pretend.call(file.metadata_path),
-        ]
-        assert archive_stub.get.calls == [
-            pretend.call(file.path),
-            pretend.call(file.metadata_path),
-        ]
-        assert cache_stub.store.calls == [
-            pretend.call(file.path, "/tmp/wutang", meta={"fizz": "buzz"}),
-            pretend.call(file.metadata_path, "/tmp/wutang", meta={"fizz": "buzz"}),
-        ]
-    else:
-        assert archive_stub.get_metadata.calls == []
-        assert archive_stub.get.calls == []
-        assert cache_stub.store.calls == []
 
 
 def test_check_file_cache_tasks_outstanding(db_request, metrics):
