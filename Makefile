@@ -94,6 +94,9 @@ totp: .state/docker-build-base ## Generate a dev TOTP code
 tests: .state/docker-build-base ## Run Python tests; use T=path/to/test.py
 	docker compose run --rm --env COVERAGE=$(COVERAGE) --env COVERAGE_CORE=$(COVERAGE_CORE) tests bin/tests --postgresql-host db $(T) $(TESTARGS)
 
+static_lint: .state/docker-build-static ## Run static asset linters
+	docker compose run --rm static bin/static_lint
+
 static_tests: .state/docker-build-static ## Run static asset tests
 	docker compose run --rm static bin/static_tests $(T) $(TESTARGS)
 
