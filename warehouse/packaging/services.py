@@ -253,9 +253,17 @@ class GenericS3BlobStorage(GenericBlobStorage):
 
     def get_checksum(self, path: str):
         try:
-            return (
-                self.bucket.Object(self._get_path(path)).e_tag.rstrip('"').lstrip('"')
-            )
+            obj = self.bucket.Object(self._get_path(path))
+            etag = obj.e_tag.strip('"')
+            if "-" not in etag:
+                return etag
+
+            # Multipart ETags are not whole-file MD5 digests.
+            with contextlib.closing(obj.get()["Body"]) as body:
+                digest = hashlib.md5(usedforsecurity=False)
+                while chunk := body.read(1024 * 1024):
+                    digest.update(chunk)
+                return digest.hexdigest()
         except botocore.exceptions.ClientError as exc:
             if exc.response["ResponseMetadata"]["HTTPStatusCode"] != 404:
                 #  https://docs.aws.amazon.com/AmazonS3/latest/API/API_HeadObject.html#API_HeadObject_RequestBody
