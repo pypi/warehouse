@@ -1244,18 +1244,27 @@ class TestManageOrganizationSettings:
         OrganizationStripeSubscriptionFactory.create(
             organization=organization, subscription=subscription
         )
+
+        other_organization = OrganizationFactory.create()
+        other_subscription = StripeSubscriptionFactory.create()
+        other_customer_link = OrganizationStripeCustomerFactory.create(
+            organization=other_organization, customer=other_subscription.customer
+        )
+        other_subscription_link = OrganizationStripeSubscriptionFactory.create(
+            organization=other_organization, subscription=other_subscription
+        )
+        other_project = OrganizationProjectFactory.create(
+            organization=other_organization
+        )
+        other_role = OrganizationRoleFactory.create(organization=other_organization)
+        other_team = TeamFactory.create(organization=other_organization)
+
         cancel_subscription = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(billing_service, "cancel_subscription", cancel_subscription)
 
         db_request.POST = {"confirm_organization_name": organization.name}
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/manage/organizations/"
-        )
-
-        monkeypatch.setattr(
-            organization_service,
-            "delete_organization",
-            pretend.call_recorder(lambda *a, **kw: None),
         )
 
         admin = None
@@ -1279,9 +1288,28 @@ class TestManageOrganizationSettings:
         assert cancel_subscription.calls == (
             [pretend.call(subscription.subscription_id)] if should_cancel else []
         )
-        assert organization_service.delete_organization.calls == [
-            pretend.call(organization.id)
-        ]
+        assert (
+            db_request.db.query(type(subscription))
+            .filter_by(id=subscription.id)
+            .first()
+            is None
+        )
+        assert organization_service.get_organization(organization.id) is None
+        for record in (
+            other_organization,
+            other_subscription,
+            other_subscription.customer,
+            other_customer_link,
+            other_subscription_link,
+            other_project,
+            other_project.project,
+            other_role,
+            other_team,
+        ):
+            assert (
+                db_request.db.query(type(record)).filter_by(id=record.id).one()
+                == record
+            )
         assert send_email.calls == [
             pretend.call(
                 db_request,
