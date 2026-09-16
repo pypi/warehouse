@@ -12,18 +12,22 @@ types so the assembled document dumps with no custom encoder.
 See: dev/admin-user-export.md for the document schema.
 """
 
+import dataclasses
 import datetime
 import enum
 
-from collections.abc import Sequence, Sized
+from collections.abc import Mapping, Sequence, Sized
+from typing import Any
 from uuid import UUID
 
+from packaging.utils import canonicalize_name
 from pyramid.request import Request
-from sqlalchemy import Row, Select, func, select
+from sqlalchemy import Row, Select, desc, func, select
 from sqlalchemy.orm import (
     InstrumentedAttribute,
     Session,
     joinedload,
+    lazyload,
     selectin_polymorphic,
     selectinload,
 )
@@ -31,8 +35,15 @@ from sqlalchemy.orm import (
 from warehouse.accounts.models import OAuthAccountAssociation, User, UserUniqueLogin
 from warehouse.email.ses.models import EmailMessage
 from warehouse.ip_addresses.models import IpAddress
+from warehouse.macaroons.caveats import CaveatError, deserialize_obj
 from warehouse.macaroons.models import Macaroon
-from warehouse.observations.models import OBSERVATION_KIND_MAP, Observation
+from warehouse.observations.models import (
+    OBSERVATION_KIND_MAP,
+    Observation,
+    ObservationKind,
+    Observer,
+)
+from warehouse.observations.utils import classify_observation
 from warehouse.oidc.models import (
     PendingActiveStatePublisher,
     PendingGitHubPublisher,
@@ -48,6 +59,7 @@ from warehouse.organizations.models import (
 )
 from warehouse.packaging.models import (
     JournalEntry,
+    ProhibitedProjectName,
     Project,
     Release,
     Role,
@@ -56,19 +68,50 @@ from warehouse.packaging.models import (
 )
 from warehouse.utils import now
 
-EXPORT_SCHEMA_VERSION = "1"
+EXPORT_SCHEMA_VERSION = "2"
 
 # Most-recent rows fetched per unbounded section (timeline sources, uploads).
 # Anything older is left out, and the section says so: the true total is
 # always reported, alongside a `truncated` flag.
 SECTION_ROW_LIMIT = 10_000
 
-# The `email_sent` timeline source matches on `ses_emails.to`, which has no
-# user foreign key, so only addresses currently on the account can be found.
+# The `email_sent` timeline source reads `ses.emails`, which is pruned on a
+# schedule (see `warehouse.email.ses.tasks.cleanup_ses_emails`), so it is a
+# recent-delivery window rather than a full history. The durable record of
+# mail we sent is the `account:email:sent` event, which is never pruned.
 EMAIL_SENT_MATCH_NOTE = (
-    "Matched on the email addresses currently on the account; mail sent to "
-    "addresses since removed from the account cannot be recovered."
+    "Delivery records are pruned on a schedule, so an empty or short list "
+    "means the rows aged out, not that no mail was sent; the "
+    "`account:email:sent` events are the durable record. Matched on the "
+    "addresses currently on the account: `user_emails.email` is unique only "
+    "among live rows, so an address the account has released may belong to "
+    "someone else now and is deliberately not matched."
 )
+
+# `journals` has no project foreign key, only a name, so "the same project"
+# is not expressible there. A name freed by removal and registered again
+# carries the new owner's rows under the old name.
+JOURNAL_RELATED_MATCH_NOTE = (
+    "Matched on project name, which `journals` stores without a project "
+    "reference. If a name the user journaled was removed and later "
+    "registered by someone else, that later owner's rows appear here too; "
+    "`submitted_by` on each entry says whose they are."
+)
+
+# Event payloads that name an email address, by the key each one uses. A
+# removed address survives nowhere else: the `Email` row is deleted, and the
+# admin delete path records no event at all, so whichever of these named it
+# is the only remaining trace. `account:create` carries the registration
+# address, which never gets an `account:email:add` of its own.
+_EMAIL_EVENT_FIELDS = {
+    "account:create": ("email",),
+    "account:email:add": ("email",),
+    "account:email:remove": ("email",),
+    "account:email:reverify": ("email",),
+    "account:email:sent": ("to",),
+    "account:email:verified": ("email",),
+    "account:email:primary:change": ("old_primary", "new_primary"),
+}
 
 
 def _dt(value: datetime.datetime | None) -> str | None:
@@ -92,10 +135,30 @@ def _enum(value: enum.Enum | None) -> dict | None:
     return {"value": value.value, "display": value.name}
 
 
-def _ip(ip: IpAddress | None) -> dict | None:
+def _caveat(caveat: Any) -> dict:
+    """
+    Materialize one stored caveat as a named object.
+
+    Current caveats are positional arrays led by a numeric tag, which read as
+    magic numbers; the registered `Caveat` dataclass supplies the field
+    names. The original mapping format is already self-describing, and is
+    passed through rather than deserialized so that reading an export does
+    not bill `warehouse.macaroon.caveat.legacy`, which measures live auth
+    traffic to decide when the legacy format can be dropped.
+    """
+    if isinstance(caveat, Mapping):
+        return {"type": "legacy", **caveat}
+    try:
+        decoded = deserialize_obj(caveat)
+    except CaveatError:
+        # An unreadable restriction is still worth seeing verbatim: dropping
+        # it would understate what the token was allowed to do.
+        return {"type": "unknown", "raw": caveat}
+    return {"type": type(decoded).__name__, **dataclasses.asdict(decoded)}
+
+
+def _ip(ip: IpAddress) -> dict:
     """Materialize an IpAddress row: address, hash, geo, and ban state."""
-    if ip is None:
-        return None
     return {
         "id": str(ip.id),
         "ip_address": str(ip.ip_address),
@@ -107,7 +170,23 @@ def _ip(ip: IpAddress | None) -> dict | None:
     }
 
 
-def _user_section(user: User, db: Session) -> dict:
+def _ip_ref(ip: IpAddress | None, seen: dict[str, dict]) -> str | None:
+    """
+    Record an address in the document-wide lookup, returning its id.
+
+    One materialized copy per address rather than one per event: an account
+    with hundreds of events usually has a handful of addresses, so pivoting
+    on them stops meaning a string comparison across duplicated blobs.
+    """
+    if ip is None:
+        return None
+    key = str(ip.id)
+    if key not in seen:
+        seen[key] = _ip(ip)
+    return key
+
+
+def _user_section(user: User, db: Session, ips: dict[str, dict]) -> dict:
     """The identity/credential zone: user row plus nested account records."""
     unique_logins = db.scalars(
         select(UserUniqueLogin)
@@ -142,7 +221,7 @@ def _user_section(user: User, db: Session) -> dict:
         "disabled_for": _enum(user.disabled_for),
         "emails": [
             {
-                "id": e.id,
+                "id": str(e.id),
                 "email": e.email,
                 "primary": e.primary,
                 "verified": e.verified,
@@ -180,7 +259,7 @@ def _user_section(user: User, db: Session) -> dict:
                 "description": m.description,
                 "created": _dt(m.created),
                 "last_used": _dt(m.last_used),
-                "caveats": m._caveats,
+                "caveats": [_caveat(c) for c in m._caveats],
                 "additional": m.additional,
             }
             for m in macaroons
@@ -219,7 +298,7 @@ def _user_section(user: User, db: Session) -> dict:
                 "status": _enum(ul.status),
                 "expires": _dt(ul.expires),
                 "device_information": ul.device_information,
-                "ip_address": _ip(ul.ip_address),
+                "ip_address_id": _ip_ref(ul.ip_address, ips),
             }
             for ul in unique_logins
         ],
@@ -246,8 +325,23 @@ def _capped_total(
     return total, total > len(rows)
 
 
-# One uploaded release, as selected by `_membership_sections`.
-_UploadRow = Row[tuple[UUID, str, datetime.datetime]]
+# One uploaded release, as selected by `_membership_sections`:
+# project_id, version, created, uploaded_via.
+_UploadRow = Row[tuple[UUID, str, datetime.datetime, str | None]]
+
+
+def _release_ref(release: _UploadRow) -> dict:
+    """
+    One end of a project's upload range.
+
+    `uploaded_via` is the publishing client's user agent, which separates a
+    twine upload from a CI action, a script, or the browser.
+    """
+    return {
+        "version": release.version,
+        "created": _dt(release.created),
+        "uploaded_via": release.uploaded_via,
+    }
 
 
 def _release_summary(releases: Sequence[_UploadRow]) -> dict:
@@ -262,8 +356,8 @@ def _release_summary(releases: Sequence[_UploadRow]) -> dict:
     first, latest = releases[0], releases[-1]
     return {
         "count": len(releases),
-        "first": {"version": first.version, "created": _dt(first.created)},
-        "latest": {"version": latest.version, "created": _dt(latest.created)},
+        "first": _release_ref(first),
+        "latest": _release_ref(latest),
     }
 
 
@@ -355,7 +449,9 @@ def _membership_sections(user: User, db: Session) -> dict:
     # Release.id breaks ties so the first/latest release of a project is
     # the same row on every run.
     uploads = db.execute(
-        select(Release.project_id, Release.version, Release.created)
+        select(
+            Release.project_id, Release.version, Release.created, Release.uploaded_via
+        )
         .where(Release.uploader_id == user.id)
         .order_by(Release.project_id, Release.created, Release.id)
         .limit(SECTION_ROW_LIMIT)
@@ -405,11 +501,148 @@ def _membership_sections(user: User, db: Session) -> dict:
         )
     ]
 
+    # Project removal hard-deletes the row (see `remove_project`), so a name
+    # the user journaled can outlive its `Project`. Recovered from the
+    # user's own journal rows since those survive the deletion.
+    # Capped like every other unbounded section, and for a sharper reason:
+    # these names expand into the `IN` lists below for live projects,
+    # prohibited names, and orphaned observations, where enough of them stop
+    # being a large document and start being a bind-parameter error.
+    own_journaled = (
+        select(
+            JournalEntry.name,
+            func.max(JournalEntry.submitted_date).label("last_journaled"),
+        )
+        .where(
+            JournalEntry._submitted_by == user.username, JournalEntry.name.isnot(None)
+        )
+        .group_by(JournalEntry.name)
+    )
+    own_journals = db.execute(
+        own_journaled.order_by(desc("last_journaled")).limit(SECTION_ROW_LIMIT)
+    ).all()
+    journaled_total, journaled_truncated = _capped_total(
+        db, own_journals, select(func.count()).select_from(own_journaled.subquery())
+    )
+    # Journal names are stored as entered, so one project can appear under
+    # several spellings ("Foo.Bar", "foo-bar"). They collapse to a single
+    # tombstone, keeping every spelling for the observation lookup below.
+    # The query takes the most recent names, so it reads back to front: the
+    # last write per name wins and each tombstone carries the spelling and
+    # date of its most recent journal row.
+    journaled: dict[str, dict] = {}
+    for name, last_journaled in reversed(own_journals):
+        entry = journaled.setdefault(canonicalize_name(name), {"spellings": set()})
+        entry["spellings"].add(name)
+        entry["name"], entry["last_journaled"] = name, last_journaled
+
+    # Membership does not prove a project is gone: a user who removed their
+    # own role, or deleted their own releases, has journaled a project that
+    # is still very much alive. Only a missing `Project` row is a tombstone.
+    live_normalized = (
+        set(
+            db.scalars(
+                select(Project.normalized_name).where(
+                    Project.normalized_name.in_(journaled)
+                )
+            )
+        )
+        if journaled
+        else set()
+    )
+    deleted_normalized = journaled.keys() - live_normalized
+    deleted_rows = [
+        {
+            "name": journaled[normalized]["name"],
+            "normalized_name": normalized,
+            "last_journaled": _dt(journaled[normalized]["last_journaled"]),
+        }
+        for normalized in sorted(deleted_normalized)
+    ]
+    known_normalized = {p.normalized_name for p in projects.values()}
+
+    # A prohibition can land on any project name the user has touched, live or
+    # deleted, so it is checked against the same normalized-name set.
+    # `prohibited_project_names.name` is normalized on write by the
+    # `normalize_blacklist` trigger, so it compares directly and uses the
+    # unique index on the column.
+    touched_normalized = known_normalized | journaled.keys()
+    prohibited_rows: list[dict] = []
+    if touched_normalized:
+        prohibited_rows = [
+            {
+                "name": row.name,
+                "created": _dt(row.created),
+                "prohibited_by": row.username,
+                "comment": row.comment,
+                "observation_kind": row.observation_kind,
+            }
+            for row in db.execute(
+                select(
+                    ProhibitedProjectName.name,
+                    ProhibitedProjectName.created,
+                    User.username,
+                    ProhibitedProjectName.comment,
+                    ProhibitedProjectName.observation_kind,
+                )
+                .outerjoin(User, ProhibitedProjectName._prohibited_by == User.id)
+                .where(ProhibitedProjectName.name.in_(touched_normalized))
+                .order_by(ProhibitedProjectName.created)
+            )
+        ]
+
+    # Project removal nulls the observation's related_id along with the
+    # deleted row (see 444353e3eca2_keep_observations_when_related_removed),
+    # leaving the `related_name` snapshot as the only link, the same one
+    # `Observation.display_name` falls back to. Name matching is confined to
+    # those orphaned rows: a live project carries its related_id, so someone
+    # else re-registering a freed-up name would otherwise drag their own
+    # observations into this user's export.
+    # Built by round-tripping a transient `Project` through the same `repr`
+    # that `record_observation` stored, rather than spelling the format out
+    # here: `Observation.display_name` and the admin observation views
+    # already parse it, and a third hardcoded copy would break silently.
+    orphan_reprs = {
+        repr(Project(name=spelling))
+        for entry in journaled.values()
+        for spelling in entry["spellings"]
+    }
+    observed = Project.Observation.related_id.in_(all_ids) | (
+        Project.Observation.related_id.is_(None)
+        & Project.Observation.related_name.in_(orphan_reprs)
+    )
+    project_observations: Sequence[Observation] = []
+    observations_total, observations_truncated = 0, False
+    if all_ids or orphan_reprs:
+        project_observations = db.scalars(
+            select(Project.Observation)
+            .where(observed)
+            .order_by(Project.Observation.created.desc(), Project.Observation.id.desc())
+            .limit(SECTION_ROW_LIMIT)
+        ).all()
+        observations_total, observations_truncated = _capped_total(
+            db,
+            project_observations,
+            select(func.count(Project.Observation.id)).where(observed),
+        )
+    project_observation_rows = [
+        {
+            "id": str(obs.id),
+            "project_name": obs.display_name,
+            "created": _dt(obs.created),
+            **_observation_fields(obs),
+        }
+        for obs in project_observations
+    ]
+
     org_roles = (
         db.scalars(
             select(OrganizationRole)
             .where(OrganizationRole.user_id == user.id)
-            .options(joinedload(OrganizationRole.organization))
+            .options(
+                joinedload(OrganizationRole.organization),
+                lazyload(OrganizationRole.user),
+            )
         )
         .unique()
         .all()
@@ -418,7 +651,10 @@ def _membership_sections(user: User, db: Session) -> dict:
         db.scalars(
             select(OrganizationInvitation)
             .where(OrganizationInvitation.user_id == user.id)
-            .options(joinedload(OrganizationInvitation.organization))
+            .options(
+                joinedload(OrganizationInvitation.organization),
+                lazyload(OrganizationInvitation.user),
+            )
         )
         .unique()
         .all()
@@ -457,7 +693,10 @@ def _membership_sections(user: User, db: Session) -> dict:
         db.scalars(
             select(TeamRole)
             .where(TeamRole.user_id == user.id)
-            .options(joinedload(TeamRole.team).joinedload(Team.organization))
+            .options(
+                joinedload(TeamRole.team).joinedload(Team.organization),
+                lazyload(TeamRole.user),
+            )
         )
         .unique()
         .all()
@@ -482,6 +721,25 @@ def _membership_sections(user: User, db: Session) -> dict:
     return {
         "projects": _wrap(project_rows),
         "past_projects": _wrap(past_rows),
+        # `count` is the tombstones present, not a true total: deriving that
+        # under truncation would mean checking every journaled name against
+        # `projects`, which is the scan the cap exists to avoid. `truncated`
+        # says older names went unexamined, and `journaled_names` gives the
+        # true size of the set they were drawn from.
+        "deleted_projects": {
+            "count": len(deleted_rows),
+            "journaled_names": journaled_total,
+            "limit": SECTION_ROW_LIMIT,
+            "truncated": journaled_truncated,
+            "rows": deleted_rows,
+        },
+        "prohibited_names": _wrap(prohibited_rows),
+        "project_observations": {
+            "count": observations_total,
+            "limit": SECTION_ROW_LIMIT,
+            "truncated": observations_truncated,
+            "rows": project_observation_rows,
+        },
         "organizations": _wrap(org_rows),
         "teams": _wrap(team_rows),
         "uploads": {
@@ -498,6 +756,37 @@ def _observation_kind(kind: str) -> dict:
     return {"value": kind, "display": known.value[1] if known else kind}
 
 
+# What an action entry may contribute, over and above its `at` timestamp.
+# This is every key the admin views write today except `created_at`, which
+# `at` supersedes. Named rather than spread so a key a future action writer
+# adds stays out of the document until someone adds it here on purpose,
+# which is the guarantee the column allowlists give everywhere else here.
+_OBSERVATION_ACTION_FIELDS = ("actor", "action", "reason", "versions")
+
+
+def _observation_actions(actions: dict | None) -> list[dict]:
+    """
+    Flatten the admin action log into a time-ordered list.
+
+    Stored as a JSONB object keyed by unix timestamp, which reads as an
+    unordered blob of magic numbers. The key becomes an `at` field so the
+    log scans like every other sequence of events in the document.
+    """
+    if not actions:
+        return []
+    return [
+        {
+            "at": _dt(datetime.datetime.fromtimestamp(int(at), tz=datetime.UTC)),
+            **{
+                field: action[field]
+                for field in _OBSERVATION_ACTION_FIELDS
+                if field in action
+            },
+        }
+        for at, action in sorted(actions.items(), key=lambda item: int(item[0]))
+    ]
+
+
 def _observation_fields(obs: Observation) -> dict:
     """Fields common to made and received observation entries."""
     return {
@@ -506,10 +795,20 @@ def _observation_fields(obs: Observation) -> dict:
         "payload": obs.payload,
         "related_name": obs.related_name,
         "related_id": str(obs.related_id) if obs.related_id else None,
+        "actions": _observation_actions(obs.actions),
+        # `classify_observation` encodes malware-triage rules - a removed
+        # project reads as a confirmed report - which say nothing about an
+        # account_abuse or account_recovery observation, so the verdict is
+        # only offered for the kind it was written for.
+        "verdict": (
+            classify_observation(obs.actions, obs.related_id)
+            if obs.kind == ObservationKind.IsMalware.value[0]
+            else None
+        ),
     }
 
 
-def _timeline_section(user: User, db: Session) -> dict:
+def _timeline_section(user: User, db: Session, ips: dict[str, dict]) -> dict:
     """
     All time-shaped records, merged flat and sorted ascending by time.
 
@@ -520,7 +819,14 @@ def _timeline_section(user: User, db: Session) -> dict:
     """
     entries: list[dict] = []
     counts: dict[str, int] = dict.fromkeys(
-        ("event", "journal", "observation_made", "observation_received", "email_sent"),
+        (
+            "event",
+            "journal",
+            "journal_related",
+            "observation_made",
+            "observation_received",
+            "email_sent",
+        ),
         0,
     )
     truncated: dict[str, bool] = dict.fromkeys(counts, False)
@@ -548,53 +854,66 @@ def _timeline_section(user: User, db: Session) -> dict:
             "id": str(e.id),
             "tag": e.tag,
             "additional": e.additional,
-            "ip_address_id": str(e.ip_address_id) if e.ip_address_id else None,
-            "ip_address": _ip(e.ip_address),
+            "ip_address_id": _ip_ref(e.ip_address, ips),
         }
         for e in events
     )
 
-    journals = db.scalars(
-        select(JournalEntry)
-        .where(JournalEntry._submitted_by == user.username)
-        .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
-        .limit(SECTION_ROW_LIMIT)
-    ).all()
-    _mark(
-        "journal",
-        journals,
-        select(func.count(JournalEntry.id)).where(
-            JournalEntry._submitted_by == user.username
-        ),
+    # Journals come from two sources sharing one entry shape: the user's own
+    # rows, and every other submitter's rows on a project name the user has
+    # journaled - an admin's "remove project" or "quarantine" entry is
+    # exactly the post-freeze signal this timeline exists to surface. They
+    # are capped separately so a project busy enough to fill the page (two
+    # journal rows per uploaded file) cannot evict the user's own history.
+    own = JournalEntry._submitted_by == user.username
+    touched_names = select(JournalEntry.name).where(own)
+    related = JournalEntry.name.in_(touched_names) & (
+        JournalEntry._submitted_by.is_distinct_from(user.username)
     )
-    entries.extend(
-        {
-            "kind": "journal",
-            "time": _dt(j.submitted_date),
-            "id": str(j.id),
-            "name": j.name,
-            "version": j.version,
-            "action": j.action,
-        }
-        for j in journals
-    )
+    for source, clause in (("journal", own), ("journal_related", related)):
+        rows = db.scalars(
+            select(JournalEntry)
+            .where(clause)
+            .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
+            .limit(SECTION_ROW_LIMIT)
+        ).all()
+        _mark(source, rows, select(func.count(JournalEntry.id)).where(clause))
+        entries.extend(
+            {
+                "kind": "journal",
+                "time": _dt(j.submitted_date),
+                "id": str(j.id),
+                "name": j.name,
+                "version": j.version,
+                "action": j.action,
+                "submitted_by": j._submitted_by,
+            }
+            for j in rows
+        )
 
     made: Sequence[Observation] = []
-    if user.observer is not None:
+    # `user.observer` is an association proxy, so reading it walks to the
+    # association row and then to the observer, a lazy load each. The
+    # association id is already on the user row, and the observer it points
+    # at resolves inside the query below.
+    if user.observer_association_id is not None:
+        filed_by_user = Observation.observer_id == (
+            select(Observer.id)
+            .where(Observer._association_id == user.observer_association_id)
+            .scalar_subquery()
+        )
         # Observations the user filed span every observed model, so this
         # queries the polymorphic union rather than User.Observation.
         made = db.scalars(
             select(Observation)
-            .where(Observation.observer_id == user.observer.id)
+            .where(filed_by_user)
             .order_by(Observation.created.desc(), Observation.id.desc())
             .limit(SECTION_ROW_LIMIT)
         ).all()
         _mark(
             "observation_made",
             made,
-            select(func.count(Observation.id)).where(
-                Observation.observer_id == user.observer.id
-            ),
+            select(func.count(Observation.id)).where(filed_by_user),
         )
     entries.extend(
         {
@@ -651,6 +970,18 @@ def _timeline_section(user: User, db: Session) -> dict:
         )
 
     addresses = [e.email for e in user.emails]
+    # Recovered from the events already loaded above, so this costs no query
+    # and sees exactly as far back as the event source reaches.
+    current = set(addresses)
+    historical = sorted(
+        {
+            address
+            for event in events
+            for field in _EMAIL_EVENT_FIELDS.get(event.tag, ())
+            if (address := (event.additional or {}).get(field))
+            and address not in current
+        }
+    )
     messages: Sequence[EmailMessage] = []
     if addresses:
         messages = db.scalars(
@@ -700,7 +1031,9 @@ def _timeline_section(user: User, db: Session) -> dict:
         "limit": SECTION_ROW_LIMIT,
         "entries": entries,
         "email_sent_matched_addresses": addresses,
+        "email_addresses_historical": historical,
         "email_sent_match_note": EMAIL_SENT_MATCH_NOTE,
+        "journal_related_match_note": JOURNAL_RELATED_MATCH_NOTE,
     }
 
 
@@ -785,6 +1118,9 @@ def export_user(
     else, like a filename, pass their own ``generated_at``.
     """
     db = request.db
+    # Filled in as the sections below reference addresses, and emitted as
+    # one lookup keyed by id rather than inline on every row that saw one.
+    ips: dict[str, dict] = {}
     return {
         "export_schema_version": EXPORT_SCHEMA_VERSION,
         "generated_at": _dt(generated_at or now(tz=True)),
@@ -793,8 +1129,9 @@ def export_user(
             "username": request.user.username,
         },
         "warehouse_commit": request.registry.settings.get("warehouse.commit"),
-        "user": _user_section(user, db),
+        "user": _user_section(user, db, ips),
         **_membership_sections(user, db),
         "pending_oidc_publishers": _pending_publishers_section(user, db),
-        "timeline": _timeline_section(user, db),
+        "timeline": _timeline_section(user, db, ips),
+        "ip_addresses": ips,
     }
