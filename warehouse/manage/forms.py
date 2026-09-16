@@ -4,6 +4,8 @@ import json
 
 import wtforms
 
+from urllib3.util import parse_url
+
 from warehouse.accounts.forms import (
     NewEmailMixin,
     NewPasswordMixin,
@@ -12,6 +14,7 @@ from warehouse.accounts.forms import (
     TOTPValueMixin,
     WebAuthnCredentialMixin,
 )
+from warehouse.accounts.models import email_domain
 from warehouse.i18n import localize as _
 from warehouse.organizations.models import (
     OrganizationMembershipSize,
@@ -736,6 +739,32 @@ class CreateOrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationF
         self.organization_service = organization_service
         self.user = user
         self.max_applications = max_applications
+
+    def validate_link_url(self, field):
+        if self.orgtype.data != OrganizationType.Company or not field.data:
+            return
+
+        organization_domain = parse_url(field.data).host
+        if organization_domain is None:
+            organization_domain = ""
+        organization_domain = (
+            organization_domain.removeprefix("www.").rstrip(".").lower()
+        )
+
+        if not any(
+            email.verified
+            and (
+                email_domain(email.email) == organization_domain
+                or organization_domain.endswith(f".{email_domain(email.email)}")
+            )
+            for email in self.user.emails
+        ):
+            raise wtforms.validators.ValidationError(
+                _(
+                    "Company organizations require a verified email address "
+                    "matching the organization URL."
+                )
+            )
 
     def validate__max_apps(self, field):
         if (
