@@ -1220,7 +1220,12 @@ class TestManageOrganizationSettings:
 
     @pytest.mark.parametrize(
         ("subscription_status", "should_cancel"),
-        [("active", True), ("past_due", True), ("canceled", False)],
+        [
+            ("active", True),
+            ("past_due", True),
+            ("canceled", False),
+            ("incomplete_expired", False),
+        ],
     )
     def test_delete_organization_with_subscriptions(
         self,
