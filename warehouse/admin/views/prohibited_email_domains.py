@@ -3,10 +3,9 @@
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPSeeOther
 from pyramid.view import view_config
-from sqlalchemy import exists, select
-from tldextract import TLDExtract
 
 from warehouse.accounts.models import ProhibitedEmailDomain
+from warehouse.accounts.utils import prohibit_email_domain, tld_extractor
 from warehouse.authnz import Permissions
 from warehouse.utils.paginate import paginate_url_factory
 
@@ -27,7 +26,7 @@ def prohibited_email_domains(request):
         raise HTTPBadRequest("'page' must be an integer.") from None
 
     prohibited_email_domains_query = request.db.query(ProhibitedEmailDomain).order_by(
-        ProhibitedEmailDomain.created.desc()
+        ProhibitedEmailDomain.created.desc(), ProhibitedEmailDomain.id.desc()
     )
 
     if q:
@@ -58,32 +57,23 @@ def add_prohibited_email_domain(request):
         request.session.flash("Email domain is required.", queue="error")
         raise HTTPSeeOther(request.route_path("admin.prohibited_email_domains.list"))
     # validate that the domain is valid
-    extractor = TLDExtract(suffix_list_urls=())  # Updated during image build
-    registered_domain = extractor(email_domain).top_domain_under_public_suffix
+    registered_domain = tld_extractor(email_domain).top_domain_under_public_suffix
     if not registered_domain:
         request.session.flash(f"Invalid domain name '{email_domain}'", queue="error")
         raise HTTPSeeOther(request.route_path("admin.prohibited_email_domains.list"))
-    # make sure we don't have a duplicate entry
-    if request.db.scalar(
-        select(exists().where(ProhibitedEmailDomain.domain == registered_domain))
+    # Add the domain to the database, unless it's already prohibited
+    if not prohibit_email_domain(
+        request.db,
+        registered_domain,
+        comment=request.POST.get("comment") or "",
+        prohibited_by=request.user,
+        is_mx_record=bool(request.POST.get("is_mx_record")),
     ):
         request.session.flash(
             f"Email domain '{registered_domain}' already exists.", queue="error"
         )
         raise HTTPSeeOther(request.route_path("admin.prohibited_email_domains.list"))
 
-    # Add the domain to the database
-    is_mx_record = bool(request.POST.get("is_mx_record"))
-    comment = request.POST.get("comment")
-
-    prohibited_email_domain = ProhibitedEmailDomain(
-        domain=registered_domain,
-        is_mx_record=is_mx_record,
-        prohibited_by=request.user,
-        comment=comment,
-    )
-
-    request.db.add(prohibited_email_domain)
     request.session.flash("Prohibited email domain added.", queue="success")
 
     return HTTPSeeOther(request.route_path("admin.prohibited_email_domains.list"))

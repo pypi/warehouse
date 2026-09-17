@@ -22,6 +22,7 @@ from warehouse.macaroons.caveats import (
     ProjectName,
     RequestUser,
     Success,
+    attenuations,
     deserialize,
     serialize,
     verify,
@@ -158,6 +159,42 @@ class TestDeserialization:
         pyramid_request.user = None
         with pytest.raises(CaveatError):
             deserialize(b'{"version": 1, "permissions": "user"}')
+
+    @pytest.mark.parametrize(
+        ("data", "expected"),
+        [
+            (b'{"exp": 50, "nbf": 10}', "caveat:Expiration"),
+            (
+                b'{"version": 1, "permissions": {"projects": ["foo"]}}',
+                "caveat:ProjectName",
+            ),
+            (b'{"project_ids": ["123uuid"]}', "caveat:ProjectID"),
+        ],
+    )
+    def test_legacy_caveats_are_counted(
+        self, pyramid_request, pyramid_config, data, expected
+    ):
+        """We count the old caveat format to know when its adapter can go."""
+        deserialize(data)
+
+        pyramid_request.metrics.increment.assert_called_once_with(
+            "warehouse.macaroon.caveat.legacy", tags=[expected]
+        )
+
+    def test_unadaptable_legacy_caveat_is_counted(
+        self, pyramid_request, pyramid_config
+    ):
+        with pytest.raises(CaveatError):
+            deserialize(b'{"nothing": "we can adapt"}')
+
+        pyramid_request.metrics.increment.assert_called_once_with(
+            "warehouse.macaroon.caveat.legacy", tags=["caveat:unknown"]
+        )
+
+    def test_current_caveats_are_not_counted(self, pyramid_request, pyramid_config):
+        deserialize(b"[0,50,10]")
+
+        pyramid_request.metrics.increment.assert_not_called()
 
     def test_deserialize_with_defaults(self):
         assert SampleCaveat.__deserialize__([1]) == SampleCaveat(
@@ -497,3 +534,59 @@ class TestVerification:
         )
         assert not status
         assert status.msg == "unknown error"
+
+
+_FOO = ProjectName(normalized_names=["foo"])
+_EXPIRES = Expiration(expires_at=10, not_before=0)
+
+
+@pytest.mark.parametrize(
+    ("issued", "embedded", "expected"),
+    [
+        pytest.param([_FOO], [], [], id="issued-but-not-embedded"),
+        pytest.param([_FOO], [serialize(_FOO)], [], id="issued-and-embedded"),
+        pytest.param(
+            [_FOO, _EXPIRES],
+            [serialize(_FOO), serialize(_EXPIRES)],
+            [],
+            id="every-issued-caveat-embedded",
+        ),
+        pytest.param(
+            [_FOO],
+            [serialize(_FOO), serialize(_EXPIRES)],
+            ["Expiration"],
+            id="user-added-a-caveat",
+        ),
+        pytest.param(
+            [ProjectName(normalized_names=["foo", "bar"])],
+            [serialize(_FOO)],
+            ["ProjectName"],
+            id="user-narrowed-an-issued-caveat",
+        ),
+        pytest.param(
+            [_FOO],
+            [serialize(_FOO), serialize(_FOO)],
+            ["ProjectName"],
+            id="user-duplicated-an-issued-caveat",
+        ),
+        pytest.param(
+            [],
+            [b'{"version":1,"permissions":{"projects":["foo"]}}'],
+            ["ProjectName"],
+            id="legacy-caveat-reported-as-its-modern-kind",
+        ),
+        pytest.param([], [b"[9999]"], ["unknown"], id="tag-we-do-not-know"),
+        pytest.param([], [b"[]"], ["unknown"], id="caveat-without-a-tag"),
+        pytest.param([], [b"[[1],2]"], ["unknown"], id="tag-we-cannot-look-up"),
+        pytest.param([], [b"not json at all"], ["unknown"], id="not-json"),
+        pytest.param(
+            [], [b'{"nothing": "we can adapt"}'], ["unknown"], id="unadaptable-mapping"
+        ),
+    ],
+)
+def test_attenuations(issued, embedded, expected):
+    m = Macaroon(location="somewhere", identifier="something", key=b"a secure key")
+    for predicate in embedded:
+        m.add_first_party_caveat(predicate)
+
+    assert attenuations(m, issued) == expected

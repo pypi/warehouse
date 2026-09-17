@@ -31,7 +31,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2026-07-19 22:37+0000\n"
+"PO-Revision-Date: 2026-08-02 04:55+0000\n"
 "Last-Translator: Kamrani <kamrani.exe@gmail.com>\n"
 "Language-Team: Persian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "fa/>\n"
@@ -2028,7 +2028,7 @@ msgstr "%(user)s هنوز هیچ پروژه ای را در PyPI بارگذاری
 msgid "%(count)s <a href=\"%(href)s#archived-project\">archived</a> project"
 msgid_plural ""
 "%(count)s <a href=\"%(href)s#archived-project\">archived</a> projects"
-msgstr[0] ""
+msgstr[0] "%(count)s پروژه <a href=\"%(href)s#archived-project\">بایگانی‌شده</a>"
 msgstr[1] ""
 
 #: warehouse/templates/accounts/profile.html:97
@@ -2059,6 +2059,9 @@ msgid ""
 "<code>a-z</code> and digits <code>0-9</code> (e.g., <code>badc0ffee0ddf00d</"
 "code>)."
 msgstr ""
+"کدهای بازیابی رشته‌های هگزادسیمال ۱۶ کاراکتری هستند که از حروف کوچک <code>a-"
+"z</code> و ارقام <code>0-9</code> تشکیل شده‌اند (به عنوان مثال، <code>"
+"badc0ffee0ddf00d</code>)."
 
 #: warehouse/templates/accounts/recovery-code.html:50
 #: warehouse/templates/accounts/two-factor.html:102
@@ -2098,31 +2101,34 @@ msgstr "ایجاد یک حساب کاربری در %(title)s"
 msgid ""
 "Before creating an account on %(title)s, familiarize yourself with the "
 "following guidelines:"
-msgstr ""
+msgstr "پیش از ایجاد حساب کاربری در %(title)s، با دستورالعمل‌های زیر آشنا شوید:"
 
 #: warehouse/templates/accounts/register.html:25
 #, python-format
 msgid "Do not use %(title)s for any illegal or harmful activities."
-msgstr ""
+msgstr "از %(title)s برای هیچ‌گونه فعالیت غیرقانونی یا مخربی استفاده نکنید."
 
 #: warehouse/templates/accounts/register.html:26
 msgid ""
 "Do not impersonate others or post private information without their consent."
 msgstr ""
+"هویت دیگران را جعل نکنید یا اطلاعات خصوصی آن‌ها را بدون رضایتشان منتشر نکنید."
 
 #: warehouse/templates/accounts/register.html:27
 msgid ""
 "Be respectful of other users and avoid abusive or discriminatory language."
 msgstr ""
+"به سایر کاربران احترام بگذارید و از به کار بردن الفاظ توهین‌آمیز یا تبعیض‌آمیز "
+"خودداری کنید."
 
 #: warehouse/templates/accounts/register.html:28
 msgid "Do not post spam or distribute malware."
-msgstr ""
+msgstr "از ارسال اسپم یا توزیع بدافزار خودداری کنید."
 
 #: warehouse/templates/accounts/register.html:29
 #, python-format
 msgid "Do not use %(title)s to conduct security research."
-msgstr ""
+msgstr "از %(title)s برای انجام تحقیقات امنیتی استفاده نکنید."
 
 #: warehouse/templates/accounts/register.html:32
 #, python-format
@@ -2130,6 +2136,8 @@ msgid ""
 "For more information, please read the full <a href=\"%(aup)s\" "
 "rel=\"noopener\">Acceptable Use Policy</a>."
 msgstr ""
+"برای اطلاعات بیشتر، لطفاً متن کامل <a href=\"%(aup)s\" rel=\"noopener\">سیاست "
+"استفاده قابل قبول</a> را مطالعه کنید."
 
 #: warehouse/templates/accounts/register.html:37
 #, python-format
@@ -2137,12 +2145,15 @@ msgid ""
 "By registering, you agree to the <a href=\"%(tos)s\">PyPI Terms of Service</"
 "a>."
 msgstr ""
+"با ثبت‌نام، شما با <a href=\"%(tos)s\">شرایط خدمات PyPI</a> موافقت می‌کنید."
 
 #: warehouse/templates/accounts/register.html:47
 msgid ""
 "Please confirm that your email address is <strong data-email-confirmation-"
 "target=\"email\"></strong>."
 msgstr ""
+"لطفاً تأیید کنید که آدرس ایمیل شما <strong data-email-confirmation-"
+"target=\"email\"></strong> است."
 
 #: warehouse/templates/accounts/register.html:50
 #, fuzzy
@@ -2156,7 +2167,7 @@ msgstr "فرم را تأیید کنید"
 #: warehouse/templates/manage/manage_base.html:473
 #: warehouse/templates/manage/organization/activate_subscription.html:41
 msgid "Cancel"
-msgstr ""
+msgstr "لغو"
 
 #: warehouse/templates/accounts/register.html:67
 #: warehouse/templates/manage/account.html:149
@@ -2313,8 +2324,8 @@ msgstr ""
 #, python-format
 msgid "Remember this device for %(remember_device_days)s day"
 msgid_plural "Remember this device for %(remember_device_days)s days"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "این دستگاه را برای %(remember_device_days)s روز به خاطر بسپار"
+msgstr[1] "این دستگاه را برای %(remember_device_days)s روز به خاطر بسپار"
 
 #: warehouse/templates/accounts/two-factor.html:57
 #, python-format
@@ -2522,6 +2533,12 @@ msgid ""
 "error. We recommend removing the API token and only using the Trusted "
 "Publisher to publish."
 msgstr ""
+"یک توکن API متعلق به کاربر <a href=\"%(account_href)s\">%"
+"(token_owner_username)s</a> برای آپلود فایل‌ها در پروژه <a href=\"%"
+"(project_href)s\">%(project_name)s</a> استفاده شد، با وجود اینکه یک ناشر "
+"مورد اعتماد برای پروژه پیکربندی شده است. این موضوع ممکن است یک اشتباه بوده "
+"باشد. توصیه می‌کنیم توکن API را حذف کرده و برای انتشار تنها از ناشر مورد "
+"اعتماد استفاده کنید."
 
 #: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:19
 #, python-format
@@ -2530,6 +2547,9 @@ msgid ""
 "href=\"%(href)s#api-tokens\">API tokens configuration</a> and deleting the "
 "token named <strong>%(token_name)s</strong>."
 msgstr ""
+"اگر مالک این توکن هستید، می‌توانید با مراجعه به <a href=\"%(href)s#api-"
+"tokens\">تنظیمات توکن‌های API</a> خود و حذف توکنی با نام <strong>%(token_name)"
+"s</strong>، آن را حذف کنید."
 
 #: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:26
 #, fuzzy, python-format
@@ -2551,6 +2571,7 @@ msgid ""
 "An invitation for you to join the \"%(organization_name)s\" organization has "
 "been canceled"
 msgstr ""
+"دعوتنامه‌ای برای پیوستن شما به سازمان \"%(organization_name)s\" لغو شده است"
 
 #: warehouse/templates/email/canceled-as-invited-organization-member/body.html:9
 #: warehouse/templates/email/declined-as-invited-organization-member/body.html:9
@@ -2571,6 +2592,7 @@ msgid ""
 "You have declined an invitation to join the \"%(organization_name)s\" "
 "organization"
 msgstr ""
+"شما دعوتنامه‌ای برای پیوستن به سازمان \"%(organization_name)s\" را رد کرده‌اید"
 
 #: warehouse/templates/email/new-email-added/body.html:5
 #, python-format
@@ -2578,6 +2600,8 @@ msgid ""
 "Hello, %(username)s. A new email '%(new_email_address)s' has been added to "
 "your account."
 msgstr ""
+"سلام، %(username)s. یک ایمیل جدید '%(new_email_address)s' به حساب کاربری شما "
+"اضافه شده است."
 
 #: warehouse/templates/email/new-email-added/body.html:8
 #, fuzzy, python-format
@@ -2598,13 +2622,15 @@ msgstr ""
 msgid ""
 "Your new organization named '%(organization_name)s' has been approved and "
 "created."
-msgstr ""
+msgstr "سازمان جدید شما با نام '%(organization_name)s' تأیید و ایجاد شده است."
 
 #: warehouse/templates/email/new-organization-approved/body.html:7
 msgid ""
 "You are the owner of the new organization and can log in to manage "
 "organization projects, collaborators, teams, or settings."
 msgstr ""
+"شما مالک سازمان جدید هستید و می‌توانید برای مدیریت پروژه‌های سازمان، همکاران، "
+"تیم‌ها یا تنظیمات، وارد شوید."
 
 #: warehouse/templates/email/new-organization-declined/body.html:5
 #, python-format
@@ -2612,6 +2638,8 @@ msgid ""
 "Your request to create a new organization named '%(organization_name)s' was "
 "not approved."
 msgstr ""
+"درخواست شما برای ایجاد یک سازمان جدید با نام '%(organization_name)s' تأیید "
+"نشد."
 
 #: warehouse/templates/email/new-organization-moreinformationneeded/body.html:6
 #, python-format
@@ -2619,11 +2647,13 @@ msgid ""
 "We need more information to process your request to create a new "
 "organization named '%(organization_name)s'."
 msgstr ""
+"برای پردازش درخواست شما جهت ایجاد یک سازمان جدید با نام '%(organization_name)"
+"s' به اطلاعات بیشتری نیاز داریم."
 
 #: warehouse/templates/email/new-organization-moreinformationneeded/body.html:10
 #, python-format
 msgid "Submit your response on %(domain)s"
-msgstr ""
+msgstr "پاسخ خود را در %(domain)s ارسال کنید"
 
 #: warehouse/templates/email/new-organization-requested/body.html:5
 #, python-format
@@ -2631,17 +2661,19 @@ msgid ""
 "Your request for a new PyPI organization named '%(organization_name)s' has "
 "been submitted."
 msgstr ""
+"درخواست شما برای یک سازمان جدید PyPI با نام '%(organization_name)s' ثبت شده "
+"است."
 
 #: warehouse/templates/email/new-organization-requested/body.html:7
 #: warehouse/templates/manage/organization/application.html:30
 #: warehouse/templates/manage/organizations.html:168
 msgid "You will receive an email when the organization has been approved"
-msgstr ""
+msgstr "زمانی که سازمان تأیید شود، یک ایمیل دریافت خواهید کرد"
 
 #: warehouse/templates/email/organization-deleted/body.html:11
 #, python-format
 msgid "The %(site)s organization \"%(organization_name)s\" has been deleted."
-msgstr ""
+msgstr "سازمان %(site)s با نام \"%(organization_name)s\" حذف شده است."
 
 #: warehouse/templates/email/organization-deleted/body.html:14
 #: warehouse/templates/email/organization-member-added/body.html:28
@@ -2681,6 +2713,8 @@ msgid ""
 "<a href=\"%(user_profile)s\">%(username)s</a> has joined the "
 "\"%(organization_name)s\" organization"
 msgstr ""
+"<a href=\"%(user_profile)s\">%(username)s</a> به سازمان \"%"
+"(organization_name)s\" پیوسته است"
 
 #: warehouse/templates/email/organization-member-added/body.html:17
 #: warehouse/templates/email/organization-member-invited/body.html:17
@@ -2695,20 +2729,20 @@ msgstr ""
 #: warehouse/templates/manage/project/roles.html:363
 #: warehouse/templates/manage/project/roles.html:414
 msgid "Role"
-msgstr ""
+msgstr "نقش"
 
 #: warehouse/templates/email/organization-member-added/body.html:20
 #: warehouse/templates/email/organization-member-invited/body.html:20
 #: warehouse/templates/email/organization-member-removed/body.html:17
 #: warehouse/templates/email/organization-member-role-changed/body.html:20
 msgid "Member of"
-msgstr ""
+msgstr "عضوی از"
 
 #: warehouse/templates/email/organization-member-added/body.html:23
 #: warehouse/templates/email/team-collaborator-added/body.html:23
 #: warehouse/templates/email/team-collaborator-role-changed/body.html:23
 msgid "Added by"
-msgstr ""
+msgstr "اضافه شده توسط"
 
 #: warehouse/templates/email/organization-member-added/body.html:32
 #: warehouse/templates/email/organization-member-invite-canceled/body.html:9
@@ -2733,6 +2767,8 @@ msgid ""
 "An invitation for <a href=\"%(user_profile)s\">%(username)s</a> to join the "
 "\"%(organization_name)s\" organization has been canceled"
 msgstr ""
+"دعوتنامه‌ای برای پیوستن <a href=\"%(user_profile)s\">%(username)s</a> به "
+"سازمان \"%(organization_name)s\" لغو شده است"
 
 #: warehouse/templates/email/organization-member-invite-declined/body.html:5
 #, python-format
@@ -2740,6 +2776,8 @@ msgid ""
 "<a href=\"%(user_profile)s\">%(username)s</a> has declined an invitation to "
 "join the \"%(organization_name)s\" organization"
 msgstr ""
+"<a href=\"%(user_profile)s\">%(username)s</a> دعوتنامه‌ای برای پیوستن به "
+"سازمان \"%(organization_name)s\" را رد کرده است"
 
 #: warehouse/templates/email/organization-member-invited/body.html:11
 #, python-format
@@ -2747,10 +2785,12 @@ msgid ""
 "<a href=\"%(user_profile)s\">%(username)s</a> has been invited to join the "
 "\"%(organization_name)s\" organization"
 msgstr ""
+"<a href=\"%(user_profile)s\">%(username)s</a> به سازمان \"%"
+"(organization_name)s\" دعوت شده است"
 
 #: warehouse/templates/email/organization-member-invited/body.html:23
 msgid "Invited by"
-msgstr ""
+msgstr "دعوت‌شده توسط"
 
 #: warehouse/templates/email/organization-member-removed/body.html:11
 #, fuzzy, python-format
@@ -2773,6 +2813,8 @@ msgid ""
 "<a href=\"%(user_profile)s\">%(username)s</a>'s role in the "
 "\"%(organization_name)s\" organization has been changed to %(role)s"
 msgstr ""
+"نقش <a href=\"%(user_profile)s\">%(username)s</a> در سازمان \"%"
+"(organization_name)s\" به %(role)s تغییر یافته است"
 
 #: warehouse/templates/email/organization-member-role-changed/body.html:17
 #, fuzzy
@@ -2782,7 +2824,7 @@ msgstr "انتشار های جدید"
 
 #: warehouse/templates/email/organization-member-role-changed/body.html:23
 msgid "Changed by"
-msgstr ""
+msgstr "تغیریافته توسط"
 
 #: warehouse/templates/email/organization-project-added/body.html:6
 #, python-format
@@ -2790,6 +2832,8 @@ msgid ""
 "The %(site)s project \"%(project_name)s\" has been added to the "
 "\"%(organization_name)s\" organization."
 msgstr ""
+"پروژه %(site)s با نام \"%(project_name)s\" به سازمان \"%(organization_name)"
+"s\" اضافه شده است."
 
 #: warehouse/templates/email/organization-project-added/body.html:13
 #: warehouse/templates/email/organization-project-removed/body.html:13
@@ -2810,6 +2854,8 @@ msgid ""
 "The %(site)s project \"%(project_name)s\" has been removed from the "
 "\"%(organization_name)s\" organization."
 msgstr ""
+"پروژه %(site)s با نام \"%(project_name)s\" از سازمان \"%(organization_name)"
+"s\" حذف شده است."
 
 #: warehouse/templates/email/organization-renamed/body.html:11
 #, python-format
@@ -2817,35 +2863,37 @@ msgid ""
 "The %(site)s organization has been renamed from "
 "\"%(previous_organization_name)s\" to \"%(organization_name)s\"."
 msgstr ""
+"سازمان %(site)s از \"%(previous_organization_name)s\" به \"%"
+"(organization_name)s\" تغییر نام داده است."
 
 #: warehouse/templates/email/organization-updated/body.html:15
 #, python-format
 msgid "The %(site)s organization \"%(organization_name)s\" has been updated."
-msgstr ""
+msgstr "سازمان %(site)s با نام \"%(organization_name)s\" به‌روزرسانی شده است."
 
 #: warehouse/templates/email/organization-updated/body.html:19
 msgid "Old display name:"
-msgstr ""
+msgstr "نام نمایشی قبلی:"
 
 #: warehouse/templates/email/organization-updated/body.html:23
 msgid "New display name:"
-msgstr ""
+msgstr "نام نمایشی جدید:"
 
 #: warehouse/templates/email/organization-updated/body.html:29
 msgid "Old URL:"
-msgstr ""
+msgstr "آدرس قدیمی:"
 
 #: warehouse/templates/email/organization-updated/body.html:33
 msgid "New URL:"
-msgstr ""
+msgstr "آدرس جدید:"
 
 #: warehouse/templates/email/organization-updated/body.html:39
 msgid "Old description:"
-msgstr ""
+msgstr "توضیحات قبلی:"
 
 #: warehouse/templates/email/organization-updated/body.html:43
 msgid "New description:"
-msgstr ""
+msgstr "توضیحات جدید:"
 
 #: warehouse/templates/email/organization-updated/body.html:49
 #, fuzzy
@@ -3074,12 +3122,17 @@ msgid ""
 "However, the email used to make this request is not verified. Your email "
 "address must be verified before you can use it to reset your password."
 msgstr ""
+"با این حال، ایمیلی که برای این درخواست استفاده شده است، تایید نشده است. آدرس "
+"ایمیل شما باید پیش از اینکه بتوانید از آن برای بازنشانی گذرواژه خود استفاده "
+"کنید، تایید شود."
 
 #: warehouse/templates/email/password-reset-unverified/body.html:23
 msgid ""
 "If you have another verified email address associated with your PyPI "
 "account, try that instead."
 msgstr ""
+"اگر آدرس ایمیل تایید شده دیگری با حساب کاربری PyPI خود مرتبط دارید، به‌جای آن "
+"از آن استفاده کنید."
 
 #: warehouse/templates/email/password-reset-unverified/body.html:26
 #, python-format
@@ -3087,6 +3140,8 @@ msgid ""
 "If you cannot use another verified email, follow <a "
 "href=\"%(href)s\">account recovery steps</a> for your PyPI account."
 msgstr ""
+"اگر نمی‌توانید از ایمیل تایید شده دیگری استفاده کنید، مراحل <a href=\"%(href)"
+"s\">بازیابی حساب کاربری</a> را برای حساب PyPI خود دنبال کنید."
 
 #: warehouse/templates/email/password-reset-unverified/body.html:29
 #, fuzzy, python-format
@@ -3110,6 +3165,9 @@ msgid ""
 "strong>, which has two-factor authentication enabled, but haven't generated "
 "recovery codes for this account."
 msgstr ""
+"ما متوجه شدیم که شما اخیراً به حساب کاربری PyPI خود به نام <strong>%(username)"
+"s</strong> که احراز هویت دو مرحله‌ای روی آن فعال است وارد شده‌اید، اما کدهای "
+"بازیابی برای این حساب ایجاد نکرده‌اید."
 
 #: warehouse/templates/email/recovery-code-reminder/body.html:12
 msgid ""
@@ -3117,6 +3175,9 @@ msgid ""
 "have access to these recovery codes, you may permanently lose access to your "
 "PyPI account!"
 msgstr ""
+"اگر برنامه احراز هویت یا کلیدهای امنیتی خود را گم کنید و به این کدهای "
+"بازیابی دسترسی نداشته باشید، ممکن است برای همیشه دسترسی به حساب کاربری PyPI "
+"خود را از دست بدهید!"
 
 #: warehouse/templates/email/recovery-code-reminder/body.html:19
 #, fuzzy, python-format
@@ -3149,7 +3210,7 @@ msgstr "حساب PyPI <strong> %(username)s </strong> شما حذف شده اس�
 #: warehouse/templates/email/removed-as-organization-member/body.html:5
 #, python-format
 msgid "You have been removed from the \"%(organization_name)s\" organization"
-msgstr ""
+msgstr "شما از سازمان \"%(organization_name)s\" حذف شده‌اید"
 
 #: warehouse/templates/email/removed-as-organization-member/body.html:9
 #, fuzzy
@@ -3232,6 +3293,9 @@ msgid ""
 "collaborators, upload releases and delete files, releases or the entire "
 "project."
 msgstr ""
+"تیم شما اکنون مجوزهای لازم برای مدیریت پروژه را دارد. شما می‌توانید همکاران "
+"دیگر را اضافه کنید، نسخه‌های جدید بارگذاری کنید و فایل‌ها، نسخه‌ها یا کل پروژه "
+"را حذف نمایید."
 
 #: warehouse/templates/email/role-changed-as-team-collaborator/body.html:12
 msgid ""
@@ -3239,6 +3303,9 @@ msgid ""
 "upload releases but cannot add collaborators, delete files, releases or the "
 "project."
 msgstr ""
+"تیم شما اکنون مجوز بارگذاری نسخه‌ها (Releases) را برای این پروژه دارد. شما "
+"می‌توانید نسخه‌ها را بارگذاری کنید، اما نمی‌توانید همکار اضافه کنید، یا فایل‌ها، "
+"نسخه‌ها یا خود پروژه را حذف نمایید."
 
 #: warehouse/templates/email/role-changed-as-team-collaborator/body.html:17
 #, fuzzy, python-format
@@ -3255,19 +3322,19 @@ msgstr ""
 #: warehouse/templates/email/team-collaborator-added/body.html:11
 #, python-format
 msgid "A new collaborator has been added to a project you own on %(site)s"
-msgstr ""
+msgstr "یک همکار جدید به پروژه‌ای که در %(site)s مالِ شماست اضافه شده است"
 
 #: warehouse/templates/email/team-collaborator-added/body.html:14
 #: warehouse/templates/email/team-collaborator-removed/body.html:14
 #: warehouse/templates/email/team-collaborator-role-changed/body.html:14
 msgid "Team"
-msgstr ""
+msgstr "تیم"
 
 #: warehouse/templates/email/team-collaborator-added/body.html:17
 #: warehouse/templates/email/team-collaborator-role-changed/body.html:17
 #: warehouse/templates/manage/account/token.html:145
 msgid "Permissions"
-msgstr ""
+msgstr "مجوزها"
 
 #: warehouse/templates/email/team-collaborator-added/body.html:20
 #: warehouse/templates/email/team-collaborator-removed/body.html:17
@@ -3292,13 +3359,13 @@ msgstr ""
 #: warehouse/templates/email/team-collaborator-removed/body.html:11
 #, python-format
 msgid "A collaborator was removed from a project you own on %(site)s"
-msgstr ""
+msgstr "یک همکار از پروژه‌ای که در %(site)s مالِ شماست حذف شد"
 
 #: warehouse/templates/email/team-collaborator-role-changed/body.html:11
 #, python-format
 msgid ""
 "A collaborator's permissions were changed for a project you own on %(site)s"
-msgstr ""
+msgstr "مجوزهای یک همکار برای پروژه‌ای که در %(site)s مالِ شماست تغییر کرد"
 
 #: warehouse/templates/email/team-created/body.html:5
 #, fuzzy, python-format
@@ -3537,6 +3604,8 @@ msgid ""
 "<a href=\"%(initiator_user_profile)s\">%(initiator_username)s</a> has "
 "invited you to join the \"%(organization_name)s\" organization"
 msgstr ""
+"%(initiator_username)s شما را به پیوستن به سازمان «%(organization_name)s» "
+"دعوت کرده است"
 
 #: warehouse/templates/email/verify-organization-role/body.html:8
 #, fuzzy, python-format
@@ -3629,40 +3698,38 @@ msgid "Public profile"
 msgstr "پروفایل عمومی"
 
 #: warehouse/templates/includes/file-details.html:44
-#, fuzzy
-#| msgid "Account details"
 msgid "File details"
-msgstr "جزئیات حساب کاربری"
+msgstr "جزئیات فایل"
 
 #: warehouse/templates/includes/file-details.html:54
 #, python-format
 msgid "Upload date: %(upload_time)s"
-msgstr ""
+msgstr "تاریخ بارگذاری: %(upload_time)s"
 
 #: warehouse/templates/includes/file-details.html:56
 #, python-format
 msgid "Size: %(size)s"
-msgstr ""
+msgstr "اندازه: %(size)s"
 
 #: warehouse/templates/includes/file-details.html:58
 #, python-format
 msgid "Tags: %(tags)s"
-msgstr ""
+msgstr "برچسب‌ها: %(tags)s"
 
 #: warehouse/templates/includes/file-details.html:60
 #, python-format
 msgid "Uploaded using Trusted Publishing? %(is_tp)s"
-msgstr ""
+msgstr "بارگذاری شده با استفاده از انتشار معتبر (Trusted Publishing)؟ %(is_tp)s"
 
 #: warehouse/templates/includes/file-details.html:65
 #, python-format
 msgid "Uploaded via: %(uploaded_via)s"
-msgstr ""
+msgstr "‪بارگذاری شده از طریق: %(uploaded_via)s"
 
 #: warehouse/templates/includes/file-details.html:72
 #, python-format
 msgid "Hashes for %(filename)s"
-msgstr "هش برای %(filename)s"
+msgstr "هش‌های مربوط به %(filename)s"
 
 #: warehouse/templates/includes/file-details.html:75
 msgid "Algorithm"
@@ -3906,7 +3973,7 @@ msgstr "آمار GitHub:"
 #: warehouse/templates/includes/packaging/project-data.html:57
 #: warehouse/templates/includes/packaging/project-data.html:108
 msgid "Repository"
-msgstr ""
+msgstr "مخزن"
 
 #: warehouse/templates/includes/packaging/project-data.html:65
 #: warehouse/templates/includes/packaging/project-data.html:116
@@ -5454,7 +5521,7 @@ msgstr "پروژه را مدیریت کنید"
 #: warehouse/templates/manage/project/roles.html:200
 #: warehouse/templates/manage/project/roles.html:220
 msgid "Owner"
-msgstr ""
+msgstr "مالک"
 
 #: warehouse/templates/manage/organization/roles.html:51
 #: warehouse/templates/manage/organization/roles.html:236

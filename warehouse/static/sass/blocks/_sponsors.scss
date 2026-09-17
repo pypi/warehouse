@@ -3,110 +3,80 @@
 @use "sass:color";
 @use "../settings/breakpoints";
 @use "../settings/colors";
+@use "../settings/fonts";
 @use "../settings/grid";
 @use "../tools/link-utilities";
 
 /*
-  The sponsor footer.
+  The sponsor footer. A single compact, centered row of sponsors (no per-tier
+  stacking).
 
   <div class="sponsors">
-    <p class="sponsors__title">
-      // Title
-    </p>
-    <div class="sponsors__divider"></div>
-
     <a class="sponsors__sponsor">
-      <img class="sponsors__image">
-      <span class="sponsors__name"></span>
-      <span class="sponsors__service"></span>
+      <span class="sponsors__image"><img></span>     // logo
+      <span class="sponsors__name"></span>            // primary label
+      <span class="sponsors__description"></span>     // muted level / purpose
     </a>
   </div>
 */
 
 .sponsors {
-  text-align: center;
-  border-top: 1px solid color.adjust(colors.$primary-color, $lightness: -2%);
-  background-color: colors.$primary-color;
   display: flex;
   flex-wrap: wrap;
-  justify-content: center; // place the entire div in center page
-  padding: grid.$half-spacing-unit;
+  justify-content: center;
+  align-items: flex-start;
+  gap: grid.$spacing-unit;
+  text-align: center;
+  padding: grid.$spacing-unit;
 
-  &__title {
-    display: none;
-    padding-bottom: 10px;
-    margin-bottom: 10px;
-    border-bottom: 1px solid color.adjust(colors.$white, $alpha: -0.8);
-    color: colors.$white;
-
-    @media only screen and (max-width: breakpoints.$small-tablet) {
-      display: block;
-      flex: 1;
-    }
-  }
-
-  &__divider {
-    flex-basis: 100%;
-    height: 0;
+  @media only screen and (max-width: breakpoints.$small-tablet) {
+    display: block;
+    flex-wrap: nowrap;
   }
 
   &__sponsor {
-    display: inline-grid;
-    grid-template-rows: fit-content(40%);
+    margin-top: grid.$quarter-spacing-unit;
+    width: 80px;
     text-align: center;
-    padding: grid.$half-spacing-unit 13px 10px 13px;
-    opacity: 0.95;
     @include link-utilities.link-without-underline;
-    @include link-utilities.link-focus-state(colors.$white);
-
-    &:hover {
-      opacity: 1;
-
-      .sponsors__image {
-        opacity: 1;
-      }
-    }
-
-    @media only screen and (max-width: breakpoints.$tablet) {
-      padding: 7px 10px;
-    }
+    @include link-utilities.link-focus-state(colors.$text-color);
 
     @media only screen and (max-width: breakpoints.$small-tablet) {
-      padding: 5px 7px;
+      display: block;
+      width: auto;
+      margin-bottom: grid.$quarter-spacing-unit;
     }
   }
 
   &__image {
-    justify-self: center;
-    max-width: 100px;
-    opacity: 0.8;
+    display: block;
+    width: 80px;
+    height: 34px;
+    margin-bottom: 10px;
 
-    @media only screen and (max-width: breakpoints.$tablet) {
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: center;
+    }
+
+    @media only screen and (max-width: breakpoints.$small-tablet) {
       display: none;
     }
-  }
-
-  &__name,
-  &__service {
-    max-width: 100px;
-    align-self: end;
-    font-size: 0.75rem;
-    color: colors.$white;
   }
 
   &__name {
-    font-weight: 600;
-    margin-top: 10px;
-
-    @media only screen and (max-width: breakpoints.$small-tablet) {
-      margin: 0;
-      font-weight: normal;
-    }
+    display: block;
+    font-size: fonts.$small-font-size;
+    font-weight: fonts.$bold-font-weight;
+    color: colors.$text-color;
   }
 
-  &__service {
-    @media only screen and (max-width: breakpoints.$small-tablet) {
-      display: none;
-    }
+  &__description {
+    display: block;
+    margin-top: 2px;
+    font-size: fonts.$small-font-size;
+    color: color.adjust(colors.$text-color, $alpha: -0.4);
   }
 }

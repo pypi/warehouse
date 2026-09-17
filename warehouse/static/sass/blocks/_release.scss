@@ -9,28 +9,35 @@
 @use "../settings/z-index";
 @use "../tools/design-utilities";
 @use "../tools/layout-utilities";
+@use "../tools/link-utilities";
 
 /*
   Individual release information represented as a card with meta data
 
   <div class="release">
-    <div class="release__meta">
-      // Badge here
+    <div class="release__current-badge">
+      // "This release" badge
     </div>
     <div class="release__graphic"> // Node graphic with connecting line
       <div class="release__line"></div>
       <img class="release__node">
     </div>
-    <a class="release__card" href="/link/to/version">
-      <p class="release__version"></p>
-      <p class="release__version-date"></p>
-    </a>
+    <div class="release__card">
+      <div class="release__card-header"></div>
+      <div class="release__card-body">
+        <p class="release__version"></p>
+        <p class="release__meta"></p>
+      </div>
+      <div class="release__card-footer"></div>
+    </div>
   </div>
 
   Modifiers:
     - current: adds grey background to current release
-    - latest: prevents release__line from showing above
-    - oldest: precents release__line from showing below
+    - quarantined: styles card header for quarantined releases/projects
+    - yanked: styles card header for yanked releases
+    - archived: styles card header for archived projects
+    - pre-release: styles card header for pre-release versions
 */
 
 .release {
@@ -41,24 +48,18 @@
   border-left: 1px solid colors.$background-color;
   padding: 0 grid.$half-spacing-unit;
 
-  &__meta {
+  @media screen and (max-width: breakpoints.$tablet) {
+    padding: 0;
+    border: 0;
+  }
+
+  &__current-badge {
     width: 110px;
     display: table-cell;
     vertical-align: middle;
     text-align: center;
 
-    & > .badge {
-      float: right;
-    }
-
     @media screen and (max-width: breakpoints.$tablet) {
-      & > .badge {
-        float: left;
-        margin-right: 10px;
-      }
-    }
-
-    @media screen and (max-width: breakpoints.$mobile) {
       display: none;
     }
   }
@@ -93,36 +94,119 @@
   }
 
   &__card {
-    display: block;
     @include design-utilities.card;
-    padding: grid.$half-spacing-unit;
     margin: grid.$half-spacing-unit 0;
+    overflow: hidden;
+    border-radius: 4px;
+
+    @media screen and (max-width: breakpoints.$small-tablet) {
+      margin: grid.$quarter-spacing-unit 0;
+    }
+  }
+
+  &__card-header {
+    padding: 6px grid.$half-spacing-unit;
+    font-size: fonts.$small-font-size;
+    font-weight: fonts.$bold-font-weight;
+    text-transform: uppercase;
+    letter-spacing: 0.04rem;
+    color: colors.$white;
+
+    a {
+      color: inherit;
+      text-decoration: none;
+
+      span {
+        text-decoration: underline;
+      }
+    }
+
+    i {
+      margin-right: 4px;
+    }
+
+  }
+
+  &__card-body {
+    padding: grid.$half-spacing-unit;
   }
 
   &__version {
     padding-bottom: 0;
     font-size: 1.25rem;
     font-weight: fonts.$bold-font-weight;
+
+    a {
+      @include link-utilities.link-without-underline;
+    }
+
+    .badge {
+      display: none;
+
+      @media screen and (max-width: breakpoints.$tablet) {
+        display: inline;
+      }
+    }
   }
 
-  &__version-date {
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: grid.$quarter-spacing-unit;
     padding-bottom: 2px;
+    color: colors.$mid-grey;
+
+    a {
+      @include link-utilities.colored-link(colors.$primary-color);
+      @include link-utilities.link-without-underline;
+    }
+
+    @media screen and (max-width: breakpoints.$small-tablet) {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: grid.$quarter-spacing-unit;
+    }
   }
 
-  &__yanked-reason {
-    display: block;
-    margin-bottom: 0;
+  &__meta-divider {
+    display: inline-block;
+    width: 1px;
+    height: 0.85em;
+    background-color: colors.$light-grey;
+    flex-shrink: 0;
+
+    @media screen and (max-width: breakpoints.$small-tablet) {
+      display: none;
+    }
+  }
+
+  &__date {
+    white-space: nowrap;
+  }
+
+  &__provenance-icon {
+    color: colors.$primary-color;
+  }
+
+  &__card-footer {
+    padding: grid.$quarter-spacing-unit grid.$half-spacing-unit;
+    border-top: 1px solid colors.$border-color;
+    color: colors.$text-color;
 
     p {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      padding-bottom: 0;
     }
   }
 
   &--current {
-    background-color: color.adjust(colors.$background-color, $lightness: -1%);
-    border: 1px dotted colors.$border-color;
+    @media screen and (min-width: breakpoints.$tablet) {
+      background-color: color.adjust(colors.$background-color, $lightness: -1%);
+      border: 1px dotted colors.$border-color;
+    }
 
     .release__node {
       background-color: colors.$off-white;
@@ -134,17 +218,29 @@
     }
   }
 
-  &--latest,
-  &--oldest {
-    .release__line {
-      height: 50%;
+  &--quarantined {
+    .release__card-header {
+      background-color: colors.$warning-color;
     }
   }
 
-  &--oldest {
-    .release__line {
-      bottom: auto;
-      top: 0;
+  &--yanked {
+    .release__card-header {
+      background-color: colors.$text-color;
+    }
+  }
+
+  &--archived {
+    .release__card-header {
+      background-color: colors.$base-grey;
+      color: colors.$text-color;
+    }
+  }
+
+  &--pre-release {
+    .release__card-header {
+      background-color: colors.$primary-color-light-border;
+      color: colors.$text-color;
     }
   }
 }

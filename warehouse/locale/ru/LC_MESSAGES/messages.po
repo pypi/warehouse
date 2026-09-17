@@ -37,13 +37,14 @@
 # Lol Cool <zhilin.makar0009@gmail.com>, 2025.
 # Maksym Aniriew <lenyayt008@gmail.com>, 2025.
 # Dev <70532790+vldmrdev@users.noreply.github.com>, 2025.
+# asu <grationz720@gmail.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2025-10-02 16:10+0000\n"
-"Last-Translator: gfbdrgn <erfvvgtyhbnjhyuu@wireconnected.com>\n"
+"PO-Revision-Date: 2026-09-13 10:52+0000\n"
+"Last-Translator: asu <grationz720@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ru/>\n"
 "Language: ru\n"
@@ -52,7 +53,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.14-dev\n"
+"X-Generator: Weblate 2026.10.dev0\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:149
@@ -189,10 +190,8 @@ msgid "Recovery code has been previously used."
 msgstr "Коды восстановления были повторно сгенерированы."
 
 #: warehouse/accounts/forms.py:553
-#, fuzzy
-#| msgid "The email address isn't valid. Try again."
 msgid "The username isn't valid. Try again."
-msgstr "Имя пользователя не является действительным. Попробуй еще раз."
+msgstr "Имя пользователя недействительно. Пожалуйста, попробуйте ещё раз."
 
 #: warehouse/accounts/views.py:120
 msgid ""
@@ -460,21 +459,21 @@ msgstr "Предпросмотр баннера"
 
 #: warehouse/manage/forms.py:292
 msgid "Specify an association ID"
-msgstr ""
+msgstr "Укажите идентификатор (ID) ассоциации"
 
 #: warehouse/manage/forms.py:293
-#, fuzzy
-#| msgid "Publisher must be specified by ID"
 msgid "Association must be specified by ID"
-msgstr "Издатель должен быть указан через ID"
+msgstr ""
+"Связь с издателем должна быть специфицирована по идентификационному номеру "
+"(ID)"
 
 #: warehouse/manage/forms.py:308
 msgid "No account association with given ID"
-msgstr ""
+msgstr "Нет связи с аккаунтом по переданному ID"
 
 #: warehouse/manage/forms.py:313
 msgid "This association does not belong to you"
-msgstr ""
+msgstr "Эта связь больше не принадлежит вам"
 
 #: warehouse/manage/forms.py:417
 msgid "Provide your response to the request."
@@ -649,7 +648,7 @@ msgid ""
 "GitLab-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
 msgstr ""
-"Размещаемая на GitHub трастовая публикация временно отключена. Подробнее "
+"Размещаемая на GitLab трастовая публикация временно отключена. Подробнее "
 "смотрите здесь: https://pypi.org/help#admin-intervention."
 
 #: warehouse/manage/views/__init__.py:1453
@@ -669,8 +668,8 @@ msgid ""
 "ActiveState-based trusted publishing is temporarily disabled. See https://"
 "pypi.org/help#admin-intervention for details."
 msgstr ""
-"Размещаемая на GitHub трастовая публикация временно отключена. Подробнее "
-"смотрите здесь: https://pypi.org/help#admin-intervention."
+"Размещаемая на ActiveState трастовая публикация временно отключена. "
+"Подробнее смотрите здесь: https://pypi.org/help#admin-intervention."
 
 #: warehouse/manage/views/__init__.py:1797
 #: warehouse/manage/views/__init__.py:2098
@@ -919,17 +918,12 @@ msgid "Workflow filename must be a filename only, without directories"
 msgstr "Имя файла Workflow должно быть только именем файла, без каталогов"
 
 #: warehouse/oidc/forms/gitlab.py:33
-#, fuzzy
-#| msgid "Specify GitHub repository owner (username or organization)"
 msgid "Specify GitLab namespace (username or group/subgroup)"
-msgstr ""
-"Укажите владельца репозитория GitHub (имя пользователя или организацию)"
+msgstr "Укажите владельца репозитория GitLab (имя пользователя или организацию)"
 
 #: warehouse/oidc/forms/gitlab.py:37
-#, fuzzy
-#| msgid "Invalid GitHub user or organization name."
 msgid "Invalid GitLab username or group/subgroup name."
-msgstr "Неверное имя пользователя или организации GitHub."
+msgstr "Неверное имя пользователя или организации GitLab."
 
 #: warehouse/oidc/forms/gitlab.py:53
 #, fuzzy
@@ -938,10 +932,8 @@ msgid "Specify workflow filepath"
 msgstr "Укажите имя файла рабочего процесса"
 
 #: warehouse/oidc/forms/gitlab.py:61
-#, fuzzy
-#| msgid "Invalid project name"
 msgid "Invalid environment name"
-msgstr "Неверное имя проекта"
+msgstr "Неверное наименование среды проекта"
 
 #: warehouse/oidc/forms/gitlab.py:76
 #, fuzzy
@@ -2255,8 +2247,9 @@ msgid ""
 "<strong>@%(external_username)s</strong> to your PyPI account "
 "<strong>%(username)s</strong>."
 msgstr ""
-"Кто-то, возможно вы, добавил метод %(method)s двухфакторной аутентификации к "
-"вашей учётной записи <strong>%(username)s</strong> на PyPI."
+"Кто-то, возможно вы, подключил аккаунт <strong>%(service)s</strong> <strong>"
+"@%(external_username)s</strong> к вашему аккаунту PyPI <strong>%(username)s</"
+"strong>."
 
 #: warehouse/templates/email/account-association-added/body.html:8
 #: warehouse/templates/email/account-association-removed/body.html:8
@@ -3250,10 +3243,8 @@ msgstr "Организация"
 #: warehouse/templates/email/trusted-publisher-removed/body.html:44
 #: warehouse/templates/manage/account/publishing.html:368
 #: warehouse/templates/manage/project/publishing.html:299
-#, fuzzy
-#| msgid "Project name"
 msgid "ActiveState Project name"
-msgstr "Название проекта"
+msgstr "Наименование проекта ActiveState"
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:47
 #: warehouse/templates/email/trusted-publisher-removed/body.html:45
@@ -4070,49 +4061,44 @@ msgid "Update password"
 msgstr "Обновить пароль"
 
 #: warehouse/templates/manage/account.html:482
-#, fuzzy
-#| msgid "Account navigation"
 msgid "Account associations"
-msgstr "Навигация учётной записи"
+msgstr "Ассоциация учетной записи"
 
 #: warehouse/templates/manage/account.html:484
 msgid ""
 "Link your PyPI account with external services. Connected accounts may be "
 "used for account recovery or accessing service-specific features."
 msgstr ""
+"Свяжите свой аккаунт PyPI с внешними сервисами. Подключенные аккаунты могут "
+"использоваться для восстановления доступа или использования функций "
+"конкретных сервисов."
 
 #: warehouse/templates/manage/account.html:488
-#, fuzzy
-#| msgid "Emails associated with your account"
 msgid "Services linked to your account"
-msgstr "Адреса электронной почты, связанные с вашей учётной записью"
+msgstr "Сервисы, которые вы указали, связанные с вашей учётной записью"
 
 #: warehouse/templates/manage/account.html:491
 #: warehouse/templates/manage/account.html:501
-#, fuzzy
-#| msgid "Terms of Service"
 msgid "Service"
-msgstr "Условия и положения"
+msgstr "Сервис"
 
 #: warehouse/templates/manage/account.html:492
 #: warehouse/templates/manage/account.html:511
-#, fuzzy
-#| msgid "My Account"
 msgid "Account"
-msgstr "Моя учётная запись"
+msgstr "Учётная запись"
 
 #: warehouse/templates/manage/account.html:493
 #: warehouse/templates/manage/account.html:525
 msgid "Connected"
-msgstr ""
+msgstr "Соединено"
 
 #: warehouse/templates/manage/account.html:504
 msgid "GitHub"
-msgstr ""
+msgstr "GitHub"
 
 #: warehouse/templates/manage/account.html:507
 msgid "GitLab"
-msgstr ""
+msgstr "GitLab"
 
 #: warehouse/templates/manage/account.html:531
 #, fuzzy, python-format
@@ -4151,53 +4137,50 @@ msgid ""
 "Removing this association will disconnect your %(service)s account "
 "<strong>%(username)s</strong> from PyPI."
 msgstr ""
+"Удаление этой ассоциации повлечет за собой отключение %(service)"
+"sаккаунта<strong>%(username)s</strong> с PyPi."
 
 #: warehouse/templates/manage/account.html:565
 #, python-format
 msgid "You can reconnect your %(service)s account at any time."
 msgstr ""
+"Вы всегда можете перезапустить соединение к вашему %(service)s аккаунту."
 
 #: warehouse/templates/manage/account.html:576
-#, fuzzy
-#| msgid "Remove application"
 msgid "Remove association"
-msgstr "Удалить приложение"
+msgstr "Удалить ассоциацию"
 
 #: warehouse/templates/manage/account.html:586
-#, fuzzy
-#| msgid "You have not joined any organizations on PyPI, yet."
 msgid "You have not connected any external accounts yet."
-msgstr "Вы еще не присоединились ни к одной организации на PyPI."
+msgstr "Вы еще не присоединились ни к какому внешнему аккаунту."
 
 #: warehouse/templates/manage/account.html:597
-#, fuzzy
-#| msgid "Cannot delete account"
 msgid "Connect external accounts"
-msgstr "Невозможно удалить учётную запись"
+msgstr "Невозможно удалить внешние аккаунты"
 
 #: warehouse/templates/manage/account.html:599
 msgid ""
 "Link your external accounts to your PyPI account. You'll be redirected to "
 "authorize the connection."
 msgstr ""
+"Укажите ваш внешний аккаунт к учетной записи PyPi. Вы будете перенаправлены "
+"для авторизации соединения."
 
 #: warehouse/templates/manage/account.html:606
-#, fuzzy
-#| msgid "Contribute on GitHub"
 msgid "Connect GitHub"
-msgstr "Внесение вклада на GitHub’е"
+msgstr "Подключить GitHub"
 
 #: warehouse/templates/manage/account.html:613
-#, fuzzy
-#| msgid "Contribute on GitHub"
 msgid "Connect GitLab"
-msgstr "Внесение вклада на GitHub’е"
+msgstr "Подключить GitLab"
 
 #: warehouse/templates/manage/account.html:620
 msgid ""
 "Need to connect a different account from the same service? Remove the "
 "existing connection first."
 msgstr ""
+"Вам нужно подключить другой аккаунт из того-же сервиса? Первым делом "
+"отвяжите уже существующий аккаунт, йоу."
 
 #: warehouse/templates/manage/account.html:626
 #: warehouse/templates/manage/project/settings.html:29
@@ -4499,30 +4482,24 @@ msgid "Recovery code used for login"
 msgstr "Код восстановления использован для входа"
 
 #: warehouse/templates/manage/account.html:833
-#, fuzzy
-#| msgid "Account navigation"
 msgid "Account association added"
-msgstr "Навигация учётной записи"
+msgstr "Ассоциация аккаунта добавлена"
 
 #: warehouse/templates/manage/account.html:838
 #: warehouse/templates/manage/account.html:849
-#, fuzzy, python-format
-#| msgid "Hi %(username)s!"
+#, python-format
 msgid "GitHub: %(username)s"
-msgstr "Привет %(username)s!"
+msgstr "GitHub: %(username)s"
 
 #: warehouse/templates/manage/account.html:840
 #: warehouse/templates/manage/account.html:851
-#, fuzzy, python-format
-#| msgid "Hi %(username)s!"
+#, python-format
 msgid "%(service)s: %(username)s"
-msgstr "Привет %(username)s!"
+msgstr "%(service)s: %(username)s"
 
 #: warehouse/templates/manage/account.html:844
-#, fuzzy
-#| msgid "Account navigation"
 msgid "Account association removed"
-msgstr "Навигация учётной записи"
+msgstr "Ассоциация аккаунта удалена"
 
 #: warehouse/templates/manage/account.html:855
 #: warehouse/templates/manage/unverified-account.html:465
@@ -5269,8 +5246,6 @@ msgstr ""
 "решения."
 
 #: warehouse/templates/manage/organizations.html:182
-#, fuzzy
-#| msgid "Manage this organization"
 msgid "Manage this organization request"
 msgstr "Управление этим запросом организации"
 
@@ -5280,8 +5255,6 @@ msgid "Request a new organization"
 msgstr "Запросить новую организацию"
 
 #: warehouse/templates/manage/organizations.html:206
-#, fuzzy
-#| msgid "Organization account name"
 msgid "Organization Account Name"
 msgstr "Имя Учетной Записи Организации"
 
@@ -5529,18 +5502,17 @@ msgid ""
 "If you made a typo when registering, you can correct your email address "
 "below. A new verification email will be sent to the updated address."
 msgstr ""
+"Если вы сделали опечатку пока регистрировались, вы можете откорректировать "
+"ваш адрес электронной почты ниже. Новое верификационное письме будет "
+"отправлено на обновленный адрес электронной почты."
 
 #: warehouse/templates/manage/unverified-account.html:283
-#, fuzzy
-#| msgid "Your email address"
 msgid "New email address"
-msgstr "Адрес вашей электронной почты"
+msgstr "Новый адресс вашей электронной почты"
 
 #: warehouse/templates/manage/unverified-account.html:300
-#, fuzzy
-#| msgid "Your email address"
 msgid "Update email address"
-msgstr "Адрес вашей электронной почты"
+msgstr "Обновить адрес вашей электронной почты"
 
 #: warehouse/templates/manage/account/publishing.html:9
 #: warehouse/templates/manage/organization/publishing.html:9
@@ -5727,17 +5699,13 @@ msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:172
 #: warehouse/templates/manage/project/publishing.html:140
-#, fuzzy
-#| msgid "Name"
 msgid "Namespace"
-msgstr "Имя"
+msgstr "Именное пространство"
 
 #: warehouse/templates/manage/account/publishing.html:177
 #: warehouse/templates/manage/project/publishing.html:145
-#, fuzzy
-#| msgid "No name set"
 msgid "namespace"
-msgstr "Имя не указано"
+msgstr "именное пространство"
 
 #: warehouse/templates/manage/account/publishing.html:179
 #: warehouse/templates/manage/project/publishing.html:147
@@ -5745,6 +5713,8 @@ msgid ""
 "The GitLab username or GitLab group/subgroup namespace that the project is "
 "under"
 msgstr ""
+"Имя пользователя или пространство имён группы/подгруппы GitLab, где "
+"находится проект"
 
 #: warehouse/templates/manage/account/publishing.html:187
 #: warehouse/templates/manage/project/documentation.html:35
@@ -5756,10 +5726,8 @@ msgstr "Название проекта"
 
 #: warehouse/templates/manage/account/publishing.html:192
 #: warehouse/templates/manage/project/publishing.html:160
-#, fuzzy
-#| msgid "Project"
 msgid "project"
-msgstr "Проект"
+msgstr "проект"
 
 #: warehouse/templates/manage/account/publishing.html:194
 #: warehouse/templates/manage/project/publishing.html:162
@@ -5767,7 +5735,7 @@ msgstr "Проект"
 #| msgid ""
 #| "The name of the GitHub repository that contains the publishing workflow"
 msgid "The name of the GitLab project that contains the publishing workflow"
-msgstr "Имя репозитория GitHub, содержащего рабочий процесс публикации"
+msgstr "Имя проекта GitLab, содержащего рабочий процесс публикации"
 
 #: warehouse/templates/manage/account/publishing.html:202
 #: warehouse/templates/manage/project/publishing.html:170
@@ -5779,7 +5747,7 @@ msgstr "Название рабочего процесса"
 #: warehouse/templates/manage/account/publishing.html:207
 #: warehouse/templates/manage/project/publishing.html:175
 msgid ".gitlab-ci.yml"
-msgstr ""
+msgstr ".gitlab-ci.yml"
 
 #: warehouse/templates/manage/account/publishing.html:209
 #: warehouse/templates/manage/project/publishing.html:177
@@ -5861,10 +5829,8 @@ msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:352
 #: warehouse/templates/manage/project/publishing.html:283
-#, fuzzy
-#| msgid "Organization"
 msgid "my-organization"
-msgstr "Организация"
+msgstr "моя-организация"
 
 #: warehouse/templates/manage/account/publishing.html:360
 #: warehouse/templates/manage/project/publishing.html:291
@@ -5876,10 +5842,8 @@ msgstr "Имя организации ActiveState, которой принадл
 
 #: warehouse/templates/manage/account/publishing.html:374
 #: warehouse/templates/manage/project/publishing.html:305
-#, fuzzy
-#| msgid "Project"
 msgid "my-project"
-msgstr "мой проект"
+msgstr "мой-проект"
 
 #: warehouse/templates/manage/account/publishing.html:382
 #: warehouse/templates/manage/project/publishing.html:313
@@ -5898,7 +5862,7 @@ msgstr "Имя актера"
 #, fuzzy
 #| msgid "Username"
 msgid "my-username"
-msgstr "мое имя пользователя"
+msgstr "мое-имя"
 
 #: warehouse/templates/manage/account/publishing.html:402
 #: warehouse/templates/manage/project/publishing.html:333
@@ -6430,7 +6394,7 @@ msgstr "Требуется больше информации"
 
 #: warehouse/templates/manage/organization/application.html:26
 msgid "Please provide more information below"
-msgstr ""
+msgstr "Пожалуйста, укажите больше информации ниже"
 
 #: warehouse/templates/manage/organization/application.html:28
 #, fuzzy
@@ -6477,7 +6441,7 @@ msgstr "Представлено %(submitted)s"
 
 #: warehouse/templates/manage/organization/application.html:76
 msgid "️PyPI Staff"
-msgstr ""
+msgstr "Сотрудники PyPi"
 
 #: warehouse/templates/manage/organization/application.html:84
 #: warehouse/templates/manage/organization/application.html:96
@@ -6671,6 +6635,8 @@ msgid ""
 "Custom Trusted Publisher '%(issuer_type)s' for <code>%(issuer_url)s</code> "
 "added to organization"
 msgstr ""
+"Собственный доверенный издатель '%(issuer_type)s'для'<code>%(issuer_url)s</"
+"code> добавлен в организацию"
 
 #: warehouse/templates/manage/organization/history.html:114
 #, python-format
@@ -6678,6 +6644,8 @@ msgid ""
 "Custom Trusted Publisher '%(issuer_type)s' for <code>%(issuer_url)s</code> "
 "removed from organization"
 msgstr ""
+"Собственный доверенный издатель '%(issuer_type)s' for <code>%(issuer_url)s</"
+"code> удален с организации"
 
 #: warehouse/templates/manage/organization/history.html:127
 msgid "Registered by:"

@@ -13,9 +13,13 @@ from ....common.db.accounts import ProhibitedUsernameFactory, UserFactory
 
 class TestProhibitedUserNameList:
     def test_no_query(self, db_request):
+        # `created` is set once per transaction (Postgres `now()`), so every
+        # row in this batch shares the same value. Sort by `(created, id)` to
+        # match the view's tiebreaker and get a deterministic expected order.
         prohibited = sorted(
             ProhibitedUsernameFactory.create_batch(30),
-            key=lambda b: b.created,
+            key=lambda b: (b.created, b.id),
+            reverse=True,
         )
 
         result = views.prohibited_usernames(db_request)
@@ -25,7 +29,8 @@ class TestProhibitedUserNameList:
     def test_with_page(self, db_request):
         prohibited = sorted(
             ProhibitedUsernameFactory.create_batch(30),
-            key=lambda b: b.created,
+            key=lambda b: (b.created, b.id),
+            reverse=True,
         )
         db_request.GET["page"] = "2"
 
@@ -40,31 +45,31 @@ class TestProhibitedUserNameList:
             views.prohibited_usernames(request)
 
     def test_basic_query(self, db_request):
-        prohibited = sorted(
-            ProhibitedUsernameFactory.create_batch(30),
-            key=lambda b: b.created,
-        )
-        db_request.GET["q"] = prohibited[0].name
+        # A single result, so ordering is irrelevant here.
+        target = ProhibitedUsernameFactory.create(name="target-username")
+        ProhibitedUsernameFactory.create_batch(29)
+        db_request.GET["q"] = target.name
 
         result = views.prohibited_usernames(db_request)
 
         assert result == {
-            "prohibited_user_names": [prohibited[0]],
-            "query": prohibited[0].name,
+            "prohibited_user_names": [target],
+            "query": target.name,
         }
 
     def test_wildcard_query(self, db_request):
-        prohibited = sorted(
-            ProhibitedUsernameFactory.create_batch(30),
-            key=lambda b: b.created,
-        )
-        db_request.GET["q"] = f"{prohibited[0].name[:-1]}%"
+        # Use an explicit name so the wildcard can only match this one row,
+        # rather than a prefix of a generated username that a sibling row in
+        # the batch might also match.
+        target = ProhibitedUsernameFactory.create(name="target-username")
+        ProhibitedUsernameFactory.create_batch(29)
+        db_request.GET["q"] = "target-usernam%"
 
         result = views.prohibited_usernames(db_request)
 
         assert result == {
-            "prohibited_user_names": [prohibited[0]],
-            "query": f"{prohibited[0].name[:-1]}%",
+            "prohibited_user_names": [target],
+            "query": "target-usernam%",
         }
 
 

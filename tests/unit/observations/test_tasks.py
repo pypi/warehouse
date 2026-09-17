@@ -143,6 +143,38 @@ class TestAutoQuarantineProject:
             pretend.call("Project has fewer than 2 observers. Not quarantining.")
         ]
 
+    def test_non_malware_observations_do_not_corroborate(self, db_request):
+        """Only malware reports count toward the corroboration threshold."""
+        dummy_task = pretend.stub(name="dummy_task")
+        observer_user = UserFactory.create(is_observer=True)
+        another_user = UserFactory.create()
+        db_request.user = observer_user
+        # An older project, so the trusted-observer fast-track doesn't apply
+        project = ProjectFactory.create(created=datetime.now(UTC) - timedelta(days=30))
+
+        observation = project.record_observation(
+            request=db_request,
+            kind=ObservationKind.IsMalware,
+            summary="Project Observation",
+            payload={},
+            actor=observer_user,
+        )
+        project.record_observation(
+            request=db_request,
+            kind=ObservationKind.IsSpam,
+            summary="Project Observation",
+            payload={},
+            actor=another_user,
+        )
+        db_request.db.flush()
+
+        evaluate_project_for_quarantine(dummy_task, db_request, observation.id)
+
+        assert project.lifecycle_status != LifecycleStatus.QuarantineEnter
+        assert db_request.log.info.calls == [
+            pretend.call("Project has fewer than 2 observers. Not quarantining.")
+        ]
+
     def test_no_observer_observers_does_not_quarantine(self, db_request):
         dummy_task = pretend.stub(name="dummy_task")
         user = UserFactory.create()

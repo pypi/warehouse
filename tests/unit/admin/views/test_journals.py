@@ -8,7 +8,7 @@ from pyramid.httpexceptions import HTTPBadRequest
 from sqlalchemy import text
 from sqlalchemy.dialects import postgresql
 
-from warehouse.admin.views import journals as views
+from warehouse.admin.views import helpers, journals as views
 
 from ....common.db.accounts import UserFactory
 from ....common.db.packaging import JournalEntryFactory
@@ -31,6 +31,16 @@ def _tabulator_params(*, page=None, size=None, sort=None, filters=None):
     return params
 
 
+def _parse(params):
+    """Run the shared parser with this view's allowlists."""
+    return helpers.parse_tabulator_params(
+        params,
+        sortable_fields=views._SORTABLE_FIELDS,
+        default_sort_field="submitted_date",
+        filter_fields=views._FILTER_BUILDERS,
+    )
+
+
 def _ids_newest_first(journals):
     """IDs in the view's default order: submitted_date desc, id tiebreak."""
     return [
@@ -41,7 +51,7 @@ def _ids_newest_first(journals):
 
 class TestParseTabulatorParams:
     def test_defaults(self):
-        parsed = views._parse_tabulator_params({})
+        parsed = _parse({})
         assert parsed.page == 1
         assert parsed.size == 25
         assert parsed.sort_field == "submitted_date"
@@ -53,11 +63,11 @@ class TestParseTabulatorParams:
         [(-5, 1), (0, 1), (25, 25), (100, 100), (1000, 100)],
     )
     def test_size_clamping(self, raw, expected):
-        parsed = views._parse_tabulator_params(_tabulator_params(size=raw))
+        parsed = _parse(_tabulator_params(size=raw))
         assert parsed.size == expected
 
     def test_page_clamped_to_one(self):
-        parsed = views._parse_tabulator_params(_tabulator_params(page=-3))
+        parsed = _parse(_tabulator_params(page=-3))
         assert parsed.page == 1
 
     @pytest.mark.parametrize(
@@ -78,21 +88,21 @@ class TestParseTabulatorParams:
     )
     def test_malformed_input_raises(self, overrides):
         with pytest.raises(HTTPBadRequest):
-            views._parse_tabulator_params(_tabulator_params() | overrides)
+            _parse(_tabulator_params() | overrides)
 
     def test_sort_params(self):
-        parsed = views._parse_tabulator_params(_tabulator_params(sort=("name", "asc")))
+        parsed = _parse(_tabulator_params(sort=("name", "asc")))
         assert parsed.sort_field == "name"
         assert parsed.sort_dir == "asc"
 
     @pytest.mark.parametrize("field", ["action", "version", "nonsense"])
     def test_unsortable_field_falls_back_to_default(self, field):
-        parsed = views._parse_tabulator_params(_tabulator_params(sort=(field, "asc")))
+        parsed = _parse(_tabulator_params(sort=(field, "asc")))
         assert parsed.sort_field == "submitted_date"
         assert parsed.sort_dir == "desc"
 
     def test_filters(self):
-        parsed = views._parse_tabulator_params(
+        parsed = _parse(
             _tabulator_params(
                 filters={
                     "name": "pip",
@@ -133,7 +143,7 @@ class TestBuildJournalsQuery:
     )
     def test_order_matches_index_orientation(self, sort, expected_order):
         """Each sort orders exactly as an index stores it, tiebreaks included."""
-        params = views._parse_tabulator_params(_tabulator_params(sort=sort))
+        params = _parse(_tabulator_params(sort=sort))
         sql = str(
             views._build_journals_query(params).compile(dialect=postgresql.dialect())
         )
@@ -145,9 +155,7 @@ class TestBuildJournalsQuery:
     def test_name_filtered_chronological_sort_orders_by_id(self):
         """An exact name filter swaps the date sort for the equivalent id
         order, so journals_name_id_idx can serve the query natively."""
-        params = views._parse_tabulator_params(
-            _tabulator_params(filters={"name": "pip"})
-        )
+        params = _parse(_tabulator_params(filters={"name": "pip"}))
         sql = str(
             views._build_journals_query(params).compile(dialect=postgresql.dialect())
         )
@@ -155,7 +163,7 @@ class TestBuildJournalsQuery:
         assert "submitted_date DESC" not in sql
 
     def test_fetches_one_extra_row(self):
-        params = views._parse_tabulator_params(_tabulator_params(page=2, size=10))
+        params = _parse(_tabulator_params(page=2, size=10))
         sql = str(
             views._build_journals_query(params).compile(
                 dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True}
@@ -272,7 +280,7 @@ class TestRenderTabulatorPayload:
 
     def test_stale_estimate_clamped_to_rows_fetched(self, route_request, monkeypatch):
         """A stale table estimate never undercounts rows already fetched."""
-        monkeypatch.setattr(views, "estimate_row_count", lambda *a: 0)
+        monkeypatch.setattr(helpers, "estimate_row_count", lambda *a: 0)
         JournalEntryFactory.create_batch(3)
 
         route_request.GET.update(_tabulator_params(size=2))
@@ -282,7 +290,7 @@ class TestRenderTabulatorPayload:
         assert result["last_page"] == 2
 
     def test_last_page_capped_at_max_offset(self, route_request, monkeypatch):
-        monkeypatch.setattr(views, "_MAX_OFFSET", 4)
+        monkeypatch.setattr(helpers, "TABULATOR_MAX_OFFSET", 4)
         JournalEntryFactory.create_batch(5)
         route_request.GET.update(_tabulator_params(page=2, size=2))
 
@@ -413,7 +421,7 @@ class TestRenderTabulatorPayload:
 
     def test_last_page_matches_deepest_valid_page(self, route_request, monkeypatch):
         """last_page never advertises a page the parser would reject."""
-        monkeypatch.setattr(views, "_MAX_OFFSET", 10)
+        monkeypatch.setattr(helpers, "TABULATOR_MAX_OFFSET", 10)
         JournalEntryFactory.create_batch(13, name="pip")
 
         # Page 4 with size 3 is the deepest valid page (offset 9 < 10).
@@ -426,7 +434,7 @@ class TestRenderTabulatorPayload:
 
         # ...and page 5 is exactly where the parser draws the line.
         with pytest.raises(HTTPBadRequest):
-            views._parse_tabulator_params(_tabulator_params(page=5, size=3))
+            _parse(_tabulator_params(page=5, size=3))
 
     def test_sort_by_name_ascending(self, route_request):
         journals = [

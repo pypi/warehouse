@@ -157,6 +157,45 @@ def xmlrpc_method(**kwargs):
     return decorator
 
 
+# Caching wrappers for XML-RPC methods. Both store the view's return value in
+# Redis as JSON (see `warehouse.legacy.api.xmlrpc.cache`), so a view is only safe
+# to wrap if its return value survives a `json.dumps()`/`json.loads()` round
+# trip. Known limitations, roughly in order of how likely they are to bite:
+#
+# 1. Types the stdlib encoder rejects raise `TypeError` from inside the view
+#    deriver, and nothing catches it: the RPC call fails outright instead of
+#    degrading to an uncached response, after the view has already done its
+#    work. `datetime`, `date`, `time`, `UUID` and `Decimal` are all in this
+#    bucket, so convert them before wrapping a view -- see the POSIX-integer
+#    conversion in `changelog_since_serial`.
+#
+# 2. Tuples come back as lists. `xmlrpc.client` marshals both to `<array>`, so
+#    the wire format is unchanged, but a hit and a miss hand different Python
+#    types to any in-process caller.
+#
+# 3. Non-str dict keys are coerced silently, so `{1: "a"}` caches as
+#    `{"1": "a"}` and a hit no longer matches a miss. `float("nan")` and
+#    `float("inf")` serialize to the non-standard `NaN`/`Infinity` literals,
+#    which round-trip through our own cache but are not valid JSON.
+#
+# 4. Falsy results are never hits. `RedisLru.fetch` is `get(...) or add(...)`,
+#    so a view returning `[]`, `{}`, `0` or `None` re-runs its query on every
+#    request and rewrites the same entry each time.
+#
+# 5. The cache key is the JSON-encoded arguments verbatim while the purge tag is
+#    canonicalized, so `package_roles("Django")` and `package_roles("django")`
+#    occupy separate entries holding identical data. Both are purged together.
+#
+# 6. Invalidation is only as good as the `purge_keys` registered for the models
+#    a view reads (see `warehouse.packaging.includeme`). Wrapping a view whose
+#    result depends on a model with no matching purge key leaves it stale for up
+#    to `xmlrpc_cache_expires`.
+#
+# 7. Changing the serializer or the key format invalidates everything, and the
+#    orphans are not self-cleaning: `add` re-`expire`s the whole hash on every
+#    write, and Redis EXPIRE replaces the existing TTL, so a field written in the
+#    old format survives as long as any field in that hash keeps being written.
+#    `RedisLru` has no `hdel`, so only a `purge_tag` or Redis eviction clears it.
 xmlrpc_cache_by_project = functools.partial(
     xmlrpc_method,
     xmlrpc_cache=True,

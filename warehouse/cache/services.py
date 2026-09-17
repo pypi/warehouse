@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+import json
 import typing
 
-import orjson
 import redis
 
 from zope.interface import implementer
@@ -39,10 +39,14 @@ class RedisQueryResults:
         """Get a cached result by key."""
         result = self.redis_client.get(key)
         # deserialize the value as a JSON object
-        return orjson.loads(result) if result else None
+        return json.loads(result) if result else None
 
     def set(self, key: str, value) -> None:
         """Set a cached result by key."""
         # serialize the value as a JSON string
-        value = orjson.dumps(value)
+        value = json.dumps(
+            value,
+            separators=(",", ":"),
+            allow_nan=False,
+        )
         self.redis_client.set(key, value)
