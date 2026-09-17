@@ -18,15 +18,40 @@ class TestRedirectView:
         assert isinstance(resp, HTTPMovedPermanently)
         assert resp.headers["Location"] == "/the-thing/GET"
 
-    def test_redirect_view_raises_for_invalid_chars(self, pyramid_request):
+    @pytest.mark.parametrize(
+        "matched",
+        [
+            "the-thing\n",
+            "the-thing\r",
+            # Gunicorn rejects every C0 control character, not just CRLF, so
+            # these have to 400 here instead of blowing up in the WSGI server.
+            "the-thing\x00",
+            "the-thing\x0b",
+            "the-thing\x0c",
+            "the-thing\x1b",
+            "the-thing\x7f",
+            "g\x7f\x1bg\x12",
+        ],
+    )
+    def test_redirect_view_raises_for_invalid_chars(self, matched, pyramid_request):
         target = "/{wat}/{_request.method}"
         view = redirects.redirect_view_factory(target)
-        pyramid_request.matchdict = {"wat": "the-thing\n"}
+        pyramid_request.matchdict = {"wat": matched}
 
         with pytest.raises(
             HTTPBadRequest, match="URL may not contain control characters"
         ):
             view(pyramid_request)
+
+    @pytest.mark.parametrize("matched", ["the thing", "the-thing", "thé-thing"])
+    def test_redirect_view_allows_printable_chars(self, matched, pyramid_request):
+        target = "/{wat}/{_request.method}"
+        view = redirects.redirect_view_factory(target)
+        pyramid_request.matchdict = {"wat": matched}
+
+        resp = view(pyramid_request)
+
+        assert isinstance(resp, HTTPMovedPermanently)
 
     @pytest.mark.parametrize(
         "matched",

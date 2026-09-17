@@ -3918,16 +3918,16 @@ msgstr[1] "%(count)s n ifuyla"
 msgid "Owner"
 msgstr "Amli"
 
-#: warehouse/templates/includes/packaging/metadata/project-links.html:62
+#: warehouse/templates/includes/packaging/metadata/project-links.html:64
 msgid "Project links"
 msgstr "Iseɣwan n usenfar"
 
-#: warehouse/templates/includes/packaging/metadata/project-links.html:68
+#: warehouse/templates/includes/packaging/metadata/project-links.html:70
 #, python-format
 msgid "Data verified by PyPI on %(date)s"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/metadata/project-links.html:71
+#: warehouse/templates/includes/packaging/metadata/project-links.html:73
 msgid ""
 "Data provided by the project maintainers, verified at the time the release "
 "was uploaded to PyPI."
