@@ -95,7 +95,7 @@ class MacaroonSecurityPolicy:
         macaroon_service = request.find_service(IMacaroonService, context=None)
 
         try:
-            dm = macaroon_service.find_from_raw(macaroon)
+            dm = macaroon_service.verify_signature_only(macaroon)
             oidc_claims = (
                 dm.additional.get("oidc")
                 if dm.oidc_publisher and dm.additional

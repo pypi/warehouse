@@ -100,7 +100,7 @@ class TestMacaroonSecurityPolicy:
         )
         mocker.patch.object(
             macaroon_service,
-            "find_from_raw",
+            "verify_signature_only",
             autospec=True,
             side_effect=InvalidMacaroonError,
         )
@@ -110,7 +110,7 @@ class TestMacaroonSecurityPolicy:
         assert policy.identity(pyramid_request) is None
         extract_http_macaroon.assert_called_once_with(pyramid_request)
         find_service.assert_called_once_with(IMacaroonService, context=None)
-        macaroon_service.find_from_raw.assert_called_once_with(
+        macaroon_service.verify_signature_only.assert_called_once_with(
             mocker.sentinel.raw_macaroon
         )
 
@@ -133,7 +133,10 @@ class TestMacaroonSecurityPolicy:
         user = UserFactory.build(id="deadbeef-dead-beef-deadbeef-dead")
         macaroon = MacaroonFactory.build(user=user, oidc_publisher=None)
         mocker.patch.object(
-            macaroon_service, "find_from_raw", autospec=True, return_value=macaroon
+            macaroon_service,
+            "verify_signature_only",
+            autospec=True,
+            return_value=macaroon,
         )
         mocker.patch.object(
             user_service, "is_disabled", autospec=True, return_value=(True, Exception)
@@ -148,7 +151,7 @@ class TestMacaroonSecurityPolicy:
             mocker.call(IMacaroonService, context=None),
             mocker.call(IUserService, context=None),
         ]
-        macaroon_service.find_from_raw.assert_called_once_with(
+        macaroon_service.verify_signature_only.assert_called_once_with(
             mocker.sentinel.raw_macaroon
         )
         user_service.is_disabled.assert_called_once_with(
@@ -174,7 +177,10 @@ class TestMacaroonSecurityPolicy:
         user = UserFactory.build(id="deadbeef-dead-beef-deadbeef-dead")
         macaroon = MacaroonFactory.build(user=user, oidc_publisher=None)
         mocker.patch.object(
-            macaroon_service, "find_from_raw", autospec=True, return_value=macaroon
+            macaroon_service,
+            "verify_signature_only",
+            autospec=True,
+            return_value=macaroon,
         )
         mocker.patch.object(
             user_service, "is_disabled", autospec=True, return_value=(False, Exception)
@@ -189,7 +195,7 @@ class TestMacaroonSecurityPolicy:
             mocker.call(IMacaroonService, context=None),
             mocker.call(IUserService, context=None),
         ]
-        macaroon_service.find_from_raw.assert_called_once_with(
+        macaroon_service.verify_signature_only.assert_called_once_with(
             mocker.sentinel.raw_macaroon
         )
         user_service.is_disabled.assert_called_once_with(
@@ -216,7 +222,10 @@ class TestMacaroonSecurityPolicy:
             user=None, oidc_publisher=oidc_publisher, additional=oidc_additional
         )
         mocker.patch.object(
-            macaroon_service, "find_from_raw", autospec=True, return_value=macaroon
+            macaroon_service,
+            "verify_signature_only",
+            autospec=True,
+            return_value=macaroon,
         )
 
         find_service = mocker.spy(pyramid_request, "find_service")
@@ -234,7 +243,7 @@ class TestMacaroonSecurityPolicy:
             mocker.call(IMacaroonService, context=None),
             mocker.call(IUserService, context=None),
         ]
-        macaroon_service.find_from_raw.assert_called_once_with(
+        macaroon_service.verify_signature_only.assert_called_once_with(
             mocker.sentinel.raw_macaroon
         )
 
