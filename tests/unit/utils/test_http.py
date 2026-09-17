@@ -45,6 +45,10 @@ class TestIsSafeUrl:
             "\n/example.com/",
             "/example.com/\r\n",
             "/exa\x7fmple/",
+            # urllib3 refuses to parse these at all, rather than telling us
+            # whether the host matches.
+            "https://pypi.org\u3002example.com/",
+            "\u200e//example.com",
         ],
     )
     def test_rejects_bad_url(self, url):
