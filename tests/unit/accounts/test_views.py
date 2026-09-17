@@ -1941,6 +1941,7 @@ class TestRegister:
                 "password_confirm": "MyStr0ng!shP455w0rd",
                 "email": "foo@bar.com",
                 "full_name": "full_name",
+                "acceptable_use": "y",
             }
         )
 
