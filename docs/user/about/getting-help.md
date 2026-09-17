@@ -19,7 +19,7 @@ For issues concerning an individual user or project, or those that need interven
 
 * **PEP 541 project name requests:** If a project is abandoned and you can't reach the owner, you can request the name under the guidelines of [PEP 541](https://peps.python.org/pep-0541/)  
 * **Network access issues:** Problems with accessing PyPI services  
-* **Upload limit requests:** If your project exceeds the default [storage limits](https://docs.pypi.org/project-management/storage-limits/)  
+* **Upload limit requests:** If your project exceeds the default [storage limits](../project-management/storage-limits.md)  
 * **Account recovery:** If you've lost access to your PyPI account
 
 **Note:** By their nature, support issues are labor intensive. The PyPI team has limited resources available for their completion. There may be a delay of a week or more between responses to issues.

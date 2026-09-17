@@ -18,7 +18,7 @@ Always check package names from LLM output, as an attacker could register a mali
 
 ## Dependency confusion
 
-This attack targets you when you use a mix of package sources - i.e. private packages from an internal or company source, alongside public packages from PyPI.org.
+This attack targets you when you use a mix of package sources — i.e. private packages from an internal or company source, alongside public packages from PyPI.org.
 
 An attacker discovers the name of a private package you want to install (e.g. `mycompany-internal-billing`) and publishes a malicious public package on PyPI with the exact same name.
 
@@ -30,7 +30,7 @@ For more information on dependency confusion, see [this article](https://portswi
 
 This attack occurs when an attacker secretly intercepts your internet connection, often on an insecure network like public Wi-Fi. They can then replace the legitimate package you intended to download with a malicious one.
 
-To combat this, PyPI provides a unique cryptographic hash for every file uploaded. This hash acts as a digital fingerprint for the authentic file (see [Verifying package integrity](package-integrity.md)).
+To combat this, PyPI provides a unique checksum for every file uploaded. This checksum acts as a digital fingerprint for the original file (see [Verifying package integrity](package-integrity.md)).
 
 To protect yourself, use pip with [hash checking mode](https://pip.pypa.io/en/stable/topics/secure-installs/#hash-checking-mode) and include hashes from PyPI in your `requirements.txt` file.
 

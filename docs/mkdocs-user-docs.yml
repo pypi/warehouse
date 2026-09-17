@@ -13,6 +13,8 @@ plugins:
 markdown_extensions:
   - admonition
   - attr_list
+  - footnotes
+  - md_in_html
   - pymdownx.caret
   - pymdownx.details
   - pymdownx.superfences
@@ -93,6 +95,7 @@ nav:
       - "project-management/troubleshooting.md"
   - "Publishing Projects to PyPI":
       - "publishing/publishing-to-pypi.md"
+      - "publishing/troubleshooting.md"
       - "Trusted Publishing":
           - "trusted-publishers/index.md"
           - "trusted-publishers/adding-a-publisher.md"

@@ -16,10 +16,7 @@ The short description is a concise, one-sentence overview of your project. It's 
 
 ### Specifying the short description
 
-The method for specifying the short description depends on your project's configuration:
-
-* **For pyproject.toml** specify the “description” field. See [Writing your PyProject.toml](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#description) for more information  
-* **For setup.py** specify the “summary” field. See [project metadata](https://packaging.python.org/en/latest/specifications/core-metadata/#summary) for more information
+The short description is set via the `description` field in `pyproject.toml`. See [Writing your pyproject.toml](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#description) for more information.
 
 ## The long description
 
@@ -37,12 +34,11 @@ PyPI supports several markup languages for rendering the long description. The m
 
 ### Specifying the long description
 
-* **For pyproject.toml** specify the readme field. See [Writing your PyProject.toml](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#readme) for more information. PyPI infers the markup language from your readme file's extension — for example, `readme = "README.md"` renders as Markdown, while `readme = "README.rst"` renders as reStructuredText  
-* **For setup.py** specify the description field. See [Creating a PyPI friendly README](https://packaging.python.org/en/latest/guides/making-a-pypi-friendly-readme/) for more information
+The long description is set via the `readme` field in `pyproject.toml`. See [Writing your pyproject.toml](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#readme) for more information. PyPI infers the markup language from your readme file's extension — for example, `readme = "README.md"` renders as Markdown, while `readme = "README.rst"` renders as reStructuredText.
 
 ### Considerations for long descriptions
 
 * **Keep it updated:** Ensure your README accurately reflects the current state of your project  
 * **Structure for readability:** Use headings, lists, and code blocks to make your description easy to scan and understand  
-* **Include key information:** See [PyOpenSci’s excellent guidelines](https://www.pyopensci.org/python-package-guide/documentation/repository-files/readme-file-best-practices.html) on writing effective READMEs  
+* **Include key information:** See [PyOpenSci's excellent guidelines](https://www.pyopensci.org/python-package-guide/documentation/repository-files/readme-file-best-practices.html) on writing effective READMEs  
 * **Validate your markup:** Before uploading your package, it's a good practice to check if your long description will render correctly on PyPI. You can use [twine check](https://twine.readthedocs.io/en/stable/#twine-check) to validate your package's metadata and description. You can also use [TestPyPI](https://packaging.python.org/en/latest/guides/using-testpypi/) to preview your rendered long description.

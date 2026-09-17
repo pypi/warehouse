@@ -40,7 +40,9 @@ To remove a collaborator from your project:
 3. Click the "Remove" button next to the username of the collaborator you wish to remove  
 4. Enter your password (PyPI requires you to re-enter your password before performing sensitive actions)
 
-Note: You can remove your own ownership of a project, but only if there are other owners remaining.
+!!! note
+
+    You can remove your own ownership of a project, but only if there are other owners remaining.
 
 ## Transferring project ownership
 
@@ -48,4 +50,4 @@ To transfer ownership of a project to another user, you should add the new user 
 
 ## Becoming an owner or maintainer
 
-Only the current owners of a project have the ability to add new owners or maintainers. If you need to request ownership, you should contact the current owner(s) of the project directly. Many project owners provide their contact details in the 'Author' field of the 'Meta' details on the project page.
+Only the current owners of a project have the ability to add new owners or maintainers. If you need to request ownership, you should contact the current owner(s) of the project directly. Many project owners provide their contact details in the "Author" field of the "Credits" section on the project page.

@@ -8,5 +8,7 @@ PyPI is heavily cached and distributed via CDN thanks to our sponsor [Fastly](ht
 
 See [our status page](https://status.python.org/) for current and past outages and incidents. 
 
+## Private indices and mirrors
+
 If you have high availability requirements for your package index, consider either a [private index](https://pypi.org/help/#private-indices) or a [mirror](https://pypi.org/help/#mirroring). The [bandersnatch project](https://pypi.org/project/bandersnatch/) is the recommended solution for mirroring. Note that the storage requirements for a PyPI mirror would exceed 1 terabyte — and growing!
 

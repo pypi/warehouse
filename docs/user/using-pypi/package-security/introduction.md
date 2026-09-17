@@ -18,5 +18,5 @@ How can I know where a package came from? How can I verify that a package was bu
 How can I be sure the package I'm installing is the same as the one hosted on PyPI? How can I know it hasn't been tampered with in-transit?
 * [Protecting yourself from common security attacks](common-attacks.md)<br />
 What are the different types of security attacks and how can I protect myself from them? What does PyPI do to protect me?
-* [Reporting security issues](reporting-issues.md)<br/>
+* [Reporting security issues](reporting-issues.md)<br />
 How should I report a security issue to PyPI?

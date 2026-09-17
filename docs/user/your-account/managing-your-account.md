@@ -15,7 +15,7 @@ By creating a PyPI account, you agree to the [PyPI Terms of Service](https://pol
 * **Do not impersonate others.** Do not register accounts in the name of other individuals or organizations or post their private information without explicit consent.  
 * **Be respectful.** Abusive, discriminatory, or harassing language and behavior are not welcome on PyPI.  
 * **Do not post spam or distribute malware.** PyPI is for distributing Python packages, not for unsolicited advertising or malicious software.  
-* **Do not use PyPI to conduct security research**
+* **Do not use PyPI to conduct security research.**
 
 For a complete set of guidelines, please read the full [Acceptable Use Policy](https://pypi.org/policy/acceptable-use-policy/).
 
@@ -61,7 +61,7 @@ You can create a token for an entire PyPI account, in which case, the token will
 
 When using an API token from a CI provider, we recommend scoping the token down to the minimum necessary projects.
 
-**If you are publishing to PyPI from a CI provider that supports [Trusted Publishing](https://docs.pypi.org/trusted-publishers/), we strongly recommend using Trusted Publishing instead.**
+**If you are publishing to PyPI from a CI provider that supports [Trusted Publishing](../trusted-publishers/index.md), we strongly recommend using Trusted Publishing instead.**
 
 To make an API token:
 

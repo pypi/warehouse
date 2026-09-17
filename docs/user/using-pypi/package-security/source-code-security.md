@@ -12,11 +12,12 @@ When a full code audit is not practical, the signals listed below can help you b
 
 #### Verified project metadata
 
-* This tells you that the package owner had control over the project's official URLs (e.g. its GitHub repository) at the time of upload to PyPI. You can read more about how this works (including limitations) in the [project metadata docs](../../project_metadata.md).
+This tells you that the package owner had control over the project's official URLs (e.g. its GitHub repository) at the time of upload to PyPI. You can read more about how this works (including limitations) in the [project metadata docs](../../project_metadata.md).
 
-![Verified data](assets/verified_data.png){ loading=lazy }
-
-Figure: a screenshot of verified project details in the PyPI sidebar
+<figure markdown="1">
+  ![Verified project link](../../assets/verified-project-links.png){ loading=lazy }
+  <figcaption markdown="span">A verified project link in the project sidebar</figcaption>
+</figure>
 
 #### Project activity and popularity
 
@@ -38,13 +39,13 @@ Figure: a screenshot of verified project details in the PyPI sidebar
 
 * Dependencies are packages that a project relies on. Each dependency of a package you install is another project you are implicitly trusting, which in turn increases your attack surface. Therefore, when assessing a package, a small number of dependencies can be a positive signal.
 
-* You can explore your project's dependencies using the pip freeze command which outputs your dependencies as a flat list, or use [pipdeptree](https://github.com/tox-dev/pipdeptree) to output a dependency tree (showing the dependencies of your dependencies). You can also view dependencies via services like [GitHub's dependency graph](https://docs.github.com/en/code-security/supply-chain-security/understanding-your-software-supply-chain/exporting-a-software-bill-of-materials-for-your-repository#about-the-dependency-graph-and-sbom-exports).
+* You can explore your project's dependencies using the `pip freeze` command which outputs your dependencies as a flat list, or use [pipdeptree](https://github.com/tox-dev/pipdeptree) to output a dependency tree (showing the dependencies of your dependencies). You can also view dependencies via services like [GitHub's dependency graph](https://docs.github.com/en/code-security/supply-chain-security/understanding-your-software-supply-chain/exporting-a-software-bill-of-materials-for-your-repository#about-the-dependency-graph-and-sbom-exports).
 
 #### Security advisories / known vulnerabilities
 
 * Security researchers, package maintainers, and other members of the Python community can contribute to the [Python Packaging Advisory Database](https://github.com/pypa/advisory-database) by creating "advisories" for vulnerabilities. This community-owned database helps to warn users about insecure packages.
 
-* The [Python Packaging Advisory Database](https://github.com/pypa/advisory-database) is also the data source for [pip-audit](https://github.com/pypa/pip-audit) - a tool you can use to scan your project's dependencies for known vulnerabilities
+* The [Python Packaging Advisory Database](https://github.com/pypa/advisory-database) is also the data source for [pip-audit](https://github.com/pypa/pip-audit) — a tool you can use to scan your project's dependencies for known vulnerabilities
 
 * Services like [Socket](https://socket.dev/search?e=pypi&q=) or [Snyk](https://security.snyk.io/vuln/pip) also provide vulnerability information for Python packages
 

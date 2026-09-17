@@ -1,10 +1,10 @@
 # Welcome to PyPI User Documentation
 
-The Python Package Index (PyPI), pronounced "pie-pea-eye"^, is the official package repository for Python. PyPI hosts packages created and shared by the global Python community.
+The Python Package Index (PyPI), pronounced "pie-pea-eye"[^1], is the official package repository for Python. PyPI hosts packages created and shared by the global Python community.
 
-As a Python user, you can use PyPI to find the code you need for your projects. 
+As a Python user, you can use PyPI to find the code you need for your projects.
 
-As a developer, you can use PyPI to publish and share your Python code with the world. 
+As a developer, you can use PyPI to publish and share your Python code with the world.
 
 This documentation site (docs.pypi.org) covers how to use the PyPI website and [API](api/index.md). To learn about the codebase that powers PyPI itself, visit the [Warehouse documentation](https://warehouse.pypa.io).
 
@@ -34,6 +34,7 @@ This documentation site (docs.pypi.org) covers how to use the PyPI website and [
 * [Publishing to PyPI](publishing/publishing-to-pypi.md) - How to package and upload a new project or release
 * [Trusted Publishing](trusted-publishers/index.md) - Publishing via OIDC, without long-lived API tokens
 * [Attestations](attestations/index.md) - Cryptographically signing and verifying packages with PEP 740 attestations
+* [Troubleshooting](publishing/troubleshooting.md) - Answers to common errors encountered when uploading a package
 
 ### Your PyPI Account
 
@@ -77,10 +78,8 @@ This documentation site (docs.pypi.org) covers how to use the PyPI website and [
 * For general questions or support using PyPI, please see our [help page](about/getting-help.md)
 * To report a bug or suggest a PyPI feature, submit an issue on the [Warehouse Github repository](https://github.com/pypi/warehouse)
 
-
 ## Contributing to the docs
 
 We welcome contributions to this documentation! If you've noticed an error or would like to suggest an improvement, please open an issue on the [pypi/warehouse](https://github.com/pypi/warehouse) repository and add the [documentation](https://github.com/pypi/warehouse/issues?q=is%3Aopen+is%3Aissue+label%3Adocumentation) label.
 
-
-<small>^ "PyPI" should be pronounced like "pie pea eye", specifically with the "PI" pronounced as individual letters, rather than single sound. This minimizes confusion with the PyPy project, which is a popular alternative implementation of the Python language.</small>
+[^1]: "PyPI" should be pronounced like "pie pea eye", specifically with the "PI" pronounced as individual letters, rather than single sound. This minimizes confusion with the PyPy project, which is a popular alternative implementation of the Python language.

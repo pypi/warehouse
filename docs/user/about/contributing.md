@@ -15,9 +15,9 @@ To support the ongoing development and maintenance of PyPI, we gratefully accept
 
 ## Development contributions
 
-We welcome new contributors to the [Warehouse project](https://warehouse.pypa.io/), the software that powers PyPI. You **do not** need to be an experienced open-source developer to make a contribution – in fact, we'd love to help you make your first open source pull request\!
+We welcome new contributors to the [Warehouse project](https://warehouse.pypa.io/), the software that powers PyPI. You **do not** need to be an experienced open-source developer to make a contribution — in fact, we'd love to help you make your first open source pull request!
 
-If you have skills in Python, full-text search, HTML, SCSS, JavaScript, or SQLAlchemy then skim our ["Getting started" guide](https://warehouse.pypa.io/development/getting-started/), then take a look at the [issue tracker](https://github.com/pypi/warehouse/issues). We've created a ['Good first issue'](https://github.com/pypi/warehouse/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22) label – we recommend you start here.
+If you have skills in Python, full-text search, HTML, SCSS, JavaScript, or SQLAlchemy then skim our ["Getting started" guide](https://warehouse.pypa.io/development/getting-started/), then take a look at the [issue tracker](https://github.com/pypi/warehouse/issues). We've created a [`good first issue`](https://github.com/pypi/warehouse/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22) label — we recommend you start here.
 
 If you're interested in working on a particular issue, leave a comment, and we can guide you through the contribution process.
 
