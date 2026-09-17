@@ -89,6 +89,7 @@ class EventTag:
         RoleInvite = "account:role:invite"
         RoleRemove = "account:role:remove"
         RoleRevokeInvite = "account:role:revoke_invite"
+        ProjectCreateRateLimitChange = "account:project_create_ratelimit:change"
         TeamRoleAdd = "account:team_role:add"
         TeamRoleRemove = "account:team_role:remove"
         TwoFactorDeviceRemembered = "account:two_factor:device_remembered"
@@ -109,6 +110,7 @@ class EventTag:
 
         # Name = "source_type:subject_type:action"
         ShortLivedAPITokenAdded = "account:short_lived_api_token:added"
+        ShortLivedAPITokenRevoked = "project:short_lived_api_token:revoked"
         APITokenAdded = "project:api_token:added"
         APITokenRemoved = "project:api_token:removed"
         OIDCPublisherAdded = "project:oidc:publisher-added"
@@ -172,6 +174,12 @@ class EventTag:
         OrganizationRename = "organization:rename"
         OrganizationSetUploadLimit = "admin:organization:set_upload_limit"
         OrganizationSetTotalSizeLimit = "admin:organization:set_total_size_limit"
+        ManualActivationAdd = "admin:organization:manual_activation:add"
+        ManualActivationUpdate = "admin:organization:manual_activation:update"
+        ManualActivationDelete = "admin:organization:manual_activation:delete"
+        OrganizationProjectCreateRateLimitChange = (
+            "organization:project_create_ratelimit:change"
+        )
         OrganizationProjectAdd = "organization:organization_project:add"
         OrganizationProjectRemove = "organization:organization_project:remove"
         OrganizationRoleAdd = "organization:organization_role:add"

@@ -8,6 +8,7 @@
 {% set perms_admin_users_write = request.has_permission(Permissions.AdminUsersWrite) %}
 {% set perms_admin_users_email_write = request.has_permission(Permissions.AdminUsersEmailWrite) %}
 {% set perms_admin_users_account_recovery_write = request.has_permission(Permissions.AdminUsersAccountRecoveryWrite) %}
+{% set perms_admin_users_export = request.has_permission(Permissions.AdminUsersExport) %}
 
 {% macro render_field(label, field, input_id, placeholder=None, class=None, permission=perms_admin_users_write) %}
 <div class="form-group row{% if field.errors %} has-error{% endif %}">
@@ -131,6 +132,11 @@
             <button type="button" class="btn btn-block btn-info" data-toggle="modal" data-target="#userFilesModal" id="userFilesBtn">
               <i class="icon fa fa-file"></i> List all files
             </button>
+            {% if perms_admin_users_export %}
+            <a href="{{ request.route_path('admin.user.export', username=user.username) }}" role="button" class="btn btn-block btn-info">
+              <i class="icon fa fa-download"></i> User account export (JSON)
+            </a>
+            {% endif %}
             <button type="button" class="btn btn-block btn-warning" data-toggle="modal" data-target="#quarantineAllProjectsModal" {{ "disabled" if not perms_admin_projects_write }}>
               <i class="icon fa fa-lock"></i> Quarantine all projects & freeze user
             </button>
@@ -445,7 +451,12 @@
                   <td>
                     <ul>
                       {% for url in account_recovery.payload["repos"] %}
-                      <li>{{ url[0] }}: <a href="{{ url[1] }}" data-check-link-url="{{ request.camo_url(url[1]) }}" ><i class="fa fa-question"></i> {{ url[1] }}</a></li>
+                      {# Older recoveries stored shorter entries, so index rather than unpack. #}
+                      <li>
+                        {{ url[0] }}: <a href="{{ url[1] }}" data-check-link-url="{{ request.camo_url(url[1]) }}" ><i class="fa fa-question"></i> {{ url[1] }}</a>
+                        {% if url|length > 2 and url[2] %}<span class="badge bg-success">verified</span>
+                        {% elif url|length > 3 and url[3] %}<span class="badge bg-secondary">verified, not pushable</span>{% endif %}
+                      </li>
                       {% endfor %}
                     </ul>
                   </td>
@@ -738,6 +749,42 @@
 
       <div class="card">
         <div class="card-header with-border">
+          <h3 class="card-title">User Limits</h3>
+        </div>
+        <div class="card-body">
+          <table class="table table-hover">
+            <tbody>
+              <tr>
+                <form method="POST" action="{{ request.route_path('admin.user.set_project_create_ratelimit', username=user.username) }}">
+                  <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                  <td>Project creation rate limit</td>
+                  <td>
+                    {% if user.project_create_ratelimit_string %}
+                    {{ user.project_create_ratelimit_string }}
+                    {% else %}
+                    Default ({{ DEFAULT_PROJECT_CREATE_USER_RATELIMIT }})
+                    {% endif %}
+                  </td>
+                  <td>
+                    <input type="number" name="project_create_ratelimit_count" id="projectCreateRatelimitCount" min="1" max="{{ PROJECT_CREATE_RATELIMIT_CAP }}" step="1" value="{{ user.project_create_ratelimit_count or '' }}"> per
+                    <select name="project_create_ratelimit_period" id="projectCreateRatelimitPeriod">
+                      {% for period in RateLimitPeriod %}
+                      <option value="{{ period.value }}" {{ 'selected' if user.project_create_ratelimit_period == period }}>{{ period.value }}</option>
+                      {% endfor %}
+                    </select>
+                  </td>
+                  <td>
+                    <button type="submit" class="btn btn-primary btn-sm" {{ 'disabled' if not perms_admin_users_write }}>Submit</button>
+                  </td>
+                </form>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header with-border">
           <h3 class="card-title">2FA</h3>
         </div>
         <div>
@@ -979,11 +1026,11 @@
                  tabulator-placeholder="No matching projects">
             <thead>
               <tr>
-                <th tabulator-formatter="html" tabulator-headerFilter="input">Project Name</th>
-                <th tabulator-headerFilter="input" tabulator-responsive="2">Role</th>
-                <th tabulator-formatter="html" tabulator-headerFilter="input">Lifecycle Status</th>
-                <th tabulator-sorter="number" tabulator-responsive="4">Releases</th>
-                <th tabulator-formatter="filesize" tabulator-sorter="number" tabulator-responsive="3">Total Size</th>
+                <th>Project Name</th>
+                <th tabulator-responsive="2">Role</th>
+                <th>Lifecycle Status</th>
+                <th tabulator-sorter="number" tabulator-headerFilter="false" tabulator-responsive="4">Releases</th>
+                <th tabulator-formatter="filesize" tabulator-sorter="number" tabulator-headerFilter="false" tabulator-responsive="3">Total Size</th>
               </tr>
             </thead>
             <tbody>

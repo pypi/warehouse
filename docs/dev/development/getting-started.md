@@ -6,7 +6,7 @@ We're pleased that you are interested in working on Warehouse.
 
 After you set up your development environment and ensure you can run
 the tests and build the documentation (using the instructions in this
-document), take a look at [our guide to the Warehouse codebase](../application.md). Then, look at our [open issues that are labelled "good first issue"](https://github.com/pypi/warehouse/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22), find one you want to work on, comment on it to say you're working on
+document), take a look at [our guide to the Warehouse codebase](../application.md). Then, look at our [open issues that are labelled "good first issue for humans"](https://github.com/pypi/warehouse/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue+for+humans%22), find one you want to work on, comment on it to say you're working on
 it, then submit a pull request. Use our [submitting patches](submitting-patches.md) documentation
 to help.
 
@@ -259,8 +259,8 @@ This command will fully reset the development database.
 
 ### Viewing Warehouse in a browser
 
-At this point all the services are up, and web container is listening on port
-80. It's accessible at http://localhost:80/.
+At this point all the services are up, and Traefik is routing traffic on port
+80. The web application is accessible at http://localhost/.
 
 !!! note
     If you are using `docker-machine` on an older version of macOS or
@@ -279,7 +279,7 @@ use that port instead.
 
 ### Logging in to Warehouse
 
-You can log into warehouse at http://localhost:80/account/login/.
+You can log into warehouse at http://localhost/account/login/.
 
 There are 4 accounts ready for you to use:
 
@@ -293,7 +293,7 @@ The password for every account has been set to the string `password`.
 Using different accounts will allow you to see different parts of the site,
 and have slightly different experiences.
 
-Note that there are no Moderator accounts in the dev db. Any Superuser can 
+Note that there are no Moderator accounts in the dev db. Any Superuser can
 change a user to a moderator if needed.
 
 #### TOTP and Recovery Codes
@@ -303,7 +303,7 @@ To generate a TOTP token, run the following from your terminal:
 ```shell
 make totp
 ```
-Alternatively, you can scan the QR code below to add these accounts to 
+Alternatively, you can scan the QR code below to add these accounts to
 your authenticator app:
 
 ![TOTP QR Code](../assets/warehouse_admin_totp.png){ width="100" }
@@ -323,7 +323,7 @@ edc6ce3800c0fc94 -- burned
 
 #### Email Verification
 
-Auth verification emails are output to the console, or can be accessed 
+Auth verification emails are output to the console, or can be accessed
 from http://localhost:1080.
 
 See [Testing Emails](email.md#testing-e-mails) for more information.
@@ -406,7 +406,7 @@ access your developer environment, you'll:
 make serve
 ```
 
-View Warehouse in the browser at http://localhost:80/.
+View Warehouse in the browser at http://localhost/.
 
 ### Debugging the webserver
 
@@ -763,6 +763,25 @@ formatting and linting. You can reformat with:
 
 ```shell
 make reformat
+```
+
+### Updating snapshots
+
+Some of Warehouse's tests make use of snapshots, specifically via the
+[inline_snapshot](https://15r10nk.github.io/inline-snapshot/) library.
+
+While running the tests in parallel, you may encounter a message like this:
+
+```
+INFO: inline-snapshot was disabled because you used xdist. This means that tests with snapshots will continue to run, but
+snapshot(x) will only return x and inline-snapshot will not be able to fix snapshots or generate reports.
+```
+
+If you need to update a specific snapshot, you can do so by selecting its module, which will
+disable test parallelism and enable the snapshot approval dialogue. For example:
+
+```shell
+T=tests/functional/api/test_simple.py make tests
 ```
 
 ## Building translations

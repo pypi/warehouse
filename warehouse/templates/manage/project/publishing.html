@@ -269,7 +269,7 @@
 {% macro activestate_form(request, activestate_pubisher_form) %}
   {{ prefilled_warning() if prefilled_provider == "activestate" }}
   <p>
-    {% trans href="https://docs.activestate.com/platform/user/oidc/" %}
+    {% trans href="https://docs.activestate.com/platform/organizations/user-management/#multi-factor-authentication-for-organizations" %}
     Read more about ActiveState's OpenID Connect support <a href="{{ href }}">here</a>.
   {% endtrans %}
 </p>

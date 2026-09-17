@@ -8,11 +8,11 @@
 # We have to keep @pypi/warehouse-reviewers here, because GitHub will only match
 # a path to a single line in the CODEOWNERS file, whichever line it matches last.
 .github/ISSUE_TEMPLATE/~visual-design.md @pypi/warehouse-reviewers @pypi/warehouse-frontend
-tests/frontend/*                         @pypi/warehouse-reviewers @pypi/warehouse-frontend
-warehouse/admin/static/*                 @pypi/warehouse-reviewers @pypi/warehouse-frontend
-warehouse/admin/templates/*              @pypi/warehouse-reviewers @pypi/warehouse-frontend
-warehouse/static/*                       @pypi/warehouse-reviewers @pypi/warehouse-frontend
-warehouse/templates/*                    @pypi/warehouse-reviewers @pypi/warehouse-frontend
+tests/frontend/                          @pypi/warehouse-reviewers @pypi/warehouse-frontend
+warehouse/admin/static/                  @pypi/warehouse-reviewers @pypi/warehouse-frontend
+warehouse/admin/templates/               @pypi/warehouse-reviewers @pypi/warehouse-frontend
+warehouse/static/                        @pypi/warehouse-reviewers @pypi/warehouse-frontend
+warehouse/templates/                     @pypi/warehouse-reviewers @pypi/warehouse-frontend
 .stylelintrc.json                        @pypi/warehouse-reviewers @pypi/warehouse-frontend
 babel.cfg                                @pypi/warehouse-reviewers @pypi/warehouse-frontend
 babel.config.js                          @pypi/warehouse-reviewers @pypi/warehouse-frontend
@@ -26,8 +26,8 @@ webpack.plugin.localize.js               @pypi/warehouse-reviewers @pypi/warehou
 # frontend you may end up needing to update the user facing documentation and/or
 # the developer documentation around changes to how the frontend is developed,
 # so we'll allow frontend and reviewers both to own these as well.
-docs/dev/*  @pypi/warehouse-reviewers @pypi/warehouse-frontend
-docs/user/* @pypi/warehouse-reviewers @pypi/warehouse-frontend
+docs/dev/   @pypi/warehouse-reviewers @pypi/warehouse-frontend
+docs/user/  @pypi/warehouse-reviewers @pypi/warehouse-frontend
 
 # We don't need to have a codeowner for this file, because it is effectively a
 # checked in build artifact that is determinstically generated from the rest

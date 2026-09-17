@@ -34,7 +34,9 @@ from sqlalchemy.orm import (
 from warehouse import db
 from warehouse.accounts.models import TermsOfServiceEngagement, User
 from warehouse.authnz import Permissions
+from warehouse.constants import RateLimitPeriod
 from warehouse.events.models import HasEvents
+from warehouse.events.tags import EventTag
 from warehouse.observations.models import HasObservations, Observation, ObservationKind
 from warehouse.utils.attrs import make_repr
 from warehouse.utils.db import orm_session_from_obj
@@ -333,6 +335,17 @@ class OrganizationMixin:
 class Organization(OrganizationMixin, HasEvents, db.Model):
     __tablename__ = "organizations"
 
+    @declared_attr
+    def __table_args__(cls):
+        return (
+            *super().__table_args__,
+            CheckConstraint(
+                "(project_create_ratelimit_count IS NULL) = "
+                "(project_create_ratelimit_period IS NULL)",
+                name="organizations_project_create_ratelimit_complete",
+            ),
+        )
+
     __repr__ = make_repr("name")
 
     normalized_name: Mapped[str] = mapped_column(
@@ -353,6 +366,18 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
     total_size_limit: Mapped[int | None] = mapped_column(
         BigInteger,
         comment="Maximum total size limit in bytes for projects in this organization",
+    )
+    project_create_ratelimit_count: Mapped[int | None] = mapped_column(
+        comment=(
+            "Project creation rate limit count, e.g. the 20 in '20 per hour'. "
+            "NULL means no override: the configured default applies."
+        ),
+    )
+    project_create_ratelimit_period: Mapped[RateLimitPeriod | None] = mapped_column(
+        comment=(
+            "Period the count is measured over. Must be NULL exactly when "
+            "project_create_ratelimit_count is NULL."
+        ),
     )
     application: Mapped[OrganizationApplication] = relationship(
         back_populates="organization"
@@ -393,7 +418,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
             viewonly=True,
         )
     )
-    manual_activation: Mapped[OrganizationManualActivation] = relationship(
+    manual_activation: Mapped[OrganizationManualActivation | None] = relationship(
         back_populates="organization",
         uselist=False,
     )
@@ -403,6 +428,19 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
     pending_oidc_publishers: Mapped[list[PendingOIDCPublisher]] = relationship(
         back_populates="pypi_organization",
     )
+
+    @property
+    def project_create_ratelimit_string(self) -> str | None:
+        """Composed `limits`-syntax string, or None when no override is set."""
+        count = self.project_create_ratelimit_count
+        period = self.project_create_ratelimit_period
+        if count is None and period is None:
+            return None
+        if count is None or period is None:
+            raise ValueError(
+                "Project creation rate limit requires both count and period"
+            )
+        return f"{count} per {period.value}"
 
     @property
     def owners(self):
@@ -458,6 +496,34 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         return self.active_subscription is not None or (
             self.manual_activation is not None and self.manual_activation.is_active
         )
+
+    @property
+    def is_awaiting_initial_billing(self) -> bool:
+        """Check if this Company organization has never activated billing."""
+        if not self.is_active or self.orgtype != OrganizationType.Company:
+            return False
+
+        if bool(self.subscriptions) or self.manual_activation is not None:
+            return False
+
+        return (
+            self.events.filter(
+                self.Event.tag.in_(
+                    (
+                        EventTag.Organization.SubscriptionCreate,
+                        EventTag.Organization.ManualActivationAdd,
+                    )
+                )
+            ).first()
+            is None
+        )
+
+    def can_manage_members(self) -> bool:
+        """Check if this organization may invite or remove members.
+
+        Only for good standing orgs or orgs needing to invite billing managers.
+        """
+        return self.is_in_good_standing() or self.is_awaiting_initial_billing
 
     def get_billing_status_display(self) -> str:
         """Get a human-readable billing status for display in forms.

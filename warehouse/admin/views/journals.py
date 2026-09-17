@@ -12,9 +12,6 @@ See: https://github.com/pypi/warehouse/issues/14541
 
 from __future__ import annotations
 
-import math
-
-from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING
 
@@ -22,28 +19,24 @@ from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.view import view_config
 from sqlalchemy import select
 
-from warehouse.admin.views.helpers import estimate_row_count, execute_bounded
+from warehouse.admin.views.helpers import (
+    TABULATOR_STATEMENT_TIMEOUT_MS,
+    TabulatorParams,
+    execute_bounded,
+    parse_tabulator_params,
+    tabulator_page,
+)
 from warehouse.authnz import Permissions
 from warehouse.cache.http import add_vary
 from warehouse.packaging.models import JournalEntry
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Mapping
+    from collections.abc import Callable
     from typing import Any
 
     from pyramid.request import Request
     from sqlalchemy import Select
     from sqlalchemy.sql import ColumnElement
-
-_DEFAULT_PAGE_SIZE = 25
-_MAX_PAGE_SIZE = 100
-# Deepest row reachable via pagination; keeps OFFSET scans bounded.
-# Anything further back should be reached by filtering instead.
-_MAX_OFFSET = 10_000
-_MAX_FILTER_LENGTH = 500
-# Backstop for filter/sort combinations the indexes cannot serve, e.g. an
-# action prefix that matches nothing. Timed-out queries become a 400.
-_STATEMENT_TIMEOUT_MS = 10_000
 
 
 def _submitted_on_or_before(value: str) -> ColumnElement[bool]:
@@ -80,64 +73,7 @@ _FILTER_BUILDERS: dict[str, Callable[[str], ColumnElement[bool]]] = {
 _SORTABLE_FIELDS = frozenset({"submitted_date", "name", "submitted_by"})
 
 
-@dataclass(frozen=True)
-class _TabulatorParams:
-    page: int
-    size: int
-    sort_field: str
-    sort_dir: str
-    filters: dict[str, str]
-
-    @property
-    def offset(self) -> int:
-        return (self.page - 1) * self.size
-
-
-def _parse_tabulator_params(params: Mapping[str, str]) -> _TabulatorParams:
-    """Parse and validate Tabulator's remote ajax query params."""
-    try:
-        page = max(1, int(params.get("page", "1")))
-    except ValueError:
-        raise HTTPBadRequest("'page' must be an integer.") from None
-
-    try:
-        raw_size = int(params.get("size", str(_DEFAULT_PAGE_SIZE)))
-    except ValueError:
-        raise HTTPBadRequest("'size' must be an integer.") from None
-    size = min(max(1, raw_size), _MAX_PAGE_SIZE)
-
-    sort_field = "submitted_date"
-    sort_dir = "desc"
-    requested_field = params.get("sort[0][field]")
-    if requested_field is not None:
-        requested_dir = params.get("sort[0][dir]", "desc")
-        if requested_dir not in ("asc", "desc"):
-            raise HTTPBadRequest("'sort[0][dir]' must be 'asc' or 'desc'.")
-        if requested_field in _SORTABLE_FIELDS:
-            sort_field = requested_field
-            sort_dir = requested_dir
-
-    filters: dict[str, str] = {}
-    i = 0
-    while (field := params.get(f"filter[{i}][field]")) is not None:
-        value = (params.get(f"filter[{i}][value]") or "").strip()
-        if len(value) > _MAX_FILTER_LENGTH:
-            raise HTTPBadRequest(
-                f"Filter values must be <= {_MAX_FILTER_LENGTH} characters."
-            )
-        if value and field in _FILTER_BUILDERS:
-            filters[field] = value
-        i += 1
-
-    parsed = _TabulatorParams(
-        page=page, size=size, sort_field=sort_field, sort_dir=sort_dir, filters=filters
-    )
-    if parsed.offset >= _MAX_OFFSET:
-        raise HTTPBadRequest(f"Cannot paginate beyond {_MAX_OFFSET} rows.")
-    return parsed
-
-
-def _build_order_by(params: _TabulatorParams) -> tuple[ColumnElement[Any], ...]:
+def _build_order_by(params: TabulatorParams) -> tuple[ColumnElement[Any], ...]:
     """Choose an ordering the indexes can serve without a sort step.
 
     Plain asc/desc keeps PostgreSQL's native NULL placement (last on ASC,
@@ -177,7 +113,7 @@ def _build_order_by(params: _TabulatorParams) -> tuple[ColumnElement[Any], ...]:
     return (JournalEntry.submitted_date.asc(), JournalEntry.id.asc())
 
 
-def _build_journals_query(params: _TabulatorParams) -> Select[Any]:
+def _build_journals_query(params: TabulatorParams) -> Select[Any]:
     """Build the page SELECT, fetching one extra row to detect a next page."""
     conditions = [
         _FILTER_BUILDERS[field](value) for field, value in params.filters.items()
@@ -201,36 +137,20 @@ def _build_journals_query(params: _TabulatorParams) -> Select[Any]:
 
 def _render_tabulator_payload(request: Request) -> dict[str, Any]:
     """Execute the page query and shape Tabulator's expected response."""
-    params = _parse_tabulator_params(request.params)
-    rows = execute_bounded(
-        request, _build_journals_query(params), timeout_ms=_STATEMENT_TIMEOUT_MS
+    params = parse_tabulator_params(
+        request.params,
+        sortable_fields=_SORTABLE_FIELDS,
+        default_sort_field="submitted_date",
+        filter_fields=_FILTER_BUILDERS,
     )
-
-    # The deepest page the parser will accept for this size.
-    max_page = math.ceil(_MAX_OFFSET / params.size)
-    has_more = len(rows) > params.size
-    page_rows = rows[: params.size]
-    total: int | None = None
-    total_estimate: int | None = None
-    if not has_more:
-        # The final page is in reach, so the exact total is known without
-        # a count query: everything skipped plus everything returned.
-        last_page = params.page
-        total = params.offset + len(page_rows)
-    elif params.filters:
-        # Counting filtered matches is unbounded work on this table, so
-        # filtered pagination only advertises one page past the current one.
-        last_page = min(params.page + 1, max_page)
-    else:
-        # Unfiltered, the pg_class row estimate is accurate enough to size
-        # the pagination controls, bounded by the offset cap. Clamp to the
-        # rows already fetched (probe row included, so a next page is
-        # always advertised) in case the estimate is stale.
-        total_estimate = max(
-            estimate_row_count(request, [JournalEntry.__tablename__]),
-            params.offset + len(rows),
-        )
-        last_page = min(math.ceil(total_estimate / params.size), max_page)
+    rows = execute_bounded(
+        request,
+        _build_journals_query(params),
+        timeout_ms=TABULATOR_STATEMENT_TIMEOUT_MS,
+    )
+    page_rows, pagination = tabulator_page(
+        request, rows, params, table_names=[JournalEntry.__tablename__]
+    )
 
     # Project-scoped pages repeat the same name on every row; generate each
     # distinct link once.
@@ -256,14 +176,7 @@ def _render_tabulator_payload(request: Request) -> dict[str, Any]:
         for row in page_rows
     ]
 
-    # `total` is exact when set; `total_estimate` is the table estimate for
-    # unfiltered browsing. Both are null when more filtered pages exist.
-    return {
-        "last_page": last_page,
-        "total": total,
-        "total_estimate": total_estimate,
-        "data": data,
-    }
+    return {**pagination, "data": data}
 
 
 @view_config(
