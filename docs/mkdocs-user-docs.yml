@@ -85,6 +85,7 @@ nav:
       - "using-pypi/troubleshooting.md"
   - "Configuring and Managing PyPI Projects":
       - "project-management/choosing-a-name.md"
+      - "project-management/name-retention.md"
       - "project-management/project-descriptions.md"
       - "project_metadata.md"
       - "archives.md"

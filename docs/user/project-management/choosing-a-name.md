@@ -17,4 +17,4 @@ Even if a project doesn't appear on PyPI, your desired name might be unavailable
 
 ## How do I claim an abandoned or previously registered project name?
 
-To claim an abandoned or unused project name, follow the name transfer process in [PEP 541](https://peps.python.org/pep-0541/).
+To claim an abandoned or unused project name, follow the name transfer process described in [Name Retention](name-retention.md), PyPI's policy based on [PEP 541](https://peps.python.org/pep-0541/).

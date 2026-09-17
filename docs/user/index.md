@@ -19,7 +19,8 @@ This documentation site (docs.pypi.org) covers how to use the PyPI website and [
 
 ### Configuring and Managing PyPI Projects
 
-* [Choosing a Project Name](project-management/choosing-a-name.md) - Why a name might not be available, and how to claim an abandoned one
+* [Choosing a Project Name](project-management/choosing-a-name.md) - Choosing a name, and why one might not be available
+* [Name Retention](project-management/name-retention.md) - PyPI's policy (PEP 541) for reclaiming abandoned or unused project names
 * [Project Descriptions](project-management/project-descriptions.md) - Writing short and long descriptions for your PyPI page
 * [Project Metadata](project_metadata.md) - How PyPI displays and verifies project metadata, including project URLs
 * [Archive Formats](archives.md) - Archive format restrictions PyPI enforces on wheels and source distributions
