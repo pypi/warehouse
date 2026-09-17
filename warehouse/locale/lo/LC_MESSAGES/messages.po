@@ -4165,16 +4165,16 @@ msgstr[0] "ຜູ້ດູແລ %(count)s ຄົນ"
 msgid "Owner"
 msgstr "ເຈົ້າຂອງ"
 
-#: warehouse/templates/includes/packaging/metadata/project-links.html:62
+#: warehouse/templates/includes/packaging/metadata/project-links.html:64
 msgid "Project links"
 msgstr "ລິ້ງຂອງໂປຣເຈັກ"
 
-#: warehouse/templates/includes/packaging/metadata/project-links.html:68
+#: warehouse/templates/includes/packaging/metadata/project-links.html:70
 #, python-format
 msgid "Data verified by PyPI on %(date)s"
 msgstr "ຂໍ້ມູນໄດ້ຮັບການຢືນຢັນໂດຍ PyPI ເມື່ອ %(date)s"
 
-#: warehouse/templates/includes/packaging/metadata/project-links.html:71
+#: warehouse/templates/includes/packaging/metadata/project-links.html:73
 msgid ""
 "Data provided by the project maintainers, verified at the time the release "
 "was uploaded to PyPI."
