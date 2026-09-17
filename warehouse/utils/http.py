@@ -1,9 +1,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
+import re
 import unicodedata
 
 from rfc3986 import exceptions, uri_reference, validators
 from urllib3.util import parse_url
+
+# WSGI servers reject header values containing control characters. Gunicorn
+# validates against ``[ \t\x21-\x7e\x80-\xff]``, so anything in the C0 range
+# (plus DEL) makes it raise InvalidHeader from start_response. That escapes as
+# an unhandled exception and is answered by gunicorn's own error page, which
+# echoes the offending value back, rather than by the response we intend.
+CONTROL_CHARS = re.compile(r"[\x00-\x1f\x7f]")
 
 
 # FROM https://github.com/django/django/blob/
