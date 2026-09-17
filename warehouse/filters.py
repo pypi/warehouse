@@ -162,14 +162,18 @@ def url_icon(url, name):
             return "fab fa-gitter"
         case _, hostname if hostname in {"discord.com", "discordapp.com", "discord.gg"}:
             return "fab fa-discord"
-        case _, hostname if hostname == "google.com" or hostname.endswith(".google.com"):
+        case _, hostname if (
+            hostname == "google.com" or hostname.endswith(".google.com")
+        ):
             return "fab fa-google"
 
         case _, hostname if (
             hostname == "bitbucket.org" or hostname.endswith(".bitbucket.org")
         ):
             return "fab fa-bitbucket"
-        case _, hostname if hostname == "reddit.com" or hostname.endswith(".reddit.com"):
+        case _, hostname if (
+            hostname == "reddit.com" or hostname.endswith(".reddit.com")
+        ):
             return "fab fa-reddit-alien"
         case name, hostname if (
             name.startswith("slack")
@@ -213,7 +217,9 @@ def url_icon(url, name):
             "pypi.python.org",
         }:
             return "fas fa-cube"
-        case _, hostname if hostname == "python.org" or hostname.endswith(".python.org"):
+        case _, hostname if (
+            hostname == "python.org" or hostname.endswith(".python.org")
+        ):
             return "fab fa-python"
         case _, hostname if (
             hostname in {"youtube.com", "youtu.be"}
