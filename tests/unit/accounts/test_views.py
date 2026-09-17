@@ -1831,7 +1831,11 @@ class TestLogout:
         # The set of all possible next URLs. Since this set is infinite, we
         # test only a finite set of reasonable URLs.
         ("expected_next_url", "observed_next_url"),
-        [("/security/", "/security/"), ("http://example.com", "/")],
+        [
+            ("/security/", "/security/"),
+            ("http://example.com", "/"),
+            ("\n/example.com/", "/"),
+        ],
     )
     def test_post_redirects_user(
         self, pyramid_request, expected_next_url, observed_next_url
@@ -1849,7 +1853,11 @@ class TestLogout:
         # The set of all possible next URLs. Since this set is infinite, we
         # test only a finite set of reasonable URLs.
         ("expected_next_url", "observed_next_url"),
-        [("/security/", "/security/"), ("http://example.com", "/")],
+        [
+            ("/security/", "/security/"),
+            ("http://example.com", "/"),
+            ("\n/example.com/", "/"),
+        ],
     )
     def test_get_redirects_anonymous_user(
         self, pyramid_request, expected_next_url, observed_next_url
