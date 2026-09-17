@@ -319,6 +319,39 @@
 </form>
 </section>
 <hr>
+{# Display preference: chosen copy format is persisted in the
+   "pypi-installer" cookie by the installer-command Stimulus controller.
+   No backend round-trip; the project detail page reads the same cookie. #}
+<section id="display-preferences"
+         data-controller="installer-command"
+         data-installer-command-name-value="example-package"
+         data-installer-command-spec-value=""
+         data-installer-command-index-value=""
+         data-installer-command-quote-value="false">
+  <h2 class="sub-title">{% trans %}Display preferences{% endtrans %}</h2>
+  <div class="form-group">
+    <label class="form-group__label" for="default-installer">{% trans %}Default copy format{% endtrans %}</label>
+    <select id="default-installer"
+            disabled
+            class="form-group__field"
+            data-installer-command-target="select"
+            data-action="change->installer-command#change">
+      <option value="pip">pip</option>
+      <option value="uv">uv</option>
+      <option value="poetry">poetry</option>
+      <option value="pdm">pdm</option>
+      <option value="pipenv">pipenv</option>
+      <option value="name">{% trans %}Project name{% endtrans %}</option>
+    </select>
+    <p class="form-group__help-text">
+      {% trans %}Choose an installer or just the project name to copy from project pages. Stored as a cookie in your browser.{% endtrans %}
+      <br>
+      {% trans %}Preview:{% endtrans %}
+      <code data-installer-command-target="full">pip install example-package</code>
+    </p>
+  </div>
+</section>
+<hr>
 {{ form_error_anchor(add_email_form) }}
 <section id="account-emails">
   <h2 class="sub-title">{% trans %}Account emails{% endtrans %}</h2>
