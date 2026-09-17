@@ -39,6 +39,12 @@ class TestIsSafeUrl:
             "/\r/evil.com/",
             "/\t\t/evil.com",
             "//\tevil.com/",
+            # Callers put the URL we approve here straight into a Location
+            # header, so a control character anywhere in it makes webob refuse
+            # to build the response.
+            "\n/example.com/",
+            "/example.com/\r\n",
+            "/exa\x7fmple/",
         ],
     )
     def test_rejects_bad_url(self, url):
