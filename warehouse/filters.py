@@ -48,12 +48,10 @@ def _camo_url(request, url):
     camo_key = request.registry.settings["camo.key"].encode("utf8")
     url = url.encode("utf8")
 
-    path = "/".join(
-        [
-            hmac.new(camo_key, url, digestmod="sha1").hexdigest(),
-            binascii.hexlify(url).decode("utf8"),
-        ]
-    )
+    path = "/".join([
+        hmac.new(camo_key, url, digestmod="sha1").hexdigest(),
+        binascii.hexlify(url).decode("utf8"),
+    ])
 
     return urllib.parse.urljoin(camo_url, path)
 
@@ -121,58 +119,55 @@ def url_icon(url, name):
             return "fas fa-scroll"
         case name, hostname if (
             name.startswith(("docs", "documentation"))
-            or hostname in {
+            or hostname
+            in {
                 "readthedocs.io",
                 "readthedocs.org",
                 "rtfd.io",
                 "rtfd.org",
             }
-            or hostname.endswith(
-                (
-                    ".readthedocs.io",
-                    ".readthedocs.org",
-                    ".rtfd.io",
-                    ".rtfd.org",
-                )
-            )
+            or hostname.endswith((
+                ".readthedocs.io",
+                ".readthedocs.org",
+                ".rtfd.io",
+                ".rtfd.org",
+            ))
             or hostname.startswith(("docs.", "documentation."))
         ):
             return "fas fa-book"
         case name, _ if name.startswith(("bug", "issue", "tracker", "report")):
             return "fas fa-bug"
-        case name, _ if name.startswith(
-            ("funding", "donate", "donation", "sponsor")
-        ):
+        case name, _ if name.startswith(("funding", "donate", "donation", "sponsor")):
             return "fas fa-donate"
-        case _, hostname if (
-            hostname in {"github.com", "github.io"}
-            or hostname.endswith((".github.com", ".github.io"))
-        ):
+        case _, hostname if hostname in {
+            "github.com",
+            "github.io",
+        } or hostname.endswith((".github.com", ".github.io")):
             return "fab fa-github"
-        case _, hostname if (
-            hostname == "gitlab.com" or hostname.endswith(".gitlab.com")
+        case _, hostname if hostname == "gitlab.com" or hostname.endswith(
+            ".gitlab.com"
         ):
             return "fab fa-gitlab"
-        case _, hostname if (
-            hostname in {"codeberg.org", "codeberg.page"}
-            or hostname.endswith((".codeberg.org", ".codeberg.page"))
-        ):
+        case _, hostname if hostname in {
+            "codeberg.org",
+            "codeberg.page",
+        } or hostname.endswith((".codeberg.org", ".codeberg.page")):
             return "fab fa-codeberg"
         case _, hostname if hostname == "gitter.im" or hostname.endswith(".gitter.im"):
             return "fab fa-gitter"
         case _, hostname if hostname in {"discord.com", "discordapp.com", "discord.gg"}:
             return "fab fa-discord"
-        case _, hostname if (
-            hostname == "google.com" or hostname.endswith(".google.com")
+        case _, hostname if hostname == "google.com" or hostname.endswith(
+            ".google.com"
         ):
             return "fab fa-google"
 
-        case _, hostname if (
-            hostname == "bitbucket.org" or hostname.endswith(".bitbucket.org")
+        case _, hostname if hostname == "bitbucket.org" or hostname.endswith(
+            ".bitbucket.org"
         ):
             return "fab fa-bitbucket"
-        case _, hostname if (
-            hostname == "reddit.com" or hostname.endswith(".reddit.com")
+        case _, hostname if hostname == "reddit.com" or hostname.endswith(
+            ".reddit.com"
         ):
             return "fab fa-reddit-alien"
         case name, hostname if (
@@ -181,34 +176,29 @@ def url_icon(url, name):
             or hostname.endswith(".slack.com")
         ):
             return "fab fa-slack"
-        case _, hostname if (
-            hostname in {"twitter.com", "x.com"}
-            or hostname.endswith((".twitter.com", ".x.com"))
-        ):
+        case _, hostname if hostname in {"twitter.com", "x.com"} or hostname.endswith((
+            ".twitter.com",
+            ".x.com",
+        )):
             return "fab fa-twitter"
         case name, hostname if name == "bluesky" or hostname == "bsky.app":
             return "fab fa-bluesky"
 
-        case _, hostname if (
-            hostname in {
-                "ci.appveyor.com",
-                "circleci.com",
-                "codecov.io",
-                "coveralls.io",
-                "travis-ci.com",
-                "travis-ci.org",
-            }
-            or hostname.endswith(
-                (
-                    ".appveyor.com",
-                    ".circleci.com",
-                    ".codecov.io",
-                    ".coveralls.io",
-                    ".travis-ci.org",
-                    ".travis-ci.com",
-                )
-            )
-        ):
+        case _, hostname if hostname in {
+            "ci.appveyor.com",
+            "circleci.com",
+            "codecov.io",
+            "coveralls.io",
+            "travis-ci.com",
+            "travis-ci.org",
+        } or hostname.endswith((
+            ".appveyor.com",
+            ".circleci.com",
+            ".codecov.io",
+            ".coveralls.io",
+            ".travis-ci.org",
+            ".travis-ci.com",
+        )):
             return "fas fa-tasks"
         case _, hostname if hostname in {
             "cheeseshop.python.org",
@@ -217,14 +207,14 @@ def url_icon(url, name):
             "pypi.python.org",
         }:
             return "fas fa-cube"
-        case _, hostname if (
-            hostname == "python.org" or hostname.endswith(".python.org")
+        case _, hostname if hostname == "python.org" or hostname.endswith(
+            ".python.org"
         ):
             return "fab fa-python"
-        case _, hostname if (
-            hostname in {"youtube.com", "youtu.be"}
-            or hostname.endswith((".youtube.com", ".youtu.be"))
-        ):
+        case _, hostname if hostname in {
+            "youtube.com",
+            "youtu.be",
+        } or hostname.endswith((".youtube.com", ".youtu.be")):
             return "fab fa-youtube"
         case "mastodon", _:
             return "fab fa-mastodon"
