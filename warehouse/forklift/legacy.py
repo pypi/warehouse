@@ -1779,7 +1779,7 @@ def file_upload(request):
         )
     )
 
-    request.db.flush()  # server default columns for celery  # ast-grep-ignore: db-flush
+    request.db.flush()  # ast-grep-ignore: db-flush -- server default columns for celery
 
     # Push updates to BigQuery
     dist_metadata = {

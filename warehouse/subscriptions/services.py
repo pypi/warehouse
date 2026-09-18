@@ -442,7 +442,7 @@ class StripeSubscriptionService:
 
         self.db.add(subscription)
         self.db.add(organization_subscription)
-        self.db.flush()  # generate subscription.id  # ast-grep-ignore: db-flush
+        self.db.flush()  # ast-grep-ignore: db-flush -- generate subscription.id
 
         # Create new subscription item.
         subscription_item = StripeSubscriptionItem(
@@ -545,7 +545,7 @@ class StripeSubscriptionService:
         )
 
         self.db.add(stripe_customer)
-        self.db.flush()  # generate stripe_customer.id  # ast-grep-ignore: db-flush
+        self.db.flush()  # ast-grep-ignore: db-flush -- generate stripe_customer.id
 
         return stripe_customer
 
@@ -607,7 +607,7 @@ class StripeSubscriptionService:
         )
 
         self.db.add(subscription_product)
-        self.db.flush()  # generate subscription_product.id  # ast-grep-ignore: db-flush
+        self.db.flush()  # ast-grep-ignore: db-flush -- generate subscription_product.id
 
         return subscription_product
 
@@ -715,7 +715,7 @@ class StripeSubscriptionService:
         )
 
         self.db.add(subscription_price)
-        self.db.flush()  # generate subscription_price.id  # ast-grep-ignore: db-flush
+        self.db.flush()  # ast-grep-ignore: db-flush -- generate subscription_price.id
 
         return subscription_price
 

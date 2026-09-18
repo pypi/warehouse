@@ -518,7 +518,7 @@ class ManageVerifiedAccountViews(ManageAccountMixin):
                 request=self.request,
             )
             send_password_change_email(self.request, self.request.user)
-            self.request.db.flush()  # user.password_date # ast-grep-ignore: db-flush
+            self.request.db.flush()  # ast-grep-ignore: db-flush -- user.password_date
             self.request.db.refresh(self.request.user)  # Pickup new password_date
             self.request.session.record_password_timestamp(
                 self.user_service.get_password_timestamp(self.request.user.id)

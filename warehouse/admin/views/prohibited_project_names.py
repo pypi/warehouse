@@ -218,7 +218,7 @@ def release_prohibited_project_name(request):
         f"{project.name!r} released to {user.username!r}.", queue="success"
     )
 
-    request.db.flush()  # generate project.normalized_name  # ast-grep-ignore: db-flush
+    request.db.flush()  # ast-grep-ignore: db-flush -- generate project.normalized_name
 
     return HTTPSeeOther(
         request.route_path("admin.project.detail", project_name=project.normalized_name)
@@ -253,7 +253,7 @@ def _release_to_organization(
     project = Project(name=project_name)
     request.db.add(project)
     request.db.delete(prohibited_project_name)
-    request.db.flush()  # generate project.id  # ast-grep-ignore: db-flush
+    request.db.flush()  # ast-grep-ignore: db-flush -- generate project.id
 
     add_organization_project_and_notify(request, organization, project)
 
@@ -329,7 +329,7 @@ def ultranorm_release_project_name(request):
         f"(ultranorm conflict with {similar_project_name!r}).",
         queue="success",
     )
-    request.db.flush()  # generate project.normalized_name  # ast-grep-ignore: db-flush
+    request.db.flush()  # ast-grep-ignore: db-flush -- generate project.normalized_name
 
     return HTTPSeeOther(
         request.route_path("admin.project.detail", project_name=project.normalized_name)
