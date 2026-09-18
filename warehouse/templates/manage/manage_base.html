@@ -228,85 +228,16 @@
     {% endblock %}
     <div class="vertical-tabs">
       <div class="vertical-tabs__tabs">
-        <div class="sidebar-section">
-          <nav aria-label="{% trans %}Account navigation{% endtrans %}">
-            <ul class="vertical-tabs__list">
-              <li>
-                <a href="{{ request.route_path('manage.projects') }}"
-                   class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'projects' %}vertical-tabs__tab--is-active{% endif %}"
-                   {% if active_tab == 'projects' %}aria-selected="true"{% endif %}>
-                  <i class="fa fa-lg fa-cubes" aria-hidden="true"></i>
-                  {% trans %}Your projects{% endtrans %}
-                </a>
-              </li>
-              <li>
-                <a href="{{ request.route_path('manage.organizations') }}"
-                   class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'organizations' %}vertical-tabs__tab--is-active{% endif %}"
-                   {% if active_tab == 'organizations' %}aria-selected="true"{% endif %}>
-                  <i class="fa fa-sitemap" aria-hidden="true"></i>
-                  {% trans %}Your organizations{% endtrans %}
-                </a>
-              </li>
-              <li>
-                <a href="{{ request.route_path('manage.account') }}"
-                   class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'account' %}vertical-tabs__tab--is-active{% endif %}"
-                   {% if active_tab == 'account' %}aria-selected="true"{% endif %}>
-                  <i class="fa fa-cog" aria-hidden="true"></i>
-                  {% trans %}Account settings{% endtrans %}
-                </a>
-              </li>
-              <li>
-                <a href="{{ request.route_path('manage.account.publishing') }}"
-                   class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'publishing' %}vertical-tabs__tab--is-active{% endif %}"
-                   {% if active_tab == 'publishing' %}aria-selected="true"{% endif %}>
-                  <i class="fa fa-upload" aria-hidden="true"></i>
-                  {% trans %}Publishing{% endtrans %}
-                </a>
-              </li>
-            </ul>
-          </nav>
-        </div>
+        <div class="sidebar-section">{% include "warehouse:templates/includes/manage/manage-account-menu.html" %}</div>
       </div>
       <div class="vertical-tabs__panel">
         <!-- mobile nav -->
-        <nav aria-label="{% trans %}Account navigation{% endtrans %}">
-          <ul class="vertical-tabs__list">
-            <li>
-              <a href="{{ request.route_path('manage.projects') }}"
-                 class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--with-icon vertical-tabs__tab--no-top-border {% if active_tab == 'projects' %}vertical-tabs__tab--is-active{% endif %}"
-                 {% if active_tab == 'projects' %}aria-selected="true"{% endif %}>
-                <i class="fa fa-lg fa-cubes" aria-hidden="true"></i>
-                {% trans %}Your projects{% endtrans %}
-              </a>
-            </li>
-            <li>
-              <a href="{{ request.route_path('manage.organizations') }}"
-                 class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--with-icon vertical-tabs__tab--no-top-border {% if active_tab == 'organizations' %}vertical-tabs__tab--is-active{% endif %}"
-                 {% if active_tab == 'organizations' %}aria-selected="true"{% endif %}>
-                <i class="fa fa-sitemap" aria-hidden="true"></i>
-                {% trans %}Your organizations{% endtrans %}
-              </a>
-            </li>
-            <li>
-              <a href="{{ request.route_path('manage.account') }}"
-                 class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--with-icon vertical-tabs__tab--no-top-border {% if active_tab == 'account' %}vertical-tabs__tab--is-active{% endif %}"
-                 {% if active_tab == 'account' %}aria-selected="true"{% endif %}>
-                <i class="fa fa-cog" aria-hidden="true"></i>
-                {% trans %}Account settings{% endtrans %}
-              </a>
-            </li>
-            <li>
-              <a href="{{ request.route_path('manage.account.publishing') }}"
-                 class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--with-icon vertical-tabs__tab--no-top-border {% if active_tab == 'publishing' %}vertical-tabs__tab--is-active{% endif %}"
-                 {% if active_tab == 'publishing' %}aria-selected="true"{% endif %}>
-                <i class="fa fa-upload" aria-hidden="true"></i>
-                {% trans %}Publishing{% endtrans %}
-              </a>
-            </li>
-          </ul>
-        </nav>
+        {% with mode="mobile" %}
+          {% include "warehouse:templates/includes/manage/manage-account-menu.html" %}
+        {% endwith %}
         <div class="vertical-tabs__content">
-          {% block main %}{% endblock %}
+          {% block main %}
+          {% endblock %}
         </div>
       </div>
     </div>
