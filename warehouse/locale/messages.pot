@@ -3226,7 +3226,7 @@ msgid "Release files"
 msgstr ""
 
 #: warehouse/templates/includes/file-details.html:18
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:63
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:65
 #: warehouse/templates/includes/packaging/project-files.html:17
 #: warehouse/templates/includes/packaging/project-status.html:7
 msgid "File added late"

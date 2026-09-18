@@ -309,6 +309,7 @@
     }
 
     .file-info__meta--warning {
+      display: inline-block;
       padding-right: 5px;
       border-color: colors.$warning-color;
       color: colors.$warning-color;
@@ -335,8 +336,16 @@
         display: none;
       }
 
+      .file-info__meta--warning i {
+        display: inline-block;
+      }
+
       .file-info__meta {
         font-size: fonts.$base-font-size;
+      }
+
+      .file-info__meta--warning {
+        align-self: flex-start;
       }
 
       .file-info__meta-divider {
