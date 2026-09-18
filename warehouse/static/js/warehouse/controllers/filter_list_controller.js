@@ -58,16 +58,15 @@ export default class extends Controller {
     this._initFilterSelectOptions();
     this._initFilterComparisons();
 
-    // Get the filters from the url.
-    const filters = this._getFiltersUrlSearch();
+    // Update the filters from the url.
+    this._urlChanged();
 
-    // Set HTML element filters with all select options included.
-    const includedRaw = Object.entries(this.#initialSelectOptions);
-    const included = Object.fromEntries(includedRaw.map(([key, items]) => [key, items.map(item => item.value)]));
-    this._setFiltersHtmlElements(filters, included);
+    this._handleHistoryChange = this._handleHistoryChange.bind(this);
+    window.addEventListener("popstate", this._handleHistoryChange);
+  }
 
-    // Run the filter process.
-    this.filter();
+  disconnect() {
+    window.removeEventListener("popstate", this._handleHistoryChange);
   }
 
   /**
@@ -232,6 +231,21 @@ export default class extends Controller {
   }
 
   /**
+   * Update HTML elements and filter to match the current url.
+   * @private
+   */
+  _urlChanged() {
+    // Get the filters from the url.
+    const filters = this._getFiltersUrlSearch();
+
+    // Set HTML element filters with all select options included.
+    this._setFiltersHtmlElements(filters, null);
+
+    // Run the filter process.
+    this.filter();
+  }
+
+  /**
    * Show and hide items based on the filters.
    * @returns {{total: number, shown: number, filters: {[key: string]: string[]}, included: {[key: string]: string[]}}}
    * @private
@@ -358,11 +372,19 @@ export default class extends Controller {
    * There are two sources of data: the filter data and the currently included HTML element values.
    * The goal is to maintain the current HTML element values, and update the available filter options if possible.
    *
+   * If included is null, include all the HTML element values.
+   *
    * @param filters {{[key: string]: string[]}} The filters to set.
-   * @param included {{[key: string]: string[]}} The shown item values grouped by filter key.
+   * @param included {{[key: string]: string[]} | null} The shown item values grouped by filter key.
    * @private
    */
   _setFiltersHtmlElements(filters, included) {
+    if (included === null) {
+      const includedRaw = Object.entries(this.#initialSelectOptions);
+      included = Object.fromEntries(includedRaw.map(([key, items]) =>
+        [key, items.map(item => item.value)],
+      ));
+    }
     const filterTargets = this._getFilterTargets();
     for (const filterTarget of filterTargets) {
       const key = filterTarget.dataset.filteredSource;
@@ -541,14 +563,15 @@ export default class extends Controller {
     const currentUrl = new URL(startUrl);
     const filterTargets = this._getFilterTargets();
 
-    // Remove all existing search params.
-    currentUrl.search = "";
-
     for (const filterTarget of filterTargets) {
       const key = filterTarget.dataset.filteredSource;
+
       if (!enabledFilterTargets.includes(key)) {
         continue;
       }
+
+      // Reset this querystring key.
+      currentUrl.searchParams.delete(key);
 
       // Add the values to the querystring.
       const values = filters[key] ?? [];
@@ -560,5 +583,15 @@ export default class extends Controller {
     }
 
     return currentUrl;
+  }
+
+  _handleHistoryChange() {
+    function handleEvent(that) {
+      // Update the filters from the url.
+      that._urlChanged();
+    }
+
+    // Use setTimeout to ensure the new document state is already fully in place.
+    setTimeout(handleEvent, 0, this);
   }
 }

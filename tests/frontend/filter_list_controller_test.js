@@ -129,14 +129,14 @@ describe("Filter list controller", () => {
     document.body.innerHTML = "";
   });
 
-  describe("loads filter from url",  () => {
+  describe("loads filter from url", () => {
     it("should use the querystring", async () => {
-      const url = "http://localhost/?description=1&myattr=myattr1&contentType=contentType1#testing";
+      const url = "http://localhost/?description=1&myattr=myattr1&other=1&contentType=contentType1&something=two#testing";
       window.history.replaceState({}, "", decodeURIComponent(url));
 
       const application = await appStart();
 
-      expect(document.location.href).toEqual("http://localhost/?myattr=myattr1&contentType=contentType1#testing");
+      expect(document.location.href).toEqual("http://localhost/?description=1&other=1&something=two&myattr=myattr1&contentType=contentType1#testing");
 
       expectedSelectOptions("filter-select-myattr", [
         ["", false], ["myattr1", true], ["myattr2", false], ["myattr3", false],
@@ -146,6 +146,45 @@ describe("Filter list controller", () => {
       ]);
       expect(document.getElementById("filter-input-description").value).toEqual("");
 
+
+      const elP = document.getElementById("url-update");
+      expect(document.location.href).toEqual("http://localhost/?description=1&other=1&something=two&myattr=myattr1&contentType=contentType1#testing");
+      expect(elP.href).toEqual("http://localhost/?myattr=myattr1&contentType=contentType1#testing");
+
+      expect(document.getElementsByClassName("my-item").length).toEqual(3);
+      const elItem1 = document.getElementById("item-1");
+      expect(elItem1.classList).not.toContainEqual("hidden");
+
+      const elItem2 = document.getElementById("item-2");
+      expect(elItem2.classList).toContainEqual("hidden");
+
+      const elItem3 = document.getElementById("item-3");
+      expect(elItem3.classList).toContainEqual("hidden");
+
+      appStop(application);
+    });
+    it("should load from the querystring on browser navigation", async () => {
+      const url = "http://localhost/?description=something&myattr=myattr1&other=1&contentType=contentType1&something=two#testing";
+      window.history.pushState({}, "", decodeURIComponent(url));
+      window.history.pushState({}, "", decodeURIComponent("http://localhost/#testing"));
+
+      const application = await appStart();
+
+      expect(document.location.href).toEqual("http://localhost/#testing");
+
+      window.history.back();
+
+      await delay(50);
+
+      expect(document.location.href).toEqual("http://localhost/?description=something&other=1&something=two&myattr=myattr1&contentType=contentType1#testing");
+
+      expectedSelectOptions("filter-select-myattr", [
+        ["", false], ["myattr1", true], ["myattr2", false], ["myattr3", false],
+      ]);
+      expectedSelectOptions("filter-select-contentType", [
+        ["", false], ["contentType1", true], ["contentType2", false], ["contentType3", false],
+      ]);
+      expect(document.getElementById("filter-input-description").value).toEqual("");
 
       const elP = document.getElementById("url-update");
       expect(elP.href).toEqual("http://localhost/?myattr=myattr1&contentType=contentType1#testing");
@@ -161,6 +200,7 @@ describe("Filter list controller", () => {
       expect(elItem3.classList).toContainEqual("hidden");
 
       appStop(application);
+
     });
   });
 

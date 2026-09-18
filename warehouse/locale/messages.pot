@@ -997,11 +997,11 @@ msgstr ""
 msgid "Copied"
 msgstr ""
 
-#: warehouse/static/js/warehouse/controllers/filter_list_controller.js:475
+#: warehouse/static/js/warehouse/controllers/filter_list_controller.js:497
 msgid "No built distributions (wheels) match the current filters."
 msgstr ""
 
-#: warehouse/static/js/warehouse/controllers/filter_list_controller.js:482
+#: warehouse/static/js/warehouse/controllers/filter_list_controller.js:504
 msgid "Showing %1 of %2 built distribution (wheel) file."
 msgid_plural "Showing %1 of %2 built distribution (wheel) files."
 msgstr[0] ""
