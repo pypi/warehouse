@@ -3,6 +3,7 @@
 from typing import Any, NamedTuple
 
 from pyramid.exceptions import ConfigurationError
+from sqlalchemy import inspect as sa_inspect
 from sqlalchemy.orm.base import NO_VALUE
 from urllib3.util import parse_url
 
@@ -12,6 +13,7 @@ from warehouse.legacy.api.xmlrpc.cache.derivers import cached_return_view
 from warehouse.legacy.api.xmlrpc.cache.fncache import RedisLru
 from warehouse.legacy.api.xmlrpc.cache.interfaces import IXMLRPCCache
 from warehouse.legacy.api.xmlrpc.cache.services import NullXMLRPCCache, RedisXMLRPCCache
+from warehouse.packaging.models import Project
 from warehouse.utils.db import orm_session_from_obj
 
 __all__ = ["RedisLru"]
@@ -42,6 +44,13 @@ def store_purge_keys(config, session, flush_context):
     # Go through each new, changed, and deleted object and attempt to store
     # a cache key that we'll want to purge when the session has been committed.
     for obj in session.new | session.dirty | session.deleted:
+        # Audit events do not change publicly cached project content.
+        if (
+            obj.__class__ == Project
+            and obj in session.dirty
+            and sa_inspect(obj).committed_state.keys() == {"events"}
+        ):
+            continue
         try:
             key_maker = cache_keys[obj.__class__]
         except KeyError:
