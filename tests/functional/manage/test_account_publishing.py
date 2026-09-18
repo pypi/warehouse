@@ -92,9 +92,7 @@ class TestManageAccountPublishing:
         flash_messages = webtest.get(
             "/_includes/unauthed/flash-messages/", status=HTTPStatus.OK
         )
-        success_message = flash_messages.html.find(
-            "span", {"class": "banner__message"}
-        )
+        success_message = flash_messages.html.find("span", {"class": "banner__message"})
         assert success_message is not None
         assert "Registered a new pending publisher" in success_message.text
         assert "test-project" in success_message.text
@@ -158,9 +156,7 @@ class TestManageAccountPublishing:
         flash_messages = webtest.get(
             "/_includes/unauthed/flash-messages/", status=HTTPStatus.OK
         )
-        success_message = flash_messages.html.find(
-            "span", {"class": "banner__message"}
-        )
+        success_message = flash_messages.html.find("span", {"class": "banner__message"})
         assert success_message is not None
         assert "Registered a new pending publisher" in success_message.text
         assert "gitlab-project" in success_message.text
