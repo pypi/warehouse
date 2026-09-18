@@ -48,10 +48,12 @@ def _camo_url(request, url):
     camo_key = request.registry.settings["camo.key"].encode("utf8")
     url = url.encode("utf8")
 
-    path = "/".join([
-        hmac.new(camo_key, url, digestmod="sha1").hexdigest(),
-        binascii.hexlify(url).decode("utf8"),
-    ])
+    path = "/".join(
+        [
+            hmac.new(camo_key, url, digestmod="sha1").hexdigest(),
+            binascii.hexlify(url).decode("utf8"),
+        ]
+    )
 
     return urllib.parse.urljoin(camo_url, path)
 
@@ -126,12 +128,14 @@ def url_icon(url, name):
                 "rtfd.io",
                 "rtfd.org",
             }
-            or hostname.endswith((
-                ".readthedocs.io",
-                ".readthedocs.org",
-                ".rtfd.io",
-                ".rtfd.org",
-            ))
+            or hostname.endswith(
+                (
+                    ".readthedocs.io",
+                    ".readthedocs.org",
+                    ".rtfd.io",
+                    ".rtfd.org",
+                )
+            )
             or hostname.startswith(("docs.", "documentation."))
         ):
             return "fas fa-book"
@@ -176,10 +180,12 @@ def url_icon(url, name):
             or hostname.endswith(".slack.com")
         ):
             return "fab fa-slack"
-        case _, hostname if hostname in {"twitter.com", "x.com"} or hostname.endswith((
-            ".twitter.com",
-            ".x.com",
-        )):
+        case _, hostname if hostname in {"twitter.com", "x.com"} or hostname.endswith(
+            (
+                ".twitter.com",
+                ".x.com",
+            )
+        ):
             return "fab fa-twitter"
         case name, hostname if name == "bluesky" or hostname == "bsky.app":
             return "fab fa-bluesky"
@@ -191,14 +197,16 @@ def url_icon(url, name):
             "coveralls.io",
             "travis-ci.com",
             "travis-ci.org",
-        } or hostname.endswith((
-            ".appveyor.com",
-            ".circleci.com",
-            ".codecov.io",
-            ".coveralls.io",
-            ".travis-ci.org",
-            ".travis-ci.com",
-        )):
+        } or hostname.endswith(
+            (
+                ".appveyor.com",
+                ".circleci.com",
+                ".codecov.io",
+                ".coveralls.io",
+                ".travis-ci.org",
+                ".travis-ci.com",
+            )
+        ):
             return "fas fa-tasks"
         case _, hostname if hostname in {
             "cheeseshop.python.org",

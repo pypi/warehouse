@@ -31,10 +31,12 @@ def test_now_with_timezone():
 
 
 def test_camo_url(pyramid_request):
-    pyramid_request.registry.settings.update({
-        "camo.url": "https://camo.example.net/",
-        "camo.key": "fake key",
-    })
+    pyramid_request.registry.settings.update(
+        {
+            "camo.url": "https://camo.example.net/",
+            "camo.key": "fake key",
+        }
+    )
     c_url = filters._camo_url(pyramid_request, "http://example.com/image.jpg")
     assert c_url == (
         "https://camo.example.net/b410d235a3d2fc44b50ccab827e531dece213062/"
@@ -46,10 +48,12 @@ class TestCamoify:
     def test_camoify(self, pyramid_request):
         html = "<img src=http://example.com/image.jpg>"
 
-        pyramid_request.registry.settings.update({
-            "camo.url": "https://camo.example.net/",
-            "camo.key": "fake key",
-        })
+        pyramid_request.registry.settings.update(
+            {
+                "camo.url": "https://camo.example.net/",
+                "camo.key": "fake key",
+            }
+        )
         camo_url = partial(filters._camo_url, pyramid_request)
         pyramid_request.camo_url = camo_url
 
@@ -66,10 +70,12 @@ class TestCamoify:
     def test_camoify_no_src(self, pyramid_request, mocker):
         html = "<img>"
 
-        pyramid_request.registry.settings.update({
-            "camo.url": "https://camo.example.net/",
-            "camo.key": "fake key",
-        })
+        pyramid_request.registry.settings.update(
+            {
+                "camo.url": "https://camo.example.net/",
+                "camo.key": "fake key",
+            }
+        )
         camo_url = partial(filters._camo_url, pyramid_request)
         pyramid_request.camo_url = camo_url
 
@@ -123,11 +129,13 @@ def test_urlparse():
         ("Download", "https://example.com", "fas fa-cloud-download-alt"),
         ("Home", "https://example.com", "fas fa-home"),
         ("Documentation", "https://example.com", "fas fa-book"),
+        ("Changelog", "https://example.com", "fas fa-scroll"),
         ("Bug Tracker", "https://example.com", "fas fa-bug"),
         ("Funding", "https://example.com", "fas fa-donate"),
         ("Project", "https://github.com/example/project", "fab fa-github"),
         ("Project", "https://gitlab.com/example/project", "fab fa-gitlab"),
         ("Project", "https://codeberg.org/example/project", "fab fa-codeberg"),
+        ("Project", "https://gitter.im/example/project", "fab fa-gitter"),
         ("Project", "https://discord.gg/example", "fab fa-discord"),
         ("Project", "https://google.com/example", "fab fa-google"),
         ("Project", "https://bitbucket.org/example/project", "fab fa-bitbucket"),
