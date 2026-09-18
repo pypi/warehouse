@@ -145,6 +145,11 @@ from warehouse.utils.wheel import InvalidWheelEntryPointsError
         ("foo-0.0.0-ip27-none-any.whl", ["IronPython 2.7"]),
         ("foo-0.0.0-jy38-none-any.whl", ["Jython 3.8"]),
         ("foo-0.0.0-garbage-none-any.whl", ["garbage"]),
+        # An interpreter too short to carry a version, which packaging accepts
+        # and we give up on.
+        ("foo-0.0.0-py-none-any.whl", []),
+        # packaging rejects a tag component that does not start with a letter
+        # or an underscore, so this never yields a tag at all.
         ("foo-0.0.0-69-none-any.whl", []),
     ],
 )

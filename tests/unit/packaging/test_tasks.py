@@ -6,15 +6,16 @@ import uuid
 from pathlib import Path
 from unittest.mock import call
 
-import pretend
 import pytest
 
-from google.cloud.bigquery import SchemaField
+from google.cloud.bigquery import Client, SchemaField, Table
 from wtforms import Field, Form, StringField
 
 from warehouse.accounts.models import WebAuthn
 from warehouse.observations.models import ObservationKind
+from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import DependencyKind, Description
+from warehouse.packaging.services import LocalArchiveFileStorage, LocalFileStorage
 from warehouse.packaging.tasks import (
     _copy_file_to_cache,
     check_file_cache_tasks_outstanding,
@@ -60,12 +61,16 @@ class TestCopyFileToCache:
 
     @pytest.fixture
     def archive(self, mocker):
-        storage = mocker.Mock()
+        storage = mocker.create_autospec(LocalArchiveFileStorage, instance=True)
         storage.get_metadata.return_value = {"fizz": "buzz"}
         return storage
 
+    @pytest.fixture
+    def cache(self, mocker):
+        return mocker.create_autospec(LocalFileStorage, instance=True)
+
     def test_streams_in_chunks_and_closes_the_source(
-        self, bounded_stream, archive, mocker
+        self, bounded_stream, archive, cache
     ):
         content = b"x" * (3 * 1024 * 1024 + 17)
         stream = bounded_stream(content)
@@ -78,7 +83,6 @@ class TestCopyFileToCache:
             stored["meta"] = meta
             stored["filename"] = filename
 
-        cache = mocker.Mock()
         cache.store.side_effect = store
 
         _copy_file_to_cache(archive, cache, "some/file.whl")
@@ -90,11 +94,10 @@ class TestCopyFileToCache:
         assert not Path(stored["filename"]).exists()
 
     def test_closes_the_source_when_the_cache_upload_fails(
-        self, bounded_stream, archive, mocker
+        self, bounded_stream, archive, cache
     ):
         stream = bounded_stream(b"x" * 1024)
         archive.get.return_value = stream
-        cache = mocker.Mock()
         cache.store.side_effect = OSError("upload failed")
 
         with pytest.raises(OSError, match="upload failed"):
@@ -105,7 +108,7 @@ class TestCopyFileToCache:
 
 @pytest.mark.parametrize("cached", [True, False])
 @pytest.mark.parametrize("has_metadata", [True, False])
-def test_sync_file_to_cache(db_request, mocker, cached, has_metadata):
+def test_sync_file_to_cache(db_request, pyramid_services, mocker, cached, has_metadata):
     file = FileFactory(
         cached=cached,
         metadata_file_sha256_digest="deadbeef" if has_metadata else None,
@@ -118,15 +121,13 @@ def test_sync_file_to_cache(db_request, mocker, cached, has_metadata):
     def store(path, filename, *, meta=None):
         stored[path] = (Path(filename).read_bytes(), meta)
 
-    archive = mocker.Mock()
+    archive = mocker.create_autospec(LocalArchiveFileStorage, instance=True)
     archive.get_metadata.return_value = {"fizz": "buzz"}
     archive.get.side_effect = lambda path: io.BytesIO(contents[path])
-    cache = mocker.Mock()
+    cache = mocker.create_autospec(LocalFileStorage, instance=True)
     cache.store.side_effect = store
-    db_request.find_service = lambda iface, name=None: {
-        "archive": archive,
-        "cache": cache,
-    }[name]
+    pyramid_services.register_service(archive, IFileStorage, None, name="archive")
+    pyramid_services.register_service(cache, IFileStorage, None, name="cache")
 
     sync_file_to_cache(db_request, file.id)
 
@@ -155,10 +156,10 @@ def test_compute_packaging_metrics(db_request, metrics):
 
     compute_packaging_metrics(db_request)
 
-    assert metrics.gauge.calls == [
-        pretend.call("warehouse.packaging.total_projects", 2),
-        pretend.call("warehouse.packaging.total_releases", 3),
-        pretend.call("warehouse.packaging.total_files", 4),
+    assert metrics.gauge.call_args_list == [
+        call("warehouse.packaging.total_projects", 2),
+        call("warehouse.packaging.total_releases", 3),
+        call("warehouse.packaging.total_files", 4),
     ]
 
 
@@ -168,8 +169,8 @@ def test_check_file_cache_tasks_outstanding(db_request, metrics):
 
     check_file_cache_tasks_outstanding(db_request)
 
-    assert metrics.gauge.calls == [
-        pretend.call("warehouse.packaging.files.not_cached", 3)
+    assert metrics.gauge.call_args_list == [
+        call("warehouse.packaging.files.not_cached", 3)
     ]
 
 
@@ -182,7 +183,7 @@ class TestReconcileFileStorages:
             raise FileNotFoundError(f"No such key: {path!r}")
 
         def _sized_storage(sizes):
-            storage = mocker.Mock()
+            storage = mocker.create_autospec(LocalFileStorage, instance=True)
             storage.get_size.side_effect = lambda path: (
                 sizes[path] if path in sizes else _raise_not_found(path)
             )
@@ -191,15 +192,16 @@ class TestReconcileFileStorages:
         return _sized_storage
 
     @pytest.fixture
-    def reconcile(self, db_request, metrics):
+    def reconcile(self, db_request, pyramid_services):
         """Run the task against the given archive and cache storages."""
 
         def _reconcile(archive_storage, cache_storage):
-            db_request.find_service = lambda svc, name=None, context=None: {
-                "warehouse.packaging.interfaces.IFileStorage-archive": archive_storage,
-                "warehouse.packaging.interfaces.IFileStorage-cache": cache_storage,
-                "warehouse.metrics.interfaces.IMetricsService-None": metrics,
-            }.get(f"{svc}-{name}")
+            pyramid_services.register_service(
+                archive_storage, IFileStorage, None, name="archive"
+            )
+            pyramid_services.register_service(
+                cache_storage, IFileStorage, None, name="cache"
+            )
             db_request.registry.settings = {"reconcile_file_storages.batch_size": 3}
             reconcile_file_storages(db_request)
 
@@ -359,7 +361,7 @@ def test_update_description_html(monkeypatch, db_request):
     }
 
 
-def test_update_release_description(db_request):
+def test_update_release_description(db_request, mocker):
     description = DescriptionFactory.create(
         raw="rst\n===\n\nbody text",
         html="",
@@ -367,8 +369,7 @@ def test_update_release_description(db_request):
     )
     release = ReleaseFactory.create(description=description)
 
-    task = pretend.stub()
-    update_release_description(task, db_request, release.id)
+    update_release_description(mocker.sentinel.task, db_request, release.id)
 
     updated_description = db_request.db.get(Description, description.id)
     assert (
@@ -482,13 +483,13 @@ class TestUpdateBigQueryMetadata:
         [
             (
                 "example.pypi.distributions",
-                [pretend.call("example.pypi.distributions", timeout=5.0, retry=None)],
+                [call("example.pypi.distributions", timeout=5.0, retry=None)],
             ),
             (
                 "example.pypi.distributions some.other.table",
                 [
-                    pretend.call("example.pypi.distributions", timeout=5.0, retry=None),
-                    pretend.call("some.other.table", timeout=5.0, retry=None),
+                    call("example.pypi.distributions", timeout=5.0, retry=None),
+                    call("some.other.table", timeout=5.0, retry=None),
                 ],
             ),
         ],
@@ -497,6 +498,8 @@ class TestUpdateBigQueryMetadata:
     def test_insert_new_row(
         self,
         db_request,
+        pyramid_services,
+        mocker,
         release_files_table,
         expected_get_table_calls,
         form_factory,
@@ -512,19 +515,13 @@ class TestUpdateBigQueryMetadata:
         for value in form_factory.values():
             value.process(None)
 
-        get_table = pretend.stub(schema=bq_schema)
-        bigquery = pretend.stub(
-            get_table=pretend.call_recorder(lambda *a, **kw: get_table),
-            insert_rows_json=pretend.call_recorder(lambda *a, **kw: []),
-        )
+        bq_table = mocker.create_autospec(Table, instance=True)
+        bq_table.schema = bq_schema
+        bigquery = mocker.create_autospec(Client, instance=True)
+        bigquery.get_table.return_value = bq_table
+        bigquery.insert_rows_json.return_value = []
 
-        @pretend.call_recorder
-        def find_service(name=None):
-            if name == "gcloud.bigquery":
-                return bigquery
-            pytest.fail(f"Unexpected service name: {name}")
-
-        db_request.find_service = find_service
+        pyramid_services.register_service(bigquery, name="gcloud.bigquery")
         db_request.registry.settings = {
             "warehouse.release_files_table": release_files_table
         }
@@ -574,13 +571,11 @@ class TestUpdateBigQueryMetadata:
             "upload_time": release_file.upload_time,
         }
 
-        task = pretend.stub()
-        update_bigquery_release_files(task, db_request, dist_metadata)
+        update_bigquery_release_files(mocker.sentinel.task, db_request, dist_metadata)
 
-        assert db_request.find_service.calls == [pretend.call(name="gcloud.bigquery")]
-        assert bigquery.get_table.calls == expected_get_table_calls
-        assert bigquery.insert_rows_json.calls == [
-            pretend.call(
+        assert bigquery.get_table.call_args_list == expected_get_table_calls
+        assert bigquery.insert_rows_json.call_args_list == [
+            call(
                 table=table,
                 json_rows=[
                     {
@@ -638,16 +633,18 @@ class TestUpdateBigQueryMetadata:
             for table in release_files_table.split()
         ]
 
-    def test_var_is_none(self):
-        request = pretend.stub(
-            registry=pretend.stub(settings={"warehouse.release_files_table": None})
+    def test_var_is_none(self, mocker):
+        # Only the settings lookup runs before the early return, so this stays
+        # DB-free rather than pulling in the pyramid_request service graph.
+        request = mocker.Mock(spec=["registry"])
+        request.registry.settings = {"warehouse.release_files_table": None}
+
+        update_bigquery_release_files(
+            mocker.sentinel.task, request, mocker.sentinel.dist_metadata
         )
-        task = pretend.stub()
-        dist_metadata = pretend.stub()
-        update_bigquery_release_files(task, request, dist_metadata)
 
 
-def test_compute_2fa_metrics(db_request, monkeypatch):
+def test_compute_2fa_metrics(db_request, metrics):
     # A user without 2FA enabled
     UserFactory.create(totp_secret=None, webauthn=[])
 
@@ -672,15 +669,12 @@ def test_compute_2fa_metrics(db_request, monkeypatch):
     db_request.db.add(webauthn2)
     some_user.webauthn = [webauthn, webauthn2]
 
-    gauge = pretend.call_recorder(lambda metric, value: None)
-    db_request.find_service = lambda *a, **kw: pretend.stub(gauge=gauge)
-
     compute_2fa_metrics(db_request)
 
-    assert gauge.calls == [
-        pretend.call("warehouse.2fa.total_users_with_totp_enabled", 1),
-        pretend.call("warehouse.2fa.total_users_with_webauthn_enabled", 1),
-        pretend.call("warehouse.2fa.total_users_with_two_factor_enabled", 2),
+    assert metrics.gauge.call_args_list == [
+        call("warehouse.2fa.total_users_with_totp_enabled", 1),
+        call("warehouse.2fa.total_users_with_webauthn_enabled", 1),
+        call("warehouse.2fa.total_users_with_two_factor_enabled", 2),
     ]
 
 
