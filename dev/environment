@@ -27,7 +27,7 @@ SESSION_SECRET="an insecure development secret"
 BILLING_BACKEND=warehouse.subscriptions.services.MockStripeBillingService api_base=http://stripe:12111 api_version=2020-08-27 domain=localhost
 # BILLING_BACKEND=warehouse.subscriptions.services.StripeBillingService api_version=2020-08-27 publishable_key=pk_test_123 secret_key=sk_test_123 webhook_key=whsec_123 domain=localhost
 
-CAMO_URL={request.scheme}://{request.domain}:9000/
+CAMO_URL={request.scheme}://localhost:9000/
 CAMO_KEY=insecurecamokey
 
 # Example of a Live Reload URL for remote development
@@ -64,6 +64,8 @@ GITLAB_OAUTH_BACKEND=warehouse.accounts.oauth.NullGitLabOAuthClient
 METRICS_BACKEND=warehouse.metrics.DataDogMetrics host=notdatadog
 
 STATUSPAGE_URL=https://2p66nmmycsj3.statuspage.io
+
+ORGANIZATION_SERVICE_AGREEMENT_SURVEY_URL=https://www.surveymonkey.com/r/H53HHSS
 
 TOKEN_PASSWORD_SECRET="an insecure password reset secret key"
 TOKEN_EMAIL_SECRET="an insecure email verification secret key"
@@ -108,3 +110,7 @@ HELPDESK_NOTIFICATION_BACKEND="warehouse.helpdesk.services.ConsoleAdminNotificat
 
 # Example of Domain Status configuration (legacy Domainr API)
 # DOMAIN_STATUS_BACKEND="warehouse.accounts.services.DomainrDomainStatusService client_id=some_client_id"
+
+# Email reputation checks default to the null service, which reports nothing.
+# Example of email reputation configuration (UserCheck API)
+# EMAIL_REPUTATION_BACKEND="warehouse.accounts.services.UserCheckEmailReputationService api_key=your_usercheck_api_key"

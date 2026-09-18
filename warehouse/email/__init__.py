@@ -361,11 +361,17 @@ def send_new_organization_requested_email(request, user, *, organization_name):
 
 @_email("new-organization-approved")
 def send_new_organization_approved_email(
-    request, user, *, organization_name, message=""
+    request: Request,
+    user: User,
+    *,
+    organization_name: str,
+    organization_type: str,
+    message: str = "",
 ):
     return {
         "message": message,
         "organization_name": organization_name,
+        "organization_type": organization_type,
     }
 
 
@@ -392,21 +398,23 @@ def send_new_organization_moreinformationneeded_email(
 
 @_email("organization-project-added")
 def send_organization_project_added_email(
-    request, user, *, organization_name, project_name
+    request, user, *, organization_name, project_name, submitter_username
 ):
     return {
         "organization_name": organization_name,
         "project_name": project_name,
+        "submitter": submitter_username,
     }
 
 
 @_email("organization-project-removed")
 def send_organization_project_removed_email(
-    request, user, *, organization_name, project_name
+    request, user, *, organization_name, project_name, submitter_username
 ):
     return {
         "organization_name": organization_name,
         "project_name": project_name,
+        "submitter": submitter_username,
     }
 
 

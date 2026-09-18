@@ -53,10 +53,10 @@
     }
 
     input[type="text"].search-form__search {
-      width: 400px;
+      width: 300px;
 
       @media screen and (max-width: breakpoints.$desktop) {
-        width: 200px;
+        width: 250px;
       }
     }
   }
