@@ -10,8 +10,10 @@ from tests.common.constants import REMOTE_ADDR
 from tests.common.db import Session
 from tests.common.db.accounts import UserFactory, UserUniqueLoginFactory
 from tests.common.db.ip_addresses import IpAddressFactory
+from tests.common.db.packaging import ProjectFactory
 from warehouse.accounts.models import UniqueLoginStatus
 from warehouse.ip_addresses.models import IpAddress
+from warehouse.observations.models import ObservationKind, Observer
 from warehouse.utils.otp import _get_totp
 
 
@@ -78,3 +80,32 @@ def login_admin(login_user):
         )
 
     return _login
+
+
+@pytest.fixture
+def make_malware_report(webtest):
+    """Record a malware observation on a fresh project, returning the observation.
+
+    Against an empty database every admin tile renders its "N/A" or
+    `{% if %}`-skipped variant, so the richest prop combinations need data.
+    """
+
+    def _make(actions: dict | None = None):
+        db_sess = webtest.extra_environ["warehouse.db_session"]
+        reporter = UserFactory.create()
+        reporter.observer = Observer()
+        project = ProjectFactory.create()
+        observation = project.Observation(
+            kind=ObservationKind.IsMalware.value[0],
+            observer=reporter.observer,
+            payload={},
+            actions=actions or {},
+            related=project,
+            related_name=repr(project),
+            summary="Malware report",
+        )
+        db_sess.add(observation)
+        db_sess.flush()
+        return observation
+
+    return _make
