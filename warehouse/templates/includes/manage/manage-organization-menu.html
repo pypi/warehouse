@@ -1,9 +1,12 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-<nav aria-label="{% trans organization=organization.normalized_name %}Navigation for managing {{ organization }}{% endtrans %}">
+{% set tab_class = "dropdown__link" if mode == "dropdown" else "vertical-tabs__tab vertical-tabs__tab--with-icon" %}
+{% set active_tab_class = "dropdown__link--is-active" if mode == "dropdown" else "vertical-tabs__tab--is-active" %}
+<nav {% if mode == "dropdown" %}class="dropdown__content" aria-hidden="true"{% endif %}
+     aria-label="{% trans organization=organization.normalized_name %}Navigation for managing {{ organization }}{% endtrans %}">
   <ul class="vertical-tabs__list">
     <li>
       <a href="{{ request.route_path('manage.organization.projects', organization_name=organization.normalized_name) }}"
-         class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'projects' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}"
+         class="{{ tab_class }} {% if active_tab == 'projects' %}{{ active_tab_class }}{% endif %}"
          {% if active_tab == 'projects' %}aria-selected="true"{% endif %}>
         <i class="fa fa-lg fa-cubes" aria-hidden="true"></i>
         {% trans %}Projects{% endtrans %}
@@ -12,7 +15,7 @@
     </li>
     <li>
       <a href="{{ request.route_path('manage.organization.roles', organization_name=organization.normalized_name) }}"
-         class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'people' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}"
+         class="{{ tab_class }} {% if active_tab == 'people' %}{{ active_tab_class }}{% endif %}"
          {% if active_tab == 'people' %}aria-selected="true"{% endif %}>
         <i class="fa fa-user" aria-hidden="true"></i>
         {% trans %}People{% endtrans %}
@@ -21,7 +24,7 @@
     </li>
     <li>
       <a href="{{ request.route_path('manage.organization.teams', organization_name=organization.normalized_name) }}"
-         class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'teams' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}"
+         class="{{ tab_class }} {% if active_tab == 'teams' %}{{ active_tab_class }}{% endif %}"
          {% if active_tab == 'teams' %}aria-selected="true"{% endif %}>
         <i class="fa fa-users" aria-hidden="true"></i>
         {% trans %}Teams{% endtrans %}
@@ -31,7 +34,7 @@
     {% if can_manage %}
       <li>
         <a href="{{ request.route_path('manage.organization.publishing', organization_name=organization.normalized_name) }}"
-           class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'publishing' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}"
+           class="{{ tab_class }} {% if active_tab == 'publishing' %}{{ active_tab_class }}{% endif %}"
            {% if active_tab == 'publishing' %}aria-selected="true"{% endif %}>
           <i class="fa fa-upload" aria-hidden="true"></i>
           {% trans %}Publishing{% endtrans %}
@@ -39,7 +42,7 @@
       </li>
       <li>
         <a href="{{ request.route_path('manage.organization.history', organization_name=organization.normalized_name) }}"
-           class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'history' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}"
+           class="{{ tab_class }} {% if active_tab == 'history' %}{{ active_tab_class }}{% endif %}"
            {% if active_tab == 'history' %}aria-selected="true"{% endif %}>
           <i class="fa fa-history" aria-hidden="true"></i>
           {% trans %}Security history{% endtrans %}
@@ -48,7 +51,7 @@
     {% endif %}
     <li>
       <a href="{{ request.route_path('manage.organization.settings', organization_name=organization.normalized_name) }}"
-         class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'settings' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}"
+         class="{{ tab_class }} {% if active_tab == 'settings' %}{{ active_tab_class }}{% endif %}"
          {% if active_tab == 'settings' %}aria-selected="true"{% endif %}>
         <i class="fa fa-wrench" aria-hidden="true"></i>
         {% trans %}Settings{% endtrans %}

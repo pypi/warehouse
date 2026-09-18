@@ -1,9 +1,12 @@
 {# SPDX-License-Identifier: Apache-2.0 -#}
-<nav aria-label="{% trans %}Account navigation{% endtrans %}">
+{% set tab_class = "dropdown__link" if mode == "dropdown" else "vertical-tabs__tab vertical-tabs__tab--with-icon" %}
+{% set active_tab_class = "dropdown__link--is-active" if mode == "dropdown" else "vertical-tabs__tab--is-active" %}
+<nav {% if mode == "dropdown" %}class="dropdown__content" aria-hidden="true"{% endif %}
+     aria-label="{% trans %}Account navigation{% endtrans %}">
   <ul class="vertical-tabs__list">
     <li>
       <a href="{{ request.route_path('manage.projects') }}"
-         class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'projects' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile vertical-tabs__tab--no-top-border{% endif %}"
+         class="{{ tab_class }} {% if active_tab == 'projects' %}{{ active_tab_class }}{% endif %}"
          {% if active_tab == 'projects' %}aria-selected="true"{% endif %}>
         <i class="fa fa-lg fa-cubes" aria-hidden="true"></i>
         {% trans %}Your projects{% endtrans %}
@@ -11,7 +14,7 @@
     </li>
     <li>
       <a href="{{ request.route_path('manage.organizations') }}"
-         class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'organizations' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile vertical-tabs__tab--no-top-border{% endif %}"
+         class="{{ tab_class }} {% if active_tab == 'organizations' %}{{ active_tab_class }}{% endif %}"
          {% if active_tab == 'organizations' %}aria-selected="true"{% endif %}>
         <i class="fa fa-sitemap" aria-hidden="true"></i>
         {% trans %}Your organizations{% endtrans %}
@@ -19,7 +22,7 @@
     </li>
     <li>
       <a href="{{ request.route_path('manage.account') }}"
-         class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'account' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile vertical-tabs__tab--no-top-border{% endif %}"
+         class="{{ tab_class }} {% if active_tab == 'account' %}{{ active_tab_class }}{% endif %}"
          {% if active_tab == 'account' %}aria-selected="true"{% endif %}>
         <i class="fa fa-cog" aria-hidden="true"></i>
         {% trans %}Account settings{% endtrans %}
@@ -27,7 +30,7 @@
     </li>
     <li>
       <a href="{{ request.route_path('manage.account.publishing') }}"
-         class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'publishing' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile vertical-tabs__tab--no-top-border{% endif %}"
+         class="{{ tab_class }} {% if active_tab == 'publishing' %}{{ active_tab_class }}{% endif %}"
          {% if active_tab == 'publishing' %}aria-selected="true"{% endif %}>
         <i class="fa fa-upload" aria-hidden="true"></i>
         {% trans %}Publishing{% endtrans %}

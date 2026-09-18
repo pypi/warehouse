@@ -93,6 +93,10 @@
     flex-shrink: 0;
   }
 
+  &--section {
+    margin-inline-start: auto;
+  }
+
   &--dropdown-below-desktop {
     @media only screen and (max-width: breakpoints.$desktop) {
       display: none;
