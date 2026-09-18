@@ -16,7 +16,7 @@ DATABASE_URL=postgresql+psycopg://postgres@db/warehouse
 
 OPENSEARCH_URL=http://opensearch:9200/development
 
-REDIS_URL=redis://redis:6379
+REDIS_URL=redis://cache:6379
 
 SESSION_SECRET="an insecure development secret"
 
