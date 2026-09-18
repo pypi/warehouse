@@ -1,0 +1,68 @@
+name: Deploy PR to TestPyPI branch
+
+on:
+  pull_request:
+    types: [labeled]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: testpypi-deploy
+  cancel-in-progress: false
+
+jobs:
+  merge-to-testpypi:
+    name: Merge PR to testpypi branch
+    if: >-
+      github.repository == 'pypi/warehouse'
+      && github.event.label.name == 'deploy-to-testpypi'
+      && github.event.pull_request.draft == true
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write # push merge commit to testpypi branch
+      pull-requests: write # post status comment on the PR
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: testpypi
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Merge PR branch into testpypi
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -c "http.https://github.com/.extraheader=Authorization: basic $(echo -n "x-access-token:${GH_TOKEN}" | base64)" \
+            fetch origin "$PR_HEAD_SHA"
+          git merge "$PR_HEAD_SHA" --no-ff \
+            -m "Deploy PR #${PR_NUMBER} to testpypi (${PR_HEAD_REF})"
+          git -c "http.https://github.com/.extraheader=Authorization: basic $(echo -n "x-access-token:${GH_TOKEN}" | base64)" \
+            push origin testpypi
+      - name: Comment on PR (success)
+        if: success()
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          script: |
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: `Merged to \`testpypi\` branch. This will be deployed to test.pypi.org shortly.`
+            });
+      - name: Comment on PR (failure)
+        if: failure()
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          script: |
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: `Failed to merge to \`testpypi\` branch. There may be a merge conflict. Check the [workflow run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for details.`
+            });
