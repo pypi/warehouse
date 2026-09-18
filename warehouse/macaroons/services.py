@@ -495,7 +495,7 @@ class DatabaseMacaroonService:
             caveats=scopes,
         )
         self.db.add(dm)
-        self.db.flush()  # generate dm.id   # ast-grep-ignore: db-flush
+        self.db.flush()  # ast-grep-ignore: db-flush -- generate dm.id
 
         m = pymacaroons.Macaroon(
             location=location,

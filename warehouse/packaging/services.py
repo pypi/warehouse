@@ -607,7 +607,7 @@ class ProjectService:
         # The project name is valid: create it and add it
         project = Project(name=name)
         self.db.add(project)
-        self.db.flush()  # To get the new ID  # ast-grep-ignore: db-flush
+        self.db.flush()  # ast-grep-ignore: db-flush -- To get the new ID
 
         # Look for typo-squatting of a popular project name. The task is only
         # dispatched once this transaction commits, so we don't annotate or
