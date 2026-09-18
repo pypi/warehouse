@@ -13,7 +13,9 @@ from wtforms import Field, Form, StringField
 
 from warehouse.accounts.models import WebAuthn
 from warehouse.observations.models import ObservationKind
+from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import DependencyKind, Description
+from warehouse.packaging.services import LocalArchiveFileStorage, LocalFileStorage
 from warehouse.packaging.tasks import (
     _copy_file_to_cache,
     check_file_cache_tasks_outstanding,
@@ -59,12 +61,16 @@ class TestCopyFileToCache:
 
     @pytest.fixture
     def archive(self, mocker):
-        storage = mocker.Mock()
+        storage = mocker.create_autospec(LocalArchiveFileStorage, instance=True)
         storage.get_metadata.return_value = {"fizz": "buzz"}
         return storage
 
+    @pytest.fixture
+    def cache(self, mocker):
+        return mocker.create_autospec(LocalFileStorage, instance=True)
+
     def test_streams_in_chunks_and_closes_the_source(
-        self, bounded_stream, archive, mocker
+        self, bounded_stream, archive, cache
     ):
         content = b"x" * (3 * 1024 * 1024 + 17)
         stream = bounded_stream(content)
@@ -77,7 +83,6 @@ class TestCopyFileToCache:
             stored["meta"] = meta
             stored["filename"] = filename
 
-        cache = mocker.Mock()
         cache.store.side_effect = store
 
         _copy_file_to_cache(archive, cache, "some/file.whl")
@@ -89,11 +94,10 @@ class TestCopyFileToCache:
         assert not Path(stored["filename"]).exists()
 
     def test_closes_the_source_when_the_cache_upload_fails(
-        self, bounded_stream, archive, mocker
+        self, bounded_stream, archive, cache
     ):
         stream = bounded_stream(b"x" * 1024)
         archive.get.return_value = stream
-        cache = mocker.Mock()
         cache.store.side_effect = OSError("upload failed")
 
         with pytest.raises(OSError, match="upload failed"):
@@ -104,7 +108,7 @@ class TestCopyFileToCache:
 
 @pytest.mark.parametrize("cached", [True, False])
 @pytest.mark.parametrize("has_metadata", [True, False])
-def test_sync_file_to_cache(db_request, mocker, cached, has_metadata):
+def test_sync_file_to_cache(db_request, pyramid_services, mocker, cached, has_metadata):
     file = FileFactory(
         cached=cached,
         metadata_file_sha256_digest="deadbeef" if has_metadata else None,
@@ -117,15 +121,13 @@ def test_sync_file_to_cache(db_request, mocker, cached, has_metadata):
     def store(path, filename, *, meta=None):
         stored[path] = (Path(filename).read_bytes(), meta)
 
-    archive = mocker.Mock()
+    archive = mocker.create_autospec(LocalArchiveFileStorage, instance=True)
     archive.get_metadata.return_value = {"fizz": "buzz"}
     archive.get.side_effect = lambda path: io.BytesIO(contents[path])
-    cache = mocker.Mock()
+    cache = mocker.create_autospec(LocalFileStorage, instance=True)
     cache.store.side_effect = store
-    db_request.find_service = lambda iface, name=None: {
-        "archive": archive,
-        "cache": cache,
-    }[name]
+    pyramid_services.register_service(archive, IFileStorage, None, name="archive")
+    pyramid_services.register_service(cache, IFileStorage, None, name="cache")
 
     sync_file_to_cache(db_request, file.id)
 
@@ -181,7 +183,7 @@ class TestReconcileFileStorages:
             raise FileNotFoundError(f"No such key: {path!r}")
 
         def _sized_storage(sizes):
-            storage = mocker.Mock()
+            storage = mocker.create_autospec(LocalFileStorage, instance=True)
             storage.get_size.side_effect = lambda path: (
                 sizes[path] if path in sizes else _raise_not_found(path)
             )
@@ -190,15 +192,16 @@ class TestReconcileFileStorages:
         return _sized_storage
 
     @pytest.fixture
-    def reconcile(self, db_request, metrics):
+    def reconcile(self, db_request, pyramid_services):
         """Run the task against the given archive and cache storages."""
 
         def _reconcile(archive_storage, cache_storage):
-            db_request.find_service = lambda svc, name=None, context=None: {
-                "warehouse.packaging.interfaces.IFileStorage-archive": archive_storage,
-                "warehouse.packaging.interfaces.IFileStorage-cache": cache_storage,
-                "warehouse.metrics.interfaces.IMetricsService-None": metrics,
-            }.get(f"{svc}-{name}")
+            pyramid_services.register_service(
+                archive_storage, IFileStorage, None, name="archive"
+            )
+            pyramid_services.register_service(
+                cache_storage, IFileStorage, None, name="cache"
+            )
             db_request.registry.settings = {"reconcile_file_storages.batch_size": 3}
             reconcile_file_storages(db_request)
 
