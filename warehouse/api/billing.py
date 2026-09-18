@@ -78,14 +78,8 @@ def handle_billing_webhook_event(request, event):
                 raise HTTPBadRequest("Invalid subscription ID")
             if id := subscription_service.find_subscriptionid(subscription_id):
                 # Set subscription status to canceled.
-                subscription_service.update_subscription_status(
-                    id, StripeSubscriptionStatus.Canceled
-                )
-                db_subscription = subscription_service.get_subscription(id)
-                db_subscription.organization.record_event(
-                    tag=EventTag.Organization.SubscriptionCancel,
-                    request=request,
-                    additional={"subscription_id": subscription_id},
+                subscription_service.sync_subscription_status(
+                    id, StripeSubscriptionStatus.Canceled, request=request
                 )
         # Occurs whenever a subscription changes e.g. status changes.
         case "customer.subscription.updated":
@@ -101,20 +95,10 @@ def handle_billing_webhook_event(request, event):
                 raise HTTPBadRequest("Invalid subscription ID")
 
             if id := subscription_service.find_subscriptionid(subscription_id):
-                db_subscription = subscription_service.get_subscription(id)
-                previous_status = db_subscription.status
                 # Update subscription status.
-                subscription_service.update_subscription_status(id, status)
-                if previous_status != status:
-                    db_subscription.organization.record_event(
-                        tag=EventTag.Organization.SubscriptionStatusChange,
-                        request=request,
-                        additional={
-                            "subscription_id": subscription_id,
-                            "previous_status": previous_status,
-                            "status": status,
-                        },
-                    )
+                subscription_service.sync_subscription_status(
+                    id, status, request=request
+                )
         # Occurs whenever a customer is deleted.
         case "customer.deleted":
             customer = event["data"]["object"]
