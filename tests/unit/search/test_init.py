@@ -5,9 +5,51 @@ import types
 import opensearchpy
 
 from warehouse import search
+from warehouse.events.tags import EventTag
+from warehouse.legacy.api.xmlrpc.cache.services import purge_tag
 from warehouse.packaging.models import Project
 
 from ...common.db.packaging import ProjectFactory, ReleaseFactory
+
+
+def test_token_audit_events_do_not_enqueue_project_tasks(
+    app_config, db_request, mocker
+):
+    queued = []
+    mocker.patch.object(
+        app_config,
+        "task",
+        side_effect=lambda task: types.SimpleNamespace(
+            delay=lambda *args: queued.append((task, args))
+        ),
+    )
+    project = ProjectFactory.create()
+    expected = {
+        (search.tasks.reindex_project, (project.normalized_name,)),
+        (purge_tag, (f"project/{project.normalized_name}",)),
+    }
+    db_request.db.commit()
+    assert expected <= set(queued)
+    queued.clear()
+
+    project.record_event(
+        tag=EventTag.Project.ShortLivedAPITokenAdded, request=db_request
+    )
+    db_request.db.commit()
+
+    assert project.events.count() == 1
+    assert queued == []
+
+    project.lifecycle_status = "archived"
+    project.record_event(
+        tag=EventTag.Project.ShortLivedAPITokenRevoked, request=db_request
+    )
+    db_request.db.flush()
+    db_request.db.refresh(project)
+    db_request.db.commit()
+
+    assert project.events.count() == 2
+    assert expected <= set(queued)
 
 
 def test_store_projects(db_request, mocker):
