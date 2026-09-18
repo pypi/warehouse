@@ -460,6 +460,19 @@ nbval = nbval.plugin
             _build(interp_py="Python ", abi_none="none", plat_any="any"),
         ),
         (
+            "foo-0.0.0-pypy-none-any.whl",
+            _build(interp_pypy="pypy", abi_none="none", plat_any="any"),
+        ),
+        # Underscores are valid in tags but normalize to spaces in labels.
+        (
+            "foo-0.0.0-_-none-any.whl",
+            _build(abi_none="none", plat_any="any"),
+        ),
+        (
+            "foo-0.0.0-_69-none-any.whl",
+            _build(abi_none="none", plat_any="any"),
+        ),
+        (
             "foo-0.0.0-69-none-any.whl",
             # packaging rejects tag components starting with a digit.
             _build(),
