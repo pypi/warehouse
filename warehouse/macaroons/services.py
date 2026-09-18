@@ -334,17 +334,6 @@ class DatabaseMacaroonService:
 
         return dm.user.id
 
-    def find_from_raw(self, raw_macaroon: str) -> Macaroon:
-        """
-        Returns a DB macaroon matching the input, or raises InvalidMacaroonError
-        """
-        m = deserialize_raw_macaroon(raw_macaroon)
-        dm = self.find_macaroon(_decode_identifier(m))
-
-        if not dm:
-            raise InvalidMacaroonError("Macaroon not found")
-        return dm
-
     def verify(self, raw_macaroon: str, request, context, permission) -> bool:
         """
         Returns True if the given raw (serialized) macaroon is
@@ -506,7 +495,7 @@ class DatabaseMacaroonService:
             caveats=scopes,
         )
         self.db.add(dm)
-        self.db.flush()  # generate dm.id   # ast-grep-ignore: db-flush
+        self.db.flush()  # ast-grep-ignore: db-flush -- generate dm.id
 
         m = pymacaroons.Macaroon(
             location=location,

@@ -334,14 +334,12 @@ def database(request, worker_id):
     pg_port = config.port or os.environ.get("PGPORT", "5432")
     pg_user = config.user
     pg_db = f"tests-{worker_id}"
-    pg_version = 17
 
     janitor = DatabaseJanitor(
         user=pg_user,
         host=pg_host,
         port=pg_port,
         dbname=pg_db,
-        version=pg_version,
     )
 
     # In case the database already exists, possibly due to an aborted test run,
