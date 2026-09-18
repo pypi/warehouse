@@ -61,7 +61,9 @@ requests
 redis>=2.8.0,<7.0.0
 rfc3986
 sentry-sdk
-pypi-attestations
+# TODO: 0.0.30 adds CircleCIPublisher to the Publisher union, which the
+# exhaustive match in warehouse/attestations/models.py has no arm for.
+pypi-attestations<0.0.30
 sqlalchemy[asyncio]
 stdlib-list
 stripe
