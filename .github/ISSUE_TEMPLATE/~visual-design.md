@@ -1,6 +1,7 @@
 ---
 name: (Maintainers Only) Visual Design Issue
 about: For maintainers to create an issue that requires a screenshot
+labels: ["UX/UI"]
 
 ---
 
