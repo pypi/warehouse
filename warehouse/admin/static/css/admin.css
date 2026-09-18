@@ -22,6 +22,7 @@ table.dataTable {
 .table td,
 .table th {
   max-width: 30em;
+  overflow-wrap: anywhere;
 }
 
 /* Tabulator replaces the <table> with divs, so the rule above cannot reach its
