@@ -107,15 +107,27 @@
         <ul class="nav nav-pills nav-sidebar nav-child-indent flex-column" data-widget="treeview" role="menu" data-accordion="false">
           {# TODO: Is there a cleaner way to show/hide the allowed sections? #}
           {% if request.has_permission(Permissions.AdminDashboardSidebarRead) %}
-          <li class="nav-item">
-            <a href="{{ request.route_path('admin.organization_application.list') }}?q=is%3Asubmitted" class="nav-link">
-              <i class="fa fa-sitemap nav-icon"></i> <p>Organization Applications</p>
+          {% set in_organizations = request.matched_route and request.matched_route.name.startswith('admin.organization') %}
+          <li class="nav-item {{ 'menu-open' if in_organizations else 'menu-closed' }}">
+            <a href="#" class="nav-link">
+              <i class="fa fa-sitemap nav-icon"></i>
+              <p>
+                Organizations
+                <i class="right fas fa-angle-left"></i>
+              </p>
             </a>
-          </li>
-          <li class="nav-item">
-            <a href="{{ request.route_path('admin.organization.list') }}" class="nav-link">
-              <i class="fa fa-sitemap nav-icon"></i> <p>Organizations</p>
-            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="{{ request.route_path('admin.organization_application.list') }}?q=is%3Asubmitted" class="nav-link">
+                  <i class="fa fa-inbox nav-icon"></i> <p>Applications</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ request.route_path('admin.organization.list') }}" class="nav-link">
+                  <i class="fa fa-building nav-icon"></i> <p>All organizations</p>
+                </a>
+              </li>
+            </ul>
           </li>
           <li class="nav-item">
             <a href="{{ request.route_path('admin.user.list') }}" class="nav-link">
