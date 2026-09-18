@@ -69,6 +69,19 @@ def service_request(mocker):
 
 
 @pytest.fixture
+def upload_file(tmpdir):
+    """Write a file for a storage to upload, returning its path."""
+
+    def _upload_file(contents=b"Test File!", name="testfile.txt"):
+        path = str(tmpdir.join(name))
+        with open(path, "wb") as fp:
+            fp.write(contents)
+        return path
+
+    return _upload_file
+
+
+@pytest.fixture
 def gcs_blob(mocker):
     blob = mocker.create_autospec(google.cloud.storage.Blob, instance=True)
     blob.exists.return_value = False
@@ -111,10 +124,8 @@ class TestLocalFileStorage:
         with pytest.raises(FileNotFoundError):
             storage.get("file.txt")
 
-    def test_stores_file(self, tmpdir):
-        filename = str(tmpdir.join("testfile.txt"))
-        with open(filename, "wb") as fp:
-            fp.write(b"Test File!")
+    def test_stores_file(self, tmpdir, upload_file):
+        filename = upload_file()
 
         storage_dir = str(tmpdir.join("storage"))
         storage = LocalFileStorage(storage_dir)
@@ -123,10 +134,8 @@ class TestLocalFileStorage:
         with open(os.path.join(storage_dir, "foo/bar.txt"), "rb") as fp:
             assert fp.read() == b"Test File!"
 
-    def test_stores_and_gets_metadata(self, tmpdir):
-        filename = str(tmpdir.join("testfile.txt"))
-        with open(filename, "wb") as fp:
-            fp.write(b"Test File!")
+    def test_stores_and_gets_metadata(self, tmpdir, upload_file):
+        filename = upload_file()
 
         storage_dir = str(tmpdir.join("storage"))
         storage = LocalFileStorage(storage_dir)
@@ -139,10 +148,8 @@ class TestLocalFileStorage:
 
         assert storage.get_metadata("foo/bar.txt") == {"foo": "bar", "wu": "tang"}
 
-    def test_gets_size(self, tmpdir):
-        filename = str(tmpdir.join("testfile.txt"))
-        with open(filename, "wb") as fp:
-            fp.write(b"Test File!")
+    def test_gets_size(self, tmpdir, upload_file):
+        filename = upload_file()
 
         storage_dir = str(tmpdir.join("storage"))
         storage = LocalFileStorage(storage_dir)
@@ -156,14 +163,9 @@ class TestLocalFileStorage:
         with pytest.raises(FileNotFoundError):
             storage.get_size("foo/bar.txt")
 
-    def test_stores_two_files(self, tmpdir):
-        filename1 = str(tmpdir.join("testfile1.txt"))
-        with open(filename1, "wb") as fp:
-            fp.write(b"First Test File!")
-
-        filename2 = str(tmpdir.join("testfile2.txt"))
-        with open(filename2, "wb") as fp:
-            fp.write(b"Second Test File!")
+    def test_stores_two_files(self, tmpdir, upload_file):
+        filename1 = upload_file(b"First Test File!", "testfile1.txt")
+        filename2 = upload_file(b"Second Test File!", "testfile2.txt")
 
         storage_dir = str(tmpdir.join("storage"))
         storage = LocalFileStorage(storage_dir)
@@ -262,10 +264,8 @@ class TestLocalSimpleStorage:
         with pytest.raises(FileNotFoundError):
             storage.get("file.txt")
 
-    def test_stores_file(self, tmpdir):
-        filename = str(tmpdir.join("testfile.txt"))
-        with open(filename, "wb") as fp:
-            fp.write(b"Test File!")
+    def test_stores_file(self, tmpdir, upload_file):
+        filename = upload_file()
 
         storage_dir = str(tmpdir.join("storage"))
         storage = LocalSimpleStorage(storage_dir)
@@ -274,14 +274,9 @@ class TestLocalSimpleStorage:
         with open(os.path.join(storage_dir, "foo/bar.txt"), "rb") as fp:
             assert fp.read() == b"Test File!"
 
-    def test_stores_two_files(self, tmpdir):
-        filename1 = str(tmpdir.join("testfile1.txt"))
-        with open(filename1, "wb") as fp:
-            fp.write(b"First Test File!")
-
-        filename2 = str(tmpdir.join("testfile2.txt"))
-        with open(filename2, "wb") as fp:
-            fp.write(b"Second Test File!")
+    def test_stores_two_files(self, tmpdir, upload_file):
+        filename1 = upload_file(b"First Test File!", "testfile1.txt")
+        filename2 = upload_file(b"Second Test File!", "testfile2.txt")
 
         storage_dir = str(tmpdir.join("storage"))
         storage = LocalSimpleStorage(storage_dir)
@@ -373,10 +368,8 @@ class TestB2FileStorage:
         with pytest.raises(FileNotFoundError):
             b2_storage.get_size("file.txt")
 
-    def test_stores_file(self, tmpdir, b2_bucket, b2_storage):
-        filename = str(tmpdir.join("testfile.txt"))
-        with open(filename, "wb") as fp:
-            fp.write(b"Test File!")
+    def test_stores_file(self, upload_file, b2_bucket, b2_storage):
+        filename = upload_file()
 
         b2_storage.store("foo/bar.txt", filename)
 
@@ -492,10 +485,8 @@ class TestS3FileStorage:
         with pytest.raises(botocore.exceptions.ClientError):
             s3_storage.get_size("file.txt")
 
-    def test_stores_file(self, tmpdir, s3_bucket, s3_storage):
-        filename = str(tmpdir.join("testfile.txt"))
-        with open(filename, "wb") as fp:
-            fp.write(b"Test File!")
+    def test_stores_file(self, upload_file, s3_bucket, s3_storage):
+        filename = upload_file()
 
         s3_storage.store("foo/bar.txt", filename)
 
@@ -503,14 +494,9 @@ class TestS3FileStorage:
             filename, "foo/bar.txt", ExtraArgs={}
         )
 
-    def test_stores_two_files(self, tmpdir, s3_bucket, s3_storage, mocker):
-        filename1 = str(tmpdir.join("testfile1.txt"))
-        with open(filename1, "wb") as fp:
-            fp.write(b"First Test File!")
-
-        filename2 = str(tmpdir.join("testfile2.txt"))
-        with open(filename2, "wb") as fp:
-            fp.write(b"Second Test File!")
+    def test_stores_two_files(self, upload_file, s3_bucket, s3_storage, mocker):
+        filename1 = upload_file(b"First Test File!", "testfile1.txt")
+        filename2 = upload_file(b"Second Test File!", "testfile2.txt")
 
         s3_storage.store("foo/first.txt", filename1)
         s3_storage.store("foo/second.txt", filename2)
@@ -520,10 +506,8 @@ class TestS3FileStorage:
             mocker.call(filename2, "foo/second.txt", ExtraArgs={}),
         ]
 
-    def test_stores_metadata(self, tmpdir, s3_bucket, s3_storage):
-        filename = str(tmpdir.join("testfile.txt"))
-        with open(filename, "wb") as fp:
-            fp.write(b"Test File!")
+    def test_stores_metadata(self, upload_file, s3_bucket, s3_storage):
+        filename = upload_file()
 
         s3_storage.store("foo/bar.txt", filename, meta={"foo": "bar"})
 
@@ -598,10 +582,8 @@ class TestGCSFileStorage:
         with pytest.raises(NotImplementedError):
             storage.get_size("file.txt")
 
-    def test_stores_file(self, tmpdir, gcs_bucket, gcs_blob):
-        filename = str(tmpdir.join("testfile.txt"))
-        with open(filename, "wb") as fp:
-            fp.write(b"Test File!")
+    def test_stores_file(self, upload_file, gcs_bucket, gcs_blob):
+        filename = upload_file()
 
         storage = GCSFileStorage(gcs_bucket)
         storage.store("foo/bar.txt", filename)
@@ -617,11 +599,9 @@ class TestGCSFileStorage:
         ],
     )
     def test_stores_file_with_prefix(
-        self, tmpdir, gcs_bucket, gcs_blob, path, expected
+        self, upload_file, gcs_bucket, gcs_blob, path, expected
     ):
-        filename = str(tmpdir.join("testfile.txt"))
-        with open(filename, "wb") as fp:
-            fp.write(b"Test File!")
+        filename = upload_file()
 
         storage = GCSFileStorage(gcs_bucket, prefix="myprefix/")
         storage.store(path, filename)
@@ -629,14 +609,9 @@ class TestGCSFileStorage:
         gcs_bucket.blob.assert_called_once_with(expected)
         gcs_blob.upload_from_filename.assert_called_once_with(filename)
 
-    def test_stores_two_files(self, tmpdir, gcs_bucket, gcs_blob, mocker):
-        filename1 = str(tmpdir.join("testfile1.txt"))
-        with open(filename1, "wb") as fp:
-            fp.write(b"First Test File!")
-
-        filename2 = str(tmpdir.join("testfile2.txt"))
-        with open(filename2, "wb") as fp:
-            fp.write(b"Second Test File!")
+    def test_stores_two_files(self, upload_file, gcs_bucket, gcs_blob, mocker):
+        filename1 = upload_file(b"First Test File!", "testfile1.txt")
+        filename2 = upload_file(b"Second Test File!", "testfile2.txt")
 
         storage = GCSFileStorage(gcs_bucket)
         storage.store("foo/first.txt", filename1)
@@ -651,10 +626,8 @@ class TestGCSFileStorage:
             mocker.call(filename2),
         ]
 
-    def test_stores_metadata(self, tmpdir, gcs_bucket, gcs_blob):
-        filename = str(tmpdir.join("testfile.txt"))
-        with open(filename, "wb") as fp:
-            fp.write(b"Test File!")
+    def test_stores_metadata(self, upload_file, gcs_bucket, gcs_blob):
+        filename = upload_file()
 
         storage = GCSFileStorage(gcs_bucket)
         meta = {"foo": "bar"}
@@ -662,10 +635,10 @@ class TestGCSFileStorage:
 
         assert gcs_blob.metadata == meta
 
-    def test_skips_upload_if_file_exists(self, tmpdir, gcs_bucket, gcs_blob, mocker):
-        filename = str(tmpdir.join("testfile.txt"))
-        with open(filename, "wb") as fp:
-            fp.write(b"Test File!")
+    def test_skips_upload_if_file_exists(
+        self, upload_file, gcs_bucket, gcs_blob, mocker
+    ):
+        filename = upload_file()
 
         gcs_blob.exists.return_value = True
         capture_message = mocker.patch.object(
@@ -795,10 +768,8 @@ class TestGCSSimpleStorage:
         with pytest.raises(NotImplementedError):
             storage.get("file.txt")
 
-    def test_stores_file(self, tmpdir, gcs_bucket, gcs_blob):
-        filename = str(tmpdir.join("testfile.txt"))
-        with open(filename, "wb") as fp:
-            fp.write(b"Test File!")
+    def test_stores_file(self, upload_file, gcs_bucket, gcs_blob):
+        filename = upload_file()
 
         storage = GCSSimpleStorage(gcs_bucket)
         storage.store("foo/bar.txt", filename)
@@ -806,14 +777,9 @@ class TestGCSSimpleStorage:
         gcs_bucket.blob.assert_called_once_with("foo/bar.txt")
         gcs_blob.upload_from_filename.assert_called_once_with(filename)
 
-    def test_stores_two_files(self, tmpdir, gcs_bucket, gcs_blob, mocker):
-        filename1 = str(tmpdir.join("testfile1.txt"))
-        with open(filename1, "wb") as fp:
-            fp.write(b"First Test File!")
-
-        filename2 = str(tmpdir.join("testfile2.txt"))
-        with open(filename2, "wb") as fp:
-            fp.write(b"Second Test File!")
+    def test_stores_two_files(self, upload_file, gcs_bucket, gcs_blob, mocker):
+        filename1 = upload_file(b"First Test File!", "testfile1.txt")
+        filename2 = upload_file(b"Second Test File!", "testfile2.txt")
 
         storage = GCSSimpleStorage(gcs_bucket)
         storage.store("foo/first.txt", filename1)
@@ -828,10 +794,8 @@ class TestGCSSimpleStorage:
             mocker.call(filename2),
         ]
 
-    def test_stores_metadata(self, tmpdir, gcs_bucket, gcs_blob):
-        filename = str(tmpdir.join("testfile.txt"))
-        with open(filename, "wb") as fp:
-            fp.write(b"Test File!")
+    def test_stores_metadata(self, upload_file, gcs_bucket, gcs_blob):
+        filename = upload_file()
 
         storage = GCSSimpleStorage(gcs_bucket)
         meta = {"foo": "bar"}
