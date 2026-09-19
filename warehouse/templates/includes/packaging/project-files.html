@@ -264,7 +264,7 @@
     <div>
       {% set total_size = files | map(attribute='size') | reject('none') | sum %}
       <p>
-        <strong>{% trans %}Total release size:{% endtrans %}</strong><code class="margin-left">{{ total_size|filesizeformat() }}</code>
+        <strong>{% trans %}Total release size:{% endtrans %}</strong> {{ total_size|filesizeformat() }}
       </p>
     </div>
   {% endif %}
