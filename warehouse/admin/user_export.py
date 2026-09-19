@@ -46,6 +46,7 @@ from warehouse.observations.models import (
 from warehouse.observations.utils import classify_observation
 from warehouse.oidc.models import (
     PendingActiveStatePublisher,
+    PendingBuildkitePublisher,
     PendingGitHubPublisher,
     PendingGitLabPublisher,
     PendingGooglePublisher,
@@ -1062,6 +1063,15 @@ _PUBLISHER_SPECIFIER_FIELDS: dict[type[PendingOIDCPublisher], tuple[str, ...]] =
         "activestate_project_name",
         "actor",
         "actor_id",
+    ),
+    PendingBuildkitePublisher: (
+        "organization_slug",
+        "pipeline_slug",
+        "buildkite_organization_id",
+        "pipeline_id",
+        "build_branch",
+        "build_tag",
+        "step_key",
     ),
 }
 

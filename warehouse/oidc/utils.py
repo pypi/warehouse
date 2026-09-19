@@ -14,15 +14,18 @@ from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.models import (
     ACTIVESTATE_OIDC_ISSUER_URL,
+    BUILDKITE_OIDC_ISSUER_URL,
     GITHUB_OIDC_ISSUER_URL,
     GITLAB_OIDC_ISSUER_URL,
     GOOGLE_OIDC_ISSUER_URL,
     ActiveStatePublisher,
+    BuildkitePublisher,
     GitHubPublisher,
     GitLabPublisher,
     GooglePublisher,
     OIDCPublisher,
     PendingActiveStatePublisher,
+    PendingBuildkitePublisher,
     PendingGitHubPublisher,
     PendingGitLabPublisher,
     PendingGooglePublisher,
@@ -41,6 +44,7 @@ OIDC_ISSUER_SERVICE_NAMES = {
     GITLAB_OIDC_ISSUER_URL: "gitlab",
     GOOGLE_OIDC_ISSUER_URL: "google",
     ACTIVESTATE_OIDC_ISSUER_URL: "activestate",
+    BUILDKITE_OIDC_ISSUER_URL: "buildkite",
 }
 
 OIDC_ISSUER_ADMIN_FLAGS = {
@@ -48,6 +52,7 @@ OIDC_ISSUER_ADMIN_FLAGS = {
     GITLAB_OIDC_ISSUER_URL: AdminFlagValue.DISALLOW_GITLAB_OIDC,
     GOOGLE_OIDC_ISSUER_URL: AdminFlagValue.DISALLOW_GOOGLE_OIDC,
     ACTIVESTATE_OIDC_ISSUER_URL: AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC,
+    BUILDKITE_OIDC_ISSUER_URL: AdminFlagValue.DISALLOW_BUILDKITE_OIDC,
 }
 
 OIDC_PUBLISHER_CLASSES: dict[
@@ -59,6 +64,10 @@ OIDC_PUBLISHER_CLASSES: dict[
     ACTIVESTATE_OIDC_ISSUER_URL: {
         False: ActiveStatePublisher,
         True: PendingActiveStatePublisher,
+    },
+    BUILDKITE_OIDC_ISSUER_URL: {
+        False: BuildkitePublisher,
+        True: PendingBuildkitePublisher,
     },
 }
 
