@@ -1692,7 +1692,6 @@ def profile_public_email(user, request):
 
 @view_config(
     route_name="accounts.reauthenticate",
-    renderer="re-auth.html",
     uses_session=True,
     require_csrf=True,
     require_methods=False,
@@ -1720,32 +1719,49 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
     )
 
     if form.next_route.data and form.next_route_matchdict.data:
+        next_route = form.next_route.data
         try:
-            matchdict = json.loads(form.next_route_matchdict.data)
-            query = json.loads(form.next_route_query.data)
-            if not isinstance(matchdict, dict) or not isinstance(query, dict):
-                raise HTTPBadRequest
-            redirect_to = request.route_path(
-                form.next_route.data,
-                **matchdict | {"_query": query},
-            )
-        except json.JSONDecodeError, KeyError, TypeError, ValueError:
+            next_route_matchdict = json.loads(form.next_route_matchdict.data)
+            next_route_query = json.loads(form.next_route_query.data or "{}")
+        except (json.JSONDecodeError, TypeError, ValueError):
+            raise HTTPBadRequest
+        if not isinstance(next_route_matchdict, dict) or not isinstance(
+            next_route_query, dict
+        ):
             raise HTTPBadRequest
     else:
-        redirect_to = request.route_path("manage.projects")
+        next_route = "manage.projects"
+        next_route_matchdict = {}
+        next_route_query = {}
 
-    resp = HTTPSeeOther(redirect_to)
+    # Only validate on POST: a GET of this view is not a submission, and
+    # validating one would produce spurious "field is required" errors.
+    is_valid = request.method == "POST" and form.validate()
 
-    if request.method == "POST" and form.validate():
+    # Ensure errors don't persist across successful validations
+    next_route_query.pop("errors", None)
+
+    if is_valid:
         request.session.record_auth_timestamp()
         request.session.record_password_timestamp(
             user_service.get_password_timestamp(request.user.id)
         )
-        return resp
+    elif form.password.errors:
+        # Carry password errors through to the page we redirect back to
+        next_route_query["errors"] = json.dumps(
+            {"password": [str(e) for e in form.password.errors]}
+        )
 
-    return {
-        "form": form,
-    }
+    try:
+        redirect_to = request.route_path(
+            next_route,
+            **next_route_matchdict,
+            _query=next_route_query,
+        )
+    except KeyError:
+        raise HTTPBadRequest
+
+    return HTTPSeeOther(redirect_to)
 
 
 @view_defaults(
