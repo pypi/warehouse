@@ -364,7 +364,7 @@ msgstr ""
 msgid "Please review our updated <a href=\"${tos_url}\">Terms of Service</a>."
 msgstr ""
 
-#: warehouse/accounts/views.py:1857 warehouse/accounts/views.py:2125
+#: warehouse/accounts/views.py:1877 warehouse/accounts/views.py:2145
 #: warehouse/manage/views/oidc_publishers.py:126
 #: warehouse/manage/views/organizations.py:1768
 msgid ""
@@ -372,22 +372,22 @@ msgid ""
 "#admin-intervention for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1878
+#: warehouse/accounts/views.py:1898
 #: warehouse/manage/views/organizations.py:1791
 msgid "disabled. See https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1894
+#: warehouse/accounts/views.py:1914
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1907
+#: warehouse/accounts/views.py:1927
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1922
+#: warehouse/accounts/views.py:1942
 #: warehouse/manage/views/oidc_publishers.py:308
 #: warehouse/manage/views/oidc_publishers.py:423
 #: warehouse/manage/views/oidc_publishers.py:539
@@ -397,7 +397,7 @@ msgid ""
 "again later."
 msgstr ""
 
-#: warehouse/accounts/views.py:1932
+#: warehouse/accounts/views.py:1952
 #: warehouse/manage/views/oidc_publishers.py:321
 #: warehouse/manage/views/oidc_publishers.py:436
 #: warehouse/manage/views/oidc_publishers.py:552
@@ -406,30 +406,30 @@ msgstr ""
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1947
+#: warehouse/accounts/views.py:1967
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's"
 " admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1972
+#: warehouse/accounts/views.py:1992
 msgid ""
 "A pending trusted publisher matching this configuration has already been "
 "registered for a different project name. Please contact PyPI's admins if "
 "this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1995
+#: warehouse/accounts/views.py:2015
 #: warehouse/manage/views/organizations.py:1859
 msgid "Registered a new pending publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:2138 warehouse/accounts/views.py:2151
-#: warehouse/accounts/views.py:2158
+#: warehouse/accounts/views.py:2158 warehouse/accounts/views.py:2171
+#: warehouse/accounts/views.py:2178
 msgid "Invalid publisher ID"
 msgstr ""
 
-#: warehouse/accounts/views.py:2165
+#: warehouse/accounts/views.py:2185
 msgid "Removed trusted publisher for project "
 msgstr ""
 
