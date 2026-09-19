@@ -29,11 +29,11 @@ PyPI provides a range of security features to defend our users and the Python ec
 ### Account security
 
 * **Mandatory [two-factor authentication (2FA)](../your-account/two-factor-authentication.md):** To enhance account security, PyPI [mandates 2FA for all users](https://blog.pypi.org/posts/2024-01-01-2fa-enforced/). This requires all users to authenticate with a second form of verification (in addition to an account password) such as a code from an authenticator app or a physical security key.  
-* [**Verified email address**](../your-account/managing-your-account.md#email-address-verification)**:** To perform certain actions, such as registering a new project, users must have a verified email address (proving that they own the email address). PyPI also:  
+* [**Verified email address**](../your-account/managing-your-account.md#email-address-verification)**:** To perform certain actions, such as registering a new project, users must have a verified email address (proving that they own the email address). Verified email addresses are also required to receive password-reset emails. PyPI also:  
     * Maintains a blocklist of email domains that are frequently used for spam or other abuse, helping to mitigate automated attacks. See our [blog post on prohibiting outlook domains](https://blog.pypi.org/posts/2024-06-16-prohibiting-msn-emails/) for more information.   
     * Checks the reputation of an email address at registration time, and rejects addresses identified as disposable or temporary — even on domains that aren't otherwise blocklisted. See [account registration limits](../your-account/managing-your-account.md#account-registration-limits) for more information.  
     * Checks that email domains are valid on account registration, or when a user adds or changes the email addresses associated with their account.
-    * Periodically scans for accounts with expired email domains or MX records, disabling those vulnerable to attack. See our [blog post on preventing domain resurrection attacks](https://blog.pypi.org/posts/2025-08-18-preventing-domain-resurrections/) for more information.
+    * Periodically scans for verified emails with expired email domains or MX records, removing verification from those emails vulnerable to attack. See our [blog post on preventing domain resurrection attacks](https://blog.pypi.org/posts/2025-08-18-preventing-domain-resurrections/) for more information.
 * **Phishing awareness:** PyPI implements email authentication standards (SPF, DKIM, and DMARC) to help prevent phishing by allowing mail servers to verify the authenticity of emails sent from PyPI.org. However, because the enforcement of these standards is the responsibility of the receiving mail server, fraudulent emails may still reach a user's inbox. Users should remain cautious of suspicious links and always verify they are on the official pypi.org domain before entering credentials. See [this incident report](https://blog.pypi.org/posts/2025-09-23-plenty-of-phish-in-the-sea/) for more information.
 
 ### Publishing security
@@ -42,7 +42,7 @@ PyPI provides a range of security features to defend our users and the Python ec
     * Removes the need for project maintainers to manually manage or store secrets, eliminating the risk of a long-lived API token being leaked  
     * Is more secure because build workflows can be protected by repository-level controls like branch protection and required reviews  
     * Provides a visible audit trail if there is any attempt to maliciously alter the build workflow (as this typically requires a public commit)  
-    * Supports [attestations](../attestations/index.md) so package consumers can verify the publishing identity. The official PyPA GitHub publishing action generates and uploads these by default when using Trusted Publishing, unless disabled.
+    * Supports [attestations](../attestations/index.md) so package consumers can verify the publishing identity. The official PyPA GitHub publishing action generates and uploads these by default when using Trusted Publishing (unless disabled).
 * [**API tokens**](../publishing/publishing-to-pypi.md#using-an-api-token)**:** For manual uploads or for services that do not yet support Trusted Publishing, API tokens serve as an alternative to using an account password for authentication. PyPI API tokens can be scoped to specific projects, limiting the potential damage if a token is ever compromised.
 
 ### Threat response and automated protections
