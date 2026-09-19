@@ -129,6 +129,20 @@ Rules:
 | PyPI             | :fontawesome-solid-cube:                   | Domain: `cheeseshop.python.org`, `pypi.io`, `pypi.org`, `pypi.python.org`                                                |
 | Python           | :fontawesome-brands-python:                | Domain: `python.org`, `*.python.org`                                                                                     |
 
+| Platform | Icon                              | Name     | Domain                                        |
+|:---------|:----------------------------------|:---------|:----------------------------------------------|
+| Discord  | :fontawesome-brands-discord:      |          | `discord.com`, `discordapp.com`, `discord.gg` |
+| Telegram | :fontawesome-brands-telegram:     |          | `t.me`, `telegram.me`, `telegram.dog`         |
+| Matrix   | :simple-matrix:                   |          | `matrix.to`                                   |
+| Gitter   | :fontawesome-brands-gitter:       |          | `gitter.im`                                   |
+| Mastodon | :fontawesome-brands-mastodon:     | Mastodon |                                               |
+| Reddit   | :fontawesome-brands-reddit-alien: |          | `reddit.com`                                  |
+| Slack    | :fontawesome-brands-slack:        | Slack^*^ | `slack.com`                                   |
+| Youtube  | :fontawesome-brands-youtube:      |          | `youtube.com`, `youtu.be`                     |
+| Twitter  | :fontawesome-brands-twitter:      |          | `twitter.com`, `x.com`                        |
+| Bluesky  | :fontawesome-brands-bluesky:      | Bluesky  | `bsky.app`                                    |
+
+
 [Read the Docs]: https://about.readthedocs.com/
 
 ## Owner, author and maintainer details

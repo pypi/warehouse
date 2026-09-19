@@ -20,6 +20,7 @@ from warehouse.accounts.models import (
     WebAuthn,
 )
 from warehouse.admin.views import users as views
+from warehouse.constants import RateLimitPeriod
 from warehouse.events.tags import EventTag
 from warehouse.observations.models import ObservationKind
 from warehouse.organizations.models import OrganizationRoleType
@@ -810,6 +811,97 @@ class TestUserFreeze:
         ]
 
 
+class TestUserSetProjectCreateRatelimit:
+    def test_set_project_create_ratelimit_with_value(self, db_request, mocker):
+        user = UserFactory.create()
+        actor = UserFactory.create()
+
+        flash = mocker.spy(db_request.session, "flash")
+        mocker.patch.object(db_request, "route_path", return_value="/admin/users/foo/")
+        db_request.user = actor
+        db_request.POST = MultiDict(
+            {
+                "project_create_ratelimit_count": "5",
+                "project_create_ratelimit_period": "hour",
+            }
+        )
+
+        result = views.user_set_project_create_ratelimit(user, db_request)
+
+        flash.assert_called_once_with(
+            f"Project creation rate limit set to 5 per hour for user {user.username!r}",
+            queue="success",
+        )
+        assert result.status_code == 303
+        assert result.location == "/admin/users/foo/"
+        assert user.project_create_ratelimit_string == "5 per hour"
+        event = user.events.one()
+        assert event.tag == "account:project_create_ratelimit:change"
+        assert event.additional == {
+            "old_project_create_ratelimit_string": None,
+            "new_project_create_ratelimit_string": "5 per hour",
+            "actor": actor.username,
+        }
+
+    def test_set_project_create_ratelimit_with_none(self, db_request, mocker):
+        user = UserFactory.create()
+        user.project_create_ratelimit_count = 5
+        user.project_create_ratelimit_period = RateLimitPeriod.Hour
+        actor = UserFactory.create()
+
+        flash = mocker.spy(db_request.session, "flash")
+        mocker.patch.object(db_request, "route_path", return_value="/admin/users/foo/")
+        db_request.user = actor
+        db_request.POST = MultiDict({"project_create_ratelimit_count": ""})
+
+        result = views.user_set_project_create_ratelimit(user, db_request)
+
+        flash.assert_called_once_with(
+            "Project creation rate limit override cleared; the default applies "
+            f"for user {user.username!r}",
+            queue="success",
+        )
+        assert result.status_code == 303
+        assert user.project_create_ratelimit_string is None
+        event = user.events.one()
+        assert event.additional == {
+            "old_project_create_ratelimit_string": "5 per hour",
+            "new_project_create_ratelimit_string": None,
+            "actor": actor.username,
+        }
+
+    @pytest.mark.parametrize(
+        ("post", "expected"),
+        [
+            (
+                {"project_create_ratelimit_count": "0"},
+                "project_create_ratelimit_count: Rate limit count must be at least 1",
+            ),
+            (
+                {
+                    "project_create_ratelimit_count": "5",
+                    "project_create_ratelimit_period": "fortnight",
+                },
+                "project_create_ratelimit_period: Invalid Choice: could not coerce.",
+            ),
+        ],
+    )
+    def test_set_project_create_ratelimit_invalid_value(
+        self, db_request, mocker, post, expected
+    ):
+        user = UserFactory.create()
+
+        flash = mocker.spy(db_request.session, "flash")
+        mocker.patch.object(db_request, "route_path", return_value="/admin/users/foo/")
+        db_request.POST = MultiDict(post)
+
+        result = views.user_set_project_create_ratelimit(user, db_request)
+
+        flash.assert_called_once_with(expected, queue="error")
+        assert result.status_code == 303
+        assert user.project_create_ratelimit_count is None
+
+
 class TestUserResetPassword:
     def test_resets_password(self, db_request, monkeypatch):
         user = UserFactory.create()
@@ -1281,6 +1373,7 @@ class TestUserRecoverAccountInitiate:
         }
         assert account_recovery.additional == {"status": "initiated"}
 
+    @pytest.mark.usefixtures("no_email_deliverability_check")
     def test_user_recover_account_initiate_override_email(
         self, db_request, monkeypatch
     ):
@@ -1352,6 +1445,7 @@ class TestUserRecoverAccountInitiate:
         }
         assert account_recovery.additional == {"status": "initiated"}
 
+    @pytest.mark.usefixtures("no_email_deliverability_check")
     def test_user_recover_account_initiate_override_email_exists(
         self, db_request, monkeypatch
     ):
@@ -1426,6 +1520,7 @@ class TestUserRecoverAccountInitiate:
         }
         assert account_recovery.additional == {"status": "initiated"}
 
+    @pytest.mark.usefixtures("no_email_deliverability_check")
     def test_user_recover_account_initiate_override_email_exists_wrong_user(
         self, db_request, monkeypatch
     ):
@@ -1482,6 +1577,30 @@ class TestUserRecoverAccountInitiate:
             pretend.call("Email address already associated with a user", queue="error")
         ]
         assert len(user.active_account_recoveries) == 0
+
+    def test_user_recover_account_initiate_invalid_email_format(self, db_request):
+        user = UserFactory.create()
+        db_request.method = "POST"
+        db_request.user = UserFactory.create()
+        db_request.POST["project_name"] = ""
+        db_request.POST["support_issue_link"] = (
+            "https://github.com/pypi/support/issues/1"
+        )
+        db_request.POST["override_to_email"] = "invalid-email"
+        db_request.route_path = pretend.call_recorder(
+            lambda route_name, **kwargs: "/user/the-redirect/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        result = views.user_recover_account_initiate(user, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/user/the-redirect/"
+        assert db_request.session.flash.calls == [
+            pretend.call("Invalid or undeliverable email address", queue="error")
+        ]
 
     def test_user_recover_account_initiate_no_support_issue_link_submit(
         self, db_request

@@ -32,6 +32,7 @@
 @use "resets/reset";
 
 // BASE LAYER: adds styles to anything without a class
+@use "base/layout";
 @use "base/images-figures";
 @use "base/forms";
 @use "base/lists";
@@ -51,8 +52,10 @@
 @use "blocks/accordion";
 @use "blocks/admin-include";
 @use "blocks/applied-filters";
+@use "blocks/attestation";
 @use "blocks/author-profile";
 @use "blocks/badge";
+@use "blocks/banner";
 @use "blocks/breadcrumbs";
 @use "blocks/button";
 @use "blocks/button-group";
@@ -73,10 +76,10 @@
 @use "blocks/form-group";
 @use "blocks/gravatar-form";
 @use "blocks/heading-wsubtitle";
-@use "blocks/banner";
 @use "blocks/homepage-banner";
 @use "blocks/hooray-list";
 @use "blocks/horizontal-section";
+@use "blocks/horizontal-tabs";
 @use "blocks/large-input";
 @use "blocks/lede-paragraph";
 @use "blocks/legal-footer";
@@ -95,7 +98,6 @@
 @use "blocks/project-status";
 @use "blocks/project-tabs";
 /*rtl:end:ignore*/
-@use "blocks/files";
 @use "blocks/radio-toggle-form";
 @use "blocks/release";
 @use "blocks/release-timeline";
@@ -117,7 +119,6 @@
 /*rtl:end:ignore*/
 @use "blocks/totp-form";
 @use "blocks/twofa-login";
-@use "blocks/horizontal-tabs";
 @use "blocks/vertical-tabs";
 @use "blocks/viewport-section";
 
@@ -246,6 +247,7 @@
 // Adjust size of h1s on standalone pages
 .page-title {
   @include typography.h1-title;
+  overflow-wrap: break-word;
 }
 
 // Resolve conflict between .page-title and .heading-wsubtitle

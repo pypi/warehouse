@@ -2,6 +2,7 @@
 
 import time
 
+import pymacaroons
 import pytest
 import requests
 import responses
@@ -630,7 +631,7 @@ def test_analyze_disclosure(db_request, mocker, macaroon_service, metrics, someo
     )
     # The macaroon was really deleted from the database.
     with pytest.raises(utils.InvalidMacaroonError):
-        macaroon_service.find_from_raw(serialized)
+        macaroon_service.verify_signature_only(serialized)
 
 
 def test_analyze_disclosure_wrong_record(
@@ -679,6 +680,55 @@ def test_analyze_disclosure_invalid_macaroon(
         mocker.call("warehouse.token_leak.someorigin.received"),
         mocker.call("warehouse.token_leak.someorigin.error.invalid"),
     ]
+
+
+def test_analyze_disclosure_forged_macaroon(
+    db_request, mocker, macaroon_service, metrics, someorigin
+):
+    user = UserFactory.create()
+    _, macaroon = macaroon_service.create_macaroon(
+        "fake location",
+        "foo",
+        [caveats.RequestUser(user_id=str(user.id))],
+        user_id=user.id,
+    )
+
+    svc = {
+        utils.IMetricsService: metrics,
+        utils.IMacaroonService: macaroon_service,
+    }
+    db_request.find_service = lambda iface, context: svc[iface]
+
+    send_email = mocker.patch.object(
+        utils, "send_token_compromised_email_leak", autospec=True
+    )
+
+    # A macaroon carrying a real macaroon's identifier, but signed with a key
+    # that isn't the one we issued it with.
+    forged = pymacaroons.Macaroon(
+        location="fake location",
+        identifier=str(macaroon.id),
+        key=b"not the real key",
+        version=pymacaroons.MACAROON_V2,
+    ).serialize()
+
+    utils.analyze_disclosure(
+        request=db_request,
+        disclosure_record={
+            "type": "pypi_api_token",
+            "token": f"pypi-{forged}",
+            "url": "http://example.com",
+        },
+        origin=someorigin,
+    )
+
+    assert metrics.increment.call_args_list == [
+        mocker.call("warehouse.token_leak.someorigin.received"),
+        mocker.call("warehouse.token_leak.someorigin.error.invalid"),
+    ]
+    send_email.assert_not_called()
+    # The macaroon the forgery named is still in the database.
+    assert macaroon_service.find_macaroon(str(macaroon.id)) is not None
 
 
 def test_analyze_disclosure_unknown_error(pyramid_request, mocker, metrics, someorigin):

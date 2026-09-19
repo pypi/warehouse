@@ -295,8 +295,8 @@ flowchart TD
     VARY --> EX[extract macaroon from<br/><code>Authorization</code> header]:::warehouse
     EX --> HAS{macaroon string<br/>extracted?}:::warehouse
     HAS -->|no| N1[return <code>None</code>]:::warehouse
-    HAS -->|yes| FIND[(<code>IMacaroonService.find_from_raw</code>)]:::service
-    FIND --> VALID{structurally valid<br/>+ in DB?}:::warehouse
+    HAS -->|yes| FIND[(<code>IMacaroonService.verify_signature_only</code>)]:::service
+    FIND --> VALID{structurally valid<br/>+ in DB<br/>+ valid signature?}:::warehouse
     VALID -->|<code>InvalidMacaroonError</code>| N2[return <code>None</code>]:::warehouse
     VALID -->|yes| WHO{bound to a user<br/>or a publisher?}:::warehouse
     WHO -->|user| DIS[(<code>IUserService.is_disabled</code>)]:::service
@@ -308,10 +308,10 @@ flowchart TD
     classDef service fill:#fef3c7,stroke:#b45309,color:#78350f
 ```
 
-Note that `identity()` here only proves the token *exists* and maps to a live
-principal. It does not yet verify the macaroon's caveats. That happens in
-`permits()`, because caveat verification depends on the specific context and
-permission being requested.
+Note that `identity()` here only proves the token *exists*, has a valid
+signature, and maps to a live principal. It does not yet verify the macaroon's
+caveats. That happens in `permits()`, because caveat verification depends on
+the specific context and permission being requested.
 
 ## 5. Authorization: how `permits` decides
 
@@ -451,7 +451,7 @@ sequenceDiagram
     M->>BA: identity(request)
     BA-->>M: None (username is __token__, passes through)
     M->>MP: identity(request)
-    MP->>DB: find_from_raw(token), is_disabled(user)
+    MP->>DB: verify_signature_only(token), is_disabled(user)
     DB-->>MP: Macaroon -> live User
     MP-->>M: UserContext(user, macaroon)
     M->>MP: permits(...)
@@ -482,8 +482,8 @@ sequenceDiagram
   and traversal, and only for views that declare a `permission`. There is no
   authentication middleware.
 - `identity()` proves *who* you are; `permits()` proves *what you may do*. For
-  macaroons the split is sharper: existence is checked in `identity()`, caveats
-  in `permits()`.
+  macaroons the split is sharper: existence and signature are checked in
+  `identity()`, while caveats are checked in `permits()`.
 - The same policy that authenticates a request authorizes it. The cached
   `(identity, policy)` pair plus the `request.identity == identity` assertion
   guard against confused-deputy mistakes.

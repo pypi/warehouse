@@ -2,7 +2,12 @@
 
 from webob.multidict import MultiDict
 
-from warehouse.admin.forms import SetTotalSizeLimitForm, SetUploadLimitForm
+from warehouse.admin.forms import (
+    SetProjectCreateRateLimitForm,
+    SetTotalSizeLimitForm,
+    SetUploadLimitForm,
+)
+from warehouse.constants import PROJECT_CREATE_RATELIMIT_CAP, RateLimitPeriod
 
 
 class TestSetUploadLimitForm:
@@ -115,3 +120,84 @@ class TestSetTotalSizeLimitForm:
             "Total organization size can not be less than" in error
             for error in form.total_size_limit.errors
         )
+
+
+class TestSetProjectCreateRateLimitForm:
+    def test_validate_empty_clears_override(self):
+        form = SetProjectCreateRateLimitForm(
+            MultiDict({"project_create_ratelimit_count": ""})
+        )
+        assert form.validate()
+        assert form.project_create_ratelimit_count.data is None
+
+    def test_validate_none_clears_override(self):
+        form = SetProjectCreateRateLimitForm(MultiDict({}))
+        assert form.validate()
+        assert form.project_create_ratelimit_count.data is None
+
+    def test_validate_composes_count_and_period(self):
+        form = SetProjectCreateRateLimitForm(
+            MultiDict(
+                {
+                    "project_create_ratelimit_count": "50",
+                    "project_create_ratelimit_period": "hour",
+                }
+            )
+        )
+        assert form.validate()
+        assert form.project_create_ratelimit_count.data == 50
+        assert form.project_create_ratelimit_period.data is RateLimitPeriod.Hour
+
+    def test_validate_defaults_to_hour_period(self):
+        form = SetProjectCreateRateLimitForm(
+            MultiDict({"project_create_ratelimit_count": "5"})
+        )
+        assert form.validate()
+        assert form.project_create_ratelimit_count.data == 5
+        assert form.project_create_ratelimit_period.data is RateLimitPeriod.Hour
+
+    def test_validate_below_minimum_count(self):
+        form = SetProjectCreateRateLimitForm(
+            MultiDict({"project_create_ratelimit_count": "0"})
+        )
+        assert not form.validate()
+        assert any(
+            "Rate limit count must be at least 1" in error
+            for error in form.project_create_ratelimit_count.errors
+        )
+
+    def test_validate_rejects_a_count_above_the_cap(self):
+        form = SetProjectCreateRateLimitForm(
+            MultiDict(
+                {
+                    "project_create_ratelimit_count": str(
+                        PROJECT_CREATE_RATELIMIT_CAP + 1
+                    )
+                }
+            )
+        )
+        assert not form.validate()
+        assert any(
+            "must be at most" in error
+            for error in form.project_create_ratelimit_count.errors
+        )
+
+    def test_validate_accepts_the_cap(self):
+        form = SetProjectCreateRateLimitForm(
+            MultiDict(
+                {"project_create_ratelimit_count": str(PROJECT_CREATE_RATELIMIT_CAP)}
+            )
+        )
+        assert form.validate()
+
+    def test_validate_rejects_unknown_period(self):
+        form = SetProjectCreateRateLimitForm(
+            MultiDict(
+                {
+                    "project_create_ratelimit_count": "5",
+                    "project_create_ratelimit_period": "fortnight",
+                }
+            )
+        )
+        assert not form.validate()
+        assert form.project_create_ratelimit_period.errors
