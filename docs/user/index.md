@@ -77,10 +77,10 @@ This documentation site (docs.pypi.org) covers how to use the PyPI website and [
 ## Help
 
 * For general questions or support using PyPI, please see our [help page](about/getting-help.md)
-* To report a bug or suggest a PyPI feature, submit an issue on the [Warehouse Github repository](https://github.com/pypi/warehouse)
+* To report a bug or suggest a PyPI feature, submit an issue on the [Warehouse GitHub repository](https://github.com/pypi/warehouse)
 
 ## Contributing to the docs
 
 We welcome contributions to this documentation! If you've noticed an error or would like to suggest an improvement, please open an issue on the [pypi/warehouse](https://github.com/pypi/warehouse) repository and add the [documentation](https://github.com/pypi/warehouse/issues?q=is%3Aopen+is%3Aissue+label%3Adocumentation) label.
 
-[^1]: "PyPI" should be pronounced like "pie pea eye", specifically with the "PI" pronounced as individual letters, rather than single sound. This minimizes confusion with the PyPy project, which is a popular alternative implementation of the Python language.
+[^1]: "PyPI" should be pronounced like "pie pea eye", specifically with the "PI" pronounced as individual letters, rather than a single sound. This minimizes confusion with the PyPy project, which is a popular alternative implementation of the Python language.

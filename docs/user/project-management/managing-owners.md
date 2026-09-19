@@ -26,7 +26,7 @@ To add a new owner or maintainer to your project:
 5. In the left sidebar, select "Collaborators"  
 6. Enter the PyPI username of the person you wish to add  
 7. Select either "Owner" or "Maintainer" as their role  
-8. Click "Add"  
+8. Click "Invite"  
 9. Enter your password (PyPI requires you to re-enter your password before performing sensitive actions)
 
 **Granting owner status to another user gives them full administrative rights to your project.** A new owner will have the ability to remove you from the project entirely. Only grant ownership to individuals you trust completely.

@@ -8,7 +8,7 @@ title: Account Recovery
 
 If you've forgotten your PyPI password, but you remember your email address or username, follow these steps to reset your password:
 
-1. Go to [reset your password](https://pypi.org/account/password-reset/)  
+1. Go to [reset your password](https://pypi.org/account/request-password-reset/)  
 2. Enter the email address or username you used for PyPI and submit the form  
 3. You'll receive an email with a password reset link
 

@@ -39,7 +39,7 @@ sha256_hash = hashlib.sha256()
 blake2b_hash = hashlib.blake2b(digest_size=32)
 
 with open(file_path, "rb") as f:
-    # Read the file in 64kb chunks to handle large files efficiently
+    # Read the file in 64 KiB chunks to handle large files efficiently
     for byte_block in iter(lambda: f.read(65536), b""):
         sha256_hash.update(byte_block)
         blake2b_hash.update(byte_block)

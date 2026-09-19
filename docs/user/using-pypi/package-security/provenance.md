@@ -29,7 +29,7 @@ Attestations contain key details about the origin of the file, which may include
 * What platform (e.g. GitHub Actions) built or published the package
 * What workflow built or published the package
 
-Each attestation is recorded in a public ledger as [transparency log entry](https://docs.sigstore.dev/logging/overview/) ([example](https://search.sigstore.dev/?logIndex=227282797)), which is a permanent, auditable record that cannot be changed.
+Each attestation is recorded in a public ledger as a [transparency log entry](https://docs.sigstore.dev/logging/overview/) ([example](https://search.sigstore.dev/?logIndex=227282797)), which is a permanent, auditable record that cannot be changed.
 
 ## Attestation types
 
@@ -37,7 +37,7 @@ PyPI currently supports two types of attestations:
 
 ### 1. [PyPI publish attestations](../../attestations/publish/v1.md)
 
-An attestation, created and signed by the uploading workflow, confirming that a file was uploaded via a PyPI [Trusted Publishing](../../trusted-publishers/index.md), and that a specific Trusted Publisher identity was used to publish the file, such as a particular GitHub Actions workflow.
+An attestation, created and signed by the uploading workflow, confirming that a file was uploaded via PyPI a [Trusted Publisher](../../trusted-publishers/index.md), and that a specific Trusted Publisher identity was used to publish the file, such as a particular GitHub Actions workflow.
 
 PyPI verifies this attestation at upload time, confirming that the identity matches what the package maintainer previously configured for Trusted Publishing.
 
