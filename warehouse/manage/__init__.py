@@ -41,7 +41,7 @@ def reauth_view(view, info):
                             field = getattr(form, field_name, None)
                             if field is not None and hasattr(field, "errors"):
                                 field.errors = list(messages)
-                    except (ValueError, TypeError):
+                    except ValueError, TypeError:
                         # log or ignore bad JSON
                         pass
 

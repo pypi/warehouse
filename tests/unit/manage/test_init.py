@@ -166,9 +166,9 @@ class TestReAuthView:
 
         wrapped(context, request)
 
-        assert mock_field.errors == [
-            "Invalid password"
-        ], f"Expected errors to be ['Invalid password'], but got {mock_field.errors}"
+        assert mock_field.errors == ["Invalid password"], (
+            f"Expected errors to be ['Invalid password'], but got {mock_field.errors}"
+        )
 
     def test_reauth_view_field_missing_or_no_errors(self, monkeypatch):
         mock_user_service = pretend.stub()

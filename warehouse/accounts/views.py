@@ -1723,7 +1723,7 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
         try:
             next_route_matchdict = json.loads(form.next_route_matchdict.data)
             next_route_query = json.loads(form.next_route_query.data or "{}")
-        except (json.JSONDecodeError, TypeError, ValueError):
+        except json.JSONDecodeError, TypeError, ValueError:
             raise HTTPBadRequest
         if not isinstance(next_route_matchdict, dict) or not isinstance(
             next_route_query, dict
