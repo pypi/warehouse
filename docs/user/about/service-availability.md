@@ -10,5 +10,6 @@ See [our status page](https://status.python.org/) for current and past outages a
 
 ## Private indices and mirrors
 
-If you have high availability requirements for your package index, consider either a [private index](https://pypi.org/help/#private-indices) or a [mirror](https://pypi.org/help/#mirroring). The [bandersnatch project](https://pypi.org/project/bandersnatch/) is the recommended solution for mirroring. Note that the storage requirements for a PyPI mirror would exceed 1 terabyte — and growing!
+If you have high availability requirements for your package index, consider running either a [private index](../publishing/troubleshooting.md#how-can-i-publish-my-private-packages-to-pypi) or a mirror. 
 
+For mirroring, the [bandersnatch project](https://pypi.org/project/bandersnatch/) is recommended. Note that the storage requirements for a full mirror would exceed 1 terabyte — and growing!

@@ -65,7 +65,7 @@ When using an API token from a CI provider, we recommend scoping the token down 
 
 To make an API token:
 
-* [Verify your email address](https://pypi.org/help/#verified-email) (check your [account settings](https://pypi.org/manage/account/))  
+* [Verify your email address](#email-address-verification) (check your [account settings](https://pypi.org/manage/account/))  
 * In your [account settings](https://pypi.org/manage/account/), go to the API tokens section and select "Add API token"
 
 To use an API token:

@@ -21,7 +21,7 @@ You can configure Trusted Publishing for your project in your PyPI account setti
 API tokens are used to authenticate when uploading packages to PyPI. 
 
 !!! warning "Use Trusted Publishing where possible"
-    If you are publishing to PyPI from a CI provider that supports [Trusted Publishing](https://pypi.org/help/#trusted-publishers), we strongly recommend using Trusted Publishing instead of managing API tokens.
+    If you are publishing to PyPI from a CI provider that supports [Trusted Publishing](../trusted-publishers/index.md), we strongly recommend using Trusted Publishing instead of managing API tokens.
 
 You can create a token for an entire PyPI account, in which case, the token will work for all projects associated with that account. Alternatively, you can limit a token's scope to a specific project.
 
@@ -29,7 +29,7 @@ When using an API token from a CI provider, we recommend scoping the token down 
 
 To make an API token:
 
-* [Verify your email address](https://pypi.org/help/#verified-email) (check your [account settings](https://pypi.org/manage/account/))
+* [Verify your email address](../your-account/managing-your-account.md#email-address-verification) (check your [account settings](https://pypi.org/manage/account/))
 * In your [account settings](https://pypi.org/manage/account/), go to the API tokens section and select "Add API token"
 
 To use an API token:
@@ -48,7 +48,7 @@ Advanced users may wish to inspect their token by decoding it with base64, and c
 #### "Invalid or non-existent authentication information" error when uploading files
 
 1. Ensure that your API token is valid and has not been revoked (see below)
-2. Ensure that your API token is [properly formatted](https://pypi.org/help/#apitoken) and does not contain any trailing characters such as newlines.
+2. Ensure that your API token is correctly formatted and does not contain any trailing characters such as newlines.
 3. Ensure that the username you are using is `__token__`.
 
 Remember that PyPI and TestPyPI each require you to create an account, so your credentials may be different.
