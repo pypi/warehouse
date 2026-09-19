@@ -50,6 +50,8 @@ print(f"BLAKE2b-256: {blake2b_hash.hexdigest()}")
 
 !!! info
     In practice, you only need to verify one of these checksums.
+    
+    Use SHA-256 or BLAKE2b-256 for security verification. MD5 is provided via the PyPI API for backward compatibility only, and is not recommended because of known security weaknesses.
 
 ## Limitations
 
