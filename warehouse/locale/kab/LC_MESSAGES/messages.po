@@ -137,23 +137,27 @@ msgstr ""
 msgid "URLs are not allowed in the name field."
 msgstr ""
 
-#: warehouse/accounts/forms.py:679
+#: warehouse/accounts/forms.py:600
+msgid "You must agree to the Terms of Service and Acceptable Use Policy."
+msgstr ""
+
+#: warehouse/accounts/forms.py:688
 msgid "Invalid TOTP code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:696
+#: warehouse/accounts/forms.py:705
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr ""
 
-#: warehouse/accounts/forms.py:760
+#: warehouse/accounts/forms.py:769
 msgid "Invalid recovery code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:769
+#: warehouse/accounts/forms.py:778
 msgid "Recovery code has been previously used."
 msgstr ""
 
-#: warehouse/accounts/forms.py:798
+#: warehouse/accounts/forms.py:807
 msgid "The username isn't valid. Try again."
 msgstr ""
 
@@ -1004,7 +1008,7 @@ msgstr ""
 msgid "Provide an Inspector link to specific lines of code."
 msgstr ""
 
-#: warehouse/packaging/views.py:350
+#: warehouse/packaging/views.py:351
 msgid "Your report has been recorded. Thank you for your help."
 msgstr ""
 
@@ -1012,9 +1016,13 @@ msgstr ""
 msgid "Copied"
 msgstr "Yettwanɣel"
 
-#: warehouse/static/js/warehouse/controllers/filter_list_controller.js:69
-msgid "Showing %1 of %2 file."
-msgid_plural "Showing %1 of %2 files."
+#: warehouse/static/js/warehouse/controllers/filter_list_controller.js:497
+msgid "No built distributions (wheels) match the current filters."
+msgstr ""
+
+#: warehouse/static/js/warehouse/controllers/filter_list_controller.js:504
+msgid "Showing %1 of %2 built distribution (wheel) file."
+msgid_plural "Showing %1 of %2 built distribution (wheel) files."
 msgstr[0] ""
 msgstr[1] ""
 
@@ -1115,6 +1123,8 @@ msgid "Monty Python - The Cheese Shop Sketch"
 msgstr ""
 
 #: warehouse/templates/404.html:33 warehouse/templates/500.html:18
+#: warehouse/templates/accounts/register.html:36
+#: warehouse/templates/accounts/register.html:222
 #: warehouse/templates/accounts/two-factor.html:35
 #: warehouse/templates/base.html:365 warehouse/templates/base.html:370
 #: warehouse/templates/base.html:386 warehouse/templates/base.html:392
@@ -1126,11 +1136,10 @@ msgstr ""
 #: warehouse/templates/base.html:500 warehouse/templates/base.html:522
 #: warehouse/templates/base.html:531
 #: warehouse/templates/includes/accounts/profile-callout.html:5
-#: warehouse/templates/includes/file-details.html:120
+#: warehouse/templates/includes/file-details.html:58
+#: warehouse/templates/includes/file-details.html:80
 #: warehouse/templates/includes/manage/company-org-survey-callout.html:19
-#: warehouse/templates/includes/packaging/project-files.html:48
-#: warehouse/templates/includes/packaging/project-files.html:66
-#: warehouse/templates/includes/packaging/project-files.html:82
+#: warehouse/templates/includes/packaging/project-files.html:11
 #: warehouse/templates/index.html:102 warehouse/templates/index.html:109
 #: warehouse/templates/manage/account.html:241
 #: warehouse/templates/manage/account.html:248
@@ -1674,8 +1683,8 @@ msgstr ""
 msgid "Error processing form"
 msgstr ""
 
-#: warehouse/templates/accounts/register.html:178
-#: warehouse/templates/accounts/register.html:183
+#: warehouse/templates/accounts/register.html:180
+#: warehouse/templates/accounts/register.html:185
 #: warehouse/templates/accounts/reset-password.html:62
 #: warehouse/templates/accounts/reset-password.html:67
 #: warehouse/templates/manage/account.html:441
@@ -1688,7 +1697,7 @@ msgid "Confirm password to continue"
 msgstr ""
 
 #: warehouse/templates/accounts/login.html:57
-#: warehouse/templates/accounts/register.html:142
+#: warehouse/templates/accounts/register.html:144
 #: warehouse/templates/accounts/reset-password.html:28
 #: warehouse/templates/manage/manage_base.html:447
 #: warehouse/templates/re-auth.html:36
@@ -1698,11 +1707,12 @@ msgstr "Awal n uɛeddi"
 #: warehouse/templates/accounts/login.html:34
 #: warehouse/templates/accounts/login.html:59
 #: warehouse/templates/accounts/recovery-code.html:28
-#: warehouse/templates/accounts/register.html:69
-#: warehouse/templates/accounts/register.html:91
-#: warehouse/templates/accounts/register.html:119
-#: warehouse/templates/accounts/register.html:144
-#: warehouse/templates/accounts/register.html:180
+#: warehouse/templates/accounts/register.html:71
+#: warehouse/templates/accounts/register.html:93
+#: warehouse/templates/accounts/register.html:121
+#: warehouse/templates/accounts/register.html:146
+#: warehouse/templates/accounts/register.html:182
+#: warehouse/templates/accounts/register.html:230
 #: warehouse/templates/accounts/request-password-reset.html:28
 #: warehouse/templates/accounts/reset-password.html:30
 #: warehouse/templates/accounts/reset-password.html:64
@@ -1881,7 +1891,7 @@ msgstr "Tuqqna ar %(title)s"
 
 #: warehouse/templates/accounts/login.html:32
 #: warehouse/templates/accounts/profile.html:30
-#: warehouse/templates/accounts/register.html:117
+#: warehouse/templates/accounts/register.html:119
 #: warehouse/templates/email/organization-member-added/body.html:14
 #: warehouse/templates/email/organization-member-invited/body.html:14
 #: warehouse/templates/email/organization-member-removed/body.html:14
@@ -1997,7 +2007,7 @@ msgstr[1] ""
 
 #: warehouse/templates/accounts/profile.html:102
 #: warehouse/templates/includes/packaging/project-release-history.html:91
-#: warehouse/templates/includes/packaging/project-status.html:55
+#: warehouse/templates/includes/packaging/project-status.html:72
 msgid "Archived"
 msgstr "Yekcem taṛcivt"
 
@@ -2058,55 +2068,64 @@ msgid ""
 "following guidelines:"
 msgstr ""
 
-#: warehouse/templates/accounts/register.html:25
+#: warehouse/templates/accounts/register.html:26
+#, python-format
+msgid ""
+"Do not use %(title)s for <strong>security research of any kind</strong>, "
+"including bug bounties, pentesting, red teaming, or dependency confusion, "
+"without written authorization from the %(title)s team."
+msgstr ""
+
+#: warehouse/templates/accounts/register.html:28
 #, python-format
 msgid "Do not use %(title)s for any illegal or harmful activities."
 msgstr ""
 
-#: warehouse/templates/accounts/register.html:26
+#: warehouse/templates/accounts/register.html:29
 msgid ""
 "Do not impersonate others or post private information without their consent."
 msgstr ""
 
-#: warehouse/templates/accounts/register.html:27
+#: warehouse/templates/accounts/register.html:30
 msgid ""
 "Be respectful of other users and avoid abusive or discriminatory language."
 msgstr ""
 
-#: warehouse/templates/accounts/register.html:28
+#: warehouse/templates/accounts/register.html:31
 msgid "Do not post spam or distribute malware."
 msgstr ""
 
-#: warehouse/templates/accounts/register.html:29
-#, python-format
-msgid "Do not use %(title)s to conduct security research."
+#: warehouse/templates/accounts/register.html:32
+msgid "Do not upload deliberately obfuscated code."
 msgstr ""
 
-#: warehouse/templates/accounts/register.html:32
+#: warehouse/templates/accounts/register.html:33
+#, python-format
+msgid ""
+"Do not use %(title)s as a file host, or split large files across releases."
+msgstr ""
+
+#: warehouse/templates/accounts/register.html:36
 #, python-format
 msgid ""
 "For more information, please read the full <a href=\"%(aup)s\" "
-"rel=\"noopener\">Acceptable Use Policy</a>."
+"title=\"%(external)s\" target=\"_blank\" rel=\"noopener\">Acceptable Use "
+"Policy</a>. If you are a security researcher, refer to our <a "
+"href=\"%(security_page)s\">published security policy</a> and coordinate "
+"through proper disclosure channels."
 msgstr ""
 
-#: warehouse/templates/accounts/register.html:37
-#, python-format
-msgid ""
-"By registering, you agree to the <a href=\"%(tos)s\">PyPI Terms of Service</"
-"a>."
-msgstr ""
-
-#: warehouse/templates/accounts/register.html:47
+#: warehouse/templates/accounts/register.html:49
 msgid ""
 "Please confirm that your email address is <strong data-email-confirmation-"
 "target=\"email\"></strong>."
 msgstr ""
 
-#: warehouse/templates/accounts/register.html:50
+#: warehouse/templates/accounts/register.html:52
 msgid "Confirm"
 msgstr "Serggeg"
 
-#: warehouse/templates/accounts/register.html:51
+#: warehouse/templates/accounts/register.html:53
 #: warehouse/templates/manage/account.html:561
 #: warehouse/templates/manage/manage_base.html:394
 #: warehouse/templates/manage/manage_base.html:469
@@ -2114,7 +2133,7 @@ msgstr "Serggeg"
 msgid "Cancel"
 msgstr "Semmet"
 
-#: warehouse/templates/accounts/register.html:67
+#: warehouse/templates/accounts/register.html:69
 #: warehouse/templates/manage/account.html:137
 #: warehouse/templates/manage/account.html:623
 #: warehouse/templates/manage/project/history.html:286
@@ -2125,47 +2144,63 @@ msgstr "Semmet"
 msgid "Name"
 msgstr "Isem"
 
-#: warehouse/templates/accounts/register.html:72
+#: warehouse/templates/accounts/register.html:74
 msgid "Your name"
 msgstr "Isem-ik·im"
 
-#: warehouse/templates/accounts/register.html:89
+#: warehouse/templates/accounts/register.html:91
 #: warehouse/templates/manage/account.html:338
 #: warehouse/templates/manage/unverified-account.html:258
 msgid "Email address"
 msgstr "Tansa n yimayl"
 
-#: warehouse/templates/accounts/register.html:94
+#: warehouse/templates/accounts/register.html:96
 #: warehouse/templates/manage/account.html:358
 msgid "Your email address"
 msgstr "Tansa-inek·inem n yimayl"
 
-#: warehouse/templates/accounts/register.html:111
+#: warehouse/templates/accounts/register.html:113
 msgid "Confirm form"
 msgstr ""
 
-#: warehouse/templates/accounts/register.html:122
+#: warehouse/templates/accounts/register.html:124
 msgid "Select a username"
 msgstr "Fren isem n useqdac"
 
-#: warehouse/templates/accounts/register.html:152
+#: warehouse/templates/accounts/register.html:154
 #: warehouse/templates/accounts/reset-password.html:39
 #: warehouse/templates/manage/account.html:397
 msgid "Show passwords"
 msgstr ""
 
-#: warehouse/templates/accounts/register.html:155
+#: warehouse/templates/accounts/register.html:157
 msgid "Select a password"
 msgstr ""
 
-#: warehouse/templates/accounts/register.html:207
+#: warehouse/templates/accounts/register.html:209
 msgid ""
 "This password appears in a security breach or has been compromised and "
 "cannot be used. Please refer to the <a href=\"/help/#compromised-"
 "password\">FAQ</a> for more information."
 msgstr ""
 
-#: warehouse/templates/accounts/register.html:214
+#: warehouse/templates/accounts/register.html:217
+msgid ""
+"Violations of these policies will result in <strong>immediate account "
+"suspension</strong>, and may include removal of all associated projects and "
+"files."
+msgstr ""
+
+#: warehouse/templates/accounts/register.html:222
+#, python-format
+msgid ""
+"I agree to the <a href=\"%(tos)s\" title=\"%(external)s\" target=\"_blank\" "
+"rel=\"noopener\">PyPI Terms of Service</a> and <a href=\"%(aup)s\" "
+"title=\"%(external)s\" target=\"_blank\" rel=\"noopener\">Acceptable Use "
+"Policy</a>."
+msgstr ""
+
+#: warehouse/templates/accounts/register.html:243
 msgid "Create account"
 msgstr "Snulfu-d amiḍan"
 
@@ -3201,53 +3236,70 @@ msgstr "Amaɣnu azayez"
 msgid "Sponsors"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:32
-msgid "File details"
-msgstr ""
+#: warehouse/templates/includes/file-details.html:10
+#: warehouse/templates/includes/packaging/project-navigation.html:38
+#, fuzzy
+#| msgid "Releases"
+msgid "Release files"
+msgstr "Ileqman"
 
-#: warehouse/templates/includes/file-details.html:42
+#: warehouse/templates/includes/file-details.html:18
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:65
+#: warehouse/templates/includes/packaging/project-files.html:17
+#: warehouse/templates/includes/packaging/project-status.html:7
+msgid "File added late"
+msgid_plural "Files added late"
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/templates/includes/file-details.html:20
 #, python-format
-msgid "Upload date: %(upload_time)s"
+msgid ""
+"This file was uploaded more than %(days)s days after the first file in this "
+"release."
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:44
-#, python-format
-msgid "Size: %(size)s"
+#: warehouse/templates/includes/file-details.html:21
+#: warehouse/templates/includes/packaging/project-files.html:26
+msgid ""
+"While project maintainers occasionally add legitimate files to an existing "
+"release, late additions can also indicate a security compromise."
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:46
-#, python-format
-msgid "Tags: %(tags)s"
+#: warehouse/templates/includes/file-details.html:22
+msgid "We recommend inspecting the release file before installing."
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:48
-#, python-format
-msgid "Uploaded using Trusted Publishing? %(is_tp)s"
+#: warehouse/templates/includes/file-details.html:29
+#, fuzzy
+#| msgid "Download"
+msgid "Download URL"
+msgstr "Azdam"
+
+#: warehouse/templates/includes/file-details.html:38
+#: warehouse/templates/includes/packaging/project-files.html:44
+msgid "Size"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:56
-#, python-format
-msgid "Uploaded via: %(uploaded_via)s"
+#: warehouse/templates/includes/file-details.html:43
+#: warehouse/templates/includes/packaging/metadata/tags.html:3
+msgid "Tags"
+msgstr "Tabzimt"
+
+#: warehouse/templates/includes/file-details.html:55
+#: warehouse/templates/includes/packaging/provenance/attestation.html:221
+msgid "SHA-256 checksum"
 msgstr ""
 
-#: warehouse/templates/includes/file-details.html:63
-#, python-format
-msgid "Hashes for %(filename)s"
-msgstr ""
-
-#: warehouse/templates/includes/file-details.html:66
-msgid "Algorithm"
-msgstr "Awarzim"
-
-#: warehouse/templates/includes/file-details.html:67
-msgid "Hash digest"
-msgstr ""
-
+#: warehouse/templates/includes/file-details.html:60
 #: warehouse/templates/includes/file-details.html:82
-#: warehouse/templates/includes/file-details.html:97
-#: warehouse/templates/includes/file-details.html:112
-#: warehouse/templates/includes/packaging/project-files.html:102
+msgid "How to use checksums"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:69
+#: warehouse/templates/includes/file-details.html:91
 #: warehouse/templates/includes/packaging/project-header.html:43
+#: warehouse/templates/includes/packaging/provenance/attestation.html:230
 #: warehouse/templates/manage/account.html:218
 #: warehouse/templates/manage/account/recovery_codes-provision.html:53
 #: warehouse/templates/manage/account/totp-provision.html:46
@@ -3256,23 +3308,54 @@ msgstr ""
 msgid "Copy to clipboard"
 msgstr "Nɣel ɣeṛ ɣef afus"
 
-#: warehouse/templates/includes/file-details.html:83
-#: warehouse/templates/includes/file-details.html:98
-#: warehouse/templates/includes/file-details.html:113
-#: warehouse/templates/includes/packaging/project-files.html:103
-#: warehouse/templates/manage/account.html:219
-#: warehouse/templates/manage/account/recovery_codes-provision.html:54
-#: warehouse/templates/manage/account/totp-provision.html:47
-#: warehouse/templates/manage/unverified-account.html:201
-#: warehouse/templates/pages/classifiers.html:43
-msgid "Copy"
-msgstr "Nɣel"
+#: warehouse/templates/includes/file-details.html:77
+msgid "BLAKE2b-256 checksum"
+msgstr ""
 
-#: warehouse/templates/includes/file-details.html:120
+#: warehouse/templates/includes/file-details.html:98
+#: warehouse/templates/manage/project/release.html:60
+#: warehouse/templates/manage/project/release.html:82
+msgid "Upload date"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:99
+#, python-format
+msgid "%(upload_time)s"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:103
+msgid "Uploaded using Trusted Publishing?"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:105
+msgid "What is trusted publishing?"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:109
+msgid "Yes"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:111
+#, fuzzy
+#| msgid "None"
+msgid "No"
+msgstr "Ula yiwen"
+
+#: warehouse/templates/includes/file-details.html:117
+msgid "Uploaded via"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:127
+msgid "Provenance"
+msgstr ""
+
+#: warehouse/templates/includes/file-details.html:130
 #, python-format
 msgid ""
-"<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">See more details on using hashes here.</a>"
+"<strong>Provenance</strong> describes where a file came from. On PyPI, "
+"provenance is shared via <strong>attestations</strong>, which provide a "
+"verifiable record of the build or publishing details. <a "
+"href=\"%(href)s\">View details, limitations and caveats.</a>"
 msgstr ""
 
 #: warehouse/templates/includes/flash-messages.html:10
@@ -3477,86 +3560,119 @@ msgstr "Iɛiggalen"
 msgid "The author of this package has not provided a project description"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:15
-msgid "view details"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-files.html:17
+#: warehouse/templates/includes/packaging/project-files.html:9
 #, python-format
-msgid "Uploaded %(upload_time)s"
+msgid "Release files for %(name)s %(version)s"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:25
-#: warehouse/templates/includes/packaging/project-files.html:32
-#, python-format
-msgid "%(title)s"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-files.html:46
-#: warehouse/templates/includes/packaging/project-navigation.html:38
-msgid "Download files"
-msgstr "Azdam n ifuyla"
-
-#: warehouse/templates/includes/packaging/project-files.html:48
+#: warehouse/templates/includes/packaging/project-files.html:11
 #, python-format
 msgid ""
-"Download the file for your platform. If you're not sure which to choose, "
-"learn more about <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">installing packages</a>."
+"For a detailed explanation of source distributions (sdists) and built "
+"distributions (wheels), please see the <a href=\"%(href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">package formats "
+"documentation</a>."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:51
-msgid "Source Distribution"
-msgid_plural "Source Distributions"
+#: warehouse/templates/includes/packaging/project-files.html:22
+#, python-format
+msgid ""
+"%(count)s file was uploaded more than %(days)s days after the first file in "
+"this release."
+msgid_plural ""
+"%(count)s files were uploaded more than %(days)s days after the first file "
+"in this release."
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/includes/packaging/project-files.html:65
-msgid "No source distribution files available for this release."
+#: warehouse/templates/includes/packaging/project-files.html:27
+msgid "We recommend inspecting the release files before installing."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:66
-#, python-format
-msgid ""
-"See tutorial on <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">generating distribution archives</a>."
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-files.html:72
-msgid "Built Distribution"
-msgid_plural "Built Distributions"
+#: warehouse/templates/includes/packaging/project-files.html:33
+msgid "Source distribution (sdist)"
+msgid_plural "Source distributions (sdists)"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/includes/packaging/project-files.html:79
-msgid "Filter files by name, interpreter, ABI, and platform."
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-files.html:82
+#: warehouse/templates/includes/packaging/project-files.html:40
 #, python-format
-msgid ""
-"If you're not sure about the file name format, learn more about <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">wheel file names</a>."
+msgid "Source distribution for %(name)s %(version)s"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:86
-msgid ""
-"The dropdown lists show the available interpreters, ABIs, and platforms."
+#: warehouse/templates/includes/packaging/project-files.html:43
+#: warehouse/templates/includes/packaging/project-files.html:122
+#, fuzzy
+#| msgid "Files"
+msgid "File"
+msgstr "Ifuyla"
+
+#: warehouse/templates/includes/packaging/project-files.html:45
+msgid "Uploaded"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:89
+#: warehouse/templates/includes/packaging/project-files.html:75
+#: warehouse/templates/includes/packaging/project-files.html:251
+#: warehouse/templates/manage/account/publishing.html:416
+#: warehouse/templates/manage/organization/publishing.html:416
+#: warehouse/templates/manage/project/publishing.html:364
+msgid "Details"
+msgstr "Aglam leqqyen"
+
+#: warehouse/templates/includes/packaging/project-files.html:87
+msgid "Built distribution (wheel)"
+msgid_plural "Built distributions (wheels)"
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/templates/includes/packaging/project-files.html:96
 msgid "Enable javascript to be able to filter the list of wheel files."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:93
-msgid "Copy a direct link to the current filters"
+#: warehouse/templates/includes/packaging/project-files.html:101
+#, fuzzy
+#| msgid "Search results"
+msgid "Search wheels"
+msgstr "Igmaḍ n unadi"
+
+#: warehouse/templates/includes/packaging/project-files.html:106
+msgid "Search wheels by file name"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-files.html:111
-#: warehouse/templates/includes/packaging/project-files.html:116
-msgid "File name"
-msgstr "Isem n ufaylu"
+#: warehouse/templates/includes/packaging/project-files.html:119
+#, python-format
+msgid "Table of built distributions (wheels) for %(name)s %(version)s"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-files.html:125
+#: warehouse/templates/includes/packaging/project-files.html:136
+#: warehouse/templates/includes/packaging/project-files.html:143
+msgid "Interpreter"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-files.html:148
+#: warehouse/templates/includes/packaging/project-files.html:159
+#: warehouse/templates/includes/packaging/project-files.html:166
+msgid "ABI"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-files.html:171
+#: warehouse/templates/includes/packaging/project-files.html:182
+#: warehouse/templates/includes/packaging/project-files.html:189
+msgid "Platform"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-files.html:196
+msgid "Reset"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-files.html:229
+msgid "Legacy Egg format"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-files.html:267
+msgid "Total release size:"
+msgstr ""
 
 #: warehouse/templates/includes/packaging/project-header.html:45
 msgid "Copy PIP instructions"
@@ -3639,7 +3755,7 @@ msgid "Release yanked on %(date)s"
 msgstr "Lqem aneggaru: %(release_date)s"
 
 #: warehouse/templates/includes/packaging/project-release-history.html:81
-#: warehouse/templates/includes/packaging/project-status.html:35
+#: warehouse/templates/includes/packaging/project-status.html:52
 msgid "Yanked"
 msgstr ""
 
@@ -3649,17 +3765,18 @@ msgid "Project archived on %(date)s"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-release-history.html:95
-#: warehouse/templates/includes/packaging/project-status.html:67
+#: warehouse/templates/includes/packaging/project-status.html:84
 #, fuzzy
 #| msgid "release"
 msgid "Pre-release"
 msgstr "tuffɣa"
 
 #: warehouse/templates/includes/packaging/project-release-history.html:110
-#: warehouse/templates/manage/project/releases.html:32
-#, python-format
-msgid "%(count)s file"
-msgid_plural "%(count)s files"
+#, fuzzy, python-format
+#| msgid "%(count)s file"
+#| msgid_plural "%(count)s files"
+msgid "%(count)s release file"
+msgid_plural "%(count)s release files"
 msgstr[0] "%(count)s n ufaylu"
 msgstr[1] "%(count)s n ifuyla"
 
@@ -3673,51 +3790,64 @@ msgstr ""
 msgid "Security for"
 msgstr "Taɣellist"
 
-#: warehouse/templates/includes/packaging/project-status.html:7
-#: warehouse/templates/includes/packaging/project-status.html:19
+#: warehouse/templates/includes/packaging/project-status.html:12
+#, python-format
+msgid ""
+"%(count)s file was added to this release more than %(days)s days after its "
+"initial publication. <a href=\"%(href)s\">Inspect the release files</a> "
+"before installing."
+msgid_plural ""
+"%(count)s files were added to this release more than %(days)s days after its "
+"initial publication. <a href=\"%(href)s\">Inspect the release files</a> "
+"before installing."
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/templates/includes/packaging/project-status.html:24
+#: warehouse/templates/includes/packaging/project-status.html:36
 #: warehouse/templates/manage/project/releases.html:25
 msgid "Quarantined"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-status.html:10
+#: warehouse/templates/includes/packaging/project-status.html:27
 #, python-format
 msgid ""
 "This project has been <a href=\"%(href)s\">quarantined</a> by PyPI admins. "
 "It cannot be installed or modified until a security review is complete."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-status.html:22
+#: warehouse/templates/includes/packaging/project-status.html:39
 #, python-format
 msgid ""
 "This release has been <a href=\"%(href)s\">quarantined</a> by PyPI admins. "
 "It cannot be installed or modified until a security review is complete."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-status.html:25
-#: warehouse/templates/includes/packaging/project-status.html:41
+#: warehouse/templates/includes/packaging/project-status.html:42
+#: warehouse/templates/includes/packaging/project-status.html:58
 #, python-format
 msgid "Consider using <a href=\"%(href)s\">release %(version)s</a> instead."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-status.html:38
+#: warehouse/templates/includes/packaging/project-status.html:55
 #, python-format
 msgid ""
 "This release has been <a href=\"%(href)s\">yanked</a> by its maintainers, "
 "and will be ignored by installers, except when explicitly specified."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-status.html:45
+#: warehouse/templates/includes/packaging/project-status.html:62
 msgid "Reason given by maintainers:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-status.html:58
+#: warehouse/templates/includes/packaging/project-status.html:75
 #, python-format
 msgid ""
 "This project has been <a href=\"%(href)s\">archived</a> by its maintainers, "
 "and is no longer receiving any updates."
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-status.html:70
+#: warehouse/templates/includes/packaging/project-status.html:87
 #, python-format
 msgid ""
 "This release is a <a href=\"%(href)s\">pre-release</a> and may not be stable "
@@ -3736,17 +3866,17 @@ msgid "Credits"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/metadata/credits.html:8
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:7
-#: warehouse/templates/includes/packaging/metadata/maintainers.html:24
-#: warehouse/templates/includes/packaging/metadata/organization.html:7
-msgid "PyPI data"
+#: warehouse/templates/includes/packaging/metadata/github-statistics.html:12
+#: warehouse/templates/includes/packaging/metadata/gitlab-statistics.html:11
+#, python-format
+msgid "Data verified by PyPI on&nbsp;%(date)s"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/metadata/credits.html:9
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:8
-#: warehouse/templates/includes/packaging/metadata/maintainers.html:25
-#: warehouse/templates/includes/packaging/metadata/organization.html:8
-msgid "Data sourced directly from PyPI's database."
+msgid ""
+"Data provided by the project maintainers, verified at the time the release "
+"was uploaded to PyPI. Confirms that the provided email matches a verified, "
+"public email address on a PyPI user account associated with the project."
 msgstr ""
 
 #: warehouse/templates/includes/packaging/metadata/credits.html:16
@@ -3771,12 +3901,6 @@ msgstr ""
 #: warehouse/templates/includes/packaging/metadata/github-statistics.html:8
 msgid "GitHub Statistics"
 msgstr "Tidaddanin n Github"
-
-#: warehouse/templates/includes/packaging/metadata/github-statistics.html:12
-#: warehouse/templates/includes/packaging/metadata/gitlab-statistics.html:11
-#, python-format
-msgid "Data verified by PyPI on&nbsp;%(date)s"
-msgstr ""
 
 #: warehouse/templates/includes/packaging/metadata/github-statistics.html:13
 msgid ""
@@ -3828,45 +3952,61 @@ msgstr ""
 msgid "Key dates"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:27
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:7
+#: warehouse/templates/includes/packaging/metadata/maintainers.html:24
+#: warehouse/templates/includes/packaging/metadata/organization.html:7
+msgid "PyPI data"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:8
+#: warehouse/templates/includes/packaging/metadata/maintainers.html:25
+#: warehouse/templates/includes/packaging/metadata/organization.html:8
+msgid "Data sourced directly from PyPI's database."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:30
 #, fuzzy
 #| msgid "Releases"
 msgid "Released:"
 msgstr "Ileqman"
 
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:29
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:32
+msgid "Last file added:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:34
 msgid "Yanked:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:31
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:36
 #, fuzzy
 #| msgid "Project Name"
 msgid "Project quarantined:"
 msgstr "Isem n usenfaṛ"
 
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:33
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:38
 #, fuzzy
 #| msgid "Release date"
 msgid "Release quarantined:"
 msgstr "Azemz n usufeɣ"
 
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:35
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:40
 #, fuzzy
 #| msgid "Archived"
 msgid "Archived:"
 msgstr "Yekcem taṛcivt"
 
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:44
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:49
 #, python-format
 msgid "Stable release available (%(version)s)"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:49
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:54
 #, python-format
 msgid "Newer release available (%(version)s)"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/metadata/key-dates.html:52
+#: warehouse/templates/includes/packaging/metadata/key-dates.html:57
 msgid "Latest release"
 msgstr ""
 
@@ -3943,9 +4083,158 @@ msgstr ""
 msgid "Requires"
 msgstr "(yettwasra)"
 
-#: warehouse/templates/includes/packaging/metadata/tags.html:3
-msgid "Tags"
-msgstr "Tabzimt"
+#: warehouse/templates/includes/packaging/provenance/attestation.html:49
+#: warehouse/templates/includes/packaging/provenance/attestation.html:56
+msgid "SLSA Build Provenance"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:51
+#: warehouse/templates/includes/packaging/provenance/attestation.html:58
+#, fuzzy
+#| msgid "Publisher"
+msgid "PyPI Publish"
+msgstr "Amaẓrag"
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:61
+#, fuzzy
+#| msgid "Authentication"
+msgid "Attestation"
+msgstr "Asesteb"
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:65
+msgid ""
+"PyPI verified that this artifact, at this checksum, originated from the "
+"builder listed below."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:67
+msgid ""
+"PyPI verified that this artifact, at this checksum, originated from the "
+"publisher listed below."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:73
+#, python-format
+msgid "Built by %(platform_name)s, verified by PyPI on %(verified_date)s."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:75
+#, python-format
+msgid "Signed by %(platform_name)s, verified by PyPI on %(verified_date)s."
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:83
+msgid "Sigstore transparency entry"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:83
+msgid "Transparency log"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:93
+msgid "Identity"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:98
+msgid "Build platform"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:100
+#, fuzzy
+#| msgid "Publishing"
+msgid "Publishing platform"
+msgstr "Asuffeɣ"
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:109
+#, fuzzy
+#| msgid "Repository"
+msgid "Build repository"
+msgstr "Akufi"
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:111
+#, fuzzy
+#| msgid "Publishing"
+msgid "Publishing repository"
+msgstr "Asuffeɣ"
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:121
+msgid "Build commit"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:123
+#, fuzzy
+#| msgid "Publishing"
+msgid "Publishing commit"
+msgstr "Asuffeɣ"
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:135
+#, fuzzy
+#| msgid "Your account"
+msgid "Build account"
+msgstr "Amiḍan-ik⋅im"
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:137
+#, fuzzy
+#| msgid "Publisher"
+msgid "Publisher account"
+msgstr "Amaẓrag"
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:146
+msgid "No identity information found"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:162
+msgid "Build"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:164
+msgid "Workflow"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:172
+msgid "Build instructions"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:174
+msgid "Publishing configuration"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:184
+msgid "Build logs"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:186
+#, fuzzy
+#| msgid "Publishing"
+msgid "Publishing logs"
+msgstr "Asuffeɣ"
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:196
+msgid "No build instructions found"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:200
+msgid "No publishing configuration found"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:211
+msgid "Artifact"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:215
+#: warehouse/templates/manage/account/publishing.html:257
+#: warehouse/templates/manage/organization/publishing.html:270
+#: warehouse/templates/manage/project/publishing.html:243
+msgid "Subject"
+msgstr "Asentel"
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:236
+msgid "Verifying attestations"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/provenance/attestation.html:241
+msgid "No artifact information found"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:17
 #: warehouse/templates/manage/unverified-account.html:14
@@ -4107,6 +4396,14 @@ msgstr ""
 #, python-format
 msgid "Unique identifier for API token \"%(token_description)s\""
 msgstr ""
+
+#: warehouse/templates/manage/account.html:219
+#: warehouse/templates/manage/account/recovery_codes-provision.html:54
+#: warehouse/templates/manage/account/totp-provision.html:47
+#: warehouse/templates/manage/unverified-account.html:201
+#: warehouse/templates/pages/classifiers.html:43
+msgid "Copy"
+msgstr "Nɣel"
 
 #: warehouse/templates/manage/account.html:232
 msgid "Profile picture"
@@ -5819,12 +6116,6 @@ msgstr "imayl"
 msgid "The email address of the account or service account used to publish."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:257
-#: warehouse/templates/manage/organization/publishing.html:270
-#: warehouse/templates/manage/project/publishing.html:243
-msgid "Subject"
-msgstr "Asentel"
-
 #: warehouse/templates/manage/account/publishing.html:264
 #: warehouse/templates/manage/organization/publishing.html:277
 #: warehouse/templates/manage/project/publishing.html:250
@@ -5929,12 +6220,6 @@ msgstr ""
 #: warehouse/templates/manage/project/publishing.html:363
 msgid "Publisher"
 msgstr "Amaẓrag"
-
-#: warehouse/templates/manage/account/publishing.html:416
-#: warehouse/templates/manage/organization/publishing.html:416
-#: warehouse/templates/manage/project/publishing.html:364
-msgid "Details"
-msgstr "Aglam leqqyen"
 
 #: warehouse/templates/manage/account/publishing.html:426
 #: warehouse/templates/manage/organization/publishing.html:426
@@ -7636,11 +7921,6 @@ msgstr "Tawsit"
 msgid "Python version"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:60
-#: warehouse/templates/manage/project/release.html:82
-msgid "Upload date"
-msgstr ""
-
 #: warehouse/templates/manage/project/release.html:91
 msgid "View file options"
 msgstr ""
@@ -7852,6 +8132,13 @@ msgstr ""
 #: warehouse/templates/manage/project/releases.html:23
 msgid "Manage version"
 msgstr ""
+
+#: warehouse/templates/manage/project/releases.html:32
+#, python-format
+msgid "%(count)s file"
+msgid_plural "%(count)s files"
+msgstr[0] "%(count)s n ufaylu"
+msgstr[1] "%(count)s n ifuyla"
 
 #: warehouse/templates/manage/project/releases.html:45
 msgid "No files"
@@ -8374,12 +8661,12 @@ msgstr ""
 msgid "%(org)s has not uploaded any projects to PyPI, yet"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:9
+#: warehouse/templates/packaging/detail.html:8
 #, python-format
 msgid "%(project_name)s is a package on the Python Package Index (PyPI)."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:14
+#: warehouse/templates/packaging/detail.html:13
 #, python-format
 msgid "RSS: latest releases for %(project_name)s"
 msgstr ""
@@ -10703,6 +10990,15 @@ msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] ""
 msgstr[1] ""
+
+#~ msgid "Algorithm"
+#~ msgstr "Awarzim"
+
+#~ msgid "Download files"
+#~ msgstr "Azdam n ifuyla"
+
+#~ msgid "File name"
+#~ msgstr "Isem n ufaylu"
 
 #~ msgid "Menu"
 #~ msgstr "Umuɣ"
