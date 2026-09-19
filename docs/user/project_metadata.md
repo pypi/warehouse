@@ -91,57 +91,43 @@ While project links can use any label or URL, PyPI will automatically apply a cu
 
 Rules:
 
-* Matches are case-insensitive.
-* A trailing `*` indicates a prefix match.
-* Domain matches include all subdomains.
-* Domain matches take priority over label matches if both apply.
+* **The table order is the priority order.** Each rule is evaluated top to bottom, and the first one that matches — whether by label or by domain — wins. For example, a GitHub link labeled "Homepage" gets the house icon, because the Homepage label rule is checked before the GitHub domain rule further down the table.
+* Label matches are case-insensitive and match the whole label, except where marked `*`, which matches a prefix instead.
+* Domain matches include subdomains, except where marked `†`, which match that domain exactly only.
 
 | Name             | Icon                                       | Matches                                                                                                                 |
 |:-----------------|:--------------------------------------------|:-------------------------------------------------------------------------------------------------------------------------|
-| Homepage         | :fontawesome-solid-house-chimney:          | Label: Home, Home Page                                                                                                    |
 | Download         | :fontawesome-solid-cloud:                  | Label: Download                                                                                                           |
-| Changelog        | :fontawesome-solid-scroll:                 | Label: Change log, Changes, News, Whatsnew, What's new, History                                                           |
-| Release notes    | :fontawesome-solid-newspaper:              | Label: Releasenotes                                                                                                       |
-| Documentation^*^ | :fontawesome-solid-book:                   | Label: Docs^*^<br>Domain: [Read the Docs] domains (including `rtfd.io`/`rtfd.org`), or any URL starting with `docs.` or `documentation.` |
-| Bug^*^           | :fontawesome-solid-bug:                    | Label: Issue^*^, Tracker^*^, Report^*^                                                                                    |
-| Funding^*^       | :fontawesome-solid-circle-dollar-to-slot:  | Label: Sponsor^*^, Donation^*^, Donate^*^                                                                                 |
-| Security         | :fontawesome-solid-shield:                 | Label: Security Policy, securitypolicy                                                                                    |
-| Source           | :fontawesome-solid-code-branch:            | Label: Source Code, Sourcecode, Repository                                                                                |
-| Bitbucket        | :fontawesome-brands-bitbucket:             | Domain: `bitbucket.org`                                                                                                  |
-| Codeberg         | :simple-codeberg:                          | Domain: `codeberg.org`, `codeberg.page`                                                                                  |
+| Homepage         | :fontawesome-solid-house-chimney:          | Label: Home, Homepage, Home Page                                                                                          |
+| Changelog        | :fontawesome-solid-scroll:                 | Label: Changelog, Change log, Changes, News, Whatsnew, What's new, History                                                |
+| Release notes    | :fontawesome-solid-newspaper:              | Label: Releasenotes, Release notes                                                                                        |
+| Documentation^*^ | :fontawesome-solid-book:                   | Label: Docs^*^, Documentation^*^<br>Domain: [Read the Docs] domains (including `rtfd.io`/`rtfd.org`), or any URL starting with `docs.` or `documentation.` |
+| Bug^*^           | :fontawesome-solid-bug:                    | Label: Bug^*^, Issue^*^, Tracker^*^, Report^*^                                                                            |
+| Funding^*^       | :fontawesome-solid-circle-dollar-to-slot:  | Label: Funding^*^, Sponsor^*^, Donation^*^, Donate^*^                                                                     |
+| Security         | :fontawesome-solid-shield:                 | Label: Security, Security Policy, securitypolicy                                                                          |
 | GitHub           | :fontawesome-brands-github:                | Domain: `github.com`, `github.io`                                                                                        |
 | GitLab           | :fontawesome-brands-gitlab:                | Domain: `gitlab.com`                                                                                                     |
-| Google           | :fontawesome-brands-google:                | Domain: `google.com`                                                                                                     |
-| Discord          | :fontawesome-brands-discord:               | Domain: `discord.com`, `discordapp.com`, `discord.gg`                                                                    |
-| Telegram         | :fontawesome-brands-telegram:              | Domain: `t.me`, `telegram.me`, `telegram.dog`                                                                            |
+| Codeberg         | :simple-codeberg:                          | Domain: `codeberg.org`, `codeberg.page`                                                                                  |
 | Gitter           | :fontawesome-brands-gitter:                | Domain: `gitter.im`                                                                                                      |
-| Mastodon         | :fontawesome-brands-mastodon:              | Label: Mastodon                                                                                                           |
+| Discord^†^       | :fontawesome-brands-discord:               | Domain: `discord.com`, `discordapp.com`, `discord.gg`                                                                    |
+| Telegram         | :fontawesome-brands-telegram:              | Domain: `t.me`, `telegram.me`, `telegram.dog`                                                                            |
+| Matrix^†^        | :simple-matrix:                            | Domain: `matrix.to`                                                                                                      |
+| Google           | :fontawesome-brands-google:                | Domain: `google.com`                                                                                                     |
+| Bitbucket        | :fontawesome-brands-bitbucket:             | Domain: `bitbucket.org`                                                                                                  |
 | Reddit           | :fontawesome-brands-reddit-alien:          | Domain: `reddit.com`                                                                                                     |
 | Slack            | :fontawesome-brands-slack:                 | Label: Slack^*^<br>Domain: `slack.com`                                                                                    |
-| Youtube          | :fontawesome-brands-youtube:               | Domain: `youtube.com`, `youtu.be`                                                                                        |
 | Twitter          | :fontawesome-brands-twitter:               | Domain: `twitter.com`, `x.com`                                                                                           |
-| Bluesky          | :fontawesome-brands-bluesky:               | Label: Bluesky<br>Domain: `bsky.app`                                                                                      |
+| Bluesky^†^       | :fontawesome-brands-bluesky:               | Label: Bluesky<br>Domain: `bsky.app`                                                                                      |
 | AppVeyor         | :fontawesome-solid-list-check:             | Domain: `ci.appveyor.com`                                                                                                |
 | CircleCI         | :fontawesome-solid-list-check:             | Domain: `circleci.com`                                                                                                   |
 | Codecov          | :fontawesome-solid-list-check:             | Domain: `codecov.io`                                                                                                     |
 | Coveralls        | :fontawesome-solid-list-check:             | Domain: `coveralls.io`                                                                                                   |
 | Travis CI        | :fontawesome-solid-list-check:             | Domain: `travis-ci.com`, `travis-ci.org`                                                                                 |
-| PyPI             | :fontawesome-solid-cube:                   | Domain: `cheeseshop.python.org`, `pypi.io`, `pypi.org`, `pypi.python.org`                                                |
+| PyPI^†^          | :fontawesome-solid-cube:                   | Domain: `cheeseshop.python.org`, `pypi.io`, `pypi.org`, `pypi.python.org`                                                |
 | Python           | :fontawesome-brands-python:                | Domain: `python.org`, `*.python.org`                                                                                     |
-
-| Platform | Icon                              | Name     | Domain                                        |
-|:---------|:----------------------------------|:---------|:----------------------------------------------|
-| Discord  | :fontawesome-brands-discord:      |          | `discord.com`, `discordapp.com`, `discord.gg` |
-| Telegram | :fontawesome-brands-telegram:     |          | `t.me`, `telegram.me`, `telegram.dog`         |
-| Matrix   | :simple-matrix:                   |          | `matrix.to`                                   |
-| Gitter   | :fontawesome-brands-gitter:       |          | `gitter.im`                                   |
-| Mastodon | :fontawesome-brands-mastodon:     | Mastodon |                                               |
-| Reddit   | :fontawesome-brands-reddit-alien: |          | `reddit.com`                                  |
-| Slack    | :fontawesome-brands-slack:        | Slack^*^ | `slack.com`                                   |
-| Youtube  | :fontawesome-brands-youtube:      |          | `youtube.com`, `youtu.be`                     |
-| Twitter  | :fontawesome-brands-twitter:      |          | `twitter.com`, `x.com`                        |
-| Bluesky  | :fontawesome-brands-bluesky:      | Bluesky  | `bsky.app`                                    |
-
+| Youtube          | :fontawesome-brands-youtube:               | Domain: `youtube.com`, `youtu.be`                                                                                        |
+| Mastodon         | :fontawesome-brands-mastodon:              | Label: Mastodon                                                                                                           |
+| Source           | :fontawesome-solid-code-branch:            | Label: Source, Source Code, Sourcecode, Repository                                                                        |
 
 [Read the Docs]: https://about.readthedocs.com/
 
@@ -180,7 +166,7 @@ By default, this is shown in the "Credits" section of the project page exactly a
   <figcaption markdown="span">Project credit in the project sidebar</figcaption>
 </figure>
 
-If an email address was given, PyPI also cross-references it at upload time against the verified email addresses of the PyPI accounts associated with the project. If PyPI finds a match, the email address is labeled as PyPI data.
+If an email address was given, PyPI also cross-references it at upload time against the public, verified email addresses of the PyPI accounts associated with the project. If PyPI finds a match, the email address is labeled as PyPI data.
 
 <figure markdown="1">
   ![Project credit on PyPI](assets/verified-credit.png){ loading=lazy }
