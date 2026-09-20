@@ -8,11 +8,13 @@ Knowledge is power. Understanding common attacks and how you can protect yoursel
 
 ## Typosquatting
 
-This attack preys on you making a simple typing mistake. An attacker publishes a malicious project with a name that is a common misspelling of a popular, legitimate project (e.g. `python-datutil` instead of `python-dateutil`). When you accidentally install the misspelled version, you unknowingly execute the attacker's code.
+This attack preys on you making a simple typing mistake. An attacker publishes a malicious project with a name that is a common misspelling of a popular, legitimate project (e.g. `pyth0n-dateutil` instead of `python-dateutil`). When you accidentally install the misspelled version, you unknowingly execute the attacker's code.
 
-To combat this, PyPI automatically rejects a new project's name if it is too similar to any other project on PyPI.
+To combat this, PyPI normalizes project names — removing separators like `.`, `_`, and `-`, and treating easily-confused characters (like `l`, `i`, and `1`, or `o` and `0`) as identical. It then compares the normalized name against existing projects, and rejects any new name that collides.
 
-Your best defense is to always double check the spelling of a package you are installing and install dependencies from a `requirements.txt` file, which formalizes the exact name and version you intend to use.
+PyPI also compares names against Python standard library module names, and rejects any new name that matches.
+
+These checks don't catch every typosquat. Your best defense is to always double check the spelling of a package you are installing and install dependencies from a `requirements.txt` file, which formalizes the exact name and version you intend to use.
 
 Always check package names from LLM output, as an attacker could register a malicious package that an LLM may hallucinate (this is known as [slopsquatting](https://en.wikipedia.org/wiki/Slopsquatting)).
 
