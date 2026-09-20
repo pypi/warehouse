@@ -196,10 +196,14 @@ If a release has a [verified](#verifying-links-via-trusted-publishing) GitHub or
 
 PyPI displays license information in one of two forms, depending on what the release provides:
 
-* **License expression**: If the release specifies the `license` field in `pyproject.toml` as an [SPDX license expression](https://spdx.github.io/spdx-spec/v3.0.1/annexes/spdx-license-expressions/) (`license-expression` core metadata field), that expression is shown along with a link to the [SPDX license list](https://spdx.org/licenses/).
-* **License**: Otherwise, PyPI falls back to combining any `License ::` [trove classifiers](#classifiers) with the free-text legacy `license` field (truncated to its first line, or to 100 characters if that's still too long).
+* **License expression**: If the release specifies the `license` field in `pyproject.toml` as an [SPDX license expression](https://spdx.github.io/spdx-spec/v3.0.1/annexes/spdx-license-expressions/) (`license-expression` core metadata field), that expression is shown along with a link to the [SPDX license list](https://spdx.org/licenses/). This is the recommended way to declare a project's license.
+* **License**: Otherwise, PyPI falls back to combining any legacy `License ::` [trove classifiers](#classifiers) with the free-text legacy `license` field (truncated to its first line, or to 100 characters if that's still too long).
 
 If a release provides neither, no License section is shown. **PyPI does not check that the stated license matches the project's actual licensing**.
+
+!!! info
+
+    As of [PEP 639](https://peps.python.org/pep-0639/), `License ::` trove classifiers are deprecated. New projects should declare their license as an SPDX expression in the `license` field instead — see [license expressions](https://packaging.python.org/en/latest/specifications/license-expression/) in the Python Packaging User Guide.
 
 ## Requires Python
 
@@ -217,4 +221,4 @@ Packages can specify free-text keywords using the `keywords` field in `pyproject
 
 Packages can specify [trove classifiers](https://packaging.python.org/en/latest/specifications/core-metadata/#classifier-multiple-use) — a fixed, structured taxonomy maintained by PyPI — using the `classifiers` field in `pyproject.toml`. PyPI groups classifiers by their top-level category (e.g. `Programming Language`, `License`, `Topic`) and links each one to a search filtered on that classifier. PyPI does not check that the selected classifiers accurately describe the project.
 
-`License ::` classifiers are also used to build the [License](#license) section when no SPDX license expression is provided.
+`License ::` classifiers are also used to build the [License](#license) section when no SPDX license expression is provided. Note that `License ::` classifiers are deprecated by [PEP 639](https://peps.python.org/pep-0639/) and new ones will not be added to PyPI — see the note in [License](#license).
