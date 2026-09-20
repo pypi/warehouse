@@ -37,4 +37,4 @@ We welcome suggestions for new features for PyPI. You can submit your ideas to o
 
 Classifiers are used to categorize projects on PyPI. See [the classifiers page](https://pypi.org/classifiers/) for more information, as well as a list of valid classifiers.
 
-If you would like to request a new trove classifier, file a pull request on the [pypa/trove-classifiers project](https://github.com/pypa/trove-classifiers/). Be sure to include a brief justification of why it is important. Note that requests for new `License ::` classifiers will be rejected, as they are deprecated per [PEP 639](https://peps.python.org/pep-0639/).
+If you would like to request a new trove classifier, file a pull request on the [pypa/trove-classifiers project](https://github.com/pypa/trove-classifiers/). Be sure to include a brief justification of why it is important. Note that requests for new `License` classifiers will be rejected, as they are deprecated per [PEP 639](https://peps.python.org/pep-0639/).
