@@ -25,7 +25,7 @@ This documentation site (docs.pypi.org) covers how to use the PyPI website and [
 * [Project Metadata](project_metadata.md) - How PyPI displays and verifies project metadata, including project URLs
 * [Archive Formats](archives.md) - Archive format restrictions PyPI enforces on wheels and source distributions
 * [Storage Limits](project-management/storage-limits.md) - File and project size limits, and how to request an increase
-* [Managing Owners](project-management/managing-owners.md) - Adding, removing, and transferring project collaborators
+* [Managing Project Collaborators](project-management/managing-collaborators.md) - Adding, removing, and transferring project collaborators
 * [Yanking](project-management/yanking.md) - Marking a broken or vulnerable release as yanked, without deleting it
 * [Archiving Projects](project-management/archiving-projects.md) - Marking a project as no longer maintained
 * [Troubleshooting](project-management/troubleshooting.md) - Answers to common project management questions

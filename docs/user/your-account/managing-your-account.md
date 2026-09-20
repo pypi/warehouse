@@ -91,7 +91,7 @@ However, you can achieve the same result by following these steps:
 2. Add the new account as a maintainer to all the projects owned by your old account  
 3. Once you have confirmed the new account has the correct permissions, you can delete the old account
 
-For more information see [Managing project owners](../project-management/managing-owners.md).
+For more information see [Managing project collaborators](../project-management/managing-collaborators.md).
 
 ## Account recovery
 

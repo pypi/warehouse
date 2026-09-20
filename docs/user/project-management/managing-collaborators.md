@@ -1,8 +1,8 @@
 ---
-title: Managing Project Owners
+title: Managing Project Collaborators
 ---
 
-# Managing Project Owners
+# Managing Project Collaborators
 
 ## Collaborator roles
 
@@ -20,16 +20,18 @@ Only current project owners have the ability to manage collaborators.
 To add a new owner or maintainer to your project:
 
 1. Log in to your PyPI account  
-2. Navigate to the "Your Projects" section  
+2. Navigate to the "Your projects" section  
 3. Select the desired project  
 4. Click on "Manage"  
 5. In the left sidebar, select "Collaborators"  
 6. Enter the PyPI username of the person you wish to add  
 7. Select either "Owner" or "Maintainer" as their role  
 8. Click "Invite"  
-9. Enter your password (PyPI requires you to re-enter your password before performing sensitive actions)
+9. Enter your password, if prompted
 
-**Granting owner status to another user gives them full administrative rights to your project.** A new owner will have the ability to remove you from the project entirely. Only grant ownership to individuals you trust completely.
+!!! warning
+
+    Granting owner status to another user gives them full administrative rights to your project. A new owner will have the ability to remove you from the project entirely. Only grant ownership to individuals you trust completely.
 
 ### Removing a collaborator
 
@@ -38,7 +40,7 @@ To remove a collaborator from your project:
 1. Follow steps 1-5 above  
 2. You will see a list of current collaborators  
 3. Click the "Remove" button next to the username of the collaborator you wish to remove  
-4. Enter your password (PyPI requires you to re-enter your password before performing sensitive actions)
+4. In the confirmation dialog, enter that collaborator's username, then confirm removal
 
 !!! note
 

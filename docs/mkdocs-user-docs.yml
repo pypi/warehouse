@@ -92,7 +92,7 @@ nav:
       - "project_metadata.md"
       - "archives.md"
       - "project-management/storage-limits.md"
-      - "project-management/managing-owners.md"
+      - "project-management/managing-collaborators.md"
       - "project-management/yanking.md"
       - "project-management/archiving-projects.md"
       - "project-management/troubleshooting.md"
