@@ -14,7 +14,9 @@ For instructions on how to package your Python project, please refer to the [Pyt
 
 [Trusted Publishing](../trusted-publishers/index.md) is the recommended method for uploading packages to PyPI. It uses OpenID Connect (OIDC) to establish a secure connection between PyPI and a trusted third-party service, such as a CI/CD provider. This eliminates the need to store and manage API tokens or passwords, significantly reducing the risk of your credentials being compromised.
 
-You can configure Trusted Publishing for your project in your PyPI account settings. For detailed instructions, please see [adding a trusted publisher](../trusted-publishers/adding-a-publisher.md).
+For an existing project, open ["Your projects"](https://pypi.org/manage/projects/), click "Manage" next to the project, and select "Publishing" in the sidebar. For detailed instructions, please see [adding a trusted publisher](../trusted-publishers/adding-a-publisher.md).
+
+If you're creating a new project, you can configure a "pending" Trusted Publisher from your account settings instead. For detailed instructions, please see [creating a PyPI project with a trusted publisher](../trusted-publishers/creating-a-project-through-oidc.md).
 
 ## Using an API token
 
