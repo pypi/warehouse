@@ -45,18 +45,4 @@ Where you edit or add these values will depend on your individual use case. For 
 
 Advanced users may wish to inspect their token by decoding it with base64, and checking the output against the unique identifier displayed on PyPI.
 
-### Troubleshooting API token issues
-
-#### "Invalid or non-existent authentication information" error when uploading files
-
-1. Ensure that your API token is valid and has not been revoked (see below)
-2. Ensure that your API token is correctly formatted and does not contain any trailing characters such as newlines.
-3. Ensure that the username you are using is `__token__`.
-
-Remember that PyPI and TestPyPI each require you to create an account, so your credentials may be different.
-
-If you're using Windows and trying to paste your token in the Command Prompt or PowerShell, note that `Ctrl-V` and `Shift+Insert` won't work. Instead, you can use `Edit > Paste` from the window menu, or enable `Use Ctrl+Shift+C/V as Copy/Paste` in `Properties`. This is a [known issue](https://bugs.python.org/issue37426) with Python's getpass module.
-
-#### Compromised API token
-
-If you receive a notification that your API token has been compromised, it means a token associated with your account was found on a public website. For your protection, the exposed token was automatically revoked by PyPI. See [Compromised API tokens](../your-account/security-alerts.md#compromised-api-tokens) for what to do next.
+If you run into issues authenticating with an API token, see [Troubleshooting](troubleshooting.md#why-am-i-getting-an-invalid-or-non-existent-authentication-information-error-when-uploading-files).
