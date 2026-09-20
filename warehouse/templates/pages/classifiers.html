@@ -13,9 +13,6 @@
       <p>
         {% trans %}These standardized classifiers can then be used by community members to find projects based on their desired criteria.{% endtrans %}
       </p>
-      <div class="callout callout--warning" role="alert">
-        <p><strong>{% trans %}Notice:{% endtrans %}</strong> {% trans %}As of <a href="https://packaging.python.org/en/latest/specifications/license-expression/" target="_blank" rel="noopener">PEP 639</a>, the use of <code>License</code> Trove classifiers is deprecated. Please use <a href="https://packaging.python.org/en/latest/specifications/license-expression/" target="_blank" rel="noopener">license expressions</a> in <code>pyproject.toml</code> instead.{% endtrans %}</p>
-      </div>
       <p>
         {% trans ppug_href='https://packaging.python.org/guides/writing-pyproject-toml/#classifiers', pep301_href='https://peps.python.org/pep-0301/#distutils-trove-classification', title=gettext('External link') %}
         Instructions for how to add Trove classifiers to a project can be found on the <a href="{{ ppug_href }}"
@@ -29,8 +26,13 @@
       {% endtrans %}
     </p>
     <p>
-      {% trans %}To prevent a package from being uploaded to PyPI, use the special "Private :: Do Not Upload" classifier. PyPI will always reject packages with classifiers beginning with "Private ::".{% endtrans %}
+      {% trans %}To prevent a package from being uploaded to PyPI, use the special <code>Private :: Do Not Upload</code> classifier. PyPI will always reject packages with classifiers beginning with <code>Private ::</code>.{% endtrans %}
     </p>
+
+    <div class="callout-block callout-block--warning no-bottom-margin" role="alert">
+      <p>{% trans %}Note: As of <a href="https://packaging.python.org/en/latest/specifications/license-expression/" target="_blank" rel="noopener">PEP 639</a>, the use of <code>License</code> Trove classifiers is deprecated. Please use <a href="https://packaging.python.org/en/latest/specifications/license-expression/" target="_blank" rel="noopener">license expressions</a> in your <code>pyproject.toml</code> instead.{% endtrans %}</p>
+    </div>
+
     <h2>{% trans %}List of classifiers{% endtrans %}</h2>
     <ul>
       {% for classifier in classifiers %}
