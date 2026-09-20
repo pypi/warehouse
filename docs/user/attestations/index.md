@@ -1,8 +1,8 @@
 ---
-title: Introduction
+title: Introduction to Attestations
 ---
 
-# Introduction
+# Introduction to Attestations
 
 These pages document PyPI's implementation of digital attestations ([PEP 740]),
 including in-toto attestation predicates specific to PyPI itself.
