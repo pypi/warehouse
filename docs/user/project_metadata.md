@@ -166,7 +166,7 @@ By default, this is shown in the "Credits" section of the project page exactly a
   <figcaption markdown="span">Project credit in the project sidebar</figcaption>
 </figure>
 
-If an email address was given, PyPI also cross-references it at upload time against the public, verified email addresses of the PyPI accounts associated with the project. If PyPI finds a match, the email address is labeled as PyPI data.
+If an email address was given, PyPI also cross-references it at upload time against the public, verified email addresses of the PyPI accounts associated with the project. If PyPI finds a match, the email address is labeled as verified:
 
 <figure markdown="1">
   ![Project credit on PyPI](assets/verified-credit.png){ loading=lazy }
