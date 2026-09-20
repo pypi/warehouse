@@ -12,9 +12,57 @@ Two-factor authentication makes your account more secure by requiring two things
 
 In PyPI's case, "something you know" is your username and password. "Something you own" can be an application to generate a temporary code, or a security device (most commonly a USB key).
 
+## Recovery codes
+
+Recovery codes are a set of single-use codes that can be used to log in to your account in an emergency. They should be stored in a secure location, such as a password manager or a physical safe.
+
+**Before you can enable 2FA, you must generate and verify your recovery codes.** This ensures you have a working backup before you lock yourself into requiring 2FA to log in.
+
+**How to get them:**
+
+1. From your account settings, choose "Generate recovery codes." This is required before you can add a TOTP application or security device.
+2. Securely store the displayed codes.
+3. To verify that you've safely stored them, you'll be asked to submit ("burn") one of the codes. Only after this is verified can you set up your first 2FA method.
+4. You can also generate new codes at any time from your account settings. Generating new codes will invalidate any previous sets.
+
+**How to use them:**
+
+1. On the login page, select the option to use a recovery code
+2. Enter one of your unused codes to gain access to your account
+3. As each code can be used only once, you might want to mark the code as used (or generate a new set, as described above)
+
 ## Setting up two-factor authentication
 
 You can enable 2FA on your PyPI account using one of the following methods. **It is highly recommended to set up at least two methods to avoid losing access to your account.**
+
+Before you can add either method, PyPI requires you to generate and verify a set of [recovery codes](#recovery-codes).
+
+!!! warning "Prefer a security device when possible"
+    Where you have the choice, a WebAuthn security device is preferred over a TOTP application. Security devices are resistant to phishing, since they verify the identity of the site you're logging into, whereas a TOTP code can be copied and reused by an attacker if you're tricked into entering it on a fake site.
+
+### Security device (WebAuthn)
+
+A security device is a physical key (often a USB key or mobile phone) that communicates with your browser to authenticate you. PyPI supports any [FIDO compliant device](https://fidoalliance.org/certification/fido-certified-products/), including USB keys.
+
+**How it works:**
+
+PyPI utilizes the [WebAuthn standard](https://www.w3.org/TR/webauthn/), which allows browsers to use a registered security device to verify your identity.
+
+**Requirements:**
+
+* Use a browser:  
+    * [That supports WebAuthn and PublicKeyCredential](https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility)  
+    * That is running JavaScript  
+* If using a USB key, ensure that it adheres to the [FIDO U2F specification](https://fidoalliance.org/specifications/download/):  
+    * Popular keys include [Yubikey](https://www.yubico.com/), [Google Titan](https://cloud.google.com/titan-security-key/) and [Thetis](https://thetis.io/)  
+    * Note that some older Yubico USB keys **do not follow the FIDO specification**, and will therefore not work with PyPI
+
+**Setup instructions:**
+
+1. Log in to your PyPI account, go to your account settings, and choose "Add 2FA with security device (e.g. USB key)"  
+2. Give your key a name. This is necessary because it's possible to add more than one security device to your account.  
+3. Click on the "Set up security device" button  
+4. Follow instructions from your browser to complete the configuration (e.g. insert and touch your USB key)
 
 ### Authentication application (TOTP)
 
@@ -49,51 +97,6 @@ For security reasons, PyPI only allows you to link one authentication applicatio
 
 !!! tip "Having trouble setting up your authentication application?"
     If you're having issues while setting up a TOTP device, it may be because your device's time is out of sync. TOTP codes are time-based, so PyPI and your device need to agree on the current time. Check that the time on your device is set automatically, and try setting up the device again.
-
-### Security device (WebAuthn)
-
-A security device is a physical key (often a USB key or mobile phone) that communicates with your browser to authenticate you.
-
-**How it works:**
-
-PyPI utilizes the [WebAuthn standard](https://www.w3.org/TR/webauthn/), which allows browsers to use a registered security device to verify your identity.
-
-**Requirements:**
-
-* Use a browser:  
-  * [That supports WebAuthn and PublicKeyCredential](https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility)  
-  * That is running JavaScript  
-* If using a USB key, ensure that it adheres to the [FIDO U2F specification](https://fidoalliance.org/specifications/download/):  
-  * Popular keys include [Yubikey](https://www.yubico.com/), [Google Titan](https://cloud.google.com/titan-security-key/) and [Thetis](https://thetis.io/)  
-  * Note that some older Yubico USB keys **do not follow the FIDO specification**, and will therefore not work with PyPI
-
-**Setup instructions:**
-
-1. Log in to your PyPI account, go to your account settings, and choose "Add 2FA with security device (e.g. USB key)"  
-2. Give your key a name. This is necessary because it's possible to add more than one security device to your account.  
-3. Click on the "Set up security device" button  
-4. Follow instructions from your browser to complete the configuration (e.g. insert and touch your USB key)
-
-### Other security devices
-
-There is a growing ecosystem of [devices that are FIDO compliant](https://fidoalliance.org/certification/fido-certified-products/), and can therefore be used with PyPI.
-
-Emerging solutions include biometric (facial and fingerprint) scanners and FIDO compatible credit cards. 
-
-## Recovery codes
-
-Recovery codes are a set of single-use codes that can be used to log in to your account in an emergency. They should be stored in a secure location, such as a password manager or a physical safe.
-
-**How to get them:**
-
-1. After setting up your first 2FA method, you will be prompted to generate and save your recovery codes  
-2. You can also generate new codes at any time from your account settings. Generating new codes will invalidate any previous sets.
-
-**How to use them:**
-
-1. On the login page, select the option to use a recovery code  
-2. Enter one of your unused codes to gain access to your account  
-3. As each code can be used only once, you might want to mark the code as used (or generate a new set, as described above)
 
 ## Account recovery
 
