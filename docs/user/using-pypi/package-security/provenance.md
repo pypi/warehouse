@@ -37,15 +37,15 @@ PyPI currently supports two types of attestations:
 
 ### 1. [PyPI publish attestations](../../attestations/publish/v1.md)
 
-An attestation, created and signed by the uploading workflow, confirming that a file was uploaded via PyPI a [Trusted Publisher](../../trusted-publishers/index.md), and that a specific Trusted Publisher identity was used to publish the file, such as a particular GitHub Actions workflow.
+An attestation, created and signed by the uploading workflow, confirming that a file was uploaded via a [PyPI Trusted Publisher](../../trusted-publishers/index.md), and that a specific Trusted Publisher identity was used to publish the file, such as a particular GitHub Actions workflow.
 
 PyPI verifies this attestation at upload time, confirming that the identity matches what the package maintainer previously configured for Trusted Publishing.
 
-Currently, the majority of attestations on PyPI are PyPI publish attestations. This is because producing these attestations happens by default in [the canonical workflow used by many package maintainers to publish packages](https://github.com/marketplace/actions/pypi-publish).
+Currently, the majority of attestations on PyPI are PyPI publish attestations. This is because producing these attestations happens by default (unless disabled) in [the canonical workflow used by many package maintainers to publish packages](https://github.com/marketplace/actions/pypi-publish).
 
 <figure markdown="1">
   ![A PyPI publish attestation on PyPI](../../assets/pypi-attestation.png){ loading=lazy }
-  <figcaption markdown="span">A [PyPI publish attestation](../../attestations/publish/v1.md) on PyPI</figcaption>
+  <figcaption markdown="span">A [PyPI Publish attestation](../../attestations/publish/v1.md) on PyPI</figcaption>
 </figure>
 
 ### 2. [SLSA attestations](https://slsa.dev/provenance/v1)
@@ -54,7 +54,7 @@ An attestation and associated transparency log, signed by the build platform (e.
 
 <figure markdown="1">
   ![A SLSA attestation on PyPI](../../assets/slsa-attestation.png){ loading=lazy }
-  <figcaption markdown="span">A [SLSA attestation](https://slsa.dev/provenance/v1) on PyPI</figcaption>
+  <figcaption markdown="span">A [SLSA Build Provenance attestation](https://slsa.dev/spec/v1.2/build-provenance) on PyPI</figcaption>
 </figure>
 
 ## Verifying attestations
@@ -80,7 +80,9 @@ PyPI displays warnings when the provenance metadata for a release is missing, in
 *   **Why it matters:** While this is often the result of a legitimate infrastructure migration (e.g., moving a project to a new GitHub organization or switching to a different CI platform), it can also be a signal of a supply chain attack or account takeover. If you notice this warning on a package you depend on, verify the change via the project's official communication channels or release notes to ensure it was an intentional transition by the maintainers.
 
 ### Loss of provenance
-*   **What it means:** The maintainers previously used secure, verifiable build or publishing methods (such as [Trusted Publishing](../../trusted-publishers/index.md)), but have reverted to a manual or unverified process.
+*   **What it means:** Either:
+    * The maintainers previously used secure, verifiable build or publishing methods (such as [Trusted Publishing](../../trusted-publishers/index.md)), but have reverted to a manual or unverified process, or
+    * The maintainers have changed their publishing configuration to no longer produce an attestation.
 *   **Why it matters:** While this may simply reflect a conscious choice by the maintainers to change their publishing workflow, it can also signal an account takeover where an attacker has bypassed secure publishing requirements. If a project was previously "provenanced," this sudden drop in transparency warrants caution; consider checking the project's security policy or recent announcements to confirm the change was intentional.
 
 ## Attestation limitations
