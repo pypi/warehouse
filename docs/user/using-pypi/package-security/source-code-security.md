@@ -10,7 +10,7 @@ When a full code audit is not practical, the signals listed below can help you b
 
 ## Security signals
 
-#### Verified project metadata
+### Verified project metadata
 
 This tells you that the package owner had control over the project's official URLs (e.g. its GitHub repository) at the time of upload to PyPI. You can read more about how this works (including limitations) in the [project metadata docs](../../project_metadata.md).
 
@@ -19,7 +19,7 @@ This tells you that the package owner had control over the project's official UR
   <figcaption markdown="span">A verified project link in the project sidebar</figcaption>
 </figure>
 
-#### Project activity and popularity
+### Project activity and popularity
 
 * A large community can mean more eyes on the code, potentially finding issues faster
 
@@ -29,19 +29,19 @@ This tells you that the package owner had control over the project's official UR
 
 * Sponsorship or affiliation with reputable organizations may indicate more resources for securing the codebase
 
-#### Security posture
+### Security posture
 
 * The presence of a `SECURITY.md` file in the repository (or a security policy on the project website) shows the project has a formal process for handling vulnerability reports
 
 * How maintainers respond to security issues reported in the project's issue tracker is another key indicator of its security posture
 
-#### Dependencies
+### Dependencies
 
 * Dependencies are packages that a project relies on. Each dependency of a package you install is another project you are implicitly trusting, which in turn increases your attack surface. Therefore, when assessing a package, a small number of dependencies can be a positive signal.
 
 * You can explore your project's dependencies using the `pip freeze` command which outputs your dependencies as a flat list, or use [pipdeptree](https://github.com/tox-dev/pipdeptree) to output a dependency tree (showing the dependencies of your dependencies). You can also view dependencies via services like [GitHub's dependency graph](https://docs.github.com/en/code-security/supply-chain-security/understanding-your-software-supply-chain/exporting-a-software-bill-of-materials-for-your-repository#about-the-dependency-graph-and-sbom-exports).
 
-#### Security advisories / known vulnerabilities
+### Security advisories / known vulnerabilities
 
 * Security researchers, package maintainers, and other members of the Python community can contribute to the [Python Packaging Advisory Database](https://github.com/pypa/advisory-database) by creating "advisories" for vulnerabilities. This community-owned database helps to warn users about insecure packages.
 
