@@ -1,4 +1,4 @@
-alembic>=1.19.2
+alembic>=1.20.0
 alembic-postgresql-enum
 Automat
 argon2-cffi
@@ -55,7 +55,9 @@ pyramid_services>=2.1
 pyramid_tm>=0.12
 python-slugify
 pytz
-PyJWT[crypto]>=2.13.0
+# TODO: 2.14 rejects noncanonical signatures in our dummy OIDC JWTs.
+# Upgrade with corrected fixtures in its own PR; this also defers security fixes.
+PyJWT[crypto]>=2.13.0,<2.14
 readme-renderer[md]>=45.0
 requests
 redis>=2.8.0,<7.0.0
