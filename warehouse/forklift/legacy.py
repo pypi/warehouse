@@ -216,8 +216,10 @@ def _is_valid_dist_file(
                     )
                     return (
                         False,
-                        "File exceeds compression ratio of "
-                        f"{COMPRESSION_RATIO_THRESHOLD}",
+                        (
+                            "File exceeds compression ratio of "
+                            f"{COMPRESSION_RATIO_THRESHOLD}"
+                        ),
                     )
 
                 # Check that the compression type is valid
@@ -534,7 +536,7 @@ def file_upload(request):
             if field_name in form.errors:
                 break
         else:
-            field_name = sorted(form.errors.keys())[0]
+            field_name = min(form.errors.keys())
 
         if field_name in form:
             field = form[field_name]
@@ -583,7 +585,7 @@ def file_upload(request):
             if field_name in errors:
                 break
         else:
-            field_name = sorted(errors.keys())[0]
+            field_name = min(errors.keys())
 
         # Return an error for the field, using the first error that we can find
         # for that field
