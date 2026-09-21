@@ -11,8 +11,7 @@
     </a>
   </div>
 {% endblock %}
-{% block mobile_search %}
-{% endblock %}
+{% block mobile_search %}{% endblock %}
 {% block content %}
   {% if testPyPI %}
     {% set banner = _("Test Python package publishing with the Test Python Package Index") %}
@@ -58,59 +57,59 @@
       <p class="statistics-bar__statistic">
         {% trans num_projects=num_projects, num_projects_formatted=num_projects|format_number %}
         {{ num_projects_formatted }} project
-      {% pluralize num_projects %}
-        {{ num_projects_formatted }} projects
-      {% endtrans %}
-    </p>
-    <p class="statistics-bar__statistic">
-      {% trans num_releases=num_releases, num_releases_formatted=num_releases|format_number %}
-      {{ num_releases_formatted }} release
-    {% pluralize num_releases %}
-      {{ num_releases_formatted }} releases
-    {% endtrans %}
+{% pluralize num_projects %}
+  {{ num_projects_formatted }} projects
+  {% endtrans %}
+  </p>
+  <p class="statistics-bar__statistic">
+    {% trans num_releases=num_releases, num_releases_formatted=num_releases|format_number %}
+    {{ num_releases_formatted }} release
+{% pluralize num_releases %}
+  {{ num_releases_formatted }} releases
+  {% endtrans %}
   </p>
   <p class="statistics-bar__statistic">
     {% trans num_files=num_files, num_files_formatted=num_files|format_number %}
     {{ num_files_formatted }} file
-  {% pluralize num_files %}
-    {{ num_files_formatted }} files
+{% pluralize num_files %}
+  {{ num_files_formatted }} files
   {% endtrans %}
-</p>
-<p class="statistics-bar__statistic">
-  {% trans num_users=num_users, num_users_formatted=num_users|format_number %}
-  {{ num_users_formatted }} user
+  </p>
+  <p class="statistics-bar__statistic">
+    {% trans num_users=num_users, num_users_formatted=num_users|format_number %}
+    {{ num_users_formatted }} user
 {% pluralize num_users %}
   {{ num_users_formatted }} users
-{% endtrans %}
-</p>
-</div>
-</div>
-<div class="horizontal-section">
-  <div class="about-pypi">
-    <div class="about-pypi__logo">
-      <img alt=""
-           src="{{ request.static_path('warehouse:static/dist/images/logo-large.svg') }}"
-           loading="lazy">
-    </div>
-    <div class="about-pypi__text">
-      <p class="lede-paragraph">
-        {% trans %}The Python Package Index (PyPI) is a repository of software for the Python programming language.{% endtrans %}
-      </p>
-      <p>
-        {% trans %}PyPI helps you find and install software developed and shared by the Python community.{% endtrans %}
-        <a href="https://packaging.python.org/tutorials/installing-packages/"
-           title="{% trans %}External link{% endtrans %}"
-           target="_blank"
-           rel="noopener">{% trans %}Learn about installing packages{% endtrans %}</a>.
-      </p>
-      <p>
-        {% trans %}Package authors use PyPI to distribute their software.{% endtrans %}
-        <a href="https://packaging.python.org/tutorials/packaging-projects/"
-           title="{% trans %}External link{% endtrans %}"
-           target="_blank"
-           rel="noopener">{% trans %}Learn how to package your Python code for PyPI{% endtrans %}</a>.
-      </p>
+  {% endtrans %}
+  </p>
+  </div>
+  </div>
+  <div class="horizontal-section">
+    <div class="about-pypi">
+      <div class="about-pypi__logo">
+        <img alt=""
+             src="{{ request.static_path('warehouse:static/dist/images/logo-large.svg') }}"
+             loading="lazy">
+      </div>
+      <div class="about-pypi__text">
+        <p class="lede-paragraph">
+          {% trans %}The Python Package Index (PyPI) is a repository of software for the Python programming language.{% endtrans %}
+        </p>
+        <p>
+          {% trans %}PyPI helps you find and install software developed and shared by the Python community.{% endtrans %}
+          <a href="https://packaging.python.org/tutorials/installing-packages/"
+             title="{% trans %}External link{% endtrans %}"
+             target="_blank"
+             rel="noopener">{% trans %}Learn about installing packages{% endtrans %}</a>.
+        </p>
+        <p>
+          {% trans %}Package authors use PyPI to distribute their software.{% endtrans %}
+          <a href="https://packaging.python.org/tutorials/packaging-projects/"
+             title="{% trans %}External link{% endtrans %}"
+             target="_blank"
+             rel="noopener">{% trans %}Learn how to package your Python code for PyPI{% endtrans %}</a>.
+        </p>
+      </div>
     </div>
   </div>
-</div>
 {% endblock %}

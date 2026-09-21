@@ -105,12 +105,12 @@
           {% endif %}
         </label>
         {{ form.username(placeholder=gettext("Username") ,
-        list="organization-users",
-        autocomplete="off",
-        autocapitalize="off",
-        spellcheck="false",
-        class_="form-group__field",
-        aria_describedby="user-errors",
+          list="organization-users",
+          autocomplete="off",
+          autocapitalize="off",
+          spellcheck="false",
+          class_="form-group__field",
+          aria_describedby="user-errors",
         ) }}
         <datalist id="organization-users">
           {% for username in form.user_choices %}

@@ -4,11 +4,11 @@
     <p>
       {% trans href="https://packaging.python.org/", title=gettext("External link") %}
       You have not uploaded any projects to PyPI, yet. To learn how to get started, visit the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging User Guide</a>
-    {% endtrans %}
-  </p>
-{% else %}
-  <p>
-    {% trans username=user.name|default(user.username, true) %}{{ username }} has not uploaded any projects to PyPI, yet.{% endtrans %}
-  </p>
-{% endif %}
+      {% endtrans %}
+    </p>
+  {% else %}
+    <p>
+      {% trans username=user.name|default(user.username, true) %}{{ username }} has not uploaded any projects to PyPI, yet.{% endtrans %}
+    </p>
+  {% endif %}
 </div>

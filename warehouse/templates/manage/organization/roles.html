@@ -407,12 +407,12 @@
             {% endif %}
           </label>
           {{ form.username(placeholder=gettext("Username") ,
-          autocomplete="off",
-          autocapitalize="off",
-          spellcheck="false",
-          class_="form-group__field",
-          aria_describedby="user-errors",
-          data_autocomplete_target="input",
+            autocomplete="off",
+            autocapitalize="off",
+            spellcheck="false",
+            class_="form-group__field",
+            aria_describedby="user-errors",
+            data_autocomplete_target="input",
           ) }}
           <ul class="form-group__results" data-autocomplete-target="results">
           </ul>
@@ -426,8 +426,8 @@
             {% endif %}
           </label>
           {{ form.role_name(class_="form-group__field",
-                    autocomplete="off",
-                    aria_describedby="role-errors",) }}
+            autocomplete="off",
+            aria_describedby="role-errors",) }}
           <div id="role-errors">{{ field_errors(form.role_name) }}</div>
         </div>
         <div>

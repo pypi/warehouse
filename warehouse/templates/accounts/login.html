@@ -35,12 +35,12 @@
             {% endif %}
           </label>
           {{ form.username(placeholder=gettext("Your username") ,
-          autocapitalize="off",
-          autocomplete="username",
-          spellcheck="false",
-          required="required",
-          class_="form-group__field",
-          aria_describedby="username-errors",
+            autocapitalize="off",
+            autocomplete="username",
+            spellcheck="false",
+            required="required",
+            class_="form-group__field",
+            aria_describedby="username-errors",
           ) }}
           <div id="username-errors">
             {% if form.username.errors %}
@@ -67,11 +67,11 @@
             </label>
           </div>
           {{ form.password(placeholder=gettext("Your password") ,
-          required="required",
-          class_="form-group__field",
-          autocomplete="current-password",
-          spellcheck="false", data_password_target="password",
-          aria_describedby="password-errors",
+            required="required",
+            class_="form-group__field",
+            autocomplete="current-password",
+            spellcheck="false", data_password_target="password",
+            aria_describedby="password-errors",
           ) }}
           <div id="password-errors">
             {% if form.password.errors %}

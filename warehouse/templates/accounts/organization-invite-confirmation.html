@@ -20,24 +20,24 @@
         <span class="form-group__text">
           {% trans organization_name=organization_name, role_name=desired_role %}
           Would you like to accept this invitation to join '{{ organization_name }}' as an organization {{ role_name }}?
-        {% endtrans %}
-      </span>
-    </div>
-    <div>
-      <input name="accept"
-             type="submit"
-             value="{% trans %}Accept{% endtrans %}"
-             class="button button--primary">
-      <input name="decline"
-             type="submit"
-             value="{% trans %}Decline{% endtrans %}"
-             class="button">
-    </div>
-  </form>
-{% else %}
-  {# user has not enabled 2FA #}
-  {% trans href=request.route_path("manage.account.two-factor") %}
-  You must first enable <a href="{{ href }}">two-factor authentication</a> on your account before accepting an invitation to join an organization.
-{% endtrans %}
-{% endif %}
+          {% endtrans %}
+        </span>
+      </div>
+      <div>
+        <input name="accept"
+               type="submit"
+               value="{% trans %}Accept{% endtrans %}"
+               class="button button--primary">
+        <input name="decline"
+               type="submit"
+               value="{% trans %}Decline{% endtrans %}"
+               class="button">
+      </div>
+    </form>
+  {% else %}
+    {# user has not enabled 2FA #}
+    {% trans href=request.route_path("manage.account.two-factor") %}
+    You must first enable <a href="{{ href }}">two-factor authentication</a> on your account before accepting an invitation to join an organization.
+    {% endtrans %}
+  {% endif %}
 {% endblock %}

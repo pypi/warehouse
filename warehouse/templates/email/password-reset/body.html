@@ -9,8 +9,8 @@
   </p>
   <p>
     {% trans n_hours=n_hours %}This link will expire in {{ n_hours }} hour.
-  {% pluralize %}
-    This link will expire in {{ n_hours }} hours.{% endtrans %}
+{% pluralize %}
+  This link will expire in {{ n_hours }} hours.{% endtrans %}
   </p>
   <p>{% trans %}If you did not make this request, you can safely ignore this email.{% endtrans %}</p>
 {% endblock %}

@@ -120,101 +120,104 @@
             {% trans href="#account-emails" %}
             <a href="{{ href }}">Verify your primary email address</a>
             before adding additional two factor authentication methods to your account.
+            {% endtrans %}
+          {% else %}
+            {% trans href="#account-emails" %}
+            <a href="{{ href }}">Verify your primary email address</a>
+            before enabling two factor authentication on your account.
+            {% endtrans %}
+          {% endif %}
+        </p>
+      </div>
+    {% elif not user.has_recovery_codes %}
+      <div class="callout-block">
+        <p>
+          {% if user.has_two_factor %}
+            {% trans %}
+            You must generate and safely store recovery codes before adding additional two factor
+            authentication methods to your account.
+            {% endtrans %}
+          {% else %}
+            {% trans %}
+            You must generate and safely store recovery codes before enabling two factor authentication on your account.
+            {% endtrans %}
+          {% endif %}
+        </p>
+        <a href="{{ request.route_path('manage.account.recovery-codes.generate') }}"
+           class="button button--primary">
+          {% trans %}
+          Generate recovery codes
           {% endtrans %}
-        {% else %}
-          {% trans href="#account-emails" %}
-          <a href="{{ href }}">Verify your primary email address</a>
-          before enabling two factor authentication on your account.
-        {% endtrans %}
-      {% endif %}
-    </p>
-  </div>
-{% elif not user.has_recovery_codes %}
-  <div class="callout-block">
-    <p>
-      {% if user.has_two_factor %}
+        </a>
+      </div>
+    {% elif not user.has_burned_recovery_codes %}
+      <div class="callout-block">
+        <p>
+          {% if user.has_two_factor %}
+            {% trans %}
+            Use a recovery code before adding additional two factor
+            authentication methods to your account.
+            {% endtrans %}
+          {% else %}
+            {% trans %}
+            Use a recovery code before enabling two factor authentication on your account.
+            {% endtrans %}
+          {% endif %}
+        </p>
+        <p>
+          This is in order to verify that you have safely stored your recovery codes for use in the event of a lost 2FA device.
+        </p>
+        <a href="{{ request.route_path('manage.account.recovery-codes.burn') }}"
+           class="button button--primary">
+          {% trans %}
+          Use a recovery code
+          {% endtrans %}
+        </a>
+      </div>
+    {% endif %}
+    {% set disabled = not user.has_burned_recovery_codes or not user.has_primary_verified_email %}
+    {% if not disabled and not user.has_two_factor %}
+      <div class="callout-block">
+        <p>
+          {% trans %}
+          You have not enabled two factor authentication on your account.
+          {% endtrans %}
+        </p>
+      </div>
+    {% endif %}
+    <div class="wrap-children">
+      <a href="{{ request.route_path('manage.account.totp-provision') }}"
+         class="button button--primary {{ "button--disabled" if disabled or user.totp_secret else "" }}"
+         title="{{ 'Only one authentication application (TOTP) can be used at a time' if user.totp_secret else '' }}">
         {% trans %}
-        You must generate and safely store recovery codes before adding additional two factor
-        authentication methods to your account.
-      {% endtrans %}
-    {% else %}
-      {% trans %}
-      You must generate and safely store recovery codes before enabling two factor authentication on your account.
-    {% endtrans %}
-  {% endif %}
-</p>
-<a href="{{ request.route_path('manage.account.recovery-codes.generate') }}"
-   class="button button--primary">
-  {% trans %}
-  Generate recovery codes
-{% endtrans %}
-</a>
-</div>
-{% elif not user.has_burned_recovery_codes %}
-<div class="callout-block">
-  <p>
-    {% if user.has_two_factor %}
-      {% trans %}
-      Use a recovery code before adding additional two factor
-      authentication methods to your account.
-    {% endtrans %}
-  {% else %}
-    {% trans %}
-    Use a recovery code before enabling two factor authentication on your account.
-  {% endtrans %}
-{% endif %}
-</p>
-<p>
-  This is in order to verify that you have safely stored your recovery codes for use in the event of a lost 2FA device.
-</p>
-<a href="{{ request.route_path('manage.account.recovery-codes.burn') }}"
-   class="button button--primary">
-  {% trans %}
-  Use a recovery code
-{% endtrans %}
-</a>
-</div>
-{% endif %}
-{% set disabled = not user.has_burned_recovery_codes or not user.has_primary_verified_email %}
-{% if not disabled and not user.has_two_factor %}
-  <div class="callout-block">
-    <p>
-      {% trans %}
-      You have not enabled two factor authentication on your account.
-    {% endtrans %}
-  </p>
-</div>
-{% endif %}
-<div class="wrap-children">
-  <a href="{{ request.route_path('manage.account.totp-provision') }}"
-     class="button button--primary {{ "button--disabled" if disabled or user.totp_secret else "" }}"
-     title="{{ 'Only one authentication application (TOTP) can be used at a time' if user.totp_secret else '' }}">
-    {% trans %}
-    Add <abbr title="two factor authentication">2FA</abbr> with authentication application
-  {% endtrans %}
-</a>
-<a href="{{ request.route_path('manage.account.webauthn-provision') }}"
-   class="button button--primary {{ "button--disabled" if disabled else "" }}"
-   id="webauthn-button"
-   aria-describedby="webauthn-errors">
-  {% trans %}
-  Add <abbr title="two factor authentication">2FA</abbr> with security device (e.g. USB key)
-{% endtrans %}
-</a>
-</div>
-<noscript>
-  <p>
-    {% trans %}Enable JavaScript to set up two factor authentication with a security device (e.g. USB key){% endtrans %}
-  </p>
-</noscript>
-<ul id="webauthn-errors" class="form-errors form-errors--full-width">
-  <li id="webauthn-browser-support" class="hidden margin-top--large">
-    {% trans href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility", title=gettext("External link") %}
-    <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Upgrade your browser</a> to set up two factor authentication with a security device (e.g. USB key)
-  {% endtrans %}
-</li>
-</ul>
-</section>
+        Add <abbr title="two factor authentication">2FA</abbr> with authentication application
+        {% endtrans %}
+      </a>
+      <a href="{{ request.route_path('manage.account.webauthn-provision') }}"
+         class="button button--primary {{ "button--disabled" if disabled else "" }}"
+         id="webauthn-button"
+         aria-describedby="webauthn-errors">
+        {% trans %}
+        Add <abbr title="two factor authentication">2FA</abbr> with security device (e.g. USB key)
+        {% endtrans %}
+      </a>
+    </div>
+    <noscript>
+      <p>
+        {% trans %}Enable JavaScript to set up two factor authentication with a security device (e.g. USB key){% endtrans %}
+      </p>
+    </noscript>
+    <ul id="webauthn-errors" class="form-errors form-errors--full-width">
+      <li id="webauthn-browser-support" class="hidden margin-top--large">
+        {% trans href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility", title=gettext("External link") %}
+        <a href="{{ href }}"
+           title="{{ title }}"
+           target="_blank"
+           rel="noopener">Upgrade your browser</a> to set up two factor authentication with a security device (e.g. USB key)
+        {% endtrans %}
+      </li>
+    </ul>
+  </section>
 {% endmacro %}
 {% block content %}
   <div class="tabs-container">
@@ -359,7 +362,8 @@
           {% if warning %}
             <div class="callout-block callout-block--danger callout-block--bottom-margin no-top-margin">
               <p>
-                <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
+                <i class="fa fa-exclamation-triangle"
+                   aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
                 {% trans %}This action cannot be undone!{% endtrans %}
               </p>
               {% if custom_warning_text %}{{ custom_warning_text }}{% endif %}
@@ -413,7 +417,7 @@
   action=None,
   warning=True,
   custom_warning_text=""
-  ) %}
+) %}
   <div id="{{ slug }}"
        class="modal"
        data-controller="confirm-password modal-close">
@@ -437,7 +441,8 @@
           {% if warning %}
             <div class="callout-block callout-block--danger callout-block--bottom-margin no-top-margin">
               <p>
-                <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
+                <i class="fa fa-exclamation-triangle"
+                   aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
                 {% trans %}This action cannot be undone!{% endtrans %}
               </p>
               {% if custom_warning_text %}{{ custom_warning_text }}{% endif %}
@@ -504,7 +509,7 @@
   title,
   extra_fields=None,
   action=None
-  )
+)
   %}
   {% set slug = title.lower().replace(' ', '-') + '-modal' %}
   <a href="#{{ slug }}" class="button button--danger">{{ title }}</a>
@@ -536,20 +541,20 @@
     OpenID Connect (OIDC) provides a flexible, credential-free mechanism for delegating
     publishing authority for a PyPI package to a trusted third party service,
     like GitHub Actions.
-  {% endtrans %}
-</p>
-<p>
-  {% trans %}
-  PyPI users and projects can use trusted publishers to automate
-  their release processes, without needing to use API tokens or passwords.
-{% endtrans %}
-</p>
-<p class="no-bottom-padding">
-  {% trans href="https://docs.pypi.org/trusted-publishers/" %}
-  You can read more about trusted publishers and how to use them
-  <a href="{{ href }}">here</a>.
-{% endtrans %}
-</p>
+    {% endtrans %}
+  </p>
+  <p>
+    {% trans %}
+    PyPI users and projects can use trusted publishers to automate
+    their release processes, without needing to use API tokens or passwords.
+    {% endtrans %}
+  </p>
+  <p class="no-bottom-padding">
+    {% trans href="https://docs.pypi.org/trusted-publishers/" %}
+    You can read more about trusted publishers and how to use them
+    <a href="{{ href }}">here</a>.
+    {% endtrans %}
+  </p>
 {% endmacro %}
 {% macro oidc_publisher_row(publisher) -%}
   {# project_name is only defined for pending OIDC publishers -#}
@@ -624,7 +629,7 @@
   {% set extra_fields %}
     <input name="publisher_id" type="hidden" value="{{ publisher.id }}">
   {% endset %}
-  {{ confirm_modal(title=title, label=publisher.publisher_name, confirm_name="", confirm_string="", slug=slug, context=None, extra_description=extra_description, extra_fields=extra_fields, action=delete_route, warning=False, confirm_button_label=gettext("Remove publisher") ) }}
+  {{ confirm_modal(title=title, label=publisher.publisher_name, confirm_name="", confirm_string="", slug=slug, context=None, extra_description=extra_description, extra_fields=extra_fields, action=delete_route, warning=False, confirm_button_label=gettext("Remove publisher")) }}
 {%- endmacro %}
 {% macro oidc_audit_event(event) -%}
   {% if event.tag == EventTag.Project.OIDCPublisherAdded or event.tag == EventTag.Account.PendingOIDCPublisherAdded %}

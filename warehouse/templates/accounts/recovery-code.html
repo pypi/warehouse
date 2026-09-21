@@ -29,13 +29,13 @@
               {% endif %}
             </label>
             {{ form.recovery_code_value(autocapitalize="off",
-                        spellcheck="false",
-                        required="required",
-                        pattern="[0-9a-f]{16}",
-                        class_="form-group__field",
-                        autocomplete="off",
-                        aria_describedby="recovery_code-errors",
-                        aria_label="16 character hexadecimal",) }}
+              spellcheck="false",
+              required="required",
+              pattern="[0-9a-f]{16}",
+              class_="form-group__field",
+              autocomplete="off",
+              aria_describedby="recovery_code-errors",
+              aria_label="16 character hexadecimal",) }}
             {% if form.recovery_code_value.errors %}
               <ul id="recovery_code-errors" class="form-errors" role="alert">
                 {% for error in form.recovery_code_value.errors %}<li>{{ error }}</li>{% endfor %}
@@ -57,9 +57,9 @@
           <p>
             Not working? <a href="{{ href }}">Get help</a>.
           </p>
-        {% endtrans %}
-      </form>
+          {% endtrans %}
+        </form>
+      </div>
     </div>
   </div>
-</div>
 {% endblock %}

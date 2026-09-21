@@ -99,61 +99,61 @@
              target="_blank"
              rel="noopener">Thetis</a>.
           See <a href="{{ request.help_url(_anchor='utfkey') }}">How does two factor authentication
-        with a security device (e.g. USB key) work? How do I set it up on PyPI?</a>
-      </p>
-      <p>
-        Alternatively, you should enable 2FA via a TOTP application instead. See <a href="{{ request.help_url(_anchor='totp') }}">How does two factor
-        authentication with an authentication application (TOTP) work? How do I
-      set it up on PyPI?</a>
-    </p>
-    <h3 id="key-quantity">How many keys are available?</h3>
-    <p>A total of 4,000 keys are available to maintainers.</p>
-    <h3 id="expiry">Do the promo codes expire?</h3>
-    <p>The promo codes expire on October 1, 2022.</p>
-    <h3 id="why-keys">Why security keys instead of TOTP-based authentication applications?</h3>
-    <p>
-      Using security keys via WebAuthn is generally considered to be more
-      secure than using TOTP-based authentication applications for 2FA. For a
-      more thorough analysis of the differences between TOTP and WebAuthn, see
-      <a href="https://blog.trailofbits.com/2019/06/20/getting-2fa-right-in-2019/">this
-        article from the team who implemented 2FA on PyPI in 2019</a>.
-      </p>
-      <h3 id="why-two-keys">Why two keys instead of one?</h3>
-      <p>
-        Without multiple 2FA options, effect of losing a 2FA method results in
-        the need to fully recover an account, which is burdensome and
-        time-consuming both for maintainers and PyPI administrators. Enabling
-        multiple 2FA methods reduces the potential disruption if one is lost.
-      </p>
-      <h3 id="promo-error">What should I do if I'm getting the error 'Promo code doesn't apply'?</h3>
-      <p>
-        Increase the quantity in the cart from 1 key to 2 keys. See
-        <a href="#why-two-keys">Why two keys instead of one?</a> for more
-        details.
-      </p>
-      <h3 id="supply">The key I want is not in stock, what should I do?</h3>
-      <p>
-        If the USB format that you want is not in stock in your region, you
-        might consider using a USB-C to USB-A or USB-A to USB-C adapter with
-        your security key.
-      </p>
-      <p>
-        If no keys are in stock in your region, you might consider waiting to
-        redeem your promo code until stock has been replenished (note that
-        codes expire on October 1, 2022).
-      </p>
-      <h3 id="key-setup">I've got security keys already, what should I do?</h3>
-      <p>
-        See <a href="{{ request.help_url(_anchor='utfkey') }}">How does two factor
-        authentication with a security device (e.g. USB key) work? How do I
-      set it up on PyPI?</a>
-    </p>
-    <h3 id="contact">What should I do if I have a question that isn't answered here?</h3>
-    <p>
-      See <a href="{{ request.help_url() }}">PyPI's help page</a> or contact
-      <a href="mailto:admin@pypi.org">admin@pypi.org</a>.
-    </p>
-  </section>
-</div>
-</div>
+          with a security device (e.g. USB key) work? How do I set it up on PyPI?</a>
+        </p>
+        <p>
+          Alternatively, you should enable 2FA via a TOTP application instead. See <a href="{{ request.help_url(_anchor='totp') }}">How does two factor
+          authentication with an authentication application (TOTP) work? How do I
+          set it up on PyPI?</a>
+        </p>
+        <h3 id="key-quantity">How many keys are available?</h3>
+        <p>A total of 4,000 keys are available to maintainers.</p>
+        <h3 id="expiry">Do the promo codes expire?</h3>
+        <p>The promo codes expire on October 1, 2022.</p>
+        <h3 id="why-keys">Why security keys instead of TOTP-based authentication applications?</h3>
+        <p>
+          Using security keys via WebAuthn is generally considered to be more
+          secure than using TOTP-based authentication applications for 2FA. For a
+          more thorough analysis of the differences between TOTP and WebAuthn, see
+          <a href="https://blog.trailofbits.com/2019/06/20/getting-2fa-right-in-2019/">this
+            article from the team who implemented 2FA on PyPI in 2019</a>.
+        </p>
+        <h3 id="why-two-keys">Why two keys instead of one?</h3>
+        <p>
+          Without multiple 2FA options, effect of losing a 2FA method results in
+          the need to fully recover an account, which is burdensome and
+          time-consuming both for maintainers and PyPI administrators. Enabling
+          multiple 2FA methods reduces the potential disruption if one is lost.
+        </p>
+        <h3 id="promo-error">What should I do if I'm getting the error 'Promo code doesn't apply'?</h3>
+        <p>
+          Increase the quantity in the cart from 1 key to 2 keys. See
+          <a href="#why-two-keys">Why two keys instead of one?</a> for more
+          details.
+        </p>
+        <h3 id="supply">The key I want is not in stock, what should I do?</h3>
+        <p>
+          If the USB format that you want is not in stock in your region, you
+          might consider using a USB-C to USB-A or USB-A to USB-C adapter with
+          your security key.
+        </p>
+        <p>
+          If no keys are in stock in your region, you might consider waiting to
+          redeem your promo code until stock has been replenished (note that
+          codes expire on October 1, 2022).
+        </p>
+        <h3 id="key-setup">I've got security keys already, what should I do?</h3>
+        <p>
+          See <a href="{{ request.help_url(_anchor='utfkey') }}">How does two factor
+          authentication with a security device (e.g. USB key) work? How do I
+          set it up on PyPI?</a>
+        </p>
+        <h3 id="contact">What should I do if I have a question that isn't answered here?</h3>
+        <p>
+          See <a href="{{ request.help_url() }}">PyPI's help page</a> or contact
+          <a href="mailto:admin@pypi.org">admin@pypi.org</a>.
+        </p>
+      </section>
+    </div>
+  </div>
 {% endblock %}

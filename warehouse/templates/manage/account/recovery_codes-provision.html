@@ -46,7 +46,8 @@
                       </li>
                     {% endfor %}
                   </ul>
-                  <span hidden data-clipboard-target="source">{{ 'PyPI recovery codes\n' + recovery_codes|join("\n") }}</span>
+                  <span hidden
+                        data-clipboard-target="source">{{ 'PyPI recovery codes\n' + recovery_codes|join("\n") }}</span>
                   <button type="button"
                           class="button button-secondary copy-tooltip copy-tooltip-w"
                           data-action="clipboard#copy"
