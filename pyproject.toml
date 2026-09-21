@@ -189,6 +189,11 @@ ignore = [
   "COM819",  # redundant with the formatter, also no idea why this even exists
 ]
 
+[tool.ruff.lint.flake8-copyright]
+# CPY001 expects a copyright notice, but we use SPDX-License-Identifier headers
+# instead, so accept our existing header as the notice.
+notice-rgx = "(?m)^# SPDX-License-Identifier: Apache-2\\.0$"
+
 [tool.ruff.lint.per-file-ignores]
 # N805: zope.interface definitions look like classes, but are not
 "interfaces.py" = ["N805"]
