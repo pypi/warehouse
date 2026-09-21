@@ -81,7 +81,7 @@ def test_verify_registration_response(mocker):
 def test_verify_registration_response_failure():
     with pytest.raises(
         webauthn.RegistrationRejectedError,
-        match="^Invalid WebAuthn credential$",
+        match=r"^Invalid WebAuthn credential$",
     ) as exc_info:
         webauthn.verify_registration_response(
             (
