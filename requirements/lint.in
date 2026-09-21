@@ -1,12 +1,12 @@
 # TODO: 0.16 stabilizes CPY001, PLR0917, ISC004 and FURB192, and reformats
 # Python blocks in our Markdown docs. Upgrade in its own PR.
-ruff<0.17
+ruff<0.16
 ast-grep-cli
 codespell
 # TODO: 1.40 onwards fixes indentation after multi-line `{% trans %}` blocks,
 # rewrites quotes inside template tags and adds H025, H036, H043, H046, H050
 # and H053. Upgrade in its own PR.
-djlint<1.47
+djlint<1.40
 mypy
 tombi
 celery-types
