@@ -18,7 +18,7 @@ Example usage (Python 3):
 >>> import xmlrpc.client
 >>> import pprint
 >>> import time
->>> client = xmlrpc.client.ServerProxy('https://pypi.org/pypi')
+>>> client = xmlrpc.client.ServerProxy("https://pypi.org/pypi")
 >>> client.changelog_last_serial()
 24891357
 >>> time.sleep(1)  # Sleep to avoid rate limit
