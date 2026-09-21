@@ -63,7 +63,7 @@ rfc3986
 sentry-sdk
 # TODO: 0.0.30 adds CircleCIPublisher to the Publisher union, which the
 # exhaustive match in warehouse/attestations/models.py has no arm for.
-pypi-attestations<0.0.31
+pypi-attestations<0.0.30
 sqlalchemy[asyncio]
 stdlib-list
 stripe
