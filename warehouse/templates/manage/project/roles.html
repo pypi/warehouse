@@ -86,7 +86,8 @@
         <td>{% trans %}Owner{% endtrans %}</td>
         <td></td>
         <td class="table__align-right">
-          <button class="button"
+          <button type="button"
+                  class="button"
                   title="{% trans %}Cannot remove organization owners{% endtrans %}"
                   disabled>{% trans %}Remove{% endtrans %}</button>
         </td>
@@ -219,12 +220,12 @@
                       autocomplete="off">
                 {% for role_name, role_name_label in [('Owner', gettext('Owner')), ('Maintainer', gettext('Maintainer'))] %}
                   <option value="{{ role_name }}"
-                          {{ 'selected' if role_name == role.role_name else '' }}>
-                    {{ role_name_label }}
+                          {{ 'selected' if role_name == role.role_name else '' }}>{{ role_name_label }}
                   </option>
                 {% endfor %}
               </select>
-              <button class="button button--primary table__change-button"
+              <button type="submit"
+                      class="button button--primary table__change-button"
                       title="{% trans %}Save role{% endtrans %}"
                       data-change-role-target="saveButton">{% trans %}Save{% endtrans %}</button>
             </form>
@@ -234,7 +235,8 @@
       <td class="table__align-center">{{ two_factor_badge(role.user) }}</td>
       <td class="table__align-right">
         {% if request.user.username == role.user.username and project.name in projects_sole_owned %}
-          <button class="button"
+          <button type="button"
+                  class="button"
                   title="{% trans %}Cannot remove yourself as Sole Owner{% endtrans %}"
                   disabled>{% trans %}Remove{% endtrans %}</button>
         {% else %}
@@ -339,7 +341,7 @@
     </div>
     {# Form fields for adding member as internal collaborator. #}
     <div class="form-group radio-toggle radio-toggle-2">
-      <label for="username" class="form-group__label">
+      <label for="internal-username" class="form-group__label">
         {% trans %}Member{% endtrans %}
         <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
       </label>
@@ -349,24 +351,26 @@
       autocapitalize="off",
       spellcheck="false",
       class_="form-group__field",
-      aria_describedby="user-errors",
+      id="internal-username",
+      aria_describedby="internal-user-errors",
       ) }}
       <datalist id="organization-users">
         {% for username in internal_role_form.user_choices %}
           <option value="{{ username }}">{{ username }}</option>
         {% endfor %}
       </datalist>
-      <div id="user-errors">{{ field_errors(internal_role_form.username) }}</div>
+      <div id="internal-user-errors">{{ field_errors(internal_role_form.username) }}</div>
     </div>
     <div class="form-group radio-toggle radio-toggle-2">
-      <label for="role_name" class="form-group__label">
+      <label for="internal-role_name" class="form-group__label">
         {% trans %}Role{% endtrans %}
         <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
       </label>
       {{ internal_role_form.role_name(class_="form-group__field",
             autocomplete="off",
-            aria_describedby="role-errors",) }}
-      <div id="role-errors">{{ field_errors(internal_role_form.role_name) }}</div>
+            id="internal-role_name",
+            aria_describedby="internal-role-errors",) }}
+      <div id="internal-role-errors">{{ field_errors(internal_role_form.role_name) }}</div>
     </div>
     <div>
       <input type="submit"

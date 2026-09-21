@@ -75,7 +75,7 @@
     <div id="workflow_filename-errors">{{ field_errors(github_publisher_form.workflow_filename) }}</div>
   </div>
   <div class="form-group">
-    <label for="environment" class="form-group__label">
+    <label for="github-environment" class="form-group__label">
       {% trans %}Environment name{% endtrans %}
       {% if github_publisher_form.environment.flags.required %}
         <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
@@ -86,7 +86,8 @@
     {{ github_publisher_form.environment(placeholder=gettext("release") ,
     class_="form-group__field",
     autocomplete="off",
-    aria_describedby="environment-errors",
+    id="github-environment",
+    aria_describedby="github-environment-errors",
     ) }}
     <p class="form-group__help-text">
       {% trans href="https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment" %}
@@ -99,7 +100,7 @@
       access.
     {% endtrans %}
   </p>
-  <div id="environment-errors">{{ field_errors(github_publisher_form.environment) }}</div>
+  <div id="github-environment-errors">{{ field_errors(github_publisher_form.environment) }}</div>
 </div>
 <div>
   <input type="submit"
@@ -137,17 +138,17 @@
     <div id="namespace-errors">{{ field_errors(gitlab_publisher_form.namespace) }}</div>
   </div>
   <div class="form-group">
-    <label for="project" class="form-group__label">
+    <label for="gitlab-project" class="form-group__label">
       {% trans %}Project name{% endtrans %}
       {% if gitlab_publisher_form.project.flags.required %}
         <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
       {% endif %}
     </label>
-    {{ gitlab_publisher_form.project(placeholder=gettext("project") , autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"project-errors"}) }}
+    {{ gitlab_publisher_form.project(placeholder=gettext("project") , autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", id="gitlab-project", **{"aria-describedby":"gitlab-project-errors"}) }}
     <p class="form-group__help-text">
       {% trans %}The name of the GitLab project that contains the publishing workflow{% endtrans %}
     </p>
-    <div id="project-errors">{{ field_errors(gitlab_publisher_form.project) }}</div>
+    <div id="gitlab-project-errors">{{ field_errors(gitlab_publisher_form.project) }}</div>
   </div>
   <div class="form-group">
     <label for="workflow_filepath" class="form-group__label">
@@ -163,7 +164,7 @@
     <div id="workflow_filepath-errors">{{ field_errors(gitlab_publisher_form.workflow_filepath) }}</div>
   </div>
   <div class="form-group">
-    <label for="environment" class="form-group__label">
+    <label for="gitlab-environment" class="form-group__label">
       {% trans %}Environment name{% endtrans %}
       {% if gitlab_publisher_form.environment.flags.required %}
         <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
@@ -171,7 +172,7 @@
         <span class="form-group__required">{% trans %}(optional){% endtrans %}</span>
       {% endif %}
     </label>
-    {{ gitlab_publisher_form.environment(placeholder=gettext("release") , class_="form-group__field", autocomplete="off", **{"aria-describedby":"environment-errors"}) }}
+    {{ gitlab_publisher_form.environment(placeholder=gettext("release") , class_="form-group__field", autocomplete="off", id="gitlab-environment", **{"aria-describedby":"gitlab-environment-errors"}) }}
     <p class="form-group__help-text">
       {% trans href="https://docs.gitlab.com/ee/ci/environments/" %}
       The name of the <a href="{{ href }}">GitLab CI/CD environment</a>
@@ -183,7 +184,7 @@
       access.
     {% endtrans %}
   </p>
-  <div id="environment-errors">{{ field_errors(gitlab_publisher_form.environment) }}</div>
+  <div id="gitlab-environment-errors">{{ field_errors(gitlab_publisher_form.environment) }}</div>
 </div>
 {% if gitlab_publisher_form.issuer_url.choices|length > 1 %}
   <div class="form-group">
@@ -299,7 +300,7 @@
     <div id="organization-errors">{{ field_errors(activestate_pubisher_form.organization) }}</div>
   </div>
   <div class="form-group">
-    <label for="project" class="form-group__label">
+    <label for="activestate-project" class="form-group__label">
       {% trans %}ActiveState Project name{% endtrans %}
       {% if activestate_pubisher_form.project.flags.required %}
         <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
@@ -310,12 +311,13 @@
     autocapitalize="off",
     spellcheck="false",
     class_="form-group__field",
-    aria_describedby="project-errors")
+    id="activestate-project",
+    aria_describedby="activestate-project-errors")
     }}
     <p class="form-group__help-text">
       {% trans %}The ActiveState project that will build your Python artifact.{% endtrans %}
     </p>
-    <div id="project-errors">{{ field_errors(activestate_pubisher_form.project) }}</div>
+    <div id="activestate-project-errors">{{ field_errors(activestate_pubisher_form.project) }}</div>
   </div>
   <div class="form-group">
     <label for="actor" class="form-group__label">
@@ -388,7 +390,8 @@
             <div class="horizontal-tabs__tabbar">
               {% for publisher_name, _ in publishers %}
                 {% if not disabled[publisher_name] %}
-                  <button data-horizontal-tabs-target="{{ 'tab prefilledTab' if publisher_name.lower() == prefilled_provider else 'tab' }}"
+                  <button type="button"
+                          data-horizontal-tabs-target="{{ 'tab prefilledTab' if publisher_name.lower() == prefilled_provider else 'tab' }}"
                           data-action="horizontal-tabs#change"
                           class="tab {{ "is-active" if loop.first else "" }}">{{ publisher_name }}</button>
                 {% endif %}
@@ -404,7 +407,7 @@
         {% else %}
           {# user has not enabled 2FA #}
           <div class="callout-block callout-block--warning">
-            {% trans href=request.route_path('manage.account.two-factor') %}
+            {% trans href=request.route_path("manage.account.two-factor") %}
             You must first enable <a href="{{ href }}">two-factor authentication</a> on your account before adding a new publisher.
           {% endtrans %}
         </div>

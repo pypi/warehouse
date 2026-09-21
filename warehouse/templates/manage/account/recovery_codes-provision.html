@@ -47,7 +47,8 @@
                     {% endfor %}
                   </ul>
                   <span hidden data-clipboard-target="source">{{ 'PyPI recovery codes\n' + recovery_codes|join("\n") }}</span>
-                  <button class="button button-secondary copy-tooltip copy-tooltip-w"
+                  <button type="button"
+                          class="button button-secondary copy-tooltip copy-tooltip-w"
                           data-action="clipboard#copy"
                           data-clipboard-target="tooltip"
                           data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
@@ -61,7 +62,7 @@
                     {% trans %}Save{% endtrans %}&nbsp;<span class="fa fa-download"></span>
                   </a>
                   <a href="{{ request.route_path('manage.account.recovery-codes.burn') }}"
-                     class="button  button--primary">{% trans %}Continue{% endtrans %}</a>
+                     class="button button--primary">{% trans %}Continue{% endtrans %}</a>
                   {% set custom_warning_text %}
                     <p>
                       <strong>{% trans %}These codes will not be visible again.{% endtrans %}</strong>

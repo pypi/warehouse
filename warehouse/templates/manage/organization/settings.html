@@ -213,7 +213,7 @@
     <div class="callout-block callout-block--warning">
       <p>{% trans %}Modifying custom Trusted Publishers is not currently supported.{% endtrans %}</p>
       <p>
-        {% trans href="mailto:support+orgs@pypi.org" %}Please contact <a href={{ href }}>PyPI Support</a> if you need to modify custom Trusted Publishers.{% endtrans %}
+        {% trans href="mailto:support+orgs@pypi.org" %}Please contact <a href="{{ href }}">PyPI Support</a> if you need to modify custom Trusted Publishers.{% endtrans %}
       </p>
     </div>
   </section>
@@ -225,7 +225,7 @@
     <div class="callout-block callout-block--warning">
       <p>{% trans %}Renaming organizations is not currently supported.{% endtrans %}</p>
       <p>
-        {% trans href="mailto:support+orgs@pypi.org" %}Please contact <a href={{ href }}>PyPI Support</a> if you need to rename your organization.{% endtrans %}
+        {% trans href="mailto:support+orgs@pypi.org" %}Please contact <a href="{{ href }}">PyPI Support</a> if you need to rename your organization.{% endtrans %}
       </p>
     </div>
     {# When support for renaming orgs is re-introduced
@@ -272,17 +272,17 @@
           Your organization currently owns {{ count }} projects.
         {% endtrans %}
         {% trans %}For each project, you must either:{% endtrans %}
-        <ul>
-          <li>{% trans %}Transfer ownership and remove the project from your organization{% endtrans %}</li>
-          <li>{% trans %}Delete the project{% endtrans %}</li>
-        </ul>
-        {% trans %}Before you can delete your organization.{% endtrans %}
       </p>
+      <ul>
+        <li>{% trans %}Transfer ownership and remove the project from your organization{% endtrans %}</li>
+        <li>{% trans %}Delete the project{% endtrans %}</li>
+      </ul>
+      <p>{% trans %}Before you can delete your organization.{% endtrans %}</p>
       <ul class="no-bottom-margin">
         {% for project in active_projects %}
           <li>
             <strong>{{ project.name }}</strong> -
-            {% trans transfer_href=request.route_path('manage.project.roles', project_name=project.name), remove_delete_href=request.route_path('manage.project.settings', project_name=project.name) %}
+            {% trans transfer_href=request.route_path("manage.project.roles", project_name=project.name), remove_delete_href=request.route_path("manage.project.settings", project_name=project.name) %}
             <a href="{{ transfer_href }}">transfer ownership</a> and <a href="{{ remove_delete_href }}">remove project</a>
             <b>or</b>
             <a href="{{ remove_delete_href }}">delete project</a>
@@ -305,7 +305,7 @@
           {% else %}
             {% trans %}You will lose access to the billing portal.{% endtrans %}
           {% endif %}
-          {% trans billing_href=request.route_path('manage.organization.subscription', organization_name=organization.normalized_name, _query={'next': request.current_route_path(organization_name=organization.normalized_name)}) %}
+          {% trans billing_href=request.route_path("manage.organization.subscription", organization_name=organization.normalized_name, _query={"next": request.current_route_path(organization_name=organization.normalized_name)}) %}
           Please ensure you have retrieved all invoices from <a href="{{ billing_href }}">your billing portal</a> before proceeding.
         {% endtrans %}
       </p>

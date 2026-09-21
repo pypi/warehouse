@@ -76,11 +76,11 @@
 {%- endmacro %}
 {% macro trademarks(long=False) -%}
   {% if long %}
-    {% trans wordmark="PyPI", name="Python Package Index", psf_href="https://www.python.org/psf-landing", trademarks_href=request.route_path('trademarks') %}
+    {% trans wordmark="PyPI", name="Python Package Index", psf_href="https://www.python.org/psf-landing", trademarks_href=request.route_path("trademarks") %}
     "{{ wordmark }}", "{{ name }}", and the blocks logos are registered trademarks of the <a href="{{ psf_href }}" target="_blank" rel="noopener">Python Software Foundation</a> referring to the products and services associated with pypi.org. Any other use by any other party is prohibited.
   {% endtrans %}
 {% else %}
-  {% trans wordmark="PyPI", name="Python Package Index", psf_href="https://www.python.org/psf-landing", trademarks_href=request.route_path('trademarks') %}
+  {% trans wordmark="PyPI", name="Python Package Index", psf_href="https://www.python.org/psf-landing", trademarks_href=request.route_path("trademarks") %}
   "{{ wordmark }}", "{{ name }}", and the blocks logos are registered <a href="{{ trademarks_href }}">trademarks</a> of the <a href="{{ psf_href }}" target="_blank" rel="noopener">Python Software Foundation</a>.
 {% endtrans %}
 {% endif %}
@@ -362,7 +362,7 @@
              class="-js-white-cube">
         <span>PyPI</span>
       </a>
-      <p class="footer__tagline">{% trans href='https://www.python.org/psf/', title=gettext('External link') %}Developed and maintained by the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Software Foundation</a> and Python community, for the Python community.{% endtrans %}</p>
+      <p class="footer__tagline">{% trans href="https://www.python.org/psf/", title=gettext("External link") %}Developed and maintained by the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Software Foundation</a> and Python community, for the Python community.{% endtrans %}</p>
       {% if request.registry.settings.get("statuspage.url") %}
         <p class="footer__status">
           <span class="footer__status-dot" aria-hidden="true"></span>
@@ -528,7 +528,7 @@
     </li>
     {% if source_commit and source_commit != "null" %}
       <li>
-        {% trans href='https://github.com/pypi/warehouse/commit/' ~ source_commit, sha=source_commit[:7], title=gettext('External link') %}Deployed from <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><code>{{ sha }}</code></a>{% endtrans %}
+        {% trans href="https://github.com/pypi/warehouse/commit/" ~ source_commit, sha=source_commit[:7], title=gettext("External link") %}Deployed from <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><code>{{ sha }}</code></a>{% endtrans %}
       </li>
     {% endif %}
   </ul>

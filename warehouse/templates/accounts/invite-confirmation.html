@@ -18,7 +18,7 @@
                type="hidden"
                value="{{ request.session.get_csrf_token() }}">
         <span class="form-group__text">
-          {% trans project_name=project_name, role_name=desired_role, project_link=request.route_url('packaging.project', name=project_name) %}
+          {% trans project_name=project_name, role_name=desired_role, project_link=request.route_url("packaging.project", name=project_name) %}
           Would you like to accept this invitation to join '<a href="{{ project_link }}">{{ project_name }}</a>' as a project {{ role_name }}?
         {% endtrans %}
       </span>
@@ -36,7 +36,7 @@
   </form>
 {% else %}
   {# user has not enabled 2FA #}
-  {% trans href=request.route_path('manage.account.two-factor') %}
+  {% trans href=request.route_path("manage.account.two-factor") %}
   You must first enable <a href="{{ href }}">two-factor authentication</a> on your account before accepting an invitation to join a project.
 {% endtrans %}
 {% endif %}

@@ -270,11 +270,13 @@
           <td class="table__align-center">{{ two_factor_badge(role.user) }}</td>
           <td class="table__align-right">
             {% if not can_manage and request.user.username != role.user.username %}
-              <button class="button"
+              <button type="button"
+                      class="button"
                       title="{% trans %}Cannot remove other people from the organization{% endtrans %}"
                       disabled>{% trans %}Remove{% endtrans %}</button>
             {% elif can_manage and request.user.username == role.user.username and is_sole_owner %}
-              <button class="button"
+              <button type="button"
+                      class="button"
                       title="{% trans %}Cannot remove yourself as Sole Owner{% endtrans %}"
                       disabled>{% trans %}Remove{% endtrans %}</button>
             {% else %}
@@ -282,10 +284,10 @@
                 <input type="hidden" name="role_id" value="{{ role.id }}">
               {% endset %}
               {% set extra_description %}
-                {% trans user=('yourself' if request.user.username == role.user.username else role.user.username) %}Remove {{ user }} from this organization.{% endtrans %}
+                {% trans user=("yourself" if request.user.username == role.user.username else role.user.username) %}Remove {{ user }} from this organization.{% endtrans %}
               {% endset %}
               {% set tooltip %}
-                {% trans user=('yourself' if request.user.username == role.user.username else role.user.username) %}Remove {{ user }} from this organization{% endtrans %}
+                {% trans user=("yourself" if request.user.username == role.user.username else role.user.username) %}Remove {{ user }} from this organization{% endtrans %}
               {% endset %}
               {{ confirm_button(gettext("Remove") , gettext("Username"), "remove-" + role.id|string, gettext(role.user.username), extra_fields=extra_fields, extra_description=extra_description, action=request.route_path('manage.organization.delete_role', organization_name=organization.normalized_name), warning=False, modifier="--primary", tooltip=tooltip) }}
             {% endif %}

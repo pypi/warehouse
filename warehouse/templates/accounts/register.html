@@ -33,7 +33,7 @@
           <li>{% trans title=title %}Do not use {{ title }} as a file host, or split large files across releases.{% endtrans %}</li>
         </ul>
         <p>
-          {% trans aup="https://policies.python.org/pypi.org/Acceptable-Use-Policy/", security_page=request.route_path('security'), external=gettext("External link") %}
+          {% trans aup="https://policies.python.org/pypi.org/Acceptable-Use-Policy/", security_page=request.route_path("security"), external=gettext("External link") %}
           For more information, please read the full <a href="{{ aup }}"
     title="{{ external }}"
     target="_blank"
@@ -48,9 +48,10 @@
         <p>
           {% trans %}Please confirm that your email address is <strong data-email-confirmation-target="email"></strong>.{% endtrans %}
         </p>
-        <button class="button button--primary"
+        <button type="button"
+                class="button button--primary"
                 data-action="click->email-confirmation#confirm">{% trans %}Confirm{% endtrans %}</button>
-        <button class="button" formmethod="dialog" value="cancel">{% trans %}Cancel{% endtrans %}</button>
+        <button type="submit" class="button" formmethod="dialog" value="cancel">{% trans %}Cancel{% endtrans %}</button>
       </form>
     </dialog>
     <form method="post"

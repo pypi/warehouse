@@ -3,7 +3,7 @@
 {% set site = request.registry.settings["site.name"] %}
 {% block content %}
   <p>
-    {% trans role=role, site=site, organization_name=organization_name, submitter=submitter, submitter_profile=request.route_url('accounts.profile', username=submitter) %}You have been added as <strong>{{ role }}</strong> of the {{ site }} organization {{ organization_name }} by <a href="{{ submitter_profile }}">{{ submitter }}</a>.{% endtrans %}
+    {% trans role=role, site=site, organization_name=organization_name, submitter=submitter, submitter_profile=request.route_url("accounts.profile", username=submitter) %}You have been added as <strong>{{ role }}</strong> of the {{ site }} organization {{ organization_name }} by <a href="{{ submitter_profile }}">{{ submitter }}</a>.{% endtrans %}
   </p>
 {% endblock %}
 {% block reason %}

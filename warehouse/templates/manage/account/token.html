@@ -64,15 +64,15 @@
       <p>{% trans %}To use this API token:{% endtrans %}</p>
       <ul>
         <li>
-          {% trans token='__token__' %}Set your username to <code>{{ token }}</code>{% endtrans %}
+          {% trans token="__token__" %}Set your username to <code>{{ token }}</code>{% endtrans %}
         </li>
         <li>
-          {% trans prefix='pypi-' %}Set your password to the token value, including the <code>{{ prefix }}</code> prefix{% endtrans %}
+          {% trans prefix="pypi-" %}Set your password to the token value, including the <code>{{ prefix }}</code> prefix{% endtrans %}
         </li>
       </ul>
       {% if macaroon.permissions_caveat.permissions == "user" %}
         <p>
-          {% trans href='https://pypi.org/project/twine/', filename='$HOME/.pypirc' %}
+          {% trans href="https://pypi.org/project/twine/", filename="$HOME/.pypirc" %}
           For example, if you are using <a href="{{ href }}">Twine</a> to upload your projects to PyPI, set up your <code>{{ filename }}</code> file like this:
         {% endtrans %}
       </p>
@@ -82,7 +82,7 @@
   password = {{ serialized_macaroon }}</pre>
     {% else %}
       <p>
-        {% trans href='https://pypi.org/project/twine/', filename='$HOME/.pypirc' %}
+        {% trans href="https://pypi.org/project/twine/", filename="$HOME/.pypirc" %}
         For example, if you are using <a href="{{ href }}">Twine</a> to upload multiple projects to PyPI, you can set up your <code>{{ filename }}</code> file like this:
       {% endtrans %}
     </p>
@@ -101,23 +101,23 @@
   username = __token__
   password = # {% trans %}a project token{% endtrans %} </pre>
     <p>
-      {% trans command='twine upload --repository PROJECT_NAME' %}
+      {% trans command="twine upload --repository PROJECT_NAME" %}
       You can then use <code>{{ command }}</code> to use the correct token when uploading to PyPI.
     {% endtrans %}
   </p>
 {% endif %}
 <p>
-  {% trans twine_docs_href='https://twine.readthedocs.io/en/stable/#authentication' %}
+  {% trans twine_docs_href="https://twine.readthedocs.io/en/stable/#authentication" %}
   Twine also supports other ways to provide credentials, including keyring integration. See the <a href="{{ twine_docs_href }}">Twine authentication documentation</a> for details.
 {% endtrans %}
 </p>
 <p>
-  {% trans trusted_publishing_href='https://docs.pypi.org/trusted-publishers/' %}
+  {% trans trusted_publishing_href="https://docs.pypi.org/trusted-publishers/" %}
   When publishing from a supported automated environment, consider using <a href="{{ trusted_publishing_href }}">Trusted Publishing</a> instead of manually managing API tokens.
 {% endtrans %}
 </p>
 <p>
-  {% trans href='/help#apitoken' %}For further instructions on how to use this token, <a href="{{ href }}">visit the PyPI help page</a>.{% endtrans %}
+  {% trans href="/help#apitoken" %}For further instructions on how to use this token, <a href="{{ href }}">visit the PyPI help page</a>.{% endtrans %}
 </p>
 </section>
 <hr>

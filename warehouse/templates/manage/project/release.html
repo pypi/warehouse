@@ -43,7 +43,7 @@
       {% endtrans %}
     </p>
     <p>
-      {% trans href=request.route_path('help') + "#project_in_quarantine" %}
+      {% trans href=request.route_path("help") + "#project_in_quarantine" %}
       Read more in the <a href="{{ href }}">project in quarantine</a> help article.
     {% endtrans %}
   </p>
@@ -68,7 +68,6 @@
             <span class="table__mobile-label">{% trans %}Filename, size{% endtrans %}</span>
             <a href="{{ request.route_url('packaging.file', path=file.path) }}">{{ file.filename }}</a>
             {% if file.size %}({{ file.size|filesizeformat() }}){% endif %}
-            <br>
           </th>
           <td>
             <span class="table__mobile-label">{% trans %}Type{% endtrans %}</span>
@@ -134,7 +133,7 @@
                                  type="checkbox"
                                  data-action="input->confirm#check"
                                  data-confirm-target="checkbox">
-                          {% trans filename=file.filename, href="https://pypi.org/help/#file-name-reuse" %}I understand that I will <a href={{ href }} target="_blank" rel="noopener">not be able to re-upload a file using the same file name</a> {{ filename }}.{% endtrans %}
+                          {% trans filename=file.filename, href="https://pypi.org/help/#file-name-reuse" %}I understand that I will <a href="{{ href }}" target="_blank" rel="noopener">not be able to re-upload a file using the same file name</a> {{ filename }}.{% endtrans %}
                         </li>
                         <li class="margin-bottom">
                           <input class="inline-checkbox"
@@ -181,7 +180,7 @@
     <i class="fa fa-times" aria-hidden="true"></i>
   </button>
   <p>
-    {% trans href='https://packaging.python.org/guides/distributing-packages-using-setuptools/#uploading-your-project-to-pypi', title=gettext('External link') %}Learn how to upload files on the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging User Guide</a>{% endtrans %}
+    {% trans href="https://packaging.python.org/guides/distributing-packages-using-setuptools/#uploading-your-project-to-pypi", title=gettext("External link") %}Learn how to upload files on the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging User Guide</a>{% endtrans %}
   </p>
 </div>
 <h3>{% trans %}Release settings{% endtrans %}</h3>
@@ -243,53 +242,54 @@
   {% else %}
     {% trans %}Deleting will irreversibly delete this release.{% endtrans %}
   {% endif %}
-  <p>
-    {% trans %}You will not be able to re-upload a new distribution of the same type with the same version number.{% endtrans %}
-  </p>
-  <p>
-    {% trans %}Deletion will break any downstream projects relying on a pinned version of this package. It is intended as a last resort to address legal issues or remove harmful releases.{% endtrans %}
-  </p>
-  <p>
-    {% trans yank_href=request.user_docs_url('/project-management/yanking'), post_href='https://www.python.org/dev/peps/pep-0440/#post-releases', title=gettext('External link') %}Consider <a href="{{ yank_href }}"
+</p>
+<p>
+  {% trans %}You will not be able to re-upload a new distribution of the same type with the same version number.{% endtrans %}
+</p>
+<p>
+  {% trans %}Deletion will break any downstream projects relying on a pinned version of this package. It is intended as a last resort to address legal issues or remove harmful releases.{% endtrans %}
+</p>
+<p>
+  {% trans yank_href=request.user_docs_url("/project-management/yanking"), post_href="https://www.python.org/dev/peps/pep-0440/#post-releases", title=gettext("External link") %}Consider <a href="{{ yank_href }}"
     title="{{ title }}"
     target="_blank"
     rel="noopener">yanking</a> this release, making a new release or a <a href="{{ post_href }}"
     title="{{ title }}"
     target="_blank"
     rel="noopener">post release</a> instead.{% endtrans %}
-  </p>
-  <ul class="no-bullets">
-    <li>
-      <input type="checkbox"
-             data-action="input->delete-confirm#check"
-             data-delete-confirm-target="input">
-      {% trans release_version=release.version %}I understand that I am permanently deleting all files for the {{ release_version }} release of this project.{% endtrans %}
-    </li>
-    <li>
-      <input type="checkbox"
-             data-action="input->delete-confirm#check"
-             data-delete-confirm-target="input">
-      {% trans %}I understand that my users will no longer be able to install this release of this project.{% endtrans %}
-    </li>
-    <li>
-      <input type="checkbox"
-             data-action="input->delete-confirm#check"
-             data-delete-confirm-target="input">
-      {% trans href="https://pypi.org/help/#file-name-reuse" %}I understand that I will <a href="{{ href }}" target="_blank" rel="noopener">not be able to re-upload any deleted files using the same file names</a>.{% endtrans %}
-    </li>
-    <li>
-      <input type="checkbox"
-             data-action="input->delete-confirm#check"
-             data-delete-confirm-target="input">
-      {% trans %}I understand that I will not be able to undo this.{% endtrans %}
-    </li>
-    <li>
-      <input type="checkbox"
-             data-action="input->delete-confirm#check"
-             data-delete-confirm-target="input">
-      {% trans %}I understand that the PyPI administrators will not be able to undo this.{% endtrans %}
-    </li>
-  </ul>
+</p>
+<ul class="no-bullets">
+  <li>
+    <input type="checkbox"
+           data-action="input->delete-confirm#check"
+           data-delete-confirm-target="input">
+    {% trans release_version=release.version %}I understand that I am permanently deleting all files for the {{ release_version }} release of this project.{% endtrans %}
+  </li>
+  <li>
+    <input type="checkbox"
+           data-action="input->delete-confirm#check"
+           data-delete-confirm-target="input">
+    {% trans %}I understand that my users will no longer be able to install this release of this project.{% endtrans %}
+  </li>
+  <li>
+    <input type="checkbox"
+           data-action="input->delete-confirm#check"
+           data-delete-confirm-target="input">
+    {% trans href="https://pypi.org/help/#file-name-reuse" %}I understand that I will <a href="{{ href }}" target="_blank" rel="noopener">not be able to re-upload any deleted files using the same file names</a>.{% endtrans %}
+  </li>
+  <li>
+    <input type="checkbox"
+           data-action="input->delete-confirm#check"
+           data-delete-confirm-target="input">
+    {% trans %}I understand that I will not be able to undo this.{% endtrans %}
+  </li>
+  <li>
+    <input type="checkbox"
+           data-action="input->delete-confirm#check"
+           data-delete-confirm-target="input">
+    {% trans %}I understand that the PyPI administrators will not be able to undo this.{% endtrans %}
+  </li>
+</ul>
 </p>
 {{ confirm_button(gettext("Delete release") , gettext("Version"), "delete_version", release.version, additional_attributes="data-delete-confirm-target=button") }}
 </div>

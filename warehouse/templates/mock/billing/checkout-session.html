@@ -16,7 +16,7 @@
                  value="{{ request.session.get_csrf_token() }}">
           <a class="button"
              href="{{ request.route_path('manage.organizations') }}">Cancel</a>
-          <button class="button button--primary">Subscribe</button>
+          <button type="submit" class="button button--primary">Subscribe</button>
         </div>
       </form>
       <hr>

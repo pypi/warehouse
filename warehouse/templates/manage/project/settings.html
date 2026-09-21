@@ -37,7 +37,7 @@
     </p>
   {% else %}
     <p class="no-bottom-padding">
-      {% trans href='{url}#account-emails'.format(url=request.route_path('manage.account')), project_name=project.name %}
+      {% trans href="{url}#account-emails".format(url=request.route_path("manage.account")), project_name=project.name %}
       <a href="{{ href }}">Verify your primary email address</a> to add an API token for {{ project_name }}.
     {% endtrans %}
   </p>
@@ -47,7 +47,7 @@
      data-dismissable-identifier="settings">
   <h3>{% trans %}Project description and sidebar{% endtrans %}</h3>
   <p>
-    {% trans project_name=project.name, pyproject_args_href='https://packaging.python.org/tutorials/packaging-projects/#creating-pyproject-toml', distribution_href='https://packaging.python.org/guides/section-build-and-publish/' %}
+    {% trans project_name=project.name, pyproject_args_href="https://packaging.python.org/tutorials/packaging-projects/#creating-pyproject-toml", distribution_href="https://packaging.python.org/guides/section-build-and-publish/" %}
     To set the '{{ project_name }}' description, author, links, classifiers,
     and other details for your next release, use the
     <a href="{{ pyproject_args_href }}" rel="noopener" target="_blank"><code>project</code>
@@ -193,7 +193,7 @@
 <div class="callout-block callout-block--danger"
      data-controller="archive-confirm">
   <p>
-    {% trans readme_description_href='https://packaging.python.org/guides/making-a-pypi-friendly-readme/' %}
+    {% trans readme_description_href="https://packaging.python.org/guides/making-a-pypi-friendly-readme/" %}
     Archiving a project will prevent any new uploads, and remove the project
     from PyPI's search results. Before doing so, we recommend publishing a
     final release with an update to the project's description to warn the users
@@ -233,7 +233,7 @@
   <ul>
     <li>
       {% if project.releases %}
-        {% trans count=project.releases|length(), href=request.route_path('manage.project.releases', project_name=project.name) %}
+        {% trans count=project.releases|length(), href=request.route_path("manage.project.releases", project_name=project.name) %}
         Irreversibly delete the project along with <a href="{{ href }}">{{ count }} release</a>
       {% pluralize %}
         Irreversibly delete the project along with <a href="{{ href }}">{{ count }} releases</a>

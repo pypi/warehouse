@@ -87,7 +87,7 @@
 </div>
 {% if archived_projects %}
   <h3>
-    {% trans count=archived_projects|length, href=request.route_url('help') %}
+    {% trans count=archived_projects|length, href=request.route_url("help") %}
     {{ count }} <a href="{{ href }}#archived-project">archived</a> project
   {% pluralize %}
     {{ count }} <a href="{{ href }}#archived-project">archived</a> projects

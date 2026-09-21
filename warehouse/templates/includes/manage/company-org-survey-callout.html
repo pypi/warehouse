@@ -13,14 +13,14 @@
   </button>
   <h3 class="callout-block__heading">{% trans %}Interested in a PyPI service agreement?{% endtrans %}</h3>
   <p>
-    {% trans href=request.route_path('organizations') %}Some companies need a formal agreement with PyPI covering support, availability, or compliance requirements. We are gathering interest to understand what companies need. Learn more about <a href="{{ href }}">organization accounts</a>.{% endtrans %}
+    {% trans href=request.route_path("organizations") %}Some companies need a formal agreement with PyPI covering support, availability, or compliance requirements. We are gathering interest to understand what companies need. Learn more about <a href="{{ href }}">organization accounts</a>.{% endtrans %}
   </p>
   <p>
-    {% trans href='https://www.surveymonkey.com/r/H53HHSS', title=gettext('External link') %}Tell us what you need by filling out the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">PyPI Service Agreement Interest</a> survey and we'll follow up.{% endtrans %}
+    {% trans href="https://www.surveymonkey.com/r/H53HHSS", title=gettext("External link") %}Tell us what you need by filling out the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">PyPI Service Agreement Interest</a> survey and we'll follow up.{% endtrans %}
   </p>
   <p>
     <small>
-      {% trans count=company_organizations|length, orgs=company_organizations|map(attribute='display_name')|join(', ') %}
+      {% trans count=company_organizations|length, orgs=company_organizations|map(attribute="display_name")|join(", ") %}
       You are seeing this because you belong to the company organization {{ orgs }}.
     {% pluralize %}
       You are seeing this because you belong to these company organizations: {{ orgs }}.

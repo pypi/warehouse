@@ -36,7 +36,7 @@
             {% endtrans %}
             (<span dir="ltr">
             {%- for packagetype, packagetype_count in version_to_file_counts[release.version].items() -%}
-              {%- if packagetype != 'total' -%}
+              {%- if packagetype != "total" -%}
                 {{ packagetype_count }} {{ packagetype|format_package_type }}{{ ", " if not loop.last }}
               {%- endif -%}
             {%- endfor -%}
@@ -154,7 +154,7 @@
             {% trans %}Deletion will break any downstream projects relying on a pinned version of this package. It is intended as a last resort to address legal issues or remove harmful releases.{% endtrans %}
           </p>
           <p>
-            {% trans yank_href=request.user_docs_url('/project-management/yanking'), post_href='https://www.python.org/dev/peps/pep-0440/#post-releases', title=gettext('External link') %}Consider <a href="{{ yank_href }}"
+            {% trans yank_href=request.user_docs_url("/project-management/yanking"), post_href="https://www.python.org/dev/peps/pep-0440/#post-releases", title=gettext("External link") %}Consider <a href="{{ yank_href }}"
     title="{{ title }}"
     target="_blank"
     rel="noopener">yanking</a> this release, making a new release or a <a href="{{ post_href }}"
@@ -207,7 +207,7 @@
       <i class="fa fa-times" aria-hidden="true"></i>
     </button>
     <p>
-      {% trans href='https://packaging.python.org/guides/section-build-and-publish/', title=gettext('External link') %}Learn how to create a new release on the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging User Guide</a>{% endtrans %}
+      {% trans href="https://packaging.python.org/guides/section-build-and-publish/", title=gettext("External link") %}Learn how to create a new release on the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging User Guide</a>{% endtrans %}
     </p>
   </div>
 {% endblock %}

@@ -16,11 +16,11 @@
         <tr>
           <th scope="row">{% trans %}Request status{% endtrans %}</th>
           <td>
-            {% if organization_application.status == 'declined' %}
+            {% if organization_application.status == "declined" %}
               <strong>{% trans %}Declined{% endtrans %}:</strong>
               <br />
               {% trans %}This organization request has been declined{% endtrans %}
-            {% elif organization_application.status == 'moreinformationneeded' %}
+            {% elif organization_application.status == "moreinformationneeded" %}
               <strong>{% trans %}More information needed{% endtrans %}:</strong>
               <br />
               {% trans %}Please provide more information below{% endtrans %}

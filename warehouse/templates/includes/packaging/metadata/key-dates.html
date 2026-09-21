@@ -26,17 +26,17 @@
       <ul class="unstyled">
         {% for event in events|sort(attribute='date') %}
           <li>
-            {% if event.key == 'released' %}
+            {% if event.key == "released" %}
               <strong>{% trans %}Released:{% endtrans %}</strong> {{ humanize(event.date) }}
-            {% elif event.key == 'last-file-added' %}
+            {% elif event.key == "last-file-added" %}
               <strong>{% trans %}Last file added:{% endtrans %}</strong> {{ humanize(event.date) }}
-            {% elif event.key == 'yanked' %}
+            {% elif event.key == "yanked" %}
               <strong>{% trans %}Yanked:{% endtrans %}</strong> {{ humanize(event.date) }}
-            {% elif event.key == 'project-quarantined' %}
+            {% elif event.key == "project-quarantined" %}
               <strong>{% trans %}Project quarantined:{% endtrans %}</strong> {{ humanize(event.date) }}
-            {% elif event.key == 'release-quarantined' %}
+            {% elif event.key == "release-quarantined" %}
               <strong>{% trans %}Release quarantined:{% endtrans %}</strong> {{ humanize(event.date) }}
-            {% elif event.key == 'archived' %}
+            {% elif event.key == "archived" %}
               <strong>{% trans %}Archived:{% endtrans %}</strong> {{ humanize(event.date) }}
             {% endif %}
           </li>
