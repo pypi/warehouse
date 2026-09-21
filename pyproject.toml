@@ -159,7 +159,6 @@ target-version = "py314"
 select = ["ALL"]
 ignore = [
   "RUF012",  # this lint triggers in cases where it's impossible for us to fix it
-  "CPY001",  # requires a copyright notice; we use SPDX-License-Identifier headers instead
   "TC",  # the circular imports in our db models breaks this
   "PIE807",  # turns `lambda: dict()` into just `dict`, which changes the signature
   "FIX",  # we regularly leave TODO comments in the code, which this rejects
@@ -178,7 +177,6 @@ ignore = [
   "PLR0911",  # too many return statements; I'm suspect on the value of the "too many X" rules
   "PLR0912",  # too many branches; I'm suspect on the value of the "too many X" rules
   "PLR0913",  # too many arguments; I'm suspect on the value of the "too many X" rules
-  "PLR0917",  # too many positional arguments; same rationale as PLR0913 above
   "PLR0915",  # too many statements; I'm suspect on the value of the "too many X" rules
   "PLR2004",  # we use a lot of magic values, maybe we shouldn't but for now allow it
   "PLW1641",  # we don't need every object to implement __hash__
