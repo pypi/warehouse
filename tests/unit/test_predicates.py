@@ -216,8 +216,10 @@ class TestActiveOrganizationPredicate:
 
         route_path.assert_called_once_with("manage.organizations")
         assert db_request.session.peek_flash("error") == [
-            "This organization's billing is inactive. Activate billing to "
-            "manage its projects, teams, and members."
+            (
+                "This organization's billing is inactive. Activate billing to "
+                "manage its projects, teams, and members."
+            )
         ]
 
     @pytest.mark.parametrize("value", [True, "or_awaiting_billing"])

@@ -856,9 +856,11 @@ class TestFileUpload:
                     "filetype": "sdist",
                     "pyversion": "source",
                 },
-                "None is not a valid metadata version. See "
-                "https://packaging.python.org/specifications/core-metadata for more "
-                "information.",
+                (
+                    "None is not a valid metadata version. See "
+                    "https://packaging.python.org/specifications/core-metadata "
+                    "for more information."
+                ),
             ),
             (
                 {
@@ -869,27 +871,33 @@ class TestFileUpload:
                     "filetype": "sdist",
                     "pyversion": "source",
                 },
-                "'-1' is not a valid metadata version. See "
-                "https://packaging.python.org/specifications/core-metadata for more "
-                "information.",
+                (
+                    "'-1' is not a valid metadata version. See "
+                    "https://packaging.python.org/specifications/core-metadata "
+                    "for more information."
+                ),
             ),
             # name errors.
             (
                 {"metadata_version": "1.2"},
-                "'' is an invalid value for Name. "
-                "Error: This field is required. "
-                "See "
-                "https://packaging.python.org/specifications/core-metadata"
-                " for more information.",
+                (
+                    "'' is an invalid value for Name. "
+                    "Error: This field is required. "
+                    "See "
+                    "https://packaging.python.org/specifications/core-metadata"
+                    " for more information."
+                ),
             ),
             (
                 {"metadata_version": "1.2", "name": "foo-"},
-                "'foo-' is an invalid value for Name. "
-                "Error: Start and end with a letter or numeral containing "
-                "only ASCII numeric and '.', '_' and '-'. "
-                "See "
-                "https://packaging.python.org/specifications/core-metadata"
-                " for more information.",
+                (
+                    "'foo-' is an invalid value for Name. "
+                    "Error: Start and end with a letter or numeral containing "
+                    "only ASCII numeric and '.', '_' and '-'. "
+                    "See "
+                    "https://packaging.python.org/specifications/core-metadata"
+                    " for more information."
+                ),
             ),
             # version errors.
             (
@@ -900,9 +908,11 @@ class TestFileUpload:
                     "md5_digest": "bad",
                     "filetype": "sdist",
                 },
-                "'version' is a required field. See "
-                "https://packaging.python.org/specifications/core-metadata for "
-                "more information.",
+                (
+                    "'version' is a required field. See "
+                    "https://packaging.python.org/specifications/core-metadata for "
+                    "more information."
+                ),
             ),
             (
                 {
@@ -912,9 +922,11 @@ class TestFileUpload:
                     "md5_digest": "bad",
                     "filetype": "sdist",
                 },
-                "'dog' is invalid for 'version'. See "
-                "https://packaging.python.org/specifications/core-metadata for "
-                "more information.",
+                (
+                    "'dog' is invalid for 'version'. See "
+                    "https://packaging.python.org/specifications/core-metadata for "
+                    "more information."
+                ),
             ),
             (
                 {
@@ -924,9 +936,11 @@ class TestFileUpload:
                     "md5_digest": "bad",
                     "filetype": "sdist",
                 },
-                "'1.0.dev.a1' is invalid for 'version'. See "
-                "https://packaging.python.org/specifications/core-metadata for "
-                "more information.",
+                (
+                    "'1.0.dev.a1' is invalid for 'version'. See "
+                    "https://packaging.python.org/specifications/core-metadata for "
+                    "more information."
+                ),
             ),
             # filetype/pyversion errors.
             (
@@ -946,8 +960,10 @@ class TestFileUpload:
                     "filetype": "bdist_wheel",
                     "content": "fake binary content",
                 },
-                "Invalid value for pyversion. "
-                "Error: Python version is required for binary distribution uploads.",
+                (
+                    "Invalid value for pyversion. "
+                    "Error: Python version is required for binary distribution uploads."
+                ),
             ),
             (
                 {
@@ -968,8 +984,10 @@ class TestFileUpload:
                     "filetype": "sdist",
                     "pyversion": "1.0",
                 },
-                "Invalid value for pyversion. "
-                "Error: Use 'source' as Python version for an sdist.",
+                (
+                    "Invalid value for pyversion. "
+                    "Error: Use 'source' as Python version for an sdist."
+                ),
             ),
             # digest errors.
             (
@@ -990,8 +1008,10 @@ class TestFileUpload:
                     "filetype": "sdist",
                     "sha256_digest": "an invalid sha256 digest",
                 },
-                "Invalid value for sha256_digest. "
-                "Error: Use a valid, hex-encoded, SHA256 message digest.",
+                (
+                    "Invalid value for sha256_digest. "
+                    "Error: Use a valid, hex-encoded, SHA256 message digest."
+                ),
             ),
             # summary errors
             (
@@ -1003,9 +1023,11 @@ class TestFileUpload:
                     "md5_digest": "a fake md5 digest",
                     "summary": "A" * 513,
                 },
-                "'summary' field must be 512 characters or less. See "
-                "https://packaging.python.org/specifications/core-metadata for more "
-                "information.",
+                (
+                    "'summary' field must be 512 characters or less. See "
+                    "https://packaging.python.org/specifications/core-metadata "
+                    "for more information."
+                ),
             ),
             (
                 {
@@ -1016,9 +1038,11 @@ class TestFileUpload:
                     "md5_digest": "a fake md5 digest",
                     "summary": "A\nB",
                 },
-                "'summary' must be a single line. See "
-                "https://packaging.python.org/specifications/core-metadata for more "
-                "information.",
+                (
+                    "'summary' must be a single line. See "
+                    "https://packaging.python.org/specifications/core-metadata "
+                    "for more information."
+                ),
             ),
             # local version error
             (
@@ -1029,9 +1053,12 @@ class TestFileUpload:
                     "md5_digest": "bad",
                     "filetype": "sdist",
                 },
-                "The use of local versions in '1.0+local' is not allowed. "
-                "See https://packaging.python.org/en/latest/specifications/"
-                "version-specifiers/#local-version-identifiers for more information.",
+                (
+                    "The use of local versions in '1.0+local' is not allowed. "
+                    "See https://packaging.python.org/en/latest/specifications/"
+                    "version-specifiers/#local-version-identifiers "
+                    "for more information."
+                ),
             ),
         ],
     )
@@ -1147,15 +1174,19 @@ class TestFileUpload:
             (
                 "text/x-rst",
                 ".. invalid-directive::",
-                "400 The description failed to render for 'text/x-rst'. "
-                "See /the/help/url/ for more information.",
+                (
+                    "400 The description failed to render for 'text/x-rst'. "
+                    "See /the/help/url/ for more information."
+                ),
             ),
             (
                 None,
                 ".. invalid-directive::",
-                "400 The description failed to render in the default format "
-                "of reStructuredText. "
-                "See /the/help/url/ for more information.",
+                (
+                    "400 The description failed to render in the default format "
+                    "of reStructuredText. "
+                    "See /the/help/url/ for more information."
+                ),
             ),
         ],
     )
@@ -1705,16 +1736,20 @@ class TestFileUpload:
         [
             (
                 {"AA :: BB": ["CC :: DD"]},
-                "400 The classifier 'AA :: BB' has been deprecated, use one of "
-                "['CC :: DD'] instead. See "
-                "https://packaging.python.org/specifications/core-metadata for more "
-                "information.",
+                (
+                    "400 The classifier 'AA :: BB' has been deprecated, use one of "
+                    "['CC :: DD'] instead. See "
+                    "https://packaging.python.org/specifications/core-metadata "
+                    "for more information."
+                ),
             ),
             (
                 {"AA :: BB": []},
-                "400 The classifier 'AA :: BB' has been deprecated. See "
-                "https://packaging.python.org/specifications/core-metadata for more "
-                "information.",
+                (
+                    "400 The classifier 'AA :: BB' has been deprecated. See "
+                    "https://packaging.python.org/specifications/core-metadata "
+                    "for more information."
+                ),
             ),
         ],
     )
@@ -2533,8 +2568,10 @@ class TestFileUpload:
         [
             (
                 "wutang-6.6.6.tar.gz",
-                "400 Filename 'wutang-6.6.6.tar.gz' is invalid, should be "
-                "'wutang-1.2.3.tar.gz'.",
+                (
+                    "400 Filename 'wutang-6.6.6.tar.gz' is invalid, should be "
+                    "'wutang-1.2.3.tar.gz'."
+                ),
             ),
             (
                 "wutang-6.6.6-py3-none-any.whl",
@@ -3608,8 +3645,10 @@ class TestFileUpload:
             ),
             (
                 "foo-0.0.4test1-py3-none-any.whl",
-                "400 Invalid wheel filename (invalid version): "
-                "'foo-0.0.4test1-py3-none-any'",
+                (
+                    "400 Invalid wheel filename (invalid version): "
+                    "'foo-0.0.4test1-py3-none-any'"
+                ),
             ),
             (
                 "something.tar.gz",
@@ -5663,13 +5702,17 @@ class TestFileUpload:
         [
             (
                 "Some_Thing",
-                "400 Filename 'Some_Thing-1.0-py3-none-any.whl' should contain "
-                "the normalized project name 'some_thing', not 'Some_Thing'.",
+                (
+                    "400 Filename 'Some_Thing-1.0-py3-none-any.whl' should contain "
+                    "the normalized project name 'some_thing', not 'Some_Thing'."
+                ),
             ),
             (
                 "some.thing",
-                "400 Filename 'some.thing-1.0-py3-none-any.whl' should contain "
-                "the normalized project name 'some_thing', not 'some.thing'.",
+                (
+                    "400 Filename 'some.thing-1.0-py3-none-any.whl' should contain "
+                    "the normalized project name 'some_thing', not 'some.thing'."
+                ),
             ),
         ],
     )
@@ -6592,8 +6635,10 @@ class TestFileUpload:
             "_is_valid_dist_file",
             lambda *a, **kw: (
                 False,
-                "PyArmor-encrypted content is not allowed. "
-                "See https://pypi.org/policy/terms-of-use/ for more information.",
+                (
+                    "PyArmor-encrypted content is not allowed. "
+                    "See https://pypi.org/policy/terms-of-use/ for more information."
+                ),
             ),
         )
 

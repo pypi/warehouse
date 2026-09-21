@@ -1963,14 +1963,18 @@ class TestManageOrganizationProjects:
             (
                 datetime.timedelta(seconds=600),
                 "600",
-                "This organization has created too many new projects recently. "
-                "Try again in 10 minutes.",
+                (
+                    "This organization has created too many new projects recently. "
+                    "Try again in 10 minutes."
+                ),
             ),
             (
                 None,
                 None,
-                "This organization has created too many new projects recently. "
-                "Try again later.",
+                (
+                    "This organization has created too many new projects recently. "
+                    "Try again later."
+                ),
             ),
         ],
         ids=["with-reset-hint", "without-reset-hint"],
