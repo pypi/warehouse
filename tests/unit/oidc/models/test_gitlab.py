@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
+from types import SimpleNamespace
+
 import psycopg
 import pytest
 
@@ -8,6 +9,7 @@ from tests.common.db.oidc import GitLabPublisherFactory, PendingGitLabPublisherF
 from tests.common.db.organizations import OrganizationOIDCIssuerFactory
 from warehouse.oidc import errors
 from warehouse.oidc.models import _core, gitlab
+from warehouse.oidc.services import OIDCPublisherService
 
 PROJECT_NAME = "project_name"
 NAMESPACE = "project_owner"
@@ -54,13 +56,18 @@ def test_extract_workflow_filename(ci_config_ref_uri, expected):
 
 
 @pytest.mark.parametrize("claim", ["", "repo", "repo:"])
-def test_check_sub(claim):
-    assert gitlab._check_sub(pretend.stub(), claim, pretend.stub()) is False
+def test_check_sub(mocker, claim):
+    assert (
+        gitlab._check_sub(
+            mocker.sentinel.ground_truth, claim, mocker.sentinel.all_signed_claims
+        )
+        is False
+    )
 
 
 class TestGitLabPublisher:
     @pytest.mark.parametrize("environment", [None, "some_environment"])
-    def test_lookup_fails_invalid_ci_config_ref_uri(self, environment):
+    def test_lookup_fails_invalid_ci_config_ref_uri(self, mocker, environment):
         signed_claims = {
             "iss": "https://gitlab.com",
             "project_path": "foo/bar",
@@ -75,7 +82,9 @@ class TestGitLabPublisher:
             errors.InvalidPublisherError,
             match="Could not extract workflow filename from OIDC claims",
         ):
-            gitlab.GitLabPublisher.lookup_by_claims(pretend.stub(), signed_claims)
+            gitlab.GitLabPublisher.lookup_by_claims(
+                mocker.sentinel.session, signed_claims
+            )
 
     @pytest.mark.parametrize(
         ("configured_namespace", "configured_project", "project_path"),
@@ -331,17 +340,10 @@ class TestGitLabPublisher:
             ("Issuer URL", "https://gitlab.com"),
         ]
 
-    def test_gitlab_publisher_unaccounted_claims(self, monkeypatch):
-        scope = pretend.stub()
-        sentry_sdk = pretend.stub(
-            capture_message=pretend.call_recorder(lambda s: None),
-            new_scope=pretend.call_recorder(
-                lambda: pretend.stub(
-                    __enter__=lambda *a: scope, __exit__=lambda *a: None
-                )
-            ),
-        )
-        monkeypatch.setattr(_core, "sentry_sdk", sentry_sdk)
+    def test_gitlab_publisher_unaccounted_claims(self, mocker):
+        scope = SimpleNamespace()
+        sentry_sdk = mocker.patch.object(_core, "sentry_sdk", autospec=True)
+        sentry_sdk.new_scope.return_value.__enter__.return_value = scope
 
         # We don't care if these actually verify, only that they're present.
         signed_claims = dict.fromkeys(gitlab.GitLabPublisher.all_known_claims(), "fake")
@@ -349,12 +351,10 @@ class TestGitLabPublisher:
         signed_claims["another-fake-claim"] = "also-fake"
 
         gitlab.GitLabPublisher.check_claims_existence(signed_claims)
-        assert sentry_sdk.capture_message.calls == [
-            pretend.call(
-                "JWT for GitLabPublisher has unaccounted claims: "
-                "['another-fake-claim', 'fake-claim']"
-            )
-        ]
+        sentry_sdk.capture_message.assert_called_once_with(
+            "JWT for GitLabPublisher has unaccounted claims: "
+            "['another-fake-claim', 'fake-claim']"
+        )
         assert scope.fingerprint == ["another-fake-claim", "fake-claim"]
 
     @pytest.mark.parametrize(
@@ -362,7 +362,7 @@ class TestGitLabPublisher:
         gitlab.GitLabPublisher.__required_verifiable_claims__.keys()
         | gitlab.GitLabPublisher.__required_unverifiable_claims__,
     )
-    def test_gitlab_publisher_missing_claims(self, monkeypatch, missing):
+    def test_gitlab_publisher_missing_claims(self, mocker, missing):
         publisher = gitlab.GitLabPublisher(
             project="fakerepo",
             namespace="fakeowner",
@@ -370,16 +370,9 @@ class TestGitLabPublisher:
             issuer_url="https://gitlab.com",
         )
 
-        scope = pretend.stub()
-        sentry_sdk = pretend.stub(
-            capture_message=pretend.call_recorder(lambda s: None),
-            new_scope=pretend.call_recorder(
-                lambda: pretend.stub(
-                    __enter__=lambda *a: scope, __exit__=lambda *a: None
-                )
-            ),
-        )
-        monkeypatch.setattr(_core, "sentry_sdk", sentry_sdk)
+        scope = SimpleNamespace()
+        sentry_sdk = mocker.patch.object(_core, "sentry_sdk", autospec=True)
+        sentry_sdk.new_scope.return_value.__enter__.return_value = scope
 
         signed_claims = dict.fromkeys(gitlab.GitLabPublisher.all_known_claims(), "fake")
         # Pop the missing claim, so that it's missing.
@@ -389,12 +382,12 @@ class TestGitLabPublisher:
         with pytest.raises(errors.InvalidPublisherError) as e:
             gitlab.GitLabPublisher.check_claims_existence(signed_claims)
         assert str(e.value) == f"Missing claim {missing!r}"
-        assert sentry_sdk.capture_message.calls == [
-            pretend.call(f"JWT for GitLabPublisher is missing claim: {missing}")
-        ]
+        sentry_sdk.capture_message.assert_called_once_with(
+            f"JWT for GitLabPublisher is missing claim: {missing}"
+        )
         assert scope.fingerprint == [missing]
 
-    def test_gitlab_publisher_missing_optional_claims(self, monkeypatch):
+    def test_gitlab_publisher_missing_optional_claims(self, mocker):
         publisher = gitlab.GitLabPublisher(
             project="fakerepo",
             namespace="fakeowner",
@@ -403,12 +396,10 @@ class TestGitLabPublisher:
             issuer_url="https://gitlab.com",
         )
 
-        sentry_sdk = pretend.stub(capture_message=pretend.call_recorder(lambda s: None))
-        monkeypatch.setattr(_core, "sentry_sdk", sentry_sdk)
+        sentry_sdk = mocker.patch.object(_core, "sentry_sdk", autospec=True)
 
-        service = pretend.stub(
-            jwt_identifier_exists=pretend.call_recorder(lambda s: False)
-        )
+        service = mocker.create_autospec(OIDCPublisherService, instance=True)
+        service.jwt_identifier_exists.return_value = False
 
         signed_claims = {
             claim_name: getattr(publisher, claim_name)
@@ -423,14 +414,14 @@ class TestGitLabPublisher:
                 signed_claims=signed_claims, publisher_service=service
             )
         assert str(e.value) == "Check failed for optional claim 'environment'"
-        assert sentry_sdk.capture_message.calls == []
+        sentry_sdk.capture_message.assert_not_called()
 
     @pytest.mark.parametrize("environment", [None, "some-environment"])
     @pytest.mark.parametrize(
         "missing_claims",
         [set(), gitlab.GitLabPublisher.__optional_verifiable_claims__.keys()],
     )
-    def test_gitlab_publisher_verifies(self, monkeypatch, environment, missing_claims):
+    def test_gitlab_publisher_verifies(self, mocker, environment, missing_claims):
         publisher = gitlab.GitLabPublisher(
             project="fakerepo",
             namespace="fakeowner",
@@ -439,17 +430,19 @@ class TestGitLabPublisher:
             issuer_url="https://gitlab.com",
         )
 
-        noop_check = pretend.call_recorder(lambda gt, sc, ac, **kwargs: True)
+        noop_check = mocker.create_autospec(
+            lambda gt, sc, ac, **kwargs: True, return_value=True
+        )
         verifiable_claims = dict.fromkeys(
             publisher.__required_verifiable_claims__, noop_check
         )
-        monkeypatch.setattr(
+        mocker.patch.object(
             publisher, "__required_verifiable_claims__", verifiable_claims
         )
         optional_verifiable_claims = dict.fromkeys(
             publisher.__optional_verifiable_claims__, noop_check
         )
-        monkeypatch.setattr(
+        mocker.patch.object(
             publisher, "__optional_verifiable_claims__", optional_verifiable_claims
         )
 
@@ -459,9 +452,10 @@ class TestGitLabPublisher:
             if claim_name not in missing_claims
         }
         assert publisher.verify_claims(
-            signed_claims=signed_claims, publisher_service=pretend.stub()
+            signed_claims=signed_claims,
+            publisher_service=mocker.sentinel.publisher_service,
         )
-        assert len(noop_check.calls) == len(verifiable_claims) + len(
+        assert noop_check.call_count == len(verifiable_claims) + len(
             optional_verifiable_claims
         )
 
@@ -487,9 +481,9 @@ class TestGitLabPublisher:
             ("foo/bar", "foo/BAR", True),
         ],
     )
-    def test_check_project_path(self, truth, claim, valid):
+    def test_check_project_path(self, mocker, truth, claim, valid):
         check = gitlab.GitLabPublisher.__required_verifiable_claims__["project_path"]
-        assert check(truth, claim, pretend.stub()) == valid
+        assert check(truth, claim, mocker.sentinel.all_signed_claims) == valid
 
     @pytest.mark.parametrize(
         ("claim", "ref_path", "sha", "valid", "expected"),
@@ -693,9 +687,9 @@ class TestGitLabPublisher:
             ("repo:foo/bar", "repo:foo/bar-baz", False),
         ],
     )
-    def test_gitlab_publisher_sub_claim(self, truth, claim, valid):
+    def test_gitlab_publisher_sub_claim(self, mocker, truth, claim, valid):
         check = gitlab.GitLabPublisher.__required_verifiable_claims__["sub"]
-        assert check(truth, claim, pretend.stub()) is valid
+        assert check(truth, claim, mocker.sentinel.all_signed_claims) is valid
 
     @pytest.mark.parametrize(
         ("truth", "claim", "valid"),
@@ -709,9 +703,9 @@ class TestGitLabPublisher:
             ("some-environment", "some-other-environment", False),
         ],
     )
-    def test_gitlab_publisher_environment_claim(self, truth, claim, valid):
+    def test_gitlab_publisher_environment_claim(self, mocker, truth, claim, valid):
         check = gitlab.GitLabPublisher.__optional_verifiable_claims__["environment"]
-        assert check(truth, claim, pretend.stub()) is valid
+        assert check(truth, claim, mocker.sentinel.all_signed_claims) is valid
 
     def test_gitlab_publisher_duplicates_cant_be_created(self, db_request):
         publisher1 = gitlab.GitLabPublisher(

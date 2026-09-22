@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
-import pretend
+from types import SimpleNamespace
+
 import pytest
 
 from tests.common.db.oidc import (
@@ -143,17 +144,10 @@ class TestActiveStatePublisher:
             "project_id",
         }
 
-    def test_activestate_publisher_unaccounted_claims(self, monkeypatch):
-        scope = pretend.stub()
-        sentry_sdk = pretend.stub(
-            capture_message=pretend.call_recorder(lambda s: None),
-            new_scope=pretend.call_recorder(
-                lambda: pretend.stub(
-                    __enter__=lambda *a: scope, __exit__=lambda *a: None
-                )
-            ),
-        )
-        monkeypatch.setattr(_core, "sentry_sdk", sentry_sdk)
+    def test_activestate_publisher_unaccounted_claims(self, mocker):
+        scope = SimpleNamespace()
+        sentry_sdk = mocker.patch.object(_core, "sentry_sdk", autospec=True)
+        sentry_sdk.new_scope.return_value.__enter__.return_value = scope
 
         signed_claims = new_signed_claims()
         signed_claims["fake-claim"] = "fake"
@@ -161,12 +155,10 @@ class TestActiveStatePublisher:
 
         ActiveStatePublisher.check_claims_existence(signed_claims)
 
-        assert sentry_sdk.capture_message.calls == [
-            pretend.call(
-                "JWT for ActiveStatePublisher has unaccounted claims: "
-                "['another-fake-claim', 'fake-claim']"
-            )
-        ]
+        sentry_sdk.capture_message.assert_called_once_with(
+            "JWT for ActiveStatePublisher has unaccounted claims: "
+            "['another-fake-claim', 'fake-claim']"
+        )
         assert scope.fingerprint == ["another-fake-claim", "fake-claim"]
 
     @pytest.mark.parametrize(
@@ -184,7 +176,7 @@ class TestActiveStatePublisher:
         ],
     )
     def test_activestate_publisher_missing_claims(
-        self, monkeypatch, claim_to_drop: str, valid: bool, error_msg: str | None
+        self, mocker, claim_to_drop: str, valid: bool, error_msg: str | None
     ):
         publisher = ActiveStatePublisher(
             organization=ORG_URL_NAME,
@@ -193,16 +185,9 @@ class TestActiveStatePublisher:
             actor=ACTOR,
         )
 
-        scope = pretend.stub()
-        sentry_sdk = pretend.stub(
-            capture_message=pretend.call_recorder(lambda s: None),
-            new_scope=pretend.call_recorder(
-                lambda: pretend.stub(
-                    __enter__=lambda *a: scope, __exit__=lambda *a: None
-                )
-            ),
-        )
-        monkeypatch.setattr(_core, "sentry_sdk", sentry_sdk)
+        scope = SimpleNamespace()
+        sentry_sdk = mocker.patch.object(_core, "sentry_sdk", autospec=True)
+        sentry_sdk.new_scope.return_value.__enter__.return_value = scope
 
         signed_claims = new_signed_claims()
         signed_claims.pop(claim_to_drop)
@@ -212,7 +197,8 @@ class TestActiveStatePublisher:
             ActiveStatePublisher.check_claims_existence(signed_claims)
             assert (
                 publisher.verify_claims(
-                    signed_claims=signed_claims, publisher_service=pretend.stub
+                    signed_claims=signed_claims,
+                    publisher_service=mocker.sentinel.publisher_service,
                 )
                 is valid
             )
@@ -221,11 +207,9 @@ class TestActiveStatePublisher:
                 ActiveStatePublisher.check_claims_existence(signed_claims)
 
             assert str(e.value) == error_msg
-            assert sentry_sdk.capture_message.calls == [
-                pretend.call(
-                    "JWT for ActiveStatePublisher is missing claim: " + claim_to_drop
-                )
-            ]
+            sentry_sdk.capture_message.assert_called_once_with(
+                "JWT for ActiveStatePublisher is missing claim: " + claim_to_drop
+            )
             assert scope.fingerprint == [claim_to_drop]
 
     @pytest.mark.parametrize(
