@@ -112,13 +112,17 @@ def url_icon(url, name):
             "changelog"
             | "change log"
             | "changes"
-            | "release notes"
             | "news"
+            | "whatsnew"
             | "what's new"
             | "history",
             _,
         ):
             return "fas fa-scroll"
+        case "releasenotes" | "release notes", _:
+            return "fas fa-newspaper"
+        case "security" | "security policy" | "securitypolicy", _:
+            return "fas fa-shield"
         case name, hostname if (
             name.startswith(("docs", "documentation"))
             or hostname
@@ -141,6 +145,13 @@ def url_icon(url, name):
             return "fas fa-book"
         case name, _ if name.startswith(("bug", "issue", "tracker", "report")):
             return "fas fa-bug"
+        case name, _ if name in {
+            "source",
+            "source code",
+            "sourcecode",
+            "repository",
+        }:
+            return "fas fa-code-branch"
         case name, _ if name.startswith(("funding", "donate", "donation", "sponsor")):
             return "fas fa-donate"
         case _, hostname if hostname in {
@@ -159,6 +170,14 @@ def url_icon(url, name):
             return "fab fa-codeberg"
         case _, hostname if hostname == "gitter.im" or hostname.endswith(".gitter.im"):
             return "fab fa-gitter"
+        case _, hostname if hostname in {
+            "t.me",
+            "telegram.me",
+            "telegram.dog",
+        } or hostname.endswith((".t.me", ".telegram.me", ".telegram.dog")):
+            return "fab fa-telegram"
+        case _, hostname if hostname == "matrix.to":
+            return "fab fa-matrix"
         case _, hostname if hostname in {"discord.com", "discordapp.com", "discord.gg"}:
             return "fab fa-discord"
         case _, hostname if hostname == "google.com" or hostname.endswith(
