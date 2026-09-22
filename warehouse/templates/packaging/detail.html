@@ -27,18 +27,18 @@
   {% include "warehouse:templates/includes/packaging/project-status.html" %}
   {% include "warehouse:templates/includes/packaging/project-header.html" %}
   {% csi request.route_path("includes.administer-project-include", project_name=project.normalized_name) %}{% endcsi %}
-  <div data-controller="project-tabs" class="project-tabs">
-    {% include "warehouse:templates/includes/packaging/project-navigation.html" %}
-    <div class="site-container">
-      <div class="project-tabs__panel">
-        {% include "warehouse:templates/includes/packaging/project-description.html" %}
-        {% if files %}
-          {% include "warehouse:templates/includes/packaging/project-files.html" %}
-        {% endif %}
-        {% include "warehouse:templates/includes/packaging/project-release-history.html" %}
-      </div>
+<div data-controller="project-tabs" class="project-tabs">
+  {% include "warehouse:templates/includes/packaging/project-navigation.html" %}
+  <div class="site-container">
+    <div class="project-tabs__panel">
+      {% include "warehouse:templates/includes/packaging/project-description.html" %}
+      {% if files %}
+        {% include "warehouse:templates/includes/packaging/project-files.html" %}
+      {% endif %}
+      {% include "warehouse:templates/includes/packaging/project-release-history.html" %}
     </div>
   </div>
+</div>
 {% endblock %}
 {% block extra_js %}
   <script src="{{ request.static_path('warehouse:static/dist/js/utils/mathjax-config.js') }}"></script>

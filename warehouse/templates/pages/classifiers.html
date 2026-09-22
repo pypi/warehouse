@@ -14,7 +14,7 @@
         {% trans %}These standardized classifiers can then be used by community members to find projects based on their desired criteria.{% endtrans %}
       </p>
       <p>
-        {% trans ppug_href='https://packaging.python.org/guides/writing-pyproject-toml/#classifiers', pep301_href='https://peps.python.org/pep-0301/#distutils-trove-classification', title=gettext('External link') %}
+        {% trans ppug_href="https://packaging.python.org/guides/writing-pyproject-toml/#classifiers", pep301_href="https://peps.python.org/pep-0301/#distutils-trove-classification", title=gettext("External link") %}
         Instructions for how to add Trove classifiers to a project can be found on the <a href="{{ ppug_href }}"
     title="{{ title }}"
     target="_blank"
@@ -23,28 +23,28 @@
     title="{{ title }}"
     target="_blank"
     rel="noopener"><abbr title="Python enhancement proposal">PEP</abbr> 301</a>.
-      {% endtrans %}
-    </p>
-    <p>
-      {% trans %}To prevent a package from being uploaded to PyPI, use the special "Private :: Do Not Upload" classifier. PyPI will always reject packages with classifiers beginning with "Private ::".{% endtrans %}
-    </p>
-    <h2>{% trans %}List of classifiers{% endtrans %}</h2>
-    <ul>
-      {% for classifier in classifiers %}
-        <li data-controller="clipboard">
-          <a href="{{ request.route_path('search', _query={'c': classifier}) }}"
-             data-clipboard-target="source">{{ classifier }}</a>
-          &nbsp;
-          <button type="button"
-                  class="button button--small margin-top margin-bottom copy-tooltip copy-tooltip-w"
-                  data-action="clipboard#copy"
-                  data-clipboard-target="tooltip"
-                  data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
-            {% trans %}Copy{% endtrans %}
-          </button>
-        </li>
-      {% endfor %}
-    </ul>
+        {% endtrans %}
+      </p>
+      <p>
+        {% trans %}To prevent a package from being uploaded to PyPI, use the special "Private :: Do Not Upload" classifier. PyPI will always reject packages with classifiers beginning with "Private ::".{% endtrans %}
+      </p>
+      <h2>{% trans %}List of classifiers{% endtrans %}</h2>
+      <ul>
+        {% for classifier in classifiers %}
+          <li data-controller="clipboard">
+            <a href="{{ request.route_path('search', _query={'c': classifier}) }}"
+               data-clipboard-target="source">{{ classifier }}</a>
+            &nbsp;
+            <button type="button"
+                    class="button button--small margin-top margin-bottom copy-tooltip copy-tooltip-w"
+                    data-action="clipboard#copy"
+                    data-clipboard-target="tooltip"
+                    data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
+              {% trans %}Copy{% endtrans %}
+            </button>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
   </div>
-</div>
 {% endblock %}

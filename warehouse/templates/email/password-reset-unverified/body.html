@@ -11,10 +11,10 @@
     {% trans %}If you have another verified email address associated with your PyPI account, try that instead.{% endtrans %}
   </p>
   <p>
-    {% trans href=request.route_url('help', _anchor='account-recovery') %}If you cannot use another verified email, follow <a href="{{ href }}">account recovery steps</a> for your PyPI account.{% endtrans %}
+    {% trans href=request.route_url("help", _anchor="account-recovery") %}If you cannot use another verified email, follow <a href="{{ href }}">account recovery steps</a> for your PyPI account.{% endtrans %}
   </p>
   <p>
-    {% trans href=request.route_url('help', _anchor='verified-email') %}<a href="{{ href }}">Read more about verified emails.</a>{% endtrans %}
+    {% trans href=request.route_url("help", _anchor="verified-email") %}<a href="{{ href }}">Read more about verified emails.</a>{% endtrans %}
   </p>
   <p>{% trans %}If you did not make this request, you can safely ignore this email.{% endtrans %}</p>
 {% endblock content %}

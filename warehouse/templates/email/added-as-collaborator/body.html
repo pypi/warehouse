@@ -8,11 +8,11 @@
   <p>
     {% trans role=role, site=site, role_faq_url=role_faq_url, project_name=project_name, initiator_username=initiator_username, project_url=project_url, initiator_url=initiator_url %}
     You have been added as <strong><a href="{{ role_faq_url }}">{{ role }}</a></strong> to the {{ site }} project <a href="{{ project_url }}">{{ project_name }}</a> by <a href="{{ initiator_url }}">{{ initiator_username }}</a>.
-  {% endtrans %}
-</p>
+    {% endtrans %}
+  </p>
 {% endblock %}
 {% block reason %}
   {% trans initiator_username=initiator_username, site=site, initiator_url=initiator_url %}
   You are receiving this because you have been added by <a href="{{ initiator_url }}">{{ initiator_username }}</a> to a project on {{ site }}.
-{% endtrans %}
+  {% endtrans %}
 {% endblock %}

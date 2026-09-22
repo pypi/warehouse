@@ -22,25 +22,25 @@
       {# Display action for team project role events #}
     {% elif event.tag == EventTag.Team.TeamProjectRoleAdd %}
       <strong>
-        {% trans team_name=event.additional.team_name, role_name=event.additional.role_name|lower, href=request.route_path('packaging.project', name=event.additional.project_name|canonicalize_name), project_name=event.additional.project_name %}{{ team_name }} team added as project {{ role_name }} for <a href="{{ href }}">{{ project_name }}</a>{% endtrans %}
+        {% trans team_name=event.additional.team_name, role_name=event.additional.role_name|lower, href=request.route_path("packaging.project", name=event.additional.project_name|canonicalize_name), project_name=event.additional.project_name %}{{ team_name }} team added as project {{ role_name }} for <a href="{{ href }}">{{ project_name }}</a>{% endtrans %}
       </strong>
     {% elif event.tag == EventTag.Team.TeamProjectRoleRemove %}
       <strong>
-        {% trans team_name=event.additional.team_name, role_name=event.additional.role_name|lower, href=request.route_path('packaging.project', name=event.additional.project_name|canonicalize_name), project_name=event.additional.project_name %}{{ team_name }} team removed as project {{ role_name }} for <a href="{{ href }}">{{ project_name }}</a>{% endtrans %}
+        {% trans team_name=event.additional.team_name, role_name=event.additional.role_name|lower, href=request.route_path("packaging.project", name=event.additional.project_name|canonicalize_name), project_name=event.additional.project_name %}{{ team_name }} team removed as project {{ role_name }} for <a href="{{ href }}">{{ project_name }}</a>{% endtrans %}
       </strong>
     {% elif event.tag == EventTag.Team.TeamProjectRoleChange %}
       <strong>
-        {% trans team_name=event.additional.team_name, role_name=event.additional.role_name|lower, href=request.route_path('packaging.project', name=event.additional.project_name|canonicalize_name), project_name=event.additional.project_name %}{{ team_name }} team changed to project {{ role_name }} for <a href="{{ href }}">{{ project_name }}</a>{% endtrans %}
+        {% trans team_name=event.additional.team_name, role_name=event.additional.role_name|lower, href=request.route_path("packaging.project", name=event.additional.project_name|canonicalize_name), project_name=event.additional.project_name %}{{ team_name }} team changed to project {{ role_name }} for <a href="{{ href }}">{{ project_name }}</a>{% endtrans %}
       </strong>
       {# Display action for team role events #}
     {% elif event.tag == EventTag.Team.TeamRoleAdd %}
       {% set target_user = get_user(event.additional.target_user_id).username %}
       <strong>
-        {% trans href=request.route_path('accounts.profile', username=target_user), username=target_user, team_name=event.additional.team_name %}<a href="{{ href }}">{{ username }}</a> added to {{ team_name }} team{% endtrans %}
+        {% trans href=request.route_path("accounts.profile", username=target_user), username=target_user, team_name=event.additional.team_name %}<a href="{{ href }}">{{ username }}</a> added to {{ team_name }} team{% endtrans %}
       </strong>
     {% elif event.tag == EventTag.Team.TeamRoleRemove %}
       <strong>
-        {% trans href=request.route_path('accounts.profile', username=target_user), username=target_user, team_name=event.additional.team_name %}<a href="{{ href }}">{{ username }}</a> removed from {{ team_name }} team{% endtrans %}
+        {% trans href=request.route_path("accounts.profile", username=target_user), username=target_user, team_name=event.additional.team_name %}<a href="{{ href }}">{{ username }}</a> removed from {{ team_name }} team{% endtrans %}
       </strong>
     {% else %}
       <strong>{{ event.tag }}</strong>

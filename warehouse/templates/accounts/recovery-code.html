@@ -29,13 +29,13 @@
               {% endif %}
             </label>
             {{ form.recovery_code_value(autocapitalize="off",
-                        spellcheck="false",
-                        required="required",
-                        pattern="[0-9a-f]{16}",
-                        class_="form-group__field",
-                        autocomplete="off",
-                        aria_describedby="recovery_code-errors",
-                        aria_label="16 character hexadecimal",) }}
+              spellcheck="false",
+              required="required",
+              pattern="[0-9a-f]{16}",
+              class_="form-group__field",
+              autocomplete="off",
+              aria_describedby="recovery_code-errors",
+              aria_label="16 character hexadecimal",) }}
             {% if form.recovery_code_value.errors %}
               <ul id="recovery_code-errors" class="form-errors" role="alert">
                 {% for error in form.recovery_code_value.errors %}<li>{{ error }}</li>{% endfor %}
@@ -53,13 +53,13 @@
           <p>
             {% trans %}PyPI allows for generating recovery codes to be stored securely offline in the event that your device or application is lost. Enter one of these codes in the form to verify your identity. Once used, the recovery code will no longer be valid.{% endtrans %}
           </p>
-          {% trans href='/help/#recovery_code' %}
+          {% trans href="/help/#recovery_code" %}
           <p>
             Not working? <a href="{{ href }}">Get help</a>.
           </p>
-        {% endtrans %}
-      </form>
+          {% endtrans %}
+        </form>
+      </div>
     </div>
   </div>
-</div>
 {% endblock %}

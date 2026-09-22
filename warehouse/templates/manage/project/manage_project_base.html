@@ -54,47 +54,45 @@
                 PyPI Admins need to review this project before it can be restored.
                 While in quarantine, the project is not installable by clients,
                 and cannot be being modified by its maintainers.
-              {% endtrans %}
-            </p>
-            <p>
-              {% trans href=request.route_path('help') + "#project_in_quarantine" %}
-              Read more in the <a href="{{ href }}">project in quarantine</a> help article.
-            {% endtrans %}
-          </p>
+                {% endtrans %}
+              </p>
+              <p>
+                {% trans href=request.route_path("help") + "#project_in_quarantine" %}
+                Read more in the <a href="{{ href }}">project in quarantine</a> help article.
+                {% endtrans %}
+              </p>
+            </div>
+          {% elif project.lifecycle_status in ["archived", "archived-noindex"] %}
+            <div class="callout-block callout-block--neutral">
+              <p>{% trans %}This project has been archived.{% endtrans %}</p>
+            </div>
+          {% endif %}
+          {% if project.organization %}
+            <div class="organization-snippet organization-snippet--margin-bottom">
+              <h1 class="organization-snippet__title organization-snippet__title--page-title">
+                <a href="{{ request.route_path('organizations.profile', organization=project.organization.name) }}">{{ project.organization.name }}</a>
+              </h1>
+              <p class="organization-snippet__description">{{ project.organization.display_name }}</p>
+            </div>
+          {% endif %}
+          <a class="package-snippet package-snippet--margin-bottom"
+             href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">
+            {% set release = project.releases[0] if project.releases else None %}
+            {% if release %}
+              <h1 class="package-snippet__title package-snippet__title--page-title">{{ project.name }}</h1>
+              <p class="package-snippet__description">{{ release.summary }}</p>
+            {% else %}
+              <h1 class="package-snippet__title package-snippet__title--page-title">{{ project.name }}</h1>
+            {% endif %}
+          </a>
+          <!-- mobile nav -->
+          {% with mode="mobile" %}
+            {% include "warehouse:templates/includes/manage/manage-project-menu.html" %}
+          {% endwith %}
+          {% block main %}{% endblock %}
         </div>
-      {% elif project.lifecycle_status in ["archived", "archived-noindex"] %}
-        <div class="callout-block callout-block--neutral">
-          <p>{% trans %}This project has been archived.{% endtrans %}</p>
-        </div>
-      {% endif %}
-      {% if project.organization %}
-        <div class="organization-snippet organization-snippet--margin-bottom">
-          <h1 class="organization-snippet__title organization-snippet__title--page-title">
-            <a href="{{ request.route_path('organizations.profile', organization=project.organization.name) }}">{{ project.organization.name }}</a>
-          </h1>
-          <p class="organization-snippet__description">{{ project.organization.display_name }}</p>
-        </div>
-      {% endif %}
-      <a class="package-snippet package-snippet--margin-bottom"
-         href="{{ request.route_path('packaging.project', name=project.normalized_name) }}">
-        {% set release = project.releases[0] if project.releases else None %}
-        {% if release %}
-          <h1 class="package-snippet__title package-snippet__title--page-title">{{ project.name }}</h1>
-          <p class="package-snippet__description">{{ release.summary }}</p>
-        {% else %}
-          <h1 class="package-snippet__title package-snippet__title--page-title">{{ project.name }}</h1>
-        {% endif %}
-      </a>
-      <!-- mobile nav -->
-      {% with mode="mobile" %}
-        {% include "warehouse:templates/includes/manage/manage-project-menu.html" %}
-      {% endwith %}
-      {% block main %}
-      {% endblock %}
+        {% block mobile_tabs_bottom %}{% endblock %}
+      </div>
     </div>
-    {% block mobile_tabs_bottom %}
-    {% endblock %}
   </div>
-</div>
-</div>
 {% endblock %}
