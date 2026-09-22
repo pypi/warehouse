@@ -57,7 +57,7 @@ python-slugify
 pytz
 # TODO: 2.14 rejects noncanonical signatures in our dummy OIDC JWTs.
 # Upgrade with corrected fixtures in its own PR; this also defers security fixes.
-PyJWT[crypto]>=2.13.0,<2.14
+PyJWT[crypto]>=2.14.0,<2.15
 readme-renderer[md]>=45.0
 requests
 redis>=2.8.0,<7.0.0
@@ -65,7 +65,7 @@ rfc3986
 sentry-sdk
 # TODO: 0.0.30 adds CircleCIPublisher to the Publisher union, which the
 # exhaustive match in warehouse/attestations/models.py has no arm for.
-pypi-attestations<0.0.30
+pypi-attestations<0.0.31
 sqlalchemy[asyncio]
 stdlib-list
 stripe
