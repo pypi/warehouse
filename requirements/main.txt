@@ -4,9 +4,9 @@
 #
 #    pip-compile --allow-unsafe --generate-hashes --no-index --output-file=requirements/main.txt requirements/main.in
 #
-alembic==1.19.2 \
-    --hash=sha256:297950a8a91f6770eb82bfbce9bea55c728b90a5386c6e81430191a319d138b0 \
-    --hash=sha256:32d553dcd577e6fe5c3c63e91468526d35e4dcecafe865d7db4e9b328fa93cb2
+alembic==1.20.0 \
+    --hash=sha256:77eb101048d95f982c0353e9233404889dcd7a6fc244c107836c0e2fc9cf7d9d \
+    --hash=sha256:db505480647bc60386c5369402f4a57a506b7539c9e9ef5e270d45cbbe4939bf
     # via
     #   -r requirements/main.in
     #   alembic-postgresql-enum
@@ -619,9 +619,9 @@ deprecated==1.3.1 \
     --hash=sha256:597bfef186b6f60181535a29fbe44865ce137a5079f295b479886c82729d5f3f \
     --hash=sha256:b1b50e0ff0c1fddaa5708a2c6b0a6588bb09b892825ab2b214ac9ea9d92a5223
     # via limits
-disposable-email-domains==0.0.255 \
-    --hash=sha256:16d0dc357a37d7482c1989cc5b93a509cc6bba1fbd5c389b927400aec0fbbcbd \
-    --hash=sha256:ca74efb381df1efb8a2f6ad05fe9a35d1185259b227564f65e517ecd01532d80
+disposable-email-domains==0.0.258 \
+    --hash=sha256:2faa857072e36b4f4d2b538a5067fec2459469183af94ff80541e4150a80f4f7 \
+    --hash=sha256:c88ad97c83849ea36473b7dc009ccc4388a2c4d6f3c3423d1d91485658b78c61
     # via -r requirements/main.in
 dnspython==2.8.0 \
     --hash=sha256:01d9bbc4a2d76bf0db7c1f729812ded6d912bd318d3b1cf81d30c0f845dbf3af \
